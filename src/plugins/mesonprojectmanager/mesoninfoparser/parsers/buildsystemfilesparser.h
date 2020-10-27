@@ -65,12 +65,10 @@ public:
         auto arr = get<QJsonArray>(js.object(), "projectinfo", "buildsystem_files");
         appendFiles(arr, m_files);
         auto subprojects = get<QJsonArray>(js.object(), "projectinfo", "subprojects");
-        std::for_each(std::cbegin(*subprojects),
-                      std::cend(*subprojects),
-                      [this](const auto &subproject) {
-                          auto arr = get<QJsonArray>(subproject.toObject(), "buildsystem_files");
-                          appendFiles(arr, m_files);
-                      });
+        for (const auto &subproject : *subprojects) {
+            auto arr = get<QJsonArray>(subproject.toObject(), "buildsystem_files");
+            appendFiles(arr, m_files);
+        }
     }
 
     std::vector<Utils::FilePath> files() { return m_files; };

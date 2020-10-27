@@ -116,9 +116,9 @@ bool ToolKitAspectWidget::isCompatible(const MesonTools::Tool_t &tool)
 
 void ToolKitAspectWidget::loadTools()
 {
-    std::for_each(std::cbegin(MesonTools::tools()),
-                  std::cend(MesonTools::tools()),
-                  [this](const MesonTools::Tool_t &tool) { addTool(tool); });
+    for (const MesonTools::Tool_t &tool : MesonTools::tools()) {
+        addTool(tool);
+    }
     refresh();
     m_toolsComboBox->setEnabled(m_toolsComboBox->count());
 }

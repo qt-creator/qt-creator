@@ -55,17 +55,13 @@ inline void groupPerSubprojectAndSection(
     QMap<QString, QMap<QString, std::vector<CancellableOption *>>> &subprojectOptions,
     QMap<QString, std::vector<CancellableOption *>> &perSectionOptions)
 {
-    std::for_each(std::cbegin(options),
-                  std::cend(options),
-                  [&subprojectOptions,
-                   &perSectionOptions](const std::unique_ptr<CancellableOption> &option) {
-                      if (option->subproject()) {
-                          subprojectOptions[*option->subproject()][option->section()].push_back(
-                              option.get());
-                      } else {
-                          perSectionOptions[option->section()].push_back(option.get());
-                      }
-                  });
+    for (const std::unique_ptr<CancellableOption> &option : options) {
+        if (option->subproject()) {
+            subprojectOptions[*option->subproject()][option->section()].push_back(option.get());
+        } else {
+            perSectionOptions[option->section()].push_back(option.get());
+        }
+    }
 }
 
 void makeTree(Utils::TreeItem *root,
@@ -76,11 +72,9 @@ void makeTree(Utils::TreeItem *root,
                   [root](const std::pair<QString, std::vector<CancellableOption *>> kv) {
                       const auto &options = kv.second;
                       auto sectionNode = new Utils::StaticTreeItem(kv.first);
-                      std::for_each(std::cbegin(options),
-                                    std::cend(options),
-                                    [sectionNode](CancellableOption *option) {
-                                        sectionNode->appendChild(makeBuildOptionTreeItem(option));
-                                    });
+                      for (CancellableOption *option : options) {
+                          sectionNode->appendChild(makeBuildOptionTreeItem(option));
+                      }
                       root->appendChild(sectionNode);
                   });
 }
@@ -89,13 +83,10 @@ void BuidOptionsModel::setConfiguration(const BuildOptionsList &options)
 {
     clear();
     m_options = decltype(m_options)();
-    std::for_each(std::cbegin(options),
-                  std::cend(options),
-                  [this](const BuildOptionsList::value_type &option) {
-                      m_options.emplace_back(
-                          std::make_unique<CancellableOption>(option.get(),
-                                                              lockedOptions.contains(option->name)));
-                  });
+    for (const BuildOptionsList::value_type &option : options) {
+        m_options.emplace_back(
+            std::make_unique<CancellableOption>(option.get(), lockedOptions.contains(option->name)));
+    }
     {
         QMap<QString, QMap<QString, std::vector<CancellableOption *>>> subprojectOptions;
         QMap<QString, std::vector<CancellableOption *>> perSectionOptions;
@@ -106,8 +97,7 @@ void BuidOptionsModel::setConfiguration(const BuildOptionsList &options)
         std::for_each(subprojectOptions.constKeyValueBegin(),
                       subprojectOptions.constKeyValueEnd(),
                       [subProjects](
-                          const std::pair<QString, QMap<QString, std::vector<CancellableOption *>>>
-                              kv) {
+                          const std::pair<QString, QMap<QString, std::vector<CancellableOption *>>> kv) {
                           auto subProject = new Utils::StaticTreeItem{kv.first};
                           makeTree(subProject, kv.second);
                           subProjects->appendChild(subProject);
@@ -128,13 +118,11 @@ bool BuidOptionsModel::setData(const QModelIndex &idx, const QVariant &data, int
 QStringList BuidOptionsModel::changesAsMesonArgs()
 {
     QStringList args;
-    std::for_each(std::cbegin(m_options),
-                  std::cend(m_options),
-                  [&](const std::unique_ptr<CancellableOption> &option) {
-                      if (option->hasChanged()) {
-                          args.push_back(option->mesonArg());
-                      }
-                  });
+    for (const std::unique_ptr<CancellableOption> &option : m_options) {
+        if (option->hasChanged()) {
+            args.push_back(option->mesonArg());
+        }
+    }
     return args;
 }
 

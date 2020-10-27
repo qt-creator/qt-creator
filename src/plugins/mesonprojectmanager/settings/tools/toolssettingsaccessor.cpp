@@ -59,20 +59,17 @@ void ToolsSettingsAccessor::saveMesonTools(const std::vector<MesonTools::Tool_t>
     using namespace Constants;
     QVariantMap data;
     int entry_count = 0;
-    std::for_each(std::cbegin(tools),
-                  std::cend(tools),
-                  [&data, &entry_count](const MesonTools::Tool_t &tool) {
-                      auto asMeson = std::dynamic_pointer_cast<MesonWrapper>(tool);
-                      if (asMeson)
-                          data.insert(entryName(entry_count), toVariantMap<MesonWrapper>(*asMeson));
-                      else {
-                          auto asNinja = std::dynamic_pointer_cast<NinjaWrapper>(tool);
-                          if (asNinja)
-                              data.insert(entryName(entry_count),
-                                          toVariantMap<NinjaWrapper>(*asNinja));
-                      }
-                      entry_count++;
-                  });
+    for (const MesonTools::Tool_t &tool : tools) {
+        auto asMeson = std::dynamic_pointer_cast<MesonWrapper>(tool);
+        if (asMeson)
+            data.insert(entryName(entry_count), toVariantMap<MesonWrapper>(*asMeson));
+        else {
+            auto asNinja = std::dynamic_pointer_cast<NinjaWrapper>(tool);
+            if (asNinja)
+                data.insert(entryName(entry_count), toVariantMap<NinjaWrapper>(*asNinja));
+        }
+        entry_count++;
+    }
     data.insert(ToolsSettings::ENTRY_COUNT, entry_count);
     saveSettings(data, parent);
 }

@@ -198,9 +198,9 @@ void NinjaBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
     m_ninjaParser->setSourceDirectory(project()->projectDirectory());
     formatter->addLineParser(m_ninjaParser);
     auto additionalParsers = kit()->createOutputParsers();
-    std::for_each(std::cbegin(additionalParsers),
-                  std::cend(additionalParsers),
-                  [this](const auto parser) { parser->setRedirectionDetector(m_ninjaParser); });
+    for (const auto parser : additionalParsers) {
+        parser->setRedirectionDetector(m_ninjaParser);
+    }
     formatter->addLineParsers(additionalParsers);
     formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
     AbstractProcessStep::setupOutputFormatter(formatter);

@@ -75,7 +75,7 @@ inline Utils::optional<ProjectExplorer::Macro> extractMacro(const QString &arg)
 CompilerArgs splitArgs(const QStringList &args)
 {
     CompilerArgs splited;
-    std::for_each(std::cbegin(args), std::cend(args), [&splited](const QString &arg) {
+    for (const QString &arg : args) {
         auto inc = extractInclude(arg);
         if (inc) {
             splited.includePaths << *inc;
@@ -87,7 +87,7 @@ CompilerArgs splitArgs(const QStringList &args)
                 splited.args << arg;
             }
         }
-    });
+    }
     return splited;
 }
 
@@ -198,22 +198,19 @@ bool MesonProjectParser::parse(const Utils::FilePath &sourcePath)
 QList<ProjectExplorer::BuildTargetInfo> MesonProjectParser::appsTargets() const
 {
     QList<ProjectExplorer::BuildTargetInfo> apps;
-    std::for_each(std::cbegin(m_parserResult.targets),
-                  std::cend(m_parserResult.targets),
-                  [&apps, srcDir = m_srcDir](const Target &target) {
-                      if (target.type == Target::Type::executable) {
-                          ProjectExplorer::BuildTargetInfo bti;
-                          bti.displayName = target.name;
-                          bti.buildKey = Target::fullName(srcDir, target);
-                          bti.displayNameUniquifier = bti.buildKey;
-                          bti.targetFilePath = Utils::FilePath::fromString(target.fileName.first());
-                          bti.workingDirectory
-                              = Utils::FilePath::fromString(target.fileName.first()).absolutePath();
-                          bti.projectFilePath = Utils::FilePath::fromString(target.definedIn);
-                          bti.usesTerminal = true;
-                          apps.append(bti);
-                      }
-                  });
+    for (const Target &target : m_parserResult.targets) {
+        if (target.type == Target::Type::executable) {
+            ProjectExplorer::BuildTargetInfo bti;
+            bti.displayName = target.name;
+            bti.buildKey = Target::fullName(m_srcDir, target);
+            bti.displayNameUniquifier = bti.buildKey;
+            bti.targetFilePath = Utils::FilePath::fromString(target.fileName.first());
+            bti.workingDirectory = Utils::FilePath::fromString(target.fileName.first()).absolutePath();
+            bti.projectFilePath = Utils::FilePath::fromString(target.definedIn);
+            bti.usesTerminal = true;
+            apps.append(bti);
+        }
+    }
     return apps;
 }
 bool MesonProjectParser::startParser()

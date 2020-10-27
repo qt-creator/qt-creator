@@ -80,14 +80,11 @@ std::unique_ptr<MesonProjectNode> ProjectTree::buildTree(const Utils::FilePath &
     using namespace ProjectExplorer;
     std::set<Utils::FilePath> targetPaths;
     auto root = std::make_unique<MesonProjectNode>(srcDir);
-    std::for_each(std::cbegin(targets),
-                  std::cend(targets),
-                  [&root, &targetPaths](const Target &target) {
-                      buildTargetTree(root, target);
-                      targetPaths.insert(
-                          Utils::FilePath::fromString(target.definedIn).absolutePath());
-                      addTargetNode(root, target);
-                  });
+    for (const Target &target : targets) {
+        buildTargetTree(root, target);
+        targetPaths.insert(Utils::FilePath::fromString(target.definedIn).absolutePath());
+        addTargetNode(root, target);
+    }
     for (Utils::FilePath bsFile : bsFiles) {
         if (!bsFile.toFileInfo().isAbsolute())
             bsFile = srcDir.pathAppended(bsFile.toString());
