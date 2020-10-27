@@ -91,6 +91,8 @@ def get_arguments():
                         action='store_true', default=False)
     parser.add_argument('--with-tests', help='Enable building of tests',
                         action='store_true', default=False)
+    parser.add_argument('--add-path', help='Prepends a CMAKE_PREFIX_PATH to the build',
+                        action='append', dest='prefix_paths', default=[])
     parser.add_argument('--add-make-arg', help='Passes the argument to the make tool.',
                         action='append', dest='make_args', default=[])
     parser.add_argument('--add-config', help=('Adds the argument to the CMake configuration call. '
@@ -103,7 +105,7 @@ def get_arguments():
 def build_qtcreator(args, paths):
     if not os.path.exists(paths.build):
         os.makedirs(paths.build)
-    prefix_paths = [paths.qt]
+    prefix_paths = [os.path.abspath(fp) for fp in args.prefix_paths] + [paths.qt]
     if paths.llvm:
         prefix_paths += [paths.llvm]
     if paths.elfutils:
