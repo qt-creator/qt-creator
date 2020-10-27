@@ -373,6 +373,32 @@ void CppEditorPlugin::test_quickfix_data()
         "}\n"
     );
 
+    // Same as above for enum class.
+    QTest::newRow("CompleteSwitchCaseStatement_basic1_enum class")
+        << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
+        "enum class EnumType { V1, V2 };\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    EnumType t;\n"
+        "    @switch (t) {\n"
+        "    }\n"
+        "}\n"
+        ) << _(
+        "enum class EnumType { V1, V2 };\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    EnumType t;\n"
+        "    switch (t) {\n"
+        "    case EnumType::V1:\n"
+        "        break;\n"
+        "    case EnumType::V2:\n"
+        "        break;\n"
+        "    }\n"
+        "}\n"
+    );
+
     // Checks: All enum values are added as case statements for a blank switch when
     //         the variable is declared alongside the enum definition.
     QTest::newRow("CompleteSwitchCaseStatement_basic1_enum_with_declaration")
@@ -393,6 +419,30 @@ void CppEditorPlugin::test_quickfix_data()
         "    case V1:\n"
         "        break;\n"
         "    case V2:\n"
+        "        break;\n"
+        "    }\n"
+        "}\n"
+    );
+
+    // Same as above for enum class.
+    QTest::newRow("CompleteSwitchCaseStatement_basic1_enum_with_declaration_enumClass")
+        << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
+        "enum class EnumType { V1, V2 } t;\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    @switch (t) {\n"
+        "    }\n"
+        "}\n"
+        ) << _(
+        "enum class EnumType { V1, V2 } t;\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    switch (t) {\n"
+        "    case EnumType::V1:\n"
+        "        break;\n"
+        "    case EnumType::V2:\n"
         "        break;\n"
         "    }\n"
         "}\n"
@@ -453,6 +503,36 @@ void CppEditorPlugin::test_quickfix_data()
         "}\n"
     );
 
+    // Same as above for enum class.
+    QTest::newRow("CompleteSwitchCaseStatement_basic2_enumClass")
+        << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
+        "enum class EnumType { V1, V2 };\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    EnumType t;\n"
+        "    @switch (t) {\n"
+        "    default:\n"
+        "    break;\n"
+        "    }\n"
+        "}\n"
+        ) << _(
+        "enum class EnumType { V1, V2 };\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    EnumType t;\n"
+        "    switch (t) {\n"
+        "    case EnumType::V1:\n"
+        "        break;\n"
+        "    case EnumType::V2:\n"
+        "        break;\n"
+        "    default:\n"
+        "    break;\n"
+        "    }\n"
+        "}\n"
+    );
+
     // Checks: Enum type in class is found.
     QTest::newRow("CompleteSwitchCaseStatement_enumTypeInClass")
         << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
@@ -475,6 +555,28 @@ void CppEditorPlugin::test_quickfix_data()
         "}\n"
     );
 
+    // Same as above for enum class.
+    QTest::newRow("CompleteSwitchCaseStatement_enumClassInClass")
+        << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
+        "struct C { enum class EnumType { V1, V2 }; };\n"
+        "\n"
+        "void f(C::EnumType t) {\n"
+        "    @switch (t) {\n"
+        "    }\n"
+        "}\n"
+        ) << _(
+        "struct C { enum class EnumType { V1, V2 }; };\n"
+        "\n"
+        "void f(C::EnumType t) {\n"
+        "    switch (t) {\n"
+        "    case C::EnumType::V1:\n"
+        "        break;\n"
+        "    case C::EnumType::V2:\n"
+        "        break;\n"
+        "    }\n"
+        "}\n"
+    );
+
     // Checks: Enum type in namespace is found.
     QTest::newRow("CompleteSwitchCaseStatement_enumTypeInNamespace")
         << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
@@ -492,6 +594,28 @@ void CppEditorPlugin::test_quickfix_data()
         "    case N::V1:\n"
         "        break;\n"
         "    case N::V2:\n"
+        "        break;\n"
+        "    }\n"
+        "}\n"
+    );
+
+    // Same as above for enum class.
+    QTest::newRow("CompleteSwitchCaseStatement_enumClassInNamespace")
+        << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
+        "namespace N { enum class EnumType { V1, V2 }; };\n"
+        "\n"
+        "void f(N::EnumType t) {\n"
+        "    @switch (t) {\n"
+        "    }\n"
+        "}\n"
+        ) << _(
+        "namespace N { enum class EnumType { V1, V2 }; };\n"
+        "\n"
+        "void f(N::EnumType t) {\n"
+        "    switch (t) {\n"
+        "    case N::EnumType::V1:\n"
+        "        break;\n"
+        "    case N::EnumType::V2:\n"
         "        break;\n"
         "    }\n"
         "}\n"
@@ -529,6 +653,38 @@ void CppEditorPlugin::test_quickfix_data()
         "}\n"
     );
 
+    // Checks: Same as above for enum class.
+    QTest::newRow("CompleteSwitchCaseStatement_oneValueMissing_enumClass")
+        << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
+        "enum class EnumType { V1, V2 };\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    EnumType t;\n"
+        "    @switch (t) {\n"
+        "    case EnumType::V2:\n"
+        "        break;\n"
+        "    default:\n"
+        "        break;\n"
+        "    }\n"
+        "}\n"
+        ) << _(
+        "enum class EnumType { V1, V2 };\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    EnumType t;\n"
+        "    switch (t) {\n"
+        "    case EnumType::V1:\n"
+        "        break;\n"
+        "    case EnumType::V2:\n"
+        "        break;\n"
+        "    default:\n"
+        "        break;\n"
+        "    }\n"
+        "}\n"
+    );
+
     // Checks: Find the correct enum type despite there being a declaration with the same name.
     QTest::newRow("CompleteSwitchCaseStatement_QTCREATORBUG10366_1")
         << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
@@ -548,6 +704,30 @@ void CppEditorPlugin::test_quickfix_data()
         "    case TEST_1:\n"
         "        break;\n"
         "    case TEST_2:\n"
+        "        break;\n"
+        "    }\n"
+        "}\n"
+    );
+
+    // Same as above for enum class.
+    QTest::newRow("CompleteSwitchCaseStatement_QTCREATORBUG10366_1_enumClass")
+        << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
+        "enum class test { TEST_1, TEST_2 };\n"
+        "\n"
+        "void f() {\n"
+        "    enum test test;\n"
+        "    @switch (test) {\n"
+        "    }\n"
+        "}\n"
+        ) << _(
+        "enum class test { TEST_1, TEST_2 };\n"
+        "\n"
+        "void f() {\n"
+        "    enum test test;\n"
+        "    switch (test) {\n"
+        "    case test::TEST_1:\n"
+        "        break;\n"
+        "    case test::TEST_2:\n"
         "        break;\n"
         "    }\n"
         "}\n"
@@ -581,10 +761,53 @@ void CppEditorPlugin::test_quickfix_data()
         "}\n"
     );
 
+    // Same as above for enum class.
+    QTest::newRow("CompleteSwitchCaseStatement_QTCREATORBUG10366_2_enumClass")
+        << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
+        "enum class test1 { Wrong11, Wrong12 };\n"
+        "enum class test { Right1, Right2 };\n"
+        "enum class test2 { Wrong21, Wrong22 };\n"
+        "\n"
+        "int main() {\n"
+        "    enum test test;\n"
+        "    @switch (test) {\n"
+        "    }\n"
+        "}\n"
+        ) << _(
+        "enum class test1 { Wrong11, Wrong12 };\n"
+        "enum class test { Right1, Right2 };\n"
+        "enum class test2 { Wrong21, Wrong22 };\n"
+        "\n"
+        "int main() {\n"
+        "    enum test test;\n"
+        "    switch (test) {\n"
+        "    case test::Right1:\n"
+        "        break;\n"
+        "    case test::Right2:\n"
+        "        break;\n"
+        "    }\n"
+        "}\n"
+    );
+
     // Checks: Do not crash on incomplete case statetement.
     QTest::newRow("CompleteSwitchCaseStatement_doNotCrashOnIncompleteCase")
         << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
         "enum E {};\n"
+        "void f(E o)\n"
+        "{\n"
+        "    @switch (o)\n"
+        "    {\n"
+        "    case\n"
+        "    }\n"
+        "}\n"
+        ) << _(
+        ""
+    );
+
+    // Same as above for enum class.
+    QTest::newRow("CompleteSwitchCaseStatement_doNotCrashOnIncompleteCase_enumClass")
+        << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
+        "enum class E {};\n"
         "void f(E o)\n"
         "{\n"
         "    @switch (o)\n"
@@ -617,6 +840,32 @@ void CppEditorPlugin::test_quickfix_data()
         "    case EA:\n"
         "        break;\n"
         "    case EB:\n"
+        "        break;\n"
+        "    }\n"
+        "}\n"
+    );
+
+    // Same as above for enum class.
+    QTest::newRow("CompleteSwitchCaseStatement_QTCREATORBUG-24752_enumClass")
+        << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
+        "enum class E {A, B};\n"
+        "template<typename T> struct S {\n"
+        "    static T theType() { return T(); }\n"
+        "};\n"
+        "int main() {\n"
+        "    @switch (S<E>::theType()) {\n"
+        "    }\n"
+        "}\n"
+        ) << _(
+        "enum class E {A, B};\n"
+        "template<typename T> struct S {\n"
+        "    static T theType() { return T(); }\n"
+        "};\n"
+        "int main() {\n"
+        "    switch (S<E>::theType()) {\n"
+        "    case E::A:\n"
+        "        break;\n"
+        "    case E::B:\n"
         "        break;\n"
         "    }\n"
         "}\n"
