@@ -1,5 +1,6 @@
 add_qtc_plugin(ClangRefactoring
-  CONDITION TARGET libclang AND TARGET clangrefactoringbackend
+  BUILD_DEFAULT OFF
+  CONDITION TARGET libclang
   DEPENDS ClangSupport CPlusPlus
   PLUGIN_DEPENDS Core CppTools TextEditor ClangPchManager
   SOURCES ${TEST_SOURCES}
