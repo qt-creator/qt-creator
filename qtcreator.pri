@@ -244,6 +244,7 @@ qt {
 
 QBSFILE = $$replace(_PRO_FILE_, \\.pro$, .qbs)
 exists($$QBSFILE):DISTFILES += $$QBSFILE
+DISTFILES += $$_PRO_FILE_PWD_/CMakeLists.txt
 
 !isEmpty(QTC_PLUGIN_DEPENDS) {
     LIBS *= -L$$IDE_PLUGIN_PATH  # plugin path from output directory
