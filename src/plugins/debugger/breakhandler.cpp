@@ -1194,7 +1194,6 @@ void BreakHandler::requestBreakpointRemoval(const Breakpoint &bp)
 void BreakHandler::requestBreakpointEnabling(const Breakpoint &bp, bool enabled)
 {
     if (bp->m_parameters.enabled != enabled) {
-        bp->m_parameters.enabled = enabled;
         bp->update();
         requestBreakpointUpdate(bp);
     }
@@ -1538,9 +1537,9 @@ bool BreakHandler::setData(const QModelIndex &idx, const QVariant &value, int ro
                             || (!bps.isEmpty() && bps.at(0)->isEnabled())
                             || (!sbps.isEmpty() && sbps.at(0)->params.enabled);
                     for (Breakpoint bp : bps) {
-                        requestBreakpointEnabling(bp, !isEnabled);
                         if (GlobalBreakpoint gbp = bp->globalBreakpoint())
                             gbp->setEnabled(!isEnabled, false);
+                        requestBreakpointEnabling(bp, !isEnabled);
                     }
                     for (SubBreakpoint sbp : sbps)
                         requestSubBreakpointEnabling(sbp, !isEnabled);
@@ -1626,9 +1625,9 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
               !selectedBreakpoints.isEmpty(),
               [this, selectedBreakpoints, breakpointsEnabled] {
                     for (Breakpoint bp : selectedBreakpoints) {
-                        requestBreakpointEnabling(bp, !breakpointsEnabled);
                         if (GlobalBreakpoint gbp = bp->globalBreakpoint())
                             gbp->setEnabled(!breakpointsEnabled, false);
+                        requestBreakpointEnabling(bp, !breakpointsEnabled);
                     }
               }
     );
