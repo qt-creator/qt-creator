@@ -134,8 +134,6 @@ public:
     void projectFileListChanged();
 
     void sendContent(const LanguageServerProtocol::IContent &content);
-    void sendContent(const LanguageServerProtocol::DocumentUri &uri,
-                     const LanguageServerProtocol::IContent &content);
     void cancelRequest(const LanguageServerProtocol::MessageId &id);
 
     void setSupportedLanguage(const LanguageFilter &filter);

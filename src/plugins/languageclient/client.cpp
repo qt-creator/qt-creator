@@ -330,15 +330,6 @@ void Client::sendContent(const IContent &content)
     m_clientInterface->sendMessage(message);
 }
 
-void Client::sendContent(const DocumentUri &uri, const IContent &content)
-{
-    if (!Utils::anyOf(m_openedDocument.keys(), [uri](TextEditor::TextDocument *documnent) {
-            return uri.toFilePath() == documnent->filePath();
-        })) {
-        sendContent(content);
-    }
-}
-
 void Client::cancelRequest(const MessageId &id)
 {
     m_responseHandlers.remove(id);
