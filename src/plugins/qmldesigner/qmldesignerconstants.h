@@ -73,7 +73,7 @@ const char DEFAULT_ASSET_IMPORT_FOLDER[] = "/asset_imports";
 const char QT_QUICK_3D_MODULE_NAME[] = "QtQuick3D";
 
 // Menus
-const char M_WINDOW_WORKSPACES[] = "QmlDesigner.Menu.Window.Workspaces";
+const char M_VIEW_WORKSPACES[] = "QmlDesigner.Menu.View.Workspaces";
 
 const int MODELNODE_PREVIEW_IMAGE_DIMENSIONS = 150;
 
