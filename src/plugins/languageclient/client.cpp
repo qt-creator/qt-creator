@@ -1169,7 +1169,7 @@ void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
     const DocumentUri &uri = params.uri();
 
     const QList<Diagnostic> &diagnostics = params.diagnostics();
-    m_diagnosticManager.setDiagnostics(uri, params.diagnostics());
+    m_diagnosticManager.setDiagnostics(uri, diagnostics);
     if (LanguageClientManager::clientForUri(uri) == this) {
         m_diagnosticManager.showDiagnostics(uri);
         requestCodeActions(uri, diagnostics);
