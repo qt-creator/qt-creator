@@ -35,7 +35,7 @@
 
     \image loginui4.gif "Log In UI"
 
-    \e{Log In UI - Part 4} is the fourth in a series of examples that build
+    \e{Log In UI - Part 4} is the fourth in a series of tutorials that build
     on each other to illustrate how to use \QDS to create a simple UI with
     some basic UI components, such as pages, buttons, and entry fields. Part 4
     describes how to use the timeline and states to animate UI components.

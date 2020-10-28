@@ -35,7 +35,7 @@
 
     \image loginui3.gif "Log In UI"
 
-    \e{Log In UI - Part 3} is the third in a series of examples that build
+    \e{Log In UI - Part 3} is the third in a series of tutorials that build
     on each other to illustrate how to use \QDS to create a simple UI with
     some basic UI components, such as pages, buttons, and entry fields. Part 3
     describes how to use \e states to add a second page to the UI. On the
@@ -61,7 +61,7 @@
     You will add another text field for verifying the password that users
     enter to create an account and a back button for returning to the login
     page. You are already familiar with the tasks in this section from Part 1
-    and Part 2 of this example.
+    and Part 2 of this tutorial.
 
     To preview the changes that you make to the UI while you make
     them, select the \inlineimage live_preview.png
@@ -238,6 +238,6 @@
     For more information, see \l{Using Data Models}.
 
     To learn how to use a timeline to animate the transition between the login
-    and registration pages, see the next example in the series,
+    and registration pages, see the next tutorial in the series,
     \l {Log In UI - Part 4}.
 */
