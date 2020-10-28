@@ -8,6 +8,7 @@ Project {
 
     QtcPlugin {
         Depends { name: "Qt.widgets" }
+        Depends { name: "Qt.testlib"; condition: project.withAutotests }
         Depends { name: "CPlusPlus" }
         Depends { name: "Utils" }
 
@@ -217,6 +218,15 @@ Project {
         ]
 
         Group {
+            name: "TestCase"
+            condition: qtc.testsEnabled || project.withAutotests
+            files: [
+                "cpptoolstestcase.cpp",
+                "cpptoolstestcase.h",
+            ]
+        }
+
+        Group {
             name: "Tests"
             condition: qtc.testsEnabled
             files: [
@@ -230,8 +240,6 @@ Project {
                 "cppsourceprocessertesthelper.cpp",
                 "cppsourceprocessertesthelper.h",
                 "cppsourceprocessor_test.cpp",
-                "cpptoolstestcase.cpp",
-                "cpptoolstestcase.h",
                 "modelmanagertesthelper.cpp",
                 "modelmanagertesthelper.h",
                 "symbolsearcher_test.cpp",
