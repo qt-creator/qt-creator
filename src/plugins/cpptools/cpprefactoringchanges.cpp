@@ -227,7 +227,11 @@ int CppRefactoringFile::startOf(unsigned index) const
 
 int CppRefactoringFile::startOf(const AST *ast) const
 {
-    return startOf(ast->firstToken());
+    int firstToken = ast->firstToken();
+    const int lastToken = ast->lastToken();
+    while (tokenAt(firstToken).generated() && firstToken < lastToken)
+        ++firstToken;
+    return startOf(firstToken);
 }
 
 int CppRefactoringFile::endOf(unsigned index) const
@@ -239,9 +243,12 @@ int CppRefactoringFile::endOf(unsigned index) const
 
 int CppRefactoringFile::endOf(const AST *ast) const
 {
-    int end = ast->lastToken();
-    QTC_ASSERT(end > 0, return -1);
-    return endOf(end - 1);
+    int lastToken = ast->lastToken() - 1;
+    QTC_ASSERT(lastToken >= 0, return -1);
+    const int firstToken = ast->firstToken();
+    while (tokenAt(lastToken).generated() && lastToken > firstToken)
+        --lastToken;
+    return endOf(lastToken);
 }
 
 void CppRefactoringFile::startAndEndOf(unsigned index, int *start, int *end) const
