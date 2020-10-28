@@ -37,6 +37,7 @@
 #include <QMessageBox>
 #include <QToolTip>
 #include <QLoggingCategory>
+#include <QPushButton>
 
 using namespace Android;
 using namespace Android::Internal;
@@ -248,15 +249,18 @@ void AvdDialog::updateApiLevelComboBox()
             tr("Cannot create a new AVD. No suitable Android system image is installed.\n"
                "Install a system image of at least API version %1 from the SDK Manager tab.")
                 .arg(m_minApiLevel));
+        m_avdDialog.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     } else if (filteredList.isEmpty()) {
         m_avdDialog.targetApiComboBox->setEnabled(false);
         m_avdDialog.warningText->setVisible(true);
         m_avdDialog.warningText->setText(tr("Cannot create an AVD for ABI %1. Install a system "
                                             "image for it from the SDK Manager tab first.")
                                              .arg(abi()));
+        m_avdDialog.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     } else {
         m_avdDialog.warningText->setVisible(false);
         m_avdDialog.targetApiComboBox->setEnabled(true);
+        m_avdDialog.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
     }
 }
 
