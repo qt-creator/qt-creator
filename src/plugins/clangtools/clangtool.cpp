@@ -597,6 +597,7 @@ ClangTool::ClangTool()
     m_perspective.addToolBarAction(m_showFilter);
     m_perspective.addToolBarWidget(m_selectFixitsCheckBox);
     m_perspective.addToolBarWidget(m_applyFixitsButton);
+    m_perspective.registerNextPrevShortcuts(m_goNext, m_goBack);
 
     update();
 

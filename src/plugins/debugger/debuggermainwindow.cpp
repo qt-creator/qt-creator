@@ -152,7 +152,12 @@ public:
 
     void setCurrentPerspective(Perspective *perspective)
     {
+        const Core::Context oldContext = m_currentPerspective
+                ? Context(Id::fromString(m_currentPerspective->id())) : Context();
         m_currentPerspective = perspective;
+        const Core::Context newContext = m_currentPerspective
+                ? Context(Id::fromString(m_currentPerspective->id())) : Context();
+        ICore::updateAdditionalContexts(oldContext, newContext);
     }
 
     DebuggerMainWindow *q = nullptr;
@@ -859,6 +864,21 @@ void Perspective::useSubPerspectiveSwitcher(QWidget *widget)
 void Perspective::addToolbarSeparator()
 {
     d->m_innerToolBarLayout->addWidget(new StyledSeparator(d->m_innerToolBar));
+}
+
+void Perspective::registerNextPrevShortcuts(QAction *next, QAction *prev)
+{
+    static const char nextId[] = "Analyzer.nextitem";
+    static const char prevId[] = "Analyzer.previtem";
+
+    next->setText(tr("Next Item"));
+    Command * const nextCmd = ActionManager::registerAction(next, nextId,
+                                                            Context(Id::fromString(id())));
+    nextCmd->augmentActionWithShortcutToolTip(next);
+    prev->setText(tr("Previous Item"));
+    Command * const prevCmd = ActionManager::registerAction(prev, prevId,
+                                                            Context(Id::fromString(id())));
+    prevCmd->augmentActionWithShortcutToolTip(prev);
 }
 
 QWidget *Perspective::centralWidget() const
