@@ -52,6 +52,7 @@ void resetPosition(const SelectionContext &selectionState);
 void goIntoComponentOperation(const SelectionContext &selectionState);
 void setId(const SelectionContext &selectionState);
 void resetZ(const SelectionContext &selectionState);
+void reverse(const SelectionContext &selectionState);
 void anchorsFill(const SelectionContext &selectionState);
 void anchorsReset(const SelectionContext &selectionState);
 void layoutRowPositioner(const SelectionContext &selectionState);

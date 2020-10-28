@@ -594,6 +594,11 @@ bool selectionHasSameParentAndInBaseState(const SelectionContext &context)
     return selectionHasSameParent(context) && inBaseState(context);
 }
 
+bool multiSelectionAndHasSameParent(const SelectionContext &context)
+{
+    return multiSelection(context) && selectionHasSameParent(context);
+}
+
 bool isNotInLayout(const SelectionContext &context)
 {
     if (selectionNotEmpty(context)) {
@@ -914,8 +919,8 @@ void DesignerActionManager::createDefaultDesignerActions()
                           prioritySelectionCategory));
 
     addDesignerAction(new ActionGroup(
-                          stackCategoryDisplayName,
-                          stackCategory,
+                          arrangeCategoryDisplayName,
+                          arrangeCategory,
                           priorityStackCategory,
                           &selectionNotEmpty));
 
@@ -923,28 +928,19 @@ void DesignerActionManager::createDefaultDesignerActions()
                           toFrontCommandId,
                           toFrontDisplayName,
                           {},
-                          stackCategory,
+                          arrangeCategory,
                           QKeySequence(),
                           200,
                           &toFront,
                           &singleSelection));
 
     addDesignerAction(new ModelNodeContextMenuAction(
-                          toBackCommandId,
-                          toBackDisplayName,
-                          {},
-                          stackCategory,
+                          raiseCommandId,
+                          raiseDisplayName,
+                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/raise.png", Utils::Theme::IconsBaseColor}}).icon(),
+                          arrangeCategory,
                           QKeySequence(),
                           180,
-                          &toBack,
-                          &singleSelection));
-
-    addDesignerAction(new ModelNodeContextMenuAction(
-                          raiseCommandId, raiseDisplayName,
-                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/raise.png", Utils::Theme::IconsBaseColor}}).icon(),
-                          stackCategory,
-                          QKeySequence(),
-                          160,
                           &raise,
                           &raiseAvailable));
 
@@ -952,23 +948,31 @@ void DesignerActionManager::createDefaultDesignerActions()
                           lowerCommandId,
                           lowerDisplayName,
                           Utils::Icon({{":/qmldesigner/icon/designeractions/images/lower.png", Utils::Theme::IconsBaseColor}}).icon(),
-                          stackCategory,
+                          arrangeCategory,
                           QKeySequence(),
-                          140,
+                          160,
                           &lower,
                           &lowerAvailable));
 
-    addDesignerAction(new SeperatorDesignerAction(stackCategory, 120));
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          toBackCommandId,
+                          toBackDisplayName,
+                          {},
+                          arrangeCategory,
+                          QKeySequence(),
+                          140,
+                          &toBack,
+                          &singleSelection));
 
     addDesignerAction(new ModelNodeContextMenuAction(
-                          resetZCommandId,
-                          resetZDisplayName,
+                          reverseCommandId,
+                          reverseDisplayName,
                           {},
-                          stackCategory,
+                          arrangeCategory,
                           QKeySequence(),
                           100,
-                          &resetZ,
-                          &selectionNotEmptyAndHasZProperty));
+                          &reverse,
+                          &multiSelectionAndHasSameParent));
 
     addDesignerAction(new ActionGroup(editCategoryDisplayName, editCategory, priorityEditCategory, &selectionNotEmpty));
 
@@ -979,7 +983,9 @@ void DesignerActionManager::createDefaultDesignerActions()
                           resetPositionDisplayName,
                           Utils::Icon({{":/utils/images/pan.png", Utils::Theme::IconsBaseColor},
                                       {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
-                          resetPositionTooltip, editCategory, QKeySequence("Ctrl+d"),
+                          resetPositionTooltip,
+                          editCategory,
+                          QKeySequence("Ctrl+d"),
                           200,
                           &resetPosition,
                           &selectionNotEmptyAndHasXorYProperty));

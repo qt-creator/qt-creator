@@ -206,9 +206,9 @@ void toBack(const SelectionContext &selectionState)
     }
 }
 
-enum OderAction {RaiseItem, LowerItem};
+enum OrderAction {RaiseItem, LowerItem};
 
-void changeOrder(const SelectionContext &selectionState, OderAction orderAction)
+void changeOrder(const SelectionContext &selectionState, OrderAction orderAction)
 {
     if (!selectionState.view())
         return;
@@ -221,13 +221,12 @@ void changeOrder(const SelectionContext &selectionState, OderAction orderAction)
     if (!modelNode.parentProperty().isNodeListProperty())
         return;
 
-    selectionState.view()->executeInTransaction("DesignerActionManager|raise",[orderAction, selectionState, modelNode](){
+    selectionState.view()->executeInTransaction("DesignerActionManager|changeOrder", [orderAction, selectionState, modelNode]() {
         ModelNode modelNode = selectionState.currentSingleSelectedNode();
         NodeListProperty parentProperty = modelNode.parentProperty().toNodeListProperty();
         const int index = parentProperty.indexOf(modelNode);
 
         if (orderAction == RaiseItem) {
-
             if (index < parentProperty.count() - 1)
                 parentProperty.slide(index, index + 1);
         } else if (orderAction == LowerItem) {
@@ -244,7 +243,6 @@ void raise(const SelectionContext &selectionState)
 
 void lower(const SelectionContext &selectionState)
 {
-
     changeOrder(selectionState, LowerItem);
 }
 
@@ -344,12 +342,22 @@ void resetZ(const SelectionContext &selectionState)
     if (!selectionState.view())
         return;
 
-    selectionState.view()->executeInTransaction("DesignerActionManager|resetZ",[selectionState](){
-        foreach (ModelNode node, selectionState.selectedModelNodes()) {
+    selectionState.view()->executeInTransaction("DesignerActionManager|resetZ", [selectionState](){
+        for (ModelNode node : selectionState.selectedModelNodes()) {
             QmlItemNode itemNode(node);
             if (itemNode.isValid())
                 itemNode.removeProperty("z");
         }
+    });
+}
+
+void reverse(const SelectionContext &selectionState)
+{
+    if (!selectionState.view())
+        return;
+
+    selectionState.view()->executeInTransaction("DesignerActionManager|reverse", [selectionState](){
+        NodeListProperty::reverseModelNodes(selectionState.selectedModelNodes());
     });
 }
 
@@ -365,7 +373,6 @@ static inline void backupPropertyAndRemove(const ModelNode &node, const Property
         node.removeProperty(propertyName);
     }
 }
-
 
 static inline void restoreProperty(const ModelNode &node, const PropertyName &propertyName)
 {
