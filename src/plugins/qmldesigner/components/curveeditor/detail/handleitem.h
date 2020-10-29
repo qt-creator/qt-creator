@@ -28,7 +28,7 @@
 #include "curveeditorstyle.h"
 #include "selectableitem.h"
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 class KeyframeItem;
 class CurveSegment;
@@ -77,4 +77,4 @@ private:
     QPointF m_validPos;
 };
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

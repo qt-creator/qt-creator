@@ -28,7 +28,7 @@
 #include <QIcon>
 #include <QVariant>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 TreeItem::TreeItem(const QString &name)
     : m_name(name)
@@ -123,9 +123,9 @@ bool TreeItem::compare(const std::vector<QString> &path) const
 int TreeItem::row() const
 {
     if (m_parent) {
-        for (int i = 0, total = int(m_parent->m_children.size()); i < total; ++i) {
+        for (size_t i = 0, total = m_parent->m_children.size(); i < total; ++i) {
             if (m_parent->m_children[i] == this)
-                return i;
+                return static_cast<int>(i);
         }
     }
 
@@ -147,6 +147,17 @@ int TreeItem::columnCount() const
     return 3;
 }
 
+TreeItem *TreeItem::root() const
+{
+    TreeItem *p = parent();
+    while (p) {
+        if (!p->parent())
+            return p;
+        p = p->parent();
+    }
+    return p;
+}
+
 TreeItem *TreeItem::parent() const
 {
     return m_parent;
@@ -154,10 +165,10 @@ TreeItem *TreeItem::parent() const
 
 TreeItem *TreeItem::child(int row) const
 {
-    if (row < 0 || row >= static_cast<int>(m_children.size()))
+    if (row < 0 || row >= rowCount())
         return nullptr;
 
-    return m_children.at(row);
+    return m_children.at(static_cast<size_t>(row));
 }
 
 TreeItem *TreeItem::find(unsigned int id) const
@@ -171,6 +182,24 @@ TreeItem *TreeItem::find(unsigned int id) const
     }
 
     return nullptr;
+}
+
+TreeItem *TreeItem::find(const QString &id) const
+{
+    for (auto *child : m_children) {
+        if (child->name() == id)
+            return child;
+
+        if (auto *childsChild = child->find(id))
+            return childsChild;
+    }
+
+    return nullptr;
+}
+
+std::vector<TreeItem *> TreeItem::children() const
+{
+    return m_children;
 }
 
 QVariant TreeItem::data(int column) const
@@ -205,6 +234,11 @@ QVariant TreeItem::headerData(int column) const
     }
 }
 
+bool TreeItem::operator==(unsigned int id) const
+{
+    return m_id == id;
+}
+
 void TreeItem::setId(unsigned int &id)
 {
     m_id = id;
@@ -229,9 +263,10 @@ void TreeItem::setPinned(bool pinned)
     m_pinned = pinned;
 }
 
-NodeTreeItem::NodeTreeItem(const QString &name, const QIcon &icon)
+NodeTreeItem::NodeTreeItem(const QString &name, const QIcon &icon, const std::vector<QString> &parentIds)
     : TreeItem(name)
     , m_icon(icon)
+    , m_parentIds(parentIds)
 {
     Q_UNUSED(icon)
 }
@@ -239,6 +274,35 @@ NodeTreeItem::NodeTreeItem(const QString &name, const QIcon &icon)
 NodeTreeItem *NodeTreeItem::asNodeItem()
 {
     return this;
+}
+
+bool NodeTreeItem::implicitlyLocked() const
+{
+    TreeItem *r = root();
+    if (!r)
+        return false;
+
+    for (auto &&id : m_parentIds) {
+        if (TreeItem *item = r->find(id))
+            if (item->locked())
+                return true;
+    }
+
+    return false;
+}
+
+bool NodeTreeItem::implicitlyPinned() const
+{
+    TreeItem *r = root();
+    if (!r)
+        return false;
+
+    for (auto &&id : m_parentIds) {
+        if (TreeItem *item = r->find(id))
+            if (item->pinned())
+                return true;
+    }
+    return false;
 }
 
 QIcon NodeTreeItem::icon() const
@@ -257,20 +321,6 @@ std::vector<PropertyTreeItem *> NodeTreeItem::properties() const
     return out;
 }
 
-std::string toString(ValueType type)
-{
-    switch (type) {
-    case ValueType::Bool:
-        return "Bool";
-    case ValueType::Integer:
-        return "Integer";
-    case ValueType::Double:
-        return "Double";
-    default:
-        return "Undefined";
-    }
-}
-
 PropertyTreeItem::PropertyTreeItem(const QString &name,
                                    const AnimationCurve &curve,
                                    const ValueType &type)
@@ -279,6 +329,22 @@ PropertyTreeItem::PropertyTreeItem(const QString &name,
     , m_component(Component::Generic)
     , m_curve(curve)
 {}
+
+bool PropertyTreeItem::implicitlyLocked() const
+{
+    if (auto *parentNode = parentNodeTreeItem())
+        return parentNode->locked() || parentNode->implicitlyLocked();
+
+    return false;
+}
+
+bool PropertyTreeItem::implicitlyPinned() const
+{
+    if (auto *parentNode = parentNodeTreeItem())
+        return parentNode->pinned() || parentNode->implicitlyPinned();
+
+    return false;
+}
 
 PropertyTreeItem *PropertyTreeItem::asPropertyItem()
 {
@@ -296,7 +362,7 @@ const NodeTreeItem *PropertyTreeItem::parentNodeTreeItem() const
     return nullptr;
 }
 
-ValueType PropertyTreeItem::valueType() const
+PropertyTreeItem::ValueType PropertyTreeItem::valueType() const
 {
     return m_type;
 }
@@ -331,4 +397,18 @@ void PropertyTreeItem::setComponent(const Component &comp)
     m_component = comp;
 }
 
-} // End namespace DesignTools.
+std::string toString(PropertyTreeItem::ValueType type)
+{
+    switch (type) {
+    case PropertyTreeItem::ValueType::Bool:
+        return "Bool";
+    case PropertyTreeItem::ValueType::Integer:
+        return "Integer";
+    case PropertyTreeItem::ValueType::Double:
+        return "Double";
+    default:
+        return "Undefined";
+    }
+}
+
+} // End namespace QmlDesigner.

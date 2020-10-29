@@ -27,7 +27,7 @@
 #include "curveitem.h"
 #include "treemodel.h"
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 SelectionModel::SelectionModel(QAbstractItemModel *model)
     : QItemSelectionModel(model)
@@ -46,10 +46,19 @@ void SelectionModel::select(const QItemSelection &selection,
     }
 }
 
+bool SelectionModel::isSelected(TreeItem *item) const
+{
+    for (auto *i : selectedTreeItems())
+        if (i->id() == item->id())
+            return true;
+
+    return false;
+}
+
 std::vector<TreeItem::Path> SelectionModel::selectedPaths() const
 {
     std::vector<TreeItem::Path> out;
-    for (auto &&item : selectedTreeItems())
+    for (auto *item : selectedTreeItems())
         out.push_back(item->path());
     return out;
 }
@@ -112,20 +121,11 @@ void SelectionModel::selectPaths(const std::vector<TreeItem::Path> &selection)
     }
 }
 
-void SelectionModel::changeSelection(const QItemSelection &selected,
-                                     const QItemSelection &deselected)
+void SelectionModel::changeSelection(const QItemSelection &selected, const QItemSelection &deselected)
 {
     Q_UNUSED(selected)
     Q_UNUSED(deselected)
-
-    std::vector<CurveItem *> curves;
-    const auto ids = selectedIndexes();
-    for (auto &&index : ids) {
-        if (auto *curveItem = TreeModel::curveItem(index))
-            curves.push_back(curveItem);
-    }
-
-    emit curvesSelected(curves);
+    emit curvesSelected();
 }
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

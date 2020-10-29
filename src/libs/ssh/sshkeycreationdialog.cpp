@@ -29,6 +29,7 @@
 #include "sshsettings.h"
 
 #include <utils/fileutils.h>
+#include <utils/pathchooser.h>
 
 #include <QApplication>
 #include <QDir>
@@ -45,12 +46,7 @@ SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
     : QDialog(parent), m_ui(new Ui::SshKeyCreationDialog)
 {
     m_ui->setupUi(this);
-    // Not using Utils::PathChooser::browseButtonLabel to avoid dependency
-#ifdef Q_OS_MAC
-    m_ui->privateKeyFileButton->setText(tr("Choose..."));
-#else
-    m_ui->privateKeyFileButton->setText(tr("Browse..."));
-#endif
+    m_ui->privateKeyFileButton->setText(Utils::PathChooser::browseButtonLabel());
     const QString defaultPath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
         + QLatin1String("/.ssh/qtc_id");
     setPrivateKeyFile(defaultPath);

@@ -247,19 +247,19 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
     } else if (index.column() == ColumnType::Alias) { // export
         if (role == Qt::CheckStateRole)
             return currentQmlObjectNode.isAliasExported() ? Qt::Checked : Qt::Unchecked;
-        else if (role == Qt::ToolTipRole)
+        else if (role == Qt::ToolTipRole && !modelNodeForIndex(index).isRootNode())
             return tr("Toggles whether this item is exported as an "
                       "alias property of the root item.");
     } else if (index.column() == ColumnType::Visibility) { // visible
         if (role == Qt::CheckStateRole)
             return m_view->isNodeInvisible(modelNode) ? Qt::Unchecked : Qt::Checked;
-        else if (role == Qt::ToolTipRole)
+        else if (role == Qt::ToolTipRole && !modelNodeForIndex(index).isRootNode())
             return tr("Toggles the visibility of this item in the form editor.\n"
                       "This is independent of the visibility property in QML.");
     } else if (index.column() == ColumnType::Lock) { // lock
         if (role == Qt::CheckStateRole)
             return modelNode.locked() ? Qt::Checked : Qt::Unchecked;
-        else if (role == Qt::ToolTipRole)
+        else if (role == Qt::ToolTipRole && !modelNodeForIndex(index).isRootNode())
             return tr("Toggles whether this item is locked.\n"
                       "Locked items can't be modified or selected.");
     }
@@ -269,6 +269,14 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
 
 Qt::ItemFlags NavigatorTreeModel::flags(const QModelIndex &index) const
 {
+    if (modelNodeForIndex(index).isRootNode()) {
+        Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
+        if (index.column() == ColumnType::Name)
+            return flags | Qt::ItemIsEditable;
+        else
+            return flags;
+    }
+
     if (index.column() == ColumnType::Alias
         || index.column() == ColumnType::Visibility
         || index.column() == ColumnType::Lock)

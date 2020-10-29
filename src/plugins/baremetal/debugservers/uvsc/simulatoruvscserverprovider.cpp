@@ -50,7 +50,7 @@ namespace Internal {
 
 using namespace Uv;
 
-const char limitSpeedKeyC[] = "BareMetal.SimulatorUvscServerProvider.LimitSpeed";
+const char limitSpeedKeyC[] = "LimitSpeed";
 
 static DriverSelection defaultSimulatorDriverSelection()
 {

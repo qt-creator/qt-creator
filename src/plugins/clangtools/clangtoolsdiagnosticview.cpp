@@ -232,12 +232,14 @@ void DiagnosticView::goNext()
 {
     const QModelIndex currentIndex = selectionModel()->currentIndex();
     selectIndex(getIndex(currentIndex, Next));
+    openEditorForCurrentIndex();
 }
 
 void DiagnosticView::goBack()
 {
     const QModelIndex currentIndex = selectionModel()->currentIndex();
     selectIndex(getIndex(currentIndex, Previous));
+    openEditorForCurrentIndex();
 }
 
 QModelIndex DiagnosticView::getIndex(const QModelIndex &index, Direction direction) const

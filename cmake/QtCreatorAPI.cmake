@@ -774,19 +774,6 @@ function(finalize_qtc_gtest test_name exclude_sources_regex)
   endforeach()
 endfunction()
 
-# This is the CMake equivalent of "RESOURCES = $$files()" from qmake
-function(qtc_glob_resources)
-  cmake_parse_arguments(_arg "" "QRC_FILE;ROOT;GLOB" "" ${ARGN})
-
-  file(GLOB_RECURSE fileList RELATIVE "${_arg_ROOT}" "${_arg_ROOT}/${_arg_GLOB}")
-  set(qrcData "<RCC><qresource>\n")
-  foreach(file IN LISTS fileList)
-    string(APPEND qrcData "  <file alias=\"${file}\">${_arg_ROOT}/${file}</file>\n")
-  endforeach()
-  string(APPEND qrcData "</qresource></RCC>")
-  file(WRITE "${_arg_QRC_FILE}" "${qrcData}")
-endfunction()
-
 function(qtc_copy_to_builddir custom_target_name)
   cmake_parse_arguments(_arg "CREATE_SUBDIRS" "DESTINATION" "FILES;DIRECTORIES" ${ARGN})
   set(timestampFiles)
@@ -837,4 +824,85 @@ function(qtc_copy_to_builddir custom_target_name)
   endforeach()
 
   add_custom_target("${custom_target_name}" ALL DEPENDS ${timestampFiles})
+endfunction()
+
+function(qtc_add_resources target resourceName)
+  cmake_parse_arguments(rcc "" "PREFIX;LANG;BASE" "FILES;OPTIONS" ${ARGN})
+
+  string(REPLACE "/" "_" resourceName ${resourceName})
+  string(REPLACE "." "_" resourceName ${resourceName})
+
+  # Apply base to all files
+  if (rcc_BASE)
+    foreach(file IN LISTS rcc_FILES)
+      set(resource_file "${rcc_BASE}/${file}")
+      file(TO_CMAKE_PATH ${resource_file} resource_file)
+      list(APPEND resource_files ${resource_file})
+    endforeach()
+  else()
+      set(resource_files ${rcc_FILES})
+  endif()
+
+  set(newResourceName ${resourceName})
+  set(resources ${resource_files})
+
+  set(generatedResourceFile "${CMAKE_CURRENT_BINARY_DIR}/.rcc/generated_${newResourceName}.qrc")
+  set(generatedSourceCode "${CMAKE_CURRENT_BINARY_DIR}/.rcc/qrc_${newResourceName}.cpp")
+
+  # Generate .qrc file:
+
+  # <RCC><qresource ...>
+  set(qrcContents "<RCC>\n  <qresource")
+  if (rcc_PREFIX)
+      string(APPEND qrcContents " prefix=\"${rcc_PREFIX}\"")
+  endif()
+  if (rcc_LANG)
+      string(APPEND qrcContents " lang=\"${rcc_LANG}\"")
+  endif()
+  string(APPEND qrcContents ">\n")
+
+  set(resource_dependencies)
+  foreach(file IN LISTS resources)
+    set(file_resource_path ${file})
+
+    if (NOT IS_ABSOLUTE ${file})
+        set(file "${CMAKE_CURRENT_SOURCE_DIR}/${file}")
+    endif()
+
+    ### FIXME: escape file paths to be XML conform
+    # <file ...>...</file>
+    string(APPEND qrcContents "    <file alias=\"${file_resource_path}\">")
+    string(APPEND qrcContents "${file}</file>\n")
+    list(APPEND files "${file}")
+    list(APPEND resource_dependencies ${file})
+    target_sources(${target} PRIVATE "${file}")
+    set_property(SOURCE "${file}" PROPERTY HEADER_FILE_ONLY ON)
+  endforeach()
+
+  # </qresource></RCC>
+  string(APPEND qrcContents "  </qresource>\n</RCC>\n")
+
+  file(WRITE "${generatedResourceFile}.in" "${qrcContents}")
+  configure_file("${generatedResourceFile}.in" "${generatedResourceFile}")
+
+  set_property(TARGET ${target} APPEND PROPERTY _qt_generated_qrc_files "${generatedResourceFile}")
+
+  set(rccArgs --name "${newResourceName}"
+      --output "${generatedSourceCode}" "${generatedResourceFile}")
+  if(rcc_OPTIONS)
+      list(APPEND rccArgs ${rcc_OPTIONS})
+  endif()
+
+  # Process .qrc file:
+  add_custom_command(OUTPUT "${generatedSourceCode}"
+                     COMMAND Qt5::rcc ${rccArgs}
+                     DEPENDS
+                      ${resource_dependencies}
+                      ${generatedResourceFile}
+                      "Qt5::rcc"
+                     COMMENT "RCC ${newResourceName}"
+                     VERBATIM)
+
+  target_sources(${target} PRIVATE "${generatedSourceCode}")
+  set_property(SOURCE "${generatedSourceCode}" PROPERTY SKIP_AUTOGEN ON)
 endfunction()

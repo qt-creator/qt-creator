@@ -273,11 +273,11 @@ void DesignModeWidget::setup()
 
     // Setup Actions and Menus
     Core::ActionContainer *mview = Core::ActionManager::actionContainer(Core::Constants::M_VIEW);
-    // Window > Views
+    // View > Views
     Core::ActionContainer *mviews = Core::ActionManager::createMenu(Core::Constants::M_VIEW_VIEWS);
     mviews->menu()->addSeparator();
-    // Window > Workspaces
-    Core::ActionContainer *mworkspaces = Core::ActionManager::createMenu(QmlDesigner::Constants::M_WINDOW_WORKSPACES);
+    // View > Workspaces
+    Core::ActionContainer *mworkspaces = Core::ActionManager::createMenu(QmlDesigner::Constants::M_VIEW_WORKSPACES);
     mview->addMenu(mworkspaces, Core::Constants::G_VIEW_VIEWS);
     mworkspaces->menu()->setTitle(tr("&Workspaces"));
     mworkspaces->setOnAllDisabledBehavior(Core::ActionContainer::Show);
@@ -488,7 +488,7 @@ void DesignModeWidget::setup()
 
 void DesignModeWidget::aboutToShowWorkspaces()
 {
-    Core::ActionContainer *aci = Core::ActionManager::actionContainer(QmlDesigner::Constants::M_WINDOW_WORKSPACES);
+    Core::ActionContainer *aci = Core::ActionManager::actionContainer(QmlDesigner::Constants::M_VIEW_WORKSPACES);
     QMenu *menu = aci->menu();
     menu->clear();
 

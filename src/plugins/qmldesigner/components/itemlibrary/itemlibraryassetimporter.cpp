@@ -184,20 +184,18 @@ void ItemLibraryAssetImporter::processFinished(int exitCode, QProcess::ExitStatu
     Q_UNUSED(exitCode)
     Q_UNUSED(exitStatus)
 
-    auto process = qobject_cast<QProcess *>(sender());
-    if (process) {
-        m_qmlPuppetProcesses.erase(
-            std::remove_if(m_qmlPuppetProcesses.begin(),
-                           m_qmlPuppetProcesses.end(),
-                           [&](const auto &entry) { return entry.get() == process; }));
-        const QString progressTitle = tr("Generating icons.");
-        if (m_qmlPuppetProcesses.empty()) {
-            notifyProgress(100, progressTitle);
-            finalizeQuick3DImport();
-        } else {
-            notifyProgress(int(100. * (1. - double(m_qmlPuppetCount) / double(m_qmlPuppetProcesses.size()))),
-                           progressTitle);
-        }
+    m_qmlPuppetProcesses.erase(
+        std::remove_if(m_qmlPuppetProcesses.begin(), m_qmlPuppetProcesses.end(), [&](const auto &entry) {
+        return !entry || entry->state() == QProcess::NotRunning;
+    }));
+
+    const QString progressTitle = tr("Generating icons.");
+    if (m_qmlPuppetProcesses.empty()) {
+        notifyProgress(100, progressTitle);
+        finalizeQuick3DImport();
+    } else {
+        notifyProgress(int(100. * (1. - double(m_qmlPuppetCount) / double(m_qmlPuppetProcesses.size()))),
+                       progressTitle);
     }
 }
 

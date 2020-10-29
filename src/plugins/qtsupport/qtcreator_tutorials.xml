@@ -62,6 +62,10 @@
       <description><![CDATA[Using bindings to dynamically change the behavior of an object.]]></description>
       <tags>qt creator,qt quick,bindings,quick tip,qml,video,2020</tags>
     </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/videotutorialicon.png" difficulty="" projectPath="" name="Online: Qt Design Studio QuickTip: Interactive 3D" isVideo="true" videoUrl="https://youtu.be/w1yhDl93YI0" videoLength="2:45">
+      <description><![CDATA[Incorporating 3D graphics into UIs in Qt Quick Designer.]]></description>
+      <tags>qt creator,qt quick,3D,FBX,quick tip,video,2020</tags>
+    </tutorial>
     <tutorial imageUrl=":qtsupport/images/icons/videotutorialicon.png" difficulty="" projectPath="" name="Online: Qt Design Studio QuickTip: Slider" isVideo="true" videoUrl="https://www.youtube.com/watch?v=Ed8WS03C-Vk" videoLength="1:00">
       <description><![CDATA[Using the Slider Qt Quick control to create a slider.]]></description>
       <tags>qt creator,qt quick,slider,quick tip,controls,video,2020</tags>

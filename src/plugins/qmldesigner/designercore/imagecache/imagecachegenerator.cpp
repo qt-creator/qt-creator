@@ -32,14 +32,23 @@
 
 namespace QmlDesigner {
 
+ImageCacheGenerator::ImageCacheGenerator(ImageCacheCollectorInterface &collector,
+                                         ImageCacheStorageInterface &storage)
+    : m_collector{collector}
+    , m_storage(storage)
+{
+    m_backgroundThread.reset(QThread::create([this]() { startGeneration(); }));
+    m_backgroundThread->start();
+}
+
 ImageCacheGenerator::~ImageCacheGenerator()
 {
-    std::lock_guard threadLock{*m_threadMutex.get()};
+    clean();
+    stopThread();
+    m_condition.notify_all();
 
     if (m_backgroundThread)
         m_backgroundThread->wait();
-
-    clean();
 }
 
 void ImageCacheGenerator::generateImage(Utils::SmallStringView name,
@@ -48,50 +57,32 @@ void ImageCacheGenerator::generateImage(Utils::SmallStringView name,
                                         AbortCallback &&abortCallback)
 {
     {
-        std::lock_guard lock{m_dataMutex};
+        std::lock_guard lock{m_mutex};
         m_tasks.emplace_back(name, timeStamp, std::move(captureCallback), std::move(abortCallback));
     }
 
-    startGenerationAsynchronously();
+    m_condition.notify_all();
 }
 
 void ImageCacheGenerator::clean()
 {
-    std::lock_guard dataLock{m_dataMutex};
+    std::lock_guard lock{m_mutex};
+    for (Task &task : m_tasks)
+        task.abortCallback();
     m_tasks.clear();
 }
 
-class ReleaseProcessing
+void ImageCacheGenerator::startGeneration()
 {
-public:
-    ReleaseProcessing(std::atomic_flag &processing)
-        : m_processing(processing)
-    {
-        m_processing.test_and_set(std::memory_order_acquire);
-    }
+    while (isRunning()) {
+        waitForEntries();
 
-    ~ReleaseProcessing() { m_processing.clear(std::memory_order_release); }
-
-private:
-    std::atomic_flag &m_processing;
-};
-
-void ImageCacheGenerator::startGeneration(std::shared_ptr<std::mutex> threadMutex)
-{
-    ReleaseProcessing guard(m_processing);
-
-    while (true) {
         Task task;
 
         {
-            std::unique_lock threadLock{*threadMutex.get(), std::defer_lock_t{}};
+            std::lock_guard lock{m_mutex};
 
-            if (!threadLock.try_lock())
-                return;
-
-            std::lock_guard dataLock{m_dataMutex};
-
-            if (m_tasks.empty()) {
+            if (m_finishing) {
                 m_storage.walCheckpointFull();
                 return;
             }
@@ -103,15 +94,7 @@ void ImageCacheGenerator::startGeneration(std::shared_ptr<std::mutex> threadMute
 
         m_collector.start(
             task.filePath,
-            [this, threadMutex, task](QImage &&image) {
-                std::unique_lock lock{*threadMutex.get(), std::defer_lock_t{}};
-
-                if (!lock.try_lock())
-                    return;
-
-                if (threadMutex.use_count() == 1)
-                    return;
-
+            [this, task](QImage &&image) {
                 if (image.isNull())
                     task.abortCallback();
                 else
@@ -119,41 +102,34 @@ void ImageCacheGenerator::startGeneration(std::shared_ptr<std::mutex> threadMute
 
                 m_storage.storeImage(std::move(task.filePath), task.timeStamp, image);
             },
-            [this, threadMutex, task] {
-                std::unique_lock lock{*threadMutex.get(), std::defer_lock_t{}};
-
-                if (!lock.try_lock())
-                    return;
-
-                if (threadMutex.use_count() == 1)
-                    return;
-
+            [this, task] {
                 task.abortCallback();
                 m_storage.storeImage(std::move(task.filePath), task.timeStamp, {});
             });
+
+        std::lock_guard lock{m_mutex};
+        if (m_tasks.empty())
+            m_storage.walCheckpointFull();
     }
 }
 
-void ImageCacheGenerator::startGenerationAsynchronously()
+void ImageCacheGenerator::waitForEntries()
 {
-    if (m_processing.test_and_set(std::memory_order_acquire))
-        return;
+    std::unique_lock lock{m_mutex};
+    if (m_tasks.empty())
+        m_condition.wait(lock, [&] { return m_tasks.size() || m_finishing; });
+}
 
-    std::unique_lock lock{*m_threadMutex.get(), std::defer_lock_t{}};
+void ImageCacheGenerator::stopThread()
+{
+    std::unique_lock lock{m_mutex};
+    m_finishing = true;
+}
 
-    if (!lock.try_lock())
-        return;
-
-    if (m_backgroundThread)
-        m_backgroundThread->wait();
-
-    m_backgroundThread.reset(QThread::create(
-        [this](std::shared_ptr<std::mutex> threadMutex) { startGeneration(threadMutex); },
-        m_threadMutex));
-    m_backgroundThread->start();
-    //    m_backgroundThread = std::thread(
-    //        [this](std::shared_ptr<std::mutex> threadMutex) { startGeneration(threadMutex); },
-    //        m_threadMutex);
+bool ImageCacheGenerator::isRunning()
+{
+    std::unique_lock lock{m_mutex};
+    return !m_finishing;
 }
 
 } // namespace QmlDesigner

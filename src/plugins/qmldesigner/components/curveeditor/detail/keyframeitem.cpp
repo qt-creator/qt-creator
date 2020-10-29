@@ -31,7 +31,7 @@
 
 #include <cmath>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 KeyframeItem::KeyframeItem(QGraphicsItem *parent)
     : SelectableItem(parent)
@@ -408,9 +408,9 @@ QVariant KeyframeItem::itemChange(QGraphicsItem::GraphicsItemChange change, cons
         if (ok) {
             position.setX(std::round(position.x()));
 
-            if (curveItem->valueType() == ValueType::Integer)
+            if (curveItem->valueType() == PropertyTreeItem::ValueType::Integer)
                 position.setY(std::round(position.y()));
-            else if (curveItem->valueType() == ValueType::Bool)
+            else if (curveItem->valueType() == PropertyTreeItem::ValueType::Bool)
                 position.setY(position.y() > 0.5 ? 1.0 : 0.0);
 
             if (!legalLeft() || !legalRight()) {
@@ -463,4 +463,4 @@ void KeyframeItem::selectionCallback()
         m_right->setSelected(selected());
 }
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

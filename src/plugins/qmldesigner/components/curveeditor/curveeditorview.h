@@ -59,6 +59,10 @@ public:
                         const NodeAbstractProperty &oldPropertyParent,
                         PropertyChangeFlags propertyChange) override;
 
+    void auxiliaryDataChanged(const ModelNode &node,
+                              const PropertyName &name,
+                              const QVariant &data) override;
+
     void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName>> &propertyList) override;
 
     void variantPropertiesChanged(const QList<VariantProperty> &propertyList,
@@ -77,15 +81,15 @@ private:
     void updateStartFrame(const ModelNode &node);
     void updateEndFrame(const ModelNode &node);
 
-    void commitKeyframes(DesignTools::PropertyTreeItem *item);
+    void commitKeyframes(TreeItem *item);
     void commitCurrentFrame(int frame);
     void commitStartFrame(int frame);
     void commitEndFrame(int frame);
 
 private:
     bool m_block;
-    DesignTools::CurveEditorModel *m_model;
-    DesignTools::CurveEditor *m_editor;
+    CurveEditorModel *m_model;
+    CurveEditor *m_editor;
 };
 
 } // namespace QmlDesigner

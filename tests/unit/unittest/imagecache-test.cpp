@@ -39,12 +39,12 @@ class ImageCache : public testing::Test
 protected:
     Notification notification;
     Notification waitInThread;
+    NiceMock<MockFunction<void()>> mockAbortCallback;
+    NiceMock<MockFunction<void(const QImage &image)>> mockCaptureCallback;
     NiceMock<MockImageCacheStorage> mockStorage;
     NiceMock<MockImageCacheGenerator> mockGenerator;
     NiceMock<MockTimeStampProvider> mockTimeStampProvider;
     QmlDesigner::ImageCache cache{mockStorage, mockGenerator, mockTimeStampProvider};
-    NiceMock<MockFunction<void()>> mockAbortCallback;
-    NiceMock<MockFunction<void(const QImage &image)>> mockCaptureCallback;
     QImage image1{10, 10, QImage::Format_ARGB32};
 };
 
@@ -260,14 +260,10 @@ TEST_F(ImageCache, RequestIconCallsAbortCallbackFromGenerator)
 
 TEST_F(ImageCache, CleanRemovesEntries)
 {
-    EXPECT_CALL(mockGenerator, generateImage(Eq("/path/to/Component1.qml"), _, _, _))
-        .WillRepeatedly([&](auto &&, auto, auto &&mockCaptureCallback, auto &&) {
-            mockCaptureCallback(QImage{});
-            waitInThread.wait();
-        });
     EXPECT_CALL(mockGenerator, generateImage(_, _, _, _))
         .WillRepeatedly([&](auto &&, auto, auto &&mockCaptureCallback, auto &&) {
             mockCaptureCallback(QImage{});
+            waitInThread.wait();
         });
     cache.requestIcon("/path/to/Component1.qml",
                       mockCaptureCallback.AsStdFunction(),
@@ -284,7 +280,7 @@ TEST_F(ImageCache, CleanRemovesEntries)
 
 TEST_F(ImageCache, CleanCallsAbort)
 {
-    ON_CALL(mockGenerator, generateImage(Eq("/path/to/Component1.qml"), _, _, _))
+    ON_CALL(mockGenerator, generateImage(_, _, _, _))
         .WillByDefault(
             [&](auto &&, auto, auto &&mockCaptureCallback, auto &&) { waitInThread.wait(); });
     cache.requestIcon("/path/to/Component1.qml",

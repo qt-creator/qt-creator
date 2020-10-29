@@ -33,7 +33,7 @@
 #include <QSpinBox>
 #include <QVBoxLayout>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 QHBoxLayout *createRow(const QString &title, QWidget *widget)
 {
@@ -50,35 +50,35 @@ QHBoxLayout *createRow(const QString &title, QWidget *widget)
 CurveEditorStyleDialog::CurveEditorStyleDialog(CurveEditorStyle &style, QWidget *parent)
     : QDialog(parent)
     , m_printButton(new QPushButton("Print"))
-    , m_background(new ColorControl(style.backgroundBrush.color()))
-    , m_backgroundAlternate(new ColorControl(style.backgroundAlternateBrush.color()))
-    , m_fontColor(new ColorControl(style.fontColor))
-    , m_gridColor(new ColorControl(style.gridColor))
+    , m_background(new StyleEditor::ColorControl(style.backgroundBrush.color()))
+    , m_backgroundAlternate(new StyleEditor::ColorControl(style.backgroundAlternateBrush.color()))
+    , m_fontColor(new StyleEditor::ColorControl(style.fontColor))
+    , m_gridColor(new StyleEditor::ColorControl(style.gridColor))
     , m_canvasMargin(new QDoubleSpinBox())
     , m_zoomInWidth(new QSpinBox())
     , m_zoomInHeight(new QSpinBox())
     , m_timeAxisHeight(new QDoubleSpinBox())
     , m_timeOffsetLeft(new QDoubleSpinBox())
     , m_timeOffsetRight(new QDoubleSpinBox())
-    , m_rangeBarColor(new ColorControl(style.rangeBarCapsColor))
-    , m_rangeBarCapsColor(new ColorControl(style.rangeBarCapsColor))
+    , m_rangeBarColor(new StyleEditor::ColorControl(style.rangeBarCapsColor))
+    , m_rangeBarCapsColor(new StyleEditor::ColorControl(style.rangeBarCapsColor))
     , m_valueAxisWidth(new QDoubleSpinBox())
     , m_valueOffsetTop(new QDoubleSpinBox())
     , m_valueOffsetBottom(new QDoubleSpinBox())
     , m_handleSize(new QDoubleSpinBox())
     , m_handleLineWidth(new QDoubleSpinBox())
-    , m_handleColor(new ColorControl(style.handleStyle.color))
-    , m_handleSelectionColor(new ColorControl(style.handleStyle.selectionColor))
+    , m_handleColor(new StyleEditor::ColorControl(style.handleStyle.color))
+    , m_handleSelectionColor(new StyleEditor::ColorControl(style.handleStyle.selectionColor))
     , m_keyframeSize(new QDoubleSpinBox())
-    , m_keyframeColor(new ColorControl(style.keyframeStyle.color))
-    , m_keyframeSelectionColor(new ColorControl(style.keyframeStyle.selectionColor))
+    , m_keyframeColor(new StyleEditor::ColorControl(style.keyframeStyle.color))
+    , m_keyframeSelectionColor(new StyleEditor::ColorControl(style.keyframeStyle.selectionColor))
     , m_curveWidth(new QDoubleSpinBox())
-    , m_curveColor(new ColorControl(style.curveStyle.color))
-    , m_curveSelectionColor(new ColorControl(style.curveStyle.selectionColor))
+    , m_curveColor(new StyleEditor::ColorControl(style.curveStyle.color))
+    , m_curveSelectionColor(new StyleEditor::ColorControl(style.curveStyle.selectionColor))
     , m_treeMargins(new QDoubleSpinBox())
     , m_playheadWidth(new QDoubleSpinBox())
     , m_playheadRadius(new QDoubleSpinBox())
-    , m_playheadColor(new ColorControl(style.playhead.color))
+    , m_playheadColor(new StyleEditor::ColorControl(style.playhead.color))
 
 {
     setWindowFlag(Qt::Tool, true);
@@ -111,35 +111,35 @@ CurveEditorStyleDialog::CurveEditorStyleDialog(CurveEditorStyle &style, QWidget 
     auto intSignal = static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged);
     auto doubleSignal = static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged);
 
-    connect(m_background, &ColorControl::valueChanged, colorChanged);
-    connect(m_backgroundAlternate, &ColorControl::valueChanged, colorChanged);
-    connect(m_fontColor, &ColorControl::valueChanged, colorChanged);
-    connect(m_gridColor, &ColorControl::valueChanged, colorChanged);
+    connect(m_background, &StyleEditor::ColorControl::valueChanged, colorChanged);
+    connect(m_backgroundAlternate, &StyleEditor::ColorControl::valueChanged, colorChanged);
+    connect(m_fontColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
+    connect(m_gridColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
     connect(m_canvasMargin, doubleSignal, doubleChanged);
     connect(m_zoomInWidth, intSignal, intChanged);
     connect(m_zoomInHeight, intSignal, intChanged);
     connect(m_timeAxisHeight, doubleSignal, doubleChanged);
     connect(m_timeOffsetLeft, doubleSignal, doubleChanged);
     connect(m_timeOffsetRight, doubleSignal, doubleChanged);
-    connect(m_rangeBarColor, &ColorControl::valueChanged, colorChanged);
-    connect(m_rangeBarCapsColor, &ColorControl::valueChanged, colorChanged);
+    connect(m_rangeBarColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
+    connect(m_rangeBarCapsColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
     connect(m_valueAxisWidth, doubleSignal, doubleChanged);
     connect(m_valueOffsetTop, doubleSignal, doubleChanged);
     connect(m_valueOffsetBottom, doubleSignal, doubleChanged);
     connect(m_handleSize, doubleSignal, doubleChanged);
     connect(m_handleLineWidth, doubleSignal, doubleChanged);
-    connect(m_handleColor, &ColorControl::valueChanged, colorChanged);
-    connect(m_handleSelectionColor, &ColorControl::valueChanged, colorChanged);
+    connect(m_handleColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
+    connect(m_handleSelectionColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
     connect(m_keyframeSize, doubleSignal, doubleChanged);
-    connect(m_keyframeColor, &ColorControl::valueChanged, colorChanged);
-    connect(m_keyframeSelectionColor, &ColorControl::valueChanged, colorChanged);
+    connect(m_keyframeColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
+    connect(m_keyframeSelectionColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
     connect(m_curveWidth, doubleSignal, doubleChanged);
-    connect(m_curveColor, &ColorControl::valueChanged, colorChanged);
-    connect(m_curveSelectionColor, &ColorControl::valueChanged, colorChanged);
+    connect(m_curveColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
+    connect(m_curveSelectionColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
     connect(m_treeMargins, doubleSignal, doubleChanged);
     connect(m_playheadWidth, doubleSignal, doubleChanged);
     connect(m_playheadRadius, doubleSignal, doubleChanged);
-    connect(m_playheadColor, &ColorControl::valueChanged, colorChanged);
+    connect(m_playheadColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
 
     auto *box = new QVBoxLayout;
     box->addLayout(createRow("Background Color", m_background));
@@ -266,4 +266,4 @@ void CurveEditorStyleDialog::printStyle()
     qDebug() << "";
 }
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

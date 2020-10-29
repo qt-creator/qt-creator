@@ -183,6 +183,11 @@ add_qtc_plugin(ProjectExplorer
     xcodebuildparser.cpp xcodebuildparser.h
 )
 
+extend_qtc_plugin(ProjectExplorer
+  CONDITION PROJECT_USER_FILE_EXTENSION
+  DEFINES "PROJECT_USER_FILE_EXTENSION=${PROJECT_USER_FILE_EXTENSION}"
+)
+
 if (TARGET libclang)
   set(CLANG_BINDIR "$<TARGET_FILE_DIR:libclang>")
 endif()

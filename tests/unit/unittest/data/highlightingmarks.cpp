@@ -731,3 +731,8 @@ class Property {
 
             )
 };
+
+void structuredBindingTest() {
+    const int a[] = {1, 2};
+    const auto [x, y] = a;
+}

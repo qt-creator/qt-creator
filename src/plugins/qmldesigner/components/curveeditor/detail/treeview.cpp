@@ -28,11 +28,12 @@
 #include "selectionmodel.h"
 #include "treeitem.h"
 #include "treeitemdelegate.h"
+#include "treemodel.h"
 
 #include <QHeaderView>
 #include <QMouseEvent>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 TreeView::TreeView(CurveEditorModel *model, QWidget *parent)
     : QTreeView(parent)
@@ -105,17 +106,12 @@ void TreeView::mousePressEvent(QMouseEvent *event)
     QModelIndex index = indexAt(event->pos());
     if (index.isValid()) {
         auto *treeItem = static_cast<TreeItem *>(index.internalPointer());
-        if (index.column() == 1) {
-            treeItem->setLocked(!treeItem->locked());
-            if (auto *propertyItem = treeItem->asPropertyItem())
-                emit treeItemLocked(propertyItem);
-        } else if (index.column() == 2) {
-            treeItem->setPinned(!treeItem->pinned());
-            if (auto *propertyItem = treeItem->asPropertyItem())
-                emit treeItemPinned(propertyItem);
-        }
+        if (TreeModel::isLockedColumn(index))
+            emit treeItemLocked(treeItem, !treeItem->locked());
+        else if (TreeModel::isPinnedColumn(index))
+            emit treeItemPinned(treeItem, !treeItem->pinned());
     }
     QTreeView::mousePressEvent(event);
 }
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

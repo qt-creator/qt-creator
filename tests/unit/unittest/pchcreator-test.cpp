@@ -362,7 +362,7 @@ TEST_F(PchCreatorVerySlowTest, ClangToolCleared)
     ASSERT_TRUE(creator.clangTool().isClean());
 }
 
-TEST_F(PchCreatorVerySlowTest, FaultyProjectPartPchForCreatesFaultyPchForPchTask)
+TEST_F(PchCreatorVerySlowTest, DISABLED_FaultyProjectPartPchForCreatesFaultyPchForPchTask)
 {
     PchTask faultyPchTask{
         0,

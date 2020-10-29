@@ -35,7 +35,7 @@
 #include <QSplitter>
 #include <QVBoxLayout>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
     : QWidget(parent)
@@ -52,10 +52,9 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
     box->addWidget(splitter);
     setLayout(box);
 
-    connect(m_tree, &TreeView::treeItemLocked, model, &CurveEditorModel::curveChanged);
-    connect(m_tree, &TreeView::treeItemPinned, model, &CurveEditorModel::curveChanged);
+    connect(m_tree, &TreeView::treeItemLocked, model, &CurveEditorModel::setLocked);
+    connect(m_tree, &TreeView::treeItemPinned, model, &CurveEditorModel::setPinned);
 
-    connect(m_tree, &TreeView::treeItemLocked, m_view, &GraphicsView::setLocked);
     connect(m_tree->selectionModel(),
             &SelectionModel::curvesSelected,
             m_view,
@@ -180,4 +179,4 @@ QToolBar *CurveEditor::createToolBar(CurveEditorModel *model)
     return bar;
 }
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

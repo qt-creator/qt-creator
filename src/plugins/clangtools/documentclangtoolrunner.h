@@ -27,6 +27,7 @@
 
 #include "clangfileinfo.h"
 #include "clangtoolsdiagnostic.h"
+#include "clangtoolsprojectsettings.h"
 
 #include <utils/fileutils.h>
 #include <utils/temporarydirectory.h>
@@ -67,6 +68,7 @@ private:
 
     void cancel();
 
+    bool isSuppressed(const Diagnostic &diagnostic) const;
 
     const CppTools::ClangDiagnosticConfig getDiagnosticConfig(ProjectExplorer::Project *project);
     template<class T>
@@ -82,6 +84,8 @@ private:
     FileInfo m_fileInfo;
     QMetaObject::Connection m_projectSettingsUpdate;
     QSet<TextEditor::TextEditorWidget *> m_editorsWithMarkers;
+    SuppressedDiagnosticsList m_suppressed;
+    Utils::FilePath m_lastProjectDirectory;
 };
 
 } // namespace Internal

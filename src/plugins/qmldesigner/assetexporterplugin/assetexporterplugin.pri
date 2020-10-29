@@ -1,4 +1,5 @@
 QT *= qml quick core widgets
+QT += quick-private
 
 VPATH += $$PWD
 

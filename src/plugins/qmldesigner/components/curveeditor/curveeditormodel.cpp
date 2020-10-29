@@ -25,6 +25,7 @@
 
 #include "curveeditormodel.h"
 #include "curveeditorstyle.h"
+#include "detail/treeview.h"
 #include "treeitem.h"
 
 #include "detail/graphicsview.h"
@@ -34,10 +35,11 @@
 #include "qmltimeline.h"
 
 #include <bindingproperty.h>
+#include <nodeabstractproperty.h>
 #include <theme.h>
 #include <variantproperty.h>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 CurveEditorModel::CurveEditorModel(QObject *parent)
     : TreeModel(parent)
@@ -57,10 +59,10 @@ double CurveEditorModel::maximumTime() const
     return m_maxTime;
 }
 
-DesignTools::CurveEditorStyle CurveEditorModel::style() const
+CurveEditorStyle CurveEditorModel::style() const
 {
     // Pseudo auto generated. See: CurveEditorStyleDialog
-    DesignTools::CurveEditorStyle out;
+    CurveEditorStyle out;
     out.backgroundBrush = QBrush(QColor(21, 21, 21));
     out.backgroundAlternateBrush = QBrush(QColor(32, 32, 32));
     out.fontColor = QColor(255, 255, 255);
@@ -98,9 +100,9 @@ void CurveEditorModel::setTimeline(const QmlDesigner::QmlTimeline &timeline)
 {
     m_minTime = timeline.startKeyframe();
     m_maxTime = timeline.endKeyframe();
-    std::vector<DesignTools::TreeItem *> items;
+    std::vector<TreeItem *> items;
     for (auto &&target : timeline.allTargets()) {
-        if (DesignTools::TreeItem *item = createTopLevelItem(timeline, target))
+        if (TreeItem *item = createTopLevelItem(timeline, target))
             items.push_back(item);
     }
 
@@ -133,6 +135,32 @@ void CurveEditorModel::setCurve(unsigned int id, const AnimationCurve &curve)
             emit curveChanged(propertyItem);
         }
     }
+}
+
+void CurveEditorModel::setLocked(TreeItem *item, bool val)
+{
+    item->setLocked(val);
+
+    if (auto *gview = graphicsView())
+        gview->setLocked(item);
+
+    if (auto *tview = treeView())
+        tview->viewport()->update();
+
+    emit curveChanged(item);
+}
+
+void CurveEditorModel::setPinned(TreeItem *item, bool val)
+{
+    item->setPinned(val);
+
+    if (auto *gview = graphicsView())
+        gview->setPinned(item);
+
+    if (auto *tview = treeView())
+        tview->viewport()->update();
+
+    emit curveChanged(item);
 }
 
 bool contains(const std::vector<TreeItem::Path> &selection, const TreeItem::Path &path)
@@ -176,38 +204,57 @@ void CurveEditorModel::reset(const std::vector<TreeItem *> &items)
         sm->selectPaths(sel);
 }
 
-DesignTools::ValueType typeFrom(const QmlDesigner::QmlTimelineKeyframeGroup &group)
+PropertyTreeItem::ValueType typeFrom(const QmlDesigner::QmlTimelineKeyframeGroup &group)
 {
     if (group.valueType() == QmlDesigner::TypeName("double")
         || group.valueType() == QmlDesigner::TypeName("real")
         || group.valueType() == QmlDesigner::TypeName("float"))
-        return DesignTools::ValueType::Double;
+        return PropertyTreeItem::ValueType::Double;
 
     if (group.valueType() == QmlDesigner::TypeName("boolean")
         || group.valueType() == QmlDesigner::TypeName("bool"))
-        return DesignTools::ValueType::Bool;
+        return PropertyTreeItem::ValueType::Bool;
 
     if (group.valueType() == QmlDesigner::TypeName("integer")
         || group.valueType() == QmlDesigner::TypeName("int"))
-        return DesignTools::ValueType::Integer;
+        return PropertyTreeItem::ValueType::Integer;
 
     // Ignoring: QColor / HAlignment / VAlignment
-    return DesignTools::ValueType::Undefined;
+    return PropertyTreeItem::ValueType::Undefined;
 }
 
-DesignTools::TreeItem *CurveEditorModel::createTopLevelItem(const QmlDesigner::QmlTimeline &timeline,
-                                                            const QmlDesigner::ModelNode &node)
+std::vector<QString> parentIds(const QmlDesigner::ModelNode &node)
+{
+    std::vector<QString> out;
+
+    QmlDesigner::ModelNode parent = node.parentProperty().parentModelNode();
+    while (parent.isValid()) {
+        out.push_back(parent.id());
+
+        if (parent.hasParentProperty())
+            parent = parent.parentProperty().parentModelNode();
+        else
+            break;
+    }
+    return out;
+}
+
+TreeItem *CurveEditorModel::createTopLevelItem(const QmlDesigner::QmlTimeline &timeline,
+                                               const QmlDesigner::ModelNode &node)
 {
     if (!node.isValid())
         return nullptr;
 
-    auto *nodeItem = new DesignTools::NodeTreeItem(node.id(), QIcon(":/ICON_INSTANCE"));
+    auto *nodeItem = new NodeTreeItem(node.id(), node.typeIcon(), parentIds(node));
+    if (node.hasAuxiliaryData("locked"))
+        nodeItem->setLocked(true);
+
     for (auto &&grp : timeline.keyframeGroupsForTarget(node)) {
         if (grp.isValid()) {
-            DesignTools::AnimationCurve curve = createAnimationCurve(grp);
+            AnimationCurve curve = createAnimationCurve(grp);
             if (curve.isValid()) {
                 QString name = QString::fromUtf8(grp.propertyName());
-                auto propertyItem = new DesignTools::PropertyTreeItem(name, curve, typeFrom(grp));
+                auto propertyItem = new PropertyTreeItem(name, curve, typeFrom(grp));
 
                 QmlDesigner::ModelNode target = grp.modelNode();
                 if (target.hasAuxiliaryData("locked"))
@@ -229,25 +276,24 @@ DesignTools::TreeItem *CurveEditorModel::createTopLevelItem(const QmlDesigner::Q
     return nodeItem;
 }
 
-DesignTools::AnimationCurve CurveEditorModel::createAnimationCurve(
-    const QmlDesigner::QmlTimelineKeyframeGroup &group)
+AnimationCurve CurveEditorModel::createAnimationCurve(const QmlDesigner::QmlTimelineKeyframeGroup &group)
 {
     switch (typeFrom(group)) {
-    case DesignTools::ValueType::Bool:
+    case PropertyTreeItem::ValueType::Bool:
         return createDoubleCurve(group);
 
-    case DesignTools::ValueType::Integer:
+    case PropertyTreeItem::ValueType::Integer:
         return createDoubleCurve(group);
 
-    case DesignTools::ValueType::Double:
+    case PropertyTreeItem::ValueType::Double:
         return createDoubleCurve(group);
 
     default:
-        return DesignTools::AnimationCurve();
+        return AnimationCurve();
     }
 }
 
-std::vector<DesignTools::Keyframe> createKeyframes(QList<QmlDesigner::ModelNode> nodes)
+std::vector<Keyframe> createKeyframes(QList<QmlDesigner::ModelNode> nodes)
 {
     auto byTime = [](const auto &a, const auto &b) {
         return a.variantProperty("frame").value().toDouble()
@@ -255,7 +301,7 @@ std::vector<DesignTools::Keyframe> createKeyframes(QList<QmlDesigner::ModelNode>
     };
     std::sort(nodes.begin(), nodes.end(), byTime);
 
-    std::vector<DesignTools::Keyframe> frames;
+    std::vector<Keyframe> frames;
     for (auto &&node : nodes) {
         QVariant timeVariant = node.variantProperty("frame").value();
         QVariant valueVariant = node.variantProperty("value").value();
@@ -264,7 +310,7 @@ std::vector<DesignTools::Keyframe> createKeyframes(QList<QmlDesigner::ModelNode>
 
         QPointF position(timeVariant.toDouble(), valueVariant.toDouble());
 
-        auto keyframe = DesignTools::Keyframe(position);
+        auto keyframe = Keyframe(position);
 
         if (node.hasBindingProperty("easing.bezierCurve")) {
             QmlDesigner::EasingCurve ecurve;
@@ -276,15 +322,15 @@ std::vector<DesignTools::Keyframe> createKeyframes(QList<QmlDesigner::ModelNode>
     return frames;
 }
 
-std::vector<DesignTools::Keyframe> resolveSmallCurves(const std::vector<DesignTools::Keyframe> &frames)
+std::vector<Keyframe> resolveSmallCurves(const std::vector<Keyframe> &frames)
 {
-    std::vector<DesignTools::Keyframe> out;
+    std::vector<Keyframe> out;
     for (auto &&frame : frames) {
         if (frame.hasData() && !out.empty()) {
             QEasingCurve curve = frame.data().toEasingCurve();
             // One-segment-curve: Since (0,0) is implicit => 3
             if (curve.toCubicSpline().count() == 3) {
-                DesignTools::Keyframe &previous = out.back();
+                Keyframe &previous = out.back();
 #if 0
                 // Do not resolve when two adjacent keyframes have the same value.
                 if (qFuzzyCompare(previous.position().y(), frame.position().y())) {
@@ -292,7 +338,7 @@ std::vector<DesignTools::Keyframe> resolveSmallCurves(const std::vector<DesignTo
                     continue;
                 }
 #endif
-                DesignTools::AnimationCurve acurve(curve, previous.position(), frame.position());
+                AnimationCurve acurve(curve, previous.position(), frame.position());
                 previous.setRightHandle(acurve.keyframeAt(0).rightHandle());
                 out.push_back(acurve.keyframeAt(1));
                 continue;
@@ -303,10 +349,9 @@ std::vector<DesignTools::Keyframe> resolveSmallCurves(const std::vector<DesignTo
     return out;
 }
 
-DesignTools::AnimationCurve CurveEditorModel::createDoubleCurve(
-    const QmlDesigner::QmlTimelineKeyframeGroup &group)
+AnimationCurve CurveEditorModel::createDoubleCurve(const QmlDesigner::QmlTimelineKeyframeGroup &group)
 {
-    std::vector<DesignTools::Keyframe> keyframes = createKeyframes(group.keyframePositions());
+    std::vector<Keyframe> keyframes = createKeyframes(group.keyframePositions());
     keyframes = resolveSmallCurves(keyframes);
 
     QString str;
@@ -321,7 +366,7 @@ DesignTools::AnimationCurve CurveEditorModel::createDoubleCurve(
         }
     }
 
-    return DesignTools::AnimationCurve(keyframes);
+    return AnimationCurve(keyframes);
 }
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

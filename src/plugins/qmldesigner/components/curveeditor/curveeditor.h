@@ -28,7 +28,7 @@
 #include <QToolBar>
 #include <QWidget>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 class CurveEditorModel;
 class GraphicsView;
@@ -57,4 +57,4 @@ private:
     GraphicsView *m_view;
 };
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

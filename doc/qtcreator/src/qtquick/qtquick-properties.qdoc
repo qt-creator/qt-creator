@@ -26,7 +26,7 @@
 /*!
     \page qtquick-properties.html
     \previouspage qtquick-navigator.html
-    \nextpage qtquick-fonts.html
+    \nextpage qtquick-positioning.html
 
     \title Specifying Item Properties
 
@@ -235,7 +235,9 @@
     \section2 Geometry
 
     In the \uicontrol Position group, you can set the position of an item on
-    the x and y axis.
+    the x and y axis. The position of an item in the UI can be either absolute
+    or relative to other items. For more information, see
+    \l{Positioning Items}.
 
     The z position of an item determines its position in relation to its
     sibling items in the type hierarchy. You can set it in the \uicontrol Z

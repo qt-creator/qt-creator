@@ -34,7 +34,7 @@ namespace ComponentCoreConstants {
 const char rootCategory[] = "";
 
 const char selectionCategory[] = "Selection";
-const char stackCategory[] = "Stack (z)";
+const char arrangeCategory[] = "Arrange";
 const char qmlPreviewCategory[] = "QmlPreview";
 const char editCategory[] = "Edit";
 const char anchorsCategory[] = "Anchors";
@@ -52,6 +52,7 @@ const char toBackCommandId[] = "ToBack";
 const char raiseCommandId[] = "Raise";
 const char lowerCommandId[] = "Lower";
 const char resetZCommandId[] = "ResetZ";
+const char reverseCommandId[] = "Reverse";
 const char resetSizeCommandId[] = "ResetSize";
 const char resetPositionCommandId[] = "ResetPosition";
 const char visiblityCommandId[] = "ToggleVisiblity";
@@ -90,7 +91,7 @@ const char fitSelectionToScreenCommandId[] = "FitSelectionToScreen";
 const char selectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Selection");
 const char flowConnectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Connect");
 const char selectEffectDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select Effect");
-const char stackCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Stack (z)");
+const char arrangeCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Arrange");
 const char editCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit");
 const char anchorsCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Anchors");
 const char positionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Position");
@@ -105,11 +106,11 @@ const char copySelectionDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMen
 const char pasteSelectionDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Paste");
 const char deleteSelectionDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Delete Selection");
 
-const char toFrontDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "To Front");
-const char toBackDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "To Back");
+const char toFrontDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Bring to Front");
+const char toBackDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Send to Back");
 
-const char raiseDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Raise");
-const char lowerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Lower");
+const char raiseDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Bring Forward");
+const char lowerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Send Backward");
 
 const char undoDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Undo");
 const char redoDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Redo");
@@ -128,6 +129,8 @@ const char moveToComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextM
 const char setIdDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Set Id");
 
 const char resetZDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Reset z Property");
+
+const char reverseDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Reverse");
 
 const char anchorsFillDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Fill");
 const char anchorsResetDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Reset");

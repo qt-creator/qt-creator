@@ -33,7 +33,7 @@ namespace CppTools {
 
 enum class UsePrecompiledHeaders : char { Yes, No };
 enum class UseSystemHeader : char { Yes, No };
-enum class UseTweakedHeaderPaths : char { Yes, No };
+enum class UseTweakedHeaderPaths : char { Yes, Tools, No };
 enum class UseToolchainMacros : char { Yes, No };
 enum class UseLanguageDefines : char { Yes, No };
 enum class UseBuildSystemWarnings : char { Yes, No };

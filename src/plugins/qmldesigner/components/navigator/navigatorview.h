@@ -43,7 +43,7 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-static int delegateMargin = 2;
+const int delegateMargin = 2;
 
 class NavigatorWidget;
 class NavigatorTreeModel;

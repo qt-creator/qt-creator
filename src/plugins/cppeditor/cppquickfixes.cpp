@@ -2770,7 +2770,12 @@ static Enum *findEnum(const QList<LookupItem> &results, const LookupContext &ctx
             return e;
         if (const NamedType *namedType = type->asNamedType()) {
             if (ClassOrNamespace *con = ctxt.lookupType(namedType->name(), result.scope())) {
-                const QList<Enum *> enums = con->unscopedEnums();
+                QList<Enum *> enums = con->unscopedEnums();
+                const QList<Symbol *> symbols = con->symbols();
+                for (Symbol * const s : symbols) {
+                    if (const auto e = s->asEnum())
+                        enums << e;
+                }
                 const Name *referenceName = namedType->name();
                 if (const QualifiedNameId *qualifiedName = referenceName->asQualifiedNameId())
                     referenceName = qualifiedName->name();
@@ -6457,6 +6462,7 @@ QString definitionSignature(const CppQuickFixInterface *assist,
     oo.showReturnTypes = true;
     oo.showArgumentNames = true;
     oo.showEnclosingTemplate = true;
+    oo.showTemplateParameters = true;
     const Name *name = func->name();
     if (name && nameIncludesOperatorName(name)) {
         CoreDeclaratorAST *coreDeclarator = functionDefinitionAST->declarator->core_declarator;

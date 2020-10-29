@@ -69,7 +69,7 @@
             <item>
              <widget class="QPushButton" name="topicsResetButton">
               <property name="text">
-               <string>Reset to All</string>
+               <string>Reset Filter</string>
               </property>
              </widget>
             </item>

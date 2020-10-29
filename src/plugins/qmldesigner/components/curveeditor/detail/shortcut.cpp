@@ -24,7 +24,7 @@
 ****************************************************************************/
 #include "shortcut.h"
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 Shortcut::Shortcut()
     : m_key()
@@ -78,4 +78,4 @@ bool Shortcut::operator==(const Shortcut &other) const
     return m_key == other.m_key && m_buttons == other.m_buttons && m_modifiers == other.m_modifiers;
 }
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

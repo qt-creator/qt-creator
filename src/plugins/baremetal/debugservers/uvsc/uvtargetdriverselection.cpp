@@ -36,11 +36,11 @@ namespace Internal {
 namespace Uv {
 
 // Driver data keys.
-constexpr char driverIndexKeyC[] = "BareMetal.UvscServerProvider.DriverIndex";
-constexpr char driverCpuDllIndexKeyC[] = "BareMetal.UvscServerProvider.DriverCpuDllIndex";
-constexpr char driverDllKeyC[] = "BareMetal.UvscServerProvider.DriverDll";
-constexpr char driverCpuDllsKeyC[] = "BareMetal.UvscServerProvider.DriverCpuDlls";
-constexpr char driverNameKeyC[] = "BareMetal.UvscServerProvider.DriverName";
+constexpr char driverIndexKeyC[] = "DriverIndex";
+constexpr char driverCpuDllIndexKeyC[] = "DriverCpuDllIndex";
+constexpr char driverDllKeyC[] = "DriverDll";
+constexpr char driverCpuDllsKeyC[] = "DriverCpuDlls";
+constexpr char driverNameKeyC[] = "DriverName";
 
 // DriverSelection
 

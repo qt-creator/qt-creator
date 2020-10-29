@@ -65,6 +65,9 @@ public:
     QAction *m_includeOldEntriesAction = nullptr;
     QAction *m_includeTagsAction = nullptr;
 
+protected:
+    void showEvent(QShowEvent *) override;
+
 private:
     void refreshCurrentRepository();
     void resizeColumns();

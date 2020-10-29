@@ -121,7 +121,7 @@ AnalyzeUnit::AnalyzeUnit(const FileInfo &fileInfo,
 {
     CompilerOptionsBuilder optionsBuilder(*fileInfo.projectPart,
                                           UseSystemHeader::No,
-                                          UseTweakedHeaderPaths::Yes,
+                                          UseTweakedHeaderPaths::Tools,
                                           UseLanguageDefines::No,
                                           UseBuildSystemWarnings::No,
                                           clangVersion,

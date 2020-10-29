@@ -28,7 +28,11 @@
 
 #include <QColor>
 #include <QFontInfo>
+#include <QFontMetricsF>
 #include <QHash>
+#include <QtMath>
+
+#include <private/qquicktext_p.h>
 
 namespace  {
 const QHash<QString, QString> AlignMapping{
@@ -85,6 +89,14 @@ QJsonObject TextNodeParser::json(Component &component) const
     textDetails.insert(VAlignTag, toJsonAlignEnum(propertyValue("verticalAlignment").toString()));
 
     textDetails.insert(IsMultilineTag, propertyValue("wrapMode").toString().compare("NoWrap") != 0);
+
+    // Calculate line height in pixels
+    QFontMetricsF fm(font);
+    auto lineHeightMode = propertyValue("lineHeightMode").value<QQuickText::LineHeightMode>();
+    double lineHeight = propertyValue("lineHeight").toDouble();
+    qreal lineHeightPx = (lineHeightMode == QQuickText::FixedHeight) ?
+                lineHeight : qCeil(fm.height()) * lineHeight;
+    textDetails.insert(LineHeightTag, lineHeightPx);
 
     QJsonObject metadata = jsonObject.value(MetadataTag).toObject();
     metadata.insert(TextDetailsTag, textDetails);

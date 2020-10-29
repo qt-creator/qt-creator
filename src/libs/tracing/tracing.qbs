@@ -9,6 +9,7 @@ Project {
 
     QtcLibrary {
         Depends { name: "Qt"; submodules: ["qml", "quick", "gui"] }
+        Depends { name: "Qt.testlib"; condition: project.withAutotests }
         Depends { name: "Utils" }
 
         Group {
@@ -48,7 +49,7 @@ Project {
 
         Group {
             name: "Unit test utilities"
-            condition: qtc.testsEnabled
+            condition: project.withAutotests
             files: [
                 "runscenegraphtest.cpp", "runscenegraphtest.h"
             ]

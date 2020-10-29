@@ -298,7 +298,8 @@ void CompilerOptionsBuilder::enableExceptions()
 
 void CompilerOptionsBuilder::insertWrappedQtHeaders()
 {
-    insertWrappedHeaders(wrappedQtHeadersIncludePath());
+    if (m_useTweakedHeaderPaths == UseTweakedHeaderPaths::Yes)
+        insertWrappedHeaders(wrappedQtHeadersIncludePath());
 }
 
 void CompilerOptionsBuilder::insertWrappedMingwHeaders()

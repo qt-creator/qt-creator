@@ -32,7 +32,7 @@ function(_find_all_includes _ret_includes _ret_framework_paths)
 endfunction()
 
 if (WITH_DOCS)
-  add_qtc_documentation("qtcreator/qtcreator.qdocconf")
+  add_qtc_documentation(${IDE_DOC_FILE})
   if (BUILD_DEVELOPER_DOCS)
     _find_all_includes(_all_includes _framework_paths)
     add_qtc_documentation("qtcreatordev/qtcreator-dev.qdocconf"
@@ -42,7 +42,7 @@ if (WITH_DOCS)
   endif()
 endif()
 if(WITH_ONLINE_DOCS)
-  add_qtc_documentation("qtcreator/qtcreator-online.qdocconf")
+  add_qtc_documentation(${IDE_DOC_FILE_ONLINE})
   if (BUILD_DEVELOPER_DOCS)
     _find_all_includes(_all_includes _framework_paths)
     add_qtc_documentation("qtcreatordev/qtcreator-dev-online.qdocconf"

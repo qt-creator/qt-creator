@@ -33,12 +33,12 @@
 
 #include <QGraphicsView>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 class CurveItem;
 class CurveEditorModel;
 class Playhead;
-class PropertyTreeItem;
+class TreeItem;
 
 class GraphicsView : public QGraphicsView
 {
@@ -92,7 +92,9 @@ public:
 
     QRectF defaultRasterRect() const;
 
-    void setLocked(PropertyTreeItem *item);
+    void setLocked(TreeItem *item);
+
+    void setPinned(TreeItem *item);
 
     void setStyle(const CurveEditorStyle &style);
 
@@ -106,7 +108,7 @@ public:
 
     void reset(const std::vector<CurveItem *> &items);
 
-    void updateSelection(const std::vector<CurveItem *> &items);
+    void updateSelection();
 
     void setInterpolation(Keyframe::Interpolation interpol);
 
@@ -134,7 +136,7 @@ protected:
 private:
     void applyZoom(double x, double y, const QPoint &pivot = QPoint());
 
-    void drawGrid(QPainter *painter, const QRectF &rect);
+    void drawGrid(QPainter *painter);
 
 #if 0
     void drawExtremaX(QPainter *painter, const QRectF &rect);
@@ -176,4 +178,4 @@ private:
     CurveEditorStyleDialog m_dialog;
 };
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

@@ -52,9 +52,9 @@ namespace Internal {
 
 using namespace Uv;
 
-constexpr char adapterOptionsKeyC[] = "BareMetal.JLinkUvscServerProvider.AdapterOptions";
-constexpr char adapterPortKeyC[] = "BareMetal.JLinkUvscServerProvider.AdapterPort";
-constexpr char adapterSpeedKeyC[] = "BareMetal.JLinkUvscServerProvider.AdapterSpeed";
+constexpr char adapterOptionsKeyC[] = "AdapterOptions";
+constexpr char adapterPortKeyC[] = "AdapterPort";
+constexpr char adapterSpeedKeyC[] = "AdapterSpeed";
 
 static int decodeSpeedCode(JLinkUvscAdapterOptions::Speed speed)
 {

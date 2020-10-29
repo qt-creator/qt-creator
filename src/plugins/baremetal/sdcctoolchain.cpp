@@ -58,8 +58,8 @@ namespace Internal {
 
 // Helpers:
 
-static const char compilerCommandKeyC[] = "BareMetal.SdccToolChain.CompilerPath";
-static const char targetAbiKeyC[] = "BareMetal.SdccToolChain.TargetAbi";
+static const char compilerCommandKeyC[] = "CompilerPath";
+static const char targetAbiKeyC[] = "TargetAbi";
 
 static bool compilerExists(const FilePath &compilerPath)
 {

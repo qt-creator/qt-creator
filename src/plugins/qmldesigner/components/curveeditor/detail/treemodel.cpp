@@ -31,7 +31,22 @@
 
 #include <QIcon>
 
-namespace DesignTools {
+namespace QmlDesigner {
+
+bool TreeModel::isTextColumn(const QModelIndex &index)
+{
+    return index.column() == 0;
+}
+
+bool TreeModel::isLockedColumn(const QModelIndex &index)
+{
+    return index.column() == 1;
+}
+
+bool TreeModel::isPinnedColumn(const QModelIndex &index)
+{
+    return index.column() == 2;
+}
 
 TreeItem *TreeModel::treeItem(const QModelIndex &index)
 {
@@ -71,8 +86,8 @@ CurveItem *TreeModel::curveItem(TreeItem *item)
         auto *citem = new CurveItem(pti->id(), pti->curve());
         citem->setValueType(pti->valueType());
         citem->setComponent(pti->component());
-        citem->setLocked(pti->locked());
-        citem->setPinned(pti->pinned());
+        citem->setLocked(pti->locked() || item->implicitlyLocked());
+        citem->setPinned(pti->pinned() || item->implicitlyPinned());
         return citem;
     }
 
@@ -183,6 +198,11 @@ void TreeModel::setGraphicsView(GraphicsView *view)
     m_view = view;
 }
 
+TreeView *TreeModel::treeView() const
+{
+    return m_tree;
+}
+
 GraphicsView *TreeModel::graphicsView() const
 {
     return m_view;
@@ -206,6 +226,36 @@ QModelIndex TreeModel::findIdx(const QString &name, const QModelIndex &parent) c
         }
     }
     return QModelIndex();
+}
+
+bool TreeModel::isSelected(TreeItem *item) const
+{
+    if (auto *sm = selectionModel())
+        return sm->isSelected(item);
+
+    return false;
+}
+
+void addCurvesFromItem(TreeItem *item, std::vector<CurveItem *> &curves)
+{
+    if (auto *pitem = item->asPropertyItem()) {
+        if (auto *curveItem = TreeModel::curveItem(pitem))
+            curves.push_back(curveItem);
+    } else if (auto *nitem = item->asNodeItem()) {
+        for (auto *child : nitem->children())
+            addCurvesFromItem(child, curves);
+    }
+}
+
+std::vector<CurveItem *> TreeModel::selectedCurves() const
+{
+    std::vector<CurveItem *> curves;
+    const auto ids = selectionModel()->selectedIndexes();
+    for (auto &&index : ids) {
+        if (auto *treeItem = TreeModel::treeItem(index))
+            addCurvesFromItem(treeItem, curves);
+    }
+    return curves;
 }
 
 QModelIndex TreeModel::indexOf(const TreeItem::Path &path) const
@@ -238,4 +288,9 @@ TreeItem *TreeModel::find(unsigned int id)
     return m_root->find(id);
 }
 
-} // End namespace DesignTools.
+TreeItem *TreeModel::find(const QString &id)
+{
+    return m_root->find(id);
+}
+
+} // End namespace QmlDesigner.

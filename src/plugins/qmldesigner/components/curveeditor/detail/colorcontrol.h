@@ -27,7 +27,9 @@
 
 #include <QWidget>
 
-namespace DesignTools {
+namespace QmlDesigner {
+
+namespace StyleEditor {
 
 class ColorControl : public QWidget
 {
@@ -60,4 +62,6 @@ private:
     QColor m_color;
 };
 
-} // End namespace DesignTools.
+} // End namespace StyleEditor.
+
+} // End namespace QmlDesigner.

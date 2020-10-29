@@ -31,13 +31,11 @@
 
 #include <vector>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 class GraphicsView;
 class TreeView;
-class TreeItem;
 class CurveItem;
-class PropertyTreeItem;
 class SelectionModel;
 
 class TreeModel : public QAbstractItemModel
@@ -45,6 +43,12 @@ class TreeModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
+    static bool isTextColumn(const QModelIndex &index);
+
+    static bool isLockedColumn(const QModelIndex &index);
+
+    static bool isPinnedColumn(const QModelIndex &index);
+
     static TreeItem *treeItem(const QModelIndex &index);
 
     static NodeTreeItem *nodeItem(const QModelIndex &index);
@@ -73,13 +77,23 @@ public:
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
+    bool isSelected(TreeItem *item) const;
+
+    std::vector<CurveItem *> selectedCurves() const;
+
     QModelIndex indexOf(const TreeItem::Path &path) const;
+
+    TreeItem *find(unsigned int id);
+
+    TreeItem *find(const QString &id);
 
     void setTreeView(TreeView *view);
 
     void setGraphicsView(GraphicsView *view);
 
 protected:
+    TreeView *treeView() const;
+
     GraphicsView *graphicsView() const;
 
     SelectionModel *selectionModel() const;
@@ -87,8 +101,6 @@ protected:
     void initialize();
 
     TreeItem *root();
-
-    TreeItem *find(unsigned int id);
 
     QModelIndex findIdx(const QString &name, const QModelIndex &parent) const;
 
@@ -100,4 +112,4 @@ private:
     TreeItem *m_root;
 };
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

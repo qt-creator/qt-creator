@@ -26,6 +26,7 @@
 #pragma once
 
 #include <QtGlobal>
+#include <cmath>
 
 QT_BEGIN_NAMESPACE
 class QColor;
@@ -37,7 +38,7 @@ QT_END_NAMESPACE
 
 #include <vector>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 double scaleX(const QTransform &transform);
 
@@ -58,7 +59,7 @@ inline void freeClear(T &vec)
 }
 
 template<typename TV, typename TC>
-inline double clamp(const TV &val, const TC &lo, const TC &hi)
+inline TV clamp(const TV &val, const TC &lo, const TC &hi)
 {
     return val < lo ? lo : (val > hi ? hi : val);
 }
@@ -75,4 +76,10 @@ inline T reverseLerp(double blend, const T &a, const T &b)
     return (blend - b) / (a - b);
 }
 
-} // End namespace DesignTools.
+template<typename T>
+inline int roundToInt(const T &val)
+{
+    return static_cast<int>(std::round(val));
+}
+
+} // End namespace QmlDesigner.

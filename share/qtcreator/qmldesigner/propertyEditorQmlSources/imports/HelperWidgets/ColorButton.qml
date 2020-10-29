@@ -201,6 +201,7 @@ Item {
         MouseArea {
             id: mapMouseArea
             anchors.fill: parent
+            preventStealing: true
             onPositionChanged: {
                 if (pressed && mouse.buttons === Qt.LeftButton) {
                     var xx = Math.max(0, Math.min(mouse.x, parent.width))

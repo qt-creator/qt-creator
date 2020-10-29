@@ -27,6 +27,7 @@
 #include "idebugserverprovider.h"
 
 // GDB debug servers.
+#include "debugservers/gdb/genericgdbserverprovider.h"
 #include "debugservers/gdb/openocdgdbserverprovider.h"
 #include "debugservers/gdb/stlinkutilgdbserverprovider.h"
 #include "debugservers/gdb/jlinkgdbserverprovider.h"
@@ -61,7 +62,8 @@ static DebugServerProviderManager *m_instance = nullptr;
 
 DebugServerProviderManager::DebugServerProviderManager()
     : m_configFile(Utils::FilePath::fromString(Core::ICore::userResourcePath() + fileNameKeyC))
-    , m_factories({new JLinkGdbServerProviderFactory,
+    , m_factories({new GenericGdbServerProviderFactory,
+                   new JLinkGdbServerProviderFactory,
                    new OpenOcdGdbServerProviderFactory,
                    new StLinkUtilGdbServerProviderFactory,
                    new EBlinkGdbServerProviderFactory,
@@ -115,7 +117,13 @@ void DebugServerProviderManager::restoreProviders()
         if (!data.contains(key))
             break;
 
-        const QVariantMap map = data.value(key).toMap();
+        QVariantMap map = data.value(key).toMap();
+        const QStringList keys = map.keys();
+        for (const QString &key : keys) {
+            const int lastDot = key.lastIndexOf('.');
+            if (lastDot != -1)
+                map[key.mid(lastDot + 1)] = map[key];
+        }
         bool restored = false;
         for (IDebugServerProviderFactory *f : qAsConst(m_factories)) {
             if (f->canRestore(map)) {

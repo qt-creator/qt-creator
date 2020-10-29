@@ -171,9 +171,8 @@ int AndroidQtVersion::minimumNDK() const
 
 void AndroidQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
 {
-    if (supportsMultipleQtAbis())
-        m_androidAbis = evaluator->values("ALL_ANDROID_ABIS");
-    else
+    m_androidAbis = evaluator->values("ALL_ANDROID_ABIS");
+    if (m_androidAbis.isEmpty())
         m_androidAbis = QStringList{evaluator->value("ANDROID_TARGET_ARCH")};
     const QString androidPlatform = evaluator->value("ANDROID_PLATFORM");
     if (!androidPlatform.isEmpty()) {

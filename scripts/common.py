@@ -133,16 +133,17 @@ def get_rpath(libfilepath, chrpath=None):
         chrpath = 'chrpath'
     try:
         output = subprocess.check_output([chrpath, '-l', libfilepath]).strip()
+        decoded_output = output.decode(encoding) if encoding else output
     except subprocess.CalledProcessError: # no RPATH or RUNPATH
         return []
     marker = 'RPATH='
-    index = output.decode(encoding).find(marker)
+    index = decoded_output.find(marker)
     if index < 0:
         marker = 'RUNPATH='
-        index = output.find(marker)
+        index = decoded_output.find(marker)
     if index < 0:
         return []
-    return output[index + len(marker):].split(':')
+    return decoded_output[index + len(marker):].split(':')
 
 def fix_rpaths(path, qt_deploy_path, qt_install_info, chrpath=None):
     if chrpath is None:
@@ -155,12 +156,13 @@ def fix_rpaths(path, qt_deploy_path, qt_install_info, chrpath=None):
         if len(rpath) <= 0:
             return
         # remove previous Qt RPATH
-        new_rpath = filter(lambda path: not path.startswith(qt_install_prefix) and not path.startswith(qt_install_libs),
-                           rpath)
+        new_rpath = list(filter(lambda path: not path.startswith(qt_install_prefix) and not path.startswith(qt_install_libs),
+                           rpath))
 
         # check for Qt linking
         lddOutput = subprocess.check_output(['ldd', filepath])
-        if lddOutput.decode(encoding).find('libQt5') >= 0 or lddOutput.find('libicu') >= 0:
+        lddDecodedOutput = lddOutput.decode(encoding) if encoding else lddOutput
+        if lddDecodedOutput.find('libQt5') >= 0 or lddDecodedOutput.find('libicu') >= 0:
             # add Qt RPATH if necessary
             relative_path = os.path.relpath(qt_deploy_path, os.path.dirname(filepath))
             if relative_path == '.':
@@ -180,7 +182,7 @@ def fix_rpaths(path, qt_deploy_path, qt_install_info, chrpath=None):
     def is_unix_executable(filepath):
         # Whether a file is really a binary executable and not a script and not a symlink (unix only)
         if os.path.exists(filepath) and os.access(filepath, os.X_OK) and not os.path.islink(filepath):
-            with open(filepath) as f:
+            with open(filepath, 'rb') as f:
                 return f.read(2) != "#!"
 
     def is_unix_library(filepath):

@@ -194,6 +194,9 @@ void DocumentClangToolRunner::run()
                 const RunSettings &runSettings = projectSettings->useGlobalSettings()
                                                      ? ClangToolsSettings::instance()->runSettings()
                                                      : projectSettings->runSettings();
+
+                m_suppressed = projectSettings->suppressedDiagnostics();
+                m_lastProjectDirectory = project->projectDirectory();
                 m_projectSettingsUpdate = connect(projectSettings.data(),
                                                   &ClangToolsProjectSettings::changed,
                                                   this,
@@ -293,6 +296,9 @@ void DocumentClangToolRunner::onSuccess()
     TextEditor::RefactorMarkers markers;
 
     for (const Diagnostic &diagnostic : diagnostics) {
+        if (isSuppressed(diagnostic))
+            continue;
+
         auto mark = new DiagnosticMark(diagnostic);
         mark->source = m_currentRunner->name();
 
@@ -349,6 +355,20 @@ void DocumentClangToolRunner::cancel()
         m_currentRunner->disconnect(this);
         m_currentRunner.reset(nullptr);
     }
+}
+
+bool DocumentClangToolRunner::isSuppressed(const Diagnostic &diagnostic) const
+{
+    auto equalsSuppressed = [this, &diagnostic](const SuppressedDiagnostic &suppressed) {
+        if (suppressed.description != diagnostic.description)
+            return false;
+        QString filePath = suppressed.filePath.toString();
+        QFileInfo fi(filePath);
+        if (fi.isRelative())
+            filePath = m_lastProjectDirectory.toString() + QLatin1Char('/') + filePath;
+        return filePath == diagnostic.location.filePath;
+    };
+    return Utils::anyOf(m_suppressed, equalsSuppressed);
 }
 
 const CppTools::ClangDiagnosticConfig DocumentClangToolRunner::getDiagnosticConfig(ProjectExplorer::Project *project)

@@ -30,7 +30,9 @@
 #include <QPainter>
 #include <QToolTip>
 
-namespace DesignTools {
+namespace QmlDesigner {
+
+namespace StyleEditor {
 
 ColorControl::ColorControl()
     : QWidget(nullptr)
@@ -98,4 +100,6 @@ void ColorControl::mousePressEvent(QMouseEvent *event)
     event->accept();
 }
 
-} // End namespace DesignTools.
+} // End namespace StyleEditor.
+
+} // End namespace QmlDesigner.

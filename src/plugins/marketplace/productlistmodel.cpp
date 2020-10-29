@@ -33,6 +33,7 @@
 #include <utils/qtcassert.h>
 
 #include <QDesktopServices>
+#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -380,8 +381,10 @@ void SectionedProducts::onImageDownloadFinished(QNetworkReply *reply)
     if (reply->error() == QNetworkReply::NoError) {
         const QByteArray data = reply->readAll();
         QPixmap pixmap;
-        if (pixmap.loadFromData(data)) {
-            const QString url = reply->request().url().toString();
+        const QUrl imageUrl = reply->request().url();
+        const QString imageFormat = QFileInfo(imageUrl.fileName()).suffix();
+        if (pixmap.loadFromData(data, imageFormat.toLatin1())) {
+            const QString url = imageUrl.toString();
             QPixmapCache::insert(url, pixmap.scaled(ProductListModel::defaultImageSize,
                                                     Qt::KeepAspectRatio, Qt::SmoothTransformation));
             for (ProductListModel *model : m_productModels.values())

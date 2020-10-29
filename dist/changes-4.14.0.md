@@ -37,6 +37,7 @@ Editing
   (QTCREATORBUG-10066)
 * Added action for showing function arguments hint (QTCREATORBUG-19394)
 * Added option for after how many characters auto-completion may trigger (QTCREATORBUG-19920)
+* Added highlighting for structured bindings (QTCREATORBUG-24769)
 * Restricted completion for second argument of `connect` calls to signals (QTCREATORBUG-13558)
 * Fixed crash of backend with multiline `Q_PROPERTY` declarations (QTCREATORBUG-24746)
 * Fixed duplicate items appearing in include completion (QTCREATORBUG-24515)
@@ -50,9 +51,11 @@ Editing
   implemented operators (QTCREATORBUG-12218)
 * Fixed that `Complete switch statement` indents unrelated code (QTCREATORBUG-12445)
 * Fixed `Complete switch statement` with templates (QTCREATORBUG-24752)
+* Fixed `Complete switch statement` for enum classes (QTCREATORBUG-20475)
 * Fixed that `Apply function signature change` removed return values from `std::function`
   arguments (QTCREATORBUG-13698)
 * Fixed handling of multiple inheritance in `Insert Virtual Functions` (QTCREATORBUG-12223)
+* Fixed issue with `Convert to Camel Case` (QTCREATORBUG-16560)
 * Fixed auto-indentation for lambdas with trailing return type (QTCREATORBUG-18497)
 * Fixed indentation when starting new line in documentation comments (QTCREATORBUG-11749)
 * Fixed that auto-indentation was applied within multiline string literals
@@ -85,6 +88,7 @@ Projects
 ### qmake
 
 * Added option to not execute `system` directives (QTCREATORBUG-24551)
+* Fixed deployment with wildcards (QTCREATORBUG-24695)
 
 ### Wizards
 
@@ -135,6 +139,7 @@ Test Integration
 ----------------
 
 * Made it easier to re-run failed tests
+* Added support for `QTest::addRow()` (QTCREATORBUG-24777)
 
 Platforms
 ---------

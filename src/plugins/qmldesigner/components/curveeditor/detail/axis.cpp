@@ -29,7 +29,7 @@
 #include <cmath>
 #include <limits>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 // The following is based on: "An Extension of Wilkinson's Algorithm for Positioning Tick Labels on Axes"
 // by Justin Talbot, Sharon Lin and Pat Hanrahan.
@@ -210,4 +210,4 @@ Axis Axis::compute(double dmin, double dmax, double height, double pt)
     return result;
 }
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.
