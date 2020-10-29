@@ -179,19 +179,7 @@ endfunction()
 function(set_public_headers target sources)
   foreach(source IN LISTS sources)
     if (source MATCHES "\.h$|\.hpp$")
-
-      if (NOT IS_ABSOLUTE ${source})
-        set(source "${CMAKE_CURRENT_SOURCE_DIR}/${source}")
-      endif()
-
-      get_filename_component(source_dir ${source} DIRECTORY)
-      file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} ${source_dir})
-
-      install(
-        FILES ${source}
-        DESTINATION "include/${include_dir_relative_path}"
-        COMPONENT Devel EXCLUDE_FROM_ALL
-      )
+      qtc_add_public_header(${source})
     endif()
   endforeach()
 endfunction()

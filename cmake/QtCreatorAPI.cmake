@@ -906,3 +906,18 @@ function(qtc_add_resources target resourceName)
   target_sources(${target} PRIVATE "${generatedSourceCode}")
   set_property(SOURCE "${generatedSourceCode}" PROPERTY SKIP_AUTOGEN ON)
 endfunction()
+
+function(qtc_add_public_header header)
+  if (NOT IS_ABSOLUTE ${header})
+    set(header "${CMAKE_CURRENT_SOURCE_DIR}/${header}")
+  endif()
+
+  get_filename_component(source_dir ${header} DIRECTORY)
+  file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} ${source_dir})
+
+  install(
+    FILES ${header}
+    DESTINATION "include/${include_dir_relative_path}"
+    COMPONENT Devel EXCLUDE_FROM_ALL
+  )
+endfunction()
