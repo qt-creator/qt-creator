@@ -45,6 +45,11 @@
     \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/dist}{change logs}
     for each release.
 
+    \section1 Qbs
+
+    \QC installations deliver Qbs. Its licensing and third party attributions
+    are listed in \l{https://doc.qt.io/qbs/attributions.html}{Qbs Manual}.
+
     \section1 Third-party Components
 
     \QC contains the following third-party components:
