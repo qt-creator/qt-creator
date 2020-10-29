@@ -211,7 +211,8 @@ private:
                                               LanguageServerProtocol::MethodHandler)>;
 
     State m_state = Uninitialized;
-    QHash<LanguageServerProtocol::MessageId, LanguageServerProtocol::ResponseHandler> m_responseHandlers;
+    QHash<LanguageServerProtocol::MessageId,
+          LanguageServerProtocol::ResponseHandler::Callback> m_responseHandlers;
     QHash<QByteArray, ContentHandler> m_contentHandler;
     QString m_displayName;
     LanguageFilter m_languagFilter;

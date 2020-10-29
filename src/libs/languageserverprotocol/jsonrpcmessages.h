@@ -284,15 +284,15 @@ public:
     void setResponseCallback(const ResponseCallback &callback)
     { m_callBack = callback; }
 
-    void registerResponseHandler(QHash<MessageId, ResponseHandler> *handlers) const final
+    Utils::optional<ResponseHandler> responseHandler() const final
     {
-        auto callback = m_callBack;
-        handlers->insert(id(), [callback](const QByteArray &content, QTextCodec *codec){
+        auto callback = [callback = m_callBack](const QByteArray &content, QTextCodec *codec) {
             if (!callback)
                 return;
             QString parseError;
-            const QJsonObject &object =
-                    JsonRpcMessageHandler::toJsonObject(content, codec, parseError);
+            const QJsonObject &object = JsonRpcMessageHandler::toJsonObject(content,
+                                                                            codec,
+                                                                            parseError);
             Response response(object);
             if (object.isEmpty()) {
                 ResponseError<ErrorDataType> error;
@@ -300,7 +300,8 @@ public:
                 response.setError(error);
             }
             callback(Response(object));
-        });
+        };
+        return Utils::make_optional(ResponseHandler{id(), callback});
     }
 
     bool isValid(QString *errorMessage) const override

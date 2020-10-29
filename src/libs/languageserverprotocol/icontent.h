@@ -89,7 +89,13 @@ public:
     }
 };
 
-using ResponseHandler = std::function<void(const QByteArray &, QTextCodec *)>;
+struct ResponseHandler
+{
+    MessageId id;
+    using Callback = std::function<void(const QByteArray &, QTextCodec *)>;
+    Callback callback;
+};
+
 using ResponseHandlers = std::function<void(const MessageId &, const QByteArray &, QTextCodec *)>;
 using MethodHandler = std::function<void(const QString &, const MessageId &, const IContent *)>;
 
@@ -121,7 +127,8 @@ public:
     virtual QByteArray mimeType() const = 0;
     virtual bool isValid(QString *errorMessage) const = 0;
 
-    virtual void registerResponseHandler(QHash<MessageId, ResponseHandler> *) const { }
+    virtual Utils::optional<ResponseHandler> responseHandler() const
+    { return Utils::nullopt; }
 
     BaseMessage toBaseMessage() const
     { return BaseMessage(mimeType(), toRawData()); }

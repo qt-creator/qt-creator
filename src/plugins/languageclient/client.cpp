@@ -245,7 +245,9 @@ void Client::initialize()
         initializeCallback(initResponse);
     });
     // directly send data otherwise the state check would fail;
-    initRequest.registerResponseHandler(&m_responseHandlers);
+    if (Utils::optional<ResponseHandler> responseHandler = initRequest.responseHandler())
+        m_responseHandlers[responseHandler->id] = responseHandler->callback;
+
     LanguageClientManager::logBaseMessage(LspLogMessage::ClientMessage,
                                           name(),
                                           initRequest.toBaseMessage());
@@ -321,7 +323,8 @@ void Client::sendContent(const IContent &content)
     QTC_ASSERT(m_clientInterface, return);
     QTC_ASSERT(m_state == Initialized, return);
     sendPostponedDocumentUpdates();
-    content.registerResponseHandler(&m_responseHandlers);
+    if (Utils::optional<ResponseHandler> responseHandler = content.responseHandler())
+        m_responseHandlers[responseHandler->id] = responseHandler->callback;
     QString error;
     if (!QTC_GUARD(content.isValid(&error)))
         Core::MessageManager::write(error);
