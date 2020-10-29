@@ -46,7 +46,7 @@ class TestCodeParser;
 class TestParseResult;
 using TestParseResultPtr = QSharedPointer<TestParseResult>;
 
-class AUTOTESTSHARED_EXPORT TestTreeModel : public Utils::TreeModel<>
+class AUTOTESTSHARED_EXPORT TestTreeModel : public Utils::TreeModel<Utils::TreeItem, ITestTreeItem>
 {
     Q_OBJECT
 
@@ -114,6 +114,8 @@ private:
     QList<TestTreeItem *> testItemsByName(TestTreeItem *root, const QString &testName);
     void onTargetChanged(ProjectExplorer::Target *target);
     void onBuildSystemTestsUpdated();
+    const QList<TestTreeItem *> frameworkRootNodes() const;
+    const QList<ITestTreeItem *> testToolRootNodes() const;
 
     Internal::TestCodeParser *m_parser = nullptr;
     Internal::ItemDataCache<Qt::CheckState> *m_checkStateCache = nullptr; // not owned
