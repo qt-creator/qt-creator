@@ -45,9 +45,9 @@ add_qtc_library(qtcreatorcdbext
 
 qtc_library_enabled(_library_enabled qtcreatorcdbext)
 if (_library_enabled)
-  find_package(PythonLibs 3.5)
+  find_package(PythonLibs 3.8)
   if (NOT ${PYTHONLIBS_FOUND})
-    message(WARNING "PythonLibs (at least version 3.5) not found. qtcreatorcdbext will be built without Python support.")
+    message(WARNING "PythonLibs (at least version 3.8) not found. qtcreatorcdbext will be built without Python support.")
     return()
   endif()
 

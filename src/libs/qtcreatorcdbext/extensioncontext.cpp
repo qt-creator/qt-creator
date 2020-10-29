@@ -162,7 +162,14 @@ HRESULT ExtensionContext::initialize(PULONG Version, PULONG Flags)
 
 #ifdef WITH_PYTHON
     initCdbextPythonModule();
-    Py_Initialize();
+    PyStatus status;
+    PyConfig config;
+    PyConfig_InitIsolatedConfig(&config);
+    status = Py_InitializeFromConfig(&config);
+    PyConfig_Clear(&config);
+    if (PyStatus_Exception(status)) {
+        Py_ExitStatusException(status);
+    }
     PyRun_SimpleString("import cdbext");
     PyRun_SimpleString("import sys");
 #endif

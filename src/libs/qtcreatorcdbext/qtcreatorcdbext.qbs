@@ -50,10 +50,11 @@ QtcLibrary {
                             + output + "'");
                     return;
                 }
-                if (Utilities.versionCompare(versionNumberString, "3.5") < 0) {
+                var pythonMinVersion = "3.8";
+                if (Utilities.versionCompare(versionNumberString, pythonMinVersion) < 0) {
                     printWarning("The python installation at '" + pythonDir
-                                 + "' has version " + versionNumberString + ", but 3.5 or higher "
-                                 + "is required.");
+                                 + "' has version " + versionNumberString + ", but "
+                                 + pythonMinVersion + " or higher is required.");
                     return;
                 }
                 found = true;

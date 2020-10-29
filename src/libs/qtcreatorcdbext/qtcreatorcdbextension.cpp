@@ -654,7 +654,7 @@ extern "C" HRESULT CALLBACK script(CIDebugClient *client, PCSTR argsIn)
     ExtensionContext::instance().report('N', token, 0, "script",
             "Python is not supported in this CDB extension.\n"
             "You need to define PYTHON_INSTALL_DIR in your creator build environment "
-            "pointing to a Python 3.5 installation.");
+            "pointing to a Python 3.8 installation.");
 #endif
     return S_OK;
 }
