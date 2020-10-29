@@ -24,18 +24,22 @@
 ****************************************************************************/
 
 #include "mesonproject.h"
+
 #include "mesonbuildsystem.h"
 #include "mesonpluginconstants.h"
-#include <exewrappers/mesontools.h>
-#include <settings/tools/kitaspect/mesontoolkitaspect.h>
-#include <settings/tools/kitaspect/ninjatoolkitaspect.h>
+#include "exewrappers/mesontools.h"
+#include "settings/tools/kitaspect/mesontoolkitaspect.h"
+#include "settings/tools/kitaspect/ninjatoolkitaspect.h"
+
 #include <coreplugin/icontext.h>
+
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
 namespace MesonProjectManager {
 namespace Internal {
+
 MesonProject::MesonProject(const Utils::FilePath &path)
     : ProjectExplorer::Project{Constants::Project::MIMETYPE, path}
 {

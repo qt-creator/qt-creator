@@ -27,6 +27,7 @@
 #include "exewrappers/mesonwrapper.h"
 #include "mesontoolkitaspect.h"
 #include "ninjatoolkitaspect.h"
+
 #include <projectexplorer/kitmanager.h>
 
 #include <QComboBox>
@@ -35,6 +36,7 @@
 
 namespace MesonProjectManager {
 namespace Internal {
+
 class ToolKitAspectWidget final : public ProjectExplorer::KitAspectWidget
 {
     Q_DECLARE_TR_FUNCTIONS(MesonProjectManager::Internal::ToolKitAspect)
@@ -76,5 +78,6 @@ private:
     QPushButton *m_manageButton;
     ToolType m_type;
 };
+
 } // namespace Internal
 } // namespace MesonProjectManager

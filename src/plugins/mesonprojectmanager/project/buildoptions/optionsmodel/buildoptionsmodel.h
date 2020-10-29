@@ -22,7 +22,9 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
 #include "mesoninfoparser/mesoninfoparser.h"
 
 #include <utils/qtcassert.h>
@@ -31,7 +33,6 @@
 #include <QAbstractTableModel>
 #include <QFont>
 #include <QItemEditorFactory>
-#include <QObject>
 #include <QStyledItemDelegate>
 
 namespace MesonProjectManager {

@@ -24,8 +24,10 @@
 ****************************************************************************/
 
 #include "ninjatoolkitaspect.h"
+
 #include "toolkitaspectwidget.h"
-#include "utils/qtcassert.h"
+
+#include <utils/qtcassert.h>
 
 namespace MesonProjectManager {
 namespace Internal {

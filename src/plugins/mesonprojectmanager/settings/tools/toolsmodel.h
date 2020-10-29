@@ -25,16 +25,19 @@
 
 #pragma once
 
+#include "exewrappers/mesontools.h"
 #include "toolssettingspage.h"
-#include <exewrappers/mesontools.h>
 
 #include <utils/treemodel.h>
+
 #include <QCoreApplication>
 #include <QQueue>
 
 namespace MesonProjectManager {
 namespace Internal {
+
 class ToolTreeItem;
+
 class ToolsModel final : public Utils::TreeModel<Utils::TreeItem, Utils::TreeItem, ToolTreeItem>
 {
     Q_DECLARE_TR_FUNCTIONS(MesonProjectManager::Internal::ToolsSettingsPage)
@@ -54,5 +57,6 @@ private:
     Utils::TreeItem *manualGroup() const;
     QQueue<Utils::Id> m_itemsToRemove;
 };
+
 } // namespace Internal
 } // namespace MesonProjectManager

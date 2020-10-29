@@ -22,6 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #include "mesonprojectimporter.h"
 
 #include <QLoggingCategory>
@@ -32,6 +33,7 @@ static Q_LOGGING_CATEGORY(mInputLog, "qtc.meson.import", QtWarningMsg);
 
 namespace MesonProjectManager {
 namespace Internal {
+
 MesonProjectImporter::MesonProjectImporter(const Utils::FilePath &path)
     : QtSupport::QtProjectImporter{path}
 {}

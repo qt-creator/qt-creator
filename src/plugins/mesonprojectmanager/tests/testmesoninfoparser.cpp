@@ -25,13 +25,15 @@
 
 #include "exewrappers/mesonwrapper.h"
 #include "mesoninfoparser/mesoninfoparser.h"
-#include <iostream>
+
 #include <QDir>
 #include <QObject>
 #include <QString>
 #include <QTemporaryDir>
 #include <QTemporaryFile>
 #include <QtTest/QtTest>
+
+#include <iostream>
 
 using namespace MesonProjectManager::Internal;
 

@@ -24,8 +24,10 @@
 ****************************************************************************/
 
 #include "mesonwrapper.h"
-#include "utils/algorithm.h"
-#include "utils/qtcassert.h"
+
+#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
+
 #include <QUuid>
 
 namespace {

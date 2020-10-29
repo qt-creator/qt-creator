@@ -24,12 +24,15 @@
 ****************************************************************************/
 
 #include "settings.h"
+
 namespace MesonProjectManager {
 namespace Internal {
+
 Settings::Settings(QObject *parent)
     : QObject(parent)
     , m_autorunMeson(true)
     , m_verboseNinja(true)
 {}
+
 } // namespace Internal
 } // namespace MesonProjectManager

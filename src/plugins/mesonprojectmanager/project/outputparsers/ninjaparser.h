@@ -22,14 +22,19 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
 #include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/task.h>
+
 #include <utils/optional.h>
-#include <QObject>
+
 #include <QRegularExpression>
+
 namespace MesonProjectManager {
 namespace Internal {
+
 class NinjaParser final : public ProjectExplorer::OutputTaskParser
 {
     Q_OBJECT
@@ -45,5 +50,6 @@ public:
     bool hasFatalErrors() const override;
     Q_SIGNAL void reportProgress(int progress);
 };
+
 } // namespace Internal
 } // namespace MesonProjectManager

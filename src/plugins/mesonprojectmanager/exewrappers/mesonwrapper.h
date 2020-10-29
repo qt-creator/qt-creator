@@ -24,18 +24,21 @@
 ****************************************************************************/
 
 #pragma once
+
 #include "../mesonpluginconstants.h"
 #include "toolwrapper.h"
-#include "utils/environment.h"
-#include "utils/fileutils.h"
+
+#include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <utils/id.h>
-#include "utils/optional.h"
-#include <tuple>
+#include <utils/optional.h>
+
 #include <QFile>
 #include <QFileInfo>
-#include <QObject>
 #include <QProcess>
 #include <QTemporaryFile>
+
+#include <tuple>
 
 namespace MesonProjectManager {
 namespace Internal {

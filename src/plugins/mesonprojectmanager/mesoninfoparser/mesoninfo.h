@@ -22,13 +22,18 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
-#include <versionhelper.h>
+
+#include "versionhelper.h"
+
 namespace MesonProjectManager {
 namespace Internal {
+
 struct MesonInfo
 {
     Version mesonVersion;
 };
+
 } // namespace Internal
 } // namespace MesonProjectManager

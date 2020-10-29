@@ -22,8 +22,11 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
 #include <utils/optional.h>
+
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>

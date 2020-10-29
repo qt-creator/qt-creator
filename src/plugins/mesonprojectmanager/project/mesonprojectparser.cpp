@@ -22,14 +22,18 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #include "mesonprojectparser.h"
+
 #include "projecttree/mesonprojectnodes.h"
 #include "projecttree/projecttree.h"
-#include <exewrappers/mesontools.h>
-#include <mesoninfoparser/mesoninfoparser.h>
+#include "exewrappers/mesontools.h"
+#include "mesoninfoparser/mesoninfoparser.h"
 
 #include <coreplugin/messagemanager.h>
+
 #include <projectexplorer/projectexplorer.h>
+
 #include <utils/fileinprojectfinder.h>
 #include <utils/optional.h>
 #include <utils/runextensions.h>

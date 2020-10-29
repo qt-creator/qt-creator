@@ -125,5 +125,6 @@ class MesonBuildConfigurationFactory final : public ProjectExplorer::BuildConfig
 public:
     MesonBuildConfigurationFactory();
 };
+
 } // namespace Internal
 } // namespace MesonProjectManager

@@ -22,8 +22,10 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
-#include <exewrappers/mesonwrapper.h>
+
+#include "exewrappers/mesonwrapper.h"
 
 #include <utils/qtcprocess.h>
 
@@ -39,6 +41,7 @@
 
 namespace MesonProjectManager {
 namespace Internal {
+
 class MesonProcess final : public QObject
 {
     Q_OBJECT
@@ -83,5 +86,6 @@ private:
     QByteArray m_stderr;
     Command m_currentCommand;
 };
+
 } // namespace Internal
 } // namespace MesonProjectManager

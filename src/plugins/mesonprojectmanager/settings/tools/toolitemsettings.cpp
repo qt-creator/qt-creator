@@ -24,11 +24,13 @@
 ****************************************************************************/
 
 #include "toolitemsettings.h"
+
 #include "tooltreeitem.h"
 #include "ui_toolitemsettings.h"
 
 namespace MesonProjectManager {
 namespace Internal {
+
 ToolItemSettings::ToolItemSettings(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::ToolItemSettings)

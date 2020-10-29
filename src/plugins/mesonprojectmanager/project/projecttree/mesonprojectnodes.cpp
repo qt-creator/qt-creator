@@ -24,11 +24,14 @@
 ****************************************************************************/
 
 #include "mesonprojectnodes.h"
-#include <project/mesonbuildconfiguration.h>
-#include <project/mesonbuildsystem.h>
-#include <mesonpluginconstants.h>
+
+#include "project/mesonbuildconfiguration.h"
+#include "project/mesonbuildsystem.h"
+#include "mesonpluginconstants.h"
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
+
 namespace MesonProjectManager {
 namespace Internal {
 

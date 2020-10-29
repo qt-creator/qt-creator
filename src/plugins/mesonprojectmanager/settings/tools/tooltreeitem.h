@@ -24,17 +24,21 @@
 ****************************************************************************/
 
 #pragma once
+
+#include "exewrappers/mesontools.h"
 #include "toolssettingspage.h"
-#include <exewrappers/mesontools.h>
+
 #include <utils/fileutils.h>
 #include <utils/id.h>
 #include <utils/optional.h>
 #include <utils/treemodel.h>
+
 #include <QCoreApplication>
 #include <QString>
 
 namespace MesonProjectManager {
 namespace Internal {
+
 class ToolTreeItem final : public Utils::TreeItem
 {
     Q_DECLARE_TR_FUNCTIONS(MesonProjectManager::Internal::ToolsSettingsPage)
@@ -66,5 +70,6 @@ private:
 
     bool m_unsavedChanges = false;
 };
+
 } // namespace Internal
 } // namespace MesonProjectManager

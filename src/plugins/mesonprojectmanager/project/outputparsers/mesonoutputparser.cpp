@@ -22,9 +22,12 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #include "mesonoutputparser.h"
+
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
+
 namespace MesonProjectManager {
 namespace Internal {
 

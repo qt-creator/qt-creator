@@ -22,19 +22,23 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
 #include "mesonprojectparser.h"
-#include <exewrappers/mesonwrapper.h>
-#include <kithelper/kitdata.h>
+#include "exewrappers/mesonwrapper.h"
+#include "kithelper/kitdata.h"
 
 #include <cpptools/cppprojectupdater.h>
+
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/target.h>
+
 #include <utils/filesystemwatcher.h>
-#include <QObject>
 
 namespace MesonProjectManager {
 namespace Internal {
+
 class MesonBuildConfiguration;
 class MesonBuildSystem final : public ProjectExplorer::BuildSystem
 {
@@ -73,5 +77,6 @@ private:
     Utils::FileSystemWatcher m_IntroWatcher;
     KitData m_kitData;
 };
+
 } // namespace Internal
 } // namespace MesonProjectManager

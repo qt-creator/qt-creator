@@ -22,22 +22,29 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
+#pragma once
+
 #include "kitdata.h"
+#include "versionhelper.h"
+
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
+
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
-#include <versionhelper.h>
-#include <QString>
-#pragma once
+
 namespace MesonProjectManager {
 namespace Internal {
+
 namespace KitHelper {
 namespace details {
+
 inline QString expand(const ProjectExplorer::Kit *kit, const QString &macro)
 {
     return kit->macroExpander()->expand(macro);
 }
+
 } // namespace details
 
 inline QString cCompilerPath(const ProjectExplorer::Kit *kit)

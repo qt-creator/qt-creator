@@ -22,17 +22,22 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #include "nativefilegenerator.h"
-#include <kithelper/kithelper.h>
+
+#include "kithelper/kithelper.h"
+
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
+
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
 namespace MesonProjectManager {
 namespace Internal {
+
 NativeFileGenerator::NativeFileGenerator() {}
 
 inline void addEntry(QIODevice *nativeFile, const QString &key, const QString &value)
@@ -58,5 +63,6 @@ void NativeFileGenerator::makeNativeFile(QIODevice *nativeFile, const KitData &k
     QTC_ASSERT(nativeFile, return );
     writeBinariesSection(nativeFile, kitData);
 }
+
 } // namespace Internal
 } // namespace MesonProjectManager

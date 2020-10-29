@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #pragma once
+
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QCoreApplication>
@@ -47,5 +48,6 @@ public:
 private:
     Ui::GeneralSettingsWidget *ui;
 };
+
 } // namespace Internal
 } // namespace MesonProjectManager

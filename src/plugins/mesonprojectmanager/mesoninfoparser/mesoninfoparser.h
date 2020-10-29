@@ -22,7 +22,9 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
 #include "buildoptions.h"
 #include "mesoninfo.h"
 #include "parsers/buildoptionsparser.h"
@@ -30,15 +32,17 @@
 #include "parsers/infoparser.h"
 #include "parsers/targetparser.h"
 #include "target.h"
+
 #include <utils/fileutils.h>
 #include <utils/optional.h>
-#include <QString>
-#include <QVariant>
+
 namespace MesonProjectManager {
 namespace Internal {
+
 class MesonInfoParserPrivate;
 
 namespace MesonInfoParser {
+
 struct Result
 {
     TargetsList targets;

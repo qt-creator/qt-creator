@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "mesontools.h"
+
 namespace MesonProjectManager {
 namespace Internal {
 

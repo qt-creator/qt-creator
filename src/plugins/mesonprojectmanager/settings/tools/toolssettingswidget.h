@@ -24,15 +24,15 @@
 ****************************************************************************/
 
 #pragma once
+
+#include "exewrappers/mesonwrapper.h"
 #include "toolitemsettings.h"
 #include "toolsmodel.h"
-#include <exewrappers/mesonwrapper.h>
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QCoreApplication>
 #include <QTabWidget>
-#include <QWidget>
 
 namespace MesonProjectManager {
 namespace Internal {
@@ -58,5 +58,6 @@ private:
     ToolItemSettings *m_itemSettings;
     ToolTreeItem *m_currentItem = nullptr;
 };
+
 } // namespace Internal
 } // namespace MesonProjectManager

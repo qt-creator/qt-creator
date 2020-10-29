@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #include "buildoptionsmodel.h"
+
 #include "arrayoptionlineedit.h"
+
 #include <QComboBox>
 #include <QLabel>
 #include <QLineEdit>

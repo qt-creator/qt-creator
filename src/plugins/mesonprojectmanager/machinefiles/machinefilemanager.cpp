@@ -24,12 +24,16 @@
 ****************************************************************************/
 
 #include "machinefilemanager.h"
+
+#include "kithelper/kitdata.h"
+#include "kithelper/kithelper.h"
 #include "nativefilegenerator.h"
-#include <kithelper/kitdata.h>
-#include <kithelper/kithelper.h>
+
 #include <coreplugin/icore.h>
+
 #include <utils/optional.h>
 #include <utils/qtcassert.h>
+
 #include <QDir>
 #include <QFile>
 #include <QRegularExpression>

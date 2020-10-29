@@ -22,17 +22,19 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
 #include <utils/fileutils.h>
 #include <utils/optional.h>
+
 #include <QCheckBox>
 #include <QComboBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QSpinBox>
-#include <QString>
 #include <QVariant>
-#include <QWidget>
+
 namespace MesonProjectManager {
 namespace Internal {
 

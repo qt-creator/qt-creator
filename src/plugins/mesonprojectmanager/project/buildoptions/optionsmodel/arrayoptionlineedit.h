@@ -22,12 +22,13 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
 #include <QColor>
 #include <QPlainTextEdit>
 #include <QRegularExpression>
 #include <QSyntaxHighlighter>
-#include <QWidget>
 
 namespace MesonProjectManager {
 namespace Internal {
@@ -56,5 +57,6 @@ public:
 protected:
     void keyPressEvent(QKeyEvent *e) override;
 };
+
 } // namespace Internal
 } // namespace MesonProjectManager

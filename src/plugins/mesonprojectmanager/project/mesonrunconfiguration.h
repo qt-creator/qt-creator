@@ -22,13 +22,16 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
 #include <projectexplorer/desktoprunconfiguration.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
 namespace MesonProjectManager {
 namespace Internal {
+
 class MesonRunConfiguration final : public ProjectExplorer::RunConfiguration
 {
 public:

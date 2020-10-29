@@ -24,12 +24,14 @@
 ****************************************************************************/
 
 #include "toolssettingswidget.h"
+
 #include "toolsmodel.h"
 #include "tooltreeitem.h"
 #include "ui_toolssettingswidget.h"
 
 namespace MesonProjectManager {
 namespace Internal {
+
 ToolsSettingsWidget::ToolsSettingsWidget()
     : Core::IOptionsPageWidget()
     , ui(new Ui::ToolsSettingsWidget)
@@ -89,5 +91,6 @@ void ToolsSettingsWidget::apply()
 {
     m_model.apply();
 }
+
 } // namespace Internal
 } // namespace MesonProjectManager

@@ -24,14 +24,18 @@
 ****************************************************************************/
 
 #include "mesonactionsmanager.h"
+
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
+
 #include <project/mesonbuildsystem.h>
 #include <project/projecttree/mesonprojectnodes.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projecttree.h>
+
 #include <utils/parameteraction.h>
+
 namespace MesonProjectManager {
 namespace Internal {
 

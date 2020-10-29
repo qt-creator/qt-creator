@@ -22,12 +22,14 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
 #include <QRegularExpression>
-#include <QString>
 
 namespace MesonProjectManager {
 namespace Internal {
+
 struct Version
 {
     int major = -1;

@@ -22,10 +22,12 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
 #include "../../mesonpluginconstants.h"
 #include "../target.h"
-#include "./common.h"
+
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -102,5 +104,6 @@ public:
 
     inline TargetsList targetList() { return m_targets; }
 };
+
 } // namespace Internal
 } // namespace MesonProjectManager

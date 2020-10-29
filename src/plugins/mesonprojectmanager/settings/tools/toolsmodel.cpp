@@ -24,10 +24,12 @@
 ****************************************************************************/
 
 #include "toolsmodel.h"
+
 #include "tooltreeitem.h"
-#include "utils/qtcassert.h"
-#include "utils/stringutils.h"
-#include <exewrappers/mesontools.h>
+#include "exewrappers/mesontools.h"
+
+#include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 namespace MesonProjectManager {
 namespace Internal {
@@ -113,5 +115,6 @@ Utils::TreeItem *ToolsModel::manualGroup() const
 {
     return rootItem()->childAt(1);
 }
+
 } // namespace Internal
 } // namespace MesonProjectManager

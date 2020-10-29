@@ -24,12 +24,14 @@
 ****************************************************************************/
 
 #include "exewrappers/mesonwrapper.h"
-#include <iostream>
+
 #include <QDir>
 #include <QObject>
 #include <QString>
 #include <QTemporaryDir>
 #include <QtTest/QtTest>
+
+#include <iostream>
 
 using namespace MesonProjectManager::Internal;
 

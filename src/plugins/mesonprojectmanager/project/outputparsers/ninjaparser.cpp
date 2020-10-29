@@ -24,9 +24,12 @@
 ****************************************************************************/
 
 #include "ninjaparser.h"
+
 #include <utils/fileutils.h>
+
 namespace MesonProjectManager {
 namespace Internal {
+
 NinjaParser::NinjaParser() {}
 
 Utils::optional<int> NinjaParser::extractProgress(const QString &line)

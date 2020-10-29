@@ -22,18 +22,23 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #include "mesonrunconfiguration.h"
-#include <mesonpluginconstants.h>
+
+#include "mesonpluginconstants.h"
+
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/desktoprunconfiguration.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
+
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
-#include <QLatin1String>
+
 namespace MesonProjectManager {
 namespace Internal {
+
 MesonRunConfiguration::MesonRunConfiguration(ProjectExplorer::Target *target, Utils::Id id)
     : ProjectExplorer::RunConfiguration{target, id}
 {

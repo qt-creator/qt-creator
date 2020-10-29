@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #include "mesontoolkitaspect.h"
+
 #include "toolkitaspectwidget.h"
+
 #include <utils/qtcassert.h>
 
 namespace MesonProjectManager {

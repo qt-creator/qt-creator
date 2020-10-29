@@ -22,16 +22,19 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
 
 #include "exewrappers/mesonwrapper.h"
 
-#include "projectexplorer/buildinfo.h"
-#include "projectexplorer/kit.h"
-#include "qtsupport/qtprojectimporter.h"
+#include <projectexplorer/buildinfo.h>
+#include <projectexplorer/kit.h>
+
+#include <qtsupport/qtprojectimporter.h>
 
 namespace MesonProjectManager {
 namespace Internal {
+
 class MesonProjectImporter final : public QtSupport::QtProjectImporter
 {
 public:
@@ -50,5 +53,6 @@ private:
 
     virtual void deleteDirectoryData(void *directoryData) const final;
 };
+
 } // namespace Internal
 } // namespace MesonProjectManager

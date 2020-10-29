@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "mesonprojectplugin.h"
+
 #include "exewrappers/mesonwrapper.h"
 #include "machinefiles/machinefilemanager.h"
 #include "mesonactionsmanager/mesonactionsmanager.h"

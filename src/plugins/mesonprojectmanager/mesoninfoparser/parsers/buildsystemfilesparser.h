@@ -22,10 +22,14 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
 #include "../../mesonpluginconstants.h"
-#include "./common.h"
-#include "utils/fileutils.h"
+#include "common.h"
+
+#include <utils/fileutils.h>
+
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -72,5 +76,6 @@ public:
 
     std::vector<Utils::FilePath> files() { return m_files; };
 };
+
 } // namespace Internal
 } // namespace MesonProjectManager

@@ -22,11 +22,16 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
 #include <utils/cpplanguage_details.h>
+
 #include <QString>
+
 namespace MesonProjectManager {
 namespace Internal {
+
 struct KitData
 {
     QString cCompilerPath;

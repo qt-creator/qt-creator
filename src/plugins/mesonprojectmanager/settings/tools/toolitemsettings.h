@@ -24,15 +24,18 @@
 ****************************************************************************/
 
 #pragma once
-#include "utils/id.h"
-#include "utils/fileutils.h"
-#include "utils/optional.h"
+
+#include <utils/id.h>
+#include <utils/fileutils.h>
+#include <utils/optional.h>
+
 #include <QWidget>
 
 namespace MesonProjectManager {
 namespace Internal {
 
 namespace Ui { class ToolItemSettings; }
+
 class ToolTreeItem;
 
 class ToolItemSettings : public QWidget
@@ -50,5 +53,6 @@ private:
     Ui::ToolItemSettings *ui;
     Utils::optional<Utils::Id> m_currentId{Utils::nullopt};
 };
+
 } // namespace Internal
 } // namespace MesonProjectManager

@@ -22,12 +22,17 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
 #include "mesoninfoparser/mesoninfoparser.h"
 #include "mesonprojectnodes.h"
+
 #include <utils/fileutils.h>
+
 namespace MesonProjectManager {
 namespace Internal {
+
 class ProjectTree
 {
 public:

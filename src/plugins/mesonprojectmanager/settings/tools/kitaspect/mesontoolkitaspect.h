@@ -24,13 +24,15 @@
 ****************************************************************************/
 
 #pragma once
-#include <exewrappers/mesontools.h>
+
+#include "exewrappers/mesontools.h"
 
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
 
 namespace MesonProjectManager {
 namespace Internal {
+
 class MesonToolKitAspect final : public ProjectExplorer::KitAspect
 {
     Q_DECLARE_TR_FUNCTIONS(MesonProjectManager::Internal::MesonToolKitAspect)

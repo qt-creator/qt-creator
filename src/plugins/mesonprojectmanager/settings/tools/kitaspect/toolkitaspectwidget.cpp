@@ -24,14 +24,17 @@
 ****************************************************************************/
 
 #include "toolkitaspectwidget.h"
-#include "coreplugin/icore.h"
+
 #include "mesonpluginconstants.h"
 #include "mesontoolkitaspect.h"
 #include "ninjatoolkitaspect.h"
-#include "utils/qtcassert.h"
+
+#include <coreplugin/icore.h>
+#include <utils/qtcassert.h>
 
 namespace MesonProjectManager {
 namespace Internal {
+
 ToolKitAspectWidget::ToolKitAspectWidget(ProjectExplorer::Kit *kit,
                                          const ProjectExplorer::KitAspect *ki,
                                          ToolType type)
@@ -140,5 +143,6 @@ void ToolKitAspectWidget::setToDefault()
         setCurrentToolIndex(0);
     }
 }
+
 } // namespace Internal
 } // namespace MesonProjectManager

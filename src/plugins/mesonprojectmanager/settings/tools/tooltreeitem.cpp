@@ -24,12 +24,15 @@
 ****************************************************************************/
 
 #include "tooltreeitem.h"
+
 #include <utils/utilsicons.h>
+
 #include <QFileInfo>
 #include <QUuid>
 
 namespace MesonProjectManager {
 namespace Internal {
+
 ToolTreeItem::ToolTreeItem(const QString &name)
     : m_name{name}
     , m_autoDetected{false}
@@ -131,5 +134,6 @@ void ToolTreeItem::update_tooltip()
 {
     update_tooltip(MesonWrapper::read_version(m_executable));
 }
+
 } // namespace Internal
 } // namespace MesonProjectManager

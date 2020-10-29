@@ -22,10 +22,12 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
 #include "../../mesonpluginconstants.h"
 #include "../mesoninfo.h"
-#include "./common.h"
+
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -65,5 +67,6 @@ public:
     }
     MesonInfo info() { return m_info; }
 };
+
 } // namespace Internal
 } // namespace MesonProjectManager

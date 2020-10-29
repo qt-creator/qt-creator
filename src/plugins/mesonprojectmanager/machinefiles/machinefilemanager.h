@@ -22,11 +22,13 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
+
 #include <utils/fileutils.h>
-#include <QObject>
 
 namespace MesonProjectManager {
 namespace Internal {

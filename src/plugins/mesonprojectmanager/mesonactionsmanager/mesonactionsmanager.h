@@ -22,12 +22,14 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
 #include <utils/parameteraction.h>
-#include <QAction>
-#include <QObject>
+
 namespace MesonProjectManager {
 namespace Internal {
+
 class MesonActionsManager : public QObject
 {
     Q_OBJECT
@@ -42,5 +44,6 @@ class MesonActionsManager : public QObject
 public:
     MesonActionsManager();
 };
+
 } // namespace Internal
 } // namespace MesonProjectManager

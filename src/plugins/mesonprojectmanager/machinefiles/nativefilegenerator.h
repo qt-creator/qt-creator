@@ -22,12 +22,18 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
-#include <kithelper/kitdata.h>
+
+#include "kithelper/kitdata.h"
+
 #include <projectexplorer/kit.h>
+
 #include <QIODevice>
+
 namespace MesonProjectManager {
 namespace Internal {
+
 class NativeFileGenerator
 {
     NativeFileGenerator();
@@ -35,5 +41,6 @@ class NativeFileGenerator
 public:
     static void makeNativeFile(QIODevice *nativeFile, const KitData &kitData);
 };
+
 } // namespace Internal
 } // namespace MesonProjectManager

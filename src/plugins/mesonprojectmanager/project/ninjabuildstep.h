@@ -22,16 +22,19 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
 
 #include "outputparsers/ninjaparser.h"
+
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildstep.h>
+
 #include <utils/qtcprocess.h>
-#include <QObject>
 
 namespace MesonProjectManager {
 namespace Internal {
+
 class NinjaBuildStep final : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT

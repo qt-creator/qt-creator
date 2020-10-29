@@ -25,12 +25,12 @@
 
 #include "ninjabuildstep.h"
 
-#include "outputparsers/mesonoutputparser.h"
 #include "mesonbuildconfiguration.h"
 #include "mesonbuildsystem.h"
 #include "mesonpluginconstants.h"
-#include <settings/general/settings.h>
-#include <settings/tools/kitaspect/ninjatoolkitaspect.h>
+#include "outputparsers/mesonoutputparser.h"
+#include "settings/general/settings.h"
+#include "settings/tools/kitaspect/ninjatoolkitaspect.h"
 
 #include <coreplugin/find/itemviewfind.h>
 
@@ -50,6 +50,7 @@ using namespace Utils;
 
 namespace MesonProjectManager {
 namespace Internal {
+
 const char TARGETS_KEY[] = "MesonProjectManager.BuildStep.BuildTargets";
 const char TOOL_ARGUMENTS_KEY[] = "MesonProjectManager.BuildStep.AdditionalArguments";
 

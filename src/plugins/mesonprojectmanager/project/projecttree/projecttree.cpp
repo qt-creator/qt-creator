@@ -22,10 +22,14 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #include "projecttree.h"
+
 #include <set>
+
 namespace MesonProjectManager {
 namespace Internal {
+
 ProjectTree::ProjectTree() {}
 
 void buildTargetTree(std::unique_ptr<MesonProjectNode> &root, const Target &target)
@@ -93,5 +97,6 @@ std::unique_ptr<MesonProjectNode> ProjectTree::buildTree(const Utils::FilePath &
     }
     return root;
 }
+
 } // namespace Internal
 } // namespace MesonProjectManager

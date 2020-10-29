@@ -22,15 +22,20 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
-#include "projectexplorer/ioutputparser.h"
-#include "utils/outputformatter.h"
-#include <array>
-#include <QObject>
+
+#include <projectexplorer/ioutputparser.h>
+
+#include <utils/outputformatter.h>
+
 #include <QRegularExpression>
+
+#include <array>
 
 namespace MesonProjectManager {
 namespace Internal {
+
 class MesonOutputParser final : public ProjectExplorer::OutputTaskParser
 {
     Q_OBJECT

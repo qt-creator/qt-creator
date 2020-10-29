@@ -24,17 +24,20 @@
 ****************************************************************************/
 
 #include "mesonbuildsystem.h"
+
 #include "mesonbuildconfiguration.h"
-#include <kithelper/kithelper.h>
-#include <machinefiles/machinefilemanager.h>
+#include "kithelper/kithelper.h"
+#include "machinefiles/machinefilemanager.h"
+#include "settings/general/settings.h"
+#include "settings/tools/kitaspect/mesontoolkitaspect.h"
+
 #include <projectexplorer/buildconfiguration.h>
-#include <settings/general/settings.h>
-#include <settings/tools/kitaspect/mesontoolkitaspect.h>
+
+#include <qtsupport/qtcppkitinfo.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <QDir>
 #include <QLoggingCategory>
-#include <qtsupport/qtcppkitinfo.h>
-#include <qtsupport/qtkitinformation.h>
 
 #define LEAVE_IF_BUSY() \
     { \

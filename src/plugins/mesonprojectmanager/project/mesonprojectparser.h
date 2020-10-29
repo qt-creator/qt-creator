@@ -22,25 +22,30 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
+#include "exewrappers/mesonwrapper.h"
+#include "kithelper/kitdata.h"
+#include "mesoninfoparser/mesoninfoparser.h"
+#include "mesonprocess.h"
 #include "outputparsers/mesonoutputparser.h"
 #include "projecttree/mesonprojectnodes.h"
-#include "mesonprocess.h"
-#include <exewrappers/mesonwrapper.h>
-#include <kithelper/kitdata.h>
-#include <mesoninfoparser/mesoninfoparser.h>
+
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/rawprojectpart.h>
+
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+
 #include <QFuture>
 #include <QFutureWatcher>
-#include <QObject>
 #include <QQueue>
 
 namespace MesonProjectManager {
 namespace Internal {
+
 class MesonProjectParser : public QObject
 {
     Q_OBJECT
@@ -127,5 +132,6 @@ private:
     // also this should ease command dependencies
     QQueue<std::tuple<Command, bool>> m_pendingCommands;
 };
+
 } // namespace Internal
 } // namespace MesonProjectManager

@@ -23,6 +23,15 @@
 **
 ****************************************************************************/
 
+#include "mesonbuildconfiguration.h"
+
+#include "buildoptions/mesonbuildsettingswidget.h"
+#include "exewrappers/mesonwrapper.h"
+#include "mesonbuildsystem.h"
+#include "mesonpluginconstants.h"
+#include "mesonpluginconstants.h"
+#include "ninjabuildstep.h"
+
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildstep.h>
@@ -31,20 +40,14 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmacroexpander.h>
+
 #include <utils/fileutils.h>
 
 #include <QDir>
 
-#include "buildoptions/mesonbuildsettingswidget.h"
-#include "mesonbuildconfiguration.h"
-#include "mesonbuildsystem.h"
-#include "mesonpluginconstants.h"
-#include "ninjabuildstep.h"
-#include <exewrappers/mesonwrapper.h>
-#include <mesonpluginconstants.h>
-
 namespace MesonProjectManager {
 namespace Internal {
+
 MesonBuildConfiguration::MesonBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id)
     : ProjectExplorer::BuildConfiguration{target, id}
 {

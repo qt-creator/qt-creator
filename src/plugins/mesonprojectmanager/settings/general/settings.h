@@ -22,12 +22,16 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
+#include "mesonpluginconstants.h"
+
 #include <coreplugin/icore.h>
-#include <mesonpluginconstants.h>
-#include <QObject>
+
 namespace MesonProjectManager {
 namespace Internal {
+
 template<class F>
 void with_group(QSettings *settings, const QString &name, const F &f)
 {
@@ -85,5 +89,6 @@ public:
         });
     }
 };
+
 } // namespace Internal
 } // namespace MesonProjectManager

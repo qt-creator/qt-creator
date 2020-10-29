@@ -24,8 +24,10 @@
 ****************************************************************************/
 
 #pragma once
-#include "utils/settingsaccessor.h"
-#include <exewrappers/mesontools.h>
+
+#include "exewrappers/mesontools.h"
+
+#include <utils/settingsaccessor.h>
 
 namespace MesonProjectManager {
 namespace Internal {

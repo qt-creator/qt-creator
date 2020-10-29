@@ -22,18 +22,21 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
 #include "exewrappers/mesonwrapper.h"
 #include "mesonprojectimporter.h"
 
-#include "projectexplorer/project.h"
-#include "projectexplorer/projectimporter.h"
-#include "projectexplorer/task.h"
-#include "utils/fileutils.h"
-#include <QObject>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectimporter.h>
+#include <projectexplorer/task.h>
+
+#include <utils/fileutils.h>
 
 namespace MesonProjectManager {
 namespace Internal {
+
 class MesonProject final : public ProjectExplorer::Project
 {
     Q_OBJECT

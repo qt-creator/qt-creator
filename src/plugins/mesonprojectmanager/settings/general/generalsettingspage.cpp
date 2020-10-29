@@ -24,10 +24,10 @@
 ****************************************************************************/
 
 #include "generalsettingspage.h"
-#include "generalsettingswidget.h"
-#include "settings.h"
 
-#include <mesonpluginconstants.h>
+#include "generalsettingswidget.h"
+#include "mesonpluginconstants.h"
+#include "settings.h"
 
 namespace MesonProjectManager {
 namespace Internal {

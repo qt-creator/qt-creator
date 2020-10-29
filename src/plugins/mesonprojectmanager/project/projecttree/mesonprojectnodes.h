@@ -22,13 +22,18 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
 #include <coreplugin/fileiconprovider.h>
+
 #include <projectexplorer/projectnodes.h>
+
 #include <utils/fileutils.h>
 
 namespace MesonProjectManager {
 namespace Internal {
+
 class MesonProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
@@ -57,5 +62,6 @@ public:
         return filePath().pathAppended("meson.build");
     }
 };
+
 } // namespace Internal
 } // namespace MesonProjectManager

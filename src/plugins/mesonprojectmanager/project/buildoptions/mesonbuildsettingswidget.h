@@ -22,15 +22,17 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
 #include "optionsmodel/buildoptionsmodel.h"
+
+#include <projectexplorer/namedwidget.h>
 
 #include <utils/categorysortfiltermodel.h>
 #include <utils/progressindicator.h>
-#include <projectexplorer/namedwidget.h>
 
 #include <QTimer>
-#include <QWidget>
 
 namespace MesonProjectManager {
 namespace Internal {

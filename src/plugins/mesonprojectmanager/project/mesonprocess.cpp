@@ -24,18 +24,22 @@
 ****************************************************************************/
 
 #include "mesonprocess.h"
+
 #include "outputparsers/mesonoutputparser.h"
 
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
+
 #include <utils/stringutils.h>
 
 #include <QLoggingCategory>
 
 namespace MesonProjectManager {
 namespace Internal {
+
 static Q_LOGGING_CATEGORY(mesonProcessLog, "qtc.meson.buildsystem", QtDebugMsg);
 
 MesonProcess::MesonProcess()

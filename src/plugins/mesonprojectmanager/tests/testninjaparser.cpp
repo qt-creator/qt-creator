@@ -23,13 +23,15 @@
 **
 ****************************************************************************/
 
-#include <project/outputparsers/ninjaparser.h>
-#include <iostream>
+#include "project/outputparsers/ninjaparser.h"
+
 #include <QDir>
 #include <QObject>
 #include <QString>
 #include <QTemporaryDir>
 #include <QtTest/QtTest>
+
+#include <iostream>
 
 using namespace MesonProjectManager::Internal;
 

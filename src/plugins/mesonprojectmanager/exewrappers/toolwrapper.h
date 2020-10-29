@@ -22,15 +22,18 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
+
+#include "versionhelper.h"
+
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/id.h>
 #include <utils/qtcassert.h>
-#include <versionhelper.h>
+
 #include <QFileInfo>
 #include <QProcess>
-#include <QString>
 #include <QUuid>
 #include <QVariant>
 #include <QVariantMap>

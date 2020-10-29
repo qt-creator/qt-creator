@@ -23,17 +23,19 @@
 **
 ****************************************************************************/
 
-#include <project/outputparsers/mesonoutputparser.h>
-#include <iostream>
+#include "project/outputparsers/mesonoutputparser.h"
+
 #include <projectexplorer/taskhub.h>
+
 #include <utils/fileinprojectfinder.h>
 #include <utils/theme/theme.h>
 #include <utils/theme/theme_p.h>
+
 #include <QDir>
-#include <QObject>
-#include <QString>
 #include <QTemporaryDir>
 #include <QtTest/QtTest>
+
+#include <iostream>
 
 using namespace MesonProjectManager::Internal;
 

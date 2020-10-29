@@ -21,10 +21,13 @@
 ** information to ensure the GNU General Public License requirements will
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
-****************************************************************************/
+**************************************************************************/
+
 #pragma once
+
 #include "../mesonpluginconstants.h"
 #include "toolwrapper.h"
+
 namespace MesonProjectManager {
 namespace Internal {
 

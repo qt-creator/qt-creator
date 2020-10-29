@@ -24,11 +24,13 @@
 ****************************************************************************/
 
 #include "generalsettingswidget.h"
+
 #include "settings.h"
 #include "ui_generalsettingswidget.h"
 
 namespace MesonProjectManager {
 namespace Internal {
+
 GeneralSettingsWidget::GeneralSettingsWidget()
     : Core::IOptionsPageWidget()
     , ui(new Ui::GeneralSettingsWidget)
@@ -48,5 +50,6 @@ void GeneralSettingsWidget::apply()
     Settings::setAutorunMeson(ui->autorunChkBox->isChecked());
     Settings::setVerboseNinja(ui->verboseNinjaChkBox->isChecked());
 }
+
 } // namespace Internal
 } // namespace MesonProjectManager
