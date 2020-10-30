@@ -610,15 +610,11 @@ public:
                     //   - virtual int qt_metacall(QMetaObject::Call, int, void **);
                     bool skip = false;
                     for (const Function *firstVirtual : qAsConst(firstVirtuals)) {
-                        if (printer.prettyName(firstVirtual->enclosingClass()->name())
-                                == QLatin1String("QObject")) {
-                            const QString funcName = printer.prettyName(func->name());
-                            if (funcName == QLatin1String("metaObject")
-                                    || funcName == QLatin1String("qt_metacast")
-                                    || funcName == QLatin1String("qt_metacall")) {
-                                skip = true;
-                                break;
-                            }
+                        if (printer.prettyName(firstVirtual->enclosingClass()->name()) == "QObject"
+                                && magicQObjectFunctions().contains(
+                                    printer.prettyName(func->name()))) {
+                            skip = true;
+                            break;
                         }
                     }
                     if (skip)

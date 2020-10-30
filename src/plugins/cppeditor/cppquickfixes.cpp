@@ -3496,6 +3496,10 @@ public:
             Function * const func = s->type()->asFunctionType();
             if (!func || func->isSignal() || func->isFriend())
                 continue;
+            Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
+            oo.showFunctionSignatures = true;
+            if (magicQObjectFunctions().contains(oo.prettyName(func->name())))
+                continue;
             m_declarations << s;
         }
     }
