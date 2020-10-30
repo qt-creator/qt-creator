@@ -41,13 +41,13 @@
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;
 
-template <template <typename, typename> class _Map, typename _T1, typename _T2>
-_Map<_T2, _T1> invert(const _Map<_T1, _T2> &m)
+template<typename _T1, typename _T2>
+QMultiMap<_T2, _T1> invert(const QMap<_T1, _T2> &m)
 {
-    _Map<_T2, _T1> i;
-    typename _Map<_T1, _T2>::const_iterator it = m.constBegin();
+    QMultiMap<_T2, _T1> i;
+    typename QMap<_T1, _T2>::const_iterator it = m.constBegin();
     for (; it != m.constEnd(); ++it) {
-        i.insertMulti(it.value(), it.key());
+        i.insert(it.value(), it.key());
     }
     return i;
 }
@@ -149,11 +149,10 @@ void tst_Lookup::base_class_defined_1()
 
     QCOMPARE(classSymbols.size(), 2);
 
-    const QMap<Class *, ClassSpecifierAST *> classToAST =
-            invert(classSymbols.asMap());
+    const QMultiMap<Class *, ClassSpecifierAST *> classToAST = invert(classSymbols.asMap());
 
-    QVERIFY(classToAST.value(baseClass) != 0);
-    QVERIFY(classToAST.value(derivedClass) != 0);
+    QVERIFY(!classToAST.values(baseClass).isEmpty());
+    QVERIFY(!classToAST.values(derivedClass).isEmpty());
 }
 
 void tst_Lookup::document_functionAt_data()

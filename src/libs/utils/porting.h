@@ -46,6 +46,12 @@ using QHashValueType = uint;
 using QHashValueType = size_t;
 #endif
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+using QtSizeType = int;
+#else
+using QtSizeType = qsizetype;
+#endif
+
 // StringView - either QStringRef or QStringView
 // Can be used where it is not possible to completely switch to QStringView
 // For example where QString::splitRef / QStringView::split is essential.

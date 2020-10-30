@@ -139,14 +139,10 @@ private Q_SLOTS:
 void tst_FindUsages::dump(const QList<Usage> &usages) const
 {
     QTextStream err(stderr, QIODevice::WriteOnly);
-    err << "DEBUG  : " << usages.size() << " usages:" << endl;
+    err << "DEBUG  : " << usages.size() << " usages:" << Qt::endl;
     foreach (const Usage &usage, usages) {
-        err << "DEBUG  : "
-            << usage.path << ":"
-            << usage.line << ":"
-            << usage.col << ":"
-            << usage.len << ":"
-            << usage.lineText << endl;
+        err << "DEBUG  : " << usage.path << ":" << usage.line << ":" << usage.col << ":"
+            << usage.len << ":" << usage.lineText << Qt::endl;
     }
 }
 

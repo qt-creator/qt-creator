@@ -29,6 +29,7 @@
 #include <utils/mimetypes/mimetype.h>
 #include <utils/mimetypes/mimedatabase.h>
 
+#include <QTextCodec>
 #include <QtTest>
 
 using namespace LanguageServerProtocol;

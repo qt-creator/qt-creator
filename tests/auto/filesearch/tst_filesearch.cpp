@@ -25,6 +25,7 @@
 
 #include <utils/filesearch.h>
 
+#include <QTextCodec>
 #include <QtTest>
 
 namespace Utils {

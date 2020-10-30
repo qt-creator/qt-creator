@@ -34,6 +34,7 @@
 #include <QDateTime>
 #include <QDir>
 #include <QEventLoop>
+#include <QRandomGenerator>
 #include <QStringList>
 #include <QTemporaryDir>
 #include <QTimer>
@@ -386,7 +387,7 @@ void tst_Ssh::sftp()
         QVERIFY2(file.open(QIODevice::WriteOnly), qPrintable(file.errorString()));
         int content[1024 / sizeof(int)];
         for (size_t j = 0; j < sizeof content / sizeof content[0]; ++j)
-            content[j] = qrand();
+            content[j] = QRandomGenerator::global()->generate();
         file.write(reinterpret_cast<char *>(content), sizeof content);
         file.close();
         QVERIFY2(file.error() == QFile::NoError, qPrintable(file.errorString()));
@@ -401,7 +402,7 @@ void tst_Ssh::sftp()
     for (int block = 0; block < blockCount; ++block) {
         int content[blockSize / sizeof(int)];
         for (size_t j = 0; j < sizeof content / sizeof content[0]; ++j)
-            content[j] = qrand();
+            content[j] = QRandomGenerator::global()->generate();
         bigFile.write(reinterpret_cast<char *>(content), sizeof content);
     }
     bigFile.close();

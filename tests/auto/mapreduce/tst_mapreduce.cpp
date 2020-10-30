@@ -25,6 +25,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/mapreduce.h>
+#include <utils/porting.h>
 
 #include <QThreadPool>
 #include <QtTest>
@@ -272,20 +273,23 @@ void tst_MapReduce::map()
 
     // blocking map = mapped
     {
-        const QSet<int> sizes = Utils::mapped<QSet>(QStringList({QLatin1String("foo"),
-                                                                      QLatin1String("bar"), QLatin1String("blah")}),
-                                                         [](const QString &s) { return s.size(); });
-        QList<int> vals = sizes.values();
+        const QSet<Utils::QtSizeType> sizes = Utils::mapped<QSet>(
+            QStringList({QLatin1String("foo"), QLatin1String("bar"), QLatin1String("blah")}),
+            [](const QString &s) { return s.size(); });
+        QList<Utils::QtSizeType> vals = sizes.values();
         Utils::sort(vals);
-        QCOMPARE(vals, QList<int>({3, 4}));
+        QCOMPARE(vals, QList<Utils::QtSizeType>({3, 4}));
     }
     {
         const QStringList list({QLatin1String("foo"), QLatin1String("bar"), QLatin1String("blah")});
-        const QSet<int> sizes = Utils::mapped<QSet>(list.cbegin(), list.cend(),
-                                                    [](const QString &s) { return s.size(); });
-        QList<int> vals = sizes.values();
+        const QSet<Utils::QtSizeType> sizes = Utils::mapped<QSet>(list.cbegin(),
+                                                                  list.cend(),
+                                                                  [](const QString &s) {
+                                                                      return s.size();
+                                                                  });
+        QList<Utils::QtSizeType> vals = sizes.values();
         Utils::sort(vals);
-        QCOMPARE(vals, QList<int>({3, 4}));
+        QCOMPARE(vals, QList<Utils::QtSizeType>({3, 4}));
     }
 }
 

@@ -23,10 +23,9 @@
 **
 ****************************************************************************/
 
-#include <QtTest>
 #include <QObject>
-
-QT_FORWARD_DECLARE_CLASS(QStringList)
+#include <QStringList>
+#include <QtTest>
 
 class tst_TestTrie : public QObject
 {
