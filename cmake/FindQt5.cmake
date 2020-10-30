@@ -64,7 +64,7 @@ endif()
 set(Qt5_FOUND ${Qt6_FOUND})
 set(Qt5_VERSION ${Qt6_VERSION})
 
-foreach(tool qmake lrelease moc)
+foreach(tool qmake lrelease moc rcc qhelpgenerator)
   if (TARGET Qt6::${tool} AND NOT TARGET Qt5::${tool})
     add_executable(Qt5::${tool} IMPORTED GLOBAL)
     get_target_property(imported_location Qt6::${tool} IMPORTED_LOCATION_RELEASE)
