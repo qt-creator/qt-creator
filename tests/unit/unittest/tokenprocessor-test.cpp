@@ -928,7 +928,8 @@ TEST_F(TokenProcessor, PreprocessorInclusionDirective)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(239, 18));
 
-    ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::StringLiteral));
+    ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Preprocessor));
+    ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::StringLiteral));
 }
 
 TEST_F(TokenProcessor, GotoLabelStatement)
@@ -1080,6 +1081,7 @@ TEST_F(TokenProcessor, PreprocessorInclusionDirectiveWithAngleBrackets )
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(289, 38));
 
+    ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Preprocessor));
     ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::StringLiteral));
 }
 

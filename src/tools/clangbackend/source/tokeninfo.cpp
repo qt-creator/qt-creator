@@ -440,7 +440,10 @@ void TokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
             m_types.mainHighlightingType = HighlightingType::PreprocessorDefinition;
             break;
         case CXCursor_InclusionDirective:
-            m_types.mainHighlightingType = HighlightingType::StringLiteral;
+            // Included files are sometimes reported as strings and sometimes as
+            // include directives, depending on various circumstances.
+            m_types.mainHighlightingType = m_token->spelling() == "include"
+                    ? HighlightingType::Preprocessor : HighlightingType::StringLiteral;
             break;
         case CXCursor_LabelRef:
         case CXCursor_LabelStmt:
