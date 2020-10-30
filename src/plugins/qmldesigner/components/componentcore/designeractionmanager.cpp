@@ -199,24 +199,17 @@ void DesignerActionManager::registerAddResourceHandler(const AddResourceHandler 
     m_addResourceHandler.append(handler);
 }
 
-QMultiHash<TypeName, ModelNodePreviewImageHandler> DesignerActionManager::modelNodePreviewHandlers() const
-{
-    return m_modelNodePreviewImageHandlers;
-}
-
 void DesignerActionManager::registerModelNodePreviewHandler(const ModelNodePreviewImageHandler &handler)
 {
-    m_modelNodePreviewImageHandlers.insert(handler.type, handler);
+    m_modelNodePreviewImageHandlers.append(handler);
 }
 
 bool DesignerActionManager::hasModelNodePreviewHandler(const ModelNode &node) const
 {
     const bool isComponent = node.isComponent();
     for (const auto &handler : qAsConst(m_modelNodePreviewImageHandlers)) {
-        if ((isComponent || !handler.componentOnly) && node.isSubclassOf(handler.type)) {
-            ModelNodePreviewImageHandler subClassHandler = handler;
+        if ((isComponent || !handler.componentOnly) && node.isSubclassOf(handler.type))
             return true;
-        }
     }
     return false;
 }
@@ -1412,6 +1405,15 @@ void DesignerActionManager::createDefaultModelNodePreviewImageHandlers()
 {
     registerModelNodePreviewHandler(
                 ModelNodePreviewImageHandler("QtQuick.Image",
+                                             ModelNodeOperations::previewImageDataForImageNode));
+    registerModelNodePreviewHandler(
+                ModelNodePreviewImageHandler("QtQuick.BorderImage",
+                                             ModelNodeOperations::previewImageDataForImageNode));
+    registerModelNodePreviewHandler(
+                ModelNodePreviewImageHandler("Qt.SafeRenderer.SafeRendererImage",
+                                             ModelNodeOperations::previewImageDataForImageNode));
+    registerModelNodePreviewHandler(
+                ModelNodePreviewImageHandler("Qt.SafeRenderer.SafeRendererPicture",
                                              ModelNodeOperations::previewImageDataForImageNode));
     registerModelNodePreviewHandler(
                 ModelNodePreviewImageHandler("QtQuick3D.Texture",

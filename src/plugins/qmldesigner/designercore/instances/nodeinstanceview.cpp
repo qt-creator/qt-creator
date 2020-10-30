@@ -98,6 +98,8 @@
 #include <QUrl>
 #include <QMultiHash>
 #include <QTimerEvent>
+#include <QPicture>
+#include <QPainter>
 
 enum {
     debug = false
@@ -1636,7 +1638,20 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
 
         if (reload) {
             QPixmap originalPixmap;
-            originalPixmap.load(imageSource);
+            if (modelNode.isSubclassOf("Qt.SafeRenderer.SafeRendererPicture")) {
+                QPicture picture;
+                picture.load(imageSource);
+                if (!picture.isNull()) {
+                    QImage paintImage(picture.width(), picture.height(), QImage::Format_ARGB32);
+                    paintImage.fill(Qt::transparent);
+                    QPainter painter(&paintImage);
+                    painter.drawPicture(0, 0, picture);
+                    painter.end();
+                    originalPixmap = QPixmap::fromImage(paintImage);
+                }
+            } else {
+                originalPixmap.load(imageSource);
+            }
             if (!originalPixmap.isNull()) {
                 const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
                 imageData.pixmap = originalPixmap.scaled(dim, dim, Qt::KeepAspectRatio);
