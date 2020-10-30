@@ -529,7 +529,7 @@ void FormEditorWidget::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
 
-    const bool wasEnabled = isEnabled();
+    const bool wasEnabled = m_formEditorView->isEnabled();
     m_formEditorView->setEnabled(true);
 
     if (!wasEnabled && m_formEditorView->model()) {
