@@ -330,6 +330,10 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
     for (auto it = astPath.rbegin() + 1; it != astPath.rend(); ++it) {
         if ((*it)->asExpressionStatement())
             return Usage::Type::Read;
+        if ((*it)->asSwitchStatement())
+            return Usage::Type::Read;
+        if ((*it)->asCaseStatement())
+            return Usage::Type::Read;
         if ((*it)->asLambdaCapture() || (*it)->asNamedTypeSpecifier()
                 || (*it)->asElaboratedTypeSpecifier()) {
             return Usage::Type::Other;

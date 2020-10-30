@@ -2078,6 +2078,12 @@ int main()
     s.n.nonConstFunc();
     s.n.constFunc(s.value);
     delete s.p;
+    switch (S::value) {
+        case S::value: break;
+    }
+    switch (S::value = 5) {
+        default: break;
+    }
 }
 )";
 
@@ -2103,7 +2109,7 @@ int main()
     // Access to struct member
     FindUsages find(src, doc, snapshot);
     find(sv);
-    QCOMPARE(find.usages().size(), 18);
+    QCOMPARE(find.usages().size(), 21);
     QCOMPARE(find.usages().at(0).type, Usage::Type::Read);
     QCOMPARE(find.usages().at(1).type, Usage::Type::Declaration);
     QCOMPARE(find.usages().at(2).type, Usage::Type::WritableRef);
@@ -2122,6 +2128,9 @@ int main()
     QCOMPARE(find.usages().at(15).type, Usage::Type::Read);
     QCOMPARE(find.usages().at(16).type, Usage::Type::Read);
     QCOMPARE(find.usages().at(17).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(18).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(19).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(20).type, Usage::Type::Write);
 
     Declaration * const sv2 = structS->memberAt(2)->asDeclaration();
     QVERIFY(sv2);
@@ -2138,7 +2147,7 @@ int main()
     QCOMPARE(main->memberCount(), 1);
     Block * const block = main->memberAt(0)->asBlock();
     QVERIFY(block);
-    QCOMPARE(block->memberCount(), 13);
+    QCOMPARE(block->memberCount(), 15);
 
     // Access to pointer
     Declaration * const p = block->memberAt(1)->asDeclaration();
@@ -2204,12 +2213,18 @@ int main()
 
     // Usages of struct type
     find(structS);
-    QCOMPARE(find.usages().size(), 5);
+    QCOMPARE(find.usages().size(), 8);
     QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
     QCOMPARE(find.usages().at(1).type, Usage::Type::Other);
     QCOMPARE(find.usages().at(2).type, Usage::Type::Other);
     QCOMPARE(find.usages().at(3).type, Usage::Type::Other);
     QCOMPARE(find.usages().at(4).type, Usage::Type::Other);
+
+    // These are conceptually questionable, as S is a type and thus we cannot "read from"
+    // or "write to" it. But it possibly matches the intuitive user expectation.
+    QCOMPARE(find.usages().at(5).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(6).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(7).type, Usage::Type::Write);
 }
 
 QTEST_APPLESS_MAIN(tst_FindUsages)
