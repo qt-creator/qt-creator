@@ -49,7 +49,7 @@ if (Qt5_VERSION VERSION_LESS 6.0.0)
   install(TARGETS Qt6Core5Compat EXPORT QtCreator)
 endif()
 find_package(Qt5 COMPONENTS LinguistTools QUIET)
-find_package(Qt5 COMPONENTS Designer DesignerComponents Help SerialPort Svg QUIET)
+find_package(Qt5 COMPONENTS Designer DesignerComponents Help SerialPort Svg Tools QUIET)
 
 find_package(Threads)
 find_package(Clang QUIET)
