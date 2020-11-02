@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -26,6 +26,7 @@
 #include "webassemblyplugin.h"
 #include "webassemblyconstants.h"
 #include "webassemblydevice.h"
+#include "webassemblyoptionspage.h"
 #include "webassemblyqtversion.h"
 #include "webassemblyrunconfiguration.h"
 #include "webassemblytoolchain.h"
@@ -37,7 +38,13 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitmanager.h>
 
+#include <utils/infobar.h>
+
+#include <QTimer>
+
+using namespace Core;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace WebAssembly {
 namespace Internal {
@@ -54,6 +61,7 @@ public:
         {ProjectExplorer::Constants::NORMAL_RUN_MODE},
         {Constants::WEBASSEMBLY_RUNCONFIGURATION_EMRUN}
     };
+    WebAssemblyOptionsPage optionsPage;
 };
 
 static WebAssemblyPluginPrivate *dd = nullptr;
@@ -83,7 +91,28 @@ void WebAssemblyPlugin::extensionsInitialized()
 {
     connect(KitManager::instance(), &KitManager::kitsLoaded, this, [] {
         DeviceManager::instance()->addDevice(WebAssemblyDevice::create());
+        askUserAboutEmSdkSetup();
     });
+}
+
+void WebAssemblyPlugin::askUserAboutEmSdkSetup()
+{
+    const char setupWebAssemblyEmSdk[] = "SetupWebAssemblyEmSdk";
+
+    if (!ICore::infoBar()->canInfoBeAdded(setupWebAssemblyEmSdk)
+            || !WebAssemblyQtVersion::isQtVersionInstalled()
+            || WebAssemblyToolChain::areToolChainsRegistered())
+        return;
+
+    InfoBarEntry info(setupWebAssemblyEmSdk,
+                      tr("Setup Emscripten SDK for WebAssembly? "
+                         "To do it later, select Options > Devices > WebAssembly."),
+                      InfoBarEntry::GlobalSuppression::Enabled);
+    info.setCustomButtonInfo(tr("Setup Emscripten SDK"), [setupWebAssemblyEmSdk] {
+        ICore::infoBar()->removeInfo(setupWebAssemblyEmSdk);
+        QTimer::singleShot(0, []() { ICore::showOptionsDialog(Constants::SETTINGS_ID); });
+    });
+    ICore::infoBar()->addInfo(info);
 }
 
 } // namespace Internal

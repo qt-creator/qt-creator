@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -30,6 +30,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <remotelinux/remotelinux_constants.h>
 #include <coreplugin/featureprovider.h>
+#include <coreplugin/icore.h>
+#include <qtsupport/qtversionmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -37,6 +39,10 @@
 
 #include <QCoreApplication>
 #include <QFileInfo>
+#include <QVersionNumber>
+
+using namespace QtSupport;
+using namespace Utils;
 
 namespace WebAssembly {
 namespace Internal {
@@ -49,7 +55,7 @@ QString WebAssemblyQtVersion::description() const
                                        "Qt Version is meant for WebAssembly");
 }
 
-QSet<Utils::Id> WebAssemblyQtVersion::targetDeviceTypes() const
+QSet<Id> WebAssemblyQtVersion::targetDeviceTypes() const
 {
     return {Constants::WEBASSEMBLY_DEVICE_TYPE};
 }
@@ -61,6 +67,44 @@ WebAssemblyQtVersionFactory::WebAssemblyQtVersionFactory()
     setPriority(1);
     setRestrictionChecker([](const SetupData &setup) {
         return setup.platforms.contains("wasm");
+    });
+}
+
+bool WebAssemblyQtVersion::isValid() const
+{
+    return BaseQtVersion::isValid() && qtVersion() >= minimumSupportedQtVersion();
+}
+
+QString WebAssemblyQtVersion::invalidReason() const
+{
+    const QString baseReason = BaseQtVersion::invalidReason();
+    if (!baseReason.isEmpty())
+        return baseReason;
+
+    return tr("%1 does not support Qt for WebAssembly below version %2.")
+            .arg(Core::ICore::versionString())
+            .arg(QVersionNumber(minimumSupportedQtVersion().majorVersion,
+                                minimumSupportedQtVersion().minorVersion).toString());
+}
+
+const QtVersionNumber &WebAssemblyQtVersion::minimumSupportedQtVersion()
+{
+    const static QtVersionNumber number(5, 15);
+    return number;
+}
+
+bool WebAssemblyQtVersion::isQtVersionInstalled()
+{
+    return anyOf(QtVersionManager::versions(), [](const BaseQtVersion *v) {
+        return v->type() == Constants::WEBASSEMBLY_QT_VERSION;
+    });
+}
+
+bool WebAssemblyQtVersion::isUnsupportedQtVersionInstalled()
+{
+    return anyOf(QtVersionManager::versions(), [](const BaseQtVersion *v) {
+        return v->type() == Constants::WEBASSEMBLY_QT_VERSION
+                && v->qtVersion() < WebAssemblyQtVersion::minimumSupportedQtVersion();
     });
 }
 

@@ -25,34 +25,16 @@
 
 #pragma once
 
-#include <qtsupport/qtversionfactory.h>
-#include <qtsupport/baseqtversion.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace WebAssembly {
 namespace Internal {
 
-class WebAssemblyQtVersion : public QtSupport::BaseQtVersion
+class WebAssemblyOptionsPage final : public Core::IOptionsPage
 {
 public:
-    WebAssemblyQtVersion();
-
-    QString description() const override;
-
-    QSet<Utils::Id> targetDeviceTypes() const override;
-
-    bool isValid() const override;
-    QString invalidReason() const override;
-
-    static const QtSupport::QtVersionNumber &minimumSupportedQtVersion();
-    static bool isQtVersionInstalled();
-    static bool isUnsupportedQtVersionInstalled();
-};
-
-class WebAssemblyQtVersionFactory : public QtSupport::QtVersionFactory
-{
-public:
-    WebAssemblyQtVersionFactory();
+    WebAssemblyOptionsPage();
 };
 
 } // namespace Internal
-} // namespace WebAssembly
+} // namespace WebAssmbly

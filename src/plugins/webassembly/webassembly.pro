@@ -4,6 +4,8 @@ HEADERS += \
     webassembly_global.h \
     webassemblyconstants.h \
     webassemblydevice.h \
+    webassemblyemsdk.h \
+    webassemblyoptionspage.h \
     webassemblyplugin.h \
     webassemblyqtversion.h \
     webassemblyrunconfigurationaspects.h \
@@ -12,6 +14,8 @@ HEADERS += \
 
 SOURCES += \
     webassemblydevice.cpp \
+    webassemblyemsdk.cpp \
+    webassemblyoptionspage.cpp \
     webassemblyplugin.cpp \
     webassemblyqtversion.cpp \
     webassemblyrunconfigurationaspects.cpp \

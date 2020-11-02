@@ -6,6 +6,8 @@ add_qtc_plugin(WebAssembly
     webassembly_global.h
     webassemblyconstants.h
     webassemblydevice.cpp webassemblydevice.h
+    webassemblyemsdk.cpp webassemblyemsdk.h
+    webassemblyoptionspage.cpp webassemblyoptionspage.h
     webassemblyplugin.cpp webassemblyplugin.h
     webassemblyqtversion.cpp webassemblyqtversion.h
     webassemblyrunconfigurationaspects.cpp webassemblyrunconfigurationaspects.h

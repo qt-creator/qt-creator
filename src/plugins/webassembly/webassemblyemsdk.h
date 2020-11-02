@@ -25,33 +25,27 @@
 
 #pragma once
 
-#include <qtsupport/qtversionfactory.h>
-#include <qtsupport/baseqtversion.h>
+#include <utils/fileutils.h>
+
+#include <QCache>
+#include <QVersionNumber>
+
+namespace Utils {
+class Environment;
+}
 
 namespace WebAssembly {
 namespace Internal {
 
-class WebAssemblyQtVersion : public QtSupport::BaseQtVersion
+class WebAssemblyEmSdk
 {
 public:
-    WebAssemblyQtVersion();
-
-    QString description() const override;
-
-    QSet<Utils::Id> targetDeviceTypes() const override;
-
-    bool isValid() const override;
-    QString invalidReason() const override;
-
-    static const QtSupport::QtVersionNumber &minimumSupportedQtVersion();
-    static bool isQtVersionInstalled();
-    static bool isUnsupportedQtVersionInstalled();
-};
-
-class WebAssemblyQtVersionFactory : public QtSupport::QtVersionFactory
-{
-public:
-    WebAssemblyQtVersionFactory();
+    static bool isValid(const Utils::FilePath &sdkRoot);
+    static void addToEnvironment(const Utils::FilePath &sdkRoot, Utils::Environment &env);
+    static QVersionNumber version(const Utils::FilePath &sdkRoot);
+    static void registerEmSdk(const Utils::FilePath &sdkRoot);
+    static Utils::FilePath registeredEmSdk();
+    static void clearCaches();
 };
 
 } // namespace Internal

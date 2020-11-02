@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -43,11 +43,21 @@ namespace Internal {
 static CommandLine emrunCommand(Target *target, const QString &browser, const QString &port)
 {
     if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
-        const QFileInfo emrunScript = bc->environment().searchInPath("emrun").toFileInfo();
+        const QFileInfo emrun = bc->environment().searchInPath("emrun").toFileInfo();
         auto html = bc->buildDirectory().pathAppended(target->project()->displayName() + ".html");
 
-        return CommandLine(bc->environment().searchInPath("python"), {
-                emrunScript.absolutePath() + "/" + emrunScript.baseName() + ".py",
+        // On Windows, we need to use the python interpreter (it comes with the emsdk) to ensure
+        // that the web server is killed when the application is stopped in Qt Creator.
+        // On Non-windows, we prefer using the shell script, because that knows how to find the
+        // right python (not part of emsdk). The shell script stays attached to the server process.
+        const FilePath interpreter = bc->environment().searchInPath(
+                    QLatin1String(HostOsInfo::isWindowsHost() ? "python" : "sh"));
+        const QString emrunLaunchScript = HostOsInfo::isWindowsHost()
+                ? emrun.absolutePath() + "/" + emrun.baseName() + ".py"
+                : emrun.absoluteFilePath();
+
+        return CommandLine(interpreter, {
+                emrunLaunchScript,
                 "--browser", browser,
                 "--port", port,
                 "--no_emrun_detect",

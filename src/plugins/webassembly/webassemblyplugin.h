@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -43,6 +43,12 @@ public:
 
     bool initialize(const QStringList &arguments, QString *errorString) override;
     void extensionsInitialized() override;
+    static void askUserAboutEmSdkSetup();
+
+#ifdef WITH_TESTS
+private slots:
+    void testEmSdkEnvParsing();
+#endif // WITH_TESTS
 };
 
 } // namespace Internal

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,97 +25,42 @@
 
 #include "webassemblytoolchain.h"
 #include "webassemblyconstants.h"
+#include "webassemblyemsdk.h"
 
-#include <utils/environment.h>
-#include <utils/fileutils.h>
-#include <utils/hostosinfo.h>
-
-#include <projectexplorer/abiwidget.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <qtsupport/qtkitinformation.h>
+#include <utils/algorithm.h>
+#include <utils/environment.h>
+#include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 
 #include <QDir>
 #include <QSettings>
 
+using namespace ProjectExplorer;
+using namespace QtSupport;
+using namespace Utils;
+
 namespace WebAssembly {
 namespace Internal {
 
-// See https://emscripten.org/docs/tools_reference/emsdk.html#compiler-configuration-file
-struct CompilerConfiguration
+static const Abi &toolChainAbi()
 {
-    Utils::FilePath emSdk;
-    Utils::FilePath llvmRoot;
-    Utils::FilePath emConfig;
-    Utils::FilePath emscriptenNativeOptimizer;
-    Utils::FilePath binaryEnRoot;
-    Utils::FilePath emSdkNode;
-    Utils::FilePath emSdkPython;
-    Utils::FilePath javaHome;
-    Utils::FilePath emScripten;
-};
-
-static Utils::FilePath compilerConfigurationFile()
-{
-    return Utils::FilePath::fromString(QDir::homePath() + "/.emscripten");
+    static const Abi abi(
+                Abi::AsmJsArchitecture,
+                Abi::UnknownOS,
+                Abi::UnknownFlavor,
+                Abi::EmscriptenFormat,
+                32);
+    return abi;
 }
 
-static CompilerConfiguration compilerConfiguration()
+static void addRegisteredMinGWToEnvironment(Environment &env)
 {
-    const QSettings configuration(compilerConfigurationFile().toString(), QSettings::IniFormat);
-    auto configPath = [&configuration](const QString &key){
-        return Utils::FilePath::fromString(configuration.value(key).toString().remove('\''));
-    };
-    const Utils::FilePath llvmRoot = configPath("LLVM_ROOT");
-    return {
-        llvmRoot.parentDir().parentDir(),
-        llvmRoot,
-        compilerConfigurationFile(),
-        configPath("EMSCRIPTEN_NATIVE_OPTIMIZER"),
-        configPath("BINARYEN_ROOT"),
-        configPath("NODE_JS"),
-        configPath("PYTHON"),
-        configPath("JAVA").parentDir().parentDir(),
-        configPath("EMSCRIPTEN_ROOT")
-    };
-}
-
-static ProjectExplorer::Abi toolChainAbi()
-{
-    return {
-        ProjectExplorer::Abi::AsmJsArchitecture,
-        ProjectExplorer::Abi::UnknownOS,
-        ProjectExplorer::Abi::UnknownFlavor,
-        ProjectExplorer::Abi::EmscriptenFormat,
-        32
-    };
-}
-
-static void addEmscriptenToEnvironment(Utils::Environment &env)
-{
-    const CompilerConfiguration configuration = compilerConfiguration();
-
-    env.prependOrSetPath(configuration.emScripten.toUserOutput());
-    env.prependOrSetPath(configuration.javaHome.toUserOutput() + "/bin");
-    env.prependOrSetPath(configuration.emSdkPython.parentDir().toUserOutput());
-    env.prependOrSetPath(configuration.emSdkNode.parentDir().toUserOutput());
-    env.prependOrSetPath(configuration.llvmRoot.toUserOutput());
-    env.prependOrSetPath(configuration.emSdk.toUserOutput());
-
-    env.set("EMSDK", configuration.emSdk.toUserOutput());
-    env.set("EM_CONFIG", configuration.emConfig.toUserOutput());
-    env.set("LLVM_ROOT", configuration.llvmRoot.toUserOutput());
-    env.set("EMSCRIPTEN_NATIVE_OPTIMIZER", configuration.emscriptenNativeOptimizer.toUserOutput());
-    env.set("BINARYEN_ROOT", configuration.binaryEnRoot.toUserOutput());
-    env.set("EMSDK_NODE", configuration.emSdkNode.toUserOutput());
-    env.set("EMSDK_PYTHON", configuration.emSdkPython.toUserOutput());
-    env.set("JAVA_HOME", configuration.javaHome.toUserOutput());
-    env.set("EMSCRIPTEN", configuration.emScripten.toUserOutput());
-}
-
-static void addRegisteredMinGWToEnvironment(Utils::Environment &env)
-{
-    using namespace ProjectExplorer;
     const ToolChain *toolChain = ToolChainManager::toolChain([](const ToolChain *t){
         return t->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID;
     });
@@ -125,30 +70,86 @@ static void addRegisteredMinGWToEnvironment(Utils::Environment &env)
     }
 }
 
-void WebAssemblyToolChain::addToEnvironment(Utils::Environment &env) const
+void WebAssemblyToolChain::addToEnvironment(Environment &env) const
 {
-    addEmscriptenToEnvironment(env);
-    if (Utils::HostOsInfo::isWindowsHost())
+    WebAssemblyEmSdk::addToEnvironment(WebAssemblyEmSdk::registeredEmSdk(), env);
+    if (HostOsInfo::isWindowsHost())
         addRegisteredMinGWToEnvironment(env);
 }
 
 WebAssemblyToolChain::WebAssemblyToolChain() :
-    ClangToolChain(Constants::WEBASSEMBLY_TOOLCHAIN_TYPEID)
+    GccToolChain(Constants::WEBASSEMBLY_TOOLCHAIN_TYPEID)
 {
-    const CompilerConfiguration configuration = compilerConfiguration();
-    const QString command = configuration.llvmRoot.toString()
-            + Utils::HostOsInfo::withExecutableSuffix("/clang");
-    setCompilerCommand(Utils::FilePath::fromString(command));
     setSupportedAbis({toolChainAbi()});
     setTargetAbi(toolChainAbi());
-    const QString typeAndDisplayName = tr("Emscripten Compiler");
-    setDisplayName(typeAndDisplayName);
-    setTypeDisplayName(typeAndDisplayName);
+    setTypeDisplayName(tr("Emscripten Compiler"));
+}
+
+FilePath WebAssemblyToolChain::makeCommand(const Environment &environment) const
+{
+    // Diverged duplicate of ClangToolChain::makeCommand and MingwToolChain::makeCommand
+    const QStringList makes
+            = HostOsInfo::isWindowsHost() ? QStringList({"mingw32-make.exe", "make.exe"})
+                                          : QStringList({"make"});
+
+    FilePath tmp;
+    for (const QString &make : makes) {
+        tmp = environment.searchInPath(make);
+        if (!tmp.isEmpty())
+            return tmp;
+    }
+    return FilePath::fromString(makes.first());
+}
+
+bool WebAssemblyToolChain::isValid() const
+{
+    return GccToolChain::isValid()
+            && QVersionNumber::fromString(version()) >= minimumSupportedEmSdkVersion();
+}
+
+const QVersionNumber &WebAssemblyToolChain::minimumSupportedEmSdkVersion()
+{
+    static const QVersionNumber number(1, 39);
+    return number;
+}
+
+void WebAssemblyToolChain::registerToolChains()
+{
+    // Remove old toolchains
+    for (ToolChain *tc : ToolChainManager::findToolChains(toolChainAbi())) {
+         if (tc->detection() != ToolChain::AutoDetection)
+             continue;
+         ToolChainManager::deregisterToolChain(tc);
+    };
+
+    // Create new toolchains and register them
+    ToolChainFactory *factory =
+            findOrDefault(ToolChainFactory::allToolChainFactories(), [](ToolChainFactory *f){
+            return f->supportedToolChainType() == Constants::WEBASSEMBLY_TOOLCHAIN_TYPEID;
+    });
+    QTC_ASSERT(factory, return);
+    for (auto toolChain : factory->autoDetect({}))
+        ToolChainManager::registerToolChain(toolChain);
+
+    // Let kits pick up the new toolchains
+    for (Kit *kit : KitManager::kits()) {
+        if (!kit->isAutoDetected())
+            continue;
+        const BaseQtVersion *qtVersion = QtKitAspect::qtVersion(kit);
+        if (!qtVersion || qtVersion->type() != Constants::WEBASSEMBLY_QT_VERSION)
+            continue;
+        kit->fix();
+    }
+}
+
+bool WebAssemblyToolChain::areToolChainsRegistered()
+{
+    return !ToolChainManager::findToolChains(toolChainAbi()).isEmpty();
 }
 
 WebAssemblyToolChainFactory::WebAssemblyToolChainFactory()
 {
-    setDisplayName(WebAssemblyToolChain::tr("WebAssembly"));
+    setDisplayName(WebAssemblyToolChain::tr("Emscripten"));
     setSupportedToolChainType(Constants::WEBASSEMBLY_TOOLCHAIN_TYPEID);
     setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
                            ProjectExplorer::Constants::CXX_LANGUAGE_ID});
@@ -156,20 +157,36 @@ WebAssemblyToolChainFactory::WebAssemblyToolChainFactory()
     setUserCreatable(true);
 }
 
-QList<ProjectExplorer::ToolChain *> WebAssemblyToolChainFactory::autoDetect(
-        const QList<ProjectExplorer::ToolChain *> &alreadyKnown)
+QList<ToolChain *> WebAssemblyToolChainFactory::autoDetect(
+        const QList<ToolChain *> &alreadyKnown)
 {
     Q_UNUSED(alreadyKnown)
 
-    auto cToolChain = new WebAssemblyToolChain;
-    cToolChain->setLanguage(ProjectExplorer::Constants::C_LANGUAGE_ID);
-    cToolChain->setDetection(ProjectExplorer::ToolChain::AutoDetection);
+    const FilePath sdk = WebAssemblyEmSdk::registeredEmSdk();
+    if (!WebAssemblyEmSdk::isValid(sdk))
+        return {};
 
-    auto cxxToolChain = new WebAssemblyToolChain;
-    cxxToolChain->setLanguage(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    cxxToolChain->setDetection(ProjectExplorer::ToolChain::AutoDetection);
+    Environment env;
+    WebAssemblyEmSdk::addToEnvironment(sdk, env);
 
-    return {cToolChain, cxxToolChain};
+    QList<ToolChain *> result;
+    for (auto languageId : {ProjectExplorer::Constants::C_LANGUAGE_ID,
+         ProjectExplorer::Constants::CXX_LANGUAGE_ID}) {
+        auto toolChain = new WebAssemblyToolChain;
+        toolChain->setLanguage(languageId);
+        toolChain->setDetection(ToolChain::AutoDetection);
+        const bool cLanguage = languageId == ProjectExplorer::Constants::C_LANGUAGE_ID;
+        const QString scriptFile = QLatin1String(cLanguage ? "emcc" : "em++")
+                + QLatin1String(HostOsInfo::isWindowsHost() ? ".bat" : "");
+        toolChain->setCompilerCommand(env.searchInPath(scriptFile));
+
+        const QString displayName = WebAssemblyToolChain::tr("Emscripten Compiler %1 for %2")
+                .arg(toolChain->version(), QLatin1String(cLanguage ? "C" : "C++"));
+        toolChain->setDisplayName(displayName);
+        result.append(toolChain);
+    }
+
+    return result;
 }
 
 } // namespace Internal

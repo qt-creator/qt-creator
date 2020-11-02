@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -27,15 +27,24 @@
 
 #include <projectexplorer/gcctoolchain.h>
 
+#include <QVersionNumber>
+
 namespace WebAssembly {
 namespace Internal {
 
-class WebAssemblyToolChain final : public ProjectExplorer::ClangToolChain
+class WebAssemblyToolChain final : public ProjectExplorer::GccToolChain
 {
     Q_DECLARE_TR_FUNCTIONS(WebAssembly::Internal::WebAssemblyToolChain)
 
 public:
     void addToEnvironment(Utils::Environment &env) const override;
+
+    Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
+    bool isValid() const override;
+
+    static const QVersionNumber &minimumSupportedEmSdkVersion();
+    static void registerToolChains();
+    static bool areToolChainsRegistered();
 
 private:
     WebAssemblyToolChain();
