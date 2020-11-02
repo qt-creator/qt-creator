@@ -114,6 +114,7 @@ public:
         pin,
         plus,
         redo,
+        rotation,
         splitColumns,
         splitRows,
         startNode,
