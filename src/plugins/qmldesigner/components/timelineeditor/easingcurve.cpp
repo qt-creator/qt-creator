@@ -435,6 +435,31 @@ QDebug &operator<<(QDebug &stream, const EasingCurve &curve)
     return stream;
 }
 
+QDataStream &operator<<(QDataStream &stream, const std::vector<int> &vec)
+{
+    stream << static_cast<quint64>(vec.size());
+    for (const auto &elem : vec)
+        stream << elem;
+
+    return stream;
+}
+
+QDataStream &operator>>(QDataStream &stream, std::vector<int> &vec)
+{
+    quint64 s;
+    stream >> s;
+
+    vec.clear();
+    vec.reserve(s);
+
+    int val;
+    for (quint64 i = 0; i < s; ++i) {
+        stream >> val;
+        vec.push_back(val);
+    }
+    return stream;
+}
+
 QDataStream &operator<<(QDataStream &stream, const EasingCurve &curve)
 {
     // Ignore the active flag.

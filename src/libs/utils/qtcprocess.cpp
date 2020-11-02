@@ -786,7 +786,7 @@ void QtcProcess::terminate()
 {
 #ifdef Q_OS_WIN
     if (m_useCtrlCStub)
-        EnumWindows(sendShutDownMessageToAllWindowsOfProcess_enumWnd, pid()->dwProcessId);
+        EnumWindows(sendShutDownMessageToAllWindowsOfProcess_enumWnd, processId());
     else
 #endif
     QProcess::terminate();
@@ -796,7 +796,7 @@ void QtcProcess::interrupt()
 {
 #ifdef Q_OS_WIN
     QTC_ASSERT(m_useCtrlCStub, return);
-    EnumWindows(sendInterruptMessageToAllWindowsOfProcess_enumWnd, pid()->dwProcessId);
+    EnumWindows(sendInterruptMessageToAllWindowsOfProcess_enumWnd, processId());
 #endif
 }
 

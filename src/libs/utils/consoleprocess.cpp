@@ -41,6 +41,7 @@
 #include <QRegularExpression>
 #include <QSettings>
 #include <QTemporaryFile>
+#include <QTextCodec>
 #include <QTimer>
 #include <QWinEventNotifier>
 
@@ -416,10 +417,8 @@ bool ConsoleProcess::start()
             d->m_tempFile = nullptr;
             return false;
         }
-        QTextStream out(d->m_tempFile);
-        out.setCodec("UTF-16LE");
-        out.setGenerateByteOrderMark(false);
-
+        QString outString;
+        QTextStream out(&outString);
         // Add PATH and SystemRoot environment variables in case they are missing
         const QStringList fixedEnvironment = [env] {
             QStringList envStrings = env;
@@ -441,15 +440,18 @@ bool ConsoleProcess::start()
         for (const QString &var : fixedEnvironment)
             out << var << QChar(0);
         out << QChar(0);
-        out.flush();
-        if (out.status() != QTextStream::Ok) {
+        const QTextCodec *textCodec = QTextCodec::codecForName("UTF-16LE");
+        QTC_CHECK(textCodec);
+        const QByteArray outBytes = textCodec ? textCodec->fromUnicode(outString) : QByteArray();
+        if (!textCodec || d->m_tempFile->write(outBytes) < 0) {
             stubServerShutdown();
             emitError(QProcess::FailedToStart, msgCannotWriteTempFile());
             delete d->m_tempFile;
             d->m_tempFile = nullptr;
             return false;
         }
-    }
+        d->m_tempFile->flush();
+}
 
     STARTUPINFO si;
     ZeroMemory(&si, sizeof(si));

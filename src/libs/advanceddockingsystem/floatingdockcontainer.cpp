@@ -620,7 +620,11 @@ static const char* windowsMessageString(int messageId)
     }
 
 #ifdef Q_OS_WIN
+# if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 bool FloatingDockContainer::nativeEvent(const QByteArray &eventType, void *message, long *result)
+# else
+bool FloatingDockContainer::nativeEvent(const QByteArray &eventType, void *message, qintptr *result)
+# endif
 {
     QWidget::nativeEvent(eventType, message, result);
     MSG *msg = static_cast<MSG *>(message);

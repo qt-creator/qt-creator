@@ -30,6 +30,7 @@
 #include "cppfileiterationorder.h"
 
 #include <QHash>
+#include <QSet>
 #include <QStringList>
 
 #include <set>
