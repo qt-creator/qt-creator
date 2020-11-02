@@ -128,7 +128,6 @@ private:
 
     bool contextMenuEvent(const Utils::ItemViewEvent &event);
     void reloadFullStack();
-    void copyContentsToClipboard();
     void saveTaskFile();
 
     DebuggerEngine *m_engine;

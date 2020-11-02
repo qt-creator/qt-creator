@@ -353,6 +353,71 @@ static StackFrame inputFunctionForDisassembly()
     return frame;
 }
 
+template<typename Functor>
+void forEachCell(Functor f, QAbstractItemModel *model, const QModelIndex &idx)
+{
+    f(idx);
+    for (int i = 0, n = model->rowCount(idx); i < n; ++i)
+        forEachCell(f, model, model->index(i, 0, idx));
+}
+
+static QString selectedText(QWidget *widget, bool useAll)
+{
+    QAbstractItemView *view = qobject_cast<QAbstractItemView *>(widget);
+    QTC_ASSERT(view, return {});
+    QAbstractItemModel *model = view->model();
+    QTC_ASSERT(model, return {});
+
+    const int ncols = model->columnCount(QModelIndex());
+    QVector<int> largestColumnWidths(ncols, 0);
+
+    QSet<QModelIndex> selected;
+    if (QItemSelectionModel *selection = view->selectionModel()) {
+        const QModelIndexList list = selection->selectedIndexes();
+        selected = QSet<QModelIndex>(list.begin(), list.end());
+    }
+    if (selected.isEmpty())
+        useAll = true;
+
+    // First, find the widths of the largest columns,
+    // so that we can print them out nicely aligned.
+    forEachCell([ncols, model, &largestColumnWidths, selected, useAll](const QModelIndex &idx) {
+        if (useAll || selected.contains(idx)) {
+            for (int j = 0; j < ncols; ++j) {
+                const QModelIndex sibling = model->sibling(idx.row(), j, idx);
+                const int columnWidth = model->data(sibling, Qt::DisplayRole).toString().size();
+                if (columnWidth > largestColumnWidths.at(j))
+                    largestColumnWidths[j] = columnWidth;
+            }
+        }
+    }, model, QModelIndex());
+
+    QString str;
+    forEachCell([ncols, model, largestColumnWidths, &str, selected, useAll](const QModelIndex &idx) {
+        if (useAll || selected.contains(idx)) {
+            for (int j = 0; j != ncols; ++j) {
+                const QModelIndex sibling = model->sibling(idx.row(), j, idx);
+                const QString columnEntry = model->data(sibling, Qt::DisplayRole).toString();
+                str += columnEntry;
+                const int difference = largestColumnWidths.at(j) - columnEntry.size();
+                // Add one extra space between columns.
+                str += QString(qMax(difference, 0) + 1, QChar(' '));
+            }
+            str += '\n';
+        }
+    }, model, QModelIndex());
+
+    return str;
+}
+
+static void copyTextToClipboard(const QString &str)
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    if (clipboard->supportsSelection())
+        clipboard->setText(str, QClipboard::Selection);
+    clipboard->setText(str, QClipboard::Clipboard);
+}
+
 // Write stack frames as task file for displaying it in the build issues pane.
 void StackHandler::saveTaskFile()
 {
@@ -392,7 +457,14 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
 
     menu->addAction(action(ExpandStack)->action());
 
-    addAction(menu, tr("Copy Contents to Clipboard"), true, [this] { copyContentsToClipboard(); });
+    addAction(menu, tr("Copy Contents to Clipboard"), true, [ev] {
+        copyTextToClipboard(selectedText(ev.view(), true));
+    });
+
+    addAction(menu, tr("Copy Selection to Clipboard"), true, [ev] {
+        copyTextToClipboard(selectedText(ev.view(), false));
+    });
+
     addAction(menu, tr("Save as Task File..."), true, [this] { saveTaskFile(); });
 
     if (m_engine->hasCapability(CreateFullBacktraceCapability))
@@ -449,39 +521,6 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
     menu->addAction(action(SettingsDialog)->action());
     menu->popup(ev.globalPos());
     return true;
-}
-
-void StackHandler::copyContentsToClipboard()
-{
-    const int m = columnCount(QModelIndex());
-    QVector<int> largestColumnWidths(m, 0);
-
-    // First, find the widths of the largest columns,
-    // so that we can print them out nicely aligned.
-    forItemsAtLevel<2>([m, &largestColumnWidths](StackFrameItem *item) {
-        for (int j = 0; j < m; ++j) {
-            const int columnWidth = item->data(j, Qt::DisplayRole).toString().size();
-            if (columnWidth > largestColumnWidths.at(j))
-                largestColumnWidths[j] = columnWidth;
-        }
-    });
-
-    QString str;
-    forItemsAtLevel<2>([m, largestColumnWidths, &str](StackFrameItem *item) {
-        for (int j = 0; j != m; ++j) {
-            const QString columnEntry = item->data(j, Qt::DisplayRole).toString();
-            str += columnEntry;
-            const int difference = largestColumnWidths.at(j) - columnEntry.size();
-            // Add one extra space between columns.
-            str += QString(qMax(difference, 0) + 1, QChar(' '));
-        }
-        str += '\n';
-    });
-
-    QClipboard *clipboard = QApplication::clipboard();
-    if (clipboard->supportsSelection())
-        clipboard->setText(str, QClipboard::Selection);
-    clipboard->setText(str, QClipboard::Clipboard);
 }
 
 void StackHandler::reloadFullStack()
