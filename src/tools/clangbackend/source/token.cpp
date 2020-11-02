@@ -90,8 +90,37 @@ std::vector<Cursor> Tokens::annotate() const
 
     std::vector<CXCursor> cxCursors;
     cxCursors.resize(m_tokens.size());
-    clang_annotateTokens(m_cxTranslationUnit, m_tokens.front().cx(),
-                         static_cast<unsigned>(m_tokens.size()), cxCursors.data());
+
+    clang_annotateTokens(m_cxTranslationUnit, m_tokens.front().cx(), m_tokens.size(), cxCursors.data());
+
+    // The alias declaration "using S = struct {}" results in libclang reporting the type
+    // of the surrounding scope (e.g. a namespace or class) for the cursor corresponding to
+    // the token "S" (QTCREATORBUG-24875). We need to correct this manually.
+    // TODO: Investigate whether we can fix this in libclang itself.
+    for (int i = 1; i < int(m_tokens.size()) - 2; ++i) {
+        const Token &tok = m_tokens.at(i);
+        const Token &prevTok = m_tokens.at(i - 1);
+        const Token &nextTok = m_tokens.at(i + 1);
+        if (tok.kind() == CXToken_Identifier
+                && prevTok.kind() == CXToken_Keyword
+                && prevTok.spelling() == "using"
+                && nextTok.spelling() == "="
+                && cxCursors.at(i).kind != CXCursor_TypeAliasDecl) {
+            // If the surrounding scope is a namespace, the correct type is reported for the token
+            // after the identifier, i.e. the "=" symbol. Otherwise, it's not reported at all,
+            // and we have to use the cursor after that, which should be the aliased type.
+            // Note that we cannot use the next cursors in the cxCursors array, because
+            // clang_annotateTokens() reports the surrounding scope for all of these.
+            CXCursor nextCursor = clang_getCursor(m_cxTranslationUnit, clang_getTokenLocation(
+                                                      m_cxTranslationUnit, *nextTok.cx()));
+            if (nextCursor.kind != CXCursor_TypeAliasDecl) {
+                nextCursor = clang_getCursor(m_cxTranslationUnit, clang_getTokenLocation(
+                                                 m_cxTranslationUnit, *m_tokens.at(i + 2).cx()));
+            }
+            cxCursors[i] = nextCursor;
+        }
+    }
+
     cursors.reserve(cxCursors.size());
     for (const CXCursor &cxCursor : cxCursors)
         cursors.emplace_back(cxCursor);
