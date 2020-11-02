@@ -534,7 +534,7 @@ QString RewriterView::auxiliaryDataAsQML() const
 
     int columnCount = 0;
 
-    const QRegularExpression safeName("^[a-z][a-zA-Z0-9]+$");
+    const QRegularExpression safeName("^[a-z][a-zA-Z0-9]*$");
 
     for (const auto &node : allModelNodes()) {
         QHash<PropertyName, QVariant> data = node.auxiliaryData();
