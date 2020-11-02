@@ -883,11 +883,10 @@ QList<ServerNodeInstance> Qt5InformationNodeInstanceServer::createInstances(
 void Qt5InformationNodeInstanceServer::initializeAuxiliaryViews()
 {
 #ifdef QUICK3D_MODULE
-    if (isQuick3DMode()) {
+    if (isQuick3DMode())
         createEditView3D();
-        m_ModelNode3DImageView = createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/ModelNode3DImageView.qml"),
-                                                          m_ModelNode3DImageViewRootItem);
-    }
+    m_ModelNode3DImageView = createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/ModelNode3DImageView.qml"),
+                                                      m_ModelNode3DImageViewRootItem);
 #endif
 
     m_ModelNode2DImageView = createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/ModelNode2DImageView.qml"),
