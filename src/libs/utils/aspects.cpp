@@ -174,7 +174,7 @@ BaseAspects::BaseAspects() = default;
 */
 BaseAspects::~BaseAspects()
 {
-    qDeleteAll(base());
+    qDeleteAll(m_aspects);
 }
 
 /*!
@@ -184,7 +184,7 @@ BaseAspects::~BaseAspects()
 */
 BaseAspect *BaseAspects::aspect(Utils::Id id) const
 {
-    return Utils::findOrDefault(base(), Utils::equal(&BaseAspect::id, id));
+    return Utils::findOrDefault(m_aspects, Utils::equal(&BaseAspect::id, id));
 }
 
 /*!
@@ -192,7 +192,7 @@ BaseAspect *BaseAspects::aspect(Utils::Id id) const
 */
 void BaseAspects::fromMap(const QVariantMap &map) const
 {
-    for (BaseAspect *aspect : *this)
+    for (BaseAspect *aspect : m_aspects)
         aspect->fromMap(map);
 }
 
@@ -201,7 +201,7 @@ void BaseAspects::fromMap(const QVariantMap &map) const
 */
 void BaseAspects::toMap(QVariantMap &map) const
 {
-    for (BaseAspect *aspect : *this)
+    for (BaseAspect *aspect : m_aspects)
         aspect->toMap(map);
 }
 
