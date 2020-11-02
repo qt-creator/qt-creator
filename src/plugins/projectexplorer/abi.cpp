@@ -413,9 +413,13 @@ static Abis abiOf(const QByteArray &data)
             result.append(macAbiForCpu(type));
             pos += 20;
         }
-    } else if (getUint8(data, 0) == 'B' && getUint8(data, 1) == 'C'
-                && getUint8(data, 2) == 0xc0 && getUint8(data, 3) == 0xde) {
-        // https://llvm.org/docs/BitCodeFormat.html#llvm-ir-magic-number
+    } else if (// Qt 5.15+ https://webassembly.github.io/spec/core/binary/modules.html#binary-module
+               (getUint8(data, 0) == 0 && getUint8(data, 1) == 'a'
+                && getUint8(data, 2) == 's' && getUint8(data, 3) == 'm')
+
+               // Qt < 5.15 https://llvm.org/docs/BitCodeFormat.html#llvm-ir-magic-number
+               || (getUint8(data, 0) == 'B' && getUint8(data, 1) == 'C'
+                   && getUint8(data, 2) == 0xc0 && getUint8(data, 3) == 0xde)) {
         result.append(Abi(Abi::AsmJsArchitecture, Abi::UnknownOS, Abi::UnknownFlavor,
                           Abi::EmscriptenFormat, 32));
     } else if (data.size() >= 64){
@@ -1319,8 +1323,11 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
     QTest::newRow("static QtCore: linux 64bit")
             << QString::fromLatin1("%1/static/linux-64bit-release.a").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-linux-generic-elf-64bit"));
-    QTest::newRow("static QtCore: asmjs emscripten 32bit")
+    QTest::newRow("static QtCore: asmjs emscripten 32bit (Qt < 5.15)")
             << QString::fromLatin1("%1/static/asmjs-emscripten.a").arg(prefix)
+            << (QStringList() << QString::fromLatin1("asmjs-unknown-unknown-emscripten-32bit"));
+    QTest::newRow("static QtCore: asmjs emscripten 32bit (Qt >= 5.15)")
+            << QString::fromLatin1("%1/static/asmjs-emscripten-5.15.a").arg(prefix)
             << (QStringList() << QString::fromLatin1("asmjs-unknown-unknown-emscripten-32bit"));
 
     QTest::newRow("static stdc++: mac fat")
