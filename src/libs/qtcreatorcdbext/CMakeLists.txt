@@ -23,7 +23,6 @@ endforeach()
 
 add_qtc_library(qtcreatorcdbext
   COMPONENT qtcreatorcdbext
-  BUILD_BY_DEFAULT
   UNVERSIONED
   DEPENDS ${DbgEngLib}
   DESTINATION lib/qtcreatorcdbext${ArchSuffix}/
