@@ -307,6 +307,8 @@ uint qHash(const QPointer<QObject> &p) { return (ulong)p.data(); }
 #endif
 QT_END_NAMESPACE
 
+// used to prevent some optimizations.
+volatile int global_volatile = 0;
 
 namespace nsA {
 namespace nsB {
@@ -2275,8 +2277,10 @@ namespace final {
         BREAK_HERE;
         // Continue.
 
-        // Jump over next line.
-        return;
+        // Jump over next two lines using the context menu in the gutter.
+        if (global_volatile == 0)
+            return;
+
         while (a > 0)
             ++a;
         dummyStatement(&a);
@@ -2287,8 +2291,10 @@ namespace final {
         BREAK_HERE;
         // Continue.
 
-        // Jump over next line.
-        return;
+        // Jump over next two lines using the context menu in the gutter.
+        if (global_volatile == 0)
+            return;
+
         throw 42;
     }
 
