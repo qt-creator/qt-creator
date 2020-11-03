@@ -49,21 +49,20 @@ StudioControls.ComboBox {
         id: fileModel
     }
 
-    function fontUrlToName(url) {
-        var fontLoader = Qt.createQmlObject('import QtQuick 2.0; FontLoader { source: \"' + url + '\"; }',
-                                           comboBox,
-                                           "dynamicFontLoader");
-        return fontLoader.name
+    function createFontLoader(fontUrl)
+    {
+        return Qt.createQmlObject('import QtQuick 2.0; FontLoader { source: "' + fontUrl + '"; }',
+                                  comboBox, "dynamicFontLoader");
     }
 
-    function setupModel() {
-        var files = fileModel.fileModel
-        var familyNames = ["Arial", "Times New Roman", "Courier", "Verdana", "Tahoma"]
+    function setupModel()
+    {
+        var familyNames = ["Arial", "Times New Roman", "Courier", "Verdana", "Tahoma"] // default fonts
 
-        files.forEach(function (item, index) {
-            var name = fontUrlToName(fileModel.dirPath + "/" + item)
-            familyNames.push(name)
-        });
+        for (var i = 0; i < fileModel.fullPathModel.length; ++i) { // add custom fonts
+            var fontLoader = createFontLoader(fileModel.dirPath + "/" + fileModel.fullPathModel[i]);
+            familyNames.push(fontLoader.name);
+        }
 
         familyNames.sort()
         comboBox.model = familyNames
