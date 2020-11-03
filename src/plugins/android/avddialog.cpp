@@ -75,6 +75,7 @@ AvdDialog::AvdDialog(int minApiLevel, AndroidSdkManager *sdkManager, const QStri
     m_avdDialog.nameLineEdit->installEventFilter(this);
 
     m_avdDialog.warningText->setType(Utils::InfoLabel::Warning);
+    m_avdDialog.warningText->setElideMode(Qt::ElideNone);
 
     connect(&m_hideTipTimer, &QTimer::timeout, this, []() { Utils::ToolTip::hide(); });
 
@@ -246,14 +247,14 @@ void AvdDialog::updateApiLevelComboBox()
         m_avdDialog.targetApiComboBox->setEnabled(false);
         m_avdDialog.warningText->setVisible(true);
         m_avdDialog.warningText->setText(
-            tr("Cannot create a new AVD. No suitable Android system image is installed.\n"
+            tr("Cannot create a new AVD. No suitable Android system image is installed.<br/>"
                "Install a system image of at least API version %1 from the SDK Manager tab.")
                 .arg(m_minApiLevel));
         m_avdDialog.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     } else if (filteredList.isEmpty()) {
         m_avdDialog.targetApiComboBox->setEnabled(false);
         m_avdDialog.warningText->setVisible(true);
-        m_avdDialog.warningText->setText(tr("Cannot create an AVD for ABI %1. Install a system "
+        m_avdDialog.warningText->setText(tr("Cannot create an AVD for ABI %1.<br/>Install a system "
                                             "image for it from the SDK Manager tab first.")
                                              .arg(abi()));
         m_avdDialog.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
