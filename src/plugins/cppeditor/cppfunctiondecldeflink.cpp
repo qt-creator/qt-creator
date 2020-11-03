@@ -640,6 +640,7 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
         Control *control = sourceContext.bindings()->control().data();
         Overview overview = overviewFromCurrentProjectStyle;
         overview.showReturnTypes = true;
+        overview.showTemplateParameters = true;
 
         // make a easy to access list of the target parameter declarations
         QVarLengthArray<ParameterDeclarationAST *, 10> targetParameterDecls;
