@@ -89,7 +89,7 @@ void NodeInstanceSignalSpy::registerChildObject(const QMetaProperty &metaPropert
     if (metaProperty.isReadable()
             && !metaProperty.isWritable()
             && QmlPrivateGate::isPropertyQObject(metaProperty)
-            && QLatin1String(metaProperty.name()) != "parent") {
+            && QLatin1String(metaProperty.name()) != QLatin1String("parent")) {
         QObject *childObject = QmlPrivateGate::readQObjectProperty(metaProperty, spiedObject);
 
         if (childObject) {

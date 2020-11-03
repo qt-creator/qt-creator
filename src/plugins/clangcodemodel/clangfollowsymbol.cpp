@@ -75,8 +75,8 @@ static bool isValidIncludePathToken(const ClangBackEnd::TokenInfoContainer &toke
     if (!token.extraInfo.includeDirectivePath)
         return false;
     const Utf8String &tokenName = token.extraInfo.token;
-    return !tokenName.startsWith("include") && tokenName != "<" && tokenName != ">"
-            && tokenName != "#";
+    return !tokenName.startsWith("include") && tokenName != Utf8String("<")
+            && tokenName != Utf8String(">") && tokenName != Utf8String("#");
 }
 
 static int includePathStartIndex(const QVector<ClangBackEnd::TokenInfoContainer> &marks,
