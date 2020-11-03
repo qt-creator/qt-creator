@@ -1527,10 +1527,23 @@ bool Parser::parseDeclSpecifierSeq(SpecifierListAST *&decl_specifier_seq,
         } else if (! onlySimpleTypeSpecifiers && ! has_type_specifier &&
                    (LA() == T_TYPENAME || LA() == T_ENUM || lookAtClassKey())) {
             // typename-specifier, elaborated-type-specifier
-            int startOfElaboratedTypeSpecifier = cursor();
+            int startOfTypeSpecifier = cursor();
             if (! parseElaboratedTypeSpecifier(*decl_specifier_seq_ptr)) {
-                error(startOfElaboratedTypeSpecifier, "expected an elaborated type specifier");
-                break;
+                rewind(startOfTypeSpecifier);
+                if (LA() == T_ENUM) {
+                    if (!parseEnumSpecifier(*decl_specifier_seq_ptr)) {
+                        error(startOfTypeSpecifier, "expected an enum specifier");
+                        break;
+                    }
+                } else if (lookAtClassKey()) {
+                    if (!parseClassSpecifier(*decl_specifier_seq_ptr)) {
+                        error(startOfTypeSpecifier, "expected a class specifier");
+                        break;
+                    }
+                } else {
+                    error(startOfTypeSpecifier, "expected an elaborated type specifier");
+                    break;
+                }
             }
             decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
             has_type_specifier = true;
