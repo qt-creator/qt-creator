@@ -78,7 +78,7 @@ public:
             m_futureInterface.setProgressRange(0, MAX_PROGRESS);
         connect(&m_selfWatcher, &QFutureWatcher<void>::canceled,
                 this, &MapReduceBase::cancelAll);
-        m_selfWatcher.setFuture(futureInterface.future());
+        m_selfWatcher.setFuture(QFuture<void>(futureInterface.future()));
     }
 
     void exec()

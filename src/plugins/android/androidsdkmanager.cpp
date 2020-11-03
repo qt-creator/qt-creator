@@ -1127,7 +1127,7 @@ void AndroidSdkManagerPrivate::addWatcher(const QFuture<AndroidSdkManager::Opera
     if (future.isFinished())
         return;
     m_activeOperation.reset(new QFutureWatcher<void>());
-    m_activeOperation->setFuture(future);
+    m_activeOperation->setFuture(QFuture<void>(future));
 }
 
 void AndroidSdkManagerPrivate::parseCommonArguments(QFutureInterface<QString> &fi)

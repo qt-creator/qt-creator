@@ -312,7 +312,7 @@ void BaseFileFind::runSearch(SearchResult *search)
         search->finishSearch(watcher->isCanceled());
     });
     watcher->setFuture(executeSearch(parameters));
-    FutureProgress *progress = ProgressManager::addTask(watcher->future(),
+    FutureProgress *progress = ProgressManager::addTask(QFuture<void>(watcher->future()),
                                                         tr("Searching"),
                                                         Constants::TASK_SEARCH);
     connect(search, &SearchResult::countChanged, progress, [progress](int c) {

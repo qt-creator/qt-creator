@@ -52,6 +52,12 @@ public:
 
     static ProgressManager *instance();
 
+    template <typename T>
+    static FutureProgress *addTask(const QFuture<T> &future, const QString &title,
+                                   Utils::Id type, ProgressFlags flags = {}) {
+        return addTask(QFuture<void>(future), title, type, flags);
+    }
+
     static FutureProgress *addTask(const QFuture<void> &future, const QString &title,
                                    Utils::Id type, ProgressFlags flags = {});
     static FutureProgress *addTimedTask(const QFutureInterface<void> &fi, const QString &title,

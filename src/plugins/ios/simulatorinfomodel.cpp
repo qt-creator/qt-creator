@@ -130,8 +130,9 @@ void SimulatorInfoModel::requestSimulatorInfo()
         return; // Ignore the request if the last request is still pending.
 
     m_fetchFuture.clearFutures();
-    m_fetchFuture.addFuture(Utils::onResultReady(SimulatorControl::updateAvailableSimulators(),
-                                                 this, &SimulatorInfoModel::populateSimulators));
+    m_fetchFuture.addFuture(QFuture<void>(Utils::onResultReady(
+                                          SimulatorControl::updateAvailableSimulators(),
+                                          this, &SimulatorInfoModel::populateSimulators)));
 }
 
 void SimulatorInfoModel::populateSimulators(const SimulatorInfoList &simulatorList)

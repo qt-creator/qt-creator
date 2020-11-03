@@ -230,7 +230,7 @@ void GitSubmitEditor::updateFileModel()
     Core::ProgressManager::addTask(m_fetchWatcher.future(), tr("Refreshing Commit Data"),
                                    TASK_UPDATE_COMMIT);
 
-    GitClient::instance()->addFuture(m_fetchWatcher.future());
+    GitClient::instance()->addFuture(QFuture<void>(m_fetchWatcher.future()));
 }
 
 void GitSubmitEditor::forceUpdateFileModel()
