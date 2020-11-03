@@ -98,6 +98,7 @@
                         \list
                             \li \l{Editing 2D Content}
                             \li \l{Shapes}
+                            \li \l{Lists and Other Data Models}
                             \li \l{Creating Buttons}
                             \li \l{Creating Scalable Buttons and Borders}
                         \endlist
@@ -120,7 +121,6 @@
                             \li \l{Managing C++ Backend Objects}
                         \endlist
                         \li \l {Adding States}
-                        \li \l {Editing PathView Properties}
                     \endlist
                 \li \l{Editing 3D Scenes}
                         \list

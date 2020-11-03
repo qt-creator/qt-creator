@@ -119,10 +119,9 @@
 
     \list
         \li \l Shapes
-        \li Text
-        \li Images
         \li UI controls
         \li Screens
+        \li \l {Lists and Other Data Models}
     \endlist
 
     \section2 Basic QML Types
@@ -150,36 +149,6 @@
         \li \l [QtQuick]{TextInput}{Text Input} adds a single line of editable
             plain text that can be validated.
     \endlist
-
-    \section2 Using Data Models
-
-    You can create the following types of views to organize items provided by
-    \l{Models and Views in Qt Quick}{data models}:
-
-    \list
-        \li \l{GridView}{Grid View} provides a grid vizualization of a model.
-        \li \l{ListView}{List View} provides a list vizualization of a model.
-        \li \l{PathView}{Path View} visualizes the contents of a model along a
-            path. For more information, see \l{Editing PathView Properties}.
-        \li \l [QtQuickControls] {ScrollView}{Scroll View} provides scrolling
-            for user-defined content. It can be used instead of a \l Flickable
-            item.
-        \li \l [QtQuickControls] {StackView}{Stack View} provides a stack-based
-            navigation model.
-        \li \l[QtQuickControls] {SwipeView}{Swipe View} enables users to
-            navigate pages by swiping sideways.
-    \endlist
-
-    When you add a \l{GridView}{Grid View}, \l{ListView}{List View}, or
-    \l{PathView}{Path View}, the ListModel and the delegate component that
-    creates an instance for each item in the model are added automatically.
-    You can edit item properties in \uicontrol Properties or in
-    \uicontrol {Text Editor}. You can also replace the default model and
-    delegate with other, more complex models and delegates in
-    \uicontrol {Text Editor}. \l{ItemDelegate}{Item Delegate} and
-    \l{SwipeDelegate}{Swipe Delegate} delegate components are also available
-    in \uicontrol Library.
-
     \section1 User Interaction Methods
 
     You can use the following QML types to add basic interaction methods to

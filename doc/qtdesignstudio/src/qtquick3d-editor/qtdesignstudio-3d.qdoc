@@ -25,7 +25,7 @@
 
 /*!
     \page studio-3d.html
-    \previouspage qmldesigner-pathview-editor.html
+    \previouspage quick-states.html
     \if defined(qtdesignstudio)
     \nextpage studio-3d-design-mode.html
     \else
