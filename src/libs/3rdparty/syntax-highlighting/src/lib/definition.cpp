@@ -626,7 +626,8 @@ void DefinitionData::loadGeneral(QXmlStreamReader &reader)
                 wordDelimiters.remove(reader.attributes().value(QLatin1String("weakDeliminator")));
 
                 // adapt WordWrapDelimiters
-                QStringRef wordWrapDeliminatorAttr = reader.attributes().value(QLatin1String("wordWrapDeliminator"));
+                auto wordWrapDeliminatorAttr = reader.attributes().value(
+                    QLatin1String("wordWrapDeliminator"));
                 if (wordWrapDeliminatorAttr.isEmpty())
                     wordWrapDelimiters = wordDelimiters;
                 else {
@@ -764,15 +765,15 @@ void DefinitionData::loadSpellchecking(QXmlStreamReader &reader)
     }
 }
 
-bool DefinitionData::checkKateVersion(const QStringRef &verStr)
+bool DefinitionData::checkKateVersion(const QStringView &verStr)
 {
     const auto idx = verStr.indexOf(QLatin1Char('.'));
     if (idx <= 0) {
         qCWarning(Log) << "Skipping" << fileName << "due to having no valid kateversion attribute:" << verStr;
         return false;
     }
-    const auto major = verStr.left(idx).toInt();
-    const auto minor = verStr.mid(idx + 1).toInt();
+    const auto major = verStr.left(idx).toString().toInt();
+    const auto minor = verStr.mid(idx + 1).toString().toInt();
 
     if (major > SyntaxHighlighting_VERSION_MAJOR || (major == SyntaxHighlighting_VERSION_MAJOR && minor > SyntaxHighlighting_VERSION_MINOR)) {
         qCWarning(Log) << "Skipping" << fileName << "due to being too new, version:" << verStr;

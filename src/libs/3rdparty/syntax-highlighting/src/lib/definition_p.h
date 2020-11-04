@@ -53,7 +53,7 @@ public:
     void loadComments(QXmlStreamReader &reader);
     void loadFoldingIgnoreList(QXmlStreamReader &reader);
     void loadSpellchecking(QXmlStreamReader &reader);
-    bool checkKateVersion(const QStringRef &verStr);
+    bool checkKateVersion(const QStringView &verStr);
 
     void resolveIncludeKeywords();
 

@@ -56,7 +56,7 @@ bool StateData::pop(int popCount)
     // keep the initial context alive in any case
     Q_ASSERT(!isEmpty());
     const bool initialContextSurvived = m_contextStack.size() > popCount;
-    m_contextStack.resize(std::max(1, m_contextStack.size() - popCount));
+    m_contextStack.resize(std::max(1, int(m_contextStack.size()) - popCount));
     return initialContextSurvived;
 }
 
