@@ -334,6 +334,8 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
             return Usage::Type::Read;
         if ((*it)->asCaseStatement())
             return Usage::Type::Read;
+        if ((*it)->asIfStatement())
+            return Usage::Type::Read;
         if ((*it)->asLambdaCapture() || (*it)->asNamedTypeSpecifier()
                 || (*it)->asElaboratedTypeSpecifier()) {
             return Usage::Type::Other;
