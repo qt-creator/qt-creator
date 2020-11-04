@@ -375,6 +375,8 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
                 return Usage::Type::Read;
             }
         }
+        if (const auto postIncrDecrOp = (*it)->asPostIncrDecr())
+            return checkPotentialWrite(Usage::Type::Write, it + 1);
         if (const auto declaratorId = (*it)->asDeclaratorId()) {
             // We don't want to classify constructors and destructors as declarations
             // when listing class usages.

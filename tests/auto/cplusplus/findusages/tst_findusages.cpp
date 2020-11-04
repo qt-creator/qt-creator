@@ -2086,6 +2086,8 @@ int main()
     }
     if (S::value) {}
     if (S::value = 0) {}
+    ++S::value;
+    S::value--;
 }
 )";
 
@@ -2111,7 +2113,7 @@ int main()
     // Access to struct member
     FindUsages find(src, doc, snapshot);
     find(sv);
-    QCOMPARE(find.usages().size(), 23);
+    QCOMPARE(find.usages().size(), 25);
     QCOMPARE(find.usages().at(0).type, Usage::Type::Read);
     QCOMPARE(find.usages().at(1).type, Usage::Type::Declaration);
     QCOMPARE(find.usages().at(2).type, Usage::Type::WritableRef);
@@ -2135,6 +2137,8 @@ int main()
     QCOMPARE(find.usages().at(20).type, Usage::Type::Write);
     QCOMPARE(find.usages().at(21).type, Usage::Type::Read);
     QCOMPARE(find.usages().at(22).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(23).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(24).type, Usage::Type::Write);
 
     Declaration * const sv2 = structS->memberAt(2)->asDeclaration();
     QVERIFY(sv2);
@@ -2217,7 +2221,7 @@ int main()
 
     // Usages of struct type
     find(structS);
-    QCOMPARE(find.usages().size(), 10);
+    QCOMPARE(find.usages().size(), 12);
     QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
     QCOMPARE(find.usages().at(1).type, Usage::Type::Other);
     QCOMPARE(find.usages().at(2).type, Usage::Type::Other);
@@ -2231,6 +2235,8 @@ int main()
     QCOMPARE(find.usages().at(7).type, Usage::Type::Write);
     QCOMPARE(find.usages().at(8).type, Usage::Type::Read);
     QCOMPARE(find.usages().at(9).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(10).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(11).type, Usage::Type::Write);
 }
 
 QTEST_APPLESS_MAIN(tst_FindUsages)
