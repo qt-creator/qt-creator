@@ -14,7 +14,7 @@
 # Generated languages need a language named 'PHP/PHP', which shall take care of PHP hl itself
 # and which will be called every time something like <?php is encountred.
 #
-# Author: Jan Villat <jan.villat@net2000.ch>
+# SPDX-FileCopyrightText: Jan Villat <jan.villat@net2000.ch>
 # License: LGPL
 
 my $file = "";

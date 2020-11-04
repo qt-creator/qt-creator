@@ -1,24 +1,7 @@
 /*
-    Copyright (C) 2016 Volker Krause <vkrause@kde.org>
+    SPDX-FileCopyrightText: 2016 Volker Krause <vkrause@kde.org>
 
-    Permission is hereby granted, free of charge, to any person obtaining
-    a copy of this software and associated documentation files (the
-    "Software"), to deal in the Software without restriction, including
-    without limitation the rights to use, copy, modify, merge, publish,
-    distribute, sublicense, and/or sell copies of the Software, and to
-    permit persons to whom the Software is furnished to do so, subject to
-    the following conditions:
-
-    The above copyright notice and this permission notice shall be included
-    in all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    SPDX-License-Identifier: MIT
 */
 
 #include "repository.h"
@@ -92,8 +75,9 @@ QVector<Definition> Repository::definitionsForFileName(const QString &fileName) 
     QFileInfo fi(fileName);
     const auto name = fi.fileName();
 
+    // use d->m_defs, sorted map by highlighting name, to be deterministic and independent of translations
     QVector<Definition> candidates;
-    for (const Definition &def : qAsConst(d->m_sortedDefs)) {
+    for (const Definition &def : qAsConst(d->m_defs)) {
         for (const auto &pattern : def.extensions()) {
             if (WildcardMatcher::exactMatch(name, pattern)) {
                 candidates.push_back(def);
@@ -113,8 +97,9 @@ Definition Repository::definitionForMimeType(const QString &mimeType) const
 
 QVector<Definition> Repository::definitionsForMimeType(const QString &mimeType) const
 {
+    // use d->m_defs, sorted map by highlighting name, to be deterministic and independent of translations
     QVector<Definition> candidates;
-    for (const Definition &def : qAsConst(d->m_sortedDefs)) {
+    for (const Definition &def : qAsConst(d->m_defs)) {
         for (const auto &matchType : def.mimeTypes()) {
             if (mimeType == matchType) {
                 candidates.push_back(def);
@@ -152,7 +137,7 @@ Theme Repository::defaultTheme(Repository::DefaultTheme t)
 {
     if (t == DarkTheme)
         return theme(QLatin1String("Breeze Dark"));
-    return theme(QLatin1String("Default"));
+    return theme(QLatin1String("Breeze Light"));
 }
 
 void RepositoryPrivate::load(Repository *repo)

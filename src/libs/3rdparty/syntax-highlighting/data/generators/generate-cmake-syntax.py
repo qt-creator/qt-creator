@@ -3,7 +3,7 @@
 #
 # Generate Kate syntax file for CMake
 #
-# Copyright (c) 2017-2019 Alex Turbov <i.zaufi@gmail.com>
+# SPDX-FileCopyrightText: 2017-2019 Alex Turbov <i.zaufi@gmail.com>
 #
 # To install prerequisites:
 #
@@ -33,7 +33,7 @@ _PROPERTY_KEYS = [
   , 'install-properties'
   ]
 _KW_RE_LIST = ['kw', 're']
-_VAR_KIND_LIST = ['variables', 'environment-variables']
+_VAR_KIND_LIST = ['variables', 'deprecated-or-internal-variables', 'environment-variables']
 
 
 def try_transform_placeholder_string_to_regex(name):
@@ -53,6 +53,9 @@ def try_transform_placeholder_string_to_regex(name):
 
     if 'CMAKE_POLICY_WARNING_CMP' in m:
         return '\\bCMAKE_POLICY_WARNING_CMP[0-9]{4}\\b'
+
+    if 'ARGV' in m:
+        return '\\bARGV[0-9]+\\b'
 
     return '\\b{}\\b'.format('&id_re;'.join(list(m))) if 1 < len(m) else name
 
@@ -100,6 +103,12 @@ def transform_command(cmd):
 
     if 'nulary?' in cmd and cmd['nulary?'] and not can_be_nulary:
         raise RuntimeError('Command `{}` w/ args declared nulary!?'.format(cmd['name']))
+
+    if 'start-region' in cmd:
+        cmd['start_region'] = cmd['start-region']
+
+    if 'end-region' in cmd:
+        cmd['end_region'] = cmd['end-region']
 
     return cmd
 
@@ -159,8 +168,10 @@ def cli(input_yaml, template):
 
     # Fix node names to be accessible from Jinja template
     data['generator_expressions'] = data['generator-expressions']
+    data['deprecated_or_internal_variables'] = data['deprecated-or-internal-variables']
     data['environment_variables'] = data['environment-variables']
     del data['generator-expressions']
+    del data['deprecated-or-internal-variables']
     del data['environment-variables']
 
     env = jinja2.Environment(

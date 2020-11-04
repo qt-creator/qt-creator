@@ -39,7 +39,7 @@
 
    Enhance tr/// and y/// support.
 -->
-<language name="Perl" version="11" kateversion="2.4" section="Scripts" extensions="*.pl;*.PL;*.pm" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPLv2">
+<language name="Perl" version="13" kateversion="5.0" section="Scripts" extensions="*.pl;*.PL;*.pm" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPLv2">
   <highlighting>
     <list name="keywords">
       <item>if</item>
@@ -534,7 +534,7 @@
         <DetectChar attribute="Pattern" context="subst_curlybrace_pattern_recursive" char="{" />
       </context>
       <context name="subst_curlybrace_middle" attribute="Normal Text" lineEndContext="#stay" >
-        <RegExpr attribute="Comment" context="#stay" String="#.*$" />
+        <DetectChar attribute="Comment" context="comment" char="#" />
         <DetectChar attribute="Operator" context="subst_curlybrace_replace" char="{" beginRegion="Replacement" />
       </context>
       <context name="subst_curlybrace_replace" attribute="String (interpolated)" lineEndContext="#stay">
@@ -552,8 +552,12 @@
         <IncludeRules context="subst_curlybrace_pattern" />
       </context>
 
+      <context name="subst_maybe_comment" attribute="Pattern" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">
+        <DetectChar attribute="Comment" context="#pop!comment" char="#" />
+      </context>
+
       <context name="subst_paren_pattern" attribute="Pattern" lineEndContext="#stay">
-        <RegExpr attribute="Comment" context="#stay" String="\s+#.*$" />
+        <DetectSpaces attribute="Pattern" context="subst_maybe_comment" />
         <DetectChar attribute="Operator" context="subst_paren_replace" char=")" endRegion="Pattern" />
         <!-- Round brackets of RegExp pattern inside -->
         <DetectChar attribute="Pattern Internal Operator" context="subst_paren_pattern_internal_recursive" char="(" />
@@ -570,7 +574,7 @@
       </context>
 
       <context name="subst_bracket_pattern" attribute="Pattern" lineEndContext="#stay">
-        <RegExpr attribute="Comment" context="#stay" String="\s+#.*$" />
+        <DetectSpaces attribute="Pattern" context="subst_maybe_comment" />
         <IncludeRules context="regex_pattern_internal_ip" />
         <DetectChar attribute="Operator" context="subst_bracket_replace" char="]" endRegion="Pattern" />
       </context>
@@ -592,7 +596,7 @@
       </context>
 
       <context name="subst_sq_pattern" attribute="Pattern" lineEndContext="#stay">
-        <RegExpr attribute="Comment" context="#stay" String="\s+#.*$" />
+        <DetectSpaces attribute="Pattern" context="subst_maybe_comment" />
         <IncludeRules context="regex_pattern_internal" />
         <DetectChar attribute="Operator" context="subst_sq_replace" char="'" endRegion="Pattern" beginRegion="Pattern" />
       </context>
@@ -658,7 +662,7 @@
 
       <!-- rules internal stuff wrt regex patterns -->
       <context name="regex_pattern_internal_rules_1" attribute="Pattern" lineEndContext="#stay">
-        <RegExpr attribute="Comment" context="#stay" String="#.*$" firstNonSpace="true" />
+        <DetectChar attribute="Comment" context="comment" char="#" firstNonSpace="true" />
         <RegExpr attribute="Special Variable" context="#stay" String="\\c[^\s\\]" />
         <RegExpr attribute="Special Variable" context="#stay" String="\\g(\{(\w+|\-\d+)\}|\d+)" />
         <RegExpr attribute="Special Variable" context="#stay" String="\\k(\{\w+\}|&lt;\w+&gt;|'\w+')" />
@@ -838,14 +842,17 @@
         <DetectSpaces />
         <DetectIdentifier />
         <RegExpr attribute="Pod" context="#stay" String="\=(?:head[1-6]|over|back|item|for|begin|end|pod)\s*.*" column="0" beginRegion="POD" endRegion="POD"/>
-        <RegExpr attribute="Pod" context="#pop" String="\=cut.*$" column="0" endRegion="POD"/>
+        <StringDetect attribute="Pod" context="Pod" String="=cut" column="0" endRegion="POD"/>
       </context>
 
       <context name="comment" attribute="Comment" lineEndContext="#pop">
         <DetectSpaces />
         <IncludeRules context="##Alerts" />
+        <IncludeRules context="##Modelines" />
         <DetectIdentifier />
       </context>
+
+      <context name="Pod" attribute="Pod" lineEndContext="#pop#pop"/>
 
     </contexts>
     <itemDatas>
@@ -853,15 +860,15 @@
       <itemData name="Keyword"                   defStyleNum="dsKeyword" />
       <itemData name="Pragma"                    defStyleNum="dsKeyword" />
       <itemData name="Function"                  defStyleNum="dsFunction" />
-      <itemData name="Operator"                  defStyleNum="dsKeyword" color="#008000"/>
+      <itemData name="Operator"                  defStyleNum="dsOthers" bold="1" /> <!-- #008000 -->
       <itemData name="Data Type"                 defStyleNum="dsDataType" />
-      <itemData name="Special Variable"          defStyleNum="dsDataType" color="#C00000" selColor="#C00000" bold="0" italic="0" />
+      <itemData name="Special Variable"          defStyleNum="dsWarning" bold="0" italic="0" /> <!-- #C00000 -->
       <itemData name="Decimal"                   defStyleNum="dsDecVal" />
       <itemData name="Octal"                     defStyleNum="dsBaseN" />
       <itemData name="Hex"                       defStyleNum="dsBaseN" />
       <itemData name="Bin"                       defStyleNum="dsBaseN" />
       <itemData name="Float"                     defStyleNum="dsFloat" />
-      <itemData name="String"                    defStyleNum="dsString" color="#FF6C6C" selColor="#FF6C6C" bold="0" italic="0" />
+      <itemData name="String"                    defStyleNum="dsSpecialString" /> <!-- #FF6C6C -->
       <itemData name="String (interpolated)"     defStyleNum="dsString" />
       <itemData name="String Special Character"  defStyleNum="dsChar" />
       <itemData name="Pattern"                   defStyleNum="dsOthers" />

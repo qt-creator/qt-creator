@@ -8,7 +8,7 @@
   Copyright (c) 2012-2014 by Alex Turbov (i.zaufi@gmail.com)
   -->
 <language name="Modelines"
-          version="5"
+          version="6"
           kateversion="5.0"
           section="Other"
           extensions=""
@@ -127,10 +127,9 @@
   </list>
 
   <contexts>
-    <context name="Normal" attribute="Comment" lineEndContext="#pop">
-      <DetectSpaces />
+    <context name="Normal" attribute="Comment" lineEndContext="#stay">
       <keyword String="ModelineStartKeyword" context="Modeline" attribute="Keyword" />
-      <RegExpr String="kate-(?:mimetype|wildcard)\(.*\):" context="Modeline" attribute="Keyword" />
+      <RegExpr String="\bkate-(?:mimetype|wildcard)\(.*\):" context="Modeline" attribute="Keyword" />
     </context>
 
     <context name="Modeline" attribute="Comment" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">
@@ -139,7 +138,6 @@
       <keyword String="Integrals" context="Integrals" attribute="Variable" />
       <keyword String="Strings" context="Strings" attribute="Variable" />
       <keyword String="RemoveSpaces" context="RemoveSpaces" attribute="Variable" />
-      <LineContinue context="#pop" />
     </context>
 
     <context name="Booleans" attribute="Comment" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">
@@ -147,28 +145,24 @@
       <keyword String="True" attribute="Option ON" context="#stay" />
       <keyword String="False" attribute="Option OFF" context="#stay" />
       <DetectChar char="&end;" context="#pop" attribute="Variable" />
-      <LineContinue context="#pop" />
     </context>
 
     <context name="Integrals" attribute="Comment" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">
       <DetectSpaces />
       <Int attribute="Number" context="#stay" />
       <DetectChar char="&end;" context="#pop" attribute="Variable" />
-      <LineContinue context="#pop" />
     </context>
 
     <context name="Strings" attribute="String" lineEndContext="#pop">
       <DetectSpaces />
       <RegExpr String="[^&end;&space;]" context="#stay" />
       <DetectChar char="&end;" context="#pop" attribute="Variable" />
-      <LineContinue context="#pop" />
     </context>
 
     <context name="RemoveSpaces" attribute="Comment" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">
       <DetectSpaces />
       <keyword String="RemoveSpacesOptions" attribute="Value" context="#pop!RemoveSpacesEnd" />
       <DetectChar char="&end;" context="#pop" attribute="Variable" />
-      <LineContinue context="#pop" />
     </context>
     <context name="RemoveSpacesEnd" attribute="Comment" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">
       <DetectChar char="&end;" context="#pop" attribute="Variable" />

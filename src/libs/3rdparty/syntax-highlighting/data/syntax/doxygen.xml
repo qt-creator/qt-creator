@@ -6,7 +6,7 @@
     <!ENTITY ml_word ".*?(?=&wordsep;|\*/)">
 ]>
 <language name="Doxygen"
-          version="7"
+          version="9"
           kateversion="5.0"
           section="Markup"
           extensions="*.dox;*.doxygen"
@@ -354,7 +354,7 @@
         <DetectChar attribute="Types" context="#pop#pop" char="&quot;" />
       </context>
 
-      <context name="ML_FindNextLine" attribute="Comment" lineEndContext="#pop" fallthroughContext="#pop">
+      <context name="ML_FindNextLine" attribute="Comment" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">
         <DetectSpaces />
         <Detect2Chars attribute="Comment" context="#pop!ML_End_BlockComment" char="*" char1="/" endRegion="VerbatimBlock" lookAhead="1"/>
         <Detect2Chars attribute="Comment" context="ML_VerbatimPrefix" char="*" char1="*" lookAhead="true" />
@@ -382,16 +382,16 @@
 
       <context name="ML_Formula" attribute="Formulas" lineEndContext="ML_FindNextLine">
         <Detect2Chars attribute="Comment" context="ML_End_BlockComment" char="*" char1="/" endRegion="VerbatimBlock" lookAhead="1"/>
-        <WordDetect attribute="Tags" context="#pop" String="\f]" endRegion="VerbatimBlock" />
-        <WordDetect attribute="Tags" context="#pop" String="@f]" endRegion="VerbatimBlock" />
+        <StringDetect attribute="Tags" context="#pop" String="\f]" endRegion="VerbatimBlock" />
+        <StringDetect attribute="Tags" context="#pop" String="@f]" endRegion="VerbatimBlock" />
         <!-- TODO: How to force LaTeX math context here?? -->
         <!-- <IncludeRules context="##LaTeX" /> -->
       </context>
 
       <context name="ML_FormulaShort" attribute="Formulas" lineEndContext="ML_FindNextLine">
         <Detect2Chars attribute="Comment" context="ML_End_BlockComment" char="*" char1="/" endRegion="VerbatimBlock" lookAhead="1"/>
-        <WordDetect attribute="Tags" context="#pop" String="\f$" endRegion="VerbatimBlock" />
-        <WordDetect attribute="Tags" context="#pop" String="@f$" endRegion="VerbatimBlock" />
+        <StringDetect attribute="Tags" context="#pop" String="\f$" endRegion="VerbatimBlock" />
+        <StringDetect attribute="Tags" context="#pop" String="@f$" endRegion="VerbatimBlock" />
         <!-- TODO: How to force LaTeX math context here?? -->
         <!-- <IncludeRules context="##LaTeX" /> -->
       </context>
@@ -401,7 +401,7 @@
         <Detect2Chars attribute="Comment" context="ML_End_BlockComment" char="*" char1="/" endRegion="VerbatimBlock" lookAhead="1"/>
       </context>
 
-      <context name="ML_FormulaEnvStart" attribute="Formulas" lineEndContext="ML_FindNextLine" fallthroughContext="#pop!ML_FormulaEnvFormula">
+      <context name="ML_FormulaEnvStart" attribute="Formulas" lineEndContext="ML_FindNextLine" fallthrough="true" fallthroughContext="#pop!ML_FormulaEnvFormula">
         <DetectSpaces attribute="Comment" />
         <DetectChar attribute="Tags" context="#pop!ML_FormulaEnvFormula" char="{" />
         <Detect2Chars attribute="Comment" context="ML_End_BlockComment" char="*" char1="/" endRegion="VerbatimBlock" lookAhead="1"/>
@@ -409,8 +409,8 @@
 
       <context name="ML_FormulaEnvFormula" attribute="Formulas" lineEndContext="ML_FindNextLine">
         <Detect2Chars attribute="Comment" context="ML_End_BlockComment" char="*" char1="/" endRegion="VerbatimBlock" lookAhead="1"/>
-        <WordDetect attribute="Tags" context="#pop" String="\f}" endRegion="VerbatimBlock" />
-        <WordDetect attribute="Tags" context="#pop" String="@f}" endRegion="VerbatimBlock" />
+        <StringDetect attribute="Tags" context="#pop" String="\f}" endRegion="VerbatimBlock" />
+        <StringDetect attribute="Tags" context="#pop" String="@f}" endRegion="VerbatimBlock" />
         <!-- TODO: How to force LaTeX math context here?? -->
         <!-- <IncludeRules context="##LaTeX" /> -->
       </context>
@@ -514,7 +514,7 @@
         <DetectChar attribute="Types" context="#pop#pop" char="&quot;" />
       </context>
 
-      <context name="SL_FindNextLine" attribute="Normal Text" lineEndContext="#stay" fallthroughContext="#pop#pop#pop">
+      <context name="SL_FindNextLine" attribute="Normal Text" lineEndContext="#stay" fallthrough="true" fallthroughContext="#pop#pop#pop">
         <DetectSpaces />
         <StringDetect attribute="Comment" context="#pop" String="///" />
         <StringDetect attribute="Comment" context="#pop" String="//!" />
@@ -532,8 +532,8 @@
       </context>
 
       <context name="SL_Formula" attribute="Formulas" lineEndContext="SL_FindNextLine">
-        <WordDetect attribute="Tags" context="#pop" String="\f]" endRegion="VerbatimBlock" />
-        <WordDetect attribute="Tags" context="#pop" String="@f]" endRegion="VerbatimBlock" />
+        <StringDetect attribute="Tags" context="#pop" String="\f]" endRegion="VerbatimBlock" />
+        <StringDetect attribute="Tags" context="#pop" String="@f]" endRegion="VerbatimBlock" />
         <!-- TODO: How to force LaTeX math context here?? -->
         <!-- <IncludeRules context="##LaTeX" /> -->
       </context>
@@ -549,7 +549,7 @@
         <DetectChar attribute="Tags" context="#pop!SL_FormulaEnvStart" char="}" />
       </context>
 
-      <context name="SL_FormulaEnvStart" attribute="Formulas" lineEndContext="SL_FindNextLine" fallthroughContext="#pop!SL_FormulaEnvFormula">
+      <context name="SL_FormulaEnvStart" attribute="Formulas" lineEndContext="SL_FindNextLine" fallthrough="true" fallthroughContext="#pop!SL_FormulaEnvFormula">
         <DetectSpaces attribute="Comment" />
         <DetectChar attribute="Tags" context="#pop!SL_FormulaEnvFormula" char="{" />
       </context>
@@ -594,7 +594,7 @@
         <DetectChar attribute="Comment" context="#pop" char="@" />
       </context>
 
-      <context name="LanguageId" attribute="Word" lineEndContext="#pop" fallthroughContext="#pop">
+      <context name="LanguageId" attribute="Word" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">
         <DetectIdentifier />
       </context>
 

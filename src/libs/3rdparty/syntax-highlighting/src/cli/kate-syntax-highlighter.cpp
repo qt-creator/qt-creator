@@ -1,24 +1,7 @@
 /*
-    Copyright (C) 2016 Volker Krause <vkrause@kde.org>
+    SPDX-FileCopyrightText: 2016 Volker Krause <vkrause@kde.org>
 
-    Permission is hereby granted, free of charge, to any person obtaining
-    a copy of this software and associated documentation files (the
-    "Software"), to deal in the Software without restriction, including
-    without limitation the rights to use, copy, modify, merge, publish,
-    distribute, sublicense, and/or sell copies of the Software, and to
-    permit persons to whom the Software is furnished to do so, subject to
-    the following conditions:
-
-    The above copyright notice and this permission notice shall be included
-    in all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    SPDX-License-Identifier: MIT
 */
 
 #include "ksyntaxhighlighting_version.h"
@@ -26,6 +9,7 @@
 #include <definition.h>
 #include <definitiondownloader.h>
 #include <htmlhighlighter.h>
+#include <ansihighlighter.h>
 #include <repository.h>
 #include <theme.h>
 
@@ -37,6 +21,25 @@
 
 using namespace KSyntaxHighlighting;
 
+template<class Highlighter, class ...Ts>
+static void applyHighlighter(Highlighter &highlighter, QCommandLineParser &parser, bool fromFileName, const QString &inFileName, const QCommandLineOption &stdinOption, const QCommandLineOption &outputName, const Ts &...highlightParams)
+{
+    if (parser.isSet(outputName))
+        highlighter.setOutputFile(parser.value(outputName));
+    else
+        highlighter.setOutputFile(stdout);
+
+    if (fromFileName) {
+        highlighter.highlightFile(inFileName, highlightParams...);
+    } else if (parser.isSet(stdinOption)) {
+        QFile inFile;
+        inFile.open(stdin, QIODevice::ReadOnly);
+        highlighter.highlightData(&inFile, highlightParams...);
+    } else {
+        parser.showHelp(1);
+    }
+}
+
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
@@ -44,6 +47,8 @@ int main(int argc, char **argv)
     QCoreApplication::setOrganizationDomain(QStringLiteral("kde.org"));
     QCoreApplication::setOrganizationName(QStringLiteral("KDE"));
     QCoreApplication::setApplicationVersion(QStringLiteral(SyntaxHighlighting_VERSION_STRING));
+
+    Repository repo;
 
     QCommandLineParser parser;
     parser.setApplicationDescription(app.translate("SyntaxHighlightingCLI", "Command line syntax highlighter using Kate syntax definitions."));
@@ -69,8 +74,23 @@ int main(int argc, char **argv)
     parser.addOption(syntaxName);
 
     QCommandLineOption themeName(
-        QStringList() << QStringLiteral("t") << QStringLiteral("theme"), app.translate("SyntaxHighlightingCLI", "Color theme to use for highlighting."), app.translate("SyntaxHighlightingCLI", "theme"), QStringLiteral("Default"));
+        QStringList() << QStringLiteral("t") << QStringLiteral("theme"), app.translate("SyntaxHighlightingCLI", "Color theme to use for highlighting."), app.translate("SyntaxHighlightingCLI", "theme"), repo.defaultTheme(Repository::LightTheme).name());
     parser.addOption(themeName);
+
+    QCommandLineOption outputFormatOption(QStringList() << QStringLiteral("f") << QStringLiteral("output-format"),
+                                          app.translate("SyntaxHighlightingCLI", "Use the specified format instead of html. Must be html, ansi or ansi256Colors."),
+                                          app.translate("SyntaxHighlightingCLI", "format"),
+                                          QStringLiteral("html"));
+    parser.addOption(outputFormatOption);
+
+    QCommandLineOption traceOption(QStringList() << QStringLiteral("syntax-trace"),
+                                   app.translate("SyntaxHighlightingCLI", "Add information to debug a syntax file. Only works with --output-format=ansi or ansi256Colors. Possible values are format, region and context."),
+                                   app.translate("SyntaxHighlightingCLI", "type"));
+    parser.addOption(traceOption);
+
+    QCommandLineOption noAnsiEditorBg(QStringList() << QStringLiteral("b") << QStringLiteral("no-ansi-background"),
+                                      app.translate("SyntaxHighlightingCLI", "Disable ANSI background for the default color."));
+    parser.addOption(noAnsiEditorBg);
 
     QCommandLineOption titleOption(QStringList() << QStringLiteral("T") << QStringLiteral("title"),
                                    app.translate("SyntaxHighlightingCLI", "Set HTML page's title\n(default: the filename or \"Kate Syntax Highlighter\" if reading from stdin)."),
@@ -82,7 +102,6 @@ int main(int argc, char **argv)
 
     parser.process(app);
 
-    Repository repo;
     if (parser.isSet(listDefs)) {
         for (const auto &def : repo.definitions()) {
             std::cout << qPrintable(def.name()) << std::endl;
@@ -113,41 +132,70 @@ int main(int argc, char **argv)
 
     Definition def;
     if (parser.isSet(syntaxName)) {
-        def = repo.definitionForName(parser.value(syntaxName));
-        if (!def.isValid())
+        const QString syntax = parser.value(syntaxName);
+        def = repo.definitionForName(syntax);
+        if (!def.isValid()) {
             /* see if it's a mimetype instead */
-            def = repo.definitionForMimeType(parser.value(syntaxName));
+            def = repo.definitionForMimeType(syntax);
+            if (!def.isValid()) {
+                /* see if it's a extension instead */
+                def = repo.definitionForFileName(QLatin1String("f.")+syntax);
+                if (!def.isValid())
+                    /* see if it's a filename instead */
+                    def = repo.definitionForFileName(syntax);
+            }
+        }
     } else if (fromFileName) {
         def = repo.definitionForFileName(inFileName);
     } else {
         parser.showHelp(1);
     }
 
-    QString title;
-    if (parser.isSet(titleOption))
-        title = parser.value(titleOption);
-
     if (!def.isValid()) {
         std::cerr << "Unknown syntax." << std::endl;
         return 1;
     }
 
-    HtmlHighlighter highlighter;
-    highlighter.setDefinition(def);
-    if (parser.isSet(outputName))
-        highlighter.setOutputFile(parser.value(outputName));
-    else
-        highlighter.setOutputFile(stdout);
-    highlighter.setTheme(repo.theme(parser.value(themeName)));
+    QString outputFormat = parser.value(outputFormatOption);
+    if (0 == outputFormat.compare(QLatin1String("html"), Qt::CaseInsensitive)) {
+        QString title;
+        if (parser.isSet(titleOption))
+            title = parser.value(titleOption);
 
-    if (fromFileName) {
-        highlighter.highlightFile(inFileName, title);
-    } else if (parser.isSet(stdinOption)) {
-        QFile inFile;
-        inFile.open(stdin, QIODevice::ReadOnly);
-        highlighter.highlightData(&inFile, title);
+        HtmlHighlighter highlighter;
+        highlighter.setDefinition(def);
+        highlighter.setTheme(repo.theme(parser.value(themeName)));
+        applyHighlighter(highlighter, parser, fromFileName, inFileName, stdinOption, outputName, title);
     } else {
-        parser.showHelp(1);
+        auto AnsiFormat = AnsiHighlighter::AnsiFormat::TrueColor;
+        if (0 == outputFormat.compare(QLatin1String("ansi256Colors"), Qt::CaseInsensitive)) {
+            AnsiFormat = AnsiHighlighter::AnsiFormat::XTerm256Color;
+        } else if (0 != outputFormat.compare(QLatin1String("ansi"), Qt::CaseInsensitive)) {
+            std::cerr << "Unknown output format." << std::endl;
+            return 2;
+        }
+
+        auto debugOptions = AnsiHighlighter::TraceOptions();
+        if (parser.isSet(traceOption)) {
+            const auto options = parser.values(traceOption);
+            for (auto const& option : options) {
+                if (option == QStringLiteral("format")) {
+                    debugOptions |= AnsiHighlighter::TraceOption::Format;
+                } else if (option == QStringLiteral("region")) {
+                    debugOptions |= AnsiHighlighter::TraceOption::Region;
+                } else if (option == QStringLiteral("context")) {
+                    debugOptions |= AnsiHighlighter::TraceOption::Context;
+                } else {
+                    std::cerr << "Unknown trace name." << std::endl;
+                    return 2;
+                }
+            }
+        }
+
+        AnsiHighlighter highlighter;
+        highlighter.setDefinition(def);
+        highlighter.setTheme(repo.theme(parser.value(themeName)));
+        applyHighlighter(highlighter, parser, fromFileName, inFileName, stdinOption, outputName, AnsiFormat, !parser.isSet(noAnsiEditorBg), debugOptions);
     }
 
     return 0;

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2011-2012 by Alex Turbov
+# SPDX-FileCopyrightText: 2011-2012 Alex Turbov 
 #
 # Simplest (and stupid) way to get #defines from a header file(s)
 #

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
-<language name="INI Files" section="Configuration" extensions="*.ini;*.pls;*.kcfgc" mimetype="" version="5" kateversion="2.4" author="Jan Janssen (medhefgo@web.de)" license="LGPL">
+<language name="INI Files" section="Configuration" extensions="*.ini;*.pls;*.kcfgc" mimetype="" version="6" kateversion="2.4" author="Jan Janssen (medhefgo@web.de)" license="LGPL">
 
 <highlighting>
 <list name="keywords">
@@ -49,6 +49,7 @@
  <context name="Comment" attribute="Comment" lineEndContext="#pop">
   <DetectSpaces />
   <IncludeRules context="##Alerts" />
+  <IncludeRules context="##Modelines" />
   <DetectIdentifier />
  </context>
 </contexts>
@@ -69,10 +70,10 @@
 
 <general>
  <comments>
-  <comment name="singleLine" start="#" />
   <comment name="singleLine" start=";" />
  </comments>
  <keywords casesensitive="0" />
 </general>
 
 </language>
+<!-- kate: replace-tabs on; indent-width 1; -->

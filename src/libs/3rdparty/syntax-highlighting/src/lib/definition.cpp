@@ -1,26 +1,10 @@
 /*
-    Copyright (C) 2016 Volker Krause <vkrause@kde.org>
-    Copyright (C) 2018 Dominik Haumann <dhaumann@kde.org>
-    Copyright (C) 2018 Christoph Cullmann <cullmann@kde.org>
+    SPDX-FileCopyrightText: 2016 Volker Krause <vkrause@kde.org>
+    SPDX-FileCopyrightText: 2018 Dominik Haumann <dhaumann@kde.org>
+    SPDX-FileCopyrightText: 2018 Christoph Cullmann <cullmann@kde.org>
+    SPDX-FileCopyrightText: 2020 Jonathan Poelen <jonathan.poelen@gmail.com>
 
-    Permission is hereby granted, free of charge, to any person obtaining
-    a copy of this software and associated documentation files (the
-    "Software"), to deal in the Software without restriction, including
-    without limitation the rights to use, copy, modify, merge, publish,
-    distribute, sublicense, and/or sell copies of the Software, and to
-    permit persons to whom the Software is furnished to do so, subject to
-    the following conditions:
-
-    The above copyright notice and this permission notice shall be included
-    in all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    SPDX-License-Identifier: MIT
 */
 
 #include "definition.h"
@@ -36,6 +20,7 @@
 #include "repository_p.h"
 #include "rule_p.h"
 #include "xml_p.h"
+#include "worddelimiters_p.h"
 
 #include <QCborMap>
 #include <QCoreApplication>
@@ -50,7 +35,7 @@
 using namespace KSyntaxHighlighting;
 
 DefinitionData::DefinitionData()
-    : wordDelimiters(QStringLiteral("\t !%&()*+,-./:;<=>?[\\]^{|}~")) // must be sorted!
+    : wordDelimiters()
     , wordWrapDelimiters(wordDelimiters)
 {
 }
@@ -76,8 +61,8 @@ Definition::Definition(const Definition &other)
     d->q = *this;
 }
 
-Definition::Definition(const std::shared_ptr<DefinitionData> &dd)
-    : d(dd)
+Definition::Definition(std::shared_ptr<DefinitionData> &&dd)
+    : d(std::move(dd))
 {
 }
 
@@ -179,13 +164,13 @@ QString Definition::license() const
 bool Definition::isWordDelimiter(QChar c) const
 {
     d->load();
-    return d->isWordDelimiter(c);
+    return d->wordDelimiters.contains(c);
 }
 
 bool Definition::isWordWrapDelimiter(QChar c) const
 {
     d->load();
-    return std::binary_search(d->wordWrapDelimiters.constBegin(), d->wordWrapDelimiters.constEnd(), c);
+    return d->wordWrapDelimiters.contains(c);
 }
 
 bool Definition::foldingEnabled() const
@@ -346,11 +331,6 @@ KeywordList *DefinitionData::keywordList(const QString &wantedName)
     return (it == keywordLists.end()) ? nullptr : &it.value();
 }
 
-bool DefinitionData::isWordDelimiter(QChar c) const
-{
-    return std::binary_search(wordDelimiters.constBegin(), wordDelimiters.constEnd(), c);
-}
-
 Format DefinitionData::formatByName(const QString &wantedName) const
 {
     const auto it = formats.constFind(wantedName);
@@ -407,7 +387,6 @@ bool DefinitionData::load(OnlyKeywords onlyKeywords)
         context->resolveAttributeFormat();
     }
 
-    Q_ASSERT(std::is_sorted(wordDelimiters.constBegin(), wordDelimiters.constEnd()));
     return true;
 }
 
@@ -427,7 +406,7 @@ void DefinitionData::clear()
     license.clear();
     mimetypes.clear();
     extensions.clear();
-    wordDelimiters = QStringLiteral("\t !%&()*+,-./:;<=>?[\\]^{|}~"); // must be sorted!
+    wordDelimiters = WordDelimiters();
     wordWrapDelimiters = wordDelimiters;
     caseSensitive = Qt::CaseSensitive;
     version = 0.0f;
@@ -470,10 +449,18 @@ bool DefinitionData::loadMetaData(const QString &file, const QCborMap &obj)
     fileName = file;
 
     const auto exts = obj.value(QLatin1String("extensions")).toString();
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+    for (const auto &ext : exts.split(QLatin1Char(';'), QString::SkipEmptyParts))
+#else
     for (const auto &ext : exts.split(QLatin1Char(';'), Qt::SkipEmptyParts))
+#endif
         extensions.push_back(ext);
     const auto mts = obj.value(QLatin1String("mimetype")).toString();
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+    for (const auto &mt : mts.split(QLatin1Char(';'), QString::SkipEmptyParts))
+#else
     for (const auto &mt : mts.split(QLatin1Char(';'), Qt::SkipEmptyParts))
+#endif
         mimetypes.push_back(mt);
 
     return true;
@@ -484,27 +471,35 @@ bool DefinitionData::loadLanguage(QXmlStreamReader &reader)
     Q_ASSERT(reader.name() == QLatin1String("language"));
     Q_ASSERT(reader.tokenType() == QXmlStreamReader::StartElement);
 
-    if (!checkKateVersion(reader.attributes().value(QStringLiteral("kateversion"))))
+    if (!checkKateVersion(reader.attributes().value(QLatin1String("kateversion"))))
         return false;
 
-    name = reader.attributes().value(QStringLiteral("name")).toString();
-    section = reader.attributes().value(QStringLiteral("section")).toString();
+    name = reader.attributes().value(QLatin1String("name")).toString();
+    section = reader.attributes().value(QLatin1String("section")).toString();
     // toFloat instead of toInt for backward compatibility with old Kate files
-    version = reader.attributes().value(QStringLiteral("version")).toFloat();
-    priority = reader.attributes().value(QStringLiteral("priority")).toInt();
-    hidden = Xml::attrToBool(reader.attributes().value(QStringLiteral("hidden")));
-    style = reader.attributes().value(QStringLiteral("style")).toString();
-    indenter = reader.attributes().value(QStringLiteral("indenter")).toString();
-    author = reader.attributes().value(QStringLiteral("author")).toString();
-    license = reader.attributes().value(QStringLiteral("license")).toString();
-    const auto exts = reader.attributes().value(QStringLiteral("extensions")).toString();
+    version = reader.attributes().value(QLatin1String("version")).toFloat();
+    priority = reader.attributes().value(QLatin1String("priority")).toInt();
+    hidden = Xml::attrToBool(reader.attributes().value(QLatin1String("hidden")));
+    style = reader.attributes().value(QLatin1String("style")).toString();
+    indenter = reader.attributes().value(QLatin1String("indenter")).toString();
+    author = reader.attributes().value(QLatin1String("author")).toString();
+    license = reader.attributes().value(QLatin1String("license")).toString();
+    const auto exts = reader.attributes().value(QLatin1String("extensions")).toString();
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+    for (const auto &ext : exts.split(QLatin1Char(';'), QString::SkipEmptyParts))
+#else
     for (const auto &ext : exts.split(QLatin1Char(';'), Qt::SkipEmptyParts))
+#endif
         extensions.push_back(ext);
-    const auto mts = reader.attributes().value(QStringLiteral("mimetype")).toString();
+    const auto mts = reader.attributes().value(QLatin1String("mimetype")).toString();
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+    for (const auto &mt : mts.split(QLatin1Char(';'), QString::SkipEmptyParts))
+#else
     for (const auto &mt : mts.split(QLatin1Char(';'), Qt::SkipEmptyParts))
+#endif
         mimetypes.push_back(mt);
-    if (reader.attributes().hasAttribute(QStringLiteral("casesensitive")))
-        caseSensitive = Xml::attrToBool(reader.attributes().value(QStringLiteral("casesensitive"))) ? Qt::CaseSensitive : Qt::CaseInsensitive;
+    if (reader.attributes().hasAttribute(QLatin1String("casesensitive")))
+        caseSensitive = Xml::attrToBool(reader.attributes().value(QLatin1String("casesensitive"))) ? Qt::CaseSensitive : Qt::CaseInsensitive;
     return true;
 }
 
@@ -631,25 +626,26 @@ void DefinitionData::loadGeneral(QXmlStreamReader &reader)
             ++elementRefCounter;
 
             if (reader.name() == QLatin1String("keywords")) {
-                if (reader.attributes().hasAttribute(QStringLiteral("casesensitive")))
-                    caseSensitive = Xml::attrToBool(reader.attributes().value(QStringLiteral("casesensitive"))) ? Qt::CaseSensitive : Qt::CaseInsensitive;
+                if (reader.attributes().hasAttribute(QLatin1String("casesensitive")))
+                    caseSensitive = Xml::attrToBool(reader.attributes().value(QLatin1String("casesensitive"))) ? Qt::CaseSensitive : Qt::CaseInsensitive;
 
-                // adapt sorted wordDelimiters
-                wordDelimiters += reader.attributes().value(QStringLiteral("additionalDeliminator"));
-                std::sort(wordDelimiters.begin(), wordDelimiters.end());
-                auto it = std::unique(wordDelimiters.begin(), wordDelimiters.end());
-                wordDelimiters.truncate(std::distance(wordDelimiters.begin(), it));
-                for (const auto c : reader.attributes().value(QLatin1String("weakDeliminator")))
+                // adapt wordDelimiters
+                for (QChar c : reader.attributes().value(QLatin1String("additionalDeliminator")))
+                    wordDelimiters.append(c);
+                for (QChar c : reader.attributes().value(QLatin1String("weakDeliminator")))
                     wordDelimiters.remove(c);
 
-                // adaptWordWrapDelimiters, and sort
-                wordWrapDelimiters = reader.attributes().value(QStringLiteral("wordWrapDeliminator")).toString();
-                std::sort(wordWrapDelimiters.begin(), wordWrapDelimiters.end());
-                if (wordWrapDelimiters.isEmpty())
+                // adapt WordWrapDelimiters
+                QStringRef wordWrapDeliminatorAttr = reader.attributes().value(QLatin1String("wordWrapDeliminator"));
+                if (wordWrapDeliminatorAttr.isEmpty())
                     wordWrapDelimiters = wordDelimiters;
+                else {
+                    for (QChar c : wordWrapDeliminatorAttr)
+                        wordWrapDelimiters.append(c);
+                }
             } else if (reader.name() == QLatin1String("folding")) {
-                if (reader.attributes().hasAttribute(QStringLiteral("indentationsensitive")))
-                    indentationBasedFolding = Xml::attrToBool(reader.attributes().value(QStringLiteral("indentationsensitive")));
+                if (reader.attributes().hasAttribute(QLatin1String("indentationsensitive")))
+                    indentationBasedFolding = Xml::attrToBool(reader.attributes().value(QLatin1String("indentationsensitive")));
             } else if (reader.name() == QLatin1String("emptyLines")) {
                 loadFoldingIgnoreList(reader);
             } else if (reader.name() == QLatin1String("comments")) {
@@ -688,14 +684,14 @@ void DefinitionData::loadComments(QXmlStreamReader &reader)
         case QXmlStreamReader::StartElement:
             ++elementRefCounter;
             if (reader.name() == QLatin1String("comment")) {
-                const bool isSingleLine = reader.attributes().value(QStringLiteral("name")) == QStringLiteral("singleLine");
+                const bool isSingleLine = reader.attributes().value(QLatin1String("name")) == QLatin1String("singleLine");
                 if (isSingleLine) {
-                    singleLineCommentMarker = reader.attributes().value(QStringLiteral("start")).toString();
-                    const bool afterWhiteSpace = reader.attributes().value(QStringLiteral("position")).toString() == QStringLiteral("afterwhitespace");
+                    singleLineCommentMarker = reader.attributes().value(QLatin1String("start")).toString();
+                    const bool afterWhiteSpace = reader.attributes().value(QLatin1String("position")).toString() == QLatin1String("afterwhitespace");
                     singleLineCommentPosition = afterWhiteSpace ? CommentPosition::AfterWhitespace : CommentPosition::StartOfLine;
                 } else {
-                    multiLineCommentStartMarker = reader.attributes().value(QStringLiteral("start")).toString();
-                    multiLineCommentEndMarker = reader.attributes().value(QStringLiteral("end")).toString();
+                    multiLineCommentStartMarker = reader.attributes().value(QLatin1String("start")).toString();
+                    multiLineCommentEndMarker = reader.attributes().value(QLatin1String("end")).toString();
                 }
             }
             reader.readNext();
@@ -727,7 +723,7 @@ void DefinitionData::loadFoldingIgnoreList(QXmlStreamReader &reader)
         case QXmlStreamReader::StartElement:
             ++elementRefCounter;
             if (reader.name() == QLatin1String("emptyLine")) {
-                foldingIgnoreList << reader.attributes().value(QStringLiteral("regexpr")).toString();
+                foldingIgnoreList << reader.attributes().value(QLatin1String("regexpr")).toString();
             }
             reader.readNext();
             break;
@@ -758,9 +754,9 @@ void DefinitionData::loadSpellchecking(QXmlStreamReader &reader)
         case QXmlStreamReader::StartElement:
             ++elementRefCounter;
             if (reader.name() == QLatin1String("encoding")) {
-                const auto charRef = reader.attributes().value(QStringLiteral("char"));
+                const auto charRef = reader.attributes().value(QLatin1String("char"));
                 if (!charRef.isEmpty()) {
-                    const auto str = reader.attributes().value(QStringLiteral("string")).toString();
+                    const auto str = reader.attributes().value(QLatin1String("string")).toString();
                     characterEncodings.push_back({charRef[0], str});
                 }
             }
@@ -779,15 +775,15 @@ void DefinitionData::loadSpellchecking(QXmlStreamReader &reader)
     }
 }
 
-bool DefinitionData::checkKateVersion(const QStringView &verStr)
+bool DefinitionData::checkKateVersion(const QStringRef &verStr)
 {
     const auto idx = verStr.indexOf(QLatin1Char('.'));
     if (idx <= 0) {
         qCWarning(Log) << "Skipping" << fileName << "due to having no valid kateversion attribute:" << verStr;
         return false;
     }
-    const auto major = verStr.left(idx).toString().toInt();
-    const auto minor = verStr.mid(idx + 1).toString().toInt();
+    const auto major = verStr.left(idx).toInt();
+    const auto minor = verStr.mid(idx + 1).toInt();
 
     if (major > SyntaxHighlighting_VERSION_MAJOR || (major == SyntaxHighlighting_VERSION_MAJOR && minor > SyntaxHighlighting_VERSION_MINOR)) {
         qCWarning(Log) << "Skipping" << fileName << "due to being too new, version:" << verStr;

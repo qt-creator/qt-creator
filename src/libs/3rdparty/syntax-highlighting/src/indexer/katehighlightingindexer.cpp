@@ -1,24 +1,7 @@
 /*
-    Copyright (C) 2014 Christoph Cullmann <cullmann@kde.org>
+    SPDX-FileCopyrightText: 2014 Christoph Cullmann <cullmann@kde.org>
 
-    Permission is hereby granted, free of charge, to any person obtaining
-    a copy of this software and associated documentation files (the
-    "Software"), to deal in the Software without restriction, including
-    without limitation the rights to use, copy, modify, merge, publish,
-    distribute, sublicense, and/or sell copies of the Software, and to
-    permit persons to whom the Software is furnished to do so, subject to
-    the following conditions:
-
-    The above copyright notice and this permission notice shall be included
-    in all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    SPDX-License-Identifier: MIT
 */
 
 #include <QCoreApplication>
@@ -34,6 +17,10 @@
 #include <QXmlSchema>
 #include <QXmlSchemaValidator>
 #endif
+
+#include "../lib/xml_p.h"
+
+using KSyntaxHighlighting::Xml::attrToBool;
 
 namespace
 {
@@ -138,7 +125,7 @@ bool checkRegularExpression(const QString &hlFilename, QXmlStreamReader &xml)
         }
 
         // dynamic == true and no place holder?
-        if (xml.name() == QLatin1String("RegExpr") && xml.attributes().value(QStringLiteral("dynamic")) == QStringLiteral("true")) {
+        if (xml.name() == QLatin1String("RegExpr") && attrToBool(xml.attributes().value(QStringLiteral("dynamic")))) {
             static const QRegularExpression placeHolder(QStringLiteral("%\\d+"));
             if (!string.contains(placeHolder)) {
                 qWarning() << hlFilename << "line" << xml.lineNumber() << "broken regex:" << string << "problem: dynamic=true but no %\\d+ placeholder";
@@ -197,7 +184,7 @@ bool checkLookAhead(const QString &hlFilename, QXmlStreamReader &xml)
 {
     if (xml.attributes().hasAttribute(QStringLiteral("lookAhead"))) {
         auto lookAhead = xml.attributes().value(QStringLiteral("lookAhead"));
-        if (lookAhead == QStringLiteral("true")) {
+        if (attrToBool(lookAhead)) {
             auto context = xml.attributes().value(QStringLiteral("context"));
             if (context == QStringLiteral("#stay")) {
                 qWarning() << hlFilename << "line" << xml.lineNumber() << "Infinite loop: lookAhead with context #stay";
@@ -368,9 +355,18 @@ public:
                 language.existingContextNames.insert(name);
             }
 
-            if (xml.attributes().value(QLatin1String("fallthroughContext")).toString() == QLatin1String("#stay")) {
-                qWarning() << hlFilename << "possible infinite loop due to fallthroughContext=\"#stay\" in context " << name;
-                m_success = false;
+            auto fallthroughContext = xml.attributes().value(QLatin1String("fallthroughContext"));
+            if (!fallthroughContext.isEmpty()) {
+                if (fallthroughContext == QLatin1String("#stay")) {
+                    qWarning() << hlFilename << "possible infinite loop due to fallthroughContext=\"#stay\" in context " << name;
+                    m_success = false;
+                }
+
+                auto fallthrough = xml.attributes().value(QLatin1String("fallthrough"));
+                if (fallthrough.isEmpty() && language.version < Version{5, 62}) {
+                    qWarning() << hlFilename << "fallthroughContext attribute without fallthrough attribute is only valid with kateversion >= 5.62 in context " << name;
+                    m_success = false;
+                }
             }
 
             processContext(hlName, xml.attributes().value(QLatin1String("lineEndContext")).toString());
@@ -692,8 +688,7 @@ int main(int argc, char *argv[])
         hl[QStringLiteral("priority")] = xml.attributes().value(QLatin1String("priority")).toInt();
 
         // add boolean one
-        const QString hidden = xml.attributes().value(QLatin1String("hidden")).toString();
-        hl[QStringLiteral("hidden")] = (hidden == QLatin1String("true") || hidden == QLatin1String("1"));
+        hl[QStringLiteral("hidden")] = attrToBool(xml.attributes().value(QLatin1String("hidden")));
 
         // remember hl
         hls[QFileInfo(hlFile).fileName()] = hl;

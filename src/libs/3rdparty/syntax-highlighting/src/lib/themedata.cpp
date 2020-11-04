@@ -1,25 +1,9 @@
 /*
-    Copyright (C) 2016 Volker Krause <vkrause@kde.org>
-    Copyright (C) 2016 Dominik Haumann <dhaumann@kde.org>
+    SPDX-FileCopyrightText: 2016 Volker Krause <vkrause@kde.org>
+    SPDX-FileCopyrightText: 2016 Dominik Haumann <dhaumann@kde.org>
+    SPDX-FileCopyrightText: 2020 Jonathan Poelen <jonathan.poelen@gmail.com>
 
-    Permission is hereby granted, free of charge, to any person obtaining
-    a copy of this software and associated documentation files (the
-    "Software"), to deal in the Software without restriction, including
-    without limitation the rights to use, copy, modify, merge, publish,
-    distribute, sublicense, and/or sell copies of the Software, and to
-    permit persons to whom the Software is furnished to do so, subject to
-    the following conditions:
-
-    The above copyright notice and this permission notice shall be included
-    in all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    SPDX-License-Identifier: MIT
 */
 
 #include "ksyntaxhighlighting_logging.h"
@@ -120,54 +104,64 @@ bool ThemeData::load(const QString &filePath)
     m_revision = metadata.value(QLatin1String("revision")).toInt();
 
     // read text styles
-    static const auto idx = Theme::staticMetaObject.indexOfEnumerator("TextStyle");
-    Q_ASSERT(idx >= 0);
-    const auto metaEnum = Theme::staticMetaObject.enumerator(idx);
+    static const auto styleIdx = Theme::staticMetaObject.indexOfEnumerator("TextStyle");
+    Q_ASSERT(styleIdx >= 0);
+    const auto metaEnumStyle = Theme::staticMetaObject.enumerator(styleIdx);
     const QJsonObject textStyles = obj.value(QLatin1String("text-styles")).toObject();
-    for (int i = 0; i < metaEnum.keyCount(); ++i) {
-        Q_ASSERT(i == metaEnum.value(i));
-        m_textStyles[i] = readThemeData(textStyles.value(QLatin1String(metaEnum.key(i))).toObject());
+    for (int i = 0; i < metaEnumStyle.keyCount(); ++i) {
+        Q_ASSERT(i == metaEnumStyle.value(i));
+        m_textStyles[i] = readThemeData(textStyles.value(QLatin1String(metaEnumStyle.key(i))).toObject());
     }
 
-    // read editor area colors
+    // read editor colors
+    static const auto colorIdx = Theme::staticMetaObject.indexOfEnumerator("EditorColorRole");
+    Q_ASSERT(colorIdx >= 0);
+    const auto metaEnumColor = Theme::staticMetaObject.enumerator(colorIdx);
     const QJsonObject editorColors = obj.value(QLatin1String("editor-colors")).toObject();
-    m_editorColors[Theme::BackgroundColor] = readColor(editorColors.value(QLatin1String("background-color")));
-    m_editorColors[Theme::TextSelection] = readColor(editorColors.value(QLatin1String("selection")));
-    m_editorColors[Theme::CurrentLine] = readColor(editorColors.value(QLatin1String("current-line")));
-    m_editorColors[Theme::SearchHighlight] = readColor(editorColors.value(QLatin1String("search-highlight")));
-    m_editorColors[Theme::ReplaceHighlight] = readColor(editorColors.value(QLatin1String("replace-highlight")));
-    m_editorColors[Theme::BracketMatching] = readColor(editorColors.value(QLatin1String("bracket-matching")));
-    m_editorColors[Theme::TabMarker] = readColor(editorColors.value(QLatin1String("tab-marker")));
-    m_editorColors[Theme::SpellChecking] = readColor(editorColors.value(QLatin1String("spell-checking")));
-    m_editorColors[Theme::IndentationLine] = readColor(editorColors.value(QLatin1String("indentation-line")));
-    m_editorColors[Theme::IconBorder] = readColor(editorColors.value(QLatin1String("icon-border")));
-    m_editorColors[Theme::CodeFolding] = readColor(editorColors.value(QLatin1String("code-folding")));
-    m_editorColors[Theme::LineNumbers] = readColor(editorColors.value(QLatin1String("line-numbers")));
-    m_editorColors[Theme::CurrentLineNumber] = readColor(editorColors.value(QLatin1String("current-line-number")));
-    m_editorColors[Theme::WordWrapMarker] = readColor(editorColors.value(QLatin1String("word-wrap-marker")));
-    m_editorColors[Theme::ModifiedLines] = readColor(editorColors.value(QLatin1String("modified-lines")));
-    m_editorColors[Theme::SavedLines] = readColor(editorColors.value(QLatin1String("saved-lines")));
-    m_editorColors[Theme::Separator] = readColor(editorColors.value(QLatin1String("separator")));
-    m_editorColors[Theme::MarkBookmark] = readColor(editorColors.value(QLatin1String("mark-bookmark")));
-    m_editorColors[Theme::MarkBreakpointActive] = readColor(editorColors.value(QLatin1String("mark-breakpoint-active")));
-    m_editorColors[Theme::MarkBreakpointReached] = readColor(editorColors.value(QLatin1String("mark-breakpoint-reached")));
-    m_editorColors[Theme::MarkBreakpointDisabled] = readColor(editorColors.value(QLatin1String("mark-breakpoint-disabled")));
-    m_editorColors[Theme::MarkExecution] = readColor(editorColors.value(QLatin1String("mark-execution")));
-    m_editorColors[Theme::MarkWarning] = readColor(editorColors.value(QLatin1String("mark-warning")));
-    m_editorColors[Theme::MarkError] = readColor(editorColors.value(QLatin1String("mark-error")));
-    m_editorColors[Theme::TemplateBackground] = readColor(editorColors.value(QLatin1String("template-background")));
-    m_editorColors[Theme::TemplatePlaceholder] = readColor(editorColors.value(QLatin1String("template-placeholder")));
-    m_editorColors[Theme::TemplateFocusedPlaceholder] = readColor(editorColors.value(QLatin1String("template-focused-placeholder")));
-    m_editorColors[Theme::TemplateReadOnlyPlaceholder] = readColor(editorColors.value(QLatin1String("template-read-only-placeholder")));
+    for (int i = 0; i < metaEnumColor.keyCount(); ++i) {
+        Q_ASSERT(i == metaEnumColor.value(i));
+        m_editorColors[i] = readColor(editorColors.value(QLatin1String(metaEnumColor.key(i))));
+    }
+
+    // if we have no new key around for Theme::BackgroundColor => use old variants to be compatible
+    if (!editorColors.contains(QLatin1String(metaEnumColor.key(Theme::BackgroundColor)))) {
+        m_editorColors[Theme::BackgroundColor] = readColor(editorColors.value(QLatin1String("background-color")));
+        m_editorColors[Theme::TextSelection] = readColor(editorColors.value(QLatin1String("selection")));
+        m_editorColors[Theme::CurrentLine] = readColor(editorColors.value(QLatin1String("current-line")));
+        m_editorColors[Theme::SearchHighlight] = readColor(editorColors.value(QLatin1String("search-highlight")));
+        m_editorColors[Theme::ReplaceHighlight] = readColor(editorColors.value(QLatin1String("replace-highlight")));
+        m_editorColors[Theme::BracketMatching] = readColor(editorColors.value(QLatin1String("bracket-matching")));
+        m_editorColors[Theme::TabMarker] = readColor(editorColors.value(QLatin1String("tab-marker")));
+        m_editorColors[Theme::SpellChecking] = readColor(editorColors.value(QLatin1String("spell-checking")));
+        m_editorColors[Theme::IndentationLine] = readColor(editorColors.value(QLatin1String("indentation-line")));
+        m_editorColors[Theme::IconBorder] = readColor(editorColors.value(QLatin1String("icon-border")));
+        m_editorColors[Theme::CodeFolding] = readColor(editorColors.value(QLatin1String("code-folding")));
+        m_editorColors[Theme::LineNumbers] = readColor(editorColors.value(QLatin1String("line-numbers")));
+        m_editorColors[Theme::CurrentLineNumber] = readColor(editorColors.value(QLatin1String("current-line-number")));
+        m_editorColors[Theme::WordWrapMarker] = readColor(editorColors.value(QLatin1String("word-wrap-marker")));
+        m_editorColors[Theme::ModifiedLines] = readColor(editorColors.value(QLatin1String("modified-lines")));
+        m_editorColors[Theme::SavedLines] = readColor(editorColors.value(QLatin1String("saved-lines")));
+        m_editorColors[Theme::Separator] = readColor(editorColors.value(QLatin1String("separator")));
+        m_editorColors[Theme::MarkBookmark] = readColor(editorColors.value(QLatin1String("mark-bookmark")));
+        m_editorColors[Theme::MarkBreakpointActive] = readColor(editorColors.value(QLatin1String("mark-breakpoint-active")));
+        m_editorColors[Theme::MarkBreakpointReached] = readColor(editorColors.value(QLatin1String("mark-breakpoint-reached")));
+        m_editorColors[Theme::MarkBreakpointDisabled] = readColor(editorColors.value(QLatin1String("mark-breakpoint-disabled")));
+        m_editorColors[Theme::MarkExecution] = readColor(editorColors.value(QLatin1String("mark-execution")));
+        m_editorColors[Theme::MarkWarning] = readColor(editorColors.value(QLatin1String("mark-warning")));
+        m_editorColors[Theme::MarkError] = readColor(editorColors.value(QLatin1String("mark-error")));
+        m_editorColors[Theme::TemplateBackground] = readColor(editorColors.value(QLatin1String("template-background")));
+        m_editorColors[Theme::TemplatePlaceholder] = readColor(editorColors.value(QLatin1String("template-placeholder")));
+        m_editorColors[Theme::TemplateFocusedPlaceholder] = readColor(editorColors.value(QLatin1String("template-focused-placeholder")));
+        m_editorColors[Theme::TemplateReadOnlyPlaceholder] = readColor(editorColors.value(QLatin1String("template-read-only-placeholder")));
+    }
 
     // read per-definition style overrides
     const auto customStyles = obj.value(QLatin1String("custom-styles")).toObject();
     for (auto it = customStyles.begin(); it != customStyles.end(); ++it) {
         const auto obj = it.value().toObject();
-        QHash<QString, TextStyleData> overrideStyle;
+        auto &overrideStyle = m_textStyleOverrides[it.key()];
         for (auto it2 = obj.begin(); it2 != obj.end(); ++it2)
             overrideStyle.insert(it2.key(), readThemeData(it2.value().toObject()));
-        m_textStyleOverrides.insert(it.key(), overrideStyle);
     }
 
     return true;

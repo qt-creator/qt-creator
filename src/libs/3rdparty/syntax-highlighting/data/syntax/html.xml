@@ -5,7 +5,7 @@
 	<!ENTITY attributeName "[A-Za-z_:*#\(\[][\)\]\w.:_-]*">
 	<!ENTITY entref        "&amp;(?:#[0-9]+|#[xX][0-9A-Fa-f]+|&name;);">
 ]>
-<language name="HTML" version="11" kateversion="5.53" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm" mimetype="text/html"  author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
+<language name="HTML" version="12" kateversion="5.53" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm" mimetype="text/html"  author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
 
 <highlighting>
 <contexts>
@@ -91,9 +91,10 @@
 
   <context name="Comment" attribute="Comment" lineEndContext="#stay">
     <DetectSpaces/>
-    <IncludeRules context="##Alerts" />
-    <DetectIdentifier/>
     <StringDetect attribute="Comment" context="#pop" String="--&gt;" endRegion="comment" />
+    <IncludeRules context="##Alerts" />
+    <IncludeRules context="##Modelines" />
+    <DetectIdentifier/>
     <RegExpr attribute="Error" context="#stay" String="-(?:-(?!-&gt;))+" />
   </context>
 
@@ -193,6 +194,7 @@
 
   <context name="JS comment close" attribute="Comment" lineEndContext="#pop">
     <RegExpr attribute="Element" context="El Close 3" String="&lt;/script\b" insensitive="true" endRegion="script" />
+    <DetectSpaces />
     <IncludeRules context="##Alerts" />
   </context>
 
@@ -314,3 +316,4 @@
   </comments>
 </general>
 </language>
+<!-- kate: replace-tabs on; tab-width 2; indent-width 2; -->
