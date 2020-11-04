@@ -1,0 +1,239 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page quick-images.html
+    \previouspage quick-text.html
+    \nextpage quick-data-models.html
+
+    \title Images
+
+    The \l Image type is used for adding images to the UI in several supported
+    formats, including bitmap formats, such as PNG and JPEG, and vector graphics
+    formats, such as SVG. You must add the images to your project in the
+    \uicontrol Assets tab of \uicontrol Library to be able to use them in
+    designs.
+
+    \image qtquick-designer-image-type.png "Image type in different views"
+
+    When you drag and drop an image file from the \uicontrol Assets tab of
+    \uicontrol Library to \uicontrol Navigator or \uicontrol {Form Editor},
+    \QC automatically creates a component of the \l Image type for you with
+    the path to the image file set as the value of the \uicontrol Source
+    field in \uicontrol Properties.
+
+    To load images from a URL using a supported URL scheme, specify the URL
+    in the \uicontrol Source field.
+
+    You can use the \l [QML]{BorderImage}{Border Image} type to display
+    an image, such as a PNG file, as a border and a background. For more
+    information about using border images to create buttons, see
+    \l {Creating Scalable Buttons and Borders}.
+
+    If you need to display animated images, such as GIFs, use the
+    \l {AnimatedImage}{Animated Image} type.
+
+    \section1 Image Size
+
+    \image qtquick-designer-image-properties.png "Image properties"
+
+    If the image \uicontrol Size is not specified, the size of the source
+    image is used automatically.
+
+    By default, explicitly setting the width and height of the item causes
+    the image to be scaled to that size. To change this behavior, set the
+    value of the \uicontrol {Fill mode} field. Images can be stretched, tiled,
+    or scaled uniformly to the specified size with or without cropping. The
+    \uicontrol Pad option means that the image is not transformed.
+
+    \note If the \uicontrol Clip check box is not selected, the item might
+    paint outside its bounding rectangle even if the \uicontrol {Fill mode}
+    is set to \uicontrol PreserveAspectCrop.
+
+    Select the \uicontrol Smooth check box to smoothly filter images when scaled
+    or transformed. Smooth filtering gives better visual quality, but it may be
+    slower on some hardware. If the image is displayed at its natural size,
+    this property has no visual or performance effect.
+
+    Select the \uicontrol Mipmap check box to use mipmap filtering when scaling
+    or transforming images. Mipmap filtering gives better visual quality when
+    scaling down compared with smooth filtering, but it may come at a
+    performance cost both when initializing the image and during rendering.
+
+    Select the \uicontrol {Auto transform} check box if the image should
+    automatically apply image transformation metadata, such as EXIF orientation.
+
+    \section1 Source Size
+
+    The \uicontrol {Source size} property specifies the scaled width and height
+    of the full-frame image. Unlike the value of the \uicontrol Size property,
+    which scales the painting of the image, this property sets the maximum
+    number of pixels stored for the loaded image so that large images do not
+    use more memory than necessary. This ensures the image in memory is no
+    larger than the set source size, regardless of its set size.
+
+    If the image's actual size is larger than the source size, the image is
+    scaled down. If only one dimension of the size is set to greater than 0,
+    the other dimension is set in proportion to preserve the source image's
+    aspect ratio. The \uicontrol {Fill mode} is independent of this.
+
+    If both the source size width and height are set, the image is scaled
+    down to fit within the specified size maintaining the image's aspect ratio.
+    However, if \uicontrol PreserveAspectCrop or \uicontrol PreserveAspectFit
+    are used, the image is scaled to match the optimal size for cropping or
+    fitting.
+
+    If the source is an intrinsically scalable image (such as SVG), source size
+    determines the size of the loaded image regardless of intrinsic size.
+    Avoid changing the source size property dynamically, because rendering an
+    SVG is slow compared with rendering other image formats.
+
+    If the source is a non-scalable image (such as JPEG), the loaded image will
+    be no greater than the source size specifies. For some formats, the whole
+    image will never actually be loaded into memory.
+
+    \note Changing this property dynamically causes the image source to be
+    reloaded, potentially even from the network, if it is not in the disk cache.
+    Select the \uicontrol Cache check box to cache the image.
+
+    \section1 Image Alignment
+
+    You can align images horizontally and vertically. By default, images are
+    centered.
+
+    Select the \uicontrol Mirrored check box to horizontally invert the image,
+    effectively displaying a mirrored image.
+
+    \section1 Performance
+
+    By default, locally available images are loaded immediately, and the UI
+    is blocked until loading is complete. If a large image is to be loaded,
+    it may be preferable to load the image in a low priority thread, by
+    selecting the \uicontrol Asynchronous check box. If the image is obtained
+    from a network rather than a local resource, it is automatically loaded
+    asynchronously.
+
+    Images are cached and shared internally, so if several images have the same
+    \uicontrol Source, only one copy of the image will be loaded.
+
+    \note Images are often the greatest user of memory in UIs. We recommended
+    that you set the \uicontrol {Source size} of images that do not form a part
+    of the UI. This is especially important for content that is loaded from
+    external sources or provided by the user.
+
+    \section1 Border Image
+
+    The Border Image type extends the features of the \l Image type. It is used
+    to create borders out of images by scaling or tiling parts of each image. A
+    source image is broken into 9 regions that are scaled or tiled individually.
+    The corner regions are not scaled at all, while the horizontal and vertical
+    regions are scaled according to the values of the
+    \uicontrol {Horizontal tile mode} and \uicontrol {Vertical tile mode} field,
+    or both.
+
+    The \uicontrol Stretch option scales the image to fit the available area.
+    The \uicontrol Repeat option tiles the image until there is no more space.
+    To ensure that the last image is not cropped, select the \uicontrol Round
+    option that scales the images down when necessary.
+
+    Specify the regions of the image in the \uicontrol {Border left},
+    \uicontrol {Border right}, \uicontrol {Border top}, and
+    \uicontrol {Border bottom} fields. The regions describe
+    the distance from each edge of the source image to use as a border.
+
+    \image qtquick-designer-border-image-properties.png "Border Image properties"
+
+    \note You cannot change the \uicontrol {Source size} of a border image.
+
+    For examples of using border images, see the documentation of the
+    \l [QtQuick]{BorderImage} type.
+
+    \section1 Animated Image
+
+    The Animated Image type extends the features of the \l Image type, providing
+    a way to play animations stored as images containing a series of frames,
+    such as those stored in GIF files.
+
+    Set the speed of the animation in the \uicontrol Speed field. The speed is
+    measured in percentage of the original animated image speed. The default
+    speed is 1.0, which means the original speed.
+
+    \image qtquick-designer-animated-image-properties.png "Animated Image properties"
+
+    To pause or play the animation, select the \uicontrol Paused or
+    \uicontrol Playing check boxes.
+
+    When the \uicontrol Cache check box is selected, every frame of the
+    animation is cached. Deselect the check box if you are playing a long
+    or large animation and you want to conserve memory.
+
+    If the image data comes from a sequential device (such as a socket),
+    Animated Image can only loop if caching is enabled.
+
+    \section1 Summary of Images
+
+    The following table lists the QML types that you can use to add images.
+    The \e Location column contains the tab name where you can find the type
+    in \uicontrol Library. The \e MCU column indicates which types are supported
+    on MCUs.
+
+    \table
+    \header
+        \li Icon
+        \li Name
+        \li Location
+        \li MCU
+        \li Purpose
+    \row
+        \li \inlineimage animated-image-icon16.png
+        \li \l [QtQuick]{AnimatedImage}{Animated Image}
+        \li Qt Quick - Basic
+        \li
+        \li An images that stores animations containing a series of frames,
+            such as those stored in GIF files.
+    \row
+        \li \inlineimage border-image-icon16.png
+        \li \l [QtQuick]{BorderImage}{Border Image}
+        \li Qt Quick - Basic
+        \li \inlineimage ok
+        \li An image that is used as a border or background.
+    \row
+        \li \inlineimage image-icon16.png
+        \li \l [QtQuick]{Image}
+        \li Qt Quick - Basic
+        \li \inlineimage ok
+        \li An image in one of the supported formats, including bitmap formats
+            such as PNG and JPEG and vector graphics formats such as SVG.
+    \if defined(qtdesignstudio)
+    \row
+        \li \inlineimage icons/iso-icons-16px.png
+        \li IsoIcon
+        \li Studio Components
+        \li
+        \li An icon from an ISO 7000 icon library specified as a \l Picture
+            type. You can select the icon to use and its color.
+    \endif
+    \endtable
+*/
