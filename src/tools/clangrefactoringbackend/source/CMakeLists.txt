@@ -1,4 +1,5 @@
 add_qtc_library(clangrefactoringbackend_lib STATIC
+  CONDITION WITH_TESTS OR TARGET ClangRefactoring OR TARGET ClangPchManager
   PUBLIC_DEPENDS
     Threads::Threads
     ${CLANG_TOOLING_LIBS}

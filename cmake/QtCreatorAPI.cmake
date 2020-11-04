@@ -546,10 +546,10 @@ endfunction()
 
 function(add_qtc_executable name)
   cmake_parse_arguments(_arg "SKIP_INSTALL;SKIP_TRANSLATION;ALLOW_ASCII_CASTS"
-    "DESTINATION;COMPONENT"
-    "DEPENDS;DEFINES;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES" ${ARGN})
+    "DESTINATION;COMPONENT;BUILD_DEFAULT"
+    "CONDITION;DEPENDS;DEFINES;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES" ${ARGN})
 
-  if ($_arg_UNPARSED_ARGUMENTS)
+  if (${_arg_UNPARSED_ARGUMENTS})
     message(FATAL_ERROR "add_qtc_executable had unparsed arguments!")
   endif()
 
@@ -560,14 +560,27 @@ function(add_qtc_executable name)
 
   update_cached_list(__QTC_EXECUTABLES "${name}")
 
+  if (NOT _arg_CONDITION)
+    set(_arg_CONDITION ON)
+  endif()
+
   string(TOUPPER "BUILD_EXECUTABLE_${name}" _build_executable_var)
-  set(_build_executable_default ${BUILD_EXECUTABLES_BY_DEFAULT})
+  if (DEFINED _arg_BUILD_DEFAULT)
+    set(_build_executable_default ${_arg_BUILD_DEFAULT})
+  else()
+    set(_build_executable_default ${BUILD_EXECUTABLES_BY_DEFAULT})
+  endif()
   if (DEFINED ENV{QTC_${_build_executable_var}})
     set(_build_executable_default "$ENV{QTC_${_build_executable_var}}")
   endif()
   set(${_build_executable_var} "${_build_executable_default}" CACHE BOOL "Build executable ${name}.")
 
-  if (NOT ${_build_executable_var})
+  if ((${_arg_CONDITION}) AND ${_build_executable_var})
+    set(_executable_enabled ON)
+  else()
+    set(_executable_enabled OFF)
+  endif()
+  if (NOT _executable_enabled)
     return()
   endif()
 
