@@ -25,7 +25,7 @@
 #
 ############################################################################
 
-[ $# -lt 5 ] && echo "Usage: $(basename $0) <app folder> <qt bin folder> <qt translations folder> <qt plugin folder> <qt quick imports folder> <qt quick 2 imports folder>" && exit 2
+[ $# -lt 5 ] && echo "Usage: $(basename $0) <app folder> <qt bin folder> <qt translations folder> <qt plugin folder> <qt quick 2 imports folder>" && exit 2
 [ $(uname -s) != "Darwin" ] && echo "Run this script on Mac OS X" && exit 2;
 
 app_path="$1"
@@ -65,17 +65,6 @@ if [ -d "$assetimporterSrcDir" ]; then
         echo "- Copying 3d assetimporter plugins"
         mkdir -p "$assetimporterDestDir"
         find "$assetimporterSrcDir" -iname "*.dylib" -maxdepth 1 -exec cp {} "$assetimporterDestDir"/ \;
-    fi
-fi
-
-# copy Qt Quick 1 imports
-importsDir="$app_path/Contents/Imports/qtquick1"
-if [ -d "$quick1_src" ]; then
-    if [ ! -d "$importsDir" ]; then
-        echo "- Copying Qt Quick 1 imports"
-        mkdir -p "$importsDir"
-        cp -R "$quick1_src"/ "$importsDir"/
-        find "$importsDir" -path "*.dylib.dSYM*" -delete
     fi
 fi
 

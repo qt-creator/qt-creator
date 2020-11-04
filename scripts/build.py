@@ -217,13 +217,11 @@ def deploy_qt(args, paths):
         qt_bins = os.path.join(paths.qt, 'bin')
         qt_translations = os.path.join(paths.qt, 'translations')
         qt_plugins = os.path.join(paths.qt, 'plugins')
-        qt_imports = os.path.join(paths.qt, 'imports')
         qt_qml = os.path.join(paths.qt, 'qml')
         env = dict(os.environ)
         if paths.llvm:
             env['LLVM_INSTALL_DIR'] = paths.llvm
-        common.check_print_call([script, app, qt_bins, qt_translations, qt_plugins,
-                                 qt_imports, qt_qml],
+        common.check_print_call([script, app, qt_bins, qt_translations, qt_plugins, qt_qml],
                                 paths.build,
                                 env=env)
     else:

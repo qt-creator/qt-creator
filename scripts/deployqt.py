@@ -129,7 +129,7 @@ def ignored_qt_lib_files(path, filenames):
         return []
     return [fn for fn in filenames if is_ignored_windows_file(debug_build, path, fn)]
 
-def copy_qt_libs(target_qt_prefix_path, qt_bin_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, qt_qml_dir, plugins, imports):
+def copy_qt_libs(target_qt_prefix_path, qt_bin_dir, qt_libs_dir, qt_plugin_dir, qt_qml_dir, plugins):
     print("copying Qt libraries...")
 
     if common.is_windows_platform():
@@ -169,16 +169,6 @@ def copy_qt_libs(target_qt_prefix_path, qt_bin_dir, qt_libs_dir, qt_plugin_dir, 
             print('{0} -> {1}'.format(pluginPath, target))
             common.copytree(pluginPath, target, ignore=ignored_qt_lib_files, symlinks=True)
 
-    print("Copying imports:", imports)
-    for qtimport in imports:
-        target = os.path.join(target_qt_prefix_path, 'imports', qtimport)
-        if (os.path.exists(target)):
-            shutil.rmtree(target)
-        import_path = os.path.join(qt_import_dir, qtimport)
-        if os.path.exists(import_path):
-            print('{0} -> {1}'.format(import_path, target))
-            common.copytree(import_path, target, ignore=ignored_qt_lib_files, symlinks=True)
-
     if (os.path.exists(qt_qml_dir)):
         print("Copying qt quick 2 imports")
         target = os.path.join(target_qt_prefix_path, 'qml')
@@ -205,7 +195,6 @@ def add_qt_conf(target_path, qt_prefix_path):
     f.write('Binaries={0}\n'.format('bin' if common.is_linux_platform() else '.'))
     f.write('Libraries={0}\n'.format('lib' if common.is_linux_platform() else '.'))
     f.write('Plugins=plugins\n')
-    f.write('Imports=imports\n')
     f.write('Qml2Imports=qml\n')
     f.close()
 
@@ -365,7 +354,6 @@ def main():
     QT_INSTALL_LIBS = qt_install_info['QT_INSTALL_LIBS']
     QT_INSTALL_BINS = qt_install_info['QT_INSTALL_BINS']
     QT_INSTALL_PLUGINS = qt_install_info['QT_INSTALL_PLUGINS']
-    QT_INSTALL_IMPORTS = qt_install_info['QT_INSTALL_IMPORTS']
     QT_INSTALL_QML = qt_install_info['QT_INSTALL_QML']
     QT_INSTALL_TRANSLATIONS = qt_install_info['QT_INSTALL_TRANSLATIONS']
 
@@ -376,16 +364,15 @@ def main():
                'wayland-graphics-integration-client',
                'wayland-shell-integration',
                ]
-    imports = ['Qt', 'QtWebKit']
 
     if common.is_windows_platform():
         global debug_build
         debug_build = is_debug(args.qtcreator_binary)
 
     if common.is_windows_platform():
-        copy_qt_libs(qt_deploy_prefix, QT_INSTALL_BINS, QT_INSTALL_BINS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
+        copy_qt_libs(qt_deploy_prefix, QT_INSTALL_BINS, QT_INSTALL_BINS, QT_INSTALL_PLUGINS, QT_INSTALL_QML, plugins)
     else:
-        copy_qt_libs(qt_deploy_prefix, QT_INSTALL_BINS, QT_INSTALL_LIBS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
+        copy_qt_libs(qt_deploy_prefix, QT_INSTALL_BINS, QT_INSTALL_LIBS, QT_INSTALL_PLUGINS, QT_INSTALL_QML, plugins)
     copy_translations(install_dir, QT_INSTALL_TRANSLATIONS)
     if args.llvm_path:
         deploy_libclang(install_dir, args.llvm_path, chrpath_bin)
