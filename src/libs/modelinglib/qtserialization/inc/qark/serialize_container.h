@@ -63,7 +63,8 @@ template<class Archive, class T>
 inline void load(Archive &archive, QList<T> &list, const Parameters &)
 {
     archive >> tag("qlist");
-    archive >> attr<QList<T>, const T &>("item", list, &QList<T>::append);
+    void (QList<T>::*appendMethod)(const T &) = &QList<T>::append;
+    archive >> attr("item", list, appendMethod);
     archive >> end;
 }
 
@@ -76,7 +77,13 @@ inline void load(Archive &archive, QList<T *> &list, const Parameters &parameter
         //archive >> ref<QList<T *>, T * const &>("item", list, &QList<T *>::append);
         archive >> ref("item", list, &QList<T *>::append);
     } else {
-        archive >> attr<QList<T *>, T * const &>("item", list, &QList<T *>::append);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        using ParameterType = typename QList<T *>::parameter_type;
+#else
+        using ParameterType = T * const &;
+#endif
+        void (QList<T *>::*appendMethod)(ParameterType) = &QList<T *>::append;
+        archive >> attr("item", list, appendMethod);
     }
     archive >> end;
 }
@@ -119,7 +126,7 @@ template<class Archive, class T>
 inline void load(Archive &archive, QSet<T> &set, const Parameters &)
 {
     archive >> tag("qset");
-    archive >> attr<QSet<T>, const T &>("item", set, &impl::insertIntoSet<T>);
+    archive >> attr("item", set, &impl::insertIntoSet<T>);
     archive >> end;
 }
 
@@ -130,8 +137,7 @@ inline void load(Archive &archive, QSet<T *> &set, const Parameters &parameters)
     if (parameters.hasFlag(ENFORCE_REFERENCED_ITEMS))
         archive >> ref("item", set, &impl::insertIntoSet<T *>);
     else
-        archive >> attr<QSet<T *>, T * const &>("item", set,
-                                                &impl::insertIntoSet<T *>);
+        archive >> attr("item", set, &impl::insertIntoSet<T *>);
     archive >> end;
 }
 
