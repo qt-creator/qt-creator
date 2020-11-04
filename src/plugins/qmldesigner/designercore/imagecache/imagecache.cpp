@@ -60,10 +60,7 @@ ImageCache::ImageCache(ImageCacheStorageInterface &storage,
 ImageCache::~ImageCache()
 {
     clean();
-    stopThread();
-    m_condition.notify_all();
-    if (m_backgroundThread.joinable())
-        m_backgroundThread.join();
+    wait();
 }
 
 void ImageCache::request(Utils::SmallStringView name,
@@ -88,6 +85,14 @@ void ImageCache::request(Utils::SmallStringView name,
     }
 }
 
+void ImageCache::wait()
+{
+    stopThread();
+    m_condition.notify_all();
+    if (m_backgroundThread.joinable())
+        m_backgroundThread.join();
+}
+
 void ImageCache::requestImage(Utils::PathString name,
                               ImageCache::CaptureCallback captureCallback,
                               AbortCallback abortCallback)
@@ -108,6 +113,13 @@ void ImageCache::clean()
 {
     clearEntries();
     m_generator.clean();
+}
+
+void ImageCache::waitForFinished()
+{
+    wait();
+
+    m_generator.waitForFinished();
 }
 
 std::tuple<bool, ImageCache::Entry> ImageCache::getEntry()
@@ -160,7 +172,7 @@ void ImageCache::stopThread()
 bool ImageCache::isRunning()
 {
     std::unique_lock lock{m_mutex};
-    return !m_finishing;
+    return !m_finishing || m_entries.size();
 }
 
 } // namespace QmlDesigner

@@ -247,4 +247,23 @@ TEST_F(ImageCacheGenerator, CleanIsCallingAbortCallback)
     waitInThread.notify();
 }
 
+TEST_F(ImageCacheGenerator, WaitForFinished)
+{
+    ON_CALL(collectorMock, start(_, _, _)).WillByDefault([&](auto, auto captureCallback, auto) {
+        captureCallback(QImage{image1});
+    });
+    generator.generateImage("name",
+                            {11},
+                            imageCallbackMock.AsStdFunction(),
+                            abortCallbackMock.AsStdFunction());
+    generator.generateImage("name2",
+                            {11},
+                            imageCallbackMock.AsStdFunction(),
+                            abortCallbackMock.AsStdFunction());
+
+    EXPECT_CALL(imageCallbackMock, Call(_)).Times(2);
+
+    generator.waitForFinished();
+}
+
 } // namespace

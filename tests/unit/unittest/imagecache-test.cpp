@@ -319,4 +319,27 @@ TEST_F(ImageCache, AfterCleanNewJobsWorks)
     notification.wait();
 }
 
+TEST_F(ImageCache, WaitForFinished)
+{
+    ON_CALL(mockStorage, fetchImage(_, _))
+        .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::Entry{image1, true}));
+    cache.requestImage("/path/to/Component1.qml",
+                       mockCaptureCallback.AsStdFunction(),
+                       mockAbortCallback.AsStdFunction());
+    cache.requestImage("/path/to/Component2.qml",
+                       mockCaptureCallback.AsStdFunction(),
+                       mockAbortCallback.AsStdFunction());
+
+    EXPECT_CALL(mockCaptureCallback, Call(_)).Times(2);
+
+    cache.waitForFinished();
+}
+
+TEST_F(ImageCache, WaitForFinishedInGenerator)
+{
+    EXPECT_CALL(mockGenerator, waitForFinished());
+
+    cache.waitForFinished();
+}
+
 } // namespace

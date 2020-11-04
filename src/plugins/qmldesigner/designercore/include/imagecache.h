@@ -60,6 +60,7 @@ public:
                      AbortCallback abortCallback);
 
     void clean();
+    void waitForFinished();
 
 private:
     enum class RequestType { Image, Icon };
@@ -98,6 +99,9 @@ private:
                         ImageCacheStorageInterface &storage,
                         ImageCacheGeneratorInterface &generator,
                         TimeStampProviderInterface &timeStampProvider);
+
+private:
+    void wait();
 
 private:
     std::vector<Entry> m_entries;

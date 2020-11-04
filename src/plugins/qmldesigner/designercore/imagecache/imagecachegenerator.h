@@ -56,6 +56,8 @@ public:
                        AbortCallback &&abortCallback) override;
     void clean() override;
 
+    void waitForFinished() override;
+
 private:
     struct Task
     {

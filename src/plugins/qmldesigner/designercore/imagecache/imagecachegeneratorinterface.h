@@ -45,6 +45,7 @@ public:
         = 0;
 
     virtual void clean() = 0;
+    virtual void waitForFinished() = 0;
 
 protected:
     ~ImageCacheGeneratorInterface() = default;

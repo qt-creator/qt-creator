@@ -40,4 +40,5 @@ public:
                  AbortCallback &&abortCallback),
                 (override));
     MOCK_METHOD(void, clean, (), (override));
+    MOCK_METHOD(void, waitForFinished, (), (override));
 };
