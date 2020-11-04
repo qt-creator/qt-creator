@@ -182,7 +182,7 @@ function(qdoc_build_qdocconf_file _qdocconf_file)
   _setup_doc_targets()
 
   _doc_find_program(_qdoc NAMES qdoc qdoc-qt5)
-  if (_qdoc STREQUAL "_qdoc-NOTFOUND")
+  if (_qdoc STREQUAL "_prg__qdoc-NOTFOUND")
      message(WARNING "No qdoc binary found: No documentation targets were generated")
      return()
   endif()
