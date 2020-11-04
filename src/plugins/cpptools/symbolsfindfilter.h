@@ -28,6 +28,8 @@
 #include "searchsymbols.h"
 
 #include <coreplugin/find/ifindfilter.h>
+#include <coreplugin/find/searchresultitem.h>
+#include <coreplugin/find/searchresultwindow.h>
 
 #include <QFutureWatcher>
 #include <QPointer>

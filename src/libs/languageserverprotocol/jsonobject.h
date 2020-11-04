@@ -39,6 +39,9 @@ class LANGUAGESERVERPROTOCOL_EXPORT JsonObject
     Q_DECLARE_TR_FUNCTIONS(LanguageServerProtocol::JsonObject)
 
 public:
+    using iterator = QJsonObject::iterator;
+    using const_iterator = QJsonObject::const_iterator;
+
     JsonObject() = default;
 
     explicit JsonObject(const QJsonObject &object) : m_jsonObject(object) { }
@@ -60,10 +63,10 @@ public:
 
     virtual bool isValid(ErrorHierarchy * /*errorHierarchy*/) const { return true; }
 
-protected:
-    using iterator = QJsonObject::iterator;
-    using const_iterator = QJsonObject::const_iterator;
+    iterator end() { return m_jsonObject.end(); }
+    const_iterator end() const { return m_jsonObject.end(); }
 
+protected:
     iterator insert(const QString &key, const JsonObject &value);
     iterator insert(const QString &key, const QJsonValue &value);
 
@@ -72,8 +75,6 @@ protected:
     bool contains(const QString &key) const { return m_jsonObject.contains(key); }
     iterator find(const QString &key) { return m_jsonObject.find(key); }
     const_iterator find(const QString &key) const { return m_jsonObject.find(key); }
-    iterator end() { return m_jsonObject.end(); }
-    const_iterator end() const { return m_jsonObject.end(); }
     void remove(const QString &key) { m_jsonObject.remove(key); }
     QStringList keys() const { return m_jsonObject.keys(); }
 
