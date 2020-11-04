@@ -151,7 +151,7 @@ bool Rule::doLoad(QXmlStreamReader &reader)
     return true;
 }
 
-Rule::Ptr Rule::create(const QStringRef &name)
+Rule::Ptr Rule::create(const QStringView &name)
 {
     if (name == QLatin1String("AnyChar"))
         return std::make_shared<AnyChar>();
@@ -414,7 +414,7 @@ bool IncludeRules::doLoad(QXmlStreamReader &reader)
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
     const auto split = s.split(QLatin1String("##"), QString::KeepEmptyParts);
 #else
-    const auto split = s.split(QLatin1String("##"), Qt::KeepEmptyParts);
+    const auto split = s.split(QString::fromLatin1("##"), Qt::KeepEmptyParts);
 #endif
     if (split.isEmpty())
         return false;
@@ -478,10 +478,11 @@ MatchResult KeywordListRule::doMatch(const QString &text, int offset, const QStr
         return offset;
 
     if (m_hasCaseSensitivityOverride) {
-        if (m_keywordList->contains(text.midRef(offset, newOffset - offset), m_caseSensitivityOverride))
+        if (m_keywordList->contains(QStringView(text).mid(offset, newOffset - offset),
+                                    m_caseSensitivityOverride))
             return newOffset;
     } else {
-        if (m_keywordList->contains(text.midRef(offset, newOffset - offset)))
+        if (m_keywordList->contains(QStringView(text).mid(offset, newOffset - offset)))
             return newOffset;
     }
 
@@ -605,7 +606,8 @@ MatchResult StringDetect::doMatch(const QString &text, int offset, const QString
      */
     const auto &pattern = m_dynamic ? replaceCaptures(m_string, captures, false) : m_string;
 
-    if (text.midRef(offset, pattern.size()).compare(pattern, m_caseSensitivity) == 0)
+    if (offset + pattern.size() <= text.size()
+        && QStringView(text).mid(offset, pattern.size()).compare(pattern, m_caseSensitivity) == 0)
         return offset + pattern.size();
     return offset;
 }
@@ -629,7 +631,7 @@ MatchResult WordDetect::doMatch(const QString &text, int offset, const QStringLi
     if (offset > 0 && !isWordDelimiter(text.at(offset - 1)) && !isWordDelimiter(text.at(offset)))
         return offset;
 
-    if (text.midRef(offset, m_word.size()).compare(m_word, m_caseSensitivity) != 0)
+    if (QStringView(text).mid(offset, m_word.size()).compare(m_word, m_caseSensitivity) != 0)
         return offset;
 
     if (text.size() == offset + m_word.size() || isWordDelimiter(text.at(offset + m_word.size())) || isWordDelimiter(text.at(offset + m_word.size() - 1)))

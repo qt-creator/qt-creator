@@ -17,8 +17,6 @@
 QT_BEGIN_NAMESPACE
 class QChar;
 class QString;
-class QStringList;
-template<typename T> class QVector;
 QT_END_NAMESPACE
 
 namespace KSyntaxHighlighting
