@@ -301,7 +301,7 @@ bool PropertyEditorValue::isAvailable() const
                         const bool itemHasChildren = QmlDesigner::QmlItemNode(m_modelNode).hasChildren();
 
                         if (itemHasChildren)
-                            return allowedItemProps.allowChildren
+                            return allowedItemProps.allowChildren;
 
                         return true;
                     }
