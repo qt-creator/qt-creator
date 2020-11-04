@@ -383,8 +383,11 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
             continue;
         }
         if (const auto declarator = (*it)->asDeclarator()) {
-            if (containsToken(declarator->core_declarator))
+            if (containsToken(declarator->core_declarator)) {
+                if (declarator->initializer)
+                    return Usage::Type::Initialization;
                 return Usage::Type::Declaration;
+            }
             if (const auto decl = (*(it + 1))->asSimpleDeclaration()) {
                 if (decl->symbols && decl->symbols->value) {
                     return checkPotentialWrite(
