@@ -156,9 +156,13 @@ bool AndroidDeployQtStep::init()
         return false;
 
     const QString buildKey = target()->activeBuildKey();
-    auto selectedAbis = buildSystem()->extraData(buildKey, Constants::ANDROID_ABIS).toStringList();
+    auto selectedAbis = buildSystem()->property(Constants::ANDROID_ABIS).toStringList();
 
-    if (!selectedAbis.contains(info.cpuAbi.first())) {
+    if (selectedAbis.isEmpty())
+        selectedAbis = buildSystem()->extraData(buildKey, Constants::ANDROID_ABIS).toStringList();
+
+    const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit());
+    if (qt && qt->supportsMultipleQtAbis() && !selectedAbis.contains(info.cpuAbi.first())) {
         TaskHub::addTask(DeploymentTask(
             Task::Warning,
             tr("Android: The main ABI of the deployment device (%1) is not selected. The app "

@@ -662,8 +662,7 @@ void QMakeStep::abisChanged()
             args << prefix + '"' + m_selectedAbis.join(' ') + '"';
         setExtraArguments(args);
 
-        const QString buildKey = target()->activeBuildKey();
-        buildSystem()->setExtraData(buildKey, Android::Constants::ANDROID_ABIS, m_selectedAbis);
+        buildSystem()->setProperty(Android::Constants::ANDROID_ABIS, m_selectedAbis);
     }
 
     updateAbiWidgets();
