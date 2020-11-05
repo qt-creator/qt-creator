@@ -136,7 +136,7 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project)
     auto box = new QDialogButtonBox(this);
 
     m_configureButton = new QPushButton(this);
-    m_configureButton->setText(tr("Configure Project"));
+    m_configureButton->setText(tr("&Configure Project"));
     box->addButton(m_configureButton, QDialogButtonBox::AcceptRole);
 
     auto hbox = new QHBoxLayout;
