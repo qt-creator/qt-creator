@@ -321,15 +321,17 @@ static bool canOpenTerminalWithRunEnv(const Project *project)
     return device && device->canOpenTerminal();
 }
 
-static Target *activeTarget()
+static BuildConfiguration *currentBuildConfiguration()
 {
-    Project *project = ProjectTree::currentProject();
-    return project ? project->activeTarget() : nullptr;
+    const Project * const project = ProjectTree::currentProject();
+    const Target * const target = project ? project->activeTarget() : nullptr;
+    return target ? target->activeBuildConfiguration() : nullptr;
 }
 
 static BuildConfiguration *activeBuildConfiguration()
 {
-    Target *target = activeTarget();
+    const Project * const project = SessionManager::startupProject();
+    const Target * const target = project ? project->activeTarget() : nullptr;
     return target ? target->activeBuildConfiguration() : nullptr;
 }
 
@@ -1783,7 +1785,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     expander->registerPrefix(Constants::VAR_CURRENTBUILD_ENV,
                              BuildConfiguration::tr("Variables in the current build environment"),
                              [](const QString &var) {
-                                 if (BuildConfiguration *bc = activeBuildConfiguration())
+                                 if (BuildConfiguration *bc = currentBuildConfiguration())
                                      return bc->environment().expandedValueForKey(var);
                                  return QString();
                              }, false);
@@ -1791,23 +1793,66 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                              BuildConfiguration::tr("Variables in the active build environment "
                                      "of the project containing the currently open document"),
                              [](const QString &var) {
-                                 if (BuildConfiguration *bc = activeBuildConfiguration())
+                                 if (BuildConfiguration *bc = currentBuildConfiguration())
                                      return bc->environment().expandedValueForKey(var);
                                  return QString();
                              });
-
     Utils::EnvironmentProvider::addProvider(
         {Constants::VAR_CURRENTBUILD_ENV, tr("Current Build Environment"), []() {
-             if (BuildConfiguration *bc = activeBuildConfiguration())
+             if (BuildConfiguration *bc = currentBuildConfiguration())
                  return bc->environment();
              return Utils::Environment::systemEnvironment();
          }});
     Utils::EnvironmentProvider::addProvider(
         {"CurrentDocument:Project:BuildConfig:Env", tr("Current Build Environment"), []() {
-             if (BuildConfiguration *bc = activeBuildConfiguration())
+             if (BuildConfiguration *bc = currentBuildConfiguration())
+                  return bc->environment();
+              return Utils::Environment::systemEnvironment();
+         }});
+
+    // Global variables for the active project.
+    expander->registerVariable("ActiveProject:Name", tr("The name of the active project."),
+        []() -> QString {
+            if (const Project * const project = SessionManager::startupProject())
+                return project->displayName();
+            return {};
+        });
+    expander->registerFileVariables("ActiveProject", tr("Active project's main file."),
+        []() -> QString {
+            if (const Project * const project = SessionManager::startupProject())
+                return project->projectFilePath().toString();
+            return {};
+        });
+    expander->registerVariable("ActiveProject:BuildConfig:Type",
+        tr("The type of the active project's active build configuration."),
+        []() -> QString {
+            const BuildConfiguration * const bc = activeBuildConfiguration();
+            const BuildConfiguration::BuildType type = bc
+                    ? bc->buildType() : BuildConfiguration::Unknown;
+            return BuildConfiguration::buildTypeName(type);
+    });
+    expander->registerVariable("ActiveProject:BuildConfig:Path",
+        tr("Full build path of the active project's active build configuration."),
+        []() -> QString {
+            if (const BuildConfiguration * const bc = activeBuildConfiguration())
+                return bc->buildDirectory().toUserOutput();
+            return {};
+    });
+    const char activeBuildEnvVar[] = "ActiveProject:BuildConfig:Env";
+    Utils::EnvironmentProvider::addProvider(
+        {activeBuildEnvVar, tr("Active Build Environment of the active project"), [] {
+             if (const BuildConfiguration * const bc = activeBuildConfiguration())
                  return bc->environment();
              return Utils::Environment::systemEnvironment();
          }});
+    expander->registerPrefix("ActiveProject:BuildConfig:Env",
+                             BuildConfiguration::tr("Variables in the active build environment "
+                                     "of the active project"),
+                             [](const QString &var) {
+                                 if (BuildConfiguration * const bc = activeBuildConfiguration())
+                                     return bc->environment().expandedValueForKey(var);
+                                 return QString();
+                             });
 
     const auto fileHandler = [] {
         return SessionManager::sessionNameToFileName(SessionManager::activeSession()).toString();
