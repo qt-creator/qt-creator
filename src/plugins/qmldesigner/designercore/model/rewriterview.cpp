@@ -1130,6 +1130,10 @@ void RewriterView::restoreAuxiliaryData()
 {
     QTC_ASSERT(m_textModifier, return);
 
+    const char auxRestoredFlag[] = "AuxRestored@Internal";
+    if (rootModelNode().hasAuxiliaryData(auxRestoredFlag))
+        return;
+
     m_restoringAuxData = true;
 
     setupCanonicalHashes();
@@ -1149,6 +1153,7 @@ void RewriterView::restoreAuxiliaryData()
         checkChildNodes(reader.readFromSource(auxSource), this);
     }
 
+    rootModelNode().setAuxiliaryData(auxRestoredFlag, true);
     m_restoringAuxData = false;
 }
 
