@@ -362,7 +362,7 @@ void ArgumentsAspect::setArguments(const QString &arguments)
 }
 
 /*!
-    Sets the displayes label text to \a labelText.
+    Sets the displayed label text to \a labelText.
 */
 void ArgumentsAspect::setLabelText(const QString &labelText)
 {
