@@ -156,7 +156,6 @@ HEADERS += \
     $$PWD/refactoringserverinterface.h \
     $$PWD/refactoringserverproxy.h \
     $$PWD/referencesmessage.h \
-    $$PWD/set_algorithm.h \
     $$PWD/stringcacheentry.h \
     $$PWD/unsavedfilesupdatedmessage.h \
     $$PWD/removeprojectpartsmessage.h \

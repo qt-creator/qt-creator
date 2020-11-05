@@ -26,9 +26,8 @@
 #include "filestatuscache.h"
 #include "filesystem.h"
 
-#include <set_algorithm.h>
-
 #include <utils/algorithm.h>
+#include <utils/set_algorithm.h>
 
 #include <QDateTime>
 #include <QFileInfo>
@@ -59,7 +58,7 @@ void FileStatusCache::update(FilePathIds filePathIds)
                           m_cacheEntries.end(),
                           filePathIds.begin(),
                           filePathIds.end(),
-                          make_iterator([&](auto &entry) {
+                          Utils::make_iterator([&](auto &entry) {
                               entry.lastModified = m_fileSystem.lastModified(entry.filePathId);
                           }));
 }
@@ -73,7 +72,7 @@ FilePathIds FileStatusCache::modified(FilePathIds filePathIds) const
                           m_cacheEntries.end(),
                           filePathIds.begin(),
                           filePathIds.end(),
-                          make_iterator([&](auto &entry) {
+                          Utils::make_iterator([&](auto &entry) {
                               auto newLastModified = m_fileSystem.lastModified(entry.filePathId);
                               if (newLastModified > entry.lastModified) {
                                   modifiedFilePathIds.push_back(entry.filePathId);
@@ -88,7 +87,7 @@ FilePathIds FileStatusCache::modified(FilePathIds filePathIds) const
                         filePathIds.end(),
                         m_cacheEntries.begin(),
                         m_cacheEntries.end(),
-                        make_iterator([&](FilePathId newFilePathId) {
+                        Utils::make_iterator([&](FilePathId newFilePathId) {
                             newEntries.emplace_back(newFilePathId,
                                                     m_fileSystem.lastModified(newFilePathId));
                             modifiedFilePathIds.push_back(newFilePathId);

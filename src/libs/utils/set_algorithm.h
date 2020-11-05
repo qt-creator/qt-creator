@@ -27,7 +27,7 @@
 
 #include <algorithm>
 
-namespace ClangBackEnd {
+namespace Utils {
 
 template<class Callable>
 class function_output_iterator
@@ -116,4 +116,5 @@ Value mismatch_collect(InputIt1 first1,
 
     return value;
 }
-} // namespace ClangBackEnd
+
+} // namespace Utils

@@ -236,7 +236,8 @@ Project {
             "savedaction.h",
             "savefile.cpp",
             "savefile.h",
-            "scopedswap.h",
+            "scopedswap.h"
+            "set_algorithm.h",
             "settingsaccessor.cpp",
             "settingsaccessor.h",
             "settingsselector.cpp",

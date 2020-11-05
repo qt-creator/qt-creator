@@ -130,6 +130,7 @@ add_qtc_library(Utils
     savedaction.cpp savedaction.h
     savefile.cpp savefile.h
     scopedswap.h
+    set_algorithm.h
     settingsaccessor.cpp settingsaccessor.h
     settingsselector.cpp settingsselector.h
     settingsutils.h
