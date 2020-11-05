@@ -14,6 +14,7 @@ ColorEditor 2.0 ColorEditor.qml
 ColorLine 2.0 ColorLine.qml
 ColorLogic 2.0 ColorLogic.qml
 ComboBox 2.0 ComboBox.qml
+ComponentButton 2.0 ComponentButton.qml
 EditableListView 2.0 EditableListView.qml
 ExpandingSpacer 2.0 ExpandingSpacer.qml
 ExtendedFunctionLogic 2.0 ExtendedFunctionLogic.qml

@@ -86,6 +86,8 @@ public:
 
     Q_INVOKABLE void toogleExportAlias();
 
+    Q_INVOKABLE void goIntoComponent();
+
     Q_INVOKABLE void changeTypeName(const QString &typeName);
     Q_INVOKABLE void insertKeyframe(const QString &propertyName);
 
