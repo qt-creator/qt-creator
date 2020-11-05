@@ -415,6 +415,22 @@ std::ostream &operator<<(std::ostream &out, sqlite3_changeset_iter *iter)
 
     return out;
 }
+
+const char *toText(Operation operation)
+{
+    switch (operation) {
+    case Operation::Invalid:
+        return "Invalid";
+    case Operation::Insert:
+        return "Invalid";
+    case Operation::Update:
+        return "Invalid";
+    case Operation::Delete:
+        return "Invalid";
+    }
+
+    return "";
+}
 } // namespace
 
 std::ostream &operator<<(std::ostream &out, const SessionChangeSet &changeset)
@@ -437,24 +453,13 @@ std::ostream &operator<<(std::ostream &out, const SessionChangeSet &changeset)
     return out;
 }
 
+std::ostream &operator<<(std::ostream &out, Operation operation)
+{
+    return out << toText(operation);
+}
+
 namespace SessionChangeSetInternal {
 namespace {
-
-const char *toText(Operation operation)
-{
-    switch (operation) {
-    case Operation::Invalid:
-        return "Invalid";
-    case Operation::Insert:
-        return "Invalid";
-    case Operation::Update:
-        return "Invalid";
-    case Operation::Delete:
-        return "Invalid";
-    }
-
-    return "";
-}
 
 const char *toText(State state)
 {
@@ -474,11 +479,6 @@ const char *toText(State state)
 std::ostream &operator<<(std::ostream &out, SentinelIterator)
 {
     return out << "sentinel";
-}
-
-std::ostream &operator<<(std::ostream &out, Operation operation)
-{
-    return out << toText(operation);
 }
 
 std::ostream &operator<<(std::ostream &out, State state)

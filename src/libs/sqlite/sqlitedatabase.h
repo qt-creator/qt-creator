@@ -28,6 +28,7 @@
 #include "sqlitedatabasebackend.h"
 #include "sqlitedatabaseinterface.h"
 #include "sqliteglobal.h"
+#include "sqlitesessionchangeset.h"
 #include "sqlitetable.h"
 #include "sqlitetransaction.h"
 
@@ -130,6 +131,8 @@ public:
 
     void setAttachedTables(const Utils::SmallStringVector &tables) override;
     void applyAndUpdateSessions() override;
+
+    SessionChangeSets changeSets() const;
 
 private:
     void deferredBegin() override;

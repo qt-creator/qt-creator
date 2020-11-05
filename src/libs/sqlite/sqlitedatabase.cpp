@@ -151,6 +151,11 @@ void Database::applyAndUpdateSessions()
     m_statements->sessions.applyAndUpdateSessions();
 }
 
+SessionChangeSets Database::changeSets() const
+{
+    return m_statements->sessions.changeSets();
+}
+
 const Utils::PathString &Database::databaseFilePath() const
 {
     return m_databaseFilePath;
