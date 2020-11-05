@@ -88,6 +88,8 @@ public:
 private:
     void doInitializePage();
 
+    void showEvent(QShowEvent *event) final;
+
     void handleKitAddition(Kit *k);
     void handleKitRemoval(Kit *k);
     void handleKitUpdate(Kit *k);
