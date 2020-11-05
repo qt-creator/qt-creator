@@ -323,6 +323,7 @@ bool trySplitComment(TextEditor::TextEditorWidget *editorWidget,
                     cursor.endEditBlock();
                     return true;
                 }
+                cursor.setPosition(pos);
             }
         }
     } // right after first doxygen comment

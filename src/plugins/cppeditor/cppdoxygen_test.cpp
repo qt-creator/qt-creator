@@ -81,6 +81,21 @@ void DoxygenTest::testBasic_data()
         "int a;\n"
     );
 
+    QTest::newRow("qt_style_cursor_before_existing_comment") << _(
+        "bool preventFolding;\n"
+        "/*!|\n"
+        " * \\brief something\n"
+        " */\n"
+        "int a;\n"
+        ) << _(
+        "bool preventFolding;\n"
+        "/*!\n"
+        " * \n"
+        " * \\brief something\n"
+        " */\n"
+        "int a;\n"
+    );
+
     QTest::newRow("qt_style_continuation") << _(
         "bool preventFolding;\n"
         "/*!\n"
