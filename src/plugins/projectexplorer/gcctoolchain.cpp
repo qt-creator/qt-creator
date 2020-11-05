@@ -1484,7 +1484,7 @@ ClangToolChain::~ClangToolChain()
     QObject::disconnect(m_mingwToolchainAddedConnection);
 }
 
-FilePath ClangToolChain::makeCommand(const Environment &environment) const
+static FilePath mingwAwareMakeCommand(const Environment &environment)
 {
     const QStringList makes
             = HostOsInfo::isWindowsHost() ? QStringList({"mingw32-make.exe", "make.exe"}) : QStringList({"make"});
@@ -1496,6 +1496,11 @@ FilePath ClangToolChain::makeCommand(const Environment &environment) const
             return tmp;
     }
     return FilePath::fromString(makes.first());
+}
+
+FilePath ClangToolChain::makeCommand(const Environment &environment) const
+{
+    return mingwAwareMakeCommand(environment);
 }
 
 /**
@@ -1820,16 +1825,7 @@ QStringList MingwToolChain::suggestedMkspecList() const
 
 FilePath MingwToolChain::makeCommand(const Environment &environment) const
 {
-    const QStringList makes
-            = HostOsInfo::isWindowsHost() ? QStringList({"mingw32-make.exe", "make.exe"}) : QStringList({"make"});
-
-    FilePath tmp;
-    foreach (const QString &make, makes) {
-        tmp = environment.searchInPath(make);
-        if (!tmp.isEmpty())
-            return tmp;
-    }
-    return FilePath::fromString(makes.first());
+    return mingwAwareMakeCommand(environment);
 }
 
 // --------------------------------------------------------------------------
