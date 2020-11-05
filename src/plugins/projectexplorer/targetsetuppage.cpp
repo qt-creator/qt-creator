@@ -540,6 +540,12 @@ void TargetSetupPage::doInitializePage()
     updateVisibility();
 }
 
+void TargetSetupPage::showEvent(QShowEvent *event)
+{
+    WizardPage::showEvent(event);
+    setFocus(); // Ensure "Configure Project" gets triggered on <Return>
+}
+
 void TargetSetupPage::changeAllKitsSelections()
 {
     if (m_ui->allKitsCheckBox->checkState() == Qt::PartiallyChecked)
