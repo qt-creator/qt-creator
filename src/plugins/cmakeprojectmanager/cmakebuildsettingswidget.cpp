@@ -215,7 +215,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_resetButton->setToolTip(tr("Reset all unapplied changes."));
     m_resetButton->setEnabled(false);
     m_clearSelectionButton = new QPushButton(tr("Clear Selection"));
-    m_clearSelectionButton->setToolTip(tr("Clear selection"));
+    m_clearSelectionButton->setToolTip(tr("Clear selection."));
     m_clearSelectionButton->setEnabled(false);
     buttonLayout->addWidget(m_clearSelectionButton);
     buttonLayout->addWidget(m_resetButton);
