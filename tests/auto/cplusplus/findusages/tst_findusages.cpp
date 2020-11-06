@@ -2031,6 +2031,8 @@ struct S {
     } n;
     Nested constFunc() const;
     void nonConstFunc();
+    static void staticFunc1() {}
+    static void staticFunc2();
 };
 void func1(int &);
 void func2(const int &);
@@ -2088,6 +2090,8 @@ int main()
     if (S::value = 0) {}
     ++S::value;
     S::value--;
+    s.staticFunc1();
+    s.staticFunc2();
 }
 )";
 
@@ -2104,7 +2108,7 @@ int main()
     Class * const structS = doc->globalSymbolAt(0)->asClass();
     QVERIFY(structS);
     QCOMPARE(structS->name()->identifier()->chars(), "S");
-    QCOMPARE(structS->memberCount(), 9);
+    QCOMPARE(structS->memberCount(), 11);
 
     Declaration * const sv = structS->memberAt(1)->asDeclaration();
     QVERIFY(sv);
@@ -2179,7 +2183,7 @@ int main()
     QVERIFY(varS);
     QCOMPARE(varS->name()->identifier()->chars(), "s");
     find(varS);
-    QCOMPARE(find.usages().size(), 31);
+    QCOMPARE(find.usages().size(), 33);
     QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
     QCOMPARE(find.usages().at(1).type, Usage::Type::WritableRef);
     QCOMPARE(find.usages().at(2).type, Usage::Type::WritableRef);
@@ -2198,7 +2202,6 @@ int main()
     QCOMPARE(find.usages().at(15).type, Usage::Type::WritableRef);
     QCOMPARE(find.usages().at(16).type, Usage::Type::Read);
     QCOMPARE(find.usages().at(17).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(18).type, Usage::Type::Write);
 
     // Direct access to struct variable
     QCOMPARE(find.usages().at(18).type, Usage::Type::Write);
@@ -2218,6 +2221,10 @@ int main()
     QCOMPARE(find.usages().at(27).type, Usage::Type::WritableRef);
     QCOMPARE(find.usages().at(28).type, Usage::Type::Read);
     QCOMPARE(find.usages().at(29).type, Usage::Type::Read);
+    QEXPECT_FAIL(nullptr, "parser does not expose static specifier", Continue);
+    QCOMPARE(find.usages().at(31).type, Usage::Type::Other);
+    QEXPECT_FAIL(nullptr, "parser does not expose static specifier", Continue);
+    QCOMPARE(find.usages().at(32).type, Usage::Type::Other);
 
     // Usages of struct type
     find(structS);

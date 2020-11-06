@@ -285,8 +285,13 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
                 if (items.isEmpty())
                     return Usage::Type::Other;
                 for (const LookupItem &item : qAsConst(items)) {
-                    if (item.type()->isFunctionType())
-                        return item.type().isConst() ? Usage::Type::Read : Usage::Type::WritableRef;
+                    if (item.type()->isFunctionType()) {
+                        if (item.type().isConst())
+                            return Usage::Type::Read;
+                        if (item.type().isStatic())
+                            return Usage::Type::Other;
+                        return Usage::Type::WritableRef;
+                    }
                 }
             }
             return Usage::Type::Other;
