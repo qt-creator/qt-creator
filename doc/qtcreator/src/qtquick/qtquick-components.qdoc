@@ -119,6 +119,7 @@
 
     \list
         \li \l Shapes
+        \li \l Images
         \li UI controls
         \li Screens
         \li \l {Lists and Other Data Models}
