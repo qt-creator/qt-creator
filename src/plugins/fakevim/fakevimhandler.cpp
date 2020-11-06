@@ -1189,7 +1189,7 @@ public:
             return '\n';
         if (m_key == Key_Escape)
             return QChar(27);
-        return m_xkey;
+        return QChar(m_xkey);
     }
 
     QString toString() const

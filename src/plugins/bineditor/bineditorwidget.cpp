@@ -61,6 +61,11 @@
 
 using namespace Core;
 
+namespace BinEditor {
+namespace Internal {
+
+const QChar MidpointChar = QLatin1Char(0xB7);
+
 static QByteArray calculateHexPattern(const QByteArray &pattern)
 {
     QByteArray result;
@@ -77,9 +82,6 @@ static QByteArray calculateHexPattern(const QByteArray &pattern)
     }
     return result;
 }
-
-namespace BinEditor {
-namespace Internal {
 
 class BinEditorWidgetPrivate : public EditorService
 {
@@ -567,7 +569,7 @@ Utils::optional<qint64> BinEditorWidget::posAt(const QPoint &pos, bool includeEm
                 break;
             QChar qc(QLatin1Char(dataAt(dataPos)));
             if (!qc.isPrint())
-                qc = 0xB7;
+                qc = MidpointChar;
             x -= fontMetrics().horizontalAdvance(qc);
             if (x <= 0)
                 break;
@@ -863,7 +865,7 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
                     break;
                 QChar qc(QLatin1Char(dataAt(pos, isOld)));
                 if (qc.unicode() >= 127 || !qc.isPrint())
-                    qc = 0xB7;
+                    qc = MidpointChar;
                 printable += qc;
             }
         } else {

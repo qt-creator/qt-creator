@@ -84,7 +84,7 @@ void StringInputStream::appendInt(IntType i)
         if (hexPrefix)
             pad -= 2;
         if (pad > 0)
-            m_target.append(QString('0', pad));
+            m_target.append(QString('0', QLatin1Char(pad)));
     }
     m_target.append(n);
 }
