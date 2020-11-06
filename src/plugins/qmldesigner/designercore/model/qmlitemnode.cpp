@@ -38,7 +38,6 @@
 #include "rewriterview.h"
 #include "modelmerger.h"
 #include "rewritingexception.h"
-#include "designermcumanager.h"
 
 #include <QUrl>
 #include <QPlainTextEdit>
@@ -46,6 +45,10 @@
 #include <QDir>
 
 #include <utils/qtcassert.h>
+
+#ifndef QMLDESIGNER_TEST
+#include <designermcumanager.h>
+#endif
 
 namespace QmlDesigner {
 
@@ -287,7 +290,9 @@ bool QmlItemNode::modelIsResizable() const
             && !modelIsInLayout();
 }
 
-static bool isMcuRotationAllowed(QString itemName, bool hasChildren) {
+static bool isMcuRotationAllowed(QString itemName, bool hasChildren)
+{
+#ifndef QMLDESIGNER_TEST
     const QString propName = "rotation";
     const DesignerMcuManager &manager = DesignerMcuManager::instance();
     if (manager.isMCUProject()) {
@@ -307,6 +312,7 @@ static bool isMcuRotationAllowed(QString itemName, bool hasChildren) {
         if (manager.bannedProperties().contains(propName))
             return false;
     }
+#endif
 
     return true;
 }
