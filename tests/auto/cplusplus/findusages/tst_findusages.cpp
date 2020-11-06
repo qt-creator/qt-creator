@@ -2221,7 +2221,6 @@ int main()
     QCOMPARE(find.usages().at(27).type, Usage::Type::WritableRef);
     QCOMPARE(find.usages().at(28).type, Usage::Type::Read);
     QCOMPARE(find.usages().at(29).type, Usage::Type::Read);
-    QEXPECT_FAIL(nullptr, "parser does not expose static specifier", Continue);
     QCOMPARE(find.usages().at(31).type, Usage::Type::Other);
     QEXPECT_FAIL(nullptr, "parser does not expose static specifier", Continue);
     QCOMPARE(find.usages().at(32).type, Usage::Type::Other);

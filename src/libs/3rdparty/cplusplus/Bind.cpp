@@ -135,6 +135,8 @@ void Bind::setDeclSpecifiers(Symbol *symbol, const FullySpecifiedType &declSpeci
     if (Function *funTy = symbol->asFunction()) {
         if (declSpecifiers.isVirtual())
             funTy->setVirtual(true);
+        if (declSpecifiers.isStatic())
+            funTy->setStatic(true);
     }
 
     if (declSpecifiers.isDeprecated())
