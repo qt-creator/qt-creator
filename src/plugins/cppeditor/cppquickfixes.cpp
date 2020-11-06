@@ -3411,7 +3411,7 @@ public:
                 cb->setCurrentIndex(index);
         });
         const auto defaultImplTargetLayout = new QHBoxLayout;
-        defaultImplTargetLayout->addWidget(new QLabel(tr("Default Implementation Location:")));
+        defaultImplTargetLayout->addWidget(new QLabel(tr("Default implementation location:")));
         defaultImplTargetLayout->addWidget(defaultImplTargetComboBox);
 
         const auto candidatesLayout = new QGridLayout;
