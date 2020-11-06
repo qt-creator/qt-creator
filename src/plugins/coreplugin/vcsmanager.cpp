@@ -376,7 +376,7 @@ FilePaths VcsManager::promptToDelete(IVersionControl *vc, const FilePaths &fileP
         return fp.toUserOutput();
     }).join("</li><li>") + "</li></ul>";
     const QString title = tr("Version Control");
-    const QString msg = tr("Would you like to remove the following files from from the version control system (%2)?"
+    const QString msg = tr("Remove the following files from from the version control system (%2)?"
                            "%1Note: This might remove the local file.").arg(fileListForUi, vc->displayName());
     const QMessageBox::StandardButton button =
         QMessageBox::question(ICore::dialogParent(), title, msg, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
