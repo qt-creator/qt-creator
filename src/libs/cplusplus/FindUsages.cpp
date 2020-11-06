@@ -254,7 +254,7 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
         if (call->base_expression == *(callIt - 1)) {
             for (auto it = callIt; it != astPath.rbegin(); --it) {
                 const auto memberAccess = (*it)->asMemberAccess();
-                if (!memberAccess)
+                if (!memberAccess || !memberAccess->member_name || !memberAccess->member_name->name)
                     continue;
                 if (memberAccess->member_name == *(it - 1))
                     return Usage::Type::Other;
@@ -273,9 +273,10 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
                 if (!klass) {
                     if (const auto namedType = baseExprType->asNamedType()) {
                         items = context.lookup(namedType->name(), item->scope());
-                        if (items.isEmpty())
-                            return Usage::Type::Other;
-                        klass = items.first().type()->asClassType();
+                        for (const LookupItem &item : qAsConst(items)) {
+                            if ((klass = item.type()->asClassType()))
+                                break;
+                        }
                     }
                 }
                 if (!klass)
