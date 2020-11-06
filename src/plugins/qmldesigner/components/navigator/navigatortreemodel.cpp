@@ -262,7 +262,7 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
             return modelNode.locked() ? Qt::Checked : Qt::Unchecked;
         else if (role == Qt::ToolTipRole && !modelNodeForIndex(index).isRootNode())
             return tr("Toggles whether this item is locked.\n"
-                      "Locked items can't be modified or selected.");
+                      "Locked items cannot be modified or selected.");
     }
 
     return QVariant();

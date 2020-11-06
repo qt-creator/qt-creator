@@ -462,14 +462,14 @@ public:
         } catch (const DocumentError &) {
             QMessageBox::warning(
                 Core::ICore::mainWindow(),
-                QCoreApplication::translate("DesignerActionManager", "Document has errors"),
+                QCoreApplication::translate("DesignerActionManager", "Document Has Errors"),
                 QCoreApplication::translate("DesignerActionManager",
                                             "The document which contains the list model "
                                             "contains errors. So we cannot edit it."));
         } catch (const RewritingException &) {
             QMessageBox::warning(
                 Core::ICore::mainWindow(),
-                QCoreApplication::translate("DesignerActionManager", "Document cannot be written"),
+                QCoreApplication::translate("DesignerActionManager", "Document Cannot Be Written"),
                 QCoreApplication::translate("DesignerActionManager",
                                             "An error occurred during a write attemp."));
         }

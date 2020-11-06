@@ -114,7 +114,7 @@ void ListModelEditorDialog::openColumnDialog()
 {
     bool ok;
     QString columnName = QInputDialog::getText(
-        this, tr("Add Property"), tr("Property Name:"), QLineEdit::Normal, "", &ok);
+        this, tr("Add Property"), tr("Property name:"), QLineEdit::Normal, "", &ok);
     if (ok && !columnName.isEmpty())
         m_model->addColumn(columnName);
 }
@@ -138,7 +138,7 @@ void ListModelEditorDialog::changeHeader(int column)
 
     bool ok;
     QString newPropertyName = QInputDialog::getText(
-        this, tr("Change Propertry"), tr("Column Name:"), QLineEdit::Normal, propertyName, &ok);
+        this, tr("Change Property"), tr("Column name:"), QLineEdit::Normal, propertyName, &ok);
 
     if (ok && !newPropertyName.isEmpty())
         m_model->renameColumn(column, newPropertyName);

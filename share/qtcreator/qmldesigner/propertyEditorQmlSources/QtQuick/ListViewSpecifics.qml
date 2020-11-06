@@ -213,7 +213,7 @@ Column {
 
             Label {
                 text: qsTr("Resize duration")
-                tooltip: qsTr("Resizes animation duration of the highlight delegate.")
+                tooltip: qsTr("Resize animation duration of the highlight delegate.")
                 disabledState: !backendValues.highlightResizeDuration.isAvailable
             }
 
