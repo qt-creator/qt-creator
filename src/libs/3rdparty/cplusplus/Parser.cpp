@@ -1673,6 +1673,7 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specif
                                 int rparen_token = consumeToken();
 
                                 FunctionDeclaratorAST *ast = new (_pool) FunctionDeclaratorAST;
+                                ast->decl_specifier_list = decl_specifier_list;
                                 ast->lparen_token = lparen_token;
                                 ast->parameter_declaration_clause = parameter_declaration_clause;
                                 ast->as_cpp_initializer = initializer;
@@ -1696,6 +1697,7 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specif
             }
 
             FunctionDeclaratorAST *ast = new (_pool) FunctionDeclaratorAST;
+            ast->decl_specifier_list = decl_specifier_list;
             ast->lparen_token = consumeToken();
             parseParameterDeclarationClause(ast->parameter_declaration_clause);
             if (LA() != T_RPAREN) {
@@ -1799,6 +1801,7 @@ bool Parser::parseAbstractDeclarator(DeclaratorAST *&node, SpecifierListAST *dec
     for (;;) {
         if (LA() == T_LPAREN) {
             FunctionDeclaratorAST *ast = new (_pool) FunctionDeclaratorAST;
+            ast->decl_specifier_list = decl_specifier_list;
             ast->lparen_token = consumeToken();
             if (LA() == T_RPAREN || parseParameterDeclarationClause(ast->parameter_declaration_clause)) {
                 if (LA() == T_RPAREN)

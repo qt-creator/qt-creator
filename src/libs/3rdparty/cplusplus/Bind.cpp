@@ -3308,10 +3308,20 @@ bool Bind::visit(FunctionDeclaratorAST *ast)
         _type = this->trailingReturnType(ast->trailing_return_type, _type);
     fun->setReturnType(_type);
 
+    // "static", "virtual" etc.
+    FullySpecifiedType declSpecifiers;
+    for (SpecifierListAST *it = ast->decl_specifier_list; it; it = it->next)
+        declSpecifiers = this->specifier(it->value, declSpecifiers);
+    setDeclSpecifiers(fun, declSpecifiers);
+
     // int lparen_token = ast->lparen_token;
     this->parameterDeclarationClause(ast->parameter_declaration_clause, ast->lparen_token, fun);
     // int rparen_token = ast->rparen_token;
     FullySpecifiedType type(fun);
+    type.setStatic(declSpecifiers.isStatic());
+    type.setVirtual(declSpecifiers.isVirtual());
+    type.setDeprecated(declSpecifiers.isDeprecated());
+    type.setUnavailable(declSpecifiers.isUnavailable());
     for (SpecifierListAST *it = ast->cv_qualifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }

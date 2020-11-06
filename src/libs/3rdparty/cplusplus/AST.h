@@ -1249,6 +1249,7 @@ protected:
 class CPLUSPLUS_EXPORT FunctionDeclaratorAST: public PostfixDeclaratorAST
 {
 public:
+    SpecifierListAST *decl_specifier_list = nullptr;
     int lparen_token = 0;
     ParameterDeclarationClauseAST *parameter_declaration_clause = nullptr;
     int rparen_token = 0;
