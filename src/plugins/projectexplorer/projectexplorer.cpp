@@ -1783,7 +1783,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         });
 
     expander->registerPrefix(Constants::VAR_CURRENTBUILD_ENV,
-                             BuildConfiguration::tr("Variables in the current build environment"),
+                             BuildConfiguration::tr("Variables in the current build environment."),
                              [](const QString &var) {
                                  if (BuildConfiguration *bc = currentBuildConfiguration())
                                      return bc->environment().expandedValueForKey(var);
@@ -1791,7 +1791,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                              }, false);
     expander->registerPrefix("CurrentDocument:Project:BuildConfig:Env",
                              BuildConfiguration::tr("Variables in the active build environment "
-                                     "of the project containing the currently open document"),
+                                     "of the project containing the currently open document."),
                              [](const QString &var) {
                                  if (BuildConfiguration *bc = currentBuildConfiguration())
                                      return bc->environment().expandedValueForKey(var);
@@ -1840,14 +1840,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     });
     const char activeBuildEnvVar[] = "ActiveProject:BuildConfig:Env";
     Utils::EnvironmentProvider::addProvider(
-        {activeBuildEnvVar, tr("Active Build Environment of the active project"), [] {
+        {activeBuildEnvVar, tr("Active build environment of the active project."), [] {
              if (const BuildConfiguration * const bc = activeBuildConfiguration())
                  return bc->environment();
              return Utils::Environment::systemEnvironment();
          }});
     expander->registerPrefix("ActiveProject:BuildConfig:Env",
                              BuildConfiguration::tr("Variables in the active build environment "
-                                     "of the active project"),
+                                     "of the active project."),
                              [](const QString &var) {
                                  if (BuildConfiguration * const bc = activeBuildConfiguration())
                                      return bc->environment().expandedValueForKey(var);

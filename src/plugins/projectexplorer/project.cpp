@@ -1032,7 +1032,7 @@ QStringList Project::availableQmlPreviewTranslations(QString *errorMessage)
     const QDir languageDirectory(projectDirectory + "/i18n");
     const auto qmFiles = languageDirectory.entryList({"qml_*.qm"});
     if (qmFiles.isEmpty() && errorMessage)
-        errorMessage->append(tr("Could not find any qml_*.qm file at '%1'").arg(languageDirectory.absolutePath()));
+        errorMessage->append(tr("Could not find any qml_*.qm file at \"%1\"").arg(languageDirectory.absolutePath()));
     return Utils::transform(qmFiles, [](const QString &qmFile) {
         const int localeStartPosition = qmFile.lastIndexOf("_") + 1;
         const int localeEndPosition = qmFile.size() - QString(".qm").size();

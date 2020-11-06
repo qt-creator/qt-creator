@@ -182,7 +182,7 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
                 return rc->commandLine().executable().toString();
             return QString();
         });
-    d->m_macroExpander.registerPrefix("CurrentRun:Env", tr("Variables in the current run environment"),
+    d->m_macroExpander.registerPrefix("CurrentRun:Env", tr("Variables in the current run environment."),
                              [this](const QString &var) {
         if (RunConfiguration * const rc = activeRunConfiguration()) {
             if (const auto envAspect = rc->aspect<EnvironmentAspect>())
@@ -191,7 +191,7 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
         return QString();
     });
     d->m_macroExpander.registerVariable("CurrentRun:WorkingDir",
-                               tr("The currently active run configuration's working directory"),
+                               tr("The currently active run configuration's working directory."),
                                [this] {
         if (RunConfiguration * const rc = activeRunConfiguration()) {
             if (const auto wdAspect = rc->aspect<WorkingDirectoryAspect>())
