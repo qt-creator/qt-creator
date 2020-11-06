@@ -181,6 +181,47 @@
     refactoring actions available in the current cursor position.
 
     \if defined(qtcreator)
+    \section1 Creating Functions
+
+    You can apply refactoring actions to implement member functions, insert
+    virtual functions of base classes, and greate getter and setter functions.
+
+    \section2 Implementing Member Functions
+
+    You can apply the \uicontrol {Create Implementations for Member Functions}
+    refactoring action to create implementations for all member functions in
+    one go. In the \uicontrol {Member Function Implementations} dialog, you can
+    specify whether the member functions are generated inline or outside the
+    class.
+
+    \image qtcreator-refactoring-member-function-implementations.png "Implement Member Functions dialog"
+
+    \section2 Inserting Virtual Functions
+
+    You can apply the \uicontrol {Insert Virtual Functions of Base Classes}
+    refactoring action to insert declarations and the corresponding definitions
+    inside or outside the class or in an implementation file (if it exists).
+
+    \image qtcreator-refactoring-virtual-function-dialog.png "Insert Virtual Functions dialog"
+
+    Select the functions to insert in the list of available functions. You can
+    filter the list and hide reimplemented functions from it.
+
+    You can add \e virtual or the \e override equivalent to the function
+    declaration.
+
+    \section2 Creating Getters and Setters
+
+    You can apply the \uicontrol {Create Getter and Setter Member Functions}
+    refactoring action to create either both getter and setter member functions
+    for member variables or only a getter or setter.
+
+    \image qtcreator-refactoring-getters-and-setters.png "Getters and Setters dialog"
+    \endif
+
+    \section1 Summary of Refactoring Actions
+
+    \if defined(qtcreator)
     If you use the \l{Parsing C++ Files with the Clang Code Model}
     {Clang code model} to parse the C++ files, the
     \l{http://clang.llvm.org/diagnostics.html}{Clang fix-it hints}
@@ -722,17 +763,10 @@
 
             \li Function call or class name
         \row
-            \li Insert (Pure) Virtual Functions
-            \li Select an insertion mode:
-            \list
-                \li Insert only declarations.
-                \li Insert declarations and the corresponding definitions inside the class.
-                \li Insert declarations and the corresponding definitions outside the class.
-                \li Insert declarations and the corresponding definitions in the implementation file
-                (only if an implementation file exists).
-            \endlist
-            \image qtcreator-refactoring-virtual-function-dialog.png
-
+            \li Insert Virtual Functions of Base Classes
+            \li Inserts declarations and the corresponding definitions inside or
+                outside the class or in an implementation file (if it exists).
+                For more information, see \l{Inserting Virtual Functions}.
             \li Class or base class name
         \row
             \li Optimize for-Loop
@@ -824,9 +858,9 @@
             \li Converts a Qt 4 QObject::connect() to Qt 5 style.
             \li QObject::connect() (Qt 4 style)
     \endtable
-    \endif
 
     \section2 Refactoring QML Code
+    \endif
 
     You can apply the following types of refactoring actions to QML code:
 
