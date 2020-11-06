@@ -32,11 +32,16 @@
 #include "qbssettings.h"
 
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+
 #include <qtsupport/qtversionmanager.h>
+
+#include <utils/aspects.h>
+#include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/outputformatter.h>
 #include <utils/pathchooser.h>
@@ -83,14 +88,8 @@ private:
     void updatePropertyEdit(const QVariantMap &data);
 
     void changeBuildVariant(int);
-    void changeShowCommandLines(bool show);
-    void changeKeepGoing(bool kg);
-    void changeJobCount(int count);
-    void changeInstall(bool install);
-    void changeCleanInstallRoot(bool clean);
     void changeUseDefaultInstallDir(bool useDefault);
     void changeInstallDir(const QString &dir);
-    void changeForceProbes(bool forceProbes);
     void applyCachedProperties();
 
     QbsBuildStep *qbsStep() const;
@@ -121,14 +120,8 @@ private:
     bool m_ignoreChange = false;
 
     QComboBox *buildVariantComboBox;
-    QSpinBox *jobSpinBox;
     FancyLineEdit *propertyEdit;
     PathChooser *installDirChooser;
-    QCheckBox *keepGoingCheckBox;
-    QCheckBox *showCommandLinesCheckBox;
-    QCheckBox *forceProbesCheckBox;
-    QCheckBox *installCheckBox;
-    QCheckBox *cleanInstallRootCheckBox;
     QCheckBox *defaultInstallDirCheckBox;
     QPlainTextEdit *commandLineTextEdit;
 };
@@ -151,6 +144,45 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Utils::Id id) :
             qbsBuildConfig, &QbsBuildConfiguration::qbsConfigurationChanged);
 
 //    setQbsConfiguration(other->qbsConfiguration(PreserveVariables));
+
+    m_keepGoing = addAspect<BoolAspect>();
+    m_keepGoing->setSettingsKey(QBS_KEEP_GOING);
+    m_keepGoing->setToolTip(tr("Keep going when errors occur (if at all possible)."));
+    m_keepGoing->setLabel(tr("Keep going"),
+                          BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+
+    m_maxJobCount = addAspect<IntegerAspect>();
+    m_maxJobCount->setSettingsKey(QBS_MAXJOBCOUNT);
+    m_maxJobCount->setLabel(tr("Parallel jobs:"));
+    m_maxJobCount->setToolTip(tr("Number of concurrent build jobs."));
+    m_maxJobCount->setValue(QThread::idealThreadCount());
+
+    m_showCommandLines = addAspect<BoolAspect>();
+    m_showCommandLines->setSettingsKey(QBS_SHOWCOMMANDLINES);
+    m_showCommandLines->setLabel(tr("Show command lines"),
+                                 BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+
+    m_install = addAspect<BoolAspect>();
+    m_install->setSettingsKey(QBS_INSTALL);
+    m_install->setValue(true);
+    m_install->setLabel(tr("Install"), BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+
+    m_cleanInstallDir = addAspect<BoolAspect>();
+    m_cleanInstallDir->setSettingsKey(QBS_CLEAN_INSTALL_ROOT);
+    m_cleanInstallDir->setLabel(tr("Clean install root"),
+                                BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+
+    m_forceProbes = addAspect<BoolAspect>();
+    m_forceProbes->setSettingsKey("Qbs.forceProbesKey");
+    m_forceProbes->setLabel(tr("Force probes"),
+                            BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+
+    connect(m_maxJobCount, &BaseAspect::changed, this, &QbsBuildStep::updateState);
+    connect(m_keepGoing, &BaseAspect::changed, this, &QbsBuildStep::updateState);
+    connect(m_showCommandLines, &BaseAspect::changed, this, &QbsBuildStep::updateState);
+    connect(m_install, &BaseAspect::changed, this, &QbsBuildStep::updateState);
+    connect(m_cleanInstallDir, &BaseAspect::changed, this, &QbsBuildStep::updateState);
+    connect(m_forceProbes, &BaseAspect::changed, this, &QbsBuildStep::updateState);
 }
 
 QbsBuildStep::~QbsBuildStep()
@@ -208,7 +240,7 @@ QVariantMap QbsBuildStep::qbsConfiguration(VariableHandling variableHandling) co
 {
     QVariantMap config = m_qbsConfiguration;
     const auto qbsBuildConfig = static_cast<QbsBuildConfiguration *>(buildConfiguration());
-    config.insert(Constants::QBS_FORCE_PROBES_KEY, m_forceProbes);
+    config.insert(Constants::QBS_FORCE_PROBES_KEY, m_forceProbes->value());
 
     const auto store = [&config](TriState ts, const QString &key) {
         if (ts == TriState::Enabled)
@@ -274,12 +306,10 @@ Utils::FilePath QbsBuildStep::installRoot(VariableHandling variableHandling) con
 
 int QbsBuildStep::maxJobs() const
 {
-    if (m_maxJobCount > 0)
-        return m_maxJobCount;
+    if (m_maxJobCount->value() > 0)
+        return m_maxJobCount->value();
     return QThread::idealThreadCount();
 }
-
-static QString forceProbesKey() { return QLatin1String("Qbs.forceProbesKey"); }
 
 bool QbsBuildStep::fromMap(const QVariantMap &map)
 {
@@ -287,12 +317,6 @@ bool QbsBuildStep::fromMap(const QVariantMap &map)
         return false;
 
     setQbsConfiguration(map.value(QBS_CONFIG).toMap());
-    m_keepGoing = map.value(QBS_KEEP_GOING).toBool();
-    m_maxJobCount = map.value(QBS_MAXJOBCOUNT).toInt();
-    m_showCommandLines = map.value(QBS_SHOWCOMMANDLINES).toBool();
-    m_install = map.value(QBS_INSTALL, true).toBool();
-    m_cleanInstallDir = map.value(QBS_CLEAN_INSTALL_ROOT).toBool();
-    m_forceProbes = map.value(forceProbesKey()).toBool();
     return true;
 }
 
@@ -300,12 +324,6 @@ QVariantMap QbsBuildStep::toMap() const
 {
     QVariantMap map = ProjectExplorer::BuildStep::toMap();
     map.insert(QBS_CONFIG, m_qbsConfiguration);
-    map.insert(QBS_KEEP_GOING, m_keepGoing);
-    map.insert(QBS_MAXJOBCOUNT, m_maxJobCount);
-    map.insert(QBS_SHOWCOMMANDLINES, m_showCommandLines);
-    map.insert(QBS_INSTALL, m_install);
-    map.insert(QBS_CLEAN_INSTALL_ROOT, m_cleanInstallDir);
-    map.insert(forceProbesKey(), m_forceProbes);
     return map;
 }
 
@@ -419,46 +437,6 @@ QString QbsBuildStep::profile() const
     return qbsConfiguration(PreserveVariables).value(Constants::QBS_CONFIG_PROFILE_KEY).toString();
 }
 
-void QbsBuildStep::setKeepGoing(bool kg)
-{
-    if (m_keepGoing == kg)
-        return;
-    m_keepGoing = kg;
-    emit qbsBuildOptionsChanged();
-}
-
-void QbsBuildStep::setMaxJobs(int jobcount)
-{
-    if (m_maxJobCount == jobcount)
-        return;
-    m_maxJobCount = jobcount;
-    emit qbsBuildOptionsChanged();
-}
-
-void QbsBuildStep::setShowCommandLines(bool show)
-{
-    if (showCommandLines() == show)
-        return;
-    m_showCommandLines = show;
-    emit qbsBuildOptionsChanged();
-}
-
-void QbsBuildStep::setInstall(bool install)
-{
-    if (m_install == install)
-        return;
-    m_install = install;
-    emit qbsBuildOptionsChanged();
-}
-
-void QbsBuildStep::setCleanInstallRoot(bool clean)
-{
-    if (m_cleanInstallDir == clean)
-        return;
-    m_cleanInstallDir = clean;
-    emit qbsBuildOptionsChanged();
-}
-
 void QbsBuildStep::parseProject()
 {
     m_parsingProject = true;
@@ -513,17 +491,22 @@ void QbsBuildStep::finish()
     emit finished(m_lastWasSuccess);
 }
 
+void QbsBuildStep::updateState()
+{
+    emit qbsConfigurationChanged();
+}
+
 QbsBuildStepData QbsBuildStep::stepData() const
 {
     QbsBuildStepData data;
     data.command = "build";
     data.dryRun = false;
-    data.keepGoing = m_keepGoing;
-    data.forceProbeExecution = m_forceProbes;
-    data.showCommandLines = m_showCommandLines;
-    data.noInstall = !m_install;
+    data.keepGoing = m_keepGoing->value();
+    data.forceProbeExecution = m_forceProbes->value();
+    data.showCommandLines = m_showCommandLines->value();
+    data.noInstall = !m_install->value();
     data.noBuild = false;
-    data.cleanInstallRoot = m_cleanInstallDir;
+    data.cleanInstallRoot = m_cleanInstallDir->value();
     data.jobCount = maxJobs();
     data.installRoot = installRoot();
     return data;
@@ -575,34 +558,9 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     horizontalLayout_5->addWidget(buildVariantComboBox);
     horizontalLayout_5->addItem(new QSpacerItem(70, 13, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
-    jobSpinBox = new QSpinBox(this);
-
-    auto horizontalLayout_6 = new QHBoxLayout();
-    horizontalLayout_6->addWidget(jobSpinBox);
-    horizontalLayout_6->addItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
-
     propertyEdit = new FancyLineEdit(this);
-    keepGoingCheckBox = new QCheckBox(this);
-    showCommandLinesCheckBox = new QCheckBox(this);
-    forceProbesCheckBox = new QCheckBox(this);
-
-    auto flagsLayout = new QHBoxLayout();
-    flagsLayout->addWidget(keepGoingCheckBox);
-    flagsLayout->addWidget(showCommandLinesCheckBox);
-    flagsLayout->addWidget(forceProbesCheckBox);
-    flagsLayout->addItem(new QSpacerItem(40, 13, QSizePolicy::Expanding, QSizePolicy::Minimum));
-
-    installCheckBox = new QCheckBox(this);
-
-    cleanInstallRootCheckBox = new QCheckBox(this);
 
     defaultInstallDirCheckBox = new QCheckBox(this);
-
-    auto installLayout = new QHBoxLayout();
-    installLayout->addWidget(installCheckBox);
-    installLayout->addWidget(cleanInstallRootCheckBox);
-    installLayout->addWidget(defaultInstallDirCheckBox);
-    installLayout->addItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
     installDirChooser = new PathChooser(this);
     installDirChooser->setExpectedKind(PathChooser::Directory);
@@ -612,32 +570,25 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     commandLineTextEdit->setReadOnly(true);
     commandLineTextEdit->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 
-    auto formLayout = new QFormLayout(this);
-    formLayout->addRow(tr("Build variant:"), horizontalLayout_5);
-    formLayout->addRow(tr("Parallel jobs:"), horizontalLayout_6);
-    formLayout->addRow(tr("Properties:"), propertyEdit);
-    formLayout->addRow(tr("Flags:"), flagsLayout);
-    formLayout->addRow(tr("Installation flags:"), installLayout);
-    formLayout->addRow(tr("Installation directory:"), installDirChooser);
-    formLayout->addRow(tr("Equivalent command line:"), commandLineTextEdit);
+    LayoutBuilder builder(this);
+    builder.addRow({tr("Build variant:"), horizontalLayout_5});
+    builder.addRow(m_qbsStep->m_maxJobCount);
+    builder.addRow({tr("Properties:"), propertyEdit});
 
-    QWidget::setTabOrder(buildVariantComboBox, jobSpinBox);
-    QWidget::setTabOrder(jobSpinBox, propertyEdit);
-    QWidget::setTabOrder(propertyEdit, keepGoingCheckBox);
-    QWidget::setTabOrder(keepGoingCheckBox, showCommandLinesCheckBox);
-    QWidget::setTabOrder(showCommandLinesCheckBox, forceProbesCheckBox);
-    QWidget::setTabOrder(forceProbesCheckBox, installCheckBox);
-    QWidget::setTabOrder(installCheckBox, cleanInstallRootCheckBox);
-    QWidget::setTabOrder(cleanInstallRootCheckBox, commandLineTextEdit);
+    builder.addRow(tr("Flags:"));
+    m_qbsStep->m_keepGoing->addToLayout(builder);
+    m_qbsStep->m_showCommandLines->addToLayout(builder);
+    m_qbsStep->m_forceProbes->addToLayout(builder);
 
-    jobSpinBox->setToolTip(tr("Number of concurrent build jobs."));
+    builder.addRow(tr("Installation flags:"));
+    m_qbsStep->m_install->addToLayout(builder);
+    m_qbsStep->m_cleanInstallDir->addToLayout(builder);
+    builder.addItem(defaultInstallDirCheckBox);
+
+    builder.addRow({tr("Installation directory:"), installDirChooser});
+    builder.addRow({tr("Equivalent command line:"), commandLineTextEdit});
+
     propertyEdit->setToolTip(tr("Properties to pass to the project."));
-    keepGoingCheckBox->setToolTip(tr("Keep going when errors occur (if at all possible)."));
-    keepGoingCheckBox->setText(tr("Keep going"));
-    showCommandLinesCheckBox->setText(tr("Show command lines"));
-    forceProbesCheckBox->setText(tr("Force probes"));
-    installCheckBox->setText(tr("Install"));
-    cleanInstallRootCheckBox->setText(tr("Clean install root"));
     defaultInstallDirCheckBox->setText(tr("Use default location"));
 
     auto chooser = new VariableChooser(this);
@@ -651,37 +602,22 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     connect(buildVariantComboBox,
             QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &QbsBuildStepConfigWidget::changeBuildVariant);
-    connect(keepGoingCheckBox, &QAbstractButton::toggled,
-            this, &QbsBuildStepConfigWidget::changeKeepGoing);
-    connect(jobSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
-            this, &QbsBuildStepConfigWidget::changeJobCount);
-    connect(showCommandLinesCheckBox, &QCheckBox::toggled, this,
-            &QbsBuildStepConfigWidget::changeShowCommandLines);
-    connect(installCheckBox, &QCheckBox::toggled, this,
-            &QbsBuildStepConfigWidget::changeInstall);
-    connect(cleanInstallRootCheckBox, &QCheckBox::toggled, this,
-            &QbsBuildStepConfigWidget::changeCleanInstallRoot);
+
     connect(defaultInstallDirCheckBox, &QCheckBox::toggled, this,
             &QbsBuildStepConfigWidget::changeUseDefaultInstallDir);
+
     connect(installDirChooser, &Utils::PathChooser::rawPathChanged, this,
             &QbsBuildStepConfigWidget::changeInstallDir);
-    connect(forceProbesCheckBox, &QCheckBox::toggled, this,
-            &QbsBuildStepConfigWidget::changeForceProbes);
+
     updateState();
 }
 
 void QbsBuildStepConfigWidget::updateState()
 {
     if (!m_ignoreChange) {
-        keepGoingCheckBox->setChecked(qbsStep()->keepGoing());
-        jobSpinBox->setValue(qbsStep()->maxJobs());
-        showCommandLinesCheckBox->setChecked(qbsStep()->showCommandLines());
-        installCheckBox->setChecked(qbsStep()->install());
-        cleanInstallRootCheckBox->setChecked(qbsStep()->cleanInstallRoot());
-        forceProbesCheckBox->setChecked(qbsStep()->forceProbes());
-        updatePropertyEdit(qbsStep()->qbsConfiguration(QbsBuildStep::PreserveVariables));
-        installDirChooser->setFilePath(qbsStep()->installRoot(QbsBuildStep::PreserveVariables));
-        defaultInstallDirCheckBox->setChecked(!qbsStep()->hasCustomInstallRoot());
+        updatePropertyEdit(m_qbsStep->qbsConfiguration(QbsBuildStep::PreserveVariables));
+        installDirChooser->setFilePath(m_qbsStep->installRoot(QbsBuildStep::PreserveVariables));
+        defaultInstallDirCheckBox->setChecked(!m_qbsStep->hasCustomInstallRoot());
     }
 
     const QString buildVariant = qbsStep()->buildVariant();
@@ -749,41 +685,6 @@ void QbsBuildStepConfigWidget::changeBuildVariant(int idx)
     m_ignoreChange = false;
 }
 
-void QbsBuildStepConfigWidget::changeShowCommandLines(bool show)
-{
-    m_ignoreChange = true;
-    qbsStep()->setShowCommandLines(show);
-    m_ignoreChange = false;
-}
-
-void QbsBuildStepConfigWidget::changeKeepGoing(bool kg)
-{
-    m_ignoreChange = true;
-    qbsStep()->setKeepGoing(kg);
-    m_ignoreChange = false;
-}
-
-void QbsBuildStepConfigWidget::changeJobCount(int count)
-{
-    m_ignoreChange = true;
-    qbsStep()->setMaxJobs(count);
-    m_ignoreChange = false;
-}
-
-void QbsBuildStepConfigWidget::changeInstall(bool install)
-{
-    m_ignoreChange = true;
-    qbsStep()->setInstall(install);
-    m_ignoreChange = false;
-}
-
-void QbsBuildStepConfigWidget::changeCleanInstallRoot(bool clean)
-{
-    m_ignoreChange = true;
-    qbsStep()->setCleanInstallRoot(clean);
-    m_ignoreChange = false;
-}
-
 void QbsBuildStepConfigWidget::changeUseDefaultInstallDir(bool useDefault)
 {
     m_ignoreChange = true;
@@ -805,13 +706,6 @@ void QbsBuildStepConfigWidget::changeInstallDir(const QString &dir)
     QVariantMap config = qbsStep()->qbsConfiguration(QbsBuildStep::PreserveVariables);
     config.insert(Constants::QBS_INSTALL_ROOT_KEY, dir);
     qbsStep()->setQbsConfiguration(config);
-    m_ignoreChange = false;
-}
-
-void QbsBuildStepConfigWidget::changeForceProbes(bool forceProbes)
-{
-    m_ignoreChange = true;
-    qbsStep()->setForceProbes(forceProbes);
     m_ignoreChange = false;
 }
 
