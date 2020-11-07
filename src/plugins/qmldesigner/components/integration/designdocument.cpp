@@ -50,6 +50,7 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/algorithm.h>
+#include <timelineactions.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
@@ -473,6 +474,9 @@ static void scatterItem(const ModelNode &pastedNode, const ModelNode &targetNode
 
 void DesignDocument::paste()
 {
+    if (TimelineActions::clipboardContainsKeyframes()) // pasting keyframes is handled in TimelineView
+        return;
+
     QScopedPointer<Model> pasteModel(DesignDocumentView::pasteToModel());
 
     if (!pasteModel)
