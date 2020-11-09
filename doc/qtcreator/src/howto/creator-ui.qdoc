@@ -56,6 +56,7 @@
         \if defined(qtcreator)
         \li Browse Qt extensions in the \l{https://marketplace.qt.io/}
             {Qt Marketplace}
+        \li Download the Qt Installer
         \endif
 
         \li Read news from the online community and Qt blogs

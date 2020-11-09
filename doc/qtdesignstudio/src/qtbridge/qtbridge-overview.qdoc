@@ -37,10 +37,10 @@
     the 3D graphics tools to save the assets in widely-used 3D graphics formats,
     and then use \QB to import them into \QDS.
 
-    You can use the Qt online installer to install \QB if you have a commercial
+    You can use the Qt Installer to install \QB if you have a commercial
     \QDS license. You can also purchase a \QB license separately from the
     \l{https://marketplace.qt.io/}{Qt Marketplace} and then install \QB using
-    the Qt online installer.
+    the Qt Installer.
 
     For best results when importing assets, follow
     the guidelines for creating and exporting them.
