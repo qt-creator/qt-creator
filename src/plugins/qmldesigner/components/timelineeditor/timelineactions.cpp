@@ -38,6 +38,9 @@
 #include <variantproperty.h>
 #include <qmlobjectnode.h>
 #include <qmltimelinekeyframegroup.h>
+
+#include <QRegularExpression>
+#include <QApplication>
 #include <QClipboard>
 
 namespace QmlDesigner {
