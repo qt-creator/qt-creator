@@ -79,13 +79,10 @@ IBConsoleBuildStep::IBConsoleBuildStep(BuildStepList *buildStepList, Id id)
 
     auto keepJobNum = addAspect<BoolAspect>();
     keepJobNum->setSettingsKey(Constants::IBCONSOLE_KEEPJOBNUM);
-    keepJobNum->setLabel(tr("Keep Original Jobs Num:"));
-    keepJobNum->setToolTip(tr("Setting this option to true, forces IncrediBuild to not override "
-                              "the -j command line switch. The default IncrediBuild behavior is "
-                              "to set a high value to the -j command line switch which controls "
-                              "the number of processes that the build tools executed by Qt will "
-                              "execute in parallel (the default IncrediBuild behavior will set "
-                              "this value to 200)."));
+    keepJobNum->setLabel(tr("Keep original jobs number:"));
+    keepJobNum->setToolTip(tr("Forces IncrediBuild to not override the -j command line switch, "
+                              "that controls the number of parallel spawned tasks. The default "
+                              "IncrediBuild behavior is to set it to 200."));
 
     addAspect<TextDisplay>("<b>" + tr("IncrediBuild Distribution Control"));
 

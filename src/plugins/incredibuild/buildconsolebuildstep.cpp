@@ -116,13 +116,10 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
 
     auto keepJobNum = addAspect<BoolAspect>();
     keepJobNum->setSettingsKey(Constants::BUILDCONSOLE_KEEPJOBNUM);
-    keepJobNum->setLabel(tr("Keep Original Jobs Num:"));
-    keepJobNum->setToolTip(tr("Setting this option to true, forces IncrediBuild to not override "
-                              "the -j command line switch.<p>The default IncrediBuild "
-                              "behavior is to set a high value to the -j command line switch "
-                              "which controls the number of processes that the build tools "
-                              "executed by Qt Creator will execute in parallel (the default "
-                              "IncrediBuild behavior will set this value to 200)"));
+    keepJobNum->setLabel(tr("Keep original jobs number:"));
+    keepJobNum->setToolTip(tr("Forces IncrediBuild to not override the -j command line switch, "
+                              "that controls the number of parallel spawned tasks. The default "
+                              "IncrediBuild behavior is to set it to 200."));
 
     addAspect<TextDisplay>("<b>" + tr("IncrediBuild Distribution Control"));
 
@@ -133,7 +130,7 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
     profileXml->setExpectedKind(PathChooser::Kind::File);
     profileXml->setBaseFileName(FilePath::fromString(PathChooser::homePath()));
     profileXml->setHistoryCompleter("IncrediBuild.BuildConsole.ProfileXml.History");
-    profileXml->setToolTip(tr("The Profile XML file is used to define how Automatic "
+    profileXml->setToolTip(tr("Defines how Automatic "
                               "Interception Interface should handle the various processes "
                               "involved in a distributed job. It is not necessary for "
                               "\"Visual Studio\" or \"Make and Build tools\" builds, "
@@ -144,7 +141,7 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
 
     auto avoidLocal = addAspect<BoolAspect>();
     avoidLocal->setSettingsKey(Constants::BUILDCONSOLE_AVOIDLOCAL);
-    avoidLocal->setLabel(tr("Avoid Local:"));
+    avoidLocal->setLabel(tr("Avoid local task execution:"));
     avoidLocal->setToolTip(tr("Overrides the Agent Settings dialog Avoid task execution on local "
                               "machine when possible option. This allows to free more resources "
                               "on the initiator machine and could be beneficial to distribution "
@@ -182,7 +179,7 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
 
     auto title = addAspect<StringAspect>();
     title->setSettingsKey(Constants::BUILDCONSOLE_TITLE);
-    title->setLabelText(tr("Build Title:"));
+    title->setLabelText(tr("Build title:"));
     title->setDisplayStyle(StringAspect::LineEditDisplay);
     title->setToolTip(tr("Specifies a custom header line which will be displayed in the "
                          "beginning of the build output text. This title will also be used "
@@ -195,10 +192,10 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
     monFile->setExpectedKind(PathChooser::Kind::Any);
     monFile->setBaseFileName(FilePath::fromString(PathChooser::homePath()));
     monFile->setHistoryCompleter(QLatin1String("IncrediBuild.BuildConsole.MonFile.History"));
-    monFile->setToolTip(tr("Writes a copy of the build progress (.ib_mon) file to the specified "
-                           "location. - If only a folder name is given, IncrediBuild generates a "
-                           "GUID for the file name. - A message containing the location of the "
-                           "saved .ib_mon file is added to the end of the build output"));
+    monFile->setToolTip(tr("Writes a copy of the build progress file (.ib_mon) to the specified "
+                           "location. If only a folder name is given, a generated GUID will serve "
+                           "as the file name. The full path of the saved Build Monitor will be "
+                           "written to the end of the build output."));
 
     auto suppressStdOut = addAspect<BoolAspect>();
     suppressStdOut->setSettingsKey(Constants::BUILDCONSOLE_SUPPRESSSTDOUT);
@@ -233,7 +230,7 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
     auto hideHeader = addAspect<BoolAspect>();
     hideHeader->setSettingsKey(Constants::BUILDCONSOLE_HIDEHEADER);
     hideHeader->setLabel(tr("Hide IncrediBuild Header in output:"));
-    hideHeader->setToolTip(tr("Suppresses the \"IncrediBuild\" header in the build output"));
+    hideHeader->setToolTip(tr("Suppresses IncrediBuild's header in the build output"));
 
     auto logLevel = addAspect<SelectionAspect>();
     logLevel->setSettingsKey(Constants::BUILDCONSOLE_LOGLEVEL);
@@ -257,7 +254,7 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
 
     auto stopOnError = addAspect<BoolAspect>();
     stopOnError->setSettingsKey(Constants::BUILDCONSOLE_STOPONERROR);
-    stopOnError->setLabel(tr("Stop On Errors:"));
+    stopOnError->setLabel(tr("Stop on errors:"));
     stopOnError->setToolTip(tr("When specified, the execution will stop as soon as an error "
                                "is encountered. This is the default behavior in "
                                "\"Visual Studio\" builds, but not the default for "
@@ -273,9 +270,8 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
 
     auto openMonitor = addAspect<BoolAspect>();
     openMonitor->setSettingsKey(Constants::BUILDCONSOLE_OPENMONITOR);
-    openMonitor->setLabel(tr("Open Monitor:"));
-    openMonitor->setToolTip(tr("Opens an IncrediBuild Build Monitor that graphically displays "
-                               "the build progress once the build starts."));
+    openMonitor->setLabel(tr("Open Build Monitor:"));
+    openMonitor->setToolTip(tr("Opens Build Monitor once the build starts."));
 
     setCommandLineProvider([=] {
         QStringList args;
