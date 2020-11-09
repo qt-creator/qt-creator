@@ -131,6 +131,16 @@ void BaseAspect::addToLayout(LayoutBuilder &)
 {
 }
 
+void BaseAspect::saveToMap(QVariantMap &data, const QVariant &value, const QVariant &defaultValue) const
+{
+    if (settingsKey().isEmpty())
+        return;
+    if (value == defaultValue)
+        data.remove(settingsKey());
+    else
+        data.insert(settingsKey(), value);
+}
+
 /*!
     Retrieves the internal value of this BaseAspect from a \c QVariantMap.
 
@@ -411,8 +421,7 @@ void StringAspect::fromMap(const QVariantMap &map)
 */
 void StringAspect::toMap(QVariantMap &map) const
 {
-    if (!settingsKey().isEmpty())
-        map.insert(settingsKey(), d->m_value);
+    saveToMap(map, d->m_value, QString());
     if (d->m_checker)
         d->m_checker->toMap(map);
 }
@@ -830,8 +839,7 @@ void BoolAspect::fromMap(const QVariantMap &map)
 */
 void BoolAspect::toMap(QVariantMap &data) const
 {
-    if (!settingsKey().isEmpty())
-        data.insert(settingsKey(), d->m_value);
+    saveToMap(data, d->m_value, d->m_defaultValue);
 }
 
 bool BoolAspect::defaultValue() const
@@ -957,8 +965,7 @@ void SelectionAspect::fromMap(const QVariantMap &map)
 */
 void SelectionAspect::toMap(QVariantMap &data) const
 {
-    if (!settingsKey().isEmpty())
-        data.insert(settingsKey(), d->m_value);
+    saveToMap(data, d->m_value, d->m_defaultValue);
 }
 
 void SelectionAspect::setVisibleDynamic(bool visible)
@@ -1083,10 +1090,7 @@ void IntegerAspect::fromMap(const QVariantMap &map)
 */
 void IntegerAspect::toMap(QVariantMap &data) const
 {
-    if (d->m_value != d->m_defaultValue)
-        data.insert(settingsKey(), d->m_value);
-    else
-        data.remove(settingsKey());
+    saveToMap(data, d->m_value, d->m_defaultValue);
 }
 
 qint64 IntegerAspect::value() const
@@ -1234,8 +1238,7 @@ void StringListAspect::fromMap(const QVariantMap &map)
 */
 void StringListAspect::toMap(QVariantMap &data) const
 {
-    if (!settingsKey().isEmpty())
-        data.insert(settingsKey(), d->m_value);
+    saveToMap(data, d->m_value, QStringList());
 }
 
 QStringList StringListAspect::value() const

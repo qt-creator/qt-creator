@@ -84,6 +84,7 @@ signals:
 
 protected:
     virtual void setVisibleDynamic(bool visible) { Q_UNUSED(visible) } // TODO: Better name? Merge with setVisible() somehow?
+    void saveToMap(QVariantMap &data, const QVariant &value, const QVariant &defaultValue) const;
 
     Utils::Id m_id;
     QString m_displayName;
