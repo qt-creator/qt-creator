@@ -1326,6 +1326,17 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &selectionIsComponent));
 
     addDesignerAction(new ModelNodeContextMenuAction(
+                          editAnnotationCommandId,
+                          editAnnotationDisplayName,
+                          {},
+                          rootCategory,
+                          QKeySequence(),
+                          (priorityLast+6),
+                          &editAnnotation,
+                          &singleSelection,
+                          &singleSelection));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
                           goToImplementationCommandId,
                           goToImplementationDisplayName,
                           {},

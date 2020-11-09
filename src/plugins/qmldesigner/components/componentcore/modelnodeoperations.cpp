@@ -63,6 +63,8 @@
 
 #include <qmljseditor/qmljsfindreferences.h>
 
+#include <annotationeditor/annotationeditor.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
@@ -79,6 +81,7 @@
 #include <QFileDialog>
 #include <QPushButton>
 #include <QGridLayout>
+#include <QPointer>
 
 #include <algorithm>
 #include <functional>
@@ -1524,6 +1527,13 @@ void removeGroup(const SelectionContext &selectionContext)
             }
             groupItem.destroy();
     });
+}
+
+void editAnnotation(const SelectionContext &selectionContext)
+{
+    ModelNode selectedNode = selectionContext.currentSingleSelectedNode();
+
+    AnnotationEditor::showWidget(selectedNode);
 }
 
 QVariant previewImageDataForGenericNode(const ModelNode &modelNode)

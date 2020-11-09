@@ -84,6 +84,7 @@ void addToGroupItem(const SelectionContext &selectionContext);
 void selectFlowEffect(const SelectionContext &selectionContext);
 void mergeWithTemplate(const SelectionContext &selectionContext);
 void removeGroup(const SelectionContext &selectionContext);
+void editAnnotation(const SelectionContext &selectionContext);
 
 // ModelNodePreviewImageOperations
 QVariant previewImageDataForGenericNode(const ModelNode &modelNode);

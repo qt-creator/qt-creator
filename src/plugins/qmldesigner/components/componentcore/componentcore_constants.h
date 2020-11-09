@@ -87,6 +87,7 @@ const char addToGroupItemCommandId[] = "AddToGroupItem";
 const char removeGroupItemCommandId[] = "RemoveToGroupItem";
 const char fitRootToScreenCommandId[] = "FitRootToScreen";
 const char fitSelectionToScreenCommandId[] = "FitSelectionToScreen";
+const char editAnnotationCommandId[] = "EditAnnotation";
 
 const char selectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Selection");
 const char flowConnectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Connect");
@@ -125,6 +126,7 @@ const char mergeTemplateDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMen
 const char goToImplementationDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Go to Implementation");
 const char addSignalHandlerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add New Signal Handler");
 const char moveToComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Move Component into Separate File");
+const char editAnnotationDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit Annotation");
 
 const char setIdDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Set Id");
 

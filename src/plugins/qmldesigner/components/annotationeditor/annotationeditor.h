@@ -54,6 +54,8 @@ public:
     Q_INVOKABLE void showWidget(int x, int y);
     Q_INVOKABLE void hideWidget();
 
+    static AnnotationEditor* showWidget(const ModelNode &modelNode);
+
     void setModelNode(const ModelNode &modelNode);
     ModelNode modelNode() const;
 
