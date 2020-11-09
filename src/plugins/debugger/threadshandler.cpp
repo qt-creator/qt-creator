@@ -258,7 +258,6 @@ bool ThreadsHandler::setData(const QModelIndex &idx, const QVariant &data, int r
 
         if (ev.as<QContextMenuEvent>()) {
             auto menu = new QMenu;
-            Internal::addHideColumnActions(menu, ev.view());
             menu->addAction(action(SettingsDialog)->action());
             menu->popup(ev.globalPos());
             return true;

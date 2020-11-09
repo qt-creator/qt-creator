@@ -517,7 +517,6 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
 
     menu->addSeparator();
     menu->addAction(action(UseToolTipsInStackView)->action());
-    Internal::addHideColumnActions(menu, ev.view());
     menu->addAction(action(SettingsDialog)->action());
     menu->popup(ev.globalPos());
     return true;

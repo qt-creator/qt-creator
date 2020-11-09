@@ -459,26 +459,6 @@ QAction *addCheckableAction(QMenu *menu, const QString &display, bool on, bool c
     return act;
 }
 
-void addHideColumnActions(QMenu *menu, QWidget *widget)
-{
-    QTreeView *view = qobject_cast<QTreeView *>(widget);
-    QTC_ASSERT(view, return);
-    QAbstractItemModel *model = view->model();
-    QTC_ASSERT(model, return);
-    const int columns = model->columnCount();
-    menu->addSeparator();
-    for (int i = 0; i < columns; ++i) {
-        QString columnName = model->headerData(i, Qt::Horizontal).toString();
-        QAction *act = menu->addAction(DebuggerPlugin::tr("Show %1 Column").arg(columnName));
-        act->setCheckable(true);
-        act->setChecked(!view->isColumnHidden(i));
-        QObject::connect(act, &QAction::toggled, menu, [view, i](bool on) {
-            view->setColumnHidden(i, !on);
-        });
-    }
-    menu->addSeparator();
-}
-
 ///////////////////////////////////////////////////////////////////////
 //
 // DebugMode
@@ -840,6 +820,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     breakpointManagerView->setRootIsDecorated(true);
     breakpointManagerView->setModel(BreakpointManager::model());
     breakpointManagerView->setSpanColumn(BreakpointFunctionColumn);
+    breakpointManagerView->enableColumnHiding();
 
     auto breakpointManagerWindow = addSearch(breakpointManagerView);
     breakpointManagerWindow->setWindowTitle(tr("Breakpoint Preset"));
@@ -854,6 +835,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     engineManagerView->setIconSize(QSize(10, 10));
     engineManagerView->setModel(m_engineManager.model());
     engineManagerView->setSelectionMode(QAbstractItemView::SingleSelection);
+    engineManagerView->enableColumnHiding();
 
     auto engineManagerWindow = addSearch(engineManagerView);
     engineManagerWindow->setWindowTitle(tr("Debugger Perspectives"));

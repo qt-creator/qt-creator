@@ -756,7 +756,6 @@ bool RegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
     addFormatAction(tr("Octal"), OctalFormat);
     addFormatAction(tr("Binary"), BinaryFormat);
 
-    Internal::addHideColumnActions(menu, ev.view());
     menu->addAction(action(SettingsDialog)->action());
     menu->popup(ev.globalPos());
     return true;

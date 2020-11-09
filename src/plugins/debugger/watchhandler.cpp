@@ -1745,8 +1745,6 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
     menu->addAction(action(UseDynamicType)->action());
     menu->addAction(action(SettingsDialog)->action());
 
-    Internal::addHideColumnActions(menu, ev.view());
-    menu->addAction(action(SettingsDialog)->action());
     connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(ev.globalPos());
     return true;

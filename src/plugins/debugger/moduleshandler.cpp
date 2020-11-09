@@ -223,7 +223,6 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
               canShowSymbols && moduleNameValid,
               [this, modulePath] { engine->requestModuleSections(modulePath); });
 
-    Internal::addHideColumnActions(menu, ev.view());
     menu->addAction(action(SettingsDialog)->action());
 
     menu->popup(ev.globalPos());

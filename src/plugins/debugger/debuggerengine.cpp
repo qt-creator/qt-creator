@@ -635,6 +635,7 @@ void DebuggerEnginePrivate::setupViews()
     m_modulesView->setModel(m_modulesHandler.model());
     m_modulesView->setSortingEnabled(true);
     m_modulesView->setSettings(settings, "Debugger.ModulesView");
+    m_modulesView->enableColumnHiding();
     connect(m_modulesView, &BaseTreeView::aboutToShow,
             m_engine, &DebuggerEngine::reloadModules,
             Qt::QueuedConnection);
@@ -646,6 +647,7 @@ void DebuggerEnginePrivate::setupViews()
     m_registerView->setModel(m_registerHandler.model());
     m_registerView->setRootIsDecorated(true);
     m_registerView->setSettings(settings, "Debugger.RegisterView");
+    m_registerView->enableColumnHiding();
     connect(m_registerView, &BaseTreeView::aboutToShow,
             m_engine, &DebuggerEngine::reloadRegisters,
             Qt::QueuedConnection);
@@ -657,6 +659,7 @@ void DebuggerEnginePrivate::setupViews()
     m_peripheralRegisterView->setModel(m_peripheralRegisterHandler.model());
     m_peripheralRegisterView->setRootIsDecorated(true);
     m_peripheralRegisterView->setSettings(settings, "Debugger.PeripheralRegisterView");
+    m_peripheralRegisterView->enableColumnHiding();
     connect(m_peripheralRegisterView, &BaseTreeView::aboutToShow,
             m_engine, &DebuggerEngine::reloadPeripheralRegisters,
             Qt::QueuedConnection);
@@ -668,6 +671,7 @@ void DebuggerEnginePrivate::setupViews()
     m_stackView->setModel(m_stackHandler.model());
     m_stackView->setSettings(settings, "Debugger.StackView");
     m_stackView->setIconSize(QSize(10, 10));
+    m_stackView->enableColumnHiding();
     m_stackWindow = addSearch(m_stackView);
     m_stackWindow->setObjectName("Debugger.Dock.Stack." + engineId);
     m_stackWindow->setWindowTitle(tr("&Stack"));
@@ -676,6 +680,7 @@ void DebuggerEnginePrivate::setupViews()
     m_sourceFilesView->setModel(m_sourceFilesHandler.model());
     m_sourceFilesView->setSortingEnabled(true);
     m_sourceFilesView->setSettings(settings, "Debugger.SourceFilesView");
+    m_sourceFilesView->enableColumnHiding();
     connect(m_sourceFilesView, &BaseTreeView::aboutToShow,
             m_engine, &DebuggerEngine::reloadSourceFiles,
             Qt::QueuedConnection);
@@ -689,6 +694,7 @@ void DebuggerEnginePrivate::setupViews()
     m_threadsView->setSettings(settings, "Debugger.ThreadsView");
     m_threadsView->setIconSize(QSize(10, 10));
     m_threadsView->setSpanColumn(ThreadData::FunctionColumn);
+    m_threadsView->enableColumnHiding();
     m_threadsWindow = addSearch(m_threadsView);
     m_threadsWindow->setObjectName("Debugger.Dock.Threads." + engineId);
     m_threadsWindow->setWindowTitle(tr("&Threads"));
@@ -738,6 +744,7 @@ void DebuggerEnginePrivate::setupViews()
     m_breakView->setSettings(settings, "Debugger.BreakWindow");
     m_breakView->setModel(m_breakHandler.model());
     m_breakView->setRootIsDecorated(true);
+    m_breakView->enableColumnHiding();
     m_breakWindow = addSearch(m_breakView);
     m_breakWindow->setObjectName("Debugger.Dock.Break." + engineId);
     m_breakWindow->setWindowTitle(tr("&Breakpoints"));

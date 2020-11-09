@@ -786,7 +786,6 @@ bool PeripheralRegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
         menu->addMenu(fmtMenu);
     }
 
-    Internal::addHideColumnActions(menu, ev.view());
     menu->addAction(action(SettingsDialog)->action());
     menu->popup(ev.globalPos());
     return true;

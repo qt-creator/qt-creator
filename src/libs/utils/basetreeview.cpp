@@ -552,6 +552,33 @@ void BaseTreeView::setSpanColumn(int column)
     d->setSpanColumn(column);
 }
 
+void BaseTreeView::enableColumnHiding()
+{
+    header()->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(header(), &QWidget::customContextMenuRequested, this, [this](const QPoint &pos) {
+        QTC_ASSERT(model(), return);
+        const int columns = model()->columnCount();
+        QMenu menu;
+        int shown = 0;
+        for (int i = 0; i < columns; ++i)
+            shown += !isColumnHidden(i);
+        for (int i = 0; i < columns; ++i) {
+            QString columnName = model()->headerData(i, Qt::Horizontal).toString();
+            QAction *act = menu.addAction(tr("Show %1 Column").arg(columnName));
+            act->setCheckable(true);
+            act->setChecked(!isColumnHidden(i));
+            // Prevent disabling the last visible column as there's no way back.
+            if (shown == 1 && !isColumnHidden(i))
+                act->setEnabled(false);
+            QObject::connect(act, &QAction::toggled, &menu, [this, i](bool on) {
+                setColumnHidden(i, !on);
+            });
+        }
+        menu.addSeparator();
+        menu.exec(mapToGlobal(pos));
+    });
+}
+
 void BaseTreeView::refreshSpanColumn()
 {
     d->rebalanceColumns();

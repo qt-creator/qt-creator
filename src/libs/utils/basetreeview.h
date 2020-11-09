@@ -78,6 +78,8 @@ public:
     int spanColumn() const;
     void setSpanColumn(int column);
 
+    void enableColumnHiding();
+
     // In some situations this needs to be called when manually resizing columns when the span
     // column is set.
     void refreshSpanColumn();
