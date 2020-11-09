@@ -368,6 +368,7 @@ display: block;
 class QLiteHtmlWidgetPrivate
 {
 public:
+    QString html;
     DocumentContainerContext context;
     QUrl url;
     DocumentContainer documentContainer;
@@ -421,11 +422,17 @@ QUrl QLiteHtmlWidget::url() const
 
 void QLiteHtmlWidget::setHtml(const QString &content)
 {
+    d->html = content;
     d->documentContainer.setPaintDevice(viewport());
     d->documentContainer.setDocument(content.toUtf8(), &d->context);
     verticalScrollBar()->setValue(0);
     horizontalScrollBar()->setValue(0);
     render();
+}
+
+QString QLiteHtmlWidget::html() const
+{
+    return d->html;
 }
 
 QString QLiteHtmlWidget::title() const
