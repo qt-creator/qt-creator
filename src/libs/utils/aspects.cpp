@@ -830,7 +830,8 @@ void BoolAspect::fromMap(const QVariantMap &map)
 */
 void BoolAspect::toMap(QVariantMap &data) const
 {
-    data.insert(settingsKey(), d->m_value);
+    if (!settingsKey().isEmpty())
+        data.insert(settingsKey(), d->m_value);
 }
 
 bool BoolAspect::defaultValue() const
@@ -956,7 +957,8 @@ void SelectionAspect::fromMap(const QVariantMap &map)
 */
 void SelectionAspect::toMap(QVariantMap &data) const
 {
-    data.insert(settingsKey(), d->m_value);
+    if (!settingsKey().isEmpty())
+        data.insert(settingsKey(), d->m_value);
 }
 
 void SelectionAspect::setVisibleDynamic(bool visible)
@@ -1232,7 +1234,8 @@ void StringListAspect::fromMap(const QVariantMap &map)
 */
 void StringListAspect::toMap(QVariantMap &data) const
 {
-    data.insert(settingsKey(), d->m_value);
+    if (!settingsKey().isEmpty())
+        data.insert(settingsKey(), d->m_value);
 }
 
 QStringList StringListAspect::value() const
