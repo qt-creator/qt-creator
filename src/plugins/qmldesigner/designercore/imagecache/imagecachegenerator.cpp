@@ -47,14 +47,20 @@ ImageCacheGenerator::~ImageCacheGenerator()
     waitForFinished();
 }
 
-void ImageCacheGenerator::generateImage(Utils::SmallStringView name,
-                                        Sqlite::TimeStamp timeStamp,
-                                        ImageCacheGeneratorInterface::CaptureCallback &&captureCallback,
-                                        AbortCallback &&abortCallback)
+void ImageCacheGenerator::generateImage(
+    Utils::SmallStringView name,
+    Utils::SmallStringView state,
+    Sqlite::TimeStamp timeStamp,
+    ImageCacheGeneratorInterface::CaptureCallback &&captureCallback,
+    AbortCallback &&abortCallback)
 {
     {
         std::lock_guard lock{m_mutex};
-        m_tasks.emplace_back(name, timeStamp, std::move(captureCallback), std::move(abortCallback));
+        m_tasks.emplace_back(name,
+                             state,
+                             timeStamp,
+                             std::move(captureCallback),
+                             std::move(abortCallback));
     }
 
     m_condition.notify_all();
@@ -99,6 +105,7 @@ void ImageCacheGenerator::startGeneration()
 
         m_collector.start(
             task.filePath,
+            task.state,
             [this, task](QImage &&image) {
                 if (image.isNull())
                     task.abortCallback();

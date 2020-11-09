@@ -35,6 +35,7 @@ public:
     MOCK_METHOD(void,
                 generateImage,
                 (Utils::SmallStringView name,
+                 Utils::SmallStringView state,
                  Sqlite::TimeStamp timeStamp,
                  CaptureCallback &&captureCallback,
                  AbortCallback &&abortCallback),

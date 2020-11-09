@@ -41,53 +41,87 @@ namespace QmlDesigner {
 
 class CreateSceneCommand
 {
-    friend QDataStream &operator>>(QDataStream &in, CreateSceneCommand &command);
+public:
+    CreateSceneCommand() = default;
+    explicit CreateSceneCommand(const QVector<InstanceContainer> &instanceContainer,
+                                const QVector<ReparentContainer> &reparentContainer,
+                                const QVector<IdContainer> &idVector,
+                                const QVector<PropertyValueContainer> &valueChangeVector,
+                                const QVector<PropertyBindingContainer> &bindingChangeVector,
+                                const QVector<PropertyValueContainer> &auxiliaryChangeVector,
+                                const QVector<AddImportContainer> &importVector,
+                                const QVector<MockupTypeContainer> &mockupTypeVector,
+                                const QUrl &fileUrl,
+                                const QHash<QString, QVariantMap> &edit3dToolStates,
+                                const QString &language,
+                                qint32 stateInstanceId)
+        : instances(instanceContainer)
+        , reparentInstances(reparentContainer)
+        , ids(idVector)
+        , valueChanges(valueChangeVector)
+        , bindingChanges(bindingChangeVector)
+        , auxiliaryChanges(auxiliaryChangeVector)
+        , imports(importVector)
+        , mockupTypes(mockupTypeVector)
+        , fileUrl(fileUrl)
+        , edit3dToolStates(edit3dToolStates)
+        , language(language)
+        , stateInstanceId{stateInstanceId}
+    {}
+
+    friend QDataStream &operator<<(QDataStream &out, const CreateSceneCommand &command)
+    {
+        out << command.instances;
+        out << command.reparentInstances;
+        out << command.ids;
+        out << command.valueChanges;
+        out << command.bindingChanges;
+        out << command.auxiliaryChanges;
+        out << command.imports;
+        out << command.mockupTypes;
+        out << command.fileUrl;
+        out << command.edit3dToolStates;
+        out << command.language;
+        out << command.stateInstanceId;
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, CreateSceneCommand &command)
+    {
+        in >> command.instances;
+        in >> command.reparentInstances;
+        in >> command.ids;
+        in >> command.valueChanges;
+        in >> command.bindingChanges;
+        in >> command.auxiliaryChanges;
+        in >> command.imports;
+        in >> command.mockupTypes;
+        in >> command.fileUrl;
+        in >> command.edit3dToolStates;
+        in >> command.language;
+        in >> command.stateInstanceId;
+
+        return in;
+    }
 
 public:
-    CreateSceneCommand();
-    explicit CreateSceneCommand(
-        const QVector<InstanceContainer> &instanceContainer,
-        const QVector<ReparentContainer> &reparentContainer,
-        const QVector<IdContainer> &idVector,
-        const QVector<PropertyValueContainer> &valueChangeVector,
-        const QVector<PropertyBindingContainer> &bindingChangeVector,
-        const QVector<PropertyValueContainer> &auxiliaryChangeVector,
-        const QVector<AddImportContainer> &importVector,
-        const QVector<MockupTypeContainer> &mockupTypeVector,
-        const QUrl &fileUrl,
-        const QHash<QString, QVariantMap> &edit3dToolStates,
-        const QString &language);
-
-    QVector<InstanceContainer> instances() const;
-    QVector<ReparentContainer> reparentInstances() const;
-    QVector<IdContainer> ids() const;
-    QVector<PropertyValueContainer> valueChanges() const;
-    QVector<PropertyBindingContainer> bindingChanges() const;
-    QVector<PropertyValueContainer> auxiliaryChanges() const;
-    QVector<AddImportContainer> imports() const;
-    QVector<MockupTypeContainer> mockupTypes() const;
-    QUrl fileUrl() const;
-    QHash<QString, QVariantMap> edit3dToolStates() const;
-    QString language() const;
-
-private:
-    QVector<InstanceContainer> m_instanceVector;
-    QVector<ReparentContainer> m_reparentInstanceVector;
-    QVector<IdContainer> m_idVector;
-    QVector<PropertyValueContainer> m_valueChangeVector;
-    QVector<PropertyBindingContainer> m_bindingChangeVector;
-    QVector<PropertyValueContainer> m_auxiliaryChangeVector;
-    QVector<AddImportContainer> m_importVector;
-    QVector<MockupTypeContainer> m_mockupTypeVector;
-    QUrl m_fileUrl;
-    QHash<QString, QVariantMap> m_edit3dToolStates;
-    QString m_language;
+    QVector<InstanceContainer> instances;
+    QVector<ReparentContainer> reparentInstances;
+    QVector<IdContainer> ids;
+    QVector<PropertyValueContainer> valueChanges;
+    QVector<PropertyBindingContainer> bindingChanges;
+    QVector<PropertyValueContainer> auxiliaryChanges;
+    QVector<AddImportContainer> imports;
+    QVector<MockupTypeContainer> mockupTypes;
+    QUrl fileUrl;
+    QHash<QString, QVariantMap> edit3dToolStates;
+    QString language;
+    qint32 stateInstanceId = 0;
 };
 
-QDataStream &operator<<(QDataStream &out, const CreateSceneCommand &command);
-QDataStream &operator>>(QDataStream &in, CreateSceneCommand &command);
+QDebug operator<<(QDebug debug, const CreateSceneCommand &command);
 
-QDebug operator <<(QDebug debug, const CreateSceneCommand &command);
-}
+} // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::CreateSceneCommand)

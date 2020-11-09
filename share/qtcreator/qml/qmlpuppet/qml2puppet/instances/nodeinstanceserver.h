@@ -289,6 +289,7 @@ protected:
     static QList<QObject*> allSubObjectsForObject(QObject *object);
 
     virtual void resizeCanvasSizeToRootItemSize() = 0;
+    void setupState(qint32 stateInstanceId);
 
 private:
     void setupOnlyWorkingImports(const QStringList &workingImportStatementList);

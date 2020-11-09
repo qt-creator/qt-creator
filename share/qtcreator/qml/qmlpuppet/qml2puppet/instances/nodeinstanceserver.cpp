@@ -318,12 +318,13 @@ void NodeInstanceServer::stopRenderTimer()
 
 void NodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
-    setTranslationLanguage(command.language());
+    setTranslationLanguage(command.language);
     initializeView();
 
     Internal::QmlPrivateGate::stopUnifiedTimer();
 
     setupScene(command);
+    setupState(command.stateInstanceId);
     refreshBindings();
     startRenderTimer();
 }
@@ -399,15 +400,7 @@ void NodeInstanceServer::reparentInstances(const ReparentInstancesCommand &comma
 
 void NodeInstanceServer::changeState(const ChangeStateCommand &command)
 {
-    if (hasInstanceForId(command.stateInstanceId())) {
-        if (activeStateInstance().isValid())
-            activeStateInstance().deactivateState();
-        ServerNodeInstance instance = instanceForId(command.stateInstanceId());
-        instance.activateState();
-    } else {
-        if (activeStateInstance().isValid())
-            activeStateInstance().deactivateState();
-    }
+    setupState(command.stateInstanceId());
 
     startRenderTimer();
 }
@@ -569,38 +562,37 @@ void NodeInstanceServer::setupDefaultDummyData()
 
 QList<ServerNodeInstance> NodeInstanceServer::setupInstances(const CreateSceneCommand &command)
 {
-    QList<ServerNodeInstance> instanceList = createInstances(command.instances());
+    QList<ServerNodeInstance> instanceList = createInstances(command.instances);
 
-    foreach (const IdContainer &container, command.ids()) {
+    for (const IdContainer &container : std::as_const(command.ids)) {
         if (hasInstanceForId(container.instanceId()))
             instanceForId(container.instanceId()).setId(container.id());
     }
 
-    foreach (const PropertyValueContainer &container, command.valueChanges()) {
+    for (const PropertyValueContainer &container : std::as_const(command.valueChanges)) {
         if (container.isDynamic())
             setInstancePropertyVariant(container);
     }
 
-    foreach (const PropertyValueContainer &container, command.valueChanges()) {
+    for (const PropertyValueContainer &container : std::as_const(command.valueChanges)) {
         if (!container.isDynamic())
             setInstancePropertyVariant(container);
     }
 
-    reparentInstances(command.reparentInstances());
+    reparentInstances(command.reparentInstances);
 
-    foreach (const PropertyBindingContainer &container, command.bindingChanges()) {
+    for (const PropertyBindingContainer &container : std::as_const(command.bindingChanges)) {
         if (container.isDynamic())
             setInstancePropertyBinding(container);
     }
 
-    foreach (const PropertyBindingContainer &container, command.bindingChanges()) {
+    for (const PropertyBindingContainer &container : std::as_const(command.bindingChanges)) {
         if (!container.isDynamic())
             setInstancePropertyBinding(container);
     }
 
-    foreach (const PropertyValueContainer &container, command.auxiliaryChanges()) {
+    for (const PropertyValueContainer &container : std::as_const(command.auxiliaryChanges))
         setInstanceAuxiliaryData(container);
-    }
 
     for (int i = instanceList.size(); --i >= 0; )
         instanceList[i].doComponentComplete();
@@ -1496,6 +1488,19 @@ void NodeInstanceServer::handleInstanceLocked(const ServerNodeInstance &/*instan
 void NodeInstanceServer::handleInstanceHidden(const ServerNodeInstance &/*instance*/, bool /*enable*/,
                                               bool /*checkAncestors*/)
 {
+}
+
+void NodeInstanceServer::setupState(qint32 stateInstanceId)
+{
+    if (hasInstanceForId(stateInstanceId)) {
+        if (activeStateInstance().isValid())
+            activeStateInstance().deactivateState();
+        ServerNodeInstance instance = instanceForId(stateInstanceId);
+        instance.activateState();
+    } else {
+        if (activeStateInstance().isValid())
+            activeStateInstance().deactivateState();
+    }
 }
 
 } // namespace QmlDesigner

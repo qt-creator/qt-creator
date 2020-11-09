@@ -137,7 +137,7 @@ void Qt5RenderNodeInstanceServer::createScene(const CreateSceneCommand &command)
     Qt5NodeInstanceServer::createScene(command);
 
     QList<ServerNodeInstance> instanceList;
-    foreach (const InstanceContainer &container, command.instances()) {
+    for (const InstanceContainer &container : std::as_const(command.instances)) {
         if (hasInstanceForId(container.instanceId())) {
             ServerNodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {

@@ -112,8 +112,8 @@ TEST_F(ImageCache, RequestImageRequestImageFromGenerator)
         .WillByDefault(Return(Sqlite::TimeStamp{123}));
 
     EXPECT_CALL(mockGenerator,
-                generateImage(Eq("/path/to/Component.qml"), Eq(Sqlite::TimeStamp{123}), _, _))
-        .WillRepeatedly([&](auto &&, auto, auto &&callback, auto) { notification.notify(); });
+                generateImage(Eq("/path/to/Component.qml"), _, Eq(Sqlite::TimeStamp{123}), _, _))
+        .WillRepeatedly([&](auto, auto, auto, auto &&callback, auto) { notification.notify(); });
 
     cache.requestImage("/path/to/Component.qml",
                        mockCaptureCallback.AsStdFunction(),
@@ -123,8 +123,8 @@ TEST_F(ImageCache, RequestImageRequestImageFromGenerator)
 
 TEST_F(ImageCache, RequestImageCallsCaptureCallbackWithImageFromGenerator)
 {
-    ON_CALL(mockGenerator, generateImage(Eq("/path/to/Component.qml"), _, _, _))
-        .WillByDefault([&](auto &&, auto, auto &&callback, auto) {
+    ON_CALL(mockGenerator, generateImage(Eq("/path/to/Component.qml"), _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto &&callback, auto) {
             callback(QImage{image1});
             notification.notify();
         });
@@ -139,8 +139,8 @@ TEST_F(ImageCache, RequestImageCallsCaptureCallbackWithImageFromGenerator)
 
 TEST_F(ImageCache, RequestImageCallsAbortCallbackFromGenerator)
 {
-    ON_CALL(mockGenerator, generateImage(Eq("/path/to/Component.qml"), _, _, _))
-        .WillByDefault([&](auto &&, auto, auto &&, auto &&abortCallback) {
+    ON_CALL(mockGenerator, generateImage(Eq("/path/to/Component.qml"), _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto &&, auto &&abortCallback) {
             abortCallback();
             notification.notify();
         });
@@ -217,8 +217,8 @@ TEST_F(ImageCache, RequestIconRequestImageFromGenerator)
         .WillByDefault(Return(Sqlite::TimeStamp{123}));
 
     EXPECT_CALL(mockGenerator,
-                generateImage(Eq("/path/to/Component.qml"), Eq(Sqlite::TimeStamp{123}), _, _))
-        .WillRepeatedly([&](auto &&, auto, auto &&callback, auto) { notification.notify(); });
+                generateImage(Eq("/path/to/Component.qml"), _, Eq(Sqlite::TimeStamp{123}), _, _))
+        .WillRepeatedly([&](auto, auto, auto, auto &&callback, auto) { notification.notify(); });
 
     cache.requestIcon("/path/to/Component.qml",
                       mockCaptureCallback.AsStdFunction(),
@@ -228,8 +228,8 @@ TEST_F(ImageCache, RequestIconRequestImageFromGenerator)
 
 TEST_F(ImageCache, RequestIconCallsCaptureCallbackWithImageFromGenerator)
 {
-    ON_CALL(mockGenerator, generateImage(Eq("/path/to/Component.qml"), _, _, _))
-        .WillByDefault([&](auto &&, auto, auto &&callback, auto) {
+    ON_CALL(mockGenerator, generateImage(Eq("/path/to/Component.qml"), _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto &&callback, auto) {
             callback(QImage{image1});
             notification.notify();
         });
@@ -244,8 +244,8 @@ TEST_F(ImageCache, RequestIconCallsCaptureCallbackWithImageFromGenerator)
 
 TEST_F(ImageCache, RequestIconCallsAbortCallbackFromGenerator)
 {
-    ON_CALL(mockGenerator, generateImage(Eq("/path/to/Component.qml"), _, _, _))
-        .WillByDefault([&](auto &&, auto, auto &&, auto &&abortCallback) {
+    ON_CALL(mockGenerator, generateImage(Eq("/path/to/Component.qml"), _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto &&, auto &&abortCallback) {
             abortCallback();
             notification.notify();
         });
@@ -260,8 +260,8 @@ TEST_F(ImageCache, RequestIconCallsAbortCallbackFromGenerator)
 
 TEST_F(ImageCache, CleanRemovesEntries)
 {
-    EXPECT_CALL(mockGenerator, generateImage(_, _, _, _))
-        .WillRepeatedly([&](auto &&, auto, auto &&mockCaptureCallback, auto &&) {
+    EXPECT_CALL(mockGenerator, generateImage(_, _, _, _, _))
+        .WillRepeatedly([&](auto, auto, auto, auto &&mockCaptureCallback, auto &&) {
             mockCaptureCallback(QImage{});
             waitInThread.wait();
         });
@@ -280,9 +280,9 @@ TEST_F(ImageCache, CleanRemovesEntries)
 
 TEST_F(ImageCache, CleanCallsAbort)
 {
-    ON_CALL(mockGenerator, generateImage(_, _, _, _))
+    ON_CALL(mockGenerator, generateImage(_, _, _, _, _))
         .WillByDefault(
-            [&](auto &&, auto, auto &&mockCaptureCallback, auto &&) { waitInThread.wait(); });
+            [&](auto, auto, auto, auto &&mockCaptureCallback, auto &&) { waitInThread.wait(); });
     cache.requestIcon("/path/to/Component1.qml",
                       mockCaptureCallback.AsStdFunction(),
                       mockAbortCallback.AsStdFunction());
@@ -310,8 +310,8 @@ TEST_F(ImageCache, AfterCleanNewJobsWorks)
 {
     cache.clean();
 
-    EXPECT_CALL(mockGenerator, generateImage(Eq("/path/to/Component.qml"), _, _, _))
-        .WillRepeatedly([&](auto &&, auto, auto &&, auto &&) { notification.notify(); });
+    EXPECT_CALL(mockGenerator, generateImage(Eq("/path/to/Component.qml"), _, _, _, _))
+        .WillRepeatedly([&](auto, auto, auto, auto &&, auto &&) { notification.notify(); });
 
     cache.requestIcon("/path/to/Component.qml",
                       mockCaptureCallback.AsStdFunction(),
@@ -340,6 +340,52 @@ TEST_F(ImageCache, WaitForFinishedInGenerator)
     EXPECT_CALL(mockGenerator, waitForFinished());
 
     cache.waitForFinished();
+}
+
+TEST_F(ImageCache, RequestImageWithStateFetchesImageFromStorage)
+{
+    EXPECT_CALL(mockStorage, fetchImage(Eq("/path/to/Component.qml+state1"), _))
+        .WillRepeatedly([&](Utils::SmallStringView, auto) {
+            notification.notify();
+            return QmlDesigner::ImageCacheStorageInterface::Entry{{}, false};
+        });
+
+    cache.requestImage("/path/to/Component.qml",
+                       mockCaptureCallback.AsStdFunction(),
+                       mockAbortCallback.AsStdFunction(),
+                       "state1");
+    notification.wait();
+}
+
+TEST_F(ImageCache, RequestIconWithStateFetchesImageFromStorage)
+{
+    EXPECT_CALL(mockStorage, fetchIcon(Eq("/path/to/Component.qml+state1"), _))
+        .WillRepeatedly([&](Utils::SmallStringView, auto) {
+            notification.notify();
+            return QmlDesigner::ImageCacheStorageInterface::Entry{{}, false};
+        });
+
+    cache.requestIcon("/path/to/Component.qml",
+                      mockCaptureCallback.AsStdFunction(),
+                      mockAbortCallback.AsStdFunction(),
+                      "state1");
+    notification.wait();
+}
+
+TEST_F(ImageCache, RequestImageWithStateRequestImageFromGenerator)
+{
+    ON_CALL(mockTimeStampProvider, timeStamp(Eq("/path/to/Component.qml")))
+        .WillByDefault(Return(Sqlite::TimeStamp{123}));
+
+    EXPECT_CALL(mockGenerator,
+                generateImage(Eq("/path/to/Component.qml"), Eq("state1"), Eq(Sqlite::TimeStamp{123}), _, _))
+        .WillRepeatedly([&](auto, auto, auto, auto &&callback, auto) { notification.notify(); });
+
+    cache.requestImage("/path/to/Component.qml",
+                       mockCaptureCallback.AsStdFunction(),
+                       mockAbortCallback.AsStdFunction(),
+                       "state1");
+    notification.wait();
 }
 
 } // namespace

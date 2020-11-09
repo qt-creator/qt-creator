@@ -54,10 +54,12 @@ public:
 
     void requestImage(Utils::PathString name,
                       CaptureCallback captureCallback,
-                      AbortCallback abortCallback);
+                      AbortCallback abortCallback,
+                      Utils::SmallString state = {});
     void requestIcon(Utils::PathString name,
                      CaptureCallback captureCallback,
-                     AbortCallback abortCallback);
+                     AbortCallback abortCallback,
+                     Utils::SmallString state = {});
 
     void clean();
     void waitForFinished();
@@ -68,16 +70,19 @@ private:
     {
         Entry() = default;
         Entry(Utils::PathString name,
+              Utils::SmallString state,
               CaptureCallback &&captureCallback,
               AbortCallback &&abortCallback,
               RequestType requestType)
             : name{std::move(name)}
+            , state{std::move(state)}
             , captureCallback{std::move(captureCallback)}
             , abortCallback{std::move(abortCallback)}
             , requestType{requestType}
         {}
 
         Utils::PathString name;
+        Utils::SmallString state;
         CaptureCallback captureCallback;
         AbortCallback abortCallback;
         RequestType requestType = RequestType::Image;
@@ -85,6 +90,7 @@ private:
 
     std::tuple<bool, Entry> getEntry();
     void addEntry(Utils::PathString &&name,
+                  Utils::SmallString &&state,
                   CaptureCallback &&captureCallback,
                   AbortCallback &&abortCallback,
                   RequestType requestType);
@@ -93,6 +99,7 @@ private:
     void stopThread();
     bool isRunning();
     static void request(Utils::SmallStringView name,
+                        Utils::SmallStringView state,
                         ImageCache::RequestType requestType,
                         ImageCache::CaptureCallback captureCallback,
                         ImageCache::AbortCallback abortCallback,

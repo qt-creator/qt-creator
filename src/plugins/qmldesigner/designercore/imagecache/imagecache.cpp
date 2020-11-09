@@ -44,6 +44,7 @@ ImageCache::ImageCache(ImageCacheStorageInterface &storage,
         while (isRunning()) {
             if (auto [hasEntry, entry] = getEntry(); hasEntry) {
                 request(entry.name,
+                        entry.state,
                         entry.requestType,
                         std::move(entry.captureCallback),
                         std::move(entry.abortCallback),
@@ -64,6 +65,7 @@ ImageCache::~ImageCache()
 }
 
 void ImageCache::request(Utils::SmallStringView name,
+                         Utils::SmallStringView state,
                          ImageCache::RequestType requestType,
                          ImageCache::CaptureCallback captureCallback,
                          ImageCache::AbortCallback abortCallback,
@@ -71,9 +73,11 @@ void ImageCache::request(Utils::SmallStringView name,
                          ImageCacheGeneratorInterface &generator,
                          TimeStampProviderInterface &timeStampProvider)
 {
+    const auto id = state.empty() ? Utils::PathString{name} : Utils::PathString{name, "+", state};
+
     const auto timeStamp = timeStampProvider.timeStamp(name);
-    const auto entry = requestType == RequestType::Image ? storage.fetchImage(name, timeStamp)
-                                                         : storage.fetchIcon(name, timeStamp);
+    const auto entry = requestType == RequestType::Image ? storage.fetchImage(id, timeStamp)
+                                                         : storage.fetchIcon(id, timeStamp);
 
     if (entry.hasEntry) {
         if (entry.image.isNull())
@@ -81,7 +85,11 @@ void ImageCache::request(Utils::SmallStringView name,
         else
             captureCallback(entry.image);
     } else {
-        generator.generateImage(name, timeStamp, std::move(captureCallback), std::move(abortCallback));
+        generator.generateImage(name,
+                                state,
+                                timeStamp,
+                                std::move(captureCallback),
+                                std::move(abortCallback));
     }
 }
 
@@ -95,17 +103,27 @@ void ImageCache::wait()
 
 void ImageCache::requestImage(Utils::PathString name,
                               ImageCache::CaptureCallback captureCallback,
-                              AbortCallback abortCallback)
+                              AbortCallback abortCallback,
+                              Utils::SmallString state)
 {
-    addEntry(std::move(name), std::move(captureCallback), std::move(abortCallback), RequestType::Image);
+    addEntry(std::move(name),
+             std::move(state),
+             std::move(captureCallback),
+             std::move(abortCallback),
+             RequestType::Image);
     m_condition.notify_all();
 }
 
 void ImageCache::requestIcon(Utils::PathString name,
                              ImageCache::CaptureCallback captureCallback,
-                             ImageCache::AbortCallback abortCallback)
+                             ImageCache::AbortCallback abortCallback,
+                             Utils::SmallString state)
 {
-    addEntry(std::move(name), std::move(captureCallback), std::move(abortCallback), RequestType::Icon);
+    addEntry(std::move(name),
+             std::move(state),
+             std::move(captureCallback),
+             std::move(abortCallback),
+             RequestType::Icon);
     m_condition.notify_all();
 }
 
@@ -136,6 +154,7 @@ std::tuple<bool, ImageCache::Entry> ImageCache::getEntry()
 }
 
 void ImageCache::addEntry(Utils::PathString &&name,
+                          Utils::SmallString &&state,
                           ImageCache::CaptureCallback &&captureCallback,
                           AbortCallback &&abortCallback,
                           RequestType requestType)
@@ -143,6 +162,7 @@ void ImageCache::addEntry(Utils::PathString &&name,
     std::unique_lock lock{m_mutex};
 
     m_entries.emplace_back(std::move(name),
+                           std::move(state),
                            std::move(captureCallback),
                            std::move(abortCallback),
                            requestType);

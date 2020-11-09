@@ -856,7 +856,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     QList<ModelNode> nodeList = allModelNodes();
     QList<NodeInstance> instanceList;
 
-    foreach (const ModelNode &node, nodeList) {
+    for (const ModelNode &node : std::as_const(nodeList)) {
         NodeInstance instance = loadNode(node);
         if (!isSkippedNode(node))
             instanceList.append(instance);
@@ -868,7 +868,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     QList<BindingProperty> bindingPropertyList;
 
     QVector<PropertyValueContainer> auxiliaryContainerVector;
-    foreach (const ModelNode &node, nodeList) {
+    for (const ModelNode &node : std::as_const(nodeList)) {
         variantPropertyList.append(node.variantProperties());
         bindingPropertyList.append(node.bindingProperties());
         if (node.isValid() && hasInstanceForModelNode(node)) {
@@ -883,9 +883,8 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
         }
     }
 
-
     QVector<InstanceContainer> instanceContainerList;
-    foreach (const NodeInstance &instance, instanceList) {
+    for (const NodeInstance &instance : std::as_const(instanceList)) {
         InstanceContainer::NodeSourceType nodeSourceType = static_cast<InstanceContainer::NodeSourceType>(instance.modelNode().nodeSourceType());
 
         InstanceContainer::NodeMetaType nodeMetaType = InstanceContainer::ObjectMetaType;
@@ -911,7 +910,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     }
 
     QVector<ReparentContainer> reparentContainerList;
-    foreach (const NodeInstance &instance, instanceList) {
+    for (const NodeInstance &instance : std::as_const(instanceList)) {
         if (instance.modelNode().hasParentProperty()) {
             NodeAbstractProperty parentProperty = instance.modelNode().parentProperty();
             ReparentContainer container(instance.instanceId(), -1, PropertyName(), instanceForModelNode(parentProperty.parentModelNode()).instanceId(), parentProperty.name());
@@ -920,7 +919,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     }
 
     QVector<IdContainer> idContainerList;
-    foreach (const NodeInstance &instance, instanceList) {
+    for (const NodeInstance &instance : std::as_const(instanceList)) {
         QString id = instance.modelNode().id();
         if (!id.isEmpty()) {
             IdContainer container(instance.instanceId(), id);
@@ -929,7 +928,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     }
 
     QVector<PropertyValueContainer> valueContainerList;
-    foreach (const VariantProperty &property, variantPropertyList) {
+    for (const VariantProperty &property : std::as_const(variantPropertyList)) {
         ModelNode node = property.parentModelNode();
         if (node.isValid() && hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
@@ -939,7 +938,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     }
 
     QVector<PropertyBindingContainer> bindingContainerList;
-    foreach (const BindingProperty &property, bindingPropertyList) {
+    for (const BindingProperty &property : std::as_const(bindingPropertyList)) {
         ModelNode node = property.parentModelNode();
         if (node.isValid() && hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
@@ -949,7 +948,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     }
 
     QVector<AddImportContainer> importVector;
-    foreach (const Import &import, model()->imports())
+    for (const Import &import : model()->imports())
         importVector.append(AddImportContainer(import.url(), import.file(), import.version(), import.alias(), import.importPaths()));
 
     QVector<MockupTypeContainer> mockupTypesVector;
@@ -993,19 +992,23 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current(m_currentTarget))
         lastUsedLanguage = multiLanguageAspect->currentLocale();
 
-    return CreateSceneCommand(
-                instanceContainerList,
-                reparentContainerList,
-                idContainerList,
-                valueContainerList,
-                bindingContainerList,
-                auxiliaryContainerVector,
-                importVector,
-                mockupTypesVector,
-                model()->fileUrl(),
-                m_edit3DToolStates[model()->fileUrl()],
-                lastUsedLanguage
-                );
+    ModelNode stateNode = currentStateNode();
+    qint32 stateInstanceId = 0;
+    if (stateNode.isValid() && stateNode.metaInfo().isSubclassOf("QtQuick.State", 1, 0))
+        stateInstanceId = stateNode.internalId();
+
+    return CreateSceneCommand(instanceContainerList,
+                              reparentContainerList,
+                              idContainerList,
+                              valueContainerList,
+                              bindingContainerList,
+                              auxiliaryContainerVector,
+                              importVector,
+                              mockupTypesVector,
+                              model()->fileUrl(),
+                              m_edit3DToolStates[model()->fileUrl()],
+                              lastUsedLanguage,
+                              stateInstanceId);
 }
 
 ClearSceneCommand NodeInstanceView::createClearSceneCommand() const
