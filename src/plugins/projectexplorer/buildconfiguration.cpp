@@ -205,7 +205,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
             this, &BuildConfiguration::emitBuildDirectoryChanged);
     connect(this, &BuildConfiguration::environmentChanged, this, [this] {
         d->m_buildDirectoryAspect->setEnvironment(environment());
-        this->target()->buildEnvironmentChanged(this);
+        emit this->target()->buildEnvironmentChanged(this);
     });
 
     connect(target, &Target::parsingStarted, this, &BuildConfiguration::enabledChanged);
