@@ -177,7 +177,7 @@ void InterpreterAspect::fromMap(const QVariantMap &map)
 
 void InterpreterAspect::toMap(QVariantMap &map) const
 {
-    map.insert(settingsKey(), m_currentId);
+    saveToMap(map, m_currentId, QString());
 }
 
 void InterpreterAspect::addToLayout(LayoutBuilder &builder)

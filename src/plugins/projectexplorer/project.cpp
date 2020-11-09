@@ -654,7 +654,8 @@ QVariantMap Project::toMap() const
         map.insert(QString::fromLatin1(TARGET_KEY_PREFIX) + QString::number(i), ts.at(i)->toMap());
 
     map.insert(QLatin1String(EDITOR_SETTINGS_KEY), d->m_editorConfiguration.toMap());
-    map.insert(QLatin1String(PLUGIN_SETTINGS_KEY), d->m_pluginSettings);
+    if (!d->m_pluginSettings.isEmpty())
+        map.insert(QLatin1String(PLUGIN_SETTINGS_KEY), d->m_pluginSettings);
 
     return map;
 }

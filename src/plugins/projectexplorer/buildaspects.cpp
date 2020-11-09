@@ -83,7 +83,7 @@ void BuildDirectoryAspect::toMap(QVariantMap &map) const
     StringAspect::toMap(map);
     if (!d->sourceDir.isEmpty()) {
         const FilePath shadowDir = isChecked() ? filePath() : d->savedShadowBuildDir;
-        map.insert(settingsKey() + ".shadowDir", shadowDir.toString());
+        saveToMap(map, shadowDir.toString(), QString(), ".shadowDir");
     }
 }
 

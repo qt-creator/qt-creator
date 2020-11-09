@@ -131,14 +131,16 @@ void BaseAspect::addToLayout(LayoutBuilder &)
 {
 }
 
-void BaseAspect::saveToMap(QVariantMap &data, const QVariant &value, const QVariant &defaultValue) const
+void BaseAspect::saveToMap(QVariantMap &data, const QVariant &value,
+                           const QVariant &defaultValue, const QString &keyExtension) const
 {
     if (settingsKey().isEmpty())
         return;
+    const QString key = settingsKey() + keyExtension;
     if (value == defaultValue)
-        data.remove(settingsKey());
+        data.remove(key);
     else
-        data.insert(settingsKey(), value);
+        data.insert(key, value);
 }
 
 /*!

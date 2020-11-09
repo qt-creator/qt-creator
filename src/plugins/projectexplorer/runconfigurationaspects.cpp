@@ -208,11 +208,6 @@ void WorkingDirectoryAspect::acquaintSiblings(const BaseAspects &siblings)
     m_envAspect = siblings.aspect<EnvironmentAspect>();
 }
 
-QString WorkingDirectoryAspect::keyForDefaultWd() const
-{
-    return settingsKey() + ".default";
-}
-
 void WorkingDirectoryAspect::resetPath()
 {
     m_chooser->setFilePath(m_defaultWorkingDirectory);
@@ -224,7 +219,7 @@ void WorkingDirectoryAspect::resetPath()
 void WorkingDirectoryAspect::fromMap(const QVariantMap &map)
 {
     m_workingDirectory = FilePath::fromString(map.value(settingsKey()).toString());
-    m_defaultWorkingDirectory = FilePath::fromString(map.value(keyForDefaultWd()).toString());
+    m_defaultWorkingDirectory = FilePath::fromString(map.value(settingsKey() + ".default").toString());
 
     if (m_workingDirectory.isEmpty())
         m_workingDirectory = m_defaultWorkingDirectory;
@@ -240,8 +235,8 @@ void WorkingDirectoryAspect::toMap(QVariantMap &data) const
 {
     const QString wd = m_workingDirectory == m_defaultWorkingDirectory
         ? QString() : m_workingDirectory.toString();
-    data.insert(settingsKey(), wd);
-    data.insert(keyForDefaultWd(), m_defaultWorkingDirectory.toString());
+    saveToMap(data, wd, QString());
+    saveToMap(data, m_defaultWorkingDirectory.toString(), QString(), ".default");
 }
 
 /*!
@@ -416,8 +411,8 @@ void ArgumentsAspect::fromMap(const QVariantMap &map)
 */
 void ArgumentsAspect::toMap(QVariantMap &map) const
 {
-    map.insert(settingsKey(), m_arguments);
-    map.insert(settingsKey() + ".multi", m_multiLine);
+    saveToMap(map, m_arguments, QString());
+    saveToMap(map, m_multiLine, false, ".multi");
 }
 
 /*!

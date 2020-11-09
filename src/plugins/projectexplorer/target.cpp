@@ -579,7 +579,8 @@ QVariantMap Target::toMap() const
     for (int i = 0; i < rcs.size(); ++i)
         map.insert(QString::fromLatin1(RC_KEY_PREFIX) + QString::number(i), rcs.at(i)->toMap());
 
-    map.insert(QLatin1String(PLUGIN_SETTINGS_KEY), d->m_pluginSettings);
+    if (!d->m_pluginSettings.isEmpty())
+        map.insert(QLatin1String(PLUGIN_SETTINGS_KEY), d->m_pluginSettings);
 
     return map;
 }
