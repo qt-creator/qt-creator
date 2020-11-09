@@ -31,6 +31,8 @@
 #include <utils/id.h>
 #include <utils/qtcassert.h>
 
+#include <QRegularExpression>
+
 namespace Autotest {
 namespace Internal {
 
