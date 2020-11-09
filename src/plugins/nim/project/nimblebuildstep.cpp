@@ -84,6 +84,7 @@ class NimParser : public OutputTaskParser
 
 class NimbleBuildStep : public AbstractProcessStep
 {
+    Q_DECLARE_TR_FUNCTIONS(Nim::NimbleBuilStep)
 public:
     NimbleBuildStep(BuildStepList *parentList, Id id);
 

@@ -32,6 +32,8 @@ namespace Internal {
 
 class MakeCommandBuilder final : public CommandBuilder
 {
+    Q_DECLARE_TR_FUNCTIONS(IncrediBuild::Internal::MakeCommandBuilder)
+
 public:
     MakeCommandBuilder(ProjectExplorer::BuildStep *buildStep) : CommandBuilder(buildStep) {}
 

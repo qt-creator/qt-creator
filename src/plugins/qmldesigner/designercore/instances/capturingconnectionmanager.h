@@ -31,6 +31,8 @@ namespace QmlDesigner {
 
 class QMLDESIGNERCORE_EXPORT CapturingConnectionManager : public InteractiveConnectionManager
 {
+    Q_OBJECT
+
 public:
     void setUp(NodeInstanceServerInterface *nodeInstanceServer,
                const QString &qrcMappingString,

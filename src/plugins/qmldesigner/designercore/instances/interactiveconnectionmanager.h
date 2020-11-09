@@ -31,6 +31,8 @@ namespace QmlDesigner {
 
 class InteractiveConnectionManager : public ConnectionManager
 {
+    Q_OBJECT
+
 public:
     InteractiveConnectionManager();
 

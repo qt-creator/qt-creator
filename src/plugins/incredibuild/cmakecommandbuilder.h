@@ -32,6 +32,8 @@ namespace Internal {
 
 class CMakeCommandBuilder : public CommandBuilder
 {
+    Q_DECLARE_TR_FUNCTIONS(IncrediBuild::Internal::CMakeCommandBuilder)
+
 public:
     CMakeCommandBuilder(ProjectExplorer::BuildStep *buildStep) : CommandBuilder(buildStep) {}
 

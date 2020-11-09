@@ -871,11 +871,11 @@ void Perspective::registerNextPrevShortcuts(QAction *next, QAction *prev)
     static const char nextId[] = "Analyzer.nextitem";
     static const char prevId[] = "Analyzer.previtem";
 
-    next->setText(tr("Next Item"));
+    next->setText(DebuggerMainWindow::tr("Next Item"));
     Command * const nextCmd = ActionManager::registerAction(next, nextId,
                                                             Context(Id::fromString(id())));
     nextCmd->augmentActionWithShortcutToolTip(next);
-    prev->setText(tr("Previous Item"));
+    prev->setText(DebuggerMainWindow::tr("Previous Item"));
     Command * const prevCmd = ActionManager::registerAction(prev, prevId,
                                                             Context(Id::fromString(id())));
     prevCmd->augmentActionWithShortcutToolTip(prev);
