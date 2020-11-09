@@ -342,12 +342,12 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
             return Usage::Type::Read;
         if ((*it)->asIfStatement())
             return Usage::Type::Read;
-        if ((*it)->asLambdaCapture() || (*it)->asNamedTypeSpecifier()
-                || (*it)->asElaboratedTypeSpecifier()) {
+        if ((*it)->asLambdaCapture())
             return Usage::Type::Other;
-        }
         if ((*it)->asTypenameTypeParameter())
             return Usage::Type::Declaration;
+        if ((*it)->asNewExpression())
+            return Usage::Type::Other;
         if (ClassSpecifierAST *classSpec = (*it)->asClassSpecifier()) {
             if (classSpec->name == *(it - 1))
                 return Usage::Type::Declaration;
@@ -380,6 +380,16 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
             default:
                 return Usage::Type::Read;
             }
+        }
+        if (const auto sizeofExpr = (*it)->asSizeofExpression()) {
+            if (containsToken(sizeofExpr->expression))
+                return Usage::Type::Read;
+            return Usage::Type::Other;
+        }
+        if (const auto arrayExpr = (*it)->asArrayAccess()) {
+            if (containsToken(arrayExpr->expression))
+                return Usage::Type::Read;
+            continue;
         }
         if (const auto postIncrDecrOp = (*it)->asPostIncrDecr())
             return checkPotentialWrite(Usage::Type::Write, it + 1);

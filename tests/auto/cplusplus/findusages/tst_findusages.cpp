@@ -2092,6 +2092,10 @@ int main()
     S::value--;
     s.staticFunc1();
     s.staticFunc2();
+    S::value = sizeof S::value;
+    int array[3];
+    array[S::value] = S::value;
+    S::value = array[S::value];
 }
 )";
 
@@ -2117,7 +2121,7 @@ int main()
     // Access to struct member
     FindUsages find(src, doc, snapshot);
     find(sv);
-    QCOMPARE(find.usages().size(), 25);
+    QCOMPARE(find.usages().size(), 31);
     QCOMPARE(find.usages().at(0).type, Usage::Type::Read);
     QCOMPARE(find.usages().at(1).type, Usage::Type::Declaration);
     QCOMPARE(find.usages().at(2).type, Usage::Type::WritableRef);
@@ -2143,6 +2147,12 @@ int main()
     QCOMPARE(find.usages().at(22).type, Usage::Type::Write);
     QCOMPARE(find.usages().at(23).type, Usage::Type::Write);
     QCOMPARE(find.usages().at(24).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(25).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(26).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(27).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(28).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(29).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(30).type, Usage::Type::Read);
 
     Declaration * const sv2 = structS->memberAt(2)->asDeclaration();
     QVERIFY(sv2);
@@ -2159,7 +2169,7 @@ int main()
     QCOMPARE(main->memberCount(), 1);
     Block * const block = main->memberAt(0)->asBlock();
     QVERIFY(block);
-    QCOMPARE(block->memberCount(), 17);
+    QCOMPARE(block->memberCount(), 18);
 
     // Access to pointer
     Declaration * const p = block->memberAt(1)->asDeclaration();
@@ -2227,7 +2237,7 @@ int main()
 
     // Usages of struct type
     find(structS);
-    QCOMPARE(find.usages().size(), 12);
+    QCOMPARE(find.usages().size(), 18);
     QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
     QCOMPARE(find.usages().at(1).type, Usage::Type::Other);
     QCOMPARE(find.usages().at(2).type, Usage::Type::Other);
@@ -2243,6 +2253,22 @@ int main()
     QCOMPARE(find.usages().at(9).type, Usage::Type::Write);
     QCOMPARE(find.usages().at(10).type, Usage::Type::Write);
     QCOMPARE(find.usages().at(11).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(12).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(13).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(14).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(15).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(16).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(17).type, Usage::Type::Read);
+
+    // Arrays.
+    Declaration * const array = block->memberAt(17)->asDeclaration();
+    QVERIFY(p);
+    QCOMPARE(array->name()->identifier()->chars(), "array");
+    find(array);
+    QCOMPARE(find.usages().size(), 3);
+    QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
+    QCOMPARE(find.usages().at(1).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(2).type, Usage::Type::Read);
 }
 
 QTEST_APPLESS_MAIN(tst_FindUsages)
