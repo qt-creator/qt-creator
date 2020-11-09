@@ -67,6 +67,7 @@
 #include <QJsonObject>
 #include <QLoggingCategory>
 #include <QPushButton>
+#include <QRegularExpression>
 
 using namespace ProjectExplorer;
 using namespace Utils;
