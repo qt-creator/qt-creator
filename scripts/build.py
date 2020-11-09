@@ -131,7 +131,7 @@ def build_qtcreator(args, paths):
         cmake_args += ['-DPYTHON_EXECUTABLE=' + args.python3]
 
     if args.module_paths:
-        module_paths = [os.path.abspath(fp) for fp in args.module_paths]
+        module_paths = [os.path.abspath(fp).replace('\\', '/') for fp in args.module_paths]
         cmake_args += ['-DCMAKE_MODULE_PATH=' + ';'.join(module_paths)]
 
     # force MSVC on Windows, because it looks for GCC in the PATH first,
