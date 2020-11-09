@@ -47,7 +47,7 @@ public:
     Q_INVOKABLE CppTools::CppProjectUpdaterInterface *create();
 };
 
-class CPPTOOLS_EXPORT CppProjectUpdater : public QObject, public CppProjectUpdaterInterface
+class CPPTOOLS_EXPORT CppProjectUpdater final : public QObject, public CppProjectUpdaterInterface
 {
     Q_OBJECT
 
