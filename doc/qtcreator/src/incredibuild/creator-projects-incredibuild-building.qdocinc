@@ -45,7 +45,7 @@
     The build errors and warnings are parsed and displayed in the
     \uicontrol Issues output pane.
 
-    Select the \uicontrol {Keep original jobs num} check box to stop
+    Select the \uicontrol {Keep original jobs number} check box to stop
     IncrediBuild from overriding the \c {-j} command line switch, which
     controls the number of processes that the build tools executed by
     \QC run in parallel. The default value set by IncrediBuild is 200.
@@ -79,9 +79,10 @@
             be used to provide configuration options if those builds use
             additional processes that are not included in those packages. It is
             required to configure distributable processes in Dev Tools builds.
-        \li \uicontrol {Avoid local} frees up resources on the initiator
-            machine. This might be beneficial for distribution if the initiator
-            turns into a bottleneck for the build because of high CPU usage.
+        \li \uicontrol {Avoid local task execution} frees up resources on the
+            initiator machine. This might be beneficial for distribution if the
+            initiator turns into a bottleneck for the build because of high
+            CPU usage.
         \li \uicontrol {Maximum CPUs to utilize in the build} specifies the
             maximum amount of remote cores to use in the build. Overrides the
             corresponding global setting.
@@ -89,7 +90,7 @@
             \uicontrol {Oldest allowed Helper machine OS} specify the newest and
             oldest operating system installed on a Helper machine to be allowed
             to participate as a Helper in the build.
-        \li \uicontrol {Build Title} specifies a custom header line which will
+        \li \uicontrol {Build title} specifies a custom header line which will
             be displayed in the beginning of the build output text. This title
             will also be used for the Build History and Build Monitor displays.
         \li \uicontrol {Save IncrediBuild monitor file} writes a copy of the
@@ -119,8 +120,9 @@
             builds, but not for Make and Build tools or Dev Tools builds.
         \li \uicontrol {Additional arguments} are concatenated to the final
             buildconsole command line.
-        \li \uicontrol {Open Monitor} opens an IncrediBuild Build Monitor that
-            graphically displays the build's progress once the build starts.
+        \li \uicontrol {Open Build Monitor} opens an IncrediBuild Build Monitor
+            that graphically displays the build's progress once the build
+            starts.
     \endlist
 
 //! [incredibuild build steps]
