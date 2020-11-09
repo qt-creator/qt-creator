@@ -30,13 +30,9 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/task.h>
 
-namespace Utils {
-class BoolAspect;
-class FancyLineEdit;
-} // Utils
-
 namespace QbsProjectManager {
 namespace Internal {
+
 class ErrorInfo;
 class QbsProject;
 class QbsSession;
@@ -113,8 +109,10 @@ private:
     void finish();
 
     void updateState();
+    void changeBuildVariant();
 
     QVariantMap m_qbsConfiguration;
+    Utils::SelectionAspect *m_buildVariant = nullptr;
     Utils::IntegerAspect *m_maxJobCount = nullptr;
     Utils::BoolAspect *m_keepGoing = nullptr;
     Utils::BoolAspect *m_showCommandLines = nullptr;

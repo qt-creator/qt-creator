@@ -51,13 +51,10 @@
 
 #include <QBoxLayout>
 #include <QCheckBox>
-#include <QComboBox>
-#include <QFormLayout>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLabel>
 #include <QPlainTextEdit>
-#include <QSpinBox>
 #include <QThread>
 
 // --------------------------------------------------------------------
@@ -87,7 +84,6 @@ private:
     void updateState();
     void updatePropertyEdit(const QVariantMap &data);
 
-    void changeBuildVariant(int);
     void changeUseDefaultInstallDir(bool useDefault);
     void changeInstallDir(const QString &dir);
     void applyCachedProperties();
@@ -119,7 +115,6 @@ private:
     QList<Property> m_propertyCache;
     bool m_ignoreChange = false;
 
-    QComboBox *buildVariantComboBox;
     FancyLineEdit *propertyEdit;
     PathChooser *installDirChooser;
     QCheckBox *defaultInstallDirCheckBox;
@@ -143,7 +138,11 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Utils::Id id) :
     connect(this, &QbsBuildStep::qbsConfigurationChanged,
             qbsBuildConfig, &QbsBuildConfiguration::qbsConfigurationChanged);
 
-//    setQbsConfiguration(other->qbsConfiguration(PreserveVariables));
+    m_buildVariant = addAspect<SelectionAspect>();
+    m_buildVariant->setDisplayName(tr("Build variant:"));
+    m_buildVariant->setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    m_buildVariant->addOption(tr("Debug"));
+    m_buildVariant->addOption(tr("Release"));
 
     m_keepGoing = addAspect<BoolAspect>();
     m_keepGoing->setSettingsKey(QBS_KEEP_GOING);
@@ -183,6 +182,8 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Utils::Id id) :
     connect(m_install, &BaseAspect::changed, this, &QbsBuildStep::updateState);
     connect(m_cleanInstallDir, &BaseAspect::changed, this, &QbsBuildStep::updateState);
     connect(m_forceProbes, &BaseAspect::changed, this, &QbsBuildStep::updateState);
+
+    connect(m_buildVariant, &SelectionAspect::changed, this, &QbsBuildStep::changeBuildVariant);
 }
 
 QbsBuildStep::~QbsBuildStep()
@@ -544,20 +545,6 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
 
     setContentsMargins(0, 0, 0, 0);
 
-    buildVariantComboBox = new QComboBox(this);
-    buildVariantComboBox->addItem(tr("Debug"));
-    buildVariantComboBox->addItem(tr("Release"));
-
-    QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    sizePolicy.setHorizontalStretch(0);
-    sizePolicy.setVerticalStretch(0);
-    sizePolicy.setHeightForWidth(buildVariantComboBox->sizePolicy().hasHeightForWidth());
-    buildVariantComboBox->setSizePolicy(sizePolicy);
-
-    auto horizontalLayout_5 = new QHBoxLayout();
-    horizontalLayout_5->addWidget(buildVariantComboBox);
-    horizontalLayout_5->addItem(new QSpacerItem(70, 13, QSizePolicy::Expanding, QSizePolicy::Minimum));
-
     propertyEdit = new FancyLineEdit(this);
 
     defaultInstallDirCheckBox = new QCheckBox(this);
@@ -571,7 +558,7 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     commandLineTextEdit->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 
     LayoutBuilder builder(this);
-    builder.addRow({tr("Build variant:"), horizontalLayout_5});
+    builder.addRow(m_qbsStep->m_buildVariant);
     builder.addRow(m_qbsStep->m_maxJobCount);
     builder.addRow({tr("Properties:"), propertyEdit});
 
@@ -599,10 +586,6 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
         return validateProperties(edit, errorMessage);
     });
 
-    connect(buildVariantComboBox,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &QbsBuildStepConfigWidget::changeBuildVariant);
-
     connect(defaultInstallDirCheckBox, &QCheckBox::toggled, this,
             &QbsBuildStepConfigWidget::changeUseDefaultInstallDir);
 
@@ -620,9 +603,6 @@ void QbsBuildStepConfigWidget::updateState()
         defaultInstallDirCheckBox->setChecked(!m_qbsStep->hasCustomInstallRoot());
     }
 
-    const QString buildVariant = qbsStep()->buildVariant();
-    const int idx = (buildVariant == Constants::QBS_VARIANT_DEBUG) ? 0 : 1;
-    buildVariantComboBox->setCurrentIndex(idx);
     const auto qbsBuildConfig = static_cast<QbsBuildConfiguration *>(qbsStep()->buildConfiguration());
 
     QString command = qbsBuildConfig->equivalentCommandLine(qbsStep()->stepData());
@@ -673,16 +653,14 @@ void QbsBuildStepConfigWidget::updatePropertyEdit(const QVariantMap &data)
     propertyEdit->setText(QtcProcess::joinArgs(propertyList));
 }
 
-void QbsBuildStepConfigWidget::changeBuildVariant(int idx)
+void QbsBuildStep::changeBuildVariant()
 {
     QString variant;
-    if (idx == 1)
+    if (m_buildVariant->value() == 1)
         variant = Constants::QBS_VARIANT_RELEASE;
     else
         variant = Constants::QBS_VARIANT_DEBUG;
-    m_ignoreChange = true;
-    qbsStep()->setBuildVariant(variant);
-    m_ignoreChange = false;
+    setBuildVariant(variant);
 }
 
 void QbsBuildStepConfigWidget::changeUseDefaultInstallDir(bool useDefault)
