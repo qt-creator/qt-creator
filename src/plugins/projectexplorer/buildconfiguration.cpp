@@ -143,6 +143,7 @@ public:
     BuildStepList m_buildSteps;
     BuildStepList m_cleanSteps;
     BuildDirectoryAspect *m_buildDirectoryAspect = nullptr;
+    StringAspect *m_tooltipAspect = nullptr;
     FilePath m_lastEmittedBuildDirectory;
     mutable Environment m_cachedEnvironment;
     QString m_configWidgetDisplayName;
@@ -206,6 +207,15 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     connect(this, &BuildConfiguration::environmentChanged, this, [this] {
         d->m_buildDirectoryAspect->setEnvironment(environment());
         emit this->target()->buildEnvironmentChanged(this);
+    });
+
+    d->m_tooltipAspect = addAspect<StringAspect>();
+    d->m_tooltipAspect->setLabelText(tr("Tooltip in target selector:"));
+    d->m_tooltipAspect->setToolTip(tr("Appears as a tooltip when hovering the build configuration"));
+    d->m_tooltipAspect->setDisplayStyle(StringAspect::LineEditDisplay);
+    d->m_tooltipAspect->setSettingsKey("ProjectExplorer.BuildConfiguration.Tooltip");
+    connect(d->m_tooltipAspect, &StringAspect::changed, this, [this] {
+        setToolTip(d->m_tooltipAspect->value());
     });
 
     connect(target, &Target::parsingStarted, this, &BuildConfiguration::enabledChanged);
@@ -403,7 +413,9 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
 
     d->m_customParsers = transform(map.value(CUSTOM_PARSERS_KEY).toList(), &Utils::Id::fromSetting);
 
-    return ProjectConfiguration::fromMap(map);
+    const bool res = ProjectConfiguration::fromMap(map);
+    setToolTip(d->m_tooltipAspect->value());
+    return res;
 }
 
 void BuildConfiguration::updateCacheAndEmitEnvironmentChanged()
