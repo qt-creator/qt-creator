@@ -45,6 +45,12 @@ public:
                const QStyleOptionViewItem &option,
                const QModelIndex &index) const override;
 
+protected:
+    bool editorEvent(QEvent *event,
+                     QAbstractItemModel *model,
+                     const QStyleOptionViewItem &option,
+                     const QModelIndex &index) override;
+
 private:
     const QIcon m_checkedIcon;
     const QIcon m_uncheckedIcon;

@@ -278,19 +278,24 @@ Qt::ItemFlags NavigatorTreeModel::flags(const QModelIndex &index) const
             return flags;
     }
 
+    const ModelNode modelNode = modelNodeForIndex(index);
+
     if (index.column() == ColumnType::Alias
         || index.column() == ColumnType::Visibility
-        || index.column() == ColumnType::Lock)
-        return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable | Qt::ItemNeverHasChildren;
+        || index.column() == ColumnType::Lock) {
+        if (ModelNode::isThisOrAncestorLocked(modelNode))
+            return Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
+        else
+            return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
+    }
 
-    const ModelNode modelNode = modelNodeForIndex(index);
     if (ModelNode::isThisOrAncestorLocked(modelNode))
         return Qt::NoItemFlags;
 
     if (index.column() == ColumnType::Name)
-        return Qt::ItemIsEditable | Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+        return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled;
 
-    return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable | Qt::ItemNeverHasChildren;
+    return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 }
 
 void static appendForcedNodes(const NodeListProperty &property, QList<ModelNode> &list)
