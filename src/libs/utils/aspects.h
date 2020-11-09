@@ -32,6 +32,7 @@
 #include "optional.h"
 #include "pathchooser.h"
 
+#include <functional>
 #include <memory>
 
 namespace Utils {
@@ -235,6 +236,7 @@ public:
     void setUndoRedoEnabled(bool readOnly);
     void setMacroExpanderProvider(const Utils::MacroExpanderProvider &expanderProvider);
     void setValidationFunction(const Utils::FancyLineEdit::ValidationFunction &validator);
+    void setOpenTerminalHandler(const std::function<void()> &openTerminal);
 
     void validateInput();
 

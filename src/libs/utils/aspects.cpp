@@ -278,6 +278,7 @@ public:
     FilePath m_baseFileName;
     StringAspect::ValueAcceptor m_valueAcceptor;
     FancyLineEdit::ValidationFunction m_validator;
+    std::function<void()> m_openTerminal;
 
     bool m_readOnly = false;
     bool m_undoRedoEnabled = false;
@@ -613,6 +614,13 @@ void StringAspect::setValidationFunction(const FancyLineEdit::ValidationFunction
         d->m_lineEditDisplay->setValidationFunction(d->m_validator);
 }
 
+void StringAspect::setOpenTerminalHandler(const std::function<void ()> &openTerminal)
+{
+    d->m_openTerminal = openTerminal;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setOpenTerminalHandler(openTerminal);
+}
+
 void StringAspect::validateInput()
 {
     if (d->m_pathChooserDisplay)
@@ -667,6 +675,7 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
                 this, &StringAspect::setValue);
         builder.addItem(d->m_pathChooserDisplay.data());
         d->m_pathChooserDisplay->setFileDialogOnly(d->m_fileDialogOnly);
+        d->m_pathChooserDisplay->setOpenTerminalHandler(d->m_openTerminal);
         break;
     case LineEditDisplay:
         d->m_lineEditDisplay = new FancyLineEdit;

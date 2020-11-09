@@ -32,12 +32,13 @@
 namespace Utils { class FilePath; }
 
 namespace ProjectExplorer {
+class BuildConfiguration;
 
 class PROJECTEXPLORER_EXPORT BuildDirectoryAspect : public Utils::StringAspect
 {
     Q_OBJECT
 public:
-    BuildDirectoryAspect();
+    explicit BuildDirectoryAspect(const BuildConfiguration *bc);
     ~BuildDirectoryAspect() override;
 
     void allowInSourceBuilds(const Utils::FilePath &sourceDir);
