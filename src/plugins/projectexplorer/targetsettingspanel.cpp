@@ -612,32 +612,13 @@ public:
     QWidget *panel() const
     {
         if (!m_panel) {
-            QString splitterStateKey = "PanelSplitterState:"
-                    + m_project->projectFilePath().toString() + ':';
-            if (m_subIndex == RunPage) {
-                splitterStateKey += "Run";
-                m_panel = new PanelsWidget(RunSettingsWidget::tr("Run Settings"),
-                                           QIcon(":/projectexplorer/images/RunSettings.png"),
-                                           new RunSettingsWidget(target()));
-            } else {
-                splitterStateKey += "Build";
-                m_panel = new PanelsWidget(QCoreApplication::translate("BuildSettingsPanel", "Build Settings"),
-                                           QIcon(":/projectexplorer/images/BuildSettings.png"),
-                                           new BuildSettingsWidget(target()));
-            }
-            const auto panel = qobject_cast<PanelsWidget *>(m_panel.data());
-            const auto loadSplitterValue = [panel, splitterStateKey] {
-                const QByteArray splitterState = SessionManager::value(splitterStateKey).toByteArray();
-                if (!splitterState.isEmpty())
-                    panel->loadSplitterState(splitterState);
-            };
-            loadSplitterValue();
-            QObject::connect(SessionManager::instance(), &SessionManager::aboutToSaveSession,
-                             panel, [panel, splitterStateKey] {
-                SessionManager::setValue(splitterStateKey, panel->saveSplitterState());
-            });
-            QObject::connect(SessionManager::instance(), &SessionManager::sessionLoaded,
-                             panel, loadSplitterValue);
+            m_panel = (m_subIndex == RunPage)
+                    ? new PanelsWidget(RunSettingsWidget::tr("Run Settings"),
+                                       QIcon(":/projectexplorer/images/RunSettings.png"),
+                                       new RunSettingsWidget(target()))
+                    : new PanelsWidget(QCoreApplication::translate("BuildSettingsPanel", "Build Settings"),
+                                       QIcon(":/projectexplorer/images/BuildSettings.png"),
+                                       new BuildSettingsWidget(target()));
         }
         return m_panel;
     }

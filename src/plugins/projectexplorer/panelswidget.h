@@ -34,8 +34,6 @@ class QGridLayout;
 class QIcon;
 QT_END_NAMESPACE
 
-namespace Core { class MiniSplitter; }
-
 namespace ProjectExplorer {
 
 class PROJECTEXPLORER_EXPORT PanelsWidget : public QWidget
@@ -51,12 +49,8 @@ public:
     void addPropertiesPanel(const QString &displayName, const QIcon &icon,
                             QWidget *widget);
 
-    QByteArray saveSplitterState() const;
-    void loadSplitterState(const QByteArray &state);
-
 private:
     QGridLayout *m_layout;
-    Core::MiniSplitter * const m_splitter;
     QWidget *m_root;
 };
 

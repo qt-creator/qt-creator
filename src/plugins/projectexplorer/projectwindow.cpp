@@ -653,6 +653,19 @@ ProjectWindow::ProjectWindow()
 {
     setBackgroundRole(QPalette::Base);
 
+    // The empty space on the right side of the project mode window.
+    auto rightSpace = new QWidget;
+    rightSpace->setAutoFillBackground(true);
+    rightSpace->setObjectName("ProjectModeRightSpace"); // Needed for dock widget state saving
+    rightSpace->setWindowTitle("dummy");
+
+    auto rightSpaceLayout = new QVBoxLayout(rightSpace);
+    rightSpaceLayout->setContentsMargins(0, 0, 0, 0);
+    rightSpaceLayout->addWidget(new StyledBar(rightSpace)); // The black blob on top
+    rightSpaceLayout->addStretch();
+
+    addDockWidget(Qt::RightDockWidgetArea, addDockForWidget(rightSpace, true));
+
     // Request custom context menu but do not provide any to avoid
     // the creation of the dock window selection menu.
     setContextMenuPolicy(Qt::CustomContextMenu);
