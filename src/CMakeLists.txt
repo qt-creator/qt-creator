@@ -70,7 +70,7 @@ export(EXPORT QtCreator
   FILE ${CMAKE_BINARY_DIR}/cmake/QtCreatorTargets.cmake)
 
 file(COPY
-  ${PROJECT_SOURCE_DIR}/cmake/QtCreatorIDEBranding.cmake
+  ${IDE_BRANDING_FILE}
   ${PROJECT_SOURCE_DIR}/cmake/QtCreatorTranslations.cmake
   ${PROJECT_SOURCE_DIR}/cmake/QtCreatorDocumentation.cmake
   ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPI.cmake
@@ -83,7 +83,7 @@ file(COPY
 # Devel package install
 install(
   FILES
-    ${PROJECT_SOURCE_DIR}/cmake/QtCreatorIDEBranding.cmake
+    ${IDE_BRANDING_FILE}
     ${PROJECT_SOURCE_DIR}/cmake/QtCreatorTranslations.cmake
     ${PROJECT_SOURCE_DIR}/cmake/QtCreatorDocumentation.cmake
     ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPI.cmake
