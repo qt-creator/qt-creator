@@ -141,23 +141,23 @@ void DesignDocumentView::fromText(const QString &text)
     inputModel->setFileUrl(model()->fileUrl());
     QPlainTextEdit textEdit;
     QString imports;
-    foreach (const Import &import, model()->imports())
-        imports += QStringLiteral("import ") + import.toString(true) + QLatin1Char(';') + QLatin1Char('\n');
+    const auto modelImports = model()->imports();
+    for (const Import &import : modelImports)
+        imports += "import " + import.toString(true) + QLatin1Char(';') + QLatin1Char('\n');
 
     textEdit.setPlainText(imports + text);
     NotIndentingTextEditModifier modifier(&textEdit);
 
-    QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, nullptr));
-    rewriterView->setCheckSemanticErrors(false);
-    rewriterView->setTextModifier(&modifier);
-    inputModel->setRewriterView(rewriterView.data());
+    RewriterView rewriterView;
+    rewriterView.setCheckSemanticErrors(false);
+    rewriterView.setTextModifier(&modifier);
+    inputModel->setRewriterView(&rewriterView);
 
-    rewriterView->restoreAuxiliaryData();
+    rewriterView.restoreAuxiliaryData();
 
-    if (rewriterView->errors().isEmpty() && rewriterView->rootModelNode().isValid()) {
-        ModelMerger merger(this);
+    if (rewriterView.errors().isEmpty() && rewriterView.rootModelNode().isValid()) {
         try {
-            merger.replaceModel(rewriterView->rootModelNode());
+            replaceModel(rewriterView.rootModelNode());
         } catch(Exception &/*e*/) {
             /* e.showException(); Do not show any error if the clipboard contains invalid QML */
         }
@@ -237,13 +237,13 @@ void DesignDocumentView::copyModelNodes(const QList<ModelNode> &nodesToCopy)
         Q_ASSERT(view.rootModelNode().type() != "empty");
 
         view.toClipboard();
-    } else { //multi items selected
+    } else { // multi items selected
 
         foreach (ModelNode node, view.rootModelNode().directSubModelNodes()) {
             node.destroy();
         }
         view.changeRootNodeType("QtQuick.Rectangle", 2, 0);
-        view.rootModelNode().setIdWithRefactoring("designer__Selection");
+        view.rootModelNode().setIdWithRefactoring("__multi__selection__");
 
         foreach (const ModelNode &selectedNode, selectedNodes) {
             ModelNode newNode(view.insertModel(selectedNode));
