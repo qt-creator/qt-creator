@@ -42,9 +42,8 @@ using namespace ProjectExplorer;
 namespace CppTools {
 namespace Internal {
 
-ProjectInfoGenerator::ProjectInfoGenerator(
-    const QFutureInterface<void> &futureInterface,
-    const ProjectUpdateInfo &projectUpdateInfo)
+ProjectInfoGenerator::ProjectInfoGenerator(const QFutureInterface<ProjectInfo> &futureInterface,
+                                           const ProjectUpdateInfo &projectUpdateInfo)
     : m_futureInterface(futureInterface)
     , m_projectUpdateInfo(projectUpdateInfo)
 {

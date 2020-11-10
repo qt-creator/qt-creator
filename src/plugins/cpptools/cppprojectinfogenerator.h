@@ -36,7 +36,7 @@ namespace Internal {
 class ProjectInfoGenerator
 {
 public:
-    ProjectInfoGenerator(const QFutureInterface<void> &futureInterface,
+    ProjectInfoGenerator(const QFutureInterface<ProjectInfo> &futureInterface,
                          const ProjectExplorer::ProjectUpdateInfo &projectUpdateInfo);
 
     ProjectInfo generate();
@@ -52,7 +52,7 @@ private:
                                        Utils::LanguageExtensions languageExtensions);
 
 private:
-    const QFutureInterface<void> m_futureInterface;
+    const QFutureInterface<ProjectInfo> m_futureInterface;
     const ProjectExplorer::ProjectUpdateInfo &m_projectUpdateInfo;
     bool m_cToolchainMissing = false;
     bool m_cxxToolchainMissing = false;

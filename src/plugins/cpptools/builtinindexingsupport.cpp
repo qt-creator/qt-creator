@@ -135,7 +135,6 @@ void classifyFiles(const QSet<QString> &files, QStringList *headers, QStringList
 }
 
 void indexFindErrors(QFutureInterface<void> &indexingFuture,
-                     const QFutureInterface<void> &superFuture,
                      const ParseParams params)
 {
     QStringList sources, headers;
@@ -149,7 +148,7 @@ void indexFindErrors(QFutureInterface<void> &indexingFuture,
     timer.start();
 
     for (int i = 0, end = files.size(); i < end ; ++i) {
-        if (indexingFuture.isCanceled() || superFuture.isCanceled())
+        if (indexingFuture.isCanceled())
             break;
 
         const QString file = files.at(i);
@@ -179,7 +178,6 @@ void indexFindErrors(QFutureInterface<void> &indexingFuture,
 }
 
 void index(QFutureInterface<void> &indexingFuture,
-           const QFutureInterface<void> &superFuture,
            const ParseParams params)
 {
     QScopedPointer<CppSourceProcessor> sourceProcessor(CppModelManager::createSourceProcessor());
@@ -209,7 +207,7 @@ void index(QFutureInterface<void> &indexingFuture,
 
     qCDebug(indexerLog) << "About to index" << files.size() << "files.";
     for (int i = 0; i < files.size(); ++i) {
-        if (indexingFuture.isCanceled() || superFuture.isCanceled())
+        if (indexingFuture.isCanceled())
             break;
 
         const QString fileName = files.at(i);
@@ -243,9 +241,7 @@ void index(QFutureInterface<void> &indexingFuture,
     qCDebug(indexerLog) << "Indexing finished.";
 }
 
-void parse(QFutureInterface<void> &indexingFuture,
-           const QFutureInterface<void> &superFuture,
-           const ParseParams params)
+void parse(QFutureInterface<void> &indexingFuture, const ParseParams params)
 {
     const QSet<QString> &files = params.sourceFiles;
     if (files.isEmpty())
@@ -254,9 +250,9 @@ void parse(QFutureInterface<void> &indexingFuture,
     indexingFuture.setProgressRange(0, files.size());
 
     if (FindErrorsIndexing)
-        indexFindErrors(indexingFuture, superFuture, params);
+        indexFindErrors(indexingFuture, params);
     else
-        index(indexingFuture, superFuture, params);
+        index(indexingFuture, params);
 
     indexingFuture.setProgressValue(files.size());
     CppModelManager::instance()->finishedRefreshingSourceFiles(files);
@@ -349,9 +345,7 @@ BuiltinIndexingSupport::BuiltinIndexingSupport()
 BuiltinIndexingSupport::~BuiltinIndexingSupport() = default;
 
 QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(
-        const QFutureInterface<void> &superFuture,
-        const QSet<QString> &sourceFiles,
-        CppModelManager::ProgressNotificationMode mode)
+    const QSet<QString> &sourceFiles, CppModelManager::ProgressNotificationMode mode)
 {
     CppModelManager *mgr = CppModelManager::instance();
 
@@ -361,7 +355,7 @@ QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(
     params.workingCopy = mgr->workingCopy();
     params.sourceFiles = sourceFiles;
 
-    QFuture<void> result = Utils::runAsync(mgr->sharedThreadPool(), parse, superFuture, params);
+    QFuture<void> result = Utils::runAsync(mgr->sharedThreadPool(), parse, params);
 
     if (m_synchronizer.futures().size() > 10) {
         QList<QFuture<void> > futures = m_synchronizer.futures();

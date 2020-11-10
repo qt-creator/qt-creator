@@ -67,7 +67,8 @@ private:
 private:
     ProjectExplorer::ProjectUpdateInfo m_projectUpdateInfo;
 
-    QFutureInterface<void> m_futureInterface;
+    QFuture<ProjectInfo> m_generateFuture;
+    QFuture<void> m_updateFuture;
     QFutureWatcher<ProjectInfo> m_generateFutureWatcher;
 };
 

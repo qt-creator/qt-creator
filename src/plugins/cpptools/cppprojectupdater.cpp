@@ -37,8 +37,10 @@ namespace CppTools {
 
 CppProjectUpdater::CppProjectUpdater()
 {
-    connect(&m_generateFutureWatcher, &QFutureWatcher<void>::finished,
-            this, &CppProjectUpdater::onProjectInfoGenerated);
+    connect(&m_generateFutureWatcher,
+            &QFutureWatcher<ProjectInfo>::finished,
+            this,
+            &CppProjectUpdater::onProjectInfoGenerated);
 }
 
 CppProjectUpdater::~CppProjectUpdater()
@@ -50,7 +52,6 @@ void CppProjectUpdater::update(const ProjectExplorer::ProjectUpdateInfo &project
 {
     // Stop previous update.
     cancelAndWaitForFinished();
-    m_futureInterface = QFutureInterface<void>();
 
     m_projectUpdateInfo = projectUpdateInfo;
 
@@ -60,26 +61,30 @@ void CppProjectUpdater::update(const ProjectExplorer::ProjectUpdateInfo &project
             this, &CppProjectUpdater::onToolChainRemoved);
 
     // Run the project info generator in a worker thread and continue if that one is finished.
-    const QFuture<ProjectInfo> future = Utils::runAsync([=]() {
+    m_generateFuture = Utils::runAsync([=](QFutureInterface<ProjectInfo> &futureInterface) {
         ProjectUpdateInfo fullProjectUpdateInfo = projectUpdateInfo;
         if (fullProjectUpdateInfo.rppGenerator)
             fullProjectUpdateInfo.rawProjectParts = fullProjectUpdateInfo.rppGenerator();
-        Internal::ProjectInfoGenerator generator(m_futureInterface, fullProjectUpdateInfo);
-        return generator.generate();
+        Internal::ProjectInfoGenerator generator(futureInterface, fullProjectUpdateInfo);
+        futureInterface.reportResult(generator.generate());
     });
-    m_generateFutureWatcher.setFuture(future);
+    m_generateFutureWatcher.setFuture(m_generateFuture);
 }
 
 void CppProjectUpdater::cancel()
 {
-    disconnect(&m_generateFutureWatcher);
-    m_futureInterface.cancel();
+    m_generateFutureWatcher.setFuture({});
+    m_generateFuture.cancel();
+    m_updateFuture.cancel();
 }
 
 void CppProjectUpdater::cancelAndWaitForFinished()
 {
     cancel();
-    m_futureInterface.waitForFinished();
+    if (m_generateFuture.isRunning())
+        m_generateFuture.waitForFinished();
+    if (m_updateFuture.isRunning())
+        m_updateFuture.waitForFinished();
 }
 
 void CppProjectUpdater::onToolChainRemoved(ProjectExplorer::ToolChain *t)
@@ -96,11 +101,11 @@ void CppProjectUpdater::onProjectInfoGenerated()
     disconnect(ToolChainManager::instance(), &ToolChainManager::toolChainRemoved,
                this, &CppProjectUpdater::onToolChainRemoved);
 
-    if (m_futureInterface.isCanceled())
+    if (m_generateFutureWatcher.isCanceled() || m_generateFutureWatcher.future().resultCount() < 1)
         return;
 
-    QFuture<void> future = CppModelManager::instance()
-            ->updateProjectInfo(m_futureInterface, m_generateFutureWatcher.result());
+    m_updateFuture = CppModelManager::instance()->updateProjectInfo(
+        m_generateFutureWatcher.result());
 }
 
 CppProjectUpdaterFactory::CppProjectUpdaterFactory()

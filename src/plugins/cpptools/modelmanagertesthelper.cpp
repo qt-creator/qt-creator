@@ -93,8 +93,7 @@ ModelManagerTestHelper::Project *ModelManagerTestHelper::createProject(const QSt
 QSet<QString> ModelManagerTestHelper::updateProjectInfo(const CppTools::ProjectInfo &projectInfo)
 {
     resetRefreshedSourceFiles();
-    QFutureInterface<void> dummy;
-    CppModelManager::instance()->updateProjectInfo(dummy, projectInfo).waitForFinished();
+    CppModelManager::instance()->updateProjectInfo(projectInfo).waitForFinished();
     QCoreApplication::processEvents();
     return waitForRefreshedSourceFiles();
 }

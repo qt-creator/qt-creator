@@ -930,22 +930,14 @@ static QSet<QString> tooBigFilesRemoved(const QSet<QString> &files, int fileSize
 QFuture<void> CppModelManager::updateSourceFiles(const QSet<QString> &sourceFiles,
                                                  ProgressNotificationMode mode)
 {
-    const QFutureInterface<void> dummy;
-    return updateSourceFiles(dummy, sourceFiles, mode);
-}
-
-QFuture<void> CppModelManager::updateSourceFiles(const QFutureInterface<void> &superFuture,
-                                                 const QSet<QString> &sourceFiles,
-                                                 ProgressNotificationMode mode)
-{
     if (sourceFiles.isEmpty() || !d->m_indexerEnabled)
         return QFuture<void>();
 
     const QSet<QString> filteredFiles = tooBigFilesRemoved(sourceFiles, indexerFileSizeLimitInMb());
 
     if (d->m_indexingSupporter)
-        d->m_indexingSupporter->refreshSourceFiles(superFuture, filteredFiles, mode);
-    return d->m_internalIndexingSupport->refreshSourceFiles(superFuture, filteredFiles, mode);
+        d->m_indexingSupporter->refreshSourceFiles(filteredFiles, mode);
+    return d->m_internalIndexingSupport->refreshSourceFiles(filteredFiles, mode);
 }
 
 QList<ProjectInfo> CppModelManager::projectInfos() const
@@ -1078,25 +1070,23 @@ void CppModelManager::recalculateProjectPartMappings()
     d->m_symbolFinder.clearCache();
 }
 
-void CppModelManager::watchForCanceledProjectIndexer(const QVector<QFuture<void>> &futures,
+void CppModelManager::watchForCanceledProjectIndexer(const QFuture<void> &future,
                                                      ProjectExplorer::Project *project)
 {
-    for (const QFuture<void> &future : futures) {
-        if (future.isCanceled() || future.isFinished())
-            continue;
+    if (future.isCanceled() || future.isFinished())
+        return;
 
-        auto watcher = new QFutureWatcher<void>(this);
-        connect(watcher, &QFutureWatcher<void>::canceled, this, [this, project, watcher]() {
-            if (d->m_projectToIndexerCanceled.contains(project)) // Project not yet removed
-                d->m_projectToIndexerCanceled.insert(project, true);
-            watcher->deleteLater();
-        });
-        connect(watcher, &QFutureWatcher<void>::finished, this, [this, project, watcher]() {
-            d->m_projectToIndexerCanceled.remove(project);
-            watcher->deleteLater();
-        });
-        watcher->setFuture(future);
-    }
+    auto watcher = new QFutureWatcher<void>(this);
+    connect(watcher, &QFutureWatcher<void>::canceled, this, [this, project, watcher]() {
+        if (d->m_projectToIndexerCanceled.contains(project)) // Project not yet removed
+            d->m_projectToIndexerCanceled.insert(project, true);
+        watcher->deleteLater();
+    });
+    connect(watcher, &QFutureWatcher<void>::finished, this, [this, project, watcher]() {
+        d->m_projectToIndexerCanceled.remove(project);
+        watcher->deleteLater();
+    });
+    watcher->setFuture(future);
 }
 
 void CppModelManager::updateCppEditorDocuments(bool projectsUpdated) const
@@ -1128,8 +1118,7 @@ void CppModelManager::updateCppEditorDocuments(bool projectsUpdated) const
     }
 }
 
-QFuture<void> CppModelManager::updateProjectInfo(QFutureInterface<void> &futureInterface,
-                                                 const ProjectInfo &newProjectInfo)
+QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectInfo)
 {
     if (!newProjectInfo.isValid())
         return QFuture<void>();
@@ -1221,12 +1210,12 @@ QFuture<void> CppModelManager::updateProjectInfo(QFutureInterface<void> &futureI
     updateCppEditorDocuments(/*projectsUpdated = */ true);
 
     // Trigger reindexing
-    const QFuture<void> indexingFuture = updateSourceFiles(futureInterface, filesToReindex,
+    const QFuture<void> indexingFuture = updateSourceFiles(filesToReindex,
                                                            ForcedProgressNotification);
     if (!filesToReindex.isEmpty()) {
         d->m_projectToIndexerCanceled.insert(project, false);
     }
-    watchForCanceledProjectIndexer({futureInterface.future(), indexingFuture}, project);
+    watchForCanceledProjectIndexer(indexingFuture, project);
     return indexingFuture;
 }
 
