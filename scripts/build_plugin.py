@@ -66,11 +66,12 @@ def build(args, paths):
     if not os.path.exists(paths.result):
         os.makedirs(paths.result)
     prefix_paths = [os.path.abspath(fp) for fp in args.prefix_paths] + [paths.qt_creator, paths.qt]
+    prefix_paths = [common.to_posix_path(fp) for fp in prefix_paths]
     build_type = 'Debug' if args.debug else 'Release'
     cmake_args = ['cmake',
                   '-DCMAKE_PREFIX_PATH=' + ';'.join(prefix_paths),
                   '-DCMAKE_BUILD_TYPE=' + build_type,
-                  '-DCMAKE_INSTALL_PREFIX=' + paths.install,
+                  '-DCMAKE_INSTALL_PREFIX=' + common.to_posix_path(paths.install),
                   '-G', 'Ninja']
 
     # force MSVC on Windows, because it looks for GCC in the PATH first,
