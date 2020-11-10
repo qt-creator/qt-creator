@@ -4353,10 +4353,15 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if (input.is('C')) {
         handleAs("%1c$");
     } else if (input.isControl('c')) {
-        if (isNoVisualMode())
-            showMessage(MessageInfo, Tr::tr("Type Alt-V, Alt-V to quit FakeVim mode."));
-        else
+        if (isNoVisualMode()) {
+#if defined(Q_OS_MACOS)
+            showMessage(MessageInfo, Tr::tr("Type Meta-Shift-Y, Meta-Shift-Y to quit FakeVim mode."));
+#else
+            showMessage(MessageInfo, Tr::tr("Type Alt-Y, Alt-Y to quit FakeVim mode."));
+#endif
+        } else {
             leaveVisualMode();
+        }
     } else if ((input.is('d') || input.is('x') || input.isKey(Key_Delete))
             && isVisualMode()) {
         cutSelectedText();

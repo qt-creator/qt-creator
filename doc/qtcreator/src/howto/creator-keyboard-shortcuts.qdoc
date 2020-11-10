@@ -351,7 +351,7 @@
             \li  Ctrl+0
         \row
             \li  Toggle Vim-style editing
-            \li  Alt+V, Alt+V
+            \li  Alt+Y, Alt+Y
         \row
             \li  Split
             \li  Ctrl+E, 2
@@ -517,7 +517,7 @@
             \li  Ctrl+Alt+Space
         \row
             \li  Execute user actions in FakeVim mode
-            \li  Alt+V, n, where n is the number of the user action, from 1 to 9
+            \li  Alt+Y, n, where n is the number of the user action, from 1 to 9
         \endif
     \endtable
 
