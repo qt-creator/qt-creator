@@ -405,6 +405,9 @@ static void addPythonsFromPath(QList<Interpreter> &pythons)
 
     if (HostOsInfo::isWindowsHost()) {
         for (const FilePath &executable : env.findAllInPath("python")) {
+            // Windows creates empty redirector files that may interfere
+            if (executable.toFileInfo().size() == 0)
+                continue;
             if (executable.exists() && !alreadyRegistered(pythons, executable))
                 pythons << Interpreter(executable, "Python from Path");
         }
