@@ -53,9 +53,6 @@ class KeilToolChain final : public ProjectExplorer::ToolChain
     Q_DECLARE_TR_FUNCTIONS(KeilToolChain)
 
 public:
-    void setTargetAbi(const ProjectExplorer::Abi &abi);
-    ProjectExplorer::Abi targetAbi() const final;
-
     bool isValid() const final;
 
     MacroInspectionRunner createMacroInspectionRunner() const final;
@@ -90,7 +87,6 @@ public:
 private:
     KeilToolChain();
 
-    ProjectExplorer::Abi m_targetAbi;
     Utils::FilePath m_compilerCommand;
     QStringList m_extraCodeModelFlags;
 

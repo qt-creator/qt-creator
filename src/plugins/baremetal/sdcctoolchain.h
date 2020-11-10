@@ -52,9 +52,6 @@ class SdccToolChain final : public ProjectExplorer::ToolChain
     Q_DECLARE_TR_FUNCTIONS(SdccToolChain)
 
 public:
-    void setTargetAbi(const ProjectExplorer::Abi &abi);
-    ProjectExplorer::Abi targetAbi() const final;
-
     bool isValid() const final;
 
     MacroInspectionRunner createMacroInspectionRunner() const final;
@@ -86,7 +83,6 @@ public:
 private:
     SdccToolChain();
 
-    ProjectExplorer::Abi m_targetAbi;
     Utils::FilePath m_compilerCommand;
 
     friend class SdccToolChainFactory;

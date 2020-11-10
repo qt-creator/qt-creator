@@ -50,11 +50,7 @@ NimToolChain::NimToolChain(Utils::Id typeId)
 {
     setLanguage(Constants::C_NIMLANGUAGE_ID);
     setTypeDisplayName(tr("Nim"));
-}
-
-Abi NimToolChain::targetAbi() const
-{
-    return Abi::hostAbi();
+    setTargetAbiNoSignal(Abi::hostAbi());
 }
 
 bool NimToolChain::isValid() const

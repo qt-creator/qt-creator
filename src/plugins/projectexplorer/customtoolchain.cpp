@@ -59,7 +59,6 @@ namespace ProjectExplorer {
 
 static const char compilerCommandKeyC[] = "ProjectExplorer.CustomToolChain.CompilerPath";
 static const char makeCommandKeyC[] = "ProjectExplorer.CustomToolChain.MakePath";
-static const char targetAbiKeyC[] = "ProjectExplorer.CustomToolChain.TargetAbi";
 static const char predefinedMacrosKeyC[] = "ProjectExplorer.CustomToolChain.PredefinedMacros";
 static const char headerPathsKeyC[] = "ProjectExplorer.CustomToolChain.HeaderPaths";
 static const char cxx11FlagsKeyC[] = "ProjectExplorer.CustomToolChain.Cxx11Flags";
@@ -75,6 +74,7 @@ CustomToolChain::CustomToolChain() :
     m_outputParserId(GccParser::id())
 {
     setTypeDisplayName(tr("Custom"));
+    setTargetAbiKey("ProjectExplorer.CustomToolChain.TargetAbi");
 }
 
 CustomParserSettings CustomToolChain::customParserSettings() const
@@ -83,20 +83,6 @@ CustomParserSettings CustomToolChain::customParserSettings() const
                          [this](const CustomParserSettings &s) {
         return s.id == outputParserId();
     });
-}
-
-Abi CustomToolChain::targetAbi() const
-{
-    return m_targetAbi;
-}
-
-void CustomToolChain::setTargetAbi(const Abi &abi)
-{
-    if (abi == m_targetAbi)
-        return;
-
-    m_targetAbi = abi;
-    toolChainUpdated();
 }
 
 bool CustomToolChain::isValid() const
@@ -282,7 +268,6 @@ QVariantMap CustomToolChain::toMap() const
     QVariantMap data = ToolChain::toMap();
     data.insert(QLatin1String(compilerCommandKeyC), m_compilerCommand.toString());
     data.insert(QLatin1String(makeCommandKeyC), m_makeCommand.toString());
-    data.insert(QLatin1String(targetAbiKeyC), m_targetAbi.toString());
     QStringList macros = Utils::transform<QList>(m_predefinedMacros, [](const Macro &m) { return QString::fromUtf8(m.toByteArray()); });
     data.insert(QLatin1String(predefinedMacrosKeyC), macros);
     data.insert(QLatin1String(headerPathsKeyC), headerPathsList());
@@ -300,7 +285,6 @@ bool CustomToolChain::fromMap(const QVariantMap &data)
 
     m_compilerCommand = FilePath::fromString(data.value(QLatin1String(compilerCommandKeyC)).toString());
     m_makeCommand = FilePath::fromString(data.value(QLatin1String(makeCommandKeyC)).toString());
-    m_targetAbi = Abi::fromString(data.value(QLatin1String(targetAbiKeyC)).toString());
     const QStringList macros = data.value(QLatin1String(predefinedMacrosKeyC)).toStringList();
     m_predefinedMacros = Macro::toMacros(macros.join('\n').toUtf8());
     setHeaderPaths(data.value(QLatin1String(headerPathsKeyC)).toStringList());
@@ -360,7 +344,7 @@ bool CustomToolChain::operator ==(const ToolChain &other) const
     auto customTc = static_cast<const CustomToolChain *>(&other);
     return m_compilerCommand == customTc->m_compilerCommand
             && m_makeCommand == customTc->m_makeCommand
-            && m_targetAbi == customTc->m_targetAbi
+            && targetAbi() == customTc->targetAbi()
             && m_predefinedMacros == customTc->m_predefinedMacros
             && m_builtInHeaderPaths == customTc->m_builtInHeaderPaths;
 }

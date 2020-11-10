@@ -69,6 +69,8 @@ public:
     }
 
     QByteArray m_id;
+    Abi m_targetAbi;
+    QString m_targetAbiKey;
     QSet<Utils::Id> m_supportedLanguages;
     mutable QString m_displayName;
     QString m_typeDisplayName;
@@ -206,6 +208,8 @@ QVariantMap ToolChain::toMap() const
     result.insert(QLatin1String(DISPLAY_NAME_KEY), displayName());
     result.insert(QLatin1String(AUTODETECT_KEY), isAutoDetected());
     result.insert(QLatin1String(LANGUAGE_KEY_V2), language().toSetting());
+    if (!d->m_targetAbiKey.isEmpty())
+        result.insert(d->m_targetAbiKey, d->m_targetAbi.toString());
     return result;
 }
 
@@ -232,6 +236,30 @@ void ToolChain::setDetection(ToolChain::Detection de)
 QString ToolChain::typeDisplayName() const
 {
     return d->m_typeDisplayName;
+}
+
+Abi ToolChain::targetAbi() const
+{
+    return d->m_targetAbi;
+}
+
+void ToolChain::setTargetAbi(const Abi &abi)
+{
+    if (abi == d->m_targetAbi)
+        return;
+
+    d->m_targetAbi = abi;
+    toolChainUpdated();
+}
+
+void ToolChain::setTargetAbiNoSignal(const Abi &abi)
+{
+    d->m_targetAbi = abi;
+}
+
+void ToolChain::setTargetAbiKey(const QString &abiKey)
+{
+    d->m_targetAbiKey = abiKey;
 }
 
 void ToolChain::setTypeDisplayName(const QString &typeName)
@@ -272,6 +300,9 @@ bool ToolChain::fromMap(const QVariantMap &data)
 
     if (!d->m_language.isValid())
         d->m_language = Utils::Id(Constants::CXX_LANGUAGE_ID);
+
+    if (!d->m_targetAbiKey.isEmpty())
+        d->m_targetAbi = Abi::fromString(data.value(d->m_targetAbiKey).toString());
 
     return true;
 }

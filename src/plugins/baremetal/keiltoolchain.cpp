@@ -62,7 +62,6 @@ namespace Internal {
 
 static const char compilerCommandKeyC[] = "CompilerPath";
 static const char compilerPlatformCodeGenFlagsKeyC[] = "PlatformCodeGenFlags";
-static const char targetAbiKeyC[] = "TargetAbi";
 
 static bool compilerExists(const FilePath &compilerPath)
 {
@@ -433,19 +432,7 @@ KeilToolChain::KeilToolChain() :
     ToolChain(Constants::KEIL_TOOLCHAIN_TYPEID)
 {
     setTypeDisplayName(tr("KEIL"));
-}
-
-void KeilToolChain::setTargetAbi(const Abi &abi)
-{
-    if (abi == m_targetAbi)
-        return;
-    m_targetAbi = abi;
-    toolChainUpdated();
-}
-
-Abi KeilToolChain::targetAbi() const
-{
-    return m_targetAbi;
+    setTargetAbiKey("TargetAbi");
 }
 
 bool KeilToolChain::isValid() const
@@ -536,7 +523,6 @@ QVariantMap KeilToolChain::toMap() const
     QVariantMap data = ToolChain::toMap();
     data.insert(compilerCommandKeyC, m_compilerCommand.toString());
     data.insert(compilerPlatformCodeGenFlagsKeyC, m_extraCodeModelFlags);
-    data.insert(targetAbiKeyC, m_targetAbi.toString());
     return data;
 }
 
@@ -546,7 +532,6 @@ bool KeilToolChain::fromMap(const QVariantMap &data)
         return false;
     m_compilerCommand = FilePath::fromString(data.value(compilerCommandKeyC).toString());
     m_extraCodeModelFlags = data.value(compilerPlatformCodeGenFlagsKeyC).toStringList();
-    m_targetAbi = Abi::fromString(data.value(targetAbiKeyC).toString());
     return true;
 }
 
@@ -562,9 +547,8 @@ bool KeilToolChain::operator ==(const ToolChain &other) const
 
     const auto customTc = static_cast<const KeilToolChain *>(&other);
     return m_compilerCommand == customTc->m_compilerCommand
-            && m_targetAbi == customTc->m_targetAbi
-            && m_extraCodeModelFlags == customTc->m_extraCodeModelFlags
-            ;
+            && targetAbi() == customTc->targetAbi()
+            && m_extraCodeModelFlags == customTc->m_extraCodeModelFlags;
 }
 
 void KeilToolChain::setCompilerCommand(const FilePath &file)

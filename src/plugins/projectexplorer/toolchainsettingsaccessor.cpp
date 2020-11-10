@@ -307,12 +307,12 @@ public:
         m_toolChains.append(this);
         setLanguage(Constants::CXX_LANGUAGE_ID);
         setTypeDisplayName("Test Tool Chain");
+        setTargetAbiNoSignal(Abi::hostAbi());
     }
 
     static QList<TTC *> toolChains() { return m_toolChains; }
     static bool hasToolChains() { return !m_toolChains.isEmpty(); }
 
-    Abi targetAbi() const override { return Abi::hostAbi(); }
     bool isValid() const override { return m_valid; }
     MacroInspectionRunner createMacroInspectionRunner() const override { return MacroInspectionRunner(); }
     Macros predefinedMacros(const QStringList &cxxflags) const override { Q_UNUSED(cxxflags) return Macros(); }

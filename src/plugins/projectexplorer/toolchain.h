@@ -51,7 +51,6 @@ namespace ProjectExplorer {
 
 namespace Internal { class ToolChainPrivate; }
 
-class Abi;
 class ToolChainConfigWidget;
 class ToolChainFactory;
 class Kit;
@@ -96,7 +95,8 @@ public:
     Utils::Id typeId() const;
     QString typeDisplayName() const;
 
-    virtual Abi targetAbi() const = 0;
+    Abi targetAbi() const;
+    void setTargetAbi(const Abi &abi);
 
     virtual ProjectExplorer::Abis supportedAbis() const;
     virtual QString originalTargetTriple() const { return QString(); }
@@ -162,6 +162,9 @@ protected:
     explicit ToolChain(Utils::Id typeId);
 
     void setTypeDisplayName(const QString &typeName);
+
+    void setTargetAbiNoSignal(const Abi &abi);
+    void setTargetAbiKey(const QString &abiKey);
 
     const MacrosCache &predefinedMacrosCache() const;
     const HeaderPathsCache &headerPathsCache() const;

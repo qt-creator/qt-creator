@@ -62,7 +62,6 @@ public:
     explicit MsvcToolChain(Utils::Id typeId);
     ~MsvcToolChain() override;
 
-    Abi targetAbi() const override;
     bool isValid() const override;
 
     QString originalTargetTriple() const override;
@@ -157,8 +156,6 @@ private:
     Utils::FilePath m_compilerCommand;
 
 protected:
-    Abi m_abi;
-
     QString m_vcvarsBat;
     QString m_varsBatArg; // Argument
 };

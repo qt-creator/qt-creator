@@ -60,7 +60,6 @@ namespace Internal {
 
 static const char compilerCommandKeyC[] = "CompilerPath";
 static const char compilerPlatformCodeGenFlagsKeyC[] = "PlatformCodeGenFlags";
-static const char targetAbiKeyC[] = "TargetAbi";
 
 static bool compilerExists(const FilePath &compilerPath)
 {
@@ -294,19 +293,7 @@ IarToolChain::IarToolChain() :
     ToolChain(Constants::IAREW_TOOLCHAIN_TYPEID)
 {
     setTypeDisplayName(Internal::IarToolChain::tr("IAREW"));
-}
-
-void IarToolChain::setTargetAbi(const Abi &abi)
-{
-    if (abi == m_targetAbi)
-        return;
-    m_targetAbi = abi;
-    toolChainUpdated();
-}
-
-Abi IarToolChain::targetAbi() const
-{
-    return m_targetAbi;
+    setTargetAbiKey("TargetAbi");
 }
 
 bool IarToolChain::isValid() const
@@ -409,7 +396,6 @@ QVariantMap IarToolChain::toMap() const
     QVariantMap data = ToolChain::toMap();
     data.insert(compilerCommandKeyC, m_compilerCommand.toString());
     data.insert(compilerPlatformCodeGenFlagsKeyC, m_extraCodeModelFlags);
-    data.insert(targetAbiKeyC, m_targetAbi.toString());
     return data;
 }
 
@@ -419,7 +405,6 @@ bool IarToolChain::fromMap(const QVariantMap &data)
         return false;
     m_compilerCommand = FilePath::fromString(data.value(compilerCommandKeyC).toString());
     m_extraCodeModelFlags = data.value(compilerPlatformCodeGenFlagsKeyC).toStringList();
-    m_targetAbi = Abi::fromString(data.value(targetAbiKeyC).toString());
     return true;
 }
 
@@ -435,9 +420,7 @@ bool IarToolChain::operator==(const ToolChain &other) const
 
     const auto customTc = static_cast<const IarToolChain *>(&other);
     return m_compilerCommand == customTc->m_compilerCommand
-            && m_targetAbi == customTc->m_targetAbi
-            && m_extraCodeModelFlags == customTc->m_extraCodeModelFlags
-            ;
+            && m_extraCodeModelFlags == customTc->m_extraCodeModelFlags;
 }
 
 void IarToolChain::setCompilerCommand(const FilePath &file)

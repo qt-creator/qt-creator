@@ -38,7 +38,6 @@ public:
     NimToolChain();
     explicit NimToolChain(Utils::Id typeId);
 
-    ProjectExplorer::Abi targetAbi() const override;
     bool isValid() const override;
 
     MacroInspectionRunner createMacroInspectionRunner() const override;

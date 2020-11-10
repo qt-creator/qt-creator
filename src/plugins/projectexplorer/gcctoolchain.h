@@ -71,13 +71,10 @@ class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 public:
     GccToolChain(Utils::Id typeId);
 
-    Abi targetAbi() const override;
     QString originalTargetTriple() const override;
     Utils::FilePath installDir() const override;
     QString version() const;
     Abis supportedAbis() const override;
-    void setTargetAbi(const Abi &);
-
     bool isValid() const override;
 
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
@@ -198,7 +195,6 @@ protected:
     mutable ExtraHeaderPathsFunction m_extraHeaderPathsFunction = [](HeaderPaths &) {};
 
 private:
-    Abi m_targetAbi;
     mutable Abis m_supportedAbis;
     mutable QString m_originalTargetTriple;
     mutable HeaderPaths m_headerPaths;

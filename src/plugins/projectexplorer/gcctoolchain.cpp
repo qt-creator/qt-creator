@@ -266,6 +266,7 @@ GccToolChain::GccToolChain(Utils::Id typeId) :
     ToolChain(typeId)
 {
     setTypeDisplayName(tr("GCC"));
+    setTargetAbiKey(targetAbiKeyC);
 }
 
 void GccToolChain::setCompilerCommand(const FilePath &path)
@@ -311,24 +312,19 @@ QString GccToolChain::defaultDisplayName() const
     const QRegularExpressionMatch match = regexp.match(m_compilerCommand.fileName());
     if (match.lastCapturedIndex() >= 1)
         type += ' ' + match.captured(1);
-    if (m_targetAbi.architecture() == Abi::UnknownArchitecture || m_targetAbi.wordWidth() == 0)
+    const Abi abi = targetAbi();
+    if (abi.architecture() == Abi::UnknownArchitecture || abi.wordWidth() == 0)
         return type;
-    return QCoreApplication::translate("ProjectExplorer::GccToolChain",
-                                       "%1 (%2, %3 %4 in %5)").arg(type,
-                                                                  ToolChainManager::displayNameOfLanguageId(language()),
-                                                                  Abi::toString(m_targetAbi.architecture()),
-                                                                  Abi::toString(m_targetAbi.wordWidth()),
-                                                                  compilerCommand().parentDir().toUserOutput());
+    return tr("%1 (%2, %3 %4 in %5)").arg(type,
+                                          ToolChainManager::displayNameOfLanguageId(language()),
+                                          Abi::toString(abi.architecture()),
+                                          Abi::toString(abi.wordWidth()),
+                                          compilerCommand().parentDir().toUserOutput());
 }
 
 LanguageExtensions GccToolChain::defaultLanguageExtensions() const
 {
     return LanguageExtension::Gnu;
-}
-
-Abi GccToolChain::targetAbi() const
-{
-    return m_targetAbi;
 }
 
 QString GccToolChain::originalTargetTriple() const
@@ -350,15 +346,6 @@ FilePath GccToolChain::installDir() const
     if (m_installDir.isEmpty())
         m_installDir = detectInstallDir();
     return m_installDir;
-}
-
-void GccToolChain::setTargetAbi(const Abi &abi)
-{
-    if (abi == m_targetAbi)
-        return;
-
-    m_targetAbi = abi;
-    toolChainUpdated();
 }
 
 Abis GccToolChain::supportedAbis() const
@@ -719,9 +706,9 @@ QStringList GccToolChain::suggestedMkspecList() const
         if (abi.wordWidth() == host.wordWidth()) {
             // no need to explicitly set the word width, but provide that mkspec anyway to make sure
             // that the correct compiler is picked if a mkspec with a wordwidth is given.
-            return {"linux-g++", "linux-g++-" + QString::number(m_targetAbi.wordWidth())};
+            return {"linux-g++", "linux-g++-" + QString::number(targetAbi().wordWidth())};
         }
-        return {"linux-g++-" + QString::number(m_targetAbi.wordWidth())};
+        return {"linux-g++-" + QString::number(targetAbi().wordWidth())};
     }
 
     if (abi.os() == Abi::BsdOS && abi.osFlavor() == Abi::FreeBsdFlavor)
@@ -747,19 +734,16 @@ void GccToolChain::resetToolChain(const FilePath &path)
 
     setCompilerCommand(path);
 
-    Abi currentAbi = m_targetAbi;
+    const Abi currentAbi = targetAbi();
     const DetectedAbisResult detectedAbis = detectSupportedAbis();
     m_supportedAbis = detectedAbis.supportedAbis;
     m_originalTargetTriple = detectedAbis.originalTargetTriple;
     m_installDir = installDir();
 
-    m_targetAbi = Abi();
-    if (!m_supportedAbis.isEmpty()) {
-        if (m_supportedAbis.contains(currentAbi))
-            m_targetAbi = currentAbi;
-        else
-            m_targetAbi = m_supportedAbis.at(0);
-    }
+    if (m_supportedAbis.isEmpty())
+        setTargetAbiNoSignal(Abi());
+    else if (!m_supportedAbis.contains(currentAbi))
+        setTargetAbiNoSignal(m_supportedAbis.at(0));
 
     if (resetDisplayName)
         setDisplayName(defaultDisplayName()); // calls toolChainUpdated()!
@@ -817,7 +801,6 @@ QVariantMap GccToolChain::toMap() const
     data.insert(compilerCommandKeyC, m_compilerCommand.toString());
     data.insert(compilerPlatformCodeGenFlagsKeyC, m_platformCodeGenFlags);
     data.insert(compilerPlatformLinkerFlagsKeyC, m_platformLinkerFlags);
-    data.insert(targetAbiKeyC, m_targetAbi.toString());
     data.insert(originalTargetTripleKeyC, m_originalTargetTriple);
     data.insert(supportedAbisKeyC, Utils::transform<QStringList>(m_supportedAbis, &Abi::toString));
     return data;
@@ -831,14 +814,13 @@ bool GccToolChain::fromMap(const QVariantMap &data)
     m_compilerCommand = FilePath::fromString(data.value(compilerCommandKeyC).toString());
     m_platformCodeGenFlags = data.value(compilerPlatformCodeGenFlagsKeyC).toStringList();
     m_platformLinkerFlags = data.value(compilerPlatformLinkerFlagsKeyC).toStringList();
-    const QString targetAbiString = data.value(targetAbiKeyC).toString();
-    m_targetAbi = Abi::fromString(targetAbiString);
     m_originalTargetTriple = data.value(originalTargetTripleKeyC).toString();
     const QStringList abiList = data.value(supportedAbisKeyC).toStringList();
     m_supportedAbis.clear();
     for (const QString &a : abiList)
         m_supportedAbis.append(Abi::fromString(a));
 
+    const QString targetAbiString = data.value(targetAbiKeyC).toString();
     if (targetAbiString.isEmpty())
         resetToolChain(m_compilerCommand);
 
@@ -851,7 +833,7 @@ bool GccToolChain::operator ==(const ToolChain &other) const
         return false;
 
     auto gccTc = static_cast<const GccToolChain *>(&other);
-    return m_compilerCommand == gccTc->m_compilerCommand && m_targetAbi == gccTc->m_targetAbi
+    return m_compilerCommand == gccTc->m_compilerCommand && targetAbi() == gccTc->targetAbi()
             && m_platformCodeGenFlags == gccTc->m_platformCodeGenFlags
             && m_platformLinkerFlags == gccTc->m_platformLinkerFlags;
 }
