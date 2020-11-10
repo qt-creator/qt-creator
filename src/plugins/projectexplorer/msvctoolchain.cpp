@@ -846,11 +846,6 @@ Abi MsvcToolChain::targetAbi() const
     return m_abi;
 }
 
-void MsvcToolChain::setTargetAbi(const Abi &abi)
-{
-    m_abi = abi;
-}
-
 bool MsvcToolChain::isValid() const
 {
     if (m_vcvarsBat.isEmpty())

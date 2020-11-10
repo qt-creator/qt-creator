@@ -63,8 +63,6 @@ public:
     ~MsvcToolChain() override;
 
     Abi targetAbi() const override;
-    void setTargetAbi(const Abi &abi);
-
     bool isValid() const override;
 
     QString originalTargetTriple() const override;
