@@ -36,13 +36,23 @@
 #include <benchmark/benchmark.h>
 #endif
 
+class Environment : public testing::Environment
+{
+public:
+    void SetUp() override
+    {
+        const QString temporayDirectoryPath = QDir::tempPath() + "/QtCreator-UnitTests-XXXXXX";
+        Utils::TemporaryDirectory::setMasterTemporaryDirectory(temporayDirectoryPath);
+        qputenv("TMPDIR", Utils::TemporaryDirectory::masterDirectoryPath().toUtf8());
+        qputenv("TEMP", Utils::TemporaryDirectory::masterDirectoryPath().toUtf8());
+    }
+
+    void TearDown() override {}
+};
+
 int main(int argc, char *argv[])
 {
     Sqlite::Database::activateLogging();
-    const QString temporayDirectoryPath = QDir::tempPath() +"/QtCreator-UnitTests-XXXXXX";
-    Utils::TemporaryDirectory::setMasterTemporaryDirectory(temporayDirectoryPath);
-    qputenv("TMPDIR", Utils::TemporaryDirectory::masterDirectoryPath().toUtf8());
-    qputenv("TEMP", Utils::TemporaryDirectory::masterDirectoryPath().toUtf8());
 
     QCoreApplication application(argc, argv);
 
@@ -50,6 +60,9 @@ int main(int argc, char *argv[])
 #ifdef WITH_BENCHMARKS
     benchmark::Initialize(&argc, argv);
 #endif
+
+    Environment environment;
+    testing::AddGlobalTestEnvironment(&environment);
 
     int testsHaveErrors = RUN_ALL_TESTS();
 
