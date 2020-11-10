@@ -34,8 +34,7 @@ libexec_path="$app_path/Contents/Resources/libexec"
 bin_src="$2"
 translation_src="$3"
 plugin_src="$4"
-quick1_src="$5"
-quick2_src="$6"
+quick2_src="$5"
 
 echo "Deploying Qt"
 
