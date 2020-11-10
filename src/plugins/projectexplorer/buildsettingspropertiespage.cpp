@@ -31,7 +31,9 @@
 #include "projectconfigurationmodel.h"
 #include "session.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildmanager.h>
@@ -49,6 +51,7 @@
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
+using namespace Utils;
 
 ///
 // BuildSettingsWidget
@@ -251,7 +254,7 @@ QString BuildSettingsWidget::uniqueName(const QString & name)
                 continue;
             bcNames.append(bc->displayName());
         }
-        result = Utils::makeUniquelyNumbered(result, bcNames);
+        result = makeUniquelyNumbered(result, bcNames);
     }
     return result;
 }
@@ -297,6 +300,16 @@ void BuildSettingsWidget::cloneConfiguration()
         return;
 
     bc->setDisplayName(name);
+    const std::function<bool(const QString &)> isBuildDirOk = [this](const QString &candidate) {
+        const auto fp = FilePath::fromString(candidate);
+        if (fp.exists())
+            return false;
+        return !anyOf(m_target->buildConfigurations(), [&fp](const BuildConfiguration *bc) {
+            return bc->buildDirectory() == fp; });
+    };
+    bc->setBuildDirectory(FilePath::fromString(makeUniquelyNumbered(
+                                                   bc->buildDirectory().toString(),
+                                                   isBuildDirOk)));
     m_target->addBuildConfiguration(bc);
     SessionManager::setActiveBuildConfiguration(m_target, bc, SetActive::Cascade);
 }

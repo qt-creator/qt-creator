@@ -90,16 +90,24 @@ QTCREATOR_UTILS_EXPORT QString expandMacros(const QString &str, AbstractMacroExp
 
 QTCREATOR_UTILS_EXPORT int parseUsedPortFromNetstatOutput(const QByteArray &line);
 
-template<typename T, typename Container>
-T makeUniquelyNumbered(const T &preferred, const Container &reserved)
+template<typename T>
+T makeUniquelyNumbered(const T &preferred, const std::function<bool(const T &)> &isOk)
 {
-    if (!reserved.contains(preferred))
+    if (isOk(preferred))
         return preferred;
     int i = 2;
     T tryName = preferred + QString::number(i);
-    while (reserved.contains(tryName))
+    while (!isOk(tryName))
         tryName = preferred + QString::number(++i);
     return tryName;
+}
+
+template<typename T, typename Container>
+T makeUniquelyNumbered(const T &preferred, const Container &reserved)
+{
+    const std::function<bool(const T &)> isOk
+            = [&reserved](const T &v) { return !reserved.contains(v); };
+    return makeUniquelyNumbered(preferred, isOk);
 }
 
 QTCREATOR_UTILS_EXPORT QString formatElapsedTime(qint64 elapsed);
