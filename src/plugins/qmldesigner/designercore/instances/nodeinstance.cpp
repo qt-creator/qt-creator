@@ -473,9 +473,7 @@ QPixmap NodeInstance::blurredRenderPixmap() const
 void NodeInstance::setRenderPixmap(const QImage &image)
 {
     d->renderPixmap = QPixmap::fromImage(image);
-#ifndef QMLDESIGNER_TEST
-    d->renderPixmap.setDevicePixelRatio(QmlDesignerPlugin::formEditorDevicePixelRatio());
-#endif
+
     d->blurredRenderPixmap = QPixmap();
 }
 

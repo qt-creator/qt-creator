@@ -428,11 +428,13 @@ QImage QuickItemNodeInstance::renderImage() const
 
         nodeInstanceServer()->quickView()->afterRendering();
     }
+    renderImage.setDevicePixelRatio(devicePixelRatio);
 #else
     renderImage = nodeInstanceServer()->quickView()->grabWindow();
+    renderImage = renderImage.copy(renderBoundingRect.toRect());
+    /* When grabbing an offscren window the device pixel ratio is 1 */
+    renderImage.setDevicePixelRatio(1);
 #endif
-
-    renderImage.setDevicePixelRatio(devicePixelRatio);
 
     return renderImage;
 }
@@ -462,6 +464,7 @@ QImage QuickItemNodeInstance::renderPreviewImage(const QSize &previewImageSize) 
             }
 #else
             image = nodeInstanceServer()->quickView()->grabWindow();
+            image = image.copy(previewItemBoundingRect.toRect());
 #endif
 
             image = image.scaledToWidth(size.width());

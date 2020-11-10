@@ -128,15 +128,16 @@ static void writeSharedMemory(SharedMemory *sharedMemory, const QImage &image)
 {
     sharedMemory->lock();
 
-    qint32 headerData[5];
+    qint32 headerData[6];
     headerData[0] = qint32(image.sizeInBytes());
     headerData[1] = image.bytesPerLine();
     headerData[2] = image.size().width();
     headerData[3] = image.size().height();
     headerData[4] = image.format();
+    headerData[5] = image.devicePixelRatio() * 100;
 
-    std::memcpy(sharedMemory->data(), headerData, 20);
-    std::memcpy(reinterpret_cast<char*>(sharedMemory->data()) + 20, image.constBits(), image.sizeInBytes());
+    std::memcpy(sharedMemory->data(), headerData, 24);
+    std::memcpy(reinterpret_cast<char*>(sharedMemory->data()) + 24, image.constBits(), image.sizeInBytes());
     sharedMemory->unlock();
 }
 
@@ -146,12 +147,13 @@ static void writeStream(QDataStream &out, const QImage &image)
     out << image.size();
     out << qint32(image.format());
     out << qint32(image.sizeInBytes());
+    out << qint32(image.devicePixelRatio() * 100);
     out.writeRawData(reinterpret_cast<const char*>(image.constBits()), image.sizeInBytes());
 }
 
 QDataStream &operator<<(QDataStream &out, const ImageContainer &container)
 {
-    const int extraDataSize =  20;
+    const int extraDataSize =  24;
     static const bool dontUseSharedMemory = qEnvironmentVariableIsSet("DESIGNER_DONT_USE_SHARED_MEMORY");
 
     out << container.instanceId();
@@ -183,24 +185,26 @@ static void readSharedMemory(qint32 key, ImageContainer &container)
 
     bool canAttach = sharedMemory.attach(QSharedMemory::ReadOnly);
 
-    if (canAttach && sharedMemory.size() >= 20)
+    if (canAttach && sharedMemory.size() >= 24)
     {
         sharedMemory.lock();
-        qint32 headerData[5];
-        std::memcpy(headerData, sharedMemory.constData(), 20);
+        qint32 headerData[6];
+        std::memcpy(headerData, sharedMemory.constData(), 24);
 
         qint32 byteCount = headerData[0];
 //        qint32 bytesPerLine = headerData[1];
         qint32 imageWidth = headerData[2];
         qint32 imageHeight = headerData[3];
         qint32 imageFormat = headerData[4];
+        qreal pixelRatio = headerData[5] / 100.0;
 
         QImage image = QImage(imageWidth, imageHeight, QImage::Format(imageFormat));
+        image.setDevicePixelRatio(pixelRatio);
 
         if (image.isNull())
             qDebug() << Q_FUNC_INFO << "Not able to create image:" << imageWidth << imageHeight << imageFormat;
         else
-            std::memcpy(image.bits(), reinterpret_cast<const qint32*>(sharedMemory.constData()) + 5, byteCount);
+            std::memcpy(image.bits(), reinterpret_cast<const qint32*>(sharedMemory.constData()) + 6, byteCount);
 
         container.setImage(image);
 
@@ -215,6 +219,7 @@ static void readStream(QDataStream &in, ImageContainer &container)
     qint32 bytesPerLine;
     QSize imageSize;
     qint32 imageFormat;
+    qint32 pixelRatio;
 
     in >> bytesPerLine;
     in >> imageSize;
@@ -224,6 +229,7 @@ static void readStream(QDataStream &in, ImageContainer &container)
     QImage image = QImage(imageSize, QImage::Format(imageFormat));
 
     in.readRawData(reinterpret_cast<char*>(image.bits()), byteCount);
+    image.setDevicePixelRatio(pixelRatio / 100.0);
 
     container.setImage(image);
 }
