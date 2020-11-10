@@ -187,7 +187,6 @@ void QuickItemNodeInstance::initialize(const ObjectNodeInstance::Pointer &object
     }
 
     ObjectNodeInstance::initialize(objectNodeInstance, flags);
-    quickItem()->update();
 }
 
 QQuickItem *QuickItemNodeInstance::contentItem() const
@@ -542,7 +541,9 @@ void QuickItemNodeInstance::updateDirtyNodesRecursive(QQuickItem *parentItem) co
     }
 
     QmlPrivateGate::disableNativeTextRendering(parentItem);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     DesignerSupport::updateDirtyNode(parentItem);
+#endif
 }
 
 void QuickItemNodeInstance::updateAllDirtyNodesRecursive(QQuickItem *parentItem) const
