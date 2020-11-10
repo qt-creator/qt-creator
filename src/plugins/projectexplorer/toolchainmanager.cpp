@@ -256,9 +256,8 @@ bool ToolChainManager::isLanguageSupported(const Utils::Id &id)
 
 void ToolChainManager::aboutToShutdown()
 {
-#ifdef Q_OS_WIN
-    MsvcToolChain::cancelMsvcToolChainDetection();
-#endif
+    if (HostOsInfo::isWindowsHost())
+        MsvcToolChain::cancelMsvcToolChainDetection();
 }
 
 ToolchainDetectionSettings ToolChainManager::detectionSettings()
