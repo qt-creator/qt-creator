@@ -61,8 +61,8 @@ int main(int argc, char *argv[])
     benchmark::Initialize(&argc, argv);
 #endif
 
-    Environment environment;
-    testing::AddGlobalTestEnvironment(&environment);
+    auto environment = std::make_unique<Environment>();
+    testing::AddGlobalTestEnvironment(environment.release());
 
     int testsHaveErrors = RUN_ALL_TESTS();
 
