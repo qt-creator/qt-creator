@@ -1,7 +1,9 @@
 Section {
     anchors.left: parent.left
     anchors.right: parent.right
-    caption: "%1"
+    caption: qsTr("Text")
+    expanded: false
+    level: 2
 
     SectionLayout {
         columns: 2

@@ -117,7 +117,7 @@ void PerfResourceCounterTest::testRandomFill()
         SizeCounter::Container container;
         SizeCounter counter(&container);
         for (int i = 0; i < 10000; ++i) {
-            const int amount = rg->generate();
+            const int amount = qAbs(int(rg->generate()));
             counter.request(amount, i);
             counter.obtain(rg->generate());
             if (sum(container) != counter.currentTotal())
@@ -163,7 +163,7 @@ void PerfResourceCounterTest::testRandomAlternate()
     auto rg = QRandomGenerator::global();
     for (int i = 0; i < 1000; ++i) {
         for (int i = 0; i < 100; ++i) {
-            counter.request(rg->generate());
+            counter.request(qAbs(int(rg->generate())));
             counter.obtain(rg->generate());
             counter.release(rg->generate());
         }

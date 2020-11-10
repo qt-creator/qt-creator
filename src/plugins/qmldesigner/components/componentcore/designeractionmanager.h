@@ -127,7 +127,6 @@ public:
     QList<AddResourceHandler> addResourceHandler() const;
     void registerAddResourceHandler(const AddResourceHandler &handler);
 
-    QMultiHash<TypeName, ModelNodePreviewImageHandler> modelNodePreviewHandlers() const;
     void registerModelNodePreviewHandler(const ModelNodePreviewImageHandler &handler);
     bool hasModelNodePreviewHandler(const ModelNode &node) const;
     ModelNodePreviewImageOperation modelNodePreviewOperation(const ModelNode &node) const;
@@ -139,7 +138,7 @@ private:
     QList<QSharedPointer<ActionInterface> > m_designerActions;
     DesignerActionManagerView *m_designerActionManagerView;
     QList<AddResourceHandler> m_addResourceHandler;
-    QMultiHash<TypeName, ModelNodePreviewImageHandler> m_modelNodePreviewImageHandlers;
+    QList<ModelNodePreviewImageHandler> m_modelNodePreviewImageHandlers;
 };
 
 } //QmlDesigner

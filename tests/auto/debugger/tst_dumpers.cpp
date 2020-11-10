@@ -3819,7 +3819,7 @@ void tst_Dumpers::dumper_data()
                     "QStringDataPtr holder = { qstring_literal.data_ptr() };\n"
                     "const QString qstring_literal_temp(holder);\n\n"
 
-                    "QStaticStringData<1> sd;\n"
+                    "QStaticStringData<1> sd{};\n"
                     "sd.data[0] = 'Q';\n"
                     "sd.data[1] = 0;\n"
                     "#else\n"

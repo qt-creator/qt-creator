@@ -25,8 +25,11 @@
 
 #include "buildaspects.h"
 
+#include "buildconfiguration.h"
 #include "buildpropertiessettings.h"
 #include "projectexplorer.h"
+
+#include <coreplugin/fileutils.h>
 
 #include <utils/fileutils.h>
 #include <utils/infolabel.h>
@@ -47,12 +50,15 @@ public:
     QPointer<InfoLabel> problemLabel;
 };
 
-BuildDirectoryAspect::BuildDirectoryAspect() : d(new Private)
+BuildDirectoryAspect::BuildDirectoryAspect(const BuildConfiguration *bc) : d(new Private)
 {
     setSettingsKey("ProjectExplorer.BuildConfiguration.BuildDirectory");
     setLabelText(tr("Build directory:"));
     setDisplayStyle(PathChooserDisplay);
     setExpectedKind(Utils::PathChooser::Directory);
+    setOpenTerminalHandler([this, bc] {
+        Core::FileUtils::openTerminal(value(), bc->environment());
+    });
 }
 
 BuildDirectoryAspect::~BuildDirectoryAspect()
@@ -83,7 +89,7 @@ void BuildDirectoryAspect::toMap(QVariantMap &map) const
     StringAspect::toMap(map);
     if (!d->sourceDir.isEmpty()) {
         const FilePath shadowDir = isChecked() ? filePath() : d->savedShadowBuildDir;
-        map.insert(settingsKey() + ".shadowDir", shadowDir.toString());
+        saveToMap(map, shadowDir.toString(), QString(), ".shadowDir");
     }
 }
 

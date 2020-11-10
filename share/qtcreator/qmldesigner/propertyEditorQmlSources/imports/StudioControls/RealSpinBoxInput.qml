@@ -237,6 +237,7 @@ TextInput {
             PropertyChanges {
                 target: mouseArea
                 cursorShape: Qt.PointingHandCursor
+                enabled: true
             }
         },
         State {
@@ -259,6 +260,7 @@ TextInput {
             PropertyChanges {
                 target: mouseArea
                 cursorShape: Qt.IBeamCursor
+                enabled: false
             }
         },
         State {

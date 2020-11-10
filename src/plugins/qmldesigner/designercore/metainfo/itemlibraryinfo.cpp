@@ -51,6 +51,7 @@ public:
     QString requiredImport;
     QHash<QString, QString> hints;
     QString customComponentSource;
+    QStringList extraFilePaths;
 };
 
 } // namespace Internal
@@ -108,6 +109,11 @@ QString ItemLibraryEntry::requiredImport() const
 QString ItemLibraryEntry::customComponentSource() const
 {
     return m_data->customComponentSource;
+}
+
+QStringList ItemLibraryEntry::extraFilePaths() const
+{
+    return m_data->extraFilePaths;
 }
 
 int ItemLibraryEntry::majorVersion() const
@@ -189,6 +195,11 @@ void ItemLibraryEntry::setCustomComponentSource(const QString &source)
     m_data->customComponentSource = source;
 }
 
+void ItemLibraryEntry::addExtraFilePath(const QString &extraFile)
+{
+    m_data->extraFilePaths.append(extraFile);
+}
+
 void ItemLibraryEntry::addProperty(PropertyName &name, QString &type, QVariant &value)
 {
     Property property;
@@ -212,6 +223,7 @@ QDataStream& operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibrary
     stream << itemLibraryEntry.m_data->qml;
     stream << itemLibraryEntry.m_data->qmlSource;
     stream << itemLibraryEntry.m_data->customComponentSource;
+    stream << itemLibraryEntry.m_data->extraFilePaths;
 
     return stream;
 }
@@ -236,6 +248,7 @@ QDataStream& operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry)
     stream >> itemLibraryEntry.m_data->qml;
     stream >> itemLibraryEntry.m_data->qmlSource;
     stream >> itemLibraryEntry.m_data->customComponentSource;
+    stream >> itemLibraryEntry.m_data->extraFilePaths;
 
     return stream;
 }
@@ -256,6 +269,7 @@ QDebug operator<<(QDebug debug, const ItemLibraryEntry &itemLibraryEntry)
     debug << itemLibraryEntry.m_data->qml;
     debug << itemLibraryEntry.m_data->qmlSource;
     debug << itemLibraryEntry.m_data->customComponentSource;
+    debug << itemLibraryEntry.m_data->extraFilePaths;
 
     return debug.space();
 }

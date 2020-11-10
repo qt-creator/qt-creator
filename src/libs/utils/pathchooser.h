@@ -148,6 +148,9 @@ public:
     using AboutToShowContextMenuHandler = std::function<void (PathChooser *, QMenu *)>;
     static void setAboutToShowContextMenuHandler(AboutToShowContextMenuHandler handler);
 
+    void setOpenTerminalHandler(const std::function<void()> &openTerminal);
+    std::function<void()> openTerminalHandler() const;
+
     // Deprecated. Use filePath().toString() or better suitable conversions.
     QString path() const { return filePath().toString(); }
     // Deprecated. Use filePath()

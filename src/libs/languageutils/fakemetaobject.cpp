@@ -177,7 +177,7 @@ QString FakeMetaMethod::describe(int baseIndent) const
     res += methodName();
     res += newLine;
     res += QLatin1String("  methodType:");
-    res += methodType();
+    res += QString::number(methodType());
     res += newLine;
     res += QLatin1String("  parameterNames:[");
     foreach (const QString &pName, parameterNames()) {

@@ -265,7 +265,7 @@ void tst_TestCore::testRewriterView()
 {
     try {
         QPlainTextEdit textEdit;
-        textEdit.setPlainText("import QtQuick 1.1;\n\nItem {\n}\n");
+        textEdit.setPlainText("import QtQuick 2.15;\n\nItem {\n}\n");
         NotIndentingTextEditModifier textModifier(&textEdit);
 
         QScopedPointer<Model> model(Model::create("QtQuick.Item"));
@@ -315,7 +315,7 @@ void tst_TestCore::testRewriterView()
 
         testRewriterView->modelToTextMerger()->applyChanges();
 
-        childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
+        childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 2, 0, "data");
         QVERIFY(testRewriterView->modelToTextMerger()->isNodeScheduledForAddition(childNode));
 
         testRewriterView->modelToTextMerger()->applyChanges();
@@ -2873,16 +2873,20 @@ void tst_TestCore::testRewriterComponentId()
     textEdit.setPlainText(QLatin1String(qmlString));
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("QtQuick.Item", 2, 0));
+    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 2, 1));
     QVERIFY(model.data());
+    QVERIFY(model->hasNodeMetaInfo("QtQuick.Item", 2, 1));
 
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
     QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    QVERIFY(model->rewriterView());
     testRewriterView->setTextModifier(&textModifier);
     model->attachView(testRewriterView.data());
+
+    QVERIFY(model->hasNodeMetaInfo("QtQuick.Item", 2, 1));
 
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
@@ -2890,7 +2894,7 @@ void tst_TestCore::testRewriterComponentId()
 
     ModelNode component(rootModelNode.directSubModelNodes().first());
     QVERIFY(component.isValid());
-    QCOMPARE(component.type(),  QmlDesigner::TypeName("QtQuick.Component"));
+    QCOMPARE(component.type(),  QmlDesigner::TypeName("QtQml.Component"));
     QCOMPARE(component.id(), QString("testComponent"));
 }
 
@@ -3934,7 +3938,7 @@ void tst_TestCore::testCopyModelRewriter2()
 
 void tst_TestCore::testSubComponentManager()
 {
-    const QString qmlString("import QtQuick 2.1\n"
+    const QString qmlString("import QtQuick 2.15\n"
                         "Rectangle {\n"
                         "    id: root\n"
                         "    x: 10;\n"
@@ -3961,20 +3965,21 @@ void tst_TestCore::testSubComponentManager()
     textEdit.setPlainText(QString::fromUtf8(file.readAll()));
     NotIndentingTextEditModifier modifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
+    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 2, 15));
     model->setFileUrl(QUrl::fromLocalFile(fileName));
     QScopedPointer<SubComponentManager> subComponentManager(new SubComponentManager(model.data()));
     subComponentManager->update(QUrl::fromLocalFile(fileName), model->imports());
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
-    testRewriterView->setTextModifier(&modifier);
-    model->attachView(testRewriterView.data());
+    QVERIFY(model->hasNodeMetaInfo("QtQuick.Rectangle", 2, 15));
+    QVERIFY(model->metaInfo("QtQuick.Rectangle").propertyNames().contains("border.width"));
 
-    QVERIFY(testRewriterView->errors().isEmpty());
+    model->rewriterView()->setTextModifier(&modifier);
 
-    QVERIFY(testRewriterView->rootModelNode().isValid());
+    QVERIFY(model->rewriterView()->errors().isEmpty());
 
+    QVERIFY(model->rewriterView()->rootModelNode().isValid());
 
+    QVERIFY(model->hasNodeMetaInfo("QtQuick.Rectangle", 2, 15));
     QVERIFY(model->metaInfo("QtQuick.Rectangle").propertyNames().contains("border.width"));
 
     QVERIFY(model->metaInfo("<cpp>.QQuickPen").isValid());
@@ -4281,7 +4286,7 @@ void tst_TestCore::testMetaInfoUncreatableType()
 
     NodeMetaInfo qObjectTypeInfo = animationTypeInfo.directSuperClass();
     QVERIFY(qObjectTypeInfo.isValid());
-    QCOMPARE(qObjectTypeInfo.typeName(), QmlDesigner::TypeName("QtQuick.QtObject"));
+    QCOMPARE(qObjectTypeInfo.typeName(), QmlDesigner::TypeName("QtQml.QtObject"));
 
     QCOMPARE(animationTypeInfo.superClasses().size(), 2);
 }

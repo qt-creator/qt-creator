@@ -89,7 +89,6 @@ private:
     void toMap(QVariantMap &map) const override;
 
     void resetPath();
-    QString keyForDefaultWd() const;
 
     EnvironmentAspect *m_envAspect = nullptr;
     Utils::FilePath m_workingDirectory;

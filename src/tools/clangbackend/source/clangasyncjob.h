@@ -63,7 +63,7 @@ public:
         const QFuture<Result> future = Utils::runAsync(stackSize, m_runner);
         m_futureWatcher.setFuture(future);
 
-        return future;
+        return QFuture<void>(future);
     }
 
     void preventFinalization() final

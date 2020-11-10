@@ -58,6 +58,10 @@
                         \li \l{Managing Sessions}
                      \endlist
                 \li \l{Tutorials}
+                \li \l{Qt Quick Best Practices}
+                    \list
+                         \li \l{Creating Optimized 3D Scenes}
+                    \endlist
             \endlist
         \li \l{Managing Projects}
             \list
@@ -78,6 +82,8 @@
                 \list
                     \li \l{Editing 2D Content}
                     \li \l{Shapes}
+                    \li \l{Images}
+                    \li \l{Lists and Other Data Models}
                     \li \l{Creating Buttons}
                     \li \l{Creating Scalable Buttons and Borders}
                 \endlist
@@ -98,7 +104,6 @@
                     \li\l{Adding Bindings Between Properties}
                 \endlist
                 \li \l{Adding States}
-                \li \l{Editing PathView Properties}
             \endlist
         \li \l{Editing 3D Scenes}
                 \list

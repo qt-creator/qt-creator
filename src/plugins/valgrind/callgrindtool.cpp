@@ -452,6 +452,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     m_perspective.addToolBarAction(m_goNext);
     m_perspective.addToolbarSeparator();
     m_perspective.addToolBarWidget(m_eventCombo);
+    m_perspective.registerNextPrevShortcuts(m_goNext, m_goBack);
 
     // Cost formatting
     {

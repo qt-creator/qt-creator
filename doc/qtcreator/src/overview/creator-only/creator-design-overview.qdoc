@@ -57,11 +57,10 @@
             properties set in \QD can be changed dynamically within the code.
             Furthermore, features such as widget promotion and custom plugins
             allow you to use your own widgets with \QD.
-        \li \l{Optimizing Applications for Mobile Devices}
 
-            Mobile devices have been designed for use when mobile. Keep the
-            characteristics of mobile devices in mind when you create
-            applications for them.
+        \li \l{Best Practices}
 
+            Apply the best practices to ensure that the UIs you create work
+            efficiently on the intended platforms, such as mobile devices.
     \endlist
 */

@@ -180,6 +180,21 @@ void PropertyEditorContextObject::toogleExportAlias()
     }
 }
 
+void PropertyEditorContextObject::goIntoComponent()
+{
+    QTC_ASSERT(m_model && m_model->rewriterView(), return);
+
+    /* Ideally we should not missuse the rewriterView
+     * If we add more code here we have to forward the property editor view */
+    RewriterView *rewriterView = m_model->rewriterView();
+
+    QTC_ASSERT(!rewriterView->selectedModelNodes().isEmpty(), return);
+
+    const ModelNode selectedNode = rewriterView->selectedModelNodes().constFirst();
+
+    DocumentManager::goIntoComponent(selectedNode);
+}
+
 void PropertyEditorContextObject::changeTypeName(const QString &typeName)
 {
     QTC_ASSERT(m_model && m_model->rewriterView(), return);

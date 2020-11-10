@@ -669,8 +669,10 @@ void ProjectWindow::hideEvent(QHideEvent *event)
 
 void ProjectWindow::showEvent(QShowEvent *event)
 {
-    loadPersistentSettings();
     FancyMainWindow::showEvent(event);
+
+    // Delay appears to be necessary for the target setup page to have the correct layout.
+    QTimer::singleShot(0, this, &ProjectWindow::loadPersistentSettings);
 }
 
 ProjectWindow::~ProjectWindow() = default;

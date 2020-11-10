@@ -36,7 +36,7 @@
 
     \image loginui2.png "Log In UI"
 
-    \e{Log In UI - Part 2} is the second in a series of examples that build
+    \e{Log In UI - Part 2} is the second in a series of tutorials that build
     on each other to illustrate how to use \QDS to create a simple UI with
     some basic UI components, such as pages, buttons, and entry fields. Part 2
     describes how to position the UI components on pages to create a scalable
@@ -56,7 +56,7 @@
     First, you will \l {Setting Anchors and Margins}{anchor} the static page
     elements, logo image (\e logo) and page title (\e pageTitle), to the page.
     When you created the project using the new project wizard template
-    in Part 1 of this example, the wizard template anchored \e pageTitle to the
+    in Part 1 of this tutorial, the wizard template anchored \e pageTitle to the
     vertical and horizontal center of the page. Therefore, you will only
     need to replace the vertical anchor of \e pageTitle with a top anchor
     to align it with \e logo on the page.
@@ -203,6 +203,6 @@
     \l{Positioning Items}.
 
     To learn how to add a second page and move to it from the main page, see
-    the next example in the series, \l {Log In UI - Part 3}.
+    the next tutorial in the series, \l {Log In UI - Part 3}.
 */
 

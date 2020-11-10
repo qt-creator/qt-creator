@@ -411,6 +411,10 @@ QHelpEngine &LocalHelpManager::helpEngine()
         QMutexLocker _(&m_guiMutex);
         if (!m_guiEngine) {
             m_guiEngine = new QHelpEngine(QString());
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            m_guiEngine->setReadOnly(false);
+#endif
+
 #ifdef HELP_NEW_FILTER_ENGINE
             m_guiEngine->setUsesFilterEngine(true);
 #endif

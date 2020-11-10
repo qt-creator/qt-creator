@@ -597,6 +597,7 @@ ClangTool::ClangTool()
     m_perspective.addToolBarAction(m_showFilter);
     m_perspective.addToolBarWidget(m_selectFixitsCheckBox);
     m_perspective.addToolBarWidget(m_applyFixitsButton);
+    m_perspective.registerNextPrevShortcuts(m_goNext, m_goBack);
 
     update();
 
@@ -1154,8 +1155,8 @@ void ClangTool::updateForCurrentState()
 
     const int issuesFound = m_diagnosticModel->diagnostics().count();
     const int issuesVisible = m_diagnosticFilterModel->diagnostics();
-    m_goBack->setEnabled(issuesVisible > 1);
-    m_goNext->setEnabled(issuesVisible > 1);
+    m_goBack->setEnabled(issuesVisible > 0);
+    m_goNext->setEnabled(issuesVisible > 0);
     m_clear->setEnabled(!isRunning);
     m_expandCollapse->setEnabled(issuesVisible);
     m_loadExported->setEnabled(!isRunning);

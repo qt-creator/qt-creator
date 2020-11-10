@@ -29,14 +29,25 @@
 
 #include <cpptools/cpprefactoringchanges.h>
 
-using namespace CppEditor;
-using namespace CppEditor::Internal;
 using namespace CppTools;
 using namespace TextEditor;
 using namespace CPlusPlus;
+
+namespace CppEditor {
+namespace Internal {
+
+const QStringList magicQObjectFunctions()
+{
+    static QStringList list{"metaObject", "qt_metacast", "qt_metacall", "qt_static_metacall"};
+    return list;
+}
+
+} // namespace Internal
 
 CppQuickFixOperation::CppQuickFixOperation(const CppQuickFixInterface &interface, int priority)
     : QuickFixOperation(priority), CppQuickFixInterface(interface)
 {}
 
 CppQuickFixOperation::~CppQuickFixOperation() = default;
+
+} // namespace CppEditor

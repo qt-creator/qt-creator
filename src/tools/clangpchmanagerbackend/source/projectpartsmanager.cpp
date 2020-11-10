@@ -31,8 +31,9 @@
 #include <filepathcachinginterface.h>
 #include <generatedfilesinterface.h>
 #include <projectpartcontainer.h>
-#include <set_algorithm.h>
 #include <usedmacrofilter.h>
+
+#include <utils/set_algorithm.h>
 
 #include <algorithm>
 #include <utils/algorithm.h>
@@ -163,7 +164,7 @@ ProjectPartsManagerInterface::UpToDataProjectParts ProjectPartsManager::checkDep
                                       newSources.end(),
                                       oldSources.begin(),
                                       oldSources.end(),
-                                      make_iterator([&](SourceEntry entry) {
+                                      Utils::make_iterator([&](SourceEntry entry) {
                                           change = changedSourceType(entry, change);
                                       }),
                                       [](SourceEntry first, SourceEntry second) {
@@ -185,7 +186,7 @@ ProjectPartsManagerInterface::UpToDataProjectParts ProjectPartsManager::checkDep
         }
 
         if (change == Change::No) {
-            Change change = mismatch_collect(
+            Change change = Utils::mismatch_collect(
                 newSources.begin(),
                 newSources.end(),
                 oldSources.begin(),

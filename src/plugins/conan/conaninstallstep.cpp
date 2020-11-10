@@ -67,7 +67,7 @@ ConanInstallStep::ConanInstallStep(BuildStepList *bsl, Id id)
     conanFile->setSettingsKey("ConanPackageManager.InstallStep.ConanFile");
     conanFile->setFilePath(project()->projectDirectory() / "conanfile.txt");
     conanFile->setLabelText(tr("Conan file:"));
-    conanFile->setToolTip(tr("Enter location of conanfile.txt or conanfile.py"));
+    conanFile->setToolTip(tr("Enter location of conanfile.txt or conanfile.py."));
     conanFile->setDisplayStyle(StringAspect::PathChooserDisplay);
     conanFile->setExpectedKind(PathChooser::File);
 

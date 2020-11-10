@@ -1,11 +1,14 @@
+// Dummy comment to consume the first argument and suppress warnings %1
 
 Section {
     anchors.left: parent.left
     anchors.right: parent.right
-    caption: "%1"
+    caption: qsTr("Color")
+    expanded: false
+    level: 2
 
-ColorEditor {
-    backendValue: backendValues.%2
-    supportGradient: false
-}
+    ColorEditor {
+        backendValue: backendValues.%2
+        supportGradient: false
+    }
 }

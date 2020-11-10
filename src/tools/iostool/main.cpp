@@ -186,7 +186,7 @@ private:
     void appOutput(const QString &output);
     void readStdin();
 
-    QMutex m_xmlMutex;
+    QRecursiveMutex m_xmlMutex;
     int maxProgress;
     int opLeft;
     bool debug;
@@ -507,7 +507,6 @@ void GenericRelayServer::newRelayConnection()
 
 IosTool::IosTool(QObject *parent):
     QObject(parent),
-    m_xmlMutex(QMutex::Recursive),
     maxProgress(0),
     opLeft(0),
     debug(false),

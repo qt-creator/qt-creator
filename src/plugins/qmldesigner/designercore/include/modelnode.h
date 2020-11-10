@@ -248,7 +248,6 @@ public:
 private: // functions
     Internal::InternalNodePointer internalNode() const;
 
-    void removeLocked();
     bool hasLocked() const;
 
 private: // variables

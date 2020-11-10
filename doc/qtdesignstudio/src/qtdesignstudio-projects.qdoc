@@ -109,14 +109,18 @@
         \li qtquickcontrols2.conf file specifies the preferred style and some
             style-specific arguments.
         \li \e imports folder contains a \e {Constants.qml} file that specifies
-            a font loader for the Arial font and a \e qmldir module definition
-            file that declares the Constant QML type. For more information, see
-            \l {Module Definition qmldir Files}. In addition, the \e QtQuick
-            subfolder contains the Studio components and effects QML types.
+            a font loader for the Arial font and the screen resolution. The
+            size of the default Screen.ui.qml Rectangle should be set as
+            \c {width: Constants.width & height: Constants.height}, so it
+            inherits the global resolution saved here.
+        \li \e qmldir module definition file declares the Constant QML type.
+            For more information, see \l {Module Definition qmldir Files}.
+        \li In addition, the \e QtQuick subfolder contains the Studio components
+            and effects QML types.
     \endlist
 
-    To use JavaScript and image files in the UI, copy them to the
-    project folder.
+    To use JavaScript and image files in the UI, select \uicontrol Library >
+    Assets > Add New Assets.
 
     \section1 Adding Files to Projects
 

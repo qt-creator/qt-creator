@@ -265,6 +265,11 @@ extend_qtc_plugin(QmlDesigner
     resizeindicator.cpp resizeindicator.h
     resizemanipulator.cpp resizemanipulator.h
     resizetool.cpp resizetool.h
+    rotationtool.cpp rotationtool.h
+    rotationindicator.cpp rotationindicator.h
+    rotationcontroller.cpp rotationcontroller.h
+    rotationhandleitem.cpp rotationhandleitem.h
+    rotationmanipulator.cpp rotationmanipulator.h
     rubberbandselectionmanipulator.cpp rubberbandselectionmanipulator.h
     scaleitem.cpp scaleitem.h
     scalemanipulator.cpp scalemanipulator.h

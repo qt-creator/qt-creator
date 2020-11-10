@@ -24,6 +24,11 @@ SOURCES += formeditoritem.cpp \
     scaleitem.cpp \
     resizecontroller.cpp \
     resizehandleitem.cpp \
+    rotationtool.cpp \
+    rotationindicator.cpp \
+    rotationcontroller.cpp \
+    rotationhandleitem.cpp \
+    rotationmanipulator.cpp \
     dragtool.cpp \
     toolbox.cpp \
     formeditorgraphicsview.cpp \
@@ -64,6 +69,11 @@ HEADERS += formeditorscene.h \
     scaleitem.h \
     resizecontroller.h \
     resizehandleitem.h \
+    rotationtool.h \
+    rotationindicator.h \
+    rotationcontroller.h \
+    rotationhandleitem.h \
+    rotationmanipulator.h \
     dragtool.h \
     toolbox.h \
     formeditorgraphicsview.h \

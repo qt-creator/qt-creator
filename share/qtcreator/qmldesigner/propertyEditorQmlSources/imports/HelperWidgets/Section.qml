@@ -23,9 +23,9 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
 import QtQuick.Controls 2.12 as Controls
-import QtQuick.Layouts 1.0
+import QtQuick.Layouts 1.15
 import QtQuickDesignerTheme 1.0
 import StudioTheme 1.0 as StudioTheme
 
@@ -35,28 +35,22 @@ Item {
     property int leftPadding: 8
     property int topPadding: 4
     property int rightPadding: 0
+    property int bottomPadding: 4
 
     property int animationDuration: 0
 
     property bool expanded: true
+    property int level: 0
+    property int levelShift: 10
 
     clip: true
 
     Rectangle {
         id: header
         height: 20
-
         anchors.left: parent.left
         anchors.right: parent.right
-
-        Controls.Label {
-            id: label
-            anchors.verticalCenter: parent.verticalCenter
-            color: StudioTheme.Values.themeTextColor
-            x: 22
-            font.bold: true
-            font.pixelSize: StudioTheme.Values.myFontSize
-        }
+        color: Qt.lighter(StudioTheme.Values.themeSectionHeadBackground, 1.0 + (0.2 * level))
 
         Image {
             id: arrow
@@ -64,35 +58,27 @@ Item {
             height: 4
             source: "image://icons/down-arrow"
             anchors.left: parent.left
-            anchors.leftMargin: 4
+            anchors.leftMargin: 4 + (level * levelShift)
             anchors.verticalCenter: parent.verticalCenter
             Behavior on rotation {
                 NumberAnimation {
                     easing.type: Easing.OutCubic
-                    duration: animationDuration
+                    duration: section.animationDuration
                 }
             }
-
         }
 
-        color: StudioTheme.Values.themeSectionHeadBackground
-
-        Rectangle {
-            visible: false
-            color:"#333"
-            width: parent.width
-            height: 1
-        }
-
-        Rectangle {
-            visible: false
-            color: "#333"
-            anchors.bottom: parent.bottom
-            width: parent.width
-            height: 1
+        Controls.Label {
+            id: label
+            anchors.verticalCenter: parent.verticalCenter
+            color: StudioTheme.Values.themeTextColor
+            x: 22 + (level * levelShift)
+            font.bold: true
+            font.pixelSize: StudioTheme.Values.myFontSize
         }
 
         MouseArea {
+            id: mouseArea
             anchors.fill: parent
             onClicked: {
                 section.animationDuration = 120
@@ -105,22 +91,23 @@ Item {
 
     readonly property alias contentItem: row
 
-    implicitHeight: Math.round(row.height + header.height + 8)
+    implicitHeight: Math.round(row.height + header.height
+                               + section.topPadding + section.bottomPadding)
 
     Row {
-        anchors.left: parent.left
-        anchors.leftMargin: leftPadding
-        anchors.right: parent.right
-        anchors.rightMargin: rightPadding
-        anchors.top: header.bottom
-        anchors.topMargin: topPadding
         id: row
+        anchors.left: parent.left
+        anchors.leftMargin: section.leftPadding
+        anchors.right: parent.right
+        anchors.rightMargin: section.rightPadding
+        anchors.top: header.bottom
+        anchors.topMargin: section.topPadding
     }
 
     Behavior on implicitHeight {
         NumberAnimation {
             easing.type: Easing.OutCubic
-            duration: animationDuration
+            duration: section.animationDuration
         }
     }
 

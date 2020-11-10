@@ -38,6 +38,8 @@ namespace {
 
 using Sqlite::SessionChangeSet;
 using Sqlite::SessionChangeSets;
+using Sqlite::SessionChangeSetInternal::Operation;
+using Sqlite::SessionChangeSetInternal::ValueViews;
 
 class DatabaseExecute
 {
@@ -79,6 +81,17 @@ MATCHER_P3(HasData,
     return data.name == name && data.number == number && data.value == value;
 }
 
+MATCHER_P2(HasValues,
+           newValue,
+           oldValue,
+           std::string(negation ? "hasn't " : "has ") + PrintToString(newValue) + ", "
+               + PrintToString(oldValue))
+{
+    const ValueViews &values = arg;
+
+    return values.newValue == newValue && values.oldValue == oldValue;
+}
+
 class Tag
 {
 public:
@@ -113,7 +126,6 @@ protected:
 
     std::vector<Data> fetchData() { return selectData.values<Data, 3>(8); }
     std::vector<Tag> fetchTags() { return selectTags.values<Tag, 2>(8); }
-    SessionChangeSets fetchChangeSets() { return selectChangeSets.values<SessionChangeSet>(8); }
 
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
@@ -128,6 +140,9 @@ protected:
     Sqlite::WriteStatement insertData{"INSERT INTO data(name, number, value) VALUES (?1, ?2, ?3) "
                                       "ON CONFLICT (name) DO UPDATE SET (number, value) = (?2, ?3)",
                                       database};
+    Sqlite::WriteStatement insertOneDatum{"INSERT INTO data(value, name) VALUES (?1, ?2) "
+                                          "ON CONFLICT (name) DO UPDATE SET (value) = (?2)",
+                                          database};
     Sqlite::WriteStatement updateNumber{"UPDATE data SET number = ?002 WHERE name=?001", database};
     Sqlite::WriteStatement updateValue{"UPDATE data SET value = ?002 WHERE name=?001", database};
     Sqlite::WriteStatement deleteData{"DELETE FROM data WHERE name=?", database};
@@ -151,7 +166,7 @@ TEST_F(Sessions, CreateEmptySession)
     sessions.create();
     sessions.commit();
 
-    ASSERT_THAT(fetchChangeSets(), IsEmpty());
+    ASSERT_THAT(sessions.changeSets(), IsEmpty());
 }
 
 TEST_F(Sessions, CreateSessionWithInsert)
@@ -160,7 +175,7 @@ TEST_F(Sessions, CreateSessionWithInsert)
     insertData.write("foo", 22, 3.14);
     sessions.commit();
 
-    ASSERT_THAT(fetchChangeSets(), SizeIs(1));
+    ASSERT_THAT(sessions.changeSets(), SizeIs(1));
 }
 
 TEST_F(Sessions, CreateSessionWithUpdate)
@@ -171,7 +186,7 @@ TEST_F(Sessions, CreateSessionWithUpdate)
     updateNumber.write("foo", "bar");
     sessions.commit();
 
-    ASSERT_THAT(fetchChangeSets(), SizeIs(1));
+    ASSERT_THAT(sessions.changeSets(), SizeIs(1));
 }
 
 TEST_F(Sessions, CreateSessionWithDelete)
@@ -182,7 +197,7 @@ TEST_F(Sessions, CreateSessionWithDelete)
     deleteData.write("foo");
     sessions.commit();
 
-    ASSERT_THAT(fetchChangeSets(), SizeIs(1));
+    ASSERT_THAT(sessions.changeSets(), SizeIs(1));
 }
 
 TEST_F(Sessions, CreateSessionWithInsertAndUpdate)
@@ -195,7 +210,7 @@ TEST_F(Sessions, CreateSessionWithInsertAndUpdate)
     updateNumber.write("foo", "bar");
     sessions.commit();
 
-    ASSERT_THAT(fetchChangeSets(), SizeIs(2));
+    ASSERT_THAT(sessions.changeSets(), SizeIs(2));
 }
 
 TEST_F(Sessions, CreateSession)
@@ -205,7 +220,7 @@ TEST_F(Sessions, CreateSession)
 
     sessions.commit();
 
-    ASSERT_THAT(fetchChangeSets(), SizeIs(1));
+    ASSERT_THAT(sessions.changeSets(), SizeIs(1));
 }
 
 TEST_F(Sessions, RevertSession)
@@ -437,7 +452,261 @@ TEST_F(Sessions, ApplyAndUpdateSessionsHasOnlyOneChangeSet)
 
     sessions.applyAndUpdateSessions();
 
-    ASSERT_THAT(fetchChangeSets(), SizeIs(1));
+    ASSERT_THAT(sessions.changeSets(), SizeIs(1));
 }
 
+TEST_F(Sessions, ForEmptySessionBeginEqualsEnd)
+{
+    auto changeSets = sessions.changeSets();
+
+    auto begin = changeSets.begin();
+
+    ASSERT_THAT(begin, Eq(changeSets.end()));
+}
+
+TEST_F(Sessions, IteratorBeginUnequalsEndIfChangeSetHasContent)
+{
+    sessions.create();
+    insertData.write("foo", "bar", 3.14);
+    sessions.commit();
+    auto changeSets = sessions.changeSets();
+    auto &&changeSet = changeSets.front();
+
+    auto begin = changeSet.begin();
+
+    ASSERT_THAT(begin, Ne(changeSet.end()));
+}
+
+TEST_F(Sessions, NextIteratorUnequalsBeginIfChangeSetHasContent)
+{
+    sessions.create();
+    insertData.write("foo", "bar", 3.14);
+    sessions.commit();
+    auto changeSets = sessions.changeSets();
+    auto &&changeSet = changeSets.front();
+
+    auto next = std::next(changeSet.begin());
+
+    ASSERT_NE(next, changeSet.begin());
+}
+
+TEST_F(Sessions, NextIteratorEqualsEndIfChangeSetHasContent)
+{
+    sessions.create();
+    insertData.write("foo", "bar", 3.14);
+    sessions.commit();
+    auto changeSets = sessions.changeSets();
+    auto &&changeSet = changeSets.front();
+
+    auto next = std::next(changeSet.begin());
+
+    ASSERT_THAT(next, Eq(changeSet.end()));
+}
+
+TEST_F(Sessions, NextIteratorNotUnqualsEndIfChangeSetHasContent)
+{
+    sessions.create();
+    insertData.write("foo", "bar", 3.14);
+    sessions.commit();
+    auto changeSets = sessions.changeSets();
+    auto &&changeSet = changeSets.front();
+
+    auto next = std::next(changeSet.begin());
+
+    ASSERT_THAT(next, Not(Ne(changeSet.end())));
+}
+
+TEST_F(Sessions, BeginIteratorHasInsertOperation)
+{
+    sessions.create();
+    insertData.write("foo", "bar", 3.14);
+    sessions.commit();
+    auto changeSets = sessions.changeSets();
+    auto &&changeSet = changeSets.front();
+    auto begin = changeSet.begin();
+
+    auto tuple = (*begin);
+
+    ASSERT_THAT(tuple.operation, Eq(Operation::Insert));
+}
+
+TEST_F(Sessions, BeginIteratorHasUpdateOperation)
+{
+    insertData.write("foo", "bar", 3.14);
+    sessions.create();
+    updateValue.write("foo", 99);
+    sessions.commit();
+    auto changeSets = sessions.changeSets();
+    auto &&changeSet = changeSets.front();
+    auto begin = changeSet.begin();
+
+    auto tuple = (*begin);
+
+    ASSERT_THAT(tuple.operation, Eq(Operation::Update));
+}
+
+TEST_F(Sessions, BeginIteratorHasDeleteOperation)
+{
+    insertData.write("foo", "bar", 3.14);
+    sessions.create();
+    deleteData.write("foo");
+    sessions.commit();
+    auto changeSets = sessions.changeSets();
+    auto &&changeSet = changeSets.front();
+    auto begin = changeSet.begin();
+
+    auto tuple = (*begin);
+
+    ASSERT_THAT(tuple.operation, Eq(Operation::Delete));
+}
+
+TEST_F(Sessions, BeginIteratorHasDataTableName)
+{
+    sessions.create();
+    insertData.write("foo", "bar", 3.14);
+    sessions.commit();
+    auto changeSets = sessions.changeSets();
+    auto &&changeSet = changeSets.front();
+    auto begin = changeSet.begin();
+
+    auto tuple = (*begin);
+
+    ASSERT_THAT(tuple.table, Eq("data"));
+}
+
+TEST_F(Sessions, ConvertAllValueTypesInChangeSet)
+{
+    sessions.create();
+    insertData.write("foo", "bar", 3.14);
+    sessions.commit();
+    auto changeSets = sessions.changeSets();
+    auto &&changeSet = changeSets.front();
+    auto begin = changeSet.begin();
+    auto tuple = (*begin);
+
+    std::vector<ValueViews> values{tuple.begin(), tuple.end()};
+
+    ASSERT_THAT(values,
+                ElementsAre(HasValues(1, nullptr),
+                            HasValues("foo", nullptr),
+                            HasValues("bar", nullptr),
+                            HasValues(3.14, nullptr)));
+}
+
+TEST_F(Sessions, InsertOneValueChangeSet)
+{
+    sessions.create();
+    insertOneDatum.write("foo");
+    sessions.commit();
+    auto changeSets = sessions.changeSets();
+    auto &&changeSet = changeSets.front();
+    auto begin = changeSet.begin();
+    auto tuple = (*begin);
+
+    std::vector<ValueViews> values{tuple.begin(), tuple.end()};
+
+    ASSERT_THAT(values,
+                ElementsAre(HasValues(1, nullptr),
+                            HasValues(nullptr, nullptr),
+                            HasValues(nullptr, nullptr),
+                            HasValues("foo", nullptr)));
+}
+
+TEST_F(Sessions, UpdateOneValueChangeSet)
+{
+    insertData.write("foo", "bar", 3.14);
+    sessions.create();
+    updateValue.write("foo", 99);
+    sessions.commit();
+    auto changeSets = sessions.changeSets();
+    auto &&changeSet = changeSets.front();
+    auto begin = changeSet.begin();
+    auto tuple = (*begin);
+
+    std::vector<ValueViews> values{tuple.begin(), tuple.end()};
+
+    ASSERT_THAT(values,
+                ElementsAre(HasValues(nullptr, 1),
+                            HasValues(nullptr, nullptr),
+                            HasValues(nullptr, nullptr),
+                            HasValues(99, 3.14)));
+}
+
+TEST_F(Sessions, DeleteRowChangeSet)
+{
+    insertData.write("foo", "bar", 3.14);
+    sessions.create();
+    deleteData.write("foo");
+    sessions.commit();
+    auto changeSets = sessions.changeSets();
+    auto &&changeSet = changeSets.front();
+    auto begin = changeSet.begin();
+
+    auto tuple = (*begin);
+
+    std::vector<ValueViews> values{tuple.begin(), tuple.end()};
+
+    ASSERT_THAT(values,
+                ElementsAre(HasValues(nullptr, 1),
+                            HasValues(nullptr, "foo"),
+                            HasValues(nullptr, "bar"),
+                            HasValues(nullptr, 3.14)));
+}
+
+TEST_F(Sessions, EmptyChangeSet)
+{
+    sessions.create();
+    sessions.commit();
+
+    auto changeSets = sessions.changeSets();
+
+    ASSERT_THAT(changeSets, ElementsAre());
+}
+
+TEST_F(Sessions, AccessInsertOneValueChangeSet)
+{
+    sessions.create();
+    insertOneDatum.write("foo");
+    sessions.commit();
+    auto changeSets = sessions.changeSets();
+    auto &&changeSet = changeSets.front();
+    auto begin = changeSet.begin();
+    auto tuple = (*begin);
+
+    ValueViews value = tuple[3];
+
+    ASSERT_THAT(value, HasValues("foo", nullptr));
+}
+
+TEST_F(Sessions, AccessUpdateOneValueChangeSet)
+{
+    insertData.write("foo", "bar", 3.14);
+    sessions.create();
+    updateValue.write("foo", 99);
+    sessions.commit();
+    auto changeSets = sessions.changeSets();
+    auto &&changeSet = changeSets.front();
+    auto begin = changeSet.begin();
+    auto tuple = (*begin);
+
+    ValueViews value = tuple[3];
+
+    ASSERT_THAT(value, HasValues(99, 3.14));
+}
+
+TEST_F(Sessions, AccessDeleteRowChangeSet)
+{
+    insertData.write("foo", "bar", 3.14);
+    sessions.create();
+    deleteData.write("foo");
+    sessions.commit();
+    auto changeSets = sessions.changeSets();
+    auto &&changeSet = changeSets.front();
+    auto begin = changeSet.begin();
+    auto tuple = (*begin);
+
+    ValueViews value = tuple[0];
+
+    ASSERT_THAT(value, HasValues(nullptr, 1));
+}
 } // namespace

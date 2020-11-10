@@ -101,7 +101,6 @@ void CppProjectUpdater::onProjectInfoGenerated()
 
     QFuture<void> future = CppModelManager::instance()
             ->updateProjectInfo(m_futureInterface, m_generateFutureWatcher.result());
-    QTC_CHECK(future != QFuture<void>());
 }
 
 CppProjectUpdaterFactory::CppProjectUpdaterFactory()

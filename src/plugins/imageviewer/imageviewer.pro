@@ -19,8 +19,12 @@ SOURCES += \
     imageview.cpp \
     multiexportdialog.cpp
 
-!isEmpty(QT.svg.name): QT += svg
-else: DEFINES += QT_NO_SVG
+!isEmpty(QT.svg.name) {
+    QT += svg
+    greaterThan(QT_MAJOR_VERSION, 5) : QT += svgwidgets
+} else {
+    DEFINES += QT_NO_SVG
+}
 
 FORMS += \
     imageviewertoolbar.ui

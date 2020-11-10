@@ -46,6 +46,15 @@
     you can associate with an item to define how its properties will animate
     when they change due to a state change.
 
+    Each component in a scene or a project can have its own timeline and its own
+    set of states. We recommend that you place your timelines inside the
+    components and precompose them. Each component's timeline runs independently
+    of the rest of the scene, allowing for time-independent animations.
+    Additionally, separate states allow common functionality to be factored out
+    and reused across the scene. Do note, however, that adding states and
+    timelines to your components will increase the file size and runtime memory
+    requirements of your UI.
+
     You can find a video tutorial about creating timelines and adding keyframes
     \l{https://resources.qt.io/development-topic-ui-design/qtdesignstudio-clustertutorial-parttwo}
     {here}.

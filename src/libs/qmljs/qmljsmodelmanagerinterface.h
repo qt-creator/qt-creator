@@ -183,6 +183,9 @@ public:
 
     // Blocks until all parsing threads are done. Use for testing only!
     void test_joinAllThreads();
+
+    template <typename T>
+    void addFuture(const QFuture<T> &future) { addFuture(QFuture<void>(future)); }
     void addFuture(const QFuture<void> &future);
 
     QmlJS::Document::Ptr ensuredGetDocumentForPath(const QString &filePath);

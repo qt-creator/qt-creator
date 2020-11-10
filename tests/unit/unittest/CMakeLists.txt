@@ -19,6 +19,7 @@ add_qtc_test(unittest GTEST
   DEPENDS
     Qt5::Core Qt5::Network Qt5::Widgets
     Qt5::Xml Qt5::Concurrent Qt5::Qml Qt5::Gui
+    Qt6Core5Compat
     Googletest
   DEFINES
     QT_NO_CAST_TO_ASCII

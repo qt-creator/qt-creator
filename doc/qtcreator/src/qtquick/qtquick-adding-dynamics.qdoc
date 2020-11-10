@@ -61,9 +61,5 @@
             logic. You can associate transitions with items to define
             how their properties will animate when they change due to a state
             change.
-        \li \l {Editing PathView Properties}
-
-            You can use a graphical spline editor to specify \l{PathView} paths.
-            A path view lays out data provided by data models on a \l{Path}.
     \endlist
 */

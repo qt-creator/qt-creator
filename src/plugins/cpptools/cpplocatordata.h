@@ -66,7 +66,7 @@ private:
     mutable SearchSymbols m_search;
     mutable QHash<QString, IndexItem::Ptr> m_infosByFile;
 
-    mutable QMutex m_pendingDocumentsMutex;
+    mutable QRecursiveMutex m_pendingDocumentsMutex;
     mutable QVector<CPlusPlus::Document::Ptr> m_pendingDocuments;
 };
 

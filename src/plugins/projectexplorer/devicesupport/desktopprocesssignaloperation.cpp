@@ -181,11 +181,12 @@ GDB 32bit | Api             | Api             | N/A             | Win32         
                     ? QLatin1String("/win32interrupt.exe")
                     : QLatin1String("/win64interrupt.exe");
             if (!QFile::exists(executable)) {
-                appendMsgCannotInterrupt(pid, tr( "%1 does not exist. If you built %2 "
-                                                  "yourself, check out https://code.qt.io/cgit/"
-                                                  "qt-creator/binary-artifacts.git/.").
-                                         arg(QDir::toNativeSeparators(executable),
-                                             Core::Constants::IDE_DISPLAY_NAME));
+                appendMsgCannotInterrupt(pid,
+                                         tr("%1 does not exist. If you built %2 "
+                                            "yourself, check out https://code.qt.io/cgit/"
+                                            "qt-creator/binary-artifacts.git/.")
+                                             .arg(QDir::toNativeSeparators(executable),
+                                                  QString(Core::Constants::IDE_DISPLAY_NAME)));
             }
             switch (QProcess::execute(executable, QStringList(QString::number(pid)))) {
             case -2:

@@ -1,0 +1,98 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+//! [pathview]
+
+    \section1 Path View
+
+    The Path View type lays out data provided by data models on a \l{Path}.
+
+    A graphical spline editor enables you to specify path view paths, which
+    is a non-trivial task to do in the code editor.
+
+    \image qmldesigner-pathview-editor.png "Path View editor"
+
+    To start editing the path, double-click the path view in
+    \uicontrol {Form Editor}. The editor composes the path of PathCubic path
+    objects. They are cubic Bezier curves to a given position with two control
+    points. Drag and drop the control points in \uicontrol {Form Editor} to
+    construct the curve.
+
+    In addition, PathLine and PathQuad path objects are supported indirectly.
+    To make a curve segment linear, select \uicontrol {Make Curve Segment Straight} in
+    the context menu.
+
+    By default, the path is closed, which means that its start and end points
+    are identical. To create separate start and end points for it, right-click
+    an edit point to open a context menu, and deselect \uicontrol {Closed Path}.
+
+    To add intermediary points to a curve segment, select \uicontrol {Split Segment}
+    in the context menu.
+
+    In the \uicontrol Properties view, you can specify other properties for
+    the path view. The value of the \uicontrol {Drag margin} field specifies
+    the maximum distance from the path that initiates mouse dragging.
+
+    \image qtquick-designer-pathview-properties.png "Path View properties"
+
+    Select the \uicontrol Interactive check box to make an item flickable.
+    The value of the \uicontrol {Flick deceleration} field specifies the
+    rate at which a flick will decelerate.
+
+    In the \uicontrol Offset field, specify how far along the path the items
+    are from their initial positions. This is a real number that ranges from
+    0 to the value of the \uicontrol {Item count} field, which displays the
+    number of items in the model.
+
+    \if defined(qtdesignstudio)
+    \note You can also use the \l SvgPath Studio Component to specify an SVG
+    path data string that draws a path.
+    \endif
+
+//! [pathview]
+
+//! [svgpath]
+
+    \section1 SvgPath
+
+    The Svg Path type uses an SVG path data string to draw a path as a line.
+
+    The stroke property values that specify the appearance of the path are
+    described in \l{Strokes}.
+
+    \image studio-svgpath-properties.png "Svg Path properties"
+
+    The \uicontrol {Path data} field contains the SVG path data
+    string that  specifies the path. For more information, see
+    \l{https://www.w3.org/TR/SVG/paths.html#PathData}{W3C SVG Path Data}.
+
+    \note Mixing SvgPath with other types of elements is not always supported.
+    For example, when \l Shape is backed by \c GL_NV_path_rendering, a
+    \l ShapePath can contain one or more SvgPath elements, or one or more
+    elements of other types, but not both.
+
+//! [svgpath]
+*/

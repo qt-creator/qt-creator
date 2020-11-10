@@ -3441,7 +3441,7 @@ public:
                 cb->setCurrentIndex(index);
         });
         const auto defaultImplTargetLayout = new QHBoxLayout;
-        defaultImplTargetLayout->addWidget(new QLabel(tr("Default Implementation Location:")));
+        defaultImplTargetLayout->addWidget(new QLabel(tr("Default implementation location:")));
         defaultImplTargetLayout->addWidget(defaultImplTargetComboBox);
 
         const auto candidatesLayout = new QGridLayout;
@@ -3517,6 +3517,10 @@ public:
                 continue;
             Function * const func = s->type()->asFunctionType();
             if (!func || func->isSignal() || func->isFriend())
+                continue;
+            Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
+            oo.showFunctionSignatures = true;
+            if (magicQObjectFunctions().contains(oo.prettyName(func->name())))
                 continue;
             m_declarations << s;
         }

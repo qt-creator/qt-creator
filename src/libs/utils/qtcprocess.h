@@ -156,6 +156,3 @@ private:
 };
 
 } // namespace Utils
-
-Q_DECLARE_METATYPE(QProcess::ExitStatus);
-Q_DECLARE_METATYPE(QProcess::ProcessError);

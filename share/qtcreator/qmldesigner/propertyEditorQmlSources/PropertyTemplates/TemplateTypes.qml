@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 AutoTypes {
-    imports: [ "import HelperWidgets 2.0", "import QtQuick 2.1", "import QtQuick.Layouts 1.1" ]
+    imports: [ "import HelperWidgets 2.0", "import QtQuick 2.15", "import QtQuick.Layouts 1.15" ]
 
     Type {
        typeNames: ["int"]
@@ -65,10 +65,15 @@ AutoTypes {
         separateSection: true
     }
 
-     Type {
+    Type {
         typeNames: ["Rectangle"]
         sourceFile: "RectangleEditorTemplate.template"
         separateSection: true
     }
 
+    Type {
+        typeNames: ["Image"]
+        sourceFile: "ImageEditorTemplate.template"
+        separateSection: true
+    }
 }

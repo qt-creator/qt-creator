@@ -145,7 +145,6 @@ void NavigatorView::modelAttached(Model *model)
     treeView->header()->resizeSection(NavigatorTreeModel::ColumnType::Visibility, 26);
     treeView->header()->resizeSection(NavigatorTreeModel::ColumnType::Lock, 26);
     treeView->setIndentation(20);
-    treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     m_currentModelInterface->setFilter(false);
 

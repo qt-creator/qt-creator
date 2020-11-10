@@ -254,7 +254,7 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
         if (call->base_expression == *(callIt - 1)) {
             for (auto it = callIt; it != astPath.rbegin(); --it) {
                 const auto memberAccess = (*it)->asMemberAccess();
-                if (!memberAccess)
+                if (!memberAccess || !memberAccess->member_name || !memberAccess->member_name->name)
                     continue;
                 if (memberAccess->member_name == *(it - 1))
                     return Usage::Type::Other;
@@ -273,9 +273,10 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
                 if (!klass) {
                     if (const auto namedType = baseExprType->asNamedType()) {
                         items = context.lookup(namedType->name(), item->scope());
-                        if (items.isEmpty())
-                            return Usage::Type::Other;
-                        klass = items.first().type()->asClassType();
+                        for (const LookupItem &item : qAsConst(items)) {
+                            if ((klass = item.type()->asClassType()))
+                                break;
+                        }
                     }
                 }
                 if (!klass)
@@ -284,8 +285,13 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
                 if (items.isEmpty())
                     return Usage::Type::Other;
                 for (const LookupItem &item : qAsConst(items)) {
-                    if (item.type()->isFunctionType())
-                        return item.type().isConst() ? Usage::Type::Read : Usage::Type::WritableRef;
+                    if (item.type()->isFunctionType()) {
+                        if (item.type().isConst())
+                            return Usage::Type::Read;
+                        if (item.type().isStatic())
+                            return Usage::Type::Other;
+                        return Usage::Type::WritableRef;
+                    }
                 }
             }
             return Usage::Type::Other;
@@ -330,12 +336,18 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
     for (auto it = astPath.rbegin() + 1; it != astPath.rend(); ++it) {
         if ((*it)->asExpressionStatement())
             return Usage::Type::Read;
-        if ((*it)->asLambdaCapture() || (*it)->asNamedTypeSpecifier()
-                || (*it)->asElaboratedTypeSpecifier()) {
+        if ((*it)->asSwitchStatement())
+            return Usage::Type::Read;
+        if ((*it)->asCaseStatement())
+            return Usage::Type::Read;
+        if ((*it)->asIfStatement())
+            return Usage::Type::Read;
+        if ((*it)->asLambdaCapture())
             return Usage::Type::Other;
-        }
         if ((*it)->asTypenameTypeParameter())
             return Usage::Type::Declaration;
+        if ((*it)->asNewExpression())
+            return Usage::Type::Other;
         if (ClassSpecifierAST *classSpec = (*it)->asClassSpecifier()) {
             if (classSpec->name == *(it - 1))
                 return Usage::Type::Declaration;
@@ -369,6 +381,18 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
                 return Usage::Type::Read;
             }
         }
+        if (const auto sizeofExpr = (*it)->asSizeofExpression()) {
+            if (containsToken(sizeofExpr->expression))
+                return Usage::Type::Read;
+            return Usage::Type::Other;
+        }
+        if (const auto arrayExpr = (*it)->asArrayAccess()) {
+            if (containsToken(arrayExpr->expression))
+                return Usage::Type::Read;
+            continue;
+        }
+        if (const auto postIncrDecrOp = (*it)->asPostIncrDecr())
+            return checkPotentialWrite(Usage::Type::Write, it + 1);
         if (const auto declaratorId = (*it)->asDeclaratorId()) {
             // We don't want to classify constructors and destructors as declarations
             // when listing class usages.
@@ -377,8 +401,11 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
             continue;
         }
         if (const auto declarator = (*it)->asDeclarator()) {
-            if (containsToken(declarator->core_declarator))
+            if (containsToken(declarator->core_declarator)) {
+                if (declarator->initializer)
+                    return Usage::Type::Initialization;
                 return Usage::Type::Declaration;
+            }
             if (const auto decl = (*(it + 1))->asSimpleDeclaration()) {
                 if (decl->symbols && decl->symbols->value) {
                     return checkPotentialWrite(

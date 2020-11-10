@@ -43,7 +43,7 @@ public:
 
     ~Quick3DNodeInstance() override;
     static Pointer create(QObject *objectToBeWrapped);
-    void setHideInEditor(bool b) override;
+    void setHiddenInEditor(bool b) override;
     void initialize(const ObjectNodeInstance::Pointer &objectNodeInstance,
                     InstanceContainer::NodeFlags flags) override;
 
@@ -53,7 +53,6 @@ protected:
 private:
     Qt5NodeInstanceServer *qt5NodeInstanceServer() const;
     QQuick3DNode *quick3DNode() const;
-    void setPickable(bool enable, bool checkParent, bool applyToChildInstances);
 };
 
 } // namespace Internal

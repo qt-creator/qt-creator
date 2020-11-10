@@ -38,11 +38,12 @@
 namespace QmlDesigner {
 
 ResizeTool::ResizeTool(FormEditorView *editorView)
-    : AbstractFormEditorTool(editorView),
-    m_selectionIndicator(editorView->scene()->manipulatorLayerItem()),
-    m_resizeIndicator(editorView->scene()->manipulatorLayerItem()),
-    m_anchorIndicator(editorView->scene()->manipulatorLayerItem()),
-    m_resizeManipulator(editorView->scene()->manipulatorLayerItem(), editorView)
+    : AbstractFormEditorTool(editorView)
+    , m_selectionIndicator(editorView->scene()->manipulatorLayerItem())
+    , m_resizeIndicator(editorView->scene()->manipulatorLayerItem())
+    , m_anchorIndicator(editorView->scene()->manipulatorLayerItem())
+    , m_rotationIndicator(editorView->scene()->manipulatorLayerItem())
+    , m_resizeManipulator(editorView->scene()->manipulatorLayerItem(), editorView)
 {
 }
 
@@ -61,6 +62,7 @@ void ResizeTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
             m_resizeManipulator.begin(event->scenePos());
             m_resizeIndicator.hide();
             m_anchorIndicator.hide();
+            m_rotationIndicator.hide();
         }
     }
 
@@ -113,6 +115,7 @@ void ResizeTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
         m_selectionIndicator.show();
         m_resizeIndicator.show();
         m_anchorIndicator.show();
+        m_rotationIndicator.show();
         m_resizeManipulator.end(generateUseSnapping(event->modifiers()));
     }
 
@@ -171,6 +174,7 @@ void ResizeTool::selectedItemsChanged(const QList<FormEditorItem*> & /*itemList*
     m_selectionIndicator.setItems(items());
     m_resizeIndicator.setItems(items());
     m_anchorIndicator.setItems(items());
+    m_rotationIndicator.setItems(items());
 }
 
 void ResizeTool::clear()
@@ -178,6 +182,7 @@ void ResizeTool::clear()
     m_selectionIndicator.clear();
     m_resizeIndicator.clear();
     m_anchorIndicator.clear();
+    m_rotationIndicator.clear();
     m_resizeManipulator.clear();
 }
 
@@ -188,6 +193,7 @@ void ResizeTool::formEditorItemsChanged(const QList<FormEditorItem*> &itemList)
     m_selectionIndicator.updateItems(selectedItemList);
     m_resizeIndicator.updateItems(selectedItemList);
     m_anchorIndicator.updateItems(selectedItemList);
+    m_rotationIndicator.updateItems(selectedItemList);
 }
 
 void ResizeTool::instancesCompleted(const QList<FormEditorItem*> &/*itemList*/)

@@ -1,4 +1,5 @@
 add_qtc_library(clangpchmanagerbackend_lib STATIC
+  CONDITION TARGET clangrefactoringbackend_lib
   DEPENDS clangrefactoringbackend_lib
   PUBLIC_DEPENDS libclang Qt5::Widgets # FIXME: change the way to get the gui pch to linkto
   DEFINES

@@ -26,7 +26,9 @@ find_package(Qt6 ${Qt5_FIND_VERSION} CONFIG COMPONENTS Core QUIET)
 if (NOT Qt6_FOUND)
   # remove Core5Compat from components to find in Qt5, but add a dummy target,
   # which unfortunately cannot start with "Qt6::"
+  # also remove Tools, where some tools have moved in Qt6, e.g. from Help
   list(REMOVE_ITEM Qt5_FIND_COMPONENTS Core5Compat)
+  list(REMOVE_ITEM Qt5_FIND_COMPONENTS Tools)
   find_package(Qt5 ${Qt5_FIND_VERSION} CONFIG ${__arguments} ${Qt5_FIND_COMPONENTS})
   if (NOT TARGET Qt6Core5Compat)
     add_library(Qt6Core5Compat INTERFACE)
@@ -64,7 +66,7 @@ endif()
 set(Qt5_FOUND ${Qt6_FOUND})
 set(Qt5_VERSION ${Qt6_VERSION})
 
-foreach(tool qmake lrelease moc)
+foreach(tool qmake lrelease moc rcc qhelpgenerator)
   if (TARGET Qt6::${tool} AND NOT TARGET Qt5::${tool})
     add_executable(Qt5::${tool} IMPORTED GLOBAL)
     get_target_property(imported_location Qt6::${tool} IMPORTED_LOCATION_RELEASE)

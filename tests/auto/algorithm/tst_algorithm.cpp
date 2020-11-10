@@ -37,6 +37,8 @@
 // initializer_list related code on the templates inside algorithm.h
 #include <utils/algorithm.h>
 
+#include <utils/porting.h>
+
 class tst_Algorithm : public QObject
 {
     Q_OBJECT
@@ -112,8 +114,8 @@ void tst_Algorithm::transform()
         QCOMPARE(i1, QList<int>({1, 3, 132}));
         const QList<int> i2 = Utils::transform(strings, stringToInt);
         QCOMPARE(i2, QList<int>({1, 3, 132}));
-        const QList<int> i3 = Utils::transform(strings, &QString::size);
-        QCOMPARE(i3, QList<int>({1, 1, 3}));
+        const QList<Utils::QtSizeType> i3 = Utils::transform(strings, &QString::size);
+        QCOMPARE(i3, QList<Utils::QtSizeType>({1, 1, 3}));
     }
     {
         // QStringList
@@ -122,8 +124,8 @@ void tst_Algorithm::transform()
         QCOMPARE(i1, QList<int>({1, 3, 132}));
         const QList<int> i2 = Utils::transform(strings, stringToInt);
         QCOMPARE(i2, QList<int>({1, 3, 132}));
-        const QList<int> i3 = Utils::transform(strings, &QString::size);
-        QCOMPARE(i3, QList<int>({1, 1, 3}));
+        const QList<Utils::QtSizeType> i3 = Utils::transform(strings, &QString::size);
+        QCOMPARE(i3, QList<Utils::QtSizeType>({1, 1, 3}));
     }
     {
         // QSet internally needs special inserter
@@ -132,8 +134,8 @@ void tst_Algorithm::transform()
         QCOMPARE(i1, QSet<int>({1, 3, 132}));
         const QSet<int> i2 = Utils::transform(strings, stringToInt);
         QCOMPARE(i2, QSet<int>({1, 3, 132}));
-        const QSet<int> i3 = Utils::transform(strings, &QString::size);
-        QCOMPARE(i3, QSet<int>({1, 3}));
+        const QSet<Utils::QtSizeType> i3 = Utils::transform(strings, &QString::size);
+        QCOMPARE(i3, QSet<Utils::QtSizeType>({1, 3}));
     }
 
     // different container types
@@ -144,8 +146,8 @@ void tst_Algorithm::transform()
         QCOMPARE(i1, QSet<int>({1, 3, 132}));
         const QSet<int> i2 = Utils::transform<QSet>(strings, stringToInt);
         QCOMPARE(i2, QSet<int>({1, 3, 132}));
-        const QSet<int> i3 = Utils::transform<QSet>(strings, &QString::size);
-        QCOMPARE(i3, QSet<int>({1, 3}));
+        const QSet<Utils::QtSizeType> i3 = Utils::transform<QSet>(strings, &QString::size);
+        QCOMPARE(i3, QSet<Utils::QtSizeType>({1, 3}));
     }
     {
         // QStringList to QSet
@@ -154,8 +156,8 @@ void tst_Algorithm::transform()
         QCOMPARE(i1, QSet<int>({1, 3, 132}));
         const QSet<int> i2 = Utils::transform<QSet>(strings, stringToInt);
         QCOMPARE(i2, QSet<int>({1, 3, 132}));
-        const QSet<int> i3 = Utils::transform<QSet>(strings, &QString::size);
-        QCOMPARE(i3, QSet<int>({1, 3}));
+        const QSet<Utils::QtSizeType> i3 = Utils::transform<QSet>(strings, &QString::size);
+        QCOMPARE(i3, QSet<Utils::QtSizeType>({1, 3}));
     }
     {
         // QSet to QList
@@ -166,9 +168,9 @@ void tst_Algorithm::transform()
         QList<int> i2 = Utils::transform<QList>(strings, stringToInt);
         Utils::sort(i2);
         QCOMPARE(i2, QList<int>({1, 3, 132}));
-        QList<int> i3 = Utils::transform<QList>(strings, &QString::size);
+        QList<Utils::QtSizeType> i3 = Utils::transform<QList>(strings, &QString::size);
         Utils::sort(i3);
-        QCOMPARE(i3, QList<int>({1, 1, 3}));
+        QCOMPARE(i3, QList<Utils::QtSizeType>({1, 1, 3}));
     }
     {
         const QList<Struct> list({4, 3, 2, 1, 2});

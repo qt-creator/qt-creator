@@ -46,8 +46,8 @@ IconGizmo {
         frustum.targetNode = targetNode;
         frustum.targetNode = Qt.binding(function() {return targetNode;});
 
-        frustum.visible = visible;
-        frustum.visible = Qt.binding(function() {return visible;});
+        frustum.visible = visible || (targetNode && selected && activeScene === scene);
+        frustum.visible = Qt.binding(function() {return visible || (targetNode && selected && activeScene === scene);});
     }
 
     onActiveSceneChanged: {

@@ -152,8 +152,7 @@ Mapping SourcePathMappingModel::rawMappingAt(int row) const
 Mapping SourcePathMappingModel::mappingAt(int row) const
 {
     const Mapping raw = rawMappingAt(row);
-    return isNewPlaceHolder(raw) ? Mapping()
-        : Mapping(QDir::cleanPath(raw.first), QDir::cleanPath(raw.second));
+    return isNewPlaceHolder(raw) ? Mapping() : Mapping(raw.first, raw.second);
 }
 
 void SourcePathMappingModel::setSourcePathMap(const SourcePathMap &m)

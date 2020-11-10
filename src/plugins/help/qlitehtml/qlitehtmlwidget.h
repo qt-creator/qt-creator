@@ -45,6 +45,7 @@ public:
     void setUrl(const QUrl &url);
     Q_INVOKABLE QUrl url() const;
     void setHtml(const QString &content);
+    Q_INVOKABLE QString html() const;
     Q_INVOKABLE QString title() const;
 
     void setZoomFactor(qreal scale);

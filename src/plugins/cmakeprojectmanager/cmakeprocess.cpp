@@ -179,7 +179,7 @@ void CMakeProcess::processStandardError()
 
     static QString rest;
     rest = lineSplit(rest, m_process->readAllStandardError(), [this](const QString &s) {
-        m_parser.appendMessage(s, Utils::StdErrFormat);
+        m_parser.appendMessage(s + '\n', Utils::StdErrFormat);
         Core::MessageManager::write(s);
     });
 }

@@ -195,6 +195,7 @@ public:
     BinaryVersionToolTipEventFilter *m_binaryVersionToolTipEventFilter = nullptr;
     QList<QAbstractButton *> m_buttons;
     MacroExpander *m_macroExpander = globalMacroExpander();
+    std::function<void()> m_openTerminal;
 
     bool m_isReadOnly = false;
     bool m_isFileDialogOnly = false;
@@ -520,6 +521,16 @@ void PathChooser::triggerChanged()
 void PathChooser::setAboutToShowContextMenuHandler(PathChooser::AboutToShowContextMenuHandler handler)
 {
     s_aboutToShowContextMenuHandler = handler;
+}
+
+void PathChooser::setOpenTerminalHandler(const std::function<void ()> &openTerminal)
+{
+    d->m_openTerminal = openTerminal;
+}
+
+std::function<void()> PathChooser::openTerminalHandler() const
+{
+    return d->m_openTerminal;
 }
 
 void PathChooser::setDefaultValue(const QString &defaultValue)

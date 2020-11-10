@@ -90,6 +90,7 @@ public:
 
     bool modelIsMovable() const;
     bool modelIsResizable() const;
+    bool modelIsRotatable() const;
     bool modelIsInLayout() const;
 
     QRectF instanceBoundingRect() const;
@@ -122,6 +123,10 @@ public:
     void setSize(const QSizeF &size);
     bool isInLayout() const;
     bool canBereparentedTo(const ModelNode &potentialParent) const;
+
+    void setRotation(const qreal &angle);
+    qreal rotation() const;
+    QVariant transformOrigin();
 
     bool isInStackedContainer() const;
 

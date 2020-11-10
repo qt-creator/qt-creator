@@ -54,6 +54,7 @@
 #include <QPointF>
 #include <QDir>
 #include <QFileInfo>
+#include <QFile>
 #include <QPixmap>
 
 #include <coreplugin/messagebox.h>
@@ -261,7 +262,7 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
             return modelNode.locked() ? Qt::Checked : Qt::Unchecked;
         else if (role == Qt::ToolTipRole && !modelNodeForIndex(index).isRootNode())
             return tr("Toggles whether this item is locked.\n"
-                      "Locked items can't be modified or selected.");
+                      "Locked items cannot be modified or selected.");
     }
 
     return QVariant();
@@ -277,19 +278,24 @@ Qt::ItemFlags NavigatorTreeModel::flags(const QModelIndex &index) const
             return flags;
     }
 
+    const ModelNode modelNode = modelNodeForIndex(index);
+
     if (index.column() == ColumnType::Alias
         || index.column() == ColumnType::Visibility
-        || index.column() == ColumnType::Lock)
-        return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable | Qt::ItemNeverHasChildren;
+        || index.column() == ColumnType::Lock) {
+        if (ModelNode::isThisOrAncestorLocked(modelNode))
+            return Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
+        else
+            return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
+    }
 
-    const ModelNode modelNode = modelNodeForIndex(index);
     if (ModelNode::isThisOrAncestorLocked(modelNode))
         return Qt::NoItemFlags;
 
     if (index.column() == ColumnType::Name)
-        return Qt::ItemIsEditable | Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+        return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled;
 
-    return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable | Qt::ItemNeverHasChildren;
+    return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 }
 
 void static appendForcedNodes(const NodeListProperty &property, QList<ModelNode> &list)
@@ -680,6 +686,21 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
 
             if (newQmlObjectNode.isValid())
                 m_view->setSelectedModelNode(newQmlObjectNode.modelNode());
+        }
+
+        const QStringList copyFiles = itemLibraryEntry.extraFilePaths();
+        if (!copyFiles.isEmpty()) {
+            // Files are copied into the same directory as the current qml document
+            for (const auto &copyFile : copyFiles) {
+                QFileInfo fi(copyFile);
+                const QString targetFile = QmlDesignerPlugin::instance()->documentManager()
+                        .currentFilePath().toFileInfo().dir().absoluteFilePath(fi.fileName());
+                // We don't want to overwrite existing default files
+                if (!QFileInfo::exists(targetFile)) {
+                    if (!QFile::copy(copyFile, targetFile))
+                        qWarning() << QStringLiteral("Copying extra file '%1' failed.").arg(copyFile);
+                }
+            }
         }
     }
 }

@@ -1,7 +1,10 @@
+// Dummy comment to consume the first argument and suppress warnings %1
 
 FontSection {
     anchors.left: parent.left
     anchors.right: parent.right
-    caption: "%1"
+    caption: qsTr("Font")
     fontName: "%2"
+    expanded: false
+    level: 2
 }

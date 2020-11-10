@@ -986,7 +986,7 @@ int Lexer::scanString(ScanStringMode mode)
                     _tokenText += QChar(QChar::highSurrogate(codePoint));
                     u = QChar::lowSurrogate(codePoint);
                 } else {
-                    u = codePoint;
+                    u = QChar(codePoint);
                 }
             } break;
 

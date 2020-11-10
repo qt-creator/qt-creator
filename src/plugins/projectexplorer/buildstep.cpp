@@ -247,7 +247,9 @@ BuildSystem *BuildStep::buildSystem() const
 
 Environment BuildStep::buildEnvironment() const
 {
-    if (auto bc = buildConfiguration())
+    if (const auto bc = qobject_cast<BuildConfiguration *>(parent()->parent()))
+        return bc->environment();
+    if (const auto bc = target()->activeBuildConfiguration())
         return bc->environment();
     return Environment::systemEnvironment();
 }

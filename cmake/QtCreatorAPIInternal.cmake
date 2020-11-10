@@ -52,19 +52,19 @@ else ()
   set(_IDE_APP_TARGET "${IDE_ID}")
 
   set(_IDE_LIBRARY_BASE_PATH "lib")
-  set(_IDE_LIBRARY_PATH "lib/${IDE_ID}")
-  set(_IDE_PLUGIN_PATH "lib/${IDE_ID}/plugins")
+  set(_IDE_LIBRARY_PATH "lib/qtcreator")
+  set(_IDE_PLUGIN_PATH "lib/qtcreator/plugins")
   if (WIN32)
     set(_IDE_LIBEXEC_PATH "bin")
     set(QT_DEST_PLUGIN_PATH "bin/plugins")
     set(QT_DEST_QML_PATH "bin/qml")
   else ()
-    set(_IDE_LIBEXEC_PATH "libexec/${IDE_ID}")
+    set(_IDE_LIBEXEC_PATH "libexec/qtcreator")
     set(QT_DEST_PLUGIN_PATH  "lib/Qt/plugins")
     set(QT_DEST_QML_PATH "lib/Qt/qml")
   endif ()
-  set(_IDE_DATA_PATH "share/${IDE_ID}")
-  set(_IDE_DOC_PATH "share/doc/${IDE_ID}")
+  set(_IDE_DATA_PATH "share/qtcreator")
+  set(_IDE_DOC_PATH "share/doc/qtcreator")
   set(_IDE_BIN_PATH "bin")
 endif ()
 
@@ -179,19 +179,7 @@ endfunction()
 function(set_public_headers target sources)
   foreach(source IN LISTS sources)
     if (source MATCHES "\.h$|\.hpp$")
-
-      if (NOT IS_ABSOLUTE ${source})
-        set(source "${CMAKE_CURRENT_SOURCE_DIR}/${source}")
-      endif()
-
-      get_filename_component(source_dir ${source} DIRECTORY)
-      file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} ${source_dir})
-
-      install(
-        FILES ${source}
-        DESTINATION "include/${include_dir_relative_path}"
-        COMPONENT Devel EXCLUDE_FROM_ALL
-      )
+      qtc_add_public_header(${source})
     endif()
   endforeach()
 endfunction()

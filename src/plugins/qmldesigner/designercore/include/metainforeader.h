@@ -69,7 +69,8 @@ private:
                       ParsingItemLibrary,
                       ParsingHints,
                       ParsingProperty,
-                      ParsingQmlSource
+                      ParsingQmlSource,
+                      ParsingExtraFile
                     };
 
     ParserSate readDocument(const QString &name);
@@ -79,12 +80,14 @@ private:
     ParserSate readItemLibraryEntryElement(const QString &name);
     ParserSate readPropertyElement(const QString &name);
     ParserSate readQmlSourceElement(const QString &name);
+    ParserSate readExtraFileElement(const QString &name);
 
     void readTypeProperty(const QString &name, const QVariant &value);
     void readImportsProperty(const QString &name, const QVariant &value);
     void readItemLibraryEntryProperty(const QString &name, const QVariant &value);
     void readPropertyProperty(const QString &name, const QVariant &value);
     void readQmlSourceProperty(const QString &name, const QVariant &value);
+    void readExtraFileProperty(const QString &name, const QVariant &value);
     void readHint(const QString &name, const QVariant &value);
 
     void setVersion(const QString &versionNumber);

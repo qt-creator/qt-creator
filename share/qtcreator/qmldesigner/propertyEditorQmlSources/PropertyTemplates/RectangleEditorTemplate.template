@@ -1,21 +1,25 @@
+// Dummy comment to consume the first argument and suppress warnings %1
+
 Section {
     anchors.left: parent.left
     anchors.right: parent.right
-    caption: qsTr("%2 Color")
+    caption: qsTr("Color")
+    expanded: false
+    level: 2
 
     ColorEditor {
         caption: qsTr("Color")
         backendValue: backendValues.%2_color
         supportGradient: true
     }
-
-
 }
 
 Section {
     anchors.left: parent.left
     anchors.right: parent.right
-    caption: qsTr("%2 Border Color")
+    caption: qsTr("Border Color")
+    expanded: false
+    level: 2
 
     ColorEditor {
         caption: qsTr("Border Color")
@@ -24,11 +28,12 @@ Section {
     }
 }
 
-
 Section {
     anchors.left: parent.left
     anchors.right: parent.right
-    caption: "%2 Rectangle"
+    caption: qsTr("Rectangle")
+    expanded: false
+    level: 2
 
     SectionLayout {
         rows: 2

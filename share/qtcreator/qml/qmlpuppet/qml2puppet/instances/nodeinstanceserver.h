@@ -208,6 +208,9 @@ public:
 
     virtual void collectItemChangesAndSendChangeCommands() = 0;
 
+    virtual void handleInstanceLocked(const ServerNodeInstance &instance, bool enable, bool checkAncestors);
+    virtual void handleInstanceHidden(const ServerNodeInstance &instance, bool enable, bool checkAncestors);
+
 public slots:
     void refreshLocalFileProperty(const QString &path);
     void refreshDummyData(const QString &path);

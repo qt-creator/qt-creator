@@ -183,9 +183,6 @@ static const QList<ToolChain *> preferredToolChains(const Kit *kit)
 
 FilePath MakeStep::defaultMakeCommand() const
 {
-    BuildConfiguration *bc = buildConfiguration();
-    if (!bc)
-        return {};
     const Utils::Environment env = makeEnvironment();
     for (const ToolChain *tc : preferredToolChains(kit())) {
         FilePath make = tc->makeCommand(env);

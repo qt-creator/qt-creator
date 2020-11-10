@@ -555,6 +555,7 @@ static void displayResults(SearchResult *search, QFutureWatcher<CPlusPlus::Usage
         switch (type) {
         case CPlusPlus::Usage::Type::Read:
             return SearchResultColor::Style::Alt1;
+        case CPlusPlus::Usage::Type::Initialization:
         case CPlusPlus::Usage::Type::Write:
         case CPlusPlus::Usage::Type::WritableRef:
             return SearchResultColor::Style::Alt2;

@@ -33,15 +33,12 @@
     and back sides, like a card. The studio components are built on top of
     \l {Qt Quick Shapes QML Types}, with some additional properties.
 
-    You can drag-and-drop the following studio components from the
-    \uicontrol Library to the \uicontrol {Form Editor} or the
-    \uicontrol Navigator:
+    You can drag-and-drop the following studio components from
+    \uicontrol Library to \uicontrol {Form Editor} or \uicontrol Navigator:
 
     \list
         \li \l Flipable provides a surface that can be flipped.
         \li \l Group provides an item with the size property.
-        \li \l {Iso}{Iso Icon} adds a container for an ISO 7000 icon.
-        \li \l SvgPath adds an SVG path.
     \endlist
 
 //! [studio components]

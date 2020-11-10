@@ -265,11 +265,11 @@ void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file, const QVar
             if (!currentChar.isLetter() && !currentChar.isDigit())
                 currentChar = QLatin1Char('_');
         }
-        QCharRef firstChar = assetName[0];
+        const QChar firstChar = assetName[0];
         if (firstChar.isDigit())
-            firstChar = QLatin1Char('_');
+            assetName[0] = QLatin1Char('_');
         if (firstChar.isLower())
-            firstChar = firstChar.toUpper();
+            assetName[0] = firstChar.toUpper();
     }
 
     QString targetDirPath = targetDir.filePath(assetName);
@@ -378,9 +378,9 @@ void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file, const QVar
                                 QFile file(outDir.path() + '/' + fi.baseName() + ".hints");
                                 file.open(QIODevice::WriteOnly | QIODevice::Text);
                                 QTextStream out(&file);
-                                out << "visibleInNavigator: true" << endl;
-                                out << "canBeDroppedInFormEditor: false" << endl;
-                                out << "canBeDroppedInView3D: true" << endl;
+                                out << "visibleInNavigator: true" << Qt::endl;
+                                out << "canBeDroppedInFormEditor: false" << Qt::endl;
+                                out << "canBeDroppedInView3D: true" << Qt::endl;
                                 file.close();
                             }
                             QString outIconSource = QString::fromUtf8(content);

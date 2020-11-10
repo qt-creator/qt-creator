@@ -90,6 +90,8 @@ public:
     void addToolBarWidget(QWidget *widget);
     void addToolbarSeparator();
 
+    void registerNextPrevShortcuts(QAction *next, QAction *prev);
+
     void useSubPerspectiveSwitcher(QWidget *widget);
 
     using ShouldPersistChecker = std::function<bool()>;

@@ -48,11 +48,8 @@ Item {
     function destroyView()
     {
         previewObject = null;
-        if (view) {
-            // Destroy is async, so make sure we don't get any more updates for the old view
-            _generalHelper.enableItemUpdate(view, false);
+        if (view)
             view.destroy();
-        }
     }
 
     function createViewForObject(obj, w, h)

@@ -46,11 +46,14 @@ Item {
     width: 90
     implicitHeight: spinBox.height
 
+    onFocusChanged: restoreCursor();
+
     StudioControls.RealSpinBox {
         id: spinBox
 
         onDragStarted: hideCursor();
         onDragEnded: restoreCursor();
+        onDragging: holdCursorInPlace();
 
         property bool hasSlider: spinBox.sliderIndicatorVisible
 

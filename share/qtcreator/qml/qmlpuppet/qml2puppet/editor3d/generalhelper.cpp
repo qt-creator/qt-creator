@@ -244,6 +244,40 @@ QQuick3DNode *GeneralHelper::resolvePick(QQuick3DNode *pickNode)
     return pickNode;
 }
 
+void GeneralHelper::registerGizmoTarget(QQuick3DNode *node)
+{
+    if (!m_gizmoTargets.contains(node)) {
+        m_gizmoTargets.insert(node);
+        node->installEventFilter(this);
+    }
+}
+
+void GeneralHelper::unregisterGizmoTarget(QQuick3DNode *node)
+{
+    if (m_gizmoTargets.contains(node)) {
+        m_gizmoTargets.remove(node);
+        node->removeEventFilter(this);
+    }
+}
+
+bool GeneralHelper::isLocked(QQuick3DNode *node)
+{
+    if (node) {
+        QVariant lockValue = node->property("_edit3dLocked");
+        return lockValue.isValid() && lockValue.toBool();
+    }
+    return false;
+}
+
+bool GeneralHelper::isHidden(QQuick3DNode *node)
+{
+    if (node) {
+        QVariant hideValue = node->property("_edit3dHidden");
+        return hideValue.isValid() && hideValue.toBool();
+    }
+    return false;
+}
+
 void GeneralHelper::storeToolState(const QString &sceneId, const QString &tool, const QVariant &state,
                                    int delay)
 {
@@ -320,6 +354,21 @@ bool GeneralHelper::isMacOS() const
 #else
     return false;
 #endif
+}
+
+bool GeneralHelper::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::DynamicPropertyChange) {
+        auto node = qobject_cast<QQuick3DNode *>(obj);
+        if (m_gizmoTargets.contains(node)) {
+            auto de = static_cast<QDynamicPropertyChangeEvent *>(event);
+            if (de->propertyName() == "_edit3dLocked")
+                emit lockedStateChanged(node);
+            else if (de->propertyName() == "_edit3dHidden")
+                emit hiddenStateChanged(node);
+        }
+    }
+    return QObject::eventFilter(obj, event);
 }
 
 void GeneralHelper::handlePendingToolStateUpdate()

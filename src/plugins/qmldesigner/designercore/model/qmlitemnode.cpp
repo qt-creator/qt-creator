@@ -46,6 +46,10 @@
 
 #include <utils/qtcassert.h>
 
+#ifndef QMLDESIGNER_TEST
+#include <designermcumanager.h>
+#endif
+
 namespace QmlDesigner {
 
 bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode)
@@ -284,6 +288,41 @@ bool QmlItemNode::modelIsResizable() const
             && !modelNode().hasBindingProperty("height")
             && itemIsResizable(modelNode())
             && !modelIsInLayout();
+}
+
+static bool isMcuRotationAllowed(QString itemName, bool hasChildren)
+{
+#ifndef QMLDESIGNER_TEST
+    const QString propName = "rotation";
+    const DesignerMcuManager &manager = DesignerMcuManager::instance();
+    if (manager.isMCUProject()) {
+        if (manager.allowedItemProperties().contains(itemName)) {
+            const DesignerMcuManager::ItemProperties properties =
+                    manager.allowedItemProperties().value(itemName);
+            if (properties.properties.contains(propName)) {
+                if (hasChildren)
+                    return properties.allowChildren;
+                return true;
+            }
+        }
+
+        if (manager.bannedItems().contains(itemName))
+            return false;
+
+        if (manager.bannedProperties().contains(propName))
+            return false;
+    }
+#endif
+
+    return true;
+}
+
+bool QmlItemNode::modelIsRotatable() const
+{
+    return !modelNode().hasBindingProperty("rotation")
+            && itemIsResizable(modelNode())
+            && !modelIsInLayout()
+            && isMcuRotationAllowed(QString::fromUtf8(modelNode().type()), hasChildren());
 }
 
 bool QmlItemNode::modelIsInLayout() const
@@ -533,6 +572,30 @@ void QmlItemNode::setSize(const QSizeF &size)
     if (!hasBindingProperty("height") && !(anchors().instanceHasAnchor(AnchorLineBottom)
                                            && anchors().instanceHasAnchor(AnchorLineTop)))
         setVariantProperty("height", qRound(size.height()));
+}
+
+void QmlItemNode::setRotation(const qreal &angle)
+{
+    if (!hasBindingProperty("rotation"))
+        setVariantProperty("rotation", angle);
+}
+
+qreal QmlItemNode::rotation() const
+{
+    if (hasProperty("rotation") && !hasBindingProperty("rotation")) {
+        return modelNode().variantProperty("rotation").value().toReal();
+    }
+
+    return 0.0;
+}
+
+QVariant QmlItemNode::transformOrigin()
+{
+    if (hasProperty("transformOrigin")) {
+        return modelNode().variantProperty("transformOrigin").value();
+    }
+
+    return {};
 }
 
 bool QmlFlowItemNode::isValid() const

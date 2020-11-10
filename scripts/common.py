@@ -40,6 +40,12 @@ def is_linux_platform():
 def is_mac_platform():
     return sys.platform.startswith('darwin')
 
+def to_posix_path(path):
+    if is_windows_platform():
+        # should switch to pathlib from python3
+        return path.replace('\\', '/')
+    return path
+
 def check_print_call(command, workdir, env=None):
     print('------------------------------------------')
     print('COMMAND:')

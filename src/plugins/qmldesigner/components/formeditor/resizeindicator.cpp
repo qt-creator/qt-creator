@@ -57,7 +57,7 @@ void ResizeIndicator::clear()
     m_itemControllerHash.clear();
 }
 
-bool itemIsResizable(const QmlItemNode &qmlItemNode)
+static bool itemIsResizable(const QmlItemNode &qmlItemNode)
 {
     return qmlItemNode.isValid()
             && qmlItemNode.instanceIsResizable()

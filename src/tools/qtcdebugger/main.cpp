@@ -371,7 +371,13 @@ bool startDefaultDebugger(QString *errorMessage)
     if (debug)
         qDebug() << "Default" << defaultDebugger;
     QProcess p;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+    QStringList arguments = QProcess::splitCommand(defaultDebugger);
+    const QString executable = arguments.takeFirst();
+    p.start(executable, arguments, QIODevice::NotOpen);
+#else
     p.start(defaultDebugger, QIODevice::NotOpen);
+#endif
     if (!p.waitForStarted()) {
         *errorMessage = QString::fromLatin1("Unable to start %1!").arg(defaultDebugger);
         return false;

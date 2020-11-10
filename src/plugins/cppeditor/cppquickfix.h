@@ -31,7 +31,13 @@
 #include <texteditor/quickfix.h>
 
 namespace CppEditor {
-namespace Internal { class CppQuickFixInterface; }
+namespace Internal {
+class CppQuickFixInterface;
+
+// These are generated functions that should not be offered in quickfixes.
+const QStringList magicQObjectFunctions();
+
+}
 
 class CPPEDITOR_EXPORT CppQuickFixOperation
     : public TextEditor::QuickFixOperation,

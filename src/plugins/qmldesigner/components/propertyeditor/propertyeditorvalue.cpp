@@ -300,8 +300,10 @@ bool PropertyEditorValue::isAvailable() const
                     if (QmlDesigner::QmlItemNode::isValidQmlItemNode(m_modelNode)) {
                         const bool itemHasChildren = QmlDesigner::QmlItemNode(m_modelNode).hasChildren();
 
-                        if (allowedItemProps.allowChildren == itemHasChildren)
-                            return true;
+                        if (itemHasChildren)
+                            return allowedItemProps.allowChildren;
+
+                        return true;
                     }
                 }
             }

@@ -29,6 +29,7 @@
 #include "singleselectionmanipulator.h"
 #include "selectionindicator.h"
 #include "resizeindicator.h"
+#include "rotationindicator.h"
 #include "anchorindicator.h"
 #include "bindingindicator.h"
 #include "contentnoteditableindicator.h"
@@ -85,6 +86,7 @@ private:
     SingleSelectionManipulator m_singleSelectionManipulator;
     SelectionIndicator m_selectionIndicator;
     ResizeIndicator m_resizeIndicator;
+    RotationIndicator m_rotationIndicator;
     AnchorIndicator m_anchorIndicator;
     BindingIndicator m_bindingIndicator;
     ContentNotEditableIndicator m_contentNotEditableIndicator;

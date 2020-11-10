@@ -276,6 +276,7 @@ T.SpinBox {
     }
 
     onRealValueChanged: {
+        mySpinBox.setRealValue(mySpinBox.realValue) // sanitize and clamp realValue
         spinBoxInput.text = mySpinBox.textFromValue(mySpinBox.realValue, mySpinBox.locale)
         mySpinBox.value = 0 // Without setting value back to 0, it can happen that one of
                             // the indicator will be disabled due to range logic.

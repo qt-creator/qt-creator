@@ -37,6 +37,8 @@ namespace Internal {
 
 class CommandBuilderAspect final : public Utils::BaseAspect
 {
+    Q_OBJECT
+
 public:
     explicit CommandBuilderAspect(ProjectExplorer::BuildStep *step);
     ~CommandBuilderAspect() final;

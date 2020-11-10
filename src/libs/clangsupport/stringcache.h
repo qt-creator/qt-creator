@@ -25,13 +25,13 @@
 
 #pragma once
 
-#include "set_algorithm.h"
 #include "stringcachealgorithms.h"
 #include "stringcacheentry.h"
 #include "stringcachefwd.h"
 
 #include <utils/algorithm.h>
 #include <utils/optional.h>
+#include <utils/set_algorithm.h>
 #include <utils/smallstringfwd.h>
 
 #include <QReadWriteLock>
@@ -197,7 +197,7 @@ public:
                             strings.end(),
                             m_strings.begin(),
                             m_strings.end(),
-                            make_iterator([&](StringViewType newString) {
+                            Utils::make_iterator([&](StringViewType newString) {
                                 IndexType index = storageFunction(newString);
                                 newCacheEntries.emplace_back(newString, index);
                             }),

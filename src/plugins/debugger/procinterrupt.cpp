@@ -145,10 +145,12 @@ GDB 32bit | Api             | Api             | NA              | Win32         
                     ? QCoreApplication::applicationDirPath() + "/win32interrupt.exe"
                     : QCoreApplication::applicationDirPath() + "/win64interrupt.exe";
             if (!QFile::exists(executable)) {
-                *errorMessage = QString::fromLatin1("%1 does not exist. If you have built %2 "
-                                                    "on your own, checkout "
-                                                    "https://code.qt.io/cgit/qt-creator/binary-artifacts.git/.").
-                        arg(QDir::toNativeSeparators(executable), Core::Constants::IDE_DISPLAY_NAME);
+                *errorMessage = QString::fromLatin1(
+                                    "%1 does not exist. If you have built %2 "
+                                    "on your own, checkout "
+                                    "https://code.qt.io/cgit/qt-creator/binary-artifacts.git/.")
+                                    .arg(QDir::toNativeSeparators(executable),
+                                         QString(Core::Constants::IDE_DISPLAY_NAME));
                 break;
             }
             switch (QProcess::execute(executable, QStringList(QString::number(pID)))) {

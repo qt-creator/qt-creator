@@ -211,7 +211,7 @@ ModelNode TransitionEditorView::addNewTransition()
 
     QHash<QString, QStringList> idPropertyList;
 
-    const QVector<TypeName> validProperties = {"int", "real", "double", "qreal", "color", "QColor"};
+    const QVector<TypeName> validProperties = {"int", "real", "double", "qreal", "color", "QColor", "float"};
 
     for (const QmlModelState &state : qAsConst(states)) {
         for (const QmlPropertyChanges & change : state.propertyChanges()) {

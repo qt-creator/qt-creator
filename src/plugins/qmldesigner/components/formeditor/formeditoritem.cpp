@@ -121,6 +121,9 @@ void FormEditorItem::setup()
 
     setContentVisible(qmlItemNode().instanceValue("visible").toBool());
 
+    if (qmlItemNode().modelNode().auxiliaryData("invisible").toBool())
+        setVisible(false);
+
     setFlag(QGraphicsItem::ItemIsMovable, true);
     setFlag(QGraphicsItem::ItemNegativeZStacksBehindParent, true);
     updateGeometry();

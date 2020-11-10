@@ -69,6 +69,7 @@ public:
     QString qmlSource() const;
     QString requiredImport() const;
     QString customComponentSource() const;
+    QStringList extraFilePaths() const;
 
     using Property = QmlDesigner::PropertyContainer;
 
@@ -86,6 +87,7 @@ public:
     void setRequiredImport(const QString &requiredImport);
     void addHints(const QHash<QString, QString> &hints);
     void setCustomComponentSource(const QString &source);
+    void addExtraFilePath(const QString &extraFile);
 
 private:
     std::shared_ptr<Internal::ItemLibraryEntryData> m_data;

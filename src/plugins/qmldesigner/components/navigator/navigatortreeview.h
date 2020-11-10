@@ -26,7 +26,6 @@
 #pragma once
 
 #include <QTreeView>
-#include <QTimer>
 
 namespace QmlDesigner {
 
@@ -43,6 +42,6 @@ public:
 
 private:
     PreviewToolTip *m_previewToolTip = nullptr;
-    QTimer m_toolTipHideTimer;
+    int m_previewToolTipRow = -1;
 };
 }

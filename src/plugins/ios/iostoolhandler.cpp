@@ -839,7 +839,7 @@ void IosSimulatorToolHandlerPrivate::requestTransferApp(const QString &appBundle
     if (SimulatorControl::isSimulatorRunning(m_deviceId))
         installAppOnSimulator();
     else
-        futureList << Utils::onResultReady(simCtl->startSimulator(m_deviceId), onSimulatorStart);
+        futureList << QFuture<void>(Utils::onResultReady(simCtl->startSimulator(m_deviceId), onSimulatorStart));
 }
 
 void IosSimulatorToolHandlerPrivate::requestRunApp(const QString &appBundlePath,
@@ -875,7 +875,7 @@ void IosSimulatorToolHandlerPrivate::requestRunApp(const QString &appBundlePath,
     if (SimulatorControl::isSimulatorRunning(m_deviceId))
         launchAppOnSimulator(extraArgs);
     else
-        futureList << Utils::onResultReady(simCtl->startSimulator(m_deviceId), onSimulatorStart);
+        futureList << QFuture<void>(Utils::onResultReady(simCtl->startSimulator(m_deviceId), onSimulatorStart));
 }
 
 void IosSimulatorToolHandlerPrivate::requestDeviceInfo(const QString &deviceId, int timeout)
@@ -928,7 +928,7 @@ void IosSimulatorToolHandlerPrivate::installAppOnSimulator()
 
     isTransferringApp(m_bundlePath, m_deviceId, 20, 100, "");
     auto installFuture = simCtl->installApp(m_deviceId, Utils::FilePath::fromString(m_bundlePath));
-    futureList << Utils::onResultReady(installFuture, onResponseAppInstall);
+    futureList << QFuture<void>(Utils::onResultReady(installFuture, onResponseAppInstall));
 }
 
 void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &extraArgs)
@@ -991,11 +991,11 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
         }
     };
 
-    futureList << Utils::onResultReady(
+    futureList << QFuture<void>(Utils::onResultReady(
                       simCtl->launchApp(m_deviceId, bundleId, debugRun, extraArgs,
                                         captureConsole ? stdoutFile->fileName() : QString(),
                                         captureConsole ? stderrFile->fileName() : QString()),
-                      onResponseAppLaunch);
+                      onResponseAppLaunch));
 }
 
 bool IosSimulatorToolHandlerPrivate::isResponseValid(const SimulatorControl::ResponseData &responseData)

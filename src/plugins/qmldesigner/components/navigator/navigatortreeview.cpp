@@ -226,12 +226,6 @@ NavigatorTreeView::NavigatorTreeView(QWidget *parent)
     setRootIsDecorated(false);
     setIndentation(indentation() * 0.5);
     viewport()->setAttribute(Qt::WA_Hover);
-
-    m_toolTipHideTimer.setSingleShot(true);
-    connect(&m_toolTipHideTimer, &QTimer::timeout, [this]() {
-        if (m_previewToolTip && m_previewToolTip->isVisible())
-            m_previewToolTip->hide();
-    });
 }
 
 void NavigatorTreeView::drawSelectionBackground(QPainter *painter, const QStyleOption &option)
@@ -244,6 +238,8 @@ void NavigatorTreeView::drawSelectionBackground(QPainter *painter, const QStyleO
 
 bool NavigatorTreeView::viewportEvent(QEvent *event)
 {
+    const QPoint offset(10, 5);
+
     if (event->type() == QEvent::ToolTip) {
         auto navModel = qobject_cast<NavigatorTreeModel *>(model());
         if (navModel) {
@@ -252,7 +248,7 @@ bool NavigatorTreeView::viewportEvent(QEvent *event)
             QVariantMap imgMap = navModel->data(index, ToolTipImageRole).toMap();
 
             if (!imgMap.isEmpty()) {
-                m_toolTipHideTimer.stop();
+                m_previewToolTipRow = index.row();
                 if (!m_previewToolTip) {
                     m_previewToolTip = new PreviewToolTip(QApplication::activeWindow());
                     connect(navModel, &NavigatorTreeModel::toolTipPixmapUpdated,
@@ -266,16 +262,31 @@ bool NavigatorTreeView::viewportEvent(QEvent *event)
                 m_previewToolTip->setInfo(imgMap["info"].toString());
                 m_previewToolTip->setPixmap(imgMap["pixmap"].value<QPixmap>());
                 m_previewToolTip->move(m_previewToolTip->parentWidget()->mapFromGlobal(helpEvent->globalPos())
-                                       + QPoint(15, 15));
+                                       + offset);
                 if (!m_previewToolTip->isVisible())
                     m_previewToolTip->show();
             } else if (m_previewToolTip) {
-                m_toolTipHideTimer.start(0);
+                m_previewToolTip->hide();
+                m_previewToolTipRow = -1;
             }
         }
     } else if (event->type() == QEvent::Leave) {
-        if (m_previewToolTip)
-            m_toolTipHideTimer.start(500);
+        if (m_previewToolTip) {
+            m_previewToolTip->hide();
+            m_previewToolTipRow = -1;
+        }
+    } else if (event->type() == QEvent::HoverMove) {
+        if (m_previewToolTip) {
+            auto *he = static_cast<QHoverEvent *>(event);
+            QModelIndex index = indexAt(he->pos());
+            if (!index.isValid() || index.row() != m_previewToolTipRow) {
+                m_previewToolTip->hide();
+                m_previewToolTipRow = -1;
+            } else {
+                m_previewToolTip->move(m_previewToolTip->parentWidget()->mapFromGlobal(mapToGlobal(he->pos()))
+                                       + offset);
+            }
+        }
     }
 
     return QTreeView::viewportEvent(event);

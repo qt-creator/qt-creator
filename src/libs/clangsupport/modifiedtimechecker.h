@@ -27,7 +27,8 @@
 
 #include "filesysteminterface.h"
 #include "modifiedtimecheckerinterface.h"
-#include "set_algorithm.h"
+
+#include <utils/set_algorithm.h>
 
 #include <algorithm>
 #include <iterator>
@@ -60,7 +61,7 @@ public:
                               m_currentSourceTimeStamps.end(),
                               filePathIds.begin(),
                               filePathIds.end(),
-                              make_iterator([&](SourceTimeStamp &sourceTimeStamp) {
+                              Utils::make_iterator([&](SourceTimeStamp &sourceTimeStamp) {
                                   sourceTimeStamp.timeStamp = m_fileSystem.lastModified(
                                       sourceTimeStamp.sourceId);
                               }));
@@ -69,7 +70,7 @@ public:
 private:
     bool compareEntries(const SourceEntries &sourceEntries) const
     {
-        return !set_intersection_compare(
+        return !Utils::set_intersection_compare(
             m_currentSourceTimeStamps.begin(),
             m_currentSourceTimeStamps.end(),
             sourceEntries.begin(),
@@ -99,12 +100,14 @@ private:
                             sourceEntries.end(),
                             m_currentSourceTimeStamps.begin(),
                             m_currentSourceTimeStamps.end(),
-                            make_iterator([&](const SourceEntry &sourceEntry) {
+                            Utils::make_iterator([&](const SourceEntry &sourceEntry) {
                                 newTimeStamps.emplace_back(sourceEntry.sourceId,
                                                            m_fileSystem.lastModified(
                                                                sourceEntry.sourceId));
                             }),
-                            [](auto first, auto second) { return first.sourceId < second.sourceId; });
+                            [](auto first, auto second) {
+                                return first.sourceId < second.sourceId;
+                            });
 
         return newTimeStamps;
     }

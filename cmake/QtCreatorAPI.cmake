@@ -67,9 +67,9 @@ function(qtc_output_binary_dir varName)
 endfunction()
 
 function(add_qtc_library name)
-  cmake_parse_arguments(_arg "STATIC;OBJECT;SKIP_TRANSLATION;BUILD_BY_DEFAULT;ALLOW_ASCII_CASTS;UNVERSIONED"
-    "DESTINATION;COMPONENT;SOURCES_PREFIX"
-    "DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES" ${ARGN}
+  cmake_parse_arguments(_arg "STATIC;OBJECT;SKIP_TRANSLATION;ALLOW_ASCII_CASTS;UNVERSIONED"
+    "DESTINATION;COMPONENT;SOURCES_PREFIX;BUILD_DEFAULT"
+    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES" ${ARGN}
   )
 
   set(default_defines_copy ${DEFAULT_DEFINES})
@@ -83,18 +83,29 @@ function(add_qtc_library name)
 
   update_cached_list(__QTC_LIBRARIES "${name}")
 
-  # special libraries can be turned off
-  if (_arg_BUILD_BY_DEFAULT)
-    string(TOUPPER "BUILD_LIBRARY_${name}" _build_library_var)
-    set(_build_library_default ${BUILD_LIBRARIES_BY_DEFAULT})
-    if (DEFINED ENV{QTC_${_build_library_var}})
-      set(_build_library_default "$ENV{QTC_${_build_library_var}}")
-    endif()
-    set(${_build_library_var} "${_build_library_default}" CACHE BOOL "Build library ${name}.")
+  if (NOT _arg_CONDITION)
+    set(_arg_CONDITION ON)
+  endif()
 
-    if (NOT ${_build_library_var})
-      return()
-    endif()
+  string(TOUPPER "BUILD_LIBRARY_${name}" _build_library_var)
+  if (DEFINED _arg_BUILD_DEFAULT)
+    set(_build_library_default ${_arg_BUILD_DEFAULT})
+  else()
+    set(_build_library_default ${BUILD_LIBRARIES_BY_DEFAULT})
+  endif()
+  if (DEFINED ENV{QTC_${_build_library_var}})
+    set(_build_library_default "$ENV{QTC_${_build_library_var}}")
+  endif()
+  set(${_build_library_var} "${_build_library_default}" CACHE BOOL "Build library ${name}.")
+
+  if ((${_arg_CONDITION}) AND ${_build_library_var})
+    set(_library_enabled ON)
+  else()
+    set(_library_enabled OFF)
+  endif()
+
+  if (NOT _library_enabled)
+    return()
   endif()
 
   # TODO copied from extend_qtc_target.
@@ -121,13 +132,7 @@ function(add_qtc_library name)
     set(library_type OBJECT)
   endif()
 
-  set(_exclude_from_all EXCLUDE_FROM_ALL)
-  if (_arg_BUILD_BY_DEFAULT)
-    unset(_exclude_from_all)
-  endif()
-
-  # Do not just build libraries...
-  add_library(${name} ${library_type} ${_exclude_from_all} ${_arg_SOURCES})
+  add_library(${name} ${library_type} ${_arg_SOURCES})
   add_library(${IDE_CASED_ID}::${name} ALIAS ${name})
   set_public_headers(${name} "${_arg_SOURCES}")
 
@@ -541,10 +546,10 @@ endfunction()
 
 function(add_qtc_executable name)
   cmake_parse_arguments(_arg "SKIP_INSTALL;SKIP_TRANSLATION;ALLOW_ASCII_CASTS"
-    "DESTINATION;COMPONENT"
-    "DEPENDS;DEFINES;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES" ${ARGN})
+    "DESTINATION;COMPONENT;BUILD_DEFAULT"
+    "CONDITION;DEPENDS;DEFINES;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES" ${ARGN})
 
-  if ($_arg_UNPARSED_ARGUMENTS)
+  if (${_arg_UNPARSED_ARGUMENTS})
     message(FATAL_ERROR "add_qtc_executable had unparsed arguments!")
   endif()
 
@@ -555,14 +560,27 @@ function(add_qtc_executable name)
 
   update_cached_list(__QTC_EXECUTABLES "${name}")
 
+  if (NOT _arg_CONDITION)
+    set(_arg_CONDITION ON)
+  endif()
+
   string(TOUPPER "BUILD_EXECUTABLE_${name}" _build_executable_var)
-  set(_build_executable_default ${BUILD_EXECUTABLES_BY_DEFAULT})
+  if (DEFINED _arg_BUILD_DEFAULT)
+    set(_build_executable_default ${_arg_BUILD_DEFAULT})
+  else()
+    set(_build_executable_default ${BUILD_EXECUTABLES_BY_DEFAULT})
+  endif()
   if (DEFINED ENV{QTC_${_build_executable_var}})
     set(_build_executable_default "$ENV{QTC_${_build_executable_var}}")
   endif()
   set(${_build_executable_var} "${_build_executable_default}" CACHE BOOL "Build executable ${name}.")
 
-  if (NOT ${_build_executable_var})
+  if ((${_arg_CONDITION}) AND ${_build_executable_var})
+    set(_executable_enabled ON)
+  else()
+    set(_executable_enabled OFF)
+  endif()
+  if (NOT _executable_enabled)
     return()
   endif()
 
@@ -905,4 +923,19 @@ function(qtc_add_resources target resourceName)
 
   target_sources(${target} PRIVATE "${generatedSourceCode}")
   set_property(SOURCE "${generatedSourceCode}" PROPERTY SKIP_AUTOGEN ON)
+endfunction()
+
+function(qtc_add_public_header header)
+  if (NOT IS_ABSOLUTE ${header})
+    set(header "${CMAKE_CURRENT_SOURCE_DIR}/${header}")
+  endif()
+
+  get_filename_component(source_dir ${header} DIRECTORY)
+  file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} ${source_dir})
+
+  install(
+    FILES ${header}
+    DESTINATION "include/${include_dir_relative_path}"
+    COMPONENT Devel EXCLUDE_FROM_ALL
+  )
 endfunction()

@@ -298,7 +298,8 @@ HEADERS += \
     $$PWD/porting.h \
     $$PWD/aspects.h \
     $$PWD/layoutbuilder.h \
-    $$PWD/variablechooser.h
+    $$PWD/variablechooser.h \
+    $$PWD/set_algorithm.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

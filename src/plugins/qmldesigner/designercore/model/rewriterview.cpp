@@ -534,7 +534,7 @@ QString RewriterView::auxiliaryDataAsQML() const
 
     int columnCount = 0;
 
-    const QRegularExpression safeName("^[a-z][a-zA-Z0-9]+$");
+    const QRegularExpression safeName("^[a-z][a-zA-Z0-9]*$");
 
     for (const auto &node : allModelNodes()) {
         QHash<PropertyName, QVariant> data = node.auxiliaryData();
@@ -1130,6 +1130,10 @@ void RewriterView::restoreAuxiliaryData()
 {
     QTC_ASSERT(m_textModifier, return);
 
+    const char auxRestoredFlag[] = "AuxRestored@Internal";
+    if (rootModelNode().hasAuxiliaryData(auxRestoredFlag))
+        return;
+
     m_restoringAuxData = true;
 
     setupCanonicalHashes();
@@ -1149,6 +1153,7 @@ void RewriterView::restoreAuxiliaryData()
         checkChildNodes(reader.readFromSource(auxSource), this);
     }
 
+    rootModelNode().setAuxiliaryData(auxRestoredFlag, true);
     m_restoringAuxData = false;
 }
 

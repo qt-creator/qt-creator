@@ -138,14 +138,76 @@
     You can use either a solid color (3) or a gradient (4). You can select the
     gradient in the \uicontrol {Gradient Picker} (5).
 
-    The gradient stops (6) specify the color used at a given position in a
-    gradient. Drag them along the slider to set their values.
-
     The \uicontrol Original field displays the original color of the item,
     whereas the \uicontrol New field displays the current color. The
     \uicontrol Recent field displays the colors that you have last selected.
 
     \section1 Picking Gradients
+
+    A gradient is defined by two or more colors, which will be blended
+    seamlessly. The colors are specified as a set of gradient stops,
+    each of which defines a position on the gradient bar from 0.0 to 1.0
+    and a color. Drag the gradient stops along the gradient bar to set their
+    values. Select the arrow below a gradient stop to see its value as
+    a number.
+
+    To add gradient stops, move the cursor over the gradient bar and point at
+    it with the finger-shaped cursor. To remove gradient stops, pull them away
+    from the gradient line.
+
+    \image qtquick-designer-gradient-stops.gif
+
+    Calculating gradients can be computationally expensive compared to the
+    use of solid color fills or images. Consider using gradients only for
+    static items in a UI.
+
+    \if defined(qtdesignstudio)
+    \section2 Setting Gradient Properties
+
+    Select the arrow below the gradient button to set gradient properties
+    for Studio Components.
+
+    \image qtquick-designer-gradient-types.png "Gradients supported by Studio Components"
+
+    \section3 Linear Gradients
+
+    A \e {linear gradient} interpolates colors between start and end points.
+    Outside these points, the gradient is either padded, reflected, or repeated
+    depending on the spread type. Set start and end points for horizontal and
+    vertical interpolation in the \uicontrol X1, \uicontrol X2, \uicontrol Y1,
+    and \uicontrol Y2 fields.
+
+    \image qtquick-designer-gradient-properties-linear.png "Linear gradient properties"
+
+    \section3 Radial Gradients
+
+    A \e {radial gradient} interpolates colors between a focal circle and a
+    center circle. Points outside the cone defined by the two circles will
+    be transparent. Outside the end points, the gradient is either padded,
+    reflected, or repeated depending on the spread type.
+
+    \image qtquick-designer-gradient-properties-radial.png "Radial gradient properties"
+
+    You can set the center and focal radius in the \uicontrol {Center radius}
+    and \uicontrol {Focal radius} fields. For simple radial gradients, set to
+    the focal radius to 0.
+
+    You can set the center and focal points in the \uicontrol CenterX,
+    \uicontrol CenterY, \uicontrol FocalX, and \uicontrol FocalY fields.
+    To specify a simple radial gradient, set the focal X and focal Y to
+    the value of center X and center Y, respectively.
+
+    \section3 Conical Gradients
+
+    A \e {conical gradient} interpolates colors counter-clockwise around a
+    center point. Set the horizontal and vertical center point of the gradient
+    in the \uicontrol CenterX and \uicontrol CenterY fields and the start angle
+    in the \uicontrol Angle field.
+
+    \image qtquick-designer-gradient-properties-conical.png "Conical gradient properties"
+    \endif
+
+    \section2 Selecting Web Gradients
 
     The \uicontrol {Gradient Picker} enables you to specify
     \l{https://webgradients.com/}{WebGradients} for QML types

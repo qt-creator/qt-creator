@@ -81,48 +81,4 @@ public:
 
 } // End namespace TimelineUtils.
 
-template<typename T>
-inline std::istream &operator>>(std::istream &stream, std::vector<T> &vec)
-{
-    quint64 s;
-    stream >> s;
-
-    vec.clear();
-    vec.reserve(s);
-
-    T val;
-    for (quint64 i = 0; i < s; ++i) {
-        stream >> val;
-        vec.push_back(val);
-    }
-    return stream;
-}
-
-template<typename T>
-inline QDataStream &operator<<(QDataStream &stream, const std::vector<T> &vec)
-{
-    stream << static_cast<quint64>(vec.size());
-    for (const auto &elem : vec)
-        stream << elem;
-
-    return stream;
-}
-
-template<typename T>
-inline QDataStream &operator>>(QDataStream &stream, std::vector<T> &vec)
-{
-    quint64 s;
-    stream >> s;
-
-    vec.clear();
-    vec.reserve(s);
-
-    T val;
-    for (quint64 i = 0; i < s; ++i) {
-        stream >> val;
-        vec.push_back(val);
-    }
-    return stream;
-}
-
 } // namespace QmlDesigner

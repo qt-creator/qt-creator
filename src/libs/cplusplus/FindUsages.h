@@ -39,7 +39,7 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT Usage
 {
 public:
-    enum class Type { Declaration, Read, Write, WritableRef, Other };
+    enum class Type { Declaration, Initialization, Read, Write, WritableRef, Other };
 
     Usage() = default;
     Usage(const Utils::FilePath &path, const QString &lineText, Type t, int line, int col, int len)

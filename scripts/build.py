@@ -112,6 +112,7 @@ def build_qtcreator(args, paths):
         prefix_paths += [paths.llvm]
     if paths.elfutils:
         prefix_paths += [paths.elfutils]
+    prefix_paths = [common.to_posix_path(fp) for fp in prefix_paths]
     build_type = 'Debug' if args.debug else 'Release'
     with_docs_str = 'OFF' if args.no_docs else 'ON'
     build_date_option = 'OFF' if args.no_build_date else 'ON'
@@ -123,7 +124,7 @@ def build_qtcreator(args, paths):
                   '-DWITH_DOCS=' + with_docs_str,
                   '-DBUILD_DEVELOPER_DOCS=' + with_docs_str,
                   '-DBUILD_EXECUTABLE_SDKTOOL=OFF',
-                  '-DCMAKE_INSTALL_PREFIX=' + paths.install,
+                  '-DCMAKE_INSTALL_PREFIX=' + common.to_posix_path(paths.install),
                   '-DWITH_TESTS=' + test_option,
                   '-G', 'Ninja']
 
@@ -131,7 +132,7 @@ def build_qtcreator(args, paths):
         cmake_args += ['-DPYTHON_EXECUTABLE=' + args.python3]
 
     if args.module_paths:
-        module_paths = [os.path.abspath(fp) for fp in args.module_paths]
+        module_paths = [common.to_posix_path(os.path.abspath(fp)) for fp in args.module_paths]
         cmake_args += ['-DCMAKE_MODULE_PATH=' + ';'.join(module_paths)]
 
     # force MSVC on Windows, because it looks for GCC in the PATH first,
@@ -217,13 +218,11 @@ def deploy_qt(args, paths):
         qt_bins = os.path.join(paths.qt, 'bin')
         qt_translations = os.path.join(paths.qt, 'translations')
         qt_plugins = os.path.join(paths.qt, 'plugins')
-        qt_imports = os.path.join(paths.qt, 'imports')
         qt_qml = os.path.join(paths.qt, 'qml')
         env = dict(os.environ)
         if paths.llvm:
             env['LLVM_INSTALL_DIR'] = paths.llvm
-        common.check_print_call([script, app, qt_bins, qt_translations, qt_plugins,
-                                 qt_imports, qt_qml],
+        common.check_print_call([script, app, qt_bins, qt_translations, qt_plugins, qt_qml],
                                 paths.build,
                                 env=env)
     else:

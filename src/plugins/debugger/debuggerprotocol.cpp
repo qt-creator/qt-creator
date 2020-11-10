@@ -308,9 +308,9 @@ QString GdbMi::escapeCString(const QString &ba)
             default:
                 if (c < 32 || c == 127) {
                     ret += '\\';
-                    ret += ('0' + (c >> 6));
-                    ret += ('0' + ((c >> 3) & 7));
-                    ret += ('0' + (c & 7));
+                    ret += QLatin1Char('0' + (c >> 6));
+                    ret += QLatin1Char('0' + ((c >> 3) & 7));
+                    ret += QLatin1Char('0' + (c & 7));
                 } else {
                     ret += c;
                 }
@@ -521,7 +521,7 @@ static QString quoteUnprintableLatin1(const QString &ba)
     for (int i = 0, n = ba.size(); i != n; ++i) {
         const unsigned char c = ba.at(i).unicode();
         if (isprint(c)) {
-            res += c;
+            res += ba.at(i);
         } else {
             qsnprintf(buf, sizeof(buf) - 1, "\\%x", int(c));
             res += QLatin1String(buf);

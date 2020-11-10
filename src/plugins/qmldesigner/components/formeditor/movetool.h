@@ -28,6 +28,7 @@
 #include "movemanipulator.h"
 #include "selectionindicator.h"
 #include "resizeindicator.h"
+#include "rotationindicator.h"
 #include "anchorindicator.h"
 #include "bindingindicator.h"
 #include "contentnoteditableindicator.h"
@@ -84,6 +85,7 @@ private:
     MoveManipulator m_moveManipulator;
     SelectionIndicator m_selectionIndicator;
     ResizeIndicator m_resizeIndicator;
+    RotationIndicator m_rotationIndicator;
     AnchorIndicator m_anchorIndicator;
     BindingIndicator m_bindingIndicator;
     ContentNotEditableIndicator m_contentNotEditableIndicator;

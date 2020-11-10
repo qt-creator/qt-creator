@@ -1241,22 +1241,17 @@ bool ModelNode::hasLocked() const
 
 void ModelNode::setLocked(bool value)
 {
-    setAuxiliaryData(lockedProperty, value);
-
     if (value) {
+        setAuxiliaryData(lockedProperty, true);
         // Remove newly locked node and all its descendants from potential selection
         for (ModelNode node : allSubModelNodesAndThisNode()) {
             node.deselectNode();
             node.removeAuxiliaryData("timeline_expanded");
             node.removeAuxiliaryData("transition_expanded");
         }
-    }
-}
-
-void ModelNode::removeLocked()
-{
-    if (hasLocked())
+    } else {
         removeAuxiliaryData(lockedProperty);
+    }
 }
 
 bool ModelNode::isThisOrAncestorLocked(const ModelNode &node)

@@ -32,6 +32,7 @@
 #include "optional.h"
 #include "pathchooser.h"
 
+#include <functional>
 #include <memory>
 
 namespace Utils {
@@ -84,6 +85,8 @@ signals:
 
 protected:
     virtual void setVisibleDynamic(bool visible) { Q_UNUSED(visible) } // TODO: Better name? Merge with setVisible() somehow?
+    void saveToMap(QVariantMap &data, const QVariant &value,
+                   const QVariant &defaultValue, const QString &keyExtension = {}) const;
 
     Utils::Id m_id;
     QString m_displayName;
@@ -93,14 +96,15 @@ protected:
 };
 
 class QTCREATOR_UTILS_EXPORT BaseAspects
-        : private QList<BaseAspect *>
 {
-    using Base = QList<BaseAspect *>;
 
     BaseAspects(const BaseAspects &) = delete;
     BaseAspects &operator=(const BaseAspects &) = delete;
 
 public:
+    using const_iterator = QList<BaseAspect *>::const_iterator;
+    using value_type = QList<BaseAspect *>::value_type;
+
     BaseAspects();
     ~BaseAspects();
 
@@ -108,7 +112,7 @@ public:
     Aspect *addAspect(Args && ...args)
     {
         auto aspect = new Aspect(args...);
-        append(aspect);
+        m_aspects.append(aspect);
         return aspect;
     }
 
@@ -116,7 +120,7 @@ public:
 
     template <typename T> T *aspect() const
     {
-        for (BaseAspect *aspect : *this)
+        for (BaseAspect *aspect : m_aspects)
             if (T *result = qobject_cast<T *>(aspect))
                 return result;
         return nullptr;
@@ -125,13 +129,13 @@ public:
     void fromMap(const QVariantMap &map) const;
     void toMap(QVariantMap &map) const;
 
-    using Base::append;
-    using Base::begin;
-    using Base::end;
+    const_iterator begin() const { return m_aspects.begin(); }
+    const_iterator end() const { return m_aspects.end(); }
+
+    void append(BaseAspect *const &aspect) { m_aspects.append(aspect); }
 
 private:
-    Base &base() { return *this; }
-    const Base &base() const { return *this; }
+    QList<BaseAspect *> m_aspects;
 };
 
 class QTCREATOR_UTILS_EXPORT BoolAspect : public BaseAspect
@@ -232,6 +236,7 @@ public:
     void setUndoRedoEnabled(bool readOnly);
     void setMacroExpanderProvider(const Utils::MacroExpanderProvider &expanderProvider);
     void setValidationFunction(const Utils::FancyLineEdit::ValidationFunction &validator);
+    void setOpenTerminalHandler(const std::function<void()> &openTerminal);
 
     void validateInput();
 

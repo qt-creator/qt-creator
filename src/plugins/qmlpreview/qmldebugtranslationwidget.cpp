@@ -114,7 +114,7 @@ QmlDebugTranslationWidget::QmlDebugTranslationWidget(QWidget *parent, TestLangua
     m_checkableProjectFileView = new ProjectFileSelectionsWidget(projectSettingsKey, filterFileType);
     m_checkableProjectFileView->setVisible(false);
     connect(m_checkableProjectFileView, &ProjectFileSelectionsWidget::selectionChanged, this, &QmlDebugTranslationWidget::setFiles);
-    m_multipleFileButton = new QRadioButton(tr("multiple files"));
+    m_multipleFileButton = new QRadioButton(tr("Multiple files"));
     buttonGroup->addButton(m_multipleFileButton);
     connect(m_multipleFileButton, &QAbstractButton::toggled, m_checkableProjectFileView, &QWidget::setVisible);
     connect(m_multipleFileButton, &QAbstractButton::toggled, this, &QmlDebugTranslationWidget::updateFiles);
@@ -130,13 +130,13 @@ QmlDebugTranslationWidget::QmlDebugTranslationWidget(QWidget *parent, TestLangua
     auto settingsLayout = new QHBoxLayout();
     mainLayout->addLayout(settingsLayout);
 
-    auto elideWarningCheckBox = new QCheckBox(tr("Enable elide warning"));
+    auto elideWarningCheckBox = new QCheckBox(tr("Elide warning"));
     connect(elideWarningCheckBox, &QCheckBox::stateChanged, [this] (int state) {
         m_elideWarning = (state == Qt::Checked);
     });
     settingsLayout->addWidget(elideWarningCheckBox);
 
-    auto warningColorCheckbox = new QCheckBox(tr("select Warning color: "));
+    auto warningColorCheckbox = new QCheckBox(tr("Warning color: "));
     settingsLayout->addWidget(warningColorCheckbox);
     auto warningColorButton = new Utils::QtColorButton();
     connect(warningColorCheckbox, &QCheckBox::stateChanged, [warningColorButton, this] (int state) {
@@ -155,7 +155,7 @@ QmlDebugTranslationWidget::QmlDebugTranslationWidget(QWidget *parent, TestLangua
     warningColorCheckbox->setCheckState(Qt::Checked);
     settingsLayout->addWidget(warningColorButton);
 
-    auto foundTrColorCheckbox = new QCheckBox(tr("select found 'tr' color: "));
+    auto foundTrColorCheckbox = new QCheckBox(tr("Found \"tr\" color: "));
     settingsLayout->addWidget(foundTrColorCheckbox);
     auto foundTrColorButton = new Utils::QtColorButton();
     foundTrColorButton->setDisabled(true);
@@ -180,7 +180,7 @@ QmlDebugTranslationWidget::QmlDebugTranslationWidget(QWidget *parent, TestLangua
     mainLayout->addLayout(controlLayout);
 
     auto showLogButton = new QToolButton;
-    showLogButton->setText(tr("Show log"));
+    showLogButton->setText(tr("Show Log"));
     showLogButton->setCheckable(true);
     controlLayout->addWidget(showLogButton);
 
@@ -191,7 +191,7 @@ QmlDebugTranslationWidget::QmlDebugTranslationWidget(QWidget *parent, TestLangua
 //    controlLayout->addWidget(pauseButton);
 
 //    auto onTheFlyButton = new QToolButton;
-//    onTheFlyButton->setText(tr("On the fly"));
+//    onTheFlyButton->setText(tr("On the Fly"));
 //    controlLayout->addWidget(onTheFlyButton);
 
     m_runTestButton = new QPushButton();
@@ -306,7 +306,7 @@ void QmlDebugTranslationWidget::updateCurrentTranslations(ProjectExplorer::Proje
                 this, &QmlDebugTranslationWidget::updateStartupProjectTranslations,
                 Qt::UniqueConnection);
         auto languageLabel = new QLabel();
-        languageLabel->setText(tr("Select which language should be tested:"));
+        languageLabel->setText(tr("Language to test:"));
         m_selectLanguageLayout->addWidget(languageLabel);
         if (multiLanguageAspect->value()) {
             addLanguageCheckBoxes({multiLanguageAspect->currentLocale()});
@@ -493,9 +493,9 @@ void QmlDebugTranslationWidget::appendMessage(const QString &message, Utils::Out
 
 QString QmlDebugTranslationWidget::singleFileButtonText(const QString &filePath)
 {
-    auto buttonText = tr("current file: %1");
+    auto buttonText = tr("Current file: %1");
     if (filePath.isEmpty())
-        return buttonText.arg(tr("empty"));
+        return buttonText.arg(tr("Empty"));
     return buttonText.arg(filePath);
 }
 
@@ -504,7 +504,7 @@ QString QmlDebugTranslationWidget::runButtonText(bool isRunning)
     if (isRunning) {
         return tr("Stop");
     }
-    return tr("Run language tests");
+    return tr("Run Language Tests");
 }
 
 void QmlDebugTranslationWidget::addLanguageCheckBoxes(const QStringList &languages)

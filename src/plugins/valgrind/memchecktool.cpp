@@ -701,6 +701,7 @@ MemcheckToolPrivate::MemcheckToolPrivate()
     m_perspective.addToolBarAction(m_goBack);
     m_perspective.addToolBarAction(m_goNext);
     m_perspective.addToolBarWidget(filterButton);
+    m_perspective.registerNextPrevShortcuts(m_goNext, m_goBack);
 
     updateFromSettings();
     maybeActiveRunConfigurationChanged();

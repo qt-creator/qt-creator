@@ -123,6 +123,12 @@ ListModel {
     }
 
     ListElement {
+        displayName: "Qt Design Studio QuickTip: Interactive 3D"
+        thumbnail: "images/Qt_QT_interactive3d.png"
+        url: "https://youtu.be/w1yhDl93YI0"
+    }
+
+    ListElement {
         displayName: "Sketch Bridge Tutorial - Part 1"
         thumbnail: "images/sketchTutorial_1.png"
         url: "https://www.qt.io/blog/qt-design-studio-sketch-bridge-tutorial-part-1"
@@ -132,5 +138,11 @@ ListModel {
         displayName: "Sketch Bridge Tutorial - Part 2"
         thumbnail: "images/sketchTutorial_2.png"
         url: "https://www.qt.io/blog/qt-design-studio-sketch-bridge-tutorial-part-2"
+    }
+
+    ListElement {
+        displayName: "Getting Started - Create New Project"
+        thumbnail: "images/gettingStarted_newProject.png"
+        url: "https://youtu.be/9ihYeC0YJ0M"
     }
 }

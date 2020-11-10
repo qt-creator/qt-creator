@@ -392,8 +392,24 @@ PropertyNameList ObjectNodeInstance::ignoredProperties() const
     return PropertyNameList();
 }
 
-void ObjectNodeInstance::setHideInEditor(bool)
+void ObjectNodeInstance::setHiddenInEditor(bool b)
 {
+    m_isHiddenInEditor = b;
+}
+
+bool ObjectNodeInstance::isHiddenInEditor() const
+{
+    return m_isHiddenInEditor;
+}
+
+void ObjectNodeInstance::setLockedInEditor(bool b)
+{
+    m_isLockedInEditor = b;
+}
+
+bool ObjectNodeInstance::isLockedInEditor() const
+{
+    return m_isLockedInEditor;
 }
 
 void ObjectNodeInstance::setModifiedFlag(bool b)

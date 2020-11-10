@@ -199,24 +199,17 @@ void DesignerActionManager::registerAddResourceHandler(const AddResourceHandler 
     m_addResourceHandler.append(handler);
 }
 
-QMultiHash<TypeName, ModelNodePreviewImageHandler> DesignerActionManager::modelNodePreviewHandlers() const
-{
-    return m_modelNodePreviewImageHandlers;
-}
-
 void DesignerActionManager::registerModelNodePreviewHandler(const ModelNodePreviewImageHandler &handler)
 {
-    m_modelNodePreviewImageHandlers.insert(handler.type, handler);
+    m_modelNodePreviewImageHandlers.append(handler);
 }
 
 bool DesignerActionManager::hasModelNodePreviewHandler(const ModelNode &node) const
 {
     const bool isComponent = node.isComponent();
     for (const auto &handler : qAsConst(m_modelNodePreviewImageHandlers)) {
-        if ((isComponent || !handler.componentOnly) && node.isSubclassOf(handler.type)) {
-            ModelNodePreviewImageHandler subClassHandler = handler;
+        if ((isComponent || !handler.componentOnly) && node.isSubclassOf(handler.type))
             return true;
-        }
     }
     return false;
 }
@@ -469,14 +462,14 @@ public:
         } catch (const DocumentError &) {
             QMessageBox::warning(
                 Core::ICore::mainWindow(),
-                QCoreApplication::translate("DesignerActionManager", "Document has errors"),
+                QCoreApplication::translate("DesignerActionManager", "Document Has Errors"),
                 QCoreApplication::translate("DesignerActionManager",
                                             "The document which contains the list model "
                                             "contains errors. So we cannot edit it."));
         } catch (const RewritingException &) {
             QMessageBox::warning(
                 Core::ICore::mainWindow(),
-                QCoreApplication::translate("DesignerActionManager", "Document cannot be written"),
+                QCoreApplication::translate("DesignerActionManager", "Document Cannot Be Written"),
                 QCoreApplication::translate("DesignerActionManager",
                                             "An error occurred during a write attemp."));
         }
@@ -1333,6 +1326,17 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &selectionIsComponent));
 
     addDesignerAction(new ModelNodeContextMenuAction(
+                          editAnnotationCommandId,
+                          editAnnotationDisplayName,
+                          {},
+                          rootCategory,
+                          QKeySequence(),
+                          (priorityLast+6),
+                          &editAnnotation,
+                          &singleSelection,
+                          &singleSelection));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
                           goToImplementationCommandId,
                           goToImplementationDisplayName,
                           {},
@@ -1412,6 +1416,15 @@ void DesignerActionManager::createDefaultModelNodePreviewImageHandlers()
 {
     registerModelNodePreviewHandler(
                 ModelNodePreviewImageHandler("QtQuick.Image",
+                                             ModelNodeOperations::previewImageDataForImageNode));
+    registerModelNodePreviewHandler(
+                ModelNodePreviewImageHandler("QtQuick.BorderImage",
+                                             ModelNodeOperations::previewImageDataForImageNode));
+    registerModelNodePreviewHandler(
+                ModelNodePreviewImageHandler("Qt.SafeRenderer.SafeRendererImage",
+                                             ModelNodeOperations::previewImageDataForImageNode));
+    registerModelNodePreviewHandler(
+                ModelNodePreviewImageHandler("Qt.SafeRenderer.SafeRendererPicture",
                                              ModelNodeOperations::previewImageDataForImageNode));
     registerModelNodePreviewHandler(
                 ModelNodePreviewImageHandler("QtQuick3D.Texture",

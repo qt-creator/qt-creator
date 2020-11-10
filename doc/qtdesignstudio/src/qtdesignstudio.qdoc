@@ -36,6 +36,8 @@
 
     \table
         \row
+            \li {4,1} \b {\l{All Topics}}
+        \row
             \li \inlineimage front-gs.png
             \li \inlineimage front-projects.png
             \li \inlineimage front-ui.png
@@ -47,6 +49,7 @@
                 \li \l{User Interface}
                 \li \l{Editing QML Files in Design Mode}
                 \li \l{Tutorials}
+                \li \l{Qt Quick Best Practices}
             \endlist
             \li \b {\l{Managing Projects}}
                 \list
@@ -70,7 +73,6 @@
                 \li \l{Creating Animations}
                 \li \l{Adding Connections}
                 \li \l{Adding States}
-                \li \l{Editing PathView Properties}
             \endlist
         \row
             \li \inlineimage studio-3d-scenes.png
@@ -106,8 +108,6 @@
                     \li \l{Frequently Asked Questions}
                     \li \l{Concepts and Terms}
                 \endlist
-        \row
-            \li {4,1} \l{All Topics}
         \row
             \li {4,1} \note To report bugs and suggestions to the
                 \l{https://bugreports.qt.io/}{Qt Project Bug Tracker},

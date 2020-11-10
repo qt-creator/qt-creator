@@ -84,6 +84,19 @@ void AnnotationEditor::hideWidget()
     m_dialog = nullptr;
 }
 
+AnnotationEditor* AnnotationEditor::showWidget(const ModelNode &modelNode)
+{
+    auto editor = new AnnotationEditor;
+
+    editor->setModelNode(modelNode);
+    editor->showWidget();
+
+    connect(editor->m_dialog, &QDialog::destroyed,
+            [editor]() { editor->deleteLater(); } );
+
+    return editor;
+}
+
 void AnnotationEditor::setModelNode(const ModelNode &modelNode)
 {
     m_modelNodeBackend = {};

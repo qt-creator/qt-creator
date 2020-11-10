@@ -102,14 +102,21 @@ void Edit3DCanvas::resizeEvent(QResizeEvent *e)
 
 void Edit3DCanvas::dragEnterEvent(QDragEnterEvent *e)
 {
-    QByteArray data = e->mimeData()->data(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"));
-    if (!data.isEmpty()) {
-        QDataStream stream(data);
-        stream >> m_itemLibraryEntry;
-        bool canDrop = NodeHints::fromItemLibraryEntry(m_itemLibraryEntry).canBeDroppedInView3D();
+    // Block all drags if scene root node is locked
+    ModelNode node;
+    if (m_parent->view()->hasModelNodeForInternalId(m_activeScene))
+        node = m_parent->view()->modelNodeForInternalId(m_activeScene);
 
-        if (canDrop)
-            e->accept();
+    // Allow drop when there is no valid active scene, as the drop goes under the root node of
+    // the document in that case.
+    if (!node.isValid() || !ModelNode::isThisOrAncestorLocked(node)) {
+        QByteArray data = e->mimeData()->data(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"));
+        if (!data.isEmpty()) {
+            QDataStream stream(data);
+            stream >> m_itemLibraryEntry;
+            if (NodeHints::fromItemLibraryEntry(m_itemLibraryEntry).canBeDroppedInView3D())
+                e->accept();
+        }
     }
 }
 

@@ -55,6 +55,7 @@
 
 #include <QLoggingCategory>
 #include <QDebug>
+#include <QPointer>
 
 namespace ModelEditor {
 namespace Internal {
@@ -373,7 +374,7 @@ void ModelIndexer::onProjectAdded(ProjectExplorer::Project *project)
     connect(project,
             &ProjectExplorer::Project::fileListChanged,
             this,
-            [=]() { this->onProjectFileListChanged(project); },
+            [this, p = QPointer(project)] { if (p) onProjectFileListChanged(p.data()); },
             Qt::QueuedConnection);
     scanProject(project);
 }

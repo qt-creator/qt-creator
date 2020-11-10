@@ -222,7 +222,7 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
         Core::ActionManager::registerAction(action, "QmlPreview.RunPreview"),
         Constants::G_BUILD_RUN);
 
-    action = new QAction(QmlPreviewPlugin::tr("Test translations"), this);
+    action = new QAction(QmlPreviewPlugin::tr("Test Translations"), this);
     action->setToolTip(QLatin1String("Runs the preview with all available translations and collects all issues."));
     action->setEnabled(SessionManager::startupProject() != nullptr);
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged, action,

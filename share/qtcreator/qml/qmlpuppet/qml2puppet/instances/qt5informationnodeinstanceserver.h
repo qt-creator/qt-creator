@@ -70,6 +70,9 @@ public:
     void changeState(const ChangeStateCommand &command) override;
     void removeProperties(const RemovePropertiesCommand &command) override;
 
+    void handleInstanceLocked(const ServerNodeInstance &instance, bool enable, bool checkAncestors) override;
+    void handleInstanceHidden(const ServerNodeInstance &instance, bool enable, bool checkAncestors) override;
+
 private slots:
     void handleSelectionChanged(const QVariant &objs);
     void handleObjectPropertyCommit(const QVariant &object, const QVariant &propName);
@@ -127,6 +130,7 @@ private:
     void doRenderModelNode3DImageView();
     void doRenderModelNode2DImageView();
     QQuickView *createAuxiliaryQuickView(const QUrl &url, QQuickItem *&rootItem);
+    void updateLockedAndHiddenStates(const QSet<ServerNodeInstance> &instances);
 
     QPointer<QQuickView> m_editView3D;
     QQuickItem *m_editView3DRootItem = nullptr;

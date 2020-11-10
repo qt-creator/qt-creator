@@ -405,6 +405,7 @@ FullySpecifiedType Function::type() const
     FullySpecifiedType ty(const_cast<Function *>(this));
     ty.setConst(isConst());
     ty.setVolatile(isVolatile());
+    ty.setStatic(isStatic());
     return ty;
 }
 

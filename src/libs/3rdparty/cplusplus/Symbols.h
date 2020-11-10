@@ -352,6 +352,9 @@ public:
     bool isConst() const;
     void setConst(bool isConst);
 
+    bool isStatic() const { return f._isStatic; }
+    void setStatic(bool isStatic) { f._isStatic = isStatic; }
+
     bool isVolatile() const;
     void setVolatile(bool isVolatile);
 
@@ -399,6 +402,7 @@ private:
         unsigned _isVirtual: 1;
         unsigned _isOverride: 1;
         unsigned _isFinal: 1;
+        unsigned _isStatic: 1;
         unsigned _isVariadic: 1;
         unsigned _isVariadicTemplate: 1;
         unsigned _isPureVirtual: 1;

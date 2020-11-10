@@ -131,7 +131,7 @@ QVariant CMakeTargetItem::data(int column, int role) const
 
         if (role == Qt::ToolTipRole) {
             if (m_target.isEmpty()) {
-                return CMakeBuildStep::tr("Build the executable used in the active Run "
+                return CMakeBuildStep::tr("Build the executable used in the active run "
                                           "configuration. Currently: %1")
                         .arg(m_step->activeRunConfigTarget());
             }

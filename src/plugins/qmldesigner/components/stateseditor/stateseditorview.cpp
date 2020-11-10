@@ -120,7 +120,7 @@ void StatesEditorView::removeState(int nodeId)
                     msgBox.setWindowTitle(tr("Remove State"));
                     msgBox.setText(QString(tr("Removing this state will modify locked items.") + "<br><br>%1")
                                            .arg(detailedText));
-                    msgBox.setInformativeText(tr("Do you want to continue by removing the state?"));
+                    msgBox.setInformativeText(tr("Continue by removing the state?"));
                     msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
                     msgBox.setDefaultButton(QMessageBox::Ok);
 

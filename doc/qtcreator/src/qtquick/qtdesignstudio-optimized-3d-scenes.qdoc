@@ -1,0 +1,200 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page studio-optimized-3d-scenes.html
+    \previouspage studio-qtquick-best-practices.html
+    \if defined(qtdesignstudio)
+    \nextpage studio-projects-managing.html
+    \else
+    \nextpage creator-coding.html
+    \endif
+
+    \title Creating Optimized 3D Scenes
+
+    In \QC, you can use various means to create a 3D scene. Your choice of
+    strategy should always depend on the target platform of your scene.
+    The way the content of your scene is authored can have dramatic effects on
+    the runtime performance of your UI. The Optimal 3D Scene described
+    below illustrates four different ways to create a scene. Also see guidelines
+    for \l{Optimizing your 3D Scene}{optimizing the graphics performance of your 3D scene}
+    and \l{Best Practices for 3D Scenes Based on Use Cases}.
+
+    \section1 The Optimal 3D Scene Example
+
+    The \l {Optimal 3D Scene} example features four versions of the same kitchen
+    scene that have been created using different strategies: High, Low, Combined,
+    and Vertex Color. The High Scene includes a significantly higher number of
+    objects compared to the other versions of the scene. The Low, Combined and
+    Vertex scenes include less objects since they have been optimized by, for
+    example, combining geometry and baking materials into textures. The
+    following image displays the components in each scene in \uicontrol
+    Navigator to illustrate the structural differences between the scenes.
+
+    \image studio-kitchen-navigators.png "Navigators for the four scenes in the Optimal 3D Scene."
+
+    \section2 The High Scene
+
+    \image studio-kitchen-high.png "The High Scene in the Optimal 3D Scene"
+
+    The High scene (1) includes a total of 27 objects. The scene is otherwise
+    similar to the Low scene, but has more details and animated components, such
+    as cabinet doors that can be opened and a latch for the oven.
+
+    \section2 The Low Scene
+
+    \image studio-kitchen-low.png "The Low Scene in the Optimal 3D Scene"
+
+    The Low scene (2) includes a total of 12 objects. Each model, for example
+    cabinets, lamps, plates, and the sink, are separate meshes.
+
+    \section2 The Combined Scene
+
+    \image studio-kitchen-combined.png "The Combined Scene in the Optimal 3D Scene"
+
+    The Combined scene (3) has all the meshes combined into a single object. All
+    materials are baked into one single texture.
+
+    \section2 The Vertex Color Scene
+
+    \image studio-kitchen-vertex.png "The Vertex Color Scene in the Optimal 3D Scene"
+
+    The Vertex Color scene (4) has all the meshes combined into a single object,
+    and colors for the mesh are provided from .mesh file's vertex data, which
+    includes one material and no textures.
+
+    \section1 Optimizing Your 3D Scene
+
+    To optimize the graphics performance of your 3D scene, you should first
+    consider whether you need to animate the 3D objects, lights, camera, or
+    other components in your scene. If not, simplify the scene structure by, for
+    example, combining geometries and baking materials into textures. Ideally,
+    pre-render your 3D image into a 2D image. You should not waste resources
+    by rendering static 3D objects. You should also check if your scene has
+    multiple instances of the same mesh. If so, import only one instance of the
+    mesh, duplicate it in the scene, and use the same material for each
+    duplicate.
+
+    See also the following guidelines related to scene graph, asset complexity,
+    CPU specific optimization, and model geometry.
+
+    \section2 Scene Graph
+
+    The scene graph is the hierarchy of nodes that describe the scene to be
+    rendered.
+
+    In \QC, the scene graph is represented by the tree-like view in
+    \uicontrol Navigator. You can also view the hierarchy of nodes in the
+    \uicontrol {Text Editor} view. By minimizing the size of the scene graph,
+    you can minimize the effort needed when running the scene. In terms of
+    optimization, you should avoid unnecessary groups and complex hierarchy when
+    possible. Deep hierarchies with complex parenting increase the performance
+    cost.
+
+    \section2 Asset Complexity
+
+    The performance of your UI or scene may sometimes be bottlenecked at render
+    time. Avoid this by simplifying your assets.
+
+    For 3D models, you should try to use the minimum number of triangles or
+    vertices to achieve the desired result. Also note that smaller images
+    require less memory and render faster.
+
+    \section2 Optimizing CPU Performance
+
+    Rendering objects requires plenty of processing work from the CPU.
+    Processing each component consumes resources, so reducing the visible object
+    count reduces the amount of work required from the CPU.
+
+    To reduce the visible object count:
+    \list
+        \li Combine objects that are positioned closely and share a texture.
+        \note Combining objects that do not share a texture does not increase
+        the CPU performance while running the scene.
+        \li Use fewer materials by combining separate textures into a single
+            texture atlas (like in the Merged scene in the
+            Kitchen Scene Example).
+        \li Minimize the number of factors that cause objects to be rendered
+            multiple times, for example reflections and shadows.
+    \endlist
+
+    \section2 Optimizing Model Geometry
+
+    To optimize the geometry of a model:
+
+    \list
+        \li Minimize the number of triangles used in the model.
+        \li Minimize the number of UV mapping seams and hard edges created with
+        doubled-up vertices.
+    \endlist
+
+    \section1 Best Practices for 3D Scenes Based on Use Cases
+
+    The following table summarizes best practices related to optimizing 3D
+    scenes in the form of use cases.
+
+    \table
+    \header
+        \li How to...
+        \li Solution
+    \row
+        \li Get best performance from the 3D scene.
+        \li If no animation is required, pre-render your 3D scene into a 2D
+            image.
+
+    \row
+        \li Include animation for some of the objects in the scene
+            (for example, to open doors).
+        \li Merge all objects that are static, and export only one of
+            each animated component (for example, each door type).
+
+    \row
+        \li Get best performance with animated camera.
+        \li While using a 2D image is not an option in this case, you should
+            combine all geometry and bake lighting and materials into a single
+            material.
+
+    \row
+        \li Get best performance with animated light.
+        \li While using a 2D image is not an option in this case, you should
+            combine all geometry and bake all materials into a single
+            material.
+
+    \row
+        \li Get best performance in a 3D scene where all meshes are
+            separated.
+        \li Use the same material for each instance of the same mesh.
+
+    \row
+        \li Disable rendering for one of the meshes during runtime.
+        \li Keep that particular mesh separate but merge the rest of the
+            components.
+
+    \row
+        \li Use baked textures with low memory.
+        \li Bake mesh colors into vertex colors (see the Vertex Color Scene
+            in the example project).
+    \endtable
+*/

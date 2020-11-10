@@ -139,14 +139,10 @@ private Q_SLOTS:
 void tst_FindUsages::dump(const QList<Usage> &usages) const
 {
     QTextStream err(stderr, QIODevice::WriteOnly);
-    err << "DEBUG  : " << usages.size() << " usages:" << endl;
+    err << "DEBUG  : " << usages.size() << " usages:" << Qt::endl;
     foreach (const Usage &usage, usages) {
-        err << "DEBUG  : "
-            << usage.path << ":"
-            << usage.line << ":"
-            << usage.col << ":"
-            << usage.len << ":"
-            << usage.lineText << endl;
+        err << "DEBUG  : " << usage.path << ":" << usage.line << ":" << usage.col << ":"
+            << usage.len << ":" << usage.lineText << Qt::endl;
     }
 }
 
@@ -371,7 +367,7 @@ void tst_FindUsages::staticVariables()
     findUsages(d);
     QCOMPARE(findUsages.usages().size(), 5);
     QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Declaration);
+    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Initialization);
     QCOMPARE(findUsages.usages().at(2).type, Usage::Type::Write);
     QCOMPARE(findUsages.usages().at(3).type, Usage::Type::Write);
     QCOMPARE(findUsages.usages().at(4).type, Usage::Type::Write);
@@ -485,7 +481,7 @@ struct Struct{
     find(variableFoo);
     QCOMPARE(find.usages().size(), 2);
 
-    QCOMPARE(find.usages()[0].type, Usage::Type::Declaration);
+    QCOMPARE(find.usages()[0].type, Usage::Type::Initialization);
     QCOMPARE(find.usages()[0].line, 5);
     QCOMPARE(find.usages()[0].col, 12);
 
@@ -1656,7 +1652,7 @@ void tst_FindUsages::templateSpecialization_with_IntArgument()
         find(sv[1]);
         QCOMPARE(find.usages().size(), 2);
 
-        QCOMPARE(find.usages()[0].type, Usage::Type::Declaration);
+        QCOMPARE(find.usages()[0].type, Usage::Type::Initialization);
         QCOMPARE(find.usages()[0].line, 2);
         QCOMPARE(find.usages()[0].col, 15);
         QCOMPARE(find.usages()[1].type, Usage::Type::Read);
@@ -1666,7 +1662,7 @@ void tst_FindUsages::templateSpecialization_with_IntArgument()
         find(sv[2]);
         QCOMPARE(find.usages().size(), 3);
 
-        QCOMPARE(find.usages()[0].type, Usage::Type::Declaration);
+        QCOMPARE(find.usages()[0].type, Usage::Type::Initialization);
         QCOMPARE(find.usages()[0].line, 3);
         QCOMPARE(find.usages()[0].col, 15);
         QCOMPARE(find.usages()[1].type, Usage::Type::Write);
@@ -1735,7 +1731,7 @@ void tst_FindUsages::templateSpecialization_with_BoolArgument()
         find(sv[0]);
         QCOMPARE(find.usages().size(), 2);
 
-        QCOMPARE(find.usages()[0].type, Usage::Type::Declaration);
+        QCOMPARE(find.usages()[0].type, Usage::Type::Initialization);
         QCOMPARE(find.usages()[0].line, 1);
         QCOMPARE(find.usages()[0].col, 15);
         QCOMPARE(find.usages()[1].type, Usage::Type::Read);
@@ -1745,7 +1741,7 @@ void tst_FindUsages::templateSpecialization_with_BoolArgument()
         find(sv[1]);
         QCOMPARE(find.usages().size(), 2);
 
-        QCOMPARE(find.usages()[0].type, Usage::Type::Declaration);
+        QCOMPARE(find.usages()[0].type, Usage::Type::Initialization);
         QCOMPARE(find.usages()[0].line, 2);
         QCOMPARE(find.usages()[0].col, 15);
         QCOMPARE(find.usages()[1].type, Usage::Type::Read);
@@ -1811,7 +1807,7 @@ void tst_FindUsages::templatePartialSpecialization()
         find(sv[0]);
         QCOMPARE(find.usages().size(), 2);
 
-        QCOMPARE(find.usages()[0].type, Usage::Type::Declaration);
+        QCOMPARE(find.usages()[0].type, Usage::Type::Initialization);
         QCOMPARE(find.usages()[0].line, 1);
         QCOMPARE(find.usages()[0].col, 15);
         QCOMPARE(find.usages()[1].type, Usage::Type::Read);
@@ -1821,7 +1817,7 @@ void tst_FindUsages::templatePartialSpecialization()
         find(sv[1]);
         QCOMPARE(find.usages().size(), 2);
 
-        QCOMPARE(find.usages()[0].type, Usage::Type::Declaration);
+        QCOMPARE(find.usages()[0].type, Usage::Type::Initialization);
         QCOMPARE(find.usages()[0].line, 2);
         QCOMPARE(find.usages()[0].col, 15);
         QCOMPARE(find.usages()[1].type, Usage::Type::Read);
@@ -1880,17 +1876,17 @@ int main()
 
     find(sv[0]);
     QCOMPARE(find.usages().size(), 2);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
+    QCOMPARE(find.usages().at(0).type, Usage::Type::Initialization);
     QCOMPARE(find.usages().at(1).type, Usage::Type::Read);
 
     find(sv[1]);
     QCOMPARE(find.usages().size(), 2);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
+    QCOMPARE(find.usages().at(0).type, Usage::Type::Initialization);
     QCOMPARE(find.usages().at(1).type, Usage::Type::Read);
 
     find(sv[2]);
     QCOMPARE(find.usages().size(), 2);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
+    QCOMPARE(find.usages().at(0).type, Usage::Type::Initialization);
     QCOMPARE(find.usages().at(1).type, Usage::Type::Read);
 }
 
@@ -1930,7 +1926,7 @@ int main(){
     FindUsages find(src, doc, snapshot);
     find(sv);
     QCOMPARE(find.usages().size(), 2);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
+    QCOMPARE(find.usages().at(0).type, Usage::Type::Initialization);
     QCOMPARE(find.usages().at(1).type, Usage::Type::Read);
 }
 
@@ -2035,6 +2031,8 @@ struct S {
     } n;
     Nested constFunc() const;
     void nonConstFunc();
+    static void staticFunc1() {}
+    static void staticFunc2();
 };
 void func1(int &);
 void func2(const int &);
@@ -2082,6 +2080,22 @@ int main()
     s.n.nonConstFunc();
     s.n.constFunc(s.value);
     delete s.p;
+    switch (S::value) {
+        case S::value: break;
+    }
+    switch (S::value = 5) {
+        default: break;
+    }
+    if (S::value) {}
+    if (S::value = 0) {}
+    ++S::value;
+    S::value--;
+    s.staticFunc1();
+    s.staticFunc2();
+    S::value = sizeof S::value;
+    int array[3];
+    array[S::value] = S::value;
+    S::value = array[S::value];
 }
 )";
 
@@ -2098,7 +2112,7 @@ int main()
     Class * const structS = doc->globalSymbolAt(0)->asClass();
     QVERIFY(structS);
     QCOMPARE(structS->name()->identifier()->chars(), "S");
-    QCOMPARE(structS->memberCount(), 9);
+    QCOMPARE(structS->memberCount(), 11);
 
     Declaration * const sv = structS->memberAt(1)->asDeclaration();
     QVERIFY(sv);
@@ -2107,7 +2121,7 @@ int main()
     // Access to struct member
     FindUsages find(src, doc, snapshot);
     find(sv);
-    QCOMPARE(find.usages().size(), 18);
+    QCOMPARE(find.usages().size(), 31);
     QCOMPARE(find.usages().at(0).type, Usage::Type::Read);
     QCOMPARE(find.usages().at(1).type, Usage::Type::Declaration);
     QCOMPARE(find.usages().at(2).type, Usage::Type::WritableRef);
@@ -2126,6 +2140,19 @@ int main()
     QCOMPARE(find.usages().at(15).type, Usage::Type::Read);
     QCOMPARE(find.usages().at(16).type, Usage::Type::Read);
     QCOMPARE(find.usages().at(17).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(18).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(19).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(20).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(21).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(22).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(23).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(24).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(25).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(26).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(27).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(28).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(29).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(30).type, Usage::Type::Read);
 
     Declaration * const sv2 = structS->memberAt(2)->asDeclaration();
     QVERIFY(sv2);
@@ -2142,7 +2169,7 @@ int main()
     QCOMPARE(main->memberCount(), 1);
     Block * const block = main->memberAt(0)->asBlock();
     QVERIFY(block);
-    QCOMPARE(block->memberCount(), 13);
+    QCOMPARE(block->memberCount(), 18);
 
     // Access to pointer
     Declaration * const p = block->memberAt(1)->asDeclaration();
@@ -2150,7 +2177,7 @@ int main()
     QCOMPARE(p->name()->identifier()->chars(), "p");
     find(p);
     QCOMPARE(find.usages().size(), 10);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
+    QCOMPARE(find.usages().at(0).type, Usage::Type::Initialization);
     QCOMPARE(find.usages().at(1).type, Usage::Type::Write);
     QCOMPARE(find.usages().at(2).type, Usage::Type::Write);
     QCOMPARE(find.usages().at(3).type, Usage::Type::WritableRef);
@@ -2166,7 +2193,7 @@ int main()
     QVERIFY(varS);
     QCOMPARE(varS->name()->identifier()->chars(), "s");
     find(varS);
-    QCOMPARE(find.usages().size(), 31);
+    QCOMPARE(find.usages().size(), 33);
     QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
     QCOMPARE(find.usages().at(1).type, Usage::Type::WritableRef);
     QCOMPARE(find.usages().at(2).type, Usage::Type::WritableRef);
@@ -2185,7 +2212,6 @@ int main()
     QCOMPARE(find.usages().at(15).type, Usage::Type::WritableRef);
     QCOMPARE(find.usages().at(16).type, Usage::Type::Read);
     QCOMPARE(find.usages().at(17).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(18).type, Usage::Type::Write);
 
     // Direct access to struct variable
     QCOMPARE(find.usages().at(18).type, Usage::Type::Write);
@@ -2205,15 +2231,44 @@ int main()
     QCOMPARE(find.usages().at(27).type, Usage::Type::WritableRef);
     QCOMPARE(find.usages().at(28).type, Usage::Type::Read);
     QCOMPARE(find.usages().at(29).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(31).type, Usage::Type::Other);
+    QEXPECT_FAIL(nullptr, "parser does not expose static specifier", Continue);
+    QCOMPARE(find.usages().at(32).type, Usage::Type::Other);
 
     // Usages of struct type
     find(structS);
-    QCOMPARE(find.usages().size(), 5);
+    QCOMPARE(find.usages().size(), 18);
     QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
     QCOMPARE(find.usages().at(1).type, Usage::Type::Other);
     QCOMPARE(find.usages().at(2).type, Usage::Type::Other);
     QCOMPARE(find.usages().at(3).type, Usage::Type::Other);
     QCOMPARE(find.usages().at(4).type, Usage::Type::Other);
+
+    // These are conceptually questionable, as S is a type and thus we cannot "read from"
+    // or "write to" it. But it possibly matches the intuitive user expectation.
+    QCOMPARE(find.usages().at(5).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(6).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(7).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(8).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(9).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(10).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(11).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(12).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(13).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(14).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(15).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(16).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(17).type, Usage::Type::Read);
+
+    // Arrays.
+    Declaration * const array = block->memberAt(17)->asDeclaration();
+    QVERIFY(p);
+    QCOMPARE(array->name()->identifier()->chars(), "array");
+    find(array);
+    QCOMPARE(find.usages().size(), 3);
+    QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
+    QCOMPARE(find.usages().at(1).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(2).type, Usage::Type::Read);
 }
 
 QTEST_APPLESS_MAIN(tst_FindUsages)

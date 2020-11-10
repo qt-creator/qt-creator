@@ -129,6 +129,12 @@ static bool imageHasContent(const QImage &image)
     return false;
 }
 
+static bool isQuick3DMode()
+{
+    static bool mode3D = qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_MODE");
+    return mode3D;
+}
+
 QQuickView *Qt5InformationNodeInstanceServer::createAuxiliaryQuickView(const QUrl &url,
                                                                        QQuickItem *&rootItem)
 {
@@ -152,6 +158,23 @@ QQuickView *Qt5InformationNodeInstanceServer::createAuxiliaryQuickView(const QUr
     DesignerSupport::setRootItem(view, rootItem);
 
     return view;
+}
+
+void Qt5InformationNodeInstanceServer::updateLockedAndHiddenStates(const QSet<ServerNodeInstance> &instances)
+{
+    if (!isQuick3DMode())
+        return;
+
+    // We only want to update the topmost parents in the set
+    for (const auto &instance : instances) {
+        if (instance.isValid()) {
+            const auto parentInst = instance.parent();
+            if (!parentInst.isValid() || !instances.contains(parentInst)) {
+                handleInstanceHidden(instance, instance.internalInstance()->isHiddenInEditor(), true);
+                handleInstanceLocked(instance, instance.internalInstance()->isLockedInEditor(), true);
+            }
+        }
+    }
 }
 
 void Qt5InformationNodeInstanceServer::createEditView3D()
@@ -860,11 +883,10 @@ QList<ServerNodeInstance> Qt5InformationNodeInstanceServer::createInstances(
 void Qt5InformationNodeInstanceServer::initializeAuxiliaryViews()
 {
 #ifdef QUICK3D_MODULE
-    if (qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_MODE")) {
+    if (isQuick3DMode())
         createEditView3D();
-        m_ModelNode3DImageView = createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/ModelNode3DImageView.qml"),
-                                                          m_ModelNode3DImageViewRootItem);
-    }
+    m_ModelNode3DImageView = createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/ModelNode3DImageView.qml"),
+                                                      m_ModelNode3DImageViewRootItem);
 #endif
 
     m_ModelNode2DImageView = createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/ModelNode2DImageView.qml"),
@@ -1243,6 +1265,7 @@ void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 
             if (!m_parentChangedSet.isEmpty()) {
                 sendChildrenChangedCommand(QtHelpers::toList(m_parentChangedSet));
+                updateLockedAndHiddenStates(m_parentChangedSet);
                 m_parentChangedSet.clear();
             }
 
@@ -1307,7 +1330,7 @@ void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
     sendChildrenChangedCommand(instanceList);
     nodeInstanceClient()->componentCompleted(createComponentCompletedCommand(instanceList));
 
-    if (qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_MODE"))
+    if (isQuick3DMode())
         setup3DEditView(instanceList, command.edit3dToolStates());
 
     QObject::connect(&m_renderModelNodeImageViewTimer, &QTimer::timeout,
@@ -1619,6 +1642,110 @@ void Qt5InformationNodeInstanceServer::removeProperties(const RemovePropertiesCo
     Qt5NodeInstanceServer::removeProperties(command);
 
     render3DEditView();
+}
+
+void Qt5InformationNodeInstanceServer::handleInstanceLocked(const ServerNodeInstance &instance,
+                                                            bool enable, bool checkAncestors)
+{
+#ifdef QUICK3D_MODULE
+    if (!isQuick3DMode())
+        return;
+
+    bool edit3dLocked = enable;
+    if (!edit3dLocked || checkAncestors) {
+        auto parentInst = instance.parent();
+        while (!edit3dLocked && parentInst.isValid()) {
+            edit3dLocked = parentInst.internalInstance()->isLockedInEditor();
+            parentInst = parentInst.parent();
+        }
+    }
+
+    QObject *obj = instance.internalObject();
+    auto node = qobject_cast<QQuick3DNode *>(obj);
+    if (node)
+        node->setProperty("_edit3dLocked", edit3dLocked);
+    const auto children = obj->children();
+    for (auto child : children) {
+        if (hasInstanceForObject(child)) {
+            const ServerNodeInstance childInstance = instanceForObject(child);
+            if (childInstance.isValid()) {
+                auto objInstance = childInstance.internalInstance();
+                // Don't override explicit lock on children
+                handleInstanceLocked(childInstance, edit3dLocked || objInstance->isLockedInEditor(), false);
+            }
+        }
+    }
+#endif
+}
+
+void Qt5InformationNodeInstanceServer::handleInstanceHidden(const ServerNodeInstance &instance,
+                                                            bool enable, bool checkAncestors)
+{
+#ifdef QUICK3D_MODULE
+    if (!isQuick3DMode())
+        return;
+
+    bool edit3dHidden = enable;
+    if (!edit3dHidden || checkAncestors) {
+        // We do not care about hidden status of non-3D ancestor nodes, as the 3D scene
+        // can be considered a separate visual entity in the whole scene.
+        auto parentInst = instance.parent();
+        while (!edit3dHidden && parentInst.isValid() && qobject_cast<QQuick3DNode *>(parentInst.internalObject())) {
+            edit3dHidden = parentInst.internalInstance()->isHiddenInEditor();
+            parentInst = parentInst.parent();
+        }
+    }
+
+    auto node = qobject_cast<QQuick3DNode *>(instance.internalObject());
+    if (node) {
+        bool isInstanceHidden = false;
+        auto getQuick3DInstanceAndHidden = [this, &isInstanceHidden](QQuick3DObject *obj) -> ServerNodeInstance {
+            if (hasInstanceForObject(obj)) {
+                const ServerNodeInstance instance = instanceForObject(obj);
+                if (instance.isValid() && qobject_cast<QQuick3DNode *>(instance.internalObject())) {
+                    auto objInstance = instance.internalInstance();
+                    isInstanceHidden = objInstance->isHiddenInEditor();
+                    return instance;
+                }
+            }
+            return {};
+        };
+        // Always make sure the hide status is correct on the node tree from this point on,
+        // as changes in the node tree (reparenting, adding new nodes) can make the previously set
+        // hide status based on ancestor unreliable.
+        node->setProperty("_edit3dHidden", edit3dHidden);
+        if (auto model = qobject_cast<QQuick3DModel *>(node))
+            model->setPickable(!edit3dHidden); // allow 3D objects to receive mouse clicks
+        const auto childItems = node->childItems();
+        for (auto childItem : childItems) {
+            const ServerNodeInstance quick3dInstance = getQuick3DInstanceAndHidden(childItem);
+            if (quick3dInstance.isValid()) {
+                // Don't override explicit hide in children
+                handleInstanceHidden(quick3dInstance, edit3dHidden || isInstanceHidden, false);
+            } else {
+                // Children of components do not have instances, but will still need to be pickable
+                std::function<void(QQuick3DNode *)> checkChildren;
+                checkChildren = [&](QQuick3DNode *checkNode) {
+                    const auto childItems = checkNode->childItems();
+                    for (auto child : childItems) {
+                        if (auto childNode = qobject_cast<QQuick3DNode *>(child))
+                            checkChildren(childNode);
+                    }
+                    if (auto checkModel = qobject_cast<QQuick3DModel *>(checkNode)) {
+                        QVariant value;
+                        if (!edit3dHidden)
+                            value = QVariant::fromValue(node);
+                        // Specify the actual pick target with dynamic property
+                        checkModel->setProperty("_pickTarget", value);
+                        checkModel->setPickable(!edit3dHidden);
+                    }
+                };
+                if (auto childNode = qobject_cast<QQuick3DNode *>(childItem))
+                    checkChildren(childNode);
+            }
+        }
+    }
+#endif
 }
 
 // update 3D view size when it changes in creator side

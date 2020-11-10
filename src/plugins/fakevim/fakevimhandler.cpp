@@ -1189,7 +1189,7 @@ public:
             return '\n';
         if (m_key == Key_Escape)
             return QChar(27);
-        return m_xkey;
+        return QChar(m_xkey);
     }
 
     QString toString() const
@@ -4353,10 +4353,15 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if (input.is('C')) {
         handleAs("%1c$");
     } else if (input.isControl('c')) {
-        if (isNoVisualMode())
-            showMessage(MessageInfo, Tr::tr("Type Alt-V, Alt-V to quit FakeVim mode."));
-        else
+        if (isNoVisualMode()) {
+#if defined(Q_OS_MACOS)
+            showMessage(MessageInfo, Tr::tr("Type Meta-Shift-Y, Meta-Shift-Y to quit FakeVim mode."));
+#else
+            showMessage(MessageInfo, Tr::tr("Type Alt-Y, Alt-Y to quit FakeVim mode."));
+#endif
+        } else {
             leaveVisualMode();
+        }
     } else if ((input.is('d') || input.is('x') || input.isKey(Key_Delete))
             && isVisualMode()) {
         cutSelectedText();
@@ -5302,6 +5307,8 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
     } else if (input.isBackspace()) {
         if (g.searchBuffer.isEmpty())
             leaveCurrentMode();
+        else if (g.searchBuffer.hasSelection())
+            g.searchBuffer.deleteSelected();
         else
             g.searchBuffer.deleteChar();
     } else if (input.isReturn()) {
@@ -8717,8 +8724,7 @@ void FakeVimHandler::disconnectFromEditor()
 
 void FakeVimHandler::updateGlobalMarksFilenames(const QString &oldFileName, const QString &newFileName)
 {
-    for (int i = 0; i < Private::g.marks.size(); ++i) {
-        Mark &mark = Private::g.marks[i];
+    for (Mark &mark : Private::g.marks) {
         if (mark.fileName() == oldFileName)
             mark.setFileName(newFileName);
     }

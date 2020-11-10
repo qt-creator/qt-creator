@@ -131,6 +131,18 @@ void BaseAspect::addToLayout(LayoutBuilder &)
 {
 }
 
+void BaseAspect::saveToMap(QVariantMap &data, const QVariant &value,
+                           const QVariant &defaultValue, const QString &keyExtension) const
+{
+    if (settingsKey().isEmpty())
+        return;
+    const QString key = settingsKey() + keyExtension;
+    if (value == defaultValue)
+        data.remove(key);
+    else
+        data.insert(key, value);
+}
+
 /*!
     Retrieves the internal value of this BaseAspect from a \c QVariantMap.
 
@@ -174,7 +186,7 @@ BaseAspects::BaseAspects() = default;
 */
 BaseAspects::~BaseAspects()
 {
-    qDeleteAll(base());
+    qDeleteAll(m_aspects);
 }
 
 /*!
@@ -184,7 +196,7 @@ BaseAspects::~BaseAspects()
 */
 BaseAspect *BaseAspects::aspect(Utils::Id id) const
 {
-    return Utils::findOrDefault(base(), Utils::equal(&BaseAspect::id, id));
+    return Utils::findOrDefault(m_aspects, Utils::equal(&BaseAspect::id, id));
 }
 
 /*!
@@ -192,7 +204,7 @@ BaseAspect *BaseAspects::aspect(Utils::Id id) const
 */
 void BaseAspects::fromMap(const QVariantMap &map) const
 {
-    for (BaseAspect *aspect : *this)
+    for (BaseAspect *aspect : m_aspects)
         aspect->fromMap(map);
 }
 
@@ -201,7 +213,7 @@ void BaseAspects::fromMap(const QVariantMap &map) const
 */
 void BaseAspects::toMap(QVariantMap &map) const
 {
-    for (BaseAspect *aspect : *this)
+    for (BaseAspect *aspect : m_aspects)
         aspect->toMap(map);
 }
 
@@ -266,6 +278,7 @@ public:
     FilePath m_baseFileName;
     StringAspect::ValueAcceptor m_valueAcceptor;
     FancyLineEdit::ValidationFunction m_validator;
+    std::function<void()> m_openTerminal;
 
     bool m_readOnly = false;
     bool m_undoRedoEnabled = false;
@@ -437,8 +450,7 @@ void StringAspect::fromMap(const QVariantMap &map)
 */
 void StringAspect::toMap(QVariantMap &map) const
 {
-    if (!settingsKey().isEmpty())
-        map.insert(settingsKey(), d->m_value);
+    saveToMap(map, d->m_value, QString());
     if (d->m_checker)
         d->m_checker->toMap(map);
 }
@@ -664,6 +676,13 @@ void StringAspect::setValidationFunction(const FancyLineEdit::ValidationFunction
         d->m_lineEditDisplay->setValidationFunction(d->m_validator);
 }
 
+void StringAspect::setOpenTerminalHandler(const std::function<void ()> &openTerminal)
+{
+    d->m_openTerminal = openTerminal;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setOpenTerminalHandler(openTerminal);
+}
+
 void StringAspect::validateInput()
 {
     if (d->m_pathChooserDisplay)
@@ -718,6 +737,7 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
                 this, &StringAspect::setValue);
         builder.addItem(d->m_pathChooserDisplay.data());
         d->m_pathChooserDisplay->setFileDialogOnly(d->m_fileDialogOnly);
+        d->m_pathChooserDisplay->setOpenTerminalHandler(d->m_openTerminal);
         break;
     case LineEditDisplay:
         d->m_lineEditDisplay = new FancyLineEdit;
@@ -899,7 +919,7 @@ void BoolAspect::fromMap(const QVariantMap &map)
 */
 void BoolAspect::toMap(QVariantMap &data) const
 {
-    data.insert(settingsKey(), d->m_value);
+    saveToMap(data, d->m_value, d->m_defaultValue);
 }
 
 bool BoolAspect::defaultValue() const
@@ -1025,7 +1045,7 @@ void SelectionAspect::fromMap(const QVariantMap &map)
 */
 void SelectionAspect::toMap(QVariantMap &data) const
 {
-    data.insert(settingsKey(), d->m_value);
+    saveToMap(data, d->m_value, d->m_defaultValue);
 }
 
 void SelectionAspect::setVisibleDynamic(bool visible)
@@ -1150,10 +1170,7 @@ void IntegerAspect::fromMap(const QVariantMap &map)
 */
 void IntegerAspect::toMap(QVariantMap &data) const
 {
-    if (d->m_value != d->m_defaultValue)
-        data.insert(settingsKey(), d->m_value);
-    else
-        data.remove(settingsKey());
+    saveToMap(data, d->m_value, d->m_defaultValue);
 }
 
 qint64 IntegerAspect::value() const
@@ -1301,7 +1318,7 @@ void StringListAspect::fromMap(const QVariantMap &map)
 */
 void StringListAspect::toMap(QVariantMap &data) const
 {
-    data.insert(settingsKey(), d->m_value);
+    saveToMap(data, d->m_value, QStringList());
 }
 
 QStringList StringListAspect::value() const

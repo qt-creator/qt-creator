@@ -303,7 +303,7 @@ void pathComplete(const AssistInterface *interface, QList<AssistProposalItemInte
 
     // For pragmatic reasons, we don't support spaces in file names here.
     static const auto canOccurInFilePath = [](const QChar &c) {
-        return c.isLetterOrNumber() || c == '.' || c == '/' || c == "_" || c == '-';
+        return c.isLetterOrNumber() || c == '.' || c == '/' || c == '_' || c == '-';
     };
 
     int pos = interface->position();

@@ -258,20 +258,167 @@
     Android manifest file unless you need to specify Android specific settings
     like the application's icon. Also, the manifest file is needed if you want
     to publish the package in the Play Store.
-    If you use qmake as the build system, you can create an Android manifest
-    file and edit it in \QC. Select
-    \uicontrol Projects > \uicontrol Build > \uicontrol {Build Android APK}
-    > \uicontrol {Create Templates} to create the file and to open it in the
-    Android Manifest Editor.
 
-    \image qtcreator-android-manifest-editor.png "Android Manifest Editor"
+    \section2 Package Names
+
+    Android application packages are usually named by using a hierarchical
+    pattern with the levels in the hierarchy separated by periods (.). In
+    general, a package name begins with the top level domain name of the
+    organization followed by the organization's domain name and any subdomain
+    names listed in reverse order. The organization can then choose a specific
+    name for their package. Package names should be written in all lowercase
+    characters whenever possible. For example, \c {org.qtproject.example}.
+
+    Complete conventions for disambiguating package names and rules for naming
+    packages when the Internet domain name cannot be directly used as a package
+    name are described in section 7.7 of the Java Language Specification.
+
+    For more information about package names, see
+    \l{Android Application Fundamentals}.
+
+    \section2 Styling
+
+    Qt uses different methods to determine how Qt Widgets and Qt Quick Controls
+    should be styled:
+
+    \list
+        \li Select \uicontrol Default or \uicontrol Full when using
+            Qt Widgets or Qt Quick Controls 1 in your project.
+
+            \note This method uses some Android non-SDK interfaces,
+                  that are being restricted by Google starting from Android 9.0
+                  (API 28).
+        \li Select \uicontrol Minimal when using Qt Quick Controls 2
+            but no Qt Widgets or Qt Quick Controls 1. This is faster than
+            using the default or full options.
+        \li Select \uicontrol None when using neither Qt Widgets
+            nor Qt Quick Controls 1 or 2.
+    \endlist
+
+    \section2 Screen Orientation
+
+    You can specify different options for determining screen orientation,
+    depending on sensor readings or user preferences. The following table
+    lists the options available.
+
+    \table
+        \header
+            \li Orientation
+            \li Description
+        \row
+            \li Unspecified
+            \li The system chooses the orientation. The policy it uses, and
+                therefore the choices made in specific contexts, may differ
+                from device to device.
+        \row
+            \li Behind
+            \li Use the same orientation as the activity that's immediately
+                beneath it in the activity stack.
+        \row
+            \li Landscape
+            \li Landscape orientation, where the display width is larger than
+                its height.
+        \row
+            \li Portrait
+            \li Portrait orientation, where the display height is larger than
+                its width.
+        \row
+            \li Reverse landscape
+            \li Landscape orientation in the opposite direction of normal
+                landscape.
+        \row
+            \li Reverse portrait
+            \li Portrait orientation in the opposite direction of normal
+                portrait.
+        \row
+            \li Sensor landscape
+            \li Landscape orientation, but it can be either normal or reverse
+                landscape based on the device sensor. The sensor is used even
+                if the user has locked sensor-based rotation.
+        \row
+            \li Sensor portrait
+            \li Portrait orientation, but it can be either normal or reverse
+                portrait based on the device sensor. The sensor is used even
+                if the user has locked sensor-based rotation.
+        \row
+            \li User landscape
+            \li Landscape orientation, but it can be either normal or reverse
+                landscape based on the device sensor and the user's preference.
+        \row
+            \li User portrait
+            \li Portrait orientation, but it can be either normal or reverse
+                portrait based on the device sensor and the user's preference.
+        \row
+            \li Sensor
+            \li The orientation is determined by the device orientation sensor.
+                The orientation of the display depends on how the user is
+                holding the device. It changes when the user rotates the device.
+                Some devices, however, will not rotate to all four possible
+                orientations by default. To allow all four orientations, select
+                the full sensor option. The sensor is used even if the user
+                locked sensor-based rotation.
+        \row
+            \li Full sensor
+            \li The orientation is determined by the device orientation sensor
+                for any of the four orientations. This is similar to the sensor
+                option, except that it allows any of the four possible screen
+                orientations, regardless of what the device will normally do.
+                For example, some devices won't normally use reverse portrait
+                or reverse landscape, but this option enables them.
+        \row
+            \li No sensor
+            \li The orientation is determined without reference to a physical
+                orientation sensor. The sensor is ignored, so the display will
+                not rotate based on how the user moves the device.
+        \row
+            \li User
+            \li The user's current preferred orientation.
+        \row
+            \li Full user
+            \li If the user has locked sensor-based rotation, this option
+                behaves in the same way as the user option. Otherwise, it
+                behaves the same as the full sensor option, and allows any
+                of the four possible screen orientations.
+        \row
+            \li Locked
+            \li Locks the orientation to its current rotation, whatever that is.
+    \endtable
+
+    \section2 Supported Resolutions
+
+    You can set different images to be shown as application icons and splash
+    screens on low, medium, high, and extra high DPI displays. The following
+    list summarizes the DPI values typically associated with each category:
+
+    \list
+        \li Low-density (LDPI): ~120dpi
+        \li Medium-density (MDPI): ~160dpi
+        \li High-density (HDPI): ~240dpi
+        \li Extra-high-density (XHDPI): ~320dpi
+        \li Extra-extra-high-density (XXHDPI): ~480dpi
+        \li Extra-extra-extra-high-density (XXXHDPI): ~640dpi
+    \endlist
+
+    \section2 Android Manifest Editor
+
+    If you use qmake as the build system, you can create an Android manifest
+    file and edit it in \QC.
+
+    To create an Android manifest file and to open it in the Android Manifest
+    Editor:
 
     \list 1
 
-    \li In the \uicontrol {Package name} field, enter a package name for the application.
-    The application is launched by an automatically generated Java launcher that
-    is packaged with the application into an Android package (.apk). For more
-    information, see \l{Android Application Fundamentals}.
+    \li Select \uicontrol Projects > \uicontrol Build >
+        \uicontrol {Build Android APK} > \uicontrol {Create Templates}.
+
+    \li In the \uicontrol {Package name} field, enter a valid
+        \l{Package Names}{package name} for the application.
+        For example, \c {org.example.myapplication}.
+        The application is launched by an automatically generated Java launcher
+        that is packaged with the application into an Android package (.apk).
+
+        \image qtcreator-android-manifest-editor-package.png "Package info in Android Manifest Editor"
 
     \li You can specify an internal version number for the package in the
     \uicontrol {Version code} field. It is used to determine whether one version of
@@ -294,40 +441,37 @@
         You can also give an activity a name and select the activity to run.
 
     \li In the \uicontrol {Style extraction} field, set the method that Qt
-        uses to extract style information:
-        \list
-            \li Select \uicontrol Default or \uicontrol Full when using
-                Qt Widgets or Qt Quick Controls 1 in your project.
+        uses to \l{Styling}{determine which UI style to use}.
 
-                \note This method uses some Android non-SDK interfaces,
-                      that are being restricted by Google starting from Android 9.0
-                      (API 28).
-            \li Select \uicontrol Minimal when using Qt Quick Controls 2
-                but no Qt Widgets or Qt Quick Controls 1. This is faster than
-                using the default or full options.
-            \li Select \uicontrol None when using neither Qt Widgets
-                nor Qt Quick Controls 1 or 2.
-        \endlist
+    \li In the \uicontrol {Screen orientation} field, select the option for
+        determining \l{Screen Orientation}{screen orientation}.
 
-    \li In \uicontrol {Application icon}, select an icon. Click the
-    \uicontrol {Master icon} button to select an icon with the highest resolution,
-    then, it will resize and set the three icon fields for low, medium, and high DPI icons
-    as needed.
+    \li In \uicontrol {Application icon}, select an image with the highest
+        \l{Supported Resolutions}{resolution} as the \uicontrol {Master icon}.
+        \QC resizes the icon and sets versions of it to be shown on low,
+        medium, high, and extra high DPI displays, as needed. Alternatively,
+        set the icons for each resolution separately.
+
+        \image qtcreator-android-manifest-editor-app-icon.png "Application icons in Android Manifest Editor"
 
     \li In \uicontrol {Splash screen}, select images to display as splash
     screens depending on the device orientation. You can set different images
-    to be shown on low, medium, and high DPI displays. By default, the splash
-    screen is hidden automatically when an activity is drawn. To keep it
-    visible until \l{QtAndroid::hideSplashScreen()} is called, select the
+    to be shown on low, medium, high, and extra high DPI displays. By default,
+    the splash screen is hidden automatically when an activity is drawn. To keep
+    it visible until \l{QtAndroid::hideSplashScreen()} is called, select the
     \uicontrol {Sticky splash screen} check box.
 
-    \li In \uicontrol {Android services}, you can add and remove services. You must
-    enter at least a service class name for a new service. If you select
+    \image qtcreator-android-manifest-editor-splash-screen.png "Splash screens in Android Manifest Editor"
+
+    \li In \uicontrol {Android services}, select \uicontrol Add to add a service.
+    You must enter at least a service class name for a new service. If you select
     \uicontrol {Run in external process}, you also need to enter a process name.
     If you select \uicontrol {Run in external library}, you need to enter a library name.
     Service arguments are mandatory for a service that is not run in an external
     library. For more information about writing service code and structure of services,
     see \l{Android Services}.
+
+    \image qtcreator-android-manifest-editor-services.png "Android services in Android Manifest Editor"
 
     \li In the \uicontrol Permissions field, you can specify the permissions that your
     application needs. Starting from Android 6.0 (API 23), permissions have to be
@@ -335,6 +479,8 @@
     \l{QtAndroid::requestPermissions()}). For lower Android API levels,
     users are asked to grant the permissions when they install the application.
     Android OS then grants the application access to the appropriate data and features.
+
+    \image qtcreator-android-manifest-editor-permissions.png "Permissions in Android Manifest Editor"
 
     \li Select the \uicontrol {Include default permissions for Qt modules} and
     \uicontrol {Include default features for Qt modules} check boxes to add the
