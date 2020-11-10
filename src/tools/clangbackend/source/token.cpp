@@ -96,13 +96,17 @@ std::vector<Cursor> Tokens::annotate() const
     // The alias declaration "using S = struct {}" results in libclang reporting the type
     // of the surrounding scope (e.g. a namespace or class) for the cursor corresponding to
     // the token "S" (QTCREATORBUG-24875). We need to correct this manually.
+    // The same goes for function attributes like "[[deprecated]]".
     // TODO: Investigate whether we can fix this in libclang itself.
     for (int i = 1; i < int(m_tokens.size()) - 2; ++i) {
         const Token &tok = m_tokens.at(i);
+        if (tok.kind() != CXToken_Identifier)
+            continue;
         const Token &prevTok = m_tokens.at(i - 1);
         const Token &nextTok = m_tokens.at(i + 1);
-        if (tok.kind() == CXToken_Identifier
-                && prevTok.kind() == CXToken_Keyword
+
+        // QTCREATORBUG-24875
+        if (prevTok.kind() == CXToken_Keyword
                 && prevTok.spelling() == "using"
                 && nextTok.spelling() == "="
                 && cxCursors.at(i).kind != CXCursor_TypeAliasDecl) {
@@ -118,6 +122,27 @@ std::vector<Cursor> Tokens::annotate() const
                                                  m_cxTranslationUnit, *m_tokens.at(i + 2).cx()));
             }
             cxCursors[i] = nextCursor;
+            continue;
+        }
+
+        // QTCREATORBUG-24636, QTCREATORBUG-24650
+        if (i >= 2 && i < int(m_tokens.size()) - 3) {
+            const Token &prevPrevTok = m_tokens.at(i - 2);
+            const Token &nextNextTok = m_tokens.at(i + 2);
+            if (prevTok.kind() == CXToken_Punctuation && prevTok.spelling() == "["
+                    && prevPrevTok.kind() == CXToken_Punctuation && prevPrevTok.spelling() == "["
+                    && nextTok.kind() == CXToken_Punctuation && nextTok.spelling() == "]"
+                    && nextNextTok.kind() == CXToken_Punctuation && nextNextTok.spelling() == "]") {
+                for (int j = i + 3; j < int(m_tokens.size()); ++j) {
+                    if (cxCursors[j] == cxCursors[j - 1])
+                        continue;
+                    if (cxCursors[j].kind == CXCursor_FunctionDecl
+                            || cxCursors[j].kind == CXCursor_ParmDecl) {
+                        cxCursors[i] = clang_getNullCursor();
+                    }
+                    break;
+                }
+            }
         }
     }
 
