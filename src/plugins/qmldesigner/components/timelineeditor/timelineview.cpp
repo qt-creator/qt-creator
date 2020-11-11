@@ -44,6 +44,7 @@
 #include <rewritertransaction.h>
 #include <variantproperty.h>
 #include <viewmanager.h>
+#include <qmldesignerconstants.h>
 #include <qmldesignericons.h>
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
@@ -303,6 +304,8 @@ const QmlTimeline TimelineView::addNewTimeline()
     const TypeName timelineType = "QtQuick.Timeline.Timeline";
 
     QTC_ASSERT(isAttached(), return QmlTimeline());
+
+    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TIMELINE_ADDED);
 
     try {
         ensureQtQuickTimelineImport();

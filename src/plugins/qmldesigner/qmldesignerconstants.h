@@ -77,6 +77,13 @@ const char M_VIEW_WORKSPACES[] = "QmlDesigner.Menu.View.Workspaces";
 
 const int MODELNODE_PREVIEW_IMAGE_DIMENSIONS = 150;
 
+const char EVENT_TIMELINE_ADDED[] = "Timeline Added";
+const char EVENT_TRANSITION_ADDED[] = "Transition Added";
+const char EVENT_STATE_ADDED[] = "State Added";
+const char EVENT_ANNOTATION_ADDED[] = "Annotation Added";
+const char EVENT_RESOURCE_IMPORTED[] = "Resource Imported ";
+const char EVENT_ACTION_EXECUTED[] = "Action Executed ";
+
 namespace Internal {
     enum { debug = 0 };
 }

@@ -343,7 +343,7 @@ public:
                 parentNode = selectionContext().currentSingleSelectedNode().parentProperty().parentModelNode();
 
                 if (!ModelNode::isThisOrAncestorLocked(parentNode)) {
-                    ActionTemplate *selectionAction = new ActionTemplate(QString(), &ModelNodeOperations::select);
+                    ActionTemplate *selectionAction = new ActionTemplate("SELECTION", {}, &ModelNodeOperations::select);
                     selectionAction->setParent(menu());
                     selectionAction->setText(QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select parent: %1")).arg(
                                                  captionForModelNode(parentNode)));
@@ -363,7 +363,7 @@ public:
                         && !ModelNode::isThisOrAncestorLocked(node)) {
                     selectionContext().setTargetNode(node);
                     QString what = QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select: %1")).arg(captionForModelNode(node));
-                    ActionTemplate *selectionAction = new ActionTemplate(what, &ModelNodeOperations::select);
+                    ActionTemplate *selectionAction = new ActionTemplate("SELECT", what, &ModelNodeOperations::select);
 
                     SelectionContext nodeSelectionContext = selectionContext();
                     nodeSelectionContext.setTargetNode(node);
@@ -546,7 +546,7 @@ public:
             for (const QmlFlowItemNode &node : QmlFlowViewNode(selectionContext().rootNode()).flowItems()) {
                 if (node != selectionContext().currentSingleSelectedNode().parentProperty().parentModelNode()) {
                     QString what = QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Connect: %1")).arg(captionForModelNode(node));
-                    ActionTemplate *connectionAction = new ActionTemplate(what, &ModelNodeOperations::addTransition);
+                    ActionTemplate *connectionAction = new ActionTemplate("CONNECT", what, &ModelNodeOperations::addTransition);
 
                     SelectionContext nodeSelectionContext = selectionContext();
                     nodeSelectionContext.setTargetNode(node);

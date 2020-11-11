@@ -29,6 +29,10 @@
 #include "annotation.h"
 
 #include "qmlmodelnodeproxy.h"
+
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
+
 #include <coreplugin/icore.h>
 
 #include <QObject>
@@ -175,6 +179,7 @@ void AnnotationEditor::removeFullAnnotation()
 void AnnotationEditor::acceptedClicked()
 {
     if (m_dialog) {
+        QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_ANNOTATION_ADDED);
         QString customId = m_dialog->customId();
         Annotation annotation = m_dialog->annotation();
 

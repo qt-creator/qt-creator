@@ -40,6 +40,8 @@
 #include <variantproperty.h>
 #include <nodelistproperty.h>
 
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
 #include <qmlstate.h>
 #include <annotationeditor/annotationeditor.h>
@@ -181,6 +183,8 @@ void StatesEditorView::addState()
     // can happen when root node is e.g. a ListModel
     if (!QmlVisualNode::isValidQmlVisualNode(rootModelNode()))
         return;
+
+    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_STATE_ADDED);
 
     QStringList modelStateNames = rootStateGroup().names();
 

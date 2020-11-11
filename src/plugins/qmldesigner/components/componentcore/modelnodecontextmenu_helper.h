@@ -29,6 +29,7 @@
 #include "abstractaction.h"
 #include "abstractactiongroup.h"
 #include "qmlitemnode.h"
+#include <qmldesignerplugin.h>
 
 #include <coreplugin/actionmanager/command.h>
 
@@ -103,17 +104,19 @@ class ActionTemplate : public DefaultAction
 {
 
 public:
-    ActionTemplate(const QString &description, SelectionContextOperation action)
-        : DefaultAction(description), m_action(action)
+    ActionTemplate(const QByteArray &id, const QString &description, SelectionContextOperation action)
+        : DefaultAction(description), m_action(action), m_id(id)
     { }
 
     void actionTriggered(bool b) override
     {
+        QmlDesignerPlugin::emitUsageStatisticsContextAction(QString::fromUtf8(m_id));
         m_selectionContext.setToggled(b);
         m_action(m_selectionContext);
     }
 
     SelectionContextOperation m_action;
+    QByteArray m_id;
 };
 
 class ActionGroup : public AbstractActionGroup
@@ -202,7 +205,7 @@ public:
             SelectionContextOperation selectionAction,
             SelectionContextPredicate enabled = &SelectionContextFunctors::always,
             SelectionContextPredicate visibility = &SelectionContextFunctors::always) :
-        AbstractAction(new ActionTemplate(description, selectionAction)),
+        AbstractAction(new ActionTemplate(id, description, selectionAction)),
         m_id(id),
         m_category(category),
         m_priority(priority),

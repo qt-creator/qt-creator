@@ -40,6 +40,7 @@
 #include <rewritertransaction.h>
 #include <variantproperty.h>
 #include <viewmanager.h>
+#include <qmldesignerconstants.h>
 #include <qmldesignericons.h>
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
@@ -202,6 +203,8 @@ ModelNode TransitionEditorView::addNewTransition()
     if (QmlVisualNode::isValidQmlVisualNode(root)) {
         states = QmlVisualNode(root).states().allStates();
     }
+
+    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TRANSITION_ADDED);
 
     if (states.isEmpty()) {
         Core::AsynchronousMessageBox::warning(tr("No States Defined"),
