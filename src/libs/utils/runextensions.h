@@ -261,7 +261,7 @@ void runAsyncQFutureInterfaceDispatch(std::true_type, QFutureInterface<ResultTyp
 template <typename ResultType, typename Function, typename... Args>
 void runAsyncQFutureInterfaceDispatch(std::false_type, QFutureInterface<ResultType> futureInterface, Function &&function, Args&&... args)
 {
-    runAsyncReturnVoidDispatch(std::is_void<std::result_of_t<Function(Args...)>>(),
+    runAsyncReturnVoidDispatch(std::is_void<std::invoke_result_t<Function, Args...>>(),
                                futureInterface, std::forward<Function>(function), std::forward<Args>(args)...);
 }
 
