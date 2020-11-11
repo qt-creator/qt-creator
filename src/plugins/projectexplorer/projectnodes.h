@@ -201,9 +201,9 @@ public:
     const FileNode *asFileNode() const final { return this; }
 
     static QList<FileNode *>
-    scanForFiles(const Utils::FilePath &directory,
-                 const std::function<FileNode *(const Utils::FilePath &fileName)> factory,
-                 QFutureInterface<QList<FileNode *>> *future = nullptr);
+    scanForFiles(QFutureInterface<QList<FileNode *>> &future,
+                 const Utils::FilePath &directory,
+                 const std::function<FileNode *(const Utils::FilePath &fileName)> factory);
     bool supportsAction(ProjectAction action, const Node *node) const override;
     QString displayName() const override;
 

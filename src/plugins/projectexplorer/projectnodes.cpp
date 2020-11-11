@@ -382,10 +382,11 @@ FileType FileNode::fileType() const
     return m_fileType;
 }
 
-static QList<FileNode *> scanForFilesRecursively(const Utils::FilePath &directory,
-                                                 const std::function<FileNode *(const Utils::FilePath &)> factory,
-                                                 QSet<QString> &visited, QFutureInterface<QList<FileNode*>> *future,
+static QList<FileNode *> scanForFilesRecursively(QFutureInterface<QList<FileNode*>> &future,
                                                  double progressStart, double progressRange,
+                                                 const Utils::FilePath &directory,
+                                                 const std::function<FileNode *(const Utils::FilePath &)> factory,
+                                                 QSet<QString> &visited,
                                                  const QList<Core::IVersionControl*> &versionControls)
 {
     QList<FileNode *> result;
@@ -403,7 +404,7 @@ static QList<FileNode *> scanForFilesRecursively(const Utils::FilePath &director
     const double progressIncrement = progressRange / static_cast<double>(entries.count());
     int lastIntProgress = 0;
     for (const QFileInfo &entry : entries) {
-        if (future && future->isCanceled())
+        if (future.isCanceled())
             return result;
 
         const Utils::FilePath entryName = Utils::FilePath::fromString(entry.absoluteFilePath());
@@ -411,33 +412,29 @@ static QList<FileNode *> scanForFilesRecursively(const Utils::FilePath &director
                              return vc->isVcsFileOrDirectory(entryName);
             })) {
             if (entry.isDir())
-                result.append(scanForFilesRecursively(entryName, factory, visited, future, progress, progressIncrement, versionControls));
+                result.append(scanForFilesRecursively(future, progress, progressIncrement, entryName, factory, visited, versionControls));
             else if (FileNode *node = factory(entryName))
                 result.append(node);
         }
-        if (future) {
-            progress += progressIncrement;
-            const int intProgress = std::min(static_cast<int>(progressStart + progress), future->progressMaximum());
-            if (lastIntProgress < intProgress) {
-                future->setProgressValue(intProgress);
-                lastIntProgress = intProgress;
-            }
+        progress += progressIncrement;
+        const int intProgress = std::min(static_cast<int>(progressStart + progress), future.progressMaximum());
+        if (lastIntProgress < intProgress) {
+            future.setProgressValue(intProgress);
+            lastIntProgress = intProgress;
         }
     }
-    if (future)
-        future->setProgressValue(std::min(static_cast<int>(progressStart + progressRange), future->progressMaximum()));
+    future.setProgressValue(std::min(static_cast<int>(progressStart + progressRange), future.progressMaximum()));
     return result;
 }
 
 QList<FileNode *>
-FileNode::scanForFiles(const Utils::FilePath &directory,
-                       const std::function<FileNode *(const Utils::FilePath &)> factory,
-                       QFutureInterface<QList<FileNode *>> *future)
+FileNode::scanForFiles(QFutureInterface<QList<FileNode *>> &future,
+                       const Utils::FilePath &directory,
+                       const std::function<FileNode *(const Utils::FilePath &)> factory)
 {
     QSet<QString> visited;
-    if (future)
-        future->setProgressRange(0, 1000000);
-    return scanForFilesRecursively(directory, factory, visited, future, 0.0, 1000000.0,
+    future.setProgressRange(0, 1000000);
+    return scanForFilesRecursively(future, 0.0, 1000000.0, directory, factory, visited,
                                    Core::VcsManager::versionControls());
 }
 
