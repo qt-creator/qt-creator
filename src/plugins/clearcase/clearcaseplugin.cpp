@@ -1059,7 +1059,7 @@ void ClearCasePluginPrivate::setStatus(const QString &file, FileStatus::Status s
     m_statusMap->insert(file, FileStatus(status, QFileInfo(file).permissions()));
 
     if (update && currentState().currentFile() == file)
-        QMetaObject::invokeMethod(this, "updateStatusActions");
+        QMetaObject::invokeMethod(this, &ClearCasePluginPrivate::updateStatusActions);
 }
 
 void ClearCasePluginPrivate::undoCheckOutCurrent()

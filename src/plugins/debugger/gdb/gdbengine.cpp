@@ -765,8 +765,7 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
         m_scheduledTestResponses.remove(token);
         showMessage(QString("FAKING TEST RESPONSE (TOKEN: %2, RESPONSE: %3)")
                     .arg(token).arg(buffer));
-        QMetaObject::invokeMethod(this, "handleResponse",
-            Q_ARG(QString, buffer));
+        QMetaObject::invokeMethod(this, [this, buffer] { handleResponse(buffer); });
     } else {
         m_gdbProc.write(cmd.function.toUtf8() + "\r\n");
         if (command.flags & NeedsFlush)

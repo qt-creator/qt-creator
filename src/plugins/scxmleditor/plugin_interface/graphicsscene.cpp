@@ -832,7 +832,8 @@ void GraphicsScene::addWarningItem(WarningItem *item)
     if (!m_allWarnings.contains(item)) {
         m_allWarnings << item;
         if (!m_autoLayoutRunning && !m_initializing)
-            QMetaObject::invokeMethod(this, "warningVisibilityChanged", Qt::QueuedConnection, Q_ARG(int, 0));
+            QMetaObject::invokeMethod(this, [this] { warningVisibilityChanged(0); },
+                                      Qt::QueuedConnection);
     }
 }
 
@@ -841,7 +842,8 @@ void GraphicsScene::removeWarningItem(WarningItem *item)
     m_allWarnings.removeAll(item);
 
     if (!m_autoLayoutRunning && !m_initializing)
-        QMetaObject::invokeMethod(this, "warningVisibilityChanged", Qt::QueuedConnection, Q_ARG(int, 0));
+        QMetaObject::invokeMethod(this, [this] { warningVisibilityChanged(0); },
+                                  Qt::QueuedConnection);
 }
 
 void GraphicsScene::warningVisibilityChanged(int type, WarningItem *item)
