@@ -1338,7 +1338,7 @@ void tst_AST::cpp11_variadic_inheritance()
 void tst_AST::cpp11_attributes()
 {
     QSharedPointer<TranslationUnit> unit(parseDeclaration(
-        "[[noreturn]] void f() {throw \"error\";}",
+        "[[noreturn]] void f([[maybe_unused]] int v) {throw \"error\";}",
         false, false, true));
     AST *ast = unit->ast();
     QVERIFY(ast != nullptr);

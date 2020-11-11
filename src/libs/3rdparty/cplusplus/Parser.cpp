@@ -2113,6 +2113,11 @@ bool Parser::parseParameterDeclarationList(ParameterDeclarationListAST *&node)
 bool Parser::parseParameterDeclaration(ParameterDeclarationAST *&node)
 {
     DEBUG_THIS_RULE();
+    if (_languageFeatures.cxx11Enabled) {
+        SpecifierListAST *attr_specifier_seq = nullptr;
+        while (parseStdAttributeSpecifier(attr_specifier_seq))
+            ;
+    }
     SpecifierListAST *decl_specifier_seq = nullptr;
     if (parseDeclSpecifierSeq(decl_specifier_seq)) {
         ParameterDeclarationAST *ast = new (_pool) ParameterDeclarationAST;
