@@ -113,7 +113,7 @@ def build_qtcreator(args, paths):
     if paths.elfutils:
         prefix_paths += [paths.elfutils]
     prefix_paths = [common.to_posix_path(fp) for fp in prefix_paths]
-    build_type = 'Debug' if args.debug else 'Release'
+    build_type = 'Debug' if args.debug else 'RelWithDebInfo'
     with_docs_str = 'OFF' if args.no_docs else 'ON'
     build_date_option = 'OFF' if args.no_build_date else 'ON'
     test_option = 'ON' if args.with_tests else 'OFF'
