@@ -1053,9 +1053,8 @@ QString BaseQtVersionPrivate::findHostBinary(HostBinaries binary) const
         if (HostOsInfo::isWindowsHost()) {
             possibleCommands << "uic.exe";
         } else {
-            possibleCommands << "uic";
-            if (q->qtVersion().majorVersion == 4)
-                possibleCommands << "uic-qt4" << "uic4";
+            const QString majorString = QString::number(q->qtVersion().majorVersion);
+            possibleCommands << ("uic-qt" + majorString) << ("uic" + majorString) << "uic";
         }
         break;
     case QScxmlc:
