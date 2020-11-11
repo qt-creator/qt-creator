@@ -114,5 +114,8 @@ else()
       ${YAML_SOURCE_DIR}/src/tag.h
       ${YAML_SOURCE_DIR}/src/token.h
     )
+    if(MSVC)
+      target_compile_options(yaml-cpp PUBLIC /wd4251 /wd4275)
+    endif()
     unset(YAML_SOURCE_DIR)
 endif()
