@@ -38,9 +38,15 @@ class DiagnosticSet;
 class Diagnostic;
 
 template<class T>
-class TokenProcessorIterator : public std::iterator<std::forward_iterator_tag, TokenInfo, uint>
+class TokenProcessorIterator
 {
 public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = TokenInfo;
+    using difference_type = int;
+    using pointer = TokenInfo *;
+    using reference = TokenInfo &;
+
     TokenProcessorIterator(std::vector<Cursor>::const_iterator cursorIterator,
                            std::vector<Token>::const_iterator tokenIterator,
                            std::vector<CXSourceRange> &currentOutputArgumentRanges)
