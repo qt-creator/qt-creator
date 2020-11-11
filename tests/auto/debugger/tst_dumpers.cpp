@@ -675,7 +675,6 @@ struct Check5 : Check
     Check5(const QByteArray &iname, const Name &name, const Value &value, const Type &type)
         : Check(QString::fromUtf8(iname), name, value, type)
     { qtVersionForCheck = Qt5; }
-
 };
 
 struct Check6 : Check
@@ -687,8 +686,30 @@ struct Check6 : Check
     Check6(const QByteArray &iname, const Name &name, const Value &value, const Type &type)
         : Check(QString::fromUtf8(iname), name, value, type)
     { qtVersionForCheck = Qt6; }
-
 };
+
+// To brush over uses of 'key'/'value' vs 'first'/'second' in inames
+struct CheckPairish : Check
+{
+    using Check::Check;
+};
+
+
+QDebug operator<<(QDebug os, const QtVersion &version)
+{
+    return os << Qt::hex << version.min << '-' << Qt::hex << version.max;
+}
+
+QDebug operator<<(QDebug os, const Check &check)
+{
+    return os
+        << check.iname
+        << check.expectedName.name
+        << check.expectedValue.value
+        << check.expectedType.type
+        << check.qtVersionForCheck;
+}
+
 struct Profile
 {
     Profile(const QByteArray &contents) : contents(contents + '\n') {}
@@ -776,6 +797,23 @@ public:
     const Data &operator+(const Check &check) const
     {
         checks.append(check);
+        return *this;
+    }
+
+    const Data &operator+(const CheckPairish &check) const
+    {
+        Check check5 = check;
+        check5.qtVersionForCheck = QtVersion(0, 0x5ffff);
+        checks.append(check5);
+
+        Check check6 = check;
+        check6.qtVersionForCheck = QtVersion(0x60000, 0x6ffff);
+        check6.iname.replace("key", "first");
+        check6.iname.replace("value", "second");
+        check6.expectedName.name.replace("key", "first");
+        check6.expectedName.name.replace("value", "second");
+        checks.append(check6);
+
         return *this;
     }
 
@@ -1900,7 +1938,7 @@ void tst_Dumpers::dumper()
     auto test = [&](const Check &check, bool *removeIt, bool single) {
         if (!check.matches(m_debuggerEngine, m_debuggerVersion, context)) {
             if (single)
-                qDebug() << "SKIPPING NON-MATCHING TEST FOR " << check.iname;
+                qDebug() << "SKIPPING NON-MATCHING TEST " << check;
             return true; // we have not failed
         }
 
@@ -1983,9 +2021,9 @@ void tst_Dumpers::dumper()
         qDebug() << "SOME TESTS NOT EXECUTED: ";
         for (const Check &check : qAsConst(data.checks)) {
             if (check.optionallyPresent) {
-                qDebug() << "  OPTIONAL TEST NOT FOUND FOR INAME: " << check.iname << " IGNORED.";
+                qDebug() << "  OPTIONAL TEST NOT FOUND: " << check << " IGNORED.";
             } else {
-                qDebug() << "  COMPULSORY TEST NOT FOUND FOR INAME: " << check.iname;
+                qDebug() << "  COMPULSORY TEST NOT FOUND: " << check;
                 ok = false;
             }
         }
@@ -2767,22 +2805,22 @@ void tst_Dumpers::dumper_data()
            << Data("#include <QMap>\n"
                    "#include <QObject>\n"
                    "#include <QPointer>\n"
-                   "#include <QStringList>\n" + fooData + nsData,
+                   "#include <QList>\n" + fooData + nsData,
 
-                   "QMap<uint, QStringList> m0;\n"
+                   "QMap<uint, QList<QString>> m0;\n"
 
-                   "QMap<uint, QStringList> m1;\n"
-                   "m1[11] = QStringList() << \"11\";\n"
-                   "m1[22] = QStringList() << \"22\";\n\n"
+                   "QMap<uint, QList<QString>> m1;\n"
+                   "m1[11] = QList<QString>() << \"11\";\n"
+                   "m1[22] = QList<QString>() << \"22\";\n\n"
 
                    "QMap<uint, float> m2;\n"
                    "m2[11] = 31.0;\n"
                    "m2[22] = 32.0;\n\n"
 
-                   "typedef QMap<uint, QStringList> T;\n"
+                   "typedef QMap<uint, QList<QString>> T;\n"
                    "T m3;\n"
-                   "m3[11] = QStringList() << \"11\";\n"
-                   "m3[22] = QStringList() << \"22\";\n\n"
+                   "m3[11] = QList<QString>() << \"11\";\n"
+                   "m3[22] = QList<QString>() << \"22\";\n\n"
 
                    "QMap<QString, float> m4;\n"
                    "m4[\"22.0\"] = 22.0;\n\n"
@@ -2814,59 +2852,60 @@ void tst_Dumpers::dumper_data()
 
               + CoreProfile()
 
-              + Check("m0", "<0 items>", "@QMap<unsigned int, @QStringList>")
+              + Check("m0", "<0 items>", "@QMap<unsigned int, @QList<QString>>")
 
-              + Check("m1", "<2 items>", "@QMap<unsigned int, @QStringList>")
-              + Check("m1.0.key", "11", "unsigned int")
-              + Check("m1.0.value", "<1 items>", "@QStringList")
-              + Check("m1.0.value.0", "[0]", "\"11\"", "@QString")
-              + Check("m1.1.key", "22", "unsigned int")
-              + Check("m1.1.value", "<1 items>", "@QStringList")
-              + Check("m1.1.value.0", "[0]", "\"22\"", "@QString")
+              + Check("m1", "<2 items>", "@QMap<unsigned int, @QList<QString>>")
+              + CheckPairish("m1.0.key", "11", "unsigned int")
+              + CheckPairish("m1.0.value", "<1 items>", "@QList<QString>")
+              + CheckPairish("m1.0.value.0", "[0]", "\"11\"", "@QString")
+              + CheckPairish("m1.1.key", "22", "unsigned int")
+              + CheckPairish("m1.1.value", "<1 items>", "@QList<QString>")
+              + CheckPairish("m1.1.value.0", "[0]", "\"22\"", "@QString")
 
               + Check("m2", "<2 items>", "@QMap<unsigned int, float>")
               + Check("m2.0", "[0] 11", FloatValue("31.0"), "")
               + Check("m2.1", "[1] 22", FloatValue("32.0"), "")
 
-              + Check("m3", "<2 items>", TypeDef("@QMap<unsigned int,@QStringList>", "T"))
+              + Check("m3", "<2 items>", TypeDef("@QMap<unsigned int,@QList<QString>>", "T"))
 
               + Check("m4", "<1 items>", "@QMap<@QString, float>")
-              + Check("m4.0.key", "\"22.0\"", "@QString")
-              + Check("m4.0.value", FloatValue("22"), "float")
+              + CheckPairish("m4.0.key", "\"22.0\"", "@QString")
+              + CheckPairish("m4.0.value", FloatValue("22"), "float")
 
               + Check("m5", "<1 items>", "@QMap<int, @QString>")
-              + Check("m5.0.key", "22", "int")
-              + Check("m5.0.value", "\"22.0\"", "@QString")
+              + CheckPairish("m5.0.key", "22", "int")
+              + CheckPairish("m5.0.value", "\"22.0\"", "@QString")
 
               + Check("m6", "<2 items>", "@QMap<@QString, Foo>")
-              + Check("m6.0.key", "\"22.0\"", "@QString")
-              + Check("m6.0.value", "", "Foo")
-              + Check("m6.0.value.a", "22", "int")
-              + Check("m6.1.key", "\"33.0\"", "@QString")
-              + Check("m6.1.value", "", "Foo")
-              + Check("m6.1.value.a", "33", "int")
+              + CheckPairish("m6.0.key", "\"22.0\"", "@QString")
+              + CheckPairish("m6.0.value", "", "Foo")
+              + CheckPairish("m6.0.value.a", "22", "int")
+              + CheckPairish("m6.1.key", "\"33.0\"", "@QString")
+              + CheckPairish("m6.1.value", "", "Foo")
+              + CheckPairish("m6.1.value.a", "33", "int")
 
               + Check("m7", "<3 items>", "@QMap<@QString, @QPointer<@QObject>>")
-              + Check("m7.0.key", "\".\"", "@QString")
-              + Check("m7.0.value", "", "@QPointer<@QObject>")
+              + CheckPairish("m7.0.key", "\".\"", "@QString")
+              + CheckPairish("m7.0.value", "", "@QPointer<@QObject>")
               //+ Check("m7.0.value.o", Pointer(), "@QObject")
               // FIXME: it's '.wp' in Qt 5
-              + Check("m7.1.key", "\"Hallo\"", "@QString")
-              + Check("m7.2.key", "\"Welt\"", "@QString")
+              + CheckPairish("m7.1.key", "\"Hallo\"", "@QString")
+              + CheckPairish("m7.2.key", "\"Welt\"", "@QString")
 
               + Check("m8", "<4 items>", "@QMap<@QString, @QList<nsA::nsB::SomeType*>>")
-              + Check("m8.0.key", "\"1\"", "@QString")
-              + Check("m8.0.value", "<3 items>", "@QList<nsA::nsB::SomeType*>")
-              + Check("m8.0.value.0", "[0]", "", "nsA::nsB::SomeType")
-              + Check("m8.0.value.0.a", "1", "int")
-              + Check("m8.0.value.1", "[1]", "", "nsA::nsB::SomeType")
-              + Check("m8.0.value.1.a", "2", "int")
-              + Check("m8.0.value.2", "[2]", "", "nsA::nsB::SomeType")
-              + Check("m8.0.value.2.a", "3", "int")
-              + Check("m8.3.key", "\"foo\"", "@QString")
-              + Check("m8.3.value", "<3 items>", "@QList<nsA::nsB::SomeType*>")
-              + Check("m8.3.value.2", "[2]", "", "nsA::nsB::SomeType")
-              + Check("m8.3.value.2.a", "3", "int")
+              + CheckPairish("m8.0.key", "\"1\"", "@QString")
+              + CheckPairish("m8.0.value", "<3 items>", "@QList<nsA::nsB::SomeType*>")
+              + CheckPairish("m8.0.value.0", "[0]", "", "nsA::nsB::SomeType")
+              + CheckPairish("m8.0.value.0.a", "1", "int")
+              + CheckPairish("m8.0.value.1", "[1]", "", "nsA::nsB::SomeType")
+              + CheckPairish("m8.0.value.1.a", "2", "int")
+              + CheckPairish("m8.0.value.2", "[2]", "", "nsA::nsB::SomeType")
+              + CheckPairish("m8.0.value.2.a", "3", "int")
+              + CheckPairish("m8.3.key", "\"foo\"", "@QString")
+              + CheckPairish("m8.3.value", "<3 items>", "@QList<nsA::nsB::SomeType*>")
+              + CheckPairish("m8.3.value.2", "[2]", "", "nsA::nsB::SomeType")
+              + CheckPairish("m8.3.value.2.a", "3", "int")
+
               + Check("x", "<3 items>", "@QList<nsA::nsB::SomeType*>");
 
 
