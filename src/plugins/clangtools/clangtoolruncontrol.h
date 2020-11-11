@@ -76,7 +76,7 @@ public:
 
     int filesAnalyzed() const { return m_filesAnalyzed.size(); }
     int filesNotAnalyzed() const { return m_filesNotAnalyzed.size(); }
-    int totalFilesToAnalyze() const { return m_fileInfos.size(); }
+    int totalFilesToAnalyze() const { return int(m_fileInfos.size()); }
 
 signals:
     void buildFailed();
