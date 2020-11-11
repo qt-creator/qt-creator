@@ -25,6 +25,7 @@ install(
     ${PROJECT_SOURCE_DIR}/scripts
   DESTINATION ./
   COMPONENT Devel EXCLUDE_FROM_ALL
+  USE_SOURCE_PERMISSIONS
 )
 
 install(EXPORT QtCreator
