@@ -8,13 +8,12 @@
     "trDisplayCategory": "Library",
     "icon": "qtcreatorplugin.png",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQt", "QtSupport.Wizards.FeatureDesktop" ],
-    "enabled": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0}",
+    "enabled": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}",
 
     "options":
     [
-        { "key": "ProjectFile", "value": "%{ProFile}" },
+        { "key": "ProjectFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
         { "key": "PluginNameLower", "value": "%{JS: value('PluginName').toLowerCase()}"},
-        { "key": "ProFile", "value": "%{JS: Util.fileName(value('PluginNameLower'), 'pro')}" },
         { "key": "PluginJsonFile", "value": "%{JS: Util.fileName(value('PluginName'), 'json.in')}" },
         { "key": "LibraryDefine", "value": "%{JS: Cpp.headerGuard(value('PluginName')) + '_LIBRARY'}" },
         { "key": "LibraryExport", "value": "%{JS: Cpp.headerGuard(value('PluginName')) + '_EXPORT'}" },
@@ -116,17 +115,6 @@
                     }
                 },
                 {
-                    "name": "QtCreatorSources",
-                    "persistenceKey": "QtCreatorSources",
-                    "trDisplayName": "Qt Creator sources:",
-                    "mandatory": true,
-                    "type": "PathChooser",
-                    "data":
-                    {
-                        "kind": "existingDirectory"
-                    }
-                },
-                {
                     "name": "QtCreatorBuild",
                     "persistenceKey": "QtCreatorBuild",
                     "trDisplayName": "Qt Creator build:",
@@ -135,27 +123,6 @@
                     "data":
                     {
                         "kind": "existingDirectory"
-                    }
-                },
-                {
-                    "name": "DestDir",
-                    "persistenceKey": "QtCreatorPluginDestDir",
-                    "trDisplayName": "Deploy into:",
-                    "type": "ComboBox",
-                    "data":
-                    {
-                        "index": 0,
-                        "items":
-                        [
-                            {
-                                "trKey": "Qt Creator Build",
-                                "value": "# "
-                            },
-                            {
-                                "trKey": "Local User Settings",
-                                "value": ""
-                            }
-                        ]
                     }
                 }
             ]
@@ -185,13 +152,16 @@
             "data":
             [
                 {
-                    "source": "myplugin.pro",
-                    "target": "%{ProFile}",
+                    "source": "CMakeLists.txt",
                     "openAsProject": true
                 },
                 {
-                    "source": "github_workflows_build_qmake.yml",
-                    "target": ".github/workflows/build_qmake.yml"
+                    "source": "README.md",
+                    "openInEditor": true
+                },
+                {
+                    "source": "github_workflows_build_cmake.yml",
+                    "target": ".github/workflows/build_cmake.yml"
                 },
                 {
                     "source": "github_workflows_README.md",
@@ -199,8 +169,7 @@
                 },
                 {
                     "source": "myplugin.cpp",
-                    "target": "%{SrcFileName}",
-                    "openInEditor": true
+                    "target": "%{SrcFileName}"
                 },
                 {
                     "source": "myplugin.h",
