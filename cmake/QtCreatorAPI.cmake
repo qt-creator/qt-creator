@@ -133,7 +133,7 @@ function(add_qtc_library name)
   endif()
 
   add_library(${name} ${library_type} ${_arg_SOURCES})
-  add_library(${IDE_CASED_ID}::${name} ALIAS ${name})
+  add_library(QtCreator::${name} ALIAS ${name})
   set_public_headers(${name} "${_arg_SOURCES}")
 
   # TODO remove, see above
@@ -339,9 +339,9 @@ function(add_qtc_plugin target_name)
 
   set(_arg_DEPENDENCY_STRING "\"Dependencies\" : [\n")
   foreach(i IN LISTS _DEP_PLUGINS)
-    if (i MATCHES "^${IDE_CASED_ID}::")
+    if (i MATCHES "^QtCreator::")
       set(_v ${IDE_VERSION})
-      string(REPLACE "${IDE_CASED_ID}::" "" i ${i})
+      string(REPLACE "QtCreator::" "" i ${i})
     else()
       get_property(_v TARGET "${i}" PROPERTY _arg_VERSION)
     endif()
@@ -353,9 +353,9 @@ function(add_qtc_plugin target_name)
     _arg_DEPENDENCY_STRING "${_arg_DEPENDENCY_STRING}"
   )
   foreach(i IN LISTS ${_arg_RECOMMENDS})
-    if (i MATCHES "^${IDE_CASED_ID}::")
+    if (i MATCHES "^QtCreator::")
       set(_v ${IDE_VERSION})
-      string(REPLACE "${IDE_CASED_ID}::" "" i ${i})
+      string(REPLACE "QtCreator::" "" i ${i})
     else()
       get_property(_v TARGET "${i}" PROPERTY _arg_VERSION)
     endif()
@@ -393,7 +393,7 @@ function(add_qtc_plugin target_name)
   endif()
 
   add_library(${target_name} SHARED ${_arg_SOURCES})
-  add_library(${IDE_CASED_ID}::${target_name} ALIAS ${target_name})
+  add_library(QtCreator::${target_name} ALIAS ${target_name})
   set_public_headers(${target_name} "${_arg_SOURCES}")
 
   ### Generate EXPORT_SYMBOL
