@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,47 +25,33 @@
 
 #pragma once
 
-#include <abstractview.h>
+#include <utils/smallstring.h>
 
-#include <QPointer>
-
+#include <QImage>
 
 namespace QmlDesigner {
 
-class ItemLibraryWidget;
-class ImportManagerView;
-class ImageCacheData;
-class ImageCache;
-
-class ItemLibraryView : public AbstractView
+class ImageCacheInterface
 {
-    Q_OBJECT
-
 public:
-    ItemLibraryView(QObject* parent = nullptr);
-    ~ItemLibraryView() override;
+    using CaptureCallback = std::function<void(const QImage &)>;
+    using AbortCallback = std::function<void()>;
 
-    bool hasWidget() const override;
-    WidgetInfo widgetInfo() override;
+    virtual void requestImage(Utils::PathString name,
+                              CaptureCallback captureCallback,
+                              AbortCallback abortCallback,
+                              Utils::SmallString state = {})
+        = 0;
+    virtual void requestIcon(Utils::PathString name,
+                             CaptureCallback captureCallback,
+                             AbortCallback abortCallback,
+                             Utils::SmallString state = {})
+        = 0;
 
-    // AbstractView
-    void modelAttached(Model *model) override;
-    void modelAboutToBeDetached(Model *model) override;
-    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
-    void documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings) override;
-
-    void setResourcePath(const QString &resourcePath);
-
-    ImageCache &imageCache();
+    void clean();
 
 protected:
-    void updateImports();
-
-private:
-    std::unique_ptr<ImageCacheData> m_imageCacheData;
-    QPointer<ItemLibraryWidget> m_widget;
-    ImportManagerView *m_importManagerView;
-    bool m_hasErrors = false;
+    ~ImageCacheInterface() = default;
 };
 
-}
+} // namespace QmlDesigner

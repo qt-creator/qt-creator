@@ -397,6 +397,7 @@ extend_qtc_test(unittest
     model/variantproperty.cpp include/variantproperty.h
     rewritertransaction.cpp rewritertransaction.h
     imagecache/imagecache.cpp include/imagecache.h
+    include/imagecacheinterface.h
     imagecache/imagecachecollectorinterface.h
     imagecache/imagecachegenerator.cpp imagecache/imagecachegenerator.h
     imagecache/imagecachegeneratorinterface.h

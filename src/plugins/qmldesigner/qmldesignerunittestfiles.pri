@@ -43,6 +43,7 @@ HEADERS += \
     $$PWD/designercore/imagecache/imagecachegeneratorinterface.h \
     $$PWD/designercore/imagecache/timestampproviderinterface.h \
     $$PWD/designercore/include/imagecache.h \
+    $$PWD/designercore/include/imagecacheinterface.h \
     $$PWD/designercore/include/modelnode.h \
     $$PWD/designercore/include/model.h \
     $$PWD/../../../share/qtcreator/qml/qmlpuppet/interfaces/commondefines.h \

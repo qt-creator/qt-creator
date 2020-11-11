@@ -413,6 +413,7 @@ Project {
                 "pluginmanager/widgetpluginpath.cpp",
                 "pluginmanager/widgetpluginpath.h",
                 "include/imagecache.h",
+                "include/imagecacheinterface.h",
                 "imagecache/imagecachecollector.cpp",
                 "imagecache/imagecachecollector.h",
                 "imagecache/imagecache.cpp",

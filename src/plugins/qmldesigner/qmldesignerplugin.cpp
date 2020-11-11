@@ -561,6 +561,11 @@ void QmlDesignerPlugin::emitUsageStatisticsContextAction(const QString &identifi
     emitUsageStatistics(Constants::EVENT_ACTION_EXECUTED + identifier);
 }
 
+ImageCache &QmlDesignerPlugin::imageCache()
+{
+    return m_instance->d->viewManager.imageCache();
+}
+
 QmlDesignerPlugin *QmlDesignerPlugin::instance()
 {
     return m_instance;
