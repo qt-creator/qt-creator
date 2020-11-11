@@ -147,12 +147,18 @@ public:
     ConstIterator &operator=(ConstIterator &&other)
     {
         auto tmp = std::move(other);
-        std::swap(tmp, *this);
+        swap(tmp, *this);
 
         return *this;
     }
 
     ~ConstIterator();
+
+    friend void swap(ConstIterator &first, ConstIterator &second)
+    {
+        std::swap(first.m_sessionIterator, second.m_sessionIterator);
+        std::swap(first.m_state, second.m_state);
+    }
 
     ConstIterator &operator++();
 
