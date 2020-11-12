@@ -298,13 +298,13 @@ ImportMatchStrength ImportKey::matchImport(const ImportKey &o, const ViewerConte
     if (dirToFile)
         --lenPath1;
     int iSelector = 0;
-    int nSelectors = vContext.selectors.size();
+    const int nSelectors = vContext.selectors.size();
     while (iPath1 < lenPath1) {
         if (lenPath2 - iPath2 > lenPath1 - iPath1)
             return ImportMatchStrength();
-        QString p1 = splitPath.at(iPath1);
+        const QString p1 = splitPath.at(iPath1);
         if (iPath2 < lenPath2) {
-            QString p2 = splitPath.at(iPath2);
+            const QString p2 = splitPath.at(iPath2);
             if (p1 == p2) {
                 ++iPath1;
                 ++iPath2;
@@ -312,7 +312,7 @@ ImportMatchStrength ImportKey::matchImport(const ImportKey &o, const ViewerConte
             }
         }
         if (!p1.startsWith(QLatin1Char('+')))
-            return QList<int>();
+            return ImportMatchStrength();
         const QStringView selectorAtt(p1.constData() + 1, p1.size() - 1);
         while (iSelector < nSelectors) {
             if (selectorAtt == vContext.selectors.at(iSelector))
@@ -320,16 +320,16 @@ ImportMatchStrength ImportKey::matchImport(const ImportKey &o, const ViewerConte
             ++iSelector;
         }
         if (iSelector == nSelectors)
-            return QList<int>();
+            return ImportMatchStrength();
         res << (nSelectors - iSelector);
         ++iSelector;
         ++iPath1;
     }
     if (iPath2 != lenPath2)
-        return QList<int>();
+        return ImportMatchStrength();
     if (res.isEmpty())
         res << 0;
-    return  ImportMatchStrength(res);
+    return ImportMatchStrength(res);
 }
 
 int ImportKey::compare(const ImportKey &other) const
