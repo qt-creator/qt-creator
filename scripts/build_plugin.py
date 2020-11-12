@@ -59,7 +59,9 @@ def get_arguments():
                         action='store_true', default=False)
     parser.add_argument('--build-type', help='Build type to pass to CMake (defaults to RelWithDebInfo)',
                         default='RelWithDebInfo')
-    return parser.parse_args()
+    args = parser.parse_args()
+    args.with_debug_info = args.build_type == 'RelWithDebInfo'
+    return args
 
 def build(args, paths):
     if not os.path.exists(paths.build):
@@ -117,6 +119,10 @@ def build(args, paths):
     common.check_print_call(['cmake', '--install', '.', '--prefix', paths.dev_install,
                              '--component', 'Devel'],
                             paths.build)
+    if args.with_debug_info:
+        common.check_print_call(['cmake', '--install', '.', '--prefix', paths.debug_install,
+                                 '--component', 'DebugInfo'],
+                                 paths.build)
 
 def package(args, paths):
     if not os.path.exists(paths.result):
@@ -127,11 +133,15 @@ def package(args, paths):
         common.check_print_call(['7z', 'a', '-mmt2',
                                  os.path.join(paths.result, args.name + '_dev.7z'), '*'],
                                 paths.dev_install)
+    if args.with_debug_info:
+        common.check_print_call(['7z', 'a', '-mmt2',
+                                 os.path.join(paths.result, args.name + '-debug.7z'), '*'],
+                                paths.debug_install)
 
 def get_paths(args):
     Paths = collections.namedtuple('Paths',
                                    ['qt', 'src', 'build', 'qt_creator',
-                                    'install', 'dev_install', 'result'])
+                                    'install', 'dev_install', 'debug_install', 'result'])
     build_path = os.path.abspath(args.build)
     install_path = os.path.join(build_path, 'install')
     result_path = os.path.abspath(args.output_path) if args.output_path else build_path
@@ -141,6 +151,7 @@ def get_paths(args):
                  qt_creator=os.path.abspath(args.qtc_path),
                  install=os.path.join(install_path, args.name),
                  dev_install=os.path.join(install_path, args.name + '-dev'),
+                 debug_install=os.path.join(install_path, args.name + '-debug'),
                  result=result_path)
 
 def main():

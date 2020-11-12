@@ -103,7 +103,9 @@ def get_arguments():
                         action='append', dest='config_args', default=[])
     parser.add_argument('--zip-infix', help='Adds an infix to generated zip files, use e.g. for a build number.',
                         default='')
-    return parser.parse_args()
+    args = parser.parse_args()
+    args.with_debug_info = args.build_type == 'RelWithDebInfo'
+    return args
 
 def build_qtcreator(args, paths):
     if not os.path.exists(paths.build):
@@ -175,6 +177,10 @@ def build_qtcreator(args, paths):
     common.check_print_call(['cmake', '--install', '.', '--prefix', paths.dev_install,
                              '--component', 'Devel'],
                             paths.build)
+    if args.with_debug_info:
+        common.check_print_call(['cmake', '--install', '.', '--prefix', paths.debug_install,
+                                 '--component', 'DebugInfo'],
+                                 paths.build)
     if not args.no_docs:
         common.check_print_call(['cmake', '--install', '.', '--prefix', paths.install,
                                  '--component', 'qch_docs'],
@@ -245,6 +251,11 @@ def package_qtcreator(args, paths):
                                  os.path.join(paths.result, 'qtcreator' + args.zip_infix + '_dev.7z'),
                                  '*'],
                                 paths.dev_install)
+        if args.with_debug_info:
+            common.check_print_call(['7z', 'a', '-mmt2',
+                                     os.path.join(paths.result, 'qtcreator' + args.zip_infix + '-debug.7z'),
+                                     '*'],
+                                    paths.debug_install)
         if common.is_windows_platform():
             common.check_print_call(['7z', 'a', '-mmt2',
                                      os.path.join(paths.result, 'wininterrupt' + args.zip_infix + '.7z'),
@@ -271,8 +282,8 @@ def package_qtcreator(args, paths):
 def get_paths(args):
     Paths = collections.namedtuple('Paths',
                                    ['qt', 'src', 'build',
-                                    'install', 'dev_install', 'wininterrupt_install',
-                                    'qtcreatorcdbext_install', 'result',
+                                    'install', 'dev_install', 'debug_install',
+                                    'wininterrupt_install', 'qtcreatorcdbext_install', 'result',
                                     'elfutils', 'llvm'])
     build_path = os.path.abspath(args.build)
     install_path = os.path.join(build_path, 'install')
@@ -281,6 +292,7 @@ def get_paths(args):
                  build=os.path.join(build_path, 'build'),
                  install=os.path.join(install_path, 'qt-creator'),
                  dev_install=os.path.join(install_path, 'qt-creator-dev'),
+                 debug_install=os.path.join(install_path, 'qt-creator-debug'),
                  wininterrupt_install=os.path.join(install_path, 'wininterrupt'),
                  qtcreatorcdbext_install=os.path.join(install_path, 'qtcreatorcdbext'),
                  result=build_path,
