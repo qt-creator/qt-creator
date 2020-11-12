@@ -39,7 +39,6 @@
 #include <QVector>
 #include <QHash>
 #include <QMap>
-#include <QFutureInterface>
 #include <QVersionNumber>
 
 #include <utils/fileutils.h>

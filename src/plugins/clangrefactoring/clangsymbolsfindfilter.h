@@ -27,11 +27,10 @@
 
 #include <coreplugin/find/ifindfilter.h>
 
-#include <QFutureWatcher>
-#include <QPointer>
-#include <QWidget>
 #include <QCheckBox>
+#include <QPointer>
 #include <QRadioButton>
+#include <QWidget>
 
 namespace Core { class SearchResult; }
 

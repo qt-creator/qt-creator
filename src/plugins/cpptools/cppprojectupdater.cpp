@@ -33,6 +33,8 @@
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 
+#include <QFutureInterface>
+
 namespace CppTools {
 
 CppProjectUpdater::CppProjectUpdater()

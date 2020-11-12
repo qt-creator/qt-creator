@@ -35,7 +35,6 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <QFuture>
-#include <QFutureWatcher>
 #include <QObject>
 #include <QQueue>
 

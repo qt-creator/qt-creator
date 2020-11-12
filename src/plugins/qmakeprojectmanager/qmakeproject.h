@@ -36,7 +36,6 @@
 
 #include <QStringList>
 #include <QFutureInterface>
-#include <QFuture>
 
 QT_BEGIN_NAMESPACE
 class QMakeGlobals;

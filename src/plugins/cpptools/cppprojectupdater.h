@@ -29,7 +29,6 @@
 #include "cpptools_global.h"
 #include "projectinfo.h"
 
-#include <QFutureInterface>
 #include <QFutureWatcher>
 
 namespace CppTools {

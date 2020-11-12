@@ -29,7 +29,6 @@
 
 #include <QMutex>
 #include <QObject>
-#include <QFuture>
 #include <QFutureWatcher>
 #include <QPointer>
 

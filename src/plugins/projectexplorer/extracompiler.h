@@ -34,7 +34,6 @@
 #include <utils/environment.h>
 
 #include <QByteArray>
-#include <QFuture>
 #include <QHash>
 #include <QList>
 
@@ -43,6 +42,13 @@
 
 QT_FORWARD_DECLARE_CLASS(QProcess);
 QT_FORWARD_DECLARE_CLASS(QThreadPool);
+QT_BEGIN_NAMESPACE
+template <typename T>
+class QFutureInterface;
+template <typename T>
+class QFutureWatcher;
+QT_END_NAMESPACE
+
 
 namespace ProjectExplorer {
 

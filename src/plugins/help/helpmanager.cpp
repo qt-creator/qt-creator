@@ -36,7 +36,6 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
-#include <QFutureWatcher>
 #include <QStringList>
 #include <QUrl>
 

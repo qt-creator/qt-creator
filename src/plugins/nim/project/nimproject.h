@@ -29,7 +29,6 @@
 #include <projectexplorer/projectnodes.h>
 
 #include <QElapsedTimer>
-#include <QFutureWatcher>
 #include <QTimer>
 
 namespace Nim {

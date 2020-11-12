@@ -33,7 +33,6 @@
 #include <valgrind/valgrindrunner.h>
 
 #include <QFutureInterface>
-#include <QFutureWatcher>
 
 namespace Valgrind {
 namespace Internal {

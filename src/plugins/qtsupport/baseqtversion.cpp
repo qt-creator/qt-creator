@@ -60,13 +60,12 @@
 
 #include <resourceeditor/resourcenode.h>
 
-#include <QDir>
-#include <QUrl>
-#include <QFileInfo>
-#include <QFuture>
 #include <QCoreApplication>
+#include <QDir>
+#include <QFileInfo>
 #include <QProcess>
 #include <QRegularExpression>
+#include <QUrl>
 
 #include <algorithm>
 
