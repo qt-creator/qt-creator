@@ -27,13 +27,16 @@
 
 #include "clangtoolsdiagnosticmodel.h"
 #include "clangtoolsprojectsettings.h"
+#include "clangtoolssettings.h"
 #include "clangtoolsutils.h"
+#include "diagnosticconfigswidget.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/manhattanstyle.h>
 
 #include <debugger/analyzer/diagnosticlocation.h>
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
@@ -45,7 +48,11 @@
 #include <QHeaderView>
 #include <QPainter>
 #include <QSet>
+#include <QUuid>
 
+#include <set>
+
+using namespace CppTools;
 using namespace Debugger;
 
 namespace ClangTools {
@@ -166,6 +173,10 @@ DiagnosticView::DiagnosticView(QWidget *parent)
     connect(m_suppressAction, &QAction::triggered,
             this, &DiagnosticView::suppressCurrentDiagnostic);
 
+    m_disableGloballyAction = new QAction(this);
+    connect(m_disableGloballyAction, &QAction::triggered,
+            this, &DiagnosticView::disableCurrentDiagnosticGlobally);
+
     installEventFilter(this);
 
     setStyle(m_style);
@@ -228,6 +239,55 @@ void DiagnosticView::suppressCurrentDiagnostic()
         filterModel->addSuppressedDiagnostics(diags);
 }
 
+void DiagnosticView::disableCurrentDiagnosticGlobally()
+{
+    ClangToolsSettings * const settings = ClangToolsSettings::instance();
+    ClangDiagnosticConfigs configs = settings->diagnosticConfigs();
+    ClangDiagnosticConfig config = Utils::findOrDefault(configs,
+        [settings](const ClangDiagnosticConfig &c) {
+            return c.id() == settings->runSettings().diagnosticConfigId();
+        });
+    const bool defaultWasActive = !config.id().isValid();
+    if (defaultWasActive) {
+        QTC_ASSERT(configs.isEmpty(), return);
+        config = builtinConfig();
+        config.setIsReadOnly(false);
+        config.setId(Utils::Id::fromString(QUuid::createUuid().toString()));
+        config.setDisplayName(tr("Custom Configuration"));
+        configs << config;
+    }
+
+    std::set<QString> handledNames;
+    const QModelIndexList indexes = selectionModel()->selectedRows();
+    for (const QModelIndex &index : indexes) {
+        const Diagnostic diag = model()->data(index, ClangToolsDiagnosticModel::DiagnosticRole)
+                .value<Diagnostic>();
+        if (!diag.isValid())
+            continue;
+        if (!handledNames.insert(diag.name).second)
+            continue;
+
+        if (diag.name.startsWith("clazy-")) {
+            config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseCustomChecks);
+            config.setClazyChecks(removeClazyCheck(config.clazyChecks(), diag.name));
+        } else if (config.clangTidyMode() != ClangDiagnosticConfig::TidyMode::UseConfigFile) {
+            config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
+            config.setClangTidyChecks(removeClangTidyCheck(config.clangTidyChecks(), diag.name));
+        }
+    }
+
+    if (!defaultWasActive) {
+        for (ClangDiagnosticConfig &c : configs) {
+            if (c.id() == config.id()) {
+                c = config;
+                break;
+            }
+        }
+    }
+    settings->setDiagnosticConfigs(configs);
+    settings->writeSettings();
+}
+
 void DiagnosticView::goNext()
 {
     const QModelIndex currentIndex = selectionModel()->currentIndex();
@@ -278,6 +338,39 @@ QModelIndex DiagnosticView::getTopLevelIndex(const QModelIndex &index, Direction
     return model()->index(row, 0);
 }
 
+bool DiagnosticView::disableGloballyEnabled() const
+{
+    const QList<QModelIndex> indexes = selectionModel()->selectedIndexes();
+    if (indexes.isEmpty())
+        return false;
+    if (!Utils::anyOf(indexes, &QModelIndex::isValid))
+        return false;
+
+    ClangToolsSettings * const settings = ClangToolsSettings::instance();
+    const ClangDiagnosticConfigs configs = settings->diagnosticConfigs();
+    const ClangDiagnosticConfig activeConfig = Utils::findOrDefault(configs,
+        [settings](const ClangDiagnosticConfig &c) {
+            return c.id() == settings->runSettings().diagnosticConfigId();
+        });
+
+    // If the user has not created any custom configuration yet, then we'll do that for
+    // them as an act of kindness. But if custom configurations exist and the default
+    // (read-only) one is active, then we don't offer the action, as it's not clear what
+    // exactly we should do there.
+    if (configs.isEmpty())
+        return true;
+    if (!activeConfig.id().isValid())
+        return false;
+
+    // If all selected diagnostics come from clang-tidy and the active config is controlled
+    // by a .clang-tidy file, then we do not offer the action.
+    if (activeConfig.clangTidyMode() != ClangDiagnosticConfig::TidyMode::UseConfigFile)
+        return true;
+    return Utils::anyOf(indexes, [this](const QModelIndex &index) {
+        return model()->data(index).toString().startsWith("clazy-");
+    });
+}
+
 QList<QAction *> DiagnosticView::customActions() const
 {
     const QModelIndex currentIndex = selectionModel()->currentIndex();
@@ -292,6 +385,9 @@ QList<QAction *> DiagnosticView::customActions() const
     m_suppressAction->setEnabled(isDiagnosticItem || hasMultiSelection);
     m_suppressAction->setText(hasMultiSelection ? tr("Suppress Selected Diagnostics")
                                                 : tr("Suppress This Diagnostic"));
+    m_disableGloballyAction->setEnabled(disableGloballyEnabled());
+    m_disableGloballyAction->setText(hasMultiSelection ? tr("Disable Selected Diagnostics Globally")
+                                                       : tr("Disable This Diagnostic Globally"));
 
     return {
         m_help,
@@ -302,6 +398,7 @@ QList<QAction *> DiagnosticView::customActions() const
         m_filterOutCurrentKind,
         m_separator2,
         m_suppressAction,
+        m_disableGloballyAction
     };
 }
 

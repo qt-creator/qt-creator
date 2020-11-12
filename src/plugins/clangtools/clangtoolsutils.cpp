@@ -257,6 +257,11 @@ QString clazyStandaloneExecutable()
 
 static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)
 {
+    model.appendOrUpdate(builtinConfig());
+}
+
+ClangDiagnosticConfig builtinConfig()
+{
     ClangDiagnosticConfig config;
     config.setId(Constants::DIAG_CONFIG_TIDY_AND_CLAZY);
     config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
@@ -265,8 +270,7 @@ static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)
     config.setClangOptions({"-w"}); // Do not emit any clang-only warnings
     config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseDefaultChecks);
     config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseDefaultChecks);
-
-    model.appendOrUpdate(config);
+    return config;
 }
 
 ClangDiagnosticConfigsModel diagnosticConfigsModel(const ClangDiagnosticConfigs &customConfigs)

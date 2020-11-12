@@ -25,6 +25,9 @@
 
 #include "diagnosticconfigswidget.h"
 
+#include "clangtoolsutils.h"
+#include "executableinfo.h"
+
 #include "ui_clazychecks.h"
 #include "ui_tidychecks.h"
 
@@ -266,8 +269,40 @@ public:
         }
     }
 
+    QModelIndex indexForName(const QString &name) const
+    {
+        return indexForName(QModelIndex(), name);
+    }
+
 protected:
     bool m_enabled = true;
+
+private:
+    QModelIndex indexForName(const QModelIndex &current, const QString &name) const
+    {
+        QString nodeName;
+        QString remainingName = name;
+        if (current.isValid()) {
+            nodeName = data(current).toString();
+            if (nodeName == name)
+                return current;
+            if (nodeName.endsWith('*'))
+                nodeName.chop(1);
+            if (!name.startsWith(nodeName)) {
+                if (!nodeName.contains("Level"))
+                    return {};
+            } else {
+                remainingName = name.mid(nodeName.length());
+            }
+        }
+        const int childCount = rowCount(current);
+        for (int i = 0; i < childCount; ++i) {
+            const QModelIndex theIndex = indexForName(index(i, 0, current), remainingName);
+            if (theIndex.isValid())
+                return theIndex;
+        }
+        return {};
+    }
 };
 
 static void openUrl(QAbstractItemModel *model, const QModelIndex &index)
@@ -956,6 +991,30 @@ void DiagnosticConfigsWidget::syncClazyChecksGroupBox()
                                                    nullptr, checksCount)
                                               : tr("Checks (%n enabled)", nullptr, checksCount);
     m_clazyChecks->checksGroupBox->setTitle(title);
+}
+
+QString removeClangTidyCheck(const QString &checks, const QString &check)
+{
+    const ClangTidyInfo tidyInfo(clangTidyExecutable());
+    TidyChecksTreeModel model(tidyInfo.supportedChecks);
+    model.selectChecks(checks);
+    const QModelIndex index = model.indexForName(check);
+    if (!index.isValid())
+        return checks;
+    model.setData(index, false, Qt::CheckStateRole);
+    return model.selectedChecks();
+}
+
+QString removeClazyCheck(const QString &checks, const QString &check)
+{
+    const ClazyStandaloneInfo clazyInfo(clazyStandaloneExecutable());
+    ClazyChecksTreeModel model(clazyInfo.supportedChecks);
+    model.enableChecks(checks.split(',', Qt::SkipEmptyParts));
+    const QModelIndex index = model.indexForName(check.mid(QString("clazy-").length()));
+    if (!index.isValid())
+        return checks;
+    model.setData(index, false, Qt::CheckStateRole);
+    return model.enabledChecks().join(',');
 }
 
 } // namespace Internal

@@ -57,6 +57,8 @@ QString createDiagnosticToolTipString(
     Utils::optional<FixitStatus> status = Utils::nullopt,
     bool showSteps = true);
 
+CppTools::ClangDiagnosticConfig builtinConfig();
+
 QString createFullLocationString(const Debugger::DiagnosticLocation &location);
 
 QString hintAboutBuildBeforeAnalysis();
