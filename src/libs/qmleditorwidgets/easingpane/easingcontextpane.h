@@ -77,8 +77,8 @@ private slots:
     void on_overshootSpinBox_valueChanged(double);
     void on_periodSpinBox_valueChanged(double);
     void on_amplitudeSpinBox_valueChanged(double);
-    void on_easingExtremesComboBox_currentIndexChanged(const QString &);
-    void on_easingShapeComboBox_currentIndexChanged(const QString &);
+    void on_easingExtremesComboBox_currentIndexChanged(int);
+    void on_easingShapeComboBox_currentIndexChanged(int);
     void on_durationSpinBox_valueChanged(int);
 
     void switchToGraph();

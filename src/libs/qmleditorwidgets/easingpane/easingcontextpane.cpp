@@ -26,6 +26,7 @@
 #include "easingcontextpane.h"
 #include "ui_easingcontextpane.h"
 #include <qmljs/qmljspropertyreader.h>
+#include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
 #include <QGraphicsPixmapItem>
@@ -287,8 +288,10 @@ void QmlEditorWidgets::EasingContextPane::on_durationSpinBox_valueChanged(int ne
     emit propertyChanged(QLatin1String("duration"), newValue);
 }
 
-void QmlEditorWidgets::EasingContextPane::on_easingShapeComboBox_currentIndexChanged(const QString &newShape)
+void QmlEditorWidgets::EasingContextPane::on_easingShapeComboBox_currentIndexChanged(int newIndex)
 {
+    QTC_ASSERT(newIndex >= 0, return);
+    const QString newShape = ui->easingShapeComboBox->itemText(newIndex);
     if (newShape==QLatin1String("Linear"))
         setLinear();
     else if (newShape==QLatin1String("Bounce"))
@@ -311,8 +314,10 @@ void QmlEditorWidgets::EasingContextPane::on_easingShapeComboBox_currentIndexCha
     }
 }
 
-void QmlEditorWidgets::EasingContextPane::on_easingExtremesComboBox_currentIndexChanged(const QString &newExtremes)
+void QmlEditorWidgets::EasingContextPane::on_easingExtremesComboBox_currentIndexChanged(int newIndex)
 {
+    QTC_ASSERT(newIndex >= 0, return);
+    const QString newExtremes = ui->easingExtremesComboBox->itemText(newIndex);
     if (m_easingGraph->easingExtremes() != newExtremes) {
         m_easingGraph->setEasingExtremes(newExtremes);
         m_easingGraph->setAmplitude(ui->amplitudeSpinBox->value());
