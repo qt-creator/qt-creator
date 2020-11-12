@@ -973,7 +973,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 {
     qCInfo(rewriterBenchmark) << Q_FUNC_INFO;
 
-    const bool justSanityCheck = !differenceHandler.isValidator();
+    const bool justSanityCheck = !differenceHandler.isAmender();
 
     QElapsedTimer time;
     if (rewriterBenchmark().isInfoEnabled())
@@ -1135,10 +1135,10 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     }
 
     if (isComponentType(typeName) || isImplicitComponent)
-        setupComponentDelayed(modelNode, differenceHandler.isValidator());
+        setupComponentDelayed(modelNode, differenceHandler.isAmender());
 
     if (isCustomParserType(typeName))
-        setupCustomParserNodeDelayed(modelNode, differenceHandler.isValidator());
+        setupCustomParserNodeDelayed(modelNode, differenceHandler.isAmender());
 
     context->enterScope(astNode);
 
@@ -1245,7 +1245,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
     if (!defaultPropertyItems.isEmpty()) {
         if (isComponentType(modelNode.type()))
-            setupComponentDelayed(modelNode, differenceHandler.isValidator());
+            setupComponentDelayed(modelNode, differenceHandler.isAmender());
         if (defaultPropertyName.isEmpty()) {
             qWarning() << "No default property for node type" << modelNode.type() << ", ignoring child items.";
         } else {
