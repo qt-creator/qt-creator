@@ -32,6 +32,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <cplusplus/ASTPath.h>
 #include <cplusplus/LookupContext.h>
 
 #include <utils/qtcassert.h>
@@ -545,6 +546,16 @@ static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration,
             return noResult;
 
         targetFile->cppDocument()->translationUnit()->getTokenStartPosition(functionDefinition->firstToken(), &line, &column);
+        const QList<AST *> path = ASTPath(targetFile->cppDocument())(line, column);
+        for (auto it = path.rbegin(); it != path.rend(); ++it) {
+            if (const auto templateDecl = (*it)->asTemplateDeclaration()) {
+                if (templateDecl->declaration == functionDefinition) {
+                    targetFile->cppDocument()->translationUnit()->getTokenStartPosition(
+                                templateDecl->firstToken(), &line, &column);
+                }
+                break;
+            }
+        }
     }
 
     return InsertionLocation(QString::fromUtf8(definitionFunction->fileName()), prefix, suffix, line, column);

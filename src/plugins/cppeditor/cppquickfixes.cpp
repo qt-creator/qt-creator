@@ -3040,6 +3040,7 @@ public:
         oo.showReturnTypes = true;
         oo.showArgumentNames = true;
         oo.showEnclosingTemplate = true;
+        oo.showTemplateParameters = true;
 
         if (defPos == DefPosInsideClass) {
             const int targetPos = targetFile->position(loc.line(), loc.column());
