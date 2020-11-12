@@ -231,9 +231,12 @@ void StatesEditorView::duplicateCurrentState()
     QStringList stateNames = rootStateGroup().names();
     while (stateNames.contains(newName + QString::number(i)))
         i++;
+    const QString newStateName = newName + QString::number(i);
 
-    QmlModelState newState = state.duplicate(newName + QString::number(i));
-    setCurrentState(newState);
+    executeInTransaction("addState", [this, newStateName, state]() {
+        QmlModelState newState = state.duplicate(newStateName);
+        setCurrentState(newState);
+    });
 }
 
 void StatesEditorView::checkForStatesAvailability()
