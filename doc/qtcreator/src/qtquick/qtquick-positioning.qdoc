@@ -455,10 +455,6 @@
         \li \l [QtQuickControls]{Page}
         \li A styled page control with support for a header and footer.
     \row
-        \li \inlineimage icons/pageindicator-icon16.png
-        \li \l [QtQuickControls]{PageIndicator}{Page Indicator}
-        \li An indicator for the currently active page.
-    \row
         \li \inlineimage icons/pane-icon16.png
         \li \l [QtQuickControls]{Pane}
         \li A background that matches the application style and theme.

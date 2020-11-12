@@ -181,7 +181,7 @@
     \section1 Connecting Buttons to States
 
     QML types have predefined signals that are emitted when users interact
-    with the UI. The \e PushButton QML type contains a \l{MouseArea} type
+    with the UI. The \e PushButton QML type contains a \l{Mouse Area} type
     that has a \e clicked signal. The signal is emitted whenever the mouse
     is clicked within the area.
 

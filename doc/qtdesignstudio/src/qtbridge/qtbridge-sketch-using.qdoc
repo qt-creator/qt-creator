@@ -142,7 +142,7 @@
         \li Asset layers are exported as \e merged.
         \li Text layers can only be exported as \e child or \e skipped.
         \li A \e hotspot layer can only be exported as \e child or \e skipped.
-            It is always exported as an instance of the \l MouseArea QML type.
+            It is always exported as an instance of the \l {Mouse Area} type.
         \li A symbol instance layer can only be exported as \e child or
             \e skipped.
         \li Images are exported in JPG, PNG, or SVG format, depending on your
@@ -157,7 +157,7 @@
     later in \QDS. If you are familiar with the \l{QML Syntax Basics}
     {QML syntax}, you can modify the settings to tailor the generated QML to
     a certain degree. For example, you can specify the QML type or
-    \l {Studio Components}{Qt Quick Studio Component} to use for a component or
+    \l {Shapes}{Qt Quick Studio Component} to use for a component or
     layer. If you have drawn an arc that you mean to animate, you can export it
     as an \l Arc component to avoid having to replace the arc image with an Arc
     component in \QDS. Or you could export a button as a Qt Quick Controls
@@ -191,7 +191,7 @@
                 \li \uicontrol Skipped completely skips the selected layer.
             \endlist
         \li In the \uicontrol {QML Type} field, specify the QML type or
-            \l {Studio Components}{Qt Quick Studio Component} to morph this
+            \l {Shapes}{Qt Quick Studio Component} to morph this
             layer into. The component that is generated during import will be
             of this type. For example, if you drew a rectangle, you can export
             it as a \l Rectangle component.
