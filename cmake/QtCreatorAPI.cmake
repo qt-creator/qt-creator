@@ -598,7 +598,10 @@ function(add_qtc_executable name)
       if (_prop_OUTPUT_NAME)
         set(_BUNDLE_NAME "${_prop_OUTPUT_NAME}")
       endif()
-      set(_EXECUTABLE_PATH "${_DESTINATION}/${_BUNDLE_NAME}.app/Contents/MacOS")
+      set(_BUNDLE_CONTENTS_PATH "${_DESTINATION}/${_BUNDLE_NAME}.app/Contents")
+      set(_EXECUTABLE_PATH "${_BUNDLE_CONTENTS_PATH}/MacOS")
+      set(_EXECUTABLE_FILE_PATH "${_EXECUTABLE_PATH}/${_BUNDLE_NAME}")
+      set(_BUNDLE_INFO_PLIST "${_BUNDLE_CONTENTS_PATH}/Info.plist")
     endif()
   endif()
 
@@ -647,11 +650,70 @@ function(add_qtc_executable name)
       set(COMPONENT_OPTION "COMPONENT" "${_arg_COMPONENT}")
     endif()
 
-    install(TARGETS ${name}
-      DESTINATION "${_DESTINATION}"
-      ${COMPONENT_OPTION}
-      OPTIONAL
-    )
+    # work around the issue that CMake simply copies the bundle directory
+    # when installing app bundles, which copies things that it should not
+    # like static libraries, executables with SKIP_INSTALL, clang resources
+    # and dSYM directories
+    if (APPLE AND _EXECUTABLE_FILE_PATH AND _BUNDLE_INFO_PLIST)
+      install(
+        PROGRAMS "${_output_binary_dir}/${_EXECUTABLE_FILE_PATH}"
+        DESTINATION "${_EXECUTABLE_PATH}"
+        ${COMPONENT_OPTION}
+        OPTIONAL
+      )
+      install(
+        FILES "${_output_binary_dir}/${_BUNDLE_INFO_PLIST}"
+        DESTINATION "${_BUNDLE_CONTENTS_PATH}"
+        ${COMPONENT_OPTION}
+        OPTIONAL
+      )
+      # Remove build-rpaths. That is BUILD_RPATH and the ones added because we
+      # don't use SKIP_BUILD_RPATH
+      set(_rpaths_to_remove ${build_rpath})
+      get_target_property(_linked_libs ${name} LINK_LIBRARIES)
+      foreach(_lib ${_linked_libs})
+        get_target_property(_target_type ${_lib} TYPE)
+        if (_target_type STREQUAL "SHARED_LIBRARY")
+          get_target_property(_location ${_lib} LIBRARY_OUTPUT_DIRECTORY)
+          if (_location)
+            get_filename_component(_abs_location ${_location} ABSOLUTE)
+            list(APPEND _rpaths_to_remove "${_abs_location}")
+          else()
+            get_target_property(_location ${_lib} LOCATION)
+            get_target_property(_is_framework ${_lib} FRAMEWORK)
+            if (_is_framework)
+              set(_location ${_location}/../..)
+            endif()
+            get_filename_component(_abs_location ${_location} ABSOLUTE)
+            list(APPEND _rpaths_to_remove "${_abs_location}")
+          endif()
+        endif()
+      endforeach()
+      list(REMOVE_DUPLICATES _rpaths_to_remove)
+      set(_code)
+      foreach(_rpath ${_rpaths_to_remove})
+        set(_code "${_code}
+          execute_process(COMMAND /usr/bin/install_name_tool
+            -delete_rpath \"${_rpath}\"
+            \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${_EXECUTABLE_FILE_PATH}\")"
+        )
+      endforeach()
+      foreach(_rpath ${install_rpath})
+        set(_code "${_code}
+          execute_process(COMMAND /usr/bin/install_name_tool
+            -add_rpath \"${_rpath}\"
+            \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${_EXECUTABLE_FILE_PATH}\")"
+        )
+      endforeach()
+      install(CODE "${_code}")
+    else()
+      install(TARGETS ${name}
+        DESTINATION "${_DESTINATION}"
+        ${COMPONENT_OPTION}
+        OPTIONAL
+      )
+    endif()
+
     update_cached_list(__QTC_INSTALLED_EXECUTABLES
       "${_DESTINATION}/${name}${CMAKE_EXECUTABLE_SUFFIX}")
 
