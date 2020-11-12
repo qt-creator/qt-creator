@@ -583,7 +583,8 @@ void Qt5InformationNodeInstanceServer::renderModelNodeImageView()
 
 void Qt5InformationNodeInstanceServer::doRenderModelNodeImageView()
 {
-
+    // Disable preview in Qt6 until QTBUG-QTBUG-88320 is fixed
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     ServerNodeInstance instance;
     if (m_modelNodePreviewImageCommand.renderItemId() >= 0)
         instance = instanceForId(m_modelNodePreviewImageCommand.renderItemId());
@@ -594,6 +595,7 @@ void Qt5InformationNodeInstanceServer::doRenderModelNodeImageView()
         doRenderModelNode3DImageView();
     else if (instance.isSubclassOf("QQuickItem"))
         doRenderModelNode2DImageView();
+#endif
 }
 
 void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
