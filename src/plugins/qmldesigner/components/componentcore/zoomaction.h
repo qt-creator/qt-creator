@@ -26,11 +26,13 @@
 
 #include <qmldesignercorelib_global.h>
 
-#include <QWidgetAction>
 #include <QPointer>
+#include <QWidgetAction>
+
+#include <array>
 
 QT_BEGIN_NAMESPACE
-class QAbstractItemModel;
+class QComboBox;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -39,30 +41,27 @@ class QMLDESIGNERCORE_EXPORT ZoomAction : public QWidgetAction
 {
     Q_OBJECT
 
+signals:
+    void zoomLevelChanged(double zoom);
+
 public:
     ZoomAction(QObject *parent);
 
-    float zoomLevel() const;
+    static std::array<double, 27> zoomLevels();
+    static int indexOf(double zoom);
 
-    void zoomIn();
-    void zoomOut();
-    void resetZoomLevel();
-    void setZoomLevel(float zoomLevel);
-    void forceZoomLevel(float zoomLevel);
-
-    static float getClosestZoomLevel(float zoomLevel);
+    void setZoomFactor(double zoom);
+    double setNextZoomFactor(double zoom);
+    double setPreviousZoomFactor(double zoom);
 
 protected:
     QWidget *createWidget(QWidget *parent) override;
-signals:
-    void zoomLevelChanged(float zoom);
-    void indexChanged(int);
-    void reseted();
 
 private:
-    QPointer<QAbstractItemModel> m_comboBoxModel;
-    float m_zoomLevel;
-    int m_currentComboBoxIndex;
+    void emitZoomLevelChanged(int index);
+
+    static std::array<double, 27> m_zooms;
+    QPointer<QComboBox> m_combo;
 };
 
 } // namespace QmlDesigner

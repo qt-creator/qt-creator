@@ -32,6 +32,7 @@
 #include "openuiqmlfiledialog.h"
 #include "generateresource.h"
 #include "nodeinstanceview.h"
+#include "gestures.h"
 
 #include <metainfo.h>
 #include <connectionview.h>
@@ -220,6 +221,8 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
             QStringLiteral("/qmldesigner/propertyEditorQmlSources/imports/StudioTheme/icons.ttf");
     if (QFontDatabase::addApplicationFont(fontPath) < 0)
         qCWarning(qmldesignerLog) << "Could not add font " << fontPath << "to font database";
+
+    TwoFingerSwipe::registerRecognizer();
 
     return true;
 }

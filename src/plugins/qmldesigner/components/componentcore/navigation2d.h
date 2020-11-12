@@ -51,6 +51,10 @@ class Navigation2dFilter : public QObject
 
 signals:
     void zoomChanged(double scale, const QPointF &pos);
+    void panChanged(const QPointF &direction);
+
+    void zoomIn();
+    void zoomOut();
 
 public:
     Navigation2dFilter(QWidget *parent = nullptr, Navigation2dScrollBar *scrollbar = nullptr);

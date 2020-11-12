@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of Qt Creator.
+** This file is part of the Qt Design Tooling
 **
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
@@ -24,49 +24,49 @@
 ****************************************************************************/
 #pragma once
 
-#include <QGraphicsView>
+#include <QGesture>
+#include <QGestureRecognizer>
+#include <QLineF>
+
+QT_FORWARD_DECLARE_CLASS(QTouchEvent)
 
 namespace QmlDesigner {
 
-class FormEditorGraphicsView : public QGraphicsView
+class TwoFingerSwipe : public QGesture
 {
     Q_OBJECT
 
-signals:
-    void zoomChanged(double zoom);
-    void zoomIn();
-    void zoomOut();
-
 public:
-    explicit FormEditorGraphicsView(QWidget *parent = nullptr);
+    TwoFingerSwipe();
 
-    void setRootItemRect(const QRectF &rect);
-    QRectF rootItemRect() const;
+    static Qt::GestureType type();
+    static void registerRecognizer();
 
-    void activateCheckboardBackground();
-    void activateColoredBackground(const QColor &color);
-    void drawBackground(QPainter *painter, const QRectF &rect) override;
+    QPointF direction() const;
 
-    void setZoomFactor(double zoom);
-    void frame(const QRectF &bbox);
-
-protected:
-    bool eventFilter(QObject *watched, QEvent *event) override;
-    void wheelEvent(QWheelEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
-    void keyPressEvent(QKeyEvent *event) override;
-    void keyReleaseEvent(QKeyEvent *event) override;
+    void reset();
+    QGestureRecognizer::Result begin(QTouchEvent *event);
+    QGestureRecognizer::Result update(QTouchEvent *event);
+    QGestureRecognizer::Result end(QTouchEvent *event);
 
 private:
-    enum Panning { NotStarted, MouseWheelStarted, SpaceKeyStarted };
+    static Qt::GestureType m_type;
 
-    void startPanning(QEvent *event);
-    void stopPanning(QEvent *event);
+    QLineF m_start;
+    QLineF m_current;
+    QLineF m_last;
+};
 
-    Panning m_isPanning = Panning::NotStarted;
-    QPoint m_panningStartPosition;
-    QRectF m_rootItemRect;
+class TwoFingerSwipeRecognizer : public QGestureRecognizer
+{
+public:
+    TwoFingerSwipeRecognizer();
+
+    QGesture *create(QObject *target) override;
+
+    QGestureRecognizer::Result recognize(QGesture *gesture, QObject *watched, QEvent *event) override;
+
+    void reset(QGesture *gesture) override;
 };
 
 } // namespace QmlDesigner

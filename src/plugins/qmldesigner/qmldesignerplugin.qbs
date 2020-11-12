@@ -452,6 +452,8 @@ Project {
                 "componentcore/designeractionmanagerview.h",
                 "componentcore/findimplementation.cpp",
                 "componentcore/findimplementation.h",
+                "componentcore/gestures.cpp",
+                "componentcore/gestures.h",
                 "componentcore/layoutingridlayout.cpp",
                 "componentcore/layoutingridlayout.h",
                 "componentcore/theme.cpp",
