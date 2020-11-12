@@ -82,6 +82,7 @@ Project {
             "project/projecttree/mesonprojectnodes.h",
             "project/projecttree/projecttree.cpp",
             "project/projecttree/projecttree.h",
+            "resources.qrc",
             "settings/general/generalsettingspage.cpp",
             "settings/general/generalsettingspage.h",
             "settings/general/generalsettingswidget.cpp",
