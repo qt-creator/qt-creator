@@ -192,17 +192,12 @@ void StatesEditorView::addState()
             break;
     }
 
-    try {
+    executeInTransaction("addState", [this, newStateName]() {
         rootModelNode().validId();
-        if ((rootStateGroup().allStates().count() < 1) && //QtQuick import might be missing
-                (!model()->hasImport(Import::createLibraryImport("QtQuick", "1.0"), true, true))) {
-            model()->changeImports({Import::createLibraryImport("QtQuick", "1.0")}, {});
-        }
+
         ModelNode newState = rootStateGroup().addState(newStateName);
         setCurrentState(newState);
-    } catch (const RewritingException &e) {
-        e.showException();
-    }
+    });
 }
 
 void StatesEditorView::resetModel()
@@ -303,7 +298,7 @@ void StatesEditorView::renameState(int internalNodeId, const QString &newName)
 
                 setCurrentState(oldState);
             }
-        }  catch (const RewritingException &e) {
+        } catch (const RewritingException &e) {
             e.showException();
         }
     }
