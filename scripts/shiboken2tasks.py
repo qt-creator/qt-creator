@@ -36,7 +36,8 @@ import re
 
 if __name__ == '__main__':
     # qt.shiboken: (<module>) <file>:<line>:[<column>:] text
-    pattern = re.compile(r'^qt\.shiboken: \(([^)]+)\) ([^:]+):(\d+):(?:\d+:)? (.*)$')
+    # file might be c:\ on Windows
+    pattern = re.compile(r'^qt\.shiboken: \(([^)]+)\) (..[^:]+):(\d+):(?:\d+:)? (.*)$')
     while True:
         line = sys.stdin.readline()
         if not line:

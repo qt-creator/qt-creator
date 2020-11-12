@@ -43,16 +43,16 @@ AnnotationCommentTab::AnnotationCommentTab(QWidget *parent)
 
     ui->titleEdit->setModel(new QStringListModel{QStringList{"Description",
                                                              "Display Condition",
-                                                             "helper_lines"
-                                                             "highlight"
+                                                             "helper lines",
+                                                             "highlight",
                                                              "project author",
                                                              "project confirmed",
                                                              "project developer",
                                                              "project distributor",
                                                              "project modified",
-                                                             "project type"
+                                                             "project type",
                                                              "project version",
-                                                             "Screen Description"
+                                                             "Screen Description",
                                                              "Section"}});
 
     connect(ui->titleEdit, &QComboBox::currentTextChanged,
