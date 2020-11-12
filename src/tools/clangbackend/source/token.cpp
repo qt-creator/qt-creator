@@ -100,7 +100,7 @@ std::vector<Cursor> Tokens::annotate() const
     // TODO: Investigate whether we can fix this in libclang itself.
     for (int i = 1; i < int(m_tokens.size()) - 2; ++i) {
         const Token &tok = m_tokens.at(i);
-        if (tok.kind() != CXToken_Identifier)
+        if (tok.kind() != CXToken_Identifier && tok.kind() != CXToken_Keyword)
             continue;
         const Token &prevTok = m_tokens.at(i - 1);
         const Token &nextTok = m_tokens.at(i + 1);
@@ -126,21 +126,37 @@ std::vector<Cursor> Tokens::annotate() const
         }
 
         // QTCREATORBUG-24636, QTCREATORBUG-24650
-        if (i >= 2 && i < int(m_tokens.size()) - 3) {
+        if (i >= 2) {
+            QList<int> setToNull;
             const Token &prevPrevTok = m_tokens.at(i - 2);
-            const Token &nextNextTok = m_tokens.at(i + 2);
             if (prevTok.kind() == CXToken_Punctuation && prevTok.spelling() == "["
-                    && prevPrevTok.kind() == CXToken_Punctuation && prevPrevTok.spelling() == "["
-                    && nextTok.kind() == CXToken_Punctuation && nextTok.spelling() == "]"
-                    && nextNextTok.kind() == CXToken_Punctuation && nextNextTok.spelling() == "]") {
-                for (int j = i + 3; j < int(m_tokens.size()); ++j) {
-                    if (cxCursors[j] == cxCursors[j - 1])
-                        continue;
-                    if (cxCursors[j].kind == CXCursor_FunctionDecl
-                            || cxCursors[j].kind == CXCursor_ParmDecl) {
-                        cxCursors[i] = clang_getNullCursor();
+                    && prevPrevTok.kind() == CXToken_Punctuation && prevPrevTok.spelling() == "[") {
+
+                int endOfAttrList = i + 2; // assume the first possible end of attribute declaration
+                while (endOfAttrList < int(m_tokens.size())) {
+                    const Token &last = m_tokens.at(endOfAttrList);
+                    const Token &secondLast = m_tokens.at(endOfAttrList - 1);
+                    const Token &current = m_tokens.at(endOfAttrList - 2);
+
+                    if (current.kind() == CXToken_Identifier || current.kind() == CXToken_Keyword)
+                        setToNull.append(endOfAttrList - 2);
+                    if (last.kind() == CXToken_Punctuation && last.spelling() == "]"
+                            && secondLast.kind() == CXToken_Punctuation
+                            && secondLast.spelling() == "]") {
+                        break;
                     }
-                    break;
+                    ++endOfAttrList;
+                }
+                for (int index : qAsConst(setToNull)) {
+                    for (int j = index + 3; j < int(m_tokens.size()); ++j) {
+                        if (cxCursors[j] == cxCursors[j - 1])
+                            continue;
+                        if (cxCursors[j].kind == CXCursor_FunctionDecl
+                                || cxCursors[j].kind == CXCursor_ParmDecl) {
+                            cxCursors[index] = clang_getNullCursor();
+                        }
+                        break;
+                    }
                 }
             }
         }
