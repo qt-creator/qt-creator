@@ -1062,6 +1062,14 @@ static QByteArray getPackage(const QByteArray &name)
     return nameComponents.join('.');
 }
 
+
+QList<TypeName> qtObjectTypes()
+{
+    static QList<TypeName> typeNames = {"QML.QtObject", "QtQml.QtObject", "<cpp>.QObject"};
+
+    return typeNames;
+}
+
 bool NodeMetaInfoPrivate::cleverCheckType(const TypeName &otherType) const
 {
     if (otherType == qualfiedTypeName())
@@ -1069,6 +1077,9 @@ bool NodeMetaInfoPrivate::cleverCheckType(const TypeName &otherType) const
 
     if (isFileComponent())
         return false;
+
+    if (qtObjectTypes().contains(qualfiedTypeName()) && qtObjectTypes().contains(otherType))
+        return true;
 
     const QByteArray typeName = getUnqualifiedName(otherType);
     const QByteArray package = getPackage(otherType);
