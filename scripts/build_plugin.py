@@ -57,7 +57,8 @@ def get_arguments():
                         action='store_true', default=False)
     parser.add_argument('--deploy', help='Installs the "Dependencies" component of the plugin.',
                         action='store_true', default=False)
-    parser.add_argument('--debug', help='Enable debug builds', action='store_true', default=False)
+    parser.add_argument('--build-type', help='Build type to pass to CMake (defaults to RelWithDebInfo)',
+                        default='RelWithDebInfo')
     return parser.parse_args()
 
 def build(args, paths):
@@ -67,10 +68,9 @@ def build(args, paths):
         os.makedirs(paths.result)
     prefix_paths = [os.path.abspath(fp) for fp in args.prefix_paths] + [paths.qt_creator, paths.qt]
     prefix_paths = [common.to_posix_path(fp) for fp in prefix_paths]
-    build_type = 'Debug' if args.debug else 'RelWithDebInfo'
     cmake_args = ['cmake',
                   '-DCMAKE_PREFIX_PATH=' + ';'.join(prefix_paths),
-                  '-DCMAKE_BUILD_TYPE=' + build_type,
+                  '-DCMAKE_BUILD_TYPE=' + args.build_type,
                   '-DCMAKE_INSTALL_PREFIX=' + common.to_posix_path(paths.install),
                   '-G', 'Ninja']
 

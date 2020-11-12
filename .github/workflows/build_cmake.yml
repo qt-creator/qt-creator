@@ -391,6 +391,7 @@ jobs:
           COMMAND python
             -u
             scripts/build.py
+            --build-type Release
             --src .
             --build build
             --qt-path "${{ steps.qt.outputs.qt_dir }}"
