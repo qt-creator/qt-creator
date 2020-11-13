@@ -36,6 +36,31 @@ option(BUILD_PLUGINS_BY_DEFAULT "Build plugins by default. This can be used to b
 option(BUILD_EXECUTABLES_BY_DEFAULT "Build executables by default. This can be used to build all executables by default, or none." ON)
 option(BUILD_LIBRARIES_BY_DEFAULT "Build libraries by default. This can be used to build all libraries by default, or none." ON)
 
+# If we provide a list of plugins, executables, libraries, then the BUILD_<type>_BY_DEFAULT will be set to OFF
+# and for every element we set BUILD_<type>_<elment> to ON
+# e.g. BUILD_PLUGINS=Core;TextEditor will result in BUILD_PLUGINS_BY_DEFAULT=OFF and BUILD_PLUGIN_CORE=ON and BUILD_PLUGIN_TEXTEDITOR ON
+
+function(qtc_check_default_values_for_list list_type)
+  set(PLUGINS_single plugin)
+  set(EXECUTABLES_single executable)
+  set(LIBRARIES_single library)
+
+  if (NOT DEFINED BUILD_${list_type})
+      return()
+  endif()
+
+  set(BUILD_${list_type}_BY_DEFAULT OFF CACHE BOOL "" FORCE)
+
+  foreach(element ${BUILD_${list_type}})
+    string(TOUPPER "${${list_type}_single}_${element}" upper_element)
+    set(BUILD_${upper_element} ON CACHE BOOL "Build ${${list_type}_single} ${element}.")
+  endforeach()
+endfunction()
+
+qtc_check_default_values_for_list(PLUGINS)
+qtc_check_default_values_for_list(EXECUTABLES)
+qtc_check_default_values_for_list(LIBRARIES)
+
 function(qtc_plugin_enabled varName name)
   if (NOT (name IN_LIST __QTC_PLUGINS))
     message(FATAL_ERROR "qtc_plugin_enabled: Unknown plugin target \"${name}\"")
