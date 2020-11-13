@@ -228,7 +228,12 @@ bool Bind::visit(UiImport *ast)
                     _doc->setLanguage(Dialect::QmlQtQuick2);
             }
         }
-        _imports += import;
+
+        // Make sure QtQuick import is in the list before imports that might depend on it
+        if (import.name() == QLatin1String("QtQuick"))
+            _imports.prepend(import);
+        else
+            _imports += import;
     } else if (!ast->fileName.isEmpty()) {
         _imports += ImportInfo::pathImport(_doc->path(), ast->fileName.toString(),
                                            version, ast->importId.toString(), ast);
