@@ -30,6 +30,7 @@
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
+class QCheckBox;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -56,21 +57,25 @@ public:
 
     void adjustProperties() override;
 
-    void setAllBindings(QList<BindingOption> bindings);
+    void setAllBindings(const QList<BindingOption> &bindings, const TypeName &type);
 
 private:
     void setupUIComponents();
     void setupComboBoxes();
+    void setupCheckBox();
 
 public slots:
     void itemIDChanged(int);
     void propertyIDChanged(int);
+    void checkBoxChanged(int);
 
 private:
     QComboBox *m_comboBoxItem = nullptr;
     QComboBox *m_comboBoxProperty = nullptr;
+    QCheckBox *m_checkBoxNot = nullptr;
 
     QList<BindingOption> m_bindings;
+    TypeName m_type;
 };
 
 }

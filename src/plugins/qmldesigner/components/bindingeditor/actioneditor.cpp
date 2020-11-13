@@ -279,9 +279,8 @@ void ActionEditor::prepareConnections()
     }
 
     // States
-    for (const QmlModelState &state : QmlItemNode(m_modelNode).states().allStates())
+    for (const QmlModelState &state : QmlItemNode(m_modelNode.view()->rootModelNode()).states().allStates())
         states.append(state.name());
-
 
     if (!connections.isEmpty() && !m_dialog.isNull())
         m_dialog->setAllConnections(connections, singletons, states);
