@@ -1,5 +1,5 @@
 add_qtc_plugin(ClangFormat
-  CONDITION TARGET libclang
+  CONDITION TARGET libclang AND LLVM_PACKAGE_VERSION VERSION_GREATER_EQUAL 10.0.0
   DEPENDS Utils Qt5::Widgets clangFormat
   INCLUDES "${CLANG_INCLUDE_DIRS}"
   PLUGIN_DEPENDS Core TextEditor CppEditor CppTools ProjectExplorer
