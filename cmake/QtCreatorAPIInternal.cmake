@@ -329,7 +329,7 @@ function(enable_pch target)
         endif()
       endfunction()
 
-      if (NOT TARGET QtCreatorPchGui AND NOT TARGET QtCreatorPchConsole)
+      if (NOT TARGET ${PROJECT_NAME}PchGui AND NOT TARGET ${PROJECT_NAME}PchConsole)
         file(GENERATE
           OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.c
           CONTENT "/*empty file*/")
@@ -341,17 +341,17 @@ function(enable_pch target)
             ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.cpp
             PROPERTIES GENERATED TRUE)
 
-        _add_pch_target(QtCreatorPchGui
-          "${PROJECT_SOURCE_DIR}/src/shared/qtcreator_gui_pch.h" Qt5::Widgets)
-        _add_pch_target(QtCreatorPchConsole
-          "${PROJECT_SOURCE_DIR}/src/shared/qtcreator_pch.h" Qt5::Core)
+        _add_pch_target(${PROJECT_NAME}PchGui
+          "${QtCreator_SOURCE_DIR}/src/shared/qtcreator_gui_pch.h" Qt5::Widgets)
+        _add_pch_target(${PROJECT_NAME}PchConsole
+          "${QtCreator_SOURCE_DIR}/src/shared/qtcreator_pch.h" Qt5::Core)
       endif()
 
       unset(PCH_TARGET)
       if ("Qt5::Widgets" IN_LIST dependencies)
-        set(PCH_TARGET QtCreatorPchGui)
+        set(PCH_TARGET ${PROJECT_NAME}PchGui)
       elseif ("Qt5::Core" IN_LIST dependencies)
-        set(PCH_TARGET QtCreatorPchConsole)
+        set(PCH_TARGET ${PROJECT_NAME}Console)
       endif()
 
       if (TARGET "${PCH_TARGET}")
