@@ -27,6 +27,9 @@
 #include "mcusupportoptions.h"
 #include "mcusupportsdk.h"
 
+#include <baremetal/baremetalconstants.h>
+#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainmanager.h>
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/fileutils.h>
@@ -78,6 +81,11 @@ static McuToolChainPackage *createGccToolChainPackage()
     return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::TypeGCC);
 }
 
+static McuToolChainPackage *createUnsupportedToolChainPackage()
+{
+    return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::TypeUnsupported);
+}
+
 static McuToolChainPackage *createArmGccPackage()
 {
     const char envVar[] = "ARMGCC_DIR";
@@ -122,6 +130,36 @@ static McuToolChainPackage *createGhsToolchainPackage()
                 Utils::HostOsInfo::withExecutableSuffix("ccv850"),
                 "GHSToolchain",
                 McuToolChainPackage::TypeGHS);
+    result->setEnvironmentVariableName(envVar);
+    return result;
+}
+
+static McuToolChainPackage *createIarToolChainPackage()
+{
+    const char envVar[] = "IAR_ARM_COMPILER_DIR";
+
+    QString defaultPath;
+    if (qEnvironmentVariableIsSet(envVar))
+        defaultPath = qEnvironmentVariable(envVar);
+    else {
+        const ProjectExplorer::ToolChain *tc =
+                ProjectExplorer::ToolChainManager::toolChain([](const ProjectExplorer::ToolChain *t) {
+            return  t->typeId() == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID;
+        });
+        if (tc) {
+            const Utils::FilePath compilerExecPath = tc->compilerCommand();
+            defaultPath = compilerExecPath.parentDir().parentDir().toString();
+        }
+        else
+            defaultPath = QDir::homePath();
+    }
+
+    auto result = new McuToolChainPackage(
+                "IAR ARM Compiler",
+                defaultPath,
+                Utils::HostOsInfo::withExecutableSuffix("bin/iccarm"),
+                "IARToolchain",
+                McuToolChainPackage::TypeIAR);
     result->setEnvironmentVariableName(envVar);
     return result;
 }
@@ -321,6 +359,8 @@ protected:
     {
         QVector<McuTarget *> mcuTargets;
         McuToolChainPackage *tcPkg = tcPkgs.value(desc.toolchainId);
+        if (!tcPkg)
+            tcPkg = createUnsupportedToolChainPackage();
         for (auto os : {McuTarget::OS::BareMetal, McuTarget::OS::FreeRTOS}) {
             for (int colorDepth : desc.colorDepths) {
                 QVector<McuPackage*> required3rdPartyPkgs = { tcPkg };
@@ -366,6 +406,8 @@ protected:
     QVector<McuTarget *> createDesktopTargetsLegacy(const McuTargetDescription& desc)
     {
         McuToolChainPackage *tcPkg = tcPkgs.value(desc.toolchainId);
+        if (!tcPkg)
+            tcPkg = createUnsupportedToolChainPackage();
         const auto platform = McuTarget::Platform{ desc.platform, desc.platformName, desc.platformVendor };
         auto desktopTarget = new McuTarget(QVersionNumber::fromString(desc.qulVersion),
                                            platform, McuTarget::OS::Desktop, {}, tcPkg);
@@ -385,10 +427,14 @@ protected:
 
         QVector<McuTarget *> mcuTargets;
         McuToolChainPackage *tcPkg = tcPkgs.value(desc.toolchainId);
+        if (!tcPkg)
+            tcPkg = createUnsupportedToolChainPackage();
         for (int colorDepth : desc.colorDepths) {
             QVector<McuPackage*> required3rdPartyPkgs;
             // Desktop toolchains don't need any additional settings
-            if (tcPkg && !tcPkg->isDesktopToolchain())
+            if (tcPkg
+                && !tcPkg->isDesktopToolchain()
+                && tcPkg->type() != McuToolChainPackage::TypeUnsupported)
                 required3rdPartyPkgs.append(tcPkg);
 
             // Add setting specific to platform IDE
@@ -440,6 +486,7 @@ static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescrip
     const QHash<QString, McuToolChainPackage *> tcPkgs = {
         {{"armgcc"}, createArmGccPackage()},
         {{"greenhills"}, createGhsToolchainPackage()},
+        {{"iar"}, createIarToolChainPackage()},
         {{"msvc"}, createMsvcToolChainPackage()},
         {{"gcc"}, createGccToolChainPackage()},
     };
