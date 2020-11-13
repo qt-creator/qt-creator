@@ -1676,6 +1676,10 @@ void Qt5InformationNodeInstanceServer::handleInstanceLocked(const ServerNodeInst
             }
         }
     }
+#else
+    Q_UNUSED(instance);
+    Q_UNUSED(enable);
+    Q_UNUSED(checkAncestors);
 #endif
 }
 
@@ -1746,6 +1750,10 @@ void Qt5InformationNodeInstanceServer::handleInstanceHidden(const ServerNodeInst
             }
         }
     }
+#else
+    Q_UNUSED(instance);
+    Q_UNUSED(enable);
+    Q_UNUSED(checkAncestors);
 #endif
 }
 
