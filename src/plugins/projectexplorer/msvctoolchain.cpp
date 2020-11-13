@@ -1456,9 +1456,9 @@ void ClangClToolChainConfigWidget::setFromClangClToolChain()
 
     const auto *clangClToolChain = static_cast<const ClangClToolChain *>(toolChain());
     if (clangClToolChain->isAutoDetected())
-        m_llvmDirLabel->setText(QDir::toNativeSeparators(clangClToolChain->clangPath()));
+        m_llvmDirLabel->setText(clangClToolChain->compilerCommand().toUserOutput());
     else
-        m_compilerCommand->setFilePath(Utils::FilePath::fromString(clangClToolChain->clangPath()));
+        m_compilerCommand->setFilePath(clangClToolChain->compilerCommand());
 }
 
 static const MsvcToolChain *findMsvcToolChain(unsigned char wordWidth, Abi::OSFlavor flavor)
@@ -1556,7 +1556,7 @@ static QList<ToolChain *> detectClangClToolChainInPath(const QString &clangClPat
             res << tc;
         } else {
             auto cltc = new ClangClToolChain;
-            cltc->setClangPath(clangClPath);
+            cltc->setCompilerCommand(FilePath::fromString(clangClPath));
             cltc->setDisplayName(name);
             cltc->setDetection(ToolChain::AutoDetection);
             cltc->setLanguage(language);
@@ -1574,18 +1574,18 @@ static QString compilerFromPath(const QString &path)
 
 void ClangClToolChainConfigWidget::applyImpl()
 {
-    Utils::FilePath clangClPath = m_compilerCommand->filePath();
+    FilePath compilerCommand = m_compilerCommand->filePath();
     auto clangClToolChain = static_cast<ClangClToolChain *>(toolChain());
-    clangClToolChain->setClangPath(clangClPath.toString());
+    clangClToolChain->setCompilerCommand(compilerCommand);
 
-    if (clangClPath.fileName() != "clang-cl.exe") {
+    if (compilerCommand.fileName() != "clang-cl.exe") {
         clangClToolChain->resetVarsBat();
         setFromClangClToolChain();
         return;
     }
 
     const QString displayedVarsBat = m_varsBatDisplayCombo->currentText();
-    QList<ToolChain *> results = detectClangClToolChainInPath(clangClPath.toString(),
+    QList<ToolChain *> results = detectClangClToolChainInPath(compilerCommand.toString(),
                                                               {},
                                                               displayedVarsBat);
 
@@ -1625,6 +1625,7 @@ ClangClToolChain::ClangClToolChain()
 {
     setDisplayName("clang-cl");
     setTypeDisplayName(QCoreApplication::translate("ProjectExplorer::ClangToolChainFactory", "Clang"));
+    setCompilerCommandKey("ProjectExplorer.ClangClToolChain.LlvmDir");
 }
 
 bool ClangClToolChain::isValid() const
@@ -1636,13 +1637,8 @@ bool ClangClToolChain::isValid() const
 void ClangClToolChain::addToEnvironment(Utils::Environment &env) const
 {
     MsvcToolChain::addToEnvironment(env);
-    QDir path = QFileInfo(m_clangPath).absoluteDir(); // bin folder
+    QDir path = compilerCommand().toFileInfo().absoluteDir(); // bin folder
     env.prependOrSetPath(path.canonicalPath());
-}
-
-Utils::FilePath ClangClToolChain::compilerCommand() const
-{
-    return Utils::FilePath::fromString(m_clangPath);
 }
 
 QStringList ClangClToolChain::suggestedMkspecList() const
@@ -1656,42 +1652,9 @@ QList<OutputLineParser *> ClangClToolChain::createOutputParsers() const
     return {new ClangClParser};
 }
 
-static inline QString llvmDirKey()
-{
-    return QStringLiteral("ProjectExplorer.ClangClToolChain.LlvmDir");
-}
-
-QVariantMap ClangClToolChain::toMap() const
-{
-    QVariantMap result = MsvcToolChain::toMap();
-    result.insert(llvmDirKey(), m_clangPath);
-    return result;
-}
-
-bool ClangClToolChain::fromMap(const QVariantMap &data)
-{
-    if (!MsvcToolChain::fromMap(data))
-        return false;
-    const QString clangPath = data.value(llvmDirKey()).toString();
-    if (clangPath.isEmpty())
-        return false;
-    m_clangPath = clangPath;
-
-    return true;
-}
-
 std::unique_ptr<ToolChainConfigWidget> ClangClToolChain::createConfigurationWidget()
 {
     return std::make_unique<ClangClToolChainConfigWidget>(this);
-}
-
-bool ClangClToolChain::operator==(const ToolChain &other) const
-{
-    if (!MsvcToolChain::operator==(other))
-        return false;
-
-    const auto *clangClTc = static_cast<const ClangClToolChain *>(&other);
-    return m_clangPath == clangClTc->m_clangPath;
 }
 
 Macros ClangClToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
