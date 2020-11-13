@@ -52,6 +52,8 @@ Editing
 * Fixed that `Complete switch statement` indents unrelated code (QTCREATORBUG-12445)
 * Fixed `Complete switch statement` with templates (QTCREATORBUG-24752)
 * Fixed `Complete switch statement` for enum classes (QTCREATORBUG-20475)
+* Fixed creating and moving template member function definitions (QTCREATORBUG-24801,
+  QTCREATORBUG-24848)
 * Fixed that `Apply function signature change` removed return values from `std::function`
   arguments (QTCREATORBUG-13698)
 * Fixed handling of multiple inheritance in `Insert Virtual Functions` (QTCREATORBUG-12223)
@@ -81,6 +83,8 @@ Projects
 
 * Renamed `CurrentProject:*` variables to `CurrentDocument:Project:*` (QTCREATORBUG-12724,
   QTCREATORBUG-24606)
+* Added `ActiveProject:*` variables (QTCREATORBUG-24878)
+* Changed `Qt Creator Plugin` wizard to CMake build system (QTCREATORBUG-24073)
 * Fixed issue when environment changes after appending or prepending path (QTCREATORBUG-24105)
 * Fixed `Embedding of the UI Class` option for widget applications (QTCREATORBUG-24422)
 * Fixed shell used for console applications (QTCREATORBUG-24659)
@@ -107,10 +111,15 @@ Debugging
 ---------
 
 * Fixed disabling and enabling breakpoints (QTCREATORBUG-24669)
+* Fixed setting source mappings with variables (QTCREATORBUG-24816)
 
 ### GDB
 
 * Fixed loading of symbol files with `Load Core File` (QTCREATORBUG-24541)
+
+### CDB
+
+* Fixed debugging when `PYTHONPATH` is set (QTCREATORBUG-24859)
 
 Analyzer
 --------
@@ -156,8 +165,13 @@ Platforms
 * Added missing Android variables to completion in `.pro` and `.pri` files
 * Fixed passing command line arguments to application (QTCREATORBUG-23712)
 
+### MCU
+
+* Improved creation of kits (QTCREATORBUG-24354)
+
 Credits for these changes go to:
 --------------------------------
+Aleksei German  
 Alessandro Portale  
 Alexander Mishin  
 Alexis Jeandet  
@@ -166,6 +180,7 @@ André Pönitz
 Antonio Di Monaco  
 Asit Dhal  
 Assam Boudjelthia  
+Christiaan Janssen  
 Christian Kandeler  
 Christian Stenger  
 Cristian Adam  
@@ -176,14 +191,19 @@ Fabio Falsini
 Fawzi Mohamed  
 Federico Guerinoni  
 Henning Gruendl  
+Jaroslaw Kobus  
 Jeremy Ephron  
+Jochen Seemann  
+Johanna Vanhatapio  
 Kai Köhne  
 Knud Dollereder  
 Lars Knoll  
 Leander Schulten  
 Leena Miettinen  
+Lukas Holecek  
 Lukasz Ornatek  
 Mahmoud Badri  
+Marco Bubke  
 Martin Kampas  
 Michael Weghorn  
 Miikka Heikkinen  
@@ -194,6 +214,7 @@ Robert Löhning
 Tasuku Suzuki  
 Thiago Macieira  
 Thomas Hartmann  
+Tim Jenssen  
 Tobias Hunger  
 Vikas Pachdha  
 Volodymyr Zibarov  
