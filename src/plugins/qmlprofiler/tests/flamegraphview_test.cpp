@@ -64,7 +64,7 @@ void FlameGraphViewTest::testSelection()
     });
 
     QSignalSpy spy(&view, SIGNAL(typeSelected(int)));
-    QTest::mouseClick(view.childAt(250, 250), Qt::LeftButton, Qt::NoModifier, QPoint(5, 495));
+    QTest::mouseClick(view.childAt(250, 250), Qt::LeftButton, Qt::NoModifier, QPoint(15, 485));
     if (spy.isEmpty())
         QVERIFY(spy.wait());
 
@@ -74,7 +74,7 @@ void FlameGraphViewTest::testSelection()
 
     // Click in empty area deselects
     expectedType = -1;
-    QTest::mouseClick(view.childAt(250, 250), Qt::LeftButton, Qt::NoModifier, QPoint(495, 50));
+    QTest::mouseClick(view.childAt(250, 250), Qt::LeftButton, Qt::NoModifier, QPoint(485, 50));
     QCOMPARE(spy.count(), 2);
 
     view.onVisibleFeaturesChanged(1 << ProfileBinding);
