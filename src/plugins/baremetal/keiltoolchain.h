@@ -76,9 +76,6 @@ public:
 
     bool operator ==(const ToolChain &other) const final;
 
-    void setCompilerCommand(const Utils::FilePath &file);
-    Utils::FilePath compilerCommand() const final;
-
     void setExtraCodeModelFlags(const QStringList &flags);
     QStringList extraCodeModelFlags() const final;
 
@@ -87,7 +84,6 @@ public:
 private:
     KeilToolChain();
 
-    Utils::FilePath m_compilerCommand;
     QStringList m_extraCodeModelFlags;
 
     friend class KeilToolChainFactory;

@@ -39,6 +39,8 @@
 #include <QFileInfo>
 #include <QUuid>
 
+using namespace Utils;
+
 static const char ID_KEY[] = "ProjectExplorer.ToolChain.Id";
 static const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ToolChain.DisplayName";
 static const char AUTODETECT_KEY[] = "ProjectExplorer.ToolChain.Autodetect";
@@ -69,6 +71,8 @@ public:
     }
 
     QByteArray m_id;
+    FilePath m_compilerCommand;
+    QString m_compilerCommandKey;
     Abi m_targetAbi;
     QString m_targetAbiKey;
     QSet<Utils::Id> m_supportedLanguages;
@@ -210,6 +214,8 @@ QVariantMap ToolChain::toMap() const
     result.insert(QLatin1String(LANGUAGE_KEY_V2), language().toSetting());
     if (!d->m_targetAbiKey.isEmpty())
         result.insert(d->m_targetAbiKey, d->m_targetAbi.toString());
+    if (!d->m_compilerCommandKey.isEmpty())
+        result.insert(d->m_compilerCommandKey, d->m_compilerCommand.toString());
     return result;
 }
 
@@ -262,6 +268,24 @@ void ToolChain::setTargetAbiKey(const QString &abiKey)
     d->m_targetAbiKey = abiKey;
 }
 
+FilePath ToolChain::compilerCommand() const
+{
+    return d->m_compilerCommand;
+}
+
+void ToolChain::setCompilerCommand(const FilePath &command)
+{
+    if (command == d->m_compilerCommand)
+        return;
+    d->m_compilerCommand = command;
+    toolChainUpdated();
+}
+
+void ToolChain::setCompilerCommandKey(const QString &commandKey)
+{
+    d->m_compilerCommandKey = commandKey;
+}
+
 void ToolChain::setTypeDisplayName(const QString &typeName)
 {
     d->m_typeDisplayName = typeName;
@@ -303,6 +327,8 @@ bool ToolChain::fromMap(const QVariantMap &data)
 
     if (!d->m_targetAbiKey.isEmpty())
         d->m_targetAbi = Abi::fromString(data.value(d->m_targetAbiKey).toString());
+
+    d->m_compilerCommand = FilePath::fromString(data.value(d->m_compilerCommandKey).toString());
 
     return true;
 }

@@ -137,7 +137,9 @@ public:
 
     Utils::Id language() const;
 
-    virtual Utils::FilePath compilerCommand() const = 0;
+    virtual Utils::FilePath compilerCommand() const; // FIXME: De-virtualize.
+    void setCompilerCommand(const Utils::FilePath &command);
+
     virtual QList<Utils::OutputLineParser *> createOutputParsers() const = 0;
 
     virtual bool operator ==(const ToolChain &) const;
@@ -165,6 +167,8 @@ protected:
 
     void setTargetAbiNoSignal(const Abi &abi);
     void setTargetAbiKey(const QString &abiKey);
+
+    void setCompilerCommandKey(const QString &commandKey);
 
     const MacrosCache &predefinedMacrosCache() const;
     const HeaderPathsCache &headerPathsCache() const;

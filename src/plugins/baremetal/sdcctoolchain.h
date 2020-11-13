@@ -68,22 +68,14 @@ public:
     void addToEnvironment(Utils::Environment &env) const final;
     QList<Utils::OutputLineParser *> createOutputParsers() const final;
 
-    QVariantMap toMap() const final;
-    bool fromMap(const QVariantMap &data) final;
-
     std::unique_ptr<ProjectExplorer::ToolChainConfigWidget> createConfigurationWidget() final;
 
     bool operator ==(const ToolChain &other) const final;
-
-    void setCompilerCommand(const Utils::FilePath &file);
-    Utils::FilePath compilerCommand() const final;
 
     Utils::FilePath makeCommand(const Utils::Environment &env) const final;
 
 private:
     SdccToolChain();
-
-    Utils::FilePath m_compilerCommand;
 
     friend class SdccToolChainFactory;
     friend class SdccToolChainConfigWidget;

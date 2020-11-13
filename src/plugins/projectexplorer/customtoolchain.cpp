@@ -57,7 +57,6 @@ namespace ProjectExplorer {
 // Helpers:
 // --------------------------------------------------------------------------
 
-static const char compilerCommandKeyC[] = "ProjectExplorer.CustomToolChain.CompilerPath";
 static const char makeCommandKeyC[] = "ProjectExplorer.CustomToolChain.MakePath";
 static const char predefinedMacrosKeyC[] = "ProjectExplorer.CustomToolChain.PredefinedMacros";
 static const char headerPathsKeyC[] = "ProjectExplorer.CustomToolChain.HeaderPaths";
@@ -75,6 +74,7 @@ CustomToolChain::CustomToolChain() :
 {
     setTypeDisplayName(tr("Custom"));
     setTargetAbiKey("ProjectExplorer.CustomToolChain.TargetAbi");
+    setCompilerCommandKey("ProjectExplorer.CustomToolChain.CompilerPath");
 }
 
 CustomParserSettings CustomToolChain::customParserSettings() const
@@ -210,19 +210,6 @@ void CustomToolChain::setHeaderPaths(const QStringList &list)
     toolChainUpdated();
 }
 
-void CustomToolChain::setCompilerCommand(const FilePath &path)
-{
-    if (path == m_compilerCommand)
-        return;
-    m_compilerCommand = path;
-    toolChainUpdated();
-}
-
-FilePath CustomToolChain::compilerCommand() const
-{
-    return m_compilerCommand;
-}
-
 void CustomToolChain::setMakeCommand(const FilePath &path)
 {
     if (path == m_makeCommand)
@@ -266,7 +253,6 @@ QString CustomToolChain::mkspecs() const
 QVariantMap CustomToolChain::toMap() const
 {
     QVariantMap data = ToolChain::toMap();
-    data.insert(QLatin1String(compilerCommandKeyC), m_compilerCommand.toString());
     data.insert(QLatin1String(makeCommandKeyC), m_makeCommand.toString());
     QStringList macros = Utils::transform<QList>(m_predefinedMacros, [](const Macro &m) { return QString::fromUtf8(m.toByteArray()); });
     data.insert(QLatin1String(predefinedMacrosKeyC), macros);
@@ -283,7 +269,6 @@ bool CustomToolChain::fromMap(const QVariantMap &data)
     if (!ToolChain::fromMap(data))
         return false;
 
-    m_compilerCommand = FilePath::fromString(data.value(QLatin1String(compilerCommandKeyC)).toString());
     m_makeCommand = FilePath::fromString(data.value(QLatin1String(makeCommandKeyC)).toString());
     const QStringList macros = data.value(QLatin1String(predefinedMacrosKeyC)).toStringList();
     m_predefinedMacros = Macro::toMacros(macros.join('\n').toUtf8());

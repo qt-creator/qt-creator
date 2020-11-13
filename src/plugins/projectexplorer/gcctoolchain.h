@@ -103,7 +103,6 @@ public:
     bool operator ==(const ToolChain &) const override;
 
     void resetToolChain(const Utils::FilePath &);
-    Utils::FilePath compilerCommand() const override;
     void setPlatformCodeGenFlags(const QStringList &);
     QStringList extraCodeModelFlags() const override;
     QStringList platformCodeGenFlags() const;
@@ -128,7 +127,6 @@ protected:
     using CacheItem = QPair<QStringList, Macros>;
     using GccCache = QVector<CacheItem>;
 
-    void setCompilerCommand(const Utils::FilePath &path);
     void setSupportedAbis(const Abis &abis);
     void setOriginalTargetTriple(const QString &targetTriple);
     void setInstallDir(const Utils::FilePath &installDir);
@@ -187,7 +185,6 @@ private:
                                            OptionsReinterpreter reinterpretOptions);
 
 protected:
-    Utils::FilePath m_compilerCommand;
     QStringList m_platformCodeGenFlags;
     QStringList m_platformLinkerFlags;
 

@@ -1144,11 +1144,6 @@ FilePath MsvcToolChain::makeCommand(const Environment &environment) const
     return command;
 }
 
-Utils::FilePath MsvcToolChain::compilerCommand() const
-{
-    return m_compilerCommand;
-}
-
 void MsvcToolChain::rescanForCompiler()
 {
     Utils::Environment env = Utils::Environment::systemEnvironment();

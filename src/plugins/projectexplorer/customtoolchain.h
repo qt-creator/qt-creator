@@ -91,8 +91,6 @@ public:
 
     bool operator ==(const ToolChain &) const override;
 
-    void setCompilerCommand(const Utils::FilePath &);
-    Utils::FilePath compilerCommand() const override;
     void setMakeCommand(const Utils::FilePath &);
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
 

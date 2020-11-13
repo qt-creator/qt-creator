@@ -87,7 +87,6 @@ public:
     void addToEnvironment(Utils::Environment &env) const override;
 
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
-    Utils::FilePath compilerCommand() const override;
     QList<Utils::OutputLineParser *> createOutputParsers() const override;
 
     QString varsBatArg() const { return m_varsBatArg; }
@@ -170,7 +169,7 @@ public:
     bool isValid() const override;
     QStringList suggestedMkspecList() const override;
     void addToEnvironment(Utils::Environment &env) const override;
-    Utils::FilePath compilerCommand() const override;
+    Utils::FilePath compilerCommand() const override; // FIXME: Remove.
     QList<Utils::OutputLineParser *> createOutputParsers() const override;
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &data) override;
