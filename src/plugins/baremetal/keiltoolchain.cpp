@@ -435,11 +435,6 @@ KeilToolChain::KeilToolChain() :
     setCompilerCommandKey("CompilerPath");
 }
 
-bool KeilToolChain::isValid() const
-{
-    return true;
-}
-
 ToolChain::MacroInspectionRunner KeilToolChain::createMacroInspectionRunner() const
 {
     Environment env = Environment::systemEnvironment();

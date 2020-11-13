@@ -53,14 +53,6 @@ NimToolChain::NimToolChain(Utils::Id typeId)
     setCompilerCommandKey("Nim.NimToolChain.CompilerCommand");
 }
 
-bool NimToolChain::isValid() const
-{
-    if (compilerCommand().isEmpty())
-        return false;
-    QFileInfo fi = compilerCommand().toFileInfo();
-    return fi.isExecutable();
-}
-
 ToolChain::MacroInspectionRunner NimToolChain::createMacroInspectionRunner() const
 {
     return ToolChain::MacroInspectionRunner();

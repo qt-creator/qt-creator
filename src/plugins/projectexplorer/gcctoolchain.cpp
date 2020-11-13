@@ -344,15 +344,6 @@ Abis GccToolChain::supportedAbis() const
     return m_supportedAbis;
 }
 
-bool GccToolChain::isValid() const
-{
-    if (compilerCommand().isEmpty())
-        return false;
-
-    QFileInfo fi = compilerCommand().toFileInfo();
-    return fi.isExecutable();
-}
-
 static bool isNetworkCompiler(const QString &dirPath)
 {
     return dirPath.contains("icecc") || dirPath.contains("distcc");

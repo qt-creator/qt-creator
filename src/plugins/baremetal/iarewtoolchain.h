@@ -53,8 +53,6 @@ class IarToolChain final : public ProjectExplorer::ToolChain
     Q_DECLARE_TR_FUNCTIONS(IarToolChain)
 
 public:
-    bool isValid() const final;
-
     MacroInspectionRunner createMacroInspectionRunner() const final;
 
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const final;

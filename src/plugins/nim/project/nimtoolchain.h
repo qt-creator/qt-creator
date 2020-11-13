@@ -38,8 +38,6 @@ public:
     NimToolChain();
     explicit NimToolChain(Utils::Id typeId);
 
-    bool isValid() const override;
-
     MacroInspectionRunner createMacroInspectionRunner() const override;
     Utils::LanguageExtensions languageExtensions(const QStringList &flags) const final;
     Utils::WarningFlags warningFlags(const QStringList &flags) const final;

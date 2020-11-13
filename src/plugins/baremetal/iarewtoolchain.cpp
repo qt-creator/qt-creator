@@ -296,11 +296,6 @@ IarToolChain::IarToolChain() :
     setCompilerCommandKey("CompilerPath");
 }
 
-bool IarToolChain::isValid() const
-{
-    return true;
-}
-
 ToolChain::MacroInspectionRunner IarToolChain::createMacroInspectionRunner() const
 {
     Environment env = Environment::systemEnvironment();

@@ -219,11 +219,6 @@ SdccToolChain::SdccToolChain() :
     setCompilerCommandKey("CompilerPath");
 }
 
-bool SdccToolChain::isValid() const
-{
-    return true;
-}
-
 ToolChain::MacroInspectionRunner SdccToolChain::createMacroInspectionRunner() const
 {
     Environment env = Environment::systemEnvironment();

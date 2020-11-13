@@ -159,6 +159,14 @@ Abis ToolChain::supportedAbis() const
     return {targetAbi()};
 }
 
+bool ToolChain::isValid() const
+{
+    if (compilerCommand().isEmpty())
+        return false;
+    QFileInfo fi = compilerCommand().toFileInfo();
+    return fi.isExecutable();
+}
+
 QStringList ToolChain::includedFiles(const QStringList &flags, const QString &directory) const
 {
     Q_UNUSED(flags)

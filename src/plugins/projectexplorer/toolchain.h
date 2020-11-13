@@ -103,7 +103,7 @@ public:
     virtual QStringList extraCodeModelFlags() const { return QStringList(); }
     virtual Utils::FilePath installDir() const { return Utils::FilePath(); }
 
-    virtual bool isValid() const = 0;
+    virtual bool isValid() const;
 
     virtual Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const = 0;
     virtual Utils::WarningFlags warningFlags(const QStringList &cflags) const = 0;

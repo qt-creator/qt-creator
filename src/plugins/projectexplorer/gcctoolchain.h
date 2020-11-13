@@ -75,7 +75,6 @@ public:
     Utils::FilePath installDir() const override;
     QString version() const;
     Abis supportedAbis() const override;
-    bool isValid() const override;
 
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
     Utils::WarningFlags warningFlags(const QStringList &cflags) const override;
