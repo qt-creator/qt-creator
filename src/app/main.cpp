@@ -341,11 +341,13 @@ static void setHighDpiEnvironmentVariable()
             && !qEnvironmentVariableIsSet("QT_AUTO_SCREEN_SCALE_FACTOR")
             && !qEnvironmentVariableIsSet("QT_SCALE_FACTOR")
             && !qEnvironmentVariableIsSet("QT_SCREEN_SCALE_FACTORS")) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #if QT_VERSION == QT_VERSION_CHECK(5, 14, 0)
         // work around QTBUG-80934
         QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
             Qt::HighDpiScaleFactorRoundingPolicy::Round);
+#endif
 #endif
     }
 }
@@ -557,8 +559,8 @@ int main(int argc, char **argv)
                                         CrashHandlerSetup::EnableRestart, libexecPath);
 #endif
 
-    app.setAttribute(Qt::AA_UseHighDpiPixmaps);
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    app.setAttribute(Qt::AA_UseHighDpiPixmaps);
     app.setAttribute(Qt::AA_DisableWindowContextHelpButton);
 #endif
 
