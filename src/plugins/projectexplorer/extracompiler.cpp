@@ -42,6 +42,7 @@
 #include <utils/runextensions.h>
 
 #include <QDateTime>
+#include <QFutureInterface>
 #include <QFutureWatcher>
 #include <QProcess>
 #include <QThreadPool>

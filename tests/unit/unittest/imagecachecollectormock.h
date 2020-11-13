@@ -35,6 +35,7 @@ public:
     MOCK_METHOD(void,
                 start,
                 (Utils::SmallStringView filePath,
+                 Utils::SmallStringView state,
                  ImageCacheCollectorInterface::CaptureCallback captureCallback,
                  ImageCacheCollectorInterface::AbortCallback abortCallback),
                 (override));

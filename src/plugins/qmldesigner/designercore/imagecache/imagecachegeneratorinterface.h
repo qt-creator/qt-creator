@@ -39,12 +39,14 @@ public:
     using AbortCallback = std::function<void()>;
 
     virtual void generateImage(Utils::SmallStringView name,
+                               Utils::SmallStringView state,
                                Sqlite::TimeStamp timeStamp,
                                CaptureCallback &&captureCallback,
                                AbortCallback &&abortCallback)
         = 0;
 
     virtual void clean() = 0;
+    virtual void waitForFinished() = 0;
 
 protected:
     ~ImageCacheGeneratorInterface() = default;

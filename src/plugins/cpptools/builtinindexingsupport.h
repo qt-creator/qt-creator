@@ -38,8 +38,7 @@ public:
     BuiltinIndexingSupport();
     ~BuiltinIndexingSupport() override;
 
-    QFuture<void> refreshSourceFiles(const QFutureInterface<void> &superFuture,
-                                     const QSet<QString> &sourceFiles,
+    QFuture<void> refreshSourceFiles(const QSet<QString> &sourceFiles,
                                      CppModelManager::ProgressNotificationMode mode) override;
     SymbolSearcher *createSymbolSearcher(const SymbolSearcher::Parameters &parameters,
                                          const QSet<QString> &fileNames) override;

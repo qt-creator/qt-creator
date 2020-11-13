@@ -54,7 +54,8 @@ def get_arguments():
     parser.add_argument('--build', help='path that should be used for building', required=True)
     parser.add_argument('--qt-path', help='Path to Qt', required=True)
 
-    parser.add_argument('--debug', help='Enable debug builds', action='store_true', default=False)
+    parser.add_argument('--build-type', help='Build type to pass to CMake (defaults to RelWithDebInfo)',
+                        default='RelWithDebInfo')
 
     # clang codemodel
     parser.add_argument('--llvm-path', help='Path to LLVM installation for Clang code model',
@@ -113,13 +114,12 @@ def build_qtcreator(args, paths):
     if paths.elfutils:
         prefix_paths += [paths.elfutils]
     prefix_paths = [common.to_posix_path(fp) for fp in prefix_paths]
-    build_type = 'Debug' if args.debug else 'Release'
     with_docs_str = 'OFF' if args.no_docs else 'ON'
     build_date_option = 'OFF' if args.no_build_date else 'ON'
     test_option = 'ON' if args.with_tests else 'OFF'
     cmake_args = ['cmake',
                   '-DCMAKE_PREFIX_PATH=' + ';'.join(prefix_paths),
-                  '-DCMAKE_BUILD_TYPE=' + build_type,
+                  '-DCMAKE_BUILD_TYPE=' + args.build_type,
                   '-DSHOW_BUILD_DATE=' + build_date_option,
                   '-DWITH_DOCS=' + with_docs_str,
                   '-DBUILD_DEVELOPER_DOCS=' + with_docs_str,

@@ -572,6 +572,7 @@ void ItemLibraryWidget::addResources()
          for (const AddResourceHandler &handler : handlers) {
              QStringList fileNames = partitionedFileNames.values(category);
              if (handler.category == category) {
+                 QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_RESOURCE_IMPORTED + category);
                  if (!handler.operation(fileNames, document->fileName().parentDir().toString()))
                      Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"), tr("Could not add %1 to project.").arg(fileNames.join(" ")));
                  break;

@@ -187,7 +187,6 @@ void QuickItemNodeInstance::initialize(const ObjectNodeInstance::Pointer &object
     }
 
     ObjectNodeInstance::initialize(objectNodeInstance, flags);
-    quickItem()->update();
 }
 
 QQuickItem *QuickItemNodeInstance::contentItem() const
@@ -429,11 +428,13 @@ QImage QuickItemNodeInstance::renderImage() const
 
         nodeInstanceServer()->quickView()->afterRendering();
     }
+    renderImage.setDevicePixelRatio(devicePixelRatio);
 #else
     renderImage = nodeInstanceServer()->quickView()->grabWindow();
+    renderImage = renderImage.copy(renderBoundingRect.toRect());
+    /* When grabbing an offscren window the device pixel ratio is 1 */
+    renderImage.setDevicePixelRatio(1);
 #endif
-
-    renderImage.setDevicePixelRatio(devicePixelRatio);
 
     return renderImage;
 }
@@ -463,6 +464,7 @@ QImage QuickItemNodeInstance::renderPreviewImage(const QSize &previewImageSize) 
             }
 #else
             image = nodeInstanceServer()->quickView()->grabWindow();
+            image = image.copy(previewItemBoundingRect.toRect());
 #endif
 
             image = image.scaledToWidth(size.width());
@@ -542,7 +544,9 @@ void QuickItemNodeInstance::updateDirtyNodesRecursive(QQuickItem *parentItem) co
     }
 
     QmlPrivateGate::disableNativeTextRendering(parentItem);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     DesignerSupport::updateDirtyNode(parentItem);
+#endif
 }
 
 void QuickItemNodeInstance::updateAllDirtyNodesRecursive(QQuickItem *parentItem) const

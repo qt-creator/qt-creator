@@ -387,7 +387,7 @@ void ShortcutSettingsWidget::setupShortcutBox(ShortcutItem *scitem)
     };
     const auto addButtonToLayout = [this, updateAddButton] {
         m_shortcutLayout->addWidget(m_addButton,
-                                    m_shortcutInputs.size() * 2 - 1,
+                                    int(m_shortcutInputs.size() * 2 - 1),
                                     m_shortcutLayout->columnCount() - 1);
         updateAddButton();
     };
@@ -397,7 +397,7 @@ void ShortcutSettingsWidget::setupShortcutBox(ShortcutItem *scitem)
     for (int i = 0; i < qMax(1, scitem->m_keys.size()); ++i)
         addShortcutInput(i, scitem->m_keys.value(i));
     connect(m_addButton, &QPushButton::clicked, this, [this, addShortcutInput, addButtonToLayout] {
-        addShortcutInput(m_shortcutInputs.size(), {});
+        addShortcutInput(int(m_shortcutInputs.size()), {});
         addButtonToLayout();
     });
     addButtonToLayout();

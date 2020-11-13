@@ -60,7 +60,6 @@
 
 #include <QDir>
 #include <QFileInfo>
-#include <QFutureWatcher>
 #include <QMenu>
 #include <QPlainTextEdit>
 #include <QProcess>

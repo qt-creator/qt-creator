@@ -145,7 +145,8 @@ bool SourcePathMappingModel::isNewPlaceHolder(const Mapping &m) const
 // Return raw, unfixed mapping
 Mapping SourcePathMappingModel::rawMappingAt(int row) const
 {
-    return Mapping(item(row, SourceColumn)->text(), item(row, TargetColumn)->text());
+    return Mapping(QDir::fromNativeSeparators(item(row, SourceColumn)->text()),
+                   QDir::fromNativeSeparators(item(row, TargetColumn)->text()));
 }
 
 // Return mapping, empty if it is the place holder.

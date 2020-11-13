@@ -31,7 +31,6 @@
 #include <qmldebug/qmldebugcommandlinearguments.h>
 #include <qmldebug/qmloutputparser.h>
 
-#include <QFutureInterface>
 #include <QObject>
 #include <QTimer>
 #include <QTcpSocket>

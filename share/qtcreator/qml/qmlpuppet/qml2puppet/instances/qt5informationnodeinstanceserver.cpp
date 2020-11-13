@@ -583,7 +583,8 @@ void Qt5InformationNodeInstanceServer::renderModelNodeImageView()
 
 void Qt5InformationNodeInstanceServer::doRenderModelNodeImageView()
 {
-
+    // Disable preview in Qt6 until QTBUG-QTBUG-88320 is fixed
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     ServerNodeInstance instance;
     if (m_modelNodePreviewImageCommand.renderItemId() >= 0)
         instance = instanceForId(m_modelNodePreviewImageCommand.renderItemId());
@@ -594,6 +595,7 @@ void Qt5InformationNodeInstanceServer::doRenderModelNodeImageView()
         doRenderModelNode3DImageView();
     else if (instance.isSubclassOf("QQuickItem"))
         doRenderModelNode2DImageView();
+#endif
 }
 
 void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
@@ -1316,8 +1318,7 @@ void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
     Qt5NodeInstanceServer::createScene(command);
 
     QList<ServerNodeInstance> instanceList;
-    const auto instances = command.instances();
-    for (const InstanceContainer &container : instances) {
+    for (const InstanceContainer &container : std::as_const(command.instances)) {
         if (hasInstanceForId(container.instanceId())) {
             ServerNodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid())
@@ -1331,7 +1332,7 @@ void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
     nodeInstanceClient()->componentCompleted(createComponentCompletedCommand(instanceList));
 
     if (isQuick3DMode())
-        setup3DEditView(instanceList, command.edit3dToolStates());
+        setup3DEditView(instanceList, command.edit3dToolStates);
 
     QObject::connect(&m_renderModelNodeImageViewTimer, &QTimer::timeout,
                      this, &Qt5InformationNodeInstanceServer::doRenderModelNodeImageView);
@@ -1675,6 +1676,10 @@ void Qt5InformationNodeInstanceServer::handleInstanceLocked(const ServerNodeInst
             }
         }
     }
+#else
+    Q_UNUSED(instance);
+    Q_UNUSED(enable);
+    Q_UNUSED(checkAncestors);
 #endif
 }
 
@@ -1745,6 +1750,10 @@ void Qt5InformationNodeInstanceServer::handleInstanceHidden(const ServerNodeInst
             }
         }
     }
+#else
+    Q_UNUSED(instance);
+    Q_UNUSED(enable);
+    Q_UNUSED(checkAncestors);
 #endif
 }
 

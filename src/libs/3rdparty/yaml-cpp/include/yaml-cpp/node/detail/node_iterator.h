@@ -52,10 +52,7 @@ struct node_iterator_type<const V> {
 };
 
 template <typename V>
-class node_iterator_base
-    : public std::iterator<std::forward_iterator_tag, node_iterator_value<V>,
-                           std::ptrdiff_t, node_iterator_value<V>*,
-                           node_iterator_value<V>> {
+class node_iterator_base {
  private:
   struct enabler {};
 
@@ -70,7 +67,11 @@ class node_iterator_base
  public:
   typedef typename node_iterator_type<V>::seq SeqIter;
   typedef typename node_iterator_type<V>::map MapIter;
-  typedef node_iterator_value<V> value_type;
+  using iterator_category = std::forward_iterator_tag;
+  using value_type = node_iterator_value<V>;
+  using difference_type = std::ptrdiff_t;
+  using pointer = node_iterator_value<V>*;
+  using reference = node_iterator_value<V>&;
 
   node_iterator_base()
       : m_type(iterator_type::NoneType), m_seqIt(), m_mapIt(), m_mapEnd() {}

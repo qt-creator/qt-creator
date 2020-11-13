@@ -91,7 +91,6 @@
 #include <QAction>
 #include <QApplication>
 #include <QElapsedTimer>
-#include <QFutureWatcher>
 #include <QMenu>
 #include <QPointer>
 #include <QTextEdit>

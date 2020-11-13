@@ -40,6 +40,8 @@
 #include <variantproperty.h>
 #include <nodelistproperty.h>
 
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
 #include <qmlstate.h>
 #include <annotationeditor/annotationeditor.h>
@@ -182,6 +184,8 @@ void StatesEditorView::addState()
     if (!QmlVisualNode::isValidQmlVisualNode(rootModelNode()))
         return;
 
+    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_STATE_ADDED);
+
     QStringList modelStateNames = rootStateGroup().names();
 
     QString newStateName;
@@ -192,17 +196,12 @@ void StatesEditorView::addState()
             break;
     }
 
-    try {
+    executeInTransaction("addState", [this, newStateName]() {
         rootModelNode().validId();
-        if ((rootStateGroup().allStates().count() < 1) && //QtQuick import might be missing
-                (!model()->hasImport(Import::createLibraryImport("QtQuick", "1.0"), true, true))) {
-            model()->changeImports({Import::createLibraryImport("QtQuick", "1.0")}, {});
-        }
+
         ModelNode newState = rootStateGroup().addState(newStateName);
         setCurrentState(newState);
-    } catch (const RewritingException &e) {
-        e.showException();
-    }
+    });
 }
 
 void StatesEditorView::resetModel()
@@ -236,9 +235,12 @@ void StatesEditorView::duplicateCurrentState()
     QStringList stateNames = rootStateGroup().names();
     while (stateNames.contains(newName + QString::number(i)))
         i++;
+    const QString newStateName = newName + QString::number(i);
 
-    QmlModelState newState = state.duplicate(newName + QString::number(i));
-    setCurrentState(newState);
+    executeInTransaction("addState", [this, newStateName, state]() {
+        QmlModelState newState = state.duplicate(newStateName);
+        setCurrentState(newState);
+    });
 }
 
 void StatesEditorView::checkForStatesAvailability()
@@ -303,7 +305,7 @@ void StatesEditorView::renameState(int internalNodeId, const QString &newName)
 
                 setCurrentState(oldState);
             }
-        }  catch (const RewritingException &e) {
+        } catch (const RewritingException &e) {
             e.showException();
         }
     }

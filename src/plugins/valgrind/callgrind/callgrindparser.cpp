@@ -464,7 +464,7 @@ void Parser::Private::parseCostItem(const char *begin, const char *end)
         if (currentCallData.calledFile == -1) {
             currentCallData.calledFile = currentDifferingFile != -1 ? currentDifferingFile : lastFile;
             //HACK: workaround issue where sometimes fi=??? lines are prepended to function calls
-            if (unknownFiles.contains(currentCallData.calledFile))
+            if (unknownFiles.contains(quint64(currentCallData.calledFile)))
                 currentCallData.calledFile = lastFile;
         }
         if (currentCallData.calledObject == -1)

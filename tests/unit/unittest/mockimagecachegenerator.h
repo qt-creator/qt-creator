@@ -35,9 +35,11 @@ public:
     MOCK_METHOD(void,
                 generateImage,
                 (Utils::SmallStringView name,
+                 Utils::SmallStringView state,
                  Sqlite::TimeStamp timeStamp,
                  CaptureCallback &&captureCallback,
                  AbortCallback &&abortCallback),
                 (override));
     MOCK_METHOD(void, clean, (), (override));
+    MOCK_METHOD(void, waitForFinished, (), (override));
 };

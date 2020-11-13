@@ -48,6 +48,7 @@
 #include <QtConcurrentMap>
 #include <QCheckBox>
 #include <QDir>
+#include <QFutureWatcher>
 
 #include <functional>
 

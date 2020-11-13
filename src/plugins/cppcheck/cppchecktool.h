@@ -27,7 +27,7 @@
 
 #include <cppcheck/cppcheckoptions.h>
 
-#include <QFuture>
+#include <QFutureInterface>
 #include <QPointer>
 #include <QRegularExpression>
 

@@ -60,13 +60,12 @@
 
 #include <resourceeditor/resourcenode.h>
 
-#include <QDir>
-#include <QUrl>
-#include <QFileInfo>
-#include <QFuture>
 #include <QCoreApplication>
+#include <QDir>
+#include <QFileInfo>
 #include <QProcess>
 #include <QRegularExpression>
+#include <QUrl>
 
 #include <algorithm>
 
@@ -1054,7 +1053,8 @@ QString BaseQtVersionPrivate::findHostBinary(HostBinaries binary) const
         if (HostOsInfo::isWindowsHost()) {
             possibleCommands << "uic.exe";
         } else {
-            possibleCommands << "uic-qt4" << "uic4" << "uic";
+            const QString majorString = QString::number(q->qtVersion().majorVersion);
+            possibleCommands << ("uic-qt" + majorString) << ("uic" + majorString) << "uic";
         }
         break;
     case QScxmlc:

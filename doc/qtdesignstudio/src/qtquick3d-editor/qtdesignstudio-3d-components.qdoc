@@ -51,7 +51,7 @@
 
             You can use the model component to load static mesh data from
             storage or one of the built-in primitive types: cube, cone,
-            cylinder, rectangle, or sphere. You can attach materials to
+            cylinder, plane (rectangle), or sphere. You can attach materials to
             meshes and sub-meshes.
         \li \l {Using Materials and Shaders}
 
@@ -85,9 +85,9 @@
             scene and set their properties.
         \li \l {Using Scene Camera}
 
-            To project a 3D scene to a 2D viewport, it is necessary to view
-            the scene from a camera. You can select the camera type and set
-            its properties.
+            To project a 3D scene to a 2D viewport, such as
+            \uicontrol {Form Editor}, it is necessary to view the scene from a
+            camera. You can select the camera type and set its properties.
         \li \l {Setting Scene Environment}
 
             You can use the SceneEnvironment type to specify how the scene is

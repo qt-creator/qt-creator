@@ -40,7 +40,6 @@
 #include <utils/fileutils.h>
 
 #include <QFuture>
-#include <QFutureWatcher>
 #include <QQueue>
 
 namespace MesonProjectManager {

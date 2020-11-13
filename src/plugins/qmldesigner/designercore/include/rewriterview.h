@@ -75,7 +75,7 @@ public:
     };
 
 public:
-    RewriterView(DifferenceHandling differenceHandling, QObject *parent);
+    RewriterView(DifferenceHandling differenceHandling = RewriterView::Amend, QObject *parent = nullptr);
     ~RewriterView() override;
 
     void modelAttached(Model *model) override;

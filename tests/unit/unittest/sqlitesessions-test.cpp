@@ -36,9 +36,9 @@
 
 namespace {
 
+using Sqlite::Operation;
 using Sqlite::SessionChangeSet;
 using Sqlite::SessionChangeSets;
-using Sqlite::SessionChangeSetInternal::Operation;
 using Sqlite::SessionChangeSetInternal::ValueViews;
 
 class DatabaseExecute

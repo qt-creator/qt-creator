@@ -491,7 +491,7 @@ void DesignDocument::paste()
     if (rootNode.type() == "empty")
         return;
 
-    if (rootNode.id() == "designer__Selection") { // pasting multiple objects
+    if (rootNode.id() == "__multi__selection__") { // pasting multiple objects
         currentModel()->attachView(&view);
 
         ModelNode targetNode;
@@ -545,7 +545,7 @@ void DesignDocument::paste()
         });
 
     } else { // pasting single object
-        rewriterView()->executeInTransaction("DesignDocument::paste1", [this, &view, selectedNodes, rootNode]() {
+        rewriterView()->executeInTransaction("DesignDocument::paste1", [this, &view, rootNode]() {
             currentModel()->attachView(&view);
             ModelNode pastedNode(view.insertModel(rootNode));
             ModelNode targetNode;

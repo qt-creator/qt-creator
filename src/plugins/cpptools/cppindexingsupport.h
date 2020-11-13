@@ -78,9 +78,9 @@ class CPPTOOLS_EXPORT CppIndexingSupport
 public:
     virtual ~CppIndexingSupport() = 0;
 
-    virtual QFuture<void> refreshSourceFiles(const QFutureInterface<void> &superFuture,
-                                             const QSet<QString> &sourceFiles,
-                                             CppModelManager::ProgressNotificationMode mode) = 0;
+    virtual QFuture<void> refreshSourceFiles(const QSet<QString> &sourceFiles,
+                                             CppModelManager::ProgressNotificationMode mode)
+        = 0;
     virtual SymbolSearcher *createSymbolSearcher(const SymbolSearcher::Parameters &parameters,
                                                  const QSet<QString> &fileNames) = 0;
 };

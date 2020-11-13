@@ -25,14 +25,15 @@
 
 #include "qmljsfindreferences.h"
 
-#include <texteditor/basefilefind.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/searchresultwindow.h>
-#include <extensionsystem/pluginmanager.h>
-#include <utils/filesearch.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
+#include <extensionsystem/pluginmanager.h>
+#include <texteditor/basefilefind.h>
+#include <utils/filesearch.h>
+#include <utils/runextensions.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsbind.h>
@@ -47,15 +48,14 @@
 
 #include "qmljseditorconstants.h"
 
-#include <QTime>
-#include <QTimer>
-#include <QtConcurrentRun>
-#include <QtConcurrentMap>
+#include <QApplication>
 #include <QDebug>
 #include <QDir>
-#include <QApplication>
+#include <QFuture>
 #include <QLabel>
-#include <utils/runextensions.h>
+#include <QTime>
+#include <QTimer>
+#include <QtConcurrentMap>
 
 #include <functional>
 

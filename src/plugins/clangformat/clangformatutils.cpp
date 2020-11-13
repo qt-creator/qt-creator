@@ -115,7 +115,7 @@ static clang::format::FormatStyle qtcStyle()
     style.ExperimentalAutoDetectBinPacking = false;
     style.FixNamespaceComments = true;
     style.ForEachMacros = {"forever", "foreach", "Q_FOREACH", "BOOST_FOREACH"};
-    style.IncludeStyle.IncludeCategories = {{"^<Q.*", 200}};
+    style.IncludeStyle.IncludeCategories = {{"^<Q.*", 200, 200}};
     style.IncludeStyle.IncludeIsMainRegex = "(Test)?$";
     style.IndentCaseLabels = false;
     style.IndentWidth = 4;

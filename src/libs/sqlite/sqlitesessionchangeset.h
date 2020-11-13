@@ -41,8 +41,9 @@ namespace Sqlite {
 
 class Sessions;
 
-namespace SessionChangeSetInternal {
 enum class Operation : char { Invalid, Insert, Update, Delete };
+
+namespace SessionChangeSetInternal {
 
 class SentinelIterator
 {};
@@ -54,7 +55,7 @@ public:
     ValueView oldValue;
 };
 
-class ConstTupleIterator
+class SQLITE_EXPORT ConstTupleIterator
 {
 public:
     using difference_type = int;
@@ -63,7 +64,9 @@ public:
     using reference = const ValueView &;
     using iterator_category = std::forward_iterator_tag;
 
-    ConstTupleIterator(sqlite3_changeset_iter *sessionIterator, int index, Operation operation)
+    ConstTupleIterator(sqlite3_changeset_iter *sessionIterator,
+                       int index,
+                       Sqlite::Operation operation)
         : m_sessionIterator{sessionIterator}
         , m_column{index}
         , m_operation{operation}
@@ -91,10 +94,10 @@ public:
 private:
     sqlite3_changeset_iter *m_sessionIterator = {};
     int m_column = 0;
-    Operation m_operation = Operation::Invalid;
+    Sqlite::Operation m_operation = Sqlite::Operation::Invalid;
 };
 
-class Tuple
+class SQLITE_EXPORT Tuple
 {
 public:
     using difference_type = int;
@@ -108,7 +111,7 @@ public:
     Utils::SmallStringView table;
     sqlite3_changeset_iter *sessionIterator = {};
     int columnCount = 0;
-    Operation operation = Operation::Invalid;
+    Sqlite::Operation operation = Sqlite::Operation::Invalid;
 
     ValueViews operator[](int column) const;
     ConstTupleIterator begin() const { return {sessionIterator, 0, operation}; }
@@ -117,7 +120,7 @@ public:
 
 enum class State : char { Invalid, Row, Done };
 
-class ConstIterator
+class SQLITE_EXPORT ConstIterator
 {
 public:
     using difference_type = long;
@@ -144,12 +147,18 @@ public:
     ConstIterator &operator=(ConstIterator &&other)
     {
         auto tmp = std::move(other);
-        std::swap(tmp, *this);
+        swap(tmp, *this);
 
         return *this;
     }
 
     ~ConstIterator();
+
+    friend void swap(ConstIterator &first, ConstIterator &second)
+    {
+        std::swap(first.m_sessionIterator, second.m_sessionIterator);
+        std::swap(first.m_state, second.m_state);
+    }
 
     ConstIterator &operator++();
 

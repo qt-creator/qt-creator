@@ -68,24 +68,25 @@ namespace Sqlite {
 class Value;
 class ValueView;
 class SessionChangeSet;
+enum class Operation : char;
 
 std::ostream &operator<<(std::ostream &out, const Value &value);
 std::ostream &operator<<(std::ostream &out, const ValueView &value);
+std::ostream &operator<<(std::ostream &out, Operation operation);
 std::ostream &operator<<(std::ostream &out, const SessionChangeSet &changeset);
+
 namespace SessionChangeSetInternal {
 class ConstIterator;
 class ConstTupleIterator;
 class SentinelIterator;
 class Tuple;
 class ValueViews;
-enum class Operation : char;
 enum class State : char;
 
 std::ostream &operator<<(std::ostream &out, SentinelIterator iterator);
 std::ostream &operator<<(std::ostream &out, const ConstIterator &iterator);
 std::ostream &operator<<(std::ostream &out, const ConstTupleIterator &iterator);
 std::ostream &operator<<(std::ostream &out, const Tuple &tuple);
-std::ostream &operator<<(std::ostream &out, Operation operation);
 std::ostream &operator<<(std::ostream &out, State operation);
 std::ostream &operator<<(std::ostream &out, const ValueViews &valueViews);
 

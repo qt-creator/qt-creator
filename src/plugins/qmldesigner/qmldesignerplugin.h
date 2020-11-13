@@ -82,6 +82,13 @@ public:
 
     static double formEditorDevicePixelRatio();
 
+    static void emitUsageStatistics(const QString &identifier);
+    static void emitUsageStatisticsContextAction(const QString &identifier);
+
+signals:
+    void usageStatisticsNotifier(const QString &identifier);
+
+
 private: // functions
     void integrateIntoQtCreator(QWidget *modeWidget);
     void showDesigner();

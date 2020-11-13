@@ -28,6 +28,10 @@ qtc_copy_to_builddir(copy_share_to_builddir
 )
 
 # create install rule for resource directories
-install(DIRECTORY ${resource_directories} DESTINATION "${IDE_DATA_PATH}")
+install(
+  DIRECTORY ${resource_directories}
+  DESTINATION "${IDE_DATA_PATH}"
+  USE_SOURCE_PERMISSIONS
+)
 
 add_subdirectory(translations)

@@ -31,7 +31,6 @@
 #include <QObject>
 #include <QPointer>
 #include <QFuture>
-#include <QFutureWatcher>
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 

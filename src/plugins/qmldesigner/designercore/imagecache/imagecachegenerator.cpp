@@ -44,21 +44,23 @@ ImageCacheGenerator::ImageCacheGenerator(ImageCacheCollectorInterface &collector
 ImageCacheGenerator::~ImageCacheGenerator()
 {
     clean();
-    stopThread();
-    m_condition.notify_all();
-
-    if (m_backgroundThread)
-        m_backgroundThread->wait();
+    waitForFinished();
 }
 
-void ImageCacheGenerator::generateImage(Utils::SmallStringView name,
-                                        Sqlite::TimeStamp timeStamp,
-                                        ImageCacheGeneratorInterface::CaptureCallback &&captureCallback,
-                                        AbortCallback &&abortCallback)
+void ImageCacheGenerator::generateImage(
+    Utils::SmallStringView name,
+    Utils::SmallStringView state,
+    Sqlite::TimeStamp timeStamp,
+    ImageCacheGeneratorInterface::CaptureCallback &&captureCallback,
+    AbortCallback &&abortCallback)
 {
     {
         std::lock_guard lock{m_mutex};
-        m_tasks.emplace_back(name, timeStamp, std::move(captureCallback), std::move(abortCallback));
+        m_tasks.emplace_back(name,
+                             state,
+                             timeStamp,
+                             std::move(captureCallback),
+                             std::move(abortCallback));
     }
 
     m_condition.notify_all();
@@ -72,6 +74,15 @@ void ImageCacheGenerator::clean()
     m_tasks.clear();
 }
 
+void ImageCacheGenerator::waitForFinished()
+{
+    stopThread();
+    m_condition.notify_all();
+
+    if (m_backgroundThread)
+        m_backgroundThread->wait();
+}
+
 void ImageCacheGenerator::startGeneration()
 {
     while (isRunning()) {
@@ -82,7 +93,7 @@ void ImageCacheGenerator::startGeneration()
         {
             std::lock_guard lock{m_mutex};
 
-            if (m_finishing) {
+            if (m_finishing && m_tasks.empty()) {
                 m_storage.walCheckpointFull();
                 return;
             }
@@ -94,6 +105,7 @@ void ImageCacheGenerator::startGeneration()
 
         m_collector.start(
             task.filePath,
+            task.state,
             [this, task](QImage &&image) {
                 if (image.isNull())
                     task.abortCallback();
@@ -129,7 +141,7 @@ void ImageCacheGenerator::stopThread()
 bool ImageCacheGenerator::isRunning()
 {
     std::unique_lock lock{m_mutex};
-    return !m_finishing;
+    return !m_finishing || m_tasks.size();
 }
 
 } // namespace QmlDesigner

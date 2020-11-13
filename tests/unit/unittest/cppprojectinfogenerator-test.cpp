@@ -163,7 +163,7 @@ void ProjectInfoGenerator::SetUp()
 
 ProjectInfo ProjectInfoGenerator::generate()
 {
-    QFutureInterface<void> fi;
+    QFutureInterface<ProjectInfo> fi;
     ProjectExplorer::ConcreteToolChain aToolChain;
 
     projectUpdateInfo.rawProjectParts += rawProjectPart;

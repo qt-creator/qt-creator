@@ -234,8 +234,9 @@ void AvdDialog::updateApiLevelComboBox()
     m_avdDialog.targetApiComboBox->clear();
     for (SystemImage *image : filteredList) {
             QString imageString = "android-" % QString::number(image->apiLevel());
-            if (image->sdkStylePath().contains("playstore"))
-                imageString += " (Google PlayStore)";
+            const QStringList imageSplits = image->sdkStylePath().split(';');
+            if (imageSplits.size() == 4)
+                imageString += QStringLiteral(" (%1)").arg(imageSplits.at(2));
             m_avdDialog.targetApiComboBox->addItem(imageString,
                                                    QVariant::fromValue<SystemImage *>(image));
             m_avdDialog.targetApiComboBox->setItemData(m_avdDialog.targetApiComboBox->count() - 1,

@@ -34,7 +34,6 @@
 
 #include <tracing/timelinetracefile.h>
 
-#include <QFutureInterface>
 #include <QObject>
 #include <QVector>
 #include <QString>

@@ -53,6 +53,7 @@ public:
     ~ImageCacheCollector();
 
     void start(Utils::SmallStringView filePath,
+               Utils::SmallStringView state,
                CaptureCallback captureCallback,
                AbortCallback abortCallback) override;
 

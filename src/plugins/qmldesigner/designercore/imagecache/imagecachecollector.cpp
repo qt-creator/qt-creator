@@ -67,6 +67,7 @@ ImageCacheCollector::ImageCacheCollector(ImageCacheConnectionManager &connection
 ImageCacheCollector::~ImageCacheCollector() = default;
 
 void ImageCacheCollector::start(Utils::SmallStringView name,
+                                Utils::SmallStringView state,
                                 CaptureCallback captureCallback,
                                 AbortCallback abortCallback)
 {
@@ -90,6 +91,11 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
         abortCallback();
         return;
     }
+
+    ModelNode stateNode = rewriterView.modelNodeForId(QString{state});
+
+    if (stateNode.isValid())
+        rewriterView.setCurrentStateNode(stateNode);
 
     m_connectionManager.setCallback(std::move(captureCallback));
 

@@ -37,9 +37,15 @@ using uint = unsigned int;
 
 class DiagnosticSet;
 
-class DiagnosticSetIterator : public std::iterator<std::random_access_iterator_tag, Diagnostic, uint>
+class DiagnosticSetIterator
 {
 public:
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type = Diagnostic;
+    using difference_type = uint;
+    using pointer = Diagnostic *;
+    using reference = Diagnostic &;
+
     DiagnosticSetIterator(CXTranslationUnit translationUnit,
                           CXDiagnosticSet cxDiagnosticSet,
                           uint index)

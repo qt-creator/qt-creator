@@ -29,136 +29,20 @@
 
 namespace QmlDesigner {
 
-CreateSceneCommand::CreateSceneCommand() = default;
-
-CreateSceneCommand::CreateSceneCommand(const QVector<InstanceContainer> &instanceContainer,
-                                       const QVector<ReparentContainer> &reparentContainer,
-                                       const QVector<IdContainer> &idVector,
-                                       const QVector<PropertyValueContainer> &valueChangeVector,
-                                       const QVector<PropertyBindingContainer> &bindingChangeVector,
-                                       const QVector<PropertyValueContainer> &auxiliaryChangeVector,
-                                       const QVector<AddImportContainer> &importVector,
-                                       const QVector<MockupTypeContainer> &mockupTypeVector,
-                                       const QUrl &fileUrl,
-                                       const QHash<QString, QVariantMap> &edit3dToolStates,
-                                       const QString &language)
-    : m_instanceVector(instanceContainer),
-      m_reparentInstanceVector(reparentContainer),
-      m_idVector(idVector),
-      m_valueChangeVector(valueChangeVector),
-      m_bindingChangeVector(bindingChangeVector),
-      m_auxiliaryChangeVector(auxiliaryChangeVector),
-      m_importVector(importVector),
-      m_mockupTypeVector(mockupTypeVector),
-      m_fileUrl(fileUrl),
-      m_edit3dToolStates(edit3dToolStates),
-      m_language(language)
-{
-}
-
-QVector<InstanceContainer> CreateSceneCommand::instances() const
-{
-    return m_instanceVector;
-}
-
-QVector<ReparentContainer> CreateSceneCommand::reparentInstances() const
-{
-    return m_reparentInstanceVector;
-}
-
-QVector<IdContainer> CreateSceneCommand::ids() const
-{
-    return m_idVector;
-}
-
-QVector<PropertyValueContainer> CreateSceneCommand::valueChanges() const
-{
-    return m_valueChangeVector;
-}
-
-QVector<PropertyBindingContainer> CreateSceneCommand::bindingChanges() const
-{
-    return m_bindingChangeVector;
-}
-
-QVector<PropertyValueContainer> CreateSceneCommand::auxiliaryChanges() const
-{
-    return m_auxiliaryChangeVector;
-}
-
-QVector<AddImportContainer> CreateSceneCommand::imports() const
-{
-    return m_importVector;
-}
-
-QVector<MockupTypeContainer> CreateSceneCommand::mockupTypes() const
-{
-    return m_mockupTypeVector;
-}
-
-QUrl CreateSceneCommand::fileUrl() const
-{
-    return m_fileUrl;
-}
-
-QHash<QString, QVariantMap> CreateSceneCommand::edit3dToolStates() const
-{
-    return m_edit3dToolStates;
-}
-
-QString CreateSceneCommand::language() const
-{
-    return m_language;
-}
-
-QDataStream &operator<<(QDataStream &out, const CreateSceneCommand &command)
-{
-    out << command.instances();
-    out << command.reparentInstances();
-    out << command.ids();
-    out << command.valueChanges();
-    out << command.bindingChanges();
-    out << command.auxiliaryChanges();
-    out << command.imports();
-    out << command.mockupTypes();
-    out << command.fileUrl();
-    out << command.edit3dToolStates();
-    out << command.language();
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, CreateSceneCommand &command)
-{
-    in >> command.m_instanceVector;
-    in >> command.m_reparentInstanceVector;
-    in >> command.m_idVector;
-    in >> command.m_valueChangeVector;
-    in >> command.m_bindingChangeVector;
-    in >> command.m_auxiliaryChangeVector;
-    in >> command.m_importVector;
-    in >> command.m_mockupTypeVector;
-    in >> command.m_fileUrl;
-    in >> command.m_edit3dToolStates;
-    in >> command.m_language;
-
-    return in;
-}
-
 QDebug operator <<(QDebug debug, const CreateSceneCommand &command)
 {
     return debug.nospace() << "CreateSceneCommand("
-                    << "instances: " << command.instances() << ", "
-                    << "reparentInstances: " << command.reparentInstances() << ", "
-                    << "ids: " << command.ids() << ", "
-                    << "valueChanges: " << command.valueChanges() << ", "
-                    << "bindingChanges: " << command.bindingChanges() << ", "
-                    << "auxiliaryChanges: " << command.auxiliaryChanges() << ", "
-                    << "imports: " << command.imports() << ", "
-                    << "mockupTypes: " << command.mockupTypes() << ", "
-                    << "fileUrl: " << command.fileUrl() << ", "
-                    << "edit3dToolStates: " << command.edit3dToolStates() << ", "
-                    << "language: " << command.language() << ")";
+                           << "instances: " << command.instances << ", "
+                           << "reparentInstances: " << command.reparentInstances << ", "
+                           << "ids: " << command.ids << ", "
+                           << "valueChanges: " << command.valueChanges << ", "
+                           << "bindingChanges: " << command.bindingChanges << ", "
+                           << "auxiliaryChanges: " << command.auxiliaryChanges << ", "
+                           << "imports: " << command.imports << ", "
+                           << "mockupTypes: " << command.mockupTypes << ", "
+                           << "fileUrl: " << command.fileUrl << ", "
+                           << "edit3dToolStates: " << command.edit3dToolStates << ", "
+                           << "language: " << command.language << ")";
 }
 
 }

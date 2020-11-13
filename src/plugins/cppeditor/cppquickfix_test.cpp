@@ -4370,20 +4370,25 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_templateClass()
         "template<class T>\n"
         "class Foo\n"
         "{\n"
-        "    void fun@c();\n"
-        "};\n";
+        "    void fun@c1();\n"
+        "    void func2();\n"
+        "};\n\n"
+        "template<class T>\n"
+        "void Foo<T>::func2() {}\n";
     QByteArray expected =
         "template<class T>\n"
         "class Foo\n"
         "{\n"
-        "    void fun@c();\n"
-        "};\n"
-        "\n"
+        "    void func1();\n"
+        "    void func2();\n"
+        "};\n\n"
         "template<class T>\n"
-        "void Foo::func()\n" // Should really be Foo<T>::func()
+        "void Foo<T>::func1()\n"
         "{\n"
         "\n"
-        "}\n";
+        "}\n\n"
+        "template<class T>\n"
+        "void Foo<T>::func2() {}\n";
 
     InsertDefFromDecl factory;
     QuickFixOperationTest(singleDocument(original, expected), &factory);
@@ -4405,7 +4410,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_templateFunction()
         "};\n"
         "\n"
         "template<class T>\n"
-        "void Foo::func()\n"
+        "void Foo::func<T>()\n"
         "{\n"
         "\n"
         "}\n";

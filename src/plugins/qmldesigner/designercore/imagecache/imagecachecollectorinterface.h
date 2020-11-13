@@ -38,6 +38,7 @@ public:
     using AbortCallback = std::function<void()>;
 
     virtual void start(Utils::SmallStringView filePath,
+                       Utils::SmallStringView state,
                        CaptureCallback captureCallback,
                        AbortCallback abortCallback)
         = 0;

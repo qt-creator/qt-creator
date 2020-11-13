@@ -547,6 +547,17 @@ double QmlDesignerPlugin::formEditorDevicePixelRatio()
     return topLevelWindows.constFirst()->screen()->devicePixelRatio();
 }
 
+void QmlDesignerPlugin::emitUsageStatistics(const QString &identifier)
+{
+    QTC_ASSERT(instance(), return);
+    emit instance()->usageStatisticsNotifier(identifier);
+}
+
+void QmlDesignerPlugin::emitUsageStatisticsContextAction(const QString &identifier)
+{
+    emitUsageStatistics(Constants::EVENT_ACTION_EXECUTED + identifier);
+}
+
 QmlDesignerPlugin *QmlDesignerPlugin::instance()
 {
     return m_instance;

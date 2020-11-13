@@ -793,6 +793,11 @@ void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, i
     }
 }
 
+TypeName propertyType(const NodeAbstractProperty &property)
+{
+    return property.parentModelNode().metaInfo().propertyTypeName(property.name());
+}
+
 void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProperty,
                                               const QList<ModelNode> &modelNodes,
                                               int targetIndex,
@@ -801,7 +806,7 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
     QTC_ASSERT(m_view, return);
 
     auto doMoveNodesInteractive = [&parentProperty, modelNodes, targetIndex](){
-        const TypeName propertyQmlType = parentProperty.parentModelNode().metaInfo().propertyTypeName(parentProperty.name());
+        const TypeName propertyQmlType = propertyType(parentProperty);
         int idx = targetIndex;
         for (const ModelNode &modelNode : modelNodes) {
             if (modelNode.isValid()

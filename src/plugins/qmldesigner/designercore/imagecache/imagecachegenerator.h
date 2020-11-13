@@ -51,26 +51,32 @@ public:
     ~ImageCacheGenerator();
 
     void generateImage(Utils::SmallStringView filePath,
+                       Utils::SmallStringView state,
                        Sqlite::TimeStamp timeStamp,
                        CaptureCallback &&captureCallback,
                        AbortCallback &&abortCallback) override;
     void clean() override;
+
+    void waitForFinished() override;
 
 private:
     struct Task
     {
         Task() = default;
         Task(Utils::SmallStringView filePath,
+             Utils::SmallStringView state,
              Sqlite::TimeStamp timeStamp,
              CaptureCallback &&captureCallback,
              AbortCallback &&abortCallback)
             : filePath(filePath)
+            , state(std::move(state))
             , captureCallback(std::move(captureCallback))
             , abortCallback(std::move(abortCallback))
             , timeStamp(timeStamp)
         {}
 
         Utils::PathString filePath;
+        Utils::SmallString state;
         CaptureCallback captureCallback;
         AbortCallback abortCallback;
         Sqlite::TimeStamp timeStamp;

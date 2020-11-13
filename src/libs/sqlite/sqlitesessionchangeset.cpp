@@ -86,7 +86,7 @@ ValueView convertSqliteValue(sqlite3_value *value)
             return ValueView::create(sqlite3_value_double(value));
         case SQLITE_TEXT:
             return ValueView::create(
-                Utils::SmallStringView{reinterpret_cast<const char *const>(sqlite3_value_text(value)),
+                Utils::SmallStringView{reinterpret_cast<const char *>(sqlite3_value_text(value)),
                                        static_cast<std::size_t>(sqlite3_value_bytes(value))});
         case SQLITE_NULL:
             return ValueView::create(NullValue{});

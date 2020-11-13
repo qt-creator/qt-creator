@@ -72,6 +72,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileSystemWatcher>
+#include <QFuture>
 #include <QLoggingCategory>
 #include <QTimer>
 
