@@ -59,9 +59,9 @@ class SQLITE_EXPORT ConstTupleIterator
 {
 public:
     using difference_type = int;
-    using value_type = ValueView;
-    using pointer = const ValueView *;
-    using reference = const ValueView &;
+    using value_type = ValueViews;
+    using pointer = const ValueViews *;
+    using reference = const ValueViews &;
     using iterator_category = std::forward_iterator_tag;
 
     ConstTupleIterator(sqlite3_changeset_iter *sessionIterator,
