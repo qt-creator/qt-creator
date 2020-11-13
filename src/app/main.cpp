@@ -588,7 +588,7 @@ int main(int argc, char **argv)
                 app.setProperty("qtc_locale", locale);
                 break;
             }
-            translator.load(QString()); // unload()
+            Q_UNUSED(translator.load(QString())); // unload()
         } else if (locale == QLatin1String("C") /* overrideLanguage == "English" */) {
             // use built-in
             break;
