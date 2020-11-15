@@ -57,6 +57,7 @@
 
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/session.h>
 
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
@@ -7405,6 +7406,7 @@ void removeLine(const CppRefactoringFile *file, AST *ast, ChangeSet &changeSet)
 class RemoveNamespaceVisitor : public ASTVisitor
 {
 public:
+    constexpr static int SearchGlobalUsingDirectivePos = std::numeric_limits<int>::max();
     RemoveNamespaceVisitor(const CppRefactoringFile *file,
                            const Snapshot &snapshot,
                            const Name *namespace_,
@@ -7443,8 +7445,16 @@ private:
     bool preVisit(AST *ast) override
     {
         if (!m_start) {
+            if (ast->asTranslationUnit())
+                return true;
             if (UsingDirectiveAST *usingDirective = ast->asUsingDirective()) {
                 if (nameEqual(usingDirective->name->name, m_namespace)) {
+                    if (m_symbolPos == SearchGlobalUsingDirectivePos) {
+                        // we have found a global using directive, so lets start
+                        m_start = true;
+                        removeLine(m_file, ast, m_changeSet);
+                        return false;
+                    }
                     // ignore the using namespace that should be removed
                     if (m_file->endOf(ast) != m_symbolPos) {
                         if (m_removeAllAtGlobalScope)
@@ -7630,6 +7640,17 @@ private:
 
 class RemoveUsingNamespaceOperation : public CppQuickFixOperation
 {
+    struct Node
+    {
+        Document::Ptr document;
+        bool processed = false;
+        bool hasGlobalUsingDirective = false;
+        std::vector<std::reference_wrapper<Node>> includes;
+        Node() = default;
+        Node(const Node &) = delete;
+        Node(Node &&) = delete;
+    };
+
 public:
     RemoveUsingNamespaceOperation(const CppQuickFixInterface &interface,
                                   UsingDirectiveAST *usingDirective,
@@ -7654,12 +7675,90 @@ public:
     }
 
 private:
+    std::map<Utils::FilePath, Node> buildIncludeGraph(CppRefactoringChanges &refactoring)
+    {
+        using namespace ProjectExplorer;
+        using namespace Utils;
+
+        const Snapshot &s = refactoring.snapshot();
+        std::map<Utils::FilePath, Node> includeGraph;
+
+        auto handleFile = [&](const FilePath &filePath, Document::Ptr doc, auto shouldHandle) {
+            Node &node = includeGraph[filePath];
+            node.document = doc;
+            for (const Document::Include &include : doc->resolvedIncludes()) {
+                const auto filePath = FilePath::fromString(include.resolvedFileName());
+                if (shouldHandle(filePath)) {
+                    Node &includedNode = includeGraph[filePath];
+                    node.includes.push_back(includedNode);
+                }
+            }
+        };
+
+        if (const Project *project = SessionManager::projectForFile(filePath())) {
+            const FilePaths files = project->files(ProjectExplorer::Project::SourceFiles);
+            QSet<FilePath> projectFiles(files.begin(), files.end());
+            for (const auto &file : files) {
+                const Document::Ptr doc = s.document(file);
+                if (!doc)
+                    continue;
+                handleFile(file, doc, [&](const FilePath &file) {
+                    return projectFiles.contains(file);
+                });
+            }
+        } else {
+            for (auto i = s.begin(); i != s.end(); ++i) {
+                if (ProjectFile::classify(i.key().toString()) != ProjectFile::Unsupported) {
+                    handleFile(i.key(), i.value(), [](const FilePath &file) {
+                        return ProjectFile::classify(file.toString()) != ProjectFile::Unsupported;
+                    });
+                }
+            }
+        }
+        return includeGraph;
+    }
+
+    void removeAllUsingsAtGlobalScope(CppRefactoringChanges &refactoring)
+    {
+        auto includeGraph = buildIncludeGraph(refactoring);
+        std::list<std::reference_wrapper<Node>> unprocessedNodes;
+        for (auto &[_, node] : includeGraph) {
+            Q_UNUSED(_)
+            unprocessedNodes.push_back(node);
+        }
+        while (!unprocessedNodes.empty()) {
+            for (auto i = unprocessedNodes.begin(); i != unprocessedNodes.end();) {
+                Node &node = *i;
+                if (Utils::allOf(node.includes, &Node::processed)) {
+                    CppRefactoringFilePtr file = refactoring.file(node.document->fileName());
+                    const bool parentHasUsing = Utils::anyOf(node.includes,
+                                                             &Node::hasGlobalUsingDirective);
+                    const int startPos = parentHasUsing
+                                             ? 0
+                                             : RemoveNamespaceVisitor::SearchGlobalUsingDirectivePos;
+                    const bool noGlobalUsing = refactorFile(file, refactoring.snapshot(), startPos);
+                    node.hasGlobalUsingDirective = !noGlobalUsing || parentHasUsing;
+                    node.processed = true;
+                    i = unprocessedNodes.erase(i);
+                } else {
+                    ++i;
+                }
+            }
+        }
+    }
+
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
         CppRefactoringFilePtr currentFile = refactoring.file(filePath().toString());
-        if (refactorFile(currentFile, refactoring.snapshot(), currentFile->endOf(m_usingDirective), true))
+        if (m_removeAllAtGlobalScope) {
+            removeAllUsingsAtGlobalScope(refactoring);
+        } else if (refactorFile(currentFile,
+                                refactoring.snapshot(),
+                                currentFile->endOf(m_usingDirective),
+                                true)) {
             processIncludes(refactoring, filePath().toString());
+        }
 
         for (auto &file : m_changes)
             file->apply();
@@ -7687,10 +7786,12 @@ private:
         Utils::ChangeSet changes = visitor.getChanges();
         if (removeUsing)
             removeLine(file.get(), m_usingDirective, changes);
-        file->setChangeSet(changes);
-        // apply changes at the end, otherwise the symbol finder will fail to resolve symbols if
-        // the using namespace is missing
-        m_changes.insert(file);
+        if (!changes.isEmpty()) {
+            file->setChangeSet(changes);
+            // apply changes at the end, otherwise the symbol finder will fail to resolve symbols if
+            // the using namespace is missing
+            m_changes.insert(file);
+        }
         return visitor.isGlobalUsingNamespace() && !visitor.foundGlobalUsingNamespace();
     }
 
