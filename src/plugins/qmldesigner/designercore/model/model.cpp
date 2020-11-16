@@ -83,7 +83,14 @@ namespace Internal {
 ModelPrivate::ModelPrivate(Model *model)
     : m_model(model)
 {
-    m_rootInternalNode = createNode("QtQuick.Item", 1, 0, PropertyListType(), PropertyListType(), QString(), ModelNode::NodeWithoutSource, true);
+    m_rootInternalNode = createNode("QtQuick.Item",
+                                    1,
+                                    0,
+                                    PropertyListType(),
+                                    PropertyListType(),
+                                    QString(),
+                                    ModelNode::NodeWithoutSource,
+                                    true);
     m_currentStateNode = m_rootInternalNode;
     m_currentTimelineNode = m_rootInternalNode;
 }
@@ -95,7 +102,7 @@ ModelPrivate::~ModelPrivate()
 
 void ModelPrivate::detachAllViews()
 {
-    for (const QPointer<AbstractView> &view : qAsConst(m_viewList))
+    for (const QPointer<AbstractView> &view : std::as_const(m_viewList))
         detachView(view.data(), true);
 
     m_viewList.clear();
@@ -197,7 +204,7 @@ QUrl ModelPrivate::fileUrl() const
 void ModelPrivate::setDocumentMessages(const QList<DocumentMessage> &errors,
                                        const QList<DocumentMessage> &warnings)
 {
-    for (const QPointer<AbstractView> &view : qAsConst(m_viewList))
+    for (const QPointer<AbstractView> &view : std::as_const(m_viewList))
         view->documentMessagesChanged(errors, warnings);
 }
 
@@ -208,7 +215,7 @@ void ModelPrivate::setFileUrl(const QUrl &fileUrl)
     if (oldPath != fileUrl) {
         m_fileUrl = fileUrl;
 
-        for (const QPointer<AbstractView> &view : qAsConst(m_viewList))
+        for (const QPointer<AbstractView> &view : std::as_const(m_viewList))
             view->fileUrlChanged(oldPath, fileUrl);
     }
 }
@@ -945,7 +952,7 @@ void ModelPrivate::changeSelectedNodes(const QList<InternalNodePointer> &newSele
 
 QList<InternalNodePointer> ModelPrivate::selectedNodes() const
 {
-    for (const InternalNodePointer &node : qAsConst(m_selectedInternalNodeList)) {
+    for (const InternalNodePointer &node : std::as_const(m_selectedInternalNodeList)) {
         if (!node->isValid())
             throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
     }
@@ -1387,8 +1394,10 @@ bool Model::hasImport(const Import &import, bool ignoreAlias, bool allowHigherVe
                 return true;
         }
         if (existingImport.isLibraryImport() && import.isLibraryImport()) {
-            if (existingImport.url() == import.url() && compareVersions(existingImport.version(), import.version(), allowHigherVersion))
+            if (existingImport.url() == import.url()
+                && compareVersions(existingImport.version(), import.version(), allowHigherVersion)) {
                 return true;
+            }
         }
     }
 
@@ -1410,8 +1419,10 @@ bool Model::isImportPossible(const Import &import, bool ignoreAlias, bool allowH
         }
 
         if (possibleImport.isLibraryImport() && import.isLibraryImport()) {
-            if (possibleImport.url() == import.url() && compareVersions(possibleImport.version(), import.version(), allowHigherVersion))
+            if (possibleImport.url() == import.url()
+                && compareVersions(possibleImport.version(), import.version(), allowHigherVersion)) {
                 return true;
+            }
         }
     }
 
