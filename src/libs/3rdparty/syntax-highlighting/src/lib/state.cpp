@@ -1,25 +1,8 @@
 /*
-    Copyright (C) 2016 Volker Krause <vkrause@kde.org>
-    Copyright (C) 2018 Christoph Cullmann <cullmann@kde.org>
+    SPDX-FileCopyrightText: 2016 Volker Krause <vkrause@kde.org>
+    SPDX-FileCopyrightText: 2018 Christoph Cullmann <cullmann@kde.org>
 
-    Permission is hereby granted, free of charge, to any person obtaining
-    a copy of this software and associated documentation files (the
-    "Software"), to deal in the Software without restriction, including
-    without limitation the rights to use, copy, modify, merge, publish,
-    distribute, sublicense, and/or sell copies of the Software, and to
-    permit persons to whom the Software is furnished to do so, subject to
-    the following conditions:
-
-    The above copyright notice and this permission notice shall be included
-    in all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    SPDX-License-Identifier: MIT
 */
 
 #include "state.h"
@@ -33,7 +16,12 @@ using namespace KSyntaxHighlighting;
 
 StateData *StateData::get(State &state)
 {
-    state.d.detach();
+    // create state data on demand, to make default state construction cheap
+    if (!state.d) {
+        state.d = new StateData();
+    } else {
+        state.d.detach();
+    }
     return state.d.data();
 }
 
@@ -85,7 +73,6 @@ const QStringList &StateData::topCaptures() const
 }
 
 State::State()
-    : d(new StateData)
 {
 }
 
@@ -107,7 +94,7 @@ State &State::operator=(const State &other)
 bool State::operator==(const State &other) const
 {
     // use pointer equal as shortcut for shared states
-    return (d == other.d) || (d->m_contextStack == other.d->m_contextStack && d->m_defRef == other.d->m_defRef);
+    return (d == other.d) || (d && other.d && d->m_contextStack == other.d->m_contextStack && d->m_defRef == other.d->m_defRef);
 }
 
 bool State::operator!=(const State &other) const
@@ -117,7 +104,7 @@ bool State::operator!=(const State &other) const
 
 bool State::indentationBasedFoldingEnabled() const
 {
-    if (d->m_contextStack.isEmpty())
+    if (!d || d->m_contextStack.isEmpty())
         return false;
     return d->m_contextStack.last().first->indentationBasedFoldingEnabled();
 }

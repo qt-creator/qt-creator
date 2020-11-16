@@ -4,35 +4,20 @@
   <!ENTITY id_re "[_A-Za-z][\-_0-9A-Za-z]*">
 ]>
 <!--
-  This file is part of KDE's kate project.
+    This file is part of KDE's kate project.
 
-  Copyright 2004 Alexander Neundorf (neundorf@kde.org)
-  Copyright 2005 Dominik Haumann (dhdev@gmx.de)
-  Copyright 2007,2008,2013,2014 Matthew Woehlke (mw_triad@users.sourceforge.net)
-  Copyright 2013-2015,2017-2020 Alex Turbov (i.zaufi@gmail.com)
+    SPDX-FileCopyrightText: 2004 Alexander Neundorf <neundorf@kde.org>
+    SPDX-FileCopyrightText: 2005 Dominik Haumann <dhdev@gmx.de>
+    SPDX-FileCopyrightText: 2007, 2008, 2013, 2014 Matthew Woehlke <mw_triad@users.sourceforge.net>
+    SPDX-FileCopyrightText: 2013-2015, 2017-2020 Alex Turbov <i.zaufi@gmail.com>
 
- **********************************************************************
- * This library is free software; you can redistribute it and/or      *
- * modify it under the terms of the GNU Lesser General Public         *
- * License as published by the Free Software Foundation; either       *
- * version 2 of the License, or (at your option) any later version.   *
- *                                                                    *
- * This library is distributed in the hope that it will be useful,    *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of     *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU  *
- * Lesser General Public License for more details.                    *
- *                                                                    *
- * You should have received a copy of the GNU Lesser General Public   *
- * License along with this library; if not, write to the              *
- * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,   *
- * Boston, MA  02110-1301, USA.                                       *
- **********************************************************************
+    SPDX-License-Identifier: LGPL-2.0-or-later
  -->
 
 <language
     name="CMake"
-    version="22"
-    kateversion="2.4"
+    version="25"
+    kateversion="5.0"
     section="Other"
     extensions="CMakeLists.txt;*.cmake;*.cmake.in"
     style="CMake"
@@ -70,6 +55,12 @@
     {%- endfor %}
     </list>
 
+    <list name="deprecated-or-internal-variables">
+    {%- for var in deprecated_or_internal_variables.kw %}
+      <item>{{var}}</item>
+    {%- endfor %}
+    </list>
+
     <list name="environment-variables">
     {%- for var in environment_variables.kw %}
       <item>{{var}}</item>
@@ -95,11 +86,9 @@
       <context attribute="Normal Text" lineEndContext="#stay" name="Normal Text">
         <DetectSpaces/>
         {% for command in commands -%}
-        <WordDetect String="{{command.name}}" insensitive="true" attribute="Command" context="{{command.name}}_ctx" />
+        <WordDetect String="{{command.name}}" insensitive="true" attribute="Command" context="{{command.name}}_ctx"{% if command.start_region %} beginRegion="{{command.start_region}}"{% endif -%} {%- if command.end_region %} endRegion="{{command.end_region}}"{% endif %} />
         {% endfor -%}
-        <RegExpr attribute="Region Marker" context="RST Documentation" String="^#\[(=*)\[\.rst:" column="0" />
-        <RegExpr attribute="Comment" context="Bracketed Comment" String="#\[(=*)\[" />
-        <DetectChar attribute="Comment" context="Comment" char="#" />
+        <DetectChar attribute="Comment" context="Match Comments and Docs" char="#" lookAhead="true" />
         <DetectIdentifier attribute="User Function/Macro" context="User Function" />
         <RegExpr attribute="@Variable Substitution" context="@VarSubst" String="@&id_re;@" lookAhead="true" />
         <!-- Include keywords matching for language autocompleter work -->
@@ -192,11 +181,15 @@
 
       <context attribute="Normal Text" lineEndContext="#stay" name="Detect Builtin Variables">
         <RegExpr attribute="Internal Name" context="#stay" String="\b_&id_re;\b" />
+        <keyword attribute="CMake Internal Variable" context="#stay" String="deprecated-or-internal-variables" insensitive="false" />
         <keyword attribute="Builtin Variable" context="#stay" String="variables" insensitive="false" />
         <IncludeRules context="Detect More Builtin Variables" />
       </context>
 
       <context attribute="Normal Text" lineEndContext="#stay" name="Detect More Builtin Variables">
+        {%- for var in deprecated_or_internal_variables.re %}
+        <RegExpr attribute="CMake Internal Variable" context="#stay" String="{{var}}" />
+        {%- endfor %}
         {%- for var in variables.re %}
         <RegExpr attribute="Builtin Variable" context="#stay" String="{{var}}" />
         {%- endfor %}
@@ -204,24 +197,19 @@
 
       <context attribute="Normal Text" lineEndContext="#stay" name="Detect Variable Substitutions">
         <RegExpr attribute="Cache Variable Substitution" context="#stay" String="\$CACHE\{\s*[\w-]+\s*\}" />
-        <RegExpr attribute="Environment Variable Substitution" context="EnvVarSubst" String="\$ENV\{\s*[\w-]+\s*\}" lookAhead="true" />
+        <RegExpr attribute="Environment Variable Substitution" context="EnvVarSubst" String="\$?ENV\{" />
         <Detect2Chars attribute="Variable Substitution" context="VarSubst" char="$" char1="{" />
         <RegExpr attribute="@Variable Substitution" context="@VarSubst" String="@&id_re;@" lookAhead="true" />
       </context>
 
       <context attribute="Environment Variable Substitution" lineEndContext="#pop" name="EnvVarSubst">
-        <DetectIdentifier />
-        <DetectChar attribute="Environment Variable Substitution" context="EnvVarSubstVar" char="{" />
-        <DetectChar attribute="Environment Variable Substitution" context="#pop" char="}" />
-      </context>
-
-      <context attribute="Environment Variable Substitution" lineEndContext="#pop" name="EnvVarSubstVar">
         <keyword attribute="Standard Environment Variable" context="#stay" String="environment-variables" insensitive="false" />
         {%- for var in environment_variables.re %}
         <RegExpr attribute="Standard Environment Variable" context="#stay" String="{{var}}" />
         {%- endfor %}
         <DetectIdentifier />
-        <DetectChar attribute="Environment Variable Substitution" context="#pop#pop" char="}" />
+        <IncludeRules context="Detect Variable Substitutions" />
+        <DetectChar attribute="Environment Variable Substitution" context="#pop" char="}" />
       </context>
 
       <context attribute="Variable Substitution" lineEndContext="#pop" name="VarSubst">
@@ -232,6 +220,7 @@
       </context>
 
       <context attribute="@Variable Substitution" lineEndContext="#pop" name="@VarSubst">
+        <IncludeRules context="Detect Builtin Variables" />
         <DetectChar attribute="@Variable Substitution" context="VarSubst@" char="@" />
       </context>
 
@@ -244,11 +233,13 @@
       <context attribute="Normal Text" lineEndContext="#stay" name="User Function Args">
         <Detect2Chars attribute="Normal Text" context="#stay" char="\" char1="(" />
         <Detect2Chars attribute="Normal Text" context="#stay" char="\" char1=")" />
-        <RegExpr attribute="Escapes" context="#stay" String="\\[&quot;$n\\]" />
+        <Detect2Chars attribute="Escapes" context="#stay" char="\" char1="&quot;" />
+        <Detect2Chars attribute="Escapes" context="#stay" char="\" char1="$" />
+        <Detect2Chars attribute="Escapes" context="#stay" char="\" char1="n" />
+        <Detect2Chars attribute="Escapes" context="#stay" char="\" char1="\" />
         <DetectChar attribute="Strings" context="String" char="&quot;" />
-        <RegExpr attribute="Strings" context="Bracketed String" String="\[(=*)\[" />
-        <RegExpr attribute="Comment" context="Bracketed Comment" String="#\[(=*)\[" />
-        <DetectChar attribute="Comment" context="Comment" char="#" />
+        <RegExpr attribute="Strings" context="Bracketed String" String="\[(=*)\[" beginRegion="BracketedString" />
+        <DetectChar attribute="Comment" context="Match Comments" char="#" lookAhead="true" />
         <IncludeRules context="Detect Builtin Variables" />
         <IncludeRules context="Detect Variable Substitutions" />
         <IncludeRules context="Detect Special Values" />
@@ -257,42 +248,62 @@
       </context>
 
       <context attribute="Normal Text" lineEndContext="#stay" name="Detect Special Values">
-        <RegExpr attribute="True Special Arg" context="#stay" String="\b(TRUE|ON)\b" />
-        <RegExpr attribute="False Special Arg" context="#stay" String="\b(FALSE|OFF|(&id_re;-)?NOTFOUND)\b" />
+        <WordDetect attribute="True Special Arg" context="#stay" String="TRUE" />
+        <WordDetect attribute="True Special Arg" context="#stay" String="ON" />
+        <WordDetect attribute="False Special Arg" context="#stay" String="FALSE" />
+        <WordDetect attribute="False Special Arg" context="#stay" String="OFF" />
+        <RegExpr attribute="False Special Arg" context="#stay" String="\b(?:&id_re;-)?NOTFOUND\b" />
         <RegExpr attribute="Special Args" context="#stay" String="\bCMP[0-9][0-9][0-9]\b" />
       </context>
 
       <context attribute="Normal Text" lineEndContext="#stay" name="Detect Aliased Targets">
-        <RegExpr attribute="Aliased Targets" context="#stay" String="\b&id_re;::&id_re;(::&id_re;)*\b" />
+        <RegExpr attribute="Aliased Targets" context="#stay" String="\b&id_re;::&id_re;(?:\:\:&id_re;)*\b" />
+      </context>
+
+      <context attribute="Comment" lineEndContext="#pop" name="Match Comments">
+        <RegExpr attribute="Comment" context="#pop!Bracketed Comment" String="#\[(=*)\[" beginRegion="BracketedComment" />
+        <DetectChar attribute="Comment" context="#pop!Comment" char="#" />
+      </context>
+
+      <context attribute="Comment" lineEndContext="#pop" name="Match Comments and Docs">
+        <RegExpr attribute="Region Marker" context="#pop!RST Documentation" String="^#\[(=*)\[\.rst:" column="0" beginRegion="RSTDocumentation" />
+        <IncludeRules context="Match Comments" />
       </context>
 
       <context attribute="Comment" lineEndContext="#pop" name="Comment">
         <LineContinue attribute="Comment" context="#pop" />
+        <DetectSpaces />
         <IncludeRules context="##Alerts" />
         <IncludeRules context="##Modelines" />
       </context>
 
       <context attribute="Comment" lineEndContext="#stay" name="RST Documentation" dynamic="true">
-        <RegExpr attribute="Region Marker" context="#pop" String="^#?\]%1\]" dynamic="true" column="0" />
+        <RegExpr attribute="Region Marker" context="#pop" String="^#?\]%1\]" dynamic="true" column="0" endRegion="RSTDocumentation" />
         <IncludeRules context="##reStructuredText" />
       </context>
 
       <context attribute="Comment" lineEndContext="#stay" name="Bracketed Comment" dynamic="true">
         <LineContinue attribute="Comment" context="#stay" />
-        <RegExpr attribute="Comment" context="#pop" String=".*\]%1\]" dynamic="true" />
+        <DetectSpaces />
+        <StringDetect attribute="Comment" context="#pop" String="]%1]" dynamic="true" endRegion="BracketedComment" />
         <IncludeRules context="##Alerts" />
         <IncludeRules context="##Modelines" />
       </context>
 
       <context attribute="Strings" lineEndContext="#stay" name="String">
         <RegExpr attribute="Strings" context="#pop" String="&quot;(?=[ );]|$)" />
-        <RegExpr attribute="Escapes" context="#stay" String="\\[&quot;$nrt\\]" />
+        <Detect2Chars attribute="Escapes" context="#stay" char="\" char1="&quot;" />
+        <Detect2Chars attribute="Escapes" context="#stay" char="\" char1="$" />
+        <Detect2Chars attribute="Escapes" context="#stay" char="\" char1="n" />
+        <Detect2Chars attribute="Escapes" context="#stay" char="\" char1="r" />
+        <Detect2Chars attribute="Escapes" context="#stay" char="\" char1="t" />
+        <Detect2Chars attribute="Escapes" context="#stay" char="\" char1="\" />
         <IncludeRules context="Detect Variable Substitutions" />
         <IncludeRules context="Detect Generator Expressions" />
       </context>
 
       <context attribute="Strings" lineEndContext="#stay" name="Bracketed String" dynamic="true">
-        <RegExpr attribute="Strings" context="#pop" String="\]%1\]" dynamic="true" />
+        <StringDetect attribute="Strings" context="#pop" String="]%1]" dynamic="true" endRegion="BracketedString" />
       </context>
 
       <context attribute="Normal Text" lineEndContext="#stay" name="Detect Generator Expressions">
@@ -321,9 +332,10 @@
       <itemData name="True Special Arg" defStyleNum="dsOthers" color="#30a030" selColor="#30a030" spellChecking="false" />
       <itemData name="False Special Arg" defStyleNum="dsOthers" color="#e05050" selColor="#e05050" spellChecking="false" />
       <itemData name="Strings" defStyleNum="dsString" spellChecking="true" />
-      <itemData name="Escapes" defStyleNum="dsChar" spellChecking="false" />
+      <itemData name="Escapes" defStyleNum="dsSpecialChar" spellChecking="false" />
       <itemData name="Builtin Variable" defStyleNum="dsDecVal" color="#c09050" selColor="#c09050" spellChecking="false" />
-      <itemData name="Internal Name" defStyleNum="dsDecVal" color="#303030" selColor="#303030" spellChecking="false" />
+      <itemData name="CMake Internal Variable" defStyleNum="dsVariable" spellChecking="false" />
+      <itemData name="Internal Name" defStyleNum="dsVariable" spellChecking="false" />
       <itemData name="Variable Substitution" defStyleNum="dsDecVal" spellChecking="false" />
       <itemData name="@Variable Substitution" defStyleNum="dsBaseN" spellChecking="false" />
       <itemData name="Cache Variable Substitution" defStyleNum="dsFloat" spellChecking="false" />
@@ -339,10 +351,11 @@
 
   <general>
     <comments>
-      <comment name="singleLine" start="#" />
+      <comment name="singleLine" start="#" position="afterwhitespace" />
+      <comment name="multiLine" start="#[[" end="]]" region="BracketedComment"/>
     </comments>
     <keywords casesensitive="1" />
   </general>
 </language>
 
-<!-- kate: indent-width 2; tab-width 2; -->
+<!-- kate: replace-tabs on; indent-width 2; tab-width 2; -->

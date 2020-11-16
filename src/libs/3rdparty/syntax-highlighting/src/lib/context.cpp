@@ -1,24 +1,8 @@
 /*
-    Copyright (C) 2016 Volker Krause <vkrause@kde.org>
+    SPDX-FileCopyrightText: 2016 Volker Krause <vkrause@kde.org>
+    SPDX-FileCopyrightText: 2020 Jonathan Poelen <jonathan.poelen@gmail.com>
 
-    Permission is hereby granted, free of charge, to any person obtaining
-    a copy of this software and associated documentation files (the
-    "Software"), to deal in the Software without restriction, including
-    without limitation the rights to use, copy, modify, merge, publish,
-    distribute, sublicense, and/or sell copies of the Software, and to
-    permit persons to whom the Software is furnished to do so, subject to
-    the following conditions:
-
-    The above copyright notice and this permission notice shall be included
-    in all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    SPDX-License-Identifier: MIT
 */
 
 #include "context_p.h"
@@ -57,13 +41,13 @@ void Context::load(QXmlStreamReader &reader)
     Q_ASSERT(reader.name() == QLatin1String("context"));
     Q_ASSERT(reader.tokenType() == QXmlStreamReader::StartElement);
 
-    m_name = reader.attributes().value(QStringLiteral("name")).toString();
-    m_attribute = reader.attributes().value(QStringLiteral("attribute")).toString();
-    m_lineEndContext.parse(reader.attributes().value(QStringLiteral("lineEndContext")));
-    m_lineEmptyContext.parse(reader.attributes().value(QStringLiteral("lineEmptyContext")));
-    m_fallthroughContext.parse(reader.attributes().value(QStringLiteral("fallthroughContext")));
+    m_name = reader.attributes().value(QLatin1String("name")).toString();
+    m_attribute = reader.attributes().value(QLatin1String("attribute")).toString();
+    m_lineEndContext.parse(reader.attributes().value(QLatin1String("lineEndContext")));
+    m_lineEmptyContext.parse(reader.attributes().value(QLatin1String("lineEmptyContext")));
+    m_fallthroughContext.parse(reader.attributes().value(QLatin1String("fallthroughContext")));
     m_fallthrough = !m_fallthroughContext.isStay();
-    m_noIndentationBasedFolding = Xml::attrToBool(reader.attributes().value(QStringLiteral("noIndentationBasedFolding")));
+    m_noIndentationBasedFolding = Xml::attrToBool(reader.attributes().value(QLatin1String("noIndentationBasedFolding")));
 
     reader.readNext();
     while (!reader.atEnd()) {
@@ -73,7 +57,7 @@ void Context::load(QXmlStreamReader &reader)
             if (rule) {
                 rule->setDefinition(m_def.definition());
                 if (rule->load(reader))
-                    m_rules.push_back(rule);
+                    m_rules.push_back(std::move(rule));
             } else {
                 reader.skipCurrentElement();
             }

@@ -34,6 +34,7 @@ HEADERS += \
     src/lib/theme.h \
     src/lib/themedata_p.h \
     src/lib/wildcardmatcher_p.h \
+    src/lib/worddelimiters_p.h \
     src/lib/xml_p.h \
 
 SOURCES += \
@@ -53,3 +54,4 @@ SOURCES += \
     src/lib/theme.cpp \
     src/lib/themedata.cpp \
     src/lib/wildcardmatcher.cpp \
+    src/lib/worddelimiters.cpp \

@@ -38,7 +38,7 @@ Changelog:
 
 -->
 
-<language name="CSS" version="9" kateversion="5.0" section="Markup" extensions="*.css" indenter="cstyle" mimetype="text/css" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
+<language name="CSS" version="10" kateversion="5.0" section="Markup" extensions="*.css" indenter="cstyle" mimetype="text/css" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
     <!-- https://www.w3.org/Style/CSS/current-work -->
 
     <highlighting>
@@ -1585,6 +1585,7 @@ Changelog:
                 <DetectSpaces />
                 <Detect2Chars attribute="Comment" context="#pop#pop" char="*" char1="/" endRegion="comment" />
                 <IncludeRules context="##Alerts" />
+                <IncludeRules context="##Modelines" />
                 <DetectIdentifier />
             </context>
 
@@ -1731,8 +1732,9 @@ Changelog:
     <general>
         <keywords casesensitive="0" weakDeliminator="-%@" />
         <comments>
-            <comment name="multiLine" start="/*" end="*/" />
+            <comment name="multiLine" start="/*" end="*/" region="comment" />
         </comments>
     </general>
 
 </language>
+<!-- kate: replace-tabs on; tab-width 4; indent-width 4; -->

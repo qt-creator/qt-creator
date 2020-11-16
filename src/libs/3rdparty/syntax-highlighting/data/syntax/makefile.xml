@@ -9,8 +9,10 @@
      improve comments handling -->
 <!-- v4 by Alex Richardson <arichardson.kde@gmail.com>
      added bmake support -->
+<!-- v10 by Peter J. Mello <admin@petermello.net>
+     Add recognition of POSIX 2013 '::=' operator for variable assignment -->
 <language name="Makefile" section="Other"
-          version="9" kateversion="3.4"
+          version="10" kateversion="3.4"
           extensions="GNUmakefile;Makefile;makefile;GNUmakefile.*;Makefile.*;makefile.*;*.mk"
           mimetype="text/x-makefile" priority="11"
           author="Per Wigren (wigren@home.se)" license="">
@@ -177,7 +179,7 @@
 
         <keyword attribute="Keyword"  context="#stay" String="keywords"/>
         <keyword attribute="Keyword"  context="bmake_other_stmts" String="bmake_other_stmts" firstNonSpace="true"/>
-        <RegExpr attribute="Variable" context="assign" String="[^\s+:?+]*\s*(?=:=|=|\+=|\?=)"/>
+        <RegExpr attribute="Variable" context="assign" String="[^\s+:?+]*\s*(?=::=|:=|=|\+=|\?=)"/>
         <keyword attribute="SpecialTarget" context="bmake_special_target" String="bmake_special_targets" firstNonSpace="true"/>
         <RegExpr attribute="SpecialTarget" context="prereq" String="\.PATH\.[^:]*:" firstNonSpace="true"/>
         <keyword attribute="Keyword" context="bmake_include" String="bmake_include_stmt" firstNonSpace="true"/>
@@ -512,4 +514,4 @@
     <keywords casesensitive="1" weakDeliminator = ".-"/>
   </general>
 </language>
-<!-- kate: space-indent on; indent-width 2; replace-tabs on; -->
+<!-- kate: syntax XML; space-indent on; indent-width 2; replace-tabs on; -->

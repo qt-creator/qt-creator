@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
-<language name="Valgrind Suppression" section="Other" extensions="*.supp;" mimetype="" version="2" kateversion="2.4" author="Milian Wolff (mail@milianw.de)" license="LGPL">
+<language name="Valgrind Suppression" section="Other" extensions="*.supp;" mimetype="" version="3" kateversion="2.4" author="Milian Wolff (mail@milianw.de)" license="LGPL">
 <highlighting>
 <contexts>
   <context name="File" attribute="Normal Text" lineEndContext="#stay">
@@ -26,6 +26,7 @@
   <context name="Comment" attribute="Comment" lineEndContext="#pop">
     <DetectSpaces />
     <IncludeRules context="##Alerts" />
+    <IncludeRules context="##Modelines" />
     <DetectIdentifier />
   </context>
 </contexts>
@@ -49,3 +50,4 @@
 </general>
 
 </language>
+<!-- kate: replace-tabs on; indent-width 2; -->

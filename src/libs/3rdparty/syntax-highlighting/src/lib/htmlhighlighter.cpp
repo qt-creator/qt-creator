@@ -1,25 +1,8 @@
 /*
-    Copyright (C) 2016 Volker Krause <vkrause@kde.org>
-    Copyright (C) 2018 Christoph Cullmann <cullmann@kde.org>
+    SPDX-FileCopyrightText: 2016 Volker Krause <vkrause@kde.org>
+    SPDX-FileCopyrightText: 2018 Christoph Cullmann <cullmann@kde.org>
 
-    Permission is hereby granted, free of charge, to any person obtaining
-    a copy of this software and associated documentation files (the
-    "Software"), to deal in the Software without restriction, including
-    without limitation the rights to use, copy, modify, merge, publish,
-    distribute, sublicense, and/or sell copies of the Software, and to
-    permit persons to whom the Software is furnished to do so, subject to
-    the following conditions:
-
-    The above copyright notice and this permission notice shall be included
-    in all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    SPDX-License-Identifier: MIT
 */
 
 #include "htmlhighlighter.h"
@@ -111,11 +94,12 @@ void HtmlHighlighter::highlightData(QIODevice *dev, const QString &title)
     *d->out << "<html><head>\n";
     *d->out << "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n";
     *d->out << "<title>" << htmlTitle << "</title>\n";
-    *d->out << "<meta name=\"generator\" content=\"KF5::SyntaxHighlighting (" << definition().name() << ")\"/>\n";
+    *d->out << "<meta name=\"generator\" content=\"KF5::SyntaxHighlighting - Definition (" << definition().name() << ") - Theme (" << theme().name() << ")\"/>\n";
     *d->out << "</head><body";
+    *d->out << " style=\"background-color:" << QColor(theme().editorColor(Theme::BackgroundColor)).name();
     if (theme().textColor(Theme::Normal))
-        *d->out << " style=\"color:" << QColor(theme().textColor(Theme::Normal)).name() << "\"";
-    *d->out << "><pre>\n";
+        *d->out << ";color:" << QColor(theme().textColor(Theme::Normal)).name();
+    *d->out << "\"><pre>\n";
 
     QTextStream in(dev);
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)

@@ -210,7 +210,7 @@ public:
                              ReadingContext *context) = 0;
     virtual void propertyAbsentFromQml(AbstractProperty &modelProperty) = 0;
     virtual void idsDiffer(ModelNode &modelNode, const QString &qmlId) = 0;
-    virtual bool isValidator() const = 0;
+    virtual bool isAmender() const = 0;
 
 protected:
     TextToModelMerger *m_merger;
@@ -262,7 +262,7 @@ public:
                      ReadingContext *context) override;
     void propertyAbsentFromQml(AbstractProperty &modelProperty) override;
     void idsDiffer(ModelNode &modelNode, const QString &qmlId) override;
-    bool isValidator() const override {return false; }
+    bool isAmender() const override {return false; }
 };
 
 class ModelAmender: public DifferenceHandler
@@ -311,7 +311,7 @@ public:
                      ReadingContext *context) override;
     void propertyAbsentFromQml(AbstractProperty &modelProperty) override;
     void idsDiffer(ModelNode &modelNode, const QString &qmlId) override;
-    bool isValidator() const override {return true; }
+    bool isAmender() const override {return true; }
 };
 
 } //Internal

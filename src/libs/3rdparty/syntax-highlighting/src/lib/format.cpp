@@ -1,24 +1,8 @@
 /*
-    Copyright (C) 2016 Volker Krause <vkrause@kde.org>
+    SPDX-FileCopyrightText: 2016 Volker Krause <vkrause@kde.org>
+    SPDX-FileCopyrightText: 2020 Jonathan Poelen <jonathan.poelen@gmail.com>
 
-    Permission is hereby granted, free of charge, to any person obtaining
-    a copy of this software and associated documentation files (the
-    "Software"), to deal in the Software without restriction, including
-    without limitation the rights to use, copy, modify, merge, publish,
-    distribute, sublicense, and/or sell copies of the Software, and to
-    permit persons to whom the Software is furnished to do so, subject to
-    the following conditions:
-
-    The above copyright notice and this permission notice shall be included
-    in all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    SPDX-License-Identifier: MIT
 */
 
 #include "format.h"
@@ -113,14 +97,14 @@ Theme::TextStyle Format::textStyle() const
 
 bool Format::isDefaultTextStyle(const Theme &theme) const
 {
-    return (!hasTextColor(theme)) && (!hasBackgroundColor(theme)) && (selectedTextColor(theme) == theme.selectedTextColor(Theme::Normal)) && (selectedBackgroundColor(theme) == theme.selectedBackgroundColor(Theme::Normal)) &&
+    // use QColor::fromRgba for background QRgb => QColor conversion to avoid unset colors == black!
+    return (!hasTextColor(theme)) && (!hasBackgroundColor(theme)) && (selectedTextColor(theme) == theme.selectedTextColor(Theme::Normal)) && (selectedBackgroundColor(theme) == QColor::fromRgba(theme.selectedBackgroundColor(Theme::Normal))) &&
         (isBold(theme) == theme.isBold(Theme::Normal)) && (isItalic(theme) == theme.isItalic(Theme::Normal)) && (isUnderline(theme) == theme.isUnderline(Theme::Normal)) && (isStrikeThrough(theme) == theme.isStrikeThrough(Theme::Normal));
 }
 
 bool Format::hasTextColor(const Theme &theme) const
 {
-    const auto overrideStyle = d->styleOverride(theme);
-    return textColor(theme) != theme.textColor(Theme::Normal) && (d->style.textColor || theme.textColor(d->defaultStyle) || overrideStyle.textColor);
+    return textColor(theme) != theme.textColor(Theme::Normal) && (d->style.textColor || theme.textColor(d->defaultStyle) || d->styleOverride(theme).textColor);
 }
 
 QColor Format::textColor(const Theme &theme) const
@@ -141,8 +125,8 @@ QColor Format::selectedTextColor(const Theme &theme) const
 
 bool Format::hasBackgroundColor(const Theme &theme) const
 {
-    const auto overrideStyle = d->styleOverride(theme);
-    return backgroundColor(theme) != theme.backgroundColor(Theme::Normal) && (d->style.backgroundColor || theme.backgroundColor(d->defaultStyle) || overrideStyle.backgroundColor);
+    // use QColor::fromRgba for background QRgb => QColor conversion to avoid unset colors == black!
+    return backgroundColor(theme) != QColor::fromRgba(theme.backgroundColor(Theme::Normal)) && (d->style.backgroundColor || theme.backgroundColor(d->defaultStyle) || d->styleOverride(theme).backgroundColor);
 }
 
 QColor Format::backgroundColor(const Theme &theme) const
@@ -150,7 +134,9 @@ QColor Format::backgroundColor(const Theme &theme) const
     const auto overrideStyle = d->styleOverride(theme);
     if (overrideStyle.backgroundColor)
         return overrideStyle.backgroundColor;
-    return d->style.backgroundColor ? d->style.backgroundColor : theme.backgroundColor(d->defaultStyle);
+
+    // use QColor::fromRgba for background QRgb => QColor conversion to avoid unset colors == black!
+    return d->style.backgroundColor ? d->style.backgroundColor : QColor::fromRgba(theme.backgroundColor(d->defaultStyle));
 }
 
 QColor Format::selectedBackgroundColor(const Theme &theme) const
@@ -158,7 +144,9 @@ QColor Format::selectedBackgroundColor(const Theme &theme) const
     const auto overrideStyle = d->styleOverride(theme);
     if (overrideStyle.selectedBackgroundColor)
         return overrideStyle.selectedBackgroundColor;
-    return d->style.selectedBackgroundColor ? d->style.selectedBackgroundColor : theme.selectedBackgroundColor(d->defaultStyle);
+
+    // use QColor::fromRgba for background QRgb => QColor conversion to avoid unset colors == black!
+    return d->style.selectedBackgroundColor ? d->style.selectedBackgroundColor : QColor::fromRgba(theme.selectedBackgroundColor(d->defaultStyle));
 }
 
 bool Format::isBold(const Theme &theme) const
@@ -240,54 +228,54 @@ bool Format::hasSelectedBackgroundColorOverride() const
 
 void FormatPrivate::load(QXmlStreamReader &reader)
 {
-    name = reader.attributes().value(QStringLiteral("name")).toString();
-    defaultStyle = stringToDefaultFormat(reader.attributes().value(QStringLiteral("defStyleNum")));
+    name = reader.attributes().value(QLatin1String("name")).toString();
+    defaultStyle = stringToDefaultFormat(reader.attributes().value(QLatin1String("defStyleNum")));
 
-    QStringView attribute = reader.attributes().value(QStringLiteral("color"));
+    QStringView attribute = reader.attributes().value(QLatin1String("color"));
     if (!attribute.isEmpty()) {
         style.textColor = QColor(attribute.toString()).rgba();
     }
 
-    attribute = reader.attributes().value(QStringLiteral("selColor"));
+    attribute = reader.attributes().value(QLatin1String("selColor"));
     if (!attribute.isEmpty()) {
         style.selectedTextColor = QColor(attribute.toString()).rgba();
     }
 
-    attribute = reader.attributes().value(QStringLiteral("backgroundColor"));
+    attribute = reader.attributes().value(QLatin1String("backgroundColor"));
     if (!attribute.isEmpty()) {
         style.backgroundColor = QColor(attribute.toString()).rgba();
     }
 
-    attribute = reader.attributes().value(QStringLiteral("selBackgroundColor"));
+    attribute = reader.attributes().value(QLatin1String("selBackgroundColor"));
     if (!attribute.isEmpty()) {
         style.selectedBackgroundColor = QColor(attribute.toString()).rgba();
     }
 
-    attribute = reader.attributes().value(QStringLiteral("italic"));
+    attribute = reader.attributes().value(QLatin1String("italic"));
     if (!attribute.isEmpty()) {
         style.hasItalic = true;
         style.italic = Xml::attrToBool(attribute);
     }
 
-    attribute = reader.attributes().value(QStringLiteral("bold"));
+    attribute = reader.attributes().value(QLatin1String("bold"));
     if (!attribute.isEmpty()) {
         style.hasBold = true;
         style.bold = Xml::attrToBool(attribute);
     }
 
-    attribute = reader.attributes().value(QStringLiteral("underline"));
+    attribute = reader.attributes().value(QLatin1String("underline"));
     if (!attribute.isEmpty()) {
         style.hasUnderline = true;
         style.underline = Xml::attrToBool(attribute);
     }
 
-    attribute = reader.attributes().value(QStringLiteral("strikeOut"));
+    attribute = reader.attributes().value(QLatin1String("strikeOut"));
     if (!attribute.isEmpty()) {
         style.hasStrikeThrough = true;
         style.strikeThrough = Xml::attrToBool(attribute);
     }
 
-    attribute = reader.attributes().value(QStringLiteral("spellChecking"));
+    attribute = reader.attributes().value(QLatin1String("spellChecking"));
     if (!attribute.isEmpty()) {
         spellCheck = Xml::attrToBool(attribute);
     }

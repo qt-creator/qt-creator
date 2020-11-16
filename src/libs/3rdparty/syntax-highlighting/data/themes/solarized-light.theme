@@ -1,6 +1,15 @@
 {
+    "_comments": [
+        "This theme has been adapted from: https://ethanschoonover.com/solarized/"
+    ],
     "metadata" : {
-        "revision" : 1,
+        "copyright": [
+            "SPDX-FileCopyrightText: 2011 Ethan Schoonover",
+            "SPDX-FileCopyrightText: 2012 Dominik Haumann <dhaumann@kde.org>",
+            "SPDX-FileCopyrightText: 2018 Andrew Crouthamel <andrew.crouthamel@kdemail.net>"
+        ],
+        "license": "SPDX-License-Identifier: MIT",
+        "revision" : 2,
         "name" : "Solarized Light"
     },
     "text-styles": {
@@ -143,33 +152,33 @@
         }
    },
     "editor-colors": {
-        "background-color" : "#fdf6e3",
-        "code-folding" : "#6c71c4",
-        "bracket-matching" : "#eee8d5",
-        "current-line" : "#eee8d5",
-        "icon-border" : "#eee8d5",
-        "indentation-line" : "#eee8d5",
-        "line-numbers" : "#93a1a1",
-        "current-line-number" : "#93a1a1",
-        "mark-bookmark" : "#268bd2",
-        "mark-breakpoint-active" : "#dc322f",
-        "mark-breakpoint-reached" : "#b58900",
-        "mark-breakpoint-disabled" : "#d33682",
-        "mark-execution" : "#93a1a1",
-        "mark-warning" : "#cb4b16",
-        "mark-error" : "#dc322f",
-        "modified-lines" : "#cb4b16",
-        "replace-highlight" : "#859900",
-        "saved-lines" : "#2aa198",
-        "search-highlight" : "#b58900",
-        "selection" : "#073642",
-        "separator" : "#93a1a1",
-        "spell-checking" : "#dc322f",
-        "tab-marker" : "#93a1a1",
-        "template-background" : "#eee8d5",
-        "template-placeholder" : "#eee8d5",
-        "template-focused-placeholder" : "#eee8d5",
-        "template-read-only-placeholder" : "#eee8d5",
-        "word-wrap-marker" : "#93a1a1"
+        "BackgroundColor" : "#fdf6e3",
+        "CodeFolding" : "#6c71c4",
+        "BracketMatching" : "#eee8d5",
+        "CurrentLine" : "#eee8d5",
+        "IconBorder" : "#eee8d5",
+        "IndentationLine" : "#eee8d5",
+        "LineNumbers" : "#93a1a1",
+        "CurrentLineNumber" : "#93a1a1",
+        "MarkBookmark" : "#268bd2",
+        "MarkBreakpointActive" : "#dc322f",
+        "MarkBreakpointReached" : "#b58900",
+        "MarkBreakpointDisabled" : "#d33682",
+        "MarkExecution" : "#93a1a1",
+        "MarkWarning" : "#cb4b16",
+        "MarkError" : "#dc322f",
+        "ModifiedLines" : "#cb4b16",
+        "ReplaceHighlight" : "#859900",
+        "SavedLines" : "#2aa198",
+        "SearchHighlight" : "#b58900",
+        "TextSelection" : "#073642",
+        "Separator" : "#fdf6e3",
+        "SpellChecking" : "#dc322f",
+        "TabMarker" : "#93a1a1",
+        "TemplateBackground" : "#eee8d5",
+        "TemplatePlaceholder" : "#eee8d5",
+        "TemplateFocusedPlaceholder" : "#eee8d5",
+        "TemplateReadOnlyPlaceholder" : "#eee8d5",
+        "WordWrapMarker" : "#93a1a1"
     }
 }

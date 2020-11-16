@@ -118,6 +118,8 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
             this, &TestNavigationWidget::reapplyCachedExpandedState);
     connect(m_progressTimer, &QTimer::timeout,
             m_progressIndicator, &Utils::ProgressIndicator::show);
+    connect(m_view, &TestTreeView::expanded, this, &TestNavigationWidget::updateExpandedStateCache);
+    connect(m_view, &TestTreeView::collapsed, this, &TestNavigationWidget::updateExpandedStateCache);
 }
 
 void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
@@ -230,8 +232,18 @@ QList<QToolButton *> TestNavigationWidget::createToolButtons()
     collapse->setIcon(Utils::Icons::COLLAPSE_TOOLBAR.icon());
     collapse->setToolTip(tr("Collapse All"));
 
-    connect(expand, &QToolButton::clicked, m_view, &TestTreeView::expandAll);
-    connect(collapse, &QToolButton::clicked, m_view, &TestTreeView::collapseAll);
+    connect(expand, &QToolButton::clicked, m_view, [this]() {
+        m_view->blockSignals(true);
+        m_view->expandAll();
+        m_view->blockSignals(false);
+        updateExpandedStateCache();
+    });
+    connect(collapse, &QToolButton::clicked, m_view, [this]() {
+        m_view->blockSignals(true);
+        m_view->collapseAll();
+        m_view->blockSignals(false);
+        updateExpandedStateCache();
+    });
     connect(m_sort, &QToolButton::clicked, this, &TestNavigationWidget::onSortClicked);
 
     list << m_filterButton << m_sort << expand << collapse;

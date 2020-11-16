@@ -31,7 +31,7 @@
 
 <!-- Hold the "language" opening tag on a single line, as mentioned in "language.dtd". -->
 <language name="Ruby" section="Scripts"
-	  version="10" kateversion="3.3"
+	  version="12" kateversion="3.3"
 	  extensions="*.rb;*.rjs;*.rxml;*.xml.erb;*.js.erb;*.rake;Rakefile;Gemfile;*.gemspec;Vagrantfile"
 	  mimetype="application/x-ruby"
 	  style="ruby" indenter="ruby"
@@ -389,6 +389,7 @@
 
 			<context name="Embedded documentation" attribute="Blockcomment" lineEndContext="#stay">
 				<RegExpr attribute="Comment" String="^=end(?:\s.*|$)" context="#pop" endRegion="comment block" column="0"/>
+				<DetectSpaces />
 				<IncludeRules context="##Alerts" />
 			</context>
 
@@ -431,7 +432,9 @@
 			</context>
 
 			<context name="General Comment" attribute="Comment" lineEndContext="#pop">
+				<DetectSpaces />
 				<IncludeRules context="##Alerts" />
+				<IncludeRules context="##Modelines" />
 			</context>
 
 			<!-- HEREDOC support
@@ -878,9 +881,9 @@
 		<itemDatas>
 			<itemData name="Normal Text" defStyleNum="dsNormal"/>
 
-			<itemData name="Keyword" defStyleNum="dsKeyword"/>
+			<itemData name="Keyword" defStyleNum="dsControlFlow"/>
 			<itemData name="Attribute Definition" defStyleNum="dsOthers"/>
-			<itemData name="Access Control" defStyleNum="dsKeyword" color="#0000FF"/>
+			<itemData name="Access Control" defStyleNum="dsAttribute" bold="1"/> <!-- #0000FF -->
 			<itemData name="Definition" defStyleNum="dsKeyword"/>
 			<itemData name="Pseudo variable" defStyleNum="dsDecVal"/>
 
@@ -891,24 +894,24 @@
 			<itemData name="Hex" defStyleNum="dsBaseN"/>
 			<itemData name="Bin" defStyleNum="dsBaseN"/>
 
-			<itemData name="Symbol" defStyleNum="dsString" color="#D40000"/>
+			<itemData name="Symbol" defStyleNum="dsWarning" bold="0" underline="0"/> <!-- #D40000 -->
 			<itemData name="String" defStyleNum="dsString"/>
-			<itemData name="Raw String" defStyleNum="dsString" color="#DD4A4A" selColor="#DD4A4A"/>
-			<itemData name="Command" defStyleNum="dsString" color="#AA3000"/>
-			<itemData name="Message" defStyleNum="dsNormal" color="#4000A7"/> <!-- #4A00C0 -->
-			<itemData name="Regular Expression" defStyleNum="dsOthers" color="#4A5704"/>
-			<itemData name="Substitution"	defStyleNum="dsOthers"/>
+			<itemData name="Raw String" defStyleNum="dsVerbatimString" /> <!-- #DD4A4A -->
+			<itemData name="Command" defStyleNum="dsInformation"/> <!-- #AA3000 -->
+			<itemData name="Message" defStyleNum="dsAttribute" bold="0"/> <!-- #4000A7 -->
+			<itemData name="Regular Expression" defStyleNum="dsSpecialString"/> <!-- #4A5704 -->
+			<itemData name="Substitution"	defStyleNum="dsSpecialChar"/>
 			<itemData name="Data" defStyleNum="dsNormal"/>
 			<!-- short for 'general delimited input' -->
 			<itemData name="GDL input" defStyleNum="dsOthers" />
 
-			<itemData name="Default globals" defStyleNum="dsDataType" color="#C00000" bold="1"/>
-			<itemData name="Global Variable" defStyleNum="dsDataType" color="#C00000"/>
-			<itemData name="Global Constant" defStyleNum="dsDataType" color="#bb1188" bold="1"/>
+			<itemData name="Default globals" defStyleNum="dsVariable" bold="1"/> <!-- #C00000 -->
+			<itemData name="Global Variable" defStyleNum="dsVariable"/> <!-- #C00000 -->
+			<itemData name="Global Constant" defStyleNum="dsConstant" bold="1"/> <!-- #bb1188 -->
 			<itemData name="Constant" defStyleNum="dsDataType"/>
-			<itemData name="Constant Value" defStyleNum="dsDataType" color="#bb1188"/>
-			<itemData name="Kernel methods" defStyleNum="dsNormal" color="#000080" selColor="#ffffff"/> <!-- #CC0E86 -->
-			<itemData name="Module mixin methods" defStyleNum="dsNormal" color="#000080" selColor="#ffffff"/> <!-- #CC0E86 -->
+			<itemData name="Constant Value" defStyleNum="dsConstant" bold="0"/> <!-- #bb1188 -->
+			<itemData name="Kernel methods" defStyleNum="dsFunction" bold="1"/> <!-- #CC0E86 -->
+			<itemData name="Module mixin methods" defStyleNum="dsFunction" bold="1"/> <!-- #CC0E86 -->
 			<itemData name="Member" defStyleNum="dsNormal"/>
 			<itemData name="Instance Variable" defStyleNum="dsOthers"/>
 			<itemData name="Class Variable" defStyleNum="dsOthers"/>
@@ -916,15 +919,15 @@
 			<itemData name="Comment" defStyleNum="dsComment"/>
 			<itemData name="Blockcomment" defStyleNum="dsComment"/>
 
-			<itemData name="Here Document" defStyleNum="dsOthers"/>
+			<itemData name="Here Document" defStyleNum="dsDocumentation"/>
 
-			<itemData name="Delimiter" defStyleNum="dsNormal" color="#FF9FEC"/>
-			<itemData name="Operator" defStyleNum="dsNormal" color="#FF9FEC"/>
+			<itemData name="Delimiter" defStyleNum="dsKeyword"/> <!-- #FF9FEC -->
+			<itemData name="Operator" defStyleNum="dsKeyword"/> <!-- #FF9FEC -->
 		</itemDatas>
 	</highlighting>
 	<general>
 		<comments>
-			<comment name="singleLine" start="#"/>
+			<comment name="singleLine" start="#" position="afterwhitespace"/>
 		</comments>
 		<keywords casesensitive="1" weakDeliminator="!?"/>
 	</general>

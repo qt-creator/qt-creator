@@ -1,7 +1,7 @@
 <!DOCTYPE language SYSTEM "language.dtd">
 <language
   name="PowerShell"
-  version="6"
+  version="7"
   kateversion="5.0"
   extensions="*.ps1;*.ps1m;*.ps1d"
   section="Scripts"
@@ -880,7 +880,6 @@
         <IncludeRules context="Cmdlet" />
         <DetectChar attribute="String" context="String" char="&quot;"/>
         <Detect2Chars attribute="HereString" context="HereStringer" char="@" char1="&quot;" beginRegion="StringRegion"/>
-        <IncludeRules context="##Doxygen" />
         <DetectChar attribute="Comment" context="Commentar 1" char="#"/>
         <Detect2Chars attribute="Comment" context="Commentar 2" char="&lt;" char1="#" beginRegion="CommentRegion"/>
         <DetectChar attribute="Symbol" context="#stay" char="{" beginRegion="block1"/>
@@ -907,9 +906,16 @@
       <context attribute="Normal Text" lineEndContext="#pop" name="Member" fallthrough="true" fallthroughContext="#pop">
         <RegExpr attribute="Function" context="#pop" String="\b[_\w][_\w\d]*(?=[\s]*)" />
       </context>
-      <context attribute="Comment" lineEndContext="#pop" name="Commentar 1"/>
+      <context attribute="Comment" lineEndContext="#pop" name="Commentar 1">
+        <DetectSpaces />
+        <IncludeRules context="##Alerts"/>
+        <IncludeRules context="##Modelines"/>
+      </context>
       <context attribute="Comment" lineEndContext="#stay" name="Commentar 2">
+        <DetectSpaces />
         <Detect2Chars attribute="Comment" context="#pop" char="#" char1="&gt;" endRegion="CommentRegion"/>
+        <IncludeRules context="##Alerts"/>
+        <IncludeRules context="##Modelines"/>
       </context>
       <context attribute="Cmdlets" lineEndContext="#stay" name="Cmdlet">
         <keyword attribute="Function" context="#stay" String="cmdlets"/>
@@ -938,3 +944,4 @@
     <keywords casesensitive="0" weakDeliminator=":-"/>
   </general>
 </language>
+<!-- kate: replace-tabs on; tab-width 2; indent-width 2; -->

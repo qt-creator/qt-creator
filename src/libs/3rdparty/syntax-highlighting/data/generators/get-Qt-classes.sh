@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2012-2013 by Alex Turbov
+# SPDX-FileCopyrightText: 2012-2013 Alex Turbov 
 #
 # Grab a documented (officially) class list from Qt project web site:
 # http://qt-project.org/doc/qt-${version}/classes.html
