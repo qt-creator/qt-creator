@@ -679,7 +679,7 @@ void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphi
     pen.setJoinStyle(Qt::MiterJoin);
     pen.setCosmetic(true);
 
-    QColor flowColor = "#e71919";
+    QColor flowColor(0xe71919);
 
     if (qmlItemNode().rootModelNode().hasAuxiliaryData("areaColor"))
         flowColor = qmlItemNode().rootModelNode().auxiliaryData("areaColor").value<QColor>();
@@ -857,7 +857,7 @@ public:
                             bool hitTest = false)
         : width(2)
         , adjustedWidth(width / scaleFactor)
-        , color(QColor("#e71919"))
+        , color(QColor(0xe71919))
         , lineBrush(QBrush(color))
         , penStyle(Qt::SolidLine)
         , dashPattern()
@@ -1776,7 +1776,7 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGrap
     pen.setJoinStyle(Qt::MiterJoin);
     pen.setCosmetic(true);
 
-    QColor flowColor = "#e71919";
+    QColor flowColor(0xe71919);
 
     if (qmlItemNode().rootModelNode().hasAuxiliaryData("blockColor"))
         flowColor = qmlItemNode().rootModelNode().auxiliaryData("blockColor").value<QColor>();

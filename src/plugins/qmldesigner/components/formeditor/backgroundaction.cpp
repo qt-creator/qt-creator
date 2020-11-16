@@ -91,7 +91,7 @@ QList<QColor> BackgroundAction::colors()
     static QColor alphaZero(Qt::transparent);
     static QList<QColor> colorList = {alphaZero,
                                       QColor(Qt::black),
-                                      QColor("#4c4e50"),
+                                      QColor(0x4c4e50),
                                       QColor(Qt::darkGray),
                                       QColor(Qt::lightGray),
                                       QColor(Qt::white)};
