@@ -838,6 +838,19 @@ QVector3D MouseArea3D::getMousePosInPlane(const MouseArea3D *helper,
     return sceneTrans.inverted().transform(intersectGlobalPos).toVec3();
 }
 
+static QPoint getPosFromMoveEvent(QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::MouseMove:
+        return static_cast<QMouseEvent *>(event)->pos();
+    case QEvent::HoverMove:
+        return static_cast<QHoverEvent *>(event)->pos();
+    default:
+        break;
+    }
+    return {};
+}
+
 bool MouseArea3D::eventFilter(QObject *, QEvent *event)
 {
     if (!m_active || (m_grabsMouse && s_mouseGrab && s_mouseGrab != this
@@ -951,10 +964,9 @@ bool MouseArea3D::eventFilter(QObject *, QEvent *event)
     }
     case QEvent::MouseMove:
     case QEvent::HoverMove: {
-        auto const mouseEvent = static_cast<QMouseEvent *>(event);
-        const QVector3D mousePosInPlane = getMousePosInPlane(m_dragging ? m_dragHelper : this,
-                                                             mouseEvent->pos());
-        const bool hasMouse = mouseOnTopOfMouseArea(mousePosInPlane, mouseEvent->pos());
+        const QPoint pos = getPosFromMoveEvent(event);
+        const QVector3D mousePosInPlane = getMousePosInPlane(m_dragging ? m_dragHelper : this, pos);
+        const bool hasMouse = mouseOnTopOfMouseArea(mousePosInPlane, pos);
 
         setHovering(hasMouse);
 
@@ -970,7 +982,7 @@ bool MouseArea3D::eventFilter(QObject *, QEvent *event)
 
         if (m_dragging && (m_circlePickArea.y() > 0. || !qFuzzyCompare(mousePosInPlane.z(), -1))) {
             m_mousePosInPlane = mousePosInPlane;
-            emit dragged(mousePosInPlane.toVector2D(), mouseEvent->pos());
+            emit dragged(mousePosInPlane.toVector2D(), pos);
         }
 
         break;
