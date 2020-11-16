@@ -324,7 +324,9 @@ function(enable_pch target)
           set_target_properties(${pch_target} PROPERTIES
             PRECOMPILE_HEADERS ${pch_file}
             CXX_VISIBILITY_PRESET hidden
-            VISIBILITY_INLINES_HIDDEN ON)
+            VISIBILITY_INLINES_HIDDEN ON
+            CXX_EXTENSIONS OFF
+          )
           target_link_libraries(${pch_target} PRIVATE ${pch_dependency})
         endif()
       endfunction()
@@ -351,7 +353,7 @@ function(enable_pch target)
       if ("Qt5::Widgets" IN_LIST dependencies)
         set(PCH_TARGET ${PROJECT_NAME}PchGui)
       elseif ("Qt5::Core" IN_LIST dependencies)
-        set(PCH_TARGET ${PROJECT_NAME}Console)
+        set(PCH_TARGET ${PROJECT_NAME}PchConsole)
       endif()
 
       if (TARGET "${PCH_TARGET}")
