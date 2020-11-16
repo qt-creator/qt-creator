@@ -43,7 +43,6 @@
 #include <QDebug>
 #include <QRegularExpression>
 #include <QSet>
-#include <QStringRef>
 #include <QTextCursor>
 #include <QTextDocument>
 

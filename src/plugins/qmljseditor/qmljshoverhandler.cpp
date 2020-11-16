@@ -50,7 +50,6 @@
 
 #include <QDir>
 #include <QList>
-#include <QStringRef>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 
