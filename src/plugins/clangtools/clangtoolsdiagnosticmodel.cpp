@@ -313,6 +313,12 @@ DiagnosticItem::~DiagnosticItem()
     delete m_mark;
 }
 
+void DiagnosticItem::setTextMarkVisible(bool visible)
+{
+    if (m_mark)
+        m_mark->setVisible(visible);
+}
+
 Qt::ItemFlags DiagnosticItem::flags(int column) const
 {
     const Qt::ItemFlags itemFlags = TreeItem::flags(column);
@@ -630,7 +636,7 @@ bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
 
         // Filtered out?
         if (m_filterOptions && !m_filterOptions->checks.contains(diag.name)) {
-            diagnosticItem->textMark()->setVisible(false);
+            diagnosticItem->setTextMarkVisible(false);
             return false;
         }
 
@@ -643,11 +649,11 @@ bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
             if (fi.isRelative())
                 filePath = m_lastProjectDirectory.toString() + QLatin1Char('/') + filePath;
             if (filePath == diag.location.filePath) {
-                diagnosticItem->textMark()->setVisible(false);
+                diagnosticItem->setTextMarkVisible(false);
                 return false;
             }
         }
-        diagnosticItem->textMark()->setVisible(true);
+        diagnosticItem->setTextMarkVisible(true);
         return true;
     }
 
