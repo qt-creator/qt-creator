@@ -87,9 +87,7 @@ public:
             m_ui.externalFileBrowserEdit->setText(UnixUtils::fileBrowser(ICore::settings()));
         } else {
             m_ui.externalFileBrowserLabel->hide();
-            m_ui.externalFileBrowserEdit->hide();
-            m_ui.resetFileBrowserButton->hide();
-            m_ui.helpExternalFileBrowserButton->hide();
+            m_ui.externalFileBrowserWidget->hide();
         }
 
         const QString patchToolTip = tr("Command used for reverting diff chunks.");
@@ -149,6 +147,7 @@ public:
             else
                 m_ui.fileSystemCaseSensitivityChooser->setCurrentIndex(1);
         } else {
+            m_ui.fileSystemCaseSensitivityLabel->hide();
             m_ui.fileSystemCaseSensitivityWidget->hide();
         }
 
