@@ -67,7 +67,8 @@ QDebug operator<<(QDebug d, const GerritApproval &a)
 // Sort approvals by type and reviewer
 bool gerritApprovalLessThan(const GerritApproval &a1, const GerritApproval &a2)
 {
-    return a1.type.compare(a2.type) < 0 || a1.reviewer.fullName.compare(a2.reviewer.fullName) < 0;
+    const int compare = a1.type.compare(a2.type);
+    return compare == 0 ? a1.reviewer.fullName.compare(a2.reviewer.fullName) < 0 : compare < 0;
 }
 
 QDebug operator<<(QDebug d, const GerritPatchSet &p)
