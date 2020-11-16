@@ -142,7 +142,7 @@ public:
                          const QString &nodeSource = QString(),
                          ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource);
 
-    const ModelNode rootModelNode() const;
+    ModelNode rootModelNode() const;
     ModelNode rootModelNode();
 
     void setSelectedModelNodes(const QList<ModelNode> &selectedNodeList);
@@ -155,7 +155,7 @@ public:
     bool hasSingleSelectedModelNode() const;
     bool isSelectedModelNode(const ModelNode &modelNode) const;
 
-    const QList<ModelNode> selectedModelNodes() const;
+    QList<ModelNode> selectedModelNodes() const;
     ModelNode firstSelectedModelNode() const;
     ModelNode singleSelectedModelNode() const;
 

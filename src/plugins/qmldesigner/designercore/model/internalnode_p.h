@@ -84,7 +84,7 @@ public:
     void setAuxiliaryData(const PropertyName &name, const QVariant &data);
     void removeAuxiliaryData(const PropertyName &name);
     bool hasAuxiliaryData(const PropertyName &name) const;
-    QHash<PropertyName, QVariant> auxiliaryData() const;
+    const QHash<PropertyName, QVariant> &auxiliaryData() const;
 
     InternalProperty::Pointer property(const PropertyName &name) const;
     InternalBindingProperty::Pointer bindingProperty(const PropertyName &name) const;

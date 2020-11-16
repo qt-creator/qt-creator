@@ -83,7 +83,7 @@ public:
 
     void openSettingsDialog();
 
-    const QList<ModelNode> allTransitions() const;
+    QList<ModelNode> allTransitions() const;
 
     void asyncUpdate(const ModelNode &transition);
 

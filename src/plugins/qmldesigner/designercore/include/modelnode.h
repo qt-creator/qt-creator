@@ -115,12 +115,12 @@ public:
     void setParentProperty(const ModelNode &newParentNode, const PropertyName &propertyName);
     bool hasParentProperty() const;
 
-    const QList<ModelNode> directSubModelNodes() const;
-    const QList<ModelNode> directSubModelNodesOfType(const TypeName &typeName) const;
-    const QList<ModelNode> subModelNodesOfType(const TypeName &typeName) const;
+    QList<ModelNode> directSubModelNodes() const;
+    QList<ModelNode> directSubModelNodesOfType(const TypeName &typeName) const;
+    QList<ModelNode> subModelNodesOfType(const TypeName &typeName) const;
 
-    const QList<ModelNode> allSubModelNodes() const;
-    const QList<ModelNode> allSubModelNodesAndThisNode() const;
+    QList<ModelNode> allSubModelNodes() const;
+    QList<ModelNode> allSubModelNodesAndThisNode() const;
     bool hasAnySubModelNodes() const;
 
     //###
@@ -186,11 +186,11 @@ public:
     static int variantUserType();
     QVariant toVariant() const;
 
-    const QVariant auxiliaryData(const PropertyName &name) const;
+    QVariant auxiliaryData(const PropertyName &name) const;
     void setAuxiliaryData(const PropertyName &name, const QVariant &data) const;
     void removeAuxiliaryData(const PropertyName &name) const;
     bool hasAuxiliaryData(const PropertyName &name) const;
-    QHash<PropertyName, QVariant> auxiliaryData() const;
+    const QHash<PropertyName, QVariant> &auxiliaryData() const;
 
     QString customId() const;
     bool hasCustomId() const;

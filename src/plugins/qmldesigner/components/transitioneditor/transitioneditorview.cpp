@@ -348,7 +348,7 @@ void TransitionEditorView::openSettingsDialog()
     dialog->show();
 }
 
-const QList<ModelNode> TransitionEditorView::allTransitions() const
+QList<ModelNode> TransitionEditorView::allTransitions() const
 {
     if (rootModelNode().isValid() && rootModelNode().hasProperty("transitions")) {
         NodeAbstractProperty transitions = rootModelNode().nodeAbstractProperty("transitions");

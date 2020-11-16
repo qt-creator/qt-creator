@@ -48,8 +48,8 @@ class QMLDESIGNERCORE_EXPORT NodeListProperty : public NodeAbstractProperty
 public:
     NodeListProperty();
     NodeListProperty(const NodeListProperty &nodeListProperty, AbstractView *view);
-    const QList<ModelNode> toModelNodeList() const;
-    const QList<QmlObjectNode> toQmlObjectNodeList() const;
+    QList<ModelNode> toModelNodeList() const;
+    QList<QmlObjectNode> toQmlObjectNodeList() const;
     void slide(int, int) const;
     void swap(int, int) const;
     void reparentHere(const ModelNode &modelNode);

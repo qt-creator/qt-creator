@@ -141,7 +141,7 @@ int NodeAbstractProperty::count() const
         return property->count();
 }
 
-const QList<ModelNode> NodeAbstractProperty::allSubNodes()
+QList<ModelNode> NodeAbstractProperty::allSubNodes()
 {
     if (!internalNode()
         || !internalNode()->isValid()
@@ -153,7 +153,7 @@ const QList<ModelNode> NodeAbstractProperty::allSubNodes()
     return QmlDesigner::toModelNodeList(property->allSubNodes(), view());
 }
 
-const QList<ModelNode> NodeAbstractProperty::directSubNodes() const
+QList<ModelNode> NodeAbstractProperty::directSubNodes() const
 {
     if (!internalNode()
         || !internalNode()->isValid()

@@ -255,12 +255,12 @@ qreal QmlTimelineKeyframeGroup::maxActualKeyframe() const
     return max;
 }
 
-const QList<ModelNode> QmlTimelineKeyframeGroup::keyframes() const
+QList<ModelNode> QmlTimelineKeyframeGroup::keyframes() const
 {
     return modelNode().defaultNodeListProperty().toModelNodeList();
 }
 
-const QList<ModelNode> QmlTimelineKeyframeGroup::keyframePositions() const
+QList<ModelNode> QmlTimelineKeyframeGroup::keyframePositions() const
 {
     QList<ModelNode> returnValues;
     for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {

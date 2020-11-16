@@ -718,7 +718,7 @@ ModelNode QmlFlowViewNode::addTransition(const QmlFlowTargetNode &from, const Qm
     return transition;
 }
 
-const QList<ModelNode> QmlFlowViewNode::transitions() const
+QList<ModelNode> QmlFlowViewNode::transitions() const
 {
     if (modelNode().nodeListProperty("flowTransitions").isValid())
         return modelNode().nodeListProperty("flowTransitions").toModelNodeList();
@@ -726,7 +726,7 @@ const QList<ModelNode> QmlFlowViewNode::transitions() const
     return {};
 }
 
-const QList<ModelNode> QmlFlowViewNode::wildcards() const
+QList<ModelNode> QmlFlowViewNode::wildcards() const
 {
     if (modelNode().nodeListProperty("flowWildcards").isValid())
         return modelNode().nodeListProperty("flowWildcards").toModelNodeList();
@@ -734,7 +734,7 @@ const QList<ModelNode> QmlFlowViewNode::wildcards() const
     return {};
 }
 
-const QList<ModelNode> QmlFlowViewNode::decicions() const
+QList<ModelNode> QmlFlowViewNode::decicions() const
 {
     if (modelNode().nodeListProperty("flowDecisions").isValid())
         return modelNode().nodeListProperty("flowDecisions").toModelNodeList();

@@ -65,9 +65,9 @@ public:
 
     ModelNode keyframe(qreal position) const;
 
-    const QList<ModelNode> keyframes() const;
+    QList<ModelNode> keyframes() const;
 
-    const QList<ModelNode> keyframePositions() const;
+    QList<ModelNode> keyframePositions() const;
 
     static bool isValidKeyframe(const ModelNode &node);
     static bool checkKeyframesType(const ModelNode &node);

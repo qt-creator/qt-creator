@@ -187,7 +187,7 @@ bool InternalNode::hasAuxiliaryData(const PropertyName &name) const
     return m_auxiliaryDataHash.contains(name);
 }
 
-QHash<PropertyName, QVariant> InternalNode::auxiliaryData() const
+const QHash<PropertyName, QVariant> &InternalNode::auxiliaryData() const
 {
     return m_auxiliaryDataHash;
 }

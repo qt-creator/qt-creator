@@ -186,9 +186,9 @@ public:
     static bool isValidQmlFlowViewNode(const ModelNode &modelNode);
     QList<QmlFlowItemNode> flowItems() const;
     ModelNode addTransition(const QmlFlowTargetNode &from, const QmlFlowTargetNode &to);
-    const QList<ModelNode> transitions() const;
-    const QList<ModelNode> wildcards() const;
-    const QList<ModelNode> decicions() const;
+    QList<ModelNode> transitions() const;
+    QList<ModelNode> wildcards() const;
+    QList<ModelNode> decicions() const;
     QList<ModelNode> transitionsForTarget(const ModelNode &modelNode);
     QList<ModelNode> transitionsForSource(const ModelNode &modelNode);
     void removeDanglingTransitions();

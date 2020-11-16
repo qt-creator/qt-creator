@@ -102,7 +102,7 @@ ModelNode AbstractView::createModelNode(const TypeName &typeName,
     Returns the constant root model node.
 */
 
-const ModelNode AbstractView::rootModelNode() const
+ModelNode AbstractView::rootModelNode() const
 {
     Q_ASSERT(model());
     return ModelNode(model()->d->rootNode(), model(), const_cast<AbstractView*>(this));
@@ -465,7 +465,7 @@ bool AbstractView::isSelectedModelNode(const ModelNode &modelNode) const
     Sets the list of nodes to the actual selected nodes. Returns a list of the
     selected nodes.
 */
-const QList<ModelNode> AbstractView::selectedModelNodes() const
+QList<ModelNode> AbstractView::selectedModelNodes() const
 {
     return toModelNodeList(model()->d->selectedNodes());
 }

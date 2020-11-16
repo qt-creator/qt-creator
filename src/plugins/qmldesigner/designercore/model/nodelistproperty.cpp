@@ -63,7 +63,7 @@ static QList<ModelNode> internalNodesToModelNodes(const QList<Internal::Internal
     return modelNodeList;
 }
 
-const QList<ModelNode> NodeListProperty::toModelNodeList() const
+QList<ModelNode> NodeListProperty::toModelNodeList() const
 {
     if (!isValid())
         throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, "<invalid node list property>");
@@ -77,7 +77,7 @@ const QList<ModelNode> NodeListProperty::toModelNodeList() const
     return QList<ModelNode>();
 }
 
-const QList<QmlObjectNode> NodeListProperty::toQmlObjectNodeList() const
+QList<QmlObjectNode> NodeListProperty::toQmlObjectNodeList() const
 {
     if (model()->nodeInstanceView())
         return QList<QmlObjectNode>();
