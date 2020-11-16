@@ -483,7 +483,6 @@ namespace ADS
                 targetAreaSplitter->setSizes(sizes);
             }
         } else {
-            QList<int> newSplitterSizes;
             QSplitter *newSplitter = createSplitter(insertParam.orientation());
             int targetAreaSize = (insertParam.orientation() == Qt::Horizontal)
                                      ? targetArea->width()
@@ -585,7 +584,6 @@ namespace ADS
             sizes[areaIndex] = size;
             sizes.insert(areaIndex, size);
         } else {
-            auto sizes = targetAreaSplitter->sizes();
             const int targetAreaSize = (insertParam.orientation() == Qt::Horizontal)
                                            ? targetArea->width()
                                            : targetArea->height();
