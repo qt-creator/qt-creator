@@ -105,23 +105,26 @@ bool operator ==(const InformationContainer &first, const InformationContainer &
             && first.m_thirdInformation == second.m_thirdInformation;
 }
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 2, 0) || QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-static bool operator <(const QVariant &first, const QVariant &second)
+static bool isFirstLessThenSecond(const QVariant &first, const QVariant &second)
 {
+#if QT_VERSION < QT_VERSION_CHECK(5, 2, 0) || QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     if (first.userType() == second.userType()) {
         if (first.canConvert<QByteArray>())
             return first.value<QByteArray>() < second.value<QByteArray>();
     }
 
     return true;
-}
+#else
+    return first < second;
 #endif
+}
 
 bool operator <(const InformationContainer &first, const InformationContainer &second)
 {
     return (first.m_instanceId < second.m_instanceId)
         || (first.m_instanceId == second.m_instanceId && first.m_name < second.m_name)
-        || (first.m_instanceId == second.m_instanceId && first.m_name == second.m_name && first.m_information < second.m_information);
+        || (first.m_instanceId == second.m_instanceId && first.m_name == second.m_name
+            && isFirstLessThenSecond(first.m_information, second.m_information));
 }
 
 QDebug operator <<(QDebug debug, const InformationContainer &container)
