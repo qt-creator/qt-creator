@@ -54,7 +54,6 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLabel>
-#include <QPlainTextEdit>
 #include <QThread>
 
 // --------------------------------------------------------------------
@@ -118,7 +117,6 @@ private:
     FancyLineEdit *propertyEdit;
     PathChooser *installDirChooser;
     QCheckBox *defaultInstallDirCheckBox;
-    QPlainTextEdit *commandLineTextEdit;
 };
 
 // --------------------------------------------------------------------
@@ -175,6 +173,12 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Utils::Id id) :
     m_forceProbes->setSettingsKey("Qbs.forceProbesKey");
     m_forceProbes->setLabel(tr("Force probes"),
                             BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+
+    m_commandLine = addAspect<StringAspect>();
+    m_commandLine->setDisplayStyle(StringAspect::TextEditDisplay);
+    m_commandLine->setLabelText(tr("Equivalent command line:"));
+    m_commandLine->setUndoRedoEnabled(false);
+    m_commandLine->setReadOnly(true);
 
     connect(m_maxJobCount, &BaseAspect::changed, this, &QbsBuildStep::updateState);
     connect(m_keepGoing, &BaseAspect::changed, this, &QbsBuildStep::updateState);
@@ -552,11 +556,6 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     installDirChooser = new PathChooser(this);
     installDirChooser->setExpectedKind(PathChooser::Directory);
 
-    commandLineTextEdit = new QPlainTextEdit(this);
-    commandLineTextEdit->setUndoRedoEnabled(false);
-    commandLineTextEdit->setReadOnly(true);
-    commandLineTextEdit->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
-
     LayoutBuilder builder(this);
     builder.addRow(m_qbsStep->m_buildVariant);
     builder.addRow(m_qbsStep->m_maxJobCount);
@@ -573,7 +572,7 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     builder.addItem(defaultInstallDirCheckBox);
 
     builder.addRow({tr("Installation directory:"), installDirChooser});
-    builder.addRow({tr("Equivalent command line:"), commandLineTextEdit});
+    builder.addRow(m_qbsStep->m_commandLine);
 
     propertyEdit->setToolTip(tr("Properties to pass to the project."));
     defaultInstallDirCheckBox->setText(tr("Use default location"));
@@ -628,7 +627,7 @@ void QbsBuildStepConfigWidget::updateState()
     addToCommand(qbsBuildConfig->qtQuickCompilerSetting(),
                  Constants::QBS_CONFIG_QUICK_COMPILER_KEY);
 
-    commandLineTextEdit->setPlainText(command);
+    m_qbsStep->m_commandLine->setValue(command);
 }
 
 

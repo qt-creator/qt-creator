@@ -119,6 +119,7 @@ private:
     Utils::BoolAspect *m_install = nullptr;
     Utils::BoolAspect *m_cleanInstallDir = nullptr;
     Utils::BoolAspect *m_forceProbes = nullptr;
+    Utils::StringAspect *m_commandLine = nullptr;
 
     // Temporary data:
     QStringList m_changedFiles;
