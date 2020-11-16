@@ -53,7 +53,7 @@ QString processArguments(QCoreApplication &application)
     if (parser.positionalArguments().isEmpty())
         parser.showHelp(1);
 
-    return parser.positionalArguments().first();
+    return parser.positionalArguments().constFirst();
 }
 
 #ifdef Q_OS_WIN

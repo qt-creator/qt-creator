@@ -197,7 +197,7 @@ static FilePath detectPython(const FilePath &documentPath)
         python = PythonSettings::defaultInterpreter().command;
 
     if (!python.exists() && !PythonSettings::interpreters().isEmpty())
-        python = PythonSettings::interpreters().first().command;
+        python = PythonSettings::interpreters().constFirst().command;
 
     return python;
 }
