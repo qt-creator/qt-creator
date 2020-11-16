@@ -311,6 +311,10 @@ QColor FormatDescription::defaultBackground(TextStyle id)
         return Utils::Theme::initialPalette().window().color();
     } else if (id == C_SEARCH_RESULT) {
         return QColor(0xffef0b);
+    } else if (id == C_SEARCH_RESULT_ALT1) {
+        return QColor(0xb6, 0xcc, 0xff);
+    } else if (id == C_SEARCH_RESULT_ALT2) {
+        return QColor(0xff, 0xb6, 0xcc);
     } else if (id == C_PARENTHESES) {
         return QColor(0xb4, 0xee, 0xb4);
     } else if (id == C_PARENTHESES_MISMATCH) {
@@ -340,9 +344,9 @@ QColor FormatDescription::defaultBackground(TextStyle id)
         return col;
     } else if (id == C_SELECTION) {
         return Utils::Theme::initialPalette().color(QPalette::Highlight);
-    } else if (id == C_OCCURRENCES || id == C_SEARCH_RESULT_ALT1) {
+    } else if (id == C_OCCURRENCES) {
         return QColor(180, 180, 180);
-    } else if (id == C_OCCURRENCES_RENAME || id == C_SEARCH_RESULT_ALT2) {
+    } else if (id == C_OCCURRENCES_RENAME) {
         return QColor(255, 100, 100);
     } else if (id == C_DISABLED_CODE) {
         return QColor(239, 239, 239);
