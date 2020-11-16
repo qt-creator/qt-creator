@@ -53,7 +53,7 @@ void VirtualFileSystemOverlay::update()
         return;
     std::map<Utils::FilePath, QList<Core::IDocument *>> documentRoots;
     const QList<Core::IDocument *> &modifiedDocuments = Core::DocumentManager::modifiedDocuments();
-    QMap<Core::IDocument *, AutoSavedPath> newSaved;
+    QHash<Core::IDocument *, AutoSavedPath> newSaved;
     for (Core::IDocument *doc : modifiedDocuments) {
         auto document = qobject_cast<TextEditor::TextDocument *>(doc);
         if (!document)

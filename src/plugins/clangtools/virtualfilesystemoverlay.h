@@ -28,6 +28,7 @@
 #include <utils/fileutils.h>
 #include <utils/temporarydirectory.h>
 
+#include <QHash>
 #include <QMap>
 
 namespace Core { class IDocument; }
@@ -55,7 +56,7 @@ private:
         Utils::FilePath path;
     };
 
-    QMap<Core::IDocument *, AutoSavedPath> m_saved;
+    QHash<Core::IDocument *, AutoSavedPath> m_saved;
     QMap<Utils::FilePath, Utils::FilePath> m_mapping;
 };
 
