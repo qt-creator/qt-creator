@@ -42,6 +42,6 @@ public:
 
 private:
     PreviewToolTip *m_previewToolTip = nullptr;
-    int m_previewToolTipRow = -1;
+    qint32 m_previewToolTipNodeId = -1;
 };
 }

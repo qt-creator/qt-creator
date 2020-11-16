@@ -46,7 +46,6 @@
 #include <QStyleFactory>
 #include <QEvent>
 #include <QImage>
-#include <QApplication>
 
 namespace QmlDesigner {
 
@@ -248,43 +247,45 @@ bool NavigatorTreeView::viewportEvent(QEvent *event)
             QVariantMap imgMap = navModel->data(index, ToolTipImageRole).toMap();
 
             if (!imgMap.isEmpty()) {
-                m_previewToolTipRow = index.row();
-                if (!m_previewToolTip) {
-                    m_previewToolTip = new PreviewToolTip(QApplication::activeWindow());
-                    connect(navModel, &NavigatorTreeModel::toolTipPixmapUpdated,
-                            [this](const QString &id, const QPixmap &pixmap) {
-                        if (m_previewToolTip && m_previewToolTip->id() == id)
-                            m_previewToolTip->setPixmap(pixmap);
-                    });
+                m_previewToolTipNodeId = index.internalId();
+                if (!m_previewToolTip || devicePixelRatioF() != m_previewToolTip->devicePixelRatioF()) {
+                    if (!m_previewToolTip) {
+                        connect(navModel, &NavigatorTreeModel::toolTipPixmapUpdated,
+                                [this](const QString &id, const QPixmap &pixmap) {
+                            if (m_previewToolTip && m_previewToolTip->id() == id)
+                                m_previewToolTip->setPixmap(pixmap);
+                        });
+                    } else {
+                        delete m_previewToolTip;
+                    }
+                    m_previewToolTip = new PreviewToolTip();
                 }
                 m_previewToolTip->setId(imgMap["id"].toString());
                 m_previewToolTip->setType(imgMap["type"].toString());
                 m_previewToolTip->setInfo(imgMap["info"].toString());
                 m_previewToolTip->setPixmap(imgMap["pixmap"].value<QPixmap>());
-                m_previewToolTip->move(m_previewToolTip->parentWidget()->mapFromGlobal(helpEvent->globalPos())
-                                       + offset);
+                m_previewToolTip->move(helpEvent->globalPos() + offset);
                 if (!m_previewToolTip->isVisible())
                     m_previewToolTip->show();
             } else if (m_previewToolTip) {
                 m_previewToolTip->hide();
-                m_previewToolTipRow = -1;
+                m_previewToolTipNodeId = -1;
             }
         }
     } else if (event->type() == QEvent::Leave) {
         if (m_previewToolTip) {
             m_previewToolTip->hide();
-            m_previewToolTipRow = -1;
+            m_previewToolTipNodeId = -1;
         }
     } else if (event->type() == QEvent::HoverMove) {
-        if (m_previewToolTip) {
+        if (m_previewToolTip && m_previewToolTip->isVisible()) {
             auto *he = static_cast<QHoverEvent *>(event);
             QModelIndex index = indexAt(he->pos());
-            if (!index.isValid() || index.row() != m_previewToolTipRow) {
+            if (!index.isValid() || index.internalId() != m_previewToolTipNodeId) {
                 m_previewToolTip->hide();
-                m_previewToolTipRow = -1;
+                m_previewToolTipNodeId = -1;
             } else {
-                m_previewToolTip->move(m_previewToolTip->parentWidget()->mapFromGlobal(mapToGlobal(he->pos()))
-                                       + offset);
+                m_previewToolTip->move(mapToGlobal(he->pos()) + offset);
             }
         }
     }

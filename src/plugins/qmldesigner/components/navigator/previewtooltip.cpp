@@ -36,8 +36,8 @@ PreviewToolTip::PreviewToolTip(QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::PreviewToolTip)
 {
-    setAttribute(Qt::WA_TransparentForMouseEvents);
-    setWindowFlags(Qt::Widget);
+    setWindowFlags(Qt::FramelessWindowHint | Qt::Tool | Qt::WindowTransparentForInput
+                   | Qt::WindowStaysOnTopHint | Qt::WindowDoesNotAcceptFocus);
     m_ui->setupUi(this);
     m_ui->idLabel->setElideMode(Qt::ElideLeft);
     m_ui->typeLabel->setElideMode(Qt::ElideLeft);
