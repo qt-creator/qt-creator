@@ -45,6 +45,7 @@
 #include "target.h"
 #include "toolchain.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
 #include <utils/algorithm.h>
@@ -188,6 +189,8 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
                              [this](const QString &var) { return environment().expandedValueForKey(var); });
 
     updateCacheAndEmitEnvironmentChanged();
+    connect(Core::ICore::instance(), &Core::ICore::systemEnvironmentChanged,
+            this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);
     connect(target, &Target::kitChanged,
             this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);
     connect(this, &BuildConfiguration::environmentChanged,

@@ -75,6 +75,16 @@ using namespace Utils;
 
 static CorePlugin *m_instance = nullptr;
 
+const char kEnvironmentChanges[] = "Core/EnvironmentChanges";
+
+void CorePlugin::setupSystemEnvironment()
+{
+    m_instance->m_startupSystemEnvironment = Environment::systemEnvironment();
+    const EnvironmentItems changes = EnvironmentItem::fromStringList(
+        ICore::settings()->value(kEnvironmentChanges).toStringList());
+    setEnvironmentChanges(changes);
+}
+
 CorePlugin::CorePlugin()
 {
     qRegisterMetaType<Id>();
@@ -82,6 +92,7 @@ CorePlugin::CorePlugin()
     qRegisterMetaType<Utils::CommandLine>();
     qRegisterMetaType<Utils::FilePath>();
     m_instance = this;
+    setupSystemEnvironment();
 }
 
 CorePlugin::~CorePlugin()
@@ -264,6 +275,29 @@ QObject *CorePlugin::remoteCommand(const QStringList & /* options */,
                 workingDirectory);
     m_mainWindow->raiseWindow();
     return res;
+}
+
+Environment CorePlugin::startupSystemEnvironment()
+{
+    return m_instance->m_startupSystemEnvironment;
+}
+
+EnvironmentItems CorePlugin::environmentChanges()
+{
+    return m_instance->m_environmentChanges;
+}
+
+void CorePlugin::setEnvironmentChanges(const EnvironmentItems &changes)
+{
+    if (m_instance->m_environmentChanges == changes)
+        return;
+    m_instance->m_environmentChanges = changes;
+    Environment systemEnv = m_instance->m_startupSystemEnvironment;
+    systemEnv.modify(changes);
+    Environment::setSystemEnvironment(systemEnv);
+    ICore::settings()->setValue(kEnvironmentChanges, EnvironmentItem::toStringList(changes));
+    if (ICore::instance())
+        emit ICore::instance()->systemEnvironmentChanged();
 }
 
 void CorePlugin::fileOpenRequest(const QString &f)

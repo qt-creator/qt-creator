@@ -313,6 +313,11 @@ void Environment::modifySystemEnvironment(const EnvironmentItems &list)
     staticSystemEnvironment->modify(list);
 }
 
+void Environment::setSystemEnvironment(const Environment &environment)
+{
+    *staticSystemEnvironment = environment;
+}
+
 /** Expand environment variables in a string.
  *
  * Environment variables are accepted in the following forms:

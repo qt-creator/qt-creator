@@ -25,6 +25,7 @@
 
 #include "systemsettings.h"
 #include "coreconstants.h"
+#include "coreplugin.h"
 #include "editormanager/editormanager_p.h"
 #include "fileutils.h"
 #include "icore.h"
@@ -37,6 +38,7 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/consoleprocess.h>
 #include <utils/environment.h>
+#include <utils/environmentdialog.h>
 #include <utils/hostosinfo.h>
 #include <utils/unixutils.h>
 
@@ -153,6 +155,20 @@ public:
 
         updatePath();
 
+        m_ui.environmentChangesLabel->setElideMode(Qt::ElideRight);
+        m_environmentChanges = CorePlugin::environmentChanges();
+        updateEnvironmentChangesLabel();
+        connect(m_ui.environmentButton, &QPushButton::clicked, [this] {
+            Utils::optional<EnvironmentItems> changes
+                = Utils::EnvironmentDialog::getEnvironmentItems(m_ui.environmentButton,
+                                                                m_environmentChanges);
+            if (!changes)
+                return;
+            m_environmentChanges = *changes;
+            updateEnvironmentChangesLabel();
+            updatePath();
+        });
+
         connect(VcsManager::instance(), &VcsManager::configurationChanged,
                 this, &SystemSettingsWidget::updatePath);
     }
@@ -165,10 +181,12 @@ private:
     void resetTerminal();
     void updateTerminalUi(const Utils::TerminalCommand &term);
     void updatePath();
+    void updateEnvironmentChangesLabel();
 
     void variableHelpDialogCreator(const QString &helpText);
     Ui::SystemSettings m_ui;
     QPointer<QMessageBox> m_dialog;
+    EnvironmentItems m_environmentChanges;
 };
 
 void SystemSettingsWidget::apply()
@@ -206,6 +224,8 @@ void SystemSettingsWidget::apply()
         else
             HostOsInfo::setOverrideFileNameCaseSensitivity(selectedSensitivity);
     }
+
+    CorePlugin::setEnvironmentChanges(m_environmentChanges);
 }
 
 void SystemSettingsWidget::resetTerminal()
@@ -233,6 +253,14 @@ void SystemSettingsWidget::updatePath()
     QStringList toAdd = VcsManager::additionalToolsPath();
     env.appendOrSetPath(toAdd.join(HostOsInfo::pathListSeparator()));
     m_ui.patchChooser->setEnvironment(env);
+}
+
+void SystemSettingsWidget::updateEnvironmentChangesLabel()
+{
+    const QString shortSummary = Utils::EnvironmentItem::toStringList(m_environmentChanges)
+                                     .join("; ");
+    m_ui.environmentChangesLabel->setText(shortSummary.isEmpty() ? tr("No changes to apply.")
+                                                                 : shortSummary);
 }
 
 void SystemSettingsWidget::variableHelpDialogCreator(const QString &helpText)

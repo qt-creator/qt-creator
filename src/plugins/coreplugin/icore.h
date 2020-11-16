@@ -148,6 +148,7 @@ signals:
     void coreAboutToClose();
     void contextAboutToChange(const QList<Core::IContext *> &context);
     void contextChanged(const Core::Context &context);
+    void systemEnvironmentChanged();
 
 public:
     /* internal use */
