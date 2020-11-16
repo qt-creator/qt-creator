@@ -225,6 +225,7 @@ static void readStream(QDataStream &in, ImageContainer &container)
     in >> imageSize;
     in >> imageFormat;
     in >> byteCount;
+    in >> pixelRatio;
 
     QImage image = QImage(imageSize, QImage::Format(imageFormat));
 
