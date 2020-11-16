@@ -1413,7 +1413,7 @@ QString getTemplateDialog(const Utils::FilePath &projectPath)
 
     dialog->exec();
 
-    if (!result.isEmpty() && !QFileInfo(result).exists()) {
+    if (!result.isEmpty() && !QFileInfo::exists(result)) {
         result = templateFiles.at(names.indexOf(result));
         result = templatesPath.pathAppended(result).toString();
     }
@@ -1489,7 +1489,7 @@ void mergeWithTemplate(const SelectionContext &selectionContext)
 
     const QString templateFile = getTemplateDialog(projectPath);
 
-    if (QFileInfo(templateFile).exists())
+    if (QFileInfo::exists(templateFile))
         styleMerge(selectionContext, templateFile);
 }
 
