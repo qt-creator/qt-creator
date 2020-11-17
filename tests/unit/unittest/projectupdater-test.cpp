@@ -435,6 +435,7 @@ TEST_F(ProjectUpdater, ToolChainArgumentsMSVC)
                             QString{"-U__cpp_binary_literals"},
                             QString{"-U__cpp_capture_star_this"},
                             QString{"-U__cpp_constexpr"},
+                            QString{"-U__cpp_constexpr_in_decltype"},
                             QString{"-U__cpp_decltype"},
                             QString{"-U__cpp_decltype_auto"},
                             QString{"-U__cpp_deduction_guides"},

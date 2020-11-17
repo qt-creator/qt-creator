@@ -580,6 +580,7 @@ static QStringList languageFeatureMacros()
         "__cpp_binary_literals",
         "__cpp_capture_star_this",
         "__cpp_constexpr",
+        "__cpp_constexpr_in_decltype",
         "__cpp_decltype",
         "__cpp_decltype_auto",
         "__cpp_deduction_guides",
