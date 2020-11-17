@@ -299,6 +299,10 @@ QColor FormatDescription::defaultForeground(TextStyle id)
         return QColor(Qt::red);
     } else if (id == C_AUTOCOMPLETE) {
         return QColor(Qt::darkBlue);
+    } else if (id == C_SEARCH_RESULT_ALT1) {
+        return QColor(0x00, 0x00, 0x33);
+    } else if (id == C_SEARCH_RESULT_ALT2) {
+        return QColor(0x33, 0x00, 0x00);
     }
     return QColor();
 }
