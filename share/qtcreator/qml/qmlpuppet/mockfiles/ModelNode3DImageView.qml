@@ -25,7 +25,6 @@
 
 import QtQuick 2.15
 import QtQuick3D 1.15
-import QtQuick3D.Effects 1.15
 
 Item {
     id: root
@@ -39,7 +38,6 @@ Item {
     property var previewObject
 
     property var materialViewComponent
-    property var effectViewComponent
     property var modelViewComponent
     property var nodeViewComponent
 
@@ -59,8 +57,6 @@ Item {
 
         if (obj instanceof Material)
             createViewForMaterial(obj);
-        else if (obj instanceof Effect)
-            createViewForEffect(obj);
         else if (obj instanceof Model)
             createViewForModel(obj);
         else if (obj instanceof Node)
@@ -77,16 +73,6 @@ Item {
         // Always recreate the view to ensure material is up to date
         if (materialViewComponent.status === Component.Ready)
             view = materialViewComponent.createObject(viewRect, {"previewMaterial": material});
-    }
-
-    function createViewForEffect(effect)
-    {
-        if (!effectViewComponent)
-            effectViewComponent = Qt.createComponent("EffectNodeView.qml");
-
-        // Always recreate the view to ensure effect is up to date
-        if (effectViewComponent.status === Component.Ready)
-            view = effectViewComponent.createObject(viewRect, {"previewEffect": effect});
     }
 
     function createViewForModel(model)
