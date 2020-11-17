@@ -100,11 +100,11 @@ IOutputPane::IOutputPane(QObject *parent)
 
     m_zoomInButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
     m_zoomInButton->setCommandId(Constants::ZOOM_IN);
-    connect(m_zoomInButton, &QToolButton::clicked, this, [this] { emit zoomIn(1); });
+    connect(m_zoomInButton, &QToolButton::clicked, this, [this] { emit zoomInRequested(1); });
 
     m_zoomOutButton->setIcon(Utils::Icons::MINUS.icon());
     m_zoomOutButton->setCommandId(Constants::ZOOM_OUT);
-    connect(m_zoomOutButton, &QToolButton::clicked, this, [this] { emit zoomOut(1); });
+    connect(m_zoomOutButton, &QToolButton::clicked, this, [this] { emit zoomOutRequested(1); });
 }
 
 IOutputPane::~IOutputPane()
@@ -199,14 +199,14 @@ void IOutputPane::setupContext(const char *context, QWidget *widget)
 
     const auto zoomInAction = new QAction(this);
     Core::ActionManager::registerAction(zoomInAction, Constants::ZOOM_IN, m_context->context());
-    connect(zoomInAction, &QAction::triggered, this, [this] { emit zoomIn(1); });
+    connect(zoomInAction, &QAction::triggered, this, [this] { emit zoomInRequested(1); });
     const auto zoomOutAction = new QAction(this);
     Core::ActionManager::registerAction(zoomOutAction, Constants::ZOOM_OUT, m_context->context());
-    connect(zoomOutAction, &QAction::triggered, this, [this] { emit zoomOut(1); });
+    connect(zoomOutAction, &QAction::triggered, this, [this] { emit zoomOutRequested(1); });
     const auto resetZoomAction = new QAction(this);
     Core::ActionManager::registerAction(resetZoomAction, Constants::ZOOM_RESET,
                                         m_context->context());
-    connect(resetZoomAction, &QAction::triggered, this, &IOutputPane::resetZoom);
+    connect(resetZoomAction, &QAction::triggered, this, &IOutputPane::resetZoomRequested);
 }
 
 void IOutputPane::setZoomButtonsEnabled(bool enabled)

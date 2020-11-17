@@ -49,9 +49,6 @@ public:
     void setCustomId(const QString &customId);
     QString customId() const;
 
-signals:
-    void accepted();
-
 private slots:
     void acceptedClicked();
     void tabChanged(int index);

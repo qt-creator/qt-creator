@@ -53,9 +53,6 @@ public:
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 
-signals:
-    void changed();
-
 private:
     QStringList m_value;
     QString m_label;

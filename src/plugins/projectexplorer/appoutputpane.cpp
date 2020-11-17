@@ -204,9 +204,9 @@ AppOutputPane::AppOutputPane() :
     connect(m_attachButton, &QToolButton::clicked,
             this, &AppOutputPane::attachToRunControl);
 
-    connect(this, &Core::IOutputPane::zoomIn, this, &AppOutputPane::zoomIn);
-    connect(this, &Core::IOutputPane::zoomOut, this, &AppOutputPane::zoomOut);
-    connect(this, &IOutputPane::resetZoom, this, &AppOutputPane::resetZoom);
+    connect(this, &IOutputPane::zoomInRequested, this, &AppOutputPane::zoomIn);
+    connect(this, &IOutputPane::zoomOutRequested, this, &AppOutputPane::zoomOut);
+    connect(this, &IOutputPane::resetZoomRequested, this, &AppOutputPane::resetZoom);
 
     m_settingsButton->setToolTip(tr("Open Settings Page"));
     m_settingsButton->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());

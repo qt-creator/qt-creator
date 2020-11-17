@@ -80,7 +80,7 @@ signals:
     void selectedElementsChanged(QList<QmlJS::AST::UiObjectMember*> offsets,
                                  const QString &wordAtCursor);
 private:
-    void modificationChanged(bool);
+    void updateModificationChange(bool);
 
     void jumpToOutlineElement(int index);
     void updateContextPane();

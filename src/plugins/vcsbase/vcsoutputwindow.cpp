@@ -323,9 +323,9 @@ VcsOutputWindow::VcsOutputWindow()
     updateBehaviorSettings();
     setupContext(Internal::C_VCS_OUTPUT_PANE, &d->widget);
 
-    connect(this, &IOutputPane::zoomIn, &d->widget, &Core::OutputWindow::zoomIn);
-    connect(this, &IOutputPane::zoomOut, &d->widget, &Core::OutputWindow::zoomOut);
-    connect(this, &IOutputPane::resetZoom, &d->widget, &Core::OutputWindow::resetZoom);
+    connect(this, &IOutputPane::zoomInRequested, &d->widget, &Core::OutputWindow::zoomIn);
+    connect(this, &IOutputPane::zoomOutRequested, &d->widget, &Core::OutputWindow::zoomOut);
+    connect(this, &IOutputPane::resetZoomRequested, &d->widget, &Core::OutputWindow::resetZoom);
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
             this, updateBehaviorSettings);
 }

@@ -147,7 +147,7 @@ void QmlJSEditorWidget::finalizeInitialization()
     }
 
     connect(this->document(), &QTextDocument::modificationChanged,
-            this, &QmlJSEditorWidget::modificationChanged);
+            this, &QmlJSEditorWidget::updateModificationChange);
 
     connect(m_qmlJsEditorDocument, &QmlJSEditorDocument::updateCodeWarnings,
             this, &QmlJSEditorWidget::updateCodeWarnings);
@@ -257,7 +257,7 @@ void QmlJSEditorWidget::foldAuxiliaryData()
     }
 }
 
-void QmlJSEditorWidget::modificationChanged(bool changed)
+void QmlJSEditorWidget::updateModificationChange(bool changed)
 {
     if (!changed && m_modelManager)
         m_modelManager->fileChangedOnDisk(textDocument()->filePath().toString());

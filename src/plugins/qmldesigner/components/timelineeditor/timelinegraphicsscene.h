@@ -98,7 +98,6 @@ public:
 
 signals:
     void statusBarMessageChanged(const QString &message);
-    void selectionChanged();
     void scroll(const TimelineUtils::Side &side);
 
 private:

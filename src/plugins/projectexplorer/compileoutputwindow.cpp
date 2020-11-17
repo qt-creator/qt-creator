@@ -123,9 +123,9 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     setupFilterUi("CompileOutputPane.Filter");
     setFilteringEnabled(true);
 
-    connect(this, &IOutputPane::zoomIn, m_outputWindow, &Core::OutputWindow::zoomIn);
-    connect(this, &IOutputPane::zoomOut, m_outputWindow, &Core::OutputWindow::zoomOut);
-    connect(this, &IOutputPane::resetZoom, m_outputWindow, &Core::OutputWindow::resetZoom);
+    connect(this, &IOutputPane::zoomInRequested, m_outputWindow, &Core::OutputWindow::zoomIn);
+    connect(this, &IOutputPane::zoomOutRequested, m_outputWindow, &Core::OutputWindow::zoomOut);
+    connect(this, &IOutputPane::resetZoomRequested, m_outputWindow, &Core::OutputWindow::resetZoom);
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::fontSettingsChanged,
             this, updateFontSettings);
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,

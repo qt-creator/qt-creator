@@ -49,9 +49,6 @@ public:
     void setStatus(GlobalAnnotationStatus status);
     GlobalAnnotationStatus globalStatus() const;
 
-signals:
-    void accepted();
-
 private slots:
     void acceptedClicked();
     void tabChanged(int index);
