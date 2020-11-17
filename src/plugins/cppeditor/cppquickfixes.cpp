@@ -7643,9 +7643,10 @@ class RemoveUsingNamespaceOperation : public CppQuickFixOperation
     struct Node
     {
         Document::Ptr document;
-        bool processed = false;
         bool hasGlobalUsingDirective = false;
+        int unprocessedParents;
         std::vector<std::reference_wrapper<Node>> includes;
+        std::vector<std::reference_wrapper<Node>> includedBy;
         Node() = default;
         Node(const Node &) = delete;
         Node(Node &&) = delete;
@@ -7690,6 +7691,7 @@ private:
                 const auto filePath = FilePath::fromString(include.resolvedFileName());
                 if (shouldHandle(filePath)) {
                     Node &includedNode = includeGraph[filePath];
+                    includedNode.includedBy.push_back(node);
                     node.includes.push_back(includedNode);
                 }
             }
@@ -7715,34 +7717,37 @@ private:
                 }
             }
         }
+        for (auto &[_, node] : includeGraph) {
+            Q_UNUSED(_)
+            node.unprocessedParents = static_cast<int>(node.includes.size());
+        }
         return includeGraph;
     }
 
     void removeAllUsingsAtGlobalScope(CppRefactoringChanges &refactoring)
     {
         auto includeGraph = buildIncludeGraph(refactoring);
-        std::list<std::reference_wrapper<Node>> unprocessedNodes;
+        std::vector<std::reference_wrapper<Node>> nodesWithProcessedParents;
         for (auto &[_, node] : includeGraph) {
             Q_UNUSED(_)
-            unprocessedNodes.push_back(node);
+            if (!node.unprocessedParents)
+                nodesWithProcessedParents.push_back(node);
         }
-        while (!unprocessedNodes.empty()) {
-            for (auto i = unprocessedNodes.begin(); i != unprocessedNodes.end();) {
-                Node &node = *i;
-                if (Utils::allOf(node.includes, &Node::processed)) {
-                    CppRefactoringFilePtr file = refactoring.file(node.document->fileName());
-                    const bool parentHasUsing = Utils::anyOf(node.includes,
-                                                             &Node::hasGlobalUsingDirective);
-                    const int startPos = parentHasUsing
-                                             ? 0
-                                             : RemoveNamespaceVisitor::SearchGlobalUsingDirectivePos;
-                    const bool noGlobalUsing = refactorFile(file, refactoring.snapshot(), startPos);
-                    node.hasGlobalUsingDirective = !noGlobalUsing || parentHasUsing;
-                    node.processed = true;
-                    i = unprocessedNodes.erase(i);
-                } else {
-                    ++i;
-                }
+        while (!nodesWithProcessedParents.empty()) {
+            Node &node = nodesWithProcessedParents.back();
+            nodesWithProcessedParents.pop_back();
+            CppRefactoringFilePtr file = refactoring.file(node.document->fileName());
+            const bool parentHasUsing = Utils::anyOf(node.includes, &Node::hasGlobalUsingDirective);
+            const int startPos = parentHasUsing
+                                     ? 0
+                                     : RemoveNamespaceVisitor::SearchGlobalUsingDirectivePos;
+            const bool noGlobalUsing = refactorFile(file, refactoring.snapshot(), startPos);
+            node.hasGlobalUsingDirective = !noGlobalUsing || parentHasUsing;
+
+            for (Node &subNode : node.includedBy) {
+                --subNode.unprocessedParents;
+                if (subNode.unprocessedParents == 0)
+                    nodesWithProcessedParents.push_back(subNode);
             }
         }
     }
