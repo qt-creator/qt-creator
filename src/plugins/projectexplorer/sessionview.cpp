@@ -77,10 +77,10 @@ SessionView::SessionView(QWidget *parent)
         SelectCurrent);
 
     connect(this, &Utils::TreeView::activated, [this](const QModelIndex &index){
-        emit activated(m_sessionModel.sessionAt(index.row()));
+        emit sessionActivated(m_sessionModel.sessionAt(index.row()));
     });
     connect(selectionModel(), &QItemSelectionModel::selectionChanged, [this] {
-        emit selected(selectedSessions());
+        emit sessionsSelected(selectedSessions());
     });
 
     connect(&m_sessionModel, &SessionModel::sessionSwitched,

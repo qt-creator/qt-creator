@@ -71,8 +71,8 @@ public:
     QStringList selectedWorkspaces() const;
 
 signals:
-    void activated(const QString &workspace);
-    void selected(const QStringList &workspaces);
+    void workspaceActivated(const QString &workspace);
+    void workspacesSelected(const QStringList &workspaces);
     void workspaceSwitched();
 
 private:

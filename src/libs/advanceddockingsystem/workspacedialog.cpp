@@ -164,11 +164,11 @@ WorkspaceDialog::WorkspaceDialog(DockManager *manager, QWidget *parent)
             m_ui.workspaceView,
             &WorkspaceView::resetCurrentWorkspace);
     connect(m_ui.workspaceView,
-            &WorkspaceView::activated,
+            &WorkspaceView::workspaceActivated,
             m_ui.workspaceView,
             &WorkspaceView::switchToCurrentWorkspace);
     connect(m_ui.workspaceView,
-            &WorkspaceView::selected,
+            &WorkspaceView::workspacesSelected,
             this,
             &WorkspaceDialog::updateActions);
     connect(m_ui.btImport,

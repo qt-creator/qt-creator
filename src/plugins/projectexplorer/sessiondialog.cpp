@@ -138,10 +138,10 @@ SessionDialog::SessionDialog(QWidget *parent) : QDialog(parent)
         m_ui.sessionView, &SessionView::switchToCurrentSession);
     connect(m_ui.btRename, &QAbstractButton::clicked,
         m_ui.sessionView, &SessionView::renameCurrentSession);
-    connect(m_ui.sessionView, &SessionView::activated,
+    connect(m_ui.sessionView, &SessionView::sessionActivated,
         m_ui.sessionView, &SessionView::switchToCurrentSession);
 
-    connect(m_ui.sessionView, &SessionView::selected,
+    connect(m_ui.sessionView, &SessionView::sessionsSelected,
         this, &SessionDialog::updateActions);
     connect(m_ui.sessionView, &SessionView::sessionSwitched,
         this, &QDialog::reject);

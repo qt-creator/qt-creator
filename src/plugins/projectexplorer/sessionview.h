@@ -52,8 +52,8 @@ public:
     void selectSession(const QString &sessionName);
 
 signals:
-    void activated(const QString &session);
-    void selected(const QStringList &sessions);
+    void sessionActivated(const QString &session);
+    void sessionsSelected(const QStringList &sessions);
     void sessionSwitched();
 
 private:

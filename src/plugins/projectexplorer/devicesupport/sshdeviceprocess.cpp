@@ -195,7 +195,7 @@ void SshDeviceProcess::handleConnected()
         d->process->requestX11Forwarding(display);
     if (runInTerminal()) {
         d->process->requestTerminal();
-        connect(&d->consoleProcess, QOverload<QProcess::ProcessError>::of(&ConsoleProcess::error),
+        connect(&d->consoleProcess, &ConsoleProcess::errorOccurred,
                 this, &DeviceProcess::error);
         connect(&d->consoleProcess, &ConsoleProcess::processStarted,
                 this, &SshDeviceProcess::handleProcessStarted);

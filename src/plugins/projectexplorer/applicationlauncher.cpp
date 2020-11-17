@@ -152,7 +152,7 @@ ApplicationLauncherPrivate::ApplicationLauncherPrivate(ApplicationLauncher *pare
             this, &ApplicationLauncherPrivate::localConsoleProcessError);
     connect(&m_consoleProcess, &ConsoleProcess::processStopped,
             this, &ApplicationLauncherPrivate::localProcessDone);
-    connect(&m_consoleProcess, QOverload<QProcess::ProcessError>::of(&ConsoleProcess::error),
+    connect(&m_consoleProcess, &ConsoleProcess::errorOccurred,
             q, &ApplicationLauncher::error);
 
 #ifdef Q_OS_WIN
