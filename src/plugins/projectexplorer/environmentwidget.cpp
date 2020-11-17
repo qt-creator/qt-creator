@@ -28,6 +28,7 @@
 #include <coreplugin/fileutils.h>
 #include <coreplugin/find/itemviewfind.h>
 
+#include <utils/algorithm.h>
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/environmentdialog.h>
@@ -449,6 +450,12 @@ bool EnvironmentWidget::currentEntryIsPathList(const QModelIndex &current) const
         return true;
     if (Utils::HostOsInfo::isAnyUnixHost() && varName == "LD_LIBRARY_PATH")
         return true;
+    if (varName == "PKG_CONFIG_DIR")
+        return true;
+    if (Utils::HostOsInfo::isWindowsHost()
+        && QStringList{"INCLUDE", "LIB", "LIBPATH"}.contains(varName)) {
+        return true;
+    }
 
     // Now check the value: If it's a list of strings separated by the platform's path separator
     // and at least one of the strings is an existing directory, then that's enough proof for us.
@@ -459,11 +466,7 @@ bool EnvironmentWidget::currentEntryIsPathList(const QModelIndex &current) const
             .split(Utils::HostOsInfo::pathListSeparator(), Qt::SkipEmptyParts);
     if (entries.length() < 2)
         return false;
-    for (const QString &potentialDir : entries) {
-        if (QFileInfo(potentialDir).isDir())
-            return true;
-    }
-    return false;
+    return Utils::anyOf(entries, [](const QString &d) { return QFileInfo(d).isDir(); });
 }
 
 void EnvironmentWidget::updateButtons()
