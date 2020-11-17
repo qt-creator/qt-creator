@@ -130,7 +130,20 @@ EasingContextPane::EasingContextPane(QWidget *parent) :
 
     setGraphDisplayMode(GraphMode);
 
-    connect(m_simulation,&EasingSimulation::finished,this,&EasingContextPane::switchToGraph);
+    connect(m_simulation, &EasingSimulation::finished, this, &EasingContextPane::switchToGraph);
+    connect(ui->playButton, &QPushButton::clicked, this, &EasingContextPane::playClicked);
+    connect(ui->overshootSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+            this, &EasingContextPane::overshootChanged);
+    connect(ui->periodSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+            this, &EasingContextPane::periodChanged);
+    connect(ui->amplitudeSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+            this, &EasingContextPane::amplitudeChanged);
+    connect(ui->easingExtremesComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, &EasingContextPane::easingExtremesChanged);
+    connect(ui->easingShapeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, &EasingContextPane::easingShapeChanged);
+    connect(ui->durationSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
+            this, &EasingContextPane::durationChanged);
 }
 
 EasingContextPane::~EasingContextPane()
@@ -282,13 +295,13 @@ void EasingContextPane::setBounce()
 
 } //QmlDesigner
 
-void QmlEditorWidgets::EasingContextPane::on_durationSpinBox_valueChanged(int newValue)
+void QmlEditorWidgets::EasingContextPane::durationChanged(int newValue)
 {
     m_simulation->updateCurve(m_easingGraph->easingCurve(),ui->durationSpinBox->value());
     emit propertyChanged(QLatin1String("duration"), newValue);
 }
 
-void QmlEditorWidgets::EasingContextPane::on_easingShapeComboBox_currentIndexChanged(int newIndex)
+void QmlEditorWidgets::EasingContextPane::easingShapeChanged(int newIndex)
 {
     QTC_ASSERT(newIndex >= 0, return);
     const QString newShape = ui->easingShapeComboBox->itemText(newIndex);
@@ -314,7 +327,7 @@ void QmlEditorWidgets::EasingContextPane::on_easingShapeComboBox_currentIndexCha
     }
 }
 
-void QmlEditorWidgets::EasingContextPane::on_easingExtremesComboBox_currentIndexChanged(int newIndex)
+void QmlEditorWidgets::EasingContextPane::easingExtremesChanged(int newIndex)
 {
     QTC_ASSERT(newIndex >= 0, return);
     const QString newExtremes = ui->easingExtremesComboBox->itemText(newIndex);
@@ -328,7 +341,7 @@ void QmlEditorWidgets::EasingContextPane::on_easingExtremesComboBox_currentIndex
     }
 }
 
-void QmlEditorWidgets::EasingContextPane::on_amplitudeSpinBox_valueChanged(double newAmplitude)
+void QmlEditorWidgets::EasingContextPane::amplitudeChanged(double newAmplitude)
 {
     if ((newAmplitude != m_easingGraph->amplitude()) &&
         (m_easingGraph->easingShape()==QLatin1String("Bounce")
@@ -339,7 +352,7 @@ void QmlEditorWidgets::EasingContextPane::on_amplitudeSpinBox_valueChanged(doubl
     }
 }
 
-void QmlEditorWidgets::EasingContextPane::on_periodSpinBox_valueChanged(double newPeriod)
+void QmlEditorWidgets::EasingContextPane::periodChanged(double newPeriod)
 {
     if ((newPeriod != m_easingGraph->period()) && (m_easingGraph->easingShape()==QLatin1String("Elastic"))) {
         m_easingGraph->setPeriod(newPeriod);
@@ -349,7 +362,7 @@ void QmlEditorWidgets::EasingContextPane::on_periodSpinBox_valueChanged(double n
 
 }
 
-void QmlEditorWidgets::EasingContextPane::on_overshootSpinBox_valueChanged(double newOvershoot)
+void QmlEditorWidgets::EasingContextPane::overshootChanged(double newOvershoot)
 {
     if ((newOvershoot != m_easingGraph->overshoot()) && (m_easingGraph->easingShape()==QLatin1String("Back"))) {
         m_easingGraph->setOvershoot(newOvershoot);
@@ -358,7 +371,7 @@ void QmlEditorWidgets::EasingContextPane::on_overshootSpinBox_valueChanged(doubl
     }
 }
 
-void QmlEditorWidgets::EasingContextPane::on_playButton_clicked()
+void QmlEditorWidgets::EasingContextPane::playClicked()
 {
     setGraphDisplayMode(SimulationMode);
     startAnimation();
