@@ -5,7 +5,7 @@
   <style name="Selection" foreground="#bec0c2" background="#1d545c"/>
   <style name="LineNumber" foreground="#bec0c2" background="#404244"/>
   <style name="SearchResult" background="#8a7f2c"/>
-  <style name="SearchResultAlt1" background="#8a402c"/>
+  <style name="SearchResultAlt1" foreground="#aaaaff" background="#363655"/>
   <style name="SearchResultAlt2" foreground="#ffaaaa" background="#553636"/>
   <style name="SearchScope" background="#8a602c"/>
   <style name="Parentheses" foreground="#bec0c2" background="#1d545c"/>
