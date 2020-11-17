@@ -92,7 +92,6 @@ public:
 
 signals:
     void renamed(const Utils::FilePath &oldName, const Utils::FilePath &newName);
-    void requestExpansion(const QModelIndex &index);
 
 private:
     bool m_filterProjects = false;

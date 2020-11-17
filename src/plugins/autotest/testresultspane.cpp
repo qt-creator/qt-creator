@@ -152,7 +152,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     connect(m_treeView, &ResultsTreeView::copyShortcutTriggered, [this] () {
         onCopyItemTriggered(getTestResult(m_treeView->currentIndex()));
     });
-    connect(m_model, &TestResultModel::requestExpansion, [this] (QModelIndex idx) {
+    connect(m_model, &TestResultModel::requestExpansion, [this] (const QModelIndex &idx) {
         m_treeView->expand(m_filterModel->mapFromSource(idx));
     });
     connect(TestRunner::instance(), &TestRunner::testRunStarted,
