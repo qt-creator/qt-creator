@@ -79,11 +79,6 @@ DefaultAction::DefaultAction(const QString &description)
     connect(this, &QAction::triggered, this, &DefaultAction::actionTriggered);
 }
 
-void DefaultAction::actionTriggered(bool enable)
-{
-    emit triggered(enable, m_selectionContext);
-}
-
 void DefaultAction::setSelectionContext(const SelectionContext &selectionContext)
 {
     m_selectionContext = selectionContext;
