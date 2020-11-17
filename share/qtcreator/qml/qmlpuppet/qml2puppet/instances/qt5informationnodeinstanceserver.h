@@ -39,6 +39,15 @@
 
 QT_BEGIN_NAMESPACE
 class QDragMoveEvent;
+class QQuickWindow;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+class QQuickRenderControl;
+class QRhi;
+class QRhiTexture;
+class QRhiRenderBuffer;
+class QRhiTextureRenderTarget;
+class QRhiRenderPassDescriptor;
+#endif
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -129,19 +138,33 @@ private:
     void doRenderModelNodeImageView();
     void doRenderModelNode3DImageView();
     void doRenderModelNode2DImageView();
-    QQuickView *createAuxiliaryQuickView(const QUrl &url, QQuickItem *&rootItem);
     void updateLockedAndHiddenStates(const QSet<ServerNodeInstance> &instances);
+    void handleInputEvents();
 
-    QPointer<QQuickView> m_editView3D;
-    QQuickItem *m_editView3DRootItem = nullptr;
-    QQuickItem *m_editView3DContentItem = nullptr;
+    struct RenderViewData {
+        QQuickWindow *window = nullptr;
+        QQuickItem *rootItem = nullptr;
+        QQuickItem *contentItem = nullptr;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        bool bufferDirty = true;
+        QQuickRenderControl *renderControl = nullptr;
+        QRhi *rhi = nullptr;
+        QRhiTexture *texture = nullptr;
+        QRhiRenderBuffer *buffer = nullptr;
+        QRhiTextureRenderTarget *texTarget = nullptr;
+        QRhiRenderPassDescriptor *rpDesc = nullptr;
+#endif
+    };
+
+    bool initRhi(RenderViewData &viewData);
+    QImage grabRenderControl(RenderViewData &viewData);
+    void createAuxiliaryQuickView(const QUrl &url, RenderViewData &viewData);
+
+    RenderViewData m_editView3DData;
+    RenderViewData m_modelNode3DImageViewData;
+    RenderViewData m_modelNode2DImageViewData;
+
     bool m_editView3DSetupDone = false;
-    QPointer<QQuickView> m_ModelNode3DImageView;
-    QQuickItem *m_ModelNode3DImageViewRootItem = nullptr;
-    QQuickItem *m_ModelNode3DImageViewContentItem = nullptr;
-    QPointer<QQuickView> m_ModelNode2DImageView;
-    QQuickItem *m_ModelNode2DImageViewRootItem = nullptr;
-    QQuickItem *m_ModelNode2DImageViewContentItem = nullptr;
     RequestModelNodePreviewImageCommand m_modelNodePreviewImageCommand;
     QHash<QString, QImage> m_modelNodePreviewImageCache;
     QSet<QObject *> m_view3Ds;
@@ -156,9 +179,11 @@ private:
     QTimer m_selectionChangeTimer;
     QTimer m_render3DEditViewTimer;
     QTimer m_renderModelNodeImageViewTimer;
+    QTimer m_inputEventTimer;
     QVariant m_changedNode;
     PropertyName m_changedProperty;
     ChangeSelectionCommand m_lastSelectionChangeCommand;
+    QList<InputEventCommand> m_pendingInputEventCommands;
     QObject *m_3dHelper = nullptr;
     int m_need3DEditViewRender = 0;
 };

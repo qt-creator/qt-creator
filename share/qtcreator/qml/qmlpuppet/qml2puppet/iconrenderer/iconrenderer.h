@@ -31,8 +31,16 @@
 #include <designersupportdelegate.h>
 
 QT_BEGIN_NAMESPACE
-class QQuickView;
+class QQuickWindow;
 class QQuickItem;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+class QQuickRenderControl;
+class QRhi;
+class QRhiTexture;
+class QRhiRenderBuffer;
+class QRhiTextureRenderTarget;
+class QRhiRenderPassDescriptor;
+#endif
 QT_END_NAMESPACE
 
 class IconRenderer : public QObject
@@ -44,21 +52,26 @@ public:
 
     void setupRender();
 
-protected:
-    bool eventFilter(QObject *watched, QEvent *event) override;
-
 private:
     void createIcon();
     void render(const QString &fileName);
-    void resizeContent(int size);
+    void resizeContent(int dimensions);
+    bool initRhi();
 
     int m_size = 16;
-    double m_ratio = 1.;
     QString m_filePath;
     QString m_source;
-    QQuickView *m_quickView = nullptr;
+    QQuickWindow *m_window = nullptr;
     QQuickItem *m_contentItem = nullptr;
     QQuickItem *m_containerItem = nullptr;
     DesignerSupport m_designerSupport;
     bool m_is3D = false;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QQuickRenderControl *m_renderControl = nullptr;
+    QRhi *m_rhi = nullptr;
+    QRhiTexture *m_texture = nullptr;
+    QRhiRenderBuffer *m_buffer = nullptr;
+    QRhiTextureRenderTarget *m_texTarget = nullptr;
+    QRhiRenderPassDescriptor *m_rpDesc = nullptr;
+#endif
 };

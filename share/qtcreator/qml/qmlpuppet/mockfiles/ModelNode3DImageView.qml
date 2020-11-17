@@ -50,11 +50,8 @@ Item {
             view.destroy();
     }
 
-    function createViewForObject(obj, w, h)
+    function createViewForObject(obj)
     {
-        width = w;
-        height = h;
-
         if (obj instanceof Material)
             createViewForMaterial(obj);
         else if (obj instanceof Model)
