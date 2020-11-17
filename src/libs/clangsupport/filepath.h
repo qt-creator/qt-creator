@@ -28,7 +28,6 @@
 #include "clangsupport_global.h"
 
 #include "filepathview.h"
-#include "nativefilepath.h"
 
 #include <utils/hostosinfo.h>
 #include <utils/smallstringio.h>

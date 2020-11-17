@@ -27,6 +27,7 @@
 
 #include <utils/hostosinfo.h>
 
+#include <filepath.h>
 #include <nativefilepath.h>
 
 #include <QCoreApplication>
