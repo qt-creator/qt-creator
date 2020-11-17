@@ -50,13 +50,10 @@ public:
     void enableButtons();
 
 private Q_SLOTS:
-    void on_libraryRadio_toggled();
-    void on_skeletonCheck_toggled();
-    void on_widgetLibraryEdit_textChanged();
-    void on_widgetHeaderEdit_textChanged();
-    void on_pluginClassEdit_textChanged();
-    void on_pluginHeaderEdit_textChanged();
-    void on_domXmlEdit_textChanged();
+    void widgetLibraryChanged(const QString &text);
+    void widgetHeaderChanged(const QString &text);
+    void pluginClassChanged(const QString &text);
+    void pluginHeaderChanged(const QString &text);
 
 private:
     Ui::ClassDefinition m_ui;

@@ -39,14 +39,22 @@ ClassDefinition::ClassDefinition(QWidget *parent) :
     m_ui.iconPathChooser->setHistoryCompleter(QLatin1String("Qmake.Icon.History"));
     m_ui.iconPathChooser->setPromptDialogTitle(tr("Select Icon"));
     m_ui.iconPathChooser->setPromptDialogFilter(tr("Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)"));
+
+    connect(m_ui.libraryRadio, &QRadioButton::toggled, this, &ClassDefinition::enableButtons);
+    connect(m_ui.skeletonCheck, &QCheckBox::toggled, this, &ClassDefinition::enableButtons);
+    connect(m_ui.widgetLibraryEdit, &QLineEdit::textChanged,
+            this, &ClassDefinition::widgetLibraryChanged);
+    connect(m_ui.widgetHeaderEdit, &QLineEdit::textChanged,
+            this, &ClassDefinition::widgetHeaderChanged);
+    connect(m_ui.pluginClassEdit, &QLineEdit::textChanged,
+            this, &ClassDefinition::pluginClassChanged);
+    connect(m_ui.pluginHeaderEdit, &QLineEdit::textChanged,
+            this, &ClassDefinition::pluginHeaderChanged);
+    connect(m_ui.domXmlEdit, &QTextEdit::textChanged,
+            this, [this] { m_domXmlChanged = true; });
 }
 
 void ClassDefinition::enableButtons()
-{
-    on_libraryRadio_toggled();
-}
-
-void ClassDefinition::on_libraryRadio_toggled()
 {
     const bool enLib = m_ui.libraryRadio->isChecked();
     m_ui.widgetLibraryLabel->setEnabled(enLib);
@@ -64,11 +72,6 @@ void ClassDefinition::on_libraryRadio_toggled()
     m_ui.widgetProjectEdit->setText(
         QFileInfo(m_ui.widgetProjectEdit->text()).completeBaseName() +
         (m_ui.libraryRadio->isChecked() ? QLatin1String(".pro") : QLatin1String(".pri")));
-}
-
-void ClassDefinition::on_skeletonCheck_toggled()
-{
-    on_libraryRadio_toggled();
 }
 
 static inline QString xmlFromClassName(const QString &name)
@@ -96,31 +99,25 @@ void ClassDefinition::setClassName(const QString &name)
     }
 }
 
-void ClassDefinition::on_widgetLibraryEdit_textChanged()
+void ClassDefinition::widgetLibraryChanged(const QString &text)
 {
-    m_ui.widgetProjectEdit->setText(
-        m_ui.widgetLibraryEdit->text() +
+    m_ui.widgetProjectEdit->setText(text +
         (m_ui.libraryRadio->isChecked() ? QLatin1String(".pro") : QLatin1String(".pri")));
 }
 
-void ClassDefinition::on_widgetHeaderEdit_textChanged()
+void ClassDefinition::widgetHeaderChanged(const QString &text)
 {
-    m_ui.widgetSourceEdit->setText(m_fileNamingParameters.headerToSourceFileName(m_ui.widgetHeaderEdit->text()));
+    m_ui.widgetSourceEdit->setText(m_fileNamingParameters.headerToSourceFileName(text));
 }
 
-void ClassDefinition::on_pluginClassEdit_textChanged()
+void ClassDefinition::pluginClassChanged(const QString &text)
 {
-    m_ui.pluginHeaderEdit->setText(m_fileNamingParameters.headerFileName(m_ui.pluginClassEdit->text()));
+    m_ui.pluginHeaderEdit->setText(m_fileNamingParameters.headerFileName(text));
 }
 
-void ClassDefinition::on_pluginHeaderEdit_textChanged()
+void ClassDefinition::pluginHeaderChanged(const QString &text)
 {
-    m_ui.pluginSourceEdit->setText(m_fileNamingParameters.headerToSourceFileName(m_ui.pluginHeaderEdit->text()));
-}
-
-void ClassDefinition::on_domXmlEdit_textChanged()
-{
-    m_domXmlChanged = true;
+    m_ui.pluginSourceEdit->setText(m_fileNamingParameters.headerToSourceFileName(text));
 }
 
 PluginOptions::WidgetOptions ClassDefinition::widgetOptions(const QString &className) const

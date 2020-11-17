@@ -61,10 +61,10 @@ private:
     bool checkCountryCode();
 
 private slots:
-    void on_keystoreShowPassCheckBox_stateChanged(int state);
-    void on_certificateShowPassCheckBox_stateChanged(int state);
-    void on_buttonBox_accepted();
-    void on_samePasswordCheckBox_stateChanged(int state);
+    void keystoreShowPassStateChanged(int state);
+    void certificateShowPassStateChanged(int state);
+    void buttonBoxAccepted();
+    void samePasswordStateChanged(int state);
 
 private:
     bool validateUserInput();

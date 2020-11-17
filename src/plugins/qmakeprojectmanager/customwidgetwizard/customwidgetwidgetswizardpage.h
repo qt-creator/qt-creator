@@ -64,9 +64,9 @@ public:
     void initializePage() override;
 
 private Q_SLOTS:
-    void on_classList_classAdded(const QString &name);
-    void on_classList_classDeleted(int index);
-    void on_classList_classRenamed(int index, const QString &newName);
+    void slotClassAdded(const QString &name);
+    void slotClassDeleted(int index);
+    void slotClassRenamed(int index, const QString &newName);
     void slotCheckCompleteness();
     void slotCurrentRowChanged(int);
 
