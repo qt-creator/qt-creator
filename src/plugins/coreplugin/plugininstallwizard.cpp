@@ -270,7 +270,10 @@ public:
         PluginSpec *coreplugin = CorePlugin::instance()->pluginSpec();
 
         // look for plugin
-        QDirIterator it(m_tempDir->path(), libraryNameFilter(), QDir::Files | QDir::NoSymLinks);
+        QDirIterator it(m_tempDir->path(),
+                        libraryNameFilter(),
+                        QDir::Files | QDir::NoSymLinks,
+                        QDirIterator::Subdirectories);
         while (it.hasNext()) {
             if (fi.isCanceled())
                 return;
@@ -298,9 +301,9 @@ public:
                 return; // successful / no error
             }
         }
-        fi.reportResult({PluginInstallWizard::tr("Did not find %1 plugin in toplevel directory.")
-                             .arg(Constants::IDE_DISPLAY_NAME),
-                         InfoLabel::Error});
+        fi.reportResult(
+            {PluginInstallWizard::tr("Did not find %1 plugin.").arg(Constants::IDE_DISPLAY_NAME),
+             InfoLabel::Error});
     }
 
     void cleanupPage()
