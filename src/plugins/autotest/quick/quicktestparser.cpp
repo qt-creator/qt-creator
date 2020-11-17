@@ -139,7 +139,7 @@ static QString quickTestName(const CPlusPlus::Document::Ptr &doc,
     return astVisitor.testBaseName();
 }
 
-QList<Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const QString &srcDir) const
+QList<Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const QString &srcDir)
 {
     QStringList dirs(srcDir);
     ModelManagerInterface *qmlJsMM = QmlJSTools::Internal::ModelManager::instance();
@@ -157,7 +157,8 @@ QList<Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const QS
         QFileInfo fi(it.fileInfo().canonicalFilePath());
         dirs.append(fi.filePath());
     }
-    emit updateWatchPaths(dirs);
+    QMetaObject::invokeMethod(this, [this, dirs] { QuickTestParser::doUpdateWatchPaths(dirs); },
+                              Qt::QueuedConnection);
 
     QList<Document::Ptr> foundDocs;
 
@@ -310,8 +311,6 @@ QuickTestParser::QuickTestParser(ITestFramework *framework)
     });
     connect(&m_directoryWatcher, &QFileSystemWatcher::directoryChanged,
             this, &QuickTestParser::handleDirectoryChanged);
-    connect(this, &QuickTestParser::updateWatchPaths,
-            this, &QuickTestParser::doUpdateWatchPaths, Qt::QueuedConnection);
 }
 
 void QuickTestParser::init(const QStringList &filesToParse, bool fullParse)
