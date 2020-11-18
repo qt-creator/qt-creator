@@ -1542,7 +1542,10 @@ def qform__QStack():
 
 
 def qdump__QStack(d, value):
-    qdump__QVector(d, value)
+    if d.qtVersion() >= 0x60000:
+        qdump__QList(d, value)
+    else:
+        qdump__QVector(d, value)
 
 
 def qdump__QPolygonF(d, value):
