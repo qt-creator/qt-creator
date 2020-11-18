@@ -119,35 +119,10 @@
 
     \list
         \li \l Shapes
+        \li \l Text
         \li \l Images
         \li \l {User Interaction Methods}
         \li \l {Lists and Other Data Models}
-    \endlist
-
-    \section2 Basic QML Types
-
-    You can use the following QML types to create components:
-
-    \list
-        \li \l [QtQuick]{AnimatedImage}{Animated Image} provides a way to play
-            animations stored as images containing a series of frames, such
-            as those stored in GIF files.
-        \li \l [QtQuick]{BorderImage}{Border Image} uses an image as a border or
-            background.
-        \li \l [QtQuick]{Image} adds a bitmap to the scene. You can stretch and
-            tile images.
-        \li \l [QtQuick]{Item} is the most basic of all visual types in QML. Even
-            though it has no visual appearance, it defines all the properties
-            that are common across visual types, such as the x and y position,
-            width and height, anchoring, and key handling.
-        \li \l [QtQuick] {Rectangle} adds a rectangle that is painted with a solid
-            fill color and an optional border. You can use the radius property
-            to create rounded rectangles.
-        \li \l [QtQuick]{Text} adds formatted read-only text.
-        \li \l [QtQuick]{TextEdit}{Text Edit} adds a single line of editable
-            formatted text that can be validated.
-        \li \l [QtQuick]{TextInput}{Text Input} adds a single line of editable
-            plain text that can be validated.
     \endlist
 
     \include qtquick-animation-types.qdocinc qtquick animation types
