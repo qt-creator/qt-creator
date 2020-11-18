@@ -71,6 +71,7 @@ public:
 
     Symbol *lookat(const Identifier *id) const;
     Symbol *lookat(OperatorNameId::Kind operatorId) const;
+    Symbol *lookat(const ConversionNameId *convId) const;
 
 private:
     /// Returns the hash value for the given Symbol.
@@ -181,6 +182,23 @@ Symbol *SymbolTable::lookat(OperatorNameId::Kind operatorId) const
     return symbol;
 }
 
+Symbol *SymbolTable::lookat(const ConversionNameId *convId) const
+{
+    if (!_hash)
+        return nullptr;
+
+    Symbol *symbol = _hash[0]; // See Symbol::HashCode
+    for (; symbol; symbol = symbol->_next) {
+        if (const Name *identity = symbol->unqualifiedName()) {
+            if (const ConversionNameId * const id = identity->asConversionNameId()) {
+                if (id->type().match(convId->type()))
+                    break;
+            }
+        }
+    }
+    return symbol;
+}
+
 void SymbolTable::rehash()
 {
     _hashSize <<= 1;
@@ -280,6 +298,9 @@ Symbol *Scope::find(const Identifier *id) const
 
 Symbol *Scope::find(OperatorNameId::Kind operatorId) const
 { return _members ? _members->lookat(operatorId) : nullptr; }
+
+Symbol *Scope::find(const ConversionNameId *conv) const
+{ return _members ? _members->lookat(conv) : nullptr; }
 
 /// Set the start offset of the scope
 int Scope::startOffset() const

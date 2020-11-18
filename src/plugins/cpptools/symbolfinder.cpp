@@ -58,6 +58,7 @@ class FindMatchingDefinition: public SymbolVisitor
 {
     Symbol *_declaration = nullptr;
     const OperatorNameId *_oper = nullptr;
+    const ConversionNameId *_conv = nullptr;
     const bool _strict;
     QList<Hit> _result;
 
@@ -65,8 +66,10 @@ public:
     explicit FindMatchingDefinition(Symbol *declaration, bool strict)
         : _declaration(declaration), _strict(strict)
     {
-        if (_declaration->name())
+        if (_declaration->name()) {
             _oper = _declaration->name()->asOperatorNameId();
+            _conv = _declaration->name()->asConversionNameId();
+        }
     }
 
     const QList<Hit> result() const { return _result; }
@@ -75,10 +78,10 @@ public:
 
     bool visit(Function *fun) override
     {
-        if (_oper) {
+        if (_oper || _conv) {
             if (const Name *name = fun->unqualifiedName()) {
-                    if (_oper->match(name))
-                        _result.append({fun, true});
+                if ((_oper && _oper->match(name)) || (_conv && _conv->match(name)))
+                    _result.append({fun, true});
             }
         } else if (Function *decl = _declaration->type()->asFunctionType()) {
             if (fun->match(decl)) {
@@ -181,13 +184,18 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
             continue;
 
         if (!id) {
-            if (!declaration->name())
+            const Name * const name = declaration->name();
+            if (!name)
                 continue;
-            const OperatorNameId *oper = declaration->name()->asOperatorNameId();
-            if (!oper)
+            if (const OperatorNameId * const oper = name->asOperatorNameId()) {
+                if (!doc->control()->findOperatorNameId(oper->kind()))
+                    continue;
+            } else if (const ConversionNameId * const conv = name->asConversionNameId()) {
+                if (!doc->control()->findConversionNameId(conv->type()))
+                    continue;
+            } else {
                 continue;
-            if (!doc->control()->findOperatorNameId(oper->kind()))
-                continue;
+            }
         }
 
         FindMatchingDefinition candidates(declaration, strict);

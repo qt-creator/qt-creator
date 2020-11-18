@@ -55,6 +55,7 @@ public:
 
     Symbol *find(const Identifier *id) const;
     Symbol *find(OperatorNameId::Kind operatorId) const;
+    Symbol *find(const ConversionNameId *conv) const;
 
     /// Set the start offset of the scope
     int startOffset() const;

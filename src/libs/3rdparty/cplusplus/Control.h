@@ -186,6 +186,7 @@ public:
     const Identifier *cpp11Final() const;
 
     const OperatorNameId *findOperatorNameId(OperatorNameId::Kind operatorId) const;
+    const ConversionNameId *findConversionNameId(const FullySpecifiedType &type) const;
 
     const Identifier *findIdentifier(const char *chars, int size) const;
     const Identifier *identifier(const char *chars, int size);

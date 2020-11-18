@@ -579,6 +579,19 @@ void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_data()
                  "float Test::var;\n"
                  "int Test::$var;\n"
                  "}\n");
+
+    QTest::newRow("conversionOperatorDecl2Def")
+            << _("struct Foo {\n"
+                 "    operator @int() const;\n"
+                 "};\n")
+            << _("#include \"file.h\"\n"
+                 "Foo::$operator int() const { return {}; }\n");
+    QTest::newRow("conversionOperatorDef2Decl")
+            << _("struct Foo {\n"
+                 "    $operator int() const;\n"
+                 "};\n")
+            << _("#include \"file.h\"\n"
+                 "Foo::@operator int() const { return {}; }\n");
 }
 
 void CppEditorPlugin::test_SwitchMethodDeclarationDefinition()

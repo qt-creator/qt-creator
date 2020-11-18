@@ -765,10 +765,10 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
                                    const TemplateNameId *templateId,
                                    ClassOrNamespace *binding)
 {
-    if (! name) {
+    if (!name)
         return;
 
-    } else if (const OperatorNameId *op = name->asOperatorNameId()) {
+    if (const OperatorNameId *op = name->asOperatorNameId()) {
         for (Symbol *s = scope->find(op->kind()); s; s = s->next()) {
             if (! s->name())
                 continue;
@@ -786,8 +786,24 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
 
             result->append(item);
         }
+        return;
+    }
 
-    } else if (const Identifier *id = name->identifier()) {
+    if (const ConversionNameId * const conv = name->asConversionNameId()) {
+        if (Symbol * const s = scope->find(conv)) {
+            LookupItem item;
+            item.setDeclaration(s);
+            item.setBinding(binding);
+
+            if (Symbol *inst = instantiateTemplateFunction(name, s->asTemplate()))
+                item.setType(inst->type());
+
+            result->append(item);
+        }
+        return;
+    }
+
+    if (const Identifier *id = name->identifier()) {
         for (Symbol *s = scope->find(id); s; s = s->next()) {
             if (s->isFriend())
                 continue; // skip friends
