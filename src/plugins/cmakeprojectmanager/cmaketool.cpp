@@ -94,8 +94,6 @@ public:
     bool m_didAttemptToRun = false;
     bool m_didRun = true;
 
-    bool m_triedCapabilities = false;
-
     QList<CMakeTool::Generator> m_generators;
     QMap<QString, QStringList> m_functionArgs;
     QVector<FileApi> m_fileApis;
@@ -393,7 +391,6 @@ void CMakeTool::readInformation() const
     m_introspection->m_didAttemptToRun = true;
 
     fetchFromCapabilities();
-    m_introspection->m_triedCapabilities = true;
 }
 
 static QStringList parseDefinition(const QString &definition)
