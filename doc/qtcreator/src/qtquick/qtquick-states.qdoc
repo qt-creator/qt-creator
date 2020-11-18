@@ -83,6 +83,10 @@
 
     \image qmldesigner-states.png "States and Properties views"
 
+    \note If you have \l{Locking Items}{locked an item} in \uicontrol Navigator,
+    and you attempt to remove states where you change the values of its
+    properties, you are prompted to confirm the removal.
+
     \section1 Setting the Default State
 
     To determine the startup state of the application,

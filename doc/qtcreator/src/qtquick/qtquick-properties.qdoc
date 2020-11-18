@@ -303,9 +303,7 @@
 
     The z position of an item determines its position in relation to its
     sibling items in the type hierarchy. You can set it in the \uicontrol Z
-    field in the \uicontrol Advanced tab. However, you would typically set
-    it in \uicontrol Navigator by \l{Setting the Stacking Order}
-    {setting the stacking order} of items.
+    field in the \uicontrol Advanced tab.
 
     In the \uicontrol Size group, you can set the width and height of
     an item. You can also use selection handles to \l{Resizing Items}

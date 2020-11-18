@@ -30,37 +30,38 @@
 
     \title Managing Item Hierarchy
 
-    The \uicontrol Navigator displays the items in the current QML file and
+    The \uicontrol Navigator view displays the items in the current QML file and
     their relationships. Items (1) are listed in a tree structure, below their
-    parent (2).
+    parent (2). You can preview items by hovering the mouse over them (3).
 
-    \image qmldesigner-navigator.png "Navigator"
+    \image qmldesigner-navigator.png "Navigator with item preview"
 
-    You can select items in the \uicontrol Navigator to edit their properties
-    in the \uicontrol Properties view. Items can access the properties of their
-    parent item. To select items in the \uicontrol {Form Editor}, right-click
-    an item, and select another type in the context menu.
+    You can select items in the \uicontrol Navigator view to edit their
+    properties in the \uicontrol Properties view. Items can access the
+    properties of their parent item. To select items in the
+    \uicontrol {Form Editor} view, right-click an item, and select another
+    item in the \uicontrol Selection submenu.
 
-    Typically, child items are located within the parent item in the
+    Typically, child items are located within the parent item in
     \uicontrol {Form Editor}. However, they do not necessarily have to
     fit inside the parent item. For example, you might want to make a
-    mouse area larger than the rectangle or image beneath it (1).
+    mouse area larger than the rectangle or image beneath it.
 
     \image qmldesigner-element-size.png "Mouse area for a button"
 
     When you copy an item, all its child items are also copied. When
     you remove an item, the child items are also removed.
 
-    Select context menu commands to reset item size, position, or anchors,
-    and to edit items colors or the annotations attached to it. To change
-    the source of an Image type, select \uicontrol {Change Source URL} in
+    Select context menu commands to apply commands to items. The availability
+    of the commands depends on the item type. For example, you can change
+    the source of an Image type by selecting \uicontrol {Change Source URL} in
     the context menu.
 
     \section1 Showing and Hiding Items
 
-    To show and hide items in the \uicontrol {Form Editor} when focusing on
-    specific parts of the application, click \inlineimage eye_open.png
-    in the \uicontrol Navigator.
+    To show and hide items in \uicontrol {Form Editor} when focusing on
+    specific parts of the application, click \inlineimage icons/visibilityon.png
+    in \uicontrol Navigator.
 
     To change the visibility of an item in the application code, select the
     \uicontrol Visibility check box in the \uicontrol Properties view or select
@@ -72,32 +73,68 @@
     As all properties, visibility and opacity are inherited from the parent
     item. To hide or show child items, edit the properties of the parent item.
 
-    To hide invisible items in the \uicontrol Navigator, click
+    To hide invisible items in \uicontrol Navigator, click
     \inlineimage filtericon.png
     (\uicontrol {Filter Tree}) and select \uicontrol {Show only visible items}.
 
-    \section1 Setting the Stacking Order
+    \section1 Locking Items
 
-    The \c z property of an \l Item determines its position in relation to its
-    sibling items in the type hierarchy. By default, items with a higher
-    stacking value are drawn on top of siblings with a lower stacking value.
-    Items with the same stacking value are drawn in the order they are listed,
-    from the last item up.
+    When designing complex applications, it is easy to accidentally modify
+    the properties of an item in one of the \QC views in ways that lead to
+    surprising results. For example, \uicontrol {Form Editor} can become
+    crowded and other items can get in the way when you are trying to select
+    or transform a particular item, so that you end up transforming more
+    items than you wanted to.
 
-    To move an item to the front or back of all its siblings, right-click it in
-    the \uicontrol Navigator or \uicontrol {Form Editor} and select
-    \uicontrol {Stack (z)} > \uicontrol {To Front} or \uicontrol {To Back}.
-    To raise or lower the stack value of an item, select \uicontrol Raise
-    or \uicontrol Lower. To remove the \c z property, select
-    \uicontrol {Reset z Property}.
+    To lock items that you are not currently editing and their children,
+    click \inlineimage icons/lockon.png
+    in \uicontrol Navigator. Locked items cannot be handled in any \QC views.
+    You can unlock the items when you want to edit them again.
 
-    You can also use a \uicontrol StackLayout item (Qt Quick Controls) to
-    create a stacked view. For more information, see \l {Using Layouts}.
+    \image qtquick-designer-navigator-lock.gif "Locking items in Navigator"
 
-    \section1 Switching Parent Items
+    You cannot select locked items in \uicontrol {Form Editor} or
+    \uicontrol {3D Editor} nor access their properties in
+    \uicontrol Properties.
 
-    When you drag and drop instances of QML types to the
-    \uicontrol {Form Editor}, the new item is added as a child of the item
+    If you attempt to \l{Adding States}{remove a state} that changes the
+    properties of a locked item, you are prompted to confirm the removal.
+
+    If you have \l{Editing Animation Curves}{added easing curves} to keyframe
+    animations, you can lock and unlock them in the \uicontrol {Curve Editor}
+    view. If you lock the items that contain the easing curves, the lock status
+    is synchronized between \uicontrol Navigator and \uicontrol {Curve Editor}.
+
+    \section1 Arranging Items
+
+    You can view the order of items in a QML file in \uicontrol Navigator
+    and \uicontrol {Text Editor}. The order of items in the file also
+    determines the order in which they are drawn in \uicontrol {Form Editor}.
+    By default, items that are located at the top of the file are listed at
+    the bottom of the \uicontrol Navigator tree and behind overlapping items
+    in \uicontrol {Form Editor}. To list the items in the order in which they
+    appear in the file, as some other tools do, click \inlineimage filtericon.png
+    (\uicontrol {Filter Tree}), and select \uicontrol {Reverse item order}.
+
+    To move an item to the top or bottom of the tree within its parent,
+    right-click it in \uicontrol Navigator or \uicontrol {Form Editor}
+    and select \uicontrol Arrange > \uicontrol {Bring to Front} or
+    \uicontrol {Send to Back}. To move an item up or down, select
+    \uicontrol {Bring Forward} or \uicontrol {Send Backward}.
+
+    To reverse the order of the selected items in \uicontrol Navigator and
+    \uicontrol {Text Editor}, select \uicontrol Arrange > \uicontrol Reverse.
+
+    \image qtquick-designer-navigator-arrange.gif "Reversing item order"
+
+    You can also drag and drop the item to another position in the tree or use
+    the arrow buttons to move the item in the tree. You can use the left and
+    right arrow buttons to change the parent of the item.
+
+    \image qmldesigner-navigator-arrows.png "Navigator buttons"
+
+    When you drag and drop instances of QML types to \uicontrol {Form Editor},
+    the new item is added as a child of the item
     beneath it. When you move the items, it is not possible to determine whether
     you want to adjust their position or attach them to a new parent item.
     Therefore, the parent item is not automatically changed. To change the
@@ -105,9 +142,4 @@
     the item into a new position. The topmost item under the cursor becomes the
     new parent of the item.
 
-    You can change the parent of an item also in the \uicontrol Navigator.
-    Drag and drop the item to another position in the tree or use the arrow
-    buttons (1) to move the item in the tree.
-
-    \image qmldesigner-navigator-arrows.png "Navigator arrow buttons"
 */
