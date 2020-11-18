@@ -153,8 +153,9 @@ IosBuildSettingsWidget::IosBuildSettingsWidget(IosBuildConfiguration *bc)
                 this, &IosBuildSettingsWidget::onSigningEntityComboIndexChanged);
         connect(m_autoSignCheckbox, &QCheckBox::toggled,
                 this, &IosBuildSettingsWidget::configureSigningUi);
+        const QString signingIdentifier = bc->m_signingIdentifier->value();
         configureSigningUi(m_autoSignCheckbox->isChecked());
-        setDefaultSigningIdentfier(bc->m_signingIdentifier->value());
+        setDefaultSigningIdentfier(signingIdentifier);
     }
 
     m_signEntityCombo->setEnabled(m_isDevice);
