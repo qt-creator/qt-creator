@@ -68,11 +68,11 @@ signals:
     void rightMarginChanged();
 
 protected:
-    void paintEvent(QPaintEvent *event);
-    void mousePressEvent(QMouseEvent * event);
-    void mouseReleaseEvent(QMouseEvent * event);
-    void mouseMoveEvent(QMouseEvent * event);
-    void leaveEvent(QEvent* event );
+    void paintEvent(QPaintEvent *event) final;
+    void mousePressEvent(QMouseEvent * event) final;
+    void mouseReleaseEvent(QMouseEvent * event) final;
+    void mouseMoveEvent(QMouseEvent * event) final;
+    void leaveEvent(QEvent* event ) final;
 private:
     bool m_showBorders;
     int m_left, m_right, m_top, m_bottom;
@@ -102,7 +102,7 @@ public:
     void onSliderMoved(int value);
 
 protected:
-    void wheelEvent(QWheelEvent* event);
+    void wheelEvent(QWheelEvent* event) final;
 
 private:
     PreviewLabel *m_label;
@@ -165,7 +165,7 @@ public:
 signals:
     void doubleClicked();
 protected:
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) final;
 };
 
 class WheelFilter: public QObject {
@@ -175,7 +175,7 @@ public:
     WheelFilter(QObject* parent =nullptr) : QObject(parent) {}
     void setTarget(QObject *target) { m_target = target; }
 protected:
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) final;
     QObject *m_target;
 };
 

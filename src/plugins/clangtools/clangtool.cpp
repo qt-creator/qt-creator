@@ -188,7 +188,7 @@ class SelectFixitsCheckBox : public QCheckBox
     Q_OBJECT
 
 private:
-    void nextCheckState() final override
+    void nextCheckState() final
     {
         setCheckState(checkState() == Qt::Checked ? Qt::Unchecked : Qt::Checked);
     }

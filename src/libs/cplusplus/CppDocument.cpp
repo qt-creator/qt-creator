@@ -82,7 +82,7 @@ public:
     }
 
 protected:
-    bool preVisit(Symbol *s)
+    bool preVisit(Symbol *s) final
     {
         if (s->line() < line || (s->line() == line && s->column() <= column)) {
             // skip blocks

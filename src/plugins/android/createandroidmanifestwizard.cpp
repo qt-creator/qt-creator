@@ -145,8 +145,8 @@ public:
     ChooseDirectoryPage(CreateAndroidManifestWizard *wizard);
 
 private:
-    void initializePage();
-    bool isComplete() const;
+    void initializePage() final;
+    bool isComplete() const final;
     void checkPackageSourceDir();
 
     CreateAndroidManifestWizard *m_wizard;

@@ -98,7 +98,7 @@ class IosDeviceInfoWidget : public IDeviceWidget
 public:
     IosDeviceInfoWidget(const ProjectExplorer::IDevice::Ptr &device);
 
-    void updateDeviceFromUi() {}
+    void updateDeviceFromUi() final {}
 };
 
 IosDevice::IosDevice(CtorHelper)

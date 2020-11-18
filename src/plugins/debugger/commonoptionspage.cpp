@@ -385,8 +385,8 @@ public:
         m_group.insert(action(MaximalStringLength), spinBoxMaximalStringLength);
     }
 
-    void apply() { m_group.apply(ICore::settings()); }
-    void finish() { m_group.finish(); }
+    void apply() final { m_group.apply(ICore::settings()); }
+    void finish() final { m_group.finish(); }
 
 private:
     Utils::SavedActionSet m_group;

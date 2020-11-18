@@ -78,12 +78,12 @@ public:
     {
     }
 
-    QRectF boundingRect() const
+    QRectF boundingRect() const final
     {
         return QRectF(0.0, 0.0, 20.0, 20.0);
     }
 
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) final
     {
         Q_UNUSED(option)
         Q_UNUSED(widget)

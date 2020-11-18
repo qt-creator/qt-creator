@@ -39,8 +39,8 @@ public:
     QSGNode *expandedRow(int row) const { return m_expandedRows[row]; }
     QSGNode *collapsedRow(int row) const { return m_collapsedRows[row]; }
 
-    const QVector<QSGNode *> &expandedRows() const { return m_expandedRows; }
-    const QVector<QSGNode *> &collapsedRows() const { return m_collapsedRows; }
+    const QVector<QSGNode *> &expandedRows() const final { return m_expandedRows; }
+    const QVector<QSGNode *> &collapsedRows() const final { return m_collapsedRows; }
     TimelineItemsMaterial *collapsedRowMaterial() { return &m_collapsedRowMaterial; }
 
     int indexFrom() const { return m_indexFrom; }

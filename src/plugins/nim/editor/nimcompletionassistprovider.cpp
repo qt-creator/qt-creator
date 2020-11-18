@@ -91,7 +91,7 @@ public:
         return nullptr;
     }
 
-    bool running()
+    bool running() final
     {
         return m_running;
     }

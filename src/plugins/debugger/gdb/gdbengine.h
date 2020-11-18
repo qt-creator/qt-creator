@@ -204,7 +204,7 @@ private: ////////// General Interface //////////
     void executeRunToFunction(const QString &functionName) final;
     void executeJumpToLine(const ContextData &data) final;
     void executeReturn() final;
-    void executeRecordReverse(bool reverse);
+    void executeRecordReverse(bool reverse) final;
 
     void handleExecuteContinue(const DebuggerResponse &response);
     void handleExecuteStep(const DebuggerResponse &response);

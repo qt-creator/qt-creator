@@ -81,7 +81,7 @@ public:
     }
 
 protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent *event)
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) final
     {
         m_startPos = event->scenePos();
         m_lastPos = m_startPos;
@@ -90,14 +90,14 @@ protected:
         setFocus();
     }
 
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) final
     {
         m_lastPos = event->scenePos();
         QPointF delta = m_lastPos - m_startPos;
         m_owner->moveHandle(m_pointIndex, delta, Move, m_qualifier);
     }
 
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) final
     {
         m_lastPos = event->scenePos();
         QPointF delta = m_lastPos - m_startPos;
@@ -105,7 +105,7 @@ protected:
         clearFocus();
     }
 
-    void keyPressEvent(QKeyEvent *event)
+    void keyPressEvent(QKeyEvent *event) final
     {
         m_owner->keyPressed(m_pointIndex, event, m_lastPos);
     }

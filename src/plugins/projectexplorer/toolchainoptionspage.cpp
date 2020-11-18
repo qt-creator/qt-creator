@@ -309,7 +309,7 @@ public:
 
     void redetectToolchains();
 
-    void apply();
+    void apply() final;
 
  private:
     TreeModel<TreeItem, ToolChainTreeItem> m_model;

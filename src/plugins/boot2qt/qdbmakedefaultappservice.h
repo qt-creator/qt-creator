@@ -44,12 +44,12 @@ private:
     void handleStdErr();
     void handleProcessFinished(const QString &error);
 
-    bool isDeploymentNecessary() const { return true; }
-    void doDeviceSetup() { handleDeviceSetupDone(true); }
-    void stopDeviceSetup() { handleDeviceSetupDone(false); }
+    bool isDeploymentNecessary() const final { return true; }
+    void doDeviceSetup() final { handleDeviceSetupDone(true); }
+    void stopDeviceSetup() final { handleDeviceSetupDone(false); }
 
-    void doDeploy();
-    void stopDeployment();
+    void doDeploy() final;
+    void stopDeployment() final;
 
     void cleanup();
 

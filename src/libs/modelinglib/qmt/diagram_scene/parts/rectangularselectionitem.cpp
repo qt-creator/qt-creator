@@ -64,21 +64,21 @@ public:
     }
 
 protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent *event)
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) final
     {
         m_startPos = mapToScene(event->pos());
         if (!m_isSecondarySelected)
             m_owner->moveHandle(m_handle, QPointF(0.0, 0.0), Press, None);
     }
 
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) final
     {
         QPointF pos = mapToScene(event->pos()) - m_startPos;
         if (!m_isSecondarySelected)
             m_owner->moveHandle(m_handle, pos, Move, None);
     }
 
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) final
     {
         QPointF pos = mapToScene(event->pos()) - m_startPos;
         if (!m_isSecondarySelected)

@@ -356,13 +356,13 @@ private:
         return HostOsInfo::isWindowsHost() && e->button() == Qt::RightButton;
     }
 
-    void mousePressEvent(QMouseEvent *e)
+    void mousePressEvent(QMouseEvent *e) final
     {
         if (!userWantsContextMenu(e))
             BaseTreeView::mousePressEvent(e);
     }
 
-    void mouseReleaseEvent(QMouseEvent *e)
+    void mouseReleaseEvent(QMouseEvent *e) final
     {
         if (!userWantsContextMenu(e))
             BaseTreeView::mouseReleaseEvent(e);

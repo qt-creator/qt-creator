@@ -63,8 +63,8 @@ public:
         uint occurrences;
     };
 
-    int columnCount(const QModelIndex &parent) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    int columnCount(const QModelIndex &parent) const final;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const final;
     void resort();
 
 protected:
@@ -135,9 +135,9 @@ public:
 
     PerfProfilerStatisticsRelativesModel(Relation relation,
                                          PerfProfilerStatisticsMainModel *parent);
-    int rowCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
-    void sort(int column, Qt::SortOrder order);
+    int rowCount(const QModelIndex &parent) const final;
+    QVariant data(const QModelIndex &index, int role) const final;
+    void sort(int column, Qt::SortOrder order) final;
     void sortForInsert();
 
     void selectByTypeId(int typeId);

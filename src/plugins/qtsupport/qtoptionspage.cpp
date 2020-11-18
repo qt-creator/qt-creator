@@ -103,7 +103,7 @@ public:
         return m_version;
     }
 
-    QVariant data(int column, int role) const
+    QVariant data(int column, int role) const final
     {
         if (!m_version)
             return TreeItem::data(column, role);

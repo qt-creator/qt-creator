@@ -78,7 +78,7 @@ private:
     Utils::FilePath buildCommand() const;
 
     bool init() final;
-    void setupOutputFormatter(Utils::OutputFormatter *formatter);
+    void setupOutputFormatter(Utils::OutputFormatter *formatter) final;
     void doRun() final;
     bool fromMap(const QVariantMap &map) final;
     QVariantMap toMap() const final;

@@ -53,7 +53,7 @@ class ProcessStep final : public AbstractProcessStep
 public:
     ProcessStep(BuildStepList *bsl, Id id);
 
-    void setupOutputFormatter(OutputFormatter *formatter);
+    void setupOutputFormatter(OutputFormatter *formatter) final;
 };
 
 ProcessStep::ProcessStep(BuildStepList *bsl, Id id)

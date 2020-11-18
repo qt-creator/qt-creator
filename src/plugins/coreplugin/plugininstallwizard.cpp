@@ -130,7 +130,7 @@ public:
         emit completeChanged();
     }
 
-    bool isComplete() const
+    bool isComplete() const final
     {
         const FilePath path = m_data->sourcePath;
         if (!QFile::exists(path.toString())) {
@@ -148,7 +148,7 @@ public:
         return true;
     }
 
-    int nextId() const
+    int nextId() const final
     {
         if (hasLibSuffix(m_data->sourcePath))
             return WizardPage::nextId() + 1; // jump over check archive
@@ -192,7 +192,7 @@ public:
         vlayout->addWidget(m_output);
     }
 
-    void initializePage()
+    void initializePage() final
     {
         m_isComplete = false;
         emit completeChanged();
@@ -303,7 +303,7 @@ public:
                          InfoLabel::Error});
     }
 
-    void cleanupPage()
+    void cleanupPage() final
     {
         // back button pressed
         m_cancelButton->disconnect();
@@ -319,7 +319,7 @@ public:
         m_tempDir.reset();
     }
 
-    bool isComplete() const { return m_isComplete; }
+    bool isComplete() const final { return m_isComplete; }
 
     std::unique_ptr<TemporaryDirectory> m_tempDir;
     Archive *m_archive = nullptr;
@@ -402,7 +402,7 @@ public:
         vlayout->addWidget(m_summaryLabel);
     }
 
-    void initializePage()
+    void initializePage() final
     {
         m_summaryLabel->setText(
             PluginInstallWizard::tr("\"%1\" will be installed into \"%2\".")

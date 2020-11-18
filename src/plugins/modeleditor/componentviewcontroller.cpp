@@ -60,7 +60,7 @@ class FindComponentFromFilePath :
 public:
     void setFilePath(const QString &filePath);
     qmt::MComponent *component() const { return m_bestComponent; }
-    void visitMComponent(qmt::MComponent *component);
+    void visitMComponent(qmt::MComponent *component) final;
 
 private:
     QString m_elementName;
@@ -122,7 +122,7 @@ public:
     void setModelController(qmt::ModelController *modelController);
     void setModelUtilities(ModelUtilities *modelUtilities);
     void updateFilePaths();
-    void visitMComponent(qmt::MComponent *component);
+    void visitMComponent(qmt::MComponent *component) final;
 
 private:
     QStringList findFilePathOfComponent(const qmt::MComponent *component);

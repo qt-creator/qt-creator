@@ -134,8 +134,8 @@ public:
     static FilterMode toFilterMode(int f);
 
 protected:
-    bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
-    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const final;
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const final;
 
 private:
     Autotest::TestTreeItem::SortMode m_sortMode = Autotest::TestTreeItem::Alphabetically;

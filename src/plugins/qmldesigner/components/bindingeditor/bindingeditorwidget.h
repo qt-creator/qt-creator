@@ -70,9 +70,9 @@ public:
     ~BindingDocument();
 
 protected:
-    void applyFontSettings();
+    void applyFontSettings() final;
 
-    void triggerPendingUpdates();
+    void triggerPendingUpdates() final;
 
 private:
     QmlJSEditor::SemanticHighlighter *m_semanticHighlighter = nullptr;

@@ -52,7 +52,7 @@ public:
 
     QString identifier() const { return m_identifier; }
 
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) final
     {
         Q_UNUSED(option)
         Q_UNUSED(widget)
@@ -64,12 +64,12 @@ public:
         painter->restore();
     }
 
-    void mousePressEvent(QGraphicsSceneMouseEvent *event)
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) final
     {
         Q_UNUSED(event)
     }
 
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) final
     {
         if (contains(event->pos()))
             m_alignable->align(m_alignType, m_identifier);

@@ -441,7 +441,7 @@ ComponentCompleteDisabler::~ComponentCompleteDisabler()
 class QrcEngineHandler : public QAbstractFileEngineHandler
 {
 public:
-    QAbstractFileEngine *create(const QString &fileName) const;
+    QAbstractFileEngine *create(const QString &fileName) const final;
 };
 
 QAbstractFileEngine *QrcEngineHandler::create(const QString &fileName) const

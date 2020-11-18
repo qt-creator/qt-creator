@@ -42,8 +42,8 @@ class AssetExporterPlugin : public QObject, QmlDesigner::IWidgetPlugin
 public:
     AssetExporterPlugin();
 
-    QString metaInfo() const;
-    QString pluginName() const;
+    QString metaInfo() const final;
+    QString pluginName() const final;
 
 private:
     void onExport();

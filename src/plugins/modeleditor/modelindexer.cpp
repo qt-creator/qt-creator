@@ -201,8 +201,8 @@ class ModelIndexer::DiagramsCollectorVisitor :
 public:
     DiagramsCollectorVisitor(ModelIndexer::IndexedModel *indexedModel);
 
-    void visitMObject(const qmt::MObject *object);
-    void visitMDiagram(const qmt::MDiagram *diagram);
+    void visitMObject(const qmt::MObject *object) final;
+    void visitMDiagram(const qmt::MDiagram *diagram) final;
 
 private:
     ModelIndexer::IndexedModel *m_indexedModel;

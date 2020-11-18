@@ -62,8 +62,8 @@ public:
         : Utils::StaticTreeItem(text)
     {}
 
-    Qt::ItemFlags flags(int) const { return {}; }
-    QVariant data(int column, int role) const
+    Qt::ItemFlags flags(int) const final { return {}; }
+    QVariant data(int column, int role) const final
     {
         if (role == Qt::ForegroundRole) {
             // Avoid disabled color.

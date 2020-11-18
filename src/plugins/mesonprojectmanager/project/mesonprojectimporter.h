@@ -51,7 +51,7 @@ private:
     // will get one of the results from examineDirectory
     const QList<ProjectExplorer::BuildInfo> buildInfoList(void *directoryData) const final;
 
-    virtual void deleteDirectoryData(void *directoryData) const final;
+    void deleteDirectoryData(void *directoryData) const final;
 };
 
 } // namespace Internal

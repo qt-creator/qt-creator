@@ -41,7 +41,7 @@ public:
     {
     }
 
-    bool suppressGradients() const
+    bool suppressGradients() const final
     {
         return m_styleController->suppressGradients();
     }

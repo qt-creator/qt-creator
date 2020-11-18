@@ -57,8 +57,8 @@ private slots:
 #endif
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
 
     void updateContextActions();
 

@@ -78,20 +78,20 @@ public:
 
     ModelItem *product() const { return m_item; }
 
-    void visitMElement(const MElement *element)
+    void visitMElement(const MElement *element) final
     {
         Q_UNUSED(element)
         QMT_CHECK(false);
     }
 
-    void visitMObject(const MObject *object)
+    void visitMObject(const MObject *object) final
     {
         Q_UNUSED(object)
         QMT_ASSERT(m_item, return);
         m_item->setEditable(false);
     }
 
-    void visitMPackage(const MPackage *package)
+    void visitMPackage(const MPackage *package) final
     {
         QMT_CHECK(!m_item);
 
@@ -101,7 +101,7 @@ public:
         visitMObject(package);
     }
 
-    void visitMClass(const MClass *klass)
+    void visitMClass(const MClass *klass) final
     {
         QMT_CHECK(!m_item);
 
@@ -113,7 +113,7 @@ public:
         visitMObject(klass);
     }
 
-    void visitMComponent(const MComponent *component)
+    void visitMComponent(const MComponent *component) final
     {
         QMT_CHECK(!m_item);
 
@@ -126,13 +126,13 @@ public:
         visitMObject(component);
     }
 
-    void visitMDiagram(const MDiagram *diagram)
+    void visitMDiagram(const MDiagram *diagram) final
     {
         visitMObject(diagram);
         m_item->setData(TreeModel::Diagram, TreeModel::RoleItemType);
     }
 
-    void visitMCanvasDiagram(const MCanvasDiagram *diagram)
+    void visitMCanvasDiagram(const MCanvasDiagram *diagram) final
     {
         QMT_CHECK(!m_item);
 
@@ -141,7 +141,7 @@ public:
         visitMDiagram(diagram);
     }
 
-    void visitMItem(const MItem *item)
+    void visitMItem(const MItem *item) final
     {
         QMT_CHECK(!m_item);
 
@@ -154,7 +154,7 @@ public:
         visitMObject(item);
     }
 
-    void visitMRelation(const MRelation *relation)
+    void visitMRelation(const MRelation *relation) final
     {
         Q_UNUSED(relation)
         QMT_ASSERT(m_item, return);
@@ -162,7 +162,7 @@ public:
         m_item->setData(TreeModel::Relation, TreeModel::RoleItemType);
     }
 
-    void visitMDependency(const MDependency *dependency)
+    void visitMDependency(const MDependency *dependency) final
     {
         QMT_CHECK(!m_item);
 
@@ -171,7 +171,7 @@ public:
         visitMRelation(dependency);
     }
 
-    void visitMInheritance(const MInheritance *inheritance)
+    void visitMInheritance(const MInheritance *inheritance) final
     {
         QMT_CHECK(!m_item);
 
@@ -180,7 +180,7 @@ public:
         visitMRelation(inheritance);
     }
 
-    void visitMAssociation(const MAssociation *association)
+    void visitMAssociation(const MAssociation *association) final
     {
         QMT_CHECK(!m_item);
 
@@ -189,7 +189,7 @@ public:
         visitMRelation(association);
     }
 
-    void visitMConnection(const MConnection *connection)
+    void visitMConnection(const MConnection *connection) final
     {
         QMT_CHECK(!m_item);
 
@@ -214,23 +214,23 @@ public:
         QMT_CHECK(m_item);
     }
 
-    void visitMElement(const MElement *element)
+    void visitMElement(const MElement *element) final
     {
         Q_UNUSED(element)
         QMT_CHECK(false);
     }
 
-    void visitMObject(const MObject *object)
+    void visitMObject(const MObject *object) final
     {
         updateObjectLabel(object);
     }
 
-    void visitMPackage(const MPackage *package)
+    void visitMPackage(const MPackage *package) final
     {
         visitMObject(package);
     }
 
-    void visitMClass(const MClass *klass)
+    void visitMClass(const MClass *klass) final
     {
         if (klass->stereotypes() != m_item->stereotypes()) {
             QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementClass, StyleEngine::TypeClass,
@@ -241,7 +241,7 @@ public:
         visitMObject(klass);
     }
 
-    void visitMComponent(const MComponent *component)
+    void visitMComponent(const MComponent *component) final
     {
         if (component->stereotypes() != m_item->stereotypes()) {
             QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementComponent, StyleEngine::TypeComponent,
@@ -253,17 +253,17 @@ public:
         visitMObject(component);
     }
 
-    void visitMDiagram(const MDiagram *diagram)
+    void visitMDiagram(const MDiagram *diagram) final
     {
         visitMObject(diagram);
     }
 
-    void visitMCanvasDiagram(const MCanvasDiagram *diagram)
+    void visitMCanvasDiagram(const MCanvasDiagram *diagram) final
     {
         visitMDiagram(diagram);
     }
 
-    void visitMItem(const MItem *item)
+    void visitMItem(const MItem *item) final
     {
         QList<QString> stereotypes = item->stereotypes() << item->variety();
         if (stereotypes != m_item->stereotypes()) {
@@ -275,27 +275,27 @@ public:
         visitMObject(item);
     }
 
-    void visitMRelation(const MRelation *relation)
+    void visitMRelation(const MRelation *relation) final
     {
         updateRelationLabel(relation);
     }
 
-    void visitMDependency(const MDependency *dependency)
+    void visitMDependency(const MDependency *dependency) final
     {
         visitMRelation(dependency);
     }
 
-    void visitMInheritance(const MInheritance *inheritance)
+    void visitMInheritance(const MInheritance *inheritance) final
     {
         visitMRelation(inheritance);
     }
 
-    void visitMAssociation(const MAssociation *association)
+    void visitMAssociation(const MAssociation *association) final
     {
         visitMRelation(association);
     }
 
-    void visitMConnection(const MConnection *connection)
+    void visitMConnection(const MConnection *connection) final
     {
         visitMRelation(connection);
     }

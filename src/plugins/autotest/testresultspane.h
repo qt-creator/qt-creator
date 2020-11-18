@@ -69,7 +69,7 @@ signals:
     void copyShortcutTriggered();
 
 protected:
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) final;
 };
 
 class TestResultsPane : public Core::IOutputPane

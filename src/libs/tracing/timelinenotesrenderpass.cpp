@@ -39,8 +39,8 @@ struct Point2DWithDistanceFromTop {
 class NotesMaterial : public QSGMaterial
 {
 public:
-    QSGMaterialType *type() const;
-    QSGMaterialShader *createShader() const;
+    QSGMaterialType *type() const final;
+    QSGMaterialShader *createShader() const final;
 };
 
 struct NotesGeometry
@@ -61,8 +61,8 @@ public:
     ~TimelineNotesRenderPassState();
 
     QSGNode *expandedRow(int row) const { return m_expandedRows[row]; }
-    QSGNode *collapsedOverlay() const { return m_collapsedOverlay; }
-    const QVector<QSGNode *> &expandedRows() const { return m_expandedRows; }
+    QSGNode *collapsedOverlay() const final { return m_collapsedOverlay; }
+    const QVector<QSGNode *> &expandedRows() const final { return m_expandedRows; }
 
     QSGGeometry *nullGeometry() { return &m_nullGeometry; }
     NotesMaterial *material() { return &m_material; }
