@@ -1,3 +1,8 @@
+if (NOT QTC_CLANG_BUILDMODE_MATCH)
+    message(STATUS "Skipping unittest due to build mode mismatch")
+    return()
+endif()
+
 find_package(Googletest MODULE)
 find_package(GoogleBenchmark MODULE)
 
