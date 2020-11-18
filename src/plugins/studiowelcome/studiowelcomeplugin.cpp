@@ -26,6 +26,7 @@
 #include "studiowelcomeplugin.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/dialogs/restartdialog.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
@@ -63,6 +64,70 @@ namespace Internal {
 const char DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY[] = "StudioSplashScreen";
 
 QPointer<QQuickWidget> s_view = nullptr;
+
+static bool isUsageStatistic(const ExtensionSystem::PluginSpec *spec)
+{
+    if (!spec)
+        return false;
+
+    return spec->name().contains("UsageStatistic");
+}
+
+ExtensionSystem::PluginSpec *getUsageStatisticPlugin()
+{
+    const auto plugins = ExtensionSystem::PluginManager::plugins();
+    return Utils::findOrDefault(plugins, &isUsageStatistic);
+}
+
+class UsageStatisticPluginModel : public QObject
+{
+    Q_OBJECT
+
+    Q_PROPERTY(bool usageStatisticEnabled MEMBER m_usageStatisticEnabled NOTIFY usageStatisticChanged)
+public:
+    explicit UsageStatisticPluginModel(QObject *parent = nullptr)
+        : QObject(parent)
+    {
+        setupModel();
+    }
+
+    void setupModel()
+    {
+        auto plugin = getUsageStatisticPlugin();
+        if (plugin)
+            m_usageStatisticEnabled = plugin->isEnabledBySettings();
+        else
+            m_usageStatisticEnabled = false;
+
+        emit usageStatisticChanged();
+    }
+
+    Q_INVOKABLE void setPluginEnabled(bool b)
+    {
+        auto plugin = getUsageStatisticPlugin();
+
+        if (!plugin)
+            return;
+
+        if (plugin->isEnabledBySettings() == b)
+            return;
+
+        plugin->setEnabledBySettings(b);
+        ExtensionSystem::PluginManager::writeSettings();
+
+        const QString restartText = tr("The change will take effect after restart.");
+        Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
+        restartDialog.exec();
+
+        setupModel();
+    }
+
+signals:
+    void usageStatisticChanged();
+
+private:
+    bool m_usageStatisticEnabled = false;
+};
 
 class ProjectModel : public QAbstractListModel
 {
@@ -210,6 +275,7 @@ bool StudioWelcomePlugin::initialize(const QStringList &arguments, QString *erro
     Q_UNUSED(errorString)
 
     qmlRegisterType<ProjectModel>("projectmodel", 1, 0, "ProjectModel");
+    qmlRegisterType<UsageStatisticPluginModel>("usagestatistics", 1, 0, "UsageStatisticModel");
 
     m_welcomeMode = new WelcomeMode;
 

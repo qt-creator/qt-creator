@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,25 +23,8 @@
 **
 ****************************************************************************/
 
-import QmlProject 1.1
+import QtQuick 2.0
 
-Project {
-    mainFile: "main.qml"
-
-    /* Include .qml, .js, and image files from current directory and subdirectories */
-    QmlFiles {
-        directory: "."
-    }
-    JavaScriptFiles {
-        directory: "."
-    }
-    ImageFiles {
-        directory: "."
-    }
-    /* List of plugin directories passed to QML runtime */
-    importPaths: [ "imports", "../welcomepage/mockData", "../../../../share/3rdparty/studiofonts" ]
-
-    Environment {
-        QT_AUTO_SCREEN_SCALE_FACTOR: "1"
-    }
+QtObject {
+    property bool usageStatisticEnabled: false
 }
