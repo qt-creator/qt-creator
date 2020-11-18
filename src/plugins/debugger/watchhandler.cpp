@@ -1672,7 +1672,7 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
               [this, item] { removeWatchItem(item); });
 
     addAction(menu, tr("Remove All Expression Evaluators"),
-              canRemoveWatches && !m_handler->watchedExpressions().isEmpty(),
+              canRemoveWatches && !WatchHandler::watchedExpressions().isEmpty(),
               [this] { clearWatches(); });
 
     addAction(menu, tr("Select Widget to Add into Expression Evaluator"),

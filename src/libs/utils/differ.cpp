@@ -697,7 +697,7 @@ static bool diffWithWhitespaceExpandedInEqualities(const QList<Diff> &leftInput,
     }
 
     Differ differ;
-    const QList<Diff> &diffList = differ.cleanupSemantics(
+    const QList<Diff> &diffList = Differ::cleanupSemantics(
                 differ.diff(leftText, rightText));
 
     QList<Diff> leftDiffList;
@@ -882,7 +882,7 @@ void Differ::diffBetweenEqualities(const QList<Diff> &leftInput,
                     && previousRightDiff.command == Diff::Insert) {
                 Differ differ;
                 differ.setDiffMode(Differ::CharMode);
-                const QList<Diff> commonOutput = differ.cleanupSemantics(
+                const QList<Diff> commonOutput = cleanupSemantics(
                             differ.diff(previousLeftDiff.text, previousRightDiff.text));
 
                 QList<Diff> outputLeftDiffList;

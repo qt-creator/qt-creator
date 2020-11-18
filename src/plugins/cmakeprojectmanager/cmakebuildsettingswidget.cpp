@@ -476,7 +476,7 @@ void CMakeBuildSettingsWidget::updateSelection()
 
     for (const QModelIndex &index : selectedIndexes) {
         if (index.isValid() && index.flags().testFlag(Qt::ItemIsSelectable)) {
-            ConfigModel::DataItem di = m_configModel->dataItemFromIndex(index);
+            const ConfigModel::DataItem di = ConfigModel::dataItemFromIndex(index);
             if (di.isUnset)
                 setableCount++;
             else
@@ -498,7 +498,7 @@ void CMakeBuildSettingsWidget::setVariableUnsetFlag(bool unsetFlag)
     bool unsetFlagToggled = false;
     for (const QModelIndex &index : selectedIndexes) {
         if (index.isValid()) {
-            ConfigModel::DataItem di = m_configModel->dataItemFromIndex(index);
+            const ConfigModel::DataItem di = ConfigModel::dataItemFromIndex(index);
             if (di.isUnset != unsetFlag) {
                 m_configModel->toggleUnsetFlag(mapToSource(m_configView, index));
                 unsetFlagToggled = true;

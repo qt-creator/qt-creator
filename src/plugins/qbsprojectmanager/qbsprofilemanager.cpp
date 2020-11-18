@@ -150,7 +150,7 @@ QString QbsProfileManager::ensureProfileForKit(const ProjectExplorer::Kit *k)
 {
     if (!k)
         return QString();
-    m_instance->updateProfileIfNecessary(k);
+    updateProfileIfNecessary(k);
     return profileNameForKit(k);
 }
 

@@ -681,7 +681,7 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     m_summaryLabel->setContentsMargins(3, 3, 3, 3);
     m_summaryLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     QPalette pal = m_summaryLabel->palette();
-    pal.setColor(QPalette::Window, Utils::StyleHelper().baseColor());
+    pal.setColor(QPalette::Window, StyleHelper::baseColor());
     m_summaryLabel->setPalette(pal);
     m_summaryLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     m_summaryLabel->setTextInteractionFlags(m_summaryLabel->textInteractionFlags() | Qt::LinksAccessibleByMouse);
@@ -1554,7 +1554,7 @@ void MiniProjectTargetSelector::updateSummary()
 void MiniProjectTargetSelector::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
-    painter.fillRect(rect(), Utils::StyleHelper().baseColor());
+    painter.fillRect(rect(), StyleHelper::baseColor());
     painter.setPen(creatorTheme()->color(Theme::MiniProjectTargetSelectorBorderColor));
     // draw border on top and right
     QRectF borderRect = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);

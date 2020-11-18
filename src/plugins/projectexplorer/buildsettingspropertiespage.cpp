@@ -295,7 +295,7 @@ void BuildSettingsWidget::cloneConfiguration()
     if (name.isEmpty())
         return;
 
-    BuildConfiguration *bc = factory->clone(m_target, m_buildConfiguration);
+    BuildConfiguration *bc = BuildConfigurationFactory::clone(m_target, m_buildConfiguration);
     if (!bc)
         return;
 

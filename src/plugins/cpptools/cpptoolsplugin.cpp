@@ -131,7 +131,7 @@ Utils::FilePath CppToolsPlugin::licenseTemplatePath()
 
 QString CppToolsPlugin::licenseTemplate()
 {
-    return m_instance->d->m_fileSettings.licenseTemplate();
+    return CppFileSettings::licenseTemplate();
 }
 
 bool CppToolsPlugin::usePragmaOnce()

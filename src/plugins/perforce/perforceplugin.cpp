@@ -1258,8 +1258,8 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const QString &workin
     if (flags & StdErrToWindow) {
         process.setStdErrBufferedSignalsEnabled(true);
         connect(&process, &SynchronousProcess::stdErrBuffered,
-                outputWindow, [outputWindow](const QString &lines) {
-            outputWindow->append(lines);
+                outputWindow, [](const QString &lines) {
+            VcsOutputWindow::append(lines);
         });
     }
 
@@ -1271,8 +1271,8 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const QString &workin
                     outputWindow, &VcsOutputWindow::appendSilently);
         } else {
             connect(&process, &SynchronousProcess::stdOutBuffered,
-                    outputWindow, [outputWindow](const QString &lines) {
-                outputWindow->append(lines);
+                    outputWindow, [](const QString &lines) {
+                VcsOutputWindow::append(lines);
             });
         }
     }

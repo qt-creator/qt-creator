@@ -175,7 +175,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
 
     // Update the snapshot
     if (invalidateSnapshot) {
-        const QString configurationFileName = modelManager->configurationFileName();
+        const QString configurationFileName = CppModelManager::configurationFileName();
         if (invalidateConfig)
             state.snapshot.remove(configurationFileName);
         if (!state.snapshot.contains(configurationFileName))

@@ -381,7 +381,7 @@ namespace ADS
     void DockAreaTitleBar::onCloseButtonClicked()
     {
         qCInfo(adsLog) << Q_FUNC_INFO;
-        if (d->testConfigFlag(DockManager::DockAreaCloseButtonClosesTab))
+        if (DockAreaTitleBarPrivate::testConfigFlag(DockManager::DockAreaCloseButtonClosesTab))
             d->m_tabBar->closeTab(d->m_tabBar->currentIndex());
         else
             d->m_dockArea->closeArea();
@@ -432,7 +432,7 @@ namespace ADS
         if (index < 0)
             return;
 
-        if (d->testConfigFlag(DockManager::DockAreaCloseButtonClosesTab)) {
+        if (DockAreaTitleBarPrivate::testConfigFlag(DockManager::DockAreaCloseButtonClosesTab)) {
             DockWidget *dockWidget = d->m_tabBar->tab(index)->dockWidget();
             d->m_closeButton->setEnabled(
                 dockWidget->features().testFlag(DockWidget::DockWidgetClosable));

@@ -123,7 +123,7 @@ void TextIndenter::reindent(const QTextCursor &cursor,
         // skip empty blocks
         while (block.isValid() && block != end) {
             QString bt = block.text();
-            if (tabSettings.firstNonSpace(bt) < bt.size())
+            if (TabSettings::firstNonSpace(bt) < bt.size())
                 break;
             indentBlock(block, QChar::Null, tabSettings);
             block = block.next();

@@ -222,7 +222,7 @@ void ModelEditor::init()
 
     d->leftToolBox = new QToolBox(d->leftGroup);
     // Windows style does not truncate the tab label to a very small width (GTK+ does)
-    static QStyle *windowsStyle = QStyleFactory().create("Windows");
+    static QStyle *windowsStyle = QStyleFactory::create("Windows");
     if (windowsStyle)
         d->leftToolBox->setStyle(windowsStyle);
     // TODO improve this (and the diagram colors) for use with dark theme

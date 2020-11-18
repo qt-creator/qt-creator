@@ -726,14 +726,14 @@ bool EditorManagerPrivate::skipOpeningBigTextFile(const QString &filePath)
     if (!d->m_warnBeforeOpeningBigFilesEnabled)
         return false;
 
-    const QFileInfo fileInfo(filePath);
-    if (!fileInfo.exists(filePath))
+    if (!QFileInfo::exists(filePath))
         return false;
 
     Utils::MimeType mimeType = Utils::mimeTypeForFile(filePath);
     if (!mimeType.inherits("text/plain"))
         return false;
 
+    const QFileInfo fileInfo(filePath);
     const double fileSizeInMB = fileInfo.size() / 1000.0 / 1000.0;
     if (fileSizeInMB > d->m_bigFileSizeLimitInMB) {
         const QString title = EditorManager::tr("Continue Opening Huge Text File?");
@@ -754,7 +754,7 @@ bool EditorManagerPrivate::skipOpeningBigTextFile(const QString &filePath)
         messageBox.setCheckBoxVisible(true);
         messageBox.setCheckBoxText(CheckableMessageBox::msgDoNotAskAgain());
         messageBox.exec();
-        d->setWarnBeforeOpeningBigFilesEnabled(!messageBox.isChecked());
+        setWarnBeforeOpeningBigFilesEnabled(!messageBox.isChecked());
         return messageBox.clickedStandardButton() != QDialogButtonBox::Yes;
     }
 

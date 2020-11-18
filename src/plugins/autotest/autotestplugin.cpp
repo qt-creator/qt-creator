@@ -154,7 +154,7 @@ AutotestPluginPrivate::AutotestPluginPrivate()
     });
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
 
-    m_frameworkManager.activateFrameworksFromSettings(&m_settings);
+    TestFrameworkManager::activateFrameworksFromSettings(&m_settings);
     m_testTreeModel.synchronizeTestFrameworks();
 
     auto sessionManager = ProjectExplorer::SessionManager::instance();

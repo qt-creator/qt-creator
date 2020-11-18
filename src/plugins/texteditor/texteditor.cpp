@@ -3425,16 +3425,16 @@ void TextEditorWidgetPrivate::setupDocumentSignals()
             q, &TextEditorWidget::setExtraEncodingSettings);
 
     // Apply current settings
-    m_document->setFontSettings(settings->fontSettings());
-    m_document->setTabSettings(settings->codeStyle()->tabSettings()); // also set through code style ???
-    q->setTypingSettings(settings->typingSettings());
-    q->setStorageSettings(settings->storageSettings());
-    q->setBehaviorSettings(settings->behaviorSettings());
-    q->setMarginSettings(settings->marginSettings());
-    q->setDisplaySettings(settings->displaySettings());
-    q->setCompletionSettings(settings->completionSettings());
-    q->setExtraEncodingSettings(settings->extraEncodingSettings());
-    q->setCodeStyle(settings->codeStyle(m_tabSettingsId));
+    m_document->setFontSettings(TextEditorSettings::fontSettings());
+    m_document->setTabSettings(TextEditorSettings::codeStyle()->tabSettings()); // also set through code style ???
+    q->setTypingSettings(TextEditorSettings::typingSettings());
+    q->setStorageSettings(TextEditorSettings::storageSettings());
+    q->setBehaviorSettings(TextEditorSettings::behaviorSettings());
+    q->setMarginSettings(TextEditorSettings::marginSettings());
+    q->setDisplaySettings(TextEditorSettings::displaySettings());
+    q->setCompletionSettings(TextEditorSettings::completionSettings());
+    q->setExtraEncodingSettings(TextEditorSettings::extraEncodingSettings());
+    q->setCodeStyle(TextEditorSettings::codeStyle(m_tabSettingsId));
 }
 
 bool TextEditorWidgetPrivate::snippetCheckCursor(const QTextCursor &cursor)
@@ -6119,7 +6119,7 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
         QTextBlock currentBlock = cursor.block();
         int positionInBlock = pos - currentBlock.position();
         const QString blockText = currentBlock.text();
-        if (cursor.atBlockStart() || tabSettings.firstNonSpace(blockText) < positionInBlock) {
+        if (cursor.atBlockStart() || TabSettings::firstNonSpace(blockText) < positionInBlock) {
             if (cursorWithinSnippet)
                 cursor.beginEditBlock();
             cursor.deletePreviousChar();
@@ -6140,7 +6140,7 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
                     continue;
                 previousIndent =
                         tabSettings.columnAt(previousNonEmptyBlockText,
-                                             tabSettings.firstNonSpace(previousNonEmptyBlockText));
+                                             TabSettings::firstNonSpace(previousNonEmptyBlockText));
                 if (previousIndent < indent) {
                     cursor.beginEditBlock();
                     cursor.setPosition(currentBlock.position(), QTextCursor::KeepAnchor);

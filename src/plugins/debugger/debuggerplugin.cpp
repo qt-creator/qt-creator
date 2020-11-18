@@ -486,7 +486,7 @@ public:
 
         auto editorAndFindWidget = new QWidget;
         editorAndFindWidget->setLayout(editorHolderLayout);
-        editorHolderLayout->addWidget(mainWindow->centralWidgetStack());
+        editorHolderLayout->addWidget(DebuggerMainWindow::centralWidgetStack());
         editorHolderLayout->addWidget(new FindToolBarPlaceHolder(editorAndFindWidget));
 
         auto documentAndRightPane = new MiniSplitter;
@@ -517,7 +517,7 @@ public:
 
         // Navigation and right-side window.
         auto splitter = new MiniSplitter;
-        splitter->setFocusProxy(mainWindow->centralWidgetStack());
+        splitter->setFocusProxy(DebuggerMainWindow::centralWidgetStack());
         splitter->addWidget(new NavigationWidgetPlaceHolder(MODE_DEBUG, Side::Left));
         splitter->addWidget(mainWindowSplitter);
         splitter->setStretchFactor(0, 0);
@@ -833,7 +833,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     engineManagerView->setWindowTitle(tr("Running Debuggers"));
     engineManagerView->setSettings(ICore::settings(), "Debugger.SnapshotView");
     engineManagerView->setIconSize(QSize(10, 10));
-    engineManagerView->setModel(m_engineManager.model());
+    engineManagerView->setModel(EngineManager::model());
     engineManagerView->setSelectionMode(QAbstractItemView::SingleSelection);
     engineManagerView->enableColumnHiding();
 

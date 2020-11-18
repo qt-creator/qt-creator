@@ -809,8 +809,8 @@ QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
     } else {
         s.setHeight(fontHeight + 3);
     }
-    if (s.height() < positions.minimumHeight())
-        s.setHeight(positions.minimumHeight());
+    if (s.height() < Positions::minimumHeight())
+        s.setHeight(Positions::minimumHeight());
 
     if (!selected) {
         m_cachedHeight = s.height();
@@ -877,7 +877,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     // Paint TaskIconArea:
     QIcon icon = index.data(TaskModel::Icon).value<QIcon>();
     painter->drawPixmap(positions.left(), positions.top(),
-                        icon.pixmap(positions.taskIconWidth(), positions.taskIconHeight()));
+                        icon.pixmap(Positions::taskIconWidth(), Positions::taskIconHeight()));
 
     // Paint TextArea:
     if (!selected) {

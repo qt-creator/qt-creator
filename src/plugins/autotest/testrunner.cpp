@@ -751,8 +751,8 @@ void TestRunner::buildProject(Project *project)
                              buildManager, &BuildManager::cancel);
     connect(buildManager, &BuildManager::buildQueueFinished,
             this, &TestRunner::buildFinished);
-    buildManager->buildProjectWithDependencies(project);
-    if (!buildManager->isBuilding())
+    BuildManager::buildProjectWithDependencies(project);
+    if (!BuildManager::isBuilding())
         buildFinished(false);
 }
 

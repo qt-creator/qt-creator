@@ -1042,10 +1042,10 @@ void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
     m_instance->m_config = devConfigs;
 
     m_instance->save();
-    m_instance->updateAndroidDevice();
-    m_instance->registerNewToolChains();
-    m_instance->updateAutomaticKitList();
-    m_instance->removeOldToolChains();
+    updateAndroidDevice();
+    registerNewToolChains();
+    updateAutomaticKitList();
+    removeOldToolChains();
     emit m_instance->updated();
 }
 

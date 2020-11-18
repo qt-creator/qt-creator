@@ -111,7 +111,7 @@ bool ClassMembersEdit::Cursor::skip(const QString &s)
 {
     skipWhitespaces();
     if (m_isValid && m_pos + s.length() <= m_text.length()
-            && s.compare(m_text.mid(m_pos, s.length()), s, Qt::CaseInsensitive) == 0) {
+            && s.compare(m_text.mid(m_pos, s.length()), Qt::CaseInsensitive) == 0) {
         m_pos += s.length();
         return true;
     }
@@ -127,7 +127,7 @@ QString ClassMembersEdit::Cursor::readUntil(const QString &delimiter)
             return s;
         }
         if (m_pos + delimiter.length() <= m_text.length()
-                && s.compare(m_text.mid(m_pos, delimiter.length()), delimiter, Qt::CaseInsensitive) == 0) {
+                && delimiter.compare(m_text.mid(m_pos, delimiter.length()), Qt::CaseInsensitive) == 0) {
             m_pos += delimiter.length();
             return s;
         }
@@ -156,7 +156,7 @@ void ClassMembersEdit::Cursor::skipUntilOrNewline(const QString &delimiter)
         if (m_text.at(m_pos) == '\n')
             return;
         if (m_pos + delimiter.length() <= m_text.length()
-                && QString::compare(m_text.mid(m_pos, delimiter.length()), delimiter, Qt::CaseInsensitive) == 0) {
+                && delimiter.compare(m_text.mid(m_pos, delimiter.length()), Qt::CaseInsensitive) == 0) {
             m_pos += delimiter.length();
             return;
         }
@@ -201,7 +201,7 @@ bool ClassMembersEdit::Cursor::skipFromRight(const QString &s)
 {
     skipWhitespacesFromRight();
     if (m_isValid && m_pos - s.length() >= 0
-            && s.compare(m_text.mid(m_pos - s.length() + 1, s.length()), s, Qt::CaseInsensitive) == 0) {
+            && s.compare(m_text.mid(m_pos - s.length() + 1, s.length()), Qt::CaseInsensitive) == 0) {
         m_pos -= s.length();
         return true;
     }

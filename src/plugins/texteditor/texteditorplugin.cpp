@@ -172,12 +172,12 @@ void TextEditorPluginPrivate::extensionsInitialized()
     connect(&settings, &TextEditorSettings::fontSettingsChanged,
             this, &TextEditorPluginPrivate::updateSearchResultsFont);
 
-    updateSearchResultsFont(settings.fontSettings());
+    updateSearchResultsFont(TextEditorSettings::fontSettings());
 
-    connect(settings.codeStyle(), &ICodeStylePreferences::currentTabSettingsChanged,
+    connect(TextEditorSettings::codeStyle(), &ICodeStylePreferences::currentTabSettingsChanged,
             this, &TextEditorPluginPrivate::updateSearchResultsTabWidth);
 
-    updateSearchResultsTabWidth(settings.codeStyle()->currentTabSettings());
+    updateSearchResultsTabWidth(TextEditorSettings::codeStyle()->currentTabSettings());
 
     connect(ExternalToolManager::instance(), &ExternalToolManager::replaceSelectionRequested,
             this, &TextEditorPluginPrivate::updateCurrentSelection);

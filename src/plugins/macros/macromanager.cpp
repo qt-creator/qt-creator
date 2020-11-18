@@ -128,7 +128,7 @@ MacroManagerPrivate::MacroManagerPrivate(MacroManager *qq):
 void MacroManagerPrivate::initialize()
 {
     macros.clear();
-    QDir dir(q->macrosDirectory());
+    const QDir dir(MacroManager::macrosDirectory());
     QStringList filter;
     filter << QLatin1String("*.") + QLatin1String(Constants::M_EXTENSION);
     QStringList files = dir.entryList(filter, QDir::Files);
@@ -231,8 +231,8 @@ void MacroManagerPrivate::showSaveDialog()
             return;
 
         // Save in the resource path
-        QString fileName = q->macrosDirectory() + QLatin1Char('/') + dialog.name()
-                           + QLatin1Char('.') + QLatin1String(Constants::M_EXTENSION);
+        const QString fileName = MacroManager::macrosDirectory() + QLatin1Char('/') + dialog.name()
+                + QLatin1Char('.') + QLatin1String(Constants::M_EXTENSION);
         currentMacro->setDescription(dialog.description());
         currentMacro->save(fileName, Core::ICore::dialogParent());
         addMacro(currentMacro);

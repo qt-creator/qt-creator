@@ -633,7 +633,8 @@ FilePath BaseQtVersion::mkspecsPath() const
 {
     const FilePath result = hostDataPath();
     if (result.isEmpty())
-        return FilePath::fromUserInput(d->qmakeProperty(d->m_versionInfo, "QMAKE_MKSPECS"));
+        return FilePath::fromUserInput(BaseQtVersionPrivate::qmakeProperty(
+                                           d->m_versionInfo, "QMAKE_MKSPECS"));
     return result.pathAppended("mkspecs");
 }
 
@@ -952,7 +953,7 @@ FilePath BaseQtVersion::sourcePath() const
 {
     if (d->m_data.sourcePath.isEmpty()) {
         d->updateVersionInfo();
-        d->m_data.sourcePath = d->sourcePath(d->m_versionInfo);
+        d->m_data.sourcePath = BaseQtVersionPrivate::sourcePath(d->m_versionInfo);
     }
     return d->m_data.sourcePath;
 }

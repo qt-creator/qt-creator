@@ -333,7 +333,7 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
     CPlusPlus::Overview overview;
     SearchResult *search = SearchResultWindow::instance()->startNewSearch(tr("C++ Usages:"),
                                                 QString(),
-                                                overview.prettyName(context.fullyQualifiedName(symbol)),
+                                                overview.prettyName(CPlusPlus::LookupContext::fullyQualifiedName(symbol)),
                                                 replace ? SearchResultWindow::SearchAndReplace
                                                         : SearchResultWindow::SearchOnly,
                                                 SearchResultWindow::PreserveCaseDisabled,
@@ -352,7 +352,8 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
 
     if (symbol->isClass() || symbol->isForwardClassDeclaration()) {
         CPlusPlus::Overview overview;
-        parameters.prettySymbolName = overview.prettyName(context.path(symbol).constLast());
+        parameters.prettySymbolName =
+                overview.prettyName(CPlusPlus::LookupContext::path(symbol).constLast());
     }
 
     search->setUserData(QVariant::fromValue(parameters));

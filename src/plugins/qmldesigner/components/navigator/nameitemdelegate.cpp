@@ -191,7 +191,7 @@ static void setId(const QModelIndex &index, const QString &newId)
     if (modelNode.id() == newId)
         return;
 
-    if (!modelNode.isValidId(newId)) {
+    if (!ModelNode::isValidId(newId)) {
         Core::AsynchronousMessageBox::warning(NavigatorTreeView::tr("Invalid Id"),
                                               NavigatorTreeView::tr("%1 is an invalid id.").arg(newId));
     } else if (modelNode.view()->hasId(newId)) {

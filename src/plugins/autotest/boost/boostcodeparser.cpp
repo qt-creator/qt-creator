@@ -364,7 +364,7 @@ bool BoostCodeParser::isBoostBindCall(const QByteArray &function)
     for (const LookupItem &item : lookupItems) {
         if (Symbol *symbol = item.declaration()) {
             const QString fullQualified = overview.prettyName(
-                        m_lookupContext.fullyQualifiedName(symbol->enclosingNamespace()));
+                        LookupContext::fullyQualifiedName(symbol->enclosingNamespace()));
             if (fullQualified == "boost")
                 return true;
         }
@@ -382,7 +382,7 @@ bool BoostCodeParser::aliasedOrRealNamespace(const QByteArray &symbolName,
     for (const LookupItem &it : lookup) {
         if (auto classOrNamespaceSymbol = it.declaration()) {
             const QString fullQualified = overview.prettyName(
-                        m_lookupContext.fullyQualifiedName(classOrNamespaceSymbol));
+                        LookupContext::fullyQualifiedName(classOrNamespaceSymbol));
             if (fullQualified == origNamespace) {
                 *aliasedOrReal = true;
                 if (simplifiedName)

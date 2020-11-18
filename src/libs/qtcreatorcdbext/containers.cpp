@@ -650,7 +650,7 @@ static inline AbstractSymbolGroupNodePtrVector
 static inline AbstractSymbolGroupNodePtrVector
     stdHashChildList(const SymbolGroupValue &set, unsigned count)
 {
-    SymbolGroupValue list = set.findMember(set, "_List");
+    const SymbolGroupValue list = SymbolGroupValue::findMember(set, "_List");
     return stdListChildList(list.node(), count, list.context());
 }
 

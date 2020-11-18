@@ -2029,7 +2029,7 @@ void Preprocessor::handleIfDefDirective(bool checkUndefined, PPToken *tk)
                     value = false; // take the branch
                 }
             }
-        } else if (m_env->isBuiltinMacro(macroName)) {
+        } else if (Environment::isBuiltinMacro(macroName)) {
             value = true;
         }
 

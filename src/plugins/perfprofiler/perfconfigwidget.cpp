@@ -281,7 +281,7 @@ QWidget *SettingsDelegate::createEditor(QWidget *parent, const QStyleOptionViewI
             QComboBox *editor = new QComboBox(parent);
             for (int i = PerfConfigEventsModel::SubTypeEventTypeHardware;
                  i < PerfConfigEventsModel::SubTypeEventTypeSoftware; ++i) {
-                editor->addItem(model->subTypeString(PerfConfigEventsModel::EventTypeHardware,
+                editor->addItem(PerfConfigEventsModel::subTypeString(PerfConfigEventsModel::EventTypeHardware,
                                                      PerfConfigEventsModel::SubType(i)), i);
             }
             return editor;
@@ -290,7 +290,7 @@ QWidget *SettingsDelegate::createEditor(QWidget *parent, const QStyleOptionViewI
             QComboBox *editor = new QComboBox(parent);
             for (int i = PerfConfigEventsModel::SubTypeEventTypeSoftware;
                  i < PerfConfigEventsModel::SubTypeEventTypeCache; ++i) {
-                editor->addItem(model->subTypeString(PerfConfigEventsModel::EventTypeSoftware,
+                editor->addItem(PerfConfigEventsModel::subTypeString(PerfConfigEventsModel::EventTypeSoftware,
                                                      PerfConfigEventsModel::SubType(i)), i);
             }
             return editor;
@@ -299,7 +299,7 @@ QWidget *SettingsDelegate::createEditor(QWidget *parent, const QStyleOptionViewI
             QComboBox *editor = new QComboBox(parent);
             for (int i = PerfConfigEventsModel::SubTypeEventTypeCache;
                  i < PerfConfigEventsModel::SubTypeInvalid; ++i) {
-                editor->addItem(model->subTypeString(PerfConfigEventsModel::EventTypeCache,
+                editor->addItem(PerfConfigEventsModel::subTypeString(PerfConfigEventsModel::EventTypeCache,
                                                      PerfConfigEventsModel::SubType(i)), i);
             }
             return editor;

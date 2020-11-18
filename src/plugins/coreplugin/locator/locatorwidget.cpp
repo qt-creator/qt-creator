@@ -579,7 +579,7 @@ LocatorWidget::LocatorWidget(Locator *locator) :
     m_fileLineEdit->setButtonMenu(Utils::FancyLineEdit::Left, m_filterMenu);
 
     connect(m_refreshAction, &QAction::triggered, locator, [locator]() {
-        locator->refresh(locator->filters());
+        locator->refresh(Locator::filters());
     });
     connect(m_configureAction, &QAction::triggered, this, &LocatorWidget::showConfigureDialog);
     connect(m_fileLineEdit, &QLineEdit::textChanged,

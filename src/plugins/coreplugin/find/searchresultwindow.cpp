@@ -620,7 +620,8 @@ void SearchResultWindow::readSettings()
 {
     QSettings *s = ICore::settings();
     s->beginGroup(QLatin1String(SETTINGSKEYSECTIONNAME));
-    d->m_expandCollapseAction->setChecked(s->value(QLatin1String(SETTINGSKEYEXPANDRESULTS), d->m_initiallyExpand).toBool());
+    d->m_expandCollapseAction->setChecked(s->value(QLatin1String(SETTINGSKEYEXPANDRESULTS),
+                                                   SearchResultWindowPrivate::m_initiallyExpand).toBool());
     s->endGroup();
 }
 

@@ -57,7 +57,8 @@ bool TestVisitor::visit(Class *symbol)
         Symbol *member = symbol->memberAt(i);
         Type *type = member->type().type();
 
-        const QString className = o.prettyName(lc.fullyQualifiedName(member->enclosingClass()));
+        const QString className = o.prettyName(CPlusPlus::LookupContext::fullyQualifiedName(
+                                                   member->enclosingClass()));
         if (className != m_className)
             continue;
 
@@ -91,7 +92,7 @@ bool TestVisitor::visit(Class *symbol)
         }
         for (int counter = 0, end = symbol->baseClassCount(); counter < end; ++counter) {
             if (BaseClass *base = symbol->baseClassAt(counter)) {
-                const QString &baseClassName = o.prettyName(lc.fullyQualifiedName(base));
+                const QString &baseClassName = o.prettyName(CPlusPlus::LookupContext::fullyQualifiedName(base));
                 if (baseClassName != "QObject")
                     m_baseClasses.insert(baseClassName);
             }
@@ -179,7 +180,8 @@ bool TestDataFunctionVisitor::visit(FunctionDefinitionAST *ast)
             return false;
 
         LookupContext lc;
-        const QString prettyName = m_overview.prettyName(lc.fullyQualifiedName(ast->symbol));
+        const QString prettyName =
+                m_overview.prettyName(CPlusPlus::LookupContext::fullyQualifiedName(ast->symbol));
         // do not handle functions that aren't real test data functions
         if (!prettyName.endsWith("_data"))
             return false;

@@ -88,7 +88,7 @@ public:
 
         FileData fileData;
         if (!reloadInfo.binaryFiles) {
-            const QList<Diff> diffList = differ.cleanupSemantics(
+            const QList<Diff> diffList = Differ::cleanupSemantics(
                         differ.diff(reloadInfo.leftText, reloadInfo.rightText));
 
             QList<Diff> leftDiffList;

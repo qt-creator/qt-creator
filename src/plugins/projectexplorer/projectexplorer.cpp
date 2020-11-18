@@ -1678,11 +1678,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         BuildManager::cleanProjects(SessionManager::projectOrder(), ConfigSelection::All);
     });
     connect(dd->m_runAction, &QAction::triggered,
-            dd, []() { m_instance->runStartupProject(Constants::NORMAL_RUN_MODE); });
+            dd, []() { runStartupProject(Constants::NORMAL_RUN_MODE); });
     connect(dd->m_runActionContextMenu, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::runProjectContextMenu);
     connect(dd->m_runWithoutDeployAction, &QAction::triggered,
-            dd, []() { m_instance->runStartupProject(Constants::NORMAL_RUN_MODE, true); });
+            dd, []() { runStartupProject(Constants::NORMAL_RUN_MODE, true); });
     connect(dd->m_cancelBuildAction, &QAction::triggered,
             BuildManager::instance(), &BuildManager::cancel);
     connect(dd->m_unloadAction, &QAction::triggered,
@@ -2716,7 +2716,8 @@ void ProjectExplorerPluginPrivate::runProjectContextMenu()
     const Node *node = ProjectTree::currentNode();
     const ProjectNode *projectNode = node ? node->asProjectNode() : nullptr;
     if (projectNode == ProjectTree::currentProject()->rootProjectNode() || !projectNode) {
-        m_instance->runProject(ProjectTree::currentProject(), Constants::NORMAL_RUN_MODE);
+        ProjectExplorerPlugin::runProject(ProjectTree::currentProject(),
+                                          Constants::NORMAL_RUN_MODE);
     } else {
         auto act = qobject_cast<QAction *>(sender());
         if (!act)
@@ -2724,7 +2725,7 @@ void ProjectExplorerPluginPrivate::runProjectContextMenu()
         auto *rc = act->data().value<RunConfiguration *>();
         if (!rc)
             return;
-        m_instance->runRunConfiguration(rc, Constants::NORMAL_RUN_MODE);
+        ProjectExplorerPlugin::runRunConfiguration(rc, Constants::NORMAL_RUN_MODE);
     }
 }
 

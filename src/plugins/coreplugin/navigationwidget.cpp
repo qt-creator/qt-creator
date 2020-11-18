@@ -206,9 +206,9 @@ NavigationWidget::NavigationWidget(QAction *toggleSideBarAction, Side side) :
     setOrientation(Qt::Vertical);
 
     if (side == Side::Left)
-        d->s_instanceLeft = this;
+        NavigationWidgetPrivate::s_instanceLeft = this;
     else
-        d->s_instanceRight = this;
+        NavigationWidgetPrivate::s_instanceRight = this;
 }
 
 NavigationWidget::~NavigationWidget()

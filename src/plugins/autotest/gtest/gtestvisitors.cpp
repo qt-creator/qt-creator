@@ -48,8 +48,8 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
     if (!id || !ast->symbol || ast->symbol->argumentCount() != 2)
         return false;
 
-    CPlusPlus::LookupContext lc;
-    QString prettyName = m_overview.prettyName(lc.fullyQualifiedName(ast->symbol));
+    QString prettyName =
+            m_overview.prettyName(CPlusPlus::LookupContext::fullyQualifiedName(ast->symbol));
 
     // get surrounding namespace(s) and strip them out
     const QString namespaces = enclosingNamespaces(ast->symbol);

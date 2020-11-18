@@ -172,7 +172,7 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     m_replaceLabel->setBuddy(m_replaceTextEdit);
     m_replaceTextEdit->setMinimumWidth(120);
     m_replaceTextEdit->setEnabled(false);
-    m_replaceTextEdit->setTabOrder(m_replaceTextEdit, m_searchResultTreeView);
+    setTabOrder(m_replaceTextEdit, m_searchResultTreeView);
     m_preserveCaseCheck = new QCheckBox(m_topReplaceWidget);
     m_preserveCaseCheck->setText(tr("Preser&ve case"));
     m_preserveCaseCheck->setEnabled(false);

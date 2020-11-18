@@ -658,7 +658,7 @@ QModelIndex QmlOutlineModel::enterFieldMemberExpression(AST::FieldMemberExpressi
     objectData.insert(AnnotationRole, QString()); // clear possible former annotation
 
     QmlOutlineItem *item = enterNode(objectData, expression, nullptr,
-                                     m_icons->functionDeclarationIcon());
+                                     Icons::functionDeclarationIcon());
 
     return item->index();
 }

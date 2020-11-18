@@ -265,11 +265,11 @@ void DesignModeWidget::setup()
 
     const QIcon tabsCloseIcon = Utils::StyleHelper::getIconFromIconFont(fontName, {closeIconNormal, closeIconFocused});
 
-    m_dockManager->iconProvider().registerCustomIcon(ADS::TabCloseIcon, tabsCloseIcon);
-    m_dockManager->iconProvider().registerCustomIcon(ADS::DockAreaMenuIcon, menuIcon);
-    m_dockManager->iconProvider().registerCustomIcon(ADS::DockAreaUndockIcon, undockIcon);
-    m_dockManager->iconProvider().registerCustomIcon(ADS::DockAreaCloseIcon, closeIcon);
-    m_dockManager->iconProvider().registerCustomIcon(ADS::FloatingWidgetCloseIcon, closeIcon);
+    ADS::DockManager::iconProvider().registerCustomIcon(ADS::TabCloseIcon, tabsCloseIcon);
+    ADS::DockManager::iconProvider().registerCustomIcon(ADS::DockAreaMenuIcon, menuIcon);
+    ADS::DockManager::iconProvider().registerCustomIcon(ADS::DockAreaUndockIcon, undockIcon);
+    ADS::DockManager::iconProvider().registerCustomIcon(ADS::DockAreaCloseIcon, closeIcon);
+    ADS::DockManager::iconProvider().registerCustomIcon(ADS::FloatingWidgetCloseIcon, closeIcon);
 
     // Setup Actions and Menus
     Core::ActionContainer *mview = Core::ActionManager::actionContainer(Core::Constants::M_VIEW);

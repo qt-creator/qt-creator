@@ -106,7 +106,7 @@ bool RefactoringChanges::createFile(const QString &fileName, const QString &cont
     m_data->fileChanged(fileName);
 
     if (openEditor)
-        this->openEditor(fileName, /*bool activate =*/ false, -1, -1);
+        RefactoringChanges::openEditor(fileName, /*bool activate =*/ false, -1, -1);
 
     return true;
 }

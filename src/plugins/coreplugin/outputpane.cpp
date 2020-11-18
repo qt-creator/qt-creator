@@ -75,7 +75,7 @@ OutputPanePlaceHolder::OutputPanePlaceHolder(Id mode, QSplitter *parent)
 
 OutputPanePlaceHolder::~OutputPanePlaceHolder()
 {
-    if (d->m_current == this) {
+    if (OutputPanePlaceHolderPrivate::m_current == this) {
         if (Internal::OutputPaneManager *om = Internal::OutputPaneManager::instance()) {
             om->setParent(nullptr);
             om->hide();
@@ -87,8 +87,8 @@ OutputPanePlaceHolder::~OutputPanePlaceHolder()
 
 void OutputPanePlaceHolder::currentModeChanged(Id mode)
 {
-    if (d->m_current == this) {
-        d->m_current = nullptr;
+    if (OutputPanePlaceHolderPrivate::m_current == this) {
+        OutputPanePlaceHolderPrivate::m_current = nullptr;
         if (d->m_initialized)
             Internal::OutputPaneManager::setOutputPaneHeightSetting(d->m_nonMaximizedSize);
         Internal::OutputPaneManager *om = Internal::OutputPaneManager::instance();
@@ -97,9 +97,9 @@ void OutputPanePlaceHolder::currentModeChanged(Id mode)
         om->updateStatusButtons(false);
     }
     if (d->m_mode == mode) {
-        if (d->m_current && d->m_current->d->m_initialized)
-            Internal::OutputPaneManager::setOutputPaneHeightSetting(d->m_current->d->m_nonMaximizedSize);
-        d->m_current = this;
+        if (OutputPanePlaceHolderPrivate::m_current && OutputPanePlaceHolderPrivate::m_current->d->m_initialized)
+            Internal::OutputPaneManager::setOutputPaneHeightSetting(OutputPanePlaceHolderPrivate::m_current->d->m_nonMaximizedSize);
+        Core::OutputPanePlaceHolderPrivate::m_current = this;
         Internal::OutputPaneManager *om = Internal::OutputPaneManager::instance();
         layout()->addWidget(om);
         om->show();
@@ -119,7 +119,7 @@ void OutputPanePlaceHolder::setMaximized(bool maximize)
         return;
 
     d->m_isMaximized = maximize;
-    if (d->m_current == this)
+    if (OutputPanePlaceHolderPrivate::m_current == this)
         Internal::OutputPaneManager::updateMaximizeButton(d->m_isMaximized);
     QList<int> sizes = d->m_splitter->sizes();
 

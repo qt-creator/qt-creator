@@ -145,7 +145,7 @@ QTextCursor TextDocumentPrivate::indentOrUnindent(const QTextCursor &textCursor,
             const QString text = block.text();
             int indentPosition = tabSettings.lineIndentPosition(text);
             if (!doIndent && !indentPosition)
-                indentPosition = tabSettings.firstNonSpace(text);
+                indentPosition = TabSettings::firstNonSpace(text);
             int targetColumn = tabSettings.indentedColumn(
                         tabSettings.columnAt(text, indentPosition), doIndent);
             cursor.setPosition(block.position() + indentPosition);
@@ -184,7 +184,7 @@ QTextCursor TextDocumentPrivate::indentOrUnindent(const QTextCursor &textCursor,
                 , tabSettings(_tabSettings)
             {
                 indentPosition = tabSettings.positionAtColumn(text, column, nullptr, true);
-                spaces = tabSettings.spacesLeftFromPosition(text, indentPosition);
+                spaces = TabSettings::spacesLeftFromPosition(text, indentPosition);
             }
 
             void indent(const int targetColumn) const
@@ -927,12 +927,12 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, bool inEntireDocument,
         QString blockText = block.text();
 
         if (d->m_storageSettings.removeTrailingWhitespace(fileName))
-            currentTabSettings.removeTrailingWhitespace(cursor, block);
+            TabSettings::removeTrailingWhitespace(cursor, block);
 
         const int indent = indentations[block.blockNumber()];
         if (cleanIndentation && !currentTabSettings.isIndentationClean(block, indent)) {
             cursor.setPosition(block.position());
-            int firstNonSpace = currentTabSettings.firstNonSpace(blockText);
+            const int firstNonSpace = TabSettings::firstNonSpace(blockText);
             if (firstNonSpace == blockText.length()) {
                 cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
                 cursor.removeSelectedText();

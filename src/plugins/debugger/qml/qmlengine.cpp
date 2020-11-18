@@ -2136,7 +2136,7 @@ void QmlEnginePrivate::handleFrame(const QVariantMap &response)
 
     // Send watchers list
     if (stackHandler->isContentsValid() && stackHandler->currentFrame().isUsable()) {
-        const QStringList watchers = watchHandler->watchedExpressions();
+        const QStringList watchers = WatchHandler::watchedExpressions();
         for (const QString &exp : watchers) {
             const QString iname = watchHandler->watcherName(exp);
             evaluate(exp, -1, [this, iname, exp](const QVariantMap &response) {

@@ -804,7 +804,7 @@ const Name *minimalName(Symbol *symbol, Scope *targetScope, const LookupContext 
     ClassOrNamespace *target = context.lookupType(targetScope);
     if (!target)
         target = context.globalNamespace();
-    return context.minimalName(symbol, target, context.bindings()->control().data());
+    return LookupContext::minimalName(symbol, target, context.bindings()->control().data());
 }
 
 } // Anonymous

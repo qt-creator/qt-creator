@@ -158,7 +158,7 @@ bool AutoCompleter::isNextBlockIndented(const QTextBlock &currentBlock) const
     if (block.next().isValid()) { // not the last block
         block = block.next();
         //skip all empty blocks
-        while (block.isValid() && m_tabSettings.onlySpace(block.text()))
+        while (block.isValid() && TabSettings::onlySpace(block.text()))
             block = block.next();
         if (block.isValid()
                 && m_tabSettings.indentationColumn(block.text()) > indentation)

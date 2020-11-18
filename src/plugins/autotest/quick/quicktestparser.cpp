@@ -149,7 +149,7 @@ QList<Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const QS
     QFutureInterface<void> future;
     PathsAndLanguages paths;
     paths.maybeInsert(Utils::FilePath::fromString(srcDir), Dialect::Qml);
-    ModelManagerInterface::importScan(future, qmlJsMM->workingCopy(), paths, qmlJsMM,
+    ModelManagerInterface::importScan(future, ModelManagerInterface::workingCopy(), paths, qmlJsMM,
         false /*emitDocumentChanges*/, false /*onlyTheLib*/, true /*forceRescan*/ );
 
     const Snapshot snapshot = QmlJSTools::Internal::ModelManager::instance()->snapshot();
@@ -284,7 +284,8 @@ void QuickTestParser::handleDirectoryChanged(const QString &directory)
             paths.maybeInsert(Utils::FilePath::fromString(directory), Dialect::Qml);
             QFutureInterface<void> future;
             ModelManagerInterface *qmlJsMM = ModelManagerInterface::instance();
-            ModelManagerInterface::importScan(future, qmlJsMM->workingCopy(), paths, qmlJsMM,
+            ModelManagerInterface::importScan(future, ModelManagerInterface::workingCopy(), paths,
+                                              qmlJsMM,
                                               true /*emitDocumentChanges*/,
                                               false /*onlyTheLib*/,
                                               true /*forceRescan*/ );

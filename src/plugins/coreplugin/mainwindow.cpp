@@ -308,7 +308,7 @@ void MainWindow::extensionsInitialized()
     m_windowSupport = new WindowSupport(this, Context("Core.MainWindow"));
     m_windowSupport->setCloseActionEnabled(false);
     OutputPaneManager::create();
-    m_vcsManager->extensionsInitialized();
+    VcsManager::extensionsInitialized();
     m_leftNavigationWidget->setFactories(INavigationWidgetFactory::allNavigationFactories());
     m_rightNavigationWidget->setFactories(INavigationWidgetFactory::allNavigationFactories());
 
