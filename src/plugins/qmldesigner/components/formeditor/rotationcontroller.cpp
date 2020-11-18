@@ -203,11 +203,11 @@ QCursor RotationController::getRotationCursor() const
     const QString fontName = "qtds_propertyIconFont.ttf";
     const int cursorSize = 32; //32 is cursor recommended size
 
-    QIcon rotationIcon = Utils::StyleHelper::getIconFromIconFont(
+    QIcon rotationIcon = Utils::StyleHelper::getCursorFromIconFont(
                 fontName,
-                Theme::getIconUnicode(Theme::rotation),
-                cursorSize, cursorSize,
-                Qt::white);
+                Theme::getIconUnicode(Theme::rotationFill),
+                Theme::getIconUnicode(Theme::rotationOutline),
+                cursorSize, cursorSize);
 
     return QCursor(rotationIcon.pixmap(cursorSize, cursorSize));
 }
