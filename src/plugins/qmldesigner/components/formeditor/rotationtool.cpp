@@ -134,11 +134,6 @@ void RotationTool::keyPressEvent(QKeyEvent * event)
             event->setAccepted(false);
             return;
     }
-
-    double moveStep = 1.0;
-
-    if (event->modifiers().testFlag(Qt::ShiftModifier))
-        moveStep = 10.0;
 }
 
 void RotationTool::keyReleaseEvent(QKeyEvent * keyEvent)

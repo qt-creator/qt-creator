@@ -132,6 +132,9 @@ bool IconRenderer::eventFilter(QObject *watched, QEvent *event)
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     if (watched == m_quickView && event->type() == QEvent::Expose)
         QTimer::singleShot(0, this, &IconRenderer::createIcon);
+#else
+    Q_UNUSED(watched)
+    Q_UNUSED(event)
 #endif
     return false;
 }

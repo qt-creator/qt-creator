@@ -281,7 +281,7 @@ bool NavigatorTreeView::viewportEvent(QEvent *event)
         if (m_previewToolTip && m_previewToolTip->isVisible()) {
             auto *he = static_cast<QHoverEvent *>(event);
             QModelIndex index = indexAt(he->pos());
-            if (!index.isValid() || index.internalId() != m_previewToolTipNodeId) {
+            if (!index.isValid() || index.internalId() != quintptr(m_previewToolTipNodeId)) {
                 m_previewToolTip->hide();
                 m_previewToolTipNodeId = -1;
             } else {
