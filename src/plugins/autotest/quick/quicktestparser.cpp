@@ -97,10 +97,10 @@ static QString quickTestSrcDir(const CppTools::CppModelManager *cppMM,
     if (parts.size() > 0) {
         const ProjectExplorer::Macros &macros = parts.at(0)->projectMacros;
         auto found = std::find_if(
-                    macros.begin(),
-                    macros.end(),
+                    macros.cbegin(),
+                    macros.cend(),
                     [] (const ProjectExplorer::Macro &macro) { return macro.key == "QUICK_TEST_SOURCE_DIR"; });
-       if (found != macros.end())  {
+       if (found != macros.cend())  {
            QByteArray result = found->value;
            if (result.startsWith('"'))
                result.remove(result.length() - 1, 1).remove(0, 1);

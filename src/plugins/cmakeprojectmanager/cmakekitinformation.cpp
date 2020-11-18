@@ -426,7 +426,7 @@ private:
 
         auto updateDialog = [&generatorList, generatorCombo, extraGeneratorCombo,
                 platformEdit, toolsetEdit](const QString &name) {
-            auto it = std::find_if(generatorList.constBegin(), generatorList.constEnd(),
+            const auto it = std::find_if(generatorList.constBegin(), generatorList.constEnd(),
                                    [name](const CMakeTool::Generator &g) { return g.name == name; });
             QTC_ASSERT(it != generatorList.constEnd(), return);
             generatorCombo->setCurrentText(name);

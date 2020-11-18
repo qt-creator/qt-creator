@@ -118,14 +118,14 @@ static QString methodDefinitionParameters(const CodeCompletionChunks &chunks)
 {
     QString result;
 
-    auto typedTextChunkIt = std::find_if(chunks.begin(), chunks.end(),
+    auto typedTextChunkIt = std::find_if(chunks.cbegin(), chunks.cend(),
                                          [](const CodeCompletionChunk &chunk) {
         return chunk.kind == CodeCompletionChunk::TypedText;
     });
-    if (typedTextChunkIt == chunks.end())
+    if (typedTextChunkIt == chunks.cend())
         return result;
 
-    std::for_each(++typedTextChunkIt, chunks.end(), [&result](const CodeCompletionChunk &chunk) {
+    std::for_each(++typedTextChunkIt, chunks.cend(), [&result](const CodeCompletionChunk &chunk) {
         if (chunk.kind == CodeCompletionChunk::Placeholder && chunk.text.contains('=')) {
             Utf8String text = chunk.text.mid(0, chunk.text.indexOf('='));
             if (text.endsWith(' '))

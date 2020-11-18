@@ -404,7 +404,7 @@ void QnxConfiguration::setDefaultConfiguration(const Utils::FilePath &envScript)
 const QnxConfiguration::Target *QnxConfiguration::findTargetByDebuggerPath(
         const FilePath &path) const
 {
-    auto it = std::find_if(m_targets.begin(), m_targets.end(),
+    const auto it = std::find_if(m_targets.begin(), m_targets.end(),
                            [path](const Target &target) { return target.m_debuggerPath == path; });
     return it == m_targets.end() ? nullptr : &(*it);
 }

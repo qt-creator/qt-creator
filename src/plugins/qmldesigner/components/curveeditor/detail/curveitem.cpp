@@ -328,11 +328,11 @@ QVector<HandleItem *> CurveItem::handles() const
 CurveSegment CurveItem::segment(const KeyframeItem *keyframe, HandleItem::Slot slot) const
 {
     auto finder = [keyframe](KeyframeItem *item) { return item == keyframe; };
-    auto iter = std::find_if(m_keyframes.begin(), m_keyframes.end(), finder);
-    if (iter == m_keyframes.end())
+    const auto iter = std::find_if(m_keyframes.cbegin(), m_keyframes.cend(), finder);
+    if (iter == m_keyframes.cend())
         return CurveSegment();
 
-    int index = static_cast<int>(std::distance(m_keyframes.begin(), iter));
+    int index = static_cast<int>(std::distance(m_keyframes.cbegin(), iter));
     if (slot == HandleItem::Slot::Left && index > 0)
         return CurveSegment(m_keyframes[index - 1]->keyframe(), keyframe->keyframe());
     else if (slot == HandleItem::Slot::Right && index < (m_keyframes.size() - 1))

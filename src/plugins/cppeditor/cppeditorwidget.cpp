@@ -561,7 +561,7 @@ QList<ProjectPart::Ptr> fetchProjectParts(CppTools::CppModelManager *modelManage
 ProjectPart *findProjectPartForCurrentProject(const QList<ProjectPart::Ptr> &projectParts,
                                               ProjectExplorer::Project *currentProject)
 {
-    auto found = std::find_if(projectParts.cbegin(),
+    const auto found = std::find_if(projectParts.cbegin(),
                               projectParts.cend(),
                               [&](const CppTools::ProjectPart::Ptr &projectPart) {
                                   return projectPart->project == currentProject;

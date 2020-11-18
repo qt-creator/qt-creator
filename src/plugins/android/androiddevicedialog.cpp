@@ -486,14 +486,14 @@ AndroidDeviceInfo AndroidDeviceDialog::device()
     refreshDeviceList();
 
     if (!m_defaultDevice.isEmpty()) {
-        auto device = std::find_if(m_connectedDevices.begin(),
-                                   m_connectedDevices.end(),
+        auto device = std::find_if(m_connectedDevices.cbegin(),
+                                   m_connectedDevices.cend(),
                                    [this](const AndroidDeviceInfo &info) {
             return info.serialNumber == m_defaultDevice ||
                     info.avdname == m_defaultDevice;
         });
 
-        if (device != m_connectedDevices.end())
+        if (device != m_connectedDevices.cend())
             return *device;
         m_defaultDevice.clear();
     }
