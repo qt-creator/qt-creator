@@ -318,7 +318,7 @@ QVector<std::pair<QString, int>> CMakeTool::supportedFileApiObjects() const
 
 CMakeTool::Version CMakeTool::version() const
 {
-    return isValid() ? m_introspection->m_version : CMakeTool::Version();
+    return m_introspection ? m_introspection->m_version : CMakeTool::Version();
 }
 
 bool CMakeTool::isAutoDetected() const
