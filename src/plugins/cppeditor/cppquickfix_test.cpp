@@ -6792,6 +6792,52 @@ void CppEditorPlugin::test_quickfix_removeUsingNamespace_data()
     expected1 = expected2 = expected3 = "";
     QTest::newRow("global scope remove in every file")
         << h1 << h2 << h3 << expected1 << expected2 << expected3 << 1;
+
+    // test: dont print inline namespaces
+    h1 = R"--(
+namespace test {
+  inline namespace test {
+    class Foo{
+      void foo1();
+      void foo2();
+    };
+    inline int TEST = 42;
+  }
+}
+)--";
+    h2 = R"--(
+#include "header1.h"
+using namespace tes@t;
+)--";
+    h3 = R"--(
+#include "header2.h"
+Foo f1;
+test::Foo f2;
+using T1 = Foo;
+using T2 = test::Foo;
+int i1 = TEST;
+int i2 = test::TEST;
+void Foo::foo1(){};
+void test::Foo::foo2(){};
+)--";
+
+    expected1 = h1;
+    expected2 = R"--(
+#include "header1.h"
+)--";
+    expected3 = R"--(
+#include "header2.h"
+test::Foo f1;
+test::Foo f2;
+using T1 = test::Foo;
+using T2 = test::Foo;
+int i1 = test::TEST;
+int i2 = test::TEST;
+void test::Foo::foo1(){};
+void test::Foo::foo2(){};
+)--";
+    QTest::newRow("don't insert inline namespaces")
+        << h1 << h2 << h3 << expected1 << expected2 << expected3 << 0;
 }
 
 void CppEditorPlugin::test_quickfix_removeUsingNamespace()

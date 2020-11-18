@@ -7538,7 +7538,9 @@ private:
             const QList<LookupItem> localLookup = m_context.lookup(ast->name->name, scope);
             QList<const Name *> longestName;
             for (const LookupItem &item : localLookup) {
-                QList<const Name *> names = m_context.fullyQualifiedName(item.declaration());
+                QList<const Name *> names
+                    = m_context.fullyQualifiedName(item.declaration(),
+                                                   LookupContext::HideInlineNamespaces);
                 if (names.length() > longestName.length())
                     longestName = names;
             }
@@ -7574,8 +7576,9 @@ private:
 
             const QList<LookupItem> lookups = m_context.lookup(wantToLookup, scope);
             if (!lookups.empty()) {
-                QList<const Name *> fullName = m_context.fullyQualifiedName(
-                    lookups.first().declaration());
+                QList<const Name *> fullName
+                    = m_context.fullyQualifiedName(lookups.first().declaration(),
+                                                   LookupContext::HideInlineNamespaces);
                 const int currentNameCount = countNames(wantToLookup);
                 const bool needNamespace = needMissingNamespaces(std::move(fullName),
                                                                  currentNameCount);

@@ -314,8 +314,11 @@ public:
     QSharedPointer<CreateBindings> bindings() const
     { return _bindings; }
 
-    static QList<const Name *> fullyQualifiedName(Symbol *symbol);
-    static QList<const Name *> path(Symbol *symbol);
+    enum InlineNamespacePolicy { ShowInlineNamespaces, HideInlineNamespaces };
+    static QList<const Name *> fullyQualifiedName(
+        Symbol *symbol, InlineNamespacePolicy policy = ShowInlineNamespaces);
+    static QList<const Name *> path(Symbol *symbol,
+                                    InlineNamespacePolicy policy = ShowInlineNamespaces);
 
     static const Name *minimalName(Symbol *symbol, ClassOrNamespace *target, Control *control);
 

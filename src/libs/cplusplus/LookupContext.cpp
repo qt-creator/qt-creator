@@ -60,15 +60,22 @@ static void addNames(const Name *name, QList<const Name *> *names, bool addAllNa
     }
 }
 
-static void path_helper(Symbol *symbol, QList<const Name *> *names)
+static void path_helper(Symbol *symbol,
+                        QList<const Name *> *names,
+                        LookupContext::InlineNamespacePolicy policy)
 {
     if (! symbol)
         return;
 
-    path_helper(symbol->enclosingScope(), names);
+    path_helper(symbol->enclosingScope(), names, policy);
 
     if (symbol->name()) {
         if (symbol->isClass() || symbol->isNamespace()) {
+            if (policy == LookupContext::HideInlineNamespaces) {
+                auto ns = symbol->asNamespace();
+                if (ns && ns->isInline())
+                    return;
+            }
             addNames(symbol->name(), names);
 
         } else if (symbol->isObjCClass() || symbol->isObjCBaseClass() || symbol->isObjCProtocol()
@@ -206,17 +213,17 @@ LookupContext &LookupContext::operator=(const LookupContext &other)
     return *this;
 }
 
-QList<const Name *> LookupContext::fullyQualifiedName(Symbol *symbol)
+QList<const Name *> LookupContext::fullyQualifiedName(Symbol *symbol, InlineNamespacePolicy policy)
 {
-    QList<const Name *> qualifiedName = path(symbol->enclosingScope());
+    QList<const Name *> qualifiedName = path(symbol->enclosingScope(), policy);
     addNames(symbol->name(), &qualifiedName, /*add all names*/ true);
     return qualifiedName;
 }
 
-QList<const Name *> LookupContext::path(Symbol *symbol)
+QList<const Name *> LookupContext::path(Symbol *symbol, InlineNamespacePolicy policy)
 {
     QList<const Name *> names;
-    path_helper(symbol, &names);
+    path_helper(symbol, &names, policy);
     return names;
 }
 
