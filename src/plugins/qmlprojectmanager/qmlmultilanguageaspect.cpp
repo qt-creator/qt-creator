@@ -35,13 +35,12 @@
 
 static bool isMultilanguagePresent()
 {
-    const QVector<ExtensionSystem::PluginSpec *> specs = ExtensionSystem::PluginManager::plugins();
-    return std::find_if(specs.begin(),
-                        specs.end(),
+    const QVector<ExtensionSystem::PluginSpec *> &specs = ExtensionSystem::PluginManager::plugins();
+    return std::find_if(specs.cbegin(), specs.cend(),
                         [](ExtensionSystem::PluginSpec *spec) {
                             return spec->name() == "MultiLanguage";
                         })
-           != specs.end();
+           != specs.cend();
 }
 
 static Utils::FilePath getMultilanguageDatabaseFilePath(ProjectExplorer::Target *target)
@@ -57,13 +56,13 @@ static Utils::FilePath getMultilanguageDatabaseFilePath(ProjectExplorer::Target 
 
 static QObject *getPreviewPlugin()
 {
-    auto pluginIt = std::find_if(ExtensionSystem::PluginManager::plugins().begin(),
-                                 ExtensionSystem::PluginManager::plugins().end(),
+    const QVector<ExtensionSystem::PluginSpec *> &specs = ExtensionSystem::PluginManager::plugins();
+    const auto pluginIt = std::find_if(specs.cbegin(), specs.cend(),
                                  [](const ExtensionSystem::PluginSpec *p) {
                                      return p->name() == "QmlPreview";
                                  });
 
-    if (pluginIt != ExtensionSystem::PluginManager::plugins().constEnd())
+    if (pluginIt != specs.cend())
         return (*pluginIt)->plugin();
 
     return nullptr;
