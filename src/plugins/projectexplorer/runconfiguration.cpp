@@ -221,6 +221,11 @@ QWidget *RunConfiguration::createConfigurationWidget()
     return detailsWidget;
 }
 
+bool RunConfiguration::isConfigured() const
+{
+    return !Utils::anyOf(checkForIssues(), [](const Task &t) { return t.type == Task::Error; });
+}
+
 void RunConfiguration::addAspectFactory(const AspectFactory &aspectFactory)
 {
     theAspectFactories.push_back(aspectFactory);

@@ -125,8 +125,8 @@ Tasks QdbRunConfiguration::checkForIssues() const
 {
     Tasks tasks;
     if (aspect<ExecutableAspect>()->executable().toString().isEmpty()) {
-        tasks << createConfigurationIssue(tr("The remote executable must be set "
-                                             "in order to run on a Boot2Qt device."));
+        tasks << BuildSystemTask(Task::Warning, tr("The remote executable must be set "
+                                                   "in order to run on a Boot2Qt device."));
     }
     return tasks;
 }
