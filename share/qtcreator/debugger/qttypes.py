@@ -815,6 +815,12 @@ def qdump__QVariantHash(d, value):
 
 
 def qdumpHelper_QHash(d, value, keyType, valueType):
+    if d.qtVersion() >= 0x60000:
+        qdumpHelper_QHash_6(d, value, keyType, valueType)
+    else:
+        qdumpHelper_QHash_5(d, value, keyType, valueType)
+
+def qdumpHelper_QHash_5(d, value, keyType, valueType):
     def hashDataFirstNode():
         b = buckets
         n = numBuckets
@@ -863,6 +869,45 @@ def qdumpHelper_QHash(d, value, keyType, valueType):
                     (pnext, hashval, padding1, key, padding2, val) = d.split(typeCode, node)
                 d.putPairItem(i, (key, val), 'key', 'value')
                 node = hashDataNextNode(node)
+
+
+def qdumpHelper_QHash_6(d, value, keyType, valueType):
+    dptr = d.extractPointer(value)
+    ref, _, size, buckets, seed, spans = d.split('i@qqqp', dptr)
+
+    d.check(0 <= size and size <= 100 * 1000 * 1000)
+    d.check(-1 <= ref and ref < 100000)
+    #d.putValue("%d 0x%x 0x%x 0x%x" % (ref, size, buckets, seed));
+    d.putItemCount(size)
+
+    if d.isExpanded():
+        type_code = '{%s}@{%s}' % (keyType.name, valueType.name)
+        _, entry_size, _ = d.describeStruct(type_code)
+        with Children(d, size):
+            span_size = 128 + 2 * d.ptrSize() # Including tail padding.
+            nspans = int((buckets + 127) / 128)
+            count = 0
+            for b in range(nspans):
+                span = spans + b * span_size
+                offsets, entries, allocated, next_free = d.split('128spbb', span)
+                #with SubItem(d, 'span %d' % b):
+                #   d.putValue('span: 0x%x  %s alloc: %s next: %s'
+                #       % (span, d.hexencode(offsets), allocated, next_free))
+                entry_pos = 0
+                for i in range(128):
+                    offset = offsets[i]
+                    #with SubItem(d, 'offset %i' % i):
+                    #    d.putValue('i: %s off: %s' % (i, offset))
+                    if offset != 255: # Entry is used
+                        entry = entries + offset * entry_size
+                        key, _, val = d.split(type_code, entry)
+                        #with SubItem(d, 'count %d  entry %d' % (count, i)):
+                        #    d.putValue('i: %s entry: 0x%x' % (i, entry))
+                        d.putPairItem(count, (key, val), 'key', 'value')
+                        count += 1
+                        entry_pos += 1
+            #with SubItem(d, 'total'):
+            #    d.putValue('total: %s item size: %s' % (count, entry_size))
 
 
 def qform__QHashNode():

@@ -2440,8 +2440,10 @@ void tst_Dumpers::dumper_data()
 
                + Check("h2", "<3 items>", "@QHash<int, float>")
                + Check("h2.0", "[0] 0", FloatValue("33"), "")
-               + Check("h2.1", "[1] 22", FloatValue("22"), "")
-               + Check("h2.2", "[2] 11", FloatValue("11"), "")
+               + Check5("h2.1", "[1] 22", FloatValue("22"), "")
+               + Check5("h2.2", "[2] 11", FloatValue("11"), "")
+               + Check6("h2.1", "[1] 11", FloatValue("11"), "")
+               + Check6("h2.2", "[2] 22", FloatValue("22"), "")
 
                + Check("h3", "<1 items>", "@QHash<@QString, int>")
                + Check("h3.0.key", "key", "\"22.0\"", "@QString")
@@ -2470,11 +2472,14 @@ void tst_Dumpers::dumper_data()
                + CheckType("h7.2.value", "@QPointer<@QObject>")
 
                + Check("h8", "<3 items>", TypeDef("@QHash<int,float>", "Hash"))
-               + Check("h8.0", "[0] 22", FloatValue("22"), "")
-               + Check("it1.key", "22", "int")
-               + Check("it1.value", FloatValue("22"), "float")
-               + Check("it3.key", "33", "int")
-               + Check("it3.value", FloatValue("33"), "float");
+               + Check5("h8.0", "[0] 22", FloatValue("22"), "")
+               + Check6("h8.0", "[0] 33", FloatValue("33"), "")
+
+                // FIXME: Qt6 QHash::iterator broken.
+               + Check5("it1.key", "22", "int")
+               + Check5("it1.value", FloatValue("22"), "float")
+               + Check5("it3.key", "33", "int")
+               + Check5("it3.value", FloatValue("33"), "float");
 
 
     QTest::newRow("QHostAddress")
