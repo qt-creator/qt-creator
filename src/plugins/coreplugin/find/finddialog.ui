@@ -129,7 +129,7 @@
       <item>
        <widget class="QCheckBox" name="matchCase">
         <property name="text">
-         <string>Case sensiti&amp;ve</string>
+         <string>Case &amp;sensitive</string>
         </property>
        </widget>
       </item>
