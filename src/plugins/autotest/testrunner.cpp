@@ -568,7 +568,6 @@ void TestRunner::debugTests()
         return;
     }
 
-    QString errorMessage;
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->setRunConfiguration(config->runConfiguration());
 

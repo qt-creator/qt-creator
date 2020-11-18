@@ -636,7 +636,6 @@ void LineEditField::setupCompletion(FancyLineEdit *lineEdit)
     const auto handleResults = [this, lineEdit, watcher](int firstIndex, int endIndex) {
         QSet<QString> namespaces;
         QStringList classes;
-        QString projectBaseDir;
         Project * const project = ProjectTree::currentProject();
         for (int i = firstIndex; i < endIndex; ++i) {
             static const auto isReservedName = [](const QString &name) {

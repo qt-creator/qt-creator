@@ -54,7 +54,6 @@ QJsonObject AssetNodeParser::json(Component &component) const
 {
     QJsonObject jsonObject = ItemNodeParser::json(component);
 
-    QPixmap asset = objectNode().toQmlItemNode().instanceRenderPixmap();
     Utils::FilePath assetPath = component.exporter().exportAsset(objectNode(), uuid());
     QJsonObject assetData;
     assetData.insert(AssetPathTag, assetPath.toString());

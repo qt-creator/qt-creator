@@ -542,7 +542,6 @@ JsonWizardJsExtension::JsonWizardJsExtension(JsonWizard *wizard)
 
 QVariant JsonWizardJsExtension::value(const QString &name) const
 {
-    const QVariant value = m_wizard->value(name);
     return m_wizard->expander()->expandVariant(m_wizard->value(name));
 }
 

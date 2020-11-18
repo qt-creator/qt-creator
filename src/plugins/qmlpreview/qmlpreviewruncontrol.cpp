@@ -142,9 +142,6 @@ LocalQmlPreviewSupport::LocalQmlPreviewSupport(ProjectExplorer::RunControl *runC
             const QString mainScriptFromProject = qmlBuildSystem->targetFile(
                 Utils::FilePath::fromString(mainScript)).toString();
 
-            const QString currentFileFromProject = qmlBuildSystem->targetFile(
-                Utils::FilePath::fromString(currentFile)).toString();
-
             if (!currentFile.isEmpty() && qmlProjectRunConfigurationArguments.last().contains(mainScriptFromProject)) {
                 qmlProjectRunConfigurationArguments.removeLast();
                 auto commandLine = Utils::CommandLine(runnable.commandLine().executable(), qmlProjectRunConfigurationArguments);

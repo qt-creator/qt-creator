@@ -381,7 +381,6 @@ void ClangToolRunWorker::onRunnerFinishedWithFailure(const QString &errorMessage
 
     auto *toolRunner = qobject_cast<ClangToolRunner *>(sender());
     const QString fileToAnalyze = toolRunner->fileToAnalyze();
-    const QString outputFilePath = toolRunner->outputFilePath();
 
     m_filesAnalyzed.remove(fileToAnalyze);
     m_filesNotAnalyzed.insert(fileToAnalyze);

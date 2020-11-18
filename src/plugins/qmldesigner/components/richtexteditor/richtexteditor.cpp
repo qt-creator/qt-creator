@@ -658,7 +658,7 @@ void RichTextEditor::setupTableActions()
     m_actionSplitRow->setCheckable(false);
 
     const QIcon splitColumnIcon(getIcon(Theme::Icon::splitColumns));
-    m_actionSplitColumn = ui->tableBar->addAction(splitRowIcon, tr("Split Column"), [this]() {
+    m_actionSplitColumn = ui->tableBar->addAction(splitColumnIcon, tr("Split Column"), [this]() {
         QTextCursor cursor = ui->textEdit->textCursor();
         if (QTextTable *currentTable = cursor.currentTable()) {
             cursorEditBlock(cursor, [&] () {

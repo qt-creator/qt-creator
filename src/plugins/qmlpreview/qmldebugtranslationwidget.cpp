@@ -413,8 +413,6 @@ QString QmlDebugTranslationWidget::currentDir() const
 void QmlDebugTranslationWidget::setCurrentDir(const QString &path)
 {
     m_lastDir = path;
-    const QString currentDir = m_lastDir.isEmpty() ?
-            ProjectExplorer::ProjectTree::currentFilePath().parentDir().toString() : m_lastDir;
 }
 
 void QmlDebugTranslationWidget::loadLogFile()

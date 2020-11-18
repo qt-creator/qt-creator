@@ -824,6 +824,7 @@ void MemcheckToolPrivate::heobAction()
     if (!commandLineArguments.isEmpty())
         arguments += ' ' + commandLineArguments;
     QByteArray argumentsCopy(reinterpret_cast<const char *>(arguments.utf16()), arguments.size() * 2 + 2);
+    Q_UNUSED(argumentsCopy)
 
     // process environment
     QByteArray env;
