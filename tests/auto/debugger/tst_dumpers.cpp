@@ -5855,7 +5855,8 @@ void tst_Dumpers::dumper_data()
                // Using numpy:
                // + Check("f1", "45.281", "@qfloat16")
                // + Check("f2", "45.094", "@qfloat16");
-               + Check("f1", "45.28125", "@qfloat16")
+               + Check("f1", "45.28125", "@qfloat16") % Qt5
+               + Check("f1", "45.3125", "@qfloat16") % Qt6
                + Check("f2", "45.09375", "@qfloat16");
 
 
