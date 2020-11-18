@@ -81,7 +81,7 @@ PropertyEditorView::PropertyEditorView(QWidget *parent) :
 {
     m_qmlDir = PropertyEditorQmlBackend::propertyEditorResourcesPath();
 
-    if (Utils::HostOsInfo().isMacHost())
+    if (Utils::HostOsInfo::isMacHost())
         m_updateShortcut = new QShortcut(QKeySequence(Qt::ALT + Qt::Key_F3), m_stackedWidget);
     else
         m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F3), m_stackedWidget);

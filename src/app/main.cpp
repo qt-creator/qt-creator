@@ -327,12 +327,12 @@ static inline QSettings *userSettings()
 static void setHighDpiEnvironmentVariable()
 {
 
-    if (Utils::HostOsInfo().isMacHost())
+    if (Utils::HostOsInfo::isMacHost())
         return;
 
     std::unique_ptr<QSettings> settings(createUserSettings());
 
-    const bool defaultValue = Utils::HostOsInfo().isWindowsHost();
+    const bool defaultValue = Utils::HostOsInfo::isWindowsHost();
     const bool enableHighDpiScaling = settings->value("Core/EnableHighDpiScaling", defaultValue).toBool();
 
     static const char ENV_VAR_QT_DEVICE_PIXEL_RATIO[] = "QT_DEVICE_PIXEL_RATIO";
@@ -540,7 +540,7 @@ int main(int argc, char **argv)
                                               QLatin1String(Core::Constants::IDE_CASED_ID));
     loadFonts();
 
-    if (Utils::HostOsInfo().isWindowsHost()
+    if (Utils::HostOsInfo::isWindowsHost()
             && !qFuzzyCompare(qApp->devicePixelRatio(), 1.0)
             && QApplication::style()->objectName().startsWith(
                 QLatin1String("windows"), Qt::CaseInsensitive)) {

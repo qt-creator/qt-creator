@@ -68,18 +68,18 @@ struct Data
 
 static QStringList libraryNameFilter()
 {
-    if (HostOsInfo().isWindowsHost())
+    if (HostOsInfo::isWindowsHost())
         return {"*.dll"};
-    if (HostOsInfo().isLinuxHost())
+    if (HostOsInfo::isLinuxHost())
         return {"*.so"};
     return {"*.dylib"};
 }
 
 static bool hasLibSuffix(const FilePath &path)
 {
-    return (HostOsInfo().isWindowsHost() && path.endsWith(".dll"))
-           || (HostOsInfo().isLinuxHost() && path.toFileInfo().completeSuffix().startsWith(".so"))
-           || (HostOsInfo().isMacHost() && path.endsWith(".dylib"));
+    return (HostOsInfo::isWindowsHost() && path.endsWith(".dll"))
+           || (HostOsInfo::isLinuxHost() && path.toFileInfo().completeSuffix().startsWith(".so"))
+           || (HostOsInfo::isMacHost() && path.endsWith(".dylib"));
 }
 
 static FilePath pluginInstallPath(bool installIntoApplication)

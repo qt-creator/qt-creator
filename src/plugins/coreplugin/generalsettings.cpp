@@ -91,10 +91,10 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
     m_ui.showShortcutsInContextMenus->setVisible(false);
 #endif
 
-    if (Utils::HostOsInfo().isMacHost()) {
+    if (Utils::HostOsInfo::isMacHost()) {
         m_ui.dpiCheckbox->setVisible(false);
     } else {
-        const bool defaultValue = Utils::HostOsInfo().isWindowsHost();
+        const bool defaultValue = Utils::HostOsInfo::isWindowsHost();
         m_ui.dpiCheckbox->setChecked(ICore::settings()->value(settingsKeyDPI, defaultValue).toBool());
         connect(m_ui.dpiCheckbox, &QCheckBox::toggled, this, [](bool checked) {
             ICore::settings()->setValue(settingsKeyDPI, checked);
