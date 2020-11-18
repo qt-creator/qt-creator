@@ -142,4 +142,5 @@
     the item into a new position. The topmost item under the cursor becomes the
     new parent of the item.
 
+    \include qtquick-component-context-menu.qdocinc context-menu
 */

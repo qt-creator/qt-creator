@@ -148,4 +148,5 @@
     select the \inlineimage reset.png
     (\uicontrol {Reset View}) button.
 
+    \include qtquick-component-context-menu.qdocinc context-menu
 */

@@ -44,7 +44,7 @@
 
     A signal is automatically emitted when the value of a QML property changes.
     This type of signal is a \e{property change signal} and signal handlers
-    for  these signals are written in the form \c on<Property>Changed, where
+    for these signals are written in the form \c on<Property>Changed, where
     \e <Property> is the name of the property, with the first letter
     capitalized.
 
@@ -83,6 +83,25 @@
     Right-click a connection and select \uicontrol {Open Connection Editor}
     in the context menu to specify the connection in
     \uicontrol {Connection Editor}.
+
+    \section1 Adding Signal Handlers
+
+    If a signal handler that you need is not listed in the
+    \uicontrol {Signal Handler} column, you can add it:
+
+    \list 1
+        \li Right-click a component in the \uicontrol Navigator or
+            \uicontrol {Form Editor} view and select
+            \uicontrol {Add New Signal Handler} in the context menu.
+        \li In the \uicontrol Signal field, select the signal to handle.
+            \image qmldesigner-implement-signal-handler.png "Implement Signal Handler dialog"
+        \li Select the radio buttons to filter the list to only display
+            frequently used signals or property changes.
+        \li Select \uicontrol OK.
+    \endlist
+
+    The added signal handler is automatically \l{Using Qt Quick UI Forms}
+    {exported as a property}.
 
     \if defined(qtdesignstudio)
     \section1 Adding Actions and Assignments

@@ -246,6 +246,25 @@
     \include qtdesignstudio-components.qdocinc creating studio components
     \endif
 
+    \section1 Moving Components into Separate Files
+
+    An alternative way of creating reusable components is to move them into
+    separate QML files. Right-click a component in the \uicontrol Navigator
+    or \uicontrol {Form Editor} view and select
+    \uicontrol {Move Component into Separate File} in the context menu.
+
+    \image qtcreator-move-component-into-separate-file.png
+
+    Give the new component a name and select whether properties are set for
+    the new component or for the original one.
+
+    For an example of creating a reusable custom component, see
+    \if defined(qtcreator)
+    \l{Creating a Mobile Application}.
+    \else
+    \l{Progress Bar}.
+    \endif
+
     \section1 Moving Within Components
 
     Components can consist of several other components. To view the component
@@ -256,4 +275,17 @@
     component.
 
     \image qmldesigner-breadcrumbs.png "Go into Component command"
+
+    \section1 Merging Files with Templates
+
+    You can merge the current QML file against an existing second QML file and
+    using the second QML file in a way similar to using a CSS stylesheet.
+
+    To use this experimental feature, right-click a component in the
+    \uicontrol Navigator or \uicontrol {Form Editor} view and select
+    \uicontrol {Merge File with Template} in the context menu.
+
+    \image qmldesigner-merge-with-template.png "Merge with Template dialog"
+
+    In the \uicontrol Template field, select the file to use as a template.
 */
