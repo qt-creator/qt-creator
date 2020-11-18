@@ -366,6 +366,7 @@ public:
     void setExtraEncodingSettings(const TextEditor::ExtraEncodingSettings &);
 
     void circularPaste();
+    void pasteWithoutFormat();
     void switchUtf8bom();
 
     void zoomF(float delta);

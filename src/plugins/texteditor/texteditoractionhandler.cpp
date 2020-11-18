@@ -317,8 +317,11 @@ void TextEditorActionHandlerPrivate::createActions()
             [] (TextEditorWidget *w) { w->selectEncoding(); }, false, tr("Select Encoding..."),
             QKeySequence(), G_EDIT_OTHER, editMenu);
     m_circularPasteAction = registerAction(CIRCULAR_PASTE,
-            [] (TextEditorWidget *w) { w->circularPaste(); }, false, tr("Paste from Clipboard History"),
-            QKeySequence(tr("Ctrl+Shift+V")), G_EDIT_COPYPASTE, editMenu);
+        [] (TextEditorWidget *w) { w->circularPaste(); }, false, tr("Paste from Clipboard History"),
+        QKeySequence(tr("Ctrl+Shift+V")), G_EDIT_COPYPASTE, editMenu);
+    m_circularPasteAction = registerAction(NO_FORMAT_PASTE,
+        [] (TextEditorWidget *w) { w->pasteWithoutFormat(); }, false, tr("Paste without Formatting"),
+        QKeySequence(Core::useMacShortcuts ? tr("Cmd+Opt+Shift+V") : QString()), G_EDIT_COPYPASTE, editMenu);
 
     // register "Edit -> Advanced" Menu Actions
     Core::ActionContainer *advancedEditMenu = Core::ActionManager::actionContainer(M_EDIT_ADVANCED);

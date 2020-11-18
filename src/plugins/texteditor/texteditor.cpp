@@ -764,6 +764,7 @@ public:
     bool m_animateAutoComplete = true;
     bool m_highlightAutoComplete = true;
     bool m_skipAutoCompletedText = true;
+    bool m_skipFormatOnPaste = false;
     bool m_removeAutoCompletedText = true;
     bool m_keepAutoCompletionHighlight = false;
     QList<QTextCursor> m_autoCompleteHighlightPos;
@@ -7613,6 +7614,13 @@ void TextEditorWidget::circularPaste()
     }
 }
 
+void TextEditorWidget::pasteWithoutFormat()
+{
+    d->m_skipFormatOnPaste = true;
+    paste();
+    d->m_skipFormatOnPaste = false;
+}
+
 void TextEditorWidget::switchUtf8bom()
 {
     textDocument()->switchUtf8Bom();
@@ -7790,9 +7798,10 @@ void TextEditorWidget::insertFromMimeData(const QMimeData *source)
 
     int reindentBlockEnd = cursor.blockNumber() - (hasFinalNewline?1:0);
 
-    if (reindentBlockStart < reindentBlockEnd
-        || (reindentBlockStart == reindentBlockEnd
-            && (!insertAtBeginningOfLine || hasFinalNewline))) {
+    if (!d->m_skipFormatOnPaste
+        && (reindentBlockStart < reindentBlockEnd
+            || (reindentBlockStart == reindentBlockEnd
+                && (!insertAtBeginningOfLine || hasFinalNewline)))) {
         if (insertAtBeginningOfLine && !hasFinalNewline) {
             QTextCursor unnecessaryWhitespace = cursor;
             unnecessaryWhitespace.setPosition(cursorPosition);
