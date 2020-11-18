@@ -43,7 +43,7 @@ namespace Internal {
 class TaskWindowPrivate;
 
 // Show issues (warnings or errors) and open the editor on click.
-class TaskWindow : public Core::IOutputPane
+class TaskWindow final : public Core::IOutputPane
 {
     Q_OBJECT
 

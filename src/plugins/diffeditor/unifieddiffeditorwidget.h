@@ -45,7 +45,7 @@ namespace Internal {
 
 class DiffEditorDocument;
 
-class UnifiedDiffEditorWidget : public SelectableTextEditorWidget
+class UnifiedDiffEditorWidget final : public SelectableTextEditorWidget
 {
     Q_OBJECT
 public:

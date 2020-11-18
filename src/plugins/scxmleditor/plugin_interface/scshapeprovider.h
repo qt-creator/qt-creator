@@ -35,7 +35,7 @@ namespace PluginInterface {
 
 class ScxmlTag;
 
-class SCShapeProvider : public ShapeProvider
+class SCShapeProvider final : public ShapeProvider
 {
     Q_OBJECT
 public:

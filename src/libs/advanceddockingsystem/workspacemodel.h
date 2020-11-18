@@ -44,7 +44,7 @@ namespace ADS {
 class DockManager;
 class WorkspaceNameInputDialog;
 
-class WorkspaceModel : public QAbstractTableModel
+class WorkspaceModel final : public QAbstractTableModel
 {
     Q_OBJECT
 

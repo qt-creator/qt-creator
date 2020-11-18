@@ -74,7 +74,7 @@ static Utils::Id defaultCMakeToolId()
 
 static const char TOOL_ID[] = "CMakeProjectManager.CMakeKitInformation";
 
-class CMakeKitAspectWidget : public KitAspectWidget
+class CMakeKitAspectWidget final : public KitAspectWidget
 {
     Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeKitAspect)
 public:
@@ -316,7 +316,7 @@ static const char EXTRA_GENERATOR_KEY[] = "ExtraGenerator";
 static const char PLATFORM_KEY[] = "Platform";
 static const char TOOLSET_KEY[] = "Toolset";
 
-class CMakeGeneratorKitAspectWidget : public KitAspectWidget
+class CMakeGeneratorKitAspectWidget final : public KitAspectWidget
 {
     Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeGeneratorKitAspect)
 public:
@@ -822,7 +822,7 @@ static const char CMAKE_CXX_TOOLCHAIN_KEY[] = "CMAKE_CXX_COMPILER";
 static const char CMAKE_QMAKE_KEY[] = "QT_QMAKE_EXECUTABLE";
 static const char CMAKE_PREFIX_PATH_KEY[] = "CMAKE_PREFIX_PATH";
 
-class CMakeConfigurationKitAspectWidget : public KitAspectWidget
+class CMakeConfigurationKitAspectWidget final : public KitAspectWidget
 {
     Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeConfigurationKitAspect)
 public:

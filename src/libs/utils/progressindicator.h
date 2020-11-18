@@ -53,7 +53,7 @@ public:
     ProgressIndicatorPainter(ProgressIndicatorSize size);
     virtual ~ProgressIndicatorPainter() = default;
 
-    virtual void setIndicatorSize(ProgressIndicatorSize size);
+    void setIndicatorSize(ProgressIndicatorSize size);
     ProgressIndicatorSize indicatorSize() const;
 
     void setUpdateCallback(const UpdateCallback &cb);

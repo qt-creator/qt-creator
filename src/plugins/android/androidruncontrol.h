@@ -34,7 +34,7 @@ namespace Internal {
 
 class AndroidRunner;
 
-class AndroidRunSupport : public AndroidRunner
+class AndroidRunSupport final : public AndroidRunner
 {
     Q_OBJECT
 

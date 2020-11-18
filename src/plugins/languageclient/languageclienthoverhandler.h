@@ -32,7 +32,7 @@ namespace LanguageClient {
 
 class Client;
 
-class HoverHandler : public TextEditor::BaseHoverHandler
+class HoverHandler final : public TextEditor::BaseHoverHandler
 {
     Q_DECLARE_TR_FUNCTIONS(HoverHandler)
 public:

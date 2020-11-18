@@ -32,7 +32,7 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-class ClangHoverHandler : public TextEditor::BaseHoverHandler
+class ClangHoverHandler final : public TextEditor::BaseHoverHandler
 {
     Q_DECLARE_TR_FUNCTIONS(ClangHoverHandler)
 

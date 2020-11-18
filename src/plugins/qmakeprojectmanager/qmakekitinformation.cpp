@@ -45,7 +45,7 @@ using namespace Utils;
 namespace QmakeProjectManager {
 namespace Internal {
 
-class QmakeKitAspectWidget : public KitAspectWidget
+class QmakeKitAspectWidget final : public KitAspectWidget
 {
     Q_DECLARE_TR_FUNCTIONS(QmakeProjectManager::Internal::QmakeKitAspect)
 

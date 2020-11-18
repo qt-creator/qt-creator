@@ -47,7 +47,7 @@ namespace Internal {
 class ShowOutputTaskHandler;
 class CompileOutputTextEdit;
 
-class CompileOutputWindow : public Core::IOutputPane
+class CompileOutputWindow final : public Core::IOutputPane
 {
     Q_OBJECT
 

@@ -49,7 +49,7 @@ public:
         virtual Utils::FilePath filePath() const = 0;
     };
 
-    class CORE_EXPORT ListIterator : public Iterator {
+    class CORE_EXPORT ListIterator final : public Iterator {
     public:
         ListIterator(const Utils::FilePaths &filePaths);
 

@@ -271,7 +271,7 @@ public:
 };
 
 
-class LanguageClientCompletionAssistProcessor : public IAssistProcessor
+class LanguageClientCompletionAssistProcessor final : public IAssistProcessor
 {
 public:
     LanguageClientCompletionAssistProcessor(Client *client);

@@ -218,7 +218,7 @@ protected:
     IosDeviceType m_devType;
 };
 
-class IosDeviceToolHandlerPrivate : public IosToolHandlerPrivate
+class IosDeviceToolHandlerPrivate final : public IosToolHandlerPrivate
 {
     enum State {
         NonStarted,

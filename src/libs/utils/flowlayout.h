@@ -32,7 +32,7 @@
 
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT FlowLayout : public QLayout
+class QTCREATOR_UTILS_EXPORT FlowLayout final : public QLayout
 {
 public:
     explicit FlowLayout(QWidget *parent, int margin = -1, int hSpacing = -1, int vSpacing = -1);

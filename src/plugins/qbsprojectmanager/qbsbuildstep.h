@@ -39,7 +39,7 @@ class QbsSession;
 
 class QbsBuildStepConfigWidget;
 
-class QbsBuildStep : public ProjectExplorer::BuildStep
+class QbsBuildStep final : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
 

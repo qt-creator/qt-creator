@@ -55,7 +55,7 @@ namespace Debugger {
 
 namespace Internal {
 
-class DebuggerKitAspectWidget : public KitAspectWidget
+class DebuggerKitAspectWidget final : public KitAspectWidget
 {
     Q_DECLARE_TR_FUNCTIONS(Debugger::DebuggerKitAspect)
 

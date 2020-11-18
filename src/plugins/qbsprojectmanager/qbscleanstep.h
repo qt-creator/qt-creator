@@ -38,7 +38,7 @@ namespace Internal {
 class ErrorInfo;
 class QbsSession;
 
-class QbsCleanStep : public ProjectExplorer::BuildStep
+class QbsCleanStep final : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
 

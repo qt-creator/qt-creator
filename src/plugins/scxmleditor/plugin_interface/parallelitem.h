@@ -34,7 +34,7 @@ namespace PluginInterface {
 /**
  * @brief The ParalllelItem class represents Parallel-state of the SCXML-standard. It is a extended class from the StateItem.
  */
-class ParallelItem : public StateItem
+class ParallelItem final : public StateItem
 {
 public:
     explicit ParallelItem(const QPointF &pos = QPointF(), BaseItem *parent = nullptr);

@@ -56,7 +56,7 @@ public:
     AbstractAction(const QString &description = QString());
     AbstractAction(DefaultAction *action);
 
-    QAction *action() const override;
+    QAction *action() const override final;
     DefaultAction *defaultAction() const;
 
     void currentContextChanged(const SelectionContext &selectionContext) override;

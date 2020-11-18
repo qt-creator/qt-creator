@@ -37,7 +37,7 @@ class IDocument;
 namespace TextEditor {
 namespace Internal {
 
-class FindInCurrentFile : public BaseFileFind
+class FindInCurrentFile final : public BaseFileFind
 {
     Q_OBJECT
 

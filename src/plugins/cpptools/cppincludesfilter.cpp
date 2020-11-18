@@ -43,7 +43,7 @@ using namespace Utils;
 namespace CppTools {
 namespace Internal {
 
-class CppIncludesIterator : public BaseFileFilter::Iterator
+class CppIncludesIterator final : public BaseFileFilter::Iterator
 {
 public:
     CppIncludesIterator(CPlusPlus::Snapshot snapshot, const QSet<QString> &seedPaths);

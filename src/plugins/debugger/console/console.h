@@ -48,7 +48,7 @@ using ScriptEvaluator = std::function<void (QString)>;
 class ConsoleItemModel;
 class ConsoleView;
 
-class Console : public Core::IOutputPane
+class Console final : public Core::IOutputPane
 {
     Q_OBJECT
 

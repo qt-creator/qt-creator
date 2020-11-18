@@ -145,7 +145,7 @@ protected:
     QString m_currentValue;
 };
 
-struct FeatureBuildOption : BuildOption
+struct FeatureBuildOption final : BuildOption
 {
     QVariant value() const override { return QVariant::fromValue(m_currentValue); }
     QString valueStr() const override { return m_currentValue.value(); }
@@ -225,7 +225,7 @@ protected:
     QStringList m_currentValue;
 };
 
-struct BooleanBuildOption : BuildOption
+struct BooleanBuildOption final : BuildOption
 {
     QVariant value() const override { return m_currentValue; }
     QString valueStr() const override

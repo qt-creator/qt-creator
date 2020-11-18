@@ -49,7 +49,7 @@ using namespace Utils;
 namespace QtSupport {
 namespace Internal {
 
-class QtKitAspectWidget : public KitAspectWidget
+class QtKitAspectWidget final : public KitAspectWidget
 {
     Q_DECLARE_TR_FUNCTIONS(QtSupport::QtKitAspectWidget)
 public:
