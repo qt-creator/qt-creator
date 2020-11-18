@@ -142,9 +142,9 @@ public:
     void onRightMarginsChanged();
 
 protected:
-    void changeEvent(QEvent *e);
-    void hideEvent(QHideEvent* event);
-    void showEvent(QShowEvent* event);
+    void changeEvent(QEvent *e) override;
+    void hideEvent(QHideEvent* event) override;
+    void showEvent(QShowEvent* event) override;
 
 private:
     Ui::ContextPaneWidgetImage *ui;

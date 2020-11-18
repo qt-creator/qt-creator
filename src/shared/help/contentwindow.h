@@ -58,7 +58,7 @@ private:
     void expandTOC();
     void itemActivated(const QModelIndex &index);
     void expandToDepth(int depth);
-    bool eventFilter(QObject *o, QEvent *e);
+    bool eventFilter(QObject *o, QEvent *e) override;
 
     Utils::NavigationTreeView *m_contentWidget;
     QHelpContentModel *m_contentModel;

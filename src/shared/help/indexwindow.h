@@ -51,20 +51,20 @@ public:
     IndexFilterModel(QObject *parent);
 
     QModelIndex filter(const QString &filter, const QString &wildcard);
-    QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
-    QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
-    Qt::DropActions supportedDragActions() const;
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &child) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex mapToSource(const QModelIndex &proxyIndex) const override;
+    QModelIndex mapFromSource(const QModelIndex &sourceIndex) const override;
+    Qt::DropActions supportedDragActions() const override;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &child) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
-    void setSourceModel(QAbstractItemModel *sm);
+    void setSourceModel(QAbstractItemModel *sm) override;
 
     // QAbstractProxyModel::sibling is broken in Qt 5
-    QModelIndex sibling(int row, int column, const QModelIndex &idx) const;
+    QModelIndex sibling(int row, int column, const QModelIndex &idx) const override;
 
-    Qt::ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
 private:
     void sourceDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
@@ -95,7 +95,7 @@ private:
     void filterIndices(const QString &filter);
     void enableSearchLineEdit();
     void disableSearchLineEdit();
-    bool eventFilter(QObject *obj, QEvent *e);
+    bool eventFilter(QObject *obj, QEvent *e) override;
     void open(const QModelIndex &index, bool newPage = false);
 
     Utils::FancyLineEdit *m_searchLineEdit;

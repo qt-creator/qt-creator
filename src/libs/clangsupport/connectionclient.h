@@ -98,7 +98,7 @@ protected:
     virtual QString outputName() const = 0;
 
     QString connectionName() const;
-    bool event(QEvent* event);
+    bool event(QEvent* event) override;
 
     virtual void newConnectedServer(QLocalSocket *localSocket) = 0;
 
