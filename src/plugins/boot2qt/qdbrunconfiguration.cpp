@@ -115,6 +115,8 @@ QdbRunConfiguration::QdbRunConfiguration(Target *target, Utils::Id id)
     });
 
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+    connect(target, &Target::deploymentDataChanged, this, &RunConfiguration::update);
+    connect(target, &Target::kitChanged, this, &RunConfiguration::update);
 
     setDefaultDisplayName(tr("Run on Boot2Qt Device"));
 }
