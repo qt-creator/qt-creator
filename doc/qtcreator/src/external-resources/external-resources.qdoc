@@ -26,6 +26,14 @@
 ****************************************************************************/
 
 /*!
+    \externalpage https://doc.qt.io/QtForMCUs/index.html
+    \title Qt for MCUs
+*/
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-qmltypes.html
+    \title Qt for MCUs - All QML Types
+*/
+/*!
     \externalpage https://doc.qt.io/QtForMCUs/qtul-supported-platforms.html
     \title Qt for MCUs - Supported Target Platforms
 */

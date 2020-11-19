@@ -156,6 +156,8 @@
     \include qtdesignstudio-visual-effects.qdocinc qml visual effects
     \endif
 
+    \include qtquick-mcu-support.qdocinc mcu qtquick components
+
     \section1 Styling Controls
 
     Qt Quick Controls provide lightweight QML types for creating performant

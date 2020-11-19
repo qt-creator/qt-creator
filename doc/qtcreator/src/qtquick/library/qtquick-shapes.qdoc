@@ -222,33 +222,39 @@
 
     The following table lists the QML types that you can use to draw shapes.
     The \e Location column contains the tab name where you can find the type
-    in \uicontrol Library.
+    in \uicontrol Library. The \e MCU column indicates which types are supported
+    on MCUs.
 
     \table
     \header
         \li Icon
         \li Name
         \li Location
+        \li MCU
         \li Purpose
     \row
         \li \inlineimage icons/item-arc-16px.png
         \li \l Arc
         \li Studio Components
+        \li
         \li An arc that begins and ends at given positions.
     \row
         \li \inlineimage icons/custom-border-16px.png
         \li \l Border
         \li Studio Components
+        \li
         \li A line with four segments that you can show and shape individually.
     \row
         \li \inlineimage icons/item-pie-16px.png
         \li \l Pie
         \li Studio Components
+        \li
         \li A pie slice or a pie with a slice missing from it.
     \row
         \li \inlineimage rect-icon16.png
         \li \l Rectangle
         \li Qt Quick - Basic
+        \li \inlineimage ok
         \li A rectangle that is painted with a solid fill color or linear
             gradient and an optional border. You can use the radius property
             to draw circles.
@@ -256,6 +262,7 @@
         \li \inlineimage icons/custom-rectangle-16px.png
         \li \l{Studio Rectangle}{Rectangle}
         \li Studio Components
+        \li
         \li An extended rectangle that is painted with a solid fill color or
             linear, conical, or radial gradients, and corners that you can
             shape independently of each other.
@@ -263,6 +270,7 @@
         \li \inlineimage icons/item-triangle-16px.png
         \li \l Triangle
         \li Studio Components
+        \li
         \li A triangle with different dimensions and shapes that is
             enclosed in an invisible rectangle.
     \endtable
