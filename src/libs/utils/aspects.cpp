@@ -281,7 +281,7 @@ public:
     std::function<void()> m_openTerminal;
 
     bool m_readOnly = false;
-    bool m_undoRedoEnabled = false;
+    bool m_undoRedoEnabled = true;
     bool m_enabled = true;
     bool m_showToolTipOnLabel = false;
     bool m_fileDialogOnly = false;
@@ -697,8 +697,7 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         d->m_textEditDisplay->setEnabled(d->m_enabled);
         d->m_textEditDisplay->setReadOnly(d->m_readOnly);
         d->m_textEditDisplay->setUndoRedoEnabled(d->m_undoRedoEnabled);
-        d->m_textEditDisplay->setTextInteractionFlags
-                (Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
+        d->m_textEditDisplay->setTextInteractionFlags(Qt::TextEditorInteraction);
         useMacroExpander(d->m_textEditDisplay);
         connect(d->m_textEditDisplay, &QTextEdit::textChanged, this, [this] {
             const QString value = d->m_textEditDisplay->document()->toPlainText();
