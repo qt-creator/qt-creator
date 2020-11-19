@@ -32,14 +32,18 @@
     types to create UIs for devices that are powered by microcontroller units
     (MCU). The subset of supported types depends on the Qt for MCUs version
     that you use for development. In this manual, we indicate which components
-    are supported at the time of writing, but you should always check the
-    \l{Qt for MCUs - All QML Types}{listing of supported QML types} for the
-    latest state.
+    are supported at the time of writing.
 
-    To develop for MCUs, \l{Using Project Wizards}{create an MCU project}.
-    Only a subset of properties is supported for the supported types. The
-    properties that are not available on MCUs are marked in the
-    \uicontrol Properties view by enclosing them in square brackets.
+    To develop for MCUs, \l{Using Project Wizards}{create an MCU project}. Only
+    the types available on MCUs are displayed in the \uicontrol {QML Types} tab
+    in \uicontrol Library. Only a subset of properties is supported for the
+    supported types. The properties that are not available on MCUs are marked
+    in the \uicontrol Properties view by enclosing them in square brackets.
+
+    \image qmldesigner-mcu-support.png "QML types and Image type properties supported for MCUs"
+
+    For more information about the supported QML types and their properties, see
+    \l{Qt for MCUs - All QML Types}.
 
 //! [mcu qtquick components]
 */
