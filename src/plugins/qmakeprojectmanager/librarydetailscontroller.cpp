@@ -60,12 +60,15 @@ LibraryDetailsController::LibraryDetailsController(
     m_proFile(proFile),
     m_libraryDetailsWidget(libraryDetails)
 {
+    fillLibraryPlatformTypes(m_libraryDetailsWidget->libraryTypeComboBox);
     setPlatformsVisible(true);
     setLinkageGroupVisible(true);
     setMacLibraryGroupVisible(true);
     setPackageLineEditVisible(false);
-    setMacLibraryRadiosVisible(!Utils::HostOsInfo::isMacHost());
-    setLinkageRadiosVisible(Utils::HostOsInfo::isWindowsHost());
+    const bool isMacOs = libraryPlatformType() == Utils::OsTypeMac;
+    const bool isWindows = libraryPlatformType() == Utils::OsTypeWindows;
+    setMacLibraryRadiosVisible(!isMacOs);
+    setLinkageRadiosVisible(isWindows);
 
     connect(m_libraryDetailsWidget->includePathChooser, &Utils::PathChooser::rawPathChanged,
             this, &LibraryDetailsController::slotIncludePathChanged);
@@ -83,8 +86,6 @@ LibraryDetailsController::LibraryDetailsController(
             this, &LibraryDetailsController::slotPlatformChanged);
     connect(m_libraryDetailsWidget->winCheckBox, &QAbstractButton::clicked,
             this, &LibraryDetailsController::slotPlatformChanged);
-
-    fillLibraryPlatformTypes(m_libraryDetailsWidget->libraryTypeComboBox);
 }
 
 Ui::LibraryDetailsWidget *LibraryDetailsController::libraryDetailsWidget() const
@@ -170,6 +171,31 @@ void LibraryDetailsController::updateGui()
         libraryDetailsWidget()->includePathChooser->setPath(suggestedIncludePath());
 
     setIgnoreGuiSignals(false);
+
+    // UGLY HACK BEGIN
+    //
+    // We need to invoke QWizardPrivate::updateLayout() method to properly
+    // recalculate the new minimum size for the whole wizard.
+    // This is done internally by QWizard e.g. when a new wizard page is being shown.
+    // Unfortunately, QWizard doesn't expose this method currently.
+    // Since the current implementation of QWizard::setTitleFormat() sets the
+    // format and calls QWizardPrivate::updateLayout() unconditionally
+    // we use it as a hacky solution to the above issue.
+    // For reference please see: QTBUG-88666
+    if (!m_wizard) {
+        QWidget *widget = libraryDetailsWidget()->detailsLayout->parentWidget();
+        while (widget) {
+            QWizard *wizard = qobject_cast<QWizard *>(widget);
+            if (wizard) {
+                m_wizard = wizard;
+                break;
+            }
+            widget = widget->parentWidget();
+        }
+    }
+    QTC_ASSERT(m_wizard, return);
+    m_wizard->setTitleFormat(m_wizard->titleFormat());
+    // UGLY HACK END
 }
 
 QString LibraryDetailsController::proFile() const
@@ -614,7 +640,7 @@ NonInternalLibraryDetailsController::NonInternalLibraryDetailsController(
             this, &NonInternalLibraryDetailsController::slotLinkageTypeChanged);
     connect(libraryDetailsWidget()->libraryTypeComboBox, &QComboBox::currentTextChanged,
             this, &NonInternalLibraryDetailsController::slotLibraryTypeChanged);
-    slotLibraryTypeChanged();
+    handleLibraryTypeChange();
 }
 
 AddLibraryWizard::LinkageType NonInternalLibraryDetailsController::suggestedLinkageType() const
@@ -676,18 +702,22 @@ void NonInternalLibraryDetailsController::updateWindowsOptionsEnablement()
     libraryDetailsWidget()->winGroupBox->setEnabled(ena);
 }
 
-void NonInternalLibraryDetailsController::slotLinkageTypeChanged()
+void NonInternalLibraryDetailsController::handleLinkageTypeChange()
 {
-    if (guiSignalsIgnored())
-        return;
-
     if (isMacLibraryRadiosVisible()
             && libraryDetailsWidget()->staticRadio->isChecked()) {
         setIgnoreGuiSignals(true);
         libraryDetailsWidget()->libraryRadio->setChecked(true);
         setIgnoreGuiSignals(false);
     }
+}
 
+void NonInternalLibraryDetailsController::slotLinkageTypeChanged()
+{
+    if (guiSignalsIgnored())
+        return;
+
+    handleLinkageTypeChange();
     updateGui();
 }
 
@@ -699,7 +729,7 @@ void NonInternalLibraryDetailsController::slotRemoveSuffixChanged(bool ena)
     }
 }
 
-void NonInternalLibraryDetailsController::slotLibraryTypeChanged()
+void NonInternalLibraryDetailsController::handleLibraryTypeChange()
 {
     libraryDetailsWidget()->libraryPathChooser->setPromptDialogFilter(libraryPlatformFilter());
     const bool isMacOs = libraryPlatformType() == Utils::OsTypeMac;
@@ -709,14 +739,18 @@ void NonInternalLibraryDetailsController::slotLibraryTypeChanged()
     setMacLibraryRadiosVisible(!isMacOs);
     setLinkageRadiosVisible(isWindows);
     setRemoveSuffixVisible(isWindows);
-
-    updateWindowsOptionsEnablement();
-    slotLibraryPathChanged();
-    slotLinkageTypeChanged();
-    libraryDetailsWidget()->detailsLayout->parentWidget()->window()->adjustSize();
+    handleLibraryPathChange();
+    handleLinkageTypeChange();
 }
 
-void NonInternalLibraryDetailsController::slotLibraryPathChanged()
+void NonInternalLibraryDetailsController::slotLibraryTypeChanged()
+{
+    handleLibraryTypeChange();
+    updateGui();
+    emit completeChanged();
+}
+
+void NonInternalLibraryDetailsController::handleLibraryPathChange()
 {
     if (libraryPlatformType() == Utils::OsTypeWindows) {
         bool subfoldersEnabled = true;
@@ -741,9 +775,12 @@ void NonInternalLibraryDetailsController::slotLibraryPathChanged()
                 libraryDetailsWidget()->addSuffixCheckBox->setChecked(true);
         }
     }
+}
 
+void NonInternalLibraryDetailsController::slotLibraryPathChanged()
+{
+    handleLibraryPathChange();
     updateGui();
-
     emit completeChanged();
 }
 
