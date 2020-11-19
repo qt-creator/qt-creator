@@ -192,7 +192,7 @@ QPointF EasingCurve::start() const
 
 QPointF EasingCurve::end() const
 {
-    return toCubicSpline().last();
+    return toCubicSpline().constLast();
 }
 
 QPainterPath EasingCurve::path() const

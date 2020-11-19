@@ -6,6 +6,7 @@ set(QT_CREATOR_API_DEFINED TRUE)
 set(IDE_QT_VERSION_MIN "5.14.0")
 
 include(${CMAKE_CURRENT_LIST_DIR}/QtCreatorAPIInternal.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/QtcSeparateDebugInfo.cmake)
 
 set(IDE_APP_PATH "${_IDE_APP_PATH}")                    # The target path of the IDE application (relative to CMAKE_INSTALL_PREFIX).
 set(IDE_APP_TARGET "${_IDE_APP_TARGET}")                # The IDE application name.
@@ -266,6 +267,8 @@ function(add_qtc_library name)
       OPTIONAL
   )
 
+  qtc_enable_separate_debug_info(${name} "${IDE_LIBRARY_PATH}")
+
   if (library_type STREQUAL "SHARED")
     set(target_prefix ${CMAKE_SHARED_LIBRARY_PREFIX})
     if (WIN32)
@@ -508,6 +511,8 @@ function(add_qtc_plugin target_name)
         OPTIONAL
     )
 
+    qtc_enable_separate_debug_info(${target_name} "${plugin_dir}")
+
     if (_arg_EXPORT)
       # export of external plugins
       install(EXPORT ${export}
@@ -707,7 +712,8 @@ function(add_qtc_executable name)
             get_target_property(_location ${_lib} LOCATION)
             get_target_property(_is_framework ${_lib} FRAMEWORK)
             if (_is_framework)
-              set(_location ${_location}/../..)
+              # get rid of the whole Foo.framework/* part whereever it is
+              string(REGEX REPLACE "/[^/]*[.]framework/.*" "" _location ${_location})
             endif()
             get_filename_component(_abs_location ${_location} ABSOLUTE)
             list(APPEND _rpaths_to_remove "${_abs_location}")
@@ -738,6 +744,8 @@ function(add_qtc_executable name)
         OPTIONAL
       )
     endif()
+
+    qtc_enable_separate_debug_info(${name} "${_DESTINATION}")
 
     update_cached_list(__QTC_INSTALLED_EXECUTABLES
       "${_DESTINATION}/${name}${CMAKE_EXECUTABLE_SUFFIX}")

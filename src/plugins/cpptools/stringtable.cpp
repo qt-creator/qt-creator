@@ -108,7 +108,8 @@ QString StringTablePrivate::insert(const QString &string)
 
 void StringTable::scheduleGC()
 {
-    QMetaObject::invokeMethod(&m_instance->m_gcCountDown, "start", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(&m_instance->m_gcCountDown, QOverload<>::of(&QTimer::start),
+                              Qt::QueuedConnection);
 }
 
 StringTable::StringTable()

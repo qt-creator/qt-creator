@@ -60,7 +60,7 @@ public:
     QmlDebug::QmlDebugServicesPreset qmlDebugServices() const;
 
     void start() override;
-    void stop() override;
+    void stop() override final;
 
     virtual void appOutput(const QString &/*output*/) {}
     virtual void errorMsg(const QString &/*msg*/) {}
@@ -106,7 +106,6 @@ public:
     void didStartApp(IosToolHandler::OpStatus status);
 private:
     void start() override;
-    void stop() override;
 };
 
 

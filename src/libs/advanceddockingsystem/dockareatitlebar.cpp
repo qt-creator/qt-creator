@@ -293,7 +293,8 @@ namespace ADS
         if (QEvent::EnabledChange == event->type() && m_hideWhenDisabled) {
             // force setVisible() call
             // Calling setVisible() directly here doesn't work well when button is expected to be shown first time
-            QMetaObject::invokeMethod(this, "setVisible", Qt::QueuedConnection, Q_ARG(bool, isEnabled()));
+            const bool visible = isEnabled();
+            QMetaObject::invokeMethod(this, [this, visible] { setVisible(visible); }, Qt::QueuedConnection);
         }
 
         return Super::event(event);
@@ -352,8 +353,9 @@ namespace ADS
                     break;
                 }
             }
-            bool visible = (hasElidedTabTitle && (d->m_tabBar->count() > 1));
-            QMetaObject::invokeMethod(d->m_tabsMenuButton, "setVisible", Qt::QueuedConnection, Q_ARG(bool, visible));
+            const bool visible = (hasElidedTabTitle && (d->m_tabBar->count() > 1));
+            QMetaObject::invokeMethod(this, [this, visible] {
+                d->m_tabsMenuButton->setVisible(visible); }, Qt::QueuedConnection);
         }
         d->m_menuOutdated = true;
     }

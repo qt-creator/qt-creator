@@ -82,7 +82,7 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view) :
 
                 // Register action as creator command to make it configurable
                 Core::Command *command = Core::ActionManager::registerAction(
-                            action->action(), action->menuId().data(), context);
+                            action->action(), action->menuId().constData(), context);
                 command->setDefaultKeySequence(action->action()->shortcut());
                 command->augmentActionWithShortcutToolTip(action->action());
                 // Clear action shortcut so it doesn't conflict with command's override action

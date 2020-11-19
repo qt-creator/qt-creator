@@ -60,6 +60,12 @@ CustomWidgetWidgetsWizardPage::CustomWidgetWidgetsWizardPage(QWidget *parent) :
 
     connect(m_ui->classList, &ClassList::currentRowChanged,
             this, &CustomWidgetWidgetsWizardPage::slotCurrentRowChanged);
+    connect(m_ui->classList, &ClassList::classAdded,
+            this, &CustomWidgetWidgetsWizardPage::slotClassAdded);
+    connect(m_ui->classList, &ClassList::classDeleted,
+            this, &CustomWidgetWidgetsWizardPage::slotClassDeleted);
+    connect(m_ui->classList, &ClassList::classRenamed,
+            this, &CustomWidgetWidgetsWizardPage::slotClassRenamed);
 
     setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Custom Widgets"));
 }
@@ -87,7 +93,7 @@ void CustomWidgetWidgetsWizardPage::slotCurrentRowChanged(int row)
     m_tabStackLayout->setCurrentIndex(row);
 }
 
-void CustomWidgetWidgetsWizardPage::on_classList_classAdded(const QString &name)
+void CustomWidgetWidgetsWizardPage::slotClassAdded(const QString &name)
 {
     auto *cdef = new ClassDefinition;
     cdef->setFileNamingParameters(m_fileNamingParameters);
@@ -96,12 +102,12 @@ void CustomWidgetWidgetsWizardPage::on_classList_classAdded(const QString &name)
     m_tabStackLayout->setCurrentIndex(index);
     m_uiClassDefs.append(cdef);
     cdef->enableButtons();
-    on_classList_classRenamed(index, name);
+    slotClassRenamed(index, name);
     // First class or collection class, re-check.
     slotCheckCompleteness();
 }
 
-void CustomWidgetWidgetsWizardPage::on_classList_classDeleted(int index)
+void CustomWidgetWidgetsWizardPage::slotClassDeleted(int index)
 {
     delete m_tabStackLayout->widget(index);
     m_uiClassDefs.removeAt(index);
@@ -109,7 +115,7 @@ void CustomWidgetWidgetsWizardPage::on_classList_classDeleted(int index)
         slotCheckCompleteness();
 }
 
-void CustomWidgetWidgetsWizardPage::on_classList_classRenamed(int index, const QString &name)
+void CustomWidgetWidgetsWizardPage::slotClassRenamed(int index, const QString &name)
 {
     m_uiClassDefs[index]->setClassName(name);
 }

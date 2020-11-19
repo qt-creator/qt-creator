@@ -7293,6 +7293,26 @@ void CppEditorPlugin::test_quickfix_removeUsingNamespace_data()
                     "}\n"
                     "foo foos;\n";
 
+    // like header1 but without "using namespace std;\n"
+    QByteArray expected1 = "namespace std{\n"
+                           "    template<typename T>\n"
+                           "    class vector{};\n"
+                           "    namespace chrono{\n"
+                           "        using seconds = int;\n"
+                           "    }\n"
+                           "}\n"
+                           "namespace test{\n"
+                           "    class vector{\n"
+                           "       std::vector<int> ints;\n"
+                           "    };\n"
+                           "}\n";
+
+    // like header2 but without "using namespace std;\n" and with std::vector
+    QByteArray expected2 = "#include \"header1.h\"\n"
+                           "using foo = test::vector;\n"
+                           "using namespace test;\n"
+                           "std::vector<int> others;\n";
+
     QByteArray expected3 = "#include \"header2.h\"\n"
                            "using namespace std::chrono;\n"
                            "namespace test{\n"
@@ -7313,22 +7333,18 @@ void CppEditorPlugin::test_quickfix_removeUsingNamespace_data()
     QTest::newRow("remove only in one file local")
         << header1 << header2 << h3 << header1 << header2 << expected3 << 0;
     QTest::newRow("remove only in one file globally")
-        << header1 << header2 << h3 << header1 << header2 << expected3 << 1;
+        << header1 << header2 << h3 << expected1 << expected2 << expected3 << 1;
 
     QByteArray h2 = "#include \"header1.h\"\n"
                     "using foo = test::vector;\n"
                     "using namespace s@td;\n"
                     "using namespace test;\n"
                     "vector<int> others;\n";
-    QByteArray expected2 = "#include \"header1.h\"\n"
-                           "using foo = test::vector;\n"
-                           "using namespace test;\n"
-                           "std::vector<int> others;\n";
 
     QTest::newRow("remove across two files only this")
         << header1 << h2 << header3 << header1 << expected2 << header3 << 0;
     QTest::newRow("remove across two files globally1")
-        << header1 << h2 << header3 << header1 << expected2 << expected3 << 1;
+        << header1 << h2 << header3 << expected1 << expected2 << expected3 << 1;
 
     QByteArray h1 = "namespace std{\n"
                     "    template<typename T>\n"
@@ -7343,18 +7359,6 @@ void CppEditorPlugin::test_quickfix_removeUsingNamespace_data()
                     "       std::vector<int> ints;\n"
                     "    };\n"
                     "}\n";
-    QByteArray expected1 = "namespace std{\n"
-                           "    template<typename T>\n"
-                           "    class vector{};\n"
-                           "    namespace chrono{\n"
-                           "        using seconds = int;\n"
-                           "    }\n"
-                           "}\n"
-                           "namespace test{\n"
-                           "    class vector{\n"
-                           "       std::vector<int> ints;\n"
-                           "    };\n"
-                           "}\n";
 
     QTest::newRow("remove across tree files only this")
         << h1 << header2 << header3 << expected1 << header2 << header3 << 0;
@@ -7409,6 +7413,15 @@ void CppEditorPlugin::test_quickfix_removeUsingNamespace_data()
 
     QTest::newRow("existing namespace")
         << header1 << h2 << header3 << header1 << expected2 << header3 << 1;
+
+    // test: remove using directive at global scope in every file
+    h1 = "using namespace tes@t;";
+    h2 = "using namespace test;";
+    h3 = "using namespace test;";
+
+    expected1 = expected2 = expected3 = "";
+    QTest::newRow("global scope remove in every file")
+        << h1 << h2 << h3 << expected1 << expected2 << expected3 << 1;
 }
 
 void CppEditorPlugin::test_quickfix_removeUsingNamespace()

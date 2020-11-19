@@ -212,12 +212,6 @@ BuildConfiguration *BuildStep::buildConfiguration() const
     if (config)
         return config;
 
-    // This situation should be avoided, as the step returned below is almost
-    // always not the right one, but the fallback is best we can do.
-    // A potential currently still valid path is accessing a build configuration
-    // from a BuildStep in a DeployConfiguration. Let's hunt those down and
-    // replace with explicit code there.
-    QTC_CHECK(false);
     // step is not part of a build configuration, use active build configuration of step's target
     return target()->activeBuildConfiguration();
 }

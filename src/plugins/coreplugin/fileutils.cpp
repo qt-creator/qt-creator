@@ -34,6 +34,7 @@
 #include <utils/consoleprocess.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcprocess.h>
 #include <utils/textfileformat.h>
 #include <utils/unixutils.h>
 
@@ -102,12 +103,23 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const QString &pathIn)
         // we cannot select a file here, because no file browser really supports it...
         const QString folder = fileInfo.isDir() ? fileInfo.absoluteFilePath() : fileInfo.filePath();
         const QString app = UnixUtils::fileBrowser(ICore::settings());
-        QProcess browserProc;
-        const QString browserArgs = UnixUtils::substituteFileBrowserParameters(app, folder);
-        bool success = browserProc.startDetached(browserArgs);
-        const QString error = QString::fromLocal8Bit(browserProc.readAllStandardError());
-        success = success && error.isEmpty();
-        if (!success)
+        QStringList browserArgs = Utils::QtcProcess::splitArgs(
+                    UnixUtils::substituteFileBrowserParameters(app, folder));
+        QString error;
+        if (browserArgs.isEmpty()) {
+            error = QApplication::translate("Core::Internal",
+                                            "The command for file browser is not set.");
+        } else {
+            QProcess browserProc;
+            browserProc.setProgram(browserArgs.takeFirst());
+            browserProc.setArguments(browserArgs);
+            const bool success = browserProc.startDetached();
+            error = QString::fromLocal8Bit(browserProc.readAllStandardError());
+            if (!success && error.isEmpty())
+                error = QApplication::translate("Core::Internal",
+                                                "Error while starting file browser.");
+        }
+        if (!error.isEmpty())
             showGraphicalShellError(parent, app, error);
     }
 }

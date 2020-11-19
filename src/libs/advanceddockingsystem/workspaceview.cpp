@@ -101,10 +101,10 @@ WorkspaceView::WorkspaceView(QWidget *parent)
     selectionModel()->select(firstRow, QItemSelectionModel::QItemSelectionModel::SelectCurrent);
 
     connect(this, &Utils::TreeView::activated, [this](const QModelIndex &index) {
-        emit activated(m_workspaceModel.workspaceAt(index.row()));
+        emit workspaceActivated(m_workspaceModel.workspaceAt(index.row()));
     });
     connect(selectionModel(), &QItemSelectionModel::selectionChanged, [this] {
-        emit selected(selectedWorkspaces());
+        emit workspacesSelected(selectedWorkspaces());
     });
 
     connect(&m_workspaceModel,

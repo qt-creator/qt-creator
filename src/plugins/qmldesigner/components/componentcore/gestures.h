@@ -3,7 +3,7 @@
 ** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of Qt Creator.
+** This file is part of the Qt Design Tooling
 **
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
@@ -22,44 +22,51 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+#pragma once
 
-import QtQuick3D 1.15
-import QtQuick3D.Effects 1.15
+#include <QGesture>
+#include <QGestureRecognizer>
+#include <QLineF>
 
-View3D {
-    id: root
-    anchors.fill: parent
-    environment: sceneEnv
+QT_FORWARD_DECLARE_CLASS(QTouchEvent)
 
-    property Effect previewEffect
+namespace QmlDesigner {
 
-    SceneEnvironment {
-        id: sceneEnv
-        antialiasingMode: SceneEnvironment.MSAA
-        antialiasingQuality: SceneEnvironment.High
-        effects: previewEffect
-    }
+class TwoFingerSwipe : public QGesture
+{
+    Q_OBJECT
 
-    Node {
-        DirectionalLight {
-            eulerRotation.x: -30
-            eulerRotation.y: -30
-        }
+public:
+    TwoFingerSwipe();
 
-        PerspectiveCamera {
-            z: 120
-            clipFar: 1000
-            clipNear: 1
-        }
+    static Qt::GestureType type();
+    static void registerRecognizer();
 
-        Model {
-            id: model
-            source: "#Sphere"
-            materials: [
-                DefaultMaterial {
-                    diffuseColor: "#4aee45"
-                }
-            ]
-        }
-    }
-}
+    QPointF direction() const;
+
+    void reset();
+    QGestureRecognizer::Result begin(QTouchEvent *event);
+    QGestureRecognizer::Result update(QTouchEvent *event);
+    QGestureRecognizer::Result end(QTouchEvent *event);
+
+private:
+    static Qt::GestureType m_type;
+
+    QLineF m_start;
+    QLineF m_current;
+    QLineF m_last;
+};
+
+class TwoFingerSwipeRecognizer : public QGestureRecognizer
+{
+public:
+    TwoFingerSwipeRecognizer();
+
+    QGesture *create(QObject *target) override;
+
+    QGestureRecognizer::Result recognize(QGesture *gesture, QObject *watched, QEvent *event) override;
+
+    void reset(QGesture *gesture) override;
+};
+
+} // namespace QmlDesigner

@@ -74,7 +74,7 @@ public:
     ~DiagnosticItem() override;
 
     const Diagnostic &diagnostic() const { return m_diagnostic; }
-    TextEditor::TextMark *textMark() { return m_mark; }
+    void setTextMarkVisible(bool visible);
 
     FixitStatus fixItStatus() const { return m_fixitStatus; }
     void setFixItStatus(const FixitStatus &status);

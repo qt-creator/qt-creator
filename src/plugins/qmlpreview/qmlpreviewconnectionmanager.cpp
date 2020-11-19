@@ -88,7 +88,7 @@ QUrl QmlPreviewConnectionManager::findValidI18nDirectoryAsUrl(const QString &loc
         auto tryPath = [&](const QString &postfix) {
             url.setPath(path + "/i18n/qml_" + postfix);
             bool success = false;
-            foundPath = m_projectFileFinder.findFile(url, &success).first().toString();
+            foundPath = m_projectFileFinder.findFile(url, &success).constFirst().toString();
             foundPath = foundPath.left(qMax(0, foundPath.lastIndexOf("/i18n")));
             return success;
         };

@@ -63,7 +63,7 @@
     or create them from scratch using the following wizards:
 
     \list
-        \li \uicontrol {MCU Support Application} creates an application that
+        \li \uicontrol {Qt for MCUs Application} creates an application that
             uses a subset of \l{Qt QML} and \l{Qt Quick Controls} types (as
             supported by Qt for MCUs) that you can deploy, run, and debug on
             MCU boards.

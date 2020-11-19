@@ -94,8 +94,6 @@ public:
     bool m_didAttemptToRun = false;
     bool m_didRun = true;
 
-    bool m_triedCapabilities = false;
-
     QList<CMakeTool::Generator> m_generators;
     QMap<QString, QStringList> m_functionArgs;
     QVector<FileApi> m_fileApis;
@@ -320,7 +318,7 @@ QVector<std::pair<QString, int>> CMakeTool::supportedFileApiObjects() const
 
 CMakeTool::Version CMakeTool::version() const
 {
-    return isValid() ? m_introspection->m_version : CMakeTool::Version();
+    return m_introspection ? m_introspection->m_version : CMakeTool::Version();
 }
 
 bool CMakeTool::isAutoDetected() const
@@ -393,7 +391,6 @@ void CMakeTool::readInformation() const
     m_introspection->m_didAttemptToRun = true;
 
     fetchFromCapabilities();
-    m_introspection->m_triedCapabilities = true;
 }
 
 static QStringList parseDefinition(const QString &definition)

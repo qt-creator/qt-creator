@@ -424,7 +424,7 @@ namespace ADS
         if (areaWidget)
             return addDockWidget(ADS::CenterDockWidgetArea, dockWidget, areaWidget);
         else if (!openedDockAreas().isEmpty())
-            return addDockWidget(area, dockWidget, openedDockAreas().last());
+            return addDockWidget(area, dockWidget, openedDockAreas().constLast());
         else
             return addDockWidget(area, dockWidget, nullptr);
     }

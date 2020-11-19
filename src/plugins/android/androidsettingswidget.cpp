@@ -327,7 +327,8 @@ void AndroidSettingsWidget::updateNdkList()
 
 void AndroidSettingsWidget::addCustomNdkItem()
 {
-    const QString homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation).first();
+    const QString homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation)
+            .constFirst();
     const QString ndkPath = QFileDialog::getExistingDirectory(this, tr("Select an NDK"), homePath);
 
     if (m_androidConfig.isValidNdk(ndkPath)) {

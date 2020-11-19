@@ -23,13 +23,13 @@
 **
 ****************************************************************************/
 
-#include "designeractionmanager.h"
 #include "formeditorwidget.h"
-#include "formeditorscene.h"
-#include "qmldesignerplugin.h"
+#include "designeractionmanager.h"
 #include "designersettings.h"
+#include "formeditorscene.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignericons.h"
+#include "qmldesignerplugin.h"
 #include "viewmanager.h"
 #include <model.h>
 #include <theme.h>
@@ -39,16 +39,16 @@
 #include <formeditorscene.h>
 #include <formeditorview.h>
 #include <lineeditaction.h>
-#include <zoomaction.h>
 #include <toolbox.h>
+#include <zoomaction.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
 
 #include <utils/fileutils.h>
-#include <utils/utilsicons.h>
 #include <utils/stylehelper.h>
+#include <utils/utilsicons.h>
 
 #include <QActionGroup>
 #include <QFileDialog>
@@ -59,8 +59,8 @@
 
 namespace QmlDesigner {
 
-FormEditorWidget::FormEditorWidget(FormEditorView *view) :
-    m_formEditorView(view)
+FormEditorWidget::FormEditorWidget(FormEditorView *view)
+    : m_formEditorView(view)
 {
     Core::Context context(Constants::C_QMLFORMEDITOR);
     m_context = new Core::IContext(this);
@@ -72,7 +72,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     fillLayout->setSpacing(0);
     setLayout(fillLayout);
 
-    QList<QAction*> upperActions;
+    QList<QAction *> upperActions;
 
     m_toolActionGroup = new QActionGroup(this);
 
@@ -128,7 +128,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     addAction(m_rootWidthAction.data());
     upperActions.append(m_rootWidthAction.data());
 
-    m_rootHeightAction =  new LineEditAction(tr("Override Height"), this);
+    m_rootHeightAction = new LineEditAction(tr("Override Height"), this);
     m_rootHeightAction->setToolTip(tr("Override height of root item."));
     connect(m_rootHeightAction.data(), &LineEditAction::textChanged,
             this, &FormEditorWidget::changeRootItemHeight);
@@ -150,9 +150,8 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     const QString fontName = "qtds_propertyIconFont.ttf";
     const QColor textColorNormal(Theme::getColor(Theme::MenuItemTextColorNormal));
     const QColor textColorDisabled(Theme::getColor(Theme::MenuBarItemTextColorDisabled));
-    const QIcon zoomAllIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
-                                                                      Theme::getIconUnicode(Theme::Icon::zoomAll),
-                                                                      28, 28, textColorNormal);
+    const QIcon zoomAllIcon = Utils::StyleHelper::getIconFromIconFont(
+        fontName, Theme::getIconUnicode(Theme::Icon::zoomAll), 28, 28, textColorNormal);
 
     const QString zoomSelectionUnicode = Theme::getIconUnicode(Theme::Icon::zoomSelection);
     const auto zoomSelectionNormal = Utils::StyleHelper::IconFontHelper(zoomSelectionUnicode,
@@ -167,68 +166,101 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     const QIcon zoomSelectionIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
                                                                             {zoomSelectionNormal,
                                                                              zoomSelectionDisabeld});
-    const QIcon zoomInIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
-                                                                     Theme::getIconUnicode(Theme::Icon::zoomIn),
-                                                                     28, 28, textColorNormal);
-    const QIcon zoomOutIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
-                                                                      Theme::getIconUnicode(Theme::Icon::zoomOut),
-                                                                      28, 28, textColorNormal);
+    const QIcon zoomInIcon = Utils::StyleHelper::getIconFromIconFont(
+        fontName, Theme::getIconUnicode(Theme::Icon::zoomIn), 28, 28, textColorNormal);
+    const QIcon zoomOutIcon = Utils::StyleHelper::getIconFromIconFont(
+        fontName, Theme::getIconUnicode(Theme::Icon::zoomOut), 28, 28, textColorNormal);
+
+    auto writeZoomLevel = [this]() {
+        double level = m_graphicsView->transform().m11();
+        if (level == 1.0) {
+            if (m_formEditorView->rootModelNode().hasAuxiliaryData("formeditorZoom"))
+                m_formEditorView->rootModelNode().setAuxiliaryData("formeditorZoom", {});
+        } else {
+            m_formEditorView->rootModelNode().setAuxiliaryData("formeditorZoom", level);
+        }
+    };
+
+    auto setZoomLevel = [this, writeZoomLevel](double level) {
+        if (m_graphicsView) {
+            m_graphicsView->setZoomFactor(level);
+            writeZoomLevel();
+        }
+    };
+
+    auto zoomIn = [this, writeZoomLevel]() {
+        if (m_graphicsView) {
+            double zoom = m_graphicsView->transform().m11();
+            zoom = m_zoomAction->setNextZoomFactor(zoom);
+            m_graphicsView->setZoomFactor(zoom);
+            writeZoomLevel();
+        }
+    };
+
+    auto zoomOut = [this, writeZoomLevel]() {
+        if (m_graphicsView) {
+            double zoom = m_graphicsView->transform().m11();
+            zoom = m_zoomAction->setPreviousZoomFactor(zoom);
+            m_graphicsView->setZoomFactor(zoom);
+            writeZoomLevel();
+        }
+    };
+
+    auto frameAll = [this, zoomOut]() {
+        if (m_graphicsView) {
+            m_graphicsView->frame(m_graphicsView->rootItemRect());
+            zoomOut();
+        }
+    };
+
+    auto frameSelection = [this, zoomOut]() {
+        if (m_graphicsView) {
+            QRectF boundingRect;
+            const QList<ModelNode> nodeList = m_formEditorView->selectedModelNodes();
+            for (const ModelNode &node : nodeList) {
+                if (FormEditorItem *item = m_formEditorView->scene()->itemForQmlItemNode(node))
+                    boundingRect |= item->sceneBoundingRect();
+            }
+            m_graphicsView->frame(boundingRect);
+            zoomOut();
+        }
+    };
 
     m_zoomInAction = new QAction(zoomInIcon, tr("Zoom in"), this);
     m_zoomInAction->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_Plus));
-    connect(m_zoomInAction.data(), &QAction::triggered, this, [this] {
-        if (!m_formEditorView)
-            return;
-
-        m_formEditorView->emitCustomNotification(QStringLiteral("zoom in"));
-    });
     addAction(m_zoomInAction.data());
     upperActions.append(m_zoomInAction.data());
     m_toolBox->addRightSideAction(m_zoomInAction.data());
+    connect(m_zoomInAction.data(), &QAction::triggered, zoomIn);
 
     m_zoomOutAction = new QAction(zoomOutIcon, tr("Zoom out"), this);
     m_zoomOutAction->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_Minus));
-    connect(m_zoomOutAction.data(), &QAction::triggered, this, [this] {
-        if (!m_formEditorView)
-            return;
-
-        m_formEditorView->emitCustomNotification(QStringLiteral("zoom out"));
-    });
     addAction(m_zoomOutAction.data());
     upperActions.append(m_zoomOutAction.data());
     m_toolBox->addRightSideAction(m_zoomOutAction.data());
+    connect(m_zoomOutAction.data(), &QAction::triggered, zoomOut);
 
     m_zoomAction = new ZoomAction(m_toolActionGroup.data());
-    connect(m_zoomAction.data(), &ZoomAction::zoomLevelChanged,
-            this, &FormEditorWidget::setZoomLevel);
     addAction(m_zoomAction.data());
     upperActions.append(m_zoomAction.data());
     m_toolBox->addRightSideAction(m_zoomAction.data());
+    connect(m_zoomAction.data(), &ZoomAction::zoomLevelChanged, setZoomLevel);
 
     m_zoomAllAction = new QAction(zoomAllIcon, tr("Zoom screen to fit all content"), this);
     m_zoomAllAction->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_0));
-    connect(m_zoomAllAction.data(), &QAction::triggered, this, [this] {
-        if (!m_formEditorView)
-            return;
-
-        m_formEditorView->emitCustomNotification(QStringLiteral("zoom all"));
-    });
     addAction(m_zoomAllAction.data());
     upperActions.append(m_zoomAllAction.data());
     m_toolBox->addRightSideAction(m_zoomAllAction.data());
+    connect(m_zoomAllAction.data(), &QAction::triggered, frameAll);
 
-    m_zoomSelectionAction = new QAction(zoomSelectionIcon, tr("Zoom screen to fit current selection"), this);
+    m_zoomSelectionAction = new QAction(zoomSelectionIcon,
+                                        tr("Zoom screen to fit current selection"),
+                                        this);
     m_zoomSelectionAction->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_I));
-    connect(m_zoomSelectionAction.data(), &QAction::triggered, this, [this] {
-        if (!m_formEditorView)
-            return;
-
-        m_formEditorView->emitCustomNotification(QStringLiteral("zoom selection"),
-                                                 m_formEditorView->selectedModelNodes());
-    });
     addAction(m_zoomSelectionAction.data());
     upperActions.append(m_zoomSelectionAction.data());
     m_toolBox->addRightSideAction(m_zoomSelectionAction.data());
+    connect(m_zoomSelectionAction.data(), &QAction::triggered, frameSelection);
 
     m_resetAction = new QAction(Utils::Icons::RESET_TOOLBAR.icon(), tr("Reset View"), this);
     registerActionAsCommand(m_resetAction, Constants::FORMEDITOR_REFRESH, QKeySequence(Qt::Key_R));
@@ -238,6 +270,10 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     m_toolBox->addRightSideAction(m_resetAction.data());
 
     m_graphicsView = new FormEditorGraphicsView(this);
+    auto applyZoom = [this](double zoom) { zoomAction()->setZoomFactor(zoom); };
+    connect(m_graphicsView, &FormEditorGraphicsView::zoomChanged, applyZoom);
+    connect(m_graphicsView, &FormEditorGraphicsView::zoomIn, zoomIn);
+    connect(m_graphicsView, &FormEditorGraphicsView::zoomOut, zoomOut);
 
     fillLayout->addWidget(m_graphicsView.data());
 
@@ -293,49 +329,45 @@ void FormEditorWidget::registerActionAsCommand(QAction *action, Utils::Id id, co
     command->augmentActionWithShortcutToolTip(action);
 }
 
-void FormEditorWidget::wheelEvent(QWheelEvent *event)
+void FormEditorWidget::initialize()
 {
-    if (event->modifiers().testFlag(Qt::ControlModifier)) {
-        if (event->angleDelta().y() > 0)
-            zoomAction()->zoomIn();
-        else
-            zoomAction()->zoomOut();
-
-        event->accept();
-    } else {
-        QWidget::wheelEvent(event);
+    double defaultZoom = 1.0;
+    if (m_formEditorView->model() && m_formEditorView->rootModelNode().isValid()) {
+        if (m_formEditorView->rootModelNode().hasAuxiliaryData("formeditorZoom"))
+            defaultZoom = m_formEditorView->rootModelNode().auxiliaryData("formeditorZoom").toDouble();
     }
-
+    m_graphicsView->setZoomFactor(defaultZoom);
+    m_zoomAction->setZoomFactor(defaultZoom);
+    updateActions();
 }
 
 void FormEditorWidget::updateActions()
 {
     if (m_formEditorView->model() && m_formEditorView->rootModelNode().isValid()) {
-        if (m_formEditorView->rootModelNode().hasAuxiliaryData("width") && m_formEditorView->rootModelNode().auxiliaryData("width").isValid())
-            m_rootWidthAction->setLineEditText(m_formEditorView->rootModelNode().auxiliaryData("width").toString());
+        if (m_formEditorView->rootModelNode().hasAuxiliaryData("width")
+            && m_formEditorView->rootModelNode().auxiliaryData("width").isValid())
+            m_rootWidthAction->setLineEditText(
+                m_formEditorView->rootModelNode().auxiliaryData("width").toString());
         else
             m_rootWidthAction->clearLineEditText();
-        if (m_formEditorView->rootModelNode().hasAuxiliaryData("height") && m_formEditorView->rootModelNode().auxiliaryData("height").isValid())
-            m_rootHeightAction->setLineEditText(m_formEditorView->rootModelNode().auxiliaryData("height").toString());
+        if (m_formEditorView->rootModelNode().hasAuxiliaryData("height")
+            && m_formEditorView->rootModelNode().auxiliaryData("height").isValid())
+            m_rootHeightAction->setLineEditText(
+                m_formEditorView->rootModelNode().auxiliaryData("height").toString());
         else
             m_rootHeightAction->clearLineEditText();
 
         if (m_formEditorView->rootModelNode().hasAuxiliaryData("formeditorColor"))
-            m_backgroundAction->setColor(m_formEditorView->rootModelNode().auxiliaryData("formeditorColor").value<QColor>());
+            m_backgroundAction->setColor(
+                m_formEditorView->rootModelNode().auxiliaryData("formeditorColor").value<QColor>());
         else
             m_backgroundAction->setColor(Qt::transparent);
-
-        if (m_formEditorView->rootModelNode().hasAuxiliaryData("formeditorZoom"))
-            m_zoomAction->setZoomLevel(m_formEditorView->rootModelNode().auxiliaryData("formeditorZoom").toDouble());
-        else
-            m_zoomAction->setZoomLevel(1.0);
 
     } else {
         m_rootWidthAction->clearLineEditText();
         m_rootHeightAction->clearLineEditText();
     }
 }
-
 
 void FormEditorWidget::resetView()
 {
@@ -371,8 +403,8 @@ void FormEditorWidget::hideErrorMessageBox()
 
 void FormEditorWidget::showWarningMessageBox(const QList<DocumentMessage> &warnings)
 {
-      if (!errorWidget()->warningsEnabled())
-          return;
+    if (!errorWidget()->warningsEnabled())
+        return;
 
     errorWidget()->setWarnings(warnings);
     errorWidget()->setVisible(true);
@@ -408,20 +440,6 @@ QAction *FormEditorWidget::snappingAndAnchoringAction() const
     return m_snappingAndAnchoringAction.data();
 }
 
-void FormEditorWidget::setZoomLevel(double zoomLevel)
-{
-    m_graphicsView->resetTransform();
-
-    m_graphicsView->scale(zoomLevel, zoomLevel);
-
-    if (zoomLevel == 1.0) {
-        if (m_formEditorView->rootModelNode().hasAuxiliaryData("formeditorZoom"))
-            m_formEditorView->rootModelNode().setAuxiliaryData("formeditorZoom", {});
-    } else {
-        m_formEditorView->rootModelNode().setAuxiliaryData("formeditorZoom", zoomLevel);
-    }
-}
-
 void FormEditorWidget::setScene(FormEditorScene *scene)
 {
     m_graphicsView->setScene(scene);
@@ -434,7 +452,7 @@ QActionGroup *FormEditorWidget::toolActionGroup() const
 
 ToolBox *FormEditorWidget::toolBox() const
 {
-     return m_toolBox.data();
+    return m_toolBox.data();
 }
 
 double FormEditorWidget::spacing() const
@@ -510,10 +528,11 @@ DocumentWarningWidget *FormEditorWidget::errorWidget()
 {
     if (m_documentErrorWidget.isNull()) {
         m_documentErrorWidget = new DocumentWarningWidget(this);
-        connect(m_documentErrorWidget.data(), &DocumentWarningWidget::gotoCodeClicked, [=]
-            (const QString &, int codeLine, int codeColumn) {
-            m_formEditorView->gotoError(codeLine, codeColumn);
-        });
+        connect(m_documentErrorWidget.data(),
+                &DocumentWarningWidget::gotoCodeClicked,
+                [=](const QString &, int codeLine, int codeColumn) {
+                    m_formEditorView->gotoError(codeLine, codeColumn);
+                });
     }
     return m_documentErrorWidget;
 }

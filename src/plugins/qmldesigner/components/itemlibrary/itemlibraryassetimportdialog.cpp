@@ -129,7 +129,7 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(const QStringList &im
         if (importPath.startsWith(targetDir)) {
             const bool isDefaultFolder = importPath.endsWith(defaultAssetFolder);
             const QString assetFolder = importPath + quick3DFolder;
-            const bool exists = QFileInfo(assetFolder).exists();
+            const bool exists = QFileInfo::exists(assetFolder);
             if (exists) {
                 if (isDefaultFolder) {
                     // Priority one location, stop looking

@@ -99,7 +99,7 @@ BookmarkDialog::BookmarkDialog(BookmarkManager *manager, const QString &title,
             this, &BookmarkDialog::selectBookmarkFolder);
 
     connect(ui.treeView, &TreeView::customContextMenuRequested,
-            this, &BookmarkDialog::customContextMenuRequested);
+            this, &BookmarkDialog::showContextMenu);
 
     connect(ui.treeView->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &BookmarkDialog::currentChanged);
@@ -208,7 +208,7 @@ void BookmarkDialog::selectBookmarkFolder(int index)
     }
 }
 
-void BookmarkDialog::customContextMenuRequested(const QPoint &point)
+void BookmarkDialog::showContextMenu(const QPoint &point)
 {
     QModelIndex index = ui.treeView->indexAt(point);
     if (!index.isValid())

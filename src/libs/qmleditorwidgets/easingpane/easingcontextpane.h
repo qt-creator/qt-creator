@@ -73,13 +73,13 @@ private:
     EasingSimulation *m_simulation;
 
 private slots:
-    void on_playButton_clicked();
-    void on_overshootSpinBox_valueChanged(double);
-    void on_periodSpinBox_valueChanged(double);
-    void on_amplitudeSpinBox_valueChanged(double);
-    void on_easingExtremesComboBox_currentIndexChanged(int);
-    void on_easingShapeComboBox_currentIndexChanged(int);
-    void on_durationSpinBox_valueChanged(int);
+    void playClicked();
+    void overshootChanged(double);
+    void periodChanged(double);
+    void amplitudeChanged(double);
+    void easingExtremesChanged(int);
+    void easingShapeChanged(int);
+    void durationChanged(int);
 
     void switchToGraph();
 };

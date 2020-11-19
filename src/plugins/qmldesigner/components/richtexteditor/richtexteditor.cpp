@@ -370,7 +370,7 @@ void RichTextEditor::setupHyperlinkActions()
         if (linkFormat.isAnchor()) {
             m_linkDialog->setLink(linkFormat.anchorHref());
             m_linkDialog->setAnchor(
-                linkFormat.anchorNames().isEmpty() ? QString() : linkFormat.anchorNames().first());
+                linkFormat.anchorNames().isEmpty() ? QString() : linkFormat.anchorNames().constFirst());
         }
         else {
             m_linkDialog->setLink("http://");

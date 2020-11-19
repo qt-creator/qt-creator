@@ -290,7 +290,8 @@ void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
 
     QList<FormattedText> formattedText = parseAnsi(text, charFmt);
     const QString cleanLine = std::accumulate(formattedText.begin(), formattedText.end(), QString(),
-            [](const FormattedText &t1, const FormattedText &t2) { return t1.text + t2.text; });
+            [](const FormattedText &t1, const FormattedText &t2) -> QString
+            { return t1.text + t2.text; });
     QList<OutputLineParser *> involvedParsers;
     const OutputLineParser::Result res = handleMessage(cleanLine, format, involvedParsers);
 

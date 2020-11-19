@@ -245,7 +245,7 @@ void TestTreeModel::synchronizeTestFrameworks()
         qCDebug(LOG) << "Active frameworks sorted by priority" << sorted;
     } else { // we've got custom project settings
         const TestProjectSettings *settings = AutotestPlugin::projectSettings(project);
-        const QMap<ITestFramework *, bool> active = settings->activeFrameworks();
+        const QHash<ITestFramework *, bool> active = settings->activeFrameworks();
         sorted = Utils::filtered(active.keys(), [active](ITestFramework *framework) {
             return active.value(framework);
         });

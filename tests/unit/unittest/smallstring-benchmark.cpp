@@ -42,8 +42,10 @@ Utils::SmallStringView createText(int size)
 }
 
 void CreateSmallStringLiteral(benchmark::State& state) {
-    while (state.KeepRunning())
+    while (state.KeepRunning()) {
         constexpr auto string = Utils::SmallStringLiteral("very very very long long long text");
+        Q_UNUSED(string)
+    }
 }
 BENCHMARK(CreateSmallStringLiteral);
 
@@ -168,7 +170,7 @@ void Size(benchmark::State& state) {
     while (state.KeepRunning())
         benchmark::DoNotOptimize(text.size());
 }
-BENCHMARK(LongSize);
+BENCHMARK(Size);
 
 void generateRandomString(char *data, const int length)
 {
@@ -200,7 +202,7 @@ void Collection_CreateQByteArrays(benchmark::State& state)
         QVector<QByteArray> values;
         values.reserve(entryCount);
 
-        for (int i = 0; i < entryCount; i++)
+        for (int i = 0; i < int(entryCount); i++)
             values.append(generateRandomQByteArray());
     }
 }
@@ -214,7 +216,7 @@ void Collection_SortQByteArrays(benchmark::State& state)
         QVector<QByteArray> values;
         values.reserve(entryCount);
 
-        for (int i = 0; i < entryCount; i++)
+        for (int i = 0; i < int(entryCount); i++)
             values.append(generateRandomQByteArray());
 
         state.ResumeTiming();
@@ -234,7 +236,7 @@ void Collection_FilterQByteArrays(benchmark::State& state)
         QVector<QByteArray> filteredValues;
         filteredValues.reserve(entryCount);
 
-        for (int i = 0; i < entryCount; i++)
+        for (int i = 0; i < int(entryCount); i++)
             values.append(generateRandomQByteArray());
 
         auto startsWithA = [] (const QByteArray &byteArray) {
@@ -267,7 +269,7 @@ void Collection_CreateSmallStrings(benchmark::State& state)
         Utils::SmallStringVector values;
         values.reserve(entryCount);
 
-        for (int i = 0; i < entryCount; i++)
+        for (int i = 0; i < int(entryCount); i++)
             values.push_back(generateRandomSmallString());
     }
 }
@@ -281,7 +283,7 @@ void Collection_SortSmallStrings(benchmark::State& state)
         Utils::SmallStringVector values;
         values.reserve(entryCount);
 
-        for (int i = 0; i < entryCount; i++)
+        for (int i = 0; i < int(entryCount); i++)
             values.push_back(generateRandomSmallString());
 
         state.ResumeTiming();
@@ -301,7 +303,7 @@ void Collection_FilterSmallStrings(benchmark::State& state)
         Utils::SmallStringVector filteredValues;
         filteredValues.reserve(entryCount);
 
-        for (int i = 0; i < entryCount; i++)
+        for (int i = 0; i < int(entryCount); i++)
             values.push_back(generateRandomSmallString());
 
         auto startsWithA = [] (const Utils::SmallString &byteArray) {

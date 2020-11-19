@@ -37,7 +37,6 @@
 QT_BEGIN_NAMESPACE
 class QChar;
 class QFileInfo;
-class QStringRef;
 class QTextCursor;
 QT_END_NAMESPACE
 

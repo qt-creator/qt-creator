@@ -28,6 +28,7 @@ import QtQuick.Controls 2.3
 import StudioFonts 1.0
 import QtQuick.Layouts 1.0
 import projectmodel 1.0
+import usagestatistics 1.0
 
 Image {
     id: welcome_splash
@@ -249,5 +250,21 @@ Image {
         ProjectModel {
             id: projectModel
         }
+
+        UsageStatisticModel {
+            id: usageStatisticModel
+        }
+    }
+
+    NoShowCheckbox {
+        id: usageStatisticCheckBox
+        x: -47
+        y: 391
+        text: "Enable Usage Statistics"
+        padding: 0
+        scale: 0.5
+        checked: usageStatisticModel.usageStatisticEnabled
+
+        onCheckedChanged: usageStatisticModel.setPluginEnabled(usageStatisticCheckBox.checked)
     }
 }

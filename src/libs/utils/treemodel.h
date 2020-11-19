@@ -207,8 +207,8 @@ protected:
     void destroyItem(TreeItem *item); // item is destroyed.
 
 signals:
-    void requestExpansion(QModelIndex);
-    void requestCollapse(QModelIndex);
+    void requestExpansion(const QModelIndex &);
+    void requestCollapse(const QModelIndex &);
 
 protected:
     friend class TreeItem;

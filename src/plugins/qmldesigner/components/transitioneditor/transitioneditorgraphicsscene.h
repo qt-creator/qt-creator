@@ -56,12 +56,6 @@ class TransitionEditorPropertyItem;
 class TransitionEditorGraphicsScene : public AbstractScrollGraphicsScene
 {
     Q_OBJECT
-
-signals:
-    void selectionChanged();
-
-    void scroll(const TimelineUtils::Side &side);
-
 public:
     explicit TransitionEditorGraphicsScene(TransitionEditorWidget *parent);
 
@@ -118,9 +112,6 @@ public:
     void setSelectedPropertyItem(TransitionEditorPropertyItem *item);
 
     void invalidateScrollbar() override;
-
-signals:
-    void statusBarMessageChanged(const QString &message);
 
 protected:
     bool event(QEvent *event) override;

@@ -155,7 +155,7 @@ void SearchWidget::showEvent(QShowEvent *event)
         connect(searchEngine, &QHelpSearchEngine::indexingFinished, this,
             &SearchWidget::indexingFinished);
 
-        QMetaObject::invokeMethod(&LocalHelpManager::helpEngine(), "setupFinished",
+        QMetaObject::invokeMethod(&LocalHelpManager::helpEngine(), &QHelpEngine::setupFinished,
             Qt::QueuedConnection);
     }
 }

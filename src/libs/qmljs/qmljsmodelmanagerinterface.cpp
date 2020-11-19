@@ -1250,8 +1250,7 @@ void ModelManagerInterface::maybeQueueCppQmlTypeUpdate(const CPlusPlus::Document
         doc->releaseSourceAndAST();
 
     // delegate actual queuing to the gui thread
-    QMetaObject::invokeMethod(this, "queueCppQmlTypeUpdate",
-                              Q_ARG(CPlusPlus::Document::Ptr, doc), Q_ARG(bool, scan));
+    QMetaObject::invokeMethod(this, [=] { queueCppQmlTypeUpdate(doc, scan); });
 }
 
 void ModelManagerInterface::queueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc, bool scan)
@@ -1392,7 +1391,7 @@ void ModelManagerInterface::updateCppQmlTypes(
     qmlModelManager->m_cppDeclarationFiles = newDeclarations;
     if (hasNewInfo)
         // one could get away with re-linking the cpp types...
-        QMetaObject::invokeMethod(qmlModelManager, "asyncReset");
+        QMetaObject::invokeMethod(qmlModelManager, &ModelManagerInterface::asyncReset);
 }
 
 ModelManagerInterface::CppDataHash ModelManagerInterface::cppData() const

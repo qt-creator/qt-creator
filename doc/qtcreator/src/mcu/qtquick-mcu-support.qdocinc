@@ -1,0 +1,45 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+//! [mcu qtquick components]
+
+    \section1 Creating UIs for MCUs
+
+    \l{Qt for MCUs} enables you to use subsets of QML and Qt Quick Controls
+    types to create UIs for devices that are powered by microcontroller units
+    (MCU). The subset of supported types depends on the Qt for MCUs version
+    that you use for development. In this manual, we indicate which components
+    are supported at the time of writing, but you should always check the
+    \l{Qt for MCUs - All QML Types}{listing of supported QML types} for the
+    latest state.
+
+    To develop for MCUs, \l{Using Project Wizards}{create an MCU project}.
+    Only a subset of properties is supported for the supported types. The
+    properties that are not available on MCUs are marked in the
+    \uicontrol Properties view by enclosing them in square brackets.
+
+//! [mcu qtquick components]
+*/

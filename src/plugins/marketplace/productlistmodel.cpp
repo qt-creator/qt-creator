@@ -193,7 +193,7 @@ SectionedProducts::SectionedProducts(QWidget *parent)
 
 SectionedProducts::~SectionedProducts()
 {
-    qDeleteAll(m_gridViews.values());
+    qDeleteAll(m_gridViews);
     delete m_productDelegate;
     delete m_gridModel;
 }

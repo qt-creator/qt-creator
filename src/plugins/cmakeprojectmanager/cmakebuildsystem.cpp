@@ -394,6 +394,12 @@ void CMakeBuildSystem::setParametersAndRequestParse(const BuildDirParameters &pa
                             tr("The kit needs to define a CMake tool to parse this project.")));
         return;
     }
+    if (!parameters.cmakeTool()->hasFileApi()) {
+        TaskHub::addTask(BuildSystemTask(Task::Error,
+                                         CMakeKitAspect::msgUnsupportedVersion(
+                                             parameters.cmakeTool()->version().fullVersion)));
+        return;
+    }
     QTC_ASSERT(parameters.isValid(), return );
 
     m_parameters = parameters;

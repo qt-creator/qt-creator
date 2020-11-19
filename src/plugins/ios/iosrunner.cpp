@@ -369,11 +369,6 @@ void IosRunSupport::start()
     IosRunner::start();
 }
 
-void IosRunSupport::stop()
-{
-    IosRunner::stop();
-}
-
 //
 // IosQmlProfilerSupport
 //

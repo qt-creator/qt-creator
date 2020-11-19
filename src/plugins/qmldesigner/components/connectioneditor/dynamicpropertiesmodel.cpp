@@ -280,6 +280,7 @@ void DynamicPropertiesModel::bindingRemoved(const BindingProperty &bindingProper
 
 void DynamicPropertiesModel::selectionChanged(const QList<ModelNode> &selectedNodes)
 {
+    Q_UNUSED(selectedNodes)
     m_handleDataChanged = false;
     resetModel();
     m_handleDataChanged = true;

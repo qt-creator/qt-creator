@@ -67,7 +67,7 @@ namespace ADS {
 
         QFontMetrics fm = q->fontMetrics();
         QString str = fm.elidedText(m_text, m_elideMode, width - q->margin() * 2 - q->indent());
-        if (str == QChar(0x2026))
+        if (str == u'\u2026')
             str = m_text.at(0);
 
         bool wasElided = m_isElided;

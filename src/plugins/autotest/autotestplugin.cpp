@@ -174,7 +174,7 @@ AutotestPluginPrivate::AutotestPluginPrivate()
 AutotestPluginPrivate::~AutotestPluginPrivate()
 {
     if (!s_projectSettings.isEmpty()) {
-        qDeleteAll(s_projectSettings.values());
+        qDeleteAll(s_projectSettings);
         s_projectSettings.clear();
     }
 

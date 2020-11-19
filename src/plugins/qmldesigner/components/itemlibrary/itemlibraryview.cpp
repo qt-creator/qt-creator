@@ -164,6 +164,11 @@ void ItemLibraryView::setResourcePath(const QString &resourcePath)
     m_widget->setResourcePath(resourcePath);
 }
 
+ImageCache &ItemLibraryView::imageCache()
+{
+    return m_imageCacheData->cache;
+}
+
 void ItemLibraryView::documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &)
 {
     if (m_hasErrors && errors.isEmpty())

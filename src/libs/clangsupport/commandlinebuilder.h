@@ -26,6 +26,7 @@
 #pragma once
 
 #include "filepath.h"
+#include "nativefilepath.h"
 
 #include <compilermacro.h>
 #include <includesearchpath.h>

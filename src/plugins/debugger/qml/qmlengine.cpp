@@ -2447,7 +2447,7 @@ QString QmlEngine::toFileInProject(const QUrl &fileUrl)
     d->fileFinder.setAdditionalSearchDirectories(rp.additionalSearchDirectories);
     d->fileFinder.setSysroot(rp.sysRoot);
 
-    return d->fileFinder.findFile(fileUrl).first().toString();
+    return d->fileFinder.findFile(fileUrl).constFirst().toString();
 }
 
 DebuggerEngine *createQmlEngine()

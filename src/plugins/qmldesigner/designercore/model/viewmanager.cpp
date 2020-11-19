@@ -453,6 +453,11 @@ void ViewManager::enableStandardViews()
     attachViewsExceptRewriterAndComponetView();
 }
 
+ImageCache &ViewManager::imageCache()
+{
+    return d->itemLibraryView.imageCache();
+}
+
 } // namespace QmlDesigner
 
 #endif //QMLDESIGNER_TEST

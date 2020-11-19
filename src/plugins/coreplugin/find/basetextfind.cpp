@@ -451,6 +451,9 @@ QTextCursor BaseTextFind::findOne(const QRegularExpression &expr,
         if (!inScope(candidate.selectionStart(), candidate.selectionEnd()))
             return candidate;
         bool inVerticalFindScope = false;
+        // This code relies on the fact, that we have to keep TextEditorWidget subclass
+        // inside d->m_plaineditor which is of QPlainTextEdit class. So we can't
+        // transform it into a typed version now, as it relies on a dynamic match.
         QMetaObject::invokeMethod(d->m_plaineditor, "inFindScope", Qt::DirectConnection,
                                   Q_RETURN_ARG(bool, inVerticalFindScope),
                                   Q_ARG(QTextCursor, candidate));

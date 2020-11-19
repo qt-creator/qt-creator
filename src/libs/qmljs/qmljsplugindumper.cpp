@@ -65,24 +65,20 @@ Utils::FileSystemWatcher *PluginDumper::pluginWatcher()
 void PluginDumper::loadBuiltinTypes(const QmlJS::ModelManagerInterface::ProjectInfo &info)
 {
     // move to the owning thread
-    metaObject()->invokeMethod(this, "onLoadBuiltinTypes",
-                               Q_ARG(QmlJS::ModelManagerInterface::ProjectInfo, info));
+    metaObject()->invokeMethod(this, [=] { onLoadBuiltinTypes(info); });
 }
 
 void PluginDumper::loadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri, const QString &importVersion)
 {
     // move to the owning thread
-    metaObject()->invokeMethod(this, "onLoadPluginTypes",
-                               Q_ARG(QString, libraryPath),
-                               Q_ARG(QString, importPath),
-                               Q_ARG(QString, importUri),
-                               Q_ARG(QString, importVersion));
+    metaObject()->invokeMethod(this, [=] { onLoadPluginTypes(libraryPath, importPath,
+                                                             importUri, importVersion); });
 }
 
 void PluginDumper::scheduleRedumpPlugins()
 {
     // move to the owning thread
-    metaObject()->invokeMethod(this, "dumpAllPlugins", Qt::QueuedConnection);
+    metaObject()->invokeMethod(this, &PluginDumper::dumpAllPlugins, Qt::QueuedConnection);
 }
 
 void PluginDumper::onLoadBuiltinTypes(const QmlJS::ModelManagerInterface::ProjectInfo &info, bool force)

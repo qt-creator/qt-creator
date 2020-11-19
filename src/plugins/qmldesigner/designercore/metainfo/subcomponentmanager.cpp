@@ -404,7 +404,7 @@ void SubComponentManager::parseQuick3DAssetDir(const QString &assetPath)
                 QString iconName = qmlIt.fileInfo().absolutePath() + '/'
                         + Constants::QUICK_3D_ASSET_ICON_DIR + '/' + name
                         + Constants::QUICK_3D_ASSET_LIBRARY_ICON_SUFFIX;
-                if (!QFileInfo(iconName).exists())
+                if (!QFileInfo::exists(iconName))
                     iconName = iconPath;
                 itemLibraryEntry.setLibraryEntryIconPath(iconName);
                 itemLibraryEntry.setTypeIcon(QIcon(iconName));
@@ -444,7 +444,7 @@ QStringList SubComponentManager::quick3DAssetPaths() const
     QStringList retPaths;
     for (const auto &impPath : impPaths) {
         const QString assetPath = impPath + QLatin1String(Constants::QUICK_3D_ASSETS_FOLDER);
-        if (QFileInfo(assetPath).exists())
+        if (QFileInfo::exists(assetPath))
             retPaths << assetPath;
     }
     return retPaths;

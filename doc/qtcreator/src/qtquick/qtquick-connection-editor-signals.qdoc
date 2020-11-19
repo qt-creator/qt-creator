@@ -37,8 +37,8 @@
     JavaScript code to be executed when the signal handler is invoked.
 
     QML types have predefined signals that are emitted when users interact with
-    the application. For example, the \l MouseArea type from the \l QtQuick
-    module has a \c clicked signal that is emitted whenever the mouse is
+    the application. For example, the \l {Mouse Area} type has a
+    \c clicked signal that is emitted whenever the mouse is
     clicked within the area. Since the signal name is \c clicked, the signal
     handler for receiving this signal is named \c onClicked.
 
@@ -48,7 +48,7 @@
     \e <Property> is the name of the property, with the first letter
     capitalized.
 
-    For example, the MouseArea type has a \c pressed property. To receive a
+    For example, the Mouse Area type has a \c pressed property. To receive a
     notification whenever this property changes, you would use a signal handler
     called \c onPressedChanged.
 

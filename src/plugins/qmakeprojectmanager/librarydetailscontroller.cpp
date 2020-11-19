@@ -344,7 +344,7 @@ void LibraryDetailsController::slotMacLibraryTypeChanged()
             && libraryDetailsWidget()->frameworkRadio->isChecked()) {
         setIgnoreGuiSignals(true);
         libraryDetailsWidget()->dynamicRadio->setChecked(true);
-        setIgnoreGuiSignals(true);
+        setIgnoreGuiSignals(false);
     }
 
     updateGui();
@@ -685,7 +685,7 @@ void NonInternalLibraryDetailsController::slotLinkageTypeChanged()
             && libraryDetailsWidget()->staticRadio->isChecked()) {
         setIgnoreGuiSignals(true);
         libraryDetailsWidget()->libraryRadio->setChecked(true);
-        setIgnoreGuiSignals(true);
+        setIgnoreGuiSignals(false);
     }
 
     updateGui();

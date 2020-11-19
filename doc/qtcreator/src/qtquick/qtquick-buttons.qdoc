@@ -141,7 +141,7 @@
     change the appearance of the button depending on other mouse events,
     such as hovered.
 
-    Add a \l [QML]{MouseArea}{Mouse Area} type that covers the whole area and
+    Add a \l {Mouse Area} type that covers the whole area and
     reacts to mouse events.
 
     You can use states also to change the button text color and font size. For

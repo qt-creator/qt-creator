@@ -25,14 +25,12 @@
 
 #pragma once
 
-#include <utils/smallstring.h>
+#include "imagecacheinterface.h"
 
 #include <condition_variable>
 #include <functional>
 #include <mutex>
 #include <thread>
-
-#include <QImage>
 
 namespace QmlDesigner {
 
@@ -40,7 +38,7 @@ class TimeStampProviderInterface;
 class ImageCacheStorageInterface;
 class ImageCacheGeneratorInterface;
 
-class ImageCache
+class ImageCache final : public ImageCacheInterface
 {
 public:
     using CaptureCallback = std::function<void(const QImage &)>;
@@ -55,11 +53,11 @@ public:
     void requestImage(Utils::PathString name,
                       CaptureCallback captureCallback,
                       AbortCallback abortCallback,
-                      Utils::SmallString state = {});
+                      Utils::SmallString state = {}) override;
     void requestIcon(Utils::PathString name,
                      CaptureCallback captureCallback,
                      AbortCallback abortCallback,
-                     Utils::SmallString state = {});
+                     Utils::SmallString state = {}) override;
 
     void clean();
     void waitForFinished();

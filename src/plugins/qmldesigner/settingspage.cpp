@@ -249,7 +249,6 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
         DesignerSettingsKey::ENABLE_TIMELINEVIEW).toBool());
 
     if (settings.value(DesignerSettingsKey::STANDALONE_MODE).toBool()) {
-        m_ui.emulationGroupBox->hide();
         m_ui.debugGroupBox->hide();
         m_ui.featureTimelineEditorCheckBox->hide();
     }

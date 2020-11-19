@@ -334,7 +334,7 @@ void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file, const QVar
 
     // Generate qmldir file if importer doesn't already make one
     QString qmldirFileName = outDir.absoluteFilePath(QStringLiteral("qmldir"));
-    if (!QFileInfo(qmldirFileName).exists()) {
+    if (!QFileInfo::exists(qmldirFileName)) {
         QSaveFile qmldirFile(qmldirFileName);
         QString version = QStringLiteral("1.0");
 
@@ -451,7 +451,7 @@ void ItemLibraryAssetImporter::copyImportedFiles()
             // by filesystem watchers.
             QHash<QString, QString>::const_iterator it = assetFiles.begin();
             while (it != assetFiles.end()) {
-                if (QFileInfo(it.key()).exists()) {
+                if (QFileInfo::exists(it.key())) {
                     QDir targetDir = QFileInfo(it.value()).dir();
                     if (!targetDir.exists())
                         targetDir.mkpath(".");

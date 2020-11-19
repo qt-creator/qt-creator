@@ -115,6 +115,8 @@ QdbRunConfiguration::QdbRunConfiguration(Target *target, Utils::Id id)
     });
 
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+    connect(target, &Target::deploymentDataChanged, this, &RunConfiguration::update);
+    connect(target, &Target::kitChanged, this, &RunConfiguration::update);
 
     setDefaultDisplayName(tr("Run on Boot2Qt Device"));
 }
@@ -123,8 +125,8 @@ Tasks QdbRunConfiguration::checkForIssues() const
 {
     Tasks tasks;
     if (aspect<ExecutableAspect>()->executable().toString().isEmpty()) {
-        tasks << createConfigurationIssue(tr("The remote executable must be set "
-                                             "in order to run on a Boot2Qt device."));
+        tasks << BuildSystemTask(Task::Warning, tr("The remote executable must be set "
+                                                   "in order to run on a Boot2Qt device."));
     }
     return tasks;
 }

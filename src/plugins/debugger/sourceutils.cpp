@@ -259,8 +259,10 @@ QString cppExpressionAt(TextEditorWidget *editorWidget, int pos,
     const Snapshot snapshot = CppModelManager::instance()->snapshot();
     const Document::Ptr document = snapshot.document(fileName);
     QTextCursor tc = editorWidget->textCursor();
-    QString expr = tc.selectedText();
-    if (expr.isEmpty()) {
+    QString expr;
+    if (tc.hasSelection() && pos >= tc.selectionStart() && pos <= tc.selectionEnd()) {
+        expr = tc.selectedText();
+    } else {
         tc.setPosition(pos);
         const QChar ch = editorWidget->characterAt(pos);
         if (ch.isLetterOrNumber() || ch == '_')

@@ -127,7 +127,7 @@ QString CppToolsJsExtension::includeStatement(
 {
     if (fullyQualifiedClassName.isEmpty())
         return {};
-    const QString className = parts(fullyQualifiedClassName).last();
+    const QString className = parts(fullyQualifiedClassName).constLast();
     if (className.isEmpty() || specialClasses.contains(className))
         return {};
     if (className.startsWith('Q') && className.length() > 2 && className.at(1).isUpper())

@@ -92,9 +92,9 @@ signals:
     void navigateStateUpdate();
     void flashButton();
     void setBadgeNumber(int number);
-    void zoomIn(int range);
-    void zoomOut(int range);
-    void resetZoom();
+    void zoomInRequested(int range);
+    void zoomOutRequested(int range);
+    void resetZoomRequested();
     void wheelZoomEnabledChanged(bool enabled);
     void fontChanged(const QFont &font);
 

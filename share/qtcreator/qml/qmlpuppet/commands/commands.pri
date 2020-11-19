@@ -1,4 +1,4 @@
-INCLUDEPATH += $$PWD
+INCLUDEPATH += $$PWD $$PWD/../interfaces
 
 HEADERS += $$PWD/synchronizecommand.h \ \
     $$PWD/captureddatacommand.h \

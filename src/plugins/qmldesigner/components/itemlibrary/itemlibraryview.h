@@ -35,6 +35,7 @@ namespace QmlDesigner {
 class ItemLibraryWidget;
 class ImportManagerView;
 class ImageCacheData;
+class ImageCache;
 
 class ItemLibraryView : public AbstractView
 {
@@ -54,6 +55,8 @@ public:
     void documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings) override;
 
     void setResourcePath(const QString &resourcePath);
+
+    ImageCache &imageCache();
 
 protected:
     void updateImports();

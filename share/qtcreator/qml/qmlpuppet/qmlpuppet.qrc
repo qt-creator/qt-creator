@@ -45,7 +45,6 @@
         <file>mockfiles/ModelNode3DImageView.qml</file>
         <file>mockfiles/ModelNode2DImageView.qml</file>
         <file>mockfiles/MaterialNodeView.qml</file>
-        <file>mockfiles/EffectNodeView.qml</file>
         <file>mockfiles/ModelNodeView.qml</file>
         <file>mockfiles/NodeNodeView.qml</file>
         <file>mockfiles/meshes/arrow.mesh</file>

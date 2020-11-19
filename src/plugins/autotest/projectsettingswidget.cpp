@@ -109,7 +109,7 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(ProjectExplorer::Project *p
             TestTreeModel::instance(), &TestTreeModel::synchronizeTestFrameworks);
 }
 
-void ProjectTestSettingsWidget::populateFrameworks(const QMap<ITestFramework *, bool> &frameworks)
+void ProjectTestSettingsWidget::populateFrameworks(const QHash<ITestFramework *, bool> &frameworks)
 {
     TestFrameworks sortedFrameworks = frameworks.keys();
     Utils::sort(sortedFrameworks, &ITestFramework::priority);

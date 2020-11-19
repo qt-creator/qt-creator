@@ -61,8 +61,6 @@ Slog2InfoRunner::Slog2InfoRunner(RunControl *runControl)
     connect(m_logProcess, &DeviceProcess::readyReadStandardOutput, this, &Slog2InfoRunner::readLogStandardOutput);
     connect(m_logProcess, &DeviceProcess::readyReadStandardError, this, &Slog2InfoRunner::readLogStandardError);
     connect(m_logProcess, &DeviceProcess::error, this, &Slog2InfoRunner::handleLogError);
-    connect(m_logProcess, &DeviceProcess::started, this, &Slog2InfoRunner::started);
-    connect(m_logProcess, &DeviceProcess::finished, this, &Slog2InfoRunner::finished);
 }
 
 void Slog2InfoRunner::printMissingWarning()

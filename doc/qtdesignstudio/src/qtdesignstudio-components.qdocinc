@@ -23,26 +23,6 @@
 **
 ****************************************************************************/
 
-/*!
-//! [studio components]
-
-    \section1 Studio Components
-
-    A set of ready-made studio components are available for creating objects with
-    particular abilities, such as being visibly \e flipped between their front
-    and back sides, like a card. The studio components are built on top of
-    \l {Qt Quick Shapes QML Types}, with some additional properties.
-
-    You can drag-and-drop the following studio components from
-    \uicontrol Library to \uicontrol {Form Editor} or \uicontrol Navigator:
-
-    \list
-        \li \l Flipable provides a surface that can be flipped.
-        \li \l Group provides an item with the size property.
-    \endlist
-
-//! [studio components]
-
 //! [creating studio components]
 
     \section1 Creating Custom Controls

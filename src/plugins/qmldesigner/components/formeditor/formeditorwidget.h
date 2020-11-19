@@ -28,8 +28,8 @@
 
 #include <coreplugin/icontext.h>
 
-#include <QWidget>
 #include <QPointer>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QActionGroup;
@@ -70,6 +70,7 @@ public:
     void setRootItemRect(const QRectF &rect);
     QRectF rootItemRect() const;
 
+    void initialize();
     void updateActions();
 
     void resetView();
@@ -88,7 +89,6 @@ public:
     FormEditorGraphicsView *graphicsView() const;
 
 protected:
-    void wheelEvent(QWheelEvent *event) override;
     QActionGroup *toolActionGroup() const;
     DocumentWarningWidget *errorWidget();
     void hideEvent(QHideEvent *event) override;
@@ -96,7 +96,6 @@ protected:
 
 private:
     void changeTransformTool(bool checked);
-    void setZoomLevel(double zoomLevel);
     void changeRootItemWidth(const QString &widthText);
     void changeRootItemHeight(const QString &heightText);
     void changeBackgound(const QColor &color);

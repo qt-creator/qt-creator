@@ -76,7 +76,7 @@ protected:
     QString commitName() const override;
 
 signals:
-    void show(const QString &commit);
+    void showRequested(const QString &commit);
 
 private:
     void authorInformationChanged();

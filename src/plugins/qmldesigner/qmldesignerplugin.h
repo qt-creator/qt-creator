@@ -42,6 +42,7 @@ namespace Core {
 namespace QmlDesigner {
 
 class QmlDesignerPluginPrivate;
+class ImageCache;
 
 namespace Internal { class DesignModeWidget; }
 
@@ -84,6 +85,8 @@ public:
 
     static void emitUsageStatistics(const QString &identifier);
     static void emitUsageStatisticsContextAction(const QString &identifier);
+
+    static ImageCache &imageCache();
 
 signals:
     void usageStatisticsNotifier(const QString &identifier);

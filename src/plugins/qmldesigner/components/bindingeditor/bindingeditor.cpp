@@ -271,9 +271,7 @@ void BindingEditor::prepareBindings()
     }
 
     if (!bindings.isEmpty() && !m_dialog.isNull())
-        m_dialog->setAllBindings(bindings);
-
-    updateWindowName();
+        m_dialog->setAllBindings(bindings, m_backendValueTypeName);
 }
 
 void BindingEditor::updateWindowName()

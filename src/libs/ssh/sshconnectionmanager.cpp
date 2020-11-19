@@ -107,11 +107,11 @@ public:
                     || connection->connectionParameters() != sshParams)
                 continue;
 
-            if (connection->thread() != QThread::currentThread()) {
-                QMetaObject::invokeMethod(this, "switchToCallerThread",
-                    Qt::BlockingQueuedConnection,
-                    Q_ARG(SshConnection *, connection),
-                    Q_ARG(QObject *, QThread::currentThread()));
+            auto currentThread = QThread::currentThread();
+            if (connection->thread() != currentThread) {
+                QMetaObject::invokeMethod(this, [this, connection, currentThread] {
+                    switchToCallerThread(connection, currentThread);
+                }, Qt::BlockingQueuedConnection);
             }
 
             m_unacquiredConnections.removeOne(c);

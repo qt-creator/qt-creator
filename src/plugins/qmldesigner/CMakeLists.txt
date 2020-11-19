@@ -208,6 +208,7 @@ extend_qtc_plugin(QmlDesigner
     modelnodecontextmenu_helper.cpp modelnodecontextmenu_helper.h
     modelnodeoperations.cpp modelnodeoperations.h
     navigation2d.cpp navigation2d.h
+    gestures.cpp gestures.h
     qmldesignericonprovider.cpp qmldesignericonprovider.h
     selectioncontext.cpp selectioncontext.h
     theme.cpp theme.h
@@ -508,6 +509,7 @@ extend_qtc_plugin(QmlDesigner
     include/variantproperty.h
     include/viewmanager.h
     include/imagecache.h
+    include/imagecacheinterface.h
 )
 
 extend_qtc_plugin(QmlDesigner

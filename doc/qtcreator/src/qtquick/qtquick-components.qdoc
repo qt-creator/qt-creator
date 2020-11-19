@@ -120,8 +120,7 @@
     \list
         \li \l Shapes
         \li \l Images
-        \li UI controls
-        \li Screens
+        \li \l {User Interaction Methods}
         \li \l {Lists and Other Data Models}
     \endlist
 
@@ -150,91 +149,34 @@
         \li \l [QtQuick]{TextInput}{Text Input} adds a single line of editable
             plain text that can be validated.
     \endlist
-    \section1 User Interaction Methods
-
-    You can use the following QML types to add basic interaction methods to
-    UIs:
-
-    \list
-        \li \l{Flickable}
-            items can be flicked horizontally or vertically.
-        \li \l{FocusScope}{Focus Scope}
-            assists in keyboard focus handling when building reusable QML
-            components.
-        \li \l [QtQuick]{MouseArea}{Mouse Area} enables simple mouse handling.
-    \endlist
-
-    Since Qt 5.7, you can also use the following \l{Qt Quick Controls} types
-    to inform users about the progress of the application or to gather input
-    from the user:
-
-    \list
-        \li \l [QtQuickControls]{BusyIndicator}{Busy Indicator} indicates
-            activity while content is being loaded.
-        \li \l [QtQuickControls]{Button} provides a push button that you can
-            associate with an action.
-        \li \l [QtQuickControls]{CheckBox}{Check Box} provides an option button
-            that can be toggled on (checked) or off (unchecked).
-        \li \l [QtQuickControls]{CheckDelegate}{Check Delegate} presents an
-            item delegate that can be toggled on (checked) or off (unchecked).
-        \li \l [QtQuickControls]{ComboBox}{Combo Box} is a combined button and
-            popup list that is populated by using a data model.
-        \li \l [QtQuickControls]{DelayButton}{Delay Button} provides an option
-            button that is triggered when held down long enough.
-        \li \l [QtQuickControls]{Dial} is a circular dial that is rotated to
-            set a value.
-        \li \l [QtQuickControls]{ProgressBar}{Progress Bar} indicates the
-            progress of an operation.
-        \li \l [QtQuickControls]{RadioButton}{Radio Button} provides an option
-            button that can be switched on (checked) or off (unchecked).
-        \li \l [QtQuickControls]{RadioDelegate}{Radio Delegate} presents an
-            item delegate that can be toggled on (checked) or off (unchecked).
-        \li \l [QtQuickControls]{RangeSlider}{Range Slider} enables users to
-            select a range of values by sliding two handles along a track.
-        \li \l [QtQuickControls]{RoundButton}{Round Button} provides a push
-            button with rounded corners that you can associate with an action.
-        \li \l [QtQuickControls]{Slider} selects a value by sliding a handle
-            along a track.
-        \li \l [QtQuickControls]{SpinBox}{Spin Box} enables the user to specify
-            a value by clicking the up or down buttons, by pressing up or down
-            on the keyboard, or by entering a value in the box.
-        \li \l [QtQuickControls]{Switch} is an option button that can be
-            toggled on or off.
-        \li \l [QtQuickControls]{SwitchDelegate}{Switch Delegate} presents an
-            item delegate with a switch indicator that can be toggled on or off.
-        \li \l [QtQuickControls] {TabBar}{Tab Bar} enables users to switch
-            between different views or subtasks.
-        \li \l [QtQuickControls]{TabButton}{Tab Button} is a button
-            that is functionally similar to \uicontrol Button, but provides a
-            look that is more suitable for a \uicontrol {Tab Bar}.
-        \li \l [QtQuickControls]{TextArea}{Text Area} displays multiple lines
-            of editable formatted text.
-        \li \l [QtQuickControls]{TextField}{Text Field} displays a single line
-            of editable plain text.
-        \li \l [QtQuickControls]{ToolBar}{Tool Bar} is a container of
-            application-wide and context sensitive actions and controls, such as
-            navigation buttons and search fields.
-        \li \l [QtQuickControls]{ToolButton}{Tool Button} is a button
-            that is functionally similar to \uicontrol Button, but provides a
-            look that is more suitable for a \uicontrol {Tool Bar}.
-        \li \l [QtQuickControls]{ToolSeparator}{Tool Separator} separates a
-            group of items from adjacent items on a \uicontrol {Tool Bar}.
-        \li \l [QtQuickControls]{Tumbler} is a spinnable wheel of items that
-            can be selected.
-    \endlist
-
-    You can also use the \l Dialog type in the Qt Quick Dialogs module to wrap
-    arbitrary content into a dialog window including a row of platform-tailored
-    buttons.
 
     \include qtquick-animation-types.qdocinc qtquick animation types
 
     \if defined(qtdesignstudio)
     \include qtdesignstudio-visual-effects.qdocinc qml visual effects
-    \include qtdesignstudio-components.qdocinc creating studio components
-    \include qtdesignstudio-components.qdocinc studio components
     \endif
 
+    \include qtquick-mcu-support.qdocinc mcu qtquick components
+
+    \section1 Styling Controls
+
+    Qt Quick Controls provide lightweight QML types for creating performant
+    user interfaces for \l{glossary-device}{devices}. The controls can be
+    \l {Styling Qt Quick Controls}{styled}. The visual editor reads the
+    \c qtquickcontrols2.conf file that specifies the preferred style and some
+    style-specific arguments. To change the style, select another style from
+    the list on the toolbar. This enables you to check how your UI looks when
+    using the available styles.
+
+    \image qtquick-designer-style-list.png "Style menu on the toolbar"
+
+    For an example of defining your own style and using it in the Design mode,
+    see \l {Qt Quick Controls 2 - Flat Style}.
+
+    For more information about how to customize a particular control, see
+    \l{Customization Reference}.
+
+    \if defined(qtcreator)
     \section1 History of Qt Quick Controls
 
     In Qt 4, ready-made Qt Quick 1 Components were provided for creating
@@ -247,20 +189,6 @@
     Qt Labs Controls. They provide lightweight QML types for creating performant
     user interfaces for \l{glossary-device}{devices}.
 
-    Qt Quick Controls 2 achieve improved efficiency by employing a simplified
-    \l {Styling Qt Quick Controls}{styling architecture} when compared to
-    Qt Quick Controls, on which the module is based. The visual editor reads the
-    \c qtquickcontrols2.conf file that specifies the preferred style and some
-    style-specific arguments. To change the style, select another style from
-    the list on the toolbar. This enables you to check how your UI looks when
-    using the available styles.
-
-    For an example of defining your own style and using it in the Design mode, see
-    \l {Qt Quick Controls 2 - Flat Style}.
-
-    For more information about how to customize a particular control, see
-    \l{Customization Reference}.
-
     Qt Quick Controls 2 work in conjunction with Qt Quick and Qt Quick Layouts.
 
     The \QC project wizards create Qt Quick applications that use Qt Quick
@@ -271,6 +199,7 @@
 
     Some ready-made controls, such as a gauge, dial, status indicator, and
     tumbler, are provided by the \l {Qt Quick Extras} module.
+    \endif
 
     \section1 Creating Components in Design Mode
 
@@ -312,6 +241,10 @@
         \li \l{Creating Scalable Buttons and Borders}
 
     \endlist
+
+    \if defined(qtdesignstudio)
+    \include qtdesignstudio-components.qdocinc creating studio components
+    \endif
 
     \section1 Moving Within Components
 

@@ -351,7 +351,7 @@ FilePaths VcsManager::promptToDelete(const FilePaths &filePaths)
     }
 
     // Categorize by version control system.
-    QMap<IVersionControl *, FilePaths> filesByVersionControl;
+    QHash<IVersionControl *, FilePaths> filesByVersionControl;
     for (auto it = filesByParentDir.cbegin(); it != filesByParentDir.cend(); ++it) {
         IVersionControl * const vc = findVersionControlForDirectory(it.key().toString());
         if (vc)

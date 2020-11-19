@@ -50,11 +50,6 @@ public:
 
     bool commandFound() const;
 
-signals:
-    void commandMissing();
-    void started();
-    void finished();
-
 private:
     void handleTestProcessCompleted();
     void launchSlog2Info();

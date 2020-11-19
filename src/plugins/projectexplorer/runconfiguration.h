@@ -134,7 +134,7 @@ public:
 
     QWidget *createConfigurationWidget();
 
-    bool isConfigured() const { return checkForIssues().isEmpty(); }
+    bool isConfigured() const;
     virtual Tasks checkForIssues() const { return {}; }
 
     using CommandLineGetter = std::function<Utils::CommandLine()>;

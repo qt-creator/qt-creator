@@ -1213,6 +1213,16 @@ def qdumpHelper_Qt5_QMap(d, value, keyType, valueType):
                 d.putPairItem(i, pair, 'key', 'value')
 
 
+def qdumpHelper_Qt6_QMap(d, value, keyType, valueType):
+    d_ptr = d.extractPointer(value)
+    if d_ptr == 0:
+        d.putItemCount(0)
+        return
+    m = value['d']['d']['m']
+    d.putItem(m)
+    d.putBetterType('QMap<%s, %s>' % (keyType.name, valueType.name))
+
+
 def qform__QMap():
     return [DisplayFormat.CompactMap]
 
@@ -1222,18 +1232,32 @@ def qdump__QMap(d, value):
 
 
 def qdumpHelper_QMap(d, value, keyType, valueType):
-    if d.qtVersion() < 0x50000:
-        qdumpHelper_Qt4_QMap(d, value, keyType, valueType)
-    else:
+    if d.qtVersion() >= 0x60000:
+        qdumpHelper_Qt6_QMap(d, value, keyType, valueType)
+    elif d.qtVersion() >= 0x50000:
         qdumpHelper_Qt5_QMap(d, value, keyType, valueType)
+    else:
+        qdumpHelper_Qt4_QMap(d, value, keyType, valueType)
 
 
 def qform__QMultiMap():
     return [DisplayFormat.CompactMap]
 
 
+def qdumpHelper_Qt6_QMultiMap(d, value, keyType, valueType):
+    d_ptr = d.extractPointer(value)
+    if d_ptr == 0:
+        d.putItemCount(0)
+        return
+    m = value['d']['d']['m']
+    d.putItem(m)
+    d.putBetterType('QMultiMap<%s, %s>' % (keyType.name, valueType.name))
+
 def qdump__QMultiMap(d, value):
-    qdump__QMap(d, value)
+    if d.qtVersion() >= 0x60000:
+        qdumpHelper_Qt6_QMultiMap(d, value, value.type[0], value.type[1])
+    else:
+        qdump__QMap(d, value)
 
 
 def qform__QVariantMap():
@@ -1518,7 +1542,10 @@ def qform__QStack():
 
 
 def qdump__QStack(d, value):
-    qdump__QVector(d, value)
+    if d.qtVersion() >= 0x60000:
+        qdump__QList(d, value)
+    else:
+        qdump__QVector(d, value)
 
 
 def qdump__QPolygonF(d, value):

@@ -152,6 +152,9 @@ TextInput {
         onCanceled: mouseArea.endDrag()
 
         onClicked: {
+            if (textInput.edit)
+                mouse.accepted = false
+
             if (mouseArea.wasDragging) {
                 mouseArea.wasDragging = false
                 return
@@ -162,11 +165,19 @@ TextInput {
         }
 
         onPressed: {
+            if (textInput.edit)
+                mouse.accepted = false
+
             mouseArea.potentialDragStart = true
             mouseArea.pressStartX = mouseArea.mouseX
         }
 
-        onReleased: mouseArea.endDrag()
+        onReleased: {
+            if (textInput.edit)
+                mouse.accepted = false
+
+            mouseArea.endDrag()
+        }
 
         function endDrag() {
             if (!mouseArea.dragging)
@@ -237,7 +248,6 @@ TextInput {
             PropertyChanges {
                 target: mouseArea
                 cursorShape: Qt.PointingHandCursor
-                enabled: true
             }
         },
         State {
@@ -260,7 +270,6 @@ TextInput {
             PropertyChanges {
                 target: mouseArea
                 cursorShape: Qt.IBeamCursor
-                enabled: false
             }
         },
         State {

@@ -313,16 +313,16 @@ FormatDescriptions TextEditorSettingsPrivate::initialFormats()
                              Format(QColor(192, 0, 0), QColor()));
     formatDescr.emplace_back(C_LOG_AUTHOR_NAME, tr("Log Author Name"),
                              tr("Applied to author names in VCS log."),
-                             Format(QColor("#007af4"), QColor()));
+                             Format(QColor(0x007af4), QColor()));
     formatDescr.emplace_back(C_LOG_COMMIT_DATE, tr("Log Commit Date"),
                              tr("Applied to commit dates in VCS log."),
-                             Format(QColor("#006600"), QColor()));
+                             Format(QColor(0x006600), QColor()));
     formatDescr.emplace_back(C_LOG_COMMIT_HASH, tr("Log Commit Hash"),
                              tr("Applied to commit hashes in VCS log."),
-                             Format(QColor("#ff0000"), QColor()));
+                             Format(QColor(0xff0000), QColor()));
     formatDescr.emplace_back(C_LOG_DECORATION, tr("Log Decoration"),
                              tr("Applied to commit decorations in VCS log."),
-                             Format(QColor("#ff00ff"), QColor()));
+                             Format(QColor(0xff00ff), QColor()));
     formatDescr.emplace_back(C_LOG_COMMIT_SUBJECT, tr("Log Commit Subject"),
                              tr("Applied to commit subjects in VCS log."),
                              Format{QColor{}, QColor{}});

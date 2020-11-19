@@ -207,7 +207,7 @@ void updateEditorToolBar(Core::IEditor *editor)
     TextDocument *document = textEditor->textDocument();
     Client *client = LanguageClientManager::clientForDocument(textEditor->textDocument());
 
-    static QMap<QWidget *, QAction *> actions;
+    static QHash<QWidget *, QAction *> actions;
 
     if (actions.contains(widget)) {
         auto action = actions[widget];
@@ -253,7 +253,7 @@ void updateEditorToolBar(Core::IEditor *editor)
         });
     }
 
-    static QMap<QWidget *, QPair<Client *, QAction *>> outlines;
+    static QHash<QWidget *, QPair<Client *, QAction *>> outlines;
 
     if (outlines.contains(widget)) {
         auto outline = outlines[widget];

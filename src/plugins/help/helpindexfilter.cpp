@@ -180,8 +180,8 @@ QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFi
 
     if (forceUpdate) {
         QStringList indices;
-        QMetaObject::invokeMethod(this, "allIndices", Qt::BlockingQueuedConnection,
-                                  Q_RETURN_ARG(QStringList, indices));
+        QMetaObject::invokeMethod(this, [this] { return allIndices(); },
+                                  Qt::BlockingQueuedConnection, &indices);
         m_mutex.lock(); // guard m_needsUpdate
         m_needsUpdate = false;
         m_mutex.unlock();
