@@ -563,13 +563,6 @@ FilePath McuSupportOptions::qulDirFromSettings()
                                         QSettings::UserScope));
 }
 
-static FilePath jomExecutablePath()
-{
-    return HostOsInfo::isWindowsHost()
-            ? FilePath::fromUserInput(Core::ICore::libexecPath() + "/jom.exe")
-            : FilePath();
-}
-
 static void setKitProperties(const QString &kitName, Kit *k, const McuTarget *mcuTarget)
 {
     using namespace Constants;
@@ -589,8 +582,6 @@ static void setKitProperties(const QString &kitName, Kit *k, const McuTarget *mc
     QSet<Id> irrelevant = { SysRootKitAspect::id() };
     if (!kitNeedsQtVersion())
         irrelevant.insert(QtSupport::QtKitAspect::id());
-    if (jomExecutablePath().exists()) // TODO: add id() getter to CMakeGeneratorKitAspect
-        irrelevant.insert("CMake.GeneratorKitInformation");
     k->setIrrelevantAspects(irrelevant);
 }
 
@@ -694,11 +685,6 @@ static void setKitCMakeOptions(Kit *k, const McuTarget* mcuTarget, const QString
     if (mcuTarget->colorDepth() >= 0)
         config.append(CMakeConfigItem("QUL_COLOR_DEPTH",
                                       QString::number(mcuTarget->colorDepth()).toLatin1()));
-    const FilePath jom = jomExecutablePath();
-    if (jom.exists()) {
-        config.append(CMakeConfigItem("CMAKE_MAKE_PROGRAM", jom.toString().toLatin1()));
-        CMakeGeneratorKitAspect::setGenerator(k, "NMake Makefiles JOM");
-    }
     if (kitNeedsQtVersion())
         config.append(CMakeConfigItem("CMAKE_PREFIX_PATH", "%{Qt:QT_INSTALL_PREFIX}"));
     CMakeConfigurationKitAspect::setConfiguration(k, config);
