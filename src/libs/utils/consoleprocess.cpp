@@ -157,7 +157,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(const QVector<TerminalCommand>, knownTerminals, (
     {"rxvt", "", "-e"},
     {"urxvt", "", "-e"},
     {"xfce4-terminal", "", "-x"},
-    {"konsole", "--separate", "-e"},
+    {"konsole", "--separate --workdir .", "-e"},
     {"gnome-terminal", "", "--"}
 }));
 
