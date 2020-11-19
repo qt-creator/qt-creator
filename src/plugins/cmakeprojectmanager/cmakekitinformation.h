@@ -56,6 +56,8 @@ public:
     void addToMacroExpander(ProjectExplorer::Kit *k, Utils::MacroExpander *expander) const final;
 
     QSet<Utils::Id> availableFeatures(const ProjectExplorer::Kit *k) const final;
+
+    static QString msgUnsupportedVersion(const QByteArray &versionString);
 };
 
 class CMAKE_EXPORT CMakeGeneratorKitAspect : public ProjectExplorer::KitAspect

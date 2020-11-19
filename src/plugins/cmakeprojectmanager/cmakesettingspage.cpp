@@ -204,7 +204,8 @@ public:
             if (column != 0)
                 return QVariant();
 
-            const bool hasError = !m_pathExists || !m_pathIsFile || !m_pathIsExecutable;
+            const bool hasError = !m_isSupported || !m_pathExists || !m_pathIsFile
+                                  || !m_pathIsExecutable;
             if (hasError)
                 return Utils::Icons::CRITICAL.icon();
             return QVariant();

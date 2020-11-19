@@ -255,10 +255,7 @@ Tasks CMakeKitAspect::validate(const Kit *k) const
     if (tool) {
         CMakeTool::Version version = tool->version();
         if (version.major < 3 || (version.major == 3 && version.minor < 14)) {
-            result << BuildSystemTask(Task::Warning,
-                                      tr("CMake version %1 is unsupported. Please update to "
-                                         "version 3.14 (with file-api) or later.")
-                                          .arg(QString::fromUtf8(version.fullVersion)));
+            result << BuildSystemTask(Task::Warning, msgUnsupportedVersion(version.fullVersion));
         }
     }
     return result;
@@ -303,6 +300,13 @@ QSet<Utils::Id> CMakeKitAspect::availableFeatures(const Kit *k) const
     if (cmakeTool(k))
         return { CMakeProjectManager::Constants::CMAKE_FEATURE_ID };
     return {};
+}
+
+QString CMakeKitAspect::msgUnsupportedVersion(const QByteArray &versionString)
+{
+    return tr("CMake version %1 is unsupported. Please update to "
+              "version 3.14 (with file-api) or later.")
+        .arg(QString::fromUtf8(versionString));
 }
 
 // --------------------------------------------------------------------
