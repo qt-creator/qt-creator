@@ -1630,18 +1630,8 @@ def qform__QString():
 
 
 def qdump__QString(d, value):
-    if d.qtVersion() >= 0x60000:
-        dd, data, size = value.split('ppi')
-        if dd:
-            _, _, alloc = d.split('iii', dd)
-        else: # fromRawData
-            alloc = size
-        elided, shown = d.computeLimit(2 * size, 2 * d.displayStringLimit)
-        p = d.readMemory(data, shown)
-        d.putValue(p, 'utf16', elided=elided)
-    else:
-        d.putStringValue(value)
-        (data, size, alloc) = d.stringData(value)
+    d.putStringValue(value)
+    data, size, _ = d.stringData(value)
     displayFormat = d.currentItemFormat()
     if displayFormat == DisplayFormat.Separate:
         d.putDisplay('utf16:separate', d.encodeString(value, limit=100000))

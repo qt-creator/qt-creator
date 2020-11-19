@@ -691,8 +691,16 @@ class DumperBase():
     def encodeStringUtf8(self, value, limit=0):
         return self.encodedUtf16ToUtf8(self.encodeString(value, limit))
 
-    def stringData(self, value):
-        return self.byteArrayDataHelper(self.extractPointer(value))
+    def stringData(self, value): # -> (data, size, alloc)
+        if self.qtVersion() >= 0x60000:
+            dd, data, size = value.split('ppi')
+            if dd:
+                alloc, i, i = self.split('Pii', dd)
+            else: # fromRawData
+                alloc = size
+            return data, size, alloc
+        else:
+            return self.byteArrayDataHelper(self.extractPointer(value))
 
     def extractTemplateArgument(self, typename, position):
         level = 0
@@ -728,9 +736,15 @@ class DumperBase():
         return inner
 
     def putStringValue(self, value):
-        addr = self.extractPointer(value)
-        elided, data = self.encodeStringHelper(addr, self.displayStringLimit)
-        self.putValue(data, 'utf16', elided=elided)
+        if self.qtVersion() >= 0x60000:
+            dd, ptr, size = self.split('ppi', value)
+            elided, shown = self.computeLimit(2 * size, 2 * self.displayStringLimit)
+            data = self.readMemory(ptr, shown)
+            self.putValue(data, 'utf16', elided=elided)
+        else:
+            addr = self.extractPointer(value)
+            elided, data = self.encodeStringHelper(addr, self.displayStringLimit)
+            self.putValue(data, 'utf16', elided=elided)
 
     def putPtrItem(self, name, value):
         with SubItem(self, name):
