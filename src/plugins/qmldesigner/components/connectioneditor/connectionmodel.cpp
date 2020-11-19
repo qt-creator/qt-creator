@@ -36,6 +36,8 @@
 #include <nodelistproperty.h>
 #include <rewriterview.h>
 #include <nodemetainfo.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
 
 #include <QStandardItemModel>
 #include <QMessageBox>
@@ -309,6 +311,8 @@ ModelNode ConnectionModel::getTargetNodeForConnection(const ModelNode &connectio
 
 void ConnectionModel::addConnection()
 {
+    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_CONNECTION_ADDED);
+
     ModelNode rootModelNode = connectionView()->rootModelNode();
 
     if (rootModelNode.isValid() && rootModelNode.metaInfo().isValid()) {
