@@ -101,7 +101,6 @@ private:
 
     friend class CMakeBuildSettingsWidget;
     friend class CMakeBuildSystem;
-    friend class CMakeProject;
 };
 
 class CMakeProjectImporter;
