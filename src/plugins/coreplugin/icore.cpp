@@ -343,7 +343,7 @@ bool ICore::showWarningWithOptions(const QString &title, const QString &text,
 
     \sa settingsDatabase()
 */
-QSettings *ICore::settings(QSettings::Scope scope)
+QtcSettings *ICore::settings(QSettings::Scope scope)
 {
     if (scope == QSettings::UserScope)
         return PluginManager::settings();

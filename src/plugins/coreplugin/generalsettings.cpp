@@ -197,25 +197,21 @@ QString GeneralSettingsWidget::language() const
 
 void GeneralSettingsWidget::setLanguage(const QString &locale)
 {
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
     if (settings->value(QLatin1String("General/OverrideLanguage")).toString() != locale) {
         RestartDialog dialog(ICore::dialogParent(),
                              tr("The language change will take effect after restart."));
         dialog.exec();
     }
 
-    if (locale.isEmpty())
-        settings->remove(QLatin1String("General/OverrideLanguage"));
-    else
-        settings->setValue(QLatin1String("General/OverrideLanguage"), locale);
+    settings->setValueWithDefault(QLatin1String("General/OverrideLanguage"), locale, {});
 }
 
 void GeneralSettings::setShowShortcutsInContextMenu(bool show)
 {
-    if (show == m_defaultShowShortcutsInContextMenu)
-        ICore::settings()->remove(settingsKeyShortcutsInContextMenu);
-    else
-        ICore::settings()->setValue(settingsKeyShortcutsInContextMenu, show);
+    ICore::settings()->setValueWithDefault(settingsKeyShortcutsInContextMenu,
+                                           show,
+                                           m_defaultShowShortcutsInContextMenu);
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
     QGuiApplication::styleHints()->setShowShortcutsInContextMenus(show);
 #endif

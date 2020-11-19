@@ -26,14 +26,15 @@
 #pragma once
 
 #include "extensionsystem_global.h"
+
 #include <aggregation/aggregate.h>
+#include <utils/qtcsettings.h>
 
 #include <QObject>
 #include <QStringList>
 
 QT_BEGIN_NAMESPACE
 class QTextStream;
-class QSettings;
 QT_END_NAMESPACE
 
 namespace ExtensionSystem {
@@ -99,10 +100,10 @@ public:
     static void checkForProblematicPlugins();
 
     // Settings
-    static void setSettings(QSettings *settings);
-    static QSettings *settings();
-    static void setGlobalSettings(QSettings *settings);
-    static QSettings *globalSettings();
+    static void setSettings(Utils::QtcSettings *settings);
+    static Utils::QtcSettings *settings();
+    static void setGlobalSettings(Utils::QtcSettings *settings);
+    static Utils::QtcSettings *globalSettings();
     static void writeSettings();
 
     // command line arguments

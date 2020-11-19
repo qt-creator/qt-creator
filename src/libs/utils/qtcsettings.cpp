@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,46 +23,32 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "qtcsettings.h"
 
-#include <utils/qtcsettings.h>
+namespace Utils {
 
-#include <QString>
+/*!
+    \class Utils::QtcSettings
+    \inheaderfile utils/qtcsettings.h
+    \inmodule QtCreator
 
-QT_BEGIN_NAMESPACE
-class QDebug;
-QT_END_NAMESPACE
+    \brief The QtcSettings class is an extension of the QSettings class.
 
-namespace VcsBase {
-namespace Internal {
+    Use Utils::QtcSettings::setValueWithDefault() to write values with a
+    default.
+*/
 
-// Common VCS settings, message check script and user nick names.
-class CommonVcsSettings
-{
-public:
-    CommonVcsSettings();
+/*!
+    \fn template<typename T> void setValueWithDefault(const QString &key, const T &val, const T &defaultValue)
 
-    QString nickNameMailMap;
-    QString nickNameFieldListFile;
+    Sets the value of setting \a key to \a val. If \a val is the same as the \a
+    defaultValue, the settings key is removed instead. This makes sure that
+    settings are only written if actually necessary, namely when the user
+    changed them from the default. It also makes a new default value for a
+    setting in a new version of the application take effect, if the user did
+    not change the setting before.
 
-    QString submitMessageCheckScript;
+    \sa QSettings::setValue()
+*/
 
-    // Executable run to graphically prompt for a SSH-password.
-    QString sshPasswordPrompt;
-
-    bool lineWrap;
-    int lineWrapWidth;
-
-    void toSettings(Utils::QtcSettings *) const;
-    void fromSettings(QSettings *);
-
-    bool equals(const CommonVcsSettings &rhs) const;
-};
-
-inline bool operator==(const CommonVcsSettings &s1, const CommonVcsSettings &s2) { return s1.equals(s2); }
-inline bool operator!=(const CommonVcsSettings &s1, const CommonVcsSettings &s2) { return !s1.equals(s2); }
-
-QDebug operator<<(QDebug, const CommonVcsSettings &);
-
-} // namespace Internal
-} // namespace VcsBase
+} // namespace Utils

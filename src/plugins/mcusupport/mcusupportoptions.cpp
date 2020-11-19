@@ -210,11 +210,7 @@ void McuPackage::writeToSettings() const
 {
     const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/' +
             QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX) + m_settingsKey;
-    QSettings *settings = Core::ICore::settings();
-    if (m_path == m_defaultPath)
-        settings->remove(key);
-    else
-        settings->setValue(key, m_path);
+    Core::ICore::settings()->setValueWithDefault(key, m_path, m_defaultPath);
 }
 
 void McuPackage::setRelativePathModifier(const QString &path)

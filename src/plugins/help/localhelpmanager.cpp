@@ -110,16 +110,6 @@ static QString defaultFallbackFontStyleName(const QString &fontFamily)
     return styles.first();
 }
 
-template <typename T>
-static void setOrRemoveSetting(const char *key, const T &value, const T &defaultValue)
-{
-    QSettings *settings = Core::ICore::settings();
-    if (value == defaultValue)
-        settings->remove(QLatin1String(key));
-    else
-        settings->setValue(QLatin1String(key), value);
-}
-
 LocalHelpManager::LocalHelpManager(QObject *parent)
     : QObject(parent)
 {
@@ -179,9 +169,15 @@ QFont LocalHelpManager::fallbackFont()
 
 void LocalHelpManager::setFallbackFont(const QFont &font)
 {
-    setOrRemoveSetting(kFontFamilyKey, font.family(), defaultFallbackFontFamily());
-    setOrRemoveSetting(kFontStyleNameKey, font.styleName(), defaultFallbackFontStyleName(font.family()));
-    setOrRemoveSetting(kFontSizeKey, font.pointSize(), kDefaultFallbackFontSize);
+    Core::ICore::settings()->setValueWithDefault(kFontFamilyKey,
+                                                 font.family(),
+                                                 defaultFallbackFontFamily());
+    Core::ICore::settings()->setValueWithDefault(kFontStyleNameKey,
+                                                 font.styleName(),
+                                                 defaultFallbackFontStyleName(font.family()));
+    Core::ICore::settings()->setValueWithDefault(kFontSizeKey,
+                                                 font.pointSize(),
+                                                 kDefaultFallbackFontSize);
     emit m_instance->fallbackFontChanged(font);
 }
 
@@ -369,10 +365,7 @@ HelpViewerFactory LocalHelpManager::viewerBackend()
 
 void LocalHelpManager::setViewerBackendId(const QByteArray &id)
 {
-    if (id.isEmpty())
-        Core::ICore::settings()->remove(kViewerBackend);
-    else
-        Core::ICore::settings()->setValue(kViewerBackend, id);
+    Core::ICore::settings()->setValueWithDefault(kViewerBackend, id, {});
 }
 
 QByteArray LocalHelpManager::viewerBackendId()

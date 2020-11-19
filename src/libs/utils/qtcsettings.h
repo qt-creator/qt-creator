@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,44 +25,28 @@
 
 #pragma once
 
-#include <utils/qtcsettings.h>
+#include "utils_global.h"
 
-#include <QString>
+#include <QSettings>
 
-QT_BEGIN_NAMESPACE
-class QDebug;
-QT_END_NAMESPACE
+namespace Utils {
 
-namespace VcsBase {
-namespace Internal {
-
-// Common VCS settings, message check script and user nick names.
-class CommonVcsSettings
+class QTCREATOR_UTILS_EXPORT QtcSettings : public QSettings
 {
 public:
-    CommonVcsSettings();
+    using QSettings::QSettings;
 
-    QString nickNameMailMap;
-    QString nickNameFieldListFile;
-
-    QString submitMessageCheckScript;
-
-    // Executable run to graphically prompt for a SSH-password.
-    QString sshPasswordPrompt;
-
-    bool lineWrap;
-    int lineWrapWidth;
-
-    void toSettings(Utils::QtcSettings *) const;
-    void fromSettings(QSettings *);
-
-    bool equals(const CommonVcsSettings &rhs) const;
+    template<typename T>
+    void setValueWithDefault(const QString &key, const T &val, const T &defaultValue);
 };
 
-inline bool operator==(const CommonVcsSettings &s1, const CommonVcsSettings &s2) { return s1.equals(s2); }
-inline bool operator!=(const CommonVcsSettings &s1, const CommonVcsSettings &s2) { return !s1.equals(s2); }
+template<typename T>
+void QtcSettings::setValueWithDefault(const QString &key, const T &val, const T &defaultValue)
+{
+    if (val == defaultValue)
+        remove(key);
+    else
+        setValue(key, QVariant::fromValue(val));
+}
 
-QDebug operator<<(QDebug, const CommonVcsSettings &);
-
-} // namespace Internal
-} // namespace VcsBase
+} // namespace Utils

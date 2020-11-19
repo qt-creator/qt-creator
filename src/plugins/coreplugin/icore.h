@@ -28,6 +28,8 @@
 #include "core_global.h"
 #include "icontext.h"
 
+#include <utils/qtcsettings.h>
+
 #include <QList>
 #include <QMainWindow>
 #include <QObject>
@@ -87,7 +89,7 @@ public:
                                        Utils::Id settingsId = {},
                                        QWidget *parent = nullptr);
 
-    static QSettings *settings(QSettings::Scope scope = QSettings::UserScope);
+    static Utils::QtcSettings *settings(QSettings::Scope scope = QSettings::UserScope);
     static SettingsDatabase *settingsDatabase();
     static QPrinter *printer();
     static QString userInterfaceLanguage();

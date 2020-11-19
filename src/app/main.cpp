@@ -37,6 +37,7 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/optional.h>
+#include <utils/qtcsettings.h>
 #include <utils/temporarydirectory.h>
 
 #include <QDebug>
@@ -44,7 +45,6 @@
 #include <QFontDatabase>
 #include <QFileInfo>
 #include <QLibraryInfo>
-#include <QSettings>
 #include <QStyle>
 #include <QTextStream>
 #include <QThreadPool>
@@ -274,16 +274,17 @@ static void setupInstallSettings(QString &installSettingspath)
     }
 }
 
-static QSettings *createUserSettings()
+static Utils::QtcSettings *createUserSettings()
 {
-    return new QSettings(QSettings::IniFormat, QSettings::UserScope,
-                         QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
-                         QLatin1String(Core::Constants::IDE_CASED_ID));
+    return new Utils::QtcSettings(QSettings::IniFormat,
+                                  QSettings::UserScope,
+                                  QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
+                                  QLatin1String(Core::Constants::IDE_CASED_ID));
 }
 
-static inline QSettings *userSettings()
+static inline Utils::QtcSettings *userSettings()
 {
-    QSettings *settings = createUserSettings();
+    Utils::QtcSettings *settings = createUserSettings();
     const QString fromVariant = QLatin1String(Core::Constants::IDE_COPY_SETTINGS_FROM_VARIANT_STR);
     if (fromVariant.isEmpty())
         return settings;
@@ -534,10 +535,12 @@ int main(int argc, char **argv)
 
     /*Initialize global settings and resetup install settings with QApplication::applicationDirPath */
     setupInstallSettings(options.installSettingsPath);
-    QSettings *settings = userSettings();
-    QSettings *globalSettings = new QSettings(QSettings::IniFormat, QSettings::SystemScope,
-                                              QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
-                                              QLatin1String(Core::Constants::IDE_CASED_ID));
+    Utils::QtcSettings *settings = userSettings();
+    Utils::QtcSettings *globalSettings
+        = new Utils::QtcSettings(QSettings::IniFormat,
+                                 QSettings::SystemScope,
+                                 QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
+                                 QLatin1String(Core::Constants::IDE_CASED_ID));
     loadFonts();
 
     if (Utils::HostOsInfo::isWindowsHost()

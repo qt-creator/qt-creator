@@ -62,7 +62,7 @@ CommonVcsSettings::CommonVcsSettings() :
 {
 }
 
-void CommonVcsSettings::toSettings(QSettings *s) const
+void CommonVcsSettings::toSettings(Utils::QtcSettings *s) const
 {
     s->beginGroup(QLatin1String(settingsGroupC));
     s->setValue(QLatin1String(nickNameMailMapKeyC), nickNameMailMap);
@@ -70,11 +70,9 @@ void CommonVcsSettings::toSettings(QSettings *s) const
     s->setValue(QLatin1String(submitMessageCheckScriptKeyC), submitMessageCheckScript);
     s->setValue(QLatin1String(lineWrapKeyC), lineWrap);
     s->setValue(QLatin1String(lineWrapWidthKeyC), lineWrapWidth);
-    // Do not store the default setting to avoid clobbering the environment.
-    if (sshPasswordPrompt != sshPasswordPromptDefault())
-        s->setValue(QLatin1String(sshPasswordPromptKeyC), sshPasswordPrompt);
-    else
-        s->remove(QLatin1String(sshPasswordPromptKeyC));
+    s->setValueWithDefault(QLatin1String(sshPasswordPromptKeyC),
+                           sshPasswordPrompt,
+                           sshPasswordPromptDefault());
     s->endGroup();
 }
 
