@@ -426,6 +426,8 @@ PyType PyType::lookupType(const std::string &typeNameIn, ULONG64 module)
         typeName.erase(typeName.length() - 6);
     if (typeName == "__int64" || typeName == "unsigned __int64")
         typeName.erase(typeName.find("__"), 2);
+    if (typeName == "signed char")
+        typeName.erase(0, 7);
 
     const static std::regex typeNameRE("^[a-zA-Z_][a-zA-Z0-9_]*!?[a-zA-Z0-9_<>:, \\*\\&\\[\\]]*$");
     if (!std::regex_match(typeName, typeNameRE))
