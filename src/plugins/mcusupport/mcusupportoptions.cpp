@@ -75,7 +75,7 @@ static QString packagePathFromSettings(const QString &settingsKey,
     const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/' +
             QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX) + settingsKey;
     const QString path = settings->value(key, defaultPath).toString();
-    return FilePath::fromFileInfo(path).toString();
+    return FilePath::fromUserInput(path).toString();
 }
 
 static bool automaticKitCreationFromSettings(QSettings::Scope scope = QSettings::UserScope)

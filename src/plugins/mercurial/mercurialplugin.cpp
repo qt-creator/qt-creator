@@ -661,7 +661,7 @@ void MercurialPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusI
     commitEditor->document()->setPreferredDisplayName(msg);
 
     const QString branch = vcsTopic(m_submitRepository);
-    commitEditor->setFields(m_submitRepository, branch,
+    commitEditor->setFields(QFileInfo(m_submitRepository), branch,
                             m_settings.stringValue(MercurialSettings::userNameKey),
                             m_settings.stringValue(MercurialSettings::userEmailKey), status);
 }

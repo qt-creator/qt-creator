@@ -3800,7 +3800,7 @@ void tst_Dumpers::dumper_data()
     expected1.append(QChar(1));
     expected1.append("BBB\"");
 
-    QChar oUmlaut = 0xf6;
+    QChar oUmlaut = QChar(0xf6);
 
     QTest::newRow("QString")
             << Data("#include <QByteArray>\n"
@@ -5957,7 +5957,7 @@ void tst_Dumpers::dumper_data()
                + Check("a1.0.2", "[2]", FloatValue("20"), "double")
                + Check("a1.2", "[2]", Pointer(), "double[4]")
 
-               + Check("a2", Value("\"abcd" + QString(16, 0) + '"'), "char [20]")
+               + Check("a2", Value("\"abcd" + QString(16, QChar(0)) + '"'), "char [20]")
                + Check("a2.0", "[0]", "97", "char")
                + Check("a2.3", "[3]", "100", "char");
 

@@ -204,7 +204,7 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
         if (index.column() == DisplayNameColumn) {
             LocatorFilterEntry &entry = mEntries[index.row()];
             if (!entry.displayIcon && !entry.fileName.isEmpty())
-                entry.displayIcon = FileIconProvider::icon(entry.fileName);
+                entry.displayIcon = FileIconProvider::icon(QFileInfo(entry.fileName));
             return entry.displayIcon ? entry.displayIcon.value() : QIcon();
         }
         break;
