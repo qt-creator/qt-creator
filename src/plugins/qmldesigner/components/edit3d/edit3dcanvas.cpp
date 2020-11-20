@@ -30,6 +30,9 @@
 #include "nodehints.h"
 #include "qmlvisualnode.h"
 
+#include <qmldesignerplugin.h>
+#include <qmldesignerconstants.h>
+
 #include <QtCore/qmimedata.h>
 #include <QPainter>
 
@@ -130,6 +133,19 @@ void Edit3DCanvas::dropEvent(QDropEvent *e)
         e->accept();
         m_parent->view()->setSelectedModelNode(modelNode);
     }
+}
+
+void Edit3DCanvas::focusOutEvent(QFocusEvent *focusEvent)
+{
+    QmlDesignerPlugin::emitUsageStatisticsTime(Constants::EVENT_3DEDITOR_TIME,
+                                               m_usageTimer.elapsed());
+    QWidget::focusOutEvent(focusEvent);
+}
+
+void Edit3DCanvas::focusInEvent(QFocusEvent *focusEvent)
+{
+    m_usageTimer.restart();
+    QWidget::focusInEvent(focusEvent);
 }
 
 }

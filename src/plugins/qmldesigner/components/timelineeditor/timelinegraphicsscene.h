@@ -30,6 +30,7 @@
 
 #include <qmltimeline.h>
 
+#include <QElapsedTimer>
 #include <QGraphicsScene>
 
 #include <memory>
@@ -193,6 +194,9 @@ protected:
     void keyPressEvent(QKeyEvent *keyEvent) override;
     void keyReleaseEvent(QKeyEvent *keyEvent) override;
 
+    void focusOutEvent(QFocusEvent *focusEvent) override;
+    void focusInEvent(QFocusEvent *focusEvent) override;
+
 private:
     void copySelectedKeyframes();
     void pasteSelectedKeyframes();
@@ -215,6 +219,7 @@ private:
 
     // sorted, unique cache of keyframes positions, used for snapping
     QVector<qreal> m_keyframePositionsCache;
+    QElapsedTimer m_usageTimer;
 };
 
 } // namespace QmlDesigner

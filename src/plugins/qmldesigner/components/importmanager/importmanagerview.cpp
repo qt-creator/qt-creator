@@ -28,6 +28,7 @@
 
 #include <rewritingexception.h>
 #include <qmldesignerplugin.h>
+#include <qmldesignerconstants.h>
 
 namespace QmlDesigner {
 
@@ -120,6 +121,13 @@ void ImportManagerView::removeImport(const Import &import)
 
 void ImportManagerView::addImport(const Import &import)
 {
+    if (import.isLibraryImport()
+        && (import.toImportString().startsWith("QtQuick")
+            || import.toImportString().startsWith("SimulinkConnector"))) {
+        QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_IMPORT_ADDED
+                                               + import.toImportString());
+    }
+
     try {
         if (model())
             model()->changeImports({import}, {});

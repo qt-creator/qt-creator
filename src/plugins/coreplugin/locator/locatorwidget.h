@@ -121,7 +121,7 @@ public:
 
 protected:
     QSize preferredSize();
-    virtual void updateGeometry();
+    virtual void doUpdateGeometry();
     virtual void inputLostFocus();
 
     QPointer<QWidget> m_window;

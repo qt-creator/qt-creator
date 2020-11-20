@@ -85,11 +85,13 @@ public:
 
     static void emitUsageStatistics(const QString &identifier);
     static void emitUsageStatisticsContextAction(const QString &identifier);
+    static void emitUsageStatisticsTime(const QString &identifier, int elapsed);
 
     static ImageCache &imageCache();
 
 signals:
     void usageStatisticsNotifier(const QString &identifier);
+    void usageStatisticsUsageTimer(const QString &identifier, int elapsed);
 
 
 private: // functions

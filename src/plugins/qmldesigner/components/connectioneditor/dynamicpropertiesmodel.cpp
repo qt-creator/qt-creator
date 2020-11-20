@@ -33,6 +33,8 @@
 #include <bindingproperty.h>
 #include <rewritingexception.h>
 #include <rewritertransaction.h>
+#include <qmldesignerplugin.h>
+#include <qmldesignerconstants.h>
 
 #include <utils/fileutils.h>
 
@@ -356,6 +358,8 @@ QStringList DynamicPropertiesModel::possibleTargetProperties(const BindingProper
 
 void DynamicPropertiesModel::addDynamicPropertyForCurrentNode()
 {
+    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_PROPERTY_ADDED);
+
     if (connectionView()->selectedModelNodes().count() == 1) {
         const ModelNode modelNode = connectionView()->selectedModelNodes().constFirst();
         if (modelNode.isValid()) {

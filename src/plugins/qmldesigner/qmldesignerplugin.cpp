@@ -566,6 +566,11 @@ ImageCache &QmlDesignerPlugin::imageCache()
     return m_instance->d->viewManager.imageCache();
 }
 
+void QmlDesignerPlugin::emitUsageStatisticsTime(const QString &identifier, int elapsed)
+{
+    emit instance()->usageStatisticsUsageTimer(identifier, elapsed);
+}
+
 QmlDesignerPlugin *QmlDesignerPlugin::instance()
 {
     return m_instance;

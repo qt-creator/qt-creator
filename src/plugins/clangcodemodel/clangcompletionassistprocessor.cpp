@@ -60,6 +60,7 @@
 #include <utils/textutils.h>
 
 #include <QDirIterator>
+#include <QPair>
 #include <QTextDocument>
 
 namespace ClangCodeModel {
@@ -512,11 +513,17 @@ bool ClangCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
         completeIncludePath(realPath, suffixes);
     }
 
-    auto includesCompare = [](AssistProposalItemInterface *first,
-                              AssistProposalItemInterface *second) {
-        return first->text() < second->text();
-    };
-    std::sort(m_completions.begin(), m_completions.end(), includesCompare);
+    QList<QPair<AssistProposalItemInterface *, QString>> completionsForSorting;
+    for (AssistProposalItemInterface * const item : qAsConst(m_completions)) {
+        QString s = item->text();
+        s.replace('/', QChar(0)); // The dir separator should compare less than anything else.
+        completionsForSorting << qMakePair(item, s);
+    }
+    Utils::sort(completionsForSorting, [](const auto &left, const auto &right) {
+        return left.second < right.second;
+    });
+    for (int i = 0; i < completionsForSorting.count(); ++i)
+        m_completions[i] = completionsForSorting[i].first;
 
     return !m_completions.isEmpty();
 }

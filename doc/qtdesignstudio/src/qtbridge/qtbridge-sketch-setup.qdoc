@@ -31,7 +31,7 @@
     \title Setting Up \QBSK
 
     You can purchase a \QBSK license from the \l{https://marketplace.qt.io/}
-    {Qt Marketplace}, and then use the Qt online installer to have the \QBSK
+    {Qt Marketplace}, and then use the Qt Installer to have the \QBSK
     plugin package copied to the following path in your Qt installation
     folder: \c {QtDesignStudio\sketch_bridge\io.qt.qtbridge.sketchplugin}.
 

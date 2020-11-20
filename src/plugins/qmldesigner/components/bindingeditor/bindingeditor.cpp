@@ -29,6 +29,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <bindingeditor/bindingeditordialog.h>
+#include <qmldesignerconstants.h>
 
 #include <metainfo.h>
 #include <qmlmodelnodeproxy.h>
@@ -59,6 +60,8 @@ void BindingEditor::registerDeclarativeType()
 
 void BindingEditor::prepareDialog()
 {
+    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_BINDINGEDITOR_OPENED);
+
     if (s_lastBindingEditor)
         s_lastBindingEditor->hideWidget();
 

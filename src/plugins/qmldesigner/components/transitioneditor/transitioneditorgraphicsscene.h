@@ -30,6 +30,7 @@
 
 #include <qmltimeline.h>
 
+#include <QElapsedTimer>
 #include <QGraphicsScene>
 
 #include <memory>
@@ -123,6 +124,9 @@ protected:
     void keyPressEvent(QKeyEvent *keyEvent) override;
     void keyReleaseEvent(QKeyEvent *keyEvent) override;
 
+    void focusOutEvent(QFocusEvent *focusEvent) override;
+    void focusInEvent(QFocusEvent *focusEvent) override;
+
 private:
     void invalidateSections();
     QList<QGraphicsItem *> itemsAt(const QPointF &pos);
@@ -135,6 +139,7 @@ private:
     int m_scrollOffset = 0;
     TimelineToolDelegate m_tools;
     TransitionEditorPropertyItem *m_selectedProperty = nullptr;
+    QElapsedTimer m_usageTimer;
 };
 
 } // namespace QmlDesigner

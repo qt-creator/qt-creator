@@ -125,6 +125,8 @@ public:
     static QIcon getIconFromIconFont(const QString &fontName, const QList<IconFontHelper> &parameters);
     static QIcon getIconFromIconFont(const QString &fontName, const QString &iconSymbol, int fontSize, int iconSize, QColor color);
     static QIcon getIconFromIconFont(const QString &fontName, const QString &iconSymbol, int fontSize, int iconSize);
+    static QIcon getCursorFromIconFont(const QString &fontname, const QString &cursorFill, const QString &cursorOutline,
+                                       int fontSize, int iconSize);
 
     static QString dpiSpecificImageFile(const QString &fileName);
     static QString imageFileWithResolution(const QString &fileName, int dpr);

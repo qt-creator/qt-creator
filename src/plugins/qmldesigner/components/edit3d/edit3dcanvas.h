@@ -29,6 +29,7 @@
 #include <QtWidgets/qwidget.h>
 #include <QtGui/qimage.h>
 #include <QtGui/qevent.h>
+#include <QTCore/qelapsedtimer.h>
 #include <QtCore/qpointer.h>
 
 namespace QmlDesigner {
@@ -57,12 +58,15 @@ protected:
     void resizeEvent(QResizeEvent *e) override;
     void dragEnterEvent(QDragEnterEvent *e) override;
     void dropEvent(QDropEvent *e) override;
+    void focusOutEvent(QFocusEvent *focusEvent) override;
+    void focusInEvent(QFocusEvent *focusEvent) override;
 
 private:
     QPointer<Edit3DWidget> m_parent;
     QImage m_image;
     qint32 m_activeScene = -1;
     ItemLibraryEntry m_itemLibraryEntry;
+    QElapsedTimer m_usageTimer;
 };
 
 } // namespace QmlDesigner

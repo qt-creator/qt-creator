@@ -25,6 +25,9 @@
 
 #include "richtexteditorproxy.h"
 
+#include <qmldesignerplugin.h>
+#include <qmldesignerconstants.h>
+
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QGridLayout>
@@ -67,6 +70,7 @@ void RichTextEditorProxy::registerDeclarativeType()
 
 void RichTextEditorProxy::showWidget()
 {
+    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_RICHTEXT_OPENED);
     m_dialog->show();
 }
 

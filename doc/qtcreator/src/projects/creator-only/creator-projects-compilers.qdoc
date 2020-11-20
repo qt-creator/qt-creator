@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -42,9 +42,9 @@
     specifies the compiler and other necessary tools for building an application
     for and running it on a particular platform.
 
-    \QC automatically detects the compilers that are registered by your system
-    or by an installer and lists them in \uicontrol Tools > \uicontrol Options >
-    \uicontrol Kits > \uicontrol Compilers:
+    \QC automatically detects the compilers that are registered by your
+    system or by the Qt Installer and lists them in \uicontrol Tools >
+    \uicontrol Options > \uicontrol Kits > \uicontrol Compilers:
 
     \image qtcreator-toolchains.png
 
@@ -59,8 +59,8 @@
 
         \li \MinGW (Minimalist GNU for Windows) is a native software port of GCC
             and GNU Binutils for use in the development of native Microsoft
-            Windows applications on Windows. \MinGW is
-            distributed together with \QC and Qt installers for Windows.
+            Windows applications on Windows. \MinGW is distributed together with
+            \QC and Qt for Windows.
 
         \li ICC (Intel C++ Compiler) is a group of C and C++ compilers.
             Only the GCC-compatible variant, available for Linux and \macos,

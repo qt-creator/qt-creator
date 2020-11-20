@@ -27,6 +27,7 @@
 
 #include "keyframeitem.h"
 
+#include <QElapsedTimer>
 #include <QGraphicsScene>
 
 namespace QmlDesigner {
@@ -120,6 +121,10 @@ protected:
 
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
 
+    void focusOutEvent(QFocusEvent *focusEvent) override;
+
+    void focusInEvent(QFocusEvent *focusEvent) override;
+
 private:
     using QGraphicsScene::addItem;
 
@@ -140,6 +145,8 @@ private:
     mutable QRectF m_limits;
 
     bool m_doNotMoveItems;
+
+    QElapsedTimer m_usageTimer;
 };
 
 } // End namespace QmlDesigner.

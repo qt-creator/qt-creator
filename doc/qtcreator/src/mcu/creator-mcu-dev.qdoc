@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -76,8 +76,8 @@
     \section2 MCU Plugin
 
     To be able to develop applications for MCUs, you need the MCU plugin.
-    This plugin is enabled automatically by the Qt online installer when
-    you install the Qt for MCUs SDK.
+    This plugin is enabled automatically by the Qt Installer when you
+    install Qt for MCUs.
 
     \section2 Specifying MCU Settings
 

@@ -35,12 +35,13 @@
     \QDS provides a set of Qt Quick 3D effects that inherit the types in the
     \l {Qt Quick 3D Effects QML Types}{Qt Quick 3D Effects} module.
 
-    To apply a visual effect to a component, drag-and-drop an effect from
-    \uicontrol Library \uicontrol {Qt Quick 3D Effects} under the \uicontrol
-    {View 3D} object in \uicontrol Navigator. You can apply multiple effects to
-    one component. The effects you add to the project are listed in \uicontrol
-    Properties > \uicontrol {Scene Environment} > \uicontrol Effect and are
-    visible in \uicontrol {Form Editor}.
+    To apply a visual effect to a scene, drag-and-drop an effect from
+    the \uicontrol {Qt Quick 3D Effects} tab in \uicontrol Library to a
+    \uicontrol {View 3D} object in \uicontrol Navigator. You can apply multiple
+    effects to a scene. Select the \uicontrol {Scene Environment} component in
+    \uicontrol Navigator to view the applied effects in \uicontrol Properties >
+    \uicontrol {Scene Environment} > \uicontrol Effect. The effects are visible
+    in the \uicontrol {Form Editor} view.
 
     See the following table for available effects and example images.
 
@@ -222,7 +223,11 @@
         \li \image effect-fxaa.png "The Fxaa effect"
         \li A fast approximate anti-aliasing effect that removes some of the
         artifacts from the image without impacting performance as heavily as
-        super-sampling would.
+        super-sampling would. The Fxaa effect is an easy fix for many aliasing
+        problems. It also works with moving images. However, it should be noted
+        that this effect can blur and distort fine text details, and as a
+        screen-space heuristic technique, it can sometimes leave sharp edges
+        that ideally would be anti-aliased.
 
     \row
         \li Gaussian Blur

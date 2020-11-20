@@ -53,6 +53,23 @@
     press \key Alt+Shift.
     \endif
 
+    \section1 Rotating Items
+
+    You can use a rotation tool \inlineimage rotate_on.png
+    in one of the corners of an item to freely rotate
+    items around their origin in \uicontrol {Form Editor}.
+    Drag clockwise or counter-clockwise to rotate the item.
+
+    \image qtquick-designer-rotating-items.png "2D rotation tool"
+
+    Additionally, press \key Shift or \key Alt to rotate items in steps of 5 or
+    45 degrees, respectively.
+
+    You can set the \l{Managing 2D Transformations}{origin} in the
+    \uicontrol Origin field in the \uicontrol Advanced tab in the
+    \uicontrol Properties view. There, you can also enter the value
+    of the \uicontrol Rotation property in degrees.
+
     \section1 Snapping to Parent and Sibling Items
 
     When you are working on a design, you can use snapping to align

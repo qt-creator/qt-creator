@@ -623,6 +623,58 @@ QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QString &i
     return getIconFromIconFont(fontName, iconSymbol, fontSize, iconSize, penColor);
 }
 
+QIcon StyleHelper::getCursorFromIconFont(const QString &fontName, const QString &cursorFill, const QString &cursorOutline,
+                                         int fontSize, int iconSize)
+{
+    QFontDatabase a;
+
+    QTC_ASSERT(a.hasFamily(fontName), {});
+
+    const QColor outlineColor = Qt::black;
+    const QColor fillColor = Qt::white;
+
+    if (a.hasFamily(fontName)) {
+
+        QIcon icon;
+        QSize size(iconSize, iconSize);
+
+        const int maxDpr = qRound(qApp->devicePixelRatio());
+        for (int dpr = 1; dpr <= maxDpr; dpr++) {
+            QPixmap pixmap(size * dpr);
+            pixmap.setDevicePixelRatio(dpr);
+            pixmap.fill(Qt::transparent);
+
+            QFont font(fontName);
+            font.setPixelSize(fontSize);
+
+            QPainter painter(&pixmap);
+            painter.save();
+            painter.setRenderHint(QPainter::Antialiasing, true);
+            painter.setRenderHint(QPainter::TextAntialiasing, true);
+            painter.setRenderHint(QPainter::LosslessImageRendering, true);
+            painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+
+            painter.setFont(font);
+            painter.setPen(outlineColor);
+            painter.drawText(QRectF(QPointF(0.0, 0.0), size),
+                             Qt::AlignCenter, cursorOutline);
+
+            painter.setPen(fillColor);
+            painter.drawText(QRectF(QPointF(0.0, 0.0), size),
+                             Qt::AlignCenter, cursorFill);
+
+            painter.restore();
+
+            icon.addPixmap(pixmap);
+        }
+
+        return icon;
+    }
+
+    return {};
+}
+
+
 QString StyleHelper::dpiSpecificImageFile(const QString &fileName)
 {
     // See QIcon::addFile()

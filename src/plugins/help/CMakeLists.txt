@@ -31,6 +31,14 @@ extend_qtc_plugin(Help
   DEFINES HELP_NEW_FILTER_ENGINE
 )
 
+set(HELPVIEWER_DEFAULT_BACKEND "litehtml" CACHE STRING "Sets default help viewer backend")
+set_property(CACHE HELPVIEWER_DEFAULT_BACKEND PROPERTY STRINGS "litehtml;qtwebengine;textbrowser")
+
+extend_qtc_plugin(Help
+  CONDITION HELPVIEWER_DEFAULT_BACKEND
+  DEFINES QTC_DEFAULT_HELPVIEWER_BACKEND="${HELPVIEWER_DEFAULT_BACKEND}"
+)
+
 extend_qtc_plugin(Help
   CONDITION FWWebKit AND FWAppKit AND Qt5_VERSION VERSION_LESS 6.0.0
   FEATURE_INFO "Native WebKit help viewer"

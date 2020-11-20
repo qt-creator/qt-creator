@@ -43,8 +43,8 @@
 
     \section1 Registering Installed Qt Versions
 
-    \QC automatically detects the Qt versions that are registered by
-    your system or by installers. To view detailed information for each Qt
+    \QC automatically detects the Qt versions that are registered by your
+    system or by the Qt Installer. To view detailed information for each Qt
     version, select it in the list and select \uicontrol Details in the
     \uicontrol {Qt version for} section.
 
@@ -137,7 +137,7 @@
     output exist. When \QC complains about the installation of a self-built Qt
     version, try running \c {make install} in the build directory to actually
     install Qt into the configured location. If you installed Qt using the Qt
-    installer, run the Qt maintenance tool to check for updates or to reinstall
+    Installer, run the Qt maintenance tool to check for updates or to reinstall
     the Qt version.
 
     \section1 Minimum Requirements

@@ -132,25 +132,29 @@ private:
     QMetaObject::Connection m_updateSizeConnection;
 };
 
-class TopLeftLocatorPopup : public LocatorPopup
+class TopLeftLocatorPopup final : public LocatorPopup
 {
 public:
     TopLeftLocatorPopup(LocatorWidget *locatorWidget)
-        : LocatorPopup(locatorWidget, locatorWidget) {}
+        : LocatorPopup(locatorWidget, locatorWidget) {
+        doUpdateGeometry();
+    }
 
 protected:
-    void updateGeometry() override;
+    void doUpdateGeometry() override;
     void inputLostFocus() override;
 };
 
-class CenteredLocatorPopup : public LocatorPopup
+class CenteredLocatorPopup final : public LocatorPopup
 {
 public:
     CenteredLocatorPopup(LocatorWidget *locatorWidget, QWidget *parent)
-        : LocatorPopup(locatorWidget, parent) {}
+        : LocatorPopup(locatorWidget, parent) {
+        doUpdateGeometry();
+    }
 
 protected:
-    void updateGeometry() override;
+    void doUpdateGeometry() override;
 };
 
 // =========== LocatorModel ===========
@@ -297,22 +301,22 @@ void CompletionList::setModel(QAbstractItemModel *newModel)
     }
 }
 
-void LocatorPopup::updateGeometry()
+void LocatorPopup::doUpdateGeometry()
 {
     m_tree->resizeHeaders();
 }
 
-void TopLeftLocatorPopup::updateGeometry()
+void TopLeftLocatorPopup::doUpdateGeometry()
 {
     QTC_ASSERT(parentWidget(), return);
     const QSize size = preferredSize();
     const int border = m_tree->frameWidth();
     const QRect rect(parentWidget()->mapToGlobal(QPoint(-border, -size.height() - border)), size);
     setGeometry(rect);
-    LocatorPopup::updateGeometry();
+    LocatorPopup::doUpdateGeometry();
 }
 
-void CenteredLocatorPopup::updateGeometry()
+void CenteredLocatorPopup::doUpdateGeometry()
 {
     QTC_ASSERT(parentWidget(), return);
     const QSize size = preferredSize();
@@ -333,7 +337,7 @@ void CenteredLocatorPopup::updateGeometry()
     if (rect.left() < available.left())
         rect.moveLeft(available.left());
     setGeometry(rect);
-    LocatorPopup::updateGeometry();
+    LocatorPopup::doUpdateGeometry();
 }
 
 void LocatorPopup::updateWindow()
@@ -354,17 +358,17 @@ bool LocatorPopup::event(QEvent *event)
         updateWindow();
     else if (event->type() == QEvent::Show)
         // make sure the popup has correct position before it becomes visible
-        updateGeometry();
+        doUpdateGeometry();
     else if (event->type() == QEvent::LayoutRequest)
         // completion list resizes after first items are shown --> LayoutRequest
-        QTimer::singleShot(0, this, &LocatorPopup::updateGeometry);
+        QTimer::singleShot(0, this, &LocatorPopup::doUpdateGeometry);
     return QWidget::event(event);
 }
 
 bool LocatorPopup::eventFilter(QObject *watched, QEvent *event)
 {
     if (watched == m_window && event->type() == QEvent::Resize)
-        updateGeometry();
+        doUpdateGeometry();
     return QWidget::eventFilter(watched, event);
 }
 
@@ -427,8 +431,6 @@ LocatorPopup::LocatorPopup(LocatorWidget *locatorWidget, QWidget *parent)
                 if (isVisible())
                     locatorWidget->scheduleAcceptEntry(index);
             });
-
-    updateGeometry();
 }
 
 CompletionList *LocatorPopup::completionList() const

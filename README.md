@@ -762,3 +762,9 @@ SQLite (https://www.sqlite.org) is in the Public Domain.
   DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
   FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
   OTHER DEALINGS IN THE FONT SOFTWARE.
+
+  ### Qbs
+
+  Qt Creator installations deliver Qbs. Its licensing and third party
+  attributions are listed in Qbs Manual at
+  https://doc.qt.io/qbs/attributions.html
