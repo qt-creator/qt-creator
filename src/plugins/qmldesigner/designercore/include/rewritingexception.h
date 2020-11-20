@@ -39,11 +39,10 @@ public:
                        const QString &documentTextContent);
 
     QString type() const override;
-    QString description() const override;
     QString documentTextContent() const;
+
 private:
-    QString m_description;
-    QString m_documentTextContent;
+    const QString m_documentTextContent;
 };
 
 } // namespace QmlDesigner

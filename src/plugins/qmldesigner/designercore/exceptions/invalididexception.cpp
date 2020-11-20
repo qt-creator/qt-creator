@@ -29,28 +29,40 @@
 
 namespace QmlDesigner {
 
-InvalidIdException::InvalidIdException(int line,
-                                       const QByteArray &function,
-                                       const QByteArray &file,
-                                       const QByteArray &id,
-                                       Reason reason) :
-    InvalidArgumentException(line, function, file, "id"),
-    m_id(QString::fromUtf8(id))
+static QString descriptionBasedOnReason(InvalidIdException::Reason reason)
 {
-    if (reason == InvalidCharacters)
-        m_description = QCoreApplication::translate("InvalidIdException", "Only alphanumeric characters and underscore allowed.\nIds must begin with a lowercase letter.");
-    else
-        m_description = QCoreApplication::translate("InvalidIdException", "Ids have to be unique.");
+    if (reason == InvalidIdException::InvalidCharacters)
+        return QCoreApplication::translate("InvalidIdException",
+                                           "Only alphanumeric characters and underscore allowed.\n"
+                                           "Ids must begin with a lowercase letter.");
+
+    return QCoreApplication::translate("InvalidIdException", "Ids have to be unique.");
+}
+
+static QString decorateDescriptionWithId(const QString &id, const QString &description)
+{
+    return QCoreApplication::translate("InvalidIdException", "Invalid Id: %1\n%2")
+            .arg(id, description);
 }
 
 InvalidIdException::InvalidIdException(int line,
                                        const QByteArray &function,
                                        const QByteArray &file,
                                        const QByteArray &id,
-                                       const QByteArray &description) :
-    InvalidArgumentException(line, function, file, "id"),
-    m_id(QString::fromUtf8(id)),
-    m_description(QString::fromUtf8(description))
+                                       Reason reason)
+    : InvalidArgumentException(line, function, file, "id",
+                               decorateDescriptionWithId(QString::fromUtf8(id),
+                                                         descriptionBasedOnReason(reason)))
+{ }
+
+InvalidIdException::InvalidIdException(int line,
+                                       const QByteArray &function,
+                                       const QByteArray &file,
+                                       const QByteArray &id,
+                                       const QByteArray &description)
+    : InvalidArgumentException(line, function, file, "id",
+                               decorateDescriptionWithId(QString::fromUtf8(id),
+                                                         QString::fromUtf8(description)))
 {
     createWarning();
 }
@@ -58,11 +70,6 @@ InvalidIdException::InvalidIdException(int line,
 QString InvalidIdException::type() const
 {
     return QLatin1String("InvalidIdException");
-}
-
-QString InvalidIdException::description() const
-{
-    return QCoreApplication::translate("InvalidIdException", "Invalid Id: %1\n%2").arg(m_id, m_description);
 }
 
 }

@@ -38,10 +38,6 @@ public:
                               const QByteArray &qmlSource = QByteArray());
 
     QString type() const override;
-    QString description() const override;
-
-private:
-   QString m_qmlSource;
 };
 
 } // namespace QmlDesigner

@@ -35,6 +35,19 @@ argument.
 */
 namespace QmlDesigner {
 
+QString InvalidArgumentException::invalidArgumentDescription(int line,
+                                                             const QByteArray &function,
+                                                             const QByteArray &file,
+                                                             const QByteArray &argument)
+{
+    if (QString::fromUtf8(function) == QLatin1String("createNode")) {
+        return QCoreApplication::translate("QmlDesigner::InvalidArgumentException",
+                  "Failed to create item of type %1").arg(QString::fromUtf8(argument));
+    }
+
+    return Exception::defaultDescription(line, function, file);
+}
+
 /*!
     Constructs the exception for \a argument. \a line uses the __LINE__ macro,
     \a function uses the __FUNCTION__ or the Q_FUNC_INFO macro, and \a file uses
@@ -44,17 +57,21 @@ InvalidArgumentException::InvalidArgumentException(int line,
                                                    const QByteArray &function,
                                                    const QByteArray &file,
                                                    const QByteArray &argument)
- : Exception(line, function, file), m_argument(QString::fromUtf8(argument))
+    : InvalidArgumentException(line, function, file, argument,
+                               invalidArgumentDescription(line, function, file, argument))
 {
     createWarning();
 }
 
-QString InvalidArgumentException::description() const
+InvalidArgumentException::InvalidArgumentException(int line,
+                                                   const QByteArray &function,
+                                                   const QByteArray &file,
+                                                   const QByteArray &argument,
+                                                   const QString &description)
+    : Exception(line, function, file, description)
+    , m_argument(QString::fromUtf8(argument))
 {
-    if (function() == QLatin1String("createNode"))
-        return QCoreApplication::translate("QmlDesigner::InvalidArgumentException", "Failed to create item of type %1").arg(m_argument);
-
-    return Exception::description();
+    createWarning();
 }
 
 /*!
