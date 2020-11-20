@@ -43,6 +43,10 @@
         \li Windows 10
     \endlist
 
+    \note For a good user experience on Windows 10, we recommend the following
+    minimum hardware and software: Intel Core i7 with 8GB of RAM and integrated
+    Intel Graphics.
+
     \section1 Design Tools
 
     \QB is available for the following design tools:
