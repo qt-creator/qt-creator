@@ -1513,9 +1513,6 @@ void DebuggerEnginePrivate::updateState()
     const bool detachable = stopped && !isCore;
     m_detachAction.setEnabled(detachable);
 
-    if (stopped)
-        QApplication::alert(ICore::dialogParent(), 3000);
-
     updateReverseActions();
 
     const bool canSnapshot = m_engine->hasCapability(SnapshotCapability);
