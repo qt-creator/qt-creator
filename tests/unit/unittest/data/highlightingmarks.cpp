@@ -745,3 +745,9 @@ void f4()
     ASSIGN(int i, thePointer);
     ASSIGN2(int i, thePointer);
 }
+
+const int MyConstant = 8;
+void f5()
+{
+    int arr[MyConstant][8];
+}

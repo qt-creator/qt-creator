@@ -1776,6 +1776,13 @@ TEST_F(TokenProcessor, IndirectMacro)
     ASSERT_THAT(infos[5], IsHighlightingMark(746u, 20u, 10u, HighlightingType::LocalVariable));
 }
 
+TEST_F(TokenProcessor, MultiDimArray)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(752, 28));
+
+    ASSERT_THAT(infos[3], IsHighlightingMark(752u, 13u, 10u, HighlightingType::GlobalVariable));
+}
+
 Data *TokenProcessor::d;
 
 void TokenProcessor::SetUpTestCase()

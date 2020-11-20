@@ -226,6 +226,28 @@ bool TokenInfo::isArgumentInCurrentOutputArgumentLocations() const
     return isOutputArgument;
 }
 
+// For reasons I don't fully understand, the cursors from clang_annotateTokens() are sometimes
+// not the actual cursor for the respective token, but the one for a construct higher up
+// in the syntax tree. This is often not what we want (e.g. QTCREATORBUG-21522, QTCREATORBUG-21534),
+// so in such cases we re-retrieve the cursor for the token via clang_getCursor().
+Cursor TokenInfo::realCursor(const Cursor &cursor) const
+{
+    // Magic Qt stuff.
+    if (cursor.kind() == CXCursor_InvalidFile)
+        return cursor;
+
+    const SourceLocation tokenLoc = m_token->location();
+    const SourceLocation cursorLoc = cursor.sourceLocation();
+    if (tokenLoc == cursorLoc)
+        return cursor;
+
+    // Note: clang_getTokenLocation() does not work.
+    const CXFile cxFile = clang_getFile(m_token->tu(), tokenLoc.filePath().toByteArray());
+    const CXSourceLocation cxLoc = clang_getLocation(m_token->tu(), cxFile, tokenLoc.line(),
+                                                     tokenLoc.column());
+    return clang_getCursor(m_token->tu(), cxLoc);
+}
+
 bool TokenInfo::isOutputArgument() const
 {
     if (m_currentOutputArgumentRanges->empty())
@@ -358,6 +380,14 @@ void TokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
     if (cursor.isInvalidDeclaration())
         return;
 
+    if (recursion == Recursion::FirstPass) {
+        const Cursor c = realCursor(cursor);
+        if (!clang_isInvalid(c.kind()) && c != cursor) {
+            identifierKind(c, Recursion::FirstPass);
+            return;
+        }
+    }
+
     const CXCursorKind kind = cursor.kind();
     switch (kind) {
         case CXCursor_Destructor:
@@ -452,18 +482,8 @@ void TokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
         case CXCursor_InvalidFile:
             invalidFileKind();
             break;
-        default: {
-            // QTCREATORBUG-21522
-            // Note: clang_getTokenLocation() does not work.
-            const SourceLocation loc = m_token->location();
-            const CXFile cxFile = clang_getFile(m_token->tu(), loc.filePath().toByteArray());
-            const CXSourceLocation cxLoc = clang_getLocation(m_token->tu(), cxFile, loc.line(),
-                                                             loc.column());
-            const CXCursor realCursor = clang_getCursor(m_token->tu(), cxLoc);
-            if (realCursor != cursor)
-                identifierKind(realCursor, Recursion::FirstPass);
+        default:
             break;
-        }
     }
 }
 

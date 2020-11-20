@@ -114,6 +114,7 @@ private:
     void collectOutputArguments(const Cursor &cursor);
     void filterOutPreviousOutputArguments();
     bool isArgumentInCurrentOutputArgumentLocations() const;
+    Cursor realCursor(const Cursor &cursor) const;
 
     std::vector<CXSourceRange> *m_currentOutputArgumentRanges = nullptr;
     uint m_line = 0;
