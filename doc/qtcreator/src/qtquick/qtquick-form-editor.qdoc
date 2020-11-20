@@ -55,7 +55,7 @@
 
     \section1 Rotating Items
 
-    You can use a rotation tool \inlineimage rotate_on.png
+    You can use a rotation tool \inlineimage icons/rotation-cursor.png
     in one of the corners of an item to freely rotate
     items around their origin in \uicontrol {Form Editor}.
     Drag clockwise or counter-clockwise to rotate the item.

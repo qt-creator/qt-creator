@@ -119,8 +119,8 @@
                 the white background.
 
             \li Click \uicontrol {Layout}, and then click the
-                \inlineimage anchor-top.png
-                (\uicontrol Top) and \inlineimage anchor-left.png
+                \inlineimage icons/anchor-top.png
+                (\uicontrol Top) and \inlineimage icons/anchor-left.png
                 (\uicontrol Left) anchor buttons to anchor the
                 rectangle to the top left corner of the page.
 
@@ -135,7 +135,7 @@
             \uicontrol Library to \e topLeftRect in \uicontrol Navigator.
 
         \li Click \uicontrol {Layout}, and then click the
-            \inlineimage anchor-fill.png
+            \inlineimage icons/anchor-fill.png
             (\uicontrol {Fill to Parent}) button to anchor the mouse area to the
             rectangle.
 
@@ -151,9 +151,9 @@
             \li In the \uicontrol Id field, enter \e middleRightRect.
 
             \li In \uicontrol {Layout}, select the
-                \inlineimage anchor-vertical-center.png
+                \inlineimage icons/anchor-center-vertical.png
                 (\uicontrol {Vertical Center} anchor button and then the
-                \inlineimage anchor-right.png
+                \inlineimage icons/anchor-right.png
                 (\uicontrol Right) anchor button to anchor the rectangle
                 to the middle right margin of its parent.
 
@@ -169,8 +169,8 @@
             \li In the \uicontrol Id field, enter \e bottomLeftRect.
 
             \li In \uicontrol {Layout}, select the
-                \inlineimage anchor-bottom.png
-                (\uicontrol Bottom) and \inlineimage anchor-left.png
+                \inlineimage icons/anchor-bottom.png
+                (\uicontrol Bottom) and \inlineimage icons/anchor-left.png
                 (\uicontrol Left) anchor buttons to anchor the rectangle
                 to the bottom left margin of its parent.
 
