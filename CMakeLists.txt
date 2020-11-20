@@ -107,11 +107,6 @@ endif()
 
 add_subdirectory(doc)
 
-# CMake will include in a cmake_install.cmake at the end the subdirectories
-# At this point all the previous install scripts have been included
-# Deployment is being done in cmake/CMakeLists.txt
-add_subdirectory(cmake)
-
 feature_summary(INCLUDE_QUIET_PACKAGES WHAT
   PACKAGES_FOUND PACKAGES_NOT_FOUND
   ENABLED_FEATURES DISABLED_FEATURES

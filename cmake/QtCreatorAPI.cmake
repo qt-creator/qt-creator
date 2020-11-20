@@ -724,61 +724,6 @@ function(add_qtc_executable name)
 
     update_cached_list(__QTC_INSTALLED_EXECUTABLES
       "${_DESTINATION}/${name}${CMAKE_EXECUTABLE_SUFFIX}")
-
-    install(CODE "
-      function(create_qt_conf location base_dir)
-        get_filename_component(install_prefix \"\${CMAKE_INSTALL_PREFIX}\" ABSOLUTE)
-        file(RELATIVE_PATH qt_conf_binaries
-          \"\${install_prefix}/\${location}\"
-          \"\${install_prefix}/\${base_dir}\"
-        )
-        if (NOT qt_conf_binaries)
-          set(qt_conf_binaries .)
-        endif()
-        file(RELATIVE_PATH qt_conf_plugins
-          \"\${install_prefix}/\${base_dir}\"
-          \"\${install_prefix}/${QT_DEST_PLUGIN_PATH}\"
-        )
-        file(RELATIVE_PATH qt_conf_qml
-          \"\${install_prefix}/\${base_dir}\"
-          \"\${install_prefix}/${QT_DEST_QML_PATH}\"
-        )
-        file(WRITE \"\${CMAKE_INSTALL_PREFIX}/\${location}/qt.conf\"
-          \"[Paths]\n\"
-          \"Plugins=\${qt_conf_plugins}\n\"
-          \"Qml2Imports=\${qt_conf_qml}\n\"
-        )
-        # For Apple for Qt Creator do not add a Prefix
-        if (NOT APPLE OR NOT qt_conf_binaries STREQUAL \"../\")
-          file(APPEND \"\${CMAKE_INSTALL_PREFIX}/\${location}/qt.conf\"
-            \"Prefix=\${qt_conf_binaries}\n\"
-          )
-        endif()
-        if (WIN32 OR APPLE)
-          file(RELATIVE_PATH qt_binaries
-            \"\${install_prefix}/\${base_dir}\"
-            \"\${install_prefix}/${IDE_BIN_PATH}\"
-          )
-          if (NOT qt_binaries)
-            set(qt_binaries .)
-          endif()
-          file(APPEND \"\${CMAKE_INSTALL_PREFIX}/\${location}/qt.conf\"
-            \"# Needed by QtCreator for qtdiag\n\"
-            \"Binaries=\${qt_binaries}\n\")
-        endif()
-      endfunction()
-      if(APPLE)
-        create_qt_conf(\"${_EXECUTABLE_PATH}\" \"${IDE_DATA_PATH}/..\")
-      elseif (WIN32)
-        create_qt_conf(\"${_EXECUTABLE_PATH}\" \"${IDE_APP_PATH}\")
-      else()
-        create_qt_conf(\"${_EXECUTABLE_PATH}\" \"${IDE_LIBRARY_BASE_PATH}/Qt\")
-      endif()
-      "
-      COMPONENT Dependencies
-      EXCLUDE_FROM_ALL
-     )
-
   endif()
 endfunction()
 
