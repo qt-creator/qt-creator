@@ -455,7 +455,8 @@ void ClangDiagnosticManager::addClangTextMarks(
         auto textMark = new ClangTextMark(::Utils::FilePath::fromString(filePath()),
                                           diagnostic,
                                           onMarkRemoved,
-                                          m_fullVisualization);
+                                          m_fullVisualization,
+                                          this);
         m_clangTextMarks.push_back(textMark);
         m_textDocument->addMark(textMark);
     }

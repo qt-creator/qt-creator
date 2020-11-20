@@ -34,6 +34,7 @@ QT_END_NAMESPACE
 
 namespace ClangCodeModel {
 namespace Internal {
+class ClangDiagnosticManager;
 
 class ClangDiagnosticWidget {
 public:
@@ -41,8 +42,10 @@ public:
 
     static QString createText(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
                               const Destination &destination);
+
     static QWidget *createWidget(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
-                                 const Destination &destination);
+                                 const Destination &destination,
+                                 const ClangDiagnosticManager *diagMgr = nullptr);
 };
 
 } // namespace Internal

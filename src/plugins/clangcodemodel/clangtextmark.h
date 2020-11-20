@@ -34,6 +34,7 @@
 
 namespace ClangCodeModel {
 namespace Internal {
+class ClangDiagnosticManager;
 
 class ClangTextMark : public TextEditor::TextMark
 {
@@ -43,7 +44,8 @@ public:
     ClangTextMark(const ::Utils::FilePath &fileName,
                   const ClangBackEnd::DiagnosticContainer &diagnostic,
                   const RemovedFromEditorHandler &removedHandler,
-                  bool fullVisualization);
+                  bool fullVisualization,
+                  const ClangDiagnosticManager *diagMgr);
 
     ClangBackEnd::DiagnosticContainer diagnostic() const { return m_diagnostic; }
     void updateIcon(bool valid = true);
@@ -55,6 +57,7 @@ private:
 private:
     ClangBackEnd::DiagnosticContainer m_diagnostic;
     RemovedFromEditorHandler m_removedFromEditorHandler;
+    const ClangDiagnosticManager * const m_diagMgr;
 };
 
 } // namespace Internal

@@ -58,6 +58,7 @@ public:
     TextEditor::RefactorMarkers takeFixItAvailableMarkers();
 
     QList<TextEditor::TextMark *> diagnosticTextMarksAt(uint line, uint column) const;
+    bool diagnosticsInvalidated() const { return m_diagnosticsInvalidated; }
 
     void invalidateDiagnostics();
     void clearDiagnosticsWithFixIts();

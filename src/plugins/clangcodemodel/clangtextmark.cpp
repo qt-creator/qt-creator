@@ -210,12 +210,13 @@ void disableDiagnosticInCurrentProjectConfig(const ClangBackEnd::DiagnosticConta
 ClangTextMark::ClangTextMark(const FilePath &fileName,
                              const ClangBackEnd::DiagnosticContainer &diagnostic,
                              const RemovedFromEditorHandler &removedHandler,
-                             bool fullVisualization)
+                             bool fullVisualization, const ClangDiagnosticManager *diagMgr)
     : TextEditor::TextMark(fileName,
                            int(diagnostic.location.line),
                            categoryForSeverity(diagnostic.severity))
     , m_diagnostic(diagnostic)
     , m_removedFromEditorHandler(removedHandler)
+    , m_diagMgr(diagMgr)
 {
     const bool warning = isWarningOrNote(diagnostic.severity);
     setDefaultToolTip(warning ? QApplication::translate("Clang Code Model Marks", "Code Model Warning")
@@ -265,8 +266,10 @@ void ClangTextMark::updateIcon(bool valid)
 
 bool ClangTextMark::addToolTipContent(QLayout *target) const
 {
-    QWidget *widget = ClangDiagnosticWidget::createWidget({m_diagnostic},
-                                                          ClangDiagnosticWidget::ToolTip);
+
+    QWidget *widget = ClangDiagnosticWidget::createWidget(
+                {m_diagnostic}, ClangDiagnosticWidget::ToolTip,
+                color() == Utils::Theme::Color::IconsDisabledColor ? nullptr : m_diagMgr);
     target->addWidget(widget);
 
     return true;
@@ -280,4 +283,3 @@ void ClangTextMark::removedFromEditor()
 
 } // namespace Internal
 } // namespace ClangCodeModel
-
