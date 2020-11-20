@@ -29,6 +29,9 @@
 #include "graphicsview.h"
 #include "handleitem.h"
 
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
+
 #include <QGraphicsSceneMouseEvent>
 
 #include <cmath>
@@ -423,6 +426,19 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 
     if (m_dirty)
         graphicsView()->setZoomY(0.0);
+}
+
+void GraphicsScene::focusOutEvent(QFocusEvent *focusEvent)
+{
+    QmlDesignerPlugin::emitUsageStatisticsTime(Constants::EVENT_CURVEDITOR_TIME,
+                                               m_usageTimer.elapsed());
+    QGraphicsScene::focusOutEvent(focusEvent);
+}
+
+void GraphicsScene::focusInEvent(QFocusEvent *focusEvent)
+{
+    m_usageTimer.restart();
+    QGraphicsScene::focusInEvent(focusEvent);
 }
 
 GraphicsView *GraphicsScene::graphicsView() const

@@ -88,6 +88,11 @@ const char EVENT_ACTION_EXECUTED[] = "Action Executed ";
 const char EVENT_IMPORT_ADDED[] = "Import Added ";
 const char EVENT_BINDINGEDITOR_OPENED[] = "Binding Editor Opened";
 const char EVENT_RICHTEXT_OPENED[] = "Richtext Editor Opened";
+const char EVENT_FORMEDITOR_TIME[] = "Form Editor";
+const char EVENT_3DEDITOR_TIME[] = "3D Editor";
+const char EVENT_TIMELINE_TIME[] = "Timeline";
+const char EVENT_TRANSITIONEDITOR_TIME[] = "Transition Editor";
+const char EVENT_CURVEDITOR_TIME[] = "Curve Editor";
 
 namespace Internal {
     enum { debug = 0 };

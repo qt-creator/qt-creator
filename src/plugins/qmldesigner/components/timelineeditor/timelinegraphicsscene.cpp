@@ -42,6 +42,7 @@
 #include <rewritertransaction.h>
 #include <rewriterview.h>
 #include <viewmanager.h>
+#include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmlobjectnode.h>
 #include <qmltimelinekeyframegroup.h>
@@ -666,6 +667,19 @@ void TimelineGraphicsScene::keyReleaseEvent(QKeyEvent *keyEvent)
         handleKeyframeDeletion();
 
     QGraphicsScene::keyReleaseEvent(keyEvent);
+}
+
+void TimelineGraphicsScene::focusOutEvent(QFocusEvent *focusEvent)
+{
+    QmlDesignerPlugin::emitUsageStatisticsTime(Constants::EVENT_TIMELINE_TIME,
+                                               m_usageTimer.elapsed());
+    QGraphicsScene::focusOutEvent(focusEvent);
+}
+
+void TimelineGraphicsScene::focusInEvent(QFocusEvent *focusEvent)
+{
+    m_usageTimer.restart();
+    QGraphicsScene::focusInEvent(focusEvent);
 }
 
 void TimelineGraphicsScene::invalidateSections()

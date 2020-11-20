@@ -28,6 +28,7 @@
 #include "formeditorwidget.h"
 #include "formeditoritem.h"
 #include <nodehints.h>
+#include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <designersettings.h>
 
@@ -321,10 +322,21 @@ void FormEditorScene::keyReleaseEvent(QKeyEvent *keyEvent)
         currentTool()->keyReleaseEvent(keyEvent);
 }
 
-void FormEditorScene::focusOutEvent(QFocusEvent *)
+void FormEditorScene::focusOutEvent(QFocusEvent *focusEvent)
 {
     if (currentTool())
         currentTool()->focusLost();
+
+    QmlDesignerPlugin::emitUsageStatisticsTime(Constants::EVENT_FORMEDITOR_TIME,
+                                               m_usageTimer.elapsed());
+
+    QGraphicsScene::focusOutEvent(focusEvent);
+}
+
+void FormEditorScene::focusInEvent(QFocusEvent *focusEvent)
+{
+    m_usageTimer.restart();
+    QGraphicsScene::focusInEvent(focusEvent);
 }
 
 FormEditorView *FormEditorScene::editorView() const
