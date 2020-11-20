@@ -736,3 +736,12 @@ void structuredBindingTest() {
     const int a[] = {1, 2};
     const auto [x, y] = a;
 }
+
+#define ASSIGN(decl, ptr) do { decl = *ptr; } while (false)
+#define ASSIGN2 ASSIGN
+void f4()
+{
+    int *thePointer = 0;
+    ASSIGN(int i, thePointer);
+    ASSIGN2(int i, thePointer);
+}

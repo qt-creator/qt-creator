@@ -1769,6 +1769,13 @@ TEST_F(TokenProcessor, StructuredBinding)
     ASSERT_THAT(infos[5], IsHighlightingMark(737u, 20u, 1u, HighlightingType::LocalVariable));
 }
 
+TEST_F(TokenProcessor, IndirectMacro)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(746, 32));
+
+    ASSERT_THAT(infos[5], IsHighlightingMark(746u, 20u, 10u, HighlightingType::LocalVariable));
+}
+
 Data *TokenProcessor::d;
 
 void TokenProcessor::SetUpTestCase()

@@ -452,8 +452,18 @@ void TokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
         case CXCursor_InvalidFile:
             invalidFileKind();
             break;
-        default:
+        default: {
+            // QTCREATORBUG-21522
+            // Note: clang_getTokenLocation() does not work.
+            const SourceLocation loc = m_token->location();
+            const CXFile cxFile = clang_getFile(m_token->tu(), loc.filePath().toByteArray());
+            const CXSourceLocation cxLoc = clang_getLocation(m_token->tu(), cxFile, loc.line(),
+                                                             loc.column());
+            const CXCursor realCursor = clang_getCursor(m_token->tu(), cxLoc);
+            if (realCursor != cursor)
+                identifierKind(realCursor, Recursion::FirstPass);
             break;
+        }
     }
 }
 
