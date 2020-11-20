@@ -8,7 +8,7 @@ QtcPlugin {
     Depends { name: "Utils" }
 
     Depends { name: "Core" }
-    Depends { name: "Baremetal" }
+    Depends { name: "BareMetal" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "Debugger" }
     Depends { name: "CMakeProjectManager" }
