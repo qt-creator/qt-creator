@@ -1543,7 +1543,8 @@ IEditor *EditorManagerPrivate::activateEditor(EditorView *view, IEditor *editor,
                             ModeManager::activateMode(Constants::MODE_EDIT);
                 }
                 editor->widget()->setFocus();
-                ICore::raiseWindow(editor->widget());
+                if (!(flags & EditorManager::DoNotRaise))
+                    ICore::raiseWindow(editor->widget());
             }
         }
     } else if (!(flags & EditorManager::DoNotMakeVisible)) {

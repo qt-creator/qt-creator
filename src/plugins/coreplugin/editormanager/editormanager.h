@@ -81,7 +81,8 @@ public:
         OpenInOtherSplit = 16,
         DoNotSwitchToDesignMode = 32,
         DoNotSwitchToEditMode = 64,
-        SwitchSplitIfAlreadyVisible = 128
+        SwitchSplitIfAlreadyVisible = 128,
+        DoNotRaise = 256
     };
     Q_DECLARE_FLAGS(OpenEditorFlags, OpenEditorFlag)
 
