@@ -321,7 +321,7 @@ void ChangeSet::convertToReplace(const EditOp &op, QList<EditOp> *replaceList)
     }
 }
 
-bool ChangeSet::hadErrors()
+bool ChangeSet::hadErrors() const
 {
     return m_error;
 }

@@ -77,8 +77,8 @@ static QString pluginFolder(const QLatin1String &folder)
 void tst_PluginManager::init()
 {
     m_pm = new PluginManager;
-    m_pm->setSettings(new QSettings);
-    m_pm->setPluginIID(QLatin1String("plugin"));
+    PluginManager::setSettings(new QSettings);
+    PluginManager::setPluginIID(QLatin1String("plugin"));
     m_objectAdded = new QSignalSpy(m_pm, SIGNAL(objectAdded(QObject*)));
     m_aboutToRemoveObject = new QSignalSpy(m_pm, SIGNAL(aboutToRemoveObject(QObject*)));
     m_pluginsChanged = new QSignalSpy(m_pm, SIGNAL(pluginsChanged()));
@@ -86,7 +86,7 @@ void tst_PluginManager::init()
 
 void tst_PluginManager::cleanup()
 {
-    m_pm->shutdown();
+    PluginManager::shutdown();
     delete m_pm;
     delete m_objectAdded;
     delete m_aboutToRemoveObject;
@@ -97,35 +97,35 @@ void tst_PluginManager::addRemoveObjects()
 {
     QObject *object1 = new QObject;
     QObject *object2 = new QObject;
-    QCOMPARE(m_pm->allObjects().size(), 0);
-    m_pm->addObject(object1);
+    QCOMPARE(PluginManager::allObjects().size(), 0);
+    PluginManager::addObject(object1);
     QCOMPARE(m_objectAdded->count(), 1);
     QCOMPARE(m_objectAdded->at(0).first().value<QObject *>(), object1);
     QCOMPARE(m_aboutToRemoveObject->count(), 0);
-    QVERIFY(m_pm->allObjects().contains(object1));
-    QVERIFY(!m_pm->allObjects().contains(object2));
-    QCOMPARE(m_pm->allObjects().size(), 1);
-    m_pm->addObject(object2);
+    QVERIFY(PluginManager::allObjects().contains(object1));
+    QVERIFY(!PluginManager::allObjects().contains(object2));
+    QCOMPARE(PluginManager::allObjects().size(), 1);
+    PluginManager::addObject(object2);
     QCOMPARE(m_objectAdded->count(), 2);
     QCOMPARE(m_objectAdded->at(1).first().value<QObject *>(), object2);
     QCOMPARE(m_aboutToRemoveObject->count(), 0);
-    QVERIFY(m_pm->allObjects().contains(object1));
-    QVERIFY(m_pm->allObjects().contains(object2));
-    QCOMPARE(m_pm->allObjects().size(), 2);
-    m_pm->removeObject(object1);
+    QVERIFY(PluginManager::allObjects().contains(object1));
+    QVERIFY(PluginManager::allObjects().contains(object2));
+    QCOMPARE(PluginManager::allObjects().size(), 2);
+    PluginManager::removeObject(object1);
     QCOMPARE(m_objectAdded->count(), 2);
     QCOMPARE(m_aboutToRemoveObject->count(), 1);
     QCOMPARE(m_aboutToRemoveObject->at(0).first().value<QObject *>(), object1);
-    QVERIFY(!m_pm->allObjects().contains(object1));
-    QVERIFY(m_pm->allObjects().contains(object2));
-    QCOMPARE(m_pm->allObjects().size(), 1);
-    m_pm->removeObject(object2);
+    QVERIFY(!PluginManager::allObjects().contains(object1));
+    QVERIFY(PluginManager::allObjects().contains(object2));
+    QCOMPARE(PluginManager::allObjects().size(), 1);
+    PluginManager::removeObject(object2);
     QCOMPARE(m_objectAdded->count(), 2);
     QCOMPARE(m_aboutToRemoveObject->count(), 2);
     QCOMPARE(m_aboutToRemoveObject->at(1).first().value<QObject *>(), object2);
-    QVERIFY(!m_pm->allObjects().contains(object1));
-    QVERIFY(!m_pm->allObjects().contains(object2));
-    QCOMPARE(m_pm->allObjects().size(), 0);
+    QVERIFY(!PluginManager::allObjects().contains(object1));
+    QVERIFY(!PluginManager::allObjects().contains(object2));
+    QCOMPARE(PluginManager::allObjects().size(), 0);
     delete object1;
     delete object2;
 }
@@ -137,22 +137,22 @@ void tst_PluginManager::getObject()
     MyClass2 *object2b = new MyClass2;
     const QString objectName = QLatin1String("OBJECTNAME");
     object2b->setObjectName(objectName);
-    m_pm->addObject(object2);
-    QCOMPARE(m_pm->getObject<MyClass11>(), static_cast<MyClass11 *>(0));
-    QCOMPARE(m_pm->getObject<MyClass1>(), static_cast<MyClass1 *>(0));
-    QCOMPARE(m_pm->getObject<MyClass2>(), object2);
-    m_pm->addObject(object11);
-    QCOMPARE(m_pm->getObject<MyClass11>(), object11);
-    QCOMPARE(m_pm->getObject<MyClass1>(), qobject_cast<MyClass1 *>(object11));
-    QCOMPARE(m_pm->getObject<MyClass2>(), object2);
-    QCOMPARE(m_pm->getObjectByName(objectName), static_cast<QObject *>(0));
-    m_pm->addObject(object2b);
-    QCOMPARE(m_pm->getObjectByName(objectName), object2b);
-    QCOMPARE(m_pm->getObject<MyClass2>(
-                    [&objectName](MyClass2 *obj) { return obj->objectName() == objectName;}), object2b);
-    m_pm->removeObject(object2);
-    m_pm->removeObject(object11);
-    m_pm->removeObject(object2b);
+    PluginManager::addObject(object2);
+    QCOMPARE(PluginManager::getObject<MyClass11>(), static_cast<MyClass11 *>(0));
+    QCOMPARE(PluginManager::getObject<MyClass1>(), static_cast<MyClass1 *>(0));
+    QCOMPARE(PluginManager::getObject<MyClass2>(), object2);
+    PluginManager::addObject(object11);
+    QCOMPARE(PluginManager::getObject<MyClass11>(), object11);
+    QCOMPARE(PluginManager::getObject<MyClass1>(), qobject_cast<MyClass1 *>(object11));
+    QCOMPARE(PluginManager::getObject<MyClass2>(), object2);
+    QCOMPARE(PluginManager::getObjectByName(objectName), static_cast<QObject *>(0));
+    PluginManager::addObject(object2b);
+    QCOMPARE(PluginManager::getObjectByName(objectName), object2b);
+    QCOMPARE(PluginManager::getObject<MyClass2>(
+                 [&objectName](MyClass2 *obj) { return obj->objectName() == objectName;}), object2b);
+    PluginManager::removeObject(object2);
+    PluginManager::removeObject(object11);
+    PluginManager::removeObject(object2b);
     delete object2;
     delete object11;
     delete object2b;
@@ -160,9 +160,9 @@ void tst_PluginManager::getObject()
 
 void tst_PluginManager::circularPlugins()
 {
-    m_pm->setPluginPaths(QStringList() << pluginFolder(QLatin1String("circularplugins")));
-    m_pm->loadPlugins();
-    QVector<PluginSpec *> plugins = m_pm->plugins();
+    PluginManager::setPluginPaths(QStringList() << pluginFolder(QLatin1String("circularplugins")));
+    PluginManager::loadPlugins();
+    QVector<PluginSpec *> plugins = PluginManager::plugins();
     QCOMPARE(plugins.count(), 3);
     foreach (PluginSpec *spec, plugins) {
         if (spec->name() == "plugin1") {
@@ -182,11 +182,11 @@ void tst_PluginManager::circularPlugins()
 
 void tst_PluginManager::correctPlugins1()
 {
-    m_pm->setPluginPaths(QStringList() << pluginFolder(QLatin1String("correctplugins1")));
-    m_pm->loadPlugins();
+    PluginManager::setPluginPaths(QStringList() << pluginFolder(QLatin1String("correctplugins1")));
+    PluginManager::loadPlugins();
     bool specError = false;
     bool runError = false;
-    foreach (PluginSpec *spec, m_pm->plugins()) {
+    foreach (PluginSpec *spec, PluginManager::plugins()) {
         if (spec->hasError()) {
             qDebug() << spec->filePath();
             qDebug() << spec->errorString();
@@ -199,7 +199,7 @@ void tst_PluginManager::correctPlugins1()
     bool plugin1running = false;
     bool plugin2running = false;
     bool plugin3running = false;
-    foreach (QObject *obj, m_pm->allObjects()) {
+    foreach (QObject *obj, PluginManager::allObjects()) {
         if (obj->objectName() == "MyPlugin1_running")
             plugin1running = true;
         else if (obj->objectName() == "MyPlugin2_running")

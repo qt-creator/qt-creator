@@ -82,7 +82,7 @@ public:
         return this == globalMacroExpander()->d ? false : globalMacroExpander()->d->resolveMacro(name, ret, seen);
     }
 
-    QString value(const QByteArray &variable, bool *found)
+    QString value(const QByteArray &variable, bool *found) const
     {
         MacroExpander::StringFunction sf = m_map.value(variable);
         if (sf) {

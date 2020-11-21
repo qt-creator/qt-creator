@@ -126,10 +126,10 @@ public:
 
     static bool isInitializationDone();
 
-    void remoteArguments(const QString &serializedArguments, QObject *socket);
-    void shutdown();
+    static void remoteArguments(const QString &serializedArguments, QObject *socket);
+    static void shutdown();
 
-    QString systemInformation() const;
+    static QString systemInformation();
 
 signals:
     void objectAdded(QObject *obj);

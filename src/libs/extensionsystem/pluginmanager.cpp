@@ -413,7 +413,7 @@ static QString filled(const QString &s, int min)
     return s + QString(qMax(0, min - s.size()), ' ');
 }
 
-QString PluginManager::systemInformation() const
+QString PluginManager::systemInformation()
 {
     QString result;
     CommandLine qtDiag(HostOsInfo::withExecutableSuffix(
@@ -864,7 +864,7 @@ void PluginManagerPrivate::nextDelayedInitialize()
         profilingSummary();
         emit q->initializationDone();
 #ifdef WITH_TESTS
-        if (q->testRunRequested())
+        if (PluginManager::testRunRequested())
             startTests();
 #endif
     } else {

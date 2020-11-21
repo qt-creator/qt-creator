@@ -92,12 +92,12 @@ QStringList DropSupport::mimeTypesForFilePaths()
     return QStringList("text/uri-list");
 }
 
-bool DropSupport::isFileDrop(QDropEvent *event) const
+bool DropSupport::isFileDrop(QDropEvent *event)
 {
     return Utils::isFileDrop(event->mimeData());
 }
 
-bool DropSupport::isValueDrop(QDropEvent *event) const
+bool DropSupport::isValueDrop(QDropEvent *event)
 {
     if (const auto internalData = qobject_cast<const DropMimeData *>(event->mimeData())) {
         return !internalData->values().isEmpty();

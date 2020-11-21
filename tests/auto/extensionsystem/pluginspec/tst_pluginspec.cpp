@@ -96,7 +96,7 @@ void tst_PluginSpec::init()
 void tst_PluginSpec::initTestCase()
 {
     pm = new PluginManager;
-    pm->setPluginIID(QLatin1String("plugin"));
+    PluginManager::setPluginIID(QLatin1String("plugin"));
 }
 
 void tst_PluginSpec::cleanupTestCase()

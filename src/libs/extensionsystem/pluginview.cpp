@@ -115,8 +115,6 @@ public:
         : m_spec(spec), m_view(view)
     {}
 
-    int columnCount() const { return 4; }
-
     QVariant data(int column, int role) const override
     {
         switch (column) {
@@ -225,8 +223,6 @@ public:
         for (PluginSpec *spec : plugins)
             appendChild(new PluginItem(spec, view));
     }
-
-    int columnCount() const { return 4; }
 
     QVariant data(int column, int role) const override
     {

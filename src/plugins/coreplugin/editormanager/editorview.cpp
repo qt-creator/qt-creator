@@ -142,7 +142,7 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
         // item view
         if (!qobject_cast<EditorToolBar*>(event->source()))
             event->setDropAction(Qt::CopyAction);
-        if (event->type() == QDropEvent::DragEnter && !dropSupport->isFileDrop(event))
+        if (event->type() == QDropEvent::DragEnter && !DropSupport::isFileDrop(event))
             return false; // do not accept drops without files
         return event->source() != m_toolBar; // do not accept drops on ourselves
     });

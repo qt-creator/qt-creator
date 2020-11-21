@@ -158,7 +158,7 @@ void Environment::setupEnglishOutput(QStringList *environment)
 }
 
 FilePath Environment::searchInDirectory(const QStringList &execs, const FilePath &directory,
-                                        QSet<FilePath> &alreadyChecked) const
+                                        QSet<FilePath> &alreadyChecked)
 {
     const int checkedCount = alreadyChecked.count();
     alreadyChecked.insert(directory);

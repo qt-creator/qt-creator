@@ -119,7 +119,7 @@ public:
     void updatePositionAndShow(bool);
     void updateFilter(const QString &filterText);
 
-    QWidget *currentWidget();
+    QWidget *currentWidget() const;
 
     int buttonMargin() const;
     void updateButtonGeometry();
@@ -563,7 +563,7 @@ void VariableChooserPrivate::updateFilter(const QString &filterText)
 /*!
  * \internal
  */
-QWidget *VariableChooserPrivate::currentWidget()
+QWidget *VariableChooserPrivate::currentWidget() const
 {
     if (m_lineEdit)
         return m_lineEdit;

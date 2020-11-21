@@ -85,8 +85,8 @@ public:
     static void setSystemEnvironment(const Environment &environment);  // don't use at all!!!
 
 private:
-    FilePath searchInDirectory(const QStringList &execs, const FilePath &directory,
-                               QSet<FilePath> &alreadyChecked) const;
+    static FilePath searchInDirectory(const QStringList &execs, const FilePath &directory,
+                                      QSet<FilePath> &alreadyChecked);
 };
 
 class QTCREATOR_UTILS_EXPORT EnvironmentProvider

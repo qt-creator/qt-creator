@@ -62,8 +62,8 @@ signals:
     void valuesDropped(const QList<QVariant> &values, const QPoint &dropPos);
 
 public:
-    bool isFileDrop(QDropEvent *event) const;
-    bool isValueDrop(QDropEvent *event) const;
+    static bool isFileDrop(QDropEvent *event);
+    static bool isValueDrop(QDropEvent *event);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;

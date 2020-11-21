@@ -92,7 +92,7 @@ public:
     bool copy(int start, int end, int to);
     bool insert(int pos, const QString &text);
 
-    bool hadErrors();
+    bool hadErrors() const;
 
     void apply(QString *s);
     void apply(QTextCursor *textCursor);

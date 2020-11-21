@@ -131,7 +131,7 @@ public:
 protected:
     // Report errors:
     QVariantMap restoreSettings(const FilePath &settingsPath, QWidget *parent) const;
-    ProceedInfo reportIssues(const Issue &issue, const FilePath &path, QWidget *parent) const;
+    static ProceedInfo reportIssues(const Issue &issue, const FilePath &path, QWidget *parent);
 
     virtual QVariantMap preprocessReadSettings(const QVariantMap &data) const;
     virtual QVariantMap prepareToWriteSettings(const QVariantMap &data) const;
@@ -294,7 +294,7 @@ protected:
 
     virtual SettingsMergeResult merge(const SettingsMergeData &global,
                                       const SettingsMergeData &local) const = 0;
-    bool isHouseKeepingKey(const QString &key) const;
+    static bool isHouseKeepingKey(const QString &key);
 
     virtual QVariantMap postprocessMerge(const QVariantMap &main, const QVariantMap &secondary,
                                          const QVariantMap &result) const;

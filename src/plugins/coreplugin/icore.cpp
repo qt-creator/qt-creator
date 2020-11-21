@@ -790,7 +790,7 @@ void ICore::addPreCloseListener(const std::function<bool ()> &listener)
 */
 QString ICore::systemInformation()
 {
-    QString result = PluginManager::instance()->systemInformation() + '\n';
+    QString result = PluginManager::systemInformation() + '\n';
     result += versionString() + '\n';
     result += buildCompatibilityString() + '\n';
 #ifdef IDE_REVISION

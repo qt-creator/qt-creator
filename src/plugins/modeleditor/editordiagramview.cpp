@@ -49,8 +49,9 @@ EditorDiagramView::EditorDiagramView(QWidget *parent)
 {
     auto droputils = new Utils::DropSupport(
                 this,
-                [](QDropEvent *event, Utils::DropSupport *dropSupport)
-            -> bool { return dropSupport->isFileDrop(event) || dropSupport->isValueDrop(event); });
+                [](QDropEvent *event, Utils::DropSupport *)
+            -> bool { return Utils::DropSupport::isFileDrop(event)
+                                     || Utils::DropSupport::isValueDrop(event); });
     connect(droputils, &Utils::DropSupport::filesDropped,
             this, &EditorDiagramView::dropFiles);
     connect(droputils, &Utils::DropSupport::valuesDropped,

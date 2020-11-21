@@ -176,7 +176,7 @@ SettingsAccessor::writeFile(const FilePath &path, const QVariantMap &data) const
 
 SettingsAccessor::ProceedInfo
 SettingsAccessor::reportIssues(const SettingsAccessor::Issue &issue, const FilePath &path,
-                               QWidget *parent) const
+                               QWidget *parent)
 {
     if (!path.exists())
         return Continue;
@@ -697,7 +697,7 @@ MergingSettingsAccessor::mergeSettings(const SettingsAccessor::RestoreData &main
 /*!
  * Returns true for housekeeping related keys.
  */
-bool MergingSettingsAccessor::isHouseKeepingKey(const QString &key) const
+bool MergingSettingsAccessor::isHouseKeepingKey(const QString &key)
 {
     return key == VERSION_KEY || key == ORIGINAL_VERSION_KEY || key == SETTINGS_ID_KEY;
 }

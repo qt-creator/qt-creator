@@ -102,7 +102,7 @@ public:
 
     void removePage(int pageId);
 
-    QList<int> pages(WizardProgressItem *item) const;
+    static QList<int> pages(WizardProgressItem *item);
     WizardProgressItem *item(int pageId) const;
 
     WizardProgressItem *currentItem() const;
