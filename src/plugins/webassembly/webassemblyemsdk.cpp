@@ -151,7 +151,8 @@ void WebAssemblyEmSdk::clearCaches()
 void WebAssemblyPlugin::testEmSdkEnvParsing()
 {
     // Output of "emsdk_env"
-    const QByteArray emSdkEnvOutput = R"(
+    const QByteArray emSdkEnvOutput = HostOsInfo::isWindowsHost() ?
+                R"(
 Adding directories to PATH:
 PATH += C:\Users\user\dev\emsdk
 PATH += C:\Users\user\dev\emsdk\upstream\emscripten
@@ -167,13 +168,31 @@ EM_CACHE = C:/Users/user/dev/emsdk/upstream/emscripten\cache
 EMSDK_NODE = C:\Users\user\dev\emsdk\node\12.18.1_64bit\bin\node.exe
 EMSDK_PYTHON = C:\Users\user\dev\emsdk\python\3.7.4-pywin32_64bit\python.exe
 JAVA_HOME = C:\Users\user\dev\emsdk\java\8.152_64bit
-                                         )";
+                )" : R"(
+Adding directories to PATH:
+PATH += /home/user/dev/emsdk
+PATH += /home/user/dev/emsdk/upstream/emscripten
+PATH += /home/user/dev/emsdk/node/12.18.1_64bit/bin
+
+Setting environment variables:
+PATH = /home/user/dev/emsdk:/home/user/dev/emsdk/upstream/emscripten:/home/user/dev/emsdk/node/12.18.1_64bit/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+EMSDK = /home/user/dev/emsdk
+EM_CONFIG = /home/user/dev/emsdk/.emscripten
+EM_CACHE = /home/user/dev/emsdk/upstream/emscripten/cache
+EMSDK_NODE = /home/user/dev/emsdk/node/12.18.1_64bit/bin/node
+               )";
     Environment env;
     parseEmSdkEnvOutputAndAddToEnv(emSdkEnvOutput, env);
 
-    QVERIFY(env.path().count() == 5);
-    QCOMPARE(env.value("EMSDK"), "C:/Users/user/dev/emsdk");
-    QCOMPARE(env.value("EM_CONFIG"), "C:\\Users\\user\\dev\\emsdk\\.emscripten");
+    if (HostOsInfo::isWindowsHost()) {
+        QVERIFY(env.path().count() == 5);
+        QCOMPARE(env.value("EMSDK"), "C:/Users/user/dev/emsdk");
+        QCOMPARE(env.value("EM_CONFIG"), "C:\\Users\\user\\dev\\emsdk\\.emscripten");
+    } else {
+        QVERIFY(env.path().count() == 3);
+        QCOMPARE(env.value("EMSDK"), "/home/user/dev/emsdk");
+        QCOMPARE(env.value("EM_CONFIG"), "/home/user/dev/emsdk/.emscripten");
+    }
 }
 #endif // WITH_TESTS
 
