@@ -751,3 +751,21 @@ void f5()
 {
     int arr[MyConstant][8];
 }
+
+static int GlobalVar = 0;
+
+namespace N { [[deprecated]] void f(); }
+
+template<typename T>
+void func(T v);
+
+void f6()
+{
+    GlobalVar = 5;
+    func(1);  // QTCREATORBUG-21856
+}
+
+template<typename T>
+void func(T v) {
+    GlobalVar = 5;
+}

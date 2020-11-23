@@ -156,6 +156,7 @@ std::vector<Cursor> Tokens::annotate() const
                         if (cxCursors[j].kind == CXCursor_FunctionDecl
                                 || cxCursors[j].kind == CXCursor_ParmDecl) {
                             cxCursors[index] = clang_getNullCursor();
+                            cxCursors[index].kind = CXCursor_NotImplemented; // Our magic tag.
                         }
                         break;
                     }

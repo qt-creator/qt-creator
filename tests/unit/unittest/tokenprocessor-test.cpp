@@ -1783,6 +1783,13 @@ TEST_F(TokenProcessor, MultiDimArray)
     ASSERT_THAT(infos[3], IsHighlightingMark(752u, 13u, 10u, HighlightingType::GlobalVariable));
 }
 
+TEST_F(TokenProcessor, TemplateSeparateDeclDef)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRangeMultiLine(755, 771, 1));
+    ASSERT_THAT(infos[11], IsHighlightingMark(757u, 17u, 10u, HighlightingType::Invalid));
+    ASSERT_THAT(infos[37], IsHighlightingMark(764u, 5u, 9u, HighlightingType::GlobalVariable));
+}
+
 Data *TokenProcessor::d;
 
 void TokenProcessor::SetUpTestCase()

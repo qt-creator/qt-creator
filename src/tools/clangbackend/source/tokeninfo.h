@@ -97,9 +97,14 @@ protected:
     virtual void memberReferenceKind(const Cursor &cursor);
     virtual void typeKind(const Cursor &cursor);
     virtual void keywordKind();
-    virtual void invalidFileKind();
     virtual void overloadedOperatorKind();
     virtual void punctuationOrOperatorKind();
+
+    enum class QtMacroPart {
+        None, SignalFunction, SignalType, SlotFunction, SlotType, Type, Property, Keyword,
+        FunctionOrPrimitiveType
+    };
+    virtual QtMacroPart invalidFileKind();
 
     Cursor m_originalCursor;
     const Token *m_token;
@@ -114,7 +119,12 @@ private:
     void collectOutputArguments(const Cursor &cursor);
     void filterOutPreviousOutputArguments();
     bool isArgumentInCurrentOutputArgumentLocations() const;
-    Cursor realCursor(const Cursor &cursor) const;
+    Cursor realCursor(const Cursor &cursor);
+
+    static QtMacroPart propertyPart(const Token &token);
+    static QtMacroPart signalSlotPart(CXTranslationUnit cxTranslationUnit, CXToken *token,
+                                      bool signal);
+    static QtMacroPart qtMacroPart(const Token &token);
 
     std::vector<CXSourceRange> *m_currentOutputArgumentRanges = nullptr;
     uint m_line = 0;
