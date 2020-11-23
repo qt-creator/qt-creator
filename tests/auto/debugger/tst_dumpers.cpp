@@ -3588,7 +3588,8 @@ void tst_Dumpers::dumper_data()
 
                + QmlPrivateProfile()
 
-               + Check("l", "\"Hi\"", "@QLazilyAllocated<@QString>");
+                // Qt 6 has QLazilyAllocated<QString, unsigned short> here.
+               + Check("l", "\"Hi\"", TypePattern("@QLazilyAllocated<@QString.*>"));
 
 
     QTest::newRow("QFiniteStack")
