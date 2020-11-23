@@ -169,7 +169,7 @@ isEmpty(LLVM_VERSION) {
     LLVM_VERSION =
 } else {
     # CLANG-UPGRADE-CHECK: Remove suppression if this warning is resolved.
-    gcc {
+    gcc:!clang: {
         # GCC6 shows full version (6.4.0), while GCC7 and up show only major version (8)
         GCC_VERSION = $$system("$$QMAKE_CXX -dumpversion")
         GCC_MAJOR_VERSION = $$section(GCC_VERSION, ., 0, 0)
