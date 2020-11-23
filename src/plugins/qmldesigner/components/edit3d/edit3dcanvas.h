@@ -29,7 +29,7 @@
 #include <QtWidgets/qwidget.h>
 #include <QtGui/qimage.h>
 #include <QtGui/qevent.h>
-#include <QTCore/qelapsedtimer.h>
+#include <QtCore/qelapsedtimer.h>
 #include <QtCore/qpointer.h>
 
 namespace QmlDesigner {
