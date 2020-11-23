@@ -1433,28 +1433,32 @@ def qdump__QRegExp(d, value):
 
 
 def qdump__QRegion(d, value):
-    regionDataPtr = d.extractPointer(value)
-    if regionDataPtr == 0:
+    d_ptr = d.extractPointer(value)
+    if d_ptr == 0:
         d.putSpecialValue('empty')
     else:
-        if d.qtVersion() >= 0x050400:  # Padding removed in ee324e4ed
-            (ref, pad, rgn) = d.split('i@p', regionDataPtr)
-            (numRects, innerArea, rects, extents, innerRect) = \
-                d.split('iiP{QRect}{QRect}', rgn)
+        if d.qtVersion() >= 0x060000:
+            ref, _, rgn = d.split('i@p', d_ptr)
+            numRects, innerArea, rects, extents, innerRect = \
+                d.split('ii{QList<QRect>}{QRect}{QRect}', rgn)
+        elif d.qtVersion() >= 0x050400:  # Padding removed in ee324e4ed
+            ref, _, rgn = d.split('i@p', d_ptr)
+            numRects, innerArea, rects, extents, innerRect = \
+                d.split('ii{QVector<QRect>}{QRect}{QRect}', rgn)
         elif d.qtVersion() >= 0x050000:
-            (ref, pad, rgn) = d.split('i@p', regionDataPtr)
-            (numRects, pad, rects, extents, innerRect, innerArea) = \
-                d.split('i@P{QRect}{QRect}i', rgn)
+            ref, _, rgn = d.split('i@p', d_ptr)
+            numRects, _, rects, extents, innerRect, innerArea = \
+                d.split('i@{QVector<QRect>}{QRect}{QRect}i', rgn)
         else:
             if d.isWindowsTarget():
-                (ref, pad, rgn) = d.split('i@p', regionDataPtr)
+                ref, _, rgn = d.split('i@p', d_ptr)
             else:
-                (ref, pad, xrgn, xrectangles, rgn) = d.split('i@ppp', regionDataPtr)
+                ref, _, xrgn, xrectangles, rgn = d.split('i@ppp', d_ptr)
             if rgn == 0:
                 numRects = 0
             else:
-                (numRects, pad, rects, extents, innerRect, innerArea) = \
-                    d.split('i@P{QRect}{QRect}i', rgn)
+                numRects, _, rects, extents, innerRect, innerArea = \
+                    d.split('i@{QVector<QRect>}{QRect}{QRect}i', rgn)
 
         d.putItemCount(numRects)
         if d.isExpanded():
@@ -1463,7 +1467,7 @@ def qdump__QRegion(d, value):
                 d.putIntItem('innerArea', innerArea)
                 d.putSubItem('extents', extents)
                 d.putSubItem('innerRect', innerRect)
-                d.putSubItem('rects', d.createVectorItem(rects, d.qtNamespace() + 'QRect'))
+                d.putSubItem('rects', rects)
 
 
 def qdump__QScopedPointer(d, value):

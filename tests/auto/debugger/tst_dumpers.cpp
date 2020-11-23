@@ -3324,10 +3324,14 @@ void tst_Dumpers::dumper_data()
                     "region0 = region;\n"
                     "region += QRect(100, 100, 200, 200);\n"
                     "region1 = region;\n"
+                    "#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)\n"
                     "QVector<QRect> rects = region1.rects(); // Warm up internal cache.\n"
+                    "(void) rects;\n"
+                    "#endif\n"
+                    "QRect b = region1.boundingRect(); // Warm up internal cache.\n"
                     "region += QRect(300, 300, 400, 500);\n"
                     "region2 = region;",
-                    "&region0, &region1, &region2, &rects")
+                    "&region0, &region1, &region2, &b")
 
                + GuiProfile()
 
@@ -3344,7 +3348,8 @@ void tst_Dumpers::dumper_data()
                + Check("region2.innerArea", "200000", "int")
                + Check("region2.innerRect", "400x500+300+300", "@QRect")
                + Check("region2.numRects", "2", "int")
-               + Check("region2.rects", "<2 items>", "@QVector<@QRect>");
+               + Check5("region2.rects", "<2 items>", "@QVector<@QRect>")
+               + Check6("region2.rects", "<2 items>", "@QList<@QRect>");
 
 
     QTest::newRow("QSettings")
