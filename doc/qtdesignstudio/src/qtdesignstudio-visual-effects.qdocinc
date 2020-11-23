@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -30,20 +30,19 @@
 
     \QDS provides a set of Qt Quick Studio effects that inherit the types in the
     \l {Qt Graphical Effects} module. To apply a visual effect to a component,
-    you must place the component inside the effect. First drag-and-drop an
-    effect from \uicontrol Library > \uicontrol Effects to the the
-    \uicontrol {Form Editor} or the \uicontrol Navigator, and then drag-and-drop
-    the component to the effect. For some effects, you need two source
-    components.
+    drag-and-drop it from \uicontrol Library > \uicontrol Effects to the
+    component in \uicontrol Navigator.
 
     The following table summarizes the available effects and contains links to
     the documentation of the inherited QML type.
 
     \table
     \header
+        \li Icon
         \li Qt Quick Studio Effect
         \li Description
     \row
+        \li \inlineimage icons/blend-mode-16px.png
         \li \l [QML] {Blend}
         \li Merges two source components by using a blend mode.
 
@@ -54,34 +53,44 @@
             For a list of possible values and examples of their use, see
             \l{Blend::mode}{Blend.mode}.
     \row
+        \li \inlineimage icons/fast-blur-16px.png
         \li \l {FastBlur}{Blur}
         \li Applies a fast blur effect to one or more source components.
     \row
+        \li \inlineimage icons/brightness-contrast-16px.png
         \li \l {BrightnessContrast}{Brightness Contrast}
         \li Adjusts brightness and contrast.
     \row
+        \li \inlineimage icons/colourize-16px.png
         \li \l {ColorOverlay}{Color Overlay}
         \li Alters the colors of the source component by applying an overlay
             color.
     \row
+        \li \inlineimage icons/colourize-16px.png
         \li \l Colorize
         \li Sets the color in the HSL color space.
     \row
+        \li \inlineimage icons/directional-blur-16px.png
         \li \l {DirectionalBlur}{Directional Blur}
         \li Applies blur effect to the specified direction.
     \row
+        \li \inlineimage icons/drop-shadow-16px.png
         \li \l {DropShadow}{Drop Shadow}
         \li Generates a soft shadow behind the source component.
     \row
+        \li \inlineimage icons/glow-16px.png
         \li \l [QML] {Glow}
         \li Generates a halo-like glow around the source component.
     \row
+        \li \inlineimage icons/hue-saturation-16px.png
         \li \l {HueSaturation}{Hue Saturation}
         \li Alters the source component colors in the HSL color space.
     \row
+        \li \inlineimage icons/opacity-mask-16px.png
         \li \l {OpacityMask}{Mask}
         \li Masks the source component with another component.
     \row
+        \li \inlineimage icons/mask-blur-16px.png
         \li \l {MaskedBlur}{Masked Blur}
         \li Applies a blur effect with a varying intesity.
             The \l GradientStop type is used to specify the color used at a
@@ -89,13 +98,16 @@
             The default positions for the stops are 0.20, 0.50, 0.80, and 1.00.
             The default color is black.
     \row
+        \li \inlineimage icons/radial-blur-16px.png
         \li \l {RadialBlur}{Radial Blur}
         \li Applies directional blur in a circular direction around the
             component's center point.
     \row
+        \li \inlineimage icons/desaturation-16px.png
         \li \l {Desaturate}{Saturation}
         \li Reduces the saturation of the colors.
     \row
+        \li \inlineimage icons/zoom-blur-16px.png
         \li \l {ZoomBlur}{Zoom Blur}
         \li Applies directional blur effect towards source component's center
             point.
