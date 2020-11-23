@@ -30,7 +30,7 @@
     \inherits ShapePath
     \ingroup qtquickstudio-components
 
-    \brief A border drawn in four segments: left, top right, and bottom.
+    \brief A border drawn in four segments: left, top, right, and bottom.
 
     The Border type is used to create borders out of four segments: left,
     top, right, and bottom. The \l drawLeft, \l drawTop, \l drawRight, and
@@ -48,7 +48,7 @@
 
     The \l joinStyle property specifies how to connect two border line segments.
 
-    The \l strokeColor, \l strokeWidth, and \l strokeStyle, properties specify
+    The \l strokeColor, \l strokeWidth, and \l strokeStyle properties specify
     the appearance of the border line. The \l dashPattern and \l dashOffset
     properties specify the appearance of dashed lines.
 
