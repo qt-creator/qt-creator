@@ -832,15 +832,7 @@ BuildConfiguration::BuildType QmakeBuildConfiguration::buildType() const
 
 void QmakeBuildConfiguration::addToEnvironment(Environment &env) const
 {
-    setupBuildEnvironment(kit(), env);
-}
-
-void QmakeBuildConfiguration::setupBuildEnvironment(Kit *k, Environment &env)
-{
-    prependCompilerPathToEnvironment(k, env);
-    const BaseQtVersion *qt = QtKitAspect::qtVersion(k);
-    if (qt && !qt->hostBinPath().isEmpty())
-        env.prependOrSetPath(qt->hostBinPath().toString());
+    QtSupport::QtKitAspect::addHostBinariesToPath(kit(), env);
 }
 
 QmakeBuildConfiguration::LastKitState::LastKitState() = default;

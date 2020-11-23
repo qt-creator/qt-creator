@@ -91,7 +91,6 @@ public:
     BuildType buildType() const override;
 
     void addToEnvironment(Utils::Environment &env) const override;
-    static void setupBuildEnvironment(ProjectExplorer::Kit *k, Utils::Environment &env);
 
     static QString unalignedBuildDirWarning();
     static bool isBuildDirAtSafeLocation(const QString &sourceDir, const QString &buildDir);

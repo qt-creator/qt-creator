@@ -35,7 +35,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
-#include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/aspects.h>
@@ -91,10 +90,7 @@ GenericBuildConfigurationFactory::GenericBuildConfigurationFactory()
 
 void GenericBuildConfiguration::addToEnvironment(Utils::Environment &env) const
 {
-    prependCompilerPathToEnvironment(kit(), env);
-    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(kit());
-    if (qt)
-        env.prependOrSetPath(qt->hostBinPath().toString());
+    QtSupport::QtKitAspect::addHostBinariesToPath(kit(), env);
 }
 
 } // namespace Internal

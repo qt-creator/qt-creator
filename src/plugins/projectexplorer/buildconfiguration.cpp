@@ -577,24 +577,6 @@ bool BuildConfiguration::isActive() const
     return target()->isActive() && target()->activeBuildConfiguration() == this;
 }
 
-/*!
- * Helper function that prepends the directory containing the C++ toolchain to
- * PATH. This is used to in build configurations targeting broken build systems
- * to provide hints about which compiler to use.
- */
-
-void BuildConfiguration::prependCompilerPathToEnvironment(Kit *k, Environment &env)
-{
-    const ToolChain *tc = ToolChainKitAspect::cxxToolChain(k);
-
-    if (!tc)
-        return;
-
-    const FilePath compilerDir = tc->compilerCommand().parentDir();
-    if (!compilerDir.isEmpty())
-        env.prependOrSetPath(compilerDir.toString());
-}
-
 ///
 // IBuildConfigurationFactory
 ///

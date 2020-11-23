@@ -371,6 +371,27 @@ void QtKitAspect::setQtVersion(ProjectExplorer::Kit *k, const BaseQtVersion *v)
         setQtVersionId(k, v->uniqueId());
 }
 
+/*!
+ * Helper function that prepends the directory containing the C++ toolchain and Qt
+ * binaries to PATH. This is used to in build configurations targeting broken build
+ * systems to provide hints about which binaries to use.
+ */
+
+void QtKitAspect::addHostBinariesToPath(const Kit *k, Environment &env)
+{
+    if (const ToolChain *tc = ToolChainKitAspect::cxxToolChain(k)) {
+        const FilePath compilerDir = tc->compilerCommand().parentDir();
+        if (!compilerDir.isEmpty())
+            env.prependOrSetPath(compilerDir.toString());
+    }
+
+    if (const BaseQtVersion *qt = qtVersion(k)) {
+        const FilePath hostBinPath = qt->hostBinPath();
+        if (!hostBinPath.isEmpty())
+            env.prependOrSetPath(hostBinPath.toString());
+    }
+}
+
 void QtKitAspect::qtVersionsChanged(const QList<int> &addedIds,
                                          const QList<int> &removedIds,
                                          const QList<int> &changedIds)
