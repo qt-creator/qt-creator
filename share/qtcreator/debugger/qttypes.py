@@ -2121,7 +2121,10 @@ if False:
 
 
 def qdump__QVarLengthArray(d, value):
-    (cap, size, data) = value.split('iip')
+    if d.qtVersion() >= 0x060000:
+        cap, size, data = value.split('QQp')
+    else:
+        cap, size, data = value.split('iip')
     d.check(0 <= size)
     d.putItemCount(size)
     d.putPlotData(data, size, value.type[0])
