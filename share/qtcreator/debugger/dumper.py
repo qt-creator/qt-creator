@@ -3816,40 +3816,8 @@ class DumperBase():
             #typish.check()
             return typish
         if isinstance(typish, str):
-            def knownSize(tn):
-                if tn[0] == 'Q':
-                    if tn in ('QByteArray', 'QString', 'QList', 'QStringList',
-                              'QStringDataPtr'):
-                        return self.ptrSize()
-                    if tn == 'QStandardItemData':
-                        return 8 + 2 * self.ptrSize()
-                    if tn in ('QImage', 'QObject'):
-                        return 2 * self.ptrSize()
-                    if tn == 'QVariant':
-                        return 8 + self.ptrSize()
-                    if typish in ('QPointF', 'QDateTime', 'QRect'):
-                        return 16
-                    if typish == 'QPoint':
-                        return 8
-                    if typish == 'Qt::ItemDataRole':
-                        return 4
-                    if typish == 'QChar':
-                        return 2
-                if typish in ('quint32', 'qint32'):
-                    return 4
-                return None
-
             ns = self.qtNamespace()
             typish = typish.replace('@', ns)
-            if typish.startswith(ns):
-                if size is None:
-                    size = knownSize(typish[len(ns):])
-            else:
-                if size is None:
-                    size = knownSize(typish)
-                if size is not None:
-                    typish = ns + typish
-
             tdata = self.typeData.get(typish, None)
             if tdata is not None:
                 return self.Type(self, typish)
