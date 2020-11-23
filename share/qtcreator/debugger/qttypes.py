@@ -1089,21 +1089,24 @@ def qform__QImage():
 
 
 def qdump__QImage(d, value):
-    if d.qtVersion() < 0x050000:
-        (vtbl, painters, imageData) = value.split('ppp')
+    if d.qtVersion() >= 0x060000:
+        vtbl, painters, image_data = value.split('ppp')
+    elif d.qtVersion() >= 0x050000:
+        vtbl, painters, reserved, image_data = value.split('pppp')
     else:
-        (vtbl, painters, reserved, imageData) = value.split('pppp')
+        vtbl, painters, image_data = value.split('ppp')
 
-    if imageData == 0:
+    if image_data == 0:
         d.putValue('(invalid)')
         return
 
-    (ref, width, height, depth, nbytes, padding, devicePixelRatio, colorTable,
-        bits, iformat) = d.split('iiiii@dppi', imageData)
-
+    ref, width, height = d.split('iii', image_data)
     d.putValue('(%dx%d)' % (width, height))
+
     d.putExpandable()
     if d.isExpanded():
+        (ref, width, height, depth, nbytes, pad, devicePixelRatio, colorTable,
+            bits, iformat) = d.split('iiiii@dppi', image_data)
         with Children(d):
             d.putIntItem('width', width)
             d.putIntItem('height', height)
@@ -1365,15 +1368,19 @@ def qdump__QProcEnvKey(d, value):
 
 
 def qdump__QPixmap(d, value):
-    if d.qtVersion() < 0x050000:
-        (vtbl, painters, dataPtr) = value.split('ppp')
+    if d.qtVersion() >= 0x060000:
+        vtbl, painters, data = value.split('ppp')
+    elif d.qtVersion() >= 0x050000:
+        vtbl, painters, reserved, data = s = d.split('pppp', value)
     else:
-        (vtbl, painters, reserved, dataPtr) = s = d.split('pppp', value)
-    if dataPtr == 0:
+        vtbl, painters, data = value.split('ppp')
+
+    if data == 0:
         d.putValue('(invalid)')
     else:
-        (dummy, width, height) = d.split('pii', dataPtr)
+        _, width, height = d.split('pii', data)
         d.putValue('(%dx%d)' % (width, height))
+
     d.putPlainChildren(value)
 
 
