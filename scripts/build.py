@@ -174,6 +174,9 @@ def build_qtcreator(args, paths):
 
     common.check_print_call(['cmake', '--install', '.', '--prefix', paths.install, '--strip'],
                             paths.build)
+    common.check_print_call(['cmake', '--install', '.', '--prefix', paths.install,
+                             '--component', 'Dependencies'],
+                            paths.build)
     common.check_print_call(['cmake', '--install', '.', '--prefix', paths.dev_install,
                              '--component', 'Devel'],
                             paths.build)
@@ -213,17 +216,6 @@ def build_qtcreatorcdbext(args, paths):
     common.check_print_call(['cmake', '--build', '.'], paths.build)
     common.check_print_call(['cmake', '--install', '.', '--prefix', paths.qtcreatorcdbext_install,
                              '--component', 'qtcreatorcdbext'],
-                            paths.build)
-
-def deploy_qt(args, paths):
-    cmd_args = ['python', '-u', os.path.join(paths.src, 'scripts', 'deployqt.py'), '-i']
-    if paths.elfutils:
-        cmd_args.extend(['--elfutils-path', paths.elfutils])
-    if paths.llvm:
-        cmd_args.extend(['--llvm-path', paths.llvm])
-    app = (os.path.join(paths.install, args.app_target) if common.is_mac_platform()
-           else os.path.join(paths.install, 'bin', args.app_target))
-    common.check_print_call(cmd_args + [app, os.path.join(paths.qt, 'bin', 'qmake')],
                             paths.build)
 
 def package_qtcreator(args, paths):
@@ -291,7 +283,6 @@ def main():
     build_qtcreator(args, paths)
     build_wininterrupt(args, paths)
     build_qtcreatorcdbext(args, paths)
-    deploy_qt(args, paths)
     package_qtcreator(args, paths)
 
 if __name__ == '__main__':
