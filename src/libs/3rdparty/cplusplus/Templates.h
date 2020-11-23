@@ -72,26 +72,26 @@ public:
     FullySpecifiedType cloneType(const FullySpecifiedType &type, Subst *subst);
 
 protected:
-    virtual void visit(UndefinedType *type);
-    virtual void visit(VoidType *type);
-    virtual void visit(IntegerType *type);
-    virtual void visit(FloatType *type);
-    virtual void visit(PointerToMemberType *type);
-    virtual void visit(PointerType *type);
-    virtual void visit(ReferenceType *type);
-    virtual void visit(ArrayType *type);
-    virtual void visit(NamedType *type);
-    virtual void visit(Function *type);
-    virtual void visit(Namespace *type);
-    virtual void visit(Template *type);
-    virtual void visit(Class *type);
-    virtual void visit(Enum *type);
-    virtual void visit(ForwardClassDeclaration *type);
-    virtual void visit(ObjCClass *type);
-    virtual void visit(ObjCProtocol *type);
-    virtual void visit(ObjCMethod *type);
-    virtual void visit(ObjCForwardClassDeclaration *type);
-    virtual void visit(ObjCForwardProtocolDeclaration *type);
+    void visit(UndefinedType *type) override;
+    void visit(VoidType *type) override;
+    void visit(IntegerType *type) override;
+    void visit(FloatType *type) override;
+    void visit(PointerToMemberType *type) override;
+    void visit(PointerType *type) override;
+    void visit(ReferenceType *type) override;
+    void visit(ArrayType *type) override;
+    void visit(NamedType *type) override;
+    void visit(Function *type) override;
+    void visit(Namespace *type) override;
+    void visit(Template *type) override;
+    void visit(Class *type) override;
+    void visit(Enum *type) override;
+    void visit(ForwardClassDeclaration *type) override;
+    void visit(ObjCClass *type) override;
+    void visit(ObjCProtocol *type) override;
+    void visit(ObjCMethod *type) override;
+    void visit(ObjCForwardClassDeclaration *type) override;
+    void visit(ObjCForwardProtocolDeclaration *type) override;
 
 protected:
     typedef std::pair <const FullySpecifiedType, Subst *> TypeSubstPair;
@@ -112,14 +112,14 @@ public:
     const Name *cloneName(const Name *name, Subst *subst);
 
 protected:
-    virtual void visit(const Identifier *name);
-    virtual void visit(const AnonymousNameId *name);
-    virtual void visit(const TemplateNameId *name);
-    virtual void visit(const DestructorNameId *name);
-    virtual void visit(const OperatorNameId *name);
-    virtual void visit(const ConversionNameId *name);
-    virtual void visit(const QualifiedNameId *name);
-    virtual void visit(const SelectorNameId *name);
+    void visit(const Identifier *name) override;
+    void visit(const AnonymousNameId *name) override;
+    void visit(const TemplateNameId *name) override;
+    void visit(const DestructorNameId *name) override;
+    void visit(const OperatorNameId *name) override;
+    void visit(const ConversionNameId *name) override;
+    void visit(const QualifiedNameId *name) override;
+    void visit(const SelectorNameId *name) override;
 
 protected:
     typedef std::pair <const Name *, Subst *> NameSubstPair;
@@ -140,34 +140,34 @@ public:
     Symbol *cloneSymbol(Symbol *symbol, Subst *subst);
 
 protected:
-    virtual bool visit(UsingNamespaceDirective *symbol);
-    virtual bool visit(UsingDeclaration *symbol);
-    virtual bool visit(NamespaceAlias *symbol);
-    virtual bool visit(Declaration *symbol);
-    virtual bool visit(Argument *symbol);
-    virtual bool visit(TypenameArgument *symbol);
-    virtual bool visit(BaseClass *symbol);
-    virtual bool visit(Enum *symbol);
-    virtual bool visit(Function *symbol);
-    virtual bool visit(Namespace *symbol);
-    virtual bool visit(Template *symbol);
-    virtual bool visit(Class *symbol);
-    virtual bool visit(Block *symbol);
-    virtual bool visit(ForwardClassDeclaration *symbol);
+    bool visit(UsingNamespaceDirective *symbol) override;
+    bool visit(UsingDeclaration *symbol) override;
+    bool visit(NamespaceAlias *symbol) override;
+    bool visit(Declaration *symbol) override;
+    bool visit(Argument *symbol) override;
+    bool visit(TypenameArgument *symbol) override;
+    bool visit(BaseClass *symbol) override;
+    bool visit(Enum *symbol) override;
+    bool visit(Function *symbol) override;
+    bool visit(Namespace *symbol) override;
+    bool visit(Template *symbol) override;
+    bool visit(Class *symbol) override;
+    bool visit(Block *symbol) override;
+    bool visit(ForwardClassDeclaration *symbol) override;
 
     // Qt
-    virtual bool visit(QtPropertyDeclaration *symbol);
-    virtual bool visit(QtEnum *symbol);
+    bool visit(QtPropertyDeclaration *symbol) override;
+    bool visit(QtEnum *symbol) override;
 
     // Objective-C
-    virtual bool visit(ObjCBaseClass *symbol);
-    virtual bool visit(ObjCBaseProtocol *symbol);
-    virtual bool visit(ObjCClass *symbol);
-    virtual bool visit(ObjCForwardClassDeclaration *symbol);
-    virtual bool visit(ObjCProtocol *symbol);
-    virtual bool visit(ObjCForwardProtocolDeclaration *symbol);
-    virtual bool visit(ObjCMethod *symbol);
-    virtual bool visit(ObjCPropertyDeclaration *symbol);
+    bool visit(ObjCBaseClass *symbol) override;
+    bool visit(ObjCBaseProtocol *symbol) override;
+    bool visit(ObjCClass *symbol) override;
+    bool visit(ObjCForwardClassDeclaration *symbol) override;
+    bool visit(ObjCProtocol *symbol) override;
+    bool visit(ObjCForwardProtocolDeclaration *symbol) override;
+    bool visit(ObjCMethod *symbol) override;
+    bool visit(ObjCPropertyDeclaration *symbol) override;
 
 protected:
     typedef std::pair <Symbol *, Subst *> SymbolSubstPair;

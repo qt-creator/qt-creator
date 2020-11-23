@@ -106,180 +106,180 @@ protected:
     FullySpecifiedType trailingReturnType(TrailingReturnTypeAST *ast, const FullySpecifiedType &init);
     const StringLiteral *asStringLiteral(const AST *ast);
 
-    virtual bool preVisit(AST *);
-    virtual void postVisit(AST *);
+    bool preVisit(AST *) override;
+    void postVisit(AST *) override;
 
     // AST
-    virtual bool visit(ObjCSelectorArgumentAST *ast);
-    virtual bool visit(GnuAttributeAST *ast);
-    virtual bool visit(DeclaratorAST *ast);
-    virtual bool visit(QtPropertyDeclarationItemAST *ast);
-    virtual bool visit(QtInterfaceNameAST *ast);
-    virtual bool visit(BaseSpecifierAST *ast);
-    virtual bool visit(CtorInitializerAST *ast);
-    virtual bool visit(EnumeratorAST *ast);
-    virtual bool visit(DynamicExceptionSpecificationAST *ast);
-    virtual bool visit(MemInitializerAST *ast);
-    virtual bool visit(NestedNameSpecifierAST *ast);
-    virtual bool visit(NoExceptSpecificationAST *) { return true; }
-    virtual bool visit(NewArrayDeclaratorAST *ast);
-    virtual bool visit(NewTypeIdAST *ast);
-    virtual bool visit(OperatorAST *ast);
-    virtual bool visit(ParameterDeclarationClauseAST *ast);
-    virtual bool visit(TranslationUnitAST *ast);
-    virtual bool visit(ObjCProtocolRefsAST *ast);
-    virtual bool visit(ObjCMessageArgumentAST *ast);
-    virtual bool visit(ObjCTypeNameAST *ast);
-    virtual bool visit(ObjCInstanceVariablesDeclarationAST *ast);
-    virtual bool visit(ObjCPropertyAttributeAST *ast);
-    virtual bool visit(ObjCMessageArgumentDeclarationAST *ast);
-    virtual bool visit(ObjCMethodPrototypeAST *ast);
-    virtual bool visit(ObjCSynthesizedPropertyAST *ast);
-    virtual bool visit(LambdaIntroducerAST *ast);
-    virtual bool visit(LambdaCaptureAST *ast);
-    virtual bool visit(CaptureAST *ast);
-    virtual bool visit(LambdaDeclaratorAST *ast);
-    virtual bool visit(TrailingReturnTypeAST *ast);
-    virtual bool visit(DotDesignatorAST *) { return true; }
-    virtual bool visit(BracketDesignatorAST *) { return true; }
+    bool visit(ObjCSelectorArgumentAST *ast) override;
+    bool visit(GnuAttributeAST *ast) override;
+    bool visit(DeclaratorAST *ast) override;
+    bool visit(QtPropertyDeclarationItemAST *ast) override;
+    bool visit(QtInterfaceNameAST *ast) override;
+    bool visit(BaseSpecifierAST *ast) override;
+    bool visit(CtorInitializerAST *ast) override;
+    bool visit(EnumeratorAST *ast) override;
+    bool visit(DynamicExceptionSpecificationAST *ast) override;
+    bool visit(MemInitializerAST *ast) override;
+    bool visit(NestedNameSpecifierAST *ast) override;
+    bool visit(NoExceptSpecificationAST *) override { return true; }
+    bool visit(NewArrayDeclaratorAST *ast) override;
+    bool visit(NewTypeIdAST *ast) override;
+    bool visit(OperatorAST *ast) override;
+    bool visit(ParameterDeclarationClauseAST *ast) override;
+    bool visit(TranslationUnitAST *ast) override;
+    bool visit(ObjCProtocolRefsAST *ast) override;
+    bool visit(ObjCMessageArgumentAST *ast) override;
+    bool visit(ObjCTypeNameAST *ast) override;
+    bool visit(ObjCInstanceVariablesDeclarationAST *ast) override;
+    bool visit(ObjCPropertyAttributeAST *ast) override;
+    bool visit(ObjCMessageArgumentDeclarationAST *ast) override;
+    bool visit(ObjCMethodPrototypeAST *ast) override;
+    bool visit(ObjCSynthesizedPropertyAST *ast) override;
+    bool visit(LambdaIntroducerAST *ast) override;
+    bool visit(LambdaCaptureAST *ast) override;
+    bool visit(CaptureAST *ast) override;
+    bool visit(LambdaDeclaratorAST *ast) override;
+    bool visit(TrailingReturnTypeAST *ast) override;
+    bool visit(DotDesignatorAST *) override { return true; }
+    bool visit(BracketDesignatorAST *) override { return true; }
 
     // StatementAST
-    virtual bool visit(QtMemberDeclarationAST *ast);
-    virtual bool visit(CaseStatementAST *ast);
-    virtual bool visit(CompoundStatementAST *ast);
-    virtual bool visit(DeclarationStatementAST *ast);
-    virtual bool visit(DoStatementAST *ast);
-    virtual bool visit(ExpressionOrDeclarationStatementAST *ast);
-    virtual bool visit(ExpressionStatementAST *ast);
-    virtual bool visit(ForeachStatementAST *ast);
-    virtual bool visit(RangeBasedForStatementAST *ast);
-    virtual bool visit(ForStatementAST *ast);
-    virtual bool visit(IfStatementAST *ast);
-    virtual bool visit(LabeledStatementAST *ast);
-    virtual bool visit(BreakStatementAST *ast);
-    virtual bool visit(ContinueStatementAST *ast);
-    virtual bool visit(GotoStatementAST *ast);
-    virtual bool visit(ReturnStatementAST *ast);
-    virtual bool visit(SwitchStatementAST *ast);
-    virtual bool visit(TryBlockStatementAST *ast);
-    virtual bool visit(CatchClauseAST *ast);
-    virtual bool visit(WhileStatementAST *ast);
-    virtual bool visit(ObjCFastEnumerationAST *ast);
-    virtual bool visit(ObjCSynchronizedStatementAST *ast);
+    bool visit(QtMemberDeclarationAST *ast) override;
+    bool visit(CaseStatementAST *ast) override;
+    bool visit(CompoundStatementAST *ast) override;
+    bool visit(DeclarationStatementAST *ast) override;
+    bool visit(DoStatementAST *ast) override;
+    bool visit(ExpressionOrDeclarationStatementAST *ast) override;
+    bool visit(ExpressionStatementAST *ast) override;
+    bool visit(ForeachStatementAST *ast) override;
+    bool visit(RangeBasedForStatementAST *ast) override;
+    bool visit(ForStatementAST *ast) override;
+    bool visit(IfStatementAST *ast) override;
+    bool visit(LabeledStatementAST *ast) override;
+    bool visit(BreakStatementAST *ast) override;
+    bool visit(ContinueStatementAST *ast) override;
+    bool visit(GotoStatementAST *ast) override;
+    bool visit(ReturnStatementAST *ast) override;
+    bool visit(SwitchStatementAST *ast) override;
+    bool visit(TryBlockStatementAST *ast) override;
+    bool visit(CatchClauseAST *ast) override;
+    bool visit(WhileStatementAST *ast) override;
+    bool visit(ObjCFastEnumerationAST *ast) override;
+    bool visit(ObjCSynchronizedStatementAST *ast) override;
 
     // ExpressionAST
-    virtual bool visit(AlignofExpressionAST *) { return true; }
-    virtual bool visit(IdExpressionAST *ast);
-    virtual bool visit(CompoundExpressionAST *ast);
-    virtual bool visit(CompoundLiteralAST *ast);
-    virtual bool visit(QtMethodAST *ast);
-    virtual bool visit(BinaryExpressionAST *ast);
-    virtual bool visit(CastExpressionAST *ast);
-    virtual bool visit(ConditionAST *ast);
-    virtual bool visit(ConditionalExpressionAST *ast);
-    virtual bool visit(CppCastExpressionAST *ast);
-    virtual bool visit(DeleteExpressionAST *ast);
-    virtual bool visit(DesignatedInitializerAST *) { return true; }
-    virtual bool visit(ArrayInitializerAST *ast);
-    virtual bool visit(NewExpressionAST *ast);
-    virtual bool visit(NoExceptOperatorExpressionAST *) { return true; }
-    virtual bool visit(TypeidExpressionAST *ast);
-    virtual bool visit(TypenameCallExpressionAST *ast);
-    virtual bool visit(TypeConstructorCallAST *ast);
-    virtual bool visit(SizeofExpressionAST *ast);
-    virtual bool visit(StaticAssertDeclarationAST *) { return true; }
-    virtual bool visit(PointerLiteralAST *ast);
-    virtual bool visit(NumericLiteralAST *ast);
-    virtual bool visit(BoolLiteralAST *ast);
-    virtual bool visit(ThisExpressionAST *ast);
-    virtual bool visit(NestedExpressionAST *ast);
-    virtual bool visit(StringLiteralAST *ast);
-    virtual bool visit(ThrowExpressionAST *ast);
-    virtual bool visit(TypeIdAST *ast);
-    virtual bool visit(UnaryExpressionAST *ast);
-    virtual bool visit(ObjCMessageExpressionAST *ast);
-    virtual bool visit(ObjCProtocolExpressionAST *ast);
-    virtual bool visit(ObjCEncodeExpressionAST *ast);
-    virtual bool visit(ObjCSelectorExpressionAST *ast);
-    virtual bool visit(LambdaExpressionAST *ast);
-    virtual bool visit(BracedInitializerAST *ast);
-    virtual bool visit(ExpressionListParenAST *ast);
+    bool visit(AlignofExpressionAST *) override { return true; }
+    bool visit(IdExpressionAST *ast) override;
+    bool visit(CompoundExpressionAST *ast) override;
+    bool visit(CompoundLiteralAST *ast) override;
+    bool visit(QtMethodAST *ast) override;
+    bool visit(BinaryExpressionAST *ast) override;
+    bool visit(CastExpressionAST *ast) override;
+    bool visit(ConditionAST *ast) override;
+    bool visit(ConditionalExpressionAST *ast) override;
+    bool visit(CppCastExpressionAST *ast) override;
+    bool visit(DeleteExpressionAST *ast) override;
+    bool visit(DesignatedInitializerAST *) override { return true; }
+    bool visit(ArrayInitializerAST *ast) override;
+    bool visit(NewExpressionAST *ast) override;
+    bool visit(NoExceptOperatorExpressionAST *) override { return true; }
+    bool visit(TypeidExpressionAST *ast) override;
+    bool visit(TypenameCallExpressionAST *ast) override;
+    bool visit(TypeConstructorCallAST *ast) override;
+    bool visit(SizeofExpressionAST *ast) override;
+    bool visit(StaticAssertDeclarationAST *) override { return true; }
+    bool visit(PointerLiteralAST *ast) override;
+    bool visit(NumericLiteralAST *ast) override;
+    bool visit(BoolLiteralAST *ast) override;
+    bool visit(ThisExpressionAST *ast) override;
+    bool visit(NestedExpressionAST *ast) override;
+    bool visit(StringLiteralAST *ast) override;
+    bool visit(ThrowExpressionAST *ast) override;
+    bool visit(TypeIdAST *ast) override;
+    bool visit(UnaryExpressionAST *ast) override;
+    bool visit(ObjCMessageExpressionAST *ast) override;
+    bool visit(ObjCProtocolExpressionAST *ast) override;
+    bool visit(ObjCEncodeExpressionAST *ast) override;
+    bool visit(ObjCSelectorExpressionAST *ast) override;
+    bool visit(LambdaExpressionAST *ast) override;
+    bool visit(BracedInitializerAST *ast) override;
+    bool visit(ExpressionListParenAST *ast) override;
 
     // DeclarationAST
-    virtual bool visit(SimpleDeclarationAST *ast);
-    virtual bool visit(EmptyDeclarationAST *ast);
-    virtual bool visit(AccessDeclarationAST *ast);
-    virtual bool visit(QtObjectTagAST *ast);
-    virtual bool visit(QtPrivateSlotAST *ast);
-    virtual bool visit(QtPropertyDeclarationAST *ast);
-    virtual bool visit(QtEnumDeclarationAST *ast);
-    virtual bool visit(QtFlagsDeclarationAST *ast);
-    virtual bool visit(QtInterfacesDeclarationAST *ast);
-    virtual bool visit(AliasDeclarationAST *ast);
-    virtual bool visit(AsmDefinitionAST *ast);
-    virtual bool visit(ExceptionDeclarationAST *ast);
-    virtual bool visit(FunctionDefinitionAST *ast);
-    virtual bool visit(LinkageBodyAST *ast);
-    virtual bool visit(LinkageSpecificationAST *ast);
-    virtual bool visit(NamespaceAST *ast);
-    virtual bool visit(NamespaceAliasDefinitionAST *ast);
-    virtual bool visit(ParameterDeclarationAST *ast);
-    virtual bool visit(TemplateDeclarationAST *ast);
-    virtual bool visit(TypenameTypeParameterAST *ast);
-    virtual bool visit(TemplateTypeParameterAST *ast);
-    virtual bool visit(UsingAST *ast);
-    virtual bool visit(UsingDirectiveAST *ast);
-    virtual bool visit(ObjCClassForwardDeclarationAST *ast);
-    virtual bool visit(ObjCClassDeclarationAST *ast);
-    virtual bool visit(ObjCProtocolForwardDeclarationAST *ast);
-    virtual bool visit(ObjCProtocolDeclarationAST *ast);
-    virtual bool visit(ObjCVisibilityDeclarationAST *ast);
-    virtual bool visit(ObjCPropertyDeclarationAST *ast);
-    virtual bool visit(ObjCMethodDeclarationAST *ast);
-    virtual bool visit(ObjCSynthesizedPropertiesDeclarationAST *ast);
-    virtual bool visit(ObjCDynamicPropertiesDeclarationAST *ast);
+    bool visit(SimpleDeclarationAST *ast) override;
+    bool visit(EmptyDeclarationAST *ast) override;
+    bool visit(AccessDeclarationAST *ast) override;
+    bool visit(QtObjectTagAST *ast) override;
+    bool visit(QtPrivateSlotAST *ast) override;
+    bool visit(QtPropertyDeclarationAST *ast) override;
+    bool visit(QtEnumDeclarationAST *ast) override;
+    bool visit(QtFlagsDeclarationAST *ast) override;
+    bool visit(QtInterfacesDeclarationAST *ast) override;
+    bool visit(AliasDeclarationAST *ast) override;
+    bool visit(AsmDefinitionAST *ast) override;
+    bool visit(ExceptionDeclarationAST *ast) override;
+    bool visit(FunctionDefinitionAST *ast) override;
+    bool visit(LinkageBodyAST *ast) override;
+    bool visit(LinkageSpecificationAST *ast) override;
+    bool visit(NamespaceAST *ast) override;
+    bool visit(NamespaceAliasDefinitionAST *ast) override;
+    bool visit(ParameterDeclarationAST *ast) override;
+    bool visit(TemplateDeclarationAST *ast) override;
+    bool visit(TypenameTypeParameterAST *ast) override;
+    bool visit(TemplateTypeParameterAST *ast) override;
+    bool visit(UsingAST *ast) override;
+    bool visit(UsingDirectiveAST *ast) override;
+    bool visit(ObjCClassForwardDeclarationAST *ast) override;
+    bool visit(ObjCClassDeclarationAST *ast) override;
+    bool visit(ObjCProtocolForwardDeclarationAST *ast) override;
+    bool visit(ObjCProtocolDeclarationAST *ast) override;
+    bool visit(ObjCVisibilityDeclarationAST *ast) override;
+    bool visit(ObjCPropertyDeclarationAST *ast) override;
+    bool visit(ObjCMethodDeclarationAST *ast) override;
+    bool visit(ObjCSynthesizedPropertiesDeclarationAST *ast) override;
+    bool visit(ObjCDynamicPropertiesDeclarationAST *ast) override;
 
     // NameAST
-    virtual bool visit(ObjCSelectorAST *ast);
-    virtual bool visit(QualifiedNameAST *ast);
-    virtual bool visit(OperatorFunctionIdAST *ast);
-    virtual bool visit(ConversionFunctionIdAST *ast);
-    virtual bool visit(AnonymousNameAST *ast);
-    virtual bool visit(SimpleNameAST *ast);
-    virtual bool visit(DestructorNameAST *ast);
-    virtual bool visit(TemplateIdAST *ast);
+    bool visit(ObjCSelectorAST *ast) override;
+    bool visit(QualifiedNameAST *ast) override;
+    bool visit(OperatorFunctionIdAST *ast) override;
+    bool visit(ConversionFunctionIdAST *ast) override;
+    bool visit(AnonymousNameAST *ast) override;
+    bool visit(SimpleNameAST *ast) override;
+    bool visit(DestructorNameAST *ast) override;
+    bool visit(TemplateIdAST *ast) override;
 
     // SpecifierAST
-    virtual bool visit(SimpleSpecifierAST *ast);
-    virtual bool visit(AlignmentSpecifierAST *ast);
-    virtual bool visit(GnuAttributeSpecifierAST *ast);
-    virtual bool visit(MsvcDeclspecSpecifierAST *ast);
-    virtual bool visit(StdAttributeSpecifierAST *ast);
-    virtual bool visit(TypeofSpecifierAST *ast);
-    virtual bool visit(DecltypeSpecifierAST *ast);
-    virtual bool visit(ClassSpecifierAST *ast);
-    virtual bool visit(NamedTypeSpecifierAST *ast);
-    virtual bool visit(ElaboratedTypeSpecifierAST *ast);
-    virtual bool visit(EnumSpecifierAST *ast);
+    bool visit(SimpleSpecifierAST *ast) override;
+    bool visit(AlignmentSpecifierAST *ast) override;
+    bool visit(GnuAttributeSpecifierAST *ast) override;
+    bool visit(MsvcDeclspecSpecifierAST *ast) override;
+    bool visit(StdAttributeSpecifierAST *ast) override;
+    bool visit(TypeofSpecifierAST *ast) override;
+    bool visit(DecltypeSpecifierAST *ast) override;
+    bool visit(ClassSpecifierAST *ast) override;
+    bool visit(NamedTypeSpecifierAST *ast) override;
+    bool visit(ElaboratedTypeSpecifierAST *ast) override;
+    bool visit(EnumSpecifierAST *ast) override;
 
     // PtrOperatorAST
-    virtual bool visit(PointerToMemberAST *ast);
-    virtual bool visit(PointerAST *ast);
-    virtual bool visit(ReferenceAST *ast);
+    bool visit(PointerToMemberAST *ast) override;
+    bool visit(PointerAST *ast) override;
+    bool visit(ReferenceAST *ast) override;
 
     // PostfixAST
-    virtual bool visit(CallAST *ast);
-    virtual bool visit(ArrayAccessAST *ast);
-    virtual bool visit(PostIncrDecrAST *ast);
-    virtual bool visit(MemberAccessAST *ast);
+    bool visit(CallAST *ast) override;
+    bool visit(ArrayAccessAST *ast) override;
+    bool visit(PostIncrDecrAST *ast) override;
+    bool visit(MemberAccessAST *ast) override;
 
     // CoreDeclaratorAST
-    virtual bool visit(DeclaratorIdAST *ast);
-    virtual bool visit(NestedDeclaratorAST *ast);
+    bool visit(DeclaratorIdAST *ast) override;
+    bool visit(NestedDeclaratorAST *ast) override;
 
     // PostfixDeclaratorAST
-    virtual bool visit(FunctionDeclaratorAST *ast);
-    virtual bool visit(ArrayDeclaratorAST *ast);
+    bool visit(FunctionDeclaratorAST *ast) override;
+    bool visit(ArrayDeclaratorAST *ast) override;
 
 private:
     static const int kMaxDepth;

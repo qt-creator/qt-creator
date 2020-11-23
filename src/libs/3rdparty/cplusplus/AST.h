@@ -296,25 +296,25 @@ protected:
 class CPLUSPLUS_EXPORT StatementAST: public AST
 {
 public:
-    virtual StatementAST *asStatement() { return this; }
+    StatementAST *asStatement() override { return this; }
 
-    virtual StatementAST *clone(MemoryPool *pool) const = 0;
+    StatementAST *clone(MemoryPool *pool) const override = 0;
 };
 
 class CPLUSPLUS_EXPORT ExpressionAST: public AST
 {
 public:
-    virtual ExpressionAST *asExpression() { return this; }
+    ExpressionAST *asExpression() override { return this; }
 
-    virtual ExpressionAST *clone(MemoryPool *pool) const = 0;
+    ExpressionAST *clone(MemoryPool *pool) const override = 0;
 };
 
 class CPLUSPLUS_EXPORT DeclarationAST: public AST
 {
 public:
-    virtual DeclarationAST *asDeclaration() { return this; }
+    DeclarationAST *asDeclaration() override { return this; }
 
-    virtual DeclarationAST *clone(MemoryPool *pool) const = 0;
+    DeclarationAST *clone(MemoryPool *pool) const override = 0;
 };
 
 class CPLUSPLUS_EXPORT NameAST: public AST
@@ -323,49 +323,49 @@ public: // annotations
     const Name *name = nullptr;
 
 public:
-    virtual NameAST *asName() { return this; }
+    NameAST *asName() override { return this; }
 
-    virtual NameAST *clone(MemoryPool *pool) const = 0;
+    NameAST *clone(MemoryPool *pool) const override = 0;
 };
 
 class CPLUSPLUS_EXPORT SpecifierAST: public AST
 {
 public:
-    virtual SpecifierAST *asSpecifier() { return this; }
+    SpecifierAST *asSpecifier() override { return this; }
 
-    virtual SpecifierAST *clone(MemoryPool *pool) const = 0;
+    SpecifierAST *clone(MemoryPool *pool) const override = 0;
 };
 
 class CPLUSPLUS_EXPORT PtrOperatorAST: public AST
 {
 public:
-    virtual PtrOperatorAST *asPtrOperator() { return this; }
+    PtrOperatorAST *asPtrOperator() override { return this; }
 
-    virtual PtrOperatorAST *clone(MemoryPool *pool) const = 0;
+    PtrOperatorAST *clone(MemoryPool *pool) const override = 0;
 };
 
 class CPLUSPLUS_EXPORT PostfixAST: public ExpressionAST
 {
 public:
-    virtual PostfixAST *asPostfix() { return this; }
+    PostfixAST *asPostfix() override { return this; }
 
-    virtual PostfixAST *clone(MemoryPool *pool) const = 0;
+    PostfixAST *clone(MemoryPool *pool) const override = 0;
 };
 
 class CPLUSPLUS_EXPORT CoreDeclaratorAST: public AST
 {
 public:
-    virtual CoreDeclaratorAST *asCoreDeclarator() { return this; }
+    CoreDeclaratorAST *asCoreDeclarator() override { return this; }
 
-    virtual CoreDeclaratorAST *clone(MemoryPool *pool) const = 0;
+    CoreDeclaratorAST *clone(MemoryPool *pool) const override = 0;
 };
 
 class CPLUSPLUS_EXPORT PostfixDeclaratorAST: public AST
 {
 public:
-    virtual PostfixDeclaratorAST *asPostfixDeclarator() { return this; }
+    PostfixDeclaratorAST *asPostfixDeclarator() override { return this; }
 
-    virtual PostfixDeclaratorAST *clone(MemoryPool *pool) const = 0;
+    PostfixDeclaratorAST *clone(MemoryPool *pool) const override = 0;
 };
 
 class CPLUSPLUS_EXPORT ObjCSelectorArgumentAST: public AST
@@ -375,16 +375,16 @@ public:
     int colon_token = 0;
 
 public:
-    virtual ObjCSelectorArgumentAST *asObjCSelectorArgument() { return this; }
+    ObjCSelectorArgumentAST *asObjCSelectorArgument() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCSelectorArgumentAST *clone(MemoryPool *pool) const;
+    ObjCSelectorArgumentAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCSelectorAST: public NameAST
@@ -393,16 +393,16 @@ public:
     ObjCSelectorArgumentListAST *selector_argument_list = nullptr;
 
 public:
-    virtual ObjCSelectorAST *asObjCSelector() { return this; }
+    ObjCSelectorAST *asObjCSelector() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCSelectorAST *clone(MemoryPool *pool) const;
+    ObjCSelectorAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT SimpleSpecifierAST: public SpecifierAST
@@ -411,24 +411,24 @@ public:
     int specifier_token = 0;
 
 public:
-    virtual SimpleSpecifierAST *asSimpleSpecifier() { return this; }
+    SimpleSpecifierAST *asSimpleSpecifier() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual SimpleSpecifierAST *clone(MemoryPool *pool) const;
+    SimpleSpecifierAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT AttributeSpecifierAST: public SpecifierAST
 {
 public:
-    virtual AttributeSpecifierAST *asAttributeSpecifier() { return this; }
+    AttributeSpecifierAST *asAttributeSpecifier() override { return this; }
 
-    virtual AttributeSpecifierAST *clone(MemoryPool *pool) const = 0;
+    AttributeSpecifierAST *clone(MemoryPool *pool) const override = 0;
 };
 
 class CPLUSPLUS_EXPORT AlignmentSpecifierAST: public AttributeSpecifierAST
@@ -441,16 +441,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual AlignmentSpecifierAST *asAlignmentSpecifier() { return this; }
+    AlignmentSpecifierAST *asAlignmentSpecifier() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual AlignmentSpecifierAST *clone(MemoryPool *pool) const;
+    AlignmentSpecifierAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 
@@ -465,16 +465,16 @@ public:
     int second_rparen_token = 0;
 
 public:
-    virtual GnuAttributeSpecifierAST *asGnuAttributeSpecifier() { return this; }
+    GnuAttributeSpecifierAST *asGnuAttributeSpecifier() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual GnuAttributeSpecifierAST *clone(MemoryPool *pool) const;
+    GnuAttributeSpecifierAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT MsvcDeclspecSpecifierAST: public AttributeSpecifierAST
@@ -486,16 +486,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual MsvcDeclspecSpecifierAST *asMsvcDeclspecSpecifier() { return this; }
+    MsvcDeclspecSpecifierAST *asMsvcDeclspecSpecifier() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual MsvcDeclspecSpecifierAST *clone(MemoryPool *pool) const;
+    MsvcDeclspecSpecifierAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT StdAttributeSpecifierAST: public AttributeSpecifierAST
@@ -508,16 +508,16 @@ public:
     int second_rbracket_token = 0;
 
 public:
-    virtual StdAttributeSpecifierAST *asStdAttributeSpecifier() { return this; }
+    StdAttributeSpecifierAST *asStdAttributeSpecifier() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual StdAttributeSpecifierAST *clone(MemoryPool *pool) const;
+    StdAttributeSpecifierAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT GnuAttributeAST: public AST
@@ -530,16 +530,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual GnuAttributeAST *asGnuAttribute() { return this; }
+    GnuAttributeAST *asGnuAttribute() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual GnuAttributeAST *clone(MemoryPool *pool) const;
+    GnuAttributeAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT TypeofSpecifierAST: public SpecifierAST
@@ -551,16 +551,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual TypeofSpecifierAST *asTypeofSpecifier() { return this; }
+    TypeofSpecifierAST *asTypeofSpecifier() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual TypeofSpecifierAST *clone(MemoryPool *pool) const;
+    TypeofSpecifierAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT DecltypeSpecifierAST: public SpecifierAST
@@ -572,16 +572,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual DecltypeSpecifierAST *asDecltypeSpecifier() { return this; }
+    DecltypeSpecifierAST *asDecltypeSpecifier() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual DecltypeSpecifierAST *clone(MemoryPool *pool) const;
+    DecltypeSpecifierAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT DeclaratorAST: public AST
@@ -596,16 +596,16 @@ public:
     ExpressionAST *initializer = nullptr;
 
 public:
-    virtual DeclaratorAST *asDeclarator() { return this; }
+    DeclaratorAST *asDeclarator() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual DeclaratorAST *clone(MemoryPool *pool) const;
+    DeclaratorAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT SimpleDeclarationAST: public DeclarationAST
@@ -620,16 +620,16 @@ public:
     List<Symbol *> *symbols = nullptr;
 
 public:
-    virtual SimpleDeclarationAST *asSimpleDeclaration() { return this; }
+    SimpleDeclarationAST *asSimpleDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual SimpleDeclarationAST *clone(MemoryPool *pool) const;
+    SimpleDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT EmptyDeclarationAST: public DeclarationAST
@@ -638,16 +638,16 @@ public:
     int semicolon_token = 0;
 
 public:
-    virtual EmptyDeclarationAST *asEmptyDeclaration() { return this; }
+    EmptyDeclarationAST *asEmptyDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual EmptyDeclarationAST *clone(MemoryPool *pool) const;
+    EmptyDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT AccessDeclarationAST: public DeclarationAST
@@ -658,16 +658,16 @@ public:
     int colon_token = 0;
 
 public:
-    virtual AccessDeclarationAST *asAccessDeclaration() { return this; }
+    AccessDeclarationAST *asAccessDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual AccessDeclarationAST *clone(MemoryPool *pool) const;
+    AccessDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT QtObjectTagAST: public DeclarationAST
@@ -676,16 +676,16 @@ public:
     int q_object_token = 0;
 
 public:
-    virtual QtObjectTagAST *asQtObjectTag() { return this; }
+    QtObjectTagAST *asQtObjectTag() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual QtObjectTagAST *clone(MemoryPool *pool) const;
+    QtObjectTagAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT QtPrivateSlotAST: public DeclarationAST
@@ -702,16 +702,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual QtPrivateSlotAST *asQtPrivateSlot() { return this; }
+    QtPrivateSlotAST *asQtPrivateSlot() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual QtPrivateSlotAST *clone(MemoryPool *pool) const;
+    QtPrivateSlotAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class QtPropertyDeclarationItemAST: public AST
@@ -721,16 +721,16 @@ public:
     ExpressionAST *expression = nullptr;
 
 public:
-    virtual QtPropertyDeclarationItemAST *asQtPropertyDeclarationItem() { return this; }
+    QtPropertyDeclarationItemAST *asQtPropertyDeclarationItem() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual QtPropertyDeclarationItemAST *clone(MemoryPool *pool) const;
+    QtPropertyDeclarationItemAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT QtPropertyDeclarationAST: public DeclarationAST
@@ -746,16 +746,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual QtPropertyDeclarationAST *asQtPropertyDeclaration() { return this; }
+    QtPropertyDeclarationAST *asQtPropertyDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual QtPropertyDeclarationAST *clone(MemoryPool *pool) const;
+    QtPropertyDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT QtEnumDeclarationAST: public DeclarationAST
@@ -767,16 +767,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual QtEnumDeclarationAST *asQtEnumDeclaration() { return this; }
+    QtEnumDeclarationAST *asQtEnumDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual QtEnumDeclarationAST *clone(MemoryPool *pool) const;
+    QtEnumDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT QtFlagsDeclarationAST: public DeclarationAST
@@ -788,16 +788,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual QtFlagsDeclarationAST *asQtFlagsDeclaration() { return this; }
+    QtFlagsDeclarationAST *asQtFlagsDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual QtFlagsDeclarationAST *clone(MemoryPool *pool) const;
+    QtFlagsDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT QtInterfaceNameAST: public AST
@@ -807,16 +807,16 @@ public:
     NameListAST *constraint_list = nullptr;
 
 public:
-    virtual QtInterfaceNameAST *asQtInterfaceName() { return this; }
+    QtInterfaceNameAST *asQtInterfaceName() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual QtInterfaceNameAST *clone(MemoryPool *pool) const;
+    QtInterfaceNameAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT QtInterfacesDeclarationAST: public DeclarationAST
@@ -828,16 +828,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual QtInterfacesDeclarationAST *asQtInterfacesDeclaration() { return this; }
+    QtInterfacesDeclarationAST *asQtInterfacesDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual QtInterfacesDeclarationAST *clone(MemoryPool *pool) const;
+    QtInterfacesDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT AsmDefinitionAST: public DeclarationAST
@@ -852,16 +852,16 @@ public:
     int semicolon_token = 0;
 
 public:
-    virtual AsmDefinitionAST *asAsmDefinition() { return this; }
+    AsmDefinitionAST *asAsmDefinition() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual AsmDefinitionAST *clone(MemoryPool *pool) const;
+    AsmDefinitionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT BaseSpecifierAST: public AST
@@ -876,16 +876,16 @@ public: // annotations
     BaseClass *symbol = nullptr;
 
 public:
-    virtual BaseSpecifierAST *asBaseSpecifier() { return this; }
+    BaseSpecifierAST *asBaseSpecifier() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual BaseSpecifierAST *clone(MemoryPool *pool) const;
+    BaseSpecifierAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT IdExpressionAST: public ExpressionAST
@@ -894,16 +894,16 @@ public:
     NameAST *name = nullptr;
 
 public:
-    virtual IdExpressionAST *asIdExpression() { return this; }
+    IdExpressionAST *asIdExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual IdExpressionAST *clone(MemoryPool *pool) const;
+    IdExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT CompoundExpressionAST: public ExpressionAST
@@ -914,16 +914,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual CompoundExpressionAST *asCompoundExpression() { return this; }
+    CompoundExpressionAST *asCompoundExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual CompoundExpressionAST *clone(MemoryPool *pool) const;
+    CompoundExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT CompoundLiteralAST: public ExpressionAST
@@ -935,16 +935,16 @@ public:
     ExpressionAST *initializer = nullptr;
 
 public:
-    virtual CompoundLiteralAST *asCompoundLiteral() { return this; }
+    CompoundLiteralAST *asCompoundLiteral() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual CompoundLiteralAST *clone(MemoryPool *pool) const;
+    CompoundLiteralAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT QtMethodAST: public ExpressionAST
@@ -956,16 +956,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual QtMethodAST *asQtMethod() { return this; }
+    QtMethodAST *asQtMethod() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual QtMethodAST *clone(MemoryPool *pool) const;
+    QtMethodAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT QtMemberDeclarationAST: public StatementAST
@@ -977,16 +977,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual QtMemberDeclarationAST *asQtMemberDeclaration() { return this; }
+    QtMemberDeclarationAST *asQtMemberDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual QtMemberDeclarationAST *clone(MemoryPool *pool) const;
+    QtMemberDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT BinaryExpressionAST: public ExpressionAST
@@ -997,16 +997,16 @@ public:
     ExpressionAST *right_expression = nullptr;
 
 public:
-    virtual BinaryExpressionAST *asBinaryExpression() { return this; }
+    BinaryExpressionAST *asBinaryExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual BinaryExpressionAST *clone(MemoryPool *pool) const;
+    BinaryExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT CastExpressionAST: public ExpressionAST
@@ -1018,16 +1018,16 @@ public:
     ExpressionAST *expression = nullptr;
 
 public:
-    virtual CastExpressionAST *asCastExpression() { return this; }
+    CastExpressionAST *asCastExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual CastExpressionAST *clone(MemoryPool *pool) const;
+    CastExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ClassSpecifierAST: public SpecifierAST
@@ -1048,16 +1048,16 @@ public: // annotations
     Class *symbol = nullptr;
 
 public:
-    virtual ClassSpecifierAST *asClassSpecifier() { return this; }
+    ClassSpecifierAST *asClassSpecifier() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ClassSpecifierAST *clone(MemoryPool *pool) const;
+    ClassSpecifierAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT CaseStatementAST: public StatementAST
@@ -1069,16 +1069,16 @@ public:
     StatementAST *statement = nullptr;
 
 public:
-    virtual CaseStatementAST *asCaseStatement() { return this; }
+    CaseStatementAST *asCaseStatement() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual CaseStatementAST *clone(MemoryPool *pool) const;
+    CaseStatementAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT CompoundStatementAST: public StatementAST
@@ -1092,16 +1092,16 @@ public: // annotations
     Block *symbol = nullptr;
 
 public:
-    virtual CompoundStatementAST *asCompoundStatement() { return this; }
+    CompoundStatementAST *asCompoundStatement() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual CompoundStatementAST *clone(MemoryPool *pool) const;
+    CompoundStatementAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ConditionAST: public ExpressionAST
@@ -1111,16 +1111,16 @@ public:
     DeclaratorAST *declarator = nullptr;
 
 public:
-    virtual ConditionAST *asCondition() { return this; }
+    ConditionAST *asCondition() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ConditionAST *clone(MemoryPool *pool) const;
+    ConditionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ConditionalExpressionAST: public ExpressionAST
@@ -1133,16 +1133,16 @@ public:
     ExpressionAST *right_expression = nullptr;
 
 public:
-    virtual ConditionalExpressionAST *asConditionalExpression() { return this; }
+    ConditionalExpressionAST *asConditionalExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ConditionalExpressionAST *clone(MemoryPool *pool) const;
+    ConditionalExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT CppCastExpressionAST: public ExpressionAST
@@ -1157,16 +1157,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual CppCastExpressionAST *asCppCastExpression() { return this; }
+    CppCastExpressionAST *asCppCastExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual CppCastExpressionAST *clone(MemoryPool *pool) const;
+    CppCastExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT CtorInitializerAST: public AST
@@ -1177,16 +1177,16 @@ public:
     int dot_dot_dot_token = 0;
 
 public:
-    virtual CtorInitializerAST *asCtorInitializer() { return this; }
+    CtorInitializerAST *asCtorInitializer() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual CtorInitializerAST *clone(MemoryPool *pool) const;
+    CtorInitializerAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT DeclarationStatementAST: public StatementAST
@@ -1195,16 +1195,16 @@ public:
     DeclarationAST *declaration = nullptr;
 
 public:
-    virtual DeclarationStatementAST *asDeclarationStatement() { return this; }
+    DeclarationStatementAST *asDeclarationStatement() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual DeclarationStatementAST *clone(MemoryPool *pool) const;
+    DeclarationStatementAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT DeclaratorIdAST: public CoreDeclaratorAST
@@ -1214,16 +1214,16 @@ public:
     NameAST *name = nullptr;
 
 public:
-    virtual DeclaratorIdAST *asDeclaratorId() { return this; }
+    DeclaratorIdAST *asDeclaratorId() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual DeclaratorIdAST *clone(MemoryPool *pool) const;
+    DeclaratorIdAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT NestedDeclaratorAST: public CoreDeclaratorAST
@@ -1234,16 +1234,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual NestedDeclaratorAST *asNestedDeclarator() { return this; }
+    NestedDeclaratorAST *asNestedDeclarator() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual NestedDeclaratorAST *clone(MemoryPool *pool) const;
+    NestedDeclaratorAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT FunctionDeclaratorAST: public PostfixDeclaratorAST
@@ -1264,16 +1264,16 @@ public: // annotations
     Function *symbol = nullptr;
 
 public:
-    virtual FunctionDeclaratorAST *asFunctionDeclarator() { return this; }
+    FunctionDeclaratorAST *asFunctionDeclarator() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual FunctionDeclaratorAST *clone(MemoryPool *pool) const;
+    FunctionDeclaratorAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ArrayDeclaratorAST: public PostfixDeclaratorAST
@@ -1284,16 +1284,16 @@ public:
     int rbracket_token = 0;
 
 public:
-    virtual ArrayDeclaratorAST *asArrayDeclarator() { return this; }
+    ArrayDeclaratorAST *asArrayDeclarator() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ArrayDeclaratorAST *clone(MemoryPool *pool) const;
+    ArrayDeclaratorAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT DeleteExpressionAST: public ExpressionAST
@@ -1306,16 +1306,16 @@ public:
     ExpressionAST *expression = nullptr;
 
 public:
-    virtual DeleteExpressionAST *asDeleteExpression() { return this; }
+    DeleteExpressionAST *asDeleteExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual DeleteExpressionAST *clone(MemoryPool *pool) const;
+    DeleteExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT DoStatementAST: public StatementAST
@@ -1330,16 +1330,16 @@ public:
     int semicolon_token = 0;
 
 public:
-    virtual DoStatementAST *asDoStatement() { return this; }
+    DoStatementAST *asDoStatement() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual DoStatementAST *clone(MemoryPool *pool) const;
+    DoStatementAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT NamedTypeSpecifierAST: public SpecifierAST
@@ -1348,16 +1348,16 @@ public:
     NameAST *name = nullptr;
 
 public:
-    virtual NamedTypeSpecifierAST *asNamedTypeSpecifier() { return this; }
+    NamedTypeSpecifierAST *asNamedTypeSpecifier() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual NamedTypeSpecifierAST *clone(MemoryPool *pool) const;
+    NamedTypeSpecifierAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ElaboratedTypeSpecifierAST: public SpecifierAST
@@ -1368,16 +1368,16 @@ public:
     NameAST *name = nullptr;
 
 public:
-    virtual ElaboratedTypeSpecifierAST *asElaboratedTypeSpecifier() { return this; }
+    ElaboratedTypeSpecifierAST *asElaboratedTypeSpecifier() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ElaboratedTypeSpecifierAST *clone(MemoryPool *pool) const;
+    ElaboratedTypeSpecifierAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT EnumSpecifierAST: public SpecifierAST
@@ -1397,16 +1397,16 @@ public: // annotations
     Enum *symbol = nullptr;
 
 public:
-    virtual EnumSpecifierAST *asEnumSpecifier() { return this; }
+    EnumSpecifierAST *asEnumSpecifier() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual EnumSpecifierAST *clone(MemoryPool *pool) const;
+    EnumSpecifierAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT EnumeratorAST: public AST
@@ -1417,16 +1417,16 @@ public:
     ExpressionAST *expression = nullptr;
 
 public:
-    virtual EnumeratorAST *asEnumerator() { return this; }
+    EnumeratorAST *asEnumerator() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual EnumeratorAST *clone(MemoryPool *pool) const;
+    EnumeratorAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ExceptionDeclarationAST: public DeclarationAST
@@ -1437,24 +1437,24 @@ public:
     int dot_dot_dot_token = 0;
 
 public:
-    virtual ExceptionDeclarationAST *asExceptionDeclaration() { return this; }
+    ExceptionDeclarationAST *asExceptionDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ExceptionDeclarationAST *clone(MemoryPool *pool) const;
+    ExceptionDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ExceptionSpecificationAST: public AST
 {
 public:
-    virtual ExceptionSpecificationAST *asExceptionSpecification() { return this; }
+    ExceptionSpecificationAST *asExceptionSpecification() override { return this; }
 
-    virtual ExceptionSpecificationAST *clone(MemoryPool *pool) const = 0;
+    ExceptionSpecificationAST *clone(MemoryPool *pool) const override = 0;
 };
 
 class CPLUSPLUS_EXPORT DynamicExceptionSpecificationAST: public ExceptionSpecificationAST
@@ -1467,16 +1467,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual DynamicExceptionSpecificationAST *asDynamicExceptionSpecification() { return this; }
+    DynamicExceptionSpecificationAST *asDynamicExceptionSpecification() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual DynamicExceptionSpecificationAST *clone(MemoryPool *pool) const;
+    DynamicExceptionSpecificationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT NoExceptSpecificationAST: public ExceptionSpecificationAST
@@ -1488,16 +1488,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual NoExceptSpecificationAST *asNoExceptSpecification() { return this; }
+    NoExceptSpecificationAST *asNoExceptSpecification() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual NoExceptSpecificationAST *clone(MemoryPool *pool) const;
+    NoExceptSpecificationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ExpressionOrDeclarationStatementAST: public StatementAST
@@ -1507,16 +1507,16 @@ public:
     DeclarationStatementAST *declaration = nullptr;
 
 public:
-    virtual ExpressionOrDeclarationStatementAST *asExpressionOrDeclarationStatement() { return this; }
+    ExpressionOrDeclarationStatementAST *asExpressionOrDeclarationStatement() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ExpressionOrDeclarationStatementAST *clone(MemoryPool *pool) const;
+    ExpressionOrDeclarationStatementAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ExpressionStatementAST: public StatementAST
@@ -1526,16 +1526,16 @@ public:
     int semicolon_token = 0;
 
 public:
-    virtual ExpressionStatementAST *asExpressionStatement() { return this; }
+    ExpressionStatementAST *asExpressionStatement() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ExpressionStatementAST *clone(MemoryPool *pool) const;
+    ExpressionStatementAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT FunctionDefinitionAST: public DeclarationAST
@@ -1551,16 +1551,16 @@ public: // annotations
     Function *symbol = nullptr;
 
 public:
-    virtual FunctionDefinitionAST *asFunctionDefinition() { return this; }
+    FunctionDefinitionAST *asFunctionDefinition() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual FunctionDefinitionAST *clone(MemoryPool *pool) const;
+    FunctionDefinitionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ForeachStatementAST: public StatementAST
@@ -1582,16 +1582,16 @@ public: // annotations
     Block *symbol = nullptr;
 
 public:
-    virtual ForeachStatementAST *asForeachStatement() { return this; }
+    ForeachStatementAST *asForeachStatement() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ForeachStatementAST *clone(MemoryPool *pool) const;
+    ForeachStatementAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT RangeBasedForStatementAST : public StatementAST
@@ -1612,16 +1612,16 @@ public: // annotations
     Block *symbol = nullptr;
 
 public:
-    virtual RangeBasedForStatementAST *asRangeBasedForStatement() { return this; }
+    RangeBasedForStatementAST *asRangeBasedForStatement() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual RangeBasedForStatementAST *clone(MemoryPool *pool) const;
+    RangeBasedForStatementAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ForStatementAST: public StatementAST
@@ -1640,16 +1640,16 @@ public: // annotations
     Block *symbol = nullptr;
 
 public:
-    virtual ForStatementAST *asForStatement() { return this; }
+    ForStatementAST *asForStatement() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ForStatementAST *clone(MemoryPool *pool) const;
+    ForStatementAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT IfStatementAST: public StatementAST
@@ -1668,16 +1668,16 @@ public: // annotations
     Block *symbol = nullptr;
 
 public:
-    virtual IfStatementAST *asIfStatement() { return this; }
+    IfStatementAST *asIfStatement() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual IfStatementAST *clone(MemoryPool *pool) const;
+    IfStatementAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ArrayInitializerAST: public ExpressionAST
@@ -1688,16 +1688,16 @@ public:
     int rbrace_token = 0;
 
 public:
-    virtual ArrayInitializerAST *asArrayInitializer() { return this; }
+    ArrayInitializerAST *asArrayInitializer() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ArrayInitializerAST *clone(MemoryPool *pool) const;
+    ArrayInitializerAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT LabeledStatementAST: public StatementAST
@@ -1708,16 +1708,16 @@ public:
     StatementAST *statement = nullptr;
 
 public:
-    virtual LabeledStatementAST *asLabeledStatement() { return this; }
+    LabeledStatementAST *asLabeledStatement() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual LabeledStatementAST *clone(MemoryPool *pool) const;
+    LabeledStatementAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT LinkageBodyAST: public DeclarationAST
@@ -1728,15 +1728,15 @@ public:
     int rbrace_token = 0;
 
 public:
-    virtual LinkageBodyAST *asLinkageBody() { return this; }
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    LinkageBodyAST *asLinkageBody() override { return this; }
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual LinkageBodyAST *clone(MemoryPool *pool) const;
+    LinkageBodyAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT LinkageSpecificationAST: public DeclarationAST
@@ -1747,16 +1747,16 @@ public:
     DeclarationAST *declaration = nullptr;
 
 public:
-    virtual LinkageSpecificationAST *asLinkageSpecification() { return this; }
+    LinkageSpecificationAST *asLinkageSpecification() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual LinkageSpecificationAST *clone(MemoryPool *pool) const;
+    LinkageSpecificationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT MemInitializerAST: public AST
@@ -1767,16 +1767,16 @@ public:
     ExpressionAST *expression = nullptr;
 
 public:
-    virtual MemInitializerAST *asMemInitializer() { return this; }
+    MemInitializerAST *asMemInitializer() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual MemInitializerAST *clone(MemoryPool *pool) const;
+    MemInitializerAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT NestedNameSpecifierAST: public AST
@@ -1786,16 +1786,16 @@ public:
     int scope_token = 0;
 
 public:
-    virtual NestedNameSpecifierAST *asNestedNameSpecifier() { return this; }
+    NestedNameSpecifierAST *asNestedNameSpecifier() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual NestedNameSpecifierAST *clone(MemoryPool *pool) const;
+    NestedNameSpecifierAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT QualifiedNameAST: public NameAST
@@ -1806,16 +1806,16 @@ public:
     NameAST *unqualified_name = nullptr;
 
 public:
-    virtual QualifiedNameAST *asQualifiedName() { return this; }
+    QualifiedNameAST *asQualifiedName() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual QualifiedNameAST *clone(MemoryPool *pool) const;
+    QualifiedNameAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT OperatorFunctionIdAST: public NameAST
@@ -1825,16 +1825,16 @@ public:
     OperatorAST *op = nullptr;
 
 public:
-    virtual OperatorFunctionIdAST *asOperatorFunctionId() { return this; }
+    OperatorFunctionIdAST *asOperatorFunctionId() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual OperatorFunctionIdAST *clone(MemoryPool *pool) const;
+    OperatorFunctionIdAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ConversionFunctionIdAST: public NameAST
@@ -1845,16 +1845,16 @@ public:
     PtrOperatorListAST *ptr_operator_list = nullptr;
 
 public:
-    virtual ConversionFunctionIdAST *asConversionFunctionId() { return this; }
+    ConversionFunctionIdAST *asConversionFunctionId() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ConversionFunctionIdAST *clone(MemoryPool *pool) const;
+    ConversionFunctionIdAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT AnonymousNameAST: public NameAST
@@ -1863,15 +1863,15 @@ public:
     int class_token = 0;
 
 public:
-    virtual AnonymousNameAST *asAnonymousName() { return this; }
-    virtual int firstToken() const { return 0; }
-    virtual int lastToken() const { return 0; }
+    AnonymousNameAST *asAnonymousName() override { return this; }
+    int firstToken() const override { return 0; }
+    int lastToken() const override { return 0; }
 
-    virtual AnonymousNameAST *clone(MemoryPool *pool) const;
+    AnonymousNameAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT SimpleNameAST: public NameAST
@@ -1880,16 +1880,16 @@ public:
     int identifier_token = 0;
 
 public:
-    virtual SimpleNameAST *asSimpleName() { return this; }
+    SimpleNameAST *asSimpleName() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual SimpleNameAST *clone(MemoryPool *pool) const;
+    SimpleNameAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT DestructorNameAST: public NameAST
@@ -1899,16 +1899,16 @@ public:
     NameAST *unqualified_name = nullptr;
 
 public:
-    virtual DestructorNameAST *asDestructorName() { return this; }
+    DestructorNameAST *asDestructorName() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual DestructorNameAST *clone(MemoryPool *pool) const;
+    DestructorNameAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT TemplateIdAST: public NameAST
@@ -1921,16 +1921,16 @@ public:
     int greater_token = 0;
 
 public:
-    virtual TemplateIdAST *asTemplateId() { return this; }
+    TemplateIdAST *asTemplateId() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual TemplateIdAST *clone(MemoryPool *pool) const;
+    TemplateIdAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT NamespaceAST: public DeclarationAST
@@ -1946,16 +1946,16 @@ public: // annotations
     Namespace *symbol = nullptr;
 
 public:
-    virtual NamespaceAST *asNamespace() { return this; }
+    NamespaceAST *asNamespace() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual NamespaceAST *clone(MemoryPool *pool) const;
+    NamespaceAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT NamespaceAliasDefinitionAST: public DeclarationAST
@@ -1968,16 +1968,16 @@ public:
     int semicolon_token = 0;
 
 public:
-    virtual NamespaceAliasDefinitionAST *asNamespaceAliasDefinition() { return this; }
+    NamespaceAliasDefinitionAST *asNamespaceAliasDefinition() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual NamespaceAliasDefinitionAST *clone(MemoryPool *pool) const;
+    NamespaceAliasDefinitionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT AliasDeclarationAST: public DeclarationAST
@@ -1993,16 +1993,16 @@ public: // annotations
     Declaration *symbol = nullptr;
 
 public:
-    virtual AliasDeclarationAST *asAliasDeclaration() { return this; }
+    AliasDeclarationAST *asAliasDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual AliasDeclarationAST *clone(MemoryPool *pool) const;
+    AliasDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ExpressionListParenAST: public ExpressionAST
@@ -2013,16 +2013,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual ExpressionListParenAST *asExpressionListParen() { return this; }
+    ExpressionListParenAST *asExpressionListParen() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ExpressionListParenAST *clone(MemoryPool *pool) const;
+    ExpressionListParenAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT NewArrayDeclaratorAST: public AST
@@ -2033,16 +2033,16 @@ public:
     int rbracket_token = 0;
 
 public:
-    virtual NewArrayDeclaratorAST *asNewArrayDeclarator() { return this; }
+    NewArrayDeclaratorAST *asNewArrayDeclarator() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual NewArrayDeclaratorAST *clone(MemoryPool *pool) const;
+    NewArrayDeclaratorAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT NewExpressionAST: public ExpressionAST
@@ -2061,16 +2061,16 @@ public:
     ExpressionAST *new_initializer = nullptr; // either ExpressionListParenAST or BracedInitializerAST
 
 public:
-    virtual NewExpressionAST *asNewExpression() { return this; }
+    NewExpressionAST *asNewExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual NewExpressionAST *clone(MemoryPool *pool) const;
+    NewExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT NewTypeIdAST: public AST
@@ -2081,16 +2081,16 @@ public:
     NewArrayDeclaratorListAST *new_array_declarator_list = nullptr;
 
 public:
-    virtual NewTypeIdAST *asNewTypeId() { return this; }
+    NewTypeIdAST *asNewTypeId() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual NewTypeIdAST *clone(MemoryPool *pool) const;
+    NewTypeIdAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT OperatorAST: public AST
@@ -2101,16 +2101,16 @@ public:
     int close_token = 0;
 
 public:
-    virtual OperatorAST *asOperator() { return this; }
+    OperatorAST *asOperator()  override{ return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual OperatorAST *clone(MemoryPool *pool) const;
+    OperatorAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ParameterDeclarationAST: public DeclarationAST
@@ -2125,16 +2125,16 @@ public: // annotations
     Argument *symbol = nullptr;
 
 public:
-    virtual ParameterDeclarationAST *asParameterDeclaration() { return this; }
+    ParameterDeclarationAST *asParameterDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ParameterDeclarationAST *clone(MemoryPool *pool) const;
+    ParameterDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ParameterDeclarationClauseAST: public AST
@@ -2144,16 +2144,16 @@ public:
     int dot_dot_dot_token = 0;
 
 public:
-    virtual ParameterDeclarationClauseAST *asParameterDeclarationClause() { return this; }
+    ParameterDeclarationClauseAST *asParameterDeclarationClause() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ParameterDeclarationClauseAST *clone(MemoryPool *pool) const;
+    ParameterDeclarationClauseAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT CallAST: public PostfixAST
@@ -2165,16 +2165,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual CallAST *asCall() { return this; }
+    CallAST *asCall() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual CallAST *clone(MemoryPool *pool) const;
+    CallAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ArrayAccessAST: public PostfixAST
@@ -2186,16 +2186,16 @@ public:
     int rbracket_token = 0;
 
 public:
-    virtual ArrayAccessAST *asArrayAccess() { return this; }
+    ArrayAccessAST *asArrayAccess() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ArrayAccessAST *clone(MemoryPool *pool) const;
+    ArrayAccessAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT PostIncrDecrAST: public PostfixAST
@@ -2205,16 +2205,16 @@ public:
     int incr_decr_token = 0;
 
 public:
-    virtual PostIncrDecrAST *asPostIncrDecr() { return this; }
+    PostIncrDecrAST *asPostIncrDecr()  override{ return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual PostIncrDecrAST *clone(MemoryPool *pool) const;
+    PostIncrDecrAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT MemberAccessAST: public PostfixAST
@@ -2226,16 +2226,16 @@ public:
     NameAST *member_name = nullptr;
 
 public:
-    virtual MemberAccessAST *asMemberAccess() { return this; }
+    MemberAccessAST *asMemberAccess() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual MemberAccessAST *clone(MemoryPool *pool) const;
+    MemberAccessAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT TypeidExpressionAST: public ExpressionAST
@@ -2247,16 +2247,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual TypeidExpressionAST *asTypeidExpression() { return this; }
+    TypeidExpressionAST *asTypeidExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual TypeidExpressionAST *clone(MemoryPool *pool) const;
+    TypeidExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT TypenameCallExpressionAST: public ExpressionAST
@@ -2267,16 +2267,16 @@ public:
     ExpressionAST *expression = nullptr; // either ExpressionListParenAST or BracedInitializerAST
 
 public:
-    virtual TypenameCallExpressionAST *asTypenameCallExpression() { return this; }
+    TypenameCallExpressionAST *asTypenameCallExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual TypenameCallExpressionAST *clone(MemoryPool *pool) const;
+    TypenameCallExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT TypeConstructorCallAST: public ExpressionAST
@@ -2286,16 +2286,16 @@ public:
     ExpressionAST *expression = nullptr; // either ExpressionListParenAST or BracedInitializerAST
 
 public:
-    virtual TypeConstructorCallAST *asTypeConstructorCall() { return this; }
+    TypeConstructorCallAST *asTypeConstructorCall() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual TypeConstructorCallAST *clone(MemoryPool *pool) const;
+    TypeConstructorCallAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT PointerToMemberAST: public PtrOperatorAST
@@ -2308,16 +2308,16 @@ public:
     int ref_qualifier_token = 0;
 
 public:
-    virtual PointerToMemberAST *asPointerToMember() { return this; }
+    PointerToMemberAST *asPointerToMember() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual PointerToMemberAST *clone(MemoryPool *pool) const;
+    PointerToMemberAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT PointerAST: public PtrOperatorAST
@@ -2327,16 +2327,16 @@ public:
     SpecifierListAST *cv_qualifier_list = nullptr;
 
 public:
-    virtual PointerAST *asPointer() { return this; }
+    PointerAST *asPointer() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual PointerAST *clone(MemoryPool *pool) const;
+    PointerAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ReferenceAST: public PtrOperatorAST
@@ -2345,16 +2345,16 @@ public:
     int reference_token = 0;
 
 public:
-    virtual ReferenceAST *asReference() { return this; }
+    ReferenceAST *asReference() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ReferenceAST *clone(MemoryPool *pool) const;
+    ReferenceAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT BreakStatementAST: public StatementAST
@@ -2364,16 +2364,16 @@ public:
     int semicolon_token = 0;
 
 public:
-    virtual BreakStatementAST *asBreakStatement() { return this; }
+    BreakStatementAST *asBreakStatement() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual BreakStatementAST *clone(MemoryPool *pool) const;
+    BreakStatementAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ContinueStatementAST: public StatementAST
@@ -2383,16 +2383,16 @@ public:
     int semicolon_token = 0;
 
 public:
-    virtual ContinueStatementAST *asContinueStatement() { return this; }
+    ContinueStatementAST *asContinueStatement() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ContinueStatementAST *clone(MemoryPool *pool) const;
+    ContinueStatementAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT GotoStatementAST: public StatementAST
@@ -2403,16 +2403,16 @@ public:
     int semicolon_token = 0;
 
 public:
-    virtual GotoStatementAST *asGotoStatement() { return this; }
+    GotoStatementAST *asGotoStatement() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual GotoStatementAST *clone(MemoryPool *pool) const;
+    GotoStatementAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ReturnStatementAST: public StatementAST
@@ -2423,16 +2423,16 @@ public:
     int semicolon_token = 0;
 
 public:
-    virtual ReturnStatementAST *asReturnStatement() { return this; }
+    ReturnStatementAST *asReturnStatement() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ReturnStatementAST *clone(MemoryPool *pool) const;
+    ReturnStatementAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT SizeofExpressionAST: public ExpressionAST
@@ -2445,16 +2445,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual SizeofExpressionAST *asSizeofExpression() { return this; }
+    SizeofExpressionAST *asSizeofExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual SizeofExpressionAST *clone(MemoryPool *pool) const;
+    SizeofExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT AlignofExpressionAST: public ExpressionAST
@@ -2466,16 +2466,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual AlignofExpressionAST *asAlignofExpression() { return this; }
+    AlignofExpressionAST *asAlignofExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual AlignofExpressionAST *clone(MemoryPool *pool) const;
+    AlignofExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT PointerLiteralAST: public ExpressionAST
@@ -2484,16 +2484,16 @@ public:
     int literal_token = 0;
 
 public:
-    virtual PointerLiteralAST *asPointerLiteral() { return this; }
+    PointerLiteralAST *asPointerLiteral() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual PointerLiteralAST *clone(MemoryPool *pool) const;
+    PointerLiteralAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT NumericLiteralAST: public ExpressionAST
@@ -2502,16 +2502,16 @@ public:
     int literal_token = 0;
 
 public:
-    virtual NumericLiteralAST *asNumericLiteral() { return this; }
+    NumericLiteralAST *asNumericLiteral() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual NumericLiteralAST *clone(MemoryPool *pool) const;
+    NumericLiteralAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT BoolLiteralAST: public ExpressionAST
@@ -2520,16 +2520,16 @@ public:
     int literal_token = 0;
 
 public:
-    virtual BoolLiteralAST *asBoolLiteral() { return this; }
+    BoolLiteralAST *asBoolLiteral() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual BoolLiteralAST *clone(MemoryPool *pool) const;
+    BoolLiteralAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ThisExpressionAST: public ExpressionAST
@@ -2538,16 +2538,16 @@ public:
     int this_token = 0;
 
 public:
-    virtual ThisExpressionAST *asThisExpression() { return this; }
+    ThisExpressionAST *asThisExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ThisExpressionAST *clone(MemoryPool *pool) const;
+    ThisExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT NestedExpressionAST: public ExpressionAST
@@ -2558,16 +2558,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual NestedExpressionAST *asNestedExpression() { return this; }
+    NestedExpressionAST *asNestedExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual NestedExpressionAST *clone(MemoryPool *pool) const;
+    NestedExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT StaticAssertDeclarationAST: public DeclarationAST
@@ -2582,16 +2582,16 @@ public:
     int semicolon_token = 0;
 
 public:
-    virtual StaticAssertDeclarationAST *asStaticAssertDeclaration() { return this; }
+    StaticAssertDeclarationAST *asStaticAssertDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual StaticAssertDeclarationAST *clone(MemoryPool *pool) const;
+    StaticAssertDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT StringLiteralAST: public ExpressionAST
@@ -2601,16 +2601,16 @@ public:
     StringLiteralAST *next = nullptr;
 
 public:
-    virtual StringLiteralAST *asStringLiteral() { return this; }
+    StringLiteralAST *asStringLiteral() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual StringLiteralAST *clone(MemoryPool *pool) const;
+    StringLiteralAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT SwitchStatementAST: public StatementAST
@@ -2626,16 +2626,16 @@ public: // annotations
     Block *symbol = nullptr;
 
 public:
-    virtual SwitchStatementAST *asSwitchStatement() { return this; }
+    SwitchStatementAST *asSwitchStatement() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual SwitchStatementAST *clone(MemoryPool *pool) const;
+    SwitchStatementAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT TemplateDeclarationAST: public DeclarationAST
@@ -2652,16 +2652,16 @@ public: // annotations
     Template *symbol = nullptr;
 
 public:
-    virtual TemplateDeclarationAST *asTemplateDeclaration() { return this; }
+    TemplateDeclarationAST *asTemplateDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual TemplateDeclarationAST *clone(MemoryPool *pool) const;
+    TemplateDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ThrowExpressionAST: public ExpressionAST
@@ -2671,16 +2671,16 @@ public:
     ExpressionAST *expression = nullptr;
 
 public:
-    virtual ThrowExpressionAST *asThrowExpression() { return this; }
+    ThrowExpressionAST *asThrowExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ThrowExpressionAST *clone(MemoryPool *pool) const;
+    ThrowExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT NoExceptOperatorExpressionAST: public ExpressionAST
@@ -2690,16 +2690,16 @@ public:
     ExpressionAST *expression = nullptr;
 
 public:
-    virtual NoExceptOperatorExpressionAST *asNoExceptOperatorExpression() { return this; }
+    NoExceptOperatorExpressionAST *asNoExceptOperatorExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual NoExceptOperatorExpressionAST *clone(MemoryPool *pool) const;
+    NoExceptOperatorExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT TranslationUnitAST: public AST
@@ -2708,16 +2708,16 @@ public:
     DeclarationListAST *declaration_list = nullptr;
 
 public:
-    virtual TranslationUnitAST *asTranslationUnit() { return this; }
+    TranslationUnitAST *asTranslationUnit() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual TranslationUnitAST *clone(MemoryPool *pool) const;
+    TranslationUnitAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT TryBlockStatementAST: public StatementAST
@@ -2728,16 +2728,16 @@ public:
     CatchClauseListAST *catch_clause_list = nullptr;
 
 public:
-    virtual TryBlockStatementAST *asTryBlockStatement() { return this; }
+    TryBlockStatementAST *asTryBlockStatement() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual TryBlockStatementAST *clone(MemoryPool *pool) const;
+    TryBlockStatementAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT CatchClauseAST: public StatementAST
@@ -2753,16 +2753,16 @@ public: // annotations
     Block *symbol = nullptr;
 
 public:
-    virtual CatchClauseAST *asCatchClause() { return this; }
+    CatchClauseAST *asCatchClause() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual CatchClauseAST *clone(MemoryPool *pool) const;
+    CatchClauseAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT TypeIdAST: public ExpressionAST
@@ -2772,16 +2772,16 @@ public:
     DeclaratorAST *declarator = nullptr;
 
 public:
-    virtual TypeIdAST *asTypeId() { return this; }
+    TypeIdAST *asTypeId() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual TypeIdAST *clone(MemoryPool *pool) const;
+    TypeIdAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT TypenameTypeParameterAST: public DeclarationAST
@@ -2797,16 +2797,16 @@ public: // annotations
     TypenameArgument *symbol = nullptr;
 
 public:
-    virtual TypenameTypeParameterAST *asTypenameTypeParameter() { return this; }
+    TypenameTypeParameterAST *asTypenameTypeParameter() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual TypenameTypeParameterAST *clone(MemoryPool *pool) const;
+    TypenameTypeParameterAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT TemplateTypeParameterAST: public DeclarationAST
@@ -2826,16 +2826,16 @@ public:
     TypenameArgument *symbol = nullptr;
 
 public:
-    virtual TemplateTypeParameterAST *asTemplateTypeParameter() { return this; }
+    TemplateTypeParameterAST *asTemplateTypeParameter() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual TemplateTypeParameterAST *clone(MemoryPool *pool) const;
+    TemplateTypeParameterAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT UnaryExpressionAST: public ExpressionAST
@@ -2845,16 +2845,16 @@ public:
     ExpressionAST *expression = nullptr;
 
 public:
-    virtual UnaryExpressionAST *asUnaryExpression() { return this; }
+    UnaryExpressionAST *asUnaryExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual UnaryExpressionAST *clone(MemoryPool *pool) const;
+    UnaryExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT UsingAST: public DeclarationAST
@@ -2869,16 +2869,16 @@ public: // annotations
     UsingDeclaration *symbol = nullptr;
 
 public:
-    virtual UsingAST *asUsing() { return this; }
+    UsingAST *asUsing() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual UsingAST *clone(MemoryPool *pool) const;
+    UsingAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT UsingDirectiveAST: public DeclarationAST
@@ -2893,16 +2893,16 @@ public:
     UsingNamespaceDirective *symbol = nullptr;
 
 public:
-    virtual UsingDirectiveAST *asUsingDirective() { return this; }
+    UsingDirectiveAST *asUsingDirective() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual UsingDirectiveAST *clone(MemoryPool *pool) const;
+    UsingDirectiveAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT WhileStatementAST: public StatementAST
@@ -2918,16 +2918,16 @@ public: // annotations
     Block *symbol = nullptr;
 
 public:
-    virtual WhileStatementAST *asWhileStatement() { return this; }
+    WhileStatementAST *asWhileStatement() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual WhileStatementAST *clone(MemoryPool *pool) const;
+    WhileStatementAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCClassForwardDeclarationAST: public DeclarationAST
@@ -2942,16 +2942,16 @@ public: // annotations
     List<ObjCForwardClassDeclaration *> *symbols = nullptr;
 
 public:
-    virtual ObjCClassForwardDeclarationAST *asObjCClassForwardDeclaration() { return this; }
+    ObjCClassForwardDeclarationAST *asObjCClassForwardDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCClassForwardDeclarationAST *clone(MemoryPool *pool) const;
+    ObjCClassForwardDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCClassDeclarationAST: public DeclarationAST
@@ -2975,16 +2975,16 @@ public: // annotations
     ObjCClass *symbol = nullptr;
 
 public:
-    virtual ObjCClassDeclarationAST *asObjCClassDeclaration() { return this; }
+    ObjCClassDeclarationAST *asObjCClassDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCClassDeclarationAST *clone(MemoryPool *pool) const;
+    ObjCClassDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCProtocolForwardDeclarationAST: public DeclarationAST
@@ -2999,16 +2999,16 @@ public: // annotations
     List<ObjCForwardProtocolDeclaration *> *symbols = nullptr;
 
 public:
-    virtual ObjCProtocolForwardDeclarationAST *asObjCProtocolForwardDeclaration() { return this; }
+    ObjCProtocolForwardDeclarationAST *asObjCProtocolForwardDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCProtocolForwardDeclarationAST *clone(MemoryPool *pool) const;
+    ObjCProtocolForwardDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCProtocolDeclarationAST: public DeclarationAST
@@ -3025,16 +3025,16 @@ public: // annotations
     ObjCProtocol *symbol = nullptr;
 
 public:
-    virtual ObjCProtocolDeclarationAST *asObjCProtocolDeclaration() { return this; }
+    ObjCProtocolDeclarationAST *asObjCProtocolDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCProtocolDeclarationAST *clone(MemoryPool *pool) const;
+    ObjCProtocolDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCProtocolRefsAST: public AST
@@ -3045,16 +3045,16 @@ public:
     int greater_token = 0;
 
 public:
-    virtual ObjCProtocolRefsAST *asObjCProtocolRefs() { return this; }
+    ObjCProtocolRefsAST *asObjCProtocolRefs() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCProtocolRefsAST *clone(MemoryPool *pool) const;
+    ObjCProtocolRefsAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCMessageArgumentAST: public AST
@@ -3063,16 +3063,16 @@ public:
     ExpressionAST *parameter_value_expression = nullptr;
 
 public:
-    virtual ObjCMessageArgumentAST *asObjCMessageArgument() { return this; }
+    ObjCMessageArgumentAST *asObjCMessageArgument() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCMessageArgumentAST *clone(MemoryPool *pool) const;
+    ObjCMessageArgumentAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCMessageExpressionAST: public ExpressionAST
@@ -3085,16 +3085,16 @@ public:
     int rbracket_token = 0;
 
 public:
-    virtual ObjCMessageExpressionAST *asObjCMessageExpression() { return this; }
+    ObjCMessageExpressionAST *asObjCMessageExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCMessageExpressionAST *clone(MemoryPool *pool) const;
+    ObjCMessageExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCProtocolExpressionAST: public ExpressionAST
@@ -3106,16 +3106,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual ObjCProtocolExpressionAST *asObjCProtocolExpression() { return this; }
+    ObjCProtocolExpressionAST *asObjCProtocolExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCProtocolExpressionAST *clone(MemoryPool *pool) const;
+    ObjCProtocolExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCTypeNameAST: public AST
@@ -3127,16 +3127,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual ObjCTypeNameAST *asObjCTypeName() { return this; }
+    ObjCTypeNameAST *asObjCTypeName() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCTypeNameAST *clone(MemoryPool *pool) const;
+    ObjCTypeNameAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCEncodeExpressionAST: public ExpressionAST
@@ -3146,16 +3146,16 @@ public:
     ObjCTypeNameAST *type_name = nullptr;
 
 public:
-    virtual ObjCEncodeExpressionAST *asObjCEncodeExpression() { return this; }
+    ObjCEncodeExpressionAST *asObjCEncodeExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCEncodeExpressionAST *clone(MemoryPool *pool) const;
+    ObjCEncodeExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCSelectorExpressionAST: public ExpressionAST
@@ -3167,16 +3167,16 @@ public:
     int rparen_token = 0;
 
 public:
-    virtual ObjCSelectorExpressionAST *asObjCSelectorExpression() { return this; }
+    ObjCSelectorExpressionAST *asObjCSelectorExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCSelectorExpressionAST *clone(MemoryPool *pool) const;
+    ObjCSelectorExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCInstanceVariablesDeclarationAST: public AST
@@ -3187,16 +3187,16 @@ public:
     int rbrace_token = 0;
 
 public:
-    virtual ObjCInstanceVariablesDeclarationAST *asObjCInstanceVariablesDeclaration() { return this; }
+    ObjCInstanceVariablesDeclarationAST *asObjCInstanceVariablesDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCInstanceVariablesDeclarationAST *clone(MemoryPool *pool) const;
+    ObjCInstanceVariablesDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCVisibilityDeclarationAST: public DeclarationAST
@@ -3205,16 +3205,16 @@ public:
     int visibility_token = 0;
 
 public:
-    virtual ObjCVisibilityDeclarationAST *asObjCVisibilityDeclaration() { return this; }
+    ObjCVisibilityDeclarationAST *asObjCVisibilityDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCVisibilityDeclarationAST *clone(MemoryPool *pool) const;
+    ObjCVisibilityDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCPropertyAttributeAST: public AST
@@ -3225,16 +3225,16 @@ public:
     ObjCSelectorAST *method_selector = nullptr;
 
 public:
-    virtual ObjCPropertyAttributeAST *asObjCPropertyAttribute() { return this; }
+    ObjCPropertyAttributeAST *asObjCPropertyAttribute() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCPropertyAttributeAST *clone(MemoryPool *pool) const;
+    ObjCPropertyAttributeAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCPropertyDeclarationAST: public DeclarationAST
@@ -3251,16 +3251,16 @@ public: // annotations
     List<ObjCPropertyDeclaration *> *symbols = nullptr;
 
 public:
-    virtual ObjCPropertyDeclarationAST *asObjCPropertyDeclaration() { return this; }
+    ObjCPropertyDeclarationAST *asObjCPropertyDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCPropertyDeclarationAST *clone(MemoryPool *pool) const;
+    ObjCPropertyDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCMessageArgumentDeclarationAST: public AST
@@ -3274,16 +3274,16 @@ public: // annotations
     Argument *argument = nullptr;
 
 public:
-    virtual ObjCMessageArgumentDeclarationAST *asObjCMessageArgumentDeclaration() { return this; }
+    ObjCMessageArgumentDeclarationAST *asObjCMessageArgumentDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCMessageArgumentDeclarationAST *clone(MemoryPool *pool) const;
+    ObjCMessageArgumentDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCMethodPrototypeAST: public AST
@@ -3300,16 +3300,16 @@ public: // annotations
     ObjCMethod *symbol = nullptr;
 
 public:
-    virtual ObjCMethodPrototypeAST *asObjCMethodPrototype() { return this; }
+    ObjCMethodPrototypeAST *asObjCMethodPrototype() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCMethodPrototypeAST *clone(MemoryPool *pool) const;
+    ObjCMethodPrototypeAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCMethodDeclarationAST: public DeclarationAST
@@ -3320,16 +3320,16 @@ public:
     int semicolon_token = 0;
 
 public:
-    virtual ObjCMethodDeclarationAST *asObjCMethodDeclaration() { return this; }
+    ObjCMethodDeclarationAST *asObjCMethodDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCMethodDeclarationAST *clone(MemoryPool *pool) const;
+    ObjCMethodDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCSynthesizedPropertyAST: public AST
@@ -3340,16 +3340,16 @@ public:
     int alias_identifier_token = 0;
 
 public:
-    virtual ObjCSynthesizedPropertyAST *asObjCSynthesizedProperty() { return this; }
+    ObjCSynthesizedPropertyAST *asObjCSynthesizedProperty() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCSynthesizedPropertyAST *clone(MemoryPool *pool) const;
+    ObjCSynthesizedPropertyAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCSynthesizedPropertiesDeclarationAST: public DeclarationAST
@@ -3360,16 +3360,16 @@ public:
     int semicolon_token = 0;
 
 public:
-    virtual ObjCSynthesizedPropertiesDeclarationAST *asObjCSynthesizedPropertiesDeclaration() { return this; }
+    ObjCSynthesizedPropertiesDeclarationAST *asObjCSynthesizedPropertiesDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCSynthesizedPropertiesDeclarationAST *clone(MemoryPool *pool) const;
+    ObjCSynthesizedPropertiesDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCDynamicPropertiesDeclarationAST: public DeclarationAST
@@ -3380,16 +3380,16 @@ public:
     int semicolon_token = 0;
 
 public:
-    virtual ObjCDynamicPropertiesDeclarationAST *asObjCDynamicPropertiesDeclaration() { return this; }
+    ObjCDynamicPropertiesDeclarationAST *asObjCDynamicPropertiesDeclaration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCDynamicPropertiesDeclarationAST *clone(MemoryPool *pool) const;
+    ObjCDynamicPropertiesDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCFastEnumerationAST: public StatementAST
@@ -3413,16 +3413,16 @@ public: // annotations
     Block *symbol = nullptr;
 
 public:
-    virtual ObjCFastEnumerationAST *asObjCFastEnumeration() { return this; }
+    ObjCFastEnumerationAST *asObjCFastEnumeration() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCFastEnumerationAST *clone(MemoryPool *pool) const;
+    ObjCFastEnumerationAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CPLUSPLUS_EXPORT ObjCSynchronizedStatementAST: public StatementAST
@@ -3435,16 +3435,16 @@ public:
     StatementAST *statement = nullptr;
 
 public:
-    virtual ObjCSynchronizedStatementAST *asObjCSynchronizedStatement() { return this; }
+    ObjCSynchronizedStatementAST *asObjCSynchronizedStatement() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual ObjCSynchronizedStatementAST *clone(MemoryPool *pool) const;
+    ObjCSynchronizedStatementAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 
@@ -3456,15 +3456,15 @@ public:
     StatementAST *statement = nullptr;
 
 public:
-    virtual LambdaExpressionAST *asLambdaExpression() { return this; }
+    LambdaExpressionAST *asLambdaExpression() override { return this; }
 
-    virtual int firstToken() const;
-    virtual int lastToken() const;
-    virtual LambdaExpressionAST *clone(MemoryPool *pool) const;
+    int firstToken() const override;
+    int lastToken() const override;
+    LambdaExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class LambdaIntroducerAST: public AST
@@ -3475,15 +3475,15 @@ public:
     int rbracket_token = 0;
 
 public:
-    virtual LambdaIntroducerAST *asLambdaIntroducer() { return this; }
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    LambdaIntroducerAST *asLambdaIntroducer() override { return this; }
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual LambdaIntroducerAST *clone(MemoryPool *pool) const;
+    LambdaIntroducerAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class LambdaCaptureAST: public AST
@@ -3493,15 +3493,15 @@ public:
     CaptureListAST *capture_list = nullptr;
 
 public:
-    virtual LambdaCaptureAST *asLambdaCapture() { return this; }
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    LambdaCaptureAST *asLambdaCapture() override { return this; }
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual LambdaCaptureAST *clone(MemoryPool *pool) const;
+    LambdaCaptureAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class CaptureAST: public AST
@@ -3511,15 +3511,15 @@ public:
     NameAST *identifier = nullptr;
 
 public:
-    virtual CaptureAST *asCapture() { return this; }
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    CaptureAST *asCapture() override { return this; }
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual CaptureAST *clone(MemoryPool *pool) const;
+    CaptureAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class LambdaDeclaratorAST: public AST
@@ -3537,15 +3537,15 @@ public: // annotations
     Function *symbol = nullptr;
 
 public:
-    virtual LambdaDeclaratorAST *asLambdaDeclarator() { return this; }
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    LambdaDeclaratorAST *asLambdaDeclarator() override { return this; }
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual LambdaDeclaratorAST *clone(MemoryPool *pool) const;
+    LambdaDeclaratorAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class TrailingReturnTypeAST: public AST
@@ -3557,15 +3557,15 @@ public:
     DeclaratorAST *declarator = nullptr;
 
 public:
-    virtual TrailingReturnTypeAST *asTrailingReturnType() { return this; }
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    TrailingReturnTypeAST *asTrailingReturnType() override { return this; }
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual TrailingReturnTypeAST *clone(MemoryPool *pool) const;
+    TrailingReturnTypeAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class BracedInitializerAST: public ExpressionAST
@@ -3577,22 +3577,22 @@ public:
     int rbrace_token = 0;
 
 public:
-    virtual BracedInitializerAST *asBracedInitializer() { return this; }
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    BracedInitializerAST *asBracedInitializer() override { return this; }
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual BracedInitializerAST *clone(MemoryPool *pool) const;
+    BracedInitializerAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class DesignatorAST: public AST
 {
 public:
-    virtual DesignatorAST *asDesignator() { return this; }
-    virtual DesignatorAST *clone(MemoryPool *pool) const = 0;
+    DesignatorAST *asDesignator() override { return this; }
+    DesignatorAST *clone(MemoryPool *pool) const override = 0;
 };
 
 class DotDesignatorAST: public DesignatorAST
@@ -3602,15 +3602,15 @@ public:
     int identifier_token = 0;
 
 public:
-    virtual DotDesignatorAST *asDotDesignator() { return this; }
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    DotDesignatorAST *asDotDesignator() override { return this; }
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual DotDesignatorAST *clone(MemoryPool *pool) const;
+    DotDesignatorAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class BracketDesignatorAST: public DesignatorAST
@@ -3621,15 +3621,15 @@ public:
     int rbracket_token = 0;
 
 public:
-    virtual BracketDesignatorAST *asBracketDesignator() { return this; }
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    BracketDesignatorAST *asBracketDesignator() override { return this; }
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual BracketDesignatorAST *clone(MemoryPool *pool) const;
+    BracketDesignatorAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 class DesignatedInitializerAST: public ExpressionAST
@@ -3640,15 +3640,15 @@ public:
     ExpressionAST *initializer = nullptr;
 
 public:
-    virtual DesignatedInitializerAST *asDesignatedInitializer() { return this; }
-    virtual int firstToken() const;
-    virtual int lastToken() const;
+    DesignatedInitializerAST *asDesignatedInitializer() override { return this; }
+    int firstToken() const override;
+    int lastToken() const override;
 
-    virtual DesignatedInitializerAST *clone(MemoryPool *pool) const;
+    DesignatedInitializerAST *clone(MemoryPool *pool) const override;
 
 protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
 };
 
 } // namespace CPlusPlus

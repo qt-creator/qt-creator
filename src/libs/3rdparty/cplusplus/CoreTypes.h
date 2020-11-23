@@ -35,29 +35,29 @@ public:
         return &t;
     }
 
-    virtual const UndefinedType *asUndefinedType() const
+    const UndefinedType *asUndefinedType() const override
     { return this; }
 
-    virtual UndefinedType *asUndefinedType()
+    UndefinedType *asUndefinedType() override
     { return this; }
 
 protected:
-    virtual void accept0(TypeVisitor *visitor);
-    virtual bool match0(const Type *otherType, Matcher *matcher) const;
+    void accept0(TypeVisitor *visitor) override;
+    bool match0(const Type *otherType, Matcher *matcher) const override;
 };
 
 class CPLUSPLUS_EXPORT VoidType: public Type
 {
 public:
-    virtual const VoidType *asVoidType() const
+    const VoidType *asVoidType() const override
     { return this; }
 
-    virtual VoidType *asVoidType()
+    VoidType *asVoidType() override
     { return this; }
 
 protected:
-    virtual void accept0(TypeVisitor *visitor);
-    virtual bool match0(const Type *otherType, Matcher *matcher) const;
+    void accept0(TypeVisitor *visitor) override;
+    bool match0(const Type *otherType, Matcher *matcher) const override;
 };
 
 class CPLUSPLUS_EXPORT IntegerType: public Type
@@ -81,15 +81,15 @@ public:
 
     int kind() const;
 
-    virtual IntegerType *asIntegerType()
+    IntegerType *asIntegerType() override
     { return this; }
 
-    virtual const IntegerType *asIntegerType() const
+    const IntegerType *asIntegerType() const override
     { return this; }
 
 protected:
-    virtual void accept0(TypeVisitor *visitor);
-    virtual bool match0(const Type *otherType, Matcher *matcher) const;
+    void accept0(TypeVisitor *visitor) override;
+    bool match0(const Type *otherType, Matcher *matcher) const override;
 
 private:
     int _kind;
@@ -110,15 +110,15 @@ public:
 
     int kind() const;
 
-    virtual const FloatType *asFloatType() const
+    const FloatType *asFloatType() const override
     { return this; }
 
-    virtual FloatType *asFloatType()
+    FloatType *asFloatType() override
     { return this; }
 
 protected:
-    virtual void accept0(TypeVisitor *visitor);
-    virtual bool match0(const Type *otherType, Matcher *matcher) const;
+    void accept0(TypeVisitor *visitor) override;
+    bool match0(const Type *otherType, Matcher *matcher) const override;
 
 private:
     int _kind;
@@ -132,15 +132,15 @@ public:
 
     FullySpecifiedType elementType() const;
 
-    virtual const PointerType *asPointerType() const
+    const PointerType *asPointerType() const override
     { return this; }
 
-    virtual PointerType *asPointerType()
+    PointerType *asPointerType() override
     { return this; }
 
 protected:
-    virtual void accept0(TypeVisitor *visitor);
-    virtual bool match0(const Type *otherType, Matcher *matcher) const;
+    void accept0(TypeVisitor *visitor) override;
+    bool match0(const Type *otherType, Matcher *matcher) const override;
 
 private:
     FullySpecifiedType _elementType;
@@ -155,15 +155,15 @@ public:
     const Name *memberName() const;
     FullySpecifiedType elementType() const;
 
-    virtual const PointerToMemberType *asPointerToMemberType() const
+    const PointerToMemberType *asPointerToMemberType() const override
     { return this; }
 
-    virtual PointerToMemberType *asPointerToMemberType()
+    PointerToMemberType *asPointerToMemberType() override
     { return this; }
 
 protected:
-    virtual void accept0(TypeVisitor *visitor);
-    virtual bool match0(const Type *otherType, Matcher *matcher) const;
+    void accept0(TypeVisitor *visitor) override;
+    bool match0(const Type *otherType, Matcher *matcher) const override;
 
 private:
     const Name *_memberName;
@@ -179,15 +179,15 @@ public:
     FullySpecifiedType elementType() const;
     bool isRvalueReference() const;
 
-    virtual const ReferenceType *asReferenceType() const
+    const ReferenceType *asReferenceType() const override
     { return this; }
 
-    virtual ReferenceType *asReferenceType()
+    ReferenceType *asReferenceType() override
     { return this; }
 
 protected:
-    virtual void accept0(TypeVisitor *visitor);
-    virtual bool match0(const Type *otherType, Matcher *matcher) const;
+    void accept0(TypeVisitor *visitor) override;
+    bool match0(const Type *otherType, Matcher *matcher) const override;
 
 private:
     FullySpecifiedType _elementType;
@@ -203,15 +203,15 @@ public:
     FullySpecifiedType elementType() const;
     unsigned size() const;
 
-    virtual const ArrayType *asArrayType() const
+    const ArrayType *asArrayType() const override
     { return this; }
 
-    virtual ArrayType *asArrayType()
+    ArrayType *asArrayType() override
     { return this; }
 
 protected:
-    virtual void accept0(TypeVisitor *visitor);
-    virtual bool match0(const Type *otherType, Matcher *matcher) const;
+    void accept0(TypeVisitor *visitor) override;
+    bool match0(const Type *otherType, Matcher *matcher) const override;
 
 private:
     FullySpecifiedType _elementType;
@@ -226,15 +226,15 @@ public:
 
     const Name *name() const;
 
-    virtual const NamedType *asNamedType() const
+    const NamedType *asNamedType() const override
     { return this; }
 
-    virtual NamedType *asNamedType()
+    NamedType *asNamedType() override
     { return this; }
 
 protected:
-    virtual void accept0(TypeVisitor *visitor);
-    virtual bool match0(const Type *otherType, Matcher *matcher) const;
+    void accept0(TypeVisitor *visitor) override;
+    bool match0(const Type *otherType, Matcher *matcher) const override;
 
 private:
     const Name *_name;

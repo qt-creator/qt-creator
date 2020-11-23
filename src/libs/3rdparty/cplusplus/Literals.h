@@ -112,14 +112,14 @@ public:
         : Literal(chars, size)
     { }
 
-    virtual const Identifier *identifier() const { return this; }
+    const Identifier *identifier() const override { return this; }
 
-    virtual const Identifier *asNameId() const
+    const Identifier *asNameId() const override
     { return this; }
 
 protected:
-    virtual void accept0(NameVisitor *visitor) const;
-    virtual bool match0(const Name *otherName, Matcher *matcher) const;
+    void accept0(NameVisitor *visitor) const override;
+    bool match0(const Name *otherName, Matcher *matcher) const override;
 };
 
 } // namespace CPlusPlus

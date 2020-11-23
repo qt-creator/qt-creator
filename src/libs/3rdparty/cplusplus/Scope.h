@@ -65,10 +65,10 @@ public:
     int endOffset() const;
     void setEndOffset(int offset);
 
-    virtual const Scope *asScope() const
+    const Scope *asScope() const override
     { return this; }
 
-    virtual Scope *asScope()
+    Scope *asScope() override
     { return this; }
 
 private:
