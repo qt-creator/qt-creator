@@ -899,6 +899,9 @@ void AndroidBuildApkStep::stdError(const QString &output)
     QString newOutput = output;
     newOutput.remove(QRegularExpression("^(\\n)+"));
 
+    if (newOutput.isEmpty())
+        return;
+
     if (newOutput.startsWith("warning", Qt::CaseInsensitive)
         || newOutput.startsWith("note", Qt::CaseInsensitive))
         TaskHub::addTask(BuildSystemTask(Task::Warning, newOutput));
