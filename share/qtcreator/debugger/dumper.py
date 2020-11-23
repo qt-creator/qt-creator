@@ -682,8 +682,16 @@ class DumperBase():
         self.putValue(data, 'latin1', elided=elided)
 
     def encodeString(self, value, limit=0):
-        elided, data = self.encodeStringHelper(self.extractPointer(value), limit)
-        return data
+        if self.qtVersion() >= 0x60000:
+            dd, ptr, size = self.split('ppi', value)
+            if not dd:
+                return ""
+            elided, shown = self.computeLimit(2 * size, 2 * self.displayStringLimit)
+            data = self.readMemory(ptr, shown)
+            return data
+        else:
+            elided, data = self.encodeStringHelper(self.extractPointer(value), limit)
+            return data
 
     def encodedUtf16ToUtf8(self, s):
         return ''.join([chr(int(s[i:i + 2], 16)) for i in range(0, len(s), 4)])
