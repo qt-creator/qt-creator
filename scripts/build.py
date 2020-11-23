@@ -216,30 +216,15 @@ def build_qtcreatorcdbext(args, paths):
                             paths.build)
 
 def deploy_qt(args, paths):
-    if common.is_mac_platform():
-        script = os.path.join(paths.src, 'scripts', 'deployqtHelper_mac.sh')
-        app = os.path.join(paths.install, args.app_target)
-        # TODO this is wrong if Qt is set up non-standard
-        # TODO integrate deployqtHelper_mac.sh into deployqt.py, finally
-        qt_bins = os.path.join(paths.qt, 'bin')
-        qt_translations = os.path.join(paths.qt, 'translations')
-        qt_plugins = os.path.join(paths.qt, 'plugins')
-        qt_qml = os.path.join(paths.qt, 'qml')
-        env = dict(os.environ)
-        if paths.llvm:
-            env['LLVM_INSTALL_DIR'] = paths.llvm
-        common.check_print_call([script, app, qt_bins, qt_translations, qt_plugins, qt_qml],
-                                paths.build,
-                                env=env)
-    else:
-        cmd_args = ['python', '-u', os.path.join(paths.src, 'scripts', 'deployqt.py'), '-i']
-        if paths.elfutils:
-            cmd_args.extend(['--elfutils-path', paths.elfutils])
-        if paths.llvm:
-            cmd_args.extend(['--llvm-path', paths.llvm])
-        exe = os.path.join(paths.install, 'bin', args.app_target)
-        common.check_print_call(cmd_args + [exe, os.path.join(paths.qt, 'bin', 'qmake')],
-                                paths.build)
+    cmd_args = ['python', '-u', os.path.join(paths.src, 'scripts', 'deployqt.py'), '-i']
+    if paths.elfutils:
+        cmd_args.extend(['--elfutils-path', paths.elfutils])
+    if paths.llvm:
+        cmd_args.extend(['--llvm-path', paths.llvm])
+    app = (os.path.join(paths.install, args.app_target) if common.is_mac_platform()
+           else os.path.join(paths.install, 'bin', args.app_target))
+    common.check_print_call(cmd_args + [app, os.path.join(paths.qt, 'bin', 'qmake')],
+                            paths.build)
 
 def package_qtcreator(args, paths):
     if not args.no_zip:

@@ -46,11 +46,11 @@ def to_posix_path(path):
         return path.replace('\\', '/')
     return path
 
-def check_print_call(command, workdir, env=None):
+def check_print_call(command, workdir=None, env=None):
     print('------------------------------------------')
     print('COMMAND:')
     print(' '.join(['"' + c.replace('"', '\\"') + '"' for c in command]))
-    print('PWD:      "' + workdir + '"')
+    print('PWD:      "' + (workdir if workdir else os.getcwd()) + '"')
     print('------------------------------------------')
     subprocess.check_call(command, cwd=workdir, env=env)
 
