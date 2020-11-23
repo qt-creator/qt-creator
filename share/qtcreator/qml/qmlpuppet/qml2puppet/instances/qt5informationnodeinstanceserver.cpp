@@ -88,11 +88,7 @@
 #include <QtGui/qguiapplication.h>
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-#include <QtGui/private/qrhi_p.h>
-#include <QtQuick/private/qquickwindow_p.h>
-#include <QtQuick/private/qsgrenderer_p.h>
 #include <QtQuick/private/qquickrendercontrol_p.h>
-#include <QtQuick/private/qquickrendertarget_p.h>
 #endif
 
 #ifdef QUICK3D_MODULE
@@ -149,7 +145,7 @@ void Qt5InformationNodeInstanceServer::createAuxiliaryQuickView(const QUrl &url,
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     viewData.window = new QQuickView(quickView()->engine(), quickView());
     viewData.window->setFormat(quickView()->format());
-    DesignerSupport::createOpenGLContext(static_cast<QQuickView *>(viewData.window));
+    DesignerSupport::createOpenGLContext(static_cast<QQuickView *>(viewData.window.data()));
 #else
     viewData.renderControl = new QQuickRenderControl;
     viewData.window = new QQuickWindow(viewData.renderControl);
@@ -165,7 +161,7 @@ void Qt5InformationNodeInstanceServer::createAuxiliaryQuickView(const QUrl &url,
     }
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    DesignerSupport::setRootItem(static_cast<QQuickView *>(viewData.window), viewData.rootItem);
+    DesignerSupport::setRootItem(static_cast<QQuickView *>(viewData.window.data()), viewData.rootItem);
 #else
     viewData.window->contentItem()->setSize(viewData.rootItem->size());
     viewData.window->setGeometry(0, 0, viewData.rootItem->width(), viewData.rootItem->height());
@@ -247,120 +243,6 @@ void Qt5InformationNodeInstanceServer::handleInputEvents()
 
         render3DEditView();
     }
-}
-
-bool Qt5InformationNodeInstanceServer::initRhi(RenderViewData &viewData)
-{
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    if (!viewData.renderControl) {
-        qWarning() << __FUNCTION__ << "Render control not created";
-        return false;
-    }
-
-    if (!viewData.rhi) {
-        QQuickRenderControlPrivate *rd = QQuickRenderControlPrivate::get(viewData.renderControl);
-        viewData.rhi = rd->rhi;
-
-        if (!viewData.rhi) {
-            qWarning() << __FUNCTION__ << "Rhi is null";
-            return false;
-        }
-    }
-
-    auto cleanRhiResources = [&viewData]() {
-        // Releasing cached resources is a workaround for bug QTBUG-88761
-        auto renderer = QQuickWindowPrivate::get(viewData.window)->renderer;
-        if (renderer)
-            renderer->releaseCachedResources();
-
-        if (viewData.rpDesc) {
-            viewData.rpDesc->deleteLater();
-            viewData.rpDesc = nullptr;
-        }
-        if (viewData.texTarget) {
-            viewData.texTarget->deleteLater();
-            viewData.texTarget = nullptr;
-        }
-        if (viewData.buffer) {
-            viewData.buffer->deleteLater();
-            viewData.buffer = nullptr;
-        }
-        if (viewData.texture) {
-            viewData.texture->deleteLater();
-            viewData.texture = nullptr;
-        }
-    };
-    if (viewData.bufferDirty) {
-        cleanRhiResources();
-        viewData.bufferDirty = false;
-    }
-
-    const QSize size = viewData.rootItem->size().toSize();
-    viewData.texture = viewData.rhi->newTexture(QRhiTexture::RGBA8, size, 1,
-                                                QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource);
-    if (!viewData.texture->create()) {
-        qWarning() << __FUNCTION__ << "QRhiTexture creation failed";
-        cleanRhiResources();
-        return false;
-    }
-
-    viewData.buffer = viewData.rhi->newRenderBuffer(QRhiRenderBuffer::DepthStencil, size, 1);
-    if (!viewData.buffer->create()) {
-        qWarning() << __FUNCTION__ << "Depth/stencil buffer creation failed";
-        cleanRhiResources();
-        return false;
-    }
-
-    QRhiTextureRenderTargetDescription rtDesc(QRhiColorAttachment(viewData.texture));
-    rtDesc.setDepthStencilBuffer(viewData.buffer);
-    viewData.texTarget = viewData.rhi->newTextureRenderTarget(rtDesc);
-    viewData.rpDesc = viewData.texTarget->newCompatibleRenderPassDescriptor();
-    viewData.texTarget->setRenderPassDescriptor(viewData.rpDesc);
-    if (!viewData.texTarget->create()) {
-        qWarning() << __FUNCTION__ << "Texture render target creation failed";
-        cleanRhiResources();
-        return false;
-    }
-
-    // redirect Qt Quick rendering into our texture
-    viewData.window->setRenderTarget(QQuickRenderTarget::fromRhiRenderTarget(viewData.texTarget));
-#endif
-    return true;
-}
-
-QImage Qt5InformationNodeInstanceServer::grabRenderControl(RenderViewData &viewData)
-{
-    QImage renderImage;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    if (viewData.bufferDirty && !initRhi(viewData))
-        return renderImage;
-
-    viewData.renderControl->polishItems();
-    viewData.renderControl->beginFrame();
-    viewData.renderControl->sync();
-    viewData.renderControl->render();
-
-    bool readCompleted = false;
-    QRhiReadbackResult readResult;
-    readResult.completed = [&] {
-        readCompleted = true;
-        QImage wrapperImage(reinterpret_cast<const uchar *>(readResult.data.constData()),
-                            readResult.pixelSize.width(), readResult.pixelSize.height(),
-                            QImage::Format_RGBA8888_Premultiplied);
-        if (viewData.rhi->isYUpInFramebuffer())
-            renderImage = wrapperImage.mirrored();
-        else
-            renderImage = wrapperImage.copy();
-    };
-    QRhiResourceUpdateBatch *readbackBatch = viewData.rhi->nextResourceUpdateBatch();
-    readbackBatch->readBackTexture(viewData.texture, &readResult);
-
-    QQuickRenderControlPrivate *rd = QQuickRenderControlPrivate::get(viewData.renderControl);
-    rd->cb->resourceUpdate(readbackBatch);
-
-    viewData.renderControl->endFrame();
-#endif
-    return renderImage;
 }
 
 void Qt5InformationNodeInstanceServer::createEditView3D()
@@ -1000,17 +882,13 @@ Qt5InformationNodeInstanceServer::~Qt5InformationNodeInstanceServer()
     m_render3DEditViewTimer.stop();
     m_inputEventTimer.stop();
 
-    delete m_editView3DData.rootItem;
-    delete m_editView3DData.window;
-    delete m_modelNode3DImageViewData.rootItem;
-    delete m_modelNode3DImageViewData.window;
-    delete m_modelNode2DImageViewData.rootItem;
-    delete m_modelNode2DImageViewData.window;
-
     for (auto view : qAsConst(m_view3Ds))
         view->disconnect();
-    for (auto scene : qAsConst(m_3DSceneMap))
-        scene->disconnect();
+    for (auto node : qAsConst(m_3DSceneMap))
+        node->disconnect();
+
+    if (m_editView3DData.rootItem)
+        QMetaObject::invokeMethod(m_editView3DData.rootItem, "aboutToShutDown", Qt::DirectConnection);
 }
 
 void Qt5InformationNodeInstanceServer::sendTokenBack()
@@ -1424,12 +1302,12 @@ void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
     if (!inFunction) {
         inFunction = true;
 
-        DesignerSupport::polishItems(quickView());
+        DesignerSupport::polishItems(quickWindow());
 
         QSet<ServerNodeInstance> informationChangedInstanceSet;
         QVector<InstancePropertyPair> propertyChangedList;
 
-        if (quickView()) {
+        if (quickWindow()) {
             foreach (QQuickItem *item, allItems()) {
                 if (item && hasInstanceForObject(item)) {
                     ServerNodeInstance instance = instanceForObject(item);

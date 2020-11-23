@@ -26,12 +26,22 @@
 #pragma once
 
 #include <QtGlobal>
+#include <QtQuick/qquickwindow.h>
 
 #include "nodeinstanceserver.h"
 #include <designersupportdelegate.h>
 
 QT_BEGIN_NAMESPACE
 class QQuickItem;
+class QQmlEngine;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+class QQuickRenderControl;
+class QRhi;
+class QRhiTexture;
+class QRhiRenderBuffer;
+class QRhiTextureRenderTarget;
+class QRhiRenderPassDescriptor;
+#endif
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -44,7 +54,11 @@ public:
     ~Qt5NodeInstanceServer() override;
 
     QQuickView *quickView() const override;
+    QQuickWindow *quickWindow() const override;
     QQmlView *declarativeView() const override;
+    QQuickItem *rootItem() const override;
+    void setRootItem(QQuickItem *item) override;
+
     QQmlEngine *engine() const override;
     void refreshBindings() override;
 
@@ -54,16 +68,37 @@ public:
     void clearScene(const ClearSceneCommand &command) override;
     void reparentInstances(const ReparentInstancesCommand &command) override;
 
+    QImage grabWindow() override;
+
 protected:
     void initializeView() override;
-    void resizeCanvasSizeToRootItemSize() override;
+    void resizeCanvasToRootItem() override;
     void resetAllItems();
     void setupScene(const CreateSceneCommand &command) override;
     QList<QQuickItem*> allItems() const;
 
+    struct RenderViewData {
+        QPointer<QQuickWindow> window = nullptr;
+        QQuickItem *rootItem = nullptr;
+        QQuickItem *contentItem = nullptr;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        bool bufferDirty = true;
+        QQuickRenderControl *renderControl = nullptr;
+        QRhi *rhi = nullptr;
+        QRhiTexture *texture = nullptr;
+        QRhiRenderBuffer *buffer = nullptr;
+        QRhiTextureRenderTarget *texTarget = nullptr;
+        QRhiRenderPassDescriptor *rpDesc = nullptr;
+#endif
+    };
+
+    virtual bool initRhi(RenderViewData &viewData);
+    virtual QImage grabRenderControl(RenderViewData &viewData);
+
 private:
-    QPointer<QQuickView> m_quickView;
+    RenderViewData m_viewData;
     DesignerSupport m_designerSupport;
+    QQmlEngine *m_qmlEngine = nullptr;
 };
 
 } // QmlDesigner

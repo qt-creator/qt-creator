@@ -39,15 +39,6 @@
 
 QT_BEGIN_NAMESPACE
 class QDragMoveEvent;
-class QQuickWindow;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-class QQuickRenderControl;
-class QRhi;
-class QRhiTexture;
-class QRhiRenderBuffer;
-class QRhiTextureRenderTarget;
-class QRhiRenderPassDescriptor;
-#endif
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -141,23 +132,6 @@ private:
     void updateLockedAndHiddenStates(const QSet<ServerNodeInstance> &instances);
     void handleInputEvents();
 
-    struct RenderViewData {
-        QQuickWindow *window = nullptr;
-        QQuickItem *rootItem = nullptr;
-        QQuickItem *contentItem = nullptr;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        bool bufferDirty = true;
-        QQuickRenderControl *renderControl = nullptr;
-        QRhi *rhi = nullptr;
-        QRhiTexture *texture = nullptr;
-        QRhiRenderBuffer *buffer = nullptr;
-        QRhiTextureRenderTarget *texTarget = nullptr;
-        QRhiRenderPassDescriptor *rpDesc = nullptr;
-#endif
-    };
-
-    bool initRhi(RenderViewData &viewData);
-    QImage grabRenderControl(RenderViewData &viewData);
     void createAuxiliaryQuickView(const QUrl &url, RenderViewData &viewData);
 
     RenderViewData m_editView3DData;

@@ -257,13 +257,13 @@ void Qt5TestNodeInstanceServer::removeSharedMemory(const RemoveSharedMemoryComma
 
 void QmlDesigner::Qt5TestNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 {
-    DesignerSupport::polishItems(quickView());
+    DesignerSupport::polishItems(quickWindow());
 
     QSet<ServerNodeInstance> informationChangedInstanceSet;
     QVector<InstancePropertyPair> propertyChangedList;
     QSet<ServerNodeInstance> parentChangedSet;
 
-    if (quickView()) {
+    if (quickWindow()) {
         foreach (QQuickItem *item, allItems()) {
             if (item && hasInstanceForObject(item)) {
                 ServerNodeInstance instance = instanceForObject(item);

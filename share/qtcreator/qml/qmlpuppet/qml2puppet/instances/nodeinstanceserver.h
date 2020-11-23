@@ -31,6 +31,7 @@
 #include <QSet>
 #include <QStringList>
 #include <QPointer>
+#include <QImage>
 
 #ifdef MULTILANGUAGE_TRANSLATIONPROVIDER
 #include <multilanguagelink.h>
@@ -90,6 +91,7 @@ QT_BEGIN_NAMESPACE
 class QFileSystemWatcher;
 class QQmlView;
 class QQuickView;
+class QQuickWindow;
 class QQmlEngine;
 class QFileInfo;
 class QQmlComponent;
@@ -131,6 +133,7 @@ public:
     };
 
     explicit NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
+    ~NodeInstanceServer() override;
 
     void createInstances(const CreateInstancesCommand &command) override;
     void changeFileUrl(const ChangeFileUrlCommand &command) override;
@@ -192,6 +195,9 @@ public:
 
     virtual QQmlView *declarativeView() const = 0;
     virtual QQuickView *quickView() const = 0;
+    virtual QQuickWindow *quickWindow() const = 0;
+    virtual QQuickItem *rootItem() const = 0;
+    virtual void setRootItem(QQuickItem *item) = 0;
 
     void sendDebugOutput(DebugOutputCommand::Type type, const QString &message, qint32 instanceId = 0);
     void sendDebugOutput(DebugOutputCommand::Type type,
@@ -210,6 +216,8 @@ public:
 
     virtual void handleInstanceLocked(const ServerNodeInstance &instance, bool enable, bool checkAncestors);
     virtual void handleInstanceHidden(const ServerNodeInstance &instance, bool enable, bool checkAncestors);
+
+    virtual QImage grabWindow() = 0;
 
 public slots:
     void refreshLocalFileProperty(const QString &path);
@@ -288,7 +296,7 @@ protected:
     QList<QQmlContext*> allSubContextsForObject(QObject *object);
     static QList<QObject*> allSubObjectsForObject(QObject *object);
 
-    virtual void resizeCanvasSizeToRootItemSize() = 0;
+    virtual void resizeCanvasToRootItem() = 0;
     void setupState(qint32 stateInstanceId);
 
 private:
