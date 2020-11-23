@@ -14,7 +14,7 @@ elseif (TARGET clang-cpp)
 endif()
 
 SET(QTC_CLANG_BUILDMODE_MATCH ON)
-if (WIN32)
+if (WIN32 AND TARGET libclang)
   string(TOLOWER ${CMAKE_BUILD_TYPE} _type)
   get_target_property(_llvmConfigs libclang IMPORTED_CONFIGURATIONS)
   string(TOLOWER ${_llvmConfigs} _llvm_configs)
