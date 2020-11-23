@@ -41,14 +41,15 @@
     scene, specify properties for them, and view them in a tree structure,
     as well as to create connections and browse projects and files.
 
-    \image studio-editing-3d-scenes.png "3D assets in Design mode"
+    \image studio-editing-3d-scenes.png "Views for editing 3D assets in Design mode"
 
     To open the following views, select \uicontrol View > \uicontrol Views:
 
     \list
         \li \uicontrol {3D Editor} (1) is the working area where you create the
-            scene, position the model, light and camera, as well as move and
-            scale items. For more information, see \l {Working in 3D Editor}.
+            scene, position the model, light and camera, as well as move, rotate
+            and scale items. For more information, see
+            \l {Working in 3D Editor}.
         \li \uicontrol {Form Editor} (2) is where you see the scene projected by
             the camera.
         \li \uicontrol {Library} (3) displays the building blocks that you
@@ -60,14 +61,19 @@
             file as a tree structure. For more information, see
             \l {Managing Item Hierarchy}.
         \li \uicontrol {Properties} (5) organizes the properties of the
-            selected item. You can change the properties also in the
-            \uicontrol {Text Editor}. For more information, see
+            selected item. You can change the properties also in \uicontrol
+            {Text Editor}. For more information, see
             \l {Specifying Item Properties}.
         \li \uicontrol Connections (6) enables you to create connections
             between objects, signals, and object properties. For more
             information, see \l{Adding Connections}.
-        \li \uicontrol Timeline (7) provides a timeline and keyframe based
+        \li \uicontrol States displays the different states of the item. QML
+            states typically describe user interface configurations, such as the
+            UI controls, their properties and behavior and the available
+            actions. For more information, see \l {Adding States}.
+        \li \uicontrol Timeline provides a timeline and keyframe based
             editor that enables you to animate the properties of components.
+            For more information, see \l {Creating Animations}.
     \endlist
 
     For more information on other views, see
