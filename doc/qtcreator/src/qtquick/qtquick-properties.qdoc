@@ -306,9 +306,10 @@
     field in the \uicontrol Advanced tab.
 
     In the \uicontrol Size group, you can set the width and height of
-    an item. You can also use selection handles to \l{Resizing Items}
-    {resize items} in \uicontrol {Form Editor}. The values in the
-    \uicontrol X and \uicontrol Y fields change accordingly.
+    an item. You can also use the resize cursor to \l{Resizing 2D Items}
+    {resize 2D items} in \uicontrol {Form Editor} or the scaling gizmo
+    to \l{Scaling Items}{scale 3D items} in \uicontrol {3D Editor}. The
+    values in the \uicontrol X and \uicontrol Y fields change accordingly.
 
     The item size and position can also be managed automatically
     when \l{Using Layouts}{using layouts}.
