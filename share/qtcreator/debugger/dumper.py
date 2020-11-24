@@ -608,7 +608,8 @@ class DumperBase():
         return data, size, alloc
 
     # addr is the begin of a QByteArrayData structure
-    def encodeStringHelper(self, addr, limit):
+    def encodeStringHelper(self, value, limit):
+        addr = self.extractPointer(value)
         # Should not happen, but we get it with LLDB as result
         # of inferior calls
         if addr == 0:
@@ -690,7 +691,7 @@ class DumperBase():
             data = self.readMemory(ptr, shown)
             return data
         else:
-            elided, data = self.encodeStringHelper(self.extractPointer(value), limit)
+            elided, data = self.encodeStringHelper(value, limit)
             return data
 
     def encodedUtf16ToUtf8(self, s):
@@ -750,8 +751,7 @@ class DumperBase():
             data = self.readMemory(ptr, shown)
             self.putValue(data, 'utf16', elided=elided)
         else:
-            addr = self.extractPointer(value)
-            elided, data = self.encodeStringHelper(addr, self.displayStringLimit)
+            elided, data = self.encodeStringHelper(value, self.displayStringLimit)
             self.putValue(data, 'utf16', elided=elided)
 
     def putPtrItem(self, name, value):
