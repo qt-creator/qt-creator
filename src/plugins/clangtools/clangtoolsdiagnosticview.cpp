@@ -175,7 +175,7 @@ DiagnosticView::DiagnosticView(QWidget *parent)
 
     m_disableGloballyAction = new QAction(this);
     connect(m_disableGloballyAction, &QAction::triggered,
-            this, &DiagnosticView::disableCurrentDiagnosticGlobally);
+            this, &DiagnosticView::disableCheckForCurrentDiagnosticGlobally);
 
     installEventFilter(this);
 
@@ -239,7 +239,7 @@ void DiagnosticView::suppressCurrentDiagnostic()
         filterModel->addSuppressedDiagnostics(diags);
 }
 
-void DiagnosticView::disableCurrentDiagnosticGlobally()
+void DiagnosticView::disableCheckForCurrentDiagnosticGlobally()
 {
     ClangToolsSettings * const settings = ClangToolsSettings::instance();
     ClangDiagnosticConfigs configs = settings->diagnosticConfigs();
@@ -386,8 +386,8 @@ QList<QAction *> DiagnosticView::customActions() const
     m_suppressAction->setText(hasMultiSelection ? tr("Suppress Selected Diagnostics")
                                                 : tr("Suppress This Diagnostic"));
     m_disableGloballyAction->setEnabled(disableGloballyEnabled());
-    m_disableGloballyAction->setText(hasMultiSelection ? tr("Disable Selected Diagnostics Globally")
-                                                       : tr("Disable This Diagnostic Globally"));
+    m_disableGloballyAction->setText(hasMultiSelection ? tr("Disable These Checks Globally")
+                                                       : tr("Disable This Check Globally"));
 
     return {
         m_help,

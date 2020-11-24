@@ -61,7 +61,7 @@ private:
 
     void openEditorForCurrentIndex();
     void suppressCurrentDiagnostic();
-    void disableCurrentDiagnosticGlobally();
+    void disableCheckForCurrentDiagnosticGlobally();
     enum Direction { Next = 1, Previous = -1 };
     QModelIndex getIndex(const QModelIndex &index, Direction direction) const;
     QModelIndex getTopLevelIndex(const QModelIndex &index, Direction direction) const;
