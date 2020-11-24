@@ -35,6 +35,9 @@ function isSuitableLLVMConfig(llvmConfigCandidate, qtcFunctions)
 
 function llvmConfig(hostOS, qtcFunctions)
 {
+    var llvmConfigFromEnv = Environment.getEnv("LLVM_CONFIG");
+    if (llvmConfigFromEnv)
+        return llvmConfigFromEnv;
     var llvmInstallDirFromEnv = Environment.getEnv("LLVM_INSTALL_DIR")
     var llvmConfigVariants = [
         // CLANG-UPGRADE-CHECK: Adapt once we require a new minimum version.

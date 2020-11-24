@@ -1,16 +1,21 @@
-isEmpty(LLVM_INSTALL_DIR):LLVM_INSTALL_DIR=$$(LLVM_INSTALL_DIR)
-LLVM_INSTALL_DIR = $$clean_path($$LLVM_INSTALL_DIR)
+isEmpty(LLVM_CONFIG): LLVM_CONFIG=$$(LLVM_CONFIG)
+llvm_config = $$clean_path($$LLVM_CONFIG)
+!isEmpty(llvm_config):!exists($$llvm_config) {
+    error("Explicitly given LLVM_CONFIG does not exist: $$llvm_config")
+}
 
-!isEmpty(LLVM_INSTALL_DIR):!exists($$LLVM_INSTALL_DIR) {
-    error("Explicitly given LLVM_INSTALL_DIR does not exist: $$LLVM_INSTALL_DIR")
+isEmpty(LLVM_CONFIG) {
+    isEmpty(LLVM_INSTALL_DIR):LLVM_INSTALL_DIR=$$(LLVM_INSTALL_DIR)
+    LLVM_INSTALL_DIR = $$clean_path($$LLVM_INSTALL_DIR)
+    !isEmpty(LLVM_INSTALL_DIR):!exists($$LLVM_INSTALL_DIR) {
+        error("Explicitly given LLVM_INSTALL_DIR does not exist: $$LLVM_INSTALL_DIR")
+    }
 }
 
 defineReplace(llvmWarningOrError) {
     warningText = $$1
-    errorText = $$2
-    isEmpty(errorText): errorText = $$warningText
-    isEmpty(LLVM_INSTALL_DIR): warning($$warningText)
-    else: error($$errorText)
+    isEmpty(llvm_config): warning($$warningText)
+    else: error($$warningText)
     return(false)
 }
 
@@ -134,19 +139,17 @@ defineReplace(extractWarnings) {
 BIN_EXTENSION =
 win32: BIN_EXTENSION = .exe
 
-isEmpty(LLVM_INSTALL_DIR) {
-    unix {
-        llvm_config = $$system(which llvm-config-11)
-        isEmpty(llvm_config): llvm_config = $$system(which llvm-config-10)
-        isEmpty(llvm_config): llvm_config = $$system(which llvm-config-9)
-    }
-    isEmpty(llvm_config): llvm_config = llvm-config
-} else {
-    exists($$LLVM_INSTALL_DIR/bin/llvm-config-11$$BIN_EXTENSION) {
-      llvm_config = $$system_quote($$LLVM_INSTALL_DIR/bin/llvm-config-11)
+isEmpty(llvm_config) {
+    isEmpty(LLVM_INSTALL_DIR) {
+        unix: llvm_config = $$system(which llvm-config-11)
+        isEmpty(llvm_config): llvm_config = llvm-config
     } else {
-      llvm_config = $$system_quote($$LLVM_INSTALL_DIR/bin/llvm-config)
-      requires(exists($$llvm_config$$BIN_EXTENSION))
+        exists($$LLVM_INSTALL_DIR/bin/llvm-config-11$$BIN_EXTENSION) {
+          llvm_config = $$system_quote($$LLVM_INSTALL_DIR/bin/llvm-config-11)
+        } else {
+          llvm_config = $$system_quote($$LLVM_INSTALL_DIR/bin/llvm-config)
+          requires(exists($$llvm_config$$BIN_EXTENSION))
+        }
     }
 }
 
@@ -154,9 +157,7 @@ output = $$system($$llvm_config --version, lines)
 LLVM_VERSION = $$extractVersion($$output)
 
 isEmpty(LLVM_VERSION) {
-    $$llvmWarningOrError(\
-        "Cannot determine clang version. Set LLVM_INSTALL_DIR to build the Clang Code Model",\
-        "LLVM_INSTALL_DIR does not contain a valid llvm-config, candidate: $$llvm_config")
+    $$llvmWarningOrError("Cannot determine clang version. Set LLVM_CONFIG to build the Clang Code Model")
 } else:!versionIsAtLeast($$LLVM_VERSION, 9, 0, 0): {
     # CLANG-UPGRADE-CHECK: Adapt minimum version numbers.
     $$llvmWarningOrError(\
