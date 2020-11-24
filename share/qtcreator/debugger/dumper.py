@@ -570,6 +570,9 @@ class DumperBase():
         self.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
         return data, size, alloc
 
+    def qArrayData(self, value):
+        return self.qArrayDataHelper(self.extractPointer(value))
+
     def qArrayDataHelper(self, array_data_ptr):
         # array_data_ptr is what is e.g. stored in a QByteArray's d_ptr.
         if self.qtVersion() >= 0x050000:
@@ -614,15 +617,14 @@ class DumperBase():
         # of inferior calls
         if addr == 0:
             return 0, ''
-        data, size, alloc = self.qArrayDataHelper(addr)
+        data, size, alloc = self.qArrayData(value)
         if alloc != 0:
             self.check(0 <= size and size <= alloc and alloc <= 100 * 1000 * 1000)
         elided, shown = self.computeLimit(size, limit)
         return elided, self.readMemory(data, 2 * shown)
 
     def encodeByteArrayHelper(self, value, limit):
-        addr = self.extractPointer(value)
-        data, size, alloc = self.qArrayDataHelper(addr)
+        data, size, alloc = self.qArrayData(value)
         if alloc != 0:
             self.check(0 <= size and size <= alloc and alloc <= 100 * 1000 * 1000)
         elided, shown = self.computeLimit(size, limit)
@@ -674,9 +676,6 @@ class DumperBase():
     def encodeByteArray(self, value, limit=0):
         elided, data = self.encodeByteArrayHelper(value, limit)
         return data
-
-    def qArrayData(self, value):
-        return self.qArrayDataHelper(self.extractPointer(value))
 
     def putByteArrayValue(self, value):
         elided, data = self.encodeByteArrayHelper(value, self.displayStringLimit)
@@ -1455,7 +1454,7 @@ class DumperBase():
                 # Offset of objectName in QObjectPrivate: 5 pointer + 2 int
                 #   - [QObjectData base]
                 #   - QString objectName
-                objectName = self.extractPointer(dd + 5 * ptrSize + 2 * intSize)
+                objectNameAddress = dd + 5 * ptrSize + 2 * intSize
 
             else:
                 # Size of QObjectData: 5 pointer + 2 int
@@ -1477,9 +1476,9 @@ class DumperBase():
                 #   - QVector<int> runningTimers;
                 #   - QList<QPointer<QObject> > eventFilters;
                 #   - QString objectName
-                objectName = self.extractPointer(extra + 5 * ptrSize)
+                objectNameAddress = extra + 5 * ptrSize
 
-            data, size, alloc = self.qArrayDataHelper(objectName)
+            data, size, alloc = self.qArrayData(objectNameAddress)
 
             # Object names are short, and GDB can crash on to big chunks.
             # Since this here is a convenience feature only, limit it.
