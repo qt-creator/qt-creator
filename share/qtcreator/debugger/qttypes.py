@@ -89,15 +89,15 @@ def qdump__QByteArray(d, value):
         d.putArrayData(data, size, d.charType())
 
 
-def qdump__QArrayData(d, value):
-    data, size, alloc = d.qArrayDataHelper(value.address())
-    d.check(alloc == 0 or (0 <= size and size <= alloc and alloc <= 100000000))
-    d.putValue(d.readMemory(data, size), 'latin1')
-    d.putPlainChildren(value)
+#def qdump__QArrayData(d, value):
+#    data, size, alloc = d.qArrayDataHelper(value.address())
+#    d.check(alloc == 0 or (0 <= size and size <= alloc and alloc <= 100000000))
+#    d.putValue(d.readMemory(data, size), 'latin1')
+#    d.putPlainChildren(value)
 
 
-def qdump__QByteArrayData(d, value):
-    qdump__QArrayData(d, value)
+#def qdump__QByteArrayData(d, value):
+#    qdump__QArrayData(d, value)
 
 
 def qdump__QBitArray(d, value):
@@ -1674,11 +1674,11 @@ def qdump__QStaticStringData(d, value):
     d.putPlainChildren(value)
 
 
-def qdump__QTypedArrayData(d, value):
-    if value.type[0].name == 'unsigned short':
-        qdump__QStringData(d, value)
-    else:
-        qdump__QArrayData(d, value)
+#def qdump__QTypedArrayData(d, value):
+#    if value.type[0].name == 'unsigned short':
+#        qdump__QStringData(d, value)
+#    else:
+#        qdump__QArrayData(d, value)
 
 
 def qdump__QStringData(d, value):
