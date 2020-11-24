@@ -61,13 +61,12 @@ private:
 
     void openEditorForCurrentIndex();
     void suppressCurrentDiagnostic();
-    void disableCheckForCurrentDiagnosticGlobally();
+    void disableCheckForCurrentDiagnostic();
     enum Direction { Next = 1, Previous = -1 };
     QModelIndex getIndex(const QModelIndex &index, Direction direction) const;
     QModelIndex getTopLevelIndex(const QModelIndex &index, Direction direction) const;
 
-private:
-    bool disableGloballyEnabled() const;
+    bool disableChecksEnabled() const;
 
     QAction *m_help = nullptr;
 
@@ -77,7 +76,7 @@ private:
     QAction *m_filterOutCurrentKind = nullptr;
 
     QAction *m_suppressAction = nullptr;
-    QAction *m_disableGloballyAction = nullptr;
+    QAction *m_disableChecksAction = nullptr;
 
     QAction *m_separator = nullptr;
     QAction *m_separator2 = nullptr;

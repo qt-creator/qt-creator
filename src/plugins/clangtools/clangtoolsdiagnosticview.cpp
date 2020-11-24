@@ -173,9 +173,9 @@ DiagnosticView::DiagnosticView(QWidget *parent)
     connect(m_suppressAction, &QAction::triggered,
             this, &DiagnosticView::suppressCurrentDiagnostic);
 
-    m_disableGloballyAction = new QAction(this);
-    connect(m_disableGloballyAction, &QAction::triggered,
-            this, &DiagnosticView::disableCheckForCurrentDiagnosticGlobally);
+    m_disableChecksAction = new QAction(this);
+    connect(m_disableChecksAction, &QAction::triggered,
+            this, &DiagnosticView::disableCheckForCurrentDiagnostic);
 
     installEventFilter(this);
 
@@ -239,14 +239,20 @@ void DiagnosticView::suppressCurrentDiagnostic()
         filterModel->addSuppressedDiagnostics(diags);
 }
 
-void DiagnosticView::disableCheckForCurrentDiagnosticGlobally()
+void DiagnosticView::disableCheckForCurrentDiagnostic()
 {
     ClangToolsSettings * const settings = ClangToolsSettings::instance();
     ClangDiagnosticConfigs configs = settings->diagnosticConfigs();
+    Utils::Id activeConfigId = settings->runSettings().diagnosticConfigId();
+    ClangToolsProjectSettings::ClangToolsProjectSettingsPtr projectSettings;
+    if (ProjectExplorer::Project * const project
+            = static_cast<DiagnosticFilterModel *>(model())->project()) {
+        projectSettings = ClangToolsProjectSettings::getSettings(project);
+        if (!projectSettings->useGlobalSettings())
+            activeConfigId = projectSettings->runSettings().diagnosticConfigId();
+    }
     ClangDiagnosticConfig config = Utils::findOrDefault(configs,
-        [settings](const ClangDiagnosticConfig &c) {
-            return c.id() == settings->runSettings().diagnosticConfigId();
-        });
+        [activeConfigId](const ClangDiagnosticConfig &c) { return c.id() == activeConfigId; });
     const bool defaultWasActive = !config.id().isValid();
     if (defaultWasActive) {
         QTC_ASSERT(configs.isEmpty(), return);
@@ -255,6 +261,14 @@ void DiagnosticView::disableCheckForCurrentDiagnosticGlobally()
         config.setId(Utils::Id::fromString(QUuid::createUuid().toString()));
         config.setDisplayName(tr("Custom Configuration"));
         configs << config;
+        RunSettings runSettings = settings->runSettings();
+        runSettings.setDiagnosticConfigId(config.id());
+        settings->setRunSettings(runSettings);
+        if (projectSettings && !projectSettings->useGlobalSettings()) {
+            runSettings = projectSettings->runSettings();
+            runSettings.setDiagnosticConfigId(config.id());
+            projectSettings->setRunSettings(runSettings);
+        }
     }
 
     std::set<QString> handledNames;
@@ -268,10 +282,18 @@ void DiagnosticView::disableCheckForCurrentDiagnosticGlobally()
             continue;
 
         if (diag.name.startsWith("clazy-")) {
-            config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseCustomChecks);
+            if (config.clazyMode() == ClangDiagnosticConfig::ClazyMode::UseDefaultChecks) {
+                config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseCustomChecks);
+                const ClazyStandaloneInfo clazyInfo(clazyStandaloneExecutable());
+                config.setClazyChecks(clazyInfo.defaultChecks.join(','));
+            }
             config.setClazyChecks(removeClazyCheck(config.clazyChecks(), diag.name));
         } else if (config.clangTidyMode() != ClangDiagnosticConfig::TidyMode::UseConfigFile) {
-            config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
+            if (config.clangTidyMode() == ClangDiagnosticConfig::TidyMode::UseDefaultChecks) {
+                config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
+                const ClangTidyInfo tidyInfo(clangTidyExecutable());
+                config.setClangTidyChecks(tidyInfo.defaultChecks.join(','));
+            }
             config.setClangTidyChecks(removeClangTidyCheck(config.clangTidyChecks(), diag.name));
         }
     }
@@ -338,7 +360,7 @@ QModelIndex DiagnosticView::getTopLevelIndex(const QModelIndex &index, Direction
     return model()->index(row, 0);
 }
 
-bool DiagnosticView::disableGloballyEnabled() const
+bool DiagnosticView::disableChecksEnabled() const
 {
     const QList<QModelIndex> indexes = selectionModel()->selectedIndexes();
     if (indexes.isEmpty())
@@ -348,10 +370,15 @@ bool DiagnosticView::disableGloballyEnabled() const
 
     ClangToolsSettings * const settings = ClangToolsSettings::instance();
     const ClangDiagnosticConfigs configs = settings->diagnosticConfigs();
+    Utils::Id activeConfigId = settings->runSettings().diagnosticConfigId();
+    if (ProjectExplorer::Project * const project
+            = static_cast<DiagnosticFilterModel *>(model())->project()) {
+        const auto projectSettings = ClangToolsProjectSettings::getSettings(project);
+        if (!projectSettings->useGlobalSettings())
+            activeConfigId = projectSettings->runSettings().diagnosticConfigId();
+    }
     const ClangDiagnosticConfig activeConfig = Utils::findOrDefault(configs,
-        [settings](const ClangDiagnosticConfig &c) {
-            return c.id() == settings->runSettings().diagnosticConfigId();
-        });
+        [activeConfigId](const ClangDiagnosticConfig &c) { return c.id() == activeConfigId; });
 
     // If the user has not created any custom configuration yet, then we'll do that for
     // them as an act of kindness. But if custom configurations exist and the default
@@ -385,9 +412,9 @@ QList<QAction *> DiagnosticView::customActions() const
     m_suppressAction->setEnabled(isDiagnosticItem || hasMultiSelection);
     m_suppressAction->setText(hasMultiSelection ? tr("Suppress Selected Diagnostics")
                                                 : tr("Suppress This Diagnostic"));
-    m_disableGloballyAction->setEnabled(disableGloballyEnabled());
-    m_disableGloballyAction->setText(hasMultiSelection ? tr("Disable These Checks Globally")
-                                                       : tr("Disable This Check Globally"));
+    m_disableChecksAction->setEnabled(disableChecksEnabled());
+    m_disableChecksAction->setText(hasMultiSelection ? tr("Disable These Checks")
+                                                     : tr("Disable This Check"));
 
     return {
         m_help,
@@ -398,7 +425,7 @@ QList<QAction *> DiagnosticView::customActions() const
         m_filterOutCurrentKind,
         m_separator2,
         m_suppressAction,
-        m_disableGloballyAction
+        m_disableChecksAction
     };
 }
 
