@@ -619,7 +619,8 @@ class DumperBase():
         elided, shown = self.computeLimit(size, limit)
         return elided, self.readMemory(data, 2 * shown)
 
-    def encodeByteArrayHelper(self, addr, limit):
+    def encodeByteArrayHelper(self, value, limit):
+        addr = self.extractPointer(value)
         data, size, alloc = self.qArrayDataHelper(addr)
         if alloc != 0:
             self.check(0 <= size and size <= alloc and alloc <= 100 * 1000 * 1000)
@@ -670,15 +671,14 @@ class DumperBase():
         return self.hexencode(bytes(self.readRawMemory(addr, size)))
 
     def encodeByteArray(self, value, limit=0):
-        elided, data = self.encodeByteArrayHelper(self.extractPointer(value), limit)
+        elided, data = self.encodeByteArrayHelper(value, limit)
         return data
 
     def qArrayData(self, value):
         return self.qArrayDataHelper(self.extractPointer(value))
 
     def putByteArrayValue(self, value):
-        elided, data = self.encodeByteArrayHelper(
-            self.extractPointer(value), self.displayStringLimit)
+        elided, data = self.encodeByteArrayHelper(value, self.displayStringLimit)
         self.putValue(data, 'latin1', elided=elided)
 
     def encodeString(self, value, limit=0):

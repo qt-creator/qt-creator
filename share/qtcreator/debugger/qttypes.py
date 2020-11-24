@@ -72,7 +72,7 @@ def qdump__QByteArray(d, value):
         elided, shown = d.computeLimit(size, d.displayStringLimit)
         p = d.readMemory(data, shown)
     else:
-        elided, p = d.encodeByteArrayHelper(d.extractPointer(value), d.displayStringLimit)
+        elided, p = d.encodeByteArrayHelper(value, d.displayStringLimit)
 
     displayFormat = d.currentItemFormat()
     if displayFormat == DisplayFormat.Automatic or displayFormat == DisplayFormat.Latin1String:
@@ -380,7 +380,7 @@ def qdump__QDateTime(d, value):
                     tz = ''
                 else:
                     idBase = tzp + 2 * d.ptrSize()  # [QSharedData] + [vptr]
-                    elided, tz = d.encodeByteArrayHelper(d.extractPointer(idBase), limit=100)
+                    elided, tz = d.encodeByteArray(idBase, limit=100)
                 d.putValue('%s/%s/%s/%s/%s/%s' % (msecs, spec, offset, tz, status, 0),
                            'datetimeinternal')
     else:
