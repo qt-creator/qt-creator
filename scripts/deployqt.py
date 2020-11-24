@@ -400,7 +400,7 @@ def main():
         debug_build = is_debug(args.qtcreator_binary)
 
     if common.is_windows_platform():
-        copy_qt_libs(qt_deploy_prefix, qt_install.bin, qt_install.lib, qt_install.plugins, qt_install.qml, plugins)
+        copy_qt_libs(qt_deploy_prefix, qt_install.bin, qt_install.bin, qt_install.plugins, qt_install.qml, plugins)
     else:
         copy_qt_libs(qt_deploy_prefix, qt_install.bin, qt_install.lib, qt_install.plugins, qt_install.qml, plugins)
     copy_translations(install_dir, qt_install.translations)
