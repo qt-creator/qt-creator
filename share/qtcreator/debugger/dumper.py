@@ -555,7 +555,8 @@ class DumperBase():
             return 0, size
         return size, limit
 
-    def vectorDataHelper(self, vector_data_ptr):
+    def vectorData(self, value):
+        vector_data_ptr = self.extractPointer(value)
         # vector_data_ptr is what is e.g. stored in a QVector's d_ptr.
         if self.qtVersion() >= 0x050000:
             if self.ptrSize() == 4:
@@ -1733,9 +1734,8 @@ class DumperBase():
             yield self.createValue(data + i * stepSize, innerType)
             #yield self.createValue(data + i * stepSize, 'void*')
 
-    def vectorChildrenGenerator(self, addr, innerType):
-        base = self.extractPointer(addr)
-        data, size, alloc = self.vectorDataHelper(base)
+    def vectorChildrenGenerator(self, value, innerType):
+        data, size, _ = self.vectorData(value)
         for i in range(size):
             yield self.createValue(data + i * innerType.size(), innerType)
 
@@ -2141,8 +2141,7 @@ class DumperBase():
                 with Children(self):
                     innerType = connections.type[0]
                     # Should check:  innerType == ns::QObjectPrivate::ConnectionList
-                    base = self.extractPointer(connections)
-                    data, size, alloc = self.vectorDataHelper(base)
+                    data, size, _ = self.vectorData(connections)
                     connectionType = self.createType('@QObjectPrivate::Connection')
                     for i in range(size):
                         first = self.extractPointer(data + i * 2 * ptrSize)
