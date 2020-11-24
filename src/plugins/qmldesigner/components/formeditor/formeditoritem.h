@@ -163,6 +163,8 @@ protected:
     FormEditorFlowItem(const QmlItemNode &qmlItemNode, FormEditorScene *scene)
         : FormEditorItem(qmlItemNode, scene)
     {}
+private:
+    QPointF m_oldPos;
 };
 
 class FormEditorFlowActionItem : public FormEditorItem
@@ -180,6 +182,8 @@ protected:
     FormEditorFlowActionItem(const QmlItemNode &qmlItemNode, FormEditorScene *scene)
         : FormEditorItem(qmlItemNode, scene)
     {}
+private:
+    QPointF m_oldPos;
 };
 
 class FormEditorTransitionItem : public FormEditorItem
