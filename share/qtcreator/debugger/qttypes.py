@@ -68,11 +68,8 @@ def qdump__QByteArray(d, value):
     if size > 0:
         d.putExpandable()
 
-    if d.qtVersion() >= 0x60000:
-        elided, shown = d.computeLimit(size, d.displayStringLimit)
-        p = d.readMemory(data, shown)
-    else:
-        elided, p = d.encodeByteArrayHelper(value, d.displayStringLimit)
+    elided, shown = d.computeLimit(size, d.displayStringLimit)
+    p = d.readMemory(data, shown)
 
     displayFormat = d.currentItemFormat()
     if displayFormat == DisplayFormat.Automatic or displayFormat == DisplayFormat.Latin1String:
