@@ -925,7 +925,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           QKeySequence(),
                           200,
                           &toFront,
-                          &singleSelection));
+                          &raiseAvailable));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           raiseCommandId,
@@ -955,7 +955,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           QKeySequence(),
                           140,
                           &toBack,
-                          &singleSelection));
+                          &lowerAvailable));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           reverseCommandId,
