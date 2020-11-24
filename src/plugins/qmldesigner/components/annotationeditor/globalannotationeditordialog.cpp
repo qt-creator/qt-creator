@@ -164,7 +164,7 @@ void GlobalAnnotationEditorDialog::acceptedClicked()
         m_globalStatus.setStatus(ui->statusComboBox->currentIndex());
     }
 
-    emit GlobalAnnotationEditorDialog::accepted();
+    emit GlobalAnnotationEditorDialog::acceptedDialog();
 }
 
 void GlobalAnnotationEditorDialog::commentTitleChanged(const QString &text, QWidget *tab)

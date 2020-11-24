@@ -49,6 +49,9 @@ public:
     void setStatus(GlobalAnnotationStatus status);
     GlobalAnnotationStatus globalStatus() const;
 
+signals:
+    void acceptedDialog(); //use instead of QDialog::accepted
+
 private slots:
     void acceptedClicked();
     void tabChanged(int index);

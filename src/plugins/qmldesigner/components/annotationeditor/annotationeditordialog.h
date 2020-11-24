@@ -49,6 +49,9 @@ public:
     void setCustomId(const QString &customId);
     QString customId() const;
 
+signals:
+    void acceptedDialog(); //use instead of QDialog::accepted
+
 private slots:
     void acceptedClicked();
     void tabChanged(int index);

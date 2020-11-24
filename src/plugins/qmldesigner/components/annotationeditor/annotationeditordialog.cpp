@@ -149,7 +149,7 @@ void AnnotationEditorDialog::acceptedClicked()
 
     m_annotation = annotation;
 
-    emit AnnotationEditorDialog::accepted();
+    emit AnnotationEditorDialog::acceptedDialog();
 }
 
 void AnnotationEditorDialog::commentTitleChanged(const QString &text, QWidget *tab)
