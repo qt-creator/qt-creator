@@ -125,68 +125,7 @@
     \l{Completing Code}{code completion} feature lists the components and
     their properties you can use in the expressions.
 
-    \section2 Summary of Logical Operators
-
-    You can use the following
-    \l{https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Expressions_and_Operators}
-    {logical operators} in the expressions to combine several conditions in one
-    expression:
-
-    \table
-        \header
-            \li Operator
-            \li Meaning
-            \li Evaluates to \c true if
-        \row
-            \li !
-            \li NOT
-            \li The condition is not met.
-        \row
-            \li &&
-            \li AND
-            \li Both conditions are met.
-        \row
-            \li ||
-            \li OR
-            \li Either of the conditions is met.
-        \row
-            \li <
-            \li Less than
-            \li The left operand is less than the right operand.
-        \row
-            \li >
-            \li Greater than
-            \li The left operand is greater than the right operand.
-        \row
-            \li >=
-            \li Greater than or equal
-            \li The left operand is greater than or equal to the right operand.
-        \row
-            \li <=
-            \li Less than or equal
-            \li The left operand is less than or equal to the right operand.
-        \row
-            \li ==
-            \li Equal
-            \li The operands are equal.
-        \row
-            \li ===
-            \li Strict equal
-            \li The operands are equal and of the same type.
-        \row
-            \li !=
-            \li Not equal
-            \li The operands are not equal.
-        \row
-            \li !==
-            \li Strict not equal
-            \li The operands are of the same type but not equal, or are of
-                different type.
-    \endtable
-
-    In addition, you can use arithmetic operators to compare numbers before
-    checks. However, we recommend that you create separate properties for this
-    purpose whenever possible.
+    \include creator-logical-operators.qdocinc logical operators
 
     \section2 Examples of when Conditions
 
@@ -196,6 +135,11 @@
     \badcode
     when: control.pressed
     \endcode
+
+    To apply a state when the button is not pressed, select the \uicontrol NOT
+    check box.
+
+    \image qtquick-states-binding-editor-not.png "NOT check box in Binding Editor"
 
     To apply a state when the button is not pressed, selected, nor hovered on,
     you could combine conditions, as follows:

@@ -71,4 +71,7 @@
     \uicontrol {Binding Editor}. For more information, see \l{Setting Bindings}.
 
     \image qmldesigner-binding-editor.png "Binding Editor"
+
+    \include creator-logical-operators.qdocinc logical operators
+
 */
