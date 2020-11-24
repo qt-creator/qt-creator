@@ -30,6 +30,8 @@ import subprocess
 import sys
 
 encoding = locale.getdefaultlocale()[1]
+if not encoding:
+    encoding = 'UTF-8'
 
 def is_windows_platform():
     return sys.platform.startswith('win')
