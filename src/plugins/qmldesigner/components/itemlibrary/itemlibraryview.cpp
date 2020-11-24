@@ -96,12 +96,8 @@ void ItemLibraryView::modelAttached(Model *model)
     auto target = QmlDesignerPlugin::instance()->currentDesignDocument()->currentTarget();
     m_imageCacheData->cache.clean();
 
-    if (target) {
-        auto clonedTarget = std::make_unique<ProjectExplorer::Target>(
-            target->project(), target->kit()->clone(), ProjectExplorer::Target::_constructor_tag{});
-
-        m_imageCacheData->collector.setTarget(std::move(clonedTarget));
-    }
+    if (target)
+        m_imageCacheData->collector.setTarget(target);
 
     m_widget->clearSearchFilter();
     m_widget->setModel(model);
