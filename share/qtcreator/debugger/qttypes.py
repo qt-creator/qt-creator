@@ -62,7 +62,7 @@ def qdump__QByteArray(d, value):
         else: # fromRawData
             alloc = size
     else:
-        data, size, alloc = d.byteArrayData(value)
+        data, size, alloc = d.qArrayData(value)
 
     d.check(alloc == 0 or (0 <= size and size <= alloc and alloc <= 100000000))
     if size > 0:
@@ -90,7 +90,7 @@ def qdump__QByteArray(d, value):
 
 
 def qdump__QArrayData(d, value):
-    data, size, alloc = d.byteArrayDataHelper(value.address())
+    data, size, alloc = d.qArrayDataHelper(value.address())
     d.check(alloc == 0 or (0 <= size and size <= alloc and alloc <= 100000000))
     d.putValue(d.readMemory(data, size), 'latin1')
     d.putPlainChildren(value)
@@ -104,7 +104,7 @@ def qdump__QBitArray(d, value):
     if d.qtVersion() >= 0x60000:
         _, data, basize = value.split('ppi')
     else:
-        data, basize, _ = d.byteArrayDataHelper(d.extractPointer(value['d']))
+        data, basize, _ = d.qArrayData(value['d'])
     unused = d.extractByte(data) if data else 0
     size = basize * 8 - unused
     d.putItemCount(size)
@@ -3158,7 +3158,7 @@ def qdumpHelper_QCbor_string(d, container_ptr, element_index, is_bytes):
     element_at_n_addr = elements_data_ptr + element_index * 16 # sizeof(QtCbor::Element) == 15
     element_value, _, element_flags = d.split('qII', element_at_n_addr)
     enc = 'latin1' if is_bytes or (element_flags & 8) else 'utf16'
-    bytedata, _, _ = d.byteArrayDataHelper(data_d_ptr)
+    bytedata, _, _ = d.qArrayDataHelper(data_d_ptr)
     bytedata += element_value
     if d.qtVersion() >= 0x060000:
         bytedata_len = d.extractInt64(bytedata)
@@ -3193,7 +3193,7 @@ def qdumpHelper_QCbor_array(d, container_ptr, is_cbor):
     elements_data_ptr, elements_size, _ = d.vectorDataHelper(elements_d_ptr)
     d.putItemCount(elements_size)
     if d.isExpanded():
-        bytedata, _, _ = d.byteArrayDataHelper(data_d_ptr)
+        bytedata, _, _ = d.qArrayDataHelper(data_d_ptr)
         with Children(d, maxNumChild=1000):
             for i in range(elements_size):
                 d.putSubItem(i, qdumpHelper_QCborArray_valueAt(d, container_ptr, elements_data_ptr, i, bytedata, is_cbor))
@@ -3215,7 +3215,7 @@ def qdumpHelper_QCbor_map(d, container_ptr, is_cbor):
     elements_size = int(elements_size / 2)
     d.putItemCount(elements_size)
     if d.isExpanded():
-        bytedata, _, _ = d.byteArrayDataHelper(data_d_ptr)
+        bytedata, _, _ = d.qArrayDataHelper(data_d_ptr)
         with Children(d, maxNumChild=1000):
             for i in range(elements_size):
                 key = qdumpHelper_QCborArray_valueAt(d, container_ptr, elements_data_ptr, 2 * i, bytedata, is_cbor)
