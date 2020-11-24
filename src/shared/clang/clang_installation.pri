@@ -131,11 +131,6 @@ defineReplace(extractWarnings) {
     return($$result)
 }
 
-CLANGTOOLING_LIBS=-lclangTooling -lclangIndex -lclangFrontend -lclangParse -lclangSerialization \
-                  -lclangSema -lclangEdit -lclangAnalysis -lclangDriver -lclangDynamicASTMatchers \
-                  -lclangASTMatchers -lclangToolingCore -lclangAST -lclangLex -lclangBasic
-win32:CLANGTOOLING_LIBS += -lversion
-
 BIN_EXTENSION =
 win32: BIN_EXTENSION = .exe
 
@@ -208,12 +203,17 @@ isEmpty(LLVM_VERSION) {
     isEmpty(QTC_CLANG_BUILDMODE_MISMATCH)|!equals(QTC_CLANG_BUILDMODE_MISMATCH, 1) {
         CLANGFORMAT_MAIN_HEADER = $$LLVM_INCLUDEPATH/clang/Format/Format.h
         exists($$CLANGFORMAT_MAIN_HEADER) {
-            CLANGFORMAT_LIBS=-lclangFormat -lclangToolingInclusions -lclangToolingCore -lclangRewrite -lclangLex -lclangBasic
-            ALL_CLANG_LIBS=-lclangFormat -lclangToolingInclusions -lclangTooling -lclangToolingCore \
-                           -lclangRewrite -lclangIndex -lclangFrontend -lclangParse -lclangSerialization \
-                           -lclangSema -lclangEdit -lclangAnalysis -lclangDriver -lclangDynamicASTMatchers \
-                           -lclangASTMatchers -lclangAST -lclangLex -lclangBasic
-            win32:CLANGFORMAT_LIBS += -lversion
+            exists($$LLVM_LIBDIR/*clangBasic*) {
+                CLANGFORMAT_LIBS=-lclangFormat -lclangToolingInclusions -lclangToolingCore -lclangRewrite -lclangLex -lclangBasic
+                ALL_CLANG_LIBS=-lclangFormat -lclangToolingInclusions -lclangTooling -lclangToolingCore \
+                               -lclangRewrite -lclangIndex -lclangFrontend -lclangParse -lclangSerialization \
+                               -lclangSema -lclangEdit -lclangAnalysis -lclangDriver -lclangDynamicASTMatchers \
+                               -lclangASTMatchers -lclangAST -lclangLex -lclangBasic
+                win32:CLANGFORMAT_LIBS += -lversion
+            } else {
+                CLANGFORMAT_LIBS = -lclang-cpp
+                ALL_CLANG_LIBS = -lclang-cpp
+            }
         }
     }
     win32:ALL_CLANG_LIBS += -lversion
@@ -240,6 +240,14 @@ isEmpty(LLVM_VERSION) {
     isEmpty(QTC_CLANG_BUILDMODE_MISMATCH)|!equals(QTC_CLANG_BUILDMODE_MISMATCH, 1) {
         QTC_ENABLE_CLANG_REFACTORING=$$(QTC_ENABLE_CLANG_REFACTORING)
         !isEmpty(QTC_ENABLE_CLANG_REFACTORING) {
+            exists($$LLVM_LIBDIR/*clangBasic*) {
+                CLANGTOOLING_LIBS=-lclangTooling -lclangIndex -lclangFrontend -lclangParse -lclangSerialization \
+                          -lclangSema -lclangEdit -lclangAnalysis -lclangDriver -lclangDynamicASTMatchers \
+                          -lclangASTMatchers -lclangToolingCore -lclangAST -lclangLex -lclangBasic
+                win32:CLANGTOOLING_LIBS += -lversion
+            } else {
+                CLANGTOOLING_LIBS = -lclang-cpp
+            }
             !contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): LIBTOOLING_LIBS = -L$${LLVM_LIBDIR}
             LIBTOOLING_LIBS += $$CLANGTOOLING_LIBS $$LLVM_STATIC_LIBS
         }
