@@ -102,7 +102,7 @@ QDebug operator<<(QDebug debug, const Diagnostic &d)
                  ;
 }
 
-void ClangToolsDiagnosticModel::addDiagnostics(const Diagnostics &diagnostics)
+void ClangToolsDiagnosticModel::addDiagnostics(const Diagnostics &diagnostics, bool generateMarks)
 {
     const auto onFixitStatusChanged =
         [this](const QModelIndex &index, FixitStatus oldStatus, FixitStatus newStatus) {
@@ -129,7 +129,7 @@ void ClangToolsDiagnosticModel::addDiagnostics(const Diagnostics &diagnostics)
 
         // Add to file path item
         qCDebug(LOG) << "Adding diagnostic:" << d;
-        filePathItem->appendChild(new DiagnosticItem(d, onFixitStatusChanged, this));
+        filePathItem->appendChild(new DiagnosticItem(d, onFixitStatusChanged, generateMarks, this));
     }
 }
 
@@ -284,11 +284,12 @@ static QString fullText(const Diagnostic &diagnostic)
 
 DiagnosticItem::DiagnosticItem(const Diagnostic &diag,
                                const OnFixitStatusChanged &onFixitStatusChanged,
+                               bool generateMark,
                                ClangToolsDiagnosticModel *parent)
     : m_diagnostic(diag)
     , m_onFixitStatusChanged(onFixitStatusChanged)
     , m_parentModel(parent)
-    , m_mark(new DiagnosticMark(diag))
+    , m_mark(generateMark ? new DiagnosticMark(diag) : nullptr)
 {
     if (diag.hasFixits)
         m_fixitStatus = FixitStatus::NotScheduled;

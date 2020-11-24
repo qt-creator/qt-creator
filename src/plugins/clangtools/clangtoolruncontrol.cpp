@@ -364,8 +364,12 @@ void ClangToolRunWorker::onRunnerFinishedWithSuccess(const QString &filePath)
     } else {
         if (!m_filesNotAnalyzed.contains(filePath))
             m_filesAnalyzed.insert(filePath);
-        if (!diagnostics.isEmpty())
-            tool()->onNewDiagnosticsAvailable(diagnostics);
+        if (!diagnostics.isEmpty()) {
+            // do not generate marks when we always analyze open files since marks from that
+            // analysis should be more up to date
+            const bool generateMarks = !m_runSettings.analyzeOpenFiles();
+            tool()->onNewDiagnosticsAvailable(diagnostics, generateMarks);
+        }
     }
 
     handleFinished();
