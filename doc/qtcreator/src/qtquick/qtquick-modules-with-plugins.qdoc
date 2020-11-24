@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -30,9 +30,14 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-quick-ui-forms.html
     \page creator-qml-modules-with-plugins.html
+    \if defined(qtdesignstudio)
+    \previouspage studio-simulink.html
+    \nextpage studio-debugging.html
+    \else
+    \previouspage qtquick-iso-icon-browser.html
     \nextpage quick-converting-ui-projects.html
+    \endif
 
     \title Using QML Modules with Plugins
 
@@ -41,16 +46,23 @@
     the contained components, and therefore, the modules must provide extra type
     information for code completion and the semantic checks to work correctly.
 
-    To create a QML module and make it appear in the \uicontrol Library in
+    To create a QML module and make it appear in the \uicontrol Library view in
     the Design mode:
 
     \list 1
 
         \li Create custom QML controls and place all the \c .qml files in a
-           directory dedicated to your module.
+           directory dedicated to your module. For example:
+           \c {imports\asset_imports}.
 
-        \li Create a \c qmldir file for your module and place it in the module
-            directory. For more information, see
+        \li For Qt Quick UI projects (.qmlproject), specify the path to
+            the directory that contains the module in the .qmlproject file
+            of the application where you want to use the module
+            as a value of the \c importPaths variable. For example
+            \c{importPaths: [ "imports", "asset_imports" ]}.
+
+        \li Create a \c qmldir file for your module and place it
+            in the module directory. For more information, see
             \l {Module Definition qmldir Files}.
 
         \li Create a \c qmltypes file, preferably using \c qmlplugindump.
@@ -60,39 +72,45 @@
 
         \li Create a \c .metainfo file for your module and place it in the
             \c designer directory. Meta information is needed to display the
-            components in the \uicontrol {QML Types} tab in the \uicontrol
+            components in the \uicontrol {QML Types} tab in \uicontrol
             Library. Use a metainfo file delivered with Qt, such as
             \c qtquickcontrols2.metainfo, as an example.
 
-        \li Import your module into a project using \c QML_IMPORT_PATH in the
-            .pro file: \c {QML_IMPORT_PATH += path/to/module}.
-            For more information, see \l {Importing QML Modules}.
+        \if defined(qtcreator)
+        \li Import the module into the project, as instructed in
+            \l {Importing QML Modules}.
 
         \li Make sure that the QML emulation layer used in the Design mode is built with
             the same Qt version as your QML modules. For more information, see
             \l {Running QML Modules in Design Mode}. You can also try
             skipping this step and take it later, if necessary.
+        \else
+        \li Build your module using the same Qt version and compiler as \QDS.
+            For more information, see \l {Running QML Modules in Design Mode}.
+        \endif
 
     \endlist
 
-    Your module should now appear in the \uicontrol {QML Imports} tab in the
+    Your module should now appear in the \uicontrol {QML Imports} tab in
     \uicontrol Library in the Design mode. Your components should appear in the
     \uicontrol {QML Types} tab if a valid \c .metainfo file is in place.
 
+    \if defined(qtcreator)
     \section1 Registering QML Types
 
-    When you write a QML module or use QML from a C++ application, you typically
-    register new types with the qmlRegisterType() function or expose some
-    class instances with \l{QQmlContext::setContextProperty()}. The \QC C++
-    code model now scans for these calls and
-    tells the QML code model about them. This means that properties are
-    displayed during code completion and the JavaScript code checker does not
+    When you write a QML module or use QML from a C++ application, and the C++
+    is a part of your qmake project, you typically register new types with the
+    \c qmlRegisterType() function or expose some class instances with
+    \l{QQmlContext::setContextProperty()}. The \QC C++ code model now scans for
+    these calls and tells the QML code model about them. This means that properties
+    are displayed during code completion and the JavaScript code checker does not
     complain about unknown types. However, this works only when the source code
     is available, and therefore, you must explicitly generate type information
     for QML modules with plugins before distributing them.
 
     Classes registered with \c qmlRegisterType() can be used as backend objects
     in the Design mode. For more information, see \l {Adding Connections}.
+    \endif
 
     \section1 Generating qmltypes Files
 
@@ -122,9 +140,11 @@
 
     You can safely ignore the debug output.
 
+    \if defined(qtcreator)
     For Qt 4.7.x, you can compile a version of the tool called \c qmldump from
     the sources in \c{<QtCreator>/share/qtcreator/qml/qmldump} if the Qt version
     contains private headers.
+    \endif
 
     \section2 Dumping Plugins Automatically
 
@@ -133,12 +153,14 @@
     However, this automatic dumping is a fallback mechanism with many points of
     failure and you cannot rely upon it.
 
+    \if defined(qtcreator)
     \section1 Importing QML Modules
 
     By default, \QC will look in the QML import path of Qt for QML modules.
-    If your applications adds additional import paths that \QC should use,
-    then you can specify those using \c{QML_IMPORT_PATH} in the \c{.pro} file of your
-    application.
+
+    If you use qmake and your application adds additional import paths that
+    \QC should use, specify them using \c{QML_IMPORT_PATH} in the \c{.pro}
+    file of your application: \c {QML_IMPORT_PATH += path/to/module}.
 
     If you use CMake, add the following command to the CMakeLists.txt file to
     set the QML import path:
@@ -148,14 +170,16 @@
     \endcode
 
     The import path affects all the targets built by the CMake project.
+    \endif
 
     \section1 Running QML Modules in Design Mode
 
     A QML emulation layer (also called QML Puppet) is used in the Design mode to
     render and preview images and to collect data. To be able to render custom types
     correctly from QML modules, the emulation layer must be built with the same
-    Qt version as the QML modules.
+    Qt version and compiler as the QML modules.
 
+    \if defined(qtcreator)
     By default, a fallback emulation layer is provided by \QC and built with the same
     Qt version as \QC. Therefore, your QML modules will mostly not work out of
     the box.
@@ -165,17 +189,27 @@
     \uicontrol Options > \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer} >
     \uicontrol {Use QML emulation layer which is built by the selected Qt} radio button.
     \QC builds the emulation layer when you select the Design mode.
+    \else
+    On Windows, select \uicontrol Help > \uicontrol {About Qt Design Studio} to
+    check the Qt version and compiler that you need to use to build your plugin.
+    For example: \c {Based on Qt 5.15.2 (MSVC 2019, 64 bit)}.
+
+    On macOS, select \uicontrol {Qt Design Studio} >
+    \uicontrol {About Qt Design Studio} to see something like:
+    \c {Based on Qt 5.15.2 (Clang 10.0 (Apple), 64 bit)}.
+    \endif
+
 
     A plugin should behave differently depending on whether it is run by the
     emulation layer or an application. For example, animations should not be run
-    in the Design mode. You can use the value of the QML_PUPPET_MODE
+    in the Design mode. You can use the value of the \c QML_PUPPET_MODE
     environment variable to check whether the plugin is currently being run
     by an application or edited in the Design mode.
 
     If you want to use a different module in the Design mode than in your actual
     application for example to mockup C++ items, then you can use \c{QML_DESIGNER_IMPORT_PATH}
     in the \c{.pro} file (for qmake projects), or declare and set the property
-    qmlDesignerImportPaths in your product (for Qbs projects).
+    \c qmlDesignerImportPaths in your product (for Qbs projects).
     Modules in the import paths defined in \c{QML_DESIGNER_IMPORT_PATH} will be
     used only in the Design mode.
     For an example, see \l {Qt Quick Controls - Contact List}.
