@@ -203,6 +203,14 @@
 
     \section1 Creating Components in Design Mode
 
+    You can either use project wizard templates to create custom components and
+    controls or \l{Moving Components into Separate Files}{move subcomponents
+    into separate files} to make them reusable in other components.
+
+    \section2 Creating Components from Scratch
+
+    To use wizard templates to create custom components:
+
     \list 1
 
         \li Select \uicontrol File > \uicontrol {New File or Project} >
@@ -224,7 +232,12 @@
 
         \li Edit its properties in \uicontrol Properties.
 
-            The available properties depend on the QML type.
+            \image qmldesigner-custom-component-properties.png
+
+            The available properties depend on the QML type. You can
+            \l{Specifying Dynamic Properties}{add properties for
+            components} in the \uicontrol Properties tab of the
+            \uicontrol {Connection View}.
 
     \endlist
 
@@ -246,7 +259,7 @@
     \include qtdesignstudio-components.qdocinc creating studio components
     \endif
 
-    \section1 Moving Components into Separate Files
+    \section2 Moving Components into Separate Files
 
     An alternative way of creating reusable components is to move them into
     separate QML files. Right-click a component in the \uicontrol Navigator
@@ -267,14 +280,24 @@
 
     \section1 Moving Within Components
 
-    Components can consist of several other components. To view the component
-    hierarchy as a bread crumb path when you edit a component in
-    \uicontrol {Form Editor}, select \uicontrol {Go into Component} or press
-    \key F2. Click the component names in the path to navigate to them. You
-    can easily navigate back to the top level when you are done editing the
+    The QML files that specify components can contain instances of other
+    components specified in separate QML files. You can open the QML file
+    that specifies a component in different ways from different views:
+
+    \list
+        \li In \uicontrol {Form Editor} or \uicontrol Navigator,
+            right-click an instance of a component and then select
+            \uicontrol {Go into Component} in the context-menu or
+            press \key F2.
+        \li In \uicontrol Properties, select \uicontrol {Edit Master Component}.
+    \endlist
+
+    The component hierarchy is displayed as a bread crumb path, where you can
+    click the component names to open the respective files. This enables you
+    to easily navigate back to the top level when you are done editing the
     component.
 
-    \image qmldesigner-breadcrumbs.png "Go into Component command"
+    \image qmldesigner-breadcrumbs.png "Component hierarchy"
 
     \section1 Merging Files with Templates
 
