@@ -29,7 +29,6 @@ HEADERS += \
     remotelinux_constants.h \
     remotelinuxenvironmentreader.h \
     sshkeydeployer.h \
-    typespecificdeviceconfigurationlistmodel.h \
     remotelinuxcustomcommanddeployservice.h \
     remotelinuxcustomcommanddeploymentstep.h \
     genericlinuxdeviceconfigurationwidget.h \
@@ -70,7 +69,6 @@ SOURCES += \
     linuxdevicetester.cpp \
     remotelinuxenvironmentreader.cpp \
     sshkeydeployer.cpp \
-    typespecificdeviceconfigurationlistmodel.cpp \
     remotelinuxcustomcommanddeployservice.cpp \
     remotelinuxcustomcommanddeploymentstep.cpp \
     genericlinuxdeviceconfigurationwidget.cpp \

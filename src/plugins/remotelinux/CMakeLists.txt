@@ -43,6 +43,5 @@ add_qtc_plugin(RemoteLinux
     rsyncdeploystep.cpp rsyncdeploystep.h
     sshkeydeployer.cpp sshkeydeployer.h
     tarpackagecreationstep.cpp tarpackagecreationstep.h
-    typespecificdeviceconfigurationlistmodel.cpp typespecificdeviceconfigurationlistmodel.h
     uploadandinstalltarpackagestep.cpp uploadandinstalltarpackagestep.h
 )

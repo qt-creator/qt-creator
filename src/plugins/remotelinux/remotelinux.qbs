@@ -95,8 +95,6 @@ Project {
             "sshkeydeployer.h",
             "tarpackagecreationstep.cpp",
             "tarpackagecreationstep.h",
-            "typespecificdeviceconfigurationlistmodel.cpp",
-            "typespecificdeviceconfigurationlistmodel.h",
             "uploadandinstalltarpackagestep.cpp",
             "uploadandinstalltarpackagestep.h",
             "images/embeddedtarget.png",
