@@ -105,15 +105,21 @@ Diagnostics DocumentClangToolRunner::diagnosticsAtLine(int lineNumber) const
     return diagnostics;
 }
 
+static void removeClangToolRefactorMarkers(TextEditor::TextEditorWidget *editor)
+{
+    if (!editor)
+        return;
+    editor->setRefactorMarkers(
+        TextEditor::RefactorMarker::filterOutType(editor->refactorMarkers(),
+                                                  Constants::CLANG_TOOL_FIXIT_AVAILABLE_MARKER_ID));
+}
+
 void DocumentClangToolRunner::scheduleRun()
 {
     for (DiagnosticMark *mark : m_marks)
         mark->disable();
-    for (TextEditor::TextEditorWidget *editor : m_editorsWithMarkers) {
-        editor->setRefactorMarkers(
-            TextEditor::RefactorMarker::filterOutType(editor->refactorMarkers(),
-                                                      Constants::CLANG_TOOL_FIXIT_AVAILABLE_MARKER_ID));
-    }
+    for (TextEditor::TextEditorWidget *editor : m_editorsWithMarkers)
+        removeClangToolRefactorMarkers(editor);
     m_runTimer.start();
 }
 
@@ -325,7 +331,8 @@ void DocumentClangToolRunner::onSuccess()
     for (auto editor : TextEditor::BaseTextEditor::textEditorsForDocument(doc)) {
         if (TextEditor::TextEditorWidget *widget = editor->editorWidget()) {
             widget->setRefactorMarkers(markers + widget->refactorMarkers());
-            m_editorsWithMarkers << widget;
+            if (!m_editorsWithMarkers.contains(widget))
+                m_editorsWithMarkers << widget;
         }
     }
 
