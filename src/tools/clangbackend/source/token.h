@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/smallstringfwd.h>
+
 #include <clang-c/Index.h>
 
 #include <vector>
@@ -80,6 +82,8 @@ public:
     std::vector<Token>::const_iterator cend() const;
     std::vector<Token>::iterator begin();
     std::vector<Token>::iterator end();
+
+    int getTokenIndex(CXTranslationUnit tu, uint line, uint column) const;
 
     CXTranslationUnit tu() const { return m_cxTranslationUnit; }
 private:

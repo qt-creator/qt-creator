@@ -202,6 +202,19 @@ std::vector<Token>::iterator Tokens::end()
     return m_tokens.end();
 }
 
+int Tokens::getTokenIndex(CXTranslationUnit tu, uint line, uint column) const
+{
+    int tokenIndex = -1;
+    for (int i = size() - 1; i >= 0; --i) {
+        const SourceRange range(tu, (*this)[i].extent());
+        if (range.contains(line, column)) {
+            tokenIndex = i;
+            break;
+        }
+    }
+    return tokenIndex;
+}
+
 Tokens::~Tokens()
 {
     if (m_tokens.empty())

@@ -512,9 +512,25 @@ Utf8String ToolTipInfoCollector::lineRange(const Utf8String &filePath,
 
 ToolTipInfo ToolTipInfoCollector::collect(uint line, uint column) const
 {
-    const Cursor cursor = clang_getCursor(m_cxTranslationUnit, toCXSourceLocation(line, column));
+    Cursor cursor = clang_getCursor(m_cxTranslationUnit, toCXSourceLocation(line, column));
+    if (!cursor.isValid()) { // QTCREATORBUG-21194
+        Tokens tokens(Cursor(clang_getTranslationUnitCursor(m_cxTranslationUnit)).sourceRange());
+        if (!tokens.size())
+            return {};
+
+        // TODO: Only annotate the tokens up until the location we are interested in?
+        //       Same goes for FollowSymbol.
+        const std::vector<Cursor> cursors = tokens.annotate();
+
+        const int tokenIndex = tokens.getTokenIndex(m_cxTranslationUnit, line, column);
+        QTC_ASSERT(tokenIndex >= 0, return {});
+        const Utf8String tokenSpelling = tokens[tokenIndex].spelling();
+        if (tokenSpelling.isEmpty())
+            return {};
+        cursor = cursors[tokenIndex];
+    }
     if (!cursor.isValid())
-        return ToolTipInfo(); // E.g. cursor on ifdeffed out range
+        return {};
 
     const Cursor referenced = referencedCursor(cursor);
     QTC_CHECK(referenced.isValid());
