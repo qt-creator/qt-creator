@@ -431,7 +431,7 @@ static void drawPrimitiveTweakedForDarkTheme(QStyle::PrimitiveElement element,
         break;
     }
     case QStyle::PE_FrameLineEdit: {
-        const bool isComboBox = widget->inherits("QComboBox");
+        const bool isComboBox = widget && widget->inherits("QComboBox");
         const QRectF frameRectF =
                 QRectF(option->rect).adjusted(0.5, 0.5, isComboBox ? -8.5 : -0.5, -0.5);
         painter->setPen(framePen);
@@ -447,7 +447,8 @@ static void drawPrimitiveTweakedForDarkTheme(QStyle::PrimitiveElement element,
             // Shrinking the topMargin if Not checkable AND title is empty
             topMargin = groupBoxTopMargin;
         } else {
-            topMargin = qMax(widget->style()->pixelMetric(QStyle::PM_ExclusiveIndicatorHeight),
+            const int exclusiveIndicatorHeight = widget ? widget->style()->pixelMetric(QStyle::PM_ExclusiveIndicatorHeight) : 0;
+            topMargin = qMax(exclusiveIndicatorHeight,
                              option->fontMetrics.height()) + groupBoxTopMargin;
         }
         // Snippet from QFusionStyle::drawPrimitive - END
@@ -505,15 +506,16 @@ static void drawPrimitiveTweakedForDarkTheme(QStyle::PrimitiveElement element,
         break;
     }
     case QStyle::PE_IndicatorTabClose: {
-        QWindow *window = widget->window()->windowHandle();
+        QWindow *window = widget ? widget->window()->windowHandle() : nullptr;
         QRect iconRect = QRect(0, 0, 16, 16);
         iconRect.moveCenter(option->rect.center());
         const QIcon::Mode mode = !isEnabled ? QIcon::Disabled : QIcon::Normal;
         const static QIcon closeIcon = Utils::Icons::CLOSE_FOREGROUND.icon();
-        if (option->state & QStyle::State_MouseOver)
+        if (option->state & QStyle::State_MouseOver && widget)
             widget->style()->drawPrimitive(QStyle::PE_PanelButtonCommand, option, painter, widget);
+        const int devicePixelRatio = widget ? widget->devicePixelRatio() : 1;
         const QPixmap iconPx =
-                closeIcon.pixmap(window, iconRect.size() * widget->devicePixelRatio(), mode);
+                closeIcon.pixmap(window, iconRect.size() * devicePixelRatio, mode);
         painter->drawPixmap(iconRect, iconPx);
         break;
     }
