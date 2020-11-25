@@ -111,7 +111,7 @@
 
     \image qmldesigner-anchor-buttons.png "Anchor buttons"
 
-    For convenience, you can click the \inlineimage anchor-fill.png
+    For convenience, you can click the \inlineimage icons/anchor-fill.png
     (\uicontrol {Fill to Parent}) toolbar button to apply fill anchors to an
     item and the \inlineimage qtcreator-anchors-reset-icon.png
     (\uicontrol {Reset Anchors}) button to reset the anchors to their saved
@@ -205,7 +205,7 @@
 
     You can set the space between objects in pixels. You can
     disable the distribution of spacing in pixels by clicking
-    the \inlineimage qmldesigner-distribute-spacing-x.png
+    the \inlineimage icons/distribute-origin-none.png
     button.
 
     \section2 Using Positioners

@@ -412,6 +412,8 @@ QImage QuickItemNodeInstance::renderImage() const
 
     QSize size = renderBoundingRect.size().toSize();
     static double devicePixelRatio = qgetenv("FORMEDITOR_DEVICE_PIXEL_RATIO").toDouble();
+    if (size.width() * size.height() > 4000 * 4000)
+        size = QSize(0,0);
     size *= devicePixelRatio;
 
     QImage renderImage;

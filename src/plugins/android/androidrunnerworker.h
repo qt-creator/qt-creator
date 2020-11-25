@@ -78,6 +78,7 @@ private:
     bool deviceFileExists(const QString &filePath);
     bool packageFileExists(const QString& filePath);
     bool uploadDebugServer(const QString &debugServerFileName);
+    void asyncStartLogcat();
 
     enum class JDBState {
         Idle,

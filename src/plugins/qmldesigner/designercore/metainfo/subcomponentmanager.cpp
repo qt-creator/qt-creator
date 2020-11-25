@@ -277,11 +277,12 @@ void SubComponentManager::parseFile(const QString &canonicalFilePath, bool addTo
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
-    QString dir = QFileInfo(canonicalFilePath).path();
+    const QFileInfo fi(canonicalFilePath);
+    const QString dir = fi.path();
     foreach (const QString &qualifier, m_dirToQualifier.values(dir)) {
-        registerQmlFile(canonicalFilePath, qualifier, addToLibrary);
+        registerQmlFile(fi, qualifier, addToLibrary);
     }
-    registerQmlFile(canonicalFilePath, qualification, addToLibrary);
+    registerQmlFile(fi, qualification, addToLibrary);
 }
 
 void SubComponentManager::parseFile(const QString &canonicalFilePath)

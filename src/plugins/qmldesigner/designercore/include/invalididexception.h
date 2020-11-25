@@ -47,11 +47,6 @@ public:
                        const QByteArray &description);
 
     QString type() const override;
-    QString description() const override;
-
-private:
-    QString m_id;
-    QString m_description;
 };
 
 }

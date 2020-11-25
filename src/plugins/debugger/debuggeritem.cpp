@@ -171,6 +171,18 @@ void DebuggerItem::reinitializeFromFile()
         return;
     }
 
+    // Prevent calling lldb on Windows because the lldb from the llvm package is linked against
+    // python but does not contain a python dll.
+    if (HostOsInfo::isWindowsHost() && m_command.fileName().startsWith("lldb")) {
+        QString errorMessage;
+        m_version = winGetDLLVersion(WinDLLFileVersion,
+                                     fileInfo.absoluteFilePath(),
+                                     &errorMessage);
+        m_engineType = LldbEngineType;
+        m_abis = Abi::abisOfBinary(m_command);
+        return;
+    }
+
     SynchronousProcess proc;
     SynchronousProcessResponse response = proc.runBlocking({m_command, {version}});
     if (response.result != SynchronousProcessResponse::Finished) {

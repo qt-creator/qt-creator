@@ -2440,8 +2440,10 @@ void tst_Dumpers::dumper_data()
 
                + Check("h2", "<3 items>", "@QHash<int, float>")
                + Check("h2.0", "[0] 0", FloatValue("33"), "")
-               + Check("h2.1", "[1] 22", FloatValue("22"), "")
-               + Check("h2.2", "[2] 11", FloatValue("11"), "")
+               + Check5("h2.1", "[1] 22", FloatValue("22"), "")
+               + Check5("h2.2", "[2] 11", FloatValue("11"), "")
+               + Check6("h2.1", "[1] 11", FloatValue("11"), "")
+               + Check6("h2.2", "[2] 22", FloatValue("22"), "")
 
                + Check("h3", "<1 items>", "@QHash<@QString, int>")
                + Check("h3.0.key", "key", "\"22.0\"", "@QString")
@@ -2470,11 +2472,14 @@ void tst_Dumpers::dumper_data()
                + CheckType("h7.2.value", "@QPointer<@QObject>")
 
                + Check("h8", "<3 items>", TypeDef("@QHash<int,float>", "Hash"))
-               + Check("h8.0", "[0] 22", FloatValue("22"), "")
-               + Check("it1.key", "22", "int")
-               + Check("it1.value", FloatValue("22"), "float")
-               + Check("it3.key", "33", "int")
-               + Check("it3.value", FloatValue("33"), "float");
+               + Check5("h8.0", "[0] 22", FloatValue("22"), "")
+               + Check6("h8.0", "[0] 33", FloatValue("33"), "")
+
+                // FIXME: Qt6 QHash::iterator broken.
+               + Check5("it1.key", "22", "int")
+               + Check5("it1.value", FloatValue("22"), "float")
+               + Check5("it3.key", "33", "int")
+               + Check5("it3.value", FloatValue("33"), "float");
 
 
     QTest::newRow("QHostAddress")
@@ -3319,10 +3324,14 @@ void tst_Dumpers::dumper_data()
                     "region0 = region;\n"
                     "region += QRect(100, 100, 200, 200);\n"
                     "region1 = region;\n"
+                    "#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)\n"
                     "QVector<QRect> rects = region1.rects(); // Warm up internal cache.\n"
+                    "(void) rects;\n"
+                    "#endif\n"
+                    "QRect b = region1.boundingRect(); // Warm up internal cache.\n"
                     "region += QRect(300, 300, 400, 500);\n"
                     "region2 = region;",
-                    "&region0, &region1, &region2, &rects")
+                    "&region0, &region1, &region2, &b")
 
                + GuiProfile()
 
@@ -3339,7 +3348,8 @@ void tst_Dumpers::dumper_data()
                + Check("region2.innerArea", "200000", "int")
                + Check("region2.innerRect", "400x500+300+300", "@QRect")
                + Check("region2.numRects", "2", "int")
-               + Check("region2.rects", "<2 items>", "@QVector<@QRect>");
+               + Check5("region2.rects", "<2 items>", "@QVector<@QRect>")
+               + Check6("region2.rects", "<2 items>", "@QList<@QRect>");
 
 
     QTest::newRow("QSettings")
@@ -3583,7 +3593,8 @@ void tst_Dumpers::dumper_data()
 
                + QmlPrivateProfile()
 
-               + Check("l", "\"Hi\"", "@QLazilyAllocated<@QString>");
+                // Qt 6 has QLazilyAllocated<QString, unsigned short> here.
+               + Check("l", "\"Hi\"", TypePattern("@QLazilyAllocated<@QString.*>"));
 
 
     QTest::newRow("QFiniteStack")
@@ -3800,7 +3811,7 @@ void tst_Dumpers::dumper_data()
     expected1.append(QChar(1));
     expected1.append("BBB\"");
 
-    QChar oUmlaut = 0xf6;
+    QChar oUmlaut = QChar(0xf6);
 
     QTest::newRow("QString")
             << Data("#include <QByteArray>\n"
@@ -5957,7 +5968,7 @@ void tst_Dumpers::dumper_data()
                + Check("a1.0.2", "[2]", FloatValue("20"), "double")
                + Check("a1.2", "[2]", Pointer(), "double[4]")
 
-               + Check("a2", Value("\"abcd" + QString(16, 0) + '"'), "char [20]")
+               + Check("a2", Value("\"abcd" + QString(16, QChar(0)) + '"'), "char [20]")
                + Check("a2.0", "[0]", "97", "char")
                + Check("a2.3", "[3]", "100", "char");
 

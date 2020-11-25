@@ -31,8 +31,9 @@ RewritingException::RewritingException(int line,
                                        const QByteArray &function,
                                        const QByteArray &file,
                                        const QByteArray &description,
-                                       const QString &documentTextContent):
-        Exception(line, function, file), m_description(QString::fromUtf8(description)), m_documentTextContent(documentTextContent)
+                                       const QString &documentTextContent)
+    : Exception(line, function, file, QString::fromUtf8(description))
+    , m_documentTextContent(documentTextContent)
 {
     createWarning();
 }
@@ -40,11 +41,6 @@ RewritingException::RewritingException(int line,
 QString RewritingException::type() const
 {
     return QLatin1String("RewritingException");
-}
-
-QString RewritingException::description() const
-{
-    return m_description;
 }
 
 QString RewritingException::documentTextContent() const

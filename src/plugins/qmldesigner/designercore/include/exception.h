@@ -41,8 +41,8 @@ public:
     virtual ~Exception();
 
     virtual QString type() const = 0;
-    virtual QString description() const;
-    virtual void showException(const QString &title = QString()) const;
+    QString description() const;
+    void showException(const QString &title = QString()) const;
 
     int line() const;
     QString function() const;
@@ -55,11 +55,20 @@ public:
     static bool shouldAssert();
     static bool warnAboutException();
 
+protected:
+    Exception(int line,
+              const QByteArray &function,
+              const QByteArray &file,
+              const QString &description);
+    static QString defaultDescription(int line, const QByteArray &function, const QByteArray &file);
+    QString defaultDescription();
+
 private:
-    int m_line;
-    QString m_function;
-    QString m_file;
-    QString m_backTrace;
+    const int m_line;
+    const QString m_function;
+    const QString m_file;
+    const QString m_description;
+    const QString m_backTrace;
     static bool s_shouldAssert;
 };
 

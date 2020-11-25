@@ -64,7 +64,7 @@ void AnnotationEditor::showWidget()
                                           m_modelNode.customId(),
                                           m_modelNode.annotation());
 
-    QObject::connect(m_dialog, &AnnotationEditorDialog::accepted,
+    QObject::connect(m_dialog, &AnnotationEditorDialog::acceptedDialog,
                      this, &AnnotationEditor::acceptedClicked);
     QObject::connect(m_dialog, &AnnotationEditorDialog::rejected,
                      this, &AnnotationEditor::cancelClicked);

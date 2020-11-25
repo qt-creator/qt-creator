@@ -92,11 +92,11 @@
             \key Delete to delete it.
         \li Select \e usernameField in \uicontrol Navigator.
         \li In \uicontrol Properties > \uicontrol Layout, select the
-            \inlineimage anchor-top.png
+            \inlineimage icons/anchor-top.png
             (\uicontrol Top) button to anchor the top of the field to the top
             of its parent. \QDS will suggest an appropriate margin based on
             the current position of the field on the y axis, 200 pixels.
-        \li Select the \inlineimage anchor-horizontal-center.png
+        \li Select the \inlineimage icons/anchor-center-horizontal.png
             (\uicontrol {Horizontal Center}) button to anchor
             the horizontal center of the field to that of its parent.
         \li Select \e passwordField, and then select the \uicontrol Top

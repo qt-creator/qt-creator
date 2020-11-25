@@ -60,7 +60,7 @@ public:
     QmlDebug::QmlDebugServicesPreset qmlDebugServices() const;
 
     void start() override;
-    void stop() override final;
+    void stop() final;
 
     virtual void appOutput(const QString &/*output*/) {}
     virtual void errorMsg(const QString &/*msg*/) {}

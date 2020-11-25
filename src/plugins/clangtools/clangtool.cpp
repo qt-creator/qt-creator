@@ -825,7 +825,7 @@ void ClangTool::loadDiagnosticsFromFiles()
 
     // Show imported
     reset();
-    onNewDiagnosticsAvailable(diagnostics);
+    onNewDiagnosticsAvailable(diagnostics, /*generateMarks =*/ true);
     setState(State::ImportFinished);
 }
 
@@ -1129,10 +1129,10 @@ QSet<Diagnostic> ClangTool::diagnostics() const
     });
 }
 
-void ClangTool::onNewDiagnosticsAvailable(const Diagnostics &diagnostics)
+void ClangTool::onNewDiagnosticsAvailable(const Diagnostics &diagnostics, bool generateMarks)
 {
     QTC_ASSERT(m_diagnosticModel, return);
-    m_diagnosticModel->addDiagnostics(diagnostics);
+    m_diagnosticModel->addDiagnostics(diagnostics, generateMarks);
 }
 
 void ClangTool::updateForCurrentState()

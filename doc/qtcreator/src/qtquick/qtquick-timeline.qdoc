@@ -244,7 +244,7 @@
     timeline are \e linear, which means that they move from the beginning to
     the end at a constant speed. You can use the \uicontrol {Easing Curve Editor}
     to edit the easing curve between two keyframes. You can also use the more
-    advanced \uicontrol {Animation Curve Editor} to edit the curves for the whole
+    advanced \uicontrol {Curve Editor} to edit the curves for the whole
     animation.
 
     \section2 Attaching Easing Curves to Keyframes
@@ -284,7 +284,7 @@
     To customize easing curves:
 
     \list 1
-        \li In the \uicontrol {Easing Curve Editor}, select an easing curve in
+        \li In \uicontrol {Easing Curve Editor}, select an easing curve in
             the \uicontrol Presets tab.
         \li Drag the curve handlers to modify the curve.
         \li Right-click in the editor, and select \uicontrol {Add Point} to add
@@ -298,28 +298,30 @@
             \uicontrol Custom tab.
     \endlist
 
-    To paste easing curve definitions to the easing curve editor as text, select
-    the \uicontrol Text tab.
+    To paste easing curve definitions to \uicontrol {Easing Curve Editor} as
+    text, select the \uicontrol Text tab.
 
     \section1 Editing Animation Curves
 
-    In the animation curve editor, you can view and modify the whole animation
-    curve. You
-    can insert keyframes to the curve and drag them and the point handlers to
-    modify the curve. You can modify the appearance of the curve in the style
-    editor.
+    In \uicontrol {Curve Editor}, you can view and modify the whole animation
+    curve. You can insert keyframes to the curve and drag them and the point
+    handlers to modify the curve. You can modify the appearance of the curve
+    in the style editor.
 
-    You can also edit easing curves that you added with the easing curve editor.
+    You can also edit easing curves that you added in
+    \uicontrol {Easing Curve Editor}. If the item that
+    contains the easing curves has been locked in
+    \uicontrol Navigator, you can select \inlineimage icons/lockon.png
+    to unlock it. You can also lock individual easing curves for editing.
 
-    \image studio-curve-editor.png "Animation Curve Editor"
+    \image studio-curve-editor.png "Curve Editor"
 
     To edit animation curves:
 
     \list 1
         \li In the \uicontrol Timeline view, insert at least one keyframe.
-        \li Select \inlineimage curveGraphIcon.png
-            (\uicontrol {Animation Curve Editor}) on the toolbar or press \key C
-            to open the animation curve editor.
+        \li Select \uicontrol View > \uicontrol Views >
+            \uicontrol {Curve Editor} to open the animation curve editor.
         \li Right-click in the animation curve editor, and select
             \uicontrol {Insert Keyframe} to add a keyframe.
         \li Select keyframes to display the easing curves attached to them.
@@ -330,7 +332,7 @@
             list, and then select the pin icon.
     \endlist
 
-    Your changes are automatically saved when you close the editor.
+    Your changes are automatically saved when you close the view.
 
     \section1 Rotating Items
 

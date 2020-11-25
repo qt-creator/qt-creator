@@ -1,3 +1,8 @@
+if (NOT QTC_CLANG_BUILDMODE_MATCH)
+    message(STATUS "Skipping unittest due to build mode mismatch")
+    return()
+endif()
+
 find_package(Googletest MODULE)
 find_package(GoogleBenchmark MODULE)
 
@@ -193,6 +198,10 @@ function(extend_qtc_test_with_target_sources target)
   cmake_parse_arguments(_arg "" "" "DEFINES;INCLUDES" ${ARGN})
 
   get_target_property(${target}Sources ${target} SOURCES)
+  # work around issue with CMake < 3.14 where target sources can contain
+  # $<TARGET_OBJECTS:...>
+  list(FILTER ${target}Sources EXCLUDE REGEX "^\\$<TARGET_OBJECTS:.*")
+
   get_target_property(${target}SourcesDir ${target} SOURCES_DIR)
   extend_qtc_test(unittest
     SOURCES_PREFIX "${${target}SourcesDir}"

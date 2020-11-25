@@ -170,6 +170,7 @@
                 \li \l{Loading Placeholder Data}
                 \li \l{Simulating Application Logic}
                 \li \l{Simulating Dynamic Systems}
+                \li \l{Using QML Modules with Plugins}
             \endlist
             \li \l{Debugging and Profiling}
                 \list

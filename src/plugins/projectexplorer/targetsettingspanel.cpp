@@ -396,7 +396,6 @@ public:
     {
         Kit *kit = KitManager::kit(m_kitId);
         QTC_ASSERT(kit, return);
-        const QString kitName = kit->displayName();
         const QString projectName = m_project->displayName();
 
         QAction *enableAction = menu->addAction(tr("Enable Kit for Project \"%1\"").arg(projectName));

@@ -107,7 +107,7 @@ public:
 
     const QString &name() const;
 
-    void onNewDiagnosticsAvailable(const Diagnostics &diagnostics);
+    void onNewDiagnosticsAvailable(const Diagnostics &diagnostics, bool generateMarks);
 
     QAction *startAction() const { return m_startAction; }
     QAction *startOnCurrentFileAction() const { return m_startOnCurrentFileAction; }

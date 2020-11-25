@@ -53,7 +53,7 @@ void GlobalAnnotationEditor::showWidget()
                                                 modelNode().globalAnnotation(),
                                                 modelNode().globalStatus());
 
-    QObject::connect(m_dialog, &GlobalAnnotationEditorDialog::accepted,
+    QObject::connect(m_dialog, &GlobalAnnotationEditorDialog::acceptedDialog,
                      this, &GlobalAnnotationEditor::acceptedClicked);
     QObject::connect(m_dialog, &GlobalAnnotationEditorDialog::rejected,
                      this, &GlobalAnnotationEditor::cancelClicked);

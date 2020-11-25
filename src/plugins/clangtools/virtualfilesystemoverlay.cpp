@@ -61,6 +61,8 @@ void VirtualFileSystemOverlay::update()
         documentRoots[doc->filePath().absolutePath()] << doc;
         AutoSavedPath saved = m_saved.take(document);
         if (saved.revision != document->document()->revision()) {
+            if (saved.path.exists())
+                Utils::FileUtils::removeRecursively(saved.path);
             saved.revision = document->document()->revision();
             QString error;
             saved.path = Utils::FilePath::fromString(m_root.path())

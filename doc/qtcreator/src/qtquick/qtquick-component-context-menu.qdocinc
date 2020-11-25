@@ -1,0 +1,88 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+//! [context-menu]
+    \section1 Context Menu
+
+    The following table summarizes the \uicontrol Navigator and
+    \uicontrol {Form Editor} context menu items and provides links
+    to more information about them.
+
+    \table
+    \header
+        \li To Learn About
+        \li Go To
+    \row
+        \li Arrange
+        \li \l{Arranging Items}
+    \row
+        \li Edit
+        \li \l{Showing and Hiding Items}
+    \row
+        \li Anchors
+        \li \l{Setting Anchors and Margins}
+    \row
+        \li Group
+        \li \l Group
+    \row
+        \li Position
+        \li \l{Using Positioners}
+    \row
+        \li Layout
+        \li \l{Using Layouts}
+    \row
+        \li Stacked Container
+        \li \l{Lists and Other Data Models}
+    \row
+        \li Timeline
+        \li \l{Creating Timelines}
+    \row
+        \li Event List
+        \li \l{Simulating Events}
+    \row
+        \li Edit Color
+        \li \l{Editing Properties Inline}
+    \row
+        \li Edit Annotation
+        \li \l{Annotating Designs}
+    \row
+        \li Merge File with Template
+        \li \l{Merging Files with Templates}
+    \row
+        \li Move Component into Separate File
+        \li \l{Moving Components into Separate Files}
+    \row
+        \li Add New Signal Handler
+        \li \l{Adding Signal Handlers}
+    \row
+        \li Go to Implementation
+        \li \l{Using Qt Quick UI Forms}
+    \row
+        \li Go into Component
+        \li \l{Moving Within Components}
+    \endtable
+//! [context-menu]
+*/

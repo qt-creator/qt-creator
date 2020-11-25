@@ -51,6 +51,7 @@
 #include <utils/temporaryfile.h>
 #include <utils/url.h>
 
+#include <QDate>
 #include <QDir>
 #include <QDirIterator>
 #include <QFileInfo>
@@ -498,21 +499,44 @@ void AndroidRunnerWorker::setAndroidDeviceInfo(const AndroidDeviceInfo &info)
                                  << m_deviceSerialNumber << m_apiLevel;
 }
 
-void AndroidRunnerWorker::asyncStartHelper()
+void Android::Internal::AndroidRunnerWorker::asyncStartLogcat()
 {
-    forceStop();
-
     // Its assumed that the device or avd returned by selector() is online.
     // Start the logcat process before app starts.
     QTC_ASSERT(!m_adbLogcatProcess, /**/);
-    m_adbLogcatProcess.reset(AndroidManager::runAdbCommandDetached(selector() << "logcat"));
-    if (m_adbLogcatProcess) {
-        m_adbLogcatProcess->setObjectName("AdbLogcatProcess");
-        connect(m_adbLogcatProcess.get(), &QProcess::readyReadStandardOutput,
-                this, &AndroidRunnerWorker::logcatReadStandardOutput);
-        connect(m_adbLogcatProcess.get(), &QProcess::readyReadStandardError,
-                this, &AndroidRunnerWorker::logcatReadStandardError);
+
+    // Ideally AndroidManager::runAdbCommandDetached() should be used, but here
+    // we need to connect the readyRead signals from logcat otherwise we might
+    // lost some output between the process start and connecting those signals.
+    m_adbLogcatProcess.reset(new QProcess());
+
+    connect(m_adbLogcatProcess.get(), &QProcess::readyReadStandardOutput,
+            this, &AndroidRunnerWorker::logcatReadStandardOutput);
+    connect(m_adbLogcatProcess.get(), &QProcess::readyReadStandardError,
+            this, &AndroidRunnerWorker::logcatReadStandardError);
+
+    // Get target current time to fetch only recent logs
+    QString dateInSeconds;
+    QStringList timeArg;
+    if (runAdb({"shell", "date", "+%s"}, &dateInSeconds)) {
+        timeArg << "-T";
+        timeArg << QDateTime::fromSecsSinceEpoch(dateInSeconds.toInt())
+                       .toString("MM-dd hh:mm:ss.mmm");
     }
+
+    const QStringList logcatArgs = selector() << "logcat" << timeArg;
+    const QString adb = AndroidConfigurations::currentConfig().adbToolPath().toString();
+    qCDebug(androidRunWorkerLog) << "Running logcat command (async):"
+                                 << CommandLine(adb, logcatArgs).toUserOutput();
+    m_adbLogcatProcess->start(adb, logcatArgs);
+    if (m_adbLogcatProcess->waitForStarted(500) && m_adbLogcatProcess->state() == QProcess::Running)
+        m_adbLogcatProcess->setObjectName("AdbLogcatProcess");
+}
+
+void AndroidRunnerWorker::asyncStartHelper()
+{
+    forceStop();
+    asyncStartLogcat();
 
     for (const QString &entry : m_beforeStartAdbCommands)
         runAdb(entry.split(' ', Qt::SkipEmptyParts));

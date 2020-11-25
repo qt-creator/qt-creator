@@ -421,11 +421,12 @@ public:
     ProFunctionDef(const ProFunctionDef &o) : m_pro(o.m_pro), m_offset(o.m_offset) { m_pro->ref(); }
     ProFunctionDef(ProFunctionDef &&other) Q_DECL_NOTHROW
         : m_pro(other.m_pro), m_offset(other.m_offset) { other.m_pro = nullptr; }
-    ~ProFunctionDef() { m_pro->deref(); }
+    ~ProFunctionDef() { if (m_pro) m_pro->deref(); }
     ProFunctionDef &operator=(const ProFunctionDef &o)
     {
         if (this != &o) {
-            m_pro->deref();
+            if (m_pro)
+                m_pro->deref();
             m_pro = o.m_pro;
             m_pro->ref();
             m_offset = o.m_offset;

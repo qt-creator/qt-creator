@@ -52,5 +52,9 @@
         Use the Simulink connector to connect a Simulink Simulation Model to
         your UI. Simulink is a MATLAB-based graphical programming environment
         for modeling, simulating, and analyzing multi-domain dynamic systems.
+
+        \li \l{Using QML Modules with Plugins}
+
+        You can load C++ plugins for QML to simulate data.
     \endlist
 */

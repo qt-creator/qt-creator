@@ -76,13 +76,13 @@
 namespace {
 QObject *getPreviewPlugin()
 {
-    auto pluginIt = std::find_if(ExtensionSystem::PluginManager::plugins().begin(),
-                                 ExtensionSystem::PluginManager::plugins().end(),
+    const QVector<ExtensionSystem::PluginSpec *> &specs = ExtensionSystem::PluginManager::plugins();
+    const auto pluginIt = std::find_if(specs.cbegin(), specs.cend(),
                                  [](const ExtensionSystem::PluginSpec *p) {
         return p->name() == "QmlPreview";
     });
 
-    if (pluginIt != ExtensionSystem::PluginManager::plugins().constEnd())
+    if (pluginIt != specs.cend())
         return (*pluginIt)->plugin();
 
     return nullptr;
@@ -413,8 +413,6 @@ QString QmlDebugTranslationWidget::currentDir() const
 void QmlDebugTranslationWidget::setCurrentDir(const QString &path)
 {
     m_lastDir = path;
-    const QString currentDir = m_lastDir.isEmpty() ?
-            ProjectExplorer::ProjectTree::currentFilePath().parentDir().toString() : m_lastDir;
 }
 
 void QmlDebugTranslationWidget::loadLogFile()

@@ -72,12 +72,12 @@
         \li Open \e {Screen01.ui.qml} for editing in the
             \uicontrol {Form Editor} view.
         \li Select \e logo in \uicontrol Navigator.
-        \li Select the \inlineimage anchor-top.png
-            (\uicontrol Top) and \inlineimage anchor-left.png
+        \li Select the \inlineimage icons/anchor-top.png
+            (\uicontrol Top) and \inlineimage icons/anchor-left.png
             (\uicontrol Left) anchor buttons to anchor \e logo to the top left
             corner of its parent with 10-pixel margins.
         \li Select \e pageTitle in \uicontrol Navigator.
-        \li Deselect the \inlineimage anchor-vertical-center.png
+        \li Deselect the \inlineimage icons/anchor-center-vertical.png
             (\uicontrol {Vertical Center}) button to remove the
             anchor, and then select the \uicontrol Top button to anchor the
             title to the top of the page with a 70-pixel margin.
@@ -167,12 +167,12 @@
         \li In \uicontrol Properties > \uicontrol Layout, select the
             \uicontrol Top button to anchor the top of the button column to
             the top of its parent with a 200-pixel margin.
-        \li Select the \inlineimage anchor-horizontal-center.png
+        \li Select the \inlineimage icons/anchor-center-horizontal.png
             (\uicontrol {Horizontal Center}) button to center the field
             column horizontally on the page.
         \li Select \e buttonColumn in \uicontrol Navigator.
         \li In \uicontrol Properties > \uicontrol Layout, select the
-            \inlineimage anchor-bottom.png
+            \inlineimage icons/anchor-bottom.png
             (\uicontrol Bottom) button to anchor the bottom of the button
             column to the bottom of its parent with a 50-pixel margin.
         \li Select the \uicontrol {Horizontal Center} button to center

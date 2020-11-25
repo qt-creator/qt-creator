@@ -92,8 +92,8 @@
         \li In the \uicontrol Text field, enter \e <.
         \li In the \uicontrol Font group, \uicontrol Size field, set the font
             size to \e 24 pixels.
-        \li Under \uicontrol Layout, select the \inlineimage anchor-top.png
-            (\uicontrol Top) and \inlineimage anchor-right.png
+        \li Under \uicontrol Layout, select the \inlineimage icons/anchor-top.png
+            (\uicontrol Top) and \inlineimage icons/anchor-right.png
             (\uicontrol Right) anchor buttons to anchor \e backButton to
             the top right corner of its parent with 20- and 10-pixel margins,
             respectively.

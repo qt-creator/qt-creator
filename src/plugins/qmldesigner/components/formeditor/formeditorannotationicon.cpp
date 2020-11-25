@@ -429,7 +429,7 @@ void FormEditorAnnotationIcon::createAnnotationEditor()
                                                     m_modelNode.customId(),
                                                     m_modelNode.annotation());
 
-    connect(m_annotationEditor, &AnnotationEditorDialog::accepted,
+    connect(m_annotationEditor, &AnnotationEditorDialog::acceptedDialog,
             this, &FormEditorAnnotationIcon::annotationDialogAccepted);
     connect(m_annotationEditor, &QDialog::rejected,
             this, &FormEditorAnnotationIcon::annotationDialogRejected);

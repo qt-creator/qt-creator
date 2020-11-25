@@ -146,7 +146,6 @@ void AvdDialog::parseDeviceDefinitionsList()
         if (line.startsWith("---------") || line.isEmpty()) {
             DeviceDefinitionStruct deviceDefinition;
             for (const QString &line : avdDeviceInfo) {
-                QString value;
                 if (line.contains("id:")) {
                     deviceDefinition.name_id = line.split("or").at(1);
                     deviceDefinition.name_id = deviceDefinition.name_id.remove(0, 1).remove('"');

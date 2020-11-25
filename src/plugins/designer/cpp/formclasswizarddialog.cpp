@@ -62,11 +62,6 @@ void FormClassWizardDialog::setPath(const QString &p)
     m_classPage->setPath(p);
 }
 
-bool FormClassWizardDialog::validateCurrentPage()
-{
-    return QWizard::validateCurrentPage();
-}
-
 void FormClassWizardDialog::initializePage(int id)
 {
     Core::BaseFileWizard::initializePage(id);

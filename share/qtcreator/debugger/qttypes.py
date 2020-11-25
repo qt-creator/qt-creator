@@ -815,6 +815,12 @@ def qdump__QVariantHash(d, value):
 
 
 def qdumpHelper_QHash(d, value, keyType, valueType):
+    if d.qtVersion() >= 0x60000:
+        qdumpHelper_QHash_6(d, value, keyType, valueType)
+    else:
+        qdumpHelper_QHash_5(d, value, keyType, valueType)
+
+def qdumpHelper_QHash_5(d, value, keyType, valueType):
     def hashDataFirstNode():
         b = buckets
         n = numBuckets
@@ -863,6 +869,45 @@ def qdumpHelper_QHash(d, value, keyType, valueType):
                     (pnext, hashval, padding1, key, padding2, val) = d.split(typeCode, node)
                 d.putPairItem(i, (key, val), 'key', 'value')
                 node = hashDataNextNode(node)
+
+
+def qdumpHelper_QHash_6(d, value, keyType, valueType):
+    dptr = d.extractPointer(value)
+    ref, _, size, buckets, seed, spans = d.split('i@qqqp', dptr)
+
+    d.check(0 <= size and size <= 100 * 1000 * 1000)
+    d.check(-1 <= ref and ref < 100000)
+    #d.putValue("%d 0x%x 0x%x 0x%x" % (ref, size, buckets, seed));
+    d.putItemCount(size)
+
+    if d.isExpanded():
+        type_code = '{%s}@{%s}' % (keyType.name, valueType.name)
+        _, entry_size, _ = d.describeStruct(type_code)
+        with Children(d, size):
+            span_size = 128 + 2 * d.ptrSize() # Including tail padding.
+            nspans = int((buckets + 127) / 128)
+            count = 0
+            for b in range(nspans):
+                span = spans + b * span_size
+                offsets, entries, allocated, next_free = d.split('128spbb', span)
+                #with SubItem(d, 'span %d' % b):
+                #   d.putValue('span: 0x%x  %s alloc: %s next: %s'
+                #       % (span, d.hexencode(offsets), allocated, next_free))
+                entry_pos = 0
+                for i in range(128):
+                    offset = offsets[i]
+                    #with SubItem(d, 'offset %i' % i):
+                    #    d.putValue('i: %s off: %s' % (i, offset))
+                    if offset != 255: # Entry is used
+                        entry = entries + offset * entry_size
+                        key, _, val = d.split(type_code, entry)
+                        #with SubItem(d, 'count %d  entry %d' % (count, i)):
+                        #    d.putValue('i: %s entry: 0x%x' % (i, entry))
+                        d.putPairItem(count, (key, val), 'key', 'value')
+                        count += 1
+                        entry_pos += 1
+            #with SubItem(d, 'total'):
+            #    d.putValue('total: %s item size: %s' % (count, entry_size))
 
 
 def qform__QHashNode():
@@ -1044,21 +1089,24 @@ def qform__QImage():
 
 
 def qdump__QImage(d, value):
-    if d.qtVersion() < 0x050000:
-        (vtbl, painters, imageData) = value.split('ppp')
+    if d.qtVersion() >= 0x060000:
+        vtbl, painters, image_data = value.split('ppp')
+    elif d.qtVersion() >= 0x050000:
+        vtbl, painters, reserved, image_data = value.split('pppp')
     else:
-        (vtbl, painters, reserved, imageData) = value.split('pppp')
+        vtbl, painters, image_data = value.split('ppp')
 
-    if imageData == 0:
+    if image_data == 0:
         d.putValue('(invalid)')
         return
 
-    (ref, width, height, depth, nbytes, padding, devicePixelRatio, colorTable,
-        bits, iformat) = d.split('iiiii@dppi', imageData)
-
+    ref, width, height = d.split('iii', image_data)
     d.putValue('(%dx%d)' % (width, height))
+
     d.putExpandable()
     if d.isExpanded():
+        (ref, width, height, depth, nbytes, pad, devicePixelRatio, colorTable,
+            bits, iformat) = d.split('iiiii@dppi', image_data)
         with Children(d):
             d.putIntItem('width', width)
             d.putIntItem('height', height)
@@ -1320,15 +1368,19 @@ def qdump__QProcEnvKey(d, value):
 
 
 def qdump__QPixmap(d, value):
-    if d.qtVersion() < 0x050000:
-        (vtbl, painters, dataPtr) = value.split('ppp')
+    if d.qtVersion() >= 0x060000:
+        vtbl, painters, data = value.split('ppp')
+    elif d.qtVersion() >= 0x050000:
+        vtbl, painters, reserved, data = s = d.split('pppp', value)
     else:
-        (vtbl, painters, reserved, dataPtr) = s = d.split('pppp', value)
-    if dataPtr == 0:
+        vtbl, painters, data = value.split('ppp')
+
+    if data == 0:
         d.putValue('(invalid)')
     else:
-        (dummy, width, height) = d.split('pii', dataPtr)
+        _, width, height = d.split('pii', data)
         d.putValue('(%dx%d)' % (width, height))
+
     d.putPlainChildren(value)
 
 
@@ -1381,28 +1433,32 @@ def qdump__QRegExp(d, value):
 
 
 def qdump__QRegion(d, value):
-    regionDataPtr = d.extractPointer(value)
-    if regionDataPtr == 0:
+    d_ptr = d.extractPointer(value)
+    if d_ptr == 0:
         d.putSpecialValue('empty')
     else:
-        if d.qtVersion() >= 0x050400:  # Padding removed in ee324e4ed
-            (ref, pad, rgn) = d.split('i@p', regionDataPtr)
-            (numRects, innerArea, rects, extents, innerRect) = \
-                d.split('iiP{QRect}{QRect}', rgn)
+        if d.qtVersion() >= 0x060000:
+            ref, _, rgn = d.split('i@p', d_ptr)
+            numRects, innerArea, rects, extents, innerRect = \
+                d.split('ii{QList<QRect>}{QRect}{QRect}', rgn)
+        elif d.qtVersion() >= 0x050400:  # Padding removed in ee324e4ed
+            ref, _, rgn = d.split('i@p', d_ptr)
+            numRects, innerArea, rects, extents, innerRect = \
+                d.split('ii{QVector<QRect>}{QRect}{QRect}', rgn)
         elif d.qtVersion() >= 0x050000:
-            (ref, pad, rgn) = d.split('i@p', regionDataPtr)
-            (numRects, pad, rects, extents, innerRect, innerArea) = \
-                d.split('i@P{QRect}{QRect}i', rgn)
+            ref, _, rgn = d.split('i@p', d_ptr)
+            numRects, _, rects, extents, innerRect, innerArea = \
+                d.split('i@{QVector<QRect>}{QRect}{QRect}i', rgn)
         else:
             if d.isWindowsTarget():
-                (ref, pad, rgn) = d.split('i@p', regionDataPtr)
+                ref, _, rgn = d.split('i@p', d_ptr)
             else:
-                (ref, pad, xrgn, xrectangles, rgn) = d.split('i@ppp', regionDataPtr)
+                ref, _, xrgn, xrectangles, rgn = d.split('i@ppp', d_ptr)
             if rgn == 0:
                 numRects = 0
             else:
-                (numRects, pad, rects, extents, innerRect, innerArea) = \
-                    d.split('i@P{QRect}{QRect}i', rgn)
+                numRects, _, rects, extents, innerRect, innerArea = \
+                    d.split('i@{QVector<QRect>}{QRect}{QRect}i', rgn)
 
         d.putItemCount(numRects)
         if d.isExpanded():
@@ -1411,7 +1467,7 @@ def qdump__QRegion(d, value):
                 d.putIntItem('innerArea', innerArea)
                 d.putSubItem('extents', extents)
                 d.putSubItem('innerRect', innerRect)
-                d.putSubItem('rects', d.createVectorItem(rects, d.qtNamespace() + 'QRect'))
+                d.putSubItem('rects', rects)
 
 
 def qdump__QScopedPointer(d, value):
@@ -1585,18 +1641,8 @@ def qform__QString():
 
 
 def qdump__QString(d, value):
-    if d.qtVersion() >= 0x60000:
-        dd, data, size = value.split('ppi')
-        if dd:
-            _, _, alloc = d.split('iii', dd)
-        else: # fromRawData
-            alloc = size
-        elided, shown = d.computeLimit(2 * size, 2 * d.displayStringLimit)
-        p = d.readMemory(data, shown)
-        d.putValue(p, 'utf16', elided=elided)
-    else:
-        d.putStringValue(value)
-        (data, size, alloc) = d.stringData(value)
+    d.putStringValue(value)
+    data, size, _ = d.stringData(value)
     displayFormat = d.currentItemFormat()
     if displayFormat == DisplayFormat.Separate:
         d.putDisplay('utf16:separate', d.encodeString(value, limit=100000))
@@ -2075,7 +2121,10 @@ if False:
 
 
 def qdump__QVarLengthArray(d, value):
-    (cap, size, data) = value.split('iip')
+    if d.qtVersion() >= 0x060000:
+        cap, size, data = value.split('QQp')
+    else:
+        cap, size, data = value.split('iip')
     d.check(0 <= size)
     d.putItemCount(size)
     d.putPlotData(data, size, value.type[0])

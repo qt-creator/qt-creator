@@ -895,13 +895,15 @@ void AndroidBuildApkStep::setBuildTargetSdk(const QString &sdk)
 void AndroidBuildApkStep::stdError(const QString &output)
 {
     AbstractProcessStep::stdError(output);
-    if (output == "\n")
-        return;
 
-    if (output.startsWith("warning", Qt::CaseInsensitive) || output.startsWith("note", Qt::CaseInsensitive))
-        TaskHub::addTask(BuildSystemTask(Task::Warning, output));
+    QString newOutput = output;
+    newOutput.remove(QRegularExpression("^(\\n)+"));
+
+    if (newOutput.startsWith("warning", Qt::CaseInsensitive)
+        || newOutput.startsWith("note", Qt::CaseInsensitive))
+        TaskHub::addTask(BuildSystemTask(Task::Warning, newOutput));
     else
-        TaskHub::addTask(BuildSystemTask(Task::Error, output));
+        TaskHub::addTask(BuildSystemTask(Task::Error, newOutput));
 }
 
 QVariant AndroidBuildApkStep::data(Utils::Id id) const

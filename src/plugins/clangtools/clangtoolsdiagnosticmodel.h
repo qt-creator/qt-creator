@@ -70,6 +70,7 @@ public:
         = std::function<void(const QModelIndex &index, FixitStatus oldStatus, FixitStatus newStatus)>;
     DiagnosticItem(const Diagnostic &diag,
                    const OnFixitStatusChanged &onFixitStatusChanged,
+                   bool generateMark,
                    ClangToolsDiagnosticModel *parent);
     ~DiagnosticItem() override;
 
@@ -112,7 +113,7 @@ class ClangToolsDiagnosticModel : public ClangToolsDiagnosticModelBase
 public:
     ClangToolsDiagnosticModel(QObject *parent = nullptr);
 
-    void addDiagnostics(const Diagnostics &diagnostics);
+    void addDiagnostics(const Diagnostics &diagnostics, bool generateMarks);
     QSet<Diagnostic> diagnostics() const;
 
     enum ItemRole {

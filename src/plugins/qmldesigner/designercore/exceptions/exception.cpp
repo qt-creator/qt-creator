@@ -99,33 +99,50 @@ bool Exception::warnAboutException()
 #endif
 }
 
-/*!
-    Constructs an exception. \a line uses the __LINE__ macro, \a function uses
-    the __FUNCTION__ or the Q_FUNC_INFO macro, and \a file uses
-    the __FILE__ macro.
-*/
-Exception::Exception(int line,
-              const QByteArray &_function,
-              const QByteArray &_file)
-  : m_line(line),
-    m_function(QString::fromUtf8(_function)),
-    m_file(QString::fromUtf8(_file))
-{
 #ifdef Q_OS_LINUX
+static QString getBackTrace()
+{
+    QString backTrace;
     void * array[50];
     int nSize = backtrace(array, 50);
     char ** symbols = backtrace_symbols(array, nSize);
 
     for (int i = 0; i < nSize; i++)
-    {
-        m_backTrace.append(QString("%1\n").arg(QLatin1String(symbols[i])));
-    }
+        backTrace.append(QString("%1\n").arg(QLatin1String(symbols[i])));
 
     free(symbols);
+
+    return backTrace;
+}
 #endif
 
+QString Exception::defaultDescription(int line, const QByteArray &function, const QByteArray &file)
+{
+    return QString(QStringLiteral("file: %1, function: %2, line: %3"))
+            .arg(QString::fromUtf8(file), QString::fromUtf8(function), QString::number(line));
+}
+
+/*!
+    Constructs an exception. \a line uses the __LINE__ macro, \a function uses
+    the __FUNCTION__ or the Q_FUNC_INFO macro, and \a file uses
+    the __FILE__ macro.
+*/
+Exception::Exception(int line, const QByteArray &function, const QByteArray &file)
+  : Exception(line, function, file, Exception::defaultDescription(line, function, file))
+{ }
+
+Exception::Exception(int line, const QByteArray &function,
+                     const QByteArray &file, const QString &description)
+  : m_line(line)
+  , m_function(QString::fromUtf8(function))
+  , m_file(QString::fromUtf8(file))
+  , m_description(description)
+  #ifdef Q_OS_LINUX
+  , m_backTrace(getBackTrace())
+  #endif
+{
     if (s_shouldAssert) {
-        qDebug() << description();
+        qDebug() << Exception::description();
         QTC_ASSERT(false, ;);
         Q_ASSERT(false);
     }
@@ -152,7 +169,7 @@ void Exception::createWarning() const
 */
 QString Exception::description() const
 {
-    return QString(QStringLiteral("file: %1, function: %2, line: %3")).arg(m_file, m_function, QString::number(m_line));
+    return m_description;
 }
 
 /*!

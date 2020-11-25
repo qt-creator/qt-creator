@@ -107,10 +107,35 @@ endif()
 
 add_subdirectory(doc)
 
-# CMake will include in a cmake_install.cmake at the end the subdirectories
-# At this point all the previous install scripts have been included
-# Deployment is being done in cmake/CMakeLists.txt
-add_subdirectory(cmake)
+find_package(PythonInterp)
+if (NOT PYTHONINTERP_FOUND)
+  message("No python interpreter found, skipping \"Dependencies\" install component.")
+else()
+  get_target_property(_qmake_binary Qt5::qmake IMPORTED_LOCATION)
+  set(_llvm_arg)
+  if (LLVM_INSTALL_PREFIX)
+    set(_llvm_arg "--llvm \"${LLVM_INSTALL_PREFIX}\"")
+  endif()
+  set(_elfutils_arg)
+  if (ELFUTILS_INCLUDE_DIR)
+    get_filename_component(_elfutils_path ${ELFUTILS_INCLUDE_DIR} DIRECTORY)
+    set(_elfutils_arg "--elfutils \"${_elfutils_path}\"")
+  endif()
+  install(CODE "
+      execute_process(COMMAND
+        \"${PYTHON_EXECUTABLE}\"
+        \"${CMAKE_CURRENT_LIST_DIR}/scripts/deployqt.py\"
+        ${_llvm_arg}
+        ${_elfutils_arg}
+        \"\${CMAKE_INSTALL_PREFIX}/${IDE_APP_PATH}/${IDE_APP_TARGET}\"
+        \"${_qmake_binary}\"
+        COMMAND_ECHO STDOUT
+        )
+    "
+    COMPONENT Dependencies
+    EXCLUDE_FROM_ALL
+  )
+endif()
 
 feature_summary(INCLUDE_QUIET_PACKAGES WHAT
   PACKAGES_FOUND PACKAGES_NOT_FOUND
