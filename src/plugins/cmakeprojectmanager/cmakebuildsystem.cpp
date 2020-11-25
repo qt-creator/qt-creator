@@ -766,14 +766,23 @@ void CMakeBuildSystem::wireUpConnections()
         setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()),
                                         CMakeBuildSystem::REPARSE_FORCE_CMAKE_RUN);
     });
-    connect(cmakeBuildConfiguration(), &CMakeBuildConfiguration::buildDirectoryChanged, this, [this]() {
-        // The build directory of our BC has changed:
-        // Run with initial arguments!
-        qCDebug(cmakeBuildSystemLog) << "Requesting parse due to build directory change";
-        setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()),
-                                        CMakeBuildSystem::REPARSE_FORCE_INITIAL_CONFIGURATION
-                                            | CMakeBuildSystem::REPARSE_FORCE_CMAKE_RUN);
-    });
+    connect(cmakeBuildConfiguration(),
+            &CMakeBuildConfiguration::buildDirectoryChanged,
+            this,
+            [this]() {
+                // The build directory of our BC has changed:
+                // Does the directory contain a CMakeCache ? Existing build, just parse
+                // No CMakeCache? Run with initial arguments!
+                qCDebug(cmakeBuildSystemLog) << "Requesting parse due to build directory change";
+                const BuildDirParameters parameters(cmakeBuildConfiguration());
+                const bool hasCMakeCache = QFile::exists(
+                    (parameters.buildDirectory / "CMakeCache.txt").toString());
+                const auto options = ReparseParameters(
+                    hasCMakeCache
+                        ? REPARSE_DEFAULT
+                        : (REPARSE_FORCE_INITIAL_CONFIGURATION | REPARSE_FORCE_CMAKE_RUN));
+                setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()), options);
+            });
 
     connect(project(), &Project::projectFileIsDirty, this, [this]() {
         if (cmakeBuildConfiguration()->isActive() && !isParsing()) {
