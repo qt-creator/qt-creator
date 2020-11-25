@@ -572,6 +572,13 @@ class DumperBase():
         return data, size, alloc
 
     def qArrayData(self, value):
+        if self.qtVersion() >= 0x60000:
+            dd, data, size = self.split('ppi', value)
+            if dd:
+                alloc, i, i = self.split('Pii', dd)
+            else: # fromRawData
+                alloc = size
+            return data, size, alloc
         return self.qArrayDataHelper(self.extractPointer(value))
 
     def qArrayDataHelper(self, array_data_ptr):
@@ -701,14 +708,6 @@ class DumperBase():
         return self.encodedUtf16ToUtf8(self.encodeString(value, limit))
 
     def stringData(self, value): # -> (data, size, alloc)
-        if self.qtVersion() >= 0x60000:
-            dd, data, size = value.split('ppi')
-            if dd:
-                alloc, i, i = self.split('Pii', dd)
-            else: # fromRawData
-                alloc = size
-            return data, size, alloc
-        else:
             return self.qArrayData(value)
 
     def extractTemplateArgument(self, typename, position):
@@ -1442,22 +1441,27 @@ class DumperBase():
 
             intSize = 4
             ptrSize = self.ptrSize()
-            if self.qtVersion() < 0x050000:
-                # Size of QObjectData: 5 pointer + 2 int
-                #  - vtable
+            if self.qtVersion() >= 0x060000:
+                # Size of QObjectData: 7 pointer + 2 int
+                #   - vtable
                 #   - QObject *q_ptr;
                 #   - QObject *parent;
                 #   - QObjectList children;
-                #   - uint isWidget : 1; etc..
+                #   - uint isWidget : 1; etc...
                 #   - int postedEvents;
-                #   - QMetaObject *metaObject;
+                #   - QDynamicMetaObjectData *metaObject;
+                extra = self.extractPointer(dd + 7 * ptrSize + 2 * intSize)
+                if extra == 0:
+                    return False
 
-                # Offset of objectName in QObjectPrivate: 5 pointer + 2 int
-                #   - [QObjectData base]
+                # Offset of objectName in ExtraData: 12 pointer
+                #   - QList<QByteArray> propertyNames;
+                #   - QList<QVariant> propertyValues;
+                #   - QVector<int> runningTimers;
+                #   - QList<QPointer<QObject> > eventFilters;
                 #   - QString objectName
-                objectNameAddress = dd + 5 * ptrSize + 2 * intSize
-
-            else:
+                objectNameAddress = extra + 12 * ptrSize
+            elif self.qtVersion() >= 0x050000:
                 # Size of QObjectData: 5 pointer + 2 int
                 #   - vtable
                 #   - QObject *q_ptr;
@@ -1478,6 +1482,21 @@ class DumperBase():
                 #   - QList<QPointer<QObject> > eventFilters;
                 #   - QString objectName
                 objectNameAddress = extra + 5 * ptrSize
+            else:
+                # Size of QObjectData: 5 pointer + 2 int
+                #  - vtable
+                #   - QObject *q_ptr;
+                #   - QObject *parent;
+                #   - QObjectList children;
+                #   - uint isWidget : 1; etc..
+                #   - int postedEvents;
+                #   - QMetaObject *metaObject;
+
+                # Offset of objectName in QObjectPrivate: 5 pointer + 2 int
+                #   - [QObjectData base]
+                #   - QString objectName
+                objectNameAddress = dd + 5 * ptrSize + 2 * intSize
+
 
             data, size, alloc = self.qArrayData(objectNameAddress)
 
