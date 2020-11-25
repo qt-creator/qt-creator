@@ -32,8 +32,9 @@
 
 namespace Autotest {
 
-ITestBase::ITestBase(bool activeByDefault)
+ITestBase::ITestBase(bool activeByDefault, const ITestBase::TestBaseType type)
     : m_active(activeByDefault)
+    , m_type(type)
 {}
 
 Utils::Id ITestBase::settingsId() const
@@ -59,7 +60,7 @@ void ITestBase::resetRootNode()
 
 
 ITestFramework::ITestFramework(bool activeByDefault)
-    : ITestBase(activeByDefault)
+    : ITestBase(activeByDefault, ITestBase::Framework)
 {}
 
 ITestFramework::~ITestFramework()
@@ -81,6 +82,10 @@ ITestParser *ITestFramework::testParser()
         m_testParser = createTestParser();
     return m_testParser;
 }
+
+ITestTool::ITestTool(bool activeByDefault)
+    : ITestBase(activeByDefault, ITestBase::Tool)
+{}
 
 ITestTreeItem *ITestTool::rootNode()
 {

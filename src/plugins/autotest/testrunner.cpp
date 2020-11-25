@@ -177,7 +177,7 @@ static QString constructOmittedVariablesDetailsString(const Utils::EnvironmentIt
 bool TestRunner::currentConfigValid()
 {
     QString commandFilePath;
-    if (m_currentConfig->testBase()->asFramework()) {
+    if (m_currentConfig->testBase()->type() == ITestBase::Framework) {
         TestConfiguration *current = static_cast<TestConfiguration *>(m_currentConfig);
         commandFilePath = current->executableFilePath();
     } else {
@@ -206,7 +206,7 @@ void TestRunner::setUpProcess()
     QTC_ASSERT(m_currentConfig, return);
     m_currentProcess = new QProcess;
     m_currentProcess->setReadChannel(QProcess::StandardOutput);
-    if (m_currentConfig->testBase()->asFramework()) {
+    if (m_currentConfig->testBase()->type() == ITestBase::Framework) {
         TestConfiguration *current = static_cast<TestConfiguration *>(m_currentConfig);
         m_currentProcess->setProgram(current->executableFilePath());
     } else {
@@ -217,7 +217,7 @@ void TestRunner::setUpProcess()
 
 void TestRunner::setUpProcessEnv()
 {
-    if (m_currentConfig->testBase()->asFramework()) {
+    if (m_currentConfig->testBase()->type() == ITestBase::Framework) {
         TestConfiguration *current = static_cast<TestConfiguration *>(m_currentConfig);
 
         QStringList omitted;
@@ -604,7 +604,7 @@ void TestRunner::debugTests()
     QTC_ASSERT(m_selectedTests.size() == 1, onFinished();return);
 
     ITestConfiguration *itc = m_selectedTests.first();
-    QTC_ASSERT(itc->testBase()->asFramework(), onFinished();return);
+    QTC_ASSERT(itc->testBase()->type() == ITestBase::Framework, onFinished();return);
 
     TestConfiguration *config = static_cast<TestConfiguration *>(itc);
     config->completeTestInformation(TestRunMode::Debug);

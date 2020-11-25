@@ -151,7 +151,7 @@ bool TestTreeModel::setData(const QModelIndex &index, const QVariant &value, int
             }
             return true;
         } else if (role == FailedRole) {
-            if (item->testBase()->asFramework())
+            if (item->testBase()->type() == ITestBase::Framework)
                 m_failedStateCache.insert(static_cast<TestTreeItem *>(item), true);
         }
     }
@@ -204,7 +204,7 @@ QList<ITestConfiguration *> TestTreeModel::getTestsForFile(const Utils::FilePath
 {
     QList<ITestConfiguration *> result;
     for (Utils::TreeItem *frameworkRoot : *rootItem()) {
-        if (static_cast<ITestTreeItem *>(frameworkRoot)->testBase()->asFramework())
+        if (static_cast<ITestTreeItem *>(frameworkRoot)->testBase()->type() == ITestBase::Framework)
             result.append(static_cast<TestTreeItem *>(frameworkRoot)->getTestConfigurationsForFile(fileName));
     }
     return result;
@@ -276,7 +276,7 @@ QList<TestTreeItem *> TestTreeModel::testItemsByName(const QString &testName)
     QList<TestTreeItem *> result;
     for (Utils::TreeItem *frameworkRoot : *rootItem()) {
         ITestTreeItem *root = static_cast<ITestTreeItem *>(frameworkRoot);
-        if (root->testBase()->asFramework())
+        if (root->testBase()->type() == ITestBase::Framework)
             result << testItemsByName(static_cast<TestTreeItem *>(root), testName);
     }
 
@@ -319,7 +319,7 @@ void TestTreeModel::synchronizeTestFrameworks()
             newlyAdded.insert(framework);
     }
     for (ITestTreeItem *oldFrameworkRoot : oldFrameworkRoots) {
-        if (oldFrameworkRoot->testBase()->asFramework())
+        if (oldFrameworkRoot->testBase()->type() == ITestBase::Framework)
             oldFrameworkRoot->removeChildren();
         else // re-add the test tools - they are handled separately
             invisibleRoot->appendChild(oldFrameworkRoot);
@@ -727,7 +727,7 @@ void TestTreeModel::removeAllTestToolItems()
 {
     for (Utils::TreeItem *it : *rootItem()) {
         ITestTreeItem * item = static_cast<ITestTreeItem *>(it);
-        if (item->testBase()->asFramework())
+        if (item->testBase()->type() == ITestBase::Framework)
             continue;
         item->removeChildren();
         if (item->checked() == Qt::PartiallyChecked)

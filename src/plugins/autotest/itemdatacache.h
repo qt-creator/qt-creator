@@ -42,8 +42,7 @@ class ItemDataCache
 public:
     void insert(ITestTreeItem *item, const T &value)
     {
-        m_cache[item->cacheName()] = {
-                0, value, item->testBase()->asTestTool() ? ITestBase::Tool : ITestBase::Framework };
+        m_cache[item->cacheName()] = {0, value, item->testBase()->type()};
     }
 
     /* \a type represents an OR'ed value of ITestBase::TestBaseType */

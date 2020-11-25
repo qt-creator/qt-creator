@@ -154,8 +154,9 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
                     onRunThisTestTriggered(TestRunMode::RunWithoutDeploy);
                 });
             }
-            auto ttitem = item->testBase()->asFramework() ? static_cast<TestTreeItem *>(item)
-                                                          : nullptr;
+            auto ttitem = item->testBase()->type() == ITestBase::Framework
+                              ? static_cast<TestTreeItem *>(item)
+                              : nullptr;
             if (ttitem && ttitem->canProvideDebugConfiguration()) {
                 debugThisTest = new QAction(tr("Debug This Test"), &menu);
                 debugThisTest->setEnabled(enabled);

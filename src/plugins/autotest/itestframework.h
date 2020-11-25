@@ -48,11 +48,12 @@ public:
         Tool      = 0x2
     };
 
-    explicit ITestBase(bool activeByDefault);
+    explicit ITestBase(bool activeByDefault, const TestBaseType type);
     virtual ~ITestBase() = default;
 
     virtual const char *name() const = 0;
     virtual unsigned priority() const = 0;          // should this be modifyable?
+    TestBaseType type() const { return m_type; }
 
     virtual ITestSettings *testSettings() { return nullptr; }
 
@@ -73,6 +74,7 @@ protected:
 private:
     ITestTreeItem *m_rootNode = nullptr;
     bool m_active = false;
+    TestBaseType m_type = None;
 
     friend class ITestFramework;
     friend class ITestTool;
@@ -107,7 +109,7 @@ using TestFrameworks = QList<ITestFramework *>;
 class ITestTool : public ITestBase
 {
 public:
-    explicit ITestTool(bool activeByDefault) : ITestBase(activeByDefault) {}
+    explicit ITestTool(bool activeByDefault);
 
     ITestTreeItem *rootNode();
 

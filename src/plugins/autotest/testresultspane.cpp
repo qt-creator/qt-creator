@@ -635,7 +635,7 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
     action = new QAction(tr("Debug This Test"), &menu);
     bool debugEnabled = false;
     if (correlatingItem) {
-        if (correlatingItem->testBase()->asFramework()) {
+        if (correlatingItem->testBase()->type() == ITestBase::Framework) {
             auto testTreeItem = static_cast<const TestTreeItem *>(correlatingItem);
             debugEnabled = testTreeItem && testTreeItem->canProvideDebugConfiguration();
         }
