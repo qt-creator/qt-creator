@@ -2276,14 +2276,18 @@ void tst_Dumpers::dumper_data()
                + Check("d1.(ISO)", "\"1980-01-01\"", "@QString") % NeedsInferiorCall
                + Check("d1.toString", "\"Tue Jan 1 1980\"", "@QString") % NeedsInferiorCall
                + CheckType("d1.(Locale)", "@QString") % NeedsInferiorCall
+                    % QtVersion(0, 0x5ffff) // Gone in Qt6
                + CheckType("d1.(SystemLocale)", "@QString") % NeedsInferiorCall
+                    % QtVersion(0, 0x5ffff) // Gone in Qt6
 
                + Check("t0", "(invalid)", "@QTime")
                + Check("t1", "13:15:32", "@QTime")
                + Check("t1.(ISO)", "\"13:15:32\"", "@QString") % NeedsInferiorCall
                + Check("t1.toString", "\"13:15:32\"", "@QString") % NeedsInferiorCall
                + CheckType("t1.(Locale)", "@QString") % NeedsInferiorCall
+                    % QtVersion(0, 0x5ffff) // Gone in Qt6
                + CheckType("t1.(SystemLocale)", "@QString") % NeedsInferiorCall
+                    % QtVersion(0, 0x5ffff) // Gone in Qt6
 
                + Check("dt0", "(invalid)", "@QDateTime")
                + Check("dt1", Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime")
@@ -2291,7 +2295,9 @@ void tst_Dumpers::dumper_data()
                + Check("dt1.(ISO)",
                     "\"1980-01-01T13:15:32Z\"", "@QString") % NeedsInferiorCall
                + CheckType("dt1.(Locale)", "@QString") % NeedsInferiorCall
+                    % QtVersion(0, 0x5ffff) // Gone in Qt6
                + CheckType("dt1.(SystemLocale)", "@QString") % NeedsInferiorCall
+                    % QtVersion(0, 0x5ffff) // Gone in Qt6
                + Check("dt1.toString",
                     Value4("\"Tue Jan 1 13:15:32 1980\""), "@QString") % NeedsInferiorCall
                + Check("dt1.toString",

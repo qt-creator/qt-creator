@@ -270,23 +270,24 @@ def qdump__QStandardItem(d, value):
 
 def qdump__QDate(d, value):
     jd = value.pointer()
-    if jd:
-        d.putValue(jd, 'juliandate')
-        d.putExpandable()
-        if d.isExpanded():
-            with Children(d):
-                if d.canCallLocale():
-                    d.putCallItem('toString', '@QString', value, 'toString',
-                                  d.enumExpression('DateFormat', 'TextDate'))
-                    d.putCallItem('(ISO)', '@QString', value, 'toString',
-                                  d.enumExpression('DateFormat', 'ISODate'))
+    if not jd:
+        d.putValue('(invalid)')
+        return
+    d.putValue(jd, 'juliandate')
+    d.putExpandable()
+    if d.isExpanded():
+        with Children(d):
+            if d.canCallLocale():
+                d.putCallItem('toString', '@QString', value, 'toString',
+                              d.enumExpression('DateFormat', 'TextDate'))
+                d.putCallItem('(ISO)', '@QString', value, 'toString',
+                              d.enumExpression('DateFormat', 'ISODate'))
+                if d.qtVersion() < 0x060000:
                     d.putCallItem('(SystemLocale)', '@QString', value, 'toString',
                                   d.enumExpression('DateFormat', 'SystemLocaleDate'))
                     d.putCallItem('(Locale)', '@QString', value, 'toString',
                                   d.enumExpression('DateFormat', 'LocaleDate'))
-                d.putFields(value)
-    else:
-        d.putValue('(invalid)')
+            d.putFields(value)
 
 
 def qdump__QTime(d, value):
@@ -301,7 +302,7 @@ def qdump__QTime(d, value):
                           d.enumExpression('DateFormat', 'TextDate'))
             d.putCallItem('(ISO)', '@QString', value, 'toString',
                           d.enumExpression('DateFormat', 'ISODate'))
-            if d.canCallLocale():
+            if d.canCallLocale() and d.qtVersion() < 0x060000:
                 d.putCallItem('(SystemLocale)', '@QString', value, 'toString',
                               d.enumExpression('DateFormat', 'SystemLocaleDate'))
                 d.putCallItem('(Locale)', '@QString', value, 'toString',
@@ -419,10 +420,11 @@ def qdump__QDateTime(d, value):
                               d.enumExpression('DateFormat', 'ISODate'))
                 d.putCallItem('toUTC', '@QDateTime', value, 'toTimeSpec',
                               d.enumExpression('TimeSpec', 'UTC'))
-                d.putCallItem('(SystemLocale)', '@QString', value, 'toString',
-                              d.enumExpression('DateFormat', 'SystemLocaleDate'))
-                d.putCallItem('(Locale)', '@QString', value, 'toString',
-                              d.enumExpression('DateFormat', 'LocaleDate'))
+                if d.qtVersion() < 0x060000:
+                    d.putCallItem('(SystemLocale)', '@QString', value, 'toString',
+                                  d.enumExpression('DateFormat', 'SystemLocaleDate'))
+                    d.putCallItem('(Locale)', '@QString', value, 'toString',
+                                  d.enumExpression('DateFormat', 'LocaleDate'))
                 d.putCallItem('toLocalTime', '@QDateTime', value, 'toTimeSpec',
                               d.enumExpression('TimeSpec', 'LocalTime'))
             d.putFields(value)
