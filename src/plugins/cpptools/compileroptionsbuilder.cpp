@@ -355,7 +355,7 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
     for (const HeaderPath &headerPath : filter.systemHeaderPaths)
         addIncludeDirOptionForPath(headerPath);
 
-    if (m_useTweakedHeaderPaths == UseTweakedHeaderPaths::Yes) {
+    if (m_useTweakedHeaderPaths != UseTweakedHeaderPaths::No) {
         QTC_CHECK(!m_clangVersion.isEmpty()
                   && "Clang resource directory is required with UseTweakedHeaderPaths::Yes.");
 
