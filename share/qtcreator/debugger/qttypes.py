@@ -2202,10 +2202,11 @@ def qdump__QXmlAttributes__Attribute(d, value):
 
 
 def qdump__QXmlAttributes(d, value):
-    (vptr, atts) = value.split('pP')
-    innerType = d.createType(d.qtNamespace() + 'QXmlAttributes::Attribute', 4 * d.ptrSize())
-    val = d.createListItem(atts, innerType)
-    qdumpHelper_QList(d, val, innerType)
+    vptr, atts = value.split('p{QList<QXmlAttributes::Attribute>}')
+    _, att_size, _ = d.describeStruct('{QString}' * 4)
+    innerType = d.createType(d.qtNamespace() + 'QXmlAttributes::Attribute',
+                             att_size)
+    qdumpHelper_QList(d, atts, innerType)
 
 
 def qdump__QXmlStreamStringRef(d, value):

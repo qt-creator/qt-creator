@@ -1050,7 +1050,8 @@ public:
     {
         this->operator+(CoreProfile());
         profileExtra +=
-            " QT += xml\n";
+            "greaterThan(QT_MAJOR_VERSION, 5): QT += core5compat\n"
+            "else: QT += xml\n";
 
         cmakelistsExtra +=
              "find_package(Qt5 COMPONENTS Core Xml REQUIRED)\n"
