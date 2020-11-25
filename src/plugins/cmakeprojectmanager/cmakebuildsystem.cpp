@@ -781,7 +781,7 @@ void CMakeBuildSystem::wireUpConnections()
             if (cmake && cmake->isAutoRun()) {
                 qCDebug(cmakeBuildSystemLog) << "Requesting parse due to dirty project file";
                 setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()),
-                                             CMakeBuildSystem::REPARSE_DEFAULT);
+                                             CMakeBuildSystem::REPARSE_FORCE_CMAKE_RUN);
             }
         }
     });
