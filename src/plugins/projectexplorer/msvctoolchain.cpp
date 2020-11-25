@@ -1149,8 +1149,8 @@ void MsvcToolChain::rescanForCompiler()
     Utils::Environment env = Utils::Environment::systemEnvironment();
     addToEnvironment(env);
 
-    m_compilerCommand
-        = env.searchInPath(QLatin1String("cl.exe"), {}, [](const Utils::FilePath &name) {
+    setCompilerCommand(
+          env.searchInPath(QLatin1String("cl.exe"), {}, [](const Utils::FilePath &name) {
               QDir dir(QDir::cleanPath(name.toFileInfo().absolutePath() + QStringLiteral("/..")));
               do {
                   if (QFile::exists(dir.absoluteFilePath(QStringLiteral("vcvarsall.bat")))
@@ -1158,7 +1158,7 @@ void MsvcToolChain::rescanForCompiler()
                       return true;
               } while (dir.cdUp() && !dir.isRoot());
               return false;
-          });
+          }));
 }
 
 QList<OutputLineParser *> MsvcToolChain::createOutputParsers() const

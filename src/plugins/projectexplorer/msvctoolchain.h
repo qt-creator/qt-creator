@@ -152,8 +152,6 @@ private:
     mutable Utils::Environment m_lastEnvironment;   // Last checked 'incoming' environment.
     mutable Utils::Environment m_resultEnvironment; // Resulting environment for VC
 
-    Utils::FilePath m_compilerCommand;
-
 protected:
     QString m_vcvarsBat;
     QString m_varsBatArg; // Argument
