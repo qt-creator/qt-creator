@@ -468,10 +468,12 @@ def qdump__QDir(d, value):
     #   + 2 byte padding
     fileSystemEntrySize = 2 * d.ptrSize() + 8
 
-    if d.qtVersion() < 0x050200:
-        case = 0
+    if d.qtVersion() >= 0x060000:
+        case = 2
     elif d.qtVersion() >= 0x050300:
         case = 1
+    elif d.qtVersion() < 0x050200:
+        case = 0
     else:
         # Try to distinguish bool vs QStringList at the first item
         # after the (padded) refcount. If it looks like a bool assume
@@ -479,17 +481,28 @@ def qdump__QDir(d, value):
         firstValue = d.extractInt(privAddress + d.ptrSize())
         case = 1 if firstValue == 0 or firstValue == 1 else 0
 
-    if case == 1:
+    if case == 2:
+        if bit32:
+            filesOffset = 4
+            fileInfosOffset = 16
+            dirEntryOffset = 40
+            absoluteDirEntryOffset = 72
+        else:
+            filesOffset = 8
+            fileInfosOffset = 32
+            dirEntryOffset = 96
+            absoluteDirEntryOffset = 152
+    elif case == 1:
         if bit32:
             filesOffset = 4
             fileInfosOffset = 8
-            dirEntryOffset = 0x20
-            absoluteDirEntryOffset = 0x30
+            dirEntryOffset = 32
+            absoluteDirEntryOffset = 48
         else:
-            filesOffset = 0x08
-            fileInfosOffset = 0x10
-            dirEntryOffset = 0x30
-            absoluteDirEntryOffset = 0x48
+            filesOffset = 8
+            fileInfosOffset = 16
+            dirEntryOffset = 48
+            absoluteDirEntryOffset = 72
     else:
         # Assume this is before 9fc0965.
         qt3support = d.isQt3Support()
@@ -1037,7 +1050,7 @@ def qdump__QVariantList(d, value):
 
 def qdumpHelper_QList(d, value, innerType):
     if d.qtVersion() >= 0x60000:
-        dd, data, size = value.split('ppi')
+        dd, data, size = d.split('ppi', value)
         d.putItemCount(size)
         d.putPlotData(data, size, innerType)
         return
