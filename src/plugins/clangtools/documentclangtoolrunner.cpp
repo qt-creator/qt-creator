@@ -150,22 +150,17 @@ static FileInfo getFileInfo(const Utils::FilePath &file, ProjectExplorer::Projec
             QTC_ASSERT(projectFile.kind != CppTools::ProjectFile::Unsupported, continue);
             if (projectFile.path == CppTools::CppModelManager::configurationFileName())
                 continue;
-            if (file.toString() != projectFile.path)
+            const auto projectFilePath = Utils::FilePath::fromString(projectFile.path);
+            if (file != projectFilePath)
                 continue;
             if (!projectFile.active)
                 continue;
-            if (projectPart->buildTargetType != ProjectExplorer::BuildTargetType::Unknown) {
-                // found the best candidate, early return
-                return FileInfo(Utils::FilePath::fromString(projectFile.path),
-                                projectFile.kind,
-                                projectPart);
-            }
-            if (candidate.projectPart.isNull()) {
-                // found at least something but keep looking for better candidates
-                candidate = FileInfo(Utils::FilePath::fromString(projectFile.path),
-                                     projectFile.kind,
-                                     projectPart);
-            }
+            // found the best candidate, early return
+            if (projectPart->buildTargetType != ProjectExplorer::BuildTargetType::Unknown)
+                return FileInfo(projectFilePath, projectFile.kind, projectPart);
+            // found something but keep looking for better candidates
+            if (candidate.projectPart.isNull())
+                candidate = FileInfo(projectFilePath, projectFile.kind, projectPart);
         }
     }
 
