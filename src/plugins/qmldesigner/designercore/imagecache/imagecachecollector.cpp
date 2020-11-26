@@ -99,7 +99,7 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
 
     m_connectionManager.setCallback(std::move(captureCallback));
 
-    nodeInstanceView.setTarget(m_target.get());
+    nodeInstanceView.setTarget(m_target.data());
     nodeInstanceView.setCrashCallback(abortCallback);
     model->setNodeInstanceView(&nodeInstanceView);
 
@@ -115,9 +115,9 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
         abortCallback();
 }
 
-void ImageCacheCollector::setTarget(std::unique_ptr<ProjectExplorer::Target> target)
+void ImageCacheCollector::setTarget(ProjectExplorer::Target *target)
 {
-    m_target = std::move(target);
+    m_target = target;
 }
 
 } // namespace QmlDesigner

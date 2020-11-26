@@ -27,7 +27,7 @@
 
 #include "imagecachecollectorinterface.h"
 
-#include <memory>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;
@@ -57,11 +57,11 @@ public:
                CaptureCallback captureCallback,
                AbortCallback abortCallback) override;
 
-    void setTarget(std::unique_ptr<ProjectExplorer::Target> target);
+    void setTarget(ProjectExplorer::Target *target);
 
 private:
     ImageCacheConnectionManager &m_connectionManager;
-    std::unique_ptr<ProjectExplorer::Target> m_target;
+    QPointer<ProjectExplorer::Target> m_target;
 };
 
 } // namespace QmlDesigner

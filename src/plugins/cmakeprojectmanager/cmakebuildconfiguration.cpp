@@ -111,7 +111,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Utils::Id id)
             if (oldDir.isEmpty())
                 return newDir;
 
-            if (QDir(oldDir).exists("CMakeCache.txt")) {
+            if (QDir(oldDir).exists("CMakeCache.txt") && !QDir(newDir).exists("CMakeCache.txt")) {
                 if (QMessageBox::information(nullptr,
                                              tr("Changing Build Directory"),
                                              tr("Change the build directory and start with a "

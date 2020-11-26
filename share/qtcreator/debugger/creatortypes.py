@@ -298,7 +298,7 @@ def qdump__CPlusPlus__Token(d, value):
 
 
 def qdump__CPlusPlus__Internal__PPToken(d, value):
-    data, size, alloc = d.byteArrayData(value["m_src"])
+    data, size, alloc = d.qArrayData(value["m_src"])
     length = value["f"]["utf16chars"].integer()
     offset = value["utf16charOffset"].integer()
     #DumperBase.warn("size: %s, alloc: %s, offset: %s, length: %s, data: %s"

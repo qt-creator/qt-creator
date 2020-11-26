@@ -83,7 +83,7 @@ private:
     QList<DiagnosticMark *> m_marks;
     FileInfo m_fileInfo;
     QMetaObject::Connection m_projectSettingsUpdate;
-    QSet<TextEditor::TextEditorWidget *> m_editorsWithMarkers;
+    QList<QPointer<TextEditor::TextEditorWidget>> m_editorsWithMarkers;
     SuppressedDiagnosticsList m_suppressed;
     Utils::FilePath m_lastProjectDirectory;
 };

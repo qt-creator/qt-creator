@@ -105,15 +105,21 @@ Diagnostics DocumentClangToolRunner::diagnosticsAtLine(int lineNumber) const
     return diagnostics;
 }
 
+static void removeClangToolRefactorMarkers(TextEditor::TextEditorWidget *editor)
+{
+    if (!editor)
+        return;
+    editor->setRefactorMarkers(
+        TextEditor::RefactorMarker::filterOutType(editor->refactorMarkers(),
+                                                  Constants::CLANG_TOOL_FIXIT_AVAILABLE_MARKER_ID));
+}
+
 void DocumentClangToolRunner::scheduleRun()
 {
     for (DiagnosticMark *mark : m_marks)
         mark->disable();
-    for (TextEditor::TextEditorWidget *editor : m_editorsWithMarkers) {
-        editor->setRefactorMarkers(
-            TextEditor::RefactorMarker::filterOutType(editor->refactorMarkers(),
-                                                      Constants::CLANG_TOOL_FIXIT_AVAILABLE_MARKER_ID));
-    }
+    for (TextEditor::TextEditorWidget *editor : m_editorsWithMarkers)
+        removeClangToolRefactorMarkers(editor);
     m_runTimer.start();
 }
 
@@ -144,22 +150,17 @@ static FileInfo getFileInfo(const Utils::FilePath &file, ProjectExplorer::Projec
             QTC_ASSERT(projectFile.kind != CppTools::ProjectFile::Unsupported, continue);
             if (projectFile.path == CppTools::CppModelManager::configurationFileName())
                 continue;
-            if (file.toString() != projectFile.path)
+            const auto projectFilePath = Utils::FilePath::fromString(projectFile.path);
+            if (file != projectFilePath)
                 continue;
             if (!projectFile.active)
                 continue;
-            if (projectPart->buildTargetType != ProjectExplorer::BuildTargetType::Unknown) {
-                // found the best candidate, early return
-                return FileInfo(Utils::FilePath::fromString(projectFile.path),
-                                projectFile.kind,
-                                projectPart);
-            }
-            if (candidate.projectPart.isNull()) {
-                // found at least something but keep looking for better candidates
-                candidate = FileInfo(Utils::FilePath::fromString(projectFile.path),
-                                     projectFile.kind,
-                                     projectPart);
-            }
+            // found the best candidate, early return
+            if (projectPart->buildTargetType != ProjectExplorer::BuildTargetType::Unknown)
+                return FileInfo(projectFilePath, projectFile.kind, projectPart);
+            // found something but keep looking for better candidates
+            if (candidate.projectPart.isNull())
+                candidate = FileInfo(projectFilePath, projectFile.kind, projectPart);
         }
     }
 
@@ -325,7 +326,8 @@ void DocumentClangToolRunner::onSuccess()
     for (auto editor : TextEditor::BaseTextEditor::textEditorsForDocument(doc)) {
         if (TextEditor::TextEditorWidget *widget = editor->editorWidget()) {
             widget->setRefactorMarkers(markers + widget->refactorMarkers());
-            m_editorsWithMarkers << widget;
+            if (!m_editorsWithMarkers.contains(widget))
+                m_editorsWithMarkers << widget;
         }
     }
 

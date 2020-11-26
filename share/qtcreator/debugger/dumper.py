@@ -570,17 +570,17 @@ class DumperBase():
         self.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
         return data, size, alloc
 
-    def byteArrayDataHelper(self, bytearray_data_ptr):
-        # bytearray_data_ptr is what is e.g. stored in a QByteArray's d_ptr.
+    def qArrayDataHelper(self, array_data_ptr):
+        # array_data_ptr is what is e.g. stored in a QByteArray's d_ptr.
         if self.qtVersion() >= 0x050000:
             # QTypedArray:
             # - QtPrivate::RefCount ref
             # - int size
             # - uint alloc : 31, capacityReserved : 1
             # - qptrdiff offset
-            (ref, size, alloc, offset) = self.split('IIpp', bytearray_data_ptr)
+            (ref, size, alloc, offset) = self.split('IIpp', array_data_ptr)
             alloc = alloc & 0x7ffffff
-            data = bytearray_data_ptr + offset
+            data = array_data_ptr + offset
             if self.ptrSize() == 4:
                 data = data & 0xffffffff
             else:
@@ -592,35 +592,37 @@ class DumperBase():
             # - [padding]
             # - char *data;
             if self.ptrSize() == 4:
-                (ref, alloc, size, data) = self.split('IIIp', bytearray_data_ptr)
+                (ref, alloc, size, data) = self.split('IIIp', array_data_ptr)
             else:
-                (ref, alloc, size, pad, data) = self.split('IIIIp', bytearray_data_ptr)
+                (ref, alloc, size, pad, data) = self.split('IIIIp', array_data_ptr)
         else:
             # Data:
             # - QShared count;
             # - QChar *unicode
             # - char *ascii
             # - uint len: 30
-            (dummy, dummy, dummy, size) = self.split('IIIp', bytearray_data_ptr)
-            size = self.extractInt(bytearray_data_ptr + 3 * self.ptrSize()) & 0x3ffffff
+            (dummy, dummy, dummy, size) = self.split('IIIp', array_data_ptr)
+            size = self.extractInt(array_data_ptr + 3 * self.ptrSize()) & 0x3ffffff
             alloc = size  # pretend.
-            data = self.extractPointer(bytearray_data_ptr + self.ptrSize())
+            data = self.extractPointer(array_data_ptr + self.ptrSize())
         return data, size, alloc
 
     # addr is the begin of a QByteArrayData structure
-    def encodeStringHelper(self, addr, limit):
+    def encodeStringHelper(self, value, limit):
+        addr = self.extractPointer(value)
         # Should not happen, but we get it with LLDB as result
         # of inferior calls
         if addr == 0:
             return 0, ''
-        data, size, alloc = self.byteArrayDataHelper(addr)
+        data, size, alloc = self.qArrayDataHelper(addr)
         if alloc != 0:
             self.check(0 <= size and size <= alloc and alloc <= 100 * 1000 * 1000)
         elided, shown = self.computeLimit(size, limit)
         return elided, self.readMemory(data, 2 * shown)
 
-    def encodeByteArrayHelper(self, addr, limit):
-        data, size, alloc = self.byteArrayDataHelper(addr)
+    def encodeByteArrayHelper(self, value, limit):
+        addr = self.extractPointer(value)
+        data, size, alloc = self.qArrayDataHelper(addr)
         if alloc != 0:
             self.check(0 <= size and size <= alloc and alloc <= 100 * 1000 * 1000)
         elided, shown = self.computeLimit(size, limit)
@@ -670,15 +672,14 @@ class DumperBase():
         return self.hexencode(bytes(self.readRawMemory(addr, size)))
 
     def encodeByteArray(self, value, limit=0):
-        elided, data = self.encodeByteArrayHelper(self.extractPointer(value), limit)
+        elided, data = self.encodeByteArrayHelper(value, limit)
         return data
 
-    def byteArrayData(self, value):
-        return self.byteArrayDataHelper(self.extractPointer(value))
+    def qArrayData(self, value):
+        return self.qArrayDataHelper(self.extractPointer(value))
 
     def putByteArrayValue(self, value):
-        elided, data = self.encodeByteArrayHelper(
-            self.extractPointer(value), self.displayStringLimit)
+        elided, data = self.encodeByteArrayHelper(value, self.displayStringLimit)
         self.putValue(data, 'latin1', elided=elided)
 
     def encodeString(self, value, limit=0):
@@ -690,7 +691,7 @@ class DumperBase():
             data = self.readMemory(ptr, shown)
             return data
         else:
-            elided, data = self.encodeStringHelper(self.extractPointer(value), limit)
+            elided, data = self.encodeStringHelper(value, limit)
             return data
 
     def encodedUtf16ToUtf8(self, s):
@@ -708,7 +709,7 @@ class DumperBase():
                 alloc = size
             return data, size, alloc
         else:
-            return self.byteArrayDataHelper(self.extractPointer(value))
+            return self.qArrayData(value)
 
     def extractTemplateArgument(self, typename, position):
         level = 0
@@ -750,8 +751,7 @@ class DumperBase():
             data = self.readMemory(ptr, shown)
             self.putValue(data, 'utf16', elided=elided)
         else:
-            addr = self.extractPointer(value)
-            elided, data = self.encodeStringHelper(addr, self.displayStringLimit)
+            elided, data = self.encodeStringHelper(value, self.displayStringLimit)
             self.putValue(data, 'utf16', elided=elided)
 
     def putPtrItem(self, name, value):
@@ -1479,7 +1479,7 @@ class DumperBase():
                 #   - QString objectName
                 objectName = self.extractPointer(extra + 5 * ptrSize)
 
-            data, size, alloc = self.byteArrayDataHelper(objectName)
+            data, size, alloc = self.qArrayDataHelper(objectName)
 
             # Object names are short, and GDB can crash on to big chunks.
             # Since this here is a convenience feature only, limit it.
@@ -1769,7 +1769,7 @@ class DumperBase():
         if revision >= 7:  # Qt 5.
             byteArrayDataSize = 24 if ptrSize == 8 else 16
             literal = stringdata + toInteger(index) * byteArrayDataSize
-            ldata, lsize, lalloc = self.byteArrayDataHelper(literal)
+            ldata, lsize, lalloc = self.qArrayDataHelper(literal)
             try:
                 s = struct.unpack_from('%ds' % lsize, self.readRawMemory(ldata, lsize))[0]
                 return s if sys.version_info[0] == 2 else s.decode('utf8')
@@ -3816,40 +3816,8 @@ class DumperBase():
             #typish.check()
             return typish
         if isinstance(typish, str):
-            def knownSize(tn):
-                if tn[0] == 'Q':
-                    if tn in ('QByteArray', 'QString', 'QList', 'QStringList',
-                              'QStringDataPtr'):
-                        return self.ptrSize()
-                    if tn == 'QStandardItemData':
-                        return 8 + 2 * self.ptrSize()
-                    if tn in ('QImage', 'QObject'):
-                        return 2 * self.ptrSize()
-                    if tn == 'QVariant':
-                        return 8 + self.ptrSize()
-                    if typish in ('QPointF', 'QDateTime', 'QRect'):
-                        return 16
-                    if typish == 'QPoint':
-                        return 8
-                    if typish == 'Qt::ItemDataRole':
-                        return 4
-                    if typish == 'QChar':
-                        return 2
-                if typish in ('quint32', 'qint32'):
-                    return 4
-                return None
-
             ns = self.qtNamespace()
             typish = typish.replace('@', ns)
-            if typish.startswith(ns):
-                if size is None:
-                    size = knownSize(typish[len(ns):])
-            else:
-                if size is None:
-                    size = knownSize(typish)
-                if size is not None:
-                    typish = ns + typish
-
             tdata = self.typeData.get(typish, None)
             if tdata is not None:
                 return self.Type(self, typish)
