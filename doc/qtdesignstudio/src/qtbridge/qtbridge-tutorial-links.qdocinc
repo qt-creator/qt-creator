@@ -3,7 +3,7 @@
 ** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the Qt Design Studio documentation.
+** This file is part of the Qt Bridge documentation.
 **
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
@@ -23,35 +23,42 @@
 **
 ****************************************************************************/
 
-// Note: The \page value is hard-coded as a link in Qt Bridge for Adobe Photoshop.
+//! [qtpsbridge videos]
 
-/*!
-    \previouspage qtbridge-ai.html
-    \page psqtbridge.html
-    \nextpage qtbridge-ps-setup.html
+    \section1 \QBPS Videos
 
-    \title Exporting Designs from Adobe Photoshop
-
-    You can use \QBPS to export designs from Adobe Photoshop to \e {.metadata}
-    format that you can \l{Importing 2D Assets}{import} to projects in \QDS.
-
-    \image studio-ps-export.png
-
-    The following topics describe setting up and using \QBPS:
+    For more information, watch a video tutorial and webinar about using \QBPS
+    that are also accessible from the \uicontrol Tutorials tab of the Welcome
+    mode:
 
     \list
+        \li Building an Instrument Cluster for Your Car HMI, Part 1
 
-        \li \l{Setting Up Qt Bridge for Adobe Photoshop}
+            \youtube aV6kFxH3Xws
 
-            You must install and set up the \QBPS export tool before you can use
-            it to export artwork.
+            You can access the Cluster tutorial source files in the
+            \uicontrol Examples tab.
 
-        \li \l{Using Qt Bridge for Adobe Photoshop}
+        \li From Photoshop to Prototype with Qt Design Studio
 
-            To get the best results when you use \QBPS to export designs from
-            Photoshop, you should follow the guidelines for working with
-            Photoshop and organizing your assets.
+            \youtube ZzbucmQPU44
     \endlist
 
-    \include qtbridge-tutorial-links.qdocinc qtpsbridge videos
-*/
+//! [qtpsbridge videos]
+
+
+//! [qtsketchbridge tutorials]
+
+    \section1 \QBSK Tutorials
+
+    For more information, read the tutorials about using \QBSK that are also
+    accessible from the \uicontrol Tutorials tab of the Welcome mode:
+
+    \list
+        \li \l{https://www.qt.io/blog/qt-design-studio-sketch-bridge-tutorial-part-1}
+            {Sketch Bridge Tutorial Part 1}
+        \li \l{https://www.qt.io/blog/qt-design-studio-sketch-bridge-tutorial-part-2}
+            {Sketch Bridge Tutorial Part 2}
+    \endlist
+
+//! [qtsketchbridge tutorials]

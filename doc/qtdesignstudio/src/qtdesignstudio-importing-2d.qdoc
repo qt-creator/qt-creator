@@ -100,19 +100,6 @@
     \uicontrol {Asset Import} dialog while importing, fix the issues in
     design tool and export the assets again.
 
-    \section1 \QB Videos
-
-    For more information, see the \QB tutorials that are also accessible from
-    the \uicontrol Tutorials tab of the Welcome mode:
-
-    \list
-        \li \l{https://resources.qt.io/development-topic-ui-design/qtdesignstudio-clustertutorial-partone}
-            {Building an Instrument Cluster for Your Car HMI, Part 1} (\QBPS)
-        \li \l{https://www.youtube.com/watch?v=ZzbucmQPU44}
-            {From Photoshop to Prototype with Qt Design Studio}
-        \li \l{https://www.qt.io/blog/qt-design-studio-sketch-bridge-tutorial-part-1}
-            {Sketch Bridge Tutorial Part 1}
-        \li \l{https://www.qt.io/blog/qt-design-studio-sketch-bridge-tutorial-part-2}
-            {Sketch Bridge Tutorial Part 2}
-    \endlist
+    \include qtbridge-tutorial-links.qdocinc qtpsbridge videos
+    \include qtbridge-tutorial-links.qdocinc qtsketchbridge tutorials
 */

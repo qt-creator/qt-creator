@@ -48,3 +48,17 @@ macro.beginfloatright.HTML  = "<div style=\"float: right; margin-left: 2em\">"
 macro.endfloat.HTML         = "</div>"
 macro.clearfloat.HTML       = "<br style=\"clear: both\" />"
 macro.emptyspan.HTML	    = "<span></span>"
+
+# Embed YouTube content by video ID - Example: \youtube dQw4w9WgXcQ
+# Also requires a <ID>.jpg thumbnail for offline docs. In .qdocconf, add:
+#
+# HTML.extraimages           += images/dQw4w9WgXcQ.jpg
+# qhp.ProjectName.extraFiles += images/dQw4w9WgXcQ.jpg
+#
+macro.youtube.HTML = "<div class=\"video\">\n<span class=\"vspan\"></span>\n" \
+                     "<iframe src=\"https://www.youtube.com/embed/\1\"" \
+                     "frameborder=\"0\" allowfullscreen>\n" \
+                     "<a href=\"https://www.youtube.com/watch/?v=\1\">\n"\
+                     "<img src=\"images/\1.jpg\"" \
+                     "title=\"Click to play in a browser\" /></a>\n" \
+                     "</iframe></div>\n"

@@ -52,4 +52,6 @@
             Sketch, you should follow the guidelines for working with Sketch and
             organizing your assets.
     \endlist
+
+    \include qtbridge-tutorial-links.qdocinc qtsketchbridge tutorials
 */

@@ -249,15 +249,6 @@
     In the \QBPS \uicontrol Settings dialog, select \uicontrol {Override JSX Script} to set the
     override JSX script.
 
-    For more information, watch a video tutorial and webinar about using \QBPS:
-
-    \list
-        \li \l{https://resources.qt.io/development-topic-ui-design/qtdesignstudio-clustertutorial-partone}
-            {Building an Instrument Cluster for Your Car HMI, Part 1}
-        \li \l{https://www.youtube.com/watch?v=ZzbucmQPU44}
-            {From Photoshop to Prototype with Qt Design Studio}
-    \endlist
-
     \section1 Importing Metadata & Assets
 
     \QBPS can import metadata generated from other tools and generate a Photoshop document. A
