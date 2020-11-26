@@ -1765,29 +1765,50 @@ class DumperBase():
     def metaString(self, metaObjectPtr, index, revision):
         ptrSize = self.ptrSize()
         stringdata = self.extractPointer(toInteger(metaObjectPtr) + ptrSize)
-        if revision >= 7:  # Qt 5.
-            byteArrayDataSize = 24 if ptrSize == 8 else 16
-            literal = stringdata + toInteger(index) * byteArrayDataSize
-            ldata, lsize, lalloc = self.qArrayDataHelper(literal)
+
+        def unpackString(base, size):
             try:
-                s = struct.unpack_from('%ds' % lsize, self.readRawMemory(ldata, lsize))[0]
+                s = struct.unpack_from('%ds' % size, self.readRawMemory(base, size))[0]
                 return s if sys.version_info[0] == 2 else s.decode('utf8')
             except:
                 return '<not available>'
-        else:  # Qt 4.
-            ldata = stringdata + index
-            return self.extractCString(ldata).decode('utf8')
+
+        if revision >= 9:  # Qt 6.
+            pos, size = self.split('II', stringdata + 8 * index)
+            return unpackString(stringdata + pos, size)
+
+        if revision >= 7:  # Qt 5.
+            byteArrayDataSize = 24 if ptrSize == 8 else 16
+            literal = stringdata + toInteger(index) * byteArrayDataSize
+            base, size, _ = self.qArrayDataHelper(literal)
+            return unpackString(base, size)
+
+        ldata = stringdata + index
+        return self.extractCString(ldata).decode('utf8')
 
     def putSortGroup(self, sortorder):
         if not self.isCli:
             self.putField('sortgroup', sortorder)
 
     def putQMetaStuff(self, value, origType):
-        (metaObjectPtr, handle) = value.split('pI')
+        if self.qtVersion() >= 0x060000:
+            metaObjectPtr, handle = value.split('pp')
+        else:
+            metaObjectPtr, handle = value.split('pI')
         if metaObjectPtr != 0:
-            dataPtr = self.extractPointer(metaObjectPtr + 2 * self.ptrSize())
-            index = self.extractInt(dataPtr + 4 * handle)
-            revision = 7 if self.qtVersion() >= 0x050000 else 6
+            if self.qtVersion() >= 0x060000:
+                revision = 9
+                name, alias, flags, keyCount, data = self.split('IIIII', handle)
+                index = name
+            elif self.qtVersion() >= 0x050000:
+                revision = 7
+                dataPtr = self.extractPointer(metaObjectPtr + 2 * self.ptrSize())
+                index = self.extractInt(dataPtr + 4 * handle)
+            else:
+                revision = 6
+                dataPtr = self.extractPointer(metaObjectPtr + 2 * self.ptrSize())
+                index = self.extractInt(dataPtr + 4 * handle)
+            #self.putValue("index: %s rev: %s" % (index, revision))
             name = self.metaString(metaObjectPtr, index, revision)
             self.putValue(name)
             self.putExpandable()
