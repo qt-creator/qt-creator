@@ -1674,9 +1674,9 @@ def qdump__QStaticStringData(d, value):
     d.putPlainChildren(value)
 
 
-#def qdump__QTypedArrayData(d, value):
-#    if value.type[0].name == 'unsigned short':
-#        qdump__QStringData(d, value)
+def qdump__QTypedArrayData(d, value):
+    if value.type[0].name == 'unsigned short':
+        qdump__QStringData(d, value)
 #    else:
 #        qdump__QArrayData(d, value)
 
