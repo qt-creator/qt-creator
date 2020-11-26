@@ -48,8 +48,9 @@
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol General > \uicontrol Choose, and follow the
-            instructions of the wizard to create an empty project.
+            \uicontrol General > \uicontrol {Qt Quick Application - Empty} >
+            \uicontrol Choose, and follow the instructions of the wizard to
+            create an empty project.
         \li In \uicontrol Projects, double-click \e Screen01.ui.qml to move to
             the Design mode.
         \li Select \uicontrol Library > \uicontrol Assets >
@@ -70,6 +71,9 @@
             QML files to.
         \li In the \uicontrol Assets field, you can change the folder to copy
             the image files to.
+        \li Select the \uicontrol {Create sub directory for each metadata}
+            check box to copy the directory structure from the metadata file
+            to \QDS.
         \li Deselect the \uicontrol {Import assets} check box if you only want
             to create QML files.
         \li Deselect the \uicontrol {Generate QML} check box if you only
