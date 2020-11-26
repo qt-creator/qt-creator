@@ -414,13 +414,13 @@ void SplashScreenContainerWidget::loadSplashscreenDrawParams(const QString &name
             } else {
                 if (reader.name() == QLatin1String("solid")) {
                     const QXmlStreamAttributes attributes = reader.attributes();
-                    const QStringRef color = attributes.value(QLatin1String("android:color"));
+                    const auto color = attributes.value(QLatin1String("android:color"));
                     if (!color.isEmpty())
                         setBackgroundColor(QColor(color));
                 }
                 else if (reader.name() == QLatin1String("bitmap")) {
                     const QXmlStreamAttributes attributes = reader.attributes();
-                    const QStringRef showMode = attributes.value(QLatin1String("android:gravity"));
+                    const auto showMode = attributes.value(QLatin1String("android:gravity"));
                     if (!showMode.isEmpty())
                         setImageShowMode(showMode.toString());
                 }
