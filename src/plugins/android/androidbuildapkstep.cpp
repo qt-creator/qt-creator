@@ -490,8 +490,8 @@ AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent, Utils::Id id)
                                          sdkManager()->latestAndroidSdkPlatform()))
 {
     setImmutable(true);
-    setDisplayName("<b>" + tr("Build Android APK") + "</b>");
-    setSummaryText(displayName());
+    setDisplayName(tr("Build Android APK"));
+    setSummaryText("<b>" + displayName() + "</b>");
 }
 
 bool AndroidBuildApkStep::init()
