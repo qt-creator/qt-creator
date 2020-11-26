@@ -236,7 +236,8 @@ void FormEditorView::temporaryBlockView(int duration)
     timer->start(duration);
 
     connect(timer, &QTimer::timeout, this, [this]() {
-        m_formEditorWidget->graphicsView()->setUpdatesEnabled(true);
+        if (m_formEditorWidget && m_formEditorWidget->graphicsView())
+            m_formEditorWidget->graphicsView()->setUpdatesEnabled(true);
     });
 }
 
