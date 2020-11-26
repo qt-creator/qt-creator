@@ -641,9 +641,9 @@ void CompilerOptionsBuilder::undefineCppLanguageFeatureMacrosForMsvc2015()
 void CompilerOptionsBuilder::addDefineFunctionMacrosMsvc()
 {
     if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
-        addMacros({{"__FUNCSIG__", "\"\""},
-                   {"__FUNCTION__", "\"\""},
-                   {"__FUNCDNAME__", "\"\""}});
+        addMacros({{"__FUNCSIG__", "\"void __cdecl someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580(void)\""},
+                   {"__FUNCTION__", "\"someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580\""},
+                   {"__FUNCDNAME__", "\"?someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580@@YAXXZ\""}});
     }
 }
 

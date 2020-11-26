@@ -43,9 +43,9 @@ static QByteArray overwrittenToolchainDefines(const ProjectPart &projectPart)
     // MSVC's predefined macros like __FUNCSIG__ expand to itself.
     // We can't parse this, so redefine to the empty string literal.
     if (projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
-        defines += "#define __FUNCSIG__ \"\"\n"
-                   "#define __FUNCDNAME__ \"\"\n"
-                   "#define __FUNCTION__ \"\"\n";
+        defines += "#define __FUNCSIG__ \"void __cdecl someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580(void)\"\n"
+                   "#define __FUNCDNAME__ \"?someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580@@YAXXZ\"\n"
+                   "#define __FUNCTION__ \"someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580\"\n";
     }
 
     return defines;
