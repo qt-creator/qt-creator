@@ -555,11 +555,11 @@ static void applyQt515MissingImportWorkaround(const QString &path, LibraryInfo &
 
     if (isQtQuick) {
         info.setImports(QList<QmlDirParser::Import>(
-                            {QmlDirParser::Import(QLatin1String("QtQml"), ComponentVersion(), 0)}));
+                            {QmlDirParser::Import("QtQml", ComponentVersion(), {})}));
     } else if (isQtQml) {
         info.setImports(QList<QmlDirParser::Import>(
-            { QmlDirParser::Import(QLatin1String("QtQml.Models"), ComponentVersion(), 0),
-              QmlDirParser::Import(QLatin1String("QtQml.WorkerScript"), ComponentVersion(), 0) }));
+                            { QmlDirParser::Import("QtQml.Models", ComponentVersion(), {}),
+                              QmlDirParser::Import("QtQml.WorkerScript", ComponentVersion(), {}) }));
     }
 }
 
