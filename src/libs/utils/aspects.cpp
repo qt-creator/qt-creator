@@ -759,6 +759,7 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         d->m_textEditDisplay->setEnabled(d->m_enabled);
         d->m_textEditDisplay->setReadOnly(d->m_readOnly);
         d->m_textEditDisplay->setUndoRedoEnabled(d->m_undoRedoEnabled);
+        d->m_textEditDisplay->setAcceptRichText(false);
         d->m_textEditDisplay->setTextInteractionFlags(Qt::TextEditorInteraction);
         useMacroExpander(d->m_textEditDisplay);
         connect(d->m_textEditDisplay, &QTextEdit::textChanged, this, [this] {
