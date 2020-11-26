@@ -103,11 +103,12 @@ TreeScanner::Result TreeScanner::result() const
 
 TreeScanner::Result TreeScanner::release()
 {
-    if (isFinished()) {
+    if (isFinished() && m_scanFuture.resultCount() > 0) {
         auto result = m_scanFuture.result();
         m_scanFuture = Future();
         return result;
     }
+    m_scanFuture = Future();
     return Result();
 }
 
