@@ -74,6 +74,7 @@ void QdbMakeDefaultAppService::handleProcessFinished(const QString &error)
         return;
     }
 
+    // FIXME: Check that ignoring is fine
     QByteArray processOutput = d->processRunner->readAllStandardOutput();
 
     if (d->makeDefault)

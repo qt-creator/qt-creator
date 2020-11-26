@@ -48,7 +48,12 @@ static const char ack[] = "ack";
 QString QtLocalPeer::appSessionId(const QString &appId)
 {
     QByteArray idc = appId.toUtf8();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    quint16 idNum = qChecksum(idc);
+#else
     quint16 idNum = qChecksum(idc.constData(), idc.size());
+#endif
+
     //### could do: two 16bit checksums over separate halves of id, for a 32bit result - improved uniqeness probability. Every-other-char split would be best.
 
     QString res = QLatin1String("qtsingleapplication-")

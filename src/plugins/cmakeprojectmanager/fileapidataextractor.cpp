@@ -466,7 +466,6 @@ void addCompileGroups(ProjectNode *targetRoot,
                       QSet<FilePath> &knownHeaderNodes)
 {
     const bool inSourceBuild = (sourceDirectory == buildDirectory);
-    const QDir currentSourceDir(sourceDirectory.toString());
 
     std::vector<std::unique_ptr<FileNode>> toList;
     QSet<Utils::FilePath> alreadyListed;

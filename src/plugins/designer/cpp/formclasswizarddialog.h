@@ -50,8 +50,6 @@ public:
 
     Designer::FormClassWizardParameters parameters() const;
 
-    bool validateCurrentPage() final;
-
 protected:
     void initializePage(int id) final;
 

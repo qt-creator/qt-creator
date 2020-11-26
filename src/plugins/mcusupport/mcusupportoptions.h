@@ -116,7 +116,8 @@ public:
         TypeKEIL,
         TypeGHS,
         TypeMSVC,
-        TypeGCC
+        TypeGCC,
+        TypeUnsupported
     };
 
     McuToolChainPackage(const QString &label,
@@ -128,6 +129,7 @@ public:
     Type type() const;
     bool isDesktopToolchain() const;
     ProjectExplorer::ToolChain *toolChain(Utils::Id language) const;
+    QString toolChainName() const;
     QString cmakeToolChainFileName() const;
     QVariant debuggerId() const;
 

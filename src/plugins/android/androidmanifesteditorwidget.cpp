@@ -855,8 +855,6 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
         setApiLevel(m_androidTargetSdkVersion, usesSdkElement, QLatin1String("android:targetSdkVersion"));
     }
 
-    QString baseDir = m_textEditorWidget->textDocument()->filePath().toFileInfo().absolutePath();
-
     QDomElement applicationElement = manifest.firstChildElement(QLatin1String("application"));
     m_appNameLineEdit->setText(applicationElement.attribute(QLatin1String("android:label")));
 

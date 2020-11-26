@@ -1029,7 +1029,6 @@ QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alr
     if (HostOsInfo::isMacHost())
         return {};
     QList<ToolChain *> tcs;
-    QList<ToolChain *> known = alreadyKnown;
     static const auto tcChecker = [](const ToolChain *tc) {
         return tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor
                 && tc->compilerCommand().fileName() != "c89-gcc"

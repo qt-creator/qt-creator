@@ -28,6 +28,7 @@
 ################################################################################
 
 import argparse
+import collections
 import os
 import locale
 import sys
@@ -51,15 +52,22 @@ def get_args():
     parser.add_argument('--llvm-path',
                         help='Path to LLVM installation',
                         default=os.environ.get('LLVM_INSTALL_DIR'))
-    parser.add_argument('qtcreator_binary', help='Path to Qt Creator binary')
+    parser.add_argument('qtcreator_binary', help='Path to Qt Creator binary (or the app bundle on macOS)')
     parser.add_argument('qmake_binary', help='Path to qmake binary')
 
     args = parser.parse_args()
 
     args.qtcreator_binary = os.path.abspath(args.qtcreator_binary)
-    if common.is_windows_platform() and not args.qtcreator_binary.lower().endswith(".exe"):
-        args.qtcreator_binary = args.qtcreator_binary + ".exe"
-    if not os.path.isfile(args.qtcreator_binary):
+    if common.is_mac_platform():
+        if not args.qtcreator_binary.lower().endswith(".app"):
+            args.qtcreator_binary = args.qtcreator_binary + ".app"
+        check = os.path.isdir
+    else:
+        check = os.path.isfile
+        if common.is_windows_platform() and not args.qtcreator_binary.lower().endswith(".exe"):
+            args.qtcreator_binary = args.qtcreator_binary + ".exe"
+
+    if not check(args.qtcreator_binary):
         print('Cannot find Qt Creator binary.')
         sys.exit(1)
 
@@ -333,8 +341,37 @@ def deploy_elfutils(qtc_install_dir, chrpath_bin, args):
         print(file, '->', backends_install_path)
         shutil.copy(file, backends_install_path)
 
+def deploy_mac(args):
+    (_, qt_install) = get_qt_install_info(args.qmake_binary)
+
+    env = dict(os.environ)
+    if args.llvm_path:
+        env['LLVM_INSTALL_DIR'] = args.llvm_path
+
+    script_path = os.path.dirname(os.path.realpath(__file__))
+    deployqtHelper_mac = os.path.join(script_path, 'deployqtHelper_mac.sh')
+    common.check_print_call([deployqtHelper_mac, args.qtcreator_binary, qt_install.bin,
+                             qt_install.translations, qt_install.plugins, qt_install.qml],
+                            env=env)
+
+def get_qt_install_info(qmake_binary):
+    qt_install_info = common.get_qt_install_info(qmake_binary)
+    QtInstallInfo = collections.namedtuple('QtInstallInfo', ['bin', 'lib', 'plugins',
+                                                             'qml', 'translations'])
+    return (qt_install_info,
+            QtInstallInfo(bin=qt_install_info['QT_INSTALL_BINS'],
+                          lib=qt_install_info['QT_INSTALL_LIBS'],
+                          plugins=qt_install_info['QT_INSTALL_PLUGINS'],
+                          qml=qt_install_info['QT_INSTALL_QML'],
+                          translations=qt_install_info['QT_INSTALL_TRANSLATIONS']))
+
 def main():
     args = get_args()
+    if common.is_mac_platform():
+        deploy_mac(args)
+        return
+
+    (qt_install_info, qt_install) = get_qt_install_info(args.qmake_binary)
 
     qtcreator_binary_path = os.path.dirname(args.qtcreator_binary)
     install_dir = os.path.abspath(os.path.join(qtcreator_binary_path, '..'))
@@ -350,13 +387,6 @@ def main():
             print("Cannot find required binary 'chrpath'.")
             sys.exit(2)
 
-    qt_install_info = common.get_qt_install_info(args.qmake_binary)
-    QT_INSTALL_LIBS = qt_install_info['QT_INSTALL_LIBS']
-    QT_INSTALL_BINS = qt_install_info['QT_INSTALL_BINS']
-    QT_INSTALL_PLUGINS = qt_install_info['QT_INSTALL_PLUGINS']
-    QT_INSTALL_QML = qt_install_info['QT_INSTALL_QML']
-    QT_INSTALL_TRANSLATIONS = qt_install_info['QT_INSTALL_TRANSLATIONS']
-
     plugins = ['assetimporters', 'accessible', 'codecs', 'designer', 'iconengines', 'imageformats', 'platformthemes',
                'platforminputcontexts', 'platforms', 'printsupport', 'qmltooling', 'sqldrivers', 'styles',
                'xcbglintegrations',
@@ -370,10 +400,10 @@ def main():
         debug_build = is_debug(args.qtcreator_binary)
 
     if common.is_windows_platform():
-        copy_qt_libs(qt_deploy_prefix, QT_INSTALL_BINS, QT_INSTALL_BINS, QT_INSTALL_PLUGINS, QT_INSTALL_QML, plugins)
+        copy_qt_libs(qt_deploy_prefix, qt_install.bin, qt_install.bin, qt_install.plugins, qt_install.qml, plugins)
     else:
-        copy_qt_libs(qt_deploy_prefix, QT_INSTALL_BINS, QT_INSTALL_LIBS, QT_INSTALL_PLUGINS, QT_INSTALL_QML, plugins)
-    copy_translations(install_dir, QT_INSTALL_TRANSLATIONS)
+        copy_qt_libs(qt_deploy_prefix, qt_install.bin, qt_install.lib, qt_install.plugins, qt_install.qml, plugins)
+    copy_translations(install_dir, qt_install.translations)
     if args.llvm_path:
         deploy_libclang(install_dir, args.llvm_path, chrpath_bin)
 
@@ -387,8 +417,4 @@ def main():
     add_qt_conf(os.path.join(install_dir, 'bin'), qt_deploy_prefix)
 
 if __name__ == "__main__":
-    if common.is_mac_platform():
-        print("macOS is not supported by this script, please use macqtdeploy!")
-        sys.exit(2)
-    else:
-        main()
+    main()

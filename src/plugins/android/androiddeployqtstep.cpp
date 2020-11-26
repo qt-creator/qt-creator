@@ -552,13 +552,15 @@ void AndroidDeployQtStep::processReadyReadStdError(DeployErrorCode &errorCode)
 void AndroidDeployQtStep::stdError(const QString &line)
 {
     emit addOutput(line, BuildStep::OutputFormat::Stderr, BuildStep::DontAppendNewline);
-    if (line == "\n")
-        return;
 
-    if (line.startsWith("warning", Qt::CaseInsensitive) || line.startsWith("note", Qt::CaseInsensitive))
-        TaskHub::addTask(DeploymentTask(Task::Warning, line));
+    QString newOutput = line;
+    newOutput.remove(QRegularExpression("^(\\n)+"));
+
+    if (newOutput.startsWith("warning", Qt::CaseInsensitive)
+        || newOutput.startsWith("note", Qt::CaseInsensitive))
+        TaskHub::addTask(DeploymentTask(Task::Warning, newOutput));
     else
-        TaskHub::addTask(DeploymentTask(Task::Error, line));
+        TaskHub::addTask(DeploymentTask(Task::Error, newOutput));
 }
 
 AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::parseDeployErrors(QString &deployOutputLine) const

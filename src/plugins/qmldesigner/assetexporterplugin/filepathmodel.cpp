@@ -45,7 +45,7 @@ void findQmlFiles(QFutureInterface<Utils::FilePath> &f, const Project *project)
         return;
 
     int index = 0;
-    Utils::FilePaths qmlFiles = project->files([&f, &index](const Node* node) ->bool {
+    project->files([&f, &index](const Node* node) ->bool {
         if (f.isCanceled())
             return false;
         Utils::FilePath path = node->filePath();

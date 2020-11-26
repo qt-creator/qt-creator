@@ -535,7 +535,6 @@ void ConnectionViewWidget::editorForDynamic()
                                 VariantProperty property = abProp.toVariantProperty();
                                 PropertyName name = property.name();
                                 TypeName type = property.dynamicTypeName();
-                                QVariant value = newValue;
 
                                 BindingProperty newProperty = propertiesModel
                                                                   ->replaceVariantWithBinding(name);

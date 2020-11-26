@@ -40,8 +40,17 @@ public:
 
     QString type() const override;
     QString argument() const;
-    QString description() const override;
 
+protected:
+    InvalidArgumentException(int line,
+                             const QByteArray &function,
+                             const QByteArray &file,
+                             const QByteArray &argument,
+                             const QString &description);
+    static QString invalidArgumentDescription(int line,
+                                              const QByteArray &function,
+                                              const QByteArray &file,
+                                              const QByteArray &argument);
 private:
     const QString m_argument;
 };

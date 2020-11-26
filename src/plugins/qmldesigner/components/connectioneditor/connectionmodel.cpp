@@ -523,7 +523,6 @@ QStringList ConnectionModel::getPossibleSignalsForConnection(const ModelNode &co
                 const BindingProperty bp = connection.bindingProperty("target");
 
                 if (bp.isValid()) {
-                    const QString bindExpression = bp.expression();
                     QStringList expression = bp.expression().split(".");
                     if (expression.size() > 1) {
                         const QString itemId = expression.constFirst();

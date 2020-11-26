@@ -42,8 +42,7 @@ InvalidQmlSourceException::InvalidQmlSourceException(int line,
                               const QByteArray &function,
                               const QByteArray &file,
                               const QByteArray &qmlSource)
- :  Exception(line, function, file),
-    m_qmlSource(QString::fromUtf8(qmlSource))
+ :  Exception(line, function, file, QString::fromUtf8(qmlSource))
 {
     createWarning();
 }
@@ -54,11 +53,6 @@ InvalidQmlSourceException::InvalidQmlSourceException(int line,
 QString InvalidQmlSourceException::type() const
 {
     return QLatin1String("InvalidQmlSourceException");
-}
-
-QString InvalidQmlSourceException::description() const
-{
-    return m_qmlSource;
 }
 
 } // namespace QmlDesigner

@@ -130,7 +130,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
     d->m_checkUpdatesCommand->setDisplayName(tr("Checking for Updates"));
     connect(d->m_checkUpdatesCommand, &ShellCommand::stdOutText, this, &UpdateInfoPlugin::collectCheckForUpdatesOutput);
     connect(d->m_checkUpdatesCommand, &ShellCommand::finished, this, &UpdateInfoPlugin::checkForUpdatesFinished);
-    d->m_checkUpdatesCommand->addJob({Utils::FilePath::fromFileInfo(d->m_maintenanceTool), {"--checkupdates"}},
+    d->m_checkUpdatesCommand->addJob({Utils::FilePath::fromString(d->m_maintenanceTool), {"--checkupdates"}},
                                      60 * 3, // 3 minutes timeout
                                      /*workingDirectory=*/QString(),
                                      [](int /*exitCode*/) { return Utils::SynchronousProcessResponse::Finished; });

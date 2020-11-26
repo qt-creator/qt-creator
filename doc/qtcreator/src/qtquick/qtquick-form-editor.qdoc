@@ -30,16 +30,22 @@
 
     \title Editing 2D Content
 
-    You design applications in the \uicontrol {Form Editor} by placing items
-    into it.
+    You design applications in the \uicontrol {Form Editor} view by placing
+    2D components and assets into it.
+
+    When you select items in \uicontrol {Form Editor}, markers
+    appear around their edges and in their corners. Depending on the shape of
+    the cursor, you can move, resize, or rotate the item by dragging it.
+    The following image shows the move cursor.
 
     \image qmldesigner-form-editor.png "Form Editor view"
 
-    \section1 Resizing Items
+    \section1 Resizing 2D Items
 
-    When you select items in the \uicontrol {Form Editor}, selection handles
-    appear around their edges and in their corners. You can drag the selection
-    handles to resize items.
+    When the resize cursor is displayed, you can drag the selection handles
+    to resize items.
+
+    \image qtquick-designer-scaling-items.png "Form Editor view"
 
     \if defined(qtdesignstudio)
     To have the resizing done from the center of the selected item instead from
@@ -53,12 +59,12 @@
     press \key Alt+Shift.
     \endif
 
-    \section1 Rotating Items
+    \section1 Rotating 2D Items
 
-    You can use a rotation tool \inlineimage rotate_on.png
-    in one of the corners of an item to freely rotate
-    items around their origin in \uicontrol {Form Editor}.
-    Drag clockwise or counter-clockwise to rotate the item.
+    When the rotation cursor \inlineimage icons/rotation-cursor.png
+    is displayed in one of the corners of an item, you can drag
+    clockwise or counter-clockwise to freely rotate the item around
+    its origin in \uicontrol {Form Editor}.
 
     \image qtquick-designer-rotating-items.png "2D rotation tool"
 
@@ -73,11 +79,13 @@
     \section1 Snapping to Parent and Sibling Items
 
     When you are working on a design, you can use snapping to align
-    items in the \uicontrol {Form Editor}. Click the \inlineimage snapping.png
+    items in \uicontrol {Form Editor}. Click the \inlineimage snapping.png
     button to have the items snap to their parent or sibling items. Snapping
     lines automatically appear to help you position the items.
     Click the \inlineimage snapping_and_anchoring.png
     button to anchor the item to the items that you snap to.
+    Only one snapping button can be selected at the time. Selecting
+    one snapping button automatically deselects the others.
 
     Choose \uicontrol Tools > \uicontrol Options > \uicontrol {Qt Quick} >
     \uicontrol {Qt Quick Designer} to specify settings for snapping. In the
@@ -86,6 +94,8 @@
     \uicontrol {Sibling item spacing} field, specify the distance in pixels between
     sibling items and the snapping lines.
 
+    \image qtquick-designer-options.png "Qt Quick Designer options"
+
     The following image shows the snapping lines (1) when
     \uicontrol {Parent item padding} is set to 5 pixels.
 
@@ -93,7 +103,7 @@
 
     \section1 Hiding Item Boundaries
 
-    The \uicontrol {Form Editor} displays the boundaries of items.
+    \uicontrol {Form Editor} displays the boundaries of items.
     To hide them, select the \inlineimage boundingrect.png
     button.
 
@@ -109,7 +119,7 @@
     To experiment with different component sizes, enter values in the
     \uicontrol {Override Width} and \uicontrol {Override Height} fields (1) on
     the canvas toolbar. The changes are displayed in the \uicontrol {Form Editor}
-    (2) and in the \uicontrol States view (3), but the property
+    view (2) and in the \uicontrol States view (3), but the property
     values are not changed permanently in the QML file. You can permanently
     change the property values in the \uicontrol Properties view (4).
 
@@ -129,13 +139,14 @@
     \section1 Refreshing the Form Editor Contents
 
     When you open QML files in the Design mode, the items in the file are drawn
-    in the \uicontrol {Form Editor}. When you edit the item properties, the QML
+    in \uicontrol {Form Editor}. When you edit the item properties, the QML
     file and the contents of the editor might get out of sync. For example, when
     you change the position of an item within a column or a row, the new
-    position might not be displayed correctly in the \uicontrol {Form Editor}.
+    position might not be displayed correctly in \uicontrol {Form Editor}.
 
-    To refresh the contents of the \uicontrol {Form Editor}, press \key R or
+    To refresh the contents of \uicontrol {Form Editor}, press \key R or
     select the \inlineimage reset.png
     (\uicontrol {Reset View}) button.
 
+    \include qtquick-component-context-menu.qdocinc context-menu
 */

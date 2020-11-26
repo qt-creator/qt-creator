@@ -204,7 +204,7 @@
         \li In \uicontrol Navigator, select the \uicontrol EventListSimulator
             type, and then select the \uicontrol Active check box in
             \uicontrol Properties to activate the event simulator.
-        \li Select the \inlineimage icon-event-list.png
+        \li Select the \inlineimage icons/edit.png
             (\uicontrol {Show Event List}) button on the Design mode toolbar,
             or press \key {Alt+E}.
             \image studio-flow-event-list.png "Event List Dialog"

@@ -27,6 +27,7 @@
 #include "mcusupportoptions.h"
 #include "mcusupportsdk.h"
 
+#include <baremetal/baremetalconstants.h>
 #include <cmakeprojectmanager/cmaketoolmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
@@ -74,7 +75,7 @@ static QString packagePathFromSettings(const QString &settingsKey,
     const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/' +
             QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX) + settingsKey;
     const QString path = settings->value(key, defaultPath).toString();
-    return FilePath::fromFileInfo(path).toString();
+    return FilePath::fromUserInput(path).toString();
 }
 
 static bool automaticKitCreationFromSettings(QSettings::Scope scope = QSettings::UserScope)
@@ -330,6 +331,33 @@ static ToolChain *armGccToolChain(const FilePath &path, Id language)
     return toolChain;
 }
 
+static ToolChain *iarToolChain(Id language)
+{
+    ToolChain *toolChain = ToolChainManager::toolChain([language](const ToolChain *t){
+        return t->typeId() == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID
+               && t->language() == language;
+    });
+    if (!toolChain) {
+        ToolChainFactory *iarFactory =
+            Utils::findOrDefault(ToolChainFactory::allToolChainFactories(), [](ToolChainFactory *f){
+            return f->supportedToolChainType() == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID;
+        });
+        if (iarFactory) {
+            const QList<ToolChain*> detected = iarFactory->autoDetect(QList<ToolChain*>());
+            for (auto tc: detected) {
+                if (tc->language() == language) {
+                    toolChain = tc;
+                    toolChain->setDetection(ToolChain::ManualDetection);
+                    toolChain->setDisplayName("IAREW");
+                    ToolChainManager::registerToolChain(toolChain);
+                }
+            }
+        }
+    }
+
+    return toolChain;
+}
+
 ToolChain *McuToolChainPackage::toolChain(Id language) const
 {
     ToolChain *tc = nullptr;
@@ -337,6 +365,9 @@ ToolChain *McuToolChainPackage::toolChain(Id language) const
         tc = msvcToolChain(language);
     else if (m_type == TypeGCC)
         tc = gccToolChain(language);
+    else if (m_type == TypeIAR) {
+        tc = iarToolChain(language);
+    }
     else {
         const QLatin1String compilerName(
                     language == ProjectExplorer::Constants::C_LANGUAGE_ID ? "gcc" : "g++");
@@ -344,20 +375,25 @@ ToolChain *McuToolChainPackage::toolChain(Id language) const
                     HostOsInfo::withExecutableSuffix(
                         path() + (
                             m_type == TypeArmGcc
-                            ? "/bin/arm-none-eabi-%1" : m_type == TypeIAR
-                              ? "/foo/bar-iar-%1" : "/bar/foo-keil-%1")).arg(compilerName));
+                            ? "/bin/arm-none-eabi-%1" : "/bar/foo-keil-%1")).arg(compilerName));
 
         tc = armGccToolChain(compiler, language);
     }
     return tc;
 }
 
-QString McuToolChainPackage::cmakeToolChainFileName() const
+QString McuToolChainPackage::toolChainName() const
 {
     return QLatin1String(m_type == TypeArmGcc
                          ? "armgcc" : m_type == McuToolChainPackage::TypeIAR
                            ? "iar" : m_type == McuToolChainPackage::TypeKEIL
-                             ? "keil" : "ghs") + QLatin1String(".cmake");
+                             ? "keil" : m_type == McuToolChainPackage::TypeGHS
+                               ? "ghs" : "unsupported");
+}
+
+QString McuToolChainPackage::cmakeToolChainFileName() const
+{
+    return toolChainName() + QLatin1String(".cmake");
 }
 
 QVariant McuToolChainPackage::debuggerId() const
@@ -368,7 +404,7 @@ QVariant McuToolChainPackage::debuggerId() const
                 HostOsInfo::withExecutableSuffix(path() + (
                         m_type == TypeArmGcc
                         ? "/bin/arm-none-eabi-gdb-py" : m_type == TypeIAR
-                          ? "/foo/bar-iar-gdb" : "/bar/foo-keil-gdb")));
+                        ? "../common/bin/CSpyBat" : "/bar/foo-keil-gdb")));
     const DebuggerItem *debugger = DebuggerItemManager::findByCommand(command);
     QVariant debuggerId;
     if (!debugger) {
@@ -376,7 +412,7 @@ QVariant McuToolChainPackage::debuggerId() const
         newDebugger.setCommand(command);
         const QString displayName = m_type == TypeArmGcc
                                         ? McuPackage::tr("Arm GDB at %1")
-                                        : m_type == TypeIAR ? QLatin1String("/foo/bar-iar-gdb")
+                                        : m_type == TypeIAR ? QLatin1String("CSpy")
                                                             : QLatin1String("/bar/foo-keil-gdb");
         newDebugger.setUnexpandedDisplayName(displayName.arg(command.toUserOutput()));
         debuggerId = DebuggerItemManager::registerDebugger(newDebugger);
@@ -561,7 +597,8 @@ static void setKitProperties(const QString &kitName, Kit *k, const McuTarget *mc
 static void setKitToolchains(Kit *k, const McuToolChainPackage *tcPackage)
 {
     // No Green Hills toolchain, because support for it is missing.
-    if (tcPackage->type() == McuToolChainPackage::TypeGHS)
+    if (tcPackage->type() == McuToolChainPackage::TypeUnsupported
+        || tcPackage->type() == McuToolChainPackage::TypeGHS)
         return;
 
     ToolChainKitAspect::setToolChain(k, tcPackage->toolChain(
@@ -575,8 +612,10 @@ static void setKitDebugger(Kit *k, const McuToolChainPackage *tcPackage)
     // Qt Creator seems to be smart enough to deduce the right Kit debugger from the ToolChain
     // We rely on that at least in the Desktop case.
     if (tcPackage->isDesktopToolchain()
-            // No Green Hills debugger, because support for it is missing.
-            || tcPackage->type() == McuToolChainPackage::TypeGHS)
+            // No Green Hills and IAR debugger, because support for it is missing.
+            || tcPackage->type() == McuToolChainPackage::TypeUnsupported
+            || tcPackage->type() == McuToolChainPackage::TypeGHS
+            || tcPackage->type() == McuToolChainPackage::TypeIAR)
         return;
 
     Debugger::DebuggerKitAspect::setDebugger(k, tcPackage->debuggerId());
@@ -676,18 +715,23 @@ QString McuSupportOptions::kitName(const McuTarget *mcuTarget)
         // Starting from Qul 1.4 each OS is a separate platform
         os = QLatin1String(" FreeRTOS");
 
+    const McuToolChainPackage *tcPkg = mcuTarget->toolChainPackage();
+    const QString compilerName = tcPkg && !tcPkg->isDesktopToolchain()
+            ? QString::fromLatin1(" (%1)").arg(tcPkg->toolChainName().toUpper())
+            : "";
     const QString colorDepth = mcuTarget->colorDepth() > 0
             ? QString::fromLatin1(" %1bpp").arg(mcuTarget->colorDepth())
             : "";
     const QString targetName = mcuTarget->platform().displayName.isEmpty()
             ? mcuTarget->platform().name
             : mcuTarget->platform().displayName;
-    return QString::fromLatin1("Qt for MCUs %1.%2 - %3%4%5")
+    return QString::fromLatin1("Qt for MCUs %1.%2 - %3%4%5%6")
             .arg(QString::number(mcuTarget->qulVersion().majorVersion()),
                  QString::number(mcuTarget->qulVersion().minorVersion()),
                  targetName,
                  os,
-                 colorDepth);
+                 colorDepth,
+                 compilerName);
 }
 
 QList<Kit *> McuSupportOptions::existingKits(const McuTarget *mcuTarget)

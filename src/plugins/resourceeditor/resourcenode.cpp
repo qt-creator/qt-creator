@@ -244,7 +244,7 @@ ResourceTopLevelNode::ResourceTopLevelNode(const FilePath &filePath,
                                            const QString &contents)
     : FolderNode(filePath)
 {
-    setIcon(FileIconProvider::icon(filePath.toString()));
+    setIcon(FileIconProvider::icon(filePath.toFileInfo()));
     setPriority(Node::DefaultFilePriority);
     setListInProject(true);
     setAddFileFilter("*.png; *.jpg; *.gif; *.svg; *.ico; *.qml; *.qml.ui");
