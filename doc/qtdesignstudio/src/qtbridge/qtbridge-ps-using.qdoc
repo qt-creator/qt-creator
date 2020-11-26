@@ -60,7 +60,7 @@
     will be imported as a single QML file that can contain other assets. A child
     will be imported as a single image file that you can use within QML files.
 
-    If you plan to use pieces of your artwork as separate images in the UI,
+    If you plan to use pieces of your design as separate images in the UI,
     group them on an artboard as separate layers. You can then export the group
     as a component and each layer within it as a child. The children are
     imported to \QDS as separate PNG files that you can use as image sources.

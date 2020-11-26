@@ -42,19 +42,20 @@
     for you.
     \endif
 
-    Qt Quick enables you to build UIs around the behavior of
-    \e components and how they connect with one another. You
-    create components using Qt Quick and QML types that are available in
-    the Design mode. You can specify values for the \e properties of a
+    Qt Quick enables you to build UIs around the behavior of \e components and
+    how they connect with one another. You create components using Qt Quick and
+    QML types that are available in the \uicontrol Library view in the Design
+    mode. You can specify values for the \e properties of a
     component to change its appearance and behavior. All QML types have a
     set of predefined properties, some of which control things that are
     visible to users, while others are used behind the scene.
 
     While it is useful to learn the basics of Qt Quick, you can also rely on
     \QMLD to write the code for you when you drag-and-drop the ready-made
-    components to the \uicontrol {Form Editor} view and change them to your
-    liking by modifying their properties in the \uicontrol Properties view in
-    the Design mode. You can always check up details in the extensive Qt Quick
+    components from the \uicontrol Library view to the \uicontrol {Form Editor}
+    or \uicontrol Navigator view and change them to your liking by modifying
+    their properties in the \uicontrol Properties view.
+    You can always check up details in the extensive Qt Quick
     documentation by pressing \key F1.
 
     \list
@@ -62,9 +63,8 @@
         \if defined(qtdesignstudio)
         \li \l {Designing Application Flows}
 
-            After you export and import your artwork, you can design the
-            application flow in the form of a \e {schematic diagram} that
-            shows all significant components of an application UI and their
+            You can design an application in the form of a \e {schematic diagram}
+            that shows all significant components of an application UI and their
             interconnections by means of symbols. This results in an
             interactive prototype that can be clicked through to simulate
             the user experience of the application.
@@ -72,16 +72,15 @@
 
         \li \l {Creating Components}
 
-            In addition to your imported artwork, you can use the Design
-            mode to customize ready-made components or design any custom form
-            and shape directly as QML types. You can import visual assets in
-            various formats, such as PNG, JPG, and SVG for use in the
-            components.
+            You can enhance imported designs by customizing ready-made
+            components or design custom forms and shapes directly as
+            QML types. You can import visual assets in various formats,
+            such as PNG, JPG, and SVG for use in the components.
 
        \li \l {Managing Item Hierarchy}
 
             You can manage the items in the current QML file and their
-            relationships in the \uicontrol Navigator.
+            relationships in the \uicontrol Navigator view.
 
         \li \l {Specifying Item Properties}
 
@@ -91,6 +90,13 @@
             are common to all QML types, whereas others are specific to the QML
             type. You can specify properties for your components in the
             \uicontrol Properties view.
+
+        \li \l {Positioning Items}
+
+            The position of an item in a UI can be either absolute or relative
+            to other items. While manual positioning is efficient for a static
+            UI, consider the other available method, such as anchors, layouts,
+            positioners, and property bindings, for dynamic UIs.
 
         \li \l {Using Custom Fonts}
 

@@ -28,7 +28,7 @@
     \page qtbridge-overview.html
     \nextpage qtbridge-ai.html
 
-    \title Exporting Artwork from Design Tools
+    \title Exporting from Design Tools
 
     You need to use \QB to first export 2D assets from design tools and then to
     \l{Importing Designs}{import} them into \QDS.
@@ -56,12 +56,12 @@
         \li \l{Exporting Designs from Adobe Photoshop}
 
             You can use the \QBPS export tool in Adobe Photoshop to convert
-            artwork into \e {.metadata} format that you can import into
+            designs into \e {.metadata} format that you can import into
             projects in \QDS.
 
         \li \l{Exporting Designs from Sketch}
 
-            You can use the \QBSK export tool in Sketch to convert artwork into
+            You can use the \QBSK export tool in Sketch to convert designs into
             metadata that you can import into projects in \QDS.
 
         \li \l{Exporting 3D Assets}

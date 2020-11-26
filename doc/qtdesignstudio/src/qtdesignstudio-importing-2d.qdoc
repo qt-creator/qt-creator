@@ -30,13 +30,13 @@
 
     \title Importing 2D Assets
 
-    \image studio-imported-assets.png "Artwork imported into Qt Design Studio"
+    \image studio-imported-assets.png "UI imported into Qt Design Studio"
 
     \QB enables you to export assets and then import them to a \QDS project
     as image and QML files for editing in the \uicontrol {Form Editor}. If you
     make changes to your design in the design tool, you can merge the changes
     into existing QML files without overwriting the changes you have made in
-    \QDS. For more information, see \l {Exporting Artwork from Design Tools}.
+    \QDS. For more information, see \l {Exporting from Design Tools}.
 
     \note Attempting to import assets exported on another system might fail.
 
