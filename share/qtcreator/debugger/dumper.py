@@ -1893,28 +1893,13 @@ class DumperBase():
                 else:
                     self.putValue('0x0')
                     self.putType('QObject *')
+
             with SubItem(self, '[children]'):
                 if not self.isCli:
                     self.putSortGroup(8)
-                base = self.extractPointer(dd + 3 * ptrSize)  # It's a QList<QObject *>
-                begin = self.extractInt(base + 8)
-                end = self.extractInt(base + 12)
-                array = base + 16
-                if self.qtVersion() < 0x50000:
-                    array += ptrSize
-                self.check(begin >= 0 and end >= 0 and end <= 1000 * 1000 * 1000)
-                size = end - begin
-                self.check(size >= 0)
-                self.putItemCount(size)
-                if size > 0:
-                    self.putExpandable()
-                if self.isExpanded():
-                    addrBase = array + begin * ptrSize
-                    with Children(self, size):
-                        for i in self.childRange():
-                            with SubItem(self, i):
-                                childPtr = self.extractPointer(addrBase + i * ptrSize)
-                                self.putItem(self.createValue(childPtr, qobjectType))
+                dvtablePtr, qptr, parentPtr, children \
+                    = self.split('ppp{QList<QObject*>}', dd)
+                self.putItem(children)
 
         if isQMetaObject:
             with SubItem(self, '[strings]'):
