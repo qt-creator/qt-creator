@@ -109,6 +109,7 @@ private:
     void filterNewContent();
     void handleNextOutputChunk();
     void handleOutputChunk(const QString &output, Utils::OutputFormat format);
+    void updateAutoScroll();
 
     Internal::OutputWindowPrivate *d = nullptr;
 };
