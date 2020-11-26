@@ -158,7 +158,7 @@ private:
     FakeMetaObjectList _metaObjects;
     QList<ModuleApiInfo> _moduleApis;
     QStringList _dependencies; // from qmltypes "dependencies: [...]"
-    QStringList _imports; // from qmldir "import" commands
+    QList<QmlDirParser::Import> _imports; // from qmldir "import" commands
     QByteArray _fingerprint;
 
     PluginTypeInfoStatus _dumpStatus = NoTypeInfo;
@@ -204,10 +204,10 @@ public:
     void setDependencies(const QStringList &deps)
     { _dependencies = deps; }
 
-    QStringList imports() const
+    QList<QmlDirParser::Import> imports() const
     { return _imports; }
 
-    void setImports(const QStringList &imports)
+    void setImports(const QList<QmlDirParser::Import> &imports)
     { _imports = imports; }
 
     bool isValid() const

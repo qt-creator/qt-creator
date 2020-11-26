@@ -25,9 +25,13 @@
 
 #include "qmldirparser_p.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QtDebug>
 
 QT_QML_BEGIN_NAMESPACE
+
+using namespace LanguageUtils;
 
 static int parseInt(const QStringView &str, bool *ok)
 {
@@ -58,6 +62,33 @@ static bool parseVersion(const QString &str, int *major, int *minor)
         return ok;
     }
     return false;
+}
+
+static ComponentVersion parseImportVersion(const QString &str)
+{
+    int minor = -1;
+    int major = -1;
+    const int dotIndex = str.indexOf(QLatin1Char('.'));
+    bool ok = false;
+    if (dotIndex != -1 && str.indexOf(QLatin1Char('.'), dotIndex + 1) == -1) {
+        major = parseInt(QStringView(str.constData(), dotIndex), &ok);
+        if (ok) {
+            if (str.length() > dotIndex + 1) {
+                minor = parseInt(QStringView(str.constData() + dotIndex + 1, str.length() - dotIndex - 1),
+                                 &ok);
+                if (!ok)
+                    minor = ComponentVersion::NoVersion;
+            } else {
+                minor = ComponentVersion::MaxVersion;
+            }
+        }
+    } else if (str.length() > 0) {
+        QTC_ASSERT(str != QLatin1String("auto"), return ComponentVersion(-1, -1));
+        major = parseInt(QStringView(str.constData(), str.length()),
+                         &ok);
+        minor = ComponentVersion::MaxVersion;
+    }
+    return ComponentVersion(major, minor);
 }
 
 void QmlDirParser::clear()
@@ -96,6 +127,50 @@ bool QmlDirParser::parse(const QString &source)
 {
     quint16 lineNumber = 0;
     bool firstLine = true;
+
+    auto readImport = [&](const QString *sections, int sectionCount, Import::Flags flags) {
+        Import import;
+        if (sectionCount == 2) {
+            import = Import(sections[1], ComponentVersion(), flags);
+        } else if (sectionCount == 3) {
+            if (sections[2] == QLatin1String("auto")) {
+                import = Import(sections[1], ComponentVersion(), flags | Import::Auto);
+            } else {
+                const auto version = parseImportVersion(sections[2]);
+                if (version.isValid()) {
+                    import = Import(sections[1], version, flags);
+                } else {
+                    reportError(lineNumber, 0,
+                                QStringLiteral("invalid version %1, expected <major>.<minor>")
+                                .arg(sections[2]));
+                    return false;
+                }
+            }
+        } else {
+            reportError(lineNumber, 0,
+                        QStringLiteral("%1 requires 1 or 2 arguments, but %2 were provided")
+                        .arg(sections[0]).arg(sectionCount - 1));
+            return false;
+        }
+        if (sections[0] == QStringLiteral("import"))
+            _imports.append(import);
+        else
+            _dependencies.append(import);
+        return true;
+    };
+
+    auto readPlugin = [&](const QString *sections, int sectionCount, bool isOptional) {
+        if (sectionCount < 2 || sectionCount > 3) {
+            reportError(lineNumber, 0, QStringLiteral("plugin directive requires one or two "
+                                                      "arguments, but %1 were provided")
+                        .arg(sectionCount - 1));
+            return false;
+        }
+
+        const Plugin entry(sections[1], sections[2], isOptional);
+        _plugins.append(entry);
+        return true;
+    };
 
     const QChar *ch = source.constData();
     while (!ch->isNull()) {
@@ -163,16 +238,26 @@ bool QmlDirParser::parse(const QString &source)
             _typeNamespace = sections[1];
 
         } else if (sections[0] == QLatin1String("plugin")) {
-            if (sectionCount < 2 || sectionCount > 3) {
-                reportError(lineNumber, 0,
-                            QStringLiteral("plugin directive requires one or two arguments, but %1 were provided").arg(sectionCount - 1));
-
+            if (!readPlugin(sections, sectionCount, false))
+                continue;
+        } else if (sections[0] == QLatin1String("optional")) {
+            if (sectionCount < 2) {
+                reportError(lineNumber, 0, QStringLiteral("optional directive requires further "
+                                                          "arguments, but none were provided."));
                 continue;
             }
 
-            const Plugin entry(sections[1], sections[2]);
-
-            _plugins.append(entry);
+            if (sections[1] == QStringLiteral("plugin")) {
+                if (!readPlugin(sections + 1, sectionCount - 1, true))
+                    continue;
+            } else if (sections[1] == QLatin1String("import")) {
+                if (!readImport(sections + 1, sectionCount - 1, Import::Optional))
+                    continue;
+            } else {
+                reportError(lineNumber, 0, QStringLiteral("only import and plugin can be optional, "
+                                                          "not %1.").arg(sections[1]));
+                continue;
+            }
 
         } else if (sections[0] == QLatin1String("classname")) {
             if (sectionCount < 2) {
@@ -233,28 +318,9 @@ bool QmlDirParser::parse(const QString &source)
                 reportError(lineNumber, 0, QStringLiteral("designersupported does not expect any argument"));
             else
                 _designerSupported = true;
-        } else if (sections[0] == QLatin1String("depends")) {
-            if (sectionCount != 3) {
-                reportError(lineNumber, 0,
-                            QStringLiteral("depends requires 2 arguments, but %1 were provided").arg(sectionCount - 1));
+        } else if (sections[0] == QLatin1String("depends") || sections[0] == QLatin1String("import")) {
+            if (!readImport(sections, sectionCount, Import::Default))
                 continue;
-            }
-
-            int major, minor;
-            if (parseVersion(sections[2], &major, &minor)) {
-                Component entry(sections[1], QString(), major, minor);
-                entry.internal = true;
-                _dependencies.insert(entry.typeName, entry);
-            } else {
-                reportError(lineNumber, 0, QStringLiteral("invalid version %1, expected <major>.<minor>").arg(sections[2]));
-            }
-        } else if (sections[0] == QLatin1String("import")) {
-            if (sectionCount != 2) {
-                reportError(lineNumber, 0,
-                            QStringLiteral("import requires 2 arguments, but %1 were provided").arg(sectionCount - 1));
-                continue;
-            }
-            _imports << sections[1];
         } else if (sectionCount == 2) {
             // No version specified (should only be used for relative qmldir files)
             const Component entry(sections[0], sections[1], -1, -1);
@@ -342,12 +408,12 @@ QMultiHash<QString, QmlDirParser::Component> QmlDirParser::components() const
     return _components;
 }
 
-QHash<QString, QmlDirParser::Component> QmlDirParser::dependencies() const
+QList<QmlDirParser::Import> QmlDirParser::dependencies() const
 {
     return _dependencies;
 }
 
-QStringList QmlDirParser::imports() const
+QList<QmlDirParser::Import> QmlDirParser::imports() const
 {
     return _imports;
 }
