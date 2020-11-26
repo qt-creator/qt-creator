@@ -31,6 +31,8 @@
 #include "sourcelocation.h"
 #include "sourcerange.h"
 
+#include <QList>
+
 namespace ClangBackEnd {
 
 Token::Token(CXTranslationUnit cxTranslationUnit, CXToken *cxToken)
