@@ -418,6 +418,52 @@
     optipng -o 7 -strip all doc/images/<screenshot_name>
     \endcode
 
+    \section2 Linking to Youtube Videos
+
+    You can use the \c {\youtube} macro to link to a video on Youtube. The HTML
+    docs show a thumbnail of the video with a play button.
+
+    The support for the macro is defined in the
+    \c {qtcreator\doc\config\macros.qdocconf} file. To use the
+    macro, you need to save a thumbnail of the video in
+    \c {qtcreator\doc\qtcreator\images\videoicons} or
+    \c {qtcreator\doc\qtdesignstudio\images\videoicons}.
+
+    You can use the following URL to open the thumbnail image in a browser:
+    \c {https://img.youtube.com/vi/<ID>/0.jpg}. The \e {<ID>} is the ID of
+    the video on Youtube. For example, if the URL to the video is
+    \c {https://www.youtube.com/watch?v=9ihYeC0YJ0M&feature=youtu.be},
+    the ID is \c 9ihYeC0YJ0M. Save the image file as \c {9ihYeC0YJ0M.jpg}.
+
+    You must add the filename of the thumbnail file to
+    \c {\qtcreator\doc\qtcreator\config\qtcreator-project.qdocconf} and
+    \c {\qtcreator\doc\qtdesignstudio\config\qtdesignstudio.qdocconf}
+    to the value of the \c {HTML.extraimages,qhp.qtcreator.extraFiles}
+    or \c {HTML.extraimages,qhp.qtdesignstudio.extraFiles} option.
+
+    If you'll only link to the video from the \QC Manual or the \QDS Manual,
+    you'll only need to add the thumbnail filename to the \c .qdocconf file
+    for that project.
+
+    For example, to enable linking to a video with the thumbnail filename
+    \c 9ihYeC0YJ0M.jpg in the \QDS Manual, the \c {qtdesignstudio.qdocconf}
+    file should contain the following entry:
+
+    \code
+    {HTML.extraimages,qhp.qtdesignstudio.extraFiles} += ../../config/images/commercial.png \
+              ../images/videoicons/9ihYeC0YJ0M.jpg \
+              ../images/videoicons/aV6kFxH3Xws.jpg \
+              ../images/videoicons/ZzbucmQPU44.jpg
+    \endcode
+
+    To add a link to the video in text, you would write:
+
+    \code
+    \youtube 9ihYeC0YJ0M
+    \endcode
+
+    \note Leave out the filename extension when referring to the thumbnail.
+
     \section1 Building Documentation
 
     You use QDoc to build the documentation. Build the documentation before
