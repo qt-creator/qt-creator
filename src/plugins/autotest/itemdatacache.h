@@ -30,6 +30,7 @@
 
 #include <utils/optional.h>
 
+#include <QRegularExpression>
 #include <QVariantHash>
 
 namespace Autotest {
