@@ -39,6 +39,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
 #include <qtsupport/profilereader.h>
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/tabsettings.h>
@@ -774,7 +775,7 @@ QPair<ProFile *, QStringList> QmakePriFile::readProFile()
                         &contents,
                         &m_textFormat,
                         &errorMsg) != TextFileFormat::ReadSuccess) {
-                QmakeBuildSystem::proFileParseError(errorMsg);
+                QmakeBuildSystem::proFileParseError(errorMsg, filePath());
                 return qMakePair(includeFile, lines);
             }
             lines = contents.split('\n');
@@ -1655,7 +1656,7 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
     }
 
     foreach (const QString &error, evalResult->errors)
-        QmakeBuildSystem::proFileParseError(error);
+        QmakeBuildSystem::proFileParseError(error, filePath());
 
     // we are changing what is executed in that case
     if (result->state == QmakeEvalResult::EvalFail || m_buildSystem->wasEvaluateCanceled()) {
@@ -1666,8 +1667,10 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
 
         if (result->state == QmakeEvalResult::EvalFail) {
             QmakeBuildSystem::proFileParseError(
-                        QCoreApplication::translate("QmakeProFile", "Error while parsing file %1. Giving up.")
-                                            .arg(filePath().toUserOutput()));
+                QCoreApplication::translate("QmakeProFile",
+                                            "Error while parsing file %1. Giving up.")
+                    .arg(filePath().toUserOutput()),
+                filePath());
             if (m_projectType == ProjectType::Invalid)
                 return;
 
