@@ -255,10 +255,10 @@ void PixmapCacheModelTest::testConsistency()
             break;
         }
 
-        QString filename = details[model.tr("File")].toString();
+        QString filename = details[PixmapCacheModel::tr("File")].toString();
         QVERIFY(filename == QString("dings.png") || filename == QString("blah.png"));
-        QVERIFY(details.contains(model.tr("Width")));
-        QVERIFY(details.contains(model.tr("Height")));
+        QVERIFY(details.contains(PixmapCacheModel::tr("Width")));
+        QVERIFY(details.contains(PixmapCacheModel::tr("Height")));
     }
 }
 

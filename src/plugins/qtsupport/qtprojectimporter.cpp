@@ -221,7 +221,7 @@ Kit *TestQtProjectImporter::createKit(void *directoryData) const
     const DirectoryData *dd = static_cast<const DirectoryData *>(directoryData);
     assert(dd->importPath == m_path);
 
-    if (KitManager::instance()->kit(dd->kit->id())) // known kit
+    if (KitManager::kit(dd->kit->id())) // known kit
         return dd->kit;
 
     // New temporary kit:

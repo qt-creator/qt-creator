@@ -122,7 +122,7 @@ namespace Core {
 */
 IMode::IMode(QObject *parent) : IContext(parent)
 {
-    ModeManager::instance()->addMode(this);
+    ModeManager::addMode(this);
 }
 
 /*!
@@ -130,7 +130,7 @@ IMode::IMode(QObject *parent) : IContext(parent)
 */
 IMode::~IMode()
 {
-    ModeManager::instance()->removeMode(this);
+    ModeManager::removeMode(this);
 }
 
 void IMode::setEnabled(bool enabled)

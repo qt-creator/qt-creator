@@ -6220,13 +6220,13 @@ void TextEditorWidget::zoomF(float delta)
     else if (step < 0 && step > -1)
         step = -1;
 
-    const int newZoom = TextEditorSettings::instance()->increaseFontZoom(int(step));
+    const int newZoom = TextEditorSettings::increaseFontZoom(int(step));
     showZoomIndicator(this, newZoom);
 }
 
 void TextEditorWidget::zoomReset()
 {
-    TextEditorSettings::instance()->resetFontZoom();
+    TextEditorSettings::resetFontZoom();
     showZoomIndicator(this, 100);
 }
 

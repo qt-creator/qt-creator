@@ -97,7 +97,7 @@ bool TextEditorMacroHandler::executeEvent(const MacroEvent &macroEvent)
                        macroEvent.value(TEXT).toString(),
                        macroEvent.value(AUTOREP).toBool(),
                        macroEvent.value(COUNT).toInt());
-    QApplication::instance()->sendEvent(m_currentEditor->widget(), &keyEvent);
+    QCoreApplication::sendEvent(m_currentEditor->widget(), &keyEvent);
     return true;
 }
 

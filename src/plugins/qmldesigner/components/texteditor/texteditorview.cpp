@@ -270,7 +270,7 @@ void TextEditorView::reformatFile()
     QByteArray editorState = m_widget->textEditor()->saveState();
 
     auto document =
-            qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(Core::EditorManager::instance()->currentDocument());
+            qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(Core::EditorManager::currentDocument());
 
     /* Reformat document if we have a .ui.qml file */
     if (document

@@ -693,8 +693,8 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
             // Files are copied into the same directory as the current qml document
             for (const auto &copyFile : copyFiles) {
                 QFileInfo fi(copyFile);
-                const QString targetFile = QmlDesignerPlugin::instance()->documentManager()
-                        .currentFilePath().toFileInfo().dir().absoluteFilePath(fi.fileName());
+                const QString targetFile = DocumentManager::currentFilePath().toFileInfo().dir()
+                        .absoluteFilePath(fi.fileName());
                 // We don't want to overwrite existing default files
                 if (!QFileInfo::exists(targetFile)) {
                     if (!QFile::copy(copyFile, targetFile))
@@ -717,7 +717,7 @@ void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, i
         ModelNode targetNode(modelNodeForIndex(rowModelIndex));
 
         const QString imageSource = QString::fromUtf8(mimeData->data("application/vnd.bauhaus.libraryresource")); // absolute path
-        const QString imagePath = QmlDesignerPlugin::instance()->documentManager().currentFilePath().toFileInfo().dir().relativeFilePath(imageSource); // relative to .ui.qml file
+        const QString imagePath = DocumentManager::currentFilePath().toFileInfo().dir().relativeFilePath(imageSource); // relative to .ui.qml file
 
         ModelNode newModelNode;
 

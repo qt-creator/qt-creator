@@ -415,8 +415,7 @@ void tst_Differ::merge()
     QFETCH(QList<Diff>, input);
     QFETCH(QList<Diff>, expected);
 
-    Differ differ;
-    QList<Diff> result = differ.merge(input);
+    QList<Diff> result = Differ::merge(input);
     QCOMPARE(result, expected);
 }
 
@@ -651,8 +650,7 @@ void tst_Differ::cleanupSemantics()
     QFETCH(QList<Diff>, input);
     QFETCH(QList<Diff>, expected);
 
-    Differ differ;
-    QList<Diff> result = differ.cleanupSemantics(input);
+    QList<Diff> result = Differ::cleanupSemantics(input);
     QCOMPARE(result, expected);
 }
 
@@ -793,8 +791,7 @@ void tst_Differ::cleanupSemanticsLossless()
     QFETCH(QList<Diff>, input);
     QFETCH(QList<Diff>, expected);
 
-    Differ differ;
-    QList<Diff> result = differ.cleanupSemanticsLossless(input);
+    QList<Diff> result = Differ::cleanupSemanticsLossless(input);
     QCOMPARE(result, expected);
 }
 

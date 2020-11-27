@@ -681,7 +681,7 @@ void FolderNavigationWidget::openProjectsInDirectory(const QModelIndex &index)
 {
     const QStringList projectFiles = projectsInDirectory(index);
     if (!projectFiles.isEmpty())
-        Core::ICore::instance()->openFiles(projectFiles);
+        Core::ICore::openFiles(projectFiles);
 }
 
 void FolderNavigationWidget::createNewFolder(const QModelIndex &parent)

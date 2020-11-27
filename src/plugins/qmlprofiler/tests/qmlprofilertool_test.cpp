@@ -46,7 +46,7 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
 {
     ProjectExplorer::KitManager *kitManager = ProjectExplorer::KitManager::instance();
     QVERIFY(kitManager);
-    ProjectExplorer::Kit * const newKit = kitManager->registerKit({}, "fookit");
+    ProjectExplorer::Kit * const newKit = ProjectExplorer::KitManager::registerKit({}, "fookit");
     QVERIFY(newKit);
     QSettings *settings = Core::ICore::settings();
     QVERIFY(settings);

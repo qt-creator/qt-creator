@@ -436,7 +436,7 @@ void SimulatorControlPrivate::startSimulator(QFutureInterface<SimulatorControl::
     auto start = chrono::high_resolution_clock::now();
     while (simInfo.isShuttingDown() && !checkForTimeout(start, simulatorStartTimeout)) {
         // Wait till the simulator shuts down, if doing so.
-        QThread::currentThread()->msleep(100);
+        QThread::msleep(100);
         simInfo = deviceInfo(simUdid);
     }
 

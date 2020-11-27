@@ -103,7 +103,7 @@ static QTextEdit::ExtraSelection toDiagnosticsSelections(const Diagnostic &diagn
     cursor.setPosition(diagnostic.range().end().toPositionInDocument(textDocument),
                        QTextCursor::KeepAnchor);
 
-    const FontSettings &fontSettings = TextEditorSettings::instance()->fontSettings();
+    const FontSettings &fontSettings = TextEditorSettings::fontSettings();
     const DiagnosticSeverity severity = diagnostic.severity().value_or(DiagnosticSeverity::Warning);
     const TextStyle style = severity == DiagnosticSeverity::Error ? C_ERROR : C_WARNING;
 

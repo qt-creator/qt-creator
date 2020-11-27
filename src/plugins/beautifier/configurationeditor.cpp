@@ -42,7 +42,7 @@ namespace Internal {
 ConfigurationSyntaxHighlighter::ConfigurationSyntaxHighlighter(QTextDocument *parent) :
     QSyntaxHighlighter(parent)
 {
-    const TextEditor::FontSettings fs = TextEditor::TextEditorSettings::instance()->fontSettings();
+    const TextEditor::FontSettings fs = TextEditor::TextEditorSettings::fontSettings();
     m_formatKeyword = fs.toTextCharFormat(TextEditor::C_FIELD);
     m_formatComment = fs.toTextCharFormat(TextEditor::C_COMMENT);
 

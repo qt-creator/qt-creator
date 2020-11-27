@@ -220,7 +220,7 @@ void ClangAssistProposalItem::apply(TextDocumentManipulatorInterface &manipulato
             textToBeInserted.chop(2);
     } else if (!ccr.text.isEmpty()) {
         const CompletionSettings &completionSettings =
-                TextEditorSettings::instance()->completionSettings();
+                TextEditorSettings::completionSettings();
         const bool autoInsertBrackets = completionSettings.m_autoInsertBrackets;
 
         if (autoInsertBrackets &&

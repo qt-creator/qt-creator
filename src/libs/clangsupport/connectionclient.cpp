@@ -288,7 +288,7 @@ bool ConnectionClient::waitForConnected()
             return isConnected;
         else {
             QThread::msleep(30);
-            QCoreApplication::instance()->processEvents();
+            QCoreApplication::processEvents();
         }
     }
 

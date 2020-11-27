@@ -114,7 +114,7 @@ void TestCodeParser::syncTestFrameworks(const QList<ITestFramework *> &framework
         // there's a running parse
         m_fullUpdatePostponed = m_partialUpdatePostponed = false;
         m_postponedFiles.clear();
-        Core::ProgressManager::instance()->cancelTasks(Constants::TASK_PARSE);
+        Core::ProgressManager::cancelTasks(Constants::TASK_PARSE);
     }
     m_testCodeParsers.clear();
     qCDebug(LOG) << "Setting" << frameworks << "as current parsers";
@@ -206,7 +206,7 @@ void TestCodeParser::onStartupProjectChanged(Project *project)
 {
     if (m_parserState == FullParse || m_parserState == PartialParse) {
         qCDebug(LOG) << "Canceling scanForTest (startup project changed)";
-        Core::ProgressManager::instance()->cancelTasks(Constants::TASK_PARSE);
+        Core::ProgressManager::cancelTasks(Constants::TASK_PARSE);
     }
     emit aboutToPerformFullParse();
     if (project)
@@ -271,7 +271,7 @@ bool TestCodeParser::postponed(const QStringList &fileList)
             m_postponedFiles.clear();
             m_fullUpdatePostponed = true;
             qCDebug(LOG) << "Canceling scanForTest (full parse triggered while running a scan)";
-            Core::ProgressManager::instance()->cancelTasks(Constants::TASK_PARSE);
+            Core::ProgressManager::cancelTasks(Constants::TASK_PARSE);
         } else {
             // partial parse triggered, but full parse is postponed already, ignoring this
             if (m_fullUpdatePostponed)
@@ -393,7 +393,7 @@ void TestCodeParser::onTaskStarted(Utils::Id type)
             m_partialUpdatePostponed = !m_fullUpdatePostponed;
             qCDebug(LOG) << "Canceling scan for test (CppModelParsing started)";
             parsingHasFailed = true;
-            Core::ProgressManager::instance()->cancelTasks(Constants::TASK_PARSE);
+            Core::ProgressManager::cancelTasks(Constants::TASK_PARSE);
         }
     }
 }

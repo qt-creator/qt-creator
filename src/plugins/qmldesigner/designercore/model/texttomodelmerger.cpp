@@ -992,7 +992,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
     m_rewriterView->model()->clearMetaInfoCache();
 
     try {
-        Snapshot snapshot = m_rewriterView->textModifier()->qmljsSnapshot();
+        Snapshot snapshot = TextModifier::qmljsSnapshot();
 
         QList<DocumentMessage> errors;
         QList<DocumentMessage> warnings;

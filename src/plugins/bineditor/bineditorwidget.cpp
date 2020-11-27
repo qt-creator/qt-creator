@@ -1469,7 +1469,7 @@ void BinEditorWidget::zoomF(float delta)
     else if (step < 0 && step > -1)
         step = -1;
 
-    const int newZoom = TextEditor::TextEditorSettings::instance()->increaseFontZoom(int(step));
+    const int newZoom = TextEditor::TextEditorSettings::increaseFontZoom(int(step));
     showZoomIndicator(this, newZoom);
 }
 

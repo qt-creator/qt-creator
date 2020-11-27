@@ -55,7 +55,7 @@ QList<QTextEdit::ExtraSelection> toTextEditorSelections(
                 const QList<CPlusPlus::Document::DiagnosticMessage> &diagnostics,
                 QTextDocument *textDocument)
 {
-    const TextEditor::FontSettings &fontSettings = TextEditor::TextEditorSettings::instance()->fontSettings();
+    const TextEditor::FontSettings &fontSettings = TextEditor::TextEditorSettings::fontSettings();
 
     QTextCharFormat warningFormat = fontSettings.toTextCharFormat(TextEditor::C_WARNING);
     QTextCharFormat errorFormat = fontSettings.toTextCharFormat(TextEditor::C_ERROR);

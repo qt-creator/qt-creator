@@ -48,13 +48,13 @@ void QmlProfilerAttachDialogTest::testAccessors()
 
     ProjectExplorer::KitManager *kitManager = ProjectExplorer::KitManager::instance();
     QVERIFY(kitManager);
-    ProjectExplorer::Kit * const newKit = kitManager->registerKit({}, "dings");
+    ProjectExplorer::Kit * const newKit = ProjectExplorer::KitManager::registerKit({}, "dings");
     QVERIFY(newKit);
 
     dialog.setKitId("dings");
     QCOMPARE(dialog.kit(), newKit);
 
-    kitManager->deregisterKit(newKit);
+    ProjectExplorer::KitManager::deregisterKit(newKit);
 }
 
 } // namespace Internal

@@ -570,7 +570,7 @@ void FancyTabWidget::paintEvent(QPaintEvent *event)
         QPainter painter(this);
 
         QRect rect = m_selectionWidget->rect().adjusted(0, 0, 1, 0);
-        rect = style()->visualRect(layoutDirection(), geometry(), rect);
+        rect = QStyle::visualRect(layoutDirection(), geometry(), rect);
         const QRectF boderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
 
         if (creatorTheme()->flag(Theme::FlatToolBars)) {

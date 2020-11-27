@@ -290,7 +290,7 @@ void ExtraCompilerPrivate::updateIssues()
         cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
         selection.cursor = cursor;
 
-        const auto fontSettings = TextEditor::TextEditorSettings::instance()->fontSettings();
+        const auto fontSettings = TextEditor::TextEditorSettings::fontSettings();
         selection.format = fontSettings.toTextCharFormat(issue.type == Task::Warning ?
                 TextEditor::C_WARNING : TextEditor::C_ERROR);
         selection.format.setToolTip(issue.description());

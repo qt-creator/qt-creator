@@ -156,7 +156,7 @@ void addWarningSelections(const QVector<ClangBackEnd::DiagnosticContainer> &diag
                           QTextDocument *textDocument,
                           QList<QTextEdit::ExtraSelection> &extraSelections)
 {
-    const auto fontSettings = TextEditor::TextEditorSettings::instance()->fontSettings();
+    const auto fontSettings = TextEditor::TextEditorSettings::fontSettings();
 
     QTextCharFormat warningFormat = fontSettings.toTextCharFormat(TextEditor::C_WARNING);
 
@@ -169,7 +169,7 @@ void addErrorSelections(const QVector<ClangBackEnd::DiagnosticContainer> &diagno
                         QTextDocument *textDocument,
                         QList<QTextEdit::ExtraSelection> &extraSelections)
 {
-    const auto fontSettings = TextEditor::TextEditorSettings::instance()->fontSettings();
+    const auto fontSettings = TextEditor::TextEditorSettings::fontSettings();
 
     QTextCharFormat errorFormat = fontSettings.toTextCharFormat(TextEditor::C_ERROR);
     QTextCharFormat errorContextFormat = fontSettings.toTextCharFormat(TextEditor::C_ERROR_CONTEXT);

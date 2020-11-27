@@ -71,7 +71,7 @@ QString AbstractEditorSupport::licenseTemplate(const QString &file, const QStrin
 
 bool AbstractEditorSupport::usePragmaOnce()
 {
-    return Internal::CppToolsPlugin::instance()->usePragmaOnce();
+    return Internal::CppToolsPlugin::usePragmaOnce();
 }
 
 } // namespace CppTools

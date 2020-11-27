@@ -404,7 +404,7 @@ protected:
                 length = end-begin;
             }
 
-            const TextEditor::FontSettings &fontSettings = TextEditor::TextEditorSettings::instance()->fontSettings();
+            const TextEditor::FontSettings &fontSettings = TextEditor::TextEditorSettings::fontSettings();
 
             QTextCharFormat format;
             if (d.isWarning())
@@ -441,7 +441,7 @@ protected:
                 length = end-begin;
             }
 
-            const TextEditor::FontSettings &fontSettings = TextEditor::TextEditorSettings::instance()->fontSettings();
+            const TextEditor::FontSettings &fontSettings = TextEditor::TextEditorSettings::fontSettings();
 
             QTextCharFormat format;
             if (d.severity == Severity::Warning

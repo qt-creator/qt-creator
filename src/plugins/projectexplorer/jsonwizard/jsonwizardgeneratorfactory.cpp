@@ -114,7 +114,7 @@ bool JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile *fi
     if (TextEditorSettings::storageSettings().m_cleanWhitespace) {
         QTextBlock block = doc.firstBlock();
         while (block.isValid()) {
-            codeStylePrefs->currentTabSettings().removeTrailingWhitespace(cursor, block);
+            TabSettings::removeTrailingWhitespace(cursor, block);
             block = block.next();
         }
     }
