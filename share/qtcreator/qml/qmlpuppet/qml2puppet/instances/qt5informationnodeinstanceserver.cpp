@@ -102,6 +102,14 @@
 #endif
 #endif
 
+// Uncomment to display FPS counter on the lower left corner of edit 3D view
+//#define FPS_COUNTER
+#ifdef FPS_COUNTER
+#include <QtCore/qelapsedtimer.h>
+static QElapsedTimer *_fpsTimer = nullptr;
+static int _frameCount = 0;
+#endif
+
 namespace QmlDesigner {
 
 static QVariant objectToVariant(QObject *object)
@@ -640,6 +648,18 @@ void Qt5InformationNodeInstanceServer::doRender3DEditView()
             m_render3DEditViewTimer.start(0);
             --m_need3DEditViewRender;
         }
+#ifdef FPS_COUNTER
+        // Force constant rendering for accurate fps count
+        if (!m_render3DEditViewTimer.isActive())
+            m_render3DEditViewTimer.start(0);
+        ++_frameCount;
+        if (_fpsTimer->elapsed() > 1000) {
+            QQmlProperty fpsProperty(m_editView3DData.rootItem, "fps", context());
+            fpsProperty.write(_frameCount);
+            _frameCount = 0;
+            _fpsTimer->start();
+        }
+#endif
     }
 }
 
@@ -870,6 +890,13 @@ Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceC
     m_render3DEditViewTimer.setSingleShot(true);
     m_inputEventTimer.setSingleShot(true);
     m_renderModelNodeImageViewTimer.setSingleShot(true);
+
+#ifdef FPS_COUNTER
+    if (!_fpsTimer) {
+        _fpsTimer = new QElapsedTimer;
+        _fpsTimer->start();
+    }
+#endif
 }
 
 Qt5InformationNodeInstanceServer::~Qt5InformationNodeInstanceServer()

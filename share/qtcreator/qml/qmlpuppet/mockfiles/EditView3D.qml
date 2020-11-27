@@ -59,6 +59,8 @@ Item {
 
     property bool shuttingDown: false
 
+    property real fps: 0
+
     signal selectionChanged(var selectedNodes)
     signal commitObjectProperty(var object, var propName)
     signal changeObjectProperty(var object, var propName)
@@ -814,6 +816,17 @@ Item {
             anchors.margins: 4
             font.pixelSize: 14
             color: "white"
+        }
+
+        Text {
+            id: fpsLabel
+            text: viewRoot.fps
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.margins: 4
+            font.pixelSize: 12
+            color: "white"
+            visible: viewRoot.fps > 0
         }
     }
 }
