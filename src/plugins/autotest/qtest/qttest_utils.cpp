@@ -98,9 +98,9 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted,
         "-functions", "-datatags", "-nocrashhandler", "-callgrind", "-perf", "-perfcounterlist",
         "-tickcounter", "-eventcounter", "-help"
     };
-    static const QSet<QString> knownInterferingOptionWithParameter = { "-o" };
+    static const QSet<QString> knownInterferingOptionWithParameter = { "-o", "-maxwarnings" };
     static const QSet<QString> knownAllowedOptionsWithParameter {
-        "-eventdelay", "-keydelay", "-mousedelay", "-maxwarnings", "-perfcounter",
+        "-eventdelay", "-keydelay", "-mousedelay", "-perfcounter",
         "-minimumvalue", "-minimumtotal", "-iterations", "-median"
     };
 

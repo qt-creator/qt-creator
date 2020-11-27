@@ -79,6 +79,10 @@ QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted)
         if (qtSettings->noCrashHandler.value())
             arguments << "-nocrashhandler";
     }
+
+    if (qtSettings->limitWarnings.value() && qtSettings->maxWarnings.value() != 2000)
+        arguments << "-maxwarnings" << QString::number(qtSettings->maxWarnings.value());
+
     return arguments;
 }
 

@@ -54,6 +54,8 @@ public:
     Utils::BoolAspect useXMLOutput;
     Utils::BoolAspect verboseBench;
     Utils::BoolAspect logSignalsSlots;
+    Utils::BoolAspect limitWarnings;
+    Utils::IntegerAspect maxWarnings;
 };
 
 class QtTestSettingsPage final : public Core::IOptionsPage

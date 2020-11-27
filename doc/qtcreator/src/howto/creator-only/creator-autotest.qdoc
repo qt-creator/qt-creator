@@ -470,6 +470,11 @@
     To record information about signals and slots in the test log, select the
     \uicontrol {Log signals and slots} check box.
 
+    To explicitly limit the maximum number of warnings in the test log, select
+    the \uicontrol {Limit warnings} check box and specify the intended number
+    inside the spin box next to it. Set the number to 0 if you want no limit
+    at all. The default number is 2000.
+
     \section2 Specifying Settings for Running Google Tests
 
     To specify settings for running Google tests, select \uicontrol Tools >

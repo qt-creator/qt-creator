@@ -79,6 +79,19 @@ QtTestSettings::QtTestSettings()
     logSignalsSlots.setSettingsKey("LogSignalsSlots");
     logSignalsSlots.setLabelText(tr("Log signals and slots"));
     logSignalsSlots.setToolTip(tr("Log every signal emission and resulting slot invocations."));
+
+    registerAspect(&limitWarnings);
+    limitWarnings.setSettingsKey("LimitWarnings");
+    limitWarnings.setLabelText(tr("Limit warnings"));
+    limitWarnings.setToolTip(tr("Set the maximum number of warnings. 0 means that the number "
+                                "is not limited."));
+
+    registerAspect(&maxWarnings);
+    maxWarnings.setSettingsKey("MaxWarnings");
+    maxWarnings.setRange(0, 10000);
+    maxWarnings.setDefaultValue(2000);
+    maxWarnings.setSpecialValueText(tr("Unlimited"));
+    maxWarnings.setEnabler(&limitWarnings);
 }
 
 QString QtTestSettings::metricsTypeToOption(const MetricsType type)
@@ -115,6 +128,9 @@ QtTestSettingsPage::QtTestSettingsPage(QtTestSettings *settings, Id settingsId)
             s.useXMLOutput,
             s.verboseBench,
             s.logSignalsSlots,
+            Row {
+                s.limitWarnings, s.maxWarnings
+            },
             Group {
                 Title(QtTestSettings::tr("Benchmark Metrics")),
                 s.metrics
