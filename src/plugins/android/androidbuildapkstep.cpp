@@ -491,7 +491,6 @@ AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent, Utils::Id id)
 {
     setImmutable(true);
     setDisplayName(tr("Build Android APK"));
-    setSummaryText("<b>" + displayName() + "</b>");
 }
 
 bool AndroidBuildApkStep::init()
