@@ -372,6 +372,11 @@ static QString preferredAbi(const QStringList &appAbis, const Target *target)
 QString AndroidManager::apkDevicePreferredAbi(const Target *target)
 {
     auto libsPath = dirPath(target).pathAppended("libs");
+    if (!libsPath.exists()) {
+        if (const ProjectNode *node = currentProjectNode(target))
+            return preferredAbi(node->data(Android::Constants::ANDROID_ABIS).toStringList(),
+                                target);
+    }
     QStringList apkAbis;
     for (const auto &abi : QDir{libsPath.toString()}.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
         if (!QDir{libsPath.pathAppended(abi).toString()}.entryList(QStringList("*.so"), QDir::Files | QDir::NoDotAndDotDot).isEmpty())
