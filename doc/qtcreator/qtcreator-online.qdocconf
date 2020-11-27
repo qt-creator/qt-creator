@@ -16,5 +16,8 @@ HTML.footer = \
 
 include($QT_INSTALL_DOCS/global/qt-html-templates-online.qdocconf)
 
+# Override macros for online use
+include(../config/macros-online.qdocconf)
+
 # Add an .html file with sidebar content, used in the online style
 HTML.stylesheets               += config/style/qt5-sidebar.html
