@@ -315,7 +315,6 @@ public:
     Abi targetAbi() const override { return Abi::hostAbi(); }
     bool isValid() const override { return m_valid; }
     MacroInspectionRunner createMacroInspectionRunner() const override { return MacroInspectionRunner(); }
-    Macros predefinedMacros(const QStringList &cxxflags) const override { Q_UNUSED(cxxflags) return Macros(); }
     LanguageExtensions languageExtensions(const QStringList &cxxflags) const override { Q_UNUSED(cxxflags) return LanguageExtension::None; }
     WarningFlags warningFlags(const QStringList &cflags) const override { Q_UNUSED(cflags) return WarningFlags::NoWarnings; }
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(const Utils::Environment &) const override { return BuiltInHeaderPathsRunner(); }

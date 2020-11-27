@@ -1004,11 +1004,6 @@ ToolChain::MacroInspectionRunner MsvcToolChain::createMacroInspectionRunner() co
     };
 }
 
-Macros MsvcToolChain::predefinedMacros(const QStringList &cxxflags) const
-{
-    return createMacroInspectionRunner()(cxxflags).macros;
-}
-
 Utils::LanguageExtensions MsvcToolChain::languageExtensions(const QStringList &cxxflags) const
 {
     using Utils::LanguageExtension;

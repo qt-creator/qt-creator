@@ -42,7 +42,6 @@ public:
     bool isValid() const override;
 
     MacroInspectionRunner createMacroInspectionRunner() const override;
-    ProjectExplorer::Macros predefinedMacros(const QStringList &flags) const final;
     Utils::LanguageExtensions languageExtensions(const QStringList &flags) const final;
     Utils::WarningFlags warningFlags(const QStringList &flags) const final;
 

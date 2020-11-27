@@ -262,11 +262,6 @@ ToolChain::MacroInspectionRunner SdccToolChain::createMacroInspectionRunner() co
     };
 }
 
-Macros SdccToolChain::predefinedMacros(const QStringList &cxxflags) const
-{
-    return createMacroInspectionRunner()(cxxflags).macros;
-}
-
 Utils::LanguageExtensions SdccToolChain::languageExtensions(const QStringList &) const
 {
     return LanguageExtension::None;

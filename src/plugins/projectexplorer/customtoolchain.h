@@ -70,7 +70,6 @@ public:
     bool isValid() const override;
 
     MacroInspectionRunner createMacroInspectionRunner() const override;
-    Macros predefinedMacros(const QStringList &cxxflags) const override;
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
     Utils::WarningFlags warningFlags(const QStringList &cxxflags) const override;
     const Macros &rawPredefinedMacros() const;

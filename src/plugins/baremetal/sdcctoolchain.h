@@ -58,7 +58,6 @@ public:
     bool isValid() const final;
 
     MacroInspectionRunner createMacroInspectionRunner() const final;
-    ProjectExplorer::Macros predefinedMacros(const QStringList &cxxflags) const final;
 
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const final;
     Utils::WarningFlags warningFlags(const QStringList &cxxflags) const final;

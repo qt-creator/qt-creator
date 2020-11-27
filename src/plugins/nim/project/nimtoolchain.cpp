@@ -70,11 +70,6 @@ ToolChain::MacroInspectionRunner NimToolChain::createMacroInspectionRunner() con
     return ToolChain::MacroInspectionRunner();
 }
 
-Macros NimToolChain::predefinedMacros(const QStringList &) const
-{
-    return Macros();
-}
-
 LanguageExtensions NimToolChain::languageExtensions(const QStringList &) const
 {
     return LanguageExtension::None;

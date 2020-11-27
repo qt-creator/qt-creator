@@ -344,11 +344,6 @@ ToolChain::MacroInspectionRunner IarToolChain::createMacroInspectionRunner() con
     };
 }
 
-Macros IarToolChain::predefinedMacros(const QStringList &cxxflags) const
-{
-    return createMacroInspectionRunner()(cxxflags).macros;
-}
-
 Utils::LanguageExtensions IarToolChain::languageExtensions(const QStringList &) const
 {
     return LanguageExtension::None;

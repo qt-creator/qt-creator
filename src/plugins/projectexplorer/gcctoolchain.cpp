@@ -450,7 +450,16 @@ ToolChain::MacroInspectionRunner GccToolChain::createMacroInspectionRunner() con
     MacrosCache macroCache = predefinedMacrosCache();
     Utils::Id lang = language();
 
-    // This runner must be thread-safe!
+    /*
+     * Asks compiler for set of predefined macros
+     * flags are the compiler flags collected from project settings
+     * returns the list of defines, one per line, e.g. "#define __GXX_WEAK__ 1"
+     * Note: changing compiler flags sometimes changes macros set, e.g. -fopenmp
+     * adds _OPENMP macro, for full list of macro search by word "when" on this page:
+     * http://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html
+     *
+     * This runner must be thread-safe!
+     */
     return [env, compilerCommand, platformCodeGenFlags, reinterpretOptions, macroCache, lang]
             (const QStringList &flags) {
         QStringList allFlags = platformCodeGenFlags + flags;  // add only cxxflags is empty?
@@ -478,20 +487,6 @@ ToolChain::MacroInspectionRunner GccToolChain::createMacroInspectionRunner() con
 
         return report;
     };
-}
-
-/**
- * @brief Asks compiler for set of predefined macros
- * @param cxxflags - compiler flags collected from project settings
- * @return defines list, one per line, e.g. "#define __GXX_WEAK__ 1"
- *
- * @note changing compiler flags sometimes changes macros set, e.g. -fopenmp
- * adds _OPENMP macro, for full list of macro search by word "when" on this page:
- * http://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html
- */
-ProjectExplorer::Macros GccToolChain::predefinedMacros(const QStringList &cxxflags) const
-{
-    return createMacroInspectionRunner()(cxxflags).macros;
 }
 
 /**
@@ -874,7 +869,7 @@ GccToolChain::DetectedAbisResult GccToolChain::detectSupportedAbis() const
 {
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
-    ProjectExplorer::Macros macros = predefinedMacros(QStringList());
+    ProjectExplorer::Macros macros = createMacroInspectionRunner()({}).macros;
     return guessGccAbi(findLocalCompiler(m_compilerCommand, env),
                        env.toStringList(),
                        macros,

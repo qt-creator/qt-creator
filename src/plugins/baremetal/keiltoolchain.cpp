@@ -476,11 +476,6 @@ ToolChain::MacroInspectionRunner KeilToolChain::createMacroInspectionRunner() co
     };
 }
 
-Macros KeilToolChain::predefinedMacros(const QStringList &cxxflags) const
-{
-    return createMacroInspectionRunner()(cxxflags).macros;
-}
-
 Utils::LanguageExtensions KeilToolChain::languageExtensions(const QStringList &) const
 {
     return LanguageExtension::None;

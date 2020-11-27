@@ -134,7 +134,6 @@ public:
     // A MacroInspectionRunner is created in the ui thread and runs in another thread.
     using MacroInspectionRunner = std::function<MacroInspectionReport(const QStringList &cxxflags)>;
     virtual MacroInspectionRunner createMacroInspectionRunner() const = 0;
-    virtual Macros predefinedMacros(const QStringList &cxxflags) const = 0;
 
     // A BuiltInHeaderPathsRunner is created in the ui thread and runs in another thread.
     using BuiltInHeaderPathsRunner = std::function<HeaderPaths(

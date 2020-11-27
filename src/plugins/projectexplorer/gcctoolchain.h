@@ -84,7 +84,6 @@ public:
     Utils::WarningFlags warningFlags(const QStringList &cflags) const override;
 
     MacroInspectionRunner createMacroInspectionRunner() const override;
-    Macros predefinedMacros(const QStringList &cxxflags) const override;
 
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(const Utils::Environment &env) const override;
     HeaderPaths builtInHeaderPaths(const QStringList &flags,

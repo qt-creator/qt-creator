@@ -77,7 +77,6 @@ public:
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
 
     MacroInspectionRunner createMacroInspectionRunner() const override;
-    Macros predefinedMacros(const QStringList &cxxflags) const override;
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
     Utils::WarningFlags warningFlags(const QStringList &cflags) const override;
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(
