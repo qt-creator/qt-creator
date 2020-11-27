@@ -38,6 +38,7 @@ void BaseConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServe
                                   ProjectExplorer::Target *,
                                   AbstractView *view)
 {
+    Q_UNUSED(view)
     m_nodeInstanceServer = nodeInstanceServer;
     m_isActive = true;
 }

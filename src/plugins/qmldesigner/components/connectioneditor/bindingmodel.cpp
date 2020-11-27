@@ -101,6 +101,7 @@ void BindingModel::bindingRemoved(const BindingProperty &bindingProperty)
 
 void BindingModel::selectionChanged(const QList<ModelNode> &selectedNodes)
 {
+    Q_UNUSED(selectedNodes)
     m_handleDataChanged = false;
     resetModel();
     m_handleDataChanged = true;

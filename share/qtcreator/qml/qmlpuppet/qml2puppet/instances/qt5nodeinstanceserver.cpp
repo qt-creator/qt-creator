@@ -259,6 +259,8 @@ bool Qt5NodeInstanceServer::initRhi(RenderViewData &viewData)
 
     // redirect Qt Quick rendering into our texture
     viewData.window->setRenderTarget(QQuickRenderTarget::fromRhiRenderTarget(viewData.texTarget));
+#else
+    Q_UNUSED(viewData)
 #endif
     return true;
 }
@@ -294,6 +296,8 @@ QImage Qt5NodeInstanceServer::grabRenderControl(RenderViewData &viewData)
     rd->cb->resourceUpdate(readbackBatch);
 
     viewData.renderControl->endFrame();
+#else
+    Q_UNUSED(viewData)
 #endif
     return renderImage;
 }
