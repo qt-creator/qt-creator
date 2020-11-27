@@ -503,7 +503,7 @@ bool LinkPrivate::importLibrary(const Document::Ptr &doc,
 
         if (!subImportFound && errorLoc.isValid()) {
             import->valid = false;
-            if (toImport.flags & QmlDirParser::Import::Optional)
+            if (!(optional || (toImport.flags & QmlDirParser::Import::Optional)))
                 error(doc, errorLoc,
                       Link::tr(
                           "Implicit import '%1' of QML module '%2' not found.\n\n"
