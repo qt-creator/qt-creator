@@ -74,8 +74,8 @@ public:
 
 protected:
     ~AbstractTransaction() = default;
-    AbstractTransaction(TransactionInterface &interface)
-        : m_interface(interface)
+    AbstractTransaction(TransactionInterface &transactionInterface)
+        : m_interface(transactionInterface)
     {
     }
 
@@ -112,8 +112,8 @@ public:
     }
 
 protected:
-    AbstractThrowingSessionTransaction(TransactionInterface &interface)
-        : m_interface(interface)
+    AbstractThrowingSessionTransaction(TransactionInterface &transactionInterface)
+        : m_interface(transactionInterface)
     {}
 
 protected:
@@ -140,8 +140,8 @@ public:
     }
 
 protected:
-    AbstractThrowingTransaction(TransactionInterface &interface)
-        : AbstractTransaction(interface)
+    AbstractThrowingTransaction(TransactionInterface &transactionInterface)
+        : AbstractTransaction(transactionInterface)
     {
     }
 };
@@ -161,8 +161,8 @@ public:
     }
 
 protected:
-    AbstractNonThrowingDestructorTransaction(TransactionInterface &interface)
-        : AbstractTransaction(interface)
+    AbstractNonThrowingDestructorTransaction(TransactionInterface &transactionInterface)
+        : AbstractTransaction(transactionInterface)
     {
     }
 };
@@ -171,10 +171,10 @@ template <typename BaseTransaction>
 class BasicDeferredTransaction final : public BaseTransaction
 {
 public:
-    BasicDeferredTransaction(TransactionInterface &interface)
-        : BaseTransaction(interface)
+    BasicDeferredTransaction(TransactionInterface &transactionInterface)
+        : BaseTransaction(transactionInterface)
     {
-        interface.deferredBegin();
+        transactionInterface.deferredBegin();
     }
 
     ~BasicDeferredTransaction()
@@ -190,10 +190,10 @@ template <typename BaseTransaction>
 class BasicImmediateTransaction final : public BaseTransaction
 {
 public:
-    BasicImmediateTransaction(TransactionInterface &interface)
-        : BaseTransaction(interface)
+    BasicImmediateTransaction(TransactionInterface &transactionInterface)
+        : BaseTransaction(transactionInterface)
     {
-        interface.immediateBegin();
+        transactionInterface.immediateBegin();
     }
 
     ~BasicImmediateTransaction()
@@ -209,10 +209,10 @@ template <typename BaseTransaction>
 class BasicExclusiveTransaction final : public BaseTransaction
 {
 public:
-    BasicExclusiveTransaction(TransactionInterface &interface)
-        : BaseTransaction(interface)
+    BasicExclusiveTransaction(TransactionInterface &transactionInterface)
+        : BaseTransaction(transactionInterface)
     {
-        interface.exclusiveBegin();
+        transactionInterface.exclusiveBegin();
     }
 
     ~BasicExclusiveTransaction()
@@ -228,10 +228,10 @@ using ExclusiveNonThrowingDestructorTransaction
 class ImmediateSessionTransaction final : public AbstractThrowingSessionTransaction
 {
 public:
-    ImmediateSessionTransaction(TransactionInterface &interface)
-        : AbstractThrowingSessionTransaction(interface)
+    ImmediateSessionTransaction(TransactionInterface &transactionInterface)
+        : AbstractThrowingSessionTransaction(transactionInterface)
     {
-        interface.immediateSessionBegin();
+        transactionInterface.immediateSessionBegin();
     }
 
     ~ImmediateSessionTransaction()
