@@ -474,9 +474,12 @@ QString AndroidConfig::apiLevelNameFor(const SdkPlatform *platform)
                 QString("android-%1").arg(platform->apiLevel()) : "";
 }
 
-bool AndroidConfig::isCmdlineSdkToolsInstalled() const
+// This is checking for the SDK tools [*] that were deprecated in favor of
+// the command-line tools.
+// See https://developer.android.com/studio/releases/sdk-tools
+bool AndroidConfig::preCmdlineSdkToolsInstalled() const
 {
-    QString toolPath("cmdline-tools/latest/bin/sdkmanager");
+    QString toolPath("tools/bin/sdkmanager");
     if (HostOsInfo::isWindowsHost())
         toolPath += ANDROID_BAT_SUFFIX;
 
@@ -491,23 +494,35 @@ FilePath AndroidConfig::adbToolPath() const
 FilePath AndroidConfig::emulatorToolPath() const
 {
     QString relativePath = "emulator/emulator";
-    if (sdkToolsVersion() < QVersionNumber(25, 3, 0) && !isCmdlineSdkToolsInstalled())
+    if (sdkToolsVersion() < QVersionNumber(25, 3, 0) && preCmdlineSdkToolsInstalled())
         relativePath = "tools/emulator";
     return m_sdkLocation / (relativePath + QTC_HOST_EXE_SUFFIX);
 }
 
 FilePath AndroidConfig::sdkManagerToolPath() const
 {
-    QStringList sdkmanagerPaths = {"cmdline-tools/latest/bin/sdkmanager",
-                                   "tools/bin/sdkmanager"};
+    const QStringList sdkmanagerPaths = {
+        QString(Constants::cmdlineToolsName).append("/latest/bin/sdkmanager"),
+        "tools/bin/sdkmanager"};
 
-    for (QString &toolPath : sdkmanagerPaths) {
+    for (const QString &toolPath : sdkmanagerPaths) {
+        QString toolPathWithSuffix = toolPath;
         if (HostOsInfo::isWindowsHost())
-            toolPath += ANDROID_BAT_SUFFIX;
-
-        const FilePath sdkmanagerPath = m_sdkLocation / toolPath;
+            toolPathWithSuffix += ANDROID_BAT_SUFFIX;
+        const FilePath sdkmanagerPath = m_sdkLocation / toolPathWithSuffix;
         if (sdkmanagerPath.exists())
             return sdkmanagerPath;
+    }
+
+    // If it's a first time install use the path of Constants::cmdlineToolsName temporary download
+    const FilePath tmpSdkPath = m_temporarySdkToolsPath;
+    if (!tmpSdkPath.isEmpty()) {
+        QString suffix = "bin/sdkmanager";
+        if (HostOsInfo::isWindowsHost())
+            suffix += ANDROID_BAT_SUFFIX;
+        const FilePath tmpsdkManagerPath = tmpSdkPath.pathAppended(suffix);
+        if (tmpsdkManagerPath.exists())
+            return tmpsdkManagerPath;
     }
 
     return FilePath();
@@ -515,16 +530,45 @@ FilePath AndroidConfig::sdkManagerToolPath() const
 
 FilePath AndroidConfig::avdManagerToolPath() const
 {
-    QStringList sdkmanagerPaths = {"cmdline-tools/latest/bin/avdmanager",
-                                   "tools/bin/avdmanager"};
+    const QStringList sdkmanagerPaths = {
+        QString(Constants::cmdlineToolsName).append("/latest/bin/avdmanager"),
+        "tools/bin/avdmanager"};
 
-    for (QString &toolPath : sdkmanagerPaths) {
+    for (const QString &toolPath : sdkmanagerPaths) {
+        QString toolPathWithSuffix = toolPath;
         if (HostOsInfo::isWindowsHost())
-            toolPath += ANDROID_BAT_SUFFIX;
-
-        const FilePath sdkmanagerPath = m_sdkLocation / toolPath;
+            toolPathWithSuffix += ANDROID_BAT_SUFFIX;
+        const FilePath sdkmanagerPath = m_sdkLocation / toolPathWithSuffix;
         if (sdkmanagerPath.exists())
             return sdkmanagerPath;
+    }
+
+    return FilePath();
+}
+
+void AndroidConfig::setTemporarySdkToolsPath(const Utils::FilePath &path)
+{
+    m_temporarySdkToolsPath = path;
+}
+
+FilePath AndroidConfig::sdkToolsVersionPath() const
+{
+    const QStringList sdkVersionPaths = {
+        QString(Constants::cmdlineToolsName).append("/latest/source.properties"),
+        "tools/source.properties"};
+
+    for (const QString &versionPath : sdkVersionPaths) {
+        const FilePath sdkVersionPath = m_sdkLocation / versionPath;
+        if (sdkVersionPath.exists())
+            return sdkVersionPath;
+    }
+
+    // If it's a first time install use the path of Constants::cmdlineToolsName temporary download
+    const FilePath tmpSdkPath = m_temporarySdkToolsPath;
+    if (!tmpSdkPath.isEmpty()) {
+        const FilePath sdkVersionPath = tmpSdkPath.pathAppended("source.properties");
+        if (sdkVersionPath.exists())
+            return sdkVersionPath;
     }
 
     return FilePath();
@@ -861,18 +905,12 @@ void AndroidConfig::setSdkLocation(const FilePath &sdkLocation)
 
 QVersionNumber AndroidConfig::sdkToolsVersion() const
 {
-    QVersionNumber version;
-    if (m_sdkLocation.exists()) {
-        FilePath sdkToolsPropertiesPath;
-        if (isCmdlineSdkToolsInstalled())
-            sdkToolsPropertiesPath = m_sdkLocation / "cmdline-tools/latest/source.properties";
-        else
-            sdkToolsPropertiesPath = m_sdkLocation / "tools/source.properties";
-        QSettings settings(sdkToolsPropertiesPath.toString(), QSettings::IniFormat);
-        auto versionStr = settings.value(sdkToolsVersionKey).toString();
-        version = QVersionNumber::fromString(versionStr);
-    }
-    return version;
+    if (!m_sdkLocation.exists())
+        return {};
+
+    const FilePath sdkToolsPropertiesPath = sdkToolsVersionPath();
+    const QSettings settings(sdkToolsPropertiesPath.toString(), QSettings::IniFormat);
+    return QVersionNumber::fromString(settings.value(sdkToolsVersionKey).toString());
 }
 
 QVersionNumber AndroidConfig::buildToolsVersion() const

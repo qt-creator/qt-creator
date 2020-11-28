@@ -303,18 +303,18 @@ private:
 
 using MarkerTagsType = std::map<SdkManagerOutputParser::MarkerTag, const char *>;
 Q_GLOBAL_STATIC_WITH_ARGS(MarkerTagsType, markerTags, ({
-        {SdkManagerOutputParser::MarkerTag::InstalledPackagesMarker,    "Installed packages:"},
-        {SdkManagerOutputParser::MarkerTag::AvailablePackagesMarkers,   "Available Packages:"},
-        {SdkManagerOutputParser::MarkerTag::AvailableUpdatesMarker,     "Available Updates:"},
-        {SdkManagerOutputParser::MarkerTag::PlatformMarker,             "platforms"},
-        {SdkManagerOutputParser::MarkerTag::SystemImageMarker,          "system-images"},
-        {SdkManagerOutputParser::MarkerTag::BuildToolsMarker,           "build-tools"},
-        {SdkManagerOutputParser::MarkerTag::SdkToolsMarker,             "tools"},
-        {SdkManagerOutputParser::MarkerTag::CmdlineSdkToolsMarker,      "cmdline-tools"},
-        {SdkManagerOutputParser::MarkerTag::PlatformToolsMarker,        "platform-tools"},
-        {SdkManagerOutputParser::MarkerTag::EmulatorToolsMarker,        "emulator"},
-        {SdkManagerOutputParser::MarkerTag::NdkMarker,                  "ndk"},
-        {SdkManagerOutputParser::MarkerTag::ExtrasMarker,               "extras"}
+    {SdkManagerOutputParser::MarkerTag::InstalledPackagesMarker,    "Installed packages:"},
+    {SdkManagerOutputParser::MarkerTag::AvailablePackagesMarkers,   "Available Packages:"},
+    {SdkManagerOutputParser::MarkerTag::AvailableUpdatesMarker,     "Available Updates:"},
+    {SdkManagerOutputParser::MarkerTag::PlatformMarker,             "platforms"},
+    {SdkManagerOutputParser::MarkerTag::SystemImageMarker,          "system-images"},
+    {SdkManagerOutputParser::MarkerTag::BuildToolsMarker,           "build-tools"},
+    {SdkManagerOutputParser::MarkerTag::SdkToolsMarker,             "tools"},
+    {SdkManagerOutputParser::MarkerTag::CmdlineSdkToolsMarker,      Constants::cmdlineToolsName},
+    {SdkManagerOutputParser::MarkerTag::PlatformToolsMarker,        "platform-tools"},
+    {SdkManagerOutputParser::MarkerTag::EmulatorToolsMarker,        "emulator"},
+    {SdkManagerOutputParser::MarkerTag::NdkMarker,                  "ndk"},
+    {SdkManagerOutputParser::MarkerTag::ExtrasMarker,               "extras"}
 }));
 
 AndroidSdkManager::AndroidSdkManager(const AndroidConfig &config):

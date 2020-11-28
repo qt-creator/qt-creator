@@ -96,6 +96,7 @@ public:
     Utils::FilePath sdkLocation() const;
     void setSdkLocation(const Utils::FilePath &sdkLocation);
     QVersionNumber sdkToolsVersion() const;
+    Utils::FilePath sdkToolsVersionPath() const;
     QVersionNumber buildToolsVersion() const;
     QStringList sdkManagerToolArgs() const;
     void setSdkManagerToolArgs(const QStringList &args);
@@ -134,6 +135,8 @@ public:
     Utils::FilePath sdkManagerToolPath() const;
     Utils::FilePath avdManagerToolPath() const;
 
+    void setTemporarySdkToolsPath(const Utils::FilePath &path);
+
     Utils::FilePath toolchainPath(const QtSupport::QtVersion *qtVersion) const;
     static Utils::FilePath toolchainPathFromNdk(const Utils::FilePath &ndkLocation,
                                                 Utils::OsType hostOs = Utils::HostOsInfo::hostOs());
@@ -158,7 +161,7 @@ public:
     QString getProductModel(const QString &device) const;
     bool isConnected(const QString &serialNumber) const;
 
-    bool isCmdlineSdkToolsInstalled() const;
+    bool preCmdlineSdkToolsInstalled() const;
 
     bool sdkFullyConfigured() const { return m_sdkFullyConfigured; }
     void setSdkFullyConfigured(bool allEssentialsInstalled) { m_sdkFullyConfigured = allEssentialsInstalled; }
@@ -188,6 +191,7 @@ private:
     QList<int> availableNdkPlatforms(const QtSupport::QtVersion *qtVersion) const;
 
     Utils::FilePath m_sdkLocation;
+    Utils::FilePath m_temporarySdkToolsPath;
     QStringList m_sdkManagerToolArgs;
     Utils::FilePath m_openJDKLocation;
     Utils::FilePath m_keystoreLocation;

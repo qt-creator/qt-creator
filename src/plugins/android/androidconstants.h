@@ -102,5 +102,8 @@ const Utils::Id AndroidCpuAbi = "AndroidCpuAbi";
 const Utils::Id AndroidSdk = "AndroidSdk";
 const Utils::Id AndroidAvdPath = "AndroidAvdPath";
 
+// SDK Tools
+const char cmdlineToolsName[] = "cmdline-tools";
+
 } // namespace Constants;
 } // namespace Android

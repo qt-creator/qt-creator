@@ -535,7 +535,7 @@ bool AndroidBuildApkStep::init()
 
     const QVersionNumber sdkToolsVersion = AndroidConfigurations::currentConfig().sdkToolsVersion();
     if (sdkToolsVersion >= QVersionNumber(25, 3, 0)
-        || AndroidConfigurations::currentConfig().isCmdlineSdkToolsInstalled()) {
+            && AndroidConfigurations::currentConfig().preCmdlineSdkToolsInstalled()) {
         if (!version->sourcePath().pathAppended("src/3rdparty/gradle").exists()) {
             const QString error
                 = tr("The installed SDK tools version (%1) does not include Gradle "
