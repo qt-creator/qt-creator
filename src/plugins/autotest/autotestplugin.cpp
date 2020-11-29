@@ -214,10 +214,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
     menu->addAction(command);
 
     action = new QAction(tr("&Run Selected Tests"), this);
-    Utils::Icon runSelectedIcon = Utils::Icons::RUN_SMALL_TOOLBAR;
-    for (const Utils::IconMaskAndColor &maskAndColor : Icons::RUN_SELECTED_OVERLAY)
-        runSelectedIcon.append(maskAndColor);
-    action->setIcon(runSelectedIcon.icon());
+    action->setIcon(Utils::Icons::RUN_SELECTED.icon());
     action->setToolTip(tr("Run Selected Tests"));
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_SELECTED_ID);
     command->setDefaultKeySequence(
@@ -240,10 +237,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
     menu->addAction(command);
 
     action = new QAction(tr("Run Tests for &Current File"), this);
-    Utils::Icon runFileIcon = Utils::Icons::RUN_SMALL_TOOLBAR;
-    for (const Utils::IconMaskAndColor &maskAndColor : Icons::RUN_FILE_OVERLAY)
-        runFileIcon.append(maskAndColor);
-    action->setIcon(runFileIcon.icon());
+    action->setIcon(Utils::Icons::RUN_FILE.icon());
     action->setToolTip(tr("Run Tests for Current File"));
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_FILE_ID);
     command->setDefaultKeySequence(

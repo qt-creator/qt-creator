@@ -49,6 +49,7 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
+#include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
@@ -184,12 +185,18 @@ void TestResultsPane::createToolButtons()
     m_runAll->setDefaultAction(ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action());
 
     m_runSelected = new QToolButton(m_treeView);
-    m_runSelected->setDefaultAction(ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action());
+    m_runSelected->setDefaultAction(
+                Utils::ProxyAction::proxyActionWithIcon(
+                    ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action(),
+                    Utils::Icons::RUN_SELECTED_TOOLBAR.icon()));
 
     m_runFailed = new QToolButton(m_treeView);
     m_runFailed->setDefaultAction(ActionManager::command(Constants::ACTION_RUN_FAILED_ID)->action());
     m_runFile = new QToolButton(m_treeView);
-    m_runFile->setDefaultAction(ActionManager::command(Constants::ACTION_RUN_FILE_ID)->action());
+    m_runFile->setDefaultAction(
+                Utils::ProxyAction::proxyActionWithIcon(
+                    ActionManager::command(Constants::ACTION_RUN_FILE_ID)->action(),
+                    Utils::Icons::RUN_FILE_TOOLBAR.icon()));
 
     m_stopTestRun = new QToolButton(m_treeView);
     m_stopTestRun->setIcon(Utils::Icons::STOP_SMALL_TOOLBAR.icon());

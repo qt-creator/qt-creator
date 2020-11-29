@@ -265,6 +265,20 @@ const Icon OVERLAY_WARNING({
 const Icon OVERLAY_ERROR({
         {":/utils/images/iconoverlay_error_background.png", Theme::BackgroundColorNormal},
         {":/utils/images/iconoverlay_error.png", Theme::IconsErrorColor}}, Icon::Tint);
+const Icon RUN_FILE({
+        {":/utils/images/run_small.png", Theme::IconsRunColor},
+        {":/utils/images/run_file.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
+const Icon RUN_FILE_TOOLBAR({
+        {":/utils/images/run_small.png", Theme::IconsRunToolBarColor},
+        {":/utils/images/run_file.png", Theme::IconsBaseColor}});
+const Icon RUN_SELECTED({
+        {":/utils/images/run_small.png", Theme::IconsRunColor},
+        {":/utils/images/runselected_boxes.png", Theme::PanelTextColorMid},
+        {":/utils/images/runselected_tickmarks.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
+const Icon RUN_SELECTED_TOOLBAR({
+        {":/utils/images/run_small.png", Theme::IconsRunToolBarColor},
+        {":/utils/images/runselected_boxes.png", Theme::IconsBaseColor},
+        {":/utils/images/runselected_tickmarks.png", Theme::IconsBaseColor}});
 
 const Icon CODEMODEL_ERROR({
         {":/utils/images/codemodelerror.png", Theme::IconsErrorColor}}, Icon::Tint);

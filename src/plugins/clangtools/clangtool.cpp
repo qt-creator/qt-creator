@@ -66,7 +66,6 @@
 #include <utils/infolabel.h>
 #include <utils/progressindicator.h>
 #include <utils/proxyaction.h>
-#include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -385,23 +384,12 @@ ClangTool::ClangTool()
     s_instance = this;
     m_diagnosticModel = new ClangToolsDiagnosticModel(this);
 
-    const Utils::Icon RUN_SELECTED_OVERLAY(
-        {{":/utils/images/runselected_boxes.png", Utils::Theme::BackgroundColorDark},
-         {":/utils/images/runselected_tickmarks.png", Utils::Theme::IconsBaseColor}});
-
     auto action = new QAction(tr("Analyze Project..."), this);
-    Utils::Icon runSelectedIcon = Utils::Icons::RUN_SMALL_TOOLBAR;
-    for (const Utils::IconMaskAndColor &maskAndColor : RUN_SELECTED_OVERLAY)
-        runSelectedIcon.append(maskAndColor);
-    action->setIcon(runSelectedIcon.icon());
+    action->setIcon(Utils::Icons::RUN_SELECTED_TOOLBAR.icon());
     m_startAction = action;
 
     action = new QAction(tr("Analyze Current File"), this);
-    const QIcon runFileIcon = Icon(
-                {{":/utils/images/run_small.png", Theme::IconsRunColor},
-                 {":/utils/images/run_file.png", Theme::PanelTextColorMid}},
-                Icon::MenuTintedStyle).icon();
-    action->setIcon(runFileIcon);
+    action->setIcon(Utils::Icons::RUN_FILE.icon());
     m_startOnCurrentFileAction = action;
 
     m_stopAction = Debugger::createStopAction();
@@ -581,13 +569,10 @@ ClangTool::ClangTool()
         startTool(FileSelectionType::CurrentFile);
     });
 
-    const QIcon runFileIconToolBar = Icon(
-                {{":/utils/images/run_small.png", Theme::IconsRunToolBarColor},
-                 {":/utils/images/run_file.png", Theme::IconsBaseColor}}).icon();
-
     m_perspective.addToolBarAction(m_startAction);
     m_perspective.addToolBarAction(ProxyAction::proxyActionWithIcon(
-                                       m_startOnCurrentFileAction, runFileIconToolBar));
+                                       m_startOnCurrentFileAction,
+                                       Utils::Icons::RUN_FILE_TOOLBAR.icon()));
     m_perspective.addToolBarAction(m_stopAction);
     m_perspective.addToolBarAction(m_openProjectSettings);
     m_perspective.addToolbarSeparator();
