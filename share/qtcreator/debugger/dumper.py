@@ -575,9 +575,9 @@ class DumperBase():
 
     def qArrayData(self, value):
         if self.qtVersion() >= 0x60000:
-            dd, data, size = self.split('ppi', value)
+            dd, data, size = self.split('ppp', value)
             if dd:
-                alloc, i, i = self.split('Pii', dd)
+                _, _, alloc = self.split('iip', dd)
             else: # fromRawData
                 alloc = size
             return data, size, alloc
@@ -620,18 +620,12 @@ class DumperBase():
             data = self.extractPointer(array_data_ptr + self.ptrSize())
         return data, size, alloc
 
-    # addr is the begin of a QByteArrayData structure
     def encodeStringHelper(self, value, limit):
-        addr = self.extractPointer(value)
-        # Should not happen, but we get it with LLDB as result
-        # of inferior calls
-        if addr == 0:
-            return 0, ''
         data, size, alloc = self.qArrayData(value)
         if alloc != 0:
             self.check(0 <= size and size <= alloc and alloc <= 100 * 1000 * 1000)
-        elided, shown = self.computeLimit(size, limit)
-        return elided, self.readMemory(data, 2 * shown)
+        elided, shown = self.computeLimit(2 * size, 2 * limit)
+        return elided, self.readMemory(data, shown)
 
     def encodeByteArrayHelper(self, value, limit):
         data, size, alloc = self.qArrayData(value)
@@ -692,16 +686,8 @@ class DumperBase():
         self.putValue(data, 'latin1', elided=elided)
 
     def encodeString(self, value, limit=0):
-        if self.qtVersion() >= 0x60000:
-            dd, ptr, size = self.split('ppi', value)
-            if not dd:
-                return ""
-            elided, shown = self.computeLimit(2 * size, 2 * self.displayStringLimit)
-            data = self.readMemory(ptr, shown)
-            return data
-        else:
-            elided, data = self.encodeStringHelper(value, limit)
-            return data
+        elided, data = self.encodeStringHelper(value, limit)
+        return data
 
     def encodedUtf16ToUtf8(self, s):
         return ''.join([chr(int(s[i:i + 2], 16)) for i in range(0, len(s), 4)])
@@ -746,14 +732,8 @@ class DumperBase():
         return inner
 
     def putStringValue(self, value):
-        if self.qtVersion() >= 0x60000:
-            dd, ptr, size = self.split('ppi', value)
-            elided, shown = self.computeLimit(2 * size, 2 * self.displayStringLimit)
-            data = self.readMemory(ptr, shown)
-            self.putValue(data, 'utf16', elided=elided)
-        else:
-            elided, data = self.encodeStringHelper(value, self.displayStringLimit)
-            self.putValue(data, 'utf16', elided=elided)
+        elided, data = self.encodeStringHelper(value, self.displayStringLimit)
+        self.putValue(data, 'utf16', elided=elided)
 
     def putPtrItem(self, name, value):
         with SubItem(self, name):
