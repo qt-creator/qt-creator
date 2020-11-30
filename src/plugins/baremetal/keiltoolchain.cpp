@@ -506,13 +506,6 @@ ToolChain::BuiltInHeaderPathsRunner KeilToolChain::createBuiltInHeaderPathsRunne
     };
 }
 
-HeaderPaths KeilToolChain::builtInHeaderPaths(const QStringList &cxxFlags,
-                                              const FilePath &fileName,
-                                              const Environment &env) const
-{
-    return createBuiltInHeaderPathsRunner(env)(cxxFlags, fileName.toString(), "");
-}
-
 void KeilToolChain::addToEnvironment(Environment &env) const
 {
     if (!m_compilerCommand.isEmpty()) {

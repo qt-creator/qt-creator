@@ -287,13 +287,6 @@ ToolChain::BuiltInHeaderPathsRunner SdccToolChain::createBuiltInHeaderPathsRunne
     };
 }
 
-HeaderPaths SdccToolChain::builtInHeaderPaths(const QStringList &cxxFlags,
-                                              const FilePath &fileName,
-                                              const Environment &env) const
-{
-    return createBuiltInHeaderPathsRunner(env)(cxxFlags, fileName.toString(), "");
-}
-
 void SdccToolChain::addToEnvironment(Environment &env) const
 {
     if (!m_compilerCommand.isEmpty()) {

@@ -47,9 +47,6 @@ public:
 
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(
             const Utils::Environment &) const override;
-    ProjectExplorer::HeaderPaths builtInHeaderPaths(const QStringList &flags,
-                                                    const Utils::FilePath &sysRoot,
-                                                    const Utils::Environment &) const final;
     void addToEnvironment(Utils::Environment &env) const final;
     Utils::FilePath makeCommand(const Utils::Environment &env) const final;
     Utils::FilePath compilerCommand() const final;

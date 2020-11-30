@@ -77,9 +77,6 @@ public:
 
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(
             const Utils::Environment &) const override;
-    HeaderPaths builtInHeaderPaths(const QStringList &cxxFlags,
-                                   const Utils::FilePath &,
-                                   const Utils::Environment &env) const override;
     void addToEnvironment(Utils::Environment &env) const override;
     QStringList suggestedMkspecList() const override;
     QList<Utils::OutputLineParser *> createOutputParsers() const override;

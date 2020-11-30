@@ -657,16 +657,6 @@ ToolChain::BuiltInHeaderPathsRunner GccToolChain::createBuiltInHeaderPathsRunner
     };
 }
 
-HeaderPaths GccToolChain::builtInHeaderPaths(const QStringList &flags,
-                                             const FilePath &sysRootPath,
-                                             const Environment &env) const
-{
-    return createBuiltInHeaderPathsRunner(env)(flags,
-                                               sysRootPath.isEmpty() ? sysRoot()
-                                                                     : sysRootPath.toString(),
-                                               originalTargetTriple());
-}
-
 void GccToolChain::addCommandPathToEnvironment(const FilePath &command, Environment &env)
 {
     const Utils::FilePath compilerDir = command.parentDir();

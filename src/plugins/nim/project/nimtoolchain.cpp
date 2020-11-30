@@ -86,12 +86,6 @@ ToolChain::BuiltInHeaderPathsRunner NimToolChain::createBuiltInHeaderPathsRunner
     return ToolChain::BuiltInHeaderPathsRunner();
 }
 
-HeaderPaths NimToolChain::builtInHeaderPaths(const QStringList &, const FilePath &,
-                                             const Environment &) const
-{
-    return {};
-}
-
 void NimToolChain::addToEnvironment(Environment &env) const
 {
     if (isValid())

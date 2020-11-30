@@ -84,11 +84,7 @@ public:
     Utils::WarningFlags warningFlags(const QStringList &cflags) const override;
 
     MacroInspectionRunner createMacroInspectionRunner() const override;
-
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(const Utils::Environment &env) const override;
-    HeaderPaths builtInHeaderPaths(const QStringList &flags,
-                                   const Utils::FilePath &sysRootPath,
-                                   const Utils::Environment &env) const override;
 
     void addToEnvironment(Utils::Environment &env) const override;
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;

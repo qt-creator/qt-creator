@@ -1083,13 +1083,6 @@ ToolChain::BuiltInHeaderPathsRunner MsvcToolChain::createBuiltInHeaderPathsRunne
     };
 }
 
-HeaderPaths MsvcToolChain::builtInHeaderPaths(const QStringList &cxxflags,
-                                              const Utils::FilePath &sysRoot,
-                                              const Environment &env) const
-{
-    return createBuiltInHeaderPathsRunner(env)(cxxflags, sysRoot.toString(), "");
-}
-
 void MsvcToolChain::addToEnvironment(Utils::Environment &env) const
 {
     // We cache the full environment (incoming + modifications by setup script).

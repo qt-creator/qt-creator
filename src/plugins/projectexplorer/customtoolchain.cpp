@@ -165,13 +165,6 @@ ToolChain::BuiltInHeaderPathsRunner CustomToolChain::createBuiltInHeaderPathsRun
     };
 }
 
-HeaderPaths CustomToolChain::builtInHeaderPaths(const QStringList &cxxFlags,
-                                                const FilePath &fileName,
-                                                const Environment &env) const
-{
-    return createBuiltInHeaderPathsRunner(env)(cxxFlags, fileName.toString(), "");
-}
-
 void CustomToolChain::addToEnvironment(Environment &env) const
 {
     if (!m_compilerCommand.isEmpty()) {

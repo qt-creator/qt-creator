@@ -64,9 +64,6 @@ public:
     Utils::WarningFlags warningFlags(const QStringList &cxxflags) const final;
 
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(const Utils::Environment &) const final;
-    ProjectExplorer::HeaderPaths builtInHeaderPaths(const QStringList &cxxFlags,
-                                                    const Utils::FilePath &,
-                                                    const Utils::Environment &env) const final;
     void addToEnvironment(Utils::Environment &env) const final;
     QList<Utils::OutputLineParser *> createOutputParsers() const final;
 
