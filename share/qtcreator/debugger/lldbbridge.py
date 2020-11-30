@@ -1309,7 +1309,11 @@ class Dumper(DumperBase):
         result = 'registers=['
         for group in frame.GetRegisters():
             for reg in group:
-                value = ''.join(["%02x" % x for x in reg.GetData().uint8s])
+                data = reg.GetData()
+                if data.GetByteOrder() == lldb.eByteOrderLittle:
+                    value = ''.join(["%02x" % x for x in reversed(data.uint8s)])
+                else:
+                    value = ''.join(["%02x" % x for x in data.uint8s])
                 result += '{name="%s"' % reg.GetName()
                 result += ',value="0x%s"' % value
                 result += ',size="%s"' % reg.GetByteSize()
