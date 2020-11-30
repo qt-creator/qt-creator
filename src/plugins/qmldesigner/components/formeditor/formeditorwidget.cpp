@@ -26,6 +26,7 @@
 #include "formeditorwidget.h"
 #include "designeractionmanager.h"
 #include "designersettings.h"
+#include "formeditoritem.h"
 #include "formeditorscene.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignericons.h"
@@ -208,7 +209,19 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
     auto frameAll = [this, zoomOut]() {
         if (m_graphicsView) {
-            m_graphicsView->frame(m_graphicsView->rootItemRect());
+            QRectF bounds;
+            if (QmlItemNode(m_formEditorView->rootModelNode()).isFlowView()) {
+                for (QGraphicsItem *item : m_formEditorView->scene()->items()) {
+                    if (auto *fitem = FormEditorItem::fromQGraphicsItem(item)) {
+                        if (!fitem->qmlItemNode().modelNode().isRootNode()
+                            && !fitem->sceneBoundingRect().isNull())
+                            bounds |= fitem->sceneBoundingRect();
+                    }
+                }
+            } else {
+                bounds = m_graphicsView->rootItemRect();
+            }
+            m_graphicsView->frame(bounds);
             zoomOut();
         }
     };
