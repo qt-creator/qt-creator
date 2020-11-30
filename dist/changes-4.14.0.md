@@ -20,6 +20,7 @@ Help
 ----
 
 * Made `litehtml` rendering backend the default
+* Fixed that Qt 5 documentation was not available if Qt 6 is installed
 
 Editing
 -------
@@ -40,7 +41,7 @@ Editing
 * Added highlighting for structured bindings (QTCREATORBUG-24769)
 * Restricted completion for second argument of `connect` calls to signals (QTCREATORBUG-13558)
 * Fixed crash of backend with multiline `Q_PROPERTY` declarations (QTCREATORBUG-24746)
-* Fixed duplicate items appearing in include completion (QTCREATORBUG-24515)
+* Fixed issues with include completion (QTCREATORBUG-21490, QTCREATORBUG-24515)
 * Fixed missing namespace when generating getters and setters (QTCREATORBUG-14886)
 * Fixed missing `inline` when generating method definitions in header files
   (QTCREATORBUG-15052)
@@ -73,6 +74,7 @@ Editing
 
 * Fixed issues with `Move Component into Separate File` (QTCREATORBUG-21091)
 * Fixed crash with malformed `property` (QTCREATORBUG-24587)
+* Fixed `qmldir` parsing with Qt 6 (QTCREATORBUG-24772)
 
 ### GLSL
 
@@ -88,6 +90,7 @@ Projects
 * Fixed issue when environment changes after appending or prepending path (QTCREATORBUG-24105)
 * Fixed `Embedding of the UI Class` option for widget applications (QTCREATORBUG-24422)
 * Fixed shell used for console applications (QTCREATORBUG-24659)
+* Fixed issue with auto-scrolling compile output (QTCREATORBUG-24728)
 
 ### qmake
 
@@ -102,6 +105,12 @@ Projects
 
 * Added option to unselect multiple configuration variables simultaneously
   (QTCREATORBUG-22659)
+* Fixed missing run of CMake when saving `CMakeLists.txt` files in
+  subdirectories
+* Fixed that changing build directory to existing build ran CMake with initial
+  arguments
+* Fixed that configuration changes were lost when done before triggering a first
+  build (QTCREATORBUG-24936)
 
 ### Meson
 
@@ -110,6 +119,7 @@ Projects
 Debugging
 ---------
 
+* Updated various pretty printers for Qt 6
 * Fixed disabling and enabling breakpoints (QTCREATORBUG-24669)
 * Fixed setting source mappings with variables (QTCREATORBUG-24816)
 
@@ -120,6 +130,7 @@ Debugging
 ### CDB
 
 * Fixed debugging when `PYTHONPATH` is set (QTCREATORBUG-24859)
+* Fixed pretty printer of containers with signed chars
 
 Analyzer
 --------
@@ -153,6 +164,10 @@ Test Integration
 Platforms
 ---------
 
+### Linux
+
+* Fixed initial directory when opening Konsole (QTCREATORBUG-24947)
+
 ### macOS
 
 * Fixed type display when debugging with newest LLDB
@@ -164,6 +179,11 @@ Platforms
     * Added support for setting preferred screen orientation
 * Added missing Android variables to completion in `.pro` and `.pri` files
 * Fixed passing command line arguments to application (QTCREATORBUG-23712)
+* Fixed fetching of logcat output when application crashes
+
+### iOS
+
+* Fixed persistence of signing settings (QTCREATORBUG-24586)
 
 ### MCU
 
