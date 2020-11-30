@@ -2864,21 +2864,21 @@ void tst_Dumpers::dumper_data()
 
               + CoreProfile()
 
-              + Check("m0", "<0 items>", "@QMap<unsigned int, @QList<QString>>")
+              + Check("m0", "<0 items>", "@QMap<unsigned int, @QList<@QString>>")
 
-              + Check("m1", "<2 items>", "@QMap<unsigned int, @QList<QString>>")
+              + Check("m1", "<2 items>", "@QMap<unsigned int, @QList<@QString>>")
               + CheckPairish("m1.0.key", "11", "unsigned int")
-              + CheckPairish("m1.0.value", "<1 items>", "@QList<QString>")
+              + CheckPairish("m1.0.value", "<1 items>", "@QList<@QString>")
               + CheckPairish("m1.0.value.0", "[0]", "\"11\"", "@QString")
               + CheckPairish("m1.1.key", "22", "unsigned int")
-              + CheckPairish("m1.1.value", "<1 items>", "@QList<QString>")
+              + CheckPairish("m1.1.value", "<1 items>", "@QList<@QString>")
               + CheckPairish("m1.1.value.0", "[0]", "\"22\"", "@QString")
 
               + Check("m2", "<2 items>", "@QMap<unsigned int, float>")
               + Check("m2.0", "[0] 11", FloatValue("31.0"), "")
               + Check("m2.1", "[1] 22", FloatValue("32.0"), "")
 
-              + Check("m3", "<2 items>", TypeDef("@QMap<unsigned int,@QList<QString>>", "T"))
+              + Check("m3", "<2 items>", TypeDef("@QMap<unsigned int,@QList<@QString>>", "T"))
 
               + Check("m4", "<1 items>", "@QMap<@QString, float>")
               + CheckPairish("m4.0.key", "\"22.0\"", "@QString")

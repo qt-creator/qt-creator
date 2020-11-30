@@ -1902,7 +1902,7 @@ class DumperBase():
                     = self.split('ppppIIp' + 'pppppp', dd)
 
         if qobjectPtr:
-            qobjectType = self.createType('QObject')
+            qobjectType = self.createType('@QObject')
             with SubItem(self, '[parent]'):
                 if not self.isCli:
                     self.putSortGroup(9)
@@ -2063,8 +2063,8 @@ class DumperBase():
 
                         # Dynamic properties.
                         if extraData:
-                            byteArrayType = self.createType('QByteArray')
-                            variantType = self.createType('QVariant')
+                            byteArrayType = self.createType('@QByteArray')
+                            variantType = self.createType('@QVariant')
                             if self.qtVersion() >= 0x50600:
                                 values = self.vectorChildrenGenerator(
                                     extraData + 2 * ptrSize, variantType)
