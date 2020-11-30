@@ -34,6 +34,7 @@ Column {
     StandardTextSection {
         showVerticalAlignment: true
         showFormatProperty: true
+        richTextEditorAvailable: true
     }
 
     Section {
