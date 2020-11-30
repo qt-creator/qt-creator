@@ -66,6 +66,11 @@
 
     \image studio-3d-editor.png "3D Editor"
 
+    The following video illustrates navigating in \uicontrol {3D Editor} and
+    using the toolbar:
+
+    \youtube SsFWyUeAA_4
+
     \section1 Controlling the 3D Editor Camera
 
     To switch to perspective camera mode, select
