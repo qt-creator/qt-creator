@@ -255,6 +255,17 @@ static QImage scaleWithoutStretching(const QImage& original, const QSize& target
     return ret;
 }
 
+static bool similarFilesExist(const QString &path)
+{
+    QFileInfo fileInfo(path);
+    QDir imageDir(fileInfo.absolutePath());
+    QString baseName(fileInfo.completeBaseName());
+    baseName.append(QLatin1String(".*"));
+    imageDir.setNameFilters({baseName});
+    auto entries = imageDir.entryList();
+    return !entries.empty();
+}
+
 void AndroidManifestEditorIconWidget::copyIcon()
 {
     if (m_targetIconPath.isEmpty())
@@ -269,7 +280,8 @@ void AndroidManifestEditorIconWidget::copyIcon()
     if (m_iconPath != targetPath)
         removeIcon();
     if (original.isNull()) {
-        m_iconPath.clear();
+        if (!similarFilesExist(m_iconPath))
+            m_iconPath.clear();
         return;
     }
     if (m_iconPath == targetPath)

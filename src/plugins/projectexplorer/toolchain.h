@@ -123,15 +123,11 @@ public:
     // A MacroInspectionRunner is created in the ui thread and runs in another thread.
     using MacroInspectionRunner = std::function<MacroInspectionReport(const QStringList &cxxflags)>;
     virtual MacroInspectionRunner createMacroInspectionRunner() const = 0;
-    virtual Macros predefinedMacros(const QStringList &cxxflags) const = 0;
 
     // A BuiltInHeaderPathsRunner is created in the ui thread and runs in another thread.
     using BuiltInHeaderPathsRunner = std::function<HeaderPaths(
         const QStringList &cxxflags, const QString &sysRoot, const QString &originalTargetTriple)>;
     virtual BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(const Utils::Environment &env) const = 0;
-    virtual HeaderPaths builtInHeaderPaths(const QStringList &cxxflags,
-                                           const Utils::FilePath &sysRoot,
-                                           const Utils::Environment &env) const = 0;
     virtual void addToEnvironment(Utils::Environment &env) const = 0;
     virtual Utils::FilePath makeCommand(const Utils::Environment &env) const = 0;
 

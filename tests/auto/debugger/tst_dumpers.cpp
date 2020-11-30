@@ -2704,7 +2704,7 @@ void tst_Dumpers::dumper_data()
                + Check("l3", "<2 items>", "@QList<@QString>")
                + Check("l3.0", "[0]", "\"1\"", "@QString")
 
-               + Check("l4", "<2 items>", "@QStringList")
+               + Check("l4", "<2 items>", TypePattern("@QList<@QString>|@QStringList"))
                + Check("l4.0", "[0]", "\"1\"", "@QString")
 
                + Check("l5", "<3 items>", "@QList<int*>")
@@ -2721,7 +2721,7 @@ void tst_Dumpers::dumper_data()
 
                + Check5("l8", "<2 items>", "@QList<@QStringList>")
                + Check6("l8", "<2 items>", "@QList<@QList<@QString>>")
-               + Check("sl", "<1 items>", "@QStringList")
+               + Check("sl", "<1 items>", TypePattern("@QList<@QString>|@QStringList"))
                + Check5("l8.1", "[1]", "<1 items>", "@QStringList")
                + Check6("l8.1", "[1]", "<1 items>", "@QList<@QString>")
                + Check("l8.1.0", "[0]", "\"aaa\"", "@QString")
@@ -3904,7 +3904,7 @@ void tst_Dumpers::dumper_data()
                + Check("s8", "\"el\"", "@QStringRef") % Qt5
                + Check("s9", "(null)", "@QStringRef") % Qt5
 
-               + Check("l", "<2 items>", "@QStringList")
+               + Check("l", "<2 items>", TypePattern("@QList<@QString>|@QStringList"))
                + Check("l.0", "[0]", "\" big, \"", "@QString")
                + Check("l.1", "[1]", "\" World \"", "@QString")
 
@@ -4042,12 +4042,12 @@ void tst_Dumpers::dumper_data()
                //+ Check("v1", "\"Some string\"", "@QVariant (QString)")
                + CheckType("v1", "@QVariant (QString)")
 
-               + Check("my", "<2 items>", TypeDef("@QMap<unsigned int,@QStringList>", "MyType"))
+               + Check("my", "<2 items>", TypePattern("@QMap<unsigned int,@QStringList>|@QMap<unsigned int,@List<@QString>>|MyType"))
                + Check("my.0.key", "1", "unsigned int")
-               + Check("my.0.value", "<1 items>", "@QStringList")
+               + Check("my.0.value", "<1 items>", TypePattern("@QList<@QString>|@QStringList"))
                + Check("my.0.value.0", "[0]", "\"Hello\"", "@QString")
                + Check("my.1.key", "3", "unsigned int")
-               + Check("my.1.value", "<1 items>", "@QStringList")
+               + Check("my.1.value", "<1 items>", TypePattern("@QList<@QString>|@QStringList"))
                + Check("my.1.value.0", "[0]", "\"World\"", "@QString")
                //+ CheckType("v2", "@QVariant (MyType)")
                + Check("v2.data.0.key", "1", "unsigned int") % NeedsInferiorCall
@@ -4405,40 +4405,40 @@ void tst_Dumpers::dumper_data()
 
                + BigArrayProfile()
 
-               + Check("v1", "<10000 items>", "@QVector<int>")
+               + Check("v1", "<10000 items>", TypePattern("@QList<int>|@QVector<int>"))
                + Check("v1.0", "[0]", "0", "int")
                + Check("v1.8999", "[8999]", "80982001", "int")
 
-               + Check("v2", "<2 items>", "@QVector<Foo>")
+               + Check("v2", "<2 items>", TypePattern("@QList<Foo>|@QVector<Foo>"))
                + Check("v2.0", "[0]", "", "Foo")
                + Check("v2.0.a", "1", "int")
                + Check("v2.1", "[1]", "", "Foo")
                + Check("v2.1.a", "2", "int")
 
-               + Check("v3", "<2 items>", TypeDef("@QVector<Foo>", "FooVector"))
+               + Check("v3", "<2 items>", TypePattern("@QVector<Foo>|@QList<Foo>|FooVector"))
                + Check("v3.0", "[0]", "", "Foo")
                + Check("v3.0.a", "1", "int")
                + Check("v3.1", "[1]", "", "Foo")
                + Check("v3.1.a", "2", "int")
 
-               + Check("v4", "<3 items>", "@QVector<Foo*>")
+               + Check("v4", "<3 items>", TypePattern("@QList<Foo \\*>|@QVector<Foo\\*>"))
                + CheckType("v4.0", "[0]", "Foo")
                + Check("v4.0.a", "1", "int")
                + Check("v4.1", "[1]", "0x0", "Foo *")
                + CheckType("v4.2", "[2]", "Foo")
                + Check("v4.2.a", "5", "int")
 
-               + Check("v5", "<2 items>", "@QVector<bool>")
+               + Check("v5", "<2 items>", TypePattern("@QList<bool>|@QVector<bool>"))
                + Check("v5.0", "[0]", "1", "bool")
                + Check("v5.1", "[1]", "0", "bool")
 
-               + CheckType("pv", "@QVector<@QList<int>>")
+               + CheckType("pv", TypePattern("@QList<@QList<int>>|@QVector<@QList<int>>"))
                + Check("pv.0", "[0]", "<1 items>", "@QList<int>")
                + Check("pv.0.0", "[0]", "1", "int")
                + Check("pv.1", "[1]", "<2 items>", "@QList<int>")
                + Check("pv.1.0", "[0]", "2", "int")
                + Check("pv.1.1", "[1]", "3", "int")
-               + Check("v6", "<2 items>", "@QVector<@QList<int>>")
+               + Check("v6", "<2 items>", TypePattern("@QList<@QList<int>>|@QVector<@QList<int>>"))
                + Check("v6.0", "[0]", "<1 items>", "@QList<int>")
                + Check("v6.0.0", "[0]", "1", "int")
                + Check("v6.1", "[1]", "<2 items>", "@QList<int>")
@@ -4931,14 +4931,14 @@ void tst_Dumpers::dumper_data()
                + Check("map2.1.second", "", "Foo")
                + Check("map2.1.second.a", "33", "int")
 
-               + Check("map3", "<2 items>", "std::map<unsigned int, @QStringList>")
+               + Check("map3", "<2 items>", TypePattern("std::map<unsigned int, @QList<@QString>>|std::map<unsigned int, @QStringList>"))
                + Check("map3.0", "[0] 11", "<1 items>", "")
                + Check("map3.0.first", "11", "unsigned int")
-               + Check("map3.0.second", "<1 items>", "@QStringList")
+               + Check("map3.0.second", "<1 items>", TypePattern("@QList<@QString>|@QStringList"))
                + Check("map3.0.second.0", "[0]", "\"11\"", "@QString")
                + Check("map3.1", "[1] 22", "<1 items>", "")
                + Check("map3.1.first", "22", "unsigned int")
-               + Check("map3.1.second", "<1 items>", "@QStringList")
+               + Check("map3.1.second", "<1 items>", TypePattern("@QList<@QString>|@QStringList"))
                + Check("map3.1.second.0", "[0]", "\"22\"", "@QString")
 
                + Check("map4.1.second.0", "[0]", "\"22\"", "@QString")
@@ -6611,7 +6611,7 @@ void tst_Dumpers::dumper_data()
              + Check("i0", "<uninitialized>", "boost::optional<int>")
              + Check("i1", "1", "boost::optional<int>")
 
-             + Check("sl", "<3 items>", "boost::optional<@QStringList>");
+             + Check("sl", "<3 items>", TypePattern("boost::optional<@QList<@QString>>|boost::optional<@QStringList>"));
 
 
     QTest::newRow("BoostSharedPtr")

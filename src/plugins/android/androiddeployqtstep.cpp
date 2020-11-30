@@ -556,6 +556,9 @@ void AndroidDeployQtStep::stdError(const QString &line)
     QString newOutput = line;
     newOutput.remove(QRegularExpression("^(\\n)+"));
 
+    if (newOutput.isEmpty())
+        return;
+
     if (newOutput.startsWith("warning", Qt::CaseInsensitive)
         || newOutput.startsWith("note", Qt::CaseInsensitive))
         TaskHub::addTask(DeploymentTask(Task::Warning, newOutput));

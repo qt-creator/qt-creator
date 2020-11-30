@@ -25,6 +25,8 @@
 
 #include "androidsdkdownloader.h"
 
+#include <coreplugin/icore.h>
+
 #include <QDir>
 #include <QDirIterator>
 #include <QLoggingCategory>
@@ -85,8 +87,9 @@ void AndroidSdkDownloader::downloadAndExtractSdk(const QString &jdkPath, const Q
     connect(m_reply, &QNetworkReply::sslErrors, this, &AndroidSdkDownloader::sslErrors);
 #endif
 
-    m_progressDialog = new QProgressDialog(tr("Downloading SDK Tools package..."), tr("Cancel"), 0, 100);
-    m_progressDialog->setWindowModality(Qt::WindowModal);
+    m_progressDialog = new QProgressDialog(tr("Downloading SDK Tools package..."), tr("Cancel"),
+                                           0, 100, Core::ICore::dialogParent());
+    m_progressDialog->setWindowModality(Qt::ApplicationModal);
     m_progressDialog->setWindowTitle(dialogTitle());
     m_progressDialog->setFixedSize(m_progressDialog->sizeHint());
 

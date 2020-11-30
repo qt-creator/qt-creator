@@ -69,8 +69,12 @@ exampledirs = ../examples/ \
               ../../qtcreator/examples
 examples.fileextensions += *.qml *.svg *.ts *.qm
 
-HTML.extraimages         = ../../config/images/commercial.png
-qhp.QtCreator.extraFiles = ../../config/images/commercial.png
+{HTML.extraimages,qhp.qtdesignstudio.extraFiles} += ../../config/images/commercial.png \
+              ../images/videoicons/SsFWyUeAA_4.jpg \
+              ../images/videoicons/9ihYeC0YJ0M.jpg \
+              ../images/videoicons/aV6kFxH3Xws.jpg \
+              ../images/videoicons/ZzbucmQPU44.jpg
+
 
 depends +=    qtwidgets \
               qtcore \

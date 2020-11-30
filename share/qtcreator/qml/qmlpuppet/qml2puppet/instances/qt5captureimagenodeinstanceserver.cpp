@@ -70,7 +70,7 @@ void Qt5CaptureImageNodeInstanceServer::collectItemChangesAndSendChangeCommands(
         auto rooNodeInstance = rootNodeInstance();
         rooNodeInstance.rootQuickItem()->setClip(true);
 
-        DesignerSupport::polishItems(quickView());
+        DesignerSupport::polishItems(quickWindow());
 
         QImage image = renderImage(rooNodeInstance);
 

@@ -153,6 +153,9 @@ OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget 
         EditorManager::openEditorAt(fp.toString(), line, column);
     });
 
+    connect(verticalScrollBar(), &QAbstractSlider::sliderMoved,
+            this, &OutputWindow::updateAutoScroll);
+
     undoAction->setEnabled(false);
     redoAction->setEnabled(false);
     cutAction->setEnabled(false);
@@ -219,9 +222,8 @@ void OutputWindow::resizeEvent(QResizeEvent *e)
 {
     //Keep scrollbar at bottom of window while resizing, to ensure we keep scrolling
     //This can happen if window is resized while building, or if the horizontal scrollbar appears
-    bool atBottom = isScrollbarAtBottom();
     QPlainTextEdit::resizeEvent(e);
-    if (atBottom)
+    if (d->scrollToBottom)
         scrollToBottom();
 }
 
@@ -252,7 +254,6 @@ void OutputWindow::showEvent(QShowEvent *e)
     QPlainTextEdit::showEvent(e);
     if (d->scrollToBottom)
         verticalScrollBar()->setValue(verticalScrollBar()->maximum());
-    d->scrollToBottom = false;
 }
 
 void OutputWindow::wheelEvent(QWheelEvent *e)
@@ -272,6 +273,7 @@ void OutputWindow::wheelEvent(QWheelEvent *e)
         }
     }
     QAbstractScrollArea::wheelEvent(e);
+    updateAutoScroll();
     updateMicroFocus();
 }
 
@@ -348,8 +350,6 @@ void OutputWindow::updateFilterProperties(
 
 void OutputWindow::filterNewContent()
 {
-    bool atBottom = isScrollbarAtBottom();
-
     QTextBlock lastBlock = document()->findBlockByNumber(d->lastFilteredBlockNumber);
     if (!lastBlock.isValid())
         lastBlock = document()->begin();
@@ -381,7 +381,7 @@ void OutputWindow::filterNewContent()
     // FIXME: Why on earth is this necessary? We should probably do something else instead...
     setDocument(document());
 
-    if (atBottom)
+    if (d->scrollToBottom)
         scrollToBottom();
 }
 
@@ -432,11 +432,9 @@ void OutputWindow::handleOutputChunk(const QString &output, OutputFormat format)
         }
     }
 
-    const bool atBottom = isScrollbarAtBottom() || d->scrollTimer.isActive();
-    d->scrollToBottom = true;
     d->formatter.appendMessage(out, format);
 
-    if (atBottom) {
+    if (d->scrollToBottom) {
         if (d->lastMessage.elapsed() < 5) {
             d->scrollTimer.start();
         } else {
@@ -447,6 +445,11 @@ void OutputWindow::handleOutputChunk(const QString &output, OutputFormat format)
 
     d->lastMessage.start();
     enableUndoRedo();
+}
+
+void OutputWindow::updateAutoScroll()
+{
+    d->scrollToBottom = isScrollbarAtBottom();
 }
 
 void OutputWindow::setMaxCharCount(int count)
@@ -505,6 +508,7 @@ QMimeData *OutputWindow::createMimeDataFromSelection() const
 void OutputWindow::clear()
 {
     d->formatter.clear();
+    d->scrollToBottom = true;
 }
 
 void OutputWindow::flush()

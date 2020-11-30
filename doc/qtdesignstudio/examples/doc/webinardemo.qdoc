@@ -42,12 +42,12 @@
     \section1 Exporting from Adobe Photoshop
 
     We use Adobe Photoshop to design our application and \QB to export our
-    artwork to \QDS as PNG images and custom QML types.
+    design to \QDS as PNG images and custom QML types.
 
     Before we can begin, we must set up \QB as instructed in
     \l{Exporting Designs from Adobe Photoshop}.
 
-    We organize our artwork in Photoshop using artboards as instructed in
+    We organize our design in Photoshop using artboards as instructed in
     \l{Organizing Assets}.
 
     \QB automatically proposes identifiers for all groups and layers. The ids
@@ -116,10 +116,10 @@
     To be able to use the type, we added the statement that imports the
     Qt Quick Studio Effects module: \c {QtQuick.Studio.Effects 1.0}.
 
-    We specify that the artwork to which we want to apply the effect is a
+    We specify that the component to which we want to apply the effect is a
     child of the effect. We then specify the radius property for the effect,
     in the \uicontrol {QML Properties} field. We can modify the property in
-    \QDS.
+    the \uicontrol Radius field in the \uicontrol Properties view in \QDS.
 
     \image webinardemo-blureffect.png "FastBlurItem QML item in Design mode"
 
@@ -142,18 +142,18 @@
     We want to animate the contents of the \e largePopup artboard in \QDS, so
     we export each group and layer as a child.
 
-    \section2 Exporting Artwork
+    \section2 Exporting Our Design
 
     When we have specified settings for all the artboards and the groups and
     layers in them, we select \uicontrol Export to copy the assets and metadata
     to the export path we specified.
 
-    \section1 Importing Artwork
+    \section1 Importing Our Design
 
-    After using \QB in Adobe Photoshop to export our artwork, we import it into
+    After using \QB in Adobe Photoshop to export our design, we import it into
     a project that we create in \QDS, as instructed in \l{Importing Designs}.
 
-    If we need to make changes in Photoshop later and export our artwork again,
+    If we need to make changes in Photoshop later and export our design again,
     \QDS will try to merge our changes during the import, so that none of the
     changes we mage in \QDS are lost.
 
@@ -185,7 +185,7 @@
 
     \image webinardemo-states.png "Popup states in the States view"
 
-    For more information about using states, see \l {Creating Animations}.
+    For more information about using states, see \l {Creating States}.
 
     We then use the \uicontrol Timeline view to add animations that are run
     when moving from one state to another.

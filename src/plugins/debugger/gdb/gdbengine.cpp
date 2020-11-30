@@ -4165,7 +4165,7 @@ void GdbEngine::setupInferior()
         }
 
         if (!symbolFile.isEmpty()) {
-            runCommand({"-file-symbol-file \"" + symbolFile + '"',
+            runCommand({"-file-exec-and-symbols \"" + symbolFile + '"',
                         CB(handleFileExecAndSymbols)});
         }
 
@@ -4197,7 +4197,7 @@ void GdbEngine::setupInferior()
         // Do that first, otherwise no symbols are loaded.
         QFileInfo fi = executable.toFileInfo();
         QString path = fi.absoluteFilePath();
-        runCommand({"-file-exec-and-symbols \"" + path + '"',
+        runCommand({"-file-symbol-file \"" + path + '"',
                     CB(handleFileExecAndSymbols)});
 
     } else if (isTermEngine()) {

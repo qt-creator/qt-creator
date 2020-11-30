@@ -649,6 +649,7 @@ bool QmakeBuildSystem::wasEvaluateCanceled()
 
 void QmakeBuildSystem::asyncUpdate()
 {
+    TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
     setParseDelay(UPDATE_INTERVAL);
     TRACE("");
 
@@ -674,7 +675,7 @@ void QmakeBuildSystem::asyncUpdate()
                      "have a valid Qt.")
                       .arg(project()->displayName(), k->displayName())
                 : tr("Cannot parse project \"%1\": No kit selected.").arg(project()->displayName());
-        proFileParseError(errorMessage);
+        proFileParseError(errorMessage, project()->projectFilePath());
         m_asyncUpdateFutureInterface.reportCanceled();
         m_asyncUpdateFutureInterface.reportFinished();
         return;
@@ -764,9 +765,9 @@ FilePath QmakeBuildSystem::buildDir(const FilePath &proFilePath) const
     return FilePath::fromString(QDir::cleanPath(QDir(buildDir).absoluteFilePath(relativeDir)));
 }
 
-void QmakeBuildSystem::proFileParseError(const QString &errorMessage)
+void QmakeBuildSystem::proFileParseError(const QString &errorMessage, const FilePath &filePath)
 {
-    Core::MessageManager::write(errorMessage);
+    TaskHub::addTask(BuildSystemTask(Task::Error, errorMessage, filePath));
 }
 
 QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFile *qmakeProFile)

@@ -837,12 +837,16 @@ FilePath CMakeBuildSystem::workDirectory(const BuildDirParameters &parameters)
 {
     const Utils::FilePath bdir = parameters.buildDirectory;
     const CMakeTool *cmake = parameters.cmakeTool();
+
+    // use the build directory if it already exists anyhow
     if (bdir.exists()) {
         m_buildDirToTempDir.erase(bdir);
         return bdir;
     }
 
-    if (cmake && cmake->autoCreateBuildDirectory()) {
+    // use the build directory if the cmake tool settings are set to automatically create them,
+    // or if the configuration was changed by the user
+    if ((cmake && cmake->autoCreateBuildDirectory()) || !parameters.extraCMakeArguments.isEmpty()) {
         if (!cmakeBuildConfiguration()->createBuildDirectory())
             handleParsingFailed(
                 tr("Failed to create build directory \"%1\".").arg(bdir.toUserOutput()));

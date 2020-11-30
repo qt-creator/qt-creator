@@ -41,15 +41,11 @@ public:
     bool isValid() const override;
 
     MacroInspectionRunner createMacroInspectionRunner() const override;
-    ProjectExplorer::Macros predefinedMacros(const QStringList &flags) const final;
     Utils::LanguageExtensions languageExtensions(const QStringList &flags) const final;
     Utils::WarningFlags warningFlags(const QStringList &flags) const final;
 
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(
             const Utils::Environment &) const override;
-    ProjectExplorer::HeaderPaths builtInHeaderPaths(const QStringList &flags,
-                                                    const Utils::FilePath &sysRoot,
-                                                    const Utils::Environment &) const final;
     void addToEnvironment(Utils::Environment &env) const final;
     Utils::FilePath makeCommand(const Utils::Environment &env) const final;
     QString compilerVersion() const;

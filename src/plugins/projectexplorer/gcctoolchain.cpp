@@ -427,7 +427,16 @@ ToolChain::MacroInspectionRunner GccToolChain::createMacroInspectionRunner() con
     MacrosCache macroCache = predefinedMacrosCache();
     Utils::Id lang = language();
 
-    // This runner must be thread-safe!
+    /*
+     * Asks compiler for set of predefined macros
+     * flags are the compiler flags collected from project settings
+     * returns the list of defines, one per line, e.g. "#define __GXX_WEAK__ 1"
+     * Note: changing compiler flags sometimes changes macros set, e.g. -fopenmp
+     * adds _OPENMP macro, for full list of macro search by word "when" on this page:
+     * http://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html
+     *
+     * This runner must be thread-safe!
+     */
     return [env, compilerCommand = compilerCommand(),
             platformCodeGenFlags, reinterpretOptions, macroCache, lang]
             (const QStringList &flags) {
@@ -456,20 +465,6 @@ ToolChain::MacroInspectionRunner GccToolChain::createMacroInspectionRunner() con
 
         return report;
     };
-}
-
-/**
- * @brief Asks compiler for set of predefined macros
- * @param cxxflags - compiler flags collected from project settings
- * @return defines list, one per line, e.g. "#define __GXX_WEAK__ 1"
- *
- * @note changing compiler flags sometimes changes macros set, e.g. -fopenmp
- * adds _OPENMP macro, for full list of macro search by word "when" on this page:
- * http://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html
- */
-ProjectExplorer::Macros GccToolChain::predefinedMacros(const QStringList &cxxflags) const
-{
-    return createMacroInspectionRunner()(cxxflags).macros;
 }
 
 /**
@@ -643,16 +638,6 @@ ToolChain::BuiltInHeaderPathsRunner GccToolChain::createBuiltInHeaderPathsRunner
                                   sysRoot,
                                   /*originalTargetTriple=*/""); // Must be empty for gcc.
     };
-}
-
-HeaderPaths GccToolChain::builtInHeaderPaths(const QStringList &flags,
-                                             const FilePath &sysRootPath,
-                                             const Environment &env) const
-{
-    return createBuiltInHeaderPathsRunner(env)(flags,
-                                               sysRootPath.isEmpty() ? sysRoot()
-                                                                     : sysRootPath.toString(),
-                                               originalTargetTriple());
 }
 
 void GccToolChain::addCommandPathToEnvironment(const FilePath &command, Environment &env)
@@ -845,7 +830,7 @@ GccToolChain::DetectedAbisResult GccToolChain::detectSupportedAbis() const
 {
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
-    ProjectExplorer::Macros macros = predefinedMacros(QStringList());
+    ProjectExplorer::Macros macros = createMacroInspectionRunner()({}).macros;
     return guessGccAbi(findLocalCompiler(compilerCommand(), env),
                        env.toStringList(),
                        macros,

@@ -31,6 +31,7 @@
 
 #include <QQuickItem>
 #include <QQuickView>
+#include <QQuickWindow>
 
 #include <designersupportdelegate.h>
 #include <addimportcontainer.h>
@@ -39,6 +40,14 @@
 
 #include <QDebug>
 #include <QOpenGLContext>
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <QtGui/private/qrhi_p.h>
+#include <QtQuick/private/qquickwindow_p.h>
+#include <QtQuick/private/qsgrenderer_p.h>
+#include <QtQuick/private/qquickrendercontrol_p.h>
+#include <QtQuick/private/qquickrendertarget_p.h>
+#endif
 
 namespace QmlDesigner {
 
@@ -50,30 +59,44 @@ Qt5NodeInstanceServer::Qt5NodeInstanceServer(NodeInstanceClientInterface *nodeIn
 
 Qt5NodeInstanceServer::~Qt5NodeInstanceServer()
 {
-    delete quickView();
+    delete quickWindow();
 }
 
 QQuickView *Qt5NodeInstanceServer::quickView() const
 {
-    return m_quickView.data();
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    return static_cast<QQuickView *>(m_viewData.window.data());
+#else
+    return nullptr;
+#endif
+}
+
+QQuickWindow *Qt5NodeInstanceServer::quickWindow() const
+{
+    return m_viewData.window.data();
 }
 
 void Qt5NodeInstanceServer::initializeView()
 {
-    Q_ASSERT(!quickView());
-
-    m_quickView = new QQuickView;
+    Q_ASSERT(!quickWindow());
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    auto view = new QQuickView;
+    m_viewData.window = view;
     /* enables grab window without show */
-    QSurfaceFormat surfaceFormat = m_quickView->requestedFormat();
+    QSurfaceFormat surfaceFormat = view->requestedFormat();
     surfaceFormat.setVersion(4, 1);
     surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
     QSurfaceFormat::setDefaultFormat(surfaceFormat);
+    view->setFormat(surfaceFormat);
 
-    m_quickView->setFormat(surfaceFormat);
-
-    DesignerSupport::createOpenGLContext(m_quickView.data());
+    DesignerSupport::createOpenGLContext(view);
+    m_qmlEngine = view->engine();
+#else
+    m_viewData.renderControl = new QQuickRenderControl;
+    m_viewData.window = new QQuickWindow(m_viewData.renderControl);
+    m_viewData.renderControl->initialize();
+    m_qmlEngine = new QQmlEngine;
 #endif
 
     if (qEnvironmentVariableIsSet("QML_FILE_SELECTORS")) {
@@ -90,16 +113,39 @@ QQmlView *Qt5NodeInstanceServer::declarativeView() const
     return nullptr;
 }
 
-QQmlEngine *Qt5NodeInstanceServer::engine() const
+QQuickItem *Qt5NodeInstanceServer::rootItem() const
 {
-    if (quickView())
-        return quickView()->engine();
-
-    return nullptr;
+    return m_viewData.rootItem;
 }
 
-void Qt5NodeInstanceServer::resizeCanvasSizeToRootItemSize()
+void Qt5NodeInstanceServer::setRootItem(QQuickItem *item)
 {
+    m_viewData.rootItem = item;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    DesignerSupport::setRootItem(quickView(), item);
+#else
+    quickWindow()->setGeometry(0, 0, item->width(), item->height());
+    // Insert an extra item above the root to adjust root item position to 0,0 to make entire
+    // item to be always rendered.
+    if (!m_viewData.contentItem)
+        m_viewData.contentItem = new QQuickItem(quickWindow()->contentItem());
+    m_viewData.contentItem->setPosition(-item->position());
+    item->setParentItem(m_viewData.contentItem);
+#endif
+}
+
+QQmlEngine *Qt5NodeInstanceServer::engine() const
+{
+    return m_qmlEngine;
+}
+
+void Qt5NodeInstanceServer::resizeCanvasToRootItem()
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    m_viewData.bufferDirty = true;
+    m_viewData.contentItem->setPosition(-m_viewData.rootItem->position());
+#endif
+    quickWindow()->resize(rootNodeInstance().boundingRect().size().toSize());
 }
 
 void Qt5NodeInstanceServer::resetAllItems()
@@ -116,7 +162,7 @@ void Qt5NodeInstanceServer::setupScene(const CreateSceneCommand &command)
     setupDummyData(command.fileUrl);
 
     setupInstances(command);
-    quickView()->resize(rootNodeInstance().boundingRect().size().toSize());
+    resizeCanvasToRootItem();
 }
 
 QList<QQuickItem*> subItems(QQuickItem *parentItem)
@@ -136,6 +182,127 @@ QList<QQuickItem*> Qt5NodeInstanceServer::allItems() const
         return rootNodeInstance().allItemsRecursive();
 
     return QList<QQuickItem*>();
+}
+
+bool Qt5NodeInstanceServer::initRhi(RenderViewData &viewData)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    if (!viewData.renderControl) {
+        qWarning() << __FUNCTION__ << "Render control not created";
+        return false;
+    }
+
+    if (!viewData.rhi) {
+        QQuickRenderControlPrivate *rd = QQuickRenderControlPrivate::get(viewData.renderControl);
+        viewData.rhi = rd->rhi;
+
+        if (!viewData.rhi) {
+            qWarning() << __FUNCTION__ << "Rhi is null";
+            return false;
+        }
+    }
+
+    auto cleanRhiResources = [&viewData]() {
+        // Releasing cached resources is a workaround for bug QTBUG-88761
+        auto renderer = QQuickWindowPrivate::get(viewData.window)->renderer;
+        if (renderer)
+            renderer->releaseCachedResources();
+
+        if (viewData.rpDesc) {
+            viewData.rpDesc->deleteLater();
+            viewData.rpDesc = nullptr;
+        }
+        if (viewData.texTarget) {
+            viewData.texTarget->deleteLater();
+            viewData.texTarget = nullptr;
+        }
+        if (viewData.buffer) {
+            viewData.buffer->deleteLater();
+            viewData.buffer = nullptr;
+        }
+        if (viewData.texture) {
+            viewData.texture->deleteLater();
+            viewData.texture = nullptr;
+        }
+    };
+    if (viewData.bufferDirty) {
+        cleanRhiResources();
+        viewData.bufferDirty = false;
+    }
+
+    const QSize size = viewData.window->size();
+    viewData.texture = viewData.rhi->newTexture(QRhiTexture::RGBA8, size, 1,
+                                                QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource);
+    if (!viewData.texture->create()) {
+        qWarning() << __FUNCTION__ << "QRhiTexture creation failed";
+        cleanRhiResources();
+        return false;
+    }
+
+    viewData.buffer = viewData.rhi->newRenderBuffer(QRhiRenderBuffer::DepthStencil, size, 1);
+    if (!viewData.buffer->create()) {
+        qWarning() << __FUNCTION__ << "Depth/stencil buffer creation failed";
+        cleanRhiResources();
+        return false;
+    }
+
+    QRhiTextureRenderTargetDescription rtDesc(QRhiColorAttachment(viewData.texture));
+    rtDesc.setDepthStencilBuffer(viewData.buffer);
+    viewData.texTarget = viewData.rhi->newTextureRenderTarget(rtDesc);
+    viewData.rpDesc = viewData.texTarget->newCompatibleRenderPassDescriptor();
+    viewData.texTarget->setRenderPassDescriptor(viewData.rpDesc);
+    if (!viewData.texTarget->create()) {
+        qWarning() << __FUNCTION__ << "Texture render target creation failed";
+        cleanRhiResources();
+        return false;
+    }
+
+    // redirect Qt Quick rendering into our texture
+    viewData.window->setRenderTarget(QQuickRenderTarget::fromRhiRenderTarget(viewData.texTarget));
+#endif
+    return true;
+}
+
+QImage Qt5NodeInstanceServer::grabRenderControl(RenderViewData &viewData)
+{
+    QImage renderImage;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    if (viewData.bufferDirty && !initRhi(viewData))
+        return renderImage;
+
+    viewData.renderControl->polishItems();
+    viewData.renderControl->beginFrame();
+    viewData.renderControl->sync();
+    viewData.renderControl->render();
+
+    bool readCompleted = false;
+    QRhiReadbackResult readResult;
+    readResult.completed = [&] {
+        readCompleted = true;
+        QImage wrapperImage(reinterpret_cast<const uchar *>(readResult.data.constData()),
+                            readResult.pixelSize.width(), readResult.pixelSize.height(),
+                            QImage::Format_RGBA8888_Premultiplied);
+        if (viewData.rhi->isYUpInFramebuffer())
+            renderImage = wrapperImage.mirrored();
+        else
+            renderImage = wrapperImage.copy();
+    };
+    QRhiResourceUpdateBatch *readbackBatch = viewData.rhi->nextResourceUpdateBatch();
+    readbackBatch->readBackTexture(viewData.texture, &readResult);
+
+    QQuickRenderControlPrivate *rd = QQuickRenderControlPrivate::get(viewData.renderControl);
+    rd->cb->resourceUpdate(readbackBatch);
+
+    viewData.renderControl->endFrame();
+#endif
+    return renderImage;
+}
+
+QImage Qt5NodeInstanceServer::grabWindow()
+{
+    if (m_viewData.rootItem)
+        return grabRenderControl(m_viewData);
+    return  {};
 }
 
 void Qt5NodeInstanceServer::refreshBindings()

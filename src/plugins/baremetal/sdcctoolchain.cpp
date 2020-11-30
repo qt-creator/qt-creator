@@ -248,11 +248,6 @@ ToolChain::MacroInspectionRunner SdccToolChain::createMacroInspectionRunner() co
     };
 }
 
-Macros SdccToolChain::predefinedMacros(const QStringList &cxxflags) const
-{
-    return createMacroInspectionRunner()(cxxflags).macros;
-}
-
 Utils::LanguageExtensions SdccToolChain::languageExtensions(const QStringList &) const
 {
     return LanguageExtension::None;
@@ -276,13 +271,6 @@ ToolChain::BuiltInHeaderPathsRunner SdccToolChain::createBuiltInHeaderPathsRunne
     return [env, compiler, abi](const QStringList &, const QString &, const QString &) {
         return dumpHeaderPaths(compiler, env.toStringList(), abi);
     };
-}
-
-HeaderPaths SdccToolChain::builtInHeaderPaths(const QStringList &cxxFlags,
-                                              const FilePath &fileName,
-                                              const Environment &env) const
-{
-    return createBuiltInHeaderPathsRunner(env)(cxxFlags, fileName.toString(), "");
 }
 
 void SdccToolChain::addToEnvironment(Environment &env) const

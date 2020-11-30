@@ -30,10 +30,8 @@
 
     \title Designing Application Flows
 
-    After you \l {Exporting Artwork from Design Tools}{export} your artwork from
-    your favorite design tool and \l{Importing Designs}{import} it to \QDS, you
-    can design the application flow in the form of a \e {schematic diagram} that
-    shows all significant components of an application UI and their
+    You can design the application flow in the form of a \e {schematic diagram}
+    that shows all significant components of an application UI and their
     interconnections by means of symbols. This results in an interactive
     prototype that can be clicked through to simulate the user experience of
     the application. The QML code is created in the background and can be used

@@ -31,7 +31,7 @@
     \title Exporting Designs from Adobe Illustrator
 
     Even though \QDS does not provide a specific export bridge for Adobe
-    Illustrator, you can create artwork in it and export it to \QDS in
+    Illustrator, you can desing UIs in it and export your designs to \QDS in
     the following ways:
 
     \list

@@ -94,7 +94,8 @@ public:
     bool importLibrary(const Document::Ptr &doc,
                        const QString &libraryPath,
                        Import *import, ObjectValue *targetObject,
-                       const QString &importPath = QString());
+                       const QString &importPath = QString(),
+                       bool optional = false);
     void loadQmldirComponents(ObjectValue *import,
                               LanguageUtils::ComponentVersion version,
                               const LibraryInfo &libraryInfo,
@@ -465,7 +466,9 @@ bool LinkPrivate::importLibrary(const Document::Ptr &doc,
                                 const QString &libraryPath,
                                 Import *import,
                                 ObjectValue *targetObject,
-                                const QString &importPath)
+                                const QString &importPath,
+                                bool optional
+                                )
 {
     const ImportInfo &importInfo = import->info;
 
@@ -486,18 +489,24 @@ bool LinkPrivate::importLibrary(const Document::Ptr &doc,
     // Note: Since this works on the same targetObject, the ModuleApi setPrototype()
     // logic will not work. But ModuleApi isn't used in Qt versions that use import
     // commands in qmldir files, and is pending removal in Qt 6.
-    for (const auto &importName : libraryInfo.imports()) {
+    for (const auto &toImport : libraryInfo.imports()) {
+        QString importName = toImport.module;
+        ComponentVersion vNow = toImport.version;
+        // there was a period in which no version == auto, should we add || !vNow.isValid() to the if?
+        if (toImport.flags & QmlDirParser::Import::Auto)
+            vNow = version;
         Import subImport;
         subImport.valid = true;
-        subImport.info = ImportInfo::moduleImport(importName, version, importInfo.as(), importInfo.ast());
-        subImport.libraryPath = modulePath(importName, version.toString(), m_importPaths);
-        bool subImportFound = importLibrary(doc, subImport.libraryPath, &subImport, targetObject, importPath);
+        subImport.info = ImportInfo::moduleImport(importName, vNow, importInfo.as(), importInfo.ast());
+        subImport.libraryPath = modulePath(importName, vNow.toString(), m_importPaths);
+        bool subImportFound = importLibrary(doc, subImport.libraryPath, &subImport, targetObject, importPath, true);
 
         if (!subImportFound && errorLoc.isValid()) {
             import->valid = false;
-            error(doc, errorLoc,
-                  Link::tr(
-                      "Implicit import '%1' of QML module '%2' not found.\n\n"
+            if (!(optional || (toImport.flags & QmlDirParser::Import::Optional)))
+                error(doc, errorLoc,
+                      Link::tr(
+                          "Implicit import '%1' of QML module '%2' not found.\n\n"
                       "Import paths:\n"
                       "%3\n\n"
                       "For qmake projects, use the QML_IMPORT_PATH variable to add import paths.\n"
@@ -529,11 +538,11 @@ bool LinkPrivate::importLibrary(const Document::Ptr &doc,
                                 QString(), version.toString());
                 }
             }
-            if (errorLoc.isValid()) {
+            if (!optional && errorLoc.isValid()) {
                 appendDiagnostic(doc, DiagnosticMessage(
                                      Severity::ReadingTypeInfoWarning, errorLoc,
                                      Link::tr("QML module contains C++ plugins, "
-                                              "currently reading type information...")));
+                                              "currently reading type information... %1").arg(import->info.name())));
                 import->valid = false;
             }
         } else if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::DumpError
@@ -541,7 +550,7 @@ bool LinkPrivate::importLibrary(const Document::Ptr &doc,
             // Only underline import if package isn't described in .qmltypes anyway
             // and is not a private package
             QString packageName = importInfo.name();
-            if (errorLoc.isValid()
+            if (!optional && errorLoc.isValid()
                     && (packageName.isEmpty()
                         || !m_valueOwner->cppQmlTypes().hasModule(packageName))
                     && !packageName.endsWith(QLatin1String("private"), Qt::CaseInsensitive)) {

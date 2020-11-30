@@ -45,6 +45,12 @@
 #include <QtQuick3D/private/qquick3dviewport_p.h>
 #endif
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <QtGui/private/qrhi_p.h>
+#include <QtQuick/private/qquickrendercontrol_p.h>
+#include <QtQuick/private/qquickrendertarget_p.h>
+#endif
+
 #include <private/qquickdesignersupportitems_p.h>
 
 IconRenderer::IconRenderer(int size, const QString &filePath, const QString &source)
@@ -62,23 +68,26 @@ void IconRenderer::setupRender()
     DesignerSupport::activateDesignerWindowManager();
 #endif
 
-    m_quickView = new QQuickView;
-
+    QQmlEngine *engine = nullptr;
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QSurfaceFormat surfaceFormat = m_quickView->requestedFormat();
+    auto view = new QQuickView;
+    engine = view->engine();
+    m_window = view;
+    QSurfaceFormat surfaceFormat = view->requestedFormat();
     surfaceFormat.setVersion(4, 1);
     surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
-    m_quickView->setFormat(surfaceFormat);
-
-    DesignerSupport::createOpenGLContext(m_quickView);
+    view->setFormat(surfaceFormat);
+    DesignerSupport::createOpenGLContext(view);
 #else
-    m_quickView->setDefaultAlphaBuffer(true);
-    m_quickView->setColor(Qt::transparent);
-    m_ratio = m_quickView->devicePixelRatio();
-    m_quickView->installEventFilter(this);
+    engine = new QQmlEngine;
+    m_renderControl = new QQuickRenderControl;
+    m_window = new QQuickWindow(m_renderControl);
+    m_window->setDefaultAlphaBuffer(true);
+    m_window->setColor(Qt::transparent);
+    m_renderControl->initialize();
 #endif
 
-    QQmlComponent component(m_quickView->engine());
+    QQmlComponent component(engine);
     component.loadUrl(QUrl::fromLocalFile(m_source));
     QObject *iconItem = component.create();
 
@@ -86,13 +95,19 @@ void IconRenderer::setupRender()
 #ifdef QUICK3D_MODULE
         if (auto scene = qobject_cast<QQuick3DNode *>(iconItem)) {
             qmlRegisterType<QmlDesigner::Internal::SelectionBoxGeometry>("SelectionBoxGeometry", 1, 0, "SelectionBoxGeometry");
-            QQmlComponent component(m_quickView->engine());
+            QQmlComponent component(engine);
             component.loadUrl(QUrl("qrc:/qtquickplugin/mockfiles/IconRenderer3D.qml"));
             m_containerItem = qobject_cast<QQuickItem *>(component.create());
-            DesignerSupport::setRootItem(m_quickView, m_containerItem);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+            DesignerSupport::setRootItem(view, m_containerItem);
+#else
+            m_window->contentItem()->setSize(m_containerItem->size());
+            m_window->setGeometry(0, 0, m_containerItem->width(), m_containerItem->height());
+            m_containerItem->setParentItem(m_window->contentItem());
+#endif
 
             auto helper = new QmlDesigner::Internal::GeneralHelper();
-            m_quickView->engine()->rootContext()->setContextProperty("_generalHelper", helper);
+            engine->rootContext()->setContextProperty("_generalHelper", helper);
 
             m_contentItem = QQmlProperty::read(m_containerItem, "view3D").value<QQuickItem *>();
             auto view3D = qobject_cast<QQuick3DViewport *>(m_contentItem);
@@ -104,21 +119,21 @@ void IconRenderer::setupRender()
             m_contentItem = scene;
             m_containerItem = new QQuickItem();
             m_containerItem->setSize(QSizeF(1024, 1024));
-            DesignerSupport::setRootItem(m_quickView, m_containerItem);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+            DesignerSupport::setRootItem(view, m_containerItem);
+#else
+            m_window->contentItem()->setSize(m_containerItem->size());
+            m_window->setGeometry(0, 0, m_containerItem->width(), m_containerItem->height());
+            m_containerItem->setParentItem(m_window->contentItem());
+#endif
             m_contentItem->setParentItem(m_containerItem);
         }
 
         if (m_containerItem && m_contentItem) {
             resizeContent(m_size);
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+            if (!initRhi())
+                QTimer::singleShot(0, qGuiApp, &QGuiApplication::quit);
             QTimer::singleShot(0, this, &IconRenderer::createIcon);
-#else
-            m_quickView->show();
-            m_quickView->lower();
-
-            // Failsafe to exit eventually if window fails to expose
-            QTimer::singleShot(10000, qGuiApp, &QGuiApplication::quit);
-#endif
         } else {
             QTimer::singleShot(0, qGuiApp, &QGuiApplication::quit);
         }
@@ -127,25 +142,12 @@ void IconRenderer::setupRender()
     }
 }
 
-bool IconRenderer::eventFilter(QObject *watched, QEvent *event)
-{
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    if (watched == m_quickView && event->type() == QEvent::Expose)
-        QTimer::singleShot(0, this, &IconRenderer::createIcon);
-#else
-    Q_UNUSED(watched)
-    Q_UNUSED(event)
-#endif
-    return false;
-}
-
 void IconRenderer::createIcon()
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    m_designerSupport.refFromEffectItem(m_quickView->rootObject(), false);
+    m_designerSupport.refFromEffectItem(m_containerItem, false);
 #endif
-    QQuickDesignerSupportItems::disableNativeTextRendering(m_quickView->rootObject());
-
+    QQuickDesignerSupportItems::disableNativeTextRendering(m_containerItem);
 #ifdef QUICK3D_MODULE
     if (m_is3D) {
         // Render once to make sure scene is up to date before we set up the selection box
@@ -166,6 +168,8 @@ void IconRenderer::createIcon()
 
     // Render @2x image
     resizeContent(m_size * 2);
+    if (!initRhi())
+        QTimer::singleShot(1000, qGuiApp, &QGuiApplication::quit);
 
     QString saveFile;
     saveFile = fi.absolutePath() + '/' + fi.completeBaseName() + "@2x";
@@ -194,23 +198,39 @@ void IconRenderer::render(const QString &fileName)
             item->update();
 #endif
     };
-    updateNodesRecursive(m_quickView->rootObject());
+    updateNodesRecursive(m_containerItem);
 
     QRect rect(QPoint(), m_contentItem->size().toSize());
+    QImage renderImage;
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QImage renderImage = m_designerSupport.renderImageForItem(m_quickView->rootObject(),
-                                                              rect, rect.size());
+    renderImage = m_designerSupport.renderImageForItem(m_containerItem, rect, rect.size());
 #else
-    QImage renderImage = m_quickView->grabWindow();
+    m_renderControl->polishItems();
+    m_renderControl->beginFrame();
+    m_renderControl->sync();
+    m_renderControl->render();
+
+    bool readCompleted = false;
+    QRhiReadbackResult readResult;
+    readResult.completed = [&] {
+        readCompleted = true;
+        QImage wrapperImage(reinterpret_cast<const uchar *>(readResult.data.constData()),
+                            readResult.pixelSize.width(), readResult.pixelSize.height(),
+                            QImage::Format_RGBA8888_Premultiplied);
+        if (m_rhi->isYUpInFramebuffer())
+            renderImage = wrapperImage.mirrored().copy(0, 0, rect.width(), rect.height());
+        else
+            renderImage = wrapperImage.copy(0, 0, rect.width(), rect.height());
+    };
+    QRhiResourceUpdateBatch *readbackBatch = m_rhi->nextResourceUpdateBatch();
+    readbackBatch->readBackTexture(m_texture, &readResult);
+
+    QQuickRenderControlPrivate *rd = QQuickRenderControlPrivate::get(m_renderControl);
+    rd->cb->resourceUpdate(readbackBatch);
+
+    m_renderControl->endFrame();
 #endif
     if (!fileName.isEmpty()) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        if (m_ratio != 1.) {
-            rect.setWidth(qRound(rect.size().width() * m_ratio));
-            rect.setHeight(qRound(rect.size().height() * m_ratio));
-        }
-        renderImage = renderImage.copy(rect);
-#endif
         QFileInfo fi(fileName);
         if (fi.suffix().isEmpty())
             renderImage.save(fileName, "PNG");
@@ -219,16 +239,60 @@ void IconRenderer::render(const QString &fileName)
     }
 }
 
-void IconRenderer::resizeContent(int size)
+void IconRenderer::resizeContent(int dimensions)
 {
-    int theSize = size;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    if (m_ratio != 1.)
-        theSize = qRound(qreal(size) / m_quickView->devicePixelRatio());
-#endif
-    m_contentItem->setSize(QSizeF(theSize, theSize));
+    QSizeF size(dimensions, dimensions);
+    m_contentItem->setSize(size);
     if (m_contentItem->width() > m_containerItem->width())
         m_containerItem->setWidth(m_contentItem->width());
     if (m_contentItem->height() > m_containerItem->height())
         m_containerItem->setHeight(m_contentItem->height());
+}
+
+bool IconRenderer::initRhi()
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    if (!m_rhi) {
+        QQuickRenderControlPrivate *rd = QQuickRenderControlPrivate::get(m_renderControl);
+        m_rhi = rd->rhi;
+        if (!m_rhi) {
+            qWarning() << __FUNCTION__ << "Rhi is null";
+            return false;
+        }
+    }
+
+    // Don't bother deleting old ones as iconrender is a single shot executable
+    m_texTarget = nullptr;
+    m_rpDesc = nullptr;
+    m_buffer = nullptr;
+    m_texture = nullptr;
+
+    const QSize size = m_containerItem->size().toSize();
+    m_texture = m_rhi->newTexture(QRhiTexture::RGBA8, size, 1,
+                                  QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource);
+    if (!m_texture->create()) {
+        qWarning() << __FUNCTION__ << "QRhiTexture creation failed";
+        return false;
+    }
+
+    m_buffer = m_rhi->newRenderBuffer(QRhiRenderBuffer::DepthStencil, size, 1);
+    if (!m_buffer->create()) {
+        qWarning() << __FUNCTION__ << "Depth/stencil buffer creation failed";
+        return false;
+    }
+
+    QRhiTextureRenderTargetDescription rtDesc {QRhiColorAttachment(m_texture)};
+    rtDesc.setDepthStencilBuffer(m_buffer);
+    m_texTarget = m_rhi->newTextureRenderTarget(rtDesc);
+    m_rpDesc = m_texTarget->newCompatibleRenderPassDescriptor();
+    m_texTarget->setRenderPassDescriptor(m_rpDesc);
+    if (!m_texTarget->create()) {
+        qWarning() << __FUNCTION__ << "Texture render target creation failed";
+        return false;
+    }
+
+    // redirect Qt Quick rendering into our texture
+    m_window->setRenderTarget(QQuickRenderTarget::fromRhiRenderTarget(m_texTarget));
+#endif
+    return true;
 }

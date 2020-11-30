@@ -66,11 +66,6 @@ ToolChain::MacroInspectionRunner NimToolChain::createMacroInspectionRunner() con
     return ToolChain::MacroInspectionRunner();
 }
 
-Macros NimToolChain::predefinedMacros(const QStringList &) const
-{
-    return Macros();
-}
-
 LanguageExtensions NimToolChain::languageExtensions(const QStringList &) const
 {
     return LanguageExtension::None;
@@ -85,12 +80,6 @@ ToolChain::BuiltInHeaderPathsRunner NimToolChain::createBuiltInHeaderPathsRunner
         const Environment &) const
 {
     return ToolChain::BuiltInHeaderPathsRunner();
-}
-
-HeaderPaths NimToolChain::builtInHeaderPaths(const QStringList &, const FilePath &,
-                                             const Environment &) const
-{
-    return {};
 }
 
 void NimToolChain::addToEnvironment(Environment &env) const

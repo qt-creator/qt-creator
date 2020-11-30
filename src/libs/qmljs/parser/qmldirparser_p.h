@@ -39,6 +39,9 @@
 #include <QtCore/QUrl>
 #include <QtCore/QHash>
 #include <QtCore/QDebug>
+
+#include <languageutils/componentversion.h>
+
 #include "qmljs/parser/qmljsglobal_p.h"
 #include "qmljs/parser/qmljsengine_p.h"
 #include "qmljs/parser/qmljsdiagnosticmessage_p.h"
@@ -72,14 +75,15 @@ public:
     {
         Plugin() = default;
 
-        Plugin(const QString &name, const QString &path)
-            : name(name), path(path)
+        Plugin(const QString &name, const QString &path, bool optional)
+            : name(name), path(path), optional(optional)
         {
             checkNonRelative("Plugin", name, path);
         }
 
         QString name;
         QString path;
+        bool optional = false;
     };
 
     struct Component
@@ -117,9 +121,29 @@ public:
         int minorVersion = 0;
     };
 
+    struct Import
+    {
+        enum Flag {
+            Default  = 0x0,
+            Auto     = 0x1, // forward the version of the importing module
+            Optional = 0x2  // is not automatically imported but only a tooling hint
+        };
+        Q_DECLARE_FLAGS(Flags, Flag)
+
+        Import() = default;
+        Import(QString module, LanguageUtils::ComponentVersion version, Flags flags)
+            : module(module), version(version), flags(flags)
+        {
+        }
+
+        QString module;
+        LanguageUtils::ComponentVersion version;     // invalid version is latest version, unless Flag::Auto
+        Flags flags;
+    };
+
     QMultiHash<QString,Component> components() const;
-    QHash<QString,Component> dependencies() const;
-    QStringList imports() const;
+    QList<Import> dependencies() const;
+    QList<Import> imports() const;
     QList<Script> scripts() const;
     QList<Plugin> plugins() const;
     bool designerSupported() const;
@@ -145,8 +169,8 @@ private:
     QList<QmlJS::DiagnosticMessage> _errors;
     QString _typeNamespace;
     QMultiHash<QString,Component> _components;
-    QHash<QString,Component> _dependencies;
-    QStringList _imports;
+    QList<Import> _dependencies;
+    QList<Import> _imports;
     QList<Script> _scripts;
     QList<Plugin> _plugins;
     bool _designerSupported = false;

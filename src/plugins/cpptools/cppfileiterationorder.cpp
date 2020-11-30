@@ -108,9 +108,8 @@ bool FileIterationOrder::isValid() const
 
 static int commonPrefixLength(const QString &filePath1, const QString &filePath2)
 {
-    const auto mismatches = std::mismatch(filePath1.begin(),
-                                          filePath1.end(),
-                                          filePath2.begin());
+    const auto mismatches = std::mismatch(filePath1.begin(), filePath1.end(),
+                                          filePath2.begin(), filePath2.end());
     return mismatches.first - filePath1.begin();
 }
 

@@ -44,7 +44,7 @@
         \li \l{Setting Up Qt Bridge for Sketch}
 
             You must install Sketch and the \QBSK export tool before you can use
-            the tool to export artwork.
+            the tool to export designs.
 
         \li \l{Using Qt Bridge for Sketch}
 
@@ -52,4 +52,6 @@
             Sketch, you should follow the guidelines for working with Sketch and
             organizing your assets.
     \endlist
+
+    \include qtbridge-tutorial-links.qdocinc qtsketchbridge tutorials
 */

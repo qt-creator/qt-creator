@@ -1047,9 +1047,9 @@ class Dumper(DumperBase):
     def handleNewObjectFile(self, objfile):
         name = objfile.filename
         if self.isWindowsTarget():
-            qtCoreMatch = re.match(r'.*Qt5?Core[^/.]*d?\.dll', name)
+            qtCoreMatch = re.match(r'.*Qt[56]?Core[^/.]*d?\.dll', name)
         else:
-            qtCoreMatch = re.match(r'.*/libQt5?Core[^/.]*\.so', name)
+            qtCoreMatch = re.match(r'.*/libQt[56]?Core[^/.]*\.so', name)
 
         if qtCoreMatch is not None:
             self.addDebugLibs(objfile)

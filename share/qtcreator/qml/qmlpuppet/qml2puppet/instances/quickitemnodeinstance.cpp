@@ -174,11 +174,10 @@ void QuickItemNodeInstance::initialize(const ObjectNodeInstance::Pointer &object
                                        InstanceContainer::NodeFlags flags)
 {
 
-    if (instanceId() == 0) {
-        DesignerSupport::setRootItem(nodeInstanceServer()->quickView(), quickItem());
-    } else {
-        quickItem()->setParentItem(qobject_cast<QQuickItem*>(nodeInstanceServer()->quickView()->rootObject()));
-    }
+    if (instanceId() == 0)
+        nodeInstanceServer()->setRootItem(quickItem());
+    else
+        quickItem()->setParentItem(nodeInstanceServer()->rootItem());
 
     if (quickItem()->window() && checkIfRefFromEffect(instanceId())) {
         designerSupport()->refFromEffectItem(quickItem(),
@@ -420,19 +419,19 @@ QImage QuickItemNodeInstance::renderImage() const
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     if (s_unifiedRenderPath) {
-        renderImage = nodeInstanceServer()->quickView()->grabWindow();
+        renderImage = nodeInstanceServer()->quickWindow()->grabWindow();
     } else {
         // Fake render loop signaling to update things like QML items as 3D textures
-        nodeInstanceServer()->quickView()->beforeSynchronizing();
-        nodeInstanceServer()->quickView()->beforeRendering();
+        nodeInstanceServer()->quickWindow()->beforeSynchronizing();
+        nodeInstanceServer()->quickWindow()->beforeRendering();
 
         renderImage = designerSupport()->renderImageForItem(quickItem(), renderBoundingRect, size);
 
-        nodeInstanceServer()->quickView()->afterRendering();
+        nodeInstanceServer()->quickWindow()->afterRendering();
     }
     renderImage.setDevicePixelRatio(devicePixelRatio);
 #else
-    renderImage = nodeInstanceServer()->quickView()->grabWindow();
+    renderImage = nodeInstanceServer()->grabWindow();
     renderImage = renderImage.copy(renderBoundingRect.toRect());
     /* When grabbing an offscren window the device pixel ratio is 1 */
     renderImage.setDevicePixelRatio(1);
@@ -452,20 +451,20 @@ QImage QuickItemNodeInstance::renderPreviewImage(const QSize &previewImageSize) 
             QImage image;
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
             if (s_unifiedRenderPath) {
-                image = nodeInstanceServer()->quickView()->grabWindow();
+                image = nodeInstanceServer()->quickWindow()->grabWindow();
             } else {
                 // Fake render loop signaling to update things like QML items as 3D textures
-                nodeInstanceServer()->quickView()->beforeSynchronizing();
-                nodeInstanceServer()->quickView()->beforeRendering();
+                nodeInstanceServer()->quickWindow()->beforeSynchronizing();
+                nodeInstanceServer()->quickWindow()->beforeRendering();
 
                 image = designerSupport()->renderImageForItem(quickItem(),
                                                               previewItemBoundingRect,
                                                               size);
 
-                nodeInstanceServer()->quickView()->afterRendering();
+                nodeInstanceServer()->quickWindow()->afterRendering();
             }
 #else
-            image = nodeInstanceServer()->quickView()->grabWindow();
+            image = nodeInstanceServer()->grabWindow();
             image = image.copy(previewItemBoundingRect.toRect());
 #endif
 

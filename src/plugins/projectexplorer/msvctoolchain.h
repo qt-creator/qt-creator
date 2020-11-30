@@ -74,16 +74,12 @@ public:
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
 
     MacroInspectionRunner createMacroInspectionRunner() const override;
-    Macros predefinedMacros(const QStringList &cxxflags) const override;
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
     Utils::WarningFlags warningFlags(const QStringList &cflags) const override;
     QStringList includedFiles(const QStringList &flags,
                               const QString &directoryPath) const override;
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(
             const Utils::Environment &env) const override;
-    HeaderPaths builtInHeaderPaths(const QStringList &cxxflags,
-                                   const Utils::FilePath &sysRoot,
-                                   const Utils::Environment &env) const override;
     void addToEnvironment(Utils::Environment &env) const override;
 
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;

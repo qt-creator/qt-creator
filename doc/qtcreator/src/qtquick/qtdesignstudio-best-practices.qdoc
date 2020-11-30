@@ -43,7 +43,7 @@
 
     \if defined(qtdesignstudio)
     For guidelines on how to achieve best results when importing assets, see
-    \l {Exporting Artwork from Design Tools}.
+    \l {Exporting from Design Tools}.
     \endif
 
     \section1 Naming Conventions

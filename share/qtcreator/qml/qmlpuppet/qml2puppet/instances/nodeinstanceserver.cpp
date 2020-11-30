@@ -189,9 +189,14 @@ NodeInstanceServer::NodeInstanceServer(NodeInstanceClientInterface *nodeInstance
     Internal::QmlPrivateGate::registerFixResourcePathsForObjectCallBack();
 }
 
+NodeInstanceServer::~NodeInstanceServer()
+{
+    m_objectInstanceHash.clear();
+}
+
 QList<ServerNodeInstance> NodeInstanceServer::createInstances(const QVector<InstanceContainer> &containerVector)
 {
-    Q_ASSERT(declarativeView() || quickView());
+    Q_ASSERT(declarativeView() || quickWindow());
     QList<ServerNodeInstance> instanceList;
     for (const InstanceContainer &instanceContainer : containerVector) {
         ServerNodeInstance instance;
@@ -207,7 +212,6 @@ QList<ServerNodeInstance> NodeInstanceServer::createInstances(const QVector<Inst
             m_rootNodeInstance = instance;
             if (quickView())
                 quickView()->setContent(fileUrl(), m_importComponent, m_rootNodeInstance.rootQuickItem());
-            resizeCanvasSizeToRootItemSize();
         }
 
         foreach (QQmlContext* context, allSubContextsForObject(instance.internalObject()))
@@ -442,7 +446,7 @@ void NodeInstanceServer::removeSharedMemory(const RemoveSharedMemoryCommand &/*c
 
 void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &containerVector)
 {
-    Q_ASSERT(quickView());
+    Q_ASSERT(quickWindow());
     QSet<QString> importStatementSet;
     QString qtQuickImport;
 
@@ -497,8 +501,9 @@ void NodeInstanceServer::setupOnlyWorkingImports(const QStringList &workingImpor
     QByteArray componentCode = workingImportStatementList.join("\n").toUtf8().append("\n");
     m_importCode = componentCode;
 
-    m_importComponent = new QQmlComponent(engine(), quickView());
-    quickView()->setContent(fileUrl(), m_importComponent, quickView()->rootObject());
+    m_importComponent = new QQmlComponent(engine(), quickWindow());
+    if (quickView())
+        quickView()->setContent(fileUrl(), m_importComponent, quickView()->rootObject());
 
     m_importComponent->setData(componentCode.append("\nItem {}\n"), fileUrl());
     m_importComponentObject = m_importComponent->create();
@@ -942,10 +947,8 @@ void NodeInstanceServer::setInstancePropertyVariant(const PropertyValueContainer
     if (hasInstanceForId(valueContainer.instanceId())) {
         ServerNodeInstance instance = instanceForId(valueContainer.instanceId());
 
-
         const PropertyName name = valueContainer.name();
         const QVariant value = valueContainer.value();
-
 
         if (activeStateInstance().isValid() && !instance.isSubclassOf("QtQuick/PropertyChanges")) {
             bool stateValueWasUpdated = activeStateInstance().updateStateVariant(instance, name, value);
@@ -962,6 +965,9 @@ void NodeInstanceServer::setInstancePropertyVariant(const PropertyValueContainer
 
         if (valueContainer.isDynamic() && valueContainer.instanceId() == 0 && engine())
             rootContext()->setContextProperty(QString::fromUtf8(name), Internal::QmlPrivateGate::fixResourcePaths(value));
+
+        if (valueContainer.instanceId() == 0 && (name == "width" || name == "height" || name == "x" || name == "y"))
+            resizeCanvasToRootItem();
     }
 }
 

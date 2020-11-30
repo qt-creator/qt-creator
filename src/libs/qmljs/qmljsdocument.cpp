@@ -447,8 +447,8 @@ QByteArray LibraryInfo::calculateFingerprint() const
 
     len = _imports.size();
     hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
-    foreach (const QString &import, _imports)
-        hash.addData(import.toUtf8()); // import order matters, keep order-dependent
+    foreach (const QmlDirParser::Import &import, _imports)
+        hash.addData(import.module.toUtf8()); // import order matters, keep order-dependent
 
     QByteArray res(hash.result());
     res.append('L');

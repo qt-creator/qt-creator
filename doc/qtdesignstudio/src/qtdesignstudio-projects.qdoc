@@ -81,6 +81,11 @@
             application.
     \endlist
 
+    For an example of creating a \uicontrol {Qt Quick 3D Application} project,
+    watch the following video:
+
+    \youtube 9ihYeC0YJ0M
+
     \section1 Using Project Wizards
 
     \list 1

@@ -60,7 +60,7 @@
     will be imported as a single QML file that can contain other assets. A child
     will be imported as a single image file that you can use within QML files.
 
-    If you plan to use pieces of your artwork as separate images in the UI,
+    If you plan to use pieces of your design as separate images in the UI,
     group them on an artboard as separate layers. You can then export the group
     as a component and each layer within it as a child. The children are
     imported to \QDS as separate PNG files that you can use as image sources.
@@ -248,15 +248,6 @@
 
     In the \QBPS \uicontrol Settings dialog, select \uicontrol {Override JSX Script} to set the
     override JSX script.
-
-    For more information, watch a video tutorial and webinar about using \QBPS:
-
-    \list
-        \li \l{https://resources.qt.io/development-topic-ui-design/qtdesignstudio-clustertutorial-partone}
-            {Building an Instrument Cluster for Your Car HMI, Part 1}
-        \li \l{https://www.youtube.com/watch?v=ZzbucmQPU44}
-            {From Photoshop to Prototype with Qt Design Studio}
-    \endlist
 
     \section1 Importing Metadata & Assets
 

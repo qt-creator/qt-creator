@@ -490,8 +490,7 @@ AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent, Utils::Id id)
                                          sdkManager()->latestAndroidSdkPlatform()))
 {
     setImmutable(true);
-    setDisplayName("<b>" + tr("Build Android APK") + "</b>");
-    setSummaryText(displayName());
+    setDisplayName(tr("Build Android APK"));
 }
 
 bool AndroidBuildApkStep::init()
@@ -898,6 +897,9 @@ void AndroidBuildApkStep::stdError(const QString &output)
 
     QString newOutput = output;
     newOutput.remove(QRegularExpression("^(\\n)+"));
+
+    if (newOutput.isEmpty())
+        return;
 
     if (newOutput.startsWith("warning", Qt::CaseInsensitive)
         || newOutput.startsWith("note", Qt::CaseInsensitive))

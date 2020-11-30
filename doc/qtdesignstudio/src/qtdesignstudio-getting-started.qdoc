@@ -30,12 +30,12 @@
 
     \title Getting Started
 
-    Typically, you as a designer would create artwork in imaging and design
-    tools, such as Adobe Photoshop, Sketch, Blender, or Maya, and then send it
-    to a developer for adding it to the application. With the \QB export tool,
+    Typically, you as a designer would design a UI using imaging and design
+    tools, such as Adobe Photoshop, Sketch, Blender, or Maya, and then send your
+    design to a developer for implementation. With the \QB export tool,
     you can convert 2D assets into \l {Qt Quick} files. You can use the export
     functionality of 3D graphics tools to save your 3D assets in a format
-    supported by \QDS.  You can import the 2D and 3D assets into \QDS for
+    supported by \QDS. You can import the 2D and 3D assets into \QDS for
     editing, before you submit the UI to the developer for adding the
     functionality to the application.
 
@@ -46,8 +46,8 @@
     The workflow consists of the following steps:
 
     \list 1
-        \li Export your artwork from a design tool.
-        \li Create a project in \QDS and import your artwork to it.
+        \li Export your design from a design tool.
+        \li Create a project in \QDS and import your design to it.
         \li Create reusable components in the Design mode.
         \li Animate your design with the timeline and easing curve editor.
         \li Create interactions using states and connections.
@@ -59,16 +59,16 @@
     way around \QDS:
 
     \list
-        \li \l {Exporting Artwork from Design Tools}
+        \li \l {Exporting from Design Tools}
 
-            Describes how to export 2D and 3D assets into files that
-            you can import to projects in \QDS.
+            Describes how to export designs containing 2D and 3D assets into
+            files that you can import to projects in \QDS.
         \li \l {User Interface}
 
             Describes the parts and basic features of \QDS.
         \li \l{Editing QML Files in Design Mode}
 
-            Describes the parts and basic features of the Design mode.
+            Describes the views and basic features of the Design mode.
             This is where you'll do most of your work.
         \li \l {Tutorials}
 

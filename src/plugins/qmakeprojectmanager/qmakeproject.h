@@ -158,7 +158,7 @@ public:
     void watchFolders(const QStringList &l, QmakePriFile *file);
     void unwatchFolders(const QStringList &l, QmakePriFile *file);
 
-    static void proFileParseError(const QString &errorMessage);
+    static void proFileParseError(const QString &errorMessage, const Utils::FilePath &filePath);
 
     enum AsyncUpdateState { Base, AsyncFullUpdatePending, AsyncPartialUpdatePending, AsyncUpdateInProgress, ShuttingDown };
     AsyncUpdateState asyncUpdateState() const;

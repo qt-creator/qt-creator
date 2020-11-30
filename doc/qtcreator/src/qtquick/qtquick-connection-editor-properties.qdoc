@@ -60,7 +60,9 @@
             selected item. The item ID is displayed in the \uicontrol Item
             column.
         \li Double-click the value in the \uicontrol Property column to give a
-            name to the property.
+            name to the property. Property names must begin with a lower case
+            letter and can only contain letters, numbers, and underscores.
+            JavaScript \e {reserved words} are not valid property names.
         \li Double-click the value in the \uicontrol {Property Type} column to
             specify the \l{Supported Property Types}{type of the property}.
         \li Double-click the value in the \uicontrol {Property Value} column

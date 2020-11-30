@@ -38,8 +38,8 @@
     The \uicontrol Tutorials tab contains links to video tutorials that provide
     more information about \QDS.
 
-    You can access the Cluster tutorial source files in the \uicontrol Examples
-    tab.
+    \include qtbridge-tutorial-links.qdocinc qtpsbridge videos
+    \include qtbridge-tutorial-links.qdocinc qtsketchbridge tutorials
 
     \section1 Examples
 

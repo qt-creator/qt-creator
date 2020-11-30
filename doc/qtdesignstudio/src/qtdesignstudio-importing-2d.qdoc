@@ -30,13 +30,13 @@
 
     \title Importing 2D Assets
 
-    \image studio-imported-assets.png "Artwork imported into Qt Design Studio"
+    \image studio-imported-assets.png "UI imported into Qt Design Studio"
 
     \QB enables you to export assets and then import them to a \QDS project
     as image and QML files for editing in the \uicontrol {Form Editor}. If you
     make changes to your design in the design tool, you can merge the changes
     into existing QML files without overwriting the changes you have made in
-    \QDS. For more information, see \l {Exporting Artwork from Design Tools}.
+    \QDS. For more information, see \l {Exporting from Design Tools}.
 
     \note Attempting to import assets exported on another system might fail.
 
@@ -48,8 +48,9 @@
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol General > \uicontrol Choose, and follow the
-            instructions of the wizard to create an empty project.
+            \uicontrol General > \uicontrol {Qt Quick Application - Empty} >
+            \uicontrol Choose, and follow the instructions of the wizard to
+            create an empty project.
         \li In \uicontrol Projects, double-click \e Screen01.ui.qml to move to
             the Design mode.
         \li Select \uicontrol Library > \uicontrol Assets >
@@ -70,6 +71,9 @@
             QML files to.
         \li In the \uicontrol Assets field, you can change the folder to copy
             the image files to.
+        \li Select the \uicontrol {Create sub directory for each metadata}
+            check box to copy the directory structure from the metadata file
+            to \QDS.
         \li Deselect the \uicontrol {Import assets} check box if you only want
             to create QML files.
         \li Deselect the \uicontrol {Generate QML} check box if you only
@@ -100,19 +104,6 @@
     \uicontrol {Asset Import} dialog while importing, fix the issues in
     design tool and export the assets again.
 
-    \section1 \QB Videos
-
-    For more information, see the \QB tutorials that are also accessible from
-    the \uicontrol Tutorials tab of the Welcome mode:
-
-    \list
-        \li \l{https://resources.qt.io/development-topic-ui-design/qtdesignstudio-clustertutorial-partone}
-            {Building an Instrument Cluster for Your Car HMI, Part 1} (\QBPS)
-        \li \l{https://www.youtube.com/watch?v=ZzbucmQPU44}
-            {From Photoshop to Prototype with Qt Design Studio}
-        \li \l{https://www.qt.io/blog/qt-design-studio-sketch-bridge-tutorial-part-1}
-            {Sketch Bridge Tutorial Part 1}
-        \li \l{https://www.qt.io/blog/qt-design-studio-sketch-bridge-tutorial-part-2}
-            {Sketch Bridge Tutorial Part 2}
-    \endlist
+    \include qtbridge-tutorial-links.qdocinc qtpsbridge videos
+    \include qtbridge-tutorial-links.qdocinc qtsketchbridge tutorials
 */

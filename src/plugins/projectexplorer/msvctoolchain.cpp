@@ -591,10 +591,10 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
 
     QStringList toProcess;
     for (const QString &arg : cxxflags) {
-        if (arg.startsWith(QLatin1String("/D"))) {
+        if (arg.startsWith("/D") || arg.startsWith("-D")) {
             const QString define = arg.mid(2);
             predefinedMacros.append(Macro::fromKeyValue(define));
-        } else if (arg.startsWith(QLatin1String("/U"))) {
+        } else if (arg.startsWith("/U") || arg.startsWith("-U")) {
             predefinedMacros.append(
                 {arg.mid(2).toLocal8Bit(), ProjectExplorer::MacroType::Undefine});
         } else {
@@ -991,11 +991,6 @@ ToolChain::MacroInspectionRunner MsvcToolChain::createMacroInspectionRunner() co
     };
 }
 
-Macros MsvcToolChain::predefinedMacros(const QStringList &cxxflags) const
-{
-    return createMacroInspectionRunner()(cxxflags).macros;
-}
-
 Utils::LanguageExtensions MsvcToolChain::languageExtensions(const QStringList &cxxflags) const
 {
     using Utils::LanguageExtension;
@@ -1079,13 +1074,6 @@ ToolChain::BuiltInHeaderPathsRunner MsvcToolChain::createBuiltInHeaderPathsRunne
         }
         return m_headerPaths;
     };
-}
-
-HeaderPaths MsvcToolChain::builtInHeaderPaths(const QStringList &cxxflags,
-                                              const Utils::FilePath &sysRoot,
-                                              const Environment &env) const
-{
-    return createBuiltInHeaderPathsRunner(env)(cxxflags, sysRoot.toString(), "");
 }
 
 void MsvcToolChain::addToEnvironment(Utils::Environment &env) const

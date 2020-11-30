@@ -57,6 +57,10 @@ Item {
     property var selectionBoxes: []
     property rect viewPortRect: Qt.rect(0, 0, 1000, 1000)
 
+    property bool shuttingDown: false
+
+    property real fps: 0
+
     signal selectionChanged(var selectedNodes)
     signal commitObjectProperty(var object, var propName)
     signal changeObjectProperty(var object, var propName)
@@ -70,6 +74,11 @@ Item {
     onTransformModeChanged:     _generalHelper.storeToolState(sceneId, "transformMode", transformMode);
 
     onActiveSceneChanged: updateActiveScene()
+
+    function aboutToShutDown()
+    {
+        shuttingDown = true;
+    }
 
     function createEditView()
     {
@@ -125,8 +134,12 @@ Item {
             } else {
                 // When active scene is deleted, this function gets called by object deletion
                 // handlers without going through setActiveScene, so make sure sceneId is cleared.
-                sceneId = "";
-                storeCurrentToolStates();
+                // This is skipped during application shutdown, as calling QQuickText::setText()
+                // during application shutdown can crash the application.
+                if (!shuttingDown) {
+                    sceneId = "";
+                    storeCurrentToolStates();
+                }
             }
 
             notifyActiveSceneChange();
@@ -704,6 +717,10 @@ Item {
                     Text {
                         id: gizmoLabelText
                         text: {
+                            // This is skipped during application shutdown, as calling QQuickText::setText()
+                            // during application shutdown can crash the application.
+                            if (shuttingDown)
+                                return text;
                             var l = Qt.locale();
                             var targetProperty;
                             if (viewRoot.selectedNode) {
@@ -738,6 +755,10 @@ Item {
                 Text {
                     id: rotateGizmoLabelText
                     text: {
+                        // This is skipped during application shutdown, as calling QQuickText::setText()
+                        // during application shutdown can crash the application.
+                        if (shuttingDown)
+                            return text;
                         var l = Qt.locale();
                         if (rotateGizmo.targetNode) {
                             var degrees = rotateGizmo.currentAngle * (180 / Math.PI);
@@ -795,6 +816,17 @@ Item {
             anchors.margins: 4
             font.pixelSize: 14
             color: "white"
+        }
+
+        Text {
+            id: fpsLabel
+            text: viewRoot.fps
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.margins: 4
+            font.pixelSize: 12
+            color: "white"
+            visible: viewRoot.fps > 0
         }
     }
 }

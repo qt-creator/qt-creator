@@ -109,11 +109,6 @@ ToolChain::MacroInspectionRunner CustomToolChain::createMacroInspectionRunner() 
     };
 }
 
-Macros CustomToolChain::predefinedMacros(const QStringList &cxxflags) const
-{
-    return createMacroInspectionRunner()(cxxflags).macros;
-}
-
 Utils::LanguageExtensions CustomToolChain::languageExtensions(const QStringList &) const
 {
     return LanguageExtension::None;
@@ -154,13 +149,6 @@ ToolChain::BuiltInHeaderPathsRunner CustomToolChain::createBuiltInHeaderPathsRun
 
         return builtInHeaderPaths + flagHeaderPaths;
     };
-}
-
-HeaderPaths CustomToolChain::builtInHeaderPaths(const QStringList &cxxFlags,
-                                                const FilePath &fileName,
-                                                const Environment &env) const
-{
-    return createBuiltInHeaderPathsRunner(env)(cxxFlags, fileName.toString(), "");
 }
 
 void CustomToolChain::addToEnvironment(Environment &env) const

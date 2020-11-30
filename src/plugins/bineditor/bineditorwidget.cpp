@@ -64,7 +64,7 @@ using namespace Core;
 namespace BinEditor {
 namespace Internal {
 
-const QChar MidpointChar = QLatin1Char(0xB7);
+const QChar MidpointChar(u'\u00B7');
 
 static QByteArray calculateHexPattern(const QByteArray &pattern)
 {
