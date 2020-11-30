@@ -180,9 +180,8 @@ void SftpTransfer::doStart()
                          + QtcProcess::quoteArgUnix(sourceFileOrLinkTarget).toLocal8Bit() + ' '
                          + QtcProcess::quoteArgUnix(f.targetFile).toLocal8Bit() + '\n');
     }
-    d->sftpProc.start(sftpBinary.toString(),
-                      QStringList{"-b", QDir::toNativeSeparators(batchFile.fileName())}
-                          << d->connectionArgs);
+    d->sftpProc.setStandardInputFile(batchFile.fileName());
+    d->sftpProc.start(sftpBinary.toString(), d->connectionArgs);
     emit started();
 }
 
