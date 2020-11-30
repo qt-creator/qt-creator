@@ -30,6 +30,7 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
 
+#include <QFutureInterface>
 #include <QList>
 #include <QSet>
 
@@ -60,10 +61,12 @@ public:
     TypeHierarchyBuilder(CPlusPlus::Symbol *symbol, const CPlusPlus::Snapshot &snapshot);
 
     TypeHierarchy buildDerivedTypeHierarchy();
+    TypeHierarchy buildDerivedTypeHierarchy(QFutureInterfaceBase &futureInterface);
 
 private:
     void reset();
-    void buildDerived(TypeHierarchy *typeHierarchy, const QStringList &dependencies);
+    void buildDerived(QFutureInterfaceBase &futureInterface,
+                      TypeHierarchy *typeHierarchy, const QStringList &dependencies, int depth = 0);
     QStringList filesDependingOn(CPlusPlus::Symbol *symbol) const;
 
     CPlusPlus::Symbol *_symbol;

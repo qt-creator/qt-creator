@@ -32,11 +32,12 @@
 
 #include <cplusplus/CppDocument.h>
 
+#include <QFuture>
+#include <QIcon>
+#include <QSharedPointer>
 #include <QString>
 #include <QStringList>
-#include <QSharedPointer>
 #include <QTextCursor>
-#include <QIcon>
 
 namespace CPlusPlus {
 class LookupItem;
@@ -57,6 +58,7 @@ public:
     void setLookupDerivedClasses(const bool lookup);
 
     void execute();
+    QFuture<QSharedPointer<CppElement>> asyncExecute();
     bool identifiedCppElement() const;
     const QSharedPointer<CppElement> &cppElement() const;
     bool hasDiagnosis() const;
@@ -64,13 +66,18 @@ public:
 
 private:
     void clear();
+    using ExecFunction = QFuture<QSharedPointer<CppElement>>(CppElementEvaluator::*)
+                (const CPlusPlus::Snapshot &, const CPlusPlus::LookupItem &,
+                 const CPlusPlus::LookupContext &);
+
+    QFuture<QSharedPointer<CppElement>> execute(ExecFunction execFuntion);
+    QFuture<QSharedPointer<CppElement>> syncExec(const CPlusPlus::Snapshot &,
+                     const CPlusPlus::LookupItem &, const CPlusPlus::LookupContext &);
+    QFuture<QSharedPointer<CppElement>> asyncExec(const CPlusPlus::Snapshot &,
+                     const CPlusPlus::LookupItem &, const CPlusPlus::LookupContext &);
     void checkDiagnosticMessage(int pos);
     bool matchIncludeFile(const CPlusPlus::Document::Ptr &document, int line);
     bool matchMacroInUse(const CPlusPlus::Document::Ptr &document, int pos);
-    void handleLookupItemMatch(const CPlusPlus::Snapshot &snapshot,
-                               const CPlusPlus::LookupItem &lookupItem,
-                               const CPlusPlus::LookupContext &lookupContext,
-                               const CPlusPlus::Scope *scope);
 
     TextEditor::TextEditorWidget *m_editor;
     CppTools::CppModelManager *m_modelManager;
@@ -123,8 +130,10 @@ public:
 
     CppClass *toCppClass() final;
 
-    void lookupBases(CPlusPlus::Symbol *declaration, const CPlusPlus::LookupContext &context);
-    void lookupDerived(CPlusPlus::Symbol *declaration, const CPlusPlus::Snapshot &snapshot);
+    void lookupBases(QFutureInterfaceBase &futureInterface,
+                     CPlusPlus::Symbol *declaration, const CPlusPlus::LookupContext &context);
+    void lookupDerived(QFutureInterfaceBase &futureInterface,
+                       CPlusPlus::Symbol *declaration, const CPlusPlus::Snapshot &snapshot);
 
 public:
     QList<CppClass> bases;
