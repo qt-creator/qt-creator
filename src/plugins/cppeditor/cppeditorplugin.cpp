@@ -386,16 +386,16 @@ QVector<QObject *> CppEditorPlugin::createTestObjects() const
 void CppEditorPlugin::openTypeHierarchy()
 {
     if (currentCppEditorWidget()) {
-        NavigationWidget::activateSubWidget(Constants::TYPE_HIERARCHY_ID, Side::Left);
         emit typeHierarchyRequested();
+        NavigationWidget::activateSubWidget(Constants::TYPE_HIERARCHY_ID, Side::Left);
     }
 }
 
 void CppEditorPlugin::openIncludeHierarchy()
 {
     if (currentCppEditorWidget()) {
-        NavigationWidget::activateSubWidget(Constants::INCLUDE_HIERARCHY_ID, Side::Left);
         emit includeHierarchyRequested();
+        NavigationWidget::activateSubWidget(Constants::INCLUDE_HIERARCHY_ID, Side::Left);
     }
 }
 
