@@ -305,7 +305,7 @@ void MesonProjectParser::processFinished(int exitCode, QProcess::ExitStatus exit
     } else {
         if (m_introType == IntroDataType::stdo) {
             auto data = m_process.stdErr();
-            Core::MessageManager::write(QString::fromLocal8Bit(data));
+            Core::MessageManager::writeSilently(QString::fromLocal8Bit(data));
             m_outputParser.readStdo(data);
         }
         emit parsingCompleted(false);

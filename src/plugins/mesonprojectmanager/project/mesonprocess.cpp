@@ -40,7 +40,7 @@
 namespace MesonProjectManager {
 namespace Internal {
 
-static Q_LOGGING_CATEGORY(mesonProcessLog, "qtc.meson.buildsystem", QtDebugMsg);
+static Q_LOGGING_CATEGORY(mesonProcessLog, "qtc.meson.buildsystem", QtWarningMsg);
 
 MesonProcess::MesonProcess()
 {
@@ -107,7 +107,7 @@ void MesonProcess::handleProcessFinished(int code, QProcess::ExitStatus status)
         m_future.reportFinished();
     }
     const QString elapsedTime = Utils::formatElapsedTime(m_elapsed.elapsed());
-    Core::MessageManager::write(elapsedTime);
+    Core::MessageManager::writeSilently(elapsedTime);
     emit finished(code, status);
 }
 
@@ -183,7 +183,7 @@ void MesonProcess::setupProcess(const Command &command,
 
     m_process->setWorkingDirectory(command.workDir().toString());
     m_process->setEnvironment(env);
-    Core::MessageManager::write(
+    Core::MessageManager::writeFlashing(
         tr("Running %1 in %2.").arg(command.toUserOutput()).arg(command.workDir().toUserOutput()));
     m_process->setCommand(command.cmdLine());
 }
@@ -213,7 +213,7 @@ void MesonProcess::processStandardOutput()
 {
     QTC_ASSERT(m_process, return );
     auto data = m_process->readAllStandardOutput();
-    Core::MessageManager::write(QString::fromLocal8Bit(data));
+    Core::MessageManager::writeSilently(QString::fromLocal8Bit(data));
     emit readyReadStandardOutput(data);
 }
 
@@ -221,7 +221,7 @@ void MesonProcess::processStandardError()
 {
     QTC_ASSERT(m_process, return );
 
-    Core::MessageManager::write(QString::fromLocal8Bit(m_process->readAllStandardError()));
+    Core::MessageManager::writeSilently(QString::fromLocal8Bit(m_process->readAllStandardError()));
 }
 } // namespace Internal
 } // namespace MesonProjectManager

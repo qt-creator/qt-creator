@@ -32,6 +32,7 @@
 #include "settings/tools/kitaspect/mesontoolkitaspect.h"
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/taskhub.h>
 
 #include <qtsupport/qtcppkitinfo.h>
 #include <qtsupport/qtkitinformation.h>
@@ -56,9 +57,11 @@
         m_parseGuard = {}; \
     };
 
+using namespace ProjectExplorer;
+
 namespace MesonProjectManager {
 namespace Internal {
-static Q_LOGGING_CATEGORY(mesonBuildSystemLog, "qtc.meson.buildsystem", QtDebugMsg);
+static Q_LOGGING_CATEGORY(mesonBuildSystemLog, "qtc.meson.buildsystem", QtWarningMsg);
 
 MesonBuildSystem::MesonBuildSystem(MesonBuildConfiguration *bc)
     : ProjectExplorer::BuildSystem{bc}
@@ -101,6 +104,7 @@ void MesonBuildSystem::parsingCompleted(bool success)
         UNLOCK(true);
         emitBuildSystemUpdated();
     } else {
+        TaskHub::addTask(BuildSystemTask(Task::Error, tr("Meson build: Parsing failed")));
         UNLOCK(false);
         emitBuildSystemUpdated();
     }
