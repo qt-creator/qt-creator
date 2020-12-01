@@ -556,9 +556,10 @@ class DumperBase():
         return size, limit
 
     def vectorData(self, value):
-        vector_data_ptr = self.extractPointer(value)
-        # vector_data_ptr is what is e.g. stored in a QVector's d_ptr.
-        if self.qtVersion() >= 0x050000:
+        if self.qtVersion() >= 0x060000:
+            data, size, alloc = self.qArrayData(value)
+        elif self.qtVersion() >= 0x050000:
+            vector_data_ptr = self.extractPointer(value)
             if self.ptrSize() == 4:
                 (ref, size, alloc, offset) = self.split('IIIp', vector_data_ptr)
             else:
@@ -566,6 +567,7 @@ class DumperBase():
             alloc = alloc & 0x7ffffff
             data = vector_data_ptr + offset
         else:
+            vector_data_ptr = self.extractPointer(value)
             (ref, alloc, size) = self.split('III', vector_data_ptr)
             data = vector_data_ptr + 16
         self.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
@@ -708,7 +710,7 @@ class DumperBase():
         return self.encodedUtf16ToUtf8(self.encodeString(value, limit))
 
     def stringData(self, value): # -> (data, size, alloc)
-            return self.qArrayData(value)
+        return self.qArrayData(value)
 
     def extractTemplateArgument(self, typename, position):
         level = 0

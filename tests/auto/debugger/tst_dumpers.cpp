@@ -7442,6 +7442,8 @@ void tst_Dumpers::dumper_data()
 
                     "QApplication app(argc, argv);\n"
                     "QGraphicsScene sc;\n"
+                    "QPolygon p0;\n"
+                    "QPolygonF p1;\n"
                     "QPolygonF pol;\n"
                     "pol.append(QPointF(1, 2));\n"
                     "pol.append(QPointF(2, 2));\n"
@@ -7454,6 +7456,8 @@ void tst_Dumpers::dumper_data()
 
                + GuiProfile()
 
+               + Check("p0", "<0 items>", "@QPolygon")
+               + Check("p1", "<0 items>", "@QPolygonF")
                + Check("pol", "<5 items>", "@QPolygonF")
                + Check("p", "<5 items>", "@QGraphicsPolygonItem");
 
