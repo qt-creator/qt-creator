@@ -35,29 +35,67 @@
 #include <QTime>
 #include <QTimer>
 
-using namespace Core;
+/*!
+    \class Core::MessageManager
+    \inheaderfile coreplugin/messagemanager.h
+    \ingroup mainclasses
+    \inmodule QtCreator
+
+    \brief The MessageManager class is used to post messages in the
+    \uicontrol{General Messages} pane.
+*/
+
+namespace Core {
 
 static MessageManager *m_instance = nullptr;
 static Internal::MessageOutputWindow *m_messageOutputWindow = nullptr;
 
+/*!
+    \internal
+*/
 MessageManager *MessageManager::instance()
 {
     return m_instance;
 }
 
-void MessageManager::showOutputPane(Core::MessageManager::PrintToOutputPaneFlags flags)
+enum class Flag { Silent, Flash, Disrupt };
+
+static void showOutputPane(Flag flags)
 {
     QTC_ASSERT(m_messageOutputWindow, return);
 
-    if (flags & Flash) {
+    switch (flags) {
+    case Core::Flag::Silent:
+        break;
+    case Core::Flag::Flash:
         m_messageOutputWindow->flash();
-    } else if (flags & Silent) {
-        // Do nothing
-    } else {
-        m_messageOutputWindow->popup(IOutputPane::Flag(int(flags)));
+        break;
+    case Core::Flag::Disrupt:
+        m_messageOutputWindow->popup(IOutputPane::ModeSwitch);
+        break;
     }
 }
 
+static void doWrite(const QString &text, Flag flags)
+{
+    QTC_ASSERT(m_messageOutputWindow, return);
+
+    showOutputPane(flags);
+    m_messageOutputWindow->append(text + '\n');
+}
+
+static void write(const QString &text, Flag flags)
+{
+    QTC_ASSERT(m_instance, return);
+    if (QThread::currentThread() == m_instance->thread())
+        doWrite(text, flags);
+    else
+        QTimer::singleShot(0, m_instance, [text, flags] { doWrite(text, flags); });
+}
+
+/*!
+    \internal
+*/
 MessageManager::MessageManager()
 {
     m_instance = this;
@@ -65,6 +103,9 @@ MessageManager::MessageManager()
     qRegisterMetaType<MessageManager::PrintToOutputPaneFlags>();
 }
 
+/*!
+    \internal
+*/
 MessageManager::~MessageManager()
 {
     if (m_messageOutputWindow) {
@@ -74,12 +115,18 @@ MessageManager::~MessageManager()
     m_instance = nullptr;
 }
 
+/*!
+    \internal
+*/
 void MessageManager::init()
 {
     m_messageOutputWindow = new Internal::MessageOutputWindow;
     ExtensionSystem::PluginManager::addObject(m_messageOutputWindow);
 }
 
+/*!
+    \internal
+*/
 void MessageManager::setFont(const QFont &font)
 {
     QTC_ASSERT(m_messageOutputWindow, return);
@@ -87,6 +134,9 @@ void MessageManager::setFont(const QFont &font)
     m_messageOutputWindow->setFont(font);
 }
 
+/*!
+    \internal
+*/
 void MessageManager::setWheelZoomEnabled(bool enabled)
 {
     QTC_ASSERT(m_messageOutputWindow, return);
@@ -94,29 +144,130 @@ void MessageManager::setWheelZoomEnabled(bool enabled)
     m_messageOutputWindow->setWheelZoomEnabled(enabled);
 }
 
+/*!
+    Writes the \a message to the \uicontrol{General Messages} pane without
+    any further action.
+
+    This is the preferred method of posting messages, since it does not
+    interrupt the user.
+
+    \sa writeFlashing()
+    \sa writeDisrupting()
+*/
+void MessageManager::writeSilently(const QString &message)
+{
+    Core::write(message, Flag::Silent);
+}
+
+/*!
+    Writes the \a message to the \uicontrol{General Messages} pane and flashes
+    the output pane button.
+
+    This notifies the user that something important has happened that might
+    require the user's attention. Use sparingly, since continually flashing the
+    button is annoying, especially if the condition is something the user might
+    not be able to fix.
+
+    \sa writeSilently()
+    \sa writeDisrupting()
+*/
+void MessageManager::writeFlashing(const QString &message)
+{
+    Core::write(message, Flag::Flash);
+}
+
+/*!
+    Writes the \a message to the \uicontrol{General Messages} pane and brings
+    the pane to the front.
+
+    This might interrupt a user's workflow, so only use this as a direct
+    response to something a user did, like explicitly running a tool.
+
+    \sa writeSilently()
+    \sa writeFlashing()
+*/
+void MessageManager::writeDisrupting(const QString &message)
+{
+    Core::write(message, Flag::Disrupt);
+}
+
+/*!
+    \overload writeSilently()
+*/
+void MessageManager::writeSilently(const QStringList &messages)
+{
+    writeSilently(messages.join('\n'));
+}
+
+/*!
+    \overload writeFlashing()
+*/
+void MessageManager::writeFlashing(const QStringList &messages)
+{
+    writeFlashing(messages.join('\n'));
+}
+
+/*!
+    \overload writeDisrupting()
+*/
+void MessageManager::writeDisrupting(const QStringList &messages)
+{
+    writeDisrupting(messages.join('\n'));
+}
+
+/*!
+    \internal
+*/
 void MessageManager::writeMessages(const QStringList &messages, PrintToOutputPaneFlags flags)
 {
     write(messages.join('\n'), flags);
 }
 
+/*!
+    \internal
+*/
+static void showOutputPaneOld(Core::MessageManager::PrintToOutputPaneFlags flags)
+{
+    QTC_ASSERT(m_messageOutputWindow, return);
+
+    if (flags & MessageManager::Flash) {
+        m_messageOutputWindow->flash();
+    } else if (flags & MessageManager::Silent) {
+        // Do nothing
+    } else {
+        m_messageOutputWindow->popup(IOutputPane::Flag(int(flags)));
+    }
+}
+
+/*!
+    \internal
+*/
+static void doWriteOld(const QString &text, MessageManager::PrintToOutputPaneFlags flags)
+{
+    QTC_ASSERT(m_messageOutputWindow, return);
+
+    showOutputPaneOld(flags);
+    m_messageOutputWindow->append(text + '\n');
+}
+
+/*!
+    \internal
+*/
 void MessageManager::write(const QString &text, PrintToOutputPaneFlags flags)
 {
     if (QThread::currentThread() == instance()->thread())
-        doWrite(text, flags);
+        doWriteOld(text, flags);
     else
-        QTimer::singleShot(0, instance(), [text, flags] { doWrite(text, flags); });
+        QTimer::singleShot(0, instance(), [text, flags] { doWriteOld(text, flags); });
 }
 
+/*!
+    \internal
+*/
 void MessageManager::writeWithTime(const QString &text, PrintToOutputPaneFlags flags)
 {
     const QString timeStamp = QTime::currentTime().toString("HH:mm:ss ");
     write(timeStamp + text, flags);
 }
 
-void MessageManager::doWrite(const QString &text, PrintToOutputPaneFlags flags)
-{
-    QTC_ASSERT(m_messageOutputWindow, return);
-
-    showOutputPane(flags);
-    m_messageOutputWindow->append(text + '\n');
-}
+} // namespace Core

@@ -57,10 +57,16 @@ public:
 
     Q_DECLARE_FLAGS(PrintToOutputPaneFlags, PrintToOutputPaneFlag)
 
-    static void showOutputPane(PrintToOutputPaneFlags flags = NoModeSwitch);
-
     static void setFont(const QFont &font);
     static void setWheelZoomEnabled(bool enabled);
+
+    static void writeSilently(const QString &message);
+    static void writeFlashing(const QString &message);
+    static void writeDisrupting(const QString &message);
+
+    static void writeSilently(const QStringList &messages);
+    static void writeFlashing(const QStringList &messages);
+    static void writeDisrupting(const QStringList &messages);
 
     static void writeMessages(const QStringList &messages,
                               PrintToOutputPaneFlags flags = NoModeSwitch);
@@ -70,8 +76,6 @@ public:
 private:
     MessageManager();
     ~MessageManager() override;
-
-    static void doWrite(const QString &text, PrintToOutputPaneFlags flags);
 
     static void init();
     friend class Core::Internal::MainWindow;
