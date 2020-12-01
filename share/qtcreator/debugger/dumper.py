@@ -1068,7 +1068,7 @@ class DumperBase():
         if isinstance(typish, ReportItem):
             self.currentType.value = typish.value
         elif isinstance(typish, str):
-            self.currentType.value = typish
+            self.currentType.value = typish.replace('@', self.qtNamespace())
         else:
             self.currentType.value = typish.name
         self.currentType.priority += 1

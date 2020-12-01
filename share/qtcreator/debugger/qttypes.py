@@ -1284,8 +1284,7 @@ def qdumpHelper_Qt6_QMap(d, value, keyType, valueType):
         return
     m = value['d']['d']['m']
     d.putItem(m)
-    d.putBetterType('%sQMap<%s, %s>'
-                    % (d.qtNamespace(), keyType.name, valueType.name))
+    d.putBetterType('@QMap<%s, %s>' % (keyType.name, valueType.name))
 
 
 def qform__QMap():
@@ -1316,7 +1315,7 @@ def qdumpHelper_Qt6_QMultiMap(d, value, keyType, valueType):
         return
     m = value['d']['d']['m']
     d.putItem(m)
-    d.putBetterType('QMultiMap<%s, %s>' % (keyType.name, valueType.name))
+    d.putBetterType('@QMultiMap<%s, %s>' % (keyType.name, valueType.name))
 
 def qdump__QMultiMap(d, value):
     if d.qtVersion() >= 0x60000:
@@ -1331,7 +1330,7 @@ def qform__QVariantMap():
 
 def qdump__QVariantMap(d, value):
     qdumpHelper_QMap(d, value, d.createType('@QString'), d.createType('@QVariant'))
-    d.putBetterType(d.qtNamespace() + 'QVariantMap')
+    d.putBetterType('@QVariantMap')
 
 
 def qdump__QMetaMethod(d, value):
@@ -1496,7 +1495,7 @@ def qdump__QScopedPointer(d, value):
         d.putValue(d.currentValue.value, d.currentValue.encoding)
     typeName = value.type.name
     if value.type[1].name == d.qtNamespace() + 'QScopedPointerDeleter<%s>' % value.type[0].name:
-        typeName = d.qtNamespace() + 'QScopedPointer<%s>' % value.type[0].name
+        typeName = '@QScopedPointer<%s>' % value.type[0].name
     d.putBetterType(typeName)
 
 
@@ -1829,43 +1828,43 @@ def qdump__QUuid(d, value):
 
 def qdumpHelper_QVariant_0(d, value):
     # QVariant::Invalid
-    d.putBetterType('%sQVariant (invalid)' % d.qtNamespace())
+    d.putBetterType('@QVariant (invalid)')
     d.putValue('(invalid)')
 
 
 def qdumpHelper_QVariant_1(d, value):
     # QVariant::Bool
-    d.putBetterType('%sQVariant (bool)' % d.qtNamespace())
+    d.putBetterType('@QVariant (bool)')
     d.putValue('true' if value.to('b') else 'false')
 
 
 def qdumpHelper_QVariant_2(d, value):
     # QVariant::Int
-    d.putBetterType('%sQVariant (int)' % d.qtNamespace())
+    d.putBetterType('@QVariant (int)')
     d.putValue(value.to('i'))
 
 
 def qdumpHelper_QVariant_3(d, value):
     # uint
-    d.putBetterType('%sQVariant (uint)' % d.qtNamespace())
+    d.putBetterType('@QVariant (uint)')
     d.putValue(value.to('I'))
 
 
 def qdumpHelper_QVariant_4(d, value):
     # qlonglong
-    d.putBetterType('%sQVariant (qlonglong)' % d.qtNamespace())
+    d.putBetterType('@QVariant (qlonglong)')
     d.putValue(value.to('q'))
 
 
 def qdumpHelper_QVariant_5(d, value):
     # qulonglong
-    d.putBetterType('%sQVariant (qulonglong)' % d.qtNamespace())
+    d.putBetterType('@QVariant (qulonglong)')
     d.putValue(value.to('Q'))
 
 
 def qdumpHelper_QVariant_6(d, value):
     # QVariant::Double
-    d.putBetterType('%sQVariant (double)' % d.qtNamespace())
+    d.putBetterType('@QVariant (double)')
     d.putValue(value.to('d'))
 
 
@@ -1908,13 +1907,13 @@ qdumpHelper_QVariants_B = [
 
 def qdumpHelper_QVariant_31(d, value):
     # QVariant::VoidStar
-    d.putBetterType('%sQVariant (void *)' % d.qtNamespace())
+    d.putBetterType('@QVariant (void *)')
     d.putValue('0x%x' % d.extractPointer(value))
 
 
 def qdumpHelper_QVariant_32(d, value):
     # QVariant::Long
-    d.putBetterType('%sQVariant (long)' % d.qtNamespace())
+    d.putBetterType('@QVariant (long)')
     if d.ptrSize() == 4:
         d.putValue('%s' % d.extractInt(value))
     else:
@@ -1923,19 +1922,19 @@ def qdumpHelper_QVariant_32(d, value):
 
 def qdumpHelper_QVariant_33(d, value):
     # QVariant::Short
-    d.putBetterType('%sQVariant (short)' % d.qtNamespace())
+    d.putBetterType('@QVariant (short)')
     d.putValue('%s' % d.extractShort(value))
 
 
 def qdumpHelper_QVariant_34(d, value):
     # QVariant::Char
-    d.putBetterType('%sQVariant (char)' % d.qtNamespace())
+    d.putBetterType('@QVariant (char)')
     d.putValue('%s' % d.extractByte(value))
 
 
 def qdumpHelper_QVariant_35(d, value):
     # QVariant::ULong
-    d.putBetterType('%sQVariant (unsigned long)' % d.qtNamespace())
+    d.putBetterType('@QVariant (unsigned long)')
     if d.ptrSize() == 4:
         d.putValue('%s' % d.extractUInt(value))
     else:
@@ -1944,19 +1943,19 @@ def qdumpHelper_QVariant_35(d, value):
 
 def qdumpHelper_QVariant_36(d, value):
     # QVariant::UShort
-    d.putBetterType('%sQVariant (unsigned short)' % d.qtNamespace())
+    d.putBetterType('@QVariant (unsigned short)')
     d.putValue('%s' % d.extractUShort(value))
 
 
 def qdumpHelper_QVariant_37(d, value):
     # QVariant::UChar
-    d.putBetterType('%sQVariant (unsigned char)' % d.qtNamespace())
+    d.putBetterType('@QVariant (unsigned char)')
     d.putValue('%s' % d.extractByte(value))
 
 
 def qdumpHelper_QVariant_38(d, value):
     # QVariant::Float
-    d.putBetterType('%sQVariant (float)' % d.qtNamespace())
+    d.putBetterType('@QVariant (float)')
     d.putValue(value.to('f'))
 
 
@@ -2041,7 +2040,7 @@ def qdumpHelper__QVariant6(d, value):
     else:
         d.putItem(d.createValue(data, typeName))
 
-    d.putBetterType('%sQVariant (%s)' % (d.qtNamespace(), typeName))
+    d.putBetterType('@QVariant (%s)' % typeName)
 
 
 def qdumpHelper__QVariant45(d, value):
@@ -2062,7 +2061,7 @@ def qdumpHelper__QVariant45(d, value):
     # Extended Core type (Qt 4)
     if variantType >= 128 and variantType <= 135 and d.qtVersion() < 0x050000:
         if variantType == 128:
-            d.putBetterType('%sQVariant (void *)' % d.qtNamespace())
+            d.putBetterType('@QVariant (void *)')
             d.putValue('0x%x' % value.extractPointer())
         else:
             if variantType == 135:  # Float
@@ -2103,7 +2102,7 @@ def qdumpHelper__QVariant45(d, value):
 
         d.putEmptyValue(-99)
         d.putItem(val)
-        d.putBetterType('%sQVariant (%s)' % (d.qtNamespace(), innert))
+        d.putBetterType('@QVariant (%s)' % innert)
 
         return innert
 
@@ -2247,8 +2246,7 @@ def qdump__QXmlAttributes__Attribute(d, value):
 def qdump__QXmlAttributes(d, value):
     vptr, atts = value.split('p{@QList<@QXmlAttributes::Attribute>}')
     _, att_size, _ = d.describeStruct('{@QString}' * 4)
-    innerType = d.createType(d.qtNamespace() + 'QXmlAttributes::Attribute',
-                             att_size)
+    innerType = d.createType('@QXmlAttributes::Attribute', att_size)
     qdumpHelper_QList(d, atts, innerType)
 
 
@@ -2387,21 +2385,20 @@ def qdump__QV4__PropertyHash(d, value):
     data = value.extractPointer()
     (ref, alloc, size, numBits, entries) = d.split('iiiip', data)
     n = 0
-    innerType = d.qtNamespace() + 'QV4::Identifier'
     with Children(d):
         for i in range(alloc):
             (identifier, index) = d.split('pI', entries + i * 2 * d.ptrSize())
             if identifier != 0:
                 n += 1
                 with SubItem(d):
-                    d.putItem(d, d.createValue(identifier, innerType))
+                    d.putItem(d, d.createValue(identifier, '@QV4::Identifier'))
                     d.put('keysuffix', ' %d' % index)
     d.putItemCount(n)
     d.putPlainChildren(value)
 
 
 def qdump__QV4__InternalClass__Transition(d, value):
-    identifier = d.createValue(value.extractPointer(), d.qtNamespace() + 'QV4::Identifier')
+    identifier = d.createValue(value.extractPointer(), '@QV4::Identifier')
     d.putStringValue(identifier)
     d.putPlainChildren(value)
 
@@ -2426,14 +2423,13 @@ def qdump__QV4__SharedInternalClassData(d, value):
 def qdump__QV4__IdentifierTable(d, value):
     (engine, alloc, size, numBits, pad, entries) = value.split('piiiip')
     n = 0
-    innerType = d.qtNamespace() + 'QV4::Heap::String'
     with Children(d):
         for i in range(alloc):
             identifierPtr = d.extractPointer(entries + i * d.ptrSize())
             if identifierPtr != 0:
                 n += 1
                 with SubItem(d, None):
-                    d.putItem(d.createValue(identifierPtr, innerType))
+                    d.putItem(d.createValue(identifierPtr, '@QV4::Heap::String'))
     d.putItemCount(n)
     d.putPlainChildren(value)
 
@@ -2535,20 +2531,20 @@ def qdump_32__QV4__Value(d, value):
     val = v & 0xffffffff
     if (tag & 0x7fff2000) == 0x7fff2000:  # Int
         d.putValue(val)
-        d.putBetterType('%sQV4::Value (int32)' % ns)
+        d.putBetterType('@QV4::Value (int32)')
     elif (tag & 0x7fff4000) == 0x7fff4000:  # Bool
         d.putValue(val)
-        d.putBetterType('%sQV4::Value (bool)' % ns)
+        d.putBetterType('@QV4::Value (bool)')
     elif (tag & 0x7fff0000) == 0x7fff0000:  # Null
         d.putValue(val)
-        d.putBetterType('%sQV4::Value (null)' % ns)
+        d.putBetterType('@QV4::Value (null)')
     elif (tag & 0x7ffa0000) != 0x7ffa0000:  # Double
         d.putValue(value.split('d')[0])
-        d.putBetterType('%sQV4::Value (double)' % ns)
+        d.putBetterType('@QV4::Value (double)')
     elif tag == 0x7ffa0000:
         if val == 0:
             d.putValue('(undefined)')
-            d.putBetterType('%sQV4::Value (undefined)' % ns)
+            d.putBetterType('@QV4::Value (undefined)')
         else:
             managed = d.createValue(val, ns + 'QV4::Heap::Base')
             qdump__QV4__Heap__Base(d, managed)
@@ -2627,45 +2623,45 @@ def qdump_64__QV4__Value(d, value):
     vtable = v & QV4_PointerMask
     ns = d.qtNamespace()
     if (v >> QV4_IsNumber_Shift) == 1:
-        d.putBetterType('%sQV4::Value (int32)' % ns)
+        d.putBetterType('@QV4::Value (int32)')
         vv = v & 0xffffffff
         vv = vv if vv < 0x80000000 else -(0x100000000 - vv)
-        d.putBetterType('%sQV4::Value (int32)' % ns)
+        d.putBetterType('@QV4::Value (int32)')
         d.putValue('%d' % vv)
     elif (v >> QV4_IsDouble_Shift):
-        d.putBetterType('%sQV4::Value (double)' % ns)
+        d.putBetterType('@QV4::Value (double)')
         d.putValue('%0.16x' % (v ^ QV4_NaNEncodeMask), 'float:8')
     elif tag == QV4_ValueType_Undefined_Type and not new:
-        d.putBetterType('%sQV4::Value (undefined)' % ns)
+        d.putBetterType('@QV4::Value (undefined)')
         d.putValue('(undefined)')
     elif tag == QV4_ValueTypeInternal_Null_Type_Internal:
-        d.putBetterType('%sQV4::Value (null?)' % ns)
+        d.putBetterType('@QV4::Value (null?)')
         d.putValue('(null?)')
     elif v == 0:
         if new:
-            d.putBetterType('%sQV4::Value (undefined)' % ns)
+            d.putBetterType('@QV4::Value (undefined)')
             d.putValue('(undefined)')
         else:
-            d.putBetterType('%sQV4::Value (null)' % ns)
+            d.putBetterType('@QV4::Value (null)')
             d.putValue('(null)')
     #elif ((v >> QV4_IsManaged_Shift) & ~1) == 1:
-    #    d.putBetterType('%sQV4::Value (null/undef)' % ns)
+    #    d.putBetterType('@QV4::Value (null/undef)')
     #    d.putValue('(null/undef)')
     #elif v & QV4_IsNullOrBooleanMask:
-    #    d.putBetterType('%sQV4::Value (null/bool)' % ns)
+    #    d.putBetterType('@QV4::Value (null/bool)')
     #    d.putValue('(null/bool)')
     #    d.putValue(v & 1)
     else:
         (parentv, flags, pad, className) = d.split('pIIp', vtable)
         #vtable = value['m']['vtable']
         if flags & 2:  # isString'
-            d.putBetterType('%sQV4::Value (string)' % ns)
+            d.putBetterType('@QV4::Value (string)')
             qdump__QV4__Heap__String(d, d.createValue(v, ns + 'QV4::Heap::String'))
             #d.putStringValue(d.extractPointer(value) + 2 * d.ptrSize())
             #d.putValue('ptr: 0x%x' % d.extractPointer(value))
             return
         elif flags & 4:  # isObject
-            d.putBetterType('%sQV4::Value (object)' % ns)
+            d.putBetterType('@QV4::Value (object)')
             #QV4_putObjectValue(d, d.extractPointer(value) + 2 * d.ptrSize())
             arrayVTable = d.symbolAddress(ns + 'QV4::ArrayObject::static_vtbl')
             #DumperBase.warn('ARRAY VTABLE: 0x%x' % arrayVTable)
@@ -2673,10 +2669,10 @@ def qdump_64__QV4__Value(d, value):
             d.putItem(d.createValue(d.extractPointer(value) + 2 * d.ptrSize(), ns + 'QV4::Object'))
             return
         elif flags & 8:  # isFunction
-            d.putBetterType('%sQV4::Value (function)' % ns)
+            d.putBetterType('@QV4::Value (function)')
             d.putEmptyValue()
         else:
-            d.putBetterType('%sQV4::Value (unknown)' % ns)
+            d.putBetterType('@QV4::Value (unknown)')
             #d.putValue('[0x%x]' % v)
             d.putValue('[0x%x : flag 0x%x : tag 0x%x]' % (v, flags, tag))
     if d.isExpanded():
@@ -2913,7 +2909,7 @@ def qdump__QScriptValue(d, value):
         #d.putSubItem('variant', variant)
         t = qdump__QVariant(d, variant)
         # Override the 'QVariant (foo)' output
-        d.putBetterType('%sQScriptValue (%s)' % (ns, t))
+        d.putBetterType('@QScriptValue (%s)' % t)
         if t != 'JSCoreValue':
             return
     except:
