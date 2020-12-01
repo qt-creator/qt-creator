@@ -198,6 +198,9 @@ QString GdbMi::parseCString(const QChar *&from, const QChar *to)
 
 void GdbMi::parseValue(const QChar *&from, const QChar *to)
 {
+    if (from == to)
+        return;
+
     //qDebug() << "parseValue: " << QString(from, to - from);
     switch (from->unicode()) {
         case '{':
