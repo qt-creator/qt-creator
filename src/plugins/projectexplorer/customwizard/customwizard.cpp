@@ -470,7 +470,7 @@ QList<Core::IWizardFactory *> CustomWizard::createWizards()
 
     if (CustomWizardPrivate::verbose) { // Print to output pane for Windows.
         qWarning("%s", qPrintable(verboseLog));
-        Core::MessageManager::write(verboseLog, Core::MessageManager::ModeSwitch);
+        Core::MessageManager::writeDisrupting(verboseLog);
     }
     return rc;
 }

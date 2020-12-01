@@ -423,7 +423,7 @@ void JsonWizard::handleNewPages(int pageId)
 
 void JsonWizard::handleError(const QString &message)
 {
-    Core::MessageManager::write(message, Core::MessageManager::ModeSwitch);
+    Core::MessageManager::writeDisrupting(message);
 }
 
 QString JsonWizard::stringify(const QVariant &v) const
