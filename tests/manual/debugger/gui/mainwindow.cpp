@@ -269,7 +269,7 @@ void MainWindow::on_actionDumperBP_triggered()
     QStringList sl;
     QString s = "hallo";
     for (int c = 'a'; c < 'c'; c++) {
-        s += c + 23;
+        s += char(c + 23);
         stdS += c;
         sl.push_back(s);
         stdStringList.push_back(std::string(1, c));
