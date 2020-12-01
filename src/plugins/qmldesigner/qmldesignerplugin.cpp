@@ -258,6 +258,9 @@ bool QmlDesignerPlugin::delayedInitialize()
     d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::PathTool);
     d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::TransitionTool);
 
+    if (DesignerSettings::getValue(DesignerSettingsKey::STANDALONE_MODE).toBool())
+        emitUsageStatistics("StandaloneMode");
+
     return true;
 }
 
