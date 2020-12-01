@@ -61,10 +61,11 @@ static FilePath cmakeReplyDirectory(const FilePath &buildDirectory)
 
 static void reportFileApiSetupFailure()
 {
-    Core::MessageManager::write(QCoreApplication::translate(
-        "CMakeProjectManager::Internal",
-        "Failed to set up CMake file API support. %1 cannot "
-        "extract project information.").arg(Core::Constants::IDE_DISPLAY_NAME));
+    Core::MessageManager::writeFlashing(
+        QCoreApplication::translate("CMakeProjectManager::Internal",
+                                    "Failed to set up CMake file API support. %1 cannot "
+                                    "extract project information.")
+            .arg(Core::Constants::IDE_DISPLAY_NAME));
 }
 
 static std::pair<int, int> cmakeVersion(const QJsonObject &obj)

@@ -281,8 +281,8 @@ void CMakeManager::buildFile(Node *node)
                     bc->buildDirectory());
         targetBase = relativeBuildDir / "CMakeFiles" / (targetNode->displayName() + ".dir");
     } else if (!generator.contains("Makefiles")) {
-        Core::MessageManager::write(tr("Build File is not supported for generator \"%1\"")
-                                    .arg(generator));
+        Core::MessageManager::writeFlashing(
+            tr("Build File is not supported for generator \"%1\"").arg(generator));
         return;
     }
 

@@ -117,9 +117,8 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
 
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 
-    Core::MessageManager::write(tr("Running %1 in %2.")
-                                .arg(commandLine.toUserOutput())
-                                .arg(workDirectory.toUserOutput()));
+    Core::MessageManager::writeFlashing(
+        tr("Running %1 in %2.").arg(commandLine.toUserOutput()).arg(workDirectory.toUserOutput()));
 
     auto future = std::make_unique<QFutureInterface<void>>();
     future->setProgressRange(0, 1);
@@ -168,9 +167,9 @@ void CMakeProcess::processStandardOutput()
     QTC_ASSERT(m_process, return);
 
     static QString rest;
-    rest = lineSplit(rest, m_process->readAllStandardOutput(),
-                     [](const QString &s) { Core::MessageManager::write(s); });
-
+    rest = lineSplit(rest, m_process->readAllStandardOutput(), [](const QString &s) {
+        Core::MessageManager::writeSilently(s);
+    });
 }
 
 void CMakeProcess::processStandardError()
@@ -180,7 +179,7 @@ void CMakeProcess::processStandardError()
     static QString rest;
     rest = lineSplit(rest, m_process->readAllStandardError(), [this](const QString &s) {
         m_parser.appendMessage(s + '\n', Utils::StdErrFormat);
-        Core::MessageManager::write(s);
+        Core::MessageManager::writeSilently(s);
     });
 }
 
@@ -206,7 +205,7 @@ void CMakeProcess::handleProcessFinished(int code, QProcess::ExitStatus status)
     m_lastExitCode = code;
 
     if (!msg.isEmpty()) {
-        Core::MessageManager::write(msg);
+        Core::MessageManager::writeSilently(msg);
         TaskHub::addTask(BuildSystemTask(Task::Error, msg));
         m_future->reportCanceled();
     } else {
@@ -218,7 +217,7 @@ void CMakeProcess::handleProcessFinished(int code, QProcess::ExitStatus status)
     emit finished(code, status);
 
     const QString elapsedTime = Utils::formatElapsedTime(m_elapsed.elapsed());
-    Core::MessageManager::write(elapsedTime);
+    Core::MessageManager::writeSilently(elapsedTime);
 }
 
 void CMakeProcess::checkForCancelled()
