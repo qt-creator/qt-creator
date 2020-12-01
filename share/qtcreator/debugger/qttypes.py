@@ -885,6 +885,10 @@ def qdumpHelper_QHash_5(d, value, keyType, valueType):
 
 def qdumpHelper_QHash_6(d, value, keyType, valueType):
     dptr = d.extractPointer(value)
+    if dptr == 0:
+        d.putItemCount(0)
+        return
+
     ref, _, size, buckets, seed, spans = d.split('i@qqqp', dptr)
 
     d.check(0 <= size and size <= 100 * 1000 * 1000)
