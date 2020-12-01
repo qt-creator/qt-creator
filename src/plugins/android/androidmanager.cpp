@@ -514,14 +514,15 @@ void AndroidManager::installQASIPackage(Target *target, const QString &packagePa
     if (info.type == AndroidDeviceInfo::Emulator) {
         deviceSerialNumber = AndroidAvdManager().startAvd(info.avdname);
         if (deviceSerialNumber.isEmpty())
-            Core::MessageManager::write(tr("Starting Android virtual device failed."));
+            Core::MessageManager::writeDisrupting(tr("Starting Android virtual device failed."));
     }
 
     QStringList arguments = AndroidDeviceInfo::adbSelector(deviceSerialNumber);
     arguments << "install" << "-r " << packagePath;
     QString error;
     if (!runAdbCommandDetached(arguments, &error, true))
-        Core::MessageManager::write(tr("Android package installation failed.\n%1").arg(error));
+        Core::MessageManager::writeDisrupting(
+            tr("Android package installation failed.\n%1").arg(error));
 }
 
 bool AndroidManager::checkKeystorePassword(const QString &keystorePath, const QString &keystorePasswd)
