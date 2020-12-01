@@ -206,10 +206,10 @@ void FileShareProtocol::paste(
         saver.setResult(&writer);
     }
     if (!saver.finalize()) {
-        Core::MessageManager::write(saver.errorString());
+        Core::MessageManager::writeDisrupting(saver.errorString());
         return;
     }
 
-    Core::MessageManager::write(tr("Pasted: %1").arg(saver.fileName()));
+    Core::MessageManager::writeSilently(tr("Pasted: %1").arg(saver.fileName()));
 }
 } // namespace CodePaster

@@ -59,7 +59,7 @@ void DPasteDotComProtocol::fetchFinished(const QString &id, QNetworkReply * cons
             const QString location = QString::fromUtf8(reply->rawHeader("Location"));
             if (status == 301 || status == 308) {
                 const QString m = QString("HTTP redirect (%1) to \"%2\"").arg(status).arg(location);
-                Core::MessageManager::write(m, Core::MessageManager::ModeSwitch);
+                Core::MessageManager::writeSilently(m);
             }
             QNetworkReply * const newRep = httpGet(location);
             connect(newRep, &QNetworkReply::finished, this, [this, id, newRep] {
@@ -150,7 +150,7 @@ bool DPasteDotComProtocol::checkConfiguration(QString *errorMessage)
 void DPasteDotComProtocol::reportError(const QString &message)
 {
     const QString fullMessage = tr("%1: %2").arg(protocolName(), message);
-    Core::MessageManager::write(fullMessage, Core::MessageManager::ModeSwitch);
+    Core::MessageManager::writeDisrupting(fullMessage);
 }
 
 } // namespace CodePaster
