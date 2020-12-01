@@ -1997,7 +1997,49 @@ qdumpHelper_QVariants_F = [
 
 
 def qdump__QVariant(d, value):
-    (data, typeStuff) = d.split('8sI', value)
+    if d.qtVersion() >= 0x060000:
+        qdumpHelper__QVariant6(d, value)
+    else:
+        qdumpHelper__QVariant45(d, value)
+
+def qdumpHelper__QVariant6(d, value):
+    data, typeStuff = d.split('24sp', value)
+    packedType = typeStuff >> 2
+    metaTypeInterface = typeStuff - (typeStuff & 3)
+
+    if metaTypeInterface == 0:
+        qdumpHelper_QVariant_0(d, value)
+        return
+
+    revision, alignment, size, flags, variantType, metaObjectPtr, name = \
+        d.split('HHIIIpp', metaTypeInterface)
+
+    # Well-known simple type.
+    if variantType <= 6:
+        qdumpHelper_QVariants_A[variantType](d, value)
+        return None
+
+    # Extended Core type (Qt 5+)
+    if variantType >= 31 and variantType <= 38:
+        qdumpHelper_QVariants_D[variantType - 31](d, value)
+        return None
+
+    typeName = d.extractCString(name).decode('utf8')
+    isShared = bool(typeStuff & 0x1)
+
+    if isShared:
+        # indirectly stored items (QRectF, ...)
+        ptr = d.extractPointer(value)
+        _, data  = d.split('8s{%s}' % typeName, ptr)
+        d.putItem(data)
+    else:
+        d.putItem(d.createValue(data, typeName))
+
+    d.putBetterType('%sQVariant (%s)' % (d.qtNamespace(), typeName))
+
+
+def qdumpHelper__QVariant45(d, value):
+    data, typeStuff = d.split('8sI', value)
     variantType = typeStuff & 0x3fffffff
     isShared = bool(typeStuff & 0x40000000)
 

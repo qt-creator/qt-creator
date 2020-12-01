@@ -4003,7 +4003,7 @@ void tst_Dumpers::dumper_data()
                //+ Check("this.@1.@1", "[@QObject]", "\"This is thread #3\"", "@QObject");
 
 
-    QTest::newRow("QVariant")
+    QTest::newRow("QVariant1")
             << Data("#include <QMap>\n"
                     "#include <QStringList>\n"
                     "#include <QVariant>\n"
@@ -4017,9 +4017,7 @@ void tst_Dumpers::dumper_data()
 
                     "QVariant v0;\n\n"
 
-                    "QVariant::Type t1 = QVariant::String;\n"
-                    "QVariant v1 = QVariant(t1, (void*)0);\n"
-                    //"*(QString*)v1.data() = QString(\"Some string\");\n\n"
+                    "QVariant v1 = QVariant(QString(\"A string\"));\n"
 
                     "MyType my;\n"
                     "my[1] = (QStringList() << \"Hello\");\n"
@@ -4033,7 +4031,7 @@ void tst_Dumpers::dumper_data()
                     "list << 1 << 2 << 3;\n"
                     "QVariant v3 = QVariant::fromValue(list);",
 
-                    "&my, &v0, &v1, &v2, &t, &s, &list, &v3, &t1")
+                    "&my, &v0, &v1, &v2, &t, &s, &list, &v3")
 
                + CoreProfile()
 
