@@ -58,7 +58,7 @@ void ExternalToolsFilter::accept(LocatorFilterEntry selection,
 
     auto runner = new ExternalToolRunner(tool);
     if (runner->hasError())
-        MessageManager::write(runner->errorString());
+        MessageManager::writeFlashing(runner->errorString());
 }
 
 void ExternalToolsFilter::refresh(QFutureInterface<void> &)

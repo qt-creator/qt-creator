@@ -187,10 +187,9 @@ void FileUtils::removeFiles(const FilePaths &filePaths, bool deleteFromFS)
         if (!file.exists()) // could have been deleted by vc
             continue;
         if (!file.remove()) {
-            MessageManager::write(QCoreApplication::translate(
-                                      "Core::Internal",
-                                      "Failed to remove file \"%1\")1.").
-                                  arg(fp.toUserOutput()), MessageManager::ModeSwitch);
+            MessageManager::writeDisrupting(
+                QCoreApplication::translate("Core::Internal", "Failed to remove file \"%1\")1.")
+                    .arg(fp.toUserOutput()));
         }
     }
 }
@@ -226,10 +225,10 @@ bool FileUtils::renameFile(const QString &orgFilePath, const QString &newFilePat
         QFileInfo fi(orgFilePath);
         bool headerUpdateSuccess = updateHeaderFileGuardAfterRename(newFilePath, fi.baseName());
         if (!headerUpdateSuccess) {
-            Core::MessageManager::write(QCoreApplication::translate(
-                                            "Core::FileUtils",
+            Core::MessageManager::writeDisrupting(
+                QCoreApplication::translate("Core::FileUtils",
                                             "Failed to rename the include guard in file \"%1\".")
-                                        .arg(newFilePath));
+                    .arg(newFilePath));
         }
     }
 

@@ -84,13 +84,18 @@ static bool runPatchHelper(const QByteArray &input, const QString &workingDirect
 {
     const QString patch = PatchTool::patchCommand();
     if (patch.isEmpty()) {
-        MessageManager::write(QApplication::translate("Core::PatchTool", "There is no patch-command configured in the general \"Environment\" settings."));
+        MessageManager::writeDisrupting(QApplication::translate(
+            "Core::PatchTool",
+            "There is no patch-command configured in the general \"Environment\" settings."));
         return false;
     }
 
     if (!Utils::FilePath::fromString(patch).exists()
             && !Utils::Environment::systemEnvironment().searchInPath(patch).exists()) {
-        MessageManager::write(QApplication::translate("Core::PatchTool", "The patch-command configured in the general \"Environment\" settings does not exist."));
+        MessageManager::writeDisrupting(
+            QApplication::translate("Core::PatchTool",
+                                    "The patch-command configured in the general \"Environment\" "
+                                    "settings does not exist."));
         return false;
     }
 
@@ -113,12 +118,16 @@ static bool runPatchHelper(const QByteArray &input, const QString &workingDirect
         args << QLatin1String("-R");
     if (withCrlf)
         args << QLatin1String("--binary");
-    MessageManager::write(QApplication::translate("Core::PatchTool", "Running in %1: %2 %3").
-                          arg(QDir::toNativeSeparators(workingDirectory),
-                              QDir::toNativeSeparators(patch), args.join(QLatin1Char(' '))));
+    MessageManager::writeDisrupting(
+        QApplication::translate("Core::PatchTool", "Running in %1: %2 %3")
+            .arg(QDir::toNativeSeparators(workingDirectory),
+                 QDir::toNativeSeparators(patch),
+                 args.join(QLatin1Char(' '))));
     patchProcess.start(patch, args);
     if (!patchProcess.waitForStarted()) {
-        MessageManager::write(QApplication::translate("Core::PatchTool", "Unable to launch \"%1\": %2").arg(patch, patchProcess.errorString()));
+        MessageManager::writeFlashing(
+            QApplication::translate("Core::PatchTool", "Unable to launch \"%1\": %2")
+                .arg(patch, patchProcess.errorString()));
         return false;
     }
     patchProcess.write(input);
@@ -127,7 +136,9 @@ static bool runPatchHelper(const QByteArray &input, const QString &workingDirect
     QByteArray stdErr;
     if (!Utils::SynchronousProcess::readDataFromProcess(patchProcess, 30, &stdOut, &stdErr, true)) {
         Utils::SynchronousProcess::stopProcess(patchProcess);
-        MessageManager::write(QApplication::translate("Core::PatchTool", "A timeout occurred running \"%1\"").arg(patch));
+        MessageManager::writeFlashing(
+            QApplication::translate("Core::PatchTool", "A timeout occurred running \"%1\"")
+                .arg(patch));
         return false;
 
     }
@@ -137,18 +148,22 @@ static bool runPatchHelper(const QByteArray &input, const QString &workingDirect
             crlfInput.replace('\n', "\r\n");
             return runPatchHelper(crlfInput, workingDirectory, strip, reverse, true);
         } else {
-            MessageManager::write(QString::fromLocal8Bit(stdOut));
+            MessageManager::writeFlashing(QString::fromLocal8Bit(stdOut));
         }
     }
     if (!stdErr.isEmpty())
-        MessageManager::write(QString::fromLocal8Bit(stdErr));
+        MessageManager::writeFlashing(QString::fromLocal8Bit(stdErr));
 
     if (patchProcess.exitStatus() != QProcess::NormalExit) {
-        MessageManager::write(QApplication::translate("Core::PatchTool", "\"%1\" crashed.").arg(patch));
+        MessageManager::writeFlashing(
+            QApplication::translate("Core::PatchTool", "\"%1\" crashed.").arg(patch));
         return false;
     }
     if (patchProcess.exitCode() != 0) {
-        MessageManager::write(QApplication::translate("Core::PatchTool", "\"%1\" failed (exit code %2).").arg(patch).arg(patchProcess.exitCode()));
+        MessageManager::writeFlashing(
+            QApplication::translate("Core::PatchTool", "\"%1\" failed (exit code %2).")
+                .arg(patch)
+                .arg(patchProcess.exitCode()));
         return false;
     }
     return true;
