@@ -1284,7 +1284,8 @@ def qdumpHelper_Qt6_QMap(d, value, keyType, valueType):
         return
     m = value['d']['d']['m']
     d.putItem(m)
-    d.putBetterType('QMap<%s, %s>' % (keyType.name, valueType.name))
+    d.putBetterType('%sQMap<%s, %s>'
+                    % (d.qtNamespace(), keyType.name, valueType.name))
 
 
 def qform__QMap():
@@ -1330,6 +1331,7 @@ def qform__QVariantMap():
 
 def qdump__QVariantMap(d, value):
     qdumpHelper_QMap(d, value, d.createType('@QString'), d.createType('@QVariant'))
+    d.putBetterType(d.qtNamespace() + 'QVariantMap')
 
 
 def qdump__QMetaMethod(d, value):

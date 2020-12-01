@@ -4334,13 +4334,13 @@ void tst_Dumpers::dumper_data()
                + Check("vm0", "<0 items>", TypeDef("@QMap<@QString,@QVariant>", "@QVariantMap"))
 
                + Check("vm1", "<6 items>", TypeDef("@QMap<@QString,@QVariant>", "@QVariantMap"))
-               + Check("vm1.0.key", "\"a\"", "@QString")
-               + Check("vm1.0.value", "1", "@QVariant (int)")
-               + Check("vm1.5.key", "\"f\"", "@QString")
-               + Check("vm1.5.value", "\"2Some String\"", "@QVariant (QString)")
+               + CheckPairish("vm1.0.key", "\"a\"", "@QString")
+               + CheckPairish("vm1.0.value", "1", "@QVariant (int)")
+               + CheckPairish("vm1.5.key", "\"f\"", "@QString")
+               + CheckPairish("vm1.5.value", "\"2Some String\"", "@QVariant (QString)")
 
                + Check("v", "<6 items>", "@QVariant (QVariantMap)")
-               + Check("v.0.key", "\"a\"", "@QString");
+               + CheckPairish("v.0.key", "\"a\"", "@QString");
 
 
     QTest::newRow("QVariantHash")
