@@ -42,6 +42,7 @@
 #include <QDirIterator>
 #include <QFileInfo>
 #include <QFormLayout>
+#include <QSet>
 #include <QTemporaryDir>
 
 using namespace ProjectExplorer;
@@ -182,11 +183,16 @@ void MakeInstallStep::finish(bool success)
         m_deploymentData.setLocalInstallRoot(installRoot());
         QDirIterator dit(installRoot().toString(), QDir::Files | QDir::Hidden,
                          QDirIterator::Subdirectories);
+        const auto appFileNames = transform<QSet<QString>>(buildSystem()->applicationTargets(),
+            [](const BuildTargetInfo &appTarget) { return appTarget.targetFilePath.fileName(); });
         while (dit.hasNext()) {
             dit.next();
             const QFileInfo fi = dit.fileInfo();
+            const DeployableFile::Type type = appFileNames.contains(fi.fileName())
+                ? DeployableFile::TypeExecutable
+                : DeployableFile::TypeNormal;
             m_deploymentData.addFile(fi.filePath(),
-                                     fi.dir().path().mid(installRoot().toString().length()));
+                                     fi.dir().path().mid(installRoot().toString().length()), type);
         }
         buildSystem()->setDeploymentData(m_deploymentData);
     } else if (m_noInstallTarget && m_isCmakeProject) {
