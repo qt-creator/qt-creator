@@ -115,8 +115,9 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     ++row;
 
     auto qmlDebugAspect = bc->aspect<QtSupport::QmlDebuggingAspect>();
-    connect(qmlDebugAspect, &QtSupport::QmlDebuggingAspect::changed,
-            this, [this]() { handleQmlDebugCxxFlags(); });
+    connect(qmlDebugAspect, &QtSupport::QmlDebuggingAspect::changed, this, [this]() {
+        updateButtonState();
+    });
     auto widget = new QWidget;
     LayoutBuilder builder(widget);
     qmlDebugAspect->addToLayout(builder);
@@ -259,7 +260,6 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         m_configView->setEnabled(true);
         stretcher->stretch();
         updateButtonState();
-        handleQmlDebugCxxFlags();
         m_showProgressTimer.stop();
         m_progressIndicator->hide();
     });
@@ -360,43 +360,44 @@ void CMakeBuildSettingsWidget::setWarning(const QString &message)
 void CMakeBuildSettingsWidget::updateButtonState()
 {
     const bool isParsing = m_buildConfiguration->buildSystem()->isParsing();
-    const bool hasChanges = m_configModel->hasChanges();
-    m_resetButton->setEnabled(hasChanges && !isParsing);
-    m_reconfigureButton->setEnabled((hasChanges || m_configModel->hasCMakeChanges()) && !isParsing);
 
     // Update extra data in buildconfiguration
     const QList<ConfigModel::DataItem> changes = m_configModel->configurationForCMake();
 
-    const CMakeConfig configChanges = Utils::transform(changes, [](const ConfigModel::DataItem &i) {
-        CMakeConfigItem ni;
-        ni.key = i.key.toUtf8();
-        ni.value = i.value.toUtf8();
-        ni.documentation = i.description.toUtf8();
-        ni.isAdvanced = i.isAdvanced;
-        ni.isUnset = i.isUnset;
-        ni.inCMakeCache = i.inCMakeCache;
-        ni.values = i.values;
-        switch (i.type) {
-        case CMakeProjectManager::ConfigModel::DataItem::BOOLEAN:
-            ni.type = CMakeConfigItem::BOOL;
-            break;
-        case CMakeProjectManager::ConfigModel::DataItem::FILE:
-            ni.type = CMakeConfigItem::FILEPATH;
-            break;
-        case CMakeProjectManager::ConfigModel::DataItem::DIRECTORY:
-            ni.type = CMakeConfigItem::PATH;
-            break;
-        case CMakeProjectManager::ConfigModel::DataItem::STRING:
-            ni.type = CMakeConfigItem::STRING;
-            break;
-        case CMakeProjectManager::ConfigModel::DataItem::UNKNOWN:
-        default:
-            ni.type = CMakeConfigItem::INTERNAL;
-            break;
-        }
-        return ni;
-    });
+    const CMakeConfig configChanges
+        = getQmlDebugCxxFlags() + Utils::transform(changes, [](const ConfigModel::DataItem &i) {
+              CMakeConfigItem ni;
+              ni.key = i.key.toUtf8();
+              ni.value = i.value.toUtf8();
+              ni.documentation = i.description.toUtf8();
+              ni.isAdvanced = i.isAdvanced;
+              ni.isUnset = i.isUnset;
+              ni.inCMakeCache = i.inCMakeCache;
+              ni.values = i.values;
+              switch (i.type) {
+              case CMakeProjectManager::ConfigModel::DataItem::BOOLEAN:
+                  ni.type = CMakeConfigItem::BOOL;
+                  break;
+              case CMakeProjectManager::ConfigModel::DataItem::FILE:
+                  ni.type = CMakeConfigItem::FILEPATH;
+                  break;
+              case CMakeProjectManager::ConfigModel::DataItem::DIRECTORY:
+                  ni.type = CMakeConfigItem::PATH;
+                  break;
+              case CMakeProjectManager::ConfigModel::DataItem::STRING:
+                  ni.type = CMakeConfigItem::STRING;
+                  break;
+              case CMakeProjectManager::ConfigModel::DataItem::UNKNOWN:
+              default:
+                  ni.type = CMakeConfigItem::INTERNAL;
+                  break;
+              }
+              return ni;
+          });
 
+    m_resetButton->setEnabled(m_configModel->hasChanges() && !isParsing);
+    m_reconfigureButton->setEnabled((!configChanges.isEmpty() || m_configModel->hasCMakeChanges())
+                                    && !isParsing);
     m_buildConfiguration->setExtraCMakeArguments(
         Utils::transform(configChanges, [](const CMakeConfigItem &i) { return i.toArgument(); }));
 }
@@ -426,10 +427,12 @@ void CMakeBuildSettingsWidget::updateFromKit()
     m_configModel->setConfigurationFromKit(configHash);
 }
 
-void CMakeBuildSettingsWidget::handleQmlDebugCxxFlags()
+CMakeConfig CMakeBuildSettingsWidget::getQmlDebugCxxFlags()
 {
-    bool changed = false;
     const auto aspect = m_buildConfiguration->aspect<QtSupport::QmlDebuggingAspect>();
+    const TriState qmlDebuggingState = aspect->setting();
+    if (qmlDebuggingState == TriState::Default) // don't touch anything
+        return {};
     const bool enable = aspect->setting() == TriState::Enabled;
 
     const CMakeConfig configList = m_buildConfiguration->configurationFromCMake();
@@ -446,25 +449,19 @@ void CMakeBuildSettingsWidget::handleQmlDebugCxxFlags()
         CMakeConfigItem it(item);
         if (enable) {
             if (!it.value.contains(qmlDebug)) {
-                it.value = it.value.append(' ').append(qmlDebug);
-                changed = true;
+                it.value = it.value.append(' ').append(qmlDebug).trimmed();
+                changedConfig.append(it);
             }
         } else {
             int index = it.value.indexOf(qmlDebug);
             if (index != -1) {
                 it.value.remove(index, qmlDebug.length());
-                changed = true;
+                it.value = it.value.trimmed();
+                changedConfig.append(it);
             }
         }
-        it.value = it.value.trimmed();
-        changedConfig.append(it);
     }
-
-    if (changed) {
-        m_buildConfiguration->setExtraCMakeArguments(
-            Utils::transform(changedConfig,
-                             [](const CMakeConfigItem &i) { return i.toArgument(); }));
-    }
+    return changedConfig;
 }
 
 void CMakeBuildSettingsWidget::updateSelection()
