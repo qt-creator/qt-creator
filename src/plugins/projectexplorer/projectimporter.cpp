@@ -42,6 +42,7 @@
 
 #include <QLoggingCategory>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QString>
 
 namespace ProjectExplorer {
@@ -108,11 +109,27 @@ const QList<BuildInfo> ProjectImporter::import(const Utils::FilePath &importPath
                                   .arg(importPath.toUserOutput(), projectFilePath().toUserOutput()));
     };
     qCDebug(log) << "Examining directory" << absoluteImportPath.toString();
-    QList<void *> dataList = examineDirectory(absoluteImportPath);
+    QString warningMessage;
+    QList<void *> dataList = examineDirectory(absoluteImportPath, &warningMessage);
     if (dataList.isEmpty()) {
         qCDebug(log) << "Nothing to import found in" << absoluteImportPath.toString();
         handleFailure();
         return result;
+    }
+    if (!warningMessage.isEmpty()) {
+        qCDebug(log) << "Warning when examining" << absoluteImportPath.toString();
+        // we should ask user before importing
+        if (silent)
+            return result;
+        QMessageBox dialog(Core::ICore::dialogParent());
+        dialog.setWindowTitle(tr("Import Warning"));
+        dialog.setText(warningMessage);
+        dialog.setIcon(QMessageBox::Warning);
+        QPushButton *acceptButton = dialog.addButton(tr("Import Build"), QMessageBox::AcceptRole);
+        dialog.addButton(QMessageBox::Cancel);
+        dialog.exec();
+        if (dialog.clickedButton() != acceptButton)
+            return result;
     }
 
     qCDebug(log) << "Looking for kits";

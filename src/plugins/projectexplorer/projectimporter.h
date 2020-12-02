@@ -86,7 +86,8 @@ protected:
     };
 
     // importPath is an existing directory at this point!
-    virtual QList<void *> examineDirectory(const Utils::FilePath &importPath) const = 0;
+    virtual QList<void *> examineDirectory(const Utils::FilePath &importPath,
+                                           QString *warningMessage) const = 0;
     // will get one of the results from examineDirectory
     virtual bool matchKit(void *directoryData, const Kit *k) const = 0;
     // will get one of the results from examineDirectory

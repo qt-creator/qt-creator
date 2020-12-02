@@ -43,7 +43,7 @@ public:
 
 private:
     // importPath is an existing directory at this point!
-    QList<void *> examineDirectory(const Utils::FilePath &importPath) const final;
+    QList<void *> examineDirectory(const Utils::FilePath &importPath, QString *warningMessage) const final;
     // will get one of the results from examineDirectory
     bool matchKit(void *directoryData, const ProjectExplorer::Kit *k) const final;
     // will get one of the results from examineDirectory

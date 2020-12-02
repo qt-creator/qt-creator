@@ -37,6 +37,7 @@ const char RESCAN_PROJECT[] = "CMakeProject.RescanProject";
 const char RUN_CMAKE_CONTEXT_MENU[] = "CMakeProject.RunCMakeContextMenu";
 const char BUILD_FILE_CONTEXT_MENU[] = "CMakeProject.BuildFileContextMenu";
 const char BUILD_FILE[] = "CMakeProject.BuildFile";
+const char CMAKE_HOME_DIR[] = "CMakeProject.HomeDirectory";
 
 // Project
 const char CMAKE_PROJECT_ID[] = "CMakeProjectManager.CMakeProject";

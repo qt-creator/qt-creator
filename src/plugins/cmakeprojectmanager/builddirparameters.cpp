@@ -27,6 +27,7 @@
 
 #include "cmakebuildconfiguration.h"
 #include "cmakekitinformation.h"
+#include "cmakeprojectconstants.h"
 #include "cmakeprojectplugin.h"
 #include "cmakespecificsettings.h"
 #include "cmaketoolmanager.h"
@@ -67,7 +68,9 @@ BuildDirParameters::BuildDirParameters(CMakeBuildConfiguration *bc)
 
     projectName = p->displayName();
 
-    sourceDirectory = p->projectDirectory();
+    sourceDirectory = bc->sourceDirectory();
+    if (sourceDirectory.isEmpty())
+        sourceDirectory = p->projectDirectory();
     buildDirectory = bc->buildDirectory();
 
     environment = bc->environment();

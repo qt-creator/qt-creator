@@ -41,7 +41,8 @@ public:
     QStringList importCandidates() final;
 
 private:
-    QList<void *> examineDirectory(const Utils::FilePath &importPath) const final;
+    QList<void *> examineDirectory(const Utils::FilePath &importPath,
+                                   QString *warningMessage) const final;
     bool matchKit(void *directoryData, const ProjectExplorer::Kit *k) const final;
     ProjectExplorer::Kit *createKit(void *directoryData) const final;
     const QList<ProjectExplorer::BuildInfo> buildInfoList(void *directoryData) const final;

@@ -28,7 +28,10 @@
 #include "cmakebuildconfiguration.h"
 #include "cmakebuildsystem.h"
 #include "cmakekitinformation.h"
+#include "cmakeprojectconstants.h"
 #include "cmaketoolmanager.h"
+
+#include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/kitinformation.h>
@@ -58,6 +61,7 @@ struct DirectoryData
     // Project Stuff:
     QByteArray cmakeBuildType;
     FilePath buildDirectory;
+    FilePath cmakeHomeDirectory;
 
     // Kit Stuff
     FilePath cmakeBinary;
@@ -266,7 +270,8 @@ static QVector<ToolChainDescription> extractToolChainsFromCache(const CMakeConfi
     return result;
 }
 
-QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath) const
+QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
+                                                     QString *warningMessage) const
 {
     qCInfo(cmInputLog) << "Examining directory:" << importPath.toUserOutput();
     const FilePath cacheFile = importPath.pathAppended("CMakeCache.txt");
@@ -282,18 +287,22 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath)
         qCDebug(cmInputLog) << "Failed to read configuration from" << cacheFile << errorMessage;
         return { };
     }
-    const auto homeDir = FilePath::fromUserInput(
-                             QString::fromUtf8(
-                                 CMakeConfigItem::valueOf("CMAKE_HOME_DIRECTORY", config)))
-                             .canonicalPath();
+    auto data = std::make_unique<DirectoryData>();
+
+    data->cmakeHomeDirectory = FilePath::fromUserInput(
+                                QString::fromUtf8(
+                                  CMakeConfigItem::valueOf("CMAKE_HOME_DIRECTORY", config)))
+                                .canonicalPath();
     const FilePath canonicalProjectDirectory = projectDirectory().canonicalPath();
-    if (homeDir != canonicalProjectDirectory) {
-        qCDebug(cmInputLog) << "Wrong source directory:" << homeDir.toUserOutput()
-                              << "expected:" << canonicalProjectDirectory.toUserOutput();
-        return { };
+    if (data->cmakeHomeDirectory != canonicalProjectDirectory) {
+        *warningMessage = tr("Unexpected source directory \"%1\", expected \"%2\". "
+                             "This can be correct in some situations, for example when "
+                             "importing a standalone Qt test, but usually this is an error. "
+                             "Import the build anyway?")
+                              .arg(data->cmakeHomeDirectory.toUserOutput(),
+                                   canonicalProjectDirectory.toUserOutput());
     }
 
-    auto data = std::make_unique<DirectoryData>();
     data->buildDirectory = importPath;
     data->cmakeBuildType = CMakeConfigItem::valueOf("CMAKE_BUILD_TYPE", config);
 
@@ -394,6 +403,10 @@ const QList<BuildInfo> CMakeProjectImporter::buildInfoList(void *directoryData) 
                 CMakeBuildConfigurationFactory::buildTypeFromByteArray(data->cmakeBuildType));
     info.buildDirectory = data->buildDirectory;
     info.displayName = info.typeName;
+
+    QVariantMap config;
+    config.insert(Constants::CMAKE_HOME_DIR, data->cmakeHomeDirectory.toString());
+    info.extraInfo = config;
 
     qCDebug(cmInputLog) << "BuildInfo configured.";
     return {info};

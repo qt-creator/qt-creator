@@ -67,6 +67,9 @@ public:
 
     void runCMakeWithExtraArguments();
 
+    void setSourceDirectory(const Utils::FilePath& path);
+    Utils::FilePath sourceDirectory() const;
+
 signals:
     void errorOccurred(const QString &message);
     void warningOccurred(const QString &message);
@@ -131,6 +134,14 @@ class InitialCMakeArgumentsAspect final : public Utils::StringAspect
 
 public:
     InitialCMakeArgumentsAspect();
+};
+
+class SourceDirectoryAspect final : public Utils::StringAspect
+{
+    Q_OBJECT
+
+public:
+    SourceDirectoryAspect();
 };
 
 } // namespace Internal

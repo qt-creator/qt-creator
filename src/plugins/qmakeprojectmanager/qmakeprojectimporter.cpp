@@ -110,8 +110,10 @@ QStringList QmakeProjectImporter::importCandidates()
     return candidates;
 }
 
-QList<void *> QmakeProjectImporter::examineDirectory(const FilePath &importPath) const
+QList<void *> QmakeProjectImporter::examineDirectory(const FilePath &importPath,
+                                                     QString *warningMessage) const
 {
+    Q_UNUSED(warningMessage)
     QList<void *> result;
     const QLoggingCategory &logs = MakeFileParse::logging();
 

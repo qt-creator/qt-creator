@@ -129,6 +129,8 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Utils::Id id)
     auto initialCMakeArgumentsAspect = addAspect<InitialCMakeArgumentsAspect>();
     initialCMakeArgumentsAspect->setMacroExpanderProvider([this]{ return macroExpander(); });
 
+    addAspect<SourceDirectoryAspect>();
+
     appendInitialBuildStep(Constants::CMAKE_BUILD_STEP_ID);
     appendInitialCleanStep(Constants::CMAKE_BUILD_STEP_ID);
 
@@ -188,6 +190,11 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Utils::Id id)
                                                    k,
                                                    info.displayName,
                                                    info.buildType));
+        }
+
+        if (info.extraInfo.isValid()) {
+            setSourceDirectory(FilePath::fromVariant(
+                        info.extraInfo.value<QVariantMap>().value(Constants::CMAKE_HOME_DIR)));
         }
 
         setInitialCMakeArguments(initialArgs);
@@ -486,6 +493,16 @@ void CMakeBuildConfiguration::runCMakeWithExtraArguments()
     m_buildSystem->runCMakeWithExtraArguments();
 }
 
+void CMakeBuildConfiguration::setSourceDirectory(const FilePath &path)
+{
+    aspect<SourceDirectoryAspect>()->setValue(path.toString());
+}
+
+Utils::FilePath CMakeBuildConfiguration::sourceDirectory() const
+{
+    return Utils::FilePath::fromString(aspect<SourceDirectoryAspect>()->value());
+}
+
 // ----------------------------------------------------------------------
 // - InitialCMakeParametersAspect:
 // ----------------------------------------------------------------------
@@ -495,6 +512,15 @@ InitialCMakeArgumentsAspect::InitialCMakeArgumentsAspect()
     setSettingsKey("CMake.Initial.Parameters");
     setLabelText(tr("Initial CMake parameters:"));
     setDisplayStyle(TextEditDisplay);
+}
+
+// -----------------------------------------------------------------------------
+// SourceDirectoryAspect:
+// -----------------------------------------------------------------------------
+SourceDirectoryAspect::SourceDirectoryAspect()
+{
+    // Will not be displayed, only persisted
+    setSettingsKey("CMake.Source.Directory");
 }
 
 } // namespace Internal

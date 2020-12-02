@@ -39,7 +39,7 @@ public:
 
 private:
     QStringList importCandidates() override;
-    QList<void *> examineDirectory(const Utils::FilePath &importPath) const override;
+    QList<void *> examineDirectory(const Utils::FilePath &importPath, QString *warningMessage) const override;
     bool matchKit(void *directoryData, const ProjectExplorer::Kit *k) const override;
     ProjectExplorer::Kit *createKit(void *directoryData) const override;
     const QList<ProjectExplorer::BuildInfo> buildInfoList(void *directoryData) const override;
