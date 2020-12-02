@@ -74,8 +74,14 @@ ADS--TitleBarButton
     padding: 0px 0px;
 }
 
+ADS--TitleBarButton:hover
+{
+    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
+}
+
 QScrollArea#dockWidgetScrollArea
 {
+    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
     padding: 0px;
     border: none;
 }
@@ -152,13 +158,11 @@ ADS--DockWidgetTab[focused="true"] QLabel {
 }
 
 ADS--DockAreaTitleBar {
-    background: transparent;
+    background: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
     border-bottom: 2px solid creatorTheme.QmlDesigner_TabLight;
     padding-bottom: 0px;
 }
 
 ADS--DockAreaWidget[focused="true"] ADS--DockAreaTitleBar {
-    background: transparent;
-    border-bottom: 2px solid creatorTheme.DSinteraction;
-    padding-bottom: 0px;
+    border-bottom-color: creatorTheme.DSinteraction;
 }
