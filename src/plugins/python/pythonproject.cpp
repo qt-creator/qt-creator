@@ -214,7 +214,7 @@ PythonProject::PythonProject(const FilePath &fileName)
     : Project(Constants::C_PY_MIMETYPE, fileName)
 {
     setId(PythonProjectId);
-    setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
+    setProjectLanguages(Context(ProjectExplorer::Constants::PYTHON_LANGUAGE_ID));
     setDisplayName(fileName.toFileInfo().completeBaseName());
 
     setNeedsBuildConfigurations(false);
