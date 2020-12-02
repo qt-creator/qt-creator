@@ -402,8 +402,11 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
         }
         if (const auto declarator = (*it)->asDeclarator()) {
             if (containsToken(declarator->core_declarator)) {
-                if (declarator->initializer)
+                if (declarator->initializer && (!declarator->postfix_declarator_list
+                        || !declarator->postfix_declarator_list->value
+                        || !declarator->postfix_declarator_list->value->asFunctionDeclarator())) {
                     return Usage::Type::Initialization;
+                }
                 return Usage::Type::Declaration;
             }
             if (const auto decl = (*(it + 1))->asSimpleDeclaration()) {
