@@ -4040,20 +4040,20 @@ void tst_Dumpers::dumper_data()
                //+ Check("v1", "\"Some string\"", "@QVariant (QString)")
                + CheckType("v1", "@QVariant (QString)")
 
-               + Check("my", "<2 items>", TypePattern("@QMap<unsigned int,@QStringList>|@QMap<unsigned int,@List<@QString>>|MyType"))
-               + Check("my.0.key", "1", "unsigned int")
-               + Check("my.0.value", "<1 items>", TypePattern("@QList<@QString>|@QStringList"))
-               + Check("my.0.value.0", "[0]", "\"Hello\"", "@QString")
-               + Check("my.1.key", "3", "unsigned int")
-               + Check("my.1.value", "<1 items>", TypePattern("@QList<@QString>|@QStringList"))
-               + Check("my.1.value.0", "[0]", "\"World\"", "@QString")
+               + Check("my", "<2 items>", TypePattern("@QMap<unsigned int,@QStringList>|@QMap<unsigned int,@QList<@QString>>|MyType"))
+               + CheckPairish("my.0.key", "1", "unsigned int")
+               + CheckPairish("my.0.value", "<1 items>", TypePattern("@QList<@QString>|@QStringList"))
+               + CheckPairish("my.0.value.0", "[0]", "\"Hello\"", "@QString")
+               + CheckPairish("my.1.key", "3", "unsigned int")
+               + CheckPairish("my.1.value", "<1 items>", TypePattern("@QList<@QString>|@QStringList"))
+               + CheckPairish("my.1.value.0", "[0]", "\"World\"", "@QString")
                //+ CheckType("v2", "@QVariant (MyType)")
-               + Check("v2.data.0.key", "1", "unsigned int") % NeedsInferiorCall
-               + Check("v2.data.0.value", "<1 items>", "@QStringList") % NeedsInferiorCall
-               + Check("v2.data.0.value.0", "[0]", "\"Hello\"", "@QString") % NeedsInferiorCall
-               + Check("v2.data.1.key", "3", "unsigned int") % NeedsInferiorCall
-               + Check("v2.data.1.value", "<1 items>", "@QStringList") % NeedsInferiorCall
-               + Check("v2.data.1.value.0", "[0]", "\"World\"", "@QString") % NeedsInferiorCall
+               + CheckPairish("v2.data.0.key", "1", "unsigned int") % NeedsInferiorCall
+               + CheckPairish("v2.data.0.value", "<1 items>", "@QStringList") % NeedsInferiorCall
+               + CheckPairish("v2.data.0.value.0", "[0]", "\"Hello\"", "@QString") % NeedsInferiorCall
+               + CheckPairish("v2.data.1.key", "3", "unsigned int") % NeedsInferiorCall
+               + CheckPairish("v2.data.1.value", "<1 items>", "@QStringList") % NeedsInferiorCall
+               + CheckPairish("v2.data.1.value.0", "[0]", "\"World\"", "@QString") % NeedsInferiorCall
 
                + Check("list", "<3 items>", "@QList<int>")
                + Check("list.0", "[0]", "1", "int")
