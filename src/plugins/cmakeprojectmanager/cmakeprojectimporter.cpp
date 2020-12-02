@@ -167,6 +167,9 @@ static QString displayPresetName(const QString &presetName)
 
 FilePaths CMakeProjectImporter::importCandidates()
 {
+    if (!m_project->buildDirectoryToImport().isEmpty())
+        return {m_project->buildDirectoryToImport()};
+
     FilePaths candidates = presetCandidates();
 
     if (candidates.isEmpty()) {
@@ -299,6 +302,13 @@ static QVariant findOrRegisterDebugger(
 
 Target *CMakeProjectImporter::preferredTarget(const QList<Target *> &possibleTargets)
 {
+    if (!m_project->buildDirectoryToImport().isEmpty()) {
+        return Utils::findOrDefault(possibleTargets, [this](const Target *t) {
+            return t->activeBuildConfiguration()->buildDirectory()
+                   == m_project->buildDirectoryToImport();
+        });
+    }
+
     for (Kit *kit : m_project->oldPresetKits()) {
         const bool haveKit = Utils::contains(possibleTargets, [kit](const auto &target) {
             return target->kit() == kit;

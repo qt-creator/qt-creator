@@ -38,6 +38,7 @@
         "    <sub-class-of type='text/x-cmake'/>",
         "    <comment>CMake Project file</comment>",
         "    <glob pattern='CMakeLists.txt'/>",
+        "    <glob pattern='CMakeCache.txt'/>",
         "  </mime-type>",
         "</mime-info>"
     ]
