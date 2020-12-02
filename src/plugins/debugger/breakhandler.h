@@ -86,6 +86,7 @@ public:
 
     bool isEnabled() const { return m_params.enabled; }
     void setEnabled(bool enabled, bool descend = true);
+    void setParameters(const BreakpointParameters &params);
 
     const BreakpointParameters &requestedParameters() const { return m_params; }
 

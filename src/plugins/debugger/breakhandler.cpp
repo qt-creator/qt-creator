@@ -1724,7 +1724,11 @@ void BreakHandler::editBreakpoint(const Breakpoint &bp, QWidget *parent)
         return;
 
     if (params != bp->requestedParameters()) {
-        bp->setParameters(params);
+        if (GlobalBreakpoint gbp = bp->globalBreakpoint()) {
+            gbp->setParameters(params);
+        } else {
+            bp->setParameters(params);
+        }
         updateDisassemblerMarker(bp);
         bp->updateMarker();
         bp->update();
@@ -1761,9 +1765,18 @@ void BreakHandler::editBreakpoints(const Breakpoints &bps, QWidget *parent)
 
     for (Breakpoint bp : bps) {
         if (bp) {
-            bp->m_parameters.condition = newCondition;
-            bp->m_parameters.ignoreCount = newIgnoreCount;
-            bp->m_parameters.threadSpec = newThreadSpec;
+            if (GlobalBreakpoint gbp = bp->globalBreakpoint()) {
+                BreakpointParameters params = bp->requestedParameters();
+                params.condition = newCondition;
+                params.ignoreCount = newIgnoreCount;
+                params.threadSpec = newThreadSpec;
+                gbp->setParameters(params);
+            } else {
+                bp->m_parameters.condition = newCondition;
+                bp->m_parameters.ignoreCount = newIgnoreCount;
+                bp->m_parameters.threadSpec = newThreadSpec;
+            }
+
             if (bp->m_state != BreakpointNew)
                 requestBreakpointUpdate(bp);
         }
@@ -2309,6 +2322,16 @@ void GlobalBreakpointItem::setEnabled(bool enabled, bool descend)
                     handler->requestBreakpointEnabling(bp, enabled);
             }
         }
+    }
+}
+
+void GlobalBreakpointItem::setParameters(const BreakpointParameters &params)
+{
+    if (m_params != params) {
+        m_params = params;
+        if (m_marker)
+            m_marker->updateMarker();
+        update();
     }
 }
 
