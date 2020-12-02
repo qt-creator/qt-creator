@@ -239,6 +239,7 @@ void DesignModeWidget::setup()
     m_dockManager->setStyleSheet(Theme::replaceCssColors(sheet));
 
     // Setup icons
+    const QColor iconColor(Theme::getColor(Theme::IconsBaseColor));
     const QColor buttonColor(Theme::getColor(Theme::QmlDesigner_TabLight)); // TODO Use correct color roles
     const QColor tabColor(Theme::getColor(Theme::QmlDesigner_TabDark));
 
@@ -468,8 +469,8 @@ void DesignModeWidget::setup()
             m_dockManager->openWorkspace(workspaceComboBox->currentText());
     });
 
-    const QIcon gaIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
-                                                                 Theme::getIconUnicode(Theme::Icon::annotationBubble), 36, 36);
+    const QIcon gaIcon = Utils::StyleHelper::getIconFromIconFont(
+                fontName, Theme::getIconUnicode(Theme::Icon::annotationBubble), 36, 36, iconColor);
     toolBar->addAction(gaIcon, tr("Edit global annotation for current file."), [&](){
         ModelNode node = currentDesignDocument()->rewriterView()->rootModelNode();
 

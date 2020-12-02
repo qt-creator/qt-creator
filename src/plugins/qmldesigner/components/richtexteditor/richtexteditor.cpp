@@ -187,8 +187,10 @@ void RichTextEditor::setTabChangesFocus(bool change)
 QIcon RichTextEditor::getIcon(Theme::Icon icon)
 {
     const QString fontName = "qtds_propertyIconFont.ttf";
+    const QColor iconColorNormal(Theme::getColor(Theme::IconsBaseColor));
 
-    return Utils::StyleHelper::getIconFromIconFont(fontName, Theme::getIconUnicode(icon), 20, 20);
+    return Utils::StyleHelper::getIconFromIconFont(
+                fontName, Theme::getIconUnicode(icon), 20, 20, iconColorNormal);
 }
 
 QString RichTextEditor::richText() const
