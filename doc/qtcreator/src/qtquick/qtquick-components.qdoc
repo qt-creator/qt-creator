@@ -123,13 +123,12 @@
         \li \l Images
         \li \l {User Interaction Methods}
         \li \l {Lists and Other Data Models}
+        \if defined(qtdesignstudio)
+        \li \l {2D Effects}
+        \endif
     \endlist
 
     \include qtquick-animation-types.qdocinc qtquick animation types
-
-    \if defined(qtdesignstudio)
-    \include qtdesignstudio-visual-effects.qdocinc qml visual effects
-    \endif
 
     \include qtquick-mcu-support.qdocinc mcu qtquick components
 
