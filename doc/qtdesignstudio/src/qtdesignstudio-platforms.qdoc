@@ -38,9 +38,15 @@
     \QDS is available in binary packages for the following operating systems:
 
     \list
-        \li \macOS 10.13 and 10.14.x
-        \li Ubuntu Linux 18.04
-        \li Windows 10
+        \li \macOS 10.15
+        \li Linux:
+            \list
+                \li CentOS 8.1
+                \li openSUSE Leap 15.1
+                \li SUSE Linux Enterprise Server 15 (SLES 15)
+                \li Ubuntu 20.04
+            \endlist
+        \li Windows 10, version 2004
     \endlist
 
     \note For a good user experience on Windows 10, we recommend the following
