@@ -79,6 +79,8 @@ public:
         QmlRegisterType4,
         // int qmlRegisterType(const QUrl & url, const char * uri, int versionMajor, int versionMinor, const char * qmlName)
         QmlRegisterType5,
+        // template<typename T> inline auto qmlRegisterSingletonInstance(const char *uri, int versionMajor, int versionMinor, const char *typeName, T *cppObject)
+        QmlRegisterSingletonInstance,
         // template<typename T> int qmlRegisterSingletonType(const char * uri, int versionMajor, int versionMinor, const char * typeName, QObject *(* ) ( QQmlEngine *, QJSEngine * ) callback)
         QmlRegisterSingletonTypeCallback1,
         // int qmlRegisterSingletonType(const char * uri, int versionMajor, int versionMinor, const char * typeName, QJSValue(* ) ( QQmlEngine *, QJSEngine * ) callback)
@@ -156,6 +158,8 @@ protected:
             const QByteArray callName(templateIdentifier->chars());
             if (callName == "qmlRegisterType")
                 registrationFunction = QmlRegisterType4;
+            else if (callName == "qmlRegisterSingletonInstance")
+                registrationFunction = QmlRegisterSingletonInstance;
             else if (callName == "qmlRegisterSingletonType")
                 registrationFunction = QmlRegisterSingletonTypeCallback1;
             else if (callName == "qmlRegisterUncreatableType")
@@ -189,6 +193,8 @@ protected:
             }
             if (fName == "qmlRegisterType")
                 registrationFunction = QmlRegisterType5;
+            else if (fName == "qmlRegisterSingletonInstance") // when called without explicit template parameter
+                registrationFunction = QmlRegisterSingletonInstance;
             else if (fName == "qmlRegisterSingletonType")
                 registrationFunction = QmlRegisterSingletonTypeCallback2;
             else if (fName == "qmlRegisterUncreatableMetaObject")
@@ -214,6 +220,7 @@ protected:
         case QmlRegisterType4:
             break;
         case QmlRegisterType5:
+        case QmlRegisterSingletonInstance:
         case QmlRegisterSingletonTypeCallback1:
         case QmlRegisterSingletonTypeCallback2:
         case QmlRegisterSingletonTypeUrl:
@@ -342,7 +349,8 @@ protected:
 
         // build the descriptor
         ExportedQmlType exportedType;
-        exportedType.isSingleton = registrationFunction == QmlRegisterSingletonTypeCallback1
+        exportedType.isSingleton = registrationFunction == QmlRegisterSingletonInstance
+                || registrationFunction == QmlRegisterSingletonTypeCallback1
                 || registrationFunction == QmlRegisterSingletonTypeCallback2
                 || registrationFunction == QmlRegisterSingletonTypeUrl;
         exportedType.isCreatable = !exportedType.isSingleton
@@ -916,6 +924,7 @@ bool FindExportedCppTypes::maybeExportsTypes(const CPlusPlus::Document::Ptr &doc
     if (!document->control())
         return false;
     const QByteArray tokens[] = {
+        "qmlRegisterSingletonInstance",
         "qmlRegisterSingletonType",
         "qmlRegisterType",
         "qmlRegisterUncreatableType",
