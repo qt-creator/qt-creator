@@ -220,7 +220,7 @@ RowLayout {
         iconColor: urlChooser.textColor
         onClicked: {
             fileModel.openFileDialog()
-            if (fileModel.path !== "")
+            if (fileModel.fileName !== "")
                 urlChooser.backendValue.value = fileModel.fileName
         }
     }
