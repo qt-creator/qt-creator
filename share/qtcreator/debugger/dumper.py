@@ -3852,6 +3852,7 @@ class DumperBase():
             tdata = self.TypeData(self)
             tdata.name = typish
             tdata.typeId = typish
+            tdata.templateArguments = self.listTemplateParameters(typish)
 
             if size is not None:
                 tdata.lbitsize = 8 * size
