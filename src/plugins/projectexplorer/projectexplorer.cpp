@@ -2870,6 +2870,11 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
 {
     if (!rc->isEnabled())
         return;
+    const auto delay = [rc, runMode] {
+        dd->m_runMode = runMode;
+        dd->m_delayedRunConfiguration = rc;
+        dd->m_shouldHaveRunConfiguration = true;
+    };
     const BuildForRunConfigStatus buildStatus = forceSkipDeploy
             ? BuildManager::isBuilding(rc->project())
                 ? BuildForRunConfigStatus::Building : BuildForRunConfigStatus::NotBuilding
@@ -2879,14 +2884,13 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
         return;
     case BuildForRunConfigStatus::Building:
         QTC_ASSERT(dd->m_runMode == Constants::NO_RUN_MODE, return);
-
-        // delay running till after our queued steps were processed
-        dd->m_runMode = runMode;
-        dd->m_delayedRunConfiguration = rc;
-        dd->m_shouldHaveRunConfiguration = true;
+        delay();
         break;
     case BuildForRunConfigStatus::NotBuilding:
-        dd->executeRunConfiguration(rc, runMode);
+        if (rc->isEnabled())
+            dd->executeRunConfiguration(rc, runMode);
+        else
+            delay();
         break;
     }
 

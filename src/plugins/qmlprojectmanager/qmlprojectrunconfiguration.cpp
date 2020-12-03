@@ -231,11 +231,8 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
 
 bool QmlProjectRunConfiguration::isEnabled() const
 {
-    if (m_qmlMainFileAspect->isQmlFilePresent() && !commandLine().executable().isEmpty()) {
-        BuildSystem *bs = activeBuildSystem();
-        return !bs->isParsing() && bs->hasParsingData();
-    }
-    return false;
+    return m_qmlMainFileAspect->isQmlFilePresent() && !commandLine().executable().isEmpty()
+            && activeBuildSystem()->hasParsingData();
 }
 
 QString QmlProjectRunConfiguration::mainScript() const

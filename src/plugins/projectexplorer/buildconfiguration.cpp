@@ -531,13 +531,11 @@ void BuildConfiguration::setUserEnvironmentChanges(const EnvironmentItems &diff)
 
 bool BuildConfiguration::isEnabled() const
 {
-    return !buildSystem()->isParsing() && buildSystem()->hasParsingData();
+    return buildSystem()->hasParsingData();
 }
 
 QString BuildConfiguration::disabledReason() const
 {
-    if (buildSystem()->isParsing())
-        return (tr("The project is currently being parsed."));
     if (!buildSystem()->hasParsingData())
         return (tr("The project was not parsed successfully."));
     return QString();

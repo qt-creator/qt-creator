@@ -27,6 +27,7 @@
 
 #include "buildprogress.h"
 #include "buildsteplist.h"
+#include "buildsystem.h"
 #include "compileoutputwindow.h"
 #include "deployconfiguration.h"
 #include "kit.h"
@@ -46,6 +47,7 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 #include <utils/outputformatter.h>
 #include <utils/runextensions.h>
 #include <utils/stringutils.h>
@@ -57,6 +59,7 @@
 #include <QList>
 #include <QMessageBox>
 #include <QPointer>
+#include <QSet>
 #include <QTime>
 #include <QTimer>
 
@@ -215,6 +218,7 @@ public:
     Internal::CompileOutputWindow *m_outputWindow = nullptr;
     Internal::TaskWindow *m_taskWindow = nullptr;
 
+    QMetaObject::Connection m_scheduledBuild;
     QList<BuildStep *> m_buildQueue;
     QList<bool> m_enabledState;
     QStringList m_stepNames;
@@ -459,6 +463,12 @@ QString BuildManager::displayNameForStepId(Id stepId)
 
 void BuildManager::cancel()
 {
+    if (d->m_scheduledBuild) {
+        disconnect(d->m_scheduledBuild);
+        d->m_scheduledBuild = {};
+        clearBuildQueue();
+        return;
+    }
     if (d->m_running) {
         if (d->m_canceling)
             return;
@@ -502,11 +512,13 @@ void BuildManager::clearBuildQueue()
     d->m_previousBuildStepProject = nullptr;
     d->m_currentBuildStep = nullptr;
 
-    d->m_progressFutureInterface->reportCanceled();
-    d->m_progressFutureInterface->reportFinished();
-    d->m_progressWatcher.setFuture(QFuture<void>());
-    delete d->m_progressFutureInterface;
-    d->m_progressFutureInterface = nullptr;
+    if (d->m_progressFutureInterface) {
+        d->m_progressFutureInterface->reportCanceled();
+        d->m_progressFutureInterface->reportFinished();
+        d->m_progressWatcher.setFuture(QFuture<void>());
+        delete d->m_progressFutureInterface;
+        d->m_progressFutureInterface = nullptr;
+    }
     d->m_futureProgress = nullptr;
     d->m_maxProgress = 0;
 
@@ -544,6 +556,28 @@ void BuildManager::startBuildQueue()
         emit m_instance->buildQueueFinished(true);
         return;
     }
+
+    // Delay if any of the involved build systems are currently parsing.
+    const auto buildSystems = transform<QSet<BuildSystem *>>(d->m_buildQueue,
+        [](const BuildStep *bs) { return bs->buildSystem(); });
+    for (const BuildSystem * const bs : buildSystems) {
+        if (!bs || !bs->isParsing())
+            continue;
+        d->m_scheduledBuild = QObject::connect(bs, &BuildSystem::parsingFinished,
+                                               BuildManager::instance(),
+                [](bool parsingSuccess) {
+            if (!d->m_scheduledBuild)
+                return;
+            QObject::disconnect(d->m_scheduledBuild);
+            d->m_scheduledBuild = {};
+            if (parsingSuccess)
+                startBuildQueue();
+            else
+                clearBuildQueue();
+        }, Qt::QueuedConnection);
+        return;
+    }
+
     if (!d->m_running) {
         d->m_elapsed.start();
         // Progress Reporting

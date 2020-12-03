@@ -107,7 +107,6 @@ void BuildSystem::emitParsingStarted()
     QTC_ASSERT(!d->m_isParsing, return);
 
     d->m_isParsing = true;
-    d->m_hasParsingData = false;
     emit parsingStarted();
     emit d->m_target->parsingStarted();
 }

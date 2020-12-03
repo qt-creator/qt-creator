@@ -199,7 +199,7 @@ QbsBuildStep::~QbsBuildStep()
 
 bool QbsBuildStep::init()
 {
-    if (qbsBuildSystem()->isParsing() || m_session)
+    if (m_session)
         return false;
 
     auto bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());

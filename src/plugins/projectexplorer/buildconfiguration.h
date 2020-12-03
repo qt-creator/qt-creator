@@ -91,8 +91,8 @@ public:
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
-    virtual bool isEnabled() const;
-    virtual QString disabledReason() const;
+    bool isEnabled() const;
+    QString disabledReason() const;
 
     virtual bool regenerateBuildFiles(Node *node);
 
