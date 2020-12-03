@@ -4277,8 +4277,11 @@ void tst_Dumpers::dumper_data()
                //+ Check("ha1.protocol", "IPv4Protocol",
                //        "@QAbstractSocket::NetworkLayerProtocol") % LldbEngine
                + Check("ha1.scopeId", "\"\"", "@QString")
-               + Check("var", "", "@QVariant (@QHostAddress)") % NeedsInferiorCall
-               + Check("var.data", ValuePattern(".*127.0.0.1.*"), "@QHostAddress") % NeedsInferiorCall;
+               + Check5("var", "", "@QVariant (@QHostAddress)") % NeedsInferiorCall
+               + Check5("var.data", ValuePattern(".*127.0.0.1.*"),
+                                "@QHostAddress") % NeedsInferiorCall
+               + Check6("var", ValuePattern(".*127.0.0.1.*"),
+                                "@QVariant(@QHostAddress)") % NeedsInferiorCall;
 
 
     QTest::newRow("QVariantList")
