@@ -3101,6 +3101,7 @@ void tst_Dumpers::dumper_data()
                + Check5("mm", "destroyed", "@QMetaMethod")
                + Check4("mm", "destroyed(QObject*)", "@QMetaMethod")
                + Check("mm.handle", "14", TypeDef("unsigned int", "uint"))
+                    % QtVersion(0, 0x5ffff) // Gone in Qt 6
                + Check("mp", "objectName", "@QMetaProperty");
 
 

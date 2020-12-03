@@ -1743,13 +1743,6 @@ class DumperBase():
         data = array + begin * stepSize
         return data, size
 
-    def listChildrenGenerator(self, addr, innerType):
-        stepSize = self.ptrSize()
-        data, size = self.listData(addr)
-        for i in range(size):
-            yield self.createValue(data + i * stepSize, innerType)
-            #yield self.createValue(data + i * stepSize, 'void*')
-
     def vectorChildrenGenerator(self, value, innerType):
         data, size = self.vectorData(value)
         for i in range(size):
@@ -2035,7 +2028,10 @@ class DumperBase():
                     with Children(self):
                         # Static properties.
                         for i in range(propertyCount):
-                            t = self.split('III', dataPtr + properties * 4 + 12 * i)
+                            if self.qtVersion() >= 0x60000:
+                                t = self.split('IIIII', dataPtr + properties * 4 + 20 * i)
+                            else:
+                                t = self.split('III', dataPtr + properties * 4 + 12 * i)
                             name = self.metaString(metaObjectPtr, t[0], revision)
                             if qobject and self.qtPropertyFunc:
                                     # LLDB doesn't like calling it on a derived class, possibly
@@ -2064,19 +2060,38 @@ class DumperBase():
 
                         # Dynamic properties.
                         if extraData:
+                            def list6Generator(addr, innerType):
+                                data, size = self.listData(addr)
+                                for i in range(size):
+                                    yield self.createValue(data + i * innerType.size(), innerType)
+
+                            def list5Generator(addr, innerType):
+                                data, size = self.listData(addr)
+                                for i in range(size):
+                                    yield self.createValue(data + i * ptrSize, innerType)
+
+                            def vectorGenerator(addr, innerType):
+                                data, size = self.vectorData(addr)
+                                for i in range(size):
+                                    yield self.createValue(data + i * innerType.size(), innerType)
+
                             byteArrayType = self.createType('@QByteArray')
                             variantType = self.createType('@QVariant')
-                            if self.qtVersion() >= 0x50600:
-                                values = self.vectorChildrenGenerator(
-                                    extraData + 2 * ptrSize, variantType)
+                            if self.qtVersion() >= 0x60000:
+                                values = vectorGenerator(extraData + 3 * ptrSize, variantType)
+                            elif self.qtVersion() >= 0x50600:
+                                values = vectorGenerator(extraData + 2 * ptrSize, variantType)
                             elif self.qtVersion() >= 0x50000:
-                                values = self.listChildrenGenerator(
-                                    extraData + 2 * ptrSize, variantType)
+                                values = list5Generator(extraData + 2 * ptrSize, variantType)
                             else:
-                                values = self.listChildrenGenerator(
-                                    extraData + 2 * ptrSize, variantType.pointer())
-                            names = self.listChildrenGenerator(
-                                extraData + ptrSize, byteArrayType)
+                                values = list5Generator(extraData + 2 * ptrSize,
+                                                        variantType.pointer())
+
+                            if self.qtVersion() >= 0x60000:
+                                names = list6Generator(extraData, byteArrayType)
+                            else:
+                                names = list5Generator(extraData + ptrSize, byteArrayType)
+
                             for (k, v) in zip(names, values):
                                 with SubItem(self, propertyCount + dynamicPropertyCount):
                                     if not self.isCli:
