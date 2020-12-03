@@ -330,6 +330,13 @@ jobs:
             message(FATAL_ERROR "Failed to install dependencies")
           endif()
         endif()
+        execute_process(
+          COMMAND python -m pip install --user beautifulsoup4 lxml
+          RESULT_VARIABLE result
+        )
+        if (NOT result EQUAL 0)
+          message(FATAL_ERROR "Failed to install python dependencies")
+        endif()
 
     - name: Build
       shell: cmake -P {0}
