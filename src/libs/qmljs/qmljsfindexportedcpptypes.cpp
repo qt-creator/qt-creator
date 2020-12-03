@@ -153,12 +153,12 @@ protected:
             const Identifier *templateIdentifier = translationUnit()->identifier(templateId->identifier_token);
             if (!templateIdentifier)
                 return false;
-            const QString callName = QString::fromUtf8(templateIdentifier->chars());
-            if (callName == QLatin1String("qmlRegisterType"))
+            const QByteArray callName(templateIdentifier->chars());
+            if (callName == "qmlRegisterType")
                 registrationFunction = QmlRegisterType4;
-            else if (callName == QLatin1String("qmlRegisterSingletonType"))
+            else if (callName == "qmlRegisterSingletonType")
                 registrationFunction = QmlRegisterSingletonTypeCallback1;
-            else if (callName == QLatin1String("qmlRegisterUncreatableType"))
+            else if (callName == "qmlRegisterUncreatableType")
                 registrationFunction = QmlRegisterUncreatableType;
             else
                 return false;
