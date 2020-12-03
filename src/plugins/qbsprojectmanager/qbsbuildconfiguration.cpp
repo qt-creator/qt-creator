@@ -272,11 +272,7 @@ QString QbsBuildConfiguration::configurationName() const
 QString QbsBuildConfiguration::equivalentCommandLine(const QbsBuildStepData &stepData) const
 {
     CommandLine commandLine;
-    const QString qbsInstallDir = QString::fromLocal8Bit(qgetenv("QBS_INSTALL_DIR"));
-    const QString qbsFilePath = HostOsInfo::withExecutableSuffix(!qbsInstallDir.isEmpty()
-            ? qbsInstallDir + QLatin1String("/bin/qbs")
-            : QCoreApplication::applicationDirPath() + QLatin1String("/qbs"));
-    commandLine.addArg(QDir::toNativeSeparators(qbsFilePath));
+    commandLine.addArg(QDir::toNativeSeparators(QbsSettings::qbsExecutableFilePath().toString()));
     commandLine.addArg(stepData.command);
     const QString buildDir = buildDirectory().toUserOutput();
     commandLine.addArgs({"-d", buildDir});
