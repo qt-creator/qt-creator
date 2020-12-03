@@ -656,8 +656,23 @@ void FormEditorFlowActionItem::setDataModelPositionInBaseState(const QPointF &po
 void FormEditorFlowActionItem::updateGeometry()
 {
     FormEditorItem::updateGeometry();
-    //const QPointF pos = qmlItemNode().flowPosition();
-    //setTransform(QTransform::fromTranslate(pos.x(), pos.y()));
+
+    const QPointF pos = qmlItemNode().instancePosition();
+
+    if (pos == m_oldPos)
+        return;
+
+    m_oldPos = pos;
+
+    // Call updateGeometry() on all related transitions
+    QmlFlowItemNode flowItem = QmlFlowActionAreaNode(qmlItemNode()).flowItemParent();
+    if (flowItem.isValid() && flowItem.flowView().isValid()) {
+        const auto nodes = flowItem.flowView().transitions();
+        for (const ModelNode &node : nodes) {
+            if (FormEditorItem *item = scene()->itemForQmlItemNode(node))
+                item->updateGeometry();
+        }
+    }
 }
 
 void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
