@@ -627,7 +627,7 @@ private:
 void Internal::CorePlugin::testOutputFormatter()
 {
     const QString input =
-            "B to be handled by B\r\n"
+            "B to be handled by B\r\r\n"
             "not to be handled\n\n\n\n"
             "A to be handled by A\n"
             "continuation for A\r\n"

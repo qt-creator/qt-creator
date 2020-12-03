@@ -1,0 +1,4 @@
+macro.youtube.HTML = "<div class=\"video\">\n<span class=\"vspan\"></span>\n" \
+                     "<iframe src=\"https://www.youtube.com/embed/\1\"" \
+                     "frameborder=\"0\" allowfullscreen>\n" \
+                     "</iframe></div>\n"

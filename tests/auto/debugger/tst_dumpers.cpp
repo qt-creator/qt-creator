@@ -2864,21 +2864,21 @@ void tst_Dumpers::dumper_data()
 
               + CoreProfile()
 
-              + Check("m0", "<0 items>", "@QMap<unsigned int, @QList<QString>>")
+              + Check("m0", "<0 items>", "@QMap<unsigned int, @QList<@QString>>")
 
-              + Check("m1", "<2 items>", "@QMap<unsigned int, @QList<QString>>")
+              + Check("m1", "<2 items>", "@QMap<unsigned int, @QList<@QString>>")
               + CheckPairish("m1.0.key", "11", "unsigned int")
-              + CheckPairish("m1.0.value", "<1 items>", "@QList<QString>")
+              + CheckPairish("m1.0.value", "<1 items>", "@QList<@QString>")
               + CheckPairish("m1.0.value.0", "[0]", "\"11\"", "@QString")
               + CheckPairish("m1.1.key", "22", "unsigned int")
-              + CheckPairish("m1.1.value", "<1 items>", "@QList<QString>")
+              + CheckPairish("m1.1.value", "<1 items>", "@QList<@QString>")
               + CheckPairish("m1.1.value.0", "[0]", "\"22\"", "@QString")
 
               + Check("m2", "<2 items>", "@QMap<unsigned int, float>")
               + Check("m2.0", "[0] 11", FloatValue("31.0"), "")
               + Check("m2.1", "[1] 22", FloatValue("32.0"), "")
 
-              + Check("m3", "<2 items>", TypeDef("@QMap<unsigned int,@QList<QString>>", "T"))
+              + Check("m3", "<2 items>", TypeDef("@QMap<unsigned int,@QList<@QString>>", "T"))
 
               + Check("m4", "<1 items>", "@QMap<@QString, float>")
               + CheckPairish("m4.0.key", "\"22.0\"", "@QString")
@@ -4003,7 +4003,7 @@ void tst_Dumpers::dumper_data()
                //+ Check("this.@1.@1", "[@QObject]", "\"This is thread #3\"", "@QObject");
 
 
-    QTest::newRow("QVariant")
+    QTest::newRow("QVariant1")
             << Data("#include <QMap>\n"
                     "#include <QStringList>\n"
                     "#include <QVariant>\n"
@@ -4017,9 +4017,7 @@ void tst_Dumpers::dumper_data()
 
                     "QVariant v0;\n\n"
 
-                    "QVariant::Type t1 = QVariant::String;\n"
-                    "QVariant v1 = QVariant(t1, (void*)0);\n"
-                    //"*(QString*)v1.data() = QString(\"Some string\");\n\n"
+                    "QVariant v1 = QVariant(QString(\"A string\"));\n"
 
                     "MyType my;\n"
                     "my[1] = (QStringList() << \"Hello\");\n"
@@ -4033,7 +4031,7 @@ void tst_Dumpers::dumper_data()
                     "list << 1 << 2 << 3;\n"
                     "QVariant v3 = QVariant::fromValue(list);",
 
-                    "&my, &v0, &v1, &v2, &t, &s, &list, &v3, &t1")
+                    "&my, &v0, &v1, &v2, &t, &s, &list, &v3")
 
                + CoreProfile()
 
@@ -7444,6 +7442,8 @@ void tst_Dumpers::dumper_data()
 
                     "QApplication app(argc, argv);\n"
                     "QGraphicsScene sc;\n"
+                    "QPolygon p0;\n"
+                    "QPolygonF p1;\n"
                     "QPolygonF pol;\n"
                     "pol.append(QPointF(1, 2));\n"
                     "pol.append(QPointF(2, 2));\n"
@@ -7456,6 +7456,8 @@ void tst_Dumpers::dumper_data()
 
                + GuiProfile()
 
+               + Check("p0", "<0 items>", "@QPolygon")
+               + Check("p1", "<0 items>", "@QPolygonF")
                + Check("pol", "<5 items>", "@QPolygonF")
                + Check("p", "<5 items>", "@QGraphicsPolygonItem");
 

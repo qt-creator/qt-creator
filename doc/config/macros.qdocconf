@@ -55,10 +55,8 @@ macro.emptyspan.HTML	    = "<span></span>"
 # HTML.extraimages           += images/dQw4w9WgXcQ.jpg
 # qhp.ProjectName.extraFiles += images/dQw4w9WgXcQ.jpg
 #
-macro.youtube.HTML = "<div class=\"video\">\n<span class=\"vspan\"></span>\n" \
-                     "<iframe src=\"https://www.youtube.com/embed/\1\"" \
-                     "frameborder=\"0\" allowfullscreen>\n" \
+macro.youtube.HTML = "<div class=\"video\">\n" \
                      "<a href=\"https://www.youtube.com/watch/?v=\1\">\n"\
                      "<img src=\"images/\1.jpg\"" \
                      "title=\"Click to play in a browser\" /></a>\n" \
-                     "</iframe></div>\n"
+                     "</div>\n"

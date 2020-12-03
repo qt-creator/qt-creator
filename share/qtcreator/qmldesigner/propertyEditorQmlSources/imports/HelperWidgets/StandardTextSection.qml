@@ -40,6 +40,8 @@ Section {
     property bool showFormatProperty: false
     property bool showFontSizeMode: false
     property bool showLineHeight: false
+    property bool richTextEditorAvailable: false
+    id: root
 
 
     SectionLayout {
@@ -61,9 +63,10 @@ Section {
                 onClicked: {
                     richTextDialogLoader.show()
                 }
+                visible: root.richTextEditorAvailable
             }
 
-            RichTextEditor{
+            RichTextEditor {
                 onRejected: {
                     hideWidget()
                 }

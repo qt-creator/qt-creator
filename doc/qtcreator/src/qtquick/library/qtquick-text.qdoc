@@ -1,0 +1,303 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page quick-text.html
+    \previouspage quick-shapes.html
+    \nextpage quick-images.html
+
+    \title Text
+
+    You can use several different text types to add read-only or editable text
+    to a UI, such as titles or labels and text input fields with placeholder
+    text. The \l Text type adds formatted text, the \l TextEdit type adds a
+    multiline line edit, and the \l TextInput type adds a single editable line
+    field.
+
+    You can select the font to use and specify extensive properties for each
+    text string, such as size in points or pixels, style name, emphasis,
+    alignment, and spacing.
+
+    For an example of editing the Text type, watch
+    \l{https://www.youtube.com/watch?v=yOUdg1o2KJM}
+    {Qt Design Studio QuickTip: Text Element}.
+
+    To create a label with a background, use the \l Label type from the
+    Qt Quick Controls module.
+
+    \section1 Typography
+
+    For each string that you enter in the \uicontrol Text field, you can
+    select the font to use in the \uicontrol Font field and specify the
+    size, emphasis, aligment, and spacing of the text. Specify the font
+    size in either points or pixels in the \uicontrol Size field.
+
+    \image qtquick-designer-text-properties.png "Text type properties"
+
+    To display custom fonts in the list of available fonts in the
+    \uicontrol Font field, add them in the \uicontrol Assets tab
+    of \uicontrol Library. For more information, see \l {Assets}.
+
+    You can use the buttons in the \uicontrol {Font style} group to emphasize
+    text by making it bold, italic, underlined, or strikethrough.
+
+    Alternatively, select a font variant to use in the \uicontrol {Style name}
+    field, such as \uicontrol Regular or \uicontrol Bold.
+
+    The value of the \uicontrol Word field in the \uicontrol Spacing group
+    changes the default spacing between individual words, whereas the value
+    of the \uicontrol Letter field changes the spacing between individual
+    letters in a word. A positive value increases the spacing by a
+    corresponding amount of pixels, while a negative value decreases it.
+
+    The value of the \uicontrol {Line height} field sets the line height
+    for the text. In the \uicontrol {Line height mode} field, select
+    \uicontrol FixedHeight to set the line height in pixels or
+    \uicontrol ProportionalHeight (default) to set the spacing proportionally
+    to the line (as a multiplier). For example, set to 2 for double spacing.
+
+    \section1 Text Alignment
+
+    You can align text items horizontally and vertically. By default, text is
+    vertically aligned to the top. Horizontal alignment follows the natural
+    alignment of the text. By default, left-to-right text like English is
+    aligned to the left side of the text area, whereas right-to-left text
+    like Arabic is aligned to the right side of the text area.
+
+    You can align text to the left, right, top, or bottom, and center it
+    horizontally or vertically. You can justify horizontal text.
+
+    For a single line of text, the size of the text is the area of the text.
+    In this common case, all alignments are equivalent. To center a text in
+    its parent, use \l{Setting Anchors and Margins}{anchoring} or bind the
+    width of the text item to that of the parent. For more information, see
+    \l{Setting Bindings}.
+
+    \section1 Text and Style Colors
+
+    You can set the color of the text itself and a secondary color used by
+    text styles.
+
+    The color that you pick in the \uicontrol {Style color} field is used as
+    the outline color for outlined text, and as the shadow color for raised
+    or sunken text. You set the font style in the \uicontrol Style field of
+    the \uicontrol Font section.
+
+    For the \uicontrol {Text Edit} and \uicontrol {Text Input} types, you
+    can also set the color of selected text and the text highlight color
+    that is used behind selections in the \uicontrol {Selected text color}
+    and \uicontrol {Selection color} fields.
+
+    For more information about selecting colors, see \l{Picking Colors}. You
+    can only set solid colors for text items.
+
+    \section1 Advanced Text Properties
+
+    The height and width of a text item are determined automatically depending
+    on the values of the properties you set, to accommodate the length of the
+    string that you specify in the \uicontrol Text field and the font size, for
+    example.
+
+    The value of the \uicontrol {Font size mode} field specifies how the font
+    size of the displayed text is determined. Select \uicontrol FixedSize to
+    use the size specified in the \uicontrol Size field in pixels or points.
+    Select \uicontrol HorizontalFit or \uicontrol VerticalFit to use the largest
+    size up to the size specified that fits the width or height of the item.
+    Select \uicontrol Fit to use the largest size up to the size specified that
+    fits within the width and height of the item. The font size of fitted text
+    has a minimum bound specified by the \uicontrol {Minimum size} field and
+    maximum bound specified by the \uicontrol Size field.
+
+    In the \uicontrol {Wrap mode} field, you can wrap the text to the text
+    item's width. The text will only wrap if you set an explicit width for
+    the text item. By default, text is not wrapped. Select \uicontrol WordWrap
+    to restrict wrapping to word boundaries only. Select \uicontrol WrapAnywhere
+    to enable wrapping at any point on a line, even if it occurs in the middle
+    of a word. Select \uicontrol Wrap to wrap at a word boundary, if possible,
+    or at the appropriate point on the line, even in the middle of a word.
+
+    You can use the \uicontrol Elide property with the \uicontrol Wrap
+    option to fit a single line of plain text to a set width. Select
+    \uicontrol ElideRight, and set the \uicontrol {Maximum line count}
+    or the text item height (in the \uicontrol H field). If you set both,
+    the maximum line count will apply unless the lines do not fit in the
+    height allowed.
+
+    If the text is a multi-length string, and you set the \uicontrol Elide
+    property value to something else than \uicontrol ElideNone, the first
+    string that fits will be used, otherwise the last will be elided.
+
+    Multi-length strings are ordered from longest to shortest, separated by the
+    Unicode \e {String Terminator} character \c U009C.
+
+    \section1 Advanced Font Properties
+
+    In the \uicontrol {Font weight} field, you can select the font weight from
+    list predefined values that range between extra-light and extra-bold.
+
+    In the \uicontrol {Font capitalization} field, select \uicontrol MixedCase
+    for normal text rendering where no capitalization changes are applied. You
+    can also set the text in all upper or lower case, or use small caps. The
+    \uicontrol Capitalize option renders the first character of each word as an
+    uppercase character.
+
+    \section1 Developer Text Properties
+
+    Text can be either in plain text or rich text format, depending on the
+    value you set in the \uicontrol Format field. If you select
+    \uicontrol AutoText and the the first line of text contains an HTML tag,
+    the text is treated as rich text. Rich text supports a subset of HTML 4
+    described on the \l {Supported HTML Subset}. Note that plain text offers
+    better performance than rich text.
+
+    In the \uicontrol {Render type} field, you can override the default
+    rendering type for a text item. Select \uicontrol NativeRendering if
+    you prefer text to look native on the target platform and do not
+    require advanced features such as \l {Managing 2D Transformations}
+    {transformation} of the text. Using rotation or scaling in combination
+    with native rendering leads to poor and sometimes pixelated results.
+
+    \section1 Text Input
+
+    You can use the \uicontrol {Text Edit} and \uicontrol {Text Input} types to
+    add text fields where users can enter text.
+
+    The Text Input type displays a single line of editable plain text, whereas
+    the Text Edit type displays a block of editable, formatted text. Both types
+    are used to accept text input.
+
+    \image qtquick-designer-text-input-properties.png "Text input field properties"
+
+    In the \uicontrol {Mouse selection mode} field, you can specify whether
+    individual characters or whole words are selected when selecting text.
+
+    In the \uicontrol {Input mask} field, you can create an input mask that
+    contains mask and meta characters and separators between them. When created
+    or cleared, the text edit or input is filled with a copy of the input mask
+    string, where the meta characters have been removed, and the mask characters
+    have been replaced with the blank character. For example, in an input field
+    for an IP address, you could use the following mask (with the underscore as
+    the blank character): \c {000.000.000.000;_}. For more information about
+    creating input masks, see the documentation for \l QLineEdit::inputMask.
+
+    In the \uicontrol {Echo mode} field, select \uicontrol Password to display
+    platform-dependent password mask characters instead of the actual characters
+    that users enter. Select \uicontrol PasswordEchoOnEdit to display characters
+    as users enter them. The mask character is displayed in the
+    \uicontrol {Pass. char} field.
+
+    In the \uicontrol {Maximum length} field, set the maximum number of
+    characters that users can enter.
+
+    The value of the \uicontrol {Auto scroll} check box determines whether the
+    text edit or input should scroll when the text is longer than the width of
+    the input field.
+
+    If the \uicontrol {Overwrite mode} check box is selected, existing text is
+    overwritten, character-for-character by new text. Otherwise, new text is
+    inserted at the cursor position, displacing existing text. By default, new
+    text does not overwrite existing text.
+
+    To prevent users from changing the text, select the \uicontrol {Read only}
+    check box.
+
+    The value of the \uicontrol {Set active focus on press} check box determines
+    whether the text edit or input should gain active focus on a mouse press.
+
+    By default, the cursor becomes visible when the text edit or input gains
+    active focus, so that other properties can be bound to whether the cursor
+    is currently shown. Because the value of the \uicontrol {Cursor visible}
+    property gets set and unset automatically, any value you set yourself may
+    be overwritten.
+
+    If the \uicontrol {Persistent selection} check box is selected, a text edit
+    or input keeps its selection when active focus moves to another item.
+
+    To use a pointer device for selecting text, select the
+    \uicontrol {Select by mouse} check box.
+
+    \section1 Padding
+
+    The values of the properties in the \uicontrol Padding section specify the
+    padding around the content. The individual padding properties adopt the
+    value of the \uicontrol Padding field, unless you set them explicitly.
+
+    \note If you explicitly set the width or height of a text edit or input,
+    ensure that it is large enough to accommodate the padding values. If the
+    text does not have enough vertical or horizontal space in which to be
+    rendered, it will appear clipped.
+
+    \section1 Summary of Text Components
+
+    The following table lists the QML types that you can use to add text to
+    UIs. The \e Location column contains the tab name where you can find the
+    type in \uicontrol Library. The \e MCU column indicates which types are
+    supported on MCUs.
+
+    \table
+    \header
+        \li Icon
+        \li Name
+        \li Location
+        \li MCU
+        \li Purpose
+    \row
+        \li \inlineimage icons/label-icon16.png
+        \li \l [QtQuickControls]{Label}
+        \li Qt Quick - Controls 2
+        \li
+        \li A text label with inherited styling and font.
+    \row
+        \li \inlineimage text-icon16.png
+        \li \l [QtQuick]{Text}
+        \li Qt Quick - Basic
+        \li \inlineimage ok
+        \li Formatted read-only text.
+    \row
+        \li \inlineimage icons/textarea-icon16.png
+        \li \l [QtQuickControls]{TextArea}{Text Area}
+        \li Qt Quick - Controls 2
+        \li
+        \li Multiple lines of editable formatted text.
+    \row
+        \li \inlineimage text-edit-icon16.png
+        \li \l [QtQuick]{TextEdit}{Text Edit}
+        \li Qt Quick - Basic
+        \li
+        \li A single line of editable formatted text that can be validated.
+    \row
+        \li \inlineimage icons/textfield-icon16.png
+        \li \l [QtQuickControls]{TextField}{Text Field}
+        \li Qt Quick - Controls 2
+        \li
+        \li A single line of editable plain text.
+    \row
+        \li \inlineimage text-input-icon16.png
+        \li \l [QtQuick]{TextInput}{Text Input}
+        \li Qt Quick - Basic
+        \li
+        \li A single line of editable plain text that can be validated.
+    \endtable
+*/

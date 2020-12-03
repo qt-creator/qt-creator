@@ -492,8 +492,11 @@ bool LinkPrivate::importLibrary(const Document::Ptr &doc,
     for (const auto &toImport : libraryInfo.imports()) {
         QString importName = toImport.module;
         ComponentVersion vNow = toImport.version;
-        // there was a period in which no version == auto, should we add || !vNow.isValid() to the if?
-        if (toImport.flags & QmlDirParser::Import::Auto)
+        /* There was a period in which no version == auto
+         * Required for QtQuick imports less than 2.15
+         */
+        if ((toImport.flags & QmlDirParser::Import::Auto)
+                || !vNow.isValid())
             vNow = version;
         Import subImport;
         subImport.valid = true;

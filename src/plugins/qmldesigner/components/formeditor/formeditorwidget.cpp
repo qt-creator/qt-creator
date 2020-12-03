@@ -512,8 +512,13 @@ QPicture FormEditorWidget::renderToPicture() const
     QPainter painter{&picture};
 
     const QTransform viewportTransform = m_graphicsView->viewportTransform();
-    const QRectF boundingRect = rootItemRect();
+    auto items = m_formEditorView->scene()->allFormEditorItems();
 
+    QRectF boundingRect;
+    for (auto &item : items)
+        boundingRect |= item->childrenBoundingRect();
+
+    picture.setBoundingRect(boundingRect.toRect());
     m_graphicsView->render(&painter, boundingRect, viewportTransform.mapRect(boundingRect.toRect()));
 
     return picture;

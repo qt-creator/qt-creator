@@ -700,7 +700,13 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
             renderImage = m_modelNodePreviewImageCache[m_modelNodePreviewImageCommand.componentPath()];
         } else {
             QObject *instanceObj = nullptr;
-            if (!m_modelNodePreviewImageCommand.componentPath().isEmpty()) {
+            bool createdFromComponent = false;
+            ServerNodeInstance instance = instanceForId(m_modelNodePreviewImageCommand.instanceId());
+            if (!m_modelNodePreviewImageCommand.componentPath().isEmpty()
+                    && instance.isSubclassOf("QQuick3DNode")) {
+                // Create a new instance for Node components, as using Nodes in multiple
+                // import scenes simultaneously isn't supported. And even if it was, we still
+                // wouldn't want the children of the Node to appear in the preview.
                 QQmlComponent component(engine());
                 component.loadUrl(QUrl::fromLocalFile(m_modelNodePreviewImageCommand.componentPath()));
                 instanceObj = qobject_cast<QQuick3DObject *>(component.create());
@@ -708,8 +714,8 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
                     qWarning() << "Could not create preview component: " << component.errors();
                     return;
                 }
+                createdFromComponent = true;
             } else {
-                ServerNodeInstance instance = instanceForId(m_modelNodePreviewImageCommand.instanceId());
                 instanceObj = instance.internalObject();
             }
             QSize renderSize = m_modelNodePreviewImageCommand.size();
@@ -758,7 +764,7 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
                 ready = QQmlProperty::read(m_modelNode3DImageViewData.rootItem, "ready").value<bool>();
             }
             QMetaObject::invokeMethod(m_modelNode3DImageViewData.rootItem, "destroyView");
-            if (!m_modelNodePreviewImageCommand.componentPath().isEmpty()) {
+            if (createdFromComponent) {
                 // If component changes, puppet will need a reset anyway, so we can cache the image
                 m_modelNodePreviewImageCache.insert(m_modelNodePreviewImageCommand.componentPath(), renderImage);
                 delete instanceObj;

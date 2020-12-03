@@ -39,6 +39,7 @@
 
 #include <QApplication>
 
+#include <algorithm>
 #include <limits.h>
 #include <memory>
 
@@ -803,7 +804,11 @@ QString SynchronousProcess::locateBinary(const QString &path, const QString &bin
 QString SynchronousProcess::normalizeNewlines(const QString &text)
 {
     QString res = text;
-    res.replace(QLatin1String("\r\n"), QLatin1String("\n"));
+    const auto newEnd = std::unique(res.begin(), res.end(), [](const QChar &c1, const QChar &c2) {
+        return c1 == '\r' && c2 == '\r'; // QTCREATORBUG-24556
+    });
+    res.chop(std::distance(newEnd, res.end()));
+    res.replace("\r\n", "\n");
     return res;
 }
 

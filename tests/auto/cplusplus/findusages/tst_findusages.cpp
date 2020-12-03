@@ -2033,6 +2033,8 @@ struct S {
     void nonConstFunc();
     static void staticFunc1() {}
     static void staticFunc2();
+    virtual void pureVirtual() = 0;
+    virtual void pureVirtual2() = 0 {}
 };
 void func1(int &);
 void func2(const int &);
@@ -2112,7 +2114,7 @@ int main()
     Class * const structS = doc->globalSymbolAt(0)->asClass();
     QVERIFY(structS);
     QCOMPARE(structS->name()->identifier()->chars(), "S");
-    QCOMPARE(structS->memberCount(), 11);
+    QCOMPARE(structS->memberCount(), 13);
 
     Declaration * const sv = structS->memberAt(1)->asDeclaration();
     QVERIFY(sv);
@@ -2163,6 +2165,20 @@ int main()
     QCOMPARE(find.usages().size(), 2);
     QCOMPARE(find.usages().at(0).type, Usage::Type::Write);
     QCOMPARE(find.usages().at(1).type, Usage::Type::Declaration);
+
+    // Make sure that pure virtual declaration is not mistaken for an assignment.
+    Declaration * const pureVirtual = structS->memberAt(11)->asDeclaration();
+    QVERIFY(pureVirtual);
+    QCOMPARE(pureVirtual->name()->identifier()->chars(), "pureVirtual");
+    find(pureVirtual);
+    QCOMPARE(find.usages().size(), 1);
+    QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
+    Function * const pureVirtual2 = structS->memberAt(12)->asFunction();
+    QVERIFY(pureVirtual2);
+    QCOMPARE(pureVirtual2->name()->identifier()->chars(), "pureVirtual2");
+    find(pureVirtual2);
+    QCOMPARE(find.usages().size(), 1);
+    QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
 
     Function * const main = doc->globalSymbolAt(6)->asFunction();
     QVERIFY(main);

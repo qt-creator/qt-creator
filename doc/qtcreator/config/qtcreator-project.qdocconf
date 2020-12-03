@@ -43,8 +43,7 @@ imagedirs = ../images \
 exampledirs = ../examples
 examples.fileextensions += *.qml *.svg
 
-HTML.extraimages         = ../../config/images/commercial.png
-qhp.QtCreator.extraFiles = ../../config/images/commercial.png
+include(../../qtcreator/images/extraimages/qtcreator-extraimages.qdocconf)
 
 depends +=    qtandroidextras\
               qtwidgets \

@@ -6,8 +6,12 @@ DESTDIR = .
 
 SOURCES +=  simple_test_app.cpp
 
-QT += network xml
+QT += network
 !isEmpty(QT.script.name): QT += script
+
+greaterThan(QT_MAJOR_VERSION, 5): QT += core5compat
+else: QT += xml
+
 
 osx {
     DEFINES += USE_CXX11

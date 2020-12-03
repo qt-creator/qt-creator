@@ -568,12 +568,8 @@ void LineEditField::setup(JsonFieldPage *page, const QString &name)
 
 bool LineEditField::validate(MacroExpander *expander, QString *message)
 {
-    if (!JsonFieldPage::Field::validate(expander, message))
-        return false;
-
     if (m_isValidating)
         return true;
-
     m_isValidating = true;
 
     auto w = qobject_cast<FancyLineEdit *>(widget());
@@ -594,9 +590,9 @@ bool LineEditField::validate(MacroExpander *expander, QString *message)
             m_currentText = w->text();
     }
 
+    const bool baseValid = JsonFieldPage::Field::validate(expander, message);
     m_isValidating = false;
-
-    return !w->text().isEmpty();
+    return baseValid && !w->text().isEmpty();
 }
 
 void LineEditField::initializeData(MacroExpander *expander)

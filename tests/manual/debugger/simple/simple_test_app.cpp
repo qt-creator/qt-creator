@@ -4017,12 +4017,14 @@ namespace qstring  {
 
     void testQStringRef()
     {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         QString str = "Hello";
         QStringRef ref(&str, 1, 2);
         BREAK_HERE;
         // Check ref "el" QStringRef.
         // Continue.
         dummyStatement(&str, &ref);
+#endif
     }
 
     void testQString()
@@ -4067,10 +4069,7 @@ namespace formats {
     {
         const wchar_t *w = L"aöa";
         QString u;
-        if (sizeof(wchar_t) == 4)
-            u = QString::fromUcs4((uint *)w);
-        else
-            u = QString::fromUtf16((ushort *)w);
+        u = QString::fromWCharArray(w);
         BREAK_HERE;
         // Check u "aöa" QString.
         // CheckType w wchar_t *.
@@ -4270,12 +4269,9 @@ namespace qvariant {
     void testQVariant1()
     {
         QVariant value;
-        QVariant::Type t = QVariant::String;
-        value = QVariant(t, (void*)0);
-        *(QString*)value.data() = QString("Some string");
+        value = QVariant(QString("Some string"));
         int i = 1;
         BREAK_HERE;
-        // Check t QVariant::String (10) QVariant::Type.
         // Check value "Some string" QVariant (QString).
         // Continue.
 
@@ -5360,10 +5356,7 @@ namespace basic {
         // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
         // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
 
-        if (sizeof(wchar_t) == 4)
-            u = QString::fromUcs4((uint *)w);
-        else
-            u = QString::fromUtf16((ushort *)w);
+        u = QString::fromWCharArray(w);
 
         // Make sure to undo "Change Format".
         dummyStatement(s, w, &ww, &cw, &cc, &cs);

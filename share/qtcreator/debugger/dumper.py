@@ -556,9 +556,10 @@ class DumperBase():
         return size, limit
 
     def vectorData(self, value):
-        vector_data_ptr = self.extractPointer(value)
-        # vector_data_ptr is what is e.g. stored in a QVector's d_ptr.
-        if self.qtVersion() >= 0x050000:
+        if self.qtVersion() >= 0x060000:
+            data, size, alloc = self.qArrayData(value)
+        elif self.qtVersion() >= 0x050000:
+            vector_data_ptr = self.extractPointer(value)
             if self.ptrSize() == 4:
                 (ref, size, alloc, offset) = self.split('IIIp', vector_data_ptr)
             else:
@@ -566,6 +567,7 @@ class DumperBase():
             alloc = alloc & 0x7ffffff
             data = vector_data_ptr + offset
         else:
+            vector_data_ptr = self.extractPointer(value)
             (ref, alloc, size) = self.split('III', vector_data_ptr)
             data = vector_data_ptr + 16
         self.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
@@ -573,9 +575,9 @@ class DumperBase():
 
     def qArrayData(self, value):
         if self.qtVersion() >= 0x60000:
-            dd, data, size = self.split('ppi', value)
+            dd, data, size = self.split('ppp', value)
             if dd:
-                alloc, i, i = self.split('Pii', dd)
+                _, _, alloc = self.split('iip', dd)
             else: # fromRawData
                 alloc = size
             return data, size, alloc
@@ -618,18 +620,12 @@ class DumperBase():
             data = self.extractPointer(array_data_ptr + self.ptrSize())
         return data, size, alloc
 
-    # addr is the begin of a QByteArrayData structure
     def encodeStringHelper(self, value, limit):
-        addr = self.extractPointer(value)
-        # Should not happen, but we get it with LLDB as result
-        # of inferior calls
-        if addr == 0:
-            return 0, ''
         data, size, alloc = self.qArrayData(value)
         if alloc != 0:
             self.check(0 <= size and size <= alloc and alloc <= 100 * 1000 * 1000)
-        elided, shown = self.computeLimit(size, limit)
-        return elided, self.readMemory(data, 2 * shown)
+        elided, shown = self.computeLimit(2 * size, 2 * limit)
+        return elided, self.readMemory(data, shown)
 
     def encodeByteArrayHelper(self, value, limit):
         data, size, alloc = self.qArrayData(value)
@@ -690,16 +686,8 @@ class DumperBase():
         self.putValue(data, 'latin1', elided=elided)
 
     def encodeString(self, value, limit=0):
-        if self.qtVersion() >= 0x60000:
-            dd, ptr, size = self.split('ppi', value)
-            if not dd:
-                return ""
-            elided, shown = self.computeLimit(2 * size, 2 * self.displayStringLimit)
-            data = self.readMemory(ptr, shown)
-            return data
-        else:
-            elided, data = self.encodeStringHelper(value, limit)
-            return data
+        elided, data = self.encodeStringHelper(value, limit)
+        return data
 
     def encodedUtf16ToUtf8(self, s):
         return ''.join([chr(int(s[i:i + 2], 16)) for i in range(0, len(s), 4)])
@@ -708,7 +696,7 @@ class DumperBase():
         return self.encodedUtf16ToUtf8(self.encodeString(value, limit))
 
     def stringData(self, value): # -> (data, size, alloc)
-            return self.qArrayData(value)
+        return self.qArrayData(value)
 
     def extractTemplateArgument(self, typename, position):
         level = 0
@@ -744,14 +732,8 @@ class DumperBase():
         return inner
 
     def putStringValue(self, value):
-        if self.qtVersion() >= 0x60000:
-            dd, ptr, size = self.split('ppi', value)
-            elided, shown = self.computeLimit(2 * size, 2 * self.displayStringLimit)
-            data = self.readMemory(ptr, shown)
-            self.putValue(data, 'utf16', elided=elided)
-        else:
-            elided, data = self.encodeStringHelper(value, self.displayStringLimit)
-            self.putValue(data, 'utf16', elided=elided)
+        elided, data = self.encodeStringHelper(value, self.displayStringLimit)
+        self.putValue(data, 'utf16', elided=elided)
 
     def putPtrItem(self, name, value):
         with SubItem(self, name):
@@ -1902,7 +1884,7 @@ class DumperBase():
                     = self.split('ppppIIp' + 'pppppp', dd)
 
         if qobjectPtr:
-            qobjectType = self.createType('QObject')
+            qobjectType = self.createType('@QObject')
             with SubItem(self, '[parent]'):
                 if not self.isCli:
                     self.putSortGroup(9)
@@ -2063,8 +2045,8 @@ class DumperBase():
 
                         # Dynamic properties.
                         if extraData:
-                            byteArrayType = self.createType('QByteArray')
-                            variantType = self.createType('QVariant')
+                            byteArrayType = self.createType('@QByteArray')
+                            variantType = self.createType('@QVariant')
                             if self.qtVersion() >= 0x50600:
                                 values = self.vectorChildrenGenerator(
                                     extraData + 2 * ptrSize, variantType)

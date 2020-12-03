@@ -37,6 +37,7 @@ Column {
         showElide: true
         showFontSizeMode: true
         showLineHeight: true
+        richTextEditorAvailable: true
     }
 
     Section {

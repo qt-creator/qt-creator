@@ -447,10 +447,6 @@
         \li \l [QtQuickControls]{GroupBox}{Group Box}
         \li A titled visual frame around a group of controls.
     \row
-        \li \inlineimage icons/label-icon16.png
-        \li \l [QtQuickControls]{Label}
-        \li A text label with inherited styling and font.
-    \row
         \li \inlineimage icons/page-icon16.png
         \li \l [QtQuickControls]{Page}
         \li A styled page control with support for a header and footer.

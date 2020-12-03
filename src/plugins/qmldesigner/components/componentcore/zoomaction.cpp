@@ -113,14 +113,9 @@ double ZoomAction::setPreviousZoomFactor(double zoom)
     return zoom;
 }
 
-bool parentIsFormEditor(QWidget *parent)
+bool parentIsToolBar(QWidget *parent)
 {
-    while (parent) {
-        if (qobject_cast<FormEditorWidget *>(parent))
-            return true;
-        parent = qobject_cast<QWidget *>(parent->parent());
-    }
-    return false;
+    return qobject_cast<QToolBar *>(parent) != nullptr;
 }
 
 QComboBox *createZoomComboBox(QWidget *parent)
@@ -135,7 +130,7 @@ QComboBox *createZoomComboBox(QWidget *parent)
 
 QWidget *ZoomAction::createWidget(QWidget *parent)
 {
-    if (!m_combo && parentIsFormEditor(parent)) {
+    if (!m_combo && parentIsToolBar(parent)) {
         m_combo = createZoomComboBox(parent);
         m_combo->setProperty("hideborder", true);
         m_combo->setCurrentIndex(indexOf(1.0));

@@ -582,7 +582,8 @@ TEST_F(CompilerOptionsBuilder, AddDefineFunctionMacrosMsvc)
 
     compilerOptionsBuilder.addDefineFunctionMacrosMsvc();
 
-    ASSERT_THAT(compilerOptionsBuilder.options(), Contains(QString{"-D__FUNCTION__=\"\""}));
+    ASSERT_THAT(compilerOptionsBuilder.options(),
+                Contains(QString{"-D__FUNCTION__=\"someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580\""}));
 }
 
 TEST_F(CompilerOptionsBuilder, AddProjectConfigFileInclude)
@@ -683,9 +684,9 @@ TEST_F(CompilerOptionsBuilder, BuildAllOptionsCl)
                             "/std:c++17",
                             "-fms-compatibility-version=19.00",
                             "-DprojectFoo=projectBar",
-                            "-D__FUNCSIG__=\"\"",
-                            "-D__FUNCTION__=\"\"",
-                            "-D__FUNCDNAME__=\"\"",
+                            "-D__FUNCSIG__=\"void __cdecl someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580(void)\"",
+                            "-D__FUNCTION__=\"someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580\"",
+                            "-D__FUNCDNAME__=\"?someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580@@YAXXZ\"",
                             "-I", IsPartOfHeader("wrappedQtHeaders"),
                             "-I", IsPartOfHeader(toNative("wrappedQtHeaders/QtCore").toStdString()),
                             "-I", toNative("/tmp/path"),
@@ -723,9 +724,9 @@ TEST_F(CompilerOptionsBuilder, BuildAllOptionsClWithExceptions)
                             "-fexceptions",
                             "-fms-compatibility-version=19.00",
                             "-DprojectFoo=projectBar",
-                            "-D__FUNCSIG__=\"\"",
-                            "-D__FUNCTION__=\"\"",
-                            "-D__FUNCDNAME__=\"\"",
+                            "-D__FUNCSIG__=\"void __cdecl someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580(void)\"",
+                            "-D__FUNCTION__=\"someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580\"",
+                            "-D__FUNCDNAME__=\"?someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580@@YAXXZ\"",
                             "-I", IsPartOfHeader("wrappedQtHeaders"),
                             "-I", IsPartOfHeader(toNative("wrappedQtHeaders/QtCore").toStdString()),
                             "-I", toNative("/tmp/path"),
