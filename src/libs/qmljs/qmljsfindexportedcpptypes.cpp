@@ -915,30 +915,17 @@ bool FindExportedCppTypes::maybeExportsTypes(const CPlusPlus::Document::Ptr &doc
 {
     if (!document->control())
         return false;
-    const QByteArray qmlRegisterSingletonTypeToken("qmlRegisterType");
-    const QByteArray qmlRegisterTypeToken("qmlRegisterSingletonType");
-    const QByteArray qmlRegisterUncreatableTypeToken("qmlRegisterUncreatableType");
-    const QByteArray qmlRegisterUncreatableMetaObjectToken("qmlRegisterUncreatableMetaObject");
-    const QByteArray setContextPropertyToken("setContextProperty");
-    if (document->control()->findIdentifier(
-                qmlRegisterTypeToken.constData(), qmlRegisterTypeToken.size())) {
-        return true;
-    }
-    if (document->control()->findIdentifier(
-                qmlRegisterSingletonTypeToken.constData(), qmlRegisterSingletonTypeToken.size())) {
-        return true;
-    }
-    if (document->control()->findIdentifier(
-                qmlRegisterUncreatableTypeToken.constData(), qmlRegisterUncreatableTypeToken.size())) {
-        return true;
-    }
-    if (document->control()->findIdentifier(
-                setContextPropertyToken.constData(), setContextPropertyToken.size())) {
-        return true;
-    }
-    if (document->control()->findIdentifier(
-                qmlRegisterUncreatableMetaObjectToken.constData(), qmlRegisterUncreatableMetaObjectToken.size())) {
-        return true;
+    const QByteArray tokens[] = {
+        "qmlRegisterSingletonType",
+        "qmlRegisterType",
+        "qmlRegisterUncreatableType",
+        "setContextProperty"
+        "qmlRegisterUncreatableMetaObject",
+    };
+    for (const QByteArray &token : tokens) {
+        if (document->control()->findIdentifier(token.constData(), token.size())) {
+            return true;
+        }
     }
     return false;
 }
