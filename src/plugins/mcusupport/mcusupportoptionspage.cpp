@@ -26,6 +26,7 @@
 #include "mcusupportconstants.h"
 #include "mcusupportoptionspage.h"
 #include "mcusupportoptions.h"
+#include "mcusupportsdk.h"
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <cmakeprojectmanager/cmaketoolmanager.h>
@@ -80,6 +81,7 @@ private:
     QCheckBox *m_kitAutomaticCreationCheckBox = nullptr;
     Utils::InfoLabel *m_kitCreationInfoLabel = nullptr;
     Utils::InfoLabel *m_statusInfoLabel = nullptr;
+    Utils::InfoLabel *m_mcuTargetsInfoLabel = nullptr;
     QPushButton *m_kitCreationPushButton = nullptr;
     QPushButton *m_kitRemovalPushButton = nullptr;
 };
@@ -126,6 +128,11 @@ McuSupportOptionsWidget::McuSupportOptionsWidget()
         mainLayout->addWidget(m_packagesGroupBox);
         m_packagesLayout = new QFormLayout;
         m_packagesGroupBox->setLayout(m_packagesLayout);
+    }
+
+    {
+        m_mcuTargetsInfoLabel = new Utils::InfoLabel;
+        mainLayout->addWidget(m_mcuTargetsInfoLabel);
     }
 
     {
@@ -177,11 +184,18 @@ void McuSupportOptionsWidget::updateStatus()
     // Page elements
     {
         m_qtForMCUsSdkGroupBox->setVisible(cMakeAvailable);
-        const bool ready = cMakeAvailable && mcuTarget &&
+        const bool valid = cMakeAvailable &&
                 m_options.qtForMCUsSdkPackage->status() == McuPackage::ValidPackage;
+        const bool ready = valid && mcuTarget;
         m_mcuTargetsGroupBox->setVisible(ready);
         m_packagesGroupBox->setVisible(ready && !mcuTarget->packages().isEmpty());
         m_kitCreationGroupBox->setVisible(ready);
+        m_mcuTargetsInfoLabel->setVisible(valid && m_options.mcuTargets.isEmpty());
+        if (m_mcuTargetsInfoLabel->isVisible()) {
+            m_mcuTargetsInfoLabel->setType(Utils::InfoLabel::NotOk);
+            auto displayKitsPath = Sdk::kitsPath(Utils::FilePath::fromString(m_options.qtForMCUsSdkPackage->basePath())).toUserOutput();
+            m_mcuTargetsInfoLabel->setText(tr("No valid kit descriptions found at %1.").arg(displayKitsPath));
+        }
     }
 
     // Kit creation status

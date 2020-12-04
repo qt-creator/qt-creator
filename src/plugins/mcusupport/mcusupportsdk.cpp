@@ -515,9 +515,14 @@ static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescrip
     return  mcuTargets;
 }
 
+Utils::FilePath kitsPath(const Utils::FilePath &dir)
+{
+    return dir + "/kits/";
+}
+
 static QFileInfoList targetDescriptionFiles(const Utils::FilePath &dir)
 {
-    const QDir kitsDir(dir.toString() + "/kits/", "*.json");
+    const QDir kitsDir(kitsPath(dir).toString(), "*.json");
     return kitsDir.entryInfoList();
 }
 
@@ -554,14 +559,29 @@ void targetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage *> *packa
 {
     QList<McuTargetDescription> descriptions;
 
-    for (const QFileInfo &fileInfo : targetDescriptionFiles(dir)) {
+    auto descriptionFiles = targetDescriptionFiles(dir);
+    for (const QFileInfo &fileInfo : descriptionFiles) {
         QFile file(fileInfo.absoluteFilePath());
         if (!file.open(QFile::ReadOnly))
             continue;
         const McuTargetDescription desc = parseDescriptionJson(file.readAll());
-        if (QVersionNumber::fromString(desc.qulVersion) < McuSupportOptions::minimalQulVersion())
-            return; // Invalid version means invalid SDK installation.
+        if (QVersionNumber::fromString(desc.qulVersion) < McuSupportOptions::minimalQulVersion()) {
+            auto pth = Utils::FilePath::fromString(fileInfo.filePath());
+            printMessage(QObject::tr("Skipped %1 - Unsupported version \"%2\" (should be >= %3)")
+                         .arg(
+                             QDir::toNativeSeparators(pth.fileNameWithPathComponents(1)),
+                             desc.qulVersion,
+                             McuSupportOptions::minimalQulVersion().toString()),
+                             false);
+            continue;
+        }
         descriptions.append(desc);
+    }
+
+    // No valid description means invalid SDK installation.
+    if (descriptions.empty() && kitsPath(dir).exists()) {
+        printMessage(QObject::tr("No valid kit descriptions found at %1.").arg(kitsPath(dir).toUserOutput()), true);
+        return;
     }
 
     // Workaround for missing JSON file for Desktop target.

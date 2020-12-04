@@ -43,6 +43,8 @@ McuPackage *createQtForMCUsPackage();
 void targetsAndPackages(const Utils::FilePath &qulDir,
                         QVector<McuPackage*> *packages, QVector<McuTarget*> *mcuTargets);
 
+Utils::FilePath kitsPath(const Utils::FilePath &dir);
+
 } // namespace Sdk
 } // namespace Internal
 } // namespace McuSupport
