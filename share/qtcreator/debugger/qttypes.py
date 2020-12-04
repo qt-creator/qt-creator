@@ -252,22 +252,28 @@ def qdump__QStandardItem(d, value):
     # warm up cache
     data_size = 4 * d.ptrSize() if d.qtVersion() >= 0x060000 else 2 * d.ptrSize()
     d.createType('@QStandardItemData', data_size)
+    d.createType('@QStandardItem', d.ptrSize())
+    d.createType('@QStandardItem*', d.ptrSize())
 
     vtable, dptr = value.split('pp')
-    # There used to be a virtual destructor that got removed in
-    # 88b6abcebf29b455438 on Apr 18 17:01:22 2017
-    if d.qtVersion() >= 0x050900 or d.isMsvcTarget():
-        model, parent, values, children, rows, cols, item = d.split('ppPPIIp', dptr)
+    if d.qtVersion() >= 0x060000:
+        model, parent, values, children, rows, cols, item = \
+            d.split('pp{@QList<@QStandardItemData>}{@QList<@QStandardItem*>}IIp', dptr)
     else:
-        vtable1, model, parent, values, children, rows, cols, item = d.split('pppPPIIp', dptr)
+        # There used to be a virtual destructor that got removed in
+        # 88b6abcebf29b455438 on Apr 18 17:01:22 2017
+        if d.qtVersion() < 0x050900 and not d.isMsvcTarget():
+            dptr += d.ptrSize();
+        model, parent, values, children, rows, cols, item = \
+            d.split('pp{@QVector<@QStandardItemData>}{@QVector<@QStandardItem*>}IIp', dptr)
+
     d.putEmptyValue()
     d.putExpandable()
     if d.isExpanded():
         with Children(d):
             d.putSubItem('[model]', d.createValue(model, '@QStandardItemModel'))
-            d.putSubItem('[values]', d.createVectorItem(values, '@QStandardItemData'))
-            d.putSubItem('[children]', d.createVectorItem(children,
-                                                          d.createPointerType(value.type)))
+            d.putSubItem('[values]', values)
+            d.putSubItem('[children]', children)
 
 
 def qdump__QDate(d, value):
@@ -2203,7 +2209,7 @@ def qform__QVector():
 
 def qdump__QVector(d, value):
     if d.qtVersion() >= 0x060000:
-        dd, data, size = value.split('ppi')
+        data, size = d.listData(value)
         d.putItemCount(size)
         d.putPlotData(data, size, d.createType(value.type.ltarget[0]))
         # g++ 9.3 does not add the template parameter list to the debug info.

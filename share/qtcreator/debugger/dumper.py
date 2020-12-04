@@ -3911,12 +3911,13 @@ class DumperBase():
             tdata.name = typish
             tdata.typeId = typish
             tdata.templateArguments = self.listTemplateParameters(typish)
+            if size is not None:
+                tdata.lbitsize = 8 * size
             if typish.endswith('*'):
                 tdata.code = TypeCode.Pointer
                 tdata.lbitsize = 8 * self.ptrSize()
+                tdata.ltarget = self.createType(typish[:-1])
 
-            if size is not None:
-                tdata.lbitsize = 8 * size
             self.registerType(typish, tdata)
             typeobj = self.Type(self, typish)
             #DumperBase.warn('CREATE TYPE: %s' % typeobj.stringify())
