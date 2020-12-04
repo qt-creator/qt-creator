@@ -567,7 +567,7 @@ void targetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage *> *packa
         const McuTargetDescription desc = parseDescriptionJson(file.readAll());
         if (QVersionNumber::fromString(desc.qulVersion) < McuSupportOptions::minimalQulVersion()) {
             auto pth = Utils::FilePath::fromString(fileInfo.filePath());
-            printMessage(QObject::tr("Skipped %1 - Unsupported version \"%2\" (should be >= %3)")
+            printMessage(McuTarget::tr("Skipped %1 - Unsupported version \"%2\" (should be >= %3)")
                          .arg(
                              QDir::toNativeSeparators(pth.fileNameWithPathComponents(1)),
                              desc.qulVersion,
@@ -580,7 +580,7 @@ void targetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage *> *packa
 
     // No valid description means invalid SDK installation.
     if (descriptions.empty() && kitsPath(dir).exists()) {
-        printMessage(QObject::tr("No valid kit descriptions found at %1.").arg(kitsPath(dir).toUserOutput()), true);
+        printMessage(McuTarget::tr("No valid kit descriptions found at %1.").arg(kitsPath(dir).toUserOutput()), true);
         return;
     }
 
@@ -611,6 +611,11 @@ void targetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage *> *packa
                 desktopDescription.toolchainId = Utils::HostOsInfo::isWindowsHost() ? QString("msvc") : QString("gcc");
                 desktopDescription.type = McuTargetDescription::TargetType::Desktop;
                 descriptions.prepend(desktopDescription);
+            } else {
+                if (dir.exists())
+                    printMessage(McuTarget::tr("Skipped creating fallback desktop kit: Could not find %1.")
+                        .arg(QDir::toNativeSeparators(desktopLib.fileNameWithPathComponents(1))),
+                                 false);
             }
         }
     }

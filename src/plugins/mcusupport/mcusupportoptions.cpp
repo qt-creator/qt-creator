@@ -490,6 +490,19 @@ bool McuTarget::isValid() const
     });
 }
 
+void McuTarget::printPackageProblems() const
+{
+    for (auto package: packages()) {
+        package->updateStatus();
+        if (package->status() != McuPackage::ValidPackage)
+            printMessage(QString("Error creating kit for target %1, package %2: %3").arg(
+                             McuSupportOptions::kitName(this),
+                             package->label(),
+                             package->statusText()),
+                         true);
+    }
+}
+
 QVersionNumber McuTarget::qulVersion() const
 {
     return m_qulVersion;
@@ -699,13 +712,28 @@ static void setKitCMakeOptions(Kit *k, const McuTarget* mcuTarget, const QString
         config.append(CMakeConfigItem("CMAKE_CXX_COMPILER", "%{Compiler:Executable:Cxx}"));
         config.append(CMakeConfigItem("CMAKE_C_COMPILER", "%{Compiler:Executable:C}"));
     }
-    if (!mcuTarget->toolChainPackage()->isDesktopToolchain())
+
+    if (!mcuTarget->toolChainPackage()->isDesktopToolchain()) {
+        const FilePath cMakeToolchainFile = FilePath::fromString(qulDir + "/lib/cmake/Qul/toolchain/"
+                           + mcuTarget->toolChainPackage()->cmakeToolChainFileName());
+
         config.append(CMakeConfigItem(
                           "CMAKE_TOOLCHAIN_FILE",
-                          (qulDir + "/lib/cmake/Qul/toolchain/"
-                           + mcuTarget->toolChainPackage()->cmakeToolChainFileName()).toUtf8()));
+                          cMakeToolchainFile.toString().toUtf8()));
+        if (!cMakeToolchainFile.exists()) {
+            printMessage(McuTarget::tr("Warning for target %1: missing CMake Toolchain File expected at %2.")
+                  .arg(McuSupportOptions::kitName(mcuTarget), cMakeToolchainFile.toUserOutput()), false);
+        }
+    }
+
+    const FilePath generatorsPath = FilePath::fromString(qulDir + "/lib/cmake/Qul/QulGenerators.cmake");
     config.append(CMakeConfigItem("QUL_GENERATORS",
-                                  (qulDir + "/lib/cmake/Qul/QulGenerators.cmake").toUtf8()));
+                                  generatorsPath.toString().toUtf8()));
+    if (!generatorsPath.exists()) {
+        printMessage(McuTarget::tr("Warning for target %1: missing QulGenerators expected at %2.")
+              .arg(McuSupportOptions::kitName(mcuTarget), generatorsPath.toUserOutput()), false);
+    }
+
     config.append(CMakeConfigItem("QUL_PLATFORM",
                                   mcuTarget->platform().name.toUtf8()));
 
@@ -861,8 +889,12 @@ void McuSupportOptions::createAutomaticKits()
         Sdk::targetsAndPackages(dir, &packages, &mcuTargets);
 
         for (auto target: qAsConst(mcuTargets))
-            if (target->isValid() && existingKits(target).isEmpty())
-                newKit(target, qtForMCUsPackage);
+            if (existingKits(target).isEmpty()) {
+                if (target->isValid())
+                    newKit(target, qtForMCUsPackage);
+                else
+                    target->printPackageProblems();
+            }
 
         qDeleteAll(packages);
         qDeleteAll(mcuTargets);

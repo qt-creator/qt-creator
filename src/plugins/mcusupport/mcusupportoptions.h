@@ -175,6 +175,7 @@ public:
     void setColorDepth(int colorDepth);
     int colorDepth() const;
     bool isValid() const;
+    void printPackageProblems() const;
 
 private:
     const QVersionNumber m_qulVersion;
