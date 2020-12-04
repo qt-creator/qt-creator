@@ -396,6 +396,11 @@ struct Value5 : Value
     Value5(const QString &value) : Value(value) { qtVersion = 5; }
 };
 
+struct Value6 : Value
+{
+    Value6(const QString &value) : Value(value) { qtVersion = 6; }
+};
+
 struct UnsubstitutedValue : Value
 {
     UnsubstitutedValue(const QString &value) : Value(value) { substituteNamespace = false; }
@@ -2006,6 +2011,8 @@ void tst_Dumpers::dumper()
         }
         if (!setok) {
             qDebug() << "NO CHECK IN SET PASSED";
+            for (const Check &check : checkset.checks)
+                qDebug() << check;
             ok = false;
         }
     }
@@ -3388,6 +3395,8 @@ void tst_Dumpers::dumper_data()
                     "uint qHash(const QPointer<QObject> &p) { return (quintptr)p.data(); }\n"
                     "QT_END_NAMESPACE\n",
 
+                    "QSet<double> s0;\n"
+
                     "QSet<int> s1;\n"
                     "s1.insert(11);\n"
                     "s1.insert(22);\n\n"
@@ -3403,19 +3412,23 @@ void tst_Dumpers::dumper_data()
                     "s3.insert(ptr);\n"
                     "s3.insert(ptr);\n",
 
-                    "&s1, &s2, &s3")
+                    "&s0, &s1, &s2, &s3")
 
                + CoreProfile()
 
+               + Check("s0", "<0 items>", "@QSet<double>")
+
                + Check("s1", "<2 items>", "@QSet<int>")
-               + Check("s1.0", "[0]", "22", "int")
-               + Check("s1.1", "[1]", "11", "int")
+               + CheckSet({{"s1.0", "[0]", "22", "int"},
+                           {"s1.0", "[0]", "11", "int"}})
+               + CheckSet({{"s1.1", "[1]", "22", "int"},
+                           {"s1.1", "[1]", "11", "int"}})
 
                + Check("s2", "<2 items>", "@QSet<@QString>")
-               + Check("s2.0", "[0]", Value4("\"11.0\""), "@QString")
-               + Check("s2.0", "[0]", Value5("\"22.0\""), "@QString")
-               + Check("s2.1", "[1]", Value4("\"22.0\""), "@QString")
-               + Check("s2.1", "[1]", Value5("\"11.0\""), "@QString")
+               + CheckSet({{"s2.0", "[0]", "\"11.0\"", "@QString"},
+                           {"s2.0", "[0]", "\"22.0\"", "@QString"}})
+               + CheckSet({{"s2.1", "[1]", "\"11.0\"", "@QString"},
+                           {"s2.1", "[1]", "\"22.0\"", "@QString"}})
 
                + Check("s3", "<1 items>", "@QSet<@QPointer<@QObject>>")
                + Check("s3.0", "[0]", "", "@QPointer<@QObject>");

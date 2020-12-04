@@ -1500,7 +1500,42 @@ def qdump__QScopedPointer(d, value):
 
 
 def qdump__QSet(d, value):
+    if d.qtVersion() >= 0x060000:
+        qdumpHelper_QSet6(d, value)
+    else:
+        qdumpHelper_QSet45(d, value)
 
+def qdumpHelper_QSet6(d, value):
+    dptr = d.extractPointer(value)
+    if dptr == 0:
+        d.putItemCount(0)
+        return
+
+    ref, _, size, buckets, seed, spans = d.split('i@qqqp', dptr)
+
+    d.check(0 <= size and size <= 100 * 1000 * 1000)
+    d.check(-1 <= ref and ref < 100000)
+    d.putItemCount(size)
+
+    if d.isExpanded():
+        value_type = value.type[0]
+        value_size = value_type.size()
+        with Children(d, size):
+            span_size = 128 + 2 * d.ptrSize() # Including tail padding.
+            nspans = int((buckets + 127) / 128)
+            count = 0
+            for b in range(nspans):
+                span = spans + b * span_size
+                offsets, entries, allocated, next_free = d.split('128spbb', span)
+                for i in range(128):
+                    offset = offsets[i]
+                    if offset != 255: # Entry is used
+                        entry = entries + offset * value_size
+                        d.putSubItem(count, d.createValue(entry, value_type))
+                        count += 1
+
+
+def qdumpHelper_QSet45(d, value):
     def hashDataFirstNode():
         b = buckets
         n = numBuckets
