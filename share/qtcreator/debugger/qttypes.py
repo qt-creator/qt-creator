@@ -1666,13 +1666,20 @@ def qdump__QPolygon(d, value):
 
 def qdump__QGraphicsPolygonItem(d, value):
     (vtbl, dptr) = value.split('pp')
-    # Assume sizeof(QGraphicsPolygonItemPrivate) == 400
-    if d.ptrSize() == 8:
-        offset = 384
-    elif d.isWindowsTarget():
-        offset = 328 if d.isMsvcTarget() else 320
+    if d.qtVersion() >= 0x060000:
+        if d.ptrSize() == 8:
+            offset = 424 # sizeof(QGraphicsPolygonItemPrivate), the base
+        else:
+            # Chicken out. Not worth maintaining.
+            d.putPlainChildren(value)
+            return
     else:
-        offset = 308
+        if d.ptrSize() == 8:
+            offset = 384
+        elif d.isWindowsTarget():
+            offset = 328 if d.isMsvcTarget() else 320
+        else:
+            offset = 308
     data, size = d.vectorData(dptr + offset)
     d.putItemCount(size)
     d.putPlotData(data, size, d.createType('@QPointF'))
