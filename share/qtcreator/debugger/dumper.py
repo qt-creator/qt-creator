@@ -3938,27 +3938,6 @@ class DumperBase():
         val.ldata = proxy_data
         return val
 
-    def createContainerItem(self, data, innerTypish, container):
-        innerType = self.createType(innerTypish)
-        name = self.qtNamespace() + '%s<%s>' % (container, innerType.name)
-        typeId = name
-        tdata = self.TypeData(self)
-        tdata.typeId = typeId
-        tdata.name = name
-        tdata.templateArguments = [innerType]
-        tdata.lbitsize = 8 * self.ptrSize()
-        self.registerType(typeId, tdata)
-        val = self.Value(self)
-        val.ldata = data
-        val.type = self.Type(self, typeId)
-        return val
-
-    def createListItem(self, data, innerTypish):
-        return self.createContainerItem(data, innerTypish, 'QList')
-
-    def createVectorItem(self, data, innerTypish):
-        return self.createContainerItem(data, innerTypish, 'QVector')
-
     class StructBuilder():
         def __init__(self, dumper):
             self.dumper = dumper
