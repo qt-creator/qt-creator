@@ -204,7 +204,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
     menu->setOnAllDisabledBehavior(ActionContainer::Show);
 
     QAction *action = new QAction(tr("Run &All Tests"), this);
-    action->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR.icon());
+    action->setIcon(Utils::Icons::RUN_SMALL.icon());
     action->setToolTip(tr("Run All Tests"));
     Command *command = ActionManager::registerAction(action, Constants::ACTION_RUN_ALL_ID);
     command->setDefaultKeySequence(
@@ -224,10 +224,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
     menu->addAction(command);
 
     action = new QAction(tr("Run &Failed Tests"),  this);
-    Utils::Icon runFailedIcon = Utils::Icons::RUN_SMALL_TOOLBAR;
-    for (const Utils::IconMaskAndColor &maskAndColor: Icons::RUN_FAILED_OVERLAY)
-        runFailedIcon.append(maskAndColor);
-    action->setIcon(runFailedIcon.icon());
+    action->setIcon(Icons::RUN_FAILED.icon());
     action->setToolTip(tr("Run Failed Tests"));
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_FAILED_ID);
     command->setDefaultKeySequence(

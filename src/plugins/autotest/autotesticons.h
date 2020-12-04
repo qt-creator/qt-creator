@@ -33,8 +33,13 @@ namespace Icons {
 const Utils::Icon SORT_NATURALLY({
         {":/autotest/images/leafsort.png", Utils::Theme::IconsBaseColor}});
 
-const Utils::Icon RUN_FAILED_OVERLAY({
-        {":utils/images/iconoverlay_reset.png", Utils::Theme::OutputPanes_TestXPassTextColor}});
+const Utils::Icon RUN_FAILED({
+        {":/utils/images/run_small.png", Utils::Theme::IconsRunColor},
+        {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopColor}},
+        Utils::Icon::MenuTintedStyle);
+const Utils::Icon RUN_FAILED_TOOLBAR({
+        {":/utils/images/run_small.png", Utils::Theme::IconsRunToolBarColor},
+        {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}});
 const Utils::Icon RESULT_PASS({
         {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestPassTextColor}},
         Utils::Icon::Tint);

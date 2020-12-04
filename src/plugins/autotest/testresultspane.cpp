@@ -182,7 +182,10 @@ void TestResultsPane::createToolButtons()
     });
 
     m_runAll = new QToolButton(m_treeView);
-    m_runAll->setDefaultAction(ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action());
+    m_runAll->setDefaultAction(
+                Utils::ProxyAction::proxyActionWithIcon(
+                    ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action(),
+                    Utils::Icons::RUN_SMALL_TOOLBAR.icon()));
 
     m_runSelected = new QToolButton(m_treeView);
     m_runSelected->setDefaultAction(
@@ -191,7 +194,10 @@ void TestResultsPane::createToolButtons()
                     Utils::Icons::RUN_SELECTED_TOOLBAR.icon()));
 
     m_runFailed = new QToolButton(m_treeView);
-    m_runFailed->setDefaultAction(ActionManager::command(Constants::ACTION_RUN_FAILED_ID)->action());
+    m_runFailed->setDefaultAction(
+                Utils::ProxyAction::proxyActionWithIcon(
+                    ActionManager::command(Constants::ACTION_RUN_FAILED_ID)->action(),
+                    Icons::RUN_FAILED_TOOLBAR.icon()));
     m_runFile = new QToolButton(m_treeView);
     m_runFile->setDefaultAction(
                 Utils::ProxyAction::proxyActionWithIcon(
