@@ -225,6 +225,8 @@ Project {
             "qtcolorbutton.h",
             "qtcprocess.cpp",
             "qtcprocess.h",
+            "qtcsettings.cpp",
+            "qtcsettings.h",
             "reloadpromptutils.cpp",
             "reloadpromptutils.h",
             "removefiledialog.cpp",

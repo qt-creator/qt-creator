@@ -141,7 +141,8 @@ SOURCES += \
     $$PWD/infobar.cpp \
     $$PWD/aspects.cpp \
     $$PWD/layoutbuilder.cpp \
-    $$PWD/variablechooser.cpp
+    $$PWD/variablechooser.cpp \
+    $$PWD/qtcsettings.cpp
 
 HEADERS += \
     $$PWD/environmentfwd.h \
@@ -299,7 +300,8 @@ HEADERS += \
     $$PWD/aspects.h \
     $$PWD/layoutbuilder.h \
     $$PWD/variablechooser.h \
-    $$PWD/set_algorithm.h
+    $$PWD/set_algorithm.h \
+    $$PWD/qtcsettings.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
