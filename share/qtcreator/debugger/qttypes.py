@@ -3246,12 +3246,13 @@ def qdump__qfloat16(d, value):
 def qdumpHelper_QCbor_string(d, container_ptr, element_index, is_bytes):
     # d.split('i@{@QByteArray::size_type}pp', container_ptr) doesn't work with CDB,
     # so be explicit:
-    pos = container_ptr + (2 * d.ptrSize() if d.qtVersion() >= 0x060000 else 8)
-    elements_data_ptr, elements_size = d.vectorData(pos + d.ptrSize())
-    element_at_n_addr = elements_data_ptr + element_index * 16 # sizeof(QtCbor::Element) == 15
+    data_pos = container_ptr + (2 * d.ptrSize() if d.qtVersion() >= 0x060000 else 8)
+    elements_pos = data_pos + (3 * d.ptrSize() if d.qtVersion() >= 0x060000 else d.ptrSize())
+    elements_data_ptr, elements_size = d.vectorData(elements_pos)
+    element_at_n_addr = elements_data_ptr + element_index * 16 # sizeof(QtCbor::Element) == 16
     element_value, _, element_flags = d.split('qII', element_at_n_addr)
     enc = 'latin1' if is_bytes or (element_flags & 8) else 'utf16'
-    bytedata, _, _ = d.qArrayData(pos)
+    bytedata, _, _ = d.qArrayData(data_pos)
     bytedata += element_value
     if d.qtVersion() >= 0x060000:
         bytedata_len = d.extractInt64(bytedata)
@@ -3282,11 +3283,12 @@ def qdumpHelper_QCbor_array(d, container_ptr, is_cbor):
         return
     # d.split('i@{@QByteArray::size_type}pp', container_ptr) doesn't work with CDB,
     # so be explicit:
-    pos = container_ptr + (2 * d.ptrSize() if d.qtVersion() >= 0x060000 else 8)
-    elements_data_ptr, elements_size = d.vectorData(pos + d.ptrSize())
+    data_pos = container_ptr + (2 * d.ptrSize() if d.qtVersion() >= 0x060000 else 8)
+    elements_pos = data_pos + (3 * d.ptrSize() if d.qtVersion() >= 0x060000 else d.ptrSize())
+    elements_data_ptr, elements_size = d.vectorData(elements_pos)
     d.putItemCount(elements_size)
     if d.isExpanded():
-        bytedata, _, _ = d.qArrayData(pos)
+        bytedata, _, _ = d.qArrayData(data_pos)
         with Children(d, maxNumChild=1000):
             for i in range(elements_size):
                 d.putSubItem(i, qdumpHelper_QCborArray_valueAt(d, container_ptr, elements_data_ptr, i, bytedata, is_cbor))
@@ -3303,12 +3305,13 @@ def qdumpHelper_QCbor_map(d, container_ptr, is_cbor):
         return
     # d.split('i@{@QByteArray::size_type}pp', container_ptr) doesn't work with CDB,
     # so be explicit:
-    pos = container_ptr + (2 * d.ptrSize() if d.qtVersion() >= 0x060000 else 8)
-    elements_data_ptr, elements_size = d.vectorData(pos + d.ptrSize())
+    data_pos = container_ptr + (2 * d.ptrSize() if d.qtVersion() >= 0x060000 else 8)
+    elements_pos = data_pos + (3 * d.ptrSize() if d.qtVersion() >= 0x060000 else d.ptrSize())
+    elements_data_ptr, elements_size = d.vectorData(elements_pos)
     elements_size = int(elements_size / 2)
     d.putItemCount(elements_size)
     if d.isExpanded():
-        bytedata, _, _ = d.qArrayDataHelper(pos)
+        bytedata, _, _ = d.qArrayDataHelper(data_pos)
         with Children(d, maxNumChild=1000):
             for i in range(elements_size):
                 key = qdumpHelper_QCborArray_valueAt(d, container_ptr, elements_data_ptr, 2 * i, bytedata, is_cbor)
@@ -3324,6 +3327,7 @@ def qdump__QCborMap(d, value):
 def qdump__QCborValue(d, value):
     item_data, container_ptr, item_type = value.split('qpi')
     d.putItem(d.createProxyValue((item_data, container_ptr, item_type, True), 'QCborValue_proxy'))
+    d.putPlainChildren(value)
 
 def qdump__QCborValue_proxy(d, value):
     item_data, container_ptr, item_type, is_cbor = value.data()
