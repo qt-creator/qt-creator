@@ -345,7 +345,7 @@
     You can use number icons in screenshots to highlight parts of the screenshot
     (instead of using red arrows or borders, or something similar). You can then
     refer to the numbers in text. For and example, see the
-    \l{http://doc.qt.io/qt-5/topics-app-development.html}{Development Tools}
+    \l{https://doc.qt.io/qt/topics-app-development.html}{Development Tools}
     topic in the Qt reference documentation.
 
     This improves the consistency of the look and feel of Qt documentation,

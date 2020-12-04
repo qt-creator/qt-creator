@@ -68,7 +68,8 @@ depends +=    qtandroidextras\
               qttestlib \
               qtuitools \
               qtxml \
-              qtlocation
+              qtlocation \
+              qtvirtualkeyboard
 
 include(../../config/macros.qdocconf)
 include(../../config/qt-cpp-ignore.qdocconf)

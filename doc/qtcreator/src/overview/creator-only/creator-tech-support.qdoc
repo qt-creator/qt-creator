@@ -47,9 +47,9 @@
 
         \row
             \li View examples of what you can do with Qt
-            \li \l{https://doc.qt.io/qt-5/all-examples.html}{List of Qt Examples}
+            \li \l{https://doc.qt.io/qt/all-examples.html}{List of Qt Examples}
 
-                \l{https://doc.qt.io/qt-5/qtquick-codesamples.html}
+                \l{https://doc.qt.io/qt/qtquick-codesamples.html}
                 {List of Qt Quick Examples}
 
         \row
