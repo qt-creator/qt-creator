@@ -2973,26 +2973,26 @@ void tst_Dumpers::dumper_data()
               + Check("m1.5", "[5] 22", FloatValue("22"), "")
 
               + Check("m2", "<1 items>", "@QMultiMap<@QString, float>")
-              + Check("m2.0.key", "\"22.0\"", "@QString")
-              + Check("m2.0.value", FloatValue("22"), "float")
+              + CheckPairish("m2.0.key", "\"22.0\"", "@QString")
+              + CheckPairish("m2.0.value", FloatValue("22"), "float")
 
               + CoreProfile()
               + Check("m3", "<1 items>", "@QMultiMap<int, @QString>")
-              + Check("m3.0.key", "22", "int")
-              + Check("m3.0.value", "\"22.0\"", "@QString")
+              + CheckPairish("m3.0.key", "22", "int")
+              + CheckPairish("m3.0.value", "\"22.0\"", "@QString")
 
               + CoreProfile()
               + Check("m4", "<3 items>", "@QMultiMap<@QString, Foo>")
-              + Check("m4.0.key", "\"22.0\"", "@QString")
-              + Check("m4.0.value", "", "Foo")
-              + Check("m4.0.value.a", "22", "int")
+              + CheckPairish("m4.0.key", "\"22.0\"", "@QString")
+              + CheckPairish("m4.0.value", "", "Foo")
+              + CheckPairish("m4.0.value.a", "22", "int")
 
               + Check("m5", "<4 items>", "@QMultiMap<@QString, @QPointer<@QObject>>")
-              + Check("m5.0.key", "\".\"", "@QString")
-              + Check("m5.0.value", "", "@QPointer<@QObject>")
-              + Check("m5.1.key", "\".\"", "@QString")
-              + Check("m5.2.key", "\"Hallo\"", "@QString")
-              + Check("m5.3.key", "\"Welt\"", "@QString");
+              + CheckPairish("m5.0.key", "\".\"", "@QString")
+              + CheckPairish("m5.0.value", "", "@QPointer<@QObject>")
+              + CheckPairish("m5.1.key", "\".\"", "@QString")
+              + CheckPairish("m5.2.key", "\"Hallo\"", "@QString")
+              + CheckPairish("m5.3.key", "\"Welt\"", "@QString");
 
 
    QTest::newRow("QObject1")
