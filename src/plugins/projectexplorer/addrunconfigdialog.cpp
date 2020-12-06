@@ -29,15 +29,13 @@
 #include "target.h"
 
 #include <utils/itemviews.h>
+#include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 
 #include <QDialogButtonBox>
 #include <QHeaderView>
-#include <QHBoxLayout>
 #include <QItemSelectionModel>
-#include <QLabel>
-#include <QLineEdit>
 #include <QPushButton>
 #include <QSortFilterProxyModel>
 #include <QVBoxLayout>
@@ -141,7 +139,9 @@ AddRunConfigDialog::AddRunConfigDialog(Target *target, QWidget *parent)
     const auto model = new CandidatesModel(target, this);
     const auto proxyModel = new ProxyModel(this);
     proxyModel->setSourceModel(model);
-    const auto filterEdit = new QLineEdit(this);
+    const auto filterEdit = new FancyLineEdit(this);
+    filterEdit->setFiltering(true);
+    filterEdit->setPlaceholderText(tr("Filter candidates by name"));
     m_view->setSelectionMode(TreeView::SingleSelection);
     m_view->setSelectionBehavior(TreeView::SelectRows);
     m_view->setSortingEnabled(true);
@@ -152,7 +152,7 @@ AddRunConfigDialog::AddRunConfigDialog(Target *target, QWidget *parent)
     const auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Create"));
 
-    connect(filterEdit, &QLineEdit::textChanged, this, [proxyModel](const QString &text) {
+    connect(filterEdit, &FancyLineEdit::textChanged, this, [proxyModel](const QString &text) {
         proxyModel->setFilterRegularExpression(QRegularExpression(text, QRegularExpression::CaseInsensitiveOption));
     });
     connect(m_view, &TreeView::doubleClicked, this, [this] { accept(); });
@@ -166,10 +166,7 @@ AddRunConfigDialog::AddRunConfigDialog(Target *target, QWidget *parent)
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     const auto layout = new QVBoxLayout(this);
-    const auto filterLayout = new QHBoxLayout;
-    filterLayout->addWidget(new QLabel(tr("Filter candidates by name:"), this));
-    filterLayout->addWidget(filterEdit);
-    layout->addLayout(filterLayout);
+    layout->addWidget(filterEdit);
     layout->addWidget(m_view);
     layout->addWidget(buttonBox);
 }
