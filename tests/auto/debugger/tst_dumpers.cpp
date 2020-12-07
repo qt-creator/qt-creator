@@ -6886,13 +6886,13 @@ void tst_Dumpers::dumper_data()
         << Data("#include <QMap>\n"
                 "struct CustomStruct {\n"
                 "    int id;\n"
-                "    double dvalue;\n"
+                "    double dval;\n"
                 "};",
 
                 "QMap<int, CustomStruct> map;\n"
                 "CustomStruct cs1;\n"
                 "cs1.id = 1;\n"
-                "cs1.dvalue = 3.14;\n"
+                "cs1.dval = 3.14;\n"
                 "CustomStruct cs2 = cs1;\n"
                 "cs2.id = -1;\n"
                 "map.insert(cs1.id, cs1);\n"
@@ -6904,10 +6904,11 @@ void tst_Dumpers::dumper_data()
          + CoreProfile()
 
          + Check("map", "<2 items>", "@QMap<int, CustomStruct>")
-         + Check("map.0.key", "-1", "int")
-         + CheckType("map.0.value", "CustomStruct")
-         + Check("map.0.value.dvalue", FloatValue("3.14"), "double")
-         + Check("map.0.value.id", "-1", "int");
+         + CheckPairish("map.0.key", "-1", "int")
+         + CheckType("map.0.value", "CustomStruct") % Qt5
+         + CheckType("map.0.second", "CustomStruct") % Qt6
+         + CheckPairish("map.0.value.dval", FloatValue("3.14"), "double")
+         + CheckPairish("map.0.value.id", "-1", "int");
 
 
 #if 0
