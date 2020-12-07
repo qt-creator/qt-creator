@@ -8008,7 +8008,7 @@ void tst_Dumpers::dumper_data()
 
             + CorePrivateProfile()
             + QmlPrivateProfile()
-            + QtVersion(0x50800)
+            + QtVersion(0x50800, 0x5ffff)  // Both test cases are gone in Qt6
 
             + Check("d.Log10_2_100000", "30103", "int")
             + Check("p.FlagBit", "<optimized out>", "") % NoCdbEngine
