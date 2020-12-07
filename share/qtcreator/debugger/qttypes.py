@@ -3160,21 +3160,31 @@ def qdump__QJsonValue(d, value):
 
 
 def qdump__QJsonArray(d, value):
-    if d.qtVersion() >= 0x050f00:
+    if d.qtVersion() >= 0x060000:
+        dptr = d.extractPointer(value)
+        if not dptr:
+            d.putItemCount(0)
+        else:
+            qdumpHelper_QCbor_array(d, dptr, False)
+    elif d.qtVersion() >= 0x050f00:
         _, container_ptr = value.split('pp')
         qdumpHelper_QCbor_array(d, container_ptr, False)
-        return
-
-    qdumpHelper_QJsonArray(d, value['d'].pointer(), value['a'].pointer())
+    else:
+        qdumpHelper_QJsonArray(d, value['d'].pointer(), value['a'].pointer())
 
 
 def qdump__QJsonObject(d, value):
-    if d.qtVersion() >= 0x050f00:
+    if d.qtVersion() >= 0x060000:
+        dptr = d.extractPointer(value)
+        if not dptr:
+            d.putItemCount(0)
+        else:
+            qdumpHelper_QCbor_map(d, dptr, False)
+    elif d.qtVersion() >= 0x050f00:
         _, container_ptr = value.split('pp')
         qdumpHelper_QCbor_map(d, container_ptr, False)
-        return
-
-    qdumpHelper_QJsonObject(d, value['d'].pointer(), value['o'].pointer())
+    else:
+        qdumpHelper_QJsonObject(d, value['d'].pointer(), value['o'].pointer())
 
 
 def qdump__QSqlResultPrivate(d, value):

@@ -7597,7 +7597,7 @@ void tst_Dumpers::dumper_data()
 
 
     const QtVersion jsonv1{0, 0x50f00};
-    const QtVersion jsonv2{0x50f00};
+    const QtVersion jsonv2{0x50f00, 0x60000};
 
     QTest::newRow("QJson")
             << Data("#include <QString>\n"
