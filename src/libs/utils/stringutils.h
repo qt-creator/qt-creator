@@ -32,6 +32,8 @@
 #include <QList>
 #include <QString>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QJsonValue;
 QT_END_NAMESPACE
