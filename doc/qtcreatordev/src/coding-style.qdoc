@@ -202,35 +202,6 @@
             }
             \endcode
 
-
-        \li You can use the Qt \c foreach loop in non-time-critical code with a Qt
-            container. It is a nice way to keep line noise down and to give the
-            loop variable a proper name:
-
-            \code
-                foreach (QWidget *widget, container)
-                    doSomething(widget);
-
-                -NOT-
-
-                Container::iterator end = container.end();
-                for (Container::iterator it = container.begin(); it != end; ++it)
-                    doSomething(*it);
-            \endcode
-
-            Make the loop variable const, if possible. This might prevent
-            unnecessary detaching of shared data:
-
-            \code
-                foreach (const QString &name, someListOfNames)
-                    doSomething(name);
-
-                - NOT -
-
-                foreach (QString name, someListOfNames)
-                    doSomething(name);
-            \endcode
-
         \endlist
 
     \section1 Formatting

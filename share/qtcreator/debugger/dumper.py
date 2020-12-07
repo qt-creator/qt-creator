@@ -1068,7 +1068,7 @@ class DumperBase():
         if isinstance(typish, ReportItem):
             self.currentType.value = typish.value
         elif isinstance(typish, str):
-            self.currentType.value = typish
+            self.currentType.value = typish.replace('@', self.qtNamespace())
         else:
             self.currentType.value = typish.name
         self.currentType.priority += 1
@@ -3852,6 +3852,7 @@ class DumperBase():
             tdata = self.TypeData(self)
             tdata.name = typish
             tdata.typeId = typish
+            tdata.templateArguments = self.listTemplateParameters(typish)
 
             if size is not None:
                 tdata.lbitsize = 8 * size

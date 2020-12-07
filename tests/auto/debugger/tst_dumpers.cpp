@@ -396,6 +396,11 @@ struct Value5 : Value
     Value5(const QString &value) : Value(value) { qtVersion = 5; }
 };
 
+struct Value6 : Value
+{
+    Value6(const QString &value) : Value(value) { qtVersion = 6; }
+};
+
 struct UnsubstitutedValue : Value
 {
     UnsubstitutedValue(const QString &value) : Value(value) { substituteNamespace = false; }
@@ -2006,6 +2011,8 @@ void tst_Dumpers::dumper()
         }
         if (!setok) {
             qDebug() << "NO CHECK IN SET PASSED";
+            for (const Check &check : checkset.checks)
+                qDebug() << check;
             ok = false;
         }
     }
@@ -2966,26 +2973,26 @@ void tst_Dumpers::dumper_data()
               + Check("m1.5", "[5] 22", FloatValue("22"), "")
 
               + Check("m2", "<1 items>", "@QMultiMap<@QString, float>")
-              + Check("m2.0.key", "\"22.0\"", "@QString")
-              + Check("m2.0.value", FloatValue("22"), "float")
+              + CheckPairish("m2.0.key", "\"22.0\"", "@QString")
+              + CheckPairish("m2.0.value", FloatValue("22"), "float")
 
               + CoreProfile()
               + Check("m3", "<1 items>", "@QMultiMap<int, @QString>")
-              + Check("m3.0.key", "22", "int")
-              + Check("m3.0.value", "\"22.0\"", "@QString")
+              + CheckPairish("m3.0.key", "22", "int")
+              + CheckPairish("m3.0.value", "\"22.0\"", "@QString")
 
               + CoreProfile()
               + Check("m4", "<3 items>", "@QMultiMap<@QString, Foo>")
-              + Check("m4.0.key", "\"22.0\"", "@QString")
-              + Check("m4.0.value", "", "Foo")
-              + Check("m4.0.value.a", "22", "int")
+              + CheckPairish("m4.0.key", "\"22.0\"", "@QString")
+              + CheckPairish("m4.0.value", "", "Foo")
+              + CheckPairish("m4.0.value.a", "22", "int")
 
               + Check("m5", "<4 items>", "@QMultiMap<@QString, @QPointer<@QObject>>")
-              + Check("m5.0.key", "\".\"", "@QString")
-              + Check("m5.0.value", "", "@QPointer<@QObject>")
-              + Check("m5.1.key", "\".\"", "@QString")
-              + Check("m5.2.key", "\"Hallo\"", "@QString")
-              + Check("m5.3.key", "\"Welt\"", "@QString");
+              + CheckPairish("m5.0.key", "\".\"", "@QString")
+              + CheckPairish("m5.0.value", "", "@QPointer<@QObject>")
+              + CheckPairish("m5.1.key", "\".\"", "@QString")
+              + CheckPairish("m5.2.key", "\"Hallo\"", "@QString")
+              + CheckPairish("m5.3.key", "\"Welt\"", "@QString");
 
 
    QTest::newRow("QObject1")
@@ -3388,6 +3395,8 @@ void tst_Dumpers::dumper_data()
                     "uint qHash(const QPointer<QObject> &p) { return (quintptr)p.data(); }\n"
                     "QT_END_NAMESPACE\n",
 
+                    "QSet<double> s0;\n"
+
                     "QSet<int> s1;\n"
                     "s1.insert(11);\n"
                     "s1.insert(22);\n\n"
@@ -3403,19 +3412,23 @@ void tst_Dumpers::dumper_data()
                     "s3.insert(ptr);\n"
                     "s3.insert(ptr);\n",
 
-                    "&s1, &s2, &s3")
+                    "&s0, &s1, &s2, &s3")
 
                + CoreProfile()
 
+               + Check("s0", "<0 items>", "@QSet<double>")
+
                + Check("s1", "<2 items>", "@QSet<int>")
-               + Check("s1.0", "[0]", "22", "int")
-               + Check("s1.1", "[1]", "11", "int")
+               + CheckSet({{"s1.0", "[0]", "22", "int"},
+                           {"s1.0", "[0]", "11", "int"}})
+               + CheckSet({{"s1.1", "[1]", "22", "int"},
+                           {"s1.1", "[1]", "11", "int"}})
 
                + Check("s2", "<2 items>", "@QSet<@QString>")
-               + Check("s2.0", "[0]", Value4("\"11.0\""), "@QString")
-               + Check("s2.0", "[0]", Value5("\"22.0\""), "@QString")
-               + Check("s2.1", "[1]", Value4("\"22.0\""), "@QString")
-               + Check("s2.1", "[1]", Value5("\"11.0\""), "@QString")
+               + CheckSet({{"s2.0", "[0]", "\"11.0\"", "@QString"},
+                           {"s2.0", "[0]", "\"22.0\"", "@QString"}})
+               + CheckSet({{"s2.1", "[1]", "\"11.0\"", "@QString"},
+                           {"s2.1", "[1]", "\"22.0\"", "@QString"}})
 
                + Check("s3", "<1 items>", "@QSet<@QPointer<@QObject>>")
                + Check("s3.0", "[0]", "", "@QPointer<@QObject>");
@@ -4040,20 +4053,20 @@ void tst_Dumpers::dumper_data()
                //+ Check("v1", "\"Some string\"", "@QVariant (QString)")
                + CheckType("v1", "@QVariant (QString)")
 
-               + Check("my", "<2 items>", TypePattern("@QMap<unsigned int,@QStringList>|@QMap<unsigned int,@List<@QString>>|MyType"))
-               + Check("my.0.key", "1", "unsigned int")
-               + Check("my.0.value", "<1 items>", TypePattern("@QList<@QString>|@QStringList"))
-               + Check("my.0.value.0", "[0]", "\"Hello\"", "@QString")
-               + Check("my.1.key", "3", "unsigned int")
-               + Check("my.1.value", "<1 items>", TypePattern("@QList<@QString>|@QStringList"))
-               + Check("my.1.value.0", "[0]", "\"World\"", "@QString")
+               + Check("my", "<2 items>", TypePattern("@QMap<unsigned int,@QStringList>|@QMap<unsigned int,@QList<@QString>>|MyType"))
+               + CheckPairish("my.0.key", "1", "unsigned int")
+               + CheckPairish("my.0.value", "<1 items>", TypePattern("@QList<@QString>|@QStringList"))
+               + CheckPairish("my.0.value.0", "[0]", "\"Hello\"", "@QString")
+               + CheckPairish("my.1.key", "3", "unsigned int")
+               + CheckPairish("my.1.value", "<1 items>", TypePattern("@QList<@QString>|@QStringList"))
+               + CheckPairish("my.1.value.0", "[0]", "\"World\"", "@QString")
                //+ CheckType("v2", "@QVariant (MyType)")
-               + Check("v2.data.0.key", "1", "unsigned int") % NeedsInferiorCall
-               + Check("v2.data.0.value", "<1 items>", "@QStringList") % NeedsInferiorCall
-               + Check("v2.data.0.value.0", "[0]", "\"Hello\"", "@QString") % NeedsInferiorCall
-               + Check("v2.data.1.key", "3", "unsigned int") % NeedsInferiorCall
-               + Check("v2.data.1.value", "<1 items>", "@QStringList") % NeedsInferiorCall
-               + Check("v2.data.1.value.0", "[0]", "\"World\"", "@QString") % NeedsInferiorCall
+               + CheckPairish("v2.data.0.key", "1", "unsigned int") % NeedsInferiorCall
+               + CheckPairish("v2.data.0.value", "<1 items>", "@QStringList") % NeedsInferiorCall
+               + CheckPairish("v2.data.0.value.0", "[0]", "\"Hello\"", "@QString") % NeedsInferiorCall
+               + CheckPairish("v2.data.1.key", "3", "unsigned int") % NeedsInferiorCall
+               + CheckPairish("v2.data.1.value", "<1 items>", "@QStringList") % NeedsInferiorCall
+               + CheckPairish("v2.data.1.value.0", "[0]", "\"World\"", "@QString") % NeedsInferiorCall
 
                + Check("list", "<3 items>", "@QList<int>")
                + Check("list.0", "[0]", "1", "int")
@@ -4277,8 +4290,11 @@ void tst_Dumpers::dumper_data()
                //+ Check("ha1.protocol", "IPv4Protocol",
                //        "@QAbstractSocket::NetworkLayerProtocol") % LldbEngine
                + Check("ha1.scopeId", "\"\"", "@QString")
-               + Check("var", "", "@QVariant (@QHostAddress)") % NeedsInferiorCall
-               + Check("var.data", ValuePattern(".*127.0.0.1.*"), "@QHostAddress") % NeedsInferiorCall;
+               + Check5("var", "", "@QVariant (@QHostAddress)") % NeedsInferiorCall
+               + Check5("var.data", ValuePattern(".*127.0.0.1.*"),
+                                "@QHostAddress") % NeedsInferiorCall
+               + Check6("var", ValuePattern(".*127.0.0.1.*"),
+                                "@QVariant(@QHostAddress)") % NeedsInferiorCall;
 
 
     QTest::newRow("QVariantList")
@@ -4334,13 +4350,13 @@ void tst_Dumpers::dumper_data()
                + Check("vm0", "<0 items>", TypeDef("@QMap<@QString,@QVariant>", "@QVariantMap"))
 
                + Check("vm1", "<6 items>", TypeDef("@QMap<@QString,@QVariant>", "@QVariantMap"))
-               + Check("vm1.0.key", "\"a\"", "@QString")
-               + Check("vm1.0.value", "1", "@QVariant (int)")
-               + Check("vm1.5.key", "\"f\"", "@QString")
-               + Check("vm1.5.value", "\"2Some String\"", "@QVariant (QString)")
+               + CheckPairish("vm1.0.key", "\"a\"", "@QString")
+               + CheckPairish("vm1.0.value", "1", "@QVariant (int)")
+               + CheckPairish("vm1.5.key", "\"f\"", "@QString")
+               + CheckPairish("vm1.5.value", "\"2Some String\"", "@QVariant (QString)")
 
                + Check("v", "<6 items>", "@QVariant (QVariantMap)")
-               + Check("v.0.key", "\"a\"", "@QString");
+               + CheckPairish("v.0.key", "\"a\"", "@QString");
 
 
     QTest::newRow("QVariantHash")

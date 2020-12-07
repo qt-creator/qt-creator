@@ -159,6 +159,7 @@ const char BUILDSTEPS_DEPLOY[] = "ProjectExplorer.BuildSteps.Deploy";
 const char C_LANGUAGE_ID[] = "C";
 const char CXX_LANGUAGE_ID[] = "Cxx";
 const char QMLJS_LANGUAGE_ID[] = "QMLJS";
+const char PYTHON_LANGUAGE_ID[] = "Python";
 
 // ToolChain TypeIds
 const char CLANG_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.Clang";

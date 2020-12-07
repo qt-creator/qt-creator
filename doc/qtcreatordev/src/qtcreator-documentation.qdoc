@@ -473,7 +473,7 @@
 
     \section2 Setting Up Documentation Builds
 
-    You can run \c qmake from an installed Qt to build documentation.
+    You can configure documentation builds using CMake or qmake.
 
     \note Since \QC version 4.12, only Qt 5.14.0 or later is supported
     for building documentation.
@@ -500,67 +500,145 @@
             for publishing on the web
     \endlist
 
-    \note To have the correct fonts loaded for the online version, you must be
-    running it on a web server.
-
     \note If the styles look wrong to you when reading help files in \QC or \QA,
-    you might be looking at them in the QTextBrowser instead of the Qt WebEngine
-    browser. This happens if you do not have Qt WebEngine installed.
+    you might be using the QTextBrowser as the help engine backend instead of
+    litehtml. For more information, see
+    \l {https://doc.qt.io/qtcreator/creator-help.html#selecting-the-help-viewer-backend}
+    {Selecting the Help Viewer Backend}.
 
-    \section2 Documentation Build Commands
+    To build documentation for the sources from the \c qtcreator master branch,
+    use build scripts defined in the doc.pri file. You can build the docs
+    using either the offline or online style. The offline style is used for
+    generating HTML files included in help files (.qch), whereas the online
+    style is used at \l{https://doc.qt.io/qtcreator/index.html}{doc.qt.io}.
 
-    To build documentation for the sources from the qtcreator master branch, use
-    build scripts defined in the doc.pri file. To build the docs in the
-    HTML format and to create help files (.qch), enter the following build
-    commands from the project folder (after running qmake):
+    \section3 Using CMake
 
-    \list
-        \li \c {nmake docs} (on Windows)
+    When using CMake, the docs are built in the \QC \e {build folder} or a
+    separate doc build folder, not in the project folder.
 
-        \li \c {make docs} (on Linux and \macos)
+    To get the correct product name and version when building \QDS Manual, you
+    must run CMake with the branding option. The branding data is located in
+    the \QDS (private) repository, \c tqtc-plugin-qtquickdesigner.
+
+    To build docs with CMake in a separate doc build folder:
+
+    \list 1
+        \li Create a folder for the built docs and switch to it. For example,
+            \c {C:\dev\qtc-doc-build}.
+        \li In the doc build folder, enter the following command:
+            \badcode
+            cmake -DWITH_DOCS=ON "-DCMAKE_PREFIX_PATH=<path_to_qt>" <path_to_qtcreator_src>
+            \endcode
+            For example (all on one line):
+            \badcode
+            C:\dev\qtc-doc-build>cmake -DWITH_DOCS=ON
+                "-DCMAKE_PREFIX_PATH=C:\Qt\5.15.1\msvc2019_64"
+                C:\dev\qtc-super\qtcreator
+            \endcode
+        \li To also build Extending \QC Manual, add the following option:
+            \c {-DBUILD_DEVELOPER_DOCS=ON}
+        \li To also build the \QDS Manual, add the following option:
+            \c {"-DCMAKE_MODULE_PATH=<absolute_path_to_qtquickdesignerrepo>/studiodata/branding/"}
+
+            For example:
+            \badcode
+            C:\dev\qtc-doc-build>cmake -DWITH_DOCS=ON -DBUILD_DEVELOPER_DOCS=ON
+                "-DCMAKE_MODULE_PATH=C:\dev\tqtc-plugin-qtquickdesigner\studiodata\branding"
+                "-DCMAKE_PREFIX_PATH=C:\Qt\5.15.1\msvc2019_64"
+                C:\dev\qtc-super\qtcreator
+            \endcode
+        \li To build the docs using the online style, use the following option
+            instead of \c {-DWITH_DOCS=ON}:
+            \c {-DWITH_ONLINE_DOCS=ON}
+
+            For example:
+            \badcode
+            C:\dev\qtc-doc-build>cmake -DWITH_ONLINE_DOCS=ON
+                -DBUILD_DEVELOPER_DOCS=ON
+                "-DCMAKE_MODULE_PATH=C:\dev\tqtc-plugin-qtquickdesigner\studiodata\branding"
+                "-DCMAKE_PREFIX_PATH=C:\Qt\5.15.1\msvc2019_64"
+                C:\dev\qtc-super\qtcreator
+            \endcode
+            \note If you already ran CMake \c {-DWITH_DOCS=ON} in a folder and
+            want to switch to only online docs in that folder, you need to turn
+            the offline docs off again:
+            \badcode
+            cmake -DWITH_DOCS=OFF -DWITH_ONLINE_DOCS=ON
+            \endcode
+        \li Enter the following doc build command to build both HTML docs and
+            the help files (.qch):
+            \badcode
+            cmake --build . --target docs
+            \endcode
+        \li Alternatively, to build only the HTML docs, enter:
+            \badcode
+            cmake --build . --target html_docs
+            \endcode
     \endlist
 
-    The HTML documentation is generated in the following folders:
+    \note You can enter \c cmake-gui to open the graphical CMake configuration
+    tool, where you can select build options.
+
+    The HTML files for the documentation are generated in the following
+    folders:
 
     \list
         \li \c doc/html/qtcreator
-        \li \c doc/html/qtcreatordev
+        \li \c doc/html/qtcreator-dev
         \li \c doc/html/qtdesignstudio
+        \li \c doc/html/qtcreator-online
+        \li \c doc/html/qtcreator-dev-online
+        \li \c doc/html/qtdesignstudio-online
     \endlist
 
-    The help files (\c {.qch}) are generated in the
-    \c {share/doc/qtcreator} directory in the \QC build directory on Windows and
-    Linux, and in the \c {bin/Qt Creator.app/Contents/Resources/app} directory
+    The help files (\c {.qch}) are generated in the \c {share/doc/qtcreator}
+    folder or in the \c {<application_name>.app/Contents/Resources/doc\} folder
     on \macos.
 
     You can view the HTML files in a browser and the help files in
-    the \QC \uicontrol Help mode. For more information about adding the help
-    files to \QC, see
+    the \QC \uicontrol Help mode. For more information about adding
+    the help files to \QC, see
     \l{http://doc.qt.io/qtcreator/creator-help.html#adding-external-documentation}
     {Adding External Documentation}.
 
-    Besides \c docs, you have the following options for building a particular
-    document in a particular format:
+    \section3 Using qmake
 
-    \list
-        \li \c html_docs_qtcreator - build \QC Manual in help format, but do not
-            generate a help file
+    To build offline documentation using qmake:
 
-        \li \c html_docs_qtcreator-dev - build Extending \QC Manual in help
-            format, but do not generate a help file
-
-        \li \c qch_docs_qtcreator - build \QC Manual in help format and generate
-            a help file (.qch)
-
-        \li \c qch_docs_qtcreator-dev - build Extending \QC Manual in help format
-            and generate a help file (.qch)
+    \list 1
+        \li In the project folder, run \c qmake from an installed Qt.
+            For example:
+           \badcode
+            C:\dev\qtc-super\qtcreator>..\..\..\Qt\5.15.1\msvc2019_64\bin\qmake.exe
+           \endcode
+        \li Enter the following doc build command:
+            \list
+                \li On Windows: \c {nmake docs}
+                \li On Linux and \macos: \c {make docs}
+            \endlist
     \endlist
 
-    \section3 Building the \QDS Manual
+    To build online documentation using qmake:
 
-    To get the correct product name and version, you must run \c {qmake -r} on
-    \c {qtcreator.pro} with the \c IDE_BRANDING_PRI option set to the absolute
-    path of \c {ide_branding.pri} in the \QDS (private) repository.
+    \list 1
+        \li In the project folder, run \c qmake from an installed Qt with the
+            online configuration option. For example:
+            \badcode
+            C:\dev\qtc-super\qtcreator>..\..\..\Qt\5.15.1\msvc2019_64\bin\qmake.exe
+                "CONFIG+=build_online_docs"
+           \endcode
+        \li Enter the following doc build command:
+            \list
+                \li On Windows: \c {nmake html_docs}
+                \li On Linux and \macos: \c {make html_docs}
+            \endlist
+    \endlist
+
+    To get the correct product name and version when building the \QDS
+    Manual, you must run \c {qmake -r} on \c {qtcreator.pro} with the
+    \c IDE_BRANDING_PRI option set to the absolute path of
+    \c {ide_branding.pri} in the \QDS (private) repository.
 
     For example, on Windows enter (all on one line):
 
@@ -570,16 +648,71 @@
         IDE_BRANDING_PRI=C:\dev\tqtc-plugin-qtquickdesigner\studiodata\branding\ide_branding.pri
     \endcode
 
-    To build the \QDS Manual:
+    To use the offline style to build the \QDS help with qmake:
 
     \list 1
-        \li Run \c qmake from Qt 5.14.0, or later with the path to the branding
-            information as an option (all on one line):
-
-            \c {<relative_path_to>/qmake.exe
-            qtcreator.pro -r
-            IDE_BRANDING_PRI=<absolute_path_to>ide_branding.pri}
+        \li In the \c {doc/qtdesignstudio} folder, run \c qmake from Qt 5.14.0,
+            or later with the path to the branding information as an option
+            (all on one line):
+            \badcode
+            <relative_path_to>/qmake.exe qtcreator.pro -r
+            IDE_BRANDING_PRI=<absolute_path_to>/ide_branding.pri
+            \endcode
         \li Run \c {make docs} on Linux and macOS or \c {nmake docs}
             on Windows.
+    \endlist
+
+    To use the online style to build the \QDS Manual with qmake:
+
+    \list 1
+        \li In the \c {doc/qtdesignstudio} folder, run \c qmake from Qt 5.14.0,
+            or later with the path to the branding information as an option
+            (all on one line):
+            \badcode
+            <relative_path_to>/qmake.exe qtcreator.pro -r
+            IDE_BRANDING_PRI=<absolute_path_to>/ide_branding.pri
+            \endcode
+        \li Run \c {make html_docs} on Linux and macOS or \c {nmake html_docs}
+            on Windows.
+    \endlist
+
+    The HTML files for the offline documentation are generated in the following
+    folders:
+
+    \list
+        \li \c doc/html/qtcreator
+        \li \c doc/html/qtcreator-dev
+        \li \c doc/qtdesignstudio/doc/html/qtdesignstudio
+    \endlist
+
+    The help files (\c {.qch}) are generated in the
+    \c {share/doc/qtcreator} directory in the \QC build directory on Windows and
+    Linux, and in the \c {bin/Qt Creator.app/Contents/Resources/app} directory
+    on \macos.
+
+   The HTML files for the online documentation are generated in the following
+   folders:
+
+    \list
+        \li \c doc/html/qtcreator-online
+        \li \c doc/html/qtcreator-dev-online
+        \li \c doc/qtdesignstudio/doc/html/qtdesignstudio-online
+    \endlist
+
+    \section2 Additional Build Commands
+
+    Besides \c docs and \c html_docs, you can use the following build targets:
+
+    \list
+        \li \c html_docs_<doc_config_file_name> - build the document (qtcreator/
+            qtcreator-dev/qtdesignstudio) in help format, but do not generate a
+            help file (.qch)
+
+        \li \c html_docs_<doc_config_file_name>-online - build the document
+            (qtcreator/qtcreator-dev/qtdesignstudio) in online format
+
+        \li \c qch_docs_<doc_config_file_name> - build the document (qtcreator/
+            qtcreator-dev/qtdesignstudio) in help format and generate a
+            help file
     \endlist
 */

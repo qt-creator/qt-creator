@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "cmakeconfigitem.h"
+
 #include <projectexplorer/namedwidget.h>
 #include <QTimer>
 
@@ -66,7 +68,7 @@ private:
     void updateButtonState();
     void updateAdvancedCheckBox();
     void updateFromKit();
-    void handleQmlDebugCxxFlags();
+    CMakeProjectManager::CMakeConfig getQmlDebugCxxFlags();
 
     void updateSelection();
     void setVariableUnsetFlag(bool unsetFlag);

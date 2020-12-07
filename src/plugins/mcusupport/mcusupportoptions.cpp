@@ -506,12 +506,11 @@ void McuSupportOptions::registerQchFiles()
     if (docsDir.isEmpty())
         return;
 
-    const QStringList qchFiles = {
-        docsDir + "/quickultralite.qch",
-        docsDir + "/quickultralitecmake.qch"
-    };
+    const QFileInfoList qchFiles = QDir(docsDir, "*.qch").entryInfoList();
     Core::HelpManager::registerDocumentation(
-                Utils::filtered(qchFiles, [](const QString &f) { return QFileInfo::exists(f); } ));
+                Utils::transform<QStringList>(qchFiles, [](const QFileInfo &fi){
+        return fi.absoluteFilePath();
+    }));
 }
 
 void McuSupportOptions::registerExamples()

@@ -24,9 +24,14 @@
 ****************************************************************************/
 
 /*!
-    \previouspage creator-task-lists.html
     \page creator-telemetry.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-editor-external.html
+    \nextpage studio-help.html
+    \else
+    \previouspage creator-task-lists.html
     \nextpage creator-help-overview.html
+    \endif
 
     \title Managing Data Collection Settings
 
@@ -42,22 +47,28 @@
 
     \section1 Principles of Data Collection
 
+    No personal data, such as names, IP addresses, MAC addresses, or project
+    and path names are collected. However, QUuid objects are used to identify
+    data records that belong to one user. The objects cannot be converted
+    back to the actual values from which they were generated.
+
+    For more information about Qt privacy policy, select
+    \l{https://www.qt.io/terms-conditions/#privacy}
+    {Legal Notice and Privacy Policy}.
+
+    \section1 Collecting Usage Statistics
+
     The Telemetry plugin uses the
     \l{https://api.kde.org/frameworks/kuserfeedback/html/index.html}
     {KUserFeedback} framework to collect the usage data. The library
     has been designed from the user data privacy point of view and
     \QC respects the same privacy rules.
 
-    No personal data, such as names, IP addresses, MAC addresses, or project
-    and path names are collected. However, QUuid objects are used to identify
-    data records that belong to one user. The objects cannot be converted
-    back to the actual values from which they were generated.
-
     The data is transmitted to the backend storage using an encrypted
     connection. The storage is located in the same Heroku backend as the
     Qt installer backend. Physically, data is stored in the Amazon cloud.
 
-    \section1 Specifying Telemetry Settings
+    \section2 Specifying Telemetry Settings
 
     To determine what data is transmitted to the backend storage:
 
@@ -67,12 +78,31 @@
             \image qtcreator-telemetry-settings.png
         \li In the \uicontrol {Telemetry mode} list, select the mode that
             determines what kind of data is collected.
-        \li In the \uicontrol {Data sources} list, select entries to view
+        \li In the \uicontrol {Data} list, select entries to view
             exactly what data is collected. Deselect check boxes for data
             that you do not want to transmit to the backend storage.
     \endlist
 
-    For more information about Qt privacy policy, select
-    \l{https://www.qt.io/terms-conditions/#privacy}
-    {Legal Notice and Privacy Policy}.
+    \if defined(qtdesignstudio)
+    \section1 Reporting Crashes
+
+    You can enable \QDS to report crashes automatically. \QDS uses Google
+    Crashpad to collect crashes and report them to the Sentry backend storage
+    for processing. The purpose of Crashpad is to capture application state in
+    sufficient detail to allow developers to diagnose and, where possible, fix
+    the issue causing the crash. Crashpad may capture arbitrary contents from
+    the memory of a crashed process, including user sensitive information, URLs,
+    and other content provided by the users. The collected reports are used for
+    the sole purpose of fixing bugs. For more information on Crashpad, see the
+    \l {https://chromium.googlesource.com/crashpad/crashpad/+/master/doc/overview_design.md}
+    {documentation} by Google. For more information on processing and storing
+    of the collected data, see \l {https://sentry.io/security/}
+    {Security & Compliance} by Sentry.
+
+    To enable sending crash reports, select \uicontrol Tools > \uicontrol
+    Options > \uicontrol Environment > \uicontrol System
+    (\uicontrol {Qt Design Studio} > \uicontrol Preferences > \uicontrol
+    Environment > \uicontrol System on \macos), and then select
+    \uicontrol {Enable crash reporting}.
+    \endif
 */

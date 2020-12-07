@@ -287,10 +287,6 @@ void CMakeBuildSystem::triggerParsing()
             reparseParameters |= REPARSE_FORCE_CMAKE_RUN | REPARSE_FORCE_EXTRA_CONFIGURATION;
     }
 
-    // Do not add extra args when doing initial configuration
-    if (0 != (reparseParameters & REPARSE_FORCE_INITIAL_CONFIGURATION))
-        reparseParameters = reparseParameters ^ REPARSE_FORCE_EXTRA_CONFIGURATION;
-
     qCDebug(cmakeBuildSystemLog) << "Asking reader to parse";
     m_reader.parse(reparseParameters & REPARSE_FORCE_CMAKE_RUN,
                    reparseParameters & REPARSE_FORCE_INITIAL_CONFIGURATION,

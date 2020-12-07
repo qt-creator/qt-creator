@@ -38,7 +38,6 @@ ConnectionManagerInterface::Connection::~Connection() = default;
 ConnectionManagerInterface::Connection::Connection(const QString &name, const QString &mode)
     : name{name}
     , mode{mode}
-    , timer{std::make_unique<QTimer>()}
 {}
 
 ConnectionManagerInterface::Connection::Connection(Connection &&connection) = default;
@@ -49,7 +48,7 @@ void ConnectionManagerInterface::Connection::clear()
     socket.reset();
     blockSize = 0;
     lastReadCommandCounter = 0;
-    timer->stop();
+    timer.reset();
 }
 
 } // namespace QmlDesigner

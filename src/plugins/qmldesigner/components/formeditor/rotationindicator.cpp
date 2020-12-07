@@ -63,7 +63,8 @@ static bool itemIsRotatable(const QmlItemNode &qmlItemNode)
             && qmlItemNode.instanceIsResizable()
             && qmlItemNode.modelIsMovable()
             && qmlItemNode.modelIsRotatable()
-            && !qmlItemNode.instanceIsInLayoutable();
+            && !qmlItemNode.instanceIsInLayoutable()
+            && !qmlItemNode.isFlowItem();
 }
 
 void RotationIndicator::setItems(const QList<FormEditorItem*> &itemList)

@@ -640,7 +640,7 @@ void VcsBasePluginPrivate::createRepository()
     // Find current starting directory
     QString directory;
     if (const Project *currentProject = ProjectTree::currentProject())
-        directory = currentProject->projectFilePath().toString();
+        directory = currentProject->projectFilePath().absolutePath().toString();
     // Prompt for a directory that is not under version control yet
     QWidget *mw = ICore::dialogParent();
     do {

@@ -52,8 +52,10 @@ void InteractiveConnectionManager::setUp(NodeInstanceServerInterface *nodeInstan
 
     DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
     int timeOutTime = settings.value(DesignerSettingsKey::PUPPET_KILL_TIMEOUT).toInt();
-    for (Connection &connection : connections())
+    for (Connection &connection : connections()) {
+        connection.timer.reset(new QTimer);
         connection.timer->setInterval(timeOutTime);
+    }
 
     if (QmlDesignerPlugin::instance()
             ->settings()

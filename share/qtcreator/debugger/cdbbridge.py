@@ -259,12 +259,12 @@ class Dumper(DumperBase):
     def qtCoreModuleName(self):
         modules = cdbext.listOfModules()
         # first check for an exact module name match
-        for coreName in ['Qt5Cored', 'Qt5Core', 'QtCored4', 'QtCore4']:
+        for coreName in ['Qt6Core', 'Qt6Cored', 'Qt5Cored', 'Qt5Core', 'QtCored4', 'QtCore4']:
             if coreName in modules:
                 self.qtCoreModuleName = lambda: coreName
                 return coreName
         # maybe we have a libinfix build.
-        for pattern in ['Qt5Core.*', 'QtCore.*']:
+        for pattern in ['Qt6Core.*', 'Qt5Core.*', 'QtCore.*']:
             matches = [module for module in modules if re.match(pattern, module)]
             if matches:
                 coreName = matches[0]
@@ -274,11 +274,11 @@ class Dumper(DumperBase):
 
     def qtDeclarativeModuleName(self):
         modules = cdbext.listOfModules()
-        for declarativeModuleName in ['Qt5Qmld', 'Qt5Qml']:
+        for declarativeModuleName in ['Qt6Qmld', 'Qt6Qml', 'Qt5Qmld', 'Qt5Qml']:
             if declarativeModuleName in modules:
                 self.qtDeclarativeModuleName = lambda: declarativeModuleName
                 return declarativeModuleName
-        matches = [module for module in modules if re.match('Qt5Qml.*', module)]
+        matches = [module for module in modules if re.match('Qt[56]Qml.*', module)]
         if matches:
             declarativeModuleName = matches[0]
             self.qtDeclarativeModuleName = lambda: declarativeModuleName

@@ -87,5 +87,11 @@
             editor for your system, and the \c sort tool are preconfigured for
             use. You can change their default configurations and configure new
             tools.
+        \li \l{Managing Data Collection Settings}
+
+            You can enable \QC to report crashes automatically. If you agreed to
+            pseudonymous user statistics collection during the \QC installation,
+            you can turn it on and determine what type of data is collected and
+            transmitted to the backend storage.
     \endlist
 */
