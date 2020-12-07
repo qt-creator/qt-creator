@@ -192,6 +192,10 @@
     If the image data comes from a sequential device (such as a socket),
     Animated Image can only loop if caching is enabled.
 
+    For more information, watch the following video:
+
+    \youtube DVWd_xMMgvg
+
     \section1 Summary of Images
 
     The following table lists the QML types that you can use to add images.

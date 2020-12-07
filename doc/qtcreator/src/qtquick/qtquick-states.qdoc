@@ -87,6 +87,10 @@
     and you attempt to remove states where you change the values of its
     properties, you are prompted to confirm the removal.
 
+    For more information, watch the following video:
+
+    \youtube FzmLuRHQXaw
+
     \section1 Setting the Default State
 
     To determine the startup state of the application,

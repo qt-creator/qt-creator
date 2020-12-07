@@ -40,9 +40,9 @@
     text string, such as size in points or pixels, style name, emphasis,
     alignment, and spacing.
 
-    For an example of editing the Text type, watch
-    \l{https://www.youtube.com/watch?v=yOUdg1o2KJM}
-    {Qt Design Studio QuickTip: Text Element}.
+    For more information, watch the following video:
+
+    \youtube yOUdg1o2KJM
 
     To create a label with a background, use the \l Label type from the
     Qt Quick Controls module.
