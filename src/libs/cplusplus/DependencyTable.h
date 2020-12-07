@@ -35,6 +35,10 @@
 #include <QStringList>
 #include <QVector>
 
+QT_BEGIN_NAMESPACE
+class QFutureInterfaceBase;
+QT_END_NAMESPACE
+
 namespace CPlusPlus {
 
 class Snapshot;
@@ -43,7 +47,7 @@ class CPLUSPLUS_EXPORT DependencyTable
 {
 private:
     friend class Snapshot;
-    void build(const Snapshot &snapshot);
+    void build(QFutureInterfaceBase &futureInterface, const Snapshot &snapshot);
     Utils::FilePaths filesDependingOn(const Utils::FilePath &fileName) const;
 
     QVector<Utils::FilePath> files;

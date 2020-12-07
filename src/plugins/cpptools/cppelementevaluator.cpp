@@ -213,6 +213,7 @@ void CppClass::lookupDerived(QFutureInterfaceBase &futureInterface,
 {
     using Data = QPair<CppClass*, CppTools::TypeHierarchy>;
 
+    snapshot.updateDependencyTable(futureInterface);
     CppTools::TypeHierarchyBuilder builder(declaration, snapshot);
     const CppTools::TypeHierarchy &completeHierarchy = builder.buildDerivedTypeHierarchy(futureInterface);
 

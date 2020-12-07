@@ -26,6 +26,7 @@
 #include "CppDocument.h"
 
 #include <QDebug>
+#include <QFutureInterface>
 
 using namespace CPlusPlus;
 
@@ -47,12 +48,15 @@ Utils::FilePaths DependencyTable::filesDependingOn(const Utils::FilePath &fileNa
     return deps;
 }
 
-void DependencyTable::build(const Snapshot &snapshot)
+void DependencyTable::build(QFutureInterfaceBase &futureInterface, const Snapshot &snapshot)
 {
     files.clear();
     fileIndex.clear();
     includes.clear();
     includeMap.clear();
+
+    if (futureInterface.isCanceled())
+        return;
 
     const int documentCount = snapshot.size();
     files.resize(documentCount);
@@ -64,6 +68,9 @@ void DependencyTable::build(const Snapshot &snapshot)
         files[i] = it.key();
         fileIndex[it.key()] = i;
     }
+
+    if (futureInterface.isCanceled())
+        return;
 
     for (int i = 0; i < files.size(); ++i) {
         const Utils::FilePath &fileName = files.at(i);
@@ -81,10 +88,14 @@ void DependencyTable::build(const Snapshot &snapshot)
                     directIncludes.append(index);
 
                 bitmap.setBit(index, true);
+                if (futureInterface.isCanceled())
+                    return;
             }
 
             includeMap[i] = bitmap;
             includes[i] = directIncludes;
+            if (futureInterface.isCanceled())
+                return;
         }
     }
 
@@ -99,12 +110,18 @@ void DependencyTable::build(const Snapshot &snapshot)
 
             foreach (int includedFileIndex, includes.value(i)) {
                 bitmap |= includeMap.value(includedFileIndex);
+                if (futureInterface.isCanceled())
+                    return;
             }
 
             if (bitmap != previousBitmap) {
                 includeMap[i] = bitmap;
                 changed = true;
             }
+            if (futureInterface.isCanceled())
+                return;
         }
+        if (futureInterface.isCanceled())
+            return;
     } while (changed);
 }
