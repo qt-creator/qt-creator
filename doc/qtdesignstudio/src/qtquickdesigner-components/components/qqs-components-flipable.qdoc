@@ -35,7 +35,7 @@
     like a card. The front and back sides are specified by using any two types
     inside the Flipable type. The type with the higher z-order is the front
     side. The \l opacityFront and \l opacityBack properties are used to hide
-    and show either the front or back side of the flipable item at a time.
+    and show either the front or back side of the item at a time.
 
     The \l flipAngle property is used to animate the angle of the type to
     produce the flipping effect. The \l xAxis or \l yAxis property is set
@@ -43,8 +43,8 @@
 
     \section2 Example Usage
 
-    You can use the Flipable component in \QDS to create a flipable item. In
-    this example, the two sides of the flipable show ISO 7000 icons.
+    You can use the Flipable component in \QDS to create an item that can be
+    flipped. In this example, the two sides of the item show ISO 7000 icons.
 
     \image studio-flipable.png
 
@@ -85,19 +85,19 @@
 /*!
     \qmlproperty real Flipable::opacityBack
 
-    The opacity of the back side of the flipable type.
+    The opacity of the back side of the type.
 
     The opacity can be set between 0 and 1 to hide or show the items on the
-    back side of the flipable type.
+    back side of the type.
 */
 
 /*!
     \qmlproperty real Flipable::opacityFront
 
-    The opacity of the front side of the flipable type.
+    The opacity of the front side of the type.
 
     The opacity can be set between 0 and 1 to hide or show the items on the
-    front side of the flipable type.
+    front side of the type.
 */
 
 /*!
@@ -105,7 +105,7 @@
 
     Whether the type is rotated around the x-axis.
 
-    This property is set to 1 to rotate the flipable type around the x-axis.
+    This property is set to 1 to rotate the type around the x-axis.
 */
 
 /*!
@@ -113,13 +113,13 @@
 
     Whether the type is rotated around the y-axis.
 
-    This property is set to 1 to rotate the flipable type around the y-axis.
+    This property is set to 1 to rotate the type around the y-axis.
 */
 
 /*!
     \qmlproperty bool Flipable::flipped
 
-    Whether the flipable type has been flipped.
+    Whether the type has been flipped.
 
     This property is set to \c true when the type is flipped.
 */
