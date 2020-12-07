@@ -571,7 +571,7 @@ class DumperBase():
             (ref, alloc, size) = self.split('III', vector_data_ptr)
             data = vector_data_ptr + 16
         self.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
-        return data, size, alloc
+        return data, size
 
     def qArrayData(self, value):
         if self.qtVersion() >= 0x60000:
@@ -1736,7 +1736,7 @@ class DumperBase():
             #yield self.createValue(data + i * stepSize, 'void*')
 
     def vectorChildrenGenerator(self, value, innerType):
-        data, size, _ = self.vectorData(value)
+        data, size = self.vectorData(value)
         for i in range(size):
             yield self.createValue(data + i * innerType.size(), innerType)
 
@@ -2148,7 +2148,7 @@ class DumperBase():
                 with Children(self):
                     innerType = connections.type[0]
                     # Should check:  innerType == ns::QObjectPrivate::ConnectionList
-                    data, size, _ = self.vectorData(connections)
+                    data, size = self.vectorData(connections)
                     connectionType = self.createType('@QObjectPrivate::Connection')
                     for i in range(size):
                         first = self.extractPointer(data + i * 2 * ptrSize)

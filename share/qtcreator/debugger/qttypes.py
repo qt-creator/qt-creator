@@ -1657,13 +1657,13 @@ def qdump__QStack(d, value):
 
 
 def qdump__QPolygonF(d, value):
-    data, size, _ = d.vectorData(value)
+    data, size = d.vectorData(value)
     d.putItemCount(size)
     d.putPlotData(data, size, d.createType('@QPointF'))
 
 
 def qdump__QPolygon(d, value):
-    data, size, _ = d.vectorData(value)
+    data, size = d.vectorData(value)
     d.putItemCount(size)
     d.putPlotData(data, size, d.createType('@QPoint'))
 
@@ -1677,7 +1677,7 @@ def qdump__QGraphicsPolygonItem(d, value):
         offset = 328 if d.isMsvcTarget() else 320
     else:
         offset = 308
-    data, size, alloc = d.vectorData(dptr + offset)
+    data, size = d.vectorData(dptr + offset)
     d.putItemCount(size)
     d.putPlotData(data, size, d.createType('@QPointF'))
 
@@ -2180,7 +2180,7 @@ def qdumpHelper__QVariant45(d, value):
 def qedit__QVector(d, value, data):
     values = data.split(',')
     d.call('void', value, 'resize', str(len(values)))
-    base, vsize, valloc = d.vectorData(value)
+    base, vsize = d.vectorData(value)
     d.setValues(base, value.type[0].name, values)
 
 
@@ -2198,16 +2198,14 @@ def qdump__QVector(d, value):
         if value.type.name == d.qtNamespace() + "QVector":
             d.putBetterType(value.type.name + '<' + value.type.ltarget[0].name + '>')
     else:
-        data, size, alloc = d.vectorData(value)
-        d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
+        data, size = d.vectorData(value)
         d.putItemCount(size)
         d.putPlotData(data, size, value.type[0])
 
 
 if False:
     def qdump__QObjectConnectionList(d, value):
-        data, size, alloc = d.vectorData(value)
-        d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
+        data, size = d.vectorData(value)
         d.putItemCount(size)
         d.putPlotData(data, size, d.createType('@QObjectPrivate::ConnectionList'))
 
@@ -3245,7 +3243,7 @@ def qdumpHelper_QCbor_string(d, container_ptr, element_index, is_bytes):
     # d.split('i@{@QByteArray::size_type}pp', container_ptr) doesn't work with CDB,
     # so be explicit:
     pos = container_ptr + (2 * d.ptrSize() if d.qtVersion() >= 0x060000 else 8)
-    elements_data_ptr, elements_size, _ = d.vectorData(pos + d.ptrSize())
+    elements_data_ptr, elements_size = d.vectorData(pos + d.ptrSize())
     element_at_n_addr = elements_data_ptr + element_index * 16 # sizeof(QtCbor::Element) == 15
     element_value, _, element_flags = d.split('qII', element_at_n_addr)
     enc = 'latin1' if is_bytes or (element_flags & 8) else 'utf16'
@@ -3281,7 +3279,7 @@ def qdumpHelper_QCbor_array(d, container_ptr, is_cbor):
     # d.split('i@{@QByteArray::size_type}pp', container_ptr) doesn't work with CDB,
     # so be explicit:
     pos = container_ptr + (2 * d.ptrSize() if d.qtVersion() >= 0x060000 else 8)
-    elements_data_ptr, elements_size, _ = d.vectorData(pos + d.ptrSize())
+    elements_data_ptr, elements_size = d.vectorData(pos + d.ptrSize())
     d.putItemCount(elements_size)
     if d.isExpanded():
         bytedata, _, _ = d.qArrayData(pos)
@@ -3302,7 +3300,7 @@ def qdumpHelper_QCbor_map(d, container_ptr, is_cbor):
     # d.split('i@{@QByteArray::size_type}pp', container_ptr) doesn't work with CDB,
     # so be explicit:
     pos = container_ptr + (2 * d.ptrSize() if d.qtVersion() >= 0x060000 else 8)
-    elements_data_ptr, elements_size, _ = d.vectorData(pos + d.ptrSize())
+    elements_data_ptr, elements_size = d.vectorData(pos + d.ptrSize())
     elements_size = int(elements_size / 2)
     d.putItemCount(elements_size)
     if d.isExpanded():
