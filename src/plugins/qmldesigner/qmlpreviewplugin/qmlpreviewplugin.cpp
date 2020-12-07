@@ -150,7 +150,7 @@ float QmlPreviewPlugin::zoomFactor()
 
 void QmlPreviewPlugin::setZoomFactor(float zoomFactor)
 {
-    if (s_previewPlugin) {
+    if (auto s_previewPlugin = getPreviewPlugin()) {
         bool hasZoomFactor = s_previewPlugin->setProperty("zoomFactor", zoomFactor);
         QTC_CHECK(hasZoomFactor);
     }
