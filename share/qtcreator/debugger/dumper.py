@@ -1722,15 +1722,30 @@ class DumperBase():
             addr += 1
         return result
 
-    def listChildrenGenerator(self, addr, innerType):
-        base = self.extractPointer(addr)
+    def listData(self, value, check=True):
+        if self.qtVersion() >= 0x60000:
+            dd, data, size = self.split('ppi', value)
+            return data, size
+
+        base = self.extractPointer(value)
         (ref, alloc, begin, end) = self.split('IIII', base)
         array = base + 16
         if self.qtVersion() < 0x50000:
             array += self.ptrSize()
         size = end - begin
+
+        if check:
+            self.check(begin >= 0 and end >= 0 and end <= 1000 * 1000 * 1000)
+            size = end - begin
+            self.check(size >= 0)
+
         stepSize = self.ptrSize()
         data = array + begin * stepSize
+        return data, size
+
+    def listChildrenGenerator(self, addr, innerType):
+        stepSize = self.ptrSize()
+        data, size = self.listData(addr)
         for i in range(size):
             yield self.createValue(data + i * stepSize, innerType)
             #yield self.createValue(data + i * stepSize, 'void*')

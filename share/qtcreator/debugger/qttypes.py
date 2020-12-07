@@ -1057,25 +1057,16 @@ def qdump__QVariantList(d, value):
 
 
 def qdumpHelper_QList(d, value, innerType):
+    data, size = d.listData(value, check=True)
+    d.putItemCount(size)
+
     if d.qtVersion() >= 0x60000:
-        dd, data, size = d.split('ppi', value)
-        d.putItemCount(size)
         d.putPlotData(data, size, innerType)
         return
-    base = d.extractPointer(value)
-    _, _, begin, end = d.split('IIII', base)
-    array = base + 16
-    if d.qtVersion() < 0x50000:
-        array += d.ptrSize()
-    d.check(begin >= 0 and end >= 0 and end <= 1000 * 1000 * 1000)
-    size = end - begin
-    d.check(size >= 0)
 
-    d.putItemCount(size)
     if d.isExpanded():
         innerSize = innerType.size()
         stepSize = d.ptrSize()
-        addr = array + begin * stepSize
         # The exact condition here is:
         #  QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic
         # but this data is available neither in the compiled binary nor
@@ -1090,17 +1081,17 @@ def qdumpHelper_QList(d, value, innerType):
             isInternal = innerSize <= stepSize and innerType.isMovableType()
         if isInternal:
             if innerSize == stepSize:
-                d.putArrayData(addr, size, innerType)
+                d.putArrayData(data, size, innerType)
             else:
                 with Children(d, size, childType=innerType):
                     for i in d.childRange():
-                        p = d.createValue(addr + i * stepSize, innerType)
+                        p = d.createValue(data + i * stepSize, innerType)
                         d.putSubItem(i, p)
         else:
             # about 0.5s / 1000 items
             with Children(d, size, maxNumChild=2000, childType=innerType):
                 for i in d.childRange():
-                    p = d.extractPointer(addr + i * stepSize)
+                    p = d.extractPointer(data + i * stepSize)
                     x = d.createValue(p, innerType)
                     d.putSubItem(i, x)
 
