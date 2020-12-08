@@ -100,6 +100,7 @@
 #include <QTimerEvent>
 #include <QPicture>
 #include <QPainter>
+#include <QDirIterator>
 
 enum {
     debug = false
@@ -135,8 +136,44 @@ NodeInstanceView::NodeInstanceView(ConnectionManagerInterface &connectionManager
     : m_connectionManager(connectionManager)
     , m_baseStatePreviewImage(QSize(100, 100), QImage::Format_ARGB32)
     , m_restartProcessTimerId(0)
+    , m_fileSystemWatcher(new QFileSystemWatcher(this))
 {
     m_baseStatePreviewImage.fill(0xFFFFFF);
+
+    // Interval > 0 is used for QFileSystemWatcher related timers to allow all notifications
+    // related to a single event to be received before we act.
+    m_resetTimer.setSingleShot(true);
+    m_resetTimer.setInterval(100);
+    QObject::connect(&m_resetTimer, &QTimer::timeout, [this] {
+        resetPuppet();
+    });
+    m_updateWatcherTimer.setSingleShot(true);
+    m_updateWatcherTimer.setInterval(100);
+    QObject::connect(&m_updateWatcherTimer, &QTimer::timeout, [this] {
+        for (const auto &path : qAsConst(m_pendingUpdateDirs))
+            updateWatcher(path);
+        m_pendingUpdateDirs.clear();
+    });
+
+    connect(m_fileSystemWatcher, &QFileSystemWatcher::directoryChanged,
+            [this](const QString &path) {
+        const QSet<QString> pendingDirs = m_pendingUpdateDirs;
+        for (const auto &pendingPath : pendingDirs) {
+            if (path.startsWith(pendingPath)) {
+                // no need to add path, already handled by a pending parent path
+                return;
+            } else if (pendingPath.startsWith(path)) {
+                // Parent path to a pending path added, remove the pending path
+                m_pendingUpdateDirs.remove(pendingPath);
+            }
+        }
+        m_pendingUpdateDirs.insert(path);
+        m_updateWatcherTimer.start();
+
+    });
+    connect(m_fileSystemWatcher, &QFileSystemWatcher::fileChanged, [this] {
+        m_resetTimer.start();
+    });
 }
 
 
@@ -210,6 +247,8 @@ void NodeInstanceView::modelAttached(Model *model)
         NodeInstance newStateInstance = instanceForModelNode(stateNode);
         activateState(newStateInstance);
     }
+
+    updateWatcher({});
 }
 
 void NodeInstanceView::modelAboutToBeDetached(Model * model)
@@ -227,6 +266,11 @@ void NodeInstanceView::modelAboutToBeDetached(Model * model)
     m_activeStateInstance = NodeInstance();
     m_rootNodeInstance = NodeInstance();
     AbstractView::modelAboutToBeDetached(model);
+    m_resetTimer.stop();
+    m_updateWatcherTimer.stop();
+    m_pendingUpdateDirs.clear();
+    m_fileSystemWatcher->removePaths(m_fileSystemWatcher->directories());
+    m_fileSystemWatcher->removePaths(m_fileSystemWatcher->files());
 }
 
 void NodeInstanceView::handleCrash()
@@ -1702,6 +1746,63 @@ void NodeInstanceView::updatePreviewImageForNode(const ModelNode &modelNode, con
     if (m_imageDataMap.contains(modelNode.id()))
         m_imageDataMap[modelNode.id()].pixmap = pixmap;
     emitModelNodelPreviewPixmapChanged(modelNode, pixmap);
+}
+
+void NodeInstanceView::updateWatcher(const QString &path)
+{
+    QString rootPath;
+    QStringList oldFiles;
+    QStringList oldDirs;
+    QStringList newFiles;
+    QStringList newDirs;
+
+    if (path.isEmpty()) {
+        // Do full update
+        rootPath = QFileInfo(model()->fileUrl().toLocalFile()).absolutePath();
+        m_fileSystemWatcher->removePaths(m_fileSystemWatcher->directories());
+        m_fileSystemWatcher->removePaths(m_fileSystemWatcher->files());
+    } else {
+        rootPath = path;
+        const QStringList files = m_fileSystemWatcher->files();
+        const QStringList dirs = m_fileSystemWatcher->directories();
+        for (const auto &file : files) {
+            if (file.startsWith(path))
+                oldFiles.append(file);
+        }
+        for (const auto &dir : dirs) {
+            if (dir.startsWith(path))
+                oldDirs.append(dir);
+        }
+    }
+
+    newDirs.append(rootPath);
+
+    QDirIterator dirIterator(rootPath, {}, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+    while (dirIterator.hasNext())
+        newDirs.append(dirIterator.next());
+
+    // Common shader suffixes
+    static const QStringList filterList {"*.frag", "*.vert",
+                                         "*.glsl", "*.glslv", "*.glslf",
+                                         "*.vsh","*.fsh"};
+
+    QDirIterator fileIterator(rootPath, filterList, QDir::Files, QDirIterator::Subdirectories);
+    while (fileIterator.hasNext())
+        newFiles.append(fileIterator.next());
+
+    if (oldDirs != newDirs) {
+        if (!oldDirs.isEmpty())
+            m_fileSystemWatcher->removePaths(oldDirs);
+        if (!newDirs.isEmpty())
+            m_fileSystemWatcher->addPaths(newDirs);
+    }
+
+    if (newFiles != oldFiles) {
+        if (!oldFiles.isEmpty())
+            m_fileSystemWatcher->removePaths(oldFiles);
+        if (!newFiles.isEmpty())
+            m_fileSystemWatcher->addPaths(newFiles);
+    }
 }
 
 }
