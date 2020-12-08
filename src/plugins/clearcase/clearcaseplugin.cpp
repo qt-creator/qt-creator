@@ -1315,7 +1315,7 @@ void ClearCasePluginPrivate::diffActivity()
     }
 
     if ((m_settings.diffType == GraphicalDiff) && (filever.count() == 1)) {
-        QStringPair pair(filever.values().at(0));
+        QStringPair pair(filever.first());
         diffGraphical(pair.first, pair.second);
         return;
     }

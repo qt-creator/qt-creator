@@ -299,8 +299,10 @@ QVector<Client *> LanguageClientManager::clientForSetting(const BaseSettings *se
 const BaseSettings *LanguageClientManager::settingForClient(Client *client)
 {
     QTC_ASSERT(managerInstance, return nullptr);
-    for (const QString &id : managerInstance->m_clientsForSetting.keys()) {
-        for (const Client *settingClient : managerInstance->m_clientsForSetting[id]) {
+    for (auto it = managerInstance->m_clientsForSetting.cbegin();
+         it != managerInstance->m_clientsForSetting.cend(); ++it) {
+        const QString &id = it.key();
+        for (const Client *settingClient : it.value()) {
             if (settingClient == client) {
                 return Utils::findOrDefault(managerInstance->m_currentSettings,
                                             [id](BaseSettings *setting) {
@@ -386,13 +388,13 @@ void LanguageClientManager::clientFinished(Client *client)
         client->log(tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS),
                     Core::MessageManager::Flash);
         QTimer::singleShot(restartTimeoutS * 1000, client, [client]() { startClient(client); });
-        for (TextEditor::TextDocument *document : m_clientForDocument.keys(client))
-            client->deactivateDocument(document);
+        for (auto it = m_clientForDocument.cbegin(); it != m_clientForDocument.cend(); ++it)
+            client->deactivateDocument(it.key());
     } else {
         if (unexpectedFinish && !m_shuttingDown)
             client->log(tr("Unexpectedly finished."), Core::MessageManager::Flash);
-        for (TextEditor::TextDocument *document : m_clientForDocument.keys(client))
-            m_clientForDocument.remove(document);
+        for (auto it = m_clientForDocument.cbegin(); it != m_clientForDocument.cend(); ++it)
+            m_clientForDocument.remove(it.key());
         deleteClient(client);
         if (m_shuttingDown && m_clients.isEmpty())
             emit shutdownFinished();

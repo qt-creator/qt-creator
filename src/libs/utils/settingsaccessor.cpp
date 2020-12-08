@@ -49,8 +49,8 @@ namespace Utils {
 QMessageBox::StandardButtons SettingsAccessor::Issue::allButtons() const
 {
     QMessageBox::StandardButtons result = QMessageBox::NoButton;
-    for (const QMessageBox::StandardButton &b : buttons.keys())
-        result |= b;
+    for (auto it = buttons.cbegin(); it != buttons.cend(); ++it)
+        result |= it.key();
     return result;
 }
 

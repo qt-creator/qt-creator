@@ -83,7 +83,9 @@ QVariant CtfStatisticsModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    QString title = m_data.keys().at(index.row());
+    auto it = m_data.cbegin();
+    std::advance(it, index.row());
+    const QString &title = it.key();
 
     switch (role) {
     case Qt::TextAlignmentRole:

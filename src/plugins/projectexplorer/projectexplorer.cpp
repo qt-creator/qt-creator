@@ -1961,7 +1961,8 @@ void ProjectExplorerPlugin::extensionsInitialized()
     });
 
     dd->m_documentFactory.addMimeType(QStringLiteral("inode/directory"));
-    for (const QString &mimeType : dd->m_projectCreators.keys()) {
+    for (auto it = dd->m_projectCreators.cbegin(); it != dd->m_projectCreators.cend(); ++it) {
+        const QString &mimeType = it.key();
         dd->m_documentFactory.addMimeType(mimeType);
         Utils::MimeType mime = Utils::mimeTypeForName(mimeType);
         allGlobPatterns.append(mime.globPatterns());
@@ -2345,8 +2346,8 @@ void ProjectExplorerPluginPrivate::determineSessionToRestoreAtStartup()
 QStringList ProjectExplorerPlugin::projectFileGlobs()
 {
     QStringList result;
-    for (const QString &mt : dd->m_projectCreators.keys()) {
-        Utils::MimeType mimeType = Utils::mimeTypeForName(mt);
+    for (auto it = dd->m_projectCreators.cbegin(); it != dd->m_projectCreators.cend(); ++it) {
+        Utils::MimeType mimeType = Utils::mimeTypeForName(it.key());
         if (mimeType.isValid()) {
             const QStringList patterns = mimeType.globPatterns();
             if (!patterns.isEmpty())
@@ -3921,8 +3922,8 @@ const QList<CustomParserSettings> ProjectExplorerPlugin::customParsers()
 QStringList ProjectExplorerPlugin::projectFilePatterns()
 {
     QStringList patterns;
-    for (const QString &mime : dd->m_projectCreators.keys()) {
-        Utils::MimeType mt = Utils::mimeTypeForName(mime);
+    for (auto it = dd->m_projectCreators.cbegin(); it != dd->m_projectCreators.cend(); ++it) {
+        Utils::MimeType mt = Utils::mimeTypeForName(it.key());
         if (mt.isValid())
             patterns.append(mt.globPatterns());
     }
@@ -3932,8 +3933,8 @@ QStringList ProjectExplorerPlugin::projectFilePatterns()
 bool ProjectExplorerPlugin::isProjectFile(const Utils::FilePath &filePath)
 {
     Utils::MimeType mt = Utils::mimeTypeForFile(filePath.toString());
-    for (const QString &mime : dd->m_projectCreators.keys()) {
-        if (mt.inherits(mime))
+    for (auto it = dd->m_projectCreators.cbegin(); it != dd->m_projectCreators.cend(); ++it) {
+        if (mt.inherits(it.key()))
             return true;
     }
     return false;
@@ -4005,9 +4006,9 @@ void ProjectManager::registerProjectCreator(const QString &mimeType,
 Project *ProjectManager::openProject(const Utils::MimeType &mt, const Utils::FilePath &fileName)
 {
     if (mt.isValid()) {
-        for (const QString &mimeType : dd->m_projectCreators.keys()) {
-            if (mt.matchesName(mimeType))
-                return dd->m_projectCreators[mimeType](fileName);
+        for (auto it = dd->m_projectCreators.cbegin(); it != dd->m_projectCreators.cend(); ++it) {
+            if (mt.matchesName(it.key()))
+                return it.value()(fileName);
         }
     }
     return nullptr;
@@ -4016,8 +4017,8 @@ Project *ProjectManager::openProject(const Utils::MimeType &mt, const Utils::Fil
 bool ProjectManager::canOpenProjectForMimeType(const Utils::MimeType &mt)
 {
     if (mt.isValid()) {
-        for (const QString &mimeType : dd->m_projectCreators.keys()) {
-            if (mt.matchesName(mimeType))
+        for (auto it = dd->m_projectCreators.cbegin(); it != dd->m_projectCreators.cend(); ++it) {
+            if (mt.matchesName(it.key()))
                 return true;
         }
     }

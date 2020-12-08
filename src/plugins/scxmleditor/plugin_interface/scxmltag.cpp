@@ -358,7 +358,7 @@ QString ScxmlTag::editorInfo(const QString &key) const
 
 bool ScxmlTag::hasEditorInfo(const QString &key) const
 {
-    return m_editorInfo.keys().contains(key);
+    return m_editorInfo.contains(key);
 }
 
 void ScxmlTag::setAttributeName(int ind, const QString &name)

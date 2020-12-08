@@ -176,8 +176,9 @@ void CtfTraceManager::load(const QString &filename)
 void CtfTraceManager::finalize()
 {
     bool userConsentToIgnoreDeepTraces = false;
-    for (qint64 tid: m_threadModels.keys()) {
-        if (m_threadModels[tid]->m_maxStackSize > 512) {
+    auto it = m_threadModels.begin();
+    while (it != m_threadModels.end()) {
+        if (it.value()->m_maxStackSize > 512) {
             if (!userConsentToIgnoreDeepTraces) {
                 QMessageBox::StandardButton answer
                     = QMessageBox::question(Core::ICore::dialogParent(),
@@ -192,8 +193,10 @@ void CtfTraceManager::finalize()
                     break;
                 }
             }
-            m_threadModels.remove(tid);
-            m_threadRestrictions.remove(tid);
+            m_threadRestrictions.remove(it.key());
+            it = m_threadModels.erase(it);
+        } else {
+            ++it;
         }
     }
     for (CtfTimelineModel *model: m_threadModels) {

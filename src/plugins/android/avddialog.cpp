@@ -80,7 +80,7 @@ AvdDialog::AvdDialog(int minApiLevel, AndroidSdkManager *sdkManager, const QStri
     connect(&m_hideTipTimer, &QTimer::timeout, this, []() { Utils::ToolTip::hide(); });
 
     parseDeviceDefinitionsList();
-    for (const QString &type : DeviceTypeToStringMap.values())
+    for (const QString &type : DeviceTypeToStringMap)
         m_avdDialog.deviceDefinitionTypeComboBox->addItem(type);
 
     connect(m_avdDialog.deviceDefinitionTypeComboBox,

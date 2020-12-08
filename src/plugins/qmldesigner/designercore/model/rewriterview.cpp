@@ -979,7 +979,7 @@ QList<QmlTypeData> RewriterView::getQMLTypes() const
     qmlDataList.append(m_textToModelMerger->getQMLSingletons());
 
     for (const QmlJS::ModelManagerInterface::CppData &cppData :
-         QmlJS::ModelManagerInterface::instance()->cppData().values())
+         QmlJS::ModelManagerInterface::instance()->cppData())
         for (const LanguageUtils::FakeMetaObject::ConstPtr &fakeMetaObject : cppData.exportedTypes) {
             for (const LanguageUtils::FakeMetaObject::Export &exportItem :
                  fakeMetaObject->exports()) {

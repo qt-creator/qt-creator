@@ -430,7 +430,8 @@ bool Action::isEmpty() const
 
 bool Action::isScriptable() const
 {
-    return m_scriptableMap.values().contains(true);
+    return std::find(m_scriptableMap.cbegin(), m_scriptableMap.cend(), true) !=
+            m_scriptableMap.cend();
 }
 
 bool Action::isScriptable(const Context &context) const

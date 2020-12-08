@@ -333,7 +333,7 @@ void SectionedProducts::setColumnCount(int columns)
     if (columns < 1)
         columns = 1;
     m_columnCount = columns;
-    for (ProductGridView *view : m_gridViews.values()) {
+    for (ProductGridView *view : qAsConst(m_gridViews)) {
         view->setColumnCount(columns);
         view->setFixedSize(view->viewportSizeHint());
     }
@@ -361,7 +361,7 @@ void SectionedProducts::fetchNextImage()
 
     if (QPixmapCache::find(nextUrl, nullptr)) {
         // this image is already cached it might have been added while downloading
-        for (ProductListModel *model : m_productModels.values())
+        for (ProductListModel *model : qAsConst(m_productModels))
             model->updateModelIndexesForUrl(nextUrl);
         fetchNextImage();
         return;
@@ -387,7 +387,7 @@ void SectionedProducts::onImageDownloadFinished(QNetworkReply *reply)
             const QString url = imageUrl.toString();
             QPixmapCache::insert(url, pixmap.scaled(ProductListModel::defaultImageSize,
                                                     Qt::KeepAspectRatio, Qt::SmoothTransformation));
-            for (ProductListModel *model : m_productModels.values())
+            for (ProductListModel *model : qAsConst(m_productModels))
                 model->updateModelIndexesForUrl(url);
         }
     } // handle error not needed - it's okay'ish to have no images as long as the rest works
@@ -411,7 +411,7 @@ void SectionedProducts::addNewSection(const Section &section, const QList<Core::
     gridModel->setColumnCount(m_columnCount);
 
     m_productModels.insert(section, productModel);
-    m_gridViews.insert(section, gridView);
+    const auto it = m_gridViews.insert(section, gridView);
 
     QFont f = font();
     f.setPixelSize(16);
@@ -421,7 +421,7 @@ void SectionedProducts::addNewSection(const Section &section, const QList<Core::
     auto vbox = qobject_cast<QVBoxLayout *>(scrollArea->widget()->layout());
 
     // insert new section depending on its priority, but before the last (stretch) item
-    int position = m_gridViews.keys().indexOf(section) * 2; // a section has a label and a grid
+    int position = std::distance(m_gridViews.begin(), it) * 2; // a section has a label and a grid
     QTC_ASSERT(position <= vbox->count() - 1, position = vbox->count() - 1);
     vbox->insertWidget(position, sectionLabel);
     vbox->insertWidget(position + 1, gridView);
@@ -442,7 +442,7 @@ void SectionedProducts::onTagClicked(const QString &tag)
 QList<Core::ListItem *> SectionedProducts::items()
 {
     QList<Core::ListItem *> result;
-    for (const ProductListModel *model : m_productModels.values())
+    for (const ProductListModel *model : qAsConst(m_productModels))
         result.append(model->items());
     return result;
 }

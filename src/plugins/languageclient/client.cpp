@@ -111,22 +111,24 @@ Client::~Client()
     using namespace TextEditor;
     // FIXME: instead of replacing the completion provider in the text document store the
     // completion provider as a prioritised list in the text document
-    for (TextDocument *document : m_resetAssistProvider.keys())
-        resetAssistProviders(document);
-    for (Core::IEditor * editor : Core::DocumentModel::editorsForOpenedDocuments()) {
+    for (auto it = m_resetAssistProvider.cbegin(); it != m_resetAssistProvider.cend(); ++it)
+        resetAssistProviders(it.key());
+    const QList<Core::IEditor *> &editors = Core::DocumentModel::editorsForOpenedDocuments();
+    for (Core::IEditor *editor : editors) {
         if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
             TextEditorWidget *widget = textEditor->editorWidget();
             widget->setRefactorMarkers(RefactorMarker::filterOutType(widget->refactorMarkers(), id()));
             widget->removeHoverHandler(&m_hoverHandler);
         }
     }
-    for (const DocumentUri &uri : m_highlights.keys()) {
+    for (auto it = m_highlights.cbegin(); it != m_highlights.cend(); ++it) {
+        const DocumentUri &uri = it.key();
         if (TextDocument *doc = TextDocument::textDocumentForFilePath(uri.toFilePath())) {
             if (TextEditor::SyntaxHighlighter *highlighter = doc->syntaxHighlighter())
                 highlighter->clearAllExtraFormats();
         }
     }
-    for (IAssistProcessor *processor : m_runningAssistProcessors)
+    for (IAssistProcessor *processor : qAsConst(m_runningAssistProcessors))
         processor->setAsyncProposalAvailable(nullptr);
     updateEditorToolBar(m_openedDocument.keys());
 }
@@ -910,11 +912,11 @@ bool Client::reset()
     m_serverCapabilities = ServerCapabilities();
     m_dynamicCapabilities.reset();
     m_diagnosticManager.clearDiagnostics();
-    for (TextEditor::TextDocument *document : m_openedDocument.keys())
-        document->disconnect(this);
-    for (TextEditor::TextDocument *document : m_resetAssistProvider.keys())
-        resetAssistProviders(document);
-    for (TextEditor::IAssistProcessor *processor : m_runningAssistProcessors)
+    for (auto it = m_openedDocument.cbegin(); it != m_openedDocument.cend(); ++it)
+        it.key()->disconnect(this);
+    for (auto it = m_resetAssistProvider.cbegin(); it != m_resetAssistProvider.cend(); ++it)
+        resetAssistProviders(it.key());
+    for (TextEditor::IAssistProcessor *processor : qAsConst(m_runningAssistProcessors))
         processor->setAsyncProposalAvailable(nullptr);
     m_runningAssistProcessors.clear();
     return true;
@@ -1279,8 +1281,8 @@ void Client::initializeCallback(const InitializeRequest::Response &initResponse)
         TextEditor::IOutlineWidgetFactory::updateOutline();
     }
 
-    for (TextEditor::TextDocument *document : m_openedDocument.keys())
-        openDocument(document);
+    for (auto it = m_openedDocument.cbegin(); it != m_openedDocument.cend(); ++it)
+        openDocument(it.key());
 
     emit initialized(m_serverCapabilities);
 }

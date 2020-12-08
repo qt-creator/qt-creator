@@ -70,13 +70,14 @@ void TestSettings::toSettings(QSettings *s) const
     s->setValue(popupOnFailKey, popupOnFail);
     s->setValue(runAfterBuildKey, int(runAfterBuild));
     // store frameworks and their current active and grouping state
-    for (const Utils::Id &id : frameworks.keys()) {
-        s->setValue(id.toString(), frameworks.value(id));
+    for (auto it = frameworks.cbegin(); it != frameworks.cend(); ++it) {
+        const Utils::Id &id = it.key();
+        s->setValue(id.toString(), it.value());
         s->setValue(id.toString() + groupSuffix, frameworksGrouping.value(id));
     }
     // ..and the testtools as well
-    for (const Utils::Id &id : tools.keys())
-        s->setValue(id.toString(), tools.value(id));
+    for (auto it = tools.cbegin(); it != tools.cend(); ++it)
+        s->setValue(it.key().toString(), it.value());
     s->endGroup();
 }
 

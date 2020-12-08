@@ -111,7 +111,8 @@ static void setupIdRenamingHash(const ModelNode &modelNode, QHash<QString, QStri
             int number = 1;
             splitIdInBaseNameAndNumber(newId, &baseId, &number);
 
-            while (view->hasId(newId) || idRenamingHash.values().contains(newId)) {
+            while (view->hasId(newId) || std::find(idRenamingHash.cbegin(),
+                        idRenamingHash.cend(), newId) != idRenamingHash.cend()) {
                 newId = baseId + QString::number(number);
                 number++;
             }

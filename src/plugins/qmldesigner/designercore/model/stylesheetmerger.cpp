@@ -155,14 +155,16 @@ void StylesheetMerger::syncId(ModelNode &outputNode, ModelNode &inputNode)
 
 void StylesheetMerger::setupIdRenamingHash()
 {
-    for (const ModelNode &node : m_templateView->rootModelNode().allSubModelNodesAndThisNode()) {
+    const QList<ModelNode> &nodes = m_templateView->rootModelNode().allSubModelNodesAndThisNode();
+    for (const ModelNode &node : nodes) {
         if (!node.id().isEmpty()) {
             QString newId = node.id();
             QString baseId;
             int number = 1;
             splitIdInBaseNameAndNumber(newId, &baseId, &number);
 
-            while (m_templateView->hasId(newId) || m_idReplacementHash.values().contains(newId)) {
+            while (m_templateView->hasId(newId) || std::find(m_idReplacementHash.cbegin(),
+                        m_idReplacementHash.cend(), newId) != m_idReplacementHash.cend()) {
                 newId = "stylesheet_auto_merge_" + baseId + QString::number(number);
                 number++;
             }

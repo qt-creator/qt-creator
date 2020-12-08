@@ -122,8 +122,8 @@ bool applyWorkspaceEdit(const WorkspaceEdit &edit)
             result |= applyTextDocumentEdit(documentChange);
     } else {
         const WorkspaceEdit::Changes &changes = edit.changes().value_or(WorkspaceEdit::Changes());
-        for (const DocumentUri &file : changes.keys())
-            result |= applyTextEdits(file, changes.value(file));
+        for (auto it = changes.cbegin(); it != changes.cend(); ++it)
+            result |= applyTextEdits(it.key(), it.value());
         return result;
     }
     return result;

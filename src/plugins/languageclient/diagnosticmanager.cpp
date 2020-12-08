@@ -130,8 +130,8 @@ void DiagnosticManager::showDiagnostics(const DocumentUri &uri)
 
 void DiagnosticManager::clearDiagnostics()
 {
-    for (const DocumentUri &uri : m_diagnostics.keys())
-        removeDiagnostics(uri);
+    for (auto it = m_diagnostics.cbegin(); it != m_diagnostics.cend(); ++it)
+        removeDiagnostics(it.key());
 }
 
 QList<Diagnostic> DiagnosticManager::diagnosticsAt(const DocumentUri &uri, const Range &range) const

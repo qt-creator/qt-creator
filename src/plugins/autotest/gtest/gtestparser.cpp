@@ -101,7 +101,7 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
     GTestVisitor visitor(document);
     visitor.accept(ast);
 
-    QMap<GTestCaseSpec, GTestCodeLocationList> result = visitor.gtestFunctions();
+    const QMap<GTestCaseSpec, GTestCodeLocationList> result = visitor.gtestFunctions();
     QString proFile;
     const QList<CppTools::ProjectPart::Ptr> &ppList = modelManager->projectPart(filePath);
     if (!ppList.isEmpty())
@@ -109,7 +109,8 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
     else
         return false; // happens if shutting down while parsing
 
-    for (const GTestCaseSpec &testSpec : result.keys()) {
+    for (auto it = result.cbegin(); it != result.cend(); ++it) {
+        const GTestCaseSpec &testSpec = it.key();
         GTestParseResult *parseResult = new GTestParseResult(base);
         parseResult->itemType = TestTreeItem::TestSuite;
         parseResult->fileName = filePath;
@@ -119,7 +120,7 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
         parseResult->disabled = testSpec.disabled;
         parseResult->proFile = proFile;
 
-        for (const GTestCodeLocationAndType &location : result.value(testSpec)) {
+        for (const GTestCodeLocationAndType &location : it.value()) {
             GTestParseResult *testSet = new GTestParseResult(base);
             testSet->name = location.m_name;
             testSet->fileName = filePath;
@@ -134,7 +135,7 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
 
         futureInterface.reportResult(TestParseResultPtr(parseResult));
     }
-    return !result.keys().isEmpty();
+    return !result.isEmpty();
 }
 
 bool GTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInterface,

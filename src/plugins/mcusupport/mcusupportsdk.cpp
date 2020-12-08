@@ -348,8 +348,10 @@ struct McuTargetFactory
     QVector<McuPackage *> getMcuPackages() const
     {
         QVector<McuPackage *> packages;
-        packages.append(boardSdkPkgs.values().toVector());
-        packages.append(freeRTOSPkgs.values().toVector());
+        for (auto *package : qAsConst(boardSdkPkgs))
+            packages.append(package);
+        for (auto *package : qAsConst(freeRTOSPkgs))
+            packages.append(package);
         return packages;
     }
 
@@ -506,7 +508,8 @@ static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescrip
 
     packages->append(Utils::transform<QVector<McuPackage *> >(
                          tcPkgs.values(), [&](McuToolChainPackage *tcPkg) { return tcPkg; }));
-    packages->append(vendorPkgs.values().toVector());
+    for (auto *package : vendorPkgs)
+        packages->append(package);
     packages->append(targetFactory.getMcuPackages());
 
     return  mcuTargets;

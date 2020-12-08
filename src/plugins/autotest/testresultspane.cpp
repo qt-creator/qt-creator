@@ -507,9 +507,10 @@ void TestResultsPane::initializeFilterMenu()
     textAndType.insert(ResultType::MessageDebug, tr("Debug Messages"));
     textAndType.insert(ResultType::MessageWarn, tr("Warning Messages"));
     textAndType.insert(ResultType::MessageInternal, tr("Internal Messages"));
-    for (ResultType result : textAndType.keys()) {
+    for (auto it = textAndType.cbegin(); it != textAndType.cend(); ++it) {
+        const ResultType &result = it.key();
         QAction *action = new QAction(m_filterMenu);
-        action->setText(textAndType.value(result));
+        action->setText(it.value());
         action->setCheckable(true);
         action->setChecked(result != ResultType::MessageInternal || !omitIntern);
         action->setData(int(result));

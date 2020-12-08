@@ -395,11 +395,10 @@ int TestResultModel::maxWidthOfLineNumber(const QFont &font)
 int TestResultModel::resultTypeCount(ResultType type) const
 {
     int result = 0;
-
-    for (const auto &id : m_testResultCount.keys()) {
+    for (auto it = m_testResultCount.cbegin(); it != m_testResultCount.cend(); ++it) {
         // if we got a result count from the framework prefer that over our counted results
-        int reported = m_reportedSummary[id].value(type);
-        result += reported != 0 ? reported : m_testResultCount.value(id).value(type);
+        int reported = m_reportedSummary[it.key()].value(type);
+        result += reported != 0 ? reported : it.value().value(type);
     }
     return result;
 }

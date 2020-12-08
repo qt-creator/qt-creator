@@ -500,8 +500,10 @@ void DebuggerMainWindow::savePersistentSettings() const
 
     QVariantHash states;
     qCDebug(perspectivesLog) << "PERSPECTIVE TYPES: " << d->m_lastTypePerspectiveStates.keys();
-    for (const QString &type : d->m_lastTypePerspectiveStates.keys()) {
-        const PerspectiveState state = d->m_lastTypePerspectiveStates.value(type);
+    for (auto it = d->m_lastTypePerspectiveStates.cbegin();
+         it != d->m_lastTypePerspectiveStates.cend(); ++it) {
+        const QString &type = it.key();
+        const PerspectiveState &state = it.value();
         qCDebug(perspectivesLog) << "PERSPECTIVE TYPE " << type
                                  << " HAS STATE: " << !state.mainWindowState.isEmpty();
         QTC_ASSERT(!state.mainWindowState.isEmpty(), continue);
