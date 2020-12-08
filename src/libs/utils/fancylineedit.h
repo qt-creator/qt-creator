@@ -71,10 +71,9 @@ private:
 class QTCREATOR_UTILS_EXPORT FancyLineEdit : public CompletingLineEdit
 {
     Q_OBJECT
-    Q_ENUMS(Side)
-
 public:
     enum Side {Left = 0, Right = 1};
+    Q_ENUM(Side)
 
     explicit FancyLineEdit(QWidget *parent = nullptr);
     ~FancyLineEdit() override;

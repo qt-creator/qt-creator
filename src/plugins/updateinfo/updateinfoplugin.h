@@ -41,13 +41,13 @@ class UpdateInfoPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "UpdateInfo.json")
-    Q_ENUMS(CheckUpdateInterval)
 public:
     enum CheckUpdateInterval {
         DailyCheck,
         WeeklyCheck,
         MonthlyCheck
     };
+    Q_ENUM(CheckUpdateInterval)
 
     UpdateInfoPlugin();
     ~UpdateInfoPlugin() override;

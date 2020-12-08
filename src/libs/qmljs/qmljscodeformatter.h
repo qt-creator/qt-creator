@@ -176,7 +176,7 @@ public: // must be public to make Q_GADGET introspection work
         case_start, // after a 'case' or 'default' token
         case_cont // after the colon in a case/default
     };
-    Q_ENUMS(StateType)
+    Q_ENUM(StateType)
 
 protected:
     // extends Token::Kind from qmljsscanner.h

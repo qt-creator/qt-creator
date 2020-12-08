@@ -35,8 +35,6 @@ struct NewClassWidgetPrivate;
 class NewClassWidget : public QWidget
 {
     Q_OBJECT
-    Q_ENUMS(ClassType)
-
 public:
     enum ClassType { NoClassType,
                      ClassInheritsQObject,
@@ -45,6 +43,7 @@ public:
                      ClassInheritsQQuickItem,
                      SharedDataClass
                    };
+    Q_ENUM(ClassType)
     explicit NewClassWidget(QWidget *parent = nullptr);
     ~NewClassWidget() override;
 

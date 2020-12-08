@@ -40,13 +40,6 @@ class ThemePrivate;
 class QTCREATOR_UTILS_EXPORT Theme : public QObject
 {
     Q_OBJECT
-
-    Q_ENUMS(Color)
-    Q_ENUMS(ImageFile)
-    Q_ENUMS(Gradient)
-    Q_ENUMS(Flag)
-    Q_ENUMS(WidgetStyle)
-
 public:
     Theme(const QString &id, QObject *parent = nullptr);
     ~Theme() override;
@@ -380,6 +373,11 @@ public:
         WindowColorAsBase,
         DarkUserInterface
     };
+
+    Q_ENUM(Color)
+    Q_ENUM(ImageFile)
+    Q_ENUM(Gradient)
+    Q_ENUM(Flag)
 
     Q_INVOKABLE bool flag(Flag f) const;
     Q_INVOKABLE QColor color(Color role) const;

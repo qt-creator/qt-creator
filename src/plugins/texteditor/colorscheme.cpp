@@ -31,7 +31,6 @@
 
 #include <QFile>
 #include <QCoreApplication>
-#include <QMetaEnum>
 #include <QXmlStreamWriter>
 
 using namespace TextEditor;

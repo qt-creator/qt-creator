@@ -55,7 +55,6 @@ struct FlameGraphData {
 class FlameGraphModel : public QAbstractItemModel
 {
     Q_OBJECT
-    Q_ENUMS(Role)
 public:
     enum Role {
         TypeIdRole = Qt::UserRole + 1, // Sort by data, not by displayed string
@@ -74,6 +73,7 @@ public:
         MemoryRole,
         MaxRole
     };
+    Q_ENUM(Role)
 
     FlameGraphModel(QmlProfilerModelManager *modelManager, QObject *parent = nullptr);
 

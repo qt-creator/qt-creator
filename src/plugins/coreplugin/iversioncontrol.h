@@ -45,7 +45,6 @@ class ShellCommand;
 class CORE_EXPORT IVersionControl : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(SettingsFlag Operation)
 public:
     enum SettingsFlag {
         AutoOpen = 0x1
@@ -59,6 +58,8 @@ public:
         AnnotateOperation,
         InitialCheckoutOperation
     };
+    Q_ENUM(SettingsFlag)
+    Q_ENUM(Operation)
 
     enum OpenSupportMode {
         NoOpen,        /*!< Files can be edited without noticing the VCS */

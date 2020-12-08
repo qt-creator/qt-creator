@@ -39,7 +39,6 @@ class PerfProfilerFlameGraphModel : public QAbstractItemModel
 {
     Q_OBJECT
     Q_DISABLE_COPY(PerfProfilerFlameGraphModel);
-    Q_ENUMS(Role)
 public:
     PerfProfilerFlameGraphModel(PerfProfilerFlameGraphModel &&) = delete;
     PerfProfilerFlameGraphModel &operator=(PerfProfilerFlameGraphModel &&) = delete;
@@ -61,6 +60,7 @@ public:
         ResourcePeakRole,
         MaxRole
     };
+    Q_ENUM(Role)
 
     struct Data {
         Data *parent = nullptr;

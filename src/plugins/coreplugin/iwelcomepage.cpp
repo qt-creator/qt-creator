@@ -32,7 +32,6 @@
 
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QMetaEnum>
 #include <QPainter>
 #include <QPixmap>
 #include <QUrl>

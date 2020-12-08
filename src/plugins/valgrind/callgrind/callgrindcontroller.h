@@ -38,8 +38,6 @@ namespace Callgrind {
 class CallgrindController : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(Option)
-
 public:
     enum Option {
         Unknown,
@@ -48,6 +46,7 @@ public:
         Pause,
         UnPause
     };
+    Q_ENUM(Option)
 
     CallgrindController();
     ~CallgrindController() override;

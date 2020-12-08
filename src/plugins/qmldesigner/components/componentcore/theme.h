@@ -41,9 +41,6 @@ namespace QmlDesigner {
 class QMLDESIGNERCORE_EXPORT Theme : public Utils::Theme
 {
     Q_OBJECT
-
-    Q_ENUMS(Icon)
-
 public:
     enum Icon {
         actionIcon,
@@ -146,6 +143,7 @@ public:
         zoomOut,
         zoomSelection
     };
+    Q_ENUM(Icon)
 
     static Theme *instance();
     static QString replaceCssColors(const QString &input);

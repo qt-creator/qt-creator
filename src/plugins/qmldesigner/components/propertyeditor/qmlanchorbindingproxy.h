@@ -74,14 +74,13 @@ class QmlAnchorBindingProxy : public QObject
 
     Q_PROPERTY(QStringList possibleTargetItems READ possibleTargetItems NOTIFY itemNodeChanged)
 
-    Q_ENUMS(RelativeAnchorTarget)
-
 public:
     enum RelativeAnchorTarget {
         SameEdge = 0,
         Center = 1,
         OppositeEdge = 2
     };
+    Q_ENUM(RelativeAnchorTarget)
 
     //only enable if node has parent
 

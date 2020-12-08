@@ -32,7 +32,6 @@
 #include <QApplication>
 #include <QIcon>
 #include <QImage>
-#include <QMetaEnum>
 #include <QPainter>
 #include <QPaintEngine>
 #include <QWidget>
