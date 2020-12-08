@@ -3816,6 +3816,25 @@ class DumperBase():
         self.registerType(typeId, tdata)
         return self.Type(self, typeId)
 
+    def knownArrayTypeSize(self):
+        return 3 * self.ptrSize() if self.qtVersion() >= 0x060000 else self.ptrSize()
+
+    def knownTypeSize(self, typish):
+        if typish[0] == 'Q':
+            if typish.startswith('QList<') or typish.startswith('QVector<'):
+                return self.knownArrayTypeSize()
+            if typish == 'QObject':
+                return 2 * self.ptrSize()
+            if typish == 'QStandardItemData':
+                return 4 * self.ptrSize() if self.qtVersion() >= 0x060000 else 2 * self.ptrSize()
+            if typish == 'Qt::ItemDataRole':
+                return 4
+            if typish == 'QChar':
+                return 2
+        if typish in ('quint32', 'qint32'):
+            return 4
+        return None
+
     def createType(self, typish, size=None):
         if isinstance(typish, self.Type):
             #typish.check()
@@ -3823,6 +3842,15 @@ class DumperBase():
         if isinstance(typish, str):
             ns = self.qtNamespace()
             typish = typish.replace('@', ns)
+            if typish.startswith(ns):
+                if size is None:
+                    size = self.knownTypeSize(typish[len(ns):])
+            else:
+                if size is None:
+                    size = self.knownTypeSize(typish)
+                if size is not None:
+                    typish = ns + typish
+
             tdata = self.typeData.get(typish, None)
             if tdata is not None:
                 return self.Type(self, typish)

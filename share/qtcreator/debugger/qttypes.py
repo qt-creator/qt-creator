@@ -243,11 +243,15 @@ def qdump__Qt__ItemDataRole(d, value):
 
 
 def qdump__QStandardItemData(d, value):
+    d.createType('@Qt::ItemDataRole') # warm up cache
     role, pad, val = value.split('{@Qt::ItemDataRole}@{@QVariant}')
     d.putPairContents(role.value(), (role, val), 'role', 'value')
 
 
 def qdump__QStandardItem(d, value):
+    d.createType('@QStandardItemData') # warm up cache
+    d.createType('@QStandardItem')
+    d.createType('@QStandardItem*')
     vtable, dptr = value.split('pp')
     # There used to be a virtual destructor that got removed in
     # 88b6abcebf29b455438 on Apr 18 17:01:22 2017
