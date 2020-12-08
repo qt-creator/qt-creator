@@ -118,7 +118,7 @@ void QmlProfilerDetailsRewriter::requestDetailsForLocation(int typeId,
 
 QString QmlProfilerDetailsRewriter::getLocalFile(const QString &remoteFile)
 {
-    const QString localFile = m_projectFinder.findFile(remoteFile).first().toString();
+    const QString localFile = m_projectFinder.findFile(remoteFile).constFirst().toString();
     const QFileInfo fileInfo(localFile);
     if (!fileInfo.exists() || !fileInfo.isReadable())
         return QString();

@@ -329,7 +329,7 @@ void TransitionEditorWidget::init()
     if (root.isValid() && root.hasProperty("transitions")) {
         NodeAbstractProperty transitions = root.nodeAbstractProperty("transitions");
         if (transitions.isValid())
-            transition = transitions.directSubNodes().first();
+            transition = transitions.directSubNodes().constFirst();
     }
 
     m_graphicsScene->setTransition(transition);
