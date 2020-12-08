@@ -130,15 +130,21 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget()
 
     connect(CppEditorPlugin::instance(), &CppEditorPlugin::typeHierarchyRequested,
             this, &CppTypeHierarchyWidget::perform);
-    connect(&m_futureWatcher, &QFutureWatcher<QSharedPointer<CppElement>>::finished,
+    connect(&m_futureWatcher, &QFutureWatcher<void>::finished,
             this, &CppTypeHierarchyWidget::displayHierarchy);
+
+    m_synchronizer.setCancelOnWait(true);
 }
 
-CppTypeHierarchyWidget::~CppTypeHierarchyWidget()
+void CppTypeHierarchyWidget::updateSynchronizer()
 {
-    if (m_future.isRunning()) {
-        m_future.cancel();
-        m_future.waitForFinished();
+    const QList<QFuture<void>> futures = m_synchronizer.futures();
+
+    m_synchronizer.clearFutures();
+
+    for (const QFuture<void> &future : futures) {
+        if (!future.isFinished())
+            m_synchronizer.addFuture(future);
     }
 }
 
@@ -146,6 +152,8 @@ void CppTypeHierarchyWidget::perform()
 {
     if (m_future.isRunning())
         m_future.cancel();
+
+    updateSynchronizer();
 
     auto editor = qobject_cast<CppEditor *>(Core::EditorManager::currentEditor());
     if (!editor) {
@@ -165,13 +173,15 @@ void CppTypeHierarchyWidget::perform()
     evaluator.setLookupBaseClasses(true);
     evaluator.setLookupDerivedClasses(true);
     m_future = evaluator.asyncExecute();
-    m_futureWatcher.setFuture(m_future);
+    m_futureWatcher.setFuture(QFuture<void>(m_future));
+    m_synchronizer.addFuture(QFuture<void>(m_future));
 
     Core::ProgressManager::addTask(m_future, tr("Evaluating Type Hierarchy"), "TypeHierarchy");
 }
 
 void CppTypeHierarchyWidget::displayHierarchy()
 {
+    updateSynchronizer();
     hideProgress();
     clearTypeHierarchy();
 

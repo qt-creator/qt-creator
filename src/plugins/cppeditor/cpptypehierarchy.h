@@ -29,6 +29,7 @@
 
 #include <QFuture>
 #include <QFutureWatcher>
+#include <QFutureSynchronizer>
 #include <QList>
 #include <QSharedPointer>
 #include <QStackedWidget>
@@ -75,7 +76,6 @@ class CppTypeHierarchyWidget : public QWidget
     Q_OBJECT
 public:
     CppTypeHierarchyWidget();
-    ~CppTypeHierarchyWidget() override;
 
     void perform();
 
@@ -92,6 +92,7 @@ private:
     void hideProgress();
     void clearTypeHierarchy();
     void onItemActivated(const QModelIndex &index);
+    void updateSynchronizer();
 
     CppEditorWidget *m_cppEditor = nullptr;
     Utils::NavigationTreeView *m_treeView = nullptr;
@@ -102,7 +103,8 @@ private:
     TextEditor::TextEditorLinkLabel *m_inspectedClass = nullptr;
     QLabel *m_infoLabel = nullptr;
     QFuture<QSharedPointer<CppTools::CppElement>> m_future;
-    QFutureWatcher<QSharedPointer<CppTools::CppElement>> m_futureWatcher;
+    QFutureWatcher<void> m_futureWatcher;
+    QFutureSynchronizer<void> m_synchronizer;
     Utils::ProgressIndicator *m_progressIndicator = nullptr;
 };
 

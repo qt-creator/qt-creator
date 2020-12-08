@@ -214,6 +214,8 @@ void CppClass::lookupDerived(QFutureInterfaceBase &futureInterface,
     using Data = QPair<CppClass*, CppTools::TypeHierarchy>;
 
     snapshot.updateDependencyTable(futureInterface);
+    if (futureInterface.isCanceled())
+        return;
     CppTools::TypeHierarchyBuilder builder(declaration, snapshot);
     const CppTools::TypeHierarchy &completeHierarchy = builder.buildDerivedTypeHierarchy(futureInterface);
 
@@ -531,7 +533,7 @@ static void handleLookupItemMatch(QFutureInterface<QSharedPointer<CppElement>> &
 
             if (futureInterface.isCanceled())
                 return;
-            auto cppClass = new CppClass(declaration);
+            QSharedPointer<CppClass> cppClass(new CppClass(declaration));
             if (lookupBaseClasses)
                 cppClass->lookupBases(futureInterface, declaration, contextToUse);
             if (futureInterface.isCanceled())
@@ -540,7 +542,7 @@ static void handleLookupItemMatch(QFutureInterface<QSharedPointer<CppElement>> &
                 cppClass->lookupDerived(futureInterface, declaration, snapshot);
             if (futureInterface.isCanceled())
                 return;
-            element = QSharedPointer<CppElement>(cppClass);
+            element = cppClass;
         } else if (Enum *enumDecl = declaration->asEnum()) {
             element = QSharedPointer<CppElement>(new CppEnum(enumDecl));
         } else if (auto enumerator = dynamic_cast<EnumeratorDeclaration *>(declaration)) {
