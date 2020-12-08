@@ -238,6 +238,23 @@ TimelineWidget::TimelineWidget(TimelineView *view)
     widgetLayout->addLayout(contentLayout);
     this->setLayout(widgetLayout);
 
+    {
+        QPalette timelinePalette;
+        timelinePalette.setColor(QPalette::Text, Utils::creatorTheme()->color(
+                                     Utils::Theme::QmlDesigner_FormEditorForegroundColor));
+        timelinePalette.setColor(QPalette::WindowText, timelinePalette.color(QPalette::Text));
+        timelinePalette.setColor(QPalette::Window, Utils::creatorTheme()->color(
+                                     Utils::Theme::QmlDesigner_BackgroundColorDarkAlternate));
+
+        onboardingTopLabel->setPalette(timelinePalette);
+        onboardingBottomLabel->setPalette(timelinePalette);
+        setPalette(timelinePalette);
+        setAutoFillBackground(true);
+        m_graphicsView->setPalette(timelinePalette);
+        m_graphicsView->setBackgroundRole(QPalette::Window);
+        m_statusBar->setPalette(timelinePalette);
+    }
+
     connectToolbar();
 
     auto setScrollOffset = [this]() { graphicsScene()->setScrollOffset(m_scrollbar->value()); };
