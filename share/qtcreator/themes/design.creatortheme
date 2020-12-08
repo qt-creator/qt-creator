@@ -385,6 +385,7 @@ PaletteWindowDisabled=backgroundColorDisabled
 PaletteWindowTextDisabled=textDisabled
 PaletteBaseDisabled=backgroundColorDisabled
 PaletteTextDisabled=textDisabled
+PaletteMid=ffafafaf
 
 [Flags]
 ComboBoxDrawTextShadow=false
