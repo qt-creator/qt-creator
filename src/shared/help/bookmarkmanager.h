@@ -117,7 +117,7 @@ private:
     void filterChanged();
     void expand(const QModelIndex& index);
     void activated(const QModelIndex &index);
-    void customContextMenuRequested(const QPoint &point);
+    void showContextMenu(const QPoint &point);
     void setup();
     void expandItems();
     bool eventFilter(QObject *object, QEvent *event) override;

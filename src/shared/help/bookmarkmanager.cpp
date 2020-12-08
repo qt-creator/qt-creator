@@ -353,7 +353,7 @@ void BookmarkWidget::activated(const QModelIndex &index)
         emit linkActivated(data);
 }
 
-void BookmarkWidget::customContextMenuRequested(const QPoint &point)
+void BookmarkWidget::showContextMenu(const QPoint &point)
 {
     QModelIndex index = treeView->indexAt(point);
     if (!index.isValid())
@@ -449,7 +449,7 @@ void BookmarkWidget::setup()
     connect(treeView, &TreeView::collapsed, this, &BookmarkWidget::expand);
     connect(treeView, &TreeView::activated, this, &BookmarkWidget::activated);
     connect(treeView, &TreeView::customContextMenuRequested,
-            this, &BookmarkWidget::customContextMenuRequested);
+            this, &BookmarkWidget::showContextMenu);
 
     filterBookmarkModel->setFilterKeyColumn(0);
     filterBookmarkModel->setDynamicSortFilter(true);
