@@ -3847,8 +3847,6 @@ class DumperBase():
                 return self.knownArrayTypeSize()
             if typish == 'QObject':
                 return 2 * self.ptrSize()
-            if typish == 'QStandardItemData':
-                return 4 * self.ptrSize() if self.qtVersion() >= 0x060000 else 2 * self.ptrSize()
             if typish == 'Qt::ItemDataRole':
                 return 4
             if typish == 'QChar':
@@ -3860,7 +3858,12 @@ class DumperBase():
     def createType(self, typish, size=None):
         if isinstance(typish, self.Type):
             #typish.check()
-            return typish
+            if hasattr(typish, 'lbitsize') and typish.lbitsize is not None and typish.lbitsize > 0:
+                return typish
+            # Size 0 is sometimes reported by GDB but doesn't help at all.
+            # Force using the fallback:
+            typish = typish.name
+
         if isinstance(typish, str):
             ns = self.qtNamespace()
             typish = typish.replace('@', ns)
@@ -3875,7 +3878,9 @@ class DumperBase():
 
             tdata = self.typeData.get(typish, None)
             if tdata is not None:
-                return self.Type(self, typish)
+                if tdata.lbitsize is not None:
+                    if tdata.lbitsize > 0:
+                        return self.Type(self, typish)
 
             knownType = self.lookupType(typish)
             #DumperBase.warn('KNOWN: %s' % knownType)
@@ -3888,6 +3893,9 @@ class DumperBase():
             tdata.name = typish
             tdata.typeId = typish
             tdata.templateArguments = self.listTemplateParameters(typish)
+            if typish.endswith('*'):
+                tdata.code = TypeCode.Pointer
+                tdata.lbitsize = 8 * self.ptrSize()
 
             if size is not None:
                 tdata.lbitsize = 8 * size

@@ -249,9 +249,10 @@ def qdump__QStandardItemData(d, value):
 
 
 def qdump__QStandardItem(d, value):
-    d.createType('@QStandardItemData') # warm up cache
-    d.createType('@QStandardItem')
-    d.createType('@QStandardItem*')
+    # warm up cache
+    data_size = 4 * d.ptrSize() if d.qtVersion() >= 0x060000 else 2 * d.ptrSize()
+    d.createType('@QStandardItemData', data_size)
+
     vtable, dptr = value.split('pp')
     # There used to be a virtual destructor that got removed in
     # 88b6abcebf29b455438 on Apr 18 17:01:22 2017
