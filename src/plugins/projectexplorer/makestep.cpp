@@ -59,7 +59,6 @@ using namespace Utils;
 const char BUILD_TARGETS_SUFFIX[] = ".BuildTargets";
 const char MAKE_ARGUMENTS_SUFFIX[] = ".MakeArguments";
 const char MAKE_COMMAND_SUFFIX[] = ".MakeCommand";
-const char CLEAN_SUFFIX[] = ".Clean";
 const char OVERRIDE_MAKEFLAGS_SUFFIX[] = ".OverrideMakeflags";
 const char JOBCOUNT_SUFFIX[] = ".JobCount";
 
