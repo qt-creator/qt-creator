@@ -50,6 +50,10 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(%{ProjectName}
         ${PROJECT_SOURCES}
     )
+@if %{HasTranslation}
+
+    qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+@endif
 else()
     if(ANDROID)
         add_library(%{ProjectName} SHARED
@@ -60,10 +64,10 @@ else()
             ${PROJECT_SOURCES}
         )
     endif()
+@if %{HasTranslation}
+
+    qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+@endif
 endif()
 
 target_link_libraries(%{ProjectName} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-@if %{HasTranslation}
-
-qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
-@endif
