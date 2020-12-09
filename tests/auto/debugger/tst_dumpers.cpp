@@ -6635,7 +6635,7 @@ void tst_Dumpers::dumper_data()
                     "boost::shared_ptr<int> s;\n"
                     "boost::shared_ptr<int> i(new int(43));\n"
                     "boost::shared_ptr<int> j = i;\n"
-                    "boost::shared_ptr<QStringList> sl(new QStringList(QStringList() << \"HUH!\"));",
+                    "boost::shared_ptr<QList<QString>> sl(new QList<QString>(QList<QString>() << \"HUH!\"));",
 
                     "&s, &i, &j, &sl")
 
@@ -6645,7 +6645,7 @@ void tst_Dumpers::dumper_data()
              + Check("s", "(null)", "boost::shared_ptr<int>")
              + Check("i", "43", "boost::shared_ptr<int>")
              + Check("j", "43", "boost::shared_ptr<int>")
-             + Check("sl", "<1 items>", " boost::shared_ptr<@QStringList>")
+             + Check("sl", "<1 items>", " boost::shared_ptr<@QList<@QString>>")
              + Check("sl.0", "[0]", "\"HUH!\"", "@QString");
 
 
