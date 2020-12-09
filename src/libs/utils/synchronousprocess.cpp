@@ -482,16 +482,7 @@ SynchronousProcessResponse SynchronousProcess::run(const CommandLine &cmd,
     d->m_process.setProgram(cmd.executable().toString());
     d->m_process.setArguments(cmd.splitArguments());
     connect(&d->m_process, &QProcess::started, this, [this, writeData] {
-        if (!writeData.isEmpty()) {
-            int pos = 0;
-            int sz = writeData.size();
-            do {
-                d->m_process.waitForBytesWritten();
-                auto res = d->m_process.write(writeData.constData() + pos, sz - pos);
-                if (res > 0) pos += res;
-            } while (pos < sz);
-            d->m_process.waitForBytesWritten();
-        }
+        d->m_process.write(writeData);
         d->m_process.closeWriteChannel();
     });
     d->m_process.start(writeData.isEmpty() ? QIODevice::ReadOnly : QIODevice::ReadWrite);
