@@ -495,10 +495,8 @@ SynchronousProcessResponse SynchronousProcess::run(const CommandLine &cmd,
         if (isGuiThread())
             QApplication::setOverrideCursor(Qt::WaitCursor);
         d->m_eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
-        if (d->m_result.result == SynchronousProcessResponse::Finished || d->m_result.result == SynchronousProcessResponse::FinishedError) {
-            processStdOut(false);
-            processStdErr(false);
-        }
+        processStdOut(false);
+        processStdErr(false);
 
         d->m_result.rawStdOut = d->m_stdOut.rawData;
         d->m_result.rawStdErr = d->m_stdErr.rawData;
