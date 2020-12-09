@@ -522,20 +522,17 @@ SynchronousProcessResponse SynchronousProcess::runBlocking(const CommandLine &cm
 
     d->m_binary = cmd.executable();
     d->m_process.start(cmd.executable().toString(), cmd.splitArguments(), QIODevice::ReadOnly);
-    if (!d->m_process.waitForStarted(d->m_maxHangTimerCount * 1000)
-            && d->m_process.state() == QProcess::NotRunning) {
+    if (!d->m_process.waitForStarted(d->m_maxHangTimerCount * 1000)) {
         d->m_result.result = SynchronousProcessResponse::StartFailed;
         return d->m_result;
     }
     d->m_process.closeWriteChannel();
     if (!d->m_process.waitForFinished(d->m_maxHangTimerCount * 1000)) {
-        if (d->m_process.state() == QProcess::Running) {
-            d->m_result.result = SynchronousProcessResponse::Hang;
-            d->m_process.terminate();
-            if (!d->m_process.waitForFinished(1000) && d->m_process.state() == QProcess::Running) {
-                d->m_process.kill();
-                d->m_process.waitForFinished(1000);
-            }
+        d->m_result.result = SynchronousProcessResponse::Hang;
+        d->m_process.terminate();
+        if (!d->m_process.waitForFinished(1000)) {
+            d->m_process.kill();
+            d->m_process.waitForFinished(1000);
         }
     }
 
@@ -704,10 +701,10 @@ bool SynchronousProcess::stopProcess(QProcess &p)
     if (p.state() == QProcess::NotRunning)
         return true;
     p.terminate();
-    if (p.waitForFinished(300) && p.state() == QProcess::Running)
+    if (p.waitForFinished(300))
         return true;
     p.kill();
-    return p.waitForFinished(300) || p.state() == QProcess::NotRunning;
+    return p.waitForFinished(300);
 }
 
 // Path utilities

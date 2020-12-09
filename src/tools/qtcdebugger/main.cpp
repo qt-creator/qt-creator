@@ -333,7 +333,7 @@ bool startCreatorAsDebugger(bool asClient, QString *errorMessage)
     // Short execution time: indicates that -client was passed on attach to
     // another running instance of Qt Creator. Keep alive as long as user
     // does not close the process. If that fails, try to launch 2nd instance.
-    const bool waitResult = p.waitForFinished(-1) || p.state() == QProcess::NotRunning;
+    const bool waitResult = p.waitForFinished(-1);
     const bool ranAsClient = asClient && (executionTime.elapsed() < 10000);
     if (waitResult && p.exitStatus() == QProcess::NormalExit && ranAsClient) {
         if (p.exitCode() == 0) {

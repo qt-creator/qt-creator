@@ -57,7 +57,7 @@ void executeCommand(const QString &command, const QStringList &arguments, const 
             << Qt::endl;
         exit(EXIT_FAILURE);
     }
-    if (!process.waitForFinished() && process.state() == QProcess::Running) {
+    if (!process.waitForFinished()) {
         if (!verbose)
             out << process.readAll() << Qt::endl;
         out << QString::fromLatin1("Error: Process \"%1\" did not finish within timeout.").arg(fullCommand)

@@ -125,7 +125,7 @@ static FormatTask format(FormatTask task)
         }
         process.write(task.sourceData.toUtf8());
         process.closeWriteChannel();
-        if (!process.waitForFinished(5000) && process.state() == QProcess::Running) {
+        if (!process.waitForFinished(5000)) {
             process.kill();
             task.error = QString(QT_TRANSLATE_NOOP("TextEditor",
                                                    "Cannot call %1 or some other error occurred. Timeout "

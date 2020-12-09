@@ -194,7 +194,7 @@ void ApplicationLauncherPrivate::stop()
             localProcessDone(0, QProcess::CrashExit);
         } else {
             m_guiProcess.terminate();
-            if (!m_guiProcess.waitForFinished(1000) && m_guiProcess.state() == QProcess::Running) { // This is blocking, so be fast.
+            if (!m_guiProcess.waitForFinished(1000)) { // This is blocking, so be fast.
                 m_guiProcess.kill();
                 m_guiProcess.waitForFinished();
             }

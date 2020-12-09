@@ -429,7 +429,7 @@ void ProcessExtraCompiler::runInThread(
     if (!isCanceled) {
         handleProcessStarted(&process, sourceContents);
         forever {
-            bool done = process.waitForFinished(200) || process.state() == QProcess::NotRunning;
+            bool done = process.waitForFinished(200);
             isCanceled = futureInterface.isCanceled();
             if (done || isCanceled)
                 break;
