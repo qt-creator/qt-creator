@@ -537,11 +537,11 @@ SynchronousProcessResponse SynchronousProcess::runBlocking(const CommandLine &cm
         return d->m_result;
     }
     d->m_process.closeWriteChannel();
-    if (d->m_process.waitForFinished(d->m_maxHangTimerCount * 1000)) {
+    if (!d->m_process.waitForFinished(d->m_maxHangTimerCount * 1000)) {
         if (d->m_process.state() == QProcess::Running) {
             d->m_result.result = SynchronousProcessResponse::Hang;
             d->m_process.terminate();
-            if (d->m_process.waitForFinished(1000) && d->m_process.state() == QProcess::Running) {
+            if (!d->m_process.waitForFinished(1000) && d->m_process.state() == QProcess::Running) {
                 d->m_process.kill();
                 d->m_process.waitForFinished(1000);
             }
