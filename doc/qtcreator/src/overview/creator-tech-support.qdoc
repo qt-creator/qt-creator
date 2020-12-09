@@ -30,8 +30,12 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-glossary.html
     \page technical-support.html
+    \if defined(qtdesignstudio)
+    \previouspage studio-terms.html
+    \else
+    \previouspage creator-glossary.html
+    \endif
     \nextpage creator-acknowledgements.html
 
     \title Technical Support
@@ -46,11 +50,13 @@
             \li Where to Go
 
         \row
-            \li View examples of what you can do with Qt
-            \li \l{https://doc.qt.io/qt/all-examples.html}{List of Qt Examples}
+            \li View examples of what you can do with Qt Quick
+            \li \l{Qt Quick Examples and Tutorials}
 
-                \l{https://doc.qt.io/qt/qtquick-codesamples.html}
-                {List of Qt Quick Examples}
+        \if defined(qtcreator)
+        \row
+            \li View examples of what you can do with Qt
+            \li \l{List of Qt Examples}
 
         \row
             \li Develop Qt applications for desktop and \l{glossary-device}{devices}
@@ -60,15 +66,22 @@
             \li Participate in Qt development
             \li \l{https://wiki.qt.io/Qt_Contribution_Guidelines}
                 {Qt Contribution Guidelines}
+        \endif
 
        \row
             \li Find extensions for Qt, such as \QC plugins, development tools,
                 and Qt modules
             \li \l{https://marketplace.qt.io/}{Qt Marketplace}
 
+        \if defined(qtcreator)
         \row
             \li Find free Qt-based applications
             \li \l{https://github.com/topics/qt}{Qt Apps on GitHub}
+        \else
+        \row
+            \li Find free QML and Qt Quick applications
+            \li \l{https://github.com/topics/qml}{QML Apps on GitHub}
+        \endif
 
         \row
             \li Develop with a commercial Qt license and support -
