@@ -71,8 +71,9 @@
     \list 1
         \li Open \e {Screen01.ui.qml} for editing in the
             \uicontrol {Form Editor} view.
-        \li Select \e logo in \uicontrol Navigator.
-        \li Select the \inlineimage icons/anchor-top.png
+        \li Select \e logo in the \uicontrol Navigator view.
+        \li In the \uicontrol Properties view, \uicontrol Layout tab,
+            select the \inlineimage icons/anchor-top.png
             (\uicontrol Top) and \inlineimage icons/anchor-left.png
             (\uicontrol Left) anchor buttons to anchor \e logo to the top left
             corner of its parent with 10-pixel margins.
