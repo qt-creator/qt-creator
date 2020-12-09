@@ -475,9 +475,6 @@ SynchronousProcessResponse SynchronousProcess::run(const CommandLine &cmd,
 
     d->clearForRun();
 
-    // On Windows, start failure is triggered immediately if the
-    // executable cannot be found in the path. Do not start the
-    // event loop in that case.
     d->m_binary = cmd.executable();
     // using QProcess::start() and passing program, args and OpenMode results in a different
     // quoting of arguments than using QProcess::setArguments() beforehand and calling start()
@@ -499,6 +496,9 @@ SynchronousProcessResponse SynchronousProcess::run(const CommandLine &cmd,
     });
     d->m_process.start(writeData.isEmpty() ? QIODevice::ReadOnly : QIODevice::ReadWrite);
 
+    // On Windows, start failure is triggered immediately if the
+    // executable cannot be found in the path. Do not start the
+    // event loop in that case.
     if (!d->m_startFailure) {
         d->m_timer.start();
         if (isGuiThread())
@@ -529,9 +529,6 @@ SynchronousProcessResponse SynchronousProcess::runBlocking(const CommandLine &cm
 
     d->clearForRun();
 
-    // On Windows, start failure is triggered immediately if the
-    // executable cannot be found in the path. Do not start the
-    // event loop in that case.
     d->m_binary = cmd.executable();
     d->m_process.start(cmd.executable().toString(), cmd.splitArguments(), QIODevice::ReadOnly);
     if (!d->m_process.waitForStarted(d->m_maxHangTimerCount * 1000)
