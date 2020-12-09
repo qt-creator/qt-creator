@@ -1813,6 +1813,9 @@ class DumperBase():
             metaObjectPtr, handle = value.split('pI')
         if metaObjectPtr != 0:
             if self.qtVersion() >= 0x060000:
+                if handle == 0:
+                    self.putEmptyValue()
+                    return
                 revision = 9
                 name, alias, flags, keyCount, data = self.split('IIIII', handle)
                 index = name
