@@ -54,7 +54,6 @@
 #include <QLabel>
 #include <QListView>
 #include <QRegularExpression>
-#include <QRegularExpressionValidator>
 #include <QStandardItem>
 #include <QTextEdit>
 #include <QVariant>
@@ -107,37 +106,32 @@ namespace ProjectExplorer {
 // Helper:
 // --------------------------------------------------------------------
 
-class LineEditValidator : public QRegularExpressionValidator
+class LineEdit : public FancyLineEdit
 {
 public:
-    LineEditValidator(MacroExpander *expander, const QRegularExpression &pattern, QObject *parent) :
-        QRegularExpressionValidator(pattern, parent)
+    LineEdit(MacroExpander *expander, const QRegularExpression &pattern)
     {
+        if (pattern.pattern().isEmpty() || !pattern.isValid())
+            return;
         m_expander.setDisplayName(JsonFieldPage::tr("Line Edit Validator Expander"));
         m_expander.setAccumulating(true);
         m_expander.registerVariable("INPUT", JsonFieldPage::tr("The text edit input to fix up."),
                                     [this]() { return m_currentInput; });
         m_expander.registerSubProvider([expander]() -> MacroExpander * { return expander; });
+        setValidationFunction([this, pattern](FancyLineEdit *, QString *) {
+            return pattern.match(text()).hasMatch();
+        });
     }
 
-    void setFixupExpando(const QString &expando)
-    {
-        m_fixupExpando = expando;
-    }
+    void setFixupExpando(const QString &expando) { m_fixupExpando = expando; }
 
-    QValidator::State validate(QString &input, int &pos) const override
-    {
-        fixup(input);
-        return QRegularExpressionValidator::validate(input, pos);
-    }
-
-    void fixup(QString &fixup) const override
+private:
+    QString fixInputString(const QString &string) override
     {
         if (m_fixupExpando.isEmpty())
-            return;
-
-        m_currentInput = fixup;
-        fixup = m_expander.expand(m_fixupExpando);
+            return string;
+        m_currentInput = string;
+        return m_expander.expand(m_fixupExpando);
     }
 
 private:
@@ -508,7 +502,7 @@ bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
     m_restoreLastHistoryItem = consumeValue(tmp, "restoreLastHistoryItem", false).toBool();
     QString pattern = consumeValue(tmp, "validator").toString();
     if (!pattern.isEmpty()) {
-        m_validatorRegExp = QRegularExpression(pattern);
+        m_validatorRegExp = QRegularExpression('^' + pattern + '$');
         if (!m_validatorRegExp.isValid()) {
             *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
                                                         "LineEdit (\"%1\") has an invalid regular expression \"%2\" in \"validator\".")
@@ -539,13 +533,8 @@ bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
 QWidget *LineEditField::createWidget(const QString &displayName, JsonFieldPage *page)
 {
     Q_UNUSED(displayName)
-    auto w = new FancyLineEdit;
-
-    if (m_validatorRegExp.isValid()) {
-        auto lv = new LineEditValidator(page->expander(), m_validatorRegExp, w);
-        lv->setFixupExpando(m_fixupExpando);
-        w->setValidator(lv);
-    }
+    const auto w = new LineEdit(page->expander(), m_validatorRegExp);
+    w->setFixupExpando(m_fixupExpando);
 
     if (!m_historyId.isEmpty())
         w->setHistoryCompleter(m_historyId, m_restoreLastHistoryItem);
@@ -592,7 +581,7 @@ bool LineEditField::validate(MacroExpander *expander, QString *message)
 
     const bool baseValid = JsonFieldPage::Field::validate(expander, message);
     m_isValidating = false;
-    return baseValid && !w->text().isEmpty();
+    return baseValid && !w->text().isEmpty() && w->isValid();
 }
 
 void LineEditField::initializeData(MacroExpander *expander)
