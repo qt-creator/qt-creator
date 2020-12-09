@@ -36,7 +36,8 @@ Column {
     Label {
         text: qsTr("This item is an instance of a Component")
         anchors.horizontalCenter: parent.horizontalCenter
-        width: 220
+        width: 300
+        horizontalAlignment: Text.AlignHCenter
     }
 
     StudioControls.AbstractButton {
