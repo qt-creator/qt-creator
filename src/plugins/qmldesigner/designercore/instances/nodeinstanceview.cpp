@@ -422,6 +422,7 @@ void NodeInstanceView::resetVerticalAnchors(const ModelNode &modelNode)
 
 void NodeInstanceView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList)
 {
+    QTC_ASSERT(m_nodeInstanceServer, return);
 
     QList<ModelNode> nodeList;
     QList<AbstractProperty> nonNodePropertyList;
@@ -493,6 +494,7 @@ void NodeInstanceView::nodeTypeChanged(const ModelNode &, const TypeName &, int,
 
 void NodeInstanceView::bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags /*propertyChange*/)
 {
+    QTC_ASSERT(m_nodeInstanceServer, return);
     m_nodeInstanceServer->changePropertyBindings(createChangeBindingCommand(propertyList));
 }
 
@@ -507,6 +509,7 @@ void NodeInstanceView::bindingPropertiesChanged(const QList<BindingProperty>& pr
 
 void NodeInstanceView::variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags /*propertyChange*/)
 {
+    QTC_ASSERT(m_nodeInstanceServer, return);
     updatePosition(propertyList);
     m_nodeInstanceServer->changePropertyValues(createChangeValueCommand(propertyList));
 }
@@ -522,6 +525,7 @@ void NodeInstanceView::variantPropertiesChanged(const QList<VariantProperty>& pr
 
 void NodeInstanceView::nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
+    QTC_ASSERT(m_nodeInstanceServer, return);
     if (!isSkippedNode(node)) {
         updateChildren(newPropertyParent);
         m_nodeInstanceServer->reparentInstances(
@@ -531,11 +535,14 @@ void NodeInstanceView::nodeReparented(const ModelNode &node, const NodeAbstractP
 
 void NodeInstanceView::fileUrlChanged(const QUrl &/*oldUrl*/, const QUrl &newUrl)
 {
+    QTC_ASSERT(m_nodeInstanceServer, return);
     m_nodeInstanceServer->changeFileUrl(createChangeFileUrlCommand(newUrl));
 }
 
 void NodeInstanceView::nodeIdChanged(const ModelNode& node, const QString& /*newId*/, const QString &oldId)
 {
+    QTC_ASSERT(m_nodeInstanceServer, return);
+
     if (hasInstanceForModelNode(node)) {
         NodeInstance instance = instanceForModelNode(node);
         m_nodeInstanceServer->changeIds(createChangeIdsCommand({instance}));
@@ -546,6 +553,7 @@ void NodeInstanceView::nodeIdChanged(const ModelNode& node, const QString& /*new
 void NodeInstanceView::nodeOrderChanged(const NodeListProperty & listProperty,
                                         const ModelNode & /*movedNode*/, int /*oldIndex*/)
 {
+    QTC_ASSERT(m_nodeInstanceServer, return);
     QVector<ReparentContainer> containerList;
     PropertyName propertyName = listProperty.name();
     qint32 containerInstanceId = -1;
@@ -574,6 +582,7 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
                                             const PropertyName &name,
                                             const QVariant &value)
 {
+    QTC_ASSERT(m_nodeInstanceServer, return);
     if (((node.isRootNode() && (name == "width" || name == "height")) || name == "invisible" || name == "locked")
             || name.endsWith(PropertyName("@NodeInstance"))) {
         if (hasInstanceForModelNode(node)) {
@@ -610,6 +619,7 @@ void NodeInstanceView::customNotification(const AbstractView *view, const QStrin
 
 void NodeInstanceView::nodeSourceChanged(const ModelNode &node, const QString & newNodeSource)
 {
+     QTC_ASSERT(m_nodeInstanceServer, return);
      if (hasInstanceForModelNode(node)) {
          NodeInstance instance = instanceForModelNode(node);
          ChangeNodeSourceCommand changeNodeSourceCommand(instance.instanceId(), newNodeSource);
