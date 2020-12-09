@@ -55,11 +55,9 @@ void dumpBacktrace(int maxdepth)
     for (int i = 0; i < qMin(size, maxdepth); i++)
         proc.write("0x" + QByteArray::number(quintptr(bt[i]), 16) + '\n');
     proc.closeWriteChannel();
+    proc.waitForFinished();
     QByteArray out = proc.readAllStandardOutput();
     qDebug() << QCoreApplication::arguments().at(0);
-    qDebug() << out;
-    proc.waitForFinished();
-    out = proc.readAllStandardOutput();
     qDebug() << out;
 #endif
 }
