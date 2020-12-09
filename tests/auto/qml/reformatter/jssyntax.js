@@ -21,6 +21,11 @@ const func4 = (x, y) => {
     return x + y
 }
 
+const s1 = `test`
+const s2 = `${42 * 1}`
+const s3 = `test ${s2}`
+const s4 = `${s2}${s3}test`
+
 while (true) {
     for (var a = 1; a < 5; ++a) {
         switch (a) {

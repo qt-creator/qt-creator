@@ -802,6 +802,13 @@ protected:
     bool visit(StringLiteralPropertyName *ast) override { out(ast->id.toString()); return true; }
     bool visit(NumericLiteralPropertyName *ast) override { out(QString::number(ast->id)); return true; }
 
+    bool visit(TemplateLiteral *ast) override
+    {
+        out(ast->literalToken);
+        accept(ast->expression);
+        return true;
+    }
+
     bool visit(ArrayMemberExpression *ast) override
     {
         accept(ast->base);
