@@ -74,7 +74,7 @@ public slots:
 
 private:
     void editorClicked(QTreeWidgetItem *item);
-    void selectEditor(QTreeWidgetItem *item);
+    static void selectEditor(QTreeWidgetItem *item);
 
     void addHistoryItems(const QList<EditLocation> &history, EditorView *view,
                          QSet<const DocumentModel::Entry *> &entriesDone);

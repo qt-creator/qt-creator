@@ -79,7 +79,7 @@ public:
         QString topLevel;
     };
 
-    Utils::optional<VcsInfo> findInCache(const QString &dir)
+    Utils::optional<VcsInfo> findInCache(const QString &dir) const
     {
         QTC_ASSERT(QDir(dir).isAbsolute(), return Utils::nullopt);
         QTC_ASSERT(!dir.endsWith(QLatin1Char('/')), return Utils::nullopt);

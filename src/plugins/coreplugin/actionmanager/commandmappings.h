@@ -70,7 +70,7 @@ protected:
     void setFilterText(const QString &text);
     void setPageTitle(const QString &s);
     void setTargetHeader(const QString &s);
-    void setModified(QTreeWidgetItem *item, bool modified);
+    static void setModified(QTreeWidgetItem *item, bool modified);
 
 private:
     bool filter(const QString &filterString, QTreeWidgetItem *item);

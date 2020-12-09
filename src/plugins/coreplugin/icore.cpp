@@ -769,7 +769,7 @@ void ICore::registerWindow(QWidget *window, const Context &context)
 
 void ICore::openFiles(const QStringList &arguments, ICore::OpenFilesFlags flags)
 {
-    m_mainwindow->openFiles(arguments, flags);
+    MainWindow::openFiles(arguments, flags);
 }
 
 /*!

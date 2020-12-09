@@ -76,7 +76,7 @@ private:
     void showPopupDelayed();
     void showPopupNow();
     void acceptEntry(int row);
-    void showConfigureDialog();
+    static void showConfigureDialog();
     void addSearchResults(int firstIndex, int endIndex);
     void handleSearchFinished();
     void updateFilterList();
@@ -86,7 +86,7 @@ private:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
     void updateCompletionList(const QString &text);
-    QList<ILocatorFilter*> filtersFor(const QString &text, QString &searchText);
+    static QList<ILocatorFilter*> filtersFor(const QString &text, QString &searchText);
     void setProgressIndicatorVisible(bool visible);
 
     LocatorModel *m_locatorModel = nullptr;

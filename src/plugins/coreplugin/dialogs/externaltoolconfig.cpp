@@ -88,7 +88,7 @@ public:
     void setTools(const QMap<QString, QList<ExternalTool *> > &tools);
     QMap<QString, QList<ExternalTool *> > tools() const { return m_tools; }
 
-    ExternalTool *toolForIndex(const QModelIndex &modelIndex) const;
+    static ExternalTool *toolForIndex(const QModelIndex &modelIndex);
     QString categoryForIndex(const QModelIndex &modelIndex, bool *found) const;
     void revertTool(const QModelIndex &modelIndex);
     QModelIndex addCategory();
@@ -97,8 +97,8 @@ public:
     Qt::DropActions supportedDropActions() const override { return Qt::MoveAction; }
 
 private:
-    QVariant data(ExternalTool *tool, int role = Qt::DisplayRole) const;
-    QVariant data(const QString &category, int role = Qt::DisplayRole) const;
+    static QVariant data(ExternalTool *tool, int role = Qt::DisplayRole);
+    static QVariant data(const QString &category, int role = Qt::DisplayRole);
 
     QMap<QString, QList<ExternalTool *> > m_tools;
 };
@@ -129,7 +129,7 @@ QVariant ExternalToolModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-QVariant ExternalToolModel::data(ExternalTool *tool, int role) const
+QVariant ExternalToolModel::data(ExternalTool *tool, int role)
 {
     switch (role) {
     case Qt::DisplayRole:
@@ -141,7 +141,7 @@ QVariant ExternalToolModel::data(ExternalTool *tool, int role) const
     return QVariant();
 }
 
-QVariant ExternalToolModel::data(const QString &category, int role) const
+QVariant ExternalToolModel::data(const QString &category, int role)
 {
     switch (role) {
     case Qt::DisplayRole:
@@ -315,7 +315,7 @@ void ExternalToolModel::setTools(const QMap<QString, QList<ExternalTool *> > &to
     endResetModel();
 }
 
-ExternalTool *ExternalToolModel::toolForIndex(const QModelIndex &index) const
+ExternalTool *ExternalToolModel::toolForIndex(const QModelIndex &index)
 {
     return static_cast<ExternalTool *>(index.internalPointer());
 }
@@ -547,7 +547,7 @@ void ExternalToolConfig::handleCurrentChanged(const QModelIndex &now, const QMod
 
 void ExternalToolConfig::updateButtons(const QModelIndex &index)
 {
-    ExternalTool *tool = m_model.toolForIndex(index);
+    const ExternalTool *tool = ExternalToolModel::toolForIndex(index);
     if (!tool) {
         m_ui.removeButton->setEnabled(false);
         m_ui.revertButton->setEnabled(false);
@@ -571,7 +571,7 @@ void ExternalToolConfig::updateCurrentItem()
 
 void ExternalToolConfig::updateItem(const QModelIndex &index)
 {
-    ExternalTool *tool = m_model.toolForIndex(index);
+    ExternalTool *tool = ExternalToolModel::toolForIndex(index);
     if (!tool)
         return;
     tool->setDescription(m_ui.description->text());
@@ -594,7 +594,7 @@ void ExternalToolConfig::updateItem(const QModelIndex &index)
 void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
 {
     updateButtons(index);
-    ExternalTool *tool = m_model.toolForIndex(index);
+    const ExternalTool *tool = ExternalToolModel::toolForIndex(index);
     if (!tool) {
         m_ui.description->clear();
         m_ui.executable->setPath(QString());

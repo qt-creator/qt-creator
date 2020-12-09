@@ -97,8 +97,8 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
-    void changeActiveEditor(int row);
-    void makeEditorWritable();
+    static void changeActiveEditor(int row);
+    static void makeEditorWritable();
 
     void checkDocumentStatus();
     void closeEditor();

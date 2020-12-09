@@ -733,7 +733,7 @@ void FindToolBar::hideAndResetFocus()
     hide();
 }
 
-FindToolBarPlaceHolder *FindToolBar::findToolBarPlaceHolder() const
+FindToolBarPlaceHolder *FindToolBar::findToolBarPlaceHolder()
 {
     const QList<FindToolBarPlaceHolder*> placeholders = FindToolBarPlaceHolder::allFindToolbarPlaceHolders();
     QWidget *candidate = QApplication::focusWidget();

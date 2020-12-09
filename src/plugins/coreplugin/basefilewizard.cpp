@@ -84,7 +84,7 @@ void BaseFileWizard::accept()
     QString errorMessage;
 
     // Compile result list and prompt for overwrite
-    switch (m_factory->promptOverwrite(&m_files, &errorMessage)) {
+    switch (BaseFileWizardFactory::promptOverwrite(&m_files, &errorMessage)) {
     case BaseFileWizardFactory::OverwriteCanceled:
         reject();
         return;

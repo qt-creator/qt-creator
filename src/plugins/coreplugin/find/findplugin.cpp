@@ -182,7 +182,8 @@ public:
     bool isAnyFilterEnabled() const;
     void writeSettings();
     void setFindFlag(Core::FindFlag flag, bool enabled);
-    void updateCompletion(const QString &text, QStringList &completions, QStringListModel *model);
+    static void updateCompletion(const QString &text, QStringList &completions,
+                                 QStringListModel *model);
     void setupMenu();
     void setupFilterMenuItems();
     void readSettings();
@@ -429,7 +430,7 @@ void Find::updateFindCompletion(const QString &text, FindFlags flags)
 
 void Find::updateReplaceCompletion(const QString &text)
 {
-    d->updateCompletion(text, d->m_replaceCompletions, &d->m_replaceCompletionModel);
+    FindPrivate::updateCompletion(text, d->m_replaceCompletions, &d->m_replaceCompletionModel);
 }
 
 void FindPrivate::updateCompletion(const QString &text, QStringList &completions, QStringListModel *model)

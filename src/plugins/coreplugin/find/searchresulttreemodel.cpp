@@ -149,7 +149,7 @@ int SearchResultTreeModel::columnCount(const QModelIndex &parent) const
     return 1;
 }
 
-SearchResultTreeItem *SearchResultTreeModel::treeItemAtIndex(const QModelIndex &idx) const
+SearchResultTreeItem *SearchResultTreeModel::treeItemAtIndex(const QModelIndex &idx)
 {
     return static_cast<SearchResultTreeItem*>(idx.internalPointer());
 }

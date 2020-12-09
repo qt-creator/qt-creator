@@ -203,7 +203,7 @@ bool BaseFileWizardFactory::postGenerateOpenEditors(const GeneratedFiles &l, QSt
 */
 
 BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(GeneratedFiles *files,
-                                                                QString *errorMessage) const
+                                                                QString *errorMessage)
 {
     if (debugWizard)
         qDebug() << Q_FUNC_INFO << files;

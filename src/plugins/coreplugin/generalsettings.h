@@ -35,7 +35,7 @@ class GeneralSettings : public IOptionsPage
 public:
     GeneralSettings();
 
-    bool showShortcutsInContextMenu() const;
+    static bool showShortcutsInContextMenu();
     void setShowShortcutsInContextMenu(bool show);
 
 private:

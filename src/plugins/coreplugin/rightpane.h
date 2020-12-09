@@ -72,7 +72,7 @@ public:
     void saveSettings(Utils::QtcSettings *settings);
     void readSettings(QSettings *settings);
 
-    bool isShown();
+    bool isShown() const;
     void setShown(bool b);
 
     static RightPaneWidget *instance();
@@ -80,7 +80,7 @@ public:
     void setWidget(QWidget *widget);
     QWidget *widget() const;
 
-    int storedWidth();
+    int storedWidth() const;
 
 protected:
     void resizeEvent(QResizeEvent *) override;

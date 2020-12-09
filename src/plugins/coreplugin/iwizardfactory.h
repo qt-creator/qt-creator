@@ -83,7 +83,7 @@ public:
     void addRequiredFeature(const Utils::Id &feature) { m_requiredFeatures |= feature; }
     void setFlags(WizardFlags flags) { m_flags = flags; }
 
-    QString runPath(const QString &defaultPath);
+    QString runPath(const QString &defaultPath) const;
 
     // Does bookkeeping and the calls runWizardImpl. Please implement that.
     Utils::Wizard *runWizard(const QString &path, QWidget *parent, Utils::Id platform,
@@ -111,8 +111,8 @@ public:
                                      const QVariantMap &extraVariables);
 
 protected:
-    QSet<Utils::Id> pluginFeatures() const;
-    QSet<Utils::Id> availableFeatures(Utils::Id platformId) const;
+    static QSet<Utils::Id> pluginFeatures();
+    static QSet<Utils::Id> availableFeatures(Utils::Id platformId);
 
     virtual Utils::Wizard *runWizardImpl(const QString &path, QWidget *parent, Utils::Id platform,
                                          const QVariantMap &variables) = 0;

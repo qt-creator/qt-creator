@@ -47,7 +47,7 @@ using namespace Core::Internal;
 using namespace Utils;
 
 ILocatorFilter::MatchLevel FileSystemFilter::matchLevelFor(const QRegularExpressionMatch &match,
-                                                           const QString &matchText) const
+                                                           const QString &matchText)
 {
     const int consecutivePos = match.capturedStart(1);
     if (consecutivePos == 0)

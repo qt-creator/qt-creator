@@ -55,13 +55,13 @@ public:
     bool hasContext(int context) const;
 
     void saveSettings();
-    void saveSettings(Action *cmd);
+    static void saveSettings(Action *cmd);
 
-    void showShortcutPopup(const QString &shortcut);
+    static void showShortcutPopup(const QString &shortcut);
     bool hasContext(const Context &context) const;
     Action *overridableAction(Utils::Id id);
 
-    void readUserSettings(Utils::Id id, Action *cmd);
+    static void readUserSettings(Utils::Id id, Action *cmd);
 
     void containerDestroyed();
     void actionTriggered();

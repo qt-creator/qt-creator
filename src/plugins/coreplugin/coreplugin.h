@@ -87,7 +87,7 @@ private slots:
 
 private:
     static void addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QMenu *menu);
-    void setupSystemEnvironment();
+    static void setupSystemEnvironment();
     void checkSettings();
 
     MainWindow *m_mainWindow = nullptr;

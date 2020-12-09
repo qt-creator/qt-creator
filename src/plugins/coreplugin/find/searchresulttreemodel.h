@@ -76,7 +76,7 @@ private:
     bool setCheckState(const QModelIndex &idx, Qt::CheckState checkState, bool firstCall = true);
     QModelIndex nextIndex(const QModelIndex &idx, bool *wrapped = nullptr) const;
     QModelIndex prevIndex(const QModelIndex &idx, bool *wrapped = nullptr) const;
-    SearchResultTreeItem *treeItemAtIndex(const QModelIndex &idx) const;
+    static SearchResultTreeItem *treeItemAtIndex(const QModelIndex &idx);
 
     SearchResultTreeItem *m_rootItem;
     SearchResultTreeItem *m_currentParent;

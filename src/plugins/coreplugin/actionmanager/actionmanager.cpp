@@ -328,7 +328,7 @@ void ActionManager::unregisterAction(QAction *action, Id id)
     a->removeOverrideAction(action);
     if (a->isEmpty()) {
         // clean up
-        d->saveSettings(a);
+        ActionManagerPrivate::saveSettings(a);
         ICore::mainWindow()->removeAction(a->action());
         // ActionContainers listen to the commands' destroyed signals
         delete a->action();

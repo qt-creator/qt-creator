@@ -124,7 +124,7 @@ private:
     void setFindFlag(FindFlag flag, bool enabled);
     bool hasFindFlag(FindFlag flag);
     FindFlags effectiveFindFlags();
-    FindToolBarPlaceHolder *findToolBarPlaceHolder() const;
+    static FindToolBarPlaceHolder *findToolBarPlaceHolder();
     bool toolBarHasFocus() const;
     ControlStyle controlStyle(bool replaceIsVisible);
     void setFindButtonStyle(Qt::ToolButtonStyle style);

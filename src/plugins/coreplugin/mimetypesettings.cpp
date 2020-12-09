@@ -84,7 +84,7 @@ public:
 class UserMimeType
 {
 public:
-    bool isValid() { return !name.isEmpty(); }
+    bool isValid() const { return !name.isEmpty(); }
     QString name;
     QStringList globPatterns;
     QMap<int, QList<Utils::Internal::MimeMagicRule> > rules;

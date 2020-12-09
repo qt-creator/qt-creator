@@ -65,7 +65,7 @@ private:
     void updateButtonStates();
     void updateFindFlags();
     void updateFindFilterName(IFindFilter *filter);
-    void findCompleterActivated(const QModelIndex &index);
+    static void findCompleterActivated(const QModelIndex &index);
 
     void acceptAndGetParameters(QString *term, IFindFilter **filter);
 

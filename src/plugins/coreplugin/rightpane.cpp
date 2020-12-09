@@ -159,7 +159,7 @@ QWidget *RightPaneWidget::widget() const
     return m_widget;
 }
 
-int RightPaneWidget::storedWidth()
+int RightPaneWidget::storedWidth() const
 {
     return m_width;
 }
@@ -197,7 +197,7 @@ void RightPaneWidget::setShown(bool b)
     m_shown = b;
 }
 
-bool RightPaneWidget::isShown()
+bool RightPaneWidget::isShown() const
 {
     return m_shown;
 }

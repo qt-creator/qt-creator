@@ -428,12 +428,10 @@ bool ShortcutSettingsWidget::updateAndCheckForConflicts(const QKeySequence &key,
     while (index >= item->m_keys.size())
         item->m_keys.append(QKeySequence());
     item->m_keys[index] = key;
-    auto that = const_cast<ShortcutSettingsWidget *>(this);
-    if (cleanKeys(item->m_keys) != item->m_cmd->defaultKeySequences())
-        that->setModified(current, true);
-    else
-        that->setModified(current, false);
+    CommandMappings::setModified(current,
+                                 cleanKeys(item->m_keys) != item->m_cmd->defaultKeySequences());
     current->setText(2, keySequencesToNativeString(item->m_keys));
+    auto that = const_cast<ShortcutSettingsWidget *>(this);
     return that->markCollisions(item, index);
 }
 

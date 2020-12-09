@@ -159,7 +159,7 @@ SplitterOrView *EditorView::parentSplitterOrView() const
     return m_parentSplitterOrView;
 }
 
-EditorView *EditorView::findNextView()
+EditorView *EditorView::findNextView() const
 {
     SplitterOrView *current = parentSplitterOrView();
     QTC_ASSERT(current, return nullptr);
@@ -182,7 +182,7 @@ EditorView *EditorView::findNextView()
     return nullptr;
 }
 
-EditorView *EditorView::findPreviousView()
+EditorView *EditorView::findPreviousView() const
 {
     SplitterOrView *current = parentSplitterOrView();
     QTC_ASSERT(current, return nullptr);
@@ -363,7 +363,7 @@ void EditorView::listSelectionActivated(int index)
     EditorManagerPrivate::activateEditorForEntry(this, DocumentModel::entryAtRow(index));
 }
 
-void EditorView::fillListContextMenu(QMenu *menu)
+void EditorView::fillListContextMenu(QMenu *menu) const
 {
     IEditor *editor = currentEditor();
     DocumentModel::Entry *entry = editor ? DocumentModel::entryForDocument(editor->document())

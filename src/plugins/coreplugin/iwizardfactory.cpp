@@ -227,7 +227,7 @@ QList<IWizardFactory*> IWizardFactory::allWizardFactories()
     return s_allFactories;
 }
 
-QString IWizardFactory::runPath(const QString &defaultPath)
+QString IWizardFactory::runPath(const QString &defaultPath) const
 {
     QString path = defaultPath;
     if (path.isEmpty()) {
@@ -381,7 +381,7 @@ void IWizardFactory::clearWizardFactories()
     s_areFactoriesLoaded = false;
 }
 
-QSet<Id> IWizardFactory::pluginFeatures() const
+QSet<Id> IWizardFactory::pluginFeatures()
 {
     static QSet<Id> plugins;
     if (plugins.isEmpty()) {
@@ -394,7 +394,7 @@ QSet<Id> IWizardFactory::pluginFeatures() const
     return plugins;
 }
 
-QSet<Id> IWizardFactory::availableFeatures(Id platformId) const
+QSet<Id> IWizardFactory::availableFeatures(Id platformId)
 {
     QSet<Id> availableFeatures;
 

@@ -1174,7 +1174,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
     }
 }
 
-void ManhattanStyle::drawButtonSeparator(QPainter *painter, const QRect &rect, bool reverse) const
+void ManhattanStyle::drawButtonSeparator(QPainter *painter, const QRect &rect, bool reverse)
 {
     const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
     if (creatorTheme()->flag(Theme::FlatToolBars)) {

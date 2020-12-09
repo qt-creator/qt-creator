@@ -121,7 +121,7 @@ MagicData MimeTypeMagicDialog::magicData() const
 }
 
 
-bool MagicData::operator==(const MagicData &other)
+bool MagicData::operator==(const MagicData &other) const
 {
     return m_priority == other.m_priority && m_rule == other.m_rule;
 }

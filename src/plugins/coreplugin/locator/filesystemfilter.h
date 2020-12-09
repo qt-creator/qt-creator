@@ -53,7 +53,7 @@ public:
     void refresh(QFutureInterface<void> &) override {}
 
 private:
-    MatchLevel matchLevelFor(const QRegularExpressionMatch &match, const QString &matchText) const;
+    static MatchLevel matchLevelFor(const QRegularExpressionMatch &match, const QString &matchText);
 
     bool m_includeHidden = true;
     QString m_currentDocumentDirectory;

@@ -59,7 +59,7 @@ public slots:
     void slotHide();
     void slotNext();
     void slotPrev();
-    void toggleMaximized();
+    static void toggleMaximized();
 
 protected:
     void focusInEvent(QFocusEvent *e) override;

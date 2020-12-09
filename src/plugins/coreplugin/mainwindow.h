@@ -89,9 +89,9 @@ public:
     void addContextObject(IContext *context);
     void removeContextObject(IContext *context);
 
-    IDocument *openFiles(const QStringList &fileNames,
-                         ICore::OpenFilesFlags flags,
-                         const QString &workingDirectory = QString());
+    static IDocument *openFiles(const QStringList &fileNames,
+                                ICore::OpenFilesFlags flags,
+                                const QString &workingDirectory = QString());
 
     inline SettingsDatabase *settingsDatabase() const { return m_settingsDatabase; }
     virtual QPrinter *printer() const;
@@ -117,16 +117,16 @@ public:
     void restart();
 
 public slots:
-    void openFileWith();
+    static void openFileWith();
     void exit();
 
 protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
-    void openFile();
+    static void openFile();
     void aboutToShowRecentFiles();
-    void setFocusToEditor();
+    static void setFocusToEditor();
     void aboutQtCreator();
     void aboutPlugins();
     void updateFocusWidget(QWidget *old, QWidget *now);

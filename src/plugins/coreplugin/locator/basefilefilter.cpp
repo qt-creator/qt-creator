@@ -118,7 +118,7 @@ void BaseFileFilter::prepareSearch(const QString &entry)
 }
 
 ILocatorFilter::MatchLevel BaseFileFilter::matchLevelFor(const QRegularExpressionMatch &match,
-                                                         const QString &matchText) const
+                                                         const QString &matchText)
 {
     const int consecutivePos = match.capturedStart(1);
     if (consecutivePos == 0)

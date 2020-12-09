@@ -80,7 +80,7 @@ public:
     virtual bool updateInternal() = 0;
 
 protected:
-    bool canAddAction(Command *action) const;
+    static bool canAddAction(Command *action);
     bool canAddMenu(ActionContainer *menu) const;
     virtual bool canBeAddedToContainer(ActionContainerPrivate *container) const = 0;
 

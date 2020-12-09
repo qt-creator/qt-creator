@@ -417,7 +417,7 @@ private:
 
     void createGui();
     void showCategory(int index);
-    void updateEnabledTabs(Category *category, const QString &searchText);
+    static void updateEnabledTabs(Category *category, const QString &searchText);
     void ensureCategoryWidget(Category *category);
     void disconnectTabWidgets();
 

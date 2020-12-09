@@ -46,7 +46,7 @@ public:
     {
     }
 
-    bool operator==(const MagicData &other);
+    bool operator==(const MagicData &other) const;
     bool operator!=(const MagicData &other) { return !(*this == other); }
 
     static QByteArray normalizedMask(const Utils::Internal::MimeMagicRule &rule);

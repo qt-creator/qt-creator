@@ -398,7 +398,7 @@ TouchBar *ActionContainerPrivate::touchBar() const
     return nullptr;
 }
 
-bool ActionContainerPrivate::canAddAction(Command *action) const
+bool ActionContainerPrivate::canAddAction(Command *action)
 {
     return action && action->action();
 }

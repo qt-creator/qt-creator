@@ -270,7 +270,7 @@ QObject *CorePlugin::remoteCommand(const QStringList & /* options */,
         });
         return nullptr;
     }
-    IDocument *res = m_mainWindow->openFiles(
+    IDocument *res = MainWindow::openFiles(
                 args, ICore::OpenFilesFlags(ICore::SwitchMode | ICore::CanContainLineAndColumnNumbers | ICore::SwitchSplitIfAlreadyVisible),
                 workingDirectory);
     m_mainWindow->raiseWindow();

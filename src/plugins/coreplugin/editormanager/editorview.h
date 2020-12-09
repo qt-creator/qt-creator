@@ -78,8 +78,8 @@ public:
     ~EditorView() override;
 
     SplitterOrView *parentSplitterOrView() const;
-    EditorView *findNextView();
-    EditorView *findPreviousView();
+    EditorView *findNextView() const;
+    EditorView *findPreviousView() const;
 
     int editorCount() const;
     void addEditor(IEditor *editor);
@@ -123,7 +123,7 @@ private:
 
     void setParentSplitterOrView(SplitterOrView *splitterOrView);
 
-    void fillListContextMenu(QMenu *menu);
+    void fillListContextMenu(QMenu *menu) const;
     void updateNavigatorActions();
     void updateToolBar(IEditor *editor);
     void checkProjectLoaded(IEditor *editor);

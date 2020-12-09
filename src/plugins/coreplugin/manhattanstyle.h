@@ -67,7 +67,7 @@ public:
     void unpolish(QApplication *app) override;
 
 private:
-    void drawButtonSeparator(QPainter *painter, const QRect &rect, bool reverse) const;
+    static void drawButtonSeparator(QPainter *painter, const QRect &rect, bool reverse);
 
     ManhattanStylePrivate *d;
 };

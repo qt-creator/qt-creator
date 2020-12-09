@@ -64,10 +64,10 @@ public:
     void resetWarnings();
     void resetLanguage();
 
-    bool canResetWarnings() const;
+    static bool canResetWarnings();
     void fillLanguageBox() const;
-    QString language() const;
-    void setLanguage(const QString&);
+    static QString language();
+    static void setLanguage(const QString&);
 
     GeneralSettings *q;
     Ui::GeneralSettings m_ui;
@@ -86,7 +86,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
     m_ui.showShortcutsInContextMenus->setText(
                 tr("Show keyboard shortcuts in context menus (default: %1)")
                 .arg(q->m_defaultShowShortcutsInContextMenu ? tr("on") : tr("off")));
-    m_ui.showShortcutsInContextMenus->setChecked(q->showShortcutsInContextMenu());
+    m_ui.showShortcutsInContextMenus->setChecked(GeneralSettings::showShortcutsInContextMenu());
 #if (QT_VERSION < QT_VERSION_CHECK(5, 13, 0))
     m_ui.showShortcutsInContextMenus->setVisible(false);
 #endif
@@ -157,7 +157,7 @@ void GeneralSettingsWidget::apply()
     m_ui.themeChooser->apply();
 }
 
-bool GeneralSettings::showShortcutsInContextMenu() const
+bool GeneralSettings::showShortcutsInContextMenu()
 {
     return ICore::settings()
         ->value(settingsKeyShortcutsInContextMenu,
@@ -177,7 +177,7 @@ void GeneralSettingsWidget::resetWarnings()
     m_ui.resetWarningsButton->setEnabled(false);
 }
 
-bool GeneralSettingsWidget::canResetWarnings() const
+bool GeneralSettingsWidget::canResetWarnings()
 {
     return InfoBar::anyGloballySuppressed()
         || CheckableMessageBox::hasSuppressedQuestions(ICore::settings());
@@ -189,7 +189,7 @@ void GeneralSettingsWidget::resetLanguage()
     m_ui.languageBox->setCurrentIndex(0);
 }
 
-QString GeneralSettingsWidget::language() const
+QString GeneralSettingsWidget::language()
 {
     QSettings *settings = ICore::settings();
     return settings->value(QLatin1String("General/OverrideLanguage")).toString();

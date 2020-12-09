@@ -109,8 +109,8 @@ protected:
     static QString preferredSuffix(const QString &mimeType);
 
     enum OverwriteResult { OverwriteOk,  OverwriteError,  OverwriteCanceled };
-    OverwriteResult promptOverwrite(GeneratedFiles *files,
-                                    QString *errorMessage) const;
+    static OverwriteResult promptOverwrite(GeneratedFiles *files,
+                                           QString *errorMessage);
     static bool postGenerateOpenEditors(const GeneratedFiles &l, QString *errorMessage = nullptr);
 
 private:
