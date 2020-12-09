@@ -113,7 +113,7 @@ def is_debug(fpath):
     try:
         output = subprocess.check_output(['dumpbin', '/imports', fpath])
         return coredebug.search(output.decode(encoding)) != None
-    except FileNotFoundError:
+    except OSError:
         # dumpbin is not there, maybe MinGW ? Just ship all .dlls.
         return debug_build
 
@@ -238,16 +238,10 @@ def deploy_libclang(install_dir, llvm_install_dir, chrpath_bin):
             os.makedirs(clanglibdirtarget)
         deployinfo.append((os.path.join(llvm_install_dir, 'bin', 'libclang.dll'),
                            os.path.join(install_dir, 'bin')))
-        deployinfo.append((os.path.join(llvm_install_dir, 'bin', 'clang.exe'),
-                           clangbindirtarget))
-        deployinfo.append((os.path.join(llvm_install_dir, 'bin', 'clang-cl.exe'),
-                           clangbindirtarget))
-        deployinfo.append((os.path.join(llvm_install_dir, 'bin', 'clangd.exe'),
-                           clangbindirtarget))
-        deployinfo.append((os.path.join(llvm_install_dir, 'bin', 'clang-tidy.exe'),
-                           clangbindirtarget))
-        deployinfo.append((os.path.join(llvm_install_dir, 'bin', 'clazy-standalone.exe'),
-                           clangbindirtarget))
+        for binary in ['clang', 'clang-cl', 'clangd', 'clang-tidy', 'clazy-standalone']:
+            binary_filepath = os.path.join(llvm_install_dir, 'bin', 'clang.exe')
+            if os.path.exists(binary_filepath):
+                deployinfo.append((binary_filepath, clangbindirtarget))
         resourcetarget = os.path.join(clanglibdirtarget, 'clang')
     else:
         # libclang -> Qt Creator libraries
@@ -260,12 +254,13 @@ def deploy_libclang(install_dir, llvm_install_dir, chrpath_bin):
             os.makedirs(clangbinary_targetdir)
         for binary in ['clang', 'clangd', 'clang-tidy', 'clazy-standalone']:
             binary_filepath = os.path.join(llvm_install_dir, 'bin', binary)
-            deployinfo.append((binary_filepath, clangbinary_targetdir))
-            # add link target if binary is actually a symlink (to a binary in the same directory)
-            if os.path.islink(binary_filepath):
-                linktarget = os.readlink(binary_filepath)
-                deployinfo.append((os.path.join(os.path.dirname(binary_filepath), linktarget),
-                                   os.path.join(clangbinary_targetdir, linktarget)))
+            if os.path.exists(binary_filepath):
+                deployinfo.append((binary_filepath, clangbinary_targetdir))
+                # add link target if binary is actually a symlink (to a binary in the same directory)
+                if os.path.islink(binary_filepath):
+                    linktarget = os.readlink(binary_filepath)
+                    deployinfo.append((os.path.join(os.path.dirname(binary_filepath), linktarget),
+                                       os.path.join(clangbinary_targetdir, linktarget)))
         clanglibs_targetdir = os.path.join(install_dir, 'libexec', 'qtcreator', 'clang', 'lib')
         # support libraries (for clazy) -> clang libexec
         if not os.path.exists(clanglibs_targetdir):
