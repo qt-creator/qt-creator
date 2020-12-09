@@ -7741,6 +7741,7 @@ void tst_Dumpers::dumper_data()
                     "v18.setProperty(\"PropA\", 1);\n"
                     "v18.setProperty(\"PropB\", 2.5);\n"
                     "v18.setProperty(\"PropC\", v10);\n\n"
+                    "#if QT_VERSION < 0x60000\n"
                     "QV4::Value s11, *p11 = QJSValuePrivate::valueForData(&v11, &s11);\n"
                     "QV4::Value s12, *p12 = QJSValuePrivate::valueForData(&v12, &s12);\n"
                     "QV4::Value s13, *p13 = QJSValuePrivate::valueForData(&v13, &s13);\n"
@@ -7748,10 +7749,11 @@ void tst_Dumpers::dumper_data()
                     "QV4::Value s15, *p15 = QJSValuePrivate::valueForData(&v15, &s15);\n"
                     "QV4::Value s16, *p16 = QJSValuePrivate::valueForData(&v16, &s16);\n"
                     "QV4::Value s17, *p17 = QJSValuePrivate::valueForData(&v17, &s17);\n"
-                    "QV4::Value s18, *p18 = QJSValuePrivate::valueForData(&v18, &s18);\n",
+                    "QV4::Value s18, *p18 = QJSValuePrivate::valueForData(&v18, &s18);\n"
+                    "unused(&p11, &p12, &p13, &p14, &p15, &p16, &p17, &p18);\n"
+                    "#endif\n",
 
-                    "&v10, &v11, &v12, &v13, &v14, &v15, &v16, &v17, &v18, "
-                    "&p11, &p12, &p13, &p14, &p15, &p16, &p17, &p18")
+                    "&v10, &v11, &v12, &v13, &v14, &v15, &v16, &v17, &v18")
 
             + QmlPrivateProfile()
             + QtVersion(0x50000)

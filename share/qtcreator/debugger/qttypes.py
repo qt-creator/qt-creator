@@ -2769,7 +2769,10 @@ def qdump__QJSValue(d, value):
     if d.ptrSize() == 4:
         qdump_32__QJSValue(d, value)
     else:
-        qdump_64__QJSValue(d, value)
+        if d.qtVersion() >= 0x60000:
+            qdump_64__QJSValue_6(d, value)
+        else:
+            qdump_64__QJSValue_5(d, value)
 
 
 def qdump_32__QJSValue(d, value):
@@ -2795,8 +2798,55 @@ def qdump_32__QJSValue(d, value):
                 d.putType(' ')
             d.putFields(value)
 
+def qdump_64__QJSValue_6(d, value):
+    dd = value.split('Q')[0]
+    typ = dd >> 47
 
-def qdump_64__QJSValue(d, value):
+    if dd == 0:
+        d.putValue('(undefined)')
+        d.putType(value.type.name + ' (undefined)')
+    elif typ == 5:
+        d.putValue('(null)')
+        d.putType(value.type.name + ' (null)')
+    elif typ == 6:
+        d.putValue('true' if dd & 1 else 'false')
+        d.putType(value.type.name + ' (bool)')
+    elif typ == 7:
+        d.putValue(dd & 0xfffffffff)
+        d.putType(value.type.name + ' (int)')
+    elif typ > 7:
+        val = d.Value(d)
+        val.ldata = struct.pack('q', dd ^ 0xfffc000000000000)
+        val.type = d.createType('double')
+        d.putItem(val)
+        d.putType(value.type.name + ' (double)')
+    elif typ <= 3: # Heap
+        if dd & 1: # String
+            val = d.Value(d)
+            val.ldata = struct.pack('q', dd & ~1)
+            val.type = d.createType('@QString*')
+            d.putItem(val)
+            d.putType(value.type.name + ' (QString)')
+        else:
+            # FIXME: Arrays, Objects missing.
+            val = d.split('{@QV4::Managed*}', value)[0]
+            d.putItem(val)
+            d.putItemCount(1)
+    else:
+        d.putEmptyValue()
+        d.putItemCount(1)
+        d.putPlainChildren(value)
+        return
+
+    if d.isExpanded():
+        with Children(d):
+            with SubItem(d, '[raw]'):
+                d.putValue('[0x%x]' % dd)
+                d.putType(' ')
+            d.putFields(value)
+
+
+def qdump_64__QJSValue_5(d, value):
     ns = d.qtNamespace()
     dd = value.split('Q')[0]
     if dd == 0:
