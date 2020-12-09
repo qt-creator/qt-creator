@@ -3001,15 +3001,16 @@ case 241: {
 
     case 528: {
         AST::ReturnStatement *ret = new (pool) AST::ReturnStatement(sym(4).Expression);
-        ret->returnToken = sym(4).Node->firstSourceLocation();
-        ret->semicolonToken = sym(4).Node->lastSourceLocation();
+        const auto zeroLength = [](SourceLocation l){ l.length = 0; return l; };
+        ret->returnToken = zeroLength(sym(4).Node->firstSourceLocation());
+        ret->semicolonToken = zeroLength(sym(4).Node->lastSourceLocation());
         AST::StatementList *statements = (new (pool) AST::StatementList(ret))->finish();
         AST::FunctionExpression *f = new (pool)
             AST::FunctionExpression(QStringView(), sym(1).FormalParameterList, statements);
         f->isArrowFunction = true;
         f->functionToken = sym(1).Node ? sym(1).Node->firstSourceLocation() : loc(1);
-        f->lbraceToken = sym(4).Node->firstSourceLocation();
-        f->rbraceToken = sym(4).Node->lastSourceLocation();
+        f->lbraceToken = zeroLength(sym(4).Node->firstSourceLocation());
+        f->rbraceToken = zeroLength(sym(4).Node->lastSourceLocation());
         sym(1).Node = f;
     } break;
 
@@ -3022,7 +3023,7 @@ case 241: {
             AST::FunctionExpression(QStringView(), sym(1).FormalParameterList, sym(6).StatementList);
         f->isArrowFunction = true;
         f->functionToken = sym(1).Node ? sym(1).Node->firstSourceLocation() : loc(1);
-        f->lbraceToken = loc(6);
+        f->lbraceToken = loc(5);
         f->rbraceToken = loc(7);
         sym(1).Node = f;
     } break;

@@ -1097,7 +1097,8 @@ protected:
     {
         out(ast->returnToken);
         if (ast->expression) {
-            out(" ");
+            if (ast->returnToken.isValid())
+                out(" ");
             accept(ast->expression);
         }
         return false;
@@ -1218,17 +1219,32 @@ protected:
 
     bool visit(FunctionExpression *ast) override
     {
-        out("function ", ast->functionToken);
-        if (!ast->name.isNull())
-            out(ast->identifierToken);
+        if (!ast->isArrowFunction) {
+            out("function ", ast->functionToken);
+            if (!ast->name.isNull())
+                out(ast->identifierToken);
+        }
         out(ast->lparenToken);
+        if (ast->isArrowFunction && ast->formals && ast->formals->next)
+            out("(");
         accept(ast->formals);
+        if (ast->isArrowFunction && ast->formals && ast->formals->next)
+            out(")");
         out(ast->rparenToken);
+        if (ast->isArrowFunction && !ast->formals)
+            out("()");
         out(" ");
+        if (ast->isArrowFunction)
+            out("=> ");
         out(ast->lbraceToken);
         if (ast->body) {
-            lnAcceptIndented(ast->body);
-            newLine();
+            if (ast->body->next || ast->lbraceToken.isValid()) {
+                lnAcceptIndented(ast->body);
+                newLine();
+            } else {
+                // print a single statement in one line. E.g. x => x * 2
+                accept(ast->body);
+            }
         }
         out(ast->rbraceToken);
         return false;
