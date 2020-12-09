@@ -1889,28 +1889,22 @@ class DumperBase():
         if qobjectPtr:
             dd = self.extractPointer(qobjectPtr + ptrSize)
             if self.qtVersion() >= 0x50000:
-                (dvtablePtr, qptr, parentPtr, childrenDPtr, flags, postedEvents,
+                (dvtablePtr, qptr, parent, children, flags, postedEvents,
                     dynMetaObjectPtr,  # Up to here QObjectData.
                     extraData, threadDataPtr, connectionListsPtr,
                     sendersPtr, currentSenderPtr) \
-                    = self.split('ppppIIp' + 'ppppp', dd)
+                    = self.split('pp{@QObject*}{@QList<@QObject*>}IIp' + 'ppppp', dd)
             else:
-                (dvtablePtr, qptr, parentPtr, childrenDPtr, flags, postedEvents,
+                (dvtablePtr, qptr, parent, children, flags, postedEvents,
                     dynMetaObjectPtr,  # Up to here QObjectData
                     objectName, extraData, threadDataPtr, connectionListsPtr,
                     sendersPtr, currentSenderPtr) \
-                    = self.split('ppppIIp' + 'pppppp', dd)
+                    = self.split('pp{@QObject*}{@QList<@QObject*>}IIp' + 'pppppp', dd)
 
-        if qobjectPtr:
-            qobjectType = self.createType('@QObject')
             with SubItem(self, '[parent]'):
                 if not self.isCli:
                     self.putSortGroup(9)
-                if parentPtr:
-                    self.putItem(self.createValue(parentPtr, qobjectType))
-                else:
-                    self.putValue('0x0')
-                    self.putType('QObject *')
+                self.putItem(parent)
 
             with SubItem(self, '[children]'):
                 if not self.isCli:
