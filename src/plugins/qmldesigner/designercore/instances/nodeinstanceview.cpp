@@ -101,6 +101,7 @@
 #include <QPicture>
 #include <QPainter>
 #include <QDirIterator>
+#include <QFileSystemWatcher>
 
 enum {
     debug = false
