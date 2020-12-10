@@ -3159,10 +3159,13 @@ class DumperBase():
                 for i in range(fieldSize):
                     data = data << 8
                     if self.dumper.isBigEndian:
-                        byte = ldata[i]
+                        lbyte = ldata[i]
                     else:
-                        byte = ldata[fieldOffset + fieldSize - 1 - i]
-                    data += ord(byte)
+                        lbyte = ldata[fieldOffset + fieldSize - 1 - i]
+                    if sys.version_info[0] >= 3:
+                        data += lbyte
+                    else:
+                        data += ord(lbyte)
                 data = data >> fieldBitpos
                 data = data & ((1 << fieldBitsize) - 1)
                 val.lvalue = data
