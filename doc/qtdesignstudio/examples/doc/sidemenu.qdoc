@@ -38,7 +38,7 @@
     when users hover the cursor over them or select them.
 
     Each button opens an image file. The side menu can be used to apply
-    \l {Qt Graphical Effects}{graphical effects}, such as hue, saturation,
+    \l {2D Effects}{graphical effects}, such as hue, saturation,
     and blur, to the images.
 
     \section1 Creating Reusable Buttons
@@ -124,10 +124,10 @@
 
     We can now continue to create a side menu that slides open when users
     click the burger menu. In the \uicontrol {Form Editor}, we use the
-    \l Text and \l Slider components to create separate submenus for each
-    set of effects we want to apply to the images. We use a background image
-    for the menu background and a BurgerMenu custom QML type for the burger
-    menu icon.
+    \l Text and \l {slider-control}{Slider} components to create separate
+    submenus for each set of effects we want to apply to the images. We use
+    a background image for the menu background and a BurgerMenu custom QML
+    type for the burger menu icon.
 
     \image sidemenu-ui.png "SliderMenu type"
 
@@ -210,12 +210,13 @@
 
     \section1 Applying Effects
 
-    We nest the effects in an effects stack and bind them to the \l Slider type
-    instances. The effects apply to all the images in the example application,
-    not just the currently open one.
+    We nest the effects in an effects stack and bind them to the
+    \l {slider-control}{Slider} type instances. The effects apply
+    to all the images in the example application, not just the
+    currently open one.
 
     We use property bindings to connect the controls in the slider menu to
-    \l {Qt Graphical Effects}{graphical effects}. To have access to the
+    \l {2D Effects}{graphical effects}. To have access to the
     properties from all the slider type instances, we export them as aliases
     in \e SliderMenu.ui.qml. We select \uicontrol {Export Property as Alias}
     in the \uicontrol Settings menu of the \uicontrol Value property in
@@ -226,10 +227,10 @@
 
     \image sidemenu-effects-stack.png "Effects stack in the Navigator"
 
-    We use the \l Image type as the last item in the stack to display images
-    that we apply the effects to. We export the image source property as an
-    alias to be able to switch the image inside the stack.
+    We use the \l {Images}{Image} type as the last item in the stack to display
+    images that we apply the effects to. We export the image source property as
+    an alias to be able to switch the image inside the stack.
 
-    For more information about the available Qt graphical effects, see
+    For more information about the available graphical effects, see
     \l {2D Effects}.
 */

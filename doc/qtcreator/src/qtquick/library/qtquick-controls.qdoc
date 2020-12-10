@@ -70,11 +70,11 @@
 
     A mouse area receives events within a defined area. One quick way to define
     this area is to \l{Setting Anchors and Margins}{anchor} the mouse area to
-    its parent's area. If the parent is a \l Rectangle (or any component that
-    is derived from an \l Item), the mouse area will fill the area defined by
-    the parent's dimensions. Alternatively, you can define an area smaller or
-    larger than the parent. Several controls,such as buttons, contain a mouse
-    area.
+    its parent's area. If the parent is a \l {basic-rectangle}{Rectangle} (or
+    any component that is derived from an \l {basic-item}{Item}), the mouse area
+    will fill the area defined by the parent's dimensions. Alternatively, you
+    can define an area smaller or larger than the parent. Several controls,such
+    as \l {Button}{buttons}, contain a mouse area.
 
     A mouse area emits \l{Connecting Objects to Signals}{signals} in response
     to different mouse events:
@@ -478,6 +478,7 @@
     \uicontrol Count field. Select the current page in the \uicontrol Current
     field.
 
+    \target progress-bar-control
     \section2 Progress Bar
 
     \image qtquickcontrols2-progressbar.gif "Progress bar"
@@ -518,6 +519,7 @@
 
     \image qtquick-designer-selector-types.png "Selector types"
 
+    \target slider-control
     \section2 Slider and Dial
 
     \image qtquickcontrols2-slider.gif "Slider"

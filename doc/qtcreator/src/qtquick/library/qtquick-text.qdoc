@@ -179,6 +179,7 @@
     {transformation} of the text. Using rotation or scaling in combination
     with native rendering leads to poor and sometimes pixelated results.
 
+    \target text-edit
     \section1 Text Input
 
     You can use the \uicontrol {Text Edit} and \uicontrol {Text Input} types to

@@ -30,7 +30,7 @@
 
     \title Images
 
-    The \l Image type is used for adding images to the UI in several supported
+    The Image type is used for adding images to the UI in several supported
     formats, including bitmap formats, such as PNG and JPEG, and vector graphics
     formats, such as SVG. You must add the images to your project in the
     \uicontrol Assets tab of \uicontrol Library to be able to use them in
@@ -40,20 +40,20 @@
 
     When you drag and drop an image file from the \uicontrol Assets tab of
     \uicontrol Library to \uicontrol Navigator or \uicontrol {Form Editor},
-    \QC automatically creates a component of the \l Image type for you with
+    \QC automatically creates a component of the Image type for you with
     the path to the image file set as the value of the \uicontrol Source
     field in \uicontrol Properties.
 
     To load images from a URL using a supported URL scheme, specify the URL
     in the \uicontrol Source field.
 
-    You can use the \l [QML]{BorderImage}{Border Image} type to display
-    an image, such as a PNG file, as a border and a background. For more
+    You can use the \l {Border Image} type to display an image,
+    such as a PNG file, as a border and a background. For more
     information about using border images to create buttons, see
     \l {Creating Scalable Buttons and Borders}.
 
     If you need to display animated images, such as GIFs, use the
-    \l {AnimatedImage}{Animated Image} type.
+    \l {Animated Image} type.
 
     \section1 Image Size
 
@@ -145,7 +145,7 @@
 
     \section1 Border Image
 
-    The Border Image type extends the features of the \l Image type. It is used
+    The Border Image type extends the features of the Image type. It is used
     to create borders out of images by scaling or tiling parts of each image. A
     source image is broken into 9 regions that are scaled or tiled individually.
     The corner regions are not scaled at all, while the horizontal and vertical
@@ -172,7 +172,7 @@
 
     \section1 Animated Image
 
-    The Animated Image type extends the features of the \l Image type, providing
+    The Animated Image type extends the features of the Image type, providing
     a way to play animations stored as images containing a series of frames,
     such as those stored in GIF files.
 

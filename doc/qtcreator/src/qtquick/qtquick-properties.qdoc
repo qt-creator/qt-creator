@@ -257,6 +257,7 @@
     You can add other languages later by editing the project file.
     \endif
 
+    \target basic-item
     \section1 Specifying Basic Item Properties
 
     All QML types share a set of properties that you can specify in
@@ -491,7 +492,7 @@
 
     You can double-click objects on the canvas to edit their text, color,
     or source properties inline. Because you can specify several of these
-    properties for some QML types, such as \l [QML]{TextEdit}{Text Edit},
+    properties for some QML types, such as \l {text-edit}{Text Edit},
     you can also right-click objects to open the inline editors from a
     context-menu.
 

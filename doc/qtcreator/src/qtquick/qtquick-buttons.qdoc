@@ -122,8 +122,8 @@
     to assign them useful IDs, change their appearance, and set the button
     text for each button instance, for example.
 
-    To create a graphical button that scales beautifully without using vector
-    graphics, use the \l [QML]{BorderImage}{Border Image} type. For more
+    To create a graphical button that scales beautifully without using
+    vector graphics, use the \l {Border Image} type. For more
     information, see \l{Creating Scalable Buttons and Borders}.
     */
 
@@ -135,8 +135,8 @@
 
     \title Creating Scalable Buttons and Borders
 
-    You can use the \l [QML]{BorderImage}{Border Image} type to display an
-    image, such as a PNG file, as a border and a background.
+    You can use the \l {Border Image} type to display an image, such as a
+    PNG file, as a border and a background.
 
     Use two border images and suitable graphics to change the appearance of
     a button when it is clicked. You can use use \l{Adding States}{states}
@@ -145,13 +145,14 @@
     change the appearance of the button depending on other mouse events,
     such as hovered.
 
-    Add a \l {Mouse Area} type that covers the whole area and
-    reacts to mouse events.
-
+    Use a \l Text type to add button text.
     You can use states also to change the button text color and font size. For
     example, you can scale the button text up or down.
 
-    \image qmldesigner-borderimage-type.png "Button type in Form Editor and States"
+    Add a \l {Mouse Area} type that covers the whole area and
+    reacts to mouse events.
+
+   \image qmldesigner-borderimage-type.png "Button type in Form Editor and States"
 
     \section1 Creating the Button Type
 

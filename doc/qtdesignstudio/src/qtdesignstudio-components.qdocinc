@@ -27,11 +27,9 @@
 
     \section2 Creating Custom Controls
 
-    You can use project wizard templates to create a starting point for a custom
-    \l [QtQuickControls2] {Button}, \l [QtQuickControls2] {Pane},
-    \l [QtQuickControls2] {StackLayout}{Stacked Layout},
-    \l [QtQuickControls2] {SwipeView}{Swipe View}, or
-    \l [QtQuickControls2] {Switch}.
+    You can use project wizard templates to create a starting point for
+    a custom \l Button, \l [QtQuickControls2] {Pane}, \l {Stack Layout},
+    \l [QtQuickControls2] {SwipeView}{Swipe View}, or \l Switch.
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File or Project} >

@@ -42,7 +42,7 @@
 
     In this example, we use two overlapping rectangles and a text label to
     create the progress bar. For another example of a progress bar, see the
-    \l [QtQuickControls2] {ProgressBar} in Qt Quick Controls.
+    \l {progress-bar-control}{Progress Bar} type in Qt Quick Controls.
 
     In the Design mode, we drag and drop a \uicontrol Rectangle from the
     \uicontrol Library to the \uicontrol {Form Editor} and modify its size
@@ -71,7 +71,7 @@
     change for the animation.
 
     For more information about creating and positioning components, see
-    \l {Creating Components}.
+    \l {Creating Components} and \l {Positioning Items}.
 
     \section1 Animating Progress Bar Elements
 

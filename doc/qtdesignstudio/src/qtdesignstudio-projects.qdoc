@@ -138,29 +138,31 @@
                 \li \uicontrol {Flow Item} and \uicontrol {Flow View} generate
                     types that you can use to design the application flow.
                 \li \uicontrol {Qt Quick File} generates a QML type with one
-                    of the following types as the root item: \l Item,
-                    \l Rectangle, \l Image, \l BorderImage, \l Flickable,
-                    \l Row, \l Column, \l Flow, or \l Grid.
+                    of the following basic types or \l{Using Positioners}
+                    {positioners} as the root item: \l {basic-item}{Item},
+                    \l {basic-rectangle}{Rectangle}, \l {Images}{Image},
+                    \l {Border Image}, \l Flickable, Row, Column, Flow, or Grid.
                 \li \uicontrol {Qt Quick UI File} generates a UI form with one
                     of the above types as the root item.
-                \li \uicontrol {Qt Quick Views} generates a \l GridView or a
-                    \l ListView.
+                \li \uicontrol {Qt Quick Views} generates a Grid View or a
+                    List View. For more information, see \l{List and Grid Views}.
+
             \endlist
         \li \uicontrol {Qt Quick Controls}
             \list
-                \li \l [Qt Quick Controls 2] {Button}{Custom Button} creates a
-                    push button with a text label.
-                \li \l [Qt Quick Controls 2] {Switch}{Custom Switch} creates a
-                    switch with on and off states.
+                \li \l {Button}{Custom Button} creates a push button with a text
+                    label.
+                \li \l {Switch}{Custom Switch} creates a switch with on and off
+                    states.
                 \li \l [Qt Quick Controls 2] {Pane} provides a background that
                     matches the UI style and theme.
-                \li \l [Qt Quick Controls 2] { StackView} provides a stack-based
+                \li \l [Qt Quick Controls 2] {StackView} provides a stack-based
                     navigation model.
                 \li \l [Qt Quick Controls 2] {SwipeView} enables users to
                     navigate pages by swiping sideways.
             \endlist
-        \li \uicontrol ListModel adds a \l{ListModel}{list model} to the
-            project.
+        \li \uicontrol ListModel adds a \l{Editing List Models}{list model} to
+            the project.
         \li \uicontrol {JavaScript File} generates files that you can use to
             write the application logic. This is useful for testing the
             application before the developers implement the application logic
