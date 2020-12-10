@@ -132,6 +132,7 @@ def build_qtcreator(args, paths):
 
     if args.python3:
         cmake_args += ['-DPYTHON_EXECUTABLE=' + args.python3]
+        cmake_args += ['-DPython3_EXECUTABLE=' + args.python3]
 
     if args.module_paths:
         module_paths = [common.to_posix_path(os.path.abspath(fp)) for fp in args.module_paths]
