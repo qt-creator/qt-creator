@@ -1743,11 +1743,6 @@ class DumperBase():
         data = array + begin * stepSize
         return data, size
 
-    def vectorChildrenGenerator(self, value, innerType):
-        data, size = self.vectorData(value)
-        for i in range(size):
-            yield self.createValue(data + i * innerType.size(), innerType)
-
     def putTypedPointer(self, name, addr, typeName):
         """ Prints a typed pointer, expandable if the type can be resolved,
             and without children otherwise """
