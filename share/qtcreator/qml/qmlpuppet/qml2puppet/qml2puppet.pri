@@ -2,6 +2,7 @@ QT += core gui widgets qml quick network
 QT += core-private qml-private quick-private gui-private
 
 CONFIG += c++17
+win32: QMAKE_CXXFLAGS += /std:c++17
 
 DEFINES -= QT_CREATOR
 

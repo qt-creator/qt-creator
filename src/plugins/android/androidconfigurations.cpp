@@ -1020,8 +1020,7 @@ FilePath AndroidConfig::defaultSdkPath()
     // Set default path of SDK as used by Android Studio
     if (Utils::HostOsInfo::isMacHost()) {
         return Utils::FilePath::fromString(
-            QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)
-            + "/../Android/sdk");
+            QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/Android/sdk");
     }
 
     if (Utils::HostOsInfo::isWindowsHost()) {
@@ -1348,7 +1347,11 @@ void AndroidConfigurations::updateAutomaticKitList()
                 DeviceKitAspect::setDevice(k, device);
                 QStringList abis = static_cast<const AndroidQtVersion *>(qt)->androidAbis();
                 Debugger::DebuggerKitAspect::setDebugger(k, findOrRegisterDebugger(tc, abis, QtKitAspect::qtVersion(k)));
-                k->makeSticky();
+
+                k->setSticky(ToolChainKitAspect::id(), true);
+                k->setSticky(QtSupport::QtKitAspect::id(), true);
+                k->setSticky(DeviceKitAspect::id(), true);
+                k->setSticky(DeviceTypeKitAspect::id(), true);
 
                 QString versionStr = QLatin1String("Qt %{Qt:Version}");
                 if (!qt->isAutodetected())
@@ -1451,16 +1454,14 @@ AndroidConfigurations::~AndroidConfigurations() = default;
 
 static Utils::FilePath androidStudioPath()
 {
-    if (Utils::HostOsInfo::isWindowsHost()) {
-        const QLatin1String registryKey("HKEY_LOCAL_MACHINE\\SOFTWARE\\Android Studio");
-        const QLatin1String valueName("Path");
-    #if defined(Q_OS_WIN)
-        const QSettings settings64(registryKey, QSettings::Registry64Format);
-        const QSettings settings32(registryKey, QSettings::Registry32Format);
-        return Utils::FilePath::fromUserInput(
-                    settings64.value(valueName, settings32.value(valueName).toString()).toString());
-    #endif
-    }
+#if defined(Q_OS_WIN)
+    const QLatin1String registryKey("HKEY_LOCAL_MACHINE\\SOFTWARE\\Android Studio");
+    const QLatin1String valueName("Path");
+    const QSettings settings64(registryKey, QSettings::Registry64Format);
+    const QSettings settings32(registryKey, QSettings::Registry32Format);
+    return Utils::FilePath::fromUserInput(
+                settings64.value(valueName, settings32.value(valueName).toString()).toString());
+#endif
     return {}; // TODO non-Windows
 }
 

@@ -30,8 +30,12 @@
 // **********************************************************************
 
 /*!
-    \previouspage quick-data-models.html
     \page quick-buttons.html
+    \if defined(qtdesignstudio)
+    \previouspage quick-2d-effects.html
+    \else
+    \previouspage quick-data-models.html
+    \endif
     \nextpage quick-scalable-image.html
 
     \title Creating Buttons

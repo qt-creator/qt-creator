@@ -190,6 +190,7 @@ protected: // functions
 private: //variables
     ModelNode nodeAtTextCursorPositionHelper(const ModelNode &root, int cursorPosition) const;
     void setupCanonicalHashes() const;
+    void handleLibraryInfoUpdate();
 
     TextModifier *m_textModifier = nullptr;
     int transactionLevel = 0;
@@ -210,6 +211,7 @@ private: //variables
     std::function<void(bool)> m_setWidgetStatusCallback;
     bool m_hasIncompleteTypeInformation = false;
     bool m_restoringAuxData = false;
+    bool m_modelAttachPending = false;
 
     mutable QHash<int, ModelNode> m_canonicalIntModelNode;
     mutable QHash<ModelNode, int> m_canonicalModelNodeInt;

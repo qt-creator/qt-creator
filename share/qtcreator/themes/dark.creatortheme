@@ -257,6 +257,7 @@ PaletteWindowDisabled=backgroundColorDisabled
 PaletteWindowTextDisabled=textDisabled
 PaletteBaseDisabled=backgroundColorDisabled
 PaletteTextDisabled=textDisabled
+PaletteMid=ffa0a0a0
 
 QmlDesigner_BackgroundColor=qmlDesignerButtonColor
 QmlDesigner_HighlightColor=ff46a2da

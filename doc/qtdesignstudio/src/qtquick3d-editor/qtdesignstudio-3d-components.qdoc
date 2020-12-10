@@ -43,7 +43,7 @@
     view.
 
     \list
-        \li \l {Setting Node Properties}
+        \li \l {Setting Group Properties}
 
             You can set the opacity, visibility, and transform properties
             of all 3D components.

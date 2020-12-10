@@ -89,9 +89,16 @@
             tools.
         \li \l{Managing Data Collection Settings}
 
+            \if defined (qtcreator)
             You can enable \QC to report crashes automatically. If you agreed to
             pseudonymous user statistics collection during the \QC installation,
             you can turn it on and determine what type of data is collected and
             transmitted to the backend storage.
+            \else
+            You can enable \QDS to report crashes automatically. If you enable
+            the telemetry plugin, you can turn on the pseudonymous user
+            statistics collection and determine what type of data is collected
+            and transmitted to the backend storage.
+            \endif
     \endlist
 */

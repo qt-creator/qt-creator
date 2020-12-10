@@ -40,9 +40,11 @@ endif()
 
 set(UtilsSourcesDir "../../libs/utils")
 
+file(RELATIVE_PATH DATA_PATH "/${IDE_LIBEXEC_PATH}" "/${IDE_DATA_PATH}")
+
 add_qtc_executable(sdktool
   ${DESTINATION}
-  DEFINES DATA_PATH=\"${IDE_DATA_PATH}\"
+  DEFINES DATA_PATH=\"${DATA_PATH}\"
   DEPENDS Qt5::Core
   INCLUDES
     "${UtilsSourcesDir}/../"

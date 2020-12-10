@@ -39,9 +39,12 @@
 #include <QPointer>
 #include <QRectF>
 #include <QTime>
+#include <QTimer>
 #include <QtGui/qevent.h>
 
 #include <memory>
+
+QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher)
 
 namespace ProjectExplorer {
 class Target;
@@ -219,6 +222,8 @@ private: // functions
     QVariant modelNodePreviewImageDataToVariant(const ModelNodePreviewImageData &imageData);
     void updatePreviewImageForNode(const ModelNode &modelNode, const QImage &image);
 
+    void updateWatcher(const QString &path);
+
 private:
     QHash<QString, ModelNodePreviewImageData> m_imageDataMap;
 
@@ -236,7 +241,16 @@ private:
 
     // key: fileUrl value: (key: instance qml id, value: related tool states)
     QHash<QUrl, QHash<QString, QVariantMap>> m_edit3DToolStates;
+
     std::function<void()> m_crashCallback{[this] { handleCrash(); }};
+
+    // We use QFileSystemWatcher directly instead of Utils::FileSystemWatcher as we want
+    // shader changes to be applied immediately rather than requiring reactivation of
+    // the creator application.
+    QFileSystemWatcher *m_fileSystemWatcher;
+    QTimer m_resetTimer;
+    QTimer m_updateWatcherTimer;
+    QSet<QString> m_pendingUpdateDirs;
 };
 
 } // namespace ProxyNodeInstanceView

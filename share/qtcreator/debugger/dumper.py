@@ -571,7 +571,7 @@ class DumperBase():
             (ref, alloc, size) = self.split('III', vector_data_ptr)
             data = vector_data_ptr + 16
         self.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
-        return data, size, alloc
+        return data, size
 
     def qArrayData(self, value):
         if self.qtVersion() >= 0x60000:
@@ -1722,23 +1722,26 @@ class DumperBase():
             addr += 1
         return result
 
-    def listChildrenGenerator(self, addr, innerType):
-        base = self.extractPointer(addr)
+    def listData(self, value, check=True):
+        if self.qtVersion() >= 0x60000:
+            dd, data, size = self.split('ppi', value)
+            return data, size
+
+        base = self.extractPointer(value)
         (ref, alloc, begin, end) = self.split('IIII', base)
         array = base + 16
         if self.qtVersion() < 0x50000:
             array += self.ptrSize()
         size = end - begin
+
+        if check:
+            self.check(begin >= 0 and end >= 0 and end <= 1000 * 1000 * 1000)
+            size = end - begin
+            self.check(size >= 0)
+
         stepSize = self.ptrSize()
         data = array + begin * stepSize
-        for i in range(size):
-            yield self.createValue(data + i * stepSize, innerType)
-            #yield self.createValue(data + i * stepSize, 'void*')
-
-    def vectorChildrenGenerator(self, value, innerType):
-        data, size, _ = self.vectorData(value)
-        for i in range(size):
-            yield self.createValue(data + i * innerType.size(), innerType)
+        return data, size
 
     def putTypedPointer(self, name, addr, typeName):
         """ Prints a typed pointer, expandable if the type can be resolved,
@@ -1798,6 +1801,9 @@ class DumperBase():
             metaObjectPtr, handle = value.split('pI')
         if metaObjectPtr != 0:
             if self.qtVersion() >= 0x060000:
+                if handle == 0:
+                    self.putEmptyValue()
+                    return
                 revision = 9
                 name, alias, flags, keyCount, data = self.split('IIIII', handle)
                 index = name
@@ -1830,7 +1836,6 @@ class DumperBase():
     # handle is what's store in QMetaMethod etc, pass -1 for QObject/QMetaObject
     # itself metaObjectPtr needs to point to a valid QMetaObject.
     def putQObjectGutsHelper(self, qobject, qobjectPtr, handle, metaObjectPtr, origType):
-        intSize = 4
         ptrSize = self.ptrSize()
 
         def putt(name, value, typeName=' '):
@@ -1871,50 +1876,29 @@ class DumperBase():
         if qobjectPtr:
             dd = self.extractPointer(qobjectPtr + ptrSize)
             if self.qtVersion() >= 0x50000:
-                (dvtablePtr, qptr, parentPtr, childrenDPtr, flags, postedEvents,
+                (dvtablePtr, qptr, parent, children, flags, postedEvents,
                     dynMetaObjectPtr,  # Up to here QObjectData.
                     extraData, threadDataPtr, connectionListsPtr,
                     sendersPtr, currentSenderPtr) \
-                    = self.split('ppppIIp' + 'ppppp', dd)
+                    = self.split('pp{@QObject*}{@QList<@QObject *>}IIp' + 'ppppp', dd)
             else:
-                (dvtablePtr, qptr, parentPtr, childrenDPtr, flags, postedEvents,
+                (dvtablePtr, qptr, parent, children, flags, postedEvents,
                     dynMetaObjectPtr,  # Up to here QObjectData
                     objectName, extraData, threadDataPtr, connectionListsPtr,
                     sendersPtr, currentSenderPtr) \
-                    = self.split('ppppIIp' + 'pppppp', dd)
+                    = self.split('pp{@QObject*}{@QList<@QObject *>}IIp' + 'pppppp', dd)
 
-        if qobjectPtr:
-            qobjectType = self.createType('@QObject')
             with SubItem(self, '[parent]'):
                 if not self.isCli:
                     self.putSortGroup(9)
-                if parentPtr:
-                    self.putItem(self.createValue(parentPtr, qobjectType))
-                else:
-                    self.putValue('0x0')
-                    self.putType('QObject *')
+                self.putItem(parent)
+
             with SubItem(self, '[children]'):
                 if not self.isCli:
                     self.putSortGroup(8)
-                base = self.extractPointer(dd + 3 * ptrSize)  # It's a QList<QObject *>
-                begin = self.extractInt(base + 8)
-                end = self.extractInt(base + 12)
-                array = base + 16
-                if self.qtVersion() < 0x50000:
-                    array += ptrSize
-                self.check(begin >= 0 and end >= 0 and end <= 1000 * 1000 * 1000)
-                size = end - begin
-                self.check(size >= 0)
-                self.putItemCount(size)
-                if size > 0:
-                    self.putExpandable()
-                if self.isExpanded():
-                    addrBase = array + begin * ptrSize
-                    with Children(self, size):
-                        for i in self.childRange():
-                            with SubItem(self, i):
-                                childPtr = self.extractPointer(addrBase + i * ptrSize)
-                                self.putItem(self.createValue(childPtr, qobjectType))
+
+                dvtablePtr, qptr, parentPtr, children = self.split('ppp{QList<QObject *>}', dd)
+                self.putItem(children)
 
         if isQMetaObject:
             with SubItem(self, '[strings]'):
@@ -2016,7 +2000,10 @@ class DumperBase():
                     with Children(self):
                         # Static properties.
                         for i in range(propertyCount):
-                            t = self.split('III', dataPtr + properties * 4 + 12 * i)
+                            if self.qtVersion() >= 0x60000:
+                                t = self.split('IIIII', dataPtr + properties * 4 + 20 * i)
+                            else:
+                                t = self.split('III', dataPtr + properties * 4 + 12 * i)
                             name = self.metaString(metaObjectPtr, t[0], revision)
                             if qobject and self.qtPropertyFunc:
                                     # LLDB doesn't like calling it on a derived class, possibly
@@ -2045,19 +2032,38 @@ class DumperBase():
 
                         # Dynamic properties.
                         if extraData:
+                            def list6Generator(addr, innerType):
+                                data, size = self.listData(addr)
+                                for i in range(size):
+                                    yield self.createValue(data + i * innerType.size(), innerType)
+
+                            def list5Generator(addr, innerType):
+                                data, size = self.listData(addr)
+                                for i in range(size):
+                                    yield self.createValue(data + i * ptrSize, innerType)
+
+                            def vectorGenerator(addr, innerType):
+                                data, size = self.vectorData(addr)
+                                for i in range(size):
+                                    yield self.createValue(data + i * innerType.size(), innerType)
+
                             byteArrayType = self.createType('@QByteArray')
                             variantType = self.createType('@QVariant')
-                            if self.qtVersion() >= 0x50600:
-                                values = self.vectorChildrenGenerator(
-                                    extraData + 2 * ptrSize, variantType)
+                            if self.qtVersion() >= 0x60000:
+                                values = vectorGenerator(extraData + 3 * ptrSize, variantType)
+                            elif self.qtVersion() >= 0x50600:
+                                values = vectorGenerator(extraData + 2 * ptrSize, variantType)
                             elif self.qtVersion() >= 0x50000:
-                                values = self.listChildrenGenerator(
-                                    extraData + 2 * ptrSize, variantType)
+                                values = list5Generator(extraData + 2 * ptrSize, variantType)
                             else:
-                                values = self.listChildrenGenerator(
-                                    extraData + 2 * ptrSize, variantType.pointer())
-                            names = self.listChildrenGenerator(
-                                extraData + ptrSize, byteArrayType)
+                                values = list5Generator(extraData + 2 * ptrSize,
+                                                        variantType.pointer())
+
+                            if self.qtVersion() >= 0x60000:
+                                names = list6Generator(extraData, byteArrayType)
+                            else:
+                                names = list5Generator(extraData + ptrSize, byteArrayType)
+
                             for (k, v) in zip(names, values):
                                 with SubItem(self, propertyCount + dynamicPropertyCount):
                                     if not self.isCli:
@@ -2163,7 +2169,7 @@ class DumperBase():
                 with Children(self):
                     innerType = connections.type[0]
                     # Should check:  innerType == ns::QObjectPrivate::ConnectionList
-                    data, size, _ = self.vectorData(connections)
+                    data, size = self.vectorData(connections)
                     connectionType = self.createType('@QObjectPrivate::Connection')
                     for i in range(size):
                         first = self.extractPointer(data + i * 2 * ptrSize)
@@ -3853,7 +3859,12 @@ class DumperBase():
     def createType(self, typish, size=None):
         if isinstance(typish, self.Type):
             #typish.check()
-            return typish
+            if hasattr(typish, 'lbitsize') and typish.lbitsize is not None and typish.lbitsize > 0:
+                return typish
+            # Size 0 is sometimes reported by GDB but doesn't help at all.
+            # Force using the fallback:
+            typish = typish.name
+
         if isinstance(typish, str):
             ns = self.qtNamespace()
             typish = typish.replace('@', ns)
@@ -3868,7 +3879,9 @@ class DumperBase():
 
             tdata = self.typeData.get(typish, None)
             if tdata is not None:
-                return self.Type(self, typish)
+                if tdata.lbitsize is not None:
+                    if tdata.lbitsize > 0:
+                        return self.Type(self, typish)
 
             knownType = self.lookupType(typish)
             #DumperBase.warn('KNOWN: %s' % knownType)
@@ -3881,9 +3894,13 @@ class DumperBase():
             tdata.name = typish
             tdata.typeId = typish
             tdata.templateArguments = self.listTemplateParameters(typish)
-
             if size is not None:
                 tdata.lbitsize = 8 * size
+            if typish.endswith('*'):
+                tdata.code = TypeCode.Pointer
+                tdata.lbitsize = 8 * self.ptrSize()
+                tdata.ltarget = self.createType(typish[:-1].strip())
+
             self.registerType(typish, tdata)
             typeobj = self.Type(self, typish)
             #DumperBase.warn('CREATE TYPE: %s' % typeobj.stringify())
@@ -3917,27 +3934,6 @@ class DumperBase():
         val.type = self.Type(self, type_name)
         val.ldata = proxy_data
         return val
-
-    def createContainerItem(self, data, innerTypish, container):
-        innerType = self.createType(innerTypish)
-        name = self.qtNamespace() + '%s<%s>' % (container, innerType.name)
-        typeId = name
-        tdata = self.TypeData(self)
-        tdata.typeId = typeId
-        tdata.name = name
-        tdata.templateArguments = [innerType]
-        tdata.lbitsize = 8 * self.ptrSize()
-        self.registerType(typeId, tdata)
-        val = self.Value(self)
-        val.ldata = data
-        val.type = self.Type(self, typeId)
-        return val
-
-    def createListItem(self, data, innerTypish):
-        return self.createContainerItem(data, innerTypish, 'QList')
-
-    def createVectorItem(self, data, innerTypish):
-        return self.createContainerItem(data, innerTypish, 'QVector')
 
     class StructBuilder():
         def __init__(self, dumper):

@@ -1,0 +1,376 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page quick-2d-effects.html
+    \previouspage quick-data-models.html
+    \nextpage quick-buttons.html
+
+    \title 2D Effects
+
+    \QDS provides a set of Qt Quick Studio effects that inherit the types in the
+    \l {Qt Graphical Effects} module. To apply a visual effect to a component,
+    drag-and-drop it from \uicontrol Library > \uicontrol Effects to the
+    component in \uicontrol Navigator.
+
+    \image studio-2d-effects.png "Effects tab in Library"
+
+    Effects have one or more source properties for specifying the visual input
+    for which the effect is applied to an item. The altered visual output is
+    then presented in the effect item itself. The source can be another, often
+    hidden, item in the QML scene. More complex effects can have multiple
+    sources. The source item type can be any QML type, even video or another
+    effect. Pipelining multiple effects together is a simple way to create
+    even more impressive output.
+
+    Each effect has a set of properties that can be used to configure the effect
+    output. Properties can be animated just like any other QML properties. The
+    QML type documentation contains property descriptions and basic usage
+    examples.
+
+    In addition to the effects described in this topic, you can set linear,
+    radial, and conical gradients. For more information, see
+    \l{Picking Gradients}.
+
+    \section1 Caching and Borders
+
+    The \uicontrol Cached property allows the effect output pixels to be cached
+    in order to improve the rendering performance. Every time the source or
+    effect properties are changed, the pixels in the cache must be updated.
+    Memory consumption is increased, because an extra buffer of memory is
+    required for storing the effect output. We recommend that you disable the
+    cache when the source or the effect properties are animated.
+
+    The \uicontrol {Transparent border} property determines the blur behavior
+    near the edges of the item, where the pixel blurring is affected by
+    the pixels outside the source edges.
+
+    If the property is set to \c true, the pixels outside the source are
+    interpreted as being transparent, which is similar to OpenGL clamp-to-border
+    extension. The blur is expanded slightly outside the effect item area.
+
+    If the property is set to \c false, the pixels outside the source are
+    interpreted as containing the same color as the pixels at the edge of
+    the item, which is similar to OpenGL clamp-to-edge behavior. The blur
+    does not expand outside the effect item area.
+
+    \section1 Summary of 2D Effects
+
+    The following table summarizes the available effects and contains links to
+    the documentation of the inherited QML type.
+
+    \note The effects are available when running with OpenGL.
+
+    \table
+    \header
+        \li Icon
+        \li Qt Quick Studio Effect
+        \li Description
+    \row
+        \li \inlineimage icons/blend-mode-16px.png
+        \li \l [QML] {Blend}
+        \li Merges two source components by using a blend mode.
+
+            The default \uicontrol Mode is \c subtract, where the pixel value
+            from the component specified in the \uicontrol {Foreground source}
+            field, which is going to be blended over the source component,
+            is subtracted from the source and written over it.
+
+            For a list of possible \uicontrol Mode values and examples of their
+            use, see \l{Blend::mode}{Blend.mode}.
+    \row
+        \li \inlineimage icons/brightness-contrast-16px.png
+        \li \l {BrightnessContrast}{Brightness Contrast}
+        \li Adjusts \uicontrol Brightness and \uicontrol Contrast.
+    \row
+        \li \inlineimage icons/colourize-16px.png
+        \li \l {ColorOverlay}{Color Overlay}
+        \li Alters the colors of the source component by applying an
+            \uicontrol {Overlay Color}. You can use the color picker
+            to \l{Picking Colors}{select the color}.
+    \row
+        \li \inlineimage icons/colourize-16px.png
+        \li \l Colorize
+        \li Sets the color in the HSL color space by specifying \uicontrol Hue,
+            \uicontrol Lightness, and \uicontrol Saturation values.
+    \row
+        \li \inlineimage icons/desaturation-16px.png
+        \li \l {Desaturate}{Desaturation}
+        \li Reduces the saturation of the colors by the value set in the
+            \uicontrol Desaturation field. The value ranges from \c 0.0
+            (no change) to \c 1.0 (desaturated). Desaturated pixel values are
+            calculated as averages of the original RGB component values
+            of the source item.
+    \row
+        \li \inlineimage icons/directional-blur-16px.png
+        \li \l {DirectionalBlur}{Directional Blur}
+        \li Applies a blur effect to the specified direction. The value of the
+            \uicontrol Angle field, defines the direction of the blur. This
+            effect makes the source item appear to be moving in the direction of
+            the blur. Blur is applied to both sides of each pixel, and therefore
+            setting the direction to \c 0 and \c 180 provides the same result.
+
+            The value of the \uicontrol Length field specifies the perceived
+            amount of movement for each pixel. The movement is divided evenly
+            to both sides of each pixel.
+
+            The quality of the blur depends on the value of the
+            \uicontrol Samples field. If the \uicontrol Length value is large,
+            more samples are needed to preserve high visual quality.
+    \row
+        \li \inlineimage icons/displace-16px.png
+        \li \l Displace
+        \li Moves the pixels of the source item according to the displacement
+            map specified in the \uicontrol {Displacement source} field.
+
+            The value of the \uicontrol Displacement field specifies the
+            scale for the displacement. The larger the scale, the larger the
+            displacement of the pixels. The value set to \c 0.0 causes no
+            displacement. The value of \c -1.0 sets the inverted maximum shift
+            according to the displacement source value, while \c 1.0 sets the
+            maximum shift.
+    \row
+        \li \inlineimage icons/drop-shadow-16px.png
+        \li \l {DropShadow}{Drop Shadow}
+        \li Generates a soft shadow behind the source component using a
+            gaussian blur. This effect blurs the alpha channel of the input and
+            colorizes the result, which it then places behind the source object
+            to create a soft shadow. You can set the shadow's color in the
+            \uicontrol {Drop Shadow Color} field and change its location in the
+            \uicontrol {Horizontal offset} and \uicontrol {Vertical offset}
+            fields.
+
+            The value of the \uicontrol Radius field specifies the softness of
+            the shadow. A larger radius causes the edges of the shadow to appear
+            more blurry. The ideal blur is achieved by setting the value of the
+            \uicontrol Samples field to twice as large as the highest required
+            radius value plus one (\c {samples = 1 + radius * 2}).
+
+            The soft shadow is created by blurring the image live using a
+            gaussian blur, which is a costly operation. Fullscreen gaussian
+            blur with even a moderate number of samples will only run at 60
+            FPS on high-end graphics hardware.
+    \row
+        \li \inlineimage icons/fast-blur-16px.png
+        \li \l {FastBlur}{Fast Blur}
+        \li Applies a fast blur effect to one or more source components.
+            \uicontrol {Fast Blur} offers lower blur quality than
+            \uicontrol {Gaussian Blur}, but it is faster to render.
+            This effect softens the source content by blurring it with
+            an algorithm that uses source content downscaling and
+            bilinear filtering. Use this effect if the source content
+            is rapidly changing and the highest possible blur quality
+            is not needed.
+
+            The value of the \uicontrol Radius field specifies the distance of
+            the neighboring pixels that affect the blurring of an individual
+            pixel. A larger radius increases the blur effect. The fast blur
+            algorithm may internally reduce the accuracy of the radius in order
+            to provide good rendering performance.
+    \row
+        \li \inlineimage icons/gamma-adjust-16px.png
+        \li \l [QML] {GammaAdjust}{Gamma Adjust}
+        \li Alters the luminance of the source item. This effect is applied
+            to each pixel according to the curve that is pre-defined as a
+            power-law expression, where the value of the \uicontrol Gamma
+            field is used as the reciprocal scaling exponent.
+    \row
+        \li \inlineimage icons/gaussian-blur-16px.png
+        \li \l [QML] {GaussianBlur}{Gaussian Blur}
+        \li Applies a gaussian blur effect to one or more source components.
+            The effect softens the image by blurring it with an algorithm that
+            uses the gaussian function to calculate the effect. The effect
+            produces higher quality than \uicontrol {Fast Blur}, but is slower
+            to render. Performing blur live is a costly operation. Fullscreen
+            gaussian blur with even a moderate number of \uicontrol Samples
+            will only run at 60 FPS on high-end graphics hardware.
+
+            The value of the \uicontrol Radius field specifies the distance of
+            the neighboring pixels that affect the blurring of an individual
+            pixel. The value of the \uicontrol Distance field is a parameter to
+            the gaussian function that is used when calculating neighboring
+            pixel weights for the blurring. A larger deviation causes an image
+            to appear more blurry, but it also reduces the quality of the blur.
+            A very large deviation value causes the effect to look a bit similar
+            to what, for exmple, a box blur algorithm produces. A too small
+            deviation value makes the effect insignificant for the pixels near
+            the radius.
+    \row
+        \li \inlineimage icons/glow-16px.png
+        \li \l [QML] {Glow}
+        \li Generates a halo-like glow around the source component. This effect
+            blurs the alpha channel of the source and colorizes it with
+            \uicontrol {Glow color}. It then places the alpha channel behind the
+            source, resulting in a halo or glow around the object. The quality
+            of the blurred edge can be controlled by using the values of the
+            \uicontrol Samples and \uicontrol Radius and the strength of the
+            glow can be changed using the value of the \uicontrol Spread field.
+    \row
+        \li \inlineimage icons/hue-saturation-16px.png
+        \li \l {HueSaturation}{Hue Saturation}
+        \li Alters the source component colors in the HSL color space.
+            This effect is similar to the \uicontrol Colorize effect, but
+            the \uicontrol Hue and \uicontrol Saturation values are handled
+            differently. This effect always shifts these values, as well as
+            the \uicontrol Lightness value from the original, instead of
+            setting them.
+    \row
+        \li \inlineimage icons/inner-shadow-16px.png
+        \li \l {InnerShadow}{Inner Shadow}
+        \li Generates a colorized and blurred shadow inside the source using
+            the color that you specify in the \uicontrol {Inner Shadow Color}
+            field.
+
+            The quality of the shadow can be controlled by the values of the
+            \uicontrol Samples and \uicontrol Radius fields. Ideally, the
+            sample value should be twice as large as the highest required
+            radius value. For example, if the radius is animated between
+            \c 0.0 and \c 4.0, samples should be set to \c 8.
+
+            The value of the \uicontrol Spread field specifies how large a part
+            of the shadow color is strengthened near the source edges.
+            The effect produces a high quality shadow image, and therefore the
+            rendering speed of the shadow might not be the highest possible.
+            The rendering speed is reduced especially if the shadow edges are
+            heavily softened. For use cases that require faster rendering speed
+            at the cost of high visual quality, select the \uicontrol Fast
+            check box.
+    \row
+        \li \inlineimage icons/levels-16px.png
+        \li \l {LevelAdjust}{Level Adjust}
+        \li Adjusts color levels in the RGBA color space. This effect adjusts
+            the source item colors separately for each color channel. Source
+            item contrast can be adjusted and color balance altered.
+
+            The value of the \uicontrol Gamma field specifies the change factor
+            for how the value of each pixel color channel is altered according
+            to the equation. Setting the gamma values under
+            \c QtVector3d(1.0, 1.0, 1.0) makes the image darker, whereas the
+            values above \c QtVector3d(1.0, 1.0, 1.0) lighten it. The value
+            ranges from \c QtVector3d(0.0, 0.0, 0.0) (darkest) to \c inf
+            (lightest).
+
+            You can specify the maximum and minimum input and output levels for
+            each color channel. \uicontrol {Maximum input} sets the white-point,
+            which means that all pixels with a higher value are rendered as
+            white (per color channel). Decreasing this value lightens the light
+            areas. To darken the light areas and to increase the contrast,
+            decrease the value of the \uicontrol {Maximum output} field.
+
+            The value of the \uicontrol {Minimum input} field sets the minimum
+            input level for each color channel. It sets the black-point, which
+            means that all pixels with a lower value are rendered as black
+            (per color channel). Increasing this value darkens the dark areas.
+            To lighten the dark areas and to reduce the contrast, increase the
+            value of the \uicontrol {Minimum output} field.
+    \row
+        \li \inlineimage icons/mask-blur-16px.png
+        \li \l {MaskedBlur}{Masked Blur}
+        \li Softens the image by blurring it. The intensity of the blur can be
+            controlled for each pixel by specifying a \uicontrol {Mask source},
+            so that some parts of the source are blurred more than others.
+
+            The value of the \uicontrol Radius field specifies the distance of
+            the neighboring pixels that affect the blurring of an individual
+            pixel.
+
+            The value of the \uicontrol Samples field specifies, how many
+            samples are taken per pixel when blur calculation is done. Larger
+            samples produce better quality, but are slower to render.
+    \row
+        \li \inlineimage icons/opacity-mask-16px.png
+        \li \l {OpacityMask}{Opacity Mask}
+        \li Masks the source component with another component specified in the
+            \uicontrol {Mask source} field. The mask item gets rendered into an
+            intermediate pixel buffer and the alpha values from the result are
+            used to determine the visibility of the source item's pixels in the
+            display.
+
+            Select the \uicontrol Invert check box to specify that the
+            resulting opacity is the source alpha multiplied with the
+            inverse of the mask alpha: \c {As * (1 - Am)}. When this property
+            is \c false, the resulting opacity is the source alpha multiplied
+            with the mask alpha: \c {As * Am}.
+    \row
+        \li \inlineimage icons/radial-blur-16px.png
+        \li \l {RadialBlur}{Radial Blur}
+        \li Applies a directional blur effect in a circular direction around the
+            component's center point. This effect makes the source item appear
+            to be rotating into the direction of the blur. Other available
+            motionblur effects are \uicontrol {Zoom Blur} and
+            \uicontrol {Directional Blur}.
+
+            The value of the \uicontrol Angle field specifies both the direction
+            of the blur and the level of blurring. The larger the angle, the
+            more blurred the result. The quality of the blur depends on the
+            value or the \uicontrol Samples field. If the angle is large, more
+            samples are needed to preserve high visual quality.
+    \row
+        \li \inlineimage icons/recursive-blur-16px.png
+        \li \l {RecursiveBlur}{Recursive Blur}
+        \li Blurs repeatedly, providing a strong blur effect. This effect
+            softens the image by blurring it with an algorithm that uses a
+            recursive feedback loop to blur the source as many times as
+            set in the \uicontrol Loops field.
+
+            The value of the \uicontrol Radius field specifies the distance of
+            the neighboring pixels that affect the blurring of an individual
+            pixel.
+
+            The effect may produce more blurred results than
+            \uicontrol {Fast Blur} or \uicontrol {Gaussian Blur},
+            but the result is produced asynchronously and takes more time.
+    \row
+        \li \inlineimage icons/threshold-16px.png
+        \li \l {ThresholdMask}{Threshold Mask}
+        \li Masks the source item with another item specified by
+            \uicontrol {Mask source}. The value of the \uicontrol Spread
+            field determines the smoothness of the mask edges near the
+            \uicontrol Threshold alpha value. Setting spread to \c 0.0 uses
+            the mask with the specified threshold. Setting higher spread values
+            softens the transition from the transparent mask pixels towards
+            opaque mask pixels by adding interpolated values between them.
+    \row
+        \li \inlineimage icons/zoom-blur-16px.png
+        \li \l {ZoomBlur}{Zoom Blur}
+        \li Applies a directional blur effect towards source component's
+            center point. This effect makes the source item appear to be
+            moving towards the center point in Z-direction or the camera
+            appear to be zooming rapidly.
+
+            The value of the \uicontrol Length field specifies the maximum
+            perceived amount of movement for each pixel. The amount is smaller
+            near the center specified by the \uicontrol {Horizontal offset} and
+            \uicontrol {Vertical offset} fields and reaches the specified value
+            at the edges.
+
+            The quality of the blur depends on the value of the
+            \uicontrol Samples field. If the length value is large,
+            more samples are needed to preserve high visual quality.
+
+            Other available motion blur effects are
+            \uicontrol {Directional Blur} and \uicontrol {Radial Blur}.
+    \endtable
+*/

@@ -27,7 +27,6 @@ VersionData {
     name: "QUL 1.4"
 
     bannedItems: ["QtQuick.AnimatedImage",
-        "QtQuick.BorderImage",
         "QtQuick.FocusScope",
         "QtQuick.TextInput",
         "QtQuick.TextEdit",
@@ -102,6 +101,12 @@ VersionData {
         allowedProperties: ["rotation", "scale", "transformOrigin"]
         bannedProperties: ["mirror", "mipmap",  "cache", "autoTransform", "asynchronous",
             "sourceSize", "smooth"]
+    }
+
+    QtQuick.BorderImage {
+        bannedProperties: ["asynchronous", "cache", "currentFrame", "frameCount",
+            "horizontalTileMode", "mirror", "progress", "smooth", "sourceSize",
+            "status", "verticalTileMode"]
     }
 
     QtQuick.Text {

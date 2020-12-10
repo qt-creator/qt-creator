@@ -786,7 +786,9 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
         cFlags = cxxFlags = commonFlags;
 
         const auto cxxLanguageVersion = arrayToStringList(getCppProp("cxxLanguageVersion"));
-        if (cxxLanguageVersion.contains("c++17"))
+        if (cxxLanguageVersion.contains("c++20"))
+            cxxFlags << "-std=c++20";
+        else if (cxxLanguageVersion.contains("c++17"))
             cxxFlags << "-std=c++17";
         else if (cxxLanguageVersion.contains("c++14"))
             cxxFlags << "-std=c++14";
@@ -805,7 +807,11 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
             cxxFlags << QLatin1String(enableRtti.toBool() ? "-frtti" : "-fno-rtti");
 
         const auto cLanguageVersion = arrayToStringList(getCppProp("cLanguageVersion"));
-        if (cLanguageVersion.contains("c11"))
+        if (cLanguageVersion.contains("c18"))
+            cFlags << "-cstd=c18";
+        else if (cLanguageVersion.contains("c17"))
+            cFlags << "-std=c17";
+        else if (cLanguageVersion.contains("c11"))
             cFlags << "-std=c11";
         else if (cLanguageVersion.contains("c99"))
             cFlags << "-std=c99";

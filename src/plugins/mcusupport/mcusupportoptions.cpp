@@ -65,7 +65,7 @@ using namespace Utils;
 namespace McuSupport {
 namespace Internal {
 
-static const int KIT_VERSION = 7; // Bumps up whenever details in Kit creation change
+static const int KIT_VERSION = 8; // Bumps up whenever details in Kit creation change
 
 static QString packagePathFromSettings(const QString &settingsKey,
                                        QSettings::Scope scope = QSettings::UserScope,
@@ -577,6 +577,7 @@ static void setKitProperties(const QString &kitName, Kit *k, const McuTarget *mc
     k->setValue(KIT_MCUTARGET_SDKVERSION_KEY, mcuTarget->qulVersion().toString());
     k->setValue(KIT_MCUTARGET_KITVERSION_KEY, KIT_VERSION);
     k->setValue(KIT_MCUTARGET_OS_KEY, static_cast<int>(mcuTarget->os()));
+    k->setValue(KIT_MCUTARGET_TOOCHAIN_KEY, mcuTarget->toolChainPackage()->toolChainName());
     k->setAutoDetected(true);
     k->makeSticky();
     if (mcuTarget->toolChainPackage()->isDesktopToolchain())
@@ -741,6 +742,8 @@ QList<Kit *> McuSupportOptions::existingKits(const McuTarget *mcuTarget)
                         && kit->value(KIT_MCUTARGET_COLORDEPTH_KEY) == mcuTarget->colorDepth()
                         && kit->value(KIT_MCUTARGET_OS_KEY).toInt()
                            == static_cast<int>(mcuTarget->os())
+                        && kit->value(KIT_MCUTARGET_TOOCHAIN_KEY)
+                           == mcuTarget->toolChainPackage()->toolChainName()
                         ));
     });
 }

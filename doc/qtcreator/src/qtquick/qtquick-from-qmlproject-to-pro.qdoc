@@ -46,7 +46,7 @@
     \endlist
 
     For more information about integrating QML and C++, see
-    \l{https://doc.qt.io/qt-5/qtqml-cppintegration-overview.html}
+    \l{https://doc.qt.io/qt/qtqml-cppintegration-overview.html}
     {Overview - QML and C++ Integration}.
 
     You can use a Qt Creator wizard template to create a Qt Quick application
@@ -59,7 +59,7 @@
 
     The wizard automatically adds the \c QML_IMPORT_PATH option to the project
     file for specifying the required
-    \l{https://doc.qt.io/qt-5/qtqml-syntax-imports.html#qml-import-path}
+    \l{https://doc.qt.io/qt/qtqml-syntax-imports.html#qml-import-path}
     {QML import path}. The path is only needed if more than one subdirectory
     contains QML files.
 

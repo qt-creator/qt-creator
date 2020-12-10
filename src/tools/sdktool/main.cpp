@@ -79,6 +79,14 @@ void printHelp(const std::vector<std::unique_ptr<Operation>> &operations)
     std::cout << "    --help|-h                Print this help text" << std::endl;
     std::cout << "    --sdkpath=PATH|-s PATH   Set the path to the SDK files" << std::endl << std::endl;
 
+    std::cout << "Default sdkpath is \""
+              << qPrintable(QDir::cleanPath(
+                     Utils::FilePath::fromString(QCoreApplication::applicationDirPath())
+                         .pathAppended(DATA_PATH)
+                         .toUserOutput()))
+              << "\"" << std::endl
+              << std::endl;
+
     std::cout << "OPERATION:" << std::endl;
     std::cout << "    One of:" << std::endl;
     for (const std::unique_ptr<Operation> &o : operations)

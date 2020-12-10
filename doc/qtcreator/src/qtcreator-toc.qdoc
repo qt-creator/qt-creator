@@ -138,7 +138,7 @@
                             \li \l{Adding 3D Views}
                             \li \l{Using 3D Components}
                             \list
-                                \li \l{Setting Node Properties}
+                                \li \l{Setting Group Properties}
                                 \li \l{Adding Models}
                                 \li \l{Using Materials and Shaders}
                                 \li \l{Attaching Textures to Materials}

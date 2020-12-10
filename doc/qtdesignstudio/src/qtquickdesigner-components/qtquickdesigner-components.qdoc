@@ -31,7 +31,8 @@
     The Qt Quick Studio Components module provides sets of components and
     effects enhanced for creating animated UIs. The components inherit
     \l {Qt Quick Shapes QML Types}. The effects inherit the types in the
-    \l {Qt Graphical Effects} module.
+    \l {Qt Graphical Effects} module. For more information about the effects,
+    see \l{2D Effects}.
 
     \section1 Using Studio Components
 
@@ -45,7 +46,5 @@
     links to their documentation.
 
     \annotatedlist qtquickstudio-components
-
-    \include qtdesignstudio-visual-effects.qdocinc qml visual effects
 
 */

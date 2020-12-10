@@ -31,7 +31,6 @@ namespace Internal {
 namespace Constants {
 const QLatin1String CUSTOMCOMMANDBUILDER_COMMAND("IncrediBuild.BuildConsole.%1.Command");
 const QLatin1String CUSTOMCOMMANDBUILDER_ARGS("IncrediBuild.BuildConsole.%1.Arguments");
-const QLatin1String CUSTOMCOMMANDBUILDER_ARGSSET("IncrediBuild.BuildConsole.%1.ArgumentsSet");
 } // namespace Constants
 
 void CommandBuilder::fromMap(const QVariantMap &map)

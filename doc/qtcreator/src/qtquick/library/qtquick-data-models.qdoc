@@ -26,7 +26,11 @@
 /*!
     \page quick-data-models.html
     \previouspage quick-controls.html
+    \if defined(qtdesignstudio)
+    \nextpage quick-2d-effects.html
+    \else
     \nextpage quick-buttons.html
+    \endif
 
     \title Lists and Other Data Models
 
