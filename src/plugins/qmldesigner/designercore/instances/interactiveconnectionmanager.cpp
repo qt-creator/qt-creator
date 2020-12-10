@@ -101,7 +101,7 @@ void InteractiveConnectionManager::dispatchCommand(const QVariant &command, Conn
 
 void InteractiveConnectionManager::puppetTimeout(Connection &connection)
 {
-    if (connection.socket && connection.socket->waitForReadyRead(10)) {
+    if (connection.timer && connection.socket && connection.socket->waitForReadyRead(10)) {
         connection.timer->stop();
         connection.timer->start();
         return;
@@ -112,8 +112,10 @@ void InteractiveConnectionManager::puppetTimeout(Connection &connection)
 
 void InteractiveConnectionManager::puppetAlive(Connection &connection)
 {
-    connection.timer->stop();
-    connection.timer->start();
+    if (connection.timer) {
+        connection.timer->stop();
+        connection.timer->start();
+    }
 }
 
 } // namespace QmlDesigner
