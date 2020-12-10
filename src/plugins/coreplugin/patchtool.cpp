@@ -35,37 +35,17 @@
 #include <QApplication>
 
 static const char settingsGroupC[] = "General";
-static const char legacySettingsGroupC[] = "VCS";
 static const char patchCommandKeyC[] = "PatchCommand";
 static const char patchCommandDefaultC[] = "patch";
 
 namespace Core {
 
-static QString readLegacyCommand()
-{
-    QSettings *s = ICore::settings();
-
-    s->beginGroup(QLatin1String(legacySettingsGroupC));
-    const bool legacyExists = s->contains(QLatin1String(patchCommandKeyC));
-    const QString legacyCommand = s->value(QLatin1String(patchCommandKeyC), QLatin1String(patchCommandDefaultC)).toString();
-    if (legacyExists)
-        s->remove(QLatin1String(patchCommandKeyC));
-    s->endGroup();
-
-    if (legacyExists && legacyCommand != QLatin1String(patchCommandDefaultC))
-        PatchTool::setPatchCommand(legacyCommand);
-
-    return legacyCommand;
-}
-
 QString PatchTool::patchCommand()
 {
     QSettings *s = ICore::settings();
 
-    const QString defaultCommand = readLegacyCommand(); // replace it with QLatin1String(patchCommandDefaultC) when dropping legacy stuff
-
-    s->beginGroup(QLatin1String(settingsGroupC));
-    const QString command = s->value(QLatin1String(patchCommandKeyC), defaultCommand).toString();
+    s->beginGroup(settingsGroupC);
+    const QString command = s->value(patchCommandKeyC, patchCommandDefaultC).toString();
     s->endGroup();
 
     return command;
