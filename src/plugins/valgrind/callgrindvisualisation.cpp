@@ -40,7 +40,6 @@
 #include <QGraphicsSimpleTextItem>
 #include <QMouseEvent>
 #include <QPair>
-#include <QPersistentModelIndex>
 #include <QStaticText>
 #include <QStyleOptionGraphicsItem>
 #include <QVector>
