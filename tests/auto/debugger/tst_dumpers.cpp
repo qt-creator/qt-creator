@@ -5762,7 +5762,7 @@ void tst_Dumpers::dumper_data()
                + Check("w", AnyValue, "wchar_t [4]")
                + Check("ch.0", "[0]", "97", TypePattern("char|CHAR"))
                + Check("ch", AnyValue, TypePattern("(char|CHAR)\\[5\\]"))
-               + Check("wch.0", "[0]", "97", TypeDef("wchar_t", "WCHAR"))
+               + Check("wch.0", "[0]", "97", TypePattern("wchar_t|WCHAR"))
                + Check("wch", AnyValue, TypePattern("(wchar_t|WCHAR)\\[4\\]"));
 
 
