@@ -465,6 +465,8 @@ void NodeInstanceView::propertiesAboutToBeRemoved(const QList<AbstractProperty>&
             resetVerticalAnchors(property.parentModelNode());
         } else if (name == "anchors.baseline") {
             resetVerticalAnchors(property.parentModelNode());
+        } else if (name == "shader" && property.parentModelNode().isSubclassOf("QtQuick3D.Shader")) {
+            m_resetTimer.start();
         }
     }
 
@@ -513,6 +515,13 @@ void NodeInstanceView::variantPropertiesChanged(const QList<VariantProperty>& pr
     QTC_ASSERT(m_nodeInstanceServer, return);
     updatePosition(propertyList);
     m_nodeInstanceServer->changePropertyValues(createChangeValueCommand(propertyList));
+
+    for (const auto &property : propertyList) {
+        if (property.name() == "shader" && property.parentModelNode().isSubclassOf("QtQuick3D.Shader")) {
+            m_resetTimer.start();
+            break;
+        }
+    }
 }
 /*!
   Notifies the view that the property parent of the model node \a node has
