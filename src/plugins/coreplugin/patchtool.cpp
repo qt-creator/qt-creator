@@ -53,9 +53,9 @@ QString PatchTool::patchCommand()
 
 void PatchTool::setPatchCommand(const QString &newCommand)
 {
-    QSettings *s = ICore::settings();
+    Utils::QtcSettings *s = ICore::settings();
     s->beginGroup(QLatin1String(settingsGroupC));
-    s->setValue(QLatin1String(patchCommandKeyC), newCommand);
+    s->setValueWithDefault(QLatin1String(patchCommandKeyC), newCommand, QString(patchCommandKeyC));
     s->endGroup();
 }
 

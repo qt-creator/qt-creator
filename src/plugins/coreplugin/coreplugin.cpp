@@ -295,7 +295,8 @@ void CorePlugin::setEnvironmentChanges(const EnvironmentItems &changes)
     Environment systemEnv = m_instance->m_startupSystemEnvironment;
     systemEnv.modify(changes);
     Environment::setSystemEnvironment(systemEnv);
-    ICore::settings()->setValue(kEnvironmentChanges, EnvironmentItem::toStringList(changes));
+    ICore::settings()->setValueWithDefault(kEnvironmentChanges,
+                                           EnvironmentItem::toStringList(changes));
     if (ICore::instance())
         emit ICore::instance()->systemEnvironmentChanged();
 }

@@ -145,7 +145,7 @@ OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget 
     connect(this, &QPlainTextEdit::copyAvailable, copyAction, &QAction::setEnabled);
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested, this, [this] {
         if (!d->settingsKey.isEmpty())
-            Core::ICore::settings()->setValue(d->settingsKey, fontZoom());
+            Core::ICore::settings()->setValueWithDefault(d->settingsKey, fontZoom(), 0.f);
     });
 
     connect(outputFormatter(), &OutputFormatter::openInEditorRequested, this,

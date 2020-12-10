@@ -130,14 +130,18 @@ static inline QString completionSettingsFlagsKey() { return QStringLiteral("Flag
 
 void CompletionModel::writeSettings(QSettings *settings) const
 {
-    const int size = m_entries.size();
-    settings->beginWriteArray(completionSettingsArrayPrefix(), size);
-    for (int i = 0; i < size; ++i) {
-        settings->setArrayIndex(i);
-        settings->setValue(completionSettingsTextKey(), m_entries.at(i).text);
-        settings->setValue(completionSettingsFlagsKey(), int(m_entries.at(i).findFlags));
+    if (m_entries.isEmpty()) {
+        settings->remove(completionSettingsArrayPrefix());
+    } else {
+        const int size = m_entries.size();
+        settings->beginWriteArray(completionSettingsArrayPrefix(), size);
+        for (int i = 0; i < size; ++i) {
+            settings->setArrayIndex(i);
+            settings->setValue(completionSettingsTextKey(), m_entries.at(i).text);
+            settings->setValue(completionSettingsFlagsKey(), int(m_entries.at(i).findFlags));
+        }
+        settings->endArray();
     }
-    settings->endArray();
 }
 
 void CompletionModel::readSettings(QSettings *settings)
@@ -380,15 +384,17 @@ bool Find::hasFindFlag(FindFlag flag)
 
 void FindPrivate::writeSettings()
 {
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
     settings->beginGroup(QLatin1String("Find"));
-    settings->setValue(QLatin1String("Backward"), bool(m_findFlags & FindBackward));
-    settings->setValue(QLatin1String("CaseSensitively"), bool(m_findFlags & FindCaseSensitively));
-    settings->setValue(QLatin1String("WholeWords"), bool(m_findFlags & FindWholeWords));
-    settings->setValue(QLatin1String("RegularExpression"), bool(m_findFlags & FindRegularExpression));
-    settings->setValue(QLatin1String("PreserveCase"), bool(m_findFlags & FindPreserveCase));
+    settings->setValueWithDefault("Backward", bool(m_findFlags & FindBackward), false);
+    settings->setValueWithDefault("CaseSensitively", bool(m_findFlags & FindCaseSensitively), false);
+    settings->setValueWithDefault("WholeWords", bool(m_findFlags & FindWholeWords), false);
+    settings->setValueWithDefault("RegularExpression",
+                                  bool(m_findFlags & FindRegularExpression),
+                                  false);
+    settings->setValueWithDefault("PreserveCase", bool(m_findFlags & FindPreserveCase), false);
     m_findCompletionModel.writeSettings(settings);
-    settings->setValue(QLatin1String("ReplaceStrings"), m_replaceCompletions);
+    settings->setValueWithDefault("ReplaceStrings", m_replaceCompletions);
     settings->endGroup();
     m_findToolBar->writeSettings();
     m_findDialog->writeSettings();

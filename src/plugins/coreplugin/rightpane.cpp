@@ -28,7 +28,7 @@
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
 
-#include <QSettings>
+#include <utils/qtcsettings.h>
 
 #include <QVBoxLayout>
 #include <QSplitter>
@@ -171,26 +171,20 @@ void RightPaneWidget::resizeEvent(QResizeEvent *re)
     QWidget::resizeEvent(re);
 }
 
-void RightPaneWidget::saveSettings(QSettings *settings)
+static const bool kVisibleDefault = false;
+static const int kWidthDefault = 500;
+
+void RightPaneWidget::saveSettings(Utils::QtcSettings *settings)
 {
-    settings->setValue(QLatin1String("RightPane/Visible"), isShown());
-    settings->setValue(QLatin1String("RightPane/Width"), m_width);
+    settings->setValueWithDefault("RightPane/Visible", isShown(), kVisibleDefault);
+    settings->setValueWithDefault("RightPane/Width", m_width, kWidthDefault);
 }
 
 void RightPaneWidget::readSettings(QSettings *settings)
 {
-    if (settings->contains(QLatin1String("RightPane/Visible")))
-        setShown(settings->value(QLatin1String("RightPane/Visible")).toBool());
-    else
-        setShown(false);
+    setShown(settings->value(QLatin1String("RightPane/Visible"), kVisibleDefault).toBool());
+    m_width = settings->value("RightPane/Width", kWidthDefault).toInt();
 
-    if (settings->contains(QLatin1String("RightPane/Width"))) {
-        m_width = settings->value(QLatin1String("RightPane/Width")).toInt();
-        if (!m_width)
-            m_width = 500;
-    } else {
-        m_width = 500; //pixel
-    }
     // Apply
     if (RightPanePlaceHolder::m_current)
         RightPanePlaceHolder::m_current->applyStoredSize(m_width);

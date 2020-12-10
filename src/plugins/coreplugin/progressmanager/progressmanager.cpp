@@ -56,6 +56,7 @@
 
 static const char kSettingsGroup[] = "Progress";
 static const char kDetailsPinned[] = "DetailsPinned";
+static const bool kDetailsPinnedDefault = true;
 static const int TimerInterval = 100; // 100 ms
 
 using namespace Core;
@@ -250,8 +251,8 @@ ProgressManagerPrivate::~ProgressManagerPrivate()
 void ProgressManagerPrivate::readSettings()
 {
     QSettings *settings = ICore::settings();
-    settings->beginGroup(QLatin1String(kSettingsGroup));
-    m_progressViewPinned = settings->value(QLatin1String(kDetailsPinned), true).toBool();
+    settings->beginGroup(kSettingsGroup);
+    m_progressViewPinned = settings->value(kDetailsPinned, kDetailsPinnedDefault).toBool();
     settings->endGroup();
 }
 
@@ -661,9 +662,9 @@ void ProgressManagerPrivate::progressDetailsToggled(bool checked)
     m_progressViewPinned = checked;
     updateVisibility();
 
-    QSettings *settings = ICore::settings();
-    settings->beginGroup(QLatin1String(kSettingsGroup));
-    settings->setValue(QLatin1String(kDetailsPinned), m_progressViewPinned);
+    QtcSettings *settings = ICore::settings();
+    settings->beginGroup(kSettingsGroup);
+    settings->setValueWithDefault(kDetailsPinned, m_progressViewPinned, kDetailsPinnedDefault);
     settings->endGroup();
 }
 

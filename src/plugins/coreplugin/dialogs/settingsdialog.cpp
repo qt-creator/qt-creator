@@ -755,7 +755,9 @@ bool SettingsDialog::execDialog()
         exec();
         m_running = false;
         m_instance = nullptr;
-        ICore::settings()->setValue(kPreferenceDialogSize, size());
+        ICore::settings()->setValueWithDefault(kPreferenceDialogSize,
+                                               size(),
+                                               QSize(kInitialWidth, kInitialHeight));
         // make sure that the current "single" instance is deleted
         // we can't delete right away, since we still access the m_applied member
         deleteLater();

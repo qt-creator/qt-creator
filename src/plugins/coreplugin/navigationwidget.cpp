@@ -401,15 +401,25 @@ void NavigationWidget::closeSubWidget()
     }
 }
 
-void NavigationWidget::saveSettings(QSettings *settings)
+static QString defaultFirstView(Side side)
+{
+    return side == Side::Left ? QString("Projects") : QString("Outline");
+}
+
+static bool defaultVisible(Side side)
+{
+    return side == Side::Left;
+}
+
+void NavigationWidget::saveSettings(QtcSettings *settings)
 {
     QStringList viewIds;
     for (int i=0; i<d->m_subWidgets.count(); ++i) {
         d->m_subWidgets.at(i)->saveSettings();
         viewIds.append(d->m_subWidgets.at(i)->factory()->id().toString());
     }
-    settings->setValue(settingsKey("Views"), viewIds);
-    settings->setValue(settingsKey("Visible"), isShown());
+    settings->setValueWithDefault(settingsKey("Views"), viewIds, {defaultFirstView(d->m_side)});
+    settings->setValueWithDefault(settingsKey("Visible"), isShown(), defaultVisible(d->m_side));
     settings->setValue(settingsKey("VerticalPosition"), saveState());
     settings->setValue(settingsKey("Width"), d->m_width);
 
@@ -431,8 +441,9 @@ void NavigationWidget::restoreSettings(QSettings *settings)
     }
 
     const bool isLeftSide = d->m_side == Side::Left;
-    QLatin1String defaultFirstView = isLeftSide ? QLatin1String("Projects") : QLatin1String("Outline");
-    QStringList viewIds = settings->value(settingsKey("Views"), QStringList(defaultFirstView)).toStringList();
+    QStringList viewIds = settings
+                              ->value(settingsKey("Views"), QStringList(defaultFirstView(d->m_side)))
+                              .toStringList();
 
     bool restoreSplitterState = true;
     int version = settings->value(settingsKey("Version"), 1).toInt();
@@ -459,9 +470,9 @@ void NavigationWidget::restoreSettings(QSettings *settings)
 
     if (d->m_subWidgets.isEmpty())
         // Make sure we have at least the projects widget or outline widget
-        insertSubItem(0, qMax(0, factoryIndex(defaultFirstView.data())));
+        insertSubItem(0, qMax(0, factoryIndex(Id::fromString(defaultFirstView(d->m_side)))));
 
-    setShown(settings->value(settingsKey("Visible"), isLeftSide).toBool());
+    setShown(settings->value(settingsKey("Visible"), defaultVisible(d->m_side)).toBool());
 
     if (restoreSplitterState && settings->contains(settingsKey("VerticalPosition"))) {
         restoreState(settings->value(settingsKey("VerticalPosition")).toByteArray());

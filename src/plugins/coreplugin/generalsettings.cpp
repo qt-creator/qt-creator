@@ -96,8 +96,8 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
     } else {
         const bool defaultValue = Utils::HostOsInfo::isWindowsHost();
         m_ui.dpiCheckbox->setChecked(ICore::settings()->value(settingsKeyDPI, defaultValue).toBool());
-        connect(m_ui.dpiCheckbox, &QCheckBox::toggled, this, [](bool checked) {
-            ICore::settings()->setValue(settingsKeyDPI, checked);
+        connect(m_ui.dpiCheckbox, &QCheckBox::toggled, this, [defaultValue](bool checked) {
+            ICore::settings()->setValueWithDefault(settingsKeyDPI, checked, defaultValue);
             QMessageBox::information(ICore::dialogParent(),
                                      tr("Restart Required"),
                                      tr("The high DPI settings will take effect after restart."));

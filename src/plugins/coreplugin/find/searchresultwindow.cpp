@@ -116,7 +116,7 @@ namespace Internal {
         QToolButton *m_expandCollapseButton;
         QToolButton *m_newSearchButton;
         QAction *m_expandCollapseAction;
-        static const bool m_initiallyExpand = false;
+        static const bool m_initiallyExpand;
         QWidget *m_spacer;
         QLabel *m_historyLabel;
         QWidget *m_spacer2;
@@ -129,6 +129,8 @@ namespace Internal {
         int m_tabWidth;
 
     };
+
+    const bool SearchResultWindowPrivate::m_initiallyExpand = false;
 
     SearchResultWindowPrivate::SearchResultWindowPrivate(SearchResultWindow *window, QWidget *nsp) :
         q(window),
@@ -630,9 +632,11 @@ void SearchResultWindow::readSettings()
 */
 void SearchResultWindow::writeSettings()
 {
-    QSettings *s = ICore::settings();
-    s->beginGroup(QLatin1String(SETTINGSKEYSECTIONNAME));
-    s->setValue(QLatin1String(SETTINGSKEYEXPANDRESULTS), d->m_expandCollapseAction->isChecked());
+    Utils::QtcSettings *s = ICore::settings();
+    s->beginGroup(SETTINGSKEYSECTIONNAME);
+    s->setValueWithDefault(SETTINGSKEYEXPANDRESULTS,
+                           d->m_expandCollapseAction->isChecked(),
+                           SearchResultWindowPrivate::m_initiallyExpand);
     s->endGroup();
 }
 

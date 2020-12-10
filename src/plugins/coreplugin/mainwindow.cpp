@@ -1027,6 +1027,8 @@ static const char windowGeometryKey[] = "WindowGeometry";
 static const char windowStateKey[] = "WindowState";
 static const char modeSelectorLayoutKey[] = "ModeSelectorLayout";
 
+static const bool askBeforeExitDefault = false;
+
 void MainWindow::readSettings()
 {
     QSettings *settings = PluginManager::settings();
@@ -1041,7 +1043,7 @@ void MainWindow::readSettings()
                                   QColor(StyleHelper::DEFAULT_BASE_COLOR)).value<QColor>());
     }
 
-    m_askConfirmationBeforeExit = settings->value(askBeforeExitKey, false).toBool();
+    m_askConfirmationBeforeExit = settings->value(askBeforeExitKey, askBeforeExitDefault).toBool();
 
     {
         ModeManager::Style modeStyle =
@@ -1068,13 +1070,17 @@ void MainWindow::readSettings()
 
 void MainWindow::saveSettings()
 {
-    QSettings *settings = PluginManager::settings();
+    QtcSettings *settings = PluginManager::settings();
     settings->beginGroup(QLatin1String(settingsGroup));
 
     if (!(m_overrideColor.isValid() && StyleHelper::baseColor() == m_overrideColor))
-        settings->setValue(QLatin1String(colorKey), StyleHelper::requestedBaseColor());
+        settings->setValueWithDefault(colorKey,
+                                      StyleHelper::requestedBaseColor(),
+                                      QColor(StyleHelper::DEFAULT_BASE_COLOR));
 
-    settings->setValue(askBeforeExitKey, m_askConfirmationBeforeExit);
+    settings->setValueWithDefault(askBeforeExitKey,
+                                  m_askConfirmationBeforeExit,
+                                  askBeforeExitDefault);
 
     settings->endGroup();
 

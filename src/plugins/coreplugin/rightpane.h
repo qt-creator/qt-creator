@@ -36,6 +36,10 @@ QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
+namespace Utils {
+class QtcSettings;
+}
+
 namespace Core {
 
 class RightPaneWidget;
@@ -65,7 +69,7 @@ public:
     RightPaneWidget();
     ~RightPaneWidget() override;
 
-    void saveSettings(QSettings *settings);
+    void saveSettings(Utils::QtcSettings *settings);
     void readSettings(QSettings *settings);
 
     bool isShown();

@@ -36,6 +36,10 @@ class QSettings;
 class QAbstractItemModel;
 QT_END_NAMESPACE
 
+namespace Utils {
+class QtcSettings;
+}
+
 namespace Core {
 class INavigationWidgetFactory;
 class Command;
@@ -87,7 +91,7 @@ public:
     void setFactories(const QList<INavigationWidgetFactory*> &factories);
 
     QString settingsGroup() const;
-    void saveSettings(QSettings *settings);
+    void saveSettings(Utils::QtcSettings *settings);
     void restoreSettings(QSettings *settings);
 
     QWidget *activateSubWidget(Utils::Id factoryId, int preferredPosition);

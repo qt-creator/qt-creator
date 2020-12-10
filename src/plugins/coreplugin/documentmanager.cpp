@@ -70,6 +70,7 @@
 #include <QMenu>
 #include <QMessageBox>
 
+static const bool kUseProjectsDirectoryDefault = true;
 static Q_LOGGING_CATEGORY(log, "qtc.core.documentmanager", QtWarningMsg)
 
 /*!
@@ -182,7 +183,7 @@ public:
     bool m_postponeAutoReload = false;
     bool m_blockActivated = false;
     bool m_checkOnFocusChange = false;
-    bool m_useProjectsDirectory = true;
+    bool m_useProjectsDirectory = kUseProjectsDirectoryDefault;
 
     QFileSystemWatcher *m_fileWatcher = nullptr; // Delayed creation.
     QFileSystemWatcher *m_linkWatcher = nullptr; // Delayed creation (only UNIX/if a link is seen).
@@ -1366,14 +1367,16 @@ void DocumentManager::saveSettings()
         recentEditorIds.append(file.second.toString());
     }
 
-    QSettings *s = ICore::settings();
-    s->beginGroup(QLatin1String(settingsGroupC));
-    s->setValue(QLatin1String(filesKeyC), recentFiles);
-    s->setValue(QLatin1String(editorsKeyC), recentEditorIds);
+    QtcSettings *s = ICore::settings();
+    s->beginGroup(settingsGroupC);
+    s->setValueWithDefault(filesKeyC, recentFiles);
+    s->setValueWithDefault(editorsKeyC, recentEditorIds);
     s->endGroup();
-    s->beginGroup(QLatin1String(directoryGroupC));
-    s->setValue(QLatin1String(projectDirectoryKeyC), d->m_projectsDirectory.toString());
-    s->setValue(QLatin1String(useProjectDirectoryKeyC), d->m_useProjectsDirectory);
+    s->beginGroup(directoryGroupC);
+    s->setValueWithDefault(projectDirectoryKeyC, d->m_projectsDirectory.toString());
+    s->setValueWithDefault(useProjectDirectoryKeyC,
+                           d->m_useProjectsDirectory,
+                           kUseProjectsDirectoryDefault);
     s->endGroup();
 }
 
@@ -1403,8 +1406,8 @@ void readSettings()
         d->m_projectsDirectory = settingsProjectDir;
     else
         d->m_projectsDirectory = FilePath::fromString(PathChooser::homePath());
-    d->m_useProjectsDirectory = s->value(QLatin1String(useProjectDirectoryKeyC),
-                                         d->m_useProjectsDirectory).toBool();
+    d->m_useProjectsDirectory
+        = s->value(QLatin1String(useProjectDirectoryKeyC), kUseProjectsDirectoryDefault).toBool();
 
     s->endGroup();
 }

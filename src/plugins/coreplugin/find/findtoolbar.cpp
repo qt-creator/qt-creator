@@ -894,14 +894,20 @@ void FindToolBar::resizeEvent(QResizeEvent *event)
 
 void FindToolBar::writeSettings()
 {
-    QSettings *settings = ICore::settings();
-    settings->beginGroup(QLatin1String("Find"));
-    settings->beginGroup(QLatin1String("FindToolBar"));
-    settings->setValue(QLatin1String("Backward"), QVariant((m_findFlags & FindBackward) != 0));
-    settings->setValue(QLatin1String("CaseSensitively"), QVariant((m_findFlags & FindCaseSensitively) != 0));
-    settings->setValue(QLatin1String("WholeWords"), QVariant((m_findFlags & FindWholeWords) != 0));
-    settings->setValue(QLatin1String("RegularExpression"), QVariant((m_findFlags & FindRegularExpression) != 0));
-    settings->setValue(QLatin1String("PreserveCase"), QVariant((m_findFlags & FindPreserveCase) != 0));
+    Utils::QtcSettings *settings = ICore::settings();
+    settings->beginGroup("Find");
+    settings->beginGroup("FindToolBar");
+    settings->setValueWithDefault("Backward", bool((m_findFlags & FindBackward) != 0), false);
+    settings->setValueWithDefault("CaseSensitively",
+                                  bool((m_findFlags & FindCaseSensitively) != 0),
+                                  false);
+    settings->setValueWithDefault("WholeWords", bool((m_findFlags & FindWholeWords) != 0), false);
+    settings->setValueWithDefault("RegularExpression",
+                                  bool((m_findFlags & FindRegularExpression) != 0),
+                                  false);
+    settings->setValueWithDefault("PreserveCase",
+                                  bool((m_findFlags & FindPreserveCase) != 0),
+                                  false);
     settings->endGroup();
     settings->endGroup();
 }

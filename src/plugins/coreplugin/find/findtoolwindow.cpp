@@ -299,9 +299,10 @@ void FindToolWindow::replace()
 
 void FindToolWindow::writeSettings()
 {
-    QSettings *settings = ICore::settings();
-    settings->beginGroup(QLatin1String("Find"));
-    settings->setValue(QLatin1String("CurrentFilter"), m_currentFilter ?  m_currentFilter->id() : QString());
+    Utils::QtcSettings *settings = ICore::settings();
+    settings->beginGroup("Find");
+    settings->setValueWithDefault("CurrentFilter",
+                                  m_currentFilter ? m_currentFilter->id() : QString());
     foreach (IFindFilter *filter, m_filters)
         filter->writeSettings(settings);
     settings->endGroup();
