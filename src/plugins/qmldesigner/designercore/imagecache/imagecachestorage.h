@@ -126,7 +126,7 @@ public:
         }
     }
 
-    void walCheckpointFull()
+    void walCheckpointFull() override
     {
         try {
             database.walCheckpointFull();

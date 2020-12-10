@@ -231,5 +231,5 @@
     alias to be able to switch the image inside the stack.
 
     For more information about the available Qt graphical effects, see
-    \l {Applying Visual Effects}.
+    \l {2D Effects}.
 */

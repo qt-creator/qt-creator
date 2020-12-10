@@ -553,6 +553,10 @@
     You can set slider orientation to horizontal or vertical in the
     \uicontrol Orientation field.
 
+    For more information, watch the following video:
+
+    \youtube Ed8WS03C-Vk
+
     A dial supports circular, horizontal, and vertical input modes. For
     applications where fast input is important, the circular input mode is
     useful, as clicking the dial will move it directly to that position.

@@ -34,8 +34,8 @@
 
     The Triangle type can be used to draw triangles with different dimensions
     and shapes. The type is enclosed in an invisible \l Rectangle type. The size
-    of the triagle is determined by the size of the bounding rectangle. The
-    dimensions of the triangle can be changed to make it elongated or squatter
+    of the triangle is determined by the size of the bounding rectangle. The
+    dimensions of the triangle can be changed to make it elongated or squat
     with space around it by using the \l leftMargin, \l topMargin,
     \l rightMargin, and \l bottomMargin properties. The margins are set between
     the triangle and the edges of the parent rectangle.

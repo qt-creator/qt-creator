@@ -57,7 +57,7 @@ void BindingModel::resetModel()
         QStringList({tr("Item"), tr("Property"), tr("Source Item"), tr("Source Property")}));
 
     if (connectionView()->isAttached()) {
-        for (const ModelNode modelNode : connectionView()->selectedModelNodes())
+        for (const ModelNode &modelNode : connectionView()->selectedModelNodes())
             addModelNode(modelNode);
     }
 

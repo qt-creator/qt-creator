@@ -3903,7 +3903,7 @@ void ProjectExplorerPlugin::addCustomParser(const CustomParserSettings &settings
 
 void ProjectExplorerPlugin::removeCustomParser(Id id)
 {
-    erase(dd->m_customParsers, [id](const CustomParserSettings &s) {
+    Utils::erase(dd->m_customParsers, [id](const CustomParserSettings &s) {
         return s.id == id;
     });
     emit m_instance->customParsersChanged();

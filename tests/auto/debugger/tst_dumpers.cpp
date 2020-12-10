@@ -3101,6 +3101,7 @@ void tst_Dumpers::dumper_data()
                + Check5("mm", "destroyed", "@QMetaMethod")
                + Check4("mm", "destroyed(QObject*)", "@QMetaMethod")
                + Check("mm.handle", "14", TypeDef("unsigned int", "uint"))
+                    % QtVersion(0, 0x5ffff) // Gone in Qt 6
                + Check("mp", "objectName", "@QMetaProperty");
 
 
@@ -6635,7 +6636,7 @@ void tst_Dumpers::dumper_data()
                     "boost::shared_ptr<int> s;\n"
                     "boost::shared_ptr<int> i(new int(43));\n"
                     "boost::shared_ptr<int> j = i;\n"
-                    "boost::shared_ptr<QStringList> sl(new QStringList(QStringList() << \"HUH!\"));",
+                    "boost::shared_ptr<QList<QString>> sl(new QList<QString>(QList<QString>() << \"HUH!\"));",
 
                     "&s, &i, &j, &sl")
 
@@ -6645,7 +6646,7 @@ void tst_Dumpers::dumper_data()
              + Check("s", "(null)", "boost::shared_ptr<int>")
              + Check("i", "43", "boost::shared_ptr<int>")
              + Check("j", "43", "boost::shared_ptr<int>")
-             + Check("sl", "<1 items>", " boost::shared_ptr<@QStringList>")
+             + Check("sl", "<1 items>", " boost::shared_ptr<@QList<@QString>>")
              + Check("sl.0", "[0]", "\"HUH!\"", "@QString");
 
 
@@ -6886,13 +6887,13 @@ void tst_Dumpers::dumper_data()
         << Data("#include <QMap>\n"
                 "struct CustomStruct {\n"
                 "    int id;\n"
-                "    double dvalue;\n"
+                "    double dval;\n"
                 "};",
 
                 "QMap<int, CustomStruct> map;\n"
                 "CustomStruct cs1;\n"
                 "cs1.id = 1;\n"
-                "cs1.dvalue = 3.14;\n"
+                "cs1.dval = 3.14;\n"
                 "CustomStruct cs2 = cs1;\n"
                 "cs2.id = -1;\n"
                 "map.insert(cs1.id, cs1);\n"
@@ -6904,10 +6905,11 @@ void tst_Dumpers::dumper_data()
          + CoreProfile()
 
          + Check("map", "<2 items>", "@QMap<int, CustomStruct>")
-         + Check("map.0.key", "-1", "int")
-         + CheckType("map.0.value", "CustomStruct")
-         + Check("map.0.value.dvalue", FloatValue("3.14"), "double")
-         + Check("map.0.value.id", "-1", "int");
+         + CheckPairish("map.0.key", "-1", "int")
+         + CheckType("map.0.value", "CustomStruct") % Qt5
+         + CheckType("map.0.second", "CustomStruct") % Qt6
+         + CheckPairish("map.0.value.dval", FloatValue("3.14"), "double")
+         + CheckPairish("map.0.value.id", "-1", "int");
 
 
 #if 0
@@ -7597,7 +7599,7 @@ void tst_Dumpers::dumper_data()
 
 
     const QtVersion jsonv1{0, 0x50f00};
-    const QtVersion jsonv2{0x50f00};
+    const QtVersion jsonv2{0x50f00, 0x60000};
 
     QTest::newRow("QJson")
             << Data("#include <QString>\n"
@@ -7740,6 +7742,7 @@ void tst_Dumpers::dumper_data()
                     "v18.setProperty(\"PropA\", 1);\n"
                     "v18.setProperty(\"PropB\", 2.5);\n"
                     "v18.setProperty(\"PropC\", v10);\n\n"
+                    "#if QT_VERSION < 0x60000\n"
                     "QV4::Value s11, *p11 = QJSValuePrivate::valueForData(&v11, &s11);\n"
                     "QV4::Value s12, *p12 = QJSValuePrivate::valueForData(&v12, &s12);\n"
                     "QV4::Value s13, *p13 = QJSValuePrivate::valueForData(&v13, &s13);\n"
@@ -7747,10 +7750,11 @@ void tst_Dumpers::dumper_data()
                     "QV4::Value s15, *p15 = QJSValuePrivate::valueForData(&v15, &s15);\n"
                     "QV4::Value s16, *p16 = QJSValuePrivate::valueForData(&v16, &s16);\n"
                     "QV4::Value s17, *p17 = QJSValuePrivate::valueForData(&v17, &s17);\n"
-                    "QV4::Value s18, *p18 = QJSValuePrivate::valueForData(&v18, &s18);\n",
+                    "QV4::Value s18, *p18 = QJSValuePrivate::valueForData(&v18, &s18);\n"
+                    "unused(&p11, &p12, &p13, &p14, &p15, &p16, &p17, &p18);\n"
+                    "#endif\n",
 
-                    "&v10, &v11, &v12, &v13, &v14, &v15, &v16, &v17, &v18, "
-                    "&p11, &p12, &p13, &p14, &p15, &p16, &p17, &p18")
+                    "&v10, &v11, &v12, &v13, &v14, &v15, &v16, &v17, &v18")
 
             + QmlPrivateProfile()
             + QtVersion(0x50000)
@@ -8008,7 +8012,7 @@ void tst_Dumpers::dumper_data()
 
             + CorePrivateProfile()
             + QmlPrivateProfile()
-            + QtVersion(0x50800)
+            + QtVersion(0x50800, 0x5ffff)  // Both test cases are gone in Qt6
 
             + Check("d.Log10_2_100000", "30103", "int")
             + Check("p.FlagBit", "<optimized out>", "") % NoCdbEngine

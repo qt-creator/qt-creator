@@ -134,7 +134,7 @@ void DynamicPropertiesModel::resetModel()
         QStringList({tr("Item"), tr("Property"), tr("Property Type"), tr("Property Value")}));
 
     if (connectionView()->isAttached()) {
-        for (const ModelNode modelNode : connectionView()->selectedModelNodes())
+        for (const ModelNode &modelNode : connectionView()->selectedModelNodes())
             addModelNode(modelNode);
     }
 

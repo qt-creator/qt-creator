@@ -49,7 +49,7 @@ namespace {
 QStringList propertyNameListToStringList(const QmlDesigner::PropertyNameList &propertyNameList)
 {
     QStringList stringList;
-    for (const QmlDesigner::PropertyName propertyName : propertyNameList) {
+    for (const QmlDesigner::PropertyName &propertyName : propertyNameList) {
         stringList << QString::fromUtf8(propertyName);
     }
     stringList.removeDuplicates();

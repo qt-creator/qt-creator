@@ -34,16 +34,6 @@
 using namespace ProjectExplorer;
 using namespace QtSupport;
 
-static QString format(const QString &fileName, int lineNo, const QString &msg)
-{
-    if (lineNo > 0)
-        return QString::fromLatin1("%1(%2): %3").arg(fileName, QString::number(lineNo), msg);
-    else if (lineNo)
-        return QString::fromLatin1("%1: %3").arg(fileName, msg);
-    else
-        return msg;
-}
-
 ProMessageHandler::ProMessageHandler(bool verbose, bool exact)
     : m_verbose(verbose)
     , m_exact(exact)

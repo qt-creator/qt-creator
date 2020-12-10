@@ -112,7 +112,7 @@
     In addition, all functions of the \c Math and \c Date objects are supported.
 
     For more information, see
-    \l{https://doc.qt.io/qt-5/qtqml-javascript-functionlist.html}
+    \l{https://doc.qt.io/qt/qtqml-javascript-functionlist.html}
     {List of JavaScript Objects and Functions}.
 
     \section2 Qt QML Methods
@@ -159,7 +159,7 @@
     \endlist
 
     For more information about using the methods, see
-    \l{https://doc.qt.io/qt-5/qml-qtqml-qt.html}{Qt QML Methods}.
+    \l{https://doc.qt.io/qt/qml-qtqml-qt.html}{Qt QML Methods}.
 
     \section1 Using Qt Quick UI Forms
 

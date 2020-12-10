@@ -837,7 +837,7 @@ ModelNode QmlFlowItemNode::decisionNodeForTransition(const ModelNode &transition
         }
         QmlFlowViewNode flowView(transition.view()->rootModelNode());
         if (flowView.isValid()) {
-            for (const ModelNode target : flowView.decicions()) {
+            for (const ModelNode &target : flowView.decicions()) {
                 if (target.hasBindingProperty("targets")
                         && target.bindingProperty("targets").resolveToModelNodeList().contains(transition))
                     return target;
@@ -853,7 +853,7 @@ ModelNode QmlFlowTargetNode::findSourceForDecisionNode() const
     if (!isFlowDecision())
         return {};
 
-    for (const ModelNode transition : flowView().transitionsForTarget(modelNode())) {
+    for (const ModelNode &transition : flowView().transitionsForTarget(modelNode())) {
         if (transition.hasBindingProperty("from")) {
             const ModelNode source = transition.bindingProperty("from").resolveToModelNode();
             if (source.isValid()) {

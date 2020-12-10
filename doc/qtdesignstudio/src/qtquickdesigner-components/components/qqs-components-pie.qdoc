@@ -41,7 +41,7 @@
     \l ShapeGradient subtypes and set using the \l gradient property.
     If both a color and a gradient are specified, the gradient is used.
 
-    The \l strokeColor, \l strokeWidth, and \l strokeStyle, properties specify
+    The \l strokeColor, \l strokeWidth, and \l strokeStyle properties specify
     the appearance of the pie outline. The \l dashPattern and \l dashOffset
     properties specify the appearance of dashed lines.
 

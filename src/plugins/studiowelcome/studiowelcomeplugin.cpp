@@ -345,7 +345,7 @@ WelcomeMode::WelcomeMode()
 
     setPriority(Core::Constants::P_MODE_WELCOME);
     setId(Core::Constants::MODE_WELCOME);
-    setContextHelp("Qt Creator Manual");
+    setContextHelp("Qt Design Studio Manual");
     setContext(Core::Context(Core::Constants::C_WELCOME_MODE));
 
     m_modeWidget = new QQuickWidget;

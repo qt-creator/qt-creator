@@ -63,6 +63,12 @@
 
     \section1 Creating States
 
+    To open the \uicontrol States view, select \uicontrol View >
+    \uicontrol Views > \uicontrol States. To collapse or expand
+    the open view, select \uicontrol {Toggle States} or press
+    \key {Ctr+Alt+S}. You can also right-click the view and select
+    \uicontrol Collapse or \uicontrol Expand.
+
     The \uicontrol States view displays the different \l{State}{states}
     of a UI, beginning with a \e {base state}.
 
@@ -86,6 +92,10 @@
     \note If you have \l{Locking Items}{locked an item} in \uicontrol Navigator,
     and you attempt to remove states where you change the values of its
     properties, you are prompted to confirm the removal.
+
+    For more information, watch the following video:
+
+    \youtube FzmLuRHQXaw
 
     \section1 Setting the Default State
 

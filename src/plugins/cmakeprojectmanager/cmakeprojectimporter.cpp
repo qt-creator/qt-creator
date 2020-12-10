@@ -33,6 +33,7 @@
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/toolchainmanager.h>
 
 #include <qtsupport/qtkitinformation.h>
 
@@ -318,7 +319,10 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
     if (data->qt.qt && QtSupport::QtKitAspect::qtVersionId(k) != data->qt.qt->uniqueId())
         return false;
 
+    const QList<Id> allLanguages = ToolChainManager::allLanguages();
     for (const ToolChainDescription &tcd : data->toolChains) {
+        if (!Utils::contains(allLanguages, [&tcd](const Id& language) {return language == tcd.language;}))
+            continue;
         ToolChain *tc = ToolChainKitAspect::toolChain(k, tcd.language);
         if (!tc || tc->compilerCommand() != tcd.compilerPath)
             return false;

@@ -72,6 +72,10 @@
 
     \image qmldesigner-binding-editor.png "Binding Editor"
 
+    For more information, watch the following video:
+
+    \youtube UfvA04CIXv0
+
     \include creator-logical-operators.qdocinc logical operators
 
 */

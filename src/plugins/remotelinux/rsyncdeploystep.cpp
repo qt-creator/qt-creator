@@ -90,7 +90,7 @@ void RsyncDeployService::doDeploy()
 void RsyncDeployService::filterDeployableFiles() const
 {
     if (m_ignoreMissingFiles) {
-        erase(m_deployableFiles, [](const DeployableFile &f) {
+        Utils::erase(m_deployableFiles, [](const DeployableFile &f) {
             return !f.localFilePath().exists();
         });
     }

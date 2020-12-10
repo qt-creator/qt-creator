@@ -28,12 +28,17 @@
     \page studio-3d-node.html
     \nextpage studio-3d-model.html
 
-    \title Setting Node Properties
+    \title Setting Group Properties
 
-    You can set the opacity, visibility, and transform properties of a 3D
-    component in the \uicontrol Properties view.
+    The \uicontrol Group component is a \uicontrol Node type that can be used to
+    wrap other objects for the purpose of grouping them. This allows you to
+    transform and set the opacity and visibility of multiple 3D components in
+    the \uicontrol Properties view simultaneously. To add a \uicontrol Group
+    component to your scene, drag-and-drop it from \uicontrol Library >
+    \uicontrol {QML Types} > \uicontrol {Qt Quick 3D} to the \uicontrol
+    {3D Editor} view or to a \uicontrol Scene component in \uicontrol Navigator.
 
-    \section1 Setting Component Opacity and Visibility
+    \section1 Setting Node Opacity and Visibility
 
     All components have an \uicontrol Opacity value applied to them. The opacity
     of 100 makes a component fully opaque, while the opacity of 0 prevents a

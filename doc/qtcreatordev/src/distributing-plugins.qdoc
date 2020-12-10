@@ -79,7 +79,7 @@
     that rely on external files, like the generic highlighter. You can still
     add \l{https://doc.qt.io/qtcreator/creator-project-wizards.html}{wizard
     templates} this way, by adding the
-    \l{https://doc.qt.io/qt-5/resources.html#using-resources-in-the-application}
+    \l{https://doc.qt.io/qt/resources.html#using-resources-in-the-application}
     {path to the resource directory} into your QRC file with
     ProjectExplorer::JsonWizardFactory::addWizardPath(). Registering
     documentation and translations can be done in similar ways.

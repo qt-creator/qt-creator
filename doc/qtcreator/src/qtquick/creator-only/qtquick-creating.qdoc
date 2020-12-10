@@ -52,18 +52,15 @@
                 target platforms.
 
             \li \uicontrol {Qt Quick Application - Scroll} uses the
-                \l{http://doc.qt.io/qt-5/qml-qtquick-controls2-scrollview.html}
-                {ScrollView} type to implement a scrollable list view
+                \l{ScrollView} type to implement a scrollable list view
                 (requires Qt 5.9 or later).
 
             \li \uicontrol {Qt Quick Application - Stack} uses the
-                \l{http://doc.qt.io/qt-5/qml-qtquick-controls2-stackview.html}
-                {StackView} type to implement a set of pages with a stack-based
+                \l{StackView} type to implement a set of pages with a stack-based
                 navigation model (requires Qt 5.7 or later).
 
             \li \uicontrol {Qt Quick Application - Swipe} uses the
-                \l{http://doc.qt.io/qt-5/qml-qtquick-controls2-swipeview.html}
-                {SwipeWiew} type to implement a set of pages with a swipe-based
+                \l{SwipeView} type to implement a set of pages with a swipe-based
                 navigation model (requires Qt 5.7 or later).
 
             \endlist
@@ -138,8 +135,7 @@
             that are used in the QML files.
 
         \li Select the \uicontrol {Use Qt Virtual Keyboard} check box to add
-            support for \l{http://doc.qt.io/qt-5/qtvirtualkeyboard-index.html}
-            {Qt Virtual Keyboard} to the application.
+            support for \l{Qt Virtual Keyboard} to the application.
 
             \note If you have not installed the Qt Virtual Keyboard module when
             you installed Qt, an error message will appear when you try to open
@@ -236,8 +232,7 @@
             since Qt 5.1).
 
         \li Select the \uicontrol {Use Qt Virtual Keyboard} check box to add
-            support for \l{http://doc.qt.io/qt-5/qtvirtualkeyboard-index.html}
-            {Qt Virtual Keyboard} to the application.
+            support for \l{Qt Virtual Keyboard} to the application.
 
             \note If you have not installed the Qt Virtual Keyboard module when
             you installed Qt, an error message will appear when you try to open

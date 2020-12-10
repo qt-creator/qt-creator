@@ -80,7 +80,7 @@
             \uicontrol {Text Editor}. For more information, see
             \l {Specifying Item Properties}.
 
-        \li \uicontrol Connections (5) enables you to create connections
+        \li \uicontrol {Connection View} (5) enables you to create connections
             between objects, signals, and object properties. For more
             information, see \l{Adding Connections}.
 
@@ -99,9 +99,19 @@
             the UI controls, their properties and behavior and the available
             actions. For more information, see \l{Adding States}.
 
+        \li \uicontrol {Transition Editor} enables you to make movement between
+            states smooth by animating the changes between states. For more
+            information, see \l{Animating Transitions Between States}.
+
         \li \uicontrol Timeline (7) provides a timeline and keyframe based
             editor that enables you to animate the properties of UI components.
             For more information, see \l{Creating Animations}.
+
+        \li \uicontrol {Curve Editor} enables you to view and modify the whole
+            animation curve by inserting keyframes to the curve and dragging
+            them and the point handlers to modify the curve. You can modify the
+            appearance of the curve in the style editor. For more information,
+            see \l {Editing Animation Curves}.
 
     \endlist
 
