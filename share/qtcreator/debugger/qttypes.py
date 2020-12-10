@@ -1059,8 +1059,7 @@ def qform__QList():
 
 
 def qdump__QList(d, value):
-    inner_type = value.type.ltarget[0] if value.type.code == TypeCode.Typedef else value.type[0]
-    return qdumpHelper_QList(d, value, value.type[0])
+    return qdumpHelper_QList(d, value, d.createType(value.type[0]))
 
 
 def qdump__QVariantList(d, value):
@@ -2206,7 +2205,7 @@ def qdump__QVector(d, value):
     if d.qtVersion() >= 0x060000:
         dd, data, size = value.split('ppi')
         d.putItemCount(size)
-        d.putPlotData(data, size, value.type.ltarget[0])
+        d.putPlotData(data, size, d.createType(value.type.ltarget[0]))
         # g++ 9.3 does not add the template parameter list to the debug info.
         # Fake it for the common case:
         if value.type.name == d.qtNamespace() + "QVector":
@@ -2214,7 +2213,7 @@ def qdump__QVector(d, value):
     else:
         data, size = d.vectorData(value)
         d.putItemCount(size)
-        d.putPlotData(data, size, value.type[0])
+        d.putPlotData(data, size, d.createType(value.type[0]))
 
 
 if False:
