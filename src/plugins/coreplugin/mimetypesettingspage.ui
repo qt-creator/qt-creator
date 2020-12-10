@@ -63,7 +63,7 @@
        <item row="2" column="0">
         <widget class="QPushButton" name="resetButton">
          <property name="toolTip">
-          <string>Reset all to default.</string>
+          <string>Reset all MIME type definitions to their defaults.</string>
          </property>
          <property name="text">
           <string>Reset MIME Types</string>
@@ -72,6 +72,9 @@
        </item>
        <item row="2" column="1">
         <widget class="QPushButton" name="resetHandlersButton">
+         <property name="toolTip">
+          <string>Reset the assigned handler for all MIME type definitions to the default.</string>
+         </property>
          <property name="text">
           <string>Reset Handlers</string>
          </property>
@@ -94,7 +97,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="patternsLineEdit"/>
+          <widget class="QLineEdit" name="patternsLineEdit">
+          <property name="toolTip">
+           <string>A semicolon-separated list of wildcarded file names.</string>
+          </property>
+         </widget>
          </item>
         </layout>
        </item>
