@@ -146,29 +146,6 @@ TEST_F(ReadExportedDiagnostics, AcceptDiagsFromFilePaths_None)
     ASSERT_THAT(diags, IsEmpty());
 }
 
-// Diagnostics from clang passed through via clang-tidy
-TEST_F(ReadExportedDiagnostics, Tidy_Clang)
-{
-    const QString sourceFile = TESTDATA "clang.unused-parameter.cpp";
-    const QString yamlSuffix
-            = QLatin1String(Utils::HostOsInfo::isWindowsHost() ? "_win.yaml" : ".yaml");
-    const QString exportedFile = createFile(appendYamlSuffix(TESTDATA "clang.unused-parameter"),
-                                            sourceFile);
-    Diagnostic expectedDiag;
-    expectedDiag.name = "clang-diagnostic-unused-parameter";
-    expectedDiag.location = {sourceFile, 4, 12};
-    expectedDiag.description = "unused parameter 'g' [clang-diagnostic-unused-parameter]";
-    expectedDiag.type = "warning";
-    expectedDiag.hasFixits = false;
-
-    Diagnostics diags = readExportedDiagnostics(Utils::FilePath::fromString(exportedFile),
-                                                {},
-                                                &errorMessage);
-
-    ASSERT_TRUE(errorMessage.isEmpty());
-    ASSERT_THAT(diags, ElementsAre(expectedDiag));
-}
-
 // Diagnostics from clang (static) analyzer passed through via clang-tidy
 TEST_F(ReadExportedDiagnostics, Tidy_ClangAnalyzer)
 {

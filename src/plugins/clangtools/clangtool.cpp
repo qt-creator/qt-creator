@@ -960,9 +960,6 @@ void ClangTool::filter()
         if (check.name.isEmpty()) {
             check.name = checkName;
             check.displayName = checkName;
-            const QString clangDiagPrefix = "clang-diagnostic-";
-            if (check.displayName.startsWith(clangDiagPrefix))
-                check.displayName = QString("-W%1").arg(check.name.mid(clangDiagPrefix.size()));
             check.count = 1;
             check.isShown = filterOptions ? filterOptions->checks.contains(checkName) : true;
             check.hasFixit = check.hasFixit || item->diagnostic().hasFixits;
