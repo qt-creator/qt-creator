@@ -44,6 +44,7 @@ Edit3DCanvas::Edit3DCanvas(Edit3DWidget *parent)
 {
     setMouseTracking(true);
     setAcceptDrops(true);
+    setFocusPolicy(Qt::ClickFocus);
 }
 
 void Edit3DCanvas::updateRenderImage(const QImage &img)
