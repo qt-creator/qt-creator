@@ -122,8 +122,8 @@ void ImportManagerView::removeImport(const Import &import)
 void ImportManagerView::addImport(const Import &import)
 {
     if (import.isLibraryImport()
-        && (import.toImportString().startsWith("QtQuick")
-            || import.toImportString().startsWith("SimulinkConnector"))) {
+        && (import.url().startsWith("QtQuick")
+            || import.url().startsWith("SimulinkConnector"))) {
         QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_IMPORT_ADDED
                                                + import.toImportString());
     }
