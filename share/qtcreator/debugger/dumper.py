@@ -3902,7 +3902,7 @@ class DumperBase():
             if typish.endswith('*'):
                 tdata.code = TypeCode.Pointer
                 tdata.lbitsize = 8 * self.ptrSize()
-                tdata.ltarget = self.createType(typish[:-1])
+                tdata.ltarget = self.createType(typish[:-1].strip())
 
             self.registerType(typish, tdata)
             typeobj = self.Type(self, typish)
