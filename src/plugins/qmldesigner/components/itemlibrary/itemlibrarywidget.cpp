@@ -484,6 +484,8 @@ void ItemLibraryWidget::addImport(const QString &name, const QString &version)
 void ItemLibraryWidget::addPossibleImport(const QString &name)
 {
     QTC_ASSERT(m_model, return);
+    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_IMPORT_ADDED_FLOWTAG
+                                           + name);
     const Import import = m_model->highestPossibleImport(name);
     try {
         QList<Import> addedImports = {Import::createLibraryImport(name, import.version())};
