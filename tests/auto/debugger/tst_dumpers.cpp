@@ -2047,7 +2047,7 @@ void tst_Dumpers::dumper()
             pos1 = fullOutput.indexOf("bridgemessage={msg=", pos2 + 1);
             if (pos1 == -1)
                 break;
-            pos1 += 21;
+            pos1 += 20;
             pos2 = fullOutput.indexOf("\"}", pos1 + 1);
             if (pos2 == -1)
                 break;
