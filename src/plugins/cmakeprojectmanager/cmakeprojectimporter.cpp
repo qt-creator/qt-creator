@@ -324,7 +324,7 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
         if (!Utils::contains(allLanguages, [&tcd](const Id& language) {return language == tcd.language;}))
             continue;
         ToolChain *tc = ToolChainKitAspect::toolChain(k, tcd.language);
-        if (!tc || tc->compilerCommand() != tcd.compilerPath)
+        if (!tc || tc->compilerCommand().canonicalPath() != tcd.compilerPath.canonicalPath())
             return false;
     }
 
