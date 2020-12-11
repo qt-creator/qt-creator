@@ -333,10 +333,6 @@ struct Value
             expectedValue.replace('@', context.nameSpace);
 
         if (isPattern) {
-            expectedValue.replace("(", "!");
-            expectedValue.replace(")", "!");
-            actualValue.replace("(", "!");
-            actualValue.replace(")", "!");
             const QString anchoredPattern = QRegularExpression::anchoredPattern(expectedValue);
             //QWARN(qPrintable("MATCH EXP: " + expectedValue + "   ACT: " + actualValue));
             //QWARN(QRegularExpression(anchoredPattern).match(actualValue).hasMatch() ? "OK" : "NOT OK");
@@ -2806,7 +2802,7 @@ void tst_Dumpers::dumper_data()
               + Check("loc1.groupSeparator", "44", "@QChar") % Qt5 // ,
               + Check("loc1.negativeSign", "45", "@QChar")  % Qt5  // -
               + Check("loc1.positiveSign", "43", "@QChar") % Qt5   // +
-              + Check("m1", ValuePattern(".*Imperial.*System (1)"),
+              + Check("m1", ValuePattern(".*Imperial.*System \\(1\\)"),
                       TypePattern(".*MeasurementSystem")) % Qt5;
 
 
@@ -4618,7 +4614,7 @@ void tst_Dumpers::dumper_data()
             + GdbEngine
 
             + Check("x", "(null)", "std::function<void(int)>")
-            + Check("y", ValuePattern(".* <bar(int)>"), "std::function<void(int)>");
+            + Check("y", ValuePattern(".* <bar\\(int\\)>"), "std::function<void(int)>");
 
 
     QTest::newRow("StdDeque")
@@ -5915,8 +5911,8 @@ void tst_Dumpers::dumper_data()
                + Check("fthree", "(one | two) (3)", "Flags")
                // There are optional 'unknown:' prefixes and possibly hex
                // displays for the unknown flags.
-               + Check("fmixed", ValuePattern("(two \\| .*8) (10)"), "Flags")
-               + Check("fbad", ValuePattern(".*8.* (.*8)"), "Flags");
+               + Check("fmixed", ValuePattern("\\(two \\| .*8\\) \\(10\\)"), "Flags")
+               + Check("fbad", ValuePattern(".*8.* \\(.*8\\)"), "Flags");
 
 
     QTest::newRow("EnumInClass")
@@ -5936,9 +5932,10 @@ void tst_Dumpers::dumper_data()
                 + NoCdbEngine
 
                 // GDB prefixes with E::, LLDB not.
-                + Check("e.e1", ValuePattern("(.*b1 \\| .*c1) (3)"), "E::Enum1")
-                + Check("e.e2", ValuePattern("(.*b2 \\| .*c2) (3)"), "E::Enum2")
-                + Check("e.e3", ValuePattern("(.*b3 \\| .*c3) (3)"), "E::Enum3");
+                + Check("e.e1", ValuePattern("\\((E::)?b1 \\| (E::)?c1\\) \\(3\\)"), "E::Enum1")
+                + Check("e.e2", ValuePattern("\\((E::)?b2 \\| (E::)?c2\\) \\(3\\)"), "E::Enum2")
+                + Check("e.e3", ValuePattern("\\((E::)?b3 \\| (E::)?c3\\) \\(3\\)"), "E::Enum3")
+;
 
 
     QTest::newRow("QSizePolicy")
