@@ -7963,7 +7963,7 @@ void tst_Dumpers::dumper_data()
                     "&f")
 
             + Check("f.a", "15", "int")
-            + Check("f.b", "<optimized out>", "") % NoCdbEngine
+            + Check("f.b", "<optimized out>", "") % GdbEngine
             + Check("f.b", "", "<Value unavailable error>") % CdbEngine;
 
 
@@ -8006,7 +8006,7 @@ void tst_Dumpers::dumper_data()
             + QtVersion(0x50800, 0x5ffff)  // Both test cases are gone in Qt6
 
             + Check("d.Log10_2_100000", "30103", "int")
-            + Check("p.FlagBit", "<optimized out>", "") % NoCdbEngine
+            + Check("p.FlagBit", "<optimized out>", "") % GdbEngine
             + Check("p.FlagBit", "", "<Value unavailable error>", "") % CdbEngine;
 #endif
 
