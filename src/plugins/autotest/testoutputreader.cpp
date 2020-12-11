@@ -153,7 +153,7 @@ void TestOutputReader::sendAndResetSanitizerResult()
     m_sanitizerResult->setResult(ResultType::MessageFatal);
 
     if (m_sanitizerResult->fileName().isEmpty()) {
-        const TestTreeItem *testItem = m_sanitizerResult->findTestTreeItem();
+        const ITestTreeItem *testItem = m_sanitizerResult->findTestTreeItem();
         if (testItem && testItem->line()) {
             m_sanitizerResult->setFileName(testItem->filePath());
             m_sanitizerResult->setLine(testItem->line());
