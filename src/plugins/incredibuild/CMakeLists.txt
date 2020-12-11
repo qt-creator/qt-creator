@@ -1,6 +1,6 @@
 add_qtc_plugin(IncrediBuild
   PLUGIN_DEPENDS Core ProjectExplorer
-  PLUGIN_RECOMMENDS QmakeProjectManager CmakeProjectManager
+  PLUGIN_RECOMMENDS QmakeProjectManager CMakeProjectManager
   SOURCES
   buildconsolebuildstep.cpp
   buildconsolebuildstep.h
