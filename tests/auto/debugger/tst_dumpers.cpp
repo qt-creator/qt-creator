@@ -1799,7 +1799,8 @@ void tst_Dumpers::dumper()
                "sc sys.path.insert(1, '" + dumperDir + "')\n"
                "sc from lldbbridge import *\n"
               // "sc print(dir())\n"
-               "sc Tester('" + t->buildPath.toLatin1() + "/doit', {'fancy':1,'forcens':1,"
+               "sc Tester('" + t->buildPath.toLatin1() + "/doit', {" + dumperOptions +
+                    "'fancy':1,'forcens':1,"
                     "'autoderef':1,'dyntype':1,'passexceptions':1,"
                     "'testing':1,'qobjectnames':1,"
                     "'expanded':[" + expandedq + "]})\n"
