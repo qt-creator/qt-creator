@@ -29,7 +29,7 @@
 /*!
     \page exporting-3d-assets.html
     \if defined(qtdesignstudio)
-    \previouspage qtbridge-sketch-using.html
+    \previouspage qtbridge-figma-using.html
     \else
     \previouspage studio-3d.html
     \endif

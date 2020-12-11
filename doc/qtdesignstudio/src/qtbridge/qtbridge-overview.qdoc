@@ -64,6 +64,11 @@
             You can use the \QBSK export tool in Sketch to convert designs into
             metadata that you can import into projects in \QDS.
 
+        \li \l{Exporting Designs from Figma}
+
+            You can use the \QBF export tool in Figma to convert designs into
+            metadata that you can import into projects in \QDS.
+
         \li \l{Exporting 3D Assets}
 
             You can import files you created using 3D graphics applications and
