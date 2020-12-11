@@ -27,13 +27,68 @@
 #include "searchresulttreeitems.h"
 #include "searchresulttreeitemroles.h"
 
+#include <utils/algorithm.h>
+
 #include <QApplication>
 #include <QFont>
 #include <QFontMetrics>
 #include <QDebug>
 
-using namespace Core;
-using namespace Core::Internal;
+namespace Core {
+namespace Internal {
+
+class SearchResultTreeModel : public QAbstractItemModel
+{
+    Q_OBJECT
+
+public:
+    SearchResultTreeModel(QObject *parent = nullptr);
+    ~SearchResultTreeModel() override;
+
+    void setShowReplaceUI(bool show);
+    void setTextEditorFont(const QFont &font, const SearchResultColors &colors);
+
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &child) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+
+    QModelIndex next(const QModelIndex &idx, bool includeGenerated = false, bool *wrapped = nullptr) const;
+    QModelIndex prev(const QModelIndex &idx, bool includeGenerated = false, bool *wrapped = nullptr) const;
+
+    QList<QModelIndex> addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode);
+
+    static SearchResultTreeItem *treeItemAtIndex(const QModelIndex &idx);
+
+signals:
+    void jumpToSearchResult(const QString &fileName, int lineNumber,
+                            int searchTermStart, int searchTermLength);
+
+public slots:
+    void clear();
+
+private:
+    QModelIndex index(SearchResultTreeItem *item) const;
+    void addResultsToCurrentParent(const QList<SearchResultItem> &items, SearchResult::AddMode mode);
+    QSet<SearchResultTreeItem *> addPath(const QStringList &path);
+    QVariant data(const SearchResultTreeItem *row, int role) const;
+    bool setCheckState(const QModelIndex &idx, Qt::CheckState checkState, bool firstCall = true);
+    QModelIndex nextIndex(const QModelIndex &idx, bool *wrapped = nullptr) const;
+    QModelIndex prevIndex(const QModelIndex &idx, bool *wrapped = nullptr) const;
+
+    SearchResultTreeItem *m_rootItem;
+    SearchResultTreeItem *m_currentParent;
+    SearchResultColors m_colors;
+    QModelIndex m_currentIndex;
+    QStringList m_currentPath; // the path that belongs to the current parent
+    QFont m_textEditorFont;
+    bool m_showReplaceUI;
+    bool m_editorFontIsUsed;
+};
 
 SearchResultTreeModel::SearchResultTreeModel(QObject *parent)
     : QAbstractItemModel(parent)
@@ -425,8 +480,6 @@ void SearchResultTreeModel::clear()
 
 QModelIndex SearchResultTreeModel::nextIndex(const QModelIndex &idx, bool *wrapped) const
 {
-    if (wrapped)
-        *wrapped = false;
     // pathological
     if (!idx.isValid())
         return index(0, 0);
@@ -468,8 +521,6 @@ QModelIndex SearchResultTreeModel::next(const QModelIndex &idx, bool includeGene
 
 QModelIndex SearchResultTreeModel::prevIndex(const QModelIndex &idx, bool *wrapped) const
 {
-    if (wrapped)
-        *wrapped = false;
     QModelIndex current = idx;
     bool checkForChildren = true;
     if (current.isValid()) {
@@ -502,3 +553,106 @@ QModelIndex SearchResultTreeModel::prev(const QModelIndex &idx, bool includeGene
     } while (value != idx && !includeGenerated && treeItemAtIndex(value)->isGenerated());
     return value;
 }
+
+SearchResultFilterModel::SearchResultFilterModel(QObject *parent) : QSortFilterProxyModel(parent)
+{
+    setSourceModel(new SearchResultTreeModel(this));
+}
+
+void SearchResultFilterModel::setFilter(SearchResultFilter *filter)
+{
+    if (m_filter)
+        m_filter->disconnect(this);
+    m_filter = filter;
+    if (m_filter) {
+        connect(m_filter, &SearchResultFilter::filterChanged,
+                this, [this] {
+            invalidateFilter();
+            emit filterInvalidated();
+        });
+    }
+    invalidateFilter();
+}
+
+void SearchResultFilterModel::setShowReplaceUI(bool show)
+{
+    sourceModel()->setShowReplaceUI(show);
+}
+
+void SearchResultFilterModel::setTextEditorFont(const QFont &font, const SearchResultColors &colors)
+{
+    sourceModel()->setTextEditorFont(font, colors);
+}
+
+QList<QModelIndex> SearchResultFilterModel::addResults(const QList<SearchResultItem> &items,
+                                                       SearchResult::AddMode mode)
+{
+    QList<QModelIndex> sourceIndexes = sourceModel()->addResults(items, mode);
+    sourceIndexes = Utils::filtered(sourceIndexes, [this](const QModelIndex &idx) {
+        return filterAcceptsRow(idx.row(), idx.parent());
+    });
+    return Utils::transform(sourceIndexes,
+                            [this](const QModelIndex &idx) { return mapFromSource(idx); });
+}
+
+void SearchResultFilterModel::clear()
+{
+    sourceModel()->clear();
+}
+
+QModelIndex SearchResultFilterModel::nextOrPrev(const QModelIndex &idx, bool *wrapped,
+        const std::function<QModelIndex (const QModelIndex &)> &func) const
+{
+    if (wrapped)
+        *wrapped = false;
+    const QModelIndex sourceIndex = mapToSource(idx);
+    QModelIndex nextOrPrevSourceIndex = func(sourceIndex);
+    while (nextOrPrevSourceIndex != sourceIndex
+           && !filterAcceptsRow(nextOrPrevSourceIndex.row(), nextOrPrevSourceIndex.parent())) {
+        nextOrPrevSourceIndex = func(nextOrPrevSourceIndex);
+    }
+    return mapFromSource(nextOrPrevSourceIndex);
+}
+
+QModelIndex SearchResultFilterModel::next(const QModelIndex &idx, bool includeGenerated,
+                                          bool *wrapped) const
+{
+    return nextOrPrev(idx, wrapped, [this, includeGenerated, wrapped](const QModelIndex &index) {
+        return sourceModel()->next(index, includeGenerated, wrapped); });
+}
+
+QModelIndex SearchResultFilterModel::prev(const QModelIndex &idx, bool includeGenerated,
+                                          bool *wrapped) const
+{
+    return nextOrPrev(idx, wrapped, [this, includeGenerated, wrapped](const QModelIndex &index) {
+        return sourceModel()->prev(index, includeGenerated, wrapped); });
+}
+
+bool SearchResultFilterModel::filterAcceptsRow(int source_row,
+                                               const QModelIndex &source_parent) const
+{
+    const QModelIndex idx = sourceModel()->index(source_row, 0, source_parent);
+    const SearchResultTreeItem * const item = SearchResultTreeModel::treeItemAtIndex(idx);
+    if (!item)
+        return false;
+    if (!m_filter)
+        return true;
+    if (item->item.userData.isValid())
+        return m_filter->matches(item->item);
+    const int childCount = sourceModel()->rowCount(idx);
+    for (int i = 0; i < childCount; ++i) {
+        if (filterAcceptsRow(i, idx))
+            return true;
+    }
+    return false;
+}
+
+SearchResultTreeModel *SearchResultFilterModel::sourceModel() const
+{
+    return static_cast<SearchResultTreeModel *>(QSortFilterProxyModel::sourceModel());
+}
+
+} // namespace Internal
+} // namespace Core
+
+#include <searchresulttreemodel.moc>

@@ -90,7 +90,9 @@ public:
 
     void setSearchAgainSupported(bool supported);
     void setSearchAgainEnabled(bool enabled);
-
+    void setFilter(SearchResultFilter *filter);
+    bool hasFilter() const;
+    void showFilterWidget(QWidget *parent);
     void setReplaceEnabled(bool enabled);
 
 public slots:
@@ -107,6 +109,8 @@ signals:
     void restarted();
     void visibilityChanged(bool visible);
     void requestPopup(bool focus);
+    void filterInvalidated();
+    void filterChanged();
 
     void navigateStateChanged();
 

@@ -28,18 +28,39 @@
 #include "searchresulttreemodel.h"
 #include "searchresulttreeitemdelegate.h"
 
+#include <utils/qtcassert.h>
+
 #include <QHeaderView>
 #include <QKeyEvent>
+#include <QVBoxLayout>
 
 namespace Core {
 namespace Internal {
 
+class FilterWidget : public QWidget
+{
+public:
+    FilterWidget(QWidget *parent, QWidget *content) : QWidget(parent, Qt::Popup)
+    {
+        setAttribute(Qt::WA_DeleteOnClose);
+        const auto layout = new QVBoxLayout(this);
+        layout->setContentsMargins(2, 2, 2, 2);
+        layout->setSpacing(2);
+        layout->addWidget(content);
+        setLayout(layout);
+        move(parent->mapToGlobal(QPoint(0, -sizeHint().height())));
+    }
+};
+
 SearchResultTreeView::SearchResultTreeView(QWidget *parent)
     : Utils::TreeView(parent)
-    , m_model(new SearchResultTreeModel(this))
+    , m_model(new SearchResultFilterModel(this))
     , m_autoExpandResults(false)
 {
     setModel(m_model);
+    connect(m_model, &SearchResultFilterModel::filterInvalidated,
+            this, &SearchResultTreeView::filterInvalidated);
+
     setItemDelegate(new SearchResultTreeItemDelegate(8, this));
     setIndentation(14);
     setUniformRowHeights(true);
@@ -80,6 +101,27 @@ void SearchResultTreeView::addResults(const QList<SearchResultItem> &items, Sear
     }
 }
 
+void SearchResultTreeView::setFilter(SearchResultFilter *filter)
+{
+    m_filter = filter;
+    if (m_filter)
+        m_filter->setParent(this);
+    m_model->setFilter(filter);
+    emit filterChanged();
+}
+
+bool SearchResultTreeView::hasFilter() const
+{
+    return m_filter;
+}
+
+void SearchResultTreeView::showFilterWidget(QWidget *parent)
+{
+    QTC_ASSERT(hasFilter(), return);
+    const auto optionsWidget = new FilterWidget(parent, m_filter->createWidget());
+    optionsWidget->show();
+}
+
 void SearchResultTreeView::keyPressEvent(QKeyEvent *event)
 {
     if ((event->key() == Qt::Key_Return
@@ -118,7 +160,7 @@ void SearchResultTreeView::setTabWidth(int tabWidth)
     doItemsLayout();
 }
 
-SearchResultTreeModel *SearchResultTreeView::model() const
+SearchResultFilterModel *SearchResultTreeView::model() const
 {
     return m_model;
 }

@@ -110,10 +110,12 @@ namespace Internal {
         void moveWidgetToTop();
         void popupRequested(bool focus);
         void handleExpandCollapseToolButton(bool checked);
+        void updateFilterButton();
 
         SearchResultWindow *q;
         QList<Internal::SearchResultWidget *> m_searchResultWidgets;
         QToolButton *m_expandCollapseButton;
+        QToolButton *m_filterButton;
         QToolButton *m_newSearchButton;
         QAction *m_expandCollapseAction;
         static const bool m_initiallyExpand;
@@ -168,6 +170,11 @@ namespace Internal {
         cmd->setAttribute(Command::CA_UpdateText);
         m_expandCollapseButton->setDefaultAction(cmd->action());
 
+        m_filterButton = new QToolButton(m_widget);
+        m_filterButton->setText(tr("Filter Results"));
+        m_filterButton->setIcon(Utils::Icons::FILTER.icon());
+        m_filterButton->setEnabled(false);
+
         QAction *newSearchAction = new QAction(tr("New Search"), this);
         newSearchAction->setIcon(Utils::Icons::NEWSEARCH_TOOLBAR.icon());
         cmd = ActionManager::command(Constants::ADVANCED_FIND);
@@ -178,6 +185,13 @@ namespace Internal {
         connect(m_expandCollapseAction, &QAction::toggled,
                 this, &SearchResultWindowPrivate::handleExpandCollapseToolButton);
 
+        connect(m_filterButton, &QToolButton::clicked, this, [this] {
+            if (!isSearchVisible())
+                return;
+            m_searchResultWidgets.at(visibleSearchIndex())->showFilterWidget(m_filterButton);
+        });
+        connect(m_widget, &QStackedWidget::currentChanged,
+                this, &SearchResultWindowPrivate::updateFilterButton);
     }
 
     void SearchResultWindowPrivate::setCurrentIndex(int index, bool focus)
@@ -445,7 +459,7 @@ QWidget *SearchResultWindow::outputWidget(QWidget *)
 */
 QList<QWidget*> SearchResultWindow::toolBarWidgets() const
 {
-    return {d->m_expandCollapseButton, d->m_newSearchButton, d->m_spacer,
+    return {d->m_expandCollapseButton, d->m_filterButton, d->m_newSearchButton, d->m_spacer,
             d->m_historyLabel, d->m_spacer2, d->m_recentSearchesBox};
 }
 
@@ -496,6 +510,12 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
         }
     }
     auto widget = new SearchResultWidget;
+    connect(widget, &SearchResultWidget::filterInvalidated, this, [this, widget] {
+        if (widget == d->m_searchResultWidgets.at(d->visibleSearchIndex()))
+            d->handleExpandCollapseToolButton(d->m_expandCollapseButton->isChecked());
+    });
+    connect(widget, &SearchResultWidget::filterChanged,
+            d, &SearchResultWindowPrivate::updateFilterButton);
     d->m_searchResultWidgets.prepend(widget);
     d->m_widget->insertWidget(1, widget);
     connect(widget, &SearchResultWidget::navigateStateChanged,
@@ -613,6 +633,12 @@ void SearchResultWindowPrivate::handleExpandCollapseToolButton(bool checked)
         m_expandCollapseAction->setText(tr("Expand All"));
         m_searchResultWidgets.at(visibleSearchIndex())->collapseAll();
     }
+}
+
+void SearchResultWindowPrivate::updateFilterButton()
+{
+    m_filterButton->setEnabled(isSearchVisible()
+                               && m_searchResultWidgets.at(visibleSearchIndex())->hasFilter());
 }
 
 /*!
@@ -831,6 +857,11 @@ void SearchResult::addResults(const QList<SearchResultItem> &items, AddMode mode
 {
     m_widget->addResults(items, mode);
     emit countChanged(m_widget->count());
+}
+
+void SearchResult::setFilter(SearchResultFilter *filter)
+{
+    m_widget->setFilter(filter);
 }
 
 /*!

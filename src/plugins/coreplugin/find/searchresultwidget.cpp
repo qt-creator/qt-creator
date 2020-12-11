@@ -134,6 +134,10 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     m_searchResultTreeView = new SearchResultTreeView(this);
     m_searchResultTreeView->setFrameStyle(QFrame::NoFrame);
     m_searchResultTreeView->setAttribute(Qt::WA_MacShowFocusRect, false);
+    connect(m_searchResultTreeView, &SearchResultTreeView::filterInvalidated,
+            this, &SearchResultWidget::filterInvalidated);
+    connect(m_searchResultTreeView, &SearchResultTreeView::filterChanged,
+            this, &SearchResultWidget::filterChanged);
     auto  agg = new Aggregation::Aggregate;
     agg->add(m_searchResultTreeView);
     agg->add(new ItemViewFind(m_searchResultTreeView,
@@ -443,6 +447,21 @@ void SearchResultWidget::setSearchAgainEnabled(bool enabled)
     m_searchAgainButton->setEnabled(enabled);
 }
 
+void SearchResultWidget::setFilter(SearchResultFilter *filter)
+{
+    m_searchResultTreeView->setFilter(filter);
+}
+
+bool SearchResultWidget::hasFilter() const
+{
+    return m_searchResultTreeView->hasFilter();
+}
+
+void SearchResultWidget::showFilterWidget(QWidget *parent)
+{
+    m_searchResultTreeView->showFilterWidget(parent);
+}
+
 void SearchResultWidget::setReplaceEnabled(bool enabled)
 {
     m_replaceButton->setEnabled(enabled);
@@ -513,7 +532,7 @@ void SearchResultWidget::searchAgain()
 QList<SearchResultItem> SearchResultWidget::checkedItems() const
 {
     QList<SearchResultItem> result;
-    SearchResultTreeModel *model = m_searchResultTreeView->model();
+    SearchResultFilterModel *model = m_searchResultTreeView->model();
     const int fileCount = model->rowCount();
     for (int i = 0; i < fileCount; ++i) {
         QModelIndex fileIndex = model->index(i, 0);

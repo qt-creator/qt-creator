@@ -28,64 +28,43 @@
 #include "searchresultwindow.h"
 #include "searchresultcolor.h"
 
-#include <QAbstractItemModel>
 #include <QFont>
+#include <QSortFilterProxyModel>
+
+#include <functional>
 
 namespace Core {
 namespace Internal {
 
-class SearchResultTreeItem;
+class SearchResultTreeModel;
 
-class SearchResultTreeModel : public QAbstractItemModel
+class SearchResultFilterModel : public QSortFilterProxyModel
 {
     Q_OBJECT
-
 public:
-    SearchResultTreeModel(QObject *parent = nullptr);
-    ~SearchResultTreeModel() override;
+    SearchResultFilterModel(QObject *parent = nullptr);
 
+    void setFilter(SearchResultFilter *filter);
     void setShowReplaceUI(bool show);
     void setTextEditorFont(const QFont &font, const SearchResultColors &colors);
-
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
-    QModelIndex parent(const QModelIndex &child) const override;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
-
-    QModelIndex next(const QModelIndex &idx, bool includeGenerated = false, bool *wrapped = nullptr) const;
-    QModelIndex prev(const QModelIndex &idx, bool includeGenerated = false, bool *wrapped = nullptr) const;
-
     QList<QModelIndex> addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode);
+    void clear();
+    QModelIndex next(const QModelIndex &idx, bool includeGenerated = false,
+                     bool *wrapped = nullptr) const;
+    QModelIndex prev(const QModelIndex &idx, bool includeGenerated = false,
+                     bool *wrapped = nullptr) const;
 
 signals:
-    void jumpToSearchResult(const QString &fileName, int lineNumber,
-                            int searchTermStart, int searchTermLength);
-
-public slots:
-    void clear();
+    void filterInvalidated();
 
 private:
-    QModelIndex index(SearchResultTreeItem *item) const;
-    void addResultsToCurrentParent(const QList<SearchResultItem> &items, SearchResult::AddMode mode);
-    QSet<SearchResultTreeItem *> addPath(const QStringList &path);
-    QVariant data(const SearchResultTreeItem *row, int role) const;
-    bool setCheckState(const QModelIndex &idx, Qt::CheckState checkState, bool firstCall = true);
-    QModelIndex nextIndex(const QModelIndex &idx, bool *wrapped = nullptr) const;
-    QModelIndex prevIndex(const QModelIndex &idx, bool *wrapped = nullptr) const;
-    static SearchResultTreeItem *treeItemAtIndex(const QModelIndex &idx);
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
 
-    SearchResultTreeItem *m_rootItem;
-    SearchResultTreeItem *m_currentParent;
-    SearchResultColors m_colors;
-    QModelIndex m_currentIndex;
-    QStringList m_currentPath; // the path that belongs to the current parent
-    QFont m_textEditorFont;
-    bool m_showReplaceUI;
-    bool m_editorFontIsUsed;
+    QModelIndex nextOrPrev(const QModelIndex &idx, bool *wrapped,
+                           const std::function<QModelIndex(const QModelIndex &)> &func) const;
+    SearchResultTreeModel *sourceModel() const;
+
+    SearchResultFilter *m_filter = nullptr;
 };
 
 } // namespace Internal
