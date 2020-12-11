@@ -618,6 +618,7 @@ public:
     void updateSyntaxInfoBar(const Highlighter::Definitions &definitions, const QString &fileName);
     void configureGenericHighlighter(const KSyntaxHighlighting::Definition &definition);
     void rememberCurrentSyntaxDefinition();
+    void openLinkUnderCursor(bool openInNextSplit);
 
 public:
     TextEditorWidget *q;
@@ -1958,22 +1959,12 @@ void TextEditorWidget::redo()
 
 void TextEditorWidget::openLinkUnderCursor()
 {
-    const bool openInNextSplit = alwaysOpenLinksInNextSplit();
-    findLinkAt(textCursor(),
-               [openInNextSplit, self = QPointer<TextEditorWidget>(this)](const Link &symbolLink) {
-        if (self)
-            self->openLink(symbolLink, openInNextSplit);
-    }, true, openInNextSplit);
+    d->openLinkUnderCursor(alwaysOpenLinksInNextSplit());
 }
 
 void TextEditorWidget::openLinkUnderCursorInNextSplit()
 {
-    const bool openInNextSplit = !alwaysOpenLinksInNextSplit();
-    findLinkAt(textCursor(),
-               [openInNextSplit, self = QPointer<TextEditorWidget>(this)](const Link &symbolLink) {
-        if (self)
-            self->openLink(symbolLink, openInNextSplit);
-    }, true, openInNextSplit);
+    d->openLinkUnderCursor(!alwaysOpenLinksInNextSplit());
 }
 
 void TextEditorWidget::findUsages()
@@ -3246,6 +3237,16 @@ void TextEditorWidgetPrivate::rememberCurrentSyntaxDefinition()
     if (definition.isValid())
         Highlighter::rememberDefinitionForDocument(definition, m_document.data());
 }
+
+void TextEditorWidgetPrivate::openLinkUnderCursor(bool openInNextSplit)
+{
+    q->findLinkAt(q->textCursor(),
+               [openInNextSplit, self = QPointer<TextEditorWidget>(q)](const Link &symbolLink) {
+        if (self)
+            self->openLink(symbolLink, openInNextSplit);
+    }, true, openInNextSplit);
+}
+
 
 bool TextEditorWidget::codeFoldingVisible() const
 {
