@@ -58,7 +58,11 @@ if (_library_enabled)
 
   foreach(lib IN LISTS PYTHON_LIBRARIES)
     if (lib MATCHES ${PythonRegex})
-      set(PythonZipFileName "python${CMAKE_MATCH_4}.zip")
+      if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(PythonZipFileName "python${CMAKE_MATCH_4}_d.zip")
+      else()
+        set(PythonZipFileName "python${CMAKE_MATCH_4}.zip")
+      endif()
 
       set(PythonDll "${CMAKE_MATCH_1}/${CMAKE_MATCH_3}${CMAKE_SHARED_LIBRARY_SUFFIX}")
       set(PythonExe "${CMAKE_MATCH_1}/python${CMAKE_EXECUTABLE_SUFFIX}")
