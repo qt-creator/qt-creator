@@ -225,12 +225,13 @@ bool Qt5NodeInstanceServer::initRhi(RenderViewData &viewData)
             viewData.texture = nullptr;
         }
     };
-    if (viewData.bufferDirty) {
+    if (viewData.bufferDirty)
         cleanRhiResources();
-        viewData.bufferDirty = false;
-    }
 
-    const QSize size = viewData.window->size();
+    QSize size = viewData.window->size();
+    if (size.isNull())
+        size = QSize(2, 2); // Zero size buffer creation will fail, so make it some size always
+
     viewData.texture = viewData.rhi->newTexture(QRhiTexture::RGBA8, size, 1,
                                                 QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource);
     if (!viewData.texture->create()) {
@@ -259,6 +260,8 @@ bool Qt5NodeInstanceServer::initRhi(RenderViewData &viewData)
 
     // redirect Qt Quick rendering into our texture
     viewData.window->setRenderTarget(QQuickRenderTarget::fromRhiRenderTarget(viewData.texTarget));
+
+    viewData.bufferDirty = false;
 #else
     Q_UNUSED(viewData)
 #endif
