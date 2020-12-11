@@ -5905,7 +5905,7 @@ void tst_Dumpers::dumper_data()
                     "Flags fone = one;\n"
                     "Flags fthree = (Flags)(one|two);\n"
                     "Flags fmixed = (Flags)(two|8);\n"
-                    "Flags fbad = (Flags)(24);",
+                    "Flags fbad = (Flags)(8);",
 
                     "&fone, &fthree, &fmixed, &fbad")
 
@@ -5913,8 +5913,10 @@ void tst_Dumpers::dumper_data()
 
                + Check("fone", "one (1)", "Flags")
                + Check("fthree", "(one | two) (3)", "Flags")
-               + Check("fmixed", "(two | unknown: 8) (10)", "Flags")
-               + Check("fbad", "(unknown: 24) (24)", "Flags");
+               // There are optional 'unknown:' prefixes and possibly hex
+               // displays for the unknown flags.
+               + Check("fmixed", ValuePattern("(two \\| .*8) (10)"), "Flags")
+               + Check("fbad", ValuePattern(".*8.* (.*8)"), "Flags");
 
 
     QTest::newRow("EnumInClass")
@@ -5933,9 +5935,10 @@ void tst_Dumpers::dumper_data()
 
                 + NoCdbEngine
 
-                + Check("e.e1", "(E::b1 | E::c1) (3)", "E::Enum1")
-                + Check("e.e2", "(E::b2 | E::c2) (3)", "E::Enum2")
-                + Check("e.e3", "(E::b3 | E::c3) (3)", "E::Enum3");
+                // GDB prefixes with E::, LLDB not.
+                + Check("e.e1", ValuePattern("(.*b1 \\| .*c1) (3)"), "E::Enum1")
+                + Check("e.e2", ValuePattern("(.*b2 \\| .*c2) (3)"), "E::Enum2")
+                + Check("e.e3", ValuePattern("(.*b3 \\| .*c3) (3)"), "E::Enum3");
 
 
     QTest::newRow("QSizePolicy")

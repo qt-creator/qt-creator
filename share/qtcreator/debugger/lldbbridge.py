@@ -219,16 +219,14 @@ class Dumper(DumperBase):
 
             if code == lldb.eTypeClassEnumeration:
                 intval = nativeValue.GetValueAsSigned()
-                if hasattr(nativeType, 'get_enum_members_array'):
-                    for enumMember in nativeType.get_enum_members_array():
-                        # Even when asking for signed we get unsigned with LLDB 3.8.
-                        diff = enumMember.GetValueAsSigned() - intval
-                        mask = (1 << nativeType.GetByteSize() * 8) - 1
-                        if diff & mask == 0:
-                            path = nativeType.GetName().split('::')
-                            path[-1] = enumMember.GetName()
-                            val.ldisplay = '%s (%d)' % ('::'.join(path), intval)
-                val.ldisplay = '%d' % intval
+                display = str(nativeValue).split(' = ')
+                if len(display) == 2:
+                    verbose = display[1]
+                    if '|' in verbose and not verbose.startswith('('):
+                        verbose = '(' + verbose + ')'
+                else:
+                    verbose = intval
+                val.ldisplay = '%s (%d)' % (verbose, intval)
             elif code in (lldb.eTypeClassComplexInteger, lldb.eTypeClassComplexFloat):
                 val.ldisplay = str(nativeValue.GetValue())
             #elif code == lldb.eTypeClassArray:
