@@ -277,7 +277,7 @@ function(add_qtc_plugin target_name)
   cmake_parse_arguments(_arg
     "SKIP_DEBUG_CMAKE_FILE_CHECK;SKIP_INSTALL;INTERNAL_ONLY;SKIP_TRANSLATION;EXPORT"
     "VERSION;COMPAT_VERSION;PLUGIN_JSON_IN;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME;BUILD_DEFAULT"
-    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;PROPERTIES"
+    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;PLUGIN_TEST_DEPENDS;PROPERTIES"
     ${ARGN}
   )
 
@@ -361,6 +361,15 @@ function(add_qtc_plugin target_name)
     endif()
     string(APPEND _arg_DEPENDENCY_STRING
       "        { \"Name\" : \"${i}\", \"Version\" : \"${_v}\", \"Type\" : \"optional\" }"
+    )
+  endforeach(i)
+  foreach(i IN LISTS _arg_PLUGIN_TEST_DEPENDS)
+    if (i MATCHES "^QtCreator::")
+      string(REPLACE "QtCreator::" "" i ${i})
+    endif()
+    set(_v ${IDE_VERSION})
+    string(APPEND _arg_DEPENDENCY_STRING
+      "        { \"Name\" : \"${i}\", \"Version\" : \"${_v}\", \"Type\" : \"test\" }"
     )
   endforeach(i)
 

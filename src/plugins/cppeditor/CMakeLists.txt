@@ -1,6 +1,7 @@
 add_qtc_plugin(CppEditor
   DEFINES CPPEDITOR_LIBRARY
   PLUGIN_DEPENDS Core CppTools ProjectExplorer TextEditor
+  PLUGIN_TEST_DEPENDS QmakeProjectManager
   SOURCES
     cppautocompleter.cpp cppautocompleter.h
     cppcodemodelinspectordialog.cpp cppcodemodelinspectordialog.h cppcodemodelinspectordialog.ui

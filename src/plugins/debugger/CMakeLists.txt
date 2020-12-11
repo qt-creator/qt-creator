@@ -2,6 +2,7 @@ add_qtc_plugin(Debugger
   DEPENDS LanguageUtils QmlDebug QmlJS QtcSsh registryaccess
   PLUGIN_DEPENDS Core CppTools ProjectExplorer QtSupport TextEditor
   PLUGIN_RECOMMENDS QmakeProjectManager
+  PLUGIN_TEST_DEPENDS QmakeProjectManager
   SOURCES
     analyzer/analyzerbase.qrc
     analyzer/analyzerconstants.h
