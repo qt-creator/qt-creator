@@ -419,7 +419,8 @@ class Dumper(DumperBase):
             if hasattr(nativeTargetType, 'GetCanonicalType'):
                 nativeTargetType = nativeTargetType.GetCanonicalType()
             targetType = self.fromNativeType(nativeTargetType)
-            return self.createTypedefedType(targetType, nativeType.GetName())
+            return self.createTypedefedType(targetType, nativeType.GetName(),
+                                            self.nativeTypeId(nativeType))
 
         nativeType = nativeType.GetUnqualifiedType()
         typeName = self.typeName(nativeType)
@@ -551,6 +552,11 @@ class Dumper(DumperBase):
         return nativeType.GetName()
 
     def nativeTypeId(self, nativeType):
+        if nativeType and (nativeType.GetTypeClass() == lldb.eTypeClassTypedef):
+            nativeTargetType = nativeType.GetUnqualifiedType()
+            if hasattr(nativeTargetType, 'GetCanonicalType'):
+                nativeTargetType = nativeTargetType.GetCanonicalType()
+            return '%s{%s}' % (nativeType.name, nativeTargetType.name)
         name = self.typeName(nativeType)
         if name is None or len(name) == 0:
             c = '0'
