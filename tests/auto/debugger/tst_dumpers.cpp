@@ -6567,10 +6567,10 @@ void tst_Dumpers::dumper_data()
                + Cxx11Profile()
                + GdbVersion(80200)
 
-               + Check("i", "1", "int &&") % NoCdbEngine
-               + Check("i", "1", "int") % CdbEngine
-               + Check("s", AnyValue, "S &&") % NoCdbEngine
-               + Check("s", AnyValue, "S") % CdbEngine
+                // GDB has &&, LLDB & or &&, CDB nothing, possibly also depending
+                // on compiler. Just check the base type is there.
+               + Check("i", "1", TypePattern("int &?&?"))
+               + Check("s", AnyValue, TypePattern("S &?&?"))
                + Check("s.a", "32", "int");
 
 
