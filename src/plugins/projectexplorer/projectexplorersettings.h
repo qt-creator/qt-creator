@@ -25,8 +25,10 @@
 
 #pragma once
 
+#include "projectexplorerconstants.h"
+
 #include <coreplugin/coreconstants.h>
-#include <projectexplorer/projectexplorerconstants.h>
+#include <utils/hostosinfo.h>
 
 #include <QUuid>
 
@@ -53,7 +55,9 @@ public:
     bool clearIssuesOnRebuild = true;
     bool abortBuildAllOnError = true;
     bool lowBuildPriority = false;
-    StopBeforeBuild stopBeforeBuild = StopBeforeBuild::None;
+    StopBeforeBuild stopBeforeBuild = Utils::HostOsInfo::isWindowsHost()
+                                          ? StopBeforeBuild::SameProject
+                                          : StopBeforeBuild::None;
     TerminalMode terminalMode = TerminalMode::Off;
 
     // Add a UUid which is used to identify the development environment.

@@ -39,6 +39,10 @@ class QToolButton;
 class QWidget;
 QT_END_NAMESPACE
 
+namespace Utils {
+class QtcSettings;
+}
+
 namespace Core {
 
 struct NavigationView
@@ -75,7 +79,7 @@ public:
     // Similar to how IView
     virtual NavigationView createWidget() = 0;
 
-    virtual void saveSettings(QSettings *settings, int position, QWidget *widget);
+    virtual void saveSettings(Utils::QtcSettings *settings, int position, QWidget *widget);
     virtual void restoreSettings(QSettings *settings, int position, QWidget *widget);
 
 private:

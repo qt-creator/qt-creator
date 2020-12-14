@@ -510,15 +510,27 @@ void AppOutputPane::setSettings(const AppOutputSettings &settings)
     updateFromSettings();
 }
 
+const AppOutputPaneMode kRunOutputModeDefault = AppOutputPaneMode::PopupOnFirstOutput;
+const AppOutputPaneMode kDebugOutputModeDefault = AppOutputPaneMode::FlashOnOutput;
+const bool kCleanOldOutputDefault = false;
+const bool kMergeChannelsDefault = false;
+const bool kWrapOutputDefault = true;
+
 void AppOutputPane::storeSettings() const
 {
-    QSettings * const s = Core::ICore::settings();
-    s->setValue(POP_UP_FOR_RUN_OUTPUT_KEY, int(m_settings.runOutputMode));
-    s->setValue(POP_UP_FOR_DEBUG_OUTPUT_KEY, int(m_settings.debugOutputMode));
-    s->setValue(CLEAN_OLD_OUTPUT_KEY, m_settings.cleanOldOutput);
-    s->setValue(MERGE_CHANNELS_KEY, m_settings.mergeChannels);
-    s->setValue(WRAP_OUTPUT_KEY, m_settings.wrapOutput);
-    s->setValue(MAX_LINES_KEY, m_settings.maxCharCount / 100);
+    Utils::QtcSettings *const s = Core::ICore::settings();
+    s->setValueWithDefault(POP_UP_FOR_RUN_OUTPUT_KEY,
+                           int(m_settings.runOutputMode),
+                           int(kRunOutputModeDefault));
+    s->setValueWithDefault(POP_UP_FOR_DEBUG_OUTPUT_KEY,
+                           int(m_settings.debugOutputMode),
+                           int(kDebugOutputModeDefault));
+    s->setValueWithDefault(CLEAN_OLD_OUTPUT_KEY, m_settings.cleanOldOutput, kCleanOldOutputDefault);
+    s->setValueWithDefault(MERGE_CHANNELS_KEY, m_settings.mergeChannels, kMergeChannelsDefault);
+    s->setValueWithDefault(WRAP_OUTPUT_KEY, m_settings.wrapOutput, kWrapOutputDefault);
+    s->setValueWithDefault(MAX_LINES_KEY,
+                           m_settings.maxCharCount / 100,
+                           Core::Constants::DEFAULT_MAX_CHAR_COUNT);
 }
 
 void AppOutputPane::loadSettings()
@@ -527,13 +539,12 @@ void AppOutputPane::loadSettings()
     const auto modeFromSettings = [s](const QString key, AppOutputPaneMode defaultValue) {
         return static_cast<AppOutputPaneMode>(s->value(key, int(defaultValue)).toInt());
     };
-    m_settings.runOutputMode = modeFromSettings(POP_UP_FOR_RUN_OUTPUT_KEY,
-                                                AppOutputPaneMode::PopupOnFirstOutput);
+    m_settings.runOutputMode = modeFromSettings(POP_UP_FOR_RUN_OUTPUT_KEY, kRunOutputModeDefault);
     m_settings.debugOutputMode = modeFromSettings(POP_UP_FOR_DEBUG_OUTPUT_KEY,
-                                                  AppOutputPaneMode::FlashOnOutput);
-    m_settings.cleanOldOutput = s->value(CLEAN_OLD_OUTPUT_KEY, false).toBool();
-    m_settings.mergeChannels = s->value(MERGE_CHANNELS_KEY, false).toBool();
-    m_settings.wrapOutput = s->value(WRAP_OUTPUT_KEY, true).toBool();
+                                                  kDebugOutputModeDefault);
+    m_settings.cleanOldOutput = s->value(CLEAN_OLD_OUTPUT_KEY, kCleanOldOutputDefault).toBool();
+    m_settings.mergeChannels = s->value(MERGE_CHANNELS_KEY, kMergeChannelsDefault).toBool();
+    m_settings.wrapOutput = s->value(WRAP_OUTPUT_KEY, kWrapOutputDefault).toBool();
     m_settings.maxCharCount = s->value(MAX_LINES_KEY,
                                        Core::Constants::DEFAULT_MAX_CHAR_COUNT).toInt() * 100;
 }

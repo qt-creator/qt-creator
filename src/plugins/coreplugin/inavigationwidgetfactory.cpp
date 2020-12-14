@@ -156,7 +156,9 @@ QKeySequence INavigationWidgetFactory::activationSequence() const
 
     \sa INavigationWidgetFactory::restoreSettings()
 */
-void INavigationWidgetFactory::saveSettings(QSettings * /* settings */, int /* position */, QWidget * /* widget */)
+void INavigationWidgetFactory::saveSettings(Utils::QtcSettings * /* settings */,
+                                            int /* position */,
+                                            QWidget * /* widget */)
 {
 }
 

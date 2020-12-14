@@ -105,7 +105,8 @@ ToolChainManager::ToolChainManager(QObject *parent) :
     connect(this, &ToolChainManager::toolChainUpdated, this, &ToolChainManager::toolChainsChanged);
 
     QSettings * const s = Core::ICore::settings();
-    d->m_detectionSettings.detectX64AsX32 = s->value(DETECT_X64_AS_X32_KEY, false).toBool();
+    d->m_detectionSettings.detectX64AsX32
+        = s->value(DETECT_X64_AS_X32_KEY, ToolchainDetectionSettings().detectX64AsX32).toBool();
 }
 
 ToolChainManager::~ToolChainManager()
@@ -137,8 +138,10 @@ void ToolChainManager::saveToolChains()
     QTC_ASSERT(d->m_accessor, return);
 
     d->m_accessor->saveToolChains(d->m_toolChains, Core::ICore::dialogParent());
-    QSettings * const s = Core::ICore::settings();
-    s->setValue(DETECT_X64_AS_X32_KEY, d->m_detectionSettings.detectX64AsX32);
+    QtcSettings *const s = Core::ICore::settings();
+    s->setValueWithDefault(DETECT_X64_AS_X32_KEY,
+                           d->m_detectionSettings.detectX64AsX32,
+                           ToolchainDetectionSettings().detectX64AsX32);
 }
 
 QList<ToolChain *> ToolChainManager::toolChains(const ToolChain::Predicate &predicate)

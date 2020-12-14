@@ -39,6 +39,7 @@ class IEditor;
 namespace Utils {
 class NavigationTreeView;
 class FileCrumbLabel;
+class QtcSettings;
 }
 
 QT_BEGIN_NAMESPACE
@@ -70,7 +71,7 @@ public:
     FolderNavigationWidgetFactory();
 
     Core::NavigationView createWidget() override;
-    void saveSettings(QSettings *settings, int position, QWidget *widget) override;
+    void saveSettings(Utils::QtcSettings *settings, int position, QWidget *widget) override;
     void restoreSettings(QSettings *settings, int position, QWidget *widget) override;
 
     static void insertRootDirectory(const RootDirectory &directory);

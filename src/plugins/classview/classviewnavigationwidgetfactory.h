@@ -41,7 +41,7 @@ public:
     Core::NavigationView createWidget() override;
 
     //! \implements Core::INavigationWidgetFactory::saveSettings
-    void saveSettings(QSettings *settings, int position, QWidget *widget) override;
+    void saveSettings(Utils::QtcSettings *settings, int position, QWidget *widget) override;
 
     //! \implements Core::INavigationWidgetFactory::restoreSettings
     void restoreSettings(QSettings *settings, int position, QWidget *widget) override;

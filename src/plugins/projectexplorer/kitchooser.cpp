@@ -92,7 +92,7 @@ void KitChooser::onActivated()
     Id id = Id::fromSetting(m_chooser->currentData());
     if (m_hasStartupKit && m_chooser->currentIndex() == 0)
         id = Id(); // Special value to indicate startup kit.
-    ICore::settings()->setValue(lastKitKey, id.toSetting());
+    ICore::settings()->setValueWithDefault(lastKitKey, id.toSetting(), Id().toSetting());
     emit activated();
 }
 

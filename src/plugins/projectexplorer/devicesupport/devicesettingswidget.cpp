@@ -219,7 +219,7 @@ void DeviceSettingsWidget::updateDeviceFromUi()
 
 void DeviceSettingsWidget::saveSettings()
 {
-    ICore::settings()->setValue(QLatin1String(LastDeviceIndexKey), currentIndex());
+    ICore::settings()->setValueWithDefault(LastDeviceIndexKey, currentIndex(), 0);
     DeviceManager::replaceInstance();
 }
 

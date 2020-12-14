@@ -48,6 +48,7 @@
 #include <utils/fileutils.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
 #include <utils/utilsicons.h>
 
 #include <QCoreApplication>
@@ -546,7 +547,7 @@ static CppIncludeHierarchyWidget *hierarchyWidget(QWidget *widget)
     return hierarchyWidget;
 }
 
-void CppIncludeHierarchyFactory::saveSettings(QSettings *settings, int position, QWidget *widget)
+void CppIncludeHierarchyFactory::saveSettings(QtcSettings *settings, int position, QWidget *widget)
 {
     hierarchyWidget(widget)->saveSettings(settings, position);
 }

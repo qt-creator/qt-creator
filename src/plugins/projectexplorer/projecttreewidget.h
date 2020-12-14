@@ -114,7 +114,7 @@ public:
 
     Core::NavigationView createWidget() override;
     void restoreSettings(QSettings *settings, int position, QWidget *widget) override;
-    void saveSettings(QSettings *settings, int position, QWidget *widget) override;
+    void saveSettings(Utils::QtcSettings *settings, int position, QWidget *widget) override;
 };
 
 } // namespace Internal

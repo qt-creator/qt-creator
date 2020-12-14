@@ -75,7 +75,9 @@ static QString settingsPrefix(int position)
 
 //! Flat mode settings
 
-void NavigationWidgetFactory::saveSettings(QSettings *settings, int position, QWidget *widget)
+void NavigationWidgetFactory::saveSettings(Utils::QtcSettings *settings,
+                                           int position,
+                                           QWidget *widget)
 {
     auto pw = qobject_cast<NavigationWidget *>(widget);
     QTC_ASSERT(pw, return);

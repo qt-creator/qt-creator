@@ -170,7 +170,7 @@ void NavigationSubWidget::saveSettings()
     if (!m_navigationWidget || !factory())
         return;
 
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(m_parentWidget->settingsGroup());
     factory()->saveSettings(settings, position(), m_navigationWidget);
     settings->endGroup();

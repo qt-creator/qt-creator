@@ -635,16 +635,32 @@ NavigationView ProjectTreeWidgetFactory::createWidget()
     return n;
 }
 
-void ProjectTreeWidgetFactory::saveSettings(QSettings *settings, int position, QWidget *widget)
+const bool kProjectFilterDefault = false;
+const bool kHideGeneratedFilesDefault = true;
+const bool kHideDisabledFilesDefault = false;
+const bool kTrimEmptyDirsDefault = true;
+const bool kSyncDefault = true;
+
+void ProjectTreeWidgetFactory::saveSettings(QtcSettings *settings, int position, QWidget *widget)
 {
     auto ptw = qobject_cast<ProjectTreeWidget *>(widget);
     Q_ASSERT(ptw);
     const QString baseKey = QLatin1String("ProjectTreeWidget.") + QString::number(position);
-    settings->setValue(baseKey + QLatin1String(".ProjectFilter"), ptw->projectFilter());
-    settings->setValue(baseKey + QLatin1String(".GeneratedFilter"), ptw->generatedFilesFilter());
-    settings->setValue(baseKey + ".DisabledFilesFilter", ptw->disabledFilesFilter());
-    settings->setValue(baseKey + QLatin1String(".TrimEmptyDirsFilter"), ptw->trimEmptyDirectoriesFilter());
-    settings->setValue(baseKey + QLatin1String(".SyncWithEditor"), ptw->autoSynchronization());
+    settings->setValueWithDefault(baseKey + ".ProjectFilter",
+                                  ptw->projectFilter(),
+                                  kProjectFilterDefault);
+    settings->setValueWithDefault(baseKey + ".GeneratedFilter",
+                                  ptw->generatedFilesFilter(),
+                                  kHideGeneratedFilesDefault);
+    settings->setValueWithDefault(baseKey + ".DisabledFilesFilter",
+                                  ptw->disabledFilesFilter(),
+                                  kHideDisabledFilesDefault);
+    settings->setValueWithDefault(baseKey + ".TrimEmptyDirsFilter",
+                                  ptw->trimEmptyDirectoriesFilter(),
+                                  kTrimEmptyDirsDefault);
+    settings->setValueWithDefault(baseKey + ".SyncWithEditor",
+                                  ptw->autoSynchronization(),
+                                  kSyncDefault);
 }
 
 void ProjectTreeWidgetFactory::restoreSettings(QSettings *settings, int position, QWidget *widget)
@@ -652,9 +668,16 @@ void ProjectTreeWidgetFactory::restoreSettings(QSettings *settings, int position
     auto ptw = qobject_cast<ProjectTreeWidget *>(widget);
     Q_ASSERT(ptw);
     const QString baseKey = QLatin1String("ProjectTreeWidget.") + QString::number(position);
-    ptw->setProjectFilter(settings->value(baseKey + QLatin1String(".ProjectFilter"), false).toBool());
-    ptw->setGeneratedFilesFilter(settings->value(baseKey + QLatin1String(".GeneratedFilter"), true).toBool());
-    ptw->setDisabledFilesFilter(settings->value(baseKey + ".DisabledFilesFilter", false).toBool());
-    ptw->setTrimEmptyDirectories(settings->value(baseKey + QLatin1String(".TrimEmptyDirsFilter"), true).toBool());
-    ptw->setAutoSynchronization(settings->value(baseKey +  QLatin1String(".SyncWithEditor"), true).toBool());
+    ptw->setProjectFilter(
+        settings->value(baseKey + QLatin1String(".ProjectFilter"), kProjectFilterDefault).toBool());
+    ptw->setGeneratedFilesFilter(
+        settings->value(baseKey + QLatin1String(".GeneratedFilter"), kHideGeneratedFilesDefault)
+            .toBool());
+    ptw->setDisabledFilesFilter(
+        settings->value(baseKey + ".DisabledFilesFilter", kHideDisabledFilesDefault).toBool());
+    ptw->setTrimEmptyDirectories(
+        settings->value(baseKey + QLatin1String(".TrimEmptyDirsFilter"), kTrimEmptyDirsDefault)
+            .toBool());
+    ptw->setAutoSynchronization(
+        settings->value(baseKey + QLatin1String(".SyncWithEditor"), kSyncDefault).toBool());
 }

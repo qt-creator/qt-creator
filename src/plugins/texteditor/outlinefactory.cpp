@@ -250,7 +250,7 @@ Core::NavigationView OutlineFactory::createWidget()
     return n;
 }
 
-void OutlineFactory::saveSettings(QSettings *settings, int position, QWidget *widget)
+void OutlineFactory::saveSettings(Utils::QtcSettings *settings, int position, QWidget *widget)
 {
     auto widgetStack = qobject_cast<OutlineWidgetStack *>(widget);
     Q_ASSERT(widgetStack);
