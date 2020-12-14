@@ -53,6 +53,7 @@ find_package(Qt5 COMPONENTS Designer DesignerComponents Help SerialPort Svg Tool
 
 find_package(Threads)
 find_package(Clang QUIET)
+find_package(KF5SyntaxHighlighting QUIET)
 
 function (set_if_target var target)
    if (TARGET "${target}")

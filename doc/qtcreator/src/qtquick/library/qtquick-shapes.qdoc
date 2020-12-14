@@ -64,6 +64,7 @@
     in more detail. You can modify the values of the properties in the
     \uicontrol Properties view.
 
+    \target basic-rectangle
     \section1 Rectangle
 
     The basic \l [QtQuick] {Rectangle} QML type is used for drawing shapes
@@ -96,6 +97,7 @@
     to improve the appearance of your shape.
 
     \if defined(qtdesignstudio)
+    \target studio-rectangle
     \section2 Studio Rectangle
 
     If you want to modify each corner of the rectangle independently

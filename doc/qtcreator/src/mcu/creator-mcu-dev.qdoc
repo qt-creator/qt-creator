@@ -98,14 +98,16 @@
             \list
                 \li For STM32 targets:
                     \list
-                        \li The \uicontrol {GNU ARM Embedded Toolchain} path.
+                        \li The \uicontrol {GNU ARM Embedded Toolchain} or
+                            \uicontrol {IAR ARM Compiler} path.
                         \li The \uicontrol {STM32CubeProgrammer} install path.
                         \li The \uicontrol {MCU SDK} for the chosen target.
                         \li The \uicontrol {FreeRTOS Sources} for the chosen target.
                     \endlist
                  \li For NXP targets:
                     \list
-                        \li The \uicontrol {GNU ARM Embedded Toolchain} path.
+                        \li The \uicontrol {GNU ARM Embedded Toolchain} or
+                            \uicontrol {IAR ARM Compiler} path.
                         \li The \uicontrol {MCUXpresso IDE} install path.
                         \li The \uicontrol {MCU SDK} for the chosen target.
                         \li The \uicontrol {FreeRTOS Sources} for the chosen target.
@@ -116,11 +118,16 @@
                         \li The \uicontrol {Renesas Graphics Library} path.
                     \endlist
             \endlist
-        \li Select \uicontrol{Create Kit} to create a kit. If you have
-            an older kit for the selected target, remove it first using
-            \uicontrol{Remove Kit}.
+        \li Select the
+            \uicontrol {Automatically create kits for all available targets on start}
+            option to create kits automatically.
+            \note You could also use \uicontrol {Create Kit} or
+                 \uicontrol{Remove Kit} to manually create or remove kits for the chosen
+                 target.
         \li Select \uicontrol Apply to save the settings.
     \endlist
+    \note You must restart \QC if you chose to create kits automatically
+          for all the available targets.
 
     \section2 Adding MCU Devices
 
@@ -148,9 +155,10 @@
     \note This optional step is not necessary if you have already
     set up the MCU SDK as outlined in \l{Specifying MCU Settings}.
 
-    \QC automatically adds kits for building applications and running them
-    on the specified MCU boards when you select \uicontrol Apply in the
-    \uicontrol MCU tab after configuring the MCU tool chain.
+    \QC automatically adds kits for all the available targets, if
+    the
+    \uicontrol {Automatically create kits for all available targets on start}
+    option is enabled under the \uicontrol MCU settings tab.
 
     \image qtcreator-mcu-kit.png "MCU kits"
 

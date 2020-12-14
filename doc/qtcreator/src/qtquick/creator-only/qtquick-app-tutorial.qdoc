@@ -50,10 +50,10 @@
     \QC generates a QML file, \e main.qml, and opens it in
     \uicontrol {Text Editor}. The wizard template uses the \l Window type,
     which does not support adding states. Because we want to use states in
-    this example, we first replace the Window type with a \l Rectangle type.
-    We must also remove the line that sets the \c title property, which the
-    Rectangle type does not have. If you change the value of the
-    \uicontrol Type property in the \uicontrol Properties view, \QC offers
+    this example, we first replace the Window type with a \l {basic-rectangle}
+    {Rectangle} type. We must also remove the line that sets the \c title
+    property, which the Rectangle type does not have. If you change the value of
+    the \uicontrol Type property in the \uicontrol Properties view, \QC offers
     to automatically remove the \c title property.
 
     \section1 Creating the Main View

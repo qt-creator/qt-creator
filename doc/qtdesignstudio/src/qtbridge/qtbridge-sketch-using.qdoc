@@ -26,7 +26,7 @@
 /*!
     \previouspage qtbridge-sketch-setup.html
     \page qtbridge-sketch-using.html
-    \nextpage exporting-3d-assets.html
+    \nextpage figmaqtbridge.html
 
     \title Using \QBSK
 
@@ -194,7 +194,7 @@
             \l {Shapes}{Qt Quick Studio Component} to morph this
             layer into. The component that is generated during import will be
             of this type. For example, if you drew a rectangle, you can export
-            it as a \l Rectangle component.
+            it as a \l {basic-rectangle}{Rectangle} component.
             You can provide the import statement of the module where the QML
             type is defined in the \uicontrol {QML Imports} field.
         \li Select the \uicontrol {Render Text} check box to render the text

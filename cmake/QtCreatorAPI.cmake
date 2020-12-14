@@ -300,7 +300,7 @@ endfunction(add_qtc_library)
 
 function(add_qtc_plugin target_name)
   cmake_parse_arguments(_arg
-    "EXPERIMENTAL;SKIP_DEBUG_CMAKE_FILE_CHECK;SKIP_INSTALL;INTERNAL_ONLY;SKIP_TRANSLATION;EXPORT"
+    "SKIP_DEBUG_CMAKE_FILE_CHECK;SKIP_INSTALL;INTERNAL_ONLY;SKIP_TRANSLATION;EXPORT"
     "VERSION;COMPAT_VERSION;PLUGIN_JSON_IN;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME;BUILD_DEFAULT"
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;PROPERTIES"
     ${ARGN}
@@ -377,10 +377,7 @@ function(add_qtc_plugin target_name)
       "        { \"Name\" : \"${i}\", \"Version\" : \"${_v}\" }"
     )
   endforeach(i)
-  string(REPLACE "}        {" "},\n        {"
-    _arg_DEPENDENCY_STRING "${_arg_DEPENDENCY_STRING}"
-  )
-  foreach(i IN LISTS ${_arg_RECOMMENDS})
+  foreach(i IN LISTS _arg_PLUGIN_RECOMMENDS)
     if (i MATCHES "^QtCreator::")
       set(_v ${IDE_VERSION})
       string(REPLACE "QtCreator::" "" i ${i})
@@ -391,10 +388,11 @@ function(add_qtc_plugin target_name)
       "        { \"Name\" : \"${i}\", \"Version\" : \"${_v}\", \"Type\" : \"optional\" }"
     )
   endforeach(i)
+
+  string(REPLACE "}        {" "},\n        {"
+    _arg_DEPENDENCY_STRING "${_arg_DEPENDENCY_STRING}"
+  )
   string(APPEND _arg_DEPENDENCY_STRING "\n    ]")
-  if (_arg_EXPERIMENTAL)
-    string(APPEND _arg_DEPENDENCY_STRING ",\n    \"Experimental\" : true")
-  endif()
 
   set(IDE_PLUGIN_DEPENDENCY_STRING ${_arg_DEPENDENCY_STRING})
 

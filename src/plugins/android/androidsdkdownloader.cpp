@@ -118,14 +118,13 @@ bool AndroidSdkDownloader::extractSdk(const QString &jdkPath, const QString &sdk
         }
     }
 
-    QProcess *jarExtractProc = new QProcess();
-    jarExtractProc->setWorkingDirectory(sdkExtractPath);
+    QProcess jarExtractProc;
+    jarExtractProc.setWorkingDirectory(sdkExtractPath);
     QString jarCmdPath(jdkPath + "/bin/jar");
-    jarExtractProc->start(jarCmdPath, {"xf", m_sdkFilename});
-    jarExtractProc->waitForFinished();
-    jarExtractProc->close();
+    jarExtractProc.start(jarCmdPath, {"xf", m_sdkFilename});
+    jarExtractProc.waitForFinished();
 
-    return jarExtractProc->exitCode() ? false : true;
+    return jarExtractProc.exitCode() ? false : true;
 }
 
 bool AndroidSdkDownloader::verifyFileIntegrity()

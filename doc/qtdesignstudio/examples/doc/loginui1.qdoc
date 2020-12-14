@@ -78,8 +78,8 @@
 
     \image loginui1-project.png "Log In UI project in the Design mode"
 
-    The UI is built using a \l Rectangle QML type that forms the background and
-    a \l Text type that displays some text.
+    The UI is built using a \l{basic-rectangle}{Rectangle} QML type that forms
+    the background and a \l Text type that displays some text.
 
     \note The visibility of views depends on the selected workspace,
     so your \QDS might look somewhat different from the above image.
@@ -130,9 +130,9 @@
 
     \section1 Creating the Main Page
 
-    You will now change the values of the properties of the \l Rectangle
-    component to add a gradient to the UI background and those of the
-    \l Text component to set the title text in a larger strong font. In
+    You will now change the values of the properties of the \l{basic-rectangle}
+    {Rectangle} component to add a gradient to the UI background and those of
+    the \l Text component to set the title text in a larger strong font. In
     addition, you will import an image as an asset and add it to the page.
 
     To be able to use an image in the UI, you must add it to your project
@@ -184,7 +184,7 @@
         \li Drag and drop the Qt logo from the \uicontrol Assets tab of
             \uicontrol Library to the top-left corner of the rectangle.
             \image loginui1-library-assets.png "Library view Assets tab"
-            \QDS automatically creates a component of the \l Image type
+            \QDS automatically creates a component of the \l{Images}{Image} type
             for you with the path to the image file set as the value of
             the \uicontrol Source field in \uicontrol Properties.
             \image loginui1-image-properties.png "Image properties"
@@ -219,10 +219,10 @@
     types, and they will be listed under \uicontrol {My QML Components}.
     This section is only visible if you have created custom QML components.
 
-    The \l [QtQuick] {Rectangle}, \l Text, and \l Image types used in this tutorial are
-    based on the \l Item type. It is the base type for all visual elements,
-    with implementation of basic functions and properties, such as type
-    name, ID, position, size, and visibility.
+    The \l {basic-rectangle}{Rectangle}, \l Text, and \l {Images}{Image} types
+    used in this tutorial are based on the \l Item type. It is the base type for
+    all visual elements, with implementation of basic functions and properties,
+    such as type name, ID, position, size, and visibility.
 
     For more information, see \l{Use Case - Visual Elements In QML}. For
     descriptions of all QML types, see \l{All QML Types} in the Qt reference
@@ -230,15 +230,15 @@
 
     \section3 Regtangle Properties
 
-    The basic \l [QtQuick] {Rectangle} QML type is used for drawing shapes
+    The basic \l {basic-rectangle}{Rectangle} QML type is used for drawing shapes
     with four sides and four corners. You can fill rectangles either with a
     solid fill color or a gradient. You can specify the border color separately.
     By setting the value of the radius property, you can create shapes with
     rounded corners.
 
-    If you want to specify the radius of each corner separately, you can
-    use the \l Rectangle type from the Qt Quick Studio Components module
-    instead of the basic rectangle type. It is available in the
+    If you want to specify the radius of each corner separately, you can use the
+    \l{studio-rectangle}{Rectangle} type from the Qt Quick Studio Components
+    module instead of the basic rectangle type. It is available in the
     \uicontrol {Studio Components} tab of \uicontrol Library.
 
     \section3 Text Properties
@@ -257,14 +257,14 @@
 
     \section3 Image Properties
 
-    The \l Image type is used for adding images to the UI in several supported
-    formats, including bitmap formats such as PNG and JPEG and vector graphics
-    formats such as SVG. You must add the images to your project in the
+    The \l {Images}{Image} type is used for adding images to the UI in several
+    supported formats, including bitmap formats such as PNG and JPEG and vector
+    graphics formats such as SVG. You must add the images to your project in the
     \uicontrol Assets tab of \uicontrol Library to be able to use them in
     designs.
 
-    If you need to display animated images, use the \l {AnimatedImage}
-    {Animated Image} type, also available in the \uicontrol {Qt Quick - Basic}
+    If you need to display animated images, use the \l {Animated Image} type,
+    also available in the \uicontrol {Qt Quick - Basic}
     tab of \uicontrol Library.
 
     \section1 Creating a Push Button
@@ -300,7 +300,7 @@
 
     \section2 Learn Qt Quick - Qt Quick Controls
 
-    The \e {Custom Button} wizard template creates a \l [Qt Quick Controls 2] {Button}
+    The \e {Custom Button} wizard template creates a \l {Button}
     QML type that belongs to the \l {Qt Quick Controls 2} module. It is a
     push-button control that can be pushed or clicked by the user. Buttons
     are normally used to perform an action or to answer a question. The Button

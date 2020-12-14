@@ -49,7 +49,7 @@
     {Enable Usage Statistics} in the splash screen that appears when you first
     launch \QDS. If the splash screen does not appear, you can enable the
     telemetry plugin by selecting \uicontrol Help > \uicontrol {About Plugins} >
-    \uicontrol Utilities > \uicontrol UsageStatistics.
+    \uicontrol Utilities > \uicontrol UsageStatistic.
     \image studio-usage-statistics.png "Enabling Usage Statistics"
     \endif
 

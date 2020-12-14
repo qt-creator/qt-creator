@@ -337,9 +337,9 @@
     \section1 Rotating Items
 
     To animate components that rotate around a central point, you can use the
-    \l Item QML type as a parent for the rotating component. Then create a
-    timeline for the Item and set the rotation property for the start and end
-    keyframes.
+    \l {basic-item}{Item} QML type as a parent for the rotating component. Then
+    create a timeline for the Item and set the rotation property for the start
+    and end keyframes.
 
     \if defined(qtdesignstudio)
     \section1 Animating Shapes

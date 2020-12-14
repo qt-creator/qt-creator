@@ -15,6 +15,7 @@ General
 
 * Added option for asking for confirmation before closing (QTCREATORBUG-7637)
 * Improved visibility of controls in dark themes (QTCREATORBUG-23505)
+* Fixed lines disappearing in output panes (QTCREATORBUG-24556)
 
 Help
 ----
@@ -105,12 +106,14 @@ Projects
 
 * Added option to unselect multiple configuration variables simultaneously
   (QTCREATORBUG-22659)
+* Improved kit detection when importing build (QTCREATORBUG-25069)
 * Fixed missing run of CMake when saving `CMakeLists.txt` files in
   subdirectories
 * Fixed that changing build directory to existing build ran CMake with initial
   arguments
 * Fixed that configuration changes were lost when done before triggering a first
   build (QTCREATORBUG-24936)
+* Fixed `QML Debugging and Profiling`
 
 ### Meson
 
@@ -185,9 +188,13 @@ Platforms
 
 * Fixed persistence of signing settings (QTCREATORBUG-24586)
 
+### Remote Linux
+
+* Fixed password prompt missing with SSH (QTCREATORBUG-24979)
+
 ### MCU
 
-* Improved creation of kits (QTCREATORBUG-24354)
+* Improved creation of kits (QTCREATORBUG-24354, QTCREATORBUG-25052, QTCREATORBUG-25053)
 
 Credits for these changes go to:
 --------------------------------

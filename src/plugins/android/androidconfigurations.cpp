@@ -1020,7 +1020,7 @@ FilePath AndroidConfig::defaultSdkPath()
     // Set default path of SDK as used by Android Studio
     if (Utils::HostOsInfo::isMacHost()) {
         return Utils::FilePath::fromString(
-            QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/Android/sdk");
+            QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/Library/Android/sdk");
     }
 
     if (Utils::HostOsInfo::isWindowsHost()) {

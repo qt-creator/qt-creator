@@ -1636,10 +1636,16 @@ class DumperBase():
             # a Q_OBJECT SMO has a non-null superdata (unless it's QObject itself),
             # a Q_GADGET SMO has a null superdata (hopefully)
             if result and not isQObjectProper:
-                superdata = self.extractPointer(result)
-                if superdata == 0:
-                    # This looks like a Q_GADGET
-                    return 0
+                if self.qtVersion() >= 0x60000 and self.isWindowsTarget():
+                    (direct, indirect) = self.split('pp', result)
+                    # since Qt 6 there is an additional indirect super data getter on windows
+                    if direct == 0 and indirect == 0:
+                        # This looks like a Q_GADGET
+                        return 0
+                else:
+                    if self.extractPointer(result) == 0:
+                        # This looks like a Q_GADGET
+                        return 0
 
             return result
 
@@ -1849,7 +1855,11 @@ class DumperBase():
 
         def extractDataPtr(someMetaObjectPtr):
             # dataPtr = metaObjectPtr['d']['data']
-            return self.extractPointer(someMetaObjectPtr + 2 * ptrSize)
+            if self.qtVersion() >= 0x60000 and self.isWindowsTarget():
+                offset = 3
+            else:
+                offset = 2
+            return self.extractPointer(someMetaObjectPtr + offset * ptrSize)
 
         isQMetaObject = origType == 'QMetaObject'
         isQObject = origType == 'QObject'
@@ -3159,10 +3169,13 @@ class DumperBase():
                 for i in range(fieldSize):
                     data = data << 8
                     if self.dumper.isBigEndian:
-                        byte = ldata[i]
+                        lbyte = ldata[i]
                     else:
-                        byte = ldata[fieldOffset + fieldSize - 1 - i]
-                    data += ord(byte)
+                        lbyte = ldata[fieldOffset + fieldSize - 1 - i]
+                    if sys.version_info[0] >= 3:
+                        data += lbyte
+                    else:
+                        data += ord(lbyte)
                 data = data >> fieldBitpos
                 data = data & ((1 << fieldBitsize) - 1)
                 val.lvalue = data

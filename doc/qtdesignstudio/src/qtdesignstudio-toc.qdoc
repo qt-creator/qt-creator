@@ -44,6 +44,11 @@
                                 \li \l{Setting Up Qt Bridge for Sketch}
                                 \li \l{Using Qt Bridge for Sketch}
                             \endlist
+                        \li \l{Exporting Designs from Figma}
+                            \list
+                                \li \l{Setting Up Qt Bridge for Figma}
+                                \li \l{Using Qt Bridge for Figma}
+                            \endlist
                         \li \l{Exporting from Blender}
                         \li \l{Exporting from Maya}
                         \li \l{Exporting from Qt 3D Studio}
@@ -190,6 +195,7 @@
             \li \l{Frequently Asked Questions}
             \li \l{Concepts and Terms}
         \endlist
+        \li \l{Technical Support}
         \li \l{Acknowledgements}
     \endlist
 */
