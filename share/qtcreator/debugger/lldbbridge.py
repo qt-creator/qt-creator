@@ -1464,16 +1464,18 @@ class Dumper(DumperBase):
         elif eventType == lldb.SBProcess.eBroadcastBitInterrupt:  # 2
             pass
         elif eventType == lldb.SBProcess.eBroadcastBitSTDOUT:
-            # FIXME: Size?
-            msg = self.process.GetSTDOUT(1024)
-            if msg is not None:
-                self.report('output={channel="stdout",data="%s"}' % self.hexencode(msg))
+            self.handleInferiorOutput(self.process.GetSTDOUT, "stdout")
         elif eventType == lldb.SBProcess.eBroadcastBitSTDERR:
-            msg = self.process.GetSTDERR(1024)
-            if msg is not None:
-                self.report('output={channel="stderr",data="%s"}' % self.hexencode(msg))
+            self.handleInferiorOutput(self.process.GetSTDERR, "stderr")
         elif eventType == lldb.SBProcess.eBroadcastBitProfileData:
             pass
+
+    def handleInferiorOutput(self, proc, channel):
+        while True:
+            msg = proc(1024)
+            if msg == None or len(msg) == 0:
+                break
+            self.report('output={channel="%s",data="%s"}' % (channel, self.hexencode(msg)))
 
     def describeBreakpoint(self, bp):
         isWatch = isinstance(bp, lldb.SBWatchpoint)
