@@ -371,7 +371,7 @@ UserFileAccessor::merge(const MergingSettingsAccessor::SettingsMergeData &global
 //   the .user and .shared files, this setting will "unstick".
 SettingsMergeFunction UserFileAccessor::userStickyTrackerFunction(QStringList &stickyKeys) const
 {
-    return [this, &stickyKeys](const SettingsMergeData &global, const SettingsMergeData &local)
+    return [&stickyKeys](const SettingsMergeData &global, const SettingsMergeData &local)
            -> SettingsMergeResult {
         const QString key = local.key;
         const QVariant main = local.main.value(key);

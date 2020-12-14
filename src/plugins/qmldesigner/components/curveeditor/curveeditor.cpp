@@ -159,7 +159,7 @@ QToolBar *CurveEditor::createToolBar(CurveEditorModel *model)
     cfspin->setMaximum(std::numeric_limits<int>::max());
 
     auto intSignal = static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged);
-    connect(cfspin, intSignal, [this, model](int val) { model->commitCurrentFrame(val); });
+    connect(cfspin, intSignal, [model](int val) { model->commitCurrentFrame(val); });
     connect(m_view, &GraphicsView::currentFrameChanged, [cfspin](int val, bool notify) {
         if (notify) {
             cfspin->setValue(val);

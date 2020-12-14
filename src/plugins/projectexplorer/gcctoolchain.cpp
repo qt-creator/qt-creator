@@ -617,8 +617,7 @@ ToolChain::BuiltInHeaderPathsRunner GccToolChain::createBuiltInHeaderPathsRunner
     addToEnvironment(fullEnv);
 
     // This runner must be thread-safe!
-    return [this,
-            fullEnv,
+    return [fullEnv,
             compilerCommand = compilerCommand(),
             platformCodeGenFlags = m_platformCodeGenFlags,
             reinterpretOptions = m_optionsReinterpreter,
@@ -1381,7 +1380,7 @@ void ClangToolChain::syncAutodetectedWithParentToolchains()
 
     if (!ToolChainManager::isLoaded()) {
         QObject::connect(ToolChainManager::instance(), &ToolChainManager::toolChainsLoaded,
-                         [this, id = id()] {
+                         [id = id()] {
             if (ToolChain * const tc = ToolChainManager::findToolChain(id)) {
                 if (tc->typeId() == Constants::CLANG_TOOLCHAIN_TYPEID)
                     static_cast<ClangToolChain *>(tc)->syncAutodetectedWithParentToolchains();
@@ -1535,8 +1534,7 @@ ToolChain::BuiltInHeaderPathsRunner ClangToolChain::createBuiltInHeaderPathsRunn
     addToEnvironment(fullEnv);
 
     // This runner must be thread-safe!
-    return [this,
-            fullEnv,
+    return [fullEnv,
             compilerCommand = compilerCommand(),
             platformCodeGenFlags = m_platformCodeGenFlags,
             reinterpretOptions = m_optionsReinterpreter,
