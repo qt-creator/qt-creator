@@ -93,6 +93,10 @@ static const char kLastSelectedTabKey[] = "Help/LastSelectedTab";
 static const char kViewerBackend[] = "Help/ViewerBackend";
 
 static const int kDefaultFallbackFontSize = 14;
+const int kDefaultStartOption = LocalHelpManager::ShowLastPages;
+const int kDefaultContextHelpOption = Core::HelpManager::SideBySideIfPossible;
+const bool kDefaultReturnOnClose = false;
+const bool kDefaultUseScrollWheelZooming = true;
 
 static QString defaultFallbackFontFamily()
 {
@@ -152,7 +156,7 @@ QString LocalHelpManager::homePage()
 
 void LocalHelpManager::setHomePage(const QString &page)
 {
-    Core::ICore::settings()->setValue(kHelpHomePageKey, page);
+    Core::ICore::settings()->setValueWithDefault(kHelpHomePageKey, page, defaultHomePage());
 }
 
 QFont LocalHelpManager::fallbackFont()
@@ -183,7 +187,7 @@ void LocalHelpManager::setFallbackFont(const QFont &font)
 
 LocalHelpManager::StartOption LocalHelpManager::startOption()
 {
-    const QVariant value = Core::ICore::settings()->value(kStartOptionKey, ShowLastPages);
+    const QVariant value = Core::ICore::settings()->value(kStartOptionKey, kDefaultStartOption);
     bool ok;
     int optionValue = value.toInt(&ok);
     if (!ok)
@@ -203,13 +207,13 @@ LocalHelpManager::StartOption LocalHelpManager::startOption()
 
 void LocalHelpManager::setStartOption(LocalHelpManager::StartOption option)
 {
-    Core::ICore::settings()->setValue(kStartOptionKey, option);
+    Core::ICore::settings()->setValueWithDefault(kStartOptionKey, int(option), kDefaultStartOption);
 }
 
 Core::HelpManager::HelpViewerLocation LocalHelpManager::contextHelpOption()
 {
     const QVariant value = Core::ICore::settings()->value(kContextHelpOptionKey,
-                                                          Core::HelpManager::SideBySideIfPossible);
+                                                          kDefaultContextHelpOption);
     bool ok;
     int optionValue = value.toInt(&ok);
     if (!ok)
@@ -233,30 +237,38 @@ void LocalHelpManager::setContextHelpOption(Core::HelpManager::HelpViewerLocatio
 {
     if (location == contextHelpOption())
         return;
-    Core::ICore::settings()->setValue(kContextHelpOptionKey, location);
+    Core::ICore::settings()->setValueWithDefault(kContextHelpOptionKey,
+                                                 int(location),
+                                                 kDefaultContextHelpOption);
     emit m_instance->contextHelpOptionChanged(location);
 }
 
 bool LocalHelpManager::returnOnClose()
 {
-    const QVariant value = Core::ICore::settings()->value(kReturnOnCloseKey, false);
+    const QVariant value = Core::ICore::settings()->value(kReturnOnCloseKey, kDefaultReturnOnClose);
     return value.toBool();
 }
 
 void LocalHelpManager::setReturnOnClose(bool returnOnClose)
 {
-    Core::ICore::settings()->setValue(kReturnOnCloseKey, returnOnClose);
+    Core::ICore::settings()->setValueWithDefault(kReturnOnCloseKey,
+                                                 returnOnClose,
+                                                 kDefaultReturnOnClose);
     emit m_instance->returnOnCloseChanged();
 }
 
 bool LocalHelpManager::isScrollWheelZoomingEnabled()
 {
-    return Core::ICore::settings()->value(kUseScrollWheelZooming, true).toBool();
+    return Core::ICore::settings()
+        ->value(kUseScrollWheelZooming, kDefaultUseScrollWheelZooming)
+        .toBool();
 }
 
 void LocalHelpManager::setScrollWheelZoomingEnabled(bool enabled)
 {
-    Core::ICore::settings()->setValue(kUseScrollWheelZooming, enabled);
+    Core::ICore::settings()->setValueWithDefault(kUseScrollWheelZooming,
+                                                 enabled,
+                                                 kDefaultUseScrollWheelZooming);
     emit m_instance->scrollWheelZoomingEnabledChanged(enabled);
 }
 
@@ -268,7 +280,8 @@ QStringList LocalHelpManager::lastShownPages()
 
 void LocalHelpManager::setLastShownPages(const QStringList &pages)
 {
-    Core::ICore::settings()->setValue(kLastShownPagesKey, pages.join(Constants::ListSeparator));
+    Core::ICore::settings()->setValueWithDefault(kLastShownPagesKey,
+                                                 pages.join(Constants::ListSeparator));
 }
 
 QList<float> LocalHelpManager::lastShownPagesZoom()
@@ -283,8 +296,8 @@ void LocalHelpManager::setLastShownPagesZoom(const QList<qreal> &zoom)
 {
     const QStringList stringValues = Utils::transform(zoom,
                                                       [](qreal z) { return QString::number(z); });
-    Core::ICore::settings()->setValue(kLastShownPagesZoomKey,
-                                      stringValues.join(Constants::ListSeparator));
+    Core::ICore::settings()->setValueWithDefault(kLastShownPagesZoomKey,
+                                                 stringValues.join(Constants::ListSeparator));
 }
 
 int LocalHelpManager::lastSelectedTab()
@@ -295,7 +308,7 @@ int LocalHelpManager::lastSelectedTab()
 
 void LocalHelpManager::setLastSelectedTab(int index)
 {
-    Core::ICore::settings()->setValue(kLastSelectedTabKey, index);
+    Core::ICore::settings()->setValueWithDefault(kLastSelectedTabKey, index, -1);
 }
 
 static Utils::optional<HelpViewerFactory> backendForId(const QByteArray &id)

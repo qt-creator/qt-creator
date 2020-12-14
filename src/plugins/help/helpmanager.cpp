@@ -490,7 +490,7 @@ void HelpManagerPrivate::readSettings()
 void HelpManagerPrivate::writeSettings()
 {
     const QStringList list = Utils::toList(m_userRegisteredFiles);
-    ICore::settings()->setValue(QLatin1String(kUserDocumentationKey), list);
+    ICore::settings()->setValueWithDefault(kUserDocumentationKey, list);
 }
 
 } // Internal
