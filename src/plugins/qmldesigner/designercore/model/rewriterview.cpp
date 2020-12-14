@@ -91,6 +91,10 @@ RewriterView::RewriterView(DifferenceHandling differenceHandling, QObject *paren
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
     connect(modelManager, &QmlJS::ModelManagerInterface::libraryInfoUpdated,
             this, &RewriterView::handleLibraryInfoUpdate, Qt::QueuedConnection);
+    connect(modelManager, &QmlJS::ModelManagerInterface::projectInfoUpdated,
+            this, &RewriterView::handleProjectUpdate, Qt::DirectConnection);
+    connect(this, &RewriterView::modelInterfaceProjectUpdated,
+            this, &RewriterView::handleLibraryInfoUpdate, Qt::QueuedConnection);
 }
 
 RewriterView::~RewriterView() = default;
@@ -830,6 +834,11 @@ void RewriterView::handleLibraryInfoUpdate()
     // Trigger dummy amend to reload document when library info changes
     if (isAttached() && !m_modelAttachPending && !debugQmlPuppet())
         m_amendTimer.start();
+}
+
+void RewriterView::handleProjectUpdate()
+{
+    emit modelInterfaceProjectUpdated();
 }
 
 ModelNode RewriterView::nodeAtTextCursorPosition(int cursorPosition) const

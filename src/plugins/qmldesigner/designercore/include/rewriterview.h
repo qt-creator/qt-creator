@@ -174,6 +174,9 @@ public:
 
     ModelNode getNodeForCanonicalIndex(int index);
 
+signals:
+    void modelInterfaceProjectUpdated();
+
 protected: // functions
     void importAdded(const Import &import);
     void importRemoved(const Import &import);
@@ -191,6 +194,7 @@ private: //variables
     ModelNode nodeAtTextCursorPositionHelper(const ModelNode &root, int cursorPosition) const;
     void setupCanonicalHashes() const;
     void handleLibraryInfoUpdate();
+    void handleProjectUpdate();
 
     TextModifier *m_textModifier = nullptr;
     int transactionLevel = 0;
