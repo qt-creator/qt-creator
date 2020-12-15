@@ -76,18 +76,18 @@ public:
         connect(m_manageButton, &QAbstractButton::clicked, this, &QtKitAspectWidget::manageQtVersions);
     }
 
-    ~QtKitAspectWidget() override
+    ~QtKitAspectWidget() final
     {
         delete m_combo;
         delete m_manageButton;
     }
 
 private:
-    void makeReadOnly() override { m_combo->setEnabled(false); }
-    QWidget *mainWidget() const override { return m_combo; }
-    QWidget *buttonWidget() const override { return m_manageButton; }
+    void makeReadOnly() final { m_combo->setEnabled(false); }
+    QWidget *mainWidget() const final { return m_combo; }
+    QWidget *buttonWidget() const final { return m_manageButton; }
 
-    void refresh() override
+    void refresh() final
     {
         m_combo->setCurrentIndex(findQtVersion(QtKitAspect::qtVersionId(m_kit)));
     }
@@ -98,24 +98,24 @@ private:
         QTC_ASSERT(v, return QString());
         QString name = v->displayName();
         if (!v->isValid())
-            name = QCoreApplication::translate("QtSupport::Internal::QtKitConfigWidget", "%1 (invalid)").arg(v->displayName());
+            name = tr("%1 (invalid)").arg(v->displayName());
         return name;
     }
 
     void versionsChanged(const QList<int> &added, const QList<int> &removed, const QList<int> &changed)
     {
-        foreach (const int id, added) {
+        for (const int id : added) {
             BaseQtVersion *v = QtVersionManager::version(id);
             QTC_CHECK(v);
             QTC_CHECK(findQtVersion(id) < 0);
             m_combo->addItem(itemNameFor(v), id);
         }
-        foreach (const int id, removed) {
+        for (const int id : removed) {
             int pos = findQtVersion(id);
             if (pos >= 0) // We do not include invalid Qt versions, so do not try to remove those.
                 m_combo->removeItem(pos);
         }
-        foreach (const int id, changed) {
+        for (const int id : changed) {
             BaseQtVersion *v = QtVersionManager::version(id);
             int pos = findQtVersion(id);
             QTC_CHECK(pos >= 0);
@@ -161,12 +161,12 @@ QtKitAspect::QtKitAspect()
             this, &QtKitAspect::kitsWereLoaded);
 }
 
-void QtKitAspect::setup(ProjectExplorer::Kit *k)
+void QtKitAspect::setup(Kit *k)
 {
     if (!k || k->hasValue(id()))
         return;
     const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
-    const Utils::Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
+    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
 
     const QList<BaseQtVersion *> matches
             = QtVersionManager::versions([&tcAbi, &deviceType](const BaseQtVersion *qt) {
@@ -193,7 +193,7 @@ void QtKitAspect::setup(ProjectExplorer::Kit *k)
         k->setValue(id(), candidates.first()->uniqueId());
 }
 
-Tasks QtKitAspect::validate(const ProjectExplorer::Kit *k) const
+Tasks QtKitAspect::validate(const Kit *k) const
 {
     QTC_ASSERT(QtVersionManager::isLoaded(), return { });
     BaseQtVersion *version = qtVersion(k);
@@ -203,7 +203,7 @@ Tasks QtKitAspect::validate(const ProjectExplorer::Kit *k) const
     return version->validateKit(k);
 }
 
-void QtKitAspect::fix(ProjectExplorer::Kit *k)
+void QtKitAspect::fix(Kit *k)
 {
     QTC_ASSERT(QtVersionManager::isLoaded(), return);
     BaseQtVersion *version = qtVersion(k);
@@ -221,10 +221,9 @@ void QtKitAspect::fix(ProjectExplorer::Kit *k)
         return;
 
     const QString spec = version->mkspec();
-    QList<ToolChain *> possibleTcs = ToolChainManager::toolChains(
-                [version](const ToolChain *t) {
+    QList<ToolChain *> possibleTcs = ToolChainManager::toolChains([version](const ToolChain *t) {
         return t->isValid()
-                && t->language() == Utils::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID)
+                && t->language() == ProjectExplorer::Constants::CXX_LANGUAGE_ID
                 && contains(version->qtAbis(), [t](const Abi &qtAbi) {
                        return qtAbi.isFullyCompatibleWith(t->targetAbi());
                    });
@@ -260,33 +259,32 @@ void QtKitAspect::fix(ProjectExplorer::Kit *k)
     }
 }
 
-ProjectExplorer::KitAspectWidget *QtKitAspect::createConfigWidget(ProjectExplorer::Kit *k) const
+KitAspectWidget *QtKitAspect::createConfigWidget(Kit *k) const
 {
     QTC_ASSERT(k, return nullptr);
     return new Internal::QtKitAspectWidget(k, this);
 }
 
-QString QtKitAspect::displayNamePostfix(const ProjectExplorer::Kit *k) const
+QString QtKitAspect::displayNamePostfix(const Kit *k) const
 {
     BaseQtVersion *version = qtVersion(k);
     return version ? version->displayName() : QString();
 }
 
-ProjectExplorer::KitAspect::ItemList
-QtKitAspect::toUserOutput(const ProjectExplorer::Kit *k) const
+KitAspect::ItemList QtKitAspect::toUserOutput(const Kit *k) const
 {
     BaseQtVersion *version = qtVersion(k);
     return {{tr("Qt version"), version ? version->displayName() : tr("None")}};
 }
 
-void QtKitAspect::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const
+void QtKitAspect::addToEnvironment(const Kit *k, Environment &env) const
 {
     BaseQtVersion *version = qtVersion(k);
     if (version)
         version->addToEnvironment(k, env);
 }
 
-QList<Utils::OutputLineParser *> QtKitAspect::createOutputParsers(const Kit *k) const
+QList<OutputLineParser *> QtKitAspect::createOutputParsers(const Kit *k) const
 {
     if (qtVersion(k))
         return {new Internal::QtTestParser, new QtParser};
@@ -326,12 +324,12 @@ void QtKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
                 });
 }
 
-Utils::Id QtKitAspect::id()
+Id QtKitAspect::id()
 {
     return "QtSupport.QtInformation";
 }
 
-int QtKitAspect::qtVersionId(const ProjectExplorer::Kit *k)
+int QtKitAspect::qtVersionId(const Kit *k)
 {
     if (!k)
         return -1;
@@ -352,18 +350,18 @@ int QtKitAspect::qtVersionId(const ProjectExplorer::Kit *k)
     return id;
 }
 
-void QtKitAspect::setQtVersionId(ProjectExplorer::Kit *k, const int id)
+void QtKitAspect::setQtVersionId(Kit *k, const int id)
 {
     QTC_ASSERT(k, return);
     k->setValue(QtKitAspect::id(), id);
 }
 
-BaseQtVersion *QtKitAspect::qtVersion(const ProjectExplorer::Kit *k)
+BaseQtVersion *QtKitAspect::qtVersion(const Kit *k)
 {
     return QtVersionManager::version(qtVersionId(k));
 }
 
-void QtKitAspect::setQtVersion(ProjectExplorer::Kit *k, const BaseQtVersion *v)
+void QtKitAspect::setQtVersion(Kit *k, const BaseQtVersion *v)
 {
     if (!v)
         setQtVersionId(k, -1);
@@ -393,12 +391,12 @@ void QtKitAspect::addHostBinariesToPath(const Kit *k, Environment &env)
 }
 
 void QtKitAspect::qtVersionsChanged(const QList<int> &addedIds,
-                                         const QList<int> &removedIds,
-                                         const QList<int> &changedIds)
+                                    const QList<int> &removedIds,
+                                    const QList<int> &changedIds)
 {
     Q_UNUSED(addedIds)
     Q_UNUSED(removedIds)
-    foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::kits()) {
+    for (Kit *k : KitManager::kits()) {
         if (changedIds.contains(qtVersionId(k))) {
             k->validate(); // Qt version may have become (in)valid
             notifyAboutUpdate(k);
@@ -408,14 +406,14 @@ void QtKitAspect::qtVersionsChanged(const QList<int> &addedIds,
 
 void QtKitAspect::kitsWereLoaded()
 {
-    foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::kits())
+    for (Kit *k : KitManager::kits())
         fix(k);
 
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
             this, &QtKitAspect::qtVersionsChanged);
 }
 
-Kit::Predicate QtKitAspect::platformPredicate(Utils::Id platform)
+Kit::Predicate QtKitAspect::platformPredicate(Id platform)
 {
     return [platform](const Kit *kit) -> bool {
         BaseQtVersion *version = QtKitAspect::qtVersion(kit);
@@ -423,9 +421,9 @@ Kit::Predicate QtKitAspect::platformPredicate(Utils::Id platform)
     };
 }
 
-Kit::Predicate QtKitAspect::qtVersionPredicate(const QSet<Utils::Id> &required,
-                                                    const QtVersionNumber &min,
-                                                    const QtVersionNumber &max)
+Kit::Predicate QtKitAspect::qtVersionPredicate(const QSet<Id> &required,
+                                               const QtVersionNumber &min,
+                                               const QtVersionNumber &max)
 {
     return [required, min, max](const Kit *kit) -> bool {
         BaseQtVersion *version = QtKitAspect::qtVersion(kit);
@@ -440,16 +438,16 @@ Kit::Predicate QtKitAspect::qtVersionPredicate(const QSet<Utils::Id> &required,
     };
 }
 
-QSet<Utils::Id> QtKitAspect::supportedPlatforms(const Kit *k) const
+QSet<Id> QtKitAspect::supportedPlatforms(const Kit *k) const
 {
     BaseQtVersion *version = QtKitAspect::qtVersion(k);
-    return version ? version->targetDeviceTypes() : QSet<Utils::Id>();
+    return version ? version->targetDeviceTypes() : QSet<Id>();
 }
 
-QSet<Utils::Id> QtKitAspect::availableFeatures(const Kit *k) const
+QSet<Id> QtKitAspect::availableFeatures(const Kit *k) const
 {
     BaseQtVersion *version = QtKitAspect::qtVersion(k);
-    return version ? version->features() : QSet<Utils::Id>();
+    return version ? version->features() : QSet<Id>();
 }
 
 int QtKitAspect::weight(const Kit *k) const
