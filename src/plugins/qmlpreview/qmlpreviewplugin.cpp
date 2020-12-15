@@ -100,10 +100,13 @@ static QByteArray defaultFileLoader(const QString &filename, bool *success)
 static bool defaultFileClassifier(const QString &filename)
 {
     const QStringList list = {
+        ".glsl",
         ".glslv",
         ".glslf",
         ".vsh",
         ".fsh",
+        ".frag",
+        ".vert",
         "qtquickcontrols2.conf" };
 
     for (const QString &suffix : list)
