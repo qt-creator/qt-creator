@@ -17,8 +17,6 @@ if (yaml-cpp_FOUND)
   endif()
   set_target_properties(yaml-cpp PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${yaml_cpp_include_dir}")
 else()
-  set(yaml-cpp_FOUND 1)
-  set_package_properties(yaml-cpp PROPERTIES DESCRIPTION "using internal src/libs/3rdparty/yaml-cpp")
   set(YAML_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src/libs/3rdparty/yaml-cpp)
   add_qtc_library(yaml-cpp
     DEFINES YAML_CPP_DLL yaml_cpp_EXPORTS
@@ -114,8 +112,12 @@ else()
       ${YAML_SOURCE_DIR}/src/tag.h
       ${YAML_SOURCE_DIR}/src/token.h
     )
-    if(MSVC)
-      target_compile_options(yaml-cpp PUBLIC /wd4251 /wd4275)
+    if(TARGET yaml-cpp)
+      set(yaml-cpp_FOUND 1)
+      set_package_properties(yaml-cpp PROPERTIES DESCRIPTION "using internal src/libs/3rdparty/yaml-cpp")
+      if(MSVC)
+        target_compile_options(yaml-cpp PUBLIC /wd4251 /wd4275)
+      endif()
     endif()
     unset(YAML_SOURCE_DIR)
 endif()
