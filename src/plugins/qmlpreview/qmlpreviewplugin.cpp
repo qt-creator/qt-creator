@@ -102,7 +102,7 @@ static bool defaultFileClassifier(const QString &filename)
     const QStringList list = {
         ".glslv",
         ".glslf",
-        "​.vsh",
+        ".vsh",
         ".fsh",
         "qtquickcontrols2.conf" };
 
