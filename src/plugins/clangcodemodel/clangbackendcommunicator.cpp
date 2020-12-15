@@ -444,7 +444,7 @@ void BackendCommunicator::logError(const QString &text)
 {
     const QString textWithTimestamp = QDateTime::currentDateTime().toString(Qt::ISODate)
             + ' ' + text;
-    Core::MessageManager::write(textWithTimestamp, Core::MessageManager::Flash);
+    Core::MessageManager::writeFlashing(textWithTimestamp);
     qWarning("%s", qPrintable(textWithTimestamp));
 }
 

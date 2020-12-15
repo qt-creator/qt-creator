@@ -149,7 +149,7 @@ void ClangCodeModelPlugin::createCompilationDBButton()
         } else {
             message = tr("Generating Clang compilation database failed: %1").arg(result.error);
         }
-        Core::MessageManager::write(message, Core::MessageManager::Flash);
+        Core::MessageManager::writeFlashing(message);
         m_generateCompilationDBAction->setEnabled(
                     isDBGenerationEnabled(ProjectExplorer::SessionManager::startupProject()));
     });

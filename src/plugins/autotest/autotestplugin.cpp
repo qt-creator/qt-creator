@@ -381,7 +381,7 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
                 filteredItems.size() == 1 ? filteredItems : testsItems, mode);
 
     if (testsToRun.isEmpty()) {
-        MessageManager::write(tr("Selected test was not found (%1).").arg(text), MessageManager::Flash);
+        MessageManager::writeFlashing(tr("Selected test was not found (%1).").arg(text));
         return;
     }
 

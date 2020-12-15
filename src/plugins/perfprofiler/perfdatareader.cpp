@@ -133,9 +133,8 @@ PerfDataReader::PerfDataReader(QObject *parent) :
     });
 
     connect(&m_input, &QProcess::readyReadStandardOutput, this, &PerfDataReader::readFromDevice);
-    connect(&m_input, &QProcess::readyReadStandardError, this, [this](){
-        Core::MessageManager::write(QString::fromLocal8Bit(m_input.readAllStandardError()),
-                                    Core::MessageManager::Silent);
+    connect(&m_input, &QProcess::readyReadStandardError, this, [this]() {
+        Core::MessageManager::writeSilently(QString::fromLocal8Bit(m_input.readAllStandardError()));
     });
 
     setDevice(&m_input);

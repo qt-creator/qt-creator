@@ -68,8 +68,6 @@ public:
     static void writeFlashing(const QStringList &messages);
     static void writeDisrupting(const QStringList &messages);
 
-    static void writeMessages(const QStringList &messages,
-                              PrintToOutputPaneFlags flags = NoModeSwitch);
     static void write(const QString &text, PrintToOutputPaneFlags flags = NoModeSwitch);
     static void writeWithTime(const QString &text, PrintToOutputPaneFlags flags = NoModeSwitch);
 

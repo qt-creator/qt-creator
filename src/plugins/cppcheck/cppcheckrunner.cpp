@@ -206,7 +206,7 @@ void CppcheckRunner::handleFinished(int)
         m_tool.finishParsing();
     } else {
         const QString message = tr("Cppcheck failed to start: \"%1\".").arg(currentCommand());
-        Core::MessageManager::write(message, Core::MessageManager::Silent);
+        Core::MessageManager::writeSilently(message);
     }
     m_currentFiles.clear();
     m_process->close();

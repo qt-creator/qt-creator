@@ -63,7 +63,6 @@ public:
 
     // display dialogs / log output
     static void logState(const QString &msg);
-    static void logError(const QString &msg);
     static void showNonmodalWarning(const QString &warningMsg);
 
     QmlProfilerClientManager *clientManager();

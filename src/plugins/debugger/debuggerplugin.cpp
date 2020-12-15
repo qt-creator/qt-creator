@@ -1379,7 +1379,7 @@ void DebuggerPluginPrivate::parseCommandLineArguments()
         errorMessage = tr("Error evaluating command line arguments: %1")
             .arg(errorMessage);
         qWarning("%s\n", qPrintable(errorMessage));
-        MessageManager::write(errorMessage);
+        MessageManager::writeDisrupting(errorMessage);
     }
     if (!m_scheduledStarts.isEmpty())
         QTimer::singleShot(0, this, &DebuggerPluginPrivate::runScheduled);

@@ -218,14 +218,6 @@ void MessageManager::writeDisrupting(const QStringList &messages)
 /*!
     \internal
 */
-void MessageManager::writeMessages(const QStringList &messages, PrintToOutputPaneFlags flags)
-{
-    write(messages.join('\n'), flags);
-}
-
-/*!
-    \internal
-*/
 static void showOutputPaneOld(Core::MessageManager::PrintToOutputPaneFlags flags)
 {
     QTC_ASSERT(m_messageOutputWindow, return);

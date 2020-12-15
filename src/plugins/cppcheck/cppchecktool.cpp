@@ -245,7 +245,7 @@ void CppcheckTool::startParsing()
 {
     if (m_options.showOutput) {
         const QString message = tr("Cppcheck started: \"%1\".").arg(m_runner->currentCommand());
-        Core::MessageManager::write(message, Core::MessageManager::Silent);
+        Core::MessageManager::writeSilently(message);
     }
 
     m_progress = std::make_unique<QFutureInterface<void>>();
@@ -263,7 +263,7 @@ void CppcheckTool::parseOutputLine(const QString &line)
         return;
 
     if (m_options.showOutput)
-        Core::MessageManager::write(line, Core::MessageManager::Silent);
+        Core::MessageManager::writeSilently(line);
 
     enum Matches { Percentage = 1 };
     const QRegularExpressionMatch match = m_progressRegexp.match(line);
@@ -294,7 +294,7 @@ void CppcheckTool::parseErrorLine(const QString &line)
         return;
 
     if (m_options.showOutput)
-        Core::MessageManager::write(line, Core::MessageManager::Silent);
+        Core::MessageManager::writeSilently(line);
 
     enum Matches { File = 1, Line, Severity, Id, Message };
     const QRegularExpressionMatch match = m_messageRegexp.match(line);
@@ -319,7 +319,7 @@ void CppcheckTool::parseErrorLine(const QString &line)
 void CppcheckTool::finishParsing()
 {
     if (m_options.showOutput)
-        Core::MessageManager::write(tr("Cppcheck finished."), Core::MessageManager::Silent);
+        Core::MessageManager::writeSilently(tr("Cppcheck finished."));
 
     QTC_ASSERT(m_progress, return);
     m_progress->reportFinished();

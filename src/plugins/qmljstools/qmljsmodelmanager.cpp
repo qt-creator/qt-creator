@@ -244,7 +244,7 @@ void ModelManager::loadDefaultQmlTypeDescriptions()
 
 void ModelManager::writeMessageInternal(const QString &msg) const
 {
-    MessageManager::write(msg, MessageManager::Flash);
+    MessageManager::writeFlashing(msg);
 }
 
 ModelManagerInterface::WorkingCopy ModelManager::workingCopyInternal() const

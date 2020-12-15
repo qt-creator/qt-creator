@@ -571,12 +571,7 @@ ProjectExplorer::RunControl *QmlProfilerTool::attachToWaitingApplication()
 
 void QmlProfilerTool::logState(const QString &msg)
 {
-    MessageManager::write(msg, MessageManager::Flash);
-}
-
-void QmlProfilerTool::logError(const QString &msg)
-{
-    MessageManager::write(msg);
+    MessageManager::writeFlashing(msg);
 }
 
 void QmlProfilerTool::showErrorDialog(const QString &error)
