@@ -76,12 +76,26 @@ def qdump__std____1__complex(d, value):
 
 def qdump__std__deque(d, value):
     if d.isQnxTarget():
-        qdump__std__deque__QNX(d, value)
-        return
-    if d.isMsvcTarget():
-        qdump__std__deque__MSVC(d, value)
-        return
+        qdumpHelper__std__deque__qnx(d, value)
+    elif d.isMsvcTarget():
+        qdumpHelper__std__deque__msvc(d, value)
+    elif value.hasMember("_M_impl"):
+        qdumpHelper__std__deque__libstdcxx(d, value)
+    elif value.hasMember("__start_"):
+        qdumpHelper__std__deque__libcxx(d, value)
+    elif value.type.size() == 10 * d.ptrSize():
+        qdumpHelper__std__deque__libstdcxx(d, value)
+    elif value.type.size() == 6 * d.ptrSize():
+        qdumpHelper__std__deque__libcxx(d, value)
+    else:
+        qdumpHelper__std__deque__libstdcxx(d, value)
 
+
+def qdump__std____1__deque(d, value):
+    qdumpHelper__std__deque__libcxx(d, value)
+
+
+def qdumpHelper__std__deque__libstdcxx(d, value):
     innerType = value.type[0]
     innerSize = innerType.size()
     bufsize = 1
@@ -113,7 +127,7 @@ def qdump__std__deque(d, value):
                     pnode = newnode
 
 
-def qdump__std____1__deque(d, value):
+def qdumpHelper__std__deque__libcxx(d, value):
     mptr, mfirst, mbegin, mend, start, size = value.split("pppptt")
     d.check(0 <= size and size <= 1000 * 1000 * 1000)
     d.putItemCount(size)
@@ -129,7 +143,7 @@ def qdump__std____1__deque(d, value):
                 d.putSubItem(i, d.createValue(base + j * innerSize, innerType))
 
 
-def qdump__std__deque__QNX(d, value):
+def qdumpHelper__std__deque__qnx(d, value):
     innerType = value.type[0]
     innerSize = innerType.size()
     if innerSize <= 1:
@@ -166,7 +180,7 @@ def qdump__std__deque__QNX(d, value):
                 myoff += 1
 
 
-def qdump__std__deque__MSVC(d, value):
+def qdumpHelper__std__deque__msvc(d, value):
     innerType = value.type[0]
     innerSize = innerType.size()
     if innerSize <= 1:
@@ -1048,95 +1062,88 @@ def qedit__std__vector(d, value, data):
 
 def qdump__std__vector(d, value):
     if d.isQnxTarget() or d.isMsvcTarget():
-        qdumpHelper__std__vector__QNX(d, value)
+        qdumpHelper__std__vector__msvc(d, value)
+    elif value.hasMember("_M_impl"):
+        qdumpHelper__std__vector__libstdcxx(d, value)
+    elif value.hasMember("__begin_"):
+        qdumpHelper__std__vector__libcxx(d, value)
     else:
-        qdumpHelper__std__vector(d, value, False)
+        qdumpHelper__std__vector__libstdcxx(d, value)
 
 
-def qdumpHelper__std__vector(d, value, isLibCpp):
-    innerType = value.type[0]
-    isBool = innerType.name == 'bool'
-
-    if isBool:
-        if isLibCpp:
-            start = value["__begin_"].pointer()
-            size = value["__size_"].integer()
-            alloc = size
-        else:
-            start = value["_M_start"]["_M_p"].pointer()
-            soffset = value["_M_start"]["_M_offset"].integer()
-            finish = value["_M_finish"]["_M_p"].pointer()
-            foffset = value["_M_finish"]["_M_offset"].integer()
-            alloc = value["_M_end_of_storage"].pointer()
-            size = (finish - start) * 8 + foffset - soffset  # 8 is CHAR_BIT.
-    else:
-        if isLibCpp:
-            start = value["__begin_"].pointer()
-            finish = value["__end_"].pointer()
-            alloc = value["__end_cap_"].pointer()
-        else:
-            start = value["_M_start"].pointer()
-            finish = value["_M_finish"].pointer()
-            alloc = value["_M_end_of_storage"].pointer()
-        size = int((finish - start) / innerType.size())
-        d.check(finish <= alloc)
-        if size > 0:
-            d.checkPointer(start)
-            d.checkPointer(finish)
-            d.checkPointer(alloc)
-
-    d.check(0 <= size and size <= 1000 * 1000 * 1000)
-
-    d.putItemCount(size)
-    if isBool:
-        if d.isExpanded():
-            with Children(d, size, maxNumChild=10000, childType=innerType):
-                for i in d.childRange():
-                    q = start + int(i / 8)
-                    with SubItem(d, i):
-                        d.putValue((int(d.extractPointer(q)) >> (i % 8)) & 1)
-                        d.putType("bool")
-    else:
-        d.putPlotData(start, size, innerType)
-
-
-def qdumpHelper__std__vector__QNX(d, value):
-    innerType = value.type[0]
-    isBool = innerType.name == 'bool'
-    if isBool:
-        (proxy1, proxy2, start, last, end, size) = value.split("pppppi")
-    else:
-        (proxy, start, last, end) = value.split("pppp")
-        size = (last - start) // innerType.size()
-
-    try:
-        d.check(0 <= size and size <= 1000 * 1000 * 1000)
-        d.check(last <= end)
-    except RuntimeError:
-        if isBool:
-            (start, last, end, size) = value.split("pppi")
-        else:
-            (start, last, end) = value.split("ppp")
-            size = (last - start) // innerType.size()
-        d.check(0 <= size and size <= 1000 * 1000 * 1000)
-        d.check(last <= end)
-
+def qdumpHelper__std__vector__nonbool(d, start, finish, alloc, inner_type):
+    size = int((finish - start) / inner_type.size())
+    d.check(finish <= alloc)
     if size > 0:
         d.checkPointer(start)
-        d.checkPointer(last)
-        d.checkPointer(end)
+        d.checkPointer(finish)
+        d.checkPointer(alloc)
+    d.check(0 <= size and size <= 1000 * 1000 * 1000)
+    d.putItemCount(size)
+    d.putPlotData(start, size, inner_type)
 
+
+def qdumpHelper__std__vector__bool(d, start, size, inner_type):
+    d.check(0 <= size and size <= 1000 * 1000 * 1000)
     d.putItemCount(size)
     if d.isExpanded():
-        if isBool:
-            with Children(d, size, maxNumChild=10000, childType=innerType):
-                for i in d.childRange():
-                    q = start + int(i / 8)
-                    with SubItem(d, i):
-                        d.putValue((d.extractPointer(q) >> (i % 8)) & 1)
-                        d.putType("bool")
-        else:
-            d.putPlotData(start, size, innerType)
+        with Children(d, size, maxNumChild=10000, childType=inner_type):
+            for i in d.childRange():
+                q = start + int(i / 8)
+                with SubItem(d, i):
+                    d.putValue((int(d.extractPointer(q)) >> (i % 8)) & 1)
+                    d.putType("bool")
+
+
+def qdumpHelper__std__vector__libstdcxx(d, value):
+    inner_type = value.type[0]
+    if inner_type.name == "bool":
+        start = value["_M_start"]["_M_p"].pointer()
+        soffset = value["_M_start"]["_M_offset"].integer()
+        finish = value["_M_finish"]["_M_p"].pointer()
+        foffset = value["_M_finish"]["_M_offset"].integer()
+        alloc = value["_M_end_of_storage"].pointer()
+        size = (finish - start) * 8 + foffset - soffset  # 8 is CHAR_BIT.
+        qdumpHelper__std__vector__bool(d, start, size, inner_type)
+    else:
+        start = value["_M_start"].pointer()
+        finish = value["_M_finish"].pointer()
+        alloc = value["_M_end_of_storage"].pointer()
+        qdumpHelper__std__vector__nonbool(d, start, finish, alloc, inner_type)
+
+
+def qdumpHelper__std__vector__libcxx(d, value):
+    inner_type = value.type[0]
+    if inner_type.name == "bool":
+        start = value["__begin_"].pointer()
+        size = value["__size_"].integer()
+        qdumpHelper__std__vector__bool(d, start, size, inner_type)
+    else:
+        start = value["__begin_"].pointer()
+        finish = value["__end_"].pointer()
+        alloc = value["__end_cap_"].pointer()
+        qdumpHelper__std__vector__nonbool(d, start, finish, alloc, inner_type)
+
+
+def qdumpHelper__std__vector__msvc(d, value):
+    inner_type = value.type[0]
+    if inner_type.name == "bool":
+        proxy1, proxy2, start, finish, alloc, size = value.split("pppppi")
+        try:
+            d.check(0 <= size and size <= 1000 * 1000 * 1000)
+            d.check(finish <= alloc)
+        except RuntimeError:
+            start, finish, alloc, size = value.split("pppi")
+        qdumpHelper__std__vector__bool(d, start, size, inner_type)
+    else:
+        proxy, start, finish, alloc = value.split("pppp")
+        size = (finish - start) // inner_type.size()
+        try:
+            d.check(0 <= size and size <= 1000 * 1000 * 1000)
+            d.check(finish <= alloc)
+        except RuntimeError:
+            start, finish, alloc = value.split("ppp")
+        qdumpHelper__std__vector__nonbool(d, start, finish, alloc, inner_type)
 
 
 def qform__std____1__vector():
@@ -1144,7 +1151,7 @@ def qform__std____1__vector():
 
 
 def qdump__std____1__vector(d, value):
-    qdumpHelper__std__vector(d, value, True)
+    qdumpHelper__std__vector__libcxx(d, value)
 
 
 def qform__std____debug__vector():
