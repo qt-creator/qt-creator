@@ -302,7 +302,7 @@ bool PythonBuildSystem::saveRawList(const QStringList &rawList, const QString &f
                 QString errorMessage;
                 result = writePyProjectFile(fileName, content, rawList, &errorMessage);
                 if (!errorMessage.isEmpty())
-                    MessageManager::write(errorMessage);
+                    MessageManager::writeDisrupting(errorMessage);
             }
         }
     } else { // Old project file
@@ -404,12 +404,12 @@ void PythonBuildSystem::parse()
         QString errorMessage;
         m_rawFileList = readLinesJson(filePath, &errorMessage);
         if (!errorMessage.isEmpty())
-            MessageManager::write(errorMessage);
+            MessageManager::writeFlashing(errorMessage);
 
         errorMessage.clear();
         m_rawQmlImportPathList = readImportPathsJson(filePath, &errorMessage);
         if (!errorMessage.isEmpty())
-            MessageManager::write(errorMessage);
+            MessageManager::writeFlashing(errorMessage);
     } else if (filePath.endsWith(".pyqtc")) {
         // To keep compatibility with PyQt we keep the compatibility with plain
         // text files as project files.

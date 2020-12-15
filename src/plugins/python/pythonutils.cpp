@@ -269,8 +269,9 @@ public:
 
         m_process.start(m_python.toString(), arguments);
 
-        Core::MessageManager::write(tr("Running \"%1 %2\" to install Python language server")
-                                        .arg(m_process.program(), m_process.arguments().join(' ')));
+        Core::MessageManager::writeDisrupting(
+            tr("Running \"%1 %2\" to install Python language server")
+                .arg(m_process.program(), m_process.arguments().join(' ')));
 
         m_killTimer.setSingleShot(true);
         m_killTimer.start(5 /*minutes*/ * 60 * 1000);
@@ -280,8 +281,9 @@ private:
     void cancel()
     {
         SynchronousProcess::stopProcess(m_process);
-        Core::MessageManager::write(tr("The Python language server installation was canceled by %1.")
-                                        .arg(m_killTimer.isActive() ? tr("user") : tr("time out")));
+        Core::MessageManager::writeFlashing(
+            tr("The Python language server installation was canceled by %1.")
+                .arg(m_killTimer.isActive() ? tr("user") : tr("time out")));
     }
 
     void installFinished(int exitCode, QProcess::ExitStatus exitStatus)
@@ -291,7 +293,7 @@ private:
             if (Client *client = registerLanguageServer(m_python))
                 LanguageClientManager::openDocumentWithClient(m_document, client);
         } else {
-            Core::MessageManager::write(
+            Core::MessageManager::writeFlashing(
                 tr("Installing the Python language server failed with exit code %1").arg(exitCode));
         }
         deleteLater();
@@ -301,14 +303,14 @@ private:
     {
         const QString &stdOut = QString::fromLocal8Bit(m_process.readAllStandardOutput().trimmed());
         if (!stdOut.isEmpty())
-            Core::MessageManager::write(stdOut);
+            Core::MessageManager::writeSilently(stdOut);
     }
 
     void errorAvailable()
     {
         const QString &stdErr = QString::fromLocal8Bit(m_process.readAllStandardError().trimmed());
         if (!stdErr.isEmpty())
-            Core::MessageManager::write(stdErr);
+            Core::MessageManager::writeSilently(stdErr);
     }
 
     QFutureInterface<void> m_future;
@@ -523,7 +525,7 @@ void openPythonRepl(const FilePath &file, ReplType type)
                      &ConsoleProcess::processError,
                      process,
                      [process, commandLine](const QString &errorString) {
-                         Core::MessageManager::write(
+                         Core::MessageManager::writeDisrupting(
                              QCoreApplication::translate("Python",
                                                          "Failed to run Python (%1): \"%2\".")
                                  .arg(commandLine, errorString));
