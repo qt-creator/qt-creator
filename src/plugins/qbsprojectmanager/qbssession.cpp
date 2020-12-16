@@ -491,8 +491,7 @@ void QbsSession::handlePacket(const QJsonObject &packet)
     } else if (type == "install-done") {
         emit projectInstalled(getErrorInfo(packet));
     } else if (type == "log-data") {
-        Core::MessageManager::write("[qbs] " + packet.value("message").toString(),
-                                    Core::MessageManager::Silent);
+        Core::MessageManager::writeSilently("[qbs] " + packet.value("message").toString());
     } else if (type == "warning") {
         const ErrorInfo errorInfo = ErrorInfo(packet.value("warning").toObject());
 
@@ -618,11 +617,10 @@ void QbsSession::handleFileListUpdated(const QJsonObject &reply)
     setProjectDataFromReply(reply, false);
     const QStringList failedFiles = arrayToStringList(reply.value("failed-files"));
     if (!failedFiles.isEmpty()) {
-        Core::MessageManager::write(tr("Failed to update files in Qbs project: %1.\n"
-                                       "The affected files are: \n\t%2")
-                                    .arg(getErrorInfo(reply).toString(),
-                                         failedFiles.join("\n\t")),
-                                    Core::MessageManager::ModeSwitch);
+        Core::MessageManager::writeFlashing(
+            tr("Failed to update files in Qbs project: %1.\n"
+               "The affected files are: \n\t%2")
+                .arg(getErrorInfo(reply).toString(), failedFiles.join("\n\t")));
     }
     emit fileListUpdated();
 }

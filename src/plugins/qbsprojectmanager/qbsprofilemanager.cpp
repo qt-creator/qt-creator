@@ -252,10 +252,12 @@ QString QbsProfileManager::runQbsConfig(QbsConfigOp op, const QString &key, cons
         return {};
     qbsConfig.start(qbsExe.toString(), args);
     if (!qbsConfig.waitForStarted(3000) || !qbsConfig.waitForFinished(5000)) {
-        Core::MessageManager::write(tr("Failed run qbs config: %1").arg(qbsConfig.errorString()));
+        Core::MessageManager::writeFlashing(
+            tr("Failed to run qbs config: %1").arg(qbsConfig.errorString()));
     } else if (qbsConfig.exitCode() != 0) {
-        Core::MessageManager::write(tr("Failed to run qbs config: %1")
-                                    .arg(QString::fromLocal8Bit(qbsConfig.readAllStandardError())));
+        Core::MessageManager::writeFlashing(
+            tr("Failed to run qbs config: %1")
+                .arg(QString::fromLocal8Bit(qbsConfig.readAllStandardError())));
     }
     return QString::fromLocal8Bit(qbsConfig.readAllStandardOutput()).trimmed();
 }

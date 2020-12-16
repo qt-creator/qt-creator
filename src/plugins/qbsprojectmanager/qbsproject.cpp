@@ -103,8 +103,8 @@ public:
     ~OpTimer()
     {
         if (qEnvironmentVariableIsSet(Constants::QBS_PROFILING_ENV)) {
-            MessageManager::write(QString("operation %1 took %2ms")
-                                  .arg(QLatin1String(m_name)).arg(m_timer.elapsed()));
+            MessageManager::writeSilently(
+                QString("operation %1 took %2ms").arg(QLatin1String(m_name)).arg(m_timer.elapsed()));
         }
     }
 
@@ -371,7 +371,7 @@ bool QbsBuildSystem::addFilesToProduct(
                 product.value("full-display-name").toString(),
                 group.value("name").toString());
     if (result.error().hasError()) {
-        MessageManager::write(result.error().toString(), Core::MessageManager::ModeSwitch);
+        MessageManager::writeDisrupting(result.error().toString());
         *notAdded = result.failedFiles();
     }
     return notAdded->isEmpty();
@@ -405,7 +405,7 @@ RemovedFilesFromProject QbsBuildSystem::removeFilesFromProduct(
 
     *notRemoved = result.failedFiles();
     if (result.error().hasError())
-        MessageManager::write(result.error().toString(), Core::MessageManager::ModeSwitch);
+        MessageManager::writeDisrupting(result.error().toString());
     const bool success = notRemoved->isEmpty();
     if (!wildcardFiles.isEmpty())
         *notRemoved += wildcardFiles;
@@ -1126,8 +1126,8 @@ void QbsBuildSystem::updateApplicationTargets()
             RunEnvironmentResult result = session()->getRunEnvironment(productName, procEnv,
                                                                        setupRunEnvConfig);
             if (result.error().hasError()) {
-                Core::MessageManager::write(tr("Error retrieving run environment: %1")
-                                            .arg(result.error().toString()));
+                Core::MessageManager::writeFlashing(
+                    tr("Error retrieving run environment: %1").arg(result.error().toString()));
                 return;
             }
             QProcessEnvironment fullEnv = result.environment();
