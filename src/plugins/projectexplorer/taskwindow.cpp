@@ -78,6 +78,7 @@ class TaskView : public Utils::ListView
 {
 public:
     TaskView(QWidget *parent = nullptr);
+    void setCurrentAndScrollTo(const QModelIndex &index);
     ~TaskView() override;
 
 private:
@@ -202,6 +203,7 @@ TaskView::TaskView(QWidget *parent)
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     setMouseTracking(true);
+    setAutoScroll(false); // QTCREATORBUG-25101
 
     QFontMetrics fm(font());
     int vStepSize = fm.height() + 3;
@@ -209,6 +211,12 @@ TaskView::TaskView(QWidget *parent)
         vStepSize = TaskDelegate::Positions::minimumHeight();
 
     verticalScrollBar()->setSingleStep(vStepSize);
+}
+
+void TaskView::setCurrentAndScrollTo(const QModelIndex &index)
+{
+    scrollTo(index);
+    setCurrentIndex(index);
 }
 
 TaskView::~TaskView() = default;
@@ -553,7 +561,7 @@ void TaskWindow::showTask(unsigned int id)
     int sourceRow = d->m_model->rowForId(id);
     QModelIndex sourceIdx = d->m_model->index(sourceRow, 0);
     QModelIndex filterIdx = d->m_filter->mapFromSource(sourceIdx);
-    d->m_listview->setCurrentIndex(filterIdx);
+    d->m_listview->setCurrentAndScrollTo(filterIdx);
     popup(Core::IOutputPane::ModeSwitch);
 }
 
@@ -682,7 +690,7 @@ void TaskWindow::setFocus()
     if (d->m_filter->rowCount()) {
         d->m_listview->setFocus();
         if (d->m_listview->currentIndex() == QModelIndex())
-            d->m_listview->setCurrentIndex(d->m_filter->index(0,0, QModelIndex()));
+            d->m_listview->setCurrentAndScrollTo(d->m_filter->index(0,0, QModelIndex()));
     }
 }
 
@@ -715,7 +723,7 @@ void TaskWindow::goToNext()
     } else {
         currentIndex = d->m_filter->index(0, 0);
     }
-    d->m_listview->setCurrentIndex(currentIndex);
+    d->m_listview->setCurrentAndScrollTo(currentIndex);
     triggerDefaultHandler(currentIndex);
 }
 
@@ -738,7 +746,7 @@ void TaskWindow::goToPrev()
     } else {
         currentIndex = d->m_filter->index(0, 0);
     }
-    d->m_listview->setCurrentIndex(currentIndex);
+    d->m_listview->setCurrentAndScrollTo(currentIndex);
     triggerDefaultHandler(currentIndex);
 }
 
