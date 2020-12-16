@@ -29,6 +29,7 @@
 
 #include <utils/id.h>
 
+#include <QHash>
 #include <QStringList>
 #include <QVector>
 
@@ -69,9 +70,16 @@ public:
     void setClangTidyMode(TidyMode mode);
 
     QString clangTidyChecks() const;
+    QString clangTidyChecksAsJson() const;
     void setClangTidyChecks(const QString &checks);
 
     bool isClangTidyEnabled() const;
+
+    using TidyCheckOptions = QMap<QString, QString>;
+    void setTidyCheckOptions(const QString &check, const TidyCheckOptions &options);
+    TidyCheckOptions tidyCheckOptions(const QString &check) const;
+    void setTidyChecksOptionsFromSettings(const QVariant &options);
+    QVariant tidyChecksOptionsForSettings() const;
 
     // Clazy
     enum class ClazyMode
@@ -96,6 +104,7 @@ private:
     QStringList m_clangOptions;
     TidyMode m_clangTidyMode = TidyMode::UseDefaultChecks;
     QString m_clangTidyChecks;
+    QHash<QString, TidyCheckOptions> m_tidyChecksOptions;
     QString m_clazyChecks;
     ClazyMode m_clazyMode = ClazyMode::UseDefaultChecks;
     bool m_isReadOnly = false;

@@ -41,14 +41,85 @@
 #include <utils/stringutils.h>
 
 #include <QDesktopServices>
+#include <QDialog>
 #include <QDialogButtonBox>
+#include <QHBoxLayout>
+#include <QPushButton>
 #include <QSortFilterProxyModel>
 #include <QStringListModel>
+#include <QTreeWidget>
+#include <QTreeWidgetItem>
+#include <QVBoxLayout>
 
 using namespace CppTools;
 
 namespace ClangTools {
 namespace Internal {
+
+class TidyOptionsDialog : public QDialog
+{
+    Q_OBJECT
+public:
+    TidyOptionsDialog(const QString &check, const ClangDiagnosticConfig::TidyCheckOptions &options,
+                      QWidget *parent = nullptr) : QDialog(parent)
+    {
+        setWindowTitle(tr("Options for %1").arg(check));
+        resize(600, 300);
+        const auto mainLayout = new QVBoxLayout(this);
+        const auto widgetLayout = new QHBoxLayout;
+        mainLayout->addLayout(widgetLayout);
+        m_optionsWidget.setColumnCount(2);
+        m_optionsWidget.setHeaderLabels({tr("Option"), tr("Value")});
+        const auto addItem = [this](const QString &option, const QString &value) {
+            const auto item = new QTreeWidgetItem(&m_optionsWidget, QStringList{option, value});
+            item->setFlags(item->flags() | Qt::ItemIsEditable);
+            return item;
+        };
+        for (auto it = options.begin(); it != options.end(); ++it)
+            addItem(it.key(), it.value());
+        m_optionsWidget.resizeColumnToContents(0);
+        widgetLayout->addWidget(&m_optionsWidget);
+        const auto buttonLayout = new QVBoxLayout;
+        widgetLayout->addLayout(buttonLayout);
+        const auto addButton = new QPushButton(tr("Add Option"));
+        connect(addButton, &QPushButton::clicked, this, [this, addItem] {
+            const auto item = addItem(tr("<new option>"), {});
+            m_optionsWidget.editItem(item);
+        });
+        buttonLayout->addWidget(addButton);
+        const auto removeButton = new QPushButton(tr("Remove Option"));
+        connect(removeButton, &QPushButton::clicked, this, [this] {
+            qDeleteAll(m_optionsWidget.selectedItems());
+        });
+        const auto toggleRemoveButtonEnabled = [this, removeButton] {
+            removeButton->setEnabled(!m_optionsWidget.selectionModel()->selectedRows().isEmpty());
+        };
+        connect(&m_optionsWidget, &QTreeWidget::itemSelectionChanged,
+                this, [toggleRemoveButtonEnabled] { toggleRemoveButtonEnabled(); });
+        toggleRemoveButtonEnabled();
+        buttonLayout->addWidget(removeButton);
+        buttonLayout->addStretch(1);
+
+        const auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                                    | QDialogButtonBox::Cancel);
+        connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+        connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+        mainLayout->addWidget(buttonBox);
+    }
+
+    ClangDiagnosticConfig::TidyCheckOptions options() const
+    {
+        ClangDiagnosticConfig::TidyCheckOptions opts;
+        for (int i = 0; i < m_optionsWidget.topLevelItemCount(); ++i) {
+            const QTreeWidgetItem * const item = m_optionsWidget.topLevelItem(i);
+            opts.insert(item->text(0), item->text(1));
+        }
+        return opts;
+    }
+
+private:
+    QTreeWidget m_optionsWidget;
+};
 
 namespace ClangTidyPrefixTree {
 
@@ -357,7 +428,6 @@ public:
         }
     }
 
-private:
     QVariant data(const QModelIndex &fullIndex, int role = Qt::DisplayRole) const final
     {
         if (!fullIndex.isValid() || role == Qt::DecorationRole)
@@ -380,11 +450,26 @@ private:
             return BaseChecksTreeModel::data(fullIndex, role);
         }
 
+        if (fullIndex.column() == 2) {
+            if (hasChildren(fullIndex))
+                return {};
+            if (role == Qt::DisplayRole)
+                return tr("Options");
+            if (role == Qt::FontRole || role == Qt::ForegroundRole) {
+                return BaseChecksTreeModel::data(fullIndex.sibling(fullIndex.row(), LinkColumn),
+                                                 role);
+            }
+            return {};
+        }
+
         if (role == Qt::DisplayRole)
             return node->isDir ? (node->name + "*") : node->name;
 
         return ProjectExplorer::SelectableFilesModel::data(index, role);
     }
+
+private:
+    int columnCount(const QModelIndex &) const final { return 3; }
 
     QModelIndex indexForCheck(const QString &check) const {
         if (check == "*")
@@ -784,7 +869,29 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
 
     connect(m_tidyChecks->checksPrefixesTree,
             &QTreeView::clicked,
-            [model = m_tidyTreeModel.get()](const QModelIndex &index) { openUrl(model, index); });
+            [this](const QModelIndex &index) {
+                if (index.column() == 2) {
+                    if (m_tidyTreeModel->hasChildren(index))
+                        return;
+                    ClangDiagnosticConfig config = currentConfig();
+                    QString check;
+                    for (QModelIndex idx = index.siblingAtColumn(0); idx.isValid();
+                         idx = idx.parent()) {
+                        QString current = m_tidyTreeModel->data(idx).toString();
+                        if (current.endsWith('*'))
+                            current.chop(1);
+                        check.prepend(current);
+                    }
+                    TidyOptionsDialog dlg(check, config.tidyCheckOptions(check),
+                                          m_tidyChecks->checksPrefixesTree);
+                    if (dlg.exec() != QDialog::Accepted)
+                        return;
+                    config.setTidyCheckOptions(check, dlg.options());
+                    updateConfig(config);
+                    return;
+                }
+                openUrl(m_tidyTreeModel.get(), index);
+    });
 
     connect(m_tidyChecks->plainTextEditButton, &QPushButton::clicked, this, [this]() {
         const bool readOnly = currentConfig().isReadOnly();

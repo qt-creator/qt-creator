@@ -79,6 +79,7 @@ bool ClangDiagnosticConfig::operator==(const ClangDiagnosticConfig &other) const
         && m_clangOptions == other.m_clangOptions
         && m_clangTidyMode == other.m_clangTidyMode
         && m_clangTidyChecks == other.m_clangTidyChecks
+        && m_tidyChecksOptions == other.m_tidyChecksOptions
         && m_clazyMode == other.m_clazyMode
         && m_clazyChecks == other.m_clazyChecks
         && m_isReadOnly == other.m_isReadOnly
@@ -125,6 +126,28 @@ QString ClangDiagnosticConfig::clangTidyChecks() const
     return m_clangTidyChecks;
 }
 
+QString ClangDiagnosticConfig::clangTidyChecksAsJson() const
+{
+    QString jsonString = "{Checks: '" + clangTidyChecks()
+            + ",-clang-diagnostic-*', CheckOptions: [";
+    for (auto it = m_tidyChecksOptions.cbegin(); it != m_tidyChecksOptions.cend(); ++it) {
+        const int idx = m_clangTidyChecks.indexOf(it.key());
+        if (idx == -1)
+            continue;
+        if (idx > 0 && m_clangTidyChecks.at(idx - 1) == '-')
+            continue;
+        QString optionString;
+        for (auto optIt = it.value().begin(); optIt != it.value().end(); ++optIt) {
+            if (!optionString.isEmpty())
+                optionString += ',';
+            optionString += "{key: '" + it.key() + '.' + optIt.key()
+                    + "', value: '" + optIt.value() + "'}";
+        }
+        jsonString += optionString;
+    }
+    return jsonString += "]}";
+}
+
 void ClangDiagnosticConfig::setClangTidyChecks(const QString &checks)
 {
     m_clangTidyChecks = checks;
@@ -133,6 +156,42 @@ void ClangDiagnosticConfig::setClangTidyChecks(const QString &checks)
 bool ClangDiagnosticConfig::isClangTidyEnabled() const
 {
     return m_clangTidyMode != TidyMode::UseCustomChecks || clangTidyChecks() != "-*";
+}
+
+void ClangDiagnosticConfig::setTidyCheckOptions(const QString &check,
+                                                const TidyCheckOptions &options)
+{
+    m_tidyChecksOptions[check] = options;
+}
+
+ClangDiagnosticConfig::TidyCheckOptions
+ClangDiagnosticConfig::tidyCheckOptions(const QString &check) const
+{
+    return m_tidyChecksOptions.value(check);
+}
+
+void ClangDiagnosticConfig::setTidyChecksOptionsFromSettings(const QVariant &options)
+{
+    const QVariantMap topLevelMap = options.toMap();
+    for (auto it = topLevelMap.begin(); it != topLevelMap.end(); ++it) {
+        const QVariantMap optionsMap = it.value().toMap();
+        TidyCheckOptions options;
+        for (auto optIt = optionsMap.begin(); optIt != optionsMap.end(); ++optIt)
+            options.insert(optIt.key(), optIt.value().toString());
+        m_tidyChecksOptions.insert(it.key(), options);
+    }
+}
+
+QVariant ClangDiagnosticConfig::tidyChecksOptionsForSettings() const
+{
+    QVariantMap topLevelMap;
+    for (auto it = m_tidyChecksOptions.cbegin(); it != m_tidyChecksOptions.cend(); ++it) {
+        QVariantMap optionsMap;
+        for (auto optIt = it.value().begin(); optIt != it.value().end(); ++optIt)
+            optionsMap.insert(optIt.key(), optIt.value());
+        topLevelMap.insert(it.key(), optionsMap);
+    }
+    return topLevelMap;
 }
 
 QString ClangDiagnosticConfig::clazyChecks() const
@@ -168,6 +227,7 @@ static const char diagnosticConfigDisplayNameKey[] = "displayName";
 static const char diagnosticConfigWarningsKey[] = "diagnosticOptions";
 static const char useBuildSystemFlagsKey[] = "useBuildSystemFlags";
 static const char diagnosticConfigsTidyChecksKey[] = "clangTidyChecks";
+static const char diagnosticConfigsTidyChecksOptionsKey[] = "clangTidyChecksOptions";
 static const char diagnosticConfigsTidyModeKey[] = "clangTidyMode";
 static const char diagnosticConfigsClazyModeKey[] = "clazyMode";
 static const char diagnosticConfigsClazyChecksKey[] = "clazyChecks";
@@ -184,6 +244,7 @@ void diagnosticConfigsToSettings(QSettings *s, const ClangDiagnosticConfigs &con
         s->setValue(useBuildSystemFlagsKey, config.useBuildSystemWarnings());
         s->setValue(diagnosticConfigsTidyModeKey, int(config.clangTidyMode()));
         s->setValue(diagnosticConfigsTidyChecksKey, config.clangTidyChecks());
+        s->setValue(diagnosticConfigsTidyChecksOptionsKey, config.tidyChecksOptionsForSettings());
         s->setValue(diagnosticConfigsClazyModeKey, int(config.clazyMode()));
         s->setValue(diagnosticConfigsClazyChecksKey, config.clazyChecks());
     }
@@ -210,6 +271,8 @@ ClangDiagnosticConfigs diagnosticConfigsFromSettings(QSettings *s)
         } else {
             config.setClangTidyMode(static_cast<ClangDiagnosticConfig::TidyMode>(tidyModeValue));
             config.setClangTidyChecks(s->value(diagnosticConfigsTidyChecksKey).toString());
+            config.setTidyChecksOptionsFromSettings(
+                        s->value(diagnosticConfigsTidyChecksOptionsKey));
         }
 
         config.setClazyMode(static_cast<ClangDiagnosticConfig::ClazyMode>(

@@ -60,7 +60,7 @@ static QStringList tidyChecksArguments(const ClangDiagnosticConfig diagnosticCon
     if (tidyMode == ClangDiagnosticConfig::TidyMode::UseDefaultChecks)
         return {"-config={}", "-checks=-clang-diagnostic-*"};
     if (tidyMode == ClangDiagnosticConfig::TidyMode::UseCustomChecks)
-        return {"-config={}", "-checks=" + diagnosticConfig.clangTidyChecks() + ",-clang-diagnostic-*"};
+        return {"-config=" + diagnosticConfig.clangTidyChecksAsJson()};
     return {"--warnings-as-errors=-*", "-check=-clang-diagnostic-*"};
 }
 
