@@ -32,6 +32,7 @@
 #include <QAction>
 #include <QActionGroup>
 #include <QColorDialog>
+#include <QFileDialog>
 #include <QPainter>
 #include <QPointer>
 #include <QScopeGuard>
@@ -120,6 +121,7 @@ RichTextEditor::RichTextEditor(QWidget *parent)
 
     setupEditActions();
     setupTextActions();
+    setupImageActions();
     setupHyperlinkActions();
     setupAlignActions();
     setupListActions();
@@ -182,6 +184,16 @@ void RichTextEditor::setRichText(const QString &text)
 void RichTextEditor::setTabChangesFocus(bool change)
 {
     ui->textEdit->setTabChangesFocus(change);
+}
+
+void RichTextEditor::setImageActionVisible(bool change)
+{
+    m_actionImage->setVisible(change);
+}
+
+void RichTextEditor::setDocumentBaseUrl(const QUrl& url)
+{
+    ui->textEdit->document()->setBaseUrl(url);
 }
 
 QIcon RichTextEditor::getIcon(Theme::Icon icon)
@@ -359,6 +371,30 @@ void RichTextEditor::setupTextActions()
     m_actionTextUnderline->setCheckable(true);
 
     ui->toolBar->addSeparator();
+}
+
+void RichTextEditor::setupImageActions()
+{
+    auto insertImage = [this]() {
+        QFileDialog dialog(this);
+        dialog.setFileMode(QFileDialog::ExistingFile);
+        dialog.setWindowTitle(tr("Select Image"));
+        dialog.setNameFilters({tr("Image files (*.png *.jpg)")});
+
+        if (dialog.exec()) {
+            QStringList files = dialog.selectedFiles();
+            for (QString& filePath : files) {
+                emit insertingImage(filePath);
+
+                ui->textEdit->insertHtml("<img src=\"" + filePath + "\" />");
+            }
+        }
+    };
+
+    m_actionImage = ui->toolBar
+                        ->addAction(getIcon(Theme::Icon::addFile), tr("Insert &Image"), insertImage);
+
+    setImageActionVisible(false);
 }
 
 void RichTextEditor::setupHyperlinkActions()

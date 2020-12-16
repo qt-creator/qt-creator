@@ -63,6 +63,13 @@ public:
 
     void setTabChangesFocus(bool change);
 
+    void setImageActionVisible(bool change);
+
+    void setDocumentBaseUrl(const QUrl &url);
+
+signals:
+    void insertingImage(QString &filePath);
+
 private slots:
     void currentCharFormatChanged(const QTextCharFormat &format);
     void cursorPositionChanged();
@@ -79,6 +86,7 @@ private:
 
     void setupEditActions();
     void setupTextActions();
+    void setupImageActions();
     void setupHyperlinkActions();
     void setupAlignActions();
     void setupListActions();
@@ -97,6 +105,7 @@ private:
     QAction *m_actionTextItalic;
     QAction *m_actionTextUnderline;
 
+    QAction *m_actionImage;
     QAction *m_actionHyperlink;
 
     QAction *m_actionAlignLeft;
