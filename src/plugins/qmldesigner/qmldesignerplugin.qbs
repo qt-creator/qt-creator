@@ -767,6 +767,7 @@ Project {
                 "curveeditor/animationcurve.h",
                 "curveeditor/curveeditor.cpp",
                 "curveeditor/curveeditor.h",
+                "curveeditor/curveeditor.qrc",
                 "curveeditor/curveeditormodel.cpp",
                 "curveeditor/curveeditormodel.h",
                 "curveeditor/curveeditorstyle.h",
