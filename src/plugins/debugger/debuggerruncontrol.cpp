@@ -694,16 +694,29 @@ void DebuggerRunTool::start()
 
     if (m_runParameters.startMode == StartInternal) {
         QStringList unhandledIds;
-//        for (const GlobalBreakpoint &bp : BreakpointManager::globalBreakpoints()) {
-//            if (bp->isEnabled() && !m_engine->acceptsBreakpoint(bp))
-//                unhandledIds.append(bp.id().toString());
-//        }
+        bool hasQmlBreakpoints = false;
+        for (const GlobalBreakpoint &gbp : BreakpointManager::globalBreakpoints()) {
+            if (gbp->isEnabled()) {
+                const BreakpointParameters &bp = gbp->requestedParameters();
+                hasQmlBreakpoints = hasQmlBreakpoints || bp.isQmlFileAndLineBreakpoint();
+                if (!m_engine->acceptsBreakpoint(bp)) {
+                    if (!m_engine2 || !m_engine2->acceptsBreakpoint(bp))
+                        unhandledIds.append(gbp->displayName());
+                }
+            }
+        }
         if (!unhandledIds.isEmpty()) {
             QString warningMessage =
                     DebuggerPlugin::tr("Some breakpoints cannot be handled by the debugger "
-                                       "languages currently active, and will be ignored.\n"
+                                       "languages currently active, and will be ignored.<p>"
                                        "Affected are breakpoints %1")
                     .arg(unhandledIds.join(", "));
+
+            if (hasQmlBreakpoints) {
+                warningMessage += "<p>" +
+                    DebuggerPlugin::tr("QML debugging needs to be enabled both in the Build "
+                                       "and the Run settings.");
+            }
 
             showMessage(warningMessage, LogWarning);
 
