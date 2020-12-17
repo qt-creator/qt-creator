@@ -191,7 +191,7 @@ void BeautifierPluginPrivate::autoFormatOnSave(Core::IDocument *document)
 
 void BeautifierPlugin::showError(const QString &error)
 {
-    Core::MessageManager::write(tr("Error in Beautifier: %1").arg(error.trimmed()));
+    Core::MessageManager::writeFlashing(tr("Error in Beautifier: %1").arg(error.trimmed()));
 }
 
 QString BeautifierPlugin::msgCannotGetConfigurationFile(const QString &command)

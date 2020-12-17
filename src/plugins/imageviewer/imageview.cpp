@@ -155,7 +155,7 @@ bool ImageView::exportSvg(const ExportData &ed)
             .arg(QDir::toNativeSeparators(ed.fileName))
             .arg(ed.size.width()).arg(ed.size.height())
             .arg(QFileInfo(ed.fileName).size());
-        Core::MessageManager::write(message);
+        Core::MessageManager::writeDisrupting(message);
     } else {
         const QString message = tr("Could not write file \"%1\".").arg(QDir::toNativeSeparators(ed.fileName));
         QMessageBox::critical(this, tr("Export Image"), message);

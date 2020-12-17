@@ -59,8 +59,8 @@ static QString runExecutable(const Utils::CommandLine &commandLine,
     if (response.result != SynchronousProcessResponse::Finished
             && (failSilently == FailSilently::No
                 || response.result != SynchronousProcessResponse::FinishedError)) {
-        Core::MessageManager::write(response.exitMessage(commandLine.toUserOutput(), 10));
-        Core::MessageManager::write(QString::fromUtf8(response.allRawOutput()));
+        Core::MessageManager::writeFlashing(response.exitMessage(commandLine.toUserOutput(), 10));
+        Core::MessageManager::writeFlashing(QString::fromUtf8(response.allRawOutput()));
         return {};
     }
 
