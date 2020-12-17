@@ -236,22 +236,19 @@ void Highlighter::addCustomHighlighterPath(const Utils::FilePath &path)
 void Highlighter::downloadDefinitions(std::function<void()> callback) {
     auto downloader =
         new KSyntaxHighlighting::DefinitionDownloader(highlightRepository());
-    connect(downloader, &KSyntaxHighlighting::DefinitionDownloader::done,
-            [downloader, callback]() {
-                Core::MessageManager::write(tr("Highlighter updates: done"),
-                                            Core::MessageManager::ModeSwitch);
-                downloader->deleteLater();
-                reload();
-                if (callback)
-                    callback();
-            });
+    connect(downloader, &KSyntaxHighlighting::DefinitionDownloader::done, [downloader, callback]() {
+        Core::MessageManager::writeFlashing(tr("Highlighter updates: done"));
+        downloader->deleteLater();
+        reload();
+        if (callback)
+            callback();
+    });
     connect(downloader,
             &KSyntaxHighlighting::DefinitionDownloader::informationMessage,
             [](const QString &message) {
-                Core::MessageManager::write(tr("Highlighter updates:") + ' ' +
-                                                message,
-                                            Core::MessageManager::ModeSwitch);
+                Core::MessageManager::writeSilently(tr("Highlighter updates:") + ' ' + message);
             });
+    Core::MessageManager::writeDisrupting(tr("Highlighter updates: starting"));
     downloader->start();
 }
 

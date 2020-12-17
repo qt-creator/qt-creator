@@ -281,7 +281,7 @@ static void updateEditorText(QPlainTextEdit *editor, const QString &text)
 
 static void showError(const QString &error)
 {
-    Core::MessageManager::write(
+    Core::MessageManager::writeFlashing(
                 QString(QT_TRANSLATE_NOOP("TextEditor", "Error in text formatting: %1"))
                 .arg(error.trimmed()));
 }
