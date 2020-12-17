@@ -389,7 +389,7 @@ public:
     /**
      * Returns the list of all floating widgets.
      */
-    const QList<FloatingDockContainer *> floatingWidgets() const;
+    const QList<QPointer<FloatingDockContainer> > floatingWidgets() const;
 
     /**
      * This function always return 0 because the main window is always behind

@@ -92,7 +92,7 @@ namespace ADS
     {
     public:
         DockManager *q;
-        QList<FloatingDockContainer *> m_floatingWidgets;
+        QList<QPointer<FloatingDockContainer>> m_floatingWidgets;
         QList<DockContainerWidget *> m_containers;
         DockOverlay *m_containerOverlay = nullptr;
         DockOverlay *m_dockAreaOverlay = nullptr;
@@ -357,9 +357,11 @@ namespace ADS
         save();
         saveStartupWorkspace();
 
-        for (auto floatingWidget : d->m_floatingWidgets)
-            delete floatingWidget;
-
+        for (auto floatingWidget : d->m_floatingWidgets) {
+            if (floatingWidget)
+                delete floatingWidget.data();
+        }
+        d->m_floatingWidgets.clear();
         delete d;
     }
 
@@ -485,7 +487,7 @@ namespace ADS
         return d->m_containers;
     }
 
-    const QList<FloatingDockContainer *> DockManager::floatingWidgets() const
+    const QList<QPointer<FloatingDockContainer>> DockManager::floatingWidgets() const
     {
         return d->m_floatingWidgets;
     }
