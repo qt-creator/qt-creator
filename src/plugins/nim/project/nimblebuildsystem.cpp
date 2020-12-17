@@ -35,7 +35,6 @@
 #include <utils/qtcassert.h>
 
 #include <QProcess>
-#include <QStandardPaths>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -72,7 +71,7 @@ static NimbleMetadata parseMetadata(const QString &nimblePath, const QString &wo
 {
     QProcess process;
     process.setWorkingDirectory(workingDirectory);
-    process.start(QStandardPaths::findExecutable(nimblePath), {"dump"});
+    process.start(nimblePath, {"dump"});
     process.waitForFinished();
 
     NimbleMetadata result = {};

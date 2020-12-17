@@ -38,7 +38,6 @@
 #include <projectexplorer/target.h>
 
 #include <QRegularExpression>
-#include <QStandardPaths>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -151,7 +150,7 @@ QString NimbleBuildStep::defaultArguments() const
 void NimbleBuildStep::onArgumentsChanged()
 {
     ProcessParameters *params = processParameters();
-    params->setCommandLine({QStandardPaths::findExecutable("nimble"),
+    params->setCommandLine({Nim::nimblePathFromKit(kit()),
                             {"build", m_arguments->arguments(macroExpander())}});
 }
 
