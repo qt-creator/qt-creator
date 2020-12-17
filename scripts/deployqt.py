@@ -239,7 +239,7 @@ def deploy_libclang(install_dir, llvm_install_dir, chrpath_bin):
         deployinfo.append((os.path.join(llvm_install_dir, 'bin', 'libclang.dll'),
                            os.path.join(install_dir, 'bin')))
         for binary in ['clang', 'clang-cl', 'clangd', 'clang-tidy', 'clazy-standalone']:
-            binary_filepath = os.path.join(llvm_install_dir, 'bin', 'clang.exe')
+            binary_filepath = os.path.join(llvm_install_dir, 'bin', binary + '.exe')
             if os.path.exists(binary_filepath):
                 deployinfo.append((binary_filepath, clangbindirtarget))
         resourcetarget = os.path.join(clanglibdirtarget, 'clang')

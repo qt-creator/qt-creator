@@ -99,8 +99,22 @@ static QByteArray defaultFileLoader(const QString &filename, bool *success)
 
 static bool defaultFileClassifier(const QString &filename)
 {
-    // We cannot dynamically load changes in qtquickcontrols2.conf
-    return !filename.endsWith("qtquickcontrols2.conf");
+    const QStringList list = {
+        ".glsl",
+        ".glslv",
+        ".glslf",
+        ".vsh",
+        ".fsh",
+        ".frag",
+        ".vert",
+        "qtquickcontrols2.conf" };
+
+    for (const QString &suffix : list)
+        if (filename.endsWith(suffix))
+            return false;
+
+    // We cannot dynamically load changes in qtquickcontrols2.conf and shaders
+    return true;
 }
 
 static void defaultFpsHandler(quint16 frames[8])

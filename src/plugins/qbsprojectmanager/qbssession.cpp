@@ -376,6 +376,8 @@ RunEnvironmentResult QbsSession::getRunEnvironment(
 void QbsSession::insertRequestedModuleProperties(QJsonObject &request)
 {
     request.insert("module-properties", QJsonArray::fromStringList({
+        "qbs.architecture",
+        "qbs.architectures",
         "cpp.commonCompilerFlags",
         "cpp.compilerVersionMajor",
         "cpp.compilerVersionMinor",

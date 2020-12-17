@@ -610,8 +610,8 @@ protected:
     virtual void slotCursorPositionChanged(); // Used in VcsBase
     virtual void slotCodeStyleSettingsChanged(const QVariant &); // Used in CppEditor
 
-    bool inFindScope(const QTextCursor &cursor);
-    bool inFindScope(int selectionStart, int selectionEnd);
+    Q_INVOKABLE bool inFindScope(const QTextCursor &cursor);
+    Q_INVOKABLE bool inFindScope(int selectionStart, int selectionEnd);
 
 private:
     Internal::TextEditorWidgetPrivate *d;

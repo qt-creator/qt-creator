@@ -28,6 +28,7 @@ Editing
 
 ### C++
 
+* Updated to LLVM 11
 * Added refactoring action that creates getters and setters for all class members
   (QTCREATORBUG-14504)
 * Added refactoring action that generates member from class member initialization
@@ -207,17 +208,20 @@ André Pönitz
 Antonio Di Monaco  
 Asit Dhal  
 Assam Boudjelthia  
+Björn Schäpers  
 Christiaan Janssen  
 Christian Kandeler  
 Christian Stenger  
 Cristian Adam  
 David Schulz  
+Dawid Sliwa  
 Denis Shienkov  
 Eike Ziller  
 Fabio Falsini  
 Fawzi Mohamed  
 Federico Guerinoni  
 Henning Gruendl  
+Ivan Komissarov  
 Jaroslaw Kobus  
 Jeremy Ephron  
 Jochen Seemann  
@@ -233,16 +237,22 @@ Mahmoud Badri
 Marco Bubke  
 Martin Kampas  
 Michael Weghorn  
+Michael Winkelmann  
 Miikka Heikkinen  
 Miklós Márton  
 Morten Johan Sørvig  
 Orgad Shaneh  
+Oswald Buddenhagen  
+Raphaël Cotty  
+Richard Weickelt  
 Robert Löhning  
 Tasuku Suzuki  
 Thiago Macieira  
 Thomas Hartmann  
 Tim Jenssen  
 Tobias Hunger  
+Venugopal Shivashankar  
 Vikas Pachdha  
+Ville Voutilainen  
 Volodymyr Zibarov  
 Wojciech Smigaj  
