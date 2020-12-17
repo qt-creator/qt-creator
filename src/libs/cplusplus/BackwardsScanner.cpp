@@ -46,7 +46,7 @@ BackwardsScanner::BackwardsScanner(const QTextCursor &cursor,
 {
     _tokenize.setLanguageFeatures(languageFeatures);
     _tokenize.setSkipComments(skipComments);
-    _text = _block.text().left(cursor.position() - cursor.block().position());
+    _text = _block.text().left(cursor.positionInBlock());
 
     if (! suffix.isEmpty())
         _text += suffix;
