@@ -307,14 +307,26 @@ static Utils::optional<Utils::Environment> buildEnv(const Project *project)
     return project->activeTarget()->activeBuildConfiguration()->environment();
 }
 
-static bool canOpenTerminalWithRunEnv(const Project *project)
+static const RunConfiguration *runConfigForNode(const Target *target, const ProjectNode *node)
+{
+    if (node && node->productType() == ProductType::App) {
+        const QString buildKey = node->buildKey();
+        for (const RunConfiguration * const rc : target->runConfigurations()) {
+            if (rc->buildKey() == buildKey)
+                return rc;
+        }
+    }
+    return target->activeRunConfiguration();
+}
+
+static bool canOpenTerminalWithRunEnv(const Project *project, const ProjectNode *node)
 {
     if (!project)
         return false;
     const Target * const target = project->activeTarget();
     if (!target)
         return false;
-    const RunConfiguration * const runConfig = target->activeRunConfiguration();
+    const RunConfiguration * const runConfig = runConfigForNode(target, node);
     if (!runConfig)
         return false;
     IDevice::ConstPtr device = runConfig->runnable().device;
@@ -3272,7 +3284,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
 
         Project *project = ProjectTree::currentProject();
         m_openTerminalHereBuildEnv->setVisible(bool(buildEnv(project)));
-        m_openTerminalHereRunEnv->setVisible(canOpenTerminalWithRunEnv(project));
+        m_openTerminalHereRunEnv->setVisible(canOpenTerminalWithRunEnv(project, pn));
 
         if (pn && project) {
             if (pn == project->rootProjectNode()) {
@@ -3640,7 +3652,8 @@ void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
     QTC_ASSERT(project, return);
     const Target * const target = project->activeTarget();
     QTC_ASSERT(target, return);
-    const RunConfiguration * const runConfig = target->activeRunConfiguration();
+    const RunConfiguration * const runConfig = runConfigForNode(target,
+                                                                currentNode->asProjectNode());
     QTC_ASSERT(runConfig, return);
 
     const Runnable runnable = runConfig->runnable();
