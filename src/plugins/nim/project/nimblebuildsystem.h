@@ -61,7 +61,6 @@ public:
     NimbleBuildSystem(ProjectExplorer::Target *target);
 
     std::vector<NimbleTask> tasks() const;
-    NimbleMetadata metadata() const;
 
 signals:
     void tasksChanged();
@@ -86,7 +85,6 @@ private:
 
     void triggerParsing() final;
 
-    NimbleMetadata m_metadata;
     std::vector<NimbleTask> m_tasks;
 
     NimProjectScanner m_projectScanner;

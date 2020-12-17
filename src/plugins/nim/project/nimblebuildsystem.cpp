@@ -153,11 +153,11 @@ void NimbleBuildSystem::updateProject()
     const FilePath projectDir = projectDirectory();
     const FilePath nimble = Nim::nimblePathFromKit(kit());
 
-    m_metadata = parseMetadata(nimble.toString(), projectDir.toString());
-    const FilePath binDir = projectDir.pathAppended(m_metadata.binDir);
+    const NimbleMetadata metadata = parseMetadata(nimble.toString(), projectDir.toString());
+    const FilePath binDir = projectDir.pathAppended(metadata.binDir);
     const FilePath srcDir = projectDir.pathAppended("src");
 
-    QList<BuildTargetInfo> targets = Utils::transform(m_metadata.bin, [&](const QString &bin){
+    QList<BuildTargetInfo> targets = Utils::transform(metadata.bin, [&](const QString &bin){
         BuildTargetInfo info = {};
         info.displayName = bin;
         info.targetFilePath = binDir.pathAppended(bin);
@@ -185,11 +185,6 @@ void NimbleBuildSystem::updateProject()
 std::vector<NimbleTask> NimbleBuildSystem::tasks() const
 {
     return m_tasks;
-}
-
-NimbleMetadata NimbleBuildSystem::metadata() const
-{
-    return m_metadata;
 }
 
 void NimbleBuildSystem::saveSettings()
