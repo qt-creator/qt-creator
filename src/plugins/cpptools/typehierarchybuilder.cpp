@@ -151,19 +151,14 @@ TypeHierarchy TypeHierarchyBuilder::buildDerivedTypeHierarchy(QFutureInterfaceBa
     return hierarchy;
 }
 
-static QStringList filesDependingOn(const CPlusPlus::Snapshot &snapshot,
-                                    CPlusPlus::Symbol *symbol)
+static Utils::FilePaths filesDependingOn(const CPlusPlus::Snapshot &snapshot,
+                                         CPlusPlus::Symbol *symbol)
 {
-    QStringList deps;
     if (!symbol)
-        return deps;
+        return Utils::FilePaths();
 
     const Utils::FilePath file = Utils::FilePath::fromUtf8(symbol->fileName(), symbol->fileNameLength());
-    deps << file.toString();
-    const Utils::FilePaths filePaths = snapshot.filesDependingOn(file);
-    for (const Utils::FilePath &fileName : filePaths)
-        deps.append(fileName.toString());
-    return deps;
+    return Utils::FilePaths { file } + snapshot.filesDependingOn(file);
 }
 
 void TypeHierarchyBuilder::buildDerived(QFutureInterfaceBase &futureInterface,
@@ -180,12 +175,12 @@ void TypeHierarchyBuilder::buildDerived(QFutureInterfaceBase &futureInterface,
     const QString &symbolName = _overview.prettyName(CPlusPlus::LookupContext::fullyQualifiedName(symbol));
     DerivedHierarchyVisitor visitor(symbolName);
 
-    const QStringList &dependingFiles = filesDependingOn(snapshot, symbol);
+    const Utils::FilePaths &dependingFiles = filesDependingOn(snapshot, symbol);
     if (depth == 0)
         futureInterface.setProgressRange(0, dependingFiles.size());
 
     int i = -1;
-    for (const QString &fileName : dependingFiles) {
+    for (const Utils::FilePath &fileName : dependingFiles) {
         if (futureInterface.isCanceled())
             return;
         if (depth == 0)

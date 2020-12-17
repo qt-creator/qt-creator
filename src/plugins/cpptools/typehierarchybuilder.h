@@ -70,7 +70,7 @@ private:
                       const CPlusPlus::Snapshot &snapshot, int depth = 0);
 
     QSet<CPlusPlus::Symbol *> _visited;
-    QHash<QString, QSet<QString> > _candidates;
+    QHash<Utils::FilePath, QSet<QString> > _candidates;
     CPlusPlus::Overview _overview;
 };
 
