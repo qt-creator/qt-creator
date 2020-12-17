@@ -56,8 +56,12 @@ public:
     Utils::Id m_id;
     QString m_displayName;
     QString m_settingsKey; // Name of data in settings.
+    QString m_tooltip;
     bool m_visible = true;
+    bool m_enabled = true;
+    bool m_readOnly = true;
     BaseAspect::ConfigWidgetCreator m_configWidgetCreator;
+    QList<QWidget *> m_subWidgets;
 };
 
 } // Internal
@@ -88,6 +92,11 @@ BaseAspect::BaseAspect()
     : d(new Internal::BaseAspectPrivate)
 {}
 
+/*!
+    Destructs a BaseAspect.
+*/
+BaseAspect::~BaseAspect() = default;
+
 Id BaseAspect::id() const
 {
     return d->m_id;
@@ -108,15 +117,50 @@ bool BaseAspect::isVisible() const
     return d->m_visible;
 }
 
+/*!
+    Shows or hides the visual representation of this aspect depending
+    on the value of \a visible.
+    By default, it is visible.
+ */
 void BaseAspect::setVisible(bool visible)
 {
     d->m_visible = visible;
+    for (QWidget *w : qAsConst(d->m_subWidgets))
+        w->setVisible(visible);
+}
+
+QString BaseAspect::toolTip() const
+{
+    return d->m_tooltip;
 }
 
 /*!
-    Destructs a BaseAspect.
-*/
-BaseAspect::~BaseAspect() = default;
+    Sets \a tooltip as tool tip for the visual representation of this aspect.
+ */
+void BaseAspect::setToolTip(const QString &tooltip)
+{
+    d->m_tooltip = tooltip;
+    for (QWidget *w : qAsConst(d->m_subWidgets))
+        w->setToolTip(tooltip);
+}
+
+void BaseAspect::setEnabled(bool enabled)
+{
+    d->m_enabled = enabled;
+    for (QWidget *w : qAsConst(d->m_subWidgets))
+        w->setEnabled(enabled);
+}
+
+void BaseAspect::setReadOnly(bool readOnly)
+{
+    d->m_readOnly = readOnly;
+    for (QWidget *w : qAsConst(d->m_subWidgets)) {
+        if (auto lineEdit = qobject_cast<QLineEdit *>(w))
+            lineEdit->setReadOnly(readOnly);
+        else if (auto textEdit = qobject_cast<QTextEdit *>(w))
+            textEdit->setReadOnly(readOnly);
+    }
+}
 
 /*!
     \internal
@@ -172,6 +216,19 @@ QWidget *BaseAspect::createConfigWidget() const
 */
 void BaseAspect::addToLayout(LayoutBuilder &)
 {
+}
+
+void BaseAspect::registerSubWidget(QWidget *widget)
+{
+    d->m_subWidgets.append(widget);
+
+    widget->setEnabled(d->m_enabled);
+    widget->setToolTip(d->m_tooltip);
+
+    // Visible is on by default. Not setting it explicitly avoid popping
+    // it up when the parent is not set yet, the normal case.
+    if (!d->m_visible)
+        widget->setVisible(d->m_visible);
 }
 
 void BaseAspect::saveToMap(QVariantMap &data, const QVariant &value,
@@ -268,9 +325,7 @@ public:
     BoolAspect::LabelPlacement m_labelPlacement = BoolAspect::LabelPlacement::AtCheckBox;
     bool m_value = false;
     bool m_defaultValue = false;
-    bool m_enabled = true;
     QString m_labelText;
-    QString m_tooltip;
     QPointer<QCheckBox> m_checkBox; // Owned by configuration widget
     QPointer<QLabel> m_label; // Owned by configuration widget
 };
@@ -290,7 +345,6 @@ public:
     QPointer<QComboBox> m_comboBox;
     QPointer<QLabel> m_label;
     QPointer<QButtonGroup> m_buttonGroup;
-    QString m_tooltip;
 };
 
 class MultiSelectionAspectPrivate
@@ -325,7 +379,6 @@ public:
     QString m_value;
     QString m_placeHolderText;
     QString m_historyCompleterKey;
-    QString m_tooltip;
     PathChooser::Kind m_expectedKind = PathChooser::File;
     Environment m_environment;
     QPointer<QLabel> m_label;
@@ -340,9 +393,7 @@ public:
     FancyLineEdit::ValidationFunction m_validator;
     std::function<void()> m_openTerminal;
 
-    bool m_readOnly = false;
     bool m_undoRedoEnabled = true;
-    bool m_enabled = true;
     bool m_showToolTipOnLabel = false;
     bool m_fileDialogOnly = false;
 
@@ -368,10 +419,8 @@ public:
     QString m_labelText;
     QString m_prefix;
     QString m_suffix;
-    QString m_tooltip;
     QPointer<QLabel> m_label;
     QPointer<QSpinBox> m_spinBox; // Owned by configuration widget
-    bool m_enabled = true;
 };
 
 class StringListAspectPrivate
@@ -390,7 +439,6 @@ class TextDisplayPrivate
 {
 public:
     QString m_message;
-    QString m_tooltip;
     Utils::InfoLabel::InfoType m_type;
     QPointer<InfoLabel> m_label;
 };
@@ -570,19 +618,6 @@ void StringAspect::setShowToolTipOnLabel(bool show)
     update();
 }
 
-void StringAspect::setEnabled(bool enabled)
-{
-    d->m_enabled = enabled;
-    if (d->m_labelDisplay)
-        d->m_labelDisplay->setEnabled(enabled);
-    if (d->m_lineEditDisplay)
-        d->m_lineEditDisplay->setEnabled(enabled);
-    if (d->m_pathChooserDisplay)
-        d->m_pathChooserDisplay->setEnabled(enabled);
-    if (d->m_textEditDisplay)
-        d->m_textEditDisplay->setEnabled(enabled);
-}
-
 /*!
     Returns the current text for the separate label in the visual
     representation of this string aspect.
@@ -695,28 +730,6 @@ void StringAspect::setBaseFileName(const FilePath &baseFileName)
         d->m_pathChooserDisplay->setBaseDirectory(baseFileName);
 }
 
-void StringAspect::setToolTip(const QString &tooltip)
-{
-    d->m_tooltip = tooltip;
-    if (d->m_pathChooserDisplay)
-        d->m_pathChooserDisplay->setToolTip(tooltip);
-    if (d->m_lineEditDisplay)
-        d->m_lineEditDisplay->setToolTip(tooltip);
-    if (d->m_textEditDisplay)
-        d->m_textEditDisplay->setToolTip(tooltip);
-}
-
-void StringAspect::setReadOnly(bool readOnly)
-{
-    d->m_readOnly = readOnly;
-    if (d->m_pathChooserDisplay)
-        d->m_pathChooserDisplay->setReadOnly(readOnly);
-    if (d->m_lineEditDisplay)
-        d->m_lineEditDisplay->setReadOnly(readOnly);
-    if (d->m_textEditDisplay)
-        d->m_textEditDisplay->setReadOnly(readOnly);
-}
-
 void StringAspect::setUndoRedoEnabled(bool undoRedoEnabled)
 {
     d->m_undoRedoEnabled = undoRedoEnabled;
@@ -765,14 +778,11 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         builder.finishRow();
     }
 
-    d->m_label = new QLabel;
+    d->m_label = createSubWidget<QLabel>(d->m_labelText);
     d->m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    d->m_label->setText(d->m_labelText);
     if (!d->m_labelPixmap.isNull())
         d->m_label->setPixmap(d->m_labelPixmap);
     builder.addItem(d->m_label.data());
-
-    QWidget *parentWidget = builder.layout()->parentWidget();
 
     const auto useMacroExpander = [this, &builder](QWidget *w) {
         if (!d->m_expanderProvider)
@@ -784,14 +794,12 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
 
     switch (d->m_displayStyle) {
     case PathChooserDisplay:
-        d->m_pathChooserDisplay = new PathChooser(parentWidget);
+        d->m_pathChooserDisplay = createSubWidget<PathChooser>();
         d->m_pathChooserDisplay->setExpectedKind(d->m_expectedKind);
         if (!d->m_historyCompleterKey.isEmpty())
             d->m_pathChooserDisplay->setHistoryCompleter(d->m_historyCompleterKey);
         d->m_pathChooserDisplay->setEnvironment(d->m_environment);
         d->m_pathChooserDisplay->setBaseDirectory(d->m_baseFileName);
-        d->m_pathChooserDisplay->setEnabled(d->m_enabled);
-        d->m_pathChooserDisplay->setReadOnly(d->m_readOnly);
         useMacroExpander(d->m_pathChooserDisplay->lineEdit());
         connect(d->m_pathChooserDisplay, &PathChooser::pathChanged,
                 this, &StringAspect::setValue);
@@ -800,12 +808,10 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         d->m_pathChooserDisplay->setOpenTerminalHandler(d->m_openTerminal);
         break;
     case LineEditDisplay:
-        d->m_lineEditDisplay = new FancyLineEdit;
+        d->m_lineEditDisplay = createSubWidget<FancyLineEdit>();
         d->m_lineEditDisplay->setPlaceholderText(d->m_placeHolderText);
         if (!d->m_historyCompleterKey.isEmpty())
             d->m_lineEditDisplay->setHistoryCompleter(d->m_historyCompleterKey);
-        d->m_lineEditDisplay->setEnabled(d->m_enabled);
-        d->m_lineEditDisplay->setReadOnly(d->m_readOnly);
         if (d->m_validator)
             d->m_lineEditDisplay->setValidationFunction(d->m_validator);
         useMacroExpander(d->m_lineEditDisplay);
@@ -814,10 +820,8 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         builder.addItem(d->m_lineEditDisplay.data());
         break;
     case TextEditDisplay:
-        d->m_textEditDisplay = new QTextEdit;
+        d->m_textEditDisplay = createSubWidget<QTextEdit>();
         d->m_textEditDisplay->setPlaceholderText(d->m_placeHolderText);
-        d->m_textEditDisplay->setEnabled(d->m_enabled);
-        d->m_textEditDisplay->setReadOnly(d->m_readOnly);
         d->m_textEditDisplay->setUndoRedoEnabled(d->m_undoRedoEnabled);
         d->m_textEditDisplay->setAcceptRichText(false);
         d->m_textEditDisplay->setTextInteractionFlags(Qt::TextEditorInteraction);
@@ -832,8 +836,7 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         builder.addItem(d->m_textEditDisplay.data());
         break;
     case LabelDisplay:
-        d->m_labelDisplay = new QLabel;
-        d->m_labelDisplay->setEnabled(d->m_enabled);
+        d->m_labelDisplay = createSubWidget<QLabel>();
         d->m_labelDisplay->setTextInteractionFlags(Qt::TextSelectableByMouse);
         builder.addItem(d->m_labelDisplay.data());
         break;
@@ -854,25 +857,22 @@ void StringAspect::update()
 
     if (d->m_pathChooserDisplay) {
         d->m_pathChooserDisplay->setFilePath(FilePath::fromString(displayedString));
-        d->m_pathChooserDisplay->setToolTip(d->m_tooltip);
         d->updateWidgetFromCheckStatus(d->m_pathChooserDisplay.data());
     }
 
     if (d->m_lineEditDisplay) {
         d->m_lineEditDisplay->setTextKeepingActiveCursor(displayedString);
-        d->m_lineEditDisplay->setToolTip(d->m_tooltip);
         d->updateWidgetFromCheckStatus(d->m_lineEditDisplay.data());
     }
 
     if (d->m_textEditDisplay) {
         d->m_textEditDisplay->setText(displayedString);
-        d->m_textEditDisplay->setToolTip(d->m_tooltip);
         d->updateWidgetFromCheckStatus(d->m_textEditDisplay.data());
     }
 
     if (d->m_labelDisplay) {
         d->m_labelDisplay->setText(displayedString);
-        d->m_labelDisplay->setToolTip(d->m_showToolTipOnLabel ? displayedString : d->m_tooltip);
+        d->m_labelDisplay->setToolTip(d->m_showToolTipOnLabel ? displayedString : toolTip());
     }
 
     if (d->m_label) {
@@ -941,24 +941,21 @@ BoolAspect::~BoolAspect() = default;
 void BoolAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_checkBox);
-    d->m_checkBox = new QCheckBox();
+    d->m_checkBox = createSubWidget<QCheckBox>();
     switch (d->m_labelPlacement) {
     case LabelPlacement::AtCheckBoxWithoutDummyLabel:
         d->m_checkBox->setText(d->m_labelText);
         break;
     case LabelPlacement::AtCheckBox:
         d->m_checkBox->setText(d->m_labelText);
-        builder.addItem(new QLabel);
+        builder.addItem(createSubWidget<QLabel>());
         break;
     case LabelPlacement::InExtraLabel:
-        d->m_label = new QLabel(d->m_labelText);
-        d->m_label->setToolTip(d->m_tooltip);
+        d->m_label = createSubWidget<QLabel>(d->m_labelText);
         builder.addItem(d->m_label.data());
         break;
     }
     d->m_checkBox->setChecked(d->m_value);
-    d->m_checkBox->setToolTip(d->m_tooltip);
-    d->m_checkBox->setEnabled(d->m_enabled);
     builder.addItem(d->m_checkBox.data());
     connect(d->m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
         d->m_value = d->m_checkBox->isChecked();
@@ -1014,18 +1011,6 @@ void BoolAspect::setLabel(const QString &labelText, LabelPlacement labelPlacemen
     d->m_labelPlacement = labelPlacement;
 }
 
-void BoolAspect::setToolTip(const QString &tooltip)
-{
-    d->m_tooltip = tooltip;
-}
-
-void BoolAspect::setEnabled(bool enabled)
-{
-    d->m_enabled = enabled;
-    if (d->m_checkBox)
-        d->m_checkBox->setEnabled(enabled);
-}
-
 /*!
     \class Utils::SelectionAspect
     \inmodule QtCreator
@@ -1057,7 +1042,7 @@ void SelectionAspect::addToLayout(LayoutBuilder &builder)
 
     switch (d->m_displayStyle) {
     case DisplayStyle::RadioButtons:
-        d->m_buttonGroup = new QButtonGroup;
+        d->m_buttonGroup = new QButtonGroup();
         d->m_buttonGroup->setExclusive(true);
         for (int i = 0, n = d->m_options.size(); i < n; ++i) {
             const Internal::SelectionAspectPrivate::Option &option = d->m_options.at(i);
@@ -1076,10 +1061,8 @@ void SelectionAspect::addToLayout(LayoutBuilder &builder)
         }
         break;
     case DisplayStyle::ComboBox:
-        d->m_label = new QLabel(displayName());
-        d->m_label->setToolTip(d->m_tooltip);
-        d->m_comboBox = new QComboBox;
-        d->m_comboBox->setToolTip(d->m_tooltip);
+        d->m_label = createSubWidget<QLabel>(displayName());
+        d->m_comboBox = createSubWidget<QComboBox>();
         for (int i = 0, n = d->m_options.size(); i < n; ++i)
             d->m_comboBox->addItem(d->m_options.at(i).displayName);
         connect(d->m_comboBox.data(), QOverload<int>::of(&QComboBox::activated), this,
@@ -1134,11 +1117,6 @@ void SelectionAspect::setDefaultValue(int defaultValue)
 void SelectionAspect::setDisplayStyle(SelectionAspect::DisplayStyle style)
 {
     d->m_displayStyle = style;
-}
-
-void SelectionAspect::setToolTip(const QString &tooltip)
-{
-    d->m_tooltip = tooltip;
 }
 
 int SelectionAspect::value() const
@@ -1197,8 +1175,8 @@ void MultiSelectionAspect::addToLayout(LayoutBuilder &builder)
 
     switch (d->m_displayStyle) {
     case DisplayStyle::ListView:
-        d->m_label = new QLabel(d->m_labelText);
-        d->m_listView = new QListWidget;
+        d->m_label = createSubWidget<QLabel>(d->m_labelText);
+        d->m_listView = createSubWidget<QListWidget>();
         for (const QString &value : qAsConst(d->m_allValues)) {
             auto item = new QListWidgetItem(value, d->m_listView);
             item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
@@ -1328,17 +1306,14 @@ IntegerAspect::~IntegerAspect() = default;
 void IntegerAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_label);
-    d->m_label = new QLabel(d->m_labelText);
-    d->m_label->setEnabled(d->m_enabled);
+    d->m_label = createSubWidget<QLabel>(d->m_labelText);
 
     QTC_CHECK(!d->m_spinBox);
-    d->m_spinBox = new QSpinBox;
+    d->m_spinBox = createSubWidget<QSpinBox>();
     d->m_spinBox->setValue(int(d->m_value / d->m_displayScaleFactor));
     d->m_spinBox->setDisplayIntegerBase(d->m_displayIntegerBase);
     d->m_spinBox->setPrefix(d->m_prefix);
     d->m_spinBox->setSuffix(d->m_suffix);
-    d->m_spinBox->setEnabled(d->m_enabled);
-    d->m_spinBox->setToolTip(d->m_tooltip);
     if (d->m_maximumValue.isValid() && d->m_maximumValue.isValid())
         d->m_spinBox->setRange(int(d->m_minimumValue.toLongLong() / d->m_displayScaleFactor),
                                int(d->m_maximumValue.toLongLong() / d->m_displayScaleFactor));
@@ -1412,23 +1387,9 @@ void IntegerAspect::setDisplayScaleFactor(qint64 factor)
     d->m_displayScaleFactor = factor;
 }
 
-void IntegerAspect::setEnabled(bool enabled)
-{
-    d->m_enabled = enabled;
-    if (d->m_label)
-        d->m_label->setEnabled(enabled);
-    if (d->m_spinBox)
-        d->m_spinBox->setEnabled(enabled);
-}
-
 void IntegerAspect::setDefaultValue(qint64 defaultValue)
 {
     d->m_defaultValue = defaultValue;
-}
-
-void IntegerAspect::setToolTip(const QString &tooltip)
-{
-    d->m_tooltip = tooltip;
 }
 
 /*!
@@ -1557,35 +1518,13 @@ TextDisplay::~TextDisplay() = default;
 void TextDisplay::addToLayout(LayoutBuilder &builder)
 {
     if (!d->m_label) {
-        d->m_label = new InfoLabel(d->m_message, d->m_type);
+        d->m_label = createSubWidget<InfoLabel>(d->m_message, d->m_type);
         d->m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
-        d->m_label->setToolTip(d->m_tooltip);
         d->m_label->setElideMode(Qt::ElideNone);
         d->m_label->setWordWrap(true);
     }
     builder.addItem(d->m_label.data());
     d->m_label->setVisible(isVisible());
-}
-
-/*!
-    Shows or hides this text display depending on the value of \a visible.
-    By default, the text display is visible.
- */
-void TextDisplay::setVisible(bool visible)
-{
-    BaseAspect::setVisible(visible);
-    if (d->m_label)
-        d->m_label->setVisible(visible);
-}
-
-/*!
-    Sets \a tooltip as tool tip for the visual representation of this aspect.
- */
-void TextDisplay::setToolTip(const QString &tooltip)
-{
-    d->m_tooltip = tooltip;
-    if (d->m_label)
-        d->m_label->setToolTip(tooltip);
 }
 
 /*!

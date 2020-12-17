@@ -70,8 +70,15 @@ public:
     QString displayName() const;
     void setDisplayName(const QString &displayName);
 
+    QString toolTip() const;
+    void setToolTip(const QString &tooltip);
+
     bool isVisible() const;
     void setVisible(bool visible);
+
+    void setEnabled(bool enabled);
+
+    void setReadOnly(bool enabled);
 
     using ConfigWidgetCreator = std::function<QWidget *()>;
     void setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator);
@@ -87,6 +94,14 @@ signals:
     void changed();
 
 protected:
+    template <class Widget, typename ...Args>
+    Widget *createSubWidget(Args && ...args) {
+        auto w = new Widget(args...);
+        registerSubWidget(w);
+        return w;
+    }
+
+    void registerSubWidget(QWidget *widget);
     virtual void setVisibleDynamic(bool visible) { Q_UNUSED(visible) } // TODO: Better name? Merge with setVisible() somehow?
     void saveToMap(QVariantMap &data, const QVariant &value,
                    const QVariant &defaultValue, const QString &keyExtension = {}) const;
@@ -161,8 +176,6 @@ public:
     enum class LabelPlacement { AtCheckBox, AtCheckBoxWithoutDummyLabel, InExtraLabel };
     void setLabel(const QString &labelText,
                   LabelPlacement labelPlacement = LabelPlacement::InExtraLabel);
-    void setToolTip(const QString &tooltip);
-    void setEnabled(bool enabled);
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
@@ -191,8 +204,6 @@ public:
 
     enum class DisplayStyle { RadioButtons, ComboBox };
     void setDisplayStyle(DisplayStyle style);
-
-    void setToolTip(const QString &tooltip);
 
     void addOption(const QString &displayName, const QString &toolTip = {});
 
@@ -257,7 +268,6 @@ public:
     void setLabelText(const QString &labelText);
     void setLabelPixmap(const QPixmap &labelPixmap);
     void setShowToolTipOnLabel(bool show);
-    void setEnabled(bool enabled);
 
     void setDisplayFilter(const std::function<QString (const QString &)> &displayFilter);
     void setPlaceHolderText(const QString &placeHolderText);
@@ -266,8 +276,6 @@ public:
     void setFileDialogOnly(bool requireFileDialog);
     void setEnvironment(const Utils::Environment &env);
     void setBaseFileName(const Utils::FilePath &baseFileName);
-    void setToolTip(const QString &tooltip);
-    void setReadOnly(bool readOnly);
     void setUndoRedoEnabled(bool readOnly);
     void setMacroExpanderProvider(const Utils::MacroExpanderProvider &expanderProvider);
     void setValidationFunction(const Utils::FancyLineEdit::ValidationFunction &validator);
@@ -325,9 +333,7 @@ public:
     void setSuffix(const QString &suffix);
     void setDisplayIntegerBase(int base);
     void setDisplayScaleFactor(qint64 factor);
-    void setEnabled(bool enabled);
     void setDefaultValue(qint64 defaultValue);
-    void setToolTip(const QString &tooltip);
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
@@ -402,8 +408,6 @@ public:
 
     void addToLayout(LayoutBuilder &builder) override;
 
-    void setVisible(bool visible);
-    void setToolTip(const QString &tooltip);
     void setIconType(Utils::InfoLabel::InfoType t);
 
 private:
