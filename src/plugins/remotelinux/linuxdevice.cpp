@@ -193,15 +193,13 @@ LinuxDevice::LinuxDevice()
         DeviceProcess * const proc = createProcess(nullptr);
         QObject::connect(proc, &DeviceProcess::finished, [proc] {
             if (!proc->errorString().isEmpty()) {
-                Core::MessageManager::write(tr("Error running remote shell: %1")
-                                            .arg(proc->errorString()),
-                                            Core::MessageManager::ModeSwitch);
+                Core::MessageManager::writeDisrupting(
+                    tr("Error running remote shell: %1").arg(proc->errorString()));
             }
             proc->deleteLater();
         });
         QObject::connect(proc, &DeviceProcess::error, [proc] {
-            Core::MessageManager::write(tr("Error starting remote shell."),
-                                        Core::MessageManager::ModeSwitch);
+            Core::MessageManager::writeDisrupting(tr("Error starting remote shell."));
             proc->deleteLater();
         });
         Runnable runnable;

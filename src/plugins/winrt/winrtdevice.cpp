@@ -176,8 +176,8 @@ void WinRtDeviceFactory::onPrerequisitesLoaded()
 
 void WinRtDeviceFactory::onProcessError()
 {
-    MessageManager::write(tr("Error while executing winrtrunner: %1")
-                                .arg(m_process->errorString()), MessageManager::Flash);
+    MessageManager::writeDisrupting(
+        tr("Error while executing winrtrunner: %1").arg(m_process->errorString()));
 }
 
 void WinRtDeviceFactory::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
@@ -190,8 +190,7 @@ void WinRtDeviceFactory::onProcessFinished(int exitCode, QProcess::ExitStatus ex
     }
 
     if (exitCode != 0) {
-        MessageManager::write(tr("winrtrunner returned with exit code %1.")
-                                    .arg(exitCode), MessageManager::Flash);
+        MessageManager::writeFlashing(tr("winrtrunner returned with exit code %1.").arg(exitCode));
         return;
     }
 

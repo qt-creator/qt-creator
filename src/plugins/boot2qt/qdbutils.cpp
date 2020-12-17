@@ -87,9 +87,10 @@ const char *overridingEnvironmentVariable(QdbTool tool)
 void showMessage(const QString &message, bool important)
 {
     const QString fullMessage = QCoreApplication::translate("Boot2Qt", "Boot2Qt: %1").arg(message);
-    const Core::MessageManager::PrintToOutputPaneFlags flags = important
-            ? Core::MessageManager::ModeSwitch : Core::MessageManager::Silent;
-    Core::MessageManager::write(fullMessage, flags);
+    if (important)
+        Core::MessageManager::writeFlashing(fullMessage);
+    else
+        Core::MessageManager::writeSilently(fullMessage);
 }
 
 QString settingsGroupKey()
