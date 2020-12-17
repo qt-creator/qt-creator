@@ -53,6 +53,11 @@ public:
         LowestPriority = ComponentCoreConstants::priorityLast
     };
 
+    enum class Target {
+        Undefined,
+        ConnectionEditor
+    };
+
     virtual ~ActionInterface() = default;
 
     virtual QAction *action() const = 0;
@@ -61,6 +66,7 @@ public:
     virtual int priority() const = 0;
     virtual Type type() const = 0;
     virtual void currentContextChanged(const SelectionContext &selectionState) = 0;
+    virtual Target target() const { return Target::Undefined; }
 
 };
 
