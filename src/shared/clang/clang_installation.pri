@@ -14,8 +14,11 @@ isEmpty(LLVM_CONFIG) {
 
 defineReplace(llvmWarningOrError) {
     warningText = $$1
-    isEmpty(llvm_config): warning($$warningText)
-    else: error($$warningText)
+    isEmpty(LLVM_CONFIG):isEmpty(LLVM_INSTALL_DIR) {
+        warning($$warningText)
+    } else {
+        error($$warningText)
+    }
     return(false)
 }
 
