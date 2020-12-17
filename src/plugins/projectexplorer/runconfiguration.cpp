@@ -124,14 +124,14 @@ void GlobalOrProjectAspect::fromMap(const QVariantMap &map)
 {
     if (m_projectSettings)
         m_projectSettings->fromMap(map);
-    m_useGlobalSettings = map.value(m_id.toString() + QLatin1String(".UseGlobalSettings"), true).toBool();
+    m_useGlobalSettings = map.value(id().toString() + ".UseGlobalSettings", true).toBool();
 }
 
 void GlobalOrProjectAspect::toMap(QVariantMap &map) const
 {
     if (m_projectSettings)
         m_projectSettings->toMap(map);
-    map.insert(m_id.toString() + QLatin1String(".UseGlobalSettings"), m_useGlobalSettings);
+    map.insert(id().toString() + ".UseGlobalSettings", m_useGlobalSettings);
 }
 
 void GlobalOrProjectAspect::resetProjectToGlobalSettings()

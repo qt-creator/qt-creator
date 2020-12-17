@@ -117,7 +117,7 @@ QString SavedAction::toString() const
 {
     return QLatin1String("value: ") + m_value.toString()
         + QLatin1String("  defaultvalue: ") + m_defaultValue.toString()
-        + QLatin1String("  settingskey: ") + m_settingsKey;
+        + QLatin1String("  settingskey: ") + settingsKey();
 }
 
 /*
@@ -128,9 +128,9 @@ QString SavedAction::toString() const
 */
 void SavedAction::readSettings(const QSettings *settings)
 {
-    if (m_settingsKey.isEmpty())
+    if (settingsKey().isEmpty())
         return;
-    QVariant var = settings->value(m_settingsKey, m_defaultValue);
+    QVariant var = settings->value(settingsKey(), m_defaultValue);
     // work around old ini files containing @Invalid() entries
     if (m_action.isCheckable() && !var.isValid())
         var = false;
@@ -145,9 +145,9 @@ void SavedAction::readSettings(const QSettings *settings)
 */
 void SavedAction::writeSettings(QSettings *settings)
 {
-    if (m_settingsKey.isEmpty())
+    if (settingsKey().isEmpty())
         return;
-    settings->setValue(m_settingsKey, m_value);
+    settings->setValue(settingsKey(), m_value);
 }
 
 /*

@@ -42,6 +42,7 @@ class LayoutBuilder;
 
 namespace Internal {
 class AspectContainerPrivate;
+class BaseAspectPrivate;
 class BoolAspectPrivate;
 class IntegerAspectPrivate;
 class SelectionAspectPrivate;
@@ -58,17 +59,18 @@ public:
     BaseAspect();
     ~BaseAspect() override;
 
-    void setId(Utils::Id id) { m_id = id; }
-    void setDisplayName(const QString &displayName) { m_displayName = displayName; }
+    Utils::Id id() const;
+    void setId(Utils::Id id);
+
+    QString settingsKey() const;
     void setSettingsKey(const QString &settingsKey);
     void setSettingsKey(const QString &group, const QString &key);
 
-    Utils::Id id() const { return m_id; }
-    QString displayName() const { return m_displayName; }
-    QString settingsKey() const;
+    QString displayName() const;
+    void setDisplayName(const QString &displayName);
 
-    bool isVisible() const { return m_visible; }
-    void setVisible(bool visible) { m_visible = visible; }
+    bool isVisible() const;
+    void setVisible(bool visible);
 
     using ConfigWidgetCreator = std::function<QWidget *()>;
     void setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator);
@@ -88,11 +90,8 @@ protected:
     void saveToMap(QVariantMap &data, const QVariant &value,
                    const QVariant &defaultValue, const QString &keyExtension = {}) const;
 
-    Utils::Id m_id;
-    QString m_displayName;
-    QString m_settingsKey; // Name of data in settings.
-    bool m_visible = true;
-    ConfigWidgetCreator m_configWidgetCreator;
+private:
+    std::unique_ptr<Internal::BaseAspectPrivate> d;
 };
 
 class QTCREATOR_UTILS_EXPORT BaseAspects

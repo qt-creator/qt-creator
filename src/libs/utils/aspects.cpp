@@ -47,6 +47,19 @@
 #include <QToolButton>
 
 namespace Utils {
+namespace Internal {
+
+class BaseAspectPrivate
+{
+public:
+    Utils::Id m_id;
+    QString m_displayName;
+    QString m_settingsKey; // Name of data in settings.
+    bool m_visible = true;
+    BaseAspect::ConfigWidgetCreator m_configWidgetCreator;
+};
+
+} // Internal
 
 /*!
     \class Utils::BaseAspect
@@ -70,7 +83,34 @@ namespace Utils {
 /*!
     Constructs a BaseAspect.
 */
-BaseAspect::BaseAspect() = default;
+BaseAspect::BaseAspect()
+    : d(new Internal::BaseAspectPrivate)
+{}
+
+Id BaseAspect::id() const
+{
+    return d->m_id;
+}
+
+void BaseAspect::setId(Id id)
+{
+    d->m_id = id;
+}
+
+void BaseAspect::setDisplayName(const QString &displayName)
+{
+    d->m_displayName = displayName;
+}
+
+bool BaseAspect::isVisible() const
+{
+    return d->m_visible;
+}
+
+void BaseAspect::setVisible(bool visible)
+{
+    d->m_visible = visible;
+}
 
 /*!
     Destructs a BaseAspect.
@@ -82,7 +122,7 @@ BaseAspect::~BaseAspect() = default;
 */
 void BaseAspect::setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator)
 {
-    m_configWidgetCreator = configWidgetCreator;
+    d->m_configWidgetCreator = configWidgetCreator;
 }
 
 /*!
@@ -92,7 +132,7 @@ void BaseAspect::setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetC
 */
 QString BaseAspect::settingsKey() const
 {
-    return m_settingsKey;
+    return d->m_settingsKey;
 }
 
 /*!
@@ -102,7 +142,7 @@ QString BaseAspect::settingsKey() const
 */
 void BaseAspect::setSettingsKey(const QString &key)
 {
-    m_settingsKey = key;
+    d->m_settingsKey = key;
 }
 
 /*!
@@ -112,15 +152,17 @@ void BaseAspect::setSettingsKey(const QString &key)
 */
 void BaseAspect::setSettingsKey(const QString &group, const QString &key)
 {
-    m_settingsKey = group + "/" + key;
+    d->m_settingsKey = group + "/" + key;
 }
+
+QString BaseAspect::displayName() const { return d->m_displayName; }
 
 /*!
     \internal
 */
 QWidget *BaseAspect::createConfigWidget() const
 {
-    return m_configWidgetCreator ? m_configWidgetCreator() : nullptr;
+    return d->m_configWidgetCreator ? d->m_configWidgetCreator() : nullptr;
 }
 
 /*!
