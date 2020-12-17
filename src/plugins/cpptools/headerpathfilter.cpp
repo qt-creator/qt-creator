@@ -51,7 +51,7 @@ void HeaderPathFilter::process()
     for (const HeaderPath &headerPath : headerPaths)
         filterHeaderPath(headerPath);
 
-    if (useTweakedHeaderPaths == UseTweakedHeaderPaths::Yes)
+    if (useTweakedHeaderPaths != UseTweakedHeaderPaths::No)
         tweakHeaderPaths();
 }
 
