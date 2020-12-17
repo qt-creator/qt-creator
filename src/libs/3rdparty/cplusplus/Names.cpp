@@ -24,6 +24,7 @@
 #include "Literals.h"
 #include <algorithm>
 #include <cstring>
+#include <string_view>
 
 using namespace CPlusPlus;
 
@@ -106,38 +107,48 @@ int TemplateNameId::templateArgumentCount() const
 const TemplateArgument &TemplateNameId::templateArgumentAt(int index) const
 { return _templateArguments[index]; }
 
-bool TemplateNameId::Compare::operator()(const TemplateNameId *name,
-                                         const TemplateNameId *other) const
+bool TemplateNameId::Equals::operator()(const TemplateNameId *name,
+                                        const TemplateNameId *other) const
 {
-    if (name == nullptr)
-        return other != nullptr;
-    if (other == nullptr)
-        return false;
     if (name == other)
+        return true;
+    if (name == nullptr || other == nullptr)
         return false;
 
     const Identifier *id = name->identifier();
     const Identifier *otherId = other->identifier();
 
-    if (id == nullptr)
-        return otherId != nullptr;
-    if (otherId == nullptr)
+    if (!id != !otherId) // mimic logical xor (id == nullptr ^^ otherId == nullptr)
         return false;
 
-    const int c = std::strcmp(id->chars(), otherId->chars());
+    const int c = id ? std::strcmp(id->chars(), otherId->chars()) : 0; // 0 if both are nullptr
     if (c == 0) {
         // we have to differentiate TemplateNameId with respect to specialization or instantiation
         if (name->isSpecialization() == other->isSpecialization()) {
-            return std::lexicographical_compare(name->firstTemplateArgument(),
-                                                name->lastTemplateArgument(),
-                                                other->firstTemplateArgument(),
-                                                other->lastTemplateArgument());
-        } else {
-            return name->isSpecialization();
+            return std::equal(name->firstTemplateArgument(),
+                              name->lastTemplateArgument(),
+                              other->firstTemplateArgument(),
+                              other->lastTemplateArgument());
         }
     }
+    return false;
+}
 
-    return c < 0;
+size_t TemplateNameId::Hash::operator()(const TemplateNameId *name) const
+{
+    if (name == nullptr)
+        return 0;
+
+    const Identifier *id = name->identifier();
+
+    size_t hash = id ? std::hash<std::string_view>()(std::string_view(id->chars())) : 0;
+    hash ^= name->isSpecialization() ? 0x1 : 0x0;
+    std::for_each(name->firstTemplateArgument(),
+                  name->lastTemplateArgument(),
+                  [&hash](const TemplateArgument &ta) {
+        hash ^= ta.hash();
+    });
+    return hash;
 }
 
 OperatorNameId::OperatorNameId(Kind kind)

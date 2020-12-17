@@ -113,6 +113,11 @@ public:
 
     bool match(const TemplateArgument &otherTy, Matcher *matcher = nullptr) const;
 
+    size_t hash() const
+    {
+        return _expressionTy.hash() ^ std::hash<const NumericLiteral *>()(_numericLiteral);
+    }
+
 private:
     FullySpecifiedType _expressionTy;
     const NumericLiteral *_numericLiteral = nullptr;
@@ -145,9 +150,12 @@ public:
     TemplateArgumentIterator lastTemplateArgument() const { return _templateArguments.end(); }
     bool isSpecialization() const { return _isSpecialization; }
 
-    // Comparator needed to distinguish between two different TemplateNameId(e.g.:used in std::map)
-    struct Compare {
+    // Comparator needed to distinguish between two different TemplateNameId(e.g.:used in std::unordered_map)
+    struct Equals {
         bool operator()(const TemplateNameId *name, const TemplateNameId *other) const;
+    };
+    struct Hash {
+        size_t operator()(const TemplateNameId *name) const;
     };
 
 protected:

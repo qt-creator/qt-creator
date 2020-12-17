@@ -103,6 +103,8 @@ public:
     bool operator != (const FullySpecifiedType &other) const;
     bool operator < (const FullySpecifiedType &other) const;
 
+    size_t hash() const;
+
     bool match(const FullySpecifiedType &otherTy, Matcher *matcher = nullptr) const;
 
     FullySpecifiedType simplified() const;

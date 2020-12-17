@@ -89,8 +89,8 @@ public:
     Class *rootClass() const { return _rootClass; }
 
 private:
-    typedef std::map<const Name *, ClassOrNamespace *, Name::Compare> Table;
-    typedef std::map<const TemplateNameId *, ClassOrNamespace *, TemplateNameId::Compare> TemplateNameIdTable;
+    typedef std::unordered_map<const Name *, ClassOrNamespace *, Name::Hash, Name::Equals> Table;
+    typedef std::unordered_map<const TemplateNameId *, ClassOrNamespace *, TemplateNameId::Hash, TemplateNameId::Equals> TemplateNameIdTable;
     typedef QHash<const AnonymousNameId *, ClassOrNamespace *> Anonymouses;
 
     /// \internal

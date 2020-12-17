@@ -60,7 +60,7 @@ public:
 private:
     Control *_control;
     Subst *_previous;
-    std::map<const Name *, FullySpecifiedType, Name::Compare> _map;
+    std::unordered_map<const Name *, FullySpecifiedType, Name::Hash, Name::Equals> _map;
 };
 
 class CPLUSPLUS_EXPORT CloneType: protected TypeVisitor

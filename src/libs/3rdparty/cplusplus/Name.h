@@ -59,8 +59,11 @@ public:
     bool match(const Name *other, Matcher *matcher = nullptr) const;
 
 public:
-    struct Compare {
+    struct Equals {
         bool operator()(const Name *name, const Name *other) const;
+    };
+    struct Hash {
+        size_t operator()(const Name *name) const;
     };
 
 protected:

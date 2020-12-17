@@ -25,6 +25,7 @@
 #include "NameVisitor.h"
 
 #include <cstring>
+#include <string_view>
 
 using namespace CPlusPlus;
 
@@ -77,22 +78,33 @@ bool Name::match(const Name *other, Matcher *matcher) const
     return Matcher::match(this, other, matcher);
 }
 
-bool Name::Compare::operator()(const Name *name, const Name *other) const
+bool Name::Equals::operator()(const Name *name, const Name *other) const
 {
-    if (name == nullptr)
-        return other != nullptr;
-    if (other == nullptr)
-        return false;
     if (name == other)
+        return true;
+    if (name == nullptr || other == nullptr)
         return false;
 
     const Identifier *id = name->identifier();
     const Identifier *otherId = other->identifier();
 
-    if (id == nullptr)
-        return otherId != nullptr;
-    if (otherId == nullptr)
+    if (id == otherId)
+        return true;
+    if (id == nullptr || otherId == nullptr)
         return false;
 
-    return std::strcmp(id->chars(), otherId->chars()) < 0;
+    return std::strcmp(id->chars(), otherId->chars()) == 0;
+}
+
+size_t Name::Hash::operator()(const Name *name) const
+{
+    if (name == nullptr)
+        return 0;
+
+    const Identifier *id = name->identifier();
+
+    if (id == nullptr)
+        return 0;
+
+    return std::hash<std::string_view>()(std::string_view(id->chars()));
 }
