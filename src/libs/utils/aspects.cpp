@@ -1358,6 +1358,7 @@ AspectContainer::~AspectContainer() = default;
 void AspectContainer::addAspectHelper(BaseAspect *aspect)
 {
     d->m_items.append(aspect);
+    connect(aspect, &BaseAspect::changed, this, &BaseAspect::changed);
 }
 
 /*!
