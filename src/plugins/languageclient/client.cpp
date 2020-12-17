@@ -329,7 +329,7 @@ void Client::sendContent(const IContent &content)
         m_responseHandlers[responseHandler->id] = responseHandler->callback;
     QString error;
     if (!QTC_GUARD(content.isValid(&error)))
-        Core::MessageManager::write(error);
+        Core::MessageManager::writeFlashing(error);
     const BaseMessage message = content.toBaseMessage();
     LanguageClientManager::logBaseMessage(LspLogMessage::ClientMessage, name(), message);
     m_clientInterface->sendMessage(message);
@@ -947,9 +947,9 @@ void Client::handleMessage(const BaseMessage &message)
     }
 }
 
-void Client::log(const QString &message, Core::MessageManager::PrintToOutputPaneFlag flag)
+void Client::log(const QString &message)
 {
-    Core::MessageManager::write(QString("LanguageClient %1: %2").arg(name(), message), flag);
+    Core::MessageManager::writeFlashing(QString("LanguageClient %1: %2").arg(name(), message));
 }
 
 const ServerCapabilities &Client::capabilities() const
@@ -977,10 +977,9 @@ HoverHandler *Client::hoverHandler()
     return &m_hoverHandler;
 }
 
-void Client::log(const ShowMessageParams &message,
-                     Core::MessageManager::PrintToOutputPaneFlag flag)
+void Client::log(const ShowMessageParams &message)
 {
-    log(message.toString(), flag);
+    log(message.toString());
 }
 
 void Client::showMessageBox(const ShowMessageRequestParams &message, const MessageId &id)
@@ -1073,8 +1072,7 @@ void Client::handleMethod(const QString &method, const MessageId &id, const ICon
     ErrorHierarchy error;
     auto logError = [&](const JsonObject &content) {
         log(QJsonDocument(content).toJson(QJsonDocument::Indented) + '\n'
-                + tr("Invalid parameter in \"%1\": %2").arg(method, error.toString()),
-            Core::MessageManager::Flash);
+            + tr("Invalid parameter in \"%1\": %2").arg(method, error.toString()));
     };
 
     if (method == PublishDiagnosticsNotification::methodName) {
@@ -1086,7 +1084,7 @@ void Client::handleMethod(const QString &method, const MessageId &id, const ICon
     } else if (method == LogMessageNotification::methodName) {
         auto params = dynamic_cast<const LogMessageNotification *>(content)->params().value_or(LogMessageParams());
         if (params.isValid(&error))
-            log(params, Core::MessageManager::Flash);
+            log(params);
         else
             logError(params);
     } else if (method == SemanticHighlightNotification::methodName) {

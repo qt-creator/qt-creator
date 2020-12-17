@@ -159,12 +159,12 @@ public:
     bool start();
     bool reset();
 
-    void log(const QString &message,
-             Core::MessageManager::PrintToOutputPaneFlag flag = Core::MessageManager::NoModeSwitch);
+    void log(const QString &message);
     template<typename Error>
-    void log(const LanguageServerProtocol::ResponseError<Error> &responseError,
-             Core::MessageManager::PrintToOutputPaneFlag flag = Core::MessageManager::NoModeSwitch)
-    { log(responseError.toString(), flag); }
+    void log(const LanguageServerProtocol::ResponseError<Error> &responseError)
+    {
+        log(responseError.toString());
+    }
 
     const LanguageServerProtocol::ServerCapabilities &capabilities() const;
     const DynamicCapabilities &dynamicCapabilities() const;
@@ -196,8 +196,7 @@ private:
     void initializeCallback(const LanguageServerProtocol::InitializeRequest::Response &initResponse);
     void shutDownCallback(const LanguageServerProtocol::ShutdownRequest::Response &shutdownResponse);
     bool sendWorkspceFolderChanges() const;
-    void log(const LanguageServerProtocol::ShowMessageParams &message,
-             Core::MessageManager::PrintToOutputPaneFlag flag = Core::MessageManager::NoModeSwitch);
+    void log(const LanguageServerProtocol::ShowMessageParams &message);
 
     void showMessageBox(const LanguageServerProtocol::ShowMessageRequestParams &message,
                         const LanguageServerProtocol::MessageId &id);
