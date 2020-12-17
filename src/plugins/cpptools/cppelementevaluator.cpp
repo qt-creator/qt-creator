@@ -50,7 +50,7 @@ static void handleLookupItemMatch(QFutureInterface<QSharedPointer<CppElement>> &
                                   const Snapshot &snapshot,
                                   const LookupItem &lookupItem,
                                   const LookupContext &context,
-                                  CppTools::SymbolFinder symbolFinder,
+                                  SymbolFinder symbolFinder,
                                   bool lookupBaseClasses,
                                   bool lookupDerivedClasses);
 
@@ -211,13 +211,13 @@ void CppClass::lookupBases(QFutureInterfaceBase &futureInterface,
 void CppClass::lookupDerived(QFutureInterfaceBase &futureInterface,
                              Symbol *declaration, const Snapshot &snapshot)
 {
-    using Data = QPair<CppClass*, CppTools::TypeHierarchy>;
+    using Data = QPair<CppClass*, TypeHierarchy>;
 
     snapshot.updateDependencyTable(futureInterface);
     if (futureInterface.isCanceled())
         return;
-    CppTools::TypeHierarchyBuilder builder(declaration, snapshot);
-    const CppTools::TypeHierarchy &completeHierarchy = builder.buildDerivedTypeHierarchy(futureInterface);
+    const TypeHierarchy &completeHierarchy
+            = TypeHierarchyBuilder::buildDerivedTypeHierarchy(futureInterface, declaration, snapshot);
 
     QQueue<Data> q;
     q.enqueue(qMakePair(this, completeHierarchy));
@@ -226,8 +226,8 @@ void CppClass::lookupDerived(QFutureInterfaceBase &futureInterface,
             return;
         const Data &current = q.dequeue();
         CppClass *clazz = current.first;
-        const CppTools::TypeHierarchy &classHierarchy = current.second;
-        foreach (const CppTools::TypeHierarchy &derivedHierarchy, classHierarchy.hierarchy()) {
+        const TypeHierarchy &classHierarchy = current.second;
+        foreach (const TypeHierarchy &derivedHierarchy, classHierarchy.hierarchy()) {
             clazz->derived.append(CppClass(derivedHierarchy.symbol()));
             q.enqueue(qMakePair(&clazz->derived.last(), derivedHierarchy));
         }
@@ -349,7 +349,7 @@ public:
 
 CppElementEvaluator::CppElementEvaluator(TextEditor::TextEditorWidget *editor) :
     m_editor(editor),
-    m_modelManager(CppTools::CppModelManager::instance()),
+    m_modelManager(CppModelManager::instance()),
     m_tc(editor->textCursor()),
     m_lookupBaseClasses(false),
     m_lookupDerivedClasses(false)
@@ -497,7 +497,7 @@ static void handleLookupItemMatch(QFutureInterface<QSharedPointer<CppElement>> &
                                   const Snapshot &snapshot,
                                   const LookupItem &lookupItem,
                                   const LookupContext &context,
-                                  CppTools::SymbolFinder symbolFinder,
+                                  SymbolFinder symbolFinder,
                                   bool lookupBaseClasses,
                                   bool lookupDerivedClasses)
 {

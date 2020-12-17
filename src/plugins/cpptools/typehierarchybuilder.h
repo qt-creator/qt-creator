@@ -58,19 +58,17 @@ private:
 class CPPTOOLS_EXPORT TypeHierarchyBuilder
 {
 public:
-    TypeHierarchyBuilder(CPlusPlus::Symbol *symbol, const CPlusPlus::Snapshot &snapshot);
-
-    TypeHierarchy buildDerivedTypeHierarchy();
-    TypeHierarchy buildDerivedTypeHierarchy(QFutureInterfaceBase &futureInterface);
+    static TypeHierarchy buildDerivedTypeHierarchy(CPlusPlus::Symbol *symbol,
+                                            const CPlusPlus::Snapshot &snapshot);
+    static TypeHierarchy buildDerivedTypeHierarchy(QFutureInterfaceBase &futureInterface,
+                                            CPlusPlus::Symbol *symbol,
+                                            const CPlusPlus::Snapshot &snapshot);
 
 private:
-    void reset();
-    void buildDerived(QFutureInterfaceBase &futureInterface,
-                      TypeHierarchy *typeHierarchy, const QStringList &dependencies, int depth = 0);
-    QStringList filesDependingOn(CPlusPlus::Symbol *symbol) const;
+    TypeHierarchyBuilder() = default;
+    void buildDerived(QFutureInterfaceBase &futureInterface, TypeHierarchy *typeHierarchy,
+                      const CPlusPlus::Snapshot &snapshot, int depth = 0);
 
-    CPlusPlus::Symbol *_symbol;
-    CPlusPlus::Snapshot _snapshot;
     QSet<CPlusPlus::Symbol *> _visited;
     QHash<QString, QSet<QString> > _candidates;
     CPlusPlus::Overview _overview;

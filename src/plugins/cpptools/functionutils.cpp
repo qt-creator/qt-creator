@@ -161,8 +161,8 @@ QList<Function *> FunctionUtils::overrides(Function *function, Class *functionsC
     QTC_ASSERT(referenceName && referenceType.isValid(), return result);
 
     // Find overrides
-    TypeHierarchyBuilder builder(staticClass, snapshot);
-    const TypeHierarchy &staticClassHierarchy = builder.buildDerivedTypeHierarchy();
+    const TypeHierarchy &staticClassHierarchy
+            = TypeHierarchyBuilder::buildDerivedTypeHierarchy(staticClass, snapshot);
 
     QList<TypeHierarchy> l;
     if (functionsClass != staticClass)

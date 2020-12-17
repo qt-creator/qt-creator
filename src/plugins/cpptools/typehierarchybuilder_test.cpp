@@ -124,8 +124,8 @@ public:
         QVERIFY(clazz);
 
         // Generate and compare hierarchies
-        TypeHierarchyBuilder typeHierarchyBuilder(clazz, snapshot);
-        const TypeHierarchy hierarchy = typeHierarchyBuilder.buildDerivedTypeHierarchy();
+        const TypeHierarchy hierarchy
+                = TypeHierarchyBuilder::buildDerivedTypeHierarchy(clazz, snapshot);
 
         const QString actualHierarchy = toString(hierarchy);
 //        Uncomment for updating/generating reference data:

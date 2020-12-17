@@ -134,34 +134,42 @@ const QList<TypeHierarchy> &TypeHierarchy::hierarchy() const
     return _hierarchy;
 }
 
-TypeHierarchyBuilder::TypeHierarchyBuilder(CPlusPlus::Symbol *symbol, const CPlusPlus::Snapshot &snapshot)
-    : _symbol(symbol)
-    , _snapshot(snapshot)
-{}
-
-void TypeHierarchyBuilder::reset()
-{
-    _visited.clear();
-    _candidates.clear();
-}
-
-TypeHierarchy TypeHierarchyBuilder::buildDerivedTypeHierarchy()
+TypeHierarchy TypeHierarchyBuilder::buildDerivedTypeHierarchy(CPlusPlus::Symbol *symbol,
+                                                              const CPlusPlus::Snapshot &snapshot)
 {
     QFutureInterfaceBase dummy;
-    return buildDerivedTypeHierarchy(dummy);
+    return TypeHierarchyBuilder::buildDerivedTypeHierarchy(dummy, symbol, snapshot);
 }
 
-TypeHierarchy TypeHierarchyBuilder::buildDerivedTypeHierarchy(QFutureInterfaceBase &futureInterface)
+TypeHierarchy TypeHierarchyBuilder::buildDerivedTypeHierarchy(QFutureInterfaceBase &futureInterface,
+                                                              CPlusPlus::Symbol *symbol,
+                                                              const CPlusPlus::Snapshot &snapshot)
 {
-    reset();
-    TypeHierarchy hierarchy(_symbol);
-    buildDerived(futureInterface, &hierarchy, filesDependingOn(_symbol));
+    TypeHierarchy hierarchy(symbol);
+    TypeHierarchyBuilder builder;
+    builder.buildDerived(futureInterface, &hierarchy, snapshot);
     return hierarchy;
+}
+
+static QStringList filesDependingOn(const CPlusPlus::Snapshot &snapshot,
+                                    CPlusPlus::Symbol *symbol)
+{
+    QStringList deps;
+    if (!symbol)
+        return deps;
+
+    const Utils::FilePath file = Utils::FilePath::fromUtf8(symbol->fileName(), symbol->fileNameLength());
+    deps << file.toString();
+    const Utils::FilePaths filePaths = snapshot.filesDependingOn(file);
+    for (const Utils::FilePath &fileName : filePaths)
+        deps.append(fileName.toString());
+    return deps;
 }
 
 void TypeHierarchyBuilder::buildDerived(QFutureInterfaceBase &futureInterface,
                                         TypeHierarchy *typeHierarchy,
-                                        const QStringList &dependingFiles, int depth)
+                                        const CPlusPlus::Snapshot &snapshot,
+                                        int depth)
 {
     CPlusPlus::Symbol *symbol = typeHierarchy->_symbol;
     if (_visited.contains(symbol))
@@ -172,6 +180,7 @@ void TypeHierarchyBuilder::buildDerived(QFutureInterfaceBase &futureInterface,
     const QString &symbolName = _overview.prettyName(CPlusPlus::LookupContext::fullyQualifiedName(symbol));
     DerivedHierarchyVisitor visitor(symbolName);
 
+    const QStringList &dependingFiles = filesDependingOn(snapshot, symbol);
     if (depth == 0)
         futureInterface.setProgressRange(0, dependingFiles.size());
 
@@ -181,37 +190,23 @@ void TypeHierarchyBuilder::buildDerived(QFutureInterfaceBase &futureInterface,
             return;
         if (depth == 0)
             futureInterface.setProgressValue(++i);
-        CPlusPlus::Document::Ptr doc = _snapshot.document(fileName);
+        CPlusPlus::Document::Ptr doc = snapshot.document(fileName);
         if ((_candidates.contains(fileName) && !_candidates.value(fileName).contains(symbolName))
                 || !doc->control()->findIdentifier(symbol->identifier()->chars(),
                                                    symbol->identifier()->size())) {
             continue;
         }
 
-        visitor.execute(doc, _snapshot);
+        visitor.execute(doc, snapshot);
         _candidates.insert(fileName, visitor.otherBases());
 
         const QList<CPlusPlus::Symbol *> &derived = visitor.derived();
         for (CPlusPlus::Symbol *s : derived) {
             TypeHierarchy derivedHierarchy(s);
-            buildDerived(futureInterface, &derivedHierarchy, filesDependingOn(s), depth + 1);
+            buildDerived(futureInterface, &derivedHierarchy, snapshot, depth + 1);
             if (futureInterface.isCanceled())
                 return;
             typeHierarchy->_hierarchy.append(derivedHierarchy);
         }
     }
-}
-
-QStringList TypeHierarchyBuilder::filesDependingOn(CPlusPlus::Symbol *symbol) const
-{
-    QStringList deps;
-    if (!symbol)
-        return deps;
-
-    const Utils::FilePath file = Utils::FilePath::fromUtf8(symbol->fileName(), symbol->fileNameLength());
-    deps << file.toString();
-    const Utils::FilePaths filePaths = _snapshot.filesDependingOn(file);
-    for (const Utils::FilePath &fileName : filePaths)
-        deps.append(fileName.toString());
-    return deps;
 }
