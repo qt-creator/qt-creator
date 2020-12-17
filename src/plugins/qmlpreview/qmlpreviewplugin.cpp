@@ -119,7 +119,7 @@ static bool defaultFileClassifier(const QString &filename)
 
 static void defaultFpsHandler(quint16 frames[8])
 {
-    Core::MessageManager::write(QString::fromLatin1("QML preview: %1 fps").arg(frames[0]));
+    Core::MessageManager::writeSilently(QString::fromLatin1("QML preview: %1 fps").arg(frames[0]));
 }
 
 class QmlPreviewPluginPrivate : public QObject

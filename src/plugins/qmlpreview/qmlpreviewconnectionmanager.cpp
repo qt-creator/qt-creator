@@ -196,11 +196,13 @@ void QmlPreviewConnectionManager::createPreviewClient()
             m_qmlPreviewClient->announceError(path);
     });
 
-    connect(m_qmlPreviewClient.data(), &QmlPreviewClient::errorReported,
-                     this, [](const QString &error) {
-        Core::MessageManager::write("Error loading QML Live Preview:");
-        Core::MessageManager::write(error);
-    });
+    connect(m_qmlPreviewClient.data(),
+            &QmlPreviewClient::errorReported,
+            this,
+            [](const QString &error) {
+                Core::MessageManager::writeDisrupting("Error loading QML Live Preview:");
+                Core::MessageManager::writeSilently(error);
+            });
 
     connect(m_qmlPreviewClient.data(), &QmlPreviewClient::fpsReported,
                      this, [this](const QmlPreviewClient::FpsInfo &frames) {

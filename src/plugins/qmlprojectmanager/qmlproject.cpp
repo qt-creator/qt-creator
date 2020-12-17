@@ -146,10 +146,9 @@ void QmlBuildSystem::parseProject(RefreshOptions options)
                           this, &QmlBuildSystem::refreshFiles);
 
               } else {
-                  MessageManager::write(tr("Error while loading project file %1.")
-                                        .arg(projectFilePath().toUserOutput()),
-                                        MessageManager::NoModeSwitch);
-                  MessageManager::write(errorMessage);
+                  MessageManager::writeFlashing(tr("Error while loading project file %1.")
+                                                    .arg(projectFilePath().toUserOutput()));
+                  MessageManager::writeSilently(errorMessage);
               }
         }
         if (m_projectItem) {
@@ -167,9 +166,9 @@ void QmlBuildSystem::parseProject(RefreshOptions options)
                 Utils::FileReader reader;
                 QString errorMessage;
                 if (!reader.fetch(mainFilePath, &errorMessage)) {
-                    MessageManager::write(tr("Warning while loading project file %1.")
-                                          .arg(projectFilePath().toUserOutput()));
-                    MessageManager::write(errorMessage);
+                    MessageManager::writeFlashing(tr("Warning while loading project file %1.")
+                                                      .arg(projectFilePath().toUserOutput()));
+                    MessageManager::writeSilently(errorMessage);
                 }
             }
         }
