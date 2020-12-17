@@ -45,14 +45,13 @@ public:
     };
     explicit MakeStep(ProjectExplorer::BuildStepList *parent, Utils::Id id);
 
-    void setBuildTarget(const QString &buildTarget);
     void setAvailableBuildTargets(const QStringList &buildTargets);
+    void setSelectedBuildTarget(const QString &buildTarget);
 
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     QWidget *createConfigWidget() override;
-    bool buildsTarget(const QString &target) const;
-    void setBuildTarget(const QString &target, bool on);
+
     QStringList availableTargets() const;
     QString userArguments() const;
     void setUserArguments(const QString &args);
@@ -87,8 +86,7 @@ private:
     static int defaultJobCount();
     QStringList jobArguments() const;
 
-    Utils::StringListAspect *m_buildTargetsAspect = nullptr;
-    QStringList m_availableTargets;
+    Utils::MultiSelectionAspect *m_buildTargetsAspect = nullptr;
     Utils::StringAspect *m_makeCommandAspect = nullptr;
     Utils::StringAspect *m_userArgumentsAspect = nullptr;
     Utils::AspectContainer *m_jobCountContainer = nullptr;

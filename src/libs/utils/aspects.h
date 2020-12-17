@@ -44,6 +44,7 @@ namespace Internal {
 class AspectContainerPrivate;
 class BoolAspectPrivate;
 class IntegerAspectPrivate;
+class MultiSelectionAspectPrivate;
 class SelectionAspectPrivate;
 class StringAspectPrivate;
 class StringListAspectPrivate;
@@ -97,7 +98,6 @@ protected:
 
 class QTCREATOR_UTILS_EXPORT BaseAspects
 {
-
     BaseAspects(const BaseAspects &) = delete;
     BaseAspects &operator=(const BaseAspects &) = delete;
 
@@ -200,6 +200,34 @@ protected:
 
 private:
     std::unique_ptr<Internal::SelectionAspectPrivate> d;
+};
+
+class QTCREATOR_UTILS_EXPORT MultiSelectionAspect : public BaseAspect
+{
+    Q_OBJECT
+
+public:
+    MultiSelectionAspect();
+    ~MultiSelectionAspect() override;
+
+    void addToLayout(LayoutBuilder &builder) override;
+
+    enum class DisplayStyle { ListView };
+    void setDisplayStyle(DisplayStyle style);
+
+    QStringList value() const;
+    void setValue(const QStringList &val);
+
+    QStringList allValues() const;
+    void setAllValues(const QStringList &val);
+
+    void setLabelText(const QString &labelText);
+
+    void fromMap(const QVariantMap &map) override;
+    void toMap(QVariantMap &map) const override;
+
+private:
+    std::unique_ptr<Internal::MultiSelectionAspectPrivate> d;
 };
 
 class QTCREATOR_UTILS_EXPORT StringAspect : public BaseAspect

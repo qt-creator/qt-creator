@@ -40,6 +40,7 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QListWidget>
 #include <QPointer>
 #include <QRadioButton>
 #include <QSpinBox>
@@ -248,6 +249,23 @@ public:
     QPointer<QLabel> m_label;
     QPointer<QButtonGroup> m_buttonGroup;
     QString m_tooltip;
+};
+
+class MultiSelectionAspectPrivate
+{
+public:
+    QStringList m_value;
+    QStringList m_allValues;
+    MultiSelectionAspect::DisplayStyle m_displayStyle
+        = MultiSelectionAspect::DisplayStyle::ListView;
+    QString m_labelText;
+
+    // These are all owned by the configuration widget.
+    QPointer<QListWidget> m_listView;
+    QPointer<QLabel> m_label;
+
+    void updateListView();
+    bool setValueSelectedHelper(const QString &value, bool on);
 };
 
 class StringAspectPrivate
@@ -1032,6 +1050,129 @@ void SelectionAspect::addOption(const QString &displayName, const QString &toolT
 {
     d->m_options.append({displayName, toolTip});
 }
+
+/*!
+    \class Utils::MultiSelectionAspect
+    \inmodule QtCreator
+
+    \brief A multi-selection aspect represents one or more choices out of
+    several.
+
+    The multi-selection aspect is displayed using a QListWidget with
+    checkable items.
+*/
+
+MultiSelectionAspect::MultiSelectionAspect()
+    : d(new Internal::MultiSelectionAspectPrivate)
+{}
+
+/*!
+    \reimp
+*/
+MultiSelectionAspect::~MultiSelectionAspect() = default;
+
+/*!
+    \reimp
+*/
+void MultiSelectionAspect::addToLayout(LayoutBuilder &builder)
+{
+    QTC_CHECK(d->m_listView == nullptr);
+    if (d->m_allValues.isEmpty())
+        return;
+
+    switch (d->m_displayStyle) {
+    case DisplayStyle::ListView:
+        d->m_label = new QLabel(d->m_labelText);
+        d->m_listView = new QListWidget;
+        for (const QString &value : qAsConst(d->m_allValues)) {
+            auto item = new QListWidgetItem(value, d->m_listView);
+            item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+            item->setCheckState(d->m_value.contains(item->text()) ? Qt::Checked : Qt::Unchecked);
+        }
+        connect(d->m_listView, &QListWidget::itemChanged, this,
+            [this](QListWidgetItem *item) {
+            if (d->setValueSelectedHelper(item->text(), item->checkState() & Qt::Checked))
+                emit changed();
+        });
+        builder.addItems({d->m_label.data(), d->m_listView.data()});
+    }
+}
+
+bool Internal::MultiSelectionAspectPrivate::setValueSelectedHelper(const QString &value, bool on)
+{
+    if (on && !m_value.contains(value)) {
+        m_value.append(value);
+        return true;
+    }
+    if (!on && m_value.contains(value)) {
+        m_value.removeOne(value);
+        return true;
+    }
+    return false;
+}
+
+QStringList MultiSelectionAspect::allValues() const
+{
+    return d->m_allValues;
+}
+
+void MultiSelectionAspect::setAllValues(const QStringList &val)
+{
+    d->m_allValues = val;
+}
+
+void MultiSelectionAspect::setLabelText(const QString &labelText)
+{
+    d->m_labelText = labelText;
+}
+
+void Internal::MultiSelectionAspectPrivate::updateListView()
+{
+    if (!m_listView)
+        return;
+    const int n = m_listView->count();
+    QTC_CHECK(n == m_allValues.size());
+    for (int i = 0; i != n; ++i) {
+        auto item = m_listView->item(i);
+        item->setCheckState(m_value.contains(item->text()) ? Qt::Checked : Qt::Unchecked);
+    }
+}
+
+/*!
+    \reimp
+*/
+void MultiSelectionAspect::fromMap(const QVariantMap &map)
+{
+    d->m_value = map.value(settingsKey(), QStringList()).toStringList();
+}
+
+/*!
+    \reimp
+*/
+void MultiSelectionAspect::toMap(QVariantMap &data) const
+{
+    saveToMap(data, d->m_value, QStringList());
+}
+
+void MultiSelectionAspect::setDisplayStyle(MultiSelectionAspect::DisplayStyle style)
+{
+    d->m_displayStyle = style;
+}
+
+QStringList MultiSelectionAspect::value() const
+{
+    return d->m_value;
+}
+
+void MultiSelectionAspect::setValue(const QStringList &value)
+{
+    if (d->m_value == value)
+        return;
+    d->m_value = value;
+    d->updateListView();
+    emit changed();
+}
+
 
 /*!
     \class Utils::IntegerAspect

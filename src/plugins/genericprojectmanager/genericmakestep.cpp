@@ -43,13 +43,13 @@ public:
 GenericMakeStep::GenericMakeStep(BuildStepList *parent, Utils::Id id)
     : MakeStep(parent, id)
 {
+    setAvailableBuildTargets({"all", "clean"});
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD) {
-        setBuildTarget("all");
+        setSelectedBuildTarget("all");
     } else if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
-        setBuildTarget("clean");
+        setSelectedBuildTarget("clean");
         setIgnoreReturnValue(true);
     }
-    setAvailableBuildTargets({"all", "clean"});
 }
 
 GenericMakeStepFactory::GenericMakeStepFactory()
