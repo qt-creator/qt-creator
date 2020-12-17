@@ -1010,9 +1010,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
     mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_FILES);
+    msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
+    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
 
     mfileContextMenu->addMenu(openTerminal, Constants::G_FILE_OPEN);
     mfolderContextMenu->addMenu(openTerminal, Constants::G_FOLDER_FILES);
+    msubProjectContextMenu->addMenu(openTerminal, Constants::G_PROJECT_LAST);
+    mprojectContextMenu->addMenu(openTerminal, Constants::G_PROJECT_LAST);
+
 
     dd->m_openTerminalHereBuildEnv = new QAction(tr("Build Environment"), this);
     dd->m_openTerminalHereRunEnv = new QAction(tr("Run Environment"), this);
