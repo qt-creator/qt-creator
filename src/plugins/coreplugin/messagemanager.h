@@ -46,17 +46,6 @@ class CORE_EXPORT MessageManager : public QObject
 public:
     static MessageManager *instance();
 
-    enum PrintToOutputPaneFlag {
-        NoModeSwitch   = IOutputPane::NoModeSwitch,
-        ModeSwitch     = IOutputPane::ModeSwitch,
-        WithFocus      = IOutputPane::WithFocus,
-        EnsureSizeHint = IOutputPane::EnsureSizeHint,
-        Silent         = 256,
-        Flash          = 512
-    };
-
-    Q_DECLARE_FLAGS(PrintToOutputPaneFlags, PrintToOutputPaneFlag)
-
     static void setFont(const QFont &font);
     static void setWheelZoomEnabled(bool enabled);
 
@@ -68,9 +57,6 @@ public:
     static void writeFlashing(const QStringList &messages);
     static void writeDisrupting(const QStringList &messages);
 
-    static void write(const QString &text, PrintToOutputPaneFlags flags = NoModeSwitch);
-    static void writeWithTime(const QString &text, PrintToOutputPaneFlags flags = NoModeSwitch);
-
 private:
     MessageManager();
     ~MessageManager() override;
@@ -80,5 +66,3 @@ private:
 };
 
 } // namespace Core
-
-Q_DECLARE_METATYPE(Core::MessageManager::PrintToOutputPaneFlags)

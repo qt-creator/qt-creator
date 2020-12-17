@@ -100,7 +100,6 @@ MessageManager::MessageManager()
 {
     m_instance = this;
     m_messageOutputWindow = nullptr;
-    qRegisterMetaType<MessageManager::PrintToOutputPaneFlags>();
 }
 
 /*!
@@ -213,53 +212,6 @@ void MessageManager::writeFlashing(const QStringList &messages)
 void MessageManager::writeDisrupting(const QStringList &messages)
 {
     writeDisrupting(messages.join('\n'));
-}
-
-/*!
-    \internal
-*/
-static void showOutputPaneOld(Core::MessageManager::PrintToOutputPaneFlags flags)
-{
-    QTC_ASSERT(m_messageOutputWindow, return);
-
-    if (flags & MessageManager::Flash) {
-        m_messageOutputWindow->flash();
-    } else if (flags & MessageManager::Silent) {
-        // Do nothing
-    } else {
-        m_messageOutputWindow->popup(IOutputPane::Flag(int(flags)));
-    }
-}
-
-/*!
-    \internal
-*/
-static void doWriteOld(const QString &text, MessageManager::PrintToOutputPaneFlags flags)
-{
-    QTC_ASSERT(m_messageOutputWindow, return);
-
-    showOutputPaneOld(flags);
-    m_messageOutputWindow->append(text + '\n');
-}
-
-/*!
-    \internal
-*/
-void MessageManager::write(const QString &text, PrintToOutputPaneFlags flags)
-{
-    if (QThread::currentThread() == instance()->thread())
-        doWriteOld(text, flags);
-    else
-        QTimer::singleShot(0, instance(), [text, flags] { doWriteOld(text, flags); });
-}
-
-/*!
-    \internal
-*/
-void MessageManager::writeWithTime(const QString &text, PrintToOutputPaneFlags flags)
-{
-    const QString timeStamp = QTime::currentTime().toString("HH:mm:ss ");
-    write(timeStamp + text, flags);
 }
 
 } // namespace Core
