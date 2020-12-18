@@ -633,6 +633,7 @@ void UvscEngine::handleProjectClosed()
     showMessage("UVSC: ALL INITIALIZED SUCCESSFULLY.");
 
     notifyEngineSetupOk();
+    runEngine();
 }
 
 void UvscEngine::handleUpdateLocation(quint64 address)

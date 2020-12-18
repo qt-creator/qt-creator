@@ -53,7 +53,7 @@ public:
     bool canHandleToolTip(const DebuggerToolTipContext &context) const override;
 
     void setupEngine() override;
-    void runEngine() override;
+    void runEngine();
     void shutdownInferior() override;
     void shutdownEngine() override;
     void abortDebuggerProcess() override;

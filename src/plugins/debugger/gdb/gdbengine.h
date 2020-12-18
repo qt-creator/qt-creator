@@ -392,7 +392,7 @@ private: ////////// General Interface //////////
     bool isTermEngine() const;
 
     void setupEngine() final;
-    void runEngine() final;
+    void runEngine();
     void shutdownEngine() final;
 
     void interruptInferior2();

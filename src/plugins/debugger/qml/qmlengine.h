@@ -78,7 +78,6 @@ private:
     void executeStepOut() override;
 
     void setupEngine() override;
-    void runEngine() override;
     void shutdownInferior() override;
     void shutdownEngine() override;
 

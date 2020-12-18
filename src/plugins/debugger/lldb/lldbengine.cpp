@@ -324,7 +324,10 @@ void LldbEngine::setupEngine()
             // Some extra roundtrip to make sure we end up behind all commands triggered
             // from claimBreakpointsForEngine().
             DebuggerCommand cmd3("executeRoundtrip");
-            cmd3.callback = [this](const DebuggerResponse &) { notifyEngineSetupOk(); };
+            cmd3.callback = [this](const DebuggerResponse &) {
+                notifyEngineSetupOk();
+                runEngine();
+            };
             runCommand(cmd3);
         } else {
             notifyEngineSetupFailed();

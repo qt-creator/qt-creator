@@ -508,7 +508,6 @@ protected:
     void notifyEngineIll();
 
     virtual void setupEngine() = 0;
-    virtual void runEngine() = 0;
     virtual void shutdownInferior() = 0;
     virtual void shutdownEngine() = 0;
     virtual void resetInferior() {}

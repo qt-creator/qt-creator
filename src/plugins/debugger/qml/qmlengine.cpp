@@ -501,29 +501,6 @@ void QmlEngine::closeConnection()
     }
 }
 
-void QmlEngine::runEngine()
-{
-    // we won't get any debug output
-    if (!terminal()) {
-        d->retryOnConnectFail = true;
-        d->automaticConnect = true;
-    }
-
-    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-
-    if (isPrimaryEngine()) {
-        // QML only.
-        if (runParameters().startMode == AttachToRemoteServer)
-            tryToConnect();
-        else if (runParameters().startMode == AttachToRemoteProcess)
-            beginConnection();
-        else
-            startApplicationLauncher();
-    } else {
-        tryToConnect();
-    }
-}
-
 void QmlEngine::startApplicationLauncher()
 {
     if (!d->applicationLauncher.isRunning()) {
@@ -575,6 +552,26 @@ void QmlEngine::shutdownEngine()
 void QmlEngine::setupEngine()
 {
     notifyEngineSetupOk();
+
+    // we won't get any debug output
+    if (!terminal()) {
+        d->retryOnConnectFail = true;
+        d->automaticConnect = true;
+    }
+
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+
+    if (isPrimaryEngine()) {
+        // QML only.
+        if (runParameters().startMode == AttachToRemoteServer)
+            tryToConnect();
+        else if (runParameters().startMode == AttachToRemoteProcess)
+            beginConnection();
+        else
+            startApplicationLauncher();
+    } else {
+        tryToConnect();
+    }
 
     if (d->automaticConnect)
         beginConnection();

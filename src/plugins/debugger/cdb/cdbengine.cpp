@@ -530,6 +530,7 @@ void CdbEngine::handleInitialSessionIdle()
         if (response.resultClass == ResultDone || runParameters().startMode == AttachCore) {
             STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupOk")
                     notifyEngineSetupOk();
+            runEngine();
         }  else {
             showMessage(QString("Failed to determine inferior pid: %1").
                         arg(response.data["msg"].data()), LogError);

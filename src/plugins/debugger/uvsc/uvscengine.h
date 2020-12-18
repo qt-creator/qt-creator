@@ -40,7 +40,7 @@ public:
     explicit UvscEngine();
 
     void setupEngine() final;
-    void runEngine() final;
+    void runEngine();
     void shutdownInferior() final;
     void shutdownEngine() final;
 

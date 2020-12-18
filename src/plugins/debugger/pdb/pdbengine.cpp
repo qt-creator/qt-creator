@@ -149,12 +149,10 @@ void PdbEngine::setupEngine()
         notifyEngineSetupFailed();
         return;
     }
-    notifyEngineSetupOk();
-}
 
-void PdbEngine::runEngine()
-{
+    notifyEngineSetupOk();
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+
     showStatusMessage(tr("Running requested..."), 5000);
     BreakpointManager::claimBreakpointsForEngine(this);
     notifyEngineRunAndInferiorStopOk();

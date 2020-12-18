@@ -52,7 +52,6 @@ private:
     void executeStepOver(bool) override;
 
     void setupEngine() override;
-    void runEngine() override;
     void shutdownInferior() override;
     void shutdownEngine() override;
 

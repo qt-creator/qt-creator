@@ -3916,6 +3916,7 @@ void GdbEngine::finishInferiorSetup()
     // and even if it fails (e.g. due to stripped binaries), continuing with
     // the start up is the best we can do.
     notifyEngineSetupOk();
+    runEngine();
 }
 
 void GdbEngine::handleDebugInfoLocation(const DebuggerResponse &response)
@@ -4091,6 +4092,7 @@ void GdbEngine::setupInferior()
     if (rp.startMode == AttachToRemoteProcess) {
 
         notifyEngineSetupOk();
+        runEngine();
 
     } else if (isAttachEngine()) {
         // Task 254674 does not want to remove them

@@ -1257,7 +1257,6 @@ void DebuggerEngine::notifyEngineSetupOk()
     setState(EngineRunRequested);
     showMessage("CALL: RUN ENGINE");
     d->m_progress.setProgressValue(300);
-    runEngine();
 }
 
 void DebuggerEngine::notifyEngineRunOkAndInferiorUnrunnable()
