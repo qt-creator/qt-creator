@@ -9,8 +9,10 @@ option(CLANGTOOLING_LINK_CLANG_DYLIB "Force linking of Clang tooling against cla
 
 if (TARGET clangTooling AND NOT CLANGTOOLING_LINK_CLANG_DYLIB)
   set(CLANG_TOOLING_LIBS libclang clangTooling clangQuery clangIndex)
+  set(CLANG_FORMAT_LIB clangFormat)
 elseif (TARGET clang-cpp)
   set(CLANG_TOOLING_LIBS libclang clang-cpp)
+  set(CLANG_FORMAT_LIB clang-cpp)
 endif()
 
 
