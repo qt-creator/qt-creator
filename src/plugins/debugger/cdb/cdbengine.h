@@ -78,9 +78,7 @@ public:
     void activateFrame(int index) override;
     void selectThread(const Thread &thread) override;
 
-    bool stateAcceptsBreakpointChanges() const override;
     bool acceptsBreakpoint(const BreakpointParameters &params) const override;
-
     void insertBreakpoint(const Breakpoint &bp) override;
     void removeBreakpoint(const Breakpoint &bp) override;
     void updateBreakpoint(const Breakpoint &bp) override;

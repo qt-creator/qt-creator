@@ -185,7 +185,6 @@ private: ////////// General Interface //////////
     ////////// Inferior Management //////////
 
     // This should be always the last call in a function.
-    bool stateAcceptsBreakpointChanges() const final;
     bool acceptsBreakpoint(const BreakpointParameters &bp) const final;
     void insertBreakpoint(const Breakpoint &bp) final;
     void removeBreakpoint(const Breakpoint &bp) final;

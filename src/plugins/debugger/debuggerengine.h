@@ -342,7 +342,6 @@ public:
     virtual Core::Context languageContext() const { return {}; }
     QString displayName() const;
 
-    virtual bool stateAcceptsBreakpointChanges() const { return true; }
     virtual bool acceptsBreakpoint(const BreakpointParameters &bp) const = 0;
     virtual void insertBreakpoint(const Breakpoint &bp) = 0;
     virtual void removeBreakpoint(const Breakpoint &bp) = 0;

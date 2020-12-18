@@ -482,20 +482,6 @@ void LldbEngine::selectThread(const Thread &thread)
     runCommand(cmd);
 }
 
-bool LldbEngine::stateAcceptsBreakpointChanges() const
-{
-    switch (state()) {
-    case EngineSetupRequested:
-    case InferiorRunRequested:
-    case InferiorRunOk:
-    case InferiorStopRequested:
-    case InferiorStopOk:
-        return true;
-    default:
-        return false;
-    }
-}
-
 bool LldbEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 {
     if (runParameters().startMode == AttachCore)

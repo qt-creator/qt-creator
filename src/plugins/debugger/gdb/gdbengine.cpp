@@ -2349,20 +2349,6 @@ void GdbEngine::handleBreakCondition(const DebuggerResponse &, const Breakpoint 
     updateBreakpoint(bp); // Maybe there's more to do.
 }
 
-bool GdbEngine::stateAcceptsBreakpointChanges() const
-{
-    switch (state()) {
-    case EngineSetupRequested:
-    case InferiorRunRequested:
-    case InferiorRunOk:
-    case InferiorStopRequested:
-    case InferiorStopOk:
-        return true;
-    default:
-        return false;
-    }
-}
-
 bool GdbEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 {
     if (runParameters().startMode == AttachCore)

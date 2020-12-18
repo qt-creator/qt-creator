@@ -2399,18 +2399,6 @@ static QByteArray multiBreakpointCommand(const char *cmdC, const Breakpoints &bp
 }
 #endif
 
-bool CdbEngine::stateAcceptsBreakpointChanges() const
-{
-    switch (state()) {
-    case InferiorRunOk:
-    case InferiorStopOk:
-    return true;
-    default:
-        break;
-    }
-    return false;
-}
-
 bool CdbEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 {
     if (bp.isCppBreakpoint()) {

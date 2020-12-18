@@ -350,18 +350,6 @@ void UvscEngine::activateFrame(int index)
     reloadPeripheralRegisters();
 }
 
-bool UvscEngine::stateAcceptsBreakpointChanges() const
-{
-    switch (state()) {
-    case InferiorRunOk:
-    case InferiorStopOk:
-        return true;
-    default:
-        break;
-    }
-    return false;
-}
-
 bool UvscEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 {
     if (bp.isCppBreakpoint()) {

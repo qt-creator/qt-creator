@@ -29,8 +29,6 @@
 
 #include <debugger/debuggerengine.h>
 
-namespace Utils { class FilePath; }
-
 namespace Debugger {
 namespace Internal {
 
@@ -63,9 +61,7 @@ public:
 
     void activateFrame(int index) final;
 
-    bool stateAcceptsBreakpointChanges() const final;
     bool acceptsBreakpoint(const BreakpointParameters &params) const final;
-
     void insertBreakpoint(const Breakpoint &bp) final;
     void removeBreakpoint(const Breakpoint &bp) final;
     void updateBreakpoint(const Breakpoint &bp) final;
