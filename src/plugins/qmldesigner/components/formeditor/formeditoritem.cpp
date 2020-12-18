@@ -888,6 +888,7 @@ public:
         , labelFlags(Qt::AlignHCenter | Qt::AlignVCenter | Qt::TextDontClip)
         , labelFlipSide(false)
         , hitTesting(hitTest)
+        , events()
     {
         // width
         if (node.modelNode().hasAuxiliaryData("width"))
@@ -952,6 +953,13 @@ public:
         // label flip side
         if (node.modelNode().hasAuxiliaryData("labelFlipSide"))
             labelFlipSide = node.modelNode().auxiliaryData("labelFlipSide").toBool();
+
+        isSelected = node.modelNode().isSelected();
+        const char eventsName[] = "eventIds";
+
+        if (node.modelNode().hasVariantProperty(eventsName))
+            events = node.modelNode().variantProperty(eventsName).value().toString();
+
     }
 
     qreal width;
@@ -977,6 +985,8 @@ public:
     int labelFlags;
     bool labelFlipSide;
     bool hitTesting;
+    bool isSelected;
+    QString events;
 };
 
 static bool verticalOverlap(const QRectF &from, const QRectF &to)
@@ -1453,6 +1463,35 @@ QPointF FormEditorTransitionItem::instancePosition() const
 
 static void drawLabel(QPainter *painter, const Connection &connection)
 {
+    // draw label with event ids
+    if (connection.config.isSelected && !connection.config.events.isEmpty())
+    {
+        qreal offset = connection.config.labelOffset;
+        QStringList events = connection.config.events.split(',');
+        int fontSize = connection.config.fontSize;
+        QString output = events[0].trimmed();
+        qreal minWidth = offset * 12;
+        int letterWidth = fontSize * 0.6; // assumption on max letter length
+        if (minWidth <  output.size() * letterWidth) minWidth = output.size() * letterWidth;
+        int eventCount = events.size();
+        for (int i = 1; i < eventCount; ++i)
+        {
+            output.append('\n');
+            QString id = events[i].trimmed();
+            output.append(id);
+            if (minWidth <  id.size() * letterWidth) minWidth = id.size() * letterWidth;
+        }
+        const QPointF pos = connection.path.pointAtPercent(0.0);
+        painter->save();
+        painter->setBrush(QColor(70, 70, 70, 200));
+        painter->setPen(Qt::lightGray);
+
+        painter->drawRoundedRect(pos.x(), pos.y() + offset, minWidth, 1.5 * fontSize * eventCount + offset * 4, offset / 2, offset / 2);
+        painter->drawText(pos.x(), pos.y() + 2 * offset, minWidth, offset * 2, Qt::AlignHCenter, QObject::tr("Connected Events"));
+        painter->drawLine(pos.x() + offset, pos.y() + 4 * offset, pos.x() + minWidth - offset, pos.y() + offset * 4);
+        painter->drawText(pos.x() + offset, pos.y() + 4 * offset, minWidth - offset, 1.5 * fontSize * eventCount, Qt::AlignLeft, output);
+        painter->restore();
+    }
     if (connection.config.label.isEmpty())
         return;
 

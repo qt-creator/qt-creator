@@ -379,7 +379,7 @@ void FormEditorView::nodeIdChanged(const ModelNode& node, const QString &/*newId
 }
 
 void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
-                                          const QList<ModelNode> &/*lastSelectedNodeList*/)
+                                          const QList<ModelNode> &lastSelectedNodeList)
 {
     m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeListKeppInvalid(selectedNodeList)));
 
@@ -389,6 +389,23 @@ void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
         m_formEditorWidget->zoomSelectionAction()->setEnabled(false);
     else
         m_formEditorWidget->zoomSelectionAction()->setEnabled(true);
+
+    for (const ModelNode &node : lastSelectedNodeList) { /*Set Z to 0 for unselected items */
+        QmlVisualNode visualNode(node); /* QmlVisualNode extends ModelNode with extra methods for "visual nodes" */
+        if (visualNode.isFlowTransition()) { /* Check if a QmlVisualNode Transition */
+            if (FormEditorItem *item = m_scene->itemForQmlItemNode(visualNode.toQmlItemNode())) { /* Get the form editor item from the form editor */
+                item->setZValue(0);
+            }
+        }
+   }
+   for (const ModelNode &node : selectedNodeList) {
+       QmlVisualNode visualNode(node);
+       if (visualNode.isFlowTransition()) {
+           if (FormEditorItem *item = m_scene->itemForQmlItemNode(visualNode.toQmlItemNode())) {
+               item->setZValue(11);
+           }
+       }
+   }
 }
 
 void FormEditorView::variantPropertiesChanged(const QList<VariantProperty> &propertyList,
