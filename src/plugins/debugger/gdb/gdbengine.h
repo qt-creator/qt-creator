@@ -175,7 +175,6 @@ private: ////////// General Interface //////////
 
     // Gdb initialization sequence
     void handleShowVersion(const DebuggerResponse &response);
-    void handleListFeatures(const DebuggerResponse &response);
     void handlePythonSetup(const DebuggerResponse &response);
 
     int m_gdbVersion = 100;    // 7.6.1 is 70601

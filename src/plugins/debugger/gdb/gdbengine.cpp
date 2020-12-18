@@ -1496,11 +1496,6 @@ void GdbEngine::handleShowVersion(const DebuggerResponse &response)
     }
 }
 
-void GdbEngine::handleListFeatures(const DebuggerResponse &response)
-{
-    showMessage("FEATURES: " + response.toString());
-}
-
 void GdbEngine::handlePythonSetup(const DebuggerResponse &response)
 {
     CHECK_STATE(EngineSetupRequested);
@@ -3612,7 +3607,6 @@ void GdbEngine::setupEngine()
 
     showMessage("GDB STARTED, INITIALIZING IT");
     runCommand({"show version", CB(handleShowVersion)});
-    //runCommand("-list-features", CB(handleListFeatures));
     runCommand({"show debug-file-directory", CB(handleDebugInfoLocation)});
 
     //runCommand("-enable-timings");
