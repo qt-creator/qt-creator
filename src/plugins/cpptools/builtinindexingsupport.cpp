@@ -170,7 +170,7 @@ void indexFindErrors(QFutureInterface<void> &indexingFuture,
 
         document->releaseSourceAndAST();
 
-        indexingFuture.setProgressValue(files.size() - (files.size() - (i + 1)));
+        indexingFuture.setProgressValue(i + 1);
     }
 
     const QString elapsedTime = Utils::formatElapsedTime(timer.elapsed());
