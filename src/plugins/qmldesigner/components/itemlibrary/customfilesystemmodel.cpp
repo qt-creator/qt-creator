@@ -35,8 +35,101 @@
 #include <QFileSystemModel>
 #include <QFont>
 #include <QImageReader>
+#include <QPainter>
+#include <QRawFont>
+#include <QGlyphRun>
+#include <qmath.h>
 
 namespace QmlDesigner {
+
+static const QStringList &supportedImageSuffixes()
+{
+    static QStringList retList;
+    if (retList.isEmpty()) {
+        const QList<QByteArray> suffixes = QImageReader::supportedImageFormats();
+        for (const QByteArray &suffix : suffixes)
+            retList.append(QString::fromUtf8(suffix));
+    }
+    return retList;
+}
+
+static const QStringList &supportedShaderSuffixes()
+{
+    static const QStringList retList {"frag", "vert",
+                                      "glsl", "glslv", "glslf",
+                                      "vsh", "fsh"};
+    return retList;
+}
+
+static const QStringList &supportedFontSuffixes()
+{
+    static const QStringList retList {"ttf", "otf"};
+    return retList;
+}
+
+static const QStringList &supportedAudioSuffixes()
+{
+    static const QStringList retList {"wav"};
+    return retList;
+}
+
+static QPixmap generateFontImage(const QFileInfo &info, const QSize &size)
+{
+    static QHash<QString, QPixmap> fontImageCache;
+    const QString file = info.absoluteFilePath();
+    const QString key = QStringLiteral("%1@%2@%3").arg(file).arg(size.width()).arg(size.height());
+    if (!fontImageCache.contains(key)) {
+        QPixmap pixmap(size);
+        pixmap.fill(Qt::transparent);
+        qreal pixelSize = size.width() / 2.;
+        bool done = false;
+        while (!done) {
+            QRawFont font(file, pixelSize);
+            if (!font.isValid())
+                return pixmap;
+            QGlyphRun gr;
+            gr.setRawFont(font);
+            QVector<quint32> indices = font.glyphIndexesForString("Abc");
+            if (indices.isEmpty())
+                return pixmap;
+            const QVector<QPointF> advances = font.advancesForGlyphIndexes(indices);
+            QVector<QPointF> positions;
+            QPointF totalAdvance;
+            for (const QPointF &advance : advances) {
+                positions.append(totalAdvance);
+                totalAdvance += advance;
+            }
+
+            gr.setGlyphIndexes(indices);
+            gr.setPositions(positions);
+            QRectF bounds = gr.boundingRect();
+            if (bounds.width() <= 0 || bounds.height() <= 0)
+                return pixmap;
+
+            bounds.moveCenter({size.width() / 2., size.height() / 2.});
+
+            // Bounding rectangle doesn't necessarily contain the entirety of glyphs for some
+            // reason, so also check totalAdvance for overflow.
+            qreal limitX = qMax(bounds.width(), totalAdvance.x());
+            if (size.width() < limitX) {
+                pixelSize = qreal(qFloor(pixelSize * size.width() / limitX));
+                continue;
+            }
+            qreal limitY = qMax(bounds.height(), totalAdvance.y());
+            if (size.height() < limitY) {
+                pixelSize = qreal(qFloor(pixelSize * size.height() / limitY));
+                continue;
+            }
+
+            QPainter painter(&pixmap);
+            painter.setPen(Theme::getColor(Theme::DStextColor));
+            painter.drawGlyphRun(bounds.bottomLeft(), gr);
+            done = true;
+        }
+        fontImageCache[key] = pixmap;
+    }
+    return fontImageCache[key];
+}
 
 class ItemLibraryFileIconProvider : public QFileIconProvider
 {
@@ -46,20 +139,21 @@ public:
     QIcon icon( const QFileInfo & info ) const override
     {
         QIcon icon;
+        const QString suffix = info.suffix();
 
         for (auto iconSize : iconSizes) {
+            // Provide icon depending on suffix
+            QPixmap pixmap;
 
-            QPixmap pixmap(info.absoluteFilePath());
+            if (supportedImageSuffixes().contains(suffix))
+                pixmap.load(info.absoluteFilePath());
+            else  if (supportedFontSuffixes().contains(suffix))
+                pixmap = generateFontImage(info, iconSize);
 
             if (pixmap.isNull())
                 return QFileIconProvider::icon(info);
 
-            if (pixmap.width() == iconSize.width()
-                    && pixmap.height() == iconSize.height())
-                return pixmap;
-
-            if ((pixmap.width() > iconSize.width())
-                    || (pixmap.height() > iconSize.height()))
+            if ((pixmap.width() > iconSize.width()) || (pixmap.height() > iconSize.height()))
                 pixmap = pixmap.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
             icon.addPixmap(pixmap);
@@ -68,7 +162,8 @@ public:
         return icon;
     }
 
-    QList<QSize> iconSizes  = {{256, 196},{128, 96},{64, 64},{32, 32}};
+    // Generated icon sizes should match ItemLibraryResourceView icon sizes
+    QList<QSize> iconSizes  = {{192, 192}, {96, 96}, {48, 48}, {32, 32}};
 
 };
 
@@ -201,9 +296,15 @@ QModelIndex CustomFileSystemModel::updatePath(const QString &newPath)
     if (searchFilter.contains(QLatin1Char('.'))) {
         nameFilterList.append(QString(QStringLiteral("*%1*")).arg(searchFilter));
     } else {
-        foreach (const QByteArray &extension, QImageReader::supportedImageFormats()) {
-            nameFilterList.append(QString(QStringLiteral("*%1*.%2")).arg(searchFilter, QString::fromUtf8(extension)));
-        }
+        const QString filterTemplate("*%1*.%2");
+        for (const QString &ext : supportedImageSuffixes())
+            nameFilterList.append(filterTemplate.arg(searchFilter, ext));
+        for (const QString &ext : supportedShaderSuffixes())
+            nameFilterList.append(filterTemplate.arg(searchFilter, ext));
+        for (const QString &ext : supportedFontSuffixes())
+            nameFilterList.append(filterTemplate.arg(searchFilter, ext));
+        for (const QString &ext : supportedAudioSuffixes())
+            nameFilterList.append(filterTemplate.arg(searchFilter, ext));
     }
 
     m_files.clear();
