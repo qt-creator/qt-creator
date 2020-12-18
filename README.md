@@ -209,7 +209,7 @@ The ClangFormat plugin depends on the additional patch
 
     https://code.qt.io/cgit/clang/llvm-project.git/commit/?h=release_100-based&id=9b992a0f7f160dd6c75f20a4dcfcf7c60a4894df
 
-While the plugin builds without it, it will be disabled on start with an error message.
+While the plugin builds without it, it might not be fully functional.
 
 Note that the plugin is disabled by default.
 

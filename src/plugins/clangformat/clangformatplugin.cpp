@@ -59,6 +59,7 @@
 #include <clang/Format/Format.h>
 
 #include <utils/algorithm.h>
+#include <utils/infobar.h>
 
 #include <QAction>
 #include <QDebug>
@@ -70,7 +71,6 @@ using namespace ProjectExplorer;
 
 namespace ClangFormat {
 
-#ifdef KEEP_LINE_BREAKS_FOR_NON_EMPTY_LINES_BACKPORTED
 class ClangFormatStyleFactory : public CppTools::CppCodeStylePreferencesFactory
 {
 public:
@@ -101,13 +101,11 @@ static void replaceCppCodeStyle()
     ICodeStylePreferencesFactory *factory = new ClangFormatStyleFactory();
     TextEditorSettings::registerCodeStyleFactory(factory);
 }
-#endif
 
 bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
-#ifdef KEEP_LINE_BREAKS_FOR_NON_EMPTY_LINES_BACKPORTED
     replaceCppCodeStyle();
 
     Core::ActionContainer *contextMenu = Core::ActionManager::actionContainer(
@@ -151,18 +149,25 @@ bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorS
                         openClangFormatConfigAction->setData(doc->filePath().toString());
                 });
     }
-    return true;
-#else
+#ifndef KEEP_LINE_BREAKS_FOR_NON_EMPTY_LINES_BACKPORTED
 #ifdef _MSC_VER
 #pragma message( \
-    "ClangFormat: building dummy plugin due to unmodified Clang, see README.md for more info")
+    "ClangFormat: building against unmodified Clang, see README.md for more info")
 #else
-#warning ClangFormat: building dummy plugin due to unmodified Clang, see README.md for more info
+#warning ClangFormat: building against unmodified Clang, see README.md for more info
 #endif
-    *errorString = "Disabling ClangFormat plugin as it has not been built against a modified Clang's libFormat."
-                   "For more information see the Qt Creator README at "
-                   "https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/README.md";
-    return false;
+    static const char clangFormatFormatWarningKey[] = "ClangFormatFormatWarning";
+    if (!Core::ICore::infoBar()->canInfoBeAdded(clangFormatFormatWarningKey))
+        return true;
+    Utils::InfoBarEntry
+        info(clangFormatFormatWarningKey,
+             tr("The ClangFormat plugin has been built against an unmodified Clang. "
+                "You might experience formatting glitches in certain circumstances. "
+                "See https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/README.md for more "
+                 "information."),
+             Utils::InfoBarEntry::GlobalSuppression::Enabled);
+    Core::ICore::infoBar()->addInfo(info);
+    return true;
 #endif
 }
 
