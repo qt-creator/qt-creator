@@ -199,6 +199,8 @@ void CppTypeHierarchyWidget::perform()
     if (m_future.isRunning())
         m_future.cancel();
 
+    m_showOldClass = false;
+
     updateSynchronizer();
 
     auto editor = qobject_cast<CppEditor *>(Core::EditorManager::currentEditor());
@@ -229,6 +231,8 @@ void CppTypeHierarchyWidget::performFromExpression(const QString &expression, co
 {
     if (m_future.isRunning())
         m_future.cancel();
+
+    m_showOldClass = true;
 
     updateSynchronizer();
 
@@ -270,25 +274,37 @@ void CppTypeHierarchyWidget::displayHierarchy()
     m_inspectedClass->setLink(cppClass->link);
     QStandardItem *bases = new QStandardItem(tr("Bases"));
     m_model->invisibleRootItem()->appendRow(bases);
-    buildHierarchy(*cppClass, bases, true, &CppClass::bases);
+    QStandardItem *selectedItem1 = buildHierarchy(*cppClass, bases, true, &CppClass::bases);
     QStandardItem *derived = new QStandardItem(tr("Derived"));
     m_model->invisibleRootItem()->appendRow(derived);
-    buildHierarchy(*cppClass, derived, true, &CppClass::derived);
+    QStandardItem *selectedItem2 = buildHierarchy(*cppClass, derived, true, &CppClass::derived);
     m_treeView->expandAll();
+    m_oldClass = cppClass->qualifiedName;
+
+    QStandardItem *selectedItem = selectedItem1 ? selectedItem1 : selectedItem2;
+    if (selectedItem)
+        m_treeView->setCurrentIndex(m_model->indexFromItem(selectedItem));
 
     showTypeHierarchy();
 }
 
-void CppTypeHierarchyWidget::buildHierarchy(const CppClass &cppClass, QStandardItem *parent,
+QStandardItem *CppTypeHierarchyWidget::buildHierarchy(const CppClass &cppClass, QStandardItem *parent,
                                             bool isRoot, const HierarchyMember member)
 {
+    QStandardItem *selectedItem = nullptr;
     if (!isRoot) {
         QStandardItem *item = itemForClass(cppClass);
         parent->appendRow(item);
         parent = item;
+        if (m_showOldClass && cppClass.qualifiedName == m_oldClass)
+            selectedItem = item;
     }
-    foreach (const CppClass &klass, sortClasses(cppClass.*member))
-        buildHierarchy(klass, parent, false, member);
+    foreach (const CppClass &klass, sortClasses(cppClass.*member)) {
+        QStandardItem *item = buildHierarchy(klass, parent, false, member);
+        if (!selectedItem)
+            selectedItem = item;
+    }
+    return selectedItem;
 }
 
 void CppTypeHierarchyWidget::showNoTypeHierarchyLabel()

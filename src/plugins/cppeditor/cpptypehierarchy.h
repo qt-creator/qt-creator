@@ -85,8 +85,8 @@ private slots:
 private:
     typedef QList<CppTools::CppClass> CppTools::CppClass::*HierarchyMember;
     void performFromExpression(const QString &expression, const QString &fileName);
-    void buildHierarchy(const CppTools::CppClass &cppClass, QStandardItem *parent,
-                        bool isRoot, HierarchyMember member);
+    QStandardItem *buildHierarchy(const CppTools::CppClass &cppClass, QStandardItem *parent,
+                                  bool isRoot, HierarchyMember member);
     void showNoTypeHierarchyLabel();
     void showTypeHierarchy();
     void showProgress();
@@ -108,6 +108,8 @@ private:
     QFutureWatcher<void> m_futureWatcher;
     QFutureSynchronizer<void> m_synchronizer;
     Utils::ProgressIndicator *m_progressIndicator = nullptr;
+    QString m_oldClass;
+    bool m_showOldClass = false;
 };
 
 class CppTypeHierarchyFactory : public Core::INavigationWidgetFactory
