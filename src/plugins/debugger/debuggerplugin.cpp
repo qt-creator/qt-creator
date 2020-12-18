@@ -221,21 +221,15 @@
                        {notify-  {notify-
                         Engine-   Engine-
                         SetupOk}  SetupFailed}
-                            +      +
-                            +      `+-+-+> EngineSetupFailed
-                            +                   +
-                            +    [calls RunControl->startFailed]
-                            +                   +
-                            +             DebuggerFinished
-                            v
-                      EngineSetupOk
-                            +
-             [calls RunControl->StartSuccessful]
-                         +
-                         +
-                  EngineRunRequested
-                         +
-                 (calls *Engine->runEngine())
+                         +  |       +
+  EngineRunRequested <+-+'  |       `+-+-+> EngineSetupFailed
+                            |                   +
+                            |    [calls RunControl->startFailed]
+                            |                   +
+                            |             DebuggerFinished
+                            |
+                   ------------------------
+                 /     |            |      \
                /       |            |        \
              /         |            |          \
             | (core)   | (attach)   |           |

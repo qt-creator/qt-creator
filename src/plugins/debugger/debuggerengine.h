@@ -62,7 +62,6 @@ enum DebuggerState
 
     EngineSetupRequested,      // Engine starts
     EngineSetupFailed,
-    EngineSetupOk,
 
     EngineRunRequested,
     EngineRunFailed,

@@ -146,7 +146,6 @@ static bool debuggerActionsEnabledHelper(DebuggerState state)
     case InferiorRunFailed:
     case DebuggerNotReady:
     case EngineSetupRequested:
-    case EngineSetupOk:
     case EngineSetupFailed:
     case EngineRunRequested:
     case EngineRunFailed:
@@ -900,7 +899,6 @@ QString DebuggerEngine::stateName(int s)
     switch (s) {
         SN(DebuggerNotReady)
         SN(EngineSetupRequested)
-        SN(EngineSetupOk)
         SN(EngineSetupFailed)
         SN(EngineRunFailed)
         SN(EngineRunRequested)
@@ -1176,13 +1174,13 @@ static bool isAllowedTransition(DebuggerState from, DebuggerState to)
         return to == EngineSetupRequested;
 
     case EngineSetupRequested:
-        return to == EngineSetupOk || to == EngineSetupFailed;
+        return to == EngineRunRequested
+            || to == EngineSetupFailed
+            || to == EngineShutdownRequested;
     case EngineSetupFailed:
         // In is the engine's task to go into a proper "Shutdown"
         // state before calling notifyEngineSetupFailed
         return to == DebuggerFinished;
-    case EngineSetupOk:
-        return to == EngineRunRequested || to == EngineShutdownRequested;
 
     case EngineRunRequested:
         return to == EngineRunFailed
@@ -1251,9 +1249,7 @@ void DebuggerEngine::notifyEngineSetupOk()
 //    CALLGRIND_START_INSTRUMENTATION;
 //#endif
     showMessage("NOTE: ENGINE SETUP OK");
-    d->m_progress.setProgressValue(250);
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
-    setState(EngineSetupOk);
     setState(EngineRunRequested);
     showMessage("CALL: RUN ENGINE");
     d->m_progress.setProgressValue(300);
@@ -1988,9 +1984,6 @@ void DebuggerEngine::quitDebugger()
         interruptInferior();
         break;
     case EngineSetupRequested:
-        notifyEngineSetupFailed();
-        break;
-    case EngineSetupOk:
         notifyEngineSetupFailed();
         break;
     case EngineRunRequested:
