@@ -1266,6 +1266,14 @@ void MultiSelectionAspect::toMap(QVariantMap &data) const
     saveToMap(data, d->m_value, QStringList());
 }
 
+void MultiSelectionAspect::setVisibleDynamic(bool visible)
+{
+    if (d->m_label)
+        d->m_label->setVisible(visible);
+    if (d->m_listView)
+        d->m_listView->setVisible(visible);
+}
+
 void MultiSelectionAspect::setDisplayStyle(MultiSelectionAspect::DisplayStyle style)
 {
     d->m_displayStyle = style;

@@ -38,6 +38,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <utils/aspects.h>
@@ -68,10 +69,97 @@ const char QBS_INSTALL[] = "Qbs.Install";
 const char QBS_CLEAN_INSTALL_ROOT[] = "Qbs.CleanInstallRoot";
 
 using namespace ProjectExplorer;
+using namespace QtSupport;
 using namespace Utils;
 
 namespace QbsProjectManager {
 namespace Internal {
+
+class QTSUPPORT_EXPORT ArchitecturesAspect : public Utils::MultiSelectionAspect
+{
+    Q_OBJECT
+public:
+    ArchitecturesAspect();
+
+    void setKit(const ProjectExplorer::Kit *kit) { m_kit = kit; }
+    void addToLayout(Utils::LayoutBuilder &builder) override;
+    QStringList selectedArchitectures() const;
+    void setSelectedArchitectures(const QStringList& architectures);
+    bool isManagedByTarget() const { return m_isManagedByTarget; }
+
+private:
+    void setVisibleDynamic(bool visible) final;
+
+    const ProjectExplorer::Kit *m_kit = nullptr;
+    QMap<QString, QString> m_abisToArchMap;
+    bool m_isManagedByTarget = false;
+};
+
+ArchitecturesAspect::ArchitecturesAspect()
+{
+    m_abisToArchMap = {
+        {ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A, "armv7a"},
+        {ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A, "arm64"},
+        {ProjectExplorer::Constants::ANDROID_ABI_X86, "x86"},
+        {ProjectExplorer::Constants::ANDROID_ABI_X86_64, "x86_64"}};
+    setAllValues(m_abisToArchMap.keys());
+}
+
+void ArchitecturesAspect::addToLayout(LayoutBuilder &builder)
+{
+    MultiSelectionAspect::addToLayout(builder);
+    const auto changeHandler = [this] {
+        const BaseQtVersion *qtVersion = QtKitAspect::qtVersion(m_kit);
+        if (!qtVersion) {
+            setVisibleDynamic(false);
+            return;
+        }
+        const Abis abis = qtVersion->qtAbis();
+        if (abis.size() <= 1) {
+            setVisibleDynamic(false);
+            return;
+        }
+        bool isAndroid = Utils::anyOf(abis, [](const Abi &abi) {
+            return abi.osFlavor() == Abi::OSFlavor::AndroidLinuxFlavor;
+        });
+        if (!isAndroid) {
+            setVisibleDynamic(false);
+            return;
+        }
+
+        setVisibleDynamic(true);
+    };
+    connect(KitManager::instance(), &KitManager::kitsChanged, builder.layout(), changeHandler);
+    connect(this, &ArchitecturesAspect::changed, builder.layout(), changeHandler);
+    changeHandler();
+}
+
+QStringList ArchitecturesAspect::selectedArchitectures() const
+{
+    QStringList architectures;
+    for (const auto &abi : value()) {
+        if (m_abisToArchMap.contains(abi))
+            architectures << m_abisToArchMap[abi];
+    }
+    return architectures;
+}
+
+void ArchitecturesAspect::setVisibleDynamic(bool visible)
+{
+    MultiSelectionAspect::setVisibleDynamic(visible);
+    m_isManagedByTarget = visible;
+}
+
+void ArchitecturesAspect::setSelectedArchitectures(const QStringList& architectures)
+{
+    QStringList newValue;
+    for (auto i = m_abisToArchMap.constBegin(); i != m_abisToArchMap.constEnd(); ++i) {
+        if (architectures.contains(i.value()))
+            newValue << i.key();
+    }
+    if (newValue != value())
+        setValue(newValue);
+}
 
 class QbsBuildStepConfigWidget : public QWidget
 {
@@ -142,6 +230,11 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Utils::Id id) :
     m_buildVariant->addOption(tr("Debug"));
     m_buildVariant->addOption(tr("Release"));
 
+    m_selectedAbis = addAspect<ArchitecturesAspect>();
+    m_selectedAbis->setLabelText(tr("ABIs:"));
+    m_selectedAbis->setDisplayStyle(MultiSelectionAspect::DisplayStyle::ListView);
+    m_selectedAbis->setKit(target()->kit());
+
     m_keepGoing = addAspect<BoolAspect>();
     m_keepGoing->setSettingsKey(QBS_KEEP_GOING);
     m_keepGoing->setToolTip(tr("Keep going when errors occur (if at all possible)."));
@@ -188,6 +281,8 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Utils::Id id) :
     connect(m_forceProbes, &BaseAspect::changed, this, &QbsBuildStep::updateState);
 
     connect(m_buildVariant, &SelectionAspect::changed, this, &QbsBuildStep::changeBuildVariant);
+    connect(m_selectedAbis, &SelectionAspect::changed, [this] {
+        setConfiguredArchitectures(m_selectedAbis->selectedArchitectures()); });
 }
 
 QbsBuildStep::~QbsBuildStep()
@@ -501,6 +596,23 @@ void QbsBuildStep::updateState()
     emit qbsConfigurationChanged();
 }
 
+void QbsBuildStep::setConfiguredArchitectures(const QStringList &architectures)
+{
+    if (configuredArchitectures() == architectures)
+        return;
+    if (architectures.isEmpty())
+        m_qbsConfiguration.remove(Constants::QBS_ARCHITECTURES);
+    else
+        m_qbsConfiguration.insert(Constants::QBS_ARCHITECTURES, architectures.join(','));
+    emit qbsConfigurationChanged();
+}
+
+QStringList QbsBuildStep::configuredArchitectures() const
+{
+    return m_qbsConfiguration[Constants::QBS_ARCHITECTURES].toString().split(',',
+            Qt::SkipEmptyParts);
+}
+
 QbsBuildStepData QbsBuildStep::stepData() const
 {
     QbsBuildStepData data;
@@ -558,6 +670,7 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
 
     LayoutBuilder builder(this);
     builder.addRow(m_qbsStep->m_buildVariant);
+    builder.addRow(m_qbsStep->m_selectedAbis);
     builder.addRow(m_qbsStep->m_maxJobCount);
     builder.addRow({tr("Properties:"), propertyEdit});
 
@@ -600,14 +713,23 @@ void QbsBuildStepConfigWidget::updateState()
         updatePropertyEdit(m_qbsStep->qbsConfiguration(QbsBuildStep::PreserveVariables));
         installDirChooser->setFilePath(m_qbsStep->installRoot(QbsBuildStep::PreserveVariables));
         defaultInstallDirCheckBox->setChecked(!m_qbsStep->hasCustomInstallRoot());
+        m_qbsStep->m_selectedAbis->setSelectedArchitectures(m_qbsStep->configuredArchitectures());
     }
 
-    const auto qbsBuildConfig = static_cast<QbsBuildConfiguration *>(qbsStep()->buildConfiguration());
+    const auto qbsBuildConfig = static_cast<QbsBuildConfiguration *>(m_qbsStep->buildConfiguration());
 
-    QString command = qbsBuildConfig->equivalentCommandLine(qbsStep()->stepData());
+    QString command = qbsBuildConfig->equivalentCommandLine(m_qbsStep->stepData());
 
     for (int i = 0; i < m_propertyCache.count(); ++i) {
         command += ' ' + m_propertyCache.at(i).name + ':' + m_propertyCache.at(i).effectiveValue;
+    }
+
+    if (m_qbsStep->m_selectedAbis->isManagedByTarget()) {
+        QStringList selectedArchitectures = m_qbsStep->configuredArchitectures();
+        if (!selectedArchitectures.isEmpty()) {
+            command += ' ' + QLatin1String(Constants::QBS_ARCHITECTURES) + ':' +
+                    selectedArchitectures.join(',');
+        }
     }
 
     const auto addToCommand = [&command](TriState ts, const QString &key) {
@@ -644,6 +766,8 @@ void QbsBuildStepConfigWidget::updatePropertyEdit(const QVariantMap &data)
     editable.remove(Constants::QBS_CONFIG_QUICK_COMPILER_KEY);
     editable.remove(Constants::QBS_FORCE_PROBES_KEY);
     editable.remove(Constants::QBS_INSTALL_ROOT_KEY);
+    if (m_qbsStep->m_selectedAbis->isManagedByTarget())
+        editable.remove(Constants::QBS_ARCHITECTURES);
 
     QStringList propertyList;
     for (QVariantMap::const_iterator i = editable.constBegin(); i != editable.constEnd(); ++i)
@@ -665,42 +789,44 @@ void QbsBuildStep::changeBuildVariant()
 void QbsBuildStepConfigWidget::changeUseDefaultInstallDir(bool useDefault)
 {
     m_ignoreChange = true;
-    QVariantMap config = qbsStep()->qbsConfiguration(QbsBuildStep::PreserveVariables);
+    QVariantMap config = m_qbsStep->qbsConfiguration(QbsBuildStep::PreserveVariables);
     installDirChooser->setEnabled(!useDefault);
     if (useDefault)
         config.remove(Constants::QBS_INSTALL_ROOT_KEY);
     else
         config.insert(Constants::QBS_INSTALL_ROOT_KEY, installDirChooser->rawPath());
-    qbsStep()->setQbsConfiguration(config);
+    m_qbsStep->setQbsConfiguration(config);
     m_ignoreChange = false;
 }
 
 void QbsBuildStepConfigWidget::changeInstallDir(const QString &dir)
 {
-    if (!qbsStep()->hasCustomInstallRoot())
+    if (!m_qbsStep->hasCustomInstallRoot())
         return;
     m_ignoreChange = true;
-    QVariantMap config = qbsStep()->qbsConfiguration(QbsBuildStep::PreserveVariables);
+    QVariantMap config = m_qbsStep->qbsConfiguration(QbsBuildStep::PreserveVariables);
     config.insert(Constants::QBS_INSTALL_ROOT_KEY, dir);
-    qbsStep()->setQbsConfiguration(config);
+    m_qbsStep->setQbsConfiguration(config);
     m_ignoreChange = false;
 }
 
 void QbsBuildStepConfigWidget::applyCachedProperties()
 {
     QVariantMap data;
-    const QVariantMap tmp = qbsStep()->qbsConfiguration(QbsBuildStep::PreserveVariables);
+    const QVariantMap tmp = m_qbsStep->qbsConfiguration(QbsBuildStep::PreserveVariables);
 
     // Insert values set up with special UIs:
     data.insert(Constants::QBS_CONFIG_PROFILE_KEY,
                 tmp.value(Constants::QBS_CONFIG_PROFILE_KEY));
     data.insert(Constants::QBS_CONFIG_VARIANT_KEY,
                 tmp.value(Constants::QBS_CONFIG_VARIANT_KEY));
-    const QStringList additionalSpecialKeys({Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY,
+    QStringList additionalSpecialKeys({Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY,
                                              Constants::QBS_CONFIG_QUICK_DEBUG_KEY,
                                              Constants::QBS_CONFIG_QUICK_COMPILER_KEY,
                                              Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY,
                                              Constants::QBS_INSTALL_ROOT_KEY});
+    if (m_qbsStep->m_selectedAbis->isManagedByTarget())
+        additionalSpecialKeys << Constants::QBS_ARCHITECTURES;
     for (const QString &key : additionalSpecialKeys) {
         const auto it = tmp.constFind(key);
         if (it != tmp.cend())
@@ -713,7 +839,7 @@ void QbsBuildStepConfigWidget::applyCachedProperties()
     }
 
     m_ignoreChange = true;
-    qbsStep()->setQbsConfiguration(data);
+    m_qbsStep->setQbsConfiguration(data);
     m_ignoreChange = false;
 }
 
@@ -734,16 +860,18 @@ bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QS
     }
 
     QList<Property> properties;
-    const MacroExpander * const expander = qbsStep()->macroExpander();
+    const MacroExpander * const expander = m_qbsStep->macroExpander();
     foreach (const QString &rawArg, argList) {
         int pos = rawArg.indexOf(':');
         if (pos > 0) {
             const QString propertyName = rawArg.left(pos);
-            static const QStringList specialProperties{
+            QStringList specialProperties{
                 Constants::QBS_CONFIG_PROFILE_KEY, Constants::QBS_CONFIG_VARIANT_KEY,
                 Constants::QBS_CONFIG_QUICK_DEBUG_KEY, Constants::QBS_CONFIG_QUICK_COMPILER_KEY,
                 Constants::QBS_INSTALL_ROOT_KEY, Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY,
             };
+            if (m_qbsStep->m_selectedAbis->isManagedByTarget())
+                specialProperties << Constants::QBS_ARCHITECTURES;
             if (specialProperties.contains(propertyName)) {
                 if (errorMessage) {
                     *errorMessage = tr("Property \"%1\" cannot be set here. "

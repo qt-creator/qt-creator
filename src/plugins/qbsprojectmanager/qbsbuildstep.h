@@ -37,6 +37,7 @@ class ErrorInfo;
 class QbsProject;
 class QbsSession;
 
+class ArchitecturesAspect;
 class QbsBuildStepConfigWidget;
 
 class QbsBuildStep final : public ProjectExplorer::BuildStep
@@ -102,6 +103,7 @@ private:
                              const QString &message, const QString &file, int line);
 
     void setBuildVariant(const QString &variant);
+    void setConfiguredArchitectures(const QStringList &architectures);
     QString profile() const;
 
     void parseProject();
@@ -110,9 +112,11 @@ private:
 
     void updateState();
     void changeBuildVariant();
+    QStringList configuredArchitectures() const;
 
     QVariantMap m_qbsConfiguration;
     Utils::SelectionAspect *m_buildVariant = nullptr;
+    ArchitecturesAspect *m_selectedAbis = nullptr;
     Utils::IntegerAspect *m_maxJobCount = nullptr;
     Utils::BoolAspect *m_keepGoing = nullptr;
     Utils::BoolAspect *m_showCommandLines = nullptr;

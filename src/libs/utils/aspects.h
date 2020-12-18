@@ -225,6 +225,9 @@ public:
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 
+protected:
+    void setVisibleDynamic(bool visible) override;
+
 private:
     std::unique_ptr<Internal::MultiSelectionAspectPrivate> d;
 };
