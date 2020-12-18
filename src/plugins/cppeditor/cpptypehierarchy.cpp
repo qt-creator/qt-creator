@@ -43,6 +43,7 @@
 #include <QApplication>
 #include <QLabel>
 #include <QLatin1String>
+#include <QMenu>
 #include <QModelIndex>
 #include <QStackedLayout>
 #include <QVBoxLayout>
@@ -68,7 +69,7 @@ QStandardItem *itemForClass(const CppClass &cppClass)
         item->setData(cppClass.qualifiedName, AnnotationRole);
     item->setData(cppClass.icon, Qt::DecorationRole);
     QVariant link;
-    link.setValue(Utils::Link(cppClass.link));
+    link.setValue(Link(cppClass.link));
     item->setData(link, LinkRole);
     return item;
 }
@@ -76,7 +77,7 @@ QStandardItem *itemForClass(const CppClass &cppClass)
 QList<CppClass> sortClasses(const QList<CppClass> &cppClasses)
 {
     QList<CppClass> sorted = cppClasses;
-    Utils::sort(sorted, [](const CppClass &c1, const CppClass &c2) -> bool {
+    sort(sorted, [](const CppClass &c1, const CppClass &c2) -> bool {
         const QString key1 = c1.name + QLatin1String("::") + c1.qualifiedName;
         const QString key2 = c2.name + QLatin1String("::") + c2.qualifiedName;
         return key1 < key2;
@@ -85,6 +86,49 @@ QList<CppClass> sortClasses(const QList<CppClass> &cppClasses)
 }
 
 } // Anonymous
+
+class CppTypeHierarchyTreeView : public NavigationTreeView
+{
+    Q_OBJECT
+public:
+    CppTypeHierarchyTreeView(QWidget *parent);
+
+    void contextMenuEvent(QContextMenuEvent *event) override;
+};
+
+
+CppTypeHierarchyTreeView::CppTypeHierarchyTreeView(QWidget *parent) :
+    NavigationTreeView(parent)
+{
+}
+
+void CppTypeHierarchyTreeView::contextMenuEvent(QContextMenuEvent *event)
+{
+    if (!event)
+        return;
+
+    QMenu contextMenu;
+
+    QAction *action = contextMenu.addAction(tr("Open in Editor"));
+    connect(action, &QAction::triggered, this, [this] () {
+        emit activated(currentIndex());
+    });
+    action = contextMenu.addAction(tr("Open Type Hierarchy"));
+    connect(action, &QAction::triggered, this, [this] () {
+        emit doubleClicked(currentIndex());
+    });
+
+    contextMenu.addSeparator();
+
+    action = contextMenu.addAction(tr("Expand All"));
+    connect(action, &QAction::triggered, this, &QTreeView::expandAll);
+    action = contextMenu.addAction(tr("Collapse All"));
+    connect(action, &QAction::triggered, this, &QTreeView::collapseAll);
+
+    contextMenu.exec(event->globalPos());
+
+    event->accept();
+}
 
 namespace CppEditor {
 namespace Internal {
@@ -95,12 +139,13 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget()
     m_inspectedClass = new TextEditor::TextEditorLinkLabel(this);
     m_inspectedClass->setContentsMargins(5, 5, 5, 5);
     m_model = new CppTypeHierarchyModel(this);
-    m_treeView = new NavigationTreeView(this);
+    m_treeView = new CppTypeHierarchyTreeView(this);
     m_treeView->setActivationMode(SingleClickActivation);
     m_delegate = new AnnotatedItemDelegate(this);
     m_delegate->setDelimiter(QLatin1String(" "));
     m_delegate->setAnnotationRole(AnnotationRole);
     m_treeView->setModel(m_model);
+    m_treeView->setExpandsOnDoubleClick(false);
     m_treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_treeView->setItemDelegate(m_delegate);
     m_treeView->setRootIsDecorated(false);
@@ -108,6 +153,7 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget()
     m_treeView->setDragDropMode(QAbstractItemView::DragOnly);
     m_treeView->setDefaultDropAction(Qt::MoveAction);
     connect(m_treeView, &QTreeView::activated, this, &CppTypeHierarchyWidget::onItemActivated);
+    connect(m_treeView, &QTreeView::doubleClicked, this, &CppTypeHierarchyWidget::onItemDoubleClicked);
 
     m_infoLabel = new QLabel(this);
     m_infoLabel->setAlignment(Qt::AlignCenter);
@@ -179,6 +225,26 @@ void CppTypeHierarchyWidget::perform()
     Core::ProgressManager::addTask(m_future, tr("Evaluating Type Hierarchy"), "TypeHierarchy");
 }
 
+void CppTypeHierarchyWidget::performFromExpression(const QString &expression, const QString &fileName)
+{
+    if (m_future.isRunning())
+        m_future.cancel();
+
+    updateSynchronizer();
+
+    showProgress();
+
+    CppElementEvaluator evaluator(nullptr);
+    evaluator.setLookupBaseClasses(true);
+    evaluator.setLookupDerivedClasses(true);
+    evaluator.setExpression(expression, fileName);
+    m_future = evaluator.asyncExpressionExecute();
+    m_futureWatcher.setFuture(QFuture<void>(m_future));
+    m_synchronizer.addFuture(QFuture<void>(m_future));
+
+    Core::ProgressManager::addTask(m_future, tr("Evaluating Type Hierarchy"), "TypeHierarchy");
+}
+
 void CppTypeHierarchyWidget::displayHierarchy()
 {
     updateSynchronizer();
@@ -240,7 +306,7 @@ void CppTypeHierarchyWidget::showProgress()
 {
     m_infoLabel->setText(tr("Evaluating type hierarchy..."));
     if (!m_progressIndicator) {
-        m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Large);
+        m_progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Large);
         m_progressIndicator->attachToWidget(this);
     }
     m_progressIndicator->show();
@@ -258,14 +324,36 @@ void CppTypeHierarchyWidget::clearTypeHierarchy()
     m_model->clear();
 }
 
+static QString getExpression(const QModelIndex &index)
+{
+    const QString annotation = index.data(AnnotationRole).toString();
+    if (!annotation.isEmpty())
+        return annotation;
+    return index.data(Qt::DisplayRole).toString();
+}
+
 void CppTypeHierarchyWidget::onItemActivated(const QModelIndex &index)
 {
-    auto link = index.data(LinkRole).value<Utils::Link>();
+    auto link = index.data(LinkRole).value<Link>();
+    if (!link.hasValidTarget())
+        return;
+
+    const Link updatedLink = CppElementEvaluator::linkFromExpression(
+                getExpression(index), link.targetFileName);
+    if (updatedLink.hasValidTarget())
+        link = updatedLink;
+
+    Core::EditorManager::openEditorAt(link.targetFileName,
+                                      link.targetLine,
+                                      link.targetColumn,
+                                      Constants::CPPEDITOR_ID);
+}
+
+void CppTypeHierarchyWidget::onItemDoubleClicked(const QModelIndex &index)
+{
+    const auto link = index.data(LinkRole).value<Link>();
     if (link.hasValidTarget())
-        Core::EditorManager::openEditorAt(link.targetFileName,
-                                          link.targetLine,
-                                          link.targetColumn,
-                                          Constants::CPPEDITOR_ID);
+        performFromExpression(getExpression(index), link.targetFileName);
 }
 
 // CppTypeHierarchyFactory
@@ -307,7 +395,7 @@ QMimeData *CppTypeHierarchyModel::mimeData(const QModelIndexList &indexes) const
     auto data = new DropMimeData;
     data->setOverrideFileDropAction(Qt::CopyAction); // do not remove the item from the model
     foreach (const QModelIndex &index, indexes) {
-        auto link = index.data(LinkRole).value<Utils::Link>();
+        auto link = index.data(LinkRole).value<Link>();
         if (link.hasValidTarget())
             data->addFile(link.targetFileName, link.targetLine, link.targetColumn);
     }
@@ -317,3 +405,4 @@ QMimeData *CppTypeHierarchyModel::mimeData(const QModelIndexList &indexes) const
 } // namespace Internal
 } // namespace CppEditor
 
+#include "cpptypehierarchy.moc"

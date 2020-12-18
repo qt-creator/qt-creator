@@ -84,6 +84,7 @@ private slots:
 
 private:
     typedef QList<CppTools::CppClass> CppTools::CppClass::*HierarchyMember;
+    void performFromExpression(const QString &expression, const QString &fileName);
     void buildHierarchy(const CppTools::CppClass &cppClass, QStandardItem *parent,
                         bool isRoot, HierarchyMember member);
     void showNoTypeHierarchyLabel();
@@ -92,6 +93,7 @@ private:
     void hideProgress();
     void clearTypeHierarchy();
     void onItemActivated(const QModelIndex &index);
+    void onItemDoubleClicked(const QModelIndex &index);
     void updateSynchronizer();
 
     CppEditorWidget *m_cppEditor = nullptr;

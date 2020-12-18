@@ -350,7 +350,7 @@ public:
 CppElementEvaluator::CppElementEvaluator(TextEditor::TextEditorWidget *editor) :
     m_editor(editor),
     m_modelManager(CppModelManager::instance()),
-    m_tc(editor->textCursor()),
+    m_tc(editor ? editor->textCursor() : QTextCursor()),
     m_lookupBaseClasses(false),
     m_lookupDerivedClasses(false)
 {}
@@ -364,6 +364,12 @@ void CppElementEvaluator::setLookupBaseClasses(const bool lookup)
 void CppElementEvaluator::setLookupDerivedClasses(const bool lookup)
 { m_lookupDerivedClasses = lookup; }
 
+void CppElementEvaluator::setExpression(const QString &expression, const QString &fileName)
+{
+    m_expression = expression;
+    m_fileName = fileName;
+}
+
 //  special case for bug QTCREATORBUG-4780
 static bool shouldOmitElement(const LookupItem &lookupItem, const Scope *scope)
 {
@@ -373,12 +379,17 @@ static bool shouldOmitElement(const LookupItem &lookupItem, const Scope *scope)
 
 void CppElementEvaluator::execute()
 {
-    execute(&CppElementEvaluator::syncExec);
+    execute(&CppElementEvaluator::sourceDataFromGui, &CppElementEvaluator::syncExec);
 }
 
 QFuture<QSharedPointer<CppElement>> CppElementEvaluator::asyncExecute()
 {
-    return execute(&CppElementEvaluator::asyncExec);
+    return execute(&CppElementEvaluator::sourceDataFromGui, &CppElementEvaluator::asyncExec);
+}
+
+QFuture<QSharedPointer<CppElement>> CppElementEvaluator::asyncExpressionExecute()
+{
+    return execute(&CppElementEvaluator::sourceDataFromExpression, &CppElementEvaluator::asyncExec);
 }
 
 static QFuture<QSharedPointer<CppElement>> createFinishedFuture()
@@ -389,18 +400,12 @@ static QFuture<QSharedPointer<CppElement>> createFinishedFuture()
     return futureInterface.future();
 }
 
-// @todo: Consider refactoring code from CppEditor::findLinkAt into here.
-QFuture<QSharedPointer<CppElement>> CppElementEvaluator::execute(ExecFunction execFuntion)
+bool CppElementEvaluator::sourceDataFromGui(const CPlusPlus::Snapshot &snapshot,
+                                            Document::Ptr &doc, Scope **scope, QString &expression)
 {
-    clear();
-
-    if (!m_modelManager)
-        return createFinishedFuture();
-
-    const Snapshot &snapshot = m_modelManager->snapshot();
-    Document::Ptr doc = snapshot.document(m_editor->textDocument()->filePath());
+    doc = snapshot.document(m_editor->textDocument()->filePath());
     if (!doc)
-        return createFinishedFuture();
+        return false;
 
     int line = 0;
     int column = 0;
@@ -410,14 +415,44 @@ QFuture<QSharedPointer<CppElement>> CppElementEvaluator::execute(ExecFunction ex
     checkDiagnosticMessage(pos);
 
     if (matchIncludeFile(doc, line) || matchMacroInUse(doc, pos))
-        return createFinishedFuture();
+        return false;
 
     CppTools::moveCursorToEndOfIdentifier(&m_tc);
+    ExpressionUnderCursor expressionUnderCursor(doc->languageFeatures());
+    expression = expressionUnderCursor(m_tc);
 
     // Fetch the expression's code
-    ExpressionUnderCursor expressionUnderCursor(doc->languageFeatures());
-    const QString &expression = expressionUnderCursor(m_tc);
-    Scope *scope = doc->scopeAt(line, column - 1);
+    *scope = doc->scopeAt(line, column - 1);
+    return true;
+}
+
+bool CppElementEvaluator::sourceDataFromExpression(const CPlusPlus::Snapshot &snapshot,
+                          Document::Ptr &doc, Scope **scope, QString &expression)
+{
+    doc = snapshot.document(m_fileName);
+    expression = m_expression;
+
+    // Fetch the expression's code
+    *scope = doc->globalNamespace();
+    return true;
+}
+
+// @todo: Consider refactoring code from CppEditor::findLinkAt into here.
+QFuture<QSharedPointer<CppElement>> CppElementEvaluator::execute(SourceFunction sourceFunction,
+                                                                 ExecFunction execFuntion)
+{
+    clear();
+
+    if (!m_modelManager)
+        return createFinishedFuture();
+
+    const Snapshot &snapshot = m_modelManager->snapshot();
+
+    Document::Ptr doc;
+    QString expression;
+    Scope *scope = nullptr;
+    if (!std::invoke(sourceFunction, this, snapshot, doc, &scope, expression))
+        return createFinishedFuture();
 
     TypeOfExpression typeOfExpression;
     typeOfExpression.init(doc, snapshot);
@@ -587,6 +622,30 @@ void CppElementEvaluator::clear()
 {
     m_element.clear();
     m_diagnosis.clear();
+}
+
+Utils::Link CppElementEvaluator::linkFromExpression(const QString &expression, const QString &fileName)
+{
+    const Snapshot &snapshot = CppModelManager::instance()->snapshot();
+    Document::Ptr doc = snapshot.document(fileName);
+    Scope *scope = doc->globalNamespace();
+
+    TypeOfExpression typeOfExpression;
+    typeOfExpression.init(doc, snapshot);
+    typeOfExpression.setExpandTemplates(true);
+    const QList<LookupItem> &lookupItems = typeOfExpression(expression.toUtf8(), scope);
+    if (lookupItems.isEmpty())
+        return Utils::Link();
+
+    for (const LookupItem &item : lookupItems) {
+        Symbol *symbol = item.declaration();
+        if (!symbol)
+            continue;
+        if (!symbol->isClass() && !symbol->isTemplate())
+            continue;
+        return symbol->toLink();
+    }
+    return Utils::Link();
 }
 
 } // namespace CppTools
