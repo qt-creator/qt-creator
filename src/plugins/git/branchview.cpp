@@ -212,7 +212,9 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
         return;
 
     const QModelIndex index = m_filterModel->mapToSource(filteredIndex);
+    const QString indexName = m_model->fullName(index);
     const QModelIndex currentBranch = m_model->currentBranch();
+    const QString currentName = m_model->fullName(currentBranch);
     const bool currentSelected = index.sibling(index.row(), 0) == currentBranch;
     const bool isLocal = m_model->isLocal(index);
     const bool isTag = m_model->isTag(index);
@@ -261,14 +263,20 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
             contextMenu.addMenu(resetMenu);
             QString mergeTitle;
             if (isFastForwardMerge()) {
-                contextMenu.addAction(tr("&Merge (Fast-Forward)"), this, [this] { merge(true); });
-                mergeTitle = tr("Merge (No &Fast-Forward)");
+                contextMenu.addAction(tr("&Merge \"%1\" into \"%2\" (Fast-Forward)")
+                                      .arg(indexName, currentName),
+                                      this, [this] { merge(true); });
+                mergeTitle = tr("Merge \"%1\" into \"%2\" (No &Fast-Forward)")
+                        .arg(indexName, currentName);
             } else {
-                mergeTitle = tr("&Merge");
+                mergeTitle = tr("&Merge \"%1\" into \"%2\"")
+                        .arg(indexName, currentName);
             }
 
             contextMenu.addAction(mergeTitle, this, [this] { merge(false); });
-            contextMenu.addAction(tr("&Rebase"), this, &BranchView::rebase);
+            contextMenu.addAction(tr("&Rebase \"%1\" on \"%2\"")
+                                  .arg(currentName, indexName),
+                                  this, &BranchView::rebase);
             contextMenu.addSeparator();
             contextMenu.addAction(tr("Cherry &Pick"), this, &BranchView::cherryPick);
         }
