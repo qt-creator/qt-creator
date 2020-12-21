@@ -137,6 +137,7 @@ private:
     int checkedFilesCount() const;
     void wrapDescription();
     void trimDescription();
+    void verifyDescription();
 
     SubmitEditorWidgetPrivate *d;
 };
