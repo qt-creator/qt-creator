@@ -421,7 +421,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
             this,
             [this](int index) {
                 const auto directory = m_rootSelector->itemData(index).value<Utils::FilePath>();
-                m_rootSelector->setToolTip(directory.toString());
+                m_rootSelector->setToolTip(directory.toUserOutput());
                 setRootDirectory(directory);
                 const QModelIndex rootIndex = m_sortProxyModel->mapToSource(m_listView->rootIndex());
                 const QModelIndex fileIndex = m_sortProxyModel->mapToSource(m_listView->currentIndex());
