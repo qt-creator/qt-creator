@@ -970,46 +970,7 @@ Utils::FilePath projectFilePath()
     return Utils::FilePath();
 }
 
-bool addFontToProject(const QStringList &fileNames, const QString &defaultDirectory)
-{
-
-    QString adjustedDefaultDirectory = defaultDirectory;
-    Utils::FilePath fonts = projectFilePath().pathAppended("fonts");
-
-    if (fonts.exists())
-        adjustedDefaultDirectory = fonts.toString();
-
-    QString directory = AddImagesDialog::getDirectory(fileNames, adjustedDefaultDirectory);
-
-    if (directory.isEmpty())
-        return true;
-
-    bool allSuccessful = true;
-    for (const QString &fileName : fileNames) {
-        const QString targetFile = directory + "/" + QFileInfo(fileName).fileName();
-        const bool success = QFile::copy(fileName, targetFile);
-
-        auto document = QmlDesignerPlugin::instance()->currentDesignDocument();
-
-        QTC_ASSERT(document, return false);
-
-        if (success) {
-            ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(document->fileName());
-            if (node) {
-                ProjectExplorer::FolderNode *containingFolder = node->parentFolderNode();
-                if (containingFolder)
-                    containingFolder->addFiles(QStringList(targetFile));
-            }
-        } else {
-            allSuccessful = false;
-        }
-    }
-
-    return allSuccessful;
-}
-
-
-bool addImageToProject(const QStringList &fileNames, const QString &defaultDirectory)
+static bool addFilesToProject(const QStringList &fileNames, const QString &defaultDirectory)
 {
     QString directory = AddImagesDialog::getDirectory(fileNames, defaultDirectory);
 
@@ -1038,6 +999,43 @@ bool addImageToProject(const QStringList &fileNames, const QString &defaultDirec
     }
 
     return allSuccessful;
+}
+
+static QString getAssetDefaultDirectory(const QString &assetDir, const QString &defaultDirectory)
+{
+    QString adjustedDefaultDirectory = defaultDirectory;
+    Utils::FilePath assetPath = projectFilePath().pathAppended(assetDir);
+
+    if (!assetPath.exists()) {
+        // Create the default asset type directory if it doesn't exist
+        QDir dir(projectFilePath().toString());
+        dir.mkpath(assetDir);
+    }
+
+    if (assetPath.exists() && assetPath.isDir())
+        adjustedDefaultDirectory = assetPath.toString();
+
+    return adjustedDefaultDirectory;
+}
+
+bool addFontToProject(const QStringList &fileNames, const QString &defaultDirectory)
+{
+    return addFilesToProject(fileNames, getAssetDefaultDirectory("fonts", defaultDirectory));
+}
+
+bool addSoundToProject(const QStringList &fileNames, const QString &defaultDirectory)
+{
+    return addFilesToProject(fileNames, getAssetDefaultDirectory("sounds", defaultDirectory));
+}
+
+bool addShaderToProject(const QStringList &fileNames, const QString &defaultDirectory)
+{
+    return addFilesToProject(fileNames, getAssetDefaultDirectory("shaders", defaultDirectory));
+}
+
+bool addImageToProject(const QStringList &fileNames, const QString &defaultDirectory)
+{
+    return addFilesToProject(fileNames, getAssetDefaultDirectory("images", defaultDirectory));
 }
 
 void createFlowActionArea(const SelectionContext &selectionContext)

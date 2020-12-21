@@ -206,6 +206,8 @@ const int priorityLast = 60;
 
 const char addImagesDisplayString[] = QT_TRANSLATE_NOOP("QmlDesignerAddResources", "Image Files");
 const char addFontsDisplayString[] = QT_TRANSLATE_NOOP("QmlDesignerAddResources", "Font Files");
+const char addSoundsDisplayString[] = QT_TRANSLATE_NOOP("QmlDesignerAddResources", "Sound Files");
+const char addShadersDisplayString[] = QT_TRANSLATE_NOOP("QmlDesignerAddResources", "Shader Files");
 
 const char addCustomEffectDialogDisplayString[] = QT_TRANSLATE_NOOP("QmlDesignerAddResources", "Add Custom Effect");
 

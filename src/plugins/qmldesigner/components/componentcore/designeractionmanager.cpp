@@ -1388,28 +1388,26 @@ void DesignerActionManager::createDefaultDesignerActions()
 
 void DesignerActionManager::createDefaultAddResourceHandler()
 {
-    registerAddResourceHandler(AddResourceHandler(ComponentCoreConstants::addImagesDisplayString,
-                                                  "*.png",
-                                                  ModelNodeOperations::addImageToProject));
-    registerAddResourceHandler(AddResourceHandler(ComponentCoreConstants::addImagesDisplayString,
-                                                  "*.jpg",
-                                                  ModelNodeOperations::addImageToProject));
-    registerAddResourceHandler(AddResourceHandler(ComponentCoreConstants::addImagesDisplayString,
-                                                  "*.bmp",
-                                                  ModelNodeOperations::addImageToProject));
-    registerAddResourceHandler(AddResourceHandler(ComponentCoreConstants::addImagesDisplayString,
-                                                  "*.svg",
-                                                  ModelNodeOperations::addImageToProject));
-    registerAddResourceHandler(AddResourceHandler(ComponentCoreConstants::addImagesDisplayString,
-                                                  "*.hdr",
-                                                  ModelNodeOperations::addImageToProject));
+    auto registerHandlers = [this](const QStringList &exts, AddResourceOperation op,
+                                   const QString &category) {
+        for (const QString &ext : exts)
+            registerAddResourceHandler(AddResourceHandler(category, ext, op));
+    };
 
-    registerAddResourceHandler(AddResourceHandler(ComponentCoreConstants::addFontsDisplayString,
-                                                  "*.ttf",
-                                                  ModelNodeOperations::addFontToProject));
-    registerAddResourceHandler(AddResourceHandler(ComponentCoreConstants::addFontsDisplayString,
-                                                  "*.otf",
-                                                  ModelNodeOperations::addFontToProject));
+    // The filters will be displayed in reverse order to these lists in file dialog,
+    // so declare most common types last
+    registerHandlers({"*.webp",  "*.hdr", "*.svg", "*.bmp", "*.jpg", "*.png"},
+                     ModelNodeOperations::addImageToProject,
+                     ComponentCoreConstants::addImagesDisplayString);
+    registerHandlers({"*.otf", "*.ttf"},
+                     ModelNodeOperations::addFontToProject,
+                     ComponentCoreConstants::addFontsDisplayString);
+    registerHandlers({"*.wav"},
+                     ModelNodeOperations::addSoundToProject,
+                     ComponentCoreConstants::addSoundsDisplayString);
+    registerHandlers({"*.glsl", "*.glslv", "*.glslf", "*.vsh", "*.fsh", "*.vert", "*.frag"},
+                     ModelNodeOperations::addShaderToProject,
+                     ComponentCoreConstants::addShadersDisplayString);
 }
 
 void DesignerActionManager::createDefaultModelNodePreviewImageHandlers()
