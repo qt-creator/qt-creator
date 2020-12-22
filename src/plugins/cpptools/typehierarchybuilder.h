@@ -67,7 +67,8 @@ public:
 private:
     TypeHierarchyBuilder() = default;
     void buildDerived(QFutureInterfaceBase &futureInterface, TypeHierarchy *typeHierarchy,
-                      const CPlusPlus::Snapshot &snapshot, int depth = 0);
+                      const CPlusPlus::Snapshot &snapshot,
+                      QHash<QString, QHash<QString, QString> > &cache, int depth = 0);
 
     QSet<CPlusPlus::Symbol *> _visited;
     QHash<Utils::FilePath, QSet<QString> > _candidates;
