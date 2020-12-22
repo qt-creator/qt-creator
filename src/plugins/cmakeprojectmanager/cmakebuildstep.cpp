@@ -416,6 +416,16 @@ QString CMakeBuildStep::installTarget()
     return QString("install");
 }
 
+QString CMakeBuildStep::installStripTarget()
+{
+    return QString("install/strip");
+}
+
+QString CMakeBuildStep::packageTarget()
+{
+    return QString("package");
+}
+
 QString CMakeBuildStep::testTarget()
 {
     return QString("test");
@@ -423,7 +433,8 @@ QString CMakeBuildStep::testTarget()
 
 QStringList CMakeBuildStep::specialTargets()
 {
-    return { allTarget(), cleanTarget(), installTarget(), testTarget() };
+    return { allTarget(), cleanTarget(), installTarget(), installStripTarget(),
+             packageTarget(), testTarget() };
 }
 
 QString CMakeBuildStep::activeRunConfigTarget() const

@@ -72,6 +72,8 @@ public:
     static QString cleanTarget();
     static QString allTarget();
     static QString installTarget();
+    static QString installStripTarget();
+    static QString packageTarget();
     static QString testTarget();
     static QStringList specialTargets();
 
