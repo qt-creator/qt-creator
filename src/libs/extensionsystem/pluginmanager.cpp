@@ -905,8 +905,8 @@ void PluginManagerPrivate::writeSettings()
             tempForceEnabledPlugins.append(spec->name());
     }
 
-    settings->setValue(QLatin1String(C_IGNORED_PLUGINS), tempDisabledPlugins);
-    settings->setValue(QLatin1String(C_FORCEENABLED_PLUGINS), tempForceEnabledPlugins);
+    settings->setValueWithDefault(C_IGNORED_PLUGINS, tempDisabledPlugins);
+    settings->setValueWithDefault(C_FORCEENABLED_PLUGINS, tempForceEnabledPlugins);
 }
 
 /*!
