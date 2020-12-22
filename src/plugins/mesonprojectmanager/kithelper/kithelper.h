@@ -94,6 +94,9 @@ inline KitData kitData(const ProjectExplorer::Kit *kit)
         case 5:
             data.qtVersion = Utils::QtVersion::Qt5;
             break;
+        case 6:
+            data.qtVersion = Utils::QtVersion::Qt6;
+            break;
         default:
             data.qtVersion = Utils::QtVersion::Unknown;
         }

@@ -158,6 +158,7 @@ QString Utils::toString(::Utils::QtVersion qtVersion)
         CASE_QTVERSION(None);
         CASE_QTVERSION(Qt4);
         CASE_QTVERSION(Qt5);
+        CASE_QTVERSION(Qt6);
         // no default to get a compiler warning if anything is added
     }
 #undef CASE_QTVERSION
