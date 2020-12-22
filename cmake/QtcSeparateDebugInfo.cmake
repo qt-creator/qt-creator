@@ -3,9 +3,9 @@ set(CMAKE_CURRENT_FUNCTION_LIST_DIR ${CMAKE_CURRENT_LIST_DIR})
 endif()
 
 # Enable separate debug information for the given target
-# when doing RelWithDebInfo build
+# when QTC_SEPARATE_DEBUG_INFO is set
 function(qtc_enable_separate_debug_info target installDestination)
-    if (NOT CMAKE_BUILD_TYPE STREQUAL RelWithDebInfo)
+    if (NOT QTC_SEPARATE_DEBUG_INFO)
         return()
     endif()
     if (NOT UNIX AND NOT MINGW)

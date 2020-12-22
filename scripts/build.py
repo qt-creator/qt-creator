@@ -119,9 +119,11 @@ def build_qtcreator(args, paths):
     with_docs_str = 'OFF' if args.no_docs else 'ON'
     build_date_option = 'OFF' if args.no_build_date else 'ON'
     test_option = 'ON' if args.with_tests else 'OFF'
+    separate_debug_info_option = 'ON' if args.with_debug_info else 'OFF'
     cmake_args = ['cmake',
                   '-DCMAKE_PREFIX_PATH=' + ';'.join(prefix_paths),
                   '-DCMAKE_BUILD_TYPE=' + args.build_type,
+                  '-DQTC_SEPARATE_DEBUG_INFO=' + separate_debug_info_option,
                   '-DSHOW_BUILD_DATE=' + build_date_option,
                   '-DWITH_DOCS=' + with_docs_str,
                   '-DBUILD_DEVELOPER_DOCS=' + with_docs_str,

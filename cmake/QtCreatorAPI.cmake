@@ -36,6 +36,7 @@ set(_THIS_MODULE_BASE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 option(BUILD_PLUGINS_BY_DEFAULT "Build plugins by default. This can be used to build all plugins by default, or none." ON)
 option(BUILD_EXECUTABLES_BY_DEFAULT "Build executables by default. This can be used to build all executables by default, or none." ON)
 option(BUILD_LIBRARIES_BY_DEFAULT "Build libraries by default. This can be used to build all libraries by default, or none." ON)
+option(QTC_SEPARATE_DEBUG_INFO "Extract debug information from binary files." OFF)
 
 function(qtc_plugin_enabled varName name)
   if (NOT (name IN_LIST __QTC_PLUGINS))
