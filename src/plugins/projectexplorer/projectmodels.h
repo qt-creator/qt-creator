@@ -118,8 +118,6 @@ private:
 
     QTimer m_timer;
     QSet<ExpandData> m_toExpand;
-    QColor m_enabledTextColor;
-    QColor m_disabledTextColor;
 };
 
 } // namespace Internal
