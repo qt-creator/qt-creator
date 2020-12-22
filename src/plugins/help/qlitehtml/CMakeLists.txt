@@ -5,21 +5,7 @@ if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/litehtml/CMakeLists.txt)
     endif()
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-    # suppress warning about VERSION being overwritten or not
-    # and add subdirectory
-    set(ORIG_VERSION ${PROJECT_VERSION})
-    set(ORIG_MAJOR ${PROJECT_VERSION_MAJOR})
-    set(ORIG_MINOR ${PROJECT_VERSION_MINOR})
-    set(ORIG_PATCH ${PROJECT_VERSION_PATCH})
-    set(PROJECT_VERSION "")
-    set(PROJECT_VERSION_MAJOR "")
-    set(PROJECT_VERSION_MINOR "")
-    set(PROJECT_VERSION_PATCH "")
     add_subdirectory(litehtml EXCLUDE_FROM_ALL)
-    set(PROJECT_VERSION ${ORIG_VERSION})
-    set(PROJECT_VERSION_MAJOR ${ORIG_MAJOR})
-    set(PROJECT_VERSION_MINOR ${ORIG_MINOR})
-    set(PROJECT_VERSION_PATCH ${ORIG_PATCH})
 
     set(CMAKE_POSITION_INDEPENDENT_CODE "${ORIG_FPIC}")
     # force optimized litehtml even in debug
