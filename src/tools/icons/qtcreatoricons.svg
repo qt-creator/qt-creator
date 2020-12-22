@@ -10362,42 +10362,6 @@
          id="path5333" />
     </g>
     <g
-       id="src/plugins/qmldesigner/components/resources/images/spliteditorvertically"
-       transform="translate(12)">
-      <rect
-         transform="rotate(90)"
-         id="rect5154-0-3-5-8-1-6-8"
-         height="8"
-         width="16"
-         y="-858"
-         x="584"
-         style="fill:#ffffff" />
-      <path
-         id="formEditorSplit_"
-         style="fill:none;stroke:#000000"
-         d="m 852,592.5 h 5 m -5.5,-3 h 6 v 6 h -6 z"
-         inkscape:connector-curvature="0" />
-    </g>
-    <g
-       id="src/plugins/qmldesigner/components/resources/images/spliteditorhorizontally">
-      <rect
-         style="fill:#ffffff"
-         x="584"
-         y="-878"
-         width="16"
-         height="8"
-         id="rect5704"
-         transform="rotate(90)" />
-      <use
-         height="100%"
-         width="100%"
-         transform="rotate(90,864.5,602.5)"
-         id="use5730"
-         xlink:href="#formEditorSplit_"
-         y="0"
-         x="0" />
-    </g>
-    <g
        id="src/plugins/debugger/images/debugger_stop_mask"
        transform="translate(-711,333)"
        style="display:inline">
