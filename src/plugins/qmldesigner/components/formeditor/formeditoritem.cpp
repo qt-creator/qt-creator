@@ -888,6 +888,7 @@ public:
         , labelFlags(Qt::AlignHCenter | Qt::AlignVCenter | Qt::TextDontClip)
         , labelFlipSide(false)
         , hitTesting(hitTest)
+        , isSelected(false)
         , events()
     {
         // width
@@ -1416,37 +1417,7 @@ void FormEditorTransitionItem::updateGeometry()
             overallBoundingRect = overallBoundingRect.united(connection.fromRect);
             overallBoundingRect = overallBoundingRect.united(connection.toRect);
             overallBoundingRect = overallBoundingRect.united(pathBoundingRect);
-
-            // Calculate bounding rect for label
-            // TODO The calculation should be put into a separate function to avoid code duplication as this
-            // can also be found in drawLabel()
-            if (!connection.config.label.isEmpty()) {
-                const qreal percent = connection.config.labelPosition / 100.0;
-                const QPointF pos = connection.path.pointAtPercent(percent);
-                const qreal angle = connection.path.angleAtPercent(percent);
-
-                QLineF tmp(pos, QPointF(10, 10));
-                tmp.setLength(connection.config.labelOffset);
-                tmp.setAngle(angle + (connection.config.labelFlipSide ? 270 : 90));
-
-                QRectF textRect(0, 0, 100, 50);
-                textRect.moveCenter(tmp.p2());
-
-                QRectF labelRect;
-
-                QTransform transform;
-                transform.translate(textRect.center().x(), textRect.center().y());
-                transform.rotate(-normalizeAngle(angle));
-                transform.translate(-textRect.center().x(), -textRect.center().y());
-
-                localPainter.setTransform(transform);
-                localPainter.drawText(textRect,
-                                      connection.config.labelFlags,
-                                      connection.config.label,
-                                      &labelRect);
-                QRectF labelBoundingBox = transform.mapRect(labelRect);
-                overallBoundingRect = overallBoundingRect.united(labelBoundingBox);
-            }
+            drawLabels(&localPainter, connection);
         }
     }
 
@@ -1461,7 +1432,7 @@ QPointF FormEditorTransitionItem::instancePosition() const
     return qmlItemNode().flowPosition();
 }
 
-static void drawLabel(QPainter *painter, const Connection &connection)
+void FormEditorTransitionItem::drawLabels(QPainter *painter, const Connection &connection)
 {
     // draw label with event ids
     if (connection.config.isSelected && !connection.config.events.isEmpty())
@@ -1469,27 +1440,23 @@ static void drawLabel(QPainter *painter, const Connection &connection)
         qreal offset = connection.config.labelOffset;
         QStringList events = connection.config.events.split(',');
         int fontSize = connection.config.fontSize;
-        QString output = events[0].trimmed();
-        qreal minWidth = offset * 12;
-        int letterWidth = fontSize * 0.6; // assumption on max letter length
-        if (minWidth <  output.size() * letterWidth) minWidth = output.size() * letterWidth;
+        QString outputText;
+        qreal minWidth = offset * 12.0;
+        qreal letterWidth = fontSize * 0.6; // assumption on max letter width
         int eventCount = events.size();
-        for (int i = 1; i < eventCount; ++i)
-        {
-            output.append('\n');
-            QString id = events[i].trimmed();
-            output.append(id);
-            if (minWidth <  id.size() * letterWidth) minWidth = id.size() * letterWidth;
-        }
+        std::for_each(events.begin(), events.end(), [&](auto id) {
+                outputText.append(id.trimmed());
+                outputText.append('\n');
+                if (minWidth < id.size() * letterWidth) minWidth = id.size() * letterWidth;
+        });
         const QPointF pos = connection.path.pointAtPercent(0.0);
         painter->save();
         painter->setBrush(QColor(70, 70, 70, 200));
         painter->setPen(Qt::lightGray);
-
-        painter->drawRoundedRect(pos.x(), pos.y() + offset, minWidth, 1.5 * fontSize * eventCount + offset * 4, offset / 2, offset / 2);
-        painter->drawText(pos.x(), pos.y() + 2 * offset, minWidth, offset * 2, Qt::AlignHCenter, QObject::tr("Connected Events"));
-        painter->drawLine(pos.x() + offset, pos.y() + 4 * offset, pos.x() + minWidth - offset, pos.y() + offset * 4);
-        painter->drawText(pos.x() + offset, pos.y() + 4 * offset, minWidth - offset, 1.5 * fontSize * eventCount, Qt::AlignLeft, output);
+        painter->drawRoundedRect(pos.x(), pos.y() + offset, minWidth, 1.5 * fontSize * eventCount + offset * 4.0, offset / 2.0, offset / 2.0);
+        painter->drawText(pos.x(), pos.y() + 2.0 * offset, minWidth, offset * 2.0, Qt::AlignHCenter, QObject::tr("Connected Events"));
+        painter->drawLine(pos.x() + offset, pos.y() + 4.0 * offset, pos.x() + minWidth - offset, pos.y() + offset * 4.0);
+        painter->drawText(pos.x() + offset, pos.y() + 4.0 * offset, minWidth - offset, 1.5 * fontSize * eventCount, Qt::AlignLeft, outputText);
         painter->restore();
     }
     if (connection.config.label.isEmpty())
@@ -1534,7 +1501,7 @@ static void drawArrow(QPainter *painter,
     painter->restore();
 }
 
-static void paintConnection(QPainter *painter, const Connection &connection)
+void FormEditorTransitionItem::paintConnection(QPainter *painter, const Connection &connection)
 {
     const int arrowLength = 4 * connection.config.adjustedWidth;
     const int arrowWidth = 8 * connection.config.adjustedWidth;
@@ -1586,8 +1553,8 @@ static void paintConnection(QPainter *painter, const Connection &connection)
         painter->drawEllipse(connection.start, arrowLength / 3, arrowLength / 3);
     }
 
-    // Draw label
-    drawLabel(painter, connection);
+    // Draw labels
+    drawLabels(painter, connection);
 
     painter->restore();
 }
