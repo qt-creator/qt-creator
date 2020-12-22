@@ -71,6 +71,8 @@ void CMakeTargetLocatorFilter::prepareSearch(const QString &entry)
 
         const QList<CMakeBuildTarget> buildTargets = bs->buildTargets();
         for (const CMakeBuildTarget &target : buildTargets) {
+            if (target.targetType == UtilityType && !CMakeBuildStep::specialTargets().contains(target.title))
+                continue;
             const int index = target.title.indexOf(entry);
             if (index >= 0) {
                 const FilePath path = target.backtrace.isEmpty() ? cmakeProject->projectFilePath()
