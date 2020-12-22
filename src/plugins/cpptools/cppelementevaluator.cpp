@@ -133,7 +133,8 @@ CppDeclarableElement::CppDeclarableElement(Symbol *declaration)
     name = overview.prettyName(declaration->name());
     if (declaration->enclosingScope()->isClass() ||
         declaration->enclosingScope()->isNamespace() ||
-        declaration->enclosingScope()->isEnum()) {
+        declaration->enclosingScope()->isEnum() ||
+        declaration->enclosingScope()->isTemplate()) {
         qualifiedName = overview.prettyName(LookupContext::fullyQualifiedName(declaration));
         helpIdCandidates = stripName(qualifiedName);
     } else {
@@ -462,9 +463,23 @@ QFuture<QSharedPointer<CppElement>> CppElementEvaluator::execute(SourceFunction 
     if (lookupItems.isEmpty())
         return createFinishedFuture();
 
-    const LookupItem &lookupItem = lookupItems.first(); // ### TODO: select best candidate.
-    if (shouldOmitElement(lookupItem, scope))
+    LookupItem lookupItem;
+
+    for (const LookupItem &item : lookupItems) {
+        if (shouldOmitElement(item, scope))
+            continue;
+        Symbol *symbol = item.declaration();
+        if (!symbol)
+            continue;
+        if (!symbol->isClass() && !symbol->isTemplate() && !symbol->isForwardClassDeclaration())
+            continue;
+        lookupItem = item;
+        break;
+    }
+
+    if (!lookupItem.declaration())
         return createFinishedFuture();
+
     return std::invoke(execFuntion, this, snapshot, lookupItem, typeOfExpression.context());
 }
 
@@ -565,6 +580,10 @@ static void handleLookupItemMatch(QFutureInterface<QSharedPointer<CppElement>> &
                         contextToUse = LookupContext(declarationDocument, snapshot);
                 }
             }
+
+            if (declaration->asTemplate() && declaration->asTemplate()->declaration()
+                    && declaration->asTemplate()->declaration()->asClass())
+                declaration = declaration->asTemplate()->declaration()->asClass();
 
             if (futureInterface.isCanceled())
                 return;
