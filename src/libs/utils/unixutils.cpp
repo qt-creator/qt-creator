@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #include "unixutils.h"
+
 #include "fileutils.h"
+#include "qtcsettings.h"
 
 #include <QSettings>
 #include <QFileInfo>
@@ -47,7 +49,7 @@ QString UnixUtils::fileBrowser(const QSettings *settings)
 
 void UnixUtils::setFileBrowser(QSettings *settings, const QString &term)
 {
-    settings->setValue(QLatin1String("General/FileBrowser"), term);
+    QtcSettings::setValueWithDefault(settings, "General/FileBrowser", term, defaultFileBrowser());
 }
 
 

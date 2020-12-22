@@ -27,6 +27,7 @@
 
 #include "algorithm.h"
 #include "qtcassert.h"
+#include "qtcsettings.h"
 #include "theme/theme.h"
 #include "utilsicons.h"
 
@@ -192,7 +193,7 @@ void InfoBar::clearGloballySuppressed()
 {
     globallySuppressed.clear();
     if (m_settings)
-        m_settings->setValue(QLatin1String(C_SUPPRESSED_WARNINGS), QStringList());
+        m_settings->remove(C_SUPPRESSED_WARNINGS);
 }
 
 bool InfoBar::anyGloballySuppressed()
@@ -205,7 +206,7 @@ void InfoBar::writeGloballySuppressedToSettings()
     if (!m_settings)
         return;
     const QStringList list = Utils::transform<QList>(globallySuppressed, &Id::toString);
-    m_settings->setValue(QLatin1String(C_SUPPRESSED_WARNINGS), list);
+    QtcSettings::setValueWithDefault(m_settings, C_SUPPRESSED_WARNINGS, list);
 }
 
 

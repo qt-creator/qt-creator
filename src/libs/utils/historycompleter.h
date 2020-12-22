@@ -29,11 +29,9 @@
 
 #include <QCompleter>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
 namespace Utils {
+
+class QtcSettings;
 
 namespace Internal { class HistoryCompleterPrivate; }
 
@@ -42,7 +40,7 @@ class QTCREATOR_UTILS_EXPORT HistoryCompleter : public QCompleter
     Q_OBJECT
 
 public:
-    static void setSettings(QSettings *settings);
+    static void setSettings(QtcSettings *settings);
     HistoryCompleter(const QString &historyKey, QObject *parent = nullptr);
     bool removeHistoryItem(int index);
     QString historyItem() const;

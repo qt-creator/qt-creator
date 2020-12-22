@@ -26,6 +26,7 @@
 #include "basetreeview.h"
 
 #include "progressindicator.h"
+#include "qtcsettings.h"
 #include "treemodel.h"
 
 #include <utils/algorithm.h>
@@ -159,7 +160,7 @@ public:
                 l.append(column);
                 l.append(width);
             }
-            m_settings->setValue(QLatin1String(ColumnKey), l);
+            QtcSettings::setValueWithDefault(m_settings, ColumnKey, l);
             m_settings->endGroup();
         }
     }

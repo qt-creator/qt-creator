@@ -24,13 +24,12 @@
 ****************************************************************************/
 
 #include "historycompleter.h"
+
 #include "fancylineedit.h"
+#include "qtcassert.h"
+#include "qtcsettings.h"
 #include "theme/theme.h"
 #include "utilsicons.h"
-
-#include "qtcassert.h"
-
-#include <QSettings>
 
 #include <QItemDelegate>
 #include <QKeyEvent>
@@ -41,7 +40,8 @@
 namespace Utils {
 namespace Internal {
 
-static QSettings *theSettings = nullptr;
+static QtcSettings *theSettings = nullptr;
+const bool isLastItemEmptyDefault = false;
 
 class HistoryCompleterPrivate : public QAbstractListModel
 {
@@ -57,7 +57,7 @@ public:
     QString historyKey;
     QString historyKeyIsLastItemEmpty;
     int maxLines = 6;
-    bool isLastItemEmpty = false;
+    bool isLastItemEmpty = isLastItemEmptyDefault;
 };
 
 class HistoryLineDelegate : public QItemDelegate
@@ -157,7 +157,7 @@ bool HistoryCompleterPrivate::removeRows(int row, int count, const QModelIndex &
     beginRemoveRows(parent, row, row + count -1);
     for (int i = 0; i < count; ++i)
         list.removeAt(row);
-    theSettings->setValue(historyKey, list);
+    theSettings->setValueWithDefault(historyKey, list);
     endRemoveRows();
     return true;
 }
@@ -175,7 +175,9 @@ void HistoryCompleterPrivate::addEntry(const QString &str)
     const QString entry = str.trimmed();
     if (entry.isEmpty()) {
         isLastItemEmpty = true;
-        theSettings->setValue(historyKeyIsLastItemEmpty, isLastItemEmpty);
+        theSettings->setValueWithDefault(historyKeyIsLastItemEmpty,
+                                         isLastItemEmpty,
+                                         isLastItemEmptyDefault);
         return;
     }
     int removeIndex = list.indexOf(entry);
@@ -185,9 +187,11 @@ void HistoryCompleterPrivate::addEntry(const QString &str)
     list.prepend(entry);
     list = list.mid(0, maxLines - 1);
     endResetModel();
-    theSettings->setValue(historyKey, list);
+    theSettings->setValueWithDefault(historyKey, list);
     isLastItemEmpty = false;
-    theSettings->setValue(historyKeyIsLastItemEmpty, isLastItemEmpty);
+    theSettings->setValueWithDefault(historyKeyIsLastItemEmpty,
+                                     isLastItemEmpty,
+                                     isLastItemEmptyDefault);
 }
 
 HistoryCompleter::HistoryCompleter(const QString &historyKey, QObject *parent)
@@ -201,7 +205,8 @@ HistoryCompleter::HistoryCompleter(const QString &historyKey, QObject *parent)
     d->list = theSettings->value(d->historyKey).toStringList();
     d->historyKeyIsLastItemEmpty = QLatin1String("CompleterHistory/")
         + historyKey + QLatin1String(".IsLastItemEmpty");
-    d->isLastItemEmpty = theSettings->value(d->historyKeyIsLastItemEmpty, false).toBool();
+    d->isLastItemEmpty = theSettings->value(d->historyKeyIsLastItemEmpty, isLastItemEmptyDefault)
+                             .toBool();
 
     setModel(d);
     auto popup = new HistoryLineView(d);
@@ -260,7 +265,7 @@ void HistoryCompleter::addEntry(const QString &str)
     d->addEntry(str);
 }
 
-void HistoryCompleter::setSettings(QSettings *settings)
+void HistoryCompleter::setSettings(QtcSettings *settings)
 {
     Internal::theSettings = settings;
 }

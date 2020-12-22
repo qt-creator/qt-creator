@@ -25,9 +25,10 @@
 
 #include <utils/savedaction.h>
 
-#include <utils/qtcassert.h>
-#include <utils/pathchooser.h>
-#include <utils/pathlisteditor.h>
+#include "pathchooser.h"
+#include "pathlisteditor.h"
+#include "qtcassert.h"
+#include "qtcsettings.h"
 
 #include <QActionGroup>
 #include <QCheckBox>
@@ -147,7 +148,7 @@ void SavedAction::writeSettings(QSettings *settings)
 {
     if (settingsKey().isEmpty())
         return;
-    settings->setValue(settingsKey(), m_value);
+    QtcSettings::setValueWithDefault(settings, settingsKey(), m_value, m_defaultValue);
 }
 
 /*
