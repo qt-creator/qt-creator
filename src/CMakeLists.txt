@@ -41,7 +41,7 @@ list(APPEND CMAKE_MODULE_PATH \${CMAKE_CURRENT_LIST_DIR})
 
 include(CMakeFindDependencyMacro)
 find_dependency(Qt5 ${IDE_QT_VERSION_MIN}
-  COMPONENTS Concurrent Core Network PrintSupport Qml Quick QuickWidgets Sql REQUIRED
+  COMPONENTS Concurrent Core Gui Widgets Core5Compat Network PrintSupport Qml Quick QuickWidgets Sql REQUIRED
 )
 
 if (NOT IDE_VERSION)
