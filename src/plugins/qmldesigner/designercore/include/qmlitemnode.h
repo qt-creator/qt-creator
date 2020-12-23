@@ -69,6 +69,17 @@ public:
                                                   NodeAbstractProperty parentproperty,
                                                   bool executeInTransaction = true);
 
+    static QmlItemNode createQmlItemNodeFromFont(AbstractView *view,
+                                                 const QString &fontFamily,
+                                                 const QPointF &position,
+                                                 QmlItemNode parentQmlItemNode,
+                                                 bool executeInTransaction = true);
+    static QmlItemNode createQmlItemNodeFromFont(AbstractView *view,
+                                                 const QString &fontFamily,
+                                                 const QPointF &position,
+                                                 NodeAbstractProperty parentproperty,
+                                                 bool executeInTransaction = true);
+
     QList<QmlItemNode> children() const;
     QList<QmlObjectNode> resources() const;
     QList<QmlObjectNode> allDirectSubNodes() const;

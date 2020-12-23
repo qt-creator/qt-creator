@@ -108,23 +108,32 @@ void ItemLibraryResourceView::startDrag(Qt::DropActions /* supportedActions */)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO;
-    QMimeData *mimeData = model()->mimeData(selectedIndexes());
 
-    if (!mimeData)
+    const auto indexes = selectedIndexes();
+    if (indexes.isEmpty())
+        return;
+
+    const QModelIndex &index = indexes.constFirst();
+    if (!index.isValid())
         return;
 
     auto fileSystemModel = qobject_cast<CustomFileSystemModel*>(model());
     Q_ASSERT(fileSystemModel);
-    QFileInfo fileInfo = fileSystemModel->fileInfo(selectedIndexes().constFirst());
-    QPixmap pixmap(fileInfo.absoluteFilePath());
-    if (!pixmap.isNull()) {
-        auto drag = new QDrag(this);
-        drag->setPixmap(QIcon(pixmap).pixmap(128, 128));
-        auto mimeData = new QMimeData;
-        mimeData->setData(QLatin1String("application/vnd.bauhaus.libraryresource"), fileInfo.absoluteFilePath().toUtf8());
-        drag->setMimeData(mimeData);
-        drag->exec();
-    }
+    QPair<QString, QByteArray> typeAndData = fileSystemModel->resourceTypeAndData(index);
+
+    if (typeAndData.first.isEmpty())
+        return;
+
+    QFileInfo fileInfo = fileSystemModel->fileInfo(index);
+
+    auto drag = new QDrag(this);
+    drag->setPixmap(fileSystemModel->fileIcon(index).pixmap(128, 128));
+    QMimeData *mimeData = new QMimeData;
+    mimeData->setData(QLatin1String("application/vnd.bauhaus.libraryresource"),
+                      fileInfo.absoluteFilePath().toUtf8());
+    mimeData->setData(typeAndData.first, typeAndData.second);
+    drag->setMimeData(mimeData);
+    drag->exec();
 }
 
 } // namespace QmlDesigner

@@ -81,6 +81,7 @@ protected:
     void abort();
     void createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, const QmlItemNode &parentNode, const QPointF &scenePos);
     void createQmlItemNodeFromImage(const QString &imageName, const QmlItemNode &parentNode, const QPointF &scenePos);
+    void createQmlItemNodeFromFont(const QString &fontFamily, const QmlItemNode &parentNode, const QPointF &scenePos);
     FormEditorItem *targetContainerOrRootItem(const QList<QGraphicsItem*> &itemList, FormEditorItem *urrentItem = nullptr);
     void begin(QPointF scenePos);
     void end();

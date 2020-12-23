@@ -234,8 +234,9 @@ void AbstractFormEditorTool::dropEvent(const QList<QGraphicsItem*> &/*itemList*/
 
 void AbstractFormEditorTool::dragEnterEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event)
 {
-    if (event->mimeData()->hasFormat(QLatin1String("application/vnd.bauhaus.itemlibraryinfo")) ||
-        event->mimeData()->hasFormat(QLatin1String("application/vnd.bauhaus.libraryresource"))) {
+    if (event->mimeData()->hasFormat(QLatin1String("application/vnd.bauhaus.itemlibraryinfo"))
+            || event->mimeData()->hasFormat(QLatin1String("application/vnd.bauhaus.libraryresource.image"))
+            || event->mimeData()->hasFormat(QLatin1String("application/vnd.bauhaus.libraryresource.font"))) {
         event->accept();
         view()->changeToDragTool();
         view()->currentTool()->dragEnterEvent(itemList, event);

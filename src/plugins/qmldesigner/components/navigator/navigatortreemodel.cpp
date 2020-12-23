@@ -41,6 +41,7 @@
 #include <rewritingexception.h>
 #include <qmlitemnode.h>
 #include <designeractionmanager.h>
+#include <import.h>
 
 #include <coreplugin/icore.h>
 
@@ -498,8 +499,14 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
     if (dropModelIndex.model() == this) {
         if (mimeData->hasFormat("application/vnd.bauhaus.itemlibraryinfo")) {
             handleItemLibraryItemDrop(mimeData, rowNumber, dropModelIndex);
-        } else if (mimeData->hasFormat("application/vnd.bauhaus.libraryresource")) {
+        } else if (mimeData->hasFormat("application/vnd.bauhaus.libraryresource.image")) {
             handleItemLibraryImageDrop(mimeData, rowNumber, dropModelIndex);
+        } else if (mimeData->hasFormat("application/vnd.bauhaus.libraryresource.font")) {
+            handleItemLibraryFontDrop(mimeData, rowNumber, dropModelIndex);
+        } else if (mimeData->hasFormat("application/vnd.bauhaus.libraryresource.shader")) {
+            handleItemLibraryShaderDrop(mimeData, rowNumber, dropModelIndex);
+        } else if (mimeData->hasFormat("application/vnd.bauhaus.libraryresource.sound")) {
+            handleItemLibrarySoundDrop(mimeData, rowNumber, dropModelIndex);
         } else if (mimeData->hasFormat("application/vnd.modelnode.list")) {
             handleInternalDrop(mimeData, rowNumber, dropModelIndex);
         }
@@ -772,8 +779,10 @@ void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, i
                     targetNode.bindingProperty("texture").setExpression(newModelNode.validId());
                 }
             });
-        } else if (targetNode.isSubclassOf("QtQuick3D.Texture")) {
-            // if dropping an image on a texture, set the texture source
+        } else if (targetNode.isSubclassOf("QtQuick3D.Texture")
+                   || targetNode.isSubclassOf("QtQuick.Image")
+                   || targetNode.isSubclassOf("QtQuick.BorderImage")) {
+            // if dropping an image on an existing texture or image, set the source
             targetNode.variantProperty("source").setValue(imagePath);
         } else {
             m_view->executeInTransaction("NavigatorTreeModel::handleItemLibraryImageDrop", [&] {
@@ -785,6 +794,162 @@ void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, i
                     newItemNode.destroy();
             });
         }
+
+        if (newModelNode.isValid()) {
+            moveNodesInteractive(targetProperty, {newModelNode}, targetRowNumber);
+            m_view->setSelectedModelNode(newModelNode);
+        }
+    }
+}
+
+void NavigatorTreeModel::handleItemLibraryFontDrop(const QMimeData *mimeData, int rowNumber,
+                                                   const QModelIndex &dropModelIndex)
+{
+    QTC_ASSERT(m_view, return);
+    const QModelIndex rowModelIndex = dropModelIndex.sibling(dropModelIndex.row(), 0);
+    int targetRowNumber = rowNumber;
+    NodeAbstractProperty targetProperty;
+
+    bool foundTarget = findTargetProperty(rowModelIndex, this, &targetProperty, &targetRowNumber);
+    if (foundTarget) {
+        ModelNode targetNode(modelNodeForIndex(rowModelIndex));
+
+        const QString fontFamily = QString::fromUtf8(
+                    mimeData->data("application/vnd.bauhaus.libraryresource.font"));
+
+        ModelNode newModelNode;
+
+        m_view->executeInTransaction("NavigatorTreeModel::handleItemLibraryFontDrop", [&] {
+            if (targetNode.isSubclassOf("QtQuick.Text")) {
+                // if dropping into an existing Text, update font
+                targetNode.variantProperty("font.family").setValue(fontFamily);
+            } else {
+                // create a Text node
+                QmlItemNode newItemNode = QmlItemNode::createQmlItemNodeFromFont(
+                            m_view, fontFamily, QPointF(), targetProperty, false);
+                if (NodeHints::fromModelNode(targetProperty.parentModelNode()).canBeContainerFor(newItemNode.modelNode()))
+                    newModelNode = newItemNode.modelNode();
+                else
+                    newItemNode.destroy();
+            }
+        });
+
+        if (newModelNode.isValid()) {
+            moveNodesInteractive(targetProperty, {newModelNode}, targetRowNumber);
+            m_view->setSelectedModelNode(newModelNode);
+        }
+    }
+}
+
+void NavigatorTreeModel::handleItemLibraryShaderDrop(const QMimeData *mimeData, int rowNumber,
+                                                     const QModelIndex &dropModelIndex)
+{
+    QTC_ASSERT(m_view, return);
+    Import import = Import::createLibraryImport(QStringLiteral("QtQuick3D"));
+    if (!m_view->model()->hasImport(import, true, true))
+        return;
+
+    const QModelIndex rowModelIndex = dropModelIndex.sibling(dropModelIndex.row(), 0);
+    int targetRowNumber = rowNumber;
+    NodeAbstractProperty targetProperty;
+
+    bool foundTarget = findTargetProperty(rowModelIndex, this, &targetProperty, &targetRowNumber);
+    if (foundTarget) {
+        ModelNode targetNode(modelNodeForIndex(rowModelIndex));
+        ModelNode newModelNode;
+
+        const QString shaderSource = QString::fromUtf8(mimeData->data("application/vnd.bauhaus.libraryresource"));
+        const bool fragShader = mimeData->data("application/vnd.bauhaus.libraryresource.shader").startsWith('f');
+        const QString relPath = DocumentManager::currentFilePath().toFileInfo().dir().relativeFilePath(shaderSource);
+
+        m_view->executeInTransaction("NavigatorTreeModel::handleItemLibraryShaderDrop", [&] {
+            if (targetNode.isSubclassOf("QtQuick3D.Shader")) {
+                // if dropping into an existing Shader, update
+                if (fragShader)
+                    targetNode.variantProperty("stage").setEnumeration("Shader.Fragment");
+                else
+                    targetNode.variantProperty("stage").setEnumeration("Shader.Vertex");
+                targetNode.variantProperty("shader").setValue(relPath);
+            } else {
+                // create a new Shader
+                ItemLibraryEntry itemLibraryEntry;
+                itemLibraryEntry.setName("Shader");
+                itemLibraryEntry.setType("QtQuick3D.Shader", 1, 0);
+
+                // set shader properties
+                PropertyName prop = "shader";
+                QString type = "QByteArray";
+                QVariant val = relPath;
+                itemLibraryEntry.addProperty(prop, type, val);
+                prop = "stage";
+                type = "enum";
+                val = fragShader ? "Shader.Fragment" : "Shader.Vertex";
+                itemLibraryEntry.addProperty(prop, type, val);
+
+                // create a texture
+                newModelNode = QmlItemNode::createQmlObjectNode(m_view, itemLibraryEntry, {},
+                                                                targetProperty, false);
+
+                // Rename the node based on shader source
+                QFileInfo fi(relPath);
+                newModelNode.setIdWithoutRefactoring(m_view->generateNewId(fi.baseName(),
+                                                                           "shader"));
+            }
+        });
+
+        if (newModelNode.isValid()) {
+            moveNodesInteractive(targetProperty, {newModelNode}, targetRowNumber);
+            m_view->setSelectedModelNode(newModelNode);
+        }
+    }
+}
+
+void NavigatorTreeModel::handleItemLibrarySoundDrop(const QMimeData *mimeData, int rowNumber,
+                                                    const QModelIndex &dropModelIndex)
+{
+    QTC_ASSERT(m_view, return);
+    Import import = Import::createLibraryImport(QStringLiteral("QtMultimedia"));
+    if (!m_view->model()->hasImport(import, true, true))
+        return;
+
+    const QModelIndex rowModelIndex = dropModelIndex.sibling(dropModelIndex.row(), 0);
+    int targetRowNumber = rowNumber;
+    NodeAbstractProperty targetProperty;
+
+    bool foundTarget = findTargetProperty(rowModelIndex, this, &targetProperty, &targetRowNumber);
+    if (foundTarget) {
+        ModelNode targetNode(modelNodeForIndex(rowModelIndex));
+        ModelNode newModelNode;
+
+        const QString soundSource = QString::fromUtf8(mimeData->data("application/vnd.bauhaus.libraryresource"));
+        const QString relPath = DocumentManager::currentFilePath().toFileInfo().dir().relativeFilePath(soundSource);
+
+        m_view->executeInTransaction("NavigatorTreeModel::handleItemLibrarySoundDrop", [&] {
+            if (targetNode.isSubclassOf("QtMultimedia.SoundEffect")) {
+                // if dropping into on an existing SoundEffect, update
+                targetNode.variantProperty("source").setValue(relPath);
+            } else {
+                // create a new SoundEffect
+                ItemLibraryEntry itemLibraryEntry;
+                itemLibraryEntry.setName("SoundEffect");
+                itemLibraryEntry.setType("QtMultimedia.SoundEffect", 1, 0);
+
+                // set shader properties
+                PropertyName prop = "source";
+                QString type = "QUrl";
+                QVariant val = relPath;
+                itemLibraryEntry.addProperty(prop, type, val);
+
+                // create a texture
+                newModelNode = QmlItemNode::createQmlObjectNode(m_view, itemLibraryEntry, {},
+                                                                targetProperty, false);
+
+                // Rename the node based on source
+                QFileInfo fi(relPath);
+                newModelNode.setIdWithoutRefactoring(m_view->generateNewId(fi.baseName(),
+                                                                           "soundEffect"));
+            }
+        });
 
         if (newModelNode.isValid()) {
             moveNodesInteractive(targetProperty, {newModelNode}, targetRowNumber);

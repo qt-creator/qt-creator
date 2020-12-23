@@ -53,6 +53,12 @@ static const QStringList &supportedImageSuffixes()
     return retList;
 }
 
+static const QStringList &supportedFragmentShaderSuffixes()
+{
+    static const QStringList retList {"frag", "glsl", "glslf", "fsh"};
+    return retList;
+}
+
 static const QStringList &supportedShaderSuffixes()
 {
     static const QStringList retList {"frag", "vert",
@@ -131,6 +137,14 @@ static QPixmap generateFontImage(const QFileInfo &info, const QSize &size)
     return fontImageCache[key];
 }
 
+QString fontFamily(const QFileInfo &info)
+{
+    QRawFont font(info.absoluteFilePath(), 10);
+    if (font.isValid())
+        return font.familyName();
+    return {};
+}
+
 class ItemLibraryFileIconProvider : public QFileIconProvider
 {
 public:
@@ -147,7 +161,7 @@ public:
 
             if (supportedImageSuffixes().contains(suffix))
                 pixmap.load(info.absoluteFilePath());
-            else  if (supportedFontSuffixes().contains(suffix))
+            else if (supportedFontSuffixes().contains(suffix))
                 pixmap = generateFontImage(info, iconSize);
 
             if (pixmap.isNull())
@@ -162,8 +176,8 @@ public:
         return icon;
     }
 
-    // Generated icon sizes should match ItemLibraryResourceView icon sizes
-    QList<QSize> iconSizes  = {{192, 192}, {96, 96}, {48, 48}, {32, 32}};
+    // Generated icon sizes should match ItemLibraryResourceView needed icon sizes
+    QList<QSize> iconSizes  = {{192, 192}, {128, 128}, {96, 96}, {48, 48}, {32, 32}};
 
 };
 
@@ -272,6 +286,29 @@ void CustomFileSystemModel::setSearchFilter(const QString &nameFilterList)
 {
     m_searchFilter = nameFilterList;
     setRootPath(m_fileSystemModel->rootPath());
+}
+
+QPair<QString, QByteArray> CustomFileSystemModel::resourceTypeAndData(const QModelIndex &index) const
+{
+    QFileInfo fi = fileInfo(index);
+    QString suffix = fi.suffix();
+    if (!suffix.isEmpty()) {
+        if (supportedImageSuffixes().contains(suffix)) {
+            // Data: Image format (suffix)
+            return {"application/vnd.bauhaus.libraryresource.image", suffix.toUtf8()};
+        } else if (supportedFontSuffixes().contains(suffix)) {
+            // Data: Font family name
+            return {"application/vnd.bauhaus.libraryresource.font", fontFamily(fi).toUtf8()};
+        } else if (supportedShaderSuffixes().contains(suffix)) {
+            // Data: shader type, frament (f) or vertex (v)
+            return {"application/vnd.bauhaus.libraryresource.shader",
+                supportedFragmentShaderSuffixes().contains(suffix) ? "f" : "v"};
+        } else if (supportedAudioSuffixes().contains(suffix)) {
+            // No extra data for sounds
+            return {"application/vnd.bauhaus.libraryresource.sound", {}};
+        }
+    }
+    return {};
 }
 
 void CustomFileSystemModel::appendIfNotFiltered(const QString &file)

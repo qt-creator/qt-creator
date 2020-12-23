@@ -27,6 +27,7 @@
 
 #include <QAbstractTableModel>
 #include <QDir>
+#include <QPair>
 
 QT_BEGIN_NAMESPACE
 class QFileIconProvider;
@@ -59,6 +60,8 @@ public:
 
     Qt::ItemFlags flags(const QModelIndex &index) const override;
     void setSearchFilter(const QString &nameFilterList);
+
+    QPair<QString, QByteArray> resourceTypeAndData(const QModelIndex &index) const;
 
 private:
     QModelIndex updatePath(const QString &newPath);

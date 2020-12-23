@@ -136,6 +136,26 @@ void DragTool::createQmlItemNodeFromImage(const QString &imageName,
     }
 }
 
+void DragTool::createQmlItemNodeFromFont(const QString &fontFamily,
+                                         const QmlItemNode &parentNode,
+                                         const QPointF &scenePos)
+{
+    if (parentNode.isValid()) {
+        MetaInfo metaInfo = MetaInfo::global();
+
+        FormEditorItem *parentItem = scene()->itemForQmlItemNode(parentNode);
+        QPointF positonInItemSpace = parentItem->qmlItemNode().instanceSceneContentItemTransform()
+                .inverted().map(scenePos);
+
+        m_dragNode = QmlItemNode::createQmlItemNodeFromFont(view(), fontFamily, positonInItemSpace,
+                                                            parentNode);
+
+        QList<QmlItemNode> nodeList;
+        nodeList.append(m_dragNode);
+        m_selectionIndicator.setItems(scene()->itemsForQmlItemNodes(nodeList));
+    }
+}
+
 FormEditorItem *DragTool::targetContainerOrRootItem(const QList<QGraphicsItem *> &itemList, FormEditorItem *currentItem)
 {
     FormEditorItem *formEditorItem = containerFormEditorItem(itemList, {currentItem});
@@ -208,25 +228,29 @@ static bool canBeDropped(const QMimeData *mimeData)
     return NodeHints::fromItemLibraryEntry(itemLibraryEntryFromMimeData(mimeData)).canBeDroppedInFormEditor();
 }
 
-static bool canHandleMimeData(const QMimeData *mimeData)
-{
-    return mimeData->hasFormat(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"))
-          || mimeData->hasFormat(QStringLiteral("application/vnd.bauhaus.libraryresource"));
-}
-
-static bool dragAndDropPossible(const QMimeData *mimeData)
-{
-    return canHandleMimeData(mimeData) && canBeDropped(mimeData);
-}
-
 static bool hasItemLibraryInfo(const QMimeData *mimeData)
 {
     return mimeData->hasFormat(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"));
 }
 
-static bool hasLibraryResources(const QMimeData *mimeData)
+static bool hasImageResource(const QMimeData *mimeData)
 {
-    return mimeData->hasFormat(QStringLiteral("application/vnd.bauhaus.libraryresource"));
+    return mimeData->hasFormat(QStringLiteral("application/vnd.bauhaus.libraryresource.image"));
+}
+
+static bool hasFontResource(const QMimeData *mimeData)
+{
+    return mimeData->hasFormat(QStringLiteral("application/vnd.bauhaus.libraryresource.font"));
+}
+
+static bool canHandleMimeData(const QMimeData *mimeData)
+{
+    return hasItemLibraryInfo(mimeData) || hasImageResource(mimeData) || hasFontResource(mimeData);
+}
+
+static bool dragAndDropPossible(const QMimeData *mimeData)
+{
+    return canHandleMimeData(mimeData) && canBeDropped(mimeData);
 }
 
 void DragTool::dropEvent(const QList<QGraphicsItem *> &/*itemList*/, QGraphicsSceneDragDropEvent *event)
@@ -290,9 +314,14 @@ void DragTool::dragLeaveEvent(const QList<QGraphicsItem *> &/*itemList*/, QGraph
     view()->changeToSelectionTool();
 }
 
-static QString libraryResourceImageName(const QMimeData *mimeData)
+static QString libraryResourceFile(const QMimeData *mimeData)
 {
    return QString::fromUtf8((mimeData->data(QStringLiteral("application/vnd.bauhaus.libraryresource"))));
+}
+
+static QString libraryResourceFont(const QMimeData *mimeData)
+{
+   return QString::fromUtf8((mimeData->data(QStringLiteral("application/vnd.bauhaus.libraryresource.font"))));
 }
 
 void DragTool::createDragNode(const QMimeData *mimeData, const QPointF &scenePosition, const QList<QGraphicsItem *> &itemList)
@@ -306,8 +335,10 @@ void DragTool::createDragNode(const QMimeData *mimeData, const QPointF &scenePos
 
             if (hasItemLibraryInfo(mimeData))
                 createQmlItemNode(itemLibraryEntryFromMimeData(mimeData), targetContainerQmlItemNode, scenePosition);
-            else if (hasLibraryResources(mimeData))
-                createQmlItemNodeFromImage(libraryResourceImageName(mimeData), targetContainerQmlItemNode, scenePosition);
+            else if (hasImageResource(mimeData))
+                createQmlItemNodeFromImage(libraryResourceFile(mimeData), targetContainerQmlItemNode, scenePosition);
+            else if (hasFontResource(mimeData))
+                createQmlItemNodeFromFont(libraryResourceFont(mimeData), targetContainerQmlItemNode, scenePosition);
 
             m_blockMove = true;
             m_startPoint = scenePosition;
