@@ -56,7 +56,10 @@ const int flowBlockSize = 200;
 const int blockRadius = 18;
 const int blockAdjust = 40;
 const int startItemOffset = 96;
-const int labelFontSize = 16;
+
+const qreal fontSize = 10; // points
+const qreal zoomLevelLabel = 0.5; // Everything lower than that will hide all labels
+const qreal defaultDpi = 96.0;
 
 void drawIcon(QPainter *painter,
               int x,
@@ -882,7 +885,6 @@ public:
         , bezier(50)
         , type(ConnectionType::Default)
         , label()
-        , fontSize(labelFontSize / scaleFactor)
         , labelOffset(14 / scaleFactor)
         , labelPosition(50.0)
         , labelFlags(Qt::AlignHCenter | Qt::AlignVCenter | Qt::TextDontClip)
@@ -898,7 +900,7 @@ public:
         if (node.modelNode().isSelected())
             width += 2;
         if (hitTest)
-            width = width * 8  / scaleFactor;
+            width = width * 8 / scaleFactor;
         // color
         if (resolveConnection.isStartLine)
             color = QColor("blue");
@@ -944,8 +946,6 @@ public:
             label = node.modelNode().bindingProperty("condition").expression();
         if (node.modelNode().hasVariantProperty("question"))
             label = node.modelNode().variantProperty("question").value().toString();
-        // font size
-
         // label offset
 
         // label position
@@ -960,7 +960,6 @@ public:
 
         if (node.modelNode().hasVariantProperty(eventsName))
             events = node.modelNode().variantProperty(eventsName).value().toString();
-
     }
 
     qreal width;
@@ -980,7 +979,6 @@ public:
     int bezier;
     ConnectionType type;
     QString label;
-    int fontSize;
     qreal labelOffset;
     qreal labelPosition;
     int labelFlags;
@@ -1284,7 +1282,7 @@ public:
         const bool boolExitRight = fromRect.right() < toRect.center().x();
         const bool boolExitBottom = fromRect.bottom() < toRect.center().y();
 
-        const int padding = 4 * config.adjustedWidth;
+        const qreal padding = 8;
 
         if (horizontalFirst) {
             const qreal startX = boolExitRight ? fromRect.right() + padding : fromRect.x() - padding;
@@ -1404,11 +1402,14 @@ void FormEditorTransitionItem::updateGeometry()
     QPixmap pixmap(640, 480);
     QPainter localPainter(&pixmap);
     QFont font = localPainter.font();
-    font.setPixelSize(config.fontSize);
+    font.setPointSizeF(getFontSize(&localPainter) / getScaleFactor());
     localPainter.setFont(font);
 
-    for (const auto &from : resolved.from) {
-        for (const auto &to : resolved.to) {
+    const auto fromNodes = resolved.from;
+    const auto toNodes = resolved.to;
+
+    for (const auto &from : fromNodes) {
+        for (const auto &to : toNodes) {
             Connection connection(resolved, pos(), from, to, config);
 
             // Just add the configured transition width to the bounding box to make sure the BB is not cutting
@@ -1434,31 +1435,13 @@ QPointF FormEditorTransitionItem::instancePosition() const
 
 void FormEditorTransitionItem::drawLabels(QPainter *painter, const Connection &connection)
 {
-    // draw label with event ids
-    if (connection.config.isSelected && !connection.config.events.isEmpty())
-    {
-        qreal offset = connection.config.labelOffset;
-        QStringList events = connection.config.events.split(',');
-        int fontSize = connection.config.fontSize;
-        QString outputText;
-        qreal minWidth = offset * 12.0;
-        qreal letterWidth = fontSize * 0.6; // assumption on max letter width
-        int eventCount = events.size();
-        std::for_each(events.begin(), events.end(), [&](auto id) {
-                outputText.append(id.trimmed());
-                outputText.append('\n');
-                if (minWidth < id.size() * letterWidth) minWidth = id.size() * letterWidth;
-        });
-        const QPointF pos = connection.path.pointAtPercent(0.0);
-        painter->save();
-        painter->setBrush(QColor(70, 70, 70, 200));
-        painter->setPen(Qt::lightGray);
-        painter->drawRoundedRect(pos.x(), pos.y() + offset, minWidth, 1.5 * fontSize * eventCount + offset * 4.0, offset / 2.0, offset / 2.0);
-        painter->drawText(pos.x(), pos.y() + 2.0 * offset, minWidth, offset * 2.0, Qt::AlignHCenter, QObject::tr("Connected Events"));
-        painter->drawLine(pos.x() + offset, pos.y() + 4.0 * offset, pos.x() + minWidth - offset, pos.y() + offset * 4.0);
-        painter->drawText(pos.x() + offset, pos.y() + 4.0 * offset, minWidth - offset, 1.5 * fontSize * eventCount, Qt::AlignLeft, outputText);
-        painter->restore();
-    }
+    drawSingleEventIdLabel(painter, connection);
+    drawEventIdsLabel(painter, connection);
+    drawGeneralLabel(painter, connection);
+}
+
+void FormEditorTransitionItem::drawGeneralLabel(QPainter *painter, const Connection &connection)
+{
     if (connection.config.label.isEmpty())
         return;
 
@@ -1481,11 +1464,166 @@ void FormEditorTransitionItem::drawLabels(QPainter *painter, const Connection &c
     painter->restore();
 }
 
+void FormEditorTransitionItem::drawSingleEventIdLabel(QPainter *painter, const Connection &connection)
+{
+    if (connection.config.events.isEmpty() || connection.config.events.split(",").size() != 1)
+        return;
+
+    QPointF position;
+    qreal angle;
+
+    const qreal hMargin = 10.0 / getScaleFactor();
+    QFontMetrics metric(painter->font());
+    QRectF textRect = metric.boundingRect(connection.config.events);
+    textRect.adjust(-hMargin, 0.0, hMargin, 0.0);
+    const qreal halfHeight = textRect.height() / 2.0;
+
+    if (connection.config.type == ConnectionType::Bezier) {
+        position = connection.path.pointAtPercent(0.5);
+        angle = connection.path.angleAtPercent(0.5);
+        textRect.moveCenter(position);
+    } else {
+        const QLineF start(connection.start, connection.mid1);
+        const QLineF mid(connection.mid1, connection.mid2);
+        const QLineF end(connection.mid2, connection.end);
+        QVector<QLineF> pathLines = {start, mid, end};
+
+        std::sort(pathLines.begin(), pathLines.end(), [](const QLineF &a, const QLineF &b) {
+            return a.length() > b.length() && (a.angle() == 0 || a.angle() == 180);
+        });
+
+        // Calculate font bounding box without taking into account the cale factor
+        QFont originalFont = painter->font();
+        originalFont.setPointSizeF(getFontSize(painter));
+        QFontMetrics originalMetric(originalFont);
+        QRectF originalTextRect = originalMetric.boundingRect(connection.config.events);
+        originalTextRect.adjust(-10.0, 0.0, 10.0, 0.0);
+
+        const qreal width = originalTextRect.width(); // original width
+
+        QVector<QLineF> candidates;
+        candidates.reserve(3);
+        std::copy_if(pathLines.begin(), pathLines.end(),
+                     std::back_inserter(candidates),
+                     [width](const QLineF &line) { return line.length() > width; });
+
+        const QLineF tmp = candidates.empty() ? start : candidates.first();
+        angle = tmp.angle();
+
+        if (tmp.p1() == start.p1()) {
+            if (angle == 0) {
+                position = tmp.p2() + QPointF(-connection.config.radius, halfHeight);
+                textRect.moveBottomRight(position);
+            } else if (angle == 90) {
+                position = tmp.p2() + QPointF(halfHeight, connection.config.radius);
+                textRect.moveBottomRight(position);
+            } else if (angle == 180) {
+                position = tmp.p2() + QPointF(connection.config.radius, halfHeight);
+                textRect.moveBottomLeft(position);
+            } else if (angle == 270) {
+                position = tmp.p2() + QPointF(halfHeight, -connection.config.radius);
+                textRect.moveBottomLeft(position);
+            }
+        } else if (tmp.p2() == end.p2()) {
+            if (angle == 0) {
+                position = tmp.p1() + QPointF(connection.config.radius, halfHeight);
+                textRect.moveBottomLeft(position);
+            } else if (angle == 90) {
+                position = tmp.p1() + QPointF(halfHeight, -connection.config.radius);
+                textRect.moveBottomLeft(position);
+            } else if (angle == 180) {
+                position = tmp.p1() + QPointF(-connection.config.radius, halfHeight);
+                textRect.moveBottomRight(position);
+            } else if (angle == 270) {
+                position = tmp.p1() + QPointF(halfHeight, connection.config.radius);
+                textRect.moveBottomRight(position);
+            }
+        } else {
+            position = tmp.center();
+            textRect.moveCenter(position);
+        }
+    }
+
+    painter->save();
+
+    painter->setBrush(Qt::red);
+    painter->translate(position);
+    painter->rotate(-normalizeAngle(angle));
+    painter->translate(-position);
+    painter->drawRoundedRect(textRect, halfHeight, halfHeight);
+
+    painter->setPen(Qt::white);
+    painter->drawText(textRect, Qt::AlignCenter, connection.config.events);
+
+    painter->restore();
+}
+
+void FormEditorTransitionItem::drawEventIdsLabel(QPainter *painter, const Connection &connection)
+{
+    if (!connection.config.isSelected || connection.config.events.isEmpty())
+        return;
+
+    // draw label with event ids
+    const QStringList events = connection.config.events.split(',');
+    const int eventCount = events.size();
+
+    const qreal scaleFactor = getScaleFactor();
+    const qreal radius = 7.0 / scaleFactor;
+    const qreal hMargin = 10.0 / scaleFactor;
+
+    QFontMetrics metric(painter->font());
+    const QString title = QObject::tr("Connected Events");
+    const QRect titleRect = metric.boundingRect(title);
+    const qreal lineHeight = titleRect.height();
+
+    qreal minWidth = titleRect.width() + (2 * hMargin);
+    // Get the width for the widest event label
+    for (const QString &event : events)
+        minWidth = std::max(minWidth, metric.boundingRect(event.trimmed()).width() + (2 * hMargin));
+
+    const qreal offset = 10.0 / scaleFactor;
+    const QLineF line(connection.start, connection.mid1);
+    QPointF pos = line.p1();
+
+    if (line.angle() == 0)
+        pos += QPointF(0.0, offset);
+    else if (line.angle() == 90)
+        pos += QPointF(offset, -(eventCount + 1) * lineHeight);
+    else if (line.angle() == 180)
+        pos += QPointF(-minWidth, offset);
+    else if (line.angle() == 270)
+        pos += QPointF(offset, 0.0);
+
+    const QRectF tmpRect(pos, QSize(minWidth, lineHeight));
+
+    painter->save();
+    painter->setBrush(QColor(70, 70, 70, 200));
+    painter->setPen(Qt::NoPen);
+
+    // Draw background rect
+    painter->drawRoundedRect(tmpRect.adjusted(0, 0, 0, eventCount * lineHeight), radius, radius);
+    // Draw title background rect
+    painter->drawRoundedRect(tmpRect, radius, radius);
+
+    painter->setPen(Qt::lightGray);
+    // Draw title
+    painter->drawText(tmpRect, Qt::AlignHCenter | Qt::TextDontClip, title);
+    // Draw events
+    int i = 1;
+    for (const QString &event : events) {
+        painter->drawText(tmpRect.translated(hMargin, lineHeight * i++),
+                          Qt::AlignLeft | Qt::TextDontClip,
+                          event.trimmed());
+    }
+
+    painter->restore();
+}
+
 static void drawArrow(QPainter *painter,
                       const QPointF &point,
                       const qreal &angle,
-                      int arrowLength,
-                      int arrowWidth)
+                      const qreal &arrowLength,
+                      const qreal &arrowWidth)
 {
     const QPointF peakP(0, 0);
     const QPointF leftP(-arrowLength, -arrowWidth * 0.5);
@@ -1503,8 +1641,8 @@ static void drawArrow(QPainter *painter,
 
 void FormEditorTransitionItem::paintConnection(QPainter *painter, const Connection &connection)
 {
-    const int arrowLength = 4 * connection.config.adjustedWidth;
-    const int arrowWidth = 8 * connection.config.adjustedWidth;
+    const qreal arrowLength = 4 * connection.config.adjustedWidth;
+    const qreal arrowWidth = 8 * connection.config.adjustedWidth;
 
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing);
@@ -1550,11 +1688,12 @@ void FormEditorTransitionItem::paintConnection(QPainter *painter, const Connecti
     // Draw start ellipse
     if (connection.config.drawStart) {
         painter->setBrush(Qt::white);
-        painter->drawEllipse(connection.start, arrowLength / 3, arrowLength / 3);
+        painter->drawEllipse(connection.start, arrowLength / 2.0, arrowLength / 2.0);
     }
 
     // Draw labels
-    drawLabels(painter, connection);
+    if (viewportTransform().m11() >= zoomLevelLabel)
+        drawLabels(painter, connection);
 
     painter->restore();
 }
@@ -1580,12 +1719,15 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     ConnectionConfiguration config(qmlItemNode(), resolved, viewportTransform().m11(), m_hitTest);
 
-    QFont font = painter->font();
-    font.setPixelSize(config.fontSize);
-    painter->setFont(font);
+    QFont f = painter->font();
+    f.setPointSizeF(getFontSize(painter) / getScaleFactor());
+    painter->setFont(f);
 
-    for (const auto &f : resolved.from) {
-        for (const auto &t : resolved.to) {
+    const auto fromNodes = resolved.from;
+    const auto toNodes = resolved.to;
+
+    for (const auto &f : fromNodes) {
+        for (const auto &t : toNodes) {
             Connection connection(resolved, pos(), f, t, config);
             if (!config.hitTesting) {
                 // The following if statement is a special treatment for n-to-n, 1-to-n and n-to-1
@@ -1650,11 +1792,11 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
                 pen.setColor(config.color);
                 painter->setPen(pen);
 
-                const int iconAdjust = 48;
-                const int size = connection.fromRect.width();
-                const int iconSize = size - iconAdjust;
-                const int x = connection.fromRect.topRight().x() - startItemOffset;
-                const int y = connection.fromRect.topRight().y();
+                const qreal iconAdjust = 48;
+                const qreal size = connection.fromRect.width();
+                const qreal iconSize = size - iconAdjust;
+                const qreal x = connection.fromRect.topRight().x() - startItemOffset;
+                const qreal y = connection.fromRect.topRight().y();
                 painter->drawRoundedRect(x, y , size - 10, size, size / 2, iconSize / 2);
                 drawIcon(painter, x + iconAdjust / 2, y + iconAdjust / 2, icon, iconSize, iconSize, config.color);
             }
@@ -1675,7 +1817,7 @@ bool FormEditorTransitionItem::flowHitTest(const QPointF &point) const
     const_cast<FormEditorTransitionItem *>(this)->paint(&p, nullptr, nullptr);
     m_hitTest = false;
 
-    QPoint pos = mapFromScene(point).toPoint();
+    const QPoint pos = mapFromScene(point).toPoint();
     return image.pixelColor(pos).value() > 0;
 }
 
@@ -1685,6 +1827,20 @@ QTransform FormEditorItem::viewportTransform() const
     QTC_ASSERT(!scene()->views().isEmpty(), return {});
 
     return scene()->views().first()->viewportTransform();
+}
+
+qreal FormEditorItem::getFontSize(QPainter *painter) const
+{
+    const int dpi = std::max(painter->device()->logicalDpiX(),
+                             painter->device()->logicalDpiY());
+
+    return fontSize * (dpi / defaultDpi);
+}
+
+qreal FormEditorItem::getScaleFactor() const
+{
+    // Cap scaling at 100% zoom
+    return (viewportTransform().m11() >= 1.0) ? viewportTransform().m11() : 1.0;
 }
 
 void FormEditorFlowDecisionItem::updateGeometry()
@@ -1704,7 +1860,7 @@ void FormEditorFlowDecisionItem::updateGeometry()
 
         // If drawing the dialog title is requested we need to add it to the bounding rect.
         QRectF labelBoundingRect;
-        int showDialogLabel = false;
+        bool showDialogLabel = false;
         if (qmlItemNode().modelNode().hasAuxiliaryData("showDialogLabel"))
             showDialogLabel = qmlItemNode().modelNode().auxiliaryData("showDialogLabel").toBool();
 
@@ -1718,10 +1874,10 @@ void FormEditorFlowDecisionItem::updateGeometry()
                 QPixmap pixmap(640, 480);
                 QPainter localPainter(&pixmap);
                 QFont font = localPainter.font();
-                font.setPixelSize(labelFontSize / viewportTransform().m11());
+                font.setPointSizeF(getFontSize(&localPainter) / getScaleFactor());
                 localPainter.setFont(font);
 
-                int margin = blockAdjust * 0.5;
+                const qreal margin = blockAdjust * 0.5;
                 const QRectF adjustedRect = boundingRect.adjusted(margin, margin, -margin, -margin);
 
                 QRectF textRect(0, 0, 100, 20);
@@ -1791,7 +1947,6 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGrap
     if (qmlItemNode().modelNode().hasAuxiliaryData("color"))
         flowColor = qmlItemNode().modelNode().auxiliaryData("color").value<QColor>();
 
-    const qreal scaleFactor = viewportTransform().m11();
     qreal width = 2;
 
     if (qmlItemNode().modelNode().hasAuxiliaryData("width"))
@@ -1832,7 +1987,7 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGrap
 
     QRectF boundingRect(0, 0, size, size);
     QTransform transform;
-    int margin = blockAdjust;
+    qreal margin = blockAdjust;
     if (m_iconType == DecisionIcon) {
         transform.translate(boundingRect.center().x(), boundingRect.center().y());
         transform.rotate(45);
@@ -1845,18 +2000,18 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGrap
     painter->setTransform(transform, true);
     painter->drawRoundedRect(adjustedRect, radius, radius);
 
-    const int iconDecrement = 32;
-    const int iconSize = adjustedRect.width() - iconDecrement;
-    const int offset = iconDecrement / 2 + margin;
+    const qreal iconDecrement = 32.0;
+    const qreal iconSize = adjustedRect.width() - iconDecrement;
+    const qreal offset = iconDecrement / 2.0 + margin;
 
     painter->restore();
 
     // Draw the dialog title inside the form view if requested. Decision item only.
-    int showDialogLabel = false;
+    bool showDialogLabel = false;
     if (qmlItemNode().modelNode().hasAuxiliaryData("showDialogLabel"))
         showDialogLabel = qmlItemNode().modelNode().auxiliaryData("showDialogLabel").toBool();
 
-    if (showDialogLabel) {
+    if (showDialogLabel && viewportTransform().m11() >= zoomLevelLabel) {
         QString dialogTitle;
         if (qmlItemNode().modelNode().hasVariantProperty("dialogTitle"))
             dialogTitle = qmlItemNode().modelNode().variantProperty("dialogTitle").value().toString();
@@ -1864,7 +2019,7 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGrap
         if (!dialogTitle.isEmpty()) {
 
             QFont font = painter->font();
-            font.setPixelSize(labelFontSize / scaleFactor);
+            font.setPointSizeF(getFontSize(painter) / getScaleFactor());
             painter->setFont(font);
 
             QRectF textRect(0, 0, 100, 20);
