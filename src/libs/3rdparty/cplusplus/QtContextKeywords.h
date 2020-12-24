@@ -37,7 +37,8 @@ enum {
     Token_DESIGNABLE,
     Token_SCRIPTABLE,
     Token_REVISION,
-    Token_MEMBER
+    Token_MEMBER,
+    Token_BINDABLE
 };
 
 CPLUSPLUS_EXPORT int classifyQtContextKeyword(const char *s, int n);

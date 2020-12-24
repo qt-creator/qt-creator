@@ -159,6 +159,23 @@ static inline int classify8(const char *s) {
       }
     }
   }
+  if (s[0] == 'B') {
+    if (s[1] == 'I') {
+      if (s[2] == 'N') {
+        if (s[3] == 'D') {
+          if (s[4] == 'A') {
+            if (s[5] == 'B') {
+              if (s[6] == 'L') {
+                if (s[7] == 'E') {
+                  return Token_BINDABLE;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   return Token_not_Qt_context_keyword;
 }
 
