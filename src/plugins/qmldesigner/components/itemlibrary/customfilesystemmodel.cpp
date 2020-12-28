@@ -79,6 +79,11 @@ static const QStringList &supportedAudioSuffixes()
     return retList;
 }
 
+static QPixmap defaultPixmapForType(const QString &type, const QSize &size)
+{
+    return QPixmap(QStringLiteral(":/ItemLibrary/images/asset_%1_%2.png").arg(type).arg(size.width()));
+}
+
 static QPixmap generateFontImage(const QFileInfo &info, const QSize &size)
 {
     static QHash<QString, QPixmap> fontImageCache;
@@ -92,12 +97,12 @@ static QPixmap generateFontImage(const QFileInfo &info, const QSize &size)
         while (!done) {
             QRawFont font(file, pixelSize);
             if (!font.isValid())
-                return pixmap;
+                break;
             QGlyphRun gr;
             gr.setRawFont(font);
             QVector<quint32> indices = font.glyphIndexesForString("Abc");
             if (indices.isEmpty())
-                return pixmap;
+                break;
             const QVector<QPointF> advances = font.advancesForGlyphIndexes(indices);
             QVector<QPointF> positions;
             QPointF totalAdvance;
@@ -110,7 +115,7 @@ static QPixmap generateFontImage(const QFileInfo &info, const QSize &size)
             gr.setPositions(positions);
             QRectF bounds = gr.boundingRect();
             if (bounds.width() <= 0 || bounds.height() <= 0)
-                return pixmap;
+                break;
 
             bounds.moveCenter({size.width() / 2., size.height() / 2.});
 
@@ -132,6 +137,10 @@ static QPixmap generateFontImage(const QFileInfo &info, const QSize &size)
             painter.drawGlyphRun(bounds.bottomLeft(), gr);
             done = true;
         }
+
+        if (!done)
+            pixmap = defaultPixmapForType("font", size);
+
         fontImageCache[key] = pixmap;
     }
     return fontImageCache[key];
@@ -163,6 +172,10 @@ public:
                 pixmap.load(info.absoluteFilePath());
             else if (supportedFontSuffixes().contains(suffix))
                 pixmap = generateFontImage(info, iconSize);
+            else if (supportedAudioSuffixes().contains(suffix))
+                pixmap = defaultPixmapForType("sound", iconSize);
+            else if (supportedShaderSuffixes().contains(suffix))
+                pixmap = defaultPixmapForType("shader", iconSize);
 
             if (pixmap.isNull())
                 return QFileIconProvider::icon(info);
@@ -176,8 +189,13 @@ public:
         return icon;
     }
 
-    // Generated icon sizes should match ItemLibraryResourceView needed icon sizes
-    QList<QSize> iconSizes  = {{192, 192}, {128, 128}, {96, 96}, {48, 48}, {32, 32}};
+    // Generated icon sizes should contain all ItemLibraryResourceView needed icon sizes, and their
+    // x2 versions for HDPI sceens
+    QList<QSize> iconSizes  = {{384, 384}, {192, 192}, // Large
+                               {256, 256}, {128, 128}, // Drag
+                                           {96, 96},   // Medium
+                                           {48, 48},   // Small
+                               {64, 64},   {32, 32}};  // List
 
 };
 
