@@ -329,6 +329,22 @@ QPair<QString, QByteArray> CustomFileSystemModel::resourceTypeAndData(const QMod
     return {};
 }
 
+const QSet<QString> &CustomFileSystemModel::supportedSuffixes() const
+{
+    static QSet<QString> allSuffixes;
+    if (allSuffixes.isEmpty()) {
+        auto insertSuffixes = [](const QStringList &suffixes) {
+            for (const auto &suffix : suffixes)
+                allSuffixes.insert(suffix);
+        };
+        insertSuffixes(supportedImageSuffixes());
+        insertSuffixes(supportedShaderSuffixes());
+        insertSuffixes(supportedFontSuffixes());
+        insertSuffixes(supportedAudioSuffixes());
+    }
+    return allSuffixes;
+}
+
 void CustomFileSystemModel::appendIfNotFiltered(const QString &file)
 {
     if (filterMetaIcons(file))

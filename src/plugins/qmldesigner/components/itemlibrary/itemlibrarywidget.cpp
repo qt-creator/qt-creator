@@ -201,7 +201,9 @@ ItemLibraryWidget::ItemLibraryWidget(ImageCache &imageCache)
     button->setToolTip(tr("Add new assets to project."));
     button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     flowLayout->addWidget(button);
-    connect(button, &QToolButton::clicked, this, &ItemLibraryWidget::addResources);
+    connect(button, &QToolButton::clicked, [this]() {
+        addResources({});
+    });
 
 #ifdef IMPORT_QUICK3D_ASSETS
     DesignerActionManager *actionManager =
@@ -245,6 +247,26 @@ ItemLibraryWidget::ItemLibraryWidget(ImageCache &imageCache)
         }
     }
 #endif
+
+    const auto dropSupport = new Utils::DropSupport(
+                m_resourcesView.data(), [this](QDropEvent *event, Utils::DropSupport *) {
+        // Accept supported file types
+        if (event->type() == QDropEvent::DragEnter && !Utils::DropSupport::isFileDrop(event))
+            return false; // do not accept drops without files
+        bool accept = false;
+        const QSet<QString> &suffixes = m_resourcesFileSystemModel->supportedSuffixes();
+        const QList<QUrl> urls = event->mimeData()->urls();
+        for (const QUrl &url : urls) {
+            QFileInfo fi(url.toLocalFile());
+            if (suffixes.contains(fi.suffix())) {
+                accept = true;
+                break;
+            }
+        }
+        return accept;
+    });
+    connect(dropSupport, &Utils::DropSupport::filesDropped,
+            this, &ItemLibraryWidget::importDroppedFiles);
 
     // init the first load of the QML UI elements
     reloadQmlSource();
@@ -511,7 +533,7 @@ void ItemLibraryWidget::addPossibleImport(const QString &name)
     QmlDesignerPlugin::instance()->currentDesignDocument()->updateSubcomponentManager();
 }
 
-void ItemLibraryWidget::addResources()
+void ItemLibraryWidget::addResources(const QStringList &files)
 {
     auto document = QmlDesignerPlugin::instance()->currentDesignDocument();
 
@@ -540,27 +562,30 @@ void ItemLibraryWidget::addResources()
         return priorities.value(first) < priorities.value(second);
     });
 
-    QStringList filters;
+    QStringList fileNames = files;
+    if (fileNames.isEmpty()) {
+        QStringList filters;
 
-    for (const QString &key : sortedKeys) {
-        QString str = key + " (";
-        str.append(map.values(key).join(" "));
-        str.append(")");
-        filters.append(str);
+        for (const QString &key : sortedKeys) {
+            QString str = key + " (";
+            str.append(map.values(key).join(" "));
+            str.append(")");
+            filters.append(str);
+        }
+
+        filters.prepend(tr("All Files (%1)").arg(map.values().join(" ")));
+
+        static QString lastDir;
+        const QString currentDir = lastDir.isEmpty() ? document->fileName().parentDir().toString() : lastDir;
+
+        fileNames = QFileDialog::getOpenFileNames(Core::ICore::dialogParent(),
+                                                  tr("Add Assets"),
+                                                  currentDir,
+                                                  filters.join(";;"));
+
+        if (!fileNames.isEmpty())
+            lastDir = QFileInfo(fileNames.first()).absolutePath();
     }
-
-    filters.prepend(tr("All Files (%1)").arg(map.values().join(" ")));
-
-    static QString lastDir;
-    const QString currentDir = lastDir.isEmpty() ? document->fileName().parentDir().toString() : lastDir;
-
-    const auto fileNames = QFileDialog::getOpenFileNames(Core::ICore::dialogParent(),
-                                                         tr("Add Assets"),
-                                                         currentDir,
-                                                         filters.join(";;"));
-
-    if (!fileNames.isEmpty())
-        lastDir = QFileInfo(fileNames.first()).absolutePath();
 
     QMultiMap<QString, QString> partitionedFileNames;
 
@@ -581,5 +606,17 @@ void ItemLibraryWidget::addResources()
              }
          }
     }
+}
+
+void ItemLibraryWidget::importDroppedFiles(const QList<Utils::DropSupport::FileSpec> &files)
+{
+    QStringList fileNames;
+    for (const auto &file : files) {
+        QFileInfo fi(file.filePath);
+        if (m_resourcesFileSystemModel->supportedSuffixes().contains(fi.suffix()))
+            fileNames.append(fi.absoluteFilePath());
+    }
+    if (!fileNames.isEmpty())
+        addResources(fileNames);
 }
 } // namespace QmlDesigner

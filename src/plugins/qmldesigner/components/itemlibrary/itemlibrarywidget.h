@@ -29,6 +29,7 @@
 #include "itemlibraryresourceview.h"
 
 #include <utils/fancylineedit.h>
+#include <utils/dropsupport.h>
 
 #include <QFrame>
 #include <QToolButton>
@@ -104,7 +105,8 @@ private:
     void removeImport(const QString &name);
     void addImport(const QString &name, const QString &version);
     void addPossibleImport(const QString &name);
-    void addResources();
+    void addResources(const QStringList &files);
+    void importDroppedFiles(const QList<Utils::DropSupport::FileSpec> &files);
 
     QTimer m_compressionTimer;
     QSize m_itemIconSize;

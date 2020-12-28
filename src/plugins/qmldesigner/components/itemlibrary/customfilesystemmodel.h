@@ -28,6 +28,7 @@
 #include <QAbstractTableModel>
 #include <QDir>
 #include <QPair>
+#include <QSet>
 
 QT_BEGIN_NAMESPACE
 class QFileIconProvider;
@@ -62,6 +63,7 @@ public:
     void setSearchFilter(const QString &nameFilterList);
 
     QPair<QString, QByteArray> resourceTypeAndData(const QModelIndex &index) const;
+    const QSet<QString> &supportedSuffixes() const;
 
 private:
     QModelIndex updatePath(const QString &newPath);
