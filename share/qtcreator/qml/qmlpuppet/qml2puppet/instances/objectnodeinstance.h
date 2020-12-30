@@ -65,7 +65,7 @@ public:
 
     virtual ~ObjectNodeInstance();
     void destroy();
-    //void setModelNode(const ModelNode &node);
+    virtual void handleObjectDeletion(QObject *object);
 
     static Pointer create(QObject *objectToBeWrapped);
     static QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context);

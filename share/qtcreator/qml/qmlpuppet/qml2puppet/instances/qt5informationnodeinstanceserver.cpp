@@ -915,6 +915,9 @@ Qt5InformationNodeInstanceServer::~Qt5InformationNodeInstanceServer()
     m_render3DEditViewTimer.stop();
     m_inputEventTimer.stop();
 
+    if (m_editView3DData.rootItem)
+        m_editView3DData.rootItem->disconnect(this);
+
     for (auto view : qAsConst(m_view3Ds))
         view->disconnect();
     for (auto node : qAsConst(m_3DSceneMap))
@@ -922,6 +925,15 @@ Qt5InformationNodeInstanceServer::~Qt5InformationNodeInstanceServer()
 
     if (m_editView3DData.rootItem)
         QMetaObject::invokeMethod(m_editView3DData.rootItem, "aboutToShutDown", Qt::DirectConnection);
+
+    if (!Internal::QuickItemNodeInstance::unifiedRenderPath()) {
+        if (m_editView3DData.contentItem)
+            designerSupport()->derefFromEffectItem(m_editView3DData.contentItem);
+        if (m_modelNode3DImageViewData.contentItem)
+            designerSupport()->derefFromEffectItem(m_modelNode3DImageViewData.contentItem);
+        if (m_modelNode2DImageViewData.contentItem)
+            designerSupport()->derefFromEffectItem(m_modelNode2DImageViewData.contentItem);
+    }
 }
 
 void Qt5InformationNodeInstanceServer::sendTokenBack()

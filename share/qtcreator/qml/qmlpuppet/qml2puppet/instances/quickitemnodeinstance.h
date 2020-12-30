@@ -42,6 +42,7 @@ public:
     using WeakPointer = QWeakPointer<QuickItemNodeInstance>;
 
     ~QuickItemNodeInstance() override;
+    void handleObjectDeletion(QObject *object) override;
 
     static Pointer create(QObject *objectToBeWrapped);
     static void createEffectItem(bool createEffectItem);

@@ -59,8 +59,15 @@ QuickItemNodeInstance::QuickItemNodeInstance(QQuickItem *item)
 
 QuickItemNodeInstance::~QuickItemNodeInstance()
 {
-    if (quickItem() && checkIfRefFromEffect(instanceId()))
-        designerSupport()->derefFromEffectItem(quickItem());
+}
+
+void QuickItemNodeInstance::handleObjectDeletion(QObject *object)
+{
+    auto item = qobject_cast<QQuickItem *>(object);
+    if (item && checkIfRefFromEffect(instanceId()))
+        designerSupport()->derefFromEffectItem(item);
+
+    ObjectNodeInstance::handleObjectDeletion(object);
 }
 
 static bool isContentItem(QQuickItem *item, NodeInstanceServer *nodeInstanceServer)

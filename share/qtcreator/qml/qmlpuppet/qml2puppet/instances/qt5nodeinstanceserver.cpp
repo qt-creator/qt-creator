@@ -37,6 +37,7 @@
 #include <addimportcontainer.h>
 #include <createscenecommand.h>
 #include <reparentinstancescommand.h>
+#include <clearscenecommand.h>
 
 #include <QDebug>
 #include <QOpenGLContext>
@@ -59,7 +60,8 @@ Qt5NodeInstanceServer::Qt5NodeInstanceServer(NodeInstanceClientInterface *nodeIn
 
 Qt5NodeInstanceServer::~Qt5NodeInstanceServer()
 {
-    delete quickWindow();
+    NodeInstanceServer::clearScene({});
+    delete m_viewData.window.data();
 }
 
 QQuickView *Qt5NodeInstanceServer::quickView() const

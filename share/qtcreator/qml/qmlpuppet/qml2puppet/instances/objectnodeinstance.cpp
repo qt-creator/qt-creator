@@ -65,12 +65,7 @@ ObjectNodeInstance::ObjectNodeInstance(QObject *object)
 {
     if (object)
         QObject::connect(m_object.data(), &QObject::destroyed, [=] {
-
-            /*This lambda is save because m_nodeInstanceServer
-            is a smartpointer and object is a dangling pointer anyway.*/
-
-            if (m_nodeInstanceServer)
-                m_nodeInstanceServer->removeInstanceRelationsipForDeletedObject(object);
+            handleObjectDeletion(object);
         });
 }
 
@@ -98,6 +93,14 @@ void ObjectNodeInstance::destroy()
     }
 
     m_instanceId = -1;
+}
+
+void ObjectNodeInstance::handleObjectDeletion(QObject *object)
+{
+    // We must pass the m_instanceId here, because this instance is no longer
+    // valid, so the wrapper ServerNodeInstance will report -1 for id.
+    if (m_nodeInstanceServer)
+        m_nodeInstanceServer->removeInstanceRelationsipForDeletedObject(object, m_instanceId);
 }
 
 void ObjectNodeInstance::setInstanceId(qint32 id)

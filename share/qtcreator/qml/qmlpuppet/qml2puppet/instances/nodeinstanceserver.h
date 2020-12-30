@@ -204,7 +204,7 @@ public:
                          const QString &message,
                          const QVector<qint32> &instanceIds);
 
-    void removeInstanceRelationsipForDeletedObject(QObject *object);
+    void removeInstanceRelationsipForDeletedObject(QObject *object, qint32 instanceId);
 
     void incrementNeedsExtraRender();
     void decrementNeedsExtraRender();

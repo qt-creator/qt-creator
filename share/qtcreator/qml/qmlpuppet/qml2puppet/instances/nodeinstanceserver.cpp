@@ -771,25 +771,18 @@ QList<QObject*> NodeInstanceServer::allSubObjectsForObject(QObject *object)
 
 void NodeInstanceServer::removeAllInstanceRelationships()
 {
-    // prevent destroyed() signals calling back
-
-    foreach (ServerNodeInstance instance, m_objectInstanceHash) {
+    for (ServerNodeInstance &instance : m_objectInstanceHash) {
         if (instance.isValid())
-            instance.setId(QString());
+            instance.setId({});
     }
 
-    //first  the root object
-    if (rootNodeInstance().internalObject())
-        rootNodeInstance().internalObject()->disconnect();
-
+    // First the root object
+    // This also cleans up all objects that have root object as ancestor
     rootNodeInstance().makeInvalid();
 
-
-    foreach (ServerNodeInstance instance, m_objectInstanceHash) {
-        if (instance.internalObject())
-            instance.internalObject()->disconnect();
+    // Invalidate any remaining objects
+    for (ServerNodeInstance &instance : m_objectInstanceHash)
         instance.makeInvalid();
-    }
 
     m_idInstances.clear();
     m_objectInstanceHash.clear();
@@ -1388,14 +1381,14 @@ void NodeInstanceServer::sendDebugOutput(DebugOutputCommand::Type type, const QS
     nodeInstanceClient()->debugOutput(command);
 }
 
-void NodeInstanceServer::removeInstanceRelationsipForDeletedObject(QObject *object)
+void NodeInstanceServer::removeInstanceRelationsipForDeletedObject(QObject *object, qint32 instanceId)
 {
     if (m_objectInstanceHash.contains(object)) {
         ServerNodeInstance instance = instanceForObject(object);
         m_objectInstanceHash.remove(object);
 
-        if (instance.instanceId() >= 0 && m_idInstances.size() > instance.instanceId())
-            m_idInstances[instance.instanceId()] = ServerNodeInstance{};
+        if (instanceId >= 0 && m_idInstances.size() > instanceId)
+            m_idInstances[instanceId] = {};
     }
 }
 
