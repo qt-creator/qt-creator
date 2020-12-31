@@ -155,75 +155,96 @@ static FilePath qmakeFromCMakeCache(const CMakeConfig &config)
     const FilePath baseQtDir = canQtCMakeDir.parentDir().parentDir().parentDir(); // Up 3 levels...
     qCDebug(cmInputLog) << "BaseQtDir:" << baseQtDir.toUserOutput();
 
-    // "Parse" Qt5Core/Qt5CoreConfigExtras.cmake:
-    {
-        // This assumes that roughly this kind of data is found in
-        // inside Qt5Core/Qt5CoreConfigExtras.cmake:
-        //
-        //    if (NOT TARGET Qt5::qmake)
-        //        add_executable(Qt5::qmake IMPORTED)
-        //        set(imported_location "${_qt5Core_install_prefix}/bin/qmake")
-        //        _qt5_Core_check_file_exists(${imported_location})
-        //        set_target_properties(Qt5::qmake PROPERTIES
-        //            IMPORTED_LOCATION ${imported_location}
-        //        )
-        //    endif()
+    // Run a CMake project that would do qmake probing
+    TemporaryDirectory qtcQMakeProbeDir("qtc-cmake-qmake-probe-XXXXXXXX");
 
-        QFile extras(qtCMakeDir.toString() + "/Qt5CoreConfigExtras.cmake");
-        if (!extras.open(QIODevice::ReadOnly)) {
-            extras.setFileName(qtCMakeDir.toString() + "/Qt6CoreConfigExtras.cmake");
-            if (!extras.open(QIODevice::ReadOnly))
-                return FilePath();
-        }
+    QFile cmakeListTxt(qtcQMakeProbeDir.path() + "/CMakeLists.txt");
+    if (!cmakeListTxt.open(QIODevice::WriteOnly)) {
+        return FilePath();
+    }
+    cmakeListTxt.write(QByteArray(R"(
+        cmake_minimum_required(VERSION 3.15)
 
-        QByteArray data;
-        bool inQmakeSection = false;
-        // Read in 4k chunks, lines longer than that are going to be ignored
-        while (!extras.atEnd()) {
-            data = extras.read(4 * 1024 - data.count());
-            int startPos = 0;
-            forever {
-                const int pos = data.indexOf('\n', startPos);
-                if (pos < 0) {
-                    data = data.mid(startPos);
-                    break;
-                }
+        project(qmake-probe LANGUAGES NONE)
 
-                QByteArray line = data.mid(startPos, pos - startPos);
-                const QByteArray origLine = line;
+        # Bypass Qt6's usage of find_dependency, which would require compiler
+        # and source code probing, which slows things unnecessarily
+        file(WRITE "${CMAKE_SOURCE_DIR}/CMakeFindDependencyMacro.cmake"
+        [=[
+            macro(find_dependency dep)
+            endmacro()
+        ]=])
+        set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}")
 
-                startPos = pos + 1;
+        find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
+        find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
 
-                line.replace("(", " ( ");
-                line.replace(")", " ) ");
-                line = line.simplified();
+        if (CMAKE_CROSSCOMPILING)
+            find_program(qmake_binary
+                NAMES qmake qmake.bat
+                PATHS "${Qt${QT_VERSION_MAJOR}_DIR}/../../../bin"
+                NO_DEFAULT_PATH)
+            file(WRITE "${CMAKE_SOURCE_DIR}/qmake-location.txt" "${qmake_binary}")
+        else()
+            file(GENERATE
+                OUTPUT "${CMAKE_SOURCE_DIR}/qmake-location.txt"
+                CONTENT "$<TARGET_PROPERTY:Qt${QT_VERSION_MAJOR}::qmake,IMPORTED_LOCATION>")
+        endif()
+    )"));
+    cmakeListTxt.close();
 
-                if (line == "if ( NOT TARGET Qt5::qmake )"
-                        || line == "if ( NOT TARGET Qt6::qmake )")
-                    inQmakeSection = true;
+    SynchronousProcess cmake;
+    cmake.setTimeoutS(5);
+    cmake.setFlags(SynchronousProcess::UnixTerminalDisabled);
+    Environment env = Environment::systemEnvironment();
+    Environment::setupEnglishOutput(&env);
+    cmake.setProcessEnvironment(env.toProcessEnvironment());
+    cmake.setTimeOutMessageBoxEnabled(false);
 
-                if (!inQmakeSection)
-                    continue;
+    QString cmakeGenerator
+            = QString::fromUtf8(CMakeConfigItem::valueOf(QByteArray("CMAKE_GENERATOR"), config));
+    FilePath cmakeExecutable
+            = FilePath::fromUtf8(CMakeConfigItem::valueOf(QByteArray("CMAKE_COMMAND"), config));
+    FilePath cmakeMakeProgram
+            = FilePath::fromUtf8(CMakeConfigItem::valueOf(QByteArray("CMAKE_MAKE_PROGRAM"), config));
+    FilePath toolchainFile
+            = FilePath::fromUtf8(CMakeConfigItem::valueOf(QByteArray("CMAKE_TOOLCHAIN_FILE"), config));
+    FilePath hostPath
+            = FilePath::fromUtf8(CMakeConfigItem::valueOf(QByteArray("QT_HOST_PATH"), config));
 
-                const QByteArray set = "set ( imported_location ";
-                if (line.startsWith(set)) {
-                    const int sp = origLine.indexOf('}');
-                    const int ep = origLine.lastIndexOf('"');
+    QStringList args;
+    args.push_back("-S");
+    args.push_back(qtcQMakeProbeDir.path());
+    args.push_back("-B");
+    args.push_back(qtcQMakeProbeDir.path() + "/build");
+    args.push_back("-G");
+    args.push_back(cmakeGenerator);
 
-                    QTC_ASSERT(sp > 0, return FilePath());
-                    QTC_ASSERT(ep > sp + 2, return FilePath());
-                    QTC_ASSERT(ep < origLine.count(), return FilePath());
-
-                    // Eat the leading "}/" and trailing "
-                    const QByteArray locationPart =  origLine.mid(sp + 2, ep - 2 - sp);
-                    return baseQtDir.pathAppended(QString::fromUtf8(locationPart));
-                }
-            }
-        }
+    if (!cmakeMakeProgram.isEmpty()) {
+        args.push_back(QStringLiteral("-DCMAKE_MAKE_PROGRAM=%1").arg(cmakeMakeProgram.toString()));
+    }
+    if (toolchainFile.isEmpty()) {
+        args.push_back(QStringLiteral("-DCMAKE_PREFIX_PATH=%1").arg(baseQtDir.toString()));
+    } else {
+        args.push_back(QStringLiteral("-DCMAKE_FIND_ROOT_PATH=%1").arg(baseQtDir.toString()));
+        args.push_back(QStringLiteral("-DCMAKE_TOOLCHAIN_FILE=%1").arg(toolchainFile.toString()));
+    }
+    if (!hostPath.isEmpty()) {
+        args.push_back(QStringLiteral("-DQT_HOST_PATH=%1").arg(hostPath.toString()));
     }
 
-    // Now try to make sense of .../Qt5CoreConfig.cmake:
-    return FilePath();
+    qCDebug(cmInputLog) << "CMake probing for qmake path: " << cmakeExecutable.toUserOutput() << args;
+    cmake.runBlocking({cmakeExecutable, args});
+
+
+    QFile qmakeLocationTxt(qtcQMakeProbeDir.path() + "/qmake-location.txt");
+    if (!qmakeLocationTxt.open(QIODevice::ReadOnly)) {
+        return FilePath();
+    }
+    FilePath qmakeLocation = FilePath::fromUtf8(qmakeLocationTxt.readLine().data());
+    qCDebug(cmInputLog) << "qmake location: " << qmakeLocation.toUserOutput();
+
+    return qmakeLocation;
 }
 
 static QVector<ToolChainDescription> extractToolChainsFromCache(const CMakeConfig &config)
