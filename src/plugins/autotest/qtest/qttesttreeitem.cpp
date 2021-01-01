@@ -28,6 +28,7 @@
 #include "qttestparser.h"
 #include "qttestframework.h"
 
+#include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
 
@@ -111,6 +112,8 @@ ITestConfiguration *QtTestTreeItem::testConfiguration() const
 {
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     QTC_ASSERT(project, return nullptr);
+    const auto cppMM = CppTools::CppModelManager::instance();
+    QTC_ASSERT(cppMM, return nullptr);
 
     QtTestConfiguration *config = nullptr;
     switch (type()) {
@@ -144,13 +147,15 @@ ITestConfiguration *QtTestTreeItem::testConfiguration() const
         return nullptr;
     }
     if (config)
-        config->setInternalTargets(internalTargets());
+        config->setInternalTargets(cppMM->internalTargets(filePath()));
     return config;
 }
 
 static void fillTestConfigurationsFromCheckState(const TestTreeItem *item,
                                                  QList<ITestConfiguration *> &testConfigurations)
 {
+    const auto cppMM = CppTools::CppModelManager::instance();
+    QTC_ASSERT(cppMM, return);
     QTC_ASSERT(item, return);
     if (item->type() == TestTreeItem::GroupNode) {
         for (int row = 0, count = item->childCount(); row < count; ++row)
@@ -185,13 +190,15 @@ static void fillTestConfigurationsFromCheckState(const TestTreeItem *item,
         testConfig->setTestCases(testCases);
         testConfig->setProjectFile(item->proFile());
         testConfig->setProject(ProjectExplorer::SessionManager::startupProject());
-        testConfig->setInternalTargets(item->internalTargets());
+        testConfig->setInternalTargets(cppMM->internalTargets(item->filePath()));
         testConfigurations << testConfig;
     }
 }
 
 static void collectFailedTestInfo(TestTreeItem *item, QList<ITestConfiguration *> &testConfigs)
 {
+    const auto cppMM = CppTools::CppModelManager::instance();
+    QTC_ASSERT(cppMM, return);
     QTC_ASSERT(item, return);
     if (item->type() == TestTreeItem::GroupNode) {
         for (int row = 0, count = item->childCount(); row < count; ++row)
@@ -217,7 +224,7 @@ static void collectFailedTestInfo(TestTreeItem *item, QList<ITestConfiguration *
     testConfig->setTestCases(testCases);
     testConfig->setProjectFile(item->proFile());
     testConfig->setProject(ProjectExplorer::SessionManager::startupProject());
-    testConfig->setInternalTargets(item->internalTargets());
+    testConfig->setInternalTargets(cppMM->internalTargets(item->filePath()));
     testConfigs << testConfig;
 }
 

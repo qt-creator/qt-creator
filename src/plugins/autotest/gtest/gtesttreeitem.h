@@ -75,7 +75,6 @@ public:
                                               GTestTreeItem::TestStates state,
                                               const QString &proFile) const;
     QString nameSuffix() const;
-    QSet<QString> internalTargets() const override;
     bool isGroupNodeFor(const TestTreeItem *other) const override;
     bool isGroupable() const override;
     TestTreeItem *applyFilters() override;

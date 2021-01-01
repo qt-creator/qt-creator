@@ -116,6 +116,8 @@ static bool matchesFilter(const QString &filter, const QString &fullTestName)
     return positive.isEmpty();
 }
 
+QSet<QString> internalTargets(const TestTreeItem &item);
+
 QVariant GTestTreeItem::data(int column, int role) const
 {
     switch (role) {
@@ -195,7 +197,7 @@ ITestConfiguration *GTestTreeItem::testConfiguration() const
         return nullptr;
     }
     if (config)
-        config->setInternalTargets(internalTargets());
+        config->setInternalTargets(internalTargets(*this));
     return config;
 }
 
@@ -234,7 +236,7 @@ static void collectTestInfo(const GTestTreeItem *item,
         testCasesForProFile[projectFile].filters.append(
                     gtestFilter(item->state()).arg(item->name()).arg('*'));
         testCasesForProFile[projectFile].testSetCount += childCount - 1;
-        testCasesForProFile[projectFile].internalTargets.unite(item->internalTargets());
+        testCasesForProFile[projectFile].internalTargets.unite(internalTargets(*item));
     } else if (item->checked() == Qt::PartiallyChecked) {
         item->forFirstLevelChildItems([&testCasesForProFile, item](TestTreeItem *child){
             QTC_ASSERT(child->type() == TestTreeItem::TestCase, return);
@@ -242,7 +244,7 @@ static void collectTestInfo(const GTestTreeItem *item,
                 testCasesForProFile[child->proFile()].filters.append(
                             gtestFilter(item->state()).arg(item->name()).arg(child->name()));
                 testCasesForProFile[child->proFile()].internalTargets.unite(
-                            child->internalTargets());
+                            internalTargets(*child));
             }
         });
     }
@@ -262,7 +264,7 @@ static void collectFailedTestInfo(const GTestTreeItem *item,
             testCasesForProfile[it->proFile()].filters.append(
                         gtestFilter(parent->state()).arg(parent->name()).arg(it->name()));
             testCasesForProfile[it->proFile()].internalTargets.unite(
-                        it->internalTargets());
+                        internalTargets(*it));
         }
     });
 }
@@ -348,7 +350,7 @@ QList<ITestConfiguration *> GTestTreeItem::getTestConfigurationsForFile(const Ut
             GTestCases &cases = testCases[testCase->proFile()];
             cases.filters.append(
                         gtestFilter(testCase->state()).arg(testCase->name(), node->name()));
-            cases.internalTargets.unite(node->internalTargets());
+            cases.internalTargets.unite(internalTargets(*node));
         }
     });
     for (auto it = testCases.begin(), end = testCases.end(); it != end; ++it) {
@@ -517,23 +519,23 @@ QString GTestTreeItem::nameSuffix() const
     return suffix;
 }
 
-QSet<QString> GTestTreeItem::internalTargets() const
+QSet<QString> internalTargets(const TestTreeItem &item)
 {
     QSet<QString> result;
     const auto cppMM = CppTools::CppModelManager::instance();
     const auto projectInfo = cppMM->projectInfo(ProjectExplorer::SessionManager::startupProject());
-    const QString file = filePath();
+    const QString file = item.filePath();
     const QVector<CppTools::ProjectPart::Ptr> projectParts = projectInfo.projectParts();
     if (projectParts.isEmpty())
-        return TestTreeItem::dependingInternalTargets(cppMM, file);
+        return cppMM->dependingInternalTargets(file);
     for (const CppTools::ProjectPart::Ptr &projectPart : projectParts) {
-        if (projectPart->projectFile == proFile()
+        if (projectPart->projectFile == item.proFile()
                 && Utils::anyOf(projectPart->files, [&file] (const CppTools::ProjectFile &pf) {
                                 return pf.path == file;
         })) {
             result.insert(projectPart->buildSystemTarget);
             if (projectPart->buildTargetType != ProjectExplorer::BuildTargetType::Executable)
-                result.unite(TestTreeItem::dependingInternalTargets(cppMM, file));
+                result.unite(cppMM->dependingInternalTargets(file));
         }
     }
     return result;

@@ -1389,6 +1389,38 @@ void CppModelManager::onAboutToLoadSession()
     GC();
 }
 
+QSet<QString> CppModelManager::dependingInternalTargets(const QString &file) const
+{
+    QSet<QString> result;
+    const Snapshot snapshot = this->snapshot();
+    QTC_ASSERT(snapshot.contains(file), return result);
+    bool wasHeader;
+    const QString correspondingFile
+            = correspondingHeaderOrSource(file, &wasHeader, CacheUsage::ReadOnly);
+    const Utils::FilePaths dependingFiles = snapshot.filesDependingOn(
+                wasHeader ? file : correspondingFile);
+    for (const Utils::FilePath &fn : qAsConst(dependingFiles)) {
+        for (const ProjectPart::Ptr &part : projectPart(fn))
+            result.insert(part->buildSystemTarget);
+    }
+    return result;
+}
+
+QSet<QString> CppModelManager::internalTargets(const QString &filePath) const
+{
+    const QList<ProjectPart::Ptr> projectParts = projectPart(filePath);
+    // if we have no project parts it's most likely a header with declarations only and CMake based
+    if (projectParts.isEmpty())
+        return dependingInternalTargets(filePath);
+    QSet<QString> targets;
+    for (const ProjectPart::Ptr &part : projectParts) {
+        targets.insert(part->buildSystemTarget);
+        if (part->buildTargetType != ProjectExplorer::BuildTargetType::Executable)
+            targets.unite(dependingInternalTargets(filePath));
+    }
+    return targets;
+}
+
 void CppModelManager::renameIncludes(const QString &oldFileName, const QString &newFileName)
 {
     if (oldFileName.isEmpty() || newFileName.isEmpty())

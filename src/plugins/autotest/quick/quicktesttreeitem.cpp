@@ -36,6 +36,8 @@
 namespace Autotest {
 namespace Internal {
 
+QSet<QString> internalTargets(const QString &proFile);
+
 TestTreeItem *QuickTestTreeItem::copyWithoutChildren()
 {
     QuickTestTreeItem *copied = new QuickTestTreeItem(framework());
@@ -156,7 +158,7 @@ ITestConfiguration *QuickTestTreeItem::testConfiguration() const
         return nullptr;
     }
     if (config)
-        config->setInternalTargets(internalTargets());
+        config->setInternalTargets(internalTargets(proFile()));
     return config;
 }
 
@@ -189,7 +191,7 @@ static QList<ITestConfiguration *> testConfigurationsFor(
                 auto tc = new QuickTestConfiguration(treeItem->framework());
                 tc->setProjectFile(treeItem->proFile());
                 tc->setProject(ProjectExplorer::SessionManager::startupProject());
-                tc->setInternalTargets(treeItem->internalTargets());
+                tc->setInternalTargets(internalTargets(treeItem->proFile()));
                 it = configurationForProFiles.insert(treeItem->proFile(), tc);
             }
             it.value()->setTestCases(it.value()->testCases() + functions);
@@ -216,7 +218,7 @@ struct Tests {
 static void addTestsForItem(Tests &tests, const TestTreeItem *item)
 {
     tests.testCount += item->childCount();
-    tests.internalTargets = item->internalTargets();
+    tests.internalTargets = internalTargets(item->proFile());
 }
 
 QList<ITestConfiguration *> QuickTestTreeItem::getAllTestConfigurations() const
@@ -234,7 +236,7 @@ QList<ITestConfiguration *> QuickTestTreeItem::getAllTestConfigurations() const
             child->forFirstLevelChildItems([&testsForProfile](TestTreeItem *grandChild) {
                 const QString &proFile = grandChild->proFile();
                 ++(testsForProfile[proFile].testCount);
-                testsForProfile[proFile].internalTargets = grandChild->internalTargets();
+                testsForProfile[proFile].internalTargets = internalTargets(grandChild->proFile());
             });
             return;
         }
@@ -384,7 +386,7 @@ bool QuickTestTreeItem::isGroupable() const
     return type() == TestCase && !name().isEmpty() && !filePath().isEmpty();
 }
 
-QSet<QString> QuickTestTreeItem::internalTargets() const
+QSet<QString> internalTargets(const QString &proFile)
 {
     QSet<QString> result;
     const auto cppMM = CppTools::CppModelManager::instance();
@@ -392,7 +394,7 @@ QSet<QString> QuickTestTreeItem::internalTargets() const
     for (const CppTools::ProjectPart::Ptr &projectPart : projectInfo.projectParts()) {
         if (projectPart->buildTargetType != ProjectExplorer::BuildTargetType::Executable)
             continue;
-        if (projectPart->projectFile == proFile())
+        if (projectPart->projectFile == proFile)
             result.insert(projectPart->buildSystemTarget);
     }
     return result;

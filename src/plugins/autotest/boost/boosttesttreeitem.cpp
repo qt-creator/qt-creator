@@ -30,6 +30,7 @@
 #include "boosttestparser.h"
 #include "../testframeworkmanager.h"
 
+#include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
 
@@ -197,8 +198,10 @@ QList<ITestConfiguration *> BoostTestTreeItem::getAllTestConfigurations() const
                 ++funcChildren;
         });
         if (funcChildren) {
+            const auto cppMM = CppTools::CppModelManager::instance();
+            QTC_ASSERT(cppMM, return);
             testsPerProjectfile[item->proFile()].testCases += funcChildren;
-            testsPerProjectfile[item->proFile()].internalTargets.unite(item->internalTargets());
+            testsPerProjectfile[item->proFile()].internalTargets.unite(cppMM->internalTargets(item->filePath()));
         }
     });
 
@@ -236,6 +239,8 @@ QList<ITestConfiguration *> BoostTestTreeItem::getTestConfigurations(
         if (!item->enabled()) // ignore child tests known to be disabled when using run selected
             return;
         if (predicate(item)) {
+            const auto cppMM = CppTools::CppModelManager::instance();
+            QTC_ASSERT(cppMM, return);
             QString tcName = item->name();
             if (item->state().testFlag(BoostTestTreeItem::Templated))
                 tcName.append("<*");
@@ -244,7 +249,7 @@ QList<ITestConfiguration *> BoostTestTreeItem::getTestConfigurations(
             tcName = handleSpecialFunctionNames(tcName);
             testCasesForProjectFile[item->proFile()].testCases.append(
                         item->prependWithParentsSuitePaths(tcName));
-            testCasesForProjectFile[item->proFile()].internalTargets.unite(item->internalTargets());
+            testCasesForProjectFile[item->proFile()].internalTargets.unite(cppMM->internalTargets(item->filePath()));
         }
     });
 
@@ -280,6 +285,8 @@ ITestConfiguration *BoostTestTreeItem::testConfiguration() const
 {
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     QTC_ASSERT(project, return nullptr);
+    const auto cppMM = CppTools::CppModelManager::instance();
+    QTC_ASSERT(cppMM, return nullptr);
 
     const Type itemType = type();
     if (itemType == TestSuite || itemType == TestCase) {
@@ -313,7 +320,7 @@ ITestConfiguration *BoostTestTreeItem::testConfiguration() const
         config->setProjectFile(proFile());
         config->setProject(project);
         config->setTestCases(testCases);
-        config->setInternalTargets(internalTargets());
+        config->setInternalTargets(cppMM->internalTargets(filePath()));
         return config;
     }
     return nullptr;
