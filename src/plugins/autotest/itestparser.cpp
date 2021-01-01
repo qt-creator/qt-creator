@@ -31,12 +31,9 @@
 
 namespace Autotest {
 
-static CppParser *s_parserInstance = nullptr;
-
 CppParser::CppParser(ITestFramework *framework)
     : ITestParser(framework)
 {
-    s_parserInstance = this;
 }
 
 void CppParser::init(const QStringList &filesToParse, bool fullParse)
@@ -55,11 +52,11 @@ bool CppParser::selectedForBuilding(const QString &fileName)
     return !projParts.isEmpty() && projParts.at(0)->selectedForBuilding;
 }
 
-QByteArray CppParser::getFileContent(const QString &filePath)
+QByteArray CppParser::getFileContent(const QString &filePath) const
 {
     QByteArray fileContent;
-    if (s_parserInstance->m_workingCopy.contains(filePath)) {
-        fileContent = s_parserInstance->m_workingCopy.source(filePath);
+    if (m_workingCopy.contains(filePath)) {
+        fileContent = m_workingCopy.source(filePath);
     } else {
         QString error;
         const QTextCodec *codec = Core::EditorManager::defaultTextCodec();

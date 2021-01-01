@@ -56,6 +56,7 @@ private:
                            CPlusPlus::Document::Ptr document, ITestFramework *framework);
     void handleDirectoryChanged(const QString &directory);
     void doUpdateWatchPaths(const QStringList &directories);
+    QString quickTestName(const CPlusPlus::Document::Ptr &doc) const;
     QList<QmlJS::Document::Ptr> scanDirectoryForQuickTestQmlFiles(const QString &srcDir);
     QmlJS::Snapshot m_qmlSnapshot;
     QHash<QString, QString> m_proFilesForQmlFiles;

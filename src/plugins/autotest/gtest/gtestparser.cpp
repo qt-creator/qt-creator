@@ -87,15 +87,17 @@ static bool hasGTestNames(const CPlusPlus::Document::Ptr &document)
     return false;
 }
 
-static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
-                        const CPlusPlus::Document::Ptr &doc,
-                        const CPlusPlus::Snapshot &snapshot,
-                        ITestBase *base)
+bool GTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
+                                  const QString &fileName)
 {
+    CPlusPlus::Document::Ptr doc = document(fileName);
+    if (doc.isNull() || !includesGTest(doc, m_cppSnapshot) || !hasGTestNames(doc))
+        return false;
+
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
     const QString &filePath = doc->fileName();
-    const QByteArray &fileContent = CppParser::getFileContent(filePath);
-    CPlusPlus::Document::Ptr document = snapshot.preprocessedDocument(fileContent, filePath);
+    const QByteArray &fileContent = getFileContent(filePath);
+    CPlusPlus::Document::Ptr document = m_cppSnapshot.preprocessedDocument(fileContent, filePath);
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();
     GTestVisitor visitor(document);
@@ -111,7 +113,7 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
 
     for (auto it = result.cbegin(); it != result.cend(); ++it) {
         const GTestCaseSpec &testSpec = it.key();
-        GTestParseResult *parseResult = new GTestParseResult(base);
+        GTestParseResult *parseResult = new GTestParseResult(framework());
         parseResult->itemType = TestTreeItem::TestSuite;
         parseResult->fileName = filePath;
         parseResult->name = testSpec.testCaseName;
@@ -121,7 +123,7 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
         parseResult->proFile = proFile;
 
         for (const GTestCodeLocationAndType &location : it.value()) {
-            GTestParseResult *testSet = new GTestParseResult(base);
+            GTestParseResult *testSet = new GTestParseResult(framework());
             testSet->name = location.m_name;
             testSet->fileName = filePath;
             testSet->line = location.m_line;
@@ -136,15 +138,6 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
         futureInterface.reportResult(TestParseResultPtr(parseResult));
     }
     return !result.isEmpty();
-}
-
-bool GTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
-                                  const QString &fileName)
-{
-    CPlusPlus::Document::Ptr doc = document(fileName);
-    if (doc.isNull() || !includesGTest(doc, m_cppSnapshot) || !hasGTestNames(doc))
-        return false;
-    return handleGTest(futureInterface, doc, m_cppSnapshot, framework());
 }
 
 } // namespace Internal
