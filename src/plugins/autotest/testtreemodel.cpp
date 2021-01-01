@@ -316,10 +316,10 @@ void TestTreeModel::synchronizeTestFrameworks()
     } else { // we've got custom project settings
         const TestProjectSettings *settings = AutotestPlugin::projectSettings(project);
         const QHash<ITestFramework *, bool> active = settings->activeFrameworks();
-        sorted = Utils::filtered(active.keys(), [active](ITestFramework *framework) {
-            return active.value(framework);
+        sorted = Utils::filtered(TestFrameworkManager::registeredFrameworks(),
+                                 [active](ITestFramework *framework) {
+            return active.value(framework, false);
         });
-        Utils::sort(sorted, &ITestFramework::priority);
     }
 
     // pre-check to avoid further processing when frameworks are unchanged
