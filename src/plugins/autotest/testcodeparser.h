@@ -102,6 +102,10 @@ private:
     void parsePostponedFiles();
     void releaseParserInternals();
 
+    // used internally to indicate a parse that failed due to having triggered a parse for a file that
+    // is not (yet) part of the CppModelManager's snapshot
+    bool m_parsingHasFailed = false;
+
     bool m_codeModelParsing = false;
     bool m_fullUpdatePostponed = false;
     bool m_partialUpdatePostponed = false;

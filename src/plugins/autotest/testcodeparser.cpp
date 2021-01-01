@@ -169,10 +169,6 @@ void TestCodeParser::updateTestTree(const QSet<ITestFramework *> &frameworks)
     scanForTests(QStringList(), sortedFrameworks);
 }
 
-// used internally to indicate a parse that failed due to having triggered a parse for a file that
-// is not (yet) part of the CppModelManager's snapshot
-static bool parsingHasFailed;
-
 /****** threaded parsing stuff *******/
 
 void TestCodeParser::onDocumentUpdated(const QString &fileName, bool isQmlFile)
@@ -333,7 +329,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList, const QList<ITest
         m_parserState = PartialParse;
     }
 
-    parsingHasFailed = false;
+    m_parsingHasFailed = false;
     TestTreeModel::instance()->updateCheckStateCache();
     if (isFullParse) {
         // remove qml files as they will be found automatically by the referencing cpp file
@@ -392,7 +388,7 @@ void TestCodeParser::onTaskStarted(Utils::Id type)
             m_fullUpdatePostponed = m_parserState == FullParse;
             m_partialUpdatePostponed = !m_fullUpdatePostponed;
             qCDebug(LOG) << "Canceling scan for test (CppModelParsing started)";
-            parsingHasFailed = true;
+            m_parsingHasFailed = true;
             Core::ProgressManager::cancelTasks(Constants::TASK_PARSE);
         }
     }
@@ -401,7 +397,7 @@ void TestCodeParser::onTaskStarted(Utils::Id type)
 void TestCodeParser::onAllTasksFinished(Utils::Id type)
 {
     // if we cancel parsing ensure that progress animation is canceled as well
-    if (type == Constants::TASK_PARSE && parsingHasFailed)
+    if (type == Constants::TASK_PARSE && m_parsingHasFailed)
         emit parsingFailed();
 
     // only CPP parsing is relevant as we trigger Qml parsing internally anyway
@@ -416,7 +412,7 @@ void TestCodeParser::onAllTasksFinished(Utils::Id type)
 void TestCodeParser::onFinished()
 {
     if (m_futureWatcher.isCanceled())
-        parsingHasFailed = true;
+        m_parsingHasFailed = true;
     switch (m_parserState) {
     case PartialParse:
         qCDebug(LOG) << "setting state to Idle (onFinished, PartialParse)";
@@ -427,8 +423,8 @@ void TestCodeParser::onFinished()
     case FullParse:
         qCDebug(LOG) << "setting state to Idle (onFinished, FullParse)";
         m_parserState = Idle;
-        m_dirty = parsingHasFailed;
-        if (m_partialUpdatePostponed || m_fullUpdatePostponed || parsingHasFailed) {
+        m_dirty = m_parsingHasFailed;
+        if (m_partialUpdatePostponed || m_fullUpdatePostponed || m_parsingHasFailed) {
             onPartialParsingFinished();
         } else {
             qCDebug(LOG) << "emitting parsingFinished"
