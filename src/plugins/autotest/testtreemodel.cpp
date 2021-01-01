@@ -321,9 +321,10 @@ void TestTreeModel::synchronizeTestFrameworks()
         });
     }
 
+    const auto sortedParsers = Utils::transform(sorted, &ITestFramework::testParser);
     // pre-check to avoid further processing when frameworks are unchanged
     Utils::TreeItem *invisibleRoot = rootItem();
-    QSet<ITestFramework *> newlyAdded;
+    QSet<ITestParser *> newlyAdded;
     QList<ITestTreeItem *> oldFrameworkRoots;
     for (Utils::TreeItem *oldFrameworkRoot : *invisibleRoot)
         oldFrameworkRoots.append(static_cast<ITestTreeItem *>(oldFrameworkRoot));
@@ -331,11 +332,11 @@ void TestTreeModel::synchronizeTestFrameworks()
     for (ITestTreeItem *oldFrameworkRoot : oldFrameworkRoots)
         takeItem(oldFrameworkRoot);  // do NOT delete the ptr is still held by TestFrameworkManager
 
-    for (ITestFramework *framework : qAsConst(sorted)) {
-        TestTreeItem *frameworkRootNode = framework->rootNode();
+    for (ITestParser *parser : sortedParsers) {
+        TestTreeItem *frameworkRootNode = parser->framework()->rootNode();
         invisibleRoot->appendChild(frameworkRootNode);
         if (!oldFrameworkRoots.removeOne(frameworkRootNode))
-            newlyAdded.insert(framework);
+            newlyAdded.insert(parser);
     }
     for (ITestTreeItem *oldFrameworkRoot : oldFrameworkRoots) {
         if (oldFrameworkRoot->testBase()->type() == ITestBase::Framework)
@@ -344,7 +345,7 @@ void TestTreeModel::synchronizeTestFrameworks()
             invisibleRoot->appendChild(oldFrameworkRoot);
     }
 
-    m_parser->syncTestFrameworks(sorted);
+    m_parser->syncTestFrameworks(sortedParsers);
     if (!newlyAdded.isEmpty())
         m_parser->updateTestTree(newlyAdded);
     emit updatedActiveFrameworks(invisibleRoot->childCount());
