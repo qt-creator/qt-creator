@@ -42,6 +42,7 @@
 #include <projectexplorer/projectmacroexpander.h>
 
 #include <utils/fileutils.h>
+#include <utils/qtcprocess.h>
 
 #include <QDir>
 
@@ -117,10 +118,27 @@ void MesonBuildConfiguration::build(const QString &target)
         mesonBuildStep->setBuildTarget(originalBuildTarget);
 }
 
+QStringList MesonBuildConfiguration::mesonConfigArgs()
+{
+    return Utils::QtcProcess::splitArgs(m_parameters) + QStringList{QString("-Dbuildtype=%1").arg(mesonBuildTypeName(m_buildType))};
+}
+
+const QString &MesonBuildConfiguration::parameters() const
+{
+    return m_parameters;
+}
+
+void MesonBuildConfiguration::setParameters(const QString &params)
+{
+    m_parameters = params;
+    emit parametersChanged();
+}
+
 QVariantMap MesonBuildConfiguration::toMap() const
 {
     auto data = ProjectExplorer::BuildConfiguration::toMap();
     data[Constants::BuildConfiguration::BUILD_TYPE_KEY] = mesonBuildTypeName(m_buildType);
+    data[Constants::BuildConfiguration::PARAMETERS_KEY] = m_parameters;
     return data;
 }
 
@@ -130,6 +148,7 @@ bool MesonBuildConfiguration::fromMap(const QVariantMap &map)
     m_buildSystem = new MesonBuildSystem{this};
     m_buildType = mesonBuildType(
         map.value(Constants::BuildConfiguration::BUILD_TYPE_KEY).toString());
+    m_parameters = map.value(Constants::BuildConfiguration::PARAMETERS_KEY).toString();
     return res;
 }
 

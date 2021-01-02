@@ -107,10 +107,13 @@ public:
     ProjectExplorer::BuildSystem *buildSystem() const final;
     void build(const QString &target);
 
-    QStringList mesonConfigArgs()
-    {
-        return {QString("-Dbuildtype=%1").arg(mesonBuildTypeName(m_buildType))};
-    }
+    QStringList mesonConfigArgs();
+
+    const QString &parameters() const;
+    void setParameters(const QString &params);
+
+signals:
+    void parametersChanged();
 
 private:
     QVariantMap toMap() const override;
@@ -118,6 +121,7 @@ private:
     MesonBuildType m_buildType;
     ProjectExplorer::NamedWidget *createConfigWidget() final;
     MesonBuildSystem *m_buildSystem = nullptr;
+    QString m_parameters;
 };
 
 class MesonBuildConfigurationFactory final : public ProjectExplorer::BuildConfigurationFactory

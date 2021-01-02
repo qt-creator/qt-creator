@@ -55,6 +55,7 @@ MesonBuildSettingsWidget::MesonBuildSettingsWidget(MesonBuildConfiguration *buil
     auto buildDirAspect = buildCfg->buildDirectoryAspect();
     buildDirAspect->addToLayout(buildDirWBuilder);
 
+    ui->parametersLineEdit->setText(buildCfg->parameters());
     ui->optionsFilterLineEdit->setFiltering(true);
 
     ui->optionsTreeView->sortByColumn(0, Qt::AscendingOrder);
@@ -136,6 +137,9 @@ MesonBuildSettingsWidget::MesonBuildSettingsWidget(MesonBuildConfiguration *buil
         ui->configureButton->setEnabled(false);
         m_showProgressTimer.start();
         bs->wipe();
+    });
+    connect(ui->parametersLineEdit, &QLineEdit::editingFinished, this, [this, buildCfg] {
+        buildCfg->setParameters(ui->parametersLineEdit->text());
     });
     bs->triggerParsing();
 }

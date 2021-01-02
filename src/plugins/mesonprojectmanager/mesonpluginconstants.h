@@ -35,6 +35,7 @@ const char ID[] = "MesonProjectManager.MesonProject";
 
 namespace BuildConfiguration {
 const char BUILD_TYPE_KEY[] = "MesonProjectManager.BuildConfig.Type";
+const char PARAMETERS_KEY[] = "MesonProjectManager.BuildConfig.Parameters";
 }
 
 // Settings page

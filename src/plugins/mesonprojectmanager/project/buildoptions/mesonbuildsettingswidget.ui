@@ -84,6 +84,20 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <number>0</number>
        </property>
        <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Parameters</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="parametersLineEdit"/>
+         </item>
+        </layout>
+       </item>
+       <item>
         <widget class="QWidget" name="buildDirWidget" native="true"/>
        </item>
        <item>

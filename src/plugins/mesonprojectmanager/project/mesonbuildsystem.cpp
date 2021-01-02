@@ -117,7 +117,8 @@ ProjectExplorer::Kit *MesonBuildSystem::MesonBuildSystem::kit()
 
 QStringList MesonBuildSystem::configArgs(bool isSetup)
 {
-    if (!isSetup)
+    const QString &params = mesonBuildConfiguration()->parameters();
+    if (!isSetup || params.contains("--cross-file") || params.contains("--native-file"))
         return m_pendingConfigArgs + mesonBuildConfiguration()->mesonConfigArgs();
     else {
         return QStringList{
@@ -178,6 +179,10 @@ void MesonBuildSystem::init()
     connect(mesonBuildConfiguration(), &MesonBuildConfiguration::buildDirectoryChanged, this, [this]() {
         updateKit(kit());
         this->triggerParsing();
+    });
+    connect(mesonBuildConfiguration(), &MesonBuildConfiguration::parametersChanged, this, [this]() {
+        updateKit(kit());
+        wipe();
     });
     connect(mesonBuildConfiguration(), &MesonBuildConfiguration::environmentChanged, this, [this]() {
         m_parser.setEnvironment(buildConfiguration()->environment());
