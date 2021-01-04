@@ -16,7 +16,7 @@ https://doc.qt.io/qtcreator/creator-overview.html
 
 The standalone binary packages support the following platforms:
 
-* Windows 7 or later
+* Windows 7 (64-bit) or later
 * (K)Ubuntu Linux 18.04 (64-bit) or later
 * macOS 10.13 or later
 
