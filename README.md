@@ -151,8 +151,7 @@ supported LLVM/Clang version is 8.0.
 ### Prebuilt LLVM/Clang packages
 
 Prebuilt packages of LLVM/Clang can be downloaded from
-
-    https://download.qt.io/development_releases/prebuilt/libclang/
+https://download.qt.io/development_releases/prebuilt/libclang/
 
 This should be your preferred option because you will use the version that is
 shipped together with Qt Creator (with backported/additional patches). In
