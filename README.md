@@ -44,7 +44,8 @@ Prerequisites:
 * On Mac OS X: latest Xcode
 * On Linux: GCC 7 or later
 * LLVM/Clang 10 or later (optional, LLVM/Clang 11 is recommended.
-  See the section "Getting LLVM/Clang for the Clang Code Model".
+  See [instructions](#getting-llvmclang-for-the-clang-code-model) on how to
+  get LLVM.
   The ClangFormat, ClangPchManager and ClangRefactoring use the LLVM C++ API.
   Since the LLVM C++ API provides no compatibility guarantee,
   if later versions don't compile we don't support that version.)
@@ -63,7 +64,7 @@ Note that if you install Qt via the online installer, the path to Qt must
 include the version number and compiler ABI. The path to the online installer
 content is not enough.
 
-See "Getting LLVM/Clang for the Clang Code Model" for instructions on how to
+See [instructions](#getting-llvmclang-for-the-clang-code-model) on how to
 get LLVM.
 
     mkdir qtcreator_build
@@ -82,7 +83,7 @@ Note that if you install Qt via the online installer, the path to Qt must
 include the version number and compiler ABI. The path to the online installer
 content is not enough.
 
-See "Getting LLVM/Clang for the Clang Code Model" for instructions on how to
+See [instructions](#getting-llvmclang-for-the-clang-code-model) on how to
 get LLVM.
 
 Decide which compiler to use: MinGW or Microsoft Visual Studio.
