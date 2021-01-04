@@ -458,6 +458,7 @@ QMakeEvaluator::writeFile(const QString &ctx, const QString &fn, QIODevice::Open
 void QMakeEvaluator::runProcess(QProcess *proc, const QString &command) const
 {
     proc->setWorkingDirectory(currentDirectory());
+    proc->setStandardInputFile(QProcess::nullDevice());
 # ifdef PROEVALUATOR_SETENV
     if (!m_option->environment.isEmpty()) {
         QProcessEnvironment env = m_option->environment;
