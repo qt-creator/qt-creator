@@ -32,7 +32,7 @@
 namespace Core {
 namespace Internal {
 
-enum class EngineAction { Reset, Abort };
+enum class EngineAction { Reset = 1, Abort };
 
 JavaScriptFilter::JavaScriptFilter()
 {
@@ -98,11 +98,13 @@ void JavaScriptFilter::accept(Core::LocatorFilterEntry selection, QString *newTe
     if (selection.internalData.isNull())
         return;
 
-    if (selection.internalData.canConvert<EngineAction>()
-        && selection.internalData.value<EngineAction>() == EngineAction::Reset) {
+    const EngineAction action = selection.internalData.value<EngineAction>();
+    if (action == EngineAction::Reset) {
         m_engine.reset();
         return;
     }
+    if (action == EngineAction::Abort)
+        return;
 
     QClipboard *clipboard = QGuiApplication::clipboard();
     clipboard->setText(selection.internalData.toString());

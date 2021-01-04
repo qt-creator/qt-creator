@@ -65,6 +65,7 @@ exists($$PWD/litehtml/CMakeLists.txt) {
         $$LH_SRC/src/element.cpp \
         $$LH_SRC/src/el_font.cpp \
         $$LH_SRC/src/el_image.cpp \
+        $$LH_SRC/src/el_li.cpp \
         $$LH_SRC/src/el_link.cpp \
         $$LH_SRC/src/el_para.cpp \
         $$LH_SRC/src/el_script.cpp \
@@ -79,6 +80,7 @@ exists($$PWD/litehtml/CMakeLists.txt) {
         $$LH_SRC/src/html_tag.cpp \
         $$LH_SRC/src/iterators.cpp \
         $$LH_SRC/src/media_query.cpp \
+        $$LH_SRC/src/num_cvt.cpp \
         $$LH_SRC/src/style.cpp \
         $$LH_SRC/src/stylesheet.cpp \
         $$LH_SRC/src/table.cpp \
@@ -108,6 +110,7 @@ exists($$PWD/litehtml/CMakeLists.txt) {
         $$LH_HDR/el_div.h \
         $$LH_HDR/el_font.h \
         $$LH_HDR/el_image.h \
+        $$LH_HDR/el_li.h \
         $$LH_HDR/el_link.h \
         $$LH_HDR/el_para.h \
         $$LH_HDR/el_script.h \
@@ -123,6 +126,7 @@ exists($$PWD/litehtml/CMakeLists.txt) {
         $$LH_HDR/html_tag.h \
         $$LH_HDR/iterators.h \
         $$LH_HDR/media_query.h \
+        $$LH_HDR/num_cvt.h \
         $$LH_HDR/os_types.h \
         $$LH_HDR/style.h \
         $$LH_HDR/stylesheet.h \

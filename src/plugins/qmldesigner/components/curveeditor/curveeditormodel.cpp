@@ -225,6 +225,9 @@ PropertyTreeItem::ValueType typeFrom(const QmlDesigner::QmlTimelineKeyframeGroup
 
 std::vector<QString> parentIds(const QmlDesigner::ModelNode &node)
 {
+    if (!node.hasParentProperty())
+        return {};
+
     std::vector<QString> out;
 
     QmlDesigner::ModelNode parent = node.parentProperty().parentModelNode();

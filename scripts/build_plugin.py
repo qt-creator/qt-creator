@@ -70,9 +70,11 @@ def build(args, paths):
         os.makedirs(paths.result)
     prefix_paths = [os.path.abspath(fp) for fp in args.prefix_paths] + [paths.qt_creator, paths.qt]
     prefix_paths = [common.to_posix_path(fp) for fp in prefix_paths]
+    separate_debug_info_option = 'ON' if args.with_debug_info else 'OFF'
     cmake_args = ['cmake',
                   '-DCMAKE_PREFIX_PATH=' + ';'.join(prefix_paths),
                   '-DCMAKE_BUILD_TYPE=' + args.build_type,
+                  '-DQTC_SEPARATE_DEBUG_INFO=' + separate_debug_info_option,
                   '-DCMAKE_INSTALL_PREFIX=' + common.to_posix_path(paths.install),
                   '-G', 'Ninja']
 

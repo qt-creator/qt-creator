@@ -1,11 +1,8 @@
-if (WITH_TESTS)
-  set(TST_COMPONENT CppEditor QmakeProjectManager)
-endif()
-
 add_qtc_plugin(ClangCodeModel
   CONDITION TARGET libclang
   DEPENDS ClangSupport CPlusPlus
-  PLUGIN_DEPENDS Core CppTools TextEditor ${TST_COMPONENT}
+  PLUGIN_DEPENDS Core CppTools TextEditor
+  PLUGIN_TEST_DEPENDS CppEditor QmakeProjectManager
   SOURCES
     clangactivationsequencecontextprocessor.cpp clangactivationsequencecontextprocessor.h
     clangactivationsequenceprocessor.cpp clangactivationsequenceprocessor.h

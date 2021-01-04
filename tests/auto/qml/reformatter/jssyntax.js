@@ -12,6 +12,20 @@ function foo(a, b) {
 
 var foo = function (a, b) {}
 
+const func1 = x => x * 2
+const func2 = x => {
+    return x * 7
+}
+const func3 = (x, y) => x + y
+const func4 = (x, y) => {
+    return x + y
+}
+
+const s1 = `test`
+const s2 = `${42 * 1}`
+const s3 = `test ${s2}`
+const s4 = `${s2}${s3}test`
+
 while (true) {
     for (var a = 1; a < 5; ++a) {
         switch (a) {

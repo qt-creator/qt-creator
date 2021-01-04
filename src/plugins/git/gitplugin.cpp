@@ -471,7 +471,7 @@ GitPlugin::~GitPlugin()
 
 void GitPluginPrivate::onApplySettings()
 {
-    configurationChanged();
+    emit configurationChanged();
     updateRepositoryBrowserAction();
     bool gitFoundOk;
     QString errorMessage;

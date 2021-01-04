@@ -1,9 +1,6 @@
-if (WITH_TESTS)
-  set(TEST_COMPONENT QmakeProjectManager QtSupport)
-endif()
-
 add_qtc_plugin(AutoTest
-  PLUGIN_DEPENDS Core CppTools Debugger ProjectExplorer QmlJSTools TextEditor ${TEST_COMPONENT}
+  PLUGIN_DEPENDS Core CppTools Debugger ProjectExplorer QmlJSTools TextEditor
+  PLUGIN_TEST_DEPENDS QmakeProjectManager QtSupport QbsProjectManager
   SOURCES
     autotest.qrc
     autotest_global.h
