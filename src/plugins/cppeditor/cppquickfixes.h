@@ -590,5 +590,20 @@ public:
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
+/*!
+  Generate constructor
+ */
+class GenerateConstructor : public CppQuickFixFactory
+{
+protected:
+    void setTest() { m_test = true; }
+
+private:
+    void match(const CppQuickFixInterface &interface,
+               TextEditor::QuickFixOperations &result) override;
+
+    bool m_test = false;
+};
+
 } // namespace Internal
 } // namespace CppEditor

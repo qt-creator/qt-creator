@@ -231,6 +231,9 @@ private slots:
     void test_quickfix_removeUsingNamespace_simple();
     void test_quickfix_removeUsingNamespace_differentSymbols();
 
+    void test_quickfix_generateConstructor_data();
+    void test_quickfix_generateConstructor();
+
     void test_quickfix_InsertVirtualMethods_data();
     void test_quickfix_InsertVirtualMethods();
     void test_quickfix_InsertVirtualMethods_implementationFile();

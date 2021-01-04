@@ -7576,5 +7576,285 @@ void CppEditorPlugin::test_quickfix_removeUsingNamespace_differentSymbols()
     QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 0);
 }
 
+enum ConstructorLocation { Inside, Outside, CppGenNamespace, CppGenUsingDirective, CppRewriteType };
+
+void CppEditorPlugin::test_quickfix_generateConstructor_data()
+{
+    QTest::addColumn<QByteArray>("original_header");
+    QTest::addColumn<QByteArray>("expected_header");
+    QTest::addColumn<QByteArray>("original_source");
+    QTest::addColumn<QByteArray>("expected_source");
+    QTest::addColumn<int>("location");
+    const int Inside = ConstructorLocation::Inside;
+    const int Outside = ConstructorLocation::Outside;
+    const int CppGenNamespace = ConstructorLocation::CppGenNamespace;
+    const int CppGenUsingDirective = ConstructorLocation::CppGenUsingDirective;
+    const int CppRewriteType = ConstructorLocation::CppRewriteType;
+
+    QByteArray header = R"--(
+class@ Foo{
+    int test;
+    static int s;
+};
+)--";
+    QByteArray expected = R"--(
+class Foo{
+    int test;
+    static int s;
+public:
+    Foo(int test) : test(test)
+    {}
+};
+)--";
+    QTest::newRow("ignore static") << header << expected << QByteArray() << QByteArray() << Inside;
+
+    header = R"--(
+class@ Foo{
+    CustomType test;
+};
+)--";
+    expected = R"--(
+class Foo{
+    CustomType test;
+public:
+    Foo(CustomType test) : test(std::move(test))
+    {}
+};
+)--";
+    QTest::newRow("Move custom value types")
+        << header << expected << QByteArray() << QByteArray() << Inside;
+
+    header = R"--(
+class@ Foo{
+    int test;
+protected:
+    Foo() = default;
+};
+)--";
+    expected = R"--(
+class Foo{
+    int test;
+public:
+    Foo(int test) : test(test)
+    {}
+
+protected:
+    Foo() = default;
+};
+)--";
+
+    QTest::newRow("new section before existing")
+        << header << expected << QByteArray() << QByteArray() << Inside;
+
+    header = R"--(
+class@ Foo{
+    int test;
+};
+)--";
+    expected = R"--(
+class Foo{
+    int test;
+public:
+    Foo(int test) : test(test)
+    {}
+};
+)--";
+    QTest::newRow("new section at end")
+        << header << expected << QByteArray() << QByteArray() << Inside;
+
+    header = R"--(
+class@ Foo{
+    int test;
+public:
+    /**
+     * Random comment
+     */
+    Foo(int i, int i2);
+};
+)--";
+    expected = R"--(
+class Foo{
+    int test;
+public:
+    Foo(int test) : test(test)
+    {}
+    /**
+     * Random comment
+     */
+    Foo(int i, int i2);
+};
+)--";
+    QTest::newRow("in section before")
+        << header << expected << QByteArray() << QByteArray() << Inside;
+
+    header = R"--(
+class@ Foo{
+    int test;
+public:
+    Foo() = default;
+};
+)--";
+    expected = R"--(
+class Foo{
+    int test;
+public:
+    Foo() = default;
+    Foo(int test) : test(test)
+    {}
+};
+)--";
+    QTest::newRow("in section after")
+        << header << expected << QByteArray() << QByteArray() << Inside;
+
+    const QByteArray common = R"--(
+namespace N{
+    template<typename T>
+    struct vector{
+    };
+}
+)--";
+    header = common + R"--(
+namespace M{
+enum G{g};
+class@ Foo{
+    N::vector<G> g;
+    enum E{e}e;
+public:
+};
+}
+)--";
+
+    expected = common + R"--(
+namespace M{
+enum G{g};
+class@ Foo{
+    N::vector<G> g;
+    enum E{e}e;
+public:
+    Foo(const N::vector<G> &g, E e);
+};
+
+Foo::Foo(const N::vector<G> &g, Foo::E e) : g(g),
+    e(e)
+{}
+
+}
+)--";
+    QTest::newRow("source: right type outside class ")
+        << QByteArray() << QByteArray() << header << expected << Outside;
+    expected = common + R"--(
+namespace M{
+enum G{g};
+class@ Foo{
+    N::vector<G> g;
+    enum E{e}e;
+public:
+    Foo(const N::vector<G> &g, E e);
+};
+}
+
+
+inline M::Foo::Foo(const N::vector<M::G> &g, M::Foo::E e) : g(g),
+    e(e)
+{}
+
+)--";
+    QTest::newRow("header: right type outside class ")
+        << header << expected << QByteArray() << QByteArray() << Outside;
+
+    expected = common + R"--(
+namespace M{
+enum G{g};
+class@ Foo{
+    N::vector<G> g;
+    enum E{e}e;
+public:
+    Foo(const N::vector<G> &g, E e);
+};
+}
+)--";
+    const QByteArray source = R"--(
+#include "file.h"
+)--";
+    QByteArray expected_source = R"--(
+#include "file.h"
+
+
+namespace M {
+Foo::Foo(const N::vector<G> &g, Foo::E e) : g(g),
+    e(e)
+{}
+
+}
+)--";
+    QTest::newRow("source: right type inside namespace")
+        << header << expected << source << expected_source << CppGenNamespace;
+
+    expected_source = R"--(
+#include "file.h"
+
+using namespace M;
+Foo::Foo(const N::vector<G> &g, Foo::E e) : g(g),
+    e(e)
+{}
+)--";
+    QTest::newRow("source: right type with using directive")
+        << header << expected << source << expected_source << CppGenUsingDirective;
+
+    expected_source = R"--(
+#include "file.h"
+
+M::Foo::Foo(const N::vector<M::G> &g, M::Foo::E e) : g(g),
+    e(e)
+{}
+)--";
+    QTest::newRow("source: right type while rewritung types")
+        << header << expected << source << expected_source << CppRewriteType;
+}
+
+void CppEditorPlugin::test_quickfix_generateConstructor()
+{
+    class TestFactory : public GenerateConstructor
+    {
+    public:
+        TestFactory() { setTest(); }
+    };
+
+    QFETCH(QByteArray, original_header);
+    QFETCH(QByteArray, expected_header);
+    QFETCH(QByteArray, original_source);
+    QFETCH(QByteArray, expected_source);
+    QFETCH(int, location);
+
+    QuickFixSettings s;
+    s->valueTypes << "CustomType";
+    using L = ConstructorLocation;
+    if (location == L::Inside) {
+        s->setterInCppFileFrom = -1;
+        s->setterOutsideClassFrom = -1;
+    } else if (location == L::Outside) {
+        s->setterInCppFileFrom = -1;
+        s->setterOutsideClassFrom = 1;
+    } else if (location >= L::CppGenNamespace && location <= L::CppRewriteType) {
+        s->setterInCppFileFrom = 1;
+        s->setterOutsideClassFrom = -1;
+        using Handling = CppQuickFixSettings::MissingNamespaceHandling;
+        if (location == L::CppGenNamespace)
+            s->cppFileNamespaceHandling = Handling::CreateMissing;
+        else if (location == L::CppGenUsingDirective)
+            s->cppFileNamespaceHandling = Handling::AddUsingDirective;
+        else if (location == L::CppRewriteType)
+            s->cppFileNamespaceHandling = Handling::RewriteType;
+    } else {
+        QFAIL("location is none of the values of the ConstructorLocation enum");
+    }
+
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+    testDocuments << QuickFixTestDocument::create("file.h", original_header, expected_header);
+    testDocuments << QuickFixTestDocument::create("file.cpp", original_source, expected_source);
+    TestFactory factory;
+    QuickFixOperationTest(testDocuments, &factory);
+}
+
 } // namespace Internal
 } // namespace CppEditor

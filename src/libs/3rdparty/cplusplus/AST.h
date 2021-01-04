@@ -75,7 +75,50 @@ public:
 
     Tptr value;
     List *next;
+
+    class ListIterator
+    {
+        List<Tptr> *iter;
+
+    public:
+        ListIterator(List<Tptr> *iter)
+            : iter(iter)
+        {}
+        Tptr operator*() { return iter->value; }
+        ListIterator &operator++()
+        {
+            if (iter)
+                iter = iter->next;
+            return *this;
+        }
+        bool operator==(ListIterator other) { return iter == other.iter; }
+        bool operator!=(ListIterator other) { return iter != other.iter; }
+    };
+    ListIterator begin() { return {this}; }
+    ListIterator end() { return {nullptr}; }
+
+    int size() { return next ? next->size() + 1 : 1; }
 };
+
+template<typename Tptr>
+typename List<Tptr>::ListIterator begin(List<Tptr> *list)
+{
+    return list ? list->begin() : typename List<Tptr>::ListIterator(nullptr);
+}
+
+template<typename Tptr>
+typename List<Tptr>::ListIterator end(List<Tptr> *list)
+{
+    return list ? list->end() : typename List<Tptr>::ListIterator(nullptr);
+}
+
+template<typename Tptr>
+int size(List<Tptr> *list)
+{
+    if (list)
+        return list->size();
+    return 0;
+}
 
 class CPLUSPLUS_EXPORT AST: public Managed
 {

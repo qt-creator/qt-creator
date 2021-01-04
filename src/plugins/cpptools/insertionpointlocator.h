@@ -86,12 +86,27 @@ public:
     };
     static QString accessSpecToString(InsertionPointLocator::AccessSpec xsSpec);
 
+    enum Position {
+        AccessSpecBegin,
+        AccessSpecEnd,
+    };
+
 public:
     explicit InsertionPointLocator(const CppRefactoringChanges &refactoringChanges);
 
     InsertionLocation methodDeclarationInClass(const QString &fileName,
                                                const CPlusPlus::Class *clazz,
                                                AccessSpec xsSpec) const;
+
+    InsertionLocation methodDeclarationInClass(const CPlusPlus::TranslationUnit *tu,
+                                               const CPlusPlus::ClassSpecifierAST *clazz,
+                                               AccessSpec xsSpec,
+                                               Position positionInAccessSpec = AccessSpecEnd) const;
+
+    InsertionLocation constructorDeclarationInClass(const CPlusPlus::TranslationUnit *tu,
+                                                    const CPlusPlus::ClassSpecifierAST *clazz,
+                                                    AccessSpec xsSpec,
+                                                    int constructorArgumentCount) const;
 
     const QList<InsertionLocation> methodDefinition(
             CPlusPlus::Symbol *declaration,
