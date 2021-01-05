@@ -134,9 +134,27 @@ public:
     QString typeName;
     bool intrinsic;
     bool visibleInVContext(const ViewerContext &vContext) const;
+
+
+    friend bool operator==(const Export &i1, const Export &i2)
+    {
+        return i1.exportName == i2.exportName
+                && i1.pathRequired == i2.pathRequired
+                && i1.intrinsic == i2.intrinsic
+                && i1.typeName == i2.typeName;
+    }
+
+    friend bool operator!=(const Export &i1, const Export &i2)
+    {
+        return !(i1 == i2);
+    }
+
+    friend bool operator<(const Export &i1, const Export &i2)
+    {
+        return std::tie(i1.intrinsic, i1.pathRequired, i1.typeName, i1.exportName)
+            < std::tie(i2.intrinsic, i2.pathRequired, i2.typeName, i2.exportName);
+    }
 };
-bool operator ==(const Export &i1, const Export &i2);
-bool operator !=(const Export &i1, const Export &i2);
 
 class QMLJS_EXPORT CoreImport
 {
@@ -144,6 +162,14 @@ public:
     CoreImport();
     CoreImport(const QString &importId, const QList<Export> &possibleExports = QList<Export>(),
                Dialect language = Dialect::Qml, const QByteArray &fingerprint = QByteArray());
+    template<typename E>
+    void addPossibleExport(E &&e)
+    {
+        auto found = std::lower_bound(possibleExports.begin(), possibleExports.end(), e);
+        if (found == possibleExports.end() || e != *found)
+            possibleExports.insert(found, std::forward<E>(e));
+    }
+
     QString importId;
     QList<Export> possibleExports;
     Dialect language;

@@ -520,19 +520,6 @@ bool Export::visibleInVContext(const ViewerContext &vContext) const
     return pathRequired.isEmpty() || vContext.paths.contains(pathRequired);
 }
 
-bool operator ==(const Export &i1, const Export &i2)
-{
-    return i1.exportName == i2.exportName
-            && i1.pathRequired == i2.pathRequired
-            && i1.intrinsic == i2.intrinsic
-            && i1.typeName == i2.typeName;
-}
-
-bool operator !=(const Export &i1, const Export &i2)
-{
-    return !(i1 == i2);
-}
-
 CoreImport::CoreImport() : language(Dialect::Qml) { }
 
 CoreImport::CoreImport(const QString &importId, const QList<Export> &possibleExports,
@@ -810,13 +797,13 @@ void ImportDependencies::addExport(const QString &importId, const ImportKey &imp
     if (!m_coreImports.contains(importId)) {
         CoreImport newImport(importId);
         newImport.language = Dialect::AnyLanguage;
-        newImport.possibleExports.append(Export(importKey, requiredPath, false, typeName));
+        newImport.addPossibleExport(Export(importKey, requiredPath, false, typeName));
         m_coreImports.insert(newImport.importId, newImport);
         m_importCache[importKey].append(importId);
         return;
     }
     CoreImport &importValue = m_coreImports[importId];
-    importValue.possibleExports.append(Export(importKey, requiredPath, false, typeName));
+    importValue.addPossibleExport(Export(importKey, requiredPath, false, typeName));
     m_importCache[importKey].append(importId);
     qCDebug(importsLog) << "added export "<< importKey.toString() << " for id " <<importId
                         << " (" << requiredPath << ")";
