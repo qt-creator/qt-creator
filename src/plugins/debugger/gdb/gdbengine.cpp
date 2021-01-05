@@ -4058,8 +4058,7 @@ void GdbEngine::setupInferior()
 
     if (rp.startMode == AttachToRemoteProcess) {
 
-        notifyEngineSetupOk();
-        runEngine();
+        handleInferiorPrepared();
 
     } else if (isAttachEngine()) {
         // Task 254674 does not want to remove them
