@@ -231,11 +231,25 @@ function(finalize_test_setup test_name)
   endif()
 endfunction()
 
+function(check_qtc_disabled_targets target_name dependent_targets)
+  foreach(dependency IN LISTS ${dependent_targets})
+    foreach(type PLUGIN LIBRARY)
+      string(TOUPPER "BUILD_${type}_${dependency}" build_target)
+      if (DEFINED ${build_target} AND NOT ${build_target})
+        message(SEND_ERROR "Target ${name} depends on ${dependency} which was disabled via ${build_target} set to ${${build_target}}")
+      endif()
+    endforeach()
+  endforeach()
+endfunction()
+
 function(add_qtc_depends target_name)
   cmake_parse_arguments(_arg "" "" "PRIVATE;PUBLIC" ${ARGN})
   if (${_arg_UNPARSED_ARGUMENTS})
     message(FATAL_ERROR "add_qtc_depends had unparsed arguments")
   endif()
+
+  check_qtc_disabled_targets(${target_name} _arg_PRIVATE)
+  check_qtc_disabled_targets(${target_name} _arg_PUBLIC)
 
   separate_object_libraries("${_arg_PRIVATE}"
     depends object_lib_depends object_lib_depends_objects)
