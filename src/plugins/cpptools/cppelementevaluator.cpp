@@ -471,9 +471,19 @@ QFuture<QSharedPointer<CppElement>> CppElementEvaluator::execute(SourceFunction 
         Symbol *symbol = item.declaration();
         if (!symbol)
             continue;
-        if (!symbol->isClass() && !symbol->isTemplate() && !symbol->isForwardClassDeclaration())
+        if (!symbol->isClass() && !symbol->isTemplate() && !symbol->isForwardClassDeclaration() && !symbol->isTypedef())
             continue;
-        lookupItem = item;
+        if (symbol->isTypedef()) {
+            CPlusPlus::NamedType *namedType = symbol->type()->asNamedType();
+            if (!namedType) {
+                // Anonymous aggregate such as: typedef struct {} Empty;
+                continue;
+            }
+            lookupItem = TypeHierarchyBuilder::followTypedef(typeOfExpression.context(),
+                         namedType->name(), symbol->enclosingScope());
+        } else {
+            lookupItem = item;
+        }
         break;
     }
 

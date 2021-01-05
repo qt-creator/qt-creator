@@ -34,6 +34,13 @@
 #include <QList>
 #include <QSet>
 
+namespace CPlusPlus {
+class LookupContext;
+class LookupItem;
+class Name;
+class Scope;
+}
+
 namespace CppTools {
 
 class CPPTOOLS_EXPORT TypeHierarchy
@@ -63,7 +70,9 @@ public:
     static TypeHierarchy buildDerivedTypeHierarchy(QFutureInterfaceBase &futureInterface,
                                             CPlusPlus::Symbol *symbol,
                                             const CPlusPlus::Snapshot &snapshot);
-
+    static CPlusPlus::LookupItem followTypedef(const CPlusPlus::LookupContext &context,
+                                               const CPlusPlus::Name *symbolName,
+                                               CPlusPlus::Scope *enclosingScope);
 private:
     TypeHierarchyBuilder() = default;
     void buildDerived(QFutureInterfaceBase &futureInterface, TypeHierarchy *typeHierarchy,

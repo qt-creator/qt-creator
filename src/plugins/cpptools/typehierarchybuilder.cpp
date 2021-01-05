@@ -27,6 +27,7 @@
 
 #include <cplusplus/FindUsages.h>
 
+using namespace CPlusPlus;
 using namespace CppTools;
 
 namespace {
@@ -39,7 +40,7 @@ QString unqualifyName(const QString &qualifiedName)
     return qualifiedName.right(qualifiedName.length() - index - 2);
 }
 
-class DerivedHierarchyVisitor : public CPlusPlus::SymbolVisitor
+class DerivedHierarchyVisitor : public SymbolVisitor
 {
 public:
     explicit DerivedHierarchyVisitor(const QString &qualifiedName, QHash<QString, QHash<QString, QString>> &cache)
@@ -48,86 +49,56 @@ public:
         , _cache(cache)
     {}
 
-    void execute(const CPlusPlus::Document::Ptr &doc, const CPlusPlus::Snapshot &snapshot);
+    void execute(const Document::Ptr &doc, const Snapshot &snapshot);
 
-    bool visit(CPlusPlus::Class *) override;
+    bool visit(Class *) override;
 
-    const QList<CPlusPlus::Symbol *> &derived() { return _derived; }
+    const QList<Symbol *> &derived() { return _derived; }
     const QSet<QString> otherBases() { return _otherBases; }
 
 private:
-    CPlusPlus::Symbol *lookup(const CPlusPlus::Name *symbolName, CPlusPlus::Scope *enclosingScope);
+    Symbol *lookup(const Name *symbolName, Scope *enclosingScope);
 
-    CPlusPlus::LookupContext _context;
+    LookupContext _context;
     QString _qualifiedName;
     QString _unqualifiedName;
-    CPlusPlus::Overview _overview;
+    Overview _overview;
     // full scope name to base symbol name to fully qualified base symbol name
     QHash<QString, QHash<QString, QString>> &_cache;
     QSet<QString> _otherBases;
-    QList<CPlusPlus::Symbol *> _derived;
+    QList<Symbol *> _derived;
 };
 
-void DerivedHierarchyVisitor::execute(const CPlusPlus::Document::Ptr &doc,
-                                      const CPlusPlus::Snapshot &snapshot)
+void DerivedHierarchyVisitor::execute(const Document::Ptr &doc,
+                                      const Snapshot &snapshot)
 {
     _derived.clear();
     _otherBases.clear();
-    _context = CPlusPlus::LookupContext(doc, snapshot);
+    _context = LookupContext(doc, snapshot);
 
     for (int i = 0; i < doc->globalSymbolCount(); ++i)
         accept(doc->globalSymbolAt(i));
 }
 
-CPlusPlus::Symbol *DerivedHierarchyVisitor::lookup(const CPlusPlus::Name *symbolName, CPlusPlus::Scope *enclosingScope)
+bool DerivedHierarchyVisitor::visit(Class *symbol)
 {
-    QList<CPlusPlus::LookupItem> items = _context.lookup(symbolName, enclosingScope);
-
-    CPlusPlus::Symbol *actualBaseSymbol = nullptr;
-
-    for (const CPlusPlus::LookupItem &item : items) {
-        CPlusPlus::Symbol *s = item.declaration();
-        if (!s)
-            continue;
-        if (!s->isClass() && !s->isTemplate() && !s->isTypedef())
-            continue;
-        actualBaseSymbol = s;
-        break;
-    }
-
-    if (!actualBaseSymbol)
-        return nullptr;
-
-    if (actualBaseSymbol->isTypedef()) {
-        CPlusPlus::NamedType *namedType = actualBaseSymbol->type()->asNamedType();
-        if (!namedType) {
-            // Anonymous aggregate such as: typedef struct {} Empty;
-            return nullptr;
-        }
-        actualBaseSymbol = lookup(namedType->name(), actualBaseSymbol->enclosingScope());
-    }
-
-    return actualBaseSymbol;
-}
-
-bool DerivedHierarchyVisitor::visit(CPlusPlus::Class *symbol)
-{
-    const QList<const CPlusPlus::Name *> &fullScope
-            = CPlusPlus::LookupContext::fullyQualifiedName(symbol->enclosingScope());
+    const QList<const Name *> &fullScope
+            = LookupContext::fullyQualifiedName(symbol->enclosingScope());
     const QString fullScopeName = _overview.prettyName(fullScope);
 
     for (int i = 0; i < symbol->baseClassCount(); ++i) {
-        CPlusPlus::BaseClass *baseSymbol = symbol->baseClassAt(i);
+        BaseClass *baseSymbol = symbol->baseClassAt(i);
 
         const QString &baseName = _overview.prettyName(baseSymbol->name());
         QString fullBaseName = _cache.value(fullScopeName).value(baseName);
         if (fullBaseName.isEmpty()) {
-            CPlusPlus::Symbol *actualBaseSymbol = lookup(baseSymbol->name(), symbol->enclosingScope());
+            Symbol *actualBaseSymbol = TypeHierarchyBuilder::followTypedef(_context,
+                                       baseSymbol->name(), symbol->enclosingScope()).declaration();
             if (!actualBaseSymbol)
                 continue;
 
-            const QList<const CPlusPlus::Name *> &full
-                    = CPlusPlus::LookupContext::fullyQualifiedName(actualBaseSymbol);
+            const QList<const Name *> &full
+                    = LookupContext::fullyQualifiedName(actualBaseSymbol);
             fullBaseName = _overview.prettyName(full);
             _cache[fullScopeName].insert(baseName, fullBaseName);
         }
@@ -144,10 +115,10 @@ bool DerivedHierarchyVisitor::visit(CPlusPlus::Class *symbol)
 
 TypeHierarchy::TypeHierarchy() = default;
 
-TypeHierarchy::TypeHierarchy(CPlusPlus::Symbol *symbol) : _symbol(symbol)
+TypeHierarchy::TypeHierarchy(Symbol *symbol) : _symbol(symbol)
 {}
 
-CPlusPlus::Symbol *TypeHierarchy::symbol() const
+Symbol *TypeHierarchy::symbol() const
 {
     return _symbol;
 }
@@ -157,16 +128,16 @@ const QList<TypeHierarchy> &TypeHierarchy::hierarchy() const
     return _hierarchy;
 }
 
-TypeHierarchy TypeHierarchyBuilder::buildDerivedTypeHierarchy(CPlusPlus::Symbol *symbol,
-                                                              const CPlusPlus::Snapshot &snapshot)
+TypeHierarchy TypeHierarchyBuilder::buildDerivedTypeHierarchy(Symbol *symbol,
+                                                              const Snapshot &snapshot)
 {
     QFutureInterfaceBase dummy;
     return TypeHierarchyBuilder::buildDerivedTypeHierarchy(dummy, symbol, snapshot);
 }
 
 TypeHierarchy TypeHierarchyBuilder::buildDerivedTypeHierarchy(QFutureInterfaceBase &futureInterface,
-                                                              CPlusPlus::Symbol *symbol,
-                                                              const CPlusPlus::Snapshot &snapshot)
+                                                              Symbol *symbol,
+                                                              const Snapshot &snapshot)
 {
     TypeHierarchy hierarchy(symbol);
     TypeHierarchyBuilder builder;
@@ -175,8 +146,41 @@ TypeHierarchy TypeHierarchyBuilder::buildDerivedTypeHierarchy(QFutureInterfaceBa
     return hierarchy;
 }
 
-static Utils::FilePaths filesDependingOn(const CPlusPlus::Snapshot &snapshot,
-                                         CPlusPlus::Symbol *symbol)
+LookupItem TypeHierarchyBuilder::followTypedef(const LookupContext &context, const Name *symbolName, Scope *enclosingScope)
+{
+    QList<LookupItem> items = context.lookup(symbolName, enclosingScope);
+
+    Symbol *actualBaseSymbol = nullptr;
+    LookupItem matchingItem;
+
+    for (const LookupItem &item : items) {
+        Symbol *s = item.declaration();
+        if (!s)
+            continue;
+        if (!s->isClass() && !s->isTemplate() && !s->isTypedef())
+            continue;
+        actualBaseSymbol = s;
+        matchingItem = item;
+        break;
+    }
+
+    if (!actualBaseSymbol)
+        return LookupItem();
+
+    if (actualBaseSymbol->isTypedef()) {
+        NamedType *namedType = actualBaseSymbol->type()->asNamedType();
+        if (!namedType) {
+            // Anonymous aggregate such as: typedef struct {} Empty;
+            return LookupItem();
+        }
+        return followTypedef(context, namedType->name(), actualBaseSymbol->enclosingScope());
+    }
+
+    return matchingItem;
+}
+
+static Utils::FilePaths filesDependingOn(const Snapshot &snapshot,
+                                         Symbol *symbol)
 {
     if (!symbol)
         return Utils::FilePaths();
@@ -187,17 +191,17 @@ static Utils::FilePaths filesDependingOn(const CPlusPlus::Snapshot &snapshot,
 
 void TypeHierarchyBuilder::buildDerived(QFutureInterfaceBase &futureInterface,
                                         TypeHierarchy *typeHierarchy,
-                                        const CPlusPlus::Snapshot &snapshot,
+                                        const Snapshot &snapshot,
                                         QHash<QString, QHash<QString, QString>> &cache,
                                         int depth)
 {
-    CPlusPlus::Symbol *symbol = typeHierarchy->_symbol;
+    Symbol *symbol = typeHierarchy->_symbol;
     if (_visited.contains(symbol))
         return;
 
     _visited.insert(symbol);
 
-    const QString &symbolName = _overview.prettyName(CPlusPlus::LookupContext::fullyQualifiedName(symbol));
+    const QString &symbolName = _overview.prettyName(LookupContext::fullyQualifiedName(symbol));
     DerivedHierarchyVisitor visitor(symbolName, cache);
 
     const Utils::FilePaths &dependingFiles = filesDependingOn(snapshot, symbol);
@@ -210,7 +214,7 @@ void TypeHierarchyBuilder::buildDerived(QFutureInterfaceBase &futureInterface,
             return;
         if (depth == 0)
             futureInterface.setProgressValue(++i);
-        CPlusPlus::Document::Ptr doc = snapshot.document(fileName);
+        Document::Ptr doc = snapshot.document(fileName);
         if ((_candidates.contains(fileName) && !_candidates.value(fileName).contains(symbolName))
                 || !doc->control()->findIdentifier(symbol->identifier()->chars(),
                                                    symbol->identifier()->size())) {
@@ -220,8 +224,8 @@ void TypeHierarchyBuilder::buildDerived(QFutureInterfaceBase &futureInterface,
         visitor.execute(doc, snapshot);
         _candidates.insert(fileName, visitor.otherBases());
 
-        const QList<CPlusPlus::Symbol *> &derived = visitor.derived();
-        for (CPlusPlus::Symbol *s : derived) {
+        const QList<Symbol *> &derived = visitor.derived();
+        for (Symbol *s : derived) {
             TypeHierarchy derivedHierarchy(s);
             buildDerived(futureInterface, &derivedHierarchy, snapshot, cache, depth + 1);
             if (futureInterface.isCanceled())
