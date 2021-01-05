@@ -418,6 +418,7 @@ private: ////////// General Interface //////////
 
     QString mainFunction() const;
     void setupInferior();
+    void claimInitialBreakpoints();
 
     Utils::QtcProcess m_gdbProc;
     OutputCollector m_outputCollector;

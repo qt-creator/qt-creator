@@ -3855,33 +3855,16 @@ void GdbEngine::prepareForRestart()
 
 void GdbEngine::handleInferiorPrepared()
 {
-    const DebuggerRunParameters &rp = runParameters();
-
     CHECK_STATE(EngineSetupRequested);
 
+    const DebuggerRunParameters &rp = runParameters();
     if (!rp.commandsAfterConnect.isEmpty()) {
         const QString commands = expand(rp.commandsAfterConnect);
         for (const QString &command : commands.split('\n'))
             runCommand({command, NativeCommand});
     }
 
-    if (runParameters().startMode != AttachCore) { // No breakpoints in core files.
-        const bool onAbort = boolSetting(BreakOnAbort);
-        const bool onWarning = boolSetting(BreakOnWarning);
-        const bool onFatal = boolSetting(BreakOnFatal);
-        if (onAbort || onWarning || onFatal) {
-            DebuggerCommand cmd("createSpecialBreakpoints");
-            cmd.arg("breakonabort", onAbort);
-            cmd.arg("breakonwarning", onWarning);
-            cmd.arg("breakonfatal", onFatal);
-            runCommand(cmd);
-        }
-    }
-
-    // It is ok to cut corners here and not wait for createSpecialBreakpoints()'s
-    // response, as the command is synchronous from Creator's point of view,
-    // and even if it fails (e.g. due to stripped binaries), continuing with
-    // the start up is the best we can do.
+    claimInitialBreakpoints();
     notifyEngineSetupOk();
     runEngine();
 }
@@ -4039,6 +4022,34 @@ bool GdbEngine::isTermEngine() const
     return !isCoreEngine() && !isAttachEngine() && !isRemoteEngine() && terminal();
 }
 
+void GdbEngine::claimInitialBreakpoints()
+{
+    CHECK_STATE(EngineSetupRequested);
+
+    const DebuggerRunParameters &rp = runParameters();
+    if (rp.startMode != AttachCore) {
+        showStatusMessage(tr("Setting breakpoints..."));
+        showMessage(tr("Setting breakpoints..."));
+        BreakpointManager::claimBreakpointsForEngine(this);
+
+        const bool onAbort = boolSetting(BreakOnAbort);
+        const bool onWarning = boolSetting(BreakOnWarning);
+        const bool onFatal = boolSetting(BreakOnFatal);
+        if (onAbort || onWarning || onFatal) {
+            DebuggerCommand cmd("createSpecialBreakpoints");
+            cmd.arg("breakonabort", onAbort);
+            cmd.arg("breakonwarning", onWarning);
+            cmd.arg("breakonfatal", onFatal);
+            runCommand(cmd);
+        }
+    }
+
+    // It is ok to cut corners here and not wait for createSpecialBreakpoints()'s
+    // response, as the command is synchronous from Creator's point of view,
+    // and even if it fails (e.g. due to stripped binaries), continuing with
+    // the start up is the best we can do.
+}
+
 void GdbEngine::setupInferior()
 {
     CHECK_STATE(EngineSetupRequested);
@@ -4048,13 +4059,6 @@ void GdbEngine::setupInferior()
     //runCommand("set follow-exec-mode new");
     if (rp.breakOnMain)
         runCommand({"tbreak " + mainFunction()});
-
-    // Initial attempt to set breakpoints.
-    if (rp.startMode != AttachCore) {
-        showStatusMessage(tr("Setting breakpoints..."));
-        showMessage(tr("Setting breakpoints..."));
-        BreakpointManager::claimBreakpointsForEngine(this);
-    }
 
     if (rp.startMode == AttachToRemoteProcess) {
 
