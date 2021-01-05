@@ -304,7 +304,7 @@ ImportMatchStrength ImportKey::matchImport(const ImportKey &o, const ViewerConte
             return ImportMatchStrength();
         const QString p1 = splitPath.at(iPath1);
         if (iPath2 < lenPath2) {
-            const QString p2 = splitPath.at(iPath2);
+            const QString p2 = o.splitPath.at(iPath2);
             if (p1 == p2) {
                 ++iPath1;
                 ++iPath2;
