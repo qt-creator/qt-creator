@@ -89,7 +89,7 @@ void ItemLibraryAssetImporter::importQuick3D(const QStringList &inputFiles,
         if (m_qmlPuppetProcesses.empty()) {
             finalizeQuick3DImport();
         } else {
-            m_qmlPuppetCount = m_qmlPuppetProcesses.size();
+            m_qmlPuppetCount = static_cast<int>(m_qmlPuppetProcesses.size());
             const QString progressTitle = tr("Generating icons.");
             addInfo(progressTitle);
             notifyProgress(0, progressTitle);
