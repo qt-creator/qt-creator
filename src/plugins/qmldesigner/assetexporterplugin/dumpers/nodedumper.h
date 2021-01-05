@@ -22,46 +22,38 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+#pragma once
 
-#include "assetnodeparser.h"
-#include "assetexportpluginconstants.h"
-#include "assetexporter.h"
+#include "qmlobjectnode.h"
 
-#include "qmlitemnode.h"
-#include "componentexporter.h"
-
-#include "utils/fileutils.h"
-
-#include <QPixmap>
+#include <QJsonObject>
+#include <QByteArrayList>
 
 namespace QmlDesigner {
-using namespace Constants;
-AssetNodeParser::AssetNodeParser(const QByteArrayList &lineage, const ModelNode &node) :
-    ItemNodeParser(lineage, node)
+class Component;
+class ModelNode;
+
+class NodeDumper
 {
+public:
+    NodeDumper(const QByteArrayList &lineage, const ModelNode &node);
 
+    virtual ~NodeDumper() = default;
+
+    virtual int priority() const = 0;
+    virtual bool isExportable() const = 0;
+    virtual QJsonObject json(Component& component) const = 0;
+
+    const QByteArrayList& lineage() const { return m_lineage; }
+    const QmlObjectNode& objectNode() const { return m_objectNode; }
+    QVariant propertyValue(const PropertyName &name) const;
+    QString uuid() const;
+
+protected:
+    const ModelNode &m_node;
+
+private:
+    QmlObjectNode m_objectNode;
+    QByteArrayList m_lineage;
+};
 }
-
-bool AssetNodeParser::isExportable() const
-{
-    auto hasType =  [this](const QByteArray &type) {
-        return lineage().contains(type);
-    };
-    return hasType("QtQuick.Image") || hasType("QtQuick.Rectangle");
-}
-
-QJsonObject AssetNodeParser::json(Component &component) const
-{
-    QJsonObject jsonObject = ItemNodeParser::json(component);
-
-    Utils::FilePath assetPath = component.exporter().exportAsset(objectNode(), uuid());
-    QJsonObject assetData;
-    assetData.insert(AssetPathTag, assetPath.toString());
-
-    QJsonObject metadata = jsonObject.value(MetadataTag).toObject();
-    metadata.insert(AssetDataTag, assetData);
-    jsonObject.insert(MetadataTag, metadata);
-    return jsonObject;
-}
-}
-

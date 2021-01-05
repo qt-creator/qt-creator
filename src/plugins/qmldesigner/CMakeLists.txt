@@ -53,10 +53,10 @@ add_qtc_plugin(assetexporterplugin
     assetexporterplugin/componentexporter.h assetexporterplugin/componentexporter.cpp
     assetexporterplugin/exportnotification.h assetexporterplugin/exportnotification.cpp
     assetexporterplugin/filepathmodel.h assetexporterplugin/filepathmodel.cpp
-    assetexporterplugin/parsers/assetnodeparser.h assetexporterplugin/parsers/assetnodeparser.cpp
-    assetexporterplugin/parsers/modelitemnodeparser.h assetexporterplugin/parsers/modelitemnodeparser.cpp
-    assetexporterplugin/parsers/modelnodeparser.h assetexporterplugin/parsers/modelnodeparser.cpp
-    assetexporterplugin/parsers/textnodeparser.h assetexporterplugin/parsers/textnodeparser.cpp
+    assetexporterplugin/dumpers/assetnodedumper.h assetexporterplugin/dumpers/assetnodedumper.cpp
+    assetexporterplugin/dumpers/itemnodedumper.h assetexporterplugin/dumpers/itemnodedumper.cpp
+    assetexporterplugin/dumpers/nodedumper.h assetexporterplugin/dumpers/nodedumper.cpp
+    assetexporterplugin/dumpers/textnodedumper.h assetexporterplugin/dumpers/textnodedumper.cpp
     assetexporterplugin/assetexporterplugin.qrc
   PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
   SKIP_DEBUG_CMAKE_FILE_CHECK

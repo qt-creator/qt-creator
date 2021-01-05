@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "modelitemnodeparser.h"
+#include "itemnodedumper.h"
 #include "assetexportpluginconstants.h"
 
 #include "qmlitemnode.h"
@@ -41,19 +41,19 @@ static QString capitalize(const QString &str)
 
 namespace QmlDesigner {
 using namespace Constants;
-ItemNodeParser::ItemNodeParser(const QByteArrayList &lineage,
+ItemNodeDumper::ItemNodeDumper(const QByteArrayList &lineage,
                                const ModelNode &node) :
-    ModelNodeParser(lineage, node)
+    NodeDumper(lineage, node)
 {
 
 }
 
-bool QmlDesigner::ItemNodeParser::isExportable() const
+bool QmlDesigner::ItemNodeDumper::isExportable() const
 {
     return lineage().contains("QtQuick.Item");
 }
 
-QJsonObject QmlDesigner::ItemNodeParser::json(QmlDesigner::Component &component) const
+QJsonObject QmlDesigner::ItemNodeDumper::json(QmlDesigner::Component &component) const
 {
     Q_UNUSED(component);
     const QmlObjectNode &qmlObjectNode = objectNode();

@@ -24,36 +24,20 @@
 ****************************************************************************/
 #pragma once
 
-#include "qmlobjectnode.h"
-
-#include <QJsonObject>
-#include <QByteArrayList>
+#include "itemnodedumper.h"
 
 namespace QmlDesigner {
 class Component;
-class ModelNode;
 
-class ModelNodeParser
+class TextNodeDumper : public ItemNodeDumper
 {
 public:
-    ModelNodeParser(const QByteArrayList &lineage, const ModelNode &node);
+    TextNodeDumper(const QByteArrayList &lineage, const ModelNode &node);
+    ~TextNodeDumper() override = default;
 
-    virtual ~ModelNodeParser() = default;
-
-    virtual int priority() const = 0;
-    virtual bool isExportable() const = 0;
-    virtual QJsonObject json(Component& component) const = 0;
-
-    const QByteArrayList& lineage() const { return m_lineage; }
-    const QmlObjectNode& objectNode() const { return m_objectNode; }
-    QVariant propertyValue(const PropertyName &name) const;
-    QString uuid() const;
-
-protected:
-    const ModelNode &m_node;
-
-private:
-    QmlObjectNode m_objectNode;
-    QByteArrayList m_lineage;
+    bool isExportable() const override;
+    int priority() const override { return 200; }
+    QJsonObject json(Component &component) const override;
 };
+
 }

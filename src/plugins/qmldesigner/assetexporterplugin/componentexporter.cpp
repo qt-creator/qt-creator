@@ -26,7 +26,7 @@
 #include "assetexporter.h"
 #include "assetexportpluginconstants.h"
 #include "exportnotification.h"
-#include "parsers/modelnodeparser.h"
+#include "dumpers/nodedumper.h"
 
 #include "model.h"
 #include "nodeabstractproperty.h"
@@ -59,7 +59,7 @@ static QByteArrayList populateLineage(const QmlDesigner::ModelNode &node)
 namespace QmlDesigner {
 using namespace Constants;
 
-std::vector<std::unique_ptr<Internal::NodeParserCreatorBase>> Component::m_readers;
+std::vector<std::unique_ptr<Internal::NodeDumperCreatorBase>> Component::m_readers;
 Component::Component(AssetExporter &exporter, const ModelNode &rootNode):
     m_exporter(exporter),
     m_rootNode(rootNode)
@@ -88,12 +88,12 @@ void Component::exportComponent()
     addImports();
 }
 
-ModelNodeParser *Component::createNodeParser(const ModelNode &node) const
+NodeDumper *Component::createNodeDumper(const ModelNode &node) const
 {
     QByteArrayList lineage = populateLineage(node);
-    std::unique_ptr<ModelNodeParser> reader;
-    for (auto &parserCreator: m_readers) {
-        std::unique_ptr<ModelNodeParser> r(parserCreator->instance(lineage, node));
+    std::unique_ptr<NodeDumper> reader;
+    for (auto &dumperCreator: m_readers) {
+        std::unique_ptr<NodeDumper> r(dumperCreator->instance(lineage, node));
         if (r->isExportable()) {
             if (reader) {
                 if (reader->priority() < r->priority())
@@ -105,7 +105,7 @@ ModelNodeParser *Component::createNodeParser(const ModelNode &node) const
     }
 
     if (!reader)
-        qCDebug(loggerInfo()) << "No parser for node" << node;
+        qCDebug(loggerInfo()) << "No dumper for node" << node;
 
     return reader.release();
 }
@@ -118,15 +118,15 @@ QJsonObject Component::nodeToJson(const ModelNode &node)
     if (!node.isSubclassOf("QtQuick.Item"))
         return {};
 
-    std::unique_ptr<ModelNodeParser> parser(createNodeParser(node));
-    if (parser) {
-        if (parser->uuid().isEmpty()) {
+    std::unique_ptr<NodeDumper> dumper(createNodeDumper(node));
+    if (dumper) {
+        if (dumper->uuid().isEmpty()) {
             // Assign an unique identifier to the node.
             QByteArray uuid = m_exporter.generateUuid(node);
             node.setAuxiliaryData(Constants::UuidAuxTag, QString::fromLatin1(uuid));
             node.model()->rewriterView()->writeAuxiliaryData();
         }
-        jsonObject = parser->json(*this);
+        jsonObject = dumper->json(*this);
     } else {
         ExportNotification::addError(tr("Error exporting node %1. Cannot parse type %2.")
                                      .arg(node.id()).arg(QString::fromUtf8(node.type())));

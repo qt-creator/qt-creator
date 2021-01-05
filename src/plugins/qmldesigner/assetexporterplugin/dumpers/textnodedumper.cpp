@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "textnodeparser.h"
+#include "textnodedumper.h"
 #include "assetexportpluginconstants.h"
 
 #include <QColor>
@@ -55,21 +55,21 @@ QString toJsonAlignEnum(QString value) {
 
 namespace QmlDesigner {
 using namespace Constants;
-TextNodeParser::TextNodeParser(const QByteArrayList &lineage, const ModelNode &node) :
-    ItemNodeParser(lineage, node)
+TextNodeDumper::TextNodeDumper(const QByteArrayList &lineage, const ModelNode &node) :
+    ItemNodeDumper(lineage, node)
 {
 
 }
 
-bool TextNodeParser::isExportable() const
+bool TextNodeDumper::isExportable() const
 {
     return lineage().contains("QtQuick.Text");
 }
 
-QJsonObject TextNodeParser::json(Component &component) const
+QJsonObject TextNodeDumper::json(Component &component) const
 {
     Q_UNUSED(component);
-    QJsonObject jsonObject = ItemNodeParser::json(component);
+    QJsonObject jsonObject = ItemNodeDumper::json(component);
 
     QJsonObject textDetails;
     textDetails.insert(TextContentTag, propertyValue("text").toString());

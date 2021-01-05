@@ -22,26 +22,23 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-#include "modelnodeparser.h"
-#include "assetexportpluginconstants.h"
+#pragma once
+
+#include "nodedumper.h"
 
 namespace QmlDesigner {
-ModelNodeParser::ModelNodeParser(const QByteArrayList &lineage, const ModelNode &node) :
-    m_node(node),
-    m_objectNode(node),
-    m_lineage(lineage)
+class ModelNode;
+class Component;
+
+class ItemNodeDumper : public NodeDumper
 {
+public:
+    ItemNodeDumper(const QByteArrayList &lineage, const ModelNode &node);
 
-}
+    ~ItemNodeDumper() override = default;
 
-QVariant ModelNodeParser::propertyValue(const PropertyName &name) const
-{
-    return m_objectNode.instanceValue(name);
-}
-
-QString ModelNodeParser::uuid() const
-{
-    return m_node.auxiliaryData(Constants::UuidAuxTag).toString();
-}
-
+    int priority() const override { return 100; }
+    bool isExportable() const override;
+    QJsonObject json(Component &component) const override;
+};
 }

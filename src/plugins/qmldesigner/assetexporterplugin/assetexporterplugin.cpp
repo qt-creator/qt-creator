@@ -32,9 +32,9 @@
 #include "filepathmodel.h"
 #include "componentexporter.h"
 
-#include "parsers/modelitemnodeparser.h"
-#include "parsers/textnodeparser.h"
-#include "parsers/assetnodeparser.h"
+#include "dumpers/itemnodedumper.h"
+#include "dumpers/textnodedumper.h"
+#include "dumpers/assetnodedumper.h"
 
 #include "coreplugin/actionmanager/actionmanager.h"
 #include "coreplugin/actionmanager/actioncontainer.h"
@@ -68,10 +68,10 @@ AssetExporterPlugin::AssetExporterPlugin() :
     auto &viewManager = designerPlugin->viewManager();
     viewManager.registerViewTakingOwnership(m_view);
 
-    // Add parsers templates for factory instantiation.
-    Component::addNodeParser<ItemNodeParser>();
-    Component::addNodeParser<TextNodeParser>();
-    Component::addNodeParser<AssetNodeParser>();
+    // Add dumper templates for factory instantiation.
+    Component::addNodeDumper<ItemNodeDumper>();
+    Component::addNodeDumper<TextNodeDumper>();
+    Component::addNodeDumper<AssetNodeDumper>();
 
     // Instantiate actions created by the plugin.
     addActions();

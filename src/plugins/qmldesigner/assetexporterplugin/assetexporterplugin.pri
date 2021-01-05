@@ -16,10 +16,10 @@ HEADERS += \
     componentexporter.h \
     exportnotification.h \
     filepathmodel.h \
-    parsers/assetnodeparser.h \
-    parsers/modelitemnodeparser.h \
-    parsers/modelnodeparser.h \
-    parsers/textnodeparser.h
+    dumpers/assetnodedumper.h \
+    dumpers/itemnodedumper.h \
+    dumpers/nodedumper.h \
+    dumpers/textnodedumper.h
 
 SOURCES += \
     assetexportdialog.cpp \
@@ -29,10 +29,10 @@ SOURCES += \
     componentexporter.cpp \
     exportnotification.cpp \
     filepathmodel.cpp \
-    parsers/assetnodeparser.cpp \
-    parsers/modelitemnodeparser.cpp \
-    parsers/modelnodeparser.cpp \
-    parsers/textnodeparser.cpp
+    dumpers/assetnodedumper.cpp \
+    dumpers/itemnodedumper.cpp \
+    dumpers/nodedumper.cpp \
+    dumpers/textnodedumper.cpp
 
 FORMS += \
     assetexportdialog.ui

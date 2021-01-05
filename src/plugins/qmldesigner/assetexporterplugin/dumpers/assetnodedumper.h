@@ -24,20 +24,19 @@
 ****************************************************************************/
 #pragma once
 
-#include "modelitemnodeparser.h"
+#include "itemnodedumper.h"
 
 namespace QmlDesigner {
 class Component;
 
-class TextNodeParser : public ItemNodeParser
+class AssetNodeDumper : public ItemNodeDumper
 {
 public:
-    TextNodeParser(const QByteArrayList &lineage, const ModelNode &node);
-    ~TextNodeParser() override = default;
+    AssetNodeDumper(const QByteArrayList &lineage, const ModelNode &node);
+    ~AssetNodeDumper() override = default;
 
     bool isExportable() const override;
     int priority() const override { return 200; }
     QJsonObject json(Component &component) const override;
 };
-
 }

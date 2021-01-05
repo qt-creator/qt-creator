@@ -22,23 +22,46 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-#pragma once
 
-#include "modelnodeparser.h"
+#include "assetnodedumper.h"
+#include "assetexportpluginconstants.h"
+#include "assetexporter.h"
+
+#include "qmlitemnode.h"
+#include "componentexporter.h"
+
+#include "utils/fileutils.h"
+
+#include <QPixmap>
 
 namespace QmlDesigner {
-class ModelNode;
-class Component;
-
-class ItemNodeParser : public ModelNodeParser
+using namespace Constants;
+AssetNodeDumper::AssetNodeDumper(const QByteArrayList &lineage, const ModelNode &node) :
+    ItemNodeDumper(lineage, node)
 {
-public:
-    ItemNodeParser(const QByteArrayList &lineage, const ModelNode &node);
 
-    ~ItemNodeParser() override = default;
-
-    int priority() const override { return 100; }
-    bool isExportable() const override;
-    QJsonObject json(Component &component) const override;
-};
 }
+
+bool AssetNodeDumper::isExportable() const
+{
+    auto hasType =  [this](const QByteArray &type) {
+        return lineage().contains(type);
+    };
+    return hasType("QtQuick.Image") || hasType("QtQuick.Rectangle");
+}
+
+QJsonObject AssetNodeDumper::json(Component &component) const
+{
+    QJsonObject jsonObject = ItemNodeDumper::json(component);
+
+    Utils::FilePath assetPath = component.exporter().exportAsset(objectNode(), uuid());
+    QJsonObject assetData;
+    assetData.insert(AssetPathTag, assetPath.toString());
+
+    QJsonObject metadata = jsonObject.value(MetadataTag).toObject();
+    metadata.insert(AssetDataTag, assetData);
+    jsonObject.insert(MetadataTag, metadata);
+    return jsonObject;
+}
+}
+

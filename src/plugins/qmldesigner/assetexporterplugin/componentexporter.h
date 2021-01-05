@@ -41,27 +41,27 @@ namespace QmlDesigner {
 class AssetExporter;
 class ModelNode;
 class Component;
-class ModelNodeParser;
+class NodeDumper;
 
 namespace  Internal {
-class NodeParserCreatorBase
+class NodeDumperCreatorBase
 {
 public:
-    virtual ~NodeParserCreatorBase() {}
+    virtual ~NodeDumperCreatorBase() {}
 protected:
-    virtual ModelNodeParser *instance(const QByteArrayList &, const ModelNode &) const = 0;
+    virtual NodeDumper *instance(const QByteArrayList &, const ModelNode &) const = 0;
     friend class QmlDesigner::Component;
 };
 
 template<class T>
-class NodeParserCreator : public NodeParserCreatorBase
+class NodeDumperCreator : public NodeDumperCreatorBase
 {
 public:
-    NodeParserCreator() = default;
-    ~NodeParserCreator() = default;
+    NodeDumperCreator() = default;
+    ~NodeDumperCreator() = default;
 
 protected:
-    ModelNodeParser *instance(const QByteArrayList &lineage, const ModelNode &node) const {
+    NodeDumper *instance(const QByteArrayList &lineage, const ModelNode &node) const {
         return new T(lineage, node);
     }
 };
@@ -79,13 +79,13 @@ public:
 
     AssetExporter &exporter();
 
-    template<typename T> static void addNodeParser()
+    template<typename T> static void addNodeDumper()
     {
-        QTC_ASSERT((std::is_base_of<ModelNodeParser, T>::value), return);
-        m_readers.push_back(std::make_unique<Internal::NodeParserCreator<T>>());
+        QTC_ASSERT((std::is_base_of<NodeDumper, T>::value), return);
+        m_readers.push_back(std::make_unique<Internal::NodeDumperCreator<T>>());
     }
 private:
-    ModelNodeParser* createNodeParser(const ModelNode &node) const;
+    NodeDumper* createNodeDumper(const ModelNode &node) const;
     QJsonObject nodeToJson(const ModelNode &node);
     void addImports();
 
@@ -93,6 +93,6 @@ private:
     AssetExporter& m_exporter;
     const ModelNode &m_rootNode;
     QJsonObject m_json;
-    static std::vector<std::unique_ptr<Internal::NodeParserCreatorBase>> m_readers;
+    static std::vector<std::unique_ptr<Internal::NodeDumperCreatorBase>> m_readers;
 };
 }
