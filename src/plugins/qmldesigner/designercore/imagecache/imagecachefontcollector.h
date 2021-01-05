@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,30 +25,21 @@
 
 #pragma once
 
-#include <QtWidgets/qwidget.h>
-#include <QtGui/qpixmap.h>
-
-#include <memory>
+#include "imagecachecollectorinterface.h"
 
 namespace QmlDesigner {
-namespace Ui {
-class PreviewImageTooltip;
-}
 
-class PreviewImageTooltip : public QWidget
+class ImageCacheFontCollector final : public ImageCacheCollectorInterface
 {
-    Q_OBJECT
-
 public:
-    explicit PreviewImageTooltip(QWidget *parent = {});
-    ~PreviewImageTooltip();
+    ImageCacheFontCollector();
 
-    void setName(const QString &name);
-    void setPath(const QString &path);
-    void setInfo(const QString &info);
-    void setImage(const QImage &pixmap);
+    ~ImageCacheFontCollector();
 
-private:
-    std::unique_ptr<Ui::PreviewImageTooltip> m_ui;
+    void start(Utils::SmallStringView filePath,
+               Utils::SmallStringView state,
+               CaptureCallback captureCallback,
+               AbortCallback abortCallback) override;
 };
-}
+
+} // namespace QmlDesigner

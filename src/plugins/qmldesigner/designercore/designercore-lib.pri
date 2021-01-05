@@ -15,6 +15,7 @@ include (../../../../share/qtcreator/qml/qmlpuppet/types/types.pri)
 
 SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/imagecache/imagecachecollector.cpp \
+    $$PWD/imagecache/imagecachefontcollector.cpp \
     $$PWD/model/rewriterview.cpp \
     $$PWD/model/documentmessage.cpp \
     $$PWD/metainfo/metainfo.cpp \
@@ -95,6 +96,7 @@ SOURCES += $$PWD/model/abstractview.cpp \
 
 HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/imagecache/imagecachecollector.h \
+    $$PWD/imagecache/imagecachefontcollector.h \
     $$PWD/include/abstractview.h \
     $$PWD/include/nodeinstanceview.h \
     $$PWD/include/rewriterview.h \

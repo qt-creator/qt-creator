@@ -418,6 +418,8 @@ Project {
                 "include/imagecacheinterface.h",
                 "imagecache/imagecachecollector.cpp",
                 "imagecache/imagecachecollector.h",
+                "imagecache/imagecachefontcollector.cpp",
+                "imagecache/imagecachefontcollector.h",
                 "imagecache/imagecache.cpp",
                 "imagecache/imagecachecollectorinterface.h",
                 "imagecache/imagecacheconnectionmanager.cpp",

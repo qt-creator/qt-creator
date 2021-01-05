@@ -30,6 +30,7 @@
 #include <coreplugin/icore.h>
 #include <imagecache.h>
 #include <imagecache/imagecachecollector.h>
+#include <imagecache/imagecachefontcollector.h>
 #include <imagecache/imagecacheconnectionmanager.h>
 #include <imagecache/imagecachegenerator.h>
 #include <imagecache/imagecachestorage.h>
@@ -55,9 +56,12 @@ public:
     ImageCacheStorage<Sqlite::Database> storage{database};
     ImageCacheConnectionManager connectionManager;
     ImageCacheCollector collector{connectionManager};
+    ImageCacheFontCollector fontCollector;
     ImageCacheGenerator generator{collector, storage};
+    ImageCacheGenerator fontGenerator{fontCollector, storage};
     TimeStampProvider timeStampProvider;
     ImageCache cache{storage, generator, timeStampProvider};
+    ImageCache fontImageCache{storage, fontGenerator, timeStampProvider};
 };
 
 ItemLibraryView::ItemLibraryView(QObject* parent)
@@ -78,7 +82,7 @@ bool ItemLibraryView::hasWidget() const
 WidgetInfo ItemLibraryView::widgetInfo()
 {
     if (m_widget.isNull()) {
-        m_widget = new ItemLibraryWidget{m_imageCacheData->cache};
+        m_widget = new ItemLibraryWidget{m_imageCacheData->cache, m_imageCacheData->fontImageCache};
         m_widget->setImportsWidget(m_importManagerView->widgetInfo().widget);
     }
 
@@ -155,7 +159,7 @@ void ItemLibraryView::importsChanged(const QList<Import> &addedImports, const QL
 void ItemLibraryView::setResourcePath(const QString &resourcePath)
 {
     if (m_widget.isNull())
-        m_widget = new ItemLibraryWidget{m_imageCacheData->cache};
+        m_widget = new ItemLibraryWidget{m_imageCacheData->cache, m_imageCacheData->fontImageCache};
 
     m_widget->setResourcePath(resourcePath);
 }

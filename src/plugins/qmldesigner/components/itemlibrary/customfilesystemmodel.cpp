@@ -26,6 +26,7 @@
 #include "customfilesystemmodel.h"
 
 #include <theme.h>
+#include <imagecache.h>
 
 #include <utils/filesystemwatcher.h>
 
@@ -37,8 +38,10 @@
 #include <QImageReader>
 #include <QPainter>
 #include <QRawFont>
-#include <QGlyphRun>
+#include <QPair>
 #include <qmath.h>
+#include <condition_variable>
+#include <mutex>
 
 namespace QmlDesigner {
 
@@ -84,68 +87,6 @@ static QPixmap defaultPixmapForType(const QString &type, const QSize &size)
     return QPixmap(QStringLiteral(":/ItemLibrary/images/asset_%1_%2.png").arg(type).arg(size.width()));
 }
 
-static QPixmap generateFontImage(const QFileInfo &info, const QSize &size)
-{
-    static QHash<QString, QPixmap> fontImageCache;
-    const QString file = info.absoluteFilePath();
-    const QString key = QStringLiteral("%1@%2@%3").arg(file).arg(size.width()).arg(size.height());
-    if (!fontImageCache.contains(key)) {
-        QPixmap pixmap(size);
-        pixmap.fill(Qt::transparent);
-        qreal pixelSize = size.width() / 2.;
-        bool done = false;
-        while (!done) {
-            QRawFont font(file, pixelSize);
-            if (!font.isValid())
-                break;
-            QGlyphRun gr;
-            gr.setRawFont(font);
-            QVector<quint32> indices = font.glyphIndexesForString("Abc");
-            if (indices.isEmpty())
-                break;
-            const QVector<QPointF> advances = font.advancesForGlyphIndexes(indices);
-            QVector<QPointF> positions;
-            QPointF totalAdvance;
-            for (const QPointF &advance : advances) {
-                positions.append(totalAdvance);
-                totalAdvance += advance;
-            }
-
-            gr.setGlyphIndexes(indices);
-            gr.setPositions(positions);
-            QRectF bounds = gr.boundingRect();
-            if (bounds.width() <= 0 || bounds.height() <= 0)
-                break;
-
-            bounds.moveCenter({size.width() / 2., size.height() / 2.});
-
-            // Bounding rectangle doesn't necessarily contain the entirety of glyphs for some
-            // reason, so also check totalAdvance for overflow.
-            qreal limitX = qMax(bounds.width(), totalAdvance.x());
-            if (size.width() < limitX) {
-                pixelSize = qreal(qFloor(pixelSize * size.width() / limitX));
-                continue;
-            }
-            qreal limitY = qMax(bounds.height(), totalAdvance.y());
-            if (size.height() < limitY) {
-                pixelSize = qreal(qFloor(pixelSize * size.height() / limitY));
-                continue;
-            }
-
-            QPainter painter(&pixmap);
-            painter.setPen(Theme::getColor(Theme::DStextColor));
-            painter.drawGlyphRun(bounds.bottomLeft(), gr);
-            done = true;
-        }
-
-        if (!done)
-            pixmap = defaultPixmapForType("font", size);
-
-        fontImageCache[key] = pixmap;
-    }
-    return fontImageCache[key];
-}
-
 QString fontFamily(const QFileInfo &info)
 {
     QRawFont font(info.absoluteFilePath(), 10);
@@ -157,21 +98,27 @@ QString fontFamily(const QFileInfo &info)
 class ItemLibraryFileIconProvider : public QFileIconProvider
 {
 public:
-    ItemLibraryFileIconProvider() = default;
+    ItemLibraryFileIconProvider(ImageCache &fontImageCache)
+        : QFileIconProvider()
+        , m_fontImageCache(fontImageCache)
+    {
+    }
 
     QIcon icon( const QFileInfo & info ) const override
     {
         QIcon icon;
         const QString suffix = info.suffix();
+        const QString filePath = info.absoluteFilePath();
+
+        if (supportedFontSuffixes().contains(suffix))
+            return generateFontIcons(filePath);
 
         for (auto iconSize : iconSizes) {
             // Provide icon depending on suffix
             QPixmap pixmap;
 
             if (supportedImageSuffixes().contains(suffix))
-                pixmap.load(info.absoluteFilePath());
-            else if (supportedFontSuffixes().contains(suffix))
-                pixmap = generateFontImage(info, iconSize);
+                pixmap.load(filePath);
             else if (supportedAudioSuffixes().contains(suffix))
                 pixmap = defaultPixmapForType("sound", iconSize);
             else if (supportedShaderSuffixes().contains(suffix))
@@ -189,6 +136,61 @@ public:
         return icon;
     }
 
+    QIcon generateFontIcons(const QString &filePath) const
+    {
+        QIcon icon;
+        QString colorName = Theme::getColor(Theme::DStextColor).name();
+        std::condition_variable condition;
+        int count = iconSizes.size();
+        std::mutex mutex;
+        QList<QPair<QSize, QImage>> images;
+
+        for (auto iconSize : iconSizes) {
+            m_fontImageCache.requestImage(
+                filePath,
+                [&images, &condition, &count, &mutex, iconSize](const QImage &image) {
+                    int currentCount;
+                    {
+                        std::unique_lock lock{mutex};
+                        currentCount = --count;
+                        images.append({iconSize, image});
+                    }
+                    if (currentCount <= 0)
+                        condition.notify_all();
+                },
+                [&images, &condition, &count, &mutex, iconSize] {
+                    int currentCount;
+                    {
+                        std::unique_lock lock{mutex};
+                        currentCount = --count;
+                        images.append({iconSize, {}});
+                    }
+                    if (currentCount <= 0)
+                        condition.notify_all();
+                },
+                QStringLiteral("%1@%2@Abc").arg(QString::number(iconSize.width()),
+                                                colorName)
+            );
+        }
+
+        {
+            // Block main thread until icons are generated, as it has to be done synchronously
+            std::unique_lock lock{mutex};
+            if (count > 0)
+                condition.wait(lock, [&]{ return count <= 0; });
+        }
+
+        for (const auto &pair : qAsConst(images)) {
+            QImage image = pair.second;
+            if (image.isNull())
+                icon.addPixmap(defaultPixmapForType("font", pair.first));
+            else
+                icon.addPixmap(QPixmap::fromImage(image));
+        }
+
+        return icon;
+    }
+
     // Generated icon sizes should contain all ItemLibraryResourceView needed icon sizes, and their
     // x2 versions for HDPI sceens
     QList<QSize> iconSizes  = {{384, 384}, {192, 192}, // Large
@@ -197,13 +199,15 @@ public:
                                            {48, 48},   // Small
                                {64, 64},   {32, 32}};  // List
 
+    ImageCache &m_fontImageCache;
 };
 
-CustomFileSystemModel::CustomFileSystemModel(QObject *parent) : QAbstractListModel(parent)
-  , m_fileSystemModel(new QFileSystemModel(this))
-  , m_fileSystemWatcher(new Utils::FileSystemWatcher(this))
+CustomFileSystemModel::CustomFileSystemModel(ImageCache &fontImageCache, QObject *parent)
+    : QAbstractListModel(parent)
+    , m_fileSystemModel(new QFileSystemModel(this))
+    , m_fileSystemWatcher(new Utils::FileSystemWatcher(this))
 {
-    m_fileSystemModel->setIconProvider(new ItemLibraryFileIconProvider());
+    m_fileSystemModel->setIconProvider(new ItemLibraryFileIconProvider(fontImageCache));
 
     connect(m_fileSystemWatcher, &Utils::FileSystemWatcher::directoryChanged, [this] {
         updatePath(m_fileSystemModel->rootPath());
@@ -343,6 +347,20 @@ const QSet<QString> &CustomFileSystemModel::supportedSuffixes() const
         insertSuffixes(supportedAudioSuffixes());
     }
     return allSuffixes;
+}
+
+const QSet<QString> &CustomFileSystemModel::previewableSuffixes() const
+{
+    static QSet<QString> previewableSuffixes;
+    if (previewableSuffixes.isEmpty()) {
+        auto insertSuffixes = [](const QStringList &suffixes) {
+            for (const auto &suffix : suffixes)
+                previewableSuffixes.insert(suffix);
+        };
+        insertSuffixes(supportedFontSuffixes());
+    }
+    return previewableSuffixes;
+
 }
 
 void CustomFileSystemModel::appendIfNotFiltered(const QString &file)

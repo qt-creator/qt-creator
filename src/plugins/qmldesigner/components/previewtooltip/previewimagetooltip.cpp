@@ -36,28 +36,36 @@ PreviewImageTooltip::PreviewImageTooltip(QWidget *parent)
     : QWidget(parent)
     , m_ui(std::make_unique<Ui::PreviewImageTooltip>())
 {
-    //  setAttribute(Qt::WA_TransparentForMouseEvents);
-    setWindowFlags(Qt::ToolTip);
+    setWindowFlags(Qt::FramelessWindowHint | Qt::Tool | Qt::WindowTransparentForInput
+                   | Qt::WindowStaysOnTopHint | Qt::WindowDoesNotAcceptFocus);
     m_ui->setupUi(this);
+    m_ui->nameLabel->setElideMode(Qt::ElideLeft);
+    m_ui->pathLabel->setElideMode(Qt::ElideLeft);
+    m_ui->infoLabel->setElideMode(Qt::ElideLeft);
     setStyleSheet(QString("QWidget { background-color: %1 }").arg(Utils::creatorTheme()->color(Utils::Theme::BackgroundColorNormal).name()));
 }
 
 PreviewImageTooltip::~PreviewImageTooltip() = default;
 
-void PreviewImageTooltip::setComponentPath(const QString &path)
+void PreviewImageTooltip::setName(const QString &name)
 {
-    m_ui->componentPathLabel->setText(path);
+    m_ui->nameLabel->setText(name);
 }
 
-void PreviewImageTooltip::setComponentName(const QString &name)
+void PreviewImageTooltip::setPath(const QString &path)
 {
-    m_ui->componentNameLabel->setText(name);
+    m_ui->pathLabel->setText(path);
+}
+
+void PreviewImageTooltip::setInfo(const QString &info)
+{
+    m_ui->infoLabel->setText(info);
 }
 
 void PreviewImageTooltip::setImage(const QImage &image)
 {
-    resize(image.width() + 20 + m_ui->componentNameLabel->width(),
-           std::max(image.height() + 20, height()));
-    m_ui->imageLabel->setPixmap(QPixmap::fromImage({image}));
+    m_ui->imageLabel->setPixmap(QPixmap::fromImage({image}).scaled(m_ui->imageLabel->width(),
+                                                                   m_ui->imageLabel->height(),
+                                                                   Qt::KeepAspectRatio));
 }
 }

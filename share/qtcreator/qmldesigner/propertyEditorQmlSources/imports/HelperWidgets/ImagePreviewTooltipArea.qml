@@ -33,6 +33,7 @@ MouseArea {
     onExited: tooltipBackend.hideTooltip()
     onCanceled: tooltipBackend.hideTooltip()
     onClicked: forceActiveFocus()
+    onPositionChanged: tooltipBackend.reposition()
 
     hoverEnabled: true
 
@@ -40,8 +41,8 @@ MouseArea {
         interval: 1000
         running: mouseArea.containsMouse
         onTriggered: {
-            tooltipBackend.componentName = itemName
-            tooltipBackend.componentPath = componentPath
+            tooltipBackend.name = itemName
+            tooltipBackend.path = componentPath
             tooltipBackend.showTooltip()
         }
     }

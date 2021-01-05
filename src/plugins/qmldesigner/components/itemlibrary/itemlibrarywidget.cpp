@@ -83,10 +83,10 @@ static QString propertyEditorResourcesPath() {
     return Core::ICore::resourcePath() + QStringLiteral("/qmldesigner/propertyEditorQmlSources");
 }
 
-ItemLibraryWidget::ItemLibraryWidget(ImageCache &imageCache)
+ItemLibraryWidget::ItemLibraryWidget(ImageCache &imageCache, ImageCache &fontImageCache)
     : m_itemIconSize(24, 24)
     , m_itemViewQuickWidget(new QQuickWidget(this))
-    , m_resourcesView(new ItemLibraryResourceView(this))
+    , m_resourcesView(new ItemLibraryResourceView(fontImageCache, this))
     , m_importTagsWidget(new QWidget(this))
     , m_addResourcesWidget(new QWidget(this))
     , m_imageCache{imageCache}
@@ -115,12 +115,11 @@ ItemLibraryWidget::ItemLibraryWidget(ImageCache &imageCache)
     m_previewTooltipBackend = std::make_unique<PreviewTooltipBackend>(m_imageCache);
     m_itemViewQuickWidget->rootContext()->setContextProperty("tooltipBackend",
                                                              m_previewTooltipBackend.get());
-
     m_itemViewQuickWidget->setClearColor(
         Theme::getColor(Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
 
     /* create Resources view and its model */
-    m_resourcesFileSystemModel = new CustomFileSystemModel(this);
+    m_resourcesFileSystemModel = new CustomFileSystemModel(fontImageCache, this);
     m_resourcesView->setModel(m_resourcesFileSystemModel.data());
 
     /* create image provider for loading item icons */

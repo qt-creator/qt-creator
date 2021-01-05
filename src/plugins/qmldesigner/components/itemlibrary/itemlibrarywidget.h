@@ -69,7 +69,7 @@ class ItemLibraryWidget : public QFrame
     };
 
 public:
-    ItemLibraryWidget(ImageCache &imageCache);
+    ItemLibraryWidget(ImageCache &imageCache, ImageCache &fontImageCache);
     ~ItemLibraryWidget();
 
     void setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo);

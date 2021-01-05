@@ -44,10 +44,10 @@ QImage renderImage(ServerNodeInstance rootNodeInstance)
 
     QSize previewImageSize = rootNodeInstance.boundingRect().size().toSize();
     if (previewImageSize.isEmpty())
-        previewImageSize = {640, 480};
+        previewImageSize = {300, 300};
 
-    if (previewImageSize.width() > 800 || previewImageSize.height() > 800)
-        previewImageSize.scale({800, 800}, Qt::KeepAspectRatio);
+    if (previewImageSize.width() > 300 || previewImageSize.height() > 300)
+        previewImageSize.scale({300, 300}, Qt::KeepAspectRatio);
 
     QImage previewImage = rootNodeInstance.renderPreviewImage(previewImageSize);
 

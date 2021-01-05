@@ -599,6 +599,8 @@ extend_qtc_plugin(QmlDesigner
 
     imagecache/imagecachecollector.h
     imagecache/imagecachecollector.cpp
+    imagecache/imagecachefontcollector.h
+    imagecache/imagecachefontcollector.cpp
     imagecache/imagecache.cpp
     imagecache/imagecachecollectorinterface.h
     imagecache/imagecacheconnectionmanager.cpp

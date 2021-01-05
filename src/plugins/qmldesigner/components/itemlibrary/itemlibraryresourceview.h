@@ -33,15 +33,22 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
+class PreviewTooltipBackend;
+class ImageCache;
+
 class ItemLibraryResourceView : public QListView {
 
     Q_OBJECT
 public:
-    explicit ItemLibraryResourceView(QWidget *parent = nullptr);
+    explicit ItemLibraryResourceView(ImageCache &fontImageCache, QWidget *parent = nullptr);
 
     void startDrag(Qt::DropActions supportedActions) override;
+    bool viewportEvent(QEvent *event) override;
+
 private:
     void addSizeAction(QActionGroup *group, const QString &text, int size, int iconSize);
+
+    std::unique_ptr<PreviewTooltipBackend> m_fontPreviewTooltipBackend;
 };
 
 } // namespace QmlDesigner

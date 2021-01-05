@@ -32,6 +32,7 @@
 
 #include <QApplication>
 #include <QMetaObject>
+#include <QScreen>
 
 namespace QmlDesigner {
 
@@ -46,28 +47,25 @@ PreviewTooltipBackend::~PreviewTooltipBackend()
 
 void PreviewTooltipBackend::showTooltip()
 {
-    if (m_componentPath.isEmpty())
-        return;
-
     m_tooltip = std::make_unique<PreviewImageTooltip>();
 
-    m_tooltip->setComponentName(m_componentName);
-    m_tooltip->setComponentPath(m_componentPath);
+    m_tooltip->setName(m_name);
+    m_tooltip->setPath(m_path);
+    m_tooltip->setInfo(m_info);
 
     m_cache.requestImage(
-        m_componentPath,
+        m_path,
         [tooltip = QPointer<PreviewImageTooltip>(m_tooltip.get())](const QImage &image) {
             QMetaObject::invokeMethod(tooltip, [tooltip, image] {
                 if (tooltip)
                     tooltip->setImage(image);
             });
         },
-        [] {});
+        [] {},
+        m_state
+    );
 
-    auto mousePosition = QCursor::pos();
-
-    mousePosition += {20, 20};
-    m_tooltip->move(mousePosition);
+    reposition();
     m_tooltip->show();
 }
 
@@ -79,30 +77,94 @@ void PreviewTooltipBackend::hideTooltip()
     m_tooltip.reset();
 }
 
-QString QmlDesigner::PreviewTooltipBackend::componentPath() const
+bool PreviewTooltipBackend::isVisible() const
 {
-    return m_componentPath;
+    if (m_tooltip)
+        return m_tooltip->isVisible();
+    return false;
 }
 
-void QmlDesigner::PreviewTooltipBackend::setComponentPath(const QString &path)
+void PreviewTooltipBackend::reposition()
 {
-    m_componentPath = path;
+    if (m_tooltip) {
+        // By default tooltip is placed right and below the cursor, but if the screen
+        // doesn't have sufficient space in that direction, position is adjusted.
+        // It is assumed that some diagonal direction will have enough space.
+        const QPoint mousePos = QCursor::pos();
+        QScreen *screen = qApp->screenAt(mousePos);
+        QRect tipRect = m_tooltip->geometry();
+        QPoint offset(10, 5);
+        QPoint pos = mousePos + offset;
+        if (screen) {
+            QRect rect = screen->geometry();
+            tipRect.moveTo(pos);
+            if (!rect.contains(tipRect)) {
+                pos = mousePos + QPoint(-offset.x() - m_tooltip->size().width(),
+                                        offset.y());
+                tipRect.moveTo(pos);
+                if (!rect.contains(tipRect)) {
+                    pos = mousePos + QPoint(offset.x(), -offset.y() - m_tooltip->size().height());
+                    tipRect.moveTo(pos);
+                    if (!rect.contains(tipRect)) {
+                        pos = mousePos + QPoint(-offset.x() - m_tooltip->size().width(),
+                                                -offset.y() - m_tooltip->size().height());
+                        tipRect.moveTo(pos);
+                    }
+                }
+            }
+        }
 
-    if (m_componentPath != path)
-        emit componentPathChanged();
+        m_tooltip->move(pos);
+    }
 }
 
-QString QmlDesigner::PreviewTooltipBackend::componentName() const
+QString PreviewTooltipBackend::name() const
 {
-    return m_componentName;
+    return m_name;
 }
 
-void QmlDesigner::PreviewTooltipBackend::setComponentName(const QString &name)
+void PreviewTooltipBackend::setName(const QString &name)
 {
-    m_componentName = name;
+    m_name = name;
+    if (m_name != name)
+        emit nameChanged();
+}
 
-    if (m_componentName != name)
-        emit componentNameChanged();
+QString PreviewTooltipBackend::path() const
+{
+    return m_path;
+}
+
+void PreviewTooltipBackend::setPath(const QString &path)
+{
+    m_path = path;
+    if (m_path != path)
+        emit pathChanged();
+}
+
+QString PreviewTooltipBackend::info() const
+{
+    return m_info;
+}
+
+void PreviewTooltipBackend::setInfo(const QString &info)
+{
+    m_info = info;
+    if (m_info != info)
+        emit infoChanged();
+}
+
+QString PreviewTooltipBackend::state() const
+{
+    return m_state;
+}
+
+// Sets the imageCache state hint. Valid content depends on image cache collector used.
+void PreviewTooltipBackend::setState(const QString &state)
+{
+    m_state = state;
+    if (m_state != state)
+        emit stateChanged();
 }
 
 } // namespace QmlDesigner
