@@ -473,13 +473,28 @@ void QMakeEvaluator::runProcess(QProcess *proc, const QString &command) const
         proc->setProcessEnvironment(env);
     }
 # endif
+# ifdef PROEVALUATOR_THREAD_SAFE
+    m_option->mutex.lock();
+    if (m_option->canceled) {
+        m_option->mutex.unlock();
+        return;
+    }
+    m_option->runningProcs << proc;
+# endif
 # ifdef Q_OS_WIN
     proc->setNativeArguments(QLatin1String("/v:off /s /c \"") + command + QLatin1Char('"'));
     proc->start(m_option->getEnv(QLatin1String("COMSPEC")), QStringList());
 # else
     proc->start(QLatin1String("/bin/sh"), QStringList() << QLatin1String("-c") << command);
 # endif
+# ifdef PROEVALUATOR_THREAD_SAFE
+    m_option->mutex.unlock();
+# endif
     proc->waitForFinished(-1);
+# ifdef PROEVALUATOR_THREAD_SAFE
+    QMutexLocker(&m_option->mutex);
+    m_option->runningProcs.removeOne(proc);
+# endif
 }
 #endif
 
@@ -490,7 +505,7 @@ QByteArray QMakeEvaluator::getCommandOutput(const QString &args, int *exitCode) 
     QProcess proc;
     runProcess(&proc, args);
     *exitCode = (proc.exitStatus() == QProcess::NormalExit) ? proc.exitCode() : -1;
-    QByteArray errout = proc.readAllStandardError();
+    QByteArray errout = proc.isReadable() ? proc.readAllStandardError() : QByteArray();
 # ifdef PROEVALUATOR_FULL
     // FIXME: Qt really should have the option to set forwarding per channel
     fputs(errout.constData(), stderr);
@@ -503,7 +518,7 @@ QByteArray QMakeEvaluator::getCommandOutput(const QString &args, int *exitCode) 
             QString::fromLocal8Bit(errout));
     }
 # endif
-    out = proc.readAllStandardOutput();
+    out = proc.isReadable() ? proc.readAllStandardOutput() : QByteArray();
 # ifdef Q_OS_WIN
     // FIXME: Qt's line end conversion on sequential files should really be fixed
     out.replace("\r\n", "\n");

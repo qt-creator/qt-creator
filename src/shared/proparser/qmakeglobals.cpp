@@ -89,6 +89,17 @@ QMakeGlobals::~QMakeGlobals()
     qDeleteAll(baseEnvs);
 }
 
+void QMakeGlobals::killProcesses()
+{
+#ifdef PROEVALUATOR_THREAD_SAFE
+    QMutexLocker lock(&mutex);
+    canceled = true;
+    for (QProcess * const proc : runningProcs)
+        proc->kill();
+    runningProcs.clear();
+#endif
+}
+
 QString QMakeGlobals::cleanSpec(QMakeCmdLineParserState &state, const QString &spec)
 {
     QString ret = QDir::cleanPath(spec);

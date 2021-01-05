@@ -112,6 +112,8 @@ public:
     QString extra_cmds[4];
     bool runSystemFunction = false;
 
+    void killProcesses();
+
 #ifdef PROEVALUATOR_DEBUG
     int debugLevel;
 #endif
@@ -157,6 +159,8 @@ private:
 
 #ifdef PROEVALUATOR_THREAD_SAFE
     QMutex mutex;
+    bool canceled = false;
+    QList<QProcess *> runningProcs;
 #endif
     QHash<QMakeBaseKey, QMakeBaseEnv *> baseEnvs;
 

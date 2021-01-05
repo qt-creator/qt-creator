@@ -666,6 +666,18 @@ void QmakeBuildSystem::asyncUpdate()
                                    Constants::PROFILE_EVALUATE);
 
     m_asyncUpdateFutureInterface.reportStarted();
+    const auto watcher = new QFutureWatcher<void>(this);
+    connect(watcher, &QFutureWatcher<void>::canceled, this, [this, watcher] {
+        if (!m_qmakeGlobals)
+            return;
+        watcher->disconnect();
+        m_qmakeGlobals->killProcesses();
+    });
+    connect(watcher, &QFutureWatcher<void>::finished, this, [watcher] {
+        watcher->disconnect();
+        watcher->deleteLater();
+    });
+    watcher->setFuture(m_asyncUpdateFutureInterface.future());
 
     const Kit *const k = kit();
     QtSupport::BaseQtVersion *const qtVersion = QtSupport::QtKitAspect::qtVersion(k);
