@@ -29,7 +29,6 @@
 #include "cpptoolsreuse.h"
 #include "functionutils.h"
 #include "symbolfinder.h"
-#include "typehierarchybuilder.h"
 
 #include <cplusplus/Icons.h>
 #include <cplusplus/Overview.h>
