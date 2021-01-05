@@ -103,11 +103,8 @@ private: ////////// General Interface //////////
     void handleAdapterStartFailed(const QString &msg,
         Utils::Id settingsIdHint = Utils::Id());
 
-    // This triggers the initial breakpoint synchronization and causes
-    // finishInferiorSetup() being called once done.
+    // Called after target setup.
     void handleInferiorPrepared();
-    // This notifies the base of a successful inferior setup.
-    void finishInferiorSetup();
 
     void handleDebugInfoLocation(const DebuggerResponse &response);
 
@@ -155,10 +152,6 @@ private: ////////// General Interface //////////
     // out of date and discarded.
     int m_oldestAcceptableToken = -1;
     int m_nonDiscardableCount = 0;
-
-    using CommandsDoneCallback = void (GdbEngine::*)();
-    // This function is called after all previous responses have been received.
-    CommandsDoneCallback m_commandsDoneCallback = nullptr;
 
     bool m_rerunPending = false;
 

@@ -980,21 +980,7 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
     if (cmd.callback)
         cmd.callback(*response);
 
-    // Continue only if there are no commands wire anymore, so this will
-    // be fully synchronous.
-    // This is somewhat inefficient, as it makes the last command synchronous.
-    // An optimization would be requesting the continue immediately when the
-    // event loop is entered, and let individual commands have a flag to suppress
-    // that behavior.
-    if (m_commandsDoneCallback && m_commandForToken.isEmpty()) {
-        showMessage("ALL COMMANDS DONE; INVOKING CALLBACK");
-        CommandsDoneCallback cont = m_commandsDoneCallback;
-        m_commandsDoneCallback = nullptr;
-        if (response->resultClass != ResultRunning) //only start if the thing is not already running
-            (this->*cont)();
-    } else {
-        PENDING_DEBUG("MISSING TOKENS: " << m_commandForToken.keys());
-    }
+    PENDING_DEBUG("MISSING TOKENS: " << m_commandForToken.keys());
 
     if (m_commandForToken.isEmpty())
         m_commandTimer.stop();
@@ -3863,7 +3849,6 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg, Id settingsIdHint)
 void GdbEngine::prepareForRestart()
 {
     m_rerunPending = false;
-    m_commandsDoneCallback = nullptr;
     m_commandForToken.clear();
     m_flagsForToken.clear();
 }
@@ -3879,18 +3864,6 @@ void GdbEngine::handleInferiorPrepared()
         for (const QString &command : commands.split('\n'))
             runCommand({command, NativeCommand});
     }
-
-    if (m_commandForToken.isEmpty()) {
-        finishInferiorSetup();
-    } else {
-        QTC_CHECK(m_commandsDoneCallback == nullptr);
-        m_commandsDoneCallback = &GdbEngine::finishInferiorSetup;
-    }
-}
-
-void GdbEngine::finishInferiorSetup()
-{
-    CHECK_STATE(EngineSetupRequested);
 
     if (runParameters().startMode != AttachCore) { // No breakpoints in core files.
         const bool onAbort = boolSetting(BreakOnAbort);
@@ -4385,7 +4358,7 @@ void GdbEngine::shutdownEngine()
 
     CHECK_STATE(EngineShutdownRequested);
     showMessage(QString("INITIATE GDBENGINE SHUTDOWN, PROC STATE: %1").arg(m_gdbProc.state()));
-    m_commandsDoneCallback = nullptr;
+
     switch (m_gdbProc.state()) {
     case QProcess::Running: {
         if (runParameters().closeMode == KillAndExitMonitorAtClose)
