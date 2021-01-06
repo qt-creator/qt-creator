@@ -138,7 +138,10 @@
             edit the value for the \uicontrol {Do not index files greater than}
             check box. To index all files, deselect the check box.
 
-        \li Select \uicontrol Manage to specify the Clang checks to perform.
+        \li The \uicontrol {Diagnostic Configuration} field shows the Clang
+            checks to perform. Click the value of the field to open the
+            \uicontrol {Diagnostic Configurations} dialog, where you can
+            select and edit the checks to perform.
 
             \image qtcreator-diagnostics-configuration.png
 
@@ -146,26 +149,18 @@
 
     \section1 Clang Checks
 
-    The predefined configurations perform the following Clang checks:
+    In addition to using the built-in checks, you can select \uicontrol Copy to
+    create copies of them and edit the copies to fit your needs.
 
-    \list
+    \uicontrol {Build-system warnings} displays warnings as specified
+    by the build system.
 
-        \li \uicontrol {Clang-only pedantic checks} uses the \c -Wpendantic
-            option that performs checks as required by strict ISO C and ISO C++.
+    \uicontrol {Checks for questionable constructs} combines the \c -Wall and
+    \c -Wextra checks for easily avoidable questionable constructions and some
+    additional issues.
 
-        \li \uicontrol {Clang-only checks for questionable constructs} combines
-            the \c -Wall and \c -Wextra checks for easily avoidable questionable
-            constructions and some additional issues.
-
-        \li \uicontrol {Clang-only checks for almost everything} uses the
-            \c -Weverything option with negative options to suppress some
-            warnings.
-
-    \endlist
-
-    You can edit the predefined configurations to perform particular checks
-    beginning with \c -W. Each of these checks also has a negative version
-    that begins with \c -Wno.
+    Clang checks begin with \c -W. Each check also has a negative version that
+    begins with \c -Wno.
 
     Keep in mind that some options turn on other options. For more information,
     see \l{https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html}

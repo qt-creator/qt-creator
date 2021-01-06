@@ -166,7 +166,7 @@
             system to the Clang code model for displaying annotations in the
             code editor.
 
-            \image qtcreator-diagnostics-configuration.png "Diagnostics Configuration dialog"
+            \image qtcreator-clang-tools-diagnostics-configuration.png "Diagnostics Configuration dialog"
 
         \li In the \uicontrol {Clang-Tidy Checks} tab, select
             \uicontrol {Select Checks} to select the checks to perform.
