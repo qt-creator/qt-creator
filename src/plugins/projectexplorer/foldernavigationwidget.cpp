@@ -854,7 +854,8 @@ FolderNavigationWidgetFactory::FolderNavigationWidgetFactory()
     setDisplayName(tr("File System"));
     setPriority(400);
     setId("File System");
-    setActivationSequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+Y") : tr("Alt+Y")));
+    setActivationSequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+Y,Meta+F")
+                                                             : tr("Alt+Y,Alt+F")));
     insertRootDirectory({QLatin1String("A.Computer"),
                          0 /*sortValue*/,
                          FolderNavigationWidget::tr("Computer"),
