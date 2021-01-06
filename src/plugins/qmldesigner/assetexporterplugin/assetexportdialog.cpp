@@ -96,6 +96,11 @@ AssetExportDialog::AssetExportDialog(const Utils::FilePath &exportPath,
     m_exportAssetsCheck->setChecked(true);
     optionsLayout->addWidget(m_exportAssetsCheck);
 
+    m_perComponentExportCheck = new QCheckBox(tr("Export components separately"), this);
+    m_perComponentExportCheck->setChecked(false);
+    optionsLayout->addWidget(m_perComponentExportCheck);
+    optionsLayout->addStretch();
+
     m_ui->buttonBox->button(QDialogButtonBox::Cancel)->setEnabled(false);
 
     m_ui->stackedWidget->addWidget(m_filesView);
@@ -149,7 +154,8 @@ void AssetExportDialog::onExport()
     m_exportLogs->clear();
 
     m_assetExporter.exportQml(m_filePathModel.files(), m_ui->exportPath->fileName(),
-                              m_exportAssetsCheck->isChecked());
+                              m_exportAssetsCheck->isChecked(),
+                              m_perComponentExportCheck->isChecked());
 }
 
 void AssetExportDialog::onExportStateChanged(AssetExporter::ParsingState newState)

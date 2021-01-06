@@ -75,6 +75,7 @@ public:
     Component(AssetExporter& exporter, const ModelNode &rootNode);
 
     void exportComponent();
+    const QString &name() const;
     QJsonObject json() const;
 
     AssetExporter &exporter();
@@ -92,6 +93,7 @@ private:
 private:
     AssetExporter& m_exporter;
     const ModelNode &m_rootNode;
+    QString m_name;
     QJsonObject m_json;
     static std::vector<std::unique_ptr<Internal::NodeDumperCreatorBase>> m_readers;
 };

@@ -43,6 +43,7 @@ class Project;
 
 namespace QmlDesigner {
 class AssetDumper;
+class Component;
 
 class AssetExporter : public QObject
 {
@@ -65,12 +66,13 @@ public:
     ~AssetExporter();
 
     void exportQml(const Utils::FilePaths &qmlFiles, const Utils::FilePath &exportPath,
-                   bool exportAssets = false);
+                   bool exportAssets, bool perComponentExport);
 
     void cancel();
     bool isBusy() const;
 
-    Utils::FilePath exportAsset(const QmlObjectNode& node, const QString &uuid);
+    Utils::FilePath exportAsset(const QmlObjectNode& node, const Component *component,
+                                const QString &uuid);
     QByteArray generateUuid(const ModelNode &node);
 
 signals:
@@ -87,6 +89,7 @@ private:
     void loadNextFile();
 
     void onQmlFileLoaded();
+    Utils::FilePath componentExportDir(const Component *component) const;
 
 private:
     mutable class State {
@@ -102,7 +105,8 @@ private:
     Utils::FilePaths m_exportFiles;
     unsigned int m_totalFileCount = 0;
     Utils::FilePath m_exportPath;
-    QJsonArray m_components;
+    bool m_perComponentExport = false;
+    std::vector<std::unique_ptr<Component>> m_components;
     QSet<QByteArray> m_usedHashes;
     std::unique_ptr<AssetDumper> m_assetDumper;
     bool m_cancelled = false;

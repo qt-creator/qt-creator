@@ -74,6 +74,7 @@ private:
     std::unique_ptr<Ui::AssetExportDialog> m_ui;
     QPushButton *m_exportBtn = nullptr;
     QCheckBox *m_exportAssetsCheck = nullptr;
+    QCheckBox *m_perComponentExportCheck = nullptr;
     QListView *m_filesView = nullptr;
     QPlainTextEdit *m_exportLogs = nullptr;
     Utils::OutputFormatter *m_outputFormatter = nullptr;

@@ -115,15 +115,20 @@ AssetExporter::~AssetExporter()
 }
 
 void AssetExporter::exportQml(const Utils::FilePaths &qmlFiles, const Utils::FilePath &exportPath,
-                              bool exportAssets)
+                              bool exportAssets, bool perComponentExport)
 {
-    ExportNotification::addInfo(tr("Exporting metadata at %1. Export assets: ")
+    m_perComponentExport = perComponentExport;
+    ExportNotification::addInfo(tr("Export root directory: %1.\nExporting assets: %2")
                                 .arg(exportPath.toUserOutput())
                                 .arg(exportAssets? tr("Yes") : tr("No")));
+
+    if (m_perComponentExport)
+        ExportNotification::addInfo(tr("Each component is exported separately"));
+
     notifyProgress(0.0);
     m_exportFiles = qmlFiles;
     m_totalFileCount = m_exportFiles.count();
-    m_components = QJsonArray();
+    m_components.clear();
     m_exportPath = exportPath;
     m_currentState.change(ParsingState::Parsing);
     triggerLoadNextFile();
@@ -149,22 +154,26 @@ bool AssetExporter::isBusy() const
             m_currentState == AssetExporter::ParsingState::WritingJson;
 }
 
-Utils::FilePath AssetExporter::exportAsset(const QmlObjectNode &node, const QString &uuid)
+Utils::FilePath AssetExporter::exportAsset(const QmlObjectNode &node, const Component *component,
+                                           const QString &uuid)
 {
     if (m_cancelled)
         return {};
-    Utils::FilePath assetPath = m_exportPath.pathAppended(QString("assets/%1.png").arg(uuid));
+    const Utils::FilePath assetExportDir = m_perComponentExport ? componentExportDir(component) :
+                                                                  m_exportPath;
+    const QString fileName = uuid + ".png";
+    const Utils::FilePath assetPath = assetExportDir.pathAppended("assets").pathAppended(fileName);
     if (m_assetDumper)
         m_assetDumper->dumpAsset(node.toQmlItemNode().instanceRenderPixmap(), assetPath);
+
     return assetPath;
 }
 
 void AssetExporter::exportComponent(const ModelNode &rootNode)
 {
     qCDebug(loggerInfo) << "Exporting component" << rootNode.id();
-    Component exporter(*this, rootNode);
-    exporter.exportComponent();
-    m_components.append(exporter.json());
+    m_components.push_back(make_unique<Component>(*this, rootNode));
+    m_components.back()->exportComponent();
 }
 
 void AssetExporter::notifyLoadError(AssetExporterView::LoadState state)
@@ -212,6 +221,11 @@ void AssetExporter::onQmlFileLoaded()
     triggerLoadNextFile();
 }
 
+Utils::FilePath AssetExporter::componentExportDir(const Component *component) const
+{
+    return m_exportPath.pathAppended(component->name());
+}
+
 QByteArray AssetExporter::generateUuid(const ModelNode &node)
 {
     QByteArray uuid;
@@ -252,26 +266,48 @@ void AssetExporter::writeMetadata() const
         return;
     }
 
-    auto const startupProject = ProjectExplorer::SessionManager::startupProject();
-    QTC_ASSERT(startupProject, return);
-    const QString projectName = startupProject->displayName();
-    Utils::FilePath metadataPath = m_exportPath.pathAppended(projectName + ".metadata");
-    ExportNotification::addInfo(tr("Writing metadata to file %1.").
-                                arg(metadataPath.toUserOutput()));
-    makeParentPath(metadataPath);
-    m_currentState.change(ParsingState::WritingJson);
-    QJsonObject jsonRoot; // TODO: Write plugin info to root
-    jsonRoot.insert("artboards", m_components);
-    QJsonDocument doc(jsonRoot);
-    if (doc.isNull() || doc.isEmpty()) {
-        ExportNotification::addError(tr("Empty JSON document."));
-    } else {
-        Utils::FileSaver saver(metadataPath.toString(), QIODevice::Text);
+
+    auto writeFile = [](const Utils::FilePath &path, const QJsonArray &artboards) {
+        if (!makeParentPath(path)) {
+            ExportNotification::addError(tr("Writing metadata failed. Cannot create file %1").
+                                         arg(path.toString()));
+            return;
+        }
+
+        ExportNotification::addInfo(tr("Writing metadata to file %1.").arg(path.toUserOutput()));
+
+        QJsonObject jsonRoot; // TODO: Write plugin info to root
+        jsonRoot.insert("artboards", artboards);
+        QJsonDocument doc(jsonRoot);
+        if (doc.isNull() || doc.isEmpty()) {
+            ExportNotification::addError(tr("Empty JSON document."));
+            return;
+        }
+
+        Utils::FileSaver saver(path.toString(), QIODevice::Text);
         saver.write(doc.toJson(QJsonDocument::Indented));
         if (!saver.finalize()) {
             ExportNotification::addError(tr("Writing metadata failed. %1").
                                          arg(saver.errorString()));
         }
+    };
+
+    m_currentState.change(ParsingState::WritingJson);
+
+    auto const startupProject = ProjectExplorer::SessionManager::startupProject();
+    QTC_ASSERT(startupProject, return);
+    const QString projectName = startupProject->displayName();
+
+    if (m_perComponentExport) {
+        for (auto &component : m_components) {
+            const Utils::FilePath path = componentExportDir(component.get());
+            writeFile(path.pathAppended(component->name() + ".metadata"), {component->json()});
+        }
+    } else {
+        QJsonArray artboards;
+        std::transform(m_components.cbegin(), m_components.cend(), back_inserter(artboards),
+                       [](const unique_ptr<Component> &c) {return c->json(); });
+        writeFile(m_exportPath.pathAppended(projectName + ".metadata"), artboards);
     }
     notifyProgress(1.0);
     ExportNotification::addInfo(tr("Export finished."));
