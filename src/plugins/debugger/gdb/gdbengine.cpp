@@ -4191,12 +4191,11 @@ void GdbEngine::runEngine()
 {
     CHECK_STATE(EngineRunRequested);
 
-    claimInitialBreakpoints();
-
     const DebuggerRunParameters &rp = runParameters();
 
     if (rp.startMode == AttachToRemoteProcess) {
 
+        claimInitialBreakpoints();
         notifyEngineRunAndInferiorStopOk();
 
         QString channel = rp.remoteChannel;
@@ -4206,8 +4205,9 @@ void GdbEngine::runEngine()
 
         const qint64 pid = rp.attachPID.pid();
         showStatusMessage(tr("Attaching to process %1.").arg(pid));
-        runCommand({"attach " + QString::number(pid),
-                    [this](const DebuggerResponse &r) { handleLocalAttach(r); }});
+        runCommand({"attach " + QString::number(pid), [this](const DebuggerResponse &r) {
+                        handleLocalAttach(r);
+                    }});
         // In some cases we get only output like
         //   "Could not attach to process.  If your uid matches the uid of the target\n"
         //   "process, check the setting of /proc/sys/kernel/yama/ptrace_scope, or try\n"
@@ -4218,6 +4218,7 @@ void GdbEngine::runEngine()
 
     } else if (isRemoteEngine()) {
 
+        claimInitialBreakpoints();
         if (runParameters().useContinueInsteadOfRun) {
             notifyEngineRunAndInferiorStopOk();
             continueInferiorInternal();
@@ -4227,6 +4228,7 @@ void GdbEngine::runEngine()
 
     } else if (isCoreEngine()) {
 
+        claimInitialBreakpoints();
         runCommand({"target core " + runParameters().coreFile, CB(handleTargetCore)});
 
     } else if (isTermEngine()) {
@@ -4240,6 +4242,7 @@ void GdbEngine::runEngine()
 
     } else if (isPlainEngine()) {
 
+        claimInitialBreakpoints();
         if (runParameters().useContinueInsteadOfRun)
             runCommand({"-exec-continue", DebuggerCommand::RunRequest, CB(handleExecuteContinue)});
         else
@@ -4260,11 +4263,13 @@ void GdbEngine::handleLocalAttach(const DebuggerResponse &response)
             // We will get a '*stopped' later that we'll interpret as 'spontaneous'
             // So acknowledge the current state and put a delayed 'continue' in the pipe.
             showMessage(tr("Attached to running application."), StatusBar);
+            claimInitialBreakpoints();
             notifyEngineRunAndInferiorRunOk();
         } else {
             // InferiorStopOk, e.g. for "Attach to running application".
             // The *stopped came in between sending the 'attach' and
             // receiving its '^done'.
+            claimInitialBreakpoints();
             notifyEngineRunAndInferiorStopOk();
             if (runParameters().continueAfterAttach)
                 continueInferiorInternal();
@@ -4602,6 +4607,7 @@ void GdbEngine::handleStubAttached(const DebuggerResponse &response, qint64 main
     switch (response.resultClass) {
     case ResultDone:
     case ResultRunning:
+        claimInitialBreakpoints();
         if (runParameters().toolChainAbi.os() == ProjectExplorer::Abi::WindowsOS) {
             QString errorMessage;
             // Resume thread that was suspended by console stub process (see stub code).
