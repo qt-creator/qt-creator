@@ -302,8 +302,8 @@ void LldbEngine::setupEngine()
         cmd2.arg("startmode", rp.startMode);
         // it is better not to check the start mode on the python sid (as we would have to duplicate the
         // enum values), and thus we assume that if the rp.attachPID is valid we really have to attach
-        QTC_CHECK(!rp.attachPID.isValid() || (rp.startMode == AttachCrashedExternal
-                                              || rp.startMode == AttachExternal));
+        QTC_CHECK(!rp.attachPID.isValid() || (rp.startMode == AttachToCrashedProcess
+                                              || rp.startMode == AttachToLocalProcess));
         cmd2.arg("attachpid", rp.attachPID.pid());
         cmd2.arg("sysroot", rp.deviceSymbolsRoot.isEmpty() ? rp.sysRoot.toString()
                                                            : rp.deviceSymbolsRoot);
@@ -312,7 +312,7 @@ void LldbEngine::setupEngine()
                                   ? rp.remoteChannel : QString()));
         cmd2.arg("platform", rp.platform);
         QTC_CHECK(!rp.continueAfterAttach || (rp.startMode == AttachToRemoteProcess
-                                              || rp.startMode == AttachExternal
+                                              || rp.startMode == AttachToLocalProcess
                                               || rp.startMode == AttachToRemoteServer));
         m_continueAtNextSpontaneousStop = false;
     }
@@ -344,7 +344,7 @@ void LldbEngine::runEngine()
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state(); return);
     showStatusMessage(tr("Running requested..."), 5000);
     DebuggerCommand cmd("runEngine");
-    if (rp.startMode == AttachCore)
+    if (rp.startMode == AttachToCore)
         cmd.arg("coreFile", rp.coreFile);
     runCommand(cmd);
 }
@@ -487,7 +487,7 @@ void LldbEngine::selectThread(const Thread &thread)
 
 bool LldbEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 {
-    if (runParameters().startMode == AttachCore)
+    if (runParameters().startMode == AttachToCore)
         return false;
     if (bp.isCppBreakpoint())
         return true;
@@ -921,7 +921,7 @@ void LldbEngine::handleStateNotification(const GdbMi &item)
         continueInferior();
     } else if (newState == "enginerunokandinferiorunrunnable") {
         notifyEngineRunOkAndInferiorUnrunnable();
-        if (runParameters().startMode == AttachCore)
+        if (runParameters().startMode == AttachToCore)
             handleAttachedToCore();
     } else if (newState == "inferiorshutdownfinished")
         notifyInferiorShutdownFinished();
@@ -1094,7 +1094,7 @@ bool LldbEngine::hasCapability(unsigned cap) const
         | MemoryAddressCapability))
         return true;
 
-    if (runParameters().startMode == AttachCore)
+    if (runParameters().startMode == AttachToCore)
         return false;
 
     //return cap == SnapshotCapability;

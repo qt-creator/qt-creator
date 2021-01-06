@@ -331,11 +331,11 @@ void CdbEngine::setupEngine()
     // Use the Creator stub instead.
     DebuggerRunParameters sp = runParameters();
     if (terminal()) {
-        m_effectiveStartMode = AttachExternal;
+        m_effectiveStartMode = AttachToLocalProcess;
         sp.inferior.executable.clear();
         sp.inferior.commandLineArguments.clear();
         sp.attachPID = ProcessHandle(terminal()->applicationPid());
-        sp.startMode = AttachExternal;
+        sp.startMode = AttachToLocalProcess;
         sp.useTerminal = false; // Force no terminal.
         showMessage(QString("Attaching to %1...").arg(sp.attachPID.pid()), LogMisc);
     } else {
@@ -409,17 +409,17 @@ void CdbEngine::setupEngine()
         break;
     case AttachToRemoteServer:
         break;
-    case AttachExternal:
-    case AttachCrashedExternal:
+    case AttachToLocalProcess:
+    case AttachToCrashedProcess:
         debugger.addArgs({"-p", QString::number(sp.attachPID.pid())});
-        if (sp.startMode == AttachCrashedExternal) {
+        if (sp.startMode == AttachToCrashedProcess) {
             debugger.addArgs({"-e", sp.crashParameter, "-g"});
         } else {
             if (terminal())
                 debugger.addArgs({"-pr", "-pb"});
         }
         break;
-    case AttachCore:
+    case AttachToCore:
         debugger.addArgs({"-z", sp.coreFile});
         break;
     default:
@@ -527,7 +527,7 @@ void CdbEngine::handleInitialSessionIdle()
         // Fails for core dumps.
         if (response.resultClass == ResultDone)
             notifyInferiorPid(response.data.toProcessHandle());
-        if (response.resultClass == ResultDone || runParameters().startMode == AttachCore) {
+        if (response.resultClass == ResultDone || runParameters().startMode == AttachToCore) {
             STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupOk")
                     notifyEngineSetupOk();
             runEngine();
@@ -605,7 +605,7 @@ void CdbEngine::runEngine()
 //        runCommand({"bm /( QtCored4!qFatal", BuiltinCommand}); // 'bm': All overloads.
 //        runCommand({"bm /( Qt5Cored!QMessageLogger::fatal", BuiltinCommand});
 //    }
-    if (runParameters().startMode == AttachCore) {
+    if (runParameters().startMode == AttachToCore) {
         QTC_ASSERT(!m_coreStopReason.isNull(), return; );
         notifyEngineRunOkAndInferiorUnrunnable();
         processStop(*m_coreStopReason, false);
@@ -630,7 +630,7 @@ void CdbEngine::shutdownInferior()
             qDebug("notifyInferiorShutdownFinished");
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownFinished")
     } else if (m_accessible) { // except console.
-        if (runParameters().startMode == AttachExternal || runParameters().startMode == AttachCrashedExternal)
+        if (runParameters().startMode == AttachToLocalProcess || runParameters().startMode == AttachToCrashedProcess)
             detachDebugger();
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownFinished")
     } else {
@@ -677,7 +677,7 @@ void CdbEngine::shutdownEngine()
     // Go for kill if there are commands pending.
     if (m_accessible && !commandsPending()) {
         // detach (except console): Wait for debugger to finish.
-        if (runParameters().startMode == AttachExternal || runParameters().startMode == AttachCrashedExternal)
+        if (runParameters().startMode == AttachToLocalProcess || runParameters().startMode == AttachToCrashedProcess)
             detachDebugger();
         // Remote requires a bit more force to quit.
         if (m_effectiveStartMode == AttachToRemoteServer) {
@@ -1812,7 +1812,7 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
     }
     // Notify about state and send off command sequence to get stack, etc.
     if (stopFlags & StopNotifyStop) {
-        if (runParameters().startMode != AttachCore) {
+        if (runParameters().startMode != AttachToCore) {
             if (state() == InferiorStopRequested) {
                 STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorStopOk")
                         notifyInferiorStopOk();
@@ -2073,7 +2073,7 @@ void CdbEngine::handleSessionIdle(const QString &message)
     if (!m_initialSessionIdleHandled) { // Temporary stop at beginning
         handleInitialSessionIdle();
         // Store stop reason to be handled in runEngine().
-        if (runParameters().startMode == AttachCore) {
+        if (runParameters().startMode == AttachToCore) {
             m_coreStopReason.reset(new GdbMi);
             m_coreStopReason->fromString(message);
         }

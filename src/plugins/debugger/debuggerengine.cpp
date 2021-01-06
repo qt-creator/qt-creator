@@ -1513,7 +1513,7 @@ void DebuggerEnginePrivate::updateState()
     m_threadsHandler.threadSwitcher()->setEnabled(threadsEnabled);
     m_threadLabel->setEnabled(threadsEnabled);
 
-    const bool isCore = m_engine->runParameters().startMode == AttachCore;
+    const bool isCore = m_engine->runParameters().startMode == AttachToCore;
     const bool stopped = state == InferiorStopOk;
     const bool detachable = stopped && !isCore;
     m_detachAction.setEnabled(detachable);
@@ -1939,7 +1939,7 @@ void DebuggerEngine::notifyInferiorPid(const ProcessHandle &pid)
     if (pid.isValid()) {
         showMessage(tr("Taking notice of pid %1").arg(pid.pid()));
         DebuggerStartMode sm = runParameters().startMode;
-        if (sm == StartInternal || sm == StartExternal || sm == AttachExternal)
+        if (sm == StartInternal || sm == StartExternal || sm == AttachToLocalProcess)
             d->m_inferiorPid.activate();
     }
 }

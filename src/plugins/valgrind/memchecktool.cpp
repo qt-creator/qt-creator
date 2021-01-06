@@ -1641,7 +1641,7 @@ void HeobData::processFinished()
             debugger->setAttachPid(ProcessHandle(m_data[1]));
             debugger->setRunControlName(tr("Process %1").arg(m_data[1]));
             debugger->setInferiorDevice(DeviceKitAspect::device(m_kit));
-            debugger->setStartMode(AttachExternal);
+            debugger->setStartMode(AttachToLocalProcess);
             debugger->setCloseMode(DetachAtClose);
             debugger->setContinueAfterAttach(true);
             debugger->setInferiorExecutable(FilePath::fromString(Utils::imageName(m_data[1])));

@@ -452,7 +452,7 @@ void IosDebugSupport::start()
         }
         setDeviceSymbolsRoot(deviceSdk.toString());
     } else {
-        setStartMode(AttachExternal);
+        setStartMode(AttachToLocalProcess);
         setIosPlatform("ios-simulator");
     }
 

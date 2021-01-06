@@ -666,7 +666,7 @@ void DebuggerRunTool::start()
         rc->setRunConfiguration(runConfig);
         auto name = QString(tr("%1 - Snapshot %2").arg(runControl()->displayName()).arg(++d->snapshotCounter));
         auto debugger = new DebuggerRunTool(rc);
-        debugger->setStartMode(AttachCore);
+        debugger->setStartMode(AttachToCore);
         debugger->setRunControlName(name);
         debugger->setCoreFileName(coreFile, true);
         debugger->startRunControl();
@@ -871,7 +871,7 @@ bool DebuggerRunTool::fixupParameters()
         } else {
             service = QmlDebug::QmlDebuggerServices;
         }
-        if (rp.startMode != AttachExternal && rp.startMode != AttachCrashedExternal) {
+        if (rp.startMode != AttachToLocalProcess && rp.startMode != AttachToCrashedProcess) {
             QString qmlarg = rp.isCppDebugging() && rp.nativeMixedEnabled
                     ? QmlDebug::qmlDebugNativeArguments(service, false)
                     : QmlDebug::qmlDebugTcpArguments(service, rp.qmlServer);

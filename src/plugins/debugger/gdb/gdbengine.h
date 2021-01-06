@@ -380,7 +380,7 @@ private: ////////// General Interface //////////
     bool isPlainEngine() const;
     bool isCoreEngine() const;
     bool isRemoteEngine() const;
-    bool isAttachEngine() const;
+    bool isLocalAttachEngine() const;
     bool isTermEngine() const;
 
     void setupEngine() final;

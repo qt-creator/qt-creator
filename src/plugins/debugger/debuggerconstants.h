@@ -50,15 +50,15 @@ const char kUVisionSimulator[] = "UVisionSimulator";
 enum DebuggerStartMode
 {
     NoStartMode,
-    StartInternal,         // Start current start project's binary
-    StartExternal,         // Start binary found in file system
-    AttachExternal,        // Attach to running process by process id
-    AttachCrashedExternal, // Attach to crashed process by process id
-    AttachCore,            // Attach to a core file
-    AttachToRemoteServer,  // Attach to a running gdbserver
-    AttachToRemoteProcess, // Attach to a running remote process
-    AttachToQmlServer,     // Attach to a running QmlServer
-    StartRemoteProcess     // Start and attach to a remote process
+    StartInternal,          // Start current start project's binary
+    StartExternal,          // Start binary found in file system
+    AttachToLocalProcess,   // Attach to running local process by process id
+    AttachToCrashedProcess, // Attach to crashed process by process id
+    AttachToCore,           // Attach to a core file
+    AttachToRemoteServer,   // Attach to a running gdbserver
+    AttachToRemoteProcess,  // Attach to a running remote process
+    AttachToQmlServer,      // Attach to a running QmlServer
+    StartRemoteProcess      // Start and attach to a remote process
 };
 
 enum DebuggerCloseMode

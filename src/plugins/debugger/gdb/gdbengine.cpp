@@ -961,7 +961,7 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
         Abi abi = rp.toolChainAbi;
         if (abi.os() == Abi::WindowsOS
             && cmd.function.startsWith("attach")
-            && (rp.startMode == AttachExternal || terminal()))
+            && (rp.startMode == AttachToLocalProcess || terminal()))
         {
             // Ignore spurious 'running' responses to 'attach'.
         } else {
@@ -1623,7 +1623,7 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
 void GdbEngine::shutdownInferior()
 {
     CHECK_STATE(InferiorShutdownRequested);
-    if (runParameters().startMode == AttachCore) {
+    if (runParameters().startMode == AttachToCore) {
         notifyInferiorShutdownFinished();
         return;
     }
@@ -1690,7 +1690,7 @@ void GdbEngine::setLinuxOsAbi()
 void GdbEngine::detachDebugger()
 {
     CHECK_STATE(InferiorStopOk);
-    QTC_CHECK(runParameters().startMode != AttachCore);
+    QTC_CHECK(runParameters().startMode != AttachToCore);
     DebuggerCommand cmd("detach", NativeCommand | ExitRequest);
     cmd.callback = [this](const DebuggerResponse &) {
         CHECK_STATE(InferiorStopOk);
@@ -1740,7 +1740,7 @@ bool GdbEngine::hasCapability(unsigned cap) const
         return true;
     }
 
-    if (runParameters().startMode == AttachCore)
+    if (runParameters().startMode == AttachToCore)
         return false;
 
     return cap & (JumpToLineCapability
@@ -2332,7 +2332,7 @@ void GdbEngine::handleBreakCondition(const DebuggerResponse &, const Breakpoint 
 
 bool GdbEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 {
-    if (runParameters().startMode == AttachCore)
+    if (runParameters().startMode == AttachToCore)
         return false;
     if (bp.isCppBreakpoint())
         return true;
@@ -3998,12 +3998,12 @@ void GdbEngine::debugLastCommand()
 
 bool GdbEngine::isPlainEngine() const
 {
-    return !isCoreEngine() && !isAttachEngine() && !isRemoteEngine() && !terminal();
+    return !isCoreEngine() && !isLocalAttachEngine() && !isRemoteEngine() && !terminal();
 }
 
 bool GdbEngine::isCoreEngine() const
 {
-    return runParameters().startMode == AttachCore;
+    return runParameters().startMode == AttachToCore;
 }
 
 bool GdbEngine::isRemoteEngine() const
@@ -4012,14 +4012,14 @@ bool GdbEngine::isRemoteEngine() const
     return startMode == StartRemoteProcess || startMode == AttachToRemoteServer;
 }
 
-bool GdbEngine::isAttachEngine() const
+bool GdbEngine::isLocalAttachEngine() const
 {
-    return runParameters().startMode == AttachExternal;
+    return runParameters().startMode == AttachToLocalProcess;
 }
 
 bool GdbEngine::isTermEngine() const
 {
-    return !isCoreEngine() && !isAttachEngine() && !isRemoteEngine() && terminal();
+    return !isCoreEngine() && !isLocalAttachEngine() && !isRemoteEngine() && terminal();
 }
 
 void GdbEngine::claimInitialBreakpoints()
@@ -4027,7 +4027,7 @@ void GdbEngine::claimInitialBreakpoints()
     CHECK_STATE(EngineSetupRequested);
 
     const DebuggerRunParameters &rp = runParameters();
-    if (rp.startMode != AttachCore) {
+    if (rp.startMode != AttachToCore) {
         showStatusMessage(tr("Setting breakpoints..."));
         showMessage(tr("Setting breakpoints..."));
         BreakpointManager::claimBreakpointsForEngine(this);
@@ -4064,7 +4064,7 @@ void GdbEngine::setupInferior()
 
         handleInferiorPrepared();
 
-    } else if (isAttachEngine()) {
+    } else if (isLocalAttachEngine()) {
         // Task 254674 does not want to remove them
         //qq->breakHandler()->removeAllBreakpoints();
         handleInferiorPrepared();
@@ -4198,7 +4198,7 @@ void GdbEngine::runEngine()
         QString channel = rp.remoteChannel;
         runCommand({"target remote " + channel});
 
-    } else if (isAttachEngine()) {
+    } else if (isLocalAttachEngine()) {
 
         const qint64 pid = rp.attachPID.pid();
         showStatusMessage(tr("Attaching to process %1.").arg(pid));
@@ -4246,7 +4246,7 @@ void GdbEngine::runEngine()
 
 void GdbEngine::handleAttach(const DebuggerResponse &response)
 {
-    if (isAttachEngine()) {
+    if (isLocalAttachEngine()) {
 
         QTC_ASSERT(state() == EngineRunRequested || state() == InferiorStopOk, qDebug() << state());
         switch (response.resultClass) {
@@ -4317,7 +4317,7 @@ void GdbEngine::handleAttach(const DebuggerResponse &response)
 
 void GdbEngine::interruptInferior2()
 {
-    if (isAttachEngine()) {
+    if (isLocalAttachEngine()) {
 
         interruptLocalInferior(runParameters().attachPID.pid());
 

@@ -1278,7 +1278,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                     startMode = AttachToRemoteServer;
                     remoteChannel = val;
                 } else if (key == "core") {
-                    startMode = AttachCore;
+                    startMode = AttachToCore;
                     coreFile = val;
                 } else if (key == "terminal") {
                     useTerminal = true;
@@ -1297,7 +1297,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         if (!sysRoot.isEmpty())
             debugger->setSysRoot(FilePath::fromUserInput(sysRoot));
         if (pid) {
-            debugger->setStartMode(AttachExternal);
+            debugger->setStartMode(AttachToLocalProcess);
             debugger->setCloseMode(DetachAtClose);
             debugger->setAttachPid(pid);
             debugger->setRunControlName(tr("Process %1").arg(pid));
@@ -1307,8 +1307,8 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             debugger->setRemoteChannel(remoteChannel);
             debugger->setRunControlName(tr("Remote: \"%1\"").arg(remoteChannel));
             debugger->setStartMessage(tr("Attaching to remote server %1.").arg(remoteChannel));
-        } else if (startMode == AttachCore) {
-            debugger->setStartMode(AttachCore);
+        } else if (startMode == AttachToCore) {
+            debugger->setStartMode(AttachToCore);
             debugger->setCloseMode(DetachAtClose);
             debugger->setCoreFileName(coreFile);
             debugger->setRunControlName(tr("Core file \"%1\"").arg(coreFile));
@@ -1338,7 +1338,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         runControl->setKit(findUniversalCdbKit());
         auto debugger = new DebuggerRunTool(runControl);
-        debugger->setStartMode(AttachCrashedExternal);
+        debugger->setStartMode(AttachToCrashedProcess);
         debugger->setCrashParameter(it->section(':', 0, 0));
         debugger->setAttachPid(pid);
         debugger->setRunControlName(tr("Crashed process %1").arg(pid));
@@ -1543,7 +1543,7 @@ void DebuggerPluginPrivate::attachCore()
     auto debugger = new DebuggerRunTool(runControl);
     debugger->setInferiorExecutable(dlg.symbolFile());
     debugger->setCoreFileName(dlg.localCoreFile());
-    debugger->setStartMode(AttachCore);
+    debugger->setStartMode(AttachToCore);
     debugger->setCloseMode(DetachAtClose);
     debugger->setOverrideStartScript(dlg.overrideStartScript());
     const FilePath sysRoot = dlg.sysRoot();
@@ -1688,7 +1688,7 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     debugger->setAttachPid(ProcessHandle(process.pid));
     debugger->setInferiorExecutable(FilePath::fromString(process.exe));
     debugger->setInferiorDevice(device);
-    debugger->setStartMode(AttachExternal);
+    debugger->setStartMode(AttachToLocalProcess);
     debugger->setCloseMode(DetachAtClose);
     debugger->setContinueAfterAttach(contAfterAttach);
 
@@ -1705,7 +1705,7 @@ void DebuggerPlugin::attachExternalApplication(RunControl *rc)
     runControl->setDisplayName(tr("Process %1").arg(pid.pid()));
     auto debugger = new DebuggerRunTool(runControl);
     debugger->setAttachPid(pid);
-    debugger->setStartMode(AttachExternal);
+    debugger->setStartMode(AttachToLocalProcess);
     debugger->setCloseMode(DetachAtClose);
     debugger->startRunControl();
 }

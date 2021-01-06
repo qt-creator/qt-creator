@@ -52,7 +52,7 @@ WinRtDebugSupport::WinRtDebugSupport(RunControl *runControl)
     : DebuggerRunTool(runControl)
 {
     // FIXME: This is just working for local debugging;
-    setStartMode(AttachExternal);
+    setStartMode(AttachToLocalProcess);
     // The first Thread needs to be resumed manually.
     setCommandsAfterConnect("~0 m");
 
