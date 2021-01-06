@@ -44,6 +44,9 @@
 #include <utils/qtcassert.h>
 #include <utils/algorithm.h>
 
+#include <array>
+#include <charconv>
+
 namespace QmlDesigner {
 
 namespace Internal {
@@ -711,9 +714,22 @@ PropertyName NodeMetaInfoPrivate::defaultPropertyName() const
     return PropertyName("data");
 }
 
-static inline TypeName stringIdentifier( const TypeName &type, int maj, int min)
+static void addNumber(TypeName &id, int number)
 {
-    return type + QByteArray::number(maj) + '_' + QByteArray::number(min);
+    char text[std::numeric_limits<int>::digits10 + 1];
+    auto [end, error] = std::to_chars(std::begin(text), std::end(text), number);
+    id.append(std::data(text), static_cast<int>(end - std::begin(text)));
+}
+
+static TypeName stringIdentifier(const TypeName &type, int majorVersion, int minorVersion)
+{
+    TypeName id = type;
+    id.reserve(id.size() + 5);
+    addNumber(id, majorVersion);
+    id.append('_');
+    addNumber(id, minorVersion);
+
+    return id;
 }
 
 NodeMetaInfoPrivate::Pointer NodeMetaInfoPrivate::create(Model *model, const TypeName &type, int major, int minor)
