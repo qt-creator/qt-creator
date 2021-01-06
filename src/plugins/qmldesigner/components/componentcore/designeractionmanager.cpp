@@ -564,6 +564,7 @@ const char yProperty[] = "y";
 const char zProperty[] = "z";
 const char widthProperty[] = "width";
 const char heightProperty[] = "height";
+const char triggerSlot[] = "trigger";
 
 using namespace SelectionContextFunctors;
 
@@ -642,6 +643,14 @@ bool selectionNotEmptyAndHasXorYProperty(const SelectionContext &context)
 {
     return selectionNotEmpty(context)
         && selectionHasProperty1or2(context, xProperty, yProperty);
+}
+
+bool singleSelectionAndHasSlotTrigger(const SelectionContext &context)
+{
+    if (!singleSelection(context))
+        return false;
+
+    return selectionHasSlot(context, triggerSlot);
 }
 
 bool singleSelectionAndInQtQuickLayout(const SelectionContext &context)
@@ -1384,6 +1393,16 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ChangeStyleAction());
 
     addDesignerAction(new EditListModelAction);
+
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          openSignalDialogCommandId,
+                          openSignalDialogDisplayName,
+                          {},
+                          rootCategory,
+                          QKeySequence(),
+                          66,
+                          &openSignalDialog,
+                          &singleSelectionAndHasSlotTrigger));
 }
 
 void DesignerActionManager::createDefaultAddResourceHandler()

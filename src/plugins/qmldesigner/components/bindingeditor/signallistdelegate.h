@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,29 +25,30 @@
 
 #pragma once
 
-#include "qmldesignercorelib_global.h"
-#include "abstractproperty.h"
+#include <QStyledItemDelegate>
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT SignalHandlerProperty : public QmlDesigner::AbstractProperty
+class SignalListDelegate : public QStyledItemDelegate
 {
-    friend class QmlDesigner::ModelNode;
-    friend class QmlDesigner::Internal::ModelPrivate;
-    friend class QmlDesigner::AbstractProperty;
+    Q_OBJECT
+
+signals:
+    void connectClicked(const QModelIndex &modelIndex) const;
 
 public:
-    void setSource(const QString &source);
-    QString source() const;
+    SignalListDelegate(QObject *parent = nullptr);
 
-    SignalHandlerProperty();
-    SignalHandlerProperty(const SignalHandlerProperty &property, AbstractView *view);
-
-    static PropertyName prefixAdded(const PropertyName &propertyName);
-    static PropertyName prefixRemoved(const PropertyName &propertyName);
-
-protected:
-    SignalHandlerProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
+    QWidget *createEditor(QWidget *parent,
+                          const QStyleOptionViewItem &option,
+                          const QModelIndex &index) const override;
+    void paint(QPainter *painter,
+               const QStyleOptionViewItem &option,
+               const QModelIndex &index) const override;
+    bool editorEvent(QEvent *event,
+                     QAbstractItemModel *model,
+                     const QStyleOptionViewItem &option,
+                     const QModelIndex &index) override;
 };
 
-} // namespace QmlDesigner
+} // QmlDesigner namespace

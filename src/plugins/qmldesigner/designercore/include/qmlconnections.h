@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,29 +25,33 @@
 
 #pragma once
 
-#include "qmldesignercorelib_global.h"
-#include "abstractproperty.h"
+#include <qmldesignercorelib_global.h>
+#include "qmlmodelnodefacade.h"
+
+#include <signalhandlerproperty.h>
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT SignalHandlerProperty : public QmlDesigner::AbstractProperty
+class QMLDESIGNERCORE_EXPORT QmlConnections : public QmlModelNodeFacade
 {
-    friend class QmlDesigner::ModelNode;
-    friend class QmlDesigner::Internal::ModelPrivate;
-    friend class QmlDesigner::AbstractProperty;
+    friend class StatesEditorView;
 
 public:
-    void setSource(const QString &source);
-    QString source() const;
+    QmlConnections();
+    QmlConnections(const ModelNode &modelNode);
 
-    SignalHandlerProperty();
-    SignalHandlerProperty(const SignalHandlerProperty &property, AbstractView *view);
+    bool isValid() const override;
+    static bool isValidQmlConnections(const ModelNode &modelNode);
+    void destroy();
 
-    static PropertyName prefixAdded(const PropertyName &propertyName);
-    static PropertyName prefixRemoved(const PropertyName &propertyName);
+    QString target() const;
+    void setTarget(const QString &target);
 
-protected:
-    SignalHandlerProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
+    ModelNode getTargetNode() const;
+
+    QList<SignalHandlerProperty> signalProperties() const;
+
+    static ModelNode createQmlConnections(AbstractView *view);
 };
 
-} // namespace QmlDesigner
+} //QmlDesigner

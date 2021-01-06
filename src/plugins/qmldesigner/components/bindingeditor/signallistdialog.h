@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,29 +25,34 @@
 
 #pragma once
 
-#include "qmldesignercorelib_global.h"
-#include "abstractproperty.h"
+#include <QDialog>
+
+QT_BEGIN_NAMESPACE
+class QStandardItemModel;
+class QTableView;
+QT_END_NAMESPACE
+
+namespace Utils {
+class FancyLineEdit;
+}
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT SignalHandlerProperty : public QmlDesigner::AbstractProperty
+class SignalListDialog : public QDialog
 {
-    friend class QmlDesigner::ModelNode;
-    friend class QmlDesigner::Internal::ModelPrivate;
-    friend class QmlDesigner::AbstractProperty;
+    Q_OBJECT
 
 public:
-    void setSource(const QString &source);
-    QString source() const;
+    SignalListDialog(QWidget *parent = nullptr);
+    ~SignalListDialog() override;
 
-    SignalHandlerProperty();
-    SignalHandlerProperty(const SignalHandlerProperty &property, AbstractView *view);
+    void initialize(QStandardItemModel *model);
 
-    static PropertyName prefixAdded(const PropertyName &propertyName);
-    static PropertyName prefixRemoved(const PropertyName &propertyName);
+    QTableView *tableView() const;
 
-protected:
-    SignalHandlerProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
+private:
+    QTableView *m_table;
+    Utils::FancyLineEdit *m_searchLine;
 };
 
-} // namespace QmlDesigner
+} // QmlDesigner namespace
