@@ -64,7 +64,9 @@ Component::Component(AssetExporter &exporter, const ModelNode &rootNode):
     m_exporter(exporter),
     m_rootNode(rootNode)
 {
-
+    m_name = m_rootNode.id();
+    if (m_name.isEmpty())
+        m_name = QString::fromUtf8(m_rootNode.type());
 }
 
 QJsonObject Component::json() const
@@ -86,6 +88,11 @@ void Component::exportComponent()
     metadata.insert(ExportTypeTag, ExportTypeComponent);
     m_json.insert(MetadataTag, metadata);
     addImports();
+}
+
+const QString &Component::name() const
+{
+    return m_name;
 }
 
 ModelNodeParser *Component::createNodeParser(const ModelNode &node) const
