@@ -328,10 +328,15 @@ static BuildConfiguration *currentBuildConfiguration()
     return target ? target->activeBuildConfiguration() : nullptr;
 }
 
-static BuildConfiguration *activeBuildConfiguration()
+static Target *activeTarget()
 {
     const Project * const project = SessionManager::startupProject();
-    const Target * const target = project ? project->activeTarget() : nullptr;
+    return project ? project->activeTarget() : nullptr;
+}
+
+static BuildConfiguration *activeBuildConfiguration()
+{
+    const Target * const target = activeTarget();
     return target ? target->activeBuildConfiguration() : nullptr;
 }
 
@@ -1823,6 +1828,20 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                 return project->projectFilePath().toString();
             return {};
         });
+    expander->registerVariable("ActiveProject:Kit:Name",
+        "The name of the active project's active kit.", // TODO: tr()
+        []() -> QString {
+            if (const Target * const target = activeTarget())
+                return target->kit()->displayName();
+            return {};
+    });
+    expander->registerVariable("ActiveProject:BuildConfig:Name",
+        "The name of the active project's active build configuration.", // TODO: tr()
+        []() -> QString {
+            if (const BuildConfiguration * const bc = activeBuildConfiguration())
+                return bc->displayName();
+            return {};
+    });
     expander->registerVariable("ActiveProject:BuildConfig:Type",
         tr("The type of the active project's active build configuration."),
         []() -> QString {
