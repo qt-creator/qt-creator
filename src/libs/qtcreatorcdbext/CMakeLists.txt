@@ -112,7 +112,7 @@ if (_library_enabled)
 
   add_custom_target(copy_python_dll ALL VERBATIM)
   add_custom_command(TARGET copy_python_dll POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy ${deployPythonFiles} "${PROJECT_BINARY_DIR}/lib/qtcreatorcdbext${ArchSuffix}/"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different ${deployPythonFiles} "${PROJECT_BINARY_DIR}/lib/qtcreatorcdbext${ArchSuffix}/"
     VERBATIM
   )
 endif()
