@@ -70,6 +70,7 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textmark.h>
 
+#include <utils/algorithm.h>
 #include <utils/delegates.h>
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>
@@ -373,8 +374,13 @@ void QmlJSEditorWidget::updateUses()
         return;
 
     QList<QTextEdit::ExtraSelection> selections;
-    foreach (const SourceLocation &loc,
-             m_qmlJsEditorDocument->semanticInfo().idLocations.value(wordUnderCursor())) {
+    QList<SourceLocation> locations
+            = m_qmlJsEditorDocument->semanticInfo().idLocations.value(wordUnderCursor());
+    // code model may present the locations not in a document order
+    Utils::sort(locations, [](const SourceLocation &lhs, const SourceLocation &rhs) {
+        return lhs.begin() < rhs.begin();
+    });
+    for (const SourceLocation &loc : qAsConst(locations)) {
         if (! loc.isValid())
             continue;
 
