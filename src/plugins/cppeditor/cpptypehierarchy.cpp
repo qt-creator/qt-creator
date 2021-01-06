@@ -217,10 +217,7 @@ void CppTypeHierarchyWidget::perform()
 
     showProgress();
 
-    CppElementEvaluator evaluator(widget);
-    evaluator.setLookupBaseClasses(true);
-    evaluator.setLookupDerivedClasses(true);
-    m_future = evaluator.asyncExecute();
+    m_future = CppElementEvaluator::asyncExecute(widget);
     m_futureWatcher.setFuture(QFuture<void>(m_future));
     m_synchronizer.addFuture(QFuture<void>(m_future));
 
@@ -238,11 +235,7 @@ void CppTypeHierarchyWidget::performFromExpression(const QString &expression, co
 
     showProgress();
 
-    CppElementEvaluator evaluator(nullptr);
-    evaluator.setLookupBaseClasses(true);
-    evaluator.setLookupDerivedClasses(true);
-    evaluator.setExpression(expression, fileName);
-    m_future = evaluator.asyncExpressionExecute();
+    m_future = CppElementEvaluator::asyncExecute(expression, fileName);
     m_futureWatcher.setFuture(QFuture<void>(m_future));
     m_synchronizer.addFuture(QFuture<void>(m_future));
 

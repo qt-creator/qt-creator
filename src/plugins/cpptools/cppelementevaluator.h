@@ -39,6 +39,8 @@
 #include <QStringList>
 #include <QTextCursor>
 
+#include <functional>
+
 namespace CPlusPlus {
 class LookupItem;
 class LookupContext;
@@ -48,19 +50,18 @@ namespace CppTools {
 class CppElement;
 class CppModelManager;
 
-class CPPTOOLS_EXPORT CppElementEvaluator
+class CPPTOOLS_EXPORT CppElementEvaluator final
 {
 public:
     explicit CppElementEvaluator(TextEditor::TextEditorWidget *editor);
+    ~CppElementEvaluator();
 
     void setTextCursor(const QTextCursor &tc);
-    void setLookupBaseClasses(const bool lookup);
-    void setLookupDerivedClasses(const bool lookup);
-    void setExpression(const QString &expression, const QString &fileName);
 
     void execute();
-    QFuture<QSharedPointer<CppElement>> asyncExecute();
-    QFuture<QSharedPointer<CppElement>> asyncExpressionExecute();
+    static QFuture<QSharedPointer<CppElement>> asyncExecute(TextEditor::TextEditorWidget *editor);
+    static QFuture<QSharedPointer<CppElement>> asyncExecute(const QString &expression,
+                                                            const QString &fileName);
     bool identifiedCppElement() const;
     const QSharedPointer<CppElement> &cppElement() const;
     bool hasDiagnosis() const;
@@ -69,41 +70,7 @@ public:
     static Utils::Link linkFromExpression(const QString &expression, const QString &fileName);
 
 private:
-    void clear();
-    using ExecFunction = QFuture<QSharedPointer<CppElement>>(CppElementEvaluator::*)
-                (const CPlusPlus::Snapshot &, const CPlusPlus::LookupItem &,
-                 const CPlusPlus::LookupContext &);
-    using SourceFunction = bool(CppElementEvaluator::*)
-                (const CPlusPlus::Snapshot &, CPlusPlus::Document::Ptr &,
-                 CPlusPlus::Scope **, QString &);
-
-    QFuture<QSharedPointer<CppElement>> execute(SourceFunction sourceFunction,
-                                                ExecFunction execFuntion);
-    QFuture<QSharedPointer<CppElement>> syncExec(const CPlusPlus::Snapshot &,
-                     const CPlusPlus::LookupItem &, const CPlusPlus::LookupContext &);
-    QFuture<QSharedPointer<CppElement>> asyncExec(const CPlusPlus::Snapshot &,
-                     const CPlusPlus::LookupItem &, const CPlusPlus::LookupContext &);
-    bool sourceDataFromGui(const CPlusPlus::Snapshot &snapshot,
-                           CPlusPlus::Document::Ptr &doc,
-                           CPlusPlus::Scope **scope,
-                           QString &expression);
-    bool sourceDataFromExpression(const CPlusPlus::Snapshot &snapshot,
-                           CPlusPlus::Document::Ptr &doc,
-                           CPlusPlus::Scope **scope,
-                           QString &expression);
-    void checkDiagnosticMessage(int pos);
-    bool matchIncludeFile(const CPlusPlus::Document::Ptr &document, int line);
-    bool matchMacroInUse(const CPlusPlus::Document::Ptr &document, int pos);
-
-    TextEditor::TextEditorWidget *m_editor;
-    CppTools::CppModelManager *m_modelManager;
-    QTextCursor m_tc;
-    QString m_expression;
-    QString m_fileName;
-    bool m_lookupBaseClasses;
-    bool m_lookupDerivedClasses;
-    QSharedPointer<CppElement> m_element;
-    QString m_diagnosis;
+    class CppElementEvaluatorPrivate *d;
 };
 
 class CppClass;
