@@ -448,6 +448,7 @@ public:
         m_stackHandler.resetLocation();
         m_disassemblerAgent.resetLocation();
         m_toolTipManager.resetLocation();
+        m_breakHandler.resetLocation();
     }
 
 public:
@@ -1110,6 +1111,8 @@ void DebuggerEngine::gotoLocation(const Location &loc)
         d->m_locationMark.reset(new LocationMark(this, loc.fileName(), line));
         d->m_locationMark->setToolTip(tr("Current debugger location of %1").arg(displayName()));
     }
+
+    d->m_breakHandler.setLocation(loc);
 }
 
 void DebuggerEngine::gotoCurrentLocation()

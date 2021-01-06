@@ -42,6 +42,7 @@ DEBUGGER_EXPORT extern const Utils::Icon TRACEPOINT_TOOLBAR;
 extern const Utils::Icon BREAKPOINT;
 extern const Utils::Icon BREAKPOINT_DISABLED;
 extern const Utils::Icon BREAKPOINT_PENDING;
+extern const Utils::Icon BREAKPOINT_WITH_LOCATION;
 extern const Utils::Icon BREAKPOINTS;
 extern const Utils::Icon WATCHPOINT;
 extern const Utils::Icon CONTINUE;

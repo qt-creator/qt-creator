@@ -37,6 +37,9 @@ const Icon BREAKPOINT_DISABLED({
 const Icon BREAKPOINT_PENDING({
         {":/utils/images/filledcircle.png", Theme::IconsErrorColor},
         {":/debugger/images/breakpoint_pending_overlay.png", Theme::PanelTextColorDark}}, Icon::IconStyleOptions(Icon::Tint | Icon::PunchEdges));
+const Icon BREAKPOINT_WITH_LOCATION({
+        {":/utils/images/filledcircle.png", Theme::IconsErrorColor},
+        {":/debugger/images/location.png", Theme::IconsWarningToolBarColor}}, Icon::Tint);
 const Icon BREAKPOINTS(
         ":/debugger/images/debugger_breakpoints.png");
 const Icon WATCHPOINT({
