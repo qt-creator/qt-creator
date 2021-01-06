@@ -3857,14 +3857,6 @@ void GdbEngine::handleInferiorPrepared()
 {
     CHECK_STATE(EngineSetupRequested);
 
-    const DebuggerRunParameters &rp = runParameters();
-    if (!rp.commandsAfterConnect.isEmpty()) {
-        const QString commands = expand(rp.commandsAfterConnect);
-        for (const QString &command : commands.split('\n'))
-            runCommand({command, NativeCommand});
-    }
-
-    claimInitialBreakpoints();
     notifyEngineSetupOk();
     runEngine();
 }
@@ -4024,7 +4016,7 @@ bool GdbEngine::isTermEngine() const
 
 void GdbEngine::claimInitialBreakpoints()
 {
-    CHECK_STATE(EngineSetupRequested);
+    CHECK_STATE(EngineRunRequested);
 
     const DebuggerRunParameters &rp = runParameters();
     if (rp.startMode != AttachToCore) {
@@ -4048,6 +4040,12 @@ void GdbEngine::claimInitialBreakpoints()
     // response, as the command is synchronous from Creator's point of view,
     // and even if it fails (e.g. due to stripped binaries), continuing with
     // the start up is the best we can do.
+
+    if (!rp.commandsAfterConnect.isEmpty()) {
+        const QString commands = expand(rp.commandsAfterConnect);
+        for (const QString &command : commands.split('\n'))
+            runCommand({command, NativeCommand});
+    }
 }
 
 void GdbEngine::setupInferior()
@@ -4185,6 +4183,8 @@ void GdbEngine::setupInferior()
 void GdbEngine::runEngine()
 {
     CHECK_STATE(EngineRunRequested);
+
+    claimInitialBreakpoints();
 
     const DebuggerRunParameters &rp = runParameters();
 
