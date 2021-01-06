@@ -74,7 +74,7 @@
 
     \section1 Windows
 
-    Windows 7 or later is supported.
+    Windows 7 (64-bit) or later is supported.
 
     \note Some \QC plugins rely on Direct3D (part of DirectX). You might
     have to manually enable support for it if you are running Windows in a

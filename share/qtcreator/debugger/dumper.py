@@ -3060,6 +3060,9 @@ class DumperBase():
         def extractPointer(self):
             return self.split('p')[0]
 
+        def hasMember(self, name):
+            return self.findMemberByName(name) is not None
+
         def findMemberByName(self, name):
             self.check()
             if self.type.code == TypeCode.Typedef:

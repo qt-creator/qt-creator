@@ -49,8 +49,6 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include <QListWidget>
-#include <QSpinBox>
 #include <QThread>
 
 using namespace Core;
@@ -105,8 +103,9 @@ MakeStep::MakeStep(BuildStepList *parent, Id id)
          .arg(text) + "</p></body></html>");
     m_nonOverrideWarning->setIconType(InfoLabel::Warning);
 
-    m_buildTargetsAspect = addAspect<StringListAspect>();
+    m_buildTargetsAspect = addAspect<MultiSelectionAspect>();
     m_buildTargetsAspect->setSettingsKey(id.withSuffix(BUILD_TARGETS_SUFFIX).toString());
+    m_buildTargetsAspect->setLabelText(tr("Targets:"));
 
     const auto updateMakeLabel = [this] {
         const QString defaultMake = defaultMakeCommand().toString();
@@ -121,15 +120,14 @@ MakeStep::MakeStep(BuildStepList *parent, Id id)
     connect(m_makeCommandAspect, &StringAspect::changed, this, updateMakeLabel);
 }
 
-void MakeStep::setBuildTarget(const QString &buildTarget)
+void MakeStep::setSelectedBuildTarget(const QString &buildTarget)
 {
-    if (!buildTarget.isEmpty())
-        setBuildTarget(buildTarget, true);
+    m_buildTargetsAspect->setValue({buildTarget});
 }
 
 void MakeStep::setAvailableBuildTargets(const QStringList &buildTargets)
 {
-    m_availableTargets = buildTargets;
+    m_buildTargetsAspect->setAllValues(buildTargets);
 }
 
 bool MakeStep::init()
@@ -342,11 +340,6 @@ QWidget *MakeStep::createConfigWidget()
 {
     auto widget = new QWidget;
 
-    auto targetsLabel = new QLabel(widget);
-    targetsLabel->setText(tr("Targets:"));
-
-    auto targetsList = new QListWidget(widget);
-
     auto disableInSubDirsLabel = new QLabel(tr("Disable in subdirectories:"), widget);
     auto disableInSubDirsCheckBox = new QCheckBox(widget);
     disableInSubDirsCheckBox->setToolTip(tr("Runs this step only for a top-level build."));
@@ -356,7 +349,7 @@ QWidget *MakeStep::createConfigWidget()
     builder.addRow(m_userArgumentsAspect);
     builder.addRow(m_jobCountContainer);
     builder.addRow({disableInSubDirsLabel, disableInSubDirsCheckBox});
-    builder.addRow({targetsLabel, targetsList});
+    builder.addRow(m_buildTargetsAspect);
 
     if (!m_disablingForSubDirsSupported) {
         disableInSubDirsLabel->hide();
@@ -365,16 +358,6 @@ QWidget *MakeStep::createConfigWidget()
         connect(disableInSubDirsCheckBox, &QCheckBox::toggled, this, [this](bool checked) {
             m_enabledForSubDirs = checked;
         });
-    }
-
-    for (const QString &target : qAsConst(m_availableTargets)) {
-        auto item = new QListWidgetItem(target, targetsList);
-        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-        item->setCheckState(buildsTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
-    }
-    if (m_availableTargets.isEmpty()) {
-        targetsLabel->hide();
-        targetsList->hide();
     }
 
     VariableChooser::addSupportForChildWidgets(widget, macroExpander());
@@ -420,12 +403,7 @@ QWidget *MakeStep::createConfigWidget()
     connect(m_userArgumentsAspect, &StringAspect::changed, widget, updateDetails);
     connect(m_userJobCountAspect, &IntegerAspect::changed, widget, updateDetails);
     connect(m_overrideMakeflagsAspect, &BoolAspect::changed, widget, updateDetails);
-
-    connect(targetsList, &QListWidget::itemChanged, this,
-            [this, updateDetails](QListWidgetItem *item) {
-        setBuildTarget(item->text(), item->checkState() & Qt::Checked);
-        updateDetails();
-    });
+    connect(m_buildTargetsAspect, &BaseAspect::changed, widget, updateDetails);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
             widget, updateDetails);
@@ -439,25 +417,9 @@ QWidget *MakeStep::createConfigWidget()
     return widget;
 }
 
-bool MakeStep::buildsTarget(const QString &target) const
-{
-    return m_buildTargetsAspect->value().contains(target);
-}
-
-void MakeStep::setBuildTarget(const QString &target, bool on)
-{
-    QStringList old = m_buildTargetsAspect->value();
-    if (on && !old.contains(target))
-         old << target;
-    else if (!on && old.contains(target))
-        old.removeOne(target);
-
-    m_buildTargetsAspect->setValue(old);
-}
-
 QStringList MakeStep::availableTargets() const
 {
-    return m_availableTargets;
+    return m_buildTargetsAspect->allValues();
 }
 
 } // namespace ProjectExplorer

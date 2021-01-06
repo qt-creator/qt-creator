@@ -768,7 +768,7 @@ FontSettings SyntaxHighlighter::fontSettings() const
     return d->fontSettings;
 }
 /*!
-    The syntax highlighter is not anymore reacting to the text document if \a noAutmatic is
+    The syntax highlighter is not anymore reacting to the text document if \a noAutomatic is
     \c true.
 */
 void SyntaxHighlighter::setNoAutomaticHighlighting(bool noAutomatic)

@@ -1087,7 +1087,7 @@ static int counterClockWise(const std::vector<QPointF> &points)
     };
 
     const int m = findLR(points);
-    const int n = points.size();
+    const int n = static_cast<int>(points.size());
 
     // Determine previous and next point to m (the lowest, rightmost point).
     const QPointF a = points[(m + (n - 1)) % n];

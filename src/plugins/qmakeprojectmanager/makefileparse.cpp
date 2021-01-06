@@ -206,10 +206,13 @@ QList<QMakeAssignment> MakeFileParse::parseAssignments(const QList<QMakeAssignme
                     else
                         foundForceDebugInfo = false;
                 } else if (value == QLatin1String("separate_debug_info")) {
-                    if (qa.op == QLatin1String("+="))
+                    if (qa.op == QLatin1String("+=")) {
                         foundSeparateDebugInfo = true;
-                    else
+                        m_config.separateDebugInfo = TriState::Enabled;
+                    } else {
                         foundSeparateDebugInfo = false;
+                        m_config.separateDebugInfo = TriState::Disabled;
+                    }
                 } else {
                     newValues.append(value);
                 }

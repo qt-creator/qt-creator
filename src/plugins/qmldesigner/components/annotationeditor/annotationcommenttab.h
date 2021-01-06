@@ -29,6 +29,8 @@
 
 #include "annotation.h"
 
+class QDir;
+
 namespace QmlDesigner {
 
 namespace Ui {
@@ -64,6 +66,10 @@ private:
     RichTextEditor *m_editor;
 
     Comment m_comment;
+
+    QString backupFile(const QString &filePath);
+    void ensureDir(const QDir &dir);
+    int compareFileChecksum(const QString &firstFile, const QString &secondFile);
 };
 
 } //namespace QmlDesigner
