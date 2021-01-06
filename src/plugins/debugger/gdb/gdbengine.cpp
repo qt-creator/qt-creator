@@ -4200,7 +4200,7 @@ void GdbEngine::runEngine()
         const qint64 pid = rp.attachPID.pid();
         showStatusMessage(tr("Attaching to process %1.").arg(pid));
         runCommand({"attach " + QString::number(pid),
-                    [this](const DebuggerResponse &r) { handleAttach(r); }});
+                    [this](const DebuggerResponse &r) { handleLocalAttach(r); }});
         // In some cases we get only output like
         //   "Could not attach to process.  If your uid matches the uid of the target\n"
         //   "process, check the setting of /proc/sys/kernel/yama/ptrace_scope, or try\n"
@@ -4241,74 +4241,71 @@ void GdbEngine::runEngine()
     }
 }
 
-void GdbEngine::handleAttach(const DebuggerResponse &response)
+void GdbEngine::handleLocalAttach(const DebuggerResponse &response)
 {
-    if (isLocalAttachEngine()) {
-
-        QTC_ASSERT(state() == EngineRunRequested || state() == InferiorStopOk, qDebug() << state());
-        switch (response.resultClass) {
-        case ResultDone:
-        case ResultRunning:
-            showMessage("INFERIOR ATTACHED");
-            if (state() == EngineRunRequested) {
-                // Happens e.g. for "Attach to unstarted application"
-                // We will get a '*stopped' later that we'll interpret as 'spontaneous'
-                // So acknowledge the current state and put a delayed 'continue' in the pipe.
-                showMessage(tr("Attached to running application."), StatusBar);
-                notifyEngineRunAndInferiorRunOk();
-            } else {
-                // InferiorStopOk, e.g. for "Attach to running application".
-                // The *stopped came in between sending the 'attach' and
-                // receiving its '^done'.
-                notifyEngineRunAndInferiorStopOk();
-                if (runParameters().continueAfterAttach)
-                    continueInferiorInternal();
-                else
-                    updateAll();
-            }
-            break;
-        case ResultError:
-            if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
-                QString msg = msgPtraceError(runParameters().startMode);
-                showStatusMessage(tr("Failed to attach to application: %1").arg(msg));
-                AsynchronousMessageBox::warning(tr("Debugger Error"), msg);
-                notifyEngineIll();
-                break;
-            }
-            showStatusMessage(tr("Failed to attach to application: %1")
-                              .arg(QString(response.data["msg"].data())));
-            notifyEngineIll();
-            break;
-        default:
-            showStatusMessage(tr("Failed to attach to application: %1")
-                              .arg(QString(response.data["msg"].data())));
+    QTC_ASSERT(state() == EngineRunRequested || state() == InferiorStopOk, qDebug() << state());
+    switch (response.resultClass) {
+    case ResultDone:
+    case ResultRunning:
+        showMessage("INFERIOR ATTACHED");
+        if (state() == EngineRunRequested) {
+            // Happens e.g. for "Attach to unstarted application"
+            // We will get a '*stopped' later that we'll interpret as 'spontaneous'
+            // So acknowledge the current state and put a delayed 'continue' in the pipe.
+            showMessage(tr("Attached to running application."), StatusBar);
+            notifyEngineRunAndInferiorRunOk();
+        } else {
+            // InferiorStopOk, e.g. for "Attach to running application".
+            // The *stopped came in between sending the 'attach' and
+            // receiving its '^done'.
+            notifyEngineRunAndInferiorStopOk();
+            if (runParameters().continueAfterAttach)
+                continueInferiorInternal();
+            else
+                updateAll();
+        }
+        break;
+    case ResultError:
+        if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
+            QString msg = msgPtraceError(runParameters().startMode);
+            showStatusMessage(tr("Failed to attach to application: %1").arg(msg));
+            AsynchronousMessageBox::warning(tr("Debugger Error"), msg);
             notifyEngineIll();
             break;
         }
+        showStatusMessage(tr("Failed to attach to application: %1")
+                          .arg(QString(response.data["msg"].data())));
+        notifyEngineIll();
+        break;
+    default:
+        showStatusMessage(tr("Failed to attach to application: %1")
+                          .arg(QString(response.data["msg"].data())));
+        notifyEngineIll();
+        break;
+    }
+}
 
-    } else if (isRemoteEngine()) {
-
-        CHECK_STATE(EngineSetupRequested);
-        switch (response.resultClass) {
-        case ResultDone:
-        case ResultRunning: {
-            showMessage("INFERIOR ATTACHED");
-            showMessage(msgAttachedToStoppedInferior(), StatusBar);
-            handleInferiorPrepared();
+void GdbEngine::handleRemoteAttach(const DebuggerResponse &response)
+{
+    CHECK_STATE(EngineSetupRequested);
+    switch (response.resultClass) {
+    case ResultDone:
+    case ResultRunning: {
+        showMessage("INFERIOR ATTACHED");
+        showMessage(msgAttachedToStoppedInferior(), StatusBar);
+        handleInferiorPrepared();
+        break;
+    }
+    case ResultError:
+        if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
+            notifyInferiorSetupFailedHelper(msgPtraceError(runParameters().startMode));
             break;
         }
-        case ResultError:
-            if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
-                notifyInferiorSetupFailedHelper(msgPtraceError(runParameters().startMode));
-                break;
-            }
-            notifyInferiorSetupFailedHelper(response.data["msg"].data());
-            break;
-        default:
-            notifyInferiorSetupFailedHelper(response.data["msg"].data());
-            break;
-        }
-
+        notifyInferiorSetupFailedHelper(response.data["msg"].data());
+        break;
+    default:
+        notifyInferiorSetupFailedHelper(response.data["msg"].data());
+        break;
     }
 }
 
@@ -4548,7 +4545,7 @@ void GdbEngine::handleTargetQnx(const DebuggerResponse &response)
 
         const DebuggerRunParameters &rp = runParameters();
         if (rp.attachPID.isValid())
-            runCommand({"attach " + QString::number(rp.attachPID.pid()), CB(handleAttach)});
+            runCommand({"attach " + QString::number(rp.attachPID.pid()), CB(handleRemoteAttach)});
         else if (!rp.inferior.executable.isEmpty())
             runCommand({"set nto-executable " + rp.inferior.executable.toString(),
                         CB(handleSetNtoExecutable)});

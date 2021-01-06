@@ -395,7 +395,8 @@ private: ////////// General Interface //////////
     void handleFileExecAndSymbols(const DebuggerResponse &response);
 
     // Attach
-    void handleAttach(const DebuggerResponse &response);
+    void handleLocalAttach(const DebuggerResponse &response);
+    void handleRemoteAttach(const DebuggerResponse &response);
 
     // Remote
     void callTargetRemote();
