@@ -507,6 +507,12 @@ DebuggerSettings::DebuggerSettings()
     insertItem(UseAnnotationsInMainEditor, item);
 
     item = new SavedAction;
+    item->setSettingsKey(debugModeGroup, "UsePseudoTracepoints");
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    insertItem(UsePseudoTracepoints, item);
+
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "UseToolTips");
     item->setText(tr("Use tooltips in main editor when debugging"));
     item->setToolTip(tr("<p>Checking this will enable tooltips for variable "

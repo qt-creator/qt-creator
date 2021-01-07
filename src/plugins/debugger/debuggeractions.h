@@ -134,6 +134,7 @@ enum DebuggerActionCode
     WarnOnReleaseBuilds,
     MultiInferior,
     IntelFlavor,
+    UsePseudoTracepoints,
 
     // Stack
     MaximalStackDepth,

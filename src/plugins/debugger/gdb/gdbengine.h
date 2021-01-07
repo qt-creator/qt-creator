@@ -223,6 +223,9 @@ private: ////////// General Interface //////////
     void handleBreakCondition(const DebuggerResponse &response, const Breakpoint &bp);
     void handleBreakThreadSpec(const DebuggerResponse &response, const Breakpoint &bp);
     void handleBreakLineNumber(const DebuggerResponse &response, const Breakpoint &bp);
+    void handleTracepointInsert(const DebuggerResponse &response, const Breakpoint &bp);
+    void handleTracepointHit(const GdbMi &data);
+    void handleTracepointModified(const GdbMi &data);
     void handleInsertInterpreterBreakpoint(const DebuggerResponse &response, const Breakpoint &bp);
     void handleInterpreterBreakpointModified(const GdbMi &data);
     void handleWatchInsert(const DebuggerResponse &response, const Breakpoint &bp);
@@ -231,6 +234,7 @@ private: ////////// General Interface //////////
     QString breakpointLocation(const BreakpointParameters &data); // For gdb/MI.
     QString breakpointLocation2(const BreakpointParameters &data); // For gdb/CLI fallback.
     QString breakLocation(const QString &file) const;
+    void updateTracepointCaptures(const Breakpoint &bp);
 
     //
     // Modules specific stuff

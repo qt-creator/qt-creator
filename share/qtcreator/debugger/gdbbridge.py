@@ -38,6 +38,8 @@ import tempfile
 
 from dumper import DumperBase, Children, toInteger, TopLevelItem
 from utils import TypeCode
+from gdbtracepoint import *
+
 
 #######################################################################
 #
@@ -1466,7 +1468,55 @@ class Dumper(DumperBase):
         print(timeit.repeat('theDumper.fetchVariables(%s)' % args,
                             'from __main__ import theDumper', number=10))
 
+    def tracepointModified(self, tp):
+        self.tpExpressions = {}
+        self.tpExpressionWarnings = []
+        s = self.resultToMi(tp.dicts())
+        def handler():
+            print("tracepointmodified=%s" % s)
+        gdb.post_event(handler)
 
+    def tracepointHit(self, tp, result):
+        expressions = '{' + ','.join(["%s=%s" % (k,v) for k,v in self.tpExpressions.items()]) + '}'
+        warnings = []
+        if 'warning' in result.keys():
+            warnings.append(result.pop('warning'))
+        warnings += self.tpExpressionWarnings
+        r = self.resultToMi(result)
+        w = self.resultToMi(warnings)
+        def handler():
+            print("tracepointhit={result=%s,expressions=%s,warnings=%s}" % (r, expressions, w))
+        gdb.post_event(handler)
+
+    def tracepointExpression(self, tp, expression, value, args):
+        key = "x" + str(len(self.tpExpressions))
+        if (isinstance(value, gdb.Value)):
+            try:
+                val = self.fromNativeValue(value)
+                self.prepare(args)
+                with TopLevelItem(self, expression):
+                    self.putItem(val)
+                self.tpExpressions[key] = self.output
+            except Exception as e:
+                self.tpExpressions[key] = '"<N/A>"'
+                self.tpExpressionWarnings.append(str(e))
+        elif (isinstance(value, Exception)):
+            self.tpExpressions[key] = '"<N/A>"'
+            self.tpExpressionWarnings.append(str(value))
+        else:
+            self.tpExpressions[key] = '"<N/A>"'
+            self.tpExpressionWarnings.append('Unknown expression value type')
+        return key
+
+    def createTracepoint(self, args):
+        """
+        Creates a tracepoint
+        """
+        tp = GDBTracepoint.create(args,
+            onModified=self.tracepointModified,
+            onHit=self.tracepointHit,
+            onExpression=lambda tp, expr, val: self.tracepointExpression(tp, expr, val, args))
+        self.reportResult("tracepoint=%s" % self.resultToMi(tp.dicts()), args)
 class CliDumper(Dumper):
     def __init__(self):
         Dumper.__init__(self)

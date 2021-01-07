@@ -115,6 +115,31 @@ static QMessageBox *showMessageBox(QMessageBox::Icon icon,
     return mb;
 }
 
+enum class TracepointCaptureType
+{
+    Address,
+    Caller,
+    Callstack,
+    FilePos,
+    Function,
+    Pid,
+    ProcessName,
+    Tick,
+    Tid,
+    ThreadName,
+    Expression
+};
+
+struct TracepointCaptureData
+{
+    TracepointCaptureType type;
+    QVariant expression;
+    int start;
+    int end;
+};
+
+const char tracepointCapturePropertyName[] = "GDB.TracepointCapture";
+
 ///////////////////////////////////////////////////////////////////////
 //
 // GdbEngine
@@ -305,6 +330,18 @@ void GdbEngine::handleResponse(const QString &buff)
                 QString asyncClass = allData["asyncclass"].data();
                 if (asyncClass == "breakpointmodified")
                     handleInterpreterBreakpointModified(allData["interpreterasync"]);
+                break;
+            }
+            if (data.startsWith("tracepointhit={")) {
+                GdbMi allData;
+                allData.fromStringMultiple(data);
+                handleTracepointHit(allData["tracepointhit"]);
+                break;
+            }
+            if (data.startsWith("tracepointmodified=")) {
+                GdbMi allData;
+                allData.fromStringMultiple(data);
+                handleTracepointModified(allData["tracepointmodified"]);
                 break;
             }
             m_pendingConsoleStreamOutput += data;
@@ -2162,6 +2199,7 @@ void GdbEngine::handleCatchInsert(const DebuggerResponse &response, const Breakp
 void GdbEngine::handleBkpt(const GdbMi &bkpt, const Breakpoint &bp)
 {
     QTC_ASSERT(bp, return);
+    bool usePseudoTracepoints = boolSetting(UsePseudoTracepoints);
     const QString nr = bkpt["number"].data();
     if (nr.contains('.')) {
         // A sub-breakpoint.
@@ -2169,6 +2207,10 @@ void GdbEngine::handleBkpt(const GdbMi &bkpt, const Breakpoint &bp)
         QTC_ASSERT(sub, return);
         sub->params.updateFromGdbOutput(bkpt);
         sub->params.type = bp->type();
+        if (usePseudoTracepoints && bp->isTracepoint()) {
+            sub->params.tracepoint = true;
+            sub->params.message = bp->message();
+        }
         return;
     }
 
@@ -2183,12 +2225,18 @@ void GdbEngine::handleBkpt(const GdbMi &bkpt, const Breakpoint &bp)
             QTC_ASSERT(sub, return);
             sub->params.updateFromGdbOutput(location);
             sub->params.type = bp->type();
+            if (usePseudoTracepoints && bp->isTracepoint()) {
+                sub->params.tracepoint = true;
+                sub->params.message = bp->message();
+            }
         }
     }
 
     // A (the?) primary breakpoint.
     bp->setResponseId(nr);
     bp->updateFromGdbOutput(bkpt);
+    if (usePseudoTracepoints && bp->isTracepoint())
+        bp->setMessage(bp->requestedParameters().message);
 }
 
 void GdbEngine::handleBreakInsert1(const DebuggerResponse &response, const Breakpoint &bp)
@@ -2334,6 +2382,176 @@ void GdbEngine::handleBreakCondition(const DebuggerResponse &, const Breakpoint 
     updateBreakpoint(bp); // Maybe there's more to do.
 }
 
+void GdbEngine::updateTracepointCaptures(const Breakpoint &bp)
+{
+    static QRegularExpression capsRegExp(
+        "(^|[^\\\\])(\\$(ADDRESS|CALLER|CALLSTACK|FILEPOS|FUNCTION|PID|PNAME|TICK|TID|TNAME)"
+        "|{[^}]+})");
+    QString message = bp->globalBreakpoint()->requestedParameters().message;
+    if (message.isEmpty()) {
+        bp->setProperty(tracepointCapturePropertyName, {});
+        return;
+    }
+    QVariantList caps;
+    QRegularExpressionMatch match = capsRegExp.match(message, 0);
+    while (match.hasMatch()) {
+        QString t = match.captured(2);
+        if (t[0] == '$') {
+            TracepointCaptureType type;
+            if (t == "$ADDRESS")
+                type = TracepointCaptureType::Address;
+            else if (t == "$CALLER")
+                type = TracepointCaptureType::Caller;
+            else if (t == "$CALLSTACK")
+                type = TracepointCaptureType::Callstack;
+            else if (t == "$FILEPOS")
+                type = TracepointCaptureType::FilePos;
+            else if (t == "$FUNCTION")
+                type = TracepointCaptureType::Function;
+            else if (t == "$PID")
+                type = TracepointCaptureType::Pid;
+            else if (t == "$PNAME")
+                type = TracepointCaptureType::ProcessName;
+            else if (t == "$TICK")
+                type = TracepointCaptureType::Tick;
+            else if (t == "$TID")
+                type = TracepointCaptureType::Tid;
+            else if (t == "$TNAME")
+                type = TracepointCaptureType::ThreadName;
+            else
+                QTC_ASSERT(false, continue);
+            caps << QVariant::fromValue<TracepointCaptureData>(
+                {type, {}, match.capturedStart(2), match.capturedEnd(2)});
+        } else {
+            QString expression = t.mid(1, t.length() - 2);
+            caps << QVariant::fromValue<TracepointCaptureData>(
+                {TracepointCaptureType::Expression, expression, match.capturedStart(2), match.capturedEnd(2)});
+        }
+        match = capsRegExp.match(message, match.capturedEnd());
+    }
+    bp->setProperty(tracepointCapturePropertyName, caps);
+}
+
+void GdbEngine::handleTracepointInsert(const DebuggerResponse &response, const Breakpoint &bp)
+{
+    QTC_ASSERT(bp, return);
+    if (bp->state() == BreakpointRemoveRequested) {
+        if (response.resultClass == ResultDone) {
+            // This delete was deferred. Act now.
+            const GdbMi mainbkpt = response.data["tracepoint"][0];
+            notifyBreakpointRemoveProceeding(bp);
+            DebuggerCommand cmd("-break-delete " + mainbkpt["number"].data());
+            cmd.flags = NeedsTemporaryStop;
+            runCommand(cmd);
+            notifyBreakpointRemoveOk(bp);
+            return;
+        }
+    }
+    if (response.resultClass == ResultDone) {
+        for (const GdbMi &bkpt : response.data["tracepoint"])
+            handleBkpt(bkpt, bp);
+        if (bp->needsChange()) {
+            bp->gotoState(BreakpointUpdateRequested, BreakpointInsertionProceeding);
+            updateBreakpoint(bp);
+        } else {
+            notifyBreakpointInsertOk(bp);
+        }
+    }
+}
+
+void GdbEngine::handleTracepointHit(const GdbMi &data)
+{
+    const GdbMi &result = data["result"];
+    const QString rid = result["number"].data();
+    Breakpoint bp = breakHandler()->findBreakpointByResponseId(rid);
+    QTC_ASSERT(bp, return);
+    const GdbMi &warnings = data["warnings"];
+    if (warnings.childCount() > 0) {
+        for (const GdbMi &warning: warnings) {
+            emit appendMessageRequested(warning.toString(), ErrorMessageFormat, true);
+        }
+    }
+    QString message = bp->message();
+    QVariant caps = bp->property(tracepointCapturePropertyName);
+    if (caps.isValid()) {
+        QList<QVariant> capsList = caps.toList();
+        const GdbMi &miCaps = result["caps"];
+        if (capsList.length() == miCaps.childCount()) {
+            // reverse iterate to make start/end correct
+            for (int i = capsList.length() - 1; i >= 0; --i) {
+               TracepointCaptureData cap = capsList.at(i).value<TracepointCaptureData>();
+               const GdbMi &miCap = miCaps.childAt(i);
+               switch (cap.type) {
+               case TracepointCaptureType::Callstack: {
+                   QStringList frames;
+                   for (const GdbMi &frame: miCap) {
+                       frames.append(frame.data());
+                   }
+                   message.replace(cap.start, cap.end - cap.start, frames.join(" <- "));
+                   break;
+               }
+               case TracepointCaptureType::Expression: {
+                   QString key = miCap.data();
+                   const GdbMi &expression = data["expressions"][key.toLatin1().data()];
+                   if (expression.isValid()) {
+                       QString s = expression.toString();
+                       // remove '<key>='
+                       s = s.right(s.length() - key.length() - 1);
+                       message.replace(cap.start, cap.end - cap.start, s);
+                   } else {
+                       QTC_CHECK(false);
+                   }
+                   break;
+               }
+               default:
+                   message.replace(cap.start, cap.end - cap.start, miCap.data());
+               }
+            }
+        } else {
+            QTC_CHECK(false);
+        }
+    }
+    showMessage(message);
+    emit appendMessageRequested(message, NormalMessageFormat, true);
+}
+
+void GdbEngine::handleTracepointModified(const GdbMi &data)
+{
+    QString ba = data.toString();
+    // remove original-location
+    const int pos1 = ba.indexOf("original-location=");
+    const int pos2 = ba.indexOf(":", pos1 + 17);
+    int pos3 = ba.indexOf('"', pos2 + 1);
+    if (ba[pos3 + 1] == ',')
+        ++pos3;
+    ba.remove(pos1, pos3 - pos1 + 1);
+    GdbMi res;
+    res.fromString(ba);
+    BreakHandler *handler = breakHandler();
+    Breakpoint bp;
+    for (const GdbMi &bkpt : res) {
+        const QString nr = bkpt["number"].data();
+        if (nr.contains('.')) {
+            // A sub-breakpoint.
+            QTC_ASSERT(bp, continue);
+            SubBreakpoint loc = bp->findOrCreateSubBreakpoint(nr);
+            loc->params.updateFromGdbOutput(bkpt);
+            loc->params.type = bp->type();
+            if (bp->isTracepoint()) {
+                loc->params.tracepoint = true;
+                loc->params.message = bp->message();
+            }
+        } else {
+            // A primary breakpoint.
+            bp = handler->findBreakpointByResponseId(nr);
+            if (bp)
+                bp->updateFromGdbOutput(bkpt);
+        }
+    }
+    QTC_ASSERT(bp, return);
+    bp->adjustMarker();
+}
+
 bool GdbEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 {
     if (runParameters().startMode == AttachToCore)
@@ -2387,31 +2605,100 @@ void GdbEngine::insertBreakpoint(const Breakpoint &bp)
         cmd.function = "catch syscall";
         cmd.callback = handleCatch;
     } else {
+        int spec = requested.threadSpec;
         if (requested.isTracepoint()) {
-            cmd.function = "-break-insert -a -f ";
+
+            if (boolSetting(UsePseudoTracepoints)) {
+                cmd.function = "createTracepoint";
+
+                if (requested.oneShot)
+                    cmd.arg("temporary", true);
+
+                if (int ignoreCount = requested.ignoreCount)
+                    cmd.arg("ignore_count", ignoreCount);
+
+                QString condition = requested.condition;
+                if (!condition.isEmpty())
+                    cmd.arg("condition", condition.replace('"', "\\\""));
+
+                if (spec >= 0)
+                   cmd.arg("thread", spec);
+
+                updateTracepointCaptures(bp);
+                QVariant tpCaps = bp->property(tracepointCapturePropertyName);
+                if (tpCaps.isValid()) {
+                    QJsonArray caps;
+                    foreach (const auto &tpCap, tpCaps.toList()) {
+                        TracepointCaptureData data = tpCap.value<TracepointCaptureData>();
+                        QJsonArray cap;
+                        cap.append(static_cast<int>(data.type));
+                        if (data.expression.isValid())
+                            cap.append(data.expression.toString());
+                        else
+                            cap.append(QJsonValue::Null);
+                        caps.append(cap);
+                    }
+                    cmd.arg("caps", caps);
+                }
+
+                // for dumping of expressions
+                const static bool alwaysVerbose = qEnvironmentVariableIsSet("QTC_DEBUGGER_PYTHON_VERBOSE");
+                cmd.arg("passexceptions", alwaysVerbose);
+                cmd.arg("fancy", boolSetting(UseDebuggingHelpers));
+                cmd.arg("autoderef", boolSetting(AutoDerefPointers));
+                cmd.arg("dyntype", boolSetting(UseDynamicType));
+                cmd.arg("qobjectnames", boolSetting(ShowQObjectNames));
+                cmd.arg("nativemixed", isNativeMixedActive());
+                cmd.arg("stringcutoff", action(MaximalStringLength)->value().toString());
+                cmd.arg("displaystringlimit", action(DisplayStringLimit)->value().toString());
+
+                cmd.arg("spec", breakpointLocation2(requested));
+                cmd.callback = [this, bp](const DebuggerResponse &r) { handleTracepointInsert(r, bp); };
+
+            } else {
+                cmd.function = "-break-insert -a -f ";
+
+                if (requested.oneShot)
+                    cmd.function += "-t ";
+
+                if (!requested.enabled)
+                    cmd.function += "-d ";
+
+                if (int ignoreCount = requested.ignoreCount)
+                    cmd.function += "-i " + QString::number(ignoreCount) + ' ';
+
+                QString condition = requested.condition;
+                if (!condition.isEmpty())
+                    cmd.function += " -c \"" + condition.replace('"', "\\\"") + "\" ";
+
+                cmd.function += breakpointLocation(requested);
+                cmd.callback = [this, bp](const DebuggerResponse &r) { handleBreakInsert1(r, bp); };
+
+            }
+
         } else {
-            int spec = requested.threadSpec;
             cmd.function = "-break-insert ";
             if (spec >= 0)
                 cmd.function += "-p " + QString::number(spec);
             cmd.function += " -f ";
-        }
 
-        if (requested.oneShot)
-            cmd.function += "-t ";
+           if (requested.oneShot)
+               cmd.function += "-t ";
 
-        if (!requested.enabled)
-            cmd.function += "-d ";
+           if (!requested.enabled)
+               cmd.function += "-d ";
 
-        if (int ignoreCount = requested.ignoreCount)
-            cmd.function += "-i " + QString::number(ignoreCount) + ' ';
+           if (int ignoreCount = requested.ignoreCount)
+               cmd.function += "-i " + QString::number(ignoreCount) + ' ';
 
-        QString condition = requested.condition;
-        if (!condition.isEmpty())
-            cmd.function += " -c \"" + condition.replace('"', "\\\"") + "\" ";
+           QString condition = requested.condition;
+           if (!condition.isEmpty())
+               cmd.function += " -c \"" + condition.replace('"', "\\\"") + "\" ";
 
-        cmd.function += breakpointLocation(requested);
-        cmd.callback = [this, bp](const DebuggerResponse &r) { handleBreakInsert1(r, bp); };
+           cmd.function += breakpointLocation(requested);
+           cmd.callback = [this, bp](const DebuggerResponse &r) { handleBreakInsert1(r, bp); };
+
+       }
     }
     cmd.flags = NeedsTemporaryStop;
     runCommand(cmd);
@@ -4831,3 +5118,4 @@ DebuggerEngine *createGdbEngine()
 } // namespace Debugger
 
 Q_DECLARE_METATYPE(Debugger::Internal::GdbMi)
+Q_DECLARE_METATYPE(Debugger::Internal::TracepointCaptureData)

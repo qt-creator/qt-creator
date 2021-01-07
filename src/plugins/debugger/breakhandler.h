@@ -176,6 +176,7 @@ public:
     void setIgnoreCount(int count) { m_parameters.ignoreCount = count; }
     void setCommand(const QString &command) { m_parameters.command = command; }
     void setCondition(const QString &condition) { m_parameters.condition = condition; }
+    void setMessage(const QString& message) { m_parameters.message = message; }
 
     QString msgWatchpointByAddressTriggered(quint64 address) const;
     QString msgWatchpointByAddressTriggered(quint64 address, const QString &threadId) const;

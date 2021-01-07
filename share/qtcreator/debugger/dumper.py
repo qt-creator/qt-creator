@@ -942,7 +942,7 @@ class DumperBase():
                                    for (k, v) in list(value.items())]) + '}'
         if isinstance(value, list):
             return '[' + ','.join([self.resultToMi(k)
-                                   for k in list(value.items())]) + ']'
+                                   for k in value]) + ']'
         return '"%s"' % value
 
     def variablesToMi(self, value, prefix):
