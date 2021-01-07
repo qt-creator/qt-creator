@@ -497,6 +497,7 @@ extend_qtc_plugin(QmlDesigner
     include/qmlmodelnodefacade.h
     include/qmlobjectnode.h
     include/qmlstate.h
+    include/qmlconnections.h
     include/qmltimeline.h
     include/qmltimelinekeyframegroup.h
     include/removebasestateexception.h
@@ -578,6 +579,7 @@ extend_qtc_plugin(QmlDesigner
     model/qmlmodelnodefacade.cpp
     model/qmlobjectnode.cpp
     model/qmlstate.cpp
+    model/qmlconnections.cpp
     model/qmltextgenerator.cpp model/qmltextgenerator.h
     model/qmltimeline.cpp
     model/qmltimelinekeyframegroup.cpp
@@ -620,6 +622,9 @@ extend_qtc_plugin(QmlDesigner
     bindingeditordialog.cpp bindingeditordialog.h
     bindingeditorwidget.cpp bindingeditorwidget.h
     connectionvisitor.cpp connectionvisitor.h
+    signallist.cpp signallist.h
+    signallistdialog.cpp signallistdialog.h
+    signallistdelegate.cpp signallistdelegate.h
 )
 
 extend_qtc_plugin(QmlDesigner

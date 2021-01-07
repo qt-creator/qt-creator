@@ -258,6 +258,62 @@ TEST_F(SqliteStatement, BindPointer)
     ASSERT_THAT(statement.fetchIntValue(0), 1);
 }
 
+TEST_F(SqliteStatement, BindIntCarray)
+{
+    SqliteTestStatement statement("SELECT value FROM carray(?)", database);
+    std::vector<int> values{3, 10, 20, 33, 55};
+
+    statement.bind(1, values);
+    statement.next();
+    statement.next();
+    statement.next();
+    statement.next();
+
+    ASSERT_THAT(statement.fetchIntValue(0), 33);
+}
+
+TEST_F(SqliteStatement, BindLongLongCarray)
+{
+    SqliteTestStatement statement("SELECT value FROM carray(?)", database);
+    std::vector<long long> values{3, 10, 20, 33, 55};
+
+    statement.bind(1, values);
+    statement.next();
+    statement.next();
+    statement.next();
+    statement.next();
+
+    ASSERT_THAT(statement.fetchLongLongValue(0), 33);
+}
+
+TEST_F(SqliteStatement, BindDoubleCarray)
+{
+    SqliteTestStatement statement("SELECT value FROM carray(?)", database);
+    std::vector<double> values{3.3, 10.2, 20.54, 33.21, 55};
+
+    statement.bind(1, values);
+    statement.next();
+    statement.next();
+    statement.next();
+    statement.next();
+
+    ASSERT_THAT(statement.fetchDoubleValue(0), 33.21);
+}
+
+TEST_F(SqliteStatement, BindTextCarray)
+{
+    SqliteTestStatement statement("SELECT value FROM carray(?)", database);
+    std::vector<const char *> values{"yi", "er", "san", "se", "wu"};
+
+    statement.bind(1, values);
+    statement.next();
+    statement.next();
+    statement.next();
+    statement.next();
+
+    ASSERT_THAT(statement.fetchSmallStringViewValue(0), Eq("se"));
+}
+
 TEST_F(SqliteStatement, BindBlob)
 {
     SqliteTestStatement statement("WITH T(blob) AS (VALUES (?)) SELECT blob FROM T", database);
@@ -376,6 +432,47 @@ TEST_F(SqliteStatement, WritePointerValues)
     statement.write(values.data(), int(values.size()));
 
     ASSERT_THAT(statement.template values<int>(5), ElementsAre(1, 1, 2, 3, 5));
+}
+
+TEST_F(SqliteStatement, WriteIntCarrayValues)
+{
+    SqliteTestStatement statement("SELECT value FROM carray(?)", database);
+    std::vector<int> values{3, 10, 20, 33, 55};
+
+    statement.write(Utils::span(values));
+
+    ASSERT_THAT(statement.template values<int>(5), ElementsAre(3, 10, 20, 33, 55));
+}
+
+TEST_F(SqliteStatement, WriteLongLongCarrayValues)
+{
+    SqliteTestStatement statement("SELECT value FROM carray(?)", database);
+    std::vector<long long> values{3, 10, 20, 33, 55};
+
+    statement.write(Utils::span(values));
+
+    ASSERT_THAT(statement.template values<long long>(5), ElementsAre(3, 10, 20, 33, 55));
+}
+
+TEST_F(SqliteStatement, WriteDoubleCarrayValues)
+{
+    SqliteTestStatement statement("SELECT value FROM carray(?)", database);
+    std::vector<double> values{3.3, 10.2, 20.54, 33.21, 55};
+
+    statement.write(Utils::span(values));
+
+    ASSERT_THAT(statement.template values<double>(5), ElementsAre(3.3, 10.2, 20.54, 33.21, 55));
+}
+
+TEST_F(SqliteStatement, WriteTextCarrayValues)
+{
+    SqliteTestStatement statement("SELECT value FROM carray(?)", database);
+    std::vector<const char *> values{"yi", "er", "san", "se", "wu"};
+
+    statement.write(Utils::span(values));
+
+    ASSERT_THAT(statement.template values<Utils::SmallString>(5),
+                ElementsAre("yi", "er", "san", "se", "wu"));
 }
 
 TEST_F(SqliteStatement, WriteNullValues)

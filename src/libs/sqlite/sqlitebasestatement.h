@@ -77,12 +77,16 @@ public:
     int columnCount() const;
 
     void bind(int index, NullValue);
-    void bind(int index, int fetchValue);
-    void bind(int index, long long fetchValue);
-    void bind(int index, double fetchValue);
+    void bind(int index, int value);
+    void bind(int index, long long value);
+    void bind(int index, double value);
     void bind(int index, void *pointer);
-    void bind(int index, Utils::SmallStringView fetchValue);
-    void bind(int index, const Value &fetchValue);
+    void bind(int index, Utils::span<int> values);
+    void bind(int index, Utils::span<long long> values);
+    void bind(int index, Utils::span<double> values);
+    void bind(int index, Utils::span<const char *> values);
+    void bind(int index, Utils::SmallStringView value);
+    void bind(int index, const Value &value);
     void bind(int index, BlobView blobView);
 
     void bind(int index, uint value) { bind(index, static_cast<long long>(value)); }

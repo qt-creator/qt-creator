@@ -87,6 +87,8 @@
 #include <functional>
 #include <cmath>
 
+#include <bindingeditor/signallist.h>
+
 namespace QmlDesigner {
 
 const PropertyName auxDataString("anchors_");
@@ -1546,6 +1548,14 @@ QVariant previewImageDataForImageNode(const ModelNode &modelNode)
     if (modelNode.isValid())
         return modelNode.model()->nodeInstanceView()->previewImageDataForImageNode(modelNode);
     return {};
+}
+
+void openSignalDialog(const SelectionContext &selectionContext)
+{
+    if (!selectionContext.view() || !selectionContext.hasSingleSelectedModelNode())
+        return;
+
+    SignalList::showWidget(selectionContext.currentSingleSelectedNode());
 }
 
 } // namespace ModelNodeOperations

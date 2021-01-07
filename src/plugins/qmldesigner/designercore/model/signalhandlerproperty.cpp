@@ -40,12 +40,10 @@ SignalHandlerProperty::SignalHandlerProperty(const SignalHandlerProperty &proper
 {
 }
 
-
 SignalHandlerProperty::SignalHandlerProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view)
     : AbstractProperty(propertyName, internalNode, model, view)
 {
 }
-
 
 void SignalHandlerProperty::setSource(const QString &source)
 {
@@ -81,6 +79,32 @@ QString SignalHandlerProperty::source() const
         return internalNode()->signalHandlerProperty(name())->source();
 
     return QString();
+}
+
+PropertyName SignalHandlerProperty::prefixAdded(const PropertyName &propertyName)
+{
+    QString nameAsString = QString::fromUtf8(propertyName);
+    if (nameAsString.startsWith("on"))
+        return propertyName;
+
+    QChar firstChar = nameAsString.at(0).toUpper();
+    nameAsString[0] = firstChar;
+    nameAsString.prepend("on");
+
+    return nameAsString.toLatin1();
+}
+
+PropertyName SignalHandlerProperty::prefixRemoved(const PropertyName &propertyName)
+{
+    QString nameAsString = QString::fromUtf8(propertyName);
+    if (!nameAsString.startsWith("on"))
+        return propertyName;
+
+    nameAsString.remove(0, 2);
+    QChar firstChar = nameAsString.at(0).toLower();
+    nameAsString[0] = firstChar;
+
+    return nameAsString.toLatin1();
 }
 
 } // namespace QmlDesigner

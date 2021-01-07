@@ -417,6 +417,22 @@ QWidget *MakeStep::createConfigWidget()
     return widget;
 }
 
+bool MakeStep::buildsTarget(const QString &target) const
+{
+    return m_buildTargetsAspect->value().contains(target);
+}
+
+void MakeStep::setBuildTarget(const QString &target, bool on)
+{
+    QStringList old = m_buildTargetsAspect->value();
+    if (on && !old.contains(target))
+         old << target;
+    else if (!on && old.contains(target))
+        old.removeOne(target);
+
+    m_buildTargetsAspect->setValue(old);
+}
+
 QStringList MakeStep::availableTargets() const
 {
     return m_buildTargetsAspect->allValues();

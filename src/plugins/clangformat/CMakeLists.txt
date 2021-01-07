@@ -13,3 +13,8 @@ add_qtc_plugin(ClangFormat
     clangformatsettings.cpp clangformatsettings.h
     clangformatutils.cpp clangformatutils.h
 )
+
+extend_qtc_plugin(ClangFormat
+  CONDITION UNIX AND NOT APPLE
+  PROPERTIES LINK_FLAGS "-Wl,--exclude-libs,ALL"
+)

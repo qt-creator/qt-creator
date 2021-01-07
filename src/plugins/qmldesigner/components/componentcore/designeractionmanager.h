@@ -106,6 +106,9 @@ public:
     void addDesignerAction(ActionInterface *newAction);
     void addCreatorCommand(Core::Command *command, const QByteArray &category, int priority,
                            const QIcon &overrideIcon = QIcon());
+
+    QList<QSharedPointer<ActionInterface>> actionsForTargetView(const ActionInterface::TargetView &target);
+
     QList<ActionInterface* > designerActions() const;
 
     void createDefaultDesignerActions();

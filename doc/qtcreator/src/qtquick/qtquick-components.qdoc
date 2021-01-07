@@ -125,6 +125,7 @@
         \li \l {Lists and Other Data Models}
         \if defined(qtdesignstudio)
         \li \l {2D Effects}
+        \li \l {Logic Helpers}
         \endif
     \endlist
 

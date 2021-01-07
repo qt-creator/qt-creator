@@ -172,6 +172,19 @@ void ConnectionViewWidget::contextMenuEvent(QContextMenuEvent *event)
                 m_connectionEditor->updateWindowName();
             });
 
+            QMap<QString, QVariant> data;
+            data["ModelNode"] = index.siblingAtColumn(ConnectionModel::TargetModelNodeRow).data();
+            data["Signal"] = index.siblingAtColumn(ConnectionModel::TargetPropertyNameRow).data();
+            DesignerActionManager &designerActionManager = QmlDesignerPlugin::instance()->designerActionManager();
+            const auto actions = designerActionManager.actionsForTargetView(
+                ActionInterface::TargetView::ConnectionEditor);
+
+            for (auto actionInterface : actions) {
+                auto *action = actionInterface->action();
+                action->setData(data);
+                menu.addAction(action);
+            }
+
             menu.exec(event->globalPos());
         }
         break;

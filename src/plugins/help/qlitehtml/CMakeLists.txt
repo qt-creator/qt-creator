@@ -1,4 +1,5 @@
-if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/litehtml/CMakeLists.txt)
+find_package(litehtml QUIET)
+if(NOT TARGET litehtml AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/litehtml/CMakeLists.txt)
     set(ORIG_FPIC ${CMAKE_POSITION_INDEPENDENT_CODE})
     if (WIN32)
       set(LITEHTML_UTF8 ON CACHE BOOL "")
@@ -16,11 +17,10 @@ if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/litehtml/CMakeLists.txt)
         target_compile_options(litehtml PRIVATE -O2)
       endif()
     endif()
-else()
-    find_package(litehtml REQUIRED)
 endif()
 
 add_qtc_library(qlitehtml
+  CONDITION TARGET litehtml
   PUBLIC_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}
   DEPENDS Qt5::Widgets litehtml
   PROPERTIES

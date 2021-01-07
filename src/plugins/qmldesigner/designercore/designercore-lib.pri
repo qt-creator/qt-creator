@@ -69,6 +69,7 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/model/qmlmodelnodefacade.cpp \
     $$PWD/model/qmlobjectnode.cpp \
     $$PWD/model/qmlanchors.cpp \
+    $$PWD/model/qmlconnections.cpp \
     $$PWD/rewritertransaction.cpp \
     $$PWD/model/rewriteaction.cpp \
     $$PWD/model/modelnodepositionstorage.cpp \
@@ -151,6 +152,7 @@ HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/include/forwardview.h \
     $$PWD/include/qmlobjectnode.h \
     $$PWD/include/qmlanchors.h \
+    $$PWD/include/qmlconnections.h \
     $$PWD/rewritertransaction.h \
     $$PWD/model/rewriteaction.h \
     $$PWD/include/modelnodepositionstorage.h \

@@ -43,6 +43,9 @@ public:
     SignalHandlerProperty();
     SignalHandlerProperty(const SignalHandlerProperty &property, AbstractView *view);
 
+    static PropertyName prefixAdded(const PropertyName &propertyName);
+    static PropertyName prefixRemoved(const PropertyName &propertyName);
+
 protected:
     SignalHandlerProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
 };

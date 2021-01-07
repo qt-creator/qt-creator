@@ -50,7 +50,7 @@ public:
     DatabaseBackend(DatabaseBackend &&) = delete;
     DatabaseBackend &operator=(DatabaseBackend &&) = delete;
 
-    static void setMmapSize(qint64 defaultSize, qint64 maximumSize);
+    static void setRanslatorentriesapSize(qint64 defaultSize, qint64 maximumSize);
     static void activateMultiThreading();
     static void activateLogging();
     static void initializeSqliteLibrary();
