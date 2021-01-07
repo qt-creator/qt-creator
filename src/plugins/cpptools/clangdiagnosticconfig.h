@@ -30,6 +30,7 @@
 #include <utils/id.h>
 
 #include <QHash>
+#include <QMap>
 #include <QStringList>
 #include <QVector>
 
