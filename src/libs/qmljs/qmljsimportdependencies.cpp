@@ -32,11 +32,35 @@
 #include <utils/qtcassert.h>
 
 #include <QCryptographicHash>
+#include <QElapsedTimer>
 #include <QLoggingCategory>
 
 #include <algorithm>
 
 static Q_LOGGING_CATEGORY(importsLog, "qtc.qmljs.imports", QtWarningMsg)
+static Q_LOGGING_CATEGORY(importsBenchmark, "qtc.qmljs.imports.benchmark", QtDebugMsg)
+
+
+class ImportsBenchmarker
+{
+public:
+    ImportsBenchmarker(const QString &functionName)
+        : m_functionName(functionName)
+    {
+        m_timer.start();
+    }
+
+    ~ImportsBenchmarker()
+    {
+        if (importsBenchmark().isDebugEnabled()) {
+            qCDebug(importsBenchmark).noquote().nospace() << m_functionName << " executed nPossibleExports: " << nPossibleExports << " in " << m_timer.elapsed() << "ms";
+        }
+    }
+    int nPossibleExports = 0;
+
+    QElapsedTimer m_timer;
+    QString m_functionName;
+};
 
 namespace QmlJS {
 
@@ -304,7 +328,7 @@ ImportMatchStrength ImportKey::matchImport(const ImportKey &o, const ViewerConte
             return ImportMatchStrength();
         const QString p1 = splitPath.at(iPath1);
         if (iPath2 < lenPath2) {
-            const QString p2 = splitPath.at(iPath2);
+            const QString p2 = o.splitPath.at(iPath2);
             if (p1 == p2) {
                 ++iPath1;
                 ++iPath2;
@@ -520,19 +544,6 @@ bool Export::visibleInVContext(const ViewerContext &vContext) const
     return pathRequired.isEmpty() || vContext.paths.contains(pathRequired);
 }
 
-bool operator ==(const Export &i1, const Export &i2)
-{
-    return i1.exportName == i2.exportName
-            && i1.pathRequired == i2.pathRequired
-            && i1.intrinsic == i2.intrinsic
-            && i1.typeName == i2.typeName;
-}
-
-bool operator !=(const Export &i1, const Export &i2)
-{
-    return !(i1 == i2);
-}
-
 CoreImport::CoreImport() : language(Dialect::Qml) { }
 
 CoreImport::CoreImport(const QString &importId, const QList<Export> &possibleExports,
@@ -609,6 +620,7 @@ ImportDependencies::~ImportDependencies()
 
 void ImportDependencies::filter(const ViewerContext &vContext)
 {
+    ImportsBenchmarker benchMark("filter()");
     QMap<QString, CoreImport> newCoreImports;
     QMap<ImportKey, QStringList> newImportCache;
     bool hasChanges = false;
@@ -617,6 +629,7 @@ void ImportDependencies::filter(const ViewerContext &vContext)
         if (languageIsCompatible(vContext.language, cImport.language)) {
             QList<Export> newExports;
             foreach (const Export &e, cImport.possibleExports) {
+                ++benchMark.nPossibleExports;
                 if (e.visibleInVContext(vContext)) {
                     newExports.append(e);
                     QStringList &candidateImports = newImportCache[e.exportName];
@@ -654,6 +667,7 @@ void ImportDependencies::iterateOnCandidateImports(
         std::function<bool (const ImportMatchStrength &,const Export &,const CoreImport &)>
         const &iterF) const
 {
+    ImportsBenchmarker benchMark("iterateOnCandidateImports()");
     switch (key.type) {
     case ImportType::Directory:
     case ImportType::QrcDirectory:
@@ -666,6 +680,7 @@ void ImportDependencies::iterateOnCandidateImports(
             CoreImport cImport = coreImport(cImportName);
             if (languageIsCompatible(vContext.language, cImport.language)) {
                 foreach (const Export e, cImport.possibleExports) {
+                    ++benchMark.nPossibleExports;
                     if (e.visibleInVContext(vContext)) {
                         ImportMatchStrength m = e.exportName.matchImport(key, vContext);
                         if (m.hasMatch()) {
@@ -688,6 +703,7 @@ void ImportDependencies::iterateOnCandidateImports(
                 CoreImport cImport = coreImport(cImportName);
                 if (languageIsCompatible(vContext.language, cImport.language)) {
                     foreach (const Export e, cImport.possibleExports) {
+                        ++benchMark.nPossibleExports;
                         if (e.visibleInVContext(vContext)) {
                             ImportMatchStrength m = e.exportName.matchImport(key, vContext);
                             if (m.hasMatch()) {
@@ -810,13 +826,13 @@ void ImportDependencies::addExport(const QString &importId, const ImportKey &imp
     if (!m_coreImports.contains(importId)) {
         CoreImport newImport(importId);
         newImport.language = Dialect::AnyLanguage;
-        newImport.possibleExports.append(Export(importKey, requiredPath, false, typeName));
+        newImport.addPossibleExport(Export(importKey, requiredPath, false, typeName));
         m_coreImports.insert(newImport.importId, newImport);
         m_importCache[importKey].append(importId);
         return;
     }
     CoreImport &importValue = m_coreImports[importId];
-    importValue.possibleExports.append(Export(importKey, requiredPath, false, typeName));
+    importValue.addPossibleExport(Export(importKey, requiredPath, false, typeName));
     m_importCache[importKey].append(importId);
     qCDebug(importsLog) << "added export "<< importKey.toString() << " for id " <<importId
                         << " (" << requiredPath << ")";
@@ -853,6 +869,8 @@ void ImportDependencies::iterateOnLibraryImports(
                             const Export &,
                             const CoreImport &)> const &iterF) const
 {
+    ImportsBenchmarker benchMark("iterateOnLibraryImports()");
+
     typedef QMap<ImportKey, QStringList>::const_iterator iter_t;
     ImportKey firstLib;
     firstLib.type = ImportType::Library;
@@ -864,6 +882,7 @@ void ImportDependencies::iterateOnLibraryImports(
             CoreImport cImport = coreImport(cImportName);
             if (languageIsCompatible(vContext.language, cImport.language)) {
                 foreach (const Export &e, cImport.possibleExports) {
+                    ++benchMark.nPossibleExports;
                     if (e.visibleInVContext(vContext) && e.exportName.type == ImportType::Library) {
                         ImportMatchStrength m = e.exportName.matchImport(i.key(), vContext);
                         if (m.hasMatch()) {
@@ -887,6 +906,7 @@ void ImportDependencies::iterateOnSubImports(
                             const Export &,
                             const CoreImport &)> const &iterF) const
 {
+    ImportsBenchmarker benchMark("iterateOnSubImports()");
     typedef QMap<ImportKey, QStringList>::const_iterator iter_t;
     iter_t i = m_importCache.lowerBound(baseKey);
     iter_t end = m_importCache.constEnd();
@@ -898,6 +918,7 @@ void ImportDependencies::iterateOnSubImports(
             CoreImport cImport = coreImport(cImportName);
             if (languageIsCompatible(vContext.language, cImport.language)) {
                 foreach (const Export &e, cImport.possibleExports) {
+                    ++benchMark.nPossibleExports;
                     if (e.visibleInVContext(vContext)) {
                         ImportMatchStrength m = e.exportName.matchImport(i.key(), vContext);
                         if (m.hasMatch()) {

@@ -82,7 +82,7 @@ using PropertyInfo = QPair<PropertyName, TypeName>;
 
 QVector<PropertyInfo> getObjectTypes(const ObjectValue *ov, const ContextPtr &context, bool local = false, int rec = 0);
 
-static TypeName resolveTypeName(const ASTPropertyReference *ref, const ContextPtr &context,  QVector<PropertyInfo> &dotProperties)
+static TypeName resolveTypeName(const ASTPropertyReference *ref, const ContextPtr &context, QVector<PropertyInfo> &dotProperties)
 {
     TypeName type = "unknown";
 
@@ -295,7 +295,7 @@ public:
             const TypeName type = resolveTypeName(ref, m_context, dotProperties);
             m_properties.append({propertyName, type});
             if (!dotProperties.isEmpty()) {
-                foreach (const PropertyInfo &propertyInfo, dotProperties) {
+                for (const PropertyInfo &propertyInfo : qAsConst(dotProperties)) {
                     PropertyName dotName = propertyInfo.first;
                     TypeName type = propertyInfo.second;
                     dotName = propertyName + '.' + dotName;
@@ -303,7 +303,6 @@ public:
                 }
             }
         } else {
-
             if (const CppComponentValue * cppComponentValue = value_cast<CppComponentValue>(value)) {
                 TypeName qualifiedTypeName = qualifiedTypeNameForContext(cppComponentValue,
                     m_context->viewerContext(), *m_context->snapshot().importDependencies()).toUtf8();
@@ -311,13 +310,13 @@ public:
             } else {
                 TypeId typeId;
                 TypeName typeName = typeId(value).toUtf8();
-                if (typeName == "number") {
-                    if (value->asIntValue()) {
-                        typeName = "int";
-                    } else {
-                        typeName = "real";
-                    }
-                }
+
+                if (typeName == "Function")
+                    return processSlot(name, value);
+
+                if (typeName == "number")
+                    typeName = value->asIntValue() ? "int" : "real";
+
                 m_properties.append({propertyName, typeName});
             }
         }
@@ -488,7 +487,7 @@ PropertyNameList getSignals(const ObjectValue *objectValue, const ContextPtr &co
     QList<const ObjectValue *> objects = prototypeIterator.all();
 
     if (!local) {
-        foreach (const ObjectValue *prototype, objects)
+        for (const ObjectValue *prototype : objects)
             signalList.append(getSignals(prototype, context, true));
     }
 
@@ -506,6 +505,9 @@ PropertyNameList getSlots(const ObjectValue *objectValue, const ContextPtr &cont
 
     PropertyMemberProcessor processor(context);
     objectValue->processMembers(&processor);
+
+    if (const ASTObjectValue *astObjectValue = objectValue->asAstObjectValue())
+        astObjectValue->processMembers(&processor);
 
     slotList.append(processor.slotList());
 
@@ -534,6 +536,7 @@ QVector<PropertyInfo> getObjectTypes(const ObjectValue *objectValue, const Conte
 
     PropertyMemberProcessor processor(context);
     objectValue->processMembers(&processor);
+
     const auto props = processor.properties();
 
     for (const PropertyInfo &property : props) {

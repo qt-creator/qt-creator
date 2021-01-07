@@ -5,6 +5,9 @@ HEADERS += $$PWD/actioneditordialog.h
 HEADERS += $$PWD/bindingeditordialog.h
 HEADERS += $$PWD/bindingeditorwidget.h
 HEADERS += $$PWD/connectionvisitor.h
+HEADERS += $$PWD/signallist.h
+HEADERS += $$PWD/signallistdialog.h
+HEADERS += $$PWD/signallistdelegate.h
 
 SOURCES += $$PWD/bindingeditor.cpp
 SOURCES += $$PWD/actioneditor.cpp
@@ -13,3 +16,6 @@ SOURCES += $$PWD/actioneditordialog.cpp
 SOURCES += $$PWD/bindingeditordialog.cpp
 SOURCES += $$PWD/bindingeditorwidget.cpp
 SOURCES += $$PWD/connectionvisitor.cpp
+SOURCES += $$PWD/signallist.cpp
+SOURCES += $$PWD/signallistdialog.cpp
+SOURCES += $$PWD/signallistdelegate.cpp

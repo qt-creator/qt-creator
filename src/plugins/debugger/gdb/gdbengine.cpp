@@ -4119,10 +4119,7 @@ void GdbEngine::setupInferior()
         if (symbolFile.isEmpty()) {
             showMessage(tr("No symbol file given."), StatusBar);
             callTargetRemote();
-            return;
-        }
-
-        if (!symbolFile.isEmpty()) {
+        } else {
             runCommand({"-file-exec-and-symbols \"" + symbolFile + '"',
                         CB(handleFileExecAndSymbols)});
         }

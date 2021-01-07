@@ -479,8 +479,8 @@ void Snapshot::insert(const Document::Ptr &document, bool allowInvalid)
         CoreImport cImport;
         cImport.importId = document->importId();
         cImport.language = document->language();
-        cImport.possibleExports << Export(ImportKey(ImportType::File, fileName),
-                                          QString(), true, QFileInfo(fileName).baseName());
+        cImport.addPossibleExport(Export(ImportKey(ImportType::File, fileName),
+                                          {}, true, QFileInfo(fileName).baseName()));
         cImport.fingerprint = document->fingerprint();
         _dependencies.addCoreImport(cImport);
     }
@@ -526,13 +526,13 @@ void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
                     break;
                 ImportKey iKey(ImportType::Library, QStringList(myPath.mid(iPath)).join(QLatin1Char('.')),
                                importKey.majorVersion, importKey.minorVersion);
-                cImport.possibleExports.append(Export(iKey, (iPath == 1) ? QLatin1String("/") :
+                cImport.addPossibleExport(Export(iKey, (iPath == 1) ? QLatin1String("/") :
                      QStringList(myPath.mid(0, iPath)).join(QLatin1Char('/')), true));
             }
         } else {
             QString requiredPath = QStringList(splitPath.mid(0, splitPath.size() - importKey.splitPath.size()))
                     .join(QLatin1String("/"));
-            cImport.possibleExports << Export(importKey, requiredPath, true);
+            cImport.addPossibleExport(Export(importKey, requiredPath, true));
         }
     }
     if (cImport.possibleExports.isEmpty() && splitPath.size() > 0) {
@@ -567,7 +567,7 @@ void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
                 break;
             ImportKey iKey(ImportType::Library, QStringList(splitPath.mid(iPath)).join(QLatin1Char('.')),
                            majorVersion, minorVersion);
-            cImport.possibleExports.append(Export(iKey, (iPath == 1) ? QLatin1String("/") :
+            cImport.addPossibleExport(Export(iKey, (iPath == 1) ? QLatin1String("/") :
                 QStringList(splitPath.mid(0, iPath)).join(QLatin1Char('/')), true));
         }
     }

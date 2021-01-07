@@ -38,6 +38,14 @@
 #  pragma GCC diagnostic ignored "-Wignored-qualifiers"
 #endif
 
+#define CARRAY_INT32 0  /* Data is 32-bit signed integers */
+#define CARRAY_INT64 1  /* Data is 64-bit signed integers */
+#define CARRAY_DOUBLE 2 /* Data is doubles */
+#define CARRAY_TEXT 3   /* Data is char* */
+
+extern "C" int sqlite3_carray_bind(
+    sqlite3_stmt *pStmt, int idx, void *aData, int nData, int mFlags, void (*xDestroy)(void *));
+
 namespace Sqlite {
 
 BaseStatement::BaseStatement(Utils::SmallStringView sqlStatement, Database &database)
@@ -176,6 +184,54 @@ void BaseStatement::bind(int index, void *pointer)
                                           pointer,
                                           "carray",
                                           nullptr);
+    if (resultCode != SQLITE_OK)
+        checkForBindingError(resultCode);
+}
+
+void BaseStatement::bind(int index, Utils::span<int> values)
+{
+    int resultCode = sqlite3_carray_bind(m_compiledStatement.get(),
+                                         index,
+                                         values.data(),
+                                         static_cast<int>(values.size()),
+                                         CARRAY_INT32,
+                                         SQLITE_STATIC);
+    if (resultCode != SQLITE_OK)
+        checkForBindingError(resultCode);
+}
+
+void BaseStatement::bind(int index, Utils::span<long long> values)
+{
+    int resultCode = sqlite3_carray_bind(m_compiledStatement.get(),
+                                         index,
+                                         values.data(),
+                                         static_cast<int>(values.size()),
+                                         CARRAY_INT64,
+                                         SQLITE_STATIC);
+    if (resultCode != SQLITE_OK)
+        checkForBindingError(resultCode);
+}
+
+void BaseStatement::bind(int index, Utils::span<double> values)
+{
+    int resultCode = sqlite3_carray_bind(m_compiledStatement.get(),
+                                         index,
+                                         values.data(),
+                                         static_cast<int>(values.size()),
+                                         CARRAY_DOUBLE,
+                                         SQLITE_STATIC);
+    if (resultCode != SQLITE_OK)
+        checkForBindingError(resultCode);
+}
+
+void BaseStatement::bind(int index, Utils::span<const char *> values)
+{
+    int resultCode = sqlite3_carray_bind(m_compiledStatement.get(),
+                                         index,
+                                         values.data(),
+                                         static_cast<int>(values.size()),
+                                         CARRAY_TEXT,
+                                         SQLITE_STATIC);
     if (resultCode != SQLITE_OK)
         checkForBindingError(resultCode);
 }

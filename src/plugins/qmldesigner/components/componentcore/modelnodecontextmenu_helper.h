@@ -30,6 +30,7 @@
 #include "abstractactiongroup.h"
 #include "qmlitemnode.h"
 #include <qmldesignerplugin.h>
+#include <nodemetainfo.h>
 
 #include <coreplugin/actionmanager/command.h>
 
@@ -80,9 +81,21 @@ inline bool singleSelectionNotRoot(const SelectionContext &selectionState)
 
 inline bool selectionHasProperty(const SelectionContext &selectionState, const char *property)
 {
-    foreach (const ModelNode &modelNode, selectionState.selectedModelNodes())
+    for (const ModelNode &modelNode : selectionState.selectedModelNodes())
         if (modelNode.hasProperty(PropertyName(property)))
             return true;
+    return false;
+}
+
+inline bool selectionHasSlot(const SelectionContext &selectionState, const char *property)
+{
+    for (const ModelNode &modelNode : selectionState.selectedModelNodes()) {
+        for (const PropertyName &slotName : modelNode.metaInfo().slotNames()) {
+            if (slotName == property)
+                return true;
+        }
+    }
+
     return false;
 }
 
@@ -93,7 +106,6 @@ inline bool singleSelectedItem(const SelectionContext &selectionState)
 }
 
 bool selectionHasSameParent(const SelectionContext &selectionState);
-bool selectionIsComponent(const SelectionContext &selectionState);
 bool selectionIsComponent(const SelectionContext &selectionState);
 bool singleSelectionItemIsAnchored(const SelectionContext &selectionState);
 bool singleSelectionItemIsNotAnchored(const SelectionContext &selectionState);

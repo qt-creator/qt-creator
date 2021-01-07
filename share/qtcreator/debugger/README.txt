@@ -1,7 +1,15 @@
 
+NOTE:
+
 While the primary intention of this pretty printing implementation is
-to provide what Qt Creator needs, it can be used in a plain GDB and LLDB
-session, too.
+to provide what Qt Creator needs, it can sometimes be used in plain
+GDB and LLDB sessions, too.
+
+This features is provided as-is. There is no guarantee this works in any
+way outside Qt Creator, this setup is not officially supported.
+Bugreports or (better!) patches are welcome.
+
+
 
 With
 

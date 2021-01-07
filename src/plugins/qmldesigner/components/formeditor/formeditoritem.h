@@ -40,6 +40,7 @@ namespace QmlDesigner {
 class FormEditorScene;
 class FormEditorView;
 class AbstractFormEditorTool;
+class Connection;
 
 namespace Internal {
     class GraphicItemResizer;
@@ -197,11 +198,12 @@ public:
     QPointF instancePosition() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
     bool flowHitTest(const QPointF &point) const override;
-
 protected:
     FormEditorTransitionItem(const QmlItemNode &qmlItemNode, FormEditorScene *scene)
         : FormEditorItem(qmlItemNode, scene)
     {}
+    void paintConnection(QPainter *painter, const Connection &connection);
+    void drawLabels(QPainter *painter, const Connection &connection);
 private:
     mutable bool m_hitTest = false;
 };

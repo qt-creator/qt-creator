@@ -247,7 +247,7 @@ void DocumentClangToolRunner::runNext()
         auto [clangIncludeDir, clangVersion] = getClangIncludeDirAndVersion(m_currentRunner.get());
         qCDebug(LOG) << Q_FUNC_INFO << m_currentRunner->executable() << clangIncludeDir
                      << clangVersion << m_fileInfo.file;
-        if (clangIncludeDir.isEmpty() || clangVersion.isEmpty()
+        if (m_currentRunner->executable().isEmpty() || clangIncludeDir.isEmpty() || clangVersion.isEmpty()
             || (m_document->isModified() && !m_currentRunner->supportsVFSOverlay())) {
             runNext();
         } else {

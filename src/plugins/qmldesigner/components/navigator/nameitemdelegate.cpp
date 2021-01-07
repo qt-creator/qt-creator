@@ -133,8 +133,6 @@ static QRect drawText(QPainter *painter,
                       int iconOffset)
 {
     QString displayString = modelIndex.data(Qt::DisplayRole).toString();
-    QPoint displayStringOffset;
-    int width = 0;
 
     // Check text length does not exceed available space
     const int extraSpace = 12 + iconOffset;
@@ -142,10 +140,8 @@ static QRect drawText(QPainter *painter,
     displayString = styleOption.fontMetrics.elidedText(displayString,
                                                        Qt::ElideMiddle,
                                                        styleOption.rect.width() - extraSpace);
-    displayStringOffset = QPoint(5 + iconOffset, -5 - delegateMargin);
-
-    width = styleOption.fontMetrics.horizontalAdvance(displayString);
-
+    const QPoint displayStringOffset = QPoint(5 + iconOffset, -5 - delegateMargin);
+    const int width = styleOption.fontMetrics.horizontalAdvance(displayString);
     const QPoint textPosition = styleOption.rect.bottomLeft() + displayStringOffset;
     painter->drawText(textPosition, displayString);
 

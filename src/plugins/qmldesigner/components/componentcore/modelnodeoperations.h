@@ -88,6 +88,8 @@ void mergeWithTemplate(const SelectionContext &selectionContext);
 void removeGroup(const SelectionContext &selectionContext);
 void editAnnotation(const SelectionContext &selectionContext);
 
+void openSignalDialog(const SelectionContext &selectionContext);
+
 // ModelNodePreviewImageOperations
 QVariant previewImageDataForGenericNode(const ModelNode &modelNode);
 QVariant previewImageDataForImageNode(const ModelNode &modelNode);

@@ -293,6 +293,13 @@
 
     \image qtquickcontrols2-button-flat.gif "Flat button"
 
+    \if definded(qtdesignstudio)
+    To create a button that contains an icon, use the wizard template to
+    \l{Creating Custom Controls}{create a custom button} and drag-and-drop
+    the icon to the button background item. For an example of using the
+    wizard template, see \l{Creating a Push Button}.
+    \endif
+
     \section2 Delay Button
 
     \image qtquickcontrols2-delaybutton.gif "Delay button"

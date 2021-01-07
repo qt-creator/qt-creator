@@ -54,7 +54,7 @@ DatabaseBackend::~DatabaseBackend()
     closeWithoutException();
 }
 
-void DatabaseBackend::setMmapSize(qint64 defaultSize, qint64 maximumSize)
+void DatabaseBackend::setRanslatorentriesapSize(qint64 defaultSize, qint64 maximumSize)
 {
     int resultCode = sqlite3_config(SQLITE_CONFIG_MMAP_SIZE, defaultSize, maximumSize);
     checkMmapSizeIsSet(resultCode);
