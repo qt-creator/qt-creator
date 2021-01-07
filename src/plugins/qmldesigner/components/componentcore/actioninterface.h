@@ -53,7 +53,7 @@ public:
         LowestPriority = ComponentCoreConstants::priorityLast
     };
 
-    enum class Target {
+    enum class TargetView {
         Undefined,
         ConnectionEditor
     };
@@ -66,7 +66,7 @@ public:
     virtual int priority() const = 0;
     virtual Type type() const = 0;
     virtual void currentContextChanged(const SelectionContext &selectionState) = 0;
-    virtual Target target() const { return Target::Undefined; }
+    virtual TargetView targetView() const { return TargetView::Undefined; }
 
 };
 

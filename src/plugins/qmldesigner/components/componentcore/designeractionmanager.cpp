@@ -1480,11 +1480,11 @@ void DesignerActionManager::addCreatorCommand(Core::Command *command, const QByt
     addDesignerAction(new CommandAction(command, category, priority, overrideIcon));
 }
 
-QList<QSharedPointer<ActionInterface> > DesignerActionManager::actionsForTarget(const ActionInterface::Target &target)
+QList<QSharedPointer<ActionInterface> > DesignerActionManager::actionsForTargetView(const ActionInterface::TargetView &target)
 {
     QList<QSharedPointer<ActionInterface> > out;
     for (auto interface : m_designerActions)
-        if (interface->target() == target)
+        if (interface->targetView() == target)
             out << interface;
 
     return out;

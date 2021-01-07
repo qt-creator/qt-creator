@@ -176,7 +176,10 @@ void ConnectionViewWidget::contextMenuEvent(QContextMenuEvent *event)
             data["ModelNode"] = index.siblingAtColumn(ConnectionModel::TargetModelNodeRow).data();
             data["Signal"] = index.siblingAtColumn(ConnectionModel::TargetPropertyNameRow).data();
             DesignerActionManager &designerActionManager = QmlDesignerPlugin::instance()->designerActionManager();
-            for (auto actionInterface : designerActionManager.actionsForTarget(ActionInterface::Target::ConnectionEditor)) {
+            const auto actions = designerActionManager.actionsForTargetView(
+                ActionInterface::TargetView::ConnectionEditor);
+
+            for (auto actionInterface : actions) {
                 auto *action = actionInterface->action();
                 action->setData(data);
                 menu.addAction(action);
