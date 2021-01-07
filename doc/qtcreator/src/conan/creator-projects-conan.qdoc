@@ -1,0 +1,66 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page creator-project-conan.html
+    \previouspage creator-project-incredibuild.html
+    \nextpage creator-cli.html
+
+    \title Setting Up Conan
+
+    \l {https://conan.io}{Conan} is a C/C++ package manager that speeds up the
+    integration of C or C++ libraries into your own project. It's available on
+    all the \l{Supported Platforms}{supported development platforms}.
+
+    Conan can be integrated into most build systems that are integrated into
+    \QC:
+
+    \list
+        \li \l{https://docs.conan.io/en/latest/integrations/cmake.html}{CMake}
+        \li \l{https://docs.conan.io/en/latest/integrations/qbs.html}{Qbs}
+        \li \l{https://docs.conan.io/en/latest/integrations/qmake.html}{qmake}
+        \li \l{https://docs.conan.io/en/latest/integrations/meson.html}{Meson}
+    \endlist
+
+    The client-server architecture of Conan enables the client to fetch packages
+    from and upload them to remote servers that act as package storage. The
+    client creates the packages, and if necessary, handles building them from
+    sources. Because the client has a local cache for package storage, you can
+    work offline, as long as no new packages are needed from remote servers.
+
+    To use Conan, install it by using the Qt installer.
+
+    To enable the experimental Conan plugin, select \uicontrol Help >
+    \uicontrol {About Plugins} > \uicontrol Utilities > \uicontrol Conan.
+    Then select \uicontrol {Restart Now} to restart \QC and load the plugin.
+
+    For each project, you must write a
+    \l{https://docs.conan.io/en/latest/reference/conanfile.html}{conanfile.py}
+    or \l{https://docs.conan.io/en/latest/reference/conanfile_txt.html}
+    {conanfile.txt} file that specifies the needed libraries and packages.
+    Then, you must edit the build settings of the project to specify the
+    location of the file and the contents of the Conan install command.
+    For more information, see \l {Specifying Build Settings for Conan}.
+*/

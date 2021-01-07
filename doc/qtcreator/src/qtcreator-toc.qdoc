@@ -277,6 +277,7 @@
                 \li \l{Setting Up Nimble}
                 \li \l{Setting Up Meson}
                 \li \l{Setting Up IncrediBuild}
+                \li \l{Setting Up Conan}
             \endlist
             \li \l{Using Command Line Options}
             \li \l{Keyboard Shortcuts}
