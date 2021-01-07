@@ -282,7 +282,22 @@ int ActivationSequenceContextProcessor::findStartOfName(
 
 void ActivationSequenceContextProcessor::goBackToStartOfName()
 {
-    m_startOfNamePosition = findStartOfName(m_assistInterface, m_positionInDocument);
+    CPlusPlus::SimpleLexer tokenize;
+    tokenize.setLanguageFeatures(m_assistInterface->languageFeatures());
+    tokenize.setSkipComments(false);
+    const int state = CPlusPlus::BackwardsScanner::previousBlockState(m_textCursor.block());
+    const CPlusPlus::Tokens tokens = tokenize(m_textCursor.block().text(), state);
+    const int tokenPos = std::max(0, m_textCursor.positionInBlock() - 1);
+    const int tokIndex = CPlusPlus::SimpleLexer::tokenAt(tokens, tokenPos);
+    if (tokIndex > -1 && tokens.at(tokIndex).isStringLiteral()) {
+        const int tokenStart = tokens.at(tokIndex).utf16charOffset;
+        const int slashIndex = m_textCursor.block().text().lastIndexOf('/',
+            std::min(m_textCursor.positionInBlock(), m_textCursor.block().text().length() - 1));
+        m_startOfNamePosition = m_textCursor.block().position() + std::max(slashIndex, tokenStart)
+                + 1;
+    } else {
+        m_startOfNamePosition = findStartOfName(m_assistInterface, m_positionInDocument);
+    }
 
     if (m_startOfNamePosition != m_positionInDocument)
         m_textCursor.setPosition(m_startOfNamePosition);
