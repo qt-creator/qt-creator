@@ -68,6 +68,8 @@
             the metadata file and assets are exported.
         \li Deselect the \uicontrol {Export assets} check box to disable
             exporting assets and only generate the metadata file.
+        \li Select the \uicontrol {Export components separately} check box to generate separate
+            metadata files for each component.
         \li In the file list, select the \l{Qt Quick UI Forms}{UI forms}
             to be exported.
         \li Select \uicontrol {Export} export to start the export process.
