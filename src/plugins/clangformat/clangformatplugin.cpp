@@ -167,8 +167,8 @@ bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorS
                  "information."),
              Utils::InfoBarEntry::GlobalSuppression::Enabled);
     Core::ICore::infoBar()->addInfo(info);
-    return true;
 #endif
+    return true;
 }
 
 } // namespace ClangFormat
