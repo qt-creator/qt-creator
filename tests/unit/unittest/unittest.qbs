@@ -337,7 +337,7 @@ Project {
 
         Group {
             name: "libclang tests"
-            condition: libclang.present
+            condition: libclang.present && (!qbs.targetOS.contains("windows") || libclang.llvmBuildModeMatches)
             files: [
                 "activationsequencecontextprocessor-test.cpp",
                 "activationsequenceprocessor-test.cpp",
