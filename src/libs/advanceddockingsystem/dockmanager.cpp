@@ -358,7 +358,9 @@ namespace ADS
         saveStartupWorkspace();
 
         for (auto floatingWidget : d->m_floatingWidgets) {
-            if (floatingWidget)
+            /* There have been crashes with partially destructed widgets in
+               m_floatingWidgets. Those do not have a parent. */
+            if (floatingWidget && floatingWidget->parent() == this)
                 delete floatingWidget.data();
         }
         d->m_floatingWidgets.clear();
