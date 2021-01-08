@@ -73,6 +73,7 @@ void scanDir(const QString &dir)
     paths.maybeInsert(Utils::FilePath::fromString(dir), Dialect::Qml);
     ModelManagerInterface::importScan(result, ModelManagerInterface::workingCopy(), paths,
                                       ModelManagerInterface::instance(), false);
+    ModelManagerInterface::instance()->test_joinAllThreads();
     ViewerContext vCtx;
     vCtx.paths.append(dir);
     Snapshot snap = ModelManagerInterface::instance()->snapshot();
@@ -123,7 +124,8 @@ void tst_ImportCheck::test_data()
     QTest::addColumn<QStringList>("expectedFiles");
     QTest::newRow("base") << QStringList(QString(TESTSRCDIR "/base"))
                           << QStringList({"QML 1.0", "QtQml 2.2", "QtQml 2.1", "QtQuick 2.0",
-                                          "QtQml 2.0", "QtQuick 2.1", "QtQuick 2.2", "<cpp>"})
+                                          "QtQml 2.0", "QtQuick 2.1", "QtQuick 2.2", "QtQuick 2.14",
+                                          "<cpp>"})
                           << QStringList();
     QTest::newRow("001_flatQmlOnly") << QStringList(QString(TESTSRCDIR "/001_flatQmlOnly"))
                           << QStringList()
@@ -169,7 +171,8 @@ void tst_ImportCheck::test_data()
                               << QString(TESTSRCDIR "/003_packageQmlOnly/QtGraphicalEffects/FastBlur.qml"));
     QTest::newRow("004_cppOnly copy") << QStringList(QString(TESTSRCDIR "/004_cppOnly copy"))
                           << QStringList({ "QML 1.0", "QtQml 2.2", "QtQml 2.1", "QtQuick 2.0",
-                                           "QtQml 2.0", "QtQuick 2.1", "QtQuick 2.2", "<cpp>" })
+                                           "QtQml 2.0", "QtQuick 2.1", "QtQuick 2.2", "QtQuick 2.14",
+                                           "<cpp>" })
                           << QStringList();
 }
 
@@ -185,6 +188,7 @@ void tst_ImportCheck::test()
         lPaths.maybeInsert(Utils::FilePath::fromString(path), Dialect::Qml);
     ModelManagerInterface::importScan(result, ModelManagerInterface::workingCopy(), lPaths,
                                       ModelManagerInterface::instance(), false);
+    ModelManagerInterface::instance()->test_joinAllThreads();
     ViewerContext vCtx;
     vCtx.paths.append(paths);
     Snapshot snap = ModelManagerInterface::instance()->snapshot();
