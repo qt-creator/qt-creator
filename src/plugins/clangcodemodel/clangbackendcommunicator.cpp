@@ -478,6 +478,7 @@ void BackendCommunicator::documentsClosed(const FileContainers &fileContainers)
 {
     const DocumentsClosedMessage message(fileContainers);
     m_sender->documentsClosed(message);
+    documentVisibilityChanged(); // QTCREATORBUG-25193
 }
 
 void BackendCommunicator::unsavedFilesUpdated(const FileContainers &fileContainers)
