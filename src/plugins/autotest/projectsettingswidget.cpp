@@ -31,6 +31,7 @@
 #include "testtreemodel.h"
 
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <QBoxLayout>
 #include <QComboBox>
@@ -40,7 +41,10 @@
 namespace Autotest {
 namespace Internal {
 
-enum ItemDataRole  { FrameworkIdRole = Qt::UserRole + 1 };
+enum ItemDataRole  {
+    BaseIdRole = Qt::UserRole + 1,
+    BaseTypeRole
+};
 
 static QSpacerItem *createSpacer(QSizePolicy::Policy horizontal, QSizePolicy::Policy vertical)
 {
@@ -90,13 +94,15 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(ProjectExplorer::Project *p
     m_useGlobalSettings->setCurrentIndex(m_projectSettings->useGlobalSettings() ? 0 : 1);
     generalWidget->setDisabled(m_projectSettings->useGlobalSettings());
 
-    populateFrameworks(m_projectSettings->activeFrameworks());
+    populateFrameworks(m_projectSettings->activeFrameworks(),
+                       m_projectSettings->activeTestTools());
 
     connect(m_useGlobalSettings, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, [this, generalWidget](int index) {
         generalWidget->setEnabled(index != 0);
         m_projectSettings->setUseGlobalSettings(index == 0);
-        m_syncFrameworksTimer.start(3000);
+        m_syncTimer.start(3000);
+        m_syncType = ITestBase::Framework | ITestBase::Tool;
     });
     connect(m_activeFrameworks, &QTreeWidget::itemChanged,
             this, &ProjectTestSettingsWidget::onActiveFrameworkChanged);
@@ -104,29 +110,53 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(ProjectExplorer::Project *p
             this, [this](int index) {
         m_projectSettings->setRunAfterBuild(RunAfterBuildMode(index));
     });
-    m_syncFrameworksTimer.setSingleShot(true);
-    connect(&m_syncFrameworksTimer, &QTimer::timeout,
-            TestTreeModel::instance(), &TestTreeModel::synchronizeTestFrameworks);
+    m_syncTimer.setSingleShot(true);
+    connect(&m_syncTimer, &QTimer::timeout,
+            [this]() {
+        auto testTreeModel = TestTreeModel::instance();
+        if (m_syncType & ITestBase::Framework)
+            testTreeModel->synchronizeTestFrameworks();
+        if (m_syncType & ITestBase::Tool)
+            testTreeModel->synchronizeTestTools();
+        m_syncType = ITestBase::None;
+    });
 }
 
-void ProjectTestSettingsWidget::populateFrameworks(const QHash<ITestFramework *, bool> &frameworks)
+void ProjectTestSettingsWidget::populateFrameworks(const QHash<ITestFramework *, bool> &frameworks,
+                                                   const QHash<ITestTool *, bool> &testTools)
 {
     TestFrameworks sortedFrameworks = frameworks.keys();
     Utils::sort(sortedFrameworks, &ITestFramework::priority);
 
-    for (ITestFramework *framework : sortedFrameworks) {
-        auto item = new QTreeWidgetItem(m_activeFrameworks, QStringList(QLatin1String(framework->name())));
+    auto generateItem = [this](ITestBase *frameworkOrTestTool, bool checked) {
+        auto item = new QTreeWidgetItem(m_activeFrameworks, {QLatin1String(frameworkOrTestTool->name())});
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
-        item->setCheckState(0, frameworks.value(framework) ? Qt::Checked : Qt::Unchecked);
-        item->setData(0, FrameworkIdRole, framework->id().toSetting());
-    }
+        item->setCheckState(0, checked ? Qt::Checked : Qt::Unchecked);
+        item->setData(0, BaseIdRole, frameworkOrTestTool->id().toSetting());
+        item->setData(0, BaseTypeRole, frameworkOrTestTool->type());
+    };
+
+    for (ITestFramework *framework : qAsConst(sortedFrameworks))
+        generateItem(framework, frameworks.value(framework));
+
+    // FIXME: testTools aren't sorted and we cannot use priority here
+    auto end = testTools.cend();
+    for (auto it = testTools.cbegin(); it != end; ++it)
+        generateItem(it.key(), it.value());
 }
 
 void ProjectTestSettingsWidget::onActiveFrameworkChanged(QTreeWidgetItem *item, int column)
 {
-    auto id = Utils::Id::fromSetting(item->data(column, FrameworkIdRole));
-    m_projectSettings->activateFramework(id, item->data(0, Qt::CheckStateRole) == Qt::Checked);
-    m_syncFrameworksTimer.start(3000);
+    auto id = Utils::Id::fromSetting(item->data(column, BaseIdRole));
+    int type = item->data(column, BaseTypeRole).toInt();
+    if (type == ITestBase::Framework)
+        m_projectSettings->activateFramework(id, item->data(0, Qt::CheckStateRole) == Qt::Checked);
+    else if (type == ITestBase::Tool)
+        m_projectSettings->activateTestTool(id, item->data(0, Qt::CheckStateRole) == Qt::Checked);
+    else
+        QTC_ASSERT(! "unexpected test base type", return);
+    m_syncTimer.start(3000);
+    m_syncType |= type;
 }
 
 } // namespace Internal

@@ -73,26 +73,43 @@ void TestProjectSettings::activateFramework(const Utils::Id &id, bool activate)
         framework->resetRootNode();
 }
 
+void TestProjectSettings::activateTestTool(const Utils::Id &id, bool activate)
+{
+    ITestTool *testTool = TestFrameworkManager::testToolForId(id);
+    m_activeTestTools[testTool] = activate;
+    if (!activate)
+        testTool->resetRootNode();
+}
+
 void TestProjectSettings::load()
 {
     const QVariant useGlobal = m_project->namedSettings(Constants::SK_USE_GLOBAL);
     m_useGlobalSettings = useGlobal.isValid() ? useGlobal.toBool() : true;
 
-    const TestFrameworks registered = TestFrameworkManager::registeredFrameworks();
-    qCDebug(LOG) << "Registered frameworks sorted by priority" << registered;
+    const TestFrameworks registeredFrameworks = TestFrameworkManager::registeredFrameworks();
+    qCDebug(LOG) << "Registered frameworks sorted by priority" << registeredFrameworks;
+    const TestTools registeredTestTools = TestFrameworkManager::registeredTestTools();
     const QVariant activeFrameworks = m_project->namedSettings(SK_ACTIVE_FRAMEWORKS);
 
     m_activeTestFrameworks.clear();
+    m_activeTestTools.clear();
     if (activeFrameworks.isValid()) {
         const QMap<QString, QVariant> frameworksMap = activeFrameworks.toMap();
-        for (ITestFramework *framework : registered) {
+        for (ITestFramework *framework : registeredFrameworks) {
             const Utils::Id id = framework->id();
             bool active = frameworksMap.value(id.toString(), framework->active()).toBool();
             m_activeTestFrameworks.insert(framework, active);
         }
+        for (ITestTool *testTool : registeredTestTools) {
+            const Utils::Id id = testTool->id();
+            bool active = frameworksMap.value(id.toString(), testTool->active()).toBool();
+            m_activeTestTools.insert(testTool, active);
+        }
     } else {
-        for (ITestFramework *framework : registered)
+        for (ITestFramework *framework : registeredFrameworks)
             m_activeTestFrameworks.insert(framework, framework->active());
+        for (ITestTool *testTool : registeredTestTools)
+            m_activeTestTools.insert(testTool, testTool->active());
     }
 
     const QVariant runAfterBuild = m_project->namedSettings(SK_RUN_AFTER_BUILD);
@@ -107,6 +124,9 @@ void TestProjectSettings::save()
     QVariantMap activeFrameworks;
     auto end = m_activeTestFrameworks.cend();
     for (auto it = m_activeTestFrameworks.cbegin(); it != end; ++it)
+        activeFrameworks.insert(it.key()->id().toString(), it.value());
+    auto endTools = m_activeTestTools.cend();
+    for (auto it = m_activeTestTools.cbegin(); it != endTools; ++it)
         activeFrameworks.insert(it.key()->id().toString(), it.value());
     m_project->setNamedSettings(SK_ACTIVE_FRAMEWORKS, activeFrameworks);
     m_project->setNamedSettings(SK_RUN_AFTER_BUILD, int(m_runAfterBuild));

@@ -353,7 +353,21 @@ void TestTreeModel::synchronizeTestFrameworks()
 
 void TestTreeModel::synchronizeTestTools()
 {
-    // currently no project settings...
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    TestTools tools;
+    if (!project || AutotestPlugin::projectSettings(project)->useGlobalSettings()) {
+        tools = Utils::filtered(TestFrameworkManager::registeredTestTools(),
+                                &ITestFramework::active);
+        qCDebug(LOG) << "Active test tools" << tools; // FIXME tools aren't sorted
+    } else { // we've got custom project settings
+        const TestProjectSettings *settings = AutotestPlugin::projectSettings(project);
+        const QHash<ITestTool *, bool> active = settings->activeTestTools();
+        tools = Utils::filtered(TestFrameworkManager::registeredTestTools(),
+                                [active](ITestTool *testTool) {
+            return active.value(testTool, false);
+        });
+    }
+
     // pre-check to avoid further processing when test tools are unchanged
     Utils::TreeItem *invisibleRoot = rootItem();
     QSet<ITestTool *> newlyAdded;
@@ -367,7 +381,7 @@ void TestTreeModel::synchronizeTestTools()
     for (ITestTreeItem *oldFrameworkRoot : oldFrameworkRoots)
         takeItem(oldFrameworkRoot);  // do NOT delete the ptr is still held by TestFrameworkManager
 
-    for (ITestTool *testTool : TestFrameworkManager::registeredTestTools()) {
+    for (ITestTool *testTool : tools) {
         ITestTreeItem *testToolRootNode = testTool->rootNode();
         if (testTool->active()) {
             invisibleRoot->appendChild(testToolRootNode);
@@ -376,7 +390,6 @@ void TestTreeModel::synchronizeTestTools()
         }
     }
 
-    const Project *project = SessionManager::startupProject();
     if (project) {
         const QList<Target *> &allTargets = project->targets();
         auto target = allTargets.empty() ? nullptr : allTargets.first();

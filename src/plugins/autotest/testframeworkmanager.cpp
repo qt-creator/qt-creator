@@ -99,6 +99,14 @@ ITestFramework *TestFrameworkManager::frameworkForId(Id frameworkId)
     });
 }
 
+ITestTool *TestFrameworkManager::testToolForId(Id testToolId)
+{
+    return Utils::findOrDefault(s_instance->m_registeredTestTools,
+            [testToolId](ITestTool *testTool) {
+                return testTool->id() == testToolId;
+    });
+}
+
 ITestTool *TestFrameworkManager::testToolForBuildSystemId(Id buildSystemId)
 {
     if (!buildSystemId.isValid())

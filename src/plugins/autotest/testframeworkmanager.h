@@ -48,6 +48,7 @@ public:
     void synchronizeSettings(QSettings *s);
 
     static ITestFramework *frameworkForId(Utils::Id frameworkId);
+    static ITestTool *testToolForId(Utils::Id testToolId);
     static ITestTool *testToolForBuildSystemId(Utils::Id buildSystemId);
     static void activateFrameworksAndToolsFromSettings(const Internal::TestSettings *settings);
     static const TestFrameworks registeredFrameworks();
