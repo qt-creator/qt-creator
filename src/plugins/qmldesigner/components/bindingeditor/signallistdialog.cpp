@@ -118,8 +118,14 @@ void SignalListDialog::initialize(QStandardItemModel *model)
     header->setStretchLastSection(false);
 
     auto eventFilterFun = [this](const QString &str) {
-        if (auto *fm = qobject_cast<SignalListFilterModel *>(m_table->model()))
-            fm->setFilterFixedString(str);
+        if (auto *fm = qobject_cast<SignalListFilterModel *>(m_table->model())) {
+            const QRegularExpression::PatternOption option
+                = fm->filterCaseSensitivity() == Qt::CaseInsensitive
+                      ? QRegularExpression::CaseInsensitiveOption
+                      : QRegularExpression::NoPatternOption;
+            fm->setFilterRegularExpression(
+                QRegularExpression(QRegularExpression::escape(str), option));
+        }
     };
     connect(m_searchLine, &Utils::FancyLineEdit::filterChanged, eventFilterFun);
 }
