@@ -29,8 +29,6 @@
 #include <QCryptographicHash>
 
 #include <limits>
-#include <charconv>
-
 
 using namespace LanguageUtils;
 
@@ -75,12 +73,12 @@ bool ComponentVersion::isValid() const
 
 QString ComponentVersion::toString() const
 {
-    char text[std::numeric_limits<int>::digits10 * 2 + 1];
-    auto [majorEnd, majorError] = std::to_chars(std::begin(text), std::end(text), _major);
-    *majorEnd = '.';
-    ++majorEnd;
-    auto [minorEnd, minorError] = std::to_chars(majorEnd, std::end(text), _minor);
-    return QLatin1String(std::data(text), static_cast<int>(minorEnd - std::begin(text)));
+    QByteArray temp;
+    QByteArray result;
+    result += temp.setNum(_major);
+    result += '.';
+    result += temp.setNum(_minor);
+    return QString::fromLatin1(result);
 }
 
 void ComponentVersion::addToHash(QCryptographicHash &hash) const
