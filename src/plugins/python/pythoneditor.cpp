@@ -87,6 +87,10 @@ static QWidget *createEditorWidget()
     replButton->setProperty("noArrow", true);
     replButton->setText(QCoreApplication::translate("Python", "REPL"));
     replButton->setPopupMode(QToolButton::InstantPopup);
+    replButton->setToolTip(QCoreApplication::translate(
+        "Python",
+        "Open interactive Python. Either importing nothing, importing the current file, or "
+        "importing everything (*) from the current file."));
     auto menu = new QMenu(replButton);
     replButton->setMenu(menu);
     menu->addAction(Core::ActionManager::command(Constants::PYTHON_OPEN_REPL)->action());
