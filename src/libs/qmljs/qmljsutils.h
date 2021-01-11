@@ -57,8 +57,8 @@ QMLJS_EXPORT DiagnosticMessage errorMessage(const SourceLocation &loc,
 
 QMLJS_EXPORT bool maybeModuleVersion(const QString &version);
 
-QMLJS_EXPORT QString modulePath(const QString &moduleImportName, const QString &version,
-                                const QStringList &importPaths);
+QMLJS_EXPORT QStringList modulePaths(const QString &moduleImportName, const QString &version,
+                                     const QStringList &importPaths);
 
 template <class T>
 SourceLocation locationFromRange(const T *node)

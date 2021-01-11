@@ -233,12 +233,12 @@ bool QmlJS::maybeModuleVersion(const QString &version) {
  * \return The module paths if found, an empty string otherwise
  * \see qmlimportscanner in qtdeclarative/tools
  */
-QString QmlJS::modulePath(const QString &name, const QString &version,
-                          const QStringList &importPaths)
+QStringList QmlJS::modulePaths(const QString &name, const QString &version,
+                               const QStringList &importPaths)
 {
     Q_ASSERT(maybeModuleVersion(version));
     if (importPaths.isEmpty())
-        return QString();
+        return {};
 
     const QString sanitizedVersion = version == undefinedVersion ? QString() : version;
     const QStringList parts = name.split('.', Qt::SkipEmptyParts);
@@ -249,6 +249,7 @@ QString QmlJS::modulePath(const QString &name, const QString &version,
     // sanitized version.
     const QRegularExpression re("\\.?\\d+$");
 
+    QStringList result;
     QString candidate;
 
     for (QString ver = sanitizedVersion; !ver.isEmpty(); ver.remove(re)) {
@@ -260,7 +261,7 @@ QString QmlJS::modulePath(const QString &name, const QString &version,
                                                                    ver,
                                                                    mkpath(parts.mid(i + 1))));
                 if (QDir(candidate).exists())
-                    return candidate;
+                    result << candidate;
             }
         }
     }
@@ -269,10 +270,10 @@ QString QmlJS::modulePath(const QString &name, const QString &version,
     for (const QString &path: importPaths) {
         candidate = QDir::cleanPath(QString::fromLatin1("%1/%2").arg(path, mkpath(parts)));
         if (QDir(candidate).exists())
-            return candidate;
+            result << candidate;
     }
 
-    return QString();
+    return result;
 }
 
 bool QmlJS::isValidBuiltinPropertyType(const QString &name)

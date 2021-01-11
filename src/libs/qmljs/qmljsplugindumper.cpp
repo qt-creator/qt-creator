@@ -421,16 +421,17 @@ QString PluginDumper::buildQmltypesPath(const QString &name) const
         version = m.captured("major") + QLatin1Char('.') + m.captured("minor");
     }
 
-    const QString path = modulePath(qualifiedName, version, m_modelManager->importPathsNames());
+    const QStringList paths = modulePaths(qualifiedName, version, m_modelManager->importPathsNames());
 
-    if (path.isEmpty())
+    if (paths.isEmpty())
         return QString();
 
-    QDirIterator it(path, QStringList { "*.qmltypes" }, QDir::Files);
+    for (const QString &path : paths) {
+        QDirIterator it(path, QStringList { "*.qmltypes" }, QDir::Files);
 
-    if (it.hasNext())
-        return it.next();
-
+        if (it.hasNext())
+            return it.next();
+    }
     return QString();
 }
 

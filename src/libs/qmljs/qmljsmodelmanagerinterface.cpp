@@ -869,7 +869,9 @@ static QString modulePath(const ImportInfo &import, const QStringList &paths)
 {
     if (!import.version().isValid())
         return QString();
-    return modulePath(import.name(), import.version().toString(), paths);
+
+    const QStringList modPaths = modulePaths(import.name(), import.version().toString(), paths);
+    return modPaths.value(0); // first is best match
 }
 
 static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snapshot,

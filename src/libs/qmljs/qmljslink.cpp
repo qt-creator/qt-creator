@@ -410,8 +410,13 @@ Import LinkPrivate::importNonFile(const Document::Ptr &doc, const ImportInfo &im
     const QString packageName = importInfo.name();
     const ComponentVersion version = importInfo.version();
 
-    QString libraryPath = modulePath(packageName, version.toString(), m_importPaths);
-    bool importFound = !libraryPath.isEmpty() && importLibrary(doc, libraryPath, &import, import.object);
+    QStringList libraryPaths = modulePaths(packageName, version.toString(), m_importPaths);
+    bool importFound = false;
+    for (const QString &libPath : libraryPaths) {
+        importFound = !libPath.isEmpty() && importLibrary(doc, libPath, &import, import.object);
+        if (importFound)
+            break;
+    }
 
     if (!importFound) {
         for (const QString &dir : qAsConst(m_applicationDirectories)) {
@@ -501,7 +506,10 @@ bool LinkPrivate::importLibrary(const Document::Ptr &doc,
         Import subImport;
         subImport.valid = true;
         subImport.info = ImportInfo::moduleImport(importName, vNow, importInfo.as(), importInfo.ast());
-        subImport.libraryPath = modulePath(importName, vNow.toString(), m_importPaths);
+
+        const QStringList libraryPaths = modulePaths(importName, vNow.toString(), m_importPaths);
+        subImport.libraryPath = libraryPaths.value(0); // first is the best match
+
         bool subImportFound = importLibrary(doc, subImport.libraryPath, &subImport, targetObject, importPath, true);
 
         if (!subImportFound && errorLoc.isValid()) {
