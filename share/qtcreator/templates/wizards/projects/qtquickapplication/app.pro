@@ -18,6 +18,8 @@ RESOURCES += qml.qrc
 
 TRANSLATIONS += \\
     %{TsFileName}
+CONFIG += lrelease
+CONFIG += embed_translations
 @endif
 
 # Additional import path used to resolve QML modules in Qt Creator's code model

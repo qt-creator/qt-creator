@@ -26,6 +26,14 @@ CppApplication {
         "%{TsFileName}",
 @endif
     ]
+    @if %{HasTranslation}
+
+    Group {
+        fileTagsFilter: "qm"
+        Qt.core.resourcePrefix: "/i18n"
+        fileTags: "qt.core.resource_data"
+    }
+@endif
 
     Group {     // Properties for the produced executable
         fileTagsFilter: "application"

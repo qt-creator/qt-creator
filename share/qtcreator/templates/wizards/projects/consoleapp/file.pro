@@ -13,6 +13,8 @@ SOURCES += \\
 
 TRANSLATIONS += \\
     %{TsFileName}
+CONFIG += lrelease
+CONFIG += embed_translations
 @endif
 
 # Default rules for deployment.

@@ -1,5 +1,10 @@
 %{Cpp:LicenseTemplate}\
 %{JS: QtSupport.qtIncludes([], ["QtGui/QGuiApplication", "QtQml/QQmlApplicationEngine"])}
+@if %{HasTranslation}
+#include <QLocale>
+#include <QTranslator>
+@endif
+
 int main(int argc, char *argv[])
 {
 @if %{UseVirtualKeyboard}
@@ -22,6 +27,18 @@ int main(int argc, char *argv[])
 @endif
 
     QGuiApplication app(argc, argv);
+@if %{HasTranslation}
+
+    QTranslator translator;
+    const QStringList uiLanguages = QLocale::system().uiLanguages();
+    for (const QString &locale : uiLanguages) {
+        const QString baseName = "%{JS: value('ProjectName') + '_'}" + QLocale(locale).name();
+        if (translator.load(":/i18n/" + baseName)) {
+            app.installTranslator(&translator);
+            break;
+        }
+    }
+@endif
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/main.qml"));

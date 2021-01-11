@@ -20,6 +20,14 @@ QtApplication {
         "%{TsFileName}",
 @endif
     ]
+@if %{HasTranslation}
+
+    Group {
+        fileTagsFilter: "qm"
+        Qt.core.resourcePrefix: "/i18n"
+        fileTags: "qt.core.resource_data"
+    }
+@endif
 
     install: true
     installDir: qbs.targetOS.contains("qnx") ? FileInfo.joinPaths("/tmp", name, "bin") : base
