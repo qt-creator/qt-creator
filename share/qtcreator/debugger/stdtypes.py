@@ -242,7 +242,11 @@ def qdump__std__list(d, value):
 
 
 def qdump__std__list__QNX(d, value):
-    (proxy, head, size) = value.split("ppp")
+    try:
+        _ = value["_Mypair"]["_Myval2"]["_Myproxy"]
+        (proxy, head, size) = value.split("ppp")
+    except Exception:
+        (head, size) = value.split("pp")
     d.putItemCount(size, 1000)
 
     if d.isExpanded():
@@ -330,7 +334,11 @@ def qdump__std__map(d, value):
 
 
 def qdump_std__map__helper(d, value):
-    (proxy, head, size) = value.split("ppp")
+    try:
+        _ = value["_Mypair"]["_Myval2"]["_Myval2"]["_Myproxy"]
+        (proxy, head, size) = value.split("ppp")
+    except Exception:
+        (head, size) = value.split("pp")
     d.check(0 <= size and size <= 100 * 1000 * 1000)
     d.putItemCount(size)
     if d.isExpanded():
@@ -505,7 +513,11 @@ def qdump__std__set(d, value):
 
 
 def qdump__std__set__QNX(d, value):
-    (proxy, head, size) = value.split("ppp")
+    try:
+        _ = value["_Mypair"]["_Myval2"]["_Myval2"]["_Myproxy"]
+        (proxy, head, size) = value.split("ppp")
+    except Exception:
+        (head, size) = value.split("pp")
     d.check(0 <= size and size <= 100 * 1000 * 1000)
     d.putItemCount(size)
     if d.isExpanded():
