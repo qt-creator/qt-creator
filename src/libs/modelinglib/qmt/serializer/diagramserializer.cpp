@@ -307,7 +307,7 @@ inline void Access<Archive, DAssociationEnd>::serialize(Archive &archive, DAssoc
 {
     archive || tag(associationEnd)
             || attr("name", associationEnd, &DAssociationEnd::name, &DAssociationEnd::setName)
-            || attr("cradinality", associationEnd, &DAssociationEnd::cardinality, &DAssociationEnd::setCardinatlity)
+            || attr("cradinality", associationEnd, &DAssociationEnd::cardinality, &DAssociationEnd::setCardinality)
             || attr("navigable", associationEnd, &DAssociationEnd::isNavigable, &DAssociationEnd::setNavigable)
             || attr("kind", associationEnd, &DAssociationEnd::kind, &DAssociationEnd::setKind)
             || end;
@@ -341,7 +341,7 @@ inline void Access<Archive, DConnectionEnd>::serialize(Archive &archive, DConnec
 {
     archive || tag(connectionEnd)
             || attr("name", connectionEnd, &DConnectionEnd::name, &DConnectionEnd::setName)
-            || attr("cradinality", connectionEnd, &DConnectionEnd::cardinality, &DConnectionEnd::setCardinatlity)
+            || attr("cradinality", connectionEnd, &DConnectionEnd::cardinality, &DConnectionEnd::setCardinality)
             || attr("navigable", connectionEnd, &DConnectionEnd::isNavigable, &DConnectionEnd::setNavigable)
             || end;
 }

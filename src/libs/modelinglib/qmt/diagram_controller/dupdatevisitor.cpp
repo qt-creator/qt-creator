@@ -207,14 +207,14 @@ void DUpdateVisitor::visitMAssociation(const MAssociation *association)
     QMT_ASSERT(dassociation, return);
     DAssociationEnd endA;
     endA.setName(association->endA().name());
-    endA.setCardinatlity(association->endA().cardinality());
+    endA.setCardinality(association->endA().cardinality());
     endA.setNavigable(association->endA().isNavigable());
     endA.setKind(association->endA().kind());
     if (isUpdating(endA != dassociation->endA()))
         dassociation->setEndA(endA);
     DAssociationEnd endB;
     endB.setName(association->endB().name());
-    endB.setCardinatlity(association->endB().cardinality());
+    endB.setCardinality(association->endB().cardinality());
     endB.setNavigable(association->endB().isNavigable());
     endB.setKind(association->endB().kind());
     if (isUpdating(endB != dassociation->endB()))
@@ -230,13 +230,13 @@ void DUpdateVisitor::visitMConnection(const MConnection *connection)
         dconnection->setCustomRelationId(connection->customRelationId());
     DConnectionEnd endA;
     endA.setName(connection->endA().name());
-    endA.setCardinatlity(connection->endA().cardinality());
+    endA.setCardinality(connection->endA().cardinality());
     endA.setNavigable(connection->endA().isNavigable());
     if (isUpdating(endA != dconnection->endA()))
         dconnection->setEndA(endA);
     DConnectionEnd endB;
     endB.setName(connection->endB().name());
-    endB.setCardinatlity(connection->endB().cardinality());
+    endB.setCardinality(connection->endB().cardinality());
     endB.setNavigable(connection->endB().isNavigable());
     if (isUpdating(endB != dconnection->endB()))
         dconnection->setEndB(endB);

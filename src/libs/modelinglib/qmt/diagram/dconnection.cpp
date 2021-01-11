@@ -43,7 +43,7 @@ void DConnectionEnd::setName(const QString &name)
     m_name = name;
 }
 
-void DConnectionEnd::setCardinatlity(const QString &cardinality)
+void DConnectionEnd::setCardinality(const QString &cardinality)
 {
     m_cardinality = cardinality;
 }

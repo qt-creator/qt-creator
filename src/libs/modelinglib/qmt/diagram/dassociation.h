@@ -40,7 +40,7 @@ public:
     QString name() const { return m_name; }
     void setName(const QString &name);
     QString cardinality() const { return m_cardinality; }
-    void setCardinatlity(const QString &cardinality);
+    void setCardinality(const QString &cardinality);
     MAssociationEnd::Kind kind() const { return m_kind; }
     void setKind(MAssociationEnd::Kind kind);
     bool isNavigable() const { return m_isNavigable; }

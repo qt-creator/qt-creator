@@ -43,7 +43,7 @@ void DAssociationEnd::setName(const QString &name)
     m_name = name;
 }
 
-void DAssociationEnd::setCardinatlity(const QString &cardinality)
+void DAssociationEnd::setCardinality(const QString &cardinality)
 {
     m_cardinality = cardinality;
 }
