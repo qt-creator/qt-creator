@@ -27,7 +27,6 @@
 
 #include "transitionwarningitem.h"
 #include <QGraphicsSceneMouseEvent>
-#include <QGraphicsTextItem>
 #include <QKeyEvent>
 #include <QPen>
 #include <QPointF>
