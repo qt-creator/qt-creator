@@ -906,11 +906,15 @@ void CMakeBuildSystem::runCTest()
     }
     qCDebug(cmakeBuildSystemLog) << "Requesting ctest run after cmake run";
 
+    BuildDirParameters parameters(cmakeBuildConfiguration());
+    QTC_ASSERT(parameters.isValid(), return);
+
+    FilePath workingDirectory = workDirectory(parameters);
     CommandLine cmd{m_ctestPath, {"-N", "--show-only=json-v1"}};
     SynchronousProcess ctest;
     ctest.setTimeoutS(1);
     ctest.setEnvironment(cmakeBuildConfiguration()->environment().toStringList());
-    ctest.setWorkingDirectory(cmakeBuildConfiguration()->buildDirectory().toString());
+    ctest.setWorkingDirectory(workingDirectory.toString());
 
     const SynchronousProcessResponse response = ctest.run(cmd);
     if (response.result == SynchronousProcessResponse::Finished) {
