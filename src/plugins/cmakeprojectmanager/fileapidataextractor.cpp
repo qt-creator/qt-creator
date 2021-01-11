@@ -348,10 +348,15 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
             }
 
             QString ending;
-            if (ci.language == "C")
+            QString qtcPchFile;
+            if (ci.language == "C") {
                 ending = "/cmake_pch.h";
-            else if (ci.language == "CXX")
+                qtcPchFile = "qtc_cmake_pch.h";
+            }
+            else if (ci.language == "CXX") {
                 ending = "/cmake_pch.hxx";
+                qtcPchFile = "qtc_cmake_pch.hxx";
+            }
 
             ++counter;
             RawProjectPart rpp;
@@ -362,13 +367,7 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
             rpp.setMacros(transform<QVector>(ci.defines, &DefineInfo::define));
             rpp.setHeaderPaths(transform<QVector>(ci.includes, &IncludeInfo::path));
 
-            RawProjectPartFlags cProjectFlags;
-            cProjectFlags.commandLineFlags = splitFragments(ci.fragments);
-            rpp.setFlagsForC(cProjectFlags);
-
-            RawProjectPartFlags cxxProjectFlags;
-            cxxProjectFlags.commandLineFlags = cProjectFlags.commandLineFlags;
-            rpp.setFlagsForCxx(cxxProjectFlags);
+            QStringList fragments = splitFragments(ci.fragments);
 
             FilePath precompiled_header
                 = FilePath::fromString(findOrDefault(t.sources, [&ending](const SourceInfo &si) {
@@ -383,8 +382,37 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
                     const FilePath parentDir = FilePath::fromString(sourceDir.absolutePath());
                     precompiled_header = parentDir.pathAppended(precompiled_header.toString());
                 }
-                rpp.setPreCompiledHeaders({precompiled_header.toString()});
+
+                // Remove the CMake PCH usage command line options in order to avoid the case
+                // when the build system would produce a .pch/.gch file that would be treated
+                // by the Clang code model as its own and fail.
+                auto remove = [&](const QStringList &args) {
+                    auto foundPos = std::search(fragments.begin(), fragments.end(),
+                                                args.begin(), args.end());
+                    if (foundPos != fragments.end())
+                        fragments.erase(foundPos, std::next(foundPos, args.size()));
+                };
+
+                remove({"-Xclang", "-include-pch", "-Xclang", precompiled_header.toString() + ".gch"});
+                remove({"-Xclang", "-include-pch", "-Xclang", precompiled_header.toString() + ".pch"});
+                remove({"-Xclang", "-include", "-Xclang", precompiled_header.toString()});
+                remove({"-include", precompiled_header.toString()});
+                remove({"/FI", precompiled_header.toString()});
+
+                // Make a copy of the CMake PCH header and use it instead
+                FilePath qtc_precompiled_header = precompiled_header.parentDir().pathAppended(qtcPchFile);
+                FileUtils::copyIfDifferent(precompiled_header, qtc_precompiled_header);
+
+                rpp.setPreCompiledHeaders({qtc_precompiled_header.toString()});
             }
+
+            RawProjectPartFlags cProjectFlags;
+            cProjectFlags.commandLineFlags = fragments;
+            rpp.setFlagsForC(cProjectFlags);
+
+            RawProjectPartFlags cxxProjectFlags;
+            cxxProjectFlags.commandLineFlags = cProjectFlags.commandLineFlags;
+            rpp.setFlagsForCxx(cxxProjectFlags);
 
             const bool isExecutable = t.type == "EXECUTABLE";
             rpp.setBuildTargetType(isExecutable ? ProjectExplorer::BuildTargetType::Executable

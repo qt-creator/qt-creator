@@ -175,14 +175,6 @@ void CompilerOptionsBuilder::addSyntaxOnly()
     isClStyle() ? add("/Zs") : add("-fsyntax-only");
 }
 
-void CompilerOptionsBuilder::remove(const QStringList &args)
-{
-    auto foundPos = std::search(m_options.begin(), m_options.end(),
-                                args.begin(), args.end());
-    if (foundPos != m_options.end())
-        m_options.erase(foundPos, std::next(foundPos, args.size()));
-}
-
 QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objcExt)
 {
     QStringList options;
@@ -369,42 +361,32 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
     }
 }
 
+void CompilerOptionsBuilder::addIncludeFile(const QString &file)
+{
+    if (QFile::exists(file)) {
+        add({isClStyle() ? QLatin1String(includeFileOptionCl)
+                         : QLatin1String(includeFileOptionGcc),
+             QDir::toNativeSeparators(file)});
+    }
+}
+
 void CompilerOptionsBuilder::addIncludedFiles(const QStringList &files)
 {
-    QStringList result;
-
-    const QString includeOptionString
-            = QLatin1String(isClStyle() ? includeFileOptionCl : includeFileOptionGcc);
     for (const QString &file : files) {
-        if (QFile::exists(file)) {
-            result += includeOptionString;
-            result += QDir::toNativeSeparators(file);
-        }
+        if (m_projectPart.precompiledHeaders.contains(file))
+            continue;
+
+        addIncludeFile(file);
     }
-    m_options.append(result);
 }
 
 void CompilerOptionsBuilder::addPrecompiledHeaderOptions(UsePrecompiledHeaders usePrecompiledHeaders)
 {
-    for (const QString &pchFile : m_projectPart.precompiledHeaders) {
-        // Bail if build system precompiled header artifacts exists.
-        // Clang cannot handle foreign PCH files.
-        if (QFile::exists(pchFile + ".gch") || QFile::exists(pchFile + ".pch"))
-            usePrecompiledHeaders = UsePrecompiledHeaders::No;
+    if (usePrecompiledHeaders == UsePrecompiledHeaders::No)
+        return;
 
-        if (usePrecompiledHeaders == UsePrecompiledHeaders::No) {
-            // CMake PCH will already have force included the header file in
-            // command line options, remove it if exists.
-            // In case of Clang compilers, also remove the pch-inclusion arguments.
-            remove({"-Xclang", "-include-pch", "-Xclang", pchFile + ".gch"});
-            remove({"-Xclang", "-include-pch", "-Xclang", pchFile + ".pch"});
-            remove({isClStyle() ? QLatin1String(includeFileOptionCl)
-                                : QLatin1String(includeFileOptionGcc), pchFile});
-        } else if (QFile::exists(pchFile)) {
-            add({isClStyle() ? QLatin1String(includeFileOptionCl)
-                             : QLatin1String(includeFileOptionGcc),
-                 QDir::toNativeSeparators(pchFile)});
-        }
+    for (const QString &pchFile : m_projectPart.precompiledHeaders) {
+        addIncludeFile(pchFile);
     }
 }
 

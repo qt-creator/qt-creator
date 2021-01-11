@@ -189,6 +189,8 @@ public:
                                 const FilePath &tgtFilePath,
                                 QString *error,
                                 T &&copyHelper);
+    static bool copyIfDifferent(const FilePath &srcFilePath,
+                                const FilePath &tgtFilePath);
     static FilePath resolveSymlinks(const FilePath &path);
     static QString fileSystemFriendlyName(const QString &name);
     static int indexOfQmakeUnfriendly(const QString &name, int startpos = 0);

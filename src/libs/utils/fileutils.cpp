@@ -220,6 +220,29 @@ bool FileUtils::copyRecursively(const FilePath &srcFilePath, const FilePath &tgt
 }
 
 /*!
+  Copies a file specified by \a srcFilePath to \a tgtFilePath only if \a srcFilePath is different
+  (file size and last modification time).
+
+  Returns whether the operation succeeded.
+*/
+
+bool FileUtils::copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgtFilePath)
+{
+    if (QFile::exists(tgtFilePath.toString())) {
+        const QFileInfo srcFileInfo = srcFilePath.toFileInfo();
+        const QFileInfo tgtFileInfo = tgtFilePath.toFileInfo();
+        if (srcFileInfo.lastModified() == tgtFileInfo.lastModified() &&
+            srcFileInfo.size() == tgtFileInfo.size()) {
+            return true;
+        } else {
+            QFile::remove(tgtFilePath.toString());
+        }
+    }
+
+    return QFile::copy(srcFilePath.toString(), tgtFilePath.toString());
+}
+
+/*!
   If this is a directory, the function will recursively check all files and return
   true if one of them is newer than \a timeStamp. If this is a single file, true will
   be returned if the file is newer than \a timeStamp.
