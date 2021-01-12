@@ -307,14 +307,31 @@ sqlite3 *BaseStatement::sqliteDatabaseHandle() const
 void BaseStatement::checkForStepError(int resultCode) const
 {
     switch (resultCode) {
+    case SQLITE_BUSY_RECOVERY:
+    case SQLITE_BUSY_SNAPSHOT:
+    case SQLITE_BUSY_TIMEOUT:
     case SQLITE_BUSY:
         throwStatementIsBusy("SqliteStatement::stepStatement: database engine was unable to "
                              "acquire the database locks!");
+    case SQLITE_ERROR_MISSING_COLLSEQ:
+    case SQLITE_ERROR_RETRY:
+    case SQLITE_ERROR_SNAPSHOT:
     case SQLITE_ERROR:
         throwStatementHasError("SqliteStatement::stepStatement: run-time error (such as a "
                                "constraint violation) has occurred!");
     case SQLITE_MISUSE:
         throwStatementIsMisused("SqliteStatement::stepStatement: was called inappropriately!");
+    case SQLITE_CONSTRAINT_CHECK:
+    case SQLITE_CONSTRAINT_COMMITHOOK:
+    case SQLITE_CONSTRAINT_FOREIGNKEY:
+    case SQLITE_CONSTRAINT_FUNCTION:
+    case SQLITE_CONSTRAINT_NOTNULL:
+    case SQLITE_CONSTRAINT_PINNED:
+    case SQLITE_CONSTRAINT_PRIMARYKEY:
+    case SQLITE_CONSTRAINT_ROWID:
+    case SQLITE_CONSTRAINT_TRIGGER:
+    case SQLITE_CONSTRAINT_UNIQUE:
+    case SQLITE_CONSTRAINT_VTAB:
     case SQLITE_CONSTRAINT:
         throwConstraintPreventsModification(
             "SqliteStatement::stepStatement: contraint prevent insert or update!");
@@ -323,6 +340,12 @@ void BaseStatement::checkForStepError(int resultCode) const
     case SQLITE_SCHEMA:
         throwSchemaChangeError("SqliteStatement::stepStatement: Schema changed but the statement "
                                "cannot be recompiled.");
+    case SQLITE_READONLY_CANTINIT:
+    case SQLITE_READONLY_CANTLOCK:
+    case SQLITE_READONLY_DBMOVED:
+    case SQLITE_READONLY_DIRECTORY:
+    case SQLITE_READONLY_RECOVERY:
+    case SQLITE_READONLY_ROLLBACK:
     case SQLITE_READONLY:
         throwCannotWriteToReadOnlyConnection(
             "SqliteStatement::stepStatement: Cannot write to read only connection");
@@ -337,14 +360,56 @@ void BaseStatement::checkForStepError(int resultCode) const
     case SQLITE_MISMATCH:
         throwDataTypeMismatch(
             "SqliteStatement::stepStatement: Most probably you used not an integer for a rowid.");
+    case SQLITE_LOCKED_SHAREDCACHE:
+    case SQLITE_LOCKED_VTAB:
     case SQLITE_LOCKED:
         throwConnectionIsLocked("SqliteStatement::stepStatement: Database connection is locked.");
+    case SQLITE_IOERR_AUTH:
+    case SQLITE_IOERR_BEGIN_ATOMIC:
+    case SQLITE_IOERR_BLOCKED:
+    case SQLITE_IOERR_CHECKRESERVEDLOCK:
+    case SQLITE_IOERR_CLOSE:
+    case SQLITE_IOERR_COMMIT_ATOMIC:
+    case SQLITE_IOERR_CONVPATH:
+    case SQLITE_IOERR_DATA:
+    case SQLITE_IOERR_DELETE:
+    case SQLITE_IOERR_DELETE_NOENT:
+    case SQLITE_IOERR_DIR_CLOSE:
+    case SQLITE_IOERR_DIR_FSYNC:
+    case SQLITE_IOERR_FSTAT:
+    case SQLITE_IOERR_FSYNC:
+    case SQLITE_IOERR_GETTEMPPATH:
+    case SQLITE_IOERR_LOCK:
+    case SQLITE_IOERR_MMAP:
+    case SQLITE_IOERR_NOMEM:
+    case SQLITE_IOERR_RDLOCK:
+    case SQLITE_IOERR_READ:
+    case SQLITE_IOERR_ROLLBACK_ATOMIC:
+    case SQLITE_IOERR_SEEK:
+    case SQLITE_IOERR_SHMLOCK:
+    case SQLITE_IOERR_SHMMAP:
+    case SQLITE_IOERR_SHMOPEN:
+    case SQLITE_IOERR_SHMSIZE:
+    case SQLITE_IOERR_SHORT_READ:
+    case SQLITE_IOERR_TRUNCATE:
+    case SQLITE_IOERR_UNLOCK:
+    case SQLITE_IOERR_VNODE:
+    case SQLITE_IOERR_WRITE:
     case SQLITE_IOERR:
         throwInputOutputError("SqliteStatement::stepStatement: An IO error happened.");
     case SQLITE_INTERRUPT:
         throwExecutionInterrupted("SqliteStatement::stepStatement: Execution was interrupted.");
+    case SQLITE_CORRUPT_INDEX:
+    case SQLITE_CORRUPT_SEQUENCE:
+    case SQLITE_CORRUPT_VTAB:
     case SQLITE_CORRUPT:
         throwDatabaseIsCorrupt("SqliteStatement::stepStatement: Database is corrupt.");
+    case SQLITE_CANTOPEN_CONVPATH:
+    case SQLITE_CANTOPEN_DIRTYWAL:
+    case SQLITE_CANTOPEN_FULLPATH:
+    case SQLITE_CANTOPEN_ISDIR:
+    case SQLITE_CANTOPEN_NOTEMPDIR:
+    case SQLITE_CANTOPEN_SYMLINK:
     case SQLITE_CANTOPEN:
         throwCannotOpen("SqliteStatement::stepStatement: Cannot open database or temporary file.");
     }
@@ -355,14 +420,31 @@ void BaseStatement::checkForStepError(int resultCode) const
 void BaseStatement::checkForResetError(int resultCode) const
 {
     switch (resultCode) {
+    case SQLITE_BUSY_RECOVERY:
+    case SQLITE_BUSY_SNAPSHOT:
+    case SQLITE_BUSY_TIMEOUT:
     case SQLITE_BUSY:
         throwStatementIsBusy("SqliteStatement::stepStatement: database engine was unable to "
                              "acquire the database locks!");
+    case SQLITE_ERROR_MISSING_COLLSEQ:
+    case SQLITE_ERROR_RETRY:
+    case SQLITE_ERROR_SNAPSHOT:
     case SQLITE_ERROR:
         throwStatementHasError("SqliteStatement::stepStatement: run-time error (such as a "
                                "constraint violation) has occurred!");
     case SQLITE_MISUSE:
         throwStatementIsMisused("SqliteStatement::stepStatement: was called inappropriately!");
+    case SQLITE_CONSTRAINT_CHECK:
+    case SQLITE_CONSTRAINT_COMMITHOOK:
+    case SQLITE_CONSTRAINT_FOREIGNKEY:
+    case SQLITE_CONSTRAINT_FUNCTION:
+    case SQLITE_CONSTRAINT_NOTNULL:
+    case SQLITE_CONSTRAINT_PINNED:
+    case SQLITE_CONSTRAINT_PRIMARYKEY:
+    case SQLITE_CONSTRAINT_ROWID:
+    case SQLITE_CONSTRAINT_TRIGGER:
+    case SQLITE_CONSTRAINT_UNIQUE:
+    case SQLITE_CONSTRAINT_VTAB:
     case SQLITE_CONSTRAINT:
         throwConstraintPreventsModification(
             "SqliteStatement::stepStatement: contraint prevent insert or update!");
@@ -374,11 +456,53 @@ void BaseStatement::checkForResetError(int resultCode) const
 void BaseStatement::checkForPrepareError(int resultCode) const
 {
     switch (resultCode) {
-        case SQLITE_BUSY: throwStatementIsBusy("SqliteStatement::prepareStatement: database engine was unable to acquire the database locks!");
-        case SQLITE_ERROR : throwStatementHasError("SqliteStatement::prepareStatement: run-time error (such as a constraint violation) has occurred!");
-        case SQLITE_MISUSE: throwStatementIsMisused("SqliteStatement::prepareStatement: was called inappropriately!");
-        case SQLITE_IOERR:
-            throwInputOutputError("SqliteStatement::prepareStatement: IO error happened!");
+    case SQLITE_BUSY_RECOVERY:
+    case SQLITE_BUSY_SNAPSHOT:
+    case SQLITE_BUSY_TIMEOUT:
+    case SQLITE_BUSY:
+        throwStatementIsBusy("SqliteStatement::prepareStatement: database engine was unable to "
+                             "acquire the database locks!");
+    case SQLITE_ERROR_MISSING_COLLSEQ:
+    case SQLITE_ERROR_RETRY:
+    case SQLITE_ERROR_SNAPSHOT:
+    case SQLITE_ERROR:
+        throwStatementHasError("SqliteStatement::prepareStatement: run-time error (such as a "
+                               "constraint violation) has occurred!");
+    case SQLITE_MISUSE:
+        throwStatementIsMisused("SqliteStatement::prepareStatement: was called inappropriately!");
+    case SQLITE_IOERR_AUTH:
+    case SQLITE_IOERR_BEGIN_ATOMIC:
+    case SQLITE_IOERR_BLOCKED:
+    case SQLITE_IOERR_CHECKRESERVEDLOCK:
+    case SQLITE_IOERR_CLOSE:
+    case SQLITE_IOERR_COMMIT_ATOMIC:
+    case SQLITE_IOERR_CONVPATH:
+    case SQLITE_IOERR_DATA:
+    case SQLITE_IOERR_DELETE:
+    case SQLITE_IOERR_DELETE_NOENT:
+    case SQLITE_IOERR_DIR_CLOSE:
+    case SQLITE_IOERR_DIR_FSYNC:
+    case SQLITE_IOERR_FSTAT:
+    case SQLITE_IOERR_FSYNC:
+    case SQLITE_IOERR_GETTEMPPATH:
+    case SQLITE_IOERR_LOCK:
+    case SQLITE_IOERR_MMAP:
+    case SQLITE_IOERR_NOMEM:
+    case SQLITE_IOERR_RDLOCK:
+    case SQLITE_IOERR_READ:
+    case SQLITE_IOERR_ROLLBACK_ATOMIC:
+    case SQLITE_IOERR_SEEK:
+    case SQLITE_IOERR_SHMLOCK:
+    case SQLITE_IOERR_SHMMAP:
+    case SQLITE_IOERR_SHMOPEN:
+    case SQLITE_IOERR_SHMSIZE:
+    case SQLITE_IOERR_SHORT_READ:
+    case SQLITE_IOERR_TRUNCATE:
+    case SQLITE_IOERR_UNLOCK:
+    case SQLITE_IOERR_VNODE:
+    case SQLITE_IOERR_WRITE:
+    case SQLITE_IOERR:
+        throwInputOutputError("SqliteStatement::prepareStatement: IO error happened!");
     }
 
     throwUnknowError("SqliteStatement::prepareStatement: unknown error has happened");

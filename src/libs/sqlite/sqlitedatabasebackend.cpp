@@ -101,13 +101,11 @@ void DatabaseBackend::open(Utils::SmallStringView databaseFilePath, OpenMode mod
 {
     checkCanOpenDatabase(databaseFilePath);
 
-    int resultCode = sqlite3_open_v2(databaseFilePath.data(),
-                                     &m_databaseHandle,
-                                     openMode(mode),
-                                     nullptr);
+    int resultCode = sqlite3_open_v2(databaseFilePath.data(), &m_databaseHandle, openMode(mode), nullptr);
 
     checkDatabaseCouldBeOpened(resultCode);
 
+    sqlite3_extended_result_codes(m_databaseHandle, true);
     resultCode = sqlite3_carray_init(m_databaseHandle, nullptr, nullptr);
 
     checkCarrayCannotBeIntialized(resultCode);
@@ -390,9 +388,15 @@ void DatabaseBackend::walCheckpointFull()
     switch (resultCode) {
     case SQLITE_OK:
         break;
+    case SQLITE_BUSY_RECOVERY:
+    case SQLITE_BUSY_SNAPSHOT:
+    case SQLITE_BUSY_TIMEOUT:
     case SQLITE_BUSY:
         throw DatabaseIsBusy("DatabaseBackend::walCheckpointFull: Operation could not concluded "
                              "because database is busy!");
+    case SQLITE_ERROR_MISSING_COLLSEQ:
+    case SQLITE_ERROR_RETRY:
+    case SQLITE_ERROR_SNAPSHOT:
     case SQLITE_ERROR:
         throwException("DatabaseBackend::walCheckpointFull: Error occurred!");
     case SQLITE_MISUSE:
