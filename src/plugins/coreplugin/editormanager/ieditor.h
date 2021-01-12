@@ -59,6 +59,9 @@ public:
 
     virtual bool isDesignModePreferred() const { return false; }
 
+signals:
+    void editorDuplicated(IEditor *duplicate);
+
 private:
     bool m_duplicateSupported;
 };

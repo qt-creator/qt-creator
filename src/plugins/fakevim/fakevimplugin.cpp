@@ -1551,6 +1551,14 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
     else
         return;
 
+    // Duplicated editors are not signalled by the EditorManager. Track them nevertheless.
+    connect(editor, &IEditor::editorDuplicated, this, [this, editor](IEditor *duplicate) {
+        editorOpened(duplicate);
+        connect(duplicate, &QObject::destroyed, this, [this, duplicate] {
+            m_editorToHandler.remove(duplicate);
+        });
+    });
+
     auto tew = TextEditorWidget::fromEditor(editor);
 
     //qDebug() << "OPENING: " << editor << editor->widget()

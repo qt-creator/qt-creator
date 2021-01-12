@@ -286,6 +286,8 @@ Core::IEditor *DiffEditor::duplicate()
     QTC_ASSERT(view, view = editor->currentView());
     editor->setupView(view);
 
+    emit editorDuplicated(editor);
+
     return editor;
 }
 

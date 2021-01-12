@@ -8869,8 +8869,11 @@ BaseTextEditor *TextEditorFactoryPrivate::createEditorHelper(const TextDocumentP
 IEditor *BaseTextEditor::duplicate()
 {
     // Use new standard setup if that's available.
-    if (d->m_origin)
-        return d->m_origin->duplicateTextEditor(this);
+    if (d->m_origin) {
+        IEditor *dup = d->m_origin->duplicateTextEditor(this);
+        emit editorDuplicated(dup);
+        return dup;
+    }
 
     // If neither is sufficient, you need to implement 'YourEditor::duplicate'.
     QTC_CHECK(false);

@@ -189,6 +189,9 @@ Core::IEditor *ImageViewer::duplicate()
     other->d->imageView->createScene();
     other->updateToolButtons();
     other->d->ui_toolbar.labelImageSize->setText(d->ui_toolbar.labelImageSize->text());
+
+    emit editorDuplicated(other);
+
     return other;
 }
 
