@@ -59,7 +59,6 @@ public:
     void addMimeType(const QString &mimeType) { m_mimeTypes.append(mimeType); }
 
 private:
-    Utils::Id m_id;
     Opener m_opener;
     QStringList m_mimeTypes;
     QString m_displayName;
