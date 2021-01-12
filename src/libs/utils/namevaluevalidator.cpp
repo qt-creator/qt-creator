@@ -62,6 +62,8 @@ void NameValueValidator::fixup(QString &input) const
 {
     Q_UNUSED(input)
 
+    if (!m_index.isValid())
+        return;
     QPoint pos = m_view->mapToGlobal(m_view->visualRect(m_index).topLeft());
     pos -= Utils::ToolTip::offsetFromPosition();
     Utils::ToolTip::show(pos, m_toolTipText);

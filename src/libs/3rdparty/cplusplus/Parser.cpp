@@ -2308,6 +2308,7 @@ bool Parser::parseAccessDeclaration(DeclarationAST *&node)
     [SCRIPTABLE bool]
     [STORED bool]
     [USER bool]
+    [BINDABLE bindableFunction]
     [CONSTANT]
     [FINAL])
 
@@ -2363,6 +2364,7 @@ bool Parser::parseQtPropertyDeclaration(DeclarationAST *&node)
                 case Token_READ:
                 case Token_WRITE:
                 case Token_MEMBER:
+                case Token_BINDABLE:
                 case Token_RESET:
                 case Token_NOTIFY:
                 case Token_REVISION:
