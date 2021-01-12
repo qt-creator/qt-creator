@@ -49,11 +49,19 @@
         \li Export your design from a design tool.
         \li Create a project in \QDS and import your design to it.
         \li Create reusable components in the Design mode.
-        \li Animate your design with the timeline and easing curve editor.
+        \li Animate your design with the transition editor or timeline and
+            easing curve editor.
         \li Create interactions using states and connections.
         \li Preview your design in real time, on the desktop or on a mobile
             or an embedded device.
     \endlist
+
+    For more information, watch a video that shows how to perform the tasks
+    above:
+
+    \youtube pEETxSxYazg
+
+    \section1 First Steps
 
     The following topics contain information that you'll need to find your
     way around \QDS:
