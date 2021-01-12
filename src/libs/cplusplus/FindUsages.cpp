@@ -145,13 +145,136 @@ void FindUsages::reportResult(unsigned tokenIndex, const QList<LookupItem> &cand
     _references.append(tokenIndex);
 }
 
-Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
+class FindUsages::GetUsageType
 {
-    const auto containsToken = [tokenIndex](const AST *ast) {
-        return ast && ast->firstToken() <= tokenIndex && ast->lastToken() > tokenIndex;
-    };
-    const auto isAssignment = [this](int token) {
-        switch (tokenKind(token)) {
+public:
+    GetUsageType(FindUsages *findUsages, const QList<AST *> &astPath, int tokenIndex)
+        : m_findUsages(findUsages), m_astPath(astPath), m_tokenIndex(tokenIndex)
+    {
+    }
+
+    Usage::Type getUsageType() const
+    {
+        if (m_astPath.size() < 2 || !m_astPath.last()->asSimpleName())
+            return Usage::Type::Other;
+
+        for (auto it = m_astPath.rbegin() + 1; it != m_astPath.rend(); ++it) {
+            if ((*it)->asExpressionStatement())
+                return Usage::Type::Read;
+            if ((*it)->asSwitchStatement())
+                return Usage::Type::Read;
+            if ((*it)->asCaseStatement())
+                return Usage::Type::Read;
+            if ((*it)->asIfStatement())
+                return Usage::Type::Read;
+            if ((*it)->asLambdaCapture())
+                return Usage::Type::Other;
+            if ((*it)->asTypenameTypeParameter())
+                return Usage::Type::Declaration;
+            if ((*it)->asNewExpression())
+                return Usage::Type::Other;
+            if (ClassSpecifierAST *classSpec = (*it)->asClassSpecifier()) {
+                if (classSpec->name == *(it - 1))
+                    return Usage::Type::Declaration;
+                continue;
+            }
+            if (const auto memInitAst = (*it)->asMemInitializer()) {
+                if (memInitAst->name == *(it - 1))
+                    return Usage::Type::Write;
+                return Usage::Type::Read;
+            }
+            if ((*it)->asCall())
+                return checkPotentialWrite(getUsageTypeForCall(it), it + 1);
+            if ((*it)->asDeleteExpression())
+                return Usage::Type::Write;
+            if (const auto binExpr = (*it)->asBinaryExpression()) {
+                if (binExpr->left_expression == *(it - 1) && isAssignment(binExpr->binary_op_token))
+                    return checkPotentialWrite(Usage::Type::Write, it + 1);
+                const Utils::optional<LookupItem> item = getTypeOfExpr(binExpr->left_expression,
+                                                                       it + 1);
+                if (!item)
+                    return Usage::Type::Other;
+                return checkPotentialWrite(getUsageTypeFromLhsAndRhs(
+                                               item->type(), binExpr->right_expression, it),
+                                           it + 1);
+            }
+            if (const auto unaryOp = (*it)->asUnaryExpression()) {
+                switch (m_findUsages->tokenKind(unaryOp->unary_op_token)) {
+                case T_PLUS_PLUS: case T_MINUS_MINUS:
+                    return checkPotentialWrite(Usage::Type::Write, it + 1);
+                case T_AMPER: case T_STAR:
+                    continue;
+                default:
+                    return Usage::Type::Read;
+                }
+            }
+            if (const auto sizeofExpr = (*it)->asSizeofExpression()) {
+                if (containsToken(sizeofExpr->expression))
+                    return Usage::Type::Read;
+                return Usage::Type::Other;
+            }
+            if (const auto arrayExpr = (*it)->asArrayAccess()) {
+                if (containsToken(arrayExpr->expression))
+                    return Usage::Type::Read;
+                continue;
+            }
+            if (const auto postIncrDecrOp = (*it)->asPostIncrDecr())
+                return checkPotentialWrite(Usage::Type::Write, it + 1);
+            if (const auto declaratorId = (*it)->asDeclaratorId()) {
+                // We don't want to classify constructors and destructors as declarations
+                // when listing class usages.
+                if (m_findUsages->_declSymbol->asClass())
+                    return Usage::Type::Other;
+                continue;
+            }
+            if (const auto declarator = (*it)->asDeclarator()) {
+                if (containsToken(declarator->core_declarator)) {
+                    if (declarator->initializer && (!declarator->postfix_declarator_list
+                            || !declarator->postfix_declarator_list->value
+                            || !declarator->postfix_declarator_list->value->asFunctionDeclarator())) {
+                        return Usage::Type::Initialization;
+                    }
+                    return Usage::Type::Declaration;
+                }
+                if (const auto decl = (*(it + 1))->asSimpleDeclaration()) {
+                    if (decl->symbols && decl->symbols->value) {
+                        return checkPotentialWrite(
+                                    getUsageTypeFromLhsAndRhs(decl->symbols->value->type(),
+                                                              declarator->initializer, it + 1),
+                                    it + 1);
+                    }
+                }
+                return Usage::Type::Other;
+            }
+            if (const auto retStmt = (*it)->asReturnStatement()) {
+                for (auto funcIt = it + 1; funcIt != m_astPath.rend(); ++funcIt) {
+                    if (FunctionDefinitionAST * const funcAst = (*funcIt)->asFunctionDefinition()) {
+                        if (funcAst->symbol) {
+                            return checkPotentialWrite(
+                                        getUsageTypeFromLhsAndRhs(funcAst->symbol->type(),
+                                                                  retStmt->expression, funcIt),
+                                        funcIt + 1);
+                        }
+                    }
+                }
+                return Usage::Type::Other;
+            }
+        }
+
+        return Usage::Type::Other;
+    }
+
+private:
+    using Iterator = QList<AST *>::const_reverse_iterator;
+
+    bool containsToken(const AST *ast) const
+    {
+        return ast && ast->firstToken() <= m_tokenIndex && ast->lastToken() > m_tokenIndex;
+    }
+
+    bool isAssignment(int token) const
+    {
+        switch (m_findUsages->tokenKind(token)) {
         case T_AMPER_EQUAL: case T_CARET_EQUAL: case T_SLASH_EQUAL: case T_EQUAL:
         case T_MINUS_EQUAL: case T_PERCENT_EQUAL: case T_PIPE_EQUAL: case T_PLUS_EQUAL:
         case T_STAR_EQUAL: case T_TILDE_EQUAL:
@@ -159,12 +282,13 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
         default:
             return false;
         }
-    };
+    }
 
     // This is called for the type of the LHS of an (initialization) assignment.
     // We consider the RHS to be writable through the LHS if the LHS is a pointer
     // that is non-const at any element level, or if it is a a non-const reference.
-    static const auto getUsageTypeFromDataType = [](FullySpecifiedType type) {
+    static Usage::Type getUsageTypeFromDataType(FullySpecifiedType type)
+    {
         if (type.isAuto())
             return Usage::Type::Other;
         if (const auto refType = type->asReferenceType())
@@ -175,18 +299,17 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
                 return Usage::Type::WritableRef;
         }
         return Usage::Type::Read;
-    };
-
-    const QList<AST *> astPath = ASTPath(_doc)(line, column);
+    }
 
     // If we found a potential write access inside a lambda, we have to check whether the variable
     // was captured by value. If so, it's not really a write access.
     // FIXME: The parser does not record whether the capture was by reference.
-    const auto checkPotentialWrite = [&](Usage::Type usageType, auto startIt) {
+    Usage::Type checkPotentialWrite(Usage::Type usageType, Iterator startIt) const
+    {
         if (usageType != Usage::Type::Write && usageType != Usage::Type::WritableRef)
             return usageType;
-        for (auto it = startIt; it != astPath.rend(); ++it) {
-            if ((*it)->firstToken() > tokenIndex)
+        for (auto it = startIt; it != m_astPath.rend(); ++it) {
+            if ((*it)->firstToken() > m_tokenIndex)
                 break;
             const auto lambdaExpr = (*it)->asLambdaExpression();
             if (!lambdaExpr)
@@ -198,20 +321,22 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
                   capList = capList->next) {
                  if (!capList->value || !capList->value->identifier)
                      continue;
-                 if (!Matcher::match(_declSymbol->name(), capList->value->identifier->name))
+                 if (!Matcher::match(m_findUsages->_declSymbol->name(),
+                                     capList->value->identifier->name)) {
                      continue;
+                 }
                  return capList->value->amper_token ? usageType : Usage::Type::Read;
              }
         }
         return usageType;
-    };
+    }
 
-    const auto getTypesOfExpr = [&](ExpressionAST *expr, auto scopeSearchPos)
-            -> const QList<LookupItem> {
+    const QList<LookupItem> getTypesOfExpr(ExpressionAST *expr, Iterator scopeSearchPos) const
+    {
         if (!expr)
             return {};
         Scope *scope = nullptr;
-        for (auto it = scopeSearchPos; !scope && it != astPath.rend(); ++it) {
+        for (auto it = scopeSearchPos; !scope && it != m_astPath.rend(); ++it) {
             if (const auto stmt = (*it)->asCompoundStatement())
                 scope = stmt->symbol;
             else if (const auto klass = (*it)->asClassSpecifier())
@@ -220,20 +345,21 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
                 scope = ns->symbol;
         }
         if (!scope)
-            scope = _doc->globalNamespace();
-        return typeofExpression(expr, _doc, scope);
-    };
+            scope = m_findUsages->_doc->globalNamespace();
+        return m_findUsages->typeofExpression(expr, m_findUsages->_doc, scope);
+    }
 
-    const auto getTypeOfExpr = [&](ExpressionAST *expr, auto scopeSearchPos)
-            -> Utils::optional<LookupItem> {
+    Utils::optional<LookupItem> getTypeOfExpr(ExpressionAST *expr, Iterator scopeSearchPos) const
+    {
         const QList<LookupItem> items = getTypesOfExpr(expr, scopeSearchPos);
         if (items.isEmpty())
             return {};
         return Utils::optional<LookupItem>(items.first());
-    };
+    }
 
-    const auto getUsageTypeFromLhsAndRhs
-            = [&](const FullySpecifiedType &lhsType, ExpressionAST *rhs, auto scopeSearchPos) {
+    Usage::Type getUsageTypeFromLhsAndRhs(const FullySpecifiedType &lhsType, ExpressionAST *rhs,
+                                          Iterator scopeSearchPos) const
+    {
         const Usage::Type usageType = getUsageTypeFromDataType(lhsType);
         if (usageType != Usage::Type::Other)
             return usageType;
@@ -243,16 +369,17 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
         if (!item)
             return Usage::Type::Other;
         return getUsageTypeFromDataType(item->type());
-    };
+    }
 
-    const auto getUsageTypeForCall = [&](auto callIt) {
+    Usage::Type getUsageTypeForCall(Iterator callIt) const
+    {
         CallAST * const call = (*callIt)->asCall();
 
         // Check whether this is a member function call on the symbol we are looking for
         // (possibly indirectly via a data member).
         // If it is and the function is not const, then this is a potential write.
         if (call->base_expression == *(callIt - 1)) {
-            for (auto it = callIt; it != astPath.rbegin(); --it) {
+            for (auto it = callIt; it != m_astPath.rbegin(); --it) {
                 const auto memberAccess = (*it)->asMemberAccess();
                 if (!memberAccess || !memberAccess->member_name || !memberAccess->member_name->name)
                     continue;
@@ -268,7 +395,7 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
                 while (const auto ptrType = baseExprType->asPointerType())
                     baseExprType = ptrType->elementType();
                 Class *klass = baseExprType->asClassType();
-                const LookupContext context(_doc, _snapshot);
+                const LookupContext context(m_findUsages->_doc, m_findUsages->_snapshot);
                 QList<LookupItem> items;
                 if (!klass) {
                     if (const auto namedType = baseExprType->asNamedType()) {
@@ -328,112 +455,16 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
             }
         }
         return currentType;
-    };
-
-    if (astPath.size() < 2 || !astPath.last()->asSimpleName())
-        return Usage::Type::Other;
-
-    for (auto it = astPath.rbegin() + 1; it != astPath.rend(); ++it) {
-        if ((*it)->asExpressionStatement())
-            return Usage::Type::Read;
-        if ((*it)->asSwitchStatement())
-            return Usage::Type::Read;
-        if ((*it)->asCaseStatement())
-            return Usage::Type::Read;
-        if ((*it)->asIfStatement())
-            return Usage::Type::Read;
-        if ((*it)->asLambdaCapture())
-            return Usage::Type::Other;
-        if ((*it)->asTypenameTypeParameter())
-            return Usage::Type::Declaration;
-        if ((*it)->asNewExpression())
-            return Usage::Type::Other;
-        if (ClassSpecifierAST *classSpec = (*it)->asClassSpecifier()) {
-            if (classSpec->name == *(it - 1))
-                return Usage::Type::Declaration;
-            continue;
-        }
-        if (const auto memInitAst = (*it)->asMemInitializer()) {
-            if (memInitAst->name == *(it - 1))
-                return Usage::Type::Write;
-            return Usage::Type::Read;
-        }
-        if ((*it)->asCall())
-            return checkPotentialWrite(getUsageTypeForCall(it), it + 1);
-        if ((*it)->asDeleteExpression())
-            return Usage::Type::Write;
-        if (const auto binExpr = (*it)->asBinaryExpression()) {
-            if (binExpr->left_expression == *(it - 1) && isAssignment(binExpr->binary_op_token))
-                return checkPotentialWrite(Usage::Type::Write, it + 1);
-            const Utils::optional<LookupItem> item = getTypeOfExpr(binExpr->left_expression, it + 1);
-            if (!item)
-                return Usage::Type::Other;
-            return checkPotentialWrite(getUsageTypeFromLhsAndRhs(
-                                           item->type(), binExpr->right_expression, it), it + 1);
-        }
-        if (const auto unaryOp = (*it)->asUnaryExpression()) {
-            switch (tokenKind(unaryOp->unary_op_token)) {
-            case T_PLUS_PLUS: case T_MINUS_MINUS:
-                return checkPotentialWrite(Usage::Type::Write, it + 1);
-            case T_AMPER: case T_STAR:
-                continue;
-            default:
-                return Usage::Type::Read;
-            }
-        }
-        if (const auto sizeofExpr = (*it)->asSizeofExpression()) {
-            if (containsToken(sizeofExpr->expression))
-                return Usage::Type::Read;
-            return Usage::Type::Other;
-        }
-        if (const auto arrayExpr = (*it)->asArrayAccess()) {
-            if (containsToken(arrayExpr->expression))
-                return Usage::Type::Read;
-            continue;
-        }
-        if (const auto postIncrDecrOp = (*it)->asPostIncrDecr())
-            return checkPotentialWrite(Usage::Type::Write, it + 1);
-        if (const auto declaratorId = (*it)->asDeclaratorId()) {
-            // We don't want to classify constructors and destructors as declarations
-            // when listing class usages.
-            if (_declSymbol->asClass())
-                return Usage::Type::Other;
-            continue;
-        }
-        if (const auto declarator = (*it)->asDeclarator()) {
-            if (containsToken(declarator->core_declarator)) {
-                if (declarator->initializer && (!declarator->postfix_declarator_list
-                        || !declarator->postfix_declarator_list->value
-                        || !declarator->postfix_declarator_list->value->asFunctionDeclarator())) {
-                    return Usage::Type::Initialization;
-                }
-                return Usage::Type::Declaration;
-            }
-            if (const auto decl = (*(it + 1))->asSimpleDeclaration()) {
-                if (decl->symbols && decl->symbols->value) {
-                    return checkPotentialWrite(
-                                getUsageTypeFromLhsAndRhs(decl->symbols->value->type(),
-                                                          declarator->initializer, it + 1), it + 1);
-                }
-            }
-            return Usage::Type::Other;
-        }
-        if (const auto retStmt = (*it)->asReturnStatement()) {
-            for (auto funcIt = it + 1; funcIt != astPath.rend(); ++funcIt) {
-                if (FunctionDefinitionAST * const funcAst = (*funcIt)->asFunctionDefinition()) {
-                    if (funcAst->symbol) {
-                        return checkPotentialWrite(
-                                    getUsageTypeFromLhsAndRhs(funcAst->symbol->type(),
-                                                              retStmt->expression, funcIt),
-                                    funcIt + 1);
-                    }
-                }
-            }
-            return Usage::Type::Other;
-        }
     }
 
-    return Usage::Type::Other;
+    FindUsages * const m_findUsages;
+    const QList<AST *> &m_astPath;
+    const int m_tokenIndex;
+};
+
+Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
+{
+    return GetUsageType(this, ASTPath(_doc)(line, column), tokenIndex).getUsageType();
 }
 
 QString FindUsages::matchingLine(const Token &tk) const

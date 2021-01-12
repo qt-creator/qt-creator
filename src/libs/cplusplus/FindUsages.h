@@ -302,6 +302,7 @@ private:
     QSet<unsigned> _processed;
     TypeOfExpression typeofExpression;
     Scope *_currentScope = nullptr;
+    class GetUsageType;
 };
 
 } // namespace CPlusPlus
