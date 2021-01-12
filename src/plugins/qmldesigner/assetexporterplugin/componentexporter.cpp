@@ -31,6 +31,7 @@
 #include "model.h"
 #include "nodeabstractproperty.h"
 #include "nodemetainfo.h"
+#include "qmlitemnode.h"
 #include "rewriterview.h"
 
 #include "utils/qtcassert.h"
@@ -38,6 +39,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLoggingCategory>
+#include <QPainter>
 
 namespace {
 Q_LOGGING_CATEGORY(loggerInfo, "qtc.designer.assetExportPlugin.modelExporter", QtInfoMsg)
@@ -86,6 +88,7 @@ void Component::exportComponent()
     // Change the export type to component
     QJsonObject metadata = m_json.value(MetadataTag).toObject();
     metadata.insert(ExportTypeTag, ExportTypeComponent);
+    addReferenceAsset(metadata);
     m_json.insert(MetadataTag, metadata);
     addImports();
 }
@@ -150,6 +153,37 @@ QJsonObject Component::nodeToJson(const ModelNode &node)
         jsonObject.insert(ChildrenTag, children);
 
     return jsonObject;
+}
+
+void Component::addReferenceAsset(QJsonObject &metadataObject) const
+{
+    QPixmap refAsset = m_exporter.generateAsset(m_rootNode);
+    stichChildrendAssets(m_rootNode, refAsset);
+    Utils::FilePath refAssetPath = m_exporter.assetPath(m_rootNode, this, "_ref");
+    m_exporter.exportAsset(refAsset, refAssetPath);
+    QJsonObject assetData;
+    if (metadataObject.contains(AssetDataTag))
+        assetData = metadataObject[AssetDataTag].toObject();
+    assetData.insert(ReferenceAssetTag, refAssetPath.toString());
+    metadataObject.insert(AssetDataTag, assetData);
+}
+
+void Component::stichChildrendAssets(const ModelNode &node, QPixmap &parentPixmap) const
+{
+    if (!node.hasAnySubModelNodes())
+        return;
+
+    QPainter painter(&parentPixmap);
+    for (const ModelNode &child : node.directSubModelNodes()) {
+        QPixmap childPixmap = m_exporter.generateAsset(child);
+        if (childPixmap.isNull())
+            continue;
+        stichChildrendAssets(child, childPixmap);
+        QTransform cTransform = QmlObjectNode(child).toQmlItemNode().instanceTransform();
+        painter.setTransform(cTransform);
+        painter.drawPixmap(QPoint(0, 0), childPixmap);
+    }
+    painter.end();
 }
 
 void Component::addImports()

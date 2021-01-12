@@ -88,6 +88,8 @@ public:
 private:
     ModelNodeParser* createNodeParser(const ModelNode &node) const;
     QJsonObject nodeToJson(const ModelNode &node);
+    void addReferenceAsset(QJsonObject &metadataObject) const;
+    void stichChildrendAssets(const ModelNode &node, QPixmap &parentPixmap) const;
     void addImports();
 
 private:

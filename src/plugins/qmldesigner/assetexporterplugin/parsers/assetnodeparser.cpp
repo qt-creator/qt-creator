@@ -54,10 +54,12 @@ QJsonObject AssetNodeParser::json(Component &component) const
 {
     QJsonObject jsonObject = ItemNodeParser::json(component);
 
-    Utils::FilePath assetPath = component.exporter().exportAsset(objectNode(), &component, uuid());
+    AssetExporter &exporter = component.exporter();
+    const Utils::FilePath assetPath = exporter.assetPath(m_node, &component);
+    exporter.exportAsset(exporter.generateAsset(m_node), assetPath);
+
     QJsonObject assetData;
     assetData.insert(AssetPathTag, assetPath.toString());
-
     QJsonObject metadata = jsonObject.value(MetadataTag).toObject();
     metadata.insert(AssetDataTag, assetData);
     jsonObject.insert(MetadataTag, metadata);

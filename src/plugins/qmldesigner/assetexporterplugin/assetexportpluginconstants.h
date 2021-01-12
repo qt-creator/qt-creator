@@ -63,6 +63,7 @@ const char ImportsTag[] = "extraImports";
 const char UuidTag[] = "uuid";
 const char ClipTag[] = "clip";
 const char AssetDataTag[] = "assetData";
+const char ReferenceAssetTag[] = "referenceAsset";
 const char AssetPathTag[] = "assetPath";
 const char AssetBoundsTag[] = "assetBounds";
 const char OpacityTag[] = "opacity";
