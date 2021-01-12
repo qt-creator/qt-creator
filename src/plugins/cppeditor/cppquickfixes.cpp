@@ -8672,7 +8672,7 @@ private:
                 }
 
                 QString inClassDeclaration = overview.prettyName(m_class->name()) + "(";
-                QString constructorBody = members.empty() ? ") {}" : ") : ";
+                QString constructorBody = members.empty() ? QString(") {}") : QString(") : ");
                 for (auto &member : members) {
                     bool customValueType;
                     if (isValueType(member.symbol, &customValueType))
