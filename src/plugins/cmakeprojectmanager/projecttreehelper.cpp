@@ -215,6 +215,7 @@ void addFileSystemNodes(ProjectNode *root, const QList<const FileNode *> &allFil
     static QIcon fileSystemNodeIcon = Core::FileIconProvider::directoryIcon(
         ProjectExplorer::Constants::FILEOVERLAY_UNKNOWN);
     auto fileSystemNode = std::make_unique<VirtualFolderNode>(root->filePath());
+    // just before special nodes like "CMake Modules"
     fileSystemNode->setPriority(Node::DefaultPriority - 6);
     fileSystemNode->setDisplayName(
         QCoreApplication::translate("CMakeProjectManager::Internal::ProjectTreeHelper",
@@ -230,8 +231,11 @@ void addFileSystemNodes(ProjectNode *root, const QList<const FileNode *> &allFil
         fileSystemNode->addNestedNode(std::move(node));
     }
 
-    if (!fileSystemNode->isEmpty())
+    if (!fileSystemNode->isEmpty()) {
+        // make file system nodes less probable to be selected when syncing with the current document
+        fileSystemNode->forEachGenericNode([](Node *n) { n->setPriority(n->priority() + 10); });
         root->addNode(std::move(fileSystemNode));
+    }
 }
 
 } // namespace Internal
