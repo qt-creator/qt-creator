@@ -74,8 +74,8 @@ bool SignalListFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
     QModelIndex targetIndex = sourceModel()->index(sourceRow, SignalListModel::TargetColumn, sourceParent);
     QModelIndex signalIndex = sourceModel()->index(sourceRow, SignalListModel::SignalColumn, sourceParent);
 
-    return (sourceModel()->data(targetIndex).toString().contains(filterRegExp())
-            || sourceModel()->data(signalIndex).toString().contains(filterRegExp()));
+    return (sourceModel()->data(targetIndex).toString().contains(filterRegularExpression())
+            || sourceModel()->data(signalIndex).toString().contains(filterRegularExpression()));
 }
 
 

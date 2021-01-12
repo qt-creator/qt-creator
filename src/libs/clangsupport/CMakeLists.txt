@@ -5,8 +5,8 @@ add_qtc_library(ClangSupport
   PUBLIC_DEPENDS Utils Sqlite Qt5::Core Qt5::Network
   PUBLIC_DEFINES
     CLANG_VERSION="${CLANG_VERSION}"
-    CLANG_INCLUDE_DIR="${IDE_LIBEXEC_PATH}/clang/lib/clang/${CLANG_VERSION}/include"
-    CLANG_BINDIR="${IDE_LIBEXEC_PATH}/clang/bin"
+    CLANG_INCLUDE_DIR="${LLVM_LIBRARY_DIR}/clang/${CLANG_VERSION}/include"
+    CLANG_BINDIR="${LLVM_TOOLS_BINARY_DIR}"
   DEFINES CLANGSUPPORT_BUILD_LIB
   PUBLIC_INCLUDES
     "${CMAKE_CURRENT_LIST_DIR}"
@@ -146,18 +146,3 @@ add_qtc_library(ClangSupport
 if (NOT TARGET libclang)
   return()
 endif()
-
-# For the developer build directory
-qtc_copy_to_builddir(copy_clang_to_builddir
-  DIRECTORIES "${LLVM_LIBRARY_DIR}/clang/${CLANG_VERSION}/include"
-  DESTINATION "${IDE_LIBEXEC_PATH}/clang/lib/clang/${CLANG_VERSION}/include"
-)
-
-foreach(executable clang clang-cl clangd clang-tidy clazy-standalone)
-  if (EXISTS "${LLVM_TOOLS_BINARY_DIR}/${executable}${CMAKE_EXECUTABLE_SUFFIX}")
-    qtc_copy_to_builddir(copy_clang_${executable}_to_builddir
-      FILES "${LLVM_TOOLS_BINARY_DIR}/${executable}${CMAKE_EXECUTABLE_SUFFIX}"
-      DESTINATION "${IDE_LIBEXEC_PATH}/clang/bin/"
-    )
-  endif()
-endforeach()

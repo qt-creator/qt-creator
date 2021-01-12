@@ -481,10 +481,12 @@ SynchronousProcessResponse SynchronousProcess::run(const CommandLine &cmd,
     // only with the OpenMode
     d->m_process.setProgram(cmd.executable().toString());
     d->m_process.setArguments(cmd.splitArguments());
-    connect(&d->m_process, &QProcess::started, this, [this, writeData] {
-        d->m_process.write(writeData);
-        d->m_process.closeWriteChannel();
-    });
+    if (!writeData.isEmpty()) {
+        connect(&d->m_process, &QProcess::started, this, [this, writeData] {
+            d->m_process.write(writeData);
+            d->m_process.closeWriteChannel();
+        });
+    }
     d->m_process.start(writeData.isEmpty() ? QIODevice::ReadOnly : QIODevice::ReadWrite);
 
     // On Windows, start failure is triggered immediately if the
