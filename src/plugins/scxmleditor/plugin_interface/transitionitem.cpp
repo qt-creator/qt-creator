@@ -708,7 +708,7 @@ void TransitionItem::setEndPos(const QPointF &endPos, bool snap)
     }
 }
 
-void TransitionItem::setEndItem(ConnectableItem *item)
+void TransitionItem::setEndItem(ConnectableItem *item, bool fixValue)
 {
 
     if (item) {
@@ -725,7 +725,7 @@ void TransitionItem::setEndItem(ConnectableItem *item)
     }
 
     updateZValue();
-    updateTarget();
+    updateTarget(fixValue);
 }
 
 QPointF TransitionItem::loadPoint(const QString &name)
@@ -984,9 +984,10 @@ void TransitionItem::updateEditorInfo(bool allChilds)
     m_pen.setColor(stateColor.isValid() ? stateColor : qRgb(0x12, 0x12, 0x12));
 }
 
-void TransitionItem::updateTarget()
+void TransitionItem::updateTarget(bool fixValue)
 {
-    setTagValue("target", m_endItem ? m_endItem->itemId() : QString());
+    if (fixValue)
+        setTagValue("target", m_endItem ? m_endItem->itemId() : QString());
     if (m_endItem)
         m_endItem->checkInitial(true);
 }
@@ -1002,7 +1003,7 @@ void TransitionItem::updateAttributes()
 
         m_endItem = nullptr;
         findEndItem();
-        updateTarget();
+        updateTarget(false);
         updateZValue();
     }
 
@@ -1123,7 +1124,7 @@ void TransitionItem::findEndItem()
             if (items[i]->type() >= FinalStateType) {
                 auto item = qgraphicsitem_cast<ConnectableItem*>(items[i]);
                 if (item && item->itemId() == targetId) {
-                    setEndItem(item);
+                    setEndItem(item, false);
                     break;
                 }
             }

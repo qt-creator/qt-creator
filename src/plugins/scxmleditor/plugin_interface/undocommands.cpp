@@ -143,8 +143,12 @@ SetAttributeCommand::SetAttributeCommand(ScxmlDocument *doc, ScxmlTag *tag, cons
 void SetAttributeCommand::doAction(const QString &key, const QString &value)
 {
     emit m_document->beginTagChange(ScxmlDocument::TagAttributesChanged, m_tag, m_tag->attribute(key));
-    m_tag->setAttribute(key, value);
-    emit m_document->endTagChange(ScxmlDocument::TagAttributesChanged, m_tag, value);
+
+    QString newValue = value;
+    if (m_tag->tagType() == Transition && key == "target" && !m_document->tagForId(value))
+        newValue = QString();
+    m_tag->setAttribute(key, newValue);
+    emit m_document->endTagChange(ScxmlDocument::TagAttributesChanged, m_tag, newValue);
 }
 
 int SetAttributeCommand::id() const

@@ -485,6 +485,20 @@ bool ScxmlTag::isRootTag() const
     return m_document->rootTag() == this;
 }
 
+ScxmlTag *ScxmlTag::tagForId(const QString &id) const
+{
+    for (ScxmlTag *child : m_childTags) {
+        const TagType type = child->tagType();
+        const bool typeOK = type == State || type == Parallel || type == History || type == Final;
+        if (typeOK && child->attribute("id") == id)
+            return child;
+        ScxmlTag *foundTag = child->tagForId(id);
+        if (foundTag)
+            return foundTag;
+    }
+    return nullptr;
+}
+
 QVector<ScxmlTag*> ScxmlTag::allChildren() const
 {
     return m_childTags;

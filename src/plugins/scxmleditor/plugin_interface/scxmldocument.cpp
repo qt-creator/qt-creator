@@ -649,6 +649,14 @@ ScxmlTag *ScxmlDocument::scxmlRootTag() const
     return tag;
 }
 
+ScxmlTag *ScxmlDocument::tagForId(const QString &id) const
+{
+    if (id.isEmpty())
+        return nullptr;
+    ScxmlTag *root = scxmlRootTag();
+    return root ? root->tagForId(id) : nullptr;
+}
+
 ScxmlTag *ScxmlDocument::rootTag() const
 {
     return m_rootTags.isEmpty() ? 0 : m_rootTags.last();

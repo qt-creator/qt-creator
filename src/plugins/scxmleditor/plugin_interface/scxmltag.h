@@ -112,6 +112,8 @@ public:
     int childIndex(const ScxmlTag *child) const;
     int index() const;
     bool isRootTag() const;
+    ScxmlTag *tagForId(const QString &id) const;
+
 
     /**
      * @brief writeXml - write tag's content with the QXMLStreamWriter. Call writeXml-function for all children too.

@@ -163,6 +163,7 @@ public:
      */
     ScxmlTag *rootTag() const;
     ScxmlTag *scxmlRootTag() const;
+    ScxmlTag *tagForId(const QString &id) const;
     void pushRootTag(ScxmlTag *tag);
     ScxmlTag *popRootTag();
 
