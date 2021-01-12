@@ -31,8 +31,7 @@ namespace Core {
 
 static QList<IDocumentFactory *> g_documentFactories;
 
-IDocumentFactory::IDocumentFactory(QObject *parent)
-    : QObject(parent)
+IDocumentFactory::IDocumentFactory()
 {
     g_documentFactories.append(this);
 }

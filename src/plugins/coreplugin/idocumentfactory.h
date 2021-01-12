@@ -29,7 +29,6 @@
 
 #include <utils/id.h>
 
-#include <QObject>
 #include <QStringList>
 
 #include <functional>
@@ -38,13 +37,11 @@ namespace Core {
 
 class IDocument;
 
-class CORE_EXPORT IDocumentFactory : public QObject
+class CORE_EXPORT IDocumentFactory
 {
-    Q_OBJECT
-
 public:
-    IDocumentFactory(QObject *parent = nullptr);
-    ~IDocumentFactory() override;
+    IDocumentFactory();
+    ~IDocumentFactory();
 
     static const QList<IDocumentFactory *> allDocumentFactories();
 
