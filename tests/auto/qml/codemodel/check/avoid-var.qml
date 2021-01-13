@@ -1,9 +1,9 @@
-import QtQuick 1.0
+import QtQuick 2.0
 
 Item {
     property int x: 10
     property var x: 10 // 311 14 16
-    property string x: "abc"
+    readonly property string x: "abc"
     property var x: "abc" // 311 14 16
     property string x: true
     property var x: true // 311 14 16
@@ -17,4 +17,6 @@ Item {
     property var x: Qt.size(1, 1) // 311 14 16
     property vector3d x: Qt.vector3d(1, 1, 1)
     property var x: Qt.vector3d(1, 1, 1) // 311 14 16
+    default property int x
+    required property var x
 }

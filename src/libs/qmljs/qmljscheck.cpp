@@ -1124,52 +1124,39 @@ bool Check::visit(UiArrayBinding *ast)
 bool Check::visit(UiPublicMember *ast)
 {
     if (ast->type == UiPublicMember::Property) {
-        if (ast->defaultToken.isValid() || ast->readonlyToken.isValid()) {
-            const QStringView typeName = ast->memberType->name;
-            if (!typeName.isEmpty() && typeName.at(0).isLower()) {
-                const QString typeNameS = typeName.toString();
-                if (!isValidBuiltinPropertyType(typeNameS))
-                    addMessage(ErrInvalidPropertyType, ast->typeToken, typeNameS);
-            }
+        const QStringView typeName = ast->memberType->name;
+        // warn about dubious use of var/variant
+        if (typeName == QLatin1String("variant") || typeName == QLatin1String("var")) {
+            Evaluate evaluator(&_scopeChain);
+            const Value *init = evaluator(ast->statement);
+            QString preferredType;
+            if (init->asNumberValue())
+                preferredType = tr("'int' or 'real'");
+            else if (init->asStringValue())
+                preferredType = "'string'";
+            else if (init->asBooleanValue())
+                preferredType = "'bool'";
+            else if (init->asColorValue())
+                preferredType = "'color'";
+            else if (init == _context->valueOwner()->qmlPointObject())
+                preferredType = "'point'";
+            else if (init == _context->valueOwner()->qmlRectObject())
+                preferredType = "'rect'";
+            else if (init == _context->valueOwner()->qmlSizeObject())
+                preferredType = "'size'";
+            else if (init == _context->valueOwner()->qmlVector2DObject())
+                preferredType = "'vector2d'";
+            else if (init == _context->valueOwner()->qmlVector3DObject())
+                preferredType = "'vector3d'";
+            else if (init == _context->valueOwner()->qmlVector4DObject())
+                preferredType = "'vector4d'";
+            else if (init == _context->valueOwner()->qmlQuaternionObject())
+                preferredType = "'quaternion'";
+            else if (init == _context->valueOwner()->qmlMatrix4x4Object())
+                preferredType = "'matrix4x4'";
 
-            const QStringView name = ast->name;
-
-            if (name == QLatin1String("data"))
-                addMessage(ErrInvalidPropertyName, ast->identifierToken, name.toString());
-
-            // warn about dubious use of var/variant
-            if (typeName == QLatin1String("variant") || typeName == QLatin1String("var")) {
-                Evaluate evaluator(&_scopeChain);
-                const Value *init = evaluator(ast->statement);
-                QString preferredType;
-                if (init->asNumberValue())
-                    preferredType = tr("'int' or 'real'");
-                else if (init->asStringValue())
-                    preferredType = "'string'";
-                else if (init->asBooleanValue())
-                    preferredType = "'bool'";
-                else if (init->asColorValue())
-                    preferredType = "'color'";
-                else if (init == _context->valueOwner()->qmlPointObject())
-                    preferredType = "'point'";
-                else if (init == _context->valueOwner()->qmlRectObject())
-                    preferredType = "'rect'";
-                else if (init == _context->valueOwner()->qmlSizeObject())
-                    preferredType = "'size'";
-                else if (init == _context->valueOwner()->qmlVector2DObject())
-                    preferredType = "'vector2d'";
-                else if (init == _context->valueOwner()->qmlVector3DObject())
-                    preferredType = "'vector3d'";
-                else if (init == _context->valueOwner()->qmlVector4DObject())
-                    preferredType = "'vector4d'";
-                else if (init == _context->valueOwner()->qmlQuaternionObject())
-                    preferredType = "'quaternion'";
-                else if (init == _context->valueOwner()->qmlMatrix4x4Object())
-                    preferredType = "'matrix4x4'";
-
-                if (!preferredType.isEmpty())
-                    addMessage(HintPreferNonVarPropertyType, ast->typeToken, preferredType);
-            }
+            if (!preferredType.isEmpty())
+                addMessage(HintPreferNonVarPropertyType, ast->typeToken, preferredType);
         }
 
         checkBindingRhs(ast->statement);
@@ -1281,7 +1268,8 @@ static bool shouldAvoidNonStrictEqualityCheck(const Value *lhs, const Value *rhs
         return true; // coerces object to primitive
 
     if (lhs->asBooleanValue() && (!rhs->asBooleanValue()
-                                  && !rhs->asUndefinedValue()))
+                                  && !rhs->asUndefinedValue()
+                                  && !rhs->asNullValue()))
         return true; // coerces bool to number
 
     return false;

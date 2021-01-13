@@ -1940,16 +1940,18 @@ const PatternElement *ASTVariableReference::ast() const
 const Value *ASTVariableReference::value(ReferenceContext *referenceContext) const
 {
     // may be assigned to later
-    if (!m_ast->expressionCast())
+    ExpressionNode *exp = ((m_ast->initializer) ? m_ast->initializer : m_ast->bindingTarget);
+    if (!exp)
         return valueOwner()->unknownValue();
 
     Document::Ptr doc = m_doc->ptr();
     ScopeChain scopeChain(doc, referenceContext->context());
     ScopeBuilder builder(&scopeChain);
-    builder.push(ScopeAstPath(doc)(m_ast->expressionCast()->firstSourceLocation().begin()));
+    builder.push(ScopeAstPath(doc)(exp->firstSourceLocation().begin()));
 
     Evaluate evaluator(&scopeChain, referenceContext);
-    return evaluator(m_ast->expressionCast());
+    const Value *res = evaluator(exp);
+    return res;
 }
 
 bool ASTVariableReference::getSourceLocation(QString *fileName, int *line, int *column) const

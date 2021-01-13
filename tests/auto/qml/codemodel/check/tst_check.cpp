@@ -205,9 +205,6 @@ void tst_Check::test()
             Message missingMessage = expectedMessages.at(i);
             qDebug() << "expected message of type" << missingMessage.type << "on line" << missingMessage.location.startLine;
         }
-        if (path.endsWith("avoid-var.qml"))
-            QEXPECT_FAIL(path.toUtf8(), "currently broken", Continue);
-
         QVERIFY2(false, "more messages expected");
     }
     if (expectedMessages.size() < messages.size()) {

@@ -1,4 +1,4 @@
-import QtQuick 1.0
+import QtQuick 2.0
 
 Rectangle {
     function foo(k) {
@@ -10,54 +10,54 @@ Rectangle {
         var b = true
         var o = {}
 
-        if (s == s) {} // -1 15 16 # false positive
+        if (s == s) {}
         if (s == n) {} // 126 15 16
-        if (s == N) {} // -2 15 16 # wrong warning (always false)
-        if (s == u) {} // -2 15 16 # wrong warning (always false)
+        if (s == N) {}
+        if (s == u) {}
         if (s == b) {} // 126 15 16
         if (s == o) {} // 126 15 16
         if (s == k) {} // 126 15 16
 
         if (n == s) {} // 126 15 16
-        if (n == n) {} // -1 15 16 # false positive
-        if (n == N) {} // -2 15 16 # wrong warning (always false)
-        if (n == u) {} // -2 15 16 # wrong warning (always false)
+        if (n == n) {}
+        if (n == N) {}
+        if (n == u) {}
         if (n == b) {} // 126 15 16
         if (n == o) {} // 126 15 16
         if (n == k) {} // 126 15 16
 
-        if (N == s) {} // -2 15 16 # wrong warning (always false)
-        if (N == n) {} // -2 15 16 # wrong warning (always false)
-        if (N == N) {} // -1 15 16 # false positive
-        if (N == u) {} // -2 15 16 # wrong warning (always true)
+        if (N == s) {}
+        if (N == n) {}
+        if (N == N) {}
+        if (N == u) {}
 
-        if (N == b) {} // -2 15 16 # wrong warning (always false)
-        if (N == o) {} // -2 15 16 # wrong warning (always false)
+        if (N == b) {}
+        if (N == o) {}
         if (N == k) {} // 126 15 16
 
-        if (u == s) {} // -2 15 16 # wrong warning (always false)
-        if (u == n) {} // -2 15 16 # wrong warning (always false)
-        if (u == N) {} // -2 15 16 # wrong warning (always true)
-        if (u == u) {} // -2 15 16 # wrong warning (always true)
-        if (u == b) {} // -2 15 16 # wrong warning (always false)
-        if (u == o) {} // -2 15 16 # wrong warning (always false)
+        if (u == s) {}
+        if (u == n) {}
+        if (u == N) {}
+        if (u == u) {}
+        if (u == b) {}
+        if (u == o) {}
         if (u == k) {} // 126 15 16
 
         if (b == s) {} // 126 15 16
         if (b == n) {} // 126 15 16
 
-        if (b == N) {} // -2 15 16 # wrong warning (always false)
-        if (b == u) {} // -2 15 16 # wrong warning (always false)
-        if (b == b) {} // -1 15 16 # false positive
+        if (b == N) {}
+        if (b == u) {}
+        if (b == b) {}
         if (b == o) {} // 126 15 16
         if (b == k) {} // 126 15 16
 
         if (o == s) {} // 126 15 16
         if (o == n) {} // 126 15 16
-        if (o == N) {} // -2 15 16 # wrong warning (always false)
-        if (o == u) {} // -2 15 16 # wrong warning (always false)
+        if (o == N) {}
+        if (o == u) {}
         if (o == b) {} // 126 15 16
-        if (o == o) {} // -1 15 16 # false positive
+        if (o == o) {}
         if (o == k) {} // 126 15 16
 
         if (k == s) {} // 126 15 16
