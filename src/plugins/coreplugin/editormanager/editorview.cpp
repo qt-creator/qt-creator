@@ -37,6 +37,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/locator/locatorconstants.h>
 #include <coreplugin/minisplitter.h>
+#include <utils/algorithm.h>
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
@@ -400,14 +401,27 @@ void EditorView::closeSplit()
 
 void EditorView::openDroppedFiles(const QList<DropSupport::FileSpec> &files)
 {
-    const int count = files.size();
-    for (int i = 0; i < count; ++i) {
-        const DropSupport::FileSpec spec = files.at(i);
-        EditorManagerPrivate::openEditorAt(this, spec.filePath, spec.line, spec.column, Id(),
-                                  i < count - 1 ? EditorManager::DoNotChangeCurrentEditor
-                                                  | EditorManager::DoNotMakeVisible
-                                                : EditorManager::NoFlags);
-    }
+    bool first = true;
+    auto openEntry = [&](const DropSupport::FileSpec &spec) {
+        if (first) {
+            first = false;
+            EditorManagerPrivate::openEditorAt(this, spec.filePath, spec.line, spec.column);
+        } else if (spec.column != -1 || spec.line != -1) {
+            EditorManagerPrivate::openEditorAt(this,
+                                               spec.filePath,
+                                               spec.line,
+                                               spec.column,
+                                               Id(),
+                                               EditorManager::DoNotChangeCurrentEditor
+                                                   | EditorManager::DoNotMakeVisible);
+        } else {
+            auto *factory = IEditorFactory::preferredEditorFactories(spec.filePath).value(0);
+            DocumentModelPrivate::addSuspendedDocument(spec.filePath,
+                                                       {},
+                                                       factory ? factory->id() : Id());
+        }
+    };
+    Utils::reverseForeach(files, openEntry);
 }
 
 void EditorView::setParentSplitterOrView(SplitterOrView *splitterOrView)

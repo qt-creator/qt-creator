@@ -57,6 +57,7 @@
 #include <coreplugin/dialogs/externaltoolconfig.h>
 #include <coreplugin/dialogs/newdialog.h>
 #include <coreplugin/dialogs/shortcutsettings.h>
+#include <coreplugin/editormanager/documentmodel_p.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/editormanager_p.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -877,7 +878,7 @@ IDocument *MainWindow::openFiles(const QStringList &fileNames,
     const QList<IDocumentFactory*> documentFactories = IDocumentFactory::allDocumentFactories();
     IDocument *res = nullptr;
 
-    foreach (const QString &fileName, fileNames) {
+    for (const QString &fileName : fileNames) {
         const QDir workingDir(workingDirectory.isEmpty() ? QDir::currentPath() : workingDirectory);
         const QFileInfo fi(workingDir, fileName);
         const QString absoluteFilePath = fi.absoluteFilePath();
@@ -898,12 +899,19 @@ IDocument *MainWindow::openFiles(const QStringList &fileNames,
                 emFlags |=  EditorManager::CanContainLineAndColumnNumber;
             if (flags & ICore::SwitchSplitIfAlreadyVisible)
                 emFlags |= EditorManager::SwitchSplitIfAlreadyVisible;
-            IEditor *editor = EditorManager::openEditor(absoluteFilePath, Id(), emFlags);
-            if (!editor) {
-                if (flags & ICore::StopOnLoadFail)
-                    return res;
-            } else if (!res) {
-                res = editor->document();
+            if (emFlags != EditorManager::NoFlags || !res) {
+                IEditor *editor = EditorManager::openEditor(absoluteFilePath, Id(), emFlags);
+                if (!editor) {
+                    if (flags & ICore::StopOnLoadFail)
+                        return res;
+                } else if (!res) {
+                    res = editor->document();
+                }
+            } else {
+                auto *factory = IEditorFactory::preferredEditorFactories(absoluteFilePath).value(0);
+                DocumentModelPrivate::addSuspendedDocument(absoluteFilePath,
+                                                           {},
+                                                           factory ? factory->id() : Id());
             }
         }
     }
