@@ -2073,7 +2073,7 @@ QString GdbEngine::breakpointLocation(const BreakpointParameters &data)
     if (data.type == BreakpointAtMain)
         return mainFunction();
     if (data.type == BreakpointByFunction)
-        return '"' + data.functionName + '"';
+        return "--function \"" + data.functionName + '"';
     if (data.type == BreakpointByAddress)
         return addressSpec(data.address);
 
