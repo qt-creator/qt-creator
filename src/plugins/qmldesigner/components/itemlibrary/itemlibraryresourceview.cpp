@@ -28,7 +28,7 @@
 #include "customfilesystemmodel.h"
 
 #include <theme.h>
-#include <imagecache.h>
+#include <asynchronousimagecache.h>
 
 #include <QAction>
 #include <QActionGroup>
@@ -62,8 +62,9 @@ void ItemLibraryResourceView::addSizeAction(QActionGroup *group, const QString &
     });
 }
 
-ItemLibraryResourceView::ItemLibraryResourceView(ImageCache &fontImageCache, QWidget *parent) :
-        QListView(parent)
+ItemLibraryResourceView::ItemLibraryResourceView(AsynchronousImageCache &fontImageCache,
+                                                 QWidget *parent)
+    : QListView(parent)
 {
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -113,13 +114,12 @@ ItemLibraryResourceView::ItemLibraryResourceView(ImageCache &fontImageCache, QWi
     // a commonly used sentence to preview the font glyphs in latin fonts.
     // For fonts that do not have latin glyphs, the font family name will have to
     // suffice for preview. Font family name is inserted into %1 at render time.
-    m_fontPreviewTooltipBackend->setState(QStringLiteral("%1@%2@%3")
-                                          .arg(QString::number(300),
-                                               Theme::getColor(Theme::DStextColor).name(),
-                                               QStringLiteral("%1\n\n"
-                                                              "The quick brown fox jumps\n"
-                                                              "over the lazy dog\n"
-                                                              "1234567890")));
+    m_fontPreviewTooltipBackend->setAuxiliaryData(
+        ImageCache::FontCollectorSizeAuxiliaryData{QSize{300, 300},
+                                                   Theme::getColor(Theme::DStextColor).name(),
+                                                   QStringLiteral("The quick brown fox jumps\n"
+                                                                  "over the lazy dog\n"
+                                                                  "1234567890")});
 }
 
 void ItemLibraryResourceView::startDrag(Qt::DropActions /* supportedActions */)

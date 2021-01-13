@@ -26,12 +26,12 @@
 #include "itemlibraryview.h"
 #include "itemlibrarywidget.h"
 #include "metainfo.h"
+#include <asynchronousimagecache.h>
 #include <bindingproperty.h>
 #include <coreplugin/icore.h>
-#include <imagecache.h>
 #include <imagecache/imagecachecollector.h>
-#include <imagecache/imagecachefontcollector.h>
 #include <imagecache/imagecacheconnectionmanager.h>
+#include <imagecache/imagecachefontcollector.h>
 #include <imagecache/imagecachegenerator.h>
 #include <imagecache/imagecachestorage.h>
 #include <imagecache/timestampprovider.h>
@@ -42,6 +42,7 @@
 #include <projectexplorer/target.h>
 #include <rewriterview.h>
 #include <sqlitedatabase.h>
+#include <synchronousimagecache.h>
 #include <utils/algorithm.h>
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
@@ -52,7 +53,7 @@ class ImageCacheData
 {
 public:
     Sqlite::Database database{
-        Utils::PathString{Core::ICore::cacheResourcePath() + "/imagecache-v1.db"}};
+        Utils::PathString{Core::ICore::cacheResourcePath() + "/imagecache-v2.db"}};
     ImageCacheStorage<Sqlite::Database> storage{database};
     ImageCacheConnectionManager connectionManager;
     ImageCacheCollector collector{connectionManager};
@@ -60,8 +61,9 @@ public:
     ImageCacheGenerator generator{collector, storage};
     ImageCacheGenerator fontGenerator{fontCollector, storage};
     TimeStampProvider timeStampProvider;
-    ImageCache cache{storage, generator, timeStampProvider};
-    ImageCache fontImageCache{storage, fontGenerator, timeStampProvider};
+    AsynchronousImageCache cache{storage, generator, timeStampProvider};
+    AsynchronousImageCache asynchronousFontImageCache{storage, fontGenerator, timeStampProvider};
+    SynchronousImageCache synchronousFontImageCache{storage, timeStampProvider, fontCollector};
 };
 
 ItemLibraryView::ItemLibraryView(QObject* parent)
@@ -82,7 +84,9 @@ bool ItemLibraryView::hasWidget() const
 WidgetInfo ItemLibraryView::widgetInfo()
 {
     if (m_widget.isNull()) {
-        m_widget = new ItemLibraryWidget{m_imageCacheData->cache, m_imageCacheData->fontImageCache};
+        m_widget = new ItemLibraryWidget{m_imageCacheData->cache,
+                                         m_imageCacheData->asynchronousFontImageCache,
+                                         m_imageCacheData->synchronousFontImageCache};
         m_widget->setImportsWidget(m_importManagerView->widgetInfo().widget);
     }
 
@@ -159,12 +163,14 @@ void ItemLibraryView::importsChanged(const QList<Import> &addedImports, const QL
 void ItemLibraryView::setResourcePath(const QString &resourcePath)
 {
     if (m_widget.isNull())
-        m_widget = new ItemLibraryWidget{m_imageCacheData->cache, m_imageCacheData->fontImageCache};
+        m_widget = new ItemLibraryWidget{m_imageCacheData->cache,
+                                         m_imageCacheData->asynchronousFontImageCache,
+                                         m_imageCacheData->synchronousFontImageCache};
 
     m_widget->setResourcePath(resourcePath);
 }
 
-ImageCache &ItemLibraryView::imageCache()
+AsynchronousImageCache &ItemLibraryView::imageCache()
 {
     return m_imageCacheData->cache;
 }

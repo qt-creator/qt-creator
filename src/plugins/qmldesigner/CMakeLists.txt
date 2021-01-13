@@ -509,8 +509,10 @@ extend_qtc_plugin(QmlDesigner
     include/textmodifier.h
     include/variantproperty.h
     include/viewmanager.h
-    include/imagecache.h
-    include/imagecacheinterface.h
+    include/asynchronousimagecache.h
+    include/synchronousimagecache.h
+    include/imagecacheauxiliarydata.h
+    include/asynchronousimagecacheinterface.h
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -601,7 +603,8 @@ extend_qtc_plugin(QmlDesigner
     imagecache/imagecachecollector.cpp
     imagecache/imagecachefontcollector.h
     imagecache/imagecachefontcollector.cpp
-    imagecache/imagecache.cpp
+    imagecache/asynchronousimagecache.cpp
+    imagecache/synchronousimagecache.cpp
     imagecache/imagecachecollectorinterface.h
     imagecache/imagecacheconnectionmanager.cpp
     imagecache/imagecacheconnectionmanager.h

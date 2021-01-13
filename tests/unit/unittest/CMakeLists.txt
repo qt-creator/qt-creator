@@ -179,7 +179,8 @@ add_qtc_test(unittest GTEST
     sqlstatementbuilder-test.cpp
     createtablesqlstatementbuilder-test.cpp
     sqlitevalue-test.cpp
-    imagecache-test.cpp
+    asynchronousimagecache-test.cpp
+    synchronousimagecache-test.cpp
     imagecachegenerator-test.cpp
     imagecachestorage-test.cpp
     sqlitedatabasemock.h
@@ -405,8 +406,10 @@ extend_qtc_test(unittest
     model/signalhandlerproperty.cpp include/signalhandlerproperty.h
     model/variantproperty.cpp include/variantproperty.h
     rewritertransaction.cpp rewritertransaction.h
-    imagecache/imagecache.cpp include/imagecache.h
-    include/imagecacheinterface.h
+    include/imagecacheauxiliarydata.h
+    imagecache/synchronousimagecache.cpp include/synchronousimagecache.h
+    imagecache/asynchronousimagecache.cpp include/asynchronousimagecache.h
+    include/asynchronousimagecacheinterface.h
     imagecache/imagecachecollectorinterface.h
     imagecache/imagecachegenerator.cpp imagecache/imagecachegenerator.h
     imagecache/imagecachegeneratorinterface.h

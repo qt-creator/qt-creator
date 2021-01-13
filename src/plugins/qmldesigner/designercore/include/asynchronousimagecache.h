@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "imagecacheinterface.h"
+#include "asynchronousimagecacheinterface.h"
 
 #include <condition_variable>
 #include <functional>
@@ -37,70 +37,78 @@ namespace QmlDesigner {
 class TimeStampProviderInterface;
 class ImageCacheStorageInterface;
 class ImageCacheGeneratorInterface;
+class ImageCacheCollectorInterface;
 
-class ImageCache final : public ImageCacheInterface
+class AsynchronousImageCache final : public AsynchronousImageCacheInterface
 {
 public:
-    using CaptureCallback = std::function<void(const QImage &)>;
+    using CaptureImageCallback = std::function<void(const QImage &)>;
     using AbortCallback = std::function<void()>;
 
-    ~ImageCache();
+    ~AsynchronousImageCache();
 
-    ImageCache(ImageCacheStorageInterface &storage,
-               ImageCacheGeneratorInterface &generator,
-               TimeStampProviderInterface &timeStampProvider);
+    AsynchronousImageCache(ImageCacheStorageInterface &storage,
+                           ImageCacheGeneratorInterface &generator,
+                           TimeStampProviderInterface &timeStampProvider);
 
     void requestImage(Utils::PathString name,
-                      CaptureCallback captureCallback,
+                      CaptureImageCallback captureCallback,
                       AbortCallback abortCallback,
-                      Utils::SmallString state = {}) override;
-    void requestIcon(Utils::PathString name,
-                     CaptureCallback captureCallback,
-                     AbortCallback abortCallback,
-                     Utils::SmallString state = {}) override;
+                      Utils::SmallString extraId = {},
+                      ImageCache::AuxiliaryData auxiliaryData = {}) override;
+    void requestSmallImage(Utils::PathString name,
+                           CaptureImageCallback captureCallback,
+                           AbortCallback abortCallback,
+                           Utils::SmallString extraId = {},
+                           ImageCache::AuxiliaryData auxiliaryData = {}) override;
 
     void clean();
     void waitForFinished();
 
 private:
-    enum class RequestType { Image, Icon };
+    enum class RequestType { Image, SmallImage, Icon };
     struct Entry
     {
         Entry() = default;
         Entry(Utils::PathString name,
-              Utils::SmallString state,
-              CaptureCallback &&captureCallback,
+              Utils::SmallString extraId,
+              CaptureImageCallback &&captureCallback,
               AbortCallback &&abortCallback,
+              ImageCache::AuxiliaryData &&auxiliaryData,
               RequestType requestType)
             : name{std::move(name)}
-            , state{std::move(state)}
+            , extraId{std::move(extraId)}
             , captureCallback{std::move(captureCallback)}
             , abortCallback{std::move(abortCallback)}
+            , auxiliaryData{std::move(auxiliaryData)}
             , requestType{requestType}
         {}
 
         Utils::PathString name;
-        Utils::SmallString state;
-        CaptureCallback captureCallback;
+        Utils::SmallString extraId;
+        CaptureImageCallback captureCallback;
         AbortCallback abortCallback;
+        ImageCache::AuxiliaryData auxiliaryData;
         RequestType requestType = RequestType::Image;
     };
 
     std::tuple<bool, Entry> getEntry();
     void addEntry(Utils::PathString &&name,
-                  Utils::SmallString &&state,
-                  CaptureCallback &&captureCallback,
+                  Utils::SmallString &&extraId,
+                  CaptureImageCallback &&captureCallback,
                   AbortCallback &&abortCallback,
+                  ImageCache::AuxiliaryData &&auxiliaryData,
                   RequestType requestType);
     void clearEntries();
     void waitForEntries();
     void stopThread();
     bool isRunning();
     static void request(Utils::SmallStringView name,
-                        Utils::SmallStringView state,
-                        ImageCache::RequestType requestType,
-                        ImageCache::CaptureCallback captureCallback,
-                        ImageCache::AbortCallback abortCallback,
+                        Utils::SmallStringView extraId,
+                        AsynchronousImageCache::RequestType requestType,
+                        AsynchronousImageCache::CaptureImageCallback captureCallback,
+                        AsynchronousImageCache::AbortCallback abortCallback,
+                        ImageCache::AuxiliaryData auxiliaryData,
                         ImageCacheStorageInterface &storage,
                         ImageCacheGeneratorInterface &generator,
                         TimeStampProviderInterface &timeStampProvider);

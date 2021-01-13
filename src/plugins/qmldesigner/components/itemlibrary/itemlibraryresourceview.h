@@ -35,13 +35,14 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class ImageCache;
+class AsynchronousImageCache;
 
 class ItemLibraryResourceView : public QListView {
 
     Q_OBJECT
 public:
-    explicit ItemLibraryResourceView(ImageCache &fontImageCache, QWidget *parent = nullptr);
+    explicit ItemLibraryResourceView(AsynchronousImageCache &fontImageCache,
+                                     QWidget *parent = nullptr);
 
     void startDrag(Qt::DropActions supportedActions) override;
     bool viewportEvent(QEvent *event) override;

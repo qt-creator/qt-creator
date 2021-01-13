@@ -32,7 +32,8 @@ SOURCES += \
     $$PWD/designercore/model/annotation.cpp \
     $$PWD/designercore/rewritertransaction.cpp \
     $$PWD/components/listmodeleditor/listmodeleditormodel.cpp \
-    $$PWD/designercore/imagecache/imagecache.cpp \
+    $$PWD/designercore/imagecache/asynchronousimagecache.cpp \
+    $$PWD/designercore/imagecache/synchronousimagecache.cpp \
     $$PWD/designercore/imagecache/imagecachegenerator.cpp
 
 HEADERS += \
@@ -42,8 +43,10 @@ HEADERS += \
     $$PWD/designercore/imagecache/imagecachestorageinterface.h \
     $$PWD/designercore/imagecache/imagecachegeneratorinterface.h \
     $$PWD/designercore/imagecache/timestampproviderinterface.h \
-    $$PWD/designercore/include/imagecache.h \
-    $$PWD/designercore/include/imagecacheinterface.h \
+    $$PWD/designercore/include/asynchronousimagecache.h \
+    $$PWD/designercore/include/synchronousimagecache.h \
+    $$PWD/designercore/include/imagecacheauxiliarydata.h \
+    $$PWD/designercore/include/asynchronousimagecacheinterface.h \
     $$PWD/designercore/include/modelnode.h \
     $$PWD/designercore/include/model.h \
     $$PWD/../../../share/qtcreator/qml/qmlpuppet/interfaces/commondefines.h \

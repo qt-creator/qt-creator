@@ -249,11 +249,18 @@ void BaseStatement::bind(int index, Utils::SmallStringView text)
 
 void BaseStatement::bind(int index, BlobView blobView)
 {
-    int resultCode = sqlite3_bind_blob64(m_compiledStatement.get(),
+    int resultCode = SQLITE_OK;
+
+    if (blobView.empty()) {
+        sqlite3_bind_null(m_compiledStatement.get(), index);
+    } else {
+        resultCode = sqlite3_bind_blob64(m_compiledStatement.get(),
                                          index,
                                          blobView.data(),
                                          blobView.size(),
                                          SQLITE_STATIC);
+    }
+
     if (resultCode != SQLITE_OK)
         checkForBindingError(resultCode);
 }
@@ -712,6 +719,26 @@ StringType convertToTextForColumn(sqlite3_stmt *sqlStatment, int column)
     return StringType{"", 0};
 }
 } // namespace
+
+Type BaseStatement::fetchType(int column) const
+{
+    auto dataType = sqlite3_column_type(m_compiledStatement.get(), column);
+
+    switch (dataType) {
+    case SQLITE_INTEGER:
+        return Type::Integer;
+    case SQLITE_FLOAT:
+        return Type::Float;
+    case SQLITE3_TEXT:
+        return Type::Text;
+    case SQLITE_BLOB:
+        return Type::Blob;
+    case SQLITE_NULL:
+        return Type::Null;
+    }
+
+    return Type::Invalid;
+}
 
 int BaseStatement::fetchIntValue(int column) const
 {

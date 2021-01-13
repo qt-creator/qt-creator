@@ -25,8 +25,8 @@
 
 #include "customfilesystemmodel.h"
 
+#include <synchronousimagecache.h>
 #include <theme.h>
-#include <imagecache.h>
 
 #include <utils/filesystemwatcher.h>
 
@@ -98,7 +98,7 @@ QString fontFamily(const QFileInfo &info)
 class ItemLibraryFileIconProvider : public QFileIconProvider
 {
 public:
-    ItemLibraryFileIconProvider(ImageCache &fontImageCache)
+    ItemLibraryFileIconProvider(SynchronousImageCache &fontImageCache)
         : QFileIconProvider()
         , m_fontImageCache(fontImageCache)
     {
@@ -138,71 +138,29 @@ public:
 
     QIcon generateFontIcons(const QString &filePath) const
     {
-        QIcon icon;
-        QString colorName = Theme::getColor(Theme::DStextColor).name();
-        std::condition_variable condition;
-        int count = iconSizes.size();
-        std::mutex mutex;
-        QList<QPair<QSize, QImage>> images;
-
-        for (auto iconSize : iconSizes) {
-            m_fontImageCache.requestImage(
-                filePath,
-                [&images, &condition, &count, &mutex, iconSize](const QImage &image) {
-                    int currentCount;
-                    {
-                        std::unique_lock lock{mutex};
-                        currentCount = --count;
-                        images.append({iconSize, image});
-                    }
-                    if (currentCount <= 0)
-                        condition.notify_all();
-                },
-                [&images, &condition, &count, &mutex, iconSize] {
-                    int currentCount;
-                    {
-                        std::unique_lock lock{mutex};
-                        currentCount = --count;
-                        images.append({iconSize, {}});
-                    }
-                    if (currentCount <= 0)
-                        condition.notify_all();
-                },
-                QStringLiteral("%1@%2@Abc").arg(QString::number(iconSize.width()),
-                                                colorName)
-            );
-        }
-
-        {
-            // Block main thread until icons are generated, as it has to be done synchronously
-            std::unique_lock lock{mutex};
-            if (count > 0)
-                condition.wait(lock, [&]{ return count <= 0; });
-        }
-
-        for (const auto &pair : qAsConst(images)) {
-            QImage image = pair.second;
-            if (image.isNull())
-                icon.addPixmap(defaultPixmapForType("font", pair.first));
-            else
-                icon.addPixmap(QPixmap::fromImage(image));
-        }
-
-        return icon;
+        return m_fontImageCache.icon(
+            filePath,
+            {},
+            ImageCache::FontCollectorSizesAuxiliaryData{Utils::span{iconSizes},
+                                                        Theme::getColor(Theme::DStextColor).name(),
+                                                        "Abc"});
     }
 
     // Generated icon sizes should contain all ItemLibraryResourceView needed icon sizes, and their
     // x2 versions for HDPI sceens
-    QList<QSize> iconSizes  = {{384, 384}, {192, 192}, // Large
-                               {256, 256}, {128, 128}, // Drag
-                                           {96, 96},   // Medium
-                                           {48, 48},   // Small
-                               {64, 64},   {32, 32}};  // List
+    std::vector<QSize> iconSizes = {{384, 384},
+                                    {192, 192}, // Large
+                                    {256, 256},
+                                    {128, 128}, // Drag
+                                    {96, 96},   // Medium
+                                    {48, 48},   // Small
+                                    {64, 64},
+                                    {32, 32}}; // List
 
-    ImageCache &m_fontImageCache;
+    SynchronousImageCache &m_fontImageCache;
 };
 
-CustomFileSystemModel::CustomFileSystemModel(ImageCache &fontImageCache, QObject *parent)
+CustomFileSystemModel::CustomFileSystemModel(SynchronousImageCache &fontImageCache, QObject *parent)
     : QAbstractListModel(parent)
     , m_fileSystemModel(new QFileSystemModel(this))
     , m_fileSystemWatcher(new Utils::FileSystemWatcher(this))

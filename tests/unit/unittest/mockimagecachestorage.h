@@ -32,19 +32,33 @@
 class MockImageCacheStorage : public QmlDesigner::ImageCacheStorageInterface
 {
 public:
-    MOCK_METHOD(QmlDesigner::ImageCacheStorageInterface::Entry,
+    MOCK_METHOD(QmlDesigner::ImageCacheStorageInterface::ImageEntry,
                 fetchImage,
                 (Utils::SmallStringView name, Sqlite::TimeStamp minimumTimeStamp),
                 (const, override));
 
-    MOCK_METHOD(QmlDesigner::ImageCacheStorageInterface::Entry,
+    MOCK_METHOD(QmlDesigner::ImageCacheStorageInterface::ImageEntry,
+                fetchSmallImage,
+                (Utils::SmallStringView name, Sqlite::TimeStamp minimumTimeStamp),
+                (const, override));
+
+    MOCK_METHOD(QmlDesigner::ImageCacheStorageInterface::IconEntry,
                 fetchIcon,
                 (Utils::SmallStringView name, Sqlite::TimeStamp minimumTimeStamp),
                 (const, override));
 
     MOCK_METHOD(void,
                 storeImage,
-                (Utils::SmallStringView name, Sqlite::TimeStamp newTimeStamp, const QImage &image),
+                (Utils::SmallStringView name,
+                 Sqlite::TimeStamp newTimeStamp,
+                 const QImage &image,
+                 const QImage &smallImage),
                 (override));
+
+    MOCK_METHOD(void,
+                storeIcon,
+                (Utils::SmallStringView name, Sqlite::TimeStamp newTimeStamp, const QIcon &icon),
+                (override));
+
     MOCK_METHOD(void, walCheckpointFull, (), (override));
 };

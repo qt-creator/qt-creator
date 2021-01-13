@@ -34,8 +34,8 @@
 #include <sqlitewritestatement.h>
 
 #include <QBuffer>
-#include <QImageReader>
-#include <QImageWriter>
+#include <QIcon>
+#include <QImage>
 
 namespace QmlDesigner {
 
@@ -52,7 +52,7 @@ public:
         transaction.commit();
     }
 
-    Entry fetchImage(Utils::SmallStringView name, Sqlite::TimeStamp minimumTimeStamp) const override
+    ImageEntry fetchImage(Utils::SmallStringView name, Sqlite::TimeStamp minimumTimeStamp) const override
     {
         try {
             Sqlite::DeferredTransaction transaction{database};
@@ -62,21 +62,37 @@ public:
 
             transaction.commit();
 
-            if (optionalBlob) {
-                QBuffer buffer{&optionalBlob->byteArray};
-                QImageReader reader{&buffer, "PNG"};
-
-                return Entry{reader.read(), true};
-            }
+            if (optionalBlob)
+                return {readImage(optionalBlob->byteArray), true};
 
             return {};
-
         } catch (const Sqlite::StatementIsBusy &) {
             return fetchImage(name, minimumTimeStamp);
         }
     }
 
-    Entry fetchIcon(Utils::SmallStringView name, Sqlite::TimeStamp minimumTimeStamp) const override
+    ImageEntry fetchSmallImage(Utils::SmallStringView name,
+                               Sqlite::TimeStamp minimumTimeStamp) const override
+    {
+        try {
+            Sqlite::DeferredTransaction transaction{database};
+
+            auto optionalBlob = selectSmallImageStatement.template value<Sqlite::ByteArrayBlob>(
+                name, minimumTimeStamp.value);
+
+            transaction.commit();
+
+            if (optionalBlob)
+                return ImageEntry{readImage(optionalBlob->byteArray), true};
+
+            return {};
+
+        } catch (const Sqlite::StatementIsBusy &) {
+            return fetchSmallImage(name, minimumTimeStamp);
+        }
+    }
+
+    IconEntry fetchIcon(Utils::SmallStringView name, Sqlite::TimeStamp minimumTimeStamp) const override
     {
         try {
             Sqlite::DeferredTransaction transaction{database};
@@ -86,12 +102,8 @@ public:
 
             transaction.commit();
 
-            if (optionalBlob) {
-                QBuffer buffer{&optionalBlob->byteArray};
-                QImageReader reader{&buffer, "PNG"};
-
-                return Entry{reader.read(), true};
-            }
+            if (optionalBlob)
+                return {readIcon(optionalBlob->byteArray), true};
 
             return {};
 
@@ -100,29 +112,40 @@ public:
         }
     }
 
-    void storeImage(Utils::SmallStringView name, Sqlite::TimeStamp newTimeStamp, const QImage &image) override
+    void storeImage(Utils::SmallStringView name,
+                    Sqlite::TimeStamp newTimeStamp,
+                    const QImage &image,
+                    const QImage &smallImage) override
     {
         try {
             Sqlite::ImmediateTransaction transaction{database};
 
-            if (image.isNull()) {
-                upsertImageStatement.write(name,
-                                           newTimeStamp.value,
-                                           Sqlite::NullValue{},
-                                           Sqlite::NullValue{});
-            } else {
-                QSize iconSize = image.size().scaled(QSize{96, 96}.boundedTo(image.size()),
-                                                     Qt::KeepAspectRatio);
-                QImage icon = image.scaled(iconSize);
-                upsertImageStatement.write(name,
-                                           newTimeStamp.value,
-                                           Sqlite::BlobView{createImageBuffer(image)->data()},
-                                           Sqlite::BlobView{createImageBuffer(icon)->data()});
-            }
+            auto imageBuffer = createBuffer(image);
+            auto smallImageBuffer = createBuffer(smallImage);
+            upsertImageStatement.write(name,
+                                       newTimeStamp.value,
+                                       createBlobView(imageBuffer.get()),
+                                       createBlobView(smallImageBuffer.get()));
+
             transaction.commit();
 
         } catch (const Sqlite::StatementIsBusy &) {
-            return storeImage(name, newTimeStamp, image);
+            return storeImage(name, newTimeStamp, image, smallImage);
+        }
+    }
+
+    void storeIcon(Utils::SmallStringView name, Sqlite::TimeStamp newTimeStamp, const QIcon &icon)
+    {
+        try {
+            Sqlite::ImmediateTransaction transaction{database};
+
+            auto iconBuffer = createBuffer(icon);
+            upsertIconStatement.write(name, newTimeStamp.value, createBlobView(iconBuffer.get()));
+
+            transaction.commit();
+
+        } catch (const Sqlite::StatementIsBusy &) {
+            return storeIcon(name, newTimeStamp, icon);
         }
     }
 
@@ -156,27 +179,93 @@ private:
 
         void createImagesTable(DatabaseType &database)
         {
-            Sqlite::Table table;
-            table.setUseIfNotExists(true);
-            table.setName("images");
-            table.addColumn("id", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
-            table.addColumn("name", Sqlite::ColumnType::Text, {Sqlite::NotNull{}, Sqlite::Unique{}});
-            table.addColumn("mtime", Sqlite::ColumnType::Integer);
-            table.addColumn("image", Sqlite::ColumnType::Blob);
-            table.addColumn("icon", Sqlite::ColumnType::Blob);
+            Sqlite::Table imageTable;
+            imageTable.setUseIfNotExists(true);
+            imageTable.setName("images");
+            imageTable.addColumn("id", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
+            imageTable.addColumn("name",
+                                 Sqlite::ColumnType::Text,
+                                 {Sqlite::NotNull{}, Sqlite::Unique{}});
+            imageTable.addColumn("mtime", Sqlite::ColumnType::Integer);
+            imageTable.addColumn("image", Sqlite::ColumnType::Blob);
+            imageTable.addColumn("smallImage", Sqlite::ColumnType::Blob);
 
-            table.initialize(database);
+            imageTable.initialize(database);
+
+            Sqlite::Table iconTable;
+            iconTable.setUseIfNotExists(true);
+            iconTable.setName("icons");
+            iconTable.addColumn("id", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
+            iconTable.addColumn("name",
+                                Sqlite::ColumnType::Text,
+                                {Sqlite::NotNull{}, Sqlite::Unique{}});
+            iconTable.addColumn("mtime", Sqlite::ColumnType::Integer);
+            iconTable.addColumn("icon", Sqlite::ColumnType::Blob);
+
+            iconTable.initialize(database);
         }
     };
 
-    std::unique_ptr<QBuffer> createImageBuffer(const QImage &image)
+    Sqlite::BlobView createBlobView(QBuffer *buffer)
     {
+        if (buffer)
+            return Sqlite::BlobView{buffer->data()};
+
+        return {};
+    }
+
+    static std::unique_ptr<QBuffer> createBuffer(const QImage &image)
+    {
+        if (image.isNull())
+            return {};
+
         auto buffer = std::make_unique<QBuffer>();
         buffer->open(QIODevice::WriteOnly);
-        QImageWriter writer{buffer.get(), "PNG"};
-        writer.write(image);
+        QDataStream out{buffer.get()};
+
+        out << image;
 
         return buffer;
+    }
+
+    static std::unique_ptr<QBuffer> createBuffer(const QIcon &icon)
+    {
+        if (icon.isNull())
+            return {};
+
+        auto buffer = std::make_unique<QBuffer>();
+        buffer->open(QIODevice::WriteOnly);
+        QDataStream out{buffer.get()};
+
+        out << icon;
+
+        return buffer;
+    }
+
+    static QIcon readIcon(const QByteArray &byteArray)
+    {
+        QIcon icon;
+        QBuffer buffer;
+        buffer.setData(byteArray);
+        buffer.open(QIODevice::ReadOnly);
+        QDataStream in{&buffer};
+
+        in >> icon;
+
+        return icon;
+    }
+
+    static QImage readImage(const QByteArray &byteArray)
+    {
+        QImage image;
+        QBuffer buffer;
+        buffer.setData(byteArray);
+        buffer.open(QIODevice::ReadOnly);
+        QDataStream in{&buffer};
+
+        in >> image;
+
+        return image;
     }
 
 public:
@@ -185,12 +274,18 @@ public:
     Sqlite::ImmediateNonThrowingDestructorTransaction transaction{database};
     mutable ReadStatement selectImageStatement{
         "SELECT image FROM images WHERE name=?1 AND mtime >= ?2", database};
+    mutable ReadStatement selectSmallImageStatement{
+        "SELECT smallImage FROM images WHERE name=?1 AND mtime >= ?2", database};
     mutable ReadStatement selectIconStatement{
-        "SELECT icon FROM images WHERE name=?1 AND mtime >= ?2", database};
+        "SELECT icon FROM icons WHERE name=?1 AND mtime >= ?2", database};
     WriteStatement upsertImageStatement{
-        "INSERT INTO images(name, mtime, image, icon) VALUES (?1, ?2, ?3, ?4) ON "
+        "INSERT INTO images(name, mtime, image, smallImage) VALUES (?1, ?2, ?3, ?4) ON "
         "CONFLICT(name) DO UPDATE SET mtime=excluded.mtime, image=excluded.image, "
-        "icon=excluded.icon",
+        "smallImage=excluded.smallImage",
+        database};
+    WriteStatement upsertIconStatement{
+        "INSERT INTO icons(name, mtime, icon) VALUES (?1, ?2, ?3) ON "
+        "CONFLICT(name) DO UPDATE SET mtime=excluded.mtime, icon=excluded.icon",
         database};
 };
 

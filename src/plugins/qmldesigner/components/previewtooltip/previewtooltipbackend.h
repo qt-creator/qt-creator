@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <imagecacheauxiliarydata.h>
+
 #include <QObject>
 #include <QQmlEngine>
 
@@ -33,7 +35,7 @@
 namespace QmlDesigner {
 
 class PreviewImageTooltip;
-class ImageCache;
+class AsynchronousImageCache;
 
 class PreviewTooltipBackend : public QObject
 {
@@ -42,10 +44,10 @@ class PreviewTooltipBackend : public QObject
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged)
     Q_PROPERTY(QString info READ info WRITE setInfo NOTIFY infoChanged)
-    Q_PROPERTY(QString state READ state WRITE setState NOTIFY stateChanged)
+    Q_PROPERTY(QString extraId READ extraId WRITE setExtraId NOTIFY extraIdChanged)
 
 public:
-    PreviewTooltipBackend(ImageCache &cache);
+    PreviewTooltipBackend(AsynchronousImageCache &cache);
     ~PreviewTooltipBackend();
 
     Q_INVOKABLE void showTooltip();
@@ -58,24 +60,30 @@ public:
     void setPath(const QString &path);
     QString info() const;
     void setInfo(const QString &info);
-    QString state() const;
-    void setState(const QString &state);
+    QString extraId() const;
+    void setExtraId(const QString &extraId);
 
     bool isVisible() const;
+
+    void setAuxiliaryData(ImageCache::AuxiliaryData auxiliaryData)
+    {
+        m_auxiliaryData = std::move(auxiliaryData);
+    }
 
 signals:
     void nameChanged();
     void pathChanged();
     void infoChanged();
-    void stateChanged();
+    void extraIdChanged();
 
 private:
     QString m_name;
     QString m_path;
     QString m_info;
-    QString m_state;
+    QString m_extraId;
     std::unique_ptr<PreviewImageTooltip> m_tooltip;
-    ImageCache &m_cache;
+    ImageCache::AuxiliaryData m_auxiliaryData;
+    AsynchronousImageCache &m_cache;
 };
 
 }

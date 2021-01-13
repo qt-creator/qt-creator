@@ -47,17 +47,18 @@ ImageCacheGenerator::~ImageCacheGenerator()
     waitForFinished();
 }
 
-void ImageCacheGenerator::generateImage(
-    Utils::SmallStringView name,
-    Utils::SmallStringView state,
-    Sqlite::TimeStamp timeStamp,
-    ImageCacheGeneratorInterface::CaptureCallback &&captureCallback,
-    AbortCallback &&abortCallback)
+void ImageCacheGenerator::generateImage(Utils::SmallStringView name,
+                                        Utils::SmallStringView extraId,
+                                        Sqlite::TimeStamp timeStamp,
+                                        ImageCacheGeneratorInterface::CaptureCallback &&captureCallback,
+                                        AbortCallback &&abortCallback,
+                                        ImageCache::AuxiliaryData &&auxiliaryData)
 {
     {
         std::lock_guard lock{m_mutex};
         m_tasks.emplace_back(name,
-                             state,
+                             extraId,
+                             std::move(auxiliaryData),
                              timeStamp,
                              std::move(captureCallback),
                              std::move(abortCallback));
@@ -82,6 +83,12 @@ void ImageCacheGenerator::waitForFinished()
     if (m_backgroundThread)
         m_backgroundThread->wait();
 }
+namespace {
+Utils::PathString createId(Utils::SmallStringView name, Utils::SmallStringView extraId)
+{
+    return extraId.empty() ? Utils::PathString{name} : Utils::PathString{name, "+", extraId};
+}
+} // namespace
 
 void ImageCacheGenerator::startGeneration()
 {
@@ -105,18 +112,22 @@ void ImageCacheGenerator::startGeneration()
 
         m_collector.start(
             task.filePath,
-            task.state,
-            [this, task](QImage &&image) {
+            task.extraId,
+            std::move(task.auxiliaryData),
+            [this, task](QImage &&image, QImage &&smallImage) {
                 if (image.isNull())
                     task.abortCallback();
                 else
-                    task.captureCallback(image);
+                    task.captureCallback(image, smallImage);
 
-                m_storage.storeImage(std::move(task.filePath), task.timeStamp, image);
+                m_storage.storeImage(createId(task.filePath, task.extraId),
+                                     task.timeStamp,
+                                     image,
+                                     smallImage);
             },
             [this, task] {
                 task.abortCallback();
-                m_storage.storeImage(std::move(task.filePath), task.timeStamp, {});
+                m_storage.storeImage(createId(task.filePath, task.extraId), task.timeStamp, {}, {});
             });
 
         std::lock_guard lock{m_mutex};

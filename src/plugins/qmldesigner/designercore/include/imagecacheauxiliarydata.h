@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,33 +25,37 @@
 
 #pragma once
 
-#include <utils/smallstring.h>
+#include <utils/span.h>
+#include <utils/variant.h>
 
-#include <QImage>
+#include <QSize>
+#include <QString>
 
 namespace QmlDesigner {
 
-class ImageCacheInterface
+namespace ImageCache {
+
+class NullAuxiliaryData
+{};
+
+class FontCollectorSizeAuxiliaryData
 {
 public:
-    using CaptureCallback = std::function<void(const QImage &)>;
-    using AbortCallback = std::function<void()>;
-
-    virtual void requestImage(Utils::PathString name,
-                              CaptureCallback captureCallback,
-                              AbortCallback abortCallback,
-                              Utils::SmallString state = {})
-        = 0;
-    virtual void requestIcon(Utils::PathString name,
-                             CaptureCallback captureCallback,
-                             AbortCallback abortCallback,
-                             Utils::SmallString state = {})
-        = 0;
-
-    void clean();
-
-protected:
-    ~ImageCacheInterface() = default;
+    QSize size;
+    QString colorName;
+    QString text;
 };
+
+class FontCollectorSizesAuxiliaryData
+{
+public:
+    Utils::span<const QSize> sizes;
+    QString colorName;
+    QString text;
+};
+
+using AuxiliaryData = std::variant<NullAuxiliaryData, FontCollectorSizeAuxiliaryData, FontCollectorSizesAuxiliaryData>;
+
+} // namespace ImageCache
 
 } // namespace QmlDesigner

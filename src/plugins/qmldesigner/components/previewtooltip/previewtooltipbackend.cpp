@@ -28,7 +28,7 @@
 #include "previewimagetooltip.h"
 
 #include <coreplugin/icore.h>
-#include <imagecache.h>
+#include <asynchronousimagecache.h>
 
 #include <QApplication>
 #include <QMetaObject>
@@ -36,7 +36,7 @@
 
 namespace QmlDesigner {
 
-PreviewTooltipBackend::PreviewTooltipBackend(ImageCache &cache)
+PreviewTooltipBackend::PreviewTooltipBackend(AsynchronousImageCache &cache)
     : m_cache{cache}
 {}
 
@@ -64,8 +64,8 @@ void PreviewTooltipBackend::showTooltip()
             });
         },
         [] {},
-        m_state
-    );
+        m_extraId,
+        m_auxiliaryData);
 
     reposition();
 }
@@ -155,17 +155,17 @@ void PreviewTooltipBackend::setInfo(const QString &info)
         emit infoChanged();
 }
 
-QString PreviewTooltipBackend::state() const
+QString PreviewTooltipBackend::extraId() const
 {
-    return m_state;
+    return m_extraId;
 }
 
-// Sets the imageCache state hint. Valid content depends on image cache collector used.
-void PreviewTooltipBackend::setState(const QString &state)
+// Sets the imageCache extraId hint. Valid content depends on image cache collector used.
+void PreviewTooltipBackend::setExtraId(const QString &extraId)
 {
-    m_state = state;
-    if (m_state != state)
-        emit stateChanged();
+    m_extraId = extraId;
+    if (m_extraId != extraId)
+        emit extraIdChanged();
 }
 
 } // namespace QmlDesigner

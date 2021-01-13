@@ -82,10 +82,12 @@ static QString propertyEditorResourcesPath() {
     return Core::ICore::resourcePath() + QStringLiteral("/qmldesigner/propertyEditorQmlSources");
 }
 
-ItemLibraryWidget::ItemLibraryWidget(ImageCache &imageCache, ImageCache &fontImageCache)
+ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
+                                     AsynchronousImageCache &asynchronousFontImageCache,
+                                     SynchronousImageCache &synchronousFontImageCache)
     : m_itemIconSize(24, 24)
     , m_itemViewQuickWidget(new QQuickWidget(this))
-    , m_resourcesView(new ItemLibraryResourceView(fontImageCache, this))
+    , m_resourcesView(new ItemLibraryResourceView(asynchronousFontImageCache, this))
     , m_importTagsWidget(new QWidget(this))
     , m_addResourcesWidget(new QWidget(this))
     , m_imageCache{imageCache}
@@ -118,7 +120,7 @@ ItemLibraryWidget::ItemLibraryWidget(ImageCache &imageCache, ImageCache &fontIma
         Theme::getColor(Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
 
     /* create Resources view and its model */
-    m_resourcesFileSystemModel = new CustomFileSystemModel(fontImageCache, this);
+    m_resourcesFileSystemModel = new CustomFileSystemModel(synchronousFontImageCache, this);
     m_resourcesView->setModel(m_resourcesFileSystemModel.data());
 
     /* create image provider for loading item icons */

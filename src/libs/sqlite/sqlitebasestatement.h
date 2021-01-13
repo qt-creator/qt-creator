@@ -51,6 +51,8 @@ namespace Sqlite {
 class Database;
 class DatabaseBackend;
 
+enum class Type : char { Invalid, Integer, Float, Text, Blob, Null };
+
 class SQLITE_EXPORT BaseStatement
 {
 public:
@@ -65,6 +67,7 @@ public:
     void step() const;
     void reset() const;
 
+    Type fetchType(int column) const;
     int fetchIntValue(int column) const;
     long fetchLongValue(int column) const;
     long long fetchLongLongValue(int column) const;

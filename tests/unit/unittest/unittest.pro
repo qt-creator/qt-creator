@@ -66,7 +66,8 @@ SOURCES += \
     filepathview-test.cpp \
     gtest-creator-printing.cpp \
     gtest-qt-printing.cpp \
-    imagecache-test.cpp \
+    asynchronousimagecache-test.cpp \
+    synchronousimagecache-test.cpp \
     imagecachegenerator-test.cpp \
     imagecachestorage-test.cpp \
     lastchangedrowid-test.cpp \

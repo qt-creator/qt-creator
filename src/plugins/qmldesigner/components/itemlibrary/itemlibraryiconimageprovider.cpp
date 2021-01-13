@@ -66,7 +66,7 @@ QQuickImageResponse *ItemLibraryIconImageProvider::requestImageResponse(const QS
 {
     auto response = std::make_unique<ImageRespose>();
 
-    m_cache.requestIcon(
+    m_cache.requestSmallImage(
         id,
         [response = QPointer<ImageRespose>(response.get())](const QImage &image) {
             QMetaObject::invokeMethod(

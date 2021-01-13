@@ -56,7 +56,8 @@ class CustomFileSystemModel;
 
 class ItemLibraryModel;
 class ItemLibraryResourceView;
-class ImageCache;
+class SynchronousImageCache;
+class AsynchronousImageCache;
 class ImageCacheCollector;
 
 class ItemLibraryWidget : public QFrame
@@ -69,7 +70,9 @@ class ItemLibraryWidget : public QFrame
     };
 
 public:
-    ItemLibraryWidget(ImageCache &imageCache, ImageCache &fontImageCache);
+    ItemLibraryWidget(AsynchronousImageCache &imageCache,
+                      AsynchronousImageCache &asynchronousFontImageCache,
+                      SynchronousImageCache &synchronousFontImageCache);
     ~ItemLibraryWidget();
 
     void setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo);
@@ -126,7 +129,7 @@ private:
     std::unique_ptr<PreviewTooltipBackend> m_previewTooltipBackend;
 
     QShortcut *m_qmlSourceUpdateShortcut;
-    ImageCache &m_imageCache;
+    AsynchronousImageCache &m_imageCache;
     QPointer<Model> m_model;
     FilterChangeFlag m_filterFlag;
     ItemLibraryEntry m_currentitemLibraryEntry;

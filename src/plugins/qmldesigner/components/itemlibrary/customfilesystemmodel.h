@@ -39,13 +39,14 @@ namespace Utils { class FileSystemWatcher; }
 
 namespace QmlDesigner {
 
-class ImageCache;
+class SynchronousImageCache;
 
 class CustomFileSystemModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    CustomFileSystemModel(ImageCache &fontImageCache, QObject *parent = nullptr);
+    CustomFileSystemModel(QmlDesigner::SynchronousImageCache &fontImageCache,
+                          QObject *parent = nullptr);
 
     void setFilter(QDir::Filters filters);
     QString rootPath() const;

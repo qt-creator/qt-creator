@@ -390,7 +390,7 @@ TEST_F(SqliteStatement, BindIndexIsToLargeIsThrowingBindingIndexIsOutOfBoundValu
 TEST_F(SqliteStatement, BindIndexIsToLargeIsThrowingBindingIndexIsOutOfBoundBlob)
 {
     SqliteTestStatement statement("WITH T(blob) AS (VALUES (?)) SELECT blob FROM T", database);
-    Sqlite::BlobView bytes;
+    Sqlite::BlobView bytes{QByteArray{"XXX"}};
 
     ASSERT_THROW(statement.bind(2, bytes), Sqlite::BindingIndexIsOutOfRange);
 }
@@ -503,6 +503,18 @@ TEST_F(SqliteStatement, WriteEmptyBlobs)
     statement.write(bytes);
 
     ASSERT_THAT(statement.fetchBlobValue(0), IsEmpty());
+}
+
+TEST_F(SqliteStatement, EmptyBlobsAreNull)
+{
+    SqliteTestStatement statement("WITH T(blob) AS (VALUES (?)) SELECT ifnull(blob, 1) FROM T",
+                                  database);
+
+    Sqlite::BlobView bytes;
+
+    statement.write(bytes);
+
+    ASSERT_THAT(statement.fetchType(0), Eq(Sqlite::Type::Null));
 }
 
 TEST_F(SqliteStatement, WriteBlobs)

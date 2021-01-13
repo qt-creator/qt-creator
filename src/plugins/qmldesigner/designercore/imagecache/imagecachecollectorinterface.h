@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <imagecacheauxiliarydata.h>
 #include <utils/smallstringview.h>
 
 #include <QImage>
@@ -34,13 +35,24 @@ namespace QmlDesigner {
 class ImageCacheCollectorInterface
 {
 public:
-    using CaptureCallback = std::function<void(QImage &&image)>;
+    using CaptureCallback = std::function<void(QImage &&image, QImage &&smallImage)>;
     using AbortCallback = std::function<void()>;
+    using ImagePair = std::pair<QImage, QImage>;
 
     virtual void start(Utils::SmallStringView filePath,
-                       Utils::SmallStringView state,
+                       Utils::SmallStringView extraId,
+                       const ImageCache::AuxiliaryData &auxiliaryData,
                        CaptureCallback captureCallback,
                        AbortCallback abortCallback)
+        = 0;
+
+    virtual ImagePair createImage(Utils::SmallStringView filePath,
+                                  Utils::SmallStringView extraId,
+                                  const ImageCache::AuxiliaryData &auxiliaryData)
+        = 0;
+    virtual QIcon createIcon(Utils::SmallStringView filePath,
+                             Utils::SmallStringView extraId,
+                             const ImageCache::AuxiliaryData &auxiliaryData)
         = 0;
 
 protected:

@@ -453,7 +453,7 @@ void ViewManager::enableStandardViews()
     attachViewsExceptRewriterAndComponetView();
 }
 
-ImageCache &ViewManager::imageCache()
+AsynchronousImageCache &ViewManager::imageCache()
 {
     return d->itemLibraryView.imageCache();
 }

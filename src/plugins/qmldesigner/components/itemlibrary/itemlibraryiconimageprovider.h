@@ -29,7 +29,7 @@
 #include <rewriterview.h>
 
 #include <coreplugin/icore.h>
-#include <imagecache.h>
+#include <asynchronousimagecache.h>
 #include <imagecache/imagecachecollector.h>
 #include <imagecache/imagecacheconnectionmanager.h>
 #include <imagecache/imagecachegenerator.h>
@@ -45,14 +45,14 @@ namespace QmlDesigner {
 class ItemLibraryIconImageProvider : public QQuickAsyncImageProvider
 {
 public:
-    ItemLibraryIconImageProvider(ImageCache &imageCache)
+    ItemLibraryIconImageProvider(AsynchronousImageCache &imageCache)
         : m_cache{imageCache}
     {}
 
     QQuickImageResponse *requestImageResponse(const QString &id, const QSize &requestedSize) override;
 
 private:
-    ImageCache &m_cache;
+    AsynchronousImageCache &m_cache;
 };
 
 } // namespace QmlDesigner

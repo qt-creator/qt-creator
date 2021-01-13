@@ -42,6 +42,8 @@ ImageCacheFontCollector::ImageCacheFontCollector() = default;
 
 ImageCacheFontCollector::~ImageCacheFontCollector() = default;
 
+namespace {
+
 QByteArray fileToByteArray(QString const &filename)
 {
     QFile file(filename);
@@ -53,29 +55,17 @@ QByteArray fileToByteArray(QString const &filename)
     return {};
 }
 
+} // namespace
+
 void ImageCacheFontCollector::start(Utils::SmallStringView name,
-                                    Utils::SmallStringView state,
+                                    Utils::SmallStringView,
+                                    const ImageCache::AuxiliaryData &auxiliaryDataValue,
                                     CaptureCallback captureCallback,
                                     AbortCallback abortCallback)
 {
-    // State contains size, text color, and sample text
-    QStringList hints = QString(state).split('@');
-    int dim(300);
-    if (hints.size() >= 1) {
-        bool ok = false;
-        int newDim = QString(hints[0]).toInt(&ok);
-        if (ok)
-            dim = newDim;
-    }
-#ifndef QMLDESIGNER_TEST
-    QColor textColor(Theme::getColor(Theme::DStextColor));
-#else
-    QColor textColor;
-#endif
-    if (hints.size() >= 2)
-        textColor.setNamedColor(hints[1]);
-    QString text = hints.size() >= 3 ? hints[2] : "Abc";
-    QSize size(dim, dim);
+    auto &&auxiliaryData = std::get<ImageCache::FontCollectorSizeAuxiliaryData>(auxiliaryDataValue);
+    QColor textColor = auxiliaryData.colorName;
+    QSize size = auxiliaryData.size;
     QRect rect({0, 0}, size);
 
     QByteArray fontData(fileToByteArray(QString(name)));
@@ -86,8 +76,7 @@ void ImageCacheFontCollector::start(Utils::SmallStringView name,
             const QStringList families = QFontDatabase::applicationFontFamilies(fontId);
             if (!families.isEmpty()) {
                 QString fontFamily = families.first();
-                if (text.contains("%1"))
-                    text = text.arg(fontFamily);
+                QString text = fontFamily + "\n\n" + auxiliaryData.text;
                 QFont font(fontFamily);
                 font.setStyle(rawFont.style());
                 font.setStyleName(rawFont.styleName());
@@ -120,13 +109,142 @@ void ImageCacheFontCollector::start(Utils::SmallStringView name,
                 painter.setFont(font);
                 painter.drawText(rect, flags, text);
 
-                captureCallback(std::move(image));
+                captureCallback(std::move(image), {});
                 return;
             }
             QFontDatabase::removeApplicationFont(fontId);
         }
     }
     abortCallback();
+}
+
+std::pair<QImage, QImage> ImageCacheFontCollector::createImage(
+    Utils::SmallStringView name,
+    Utils::SmallStringView,
+    const ImageCache::AuxiliaryData &auxiliaryDataValue)
+{
+    auto &&auxiliaryData = std::get<ImageCache::FontCollectorSizeAuxiliaryData>(auxiliaryDataValue);
+    QColor textColor = auxiliaryData.colorName;
+    QSize size = auxiliaryData.size;
+    QRect rect({0, 0}, size);
+
+    QByteArray fontData(fileToByteArray(QString(name)));
+    if (!fontData.isEmpty()) {
+        int fontId = QFontDatabase::addApplicationFontFromData(fontData);
+        if (fontId != -1) {
+            QRawFont rawFont(fontData, 10.); // Pixel size is irrelevant, we only need style/weight
+            const QStringList families = QFontDatabase::applicationFontFamilies(fontId);
+            if (!families.isEmpty()) {
+                QString fontFamily = families.first();
+                QString text = fontFamily + "\n\n" + auxiliaryData.text;
+                QFont font(fontFamily);
+                font.setStyle(rawFont.style());
+                font.setStyleName(rawFont.styleName());
+                font.setWeight(rawFont.weight());
+                QImage image(size, QImage::Format_ARGB32);
+                image.fill(Qt::transparent);
+                int pixelSize(200);
+                int flags = Qt::AlignCenter;
+                while (pixelSize >= 2) {
+                    font.setPixelSize(pixelSize);
+                    QFontMetrics fm(font, &image);
+                    QRect bounds = fm.boundingRect(rect, flags, text);
+                    if (bounds.width() < rect.width() && bounds.height() < rect.height()) {
+                        break;
+                    } else {
+                        int newPixelSize = pixelSize - 1;
+                        if (bounds.width() >= rect.width())
+                            newPixelSize = int(qreal(pixelSize) * qreal(rect.width())
+                                               / qreal(bounds.width()));
+                        else if (bounds.height() >= rect.height())
+                            newPixelSize = int(qreal(pixelSize) * qreal(rect.height())
+                                               / qreal(bounds.height()));
+                        if (newPixelSize < pixelSize)
+                            pixelSize = newPixelSize;
+                        else
+                            --pixelSize;
+                    }
+                }
+
+                QPainter painter(&image);
+                painter.setPen(textColor);
+                painter.setFont(font);
+                painter.drawText(rect, flags, text);
+
+                return {image, {}};
+            }
+            QFontDatabase::removeApplicationFont(fontId);
+        }
+    }
+
+    return {};
+}
+
+QIcon ImageCacheFontCollector::createIcon(Utils::SmallStringView name,
+                                          Utils::SmallStringView,
+                                          const ImageCache::AuxiliaryData &auxiliaryDataValue)
+{
+    auto &&auxiliaryData = std::get<ImageCache::FontCollectorSizesAuxiliaryData>(auxiliaryDataValue);
+    QColor textColor = auxiliaryData.colorName;
+    auto sizes = auxiliaryData.sizes;
+
+    QIcon icon;
+
+    QByteArray fontData(fileToByteArray(QString(name)));
+    if (!fontData.isEmpty()) {
+        int fontId = QFontDatabase::addApplicationFontFromData(fontData);
+        if (fontId != -1) {
+            QRawFont rawFont(fontData, 10.); // Pixel size is irrelevant, we only need style/weight
+            const QStringList families = QFontDatabase::applicationFontFamilies(fontId);
+            if (!families.isEmpty()) {
+                QString fontFamily = families.first();
+                QString text = auxiliaryData.text;
+                QFont font(fontFamily);
+                font.setStyle(rawFont.style());
+                font.setStyleName(rawFont.styleName());
+                font.setWeight(rawFont.weight());
+                for (QSize size : sizes) {
+                    QPixmap pixmap(size);
+                    pixmap.fill(Qt::transparent);
+                    int pixelSize(200);
+                    int flags = Qt::AlignCenter;
+                    QRect rect({0, 0}, size);
+                    while (pixelSize >= 2) {
+                        font.setPixelSize(pixelSize);
+                        QFontMetrics fm(font, &pixmap);
+                        QRect bounds = fm.boundingRect(rect, flags, text);
+                        if (bounds.width() < rect.width() && bounds.height() < rect.height()) {
+                            break;
+                        } else {
+                            int newPixelSize = pixelSize - 1;
+                            if (bounds.width() >= rect.width())
+                                newPixelSize = int(qreal(pixelSize) * qreal(rect.width())
+                                                   / qreal(bounds.width()));
+                            else if (bounds.height() >= rect.height())
+                                newPixelSize = int(qreal(pixelSize) * qreal(rect.height())
+                                                   / qreal(bounds.height()));
+                            if (newPixelSize < pixelSize)
+                                pixelSize = newPixelSize;
+                            else
+                                --pixelSize;
+                        }
+                    }
+
+                    QPainter painter(&pixmap);
+                    painter.setPen(textColor);
+                    painter.setFont(font);
+                    painter.drawText(rect, flags, text);
+
+                    icon.addPixmap(pixmap);
+                }
+
+            } else {
+                QFontDatabase::removeApplicationFont(fontId);
+            }
+        }
+    }
+
+    return icon;
 }
 
 } // namespace QmlDesigner

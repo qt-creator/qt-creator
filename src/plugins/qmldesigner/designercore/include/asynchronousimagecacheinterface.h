@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,26 +25,37 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include "imagecacheauxiliarydata.h"
 
-#include <iosfwd>
+#include <utils/smallstring.h>
 
-QT_BEGIN_NAMESPACE
+#include <QImage>
 
-class QVariant;
-class QString;
-class QTextCharFormat;
-class QImage;
-class QIcon;
+namespace QmlDesigner {
 
-std::ostream &operator<<(std::ostream &out, const QVariant &QVariant);
-std::ostream &operator<<(std::ostream &out, const QString &text);
-std::ostream &operator<<(std::ostream &out, const QByteArray &byteArray);
-std::ostream &operator<<(std::ostream &out, const QTextCharFormat &format);
-std::ostream &operator<<(std::ostream &out, const QImage &image);
-std::ostream &operator<<(std::ostream &out, const QIcon &icon);
+class AsynchronousImageCacheInterface
+{
+public:
+    using CaptureCallback = std::function<void(const QImage &)>;
+    using AbortCallback = std::function<void()>;
 
-void PrintTo(const QString &text, std::ostream *os);
-void PrintTo(const QVariant &variant, std::ostream *os);
-void PrintTo(const QByteArray &text, std::ostream *os);
-QT_END_NAMESPACE
+    virtual void requestImage(Utils::PathString name,
+                              CaptureCallback captureCallback,
+                              AbortCallback abortCallback,
+                              Utils::SmallString extraId = {},
+                              ImageCache::AuxiliaryData auxiliaryData = {})
+        = 0;
+    virtual void requestSmallImage(Utils::PathString name,
+                                   CaptureCallback captureCallback,
+                                   AbortCallback abortCallback,
+                                   Utils::SmallString extraId = {},
+                                   ImageCache::AuxiliaryData auxiliaryData = {})
+        = 0;
+
+    void clean();
+
+protected:
+    ~AsynchronousImageCacheInterface() = default;
+};
+
+} // namespace QmlDesigner

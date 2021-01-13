@@ -379,9 +379,11 @@ std::ostream &operator<<(std::ostream &out, const ModelNode &node);
 std::ostream &operator<<(std::ostream &out, const VariantProperty &property);
 
 namespace Internal {
-class ImageCacheStorageEntry;
+class ImageCacheStorageImageEntry;
+class ImageCacheStorageIconEntry;
 
-std::ostream &operator<<(std::ostream &out, const ImageCacheStorageEntry &entry);
+std::ostream &operator<<(std::ostream &out, const ImageCacheStorageImageEntry &entry);
+std::ostream &operator<<(std::ostream &out, const ImageCacheStorageIconEntry &entry);
 
 } // namespace Internal
 } // namespace QmlDesigner

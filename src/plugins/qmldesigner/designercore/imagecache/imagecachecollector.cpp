@@ -68,6 +68,7 @@ ImageCacheCollector::~ImageCacheCollector() = default;
 
 void ImageCacheCollector::start(Utils::SmallStringView name,
                                 Utils::SmallStringView state,
+                                const ImageCache::AuxiliaryData &auxiliaryData,
                                 CaptureCallback captureCallback,
                                 AbortCallback abortCallback)
 {
@@ -97,7 +98,15 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
     if (stateNode.isValid())
         rewriterView.setCurrentStateNode(stateNode);
 
-    m_connectionManager.setCallback(std::move(captureCallback));
+    auto callback = [captureCallback = std::move(captureCallback)](QImage &&image) {
+        QSize smallImageSize = image.size().scaled(QSize{96, 96}.boundedTo(image.size()),
+                                                   Qt::KeepAspectRatio);
+        QImage smallImage = image.isNull() ? QImage{} : image.scaled(smallImageSize);
+
+        captureCallback(std::move(image), std::move(smallImage));
+    };
+
+    m_connectionManager.setCallback(std::move(callback));
 
     nodeInstanceView.setTarget(m_target.data());
     nodeInstanceView.setCrashCallback(abortCallback);
@@ -113,6 +122,20 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
 
     if (!capturedDataArrived)
         abortCallback();
+}
+
+std::pair<QImage, QImage> ImageCacheCollector::createImage(Utils::SmallStringView filePath,
+                                                           Utils::SmallStringView state,
+                                                           const ImageCache::AuxiliaryData &auxiliaryData)
+{
+    return {};
+}
+
+QIcon ImageCacheCollector::createIcon(Utils::SmallStringView filePath,
+                                      Utils::SmallStringView state,
+                                      const ImageCache::AuxiliaryData &auxiliaryData)
+{
+    return {};
 }
 
 void ImageCacheCollector::setTarget(ProjectExplorer::Target *target)

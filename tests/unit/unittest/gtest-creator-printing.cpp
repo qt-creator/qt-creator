@@ -1566,9 +1566,14 @@ std::ostream &operator<<(std::ostream &out, const VariantProperty &property)
 }
 
 namespace Internal {
-std::ostream &operator<<(std::ostream &out, const ImageCacheStorageEntry &entry)
+std::ostream &operator<<(std::ostream &out, const ImageCacheStorageImageEntry &entry)
 {
     return out << "(" << entry.image << ", " << entry.hasEntry << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const ImageCacheStorageIconEntry &entry)
+{
+    return out << "(" << entry.icon << ", " << entry.hasEntry << ")";
 }
 
 } // namespace Internal

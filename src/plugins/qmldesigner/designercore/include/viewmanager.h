@@ -47,7 +47,7 @@ class Edit3DView;
 namespace Internal { class DesignModeWidget; }
 
 class ViewManagerData;
-class ImageCache;
+class AsynchronousImageCache;
 
 class QMLDESIGNERCORE_EXPORT ViewManager
 {
@@ -104,7 +104,7 @@ public:
     void disableStandardViews();
     void enableStandardViews();
 
-    ImageCache &imageCache();
+    AsynchronousImageCache &imageCache();
 
 private: // functions
     Q_DISABLE_COPY(ViewManager)
