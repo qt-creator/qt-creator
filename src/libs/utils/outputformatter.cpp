@@ -329,7 +329,9 @@ OutputLineParser::Result OutputFormatter::handleMessage(const QString &text, Out
                                                         QList<OutputLineParser *> &involvedParsers)
 {
     // We only invoke the line parsers for stdout and stderr
-    if (format != StdOutFormat && format != StdErrFormat)
+    // Bad: on Windows we may get stdout and stdErr only as DebugFormat as e.g. GUI applications
+    // print them Windows-internal and we retrieve this separately
+    if (format != StdOutFormat && format != StdErrFormat && format != DebugFormat)
         return OutputLineParser::Status::NotHandled;
     const OutputLineParser * const oldNextParser = d->nextParser;
     if (d->nextParser) {
