@@ -496,6 +496,7 @@ void OutputFormatter::initFormats()
     d->formats[StdOutFormat].setForeground(theme->color(Theme::OutputPanes_StdOutTextColor));
     d->formats[StdErrFormat].setForeground(theme->color(Theme::OutputPanes_StdErrTextColor));
     d->formats[DebugFormat].setForeground(theme->color(Theme::OutputPanes_DebugTextColor));
+    d->formats[GeneralMessageFormat].setForeground(theme->color(Theme::OutputPanes_DebugTextColor));
     setBoldFontEnabled(d->boldFontEnabled);
 }
 

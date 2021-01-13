@@ -128,7 +128,7 @@ void AndroidRunner::stop()
     if (m_checkAVDTimer.isActive()) {
         m_checkAVDTimer.stop();
         appendMessage("\n\n" + tr("\"%1\" terminated.").arg(m_packageName),
-                      Utils::DebugFormat);
+                      Utils::NormalMessageFormat);
         return;
     }
 
@@ -171,7 +171,7 @@ void AndroidRunner::handleRemoteProcessStarted(Utils::Port debugServerPort,
 
 void AndroidRunner::handleRemoteProcessFinished(const QString &errString)
 {
-    appendMessage(errString, Utils::DebugFormat);
+    appendMessage(errString, Utils::NormalMessageFormat);
     if (runControl()->isRunning())
         runControl()->initiateStop();
     reportStopped();

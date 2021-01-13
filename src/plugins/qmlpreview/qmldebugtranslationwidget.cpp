@@ -424,7 +424,7 @@ void QmlDebugTranslationWidget::loadLogFile()
         if (f.open(QFile::ReadOnly)) {
             clear();
             while (!f.atEnd())
-                appendMessage(QString::fromUtf8(f.readLine()), Utils::DebugFormat);
+                appendMessage(QString::fromUtf8(f.readLine()), Utils::GeneralMessageFormat);
         } else {
             // TODO: maybe add this message to log and tasks
             qWarning() << "Failed to open" << fileName << ":" << f.errorString();

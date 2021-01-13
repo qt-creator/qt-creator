@@ -72,9 +72,9 @@ void ValgrindToolRunner::start()
     m_progress.reportStarted();
 
 #if VALGRIND_DEBUG_OUTPUT
-    emit outputReceived(tr("Valgrind options: %1").arg(toolArguments().join(' ')), DebugFormat);
-    emit outputReceived(tr("Working directory: %1").arg(runnable().workingDirectory), DebugFormat);
-    emit outputReceived(tr("Command line arguments: %1").arg(runnable().debuggeeArgs), DebugFormat);
+    emit outputReceived(tr("Valgrind options: %1").arg(toolArguments().join(' ')), LogMessageFormat);
+    emit outputReceived(tr("Working directory: %1").arg(runnable().workingDirectory), LogMessageFormat);
+    emit outputReceived(tr("Command line arguments: %1").arg(runnable().debuggeeArgs), LogMessageFormat);
 #endif
 
     CommandLine valgrind{m_settings.valgrindExecutable()};

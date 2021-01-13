@@ -89,7 +89,7 @@ public:
         if (url.isValid()) {
             args.append(QStringList{"--host", url.host(), "--port", QString::number(url.port())});
         }
-        appendMessage("PerfParser args: " + args.join(' '), Utils::DebugFormat);
+        appendMessage("PerfParser args: " + args.join(' '), Utils::NormalMessageFormat);
         m_reader.createParser(args);
         m_reader.startParser();
     }
