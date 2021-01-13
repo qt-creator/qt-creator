@@ -225,9 +225,6 @@ bool FormWindowFile::reload(QString *errorString, ReloadFlag flag, ChangeType ty
         if (!wasModified)
             updateIsModified();
         return true;
-    }
-    if (type == TypePermissions) {
-        emit changed();
     } else {
         emit aboutToReload();
         const bool success
@@ -235,7 +232,6 @@ bool FormWindowFile::reload(QString *errorString, ReloadFlag flag, ChangeType ty
         emit reloadFinished(success);
         return success;
     }
-    return true;
 }
 
 void FormWindowFile::setFallbackSaveAsFileName(const QString &fn)

@@ -136,19 +136,14 @@ bool ScxmlEditorDocument::isModified() const
 
 bool ScxmlEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
-    if (flag == FlagIgnore) {
+    Q_UNUSED(type)
+    if (flag == FlagIgnore)
         return true;
-    } if (type == TypePermissions) {
-        emit changed();
-    } else {
-        emit aboutToReload();
-        emit reloadRequested(errorString, filePath().toString());
-        const bool success = errorString->isEmpty();
-        emit reloadFinished(success);
-        return success;
-    }
-
-    return true;
+    emit aboutToReload();
+    emit reloadRequested(errorString, filePath().toString());
+    const bool success = errorString->isEmpty();
+    emit reloadFinished(success);
+    return success;
 }
 
 QString ScxmlEditorDocument::designWidgetContents() const

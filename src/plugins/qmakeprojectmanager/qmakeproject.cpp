@@ -121,8 +121,7 @@ public:
     {
         Q_UNUSED(errorString)
         Q_UNUSED(flag)
-        if (type == TypePermissions)
-            return true;
+        Q_UNUSED(type)
         m_priFile->scheduleUpdate();
         return true;
     }

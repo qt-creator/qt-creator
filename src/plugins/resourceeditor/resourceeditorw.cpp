@@ -268,18 +268,14 @@ bool ResourceEditorDocument::isSaveAsAllowed() const
 
 bool ResourceEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
+    Q_UNUSED(type)
     if (flag == FlagIgnore)
         return true;
-    if (type == TypePermissions) {
-        emit changed();
-    } else {
-        emit aboutToReload();
-        QString fn = filePath().toString();
-        const bool success = (open(errorString, fn, fn) == OpenResult::Success);
-        emit reloadFinished(success);
-        return success;
-    }
-    return true;
+    emit aboutToReload();
+    QString fn = filePath().toString();
+    const bool success = (open(errorString, fn, fn) == OpenResult::Success);
+    emit reloadFinished(success);
+    return success;
 }
 
 void ResourceEditorDocument::dirtyChanged(bool dirty)

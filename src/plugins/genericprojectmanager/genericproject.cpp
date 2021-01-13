@@ -642,9 +642,7 @@ bool GenericProjectFile::reload(QString *errorString, IDocument::ReloadFlag flag
 {
     Q_UNUSED(errorString)
     Q_UNUSED(flag)
-    if (type == TypePermissions)
-        return true;
-
+    Q_UNUSED(type)
     if (Target *t = m_project->activeTarget())
         static_cast<GenericBuildSystem *>(t->buildSystem())->refresh(m_options);
 

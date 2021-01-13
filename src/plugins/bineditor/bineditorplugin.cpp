@@ -322,31 +322,20 @@ public:
                                                  : m_widget->isModified();
     }
 
-    bool isFileReadOnly() const override {
-        const FilePath fn = filePath();
-        if (fn.isEmpty())
-            return false;
-        return !fn.toFileInfo().isWritable();
-    }
-
     bool isSaveAsAllowed() const override { return true; }
 
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override
     {
+        Q_UNUSED(type)
         if (flag == FlagIgnore)
             return true;
-        if (type == TypePermissions) {
-            emit changed();
-        } else {
-            emit aboutToReload();
-            int cPos = m_widget->cursorPosition();
-            m_widget->clear();
-            const bool success = (openImpl(errorString, filePath().toString()) == OpenResult::Success);
-            m_widget->setCursorPosition(cPos);
-            emit reloadFinished(success);
-            return success;
-        }
-        return true;
+        emit aboutToReload();
+        int cPos = m_widget->cursorPosition();
+        m_widget->clear();
+        const bool success = (openImpl(errorString, filePath().toString()) == OpenResult::Success);
+        m_widget->setCursorPosition(cPos);
+        emit reloadFinished(success);
+        return success;
     }
 
 private:

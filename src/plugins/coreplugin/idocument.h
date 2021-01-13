@@ -68,7 +68,6 @@ public:
 
     enum ChangeType {
         TypeContents,
-        TypePermissions,
         TypeRemoved
     };
 
@@ -104,7 +103,7 @@ public:
     void setUniqueDisplayName(const QString &name);
     QString uniqueDisplayName() const;
 
-    virtual bool isFileReadOnly() const;
+    bool isFileReadOnly() const;
     bool isTemporary() const;
     void setTemporary(bool temporary);
 
@@ -123,7 +122,7 @@ public:
     virtual ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     virtual bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
 
-    virtual void checkPermissions();
+    void checkPermissions();
 
     bool autoSave(QString *errorString, const QString &filePath);
     void setRestoredFrom(const QString &name);

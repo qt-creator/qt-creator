@@ -121,12 +121,9 @@ bool ModelDocument::isSaveAsAllowed() const
 bool ModelDocument::reload(QString *errorString, Core::IDocument::ReloadFlag flag,
                            Core::IDocument::ChangeType type)
 {
+    Q_UNUSED(type)
     if (flag == FlagIgnore)
         return true;
-    if (type == TypePermissions) {
-        emit changed();
-        return true;
-    }
     try {
         d->documentController->loadProject(filePath().toString());
     } catch (const qmt::FileNotFoundException &ex) {

@@ -27,6 +27,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/infobar.h>
+#include <utils/optional.h>
 #include <utils/qtcassert.h>
 
 #include <QFile>
@@ -129,8 +130,6 @@
 
     \value TypeContents
            The contents of the file changed.
-    \value TypePermissions
-           The file permissions changed.
     \value TypeRemoved
            The file was removed.
 
@@ -228,6 +227,7 @@ public:
     QString autoSaveName;
     Utils::InfoBar *infoBar = nullptr;
     Id id;
+    optional<bool> fileIsReadOnly;
     bool temporary = false;
     bool hasWriteWarning = false;
     bool restored = false;
@@ -403,8 +403,6 @@ const Utils::FilePath &IDocument::filePath() const
 */
 IDocument::ReloadBehavior IDocument::reloadBehavior(ChangeTrigger trigger, ChangeType type) const
 {
-    if (type == TypePermissions)
-        return BehaviorSilent;
     if (type == TypeContents && trigger == TriggerInternal && !isModified())
         return BehaviorSilent;
     return BehaviorAsk;
@@ -443,10 +441,18 @@ bool IDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 }
 
 /*!
-    \internal
+    Updates the cached information about the read-only status of the backing file.
 */
 void IDocument::checkPermissions()
 {
+    bool previousReadOnly = d->fileIsReadOnly.value_or(false);
+    if (!filePath().isEmpty()) {
+        d->fileIsReadOnly = !filePath().toFileInfo().isWritable();
+    } else {
+        d->fileIsReadOnly = false;
+    }
+    if (previousReadOnly != *(d->fileIsReadOnly))
+        emit changed();
 }
 
 /*!
@@ -524,7 +530,9 @@ bool IDocument::isFileReadOnly() const
 {
     if (filePath().isEmpty())
         return false;
-    return !filePath().toFileInfo().isWritable();
+    if (!d->fileIsReadOnly)
+        const_cast<IDocument *>(this)->checkPermissions();
+    return d->fileIsReadOnly.value_or(false);
 }
 
 /*!

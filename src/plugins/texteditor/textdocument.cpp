@@ -106,7 +106,6 @@ public:
     QScopedPointer<Indenter> m_indenter;
     QScopedPointer<Formatter> m_formatter;
 
-    bool m_fileIsReadOnly = false;
     int m_autoSaveRevision = -1;
 
     TextMarks m_marksCache; // Marks not owned
@@ -702,28 +701,9 @@ void TextDocument::setFilePath(const Utils::FilePath &newName)
     IDocument::setFilePath(Utils::FilePath::fromUserInput(newName.toFileInfo().absoluteFilePath()));
 }
 
-bool TextDocument::isFileReadOnly() const
-{
-    if (filePath().isEmpty()) //have no corresponding file, so editing is ok
-        return false;
-    return d->m_fileIsReadOnly;
-}
-
 bool TextDocument::isModified() const
 {
     return d->m_document.isModified();
-}
-
-void TextDocument::checkPermissions()
-{
-    bool previousReadOnly = d->m_fileIsReadOnly;
-    if (!filePath().isEmpty()) {
-        d->m_fileIsReadOnly = !filePath().toFileInfo().isWritable();
-    } else {
-        d->m_fileIsReadOnly = false;
-    }
-    if (previousReadOnly != d->m_fileIsReadOnly)
-        emit changed();
 }
 
 Core::IDocument::OpenResult TextDocument::open(QString *errorString, const QString &fileName,
@@ -747,7 +727,6 @@ Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString, const Q
 
     if (!fileName.isEmpty()) {
         const QFileInfo fi(fileName);
-        d->m_fileIsReadOnly = !fi.isWritable();
         readResult = read(realFileName, &content, errorString);
         const int chunks = content.size();
 
@@ -864,12 +843,7 @@ bool TextDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type
             modificationChanged(true);
         return true;
     }
-    if (type == TypePermissions) {
-        checkPermissions();
-        return true;
-    } else {
-        return reload(errorString);
-    }
+    return reload(errorString);
 }
 
 void TextDocument::setSyntaxHighlighter(SyntaxHighlighter *highlighter)

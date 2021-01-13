@@ -52,8 +52,6 @@ bool TaskFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
     Q_UNUSED(flag)
 
-    if (type == TypePermissions)
-        return true;
     if (type == TypeRemoved) {
         deleteLater();
         return true;

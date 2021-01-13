@@ -115,10 +115,8 @@ public:
     QByteArray contents() const override;
     bool setContents(const QByteArray &contents) override;
     bool shouldAutoSave() const override;
-    bool isFileReadOnly() const override;
     bool isModified() const override;
     bool isSaveAsAllowed() const override;
-    void checkPermissions() override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
     void setFilePath(const Utils::FilePath &newName) override;
 

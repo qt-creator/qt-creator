@@ -148,7 +148,7 @@ Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString, cons
 
 Core::IDocument::ReloadBehavior ImageViewerFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
-    if (type == TypeRemoved || type == TypePermissions)
+    if (type == TypeRemoved)
         return BehaviorSilent;
     if (type == TypeContents && state == TriggerInternal && !isModified())
         return BehaviorSilent;
@@ -159,12 +159,9 @@ bool ImageViewerFile::reload(QString *errorString,
                              Core::IDocument::ReloadFlag flag,
                              Core::IDocument::ChangeType type)
 {
+    Q_UNUSED(type)
     if (flag == FlagIgnore)
         return true;
-    if (type == TypePermissions) {
-        emit changed();
-        return true;
-    }
     emit aboutToReload();
     bool success = (openImpl(errorString, filePath().toString()) == OpenResult::Success);
     emit reloadFinished(success);

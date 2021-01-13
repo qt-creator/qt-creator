@@ -70,8 +70,7 @@ public:
 
     bool reload(QString *, ReloadFlag, ChangeType type) final
     {
-        if (type == TypePermissions)
-            return true;
+        Q_UNUSED(type)
         FolderNode *parent = m_node->parentFolderNode();
         QTC_ASSERT(parent, return false);
         parent->replaceSubtree(m_node, std::make_unique<ResourceTopLevelNode>(
