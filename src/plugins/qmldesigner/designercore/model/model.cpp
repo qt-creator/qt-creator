@@ -613,6 +613,8 @@ void ModelPrivate::notifyPropertiesRemoved(const QList<PropertyPair> &propertyPa
             AbstractProperty newProperty(propertyPair.second, propertyPair.first, m_model, view);
             propertyList.append(newProperty);
         }
+
+        view->propertiesRemoved(propertyList);
     });
 }
 
