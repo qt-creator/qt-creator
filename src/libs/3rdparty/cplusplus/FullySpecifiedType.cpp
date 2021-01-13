@@ -22,6 +22,8 @@
 #include "Type.h"
 #include "CoreTypes.h"
 
+#include <functional>
+
 using namespace CPlusPlus;
 
 FullySpecifiedType::FullySpecifiedType(Type *type) :

@@ -23,6 +23,7 @@
 #include "CPlusPlusForwardDeclarations.h"
 #include "Name.h"
 #include "FullySpecifiedType.h"
+#include <functional>
 #include <vector>
 
 namespace CPlusPlus {
