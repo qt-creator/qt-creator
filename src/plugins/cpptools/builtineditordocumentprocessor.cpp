@@ -202,7 +202,6 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
 BuiltinEditorDocumentProcessor::~BuiltinEditorDocumentProcessor()
 {
     m_parserFuture.cancel();
-    m_parserFuture.waitForFinished();
 }
 
 void BuiltinEditorDocumentProcessor::runImpl(
