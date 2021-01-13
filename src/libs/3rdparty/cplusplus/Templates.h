@@ -28,6 +28,7 @@
 #include "SymbolVisitor.h"
 
 #include <map>
+#include <unordered_map>
 #include <utility>
 
 namespace CPlusPlus {

@@ -38,8 +38,9 @@
 #include <QSet>
 #include <QMap>
 
-#include <map>
 #include <functional>
+#include <map>
+#include <unordered_map>
 
 namespace CPlusPlus {
 
