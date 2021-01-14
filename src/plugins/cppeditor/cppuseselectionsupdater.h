@@ -32,10 +32,10 @@
 #include <QTextEdit>
 #include <QTimer>
 
-namespace TextEditor { class TextEditorWidget; }
-
 namespace CppEditor {
 namespace Internal {
+
+class CppEditorWidget;
 
 class CppUseSelectionsUpdater : public QObject
 {
@@ -43,7 +43,7 @@ class CppUseSelectionsUpdater : public QObject
     Q_DISABLE_COPY(CppUseSelectionsUpdater)
 
 public:
-    explicit CppUseSelectionsUpdater(TextEditor::TextEditorWidget *editorWidget);
+    explicit CppUseSelectionsUpdater(CppEditorWidget *editorWidget);
     ~CppUseSelectionsUpdater() override;
 
     void scheduleUpdate();
@@ -73,7 +73,7 @@ private:
     void updateUnusedSelections(const CursorInfo::Ranges &selections);
 
 private:
-    TextEditor::TextEditorWidget *m_editorWidget;
+    CppEditorWidget * const m_editorWidget;
 
     QTimer m_timer;
 

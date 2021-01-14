@@ -805,6 +805,11 @@ bool CppEditorWidget::isSemanticInfoValid() const
     return isSemanticInfoValidExceptLocalUses() && d->m_lastSemanticInfo.localUsesUpdated;
 }
 
+bool CppEditorWidget::isRenaming() const
+{
+    return d->m_localRenaming.isActive();
+}
+
 SemanticInfo CppEditorWidget::semanticInfo() const
 {
     return d->m_lastSemanticInfo;

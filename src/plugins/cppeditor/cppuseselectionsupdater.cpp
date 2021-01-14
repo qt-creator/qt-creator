@@ -41,7 +41,7 @@ enum { updateUseSelectionsInternalInMs = 500 };
 namespace CppEditor {
 namespace Internal {
 
-CppUseSelectionsUpdater::CppUseSelectionsUpdater(TextEditor::TextEditorWidget *editorWidget)
+CppUseSelectionsUpdater::CppUseSelectionsUpdater(CppEditorWidget *editorWidget)
     : m_editorWidget(editorWidget)
 {
     m_timer.setSingleShot(true);
@@ -155,6 +155,10 @@ void CppUseSelectionsUpdater::onFindUsesFinished()
     if (m_runnerWordStartPosition
             != Utils::Text::wordStartCursor(m_editorWidget->textCursor()).position()) {
         emit finished(CppTools::SemanticInfo::LocalUseMap(), false);
+        return;
+    }
+    if (m_editorWidget->isRenaming()) {
+        emit finished({}, false);
         return;
     }
 
