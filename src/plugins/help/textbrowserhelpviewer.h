@@ -46,7 +46,6 @@ public:
     QFont viewerFont() const override;
     void setViewerFont(const QFont &font) override;
 
-    qreal scale() const override;
     void setScale(qreal scale) override;
 
     QString title() const override;
@@ -65,9 +64,6 @@ public:
     bool findText(const QString &text, Core::FindFlags flags,
                   bool incremental, bool fromSearch, bool *wrapped = nullptr) override;
 
-    void scaleUp() override;
-    void scaleDown() override;
-    void resetScale() override;
     void copy() override;
     void stop() override;
     void forward() override;
@@ -76,6 +72,7 @@ public:
 
 private:
     void goToHistoryItem();
+    void setFontAndScale(const QFont &font, qreal scale);
 
     TextBrowserHelpWidget *m_textBrowser;
 };
@@ -89,14 +86,12 @@ public:
 
     QVariant loadResource(int type, const QUrl &name) override;
 
-    void scaleUp();
-    void scaleDown();
-
     void withFixedTopPosition(const std::function<void()> &action);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
     bool eventFilter(QObject *obj, QEvent *event) override;
+    void wheelEvent(QWheelEvent *e) override;
     void mousePressEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
     void resizeEvent(QResizeEvent *e) override;
@@ -105,8 +100,6 @@ private:
     QString linkAt(const QPoint &pos);
     void scrollToTextPosition(int position);
 
-    int zoomCount;
-    bool forceFont;
     TextBrowserHelpViewer *m_parent;
     friend class Help::Internal::TextBrowserHelpViewer;
 };

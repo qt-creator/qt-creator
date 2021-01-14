@@ -87,7 +87,7 @@ public:
     HelpViewer *currentViewer() const;
     int currentIndex() const;
     void setCurrentIndex(int index);
-    HelpViewer *addViewer(const QUrl &url, qreal zoom = 0);
+    HelpViewer *addViewer(const QUrl &url);
     void removeViewerAt(int index);
 
     int viewerCount() const;
@@ -118,7 +118,7 @@ signals:
 
 private:
     int indexOf(HelpViewer *viewer) const;
-    HelpViewer *insertViewer(int index, const QUrl &url, qreal zoom);
+    HelpViewer *insertViewer(int index, const QUrl &url);
     void updateBackMenu();
     void updateForwardMenu();
     void updateWindowTitle();

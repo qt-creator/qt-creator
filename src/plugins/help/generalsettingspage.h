@@ -44,9 +44,6 @@ public:
     void apply() override;
     void finish() override;
 
-signals:
-    void fontChanged();
-
 private:
     void setCurrentPage();
     void setBlankPage();
@@ -61,6 +58,7 @@ private:
     int closestPointSizeIndex(int desiredPointSize) const;
 
     QFont m_font;
+    int m_fontZoom = 100;
     QFontDatabase m_fontDatabase;
 
     QString m_homePage;

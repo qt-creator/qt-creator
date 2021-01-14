@@ -70,6 +70,8 @@ QWidget *GeneralSettingsPage::widget()
         m_ui->styleComboBox->setEditable(false);
 
         m_font = LocalHelpManager::fallbackFont();
+        m_fontZoom = LocalHelpManager::fontZoom();
+        m_ui->zoomSpinBox->setValue(m_fontZoom);
 
         updateFontSizeSelector();
         updateFontStyleSelector();
@@ -91,6 +93,9 @@ QWidget *GeneralSettingsPage::widget()
 
         connect(m_ui->sizeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, &GeneralSettingsPage::updateFont);
+
+        connect(m_ui->zoomSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
+                this, [this](int value) { m_fontZoom = value; });
 
         m_homePage = LocalHelpManager::homePage();
         m_ui->homePageLineEdit->setText(m_homePage);
@@ -150,10 +155,11 @@ void GeneralSettingsPage::apply()
     if (!m_ui) // page was never shown
         return;
 
-    if (m_font != LocalHelpManager::fallbackFont()) {
+    if (m_font != LocalHelpManager::fallbackFont())
         LocalHelpManager::setFallbackFont(m_font);
-        emit fontChanged();
-    }
+
+    if (m_fontZoom != LocalHelpManager::fontZoom())
+        LocalHelpManager::setFontZoom(m_fontZoom);
 
     QString homePage = QUrl::fromUserInput(m_ui->homePageLineEdit->text()).toString();
     if (homePage.isEmpty())

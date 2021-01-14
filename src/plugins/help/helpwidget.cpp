@@ -490,7 +490,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     connect(reload, &QAction::triggered, this, [this]() {
         const int index = m_viewerStack->currentIndex();
         HelpViewer *previous = currentViewer();
-        insertViewer(index, previous->source(), previous->scale());
+        insertViewer(index, previous->source());
         removeViewerAt(index + 1);
         setCurrentIndex(index);
     });
@@ -711,15 +711,15 @@ void HelpWidget::setCurrentIndex(int index)
     emit currentIndexChanged(index);
 }
 
-HelpViewer *HelpWidget::addViewer(const QUrl &url, qreal zoom)
+HelpViewer *HelpWidget::addViewer(const QUrl &url)
 {
-    return insertViewer(m_viewerStack->count(), url, zoom);
+    return insertViewer(m_viewerStack->count(), url);
 }
 
-HelpViewer *HelpWidget::insertViewer(int index, const QUrl &url, qreal zoom)
+HelpViewer *HelpWidget::insertViewer(int index, const QUrl &url)
 {
     m_model.beginInsertRows({}, index, index);
-    HelpViewer *viewer = HelpPlugin::createHelpViewer(zoom);
+    HelpViewer *viewer = HelpPlugin::createHelpViewer();
     m_viewerStack->insertWidget(index, viewer);
     viewer->setFocus(Qt::OtherFocusReason);
     viewer->setActionVisible(HelpViewer::Action::NewPage, supportsPages());
@@ -900,19 +900,16 @@ void HelpWidget::saveState() const
 {
     // TODO generalize
     if (m_style == ModeWidget) {
-        QList<qreal> zoomFactors;
         QStringList currentPages;
         for (int i = 0; i < viewerCount(); ++i) {
             const HelpViewer *const viewer = viewerAt(i);
             const QUrl &source = viewer->source();
             if (source.isValid()) {
                 currentPages.append(source.toString());
-                zoomFactors.append(viewer->scale());
             }
         }
 
         LocalHelpManager::setLastShownPages(currentPages);
-        LocalHelpManager::setLastShownPagesZoom(zoomFactors);
         LocalHelpManager::setLastSelectedTab(currentIndex());
     }
 }

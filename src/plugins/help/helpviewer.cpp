@@ -29,6 +29,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/fadingindicator.h>
 #include <utils/fileutils.h>
 #include <utils/temporarydirectory.h>
 
@@ -89,6 +90,11 @@ HelpViewer::HelpViewer(QWidget *parent)
 HelpViewer::~HelpViewer()
 {
     restoreOverrideCursor();
+}
+
+void HelpViewer::setFontZoom(int percentage)
+{
+    setScale(percentage / 100.0);
 }
 
 void HelpViewer::setScrollWheelZoomingEnabled(bool enabled)
@@ -172,14 +178,45 @@ void HelpViewer::home()
     setSource(LocalHelpManager::homePage());
 }
 
+void HelpViewer::scaleUp()
+{
+    incrementZoom(1);
+}
+
+void HelpViewer::scaleDown()
+{
+    incrementZoom(-1);
+}
+
+void HelpViewer::resetScale()
+{
+    applyZoom(100);
+}
+
 void HelpViewer::wheelEvent(QWheelEvent *event)
 {
     if (m_scrollWheelZoomingEnabled && event->modifiers() == Qt::ControlModifier) {
         event->accept();
-        event->angleDelta().y() > 0 ? scaleUp() : scaleDown();
-    } else {
-        QWidget::wheelEvent(event);
+        const int deltaY = event->angleDelta().y();
+        if (deltaY != 0)
+            incrementZoom(deltaY / 120);
+        return;
     }
+    QWidget::wheelEvent(event);
+}
+
+void HelpViewer::incrementZoom(int steps)
+{
+    const int incrementPercentage = 10 * steps; // 10 percent increase by single step
+    const int previousZoom = LocalHelpManager::fontZoom();
+    applyZoom(previousZoom + incrementPercentage);
+}
+
+void HelpViewer::applyZoom(int percentage)
+{
+    const int newZoom = LocalHelpManager::setFontZoom(percentage);
+    Utils::FadingIndicator::showText(this, QCoreApplication::translate("Help::HelpViewer",
+                                     "Zoom: %1%").arg(newZoom), Utils::FadingIndicator::SmallText);
 }
 
 void HelpViewer::slotLoadStarted()

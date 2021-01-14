@@ -82,54 +82,22 @@ QFont TextBrowserHelpViewer::viewerFont() const
 
 void TextBrowserHelpViewer::setViewerFont(const QFont &newFont)
 {
-    m_textBrowser->forceFont = true;
-    m_textBrowser->setFont(newFont);
-    m_textBrowser->forceFont = false;
+    setFontAndScale(newFont, LocalHelpManager::fontZoom() / 100.0);
 }
 
-void TextBrowserHelpViewer::scaleUp()
+void TextBrowserHelpViewer::setFontAndScale(const QFont &font, qreal scale)
 {
-    m_textBrowser->scaleUp();
-}
-
-void TextBrowserHelpViewer::scaleDown()
-{
-    m_textBrowser->scaleDown();
-}
-
-void TextBrowserHelpViewer::resetScale()
-{
-    m_textBrowser->withFixedTopPosition([this] {
-        if (m_textBrowser->zoomCount != 0) {
-            m_textBrowser->forceFont = true;
-            m_textBrowser->zoomOut(m_textBrowser->zoomCount);
-            m_textBrowser->forceFont = false;
-        }
-        m_textBrowser->zoomCount = 0;
+    m_textBrowser->withFixedTopPosition([this, &font, scale] {
+        QFont newFont = font;
+        const float newSize = font.pointSizeF() * scale;
+        newFont.setPointSizeF(newSize);
+        m_textBrowser->setFont(newFont);
     });
-}
-
-qreal TextBrowserHelpViewer::scale() const
-{
-    return m_textBrowser->zoomCount;
 }
 
 void TextBrowserHelpViewer::setScale(qreal scale)
 {
-    m_textBrowser->withFixedTopPosition([this, &scale] {
-        m_textBrowser->forceFont = true;
-        if (scale > 10)
-            scale = 10;
-        else if (scale < -5)
-            scale = -5;
-        int diff = int(scale) - m_textBrowser->zoomCount;
-        if (diff > 0)
-            m_textBrowser->zoomIn(diff);
-        else if (diff < 0)
-            m_textBrowser->zoomOut(-diff);
-        m_textBrowser->zoomCount = int(scale);
-        m_textBrowser->forceFont = false;
-    });
+    setFontAndScale(LocalHelpManager::fallbackFont(), scale);
 }
 
 QString TextBrowserHelpViewer::title() const
@@ -302,8 +270,6 @@ void TextBrowserHelpViewer::goToHistoryItem()
 
 TextBrowserHelpWidget::TextBrowserHelpWidget(TextBrowserHelpViewer *parent)
     : QTextBrowser(parent)
-    , zoomCount(0)
-    , forceFont(false)
     , m_parent(parent)
 {
     installEventFilter(this);
@@ -350,30 +316,6 @@ void TextBrowserHelpWidget::scrollToTextPosition(int position)
     }
 }
 
-void TextBrowserHelpWidget::scaleUp()
-{
-    withFixedTopPosition([this] {
-        if (zoomCount < 10) {
-            zoomCount++;
-            forceFont = true;
-            zoomIn();
-            forceFont = false;
-        }
-    });
-}
-
-void TextBrowserHelpWidget::scaleDown()
-{
-    withFixedTopPosition([this] {
-        if (zoomCount > -5) {
-            zoomCount--;
-            forceFont = true;
-            zoomOut();
-            forceFont = false;
-        }
-    });
-}
-
 void TextBrowserHelpWidget::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu menu("", nullptr);
@@ -409,10 +351,7 @@ void TextBrowserHelpWidget::contextMenuEvent(QContextMenuEvent *event)
 bool TextBrowserHelpWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj == this) {
-        if (event->type() == QEvent::FontChange) {
-            if (!forceFont)
-                return true;
-        } else if (event->type() == QEvent::KeyPress) {
+        if (event->type() == QEvent::KeyPress) {
             auto keyEvent = static_cast<QKeyEvent *>(event);
             if (keyEvent->key() == Qt::Key_Slash) {
                 keyEvent->accept();
@@ -426,6 +365,21 @@ bool TextBrowserHelpWidget::eventFilter(QObject *obj, QEvent *event)
         }
     }
     return QTextBrowser::eventFilter(obj, event);
+}
+
+void TextBrowserHelpWidget::wheelEvent(QWheelEvent *e)
+{
+    // These two conditions should match those defined in QTextEdit::wheelEvent()
+    if (!(textInteractionFlags() & Qt::TextEditable)) {
+        if (e->modifiers() & Qt::ControlModifier) {
+            // Don't handle wheelEvent by the QTextEdit superclass, which zooms the
+            // view in a broken way. We handle it properly through the sequence:
+            // HelpViewer::wheelEvent() -> LocalHelpManager::setFontZoom() ->
+            // HelpViewer::setFontZoom() -> TextBrowserHelpViewer::setFontAndScale().
+            return;
+        }
+    }
+    QTextBrowser::wheelEvent(e);
 }
 
 void TextBrowserHelpWidget::mousePressEvent(QMouseEvent *e)

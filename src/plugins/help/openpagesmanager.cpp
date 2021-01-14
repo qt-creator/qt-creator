@@ -137,15 +137,11 @@ void OpenPagesManager::setupInitialPages()
         const int pageCount = lastShownPageList.count();
 
         if (pageCount > 0) {
-            QList<float> zoomFactors = LocalHelpManager::lastShownPagesZoom();
-            while (zoomFactors.count() < pageCount)
-                zoomFactors.append(0.);
-
             initialPage = LocalHelpManager::lastSelectedTab();
             for (int curPage = 0; curPage < pageCount; ++curPage) {
                 const QString &curFile = lastShownPageList.at(curPage);
                 if (engine.findFile(curFile).isValid() || curFile == Help::Constants::AboutBlank) {
-                    m_helpWidget->addViewer(curFile, zoomFactors.at(curPage));
+                    m_helpWidget->addViewer(curFile);
                 } else if (curPage <= initialPage && initialPage > 0) {
                     --initialPage;
                 }

@@ -173,11 +173,6 @@ void WebEngineHelpViewer::setViewerFont(const QFont &font)
     webSettings->setFontSize(QWebEngineSettings::DefaultFontSize, font.pointSize());
 }
 
-qreal WebEngineHelpViewer::scale() const
-{
-    return m_widget->zoomFactor();
-}
-
 void WebEngineHelpViewer::setScale(qreal scale)
 {
     m_widget->setZoomFactor(scale);
@@ -275,21 +270,6 @@ bool WebEngineHelpViewer::findText(const QString &text, Core::FindFlags flags, b
 WebEngineHelpPage *WebEngineHelpViewer::page() const
 {
     return static_cast<WebEngineHelpPage *>(m_widget->page());
-}
-
-void WebEngineHelpViewer::scaleUp()
-{
-    m_widget->setZoomFactor(m_widget->zoomFactor() + 0.1);
-}
-
-void WebEngineHelpViewer::scaleDown()
-{
-    m_widget->setZoomFactor(qMax(qreal(0.1), m_widget->zoomFactor() - qreal(0.1)));
-}
-
-void WebEngineHelpViewer::resetScale()
-{
-    m_widget->setZoomFactor(1.0);
 }
 
 void WebEngineHelpViewer::copy()

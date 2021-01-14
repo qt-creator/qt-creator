@@ -553,34 +553,6 @@ void MacWebKitHelpViewer::setViewerFont(const QFont &font)
     }
 }
 
-void MacWebKitHelpViewer::scaleUp()
-{
-    @autoreleasepool {
-        m_widget->webView().textSizeMultiplier += 0.1f;
-    }
-}
-
-void MacWebKitHelpViewer::scaleDown()
-{
-    @autoreleasepool {
-        m_widget->webView().textSizeMultiplier = qMax(0.1f, m_widget->webView().textSizeMultiplier - 0.1f);
-    }
-}
-
-void MacWebKitHelpViewer::resetScale()
-{
-    @autoreleasepool {
-        m_widget->webView().textSizeMultiplier = 1.0f;
-    }
-}
-
-qreal MacWebKitHelpViewer::scale() const
-{
-    @autoreleasepool {
-        return m_widget->webView().textSizeMultiplier;
-    }
-}
-
 void MacWebKitHelpViewer::setScale(qreal scale)
 {
     m_widget->webView().textSizeMultiplier = (scale <= 0.0 ? 1.0 : scale);

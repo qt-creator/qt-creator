@@ -83,6 +83,9 @@ public:
     static QFont fallbackFont();
     static void setFallbackFont(const QFont &font);
 
+    static int fontZoom();
+    static int setFontZoom(int percentage);
+
     static StartOption startOption();
     static void setStartOption(StartOption option);
 
@@ -97,9 +100,6 @@ public:
 
     static QStringList lastShownPages();
     static void setLastShownPages(const QStringList &pages);
-
-    static QList<float> lastShownPagesZoom();
-    static void setLastShownPagesZoom(const QList<qreal> &zoom);
 
     static int lastSelectedTab();
     static void setLastSelectedTab(int index);
@@ -137,6 +137,7 @@ signals:
     void filterIndexChanged(int index);
 #endif
     void fallbackFontChanged(const QFont &font);
+    void fontZoomChanged(int percentage);
     void returnOnCloseChanged();
     void scrollWheelZoomingEnabledChanged(bool enabled);
     void contextHelpOptionChanged(Core::HelpManager::HelpViewerLocation option);
