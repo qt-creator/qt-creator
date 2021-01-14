@@ -307,9 +307,7 @@ void TestTreeModel::synchronizeTestFrameworks()
 {
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     TestFrameworks sorted;
-    const QVariant useGlobal = project ? project->namedSettings(Constants::SK_USE_GLOBAL)
-                                       : QVariant();
-    if (!useGlobal.isValid() || AutotestPlugin::projectSettings(project)->useGlobalSettings()) {
+    if (!project || AutotestPlugin::projectSettings(project)->useGlobalSettings()) {
         sorted = Utils::filtered(TestFrameworkManager::registeredFrameworks(),
                                  &ITestFramework::active);
         qCDebug(LOG) << "Active frameworks sorted by priority" << sorted;
