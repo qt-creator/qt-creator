@@ -5821,6 +5821,10 @@ public:
         }
         currentFile->setChangeSet(changes);
         currentFile->apply();
+        QTextCursor c = currentFile->cursor();
+        c.setPosition(c.position() - parameterName().length());
+        editor()->setTextCursor(c);
+        editor()->renameSymbolUnderCursor();
     }
 
 private:
@@ -5842,6 +5846,8 @@ private:
             m_typeName = overview.prettyType(items.first().type());
     }
 
+    static QString parameterName() { return QLatin1String("newParameter"); }
+
     QString parameterDeclarationTextToInsert(FunctionDeclaratorAST *ast) const
     {
         QString str;
@@ -5850,7 +5856,7 @@ private:
         str += m_typeName;
         if (!m_typeName.endsWith(QLatin1Char('*')))
                 str += QLatin1Char(' ');
-        str += QLatin1String("newParameter");
+        str += parameterName();
         return str;
     }
 
