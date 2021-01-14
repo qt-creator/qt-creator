@@ -7245,7 +7245,7 @@ public:
                     }
                 }
 
-                renamePos = file->endOf(m_forAst->initializer) + 1 + varName.length();
+                renamePos = file->endOf(m_forAst->initializer) + 1;
                 change.insert(file->endOf(m_forAst->initializer) - 1, // "-1" because of ";"
                               QLatin1String(", ") + varName + QLatin1String(" = ")
                               + file->textOf(m_expression));
