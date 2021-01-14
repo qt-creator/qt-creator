@@ -75,11 +75,14 @@ osx {
     }
 }
 
-exists($$PWD/qlitehtml/litehtml/CMakeLists.txt)|!isEmpty(LITEHTML_INSTALL_DIR) {
-    include(qlitehtml/qlitehtml.pri)
-    HEADERS += litehtmlhelpviewer.h
-    SOURCES += litehtmlhelpviewer.cpp
-    DEFINES += QTC_LITEHTML_HELPVIEWER
+QLITEHTML_DIR = $$PWD/../../libs/qlitehtml
+exists($$QLITEHTML_DIR/src/qlitehtml.pri) {
+    exists($$QLITEHTML_DIR/src/3rdparty/litehtml/CMakeLists.txt)|!isEmpty(LITEHTML_INSTALL_DIR) {
+        include($$QLITEHTML_DIR/src/qlitehtml.pri)
+        HEADERS += litehtmlhelpviewer.h
+        SOURCES += litehtmlhelpviewer.cpp
+        DEFINES += QTC_LITEHTML_HELPVIEWER
+    }
 }
 
 RESOURCES += help.qrc

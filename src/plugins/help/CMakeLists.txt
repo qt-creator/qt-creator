@@ -60,11 +60,8 @@ extend_qtc_plugin(Help
     webenginehelpviewer.h
 )
 
-find_package(litehtml QUIET)
-add_subdirectory(qlitehtml)
-
 extend_qtc_plugin(Help
-  CONDITION TARGET litehtml AND TARGET qlitehtml
+  CONDITION TARGET qlitehtml
   FEATURE_INFO "litehtml help viewer"
   DEPENDS qlitehtml
   DEFINES QTC_LITEHTML_HELPVIEWER

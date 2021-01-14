@@ -3,8 +3,6 @@ import qbs.Utilities
 Project {
     name: "Help"
 
-    references: "qlitehtml"
-
     QtcPlugin {
         name: "Help"
 

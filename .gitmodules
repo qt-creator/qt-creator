@@ -6,9 +6,9 @@
 	path = src/tools/perfparser
 	url = ../perfparser.git
 	ignore = dirty
-[submodule "litehtml"]
-	path = src/plugins/help/qlitehtml/litehtml
-	url = https://github.com/litehtml/litehtml.git
 [submodule "googletest"]
 	path = tests/unit/unittest/3rdparty/googletest
 	url = https://github.com/google/googletest.git
+[submodule "src/libs/qlitehtml"]
+	path = src/libs/qlitehtml
+	url = https://code.qt.io/playground/qlitehtml.git
