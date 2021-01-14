@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <previewtooltip/previewtooltipbackend.h>
+
 #include <QListView>
 
 QT_BEGIN_NAMESPACE
@@ -33,7 +35,6 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class PreviewTooltipBackend;
 class ImageCache;
 
 class ItemLibraryResourceView : public QListView {

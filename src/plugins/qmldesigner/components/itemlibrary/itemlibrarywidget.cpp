@@ -38,7 +38,6 @@
 #include <itemlibrarymodel.h>
 #include <metainfo.h>
 #include <model.h>
-#include <previewtooltip/previewtooltipbackend.h>
 #include <rewritingexception.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>

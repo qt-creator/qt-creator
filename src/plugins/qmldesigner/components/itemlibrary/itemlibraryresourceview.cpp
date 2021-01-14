@@ -29,7 +29,6 @@
 
 #include <theme.h>
 #include <imagecache.h>
-#include <previewtooltip/previewtooltipbackend.h>
 
 #include <QAction>
 #include <QActionGroup>

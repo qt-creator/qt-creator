@@ -30,6 +30,7 @@
 
 #include <utils/fancylineedit.h>
 #include <utils/dropsupport.h>
+#include <previewtooltip/previewtooltipbackend.h>
 
 #include <QFrame>
 #include <QToolButton>
@@ -55,7 +56,6 @@ class CustomFileSystemModel;
 
 class ItemLibraryModel;
 class ItemLibraryResourceView;
-class PreviewTooltipBackend;
 class ImageCache;
 class ImageCacheCollector;
 

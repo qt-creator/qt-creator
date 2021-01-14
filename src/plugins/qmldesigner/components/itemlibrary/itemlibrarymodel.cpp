@@ -29,8 +29,6 @@
 #include "itemlibraryitem.h"
 #include "itemlibrarysection.h"
 
-#include <components/previewtooltip/previewtooltipbackend.h>
-
 #include <model.h>
 #include <nodehints.h>
 #include <nodemetainfo.h>
