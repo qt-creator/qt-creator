@@ -286,8 +286,6 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2()
     groupBoxDangerous->setTitle(GdbOptionsPage::tr("Extended"));
 
     auto labelDangerous = new QLabel(GdbOptionsPage::tr(
-        "The options below should be used with care."));
-    labelDangerous->setToolTip(GdbOptionsPage::tr(
         "<html><head/><body>The options below give access to advanced "
         "or experimental functions of GDB. Enabling them may negatively "
         "impact your debugging experience.</body></html>"));
