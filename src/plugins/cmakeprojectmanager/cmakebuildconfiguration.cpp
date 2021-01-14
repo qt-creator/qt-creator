@@ -73,8 +73,9 @@ static QStringList defaultInitialCMakeArguments(const Kit *k, const QString buil
     QStringList initialArgs = CMakeGeneratorKitAspect::generatorArguments(k);
 
     // CMAKE_BUILD_TYPE:
-    if (!buildType.isEmpty())
+    if (!buildType.isEmpty() && !CMakeGeneratorKitAspect::isMultiConfigGenerator(k)) {
         initialArgs.append(QString::fromLatin1("-DCMAKE_BUILD_TYPE:String=%1").arg(buildType));
+    }
 
     // Cross-compilation settings:
     const QString sysRoot = SysRootKitAspect::sysRoot(k).toString();
@@ -130,6 +131,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Utils::Id id)
     initialCMakeArgumentsAspect->setMacroExpanderProvider([this]{ return macroExpander(); });
 
     addAspect<SourceDirectoryAspect>();
+    addAspect<BuildTypeAspect>();
 
     appendInitialBuildStep(Constants::CMAKE_BUILD_STEP_ID);
     appendInitialCleanStep(Constants::CMAKE_BUILD_STEP_ID);
@@ -198,6 +200,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Utils::Id id)
         }
 
         setInitialCMakeArguments(initialArgs);
+        setCMakeBuildType(info.typeName);
     });
 
     const auto qmlDebuggingAspect = addAspect<QtSupport::QmlDebuggingAspect>();
@@ -264,6 +267,10 @@ FilePath CMakeBuildConfiguration::shadowBuildDirectory(const FilePath &projectFi
     QDir projectDir = QDir(Project::projectDirectory(projectFilePath).toString());
     QString buildPath = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
     buildPath.replace(" ", "-");
+
+    if (CMakeGeneratorKitAspect::isMultiConfigGenerator(k))
+        buildPath = buildPath.left(buildPath.lastIndexOf(QString("-%1").arg(bcName)));
+
     return FilePath::fromUserInput(projectDir.absoluteFilePath(buildPath));
 }
 
@@ -476,7 +483,11 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
 ProjectExplorer::BuildConfiguration::BuildType CMakeBuildConfiguration::buildType() const
 {
     QByteArray cmakeBuildTypeName = CMakeConfigItem::valueOf("CMAKE_BUILD_TYPE", m_configurationFromCMake);
-
+    if (cmakeBuildTypeName.isEmpty()) {
+        QByteArray cmakeCfgTypes = CMakeConfigItem::valueOf("CMAKE_CONFIGURATION_TYPES", m_configurationFromCMake);
+        if (!cmakeCfgTypes.isEmpty())
+            cmakeBuildTypeName = cmakeBuildType().toUtf8();
+    }
     // Cover all common CMake build types
     const CMakeBuildConfigurationFactory::BuildType cmakeBuildType
         = CMakeBuildConfigurationFactory::buildTypeFromByteArray(cmakeBuildTypeName);
@@ -503,6 +514,16 @@ Utils::FilePath CMakeBuildConfiguration::sourceDirectory() const
     return Utils::FilePath::fromString(aspect<SourceDirectoryAspect>()->value());
 }
 
+QString CMakeBuildConfiguration::cmakeBuildType() const
+{
+    return aspect<BuildTypeAspect>()->value();
+}
+
+void CMakeBuildConfiguration::setCMakeBuildType(const QString &cmakeBuildType)
+{
+    aspect<BuildTypeAspect>()->setValue(cmakeBuildType);
+}
+
 // ----------------------------------------------------------------------
 // - InitialCMakeParametersAspect:
 // ----------------------------------------------------------------------
@@ -521,6 +542,14 @@ SourceDirectoryAspect::SourceDirectoryAspect()
 {
     // Will not be displayed, only persisted
     setSettingsKey("CMake.Source.Directory");
+}
+
+// -----------------------------------------------------------------------------
+// BuildTypeAspect:
+// -----------------------------------------------------------------------------
+BuildTypeAspect::BuildTypeAspect()
+{
+    setSettingsKey("CMake.Build.Type");
 }
 
 } // namespace Internal

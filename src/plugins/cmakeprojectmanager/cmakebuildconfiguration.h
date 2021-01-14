@@ -70,6 +70,9 @@ public:
     void setSourceDirectory(const Utils::FilePath& path);
     Utils::FilePath sourceDirectory() const;
 
+    QString cmakeBuildType() const;
+    void setCMakeBuildType(const QString &cmakeBuildType);
+
 signals:
     void errorOccurred(const QString &message);
     void warningOccurred(const QString &message);
@@ -143,6 +146,15 @@ class SourceDirectoryAspect final : public Utils::StringAspect
 public:
     SourceDirectoryAspect();
 };
+
+class BuildTypeAspect final : public Utils::StringAspect
+{
+    Q_OBJECT
+
+public:
+    BuildTypeAspect();
+};
+
 
 } // namespace Internal
 } // namespace CMakeProjectManager

@@ -97,6 +97,9 @@ public:
     static CMakeConfig parseCMakeCacheDotTxt(const Utils::FilePath &cacheFile,
                                              QString *errorMessage);
 
+    bool isMultiConfig() const;
+    bool usesAllCapsTargets() const;
+
 private:
     // Actually ask for parsing:
     enum ReparseParameters {

@@ -142,6 +142,7 @@ static ReplyFileContents readReplyFile(const QFileInfo &fi, QString &errorMessag
             const QJsonObject generator = cmakeObject.value("generator").toObject();
             {
                 result.generator = generator.value("name").toString();
+                result.isMultiConfig = generator.value("multiConfig").toBool();
             }
         }
     }
@@ -855,23 +856,22 @@ bool FileApiParser::setupCMakeFileApi(const FilePath &buildDirectory, Utils::Fil
     return true;
 }
 
-static QStringList uniqueTargetFiles(const std::vector<Configuration> &configs)
+static QStringList uniqueTargetFiles(const Configuration &config)
 {
     QSet<QString> knownIds;
     QStringList files;
-    for (const Configuration &config : configs) {
-        for (const Target &t : config.targets) {
-            const int knownCount = knownIds.count();
-            knownIds.insert(t.id);
-            if (knownIds.count() > knownCount) {
-                files.append(t.jsonFile);
-            }
+    for (const Target &t : config.targets) {
+        const int knownCount = knownIds.count();
+        knownIds.insert(t.id);
+        if (knownIds.count() > knownCount) {
+            files.append(t.jsonFile);
         }
     }
     return files;
 }
 
-FileApiData FileApiParser::parseData(const QFileInfo &replyFileInfo, QString &errorMessage)
+FileApiData FileApiParser::parseData(const QFileInfo &replyFileInfo, const QString &cmakeBuildType,
+                                     QString &errorMessage)
 {
     QTC_CHECK(errorMessage.isEmpty());
     const QDir replyDir = replyFileInfo.dir();
@@ -882,8 +882,23 @@ FileApiData FileApiParser::parseData(const QFileInfo &replyFileInfo, QString &er
     result.cache = readCacheFile(result.replyFile.jsonFile("cache", replyDir), errorMessage);
     result.cmakeFiles = readCMakeFilesFile(result.replyFile.jsonFile("cmakeFiles", replyDir),
                                            errorMessage);
-    result.codemodel = readCodemodelFile(result.replyFile.jsonFile("codemodel", replyDir),
+    auto codeModels = readCodemodelFile(result.replyFile.jsonFile("codemodel", replyDir),
                                          errorMessage);
+
+    if (codeModels.size() == 0) {
+        errorMessage = "No CMake configuration found!";
+        qWarning() << errorMessage;
+        return result;
+    }
+
+    auto it = std::find_if(codeModels.cbegin(), codeModels.cend(),
+                           [cmakeBuildType](const Configuration& cfg) { return cfg.name == cmakeBuildType; });
+    if (it == codeModels.cend()) {
+        errorMessage = QString("No '%1' CMake configuration found!").arg(cmakeBuildType);
+        qWarning() << errorMessage;
+        return result;
+    }
+    result.codemodel = std::move(*it);
 
     const QStringList targetFiles = uniqueTargetFiles(result.codemodel);
 

@@ -102,22 +102,6 @@ CMakeFileResult extractCMakeFilesData(const std::vector<FileApiDetails::CMakeFil
     return result;
 }
 
-Configuration extractConfiguration(std::vector<Configuration> &codemodel, QString &errorMessage)
-{
-    if (codemodel.size() == 0) {
-        qWarning() << "No configuration found!";
-        errorMessage = "No configuration found!";
-        return {};
-    }
-    if (codemodel.size() > 1)
-        qWarning() << "Multi-configuration generator found, ignoring all but first configuration";
-
-    Configuration result = std::move(codemodel[0]);
-    codemodel.clear();
-
-    return result;
-}
-
 class PreprocessedData
 {
 public:
@@ -143,12 +127,7 @@ PreprocessedData preprocess(FileApiData &data,
 
     result.cache = std::move(data.cache); // Make sure this is available, even when nothing else is
 
-    // Simplify to only one configuration:
-    result.codemodel = extractConfiguration(data.codemodel, errorMessage);
-
-    if (!errorMessage.isEmpty()) {
-        return result;
-    }
+    result.codemodel = std::move(data.codemodel);
 
     CMakeFileResult cmakeFileResult = extractCMakeFilesData(data.cmakeFiles,
                                                             sourceDirectory,
@@ -717,6 +696,9 @@ FileApiQtcData extractData(FileApiData &input,
     setupLocationInfoForTargets(result.rootProjectNode.get(), result.buildTargets);
 
     result.ctestPath = input.replyFile.ctestExecutable;
+    result.isMultiConfig = input.replyFile.isMultiConfig;
+    if (input.replyFile.isMultiConfig && input.replyFile.generator != "Ninja Multi-Config")
+        result.usesAllCapsTargets = true;
 
     return result;
 }

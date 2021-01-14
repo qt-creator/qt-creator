@@ -449,8 +449,8 @@ private:
 
         generatorCombo->setCurrentText(CMakeGeneratorKitAspect::generator(kit()));
         extraGeneratorCombo->setCurrentText(CMakeGeneratorKitAspect::extraGenerator(kit()));
-        platformEdit->setText(platformEdit->isEnabled() ? CMakeGeneratorKitAspect::platform(kit()) : QLatin1String("<unsupported>"));
-        toolsetEdit->setText(toolsetEdit->isEnabled() ? CMakeGeneratorKitAspect::toolset(kit()) : QLatin1String("<unsupported>"));
+        platformEdit->setText(platformEdit->isEnabled() ? CMakeGeneratorKitAspect::platform(kit()) : QString());
+        toolsetEdit->setText(toolsetEdit->isEnabled() ? CMakeGeneratorKitAspect::toolset(kit()) : QString());
 
         connect(generatorCombo, &QComboBox::currentTextChanged, updateDialog);
 
@@ -617,6 +617,14 @@ QStringList CMakeGeneratorKitAspect::generatorArguments(const Kit *k)
         result.append("-T" + info.toolset);
 
     return result;
+}
+
+bool CMakeGeneratorKitAspect::isMultiConfigGenerator(const Kit *k)
+{
+    const QString generator = CMakeGeneratorKitAspect::generator(k);
+    return generator.indexOf("Visual Studio") != -1 ||
+           generator == "Xcode" ||
+           generator == "Ninja Multi-Config";
 }
 
 QVariant CMakeGeneratorKitAspect::defaultValue(const Kit *k) const

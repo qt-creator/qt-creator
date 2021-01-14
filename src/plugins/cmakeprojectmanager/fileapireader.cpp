@@ -198,6 +198,16 @@ QString FileApiReader::ctestPath() const
     return m_lastCMakeExitCode == 0 ? m_ctestPath : QString();
 }
 
+bool FileApiReader::isMultiConfig() const
+{
+    return m_isMultiConfig;
+}
+
+bool FileApiReader::usesAllCapsTargets() const
+{
+    return m_usesAllCapsTargets;
+}
+
 std::unique_ptr<CMakeProjectNode> FileApiReader::generateProjectTree(
     const QList<const FileNode *> &allFiles, QString &errorMessage, bool includeHeaderNodes)
 {
@@ -240,13 +250,14 @@ void FileApiReader::endState(const QFileInfo &replyFi)
     const FilePath sourceDirectory = m_parameters.sourceDirectory;
     const FilePath buildDirectory = m_parameters.workDirectory;
     const FilePath topCmakeFile = m_cmakeFiles.size() == 1 ? *m_cmakeFiles.begin() : FilePath{};
+    const QString cmakeBuildType = m_parameters.cmakeBuildType;
 
     m_lastReplyTimestamp = replyFi.lastModified();
 
     m_future = runAsync(ProjectExplorerPlugin::sharedThreadPool(),
-                        [replyFi, sourceDirectory, buildDirectory, topCmakeFile]() {
+                        [replyFi, sourceDirectory, buildDirectory, topCmakeFile, cmakeBuildType]() {
                             auto result = std::make_unique<FileApiQtcData>();
-                            FileApiData data = FileApiParser::parseData(replyFi, result->errorMessage);
+                            FileApiData data = FileApiParser::parseData(replyFi, cmakeBuildType, result->errorMessage);
                             if (!result->errorMessage.isEmpty()) {
                                 qWarning() << result->errorMessage;
                                 *result = generateFallbackData(topCmakeFile,
@@ -274,6 +285,8 @@ void FileApiReader::endState(const QFileInfo &replyFi)
         m_rootProjectNode = std::move(value->rootProjectNode);
         m_knownHeaders = std::move(value->knownHeaders);
         m_ctestPath = std::move(value->ctestPath);
+        m_isMultiConfig = std::move(value->isMultiConfig);
+        m_usesAllCapsTargets = std::move(value->usesAllCapsTargets);
 
         if (value->errorMessage.isEmpty()) {
             emit this->dataAvailable();

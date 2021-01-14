@@ -56,6 +56,7 @@ class ReplyFileContents
 {
 public:
     QString generator;
+    bool isMultiConfig = false;
     QString cmakeExecutable;
     QString ctestExecutable;
     QString cmakeRoot;
@@ -238,14 +239,15 @@ public:
     FileApiDetails::ReplyFileContents replyFile;
     CMakeConfig cache;
     std::vector<FileApiDetails::CMakeFileInfo> cmakeFiles;
-    std::vector<FileApiDetails::Configuration> codemodel;
+    FileApiDetails::Configuration codemodel;
     std::vector<FileApiDetails::TargetDetails> targetDetails;
 };
 
 class FileApiParser
 {
 public:
-    static FileApiData parseData(const QFileInfo &replyFileInfo, QString &errorMessage);
+    static FileApiData parseData(const QFileInfo &replyFileInfo, const QString& cmakeBuildType,
+                                 QString &errorMessage);
 
     static bool setupCMakeFileApi(const Utils::FilePath &buildDirectory,
                                   Utils::FileSystemWatcher &watcher);

@@ -390,6 +390,13 @@ CommandLine CMakeBuildStep::cmakeCommand() const
         return s;
     }));
 
+    auto bs = qobject_cast<CMakeBuildSystem*>(buildSystem());
+    auto bc = qobject_cast<CMakeBuildConfiguration*>(buildConfiguration());
+    if (bc && bs && bs->isMultiConfig()) {
+        cmd.addArg("--config");
+        cmd.addArg(bc->cmakeBuildType());
+    }
+
     if (!m_cmakeArguments->value().isEmpty())
         cmd.addArgs(m_cmakeArguments->value(), CommandLine::Raw);
 
@@ -401,40 +408,27 @@ CommandLine CMakeBuildStep::cmakeCommand() const
     return cmd;
 }
 
-QString CMakeBuildStep::cleanTarget()
+QString CMakeBuildStep::cleanTarget() const
 {
     return QString("clean");
 }
 
-QString CMakeBuildStep::allTarget()
+QString CMakeBuildStep::allTarget() const
 {
-    return QString("all");
+    return m_allTarget;
 }
 
-QString CMakeBuildStep::installTarget()
+QString CMakeBuildStep::installTarget() const
 {
-    return QString("install");
+    return m_installTarget;
 }
 
-QString CMakeBuildStep::installStripTarget()
+QStringList CMakeBuildStep::specialTargets(bool allCapsTargets)
 {
-    return QString("install/strip");
-}
-
-QString CMakeBuildStep::packageTarget()
-{
-    return QString("package");
-}
-
-QString CMakeBuildStep::testTarget()
-{
-    return QString("test");
-}
-
-QStringList CMakeBuildStep::specialTargets()
-{
-    return { allTarget(), cleanTarget(), installTarget(), installStripTarget(),
-             packageTarget(), testTarget() };
+    if (!allCapsTargets)
+        return {"all", "clean", "install", "install/strip", "package", "test"};
+    else
+        return {"ALL_BUILD", "clean", "INSTALL", "PACKAGE", "RUN_TESTS"};
 }
 
 QString CMakeBuildStep::activeRunConfigTarget() const
@@ -523,12 +517,26 @@ void CMakeBuildStep::recreateBuildTargetsModel()
     auto bs = qobject_cast<CMakeBuildSystem *>(buildSystem());
     QStringList targetList = bs ? bs->buildTargetTitles() : QStringList();
 
+    bool usesAllCapsTargets = bs ? bs->usesAllCapsTargets() : false;
+    if (usesAllCapsTargets) {
+        m_allTarget = "ALL_BUILD";
+        m_installTarget = "INSTALL";
+
+        int idx = m_buildTargets.indexOf(QString("all"));
+        if (idx != -1)
+            m_buildTargets[idx] = QString("ALL_BUILD");
+        idx = m_buildTargets.indexOf(QString("install"));
+        if (idx != -1)
+            m_buildTargets[idx] = QString("INSTALL");
+    }
+
     targetList.sort();
+    targetList.removeDuplicates();
 
     addItem(QString(), true);
 
     for (const QString &buildTarget : qAsConst(targetList))
-        addItem(buildTarget, specialTargets().contains(buildTarget));
+        addItem(buildTarget, specialTargets(usesAllCapsTargets).contains(buildTarget));
 
     updateBuildTargetsModel();
 }

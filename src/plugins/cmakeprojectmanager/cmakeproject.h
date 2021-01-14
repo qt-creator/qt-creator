@@ -33,6 +33,7 @@ namespace CMakeProjectManager {
 
 namespace Internal {
 class CMakeProjectImporter;
+class CMakeBuildSystem;
 }
 
 class CMAKE_EXPORT CMakeProject final : public ProjectExplorer::Project
@@ -57,7 +58,7 @@ private:
 
     mutable Internal::CMakeProjectImporter *m_projectImporter = nullptr;
 
-    friend class CMakeBuildSystem;
+    friend class Internal::CMakeBuildSystem;
 };
 
 } // namespace CMakeProjectManager

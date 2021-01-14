@@ -55,6 +55,8 @@ public:
     std::unique_ptr<CMakeProjectNode> rootProjectNode;
     QSet<Utils::FilePath> knownHeaders;
     QString ctestPath;
+    bool isMultiConfig = false;
+    bool usesAllCapsTargets = false;
 };
 
 FileApiQtcData extractData(FileApiData &data,

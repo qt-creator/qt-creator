@@ -287,43 +287,57 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         qCDebug(cmInputLog) << "Failed to read configuration from" << cacheFile << errorMessage;
         return { };
     }
-    auto data = std::make_unique<DirectoryData>();
 
-    data->cmakeHomeDirectory = FilePath::fromUserInput(
-                                QString::fromUtf8(
-                                  CMakeConfigItem::valueOf("CMAKE_HOME_DIRECTORY", config)))
-                                .canonicalPath();
-    const FilePath canonicalProjectDirectory = projectDirectory().canonicalPath();
-    if (data->cmakeHomeDirectory != canonicalProjectDirectory) {
-        *warningMessage = tr("Unexpected source directory \"%1\", expected \"%2\". "
-                             "This can be correct in some situations, for example when "
-                             "importing a standalone Qt test, but usually this is an error. "
-                             "Import the build anyway?")
-                              .arg(data->cmakeHomeDirectory.toUserOutput(),
-                                   canonicalProjectDirectory.toUserOutput());
+    QByteArrayList buildConfigurationTypes = {CMakeConfigItem::valueOf("CMAKE_BUILD_TYPE", config)};
+    if (buildConfigurationTypes.front().isEmpty()) {
+        QByteArray buildConfigurationTypesString =
+                    CMakeConfigItem::valueOf("CMAKE_CONFIGURATION_TYPES", config);
+        if (!buildConfigurationTypesString.isEmpty()) {
+            buildConfigurationTypes = buildConfigurationTypesString.split(';');
+        }
     }
 
-    data->buildDirectory = importPath;
-    data->cmakeBuildType = CMakeConfigItem::valueOf("CMAKE_BUILD_TYPE", config);
+    QList<void *> result;
+    for (auto const &buildType: qAsConst(buildConfigurationTypes)) {
+        auto data = std::make_unique<DirectoryData>();
 
-    data->cmakeBinary = FilePath::fromUtf8(CMakeConfigItem::valueOf("CMAKE_COMMAND", config));
-    data->generator = CMakeConfigItem::valueOf("CMAKE_GENERATOR", config);
-    data->extraGenerator = CMakeConfigItem::valueOf("CMAKE_EXTRA_GENERATOR", config);
-    data->platform = CMakeConfigItem::valueOf("CMAKE_GENERATOR_PLATFORM", config);
-    data->toolset = CMakeConfigItem::valueOf("CMAKE_GENERATOR_TOOLSET", config);
+        data->cmakeHomeDirectory = FilePath::fromUserInput(
+                                    QString::fromUtf8(
+                                      CMakeConfigItem::valueOf("CMAKE_HOME_DIRECTORY", config)))
+                                    .canonicalPath();
+        const FilePath canonicalProjectDirectory = projectDirectory().canonicalPath();
+        if (data->cmakeHomeDirectory != canonicalProjectDirectory) {
+            *warningMessage = tr("Unexpected source directory \"%1\", expected \"%2\". "
+                                 "This can be correct in some situations, for example when "
+                                 "importing a standalone Qt test, but usually this is an error. "
+                                 "Import the build anyway?")
+                                  .arg(data->cmakeHomeDirectory.toUserOutput(),
+                                       canonicalProjectDirectory.toUserOutput());
+        }
 
-    data->sysroot = CMakeConfigItem::valueOf("CMAKE_SYSROOT", config);
+        data->buildDirectory = importPath;
+        data->cmakeBuildType = buildType;
 
-    // Qt:
-    const FilePath qmake = qmakeFromCMakeCache(config);
-    if (!qmake.isEmpty())
-        data->qt = findOrCreateQtVersion(qmake);
+        data->cmakeBinary = FilePath::fromUtf8(CMakeConfigItem::valueOf("CMAKE_COMMAND", config));
+        data->generator = CMakeConfigItem::valueOf("CMAKE_GENERATOR", config);
+        data->extraGenerator = CMakeConfigItem::valueOf("CMAKE_EXTRA_GENERATOR", config);
+        data->platform = CMakeConfigItem::valueOf("CMAKE_GENERATOR_PLATFORM", config);
+        data->toolset = CMakeConfigItem::valueOf("CMAKE_GENERATOR_TOOLSET", config);
 
-    // ToolChains:
-    data->toolChains = extractToolChainsFromCache(config);
+        data->sysroot = CMakeConfigItem::valueOf("CMAKE_SYSROOT", config);
 
-    qCInfo(cmInputLog) << "Offering to import" << importPath.toUserOutput();
-    return {static_cast<void *>(data.release())};
+        // Qt:
+        const FilePath qmake = qmakeFromCMakeCache(config);
+        if (!qmake.isEmpty())
+            data->qt = findOrCreateQtVersion(qmake);
+
+        // ToolChains:
+        data->toolChains = extractToolChainsFromCache(config);
+
+        qCInfo(cmInputLog) << "Offering to import" << importPath.toUserOutput();
+        result.push_back(static_cast<void *>(data.release()));
+    }
+    return result;
 }
 
 bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
