@@ -7706,6 +7706,31 @@ public:
     QTest::newRow("in section after")
         << header << expected << QByteArray() << QByteArray() << Inside;
 
+    header = R"--(
+class@ Foo{
+    int test1;
+    int test2;
+    int test3;
+public:
+};
+)--";
+    expected = R"--(
+class Foo{
+    int test1;
+    int test2;
+    int test3;
+public:
+    Foo(int test2, int test3, int test1) : test1(test1),
+        test2(test2),
+        test3(test3)
+    {}
+};
+)--";
+    // No worry, that is not the default behavior.
+    // Move first member to the back when testing with 3 or more members
+    QTest::newRow("changed parameter order")
+        << header << expected << QByteArray() << QByteArray() << Inside;
+
     const QByteArray common = R"--(
 namespace N{
     template<typename T>

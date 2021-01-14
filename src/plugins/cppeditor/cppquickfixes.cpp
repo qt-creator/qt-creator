@@ -77,12 +77,16 @@
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QHash>
+#include <QHeaderView>
 #include <QInputDialog>
+#include <QMimeData>
 #include <QPair>
+#include <QProxyStyle>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QSharedPointer>
 #include <QStack>
+#include <QTableView>
 #include <QTextCodec>
 #include <QTextCursor>
 #include <QVBoxLayout>
@@ -8410,95 +8414,187 @@ namespace {
 class ConstructorMemberInfo
 {
 public:
-    ConstructorMemberInfo(const QString &name, Symbol *symbol)
+    ConstructorMemberInfo(const QString &name, Symbol *symbol, int numberOfMember)
         : memberVariableName(name)
         , parameterName(memberBaseName(name))
         , symbol(symbol)
         , type(symbol->type())
+        , numberOfMember(numberOfMember)
     {}
 
     QString memberVariableName;
     QString parameterName;
     bool init = true;
+    bool customValueType; // for the generation later
     Symbol *symbol; // for the right type later
     FullySpecifiedType type;
+    int numberOfMember; // first member, second member, ...
 };
 using ConstructorMemberCandidates = std::vector<ConstructorMemberInfo>;
 
-class ConstructorCandidateTreeItem : public Utils::TreeItem
+class ConstructorParams : public QAbstractTableModel
 {
+    std::vector<ConstructorMemberInfo *> &infos;
+
 public:
     enum Column { ShouldInitColumn, MemberNameColumn, ParameterNameColumn };
-    ConstructorCandidateTreeItem(ConstructorMemberInfo *memberInfo)
-        : m_memberInfo(memberInfo)
+    ConstructorParams(QObject *parent, std::vector<ConstructorMemberInfo *> &infos)
+        : QAbstractTableModel(parent)
+        , infos(infos)
     {}
 
-private:
-    QVariant data(int column, int role) const override
+    int rowCount(const QModelIndex & /*parent*/ = {}) const override { return infos.size(); }
+    int columnCount(const QModelIndex & /*parent*/ = {}) const override { return 3; }
+    QVariant data(const QModelIndex &index, int role) const override
     {
-        if (role == Qt::CheckStateRole && column == ShouldInitColumn)
-            return m_memberInfo->init ? Qt::Checked : Qt::Unchecked;
-        if (role == Qt::DisplayRole && column == MemberNameColumn)
-            return m_memberInfo->memberVariableName;
-        if ((role == Qt::DisplayRole || role == Qt::EditRole) && column == ParameterNameColumn)
-            return m_memberInfo->parameterName;
+        if (index.row() < 0 || index.row() >= rowCount())
+            return {};
+        if (role == Qt::CheckStateRole && index.column() == ShouldInitColumn)
+            return infos[index.row()]->init ? Qt::Checked : Qt::Unchecked;
+        if (role == Qt::DisplayRole && index.column() == MemberNameColumn)
+            return infos[index.row()]->memberVariableName;
+        if ((role == Qt::DisplayRole || role == Qt::EditRole)
+            && index.column() == ParameterNameColumn)
+            return infos[index.row()]->parameterName;
+        return {};
+    }
+    bool setData(const QModelIndex &index, const QVariant &value, int role) override
+    {
+        if (index.column() == ShouldInitColumn && role == Qt::CheckStateRole) {
+            infos[index.row()]->init = value.toInt() == Qt::Checked;
+            emit dataChanged(this->index(index.row(), 1), this->index(index.row(), 2));
+            return true;
+        }
+        if (index.column() == ParameterNameColumn && role == Qt::EditRole) {
+            infos[index.row()]->parameterName = value.toString();
+            return true;
+        }
+        return false;
+    }
+    Qt::DropActions supportedDropActions() const override { return Qt::MoveAction; }
+    Qt::ItemFlags flags(const QModelIndex &index) const override
+    {
+        if (!index.isValid())
+            return Qt::ItemIsSelectable | Qt::ItemIsDropEnabled;
+
+        Qt::ItemFlags f{};
+        if (infos[index.row()]->init) {
+            f |= Qt::ItemIsDragEnabled;
+            f |= Qt::ItemIsSelectable;
+        }
+
+        if (index.column() == ShouldInitColumn)
+            return f | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
+        if (!infos[index.row()]->init)
+            return f;
+        if (index.column() == MemberNameColumn)
+            return f | Qt::ItemIsEnabled;
+        if (index.column() == ParameterNameColumn)
+            return f | Qt::ItemIsEnabled | Qt::ItemIsEditable;
         return {};
     }
 
-    bool setData(int column, const QVariant &data, int role) override
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override
     {
-        if (column == ShouldInitColumn && role == Qt::CheckStateRole) {
-            m_memberInfo->init = data.toInt() == Qt::Checked;
-            update();
-            return true;
+        if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+            switch (section) {
+            case ShouldInitColumn:
+                return tr("Initialize in Constructor");
+            case MemberNameColumn:
+                return tr("Member Name");
+            case ParameterNameColumn:
+                return tr("Parameter Name");
+            }
         }
-        if (column == ParameterNameColumn && role == Qt::EditRole) {
-            m_memberInfo->parameterName = data.toString();
+        return {};
+    }
+    bool dropMimeData(const QMimeData *data,
+                      Qt::DropAction /*action*/,
+                      int row,
+                      int /*column*/,
+                      const QModelIndex & /*parent*/) override
+    {
+        if (row == -1)
+            row = rowCount();
+        bool ok;
+        int sourceRow = data->data("application/x-qabstractitemmodeldatalist").toInt(&ok);
+        if (ok) {
+            if (sourceRow == row || row == sourceRow + 1)
+                return false;
+            beginMoveRows({}, sourceRow, sourceRow, {}, row);
+            infos.insert(infos.begin() + row, infos.at(sourceRow));
+            if (row < sourceRow)
+                ++sourceRow;
+            infos.erase(infos.begin() + sourceRow);
             return true;
         }
         return false;
     }
 
-    Qt::ItemFlags flags(int column) const override
+    QMimeData *mimeData(const QModelIndexList &indexes) const override
     {
-        if (column == ShouldInitColumn)
-            return Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
-        if (!m_memberInfo->init)
-            return {};
-        if (column == MemberNameColumn)
-            return Qt::ItemIsEnabled;
-        if (column == ParameterNameColumn)
-            return Qt::ItemIsEnabled | Qt::ItemIsEditable;
-        return {};
+        for (const auto &i : indexes) {
+            if (!i.isValid())
+                continue;
+            auto data = new QMimeData();
+            data->setData("application/x-qabstractitemmodeldatalist",
+                          QString::number(i.row()).toLatin1());
+            return data;
+        }
+        return nullptr;
     }
 
-    ConstructorMemberInfo *const m_memberInfo;
+    class TableViewStyle : public QProxyStyle
+    {
+    public:
+        TableViewStyle(QStyle *style = 0)
+            : QProxyStyle(style)
+        {}
+
+        void drawPrimitive(PrimitiveElement element,
+                           const QStyleOption *option,
+                           QPainter *painter,
+                           const QWidget *widget = 0) const
+        {
+            if (element == QStyle::PE_IndicatorItemViewItemDrop && !option->rect.isNull()) {
+                QStyleOption opt(*option);
+                opt.rect.setLeft(0);
+                if (widget)
+                    opt.rect.setRight(widget->width());
+                QProxyStyle::drawPrimitive(element, &opt, painter, widget);
+                return;
+            }
+            QProxyStyle::drawPrimitive(element, option, painter, widget);
+        }
+    };
 };
 
 class GenerateConstructorDialog : public QDialog
 {
     Q_DECLARE_TR_FUNCTIONS(GenerateConstructorDialog)
 public:
-    GenerateConstructorDialog(const ConstructorMemberCandidates &candidates)
+    GenerateConstructorDialog(std::vector<ConstructorMemberInfo *> &candidates)
         : QDialog()
-        , m_candidates(candidates)
     {
         setWindowTitle(tr("Constructor"));
-        const auto model = new Utils::TreeModel<Utils::TreeItem, ConstructorCandidateTreeItem>(this);
-        model->setHeader(QStringList({
-            tr("Initialize in Constructor"),
-            tr("Member Name"),
-            tr("Parameter Name"),
-        }));
-        for (auto &candidate : m_candidates)
-            model->rootItem()->appendChild(new ConstructorCandidateTreeItem(&candidate));
-        const auto view = new QTreeView(this);
+        const auto model = new ConstructorParams(this, candidates);
+        const auto view = new QTableView(this);
         view->setModel(model);
         int optimalWidth = 0;
         for (int i = 0; i < model->columnCount(QModelIndex{}); ++i) {
             view->resizeColumnToContents(i);
             optimalWidth += view->columnWidth(i);
         }
+        view->resizeRowsToContents();
+        view->setSelectionBehavior(QAbstractItemView::SelectRows);
+        view->setSelectionMode(QAbstractItemView::SingleSelection);
+        view->setDragEnabled(true);
+        view->setDropIndicatorShown(true);
+        view->setDefaultDropAction(Qt::MoveAction);
+        view->setDragDropMode(QAbstractItemView::InternalMove);
+        view->setDragDropOverwriteMode(false);
+        view->horizontalHeader()->setStretchLastSection(true);
+        view->setStyle(new ConstructorParams::TableViewStyle(view->style()));
 
         const auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
         connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -8510,7 +8606,7 @@ public:
         connect(checkBox, &QCheckBox::stateChanged, [model](int state) {
             if (state != Qt::PartiallyChecked) {
                 for (int i = 0; i < model->rowCount(); ++i)
-                    model->setData(model->index(i, ConstructorCandidateTreeItem::ShouldInitColumn),
+                    model->setData(model->index(i, ConstructorParams::ShouldInitColumn),
                                    state,
                                    Qt::CheckStateRole);
             }
@@ -8519,16 +8615,15 @@ public:
             if (checkBox->checkState() == Qt::PartiallyChecked)
                 checkBox->setCheckState(Qt::Checked);
         });
-        connect(model, &QAbstractItemModel::dataChanged, this, [this, checkBox] {
-            const auto selectedCount = Utils::count(m_candidates,
-                                                    [](const ConstructorMemberInfo &mi) {
-                                                        return mi.init;
-                                                    });
+        connect(model, &QAbstractItemModel::dataChanged, this, [&candidates, checkBox] {
+            const auto selectedCount = Utils::count(candidates, [](const ConstructorMemberInfo *mi) {
+                return mi->init;
+            });
 
-            const auto state = [this, selectedCount]() {
+            const auto state = [&candidates, selectedCount]() {
                 if (selectedCount == 0)
                     return Qt::Unchecked;
-                if (static_cast<int>(m_candidates.size()) == selectedCount)
+                if (static_cast<int>(candidates.size()) == selectedCount)
                     return Qt::Checked;
                 return Qt::PartiallyChecked;
             }();
@@ -8549,8 +8644,9 @@ public:
         row->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
         const auto mainLayout = new QVBoxLayout(this);
-        mainLayout->addWidget(new QLabel(tr("Select the members "
-                                            "to be initialized in the constructor.")));
+        mainLayout->addWidget(
+            new QLabel(tr("Select the members to be initialized in the constructor.\n"
+                          "Use drag and drop to change the order of the parameters.")));
         mainLayout->addLayout(row);
         mainLayout->addWidget(checkBox);
         mainLayout->addWidget(view);
@@ -8561,11 +8657,9 @@ public:
         resize(optimalWidth, mainLayout->sizeHint().height());
     }
 
-    ConstructorMemberCandidates candidates() const { return m_candidates; }
     InsertionPointLocator::AccessSpec accessSpec() const { return m_accessSpec; }
 
 private:
-    ConstructorMemberCandidates m_candidates;
     InsertionPointLocator::AccessSpec m_accessSpec;
 };
 
@@ -8585,6 +8679,7 @@ public:
             return;
 
         // Go through all members and find member variable declarations
+        int memberCounter = 0;
         for (auto it = theClass->memberBegin(); it != theClass->memberEnd(); ++it) {
             Symbol *const s = *it;
             if (!s->identifier() || !s->type() || s->type().isTypedef())
@@ -8594,12 +8689,11 @@ public:
             if (s->isDeclaration() && (s->isPrivate() || s->isProtected()) && !s->isStatic()) {
                 const auto name = QString::fromUtf8(s->identifier()->chars(),
                                                     s->identifier()->size());
-                m_candidates.emplace_back(name, s);
+                m_candidates.emplace_back(name, s, memberCounter++);
             }
         }
     }
 
-    ConstructorMemberCandidates &candidates() { return m_candidates; }
     bool isApplicable() const { return !m_candidates.empty(); }
 
     void setTest(bool isTest = true) { m_test = isTest; }
@@ -8607,15 +8701,23 @@ public:
 private:
     void perform() override
     {
+        std::vector<ConstructorMemberInfo *> infos;
+        for (auto &info : m_candidates)
+            infos.push_back(&info);
+
         InsertionPointLocator::AccessSpec accessSpec = InsertionPointLocator::Public;
         if (!m_test) {
-            GenerateConstructorDialog dlg(m_candidates);
+            GenerateConstructorDialog dlg(infos);
             if (dlg.exec() == QDialog::Rejected)
                 return;
-            m_candidates = dlg.candidates();
             accessSpec = dlg.accessSpec();
+        } else if (infos.size() >= 3) {
+            // if we are testing and have 3 or more members => change the order
+            // move first element to the back
+            infos.push_back(infos[0]);
+            infos.erase(infos.begin());
         }
-        if (m_candidates.empty())
+        if (infos.empty())
             return;
         struct GenerateConstructorRefactoringHelper : public GetterSetterRefactoringHelper
         {
@@ -8630,12 +8732,8 @@ private:
                 , m_classAST(classAST)
                 , m_accessSpec(accessSpec)
             {}
-            void generateConstructor(ConstructorMemberCandidates candidates)
+            void generateConstructor(std::vector<ConstructorMemberInfo *> members)
             {
-                ConstructorMemberCandidates members = Utils::filtered(candidates,
-                                                                      [](const auto &mi) {
-                                                                          return mi.init;
-                                                                      });
                 auto constructorLocation = m_settings->determineSetterLocation(members.size());
                 if (constructorLocation == CppQuickFixSettings::FunctionLocation::CppFile
                     && !hasSourceFile())
@@ -8674,26 +8772,29 @@ private:
                 QString inClassDeclaration = overview.prettyName(m_class->name()) + "(";
                 QString constructorBody = members.empty() ? QString(") {}") : QString(") : ");
                 for (auto &member : members) {
-                    bool customValueType;
-                    if (isValueType(member.symbol, &customValueType))
-                        member.type.setConst(false);
+                    if (isValueType(member->symbol, &member->customValueType))
+                        member->type.setConst(false);
                     else
-                        member.type = makeConstRef(member.type);
+                        member->type = makeConstRef(member->type);
 
-                    inClassDeclaration += overview.prettyType(member.type, member.parameterName);
+                    inClassDeclaration += overview.prettyType(member->type, member->parameterName);
                     inClassDeclaration += ", ";
-                    QString param = member.parameterName;
-                    if (customValueType)
-                        param = "std::move(" + member.parameterName + ')';
-                    constructorBody += member.memberVariableName + '(' + param + "),\n";
+                    QString param = member->parameterName;
                     if (implFile) {
-                        FullySpecifiedType type = typeAt(member.type,
+                        FullySpecifiedType type = typeAt(member->type,
                                                          m_class,
                                                          implFile,
                                                          implLoc,
                                                          insertedNamespaces);
-                        implCode += overview.prettyType(type, member.parameterName) + ", ";
+                        implCode += overview.prettyType(type, member->parameterName) + ", ";
                     }
+                }
+                Utils::sort(members, &ConstructorMemberInfo::numberOfMember);
+                for (auto &member : members) {
+                    QString param = member->parameterName;
+                    if (member->customValueType)
+                        param = "std::move(" + member->parameterName + ')';
+                    constructorBody += member->memberVariableName + '(' + param + "),\n";
                 }
                 if (!members.empty()) {
                     inClassDeclaration.resize(inClassDeclaration.length() - 2);
@@ -8732,7 +8833,9 @@ private:
                                                     m_classAST->symbol,
                                                     m_classAST,
                                                     accessSpec);
-        helper.generateConstructor(m_candidates);
+
+        auto members = Utils::filtered(infos, [](const auto mi) { return mi->init; });
+        helper.generateConstructor(std::move(members));
         helper.applyChanges();
     }
 
