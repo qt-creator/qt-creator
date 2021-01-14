@@ -1133,17 +1133,21 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 
     // Ignore signals from the process stub.
     const GdbMi frame = data["frame"];
-    const QString func = frame["from"].data();
     if (terminal()
             && data["reason"].data() == "signal-received"
-            && data["signal-name"].data() == "SIGSTOP"
-            && (func.endsWith("/ld-linux.so.2")
-                || func.endsWith("/ld-linux-x86-64.so.2")))
+            && data["signal-name"].data() == "SIGSTOP")
     {
-        showMessage("INTERNAL CONTINUE AFTER SIGSTOP FROM STUB", LogMisc);
-        notifyInferiorSpontaneousStop();
-        continueInferiorInternal();
-        return;
+        const QString from = frame["from"].data();
+        const QString func = frame["func"].data();
+        if (from.endsWith("/ld-linux.so.2")
+                || from.endsWith("/ld-linux-x86-64.so.2")
+                || func == "clone")
+        {
+            showMessage("INTERNAL CONTINUE AFTER SIGSTOP FROM STUB", LogMisc);
+            notifyInferiorSpontaneousStop();
+            continueInferiorInternal();
+            return;
+        }
     }
 
     if (!m_onStop.isEmpty()) {
