@@ -35,6 +35,7 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
+#include <utils/algorithm.h>
 
 #include <QDir>
 #include <QMessageBox>
@@ -165,25 +166,24 @@ static bool parseTaskFile(QString *errorString, const FilePath &name)
 
 IDocument *TaskListPlugin::openTasks(const FilePath &fileName)
 {
-    foreach (TaskFile *doc, d->m_openFiles) {
-        if (doc->filePath() == fileName)
-            return doc;
-    }
-
-    auto file = new TaskFile(this);
-
+    TaskFile *file = Utils::findOrDefault(d->m_openFiles, Utils::equal(&TaskFile::filePath, fileName));
     QString errorString;
-    if (!file->load(&errorString, fileName)) {
-        QMessageBox::critical(ICore::dialogParent(), tr("File Error"), errorString);
-        delete file;
-        return nullptr;
+    if (file) {
+        file->load(&errorString, fileName);
+    } else {
+        file = new TaskFile(this);
+
+        if (!file->load(&errorString, fileName)) {
+            QMessageBox::critical(ICore::dialogParent(), tr("File Error"), errorString);
+            delete file;
+            return nullptr;
+        }
+
+        d->m_openFiles.append(file);
+
+        // Register with filemanager:
+        DocumentManager::addDocument(file);
     }
-
-    d->m_openFiles.append(file);
-
-    // Register with filemanager:
-    DocumentManager::addDocument(file);
-
     return file;
 }
 
