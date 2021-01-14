@@ -1189,7 +1189,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // build for run config
     dd->m_buildForRunConfigAction = new Utils::ParameterAction(
-                tr("Build for Run Configuration"), tr("Build for Run Configuration \"%1\""),
+                tr("Build for &Run Configuration"), tr("Build for &Run Configuration \"%1\""),
                 Utils::ParameterAction::EnabledWithParameter, this);
     dd->m_buildForRunConfigAction->setIcon(buildIcon);
     cmd = ActionManager::registerAction(dd->m_buildForRunConfigAction,
