@@ -57,8 +57,10 @@ void PreviewTooltipBackend::showTooltip()
         m_path,
         [tooltip = QPointer<PreviewImageTooltip>(m_tooltip.get())](const QImage &image) {
             QMetaObject::invokeMethod(tooltip, [tooltip, image] {
-                if (tooltip)
+                if (tooltip) {
                     tooltip->setImage(image);
+                    tooltip->show();
+                }
             });
         },
         [] {},
@@ -66,7 +68,6 @@ void PreviewTooltipBackend::showTooltip()
     );
 
     reposition();
-    m_tooltip->show();
 }
 
 void PreviewTooltipBackend::hideTooltip()
