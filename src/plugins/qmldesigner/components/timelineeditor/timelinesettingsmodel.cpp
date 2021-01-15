@@ -173,9 +173,12 @@ void TimelineSettingsModel::resetModel()
 
     if (timelineView()->isAttached()) {
         addState(ModelNode());
-        for (const QmlModelState &state :
-             QmlVisualNode(timelineView()->rootModelNode()).states().allStates())
-            addState(state);
+        QmlVisualNode visNode(timelineView()->rootModelNode());
+        if (visNode.isValid()) {
+            const auto allStates = visNode.states().allStates();
+            for (const QmlModelState &state : allStates)
+                addState(state);
+        }
     }
 
     endResetModel();
