@@ -1,0 +1,40 @@
+import QmlProject 1.1
+
+Project {
+    mainFile: "washingMachineUI.qml"
+
+    /* Include .qml, .js, and image files from current directory and subdirectories */
+    QmlFiles {
+        directory: "."
+    }
+
+    JavaScriptFiles {
+        directory: "."
+    }
+
+    ImageFiles {
+        directory: "."
+    }
+
+    Files {
+        filter: "*.conf"
+        files: ["qtquickcontrols2.conf"]
+    }
+
+    Files {
+        filter: "qmldir"
+        directory: "."
+    }
+
+    Files {
+        filter: "*.ttf;*.otf"
+    }
+
+    qtForMCUs: true
+
+    /* List of plugin directories passed to QML runtime */
+    importPaths: [ "imports", "asset_imports" ]
+
+    /* Required for deployment */
+    targetDirectory: "/opt/washingMachineUI"
+}

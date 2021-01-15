@@ -1,0 +1,277 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \example washingMachineUI
+    \ingroup studioexamples
+
+    \title Washing Machine UI
+    \brief Illustrates how to create a UI that can be run both on the desktop
+    and on MCUs.
+
+    \image washingmachineui.png "Start screen"
+
+    \e {Washing Machine UI} is a control panel application for washing machines.
+    The application contains the following screens:
+
+    \list
+        \li \e Start displays a start button
+        \li \e Presets displays recently used wash programs
+        \li \e {Quick Start} enables users to either specify settings or
+            start the selected wash program
+        \li \e {Wash Program} displays wash program settings
+        \li  \e Running displays the progress of the wash program
+    \endlist
+
+    Users select buttons to navigate between the screens.
+    We use \l{Connecting Objects to Signals}{connections} to determine which
+    screen to open when users select a particular button and \l{Adding States}
+    {States} to show the screens. We use the \l{Creating Animations}{timeline}
+    to create progress indicators for buttons and the \e Running screen.
+
+    In addition, all screens contain a small clock component that displays
+    the current time. We implement a \e TimeDate JavaScript component to
+    support this feature on \l{https://doc.qt.io/QtForMCUs/qtul-qmltypes.html}
+    {Qt for MCUs}, which does not support the \l Date QML type at the time of
+    writing.
+
+    \section1 Creating an Application for MCUs
+
+    We use the \uicontrol {Qt for MCUs Application} project template to create
+    an application for MCUs, which support only a subset of the \l{Qt QML},
+    \l {Qt Quick}, and \l{Qt Quick Controls} types. We select \uicontrol File >
+    \uicontrol {New File or Project} > \uicontrol {Qt for MCUs Application} >
+    \uicontrol Choose, and follow the instructions of the wizard to create our
+    project.
+
+    This way, only the components and properties supported on MCUs are visible
+    in \uicontrol Library and \uicontrol Properties, and we won't accidentally
+    add unsupported components to our UI or specify unsupported properties for
+    supported components. For more information, see \l{Creating Projects}.
+
+    In addition, the wizard template creates a generic \c CMakeLists.txt file
+    that we can use to configure and build our example application for running
+    it on MCUs.
+
+    \note This example was developed using Qt for MCUs version 1.6. You
+    cannot run it on older versions, and we cannot make any promises about
+    newer versions.
+
+    \section1 Creating Screens
+
+    For this example, we used an external tool to design the UI and then
+    exported and imported our design into \QDS as assets and components
+    using \QB, as instructed in \l{Exporting from Design Tools}. While
+    exporting, we only picked QML types supported by Qt for MCUs to use
+    for our components. For the button components, we mostly use the
+    \l {basic-image}{Image}, \l Text, and \l {Mouse Area} types. For the
+    screen background, we use the \l {basic-rectangle}{Rectangle} type.
+
+    The text might look different on the desktop and MCUs, because on the
+    desktop we use dynamic font loading, whereas on MCUs fonts are compiled
+    into application sources. Therefore, the text will always be Maven Pro
+    on MCUs, whereas on the desktop you'd need to have Maven Pro installed
+    for it to be used. Usually, you will see the system default font instead.
+
+    We also created a more complicated component called \e MultSegmentArc
+    that we use to indicate that a button is pressed.
+
+    Alternatively, you could create the screens from scratch in \QDS
+    by selecting \uicontrol File > \uicontrol {New File or Project} >
+    \uicontrol {Qt Quick Files}. While designing the screens, you can
+    move reusable components into separate files. For more information,
+    see \l{Creating Components}.
+
+    \section1 Creating a Progress Indicator
+
+    We create a reusable MultSegmentArc component, and use it in our
+    \e Bigbutton and \e Smallbutton components to indicate the button
+    press progress. The component displays an animated arc around a
+    button when it is pressed. On the desktop, users only need to click
+    once to run the animation to the end, whereas on MCUs, they need
+    to keep the button pressed until the animation finishes.
+
+    \image washingmachineui-progress-indicator.png "Button progress indicator"
+
+    Our component is composed of four blocks, into which the arc segments will
+    rotate to indicate progress. To build it, we use \l{basic-image}{Image}
+    components that have pictures of four segments of an arc as sources and
+    \l{basic-rectangle}{Rectangle} components that mask the segments of the
+    arc that should be hidden until they have rotated into place. For the
+    \e Smallbutton component, we override the images with pictures of smaller
+    arc segments that will fit nicely around the small button.
+
+    \image washingmachineui-multisegmentarc.png "MultSegmentArc component"
+
+    We animate the rotation properties of the arc segments to rotate each of
+    them into the next block, one after another.
+
+    We use this component instead of the \l Arc type, which is not supported
+    on MCUs.
+
+    We can now add a timeline animation to make the arc move around the button
+    when the button is pressed. In the \uicontrol Timeline view, we select the
+    \inlineimage plus.png
+    button to add a 1000-frame timeline to the \e root of the component.
+    We'll use the default values for all other fields.
+
+    \image washingmachineui-timeline-settings.png "Timeline settings"
+
+    First, we select the initial arc segment, \e arcSegment1, in
+    \uicontrol Navigator to display its properties in \uicontrol Properties.
+    In the \uicontrol Layout tab, \uicontrol Rotation field, we select
+    \inlineimage icons/action-icon.png
+    , and then select \uicontrol {Insert Keyframe} to insert a keyframe
+    that we can animate in the \uicontrol Timeline view.
+
+    \image washingmachineui-insert-keyframe.png "Inserting keyframe for Rotation property"
+
+    To start recording a rotation animation on the timeline, we check that the
+    playhead is at frame 0 and then select the \inlineimage recordfill.png
+    (\uicontrol {Auto Key (K)}) button (or press \key k).
+
+    First, we set the rotation at frame 0 to -90 in \uicontrol Properties >
+    \uicontrol Layout > \uicontrol Rotation. Next, we move the playhead to
+    frame 250 and set the rotation to 0.
+
+    When we deselect the record button to stop recording the timeline, the
+    new timeline appears in the view.
+
+    \image washingmachineui-timeline.png "Rotation animation in Timeline view"
+
+    We now repeat the above steps to add keyframes for the other arc
+    segments and to animate their rotation property to move from -90
+    at frame 0 to 0 at frame 500 (\e arcSegment2), 750 (\e arcSegment3),
+    and 1000 (\e arcSegment4).
+
+    When we move the playhead in \uicontrol Timeline, we can see the rotation
+    animation in \uicontrol {Form Editor}.
+
+    \image washingmachineui-multsegmentarc.gif "Rotation animation in Form Editor"
+
+    \section1 Creating States
+
+    In our UI, we use connections and states to move between screens. First,
+    we specify the application workflow in \e ApplicationFlow.qml. When the
+    file is open in \uicontrol {Form Editor}, we drag and drop the components
+    that define the screens in the application from \uicontrol Library to
+    \uicontrol Navigator or \uicontrol {Form Editor}: \e StartScreen,
+    \e SettingsScreen, \e PresetsScreen, and \e RunningScreen.
+
+    \image washingmachineui-application-flow.png "startScreen component in different views"
+
+    Because we will use states to display one screen at a time, depending on
+    the choices users make, we can place all the screens on top of each other
+    in the top-left corner of the root component.
+
+    Then, we open the \uicontrol States view to create the \e start,
+    \e settings, \e presets, and \e running \l{Adding States}{states} for
+    displaying a particular screen by selecting \uicontrol {Create New State}.
+
+    \image washingmachineui-states.png "States view"
+
+    In Qt for MCU, states work differently from Qt Quick, and therefore we
+    sometimes use \c when conditions to determine the state to apply, and
+    sometimes switch states using signals and JavaScript expressions.
+
+    \section1 Connecting Buttons to State Changes
+
+    In each file that defines a screen, we connect signals to the
+    button objects to change to a particular state when users select
+    buttons.
+
+    Some signals are predefined for the \l {Mouse Area} type, some we have to
+    add ourselves. For example, let's look at the start button that we use
+    in \e StartScreen.ui.qml. First, we use the \uicontrol {Text Editor} view
+    to create the \c startClicked signal:
+
+    \quotefromfile washingMachineUI/StartScreen.ui.qml
+    \skipto Item {
+    \printuntil startClicked
+
+    Then, we select the mouse area for the start button, \e startMA,
+    in \uicontrol Navigator. In the \uicontrol {Connection View} >
+    \uicontrol Connections tab, we select the \inlineimage plus.png
+    (\uicontrol Add) button to connect the \c onClicked() signal handler
+    of the button to the \c startClicked() signal.
+
+    \image washingmachineui-connections.png "Connections view"
+
+    Then, in \e ApplicationView.qml, we specify that the \c startClicked()
+    signal changes the application state to \e presets:
+
+    \quotefromfile washingMachineUI/ApplicationFlow.qml
+    \skipto Item {
+    \printuntil }
+
+    We have to do it this way, because we are developing for MCUs. We have to
+    use either \c when conditions or set the state directly through code,
+    which overrides \c when conditions. Otherwise, we could just select the
+    action to change to the state that we want in the \uicontrol Action field.
+
+    We create similar connections between button objects and signals in the
+    other screens to apply other actions that move users to other screens.
+
+    For more information, see \l {Connecting Objects to Signals}.
+
+    \section1 Showing the Current Time
+
+    The \l Date QML type is not supported on Qt for MCUs, and the
+    \l{https://doc.qt.io/QtForMCUs/qtul-javascript-environment.html}
+    {implementation of the JavaScript \c Date()} object returns elapsed
+    time since when the application was started instead of the current
+    date and time, as specified in ECMAScript specification.
+
+    To get around this limitation on the desktop, we create our own component
+    in the \e Timedate.qml file with some properties that we will need later
+    to get the current time in hours and minutes:
+
+    \quotefromfile washingMachineUI/Timedate.qml
+    \skipto Item {
+    \printuntil minInt
+
+    On MCUs, we will unfortunately still see the elapsed time since when the
+    application was started. However, this is useful on the \e Running screen
+    for indicating the progress of the selected wash program.
+
+    We use a \l Text component to create a label with formatted text:
+
+    \printuntil }
+
+    We use an \l Item as a logic module to get and format current time
+    information:
+
+    \printuntil }
+
+    We use the \c updateTime() function to display the current time in
+    hours and minutes:
+
+    \printuntil }
+
+    To use two digits for hours and minutes, we use the \c hrsStr, \c minStr,
+    \c hrsInt, and \c minInt properties to add extra zeros for values below
+    10. This way, the clock will display the time as \c 08:00 instead as \c 8:0,
+    for example.
+*/

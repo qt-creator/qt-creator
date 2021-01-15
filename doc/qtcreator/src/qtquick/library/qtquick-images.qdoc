@@ -29,6 +29,7 @@
     \nextpage quick-controls.html
 
     \title Images
+    \target basic-image
 
     The Image type is used for adding images to the UI in several supported
     formats, including bitmap formats, such as PNG and JPEG, and vector graphics
