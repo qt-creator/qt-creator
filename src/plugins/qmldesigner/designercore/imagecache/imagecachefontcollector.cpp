@@ -25,7 +25,9 @@
 
 #include "imagecachefontcollector.h"
 
+#ifndef QMLDESIGNER_TEST // Tests don't care about UI, and can't have theme dependency here
 #include <theme.h>
+#endif
 
 #include <QtGui/qrawfont.h>
 #include <QtGui/qpainter.h>
@@ -65,7 +67,11 @@ void ImageCacheFontCollector::start(Utils::SmallStringView name,
         if (ok)
             dim = newDim;
     }
+#ifndef QMLDESIGNER_TEST
     QColor textColor(Theme::getColor(Theme::DStextColor));
+#else
+    QColor textColor;
+#endif
     if (hints.size() >= 2)
         textColor.setNamedColor(hints[1]);
     QString text = hints.size() >= 3 ? hints[2] : "Abc";
