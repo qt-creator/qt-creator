@@ -1773,8 +1773,11 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
 void DebuggerEngine::notifyDebuggerProcessFinished(int exitCode,
     QProcess::ExitStatus exitStatus, const QString &backendName)
 {
-    showMessage(QString("%1 PROCESS FINISHED, status %2, exit code %3")
-                .arg(backendName).arg(exitStatus).arg(exitCode));
+    showMessage(QString("%1 PROCESS FINISHED, status %2, exit code %3 (0x%4)")
+                    .arg(backendName)
+                    .arg(exitStatus)
+                    .arg(exitCode)
+                    .arg(QString::number(exitCode, 16)));
 
     switch (state()) {
     case DebuggerFinished:
