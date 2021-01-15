@@ -143,6 +143,7 @@ void tst_FlameGraphView::initTestCase()
     widget.resize(800, 600);
 
     widget.show();
+    QVERIFY(QTest::qWaitForWindowExposed(widget.windowHandle()));
 }
 
 void tst_FlameGraphView::testZoom()
@@ -154,20 +155,20 @@ void tst_FlameGraphView::testZoom()
     QWindow *window = widget.windowHandle();
 
     QCOMPARE(selectedTypeId(), -1);
-    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, QPoint(widget.width() - 5,
-                                                                     widget.height() - 5));
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, QPoint(widget.width() - 15,
+                                                                     widget.height() - 15));
     QTRY_VERIFY(selectedTypeId() != -1);
     const int typeId1 = selectedTypeId();
 
-    QTest::mouseDClick(window, Qt::LeftButton, Qt::NoModifier, QPoint(5, widget.height() - 5));
+    QTest::mouseDClick(window, Qt::LeftButton, Qt::NoModifier, QPoint(15, widget.height() - 15));
     QTRY_VERIFY(selectedTypeId() != typeId1);
     QVERIFY(selectedTypeId() != -1);
 
     QTest::mouseDClick(window, Qt::LeftButton, Qt::NoModifier, QPoint(widget.width() / 2,
                                                                       widget.height() / 2));
     QTRY_COMPARE(selectedTypeId(), -1);
-    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, QPoint(widget.width() - 5,
-                                                                     widget.height() - 5));
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, QPoint(widget.width() - 15,
+                                                                     widget.height() - 15));
     QTRY_COMPARE(selectedTypeId(), typeId1);
 }
 
