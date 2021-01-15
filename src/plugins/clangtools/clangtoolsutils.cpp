@@ -123,6 +123,12 @@ QString createDiagnosticToolTipString(
         lines << steps;
     }
 
+    const QString url = documentationUrl(diagnostic.name);
+    if (!url.isEmpty()) {
+        lines << qMakePair(QCoreApplication::translate("ClangTools::Diagnostic", "Documentation:"),
+                           QString("<a href=\"%1\">%1</a>").arg(url));
+    }
+
     QString html = QLatin1String("<html>"
                                  "<head>"
                                  "<style>dt { font-weight:bold; } dd { font-family: monospace; }</style>"
