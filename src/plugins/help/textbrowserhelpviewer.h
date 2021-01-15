@@ -43,7 +43,6 @@ public:
     explicit TextBrowserHelpViewer(QWidget *parent = nullptr);
     ~TextBrowserHelpViewer() override;
 
-    QFont viewerFont() const override;
     void setViewerFont(const QFont &font) override;
 
     void setScale(qreal scale) override;

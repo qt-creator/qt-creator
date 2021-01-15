@@ -534,16 +534,6 @@ MacWebKitHelpViewer::~MacWebKitHelpViewer()
 
 }
 
-QFont MacWebKitHelpViewer::viewerFont() const
-{
-    @autoreleasepool {
-        WebPreferences *preferences = m_widget->webView().preferences;
-        QString family = QString::fromNSString([preferences standardFontFamily]);
-        int size = [preferences defaultFontSize];
-        return QFont(family, size);
-    }
-}
-
 void MacWebKitHelpViewer::setViewerFont(const QFont &font)
 {
     @autoreleasepool {

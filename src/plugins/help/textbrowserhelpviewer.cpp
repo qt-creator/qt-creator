@@ -75,11 +75,6 @@ TextBrowserHelpViewer::TextBrowserHelpViewer(QWidget *parent)
 
 TextBrowserHelpViewer::~TextBrowserHelpViewer() = default;
 
-QFont TextBrowserHelpViewer::viewerFont() const
-{
-    return m_textBrowser->font();
-}
-
 void TextBrowserHelpViewer::setViewerFont(const QFont &newFont)
 {
     setFontAndScale(newFont, LocalHelpManager::fontZoom() / 100.0);

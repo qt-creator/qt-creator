@@ -51,7 +51,6 @@ public:
     explicit HelpViewer(QWidget *parent = nullptr);
     ~HelpViewer() override;
 
-    virtual QFont viewerFont() const = 0;
     virtual void setViewerFont(const QFont &font) = 0;
 
     virtual void setScale(qreal scale) = 0;

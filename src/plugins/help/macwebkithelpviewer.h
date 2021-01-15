@@ -70,7 +70,6 @@ public:
     explicit MacWebKitHelpViewer(QWidget *parent = nullptr);
     ~MacWebKitHelpViewer() override;
 
-    QFont viewerFont() const override;
     void setViewerFont(const QFont &font) override;
 
     void setScale(qreal scale) override;

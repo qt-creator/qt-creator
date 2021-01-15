@@ -82,7 +82,6 @@ class WebEngineHelpViewer : public HelpViewer
 public:
     explicit WebEngineHelpViewer(QWidget *parent = nullptr);
 
-    QFont viewerFont() const override;
     void setViewerFont(const QFont &font) override;
     void setScale(qreal scale) override;
     QString title() const override;

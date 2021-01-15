@@ -45,7 +45,6 @@ public:
     explicit LiteHtmlHelpViewer(QWidget *parent = nullptr);
     ~LiteHtmlHelpViewer() override;
 
-    QFont viewerFont() const override;
     void setViewerFont(const QFont &font) override;
 
     void setScale(qreal scale) override;

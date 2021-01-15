@@ -89,11 +89,6 @@ LiteHtmlHelpViewer::LiteHtmlHelpViewer(QWidget *parent)
 
 LiteHtmlHelpViewer::~LiteHtmlHelpViewer() = default;
 
-QFont LiteHtmlHelpViewer::viewerFont() const
-{
-    return m_viewer->defaultFont();
-}
-
 void LiteHtmlHelpViewer::setViewerFont(const QFont &newFont)
 {
     m_viewer->setDefaultFont(newFont);

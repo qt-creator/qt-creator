@@ -159,13 +159,6 @@ WebEngineHelpViewer::WebEngineHelpViewer(QWidget *parent) :
 #endif
 }
 
-QFont WebEngineHelpViewer::viewerFont() const
-{
-    QWebEngineSettings *webSettings = m_widget->settings();
-    return QFont(webSettings->fontFamily(QWebEngineSettings::StandardFont),
-                 webSettings->fontSize(QWebEngineSettings::DefaultFontSize));
-}
-
 void WebEngineHelpViewer::setViewerFont(const QFont &font)
 {
     QWebEngineSettings *webSettings = m_widget->settings();
