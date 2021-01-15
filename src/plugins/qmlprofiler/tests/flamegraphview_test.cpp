@@ -46,7 +46,7 @@ void FlameGraphViewTest::initTestCase()
     FlameGraphModelTest::generateData(&manager, &aggregator);
     view.resize(500, 500);
     view.show();
-    QVERIFY(QTest::qWaitForWindowExposed(&view));
+    QTRY_VERIFY(QTest::qWaitForWindowExposed(&view));
 }
 
 void FlameGraphViewTest::testSelection()
