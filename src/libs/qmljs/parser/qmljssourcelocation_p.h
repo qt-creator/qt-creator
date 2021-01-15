@@ -27,6 +27,8 @@
 
 #include "qmljsglobal_p.h"
 
+#include <QtCore/QStringView>
+
 //
 //  W A R N I N G
 //  -------------
@@ -55,6 +57,30 @@ public:
     quint32 begin() const { return offset; }
     quint32 end() const { return offset + length; }
 
+    SourceLocation zeroLength() const { return SourceLocation(offset, 0, startLine, startColumn); }
+    SourceLocation zeroLengthEnd(QStringView text) const {
+        quint32 i = offset;
+        quint32 endLine = startLine;
+        quint32 endColumn = startColumn;
+        while (i < end()) {
+            QChar c = text.at(i);
+            switch (c.unicode()) {
+            case '\n':
+                if (i + 1 < end() && text.at(i + 1) == QLatin1Char('\r'))
+                    ++i;
+                Q_FALLTHROUGH();
+            case '\r':
+                ++endLine;
+                ++endColumn;
+                break;
+            default:
+                ++endColumn;
+            }
+            ++i;
+        }
+        return SourceLocation(offset + length, 0, endLine, endColumn);
+    }
+
 // attributes
     // ### encode
     quint32 offset;
@@ -66,4 +92,3 @@ public:
 } // namespace QmlJS
 
 QT_QML_END_NAMESPACE
-

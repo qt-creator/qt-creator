@@ -2893,11 +2893,8 @@ case 241: {
     case 512: {
         if (!ensureNoFunctionTypeAnnotations(sym(5).TypeAnnotation, sym(3).FormalParameterList))
             return false;
-        AST::FunctionDeclaration *node = new (pool)
-            AST::FunctionDeclaration(QStringView(),
-                                     sym(3).FormalParameterList,
-                                     sym(7).StatementList,
-                                     /*type annotation*/ nullptr);
+        AST::FunctionDeclaration *node = new (pool) AST::FunctionDeclaration(QStringView(), sym(3).FormalParameterList, sym(7).StatementList,
+                                                                             /*type annotation*/nullptr);
         node->functionToken = loc(1);
         node->lparenToken = loc(2);
         node->rparenToken = loc(4);
@@ -2928,11 +2925,8 @@ case 241: {
     case 514: {
         if (!ensureNoFunctionTypeAnnotations(sym(5).TypeAnnotation, sym(3).FormalParameterList))
             return false;
-        AST::FunctionExpression *node = new (pool)
-            AST::FunctionExpression(QStringView(),
-                                    sym(3).FormalParameterList,
-                                    sym(7).StatementList,
-                                    /*type annotation*/ nullptr);
+        AST::FunctionExpression *node = new (pool) AST::FunctionExpression(QStringView(), sym(3).FormalParameterList, sym(7).StatementList,
+                                                                           /*type annotation*/nullptr);
         node->functionToken = loc(1);
         node->lparenToken = loc(2);
         node->rparenToken = loc(4);
@@ -3001,34 +2995,32 @@ case 241: {
 
     case 528: {
         AST::ReturnStatement *ret = new (pool) AST::ReturnStatement(sym(4).Expression);
-        const auto zeroLength = [](SourceLocation l){ l.length = 0; return l; };
-        ret->returnToken = zeroLength(sym(4).Node->firstSourceLocation());
-        ret->semicolonToken = zeroLength(sym(4).Node->lastSourceLocation());
+        ret->returnToken = sym(4).Node->firstSourceLocation().zeroLength();
+        ret->semicolonToken = sym(4).Node->lastSourceLocation().zeroLengthEnd(driver->code());
         AST::StatementList *statements = (new (pool) AST::StatementList(ret))->finish();
         AST::FunctionExpression *f = new (pool)
             AST::FunctionExpression(QStringView(), sym(1).FormalParameterList, statements);
         f->isArrowFunction = true;
-        f->functionToken = sym(1).Node ? sym(1).Node->firstSourceLocation() : loc(1);
-        f->lbraceToken = zeroLength(sym(4).Node->firstSourceLocation());
-        f->rbraceToken = zeroLength(sym(4).Node->lastSourceLocation());
+        f->functionToken = sym(1).Node ? sym(1).Node->firstSourceLocation().zeroLength() : loc(1).zeroLength();
+        f->lbraceToken = sym(4).Node->firstSourceLocation().zeroLength();
+        f->rbraceToken = sym(4).Node->lastSourceLocation().zeroLengthEnd(driver->code());
         sym(1).Node = f;
     } break;
 
-#line 4035 "qmljs.g"
+#line 4036 "qmljs.g"
   case 529: Q_FALLTHROUGH(); 
-#line 4037 "qmljs.g"
+#line 4038 "qmljs.g"
 
     case 530: {
-        AST::FunctionExpression *f = new (pool)
-            AST::FunctionExpression(QStringView(), sym(1).FormalParameterList, sym(6).StatementList);
+        AST::FunctionExpression *f = new (pool) AST::FunctionExpression(QStringView(), sym(1).FormalParameterList, sym(6).StatementList);
         f->isArrowFunction = true;
-        f->functionToken = sym(1).Node ? sym(1).Node->firstSourceLocation() : loc(1);
+        f->functionToken = sym(1).Node ? sym(1).Node->firstSourceLocation().zeroLength() : loc(1).zeroLength();
         f->lbraceToken = loc(5);
         f->rbraceToken = loc(7);
         sym(1).Node = f;
     } break;
 
-#line 4049 "qmljs.g"
+#line 4050 "qmljs.g"
 
     case 531: {
         AST::PatternElement *e = new (pool) AST::PatternElement(stringRef(1), /*type annotation*/nullptr, nullptr, AST::PatternElement::Binding);
@@ -3036,7 +3028,7 @@ case 241: {
         sym(1).FormalParameterList = (new (pool) AST::FormalParameterList(nullptr, e))->finish(pool);
     } break;
 
-#line 4060 "qmljs.g"
+#line 4061 "qmljs.g"
 
     case 532: {
         if (coverExpressionType != CE_FormalParameterList) {
@@ -3050,14 +3042,14 @@ case 241: {
         }
     } break;
 
-#line 4078 "qmljs.g"
+#line 4079 "qmljs.g"
 
     case 533: {
         if (lookaheadToken(lexer) == T_LBRACE)
             pushToken(T_FORCE_BLOCK);
     } break;
 
-#line 4086 "qmljs.g"
+#line 4087 "qmljs.g"
 
     case 534: {
         if (!ensureNoFunctionTypeAnnotations(sym(5).TypeAnnotation, sym(3).FormalParameterList))
@@ -3073,7 +3065,7 @@ case 241: {
         sym(1).Node = node;
     } break;
 
-#line 4103 "qmljs.g"
+#line 4104 "qmljs.g"
 
     case 535: {
         if (!ensureNoFunctionTypeAnnotations(sym(6).TypeAnnotation, sym(4).FormalParameterList))
@@ -3090,7 +3082,7 @@ case 241: {
         sym(1).Node = node;
     } break;
 
-#line 4122 "qmljs.g"
+#line 4123 "qmljs.g"
 
     case 536: {
         if (!ensureNoFunctionTypeAnnotations(sym(5).TypeAnnotation, /*formals*/nullptr))
@@ -3106,7 +3098,7 @@ case 241: {
         sym(1).Node = node;
     } break;
 
-#line 4139 "qmljs.g"
+#line 4140 "qmljs.g"
 
     case 537: {
         if (!ensureNoFunctionTypeAnnotations(sym(6).TypeAnnotation, sym(4).FormalParameterList))
@@ -3122,27 +3114,27 @@ case 241: {
         sym(1).Node = node;
     } break;
 
-#line 4157 "qmljs.g"
+#line 4158 "qmljs.g"
 
     case 538: {
         AST::FormalParameterList *node = (new (pool) AST::FormalParameterList(nullptr, sym(1).PatternElement))->finish(pool);
         sym(1).Node = node;
     } break;
 
-#line 4165 "qmljs.g"
+#line 4166 "qmljs.g"
 
     case 539: {
         lexer->enterGeneratorBody();
     } break;
 
-#line 4172 "qmljs.g"
+#line 4173 "qmljs.g"
 
     case 540: {
         --functionNestingLevel;
         lexer->leaveGeneratorBody();
     } break;
 
-#line 4182 "qmljs.g"
+#line 4183 "qmljs.g"
 
     case 542: {
         AST::FunctionDeclaration *node = new (pool) AST::FunctionDeclaration(stringRef(2), sym(4).FormalParameterList, sym(7).StatementList);
@@ -3156,11 +3148,10 @@ case 241: {
         sym(1).Node = node;
     } break;
 
-#line 4198 "qmljs.g"
+#line 4199 "qmljs.g"
 
     case 544: {
-        AST::FunctionDeclaration *node = new (pool)
-            AST::FunctionDeclaration(QStringView(), sym(3).FormalParameterList, sym(6).StatementList);
+        AST::FunctionDeclaration *node = new (pool) AST::FunctionDeclaration(QStringView(), sym(3).FormalParameterList, sym(6).StatementList);
         node->functionToken = loc(1);
         node->lparenToken = loc(2);
         node->rparenToken = loc(4);
@@ -3170,7 +3161,7 @@ case 241: {
         sym(1).Node = node;
     } break;
 
-#line 4212 "qmljs.g"
+#line 4213 "qmljs.g"
 
     case 545: {
         AST::FunctionExpression *node = new (pool) AST::FunctionExpression(stringRef(2), sym(4).FormalParameterList, sym(7).StatementList);
@@ -3185,11 +3176,10 @@ case 241: {
         sym(1).Node = node;
     } break;
 
-#line 4228 "qmljs.g"
+#line 4229 "qmljs.g"
 
     case 546: {
-        AST::FunctionExpression *node = new (pool)
-            AST::FunctionExpression(QStringView(), sym(3).FormalParameterList, sym(6).StatementList);
+        AST::FunctionExpression *node = new (pool) AST::FunctionExpression(QStringView(), sym(3).FormalParameterList, sym(6).StatementList);
         node->functionToken = loc(1);
         node->lparenToken = loc(2);
         node->rparenToken = loc(4);
@@ -3199,9 +3189,9 @@ case 241: {
         sym(1).Node = node;
     } break;
 
-#line 4244 "qmljs.g"
+#line 4245 "qmljs.g"
   case 548: Q_FALLTHROUGH(); 
-#line 4246 "qmljs.g"
+#line 4247 "qmljs.g"
 
     case 549: {
         AST::YieldExpression *node = new (pool) AST::YieldExpression();
@@ -3209,9 +3199,9 @@ case 241: {
         sym(1).Node = node;
     } break;
 
-#line 4255 "qmljs.g"
+#line 4256 "qmljs.g"
   case 550: Q_FALLTHROUGH(); 
-#line 4257 "qmljs.g"
+#line 4258 "qmljs.g"
 
     case 551: {
         AST::YieldExpression *node = new (pool) AST::YieldExpression(sym(3).Expression);
@@ -3220,9 +3210,9 @@ case 241: {
         sym(1).Node = node;
     } break;
 
-#line 4267 "qmljs.g"
+#line 4268 "qmljs.g"
   case 552: Q_FALLTHROUGH(); 
-#line 4269 "qmljs.g"
+#line 4270 "qmljs.g"
 
     case 553: {
         AST::YieldExpression *node = new (pool) AST::YieldExpression(sym(2).Expression);
@@ -3230,7 +3220,7 @@ case 241: {
         sym(1).Node = node;
     } break;
 
-#line 4279 "qmljs.g"
+#line 4280 "qmljs.g"
 
     case 554: {
         AST::ClassDeclaration *node = new (pool) AST::ClassDeclaration(stringRef(2), sym(3).Expression, sym(5).ClassElementList);
@@ -3241,7 +3231,7 @@ case 241: {
         sym(1).Node = node;
     } break;
 
-#line 4291 "qmljs.g"
+#line 4292 "qmljs.g"
 
     case 555: {
         AST::ClassExpression *node = new (pool) AST::ClassExpression(stringRef(2), sym(3).Expression, sym(5).ClassElementList);
@@ -3252,68 +3242,66 @@ case 241: {
         sym(1).Node = node;
     } break;
 
-#line 4303 "qmljs.g"
+#line 4304 "qmljs.g"
 
     case 556: {
-        AST::ClassDeclaration *node = new (pool)
-            AST::ClassDeclaration(QStringView(), sym(2).Expression, sym(4).ClassElementList);
+        AST::ClassDeclaration *node = new (pool) AST::ClassDeclaration(QStringView(), sym(2).Expression, sym(4).ClassElementList);
         node->classToken = loc(1);
         node->lbraceToken = loc(3);
         node->rbraceToken = loc(5);
         sym(1).Node = node;
     } break;
 
-#line 4314 "qmljs.g"
+#line 4315 "qmljs.g"
 
     case 557: {
-        AST::ClassExpression *node = new (pool)
-            AST::ClassExpression(QStringView(), sym(2).Expression, sym(4).ClassElementList);
+        AST::ClassExpression *node = new (pool) AST::ClassExpression(QStringView(), sym(2).Expression, sym(4).ClassElementList);
         node->classToken = loc(1);
         node->lbraceToken = loc(3);
         node->rbraceToken = loc(5);
         sym(1).Node = node;
     } break;
 
-#line 4327 "qmljs.g"
+#line 4328 "qmljs.g"
 
     case 559: {
         lexer->setStaticIsKeyword(true);
     } break;
 
-#line 4334 "qmljs.g"
+#line 4335 "qmljs.g"
  case 560: 
-#line 4336 "qmljs.g"
+#line 4337 "qmljs.g"
 
     case 561: {
         lexer->setStaticIsKeyword(false);
     } break;
 
-#line 4343 "qmljs.g"
+#line 4344 "qmljs.g"
 
     case 562: {
         sym(1).Node = nullptr;
     } break;
 
-#line 4350 "qmljs.g"
+#line 4351 "qmljs.g"
 
     case 563: {
         sym(1).Node = sym(2).Node;
     } break;
 
-#line 4357 "qmljs.g"
+#line 4358 "qmljs.g"
 
     case 564: {
         sym(1).Node = nullptr;
     } break;
 
-#line 4364 "qmljs.g"
+#line 4365 "qmljs.g"
 
     case 565: {
         if (sym(1).Node)
             sym(1).Node = sym(1).ClassElementList->finish();
     } break;
 
-#line 4374 "qmljs.g"
+#line 4375 "qmljs.g"
 
     case 567: {
         if (sym(1).Node) {
@@ -3324,14 +3312,14 @@ case 241: {
         }
     } break;
 
-#line 4386 "qmljs.g"
+#line 4387 "qmljs.g"
 
     case 568: {
         AST::ClassElementList *node = new (pool) AST::ClassElementList(sym(1).PatternProperty, false);
         sym(1).Node = node;
     } break;
 
-#line 4394 "qmljs.g"
+#line 4395 "qmljs.g"
 
     case 569: {
         lexer->setStaticIsKeyword(true);
@@ -3339,56 +3327,56 @@ case 241: {
         sym(1).Node = node;
     } break;
 
-#line 4403 "qmljs.g"
+#line 4404 "qmljs.g"
 
     case 570: {
         sym(1).Node = nullptr;
     } break;
 
-#line 4412 "qmljs.g"
+#line 4413 "qmljs.g"
 
     case 571: {
         sym(1).Node = nullptr;
     } break;
 
-#line 4421 "qmljs.g"
+#line 4422 "qmljs.g"
 
     case 573: {
         sym(1).Node = new (pool) AST::Program(sym(1).StatementList->finish());
     } break;
 
-#line 4428 "qmljs.g"
+#line 4429 "qmljs.g"
   case 574: {
         sym(1).Node = new (pool) AST::ESModule(sym(1).StatementList);
     } break;
 
-#line 4434 "qmljs.g"
+#line 4435 "qmljs.g"
 
     case 575: {
         sym(1).StatementList = sym(1).StatementList->finish();
     } break;
 
-#line 4441 "qmljs.g"
+#line 4442 "qmljs.g"
 
     case 576: {
         sym(1).StatementList = nullptr;
     } break;
 
-#line 4451 "qmljs.g"
+#line 4452 "qmljs.g"
 
     case 579: {
         sym(1).StatementList = sym(1).StatementList->append(sym(2).StatementList);
     } break;
 
-#line 4459 "qmljs.g"
+#line 4460 "qmljs.g"
  case 580:  Q_FALLTHROUGH(); 
-#line 4461 "qmljs.g"
+#line 4462 "qmljs.g"
 
     case 581: {
         sym(1).StatementList = new (pool) AST::StatementList(sym(1).Node);
     } break;
 
-#line 4470 "qmljs.g"
+#line 4471 "qmljs.g"
 
     case 583: {
         auto decl = new (pool) AST::ImportDeclaration(sym(2).ImportClause, sym(3).FromClause);
@@ -3396,7 +3384,7 @@ case 241: {
         sym(1).Node = decl;
     } break;
 
-#line 4478 "qmljs.g"
+#line 4479 "qmljs.g"
 
     case 584: {
         auto decl = new (pool) AST::ImportDeclaration(stringRef(2));
@@ -3405,7 +3393,7 @@ case 241: {
         sym(1).Node = decl;
     } break;
 
-#line 4488 "qmljs.g"
+#line 4489 "qmljs.g"
 
     case 585: {
         auto clause = new (pool) AST::ImportClause(stringRef(1));
@@ -3413,19 +3401,19 @@ case 241: {
         sym(1).ImportClause = clause;
     } break;
 
-#line 4496 "qmljs.g"
+#line 4497 "qmljs.g"
 
     case 586: {
         sym(1).ImportClause = new (pool) AST::ImportClause(sym(1).NameSpaceImport);
     } break;
 
-#line 4502 "qmljs.g"
+#line 4503 "qmljs.g"
 
     case 587: {
         sym(1).ImportClause = new (pool) AST::ImportClause(sym(1).NamedImports);
     } break;
 
-#line 4508 "qmljs.g"
+#line 4509 "qmljs.g"
 
     case 588: {
         auto importClause = new (pool) AST::ImportClause(stringRef(1), sym(3).NameSpaceImport);
@@ -3433,7 +3421,7 @@ case 241: {
         sym(1).ImportClause = importClause;
     } break;
 
-#line 4516 "qmljs.g"
+#line 4517 "qmljs.g"
 
     case 589: {
         auto importClause = new (pool) AST::ImportClause(stringRef(1), sym(3).NamedImports);
@@ -3441,7 +3429,7 @@ case 241: {
         sym(1).ImportClause = importClause;
     } break;
 
-#line 4527 "qmljs.g"
+#line 4528 "qmljs.g"
 
     case 591: {
         auto import = new (pool) AST::NameSpaceImport(stringRef(3));
@@ -3450,7 +3438,7 @@ case 241: {
         sym(1).NameSpaceImport = import;
     } break;
 
-#line 4537 "qmljs.g"
+#line 4538 "qmljs.g"
 
     case 592: {
         auto namedImports = new (pool) AST::NamedImports();
@@ -3459,7 +3447,7 @@ case 241: {
         sym(1).NamedImports = namedImports;
     } break;
 
-#line 4546 "qmljs.g"
+#line 4547 "qmljs.g"
 
     case 593: {
         auto namedImports = new (pool) AST::NamedImports(sym(2).ImportsList->finish());
@@ -3468,7 +3456,7 @@ case 241: {
         sym(1).NamedImports = namedImports;
     } break;
 
-#line 4555 "qmljs.g"
+#line 4556 "qmljs.g"
 
     case 594: {
         auto namedImports = new (pool) AST::NamedImports(sym(2).ImportsList->finish());
@@ -3477,7 +3465,7 @@ case 241: {
         sym(1).NamedImports = namedImports;
     } break;
 
-#line 4565 "qmljs.g"
+#line 4566 "qmljs.g"
 
     case 595: {
         auto clause = new (pool) AST::FromClause(stringRef(2));
@@ -3486,7 +3474,7 @@ case 241: {
         sym(1).FromClause = clause;
     } break;
 
-#line 4575 "qmljs.g"
+#line 4576 "qmljs.g"
 
     case 596: {
         auto importsList = new (pool) AST::ImportsList(sym(1).ImportSpecifier);
@@ -3494,7 +3482,7 @@ case 241: {
         sym(1).ImportsList = importsList;
     } break;
 
-#line 4583 "qmljs.g"
+#line 4584 "qmljs.g"
 
     case 597: {
         auto importsList = new (pool) AST::ImportsList(sym(1).ImportsList, sym(3).ImportSpecifier);
@@ -3502,7 +3490,7 @@ case 241: {
         sym(1).ImportsList = importsList;
     } break;
 
-#line 4595 "qmljs.g"
+#line 4596 "qmljs.g"
 
     case 598: {
         auto importSpecifier = new (pool) AST::ImportSpecifier(stringRef(1));
@@ -3510,7 +3498,7 @@ case 241: {
         sym(1).ImportSpecifier = importSpecifier;
     } break;
 
-#line 4603 "qmljs.g"
+#line 4604 "qmljs.g"
 
     case 599: {
     auto importSpecifier = new (pool) AST::ImportSpecifier(stringRef(1), stringRef(3));
@@ -3519,7 +3507,7 @@ case 241: {
     sym(1).ImportSpecifier = importSpecifier;
     } break;
 
-#line 4620 "qmljs.g"
+#line 4621 "qmljs.g"
 
     case 602: {
         int token = lookaheadToken(lexer);
@@ -3527,7 +3515,7 @@ case 241: {
             pushToken(T_FORCE_DECLARATION);
     } break;
 
-#line 4629 "qmljs.g"
+#line 4630 "qmljs.g"
 
     case 603: {
         auto exportDeclaration = new (pool) AST::ExportDeclaration(sym(3).FromClause);
@@ -3535,7 +3523,7 @@ case 241: {
         sym(1).ExportDeclaration = exportDeclaration;
     } break;
 
-#line 4637 "qmljs.g"
+#line 4638 "qmljs.g"
 
     case 604: {
         auto exportDeclaration = new (pool) AST::ExportDeclaration(sym(2).ExportClause, sym(3).FromClause);
@@ -3543,7 +3531,7 @@ case 241: {
         sym(1).ExportDeclaration = exportDeclaration;
     } break;
 
-#line 4645 "qmljs.g"
+#line 4646 "qmljs.g"
 
     case 605: {
         auto exportDeclaration = new (pool) AST::ExportDeclaration(sym(2).ExportClause);
@@ -3551,9 +3539,9 @@ case 241: {
         sym(1).ExportDeclaration = exportDeclaration;
     } break;
 
-#line 4653 "qmljs.g"
+#line 4654 "qmljs.g"
  case 606:  Q_FALLTHROUGH(); 
-#line 4655 "qmljs.g"
+#line 4656 "qmljs.g"
 
     case 607: {
         auto exportDeclaration = new (pool) AST::ExportDeclaration(/*exportDefault=*/false, sym(2).Node);
@@ -3561,7 +3549,7 @@ case 241: {
         sym(1).ExportDeclaration = exportDeclaration;
     } break;
 
-#line 4663 "qmljs.g"
+#line 4664 "qmljs.g"
 
     case 608: {
         if (auto *f = AST::cast<AST::FunctionDeclaration*>(sym(5).Node)) {
@@ -3572,7 +3560,7 @@ case 241: {
         }
     } Q_FALLTHROUGH();
 
-#line 4674 "qmljs.g"
+#line 4675 "qmljs.g"
 
     case 609: {
         // Emulate 15.2.3.11
@@ -3588,7 +3576,7 @@ case 241: {
         sym(1).ExportDeclaration = exportDeclaration;
     } break;
 
-#line 4690 "qmljs.g"
+#line 4691 "qmljs.g"
 
     case 610: {
         // if lhs is an identifier expression and rhs is an anonymous function expression, we need to assign the name of lhs to the function
@@ -3604,7 +3592,7 @@ case 241: {
         sym(1).ExportDeclaration = exportDeclaration;
     } break;
 
-#line 4707 "qmljs.g"
+#line 4708 "qmljs.g"
 
     case 611: {
         auto exportClause = new (pool) AST::ExportClause();
@@ -3613,7 +3601,7 @@ case 241: {
         sym(1).ExportClause = exportClause;
     } break;
 
-#line 4716 "qmljs.g"
+#line 4717 "qmljs.g"
 
     case 612: {
         auto exportClause = new (pool) AST::ExportClause(sym(2).ExportsList->finish());
@@ -3622,7 +3610,7 @@ case 241: {
         sym(1).ExportClause = exportClause;
     } break;
 
-#line 4725 "qmljs.g"
+#line 4726 "qmljs.g"
 
     case 613: {
         auto exportClause = new (pool) AST::ExportClause(sym(2).ExportsList->finish());
@@ -3631,19 +3619,19 @@ case 241: {
         sym(1).ExportClause = exportClause;
     } break;
 
-#line 4735 "qmljs.g"
+#line 4736 "qmljs.g"
 
     case 614: {
         sym(1).ExportsList = new (pool) AST::ExportsList(sym(1).ExportSpecifier);
     } break;
 
-#line 4741 "qmljs.g"
+#line 4742 "qmljs.g"
 
     case 615: {
         sym(1).ExportsList = new (pool) AST::ExportsList(sym(1).ExportsList, sym(3).ExportSpecifier);
     } break;
 
-#line 4748 "qmljs.g"
+#line 4749 "qmljs.g"
 
     case 616: {
         auto exportSpecifier = new (pool) AST::ExportSpecifier(stringRef(1));
@@ -3651,7 +3639,7 @@ case 241: {
         sym(1).ExportSpecifier = exportSpecifier;
     } break;
 
-#line 4756 "qmljs.g"
+#line 4757 "qmljs.g"
 
     case 617: {
         auto exportSpecifier = new (pool) AST::ExportSpecifier(stringRef(1), stringRef(3));
@@ -3660,7 +3648,7 @@ case 241: {
         sym(1).ExportSpecifier = exportSpecifier;
     } break;
 
-#line 4767 "qmljs.g"
+#line 4768 "qmljs.g"
 
     // ------------ end of switch statement
             } // switch

@@ -304,15 +304,15 @@ protected:
 
 #define J_SCRIPT_EXPRESSIONSTATEMENTLOOKAHEAD_RULE 463
 
-#line 4075 "qmljs.g"
+#line 4076 "qmljs.g"
 
 #define J_SCRIPT_CONCISEBODYLOOKAHEAD_RULE 533
 
-#line 4617 "qmljs.g"
+#line 4618 "qmljs.g"
 
 #define J_SCRIPT_EXPORTDECLARATIONLOOKAHEAD_RULE 602
 
-#line 4901 "qmljs.g"
+#line 4902 "qmljs.g"
 
 QT_QML_END_NAMESPACE
 

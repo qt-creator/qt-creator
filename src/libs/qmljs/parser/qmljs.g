@@ -4019,16 +4019,15 @@ ArrowFunction_In: ArrowParameters T_ARROW ConciseBodyLookahead AssignmentExpress
 /.
     case $rule_number: {
         AST::ReturnStatement *ret = new (pool) AST::ReturnStatement(sym(4).Expression);
-        const auto zeroLength = [](SourceLocation l){ l.length = 0; return l; };
-        ret->returnToken = zeroLength(sym(4).Node->firstSourceLocation());
-        ret->semicolonToken = zeroLength(sym(4).Node->lastSourceLocation());
+        ret->returnToken = sym(4).Node->firstSourceLocation().zeroLength();
+        ret->semicolonToken = sym(4).Node->lastSourceLocation().zeroLengthEnd(driver->code());
         AST::StatementList *statements = (new (pool) AST::StatementList(ret))->finish();
         AST::FunctionExpression *f = new (pool)
             AST::FunctionExpression(QStringView(), sym(1).FormalParameterList, statements);
         f->isArrowFunction = true;
-        f->functionToken = sym(1).Node ? sym(1).Node->firstSourceLocation() : loc(1);
-        f->lbraceToken = zeroLength(sym(4).Node->firstSourceLocation());
-        f->rbraceToken = zeroLength(sym(4).Node->lastSourceLocation());
+        f->functionToken = sym(1).Node ? sym(1).Node->firstSourceLocation().zeroLength() : loc(1).zeroLength();
+        f->lbraceToken = sym(4).Node->firstSourceLocation().zeroLength();
+        f->rbraceToken = sym(4).Node->lastSourceLocation().zeroLengthEnd(driver->code());
         sym(1).Node = f;
     } break;
 ./
@@ -4040,7 +4039,7 @@ ArrowFunction_In: ArrowParameters T_ARROW ConciseBodyLookahead T_FORCE_BLOCK Fun
     case $rule_number: {
         AST::FunctionExpression *f = new (pool) AST::FunctionExpression(QStringView(), sym(1).FormalParameterList, sym(6).StatementList);
         f->isArrowFunction = true;
-        f->functionToken = sym(1).Node ? sym(1).Node->firstSourceLocation() : loc(1);
+        f->functionToken = sym(1).Node ? sym(1).Node->firstSourceLocation().zeroLength() : loc(1).zeroLength();
         f->lbraceToken = loc(5);
         f->rbraceToken = loc(7);
         sym(1).Node = f;
