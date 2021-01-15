@@ -32,8 +32,10 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
+#include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QGridLayout>
@@ -95,6 +97,7 @@ TextMark::~TextMark()
 {
     qDeleteAll(m_actions);
     m_actions.clear();
+    delete m_settingsAction;
     if (!m_fileName.isEmpty())
         TextMarkRegistry::remove(this);
     if (m_baseTextDocument)
@@ -295,12 +298,15 @@ void TextMark::addToToolTipLayout(QGridLayout *target) const
     target->addLayout(contentLayout, row, 1);
 
     // Right column: action icons/button
-    if (!m_actions.isEmpty()) {
+    QVector<QAction *> actions = m_actions;
+    if (m_settingsAction)
+        actions << m_settingsAction;
+    if (!actions.isEmpty()) {
         auto actionsLayout = new QHBoxLayout;
         QMargins margins = actionsLayout->contentsMargins();
         margins.setLeft(margins.left() + 5);
         actionsLayout->setContentsMargins(margins);
-        for (QAction *action : m_actions) {
+        for (QAction *action : qAsConst(actions)) {
             QTC_ASSERT(!action->icon().isNull(), continue);
             auto button = new QToolButton;
             button->setIcon(action->icon());
@@ -385,6 +391,16 @@ QVector<QAction *> TextMark::actions() const
 void TextMark::setActions(const QVector<QAction *> &actions)
 {
     m_actions = actions;
+}
+
+void TextMark::setSettingsPage(Id settingsPage)
+{
+    delete m_settingsAction;
+    m_settingsAction = new QAction;
+    m_settingsAction->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
+    QObject::connect(m_settingsAction, &QAction::triggered, [this, settingsPage] {
+        Core::ICore::showOptionsDialog(settingsPage);
+    });
 }
 
 TextMarkRegistry::TextMarkRegistry(QObject *parent)

@@ -33,6 +33,7 @@
 #include "clangutils.h"
 
 #include <coreplugin/icore.h>
+#include <cpptools/cpptoolsconstants.h>
 #include <cpptools/clangdiagnosticconfigsmodel.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/cppcodemodelsettings.h>
@@ -218,6 +219,8 @@ ClangTextMark::ClangTextMark(const FilePath &fileName,
     , m_removedFromEditorHandler(removedHandler)
     , m_diagMgr(diagMgr)
 {
+    setSettingsPage(CppTools::Constants::CPP_CODE_MODEL_SETTINGS_ID);
+
     const bool warning = isWarningOrNote(diagnostic.severity);
     setDefaultToolTip(warning ? QApplication::translate("Clang Code Model Marks", "Code Model Warning")
                               : QApplication::translate("Clang Code Model Marks", "Code Model Error"));

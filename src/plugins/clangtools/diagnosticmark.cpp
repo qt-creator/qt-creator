@@ -43,6 +43,8 @@ DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic)
                            Utils::Id(Constants::DIAGNOSTIC_MARK_ID))
     , m_diagnostic(diagnostic)
 {
+    setSettingsPage(Constants::SETTINGS_PAGE_ID);
+
     if (diagnostic.type == "error" || diagnostic.type == "fatal")
         setColor(Utils::Theme::CodeModel_Error_TextMarkColor);
     else

@@ -76,6 +76,7 @@ CppcheckTextMark::CppcheckTextMark (const Diagnostic &diagnostic)
     setIcon(visual.icon);
     setToolTip(toolTipText(diagnostic.severityText));
     setLineAnnotation(diagnostic.message);
+    setSettingsPage(Constants::OPTIONS_PAGE_ID);
 }
 
 QString CppcheckTextMark::toolTipText(const QString &severityText) const

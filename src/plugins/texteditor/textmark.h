@@ -129,6 +129,9 @@ public:
     QVector<QAction *> actions() const;
     void setActions(const QVector<QAction *> &actions); // Takes ownership
 
+protected:
+    void setSettingsPage(Utils::Id settingsPage);
+
 private:
     Q_DISABLE_COPY(TextMark)
 
@@ -147,6 +150,7 @@ private:
     std::function<QString()> m_toolTipProvider;
     QString m_defaultToolTip;
     QVector<QAction *> m_actions;
+    QAction *m_settingsAction = nullptr;
 };
 
 } // namespace TextEditor
