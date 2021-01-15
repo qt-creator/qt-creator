@@ -545,6 +545,7 @@ void ModelPrivate::notifyInstancesChildrenChanged(const QVector<ModelNode> &mode
 
 void ModelPrivate::notifyCurrentStateChanged(const ModelNode &node)
 {
+    m_currentStateNode = node.internalNode();
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         view->currentStateChanged(ModelNode(node.internalNode(), m_model, view));
     });
@@ -552,6 +553,7 @@ void ModelPrivate::notifyCurrentStateChanged(const ModelNode &node)
 
 void ModelPrivate::notifyCurrentTimelineChanged(const ModelNode &node)
 {
+    m_currentTimelineNode = node.internalNode();
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         view->currentTimelineChanged(ModelNode(node.internalNode(), m_model, view));
     });
