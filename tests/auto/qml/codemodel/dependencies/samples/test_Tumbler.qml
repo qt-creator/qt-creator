@@ -24,7 +24,8 @@
 ****************************************************************************/
 
 import QtQuick 2.2
-import QtQuick.Extras 1.4
+import QtQuick.Controls 2.3
+import QtQml.Models 2.2
 
 Rectangle {
     width: 220
@@ -53,18 +54,6 @@ Rectangle {
 
     Tumbler {
         anchors.centerIn: parent
-
-        TumblerColumn {
-            model: listModel
-            role: "foo"
-        }
-        TumblerColumn {
-            model: listModel
-            role: "bar"
-        }
-        TumblerColumn {
-            model: listModel
-            role: "baz"
-        }
+        model: listModel
     }
 }
