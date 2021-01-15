@@ -30,6 +30,8 @@
 #include <QStringList>
 
 namespace CppTools {
+class CppLocatorData; // FIXME: Belongs in namespace Internal
+
 namespace Internal {
 
 /**
@@ -40,7 +42,8 @@ class CppToolsJsExtension : public QObject
     Q_OBJECT
 
 public:
-    explicit CppToolsJsExtension(QObject *parent = nullptr) : QObject(parent) { }
+    explicit CppToolsJsExtension(CppLocatorData *locatorData, QObject *parent = nullptr)
+        : QObject(parent), m_locatorData(locatorData) { }
 
     // Generate header guard:
     Q_INVOKABLE QString headerGuard(const QString &in) const;
@@ -55,6 +58,7 @@ public:
     Q_INVOKABLE QString classToHeaderGuard(const QString &klass, const QString &extension) const;
     Q_INVOKABLE QString openNamespaces(const QString &klass) const;
     Q_INVOKABLE QString closeNamespaces(const QString &klass) const;
+    Q_INVOKABLE bool hasQObjectParent(const QString &klassName) const;
 
     // Find header file for class.
     Q_INVOKABLE QString includeStatement(
@@ -63,6 +67,9 @@ public:
             const QStringList &specialClasses,
             const QString &pathOfIncludingFile
             );
+
+private:
+    CppLocatorData * const m_locatorData;
 };
 
 } // namespace Internal

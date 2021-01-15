@@ -98,6 +98,8 @@ public:
 
     static CppModelManager *instance();
 
+    void registerJsExtension();
+
      // Documented in source file.
      enum ProgressNotificationMode {
         ForcedProgressNotification,

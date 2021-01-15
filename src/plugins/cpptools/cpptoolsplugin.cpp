@@ -33,7 +33,6 @@
 #include "cpptoolsbridge.h"
 #include "cpptoolsbridgeqtcreatorimplementation.h"
 #include "cpptoolsconstants.h"
-#include "cpptoolsjsextension.h"
 #include "cpptoolsreuse.h"
 #include "cpptoolssettings.h"
 #include "projectinfo.h"
@@ -46,7 +45,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/jsexpander.h>
 #include <coreplugin/vcsmanager.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <extensionsystem/pluginmanager.h>
@@ -167,7 +165,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     d = new CppToolsPluginPrivate;
     d->initialize();
 
-    JsExpander::registerGlobalObject<CppToolsJsExtension>("Cpp");
+    CppModelManager::instance()->registerJsExtension();
     ExtensionSystem::PluginManager::addObject(&d->m_cppProjectUpdaterFactory);
 
     // Menus

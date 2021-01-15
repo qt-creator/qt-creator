@@ -26,6 +26,8 @@
 #include "cpptoolsjsextension.h"
 
 #include "cppfilesettingspage.h"
+#include "cpplocatordata.h"
+#include "cppworkingcopy.h"
 
 #include <coreplugin/icore.h>
 
@@ -33,9 +35,13 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/session.h>
 
+#include <cplusplus/AST.h>
+#include <cplusplus/ASTPath.h>
+#include <cplusplus/Overview.h>
 #include <utils/codegeneration.h>
 #include <utils/fileutils.h>
 
+#include <QElapsedTimer>
 #include <QFileInfo>
 #include <QStringList>
 #include <QTextStream>
@@ -116,6 +122,90 @@ QString CppToolsJsExtension::closeNamespaces(const QString &klass) const
     QTextStream str(&result);
     Utils::writeClosingNameSpaces(namespaces(klass), QString(), str);
     return result;
+}
+
+bool CppToolsJsExtension::hasQObjectParent(const QString &klassName) const
+{
+    // This is a synchronous function, but the look-up is potentially expensive.
+    // Since it's not crucial information, we just abort if retrieving it takes too long,
+    // in order not to freeze the UI.
+    // TODO: Any chance to at least cache between successive invocations for the same dialog?
+    //       I don't see it atm...
+    QElapsedTimer timer;
+    timer.start();
+    static const int timeout = 5000;
+
+    // Find symbol.
+    QList<IndexItem::Ptr> candidates;
+    m_locatorData->filterAllFiles([&](const IndexItem::Ptr &item) {
+        if (timer.elapsed() > timeout)
+            return IndexItem::VisitorResult::Break;
+        if (item->scopedSymbolName() == klassName) {
+            candidates = {item};
+            return IndexItem::VisitorResult::Break;
+        }
+        if (item->symbolName() == klassName)
+            candidates << item;
+        return IndexItem::VisitorResult::Recurse;
+    });
+    if (timer.elapsed() > timeout)
+        return false;
+    if (candidates.isEmpty())
+        return false;
+    const IndexItem::Ptr item = candidates.first();
+
+    // Find class in AST.
+    const CPlusPlus::Snapshot snapshot = CppModelManager::instance()->snapshot();
+    const WorkingCopy workingCopy = CppModelManager::instance()->workingCopy();
+    QByteArray source = workingCopy.source(item->fileName());
+    if (source.isEmpty()) {
+        QFile file(item->fileName());
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+            return false;
+        source = file.readAll();
+    }
+    const auto doc = snapshot.preprocessedDocument(source, item->fileName());
+    if (!doc)
+        return false;
+    doc->check();
+    if (!doc->translationUnit())
+        return false;
+    if (timer.elapsed() > timeout)
+        return false;
+    CPlusPlus::ClassSpecifierAST *classSpec = nullptr;
+    const QList<CPlusPlus::AST *> astPath = CPlusPlus::ASTPath(doc)(item->line(), item->column());
+    for (auto it = astPath.rbegin(); it != astPath.rend(); ++it) {
+        if ((classSpec = (*it)->asClassSpecifier()))
+            break;
+    }
+    if (!classSpec)
+        return false;
+
+    // Check whether constructor has a QObject parent parameter.
+    CPlusPlus::Overview overview;
+    const CPlusPlus::Class * const klass = classSpec->symbol;
+    if (!klass)
+        return false;
+    for (auto it = klass->memberBegin(); it != klass->memberEnd(); ++it) {
+        const CPlusPlus::Symbol * const member = *it;
+        if (overview.prettyName(member->name()) != item->symbolName())
+            continue;
+        const CPlusPlus::Function *function = (*it)->asFunction();
+        if (!function)
+            function = member->type().type()->asFunctionType();
+        if (!function)
+            continue;
+        for (int i = 0; i < function->argumentCount(); ++i) {
+            const CPlusPlus::Symbol * const arg = function->argumentAt(i);
+            const QString argName = overview.prettyName(arg->name());
+            const QString argType = overview.prettyType(arg->type())
+                    .split("::", Qt::SkipEmptyParts).last();
+            if (argName == "parent" && argType == "QObject *")
+                return true;
+        }
+    }
+
+    return false;
 }
 
 QString CppToolsJsExtension::includeStatement(

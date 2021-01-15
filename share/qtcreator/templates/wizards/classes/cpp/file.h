@@ -33,7 +33,7 @@ class %{CN}
      Q_OBJECT
 @endif
 public:
-@if '%{Base}' === 'QObject'
+@if '%{Base}' === 'QObject' || %{JS: Cpp.hasQObjectParent('%{Base}')}
     explicit %{CN}(QObject *parent = nullptr);
 @elsif '%{Base}' === 'QWidget' || '%{Base}' === 'QMainWindow'
     explicit %{CN}(QWidget *parent = nullptr);

@@ -42,6 +42,7 @@
 #include "cpprefactoringchanges.h"
 #include "cpprefactoringengine.h"
 #include "cppsourceprocessor.h"
+#include "cpptoolsjsextension.h"
 #include "cpptoolsplugin.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolsreuse.h"
@@ -54,6 +55,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/jsexpander.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <cplusplus/ASTPath.h>
@@ -573,6 +575,13 @@ CppModelManager *CppModelManager::instance()
 {
     QTC_ASSERT(m_instance, return nullptr;);
     return m_instance;
+}
+
+void CppModelManager::registerJsExtension()
+{
+    Core::JsExpander::registerGlobalObject("Cpp", [this] {
+        return new CppToolsJsExtension(&d->m_locatorData);
+    });
 }
 
 void CppModelManager::initCppTools()
