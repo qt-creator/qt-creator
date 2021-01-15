@@ -359,8 +359,8 @@ void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLine)
     static const QRegularExpression start("^[*]{9} Start testing of (.*) [*]{9}$");
     static const QRegularExpression config("^Config: Using QtTest library (.*), "
                                            "(Qt (\\d+(\\.\\d+){2}) \\(.*\\))$");
-    static const QRegularExpression summary("^Totals: \\d+ passed, \\d+ failed, "
-                                            "\\d+ skipped(, \\d+ blacklisted)?$");
+    static const QRegularExpression summary("^Totals: (\\d+) passed, (\\d+) failed, "
+                                            "(\\d+) skipped(, (\\d+) blacklisted)?(, \\d+ms)?$");
     static const QRegularExpression finish("^[*]{9} Finished testing of (.*) [*]{9}$");
 
     static const QRegularExpression result("^(PASS   |FAIL!  |XFAIL  |XPASS  |SKIP   |RESULT "
@@ -397,7 +397,15 @@ void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLine)
         m_className = match.captured(1);
         QTC_CHECK(!m_className.isEmpty());
         sendStartMessage(false);
-    } else if (summary.match(line).hasMatch() || finish.match(line).hasMatch()) {
+    } else if (hasMatch(summary)) {
+        m_summary[ResultType::Pass] = match.captured(1).toInt();
+        m_summary[ResultType::Fail] = match.captured(2).toInt();
+        m_summary[ResultType::Skip] = match.captured(3).toInt();
+        // BlacklistedXYZ is wrong here, but we use it for convenience (avoids another enum value)
+        if (int blacklisted = match.captured(5).toInt())
+            m_summary[ResultType::BlacklistedPass] = blacklisted;
+        processSummaryFinishOutput();
+    } else if (finish.match(line).hasMatch()) {
         processSummaryFinishOutput();
     } else { // we have some plain output, but we cannot say where for sure it belongs to..
         if (!m_description.isEmpty())
