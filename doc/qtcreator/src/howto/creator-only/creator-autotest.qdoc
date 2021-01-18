@@ -30,16 +30,40 @@
 
     \title Running Autotests
 
+    \QC supports special handling for a couple of testing frameworks which
+    is strongly tied to the underlying code models or specialized parsers
+    (\e {code based tests}).
+    Beside this there is also support for build system based testing which
+    is independent from any testing frameworks and retrieves its information
+    directly from the underlying build system and uses these or even the
+    build system as such to execute the respective tests.
+
     \QC integrates the \l{Qt Test} framework,
     \l{https://github.com/google/googletest}{Google C++ Testing Framework},
     \l{https://www.boost.org/doc/libs/1_70_0/libs/test/doc/html/index.html}
     {Boost.Test}, and \l{https://github.com/catchorg/Catch2}
     {Catch2 test framework} for unit testing applications and libraries.
-    You can use \QC to create, build, and run Qt tests,
-    Qt Quick tests (QML-based Qt tests), Google tests, Boost tests, and
-    Catch2 tests for your projects.
+    Additional build system based support is provided for
+    \l{https://cmake.org/cmake/help/latest/manual/ctest.1.html}{CTest}.
+    You can use \QC to create, build, and run code based tests for your
+    projects.
 
     \image qtcreator-autotests.png
+
+    \section1 Build System Based Tests
+
+    The handling of build system based tests has to get enabled explicitly
+    as these are off by default to avoid interference with code based parsers.
+    To enable the tests, select the respective test tool in
+    \uicontrol Options > \uicontrol Testing > \uicontrol General.
+
+    The detection of tests is usually much faster for build system based
+    tests as this normally does not involve scanning or parsing.
+    The information provided inside the tests tree is usually more detailed
+    when using code based tests.
+
+    If you have enabled code based and build system based tests together you
+    may duplicate tests inside the tests tree. See also \l {Selecting Tests to Run}.
 
     \section1 Creating Tests
 
@@ -218,6 +242,26 @@
     \l{https://github.com/catchorg/Catch2/blob/master/docs/Readme.md}
     {Catch2}.
 
+    \section2 Creating CTest Based Tests
+
+    CTest provides capabilities to execute tests for CMake based projects
+    and is not limited to a special test framework.
+    You simply configure tests inside the project files, usually CMakeLists.txt.
+    Basically this is done by enabling testing for the project and registering
+    the test applications or even special commands.
+
+    \code
+    enable_testing()
+    add_test(NAME test_example COMMAND test_example)
+    \endcode
+
+    \c test_example must of course be added as an executable before trying to
+    register it as test or it may be any command that can be executed including
+    arguments.
+    For detailed information on how to use CTest see
+    \l{https://gitlab.kitware.com/cmake/community/-/wikis/doc/ctest/Testing-With-CTest}
+    {Testing with CTest}.
+
     \section1 Setting Up the Google C++ Testing Framework
 
     To build and run Google tests, you must have the Google C++ Testing
@@ -290,6 +334,11 @@
 
             \note By default, \QC builds a project before deploying and running
             it.
+            \note If you have enabled build system based and code based tests,
+            you may run tests twice when using \uicontrol {Run All Tests} or
+            \uicontrol {Run Selected Tests}. This happens if the tests can be
+            found by the code based test frameworks and are registered as test
+            with the build system.
 
     \endlist
 
@@ -350,12 +399,16 @@
     You can run and debug tests in the file currently open in the code editor.
     To run all tests in the open file, select \uicontrol Tools >
     \uicontrol Tests > \uicontrol {Run Tests for Current File}.
+    \note Available only for code based test frameworks.
 
     To run the test currently selected in the open file, select
     \uicontrol {Run Test Under Cursor} in the context menu.
+    \note Available only for code based test frameworks.
 
     To debug the currently selected test, select
     \uicontrol {Debug Test Under Cursor} in the context menu.
+    \note Availability for build system based tests depends on the build system
+    tool's abilities.
 
     \section2 Specifying Settings for Running Qt Tests
 
