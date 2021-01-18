@@ -46,7 +46,7 @@
     indistinguishable from the same application running on the desktop.
 
     \if defined(qtdesignstudio)
-    To create a resource file out of your project, select \uicontrol Tools >
+    To create a resource file out of your project, select \uicontrol Build >
     \uicontrol {Generate Resource File} in \QC. Then upload the package into
     \QDV.
     \else
