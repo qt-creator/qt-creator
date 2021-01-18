@@ -498,6 +498,15 @@ DebuggerSettings::DebuggerSettings()
     insertItem(IntelFlavor, item);
 
     item = new SavedAction;
+    item->setSettingsKey(debugModeGroup, "UseAnnotations");
+    item->setText(tr("Use annotations in main editor when debugging"));
+    item->setToolTip(tr("<p>Checking this will show simple variable values "
+        "as annotations in the main editor during debugging."));
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    insertItem(UseAnnotationsInMainEditor, item);
+
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "UseToolTips");
     item->setText(tr("Use tooltips in main editor when debugging"));
     item->setToolTip(tr("<p>Checking this will enable tooltips for variable "

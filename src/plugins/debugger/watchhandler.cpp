@@ -38,6 +38,7 @@
 #include "memoryagent.h"
 #include "registerhandler.h"
 #include "simplifytype.h"
+#include "sourceutils.h"
 #include "watchdelegatewidgets.h"
 #include "watchutils.h"
 
@@ -67,6 +68,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLabel>
+#include <QMap>
 #include <QMenu>
 #include <QMimeData>
 #include <QPainter>
@@ -473,6 +475,8 @@ public:
     QHash<QString, TypeInfo> m_reportedTypeInfo;
     QHash<QString, DisplayFormats> m_reportedTypeFormats; // Type name -> Dumper Formats
     QHash<QString, QString> m_valueCache;
+
+    Location m_location;
 };
 
 WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
@@ -517,6 +521,8 @@ WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
     connect(action(ShowQtNamespace), &SavedAction::valueChanged,
         m_engine, &DebuggerEngine::updateAll);
     connect(action(ShowQObjectNames), &SavedAction::valueChanged,
+        m_engine, &DebuggerEngine::updateAll);
+    connect(action(UseAnnotationsInMainEditor), &SavedAction::valueChanged,
         m_engine, &DebuggerEngine::updateAll);
 
     connect(SessionManager::instance(), &SessionManager::sessionLoaded,
@@ -2081,6 +2087,7 @@ void WatchHandler::cleanup()
     theTemporaryWatchers.clear();
     saveWatchers();
     m_model->reinitialize();
+    Internal::setValueAnnotations(m_model->m_location, {});
     emit m_model->updateFinished();
     m_model->m_separatedView->hide();
 }
@@ -2233,6 +2240,16 @@ void WatchHandler::notifyUpdateFinished()
             item->wantsChildren = false;
         }
     });
+
+    QMap<QString, QString> values;
+    if (boolSetting(UseAnnotationsInMainEditor)) {
+        m_model->forAllItems([&values](WatchItem *item) {
+            const QString expr = item->sourceExpression();
+            if (!expr.isEmpty())
+                values[expr] = item->value;
+        });
+    }
+    Internal::setValueAnnotations(m_model->m_location, values);
 
     m_model->m_contentsValid = true;
     updateLocalsWindow();
@@ -2748,6 +2765,11 @@ void WatchHandler::recordTypeInfo(const GdbMi &typeInfo)
             m_model->m_reportedTypeInfo.insert(typeName, ti);
         }
     }
+}
+
+void WatchHandler::setLocation(const Location &loc)
+{
+    m_model->m_location = loc;
 }
 
 /////////////////////////////////////////////////////////////////////

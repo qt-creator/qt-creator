@@ -51,6 +51,7 @@ public:
     bool isInspect() const;
 
     QString expression() const;
+    QString sourceExpression() const;
     QString realName() const;
     QString internalName() const;
     QString toToolTip() const;

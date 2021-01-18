@@ -31,14 +31,19 @@
 #include "watchdata.h"
 #include "watchutils.h"
 
-#include <texteditor/texteditor.h>
-#include <texteditor/textdocument.h>
+#include <coreplugin/editormanager/ieditor.h>
+
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/ExpressionUnderCursor.h>
+#include <cplusplus/LookupItem.h>
+#include <cplusplus/Overview.h>
+
 #include <cpptools/abstracteditorsupport.h>
 #include <cpptools/cppprojectfile.h>
 #include <cpptools/cppmodelmanager.h>
-#include <cplusplus/CppDocument.h>
-#include <cplusplus/ExpressionUnderCursor.h>
-#include <cplusplus/Overview.h>
+
+#include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 
 #include <utils/qtcassert.h>
 
@@ -54,6 +59,7 @@ enum { debug = 0 };
 using namespace CppTools;
 using namespace CPlusPlus;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace CPlusPlus {
 
@@ -341,6 +347,96 @@ ContextData getLocationContext(TextDocument *document, int lineNumber)
         data.lineNumber = lineNumber;
     }
     return data;
+}
+
+//
+// Annotations
+//
+class DebuggerValueMark : public TextEditor::TextMark
+{
+public:
+    DebuggerValueMark(const FilePath &fileName, int lineNumber, const QString &value)
+        : TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY_VALUE)
+    {
+        setPriority(TextEditor::TextMark::HighPriority);
+        setToolTipProvider([] { return QString(); });
+        setLineAnnotation(value);
+    }
+};
+
+static QList<DebuggerValueMark *> marks;
+
+// Stolen from CPlusPlus::Document::functionAt(...)
+static int firstRelevantLine(const Document::Ptr document, int line, int column)
+{
+    QTC_ASSERT(line > 0 && column > 0, return 0);
+    CPlusPlus::Symbol *symbol = document->lastVisibleSymbolAt(line, column);
+    if (!symbol)
+        return 0;
+
+    // Find the enclosing function scope (which might be several levels up,
+    // or we might be standing on it)
+    Scope *scope = symbol->asScope();
+    if (!scope)
+        scope = symbol->enclosingScope();
+
+    while (scope && !scope->isFunction() )
+        scope = scope->enclosingScope();
+
+    if (!scope)
+        return 0;
+
+    return scope->line();
+}
+
+static void setValueAnnotationsHelper(BaseTextEditor *textEditor,
+                                      const Location &loc,
+                                      QMap<QString, QString> values)
+{
+    TextEditorWidget *widget = textEditor->editorWidget();
+    TextDocument *textDocument = widget->textDocument();
+    const FilePath filePath = loc.fileName();
+    const Snapshot snapshot = CppModelManager::instance()->snapshot();
+    const Document::Ptr cppDocument = snapshot.document(filePath.toString());
+    if (!cppDocument) // For non-C++ documents.
+        return;
+
+    const int firstLine = firstRelevantLine(cppDocument, loc.lineNumber(), 1);
+    if (firstLine < 1)
+        return;
+
+    CPlusPlus::ExpressionUnderCursor expressionUnderCursor(cppDocument->languageFeatures());
+    QTextCursor tc = widget->textCursor();
+    for (int lineNumber = loc.lineNumber(); lineNumber >= firstLine; --lineNumber) {
+        const QTextBlock block = textDocument->document()->findBlockByNumber(lineNumber - 1);
+        tc.setPosition(block.position());
+        for (; !tc.atBlockEnd(); tc.movePosition(QTextCursor::NextCharacter)) {
+            const QString expression = expressionUnderCursor(tc);
+            if (expression.isEmpty())
+                continue;
+            const QString value = values.take(expression); // Show value one only once.
+            if (value.isEmpty())
+                continue;
+            const QString annotation = QString("%1: %2").arg(expression, value);
+            marks.append(new DebuggerValueMark(filePath, lineNumber, annotation));
+        }
+    }
+}
+
+void setValueAnnotations(const Location &loc, const QMap<QString, QString> &values)
+{
+    qDeleteAll(marks);
+    marks.clear();
+    if (values.isEmpty())
+        return;
+
+    const QList<Core::IEditor *> editors = Core::EditorManager::visibleEditors();
+    for (Core::IEditor *editor : editors) {
+        if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
+            if (textEditor->textDocument()->filePath() == loc.fileName())
+                setValueAnnotationsHelper(textEditor, loc, values);
+        }
+    }
 }
 
 } // namespace Internal

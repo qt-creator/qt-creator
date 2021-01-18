@@ -119,6 +119,8 @@ public:
     void reexpandItems();
     void recordTypeInfo(const GdbMi &typeInfo);
 
+    void setLocation(const Location &loc);
+
 private:
     DebuggerEngine * const m_engine; // Not owned
     WatchModel *m_model; // Owned.

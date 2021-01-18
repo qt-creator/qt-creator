@@ -83,6 +83,9 @@ public:
         auto checkBoxUseToolTipsInMainEditor = new QCheckBox(behaviorBox);
         checkBoxUseToolTipsInMainEditor->setText(tr("Use tooltips in main editor while debugging"));
 
+        auto checkBoxUseAnnotationsInMainEditor = new QCheckBox(behaviorBox);
+        checkBoxUseAnnotationsInMainEditor->setText(tr("Use annotations in main editor while debugging"));
+
         QString t = tr("Stopping and stepping in the debugger "
                        "will automatically open views associated with the current location.") + '\n';
         auto checkBoxCloseSourceBuffersOnExit = new QCheckBox(behaviorBox);
@@ -146,13 +149,14 @@ public:
 
         auto gridLayout = new QGridLayout(behaviorBox);
         gridLayout->addWidget(checkBoxUseAlternatingRowColors, 0, 0, 1, 1);
-        gridLayout->addWidget(checkBoxUseToolTipsInMainEditor, 1, 0, 1, 1);
-        gridLayout->addWidget(checkBoxCloseSourceBuffersOnExit, 2, 0, 1, 1);
-        gridLayout->addWidget(checkBoxCloseMemoryBuffersOnExit, 3, 0, 1, 1);
-        gridLayout->addWidget(checkBoxBringToForegroundOnInterrrupt, 4, 0, 1, 1);
-        gridLayout->addWidget(checkBoxBreakpointsFullPath, 5, 0, 1, 1);
-        gridLayout->addWidget(checkBoxWarnOnReleaseBuilds, 6, 0, 1, 1);
-        gridLayout->addLayout(horizontalLayout, 7, 0, 1, 2);
+        gridLayout->addWidget(checkBoxUseAnnotationsInMainEditor, 1, 0, 1, 1);
+        gridLayout->addWidget(checkBoxUseToolTipsInMainEditor, 2, 0, 1, 1);
+        gridLayout->addWidget(checkBoxCloseSourceBuffersOnExit, 3, 0, 1, 1);
+        gridLayout->addWidget(checkBoxCloseMemoryBuffersOnExit, 4, 0, 1, 1);
+        gridLayout->addWidget(checkBoxBringToForegroundOnInterrrupt, 5, 0, 1, 1);
+        gridLayout->addWidget(checkBoxBreakpointsFullPath, 6, 0, 1, 1);
+        gridLayout->addWidget(checkBoxWarnOnReleaseBuilds, 7, 0, 1, 1);
+        gridLayout->addLayout(horizontalLayout, 8, 0, 1, 2);
 
         gridLayout->addWidget(checkBoxFontSizeFollowsEditor, 0, 1, 1, 1);
         gridLayout->addWidget(checkBoxSwitchModeOnExit, 1, 1, 1, 1);
@@ -167,6 +171,8 @@ public:
 
         m_group.insert(action(UseAlternatingRowColors),
                        checkBoxUseAlternatingRowColors);
+        m_group.insert(action(UseAnnotationsInMainEditor),
+                       checkBoxUseAnnotationsInMainEditor);
         m_group.insert(action(UseToolTipsInMainEditor),
                        checkBoxUseToolTipsInMainEditor);
         m_group.insert(action(CloseSourceBuffersOnExit),

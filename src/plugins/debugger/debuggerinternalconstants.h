@@ -68,6 +68,7 @@ const char TASK_CATEGORY_DEBUGGER_RUNTIME[]   = "DebugRuntime";
 
 const char TEXT_MARK_CATEGORY_BREAKPOINT[]    = "Debugger.Mark.Breakpoint";
 const char TEXT_MARK_CATEGORY_LOCATION[]      = "Debugger.Mark.Location";
+const char TEXT_MARK_CATEGORY_VALUE[]         = "Debugger.Mark.Value";
 
 const char OPENED_BY_DEBUGGER[]               = "OpenedByDebugger";
 const char OPENED_WITH_DISASSEMBLY[]          = "DisassemblerView";

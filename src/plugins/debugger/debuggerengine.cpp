@@ -1113,6 +1113,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
     }
 
     d->m_breakHandler.setLocation(loc);
+    d->m_watchHandler.setLocation(loc);
 }
 
 void DebuggerEngine::gotoCurrentLocation()

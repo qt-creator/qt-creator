@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <QMap>
 #include <QString>
 
 namespace TextEditor {
@@ -38,6 +39,7 @@ namespace Debugger {
 namespace Internal {
 
 class ContextData;
+class Location;
 
 // Editor tooltip support
 QString cppExpressionAt(TextEditor::TextEditorWidget *editorWidget, int pos,
@@ -53,6 +55,8 @@ QStringList getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
                                       const QString &function, const QString &file, int line);
 
 ContextData getLocationContext(TextEditor::TextDocument *document, int lineNumber);
+
+void setValueAnnotations(const Location &loc, const QMap<QString, QString> &values);
 
 } // namespace Internal
 } // namespace Debugger

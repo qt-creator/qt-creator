@@ -520,6 +520,7 @@ QString WatchItem::toToolTip() const
         formatToolTipRow(str, tr("Static Object Size"), tr("%n bytes", nullptr, size));
     formatToolTipRow(str, tr("Internal ID"), internalName());
     formatToolTipRow(str, tr("Creation Time in ms"), QString::number(int(time * 1000)));
+    formatToolTipRow(str, tr("Source"), sourceExpression());
     str << "</table></body></html>";
     return res;
 }
@@ -576,6 +577,31 @@ QString WatchItem::expression() const
     if (p && !p->exp.isEmpty())
         return QString("(%1).%2").arg(p->exp, name);
     return name;
+}
+
+QString WatchItem::sourceExpression() const
+{
+    const WatchItem *p = parent();
+    if (!p)
+        return {}; // Root
+
+    const WatchItem *pp = p->parent();
+    if (!pp)
+        return {}; // local
+
+    const WatchItem *ppp = pp->parent();
+    if (!ppp)
+        return name; // local.x -> 'x'
+
+    // Enforce some arbitrary, but fixed limit to avoid excessive creation
+    // of very likely unused strings which are for convenience only.
+    if (arrayIndex >= 0 && arrayIndex <= 16)
+        return QString("%1[%2]").arg(p->sourceExpression()).arg(arrayIndex);
+
+    if (p->name == '*')
+        return QString("%1->%2").arg(pp->sourceExpression(), name);
+
+    return QString("%1.%2").arg(p->sourceExpression(), name);
 }
 
 } // namespace Internal

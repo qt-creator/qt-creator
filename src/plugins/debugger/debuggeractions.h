@@ -98,6 +98,7 @@ enum DebuggerActionCode
     ShowThreadNames,
 
     UseToolTipsInMainEditor,
+    UseAnnotationsInMainEditor,
     UseToolTipsInLocalsView,
     UseToolTipsInBreakpointsView,
     UseToolTipsInStackView,
