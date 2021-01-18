@@ -617,6 +617,9 @@ bool nameIncludesOperatorName(const Name *name)
 
 QString memberBaseName(const QString &name)
 {
+    const auto validName = [](const QString &name) {
+        return !name.isEmpty() && !name.at(0).isDigit();
+    };
     QString baseName = name;
 
     CppQuickFixSettings *settings = CppQuickFixProjectsSettings::getQuickFixSettings(
@@ -626,7 +629,7 @@ QString memberBaseName(const QString &name)
     const QString postfix = nameTemplate.mid(nameTemplate.lastIndexOf('>') + 1);
     if (name.startsWith(prefix) && name.endsWith(postfix)) {
         const QString base = name.mid(prefix.length(), name.length() - postfix.length());
-        if (!base.isEmpty())
+        if (validName(base))
             return base;
     }
 
@@ -635,7 +638,7 @@ QString memberBaseName(const QString &name)
         baseName.remove(0, 1);
     while (baseName.endsWith(QLatin1Char('_')))
         baseName.chop(1);
-    if (baseName != name)
+    if (baseName != name && validName(baseName))
         return baseName;
 
     // If no leading/trailing "_": remove "m_" and "m" prefix
@@ -647,7 +650,7 @@ QString memberBaseName(const QString &name)
         baseName[0] = baseName.at(0).toLower();
     }
 
-    return baseName;
+    return validName(baseName) ? baseName : name;
 }
 
 // Returns a non-null value if and only if the cursor is on the name of a (proper) class
