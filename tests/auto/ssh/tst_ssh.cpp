@@ -28,6 +28,7 @@
 #include <ssh/sshconnection.h>
 #include <ssh/sshremoteprocessrunner.h>
 #include <ssh/sshsettings.h>
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/temporarydirectory.h>
 
@@ -371,12 +372,15 @@ void tst_Ssh::sftp()
     // Create and upload 1000 small files and one big file
     QTemporaryDir dirForFilesToUpload;
     QTemporaryDir dirForFilesToDownload;
+    QTemporaryDir dir2ForFilesToDownload;
     QVERIFY2(dirForFilesToUpload.isValid(), qPrintable(dirForFilesToUpload.errorString()));
     QVERIFY2(dirForFilesToDownload.isValid(), qPrintable(dirForFilesToDownload.errorString()));
+    QVERIFY2(dir2ForFilesToDownload.isValid(), qPrintable(dirForFilesToDownload.errorString()));
     static const auto getRemoteFilePath = [](const QString &localFileName) {
         return QString("/tmp/").append(localFileName).append(".upload");
     };
-    const auto getDownloadFilePath = [&dirForFilesToDownload](const QString &localFileName) {
+    const auto getDownloadFilePath = [](const QTemporaryDir &dirForFilesToDownload,
+            const QString &localFileName) {
         return QString(dirForFilesToDownload.path()).append('/').append(localFileName);
     };
     FilesToTransfer filesToUpload;
@@ -464,7 +468,7 @@ void tst_Ssh::sftp()
     for (const QString &fileName : allUploadedFileNames) {
         const QString localFilePath = dirForFilesToUpload.path() + '/' + fileName;
         const QString remoteFilePath = getRemoteFilePath(fileName);
-        const QString downloadFilePath = getDownloadFilePath(fileName);
+        const QString downloadFilePath = getDownloadFilePath(dirForFilesToDownload, fileName);
         const SftpJobId downloadJob = sftpChannel->downloadFile(remoteFilePath, downloadFilePath);
         QVERIFY(downloadJob != SftpInvalidJob);
         jobs << downloadJob;
@@ -477,24 +481,55 @@ void tst_Ssh::sftp()
     QVERIFY(jobs.empty());
 
     // Compare contents of uploaded and downloaded files
-    for (const QString &fileName : allUploadedFileNames) {
-        QFile originalFile(dirForFilesToUpload.path() + '/' + fileName);
-        QVERIFY2(originalFile.open(QIODevice::ReadOnly), qPrintable(originalFile.errorString()));
-        QFile downloadedFile(dirForFilesToDownload.path() + '/' + fileName);
-        QVERIFY2(downloadedFile.open(QIODevice::ReadOnly),
-                 qPrintable(downloadedFile.errorString()));
-        QVERIFY(originalFile.fileName() != downloadedFile.fileName());
-        QCOMPARE(originalFile.size(), downloadedFile.size());
-        qint64 bytesLeft = originalFile.size();
-        while (bytesLeft > 0) {
-            const qint64 bytesToRead = qMin(bytesLeft, Q_INT64_C(1024 * 1024));
-            const QByteArray origBlock = originalFile.read(bytesToRead);
-            const QByteArray copyBlock = downloadedFile.read(bytesToRead);
-            QCOMPARE(origBlock.size(), bytesToRead);
-            QCOMPARE(origBlock, copyBlock);
-            bytesLeft -= bytesToRead;
+    bool success;
+    const auto compareFiles = [&](const QTemporaryDir &downloadDir) {
+        success = false;
+        for (const QString &fileName : allUploadedFileNames) {
+            QFile originalFile(dirForFilesToUpload.path() + '/' + fileName);
+            QVERIFY2(originalFile.open(QIODevice::ReadOnly), qPrintable(originalFile.errorString()));
+            QFile downloadedFile(getDownloadFilePath(downloadDir, fileName));
+            QVERIFY2(downloadedFile.open(QIODevice::ReadOnly),
+                     qPrintable(downloadedFile.errorString()));
+            QVERIFY(originalFile.fileName() != downloadedFile.fileName());
+            QCOMPARE(originalFile.size(), downloadedFile.size());
+            qint64 bytesLeft = originalFile.size();
+            while (bytesLeft > 0) {
+                const qint64 bytesToRead = qMin(bytesLeft, Q_INT64_C(1024 * 1024));
+                const QByteArray origBlock = originalFile.read(bytesToRead);
+                const QByteArray copyBlock = downloadedFile.read(bytesToRead);
+                QCOMPARE(origBlock.size(), bytesToRead);
+                QCOMPARE(origBlock, copyBlock);
+                bytesLeft -= bytesToRead;
+            }
         }
-    }
+        success = true;
+    };
+    compareFiles(dirForFilesToDownload);
+    QVERIFY(success);
+
+    // The same again, with a non-interactive download.
+    FilesToTransfer filesToDownload = Utils::transform(filesToUpload, [&](const FileToTransfer &fileToUpload) {
+        return FileToTransfer(fileToUpload.targetFile,
+                              getDownloadFilePath(dir2ForFilesToDownload,
+                                                  QFileInfo(fileToUpload.sourceFile).fileName()));
+    });
+    const SftpTransferPtr download = connection.createDownload(filesToDownload,
+                                                               FileTransferErrorHandling::Abort);
+    connect(download.get(), &SftpTransfer::done, [&jobError, &loop](const QString &error) {
+        jobError = error;
+        loop.quit();
+    });
+    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+    timer.setSingleShot(true);
+    timer.setInterval(30 * 1000);
+    timer.start();
+    download->start();
+    loop.exec();
+    QVERIFY(timer.isActive());
+    timer.stop();
+    QVERIFY2(jobError.isEmpty(), qPrintable(jobError));
+    compareFiles(dir2ForFilesToDownload);
+    QVERIFY(success);
 
     // Remove the uploaded files on the remote system
     timer.setInterval((params.timeout + 5) * 1000);

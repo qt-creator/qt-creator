@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -70,7 +70,7 @@
 
     By default, the project .pro file is passed to the tools as an argument. To
     specify other command line arguments for the tools, select \uicontrol Tools >
-    \uicontrol External > \uicontrol Configure}.
+    \uicontrol External > \uicontrol Configure.
 
     To open TS files in Qt Linguist, right-click a TS file in the
     \uicontrol Projects or \uicontrol {File System} view and select
@@ -105,6 +105,11 @@
     additional tools in \QC \uicontrol Options.
 
     \image qtcreator-external-tools.png
+
+    Select the \inlineimage replace.png
+    (\uicontrol {Variables}) button in a field to select from a list of
+    \l{Using Qt Creator Variables}{variables} that are available in a
+    particular context.
 
     To configure external tools:
 

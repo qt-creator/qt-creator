@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -46,6 +46,30 @@
 
     To create a label with a background, use the \l Label type from the
     Qt Quick Controls module.
+
+    \section1 Using Rich Text
+
+    You can use rich text in the \l Text and \l TextInput components. To
+    open the rich text editor, select the \inlineimage icons/edit.png
+    (\uicontrol Edit) button next to the \uicontrol Text field in
+    \uicontrol Properties.
+
+    \image qtquick-text-rtf.gif "Editing text in the rich text editor"
+
+    In the rich text editor, you can:
+
+    \list
+        \li Emphasize text
+        \li Create hyperlinks
+        \li Align text
+        \li Create bulleted and numbered lists
+        \li Specify text color
+        \li Select text font
+        \li Set font size
+        \li Create tables
+    \endlist
+
+    \image qtquick-rtf-editor.png "Text formatted as rich text in the editor"
 
     \section1 Typography
 

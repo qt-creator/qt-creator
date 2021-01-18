@@ -242,7 +242,11 @@ def qdump__std__list(d, value):
 
 
 def qdump__std__list__QNX(d, value):
-    (proxy, head, size) = value.split("ppp")
+    try:
+        _ = value["_Mypair"]["_Myval2"]["_Myproxy"]
+        (proxy, head, size) = value.split("ppp")
+    except Exception:
+        (head, size) = value.split("pp")
     d.putItemCount(size, 1000)
 
     if d.isExpanded():
@@ -330,7 +334,11 @@ def qdump__std__map(d, value):
 
 
 def qdump_std__map__helper(d, value):
-    (proxy, head, size) = value.split("ppp")
+    try:
+        _ = value["_Mypair"]["_Myval2"]["_Myval2"]["_Myproxy"]
+        (proxy, head, size) = value.split("ppp")
+    except Exception:
+        (head, size) = value.split("pp")
     d.check(0 <= size and size <= 100 * 1000 * 1000)
     d.putItemCount(size)
     if d.isExpanded():
@@ -505,7 +513,11 @@ def qdump__std__set(d, value):
 
 
 def qdump__std__set__QNX(d, value):
-    (proxy, head, size) = value.split("ppp")
+    try:
+        _ = value["_Mypair"]["_Myval2"]["_Myval2"]["_Myproxy"]
+        (proxy, head, size) = value.split("ppp")
+    except Exception:
+        (head, size) = value.split("pp")
     d.check(0 <= size and size <= 100 * 1000 * 1000)
     d.putItemCount(size)
     if d.isExpanded():
@@ -744,12 +756,12 @@ def qdumpHelper__std__string__QNX(d, value, charType, format):
 
 def qdumpHelper__std__string__MSVC(d, value, charType, format):
     try:
+        _ = value["_Mypair"]["_Myval2"]["_Myproxy"]
         (proxy, buffer, size, alloc) = value.split("p16spp")
-        d.check(0 <= size and size <= alloc and alloc <= 100 * 1000 * 1000)
-    except RuntimeError:
+    except Exception:
         proxy = None
         (buffer, size, alloc) = value.split("16spp")
-        d.check(0 <= size and size <= alloc and alloc <= 100 * 1000 * 1000)
+    d.check(0 <= size and size <= alloc and alloc <= 100 * 1000 * 1000)
     _BUF_SIZE = int(16 / charType.size())
     if _BUF_SIZE <= alloc:
         if proxy is None:
@@ -1128,21 +1140,21 @@ def qdumpHelper__std__vector__libcxx(d, value):
 def qdumpHelper__std__vector__msvc(d, value):
     inner_type = value.type[0]
     if inner_type.name == "bool":
-        proxy1, proxy2, start, finish, alloc, size = value.split("pppppi")
         try:
-            d.check(0 <= size and size <= 1000 * 1000 * 1000)
-            d.check(finish <= alloc)
+            _ = value["_Myproxy"]
+            proxy1, proxy2, start, finish, alloc, size = value.split("pppppi")
         except RuntimeError:
             start, finish, alloc, size = value.split("pppi")
+        d.check(0 <= size and size <= 1000 * 1000 * 1000)
         qdumpHelper__std__vector__bool(d, start, size, inner_type)
     else:
-        proxy, start, finish, alloc = value.split("pppp")
-        size = (finish - start) // inner_type.size()
         try:
-            d.check(0 <= size and size <= 1000 * 1000 * 1000)
-            d.check(finish <= alloc)
+            _ = value["_Mypair"]["_Myval2"]["_Myproxy"]
+            proxy, start, finish, alloc = value.split("pppp")
         except RuntimeError:
             start, finish, alloc = value.split("ppp")
+        size = (finish - start) // inner_type.size()
+        d.check(0 <= size and size <= 1000 * 1000 * 1000)
         qdumpHelper__std__vector__nonbool(d, start, finish, alloc, inner_type)
 
 

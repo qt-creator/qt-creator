@@ -197,3 +197,13 @@ extend_qtc_executable(qml2puppet
     designersupportdelegate.h
     qmlprivategate_56.cpp qmlprivategate.h
 )
+
+if(DEFINED MULTILANGUAGE_SUPPORT_SUBDIRECTORY)
+  add_subdirectory(${MULTILANGUAGE_SUPPORT_SUBDIRECTORY} multilanguagesupport_static_build)
+endif()
+
+extend_qtc_executable(qml2puppet
+    CONDITION TARGET QtCreator::multilanguage-support
+    DEPENDS QtCreator::multilanguage-support
+    FEATURE_INFO "multilanguage-support in qml2puppet"
+)

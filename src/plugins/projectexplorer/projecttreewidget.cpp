@@ -498,6 +498,7 @@ void ProjectTreeWidget::setCurrentItem(Node *node)
         }
     } else {
         m_view->clearSelection();
+        m_view->setCurrentIndex({});
     }
 }
 
