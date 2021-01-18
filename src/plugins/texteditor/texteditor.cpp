@@ -3682,7 +3682,7 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, co
             .toTextCharFormat(C_SEARCH_RESULT).background().color().darker(120);
 
     while (idx < text.length()) {
-        const QRegularExpressionMatch match = m_searchExpr.match(text, idx + 1);
+        const QRegularExpressionMatch match = m_searchExpr.match(text, idx + l + 1);
         if (!match.hasMatch())
             break;
         idx = match.capturedStart();

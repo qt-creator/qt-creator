@@ -235,6 +235,11 @@ void DebugView::selectedNodesChanged(const QList<ModelNode> &selectedNodes /*sel
 
         message << lineBreak;
 
+        for (const SignalHandlerProperty &property : selectedNode.signalProperties())
+            message << property << lineBreak;
+
+        message << lineBreak;
+
         if (selectedNode.metaInfo().isValid()) {
             for (const NodeMetaInfo &metaInfo : selectedNode.metaInfo().classHierarchy())
                 message << metaInfo.typeName() << lineBreak;

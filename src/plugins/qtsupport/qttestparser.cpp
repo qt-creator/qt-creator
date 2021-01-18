@@ -49,7 +49,7 @@ namespace Internal {
 
 OutputLineParser::Result QtTestParser::handleLine(const QString &line, OutputFormat type)
 {
-    if (type != StdOutFormat)
+    if (type != StdOutFormat && type != DebugFormat)
         return Status::NotHandled;
 
     const QString theLine = rightTrimmed(line);
