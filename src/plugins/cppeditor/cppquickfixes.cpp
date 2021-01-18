@@ -8433,6 +8433,7 @@ public:
 
     QString memberVariableName;
     QString parameterName;
+    QString defaultValue;
     bool init = true;
     bool customValueType; // for the generation later
     Symbol *symbol; // for the right type later
@@ -8443,17 +8444,34 @@ using ConstructorMemberCandidates = std::vector<ConstructorMemberInfo>;
 
 class ConstructorParams : public QAbstractTableModel
 {
+    Q_OBJECT
     std::vector<ConstructorMemberInfo *> &infos;
 
+    void validateOrder()
+    {
+        // parameters with default values must be at the end
+        bool foundWithDefault = false;
+        for (auto info : infos) {
+            if (info->init) {
+                if (foundWithDefault && info->defaultValue.isEmpty()) {
+                    emit validOrder(false);
+                    return;
+                }
+                foundWithDefault |= !info->defaultValue.isEmpty();
+            }
+        }
+        emit validOrder(true);
+    }
+
 public:
-    enum Column { ShouldInitColumn, MemberNameColumn, ParameterNameColumn };
+    enum Column { ShouldInitColumn, MemberNameColumn, ParameterNameColumn, DefaultValueColumn };
     ConstructorParams(QObject *parent, std::vector<ConstructorMemberInfo *> &infos)
         : QAbstractTableModel(parent)
         , infos(infos)
     {}
 
     int rowCount(const QModelIndex & /*parent*/ = {}) const override { return infos.size(); }
-    int columnCount(const QModelIndex & /*parent*/ = {}) const override { return 3; }
+    int columnCount(const QModelIndex & /*parent*/ = {}) const override { return 4; }
     QVariant data(const QModelIndex &index, int role) const override
     {
         if (index.row() < 0 || index.row() >= rowCount())
@@ -8465,6 +8483,11 @@ public:
         if ((role == Qt::DisplayRole || role == Qt::EditRole)
             && index.column() == ParameterNameColumn)
             return infos[index.row()]->parameterName;
+        if ((role == Qt::DisplayRole || role == Qt::EditRole)
+            && index.column() == DefaultValueColumn)
+            return infos[index.row()]->defaultValue;
+        if ((role == Qt::ToolTipRole) && index.column() == DefaultValueColumn)
+            return Overview{}.prettyType(infos[index.row()]->symbol->type());
         return {};
     }
     bool setData(const QModelIndex &index, const QVariant &value, int role) override
@@ -8472,10 +8495,16 @@ public:
         if (index.column() == ShouldInitColumn && role == Qt::CheckStateRole) {
             infos[index.row()]->init = value.toInt() == Qt::Checked;
             emit dataChanged(this->index(index.row(), 1), this->index(index.row(), 2));
+            validateOrder();
             return true;
         }
         if (index.column() == ParameterNameColumn && role == Qt::EditRole) {
             infos[index.row()]->parameterName = value.toString();
+            return true;
+        }
+        if (index.column() == DefaultValueColumn && role == Qt::EditRole) {
+            infos[index.row()]->defaultValue = value.toString();
+            validateOrder();
             return true;
         }
         return false;
@@ -8498,7 +8527,7 @@ public:
             return f;
         if (index.column() == MemberNameColumn)
             return f | Qt::ItemIsEnabled;
-        if (index.column() == ParameterNameColumn)
+        if (index.column() == ParameterNameColumn || index.column() == DefaultValueColumn)
             return f | Qt::ItemIsEnabled | Qt::ItemIsEditable;
         return {};
     }
@@ -8513,6 +8542,8 @@ public:
                 return tr("Member Name");
             case ParameterNameColumn:
                 return tr("Parameter Name");
+            case DefaultValueColumn:
+                return tr("Default Value");
             }
         }
         return {};
@@ -8535,6 +8566,7 @@ public:
             if (row < sourceRow)
                 ++sourceRow;
             infos.erase(infos.begin() + sourceRow);
+            validateOrder();
             return true;
         }
         return false;
@@ -8576,6 +8608,8 @@ public:
             QProxyStyle::drawPrimitive(element, option, painter, widget);
         }
     };
+signals:
+    void validOrder(bool valid);
 };
 
 class GenerateConstructorDialog : public QDialog
@@ -8608,6 +8642,20 @@ public:
         const auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
         connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
         connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+        const auto errorLabel = new QLabel(
+            tr("Parameters without default value must come before parameters with default value."));
+        errorLabel->setStyleSheet("color: #ff0000");
+        errorLabel->setVisible(false);
+        QSizePolicy labelSizePolicy = errorLabel->sizePolicy();
+        labelSizePolicy.setRetainSizeWhenHidden(true);
+        errorLabel->setSizePolicy(labelSizePolicy);
+        connect(model,
+                &ConstructorParams::validOrder,
+                [=, button = buttonBox->button(QDialogButtonBox::Ok)](bool valid) {
+                    button->setEnabled(valid);
+                    errorLabel->setVisible(!valid);
+                });
 
         // setup select all/none checkbox
         QCheckBox *const checkBox = new QCheckBox(tr("Initialize all members"));
@@ -8659,6 +8707,7 @@ public:
         mainLayout->addLayout(row);
         mainLayout->addWidget(checkBox);
         mainLayout->addWidget(view);
+        mainLayout->addWidget(errorLabel);
         mainLayout->addWidget(buttonBox);
         int left, right;
         mainLayout->getContentsMargins(&left, nullptr, &right, nullptr);
@@ -8720,11 +8769,17 @@ private:
             if (dlg.exec() == QDialog::Rejected)
                 return;
             accessSpec = dlg.accessSpec();
-        } else if (infos.size() >= 3) {
-            // if we are testing and have 3 or more members => change the order
-            // move first element to the back
-            infos.push_back(infos[0]);
-            infos.erase(infos.begin());
+        } else {
+            if (infos.size() >= 3) {
+                // if we are testing and have 3 or more members => change the order
+                // move first element to the back
+                infos.push_back(infos[0]);
+                infos.erase(infos.begin());
+            }
+            for (auto info : infos) {
+                if (info->memberVariableName.startsWith("di_"))
+                    info->defaultValue = "42";
+            }
         }
         if (infos.empty())
             return;
@@ -8787,6 +8842,8 @@ private:
                         member->type = makeConstRef(member->type);
 
                     inClassDeclaration += overview.prettyType(member->type, member->parameterName);
+                    if (!member->defaultValue.isEmpty())
+                        inClassDeclaration += " = " + member->defaultValue;
                     inClassDeclaration += ", ";
                     QString param = member->parameterName;
                     if (implFile) {
@@ -8929,3 +8986,5 @@ void destroyCppQuickFixes()
 
 } // namespace Internal
 } // namespace CppEditor
+
+#include "cppquickfixes.moc"

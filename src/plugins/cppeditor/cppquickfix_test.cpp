@@ -7731,6 +7731,26 @@ public:
     QTest::newRow("changed parameter order")
         << header << expected << QByteArray() << QByteArray() << Inside;
 
+    header = R"--(
+class@ Foo{
+    int test;
+    int di_test;
+public:
+};
+)--";
+    expected = R"--(
+class Foo{
+    int test;
+    int di_test;
+public:
+    Foo(int test, int di_test = 42) : test(test),
+        di_test(di_test)
+    {}
+};
+)--";
+    QTest::newRow("default parameters")
+        << header << expected << QByteArray() << QByteArray() << Inside;
+
     const QByteArray common = R"--(
 namespace N{
     template<typename T>
