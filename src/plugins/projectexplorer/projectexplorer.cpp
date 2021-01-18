@@ -232,7 +232,6 @@ const char ADDNEWSUBPROJECT[]     = "ProjectExplorer.AddNewSubproject";
 const char REMOVEPROJECT[]        = "ProjectExplorer.RemoveProject";
 const char OPENFILE[]             = "ProjectExplorer.OpenFile";
 const char SEARCHONFILESYSTEM[]   = "ProjectExplorer.SearchOnFileSystem";
-const char SHOWINGRAPHICALSHELL[] = "ProjectExplorer.ShowInGraphicalShell";
 const char OPENTERMINALHERE[]     = "ProjectExplorer.OpenTerminalHere";
 const char DUPLICATEFILE[]        = "ProjectExplorer.DuplicateFile";
 const char DELETEFILE[]           = "ProjectExplorer.DeleteFile";
@@ -1015,8 +1014,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
 
     dd->m_showInGraphicalShell = new QAction(Core::FileUtils::msgGraphicalShellAction(), this);
-    cmd = ActionManager::registerAction(dd->m_showInGraphicalShell, Constants::SHOWINGRAPHICALSHELL,
-                       projectTreeContext);
+    cmd = ActionManager::registerAction(dd->m_showInGraphicalShell,
+                                        Core::Constants::SHOWINGRAPHICALSHELL,
+                                        projectTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
     mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_FILES);
 

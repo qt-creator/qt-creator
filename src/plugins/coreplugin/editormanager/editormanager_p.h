@@ -182,7 +182,6 @@ private:
     static void revertToSaved(IDocument *document);
     static void autoSuspendDocuments();
 
-    static void showInGraphicalShell();
     static void openTerminal();
     static void findInDirectory();
 
@@ -258,6 +257,7 @@ private:
     QAction *m_closeOtherDocumentsContextAction;
     QAction *m_closeAllEditorsExceptVisibleContextAction;
     QAction *m_openGraphicalShellAction;
+    QAction *m_openGraphicalShellContextAction;
     QAction *m_openTerminalAction;
     QAction *m_findInDirectoryAction;
     QAction *m_filePropertiesAction = nullptr;

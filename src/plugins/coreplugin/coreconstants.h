@@ -134,6 +134,7 @@ const char GOTOLASTEDIT[]          = "QtCreator.GotoLastEdit";
 const char ABOUT_QTCREATOR[]       = "QtCreator.AboutQtCreator";
 const char ABOUT_PLUGINS[]         = "QtCreator.AboutPlugins";
 const char S_RETURNTOEDITOR[]      = "QtCreator.ReturnToEditor";
+const char SHOWINGRAPHICALSHELL[]  = "QtCreator.ShowInGraphicalShell";
 
 // Default groups
 const char G_DEFAULT_ONE[]         = "QtCreator.Group.Default.One";

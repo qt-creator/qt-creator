@@ -420,6 +420,7 @@ EditorManagerPrivate::EditorManagerPrivate(QObject *parent) :
     m_closeOtherDocumentsContextAction(new QAction(EditorManager::tr("Close Others"), this)),
     m_closeAllEditorsExceptVisibleContextAction(new QAction(EditorManager::tr("Close All Except Visible"), this)),
     m_openGraphicalShellAction(new QAction(FileUtils::msgGraphicalShellAction(), this)),
+    m_openGraphicalShellContextAction(new QAction(FileUtils::msgGraphicalShellAction(), this)),
     m_openTerminalAction(new QAction(FileUtils::msgTerminalHereAction(), this)),
     m_findInDirectoryAction(new QAction(FileUtils::msgFindInDirectory(), this)),
     m_filePropertiesAction(new QAction(tr("Properties..."), this)),
@@ -521,8 +522,21 @@ void EditorManagerPrivate::init()
     // Close All Others Except Visible Action
     cmd = ActionManager::registerAction(m_closeAllEditorsExceptVisibleAction, Constants::CLOSEALLEXCEPTVISIBLE, editManagerContext, true);
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
-    connect(m_closeAllEditorsExceptVisibleAction, &QAction::triggered,
-            this, &EditorManagerPrivate::closeAllEditorsExceptVisible);
+    connect(m_closeAllEditorsExceptVisibleAction,
+            &QAction::triggered,
+            this,
+            &EditorManagerPrivate::closeAllEditorsExceptVisible);
+
+    cmd = ActionManager::registerAction(m_openGraphicalShellAction,
+                                        Constants::SHOWINGRAPHICALSHELL,
+                                        editManagerContext);
+    connect(m_openGraphicalShellAction, &QAction::triggered, this, [] {
+        if (!EditorManager::currentDocument())
+            return;
+        const FilePath fp = EditorManager::currentDocument()->filePath();
+        if (!fp.isEmpty())
+            FileUtils::showInGraphicalShell(ICore::dialogParent(), fp.toString());
+    });
 
     //Save XXX Context Actions
     connect(m_copyFilePathContextAction, &QAction::triggered,
@@ -548,8 +562,12 @@ void EditorManagerPrivate::init()
     connect(m_closeAllEditorsExceptVisibleContextAction, &QAction::triggered,
             this, &EditorManagerPrivate::closeAllEditorsExceptVisible);
 
-    connect(m_openGraphicalShellAction, &QAction::triggered,
-            this, &EditorManagerPrivate::showInGraphicalShell);
+    connect(m_openGraphicalShellContextAction, &QAction::triggered, this, [this] {
+        if (!m_contextMenuEntry || m_contextMenuEntry->fileName().isEmpty())
+            return;
+        FileUtils::showInGraphicalShell(ICore::dialogParent(),
+                                        m_contextMenuEntry->fileName().toString());
+    });
     connect(m_openTerminalAction, &QAction::triggered, this, &EditorManagerPrivate::openTerminal);
     connect(m_findInDirectoryAction, &QAction::triggered,
             this, &EditorManagerPrivate::findInDirectory);
@@ -2564,14 +2582,6 @@ void EditorManagerPrivate::autoSuspendDocuments()
     closeEditors(DocumentModel::editorsForDocuments(documentsToSuspend), CloseFlag::Suspend);
 }
 
-void EditorManagerPrivate::showInGraphicalShell()
-{
-    if (!d->m_contextMenuEntry || d->m_contextMenuEntry->fileName().isEmpty())
-        return;
-    FileUtils::showInGraphicalShell(ICore::dialogParent(),
-                                    d->m_contextMenuEntry->fileName().toString());
-}
-
 void EditorManagerPrivate::openTerminal()
 {
     if (!d->m_contextMenuEntry || d->m_contextMenuEntry->fileName().isEmpty())
@@ -2864,11 +2874,11 @@ void EditorManager::addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentM
     QTC_ASSERT(contextMenu, return);
     d->m_contextMenuEntry = entry;
     bool enabled = entry && !entry->fileName().isEmpty();
-    d->m_openGraphicalShellAction->setEnabled(enabled);
+    d->m_openGraphicalShellContextAction->setEnabled(enabled);
     d->m_openTerminalAction->setEnabled(enabled);
     d->m_findInDirectoryAction->setEnabled(enabled);
     d->m_filePropertiesAction->setEnabled(enabled);
-    contextMenu->addAction(d->m_openGraphicalShellAction);
+    contextMenu->addAction(d->m_openGraphicalShellContextAction);
     contextMenu->addAction(d->m_openTerminalAction);
     contextMenu->addAction(d->m_findInDirectoryAction);
     contextMenu->addAction(d->m_filePropertiesAction);
