@@ -26,6 +26,7 @@
 #include "theme.h"
 #include "theme_p.h"
 #include "../algorithm.h"
+#include "../hostosinfo.h"
 #include "../qtcassert.h"
 #ifdef Q_OS_MACOS
 #import "theme_mac.h"
@@ -240,6 +241,18 @@ void Theme::readSettings(QSettings &settings)
         }
         settings.endGroup();
     }
+}
+
+bool Theme::systemUsesDarkMode()
+{
+    if (HostOsInfo::isWindowsHost()) {
+        constexpr char regkey[]
+            = "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
+        bool ok;
+        const auto setting = QSettings(regkey, QSettings::NativeFormat).value("AppsUseLightTheme").toInt(&ok);
+        return ok && setting == 0;
+    }
+    return false;
 }
 
 // If you copy QPalette, default values stay at default, even if that default is different

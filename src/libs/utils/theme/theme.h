@@ -394,6 +394,7 @@ public:
 
     void readSettings(QSettings &settings);
 
+    static bool systemUsesDarkMode();
     static QPalette initialPalette();
 
 protected:

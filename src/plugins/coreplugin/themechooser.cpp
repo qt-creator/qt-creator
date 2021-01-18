@@ -225,9 +225,10 @@ QList<ThemeEntry> ThemeEntry::availableThemes()
 
 Id ThemeEntry::themeSetting()
 {
-    const Id setting =
-            Id::fromSetting(ICore::settings()->value(QLatin1String(Constants::SETTINGS_THEME),
-                                                     QLatin1String(Constants::DEFAULT_THEME)));
+    auto defaultId = Theme::systemUsesDarkMode() ? Constants::DEFAULT_DARK_THEME
+                                                 : Constants::DEFAULT_THEME;
+    const Id setting = Id::fromSetting(
+        ICore::settings()->value(Constants::SETTINGS_THEME, defaultId));
 
     const QList<ThemeEntry> themes = availableThemes();
     if (themes.empty())
