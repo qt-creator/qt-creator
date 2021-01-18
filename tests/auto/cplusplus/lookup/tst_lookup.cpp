@@ -198,6 +198,18 @@ void tst_Lookup::document_functionAt_data()
             "}\n"; // line 3
     expectedFunction = QString::fromLatin1("f");
     QTest::newRow("inlineWithLambdaArg1") << source << 2 << 1 << expectedFunction << 1 << 3;
+
+    source = "\n"
+             "int g_global = 456;\n" // line 1
+             "int foo()\n"  // line 2
+             "{\n"
+             "  g_global = 89;\n" // line 4
+             "  std::function<int(int)> cb = [](int) { return 1; };\n"
+             "  g_global = 222;\n"
+             "}\n"; // line 7
+    expectedFunction = QString::fromLatin1("foo");
+    QTest::newRow("inlineWithLambda1") << source << 4 << 1 << expectedFunction << 2 << 7;
+    QTest::newRow("inlineWithLambda2") << source << 6 << 1 << expectedFunction << 2 << 7;
 }
 
 void tst_Lookup::document_functionAt()

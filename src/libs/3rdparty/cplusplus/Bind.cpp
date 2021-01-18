@@ -1921,6 +1921,7 @@ bool Bind::visit(LambdaExpressionAST *ast)
 {
     this->lambdaIntroducer(ast->lambda_introducer);
     if (Function *function = this->lambdaDeclarator(ast->lambda_declarator)) {
+        function->setSourceLocation(ast->lambda_introducer->firstToken(), translationUnit());
         _scope->addMember(function);
         Scope *previousScope = switchScope(function);
         this->statement(ast->statement);
