@@ -152,16 +152,32 @@ ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitia
     }
 
     parentObjectValue = switchObjectValue(objectValue);
-
-    if (parentObjectValue) {
-        objectValue->setMember(QLatin1String("parent"), parentObjectValue);
-    } else if (!_rootObjectValue) {
+    ObjectValue *nextRoot = _rootObjectValue;
+    QString parentComponentName = _currentComponentName;
+    if (!_rootObjectValue) {
         _rootObjectValue = objectValue;
-        _rootObjectValue->setClassName(_doc->componentName());
+        _inlineComponents[_currentComponentName] = objectValue;
+        if (!_currentComponentName.isEmpty()) {
+            if (_currentComponentName.contains('.'))
+                parentComponentName = _currentComponentName.mid(0,_currentComponentName.lastIndexOf('.'));
+            else
+                parentComponentName = "";
+            nextRoot = _inlineComponents.value(parentComponentName);
+            // we add the inline component inside its parent
+            nextRoot->setMember(_currentComponentName.mid(_currentComponentName.lastIndexOf('.') + 1), objectValue);
+            _rootObjectValue->setClassName(_doc->componentName() + "." + _currentComponentName); // use :: instead of .?
+        } else {
+            nextRoot = _rootObjectValue;
+            _rootObjectValue->setClassName(_doc->componentName());
+        }
+    } else if (parentObjectValue) {
+        objectValue->setMember(QLatin1String("parent"), parentObjectValue);
     }
 
     accept(initializer);
 
+    _rootObjectValue = nextRoot;
+    _currentComponentName = parentComponentName;
     return switchObjectValue(parentObjectValue);
 }
 
@@ -315,6 +331,18 @@ bool Bind::visit(UiArrayBinding *)
 {
     // ### FIXME: do we need to store the members into the property? Or, maybe the property type is an JS Array?
 
+    return true;
+}
+
+bool Bind::visit(UiInlineComponent *ast)
+{
+    if (!_currentComponentName.isEmpty()) {
+        _currentComponentName += ".";
+        _diagnosticMessages->append(
+            errorMessage(ast, tr("Nested inline components are not supported")));
+    }
+    _currentComponentName += ast->name;
+    _rootObjectValue = nullptr;
     return true;
 }
 

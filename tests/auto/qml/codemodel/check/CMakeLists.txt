@@ -1,5 +1,5 @@
 add_qtc_test(tst_qml_check
-  DEPENDS QmlJS
+  DEPENDS QmlJS QmlJSTools ExtensionSystem Utils
   DEFINES
     QT_CREATOR
     QTCREATORDIR="${PROJECT_SOURCE_DIR}"

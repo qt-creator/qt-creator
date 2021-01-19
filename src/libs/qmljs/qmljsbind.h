@@ -59,6 +59,10 @@ public:
     ObjectValue *findAttachedJSScope(AST::Node *node) const;
     bool isGroupedPropertyBinding(AST::Node *node) const;
 
+    QHash<QString, ObjectValue*> inlineComponents() const {
+        return _inlineComponents;
+    }
+
 protected:
     using AST::Visitor::visit;
 
@@ -75,6 +79,7 @@ protected:
     bool visit(AST::UiObjectBinding *ast) override;
     bool visit(AST::UiScriptBinding *ast) override;
     bool visit(AST::UiArrayBinding *ast) override;
+    bool visit(AST::UiInlineComponent *ast) override;
 
     // QML/JS
     bool visit(AST::FunctionDeclaration *ast) override;
@@ -93,11 +98,13 @@ private:
     ObjectValue *_currentObjectValue;
     ObjectValue *_idEnvironment;
     ObjectValue *_rootObjectValue;
+    QString _currentComponentName;
 
     QHash<AST::Node *, ObjectValue *> _qmlObjects;
     QMultiHash<QString, const ObjectValue *> _qmlObjectsByPrototypeName;
     QSet<AST::Node *> _groupedPropertyBindings;
     QHash<AST::Node *, ObjectValue *> _attachedJSScopes;
+    QHash<QString, ObjectValue*> _inlineComponents;
 
     bool _isJsLibrary;
     QList<ImportInfo> _imports;

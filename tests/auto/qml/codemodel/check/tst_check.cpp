@@ -40,6 +40,7 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
 #include <qmljs/parser/qmljssourcelocation_p.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QtTest>
 #include <algorithm>
@@ -86,6 +87,23 @@ void tst_Check::initTestCase()
     QFileInfo builtins(resourcePath() + "/qml-type-descriptions/builtins.qmltypes");
     QStringList errors, warnings;
     CppQmlTypesLoader::defaultQtObjects = CppQmlTypesLoader::loadQmlTypes(QFileInfoList() << builtins, &errors, &warnings);
+
+    if (!ModelManagerInterface::instance())
+        new ModelManagerInterface;
+    if (!ExtensionSystem::PluginManager::instance())
+        new ExtensionSystem::PluginManager;
+    ModelManagerInterface *modelManager = ModelManagerInterface::instance();
+
+    QFutureInterface<void> result;
+    PathsAndLanguages lPaths;
+    QStringList paths(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath));
+    for (auto p: paths)
+        lPaths.maybeInsert(Utils::FilePath::fromString(p), Dialect::Qml);
+    ModelManagerInterface::importScan(result, ModelManagerInterface::workingCopy(), lPaths,
+                                      ModelManagerInterface::instance(), false);
+    QCoreApplication::processEvents();
+    ModelManagerInterface::instance()->test_joinAllThreads();
+    QCoreApplication::processEvents();
 }
 
 static bool offsetComparator(const Message &lhs, const Message &rhs)
@@ -100,18 +118,16 @@ void tst_Check::test_data()
 {
     QTest::addColumn<QString>("path");
 
-    QDirIterator it(TESTSRCDIR, QStringList("*.qml"), QDir::Files);
-    while (it.hasNext()) {
-        const QString fileName = it.next();
-        QTest::newRow(fileName.toLatin1()) << it.filePath();
+    for (QFileInfo it : QDir(TESTSRCDIR).entryInfoList(QStringList("*.qml"), QDir::Files, QDir::Name)) {
+        QTest::newRow(it.fileName().toUtf8()) << it.filePath();
     }
 }
 
 void tst_Check::test()
 {
     QFETCH(QString, path);
-
-    Snapshot snapshot;
+    auto mm = ModelManagerInterface::instance();
+    Snapshot snapshot =  mm->snapshot();
     Document::MutablePtr doc = Document::create(path, Dialect::Qml);
     QFile file(doc->fileName());
     file.open(QFile::ReadOnly | QFile::Text);
@@ -119,9 +135,15 @@ void tst_Check::test()
     file.close();
     doc->parse();
     snapshot.insert(doc);
+    mm->updateDocument(doc);
+    QRegularExpression nDiagRe("// *nDiagnosticMessages *= *([0-9]+)");
+    auto m = nDiagRe.match(doc->source());
+    int nDiagnosticMessages = 0;
+    if (m.hasMatch())
+        nDiagnosticMessages = m.captured(1).toInt();
 
     QVERIFY(!doc->source().isEmpty());
-    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->diagnosticMessages().size(), nDiagnosticMessages);
 
     ViewerContext vContext;
     vContext.flags = ViewerContext::Complete;
