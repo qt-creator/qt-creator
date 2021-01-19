@@ -75,7 +75,7 @@ using namespace Utils;
 namespace QbsProjectManager {
 namespace Internal {
 
-class QTSUPPORT_EXPORT ArchitecturesAspect : public Utils::MultiSelectionAspect
+class QBSPROJECTMANAGER_EXPORT ArchitecturesAspect : public Utils::MultiSelectionAspect
 {
     Q_OBJECT
 public:
