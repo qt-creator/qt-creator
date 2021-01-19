@@ -45,6 +45,8 @@
 #include <transitioneditor/transitioneditorview.h>
 #include <pathtool/pathtool.h>
 
+#include <app/app_version.h>
+
 #include <qmljseditor/qmljseditor.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljseditor/qmljseditordocument.h>
@@ -233,7 +235,8 @@ bool QmlDesignerPlugin::delayedInitialize()
     const QString pluginPath = Utils::HostOsInfo::isMacHost()
             ? QString(QCoreApplication::applicationDirPath() + "/../PlugIns/QmlDesigner")
             : QString(QCoreApplication::applicationDirPath() + "/../"
-                      + QLatin1String(IDE_LIBRARY_BASENAME) + "/qtcreator/plugins/qmldesigner");
+                      + QLatin1String(IDE_LIBRARY_BASENAME) + "/" + Core::Constants::IDE_ID
+                      + "/plugins/qmldesigner");
     MetaInfo::setPluginPaths(QStringList(pluginPath));
 
     d->settings.fromSettings(Core::ICore::settings());
