@@ -106,10 +106,10 @@ class Dumper(DumperBase):
         self.check(isinstance(nativeValue, cdbext.Value))
         val = self.Value(self)
         val.name = nativeValue.name()
-        val.type = self.fromNativeType(nativeValue.type())
+        val._type = self.fromNativeType(nativeValue.type())
         # There is no cdb api for the size of bitfields.
         # Workaround this issue by parsing the native debugger text for integral types.
-        if val.type.code == TypeCode.Integral:
+        if val._type.code == TypeCode.Integral:
             try:
                 integerString = nativeValue.nativeDebuggerValue()
             except UnicodeDecodeError:
@@ -128,16 +128,16 @@ class Dumper(DumperBase):
                     base = 16
                 else:
                     base = 10
-                signed = not val.type.name.startswith('unsigned')
+                signed = not val._type.name.startswith('unsigned')
                 try:
-                    val.ldata = int(integerString, base).to_bytes(val.type.size(),
+                    val.ldata = int(integerString, base).to_bytes(val._type.size(),
                                                                   byteorder='little', signed=signed)
                 except:
                     # read raw memory in case the integerString can not be interpreted
                     pass
-        if val.type.code == TypeCode.Enum:
+        if val._type.code == TypeCode.Enum:
             val.ldisplay = self.enumValue(nativeValue)
-        val.isBaseClass = val.name == val.type.name
+        val.isBaseClass = val.name == val._type.name
         val.nativeValue = nativeValue
         val.laddress = nativeValue.address()
         return val
@@ -408,10 +408,10 @@ class Dumper(DumperBase):
             nativeType = self.lookupNativeType(typeName, module)
             if nativeType is None:
                 return None
-            type = self.fromNativeType(nativeType)
-            if type.name != typeName:
-                self.registerType(typeName, type.typeData())
-            return type
+            _type = self.fromNativeType(nativeType)
+            if _type.name != typeName:
+                self.registerType(typeName, _type.typeData())
+            return _type
         return self.Type(self, typeName)
 
     def lookupNativeType(self, name, module=0):
@@ -509,7 +509,7 @@ class Dumper(DumperBase):
         else:
             val = self.Value(self)
             val.laddress = value.pointer()
-            val.type = value.type.dereference()
+            val._type = value.type.dereference()
 
         return val
 

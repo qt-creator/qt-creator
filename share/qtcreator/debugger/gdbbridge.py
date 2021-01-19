@@ -236,6 +236,9 @@ class Dumper(DumperBase):
                 pass
         return self.fromNativeValue(val)
 
+    def nativeValueType(self, nativeValue):
+        return self.fromNativeType(nativeValue.type)
+
     def fromNativeValue(self, nativeValue):
         #DumperBase.warn('FROM NATIVE VALUE: %s' % nativeValue)
         self.check(isinstance(nativeValue, gdb.Value))
@@ -297,7 +300,7 @@ class Dumper(DumperBase):
                     pass
             val.ldata = bytes(buf)
 
-        val.type = self.fromNativeType(nativeType)
+        val._type = self.fromNativeType(nativeType)
         val.lIsInScope = not nativeValue.is_optimized_out
         code = nativeType.code
         if code == gdb.TYPE_CODE_ENUM:
@@ -496,7 +499,7 @@ class Dumper(DumperBase):
         if nativeMember is None:
             val = self.Value(self)
             val.name = fieldName
-            val.type = self.fromNativeType(nativeField.type)
+            val._type = self.fromNativeType(nativeField.type)
             val.lIsInScope = False
             return val
         val = self.fromNativeValue(nativeMember)
@@ -505,7 +508,7 @@ class Dumper(DumperBase):
             val.lvalue = int(nativeMember)
             val.laddress = None
             fieldType = self.fromNativeType(nativeFieldType)
-            val.type = self.createBitfieldType(fieldType, nativeField.bitsize)
+            val._type = self.createBitfieldType(fieldType, nativeField.bitsize)
         val.isBaseClass = nativeField.is_base_class
         val.name = fieldName
         return val

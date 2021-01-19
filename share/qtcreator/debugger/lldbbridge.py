@@ -196,7 +196,7 @@ class Dumper(DumperBase):
             if hasattr(nativeTargetType, 'GetCanonicalType'):
                 nativeTargetType = nativeTargetType.GetCanonicalType()
             val = self.fromNativeValue(nativeValue.Cast(nativeTargetType))
-            val.type = self.fromNativeType(nativeType)
+            val._type = self.fromNativeType(nativeType)
             #DumperBase.warn('CREATED TYPEDEF: %s' % val)
         else:
             val = self.Value(self)
@@ -215,7 +215,7 @@ class Dumper(DumperBase):
                     except:
                         pass
 
-            val.type = self.fromNativeType(nativeType)
+            val._type = self.fromNativeType(nativeType)
 
             if code == lldb.eTypeClassEnumeration:
                 intval = nativeValue.GetValueAsSigned()
@@ -331,7 +331,7 @@ class Dumper(DumperBase):
                 if fieldType.GetNumberOfDirectBaseClasses() == 0:
                     member = self.Value(self)
                     fieldName = fieldObj.GetName()
-                    member.type = self.fromNativeType(fieldType)
+                    member._type = self.fromNativeType(fieldType)
                     member.name = fieldName
                     member.fields = []
                     if False:

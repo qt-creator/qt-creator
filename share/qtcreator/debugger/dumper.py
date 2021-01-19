@@ -752,7 +752,7 @@ class DumperBase():
         buf = bytearray(struct.pack('i', ival))
         val = self.Value(self)
         val.ldata = bytes(buf)
-        val.type = self.createType(typish)
+        val._type = self.createType(typish)
         with SubItem(self, name):
             self.putItem(val)
 
@@ -2907,7 +2907,7 @@ class DumperBase():
         def __init__(self, dumper):
             self.dumper = dumper
             self.name = None
-            self.type = None
+            self._type = None
             self.ldata = None        # Target address in case of references and pointers.
             self.laddress = None     # Own address.
             self.lvalue = None
@@ -2924,7 +2924,7 @@ class DumperBase():
             val = self.dumper.Value(self.dumper)
             val.dumper = self.dumper
             val.name = self.name
-            val.type = self.type
+            val._type = self._type
             val.ldata = self.ldata
             val.laddress = self.laddress
             val.lIsInScope = self.lIsInScope
@@ -2935,6 +2935,12 @@ class DumperBase():
             val.targetValue = self.targetValue
             val.nativeValue = self.nativeValue
             return val
+
+        @property
+        def type(self):
+            if self._type is None and self.nativeValue is not None:
+                self._type = self.dumper.nativeValueType(self.nativeValue)
+            return self._type
 
         def check(self):
             if self.laddress is not None and not self.dumper.isInt(self.laddress):
@@ -3150,7 +3156,7 @@ class DumperBase():
             val = self.dumper.Value(self.dumper)
             val.name = field.name
             val.isBaseClass = field.isBase
-            val.type = field.fieldType()
+            val._type = field.fieldType()
 
             if field.isArtificial:
                 if self.laddress is not None:
@@ -3244,7 +3250,7 @@ class DumperBase():
                     val = self.dumper.Value(self.dumper)
                     val.laddress = None
                     val.ldata = bytes(struct.pack(self.dumper.packCode + 'Q', address))
-                    val.type = self.type
+                    val._type = self._type
                     return val
             raise RuntimeError('BAD DATA TO ADD TO: %s %s' % (self.type, other))
 
@@ -3267,17 +3273,17 @@ class DumperBase():
                     val.laddress = self.pointer()
                     if val.laddress is None and self.laddress is not None:
                         val.laddress = self.laddress
-                    val.type = self.type.dereference()
+                    val._type = self.type.dereference()
                     if self.dumper.useDynamicType:
-                        val.type = self.dumper.nativeDynamicType(val.laddress, val.type)
+                        val._type = self.dumper.nativeDynamicType(val.laddress, val.type)
                 else:
                     val = self.dumper.nativeValueDereferenceReference(self)
             elif self.type.code == TypeCode.Pointer:
                 if self.nativeValue is None:
                     val.laddress = self.pointer()
-                    val.type = self.type.dereference()
+                    val._type = self.type.dereference()
                     if self.dumper.useDynamicType:
-                        val.type = self.dumper.nativeDynamicType(val.laddress, val.type)
+                        val._type = self.dumper.nativeDynamicType(val.laddress, val.type)
                 else:
                     val = self.dumper.nativeValueDereferencePointer(self)
             else:
@@ -3286,7 +3292,7 @@ class DumperBase():
             #DumperBase.warn("DEREFERENCING TO: %s" % val)
             #dynTypeName = val.type.dynamicTypeName(val.laddress)
             #if dynTypeName is not None:
-            #    val.type = self.dumper.createType(dynTypeName)
+            #    val._type = self.dumper.createType(dynTypeName)
             return val
 
         def detypedef(self):
@@ -3294,7 +3300,7 @@ class DumperBase():
             if self.type.code != TypeCode.Typedef:
                 raise RuntimeError("WRONG")
             val = self.copy()
-            val.type = self.type.ltarget
+            val._type = self.type.ltarget
             #DumperBase.warn("DETYPEDEF FROM: %s" % self)
             #DumperBase.warn("DETYPEDEF TO: %s" % val)
             return val
@@ -3323,7 +3329,7 @@ class DumperBase():
             val.laddress = self.laddress
             val.lbitsize = self.lbitsize
             val.ldata = self.ldata
-            val.type = self.dumper.createType(typish)
+            val._type = self.dumper.createType(typish)
             return val
 
         def address(self):
@@ -3736,7 +3742,7 @@ class DumperBase():
         targetType = self.createType(targetTypish)
         if self.useDynamicType:
             targetType = targetType.dynamicType(targetAddress)
-        val.type = self.createPointerType(targetType)
+        val._type = self.createPointerType(targetType)
         return val
 
     def createReferenceValue(self, targetAddress, targetType):
@@ -3750,7 +3756,7 @@ class DumperBase():
         val.ldata = self.toPointerData(targetAddress)
         if self.useDynamicType:
             targetType = targetType.dynamicType(targetAddress)
-        val.type = self.createReferenceType(targetType)
+        val._type = self.createReferenceType(targetType)
         return val
 
     def createPointerType(self, targetType):
@@ -3926,12 +3932,12 @@ class DumperBase():
 
     def createValue(self, datish, typish):
         val = self.Value(self)
-        val.type = self.createType(typish)
+        val._type = self.createType(typish)
         if self.isInt(datish):  # Used as address.
             #DumperBase.warn('CREATING %s AT 0x%x' % (val.type.name, datish))
             val.laddress = datish
             if self.useDynamicType:
-                val.type = val.type.dynamicType(datish)
+                val._type = val.type.dynamicType(datish)
             return val
         if isinstance(datish, bytes):
             #DumperBase.warn('CREATING %s WITH DATA %s' % (val.type.name, self.hexencode(datish)))
@@ -3947,7 +3953,7 @@ class DumperBase():
         tdata.code = TypeCode.Struct
         self.registerType(type_name, tdata)
         val = self.Value(self)
-        val.type = self.Type(self, type_name)
+        val._type = self.Type(self, type_name)
         val.ldata = proxy_data
         return val
 
