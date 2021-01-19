@@ -1235,6 +1235,12 @@ void DocumentContainer::setDefaultFont(const QFont &font)
 {
     d->m_defaultFont = font;
     d->m_defaultFontFamilyName = d->m_defaultFont.family().toUtf8();
+    // Since font family name and size are read only once, when parsing html,
+    // we need to trigger the reparse of this info.
+    if (d->m_document && d->m_document->root()) {
+        d->m_document->root()->refresh_styles();
+        d->m_document->root()->parse_styles();
+    }
 }
 
 QFont DocumentContainer::defaultFont() const
