@@ -36,7 +36,6 @@
 #include "vcsmanager.h"
 
 #include <app/app_version.h>
-#include <coreplugin.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/consoleprocess.h>
 #include <utils/environment.h>
