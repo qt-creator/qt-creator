@@ -55,6 +55,17 @@ find_package(Threads)
 find_package(Clang QUIET)
 find_package(KF5SyntaxHighlighting QUIET)
 
+# Crashpad
+set(CRASHPAD_BACKEND_URL "" CACHE STRING "Crashpad backend URL")
+set(BUILD_WITH_CRASHPAD OFF)
+if(CRASHPAD_BACKEND_URL AND (WIN32 OR APPLE)) # Linux is not supported for now
+  find_package(Crashpad QUIET)
+  if(TARGET Crashpad::Crashpad)
+    set(BUILD_WITH_CRASHPAD ON)
+  endif()
+endif()
+add_feature_info("Build with Crashpad" ${BUILD_WITH_CRASHPAD} "")
+
 function (set_if_target var target)
    if (TARGET "${target}")
      set(_result ON)

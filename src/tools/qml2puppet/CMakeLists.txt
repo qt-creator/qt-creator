@@ -211,21 +211,10 @@ extend_qtc_executable(qml2puppet
 # Crashpad
 # only windows requires separate crashpad client per process until client->SetHandlerIPCPipe()
 # is implemented (check the TODO inside startCrashpad())
-if (CRASHPAD_BACKEND_URL
-  AND CRASHPAD_SRC
-  AND EXISTS "${CRASHPAD_SRC}"
-  AND CRASHPAD_BUILD
-  AND EXISTS "${CRASHPAD_BUILD}"
-  AND WIN32)
-  target_compile_definitions(qml2puppet PRIVATE
-      CRASHPAD_BACKEND_URL="${CRASHPAD_BACKEND_URL}"
-      ENABLE_CRASHPAD)
-  target_include_directories(qml2puppet PRIVATE
-      "${CRASHPAD_SRC}"
-      "${CRASHPAD_SRC}/third_party/mini_chromium/mini_chromium")
-
-  target_link_libraries(qml2puppet PUBLIC ${CRASHPAD_BUILD}/obj/third_party/mini_chromium/mini_chromium/base/base.lib
-                                          ${CRASHPAD_BUILD}/obj/util/util.lib
-                                          ${CRASHPAD_BUILD}/obj/client/client.lib
-                                          advapi32)
-endif()
+extend_qtc_executable(qml2puppet
+  CONDITION BUILD_WITH_CRASHPAD AND WIN32
+  DEFINES
+    CRASHPAD_BACKEND_URL="${CRASHPAD_BACKEND_URL}"
+    ENABLE_CRASHPAD
+  DEPENDS Crashpad::Crashpad
+)

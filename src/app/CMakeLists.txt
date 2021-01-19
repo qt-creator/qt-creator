@@ -80,53 +80,14 @@ if (APPLE)
   )
 endif()
 
-# Crashpad
-set(CRASHPAD_BACKEND_URL "" CACHE STRING "Crashpad backend URL")
-set(CRASHPAD_SRC "" CACHE STRING "Path to Crashpad source code")
-set(CRASHPAD_BUILD "" CACHE STRING "Path to Crashpad build folder")
-
-if (CRASHPAD_BACKEND_URL
-  AND CRASHPAD_SRC
-  AND EXISTS "${CRASHPAD_SRC}"
-  AND CRASHPAD_BUILD
-  AND EXISTS "${CRASHPAD_BUILD}"
-  AND (WIN32 OR APPLE)) # LINUX isn't supported for now
-  target_compile_definitions(qtcreator PRIVATE
-      CRASHPAD_BACKEND_URL="${CRASHPAD_BACKEND_URL}"
-      ENABLE_CRASHPAD
-      WIN32_LEAN_AND_MEAN) # It comes usually with precompiled header, but at the installer they are disabled
-  target_include_directories(qtcreator PRIVATE
-      "${CRASHPAD_SRC}"
-      "${CRASHPAD_SRC}/third_party/mini_chromium/mini_chromium")
-
-  if (WIN32)
-    target_link_libraries(qtcreator PUBLIC ${CRASHPAD_BUILD}/obj/third_party/mini_chromium/mini_chromium/base/base.lib
-                                           ${CRASHPAD_BUILD}/obj/util/util.lib
-                                           ${CRASHPAD_BUILD}/obj/client/client.lib
-                                           advapi32)
-    install(FILES ${CRASHPAD_BUILD}/crashpad_handler.exe DESTINATION "${IDE_LIBEXEC_PATH}")
-
-  elseif(APPLE)
-    find_library(FWbsm bsm)
-    target_link_libraries(qtcreator PUBLIC ${CRASHPAD_BUILD}/obj/third_party/mini_chromium/mini_chromium/base/libbase.a
-                                           ${CRASHPAD_BUILD}/obj/util/libutil.a
-                                           ${CRASHPAD_BUILD}/obj/client/libclient.a
-                                           ${CRASHPAD_BUILD}/obj/out/Default/gen/util/mach/mig_output.child_portServer.o
-                                           ${CRASHPAD_BUILD}/obj/out/Default/gen/util/mach/mig_output.child_portUser.o
-                                           ${CRASHPAD_BUILD}/obj/out/Default/gen/util/mach/mig_output.excServer.o
-                                           ${CRASHPAD_BUILD}/obj/out/Default/gen/util/mach/mig_output.excUser.o
-                                           ${CRASHPAD_BUILD}/obj/out/Default/gen/util/mach/mig_output.mach_excServer.o
-                                           ${CRASHPAD_BUILD}/obj/out/Default/gen/util/mach/mig_output.mach_excUser.o
-                                           ${CRASHPAD_BUILD}/obj/out/Default/gen/util/mach/mig_output.notifyServer.o
-                                           ${CRASHPAD_BUILD}/obj/out/Default/gen/util/mach/mig_output.notifyUser.o
-                                           ${FWbsm} ${FWAppKit} ${FWIOKit} ${FWSecurity})
-    install(FILES ${CRASHPAD_BUILD}/crashpad_handler DESTINATION "${IDE_LIBEXEC_PATH}")
-
-  elseif(UNIX)
-    # TODO: Crashpad is not well supported on linux currently
-    target_link_libraries(qtcreator PUBLIC ${CRASHPAD_BUILD}/obj/third_party/mini_chromium/mini_chromium/base/libbase.a
-                                           ${CRASHPAD_BUILD}/obj/util/libutil.a
-                                           ${CRASHPAD_BUILD}/obj/client/libclient.a)
-    install(FILES ${CRASHPAD_BUILD}/crashpad_handler DESTINATION "${IDE_LIBEXEC_PATH}")
-  endif()
+extend_qtc_executable(qtcreator
+  CONDITION BUILD_WITH_CRASHPAD
+  DEFINES
+    CRASHPAD_BACKEND_URL="${CRASHPAD_BACKEND_URL}"
+    ENABLE_CRASHPAD
+    WIN32_LEAN_AND_MEAN # It comes usually with precompiled header, but at the installer they are disabled
+  DEPENDS Crashpad::Crashpad
+)
+if(BUILD_WITH_CRASHPAD)
+  install(FILES ${CRASHPAD_BIN_DIR}/crashpad_handler${CMAKE_EXECUTABLE_SUFFIX} DESTINATION "${IDE_LIBEXEC_PATH}")
 endif()
