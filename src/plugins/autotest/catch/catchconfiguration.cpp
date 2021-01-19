@@ -74,7 +74,8 @@ static QStringList filterInterfering(const QStringList &provided, QStringList *o
     for (const auto &arg : provided) {
         bool interferes = false;
         if (filterNext) {
-            omitted->append(arg);
+            if (omitted)
+                omitted->append(arg);
             filterNext = false;
             continue;
         }

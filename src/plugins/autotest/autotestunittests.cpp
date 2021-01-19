@@ -80,7 +80,7 @@ void AutoTestUnitTests::initTestCase()
 
     m_tmpDir = new CppTools::Tests::TemporaryCopiedDir(":/unit_test");
 
-    if (!qgetenv("BOOST_INCLUDE_DIR").isEmpty()) {
+    if (!qEnvironmentVariableIsEmpty("BOOST_INCLUDE_DIR")) {
         m_checkBoost = true;
     } else {
         if (Utils::HostOsInfo::isLinuxHost()
@@ -200,7 +200,7 @@ void AutoTestUnitTests::testCodeParserSwitchStartup_data()
 
 void AutoTestUnitTests::testCodeParserGTest()
 {
-    if (qgetenv("GOOGLETEST_DIR").isEmpty())
+    if (qEnvironmentVariableIsEmpty("GOOGLETEST_DIR"))
         QSKIP("This test needs googletest - set GOOGLETEST_DIR (point to googletest repository)");
 
     QFETCH(QString, projectFilePath);

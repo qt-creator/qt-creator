@@ -254,6 +254,7 @@ void TestTreeModel::onBuildSystemTestsUpdated()
     if (!bs || !bs->project())
         return;
 
+    QTC_ASSERT(m_checkStateCache, return);
     m_checkStateCache->evolve(ITestBase::Tool);
 
     ITestTool *testTool = TestFrameworkManager::testToolForBuildSystemId(bs->project()->id());
