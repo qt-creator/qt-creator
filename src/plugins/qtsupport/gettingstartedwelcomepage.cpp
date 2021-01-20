@@ -108,9 +108,9 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
     txt->setBuddy(chooser);
     chooser->setExpectedKind(PathChooser::ExistingDirectory);
     chooser->setHistoryCompleter(QLatin1String("Qt.WritableExamplesDir.History"));
-    QSettings *settings = ICore::settings();
-    chooser->setPath(settings->value(QString::fromLatin1(C_FALLBACK_ROOT),
-                                     DocumentManager::projectsDirectory().toString()).toString());
+    const QString defaultRootDirectory = DocumentManager::projectsDirectory().toString();
+    QtcSettings *settings = ICore::settings();
+    chooser->setPath(settings->value(C_FALLBACK_ROOT, defaultRootDirectory).toString());
     lay->addWidget(txt, 1, 0);
     lay->addWidget(chooser, 1, 1);
     enum { Copy = QDialog::Accepted + 1, Keep = QDialog::Accepted + 2 };
@@ -126,7 +126,7 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
     if (code == Copy) {
         QString exampleDirName = proFileInfo.dir().dirName();
         QString destBaseDir = chooser->filePath().toString();
-        settings->setValue(QString::fromLatin1(C_FALLBACK_ROOT), destBaseDir);
+        settings->setValueWithDefault(C_FALLBACK_ROOT, destBaseDir, defaultRootDirectory);
         QDir toDirWithExamplesDir(destBaseDir);
         if (toDirWithExamplesDir.cd(exampleDirName)) {
             toDirWithExamplesDir.cdUp(); // step out, just to not be in the way

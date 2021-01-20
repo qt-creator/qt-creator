@@ -26,6 +26,7 @@
 #include "codegensettings.h"
 
 #include <coreplugin/icore.h>
+#include <utils/qtcsettings.h>
 
 #include <QSettings>
 
@@ -36,14 +37,20 @@ static const char INCLUDE_QT_MODULE_KEY[] = "IncludeQtModule";
 static const char ADD_QT_VERSION_CHECK_KEY[] = "AddQtVersionCheck";
 
 static const bool retranslationSupportDefault = false;
+static const QtSupport::CodeGenSettings::UiClassEmbedding embeddingDefault
+    = QtSupport::CodeGenSettings::PointerAggregatedUiClass;
+static const bool includeQtModuleDefault = false;
+static const bool addQtVersionCheckDefault = false;
+
+using namespace Utils;
 
 namespace QtSupport {
 
-CodeGenSettings::CodeGenSettings() :
-    embedding(PointerAggregatedUiClass),
-    retranslationSupport(retranslationSupportDefault),
-    includeQtModule(false),
-    addQtVersionCheck(false)
+CodeGenSettings::CodeGenSettings()
+    : embedding(embeddingDefault)
+    , retranslationSupport(retranslationSupportDefault)
+    , includeQtModule(includeQtModuleDefault)
+    , addQtVersionCheck(addQtVersionCheckDefault)
 {
 
 }
@@ -58,21 +65,32 @@ bool CodeGenSettings::equals(const CodeGenSettings &rhs) const
 
 void CodeGenSettings::fromSettings(const QSettings *settings)
 {
-    QString group = QLatin1String(CODE_GEN_GROUP) + QLatin1Char('/');
+    QString group = QLatin1String(CODE_GEN_GROUP) + '/';
 
-    retranslationSupport = settings->value(group + QLatin1String(TRANSLATION_KEY), retranslationSupportDefault).toBool();
-    embedding =  static_cast<UiClassEmbedding>(settings->value(group + QLatin1String(EMBEDDING_KEY), int(PointerAggregatedUiClass)).toInt());
-    includeQtModule = settings->value(group + QLatin1String(INCLUDE_QT_MODULE_KEY), false).toBool();
-    addQtVersionCheck = settings->value(group + QLatin1String(ADD_QT_VERSION_CHECK_KEY), false).toBool();
+    retranslationSupport = settings->value(group + TRANSLATION_KEY, retranslationSupportDefault)
+                               .toBool();
+    embedding = static_cast<UiClassEmbedding>(
+        settings->value(group + EMBEDDING_KEY, int(embeddingDefault)).toInt());
+    includeQtModule = settings->value(group + INCLUDE_QT_MODULE_KEY, includeQtModuleDefault).toBool();
+    addQtVersionCheck = settings->value(group + ADD_QT_VERSION_CHECK_KEY, addQtVersionCheckDefault).toBool();
 }
 
 void CodeGenSettings::toSettings(QSettings *settings) const
 {
-    settings->beginGroup(QLatin1String(CODE_GEN_GROUP));
-    settings->setValue(QLatin1String(TRANSLATION_KEY), retranslationSupport);
-    settings->setValue(QLatin1String(EMBEDDING_KEY), embedding);
-    settings->setValue(QLatin1String(INCLUDE_QT_MODULE_KEY), includeQtModule);
-    settings->setValue(QLatin1String(ADD_QT_VERSION_CHECK_KEY), addQtVersionCheck);
+    settings->beginGroup(CODE_GEN_GROUP);
+    QtcSettings::setValueWithDefault(settings,
+                                     TRANSLATION_KEY,
+                                     retranslationSupport,
+                                     retranslationSupportDefault);
+    QtcSettings::setValueWithDefault(settings, EMBEDDING_KEY, int(embedding), int(embeddingDefault));
+    QtcSettings::setValueWithDefault(settings,
+                                     INCLUDE_QT_MODULE_KEY,
+                                     includeQtModule,
+                                     includeQtModuleDefault);
+    QtcSettings::setValueWithDefault(settings,
+                                     ADD_QT_VERSION_CHECK_KEY,
+                                     addQtVersionCheck,
+                                     addQtVersionCheckDefault);
     settings->endGroup();
 
 }

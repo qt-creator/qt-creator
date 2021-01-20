@@ -662,7 +662,7 @@ void QtVersionManager::setDocumentationSetting(const QtVersionManager::Documenta
 {
     if (setting == documentationSetting())
         return;
-    Core::ICore::settings()->setValue(DOCUMENTATION_SETTING_KEY, int(setting));
+    Core::ICore::settings()->setValueWithDefault(DOCUMENTATION_SETTING_KEY, int(setting), 0);
     // force re-evaluating which documentation should be registered
     // by claiming that all are removed and re-added
     const QList<BaseQtVersion *> vs = versions();
