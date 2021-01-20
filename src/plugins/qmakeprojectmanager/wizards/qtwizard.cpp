@@ -112,7 +112,7 @@ bool QtWizard::lowerCaseFiles()
     QString lowerCaseSettingsKey = QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP);
     lowerCaseSettingsKey += QLatin1Char('/');
     lowerCaseSettingsKey += QLatin1String(CppTools::Constants::LOWERCASE_CPPFILES_KEY);
-    const bool lowerCaseDefault = CppTools::Constants::lowerCaseFilesDefault;
+    const bool lowerCaseDefault = CppTools::Constants::LOWERCASE_CPPFILES_DEFAULT;
     return Core::ICore::settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
 }
 

@@ -25,7 +25,11 @@
 
 #pragma once
 
+#include "cpptoolsconstants.h"
+
 #include <coreplugin/dialogs/ioptionspage.h>
+
+#include <QDir>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -37,14 +41,19 @@ namespace Internal {
 struct CppFileSettings
 {
     QStringList headerPrefixes;
-    QString headerSuffix;
-    QStringList headerSearchPaths;
+    QString headerSuffix = "h";
+    QStringList headerSearchPaths = {"include",
+                                     "Include",
+                                     QDir::toNativeSeparators("../include"),
+                                     QDir::toNativeSeparators("../Include")};
     QStringList sourcePrefixes;
-    QString sourceSuffix;
-    QStringList sourceSearchPaths;
+    QString sourceSuffix = "cpp";
+    QStringList sourceSearchPaths = {QDir::toNativeSeparators("../src"),
+                                     QDir::toNativeSeparators("../Src"),
+                                     ".."};
     QString licenseTemplatePath;
     bool headerPragmaOnce = false;
-    bool lowerCaseFiles = false;
+    bool lowerCaseFiles = Constants::LOWERCASE_CPPFILES_DEFAULT;
 
     void toSettings(QSettings *) const;
     void fromSettings(QSettings *);

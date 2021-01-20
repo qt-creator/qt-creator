@@ -48,6 +48,14 @@ public:
     }
     struct CustomTemplate
     {
+        bool operator==(const CustomTemplate &b) const
+        {
+            return types == b.types
+                && equalComparison == b.equalComparison
+                && returnExpression == b.returnExpression
+                && returnType == b.returnType
+                && assignment == b.assignment;
+        }
         QStringList types;
         QString equalComparison;
         QString returnExpression;

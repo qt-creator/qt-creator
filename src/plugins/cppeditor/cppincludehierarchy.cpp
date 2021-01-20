@@ -447,16 +447,18 @@ void CppIncludeHierarchyWidget::perform()
     showIncludeHierarchy();
 }
 
+const bool kSyncDefault = false;
+
 void CppIncludeHierarchyWidget::saveSettings(QSettings *settings, int position)
 {
     const QString key = QString("IncludeHierarchy.%1.SyncWithEditor").arg(position);
-    settings->setValue(key, m_toggleSync->isChecked());
+    QtcSettings::setValueWithDefault(settings, key, m_toggleSync->isChecked(), kSyncDefault);
 }
 
 void CppIncludeHierarchyWidget::restoreSettings(QSettings *settings, int position)
 {
     const QString key = QString("IncludeHierarchy.%1.SyncWithEditor").arg(position);
-    m_toggleSync->setChecked(settings->value(key).toBool());
+    m_toggleSync->setChecked(settings->value(key, kSyncDefault).toBool());
 }
 
 void CppIncludeHierarchyWidget::onItemActivated(const QModelIndex &index)

@@ -67,7 +67,7 @@ bool FormClassWizardPage::lowercaseHeaderFiles()
     QString lowerCaseSettingsKey = CppTools::Constants::CPPTOOLS_SETTINGSGROUP;
     lowerCaseSettingsKey += '/';
     lowerCaseSettingsKey += CppTools::Constants::LOWERCASE_CPPFILES_KEY;
-    const bool lowerCaseDefault = CppTools::Constants::lowerCaseFilesDefault;
+    const bool lowerCaseDefault = CppTools::Constants::LOWERCASE_CPPFILES_DEFAULT;
     return Core::ICore::settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
 }
 

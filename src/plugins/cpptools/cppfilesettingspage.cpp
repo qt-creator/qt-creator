@@ -73,40 +73,46 @@ const char *licenseTemplateTemplate = QT_TRANSLATE_NOOP("CppTools::Internal::Cpp
 
 void CppFileSettings::toSettings(QSettings *s) const
 {
-    s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
-    s->setValue(QLatin1String(headerPrefixesKeyC), headerPrefixes);
-    s->setValue(QLatin1String(sourcePrefixesKeyC), sourcePrefixes);
-    s->setValue(QLatin1String(headerSuffixKeyC), headerSuffix);
-    s->setValue(QLatin1String(sourceSuffixKeyC), sourceSuffix);
-    s->setValue(QLatin1String(headerSearchPathsKeyC), headerSearchPaths);
-    s->setValue(QLatin1String(sourceSearchPathsKeyC), sourceSearchPaths);
-    s->setValue(QLatin1String(Constants::LOWERCASE_CPPFILES_KEY), lowerCaseFiles);
-    s->setValue(QLatin1String(headerPragmaOnceC), headerPragmaOnce);
-    s->setValue(QLatin1String(licenseTemplatePathKeyC), licenseTemplatePath);
+    using Utils::QtcSettings;
+    const CppFileSettings def;
+    s->beginGroup(Constants::CPPTOOLS_SETTINGSGROUP);
+    QtcSettings::setValueWithDefault(s, headerPrefixesKeyC, headerPrefixes, def.headerPrefixes);
+    QtcSettings::setValueWithDefault(s, sourcePrefixesKeyC, sourcePrefixes, def.sourcePrefixes);
+    QtcSettings::setValueWithDefault(s, headerSuffixKeyC, headerSuffix, def.headerSuffix);
+    QtcSettings::setValueWithDefault(s, sourceSuffixKeyC, sourceSuffix, def.sourceSuffix);
+    QtcSettings::setValueWithDefault(s,
+                                     headerSearchPathsKeyC,
+                                     headerSearchPaths,
+                                     def.headerSearchPaths);
+    QtcSettings::setValueWithDefault(s,
+                                     sourceSearchPathsKeyC,
+                                     sourceSearchPaths,
+                                     def.sourceSearchPaths);
+    QtcSettings::setValueWithDefault(s,
+                                     Constants::LOWERCASE_CPPFILES_KEY,
+                                     lowerCaseFiles,
+                                     def.lowerCaseFiles);
+    QtcSettings::setValueWithDefault(s, headerPragmaOnceC, headerPragmaOnce, def.headerPragmaOnce);
+    QtcSettings::setValueWithDefault(s,
+                                     licenseTemplatePathKeyC,
+                                     licenseTemplatePath,
+                                     def.licenseTemplatePath);
     s->endGroup();
 }
 
 void CppFileSettings::fromSettings(QSettings *s)
 {
-    const QStringList defaultHeaderSearchPaths
-            = QStringList({"include", "Include", QDir::toNativeSeparators("../include"),
-                           QDir::toNativeSeparators("../Include")});
-    const QStringList defaultSourceSearchPaths
-            = QStringList({QDir::toNativeSeparators("../src"), QDir::toNativeSeparators("../Src"),
-                           ".."});
-    s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
-    headerPrefixes = s->value(QLatin1String(headerPrefixesKeyC)).toStringList();
-    sourcePrefixes = s->value(QLatin1String(sourcePrefixesKeyC)).toStringList();
-    headerSuffix = s->value(QLatin1String(headerSuffixKeyC), QLatin1String("h")).toString();
-    sourceSuffix = s->value(QLatin1String(sourceSuffixKeyC), QLatin1String("cpp")).toString();
-    headerSearchPaths = s->value(QLatin1String(headerSearchPathsKeyC), defaultHeaderSearchPaths)
-            .toStringList();
-    sourceSearchPaths = s->value(QLatin1String(sourceSearchPathsKeyC), defaultSourceSearchPaths)
-            .toStringList();
-    const bool lowerCaseDefault = Constants::lowerCaseFilesDefault;
-    lowerCaseFiles = s->value(QLatin1String(Constants::LOWERCASE_CPPFILES_KEY), QVariant(lowerCaseDefault)).toBool();
-    headerPragmaOnce = s->value(headerPragmaOnceC, headerPragmaOnce).toBool();
-    licenseTemplatePath = s->value(QLatin1String(licenseTemplatePathKeyC), QString()).toString();
+    const CppFileSettings def;
+    s->beginGroup(Constants::CPPTOOLS_SETTINGSGROUP);
+    headerPrefixes = s->value(headerPrefixesKeyC, def.headerPrefixes).toStringList();
+    sourcePrefixes = s->value(sourcePrefixesKeyC, def.sourcePrefixes).toStringList();
+    headerSuffix = s->value(headerSuffixKeyC, def.headerSuffix).toString();
+    sourceSuffix = s->value(sourceSuffixKeyC, def.sourceSuffix).toString();
+    headerSearchPaths = s->value(headerSearchPathsKeyC, def.headerSearchPaths).toStringList();
+    sourceSearchPaths = s->value(sourceSearchPathsKeyC, def.sourceSearchPaths).toStringList();
+    lowerCaseFiles = s->value(Constants::LOWERCASE_CPPFILES_KEY, def.lowerCaseFiles).toBool();
+    headerPragmaOnce = s->value(headerPragmaOnceC, def.headerPragmaOnce).toBool();
+    licenseTemplatePath = s->value(licenseTemplatePathKeyC, def.licenseTemplatePath).toString();
     s->endGroup();
 }
 

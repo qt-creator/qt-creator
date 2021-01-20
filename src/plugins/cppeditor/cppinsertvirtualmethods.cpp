@@ -297,6 +297,13 @@ QStringList sortedAndTrimmedStringListWithoutEmptyElements(const QStringList &li
 namespace CppEditor {
 namespace Internal {
 
+const bool kInsertVirtualKeywordDefault = false;
+const bool kHideReimplementedFunctionsDefault = false;
+const bool kInsertOVerrideReplacementDefault = false;
+const int kOverrideReplacementIndexDefault = 0;
+const InsertVirtualMethodsDialog::ImplementationMode kImplementationModeDefault
+    = InsertVirtualMethodsDialog::ModeOnlyDeclarations;
+
 class VirtualMethodsSettings
 {
 public:
@@ -304,37 +311,50 @@ public:
     {
         QSettings *s = Core::ICore::settings();
         s->beginGroup(group());
-        insertVirtualKeyword = s->value(insertVirtualKeywordKey(), false).toBool();
-        hideReimplementedFunctions = s->value(hideReimplementedFunctionsKey(), false).toBool();
-        insertOverrideReplacement = s->value(insertOverrideReplacementKey(), false).toBool();
-        overrideReplacementIndex = s->value(overrideReplacementIndexKey(), 0).toInt();
+        insertVirtualKeyword = s->value(insertVirtualKeywordKey(), kInsertVirtualKeywordDefault)
+                                   .toBool();
+        hideReimplementedFunctions
+            = s->value(hideReimplementedFunctionsKey(), kHideReimplementedFunctionsDefault).toBool();
+        insertOverrideReplacement
+            = s->value(insertOverrideReplacementKey(), kInsertOVerrideReplacementDefault).toBool();
+        overrideReplacementIndex
+            = s->value(overrideReplacementIndexKey(), kOverrideReplacementIndexDefault).toInt();
         userAddedOverrideReplacements = s->value(userAddedOverrideReplacementsKey()).toStringList();
         implementationMode = static_cast<InsertVirtualMethodsDialog::ImplementationMode>(
-                    s->value(implementationModeKey(), 1).toInt());
+            s->value(implementationModeKey(), int(kImplementationModeDefault)).toInt());
         s->endGroup();
     }
 
     void write() const
     {
-        QSettings *s = Core::ICore::settings();
+        Utils::QtcSettings *s = Core::ICore::settings();
         s->beginGroup(group());
-        s->setValue(insertVirtualKeywordKey(), insertVirtualKeyword);
-        s->setValue(hideReimplementedFunctionsKey(), hideReimplementedFunctions);
-        s->setValue(insertOverrideReplacementKey(), insertOverrideReplacement);
-        s->setValue(overrideReplacementIndexKey(), overrideReplacementIndex);
-        s->setValue(userAddedOverrideReplacementsKey(), userAddedOverrideReplacements);
-        s->setValue(implementationModeKey(), implementationMode);
+        s->setValueWithDefault(insertVirtualKeywordKey(),
+                               insertVirtualKeyword,
+                               kInsertVirtualKeywordDefault);
+        s->setValueWithDefault(hideReimplementedFunctionsKey(),
+                               hideReimplementedFunctions,
+                               kHideReimplementedFunctionsDefault);
+        s->setValueWithDefault(insertOverrideReplacementKey(),
+                               insertOverrideReplacement,
+                               kInsertOVerrideReplacementDefault);
+        s->setValueWithDefault(overrideReplacementIndexKey(),
+                               overrideReplacementIndex,
+                               kOverrideReplacementIndexDefault);
+        s->setValueWithDefault(userAddedOverrideReplacementsKey(), userAddedOverrideReplacements);
+        s->setValueWithDefault(implementationModeKey(),
+                               int(implementationMode),
+                               int(kImplementationModeDefault));
         s->endGroup();
     }
 
     QString overrideReplacement; // internal
     QStringList userAddedOverrideReplacements;
-    InsertVirtualMethodsDialog::ImplementationMode implementationMode =
-            InsertVirtualMethodsDialog::ModeOnlyDeclarations;
-    int overrideReplacementIndex = 0;
-    bool insertVirtualKeyword = false;
-    bool hideReimplementedFunctions = false;
-    bool insertOverrideReplacement = false;
+    InsertVirtualMethodsDialog::ImplementationMode implementationMode = kImplementationModeDefault;
+    int overrideReplacementIndex = kOverrideReplacementIndexDefault;
+    bool insertVirtualKeyword = kInsertVirtualKeywordDefault;
+    bool hideReimplementedFunctions = kHideReimplementedFunctionsDefault;
+    bool insertOverrideReplacement = kInsertOVerrideReplacementDefault;
 
 private:
     using _ = QLatin1String;

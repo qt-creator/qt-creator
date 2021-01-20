@@ -25,8 +25,11 @@
 
 #include "cppquickfixsettings.h"
 #include "cppeditorconstants.h"
+
 #include <coreplugin/icore.h>
 #include <cpptools/cppcodestylesettings.h>
+#include <utils/qtcsettings.h>
+
 #include <QRegularExpression>
 
 namespace CppEditor {
@@ -54,81 +57,66 @@ void CppQuickFixSettings::loadGlobalSettings()
 
 void CppQuickFixSettings::loadSettingsFrom(QSettings *s)
 {
-    s->beginGroup(QLatin1String(Constants::QUICK_FIX_SETTINGS_ID));
-    getterOutsideClassFrom = s->value(QLatin1String(
-                                          Constants::QUICK_FIX_SETTING_GETTER_OUTSIDE_CLASS_FROM),
-                                      getterOutsideClassFrom)
+    CppQuickFixSettings def;
+    s->beginGroup(Constants::QUICK_FIX_SETTINGS_ID);
+    getterOutsideClassFrom = s->value(Constants::QUICK_FIX_SETTING_GETTER_OUTSIDE_CLASS_FROM,
+                                      def.getterOutsideClassFrom)
                                  .toInt();
-    getterInCppFileFrom = s->value(QLatin1String(
-                                       Constants::QUICK_FIX_SETTING_GETTER_IN_CPP_FILE_FROM),
-                                   getterInCppFileFrom)
+    getterInCppFileFrom = s->value(Constants::QUICK_FIX_SETTING_GETTER_IN_CPP_FILE_FROM,
+                                   def.getterInCppFileFrom)
                               .toInt();
-    setterOutsideClassFrom = s->value(QLatin1String(
-                                          Constants::QUICK_FIX_SETTING_SETTER_OUTSIDE_CLASS_FROM),
-                                      setterOutsideClassFrom)
+    setterOutsideClassFrom = s->value(Constants::QUICK_FIX_SETTING_SETTER_OUTSIDE_CLASS_FROM,
+                                      def.setterOutsideClassFrom)
                                  .toInt();
-    setterInCppFileFrom = s->value(QLatin1String(
-                                       Constants::QUICK_FIX_SETTING_SETTER_IN_CPP_FILE_FROM),
-                                   setterInCppFileFrom)
+    setterInCppFileFrom = s->value(Constants::QUICK_FIX_SETTING_SETTER_IN_CPP_FILE_FROM,
+                                   def.setterInCppFileFrom)
                               .toInt();
-    getterAttributes = s->value(QLatin1String(Constants::QUICK_FIX_SETTING_GETTER_ATTRIBUTES),
-                                getterAttributes)
-                           .toString();
-    getterNameTemplate = s->value(QLatin1String(Constants::QUICK_FIX_SETTING_GETTER_NAME_TEMPLATE),
-                                  getterNameTemplate)
+    getterAttributes
+        = s->value(Constants::QUICK_FIX_SETTING_GETTER_ATTRIBUTES, def.getterAttributes).toString();
+    getterNameTemplate = s->value(Constants::QUICK_FIX_SETTING_GETTER_NAME_TEMPLATE,
+                                  def.getterNameTemplate)
                              .toString();
-    setterNameTemplate = s->value(QLatin1String(Constants::QUICK_FIX_SETTING_SETTER_NAME_TEMPLATE),
-                                  setterNameTemplate)
+    setterNameTemplate = s->value(Constants::QUICK_FIX_SETTING_SETTER_NAME_TEMPLATE,
+                                  def.setterNameTemplate)
                              .toString();
-    setterParameterNameTemplate = s->value(QLatin1String(
-                                               Constants::QUICK_FIX_SETTING_SETTER_PARAMETER_NAME),
-                                           setterParameterNameTemplate)
+    setterParameterNameTemplate = s->value(Constants::QUICK_FIX_SETTING_SETTER_PARAMETER_NAME,
+                                           def.setterParameterNameTemplate)
                                       .toString();
-    resetNameTemplate = s->value(QLatin1String(Constants::QUICK_FIX_SETTING_RESET_NAME_TEMPLATE),
-                                 resetNameTemplate)
+    resetNameTemplate = s->value(Constants::QUICK_FIX_SETTING_RESET_NAME_TEMPLATE,
+                                 def.resetNameTemplate)
                             .toString();
-    signalNameTemplate = s->value(QLatin1String(Constants::QUICK_FIX_SETTING_SIGNAL_NAME_TEMPLATE),
-                                  signalNameTemplate)
+    signalNameTemplate = s->value(Constants::QUICK_FIX_SETTING_SIGNAL_NAME_TEMPLATE,
+                                  def.signalNameTemplate)
                              .toString();
-    signalWithNewValue = s->value(QLatin1String(Constants::QUICK_FIX_SETTING_SIGNAL_WITH_NEW_VALUE),
-                                  signalWithNewValue)
+    signalWithNewValue = s->value(Constants::QUICK_FIX_SETTING_SIGNAL_WITH_NEW_VALUE,
+                                  def.signalWithNewValue)
                              .toBool();
-    setterAsSlot = s->value(QLatin1String(Constants::QUICK_FIX_SETTING_SETTER_AS_SLOT), setterAsSlot)
-                       .toBool();
+    setterAsSlot = s->value(Constants::QUICK_FIX_SETTING_SETTER_AS_SLOT, def.setterAsSlot).toBool();
     cppFileNamespaceHandling = static_cast<MissingNamespaceHandling>(
-        s->value(QLatin1String(Constants::QUICK_FIX_SETTING_CPP_FILE_NAMESPACE_HANDLING),
-                 static_cast<int>(cppFileNamespaceHandling))
+        s->value(Constants::QUICK_FIX_SETTING_CPP_FILE_NAMESPACE_HANDLING,
+                 static_cast<int>(def.cppFileNamespaceHandling))
             .toInt());
-    memberVariableNameTemplate
-        = s->value(QLatin1String(Constants::QUICK_FIX_SETTING_MEMBER_VARIABEL_NAME_TEMPLATE),
-                   memberVariableNameTemplate)
-              .toString();
-    valueTypes = s->value(QLatin1String(Constants::QUICK_FIX_SETTING_VALUE_TYPES), valueTypes)
-                     .toStringList();
-    int size = s->beginReadArray(QLatin1String(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATES));
+    memberVariableNameTemplate = s->value(Constants::QUICK_FIX_SETTING_MEMBER_VARIABEL_NAME_TEMPLATE,
+                                          def.memberVariableNameTemplate)
+                                     .toString();
+    valueTypes = s->value(Constants::QUICK_FIX_SETTING_VALUE_TYPES, def.valueTypes).toStringList();
+    customTemplates = def.customTemplates;
+    int size = s->beginReadArray(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATES);
     if (size > 0)
         customTemplates.clear();
 
     for (int i = 0; i < size; ++i) {
         s->setArrayIndex(i);
         CustomTemplate c;
-        c.types = s->value(QLatin1String(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATE_TYPES))
-                      .toStringList();
+        c.types = s->value(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATE_TYPES).toStringList();
         if (c.types.isEmpty())
             continue;
-        c.equalComparison = s->value(QLatin1String(
-                                         Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATE_COMPARISON))
+        c.equalComparison = s->value(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATE_COMPARISON)
                                 .toString();
-        c.returnType = s->value(QLatin1String(
-                                    Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATE_RETURN_TYPE))
-                           .toString();
+        c.returnType = s->value(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATE_RETURN_TYPE).toString();
         c.returnExpression
-            = s->value(
-                   QLatin1String(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATE_RETURN_EXPRESSION))
-                  .toString();
-        c.assignment = s->value(
-                            QLatin1String(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATE_ASSIGNMENT))
-                           .toString();
+            = s->value(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATE_RETURN_EXPRESSION).toString();
+        c.assignment = s->value(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATE_ASSIGNMENT).toString();
         if (c.assignment.isEmpty() && c.returnType.isEmpty() && c.equalComparison.isEmpty())
             continue; // nothing custom here
 
@@ -140,45 +128,86 @@ void CppQuickFixSettings::loadSettingsFrom(QSettings *s)
 
 void CppQuickFixSettings::saveSettingsTo(QSettings *s)
 {
-    s->beginGroup(QLatin1String(Constants::QUICK_FIX_SETTINGS_ID));
-    s->setValue(QLatin1String(Constants::QUICK_FIX_SETTING_GETTER_OUTSIDE_CLASS_FROM),
-                getterOutsideClassFrom);
-    s->setValue(QLatin1String(Constants::QUICK_FIX_SETTING_GETTER_IN_CPP_FILE_FROM),
-                getterInCppFileFrom);
-    s->setValue(QLatin1String(Constants::QUICK_FIX_SETTING_SETTER_OUTSIDE_CLASS_FROM),
-                setterOutsideClassFrom);
-    s->setValue(QLatin1String(Constants::QUICK_FIX_SETTING_SETTER_IN_CPP_FILE_FROM),
-                setterInCppFileFrom);
+    using Utils::QtcSettings;
+    CppQuickFixSettings def;
+    s->beginGroup(Constants::QUICK_FIX_SETTINGS_ID);
+    QtcSettings::setValueWithDefault(s,
+                                     Constants::QUICK_FIX_SETTING_GETTER_OUTSIDE_CLASS_FROM,
+                                     getterOutsideClassFrom,
+                                     def.getterOutsideClassFrom);
+    QtcSettings::setValueWithDefault(s,
+                                     Constants::QUICK_FIX_SETTING_GETTER_IN_CPP_FILE_FROM,
+                                     getterInCppFileFrom,
+                                     def.getterInCppFileFrom);
+    QtcSettings::setValueWithDefault(s,
+                                     Constants::QUICK_FIX_SETTING_SETTER_OUTSIDE_CLASS_FROM,
+                                     setterOutsideClassFrom,
+                                     def.setterOutsideClassFrom);
+    QtcSettings::setValueWithDefault(s,
+                                     Constants::QUICK_FIX_SETTING_SETTER_IN_CPP_FILE_FROM,
+                                     setterInCppFileFrom,
+                                     def.setterInCppFileFrom);
 
-    s->setValue(QLatin1String(Constants::QUICK_FIX_SETTING_GETTER_ATTRIBUTES), getterAttributes);
-    s->setValue(QLatin1String(Constants::QUICK_FIX_SETTING_GETTER_NAME_TEMPLATE), getterNameTemplate);
-    s->setValue(QLatin1String(Constants::QUICK_FIX_SETTING_SETTER_NAME_TEMPLATE), setterNameTemplate);
-    s->setValue(QLatin1String(Constants::QUICK_FIX_SETTING_RESET_NAME_TEMPLATE), resetNameTemplate);
-    s->setValue(QLatin1String(Constants::QUICK_FIX_SETTING_SIGNAL_NAME_TEMPLATE), signalNameTemplate);
-    s->setValue(QLatin1String(Constants::QUICK_FIX_SETTING_SIGNAL_WITH_NEW_VALUE), signalWithNewValue);
-    s->setValue(QLatin1String(Constants::QUICK_FIX_SETTING_CPP_FILE_NAMESPACE_HANDLING),
-                static_cast<int>(cppFileNamespaceHandling));
-    s->setValue(QLatin1String(Constants::QUICK_FIX_SETTING_MEMBER_VARIABEL_NAME_TEMPLATE),
-                memberVariableNameTemplate);
-    s->setValue(QLatin1String(Constants::QUICK_FIX_SETTING_SETTER_PARAMETER_NAME),
-                setterParameterNameTemplate);
-    s->setValue(QLatin1String(Constants::QUICK_FIX_SETTING_SETTER_AS_SLOT), setterAsSlot);
-    s->setValue(QLatin1String(Constants::QUICK_FIX_SETTING_VALUE_TYPES), valueTypes);
-    s->beginWriteArray(QLatin1String(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATES));
-    for (int i = 0; i < static_cast<int>(customTemplates.size()); ++i) {
-        const auto &c = customTemplates[i];
-        s->setArrayIndex(i);
-        s->setValue(QLatin1String(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATE_TYPES), c.types);
-        s->setValue(QLatin1String(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATE_COMPARISON),
-                    c.equalComparison);
-        s->setValue(QLatin1String(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATE_RETURN_TYPE),
-                    c.returnType);
-        s->setValue(QLatin1String(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATE_RETURN_EXPRESSION),
-                    c.returnExpression);
-        s->setValue(QLatin1String(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATE_ASSIGNMENT),
-                    c.assignment);
+    QtcSettings::setValueWithDefault(s,
+                                     Constants::QUICK_FIX_SETTING_GETTER_ATTRIBUTES,
+                                     getterAttributes,
+                                     def.getterAttributes);
+    QtcSettings::setValueWithDefault(s,
+                                     Constants::QUICK_FIX_SETTING_GETTER_NAME_TEMPLATE,
+                                     getterNameTemplate,
+                                     def.getterNameTemplate);
+    QtcSettings::setValueWithDefault(s,
+                                     Constants::QUICK_FIX_SETTING_SETTER_NAME_TEMPLATE,
+                                     setterNameTemplate,
+                                     def.setterNameTemplate);
+    QtcSettings::setValueWithDefault(s,
+                                     Constants::QUICK_FIX_SETTING_RESET_NAME_TEMPLATE,
+                                     resetNameTemplate,
+                                     def.resetNameTemplate);
+    QtcSettings::setValueWithDefault(s,
+                                     Constants::QUICK_FIX_SETTING_SIGNAL_NAME_TEMPLATE,
+                                     signalNameTemplate,
+                                     def.signalNameTemplate);
+    QtcSettings::setValueWithDefault(s,
+                                     Constants::QUICK_FIX_SETTING_SIGNAL_WITH_NEW_VALUE,
+                                     signalWithNewValue,
+                                     def.signalWithNewValue);
+    QtcSettings::setValueWithDefault(s,
+                                     Constants::QUICK_FIX_SETTING_CPP_FILE_NAMESPACE_HANDLING,
+                                     int(cppFileNamespaceHandling),
+                                     int(def.cppFileNamespaceHandling));
+    QtcSettings::setValueWithDefault(s,
+                                     Constants::QUICK_FIX_SETTING_MEMBER_VARIABEL_NAME_TEMPLATE,
+                                     memberVariableNameTemplate,
+                                     def.memberVariableNameTemplate);
+    QtcSettings::setValueWithDefault(s,
+                                     Constants::QUICK_FIX_SETTING_SETTER_PARAMETER_NAME,
+                                     setterParameterNameTemplate,
+                                     def.setterParameterNameTemplate);
+    QtcSettings::setValueWithDefault(s,
+                                     Constants::QUICK_FIX_SETTING_SETTER_AS_SLOT,
+                                     setterAsSlot,
+                                     def.setterAsSlot);
+    QtcSettings::setValueWithDefault(s,
+                                     Constants::QUICK_FIX_SETTING_VALUE_TYPES,
+                                     valueTypes,
+                                     def.valueTypes);
+    if (customTemplates == def.customTemplates) {
+        s->remove(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATES);
+    } else {
+        s->beginWriteArray(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATES);
+        for (int i = 0; i < static_cast<int>(customTemplates.size()); ++i) {
+            const auto &c = customTemplates[i];
+            s->setArrayIndex(i);
+            s->setValue(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATE_TYPES, c.types);
+            s->setValue(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATE_COMPARISON, c.equalComparison);
+            s->setValue(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATE_RETURN_TYPE, c.returnType);
+            s->setValue(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATE_RETURN_EXPRESSION,
+                        c.returnExpression);
+            s->setValue(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATE_ASSIGNMENT, c.assignment);
+        }
+        s->endArray();
     }
-    s->endArray();
     s->endGroup();
 }
 

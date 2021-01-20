@@ -43,6 +43,9 @@
 #include <QSettings>
 
 static const char idKey[] = "CppGlobal";
+const bool kSortEditorDocumentOutlineDefault = true;
+const bool kShowHeaderErrorInfoBarDefault = true;
+const bool kShowNoProjectInfoBarDefault = true;
 
 using namespace Core;
 using namespace CppTools;
@@ -254,12 +257,16 @@ static QString sortEditorDocumentOutlineKey()
 
 bool CppToolsSettings::sortedEditorDocumentOutline() const
 {
-    return ICore::settings()->value(sortEditorDocumentOutlineKey(), true).toBool();
+    return ICore::settings()
+        ->value(sortEditorDocumentOutlineKey(), kSortEditorDocumentOutlineDefault)
+        .toBool();
 }
 
 void CppToolsSettings::setSortedEditorDocumentOutline(bool sorted)
 {
-    ICore::settings()->setValue(sortEditorDocumentOutlineKey(), sorted);
+    ICore::settings()->setValueWithDefault(sortEditorDocumentOutlineKey(),
+                                           sorted,
+                                           kSortEditorDocumentOutlineDefault);
     emit editorDocumentOutlineSortingChanged(sorted);
 }
 
@@ -272,12 +279,16 @@ static QString showHeaderErrorInfoBarKey()
 
 bool CppToolsSettings::showHeaderErrorInfoBar() const
 {
-    return ICore::settings()->value(showHeaderErrorInfoBarKey(), true).toBool();
+    return ICore::settings()
+        ->value(showHeaderErrorInfoBarKey(), kShowHeaderErrorInfoBarDefault)
+        .toBool();
 }
 
 void CppToolsSettings::setShowHeaderErrorInfoBar(bool show)
 {
-    ICore::settings()->setValue(showHeaderErrorInfoBarKey(), show);
+    ICore::settings()->setValueWithDefault(showHeaderErrorInfoBarKey(),
+                                           show,
+                                           kShowHeaderErrorInfoBarDefault);
     emit showHeaderErrorInfoBarChanged(show);
 }
 
@@ -290,11 +301,13 @@ static QString showNoProjectInfoBarKey()
 
 bool CppToolsSettings::showNoProjectInfoBar() const
 {
-    return ICore::settings()->value(showNoProjectInfoBarKey(), true).toBool();
+    return ICore::settings()->value(showNoProjectInfoBarKey(), kShowNoProjectInfoBarDefault).toBool();
 }
 
 void CppToolsSettings::setShowNoProjectInfoBar(bool show)
 {
-    ICore::settings()->setValue(showNoProjectInfoBarKey(), show);
+    ICore::settings()->setValueWithDefault(showNoProjectInfoBarKey(),
+                                           show,
+                                           kShowNoProjectInfoBarDefault);
     emit showNoProjectInfoBarChanged(show);
 }
