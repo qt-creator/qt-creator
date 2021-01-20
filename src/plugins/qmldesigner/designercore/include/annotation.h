@@ -100,8 +100,9 @@ public:
 
     friend QDebug &operator<<(QDebug &stream, const Comment &comment);
 
-    friend QDataStream &operator<<(QDataStream &stream, const Comment &comment);
-    friend QDataStream &operator>>(QDataStream &stream, Comment &comment);
+    QMLDESIGNERCORE_EXPORT friend QDataStream &operator<<(QDataStream &stream,
+                                                          const Comment &comment);
+    QMLDESIGNERCORE_EXPORT friend QDataStream &operator>>(QDataStream &stream, Comment &comment);
 
 private:
     QString m_title;
@@ -132,8 +133,10 @@ public:
 
     friend QDebug &operator<<(QDebug &stream, const Annotation &annotation);
 
-    friend QDataStream &operator<<(QDataStream &stream, const Annotation &annotation);
-    friend QDataStream &operator>>(QDataStream &stream, Annotation &annotation);
+    QMLDESIGNERCORE_EXPORT friend QDataStream &operator<<(QDataStream &stream,
+                                                          const Annotation &annotation);
+    QMLDESIGNERCORE_EXPORT friend QDataStream &operator>>(QDataStream &stream,
+                                                          Annotation &annotation);
 
 private:
     QVector<Comment> m_comments;
@@ -142,12 +145,11 @@ private:
 QDebug &operator<<(QDebug &stream, const Comment &comment);
 QDebug &operator<<(QDebug &stream, const Annotation &annotation);
 
-QDataStream &operator<<(QDataStream &stream, const Comment &comment);
-QDataStream &operator>>(QDataStream &stream, Comment &comment);
-QDataStream &operator<<(QDataStream &stream, const Annotation &annotation);
-QDataStream &operator>>(QDataStream &stream, Annotation &annotation);
-
-}
+QMLDESIGNERCORE_EXPORT QDataStream &operator<<(QDataStream &stream, const Comment &comment);
+QMLDESIGNERCORE_EXPORT QDataStream &operator>>(QDataStream &stream, Comment &comment);
+QMLDESIGNERCORE_EXPORT QDataStream &operator<<(QDataStream &stream, const Annotation &annotation);
+QMLDESIGNERCORE_EXPORT QDataStream &operator>>(QDataStream &stream, Annotation &annotation);
+} // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::Comment);
 Q_DECLARE_METATYPE(QmlDesigner::Annotation);
