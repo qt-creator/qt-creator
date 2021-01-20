@@ -362,7 +362,11 @@ void CodeCompletionsExtractor::extractAvailability()
             currentCodeCompletion_.availability = CodeCompletion::NotAvailable;
             break;
         case CXAvailability_NotAccessible:
-            currentCodeCompletion_.availability = CodeCompletion::NotAccessible;
+            // QTCREATORBUG-25244
+            if (currentCodeCompletion_.completionKind == CodeCompletion::FunctionDefinitionCompletionKind)
+                currentCodeCompletion_.availability = CodeCompletion::Available;
+            else
+                currentCodeCompletion_.availability = CodeCompletion::NotAccessible;
             break;
     }
 }

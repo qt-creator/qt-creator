@@ -158,6 +158,7 @@ protected:
     Document constructorDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_constructor.cpp"), compilationArguments, {},  documents};
     Document constructorMemberInitDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_constructorMemberInitialization.cpp"), compilationArguments, {},  documents};
     Document briefCommentDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_brief_comment.cpp"), compilationArguments, {},  documents};
+    Document privateFunctionDefinitionDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_private_function_definition.cpp"), compilationArguments, {},  documents};
 };
 
 using CodeCompletionsExtractorSlowTest = CodeCompletionsExtractor;
@@ -602,9 +603,12 @@ TEST_F(CodeCompletionsExtractorSlowTest, NotAccessibleFunction)
                 unsavedFiles.unsavedFile(functionDocument.filePath()),
                 completeResults.data());
 
+    // Availability should be NotAccessible, but see QTCREATORBUG-25244.
+    // It's better to offer completion for some non-accessible functions than
+    // not to offer completion for some accessible ones.
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("NotAccessibleFunction"),
                                          CodeCompletion::FunctionDefinitionCompletionKind,
-                                         CodeCompletion::NotAccessible));
+                                         CodeCompletion::Available));
 }
 
 TEST_F(CodeCompletionsExtractorSlowTest, NotAvailableFunction)
@@ -822,6 +826,19 @@ TEST_F(CodeCompletionsExtractorSlowTest, ExtractAll)
     auto codeCompletions = extractor.extractAll(false);
 
     ASSERT_THAT(codeCompletions.empty(), false);
+}
+
+TEST_F(CodeCompletionsExtractorSlowTest, PrivateFunctionDefinition)
+{
+    ClangCodeCompleteResults completeResults(getResults(privateFunctionDefinitionDocument, 5, 12));
+
+    ::CodeCompletionsExtractor extractor(
+                unsavedFiles.unsavedFile(privateFunctionDefinitionDocument.filePath()),
+                completeResults.data());
+
+    ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("method"),
+                                         CodeCompletion::FunctionDefinitionCompletionKind,
+                                         CodeCompletion::Available));
 }
 
 ClangCodeCompleteResults CodeCompletionsExtractor::getResults(const Document &document,
