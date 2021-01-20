@@ -59,9 +59,7 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
 {
     if (m_currentRequest.has_value())
         abort();
-    if (m_client.isNull()
-        || !m_client->documentOpen(editorWidget->textDocument())
-        || !m_client->capabilities().hoverProvider().value_or(false)) {
+    if (m_client.isNull() || !m_client->documentOpen(editorWidget->textDocument())) {
         report(Priority_None);
         return;
     }
