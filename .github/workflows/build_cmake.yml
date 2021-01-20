@@ -10,6 +10,7 @@ env:
   NINJA_VERSION: 1.10.1
   BUILD_TYPE: Release
   CCACHE_VERSION: 3.7.7
+  QT_MIRRORS: download.qt.io;mirrors.ocf.berkeley.edu/qt;ftp.fau.de/qtproject;mirror.bit.edu.cn/qtproject
 
 jobs:
   build:
@@ -127,8 +128,17 @@ jobs:
           set(qt_package_suffix "-MacOS-MacOS_10_13-Clang-MacOS-MacOS_10_13-X86_64")
         endif()
 
-        set(qt_base_url "https://download.qt.io/online/qtsdkrepository/${url_os}/desktop/qt5_${qt_version_dotless}")
-        file(DOWNLOAD "${qt_base_url}/Updates.xml" ./Updates.xml SHOW_PROGRESS)
+        set(qt_base_url "https://\${qt_mirror}/online/qtsdkrepository/${url_os}/desktop/qt5_${qt_version_dotless}")
+        foreach(qt_mirror $ENV{QT_MIRRORS})
+          cmake_language(EVAL CODE "
+            message(\"Downloading: ${qt_base_url}/Updates.xml\")
+            file(DOWNLOAD \"${qt_base_url}/Updates.xml\" ./Updates.xml TIMEOUT 60)
+          ")
+          file(SIZE ./Updates.xml fileSize)
+          if (fileSize GREATER 0)
+            break()
+          endif()
+        endforeach()
 
         file(READ ./Updates.xml updates_xml)
         string(REGEX MATCH "<Name>qt.qt5.*<Version>([0-9+-.]+)</Version>" updates_xml_output "${updates_xml}")
@@ -141,8 +151,16 @@ jobs:
         message("::set-output name=qt_dir::${qt_dir}")
 
         function(downloadAndExtract url archive)
-          message("Downloading ${url}")
-          file(DOWNLOAD "${url}" ./${archive} SHOW_PROGRESS)
+          foreach(qt_mirror $ENV{QT_MIRRORS})
+            cmake_language(EVAL CODE "
+              message(\"Downloading ${url}\")
+              file(DOWNLOAD \"${url}\" ./${archive} TIMEOUT 60)
+            ")
+            file(SIZE ./${archive} fileSize)
+            if (fileSize GREATER 0)
+              break()
+            endif()
+          endforeach()
           execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ../${archive} WORKING_DIRECTORY qt5)
         endfunction()
 
@@ -212,8 +230,17 @@ jobs:
           return()
         endif()
 
-        set(openssl_base_url "https://download.qt.io/online/qtsdkrepository/${url_os}/desktop/tools_openssl_x64")
-        file(DOWNLOAD "${openssl_base_url}/Updates.xml" ./Updates.xml SHOW_PROGRESS)
+        set(openssl_base_url "https://\${qt_mirror}/online/qtsdkrepository/${url_os}/desktop/tools_openssl_x64")
+        foreach(qt_mirror $ENV{QT_MIRRORS})
+          cmake_language(EVAL CODE "
+            message(\"Downloading ${openssl_base_url}/Updates.xml}\")
+            file(DOWNLOAD \"${openssl_base_url}/Updates.xml\" ./Updates.xml TIMEOUT 60)
+          ")
+          file(SIZE ./Updates.xml fileSize)
+          if (fileSize GREATER 0)
+            break()
+          endif()
+        endforeach()
 
         file(READ ./Updates.xml updates_xml)
         string(REGEX MATCH
@@ -228,8 +255,16 @@ jobs:
         file(MAKE_DIRECTORY openssl)
         file(MAKE_DIRECTORY ${openssl_dest_dir})
 
-        message("Downloading ${url}")
-        file(DOWNLOAD "${url}" ./openssl.7z SHOW_PROGRESS)
+        foreach(qt_mirror $ENV{QT_MIRRORS})
+          cmake_language(EVAL CODE "
+            message(\"Downloading ${url}\")
+            file(DOWNLOAD \"${url}\" ./openssl.7z TIMEOUT 60)
+          ")
+          file(SIZE ./openssl.7z fileSize)
+          if (fileSize GREATER 0)
+            break()
+          endif()
+        endforeach()
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ../openssl.7z WORKING_DIRECTORY openssl)
 
         file(GLOB openssl_shared_objects "openssl/${openssl_localdir}/*${shared_suffix}")
@@ -256,8 +291,17 @@ jobs:
           set(libclang "libclang-release_${clang_version}-based-mac.7z")
         endif()
 
-        set(libclang_url "https://download.qt.io/development_releases/prebuilt/libclang/${libclang}")
-        file(DOWNLOAD "${libclang_url}" ./libclang.7z SHOW_PROGRESS)
+        set(libclang_url "https://\${qt_mirror}/development_releases/prebuilt/libclang/${libclang}")
+        foreach(qt_mirror $ENV{QT_MIRRORS})
+          cmake_language(EVAL CODE "
+            message(\"Downloading ${libclang_url}\")
+            file(DOWNLOAD \"${libclang_url}\" ./libclang.7z TIMEOUT 240)
+          ")
+          file(SIZE ./libclang.7z fileSize)
+          if (fileSize GREATER 0)
+            break()
+          endif()
+        endforeach()
 
         # Comes with libclang inside the archive
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./libclang.7z)
@@ -283,8 +327,18 @@ jobs:
           set(elfutils "elfutils-release_${elfutils_version}qt-linux-x86_64.7z")
         endif()
 
-        set(elfutils_url "https://download.qt.io/development_releases/prebuilt/elfutils/${elfutils}")
-        file(DOWNLOAD "${elfutils_url}" ./elfutils.7z SHOW_PROGRESS)
+        set(elfutils_url "https://\${qt_mirror}/development_releases/prebuilt/elfutils/${elfutils}")
+
+        foreach(qt_mirror $ENV{QT_MIRRORS})
+          cmake_language(EVAL CODE "
+            message(\"Downloading ${elfutils_url}\")
+            file(DOWNLOAD \"${elfutils_url}\" ./elfutils.7z TIMEOUT 60)
+          ")
+          file(SIZE ./elfutils.7z fileSize)
+          if (fileSize GREATER 0)
+            break()
+          endif()
+        endforeach()
         file(MAKE_DIRECTORY elfutils)
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ../elfutils.7z WORKING_DIRECTORY elfutils)
 
