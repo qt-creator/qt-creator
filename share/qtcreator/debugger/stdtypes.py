@@ -858,10 +858,9 @@ def qdump__std__pair(d, value):
     with Children(d):
         key = d.putSubItem('first', first)
         value = d.putSubItem('second', second)
-    d.putField('key', key.value)
-    if key.encoding is not None:
-        d.putField('keyencoded', key.encoding)
-    d.putValue(value.value, value.encoding)
+    key = key.value if key.encoding is None else "..."
+    value = value.value if value.encoding is None else "..."
+    d.putValue('(%s, %s)' % (key, value))
 
 
 def qform__std__unordered_map():

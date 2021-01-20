@@ -1389,6 +1389,17 @@ if False:
             d.putSpecialValue('minimumitemcount', 0)
 
 
+def qdump__QPair(d, value):
+    typeCode = '{%s}@{%s}' % (value.type[0].name, value.type[1].name)
+    first, pad, second = value.split(typeCode)
+    with Children(d):
+        key = d.putSubItem('first', first)
+        value = d.putSubItem('second', second)
+    key = key.value if key.encoding is None else "..."
+    value = value.value if value.encoding is None else "..."
+    d.putValue('(%s, %s)' % (key, value))
+
+
 def qdump__QProcEnvKey(d, value):
     d.putByteArrayValue(value)
     d.putPlainChildren(value)
