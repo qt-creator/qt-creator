@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 Jochen Seemann
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,50 +23,29 @@
 **
 ****************************************************************************/
 
-#include "conaninstallstep.h"
-#include "conanplugin.h"
 #include "conansettings.h"
-
-#include <coreplugin/icore.h>
-#include <projectexplorer/projectmanager.h>
-#include <projectexplorer/buildmanager.h>
-
-using namespace Core;
 
 namespace ConanPackageManager {
 namespace Internal {
 
-class ConanPluginRunData
-{
-public:
-    ConanInstallStepFactory installStepFactory;
-};
-
-ConanPlugin::~ConanPlugin()
-{
-    delete m_runData;
+namespace {
+static const char SETTINGS_KEY[] = "ConanSettings";
+static const char CONAN_FILE_PATH[] = "ConanFilePath";
 }
 
-void ConanPlugin::extensionsInitialized()
-{ }
-
-bool ConanPlugin::initialize(const QStringList &arguments, QString *errorString)
+void ConanSettings::fromSettings(QSettings *settings)
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
+    const QString rootKey = QString(SETTINGS_KEY) + '/';
 
-    m_runData = new ConanPluginRunData;
-    conanSettings()->fromSettings(ICore::settings());
-
-    return true;
+    m_conanFilePath = Utils::FilePath::fromUserInput(
+        settings->value(rootKey + CONAN_FILE_PATH, QString("conan")).toString());
 }
 
-ConanSettings *ConanPlugin::conanSettings()
+void ConanSettings::toSettings(QSettings *settings) const
 {
-    static ConanSettings theSettings;
-    return &theSettings;
+    settings->beginGroup(QString(SETTINGS_KEY));
+    settings->endGroup();
 }
 
-
-} // namespace Internal
-} // namespace ConanPackageManager
+}
+}

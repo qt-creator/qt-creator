@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "conaninstallstep.h"
+#include "conanplugin.h"
+#include "conansettings.h"
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -80,7 +82,8 @@ ConanInstallStep::ConanInstallStep(BuildStepList *bsl, Id id)
         BuildConfiguration::BuildType bt = buildConfiguration()->buildType();
         const QString buildType = bt == BuildConfiguration::Release ? QString("Release")
                                                                     : QString("Debug");
-        CommandLine cmd("conan");
+
+        CommandLine cmd(ConanPlugin::conanSettings()->conanFilePath());
         cmd.addArgs({"install", "-s", "build_type=" + buildType, conanFile->value()});
         cmd.addArgs(additionalArguments->value(), CommandLine::Raw);
         return cmd;

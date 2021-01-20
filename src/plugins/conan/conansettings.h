@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 Jochen Seemann
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,50 +23,27 @@
 **
 ****************************************************************************/
 
-#include "conaninstallstep.h"
-#include "conanplugin.h"
-#include "conansettings.h"
+#pragma once
 
-#include <coreplugin/icore.h>
-#include <projectexplorer/projectmanager.h>
-#include <projectexplorer/buildmanager.h>
+#include <utils/fileutils.h>
 
-using namespace Core;
+#include <QSettings>
 
 namespace ConanPackageManager {
 namespace Internal {
 
-class ConanPluginRunData
+class ConanSettings
 {
 public:
-    ConanInstallStepFactory installStepFactory;
+    ConanSettings() = default;
+    void fromSettings(QSettings *settings);
+    void toSettings(QSettings *settings) const;
+
+    Utils::FilePath conanFilePath() const { return m_conanFilePath; }
+
+private:
+    Utils::FilePath m_conanFilePath;
 };
 
-ConanPlugin::~ConanPlugin()
-{
-    delete m_runData;
 }
-
-void ConanPlugin::extensionsInitialized()
-{ }
-
-bool ConanPlugin::initialize(const QStringList &arguments, QString *errorString)
-{
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
-    m_runData = new ConanPluginRunData;
-    conanSettings()->fromSettings(ICore::settings());
-
-    return true;
 }
-
-ConanSettings *ConanPlugin::conanSettings()
-{
-    static ConanSettings theSettings;
-    return &theSettings;
-}
-
-
-} // namespace Internal
-} // namespace ConanPackageManager

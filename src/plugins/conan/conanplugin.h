@@ -31,12 +31,16 @@ namespace ConanPackageManager {
 namespace Internal {
 
 class ConanPluginRunData;
+class ConanSettings;
 
 class ConanPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Conan.json")
+public:
+    static ConanSettings *conanSettings();
 
+private:
     ~ConanPlugin() final;
 
     void extensionsInitialized() final;
