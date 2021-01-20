@@ -128,6 +128,8 @@ protected:
     QList<FormEditorItem*> offspringFormEditorItemsRecursive(const FormEditorItem *formEditorItem) const;
     FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* scene);
     QTransform viewportTransform() const;
+    qreal getFontSize(QPainter *painter) const;
+    qreal getScaleFactor() const;
 
     QRectF m_boundingRect;
     QRectF m_paintedBoundingRect;
@@ -204,6 +206,11 @@ protected:
     {}
     void paintConnection(QPainter *painter, const Connection &connection);
     void drawLabels(QPainter *painter, const Connection &connection);
+
+    void drawGeneralLabel(QPainter *painter, const Connection &connection);
+    void drawSingleEventIdLabel(QPainter *painter, const Connection &connection);
+    void drawEventIdsLabel(QPainter *painter, const Connection &connection);
+
 private:
     mutable bool m_hitTest = false;
 };

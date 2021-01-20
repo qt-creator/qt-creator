@@ -33,9 +33,11 @@ from optparse import OptionParser
 from toolfunctions import checkDirectory
 from toolfunctions import getFileContent
 
+
 objMap = None
 lastToken = [None, None]
 stopTokens = ('OP', 'NAME', 'NUMBER', 'ENDMARKER')
+
 
 def parseCommandLine():
     global directory, onlyRemovable, sharedFolders, deleteObjects
@@ -54,7 +56,7 @@ def parseCommandLine():
     elif len(args) == 1:
         directory = os.path.abspath(args[0])
     else:
-        print "\nERROR: Too many arguments\n"
+        print("\nERROR: Too many arguments\n")
         parser.print_help()
         sys.exit(1)
     onlyRemovable = options.onlyRemovable
@@ -70,6 +72,7 @@ def collectObjects():
     data = getFileContent(objMap)
     return map(lambda x: x.strip().split("\t", 1)[0], data.strip().splitlines())
 
+
 def handleStringsWithTrailingBackSlash(origStr):
     try:
         while True:
@@ -78,8 +81,11 @@ def handleStringsWithTrailingBackSlash(origStr):
     except:
         return origStr
 
-def handle_token(tokenType, token, (startRow, startCol), (endRow, endCol), line):
+
+def handle_token(tokenType, token, startPos, endPos, line):
     global useCounts, lastToken, stopTokens
+    (startRow, startCol) = startPos
+    (endRow, endCol) = endPos
 
     if tokenize.tok_name[tokenType] == 'STRING':
         # concatenate strings followed directly by other strings
@@ -87,7 +93,7 @@ def handle_token(tokenType, token, (startRow, startCol), (endRow, endCol), line)
             token = "'" + lastToken[1][1:-1] + str(token)[1:-1] + "'"
         # store the new string as lastToken after removing potential trailing backslashes
         # (including their following indentation)
-        lastToken = ['STRING' , handleStringsWithTrailingBackSlash(str(token))]
+        lastToken = ['STRING', handleStringsWithTrailingBackSlash(str(token))]
     # if a stop token occurs check the potential string before it
     elif tokenize.tok_name[tokenType] in stopTokens:
         if lastToken[0] == 'STRING':
@@ -97,16 +103,21 @@ def handle_token(tokenType, token, (startRow, startCol), (endRow, endCol), line)
         # store the stop token as lastToken
         lastToken = [tokenize.tok_name[tokenType], str(token)]
 
+
 def handleDataFiles(openFile, separator):
     global useCounts
     # ignore header line
-    openFile.readline()
+    first = True
     for line in openFile:
+        if first:
+            first = False
+            continue
         currentTokens = line.split(separator)
         for token in currentTokens:
             stripped = token.strip().strip('"')
             if stripped in useCounts:
                 useCounts[stripped] = useCounts[stripped] + 1
+
 
 def findUsages():
     global directory, objMap, sharedFolders
@@ -130,35 +141,50 @@ def findUsages():
     for directory in directories:
         for root, dirnames, filenames in os.walk(directory):
             for filename in filter(lambda x: x.endswith(suffixes), filenames):
-                currentFile = open(os.path.join(root, filename))
+                if sys.version_info.major == 2:
+                    currentFile = open(os.path.join(root, filename), "r")
+                else:
+                    currentFile = open(os.path.join(root, filename), "r", encoding="utf8")
                 if filename.endswith(".py"):
-                    tokenize.tokenize(currentFile.readline, handle_token)
+                    if sys.version_info.major == 2:
+                        tokenize.tokenize(currentFile.readline, handle_token)
+                    else:
+                        tokens = tokenize.generate_tokens(currentFile.readline)
+                        for token in tokens:
+                            handle_token(token.type, token.string, token.start, token.end, token.line)
                 elif filename.endswith(".csv"):
                     handleDataFiles(currentFile, ",")
                 elif filename.endswith(".tsv"):
                     handleDataFiles(currentFile, "\t")
                 currentFile.close()
     currentFile = open(objMap)
-    tokenize.tokenize(currentFile.readline, handle_token)
+    if sys.version_info.major == 2:
+        tokenize.tokenize(currentFile.readline, handle_token)
+    else:
+        tokens = tokenize.generate_tokens(currentFile.readline)
+        for token in tokens:
+            handle_token(token.type, token.string, token.start, token.end, token.line)
     currentFile.close()
+
 
 def printResult():
     global useCounts, onlyRemovable
     print
     if onlyRemovable:
         if min(useCounts.values()) > 0:
-            print "All objects are used once at least.\n"
+            print("All objects are used once at least.\n")
             return False
-        print "Unused objects:\n"
+        print("Unused objects:\n")
         for obj in filter(lambda x: useCounts[x] == 0, useCounts):
-            print "%s" % obj
+            print("%s" % obj)
         return True
     else:
         outFormat = "%3d %s"
-        for obj,useCount in useCounts.iteritems():
-            print outFormat % (useCount, obj)
+        for obj, useCount in useCounts.items():
+            print(outFormat % (useCount, obj))
         print
     return None
+
 
 def deleteRemovable():
     global useCounts, objMap
@@ -192,6 +218,7 @@ def deleteRemovable():
     print("Deleted %d items, old objects.map has been moved to objects.map~" % count)
     return count > 0
 
+
 def main():
     global useCounts, objMap, deleteObjects
     objMap = checkDirectory(directory)
@@ -208,6 +235,7 @@ def main():
     if mssg:
         print(mssg + "to find objects that might have been referenced only by removed objects.\n")
     return 0
+
 
 if __name__ == '__main__':
     parseCommandLine()

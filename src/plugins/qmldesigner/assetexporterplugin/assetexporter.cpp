@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 #include "assetexporter.h"
+#include "assetexportpluginconstants.h"
 #include "componentexporter.h"
 #include "exportnotification.h"
 
@@ -154,19 +155,45 @@ bool AssetExporter::isBusy() const
             m_currentState == AssetExporter::ParsingState::WritingJson;
 }
 
-Utils::FilePath AssetExporter::exportAsset(const QmlObjectNode &node, const Component *component,
-                                           const QString &uuid)
+const QPixmap &AssetExporter::generateAsset(const ModelNode &node)
 {
+    static QPixmap nullPixmap;
     if (m_cancelled)
+        return nullPixmap;
+
+    const QString uuid = node.auxiliaryData(Constants::UuidAuxTag).toString();
+    QTC_ASSERT(!uuid.isEmpty(), return nullPixmap);
+
+    if (!m_assets.contains(uuid)) {
+        // Generate asset.
+        QmlObjectNode objectNode(node);
+        QPixmap asset = objectNode.toQmlItemNode().instanceRenderPixmap();
+        m_assets[uuid] = asset;
+    }
+    return m_assets[uuid];
+}
+
+Utils::FilePath AssetExporter::assetPath(const ModelNode &node, const Component *component,
+                                         const QString &suffix) const
+{
+    const QString uuid = node.auxiliaryData(Constants::UuidAuxTag).toString();
+    if (!component || uuid.isEmpty())
         return {};
-    const Utils::FilePath assetExportDir = m_perComponentExport ? componentExportDir(component) :
-                                                                  m_exportPath;
-    const QString fileName = uuid + ".png";
-    const Utils::FilePath assetPath = assetExportDir.pathAppended("assets").pathAppended(fileName);
-    if (m_assetDumper)
-        m_assetDumper->dumpAsset(node.toQmlItemNode().instanceRenderPixmap(), assetPath);
+
+    const Utils::FilePath assetExportDir =
+            m_perComponentExport ? componentExportDir(component) : m_exportPath;
+    const Utils::FilePath assetPath = assetExportDir.pathAppended("assets")
+            .pathAppended(uuid + suffix + ".png");
 
     return assetPath;
+}
+
+void AssetExporter::exportAsset(const QPixmap &asset, const Utils::FilePath &path)
+{
+    if (m_cancelled || !m_assetDumper)
+        return;
+
+    m_assetDumper->dumpAsset(asset, path);
 }
 
 void AssetExporter::exportComponent(const ModelNode &rootNode)

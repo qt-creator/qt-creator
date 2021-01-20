@@ -71,8 +71,10 @@ public:
     void cancel();
     bool isBusy() const;
 
-    Utils::FilePath exportAsset(const QmlObjectNode& node, const Component *component,
-                                const QString &uuid);
+    const QPixmap &generateAsset(const ModelNode &node);
+    Utils::FilePath assetPath(const ModelNode &node, const Component *component,
+                              const QString &suffix = {}) const;
+    void exportAsset(const QPixmap &asset, const Utils::FilePath &path);
     QByteArray generateUuid(const ModelNode &node);
 
 signals:
@@ -108,6 +110,7 @@ private:
     bool m_perComponentExport = false;
     std::vector<std::unique_ptr<Component>> m_components;
     QSet<QByteArray> m_usedHashes;
+    QHash<QString, QPixmap> m_assets;
     std::unique_ptr<AssetDumper> m_assetDumper;
     bool m_cancelled = false;
 };
