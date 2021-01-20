@@ -451,10 +451,12 @@ bool LanguageClientCompletionAssistProvider::isActivationCharSequence(const QStr
     });
 }
 
-void LanguageClientCompletionAssistProvider::setTriggerCharacters(QList<QString> triggerChars)
+void LanguageClientCompletionAssistProvider::setTriggerCharacters(
+    const Utils::optional<QList<QString>> triggerChars)
 {
-    m_triggerChars = triggerChars;
-    for (const QString &trigger : triggerChars) {
+    m_activationCharSequenceLength = 0;
+    m_triggerChars = triggerChars.value_or(QList<QString>());
+    for (const QString &trigger : qAsConst(m_triggerChars)) {
         if (trigger.length() > m_activationCharSequenceLength)
             m_activationCharSequenceLength = trigger.length();
     }

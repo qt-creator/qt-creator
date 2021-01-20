@@ -208,6 +208,8 @@ private:
     void resetAssistProviders(TextEditor::TextDocument *document);
     void sendPostponedDocumentUpdates();
 
+    void updateCompletionProvider(TextEditor::TextDocument *document);
+
     using ContentHandler = std::function<void(const QByteArray &, QTextCodec *, QString &,
                                               LanguageServerProtocol::ResponseHandlers,
                                               LanguageServerProtocol::MethodHandler)>;
