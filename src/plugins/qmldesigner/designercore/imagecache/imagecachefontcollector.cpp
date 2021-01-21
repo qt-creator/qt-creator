@@ -34,6 +34,7 @@
 #include <QtGui/qimage.h>
 #include <QtGui/qfontdatabase.h>
 #include <QtGui/qfontmetrics.h>
+#include <QtGui/qicon.h>
 #include <QtCore/qfileinfo.h>
 
 namespace QmlDesigner {
