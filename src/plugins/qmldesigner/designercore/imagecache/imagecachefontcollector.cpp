@@ -145,7 +145,11 @@ std::pair<QImage, QImage> ImageCacheFontCollector::createImage(
                 QFont font(fontFamily);
                 font.setStyle(rawFont.style());
                 font.setStyleName(rawFont.styleName());
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+                font.setWeight(QFont::Weight(rawFont.weight()));
+#else
                 font.setWeight(rawFont.weight());
+#endif
                 QImage image(size, QImage::Format_ARGB32);
                 image.fill(Qt::transparent);
                 int pixelSize(200);
@@ -207,7 +211,11 @@ QIcon ImageCacheFontCollector::createIcon(Utils::SmallStringView name,
                 QFont font(fontFamily);
                 font.setStyle(rawFont.style());
                 font.setStyleName(rawFont.styleName());
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+                font.setWeight(QFont::Weight(rawFont.weight()));
+#else
                 font.setWeight(rawFont.weight());
+#endif
                 for (QSize size : sizes) {
                     QPixmap pixmap(size);
                     pixmap.fill(Qt::transparent);
