@@ -64,7 +64,7 @@ void ImageCacheFontCollector::start(Utils::SmallStringView name,
                                     CaptureCallback captureCallback,
                                     AbortCallback abortCallback)
 {
-    auto &&auxiliaryData = std::get<ImageCache::FontCollectorSizeAuxiliaryData>(auxiliaryDataValue);
+    auto &&auxiliaryData = Utils::get<ImageCache::FontCollectorSizeAuxiliaryData>(auxiliaryDataValue);
     QColor textColor = auxiliaryData.colorName;
     QSize size = auxiliaryData.size;
     QRect rect({0, 0}, size);
@@ -128,7 +128,7 @@ std::pair<QImage, QImage> ImageCacheFontCollector::createImage(
     Utils::SmallStringView,
     const ImageCache::AuxiliaryData &auxiliaryDataValue)
 {
-    auto &&auxiliaryData = std::get<ImageCache::FontCollectorSizeAuxiliaryData>(auxiliaryDataValue);
+    auto &&auxiliaryData = Utils::get<ImageCache::FontCollectorSizeAuxiliaryData>(auxiliaryDataValue);
     QColor textColor = auxiliaryData.colorName;
     QSize size = auxiliaryData.size;
     QRect rect({0, 0}, size);
@@ -189,7 +189,7 @@ QIcon ImageCacheFontCollector::createIcon(Utils::SmallStringView name,
                                           Utils::SmallStringView,
                                           const ImageCache::AuxiliaryData &auxiliaryDataValue)
 {
-    auto &&auxiliaryData = std::get<ImageCache::FontCollectorSizesAuxiliaryData>(auxiliaryDataValue);
+    auto &&auxiliaryData = Utils::get<ImageCache::FontCollectorSizesAuxiliaryData>(auxiliaryDataValue);
     QColor textColor = auxiliaryData.colorName;
     auto sizes = auxiliaryData.sizes;
 
