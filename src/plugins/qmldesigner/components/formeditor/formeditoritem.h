@@ -208,8 +208,8 @@ protected:
     void drawLabels(QPainter *painter, const Connection &connection);
 
     void drawGeneralLabel(QPainter *painter, const Connection &connection);
-    void drawSingleEventIdLabel(QPainter *painter, const Connection &connection);
-    void drawEventIdsLabel(QPainter *painter, const Connection &connection);
+    void drawSingleLabel(QPainter *painter, const Connection &connection);
+    void drawSelectionLabel(QPainter *painter, const Connection &connection);
 
 private:
     mutable bool m_hitTest = false;

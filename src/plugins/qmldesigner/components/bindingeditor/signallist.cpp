@@ -30,8 +30,6 @@
 #include <qmldesignerplugin.h>
 #include <coreplugin/icore.h>
 
-#include <utils/algorithm.h>
-
 #include <metainfo.h>
 
 #include <variantproperty.h>
@@ -79,8 +77,7 @@ bool SignalListFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
 }
 
 
-PropertyNameList SignalList::st_mouseSignals = { "clicked", "doubleClicked", "pressAndHold",
-                                                 "pressed", "released", "wheel" };
+
 
 SignalList::SignalList(QObject *)
     : m_dialog(QPointer<SignalListDialog>())
@@ -144,16 +141,15 @@ void SignalList::prepareSignals()
     if (!m_modelNode.isValid())
         return;
 
-    AbstractView *view = m_modelNode.view();
-    QList<QmlConnections> connections = getAssociatedConnections(view->allModelNodes());
+    QList<QmlConnections> connections = QmlFlowViewNode::getAssociatedConnections(m_modelNode);
 
-    for (ModelNode &node : view->allModelNodes()) {
+    for (ModelNode &node : m_modelNode.view()->allModelNodes()) {
         // Collect all items which contain at least one of the specified signals
         const PropertyNameList signalNames = node.metaInfo().signalNames();
         // Put the signals into a QSet to avoid duplicates
         auto signalNamesSet = QSet<PropertyName>(signalNames.begin(), signalNames.end());
         for (const PropertyName &signal : signalNamesSet) {
-            if (st_mouseSignals.contains(signal))
+            if (QmlFlowViewNode::st_mouseSignals.contains(signal))
                 appendSignalToModel(connections, node, signal);
         }
 
@@ -166,7 +162,7 @@ void SignalList::prepareSignals()
             // Put the signals into a QSet to avoid duplicates
             auto signalNamesSet = QSet<PropertyName>(signalNames.begin(), signalNames.end());
             for (const PropertyName &signal : signalNamesSet) {
-                if (st_mouseSignals.contains(signal))
+                if (QmlFlowViewNode::st_mouseSignals.contains(signal))
                     appendSignalToModel(connections, node, signal, property);
             }
         }
@@ -294,35 +290,6 @@ void SignalList::removeConnection(const QModelIndex &modelIndex)
             m_model->setData(buttonModelIndex, QVariant(), SignalListModel::ConnectionsInternalIdRole);
         });
     }
-}
-
-QList<QmlConnections> SignalList::getAssociatedConnections(const QList<ModelNode> &nodes)
-{
-    return Utils::transform<QList<QmlConnections>>(Utils::filtered(nodes, [this](const ModelNode &node) {
-        const QmlConnections connection(node);
-        if (!connection.isValid())
-            return false;
-
-        for (const SignalHandlerProperty &property : connection.signalProperties()) {
-            auto signalWithoutPrefix = SignalHandlerProperty::prefixRemoved(property.name());
-            const QStringList sourceComponents = property.source().split(".");
-            QString sourceId;
-            QString sourceProperty;
-            if (sourceComponents.size() > 1) {
-                sourceId = sourceComponents[0];
-                sourceProperty = sourceComponents[1];
-            }
-
-            if (st_mouseSignals.contains(signalWithoutPrefix)
-                && sourceId == m_modelNode.validId()
-                && sourceProperty == "trigger()")
-                return true;
-        }
-
-        return false;
-    }), [](const ModelNode &node) {
-        return QmlConnections(node);
-    });
 }
 
 } // QmlDesigner namespace

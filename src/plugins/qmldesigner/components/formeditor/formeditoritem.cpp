@@ -956,10 +956,13 @@ public:
             labelFlipSide = node.modelNode().auxiliaryData("labelFlipSide").toBool();
 
         isSelected = node.modelNode().isSelected();
-        const char eventsName[] = "eventIds";
 
+        const char eventsName[] = "eventIds";
         if (node.modelNode().hasVariantProperty(eventsName))
             events = node.modelNode().variantProperty(eventsName).value().toString();
+
+
+        //node.view()->;
     }
 
     qreal width;
@@ -1393,7 +1396,7 @@ void FormEditorTransitionItem::updateGeometry()
     setPos(overallBoundingRect.topLeft());
 
     // Needed due to the upcoming rects are relative to the set position. If this one is not
-    // translate to the newly set position, then th resulting bounding box would be to big.
+    // translate to the newly set position, then the resulting bounding box would be to big.
     overallBoundingRect.translate(-pos());
 
     ConnectionConfiguration config(qmlItemNode(), resolved, viewportTransform().m11());
@@ -1435,8 +1438,8 @@ QPointF FormEditorTransitionItem::instancePosition() const
 
 void FormEditorTransitionItem::drawLabels(QPainter *painter, const Connection &connection)
 {
-    drawSingleEventIdLabel(painter, connection);
-    drawEventIdsLabel(painter, connection);
+    drawSingleLabel(painter, connection);
+    drawSelectionLabel(painter, connection);
     drawGeneralLabel(painter, connection);
 }
 
@@ -1464,9 +1467,15 @@ void FormEditorTransitionItem::drawGeneralLabel(QPainter *painter, const Connect
     painter->restore();
 }
 
-void FormEditorTransitionItem::drawSingleEventIdLabel(QPainter *painter, const Connection &connection)
+void FormEditorTransitionItem::drawSingleLabel(QPainter *painter, const Connection &connection)
 {
-    if (connection.config.events.isEmpty() || connection.config.events.split(",").size() != 1)
+    const auto &connections = QmlFlowViewNode::getAssociatedConnections(qmlItemNode().modelNode());
+    const QString events = connection.config.events;
+
+    bool singleEvent = !events.isEmpty() && events.split(",").size() == 1;
+    bool singleSignal = connections.size() == 1;
+
+    if (!singleEvent && !singleSignal)
         return;
 
     QPointF position;
@@ -1474,14 +1483,37 @@ void FormEditorTransitionItem::drawSingleEventIdLabel(QPainter *painter, const C
 
     const qreal hMargin = 10.0 / getScaleFactor();
     QFontMetrics metric(painter->font());
-    QRectF textRect = metric.boundingRect(connection.config.events);
-    textRect.adjust(-hMargin, 0.0, hMargin, 0.0);
-    const qreal halfHeight = textRect.height() / 2.0;
+
+    const qreal lineHeight = metric.boundingRect("Xyz").height();
+    QRectF eventRect;
+    QRectF signalRect;
+
+    if (singleEvent)
+        eventRect = metric.boundingRect(events);
+
+    QString targetSignal;
+
+    if (singleSignal) {
+        const QmlConnections connection = connections.first();
+        const QList<SignalHandlerProperty> signalProperties = connection.signalProperties();
+        QStringList target = connection.target().split(".");
+        const QString signal = QString::fromLatin1(signalProperties.first().name());
+        targetSignal = target.back() + "." + signal;
+        signalRect = metric.boundingRect(targetSignal);
+    }
+
+    QRectF labelRect = eventRect.united(signalRect);
+    labelRect.adjust(-hMargin, 0.0, hMargin, 0.0);
+
+    if (singleEvent && singleSignal)
+        labelRect.setHeight(eventRect.height() + signalRect.height() + (6.0 / getScaleFactor()));
+
+    const qreal halfHeight = labelRect.height() * 0.5;
 
     if (connection.config.type == ConnectionType::Bezier) {
         position = connection.path.pointAtPercent(0.5);
         angle = connection.path.angleAtPercent(0.5);
-        textRect.moveCenter(position);
+        labelRect.moveCenter(position);
     } else {
         const QLineF start(connection.start, connection.mid1);
         const QLineF mid(connection.mid1, connection.mid2);
@@ -1496,7 +1528,7 @@ void FormEditorTransitionItem::drawSingleEventIdLabel(QPainter *painter, const C
         QFont originalFont = painter->font();
         originalFont.setPointSizeF(getFontSize(painter));
         QFontMetrics originalMetric(originalFont);
-        QRectF originalTextRect = originalMetric.boundingRect(connection.config.events);
+        QRectF originalTextRect = originalMetric.boundingRect(events);
         originalTextRect.adjust(-10.0, 0.0, 10.0, 0.0);
 
         const qreal width = originalTextRect.width(); // original width
@@ -1513,110 +1545,186 @@ void FormEditorTransitionItem::drawSingleEventIdLabel(QPainter *painter, const C
         if (tmp.p1() == start.p1()) {
             if (angle == 0) {
                 position = tmp.p2() + QPointF(-connection.config.radius, halfHeight);
-                textRect.moveBottomRight(position);
+                labelRect.moveBottomRight(position);
             } else if (angle == 90) {
                 position = tmp.p2() + QPointF(halfHeight, connection.config.radius);
-                textRect.moveBottomRight(position);
+                labelRect.moveBottomRight(position);
             } else if (angle == 180) {
                 position = tmp.p2() + QPointF(connection.config.radius, halfHeight);
-                textRect.moveBottomLeft(position);
+                labelRect.moveBottomLeft(position);
             } else if (angle == 270) {
                 position = tmp.p2() + QPointF(halfHeight, -connection.config.radius);
-                textRect.moveBottomLeft(position);
+                labelRect.moveBottomLeft(position);
             }
         } else if (tmp.p2() == end.p2()) {
             if (angle == 0) {
                 position = tmp.p1() + QPointF(connection.config.radius, halfHeight);
-                textRect.moveBottomLeft(position);
+                labelRect.moveBottomLeft(position);
             } else if (angle == 90) {
                 position = tmp.p1() + QPointF(halfHeight, -connection.config.radius);
-                textRect.moveBottomLeft(position);
+                labelRect.moveBottomLeft(position);
             } else if (angle == 180) {
                 position = tmp.p1() + QPointF(-connection.config.radius, halfHeight);
-                textRect.moveBottomRight(position);
+                labelRect.moveBottomRight(position);
             } else if (angle == 270) {
                 position = tmp.p1() + QPointF(halfHeight, connection.config.radius);
-                textRect.moveBottomRight(position);
+                labelRect.moveBottomRight(position);
             }
         } else {
             position = tmp.center();
-            textRect.moveCenter(position);
+            labelRect.moveCenter(position);
         }
     }
 
     painter->save();
 
     painter->setBrush(Qt::red);
+    painter->setPen(Qt::NoPen);
     painter->translate(position);
     painter->rotate(-normalizeAngle(angle));
     painter->translate(-position);
-    painter->drawRoundedRect(textRect, halfHeight, halfHeight);
+    painter->drawRoundedRect(labelRect, lineHeight * 0.5, lineHeight * 0.5);
 
     painter->setPen(Qt::white);
-    painter->drawText(textRect, Qt::AlignCenter, connection.config.events);
+    if (singleEvent && singleSignal) {
+        eventRect.setWidth(labelRect.width());
+        eventRect.moveTopLeft(labelRect.topLeft() + QPointF(0.0, 4.0 / getScaleFactor()));
+        signalRect.setWidth(labelRect.width());
+        signalRect.moveBottomLeft(labelRect.bottomLeft() - QPointF(0.0, 4.0 / getScaleFactor()));
+
+        painter->drawText(eventRect, Qt::AlignCenter, events);
+        painter->drawText(signalRect, Qt::AlignCenter, targetSignal);
+    } else { // singleEvent || singleSignal
+        painter->drawText(labelRect, Qt::AlignCenter, singleEvent ? events : targetSignal);
+    }
 
     painter->restore();
 }
 
-void FormEditorTransitionItem::drawEventIdsLabel(QPainter *painter, const Connection &connection)
+void FormEditorTransitionItem::drawSelectionLabel(QPainter *painter, const Connection &connection)
 {
-    if (!connection.config.isSelected || connection.config.events.isEmpty())
+    if (!connection.config.isSelected)
         return;
 
-    // draw label with event ids
-    const QStringList events = connection.config.events.split(',');
-    const int eventCount = events.size();
-
-    const qreal scaleFactor = getScaleFactor();
-    const qreal radius = 7.0 / scaleFactor;
-    const qreal hMargin = 10.0 / scaleFactor;
-
-    QFontMetrics metric(painter->font());
-    const QString title = QObject::tr("Connected Events");
-    const QRect titleRect = metric.boundingRect(title);
-    const qreal lineHeight = titleRect.height();
-
-    qreal minWidth = titleRect.width() + (2 * hMargin);
-    // Get the width for the widest event label
-    for (const QString &event : events)
-        minWidth = std::max(minWidth, metric.boundingRect(event.trimmed()).width() + (2 * hMargin));
-
-    const qreal offset = 10.0 / scaleFactor;
     const QLineF line(connection.start, connection.mid1);
-    QPointF pos = line.p1();
+    QPointF position = line.p1();
 
-    if (line.angle() == 0)
-        pos += QPointF(0.0, offset);
-    else if (line.angle() == 90)
-        pos += QPointF(offset, -(eventCount + 1) * lineHeight);
-    else if (line.angle() == 180)
-        pos += QPointF(-minWidth, offset);
-    else if (line.angle() == 270)
-        pos += QPointF(offset, 0.0);
+    const auto &connections = QmlFlowViewNode::getAssociatedConnections(qmlItemNode().modelNode());
 
-    const QRectF tmpRect(pos, QSize(minWidth, lineHeight));
+    bool hasEvents = !connection.config.events.isEmpty();
+    bool hasSignals = !connections.isEmpty();
 
-    painter->save();
-    painter->setBrush(QColor(70, 70, 70, 200));
-    painter->setPen(Qt::NoPen);
+    // Draw label with event ids and signals
+    if (hasEvents || hasSignals) {
+        const QStringList events = connection.config.events.split(',');
+        const int eventCount = events.size();
 
-    // Draw background rect
-    painter->drawRoundedRect(tmpRect.adjusted(0, 0, 0, eventCount * lineHeight), radius, radius);
-    // Draw title background rect
-    painter->drawRoundedRect(tmpRect, radius, radius);
+        const qreal scaleFactor = getScaleFactor();
+        const qreal radius = 7.0 / scaleFactor;
+        const qreal hMargin = 10.0 / scaleFactor;
 
-    painter->setPen(Qt::lightGray);
-    // Draw title
-    painter->drawText(tmpRect, Qt::AlignHCenter | Qt::TextDontClip, title);
-    // Draw events
-    int i = 1;
-    for (const QString &event : events) {
-        painter->drawText(tmpRect.translated(hMargin, lineHeight * i++),
-                          Qt::AlignLeft | Qt::TextDontClip,
-                          event.trimmed());
+        QFontMetrics metric(painter->font());
+        const qreal lineHeight = metric.boundingRect("Xyz").height();
+        qreal minWidth = 0.0;
+
+        const QString eventTitle = QObject::tr("Connected Events");
+        const QString signalTitle = QObject::tr("Connected Signals");
+
+        if (hasEvents) {
+            const QRect eventTitleRect = metric.boundingRect(eventTitle);
+            minWidth = eventTitleRect.width() + (2 * hMargin);
+            // Get the width for the widest event label
+            for (const QString &event : events)
+                minWidth = std::max(minWidth, metric.boundingRect(event.trimmed()).width() + (2 * hMargin));
+        }
+
+        QStringList signalList;
+        if (hasSignals) {
+            const QRect signalTitleRect = metric.boundingRect(signalTitle);
+            minWidth = std::max(minWidth, signalTitleRect.width() + (2 * hMargin));
+            for (const auto &connection : connections) {
+                QStringList target = connection.target().split(".");
+
+                const QList<SignalHandlerProperty> signalProperties = connection.signalProperties();
+                for (const auto &signalProperty : signalProperties) {
+                    const QString signal = QString::fromLatin1(signalProperty.name());
+                    const QString targetSignal = target.back() + "." + signal;
+                    signalList.append(targetSignal);
+                    minWidth = std::max(minWidth, metric.boundingRect(targetSignal.trimmed()).width()
+                                                  + (2 * hMargin));
+                }
+            }
+        }
+
+        const int signalCount = signalList.size();
+        const qreal offset = 10.0 / scaleFactor;
+
+        qreal totalHeight = 0;
+        if (hasEvents)
+            totalHeight += (eventCount + 1) * lineHeight;
+        if (hasSignals)
+            totalHeight += (signalCount + 1) * lineHeight;
+
+        if (line.angle() == 0)
+            position += QPointF(0.0, offset);
+        else if (line.angle() == 90)
+            position += QPointF(offset, -totalHeight);
+        else if (line.angle() == 180)
+            position += QPointF(-minWidth, offset);
+        else if (line.angle() == 270)
+            position += QPointF(offset, 0.0);
+
+        const QRectF labelRect(position, QSize(minWidth, lineHeight));
+        const QRectF backgroundRect(labelRect.topLeft(), QSizeF(minWidth, totalHeight));
+
+        painter->save();
+        painter->setBrush(QColor(70, 70, 70, 200));
+        painter->setPen(Qt::NoPen);
+
+        // Draw background rect
+        painter->drawRoundedRect(backgroundRect, radius, radius);
+
+        int i = 0;
+        if (hasEvents) {
+            // Draw title background rect
+            painter->drawRoundedRect(labelRect, radius, radius);
+
+            painter->setPen(Qt::lightGray);
+            // Draw title
+            painter->drawText(labelRect,
+                              Qt::AlignHCenter | Qt::TextDontClip,
+                              eventTitle);
+            ++i;
+            // Draw events
+            for (const QString &event : events) {
+                painter->drawText(labelRect.translated(hMargin, lineHeight * i++),
+                                  Qt::AlignLeft | Qt::TextDontClip,
+                                  event.trimmed());
+            }
+        }
+
+        painter->setPen(Qt::NoPen);
+
+        if (hasSignals) {
+            // Draw title background rect
+            painter->drawRoundedRect(labelRect.translated(0.0, lineHeight * i), radius, radius);
+
+            painter->setPen(Qt::lightGray);
+            // Draw title
+            painter->drawText(labelRect.translated(0.0, lineHeight * i),
+                              Qt::AlignHCenter | Qt::TextDontClip,
+                              signalTitle);
+            ++i;
+            // Draw signals
+            for (const QString &signal : signalList) {
+                painter->drawText(labelRect.translated(hMargin, lineHeight * i++),
+                                  Qt::AlignLeft | Qt::TextDontClip,
+                                  signal.trimmed());
+            }
+        }
+
+        painter->restore();
     }
-
-    painter->restore();
 }
 
 static void drawArrow(QPainter *painter,
