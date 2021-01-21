@@ -607,6 +607,84 @@ QVariant RegisterSubItem::data(int column, int role) const
 
 //////////////////////////////////////////////////////////////////
 //
+// RegisterGroup
+//
+//////////////////////////////////////////////////////////////////
+
+class RegisterGroup : public TypedTreeItem<RegisterItem>
+{
+public:
+    RegisterGroup(DebuggerEngine *engine, const QString &group);
+
+    QVariant data(int column, int role) const override;
+    Qt::ItemFlags flags(int column) const override;
+    bool updateRegister(const Register &reg);
+
+    DebuggerEngine *m_engine;
+    QString m_group;
+    bool m_changed = true;
+private:
+    QHash<QString, RegisterItem *> m_registerByName;
+};
+
+RegisterGroup::RegisterGroup(DebuggerEngine *engine, const QString &group)
+    : m_engine(engine)
+    , m_group(group)
+{}
+
+QVariant RegisterGroup::data(int column, int role) const
+{
+    switch (role) {
+    case RegisterChangedRole:
+        return m_changed;
+
+    case Qt::DisplayRole:
+        if (column == 0)
+            return m_group;
+        break;
+
+    case Qt::ToolTipRole:
+        return RegisterHandler::tr("Registers group");
+
+    default:
+        break;
+    }
+    return {};
+}
+
+Qt::ItemFlags RegisterGroup::flags(int /*column*/) const
+{
+    return Qt::ItemIsSelectable|Qt::ItemIsEnabled;
+}
+
+bool RegisterGroup::updateRegister(const Register &r)
+{
+    RegisterItem *reg = m_registerByName.value(r.name, nullptr);
+    if (!reg) {
+        reg = new RegisterItem(m_engine, r);
+        m_registerByName[r.name] = reg;
+        appendChild(reg);
+        return false;
+    }
+
+    if (r.size > 0)
+        reg->m_reg.size = r.size;
+    if (!r.description.isEmpty())
+        reg->m_reg.description = r.description;
+    if (reg->m_reg.value != r.value) {
+        // Indicate red if values change, keep changed.
+        reg->m_changed = true;
+        reg->m_reg.previousValue = reg->m_reg.value;
+        reg->m_reg.value = r.value;
+    } else {
+        reg->m_changed = false;
+    }
+    return reg->m_changed;
+}
+
+
+//////////////////////////////////////////////////////////////////
+//
 // RegisterHandler
 //
 //////////////////////////////////////////////////////////////////
@@ -620,34 +698,34 @@ RegisterHandler::RegisterHandler(DebuggerEngine *engine)
 
 void RegisterHandler::updateRegister(const Register &r)
 {
-    RegisterItem *reg = m_registerByName.value(r.name, 0);
-    if (!reg) {
-        reg = new RegisterItem(m_engine, r);
-        m_registerByName[r.name] = reg;
-        rootItem()->appendChild(reg);
-        return;
+    bool sort = false;
+    bool changed = false;
+    for (const QString &group : r.groups) {
+        RegisterGroup *regGr = m_registerGroups.value(group, nullptr);
+        if (!regGr) {
+            sort = true;
+            m_registerGroups[group] = regGr = new RegisterGroup{m_engine, group};
+            rootItem()->appendChild(regGr);
+        }
+        changed |= regGr->updateRegister(r);
     }
-
-    if (r.size > 0)
-        reg->m_reg.size = r.size;
-    if (!r.description.isEmpty())
-        reg->m_reg.description = r.description;
-    if (reg->m_reg.value != r.value) {
-        // Indicate red if values change, keep changed.
-        reg->m_changed = true;
-        reg->m_reg.previousValue = reg->m_reg.value;
-        reg->m_reg.value = r.value;
-        emit registerChanged(reg->m_reg.name, reg->addressValue()); // Notify attached memory views.
-    } else {
-        reg->m_changed = false;
+    if (sort) {
+        rootItem()->sortChildren([](const RegisterGroup *a, const RegisterGroup *b){
+           return a->m_group < b->m_group;
+        });
     }
+    if (changed)
+        emit registerChanged(r.name, r.value.v.u64[0]); // Notify attached memory views.
 }
 
 RegisterMap RegisterHandler::registerMap() const
 {
+    RegisterGroup *allRegs = allRegisters();
+    if (!allRegs)
+        return {};
     RegisterMap result;
-    for (int i = 0, n = rootItem()->childCount(); i != n; ++i) {
-        RegisterItem *reg = rootItem()->childAt(i);
+    for (int i = 0, n = allRegs->childCount(); i != n; ++i) {
+        RegisterItem *reg = allRegs->childAt(i);
         quint64 value = reg->addressValue();
         if (value)
             result.insert(value, reg->m_reg.name);
@@ -679,8 +757,8 @@ bool RegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
     const DebuggerState state = m_engine->state();
     const bool actionsEnabled = m_engine->debuggerActionsEnabled();
 
-    RegisterItem *registerItem = itemForIndexAtLevel<1>(ev.sourceModelIndex());
-    RegisterSubItem *registerSubItem = itemForIndexAtLevel<2>(ev.sourceModelIndex());
+    RegisterItem *registerItem = itemForIndexAtLevel<2>(ev.sourceModelIndex());
+    RegisterSubItem *registerSubItem = itemForIndexAtLevel<3>(ev.sourceModelIndex());
 
     const quint64 address = registerItem ? registerItem->addressValue() : 0;
     const QString registerName = registerItem ? registerItem->m_reg.name : QString();
@@ -759,6 +837,22 @@ bool RegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
     menu->addAction(action(SettingsDialog)->action());
     menu->popup(ev.globalPos());
     return true;
+}
+
+RegisterGroup *RegisterHandler::allRegisters() const
+{
+    RegisterGroup *bestGroup = nullptr;
+    int items = 0;
+    for (int i = 0, n = rootItem()->childCount(); i != n; ++i) {
+        RegisterGroup *group = rootItem()->childAt(i);
+        if (group->m_group == "all") // "all" group should always be
+            return group;
+        if (group->childCount() > items) {
+            items = group->childCount();
+            bestGroup = group;
+        }
+    }
+    return bestGroup;
 }
 
 QVariant RegisterEditItem::data(int column, int role) const

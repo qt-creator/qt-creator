@@ -28,6 +28,7 @@
 #include <utils/treemodel.h>
 
 #include <QHash>
+#include <QSet>
 
 namespace Utils { class ItemViewEvent; }
 
@@ -94,14 +95,16 @@ public:
     RegisterValue value;
     RegisterValue previousValue;
     QString description;
+    QSet<QString> groups;
     int size = 0;
     RegisterKind kind = UnknownRegister;
 };
 
 class RegisterSubItem;
 class RegisterItem;
-using RegisterRootItem = Utils::TypedTreeItem<RegisterItem>;
-using RegisterModel = Utils::TreeModel<RegisterRootItem, RegisterItem, RegisterSubItem>;
+class RegisterGroup;
+using RegisterRootItem = Utils::TypedTreeItem<RegisterGroup>;
+using RegisterModel = Utils::TreeModel<RegisterRootItem, RegisterGroup, RegisterItem, RegisterSubItem>;
 
 using RegisterMap = QMap<quint64, QString>;
 
@@ -126,8 +129,8 @@ private:
     bool setData(const QModelIndex &idx, const QVariant &data, int role) override;
 
     bool contextMenuEvent(const Utils::ItemViewEvent &ev);
-
-    QHash<QString, RegisterItem *> m_registerByName;
+    RegisterGroup *allRegisters() const;
+    QHash<QString, RegisterGroup *> m_registerGroups;
     DebuggerEngine * const m_engine;
 };
 

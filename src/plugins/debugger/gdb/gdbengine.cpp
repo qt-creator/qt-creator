@@ -3020,9 +3020,9 @@ void GdbEngine::reloadRegisters()
         if (!m_registerNamesListed) {
             // The MI version does not give register size.
             // runCommand("-data-list-register-names", CB(handleRegisterListNames));
-            runCommand({"maintenance print raw-registers",
-                        CB(handleRegisterListing)});
             m_registerNamesListed = true;
+            runCommand({"maintenance print register-groups",
+                        CB(handleRegisterListing)});
         }
         // Can cause i386-linux-nat.c:571: internal-error: Got request
         // for bad register number 41.\nA problem internal to GDB has been detected.
@@ -3151,11 +3151,12 @@ void GdbEngine::handleRegisterListing(const DebuggerResponse &response)
     }
 
     // &"maintenance print raw-registers\n"
-    // >~" Name         Nr  Rel Offset    Size  Type            Raw value\n"
-    // >~" rax           0    0      0       8 int64_t         0x0000000000000005\n"
-    // >~" rip          16   16    128       8 *1              0x000000000040232a\n"
-    // >~" ''          145  145    536       0 int0_t          <invalid>\n"
-
+    // >~" Name         Nr  Rel Offset    Size  Type            Groups\n"
+    // >~" rax           0    0      0       8 int64_t         general,all,save,restore\n"
+    // >~" rip          16   16    128       8 *1              general,all,save,restore\n"
+    // >~" fop          39   39    272       4 int             float,all,save,restore\n"
+    // >~" xmm0         40   40    276      16 vec128          sse,all,save,restore,vector\n"
+    // >~" ''          145  145    536       0 int0_t          general\n"
     m_registers.clear();
     QStringList lines = response.consoleStreamOutput.split('\n');
     for (int i = 1; i < lines.size(); ++i) {
@@ -3167,6 +3168,7 @@ void GdbEngine::handleRegisterListing(const DebuggerResponse &response)
         reg.name = parts.at(0);
         reg.size = parts.at(4).toInt();
         reg.reportedType = parts.at(5);
+        reg.groups = parts.at(6).split(',').toSet();
         m_registers[gdbRegisterNumber] = reg;
     }
 }
@@ -3180,10 +3182,12 @@ void GdbEngine::handleRegisterListValues(const DebuggerResponse &response)
     // 24^done,register-values=[{number="0",value="0xf423f"},...]
     for (const GdbMi &item : response.data["register-values"]) {
         const int number = item["number"].toInt();
-        Register reg = m_registers[number];
+        auto reg = m_registers.find(number);
+        if (reg == m_registers.end())
+            continue;
         QString data = item["value"].data();
         if (data.startsWith("0x")) {
-            reg.value.fromString(data, HexadecimalFormat);
+            reg->value.fromString(data, HexadecimalFormat);
         } else if (data == "<error reading variable>") {
             // Nothing. See QTCREATORBUG-14029.
         } else {
@@ -3217,9 +3221,9 @@ void GdbEngine::handleRegisterListValues(const DebuggerResponse &response)
                 QTC_ASSERT(chunk.size() == 8, continue);
                 result.append(chunk);
             }
-            reg.value.fromString(result, HexadecimalFormat);
+            reg->value.fromString(result, HexadecimalFormat);
         }
-        handler->updateRegister(reg);
+        handler->updateRegister(*reg);
     }
     handler->commitUpdates();
 }
