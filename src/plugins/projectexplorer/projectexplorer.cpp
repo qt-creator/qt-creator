@@ -2267,7 +2267,7 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
                            dd->m_buildPropertiesSettings.qtQuickCompiler.toVariant(),
                            TriState::Default.toVariant());
 
-    s->setValueWithDefault(Constants::CUSTOM_PARSER_COUNT_KEY, dd->m_customParsers.count(), 0);
+    s->setValueWithDefault(Constants::CUSTOM_PARSER_COUNT_KEY, int(dd->m_customParsers.count()), 0);
     for (int i = 0; i < dd->m_customParsers.count(); ++i) {
         s->setValue(Constants::CUSTOM_PARSER_PREFIX_KEY + QString::number(i),
                     dd->m_customParsers.at(i).toMap());

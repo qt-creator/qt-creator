@@ -291,8 +291,9 @@ void ActivationSequenceContextProcessor::goBackToStartOfName()
     const int tokIndex = CPlusPlus::SimpleLexer::tokenAt(tokens, tokenPos);
     if (tokIndex > -1 && tokens.at(tokIndex).isStringLiteral()) {
         const int tokenStart = tokens.at(tokIndex).utf16charOffset;
-        const int slashIndex = m_textCursor.block().text().lastIndexOf('/',
-            std::min(m_textCursor.positionInBlock(), m_textCursor.block().text().length() - 1));
+        const int slashIndex = m_textCursor.block().text().lastIndexOf(
+            '/',
+            std::min(m_textCursor.positionInBlock(), int(m_textCursor.block().text().length() - 1)));
         m_startOfNamePosition = m_textCursor.block().position() + std::max(slashIndex, tokenStart)
                 + 1;
     } else {

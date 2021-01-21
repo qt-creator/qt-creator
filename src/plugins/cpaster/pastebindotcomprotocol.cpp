@@ -227,7 +227,7 @@ static QString replaceEntities(const QString &original)
         const QRegularExpressionMatch match = it.next();
         const QString value = match.captured(1);
         if (value.startsWith('x'))
-            result.replace(match.captured(0), QChar(value.midRef(1).toInt(nullptr, 16)));
+            result.replace(match.captured(0), QChar(value.mid(1).toInt(nullptr, 16)));
         else
             result.replace(match.captured(0), QChar(value.toInt(nullptr, 10)));
     }
