@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -75,6 +75,35 @@
     \uicontrol Origin field in the \uicontrol Advanced tab in the
     \uicontrol Properties view. There, you can also enter the value
     of the \uicontrol Rotation property in degrees.
+
+    \section1 Zooming
+
+    You can use the zoom buttons on the toolbar to zoom into and out of
+    \uicontrol {Form Editor} or select the zoom level as a percentage
+    from a list. More buttons are availabe for zooming to fit all content
+    in the view or zooming to fit the currently selected components.
+
+    \image qmldesigner-zooming.gif "Zooming in Form Editor"
+
+    The following table lists the zoom buttons:
+
+    \table
+    \header
+        \li Icon
+        \li Tooltip
+    \row
+        \li \inlineimage icons/zoomIn.png
+        \li Zoom in
+    \row
+        \li \inlineimage icons/zoomOut.png
+        \li Zoom out
+    \row
+        \li \inlineimage icons/zoomAll.png
+        \li Zoom to fit all content
+    \row
+        \li \inlineimage icons/zoomSelection.png
+        \li Zoom to fit the current selection
+    \endtable
 
     \section1 Snapping to Parent and Sibling Items
 
