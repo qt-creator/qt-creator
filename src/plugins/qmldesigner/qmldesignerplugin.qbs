@@ -431,6 +431,7 @@ Project {
                 "imagecache/imagecachegenerator.h",
                 "imagecache/imagecachestorageinterface.h",
                 "imagecache/imagecachestorage.h",
+                "imagecache/synchronousimagecache.cpp",
                 "imagecache/timestampproviderinterface.h",
                 "imagecache/timestampprovider.h",
                 "imagecache/timestampprovider.cpp",
