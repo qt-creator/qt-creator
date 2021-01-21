@@ -306,6 +306,12 @@ QList<Token> Scanner::operator()(const QString &text, int startState)
             la = text.at(index + 1);
 
         switch (ch.unicode()) {
+        case '#':
+            if (_scanComments)
+                tokens.append(Token(index, text.length() - index, Token::Comment));
+            index = text.length();
+            break;
+
         case '/':
             if (la == QLatin1Char('/')) {
                 if (_scanComments)
