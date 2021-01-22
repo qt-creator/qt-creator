@@ -386,6 +386,10 @@ void AbstractView::updateActiveScene3D(const QVariantMap & /*sceneState*/)
 {
 }
 
+void AbstractView::updateImport3DSupport(const QVariantMap & /*supportMap*/)
+{
+}
+
 void AbstractView::modelNodePreviewPixmapChanged(const ModelNode & /*node*/, const QPixmap & /*pixmap*/)
 {
 }
@@ -802,6 +806,12 @@ void AbstractView::emitModelNodelPreviewPixmapChanged(const ModelNode &node, con
 {
     if (model())
         model()->d->notifyModelNodePreviewPixmapChanged(node, pixmap);
+}
+
+void AbstractView::emitImport3DSupportChanged(const QVariantMap &supportMap)
+{
+    if (model())
+        model()->d->notifyImport3DSupportChanged(supportMap);
 }
 
 void AbstractView::emitRewriterEndTransaction()

@@ -102,6 +102,10 @@
 #endif
 #endif
 
+#ifdef IMPORT_QUICK3D_ASSETS
+#include <QtQuick3DAssetImport/private/qssgassetimportmanager_p.h>
+#endif
+
 // Uncomment to display FPS counter on the lower left corner of edit 3D view
 //#define FPS_COUNTER
 #ifdef FPS_COUNTER
@@ -251,6 +255,37 @@ void Qt5InformationNodeInstanceServer::handleInputEvents()
 
         render3DEditView();
     }
+}
+
+void Qt5InformationNodeInstanceServer::resolveImportSupport()
+{
+#ifdef IMPORT_QUICK3D_ASSETS
+    QSSGAssetImportManager importManager;
+    const QHash<QString, QStringList> supportedExtensions = importManager.getSupportedExtensions();
+    const QHash<QString, QVariantMap> supportedOptions = importManager.getAllOptions();
+
+    QVariantMap supportMap;
+
+    QVariantMap extMap;
+    auto itExt = supportedExtensions.constBegin();
+    while (itExt != supportedExtensions.constEnd()) {
+        extMap.insert(itExt.key(), itExt.value());
+        ++itExt;
+    }
+
+    QVariantMap optMap;
+    auto itOpt = supportedOptions.constBegin();
+    while (itOpt != supportedOptions.constEnd()) {
+        optMap.insert(itOpt.key(), itOpt.value());
+        ++itOpt;
+    }
+
+    supportMap.insert("options", optMap);
+    supportMap.insert("extensions", extMap);
+    nodeInstanceClient()->handlePuppetToCreatorCommand(
+                {PuppetToCreatorCommand::Import3DSupport, QVariant(supportMap)});
+
+#endif
 }
 
 void Qt5InformationNodeInstanceServer::createEditView3D()
@@ -1462,6 +1497,9 @@ void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
 
     QObject::connect(&m_renderModelNodeImageViewTimer, &QTimer::timeout,
                      this, &Qt5InformationNodeInstanceServer::doRenderModelNodeImageView);
+#ifdef IMPORT_QUICK3D_ASSETS
+    QTimer::singleShot(0, this, &Qt5InformationNodeInstanceServer::resolveImportSupport);
+#endif
 }
 
 void Qt5InformationNodeInstanceServer::sendChildrenChangedCommand(const QList<ServerNodeInstance> &childList)

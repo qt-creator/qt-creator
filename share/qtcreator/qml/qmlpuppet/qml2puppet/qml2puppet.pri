@@ -24,6 +24,7 @@ include (../interfaces/interfaces.pri)
 include (../types/types.pri)
 include (../qmlprivategate/qmlprivategate.pri)
 include (iconrenderer/iconrenderer.pri)
+include (import3d/import3d.pri)
 
 SOURCES +=  $$PWD/qml2puppetmain.cpp
 RESOURCES +=  $$PWD/../qmlpuppet.qrc

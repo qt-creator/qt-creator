@@ -176,6 +176,7 @@ public:
     void notifyRenderImage3DChanged(const QImage &image);
     void notifyUpdateActiveScene3D(const QVariantMap &sceneState);
     void notifyModelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap);
+    void notifyImport3DSupportChanged(const QVariantMap &supportMap);
 
     void setDocumentMessages(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings);
 

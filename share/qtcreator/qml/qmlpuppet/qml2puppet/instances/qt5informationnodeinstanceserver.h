@@ -131,6 +131,7 @@ private:
     void doRenderModelNode2DImageView();
     void updateLockedAndHiddenStates(const QSet<ServerNodeInstance> &instances);
     void handleInputEvents();
+    void resolveImportSupport();
 
     void createAuxiliaryQuickView(const QUrl &url, RenderViewData &viewData);
 

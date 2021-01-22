@@ -1,8 +1,14 @@
 INCLUDEPATH += $$PWD/
 
-versionAtLeast(QT_VERSION, 5.15.0):qtHaveModule(quick3d) {
-    QT *= quick3d-private
-    DEFINES *= QUICK3D_MODULE
+versionAtLeast(QT_VERSION, 5.15.0) {
+    qtHaveModule(quick3d) {
+        QT *= quick3d-private
+        DEFINES *= QUICK3D_MODULE
+    }
+    qtHaveModule(quick3dassetimport) {
+        QT *= quick3dassetimport-private
+        DEFINES *= IMPORT_QUICK3D_ASSETS
+    }
 }
 
 HEADERS += $$PWD/qt5nodeinstanceserver.h \

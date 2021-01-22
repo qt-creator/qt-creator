@@ -53,6 +53,7 @@ public:
     void modelAboutToBeDetached(Model *model) override;
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
     void documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings) override;
+    void updateImport3DSupport(const QVariantMap &supportMap) override;
 
     void setResourcePath(const QString &resourcePath);
 
@@ -66,6 +67,8 @@ private:
     QPointer<ItemLibraryWidget> m_widget;
     ImportManagerView *m_importManagerView;
     bool m_hasErrors = false;
+    QVariantMap m_importableExtensions3DMap;
+    QVariantMap m_importOptions3DMap;
 };
 
 }

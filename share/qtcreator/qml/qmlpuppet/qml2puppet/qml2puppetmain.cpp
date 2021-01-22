@@ -35,6 +35,7 @@
 #include <stdlib.h>
 
 #include "iconrenderer/iconrenderer.h"
+#include "import3d/import3d.h"
 #include <qt5nodeinstanceclientproxy.h>
 
 #include <QQmlComponent>
@@ -152,12 +153,14 @@ int internalMain(QGuiApplication *application)
 
     if (application->arguments().count() < 2
             || (application->arguments().at(1) == "--readcapturedstream" && application->arguments().count() < 3)
-            || (application->arguments().at(1) == "--rendericon" && application->arguments().count() < 5)) {
+            || (application->arguments().at(1) == "--rendericon" && application->arguments().count() < 5)
+            || (application->arguments().at(1) == "--import3dAsset" && application->arguments().count() < 6)) {
         qDebug() << "Usage:\n";
         qDebug() << "--test";
         qDebug() << "--version";
         qDebug() << "--readcapturedstream <stream file> [control stream file]";
         qDebug() << "--rendericon <icon size> <icon file name> <icon source qml>";
+        qDebug() << "--import3dAsset <source asset file name> <output dir> <id number> <import options JSON>";
 
         return -1;
     }
@@ -216,6 +219,17 @@ int internalMain(QGuiApplication *application)
 
         IconRenderer *iconRenderer = new IconRenderer(size, iconFileName, iconSource);
         iconRenderer->setupRender();
+
+        return application->exec();
+    }
+
+    if (application->arguments().at(1) == "--import3dAsset") {
+        QString sourceAsset = application->arguments().at(2);
+        QString outDir = application->arguments().at(3);
+        int exitId = application->arguments().at(4).toInt();
+        QString options = application->arguments().at(5);
+
+        Import3D::import3D(sourceAsset, outDir, exitId, options);
 
         return application->exec();
     }

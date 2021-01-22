@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,39 +25,9 @@
 
 #pragma once
 
-#include <qmetatype.h>
-#include <QDataStream>
-#include <QVariant>
+#include <QString>
 
-namespace QmlDesigner {
-
-class PuppetToCreatorCommand
+namespace Import3D
 {
-public:
-    enum Type {
-        Edit3DToolState,
-        Render3DView,
-        ActiveSceneChanged,
-        RenderModelNodePreviewImage,
-        Import3DSupport,
-        None };
-
-    PuppetToCreatorCommand(Type type, const QVariant &data);
-    PuppetToCreatorCommand() = default;
-
-    Type type() const { return m_type; }
-    QVariant data() const { return m_data; }
-
-private:
-    Type m_type = None;
-    QVariant m_data;
-
-    friend QDataStream &operator>>(QDataStream &in, PuppetToCreatorCommand &command);
+    void import3D(const QString &sourceAsset, const QString &outDir, int id, const QString &options);
 };
-
-QDataStream &operator<<(QDataStream &out, const PuppetToCreatorCommand &command);
-QDataStream &operator>>(QDataStream &in, PuppetToCreatorCommand &command);
-
-} // namespace QmlDesigner
-
-Q_DECLARE_METATYPE(QmlDesigner::PuppetToCreatorCommand)

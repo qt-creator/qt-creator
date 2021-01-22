@@ -1,10 +1,5 @@
 VPATH += $$PWD
 
-qtHaveModule(quick3dassetimport) {
-    QT *= quick3dassetimport-private
-    DEFINES *= IMPORT_QUICK3D_ASSETS
-}
-
 # Input
 HEADERS += itemlibraryview.h \
            $$PWD/itemlibraryiconimageprovider.h \

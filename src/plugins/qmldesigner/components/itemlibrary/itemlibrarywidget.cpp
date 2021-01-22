@@ -26,7 +26,6 @@
 #include "itemlibrarywidget.h"
 
 #include "customfilesystemmodel.h"
-#include "itemlibraryassetimportdialog.h"
 #include "itemlibraryiconimageprovider.h"
 
 #include <theme.h>
@@ -52,10 +51,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
-
-#ifdef IMPORT_QUICK3D_ASSETS
-#include <QtQuick3DAssetImport/private/qssgassetimportmanager_p.h>
-#endif
 
 #include <QApplication>
 #include <QDrag>
@@ -204,49 +199,6 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
     connect(button, &QToolButton::clicked, [this]() {
         addResources({});
     });
-
-#ifdef IMPORT_QUICK3D_ASSETS
-    DesignerActionManager *actionManager =
-             &QmlDesignerPlugin::instance()->viewManager().designerActionManager();
-
-    auto handle3DModel = [](const QStringList &fileNames, const QString &defaultDir) -> bool {
-        auto importDlg = new ItemLibraryAssetImportDialog(fileNames, defaultDir, Core::ICore::mainWindow());
-        importDlg->show();
-        return true;
-    };
-
-    auto add3DHandler = [&](const QString &category, const QString &ext) {
-        const QString filter = QStringLiteral("*.%1").arg(ext);
-        actionManager->registerAddResourceHandler(
-                    AddResourceHandler(category, filter, handle3DModel, 10));
-    };
-
-    QSSGAssetImportManager importManager;
-    QHash<QString, QStringList> supportedExtensions = importManager.getSupportedExtensions();
-
-    // All things importable by QSSGAssetImportManager are considered to be in the same category
-    // so we don't get multiple separate import dialogs when different file types are imported.
-    const QString category = tr("3D Assets");
-
-    // Skip if 3D asset handlers have already been added
-    const QList<AddResourceHandler> handlers = actionManager->addResourceHandler();
-    bool categoryAlreadyAdded = false;
-    for (const auto &handler : handlers) {
-        if (handler.category == category) {
-            categoryAlreadyAdded = true;
-            break;
-        }
-    }
-
-    if (!categoryAlreadyAdded) {
-        const auto groups = supportedExtensions.keys();
-        for (const auto &group : groups) {
-            const auto extensions = supportedExtensions[group];
-            for (const auto &ext : extensions)
-                add3DHandler(category, ext);
-        }
-    }
-#endif
 
     const auto dropSupport = new Utils::DropSupport(
                 m_resourcesView.data(), [this](QDropEvent *event, Utils::DropSupport *) {

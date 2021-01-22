@@ -243,6 +243,8 @@ QtcTool {
             "editor3d/icongizmoimageprovider.h",
             "iconrenderer/iconrenderer.cpp",
             "iconrenderer/iconrenderer.h",
+            "import3d/import3d.cpp",
+            "import3d/import3d.h",
             "qml2puppetmain.cpp",
         ]
 

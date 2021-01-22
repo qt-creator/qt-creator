@@ -199,6 +199,15 @@ void DesignerActionManager::registerAddResourceHandler(const AddResourceHandler 
     m_addResourceHandler.append(handler);
 }
 
+void DesignerActionManager::unregisterAddResourceHandlers(const QString &category)
+{
+    for (int i = m_addResourceHandler.size() - 1; i >= 0 ; --i) {
+        const AddResourceHandler &handler = m_addResourceHandler[i];
+        if (handler.category == category)
+            m_addResourceHandler.removeAt(i);
+    }
+}
+
 void DesignerActionManager::registerModelNodePreviewHandler(const ModelNodePreviewImageHandler &handler)
 {
     m_modelNodePreviewImageHandlers.append(handler);

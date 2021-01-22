@@ -326,14 +326,6 @@ extend_qtc_plugin(QmlDesigner
     itemlibraryiconimageprovider.cpp itemlibraryiconimageprovider.h
 )
 
-find_package(Qt5 COMPONENTS Quick3DAssetImport QUIET)
-extend_qtc_plugin(QmlDesigner
-  CONDITION TARGET Qt5::Quick3DAssetImport
-  FEATURE_INFO "Qt Quick 3D asset import"
-  DEPENDS Qt5::Quick3DAssetImportPrivate
-  DEFINES IMPORT_QUICK3D_ASSETS
-)
-
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/navigator
   SOURCES

@@ -46,7 +46,10 @@ class ItemLibraryAssetImportDialog : public QDialog
 
 public:
     explicit ItemLibraryAssetImportDialog(const QStringList &importFiles,
-                               const QString &defaulTargetDirectory, QWidget *parent = nullptr);
+                                          const QString &defaulTargetDirectory,
+                                          const QVariantMap &supportedExts,
+                                          const QVariantMap &supportedOpts,
+                                          QWidget *parent = nullptr);
     ~ItemLibraryAssetImportDialog();
 
 protected:

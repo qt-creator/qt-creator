@@ -71,10 +71,13 @@ static const int rowHeight = 26;
 }
 
 ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(const QStringList &importFiles,
-                                     const QString &defaulTargetDirectory, QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::ItemLibraryAssetImportDialog),
-    m_importer(this)
+                                                           const QString &defaulTargetDirectory,
+                                                           const QVariantMap &supportedExts,
+                                                           const QVariantMap &supportedOpts,
+                                                           QWidget *parent) :
+    QDialog(parent)
+    , ui(new Ui::ItemLibraryAssetImportDialog)
+    , m_importer(this)
 {
     setModal(true);
     ui->setupUi(this);
@@ -83,15 +86,24 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(const QStringList &im
     m_outputFormatter->setPlainTextEdit(ui->plainTextEdit);
 
     // Skip unsupported assets
-    bool skipSome = false;
+    QHash<QString, bool> supportMap;
     for (const auto &file : importFiles) {
-        if (m_importer.isQuick3DAsset(file))
+        QString suffix = QFileInfo(file).suffix();
+        if (!supportMap.contains(suffix)) {
+            bool supported = false;
+            for (const auto &exts : supportedExts) {
+                if (exts.toStringList().contains(suffix)) {
+                    supported = true;
+                    break;
+                }
+            }
+            supportMap.insert(suffix, supported);
+        }
+        if (supportMap[suffix])
             m_quick3DFiles << file;
-        else
-            skipSome = true;
     }
 
-    if (skipSome)
+    if (m_quick3DFiles.size() != importFiles.size())
         addWarning("Cannot import 3D and other assets simultaneously. Skipping non-3D assets.");
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Import"));
@@ -153,14 +165,12 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(const QStringList &im
     m_quick3DImportPath = candidatePath;
 
     if (!m_quick3DFiles.isEmpty()) {
-        const QHash<QString, QVariantMap> allOptions = m_importer.allOptions();
-        const QHash<QString, QStringList> supportedExtensions = m_importer.supportedExtensions();
         QVector<QJsonObject> groups;
 
-        auto optIt = allOptions.constBegin();
+        auto optIt = supportedOpts.constBegin();
         int optIndex = 0;
-        while (optIt != allOptions.constEnd()) {
-            QJsonObject options = QJsonObject::fromVariantMap(optIt.value());
+        while (optIt != supportedOpts.constEnd()) {
+            QJsonObject options = QJsonObject::fromVariantMap(qvariant_cast<QVariantMap>(optIt.value()));
             m_importOptions << options.value("options").toObject();
             groups << options.value("groups").toObject();
             const auto &exts = optIt.key().split(':');
@@ -173,10 +183,10 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(const QStringList &im
         // Create tab for each supported extension group that also has files included in the import
         QMap<QString, int> tabMap; // QMap used for alphabetical order
         for (const auto &file : qAsConst(m_quick3DFiles)) {
-            auto extIt = supportedExtensions.constBegin();
+            auto extIt = supportedExts.constBegin();
             QString ext = QFileInfo(file).suffix().toLower();
-            while (extIt != supportedExtensions.constEnd()) {
-                if (!tabMap.contains(extIt.key()) && extIt.value().contains(ext)) {
+            while (extIt != supportedExts.constEnd()) {
+                if (!tabMap.contains(extIt.key()) && extIt.value().toStringList().contains(ext)) {
                     tabMap.insert(extIt.key(), m_extToImportOptionsMap.value(ext));
                     break;
                 }

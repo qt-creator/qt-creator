@@ -137,6 +137,14 @@ extend_qtc_executable(qml2puppet
     icongizmoimageprovider.cpp icongizmoimageprovider.h
 )
 
+find_package(Qt5 5.15.0 COMPONENTS Quick3DAssetImport QUIET)
+extend_qtc_executable(qml2puppet
+  CONDITION TARGET Qt5::Quick3DAssetImport
+  FEATURE_INFO "Qt Quick 3D asset import"
+  DEPENDS Qt5::Quick3DAssetImportPrivate
+  DEFINES IMPORT_QUICK3D_ASSETS
+)
+
 extend_qtc_executable(qml2puppet
   CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0
 
@@ -149,6 +157,12 @@ extend_qtc_executable(qml2puppet
   SOURCES_PREFIX "${SRCDIR}/qml2puppet/iconrenderer"
   SOURCES
     iconrenderer.cpp iconrenderer.h
+)
+
+extend_qtc_executable(qml2puppet
+  SOURCES_PREFIX "${SRCDIR}/qml2puppet/import3d"
+  SOURCES
+    import3d.cpp import3d.h
 )
 
 extend_qtc_executable(qml2puppet

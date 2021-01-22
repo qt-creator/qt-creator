@@ -29,11 +29,13 @@
 #include <qprocessuniqueptr.h>
 
 #include <QSet>
-#include <QtCore/qhash.h>
-#include <QtCore/qjsonobject.h>
-#include <QtCore/qobject.h>
-#include <QtCore/qprocess.h>
-#include <QtCore/qstringlist.h>
+#include <QHash>
+#include <QJsonObject>
+#include <QObject>
+#include <QProcess>
+#include <QStringList>
+#include <QDir>
+#include <QFileInfo>
 
 QT_BEGIN_NAMESPACE
 class QSSGAssetImportManager;
@@ -62,11 +64,6 @@ public:
     void addWarning(const QString &warningMsg, const QString &srcPath = {}) const;
     void addInfo(const QString &infoMsg, const QString &srcPath = {}) const;
 
-    bool isQuick3DAsset(const QString &fileName) const;
-    QVariantMap supportedOptions(const QString &modelFile) const;
-    QHash<QString, QVariantMap> allOptions() const;
-    QHash<QString, QStringList> supportedExtensions() const;
-
 signals:
     void errorReported(const QString &, const QString &) const;
     void warningReported(const QString &, const QString &) const;
@@ -76,32 +73,49 @@ signals:
     void importFinished();
 
 private slots:
-    void processFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void importProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void iconProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
 private:
+    struct ParseData {
+        QJsonObject options;
+        QDir targetDir;
+        QDir outDir;
+        QString targetDirPath;
+        QFileInfo sourceInfo;
+        QString assetName;
+        QString originalAssetName;
+        int importId;
+    };
+
     void notifyFinished();
     void reset();
     void parseFiles(const QStringList &filePaths, const QVector<QJsonObject> &options,
                     const QHash<QString, int> &extToImportOptionsMap);
-    void parseQuick3DAsset(const QString &file, const QVariantMap &options);
+    bool preParseQuick3DAsset(const QString &file, ParseData &pd);
+    void postParseQuick3DAsset(const ParseData &pd);
     void copyImportedFiles();
 
-    void notifyProgress(int value, const QString &text) const;
+    void notifyProgress(int value, const QString &text);
+    void notifyProgress(int value);
     void keepUiAlive() const;
     bool confirmAssetOverwrite(const QString &assetName);
-    bool generateComponentIcon(int size, const QString &iconFile, const QString &iconSource);
+    bool startImportProcess(const ParseData &pd);
+    bool startIconProcess(int size, const QString &iconFile, const QString &iconSource);
+    void postImport();
     void finalizeQuick3DImport();
 
-#ifdef IMPORT_QUICK3D_ASSETS
-    QScopedPointer<QSSGAssetImportManager> m_quick3DAssetImporter;
     QSet<QHash<QString, QString>> m_importFiles;
     QSet<QString> m_overwrittenImports;
-#endif
     bool m_isImporting = false;
     bool m_cancelled = false;
     QString m_importPath;
     QTemporaryDir *m_tempDir = nullptr;
     std::vector<QProcessUniquePointer> m_qmlPuppetProcesses;
     int m_qmlPuppetCount = 0;
+    int m_qmlImportFinishedCount = 0;
+    int m_importIdCounter = 1000000; // Use ids in range unlikely to clash with any normal process exit codes
+    QHash<int, ParseData> m_parseData;
+    QString m_progressTitle;
 };
 } // QmlDesigner

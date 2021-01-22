@@ -575,6 +575,11 @@ void ModelPrivate::notifyModelNodePreviewPixmapChanged(const ModelNode &node, co
         [&](AbstractView *view) { view->modelNodePreviewPixmapChanged(node, pixmap); });
 }
 
+void ModelPrivate::notifyImport3DSupportChanged(const QVariantMap &supportMap)
+{
+    notifyInstanceChanges([&](AbstractView *view) { view->updateImport3DSupport(supportMap); });
+}
+
 void ModelPrivate::notifyRewriterBeginTransaction()
 {
     notifyNodeInstanceViewLast([&](AbstractView *view) { view->rewriterBeginTransaction(); });
