@@ -165,6 +165,17 @@
     \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer} and
     specify the canvas width and height in the \uicontrol Canvas group.
 
+    \section1 Setting Canvas Color
+
+    If you set the background of the root item of your component transparent,
+    the canvas color can make it difficult to see the component you are working
+    on. To make components more visible, you can select the canvas color in
+    the \inlineimage icons/canvas-color.png
+    list. By default, the color is transparent. Setting the canvas color does
+    not affect the background color of your UI or components in any way.
+
+    \image qmldesigner-canvas-color.png "Transparent canvas color for a transparent component"
+
     \section1 Refreshing the Form Editor Contents
 
     When you open QML files in the Design mode, the items in the file are drawn
