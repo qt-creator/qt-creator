@@ -149,10 +149,11 @@ bool FunctionHintAssistProvider::isContinuationChar(const QChar &/*c*/) const
     return true;
 }
 
-void FunctionHintAssistProvider::setTriggerCharacters(QList<QString> triggerChars)
+void FunctionHintAssistProvider::setTriggerCharacters(
+    const Utils::optional<QList<QString>> &triggerChars)
 {
-    m_triggerChars = triggerChars;
-    for (const QString &trigger : triggerChars) {
+    m_triggerChars = triggerChars.value_or(QList<QString>());
+    for (const QString &trigger : qAsConst(m_triggerChars)) {
         if (trigger.length() > m_activationCharSequenceLength)
             m_activationCharSequenceLength = trigger.length();
     }

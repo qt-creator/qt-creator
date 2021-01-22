@@ -26,6 +26,7 @@
 #pragma once
 
 #include <texteditor/codeassist/completionassistprovider.h>
+#include <utils/optional.h>
 
 namespace LanguageClient {
 
@@ -45,7 +46,7 @@ public:
     bool isActivationCharSequence(const QString &sequence) const override;
     bool isContinuationChar(const QChar &c) const override;
 
-    void setTriggerCharacters(QList<QString> triggerChars);
+    void setTriggerCharacters(const Utils::optional<QList<QString>> &triggerChars);
 private:
     QList<QString> m_triggerChars;
     int m_activationCharSequenceLength = 0;

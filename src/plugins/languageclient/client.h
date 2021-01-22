@@ -206,6 +206,7 @@ private:
     void sendPostponedDocumentUpdates();
 
     void updateCompletionProvider(TextEditor::TextDocument *document);
+    void updateFunctionHintProvider(TextEditor::TextDocument *document);
 
     using ContentHandler = std::function<void(const QByteArray &, QTextCodec *, QString &,
                                               LanguageServerProtocol::ResponseHandlers,

@@ -383,6 +383,34 @@ void Client::updateCompletionProvider(TextEditor::TextDocument *document)
     }
 }
 
+void Client::updateFunctionHintProvider(TextEditor::TextDocument *document)
+{
+    bool useLanguageServer = m_serverCapabilities.signatureHelpProvider().has_value();
+    auto clientFunctionHintProvider = static_cast<FunctionHintAssistProvider *>(
+        m_clientProviders.functionHintProvider.data());
+    if (m_dynamicCapabilities.isRegistered(SignatureHelpRequest::methodName).value_or(false)) {
+        const QJsonValue &options = m_dynamicCapabilities.option(SignatureHelpRequest::methodName);
+        const TextDocumentRegistrationOptions docOptions(options);
+        useLanguageServer = docOptions.filterApplies(document->filePath(),
+                                                     Utils::mimeTypeForName(document->mimeType()));
+
+        const ServerCapabilities::SignatureHelpOptions signatureOptions(options);
+        if (signatureOptions.isValid(nullptr))
+            clientFunctionHintProvider->setTriggerCharacters(signatureOptions.triggerCharacters());
+    }
+
+    if (document->functionHintAssistProvider() != clientFunctionHintProvider) {
+        if (useLanguageServer) {
+            m_resetAssistProvider[document].functionHintProvider
+                = document->functionHintAssistProvider();
+            document->setFunctionHintAssistProvider(clientFunctionHintProvider);
+        }
+    } else if (!useLanguageServer) {
+        document->setFunctionHintAssistProvider(
+            m_resetAssistProvider[document].functionHintProvider);
+    }
+}
+
 void Client::activateDocument(TextEditor::TextDocument *document)
 {
     auto uri = DocumentUri::fromFilePath(document->filePath());
@@ -390,10 +418,7 @@ void Client::activateDocument(TextEditor::TextDocument *document)
     SemanticHighligtingSupport::applyHighlight(document, m_highlights.value(uri), capabilities());
     // only replace the assist provider if the language server support it
     updateCompletionProvider(document);
-    if (m_serverCapabilities.signatureHelpProvider()) {
-        m_resetAssistProvider[document].functionHintProvider = document->functionHintAssistProvider();
-        document->setFunctionHintAssistProvider(m_clientProviders.functionHintProvider);
-    }
+    updateFunctionHintProvider(document);
     if (m_serverCapabilities.codeActionProvider()) {
         m_resetAssistProvider[document].quickFixAssistProvider = document->quickFixAssistProvider();
         document->setQuickFixAssistProvider(m_clientProviders.quickFixAssistProvider);
@@ -551,10 +576,16 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
 void Client::registerCapabilities(const QList<Registration> &registrations)
 {
     m_dynamicCapabilities.registerCapability(registrations);
-    if (Utils::anyOf(registrations,
-                     Utils::equal(&Registration::method, QString(CompletionRequest::methodName)))) {
+    auto methodRegistered = [&](const QString &method) {
+        return Utils::anyOf(registrations, Utils::equal(&Registration::method, method));
+    };
+    if (methodRegistered(CompletionRequest::methodName)) {
         for (auto document : m_openedDocument.keys())
             updateCompletionProvider(document);
+    }
+    if (methodRegistered(SignatureHelpRequest::methodName)) {
+        for (auto document : m_openedDocument.keys())
+            updateFunctionHintProvider(document);
     }
 }
 
@@ -1299,8 +1330,7 @@ void Client::initializeCallback(const InitializeRequest::Response &initResponse)
         functionHintAssistProvider->setTriggerCharacters(
             m_serverCapabilities.signatureHelpProvider()
                 .value_or(ServerCapabilities::SignatureHelpOptions())
-                .triggerCharacters()
-                .value_or(QList<QString>()));
+                .triggerCharacters());
     }
 
     qCDebug(LOGLSPCLIENT) << "language server " << m_displayName << " initialized";
