@@ -3168,7 +3168,7 @@ void GdbEngine::handleRegisterListing(const DebuggerResponse &response)
         reg.name = parts.at(0);
         reg.size = parts.at(4).toInt();
         reg.reportedType = parts.at(5);
-        reg.groups = parts.at(6).split(',').toSet();
+        reg.groups = Utils::toSet(parts.at(6).split(','));
         m_registers[gdbRegisterNumber] = reg;
     }
 }

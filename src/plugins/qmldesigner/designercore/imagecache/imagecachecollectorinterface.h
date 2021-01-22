@@ -28,6 +28,7 @@
 #include <imagecacheauxiliarydata.h>
 #include <utils/smallstringview.h>
 
+#include <QIcon>
 #include <QImage>
 
 namespace QmlDesigner {

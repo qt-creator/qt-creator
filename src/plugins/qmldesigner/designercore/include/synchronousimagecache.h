@@ -29,6 +29,7 @@
 
 #include <utils/smallstring.h>
 
+#include <QIcon>
 #include <QImage>
 
 #include <condition_variable>
