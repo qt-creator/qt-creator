@@ -375,7 +375,7 @@ Project {
             condition: qbs.targetOS.contains("macos")
             files: [
                 "locator/spotlightlocatorfilter.h",
-                "locator/spotlightlocatorfilter.mm",
+                "locator/spotlightlocatorfilter.cpp",
             ]
         }
 

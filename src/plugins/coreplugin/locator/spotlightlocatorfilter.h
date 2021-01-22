@@ -34,13 +34,7 @@ class SpotlightLocatorFilter : public BaseFileFilter
 {
     Q_OBJECT
 public:
-    SpotlightLocatorFilter()
-    {
-        // tr() must not be placed in .mm file.
-        setId("SpotlightFileNamesLocatorFilter");
-        setDisplayName(tr("Spotlight File Name Index"));
-        setShortcutString("md");
-    }
+    SpotlightLocatorFilter();
 
     void prepareSearch(const QString &entry) override;
     void refresh(QFutureInterface<void> &future) override;

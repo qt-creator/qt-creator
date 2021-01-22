@@ -53,5 +53,5 @@ equals(TEST, 1) {
 
 osx {
     HEADERS += $$PWD/spotlightlocatorfilter.h
-    OBJECTIVE_SOURCES += $$PWD/spotlightlocatorfilter.mm
+    SOURCES += $$PWD/spotlightlocatorfilter.cpp
 }
