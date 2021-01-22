@@ -54,7 +54,7 @@ public:
     QString text;
 };
 
-using AuxiliaryData = std::variant<NullAuxiliaryData, FontCollectorSizeAuxiliaryData, FontCollectorSizesAuxiliaryData>;
+using AuxiliaryData = Utils::variant<NullAuxiliaryData, FontCollectorSizeAuxiliaryData, FontCollectorSizesAuxiliaryData>;
 
 } // namespace ImageCache
 
