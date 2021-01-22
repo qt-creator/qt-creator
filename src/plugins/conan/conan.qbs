@@ -11,7 +11,7 @@ QtcPlugin {
 
     files: [
         "conaninstallstep.h",
-        "conaninstallstep.cpp".
+        "conaninstallstep.cpp",
         "conanplugin.h",
         "conanplugin.cpp",
         "conansettings.h",
