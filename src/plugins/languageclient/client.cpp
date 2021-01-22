@@ -708,23 +708,13 @@ void Client::handleCodeActionResponse(const CodeActionRequest::Response &respons
 
 void Client::executeCommand(const Command &command)
 {
-    using CommandOptions = LanguageServerProtocol::ServerCapabilities::ExecuteCommandOptions;
     const QString method(ExecuteCommandRequest::methodName);
-    if (Utils::optional<bool> registered = m_dynamicCapabilities.isRegistered(method)) {
-        if (!registered.value())
-            return;
-        const CommandOptions option(m_dynamicCapabilities.option(method).toObject());
-        if (option.isValid(nullptr) && !option.commands().isEmpty() && !option.commands().contains(command.command()))
-            return;
-    } else if (Utils::optional<CommandOptions> option = m_serverCapabilities.executeCommandProvider()) {
-        if (option->isValid(nullptr) && !option->commands().isEmpty() && !option->commands().contains(command.command()))
-            return;
-    } else {
-        return;
-    }
-
-    const ExecuteCommandRequest request((ExecuteCommandParams(command)));
-    sendContent(request);
+    bool serverSupportsExecuteCommand = m_serverCapabilities.executeCommandProvider().has_value();
+    serverSupportsExecuteCommand = m_dynamicCapabilities
+                                       .isRegistered(ExecuteCommandRequest::methodName)
+                                       .value_or(serverSupportsExecuteCommand);
+    if (serverSupportsExecuteCommand)
+        sendContent(ExecuteCommandRequest(ExecuteCommandParams(command)));
 }
 
 static const FormattingOptions formattingOptions(const TextEditor::TabSettings &settings)
