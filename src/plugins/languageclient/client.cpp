@@ -111,8 +111,9 @@ Client::~Client()
     using namespace TextEditor;
     // FIXME: instead of replacing the completion provider in the text document store the
     // completion provider as a prioritised list in the text document
-    for (auto it = m_resetAssistProvider.cbegin(); it != m_resetAssistProvider.cend(); ++it)
-        resetAssistProviders(it.key());
+    // temporary container needed since m_resetAssistProvider is changed in resetAssistProviders
+    for (TextDocument *document : m_resetAssistProvider.keys())
+        resetAssistProviders(document);
     const QList<Core::IEditor *> &editors = Core::DocumentModel::editorsForOpenedDocuments();
     for (Core::IEditor *editor : editors) {
         if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {

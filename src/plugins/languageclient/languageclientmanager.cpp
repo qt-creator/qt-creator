@@ -387,13 +387,13 @@ void LanguageClientManager::clientFinished(Client *client)
         client->disconnect(this);
         client->log(tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS));
         QTimer::singleShot(restartTimeoutS * 1000, client, [client]() { startClient(client); });
-        for (auto it = m_clientForDocument.cbegin(); it != m_clientForDocument.cend(); ++it)
-            client->deactivateDocument(it.key());
+        for (TextEditor::TextDocument *document : m_clientForDocument.keys(client))
+            client->deactivateDocument(document);
     } else {
         if (unexpectedFinish && !m_shuttingDown)
             client->log(tr("Unexpectedly finished."));
-        for (auto it = m_clientForDocument.cbegin(); it != m_clientForDocument.cend(); ++it)
-            m_clientForDocument.remove(it.key());
+        for (TextEditor::TextDocument *document : m_clientForDocument.keys(client))
+            m_clientForDocument.remove(document);
         deleteClient(client);
         if (m_shuttingDown && m_clients.isEmpty())
             emit shutdownFinished();
