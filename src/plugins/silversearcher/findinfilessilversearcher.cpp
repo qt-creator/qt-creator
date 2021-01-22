@@ -87,7 +87,7 @@ bool isSilverSearcherAvailable()
 {
     QProcess silverSearcherProcess;
     silverSearcherProcess.start("ag", {"--version"});
-    if (silverSearcherProcess.waitForFinished()) {
+    if (silverSearcherProcess.waitForFinished(1000)) {
         if (silverSearcherProcess.readAll().contains("ag version"))
             return true;
     }
