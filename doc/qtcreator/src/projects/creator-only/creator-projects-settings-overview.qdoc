@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -64,9 +64,17 @@
     To view the warning and error messages, move the mouse pointer over
     the kit name.
 
-    To modify kit configuration or to add kits to the list, select
-    \uicontrol {Manage Kits}. For more information about managing kits, see
-    \l{Adding Kits}.
+    In the list of kits, you may see entries described as \e {Replacement for
+    <kit-name>}. \QC generates them to save your project-specific settings,
+    such as custom build flags or run configuration arguments that would
+    disappear if the corresponding kits were simply removed when you remove
+    Qt versions while updating your Qt installation. You can modify the kit
+    configuration to use a currently installed Qt version and save the kit
+    under a new name.
+
+    To modify kit configuration or to add kits to the list or to remove
+    them from it, select \uicontrol {Manage Kits}. For more information
+    about managing kits, see \l{Adding Kits}.
 
     Each kit consists of a set of values that define one environment, such as a
     \l{glossary-device}{device}, compiler, and Qt version. For more information,
