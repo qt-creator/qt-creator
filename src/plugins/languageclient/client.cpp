@@ -219,6 +219,13 @@ static ClientCapabilities generateClientCapabilities()
     rename.setDynamicRegistration(true);
     documentCapabilities.setRename(rename);
 
+    TextDocumentClientCapabilities::SignatureHelpCapabilities signatureHelp;
+    signatureHelp.setDynamicRegistration(true);
+    TextDocumentClientCapabilities::SignatureHelpCapabilities::SignatureInformationCapabilities info;
+    info.setDocumentationFormat({MarkupKind::markdown, MarkupKind::plaintext});
+    signatureHelp.setSignatureInformation(info);
+    documentCapabilities.setSignatureHelp(signatureHelp);
+
     documentCapabilities.setReferences(allowDynamicRegistration);
     documentCapabilities.setDocumentHighlight(allowDynamicRegistration);
     documentCapabilities.setDefinition(allowDynamicRegistration);
