@@ -27,6 +27,8 @@
 
 #include "basefilefilter.h"
 
+#include <functional>
+
 namespace Core {
 namespace Internal {
 
@@ -38,6 +40,9 @@ public:
 
     void prepareSearch(const QString &entry) override;
     void refresh(QFutureInterface<void> &future) override;
+
+private:
+    std::function<QStringList(QString, Qt::CaseSensitivity)> command;
 };
 
 } // Internal

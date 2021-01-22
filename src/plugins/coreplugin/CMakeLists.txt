@@ -178,6 +178,11 @@ extend_qtc_plugin(Core
   DEPENDS ${FWAppKit}
   SOURCES
     progressmanager/progressmanager_mac.mm
+)
+
+extend_qtc_plugin(Core
+  CONDITION NOT WIN32
+  SOURCES
     locator/spotlightlocatorfilter.h locator/spotlightlocatorfilter.cpp
 )
 

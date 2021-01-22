@@ -32,10 +32,12 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QMutex>
 #include <QMutexLocker>
 #include <QProcess>
+#include <QRegularExpression>
 #include <QTimer>
 #include <QWaitCondition>
 
@@ -169,8 +171,26 @@ void SpotlightIterator::ensureNext()
 
 SpotlightLocatorFilter::SpotlightLocatorFilter()
 {
+    if (HostOsInfo::isMacHost()) {
+        command = [](const QString &query, Qt::CaseSensitivity sensitivity) {
+            QString quoted = query;
+            quoted.replace('\\', "\\\\").replace('\'', "\\\'").replace('\"', "\\\"");
+            return QStringList(
+                {"mdfind",
+                 QString("kMDItemFSName = '*%1*'%2")
+                     .arg(quoted, sensitivity == Qt::CaseInsensitive ? QString("c") : QString())});
+        };
+    } else {
+        command = [](const QString &query, Qt::CaseSensitivity sensitivity) {
+            QString regex = query;
+            regex = regex.replace('*', ".*");
+            return QStringList({"locate"})
+                   + (sensitivity == Qt::CaseInsensitive ? QStringList({"-i"}) : QStringList())
+                   + QStringList({"-l", "10000", "-r", regex});
+        };
+    }
     setId("SpotlightFileNamesLocatorFilter");
-    setDisplayName(tr("Spotlight File Name Index"));
+    setDisplayName(tr("File Name Index"));
     setShortcutString("md");
 }
 
@@ -180,16 +200,10 @@ void SpotlightLocatorFilter::prepareSearch(const QString &entry)
     if (fp.filePath.isEmpty()) {
         setFileIterator(new BaseFileFilter::ListIterator(Utils::FilePaths()));
     } else {
-        // only pass the file name part to spotlight to allow searches like "somepath/*foo"
+        // only pass the file name part to allow searches like "somepath/*foo"
         int lastSlash = fp.filePath.lastIndexOf(QLatin1Char('/'));
-        QString quoted = fp.filePath.mid(lastSlash + 1);
-        quoted.replace('\\', "\\\\").replace('\'', "\\\'").replace('\"', "\\\"");
-        setFileIterator(new SpotlightIterator(
-            {"mdfind",
-             QString("kMDItemFSName = '*%1*'%2")
-                 .arg(quoted,
-                      caseSensitivity(fp.filePath) == Qt::CaseInsensitive ? QString("c")
-                                                                          : QString())}));
+        const QString query = fp.filePath.mid(lastSlash + 1);
+        setFileIterator(new SpotlightIterator(command(query, caseSensitivity(fp.filePath))));
     }
     BaseFileFilter::prepareSearch(entry);
 }

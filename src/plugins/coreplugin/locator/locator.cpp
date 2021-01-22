@@ -59,7 +59,7 @@
 #include <QAction>
 #include <QSettings>
 
-#ifdef Q_OS_MACOS
+#ifdef Q_OS_UNIX
 #include "spotlightlocatorfilter.h"
 #endif
 
@@ -90,7 +90,7 @@ public:
     MenuBarFilter m_menubarFilter;
     UrlLocatorFilter m_urlFilter{UrlLocatorFilter::tr("Web Search"), "RemoteHelpFilter"};
     UrlLocatorFilter m_bugFilter{UrlLocatorFilter::tr("Qt Project Bugs"), "QtProjectBugs"};
-#ifdef Q_OS_MACOS
+#ifdef Q_OS_UNIX
     SpotlightLocatorFilter m_spotlightLocatorFilter;
 #endif
 };
