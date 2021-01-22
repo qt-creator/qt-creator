@@ -215,11 +215,9 @@ void LanguageClientManager::applySettings()
     QTC_ASSERT(managerInstance, return);
     qDeleteAll(managerInstance->m_currentSettings);
     managerInstance->m_currentSettings
-        = Utils::transform(LanguageClientSettings::currentPageSettings(), &BaseSettings::copy);
+        = Utils::transform(LanguageClientSettings::pageSettings(), &BaseSettings::copy);
+    const QList<BaseSettings *> restarts = LanguageClientSettings::changedSettings();
     LanguageClientSettings::toSettings(Core::ICore::settings(), managerInstance->m_currentSettings);
-
-    const QList<BaseSettings *> restarts = Utils::filtered(managerInstance->m_currentSettings,
-                                                           &BaseSettings::needsRestart);
 
     for (BaseSettings *setting : restarts) {
         QList<TextEditor::TextDocument *> documents;
@@ -460,7 +458,8 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
         return;
 
     // check whether we have to start servers for this document
-    for (BaseSettings *setting : LanguageClientSettings::currentPageSettings()) {
+    const QList<BaseSettings *> settings = LanguageClientSettings::pageSettings();
+    for (BaseSettings *setting : settings) {
         QVector<Client *> clients = clientForSetting(setting);
         if (setting->isValid() && setting->m_enabled
             && setting->m_languageFilter.isSupported(document)) {

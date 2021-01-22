@@ -150,8 +150,6 @@ public:
 
     Utils::Id id() const { return m_id; }
 
-    bool needsRestart(const BaseSettings *) const;
-
     QList<LanguageServerProtocol::Diagnostic> diagnosticsAt(
         const LanguageServerProtocol::DocumentUri &uri,
         const LanguageServerProtocol::Range &range) const;

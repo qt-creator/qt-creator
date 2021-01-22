@@ -943,14 +943,6 @@ void Client::removeAssistProcessor(TextEditor::IAssistProcessor *processor)
     m_runningAssistProcessors.remove(processor);
 }
 
-bool Client::needsRestart(const BaseSettings *settings) const
-{
-    QTC_ASSERT(settings, return false);
-    return m_languagFilter.mimeTypes != settings->m_languageFilter.mimeTypes
-            || m_languagFilter.filePattern != settings->m_languageFilter.filePattern
-            || m_initializationOptions != settings->initializationOptions();
-}
-
 QList<Diagnostic> Client::diagnosticsAt(const DocumentUri &uri, const Range &range) const
 {
     return m_diagnosticManager.diagnosticsAt(uri, range);

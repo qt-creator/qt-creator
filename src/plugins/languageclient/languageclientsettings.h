@@ -63,6 +63,8 @@ struct LANGUAGECLIENT_EXPORT LanguageFilter
     QStringList filePattern;
     bool isSupported(const Utils::FilePath &filePath, const QString &mimeType) const;
     bool isSupported(const Core::IDocument *document) const;
+    bool operator==(const LanguageFilter &other) const;
+    bool operator!=(const LanguageFilter &other) const;
 };
 
 class LANGUAGECLIENT_EXPORT BaseSettings
@@ -88,10 +90,9 @@ public:
 
     QJsonObject initializationOptions() const;
 
-    virtual void applyFromSettingsWidget(QWidget *widget);
+    virtual bool applyFromSettingsWidget(QWidget *widget);
     virtual QWidget *createSettingsWidget(QWidget *parent = nullptr) const;
     virtual BaseSettings *copy() const { return new BaseSettings(*this); }
-    virtual bool needsRestart() const;
     virtual bool isValid() const;
     Client *createClient();
     virtual QVariantMap toMap() const;
@@ -118,10 +119,9 @@ public:
     QString m_executable;
     QString m_arguments;
 
-    void applyFromSettingsWidget(QWidget *widget) override;
+    bool applyFromSettingsWidget(QWidget *widget) override;
     QWidget *createSettingsWidget(QWidget *parent = nullptr) const override;
     BaseSettings *copy() const override { return new StdIOSettings(*this); }
-    bool needsRestart() const override;
     bool isValid() const override;
     QVariantMap toMap() const override;
     void fromMap(const QVariantMap &map) override;
@@ -142,7 +142,8 @@ class LanguageClientSettings
 public:
     static void init();
     static QList<BaseSettings *> fromSettings(QSettings *settings);
-    static QList<BaseSettings *> currentPageSettings();
+    static QList<BaseSettings *> pageSettings();
+    static QList<BaseSettings *> changedSettings();
     static void addSettings(BaseSettings *settings);
     static void enableSettings(const QString &id);
     static void toSettings(QSettings *settings, const QList<BaseSettings *> &languageClientSettings);

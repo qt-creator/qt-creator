@@ -153,11 +153,13 @@ public:
     void finish() override;
 
     QList<BaseSettings *> settings() const;
+    QList<BaseSettings *> changedSettings() const;
     void addSettings(BaseSettings *settings);
     void enableSettings(const QString &id);
 
 private:
     LanguageClientSettingsModel m_model;
+    QSet<QString> m_changedSettings;
     QPointer<LanguageClientSettingsPageWidget> m_widget;
 };
 
@@ -231,9 +233,10 @@ void LanguageClientSettingsPageWidget::applyCurrentSettings()
     if (!m_currentSettings.setting)
         return;
 
-    m_currentSettings.setting->applyFromSettingsWidget(m_currentSettings.widget);
-    auto index = m_settings.indexForSetting(m_currentSettings.setting);
-    emit m_settings.dataChanged(index, index);
+    if (m_currentSettings.setting->applyFromSettingsWidget(m_currentSettings.widget)) {
+        auto index = m_settings.indexForSetting(m_currentSettings.setting);
+        emit m_settings.dataChanged(index, index);
+    }
 }
 
 void LanguageClientSettingsPageWidget::addItem()
@@ -260,6 +263,10 @@ LanguageClientSettingsPage::LanguageClientSettingsPage()
     setDisplayCategory(QCoreApplication::translate("LanguageClient",
                                                    Constants::LANGUAGECLIENT_SETTINGS_TR));
     setCategoryIconPath(":/languageclient/images/settingscategory_languageclient.png");
+    connect(&m_model, &LanguageClientSettingsModel::dataChanged, [this](const QModelIndex &index) {
+        if (BaseSettings *setting = m_model.settingForIndex(index))
+            m_changedSettings << setting->m_id;
+    });
 }
 
 LanguageClientSettingsPage::~LanguageClientSettingsPage()
@@ -305,11 +312,23 @@ void LanguageClientSettingsPage::apply()
 void LanguageClientSettingsPage::finish()
 {
     m_model.reset(LanguageClientManager::currentSettings());
+    m_changedSettings.clear();
 }
 
 QList<BaseSettings *> LanguageClientSettingsPage::settings() const
 {
     return m_model.settings();
+}
+
+QList<BaseSettings *> LanguageClientSettingsPage::changedSettings() const
+{
+    QList<BaseSettings *> result;
+    const QList<BaseSettings *> &all = settings();
+    for (BaseSettings *setting : all) {
+        if (m_changedSettings.contains(setting->m_id))
+            result << setting;
+    }
+    return result;
 }
 
 void LanguageClientSettingsPage::addSettings(BaseSettings *settings)
@@ -476,31 +495,33 @@ QJsonObject BaseSettings::initializationOptions() const
                                    expand(m_initializationOptions).toUtf8()).object();
 }
 
-void BaseSettings::applyFromSettingsWidget(QWidget *widget)
+bool BaseSettings::applyFromSettingsWidget(QWidget *widget)
 {
+    bool changed = false;
     if (auto settingsWidget = qobject_cast<BaseSettingsWidget *>(widget)) {
-        m_name = settingsWidget->name();
-        m_languageFilter = settingsWidget->filter();
-        m_startBehavior = settingsWidget->startupBehavior();
-        m_initializationOptions = settingsWidget->initializationOptions();
+        if (m_name != settingsWidget->name()) {
+            m_name = settingsWidget->name();
+            changed = true;
+        }
+        if (m_languageFilter != settingsWidget->filter()) {
+            m_languageFilter = settingsWidget->filter();
+            changed = true;
+        }
+        if (m_startBehavior != settingsWidget->startupBehavior()) {
+            m_startBehavior = settingsWidget->startupBehavior();
+            changed = true;
+        }
+        if (m_initializationOptions != settingsWidget->initializationOptions()) {
+            m_initializationOptions = settingsWidget->initializationOptions();
+            changed = true;
+        }
     }
+    return changed;
 }
 
 QWidget *BaseSettings::createSettingsWidget(QWidget *parent) const
 {
     return new BaseSettingsWidget(this, parent);
-}
-
-bool BaseSettings::needsRestart() const
-{
-    const QVector<Client *> clients = LanguageClientManager::clientForSetting(this);
-    if (clients.isEmpty())
-        return m_enabled;
-    if (!m_enabled)
-        return true;
-    return Utils::anyOf(clients, [this](const Client *client) {
-        return client->needsRestart(this);
-    });
 }
 
 bool BaseSettings::isValid() const
@@ -571,9 +592,14 @@ QList<BaseSettings *> LanguageClientSettings::fromSettings(QSettings *settingsIn
     return settings;
 }
 
-QList<BaseSettings *> LanguageClientSettings::currentPageSettings()
+QList<BaseSettings *> LanguageClientSettings::pageSettings()
 {
     return settingsPage().settings();
+}
+
+QList<BaseSettings *> LanguageClientSettings::changedSettings()
+{
+    return settingsPage().changedSettings();
 }
 
 void LanguageClientSettings::addSettings(BaseSettings *settings)
@@ -597,31 +623,26 @@ void LanguageClientSettings::toSettings(QSettings *settings,
     settings->endGroup();
 }
 
-void StdIOSettings::applyFromSettingsWidget(QWidget *widget)
+bool StdIOSettings::applyFromSettingsWidget(QWidget *widget)
 {
+    bool changed = false;
     if (auto settingsWidget = qobject_cast<StdIOSettingsWidget *>(widget)) {
-        BaseSettings::applyFromSettingsWidget(settingsWidget);
-        m_executable = settingsWidget->executable();
-        m_arguments = settingsWidget->arguments();
+        changed = BaseSettings::applyFromSettingsWidget(settingsWidget);
+        if (m_executable != settingsWidget->executable()) {
+            m_executable = settingsWidget->executable();
+            changed = true;
+        }
+        if (m_arguments != settingsWidget->arguments()) {
+            m_arguments = settingsWidget->arguments();
+            changed = true;
+        }
     }
+    return changed;
 }
 
 QWidget *StdIOSettings::createSettingsWidget(QWidget *parent) const
 {
     return new StdIOSettingsWidget(this, parent);
-}
-
-bool StdIOSettings::needsRestart() const
-{
-    if (BaseSettings::needsRestart())
-        return true;
-    return Utils::anyOf(LanguageClientManager::clientForSetting(this),
-                        [this](QPointer<Client> client) {
-                            if (auto stdIOInterface = qobject_cast<const StdIOClientInterface *>(
-                                    client->clientInterface()))
-                                return stdIOInterface->needsRestart(this);
-                            return false;
-                        });
 }
 
 bool StdIOSettings::isValid() const
@@ -971,6 +992,16 @@ bool LanguageFilter::isSupported(const Utils::FilePath &filePath, const QString 
 bool LanguageFilter::isSupported(const Core::IDocument *document) const
 {
     return isSupported(document->filePath(), document->mimeType());
+}
+
+bool LanguageFilter::operator==(const LanguageFilter &other) const
+{
+    return this->filePattern == other.filePattern && this->mimeTypes == other.mimeTypes;
+}
+
+bool LanguageFilter::operator!=(const LanguageFilter &other) const
+{
+    return this->filePattern != other.filePattern || this->mimeTypes != other.mimeTypes;
 }
 
 } // namespace LanguageClient
