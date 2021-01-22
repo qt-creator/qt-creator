@@ -282,9 +282,9 @@ public:
         };
 
         // The client supports the following `SignatureInformation` specific properties.
-        Utils::optional<SignatureHelpCapabilities> signatureInformation() const
-        { return optionalValue<SignatureHelpCapabilities>(signatureInformationKey); }
-        void setSignatureInformation(const SignatureHelpCapabilities &signatureInformation)
+        Utils::optional<SignatureInformationCapabilities> signatureInformation() const
+        { return optionalValue<SignatureInformationCapabilities>(signatureInformationKey); }
+        void setSignatureInformation(const SignatureInformationCapabilities &signatureInformation)
         { insert(signatureInformationKey, signatureInformation); }
         void clearSignatureInformation() { remove(signatureInformationKey); }
 
