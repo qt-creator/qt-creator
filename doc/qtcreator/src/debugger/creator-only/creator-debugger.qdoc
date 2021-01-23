@@ -1319,8 +1319,8 @@
         \li \c{pointer(self)} - Returns an interpretation of this value as a
             pointer in the current address space.
 
-        \li \c{members(self)} - Returns a list of \c{Dumper.Value} objects
-            representing the base objects and data members of this value.
+        \li \c{members(self, includeBases)} - Returns a list of \c{Dumper.Value}
+            objects representing the base objects and data members of this value.
 
         \li \c{dereference(self)} - For values describing pointers, returns the
             dereferenced value, and \c None otherwise.
