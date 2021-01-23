@@ -1230,7 +1230,7 @@
         \li \c{bitsize(self)} - Returns the size of an object of this type in
             bits.
 
-        \li \c{(alignment(self)} - Returns the required alignment for objects of
+        \li \c{alignment(self)} - Returns the required alignment for objects of
             this type in bytes.
 
         \li \c{deference(self)} - Returns the dereferences type for pointer
