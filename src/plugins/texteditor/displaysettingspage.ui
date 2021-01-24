@@ -57,6 +57,16 @@
          </widget>
         </item>
         <item>
+         <widget class="QCheckBox" name="useIndenter">
+          <property name="toolTip">
+           <string>If available, use a different margin. For example, the ColumnLimit from the clang-format plugin.</string>
+          </property>
+          <property name="text">
+           <string>Use context specific margin</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>

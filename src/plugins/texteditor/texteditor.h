@@ -621,6 +621,8 @@ private:
     friend class Internal::TextEditorWidgetPrivate;
     friend class Internal::TextEditorOverlay;
     friend class RefactorOverlay;
+
+    void updateVisualWrapColumn();
 };
 
 class TEXTEDITOR_EXPORT TextEditorLinkLabel : public Utils::ElidingLabel

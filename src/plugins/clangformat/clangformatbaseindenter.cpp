@@ -679,6 +679,11 @@ bool ClangFormatBaseIndenter::isElectricCharacter(const QChar &ch) const
     return false;
 }
 
+std::optional<int> ClangFormat::ClangFormatBaseIndenter::margin() const
+{
+    return styleForFile().ColumnLimit;
+}
+
 void ClangFormatBaseIndenter::autoIndent(const QTextCursor &cursor,
                                          const TextEditor::TabSettings & /*tabSettings*/,
                                          int cursorPositionInEditor)

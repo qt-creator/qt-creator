@@ -55,6 +55,8 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : QWidget(), m_proj
 
     connect(m_ui.showWrapColumn, &QAbstractButton::toggled,
             config, &EditorConfiguration::setShowWrapColumn);
+    connect(m_ui.useIndenter, &QAbstractButton::toggled,
+            config, &EditorConfiguration::setUseIndenter);
     connect(m_ui.wrapColumn, QOverload<int>::of(&QSpinBox::valueChanged),
             config, &EditorConfiguration::setWrapColumn);
 
@@ -73,6 +75,7 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : QWidget(), m_proj
 void EditorSettingsWidget::settingsToUi(const EditorConfiguration *config)
 {
     m_ui.showWrapColumn->setChecked(config->marginSettings().m_showMargin);
+    m_ui.useIndenter->setChecked(config->marginSettings().m_useIndenter);
     m_ui.wrapColumn->setValue(config->marginSettings().m_marginColumn);
     m_ui.behaviorSettingsWidget->setCodeStyle(config->codeStyle());
     m_ui.globalSelector->setCurrentIndex(config->useGlobalSettings() ? 0 : 1);

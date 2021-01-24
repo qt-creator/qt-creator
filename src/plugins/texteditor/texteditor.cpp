@@ -1478,6 +1478,7 @@ void TextEditorWidget::openFinishedSuccessfully()
     moveCursor(QTextCursor::Start);
     d->updateCannotDecodeInfo();
     updateTextCodecLabel();
+    updateVisualWrapColumn();
 }
 
 TextDocumentPtr TextEditorWidget::textDocumentPtr() const
@@ -7438,8 +7439,8 @@ void TextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 
 void TextEditorWidget::setMarginSettings(const MarginSettings &ms)
 {
-    setVisibleWrapColumn(ms.m_showMargin ? ms.m_marginColumn : 0);
     d->m_marginSettings = ms;
+    updateVisualWrapColumn();
 
     viewport()->update();
     extraArea()->update();
@@ -8259,6 +8260,24 @@ bool TextEditorWidget::inFindScope(int selectionStart, int selectionEnd)
     if (selectionEnd - block.position() > endPosition)
         return false;
     return true;
+}
+
+void TextEditorWidget::updateVisualWrapColumn()
+{
+    auto calcMargin = [this]() {
+        const auto &ms = d->m_marginSettings;
+
+        if (!ms.m_showMargin) {
+            return 0;
+        }
+        if (ms.m_useIndenter) {
+            if (auto margin = d->m_document->indenter()->margin()) {
+                return *margin;
+            }
+        }
+        return ms.m_marginColumn;
+    };
+    setVisibleWrapColumn(calcMargin());
 }
 
 void TextEditorWidget::setBlockSelection(bool on)

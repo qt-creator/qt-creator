@@ -49,6 +49,7 @@ public:
     bool equals(const MarginSettings &other) const;
 
     bool m_showMargin;
+    bool m_useIndenter;
     int m_marginColumn;
 };
 

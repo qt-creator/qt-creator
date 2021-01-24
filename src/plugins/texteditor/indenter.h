@@ -120,6 +120,8 @@ public:
                           int cursorPositionInEditor = -1)
         = 0;
 
+    virtual std::optional<int> margin() const { return std::nullopt; }
+
 protected:
     QTextDocument *m_doc;
     Utils::FilePath m_fileName;

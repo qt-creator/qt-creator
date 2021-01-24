@@ -89,6 +89,7 @@ void DisplaySettingsWidget::settingsFromUI(DisplaySettings &displaySettings,
     displaySettings.m_displayLineNumbers = m_ui.displayLineNumbers->isChecked();
     displaySettings.m_textWrapping = m_ui.enableTextWrapping->isChecked();
     marginSettings.m_showMargin = m_ui.showWrapColumn->isChecked();
+    marginSettings.m_useIndenter = m_ui.useIndenter->isChecked();
     marginSettings.m_marginColumn = m_ui.wrapColumn->value();
     displaySettings.m_visualizeWhitespace = m_ui.visualizeWhitespace->isChecked();
     displaySettings.m_displayFoldingMarkers = m_ui.displayFoldingMarkers->isChecked();
@@ -121,6 +122,7 @@ void DisplaySettingsWidget::settingsToUI()
     m_ui.displayLineNumbers->setChecked(displaySettings.m_displayLineNumbers);
     m_ui.enableTextWrapping->setChecked(displaySettings.m_textWrapping);
     m_ui.showWrapColumn->setChecked(marginSettings.m_showMargin);
+    m_ui.useIndenter->setChecked(marginSettings.m_useIndenter);
     m_ui.wrapColumn->setValue(marginSettings.m_marginColumn);
     m_ui.visualizeWhitespace->setChecked(displaySettings.m_visualizeWhitespace);
     m_ui.displayFoldingMarkers->setChecked(displaySettings.m_displayFoldingMarkers);

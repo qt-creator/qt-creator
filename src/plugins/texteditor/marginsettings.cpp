@@ -32,11 +32,13 @@
 static const char showWrapColumnKey[] = "ShowMargin";
 static const char wrapColumnKey[] = "MarginColumn";
 static const char groupPostfix[] = "MarginSettings";
+static const char useIndenterColumnKey[] = "UseIndenter";
 
 using namespace TextEditor;
 
 MarginSettings::MarginSettings()
     : m_showMargin(false)
+    , m_useIndenter(false)
     , m_marginColumn(80)
 {
 }
@@ -48,6 +50,7 @@ void MarginSettings::toSettings(const QString &category, QSettings *s) const
         group.insert(0, category);
     s->beginGroup(group);
     s->setValue(QLatin1String(showWrapColumnKey), m_showMargin);
+    s->setValue(QLatin1String(useIndenterColumnKey), m_useIndenter);
     s->setValue(QLatin1String(wrapColumnKey), m_marginColumn);
     s->endGroup();
 }
@@ -62,24 +65,28 @@ void MarginSettings::fromSettings(const QString &category, const QSettings *s)
     *this = MarginSettings(); // Assign defaults
 
     m_showMargin = s->value(group + QLatin1String(showWrapColumnKey), m_showMargin).toBool();
+    m_useIndenter = s->value(group + QLatin1String(useIndenterColumnKey), m_useIndenter).toBool();
     m_marginColumn = s->value(group + QLatin1String(wrapColumnKey), m_marginColumn).toInt();
 }
 
 void MarginSettings::toMap(const QString &prefix, QVariantMap *map) const
 {
     map->insert(prefix + QLatin1String(showWrapColumnKey), m_showMargin);
+    map->insert(prefix + QLatin1String(useIndenterColumnKey), m_useIndenter);
     map->insert(prefix + QLatin1String(wrapColumnKey), m_marginColumn);
 }
 
 void MarginSettings::fromMap(const QString &prefix, const QVariantMap &map)
 {
     m_showMargin = map.value(prefix + QLatin1String(showWrapColumnKey), m_showMargin).toBool();
+    m_useIndenter = map.value(prefix + QLatin1String(useIndenterColumnKey), m_useIndenter).toBool();
     m_marginColumn = map.value(prefix + QLatin1String(wrapColumnKey), m_marginColumn).toInt();
 }
 
 bool MarginSettings::equals(const MarginSettings &other) const
 {
     return m_showMargin == other.m_showMargin
+        && m_useIndenter == other.m_useIndenter
         && m_marginColumn == other.m_marginColumn
         ;
 }
