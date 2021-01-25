@@ -33,7 +33,7 @@ namespace Internal {
 class GTestParseResult : public TestParseResult
 {
 public:
-    explicit GTestParseResult(ITestBase *base) : TestParseResult(base) {}
+    explicit GTestParseResult(ITestFramework *framework) : TestParseResult(framework) {}
     TestTreeItem *createTestTreeItem() const override;
     bool parameterized = false;
     bool typed = false;

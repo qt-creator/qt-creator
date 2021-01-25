@@ -146,7 +146,7 @@ TestTreeItem *CatchParseResult::createTestTreeItem() const
     if (itemType == TestTreeItem::Root)
         return nullptr;
 
-    CatchTreeItem *item = new CatchTreeItem(base, name, fileName, itemType);
+    CatchTreeItem *item = new CatchTreeItem(framework, name, fileName, itemType);
     item->setProFile(proFile);
     item->setLine(line);
     item->setColumn(column);

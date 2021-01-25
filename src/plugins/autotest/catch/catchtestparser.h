@@ -33,8 +33,8 @@ namespace Internal {
 class CatchParseResult : public TestParseResult
 {
 public:
-    explicit CatchParseResult(ITestBase *base)
-        : TestParseResult(base) {}
+    explicit CatchParseResult(ITestFramework *framework)
+        : TestParseResult(framework) {}
     TestTreeItem *createTestTreeItem() const override;
     CatchTreeItem::TestStates states;
 };

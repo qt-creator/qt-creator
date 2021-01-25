@@ -86,7 +86,7 @@ TestTreeItem *CatchTreeItem::find(const TestParseResult *result)
 
     switch (type()) {
     case Root:
-        if (result->base->asFramework()->grouping()) {
+        if (result->framework->grouping()) {
             const QString path = QFileInfo(result->fileName).absolutePath();
             for (int row = 0; row < childCount(); ++row) {
                 TestTreeItem *group = childItem(row);

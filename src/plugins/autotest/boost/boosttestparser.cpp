@@ -57,7 +57,7 @@ TestTreeItem *BoostTestParseResult::createTestTreeItem() const
     if (itemType == TestTreeItem::Root)
         return nullptr;
 
-    BoostTestTreeItem *item = new BoostTestTreeItem(base, displayName, fileName, itemType);
+    BoostTestTreeItem *item = new BoostTestTreeItem(framework, displayName, fileName, itemType);
     item->setProFile(proFile);
     item->setLine(line);
     item->setColumn(column);
@@ -99,10 +99,10 @@ static bool hasBoostTestMacros(const CPlusPlus::Document::Ptr &doc)
 }
 
 static BoostTestParseResult *createParseResult(const QString &name, const QString &filePath,
-                                               const QString &projectFile, ITestBase *base,
+                                               const QString &projectFile, ITestFramework *framework,
                                                TestTreeItem::Type type, const BoostTestInfo &info)
 {
-    BoostTestParseResult *partialSuite = new BoostTestParseResult(base);
+    BoostTestParseResult *partialSuite = new BoostTestParseResult(framework);
     partialSuite->itemType = type;
     partialSuite->fileName = filePath;
     partialSuite->name = info.fullName;

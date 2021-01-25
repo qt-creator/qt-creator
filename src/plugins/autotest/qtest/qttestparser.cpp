@@ -41,7 +41,7 @@ TestTreeItem *QtTestParseResult::createTestTreeItem() const
     if (itemType == TestTreeItem::Root)
         return nullptr;
 
-    QtTestTreeItem *item = new QtTestTreeItem(base, displayName, fileName, itemType);
+    QtTestTreeItem *item = new QtTestTreeItem(framework, displayName, fileName, itemType);
     item->setProFile(proFile);
     item->setLine(line);
     item->setColumn(column);

@@ -39,7 +39,7 @@ TestTreeItem *GTestParseResult::createTestTreeItem() const
 {
     if (itemType != TestTreeItem::TestSuite && itemType != TestTreeItem::TestCase)
         return nullptr;
-    GTestTreeItem *item = new GTestTreeItem(base, name, fileName, itemType);
+    GTestTreeItem *item = new GTestTreeItem(framework, name, fileName, itemType);
     item->setProFile(proFile);
     item->setLine(line);
     item->setColumn(column);
