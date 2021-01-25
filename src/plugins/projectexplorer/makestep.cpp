@@ -355,8 +355,8 @@ QWidget *MakeStep::createConfigWidget()
         disableInSubDirsLabel->hide();
         disableInSubDirsCheckBox->hide();
     } else {
-        connect(disableInSubDirsCheckBox, &QCheckBox::toggled, this, [this](bool checked) {
-            m_enabledForSubDirs = checked;
+        connect(disableInSubDirsCheckBox, &QCheckBox::toggled, this, [this](bool disabled) {
+            m_enabledForSubDirs = !disabled;
         });
     }
 
