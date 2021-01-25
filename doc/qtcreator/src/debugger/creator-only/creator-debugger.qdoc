@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -843,6 +843,31 @@
     Linux, LLDB on macOS, and CDB on Windows, or any other platform on which at
     least one of the three supported backends is available.
 
+    \section2 Customizing Built-In Debugging Helpers
+
+    You can have commands executed after built-in debugging helpers have
+    been loaded and fully initialized. To load additional debugging helpers or
+    modify existing ones, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol Debugger > \uicontrol {Locals & Expressions}, and enter the
+    commands in the \uicontrol {Debugging Helper Customization} field.
+
+    \image qtcreator-debugging-helper-options.png
+
+    If you receive error messages about receiving signals when using GDB, you
+    can specify \l{https://sourceware.org/gdb/onlinedocs/gdb/Signals.html}
+    {GDB commands} for handling the signals. For example, you can tell GDB to
+    ignore the \c SIGSTOP signal if you receive the following error message:
+    \c {The inferior stopped because it received a signal from the operating
+    system. Signal name: SIGSTOP}.
+
+    To stop GDB from handling the \c SIGSTOP signal, add the following commands
+    to the \uicontrol {Debugging Helper Customization} field:
+
+    \badcode
+    handle SIGSTOP nopass
+    handle SIGSTOP nostop
+    \endcode
+
     \section2 Adding Custom Debugging Helpers
 
     To add debugging helpers for your own types, no compilation is required,
@@ -889,9 +914,6 @@
             \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
             \uicontrol {Locals & Expressions} >
             \uicontrol {Extra Debugging Helpers}.
-
-            \image qtcreator-debugging-helper-options.png
-
     \endlist
 
     The custom debugging helpers will be automatically picked up from
