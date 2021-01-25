@@ -253,13 +253,24 @@ void LanguageClientManager::applySettings()
             break;
         }
         case BaseSettings::RequiresProject: {
-            for (Core::IDocument *doc : Core::DocumentModel::openedDocuments()) {
-                if (setting->m_languageFilter.isSupported(doc)) {
-                    const Utils::FilePath filePath = doc->filePath();
-                    for (ProjectExplorer::Project *project :
-                         ProjectExplorer::SessionManager::projects()) {
-                        if (project->isKnownFile(filePath))
-                            startClient(setting, project);
+            const QList<Core::IDocument *> &openedDocuments = Core::DocumentModel::openedDocuments();
+            QHash<ProjectExplorer::Project *, Client *> clientForProject;
+            for (Core::IDocument *document : openedDocuments) {
+                auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
+                if (!textDocument || !setting->m_languageFilter.isSupported(textDocument))
+                    continue;
+                const Utils::FilePath filePath = textDocument->filePath();
+                for (ProjectExplorer::Project *project :
+                     ProjectExplorer::SessionManager::projects()) {
+                    if (project->isKnownFile(filePath)) {
+                        Client *client = clientForProject[project];
+                        if (!client) {
+                            client = startClient(setting, project);
+                            if (!client)
+                                continue;
+                            clientForProject[project] = client;
+                        }
+                        client->openDocument(textDocument);
                     }
                 }
             }
