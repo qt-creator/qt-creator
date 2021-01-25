@@ -298,6 +298,7 @@ protected:
 
     virtual void resizeCanvasToRootItem() = 0;
     void setupState(qint32 stateInstanceId);
+    void registerFonts(const QUrl &resourceUrl) const;
 
 private:
     void setupOnlyWorkingImports(const QStringList &workingImportStatementList);

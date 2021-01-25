@@ -41,6 +41,7 @@ QDebug operator <<(QDebug debug, const CreateSceneCommand &command)
                            << "imports: " << command.imports << ", "
                            << "mockupTypes: " << command.mockupTypes << ", "
                            << "fileUrl: " << command.fileUrl << ", "
+                           << "resourceUrl: " << command.resourceUrl << ", "
                            << "edit3dToolStates: " << command.edit3dToolStates << ", "
                            << "language: " << command.language << ")";
 }

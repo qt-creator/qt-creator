@@ -1071,6 +1071,12 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
                               importVector,
                               mockupTypesVector,
                               model()->fileUrl(),
+#ifndef QMLDESIGNER_TEST
+                              QUrl::fromLocalFile(QmlDesigner::DocumentManager::currentResourcePath()
+                                                  .toFileInfo().absoluteFilePath()),
+#else
+                              QUrl::fromLocalFile(QFileInfo(model()->fileUrl().toLocalFile()).absolutePath()),
+#endif
                               m_edit3DToolStates[model()->fileUrl()],
                               lastUsedLanguage,
                               stateInstanceId);

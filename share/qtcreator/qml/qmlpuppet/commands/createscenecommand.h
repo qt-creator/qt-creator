@@ -52,6 +52,7 @@ public:
                                 const QVector<AddImportContainer> &importVector,
                                 const QVector<MockupTypeContainer> &mockupTypeVector,
                                 const QUrl &fileUrl,
+                                const QUrl &resourceUrl,
                                 const QHash<QString, QVariantMap> &edit3dToolStates,
                                 const QString &language,
                                 qint32 stateInstanceId)
@@ -64,6 +65,7 @@ public:
         , imports(importVector)
         , mockupTypes(mockupTypeVector)
         , fileUrl(fileUrl)
+        , resourceUrl(resourceUrl)
         , edit3dToolStates(edit3dToolStates)
         , language(language)
         , stateInstanceId{stateInstanceId}
@@ -80,6 +82,7 @@ public:
         out << command.imports;
         out << command.mockupTypes;
         out << command.fileUrl;
+        out << command.resourceUrl;
         out << command.edit3dToolStates;
         out << command.language;
         out << command.stateInstanceId;
@@ -98,6 +101,7 @@ public:
         in >> command.imports;
         in >> command.mockupTypes;
         in >> command.fileUrl;
+        in >> command.resourceUrl;
         in >> command.edit3dToolStates;
         in >> command.language;
         in >> command.stateInstanceId;
@@ -115,6 +119,7 @@ public:
     QVector<AddImportContainer> imports;
     QVector<MockupTypeContainer> mockupTypes;
     QUrl fileUrl;
+    QUrl resourceUrl;
     QHash<QString, QVariantMap> edit3dToolStates;
     QString language;
     qint32 stateInstanceId = 0;

@@ -88,6 +88,9 @@
 #include <QUrl>
 #include <QVariant>
 #include <qqmllist.h>
+#include <QFontDatabase>
+#include <QFileInfo>
+#include <QDirIterator>
 
 #include <algorithm>
 
@@ -322,6 +325,7 @@ void NodeInstanceServer::stopRenderTimer()
 
 void NodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
+    registerFonts(command.resourceUrl);
     setTranslationLanguage(command.language);
     initializeView();
 
@@ -1500,6 +1504,15 @@ void NodeInstanceServer::setupState(qint32 stateInstanceId)
         if (activeStateInstance().isValid())
             activeStateInstance().deactivateState();
     }
+}
+
+void NodeInstanceServer::registerFonts(const QUrl &resourceUrl) const
+{
+    // Autoregister all fonts found inside the project
+    QDirIterator it {QFileInfo(resourceUrl.toLocalFile()).absoluteFilePath(),
+                     {"*.ttf", "*.otf"}, QDir::Files, QDirIterator::Subdirectories};
+    while (it.hasNext())
+        QFontDatabase::addApplicationFont(it.next());
 }
 
 } // namespace QmlDesigner

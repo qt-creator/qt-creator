@@ -46,6 +46,7 @@ Qt5PreviewNodeInstanceServer::Qt5PreviewNodeInstanceServer(NodeInstanceClientInt
 
 void Qt5PreviewNodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
+    registerFonts(command.resourceUrl);
     setTranslationLanguage(command.language);
     initializeView();
     setupScene(command);
