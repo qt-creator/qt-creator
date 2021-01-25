@@ -94,9 +94,11 @@ SpotlightIterator::SpotlightIterator(const QStringList &command)
         scheduleKillProcess();
     });
     QObject::connect(m_process.get(), &QProcess::readyReadStandardOutput, [this] {
-        const QStringList items = QString::fromUtf8(m_process->readAllStandardOutput()).split('\n');
+        QString output = QString::fromUtf8(m_process->readAllStandardOutput());
+        output.replace("\r\n", "\n");
+        const QStringList items = output.split('\n');
         QMutexLocker lock(&m_mutex);
-        m_queue.append(Utils::transform(items, &FilePath::fromString));
+        m_queue.append(Utils::transform(items, &FilePath::fromUserInput));
         if (m_filePaths.size() + m_queue.size() > 10000) // limit the amount of data
             scheduleKillProcess();
         m_waitForItems.wakeAll();
@@ -180,13 +182,21 @@ SpotlightLocatorFilter::SpotlightLocatorFilter()
                  QString("kMDItemFSName = '*%1*'%2")
                      .arg(quoted, sensitivity == Qt::CaseInsensitive ? QString("c") : QString())});
         };
-    } else {
+    } else if (HostOsInfo::isLinuxHost()) {
         command = [](const QString &query, Qt::CaseSensitivity sensitivity) {
             QString regex = query;
             regex = regex.replace('*', ".*");
             return QStringList({"locate"})
                    + (sensitivity == Qt::CaseInsensitive ? QStringList({"-i"}) : QStringList())
                    + QStringList({"-l", "10000", "-r", regex});
+        };
+    } else if (HostOsInfo::isWindowsHost()) {
+        command = [](const QString &query, Qt::CaseSensitivity sensitivity) {
+            QString regex = query;
+            regex = regex.replace('*', ".*");
+            return QStringList({"es.exe"})
+                   + (sensitivity == Qt::CaseSensitive ? QStringList({"-i"}) : QStringList())
+                   + QStringList({"-n", "10000", "-r", regex});
         };
     }
     setId("SpotlightFileNamesLocatorFilter");

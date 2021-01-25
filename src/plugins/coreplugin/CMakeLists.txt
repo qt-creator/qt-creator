@@ -111,6 +111,7 @@ add_qtc_plugin(Core
     locator/locatorsettingspage.cpp locator/locatorsettingspage.h locator/locatorsettingspage.ui
     locator/locatorwidget.cpp locator/locatorwidget.h
     locator/opendocumentsfilter.cpp locator/opendocumentsfilter.h
+    locator/spotlightlocatorfilter.h locator/spotlightlocatorfilter.cpp
     locator/urllocatorfilter.cpp locator/urllocatorfilter.h locator/urllocatorfilter.ui
     mainwindow.cpp mainwindow.h
     manhattanstyle.cpp manhattanstyle.h
@@ -178,12 +179,6 @@ extend_qtc_plugin(Core
   DEPENDS ${FWAppKit}
   SOURCES
     progressmanager/progressmanager_mac.mm
-)
-
-extend_qtc_plugin(Core
-  CONDITION NOT WIN32
-  SOURCES
-    locator/spotlightlocatorfilter.h locator/spotlightlocatorfilter.cpp
 )
 
 extend_qtc_plugin(Core

@@ -36,6 +36,7 @@
 #include "locatorsettingspage.h"
 #include "locatorwidget.h"
 #include "opendocumentsfilter.h"
+#include "spotlightlocatorfilter.h"
 #include "urllocatorfilter.h"
 
 #include <coreplugin/coreplugin.h>
@@ -58,10 +59,6 @@
 
 #include <QAction>
 #include <QSettings>
-
-#ifdef Q_OS_UNIX
-#include "spotlightlocatorfilter.h"
-#endif
 
 using namespace Utils;
 
@@ -90,9 +87,7 @@ public:
     MenuBarFilter m_menubarFilter;
     UrlLocatorFilter m_urlFilter{UrlLocatorFilter::tr("Web Search"), "RemoteHelpFilter"};
     UrlLocatorFilter m_bugFilter{UrlLocatorFilter::tr("Qt Project Bugs"), "QtProjectBugs"};
-#ifdef Q_OS_UNIX
     SpotlightLocatorFilter m_spotlightLocatorFilter;
-#endif
 };
 
 LocatorData::LocatorData()
