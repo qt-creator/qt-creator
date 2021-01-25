@@ -293,7 +293,7 @@
 
     \image qtquickcontrols2-button-flat.gif "Flat button"
 
-    \if definded(qtdesignstudio)
+    \if defined(qtdesignstudio)
     To create a button that contains an icon, use the wizard template to
     \l{Creating Custom Controls}{create a custom button} and drag-and-drop
     the icon to the button background item. For an example of using the
@@ -399,7 +399,7 @@
     \section2 Round Button
 
     \uicontrol {Round Button} is a clickable control that starts an action,
-    or  opens or closes a popup. A round button with a square image icon or
+    or opens or closes a popup. A round button with a square image icon or
     one-letter font icon is circular. A circular round button takes less space
     than a normal button, and can also be used as a floating action button.
 
@@ -492,7 +492,7 @@
 
     \uicontrol {Progress Bar} indicates the progress of an operation. You
     can specify the initial value in the \uicontrol Value field, but it
-    should be  updated regularly. Specify the range in the \uicontrol From
+    should be updated regularly. Specify the range in the \uicontrol From
     and \uicontrol To fields, which can both contain any value.
 
     \image qtquick-designer-progressbar-properties.png "Progress Bar properties"

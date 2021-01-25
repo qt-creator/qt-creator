@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -81,6 +81,13 @@
         \li \l{Setting Up IncrediBuild}
 
             IncrediBuild decreases the time it takes to build C++ code.
+
+        \li \l{Setting Up Conan}
+
+            The experimental Conan plugin integrates the Conan package manager
+            that speeds up the integration of C or C++ libraries into your
+            project. You can use Conan with most build systems integrated into
+            \QC.
 
     \endlist
 

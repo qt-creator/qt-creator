@@ -65,6 +65,8 @@ LanguageClientManager::LanguageClientManager(QObject *parent)
     JsonRpcMessageHandler::registerMessageProvider<ShowMessageRequest>();
     JsonRpcMessageHandler::registerMessageProvider<ShowMessageNotification>();
     JsonRpcMessageHandler::registerMessageProvider<WorkSpaceFolderRequest>();
+    JsonRpcMessageHandler::registerMessageProvider<RegisterCapabilityRequest>();
+    JsonRpcMessageHandler::registerMessageProvider<UnregisterCapabilityRequest>();
     connect(EditorManager::instance(), &EditorManager::editorOpened,
             this, &LanguageClientManager::editorOpened);
     connect(EditorManager::instance(), &EditorManager::documentOpened,

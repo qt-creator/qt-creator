@@ -34,9 +34,11 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/messagemanager.h>
+#include <languageserverprotocol/completion.h>
 #include <languageserverprotocol/diagnostics.h>
 #include <languageserverprotocol/languagefeatures.h>
 #include <languageserverprotocol/messages.h>
+#include <languageserverprotocol/servercapabilities.h>
 #include <languageserverprotocol/workspace.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
@@ -353,16 +355,41 @@ void Client::closeDocument(TextEditor::TextDocument *document)
     }
 }
 
+void Client::updateCompletionProvider(TextEditor::TextDocument *document)
+{
+    bool useLanguageServer = m_serverCapabilities.completionProvider().has_value();
+    auto clientCompletionProvider = static_cast<LanguageClientCompletionAssistProvider *>(
+        m_clientProviders.completionAssistProvider.data());
+    if (m_dynamicCapabilities.isRegistered(CompletionRequest::methodName).value_or(false)) {
+        const QJsonValue &options = m_dynamicCapabilities.option(CompletionRequest::methodName);
+        const TextDocumentRegistrationOptions docOptions(options);
+        useLanguageServer = docOptions.filterApplies(document->filePath(),
+                                                     Utils::mimeTypeForName(document->mimeType()));
+
+        const ServerCapabilities::CompletionOptions completionOptions(options);
+        if (completionOptions.isValid(nullptr))
+            clientCompletionProvider->setTriggerCharacters(completionOptions.triggerCharacters());
+    }
+
+    if (document->completionAssistProvider() != clientCompletionProvider) {
+        if (useLanguageServer) {
+            m_resetAssistProvider[document].completionAssistProvider
+                = document->completionAssistProvider();
+            document->setCompletionAssistProvider(clientCompletionProvider);
+        }
+    } else if (!useLanguageServer) {
+        document->setCompletionAssistProvider(
+            m_resetAssistProvider[document].completionAssistProvider);
+    }
+}
+
 void Client::activateDocument(TextEditor::TextDocument *document)
 {
     auto uri = DocumentUri::fromFilePath(document->filePath());
     m_diagnosticManager.showDiagnostics(uri);
     SemanticHighligtingSupport::applyHighlight(document, m_highlights.value(uri), capabilities());
     // only replace the assist provider if the language server support it
-    if (m_serverCapabilities.completionProvider()) {
-        m_resetAssistProvider[document].completionAssistProvider = document->completionAssistProvider();
-        document->setCompletionAssistProvider(m_clientProviders.completionAssistProvider);
-    }
+    updateCompletionProvider(document);
     if (m_serverCapabilities.signatureHelpProvider()) {
         m_resetAssistProvider[document].functionHintProvider = document->functionHintAssistProvider();
         document->setFunctionHintAssistProvider(m_clientProviders.functionHintProvider);
@@ -524,6 +551,11 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
 void Client::registerCapabilities(const QList<Registration> &registrations)
 {
     m_dynamicCapabilities.registerCapability(registrations);
+    if (Utils::anyOf(registrations,
+                     Utils::equal(&Registration::method, QString(CompletionRequest::methodName)))) {
+        for (auto document : m_openedDocument.keys())
+            updateCompletionProvider(document);
+    }
 }
 
 void Client::unregisterCapabilities(const QList<Unregistration> &unregistrations)
@@ -1119,7 +1151,7 @@ void Client::handleMethod(const QString &method, const MessageId &id, const ICon
     } else if (method == RegisterCapabilityRequest::methodName) {
         auto params = dynamic_cast<const RegisterCapabilityRequest *>(content)->params().value_or(RegistrationParams());
         if (params.isValid(&error))
-            m_dynamicCapabilities.registerCapability(params.registrations());
+            registerCapabilities(params.registrations());
         else
             logError(params);
     } else if (method == UnregisterCapabilityRequest::methodName) {
@@ -1260,8 +1292,7 @@ void Client::initializeCallback(const InitializeRequest::Response &initResponse)
         completionProvider->setTriggerCharacters(
             m_serverCapabilities.completionProvider()
                 .value_or(ServerCapabilities::CompletionOptions())
-                .triggerCharacters()
-                .value_or(QList<QString>()));
+                .triggerCharacters());
     }
     if (auto functionHintAssistProvider = qobject_cast<FunctionHintAssistProvider *>(
             m_clientProviders.functionHintProvider)) {

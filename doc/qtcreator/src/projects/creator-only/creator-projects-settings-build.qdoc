@@ -46,7 +46,7 @@
 
     If you selected CMake as the build system for the project, you can
     use a \e {minimum size release} build configuration to create the
-    final  installation file. It is a release build that makes the size
+    final installation file. It is a release build that makes the size
     of the binary package as small as possible, even if this makes the
     application slower.
 
@@ -182,6 +182,7 @@
     \include creator-projects-settings-build-qbs.qdocinc qbs build steps
     \include creator-projects-meson-building.qdocinc meson build steps
     \include creator-projects-incredibuild-building.qdocinc incredibuild build steps
+    \include creator-projects-conan-building.qdocinc conan build steps
 
     \section2 Adding Custom Build Steps
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -24,22 +24,21 @@
 ****************************************************************************/
 
 /*!
-    \previouspage creator-project-meson.html
-    \page creator-project-incredibuild.html
-    \nextpage creator-project-conan.html
+//! [conan build steps]
+    \section1 Specifying Build Settings for Conan
 
-    \title Setting Up IncrediBuild
+    To configure a project to be built using the Conan package manager, select
+    \uicontrol {Add Build Step} > \uicontrol {Run Conan Install}.
 
-    \l{https://www.incredibuild.com/}{IncrediBuild} accelerates process
-    execution and thus shortens the time you spend on building C++ code.
-    In addition, you can view the build progress in the graphical Build
-    Monitor.
+    \image qtcreator-build-steps-conan-install.png "Conan Install build step"
 
-    The IncrediBuild plugin is delivered with \QC. For more information, see
-    \l{https://incredibuild.atlassian.net/wiki/spaces/IUM/pages/19202836/IncrediBuild+for+Qt+Creator}
-    {IncrediBuild for Qt Creator}.
+    In the \uicontrol {Conan file} field, enter the location of the
+    \e conanfile.txt file for the project.
 
-    To use IncrediBuild, install IncrediBuild Agent on the development
-    host. Then specify IncrediBuild build steps for your project. For
-    more information, see \l{IncrediBuild Build Steps}.
+    The \uicontrol {Conan install} field displays the effective
+    build command. You can add arguments for the command in the
+    \uicontrol {Additional arguments} field.
+
+    For more information about configuring Conan, see \l{Setting Up Conan}.
+//! [conan build steps]
 */
