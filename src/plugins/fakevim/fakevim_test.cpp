@@ -4178,6 +4178,59 @@ void FakeVimPlugin::test_vim_visual_block_D()
     KEYS(".", X "a" N "g" N "" N "j");
 }
 
+void FakeVimPlugin::test_vim_commentary_emulation()
+{
+    TestData data;
+    setup(&data);
+    data.doCommand("set commentary");
+
+    // Commenting a single line
+    data.setText("abc" N "def");
+    KEYS("gcc", X "// abc" N "def");
+    KEYS("gcc", X "abc" N "def");
+    KEYS(".", X "// abc" N "def");
+
+    // Multiple lines
+    data.setText("abc" N "  def" N "ghi");
+    KEYS("gcj", X "// abc" N "  // def" N "ghi");
+    KEYS("gcj", X "abc" N "  def" N "ghi");
+    KEYS("gc2j", X "// abc" N "  // def" N "// ghi");
+    KEYS("gcj", X "abc" N "  def" N "// ghi");
+    KEYS(".", X "// abc" N "  // def" N "// ghi");
+
+    // Visual mode
+    data.setText("abc" N "def");
+    KEYS("Vjgc", X "// abc" N "// def");
+    KEYS(".", X "abc" N "def");
+}
+
+void FakeVimPlugin::test_vim_commentary_file_names()
+{
+    TestData data;
+    setup(&data);
+    data.doCommand("set commentary");
+
+    // Default is "//"
+    data.setText("abc");
+    KEYS("gcc", X "// abc");
+
+    // pri and pro
+    data.handler->setCurrentFileName("Test.pri");
+    data.setText("abc");
+    KEYS("gcc", X "# abc");
+    data.handler->setCurrentFileName("Test.pro");
+    KEYS("gcc", X "abc");
+
+    // .h .hpp .cpp
+    data.handler->setCurrentFileName("Test.h");
+    data.setText("abc");
+    KEYS("gcc", X "// abc");
+    data.handler->setCurrentFileName("Test.hpp");
+    KEYS("gcc", X "abc");
+    data.handler->setCurrentFileName("Test.cpp");
+    KEYS("gcc", X "// abc");
+}
+
 void FakeVimPlugin::test_macros()
 {
     TestData data;

@@ -157,6 +157,10 @@ private slots:
     void test_vim_Visual_d();
     void test_vim_visual_block_D();
 
+    // Plugin emulation
+    void test_vim_commentary_emulation();
+    void test_vim_commentary_file_names();
+
     void test_macros();
 
     void test_vim_qtcreator();

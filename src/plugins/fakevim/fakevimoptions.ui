@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>580</width>
-    <height>474</height>
+    <height>531</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -26,52 +26,10 @@
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="6" column="0">
-         <widget class="QCheckBox" name="checkBoxStartOfLine">
+        <item row="2" column="1">
+         <widget class="QCheckBox" name="checkBoxIgnoreCase">
           <property name="text">
-           <string>Start of line</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QCheckBox" name="checkBoxHlSearch">
-          <property name="text">
-           <string>Highlight search results</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QCheckBox" name="checkBoxSmartIndent">
-          <property name="text">
-           <string>Smart indentation</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QCheckBox" name="checkBoxSmartTab">
-          <property name="text">
-           <string>Smart tabulators</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QCheckBox" name="checkBoxExpandTab">
-          <property name="text">
-           <string>Expand tabulators</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QCheckBox" name="checkBoxIncSearch">
-          <property name="text">
-           <string>Incremental search</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QCheckBox" name="checkBoxUseCoreSearch">
-          <property name="text">
-           <string>Use search dialog</string>
+           <string>Use ignorecase</string>
           </property>
          </widget>
         </item>
@@ -82,10 +40,55 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
-         <widget class="QCheckBox" name="checkBoxWrapScan">
+        <item row="6" column="0">
+         <widget class="QCheckBox" name="checkBoxStartOfLine">
           <property name="text">
-           <string>Use wrapscan</string>
+           <string>Start of line</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QCheckBox" name="checkBoxSmartTab">
+          <property name="text">
+           <string>Smart tabulators</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QCheckBox" name="checkBoxUseCoreSearch">
+          <property name="text">
+           <string>Use search dialog</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="1">
+         <widget class="QCheckBox" name="checkBoxRelativeNumber">
+          <property name="toolTip">
+           <string>Displays line numbers relative to the line containing text cursor.</string>
+          </property>
+          <property name="text">
+           <string>Show line numbers relative to cursor</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QCheckBox" name="checkBoxHlSearch">
+          <property name="text">
+           <string>Highlight search results</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QCheckBox" name="checkBoxIncSearch">
+          <property name="text">
+           <string>Incremental search</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QCheckBox" name="checkBoxShowMarks">
+          <property name="text">
+           <string>Show position of text marks</string>
           </property>
          </widget>
         </item>
@@ -106,17 +109,31 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
-         <widget class="QCheckBox" name="checkBoxIgnoreCase">
-          <property name="text">
-           <string>Use ignorecase</string>
-          </property>
-         </widget>
-        </item>
         <item row="5" column="0">
          <widget class="QCheckBox" name="checkBoxShowCmd">
           <property name="text">
            <string>Show partial command</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0">
+         <widget class="QCheckBox" name="checkBoxBlinkingCursor">
+          <property name="text">
+           <string>Blinking cursor</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QCheckBox" name="checkBoxExpandTab">
+          <property name="text">
+           <string>Expand tabulators</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QCheckBox" name="checkBoxWrapScan">
+          <property name="text">
+           <string>Use wrapscan</string>
           </property>
          </widget>
         </item>
@@ -130,31 +147,33 @@
           </property>
          </widget>
         </item>
-        <item row="8" column="0">
-         <widget class="QCheckBox" name="checkBoxBlinkingCursor">
+        <item row="1" column="0">
+         <widget class="QCheckBox" name="checkBoxSmartIndent">
           <property name="text">
-           <string>Blinking cursor</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1">
-         <widget class="QCheckBox" name="checkBoxShowMarks">
-          <property name="text">
-           <string>Show position of text marks</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="1">
-         <widget class="QCheckBox" name="checkBoxRelativeNumber">
-          <property name="toolTip">
-           <string>Displays line numbers relative to the line containing text cursor.</string>
-          </property>
-          <property name="text">
-           <string>Show line numbers relative to cursor</string>
+           <string>Smart indentation</string>
           </property>
          </widget>
         </item>
        </layout>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox">
+        <property name="title">
+         <string>Plugin Emulation</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0">
+          <widget class="QCheckBox" name="checkBoxVimCommentary">
+           <property name="text">
+            <string>Vim-commentary</string>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_5">

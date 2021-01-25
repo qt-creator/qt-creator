@@ -173,6 +173,7 @@ enum SubMode
     RegisterSubMode,     // Used for "
     ShiftLeftSubMode,    // Used for <
     ShiftRightSubMode,   // Used for >
+    CommentSubMode,      // Used for gc
     InvertCaseSubMode,   // Used for g~
     DownCaseSubMode,     // Used for gu
     UpCaseSubMode,       // Used for gU
@@ -1342,6 +1343,8 @@ QString dotCommandFromSubMode(SubMode submode)
         return QLatin1String("c");
     if (submode == DeleteSubMode)
         return QLatin1String("d");
+    if (submode == CommentSubMode)
+        return QLatin1String("gc");
     if (submode == InvertCaseSubMode)
         return QLatin1String("g~");
     if (submode == DownCaseSubMode)
@@ -1822,6 +1825,7 @@ public:
     bool handleChangeDeleteYankSubModes(const Input &);
     void handleChangeDeleteYankSubModes();
     bool handleReplaceSubMode(const Input &);
+    bool handleCommentSubMode(const Input &);
     bool handleFilterSubMode(const Input &);
     bool handleRegisterSubMode(const Input &);
     bool handleShiftSubMode(const Input &);
@@ -2084,6 +2088,7 @@ public:
     bool isOperatorPending() const {
         return g.submode == ChangeSubMode
             || g.submode == DeleteSubMode
+            || g.submode == CommentSubMode
             || g.submode == FilterSubMode
             || g.submode == IndentSubMode
             || g.submode == ShiftLeftSubMode
@@ -2158,6 +2163,8 @@ public:
     void removeText(const Range &range);
 
     void invertCase(const Range &range);
+
+    void toggleComment(const Range &range);
 
     void upCase(const Range &range);
 
@@ -3582,6 +3589,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
 
     if (g.submode == ChangeSubMode
         || g.submode == DeleteSubMode
+        || g.submode == CommentSubMode
         || g.submode == YankSubMode
         || g.submode == InvertCaseSubMode
         || g.submode == DownCaseSubMode
@@ -3608,6 +3616,11 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
             insertAutomaticIndentation(true);
         endEditBlock();
         setTargetColumn();
+    } else if (g.submode == CommentSubMode) {
+        pushUndoState(false);
+        beginEditBlock();
+        toggleComment(currentRange());
+        endEditBlock();
     } else if (g.submode == DeleteSubMode) {
         pushUndoState(false);
         beginEditBlock();
@@ -4254,6 +4267,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         || g.submode == DeleteSubMode
         || g.submode == YankSubMode) {
         handled = handleChangeDeleteYankSubModes(input);
+    } else if (g.submode == CommentSubMode && hasConfig(ConfigEmulateVimCommentary)) {
+        handled = handleCommentSubMode(input);
     } else if (g.submode == ReplaceSubMode) {
         handled = handleReplaceSubMode(input);
     } else if (g.submode == FilterSubMode) {
@@ -4395,6 +4410,31 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         setTargetColumn();
     } else if (input.isControl('a')) {
         changeNumberTextObject(count());
+    } else if (g.gflag && input.is('c') && hasConfig(ConfigEmulateVimCommentary)) {
+        if (isVisualMode()) {
+            pushUndoState();
+
+            QTextCursor start(m_cursor);
+            QTextCursor end(start);
+            end.setPosition(end.anchor());
+
+            const int count = qAbs(start.blockNumber() - end.blockNumber());
+            if (count == 0) {
+                dotCommand = "gcc";
+            } else {
+                dotCommand = QString("gc%1j").arg(count);
+            }
+
+            leaveVisualMode();
+            toggleComment(currentRange());
+
+            g.submode = NoSubMode;
+        } else {
+            g.movetype = MoveLineWise;
+            g.submode = CommentSubMode;
+            pushUndoState();
+            setAnchor();
+        }
     } else if ((input.is('c') || input.is('d') || input.is('y')) && isNoVisualMode()) {
         setAnchor();
         g.opcount = g.mvcount;
@@ -4731,6 +4771,27 @@ bool FakeVimHandler::Private::handleReplaceSubMode(const Input &input)
     finishMovement();
 
     return handled;
+}
+
+bool FakeVimHandler::Private::handleCommentSubMode(const Input &input)
+{
+    if (!input.is('c'))
+        return false;
+
+    g.movetype = MoveLineWise;
+
+    const int anc = firstPositionInLine(cursorLine() + 1);
+    moveDown(count() - 1);
+    const int pos = lastPositionInLine(cursorLine() + 1);
+    setAnchorAndPosition(anc, pos);
+
+    setDotCommand(QString("%1gcc").arg(count()));
+
+    finishMovement();
+
+    g.submode = NoSubMode;
+
+    return true;
 }
 
 bool FakeVimHandler::Private::handleFilterSubMode(const Input &)
@@ -7331,7 +7392,47 @@ void FakeVimHandler::Private::invertCase(const Range &range)
                 result[i] = c.isUpper() ? c.toLower() : c.toUpper();
             }
             return result;
-        });
+    });
+}
+
+void FakeVimHandler::Private::toggleComment(const Range &range)
+{
+    static const QMap<QString, QString> extensionToCommentString {
+        {"pri", "#"},
+        {"pro", "#"},
+        {"h", "//"},
+        {"hpp", "//"},
+        {"cpp", "//"},
+    };
+    const QString commentString = extensionToCommentString.value(QFileInfo(m_currentFileName).suffix(), "//");
+
+    transformText(range,
+        [&commentString] (const QString &text) -> QString {
+
+        QStringList lines = text.split('\n');
+
+        const QRegExp checkForComment("^\\s*" + QRegExp::escape(commentString));
+
+        const bool firstLineIsComment
+                = !lines.empty() && lines.front().contains(checkForComment);
+
+        for (auto& line : lines) {
+            if (!line.isEmpty()) {
+                if (firstLineIsComment) {
+                    const bool hasSpaceAfterCommentString
+                            = line.contains(QRegExp(checkForComment.pattern() + "\\s"));
+                    const int sizeToReplace = hasSpaceAfterCommentString ? commentString.size() + 1
+                                                                     : commentString.size();
+                    line.replace(line.indexOf(commentString), sizeToReplace, "");
+                } else {
+                    const int indexOfFirstNonSpace = line.indexOf(QRegExp("[^\\s]"));
+                    line = line.left(indexOfFirstNonSpace) + commentString  + " " + line.right(line.size() - indexOfFirstNonSpace);
+                }
+            }
+        }
+
+        return lines.size() == 1 ? lines.front() : lines.join("\n");
+    });
 }
 
 void FakeVimHandler::Private::replaceText(const Range &range, const QString &str)

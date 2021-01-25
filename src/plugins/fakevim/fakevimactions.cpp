@@ -113,6 +113,9 @@ FakeVimSettings::FakeVimSettings()
     createAction(ConfigBackspace,      QString("indent,eol,start"), "ConfigBackspace", "bs");
     createAction(ConfigIsKeyword,      QString("@,48-57,_,192-255,a-z,A-Z"), "IsKeyword", "isk");
     createAction(ConfigClipboard,      QString(), "Clipboard", "cb");
+
+    // Emulated plugins
+    createAction(ConfigEmulateVimCommentary, false, "commentary");
 }
 
 FakeVimSettings::~FakeVimSettings()

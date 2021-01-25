@@ -110,6 +110,18 @@
         \li \c :<, \c :>
     \endlist
 
+    \section2 Plugin Emulation
+
+    FakeVim also emulates some popular vim plugins. To enable plugin emulation
+    for particular plugins, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol FakeVim > \uicontrol General > \uicontrol {Plugin Emulation}.
+
+    Currently emulated plugins:
+    \list
+        \li \l{https://github.com/tpope/vim-commentary}{vim-commentary}: \c gc
+        action to comment code regions. For example, \c gcc, \c gc2j, \c gcip
+    \endlist
+
     \section2 Insert Mode
 
     \list
