@@ -113,7 +113,6 @@ private:
     void projectRemoved(ProjectExplorer::Project *project);
 
     QVector<Client *> reachableClients();
-    void sendToAllReachableServers(const LanguageServerProtocol::IContent &content);
 
     void clientFinished(Client *client);
 
