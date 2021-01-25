@@ -134,7 +134,11 @@ MakeInstallCommand CMakeProject::makeInstallCommand(const Target *target,
             config << "--config" << bc->cmakeBuildType();
     }
 
-    cmd.arguments << "--build" << "." << "--target" << installTarget << config;
+    QString buildDirectory = ".";
+    if (bc)
+        buildDirectory = bc->buildDirectory().toString();
+
+    cmd.arguments << "--build" << buildDirectory << "--target" << installTarget << config;
 
     cmd.environment.set("DESTDIR", QDir::toNativeSeparators(installRoot));
     return cmd;
