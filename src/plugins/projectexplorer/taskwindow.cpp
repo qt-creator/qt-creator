@@ -237,8 +237,10 @@ void TaskView::mouseReleaseEvent(QMouseEvent *e)
 {
     if (m_linksActive && m_mouseButtonPressed == Qt::LeftButton) {
         const Location loc = locationForPos(e->pos());
-        if (!loc.file.isEmpty())
-            Core::EditorManager::openEditorAt(loc.file.toString(), loc.line, loc.column);
+        if (!loc.file.isEmpty()) {
+            Core::EditorManager::openEditorAt(loc.file.toString(), loc.line, loc.column, {},
+                                              Core::EditorManager::SwitchSplitIfAlreadyVisible);
+        }
     }
 
     // Mouse was released, activate links again
