@@ -866,6 +866,8 @@ static const char *highlightingTypeToCStringLiteral(HighlightingType type)
         RETURN_TEXT_FOR_CASE(ObjectiveCMethod);
         RETURN_TEXT_FOR_CASE(TemplateTypeParameter);
         RETURN_TEXT_FOR_CASE(TemplateTemplateParameter);
+        RETURN_TEXT_FOR_CASE(AngleBracketOpen);
+        RETURN_TEXT_FOR_CASE(AngleBracketClose);
     }
 
     return "";
