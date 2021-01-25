@@ -72,6 +72,8 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
                                 CaptureCallback captureCallback,
                                 AbortCallback abortCallback)
 {
+    Q_UNUSED(auxiliaryData)
+
     RewriterView rewriterView{RewriterView::Amend, nullptr};
     NodeInstanceView nodeInstanceView{m_connectionManager};
 
@@ -128,6 +130,10 @@ std::pair<QImage, QImage> ImageCacheCollector::createImage(Utils::SmallStringVie
                                                            Utils::SmallStringView state,
                                                            const ImageCache::AuxiliaryData &auxiliaryData)
 {
+    Q_UNUSED(filePath)
+    Q_UNUSED(state)
+    Q_UNUSED(auxiliaryData)
+
     return {};
 }
 
@@ -135,6 +141,10 @@ QIcon ImageCacheCollector::createIcon(Utils::SmallStringView filePath,
                                       Utils::SmallStringView state,
                                       const ImageCache::AuxiliaryData &auxiliaryData)
 {
+    Q_UNUSED(filePath)
+    Q_UNUSED(state)
+    Q_UNUSED(auxiliaryData)
+
     return {};
 }
 

@@ -58,6 +58,7 @@ namespace Core {
 namespace Internal {
 
 // TODO: move to somewhere in Utils
+#ifdef ENABLE_CRASHPAD
 static QString formatSize(qint64 size)
 {
     QStringList units {QObject::tr("Bytes"), QObject::tr("KB"), QObject::tr("MB"),
@@ -72,6 +73,7 @@ static QString formatSize(qint64 size)
     return i == 0 ? QString("%0 %1").arg(outputSize).arg(units[i]) // Bytes
                   : QString("%0 %1").arg(outputSize, 0, 'f', 2).arg(units[i]); // KB, MB, GB, TB
 }
+#endif // ENABLE_CRASHPAD
 
 class SystemSettingsWidget : public IOptionsPageWidget
 {

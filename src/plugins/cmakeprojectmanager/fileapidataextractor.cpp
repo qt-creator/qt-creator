@@ -123,6 +123,8 @@ PreprocessedData preprocess(FileApiData &data,
                             const FilePath &buildDirectory,
                             QString &errorMessage)
 {
+    Q_UNUSED(errorMessage)
+
     PreprocessedData result;
 
     result.cache = std::move(data.cache); // Make sure this is available, even when nothing else is
