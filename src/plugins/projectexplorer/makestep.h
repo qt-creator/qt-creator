@@ -99,7 +99,6 @@ private:
     Utils::IntegerAspect *m_userJobCountAspect = nullptr;
     Utils::BoolAspect *m_overrideMakeflagsAspect = nullptr;
     Utils::TextDisplay *m_nonOverrideWarning = nullptr;
-    Utils::BoolAspect *m_cleanAspect = nullptr;
     bool m_disablingForSubDirsSupported = false;
     bool m_enabledForSubDirs = true;
 };
