@@ -752,8 +752,9 @@ bool EditorManagerPrivate::skipOpeningBigTextFile(const QString &filePath)
         return false;
 
     const QFileInfo fileInfo(filePath);
-    const double fileSizeInMB = fileInfo.size() / 1000.0 / 1000.0;
-    if (fileSizeInMB > d->m_bigFileSizeLimitInMB) {
+    const qint64 fileSize = fileInfo.size();
+    const double fileSizeInMB = fileSize / 1000.0 / 1000.0;
+    if (fileSizeInMB > d->m_bigFileSizeLimitInMB && fileSize < EditorManager::maxTextFileSize()) {
         const QString title = EditorManager::tr("Continue Opening Huge Text File?");
         const QString text = EditorManager::tr(
             "The text file \"%1\" has the size %2MB and might take more memory to open"
