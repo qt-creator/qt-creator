@@ -78,13 +78,21 @@ ConanInstallStep::ConanInstallStep(BuildStepList *bsl, Id id)
     additionalArguments->setLabelText(tr("Additional arguments:"));
     additionalArguments->setDisplayStyle(StringAspect::LineEditDisplay);
 
-    setCommandLineProvider([this, conanFile, additionalArguments] {
+    auto buildMissing = addAspect<BoolAspect>();
+    buildMissing->setSettingsKey("ConanPackageManager.InstallStep.BuildMissing");
+    buildMissing->setLabel("Build missing:", BoolAspect::LabelPlacement::InExtraLabel);
+    buildMissing->setDefaultValue(true);
+
+    setCommandLineProvider([=] {
         BuildConfiguration::BuildType bt = buildConfiguration()->buildType();
         const QString buildType = bt == BuildConfiguration::Release ? QString("Release")
                                                                     : QString("Debug");
 
         CommandLine cmd(ConanPlugin::conanSettings()->conanFilePath());
-        cmd.addArgs({"install", "-s", "build_type=" + buildType, conanFile->value()});
+        cmd.addArgs({"install", "-s", "build_type=" + buildType});
+        if (buildMissing->value())
+            cmd.addArg("--build=missing");
+        cmd.addArg(conanFile->value());
         cmd.addArgs(additionalArguments->value(), CommandLine::Raw);
         return cmd;
     });
