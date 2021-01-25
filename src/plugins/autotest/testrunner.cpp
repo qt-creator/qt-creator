@@ -148,7 +148,7 @@ static QString processInformation(const QProcess *proc)
 
 static QString rcInfo(const ITestConfiguration * const config)
 {
-    if (config->testBase()->asTestTool())
+    if (config->testBase()->type() == ITestBase::Tool)
         return {};
     const TestConfiguration *current = static_cast<const TestConfiguration *>(config);
     QString info;
@@ -477,7 +477,7 @@ int TestRunner::precheckTestConfigurations()
     const bool omitWarnings = AutotestPlugin::settings()->omitRunConfigWarn;
     int testCaseCount = 0;
     for (ITestConfiguration *itc : qAsConst(m_selectedTests)) {
-        if (itc->testBase()->asTestTool()) {
+        if (itc->testBase()->type() == ITestBase::Tool) {
             if (itc->project()) {
                 testCaseCount += itc->testCaseCount();
             } else {
@@ -524,7 +524,7 @@ void TestRunner::runTests()
     QList<ITestConfiguration *> toBeRemoved;
     bool projectChanged = false;
     for (ITestConfiguration *itc : qAsConst(m_selectedTests)) {
-        if (itc->testBase()->asTestTool()) {
+        if (itc->testBase()->type() == ITestBase::Tool) {
             if (itc->project() != SessionManager::startupProject()) {
                 projectChanged = true;
                 toBeRemoved.append(itc);

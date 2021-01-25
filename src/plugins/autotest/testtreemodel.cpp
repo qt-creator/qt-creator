@@ -374,7 +374,7 @@ void TestTreeModel::synchronizeTestTools()
     QList<ITestTreeItem *> oldFrameworkRoots;
     for (Utils::TreeItem *oldFrameworkRoot : *invisibleRoot) {
         auto item = static_cast<ITestTreeItem *>(oldFrameworkRoot);
-        if (item->testBase()->asTestTool())
+        if (item->testBase()->type() == ITestBase::Tool)
             oldFrameworkRoots.append(item);
     }
 
