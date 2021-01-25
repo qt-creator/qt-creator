@@ -784,6 +784,8 @@
     \l{https://sourceware.org/gdb/onlinedocs/gdb/Core-File-Generation.html}.
 
     \endomit
+
+    \include creator-debugger-settings.qdocinc debugger-settings
 */
 
 
