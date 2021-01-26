@@ -2526,6 +2526,15 @@ void FakeVimPlugin::test_vim_copy_paste()
     KEYS("gg\"yP", X "def" N "abc" N "abc" N "def" N "ghi");
     KEYS("\"xP", X "abc" N "def" N "abc" N "abc" N "def" N "ghi");
 
+    // QTCREATORBUG-25281
+    data.setText(X "abc" N "def" N "ghi");
+    KEYS("\"xyy", X "abc" N "def" N "ghi");
+    KEYS("\"xp", "abc" N X "abc" N "def" N "ghi");
+    KEYS("j", "abc" N "abc" N X "def" N "ghi");
+    KEYS("yy", "abc" N "abc" N X "def" N "ghi");
+    KEYS("\"xp", "abc" N "abc" N "def" N X "abc" N "ghi");
+    KEYS(".", "abc" N "abc" N "def" N "abc" N X "abc" N "ghi");
+
     // delete to black hole register
     data.setText("aaa bbb ccc");
     KEYS("yiww\"_diwP", "aaa aaa ccc");

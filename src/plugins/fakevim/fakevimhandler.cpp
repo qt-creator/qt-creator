@@ -4520,6 +4520,8 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if (input.isControl('o')) {
         jump(-count());
     } else if (input.is('p') || input.is('P') || input.isShift(Qt::Key_Insert)) {
+        dotCommand = QString("\"%1%2p").arg(QChar(m_register)).arg(count());
+
         pasteText(!input.is('P'));
         setTargetColumn();
         finishMovement();
