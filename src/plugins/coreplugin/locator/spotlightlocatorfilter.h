@@ -41,8 +41,18 @@ public:
     void prepareSearch(const QString &entry) override;
     void refresh(QFutureInterface<void> &future) override;
 
+    using ILocatorFilter::openConfigDialog;
+    bool openConfigDialog(QWidget *parent, bool &needsRefresh) final;
+
+    QByteArray saveState() const final;
+    void restoreState(const QByteArray &state) final;
+
 private:
-    std::function<QStringList(QString, Qt::CaseSensitivity)> command;
+    void reset();
+
+    QString m_command;
+    QString m_arguments;
+    QString m_caseSensitiveArguments;
 };
 
 } // Internal

@@ -180,39 +180,7 @@ void ILocatorFilter::restoreState(const QByteArray &state)
 bool ILocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
 {
     Q_UNUSED(needsRefresh)
-
-    QDialog dialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
-    dialog.setWindowTitle(msgConfigureDialogTitle());
-
-    auto vlayout = new QVBoxLayout(&dialog);
-    auto hlayout = new QHBoxLayout;
-    QLineEdit *shortcutEdit = new QLineEdit(shortcutString());
-    QCheckBox *includeByDefault = new QCheckBox(msgIncludeByDefault());
-    includeByDefault->setToolTip(msgIncludeByDefaultToolTip());
-    includeByDefault->setChecked(isIncludedByDefault());
-
-    auto prefixLabel = new QLabel(msgPrefixLabel());
-    prefixLabel->setToolTip(msgPrefixToolTip());
-    hlayout->addWidget(prefixLabel);
-    hlayout->addWidget(shortcutEdit);
-    hlayout->addWidget(includeByDefault);
-
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok |
-                                                       QDialogButtonBox::Cancel);
-    connect(buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
-    connect(buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
-
-    vlayout->addLayout(hlayout);
-    vlayout->addStretch();
-    vlayout->addWidget(buttonBox);
-
-    if (dialog.exec() == QDialog::Accepted) {
-        setShortcutString(shortcutEdit->text().trimmed());
-        setIncludedByDefault(includeByDefault->isChecked());
-        return true;
-    }
-
-    return false;
+    return openConfigDialog(parent, nullptr);
 }
 
 /*!
@@ -454,6 +422,56 @@ void ILocatorFilter::setDisplayName(const QString &displayString)
 void ILocatorFilter::setConfigurable(bool configurable)
 {
     m_isConfigurable = configurable;
+}
+
+/*!
+    Shows the standard configuration dialog with options for the prefix string
+    and for isIncludedByDefault(). The \a additionalWidget is added at the top.
+    Ownership of \a additionalWidget stays with the caller, but its parent is
+    reset to \c nullptr.
+
+    Returns \c false if the user canceled the dialog.
+*/
+bool ILocatorFilter::openConfigDialog(QWidget *parent, QWidget *additionalWidget)
+{
+    QDialog dialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
+    dialog.setWindowTitle(msgConfigureDialogTitle());
+
+    auto vlayout = new QVBoxLayout(&dialog);
+    auto hlayout = new QHBoxLayout;
+    QLineEdit *shortcutEdit = new QLineEdit(shortcutString());
+    QCheckBox *includeByDefault = new QCheckBox(msgIncludeByDefault());
+    includeByDefault->setToolTip(msgIncludeByDefaultToolTip());
+    includeByDefault->setChecked(isIncludedByDefault());
+
+    auto prefixLabel = new QLabel(msgPrefixLabel());
+    prefixLabel->setToolTip(msgPrefixToolTip());
+    hlayout->addWidget(prefixLabel);
+    hlayout->addWidget(shortcutEdit);
+    hlayout->addWidget(includeByDefault);
+
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                                       | QDialogButtonBox::Cancel);
+    connect(buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
+    if (additionalWidget)
+        vlayout->addWidget(additionalWidget);
+    vlayout->addLayout(hlayout);
+    vlayout->addStretch();
+    vlayout->addWidget(buttonBox);
+
+    bool accepted = false;
+    if (dialog.exec() == QDialog::Accepted) {
+        setShortcutString(shortcutEdit->text().trimmed());
+        setIncludedByDefault(includeByDefault->isChecked());
+        accepted = true;
+    }
+    if (additionalWidget) {
+        additionalWidget->setVisible(false);
+        additionalWidget->setParent(nullptr);
+    }
+    return accepted;
 }
 
 /*!

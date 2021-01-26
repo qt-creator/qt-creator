@@ -31,9 +31,17 @@
 #include <coreplugin/reaper.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/fancylineedit.h>
+#include <utils/macroexpander.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
+#include <utils/variablechooser.h>
 
+#include <QFormLayout>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QMutex>
 #include <QMutexLocker>
 #include <QProcess>
@@ -171,37 +179,75 @@ void SpotlightIterator::ensureNext()
 
 // #pragma mark -- SpotlightLocatorFilter
 
+static QString defaultCommand()
+{
+    if (HostOsInfo::isMacHost())
+        return "mdfind";
+    if (HostOsInfo::isWindowsHost())
+        return "es.exe";
+    return "locate";
+}
+
+static QString defaultArguments()
+{
+    if (HostOsInfo::isMacHost())
+        return "\"kMDItemFSName = '*%{Query:Escaped}*'c\"";
+    if (HostOsInfo::isWindowsHost())
+        return "-n 10000 -r \"%{Query:Regex}\"";
+    return "-i -l 10000 -r \"%{Query:Regex}\"";
+}
+
+static QString defaultCaseSensitiveArguments()
+{
+    if (HostOsInfo::isMacHost())
+        return "\"kMDItemFSName = '*%{Query:Escaped}*'\"";
+    if (HostOsInfo::isWindowsHost())
+        return "-i -n 10000 -r \"%{Query:Regex}\"";
+    return "-l 10000 -r \"%{Query:Regex}\"";
+}
+
+const char kShortcutStringDefault[] = "md";
+const bool kIncludedByDefaultDefault = false;
+
+const char kShortcutStringKey[] = "shortcut";
+const char kIncludedByDefaultKey[] = "includeByDefault";
+const char kCommandKey[] = "command";
+const char kArgumentsKey[] = "arguments";
+const char kCaseSensitiveKey[] = "caseSensitive";
+
+static MacroExpander *createMacroExpander(const QString &query)
+{
+    MacroExpander *expander = new MacroExpander;
+    expander->registerVariable("Query",
+                               SpotlightLocatorFilter::tr("Locator query string."),
+                               [query] { return query; });
+    expander->registerVariable("Query:Escaped",
+                               SpotlightLocatorFilter::tr(
+                                   "Locator query string with quotes escaped with backslash."),
+                               [query] {
+                                   QString quoted = query;
+                                   quoted.replace('\\', "\\\\")
+                                       .replace('\'', "\\\'")
+                                       .replace('\"', "\\\"");
+                                   return quoted;
+                               });
+    expander->registerVariable("Query:Regex",
+                               SpotlightLocatorFilter::tr(
+                                   "Locator query string as regular expression."),
+                               [query] {
+                                   QString regex = query;
+                                   regex = regex.replace('*', ".*");
+                                   return regex;
+                               });
+    return expander;
+}
+
 SpotlightLocatorFilter::SpotlightLocatorFilter()
 {
-    if (HostOsInfo::isMacHost()) {
-        command = [](const QString &query, Qt::CaseSensitivity sensitivity) {
-            QString quoted = query;
-            quoted.replace('\\', "\\\\").replace('\'', "\\\'").replace('\"', "\\\"");
-            return QStringList(
-                {"mdfind",
-                 QString("kMDItemFSName = '*%1*'%2")
-                     .arg(quoted, sensitivity == Qt::CaseInsensitive ? QString("c") : QString())});
-        };
-    } else if (HostOsInfo::isLinuxHost()) {
-        command = [](const QString &query, Qt::CaseSensitivity sensitivity) {
-            QString regex = query;
-            regex = regex.replace('*', ".*");
-            return QStringList({"locate"})
-                   + (sensitivity == Qt::CaseInsensitive ? QStringList({"-i"}) : QStringList())
-                   + QStringList({"-l", "10000", "-r", regex});
-        };
-    } else if (HostOsInfo::isWindowsHost()) {
-        command = [](const QString &query, Qt::CaseSensitivity sensitivity) {
-            QString regex = query;
-            regex = regex.replace('*', ".*");
-            return QStringList({"es.exe"})
-                   + (sensitivity == Qt::CaseSensitive ? QStringList({"-i"}) : QStringList())
-                   + QStringList({"-n", "10000", "-r", regex});
-        };
-    }
     setId("SpotlightFileNamesLocatorFilter");
     setDisplayName(tr("File Name Index"));
-    setShortcutString("md");
+    setConfigurable(true);
+    reset();
 }
 
 void SpotlightLocatorFilter::prepareSearch(const QString &entry)
@@ -213,7 +259,12 @@ void SpotlightLocatorFilter::prepareSearch(const QString &entry)
         // only pass the file name part to allow searches like "somepath/*foo"
         int lastSlash = fp.filePath.lastIndexOf(QLatin1Char('/'));
         const QString query = fp.filePath.mid(lastSlash + 1);
-        setFileIterator(new SpotlightIterator(command(query, caseSensitivity(fp.filePath))));
+        std::unique_ptr<MacroExpander> expander(createMacroExpander(query));
+        const QString argumentString = expander->expand(
+            caseSensitivity(fp.filePath) == Qt::CaseInsensitive ? m_arguments
+                                                                : m_caseSensitiveArguments);
+        setFileIterator(
+            new SpotlightIterator(QStringList(m_command) + QtcProcess::splitArgs(argumentString)));
     }
     BaseFileFilter::prepareSearch(entry);
 }
@@ -221,6 +272,82 @@ void SpotlightLocatorFilter::prepareSearch(const QString &entry)
 void SpotlightLocatorFilter::refresh(QFutureInterface<void> &future)
 {
     Q_UNUSED(future)
+}
+
+bool SpotlightLocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
+{
+    Q_UNUSED(needsRefresh)
+    QWidget configWidget;
+    QFormLayout *layout = new QFormLayout;
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+    configWidget.setLayout(layout);
+    PathChooser *commandEdit = new PathChooser;
+    commandEdit->setExpectedKind(PathChooser::ExistingCommand);
+    commandEdit->lineEdit()->setText(m_command);
+    FancyLineEdit *argumentsEdit = new FancyLineEdit;
+    argumentsEdit->setText(m_arguments);
+    FancyLineEdit *caseSensitiveArgumentsEdit = new FancyLineEdit;
+    caseSensitiveArgumentsEdit->setText(m_caseSensitiveArguments);
+    layout->addRow(tr("Executable:"), commandEdit);
+    layout->addRow(tr("Arguments:"), argumentsEdit);
+    layout->addRow(tr("Case sensitive:"), caseSensitiveArgumentsEdit);
+    std::unique_ptr<MacroExpander> expander(createMacroExpander(""));
+    auto chooser = new VariableChooser(&configWidget);
+    chooser->addMacroExpanderProvider([expander = expander.get()] { return expander; });
+    chooser->addSupportedWidget(argumentsEdit);
+    chooser->addSupportedWidget(caseSensitiveArgumentsEdit);
+    const bool accepted = openConfigDialog(parent, &configWidget);
+    if (accepted) {
+        m_command = commandEdit->rawFilePath().toString();
+        m_arguments = argumentsEdit->text();
+        m_caseSensitiveArguments = caseSensitiveArgumentsEdit->text();
+    }
+    return accepted;
+}
+
+QByteArray SpotlightLocatorFilter::saveState() const
+{
+    QJsonObject obj;
+    if (shortcutString() != kShortcutStringDefault)
+        obj.insert(kShortcutStringKey, shortcutString());
+    if (isIncludedByDefault() != kIncludedByDefaultDefault)
+        obj.insert(kIncludedByDefaultKey, isIncludedByDefault());
+    if (m_command != defaultCommand())
+        obj.insert(kCommandKey, m_command);
+    if (m_arguments != defaultArguments())
+        obj.insert(kArgumentsKey, m_arguments);
+    if (m_caseSensitiveArguments != defaultCaseSensitiveArguments())
+        obj.insert(kCaseSensitiveKey, m_caseSensitiveArguments);
+    QJsonDocument doc;
+    doc.setObject(obj);
+    return doc.toJson(QJsonDocument::Compact);
+}
+
+void SpotlightLocatorFilter::restoreState(const QByteArray &state)
+{
+    QJsonDocument doc = QJsonDocument::fromJson(state);
+    if (doc.isNull() || !doc.isObject()) {
+        reset();
+        ILocatorFilter::restoreState(state); // legacy settings from Qt Creator < 4.15
+    } else {
+        const QJsonObject obj = doc.object();
+        setShortcutString(obj.value(kShortcutStringKey).toString(kShortcutStringDefault));
+        setIncludedByDefault(obj.value(kIncludedByDefaultKey).toBool(kIncludedByDefaultDefault));
+        m_command = obj.value(kCommandKey).toString(defaultCommand());
+        m_arguments = obj.value(kArgumentsKey).toString(defaultArguments());
+        m_caseSensitiveArguments = obj.value(kCaseSensitiveKey)
+                                       .toString(defaultCaseSensitiveArguments());
+    }
+}
+
+void SpotlightLocatorFilter::reset()
+{
+    setShortcutString(kShortcutStringDefault);
+    setIncludedByDefault(kIncludedByDefaultDefault);
+    m_command = defaultCommand();
+    m_arguments = defaultArguments();
+    m_caseSensitiveArguments = defaultCaseSensitiveArguments();
 }
 
 } // Internal

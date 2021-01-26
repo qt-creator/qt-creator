@@ -174,6 +174,7 @@ protected:
     void setPriority(Priority priority);
     void setDisplayName(const QString &displayString);
     void setConfigurable(bool configurable);
+    bool openConfigDialog(QWidget *parent, QWidget *additionalWidget);
 
 private:
     Utils::Id m_id;
