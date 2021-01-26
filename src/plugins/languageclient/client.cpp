@@ -231,6 +231,9 @@ static ClientCapabilities generateClientCapabilities()
     documentCapabilities.setDefinition(allowDynamicRegistration);
     documentCapabilities.setTypeDefinition(allowDynamicRegistration);
     documentCapabilities.setImplementation(allowDynamicRegistration);
+    documentCapabilities.setFormatting(allowDynamicRegistration);
+    documentCapabilities.setRangeFormatting(allowDynamicRegistration);
+    documentCapabilities.setOnTypeFormatting(allowDynamicRegistration);
     capabilities.setTextDocument(documentCapabilities);
 
     return capabilities;
