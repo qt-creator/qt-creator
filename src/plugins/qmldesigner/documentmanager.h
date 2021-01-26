@@ -65,6 +65,7 @@ public:
     static bool isoProFileSupportsAddingExistingFiles(const QString &resourceFileProPath);
     static bool addResourceFileToIsoProject(const QString &resourceFileProPath, const QString &resourceFilePath);
     static bool belongsToQmakeProject();
+    static Utils::FilePath currentResourcePath();
 
 private:
     QHash<Core::IEditor *,QPointer<DesignDocument> > m_designDocumentHash;

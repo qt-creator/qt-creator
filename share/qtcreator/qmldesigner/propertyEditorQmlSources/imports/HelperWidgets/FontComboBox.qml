@@ -60,7 +60,7 @@ StudioControls.ComboBox {
         var familyNames = ["Arial", "Times New Roman", "Courier", "Verdana", "Tahoma"] // default fonts
 
         for (var i = 0; i < fileModel.fullPathModel.length; ++i) { // add custom fonts
-            var fontLoader = createFontLoader(fileModel.dirPath + "/" + fileModel.fullPathModel[i]);
+            var fontLoader = createFontLoader(fileModel.docPath + "/" + fileModel.fullPathModel[i]);
             familyNames.push(fontLoader.name);
         }
 

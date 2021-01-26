@@ -495,5 +495,12 @@ bool DocumentManager::belongsToQmakeProject()
     return proNode;
 }
 
+Utils::FilePath DocumentManager::currentResourcePath()
+{
+    Utils::FilePath resourcePath = currentProjectDirPath();
+    if (resourcePath.isEmpty())
+        return currentFilePath().absolutePath();
+    return resourcePath;
+}
 
 } // namespace QmlDesigner
