@@ -76,6 +76,7 @@ public:
                               const QString &suffix = {}) const;
     void exportAsset(const QPixmap &asset, const Utils::FilePath &path);
     QByteArray generateUuid(const ModelNode &node);
+    QString componentUuid(const ModelNode &instance) const;
 
 signals:
     void stateChanged(ParsingState);
@@ -93,6 +94,10 @@ private:
     void onQmlFileLoaded();
     Utils::FilePath componentExportDir(const Component *component) const;
 
+    void beginExport();
+    void preprocessQmlFile(const Utils::FilePath &path);
+    bool assignUuids(const ModelNode &root);
+
 private:
     mutable class State {
     public:
@@ -109,6 +114,7 @@ private:
     Utils::FilePath m_exportPath;
     bool m_perComponentExport = false;
     std::vector<std::unique_ptr<Component>> m_components;
+    QHash<QString, QString> m_componentUuidCache;
     QSet<QByteArray> m_usedHashes;
     QHash<QString, QPixmap> m_assets;
     std::unique_ptr<AssetDumper> m_assetDumper;
