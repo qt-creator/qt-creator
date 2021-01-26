@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 Jochen Seemann
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,35 +25,10 @@
 
 #pragma once
 
-#include <extensionsystem/iplugin.h>
-#include <utils/fileutils.h>
-
-namespace ProjectExplorer { class Project; }
-
 namespace ConanPackageManager {
-namespace Internal {
+namespace Constants {
 
-class ConanPluginRunData;
-class ConanSettings;
+const char INSTALL_STEP[]  = "ConanPackageManager.InstallStep";
 
-class ConanPlugin final : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Conan.json")
-public:
-    static ConanSettings *conanSettings();
-    static Utils::FilePath conanFilePath(ProjectExplorer::Project *project,
-                           const Utils::FilePath &defaultFilePath = Utils::FilePath());
-
-private:
-    ~ConanPlugin() final;
-    void projectAdded(ProjectExplorer::Project *project);
-
-    void extensionsInitialized() final;
-    bool initialize(const QStringList &arguments, QString *errorString) final;
-
-    ConanPluginRunData *m_runData = nullptr;
-};
-
-} // namespace Internal
+} // namespace Constants
 } // namespace ConanPackageManager

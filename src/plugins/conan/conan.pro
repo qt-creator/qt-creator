@@ -5,6 +5,7 @@ SOURCES += \
     conanplugin.cpp \
     conansettings.cpp
 HEADERS += \
+    conanconstants.h \
     conaninstallstep.h \
     conanplugin.h \
     conansettings.h
