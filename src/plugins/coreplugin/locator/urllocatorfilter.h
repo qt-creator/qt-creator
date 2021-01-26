@@ -49,7 +49,6 @@ public:
     void accept(Core::LocatorFilterEntry selection,
                 QString *newText, int *selectionStart, int *selectionLength) const override;
     void refresh(QFutureInterface<void> &future) override;
-    QByteArray saveState() const override;
     void restoreState(const QByteArray &state) override;
     bool openConfigDialog(QWidget *parent, bool &needsRefresh) override;
 
@@ -59,9 +58,13 @@ public:
     void setIsCustomFilter(bool value);
     bool isCustomFilter() const;
 
-    using ILocatorFilter::setDisplayName;
+protected:
+    void saveState(QJsonObject &object) const final;
+    void restoreState(const QJsonObject &object) final;
 
 private:
+    QString m_defaultDisplayName;
+    QStringList m_defaultUrls;
     QStringList m_remoteUrls;
     bool m_isCustomFilter = false;
     mutable QMutex m_mutex;

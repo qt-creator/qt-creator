@@ -40,7 +40,7 @@ BookmarkFilter::BookmarkFilter(BookmarkManager *manager)
     setId("Bookmarks");
     setDisplayName(tr("Bookmarks"));
     setPriority(Medium);
-    setShortcutString("b");
+    setDefaultShortcutString("b");
 }
 
 void BookmarkFilter::prepareSearch(const QString &entry)

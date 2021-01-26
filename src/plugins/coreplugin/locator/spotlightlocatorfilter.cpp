@@ -205,11 +205,6 @@ static QString defaultCaseSensitiveArguments()
     return "-l 10000 -r \"%{Query:Regex}\"";
 }
 
-const char kShortcutStringDefault[] = "md";
-const bool kIncludedByDefaultDefault = false;
-
-const char kShortcutStringKey[] = "shortcut";
-const char kIncludedByDefaultKey[] = "includeByDefault";
 const char kCommandKey[] = "command";
 const char kArgumentsKey[] = "arguments";
 const char kCaseSensitiveKey[] = "caseSensitive";
@@ -244,6 +239,8 @@ static MacroExpander *createMacroExpander(const QString &query)
 SpotlightLocatorFilter::SpotlightLocatorFilter()
 {
     setId("SpotlightFileNamesLocatorFilter");
+    setDefaultShortcutString("md");
+    setDefaultIncludedByDefault(false);
     setDisplayName(tr("File Name Index"));
     setConfigurable(true);
     reset();
@@ -305,45 +302,25 @@ bool SpotlightLocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefres
     return accepted;
 }
 
-QByteArray SpotlightLocatorFilter::saveState() const
+void SpotlightLocatorFilter::saveState(QJsonObject &obj) const
 {
-    QJsonObject obj;
-    if (shortcutString() != kShortcutStringDefault)
-        obj.insert(kShortcutStringKey, shortcutString());
-    if (isIncludedByDefault() != kIncludedByDefaultDefault)
-        obj.insert(kIncludedByDefaultKey, isIncludedByDefault());
     if (m_command != defaultCommand())
         obj.insert(kCommandKey, m_command);
     if (m_arguments != defaultArguments())
         obj.insert(kArgumentsKey, m_arguments);
     if (m_caseSensitiveArguments != defaultCaseSensitiveArguments())
         obj.insert(kCaseSensitiveKey, m_caseSensitiveArguments);
-    QJsonDocument doc;
-    doc.setObject(obj);
-    return doc.toJson(QJsonDocument::Compact);
 }
 
-void SpotlightLocatorFilter::restoreState(const QByteArray &state)
+void SpotlightLocatorFilter::restoreState(const QJsonObject &obj)
 {
-    QJsonDocument doc = QJsonDocument::fromJson(state);
-    if (doc.isNull() || !doc.isObject()) {
-        reset();
-        ILocatorFilter::restoreState(state); // legacy settings from Qt Creator < 4.15
-    } else {
-        const QJsonObject obj = doc.object();
-        setShortcutString(obj.value(kShortcutStringKey).toString(kShortcutStringDefault));
-        setIncludedByDefault(obj.value(kIncludedByDefaultKey).toBool(kIncludedByDefaultDefault));
-        m_command = obj.value(kCommandKey).toString(defaultCommand());
-        m_arguments = obj.value(kArgumentsKey).toString(defaultArguments());
-        m_caseSensitiveArguments = obj.value(kCaseSensitiveKey)
-                                       .toString(defaultCaseSensitiveArguments());
-    }
+    m_command = obj.value(kCommandKey).toString(defaultCommand());
+    m_arguments = obj.value(kArgumentsKey).toString(defaultArguments());
+    m_caseSensitiveArguments = obj.value(kCaseSensitiveKey).toString(defaultCaseSensitiveArguments());
 }
 
 void SpotlightLocatorFilter::reset()
 {
-    setShortcutString(kShortcutStringDefault);
-    setIncludedByDefault(kIncludedByDefaultDefault);
     m_command = defaultCommand();
     m_arguments = defaultArguments();
     m_caseSensitiveArguments = defaultCaseSensitiveArguments();

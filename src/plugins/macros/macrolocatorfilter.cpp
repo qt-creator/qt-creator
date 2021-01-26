@@ -42,7 +42,7 @@ MacroLocatorFilter::MacroLocatorFilter()
 {
     setId("Macros");
     setDisplayName(tr("Text Editing Macros"));
-    setShortcutString("rm");
+    setDefaultShortcutString("rm");
 }
 
 MacroLocatorFilter::~MacroLocatorFilter() = default;

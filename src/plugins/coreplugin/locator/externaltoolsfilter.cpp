@@ -37,7 +37,7 @@ ExternalToolsFilter::ExternalToolsFilter()
 {
     setId("Run external tool");
     setDisplayName(tr("Run External Tool"));
-    setShortcutString("x");
+    setDefaultShortcutString("x");
     setPriority(Medium);
 }
 

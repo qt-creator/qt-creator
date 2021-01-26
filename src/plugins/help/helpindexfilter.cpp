@@ -62,8 +62,8 @@ HelpIndexFilter::HelpIndexFilter()
 {
     setId("HelpIndexFilter");
     setDisplayName(tr("Help Index"));
-    setIncludedByDefault(false);
-    setShortcutString("?");
+    setDefaultIncludedByDefault(false);
+    setDefaultShortcutString("?");
 
     m_icon = Utils::Icons::BOOKMARK.icon();
     connect(Core::HelpManager::Signals::instance(), &Core::HelpManager::Signals::setupFinished,

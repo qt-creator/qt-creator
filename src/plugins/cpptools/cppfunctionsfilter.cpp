@@ -37,8 +37,8 @@ CppFunctionsFilter::CppFunctionsFilter(CppLocatorData *locatorData)
 {
     setId(Constants::FUNCTIONS_FILTER_ID);
     setDisplayName(Constants::FUNCTIONS_FILTER_DISPLAY_NAME);
-    setShortcutString("m");
-    setIncludedByDefault(false);
+    setDefaultShortcutString("m");
+    setDefaultIncludedByDefault(false);
 }
 
 CppFunctionsFilter::~CppFunctionsFilter() = default;

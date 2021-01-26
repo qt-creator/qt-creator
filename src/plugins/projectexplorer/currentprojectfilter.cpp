@@ -35,12 +35,13 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-CurrentProjectFilter::CurrentProjectFilter() : BaseFileFilter()
+CurrentProjectFilter::CurrentProjectFilter()
+    : BaseFileFilter()
 {
     setId("Files in current project");
     setDisplayName(tr("Files in Current Project"));
-    setShortcutString(QString(QLatin1Char('p')));
-    setIncludedByDefault(false);
+    setDefaultShortcutString("p");
+    setDefaultIncludedByDefault(false);
 
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &CurrentProjectFilter::currentProjectChanged);

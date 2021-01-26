@@ -44,8 +44,9 @@ public:
     using ILocatorFilter::openConfigDialog;
     bool openConfigDialog(QWidget *parent, bool &needsRefresh) final;
 
-    QByteArray saveState() const final;
-    void restoreState(const QByteArray &state) final;
+protected:
+    void saveState(QJsonObject &obj) const final;
+    void restoreState(const QJsonObject &obj) final;
 
 private:
     void reset();

@@ -41,7 +41,7 @@ LocatorFiltersFilter::LocatorFiltersFilter():
 {
     setId("FiltersFilter");
     setDisplayName(tr("Available filters"));
-    setIncludedByDefault(true);
+    setDefaultIncludedByDefault(true);
     setHidden(true);
     setPriority(Highest);
     setConfigurable(false);

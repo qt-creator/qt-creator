@@ -121,8 +121,8 @@ CppIncludesFilter::CppIncludesFilter()
 {
     setId(Constants::INCLUDES_FILTER_ID);
     setDisplayName(Constants::INCLUDES_FILTER_DISPLAY_NAME);
-    setShortcutString("ai");
-    setIncludedByDefault(true);
+    setDefaultShortcutString("ai");
+    setDefaultIncludedByDefault(true);
     setPriority(ILocatorFilter::Low);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,

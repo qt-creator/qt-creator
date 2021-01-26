@@ -38,8 +38,8 @@ JavaScriptFilter::JavaScriptFilter()
 {
     setId("JavaScriptFilter");
     setDisplayName(tr("Evaluate JavaScript"));
-    setIncludedByDefault(false);
-    setShortcutString("=");
+    setDefaultIncludedByDefault(false);
+    setDefaultShortcutString("=");
     m_abortTimer.setSingleShot(true);
     m_abortTimer.setInterval(1000);
     connect(&m_abortTimer, &QTimer::timeout, this, [this] {

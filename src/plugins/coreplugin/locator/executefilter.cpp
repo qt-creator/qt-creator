@@ -38,9 +38,9 @@ ExecuteFilter::ExecuteFilter()
 {
     setId("Execute custom commands");
     setDisplayName(tr("Execute Custom Commands"));
-    setShortcutString("!");
+    setDefaultShortcutString("!");
     setPriority(High);
-    setIncludedByDefault(false);
+    setDefaultIncludedByDefault(false);
 
     m_process = new Utils::QtcProcess(this);
     m_process->setEnvironment(Utils::Environment::systemEnvironment());

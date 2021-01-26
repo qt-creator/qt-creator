@@ -125,10 +125,12 @@ public:
     Utils::Id actionId() const;
 
     QString displayName() const;
+    void setDisplayName(const QString &displayString);
 
     Priority priority() const;
 
     QString shortcutString() const;
+    void setDefaultShortcutString(const QString &shortcut);
     void setShortcutString(const QString &shortcut);
 
     virtual void prepareSearch(const QString &entry);
@@ -147,6 +149,7 @@ public:
     bool isConfigurable() const;
 
     bool isIncludedByDefault() const;
+    void setDefaultIncludedByDefault(bool includedByDefault);
     void setIncludedByDefault(bool includedByDefault);
 
     bool isHidden() const;
@@ -172,16 +175,22 @@ protected:
     void setHidden(bool hidden);
     void setId(Utils::Id id);
     void setPriority(Priority priority);
-    void setDisplayName(const QString &displayString);
     void setConfigurable(bool configurable);
     bool openConfigDialog(QWidget *parent, QWidget *additionalWidget);
+
+    virtual void saveState(QJsonObject &object) const;
+    virtual void restoreState(const QJsonObject &object);
+
+    static bool isOldSetting(const QByteArray &state);
 
 private:
     Utils::Id m_id;
     QString m_shortcut;
     Priority m_priority = Medium;
     QString m_displayName;
-    bool m_includedByDefault = false;
+    QString m_defaultShortcut;
+    bool m_defaultIncludedByDefault = false;
+    bool m_includedByDefault = m_defaultIncludedByDefault;
     bool m_hidden = false;
     bool m_enabled = true;
     bool m_isConfigurable = true;

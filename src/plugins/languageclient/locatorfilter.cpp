@@ -47,8 +47,8 @@ DocumentLocatorFilter::DocumentLocatorFilter()
 {
     setId(Constants::LANGUAGECLIENT_DOCUMENT_FILTER_ID);
     setDisplayName(Constants::LANGUAGECLIENT_DOCUMENT_FILTER_DISPLAY_NAME);
-    setShortcutString(".");
-    setIncludedByDefault(false);
+    setDefaultShortcutString(".");
+    setDefaultIncludedByDefault(false);
     setPriority(ILocatorFilter::Low);
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
             this, &DocumentLocatorFilter::updateCurrentClient);
@@ -208,8 +208,8 @@ WorkspaceLocatorFilter::WorkspaceLocatorFilter(const QVector<SymbolKind> &filter
 {
     setId(Constants::LANGUAGECLIENT_WORKSPACE_FILTER_ID);
     setDisplayName(Constants::LANGUAGECLIENT_WORKSPACE_FILTER_DISPLAY_NAME);
-    setShortcutString(":");
-    setIncludedByDefault(false);
+    setDefaultShortcutString(":");
+    setDefaultIncludedByDefault(false);
     setPriority(ILocatorFilter::Low);
 }
 
@@ -298,7 +298,7 @@ WorkspaceClassLocatorFilter::WorkspaceClassLocatorFilter()
 {
     setId(Constants::LANGUAGECLIENT_WORKSPACE_CLASS_FILTER_ID);
     setDisplayName(Constants::LANGUAGECLIENT_WORKSPACE_CLASS_FILTER_DISPLAY_NAME);
-    setShortcutString("c");
+    setDefaultShortcutString("c");
 }
 
 WorkspaceMethodLocatorFilter::WorkspaceMethodLocatorFilter()
@@ -306,7 +306,7 @@ WorkspaceMethodLocatorFilter::WorkspaceMethodLocatorFilter()
 {
     setId(Constants::LANGUAGECLIENT_WORKSPACE_METHOD_FILTER_ID);
     setDisplayName(Constants::LANGUAGECLIENT_WORKSPACE_METHOD_FILTER_DISPLAY_NAME);
-    setShortcutString("m");
+    setDefaultShortcutString("m");
 }
 
 } // namespace LanguageClient

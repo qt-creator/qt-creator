@@ -43,8 +43,8 @@ CppLocatorFilter::CppLocatorFilter(CppLocatorData *locatorData)
 {
     setId(Constants::LOCATOR_FILTER_ID);
     setDisplayName(Constants::LOCATOR_FILTER_DISPLAY_NAME);
-    setShortcutString(":");
-    setIncludedByDefault(false);
+    setDefaultShortcutString(":");
+    setDefaultIncludedByDefault(false);
 }
 
 CppLocatorFilter::~CppLocatorFilter() = default;

@@ -44,8 +44,8 @@ FunctionFilter::FunctionFilter(LocatorData *data, QObject *parent)
 {
     setId("Functions");
     setDisplayName(tr("QML Functions"));
-    setShortcutString("m");
-    setIncludedByDefault(false);
+    setDefaultShortcutString("m");
+    setDefaultIncludedByDefault(false);
 }
 
 FunctionFilter::~FunctionFilter() = default;

@@ -42,9 +42,9 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppTools::CppModelManager *ma
 {
     setId(Constants::CURRENT_DOCUMENT_FILTER_ID);
     setDisplayName(Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME);
-    setShortcutString(".");
+    setDefaultShortcutString(".");
     setPriority(High);
-    setIncludedByDefault(false);
+    setDefaultIncludedByDefault(false);
 
     search.setSymbolsToSearchFor(SymbolSearcher::Declarations |
                                  SymbolSearcher::Enums |

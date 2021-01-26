@@ -44,6 +44,12 @@ public:
 
     void setValue(const QString &key, const QVariant &value);
     QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const;
+
+    template<typename T>
+    void setValueWithDefault(const QString &key, const T &val, const T &defaultValue);
+    template<typename T>
+    void setValueWithDefault(const QString &key, const T &val);
+
     bool contains(const QString &key) const;
     void remove(const QString &key);
 
@@ -60,5 +66,23 @@ public:
 private:
     Internal::SettingsDatabasePrivate *d;
 };
+
+template<typename T>
+void SettingsDatabase::setValueWithDefault(const QString &key, const T &val, const T &defaultValue)
+{
+    if (val == defaultValue)
+        remove(key);
+    else
+        setValue(key, QVariant::fromValue(val));
+}
+
+template<typename T>
+void SettingsDatabase::setValueWithDefault(const QString &key, const T &val)
+{
+    if (val == T())
+        remove(key);
+    else
+        setValue(key, QVariant::fromValue(val));
+}
 
 } // namespace Core

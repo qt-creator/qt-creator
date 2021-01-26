@@ -49,8 +49,8 @@ LineNumberFilter::LineNumberFilter(QObject *parent)
     setId("Line in current document");
     setDisplayName(tr("Line in Current Document"));
     setPriority(High);
-    setShortcutString("l");
-    setIncludedByDefault(true);
+    setDefaultShortcutString("l");
+    setDefaultIncludedByDefault(true);
 }
 
 void LineNumberFilter::prepareSearch(const QString &entry)

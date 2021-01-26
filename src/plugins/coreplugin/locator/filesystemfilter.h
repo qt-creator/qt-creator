@@ -47,16 +47,20 @@ public:
                                          const QString &entry) override;
     void accept(LocatorFilterEntry selection,
                 QString *newText, int *selectionStart, int *selectionLength) const override;
-    QByteArray saveState() const override;
     void restoreState(const QByteArray &state) override;
     bool openConfigDialog(QWidget *parent, bool &needsRefresh) override;
     void refresh(QFutureInterface<void> &) override {}
 
+protected:
+    void saveState(QJsonObject &object) const final;
+    void restoreState(const QJsonObject &object) final;
+
 private:
     static MatchLevel matchLevelFor(const QRegularExpressionMatch &match, const QString &matchText);
 
-    bool m_includeHidden = true;
-    bool m_currentIncludeHidden = true;
+    static const bool kIncludeHiddenDefault = true;
+    bool m_includeHidden = kIncludeHiddenDefault;
+    bool m_currentIncludeHidden = kIncludeHiddenDefault;
     QString m_currentDocumentDirectory;
 };
 

@@ -195,7 +195,21 @@ QVariant SettingsDatabase::value(const QString &key, const QVariant &defaultValu
 
 bool SettingsDatabase::contains(const QString &key) const
 {
-    return d->m_settings.contains(d->effectiveKey(key));
+    // check exact key
+    // this already caches the value
+    if (value(key).isValid())
+        return true;
+    // check for group
+    if (d->m_db.isOpen()) {
+        const QString glob = d->effectiveKey(key) + "/?*";
+        QSqlQuery query(d->m_db);
+        query.prepare(
+            QLatin1String("SELECT value FROM settings WHERE key GLOB '%1' LIMIT 1").arg(glob));
+        query.exec();
+        if (query.next())
+            return true;
+    }
+    return false;
 }
 
 void SettingsDatabase::remove(const QString &key)

@@ -56,9 +56,9 @@ ClangCurrentDocumentFilter::ClangCurrentDocumentFilter()
 {
     setId(CppTools::Constants::CURRENT_DOCUMENT_FILTER_ID);
     setDisplayName(CppTools::Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME);
-    setShortcutString(QString(QLatin1Char('.')));
+    setDefaultShortcutString(".");
     setPriority(High);
-    setIncludedByDefault(false);
+    setDefaultIncludedByDefault(false);
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     connect(editorManager, &Core::EditorManager::currentEditorChanged,

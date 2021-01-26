@@ -25,9 +25,12 @@
 
 #include "urllocatorfilter.h"
 
+#include <utils/algorithm.h>
 #include <utils/stringutils.h>
 
 #include <QDesktopServices>
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QMutexLocker>
 #include <QUrl>
 
@@ -136,8 +139,9 @@ UrlLocatorFilter::UrlLocatorFilter(Id id)
 UrlLocatorFilter::UrlLocatorFilter(const QString &displayName, Id id)
 {
     setId(id);
+    m_defaultDisplayName = displayName;
     setDisplayName(displayName);
-    setIncludedByDefault(false);
+    setDefaultIncludedByDefault(false);
 }
 
 UrlLocatorFilter::~UrlLocatorFilter() = default;
@@ -177,37 +181,51 @@ void UrlLocatorFilter::refresh(QFutureInterface<void> &future)
     // Nothing to refresh
 }
 
-QByteArray UrlLocatorFilter::saveState() const
+const char kDisplayNameKey[] = "displayName";
+const char kRemoteUrlsKey[] = "remoteUrls";
+
+void UrlLocatorFilter::saveState(QJsonObject &object) const
 {
-    QByteArray value;
-    QDataStream out(&value, QIODevice::WriteOnly);
-    out << m_remoteUrls.join('^');
-    out << shortcutString();
-    out << isIncludedByDefault();
-    out << displayName();
-    return value;
+    if (displayName() != m_defaultDisplayName)
+        object.insert(kDisplayNameKey, displayName());
+    if (m_remoteUrls != m_defaultUrls)
+        object.insert(kRemoteUrlsKey, QJsonArray::fromStringList(m_remoteUrls));
+}
+
+void UrlLocatorFilter::restoreState(const QJsonObject &object)
+{
+    setDisplayName(object.value(kDisplayNameKey).toString(m_defaultDisplayName));
+    m_remoteUrls = Utils::transform(object.value(kRemoteUrlsKey)
+                                        .toArray(QJsonArray::fromStringList(m_defaultUrls))
+                                        .toVariantList(),
+                                    &QVariant::toString);
 }
 
 void UrlLocatorFilter::restoreState(const QByteArray &state)
 {
-    QDataStream in(state);
+    if (isOldSetting(state)) {
+        // TODO read old settings, remove some time after Qt Creator 4.15
+        QDataStream in(state);
 
-    QString value;
-    in >> value;
-    m_remoteUrls = value.split('^', Qt::SkipEmptyParts);
+        QString value;
+        in >> value;
+        m_remoteUrls = value.split('^', Qt::SkipEmptyParts);
 
-    QString shortcut;
-    in >> shortcut;
-    setShortcutString(shortcut);
+        QString shortcut;
+        in >> shortcut;
+        setShortcutString(shortcut);
 
-    bool defaultFilter;
-    in >> defaultFilter;
-    setIncludedByDefault(defaultFilter);
+        bool defaultFilter;
+        in >> defaultFilter;
+        setIncludedByDefault(defaultFilter);
 
-    if (!in.atEnd()) {
-        QString name;
-        in >> name;
-        setDisplayName(name);
+        if (!in.atEnd()) {
+            QString name;
+            in >> name;
+            setDisplayName(name);
+        }
+    } else {
+        ILocatorFilter::restoreState(state);
     }
 }
 
@@ -232,6 +250,7 @@ bool UrlLocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
 void UrlLocatorFilter::addDefaultUrl(const QString &urlTemplate)
 {
     m_remoteUrls.append(urlTemplate);
+    m_defaultUrls.append(urlTemplate);
 }
 
 QStringList UrlLocatorFilter::remoteUrls() const

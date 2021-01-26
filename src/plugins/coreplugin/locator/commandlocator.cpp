@@ -57,7 +57,7 @@ CommandLocator::CommandLocator(Id id,
 {
     setId(id);
     setDisplayName(displayName);
-    setShortcutString(shortCutString);
+    setDefaultShortcutString(shortCutString);
 }
 
 CommandLocator::~CommandLocator()

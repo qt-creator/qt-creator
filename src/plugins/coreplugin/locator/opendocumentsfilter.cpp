@@ -42,9 +42,9 @@ OpenDocumentsFilter::OpenDocumentsFilter()
 {
     setId("Open documents");
     setDisplayName(tr("Open Documents"));
-    setShortcutString("o");
+    setDefaultShortcutString("o");
     setPriority(High);
-    setIncludedByDefault(true);
+    setDefaultIncludedByDefault(true);
 
     connect(DocumentModel::model(), &QAbstractItemModel::dataChanged,
             this, &OpenDocumentsFilter::refreshInternally);

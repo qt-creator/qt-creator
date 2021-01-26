@@ -40,8 +40,8 @@ AllProjectsFilter::AllProjectsFilter()
 {
     setId("Files in any project");
     setDisplayName(tr("Files in Any Project"));
-    setShortcutString(QString(QLatin1Char('a')));
-    setIncludedByDefault(true);
+    setDefaultShortcutString("a");
+    setDefaultIncludedByDefault(true);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,
             this, &AllProjectsFilter::markFilesAsOutOfDate);

@@ -49,8 +49,8 @@ public:
     {
         setId(id);
         setDisplayName(displayName);
-        setShortcutString(shortCut);
-        setIncludedByDefault(includedByDefault);
+        setDefaultShortcutString(shortCut);
+        setDefaultIncludedByDefault(includedByDefault);
     }
 
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
