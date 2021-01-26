@@ -153,4 +153,9 @@ void ImageCacheCollector::setTarget(ProjectExplorer::Target *target)
     m_target = target;
 }
 
+ProjectExplorer::Target *ImageCacheCollector::target() const
+{
+    return m_target;
+}
+
 } // namespace QmlDesigner

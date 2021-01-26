@@ -39,6 +39,8 @@
 #include <importmanagerview.h>
 #include <nodelistproperty.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <rewriterview.h>
 #include <sqlitedatabase.h>
@@ -48,6 +50,16 @@
 #include <qmlitemnode.h>
 
 namespace QmlDesigner {
+
+namespace {
+ProjectExplorer::Target *activeTarget(ProjectExplorer::Project *project)
+{
+    if (project)
+        return project->activeTarget();
+
+    return {};
+}
+} // namespace
 
 class ImageCacheData
 {
@@ -72,9 +84,32 @@ ItemLibraryView::ItemLibraryView(QObject* parent)
 
 {
     m_imageCacheData = std::make_unique<ImageCacheData>();
+
+    auto setTargetInImageCache =
+        [imageCacheData = m_imageCacheData.get()](ProjectExplorer::Target *target) {
+            if (target == imageCacheData->collector.target())
+                return;
+
+            if (target)
+                imageCacheData->cache.clean();
+
+            imageCacheData->collector.setTarget(target);
+        };
+
+    if (auto project = ProjectExplorer::SessionManager::startupProject(); project) {
+        m_imageCacheData->collector.setTarget(project->activeTarget());
+        connect(project, &ProjectExplorer::Project::activeTargetChanged, this, setTargetInImageCache);
+    }
+
+    connect(ProjectExplorer::SessionManager::instance(),
+            &ProjectExplorer::SessionManager::startupProjectChanged,
+            this,
+            [=](ProjectExplorer::Project *project) { setTargetInImageCache(activeTarget(project)); });
 }
 
-ItemLibraryView::~ItemLibraryView() = default;
+ItemLibraryView::~ItemLibraryView()
+{
+}
 
 bool ItemLibraryView::hasWidget() const
 {
@@ -101,11 +136,6 @@ WidgetInfo ItemLibraryView::widgetInfo()
 void ItemLibraryView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
-    auto target = QmlDesignerPlugin::instance()->currentDesignDocument()->currentTarget();
-    m_imageCacheData->cache.clean();
-
-    if (target)
-        m_imageCacheData->collector.setTarget(target);
 
     m_widget->clearSearchFilter();
     m_widget->setModel(model);
@@ -119,8 +149,6 @@ void ItemLibraryView::modelAttached(Model *model)
 void ItemLibraryView::modelAboutToBeDetached(Model *model)
 {
     model->detachView(m_importManagerView);
-
-    m_imageCacheData->collector.setTarget({});
 
     AbstractView::modelAboutToBeDetached(model);
 

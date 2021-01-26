@@ -67,6 +67,7 @@ public:
                      const ImageCache::AuxiliaryData &auxiliaryData) override;
 
     void setTarget(ProjectExplorer::Target *target);
+    ProjectExplorer::Target *target() const;
 
 private:
     ImageCacheConnectionManager &m_connectionManager;

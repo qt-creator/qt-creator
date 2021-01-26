@@ -268,6 +268,9 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
     connect(dropSupport, &Utils::DropSupport::filesDropped,
             this, &ItemLibraryWidget::importDroppedFiles);
 
+    m_itemViewQuickWidget->engine()->addImageProvider("itemlibrary_preview",
+                                                      new ItemLibraryIconImageProvider{m_imageCache});
+
     // init the first load of the QML UI elements
     reloadQmlSource();
 }
@@ -337,13 +340,9 @@ void ItemLibraryWidget::delayedUpdateModel()
 
 void ItemLibraryWidget::setModel(Model *model)
 {
-    m_itemViewQuickWidget->engine()->removeImageProvider("itemlibrary_preview");
     m_model = model;
     if (!model)
         return;
-
-    m_itemViewQuickWidget->engine()->addImageProvider("itemlibrary_preview",
-                                                      new ItemLibraryIconImageProvider{m_imageCache});
 
     setItemLibraryInfo(model->metaInfo().itemLibraryInfo());
 }
