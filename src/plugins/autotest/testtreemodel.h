@@ -111,7 +111,6 @@ private:
     void revalidateCheckState(ITestTreeItem *item);
     void setupParsingConnections();
     void filterAndInsert(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled);
-    QList<TestTreeItem *> testItemsByName(TestTreeItem *root, const QString &testName);
     void onTargetChanged(ProjectExplorer::Target *target);
     void onBuildSystemTestsUpdated();
     const QList<TestTreeItem *> frameworkRootNodes() const;
