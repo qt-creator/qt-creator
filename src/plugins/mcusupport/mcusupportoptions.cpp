@@ -654,10 +654,13 @@ static void setKitEnvironment(Kit *k, const McuTarget *mcuTarget,
         processPackage(package);
     processPackage(qtForMCUsSdkPackage);
 
-    const QString path = QLatin1String(HostOsInfo().isWindowsHost() ? "Path" : "PATH");
-    pathAdditions.append("${" + path + "}");
-    pathAdditions.append(QDir::toNativeSeparators(Core::ICore::libexecPath() + "/clang/bin"));
-    changes.append({path, pathAdditions.join(HostOsInfo::pathListSeparator())});
+    // Clang not needed in version 1.7+
+    if (mcuTarget->qulVersion() < QVersionNumber{1,7}) {
+        const QString path = QLatin1String(HostOsInfo().isWindowsHost() ? "Path" : "PATH");
+        pathAdditions.append("${" + path + "}");
+        pathAdditions.append(QDir::toNativeSeparators(Core::ICore::libexecPath() + "/clang/bin"));
+        changes.append({path, pathAdditions.join(HostOsInfo::pathListSeparator())});
+    }
 
     if (kitNeedsQtVersion())
         changes.append({QLatin1String("LD_LIBRARY_PATH"), "%{Qt:QT_INSTALL_LIBS}"});
