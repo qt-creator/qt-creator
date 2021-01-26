@@ -765,27 +765,29 @@ void ClangCodeCompletionTest::testSignalCompletion_data()
     QTest::addColumn<QByteArray>("customContents");
     QTest::addColumn<QByteArrayList>("hits");
 
+    // libclang mis-reports CXCursor_ClassDecl instead of CXCursor_Constructor, so the lists
+    // below include the class name.
     QTest::addRow("positive: connect() on QObject class")
             << QByteArray("int main() { QObject::connect(dummy, QObject::")
-            << QByteArrayList{"aSignal", "anotherSignal"};
+            << QByteArrayList{"aSignal", "anotherSignal", "QObject"};
     QTest::addRow("positive: connect() on QObject object")
             << QByteArray("int main() { QObject o; o.connect(dummy, QObject::")
-            << QByteArrayList{"aSignal", "anotherSignal"};
+            << QByteArrayList{"aSignal", "anotherSignal", "QObject"};
     QTest::addRow("positive: connect() on QObject pointer")
             << QByteArray("int main() { QObject *o; o->connect(dummy, QObject::")
-            << QByteArrayList{"aSignal", "anotherSignal"};
+            << QByteArrayList{"aSignal", "anotherSignal", "QObject"};
     QTest::addRow("positive: connect() on QObject rvalue")
             << QByteArray("int main() { QObject().connect(dummy, QObject::")
-            << QByteArrayList{"aSignal", "anotherSignal"};
+            << QByteArrayList{"aSignal", "anotherSignal", "QObject"};
     QTest::addRow("positive: connect() on QObject pointer rvalue")
             << QByteArray("int main() { (new QObject)->connect(dummy, QObject::")
-            << QByteArrayList{"aSignal", "anotherSignal"};
+            << QByteArrayList{"aSignal", "anotherSignal", "QObject"};
     QTest::addRow("positive: disconnect() on QObject")
             << QByteArray("int main() { QObject::disconnect(dummy, QObject::")
-            << QByteArrayList{"aSignal", "anotherSignal"};
+            << QByteArrayList{"aSignal", "anotherSignal", "QObject"};
     QTest::addRow("positive: connect() in member function of derived class")
             << QByteArray("void DerivedFromQObject::alsoNotASignal() { connect(this, DerivedFromQObject::")
-            << QByteArrayList{"aSignal", "anotherSignal", "myOwnSignal"};
+            << QByteArrayList{"aSignal", "anotherSignal", "myOwnSignal", "QObject", "DerivedFromQObject"};
 
     const QByteArrayList allQObjectFunctions{"aSignal", "anotherSignal", "notASignal", "connect",
                                              "disconnect", "QObject", "~QObject", "operator="};
