@@ -535,12 +535,11 @@ QList<SearchResultItem> SearchResultWidget::checkedItems() const
     SearchResultFilterModel *model = m_searchResultTreeView->model();
     const int fileCount = model->rowCount();
     for (int i = 0; i < fileCount; ++i) {
-        QModelIndex fileIndex = model->index(i, 0);
-        auto fileItem = static_cast<SearchResultTreeItem *>(fileIndex.internalPointer());
-        QTC_ASSERT(fileItem != nullptr, continue);
-        for (int rowIndex = 0; rowIndex < fileItem->childrenCount(); ++rowIndex) {
-            QModelIndex textIndex = model->index(rowIndex, 0, fileIndex);
-            auto rowItem = static_cast<SearchResultTreeItem *>(textIndex.internalPointer());
+        const QModelIndex fileIndex = model->index(i, 0);
+        const int itemCount = model->rowCount(fileIndex);
+        for (int rowIndex = 0; rowIndex < itemCount; ++rowIndex) {
+            const QModelIndex textIndex = model->index(rowIndex, 0, fileIndex);
+            const SearchResultTreeItem * const rowItem = model->itemForIndex(textIndex);
             QTC_ASSERT(rowItem != nullptr, continue);
             if (rowItem->checkState())
                 result << rowItem->item;

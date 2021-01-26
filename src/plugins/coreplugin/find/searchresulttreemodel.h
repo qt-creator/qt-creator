@@ -36,6 +36,7 @@
 namespace Core {
 namespace Internal {
 
+class SearchResultTreeItem;
 class SearchResultTreeModel;
 
 class SearchResultFilterModel : public QSortFilterProxyModel
@@ -53,6 +54,8 @@ public:
                      bool *wrapped = nullptr) const;
     QModelIndex prev(const QModelIndex &idx, bool includeGenerated = false,
                      bool *wrapped = nullptr) const;
+
+    SearchResultTreeItem *itemForIndex(const QModelIndex &index) const;
 
 signals:
     void filterInvalidated();

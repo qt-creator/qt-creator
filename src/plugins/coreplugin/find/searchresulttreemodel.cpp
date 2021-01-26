@@ -628,6 +628,11 @@ QModelIndex SearchResultFilterModel::prev(const QModelIndex &idx, bool includeGe
         return sourceModel()->prev(index, includeGenerated, wrapped); });
 }
 
+SearchResultTreeItem *SearchResultFilterModel::itemForIndex(const QModelIndex &index) const
+{
+    return static_cast<SearchResultTreeItem *>(mapToSource(index).internalPointer());
+}
+
 bool SearchResultFilterModel::filterAcceptsRow(int source_row,
                                                const QModelIndex &source_parent) const
 {
