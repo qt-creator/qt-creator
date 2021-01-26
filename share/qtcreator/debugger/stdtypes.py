@@ -872,43 +872,58 @@ def qform__std____debug__unordered_map():
 
 
 def qdump__std__unordered_map(d, value):
-    if d.isQnxTarget() or d.isMsvcTarget():
+    if d.isQnxTarget():
         qdump__std__list__QNX(d, value["_List"])
         return
 
-    try:
-        # gcc ~= 4.7
-        size = value["_M_element_count"].integer()
-        start = value["_M_before_begin"]["_M_nxt"]
-    except:
+    if d.isMsvcTarget():
+        _list = value["_List"]
         try:
-            # libc++ (Mac)
-            size = value["_M_h"]["_M_element_count"].integer()
-            start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
+            _ = _list["_Mypair"]["_Myval2"]["_Myproxy"]
+            (_, start, size) = _list.split("ppp")
+        except Exception:
+            (start, size) = _list.split("pp")
+    else:
+        try:
+            # gcc ~= 4.7
+            size = value["_M_element_count"].integer()
+            start = value["_M_before_begin"]["_M_nxt"]
         except:
             try:
-                # gcc 4.9.1
+                # libc++ (Mac)
                 size = value["_M_h"]["_M_element_count"].integer()
-                start = value["_M_h"]["_M_before_begin"]["_M_nxt"]
+                start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
             except:
-                # gcc 4.6.2
-                size = value["_M_element_count"].integer()
-                start = value["_M_buckets"].dereference()
-                # FIXME: Pointer-aligned?
-                d.putItemCount(size)
-                # We don't know where the data is
-                d.putNumChild(0)
-                return
+                try:
+                    # gcc 4.9.1
+                    size = value["_M_h"]["_M_element_count"].integer()
+                    start = value["_M_h"]["_M_before_begin"]["_M_nxt"]
+                except:
+                    # gcc 4.6.2
+                    size = value["_M_element_count"].integer()
+                    start = value["_M_buckets"].dereference()
+                    # FIXME: Pointer-aligned?
+                    d.putItemCount(size)
+                    # We don't know where the data is
+                    d.putNumChild(0)
+                    return
 
     d.putItemCount(size)
     if d.isExpanded():
         keyType = value.type[0]
         valueType = value.type[1]
-        typeCode = 'p@{%s}@{%s}' % (value.type[0].name, value.type[1].name)
-        p = start.pointer()
+        if d.isMsvcTarget():
+            typeCode = 'pp@{%s}@{%s}' % (keyType.name, valueType.name)
+            p = d.extractPointer(start)
+        else:
+            typeCode = 'p@{%s}@{%s}' % (keyType.name, valueType.name)
+            p = start.pointer()
         with Children(d, size):
             for i in d.childRange():
-                p, pad, key, pad, val = d.split(typeCode, p)
+                if d.isMsvcTarget():
+                    p, _, _, key, _, val = d.split(typeCode, p)
+                else:
+                    p, _, key, _, val = d.split(typeCode, p)
                 d.putPairItem(i, (key, val))
 
 

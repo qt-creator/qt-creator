@@ -5466,8 +5466,8 @@ void tst_Dumpers::dumper_data()
                + Check("map1", "<2 items>", "std::unordered_map<unsigned int, unsigned int>")
                + Check("map1.0", "[0] 22", "2", "") % NoCdbEngine
                + Check("map1.1", "[1] 11", "1", "") % NoCdbEngine
-               + Check("map1.0", "11", "1", "std::pair<unsigned int const ,unsigned int>") % CdbEngine
-               + Check("map1.1", "22", "2", "std::pair<unsigned int const ,unsigned int>") % CdbEngine
+               + Check("map1.0", "[0] 11", "1", "") % CdbEngine
+               + Check("map1.1", "[1] 22", "2", "") % CdbEngine
 
                + Check("map2", "<2 items>", "std::unordered_map<std::string, float>")
                + Check("map2.0", "[0] \"22.0\"", FloatValue("22.0"), "") % NoCdbEngine
@@ -5476,20 +5476,18 @@ void tst_Dumpers::dumper_data()
                + Check("map2.1", "[1] \"11.0\"", FloatValue("11.0"), "") % NoCdbEngine
                + Check("map2.1.first", "\"11.0\"", "std::string")        % NoCdbEngine
                + Check("map2.1.second", FloatValue("11"), "float")       % NoCdbEngine
-               + Check("map2.0", "\"11.0\"", FloatValue("11.0"),
-                       "std::pair<std::string, float>")             % CdbEngine
-               + Check("map2.0.first", "\"11.0\"", "std::string")   % CdbEngine
-               + Check("map2.0.second", FloatValue("11"), "float")  % CdbEngine
-               + Check("map2.1", "\"22.0\"", FloatValue("22.0"),
-                       "std::pair<std::string, float>")             % CdbEngine
-               + Check("map2.1.first", "\"22.0\"", "std::string")   % CdbEngine
-               + Check("map2.1.second", FloatValue("22"), "float")  % CdbEngine
+               + Check("map2.0", "[0] \"11.0\"", FloatValue("11.0"), "") % CdbEngine
+               + Check("map2.0.first", "\"11.0\"", "std::string")        % CdbEngine
+               + Check("map2.0.second", FloatValue("11"), "float")       % CdbEngine
+               + Check("map2.1", "[1] \"22.0\"", FloatValue("22.0"), "") % CdbEngine
+               + Check("map2.1.first", "\"22.0\"", "std::string")        % CdbEngine
+               + Check("map2.1.second", FloatValue("22"), "float")       % CdbEngine
 
                + Check("map3", "<2 items>", "std::unordered_multimap<int, std::string>")
                + Check("map3.0", "[0] 1", "\"Bar\"", "") % NoCdbEngine
                + Check("map3.1", "[1] 1", "\"Foo\"", "") % NoCdbEngine
-               + Check("map3.0", "1", "\"Foo\"", "std::pair<int const ,std::string>") % CdbEngine
-               + Check("map3.1", "1", "\"Bar\"", "std::pair<int const ,std::string>") % CdbEngine;
+               + Check("map3.0", "[0] 1", "\"Foo\"", "") % CdbEngine
+               + Check("map3.1", "[1] 1", "\"Bar\"", "") % CdbEngine;
 
 
     QTest::newRow("StdUnorderedSet")
