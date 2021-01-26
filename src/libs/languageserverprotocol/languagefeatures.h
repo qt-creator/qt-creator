@@ -685,6 +685,24 @@ public:
     bool insertSpace() const { return typedValue<bool>(insertSpaceKey); }
     void setInsertSpace(bool insertSpace) { insert(insertSpaceKey, insertSpace); }
 
+    Utils::optional<bool> trimTrailingWhitespace() const
+    { return optionalValue<bool>(trimTrailingWhitespaceKey); }
+    void setTrimTrailingWhitespace(bool trimTrailingWhitespace)
+    { insert(trimTrailingWhitespaceKey, trimTrailingWhitespace); }
+    void clearTrimTrailingWhitespace() { remove(trimTrailingWhitespaceKey); }
+
+    Utils::optional<bool> insertFinalNewline() const
+    { return optionalValue<bool>(insertFinalNewlineKey); }
+    void setInsertFinalNewline(bool insertFinalNewline)
+    { insert(insertFinalNewlineKey, insertFinalNewline); }
+    void clearInsertFinalNewline() { remove(insertFinalNewlineKey); }
+
+    Utils::optional<bool> trimFinalNewlines() const
+    { return optionalValue<bool>(trimFinalNewlinesKey); }
+    void setTrimFinalNewlines(bool trimFinalNewlines)
+    { insert(trimFinalNewlinesKey, trimFinalNewlines); }
+    void clearTrimFinalNewlines() { remove(trimFinalNewlinesKey); }
+
     QHash<QString, DocumentFormattingProperty> properties() const;
     void setProperty(const QString &key, const DocumentFormattingProperty &property);
     void removeProperty(const QString &key) { remove(key); }
