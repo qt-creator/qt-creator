@@ -62,7 +62,7 @@ CapturedDataCommand::StateData collectStateData(ServerNodeInstance rootNodeInsta
         CapturedDataCommand::NodeData nodeData;
 
         nodeData.nodeId = instance.instanceId();
-        nodeData.contentRect = instance.contentItemBoundingRect();
+        nodeData.contentRect = instance.boundingRect();
         nodeData.sceneTransform = instance.sceneTransform();
         auto textProperty = instance.property("text");
         if (!textProperty.isNull() && instance.holdsGraphical())
