@@ -45,6 +45,7 @@
 #include <QDir>
 #include <QImageReader>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #ifndef QMLDESIGNER_TEST
@@ -984,7 +985,45 @@ QList<ModelNode> QmlFlowViewNode::transitionsForProperty(const PropertyName &pro
             list.append(transition);
     }
     return list;
+}
 
+PropertyNameList QmlFlowViewNode::st_mouseSignals = { "clicked", "doubleClicked", "pressAndHold",
+                                                      "pressed", "released", "wheel" };
+
+QList<QmlConnections> QmlFlowViewNode::getAssociatedConnections(const ModelNode &node)
+{
+    if (!node.isValid())
+        return {};
+
+    AbstractView *view = node.view();
+
+    return Utils::transform<QList<QmlConnections>>(Utils::filtered(view->allModelNodes(),
+                                                                   [&node](const ModelNode &n) {
+        const QmlConnections connection(n);
+        if (!connection.isValid())
+            return false;
+
+        const QList<SignalHandlerProperty> &signalProperties = connection.signalProperties();
+        for (const SignalHandlerProperty &property : signalProperties) {
+            auto signalWithoutPrefix = SignalHandlerProperty::prefixRemoved(property.name());
+            const QStringList sourceComponents = property.source().split(".");
+            QString sourceId;
+            QString sourceProperty;
+            if (sourceComponents.size() > 1) {
+                sourceId = sourceComponents[0];
+                sourceProperty = sourceComponents[1];
+            }
+
+            if (st_mouseSignals.contains(signalWithoutPrefix)
+                && sourceId == node.id()
+                && sourceProperty == "trigger()")
+                return true;
+        }
+
+        return false;
+    }), [](const ModelNode &n) {
+        return QmlConnections(n);
+    });
 }
 
 } //QmlDesigner

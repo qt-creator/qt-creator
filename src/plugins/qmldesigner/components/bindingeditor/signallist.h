@@ -95,11 +95,7 @@ private:
     void addConnection(const QModelIndex &modelIndex);
     void removeConnection(const QModelIndex &modelIndex);
 
-    QList<QmlConnections> getAssociatedConnections(const QList<ModelNode> &nodes);
-
 private:
-    static PropertyNameList st_mouseSignals;
-
     QPointer<SignalListDialog> m_dialog;
     SignalListModel *m_model;
     ModelNode m_modelNode;

@@ -30,6 +30,7 @@
 #include "qmlobjectnode.h"
 #include "qmlstate.h"
 #include "qmlvisualnode.h"
+#include "qmlconnections.h"
 
 #include <QStringList>
 #include <QRectF>
@@ -206,6 +207,11 @@ public:
     void removeAllTransitions();
     void setStartFlowItem(const QmlFlowItemNode &flowItem);
     ModelNode createTransition();
+
+    static PropertyNameList st_mouseSignals;
+    static QList<QmlConnections> getAssociatedConnections(const ModelNode &node);
+
+
 protected:
     QList<ModelNode> transitionsForProperty(const PropertyName &propertyName, const ModelNode &modelNode);
 };
