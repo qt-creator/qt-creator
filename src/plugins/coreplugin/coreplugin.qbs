@@ -364,18 +364,11 @@ Project {
                 "locatorwidget.h",
                 "opendocumentsfilter.cpp",
                 "opendocumentsfilter.h",
+                "spotlightlocatorfilter.h",
+                "spotlightlocatorfilter.cpp",
                 "urllocatorfilter.cpp",
                 "urllocatorfilter.h",
                 "urllocatorfilter.ui"
-            ]
-        }
-
-        Group {
-            name: "Locator_mac"
-            condition: qbs.targetOS.contains("macos")
-            files: [
-                "locator/spotlightlocatorfilter.h",
-                "locator/spotlightlocatorfilter.cpp",
             ]
         }
 

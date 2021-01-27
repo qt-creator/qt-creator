@@ -12,6 +12,7 @@ HEADERS += \
     $$PWD/directoryfilter.h \
     $$PWD/locatormanager.h \
     $$PWD/basefilefilter.h \
+    $$PWD/spotlightlocatorfilter.h \
     $$PWD/executefilter.h \
     $$PWD/locatorsearchutils.h \
     $$PWD/locatorsettingspage.h \
@@ -29,6 +30,7 @@ SOURCES += \
     $$PWD/directoryfilter.cpp \
     $$PWD/locatormanager.cpp \
     $$PWD/basefilefilter.cpp \
+    $$PWD/spotlightlocatorfilter.cpp
     $$PWD/ilocatorfilter.cpp \
     $$PWD/executefilter.cpp \
     $$PWD/locatorsearchutils.cpp \
@@ -49,9 +51,4 @@ equals(TEST, 1) {
         $$PWD/locatorfiltertest.cpp \
         $$PWD/locator_test.cpp
     DEFINES += SRCDIR=\\\"$$PWD\\\"
-}
-
-osx {
-    HEADERS += $$PWD/spotlightlocatorfilter.h
-    SOURCES += $$PWD/spotlightlocatorfilter.cpp
 }
