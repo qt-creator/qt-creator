@@ -20,6 +20,7 @@
 #include "loadcoredialog.h"
 #include "logwindow.h"
 #include "mcpsupport.h"
+#include "peripheralregisterhandler.h"
 #include "remotedebuggerconfiguration.h"
 #include "remotedebuggerdebugsupport.h"
 #include "shared/coredumputils.h"
@@ -2152,6 +2153,7 @@ Result<> DebuggerPlugin::initialize(const QStringList &arguments)
 
 #ifdef WITH_TESTS
     addTestCreator(createDebuggerTest);
+    addTestCreator(createPeripheralRegisterTest);
 #endif
 
     return ResultOk;

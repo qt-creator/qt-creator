@@ -8,6 +8,9 @@
 #include <utils/treemodel.h>
 
 #include <QHash>
+#include <memory>
+#include <vector>
+#include <utility>
 
 QT_BEGIN_NAMESPACE
 class QMenu;
@@ -35,13 +38,43 @@ enum class PeripheralRegisterFormat
     Binary
 };
 
+// PeripheralFieldEnumerant
+
+class PeripheralFieldEnumerant final
+{
+public:
+    QString name;
+    QString description;
+    quint64 value = 0;
+};
+
+// PeripheralFieldEnum
+
+class PeripheralFieldEnum final
+{
+public:
+    QString name;
+
+    QVector<PeripheralFieldEnumerant> enumerants;
+
+    bool isValid() const { return !enumerants.empty(); }
+
+    std::pair<QString, QString> enumerant(quint64 fieldValue) const;
+};
+
 // PeripheralRegisterField
+
+enum class PeripheralFieldFormat
+{
+    Normal,
+    ToolTip
+};
 
 class PeripheralRegisterField final
 {
 public:
     QString bitRangeString() const;
-    QString bitValueString(quint64 regValue) const;
+    QString bitValueString(quint64 regValue, PeripheralFieldFormat fieldFormat = PeripheralFieldFormat::Normal) const;
     quint64 bitValue(quint64 regValue) const;
     quint64 bitMask() const;
 
@@ -49,6 +82,7 @@ public:
     QString description;
     int bitOffset = 0;
     int bitWidth = 0;
+    PeripheralFieldEnum fieldEnum;
     PeripheralRegisterAccess access = PeripheralRegisterAccess::Unknown;
     PeripheralRegisterFormat format = PeripheralRegisterFormat::Hexadecimal;
 };
@@ -84,6 +118,8 @@ public:
     QString description;
     quint64 addressOffset = 0;
     int size = 0; // in bits
+    int dimensions = 0;
+    int dimensionIncrement = 0;
     PeripheralRegisterAccess access = PeripheralRegisterAccess::Unknown;
     PeripheralRegisterFormat format = PeripheralRegisterFormat::Hexadecimal;
 
@@ -92,6 +128,8 @@ public:
     PeripheralRegisterValue currentValue;
     PeripheralRegisterValue previousValue;
     PeripheralRegisterValue resetValue;
+
+    int instances() const { return dimensions == 0 ? 1 : dimensions; }
 };
 
 // PeripheralRegisterGroup
@@ -102,16 +140,29 @@ public:
     QString name;
     QString displayName;
     QString description;
-    quint64 baseAddress = 0;
+    quint64 addressOffset = 0;
+    int dimensions = 0;
+    int dimensionIncrement = 0;
     int size = 0; // in bits
     PeripheralRegisterAccess access = PeripheralRegisterAccess::Unknown;
     bool active = false;
-    QList<PeripheralRegister> registers;
+    PeripheralRegisterGroup *parentGroup = nullptr;
+    QVector<PeripheralRegister> registers;
+    std::vector<std::unique_ptr<PeripheralRegisterGroup>> clusters;
+    quint64 baseAddress() const;
+    void setBaseAddress(quint64 address);
+
+    PeripheralRegisterGroup() = default;
+    PeripheralRegisterGroup(const PeripheralRegisterGroup &other);
+    PeripheralRegisterGroup &operator=(const PeripheralRegisterGroup &) = delete;
+
+private:
+    quint64 m_baseAddress = 0;
 };
 
 // PeripheralRegisterGroups
 
-using PeripheralRegisterGroups = QList<PeripheralRegisterGroup>;
+using PeripheralRegisterGroups = std::vector<std::unique_ptr<PeripheralRegisterGroup>>;
 
 // PeripheralRegisterItem's
 
@@ -148,12 +199,16 @@ private:
                                     PeripheralRegisterItem *item) const;
     QMenu *createRegisterFieldFormatMenu(DebuggerState state,
                                          PeripheralRegisterFieldItem *item) const;
-    void setActiveGroup(const QString &groupName);
+    void setActiveGroup(const QString &groupName, const QStringList &clusterPath = {});
     void deactivateGroups();
 
     PeripheralRegisterGroups m_peripheralRegisterGroups;
     QHash<quint64, PeripheralRegisterItem *> m_activeRegisters;
     DebuggerEngine * const m_engine;
 };
+
+#ifdef WITH_TESTS
+QObject *createPeripheralRegisterTest();
+#endif
 
 } // Debugger::Internal

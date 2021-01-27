@@ -17,6 +17,14 @@
 #include <QPainter>
 #include <QXmlStreamReader>
 
+#ifdef WITH_TESTS
+#include <QTemporaryFile>
+#include <QTest>
+#endif
+
+#include <functional>
+#include <numeric>
+
 using namespace Utils;
 
 namespace Debugger::Internal {
@@ -28,10 +36,16 @@ constexpr char kBaseAddress[] = "baseAddress";
 constexpr char kBitOffset[] = "bitOffset";
 constexpr char kBitRange[] = "bitRange";
 constexpr char kBitWidth[] = "bitWidth";
+constexpr char kCluster[] = "cluster";
 constexpr char kDerivedFrom[] = "derivedFrom";
 constexpr char kDescription[] = "description";
 constexpr char kDevice[] = "device";
+constexpr char kDim[] = "dim";
+constexpr char kDimIncrement[] = "dimIncrement";
+constexpr char kDimIndex[] = "dimIndex";
 constexpr char kDisplayName[] = "displayName";
+constexpr char kEnumeratedValue[] = "enumeratedValue";
+constexpr char kEnumeratedValues[] = "enumeratedValues";
 constexpr char kField[] = "field";
 constexpr char kFields[] = "fields";
 constexpr char kGroupName[] = "groupName";
@@ -46,6 +60,7 @@ constexpr char kRegister[] = "register";
 constexpr char kRegisters[] = "registers";
 constexpr char kResetvalue[] = "resetValue";
 constexpr char kSize[] = "size";
+constexpr char kValue[] = "value";
 constexpr char kWritOnlye[] = "write-only";
 
 enum PeripheralRegisterColumns
@@ -86,13 +101,56 @@ static PeripheralRegisterAccess decodeAccess(const QString &accessText)
     return PeripheralRegisterAccess::Unknown;
 }
 
-static quint64 decodeNumeric(const QString &text)
+static quint64 decodeNumeric(const QString &text, bool *ok = nullptr)
 {
-    bool ok = false;
-    const quint64 result = text.toULongLong(&ok, 10);
-    if (ok)
+    bool parsed = false;
+    if (!ok)
+        ok = &parsed;
+    if (text.startsWith('#'))
+        return text.mid(1).toULongLong(ok, 2);
+    if (text.startsWith("0b", Qt::CaseInsensitive))
+        return text.mid(2).toULongLong(ok, 2);
+    const quint64 result = text.toULongLong(ok, 10);
+    if (*ok)
         return result;
-    return text.toUInt(&ok, 16);
+    return text.toUInt(ok, 16);
+}
+
+static QStringList dimIndexes(const QString &dimIndex, int count)
+{
+    QStringList result;
+    const QStringList range = dimIndex.split('-');
+    if (range.size() == 2) {
+        bool fromOk = false;
+        bool toOk = false;
+        const int from = range.at(0).toInt(&fromOk);
+        const int to = range.at(1).toInt(&toOk);
+        if (fromOk && toOk) {
+            if (qint64(to) - from + 1 == count) {
+                for (qint64 i = from; i <= to; ++i)
+                    result.append(QString::number(i));
+            }
+        } else if (range.at(0).size() == 1 && range.at(1).size() == 1) {
+            for (int c = range.at(0).at(0).unicode(); c <= range.at(1).at(0).unicode(); ++c)
+                result.append(QChar(c));
+        }
+    } else if (!dimIndex.isEmpty()) {
+        for (const QString &index : dimIndex.split(','))
+            result.append(index.trimmed());
+    }
+    if (result.size() == count)
+        return result;
+    result.clear();
+    for (int i = 0; i < count; ++i)
+        result.append(QString::number(i));
+    return result;
+}
+
+static QString instanceName(const QString &name, const QString &index)
+{
+    if (name.contains("%s") && !name.contains("[%s]"))
+        return QString(name).replace("%s", index);
+    return QStringLiteral("%1[%2]").arg(QString(name).remove("[%s]"), index);
 }
 
 static QString valueToString(quint64 value, int size, PeripheralRegisterFormat fmt)
@@ -142,6 +200,19 @@ static quint64 valueFromString(const QString &string, PeripheralRegisterFormat f
     return 0;
 }
 
+// PeripheralFieldEnum
+
+std::pair<QString, QString> PeripheralFieldEnum::enumerant(quint64 fieldValue) const
+{
+    for (auto &enumerant : enumerants) {
+        if (enumerant.value == fieldValue) {
+            return std::make_pair(enumerant.name, enumerant.description);
+        }
+    }
+
+    return {};
+}
+
 // PeripheralRegisterField
 
 QString PeripheralRegisterField::bitRangeString() const
@@ -151,10 +222,25 @@ QString PeripheralRegisterField::bitRangeString() const
     return Tr::tr("[%1..%2]").arg(to).arg(from);
 }
 
-QString PeripheralRegisterField::bitValueString(quint64 regValue) const
+QString PeripheralRegisterField::bitValueString(quint64 regValue, PeripheralFieldFormat fieldFormat) const
 {
     const quint64 value = bitValue(regValue);
-    return valueToString(value, bitWidth, format);
+
+    auto stringValue = valueToString(value, bitWidth, format);
+
+    if (fieldEnum.isValid()) {
+        const auto [enumValue, description] = fieldEnum.enumerant(value);
+        if (!enumValue.isEmpty()) {
+            stringValue += ": " + enumValue;
+            if (fieldFormat == PeripheralFieldFormat::ToolTip) {
+                if (!description.isEmpty()) {
+                    stringValue += "\n" + description;
+                }
+            }
+        }
+    }
+
+    return stringValue;
 }
 
 quint64 PeripheralRegisterField::bitValue(quint64 regValue) const
@@ -277,12 +363,12 @@ QVariant PeripheralRegisterFieldItem::data(int column, int role) const
                     .arg(m_fld.bitWidth);
         case PeripheralRegisterValueColumn:
             return QString("Value: %1").arg(
-                        m_fld.bitValueString(m_reg.currentValue.v));
+                        m_fld.bitValueString(m_reg.currentValue.v, PeripheralFieldFormat::ToolTip));
         }
         break;
 
     case Qt::EditRole:
-        return m_fld.bitValueString(m_reg.currentValue.v);
+        return valueToString(m_fld.bitValue(m_reg.currentValue.v), m_fld.bitWidth, m_fld.format);
 
     case Qt::TextAlignmentRole: {
         if (column == PeripheralRegisterValueColumn)
@@ -328,7 +414,7 @@ Qt::ItemFlags PeripheralRegisterFieldItem::flags(int column) const
 
 void PeripheralRegisterFieldItem::triggerChange()
 {
-    m_engine->setPeripheralRegisterValue(m_reg.address(m_group.baseAddress),
+    m_engine->setPeripheralRegisterValue(m_reg.address(m_group.baseAddress()),
                                          m_reg.currentValue.v);
 }
 
@@ -392,7 +478,7 @@ QVariant PeripheralRegisterItem::data(int column, int role) const
                     .arg(m_reg.name)
                     .arg(m_reg.description)
                     .arg(accessName(m_reg.access))
-                    .arg(m_reg.addressString(m_group.baseAddress))
+                    .arg(m_reg.addressString(m_group.baseAddress()))
                     .arg(m_reg.size);
         case PeripheralRegisterValueColumn:
             return QStringLiteral("Current value: %1\n"
@@ -444,7 +530,7 @@ Qt::ItemFlags PeripheralRegisterItem::flags(int column) const
 
 void PeripheralRegisterItem::triggerChange()
 {
-    m_engine->setPeripheralRegisterValue(m_reg.address(m_group.baseAddress),
+    m_engine->setPeripheralRegisterValue(m_reg.address(m_group.baseAddress()),
                                          m_reg.currentValue.v);
 }
 
@@ -493,6 +579,32 @@ static void handleField(QXmlStreamReader &in, PeripheralRegister &reg)
             from = int(decodeNumeric(in.readElementText()));
         } else if (elementName == QLatin1String(kMsb)) {
             to = int(decodeNumeric(in.readElementText()));
+        } else if (elementName == QLatin1String(kEnumeratedValues)) {
+            while (in.readNextStartElement()) {
+                const auto elementName = in.name();
+                if (elementName == QLatin1String(kName)) {
+                    fld.fieldEnum.name = in.readElementText();
+                } else if (elementName == QLatin1String(kEnumeratedValue)) {
+                    PeripheralFieldEnumerant enumerant;
+                    bool valueOk = false;
+                    while (in.readNextStartElement()) {
+                        const auto elementName = in.name();
+                        if (elementName == QLatin1String(kName)) {
+                            enumerant.name = in.readElementText();
+                        } else if (elementName == QLatin1String(kDescription)) {
+                            enumerant.description = in.readElementText();
+                        } else if (elementName == QLatin1String(kValue)) {
+                            enumerant.value = decodeNumeric(in.readElementText(), &valueOk);
+                        } else {
+                            in.skipCurrentElement();
+                        }
+                    }
+                    if (valueOk)
+                        fld.fieldEnum.enumerants.push_back(enumerant);
+                } else {
+                    in.skipCurrentElement();
+                }
+            }
         } else {
             in.skipCurrentElement();
         }
@@ -514,6 +626,7 @@ static void handleField(QXmlStreamReader &in, PeripheralRegister &reg)
 static void handleRegister(QXmlStreamReader &in, PeripheralRegisterGroup &group)
 {
     PeripheralRegister reg;
+    QString dimIndex;
     while (in.readNextStartElement()) {
         const auto elementName = in.name();
         if (elementName == QLatin1String(kName)) {
@@ -522,6 +635,12 @@ static void handleRegister(QXmlStreamReader &in, PeripheralRegisterGroup &group)
             reg.displayName = in.readElementText();
         } else if (elementName == QLatin1String(kDescription)) {
             reg.description = in.readElementText();
+        } else if (elementName == QLatin1String(kDim)) {
+            reg.dimensions = int(decodeNumeric(in.readElementText()));
+        } else if (elementName == QLatin1String(kDimIncrement)) {
+            reg.dimensionIncrement = int(decodeNumeric(in.readElementText()));
+        } else if (elementName == QLatin1String(kDimIndex)) {
+            dimIndex = in.readElementText();
         } else if (elementName == QLatin1String(kAddressOffset)) {
             reg.addressOffset = decodeNumeric(in.readElementText());
         } else if (elementName == QLatin1String(kSize)) {
@@ -542,51 +661,153 @@ static void handleRegister(QXmlStreamReader &in, PeripheralRegisterGroup &group)
             in.skipCurrentElement();
         }
     }
-    group.registers.push_back(reg);
+
+    if (reg.dimensions == 0) {
+        group.registers.push_back(reg);
+        return;
+    }
+
+    const QStringList indexes = dimIndexes(dimIndex, reg.instances());
+
+    auto addressOffset = reg.addressOffset;
+
+    for (auto instanceId = 0; instanceId < reg.instances(); instanceId++) {
+        PeripheralRegister instance;
+
+        instance.name = instanceName(reg.name, indexes.at(instanceId));
+        instance.displayName = reg.displayName;
+        instance.description = reg.description;
+        instance.dimensions = 0;
+        instance.dimensionIncrement = 0;
+        instance.addressOffset = addressOffset;
+        instance.size = reg.size;
+        instance.access = reg.access;
+        instance.resetValue = reg.resetValue;
+        instance.fields = reg.fields;
+
+        group.registers.push_back(instance);
+
+        addressOffset += reg.dimensionIncrement;
+    }
 }
 
-static void handleGroup(QXmlStreamReader &in, PeripheralRegisterGroups &groups)
+static bool findGroup(QStringView groupName, const PeripheralRegisterGroups &groups, PeripheralRegisterGroup *&group)
 {
-    PeripheralRegisterGroup group;
-
-    const auto fromGroupName = in.attributes().value(kDerivedFrom);
-    if (!fromGroupName.isEmpty()) {
+    if (!groupName.isEmpty())
+    {
         const auto groupEnd = groups.cend();
         const auto groupIt = std::find_if(groups.cbegin(), groupEnd,
-                                          [fromGroupName](const PeripheralRegisterGroup &group) {
-            return fromGroupName == group.name;
+                                          [groupName](const auto &group) {
+            return groupName == group->name;
         });
-        if (groupIt != groupEnd)
-            group = *groupIt;
+        if (groupIt != groupEnd) {
+            group = groupIt->get();
+            return true;
+        }
     }
+
+    return false;
+}
+
+static void handleCluster(QXmlStreamReader &in, PeripheralRegisterGroup *parentGroup)
+{
+    auto cluster = std::make_unique<PeripheralRegisterGroup>();
+    cluster->parentGroup = parentGroup;
+    cluster->name = parentGroup->name;
+    cluster->description = parentGroup->description;
+    QString dimIndex;
 
     while (in.readNextStartElement()) {
         const auto elementName = in.name();
         if (elementName == QLatin1String(kName)) {
-            group.name = in.readElementText();
+            cluster->name = in.readElementText();
         } else if (elementName == QLatin1String(kDescription)) {
-            group.description = in.readElementText();
+            cluster->description = in.readElementText();
+        } else if (elementName == QLatin1String(kDim)) {
+            cluster->dimensions = int(decodeNumeric(in.readElementText()));
+        } else if (elementName == QLatin1String(kDimIncrement)) {
+            cluster->dimensionIncrement = int(decodeNumeric(in.readElementText()));
+        } else if (elementName == QLatin1String(kDimIndex)) {
+            dimIndex = in.readElementText();
+        } else if (elementName == QLatin1String(kAddressOffset)) {
+            cluster->addressOffset = decodeNumeric(in.readElementText());
+        } else if (elementName == QLatin1String(kRegister)) {
+            handleRegister(in, *cluster);
+        } else if (elementName == QLatin1String(kCluster)) {
+            handleCluster(in, cluster.get());
+        } else {
+            in.skipCurrentElement();
+        }
+    }
+
+    if (cluster->dimensions == 0) {
+        parentGroup->clusters.push_back(std::move(cluster));
+        return;
+    }
+
+    // Explode the cluster, creating an array of clones
+
+    const QStringList indexes = dimIndexes(dimIndex, cluster->dimensions);
+
+    quint64 addressOffset = cluster->addressOffset;
+
+    for (auto instanceId = 0; instanceId < cluster->dimensions; instanceId++) {
+        auto instance = std::make_unique<PeripheralRegisterGroup>(*cluster.get());
+
+        instance->name = instanceName(cluster->name, indexes.at(instanceId));
+        instance->dimensions = 0;
+        instance->dimensionIncrement = 0;
+        instance->addressOffset = addressOffset;
+
+        addressOffset += cluster->dimensionIncrement;
+
+        parentGroup->clusters.push_back(std::move(instance));
+    }
+}
+
+static void handleGroup(QXmlStreamReader &in, PeripheralRegisterGroups &groups)
+{
+    PeripheralRegisterGroup *derivedFrom = nullptr;
+
+    const auto fromGroupName = in.attributes().value(kDerivedFrom);
+
+    auto group = findGroup(fromGroupName, groups, derivedFrom)
+            ? std::make_unique<PeripheralRegisterGroup>(*derivedFrom)
+            : std::make_unique<PeripheralRegisterGroup>();
+
+    group->parentGroup = nullptr;
+
+    while (in.readNextStartElement()) {
+        const auto elementName = in.name();
+        if (elementName == QLatin1String(kName)) {
+            group->name = in.readElementText();
+        } else if (elementName == QLatin1String(kDescription)) {
+            group->description = in.readElementText();
         } else if (elementName == QLatin1String(kGroupName)) {
-            group.displayName = in.readElementText();
+            group->displayName = in.readElementText();
         } else if (elementName == QLatin1String(kBaseAddress)) {
-            group.baseAddress = decodeNumeric(in.readElementText());
+            group->setBaseAddress(decodeNumeric(in.readElementText()));
         } else if (elementName == QLatin1String(kSize)) {
-            group.size = int(decodeNumeric(in.readElementText()));
+            group->size = int(decodeNumeric(in.readElementText()));
         } else if (elementName == QLatin1String(kAccess)) {
-            group.access = decodeAccess(in.readElementText());
+            group->access = decodeAccess(in.readElementText());
         } else if (elementName == QLatin1String(kRegisters)) {
             while (in.readNextStartElement()) {
                 const auto elementName = in.name();
-                if (elementName == QLatin1String(kRegister))
-                    handleRegister(in, group);
-                else
+                if (elementName == QLatin1String(kRegister)) {
+                    handleRegister(in, *group);
+                } else if (elementName == QLatin1String(kCluster)) {
+                    handleCluster(in, group.get());
+                } else {
                     in.skipCurrentElement();
+                }
             }
         } else {
             in.skipCurrentElement();
         }
     }
-    groups.push_back(group);
+
+    groups.push_back(std::move(group));
 }
 
 static PeripheralRegisterGroups availablePeripheralRegisterGroups(const FilePath &filePath)
@@ -698,22 +919,61 @@ QMenu *PeripheralRegisterHandler::createRegisterGroupsMenu(DebuggerState state)
 {
     const auto groupMenu = new QMenu(Tr::tr("View Groups"));
     const auto actionGroup = new QActionGroup(groupMenu);
-    bool hasActions = false;
-    for (const PeripheralRegisterGroup &group : std::as_const(m_peripheralRegisterGroups)) {
-        const QString groupName = group.name;
-        const QString actName = QStringLiteral("%1: %2").arg(groupName, group.description);
-        QAction *act = groupMenu->addAction(actName);
-        const bool on = m_engine->hasCapability(RegisterCapability)
-                && (state == InferiorStopOk || state == InferiorUnrunnable);
+    const bool on = m_engine->hasCapability(RegisterCapability)
+            && (state == InferiorStopOk || state == InferiorUnrunnable);
+    const auto addGroupAction = [this, on](QMenu *menu, QActionGroup *actions,
+                                           const QString &text, bool active,
+                                           const QString &groupName,
+                                           const QStringList &clusterPath) {
+        QAction *act = menu->addAction(text);
         act->setEnabled(on);
         act->setCheckable(true);
-        act->setChecked(group.active);
-        actionGroup->addAction(act);
-        QObject::connect(act, &QAction::triggered, this, [this, groupName](bool checked) {
+        act->setChecked(active);
+        actions->addAction(act);
+        QObject::connect(act, &QAction::triggered, this,
+                         [this, groupName, clusterPath](bool checked) {
             if (checked)
-                setActiveGroup(groupName);
+                setActiveGroup(groupName, clusterPath);
         });
+    };
+    const std::function<void(QMenu *, QActionGroup *, const PeripheralRegisterGroup &,
+                             const QString &, const QStringList &)> addClusters
+        = [&](QMenu *menu, QActionGroup *actions, const PeripheralRegisterGroup &parent,
+              const QString &groupName, const QStringList &parentPath) {
+        for (const auto &cluster : parent.clusters) {
+            const QString text = QStringLiteral("%1: %2").arg(cluster->name, cluster->description);
+            const QStringList clusterPath = parentPath + QStringList(cluster->name);
+            if (cluster->clusters.empty()) {
+                addGroupAction(menu, actions, text, cluster->active, groupName, clusterPath);
+                continue;
+            }
+            const auto subMenu = menu->addMenu(text);
+            subMenu->setStyleSheet("QMenu { menu-scrollable: 1; }");
+            if (!cluster->registers.empty()) {
+                addGroupAction(subMenu, actions, Tr::tr("%1 registers").arg(cluster->name),
+                               cluster->active, groupName, clusterPath);
+                subMenu->addSeparator();
+            }
+            addClusters(subMenu, actions, *cluster, groupName, clusterPath);
+        }
+    };
+    bool hasActions = false;
+    for (const auto &group : std::as_const(m_peripheralRegisterGroups)) {
+        const QString groupText = QStringLiteral("%1: %2").arg(group->name, group->description);
         hasActions = true;
+        if (group->clusters.empty()) {
+            addGroupAction(groupMenu, actionGroup, groupText, group->active, group->name, {});
+            continue;
+        }
+        const auto clusterMenu = groupMenu->addMenu(groupText);
+        clusterMenu->setEnabled(true);
+        clusterMenu->setStyleSheet("QMenu { menu-scrollable: 1; }");
+        if (!group->registers.empty()) {
+            addGroupAction(clusterMenu, actionGroup, Tr::tr("%1 registers").arg(group->name),
+                           group->active, group->name, {});
+            clusterMenu->addSeparator();
+        }
+        addClusters(clusterMenu, new QActionGroup(clusterMenu), *group, group->name, {});
     }
     groupMenu->setEnabled(hasActions);
     groupMenu->setStyleSheet("QMenu { menu-scrollable: 1; }");
@@ -828,41 +1088,235 @@ QMenu *PeripheralRegisterHandler::createRegisterFieldFormatMenu(
     return fmtMenu;
 }
 
-void PeripheralRegisterHandler::setActiveGroup(const QString &groupName)
+void PeripheralRegisterHandler::setActiveGroup(const QString &groupName,
+                                               const QStringList &clusterPath)
 {
     deactivateGroups();
-    const auto groupEnd = m_peripheralRegisterGroups.end();
-    const auto groupIt = std::find_if(
+    auto groupEnd = m_peripheralRegisterGroups.end();
+    auto groupIt = std::find_if(
                 m_peripheralRegisterGroups.begin(), groupEnd,
-                [groupName](const PeripheralRegisterGroup &group){
-        return group.name == groupName;
+                [groupName](const auto &group){
+        return group->name == groupName;
     });
     if (groupIt == groupEnd)
         return; // Group not found.
+
+    auto group = groupIt->get();
+    for (const QString &clusterName : clusterPath) {
+        groupEnd = group->clusters.end();
+        groupIt = std::find_if(
+                    group->clusters.begin(), groupEnd,
+                    [clusterName](const auto &cluster){
+            return cluster->name == clusterName;
+        });
+        if (groupIt == groupEnd)
+            return; // Group not found.
+        group = groupIt->get();
+    }
+
     // Set active group.
-    groupIt->active = true;
+    group->active = true;
 
     // Add all register items of active register group.
-    m_activeRegisters.reserve(groupIt->registers.count());
-    for (PeripheralRegister &reg : groupIt->registers) {
-        const auto item = new PeripheralRegisterItem(m_engine, *groupIt, reg);
+    m_activeRegisters.reserve(group->registers.count());
+    for (PeripheralRegister &reg : group->registers) {
+        const auto item = new PeripheralRegisterItem(m_engine, *group, reg);
         rootItem()->appendChild(item);
 
-        const quint64 address = reg.address(groupIt->baseAddress);
+        const quint64 address = reg.address(group->baseAddress());
         m_activeRegisters.insert(address, item);
     }
 
     m_engine->reloadPeripheralRegisters();
 }
 
+static void deactivateGroup(PeripheralRegisterGroup &group)
+{
+    group.active = false;
+    for (auto &cluster : group.clusters)
+        deactivateGroup(*cluster);
+}
+
 void PeripheralRegisterHandler::deactivateGroups()
 {
     clear();
 
-    for (PeripheralRegisterGroup &group : m_peripheralRegisterGroups)
-        group.active = false;
+    for (auto &group : m_peripheralRegisterGroups)
+        deactivateGroup(*group);
 
     m_activeRegisters.clear();
 }
 
-} // Debugger::Internal
+quint64 PeripheralRegisterGroup::baseAddress() const
+{
+    auto address = parentGroup && parentGroup->baseAddress() > 0
+        ? parentGroup->baseAddress()
+        : m_baseAddress;
+
+    return address + addressOffset;
+}
+
+void PeripheralRegisterGroup::setBaseAddress(quint64 address)
+{
+    m_baseAddress = address;
+}
+
+PeripheralRegisterGroup::PeripheralRegisterGroup(const PeripheralRegisterGroup &other)
+    : name(other.name),
+      displayName(other.displayName),
+      description(other.description),
+      addressOffset(other.addressOffset),
+      dimensions(other.dimensions),
+      dimensionIncrement(other.dimensionIncrement),
+      size(other.size),
+      access(other.access),
+      active(other.active),
+      parentGroup(other.parentGroup),
+      registers(other.registers),
+      m_baseAddress(other.m_baseAddress)
+{
+    for (auto &cluster : other.clusters) {
+        clusters.push_back(std::make_unique<PeripheralRegisterGroup>(*cluster));
+        clusters.back()->parentGroup = this;
+    }
+}
+
+#ifdef WITH_TESTS
+
+class PeripheralRegisterTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void testDimIndex();
+    void testEnumeratedValues();
+    void testFieldEditValue();
+    void testClusterArray();
+    void testNestedCluster();
+    void testDerivedFrom();
+
+private:
+    PeripheralRegisterGroups m_groups;
+};
+
+void PeripheralRegisterTest::initTestCase()
+{
+    QTemporaryFile file;
+    QVERIFY(file.open());
+    file.write(R"(<device><peripherals><peripheral>
+<name>P</name><baseAddress>0x40000000</baseAddress>
+<registers>
+  <register><name>GPIO%s</name><addressOffset>0x10</addressOffset><size>32</size>
+    <dim>3</dim><dimIncrement>4</dimIncrement><dimIndex>A,B,C</dimIndex></register>
+  <register><name>R</name><addressOffset>0</addressOffset><size>32</size>
+    <access>read-write</access>
+    <fields><field><name>F</name><bitOffset>0</bitOffset><bitWidth>2</bitWidth>
+      <enumeratedValues>
+        <enumeratedValue><name>ONE</name><value>#01</value></enumeratedValue>
+        <enumeratedValue><name>TWO</name><value>0b10</value></enumeratedValue>
+        <enumeratedValue><name>ANY</name><value>#1x</value></enumeratedValue>
+      </enumeratedValues>
+    </field></fields>
+  </register>
+  <register><name>DATA[%s]</name><addressOffset>0x20</addressOffset><size>32</size>
+    <dim>1</dim><dimIncrement>4</dimIncrement></register>
+  <register><name>BIG%s</name><addressOffset>0x30</addressOffset><size>32</size>
+    <dim>2</dim><dimIncrement>4</dimIncrement><dimIndex>0-2147483647</dimIndex></register>
+  <register><name>TOP%s</name><addressOffset>0x40</addressOffset><size>32</size>
+    <dim>2</dim><dimIncrement>4</dimIncrement><dimIndex>2147483646-2147483647</dimIndex></register>
+  <cluster><name>CH[%s]</name><addressOffset>0x100</addressOffset>
+    <dim>2</dim><dimIncrement>0x20</dimIncrement>
+    <register><name>CTRL</name><addressOffset>0x4</addressOffset><size>32</size></register>
+    <cluster><name>CC[%s]</name><addressOffset>0x10</addressOffset>
+      <dim>2</dim><dimIncrement>4</dimIncrement>
+      <register><name>VAL</name><addressOffset>0</addressOffset><size>32</size></register>
+    </cluster>
+  </cluster>
+</registers>
+</peripheral>
+<peripheral derivedFrom="P"><name>Q</name><baseAddress>0x50000000</baseAddress></peripheral>
+</peripherals></device>)");
+    file.close();
+
+    m_groups = availablePeripheralRegisterGroups(FilePath::fromString(file.fileName()));
+    QCOMPARE(m_groups.size(), size_t(2));
+    QCOMPARE(m_groups.front()->registers.size(), qsizetype(9));
+}
+
+void PeripheralRegisterTest::testDimIndex()
+{
+    const PeripheralRegisterGroup &group = *m_groups.front();
+    QCOMPARE(group.registers.at(0).name, QString("GPIOA"));
+    QCOMPARE(group.registers.at(2).name, QString("GPIOC"));
+    QCOMPARE(group.registers.at(2).address(group.baseAddress()), quint64(0x40000018));
+    QCOMPARE(group.registers.at(4).name, QString("DATA[0]"));
+    QCOMPARE(group.registers.at(6).name, QString("BIG1"));
+    QCOMPARE(group.registers.at(7).name, QString("TOP2147483646"));
+    QCOMPARE(group.registers.at(8).name, QString("TOP2147483647"));
+}
+
+void PeripheralRegisterTest::testEnumeratedValues()
+{
+    const PeripheralFieldEnum &fieldEnum = m_groups.front()->registers.at(3).fields.at(0).fieldEnum;
+    QCOMPARE(fieldEnum.enumerants.size(), qsizetype(2));
+    QCOMPARE(fieldEnum.enumerant(1).first, QString("ONE"));
+    QCOMPARE(fieldEnum.enumerant(2).first, QString("TWO"));
+}
+
+void PeripheralRegisterTest::testFieldEditValue()
+{
+    const PeripheralRegisterGroup &group = *m_groups.front();
+    PeripheralRegister reg = group.registers.at(3);
+    PeripheralRegisterField &fld = reg.fields[0];
+    fld.fieldEnum.enumerants = {{"ONE", {}, 1}};
+    reg.currentValue = 1;
+    const PeripheralRegisterFieldItem item(nullptr, group, reg, fld);
+    QCOMPARE(item.data(PeripheralRegisterValueColumn, Qt::DisplayRole).toString(),
+             QString("0x1: ONE"));
+    QCOMPARE(item.data(PeripheralRegisterValueColumn, Qt::EditRole).toString(), QString("0x1"));
+}
+
+void PeripheralRegisterTest::testClusterArray()
+{
+    const PeripheralRegisterGroup &group = *m_groups.front();
+    QCOMPARE(group.clusters.size(), size_t(2));
+    const PeripheralRegisterGroup &ch1 = *group.clusters.at(1);
+    QCOMPARE(ch1.name, QString("CH[1]"));
+    QCOMPARE(ch1.registers.at(0).address(ch1.baseAddress()), quint64(0x40000124));
+}
+
+void PeripheralRegisterTest::testNestedCluster()
+{
+    const PeripheralRegisterGroup &ch1 = *m_groups.front()->clusters.at(1);
+    QCOMPARE(ch1.clusters.size(), size_t(2));
+    const PeripheralRegisterGroup &cc1 = *ch1.clusters.at(1);
+    QCOMPARE(cc1.name, QString("CC[1]"));
+    QCOMPARE(cc1.parentGroup, &ch1);
+    QCOMPARE(cc1.registers.at(0).address(cc1.baseAddress()), quint64(0x40000134));
+}
+
+void PeripheralRegisterTest::testDerivedFrom()
+{
+    const PeripheralRegisterGroup &q = *m_groups.at(1);
+    QCOMPARE(q.name, QString("Q"));
+    const PeripheralRegisterGroup &qch1 = *q.clusters.at(1);
+    QCOMPARE(qch1.parentGroup, &q);
+    QCOMPARE(qch1.registers.at(0).address(qch1.baseAddress()), quint64(0x50000124));
+    const PeripheralRegisterGroup &qcc1 = *qch1.clusters.at(1);
+    QCOMPARE(qcc1.parentGroup, &qch1);
+    QCOMPARE(qcc1.registers.at(0).address(qcc1.baseAddress()), quint64(0x50000134));
+}
+
+QObject *createPeripheralRegisterTest()
+{
+    return new PeripheralRegisterTest;
+}
+
+#endif // WITH_TESTS
+
+} // namespace Debugger::Internal
+
+#ifdef WITH_TESTS
+#include "peripheralregisterhandler.moc"
+#endif
