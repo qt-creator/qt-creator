@@ -30,7 +30,7 @@ SOURCES += \
     $$PWD/directoryfilter.cpp \
     $$PWD/locatormanager.cpp \
     $$PWD/basefilefilter.cpp \
-    $$PWD/spotlightlocatorfilter.cpp
+    $$PWD/spotlightlocatorfilter.cpp \
     $$PWD/ilocatorfilter.cpp \
     $$PWD/executefilter.cpp \
     $$PWD/locatorsearchutils.cpp \
