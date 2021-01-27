@@ -98,6 +98,7 @@ void DirectoryFilter::restoreState(const QByteArray &state)
     setShortcutString(shortcut);
     setIncludedByDefault(defaultFilter);
 
+    locker.unlock();
     updateFileIterator();
 }
 
@@ -138,6 +139,8 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
             &DirectoryFilter::updateOptionButtons,
             Qt::DirectConnection);
     m_ui->directoryList->clear();
+    // Note: assuming we only change m_directories in the Gui thread,
+    // we don't need to protect it here with mutex
     m_ui->directoryList->addItems(m_directories);
     m_ui->nameLabel->setVisible(m_isCustomFilter);
     m_ui->nameEdit->setVisible(m_isCustomFilter);
@@ -149,10 +152,14 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     m_ui->filePatternLabel->setText(Utils::msgFilePatternLabel());
     m_ui->filePatternLabel->setBuddy(m_ui->filePattern);
     m_ui->filePattern->setToolTip(Utils::msgFilePatternToolTip());
+    // Note: assuming we only change m_filters in the Gui thread,
+    // we don't need to protect it here with mutex
     m_ui->filePattern->setText(Utils::transform(m_filters, &QDir::toNativeSeparators).join(','));
     m_ui->exclusionPatternLabel->setText(Utils::msgExclusionPatternLabel());
     m_ui->exclusionPatternLabel->setBuddy(m_ui->exclusionPattern);
     m_ui->exclusionPattern->setToolTip(Utils::msgFilePatternToolTip());
+    // Note: assuming we only change m_exclusionFilters in the Gui thread,
+    // we don't need to protect it here with mutex
     m_ui->exclusionPattern->setText(
         Utils::transform(m_exclusionFilters, &QDir::toNativeSeparators).join(','));
     m_ui->shortcutEdit->setText(shortcutString());
@@ -222,12 +229,13 @@ void DirectoryFilter::updateOptionButtons()
 
 void DirectoryFilter::updateFileIterator()
 {
+    QMutexLocker locker(&m_lock);
     setFileIterator(new BaseFileFilter::ListIterator(m_files));
 }
 
 void DirectoryFilter::refresh(QFutureInterface<void> &future)
 {
-    QStringList directories;
+    QStringList directories, filters, exclusionFilters;
     {
         QMutexLocker locker(&m_lock);
         if (m_directories.isEmpty()) {
@@ -238,8 +246,10 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
             return;
         }
         directories = m_directories;
+        filters = m_filters;
+        exclusionFilters = m_exclusionFilters;
     }
-    Utils::SubDirFileIterator subDirIterator(directories, m_filters, m_exclusionFilters);
+    Utils::SubDirFileIterator subDirIterator(directories, filters, exclusionFilters);
     future.setProgressRange(0, subDirIterator.maxProgress());
     Utils::FilePaths filesFound;
     auto end = subDirIterator.end();
@@ -273,7 +283,10 @@ void DirectoryFilter::setDirectories(const QStringList &directories)
 {
     if (directories == m_directories)
         return;
-    m_directories = directories;
+    {
+        QMutexLocker locker(&m_lock);
+        m_directories = directories;
+    }
     Internal::Locator::instance()->refresh({this});
 }
 
@@ -296,11 +309,13 @@ QStringList DirectoryFilter::directories() const
 
 void DirectoryFilter::setFilters(const QStringList &filters)
 {
+    QMutexLocker locker(&m_lock);
     m_filters = filters;
 }
 
 void DirectoryFilter::setExclusionFilters(const QStringList &exclusionFilters)
 {
+    QMutexLocker locker(&m_lock);
     m_exclusionFilters = exclusionFilters;
 }
 
