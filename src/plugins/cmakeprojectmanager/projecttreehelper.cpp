@@ -43,6 +43,8 @@ std::unique_ptr<FolderNode> createCMakeVFolder(const Utils::FilePath &basePath,
     auto newFolder = std::make_unique<VirtualFolderNode>(basePath);
     newFolder->setPriority(priority);
     newFolder->setDisplayName(displayName);
+    newFolder->setIsSourcesOrHeaders(displayName == "Source Files"
+                                  || displayName == "Header Files");
     return newFolder;
 }
 

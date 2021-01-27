@@ -179,6 +179,7 @@ static void createTree(QmakeBuildSystem *buildSystem,
             vfolder->setIcon(fileTypes.at(i).icon);
             vfolder->setDisplayName(fileTypes.at(i).typeName);
             vfolder->setAddFileFilter(fileTypes.at(i).addFileFilter);
+            vfolder->setIsSourcesOrHeaders(type == FileType::Source || type == FileType::Header);
 
             if (type == FileType::Resource) {
                 for (const auto &file : newFilePaths) {

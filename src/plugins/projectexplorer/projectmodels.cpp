@@ -399,7 +399,14 @@ void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<
         if (m_filterDisabledFiles && !node->isEnabled())
             continue;
         if (FolderNode *subFolderNode = node->asFolderNode()) {
-            const bool isHidden = m_filterProjects && !subFolderNode->showInSimpleTree();
+            bool isHidden = m_filterProjects && !subFolderNode->showInSimpleTree();
+            if (!m_showSourceGroups) {
+                if (subFolderNode->isVirtualFolderType()) {
+                    auto vnode = static_cast<VirtualFolderNode *>(subFolderNode);
+                    if (vnode->isSourcesOrHeaders())
+                        isHidden = true;
+                }
+            }
             if (!isHidden && !seen->contains(subFolderNode)) {
                 seen->insert(subFolderNode);
                 auto node = new WrapperNode(subFolderNode);
@@ -797,6 +804,14 @@ void FlatModel::setTrimEmptyDirectories(bool filter)
     if (filter == m_trimEmptyDirectories)
         return;
     m_trimEmptyDirectories = filter;
+    rebuildModel();
+}
+
+void FlatModel::setShowSourceGroups(bool filter)
+{
+    if (filter == m_showSourceGroups)
+        return;
+    m_showSourceGroups = filter;
     rebuildModel();
 }
 

@@ -356,6 +356,12 @@ public:
 
     bool isFolderNodeType() const override { return false; }
     bool isVirtualFolderType() const override { return true; }
+
+    bool isSourcesOrHeaders() const { return m_isSourcesOrHeaders; }
+    void setIsSourcesOrHeaders(bool on) { m_isSourcesOrHeaders = on; }
+
+private:
+    bool m_isSourcesOrHeaders; // "Sources" or "Headers"
 };
 
 // Documentation inside.
