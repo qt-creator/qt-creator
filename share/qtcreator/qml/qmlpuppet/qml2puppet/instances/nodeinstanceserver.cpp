@@ -1343,6 +1343,8 @@ void NodeInstanceServer::loadDummyContextObjectFile(const QFileInfo& qmlFileInfo
 
 void NodeInstanceServer::setTranslationLanguage(const QString &language)
 {
+    // if there exists an /i18n directory it sets default translators
+    engine()->setUiLanguage(language);
     static QPointer<MultiLanguage::Translator> multilanguageTranslator;
     if (!MultiLanguage::databaseFilePath().isEmpty()) {
         if (!multilanguageLink) {
