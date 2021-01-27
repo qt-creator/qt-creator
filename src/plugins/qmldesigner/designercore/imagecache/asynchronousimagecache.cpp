@@ -158,8 +158,8 @@ std::tuple<bool, AsynchronousImageCache::Entry> AsynchronousImageCache::getEntry
     if (m_entries.empty())
         return {false, Entry{}};
 
-    Entry entry = m_entries.back();
-    m_entries.pop_back();
+    Entry entry = m_entries.front();
+    m_entries.pop_front();
 
     return {true, entry};
 }

@@ -28,6 +28,7 @@
 #include "asynchronousimagecacheinterface.h"
 
 #include <condition_variable>
+#include <deque>
 #include <functional>
 #include <mutex>
 #include <thread>
@@ -117,7 +118,7 @@ private:
     void wait();
 
 private:
-    std::vector<Entry> m_entries;
+    std::deque<Entry> m_entries;
     mutable std::mutex m_mutex;
     std::condition_variable m_condition;
     std::thread m_backgroundThread;
