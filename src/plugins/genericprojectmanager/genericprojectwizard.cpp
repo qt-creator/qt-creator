@@ -116,7 +116,7 @@ GenericProjectWizard::GenericProjectWizard()
     setIcon(ProjectExplorer::Icons::WIZARD_IMPORT_AS_PROJECT.icon());
     setDisplayName(tr("Import Existing Project"));
     setId("Z.Makefile");
-    setDescription(tr("Imports existing projects that do not use qmake, CMake or Autotools. "
+    setDescription(tr("Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools. "
                       "This allows you to use %1 as a code editor.")
                    .arg(Core::Constants::IDE_DISPLAY_NAME));
     setCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY));

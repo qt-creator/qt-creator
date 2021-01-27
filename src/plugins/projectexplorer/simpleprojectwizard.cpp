@@ -172,7 +172,7 @@ SimpleProjectWizard::SimpleProjectWizard()
     setIcon(QIcon(QLatin1String(":/projectexplorer/images/importasproject.png")));
     setDisplayName(tr("Import as qmake or cmake Project (Limited Functionality)"));
     setId("Z.DummyProFile");
-    setDescription(tr("Imports existing projects that do not use qmake, CMake or Autotools.<p>"
+    setDescription(tr("Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools.<p>"
                       "This creates a project file that allows you to use %1 as a code editor "
                       "and as a launcher for debugging and analyzing tools. "
                       "If you want to build the project, you might need to edit the generated project file.")
