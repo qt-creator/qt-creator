@@ -3,7 +3,7 @@ name: CMake Build Matrix
 on: [push, pull_request]
 
 env:
-  QT_VERSION: 5.15.1
+  QT_VERSION: 5.15.2
   CLANG_VERSION: 110
   ELFUTILS_VERSION: 0.175
   CMAKE_VERSION: 3.18.3
@@ -132,7 +132,7 @@ jobs:
         foreach(qt_mirror $ENV{QT_MIRRORS})
           cmake_language(EVAL CODE "
             message(\"Downloading: ${qt_base_url}/Updates.xml\")
-            file(DOWNLOAD \"${qt_base_url}/Updates.xml\" ./Updates.xml TIMEOUT 60)
+            file(DOWNLOAD \"${qt_base_url}/Updates.xml\" ./Updates.xml)
           ")
           file(SIZE ./Updates.xml fileSize)
           if (fileSize GREATER 0)
@@ -154,7 +154,7 @@ jobs:
           foreach(qt_mirror $ENV{QT_MIRRORS})
             cmake_language(EVAL CODE "
               message(\"Downloading ${url}\")
-              file(DOWNLOAD \"${url}\" ./${archive} TIMEOUT 60)
+              file(DOWNLOAD \"${url}\" ./${archive})
             ")
             file(SIZE ./${archive} fileSize)
             if (fileSize GREATER 0)
@@ -234,7 +234,7 @@ jobs:
         foreach(qt_mirror $ENV{QT_MIRRORS})
           cmake_language(EVAL CODE "
             message(\"Downloading ${openssl_base_url}/Updates.xml}\")
-            file(DOWNLOAD \"${openssl_base_url}/Updates.xml\" ./Updates.xml TIMEOUT 60)
+            file(DOWNLOAD \"${openssl_base_url}/Updates.xml\" ./Updates.xml)
           ")
           file(SIZE ./Updates.xml fileSize)
           if (fileSize GREATER 0)
@@ -258,7 +258,7 @@ jobs:
         foreach(qt_mirror $ENV{QT_MIRRORS})
           cmake_language(EVAL CODE "
             message(\"Downloading ${url}\")
-            file(DOWNLOAD \"${url}\" ./openssl.7z TIMEOUT 60)
+            file(DOWNLOAD \"${url}\" ./openssl.7z)
           ")
           file(SIZE ./openssl.7z fileSize)
           if (fileSize GREATER 0)
@@ -295,7 +295,7 @@ jobs:
         foreach(qt_mirror $ENV{QT_MIRRORS})
           cmake_language(EVAL CODE "
             message(\"Downloading ${libclang_url}\")
-            file(DOWNLOAD \"${libclang_url}\" ./libclang.7z TIMEOUT 240)
+            file(DOWNLOAD \"${libclang_url}\" ./libclang.7z)
           ")
           file(SIZE ./libclang.7z fileSize)
           if (fileSize GREATER 0)
@@ -332,7 +332,7 @@ jobs:
         foreach(qt_mirror $ENV{QT_MIRRORS})
           cmake_language(EVAL CODE "
             message(\"Downloading ${elfutils_url}\")
-            file(DOWNLOAD \"${elfutils_url}\" ./elfutils.7z TIMEOUT 60)
+            file(DOWNLOAD \"${elfutils_url}\" ./elfutils.7z)
           ")
           file(SIZE ./elfutils.7z fileSize)
           if (fileSize GREATER 0)

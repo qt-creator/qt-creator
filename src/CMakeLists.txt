@@ -39,6 +39,16 @@ file(WRITE ${CMAKE_BINARY_DIR}/cmake/QtCreatorConfig.cmake "
 \# add module path for special FindQt5.cmake that considers Qt6 too
 list(APPEND CMAKE_MODULE_PATH \${CMAKE_CURRENT_LIST_DIR})
 
+\# force plugins to same path naming conventions as Qt Creator
+\# otherwise plugins will not be found
+if(UNIX AND NOT APPLE)
+  include(GNUInstallDirs)
+  set(CMAKE_INSTALL_BINDIR ${CMAKE_INSTALL_BINDIR})
+  set(CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
+  set(CMAKE_INSTALL_LIBEXECDIR ${CMAKE_INSTALL_LIBEXECDIR})
+  set(CMAKE_INSTALL_DATAROOTDIR ${CMAKE_INSTALL_DATAROOTDIR})
+endif()
+
 include(CMakeFindDependencyMacro)
 find_dependency(Qt5 ${IDE_QT_VERSION_MIN}
   COMPONENTS Concurrent Core Gui Widgets Core5Compat Network PrintSupport Qml Quick QuickWidgets Sql REQUIRED

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -76,6 +76,35 @@
     \uicontrol Properties view. There, you can also enter the value
     of the \uicontrol Rotation property in degrees.
 
+    \section1 Zooming
+
+    You can use the zoom buttons on the toolbar to zoom into and out of
+    \uicontrol {Form Editor} or select the zoom level as a percentage
+    from a list. More buttons are availabe for zooming to fit all content
+    in the view or zooming to fit the currently selected components.
+
+    \image qmldesigner-zooming.gif "Zooming in Form Editor"
+
+    The following table lists the zoom buttons:
+
+    \table
+    \header
+        \li Icon
+        \li Tooltip
+    \row
+        \li \inlineimage icons/zoomIn.png
+        \li Zoom in
+    \row
+        \li \inlineimage icons/zoomOut.png
+        \li Zoom out
+    \row
+        \li \inlineimage icons/zoomAll.png
+        \li Zoom to fit all content
+    \row
+        \li \inlineimage icons/zoomSelection.png
+        \li Zoom to fit the current selection
+    \endtable
+
     \section1 Snapping to Parent and Sibling Items
 
     When you are working on a design, you can use snapping to align
@@ -135,6 +164,17 @@
     To change the canvas size, select \uicontrol Tools > \uicontrol Options >
     \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer} and
     specify the canvas width and height in the \uicontrol Canvas group.
+
+    \section1 Setting Canvas Color
+
+    If you set the background of the root item of your component transparent,
+    the canvas color can make it difficult to see the component you are working
+    on. To make components more visible, you can select the canvas color in
+    the \inlineimage icons/canvas-color.png
+    list. By default, the color is transparent. Setting the canvas color does
+    not affect the background color of your UI or components in any way.
+
+    \image qmldesigner-canvas-color.png "Transparent canvas color for a transparent component"
 
     \section1 Refreshing the Form Editor Contents
 

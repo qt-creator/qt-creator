@@ -139,14 +139,16 @@ QList<AssistProposalItemInterface *> ClangCompletionAssistProcessor::toAssistPro
         considerOnlySignals = CppTools::CppModelManager::instance()
                 ->positionRequiresSignal(m_interface->filePath().toString(), m_content, m_position);
     }
-
     for (const CodeCompletion &codeCompletion : completions) {
-        if (considerOnlySignals && codeCompletion.completionKind
-                != CodeCompletion::SignalCompletionKind) {
-            continue;
-        }
         if (codeCompletion.text.isEmpty())
             continue; // It's an OverloadCandidate which has text but no typedText.
+
+        if (considerOnlySignals
+                && codeCompletion.completionKind != CodeCompletion::ClassCompletionKind
+                && codeCompletion.completionKind != CodeCompletion::NamespaceCompletionKind
+                && codeCompletion.completionKind != CodeCompletion::SignalCompletionKind) {
+                continue;
+        }
 
         // Don't offer symbols that are not accessible here.
         if (codeCompletion.availability == CodeCompletion::NotAvailable

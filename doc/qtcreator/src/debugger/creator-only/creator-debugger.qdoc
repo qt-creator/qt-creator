@@ -1230,7 +1230,7 @@
         \li \c{bitsize(self)} - Returns the size of an object of this type in
             bits.
 
-        \li \c{(alignment(self)} - Returns the required alignment for objects of
+        \li \c{alignment(self)} - Returns the required alignment for objects of
             this type in bytes.
 
         \li \c{deference(self)} - Returns the dereferences type for pointer
@@ -1319,8 +1319,8 @@
         \li \c{pointer(self)} - Returns an interpretation of this value as a
             pointer in the current address space.
 
-        \li \c{members(self)} - Returns a list of \c{Dumper.Value} objects
-            representing the base objects and data members of this value.
+        \li \c{members(self, includeBases)} - Returns a list of \c{Dumper.Value}
+            objects representing the base objects and data members of this value.
 
         \li \c{dereference(self)} - For values describing pointers, returns the
             dereferenced value, and \c None otherwise.
