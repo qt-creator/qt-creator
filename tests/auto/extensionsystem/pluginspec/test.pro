@@ -24,3 +24,4 @@ include(../../qttest.pri)
 
 DEFINES += "PLUGINSPEC_DIR=\\\"$$PWD\\\""
 DEFINES += "PLUGIN_DIR=\\\"$$OUT_PWD\\\""
+DEFINES += "DLL_INFIX=\\\"d$$section(QTCREATOR_VERSION, ., 0, 0)\\\""

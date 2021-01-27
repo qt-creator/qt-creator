@@ -60,7 +60,7 @@ static QString libraryName(const QString &basename)
 #elif defined(Q_OS_UNIX)
     return QLatin1String("lib") + basename + QLatin1String(".so");
 #else
-    return basename + QLatin1String("d4.dll");
+    return basename + QLatin1String(DLL_INFIX ".dll");
 #endif
 }
 

@@ -9,7 +9,8 @@ QtcAutotest {
         files: "tst_pluginspec.cpp"
         cpp.defines: outer.concat([
             'PLUGIN_DIR="' + destinationDirectory + '"',
-            'PLUGINSPEC_DIR="' + sourceDirectory + '"'
+            'PLUGINSPEC_DIR="' + sourceDirectory + '"',
+            'DLL_INFIX=""'
         ])
     }
 
