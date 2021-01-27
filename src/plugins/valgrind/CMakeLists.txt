@@ -57,7 +57,7 @@ extend_qtc_plugin(Valgrind
     valgrindtestrunnertest.cpp valgrindtestrunnertest.h
   DEFINES
     PARSERTESTS_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/unit_testdata"
-    VALGRIND_FAKE_PATH="${PROJECT_SOURCE_DIR}/src/tools/valgrindfake"
+    VALGRIND_FAKE_PATH="${PROJECT_BINARY_DIR}/src/tools/valgrindfake"
     TESTRUNNER_SRC_DIR="${PROJECT_SOURCE_DIR}/tests/auto/valgrind/memcheck/testapps"
     TESTRUNNER_APP_DIR="${PROJECT_BINARY_DIR}/tests/auto/valgrind/memcheck/testapps"
 )
