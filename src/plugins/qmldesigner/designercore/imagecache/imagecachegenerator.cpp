@@ -56,22 +56,47 @@ void ImageCacheGenerator::generateImage(Utils::SmallStringView name,
 {
     {
         std::lock_guard lock{m_mutex};
-        m_tasks.emplace_back(name,
-                             extraId,
-                             std::move(auxiliaryData),
-                             timeStamp,
-                             std::move(captureCallback),
-                             std::move(abortCallback));
+
+        auto found = std::find_if(m_tasks.begin(), m_tasks.end(), [&](const Task &task) {
+            return task.filePath == name && task.extraId == extraId;
+        });
+
+        if (found != m_tasks.end()) {
+            found->timeStamp = timeStamp;
+            found->captureCallbacks.push_back(std::move(captureCallback));
+            found->abortCallbacks.push_back(std::move(abortCallback));
+        } else {
+            m_tasks.emplace_back(name,
+                                 extraId,
+                                 std::move(auxiliaryData),
+                                 timeStamp,
+                                 std::move(captureCallback),
+                                 std::move(abortCallback));
+        }
     }
 
     m_condition.notify_all();
 }
 
+namespace {
+Utils::PathString createId(Utils::SmallStringView name, Utils::SmallStringView extraId)
+{
+    return extraId.empty() ? Utils::PathString{name} : Utils::PathString{name, "+", extraId};
+}
+template<typename Callbacks, typename... Argument>
+void callCallbacks(const Callbacks &callbacks, Argument &&...arguments)
+{
+    for (auto &&callback : callbacks)
+        callback(std::forward<Argument>(arguments)...);
+}
+
+} // namespace
+
 void ImageCacheGenerator::clean()
 {
     std::lock_guard lock{m_mutex};
     for (Task &task : m_tasks)
-        task.abortCallback();
+        callCallbacks(task.abortCallbacks);
     m_tasks.clear();
 }
 
@@ -83,12 +108,6 @@ void ImageCacheGenerator::waitForFinished()
     if (m_backgroundThread)
         m_backgroundThread->wait();
 }
-namespace {
-Utils::PathString createId(Utils::SmallStringView name, Utils::SmallStringView extraId)
-{
-    return extraId.empty() ? Utils::PathString{name} : Utils::PathString{name, "+", extraId};
-}
-} // namespace
 
 void ImageCacheGenerator::startGeneration()
 {
@@ -105,9 +124,9 @@ void ImageCacheGenerator::startGeneration()
                 return;
             }
 
-            task = std::move(m_tasks.back());
+            task = std::move(m_tasks.front());
 
-            m_tasks.pop_back();
+            m_tasks.pop_front();
         }
 
         m_collector.start(
@@ -116,9 +135,9 @@ void ImageCacheGenerator::startGeneration()
             std::move(task.auxiliaryData),
             [this, task](QImage &&image, QImage &&smallImage) {
                 if (image.isNull())
-                    task.abortCallback();
+                    callCallbacks(task.abortCallbacks);
                 else
-                    task.captureCallback(image, smallImage);
+                    callCallbacks(task.captureCallbacks, image, smallImage);
 
                 m_storage.storeImage(createId(task.filePath, task.extraId),
                                      task.timeStamp,
@@ -126,7 +145,7 @@ void ImageCacheGenerator::startGeneration()
                                      smallImage);
             },
             [this, task] {
-                task.abortCallback();
+                callCallbacks(task.abortCallbacks);
                 m_storage.storeImage(createId(task.filePath, task.extraId), task.timeStamp, {}, {});
             });
 

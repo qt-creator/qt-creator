@@ -78,11 +78,11 @@ TEST_F(ImageCacheGenerator, CallsCollectorWithCaptureCallback)
 
 TEST_F(ImageCacheGenerator, CallsCollectorOnlyIfNotProcessing)
 {
-    EXPECT_CALL(collectorMock, start(Eq("name"), _, _, _, _))
+    EXPECT_CALL(collectorMock, start(AnyOf(Eq("name"), Eq("name2")), _, _, _, _))
         .WillRepeatedly([&](auto, auto, auto, auto, auto) { notification.notify(); });
 
     generator.generateImage("name", {}, {}, imageCallbackMock.AsStdFunction(), {}, {});
-    generator.generateImage("name", {}, {}, imageCallbackMock.AsStdFunction(), {}, {});
+    generator.generateImage("name2", {}, {}, imageCallbackMock.AsStdFunction(), {}, {});
     notification.wait(2);
 }
 
@@ -317,6 +317,136 @@ TEST_F(ImageCacheGenerator, CallsCollectorWithAuxiliaryData)
                             imageCallbackMock.AsStdFunction(),
                             {},
                             FontCollectorSizesAuxiliaryData{sizes, "color"});
+    notification.wait();
+}
+
+TEST_F(ImageCacheGenerator, MergeTasks)
+{
+    EXPECT_CALL(collectorMock, start(Eq("waitDummy"), _, _, _, _))
+        .WillRepeatedly([&](auto, auto, auto, auto, auto) { waitInThread.wait(); });
+    EXPECT_CALL(collectorMock, start(Eq("notificationDummy"), _, _, _, _))
+        .WillRepeatedly([&](auto, auto, auto, auto, auto) { notification.notify(); });
+
+    EXPECT_CALL(collectorMock, start(Eq("name"), _, _, _, _));
+
+    generator.generateImage("waitDummy", {}, {}, {}, {}, {});
+    generator.generateImage("name", {}, {}, {}, {}, {});
+    generator.generateImage("name", {}, {}, {}, {}, {});
+    generator.generateImage("notificationDummy", {}, {}, {}, {}, {});
+    waitInThread.notify();
+    notification.wait();
+}
+
+TEST_F(ImageCacheGenerator, DontMergeTasksWithDifferentId)
+{
+    EXPECT_CALL(collectorMock, start(Eq("waitDummy"), _, _, _, _))
+        .WillRepeatedly([&](auto, auto, auto, auto, auto) { waitInThread.wait(); });
+
+    EXPECT_CALL(collectorMock, start(Eq("name"), _, _, _, _))
+        .WillRepeatedly([&](auto, auto, auto, auto, auto) { notification.notify(); });
+    EXPECT_CALL(collectorMock, start(Eq("name2"), _, _, _, _))
+        .WillRepeatedly([&](auto, auto, auto, auto, auto) { notification.notify(); });
+
+    generator.generateImage("waitDummy", {}, {}, {}, {}, {});
+    generator.generateImage("name", {}, {}, {}, {}, {});
+    generator.generateImage("name2", {}, {}, {}, {}, {});
+    waitInThread.notify();
+    notification.wait(2);
+}
+
+TEST_F(ImageCacheGenerator, MergeTasksWithSameExtraId)
+{
+    EXPECT_CALL(collectorMock, start(Eq("waitDummy"), _, _, _, _))
+        .WillRepeatedly([&](auto, auto, auto, auto, auto) { waitInThread.wait(); });
+    EXPECT_CALL(collectorMock, start(Eq("notificationDummy"), _, _, _, _))
+        .WillRepeatedly([&](auto, auto, auto, auto, auto) { notification.notify(); });
+
+    EXPECT_CALL(collectorMock, start(Eq("name"), _, _, _, _));
+
+    generator.generateImage("waitDummy", {}, {}, {}, {}, {});
+    generator.generateImage("name", "id1", {}, {}, {}, {});
+    generator.generateImage("name", "id1", {}, {}, {}, {});
+    waitInThread.notify();
+    generator.generateImage("notificationDummy", {}, {}, {}, {}, {});
+    notification.wait();
+}
+
+TEST_F(ImageCacheGenerator, DontMergeTasksWithDifferentExtraId)
+{
+    EXPECT_CALL(collectorMock, start(Eq("waitDummy"), _, _, _, _))
+        .WillRepeatedly([&](auto, auto, auto, auto, auto) { waitInThread.wait(); });
+
+    EXPECT_CALL(collectorMock, start(Eq("name"), _, _, _, _))
+        .Times(2)
+        .WillRepeatedly([&](auto, auto, auto, auto, auto) { notification.notify(); });
+
+    generator.generateImage("waitDummy", {}, {}, {}, {}, {});
+    generator.generateImage("name", "id1", {}, {}, {}, {});
+    generator.generateImage("name", "id2", {}, {}, {}, {});
+    waitInThread.notify();
+    notification.wait(2);
+}
+
+TEST_F(ImageCacheGenerator, UseLastTimeStampIfTasksAreMerged)
+{
+    ON_CALL(collectorMock, start(Eq("waitDummy"), _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto, auto) { waitInThread.wait(); });
+    ON_CALL(collectorMock, start(Eq("notificationDummy"), _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto, auto) { notification.notify(); });
+    ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto, auto abortCallback) { abortCallback(); });
+
+    EXPECT_CALL(storageMock, storeImage(Eq("name"), _, _, _));
+
+    generator.generateImage("waitDummy", {}, {}, {}, {}, {});
+    generator.generateImage("name", {}, {3}, {}, abortCallbackMock.AsStdFunction(), {});
+    generator.generateImage("name", {}, {4}, {}, abortCallbackMock.AsStdFunction(), {});
+    generator.generateImage("notificationDummy", {}, {}, {}, {}, {});
+    waitInThread.notify();
+    notification.wait();
+}
+
+TEST_F(ImageCacheGenerator, MergeCaptureCallbackIfTasksAreMerged)
+{
+    NiceMock<MockFunction<void(const QImage &, const QImage &)>> newerImageCallbackMock;
+    ON_CALL(collectorMock, start(Eq("waitDummy"), _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto, auto) { waitInThread.wait(); });
+    ON_CALL(collectorMock, start(Eq("notificationDummy"), _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto, auto) { notification.notify(); });
+    ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto imageCallback, auto) {
+            imageCallback(QImage{image1}, QImage{smallImage1});
+        });
+
+    EXPECT_CALL(imageCallbackMock, Call(_, _));
+    EXPECT_CALL(newerImageCallbackMock, Call(_, _));
+
+    generator.generateImage("waitDummy", {}, {}, {}, {}, {});
+    generator.generateImage("name", {}, {}, imageCallbackMock.AsStdFunction(), {}, {});
+    generator.generateImage("name", {}, {}, newerImageCallbackMock.AsStdFunction(), {}, {});
+    generator.generateImage("notificationDummy", {}, {}, {}, {}, {});
+    waitInThread.notify();
+    notification.wait();
+}
+
+TEST_F(ImageCacheGenerator, MergeAbortCallbackIfTasksAreMerged)
+{
+    NiceMock<MockFunction<void()>> newerAbortCallbackMock;
+    ON_CALL(collectorMock, start(Eq("waitDummy"), _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto, auto) { waitInThread.wait(); });
+    ON_CALL(collectorMock, start(Eq("notificationDummy"), _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto, auto) { notification.notify(); });
+    ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto, auto abortCallback) { abortCallback(); });
+
+    EXPECT_CALL(abortCallbackMock, Call());
+    EXPECT_CALL(newerAbortCallbackMock, Call());
+
+    generator.generateImage("waitDummy", {}, {}, {}, {}, {});
+    generator.generateImage("name", {}, {}, {}, abortCallbackMock.AsStdFunction(), {});
+    generator.generateImage("name", {}, {}, {}, newerAbortCallbackMock.AsStdFunction(), {});
+    generator.generateImage("notificationDummy", {}, {}, {}, {}, {});
+    waitInThread.notify();
     notification.wait();
 }
 

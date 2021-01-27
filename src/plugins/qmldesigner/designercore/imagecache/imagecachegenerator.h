@@ -32,6 +32,7 @@
 
 #include <QThread>
 
+#include <deque>
 #include <memory>
 #include <mutex>
 
@@ -74,16 +75,16 @@ private:
             : filePath(filePath)
             , extraId(std::move(extraId))
             , auxiliaryData(std::move(auxiliaryData))
-            , captureCallback(std::move(captureCallback))
-            , abortCallback(std::move(abortCallback))
+            , captureCallbacks({std::move(captureCallback)})
+            , abortCallbacks({std::move(abortCallback)})
             , timeStamp(timeStamp)
         {}
 
         Utils::PathString filePath;
         Utils::SmallString extraId;
         ImageCache::AuxiliaryData auxiliaryData;
-        CaptureCallback captureCallback;
-        AbortCallback abortCallback;
+        std::vector<CaptureCallback> captureCallbacks;
+        std::vector<AbortCallback> abortCallbacks;
         Sqlite::TimeStamp timeStamp;
     };
 
@@ -98,7 +99,7 @@ private:
     std::unique_ptr<QThread> m_backgroundThread;
     mutable std::mutex m_mutex;
     std::condition_variable m_condition;
-    std::vector<Task> m_tasks;
+    std::deque<Task> m_tasks;
     ImageCacheCollectorInterface &m_collector;
     ImageCacheStorageInterface &m_storage;
     bool m_finishing{false};
