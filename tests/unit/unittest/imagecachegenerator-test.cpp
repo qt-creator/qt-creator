@@ -272,10 +272,16 @@ TEST_F(ImageCacheGenerator, CleanIsCallingAbortCallback)
 
 TEST_F(ImageCacheGenerator, WaitForFinished)
 {
-    ON_CALL(collectorMock, start(_, _, _, _, _))
+    ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto captureCallback, auto) {
+            waitInThread.wait();
+            captureCallback(QImage{image1}, QImage{smallImage1});
+        });
+    ON_CALL(collectorMock, start(Eq("name2"), _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto captureCallback, auto) {
             captureCallback(QImage{image1}, QImage{smallImage1});
         });
+
     generator.generateImage(
         "name", {}, {11}, imageCallbackMock.AsStdFunction(), abortCallbackMock.AsStdFunction(), {});
     generator.generateImage(
@@ -283,6 +289,7 @@ TEST_F(ImageCacheGenerator, WaitForFinished)
 
     EXPECT_CALL(imageCallbackMock, Call(_, _)).Times(2);
 
+    waitInThread.notify();
     generator.waitForFinished();
 }
 
