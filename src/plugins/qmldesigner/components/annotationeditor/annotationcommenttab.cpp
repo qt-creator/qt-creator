@@ -60,6 +60,7 @@ AnnotationCommentTab::AnnotationCommentTab(QWidget *parent)
     ui->titleEdit->setModel(new QStringListModel{QStringList{"Description",
                                                              "Display Condition",
                                                              "helper lines",
+                                                             "position marker",
                                                              "highlight",
                                                              "project author",
                                                              "project confirmed",
