@@ -349,11 +349,11 @@ void AutotestPluginPrivate::onRunFileTriggered()
     m_testRunner.prepareToRunTests(TestRunMode::Run);
 }
 
-static QList<ITestConfiguration *> testItemsToTestConfigurations(const QList<TestTreeItem *> &items,
+static QList<ITestConfiguration *> testItemsToTestConfigurations(const QList<ITestTreeItem *> &items,
                                                                 TestRunMode mode)
 {
     QList<ITestConfiguration *> configs;
-    for (const TestTreeItem * item : items) {
+    for (const ITestTreeItem * item : items) {
         if (ITestConfiguration *currentConfig = item->asConfiguration(mode))
             configs << currentConfig;
     }
@@ -369,14 +369,14 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
     if (text.isEmpty())
         return; // Do not trigger when no name under cursor
 
-    const QList<TestTreeItem *> testsItems = m_testTreeModel.testItemsByName(text);
+    const QList<ITestTreeItem *> testsItems = m_testTreeModel.testItemsByName(text);
     if (testsItems.isEmpty())
         return; // Wrong location triggered
 
     // check whether we have been triggered on a test function definition
     const int line = currentEditor->currentLine();
     const QString &filePath = currentEditor->textDocument()->filePath().toString();
-    const QList<TestTreeItem *> filteredItems = Utils::filtered(testsItems, [&](TestTreeItem *it){
+    const QList<ITestTreeItem *> filteredItems = Utils::filtered(testsItems, [&](ITestTreeItem *it){
         return it->line() == line && it->filePath() == filePath;
     });
 
