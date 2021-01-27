@@ -548,6 +548,9 @@ public:
                     QString &expression)
     {
         doc = snapshot.document(m_fileName);
+        if (doc.isNull())
+            return false;
+
         expression = m_expression;
 
         // Fetch the expression's code
@@ -729,6 +732,8 @@ Utils::Link CppElementEvaluator::linkFromExpression(const QString &expression, c
 {
     const Snapshot &snapshot = CppModelManager::instance()->snapshot();
     Document::Ptr doc = snapshot.document(fileName);
+    if (doc.isNull())
+        return Utils::Link();
     Scope *scope = doc->globalNamespace();
 
     TypeOfExpression typeOfExpression;
