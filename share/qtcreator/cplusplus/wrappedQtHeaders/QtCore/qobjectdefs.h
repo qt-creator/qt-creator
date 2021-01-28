@@ -58,7 +58,7 @@
 #  define Q_SLOT __attribute__((annotate("qt_slot")))
 #endif
 
-#define Q_PROPERTY(arg...) static_assert("Q_PROPERTY", #arg);
+#define Q_PROPERTY(arg...) static_assert(static_cast<bool>("Q_PROPERTY"), #arg);
 
 #define SIGNAL(arg) #arg
 #define SLOT(arg) #arg
