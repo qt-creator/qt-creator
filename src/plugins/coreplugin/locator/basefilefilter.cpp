@@ -110,10 +110,7 @@ BaseFileFilter::~BaseFileFilter()
 void BaseFileFilter::prepareSearch(const QString &entry)
 {
     Q_UNUSED(entry)
-    d->m_current.iterator = d->m_data.iterator;
-    d->m_current.previousResultPaths = d->m_data.previousResultPaths;
-    d->m_current.forceNewSearchList = d->m_data.forceNewSearchList;
-    d->m_current.previousEntry = d->m_data.previousEntry;
+    d->m_current = d->m_data;
     d->m_data.forceNewSearchList = false;
 }
 
