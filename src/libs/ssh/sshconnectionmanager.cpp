@@ -123,7 +123,8 @@ public:
         SshConnection * const connection = new SshConnection(sshParams);
         connect(connection, &SshConnection::disconnected,
                 this, &SshConnectionManager::cleanup);
-        m_acquiredConnections.append(connection);
+        if (SshSettings::connectionSharingEnabled())
+            m_acquiredConnections.append(connection);
 
         return connection;
     }
@@ -133,13 +134,15 @@ public:
         QMutexLocker locker(&m_listMutex);
 
         const bool wasAquired = m_acquiredConnections.removeOne(connection);
-        QTC_ASSERT(wasAquired, return);
+        QTC_ASSERT(wasAquired == connection->sharingEnabled(), return);
         if (m_acquiredConnections.contains(connection))
             return;
 
         bool doDelete = false;
         connection->moveToThread(QCoreApplication::instance()->thread());
-        if (m_deprecatedConnections.removeOne(connection)
+        if (!connection->sharingEnabled()) {
+            doDelete = true;
+        } else if (m_deprecatedConnections.removeOne(connection)
                 || connection->state() != SshConnection::Connected) {
             doDelete = true;
         } else {
