@@ -298,8 +298,9 @@ ImageFileFilterItem::ImageFileFilterItem(QObject *parent)
 {
     QString filter;
     // supported image formats according to
-    const QList<QByteArray> extensions = QImageReader::supportedImageFormats();
-    for (const QByteArray &extension : extensions)
+    QList<QByteArray> extensions = QImageReader::supportedImageFormats();
+    extensions.append("hdr");
+    for (const QByteArray &extension : qAsConst(extensions))
         filter.append(QString::fromLatin1("*.%1;").arg(QString::fromLatin1(extension)));
     setFilter(filter);
 }
