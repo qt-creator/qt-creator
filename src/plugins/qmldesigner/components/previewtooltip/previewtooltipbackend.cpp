@@ -63,7 +63,7 @@ void PreviewTooltipBackend::showTooltip()
                 }
             });
         },
-        [] {},
+        [](auto) {},
         m_extraId,
         m_auxiliaryData);
 

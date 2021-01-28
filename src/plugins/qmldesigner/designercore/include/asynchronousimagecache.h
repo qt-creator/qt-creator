@@ -43,8 +43,6 @@ class ImageCacheCollectorInterface;
 class AsynchronousImageCache final : public AsynchronousImageCacheInterface
 {
 public:
-    using CaptureImageCallback = std::function<void(const QImage &)>;
-    using AbortCallback = std::function<void()>;
 
     ~AsynchronousImageCache();
 
@@ -53,13 +51,13 @@ public:
                            TimeStampProviderInterface &timeStampProvider);
 
     void requestImage(Utils::PathString name,
-                      CaptureImageCallback captureCallback,
-                      AbortCallback abortCallback,
+                      ImageCache::CaptureImageCallback captureCallback,
+                      ImageCache::AbortCallback abortCallback,
                       Utils::SmallString extraId = {},
                       ImageCache::AuxiliaryData auxiliaryData = {}) override;
     void requestSmallImage(Utils::PathString name,
-                           CaptureImageCallback captureCallback,
-                           AbortCallback abortCallback,
+                           ImageCache::CaptureImageCallback captureCallback,
+                           ImageCache::AbortCallback abortCallback,
                            Utils::SmallString extraId = {},
                            ImageCache::AuxiliaryData auxiliaryData = {}) override;
 
@@ -73,8 +71,8 @@ private:
         Entry() = default;
         Entry(Utils::PathString name,
               Utils::SmallString extraId,
-              CaptureImageCallback &&captureCallback,
-              AbortCallback &&abortCallback,
+              ImageCache::CaptureImageCallback &&captureCallback,
+              ImageCache::AbortCallback &&abortCallback,
               ImageCache::AuxiliaryData &&auxiliaryData,
               RequestType requestType)
             : name{std::move(name)}
@@ -87,8 +85,8 @@ private:
 
         Utils::PathString name;
         Utils::SmallString extraId;
-        CaptureImageCallback captureCallback;
-        AbortCallback abortCallback;
+        ImageCache::CaptureImageCallback captureCallback;
+        ImageCache::AbortCallback abortCallback;
         ImageCache::AuxiliaryData auxiliaryData;
         RequestType requestType = RequestType::Image;
     };
@@ -96,8 +94,8 @@ private:
     std::tuple<bool, Entry> getEntry();
     void addEntry(Utils::PathString &&name,
                   Utils::SmallString &&extraId,
-                  CaptureImageCallback &&captureCallback,
-                  AbortCallback &&abortCallback,
+                  ImageCache::CaptureImageCallback &&captureCallback,
+                  ImageCache::AbortCallback &&abortCallback,
                   ImageCache::AuxiliaryData &&auxiliaryData,
                   RequestType requestType);
     void clearEntries();
@@ -107,8 +105,8 @@ private:
     static void request(Utils::SmallStringView name,
                         Utils::SmallStringView extraId,
                         AsynchronousImageCache::RequestType requestType,
-                        AsynchronousImageCache::CaptureImageCallback captureCallback,
-                        AsynchronousImageCache::AbortCallback abortCallback,
+                        ImageCache::CaptureImageCallback captureCallback,
+                        ImageCache::AbortCallback abortCallback,
                         ImageCache::AuxiliaryData auxiliaryData,
                         ImageCacheStorageInterface &storage,
                         ImageCacheGeneratorInterface &generator,

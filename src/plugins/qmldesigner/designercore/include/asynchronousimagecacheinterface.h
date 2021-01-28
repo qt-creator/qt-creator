@@ -36,18 +36,15 @@ namespace QmlDesigner {
 class AsynchronousImageCacheInterface
 {
 public:
-    using CaptureCallback = std::function<void(const QImage &)>;
-    using AbortCallback = std::function<void()>;
-
     virtual void requestImage(Utils::PathString name,
-                              CaptureCallback captureCallback,
-                              AbortCallback abortCallback,
+                              ImageCache::CaptureImageCallback captureCallback,
+                              ImageCache::AbortCallback abortCallback,
                               Utils::SmallString extraId = {},
                               ImageCache::AuxiliaryData auxiliaryData = {})
         = 0;
     virtual void requestSmallImage(Utils::PathString name,
-                                   CaptureCallback captureCallback,
-                                   AbortCallback abortCallback,
+                                   ImageCache::CaptureImageCallback captureCallback,
+                                   ImageCache::AbortCallback abortCallback,
                                    Utils::SmallString extraId = {},
                                    ImageCache::AuxiliaryData auxiliaryData = {})
         = 0;

@@ -26,7 +26,7 @@ class CapturedDataCommand;
 class ImageCacheConnectionManager : public ConnectionManager
 {
 public:
-    using Callback = std::function<void(QImage &&)>;
+    using Callback = std::function<void(const QImage &)>;
 
     ImageCacheConnectionManager();
 

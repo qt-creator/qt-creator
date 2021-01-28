@@ -37,8 +37,8 @@ public:
                 (Utils::SmallStringView name,
                  Utils::SmallStringView state,
                  Sqlite::TimeStamp timeStamp,
-                 CaptureCallback &&captureCallback,
-                 AbortCallback &&abortCallback,
+                 QmlDesigner::ImageCache::CaptureImageWithSmallImageCallback &&captureCallback,
+                 QmlDesigner::ImageCache::AbortCallback &&abortCallback,
                  QmlDesigner::ImageCache::AuxiliaryData &&auxiliaryData),
                 (override));
     MOCK_METHOD(void, clean, (), (override));

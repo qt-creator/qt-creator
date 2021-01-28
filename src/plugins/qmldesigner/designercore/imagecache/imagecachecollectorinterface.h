@@ -36,8 +36,8 @@ namespace QmlDesigner {
 class ImageCacheCollectorInterface
 {
 public:
-    using CaptureCallback = std::function<void(QImage &&image, QImage &&smallImage)>;
-    using AbortCallback = std::function<void()>;
+    using CaptureCallback = ImageCache::CaptureImageWithSmallImageCallback;
+    using AbortCallback = ImageCache::AbortCallback;
     using ImagePair = std::pair<QImage, QImage>;
 
     virtual void start(Utils::SmallStringView filePath,

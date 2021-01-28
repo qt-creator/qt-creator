@@ -77,12 +77,19 @@ QQuickImageResponse *ItemLibraryIconImageProvider::requestImageResponse(const QS
                 },
                 Qt::QueuedConnection);
         },
-        [response = QPointer<ImageRespose>(response.get())] {
+        [response = QPointer<ImageRespose>(response.get())](ImageCache::AbortReason abortReason) {
             QMetaObject::invokeMethod(
                 response,
-                [response] {
-                    if (response)
-                        response->abort();
+                [response, abortReason] {
+                    switch (abortReason) {
+                    case ImageCache::AbortReason::Failed:
+                        if (response)
+                            response->abort();
+                        break;
+                    case ImageCache::AbortReason::Abort:
+                        response->cancel();
+                        break;
+                    }
                 },
                 Qt::QueuedConnection);
         });

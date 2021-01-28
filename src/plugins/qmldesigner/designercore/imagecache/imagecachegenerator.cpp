@@ -50,8 +50,8 @@ ImageCacheGenerator::~ImageCacheGenerator()
 void ImageCacheGenerator::generateImage(Utils::SmallStringView name,
                                         Utils::SmallStringView extraId,
                                         Sqlite::TimeStamp timeStamp,
-                                        ImageCacheGeneratorInterface::CaptureCallback &&captureCallback,
-                                        AbortCallback &&abortCallback,
+                                        ImageCache::CaptureImageWithSmallImageCallback &&captureCallback,
+                                        ImageCache::AbortCallback &&abortCallback,
                                         ImageCache::AuxiliaryData &&auxiliaryData)
 {
     {
@@ -96,7 +96,7 @@ void ImageCacheGenerator::clean()
 {
     std::lock_guard lock{m_mutex};
     for (Task &task : m_tasks)
-        callCallbacks(task.abortCallbacks);
+        callCallbacks(task.abortCallbacks, ImageCache::AbortReason::Abort);
     m_tasks.clear();
 }
 
@@ -133,9 +133,9 @@ void ImageCacheGenerator::startGeneration()
             task.filePath,
             task.extraId,
             std::move(task.auxiliaryData),
-            [this, task](QImage &&image, QImage &&smallImage) {
+            [this, task](const QImage &image, const QImage &smallImage) {
                 if (image.isNull())
-                    callCallbacks(task.abortCallbacks);
+                    callCallbacks(task.abortCallbacks, ImageCache::AbortReason::Failed);
                 else
                     callCallbacks(task.captureCallbacks, image, smallImage);
 
@@ -144,9 +144,10 @@ void ImageCacheGenerator::startGeneration()
                                      image,
                                      smallImage);
             },
-            [this, task] {
-                callCallbacks(task.abortCallbacks);
-                m_storage.storeImage(createId(task.filePath, task.extraId), task.timeStamp, {}, {});
+            [this, task](ImageCache::AbortReason abortReason) {
+                callCallbacks(task.abortCallbacks, abortReason);
+                if (abortReason != ImageCache::AbortReason::Abort)
+                    m_storage.storeImage(createId(task.filePath, task.extraId), task.timeStamp, {}, {});
             });
 
         std::lock_guard lock{m_mutex};

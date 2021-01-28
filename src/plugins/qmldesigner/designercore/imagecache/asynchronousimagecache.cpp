@@ -68,8 +68,8 @@ AsynchronousImageCache::~AsynchronousImageCache()
 void AsynchronousImageCache::request(Utils::SmallStringView name,
                                      Utils::SmallStringView extraId,
                                      AsynchronousImageCache::RequestType requestType,
-                                     AsynchronousImageCache::CaptureImageCallback captureCallback,
-                                     AsynchronousImageCache::AbortCallback abortCallback,
+                                     ImageCache::CaptureImageCallback captureCallback,
+                                     ImageCache::AbortCallback abortCallback,
                                      ImageCache::AuxiliaryData auxiliaryData,
                                      ImageCacheStorageInterface &storage,
                                      ImageCacheGeneratorInterface &generator,
@@ -83,7 +83,7 @@ void AsynchronousImageCache::request(Utils::SmallStringView name,
 
     if (entry.hasEntry) {
         if (entry.image.isNull())
-            abortCallback();
+            abortCallback(ImageCache::AbortReason::Failed);
         else
             captureCallback(entry.image);
     } else {
@@ -109,8 +109,8 @@ void AsynchronousImageCache::wait()
 }
 
 void AsynchronousImageCache::requestImage(Utils::PathString name,
-                                          AsynchronousImageCache::CaptureImageCallback captureCallback,
-                                          AbortCallback abortCallback,
+                                          ImageCache::CaptureImageCallback captureCallback,
+                                          ImageCache::AbortCallback abortCallback,
                                           Utils::SmallString extraId,
                                           ImageCache::AuxiliaryData auxiliaryData)
 {
@@ -124,8 +124,8 @@ void AsynchronousImageCache::requestImage(Utils::PathString name,
 }
 
 void AsynchronousImageCache::requestSmallImage(Utils::PathString name,
-                                               AsynchronousImageCache::CaptureImageCallback captureCallback,
-                                               AsynchronousImageCache::AbortCallback abortCallback,
+                                               ImageCache::CaptureImageCallback captureCallback,
+                                               ImageCache::AbortCallback abortCallback,
                                                Utils::SmallString extraId,
                                                ImageCache::AuxiliaryData auxiliaryData)
 {
@@ -166,8 +166,8 @@ std::tuple<bool, AsynchronousImageCache::Entry> AsynchronousImageCache::getEntry
 
 void AsynchronousImageCache::addEntry(Utils::PathString &&name,
                                       Utils::SmallString &&extraId,
-                                      AsynchronousImageCache::CaptureImageCallback &&captureCallback,
-                                      AbortCallback &&abortCallback,
+                                      ImageCache::CaptureImageCallback &&captureCallback,
+                                      ImageCache::AbortCallback &&abortCallback,
                                       ImageCache::AuxiliaryData &&auxiliaryData,
                                       RequestType requestType)
 {
@@ -185,7 +185,7 @@ void AsynchronousImageCache::clearEntries()
 {
     std::unique_lock lock{m_mutex};
     for (Entry &entry : m_entries)
-        entry.abortCallback();
+        entry.abortCallback(ImageCache::AbortReason::Abort);
     m_entries.clear();
 }
 

@@ -68,12 +68,10 @@ ImageCacheCollector::~ImageCacheCollector() = default;
 
 void ImageCacheCollector::start(Utils::SmallStringView name,
                                 Utils::SmallStringView state,
-                                const ImageCache::AuxiliaryData &auxiliaryData,
+                                const ImageCache::AuxiliaryData &,
                                 CaptureCallback captureCallback,
                                 AbortCallback abortCallback)
 {
-    Q_UNUSED(auxiliaryData)
-
     RewriterView rewriterView{RewriterView::Amend, nullptr};
     NodeInstanceView nodeInstanceView{m_connectionManager};
 
@@ -91,7 +89,7 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
     model->setRewriterView(&rewriterView);
 
     if (rewriterView.inErrorState() || !rewriterView.rootModelNode().metaInfo().isGraphicalItem()) {
-        abortCallback();
+        abortCallback(ImageCache::AbortReason::Failed);
         return;
     }
 
@@ -100,18 +98,18 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
     if (stateNode.isValid())
         rewriterView.setCurrentStateNode(stateNode);
 
-    auto callback = [captureCallback = std::move(captureCallback)](QImage &&image) {
+    auto callback = [captureCallback = std::move(captureCallback)](const QImage &image) {
         QSize smallImageSize = image.size().scaled(QSize{96, 96}.boundedTo(image.size()),
                                                    Qt::KeepAspectRatio);
         QImage smallImage = image.isNull() ? QImage{} : image.scaled(smallImageSize);
 
-        captureCallback(std::move(image), std::move(smallImage));
+        captureCallback(image, smallImage);
     };
 
     m_connectionManager.setCallback(std::move(callback));
 
     nodeInstanceView.setTarget(m_target.data());
-    nodeInstanceView.setCrashCallback(abortCallback);
+    nodeInstanceView.setCrashCallback([=] { abortCallback(ImageCache::AbortReason::Failed); });
     model->setNodeInstanceView(&nodeInstanceView);
 
     bool capturedDataArrived = m_connectionManager.waitForCapturedData();
@@ -123,7 +121,7 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
     model->setRewriterView({});
 
     if (!capturedDataArrived)
-        abortCallback();
+        abortCallback(ImageCache::AbortReason::Failed);
 }
 
 std::pair<QImage, QImage> ImageCacheCollector::createImage(Utils::SmallStringView filePath,

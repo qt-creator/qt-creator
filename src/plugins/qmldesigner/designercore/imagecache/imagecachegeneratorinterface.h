@@ -36,14 +36,11 @@ namespace QmlDesigner {
 class ImageCacheGeneratorInterface
 {
 public:
-    using CaptureCallback = std::function<void(const QImage &image, const QImage &smallImage)>;
-    using AbortCallback = std::function<void()>;
-
     virtual void generateImage(Utils::SmallStringView name,
                                Utils::SmallStringView extraId,
                                Sqlite::TimeStamp timeStamp,
-                               CaptureCallback &&captureCallback,
-                               AbortCallback &&abortCallback,
+                               ImageCache::CaptureImageWithSmallImageCallback &&captureCallback,
+                               ImageCache::AbortCallback &&abortCallback,
                                ImageCache::AuxiliaryData &&auxiliaryData)
         = 0;
 

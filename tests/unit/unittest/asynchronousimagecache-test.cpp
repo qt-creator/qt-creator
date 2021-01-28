@@ -39,7 +39,7 @@ class AsynchronousImageCache : public testing::Test
 protected:
     Notification notification;
     Notification waitInThread;
-    NiceMock<MockFunction<void()>> mockAbortCallback;
+    NiceMock<MockFunction<void(QmlDesigner::ImageCache::AbortReason)>> mockAbortCallback;
     NiceMock<MockFunction<void(const QImage &image)>> mockCaptureCallback;
     NiceMock<MockImageCacheStorage> mockStorage;
     NiceMock<MockImageCacheGenerator> mockGenerator;
@@ -99,7 +99,8 @@ TEST_F(AsynchronousImageCache, RequestImageCallsAbortCallbackWithoutImage)
     ON_CALL(mockStorage, fetchImage(Eq("/path/to/Component.qml"), _))
         .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{QImage{}, true}));
 
-    EXPECT_CALL(mockAbortCallback, Call()).WillRepeatedly([&] { notification.notify(); });
+    EXPECT_CALL(mockAbortCallback, Call(Eq(QmlDesigner::ImageCache::AbortReason::Failed)))
+        .WillRepeatedly([&](auto) { notification.notify(); });
 
     cache.requestImage("/path/to/Component.qml",
                        mockCaptureCallback.AsStdFunction(),
@@ -142,11 +143,11 @@ TEST_F(AsynchronousImageCache, RequestImageCallsAbortCallbackFromGenerator)
 {
     ON_CALL(mockGenerator, generateImage(Eq("/path/to/Component.qml"), _, _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto &&, auto &&abortCallback, auto) {
-            abortCallback();
+            abortCallback(QmlDesigner::ImageCache::AbortReason::Failed);
             notification.notify();
         });
 
-    EXPECT_CALL(mockAbortCallback, Call());
+    EXPECT_CALL(mockAbortCallback, Call(Eq(QmlDesigner::ImageCache::AbortReason::Failed)));
 
     cache.requestImage("/path/to/Component.qml",
                        mockCaptureCallback.AsStdFunction(),
@@ -204,7 +205,8 @@ TEST_F(AsynchronousImageCache, RequestSmallImageCallsAbortCallbackWithoutSmallIm
     ON_CALL(mockStorage, fetchSmallImage(Eq("/path/to/Component.qml"), _))
         .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{QImage{}, true}));
 
-    EXPECT_CALL(mockAbortCallback, Call()).WillRepeatedly([&] { notification.notify(); });
+    EXPECT_CALL(mockAbortCallback, Call(Eq(QmlDesigner::ImageCache::AbortReason::Failed)))
+        .WillRepeatedly([&](auto) { notification.notify(); });
 
     cache.requestSmallImage("/path/to/Component.qml",
                             mockCaptureCallback.AsStdFunction(),
@@ -247,11 +249,11 @@ TEST_F(AsynchronousImageCache, RequestSmallImageCallsAbortCallbackFromGenerator)
 {
     ON_CALL(mockGenerator, generateImage(Eq("/path/to/Component.qml"), _, _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto &&, auto &&abortCallback, auto) {
-            abortCallback();
+            abortCallback(QmlDesigner::ImageCache::AbortReason::Failed);
             notification.notify();
         });
 
-    EXPECT_CALL(mockAbortCallback, Call());
+    EXPECT_CALL(mockAbortCallback, Call(Eq(QmlDesigner::ImageCache::AbortReason::Failed)));
 
     cache.requestSmallImage("/path/to/Component.qml",
                             mockCaptureCallback.AsStdFunction(),
@@ -292,7 +294,8 @@ TEST_F(AsynchronousImageCache, CleanCallsAbort)
                             mockCaptureCallback.AsStdFunction(),
                             mockAbortCallback.AsStdFunction());
 
-    EXPECT_CALL(mockAbortCallback, Call()).Times(AtLeast(2));
+    EXPECT_CALL(mockAbortCallback, Call(Eq(QmlDesigner::ImageCache::AbortReason::Abort)))
+        .Times(AtLeast(2));
 
     cache.requestSmallImage("/path/to/Component3.qml",
                             mockCaptureCallback.AsStdFunction(),

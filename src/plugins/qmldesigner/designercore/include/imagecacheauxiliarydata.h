@@ -28,8 +28,11 @@
 #include <utils/span.h>
 #include <utils/variant.h>
 
+#include <QImage>
 #include <QSize>
 #include <QString>
+
+#include <functional>
 
 namespace QmlDesigner {
 
@@ -56,6 +59,11 @@ public:
 
 using AuxiliaryData = Utils::variant<NullAuxiliaryData, FontCollectorSizeAuxiliaryData, FontCollectorSizesAuxiliaryData>;
 
+enum class AbortReason : char { Abort, Failed };
+
+using CaptureImageCallback = std::function<void(const QImage &)>;
+using CaptureImageWithSmallImageCallback = std::function<void(const QImage &image, const QImage &smallImage)>;
+using AbortCallback = std::function<void(ImageCache::AbortReason)>;
 } // namespace ImageCache
 
 } // namespace QmlDesigner

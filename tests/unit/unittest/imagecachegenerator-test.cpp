@@ -56,7 +56,7 @@ protected:
     QImage image1{10, 10, QImage::Format_ARGB32};
     QImage smallImage1{1, 1, QImage::Format_ARGB32};
     NiceMock<MockFunction<void(const QImage &, const QImage &)>> imageCallbackMock;
-    NiceMock<MockFunction<void()>> abortCallbackMock;
+    NiceMock<MockFunction<void(QmlDesigner::ImageCache::AbortReason)>> abortCallbackMock;
     NiceMock<ImageCacheCollectorMock> collectorMock;
     NiceMock<MockImageCacheStorage> storageMock;
     QmlDesigner::ImageCacheGenerator generator{collectorMock, storageMock};
@@ -196,12 +196,15 @@ TEST_F(ImageCacheGenerator, AbortCallback)
             captureCallback(QImage{image1}, QImage{smallImage1});
         });
     ON_CALL(collectorMock, start(Eq("name2"), _, _, _, _))
-        .WillByDefault([&](auto, auto, auto, auto, auto abortCallback) { abortCallback(); });
+        .WillByDefault([&](auto, auto, auto, auto, auto abortCallback) {
+            abortCallback(QmlDesigner::ImageCache::AbortReason::Failed);
+        });
 
     EXPECT_CALL(imageCallbackMock, Call(_, _)).WillOnce([&](const QImage &, const QImage &) {
         notification.notify();
     });
-    EXPECT_CALL(abortCallbackMock, Call()).WillOnce([&]() { notification.notify(); });
+    EXPECT_CALL(abortCallbackMock, Call(Eq(QmlDesigner::ImageCache::AbortReason::Failed)))
+        .WillOnce([&](auto) { notification.notify(); });
 
     generator.generateImage(
         "name", {}, {}, imageCallbackMock.AsStdFunction(), abortCallbackMock.AsStdFunction(), {});
@@ -210,10 +213,29 @@ TEST_F(ImageCacheGenerator, AbortCallback)
     notification.wait(2);
 }
 
-TEST_F(ImageCacheGenerator, StoreNullImageForAbortCallback)
+TEST_F(ImageCacheGenerator, StoreNullImageForAbortCallbackAbort)
+{
+    ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto, auto abortCallback) {
+            abortCallback(QmlDesigner::ImageCache::AbortReason::Abort);
+        });
+    ON_CALL(collectorMock, start(Eq("dummyNotify"), _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto, auto) { notification.notify(); });
+
+    EXPECT_CALL(storageMock, storeImage(Eq("name"), _, _, _)).Times(0);
+
+    generator.generateImage(
+        "name", {}, {11}, imageCallbackMock.AsStdFunction(), abortCallbackMock.AsStdFunction(), {});
+    generator.generateImage("dummyNotify", {}, {}, {}, {}, {});
+    notification.wait();
+}
+
+TEST_F(ImageCacheGenerator, DontStoreNullImageForAbortCallbackFailed)
 {
     ON_CALL(collectorMock, start(_, _, _, _, _))
-        .WillByDefault([&](auto, auto, auto, auto, auto abortCallback) { abortCallback(); });
+        .WillByDefault([&](auto, auto, auto, auto, auto abortCallback) {
+            abortCallback(QmlDesigner::ImageCache::AbortReason::Failed);
+        });
 
     EXPECT_CALL(storageMock,
                 storeImage(Eq("name"), Eq(Sqlite::TimeStamp{11}), Eq(QImage{}), Eq(QImage{})))
@@ -231,7 +253,8 @@ TEST_F(ImageCacheGenerator, AbortForEmptyImage)
             captureCallback(QImage{}, QImage{});
         });
 
-    EXPECT_CALL(abortCallbackMock, Call()).WillOnce([&]() { notification.notify(); });
+    EXPECT_CALL(abortCallbackMock, Call(Eq(QmlDesigner::ImageCache::AbortReason::Failed)))
+        .WillOnce([&](auto) { notification.notify(); });
 
     generator.generateImage(
         "name", {}, {}, imageCallbackMock.AsStdFunction(), abortCallbackMock.AsStdFunction(), {});
@@ -264,7 +287,8 @@ TEST_F(ImageCacheGenerator, CleanIsCallingAbortCallback)
     generator.generateImage(
         "name2", {}, {11}, imageCallbackMock.AsStdFunction(), abortCallbackMock.AsStdFunction(), {});
 
-    EXPECT_CALL(abortCallbackMock, Call()).Times(AtLeast(1));
+    EXPECT_CALL(abortCallbackMock, Call(Eq(QmlDesigner::ImageCache::AbortReason::Abort)))
+        .Times(AtLeast(1));
 
     generator.clean();
     waitInThread.notify();
@@ -401,9 +425,11 @@ TEST_F(ImageCacheGenerator, UseLastTimeStampIfTasksAreMerged)
     ON_CALL(collectorMock, start(Eq("notificationDummy"), _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto, auto) { notification.notify(); });
     ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
-        .WillByDefault([&](auto, auto, auto, auto, auto abortCallback) { abortCallback(); });
+        .WillByDefault([&](auto, auto, auto, auto, auto abortCallback) {
+            abortCallback(QmlDesigner::ImageCache::AbortReason::Failed);
+        });
 
-    EXPECT_CALL(storageMock, storeImage(Eq("name"), _, _, _));
+    EXPECT_CALL(storageMock, storeImage(Eq("name"), Eq(Sqlite::TimeStamp{4}), _, _));
 
     generator.generateImage("waitDummy", {}, {}, {}, {}, {});
     generator.generateImage("name", {}, {3}, {}, abortCallbackMock.AsStdFunction(), {});
@@ -438,16 +464,18 @@ TEST_F(ImageCacheGenerator, MergeCaptureCallbackIfTasksAreMerged)
 
 TEST_F(ImageCacheGenerator, MergeAbortCallbackIfTasksAreMerged)
 {
-    NiceMock<MockFunction<void()>> newerAbortCallbackMock;
+    NiceMock<MockFunction<void(QmlDesigner::ImageCache::AbortReason)>> newerAbortCallbackMock;
     ON_CALL(collectorMock, start(Eq("waitDummy"), _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto, auto) { waitInThread.wait(); });
     ON_CALL(collectorMock, start(Eq("notificationDummy"), _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto, auto) { notification.notify(); });
     ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
-        .WillByDefault([&](auto, auto, auto, auto, auto abortCallback) { abortCallback(); });
+        .WillByDefault([&](auto, auto, auto, auto, auto abortCallback) {
+            abortCallback(QmlDesigner::ImageCache::AbortReason::Failed);
+        });
 
-    EXPECT_CALL(abortCallbackMock, Call());
-    EXPECT_CALL(newerAbortCallbackMock, Call());
+    EXPECT_CALL(abortCallbackMock, Call(Eq(QmlDesigner::ImageCache::AbortReason::Failed)));
+    EXPECT_CALL(newerAbortCallbackMock, Call(Eq(QmlDesigner::ImageCache::AbortReason::Failed)));
 
     generator.generateImage("waitDummy", {}, {}, {}, {}, {});
     generator.generateImage("name", {}, {}, {}, abortCallbackMock.AsStdFunction(), {});

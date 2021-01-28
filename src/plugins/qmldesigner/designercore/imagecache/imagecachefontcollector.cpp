@@ -140,7 +140,7 @@ void ImageCacheFontCollector::start(Utils::SmallStringView name,
             return;
         }
     }
-    abortCallback();
+    abortCallback(ImageCache::AbortReason::Failed);
 }
 
 std::pair<QImage, QImage> ImageCacheFontCollector::createImage(
