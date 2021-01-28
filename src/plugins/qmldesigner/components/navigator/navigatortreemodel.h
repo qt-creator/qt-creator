@@ -118,6 +118,10 @@ private:
     void handleItemLibraryFontDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
     void handleItemLibraryShaderDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
     void handleItemLibrarySoundDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
+    void handleItemLibraryTexture3dDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
+    bool dropAsImage3dTexture(const ModelNode &targetNode, const NodeAbstractProperty &targetProp,
+                              const QString &imagePath, ModelNode &newNode);
+    ModelNode createTextureNode(const NodeAbstractProperty &targetProp, const QString &imagePath);
     QList<QPersistentModelIndex> nodesToPersistentIndex(const QList<ModelNode> &modelNodes);
 
     QPointer<NavigatorView> m_view;

@@ -507,6 +507,8 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
             handleItemLibraryShaderDrop(mimeData, rowNumber, dropModelIndex);
         } else if (mimeData->hasFormat("application/vnd.bauhaus.libraryresource.sound")) {
             handleItemLibrarySoundDrop(mimeData, rowNumber, dropModelIndex);
+        } else if (mimeData->hasFormat("application/vnd.bauhaus.libraryresource.texture3d")) {
+            handleItemLibraryTexture3dDrop(mimeData, rowNumber, dropModelIndex);
         } else if (mimeData->hasFormat("application/vnd.modelnode.list")) {
             handleInternalDrop(mimeData, rowNumber, dropModelIndex);
         }
@@ -728,71 +730,21 @@ void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, i
 
         ModelNode newModelNode;
 
-        auto createTextureNode = [&](const NodeAbstractProperty &targetProp) -> bool {
-            if (targetProp.isValid()) {
-                // create a texture item lib
-                ItemLibraryEntry itemLibraryEntry;
-                itemLibraryEntry.setName("Texture");
-                itemLibraryEntry.setType("QtQuick3D.Texture", 1, 0);
-
-                // set texture source
-                PropertyName prop = "source";
-                QString type = "QUrl";
-                QVariant val = imagePath;
-                itemLibraryEntry.addProperty(prop, type, val);
-
-                // create a texture
-                newModelNode = QmlItemNode::createQmlObjectNode(m_view, itemLibraryEntry, {}, targetProp, false);
-
-                // Rename the node based on source image
-                QFileInfo fi(imagePath);
-                newModelNode.setIdWithoutRefactoring(m_view->generateNewId(fi.baseName(), "textureImage"));
-                return newModelNode.isValid();
-            }
-            return false;
-        };
-
-        if (targetNode.isSubclassOf("QtQuick3D.Material")) {
-            // if dropping an image on a default material, create a texture instead of image
-            ChooseTexturePropertyDialog *dialog = nullptr;
-            if (targetNode.isSubclassOf("QtQuick3D.DefaultMaterial") || targetNode.isSubclassOf("QtQuick3D.PrincipledMaterial")) {
-                // Show texture property selection dialog
-                dialog = new ChooseTexturePropertyDialog(targetNode, Core::ICore::dialogParent());
-                dialog->exec();
-            }
-            if (!dialog || dialog->result() == QDialog::Accepted) {
+        if (!dropAsImage3dTexture(targetNode, targetProperty, imagePath, newModelNode)) {
+            if (targetNode.isSubclassOf("QtQuick.Image")
+                    || targetNode.isSubclassOf("QtQuick.BorderImage")) {
+                // if dropping an image on an existing image, set the source
+                targetNode.variantProperty("source").setValue(imagePath);
+            } else {
                 m_view->executeInTransaction("NavigatorTreeModel::handleItemLibraryImageDrop", [&] {
-                    if (createTextureNode(targetProperty) && dialog) {
-                        // Automatically set the texture to selected property
-                        targetNode.bindingProperty(dialog->selectedProperty()).setExpression(newModelNode.validId());
-                    }
+                    // create an image
+                    QmlItemNode newItemNode = QmlItemNode::createQmlItemNodeFromImage(m_view, imageSource, QPointF(), targetProperty, false);
+                    if (NodeHints::fromModelNode(targetProperty.parentModelNode()).canBeContainerFor(newItemNode.modelNode()))
+                        newModelNode = newItemNode.modelNode();
+                    else
+                        newItemNode.destroy();
                 });
             }
-            delete dialog;
-        } else if (targetNode.isSubclassOf("QtQuick3D.TextureInput")) {
-            // If dropping an image on a TextureInput, create a texture on the same level as
-            // TextureInput, as the TextureInput doesn't support Texture children (QTBUG-86219)
-            m_view->executeInTransaction("NavigatorTreeModel::handleItemLibraryImageDrop", [&] {
-                NodeAbstractProperty parentProp = targetProperty.parentProperty();
-                if (createTextureNode(parentProp)) {
-                    // Automatically set the texture to texture property
-                    targetNode.bindingProperty("texture").setExpression(newModelNode.validId());
-                }
-            });
-        } else if (targetNode.isSubclassOf("QtQuick3D.Texture")
-                   || targetNode.isSubclassOf("QtQuick.Image")
-                   || targetNode.isSubclassOf("QtQuick.BorderImage")) {
-            // if dropping an image on an existing texture or image, set the source
-            targetNode.variantProperty("source").setValue(imagePath);
-        } else {
-            m_view->executeInTransaction("NavigatorTreeModel::handleItemLibraryImageDrop", [&] {
-                // create an image
-                QmlItemNode newItemNode = QmlItemNode::createQmlItemNodeFromImage(m_view, imageSource, QPointF(), targetProperty, false);
-                if (NodeHints::fromModelNode(targetProperty.parentModelNode()).canBeContainerFor(newItemNode.modelNode()))
-                    newModelNode = newItemNode.modelNode();
-                else
-                    newItemNode.destroy();
-            });
         }
 
         if (newModelNode.isValid()) {
@@ -956,6 +908,117 @@ void NavigatorTreeModel::handleItemLibrarySoundDrop(const QMimeData *mimeData, i
             m_view->setSelectedModelNode(newModelNode);
         }
     }
+}
+
+void NavigatorTreeModel::handleItemLibraryTexture3dDrop(const QMimeData *mimeData, int rowNumber,
+                                                        const QModelIndex &dropModelIndex)
+{
+    QTC_ASSERT(m_view, return);
+    Import import = Import::createLibraryImport(QStringLiteral("QtQuick3D"));
+    if (!m_view->model()->hasImport(import, true, true))
+        return;
+
+    const QModelIndex rowModelIndex = dropModelIndex.sibling(dropModelIndex.row(), 0);
+    int targetRowNumber = rowNumber;
+    NodeAbstractProperty targetProperty;
+
+    bool foundTarget = findTargetProperty(rowModelIndex, this, &targetProperty, &targetRowNumber);
+    if (foundTarget) {
+        ModelNode targetNode(modelNodeForIndex(rowModelIndex));
+
+        const QString imageSource = QString::fromUtf8(
+                mimeData->data("application/vnd.bauhaus.libraryresource")); // absolute path
+        const QString imagePath = DocumentManager::currentFilePath().toFileInfo().dir()
+                .relativeFilePath(imageSource); // relative to qml file
+
+        ModelNode newModelNode;
+
+        if (!dropAsImage3dTexture(targetNode, targetProperty, imagePath, newModelNode)) {
+            m_view->executeInTransaction("NavigatorTreeModel::handleItemLibraryTexture3dDrop", [&] {
+                // create a standalone Texture3D at drop location
+                newModelNode = createTextureNode(targetProperty, imagePath);
+                if (!NodeHints::fromModelNode(targetProperty.parentModelNode()).canBeContainerFor(newModelNode))
+                    newModelNode.destroy();
+            });
+        }
+
+        if (newModelNode.isValid()) {
+            moveNodesInteractive(targetProperty, {newModelNode}, targetRowNumber);
+            m_view->setSelectedModelNode(newModelNode);
+        }
+    }
+}
+
+bool NavigatorTreeModel::dropAsImage3dTexture(const ModelNode &targetNode,
+                                              const NodeAbstractProperty &targetProp,
+                                              const QString &imagePath,
+                                              ModelNode &newNode)
+{
+    if (targetNode.isSubclassOf("QtQuick3D.Material")) {
+        // if dropping an image on a default material, create a texture instead of image
+        ChooseTexturePropertyDialog *dialog = nullptr;
+        if (targetNode.isSubclassOf("QtQuick3D.DefaultMaterial") || targetNode.isSubclassOf("QtQuick3D.PrincipledMaterial")) {
+            // Show texture property selection dialog
+            dialog = new ChooseTexturePropertyDialog(targetNode, Core::ICore::dialogParent());
+            dialog->exec();
+        }
+        if (!dialog || dialog->result() == QDialog::Accepted) {
+            m_view->executeInTransaction("NavigatorTreeModel::dropAsImage3dTexture", [&] {
+                newNode = createTextureNode(targetProp, imagePath);
+                if (newNode.isValid() && dialog) {
+                    // Automatically set the texture to selected property
+                    targetNode.bindingProperty(dialog->selectedProperty()).setExpression(newNode.validId());
+                }
+            });
+        }
+        delete dialog;
+        return newNode.isValid();
+    } else if (targetNode.isSubclassOf("QtQuick3D.TextureInput")) {
+        // If dropping an image on a TextureInput, create a texture on the same level as
+        // TextureInput, as the TextureInput doesn't support Texture children (QTBUG-86219)
+        m_view->executeInTransaction("NavigatorTreeModel::dropAsImage3dTexture", [&] {
+            NodeAbstractProperty parentProp = targetProp.parentProperty();
+            newNode = createTextureNode(parentProp, imagePath);
+            if (newNode.isValid()) {
+                // Automatically set the texture to texture property
+                targetNode.bindingProperty("texture").setExpression(newNode.validId());
+            }
+        });
+        return newNode.isValid();
+    } else if (targetNode.isSubclassOf("QtQuick3D.Texture")) {
+        // if dropping an image on an existing texture, set the source
+        targetNode.variantProperty("source").setValue(imagePath);
+        return true;
+    }
+
+    return false;
+}
+
+ModelNode NavigatorTreeModel::createTextureNode(const NodeAbstractProperty &targetProp,
+                                                const QString &imagePath)
+{
+    if (targetProp.isValid()) {
+        // create a texture item lib
+        ItemLibraryEntry itemLibraryEntry;
+        itemLibraryEntry.setName("Texture");
+        itemLibraryEntry.setType("QtQuick3D.Texture", 1, 0);
+
+        // set texture source
+        PropertyName prop = "source";
+        QString type = "QUrl";
+        QVariant val = imagePath;
+        itemLibraryEntry.addProperty(prop, type, val);
+
+        // create a texture
+        ModelNode newModelNode = QmlItemNode::createQmlObjectNode(m_view, itemLibraryEntry, {},
+                                                                  targetProp, false);
+
+        // Rename the node based on source image
+        QFileInfo fi(imagePath);
+        newModelNode.setIdWithoutRefactoring(m_view->generateNewId(fi.baseName(), "textureImage"));
+        return newModelNode;
+    }
+    return {};
 }
 
 TypeName propertyType(const NodeAbstractProperty &property)

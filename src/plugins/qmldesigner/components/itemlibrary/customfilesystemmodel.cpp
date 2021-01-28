@@ -82,6 +82,13 @@ static const QStringList &supportedAudioSuffixes()
     return retList;
 }
 
+static const QStringList &supportedTexture3DSuffixes()
+{
+    // These are file types only supported by 3D textures
+    static QStringList retList {"hdr"};
+    return retList;
+}
+
 static QPixmap defaultPixmapForType(const QString &type, const QSize &size)
 {
     return QPixmap(QStringLiteral(":/ItemLibrary/images/asset_%1_%2.png").arg(type).arg(size.width()));
@@ -123,6 +130,8 @@ public:
                 pixmap = defaultPixmapForType("sound", iconSize);
             else if (supportedShaderSuffixes().contains(suffix))
                 pixmap = defaultPixmapForType("shader", iconSize);
+            else if (supportedTexture3DSuffixes().contains(suffix))
+                pixmap = defaultPixmapForType("texture", iconSize);
 
             if (pixmap.isNull())
                 return QFileIconProvider::icon(info);
@@ -286,6 +295,9 @@ QPair<QString, QByteArray> CustomFileSystemModel::resourceTypeAndData(const QMod
         } else if (supportedAudioSuffixes().contains(suffix)) {
             // No extra data for sounds
             return {"application/vnd.bauhaus.libraryresource.sound", {}};
+        } else if (supportedTexture3DSuffixes().contains(suffix)) {
+            // Data: Image format (suffix)
+            return {"application/vnd.bauhaus.libraryresource.texture3d", suffix.toUtf8()};
         }
     }
     return {};
@@ -303,6 +315,7 @@ const QSet<QString> &CustomFileSystemModel::supportedSuffixes() const
         insertSuffixes(supportedShaderSuffixes());
         insertSuffixes(supportedFontSuffixes());
         insertSuffixes(supportedAudioSuffixes());
+        insertSuffixes(supportedTexture3DSuffixes());
     }
     return allSuffixes;
 }
@@ -351,6 +364,8 @@ QModelIndex CustomFileSystemModel::updatePath(const QString &newPath)
         for (const QString &ext : supportedFontSuffixes())
             nameFilterList.append(filterTemplate.arg(searchFilter, ext));
         for (const QString &ext : supportedAudioSuffixes())
+            nameFilterList.append(filterTemplate.arg(searchFilter, ext));
+        for (const QString &ext : supportedTexture3DSuffixes())
             nameFilterList.append(filterTemplate.arg(searchFilter, ext));
     }
 
