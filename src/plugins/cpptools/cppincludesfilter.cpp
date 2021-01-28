@@ -34,8 +34,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 
-#include <QTimer>
-
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -168,7 +166,7 @@ void CppIncludesFilter::prepareSearch(const QString &entry)
 void CppIncludesFilter::refresh(QFutureInterface<void> &future)
 {
     Q_UNUSED(future)
-    QTimer::singleShot(0, this, &CppIncludesFilter::markOutdated);
+    QMetaObject::invokeMethod(this, &CppIncludesFilter::markOutdated, Qt::QueuedConnection);
 }
 
 void CppIncludesFilter::markOutdated()

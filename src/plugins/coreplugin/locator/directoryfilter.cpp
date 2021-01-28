@@ -33,7 +33,6 @@
 #include <utils/filesearch.h>
 
 #include <QFileDialog>
-#include <QTimer>
 
 using namespace Utils;
 
@@ -240,7 +239,8 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
         QMutexLocker locker(&m_lock);
         if (m_directories.isEmpty()) {
             m_files.clear();
-            QTimer::singleShot(0, this, &DirectoryFilter::updateFileIterator);
+            QMetaObject::invokeMethod(this, &DirectoryFilter::updateFileIterator,
+                                      Qt::QueuedConnection);
             future.setProgressRange(0, 1);
             future.setProgressValueAndText(1, tr("%1 filter update: 0 files").arg(displayName()));
             return;
@@ -267,7 +267,7 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
     if (!future.isCanceled()) {
         QMutexLocker locker(&m_lock);
         m_files = filesFound;
-        QTimer::singleShot(0, this, &DirectoryFilter::updateFileIterator);
+        QMetaObject::invokeMethod(this, &DirectoryFilter::updateFileIterator, Qt::QueuedConnection);
         future.setProgressValue(subDirIterator.maxProgress());
     } else {
         future.setProgressValueAndText(subDirIterator.currentProgress(), tr("%1 filter update: canceled").arg(displayName()));

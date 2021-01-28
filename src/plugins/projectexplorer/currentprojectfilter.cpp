@@ -30,7 +30,6 @@
 #include <utils/algorithm.h>
 
 #include <QMutexLocker>
-#include <QTimer>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -84,5 +83,6 @@ void CurrentProjectFilter::currentProjectChanged()
 void CurrentProjectFilter::refresh(QFutureInterface<void> &future)
 {
     Q_UNUSED(future)
-    QTimer::singleShot(0, this, &CurrentProjectFilter::markFilesAsOutOfDate);
+    QMetaObject::invokeMethod(this, &CurrentProjectFilter::markFilesAsOutOfDate,
+                              Qt::QueuedConnection);
 }

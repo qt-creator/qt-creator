@@ -40,7 +40,6 @@
 #include <QDir>
 #include <QPushButton>
 #include <QRegularExpression>
-#include <QTimer>
 
 using namespace Core;
 using namespace Core::Internal;
@@ -175,7 +174,7 @@ void FileSystemFilter::accept(LocatorFilterEntry selection,
         *selectionStart = value.length();
     } else {
         // Don't block locator filter execution with dialog
-        QTimer::singleShot(0, EditorManager::instance(), [info, selection] {
+        QMetaObject::invokeMethod(EditorManager::instance(), [info, selection] {
             const QString targetFile = selection.internalData.toString();
             if (!info.exists()) {
                 if (Utils::CheckableMessageBox::shouldAskAgain(ICore::settings(), kAlwaysCreate)) {
@@ -208,7 +207,7 @@ void FileSystemFilter::accept(LocatorFilterEntry selection,
             EditorManager::openEditor(cleanedFilePath,
                                       Id(),
                                       EditorManager::CanContainLineAndColumnNumber);
-        });
+        }, Qt::QueuedConnection);
     }
 }
 

@@ -32,7 +32,6 @@
 
 #include <QDir>
 #include <QRegularExpression>
-#include <QTimer>
 
 using namespace Utils;
 
@@ -202,7 +201,8 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
         d->m_current.clear(); // free memory
     } else {
         d->m_current.iterator.clear();
-        QTimer::singleShot(0, this, &BaseFileFilter::updatePreviousResultData);
+        QMetaObject::invokeMethod(this, &BaseFileFilter::updatePreviousResultData,
+                                  Qt::QueuedConnection);
     }
 
     for (auto &entry : entries) {

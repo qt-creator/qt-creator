@@ -361,7 +361,7 @@ bool LocatorPopup::event(QEvent *event)
         doUpdateGeometry();
     else if (event->type() == QEvent::LayoutRequest)
         // completion list resizes after first items are shown --> LayoutRequest
-        QTimer::singleShot(0, this, &LocatorPopup::doUpdateGeometry);
+        QMetaObject::invokeMethod(this, &LocatorPopup::doUpdateGeometry, Qt::QueuedConnection);
     return QWidget::event(event);
 }
 
@@ -751,12 +751,10 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
         case Qt::Key_Escape:
             if (!ke->modifiers()) {
                 event->accept();
-                QTimer::singleShot(0,
-                                   this,
-                                   [focus = m_previousFocusWidget,
-                                    isInMainWindow = isInMainWindow()] {
-                                       resetFocus(focus, isInMainWindow);
-                                   });
+                QMetaObject::invokeMethod(this, [focus = m_previousFocusWidget,
+                                          isInMainWindow = isInMainWindow()] {
+                    resetFocus(focus, isInMainWindow);
+                }, Qt::QueuedConnection);
                 return true;
             }
             break;
