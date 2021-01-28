@@ -39,6 +39,7 @@ class ClangCurrentDocumentFilter : public  Core::ILocatorFilter
 public:
     explicit ClangCurrentDocumentFilter();
 
+    void prepareSearch(const QString &entry) override;
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
     void accept(Core::LocatorFilterEntry selection,
@@ -48,10 +49,11 @@ private:
     void onEditorAboutToClose(Core::IEditor *editors);
     void onCurrentEditorChanged(Core::IEditor *newCurrent);
 
-    void reset();
+    void reset(Core::IEditor *newCurrent = nullptr, const QString &path = QString());
 
     Core::IEditor *m_currentEditor = nullptr;
     QString m_currentPath;
+    QString m_preparedPath;
 };
 
 } // namespace Internal
