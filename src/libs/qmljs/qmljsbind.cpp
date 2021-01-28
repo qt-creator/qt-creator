@@ -211,7 +211,7 @@ bool Bind::visit(UiImport *ast)
             ModelManagerInterface::ProjectInfo pInfo = model->projectInfoForPath(_doc->fileName());
             qtVersion = QVersionNumber::fromString(pInfo.qtVersionString);
         }
-        if (version.isValid() && (!qtVersion.isNull() && qtVersion.majorVersion() < 6)) {
+        if (!version.isValid() && (!qtVersion.isNull() && qtVersion.majorVersion() < 6)) {
             _diagnosticMessages->append(
                         errorMessage(ast, tr("package import requires a version number")));
         }
