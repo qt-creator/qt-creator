@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "conansettings.h"
+#include <utils/hostosinfo.h>
 
 namespace ConanPackageManager {
 namespace Internal {
@@ -37,8 +38,9 @@ void ConanSettings::fromSettings(QSettings *settings)
 {
     const QString rootKey = QString(SETTINGS_KEY) + '/';
 
+    const QString defaultExe = Utils::HostOsInfo::withExecutableSuffix(QString("conan"));
     m_conanFilePath = Utils::FilePath::fromUserInput(
-        settings->value(rootKey + CONAN_FILE_PATH, QString("conan")).toString());
+        settings->value(rootKey + CONAN_FILE_PATH, defaultExe).toString());
 }
 
 void ConanSettings::toSettings(QSettings *settings) const
