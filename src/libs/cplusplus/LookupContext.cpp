@@ -216,7 +216,14 @@ LookupContext &LookupContext::operator=(const LookupContext &other)
 QList<const Name *> LookupContext::fullyQualifiedName(Symbol *symbol, InlineNamespacePolicy policy)
 {
     QList<const Name *> qualifiedName = path(symbol->enclosingScope(), policy);
-    addNames(symbol->name(), &qualifiedName, /*add all names*/ true);
+    QList<const Name *> symbolNames;
+    addNames(symbol->name(), &symbolNames, /*add all names*/ true);
+    if (const UsingDeclaration * const usingDecl = symbol->asUsingDeclaration()) {
+        if (!symbolNames.isEmpty())
+            qualifiedName << symbolNames.last();
+    } else {
+        qualifiedName << symbolNames;
+    }
     return qualifiedName;
 }
 
@@ -811,7 +818,7 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
                 continue; // skip using namespace directives
             else if (! id->match(s->identifier()))
                 continue;
-            else if (s->name() && s->name()->isQualifiedNameId())
+            else if (s->name() && s->name()->isQualifiedNameId() && !s->asUsingDeclaration())
                 continue; // skip qualified ids.
 
             if (Q_UNLIKELY(debug)) {

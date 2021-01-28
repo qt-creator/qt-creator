@@ -4322,6 +4322,41 @@ void Foo::otherFunc()
     QuickFixOperationTest(testDocuments, &factory);
 }
 
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_usingDecl()
+{
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = R"(
+namespace N { struct S; }
+using N::S;
+
+void @func(const S &s);
+)";
+    expected = original;
+    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
+
+    // Source File
+    original = R"(
+#include "file.h"
+)";
+    expected = R"(
+#include "file.h"
+
+void func(const S &s)
+{
+
+}
+)";
+    testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
+
+    InsertDefFromDecl factory;
+    QuickFixOperationTest(testDocuments, &factory);
+}
+
 /// Find right implementation file. (QTCREATORBUG-10728)
 void CppEditorPlugin::test_quickfix_InsertDefFromDecl_findImplementationFile()
 {
