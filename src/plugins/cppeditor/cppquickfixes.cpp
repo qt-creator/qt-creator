@@ -3111,6 +3111,15 @@ public:
             // make target lookup context
             Document::Ptr targetDoc = targetFile->cppDocument();
             Scope *targetScope = targetDoc->scopeAt(loc.line(), loc.column());
+
+            // Correct scope in case of a function try-block. See QTCREATORBUG-14661.
+            if (targetScope && targetScope->asBlock()) {
+                if (Class * const enclosingClass = targetScope->enclosingClass())
+                    targetScope = enclosingClass;
+                else
+                    targetScope = targetScope->enclosingNamespace();
+            }
+
             LookupContext targetContext(targetDoc, op->snapshot());
             ClassOrNamespace *targetCoN = targetContext.lookupType(targetScope);
             if (!targetCoN)

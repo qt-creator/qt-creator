@@ -4283,6 +4283,45 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_rvalueReference()
     QuickFixOperationTest(testDocuments, &factory);
 }
 
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_functionTryBlock()
+{
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = R"(
+struct Foo {
+    void tryCatchFunc();
+    void @otherFunc();
+};
+)";
+    expected = original;
+    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
+
+    // Source File
+    original = R"(
+#include "file.h"
+
+void Foo::tryCatchFunc() try {} catch (...) {}
+)";
+    expected = R"(
+#include "file.h"
+
+void Foo::tryCatchFunc() try {} catch (...) {}
+
+void Foo::otherFunc()
+{
+
+}
+)";
+    testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
+
+    InsertDefFromDecl factory;
+    QuickFixOperationTest(testDocuments, &factory);
+}
+
 /// Find right implementation file. (QTCREATORBUG-10728)
 void CppEditorPlugin::test_quickfix_InsertDefFromDecl_findImplementationFile()
 {
