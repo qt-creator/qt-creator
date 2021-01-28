@@ -51,6 +51,7 @@ excludedirs  += ../../qtcreator/examples/accelbubble \
                 ../../qtcreator/src/android \
                 ../../qtcreator/src/baremetal \
                 ../../qtcreator/src/cmake \
+                ../../qtcreator/src/conan \
                 ../../qtcreator/src/debugger/creator-only \
                 ../../qtcreator/src/editors/creator-only \
                 ../../qtcreator/src/howto/creator-only \
