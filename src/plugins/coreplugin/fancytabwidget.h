@@ -32,7 +32,6 @@
 #include <QWidget>
 
 #include <QPropertyAnimation>
-#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QPainter;

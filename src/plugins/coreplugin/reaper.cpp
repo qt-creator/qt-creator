@@ -80,7 +80,7 @@ ProcessReaper::ProcessReaper(QProcess *p, int timeoutMs) : m_process(p)
     m_iterationTimer.setSingleShot(true);
     connect(&m_iterationTimer, &QTimer::timeout, this, &ProcessReaper::nextIteration);
 
-    QTimer::singleShot(0, this, &ProcessReaper::nextIteration);
+    QMetaObject::invokeMethod(this, &ProcessReaper::nextIteration, Qt::QueuedConnection);
 }
 
 ProcessReaper::~ProcessReaper()

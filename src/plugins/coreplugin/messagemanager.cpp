@@ -33,7 +33,6 @@
 #include <QFont>
 #include <QThread>
 #include <QTime>
-#include <QTimer>
 
 /*!
     \class Core::MessageManager
@@ -90,7 +89,9 @@ static void write(const QString &text, Flag flags)
     if (QThread::currentThread() == m_instance->thread())
         doWrite(text, flags);
     else
-        QTimer::singleShot(0, m_instance, [text, flags] { doWrite(text, flags); });
+        QMetaObject::invokeMethod(m_instance, [text, flags] {
+            doWrite(text, flags);
+        }, Qt::QueuedConnection);
 }
 
 /*!

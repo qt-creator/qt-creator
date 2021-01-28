@@ -41,7 +41,6 @@
 #include <QPushButton>
 #include <QSortFilterProxyModel>
 #include <QStandardItem>
-#include <QTimer>
 
 Q_DECLARE_METATYPE(Core::IWizardFactory*)
 
@@ -502,8 +501,8 @@ void NewDialog::accept()
     if (m_ui->templatesView->currentIndex().isValid()) {
         IWizardFactory *wizard = currentWizardFactory();
         if (QTC_GUARD(wizard)) {
-            QTimer::singleShot(0, std::bind(&runWizard, wizard, m_defaultLocation,
-                                            selectedPlatform(), m_extraVariables));
+            QMetaObject::invokeMethod(wizard, std::bind(&runWizard, wizard, m_defaultLocation,
+                                      selectedPlatform(), m_extraVariables), Qt::QueuedConnection);
         }
     }
     QDialog::accept();

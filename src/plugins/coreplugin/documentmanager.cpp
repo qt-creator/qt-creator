@@ -1320,7 +1320,7 @@ void DocumentManager::checkForReload()
 
     d->m_blockActivated = false;
     // re-check in case files where modified while the dialog was open
-    QTimer::singleShot(0, this, &DocumentManager::checkForReload);
+    QMetaObject::invokeMethod(this, &DocumentManager::checkForReload, Qt::QueuedConnection);
 //    dump();
 }
 

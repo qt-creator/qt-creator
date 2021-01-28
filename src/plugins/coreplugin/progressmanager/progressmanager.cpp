@@ -343,7 +343,7 @@ bool ProgressManagerPrivate::eventFilter(QObject *obj, QEvent *event)
                 progress = m_taskList.last();
             // don't send signal directly from an event filter, event filters should
             // do as little a possible
-            QTimer::singleShot(0, progress, &FutureProgress::clicked);
+            QMetaObject::invokeMethod(progress, &FutureProgress::clicked, Qt::QueuedConnection);
             event->accept();
             return true;
         }

@@ -46,7 +46,6 @@
 #include <QMutexLocker>
 #include <QProcess>
 #include <QRegularExpression>
-#include <QTimer>
 #include <QWaitCondition>
 
 using namespace Utils;
@@ -147,7 +146,7 @@ Utils::FilePath SpotlightIterator::filePath() const
 
 void SpotlightIterator::scheduleKillProcess()
 {
-    QTimer::singleShot(0, m_process.get(), [this] { killProcess(); });
+    QMetaObject::invokeMethod(m_process.get(), [this] { killProcess(); }, Qt::QueuedConnection);
 }
 
 void SpotlightIterator::killProcess()

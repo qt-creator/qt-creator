@@ -408,7 +408,7 @@ void ActionContainerPrivate::scheduleUpdate()
     if (m_updateRequested)
         return;
     m_updateRequested = true;
-    QTimer::singleShot(0, this, &ActionContainerPrivate::update);
+    QMetaObject::invokeMethod(this, &ActionContainerPrivate::update, Qt::QueuedConnection);
 }
 
 void ActionContainerPrivate::update()

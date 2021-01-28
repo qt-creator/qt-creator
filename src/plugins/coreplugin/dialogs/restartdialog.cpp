@@ -28,7 +28,6 @@
 #include <coreplugin/icore.h>
 
 #include <QPushButton>
-#include <QTimer>
 
 namespace Core {
 
@@ -41,9 +40,7 @@ RestartDialog::RestartDialog(QWidget *parent, const QString &text)
     addButton(tr("Later"), QMessageBox::NoRole);
     addButton(tr("Restart Now"), QMessageBox::YesRole);
 
-    connect(this, &QDialog::accepted, this, [] {
-        QTimer::singleShot(0, ICore::instance(), [] { ICore::restart(); });
-    });
+    connect(this, &QDialog::accepted, ICore::instance(), &ICore::restart, Qt::QueuedConnection);
 }
 
 } // namespace Core

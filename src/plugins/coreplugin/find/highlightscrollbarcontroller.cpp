@@ -31,7 +31,6 @@
 #include <QScrollBar>
 #include <QStyle>
 #include <QStyleOptionSlider>
-#include <QTimer>
 
 using namespace Utils;
 
@@ -105,7 +104,7 @@ void HighlightScrollBarOverlay::scheduleUpdate()
         return;
 
     m_isCacheUpdateScheduled = true;
-    QTimer::singleShot(0, this, QOverload<>::of(&QWidget::update));
+    QMetaObject::invokeMethod(this, QOverload<>::of(&QWidget::update), Qt::QueuedConnection);
 }
 
 void HighlightScrollBarOverlay::paintEvent(QPaintEvent *paintEvent)

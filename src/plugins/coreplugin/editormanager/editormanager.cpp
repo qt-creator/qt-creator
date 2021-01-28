@@ -1466,7 +1466,7 @@ void EditorManagerPrivate::addEditor(IEditor *editor)
         emit m_instance->documentOpened(document);
     }
     emit m_instance->editorOpened(editor);
-    QTimer::singleShot(0, d, &EditorManagerPrivate::autoSuspendDocuments);
+    QMetaObject::invokeMethod(d, &EditorManagerPrivate::autoSuspendDocuments, Qt::QueuedConnection);
 }
 
 void EditorManagerPrivate::removeEditor(IEditor *editor, bool removeSuspendedEntry)
@@ -2366,7 +2366,8 @@ void EditorManagerPrivate::handleContextChange(const QList<IContext *> &context)
         // the locator line edit) first activates the window and sets focus to its focus widget.
         // Only afterwards the focus is shifted to the widget that received the click.
         d->m_scheduledCurrentEditor = editor;
-        QTimer::singleShot(0, d, &EditorManagerPrivate::setCurrentEditorFromContextChange);
+        QMetaObject::invokeMethod(d, &EditorManagerPrivate::setCurrentEditorFromContextChange,
+                                  Qt::QueuedConnection);
     } else {
         updateActions();
     }

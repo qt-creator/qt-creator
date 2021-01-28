@@ -39,7 +39,6 @@
 #include <QMenuBar>
 #include <QPointer>
 #include <QRegularExpression>
-#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 Utils::QHashValueType qHash(const QPointer<QAction> &p, Utils::QHashValueType seed)
@@ -84,10 +83,10 @@ void MenuBarFilter::accept(LocatorFilterEntry selection, QString *newText,
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
     if (auto action = selection.internalData.value<QPointer<QAction>>()) {
-        QTimer::singleShot(0, action, [action] {
+        QMetaObject::invokeMethod(action, [action] {
             if (action->isEnabled())
                 action->trigger();
-        });
+        }, Qt::QueuedConnection);
     }
 }
 

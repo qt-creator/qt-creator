@@ -29,7 +29,6 @@
 
 #include <QFile>
 #include <QObject>
-#include <QTimer>
 #include <QCoreApplication>
 
 #include <cstdio>
@@ -109,7 +108,7 @@ int main(int argc, char *argv[])
         return EXIT_SUCCESS;
     case ArgumentsCollector::RequestTypePaste: {
         PasteReceiver pr(argsCollector.protocol(), argsCollector.inputFilePath());
-        QTimer::singleShot(0, &pr, &PasteReceiver::paste);
+        QMetaObject::invokeMethod(&pr, &PasteReceiver::paste, Qt::QueuedConnection);
         return app.exec();
     }
     }

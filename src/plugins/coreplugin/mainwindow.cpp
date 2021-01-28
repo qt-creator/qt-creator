@@ -90,7 +90,6 @@
 #include <QSettings>
 #include <QStatusBar>
 #include <QStyleFactory>
-#include <QTimer>
 #include <QToolButton>
 #include <QUrl>
 
@@ -320,8 +319,8 @@ void MainWindow::extensionsInitialized()
 
     emit m_coreImpl->coreAboutToOpen();
     // Delay restoreWindowState, since it is overridden by LayoutRequest event
-    QTimer::singleShot(0, this, &MainWindow::restoreWindowState);
-    QTimer::singleShot(0, m_coreImpl, &ICore::coreOpened);
+    QMetaObject::invokeMethod(this, &MainWindow::restoreWindowState, Qt::QueuedConnection);
+    QMetaObject::invokeMethod(m_coreImpl, &ICore::coreOpened, Qt::QueuedConnection);
 }
 
 static void setRestart(bool restart)
@@ -930,7 +929,7 @@ void MainWindow::exit()
     // since on close we are going to delete everything
     // so to prevent the deleting of that object we
     // just append it
-    QTimer::singleShot(0, this,  &QWidget::close);
+    QMetaObject::invokeMethod(this,  &QWidget::close, Qt::QueuedConnection);
 }
 
 void MainWindow::openFileWith()

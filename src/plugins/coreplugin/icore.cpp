@@ -154,7 +154,6 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QStatusBar>
-#include <QTimer>
 
 using namespace Core::Internal;
 using namespace ExtensionSystem;
@@ -834,7 +833,7 @@ public:
     {
         QTC_ASSERT(watched == m_widget, return false);
         if (event->type() == QEvent::Show)
-            QTimer::singleShot(0, this, &ScreenShooter::helper);
+            QMetaObject::invokeMethod(this, &ScreenShooter::helper, Qt::QueuedConnection);
         return false;
     }
 

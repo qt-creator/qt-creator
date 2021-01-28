@@ -889,7 +889,7 @@ bool FindToolBar::focusNextPrevChild(bool next)
 void FindToolBar::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event)
-    QTimer::singleShot(0, this, &FindToolBar::updateToolBar);
+    QMetaObject::invokeMethod(this, &FindToolBar::updateToolBar, Qt::QueuedConnection);
 }
 
 void FindToolBar::writeSettings()
