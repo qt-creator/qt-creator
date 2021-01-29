@@ -51,8 +51,13 @@ static clang::format::FormatStyle qtcStyle()
     style.Language = FormatStyle::LK_Cpp;
     style.AccessModifierOffset = -4;
     style.AlignAfterOpenBracket = FormatStyle::BAS_Align;
+#if LLVM_VERSION_MAJOR >= 12
+    style.AlignConsecutiveAssignments = FormatStyle::ACS_None;
+    style.AlignConsecutiveDeclarations = FormatStyle::ACS_None;
+#else
     style.AlignConsecutiveAssignments = false;
     style.AlignConsecutiveDeclarations = false;
+#endif
     style.AlignEscapedNewlines = FormatStyle::ENAS_DontAlign;
 #if LLVM_VERSION_MAJOR >= 11
     style.AlignOperands = FormatStyle::OAS_Align;
