@@ -361,8 +361,8 @@ bool RefactoringFile::apply()
             m_changes.apply(&c);
             m_changes.clear();
 
-            indentOrReindent(&RefactoringChangesData::indentSelection, indentSelections);
-            indentOrReindent(&RefactoringChangesData::reindentSelection, reindentSelections);
+            indentOrReindent(indentSelections, Indent);
+            indentOrReindent(reindentSelections, Reindent);
 
             c.endEditBlock();
 
@@ -386,18 +386,17 @@ bool RefactoringFile::apply()
     return result;
 }
 
-void RefactoringFile::indentOrReindent(void (RefactoringChangesData::*mf)(const QTextCursor &,
-                                                                          const QString &,
-                                                                          const TextDocument *) const,
-                                       const RefactoringSelections &ranges)
+void RefactoringFile::indentOrReindent(const RefactoringSelections &ranges,
+                                       RefactoringFile::IndentType indent)
 {
-    using CursorPair = QPair<QTextCursor, QTextCursor>;
-
-    foreach (const CursorPair &p, ranges) {
-        QTextCursor selection(p.first.document());
-        selection.setPosition(p.first.position());
-        selection.setPosition(p.second.position(), QTextCursor::KeepAnchor);
-        ((*m_data).*(mf))(selection, m_fileName, m_editor ? m_editor->textDocument() : nullptr);
+    TextDocument * document = m_editor ? m_editor->textDocument() : nullptr;
+    for (const auto &[position, anchor]: ranges) {
+        QTextCursor selection(anchor);
+        selection.setPosition(position.position(), QTextCursor::KeepAnchor);
+        if (indent == Indent)
+            m_data->indentSelection(selection, m_fileName, document);
+        else
+            m_data->reindentSelection(selection, m_fileName, document);
     }
 }
 

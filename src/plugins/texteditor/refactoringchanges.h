@@ -93,10 +93,8 @@ protected:
     // derived classes may want to clear language specific extra data
     virtual void fileChanged();
 
-    void indentOrReindent(void (RefactoringChangesData::*mf)(const QTextCursor &,
-                                                             const QString &,
-                                                             const TextDocument *) const,
-                          const RefactoringSelections &ranges);
+    enum IndentType {Indent, Reindent};
+    void indentOrReindent(const RefactoringSelections &ranges, IndentType indent);
 
 protected:
     QString m_fileName;
