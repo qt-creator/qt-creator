@@ -29,6 +29,7 @@
 
 #include <QTimer>
 
+#include <atomic>
 #include <memory>
 
 QT_BEGIN_NAMESPACE
@@ -57,7 +58,7 @@ private:
 
     mutable std::unique_ptr<QJSEngine> m_engine;
     QTimer m_abortTimer;
-    bool m_aborted = false;
+    std::atomic_bool m_aborted = false;
 };
 
 } // namespace Internal
