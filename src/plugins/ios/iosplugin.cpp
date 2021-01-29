@@ -59,7 +59,6 @@ public:
     IosDeployConfigurationFactory()
     {
         setConfigBaseId("Qt4ProjectManager.IosDeployConfiguration");
-        setSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
         addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
         addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
         setDefaultDisplayName(QCoreApplication::translate("Ios::Internal", "Deploy on iOS"));
