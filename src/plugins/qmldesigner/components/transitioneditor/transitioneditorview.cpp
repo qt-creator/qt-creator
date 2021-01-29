@@ -220,8 +220,8 @@ ModelNode TransitionEditorView::addNewTransition()
         for (const QmlPropertyChanges & change : state.propertyChanges()) {
             QStringList locList;
             const ModelNode target = change.target();
-            const QString targetId = target.id();
             if (target.isValid() && target.hasMetaInfo()) {
+                const QString targetId = target.id();
                 for (const VariantProperty &property : change.modelNode().variantProperties()) {
                     TypeName typeName = target.metaInfo().propertyTypeName(property.name());
 
