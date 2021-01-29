@@ -153,9 +153,9 @@ void DocumentLocatorFilter::prepareSearch(const QString &/*entry*/)
 QList<Core::LocatorFilterEntry> DocumentLocatorFilter::matchesFor(
     QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
 {
+    QMutexLocker locker(&m_mutex);
     if (!m_symbolCache)
         return {};
-    QMutexLocker locker(&m_mutex);
     if (!m_currentSymbols.has_value()) {
         QEventLoop loop;
         connect(this, &DocumentLocatorFilter::symbolsUpToDate, &loop, [&]() { loop.exit(1); });
