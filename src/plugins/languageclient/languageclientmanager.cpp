@@ -458,7 +458,7 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
         return;
 
     // check whether we have to start servers for this document
-    const QList<BaseSettings *> settings = LanguageClientSettings::pageSettings();
+    const QList<BaseSettings *> settings = currentSettings();
     for (BaseSettings *setting : settings) {
         QVector<Client *> clients = clientForSetting(setting);
         if (setting->isValid() && setting->m_enabled
