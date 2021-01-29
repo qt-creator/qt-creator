@@ -4322,7 +4322,6 @@ void Foo::otherFunc()
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-// FIXME: QTCREATORBUG-14524.
 void CppEditorPlugin::test_quickfix_InsertDefFromDecl_usingDecl()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
@@ -4347,7 +4346,7 @@ void @func(const S &s);
     expected = R"(
 #include "file.h"
 
-void func(const N::S &s)
+void func(const S &s)
 {
 
 }
@@ -4376,7 +4375,7 @@ void @func(const N1::S &s);
     expected = R"(
 #include "file.h"
 
-void func(const N1::N2::S &s)
+void func(const N1::S &s)
 {
 
 }

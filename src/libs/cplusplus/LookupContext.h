@@ -83,6 +83,7 @@ public:
     ClassOrNamespace *lookupType(const Name *name, Block *block);
     ClassOrNamespace *findType(const Name *name);
     ClassOrNamespace *findBlock(Block *block);
+    ClassOrNamespace *getNested(const Name *name);
 
     Symbol *lookupInScope(const QList<const Name *> &fullName);
 

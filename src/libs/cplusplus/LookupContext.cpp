@@ -270,6 +270,27 @@ const Name *LookupContext::minimalName(Symbol *symbol, ClassOrNamespace *target,
 {
     const Name *n = nullptr;
     QList<const Name *> names = LookupContext::fullyQualifiedName(symbol);
+    ClassOrNamespace *current = target;
+
+    const auto getNameFromItems = [symbol, target, control](const QList<LookupItem> &items,
+            const QList<const Name *> &names, bool checkSymbols) -> const Name * {
+        for (const LookupItem &item : items) {
+            if (checkSymbols && !symbolIdentical(item.declaration(), symbol))
+                continue;
+
+            // eliminate inline namespaces
+            QList<const Name *> minimal = names;
+            for (int i = minimal.size() - 2; i >= 0; --i) {
+                const Name *candidate = toName(minimal.mid(0, i + 1), control);
+                if (isInlineNamespace(target, candidate))
+                    minimal.removeAt(i);
+            }
+
+            return toName(minimal, control);
+        }
+
+        return nullptr;
+    };
 
     for (int i = names.size() - 1; i >= 0; --i) {
         if (! n)
@@ -279,20 +300,24 @@ const Name *LookupContext::minimalName(Symbol *symbol, ClassOrNamespace *target,
 
         // once we're qualified enough to get the same symbol, break
         if (target) {
-            const QList<LookupItem> tresults = target->lookup(n);
-            foreach (const LookupItem &tr, tresults) {
-                if (symbolIdentical(tr.declaration(), symbol)) {
-                    // eliminate inline namespaces
-                    QList<const Name *> minimal = names.mid(i);
-                    for (int i = minimal.size() - 2; i >= 0; --i) {
-                        const Name *candidate = toName(minimal.mid(0, i + 1), control);
-                        if (isInlineNamespace(target, candidate))
-                            minimal.removeAt(i);
-                    }
-
-                    return toName(minimal, control);
+            const Name * const minimal = getNameFromItems(target->lookup(n), names.mid(i), true);
+            if (minimal)
+                return minimal;
+        }
+        if (current) {
+            const ClassOrNamespace * const nested = current->getNested(names.last());
+            if (nested) {
+                const QList<const Name *> nameList
+                        = names.mid(0, names.size() - i - 1) << names.last();
+                const QList<ClassOrNamespace *> usings = nested->usings();
+                for (ClassOrNamespace * const u : usings) {
+                    const Name * const minimal = getNameFromItems(u->lookup(symbol->name()),
+                                                                  nameList, false);
+                    if (minimal)
+                        return minimal;
                 }
             }
+            current = current->getNested(names.at(names.size() - i - 1));
         }
     }
 
@@ -921,6 +946,15 @@ ClassOrNamespace *ClassOrNamespace::findBlock(Block *block)
 {
     QSet<ClassOrNamespace *> processed;
     return findBlock_helper(block, &processed, true);
+}
+
+ClassOrNamespace *ClassOrNamespace::getNested(const Name *name)
+{
+    flush();
+    const auto it = _classOrNamespaces.find(name);
+    if (it != _classOrNamespaces.cend())
+        return it->second;
+    return nullptr;
 }
 
 Symbol *ClassOrNamespace::lookupInScope(const QList<const Name *> &fullName)
