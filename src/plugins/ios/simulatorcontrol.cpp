@@ -79,20 +79,22 @@ static bool checkForTimeout(const chrono::high_resolution_clock::time_point &sta
     return timedOut;
 }
 
-static bool runCommand(const CommandLine &command, QString *output)
+static bool runCommand(const CommandLine &command, QString *stdOutput, QString *allOutput = nullptr)
 {
     SynchronousProcess p;
     p.setTimeoutS(-1);
     SynchronousProcessResponse resp = p.runBlocking(command);
-    if (output)
-        *output = resp.stdOut();
+    if (stdOutput)
+        *stdOutput = resp.stdOut();
+    if (allOutput)
+        *allOutput = resp.allOutput();
     return resp.result == SynchronousProcessResponse::Finished;
 }
 
-static bool runSimCtlCommand(QStringList args, QString *output)
+static bool runSimCtlCommand(QStringList args, QString *output, QString *allOutput = nullptr)
 {
     args.prepend("simctl");
-    return runCommand({"xcrun", args}, output);
+    return runCommand({"xcrun", args}, output, allOutput);
 }
 
 static bool launchSimulator(const QString &simUdid) {
@@ -484,6 +486,7 @@ void SimulatorControlPrivate::installApp(QFutureInterface<SimulatorControl::Resp
 
     SimulatorControl::ResponseData response(simUdid);
     response.success = runSimCtlCommand({"install", simUdid, bundlePath.toString()},
+                                        nullptr,
                                         &response.commandOutput);
     if (!fi.isCanceled())
         fi.reportResult(response);
@@ -513,8 +516,9 @@ void SimulatorControlPrivate::launchApp(QFutureInterface<SimulatorControl::Respo
                 args << extraArgument;
         }
 
-        if (runSimCtlCommand(args, &response.commandOutput)) {
-            const QString pIdStr = response.commandOutput.trimmed().split(' ').last().trimmed();
+        QString stdOutput;
+        if (runSimCtlCommand(args, &stdOutput, &response.commandOutput)) {
+            const QString pIdStr = stdOutput.trimmed().split(' ').last().trimmed();
             bool validPid = false;
             response.pID = pIdStr.toLongLong(&validPid);
             response.success = validPid;
@@ -530,7 +534,7 @@ void SimulatorControlPrivate::deleteSimulator(QFutureInterface<SimulatorControl:
                                               const QString &simUdid)
 {
     SimulatorControl::ResponseData response(simUdid);
-    response.success = runSimCtlCommand({"delete", simUdid}, &response.commandOutput);
+    response.success = runSimCtlCommand({"delete", simUdid}, nullptr, &response.commandOutput);
 
     if (!fi.isCanceled())
         fi.reportResult(response);
@@ -540,7 +544,7 @@ void SimulatorControlPrivate::resetSimulator(QFutureInterface<SimulatorControl::
                                              const QString &simUdid)
 {
     SimulatorControl::ResponseData response(simUdid);
-    response.success = runSimCtlCommand({"erase", simUdid}, &response.commandOutput);
+    response.success = runSimCtlCommand({"erase", simUdid}, nullptr, &response.commandOutput);
 
     if (!fi.isCanceled())
         fi.reportResult(response);
@@ -551,6 +555,7 @@ void SimulatorControlPrivate::renameSimulator(QFutureInterface<SimulatorControl:
 {
     SimulatorControl::ResponseData response(simUdid);
     response.success = runSimCtlCommand({"rename", simUdid, newName},
+                                        nullptr,
                                         &response.commandOutput);
 
     if (!fi.isCanceled())
@@ -564,12 +569,12 @@ void SimulatorControlPrivate::createSimulator(QFutureInterface<SimulatorControl:
 {
     SimulatorControl::ResponseData response("Invalid");
     if (!name.isEmpty()) {
-        response.success = runSimCtlCommand({"create", name,
-                                             deviceType.identifier,
-                                             runtime.identifier},
-                                            &response.commandOutput);
-        response.simUdid = response.success ? response.commandOutput.trimmed()
-                                            : QString();
+        QString stdOutput;
+        response.success
+            = runSimCtlCommand({"create", name, deviceType.identifier, runtime.identifier},
+                               &stdOutput,
+                               &response.commandOutput);
+        response.simUdid = response.success ? stdOutput.trimmed() : QString();
     }
 
     if (!fi.isCanceled())
@@ -581,6 +586,7 @@ void SimulatorControlPrivate::takeSceenshot(QFutureInterface<SimulatorControl::R
 {
     SimulatorControl::ResponseData response(simUdid);
     response.success = runSimCtlCommand({"io", simUdid, "screenshot", filePath},
+                                        nullptr,
                                         &response.commandOutput);
     if (!fi.isCanceled())
         fi.reportResult(response);
