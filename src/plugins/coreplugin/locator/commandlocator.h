@@ -45,6 +45,7 @@ public:
 
     void appendCommand(Command *cmd);
 
+    void prepareSearch(const QString &entry) override;
     QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                          const QString &entry) override;
     void accept(LocatorFilterEntry selection,

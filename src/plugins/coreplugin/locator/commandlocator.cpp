@@ -40,6 +40,7 @@ namespace Core {
 struct CommandLocatorPrivate
 {
     QList<Command *> commands;
+    QList<QPair<int, QString>> commandsData;
 };
 
 /*!
@@ -70,33 +71,42 @@ void CommandLocator::appendCommand(Command *cmd)
     d->commands.push_back(cmd);
 }
 
+void CommandLocator::prepareSearch(const QString &entry)
+{
+    Q_UNUSED(entry)
+    d->commandsData = {};
+    const int count = d->commands.size();
+    // Get active, enabled actions matching text, store in list.
+    // Reference via index in extraInfo.
+    for (int i = 0; i < count; ++i) {
+        Command *command = d->commands.at(i);
+        if (!command->isActive())
+            continue;
+        QAction *action = command->action();
+        if (action && action->isEnabled())
+            d->commandsData.append(qMakePair(i, action->text()));
+    }
+}
+
 QList<LocatorFilterEntry> CommandLocator::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
 {
     QList<LocatorFilterEntry> goodEntries;
     QList<LocatorFilterEntry> betterEntries;
-    // Get active, enabled actions matching text, store in list.
-    // Reference via index in extraInfo.
     const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(entry);
-    const int count = d->commands.size();
-    for (int i = 0; i < count; i++) {
+    for (const auto &pair : qAsConst(d->commandsData)) {
         if (future.isCanceled())
             break;
-        if (!d->commands.at(i)->isActive())
-            continue;
 
-        QAction *action = d->commands.at(i)->action();
-        if (action && action->isEnabled()) {
-            const QString text = Utils::stripAccelerator(action->text());
-            const int index = text.indexOf(entry, 0, entryCaseSensitivity);
-            if (index >= 0) {
-                LocatorFilterEntry filterEntry(this, text, QVariant(i));
-                filterEntry.highlightInfo = {index, int(entry.length())};
+        const QString text = Utils::stripAccelerator(pair.second);
+        const int index = text.indexOf(entry, 0, entryCaseSensitivity);
+        if (index >= 0) {
+            LocatorFilterEntry filterEntry(this, text, QVariant(pair.first));
+            filterEntry.highlightInfo = {index, int(entry.length())};
 
-                if (index == 0)
-                    betterEntries.append(filterEntry);
-                else
-                    goodEntries.append(filterEntry);
-            }
+            if (index == 0)
+                betterEntries.append(filterEntry);
+            else
+                goodEntries.append(filterEntry);
         }
     }
     betterEntries.append(goodEntries);
