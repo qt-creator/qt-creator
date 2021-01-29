@@ -101,6 +101,7 @@ public:
 
     void setFormatter(Formatter *indenter); // transfers ownership
     void autoFormat(const QTextCursor &cursor);
+    bool applyChangeSet(const Utils::ChangeSet &changeSet);
 
     TextMarks marks() const;
     bool addMark(TextMark *mark);

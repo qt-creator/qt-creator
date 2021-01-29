@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include "texteditor_global.h"
+#include "refactoringchanges.h"
 
-#include <utils/textutils.h>
+#include <utils/changeset.h>
 
 #include <QFutureWatcher>
 #include <QString>
@@ -47,7 +47,7 @@ public:
     Formatter() = default;
     virtual ~Formatter() = default;
 
-    virtual QFutureWatcher<Utils::Text::Replacements> *format(
+    virtual QFutureWatcher<Utils::ChangeSet> *format(
         const QTextCursor & /*cursor*/, const TextEditor::TabSettings & /*tabSettings*/)
     {
         return nullptr;
@@ -55,14 +55,14 @@ public:
 
     virtual bool isElectricCharacter(const QChar & /*ch*/) const { return false; }
     virtual bool supportsAutoFormat() const { return false; }
-    virtual QFutureWatcher<Utils::Text::Replacements> *autoFormat(
+    virtual QFutureWatcher<Utils::ChangeSet> *autoFormat(
         const QTextCursor & /*cursor*/, const TextEditor::TabSettings & /*tabSettings*/)
     {
         return nullptr;
     }
 
     virtual bool supportsFormatOnSave() const { return false; }
-    virtual QFutureWatcher<Utils::Text::Replacements> *formatOnSave(
+    virtual QFutureWatcher<Utils::ChangeSet> *formatOnSave(
         const QTextCursor & /*cursor*/, const TextEditor::TabSettings & /*tabSettings*/)
     {
         return nullptr;

@@ -67,16 +67,16 @@ static const FormattingOptions formattingOptions(const TextEditor::TabSettings &
     return options;
 }
 
-QFutureWatcher<Utils::Text::Replacements> *LanguageClientFormatter::format(
+QFutureWatcher<ChangeSet> *LanguageClientFormatter::format(
         const QTextCursor &cursor, const TextEditor::TabSettings &tabSettings)
 {
     cancelCurrentRequest();
-    m_progress = QFutureInterface<Utils::Text::Replacements>();
+    m_progress = QFutureInterface<ChangeSet>();
 
     const FilePath &filePath = m_document->filePath();
     const DynamicCapabilities dynamicCapabilities = m_client->dynamicCapabilities();
     const QString method(DocumentRangeFormattingRequest::methodName);
-    if (Utils::optional<bool> registered = dynamicCapabilities.isRegistered(method)) {
+    if (optional<bool> registered = dynamicCapabilities.isRegistered(method)) {
         if (!registered.value())
             return nullptr;
         const TextDocumentRegistrationOptions option(dynamicCapabilities.option(method).toObject());
@@ -107,7 +107,7 @@ QFutureWatcher<Utils::Text::Replacements> *LanguageClientFormatter::format(
     // ignore first contents changed, because this function is called inside a begin/endEdit block
     m_ignoreCancel = true;
     m_progress.reportStarted();
-    auto watcher = new QFutureWatcher<Text::Replacements>();
+    auto watcher = new QFutureWatcher<ChangeSet>();
     watcher->setFuture(m_progress.future());
     QObject::connect(watcher, &QFutureWatcher<Text::Replacements>::canceled, [this]() {
         cancelCurrentRequest();
@@ -131,16 +131,12 @@ void LanguageClientFormatter::handleResponse(const DocumentRangeFormattingReques
     m_currentRequest = nullopt;
     if (const optional<DocumentRangeFormattingRequest::Response::Error> &error = response.error())
         m_client->log(*error);
-    Text::Replacements replacements;
+    ChangeSet changeSet;
     if (optional<LanguageClientArray<TextEdit>> result = response.result()) {
-        if (!result->isNull()) {
-            const QList<TextEdit> results = result->toList();
-            replacements.reserve(results.size());
-            for (const TextEdit &edit : results)
-                replacements.emplace_back(edit.toReplacement(m_document->document()));
-        }
+        if (!result->isNull())
+            changeSet = editsToChangeSet(result->toList(), m_document->document());
     }
-    m_progress.reportResult(replacements);
+    m_progress.reportResult(changeSet);
     m_progress.reportFinished();
 }
 

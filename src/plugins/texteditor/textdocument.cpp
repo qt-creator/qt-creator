@@ -518,13 +518,23 @@ void TextDocument::autoFormat(const QTextCursor &cursor)
     using namespace Utils::Text;
     if (!d->m_formatter)
         return;
-    if (QFutureWatcher<Replacements> *watcher = d->m_formatter->format(cursor, tabSettings())) {
-        connect(watcher, &QFutureWatcher<Replacements>::finished, this, [this, watcher]() {
+    if (QFutureWatcher<ChangeSet> *watcher = d->m_formatter->format(cursor, tabSettings())) {
+        connect(watcher, &QFutureWatcher<ChangeSet>::finished, this, [this, watcher]() {
             if (!watcher->isCanceled())
-                Utils::Text::applyReplacements(document(), watcher->result());
+                applyChangeSet(watcher->result());
             delete watcher;
         });
     }
+}
+
+bool TextDocument::applyChangeSet(const ChangeSet &changeSet)
+{
+    if (changeSet.isEmpty())
+        return true;
+    RefactoringChanges changes;
+    const RefactoringFilePtr file = changes.file(filePath().toString());
+    file->setChangeSet(changeSet);
+    return file->apply();
 }
 
 const ExtraEncodingSettings &TextDocument::extraEncodingSettings() const

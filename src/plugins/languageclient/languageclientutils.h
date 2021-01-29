@@ -29,6 +29,7 @@
 #include <languageserverprotocol/languagefeatures.h>
 
 #include <texteditor/refactoroverlay.h>
+#include <utils/changeset.h>
 
 namespace Core { class IEditor; }
 
@@ -41,6 +42,8 @@ namespace LanguageClient {
 
 class Client;
 
+Utils::ChangeSet editsToChangeSet(const QList<LanguageServerProtocol::TextEdit> &edits,
+                                  const QTextDocument *doc);
 bool applyWorkspaceEdit(const LanguageServerProtocol::WorkspaceEdit &edit);
 bool applyTextDocumentEdit(const LanguageServerProtocol::TextDocumentEdit &edit);
 bool applyTextEdits(const LanguageServerProtocol::DocumentUri &uri,
