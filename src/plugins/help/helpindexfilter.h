@@ -29,9 +29,10 @@
 
 #include <QIcon>
 #include <QMultiMap>
-#include <QMutex>
 #include <QSet>
 #include <QUrl>
+
+#include <atomic>
 
 namespace Help {
 namespace Internal {
@@ -77,8 +78,7 @@ private:
     QStringList m_lastIndicesCache;
     QString m_lastEntry;
 #endif
-    bool m_needsUpdate = true;
-    QMutex m_mutex;
+    std::atomic_bool m_needsUpdate = true;
     QIcon m_icon;
 };
 

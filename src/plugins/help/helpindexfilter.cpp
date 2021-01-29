@@ -174,17 +174,11 @@ bool HelpIndexFilter::updateCache(QFutureInterface<LocatorFilterEntry> &future,
 
 QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
 {
-    m_mutex.lock(); // guard m_needsUpdate
-    bool forceUpdate = m_needsUpdate;
-    m_mutex.unlock();
-
-    if (forceUpdate) {
+    if (m_needsUpdate) {
         QStringList indices;
         QMetaObject::invokeMethod(this, [this] { return allIndices(); },
                                   Qt::BlockingQueuedConnection, &indices);
-        m_mutex.lock(); // guard m_needsUpdate
         m_needsUpdate = false;
-        m_mutex.unlock();
         m_allIndicesCache = indices;
         // force updating the cache taking the m_allIndicesCache
         m_lastIndicesCache = QStringList();
@@ -279,7 +273,5 @@ QStringList HelpIndexFilter::allIndices() const
 
 void HelpIndexFilter::invalidateCache()
 {
-    m_mutex.lock();
     m_needsUpdate = true;
-    m_mutex.unlock();
 }
