@@ -27,6 +27,9 @@ add_feature_info("Build tests" ${WITH_TESTS} "")
 option(WITH_DEBUG_CMAKE "Enabled CMake project debugging functionality (e.g. source file disk checking)" OFF)
 option(BUILD_WITH_PCH "Build with precompiled headers" ON)
 
+# merge binary directories of sub projects into top level
+set(QTC_MERGE_BINARY_DIR ON)
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Set up Qt stuff:

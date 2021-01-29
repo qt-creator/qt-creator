@@ -5,4 +5,5 @@ add_qtc_executable(echo
     echoclangcodemodelserver.cpp echoclangcodemodelserver.h
     echoserverprocessmain.cpp
   SKIP_INSTALL
+  PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
