@@ -30,6 +30,7 @@
 
 #include <android/androidconstants.h>
 #include <coreplugin/fileiconprovider.h>
+#include <ios/iosconstants.h>
 #include <projectexplorer/target.h>
 
 #include <utils/qtcassert.h>
@@ -148,7 +149,17 @@ QVariant CMakeTargetNode::data(Utils::Id role) const
     if (role == Android::Constants::AndroidTargets)
         return values("TARGETS_BUILD_PATH");
 
-    QTC_CHECK(false);
+    if (role == Ios::Constants::IosTarget) {
+        // For some reason the artifact is e.g. "Debug/untitled.app/untitled" which is wrong.
+        // It actually is e.g. "Debug-iphonesimulator/untitled.app/untitled".
+        // Anyway, the iOS plugin is only interested in the app bundle name without .app.
+        return m_artifact.fileName();
+    }
+
+    if (role == Ios::Constants::IosBuildDir)
+        return {}; // defaults to build configuration build directory
+
+    QTC_ASSERT(false, qDebug() << "Unknown role" << role.toString());
     // Better guess than "not present".
     return value(role.toString().toUtf8());
 }
@@ -181,6 +192,7 @@ void CMakeTargetNode::setTargetInformation(const QList<Utils::FilePath> &artifac
         const QStringList tmp = Utils::transform(artifacts, &Utils::FilePath::toUserOutput);
         m_tooltip += QCoreApplication::translate("CMakeTargetNode", "Build artifacts:") + "<br>"
                 + tmp.join("<br>");
+        m_artifact = artifacts.first();
     }
 }
 
