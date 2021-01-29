@@ -372,7 +372,7 @@ void TestTreeModel::synchronizeTestTools()
     QSet<ITestTool *> newlyAdded;
     QList<ITestTreeItem *> oldFrameworkRoots;
     for (Utils::TreeItem *oldFrameworkRoot : *invisibleRoot) {
-        auto item = static_cast<TestTreeItem *>(oldFrameworkRoot);
+        auto item = static_cast<ITestTreeItem *>(oldFrameworkRoot);
         if (item->testBase()->asTestTool())
             oldFrameworkRoots.append(item);
     }
