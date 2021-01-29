@@ -74,6 +74,7 @@ void FileSystemFilter::prepareSearch(const QString &entry)
 {
     Q_UNUSED(entry)
     m_currentDocumentDirectory = DocumentManager::fileDialogInitialDirectory();
+    m_currentIncludeHidden = m_includeHidden;
 }
 
 QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
@@ -92,7 +93,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
     const QDir dirInfo(directory);
     QDir::Filters dirFilter = QDir::Dirs|QDir::Drives|QDir::NoDot|QDir::NoDotDot;
     QDir::Filters fileFilter = QDir::Files;
-    if (m_includeHidden) {
+    if (m_currentIncludeHidden) {
         dirFilter |= QDir::Hidden;
         fileFilter |= QDir::Hidden;
     }

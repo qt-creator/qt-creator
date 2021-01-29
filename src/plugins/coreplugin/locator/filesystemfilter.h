@@ -56,6 +56,7 @@ private:
     static MatchLevel matchLevelFor(const QRegularExpressionMatch &match, const QString &matchText);
 
     bool m_includeHidden = true;
+    bool m_currentIncludeHidden = true;
     QString m_currentDocumentDirectory;
 };
 
