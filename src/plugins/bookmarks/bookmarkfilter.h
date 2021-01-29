@@ -37,6 +37,7 @@ class BookmarkFilter : public Core::ILocatorFilter
     Q_OBJECT
 public:
     explicit BookmarkFilter(BookmarkManager *manager);
+    void prepareSearch(const QString &entry) override;
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
     void accept(Core::LocatorFilterEntry selection, QString *newText,
@@ -45,6 +46,7 @@ public:
 
 private:
     BookmarkManager *m_manager = nullptr; // not owned
+    QList<Core::LocatorFilterEntry> m_results;
 };
 
 } // namespace Internal
