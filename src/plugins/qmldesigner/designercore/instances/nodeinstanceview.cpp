@@ -1689,6 +1689,12 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
             }
         }
     } else {
+        if (imageSource.isEmpty() && modelNode.isComponent()) {
+            // Image component has no custom source set, so fall back to component rendering to get
+            // the default component image.
+            return previewImageDataForGenericNode(modelNode, {});
+        }
+
         QFileInfo imageFi(imageSource);
         if (imageFi.isRelative())
             imageSource = QFileInfo(modelNode.model()->fileUrl().toLocalFile()).dir().absoluteFilePath(imageSource);
