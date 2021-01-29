@@ -1275,6 +1275,30 @@ static bool shouldAvoidNonStrictEqualityCheck(const Value *lhs, const Value *rhs
     return false;
 }
 
+static bool equalIsAlwaysFalse(const Value *lhs, const Value *rhs)
+{
+    if ((lhs->asNullValue() || lhs->asUndefinedValue())
+        && (rhs->asNumberValue() || rhs->asBooleanValue() || rhs->asStringValue()))
+        return true;
+    return false;
+}
+
+static bool strictCompareConstant(const Value *lhs, const Value *rhs)
+{
+    if (lhs->asUnknownValue() || rhs->asUnknownValue())
+        return false;
+    if (lhs->asBooleanValue() && !rhs->asBooleanValue())
+        return true;
+    if (lhs->asNumberValue() && !rhs->asNumberValue())
+        return true;
+    if (lhs->asStringValue() && !rhs->asStringValue())
+        return true;
+    if (lhs->asObjectValue() && (!rhs->asObjectValue() || !rhs->asNullValue() || !rhs->asUndefinedValue()))
+        return true;
+    return false;
+}
+
+
 bool Check::visit(BinaryExpression *ast)
 {
     const QString source = _doc->source();
@@ -1299,6 +1323,18 @@ bool Check::visit(BinaryExpression *ast)
         if (shouldAvoidNonStrictEqualityCheck(lhsValue, rhsValue)
                 || shouldAvoidNonStrictEqualityCheck(rhsValue, lhsValue)) {
             addMessage(MaybeWarnEqualityTypeCoercion, ast->operatorToken);
+        }
+        if (equalIsAlwaysFalse(lhsValue, rhsValue)
+            || equalIsAlwaysFalse(rhsValue, lhsValue))
+            addMessage(WarnLogicalValueDoesNotDependOnValues, ast->operatorToken);
+    }
+    if (ast->op == QSOperator::StrictEqual || ast->op == QSOperator::StrictNotEqual) {
+        Evaluate eval(&_scopeChain);
+        const Value *lhsValue = eval(ast->left);
+        const Value *rhsValue = eval(ast->right);
+        if (strictCompareConstant(lhsValue, rhsValue)
+                || strictCompareConstant(rhsValue, lhsValue)) {
+            addMessage(WarnLogicalValueDoesNotDependOnValues, ast->operatorToken);
         }
     }
 
