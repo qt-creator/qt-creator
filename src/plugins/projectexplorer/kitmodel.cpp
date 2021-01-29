@@ -29,9 +29,10 @@
 #include "kitmanagerconfigwidget.h"
 #include "kitmanager.h"
 
-#include <utils/utilsicons.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QApplication>
 #include <QLayout>
@@ -106,8 +107,9 @@ KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent)
       m_parentLayout(parentLayout)
 {
     setHeader(QStringList(tr("Name")));
-    m_autoRoot = new StaticTreeItem(tr("Auto-detected"));
-    m_manualRoot = new StaticTreeItem(tr("Manual"));
+    m_autoRoot = new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
+                                    {ProjectExplorer::Constants::msgAutoDetectedToolTip()});
+    m_manualRoot = new StaticTreeItem(ProjectExplorer::Constants::msgManual());
     rootItem()->appendChild(m_autoRoot);
     rootItem()->appendChild(m_manualRoot);
 

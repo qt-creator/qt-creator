@@ -232,7 +232,9 @@ public:
 CMakeToolItemModel::CMakeToolItemModel()
 {
     setHeader({tr("Name"), tr("Location")});
-    rootItem()->appendChild(new StaticTreeItem(tr("Auto-detected")));
+    rootItem()->appendChild(
+        new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
+                           {ProjectExplorer::Constants::msgAutoDetectedToolTip()}));
     rootItem()->appendChild(new StaticTreeItem(tr("Manual")));
 
     foreach (const CMakeTool *item, CMakeToolManager::cmakeTools())

@@ -261,8 +261,9 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     m_ui.versionInfoWidget->setWidget(versionInfoWidget);
     m_ui.versionInfoWidget->setState(DetailsWidget::NoSummary);
 
-    m_autoItem = new StaticTreeItem(tr("Auto-detected"));
-    m_manualItem = new StaticTreeItem(tr("Manual"));
+    m_autoItem = new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
+                                    {ProjectExplorer::Constants::msgAutoDetectedToolTip()});
+    m_manualItem = new StaticTreeItem(ProjectExplorer::Constants::msgManual());
 
     m_model = new TreeModel<TreeItem, TreeItem, QtVersionItem>();
     m_model->setHeader({tr("Name"), tr("qmake Location")});

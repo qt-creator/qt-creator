@@ -28,6 +28,7 @@
 #include "tooltreeitem.h"
 #include "exewrappers/mesontools.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
@@ -37,8 +38,10 @@ namespace Internal {
 ToolsModel::ToolsModel()
 {
     setHeader({tr("Name"), tr("Location")});
-    rootItem()->appendChild(new Utils::StaticTreeItem(tr("Auto-detected")));
-    rootItem()->appendChild(new Utils::StaticTreeItem(tr("Manual")));
+    rootItem()->appendChild(
+        new Utils::StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
+                                  {ProjectExplorer::Constants::msgAutoDetectedToolTip()}));
+    rootItem()->appendChild(new Utils::StaticTreeItem(ProjectExplorer::Constants::msgManual()));
     for (const auto &tool : MesonTools::tools()) {
         addMesonTool(tool);
     }

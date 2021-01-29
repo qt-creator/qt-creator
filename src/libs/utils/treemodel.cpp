@@ -1186,10 +1186,17 @@ StaticTreeItem::StaticTreeItem(const QString &display)
 {
 }
 
+StaticTreeItem::StaticTreeItem(const QStringList &displays, const QStringList &toolTips)
+    : m_displays(displays)
+    , m_toolTips(toolTips)
+{}
+
 QVariant StaticTreeItem::data(int column, int role) const
 {
     if (role == Qt::DisplayRole && column >= 0 && column < m_displays.size())
         return m_displays.at(column);
+    if (role == Qt::ToolTipRole && column >= 0 && column < m_toolTips.size())
+        return m_toolTips.at(column);
     return QVariant();
 }
 

@@ -101,6 +101,8 @@ public:
     static QString libexecPath();
     static QString crashReportsPath();
 
+    static QString ideDisplayName();
+
     static QString versionString();
 
     static QMainWindow *mainWindow();

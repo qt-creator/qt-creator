@@ -111,6 +111,7 @@ Project {
                 "projectexplorer.cpp", "projectexplorer.h",
                 "projectexplorer.qrc",
                 "projectexplorer_export.h",
+                "projectexplorerconstants.cpp",
                 "projectexplorerconstants.h",
                 "projectexplorericons.h", "projectexplorericons.cpp",
                 "projectexplorersettings.h",

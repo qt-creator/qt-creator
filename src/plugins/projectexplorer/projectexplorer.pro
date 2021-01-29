@@ -212,6 +212,7 @@ SOURCES += projectexplorer.cpp \
     ioutputparser.cpp \
     projectconfiguration.cpp \
     gnumakeparser.cpp \
+    projectexplorerconstants.cpp \
     task.cpp \
     copytaskhandler.cpp \
     showineditortaskhandler.cpp \

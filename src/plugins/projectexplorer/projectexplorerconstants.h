@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include "projectexplorer_export.h"
 
 namespace ProjectExplorer {
 namespace Constants {
@@ -229,6 +229,11 @@ const char ADD_FILES_DIALOG_FILTER_HISTORY_KEY[] = "ProjectExplorer.AddFilesFilt
 const char PROJECT_ROOT_PATH_KEY[] = "ProjectExplorer.Project.RootPath";
 const char STARTUPSESSION_KEY[] = "ProjectExplorer/SessionToRestore";
 const char LASTSESSION_KEY[] = "ProjectExplorer/StartupSession";
+
+// UI texts
+PROJECTEXPLORER_EXPORT QString msgAutoDetected();
+PROJECTEXPLORER_EXPORT QString msgAutoDetectedToolTip();
+PROJECTEXPLORER_EXPORT QString msgManual();
 
 } // namespace Constants
 } // namespace ProjectExplorer

@@ -490,6 +490,11 @@ QString ICore::crashReportsPath()
         return libexecPath() + "/crashpad_reports/reports";
 }
 
+QString ICore::ideDisplayName()
+{
+    return Constants::IDE_DISPLAY_NAME;
+}
+
 static QString clangIncludePath(const QString &clangVersion)
 {
     return "/lib/clang/" + clangVersion + "/include";
