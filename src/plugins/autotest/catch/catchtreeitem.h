@@ -41,9 +41,9 @@ public:
     Q_FLAGS(TestState)
     Q_DECLARE_FLAGS(TestStates, TestState)
 
-    explicit CatchTreeItem(ITestBase *testBase, const QString &name = QString(),
+    explicit CatchTreeItem(ITestFramework *testFramework, const QString &name = QString(),
                            const QString &filePath = QString(), Type type = Root)
-        : TestTreeItem(testBase, name, filePath, type) {}
+        : TestTreeItem(testFramework, name, filePath, type) {}
 
     void setStates(CatchTreeItem::TestStates state) { m_state = state; }
     CatchTreeItem::TestStates states() const { return m_state; }

@@ -120,7 +120,7 @@ private:
 class TestTreeItem : public ITestTreeItem
 {
 public:
-    explicit TestTreeItem(ITestBase *testBase,
+    explicit TestTreeItem(ITestFramework *testFramework,
                           const QString &name = QString(),
                           const QString &filePath = QString(),
                           Type type = Root);

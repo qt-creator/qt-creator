@@ -164,9 +164,9 @@ ITestConfiguration *ITestTreeItem::asConfiguration(TestRunMode mode) const
 
 /****************************** TestTreeItem ********************************************/
 
-TestTreeItem::TestTreeItem(ITestBase *testBase, const QString &name,
+TestTreeItem::TestTreeItem(ITestFramework *testFramework, const QString &name,
                            const QString &filePath, Type type)
-    : ITestTreeItem(testBase, name, filePath, type)
+    : ITestTreeItem(testFramework, name, filePath, type)
 {
     switch (type) {
     case Root:

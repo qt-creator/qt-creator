@@ -33,11 +33,11 @@ namespace Internal {
 class QuickTestTreeItem : public TestTreeItem
 {
 public:
-    explicit QuickTestTreeItem(ITestBase *testBase,
+    explicit QuickTestTreeItem(ITestFramework *testFramework,
                                const QString &name = QString(),
                                const QString &filePath = QString(),
                                Type type = Root)
-        : TestTreeItem(testBase, name, filePath, type)
+        : TestTreeItem(testFramework, name, filePath, type)
     {}
 
     TestTreeItem *copyWithoutChildren() override;
