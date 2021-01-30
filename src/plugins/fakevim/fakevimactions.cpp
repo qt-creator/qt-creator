@@ -120,6 +120,7 @@ FakeVimSettings::FakeVimSettings()
     createAction(ConfigEmulateReplaceWithRegister, false, "ReplaceWithRegister");
     createAction(ConfigEmulateExchange, false, "exchange");
     createAction(ConfigEmulateArgTextObj, false, "argtextobj");
+    createAction(ConfigEmulateSurround, false, "surround");
 }
 
 FakeVimSettings::~FakeVimSettings()

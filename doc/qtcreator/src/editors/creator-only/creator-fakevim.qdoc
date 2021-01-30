@@ -128,11 +128,12 @@
             \li \c [count]["x]gr{motion} to replace \c {motion} with the contents of
         register \c x.
             \li ["x]grr to replace the current line.
-        \l{https://github.com/tommcdo/vim-exchange}{vim-exchange}
         \endlist
+        \li \l{https://github.com/tommcdo/vim-exchange}{vim-exchange}
         \li \l{https://github.com/vim-scripts/argtextobj.vim}{argtextobj.vim}:
         Defines the \c ia and \c aa text objects for function parameters.
-        \endlist
+        \li \l{https://github.com/tpope/vim-surround}{vim-surround}:
+        Adds mappings for deleting, adding and changing surroundings.
     \endlist
 
     \section2 Insert Mode

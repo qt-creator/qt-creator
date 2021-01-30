@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>580</width>
-    <height>543</height>
+    <height>568</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -162,6 +162,20 @@
          <string>Plugin Emulation</string>
         </property>
         <layout class="QGridLayout" name="gridLayout">
+         <item row="3" column="0">
+          <widget class="QCheckBox" name="checkBoxExchange">
+           <property name="text">
+            <string>vim-exchange</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QCheckBox" name="checkBoxArgTextObj">
+           <property name="text">
+            <string>argtextobj.vim</string>
+           </property>
+          </widget>
+         </item>
          <item row="1" column="0">
           <widget class="QCheckBox" name="checkBoxReplaceWithRegister">
            <property name="text">
@@ -179,17 +193,10 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QCheckBox" name="checkBoxArgTextObj">
+         <item row="4" column="0">
+          <widget class="QCheckBox" name="checkBoxVimSurround">
            <property name="text">
-            <string>argtextobj.vim</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QCheckBox" name="checkBoxExchange">
-           <property name="text">
-            <string>vim-exchange</string>
+            <string>vim-surround</string>
            </property>
           </widget>
          </item>

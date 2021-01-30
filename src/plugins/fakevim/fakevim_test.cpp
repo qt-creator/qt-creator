@@ -4341,6 +4341,76 @@ void FakeVimPlugin::test_vim_arg_text_obj_emulation()
     KEYS("dia", "foo()");
 }
 
+void FakeVimPlugin::test_vim_surround_emulation()
+{
+    TestData data;
+    setup(&data);
+    data.doCommand("set surround");
+
+    // ys and ds
+    data.setText("abc");
+    KEYS(R"(ysawb)",      R"((abc))");
+    KEYS(R"(ysabB)",     R"({(abc)})");
+    KEYS(R"(ysaB])",    R"([{(abc)}])");
+    KEYS(R"(ysa]>)",   R"(<[{(abc)}]>)");
+    KEYS(R"(ysa>")",  R"("<[{(abc)}]>")");
+    KEYS(R"(ysa"')", R"('"<[{(abc)}]>"')");
+    KEYS(R"(ds')",    R"("<[{(abc)}]>")");
+    KEYS(R"(ds")",     R"(<[{(abc)}]>)");
+    KEYS(R"(ds>)",      R"([{(abc)}])");
+    KEYS(R"(ds])",       R"({(abc)})");
+    KEYS(R"(ds})",        R"((abc))");
+    KEYS(R"(ds))",         R"(abc)");
+
+    data.setText("abc d|ef ghi");
+    KEYS("ysiWb", "abc (def) ghi");
+    KEYS(".", "abc ((def)) ghi");
+    KEYS("dsb", "abc (def) ghi");
+    KEYS(".", "abc def ghi");
+    KEYS("ysaWb", "abc (def) ghi");
+    KEYS(".", "abc ((def)) ghi");
+    KEYS("dsb", "abc (def) ghi");
+    KEYS(".", "abc def ghi");
+
+    // yss
+    data.setText("\t" "abc");
+    KEYS("yssb", "\t" "(abc)");
+    KEYS(".", "\t" "((abc))");
+
+    // Surround with function
+    data.setText("abc");
+    KEYS("ysiWftest<CR>", "test(abc)");
+    KEYS(".", "test(test(abc))");
+
+    // yS puts text on a new line
+    data.setText("abc");
+    KEYS("ySsB", "{" N
+                 "abc" N
+                 "}");
+
+    // cs
+    data.setText("(abc)");
+    KEYS(R"(csbB)",   R"({abc})");
+    KEYS(R"(csB])",   R"([abc])");
+    KEYS(R"(cs]>)",   R"(<abc>)");
+    KEYS(R"(cs>")",   R"("abc")");
+    KEYS(R"(cs"')",   R"('abc')");
+
+    // Visual line mode
+    data.setText("abc" N);
+    KEYS("VSB", "{" N
+                 "abc" N
+                 "}" N);
+
+    // Visual char mode
+    data.setText("abc");
+    KEYS("vlSB", "{ab}c");
+
+    // Visual block mode
+    data.setText("abc" N "def");
+    KEYS("<C-v>ljSB", "{ab}c" N "{de}f");
+}
+
 void FakeVimPlugin::test_macros()
 {
     TestData data;
