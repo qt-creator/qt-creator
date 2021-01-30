@@ -118,6 +118,7 @@ FakeVimSettings::FakeVimSettings()
     // Emulated plugins
     createAction(ConfigEmulateVimCommentary, false, "commentary");
     createAction(ConfigEmulateReplaceWithRegister, false, "ReplaceWithRegister");
+    createAction(ConfigEmulateExchange, false, "exchange");
 }
 
 FakeVimSettings::~FakeVimSettings()

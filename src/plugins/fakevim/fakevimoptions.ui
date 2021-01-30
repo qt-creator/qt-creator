@@ -165,7 +165,7 @@
          <item row="0" column="0">
           <widget class="QCheckBox" name="checkBoxVimCommentary">
            <property name="text">
-            <string>Vim-commentary</string>
+            <string>vim-commentary</string>
            </property>
            <property name="checked">
             <bool>false</bool>
@@ -176,6 +176,13 @@
           <widget class="QCheckBox" name="checkBoxReplaceWithRegister">
            <property name="text">
             <string>ReplaceWithRegister</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QCheckBox" name="checkBoxExchange">
+           <property name="text">
+            <string>vim-exchange</string>
            </property>
           </widget>
          </item>

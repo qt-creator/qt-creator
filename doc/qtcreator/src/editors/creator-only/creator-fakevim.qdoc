@@ -128,6 +128,7 @@
             \li \c [count]["x]gr{motion} to replace \c {motion} with the contents of
         register \c x.
             \li ["x]grr to replace the current line.
+        \l{https://github.com/tommcdo/vim-exchange}{vim-exchange}
         \endlist
     \endlist
 

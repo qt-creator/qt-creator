@@ -161,6 +161,7 @@ private slots:
     void test_vim_commentary_emulation();
     void test_vim_commentary_file_names();
     void test_vim_replace_with_register_emulation();
+    void test_vim_exchange_emulation();
 
     void test_macros();
 

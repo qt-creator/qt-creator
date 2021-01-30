@@ -4289,6 +4289,34 @@ void FakeVimPlugin::test_vim_replace_with_register_emulation()
     KEYS("v4lgr", "abc abci");
 }
 
+void FakeVimPlugin::test_vim_exchange_emulation()
+{
+    TestData data;
+    setup(&data);
+    data.doCommand("set exchange");
+
+    // Simple exchange
+    data.setText("abc def");
+    KEYS("cxiw", "abc def");
+    KEYS("W", "abc " X "def");
+    KEYS(".", "def abc");
+
+    // Clearing pending exchange
+    data.setText("abc def ghi");
+    KEYS("cxiw", "abc def ghi");
+    KEYS("cxc", "abc def ghi");
+    KEYS("W", "abc " X "def ghi");
+    KEYS("cxiw", "abc def" X " ghi");
+    KEYS("W", "abc def " X "ghi");
+    KEYS(".", "abc ghi def");
+
+    // Exchange line
+    data.setText("abc" N "def");
+    KEYS("cxx", "abc" N "def");
+    KEYS("j", "abc" N "def");
+    KEYS(".", "def" N "abc");
+}
+
 void FakeVimPlugin::test_macros()
 {
     TestData data;

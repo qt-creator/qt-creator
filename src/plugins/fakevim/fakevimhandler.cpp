@@ -168,6 +168,7 @@ enum SubMode
     NoSubMode,
     ChangeSubMode,              // Used for c
     DeleteSubMode,              // Used for d
+    ExchangeSubMode,            // Used for cx
     FilterSubMode,              // Used for !
     IndentSubMode,              // Used for =
     RegisterSubMode,            // Used for "
@@ -1346,6 +1347,8 @@ QString dotCommandFromSubMode(SubMode submode)
         return QLatin1String("d");
     if (submode == CommentSubMode)
         return QLatin1String("gc");
+    if (submode == ExchangeSubMode)
+        return QLatin1String("cx");
     if (submode == ReplaceWithRegisterSubMode)
         return QLatin1String("gr");
     if (submode == InvertCaseSubMode)
@@ -1830,6 +1833,7 @@ public:
     bool handleReplaceSubMode(const Input &);
     bool handleCommentSubMode(const Input &);
     bool handleReplaceWithRegisterSubMode(const Input &);
+    bool handleExchangeSubMode(const Input &);
     bool handleFilterSubMode(const Input &);
     bool handleRegisterSubMode(const Input &);
     bool handleShiftSubMode(const Input &);
@@ -2092,6 +2096,7 @@ public:
     bool isOperatorPending() const {
         return g.submode == ChangeSubMode
             || g.submode == DeleteSubMode
+            || g.submode == ExchangeSubMode
             || g.submode == CommentSubMode
             || g.submode == ReplaceWithRegisterSubMode
             || g.submode == FilterSubMode
@@ -2170,6 +2175,8 @@ public:
     void invertCase(const Range &range);
 
     void toggleComment(const Range &range);
+
+    void exchangeRange(const Range &range);
 
     void replaceWithRegister(const Range &range);
 
@@ -2409,6 +2416,10 @@ public:
         QString recorded;
         int currentRegister = 0;
         int lastExecutedRegister = 0;
+
+        // If empty, cx{motion} will store the range defined by {motion} here.
+        // If non-empty, cx{motion} replaces the {motion} with selectText(*exchangeData)
+        std::optional<Range> exchangeRange;
     } g;
 };
 
@@ -3597,6 +3608,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
     if (g.submode == ChangeSubMode
         || g.submode == DeleteSubMode
         || g.submode == CommentSubMode
+        || g.submode == ExchangeSubMode
         || g.submode == ReplaceWithRegisterSubMode
         || g.submode == YankSubMode
         || g.submode == InvertCaseSubMode
@@ -3629,6 +3641,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         beginEditBlock();
         toggleComment(currentRange());
         endEditBlock();
+    } else if (g.submode == ExchangeSubMode) {
+        exchangeRange(currentRange());
     } else if (g.submode == ReplaceWithRegisterSubMode
                && hasConfig(ConfigEmulateReplaceWithRegister)) {
         pushUndoState(false);
@@ -4281,6 +4295,12 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         handled = handleCommandSubSubMode(input);
     } else if (g.submode == NoSubMode) {
         handled = handleNoSubMode(input);
+    } else if (g.submode == ExchangeSubMode) {
+        handled = handleExchangeSubMode(input);
+    } else if (g.submode == ChangeSubMode && input.is('x') && hasConfig(ConfigEmulateExchange)) {
+        // Exchange submode is "cx", so we need to switch over from ChangeSubMode here
+        g.submode = ExchangeSubMode;
+        handled = true;
     } else if (g.submode == ChangeSubMode
         || g.submode == DeleteSubMode
         || g.submode == YankSubMode) {
@@ -4840,6 +4860,30 @@ bool FakeVimHandler::Private::handleReplaceWithRegisterSubMode(const Input &inpu
     endEditBlock();
 
     return true;
+}
+
+bool FakeVimHandler::Private::handleExchangeSubMode(const Input &input)
+{
+    if (input.is('c')) { // cxc
+        g.exchangeRange.reset();
+        g.submode = NoSubMode;
+        return true;
+    }
+
+    if (input.is('x')) { // cxx
+        setAnchorAndPosition(firstPositionInLine(cursorLine() + 1),
+                             lastPositionInLine(cursorLine() + 1) + 1);
+
+        setDotCommand("cxx");
+
+        finishMovement();
+
+        g.submode = NoSubMode;
+
+        return true;
+    }
+
+    return false;
 }
 
 bool FakeVimHandler::Private::handleFilterSubMode(const Input &)
@@ -7482,6 +7526,32 @@ void FakeVimHandler::Private::toggleComment(const Range &range)
 
         return lines.size() == 1 ? lines.front() : lines.join("\n");
     });
+}
+
+void FakeVimHandler::Private::exchangeRange(const Range &range)
+{
+    if (g.exchangeRange) {
+        pushUndoState(false);
+        beginEditBlock();
+
+        Range leftRange = *g.exchangeRange;
+        Range rightRange = range;
+        if (leftRange.beginPos > rightRange.beginPos)
+            std::swap(leftRange, rightRange);
+
+        // First replace the right range, then left one
+        // If we did it the other way around, we would invalidate the positions
+        // of the right range
+        const QString rightText = selectText(rightRange);
+        replaceText(rightRange, selectText(leftRange));
+        replaceText(leftRange, rightText);
+
+        g.exchangeRange.reset();
+
+        endEditBlock();
+    } else {
+        g.exchangeRange = range;
+    }
 }
 
 void FakeVimHandler::Private::replaceWithRegister(const Range &range)

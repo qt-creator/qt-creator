@@ -112,6 +112,7 @@ enum FakeVimSettingsCode
     // Plugin emulation
     ConfigEmulateVimCommentary,
     ConfigEmulateReplaceWithRegister,
+    ConfigEmulateExchange,
 
     ConfigBlinkingCursor
 };
