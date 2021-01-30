@@ -7878,6 +7878,75 @@ public:
     QTest::newRow("default parameters")
         << header << expected << QByteArray() << QByteArray() << Inside;
 
+    header = R"--(
+struct Bar{
+    Bar(int i);
+};
+class@ Foo : public Bar{
+    int test;
+public:
+};
+)--";
+    expected = R"--(
+struct Bar{
+    Bar(int i);
+};
+class Foo : public Bar{
+    int test;
+public:
+    Foo(int test, int i) : Bar(i),
+        test(test)
+    {}
+};
+)--";
+    QTest::newRow("parent constructor")
+        << header << expected << QByteArray() << QByteArray() << Inside;
+
+    header = R"--(
+struct Bar{
+    Bar(int use_i = 6);
+};
+class@ Foo : public Bar{
+    int test;
+public:
+};
+)--";
+    expected = R"--(
+struct Bar{
+    Bar(int use_i = 6);
+};
+class Foo : public Bar{
+    int test;
+public:
+    Foo(int test, int use_i = 6) : Bar(use_i),
+        test(test)
+    {}
+};
+)--";
+    QTest::newRow("parent constructor with default")
+        << header << expected << QByteArray() << QByteArray() << Inside;
+
+    header = R"--(
+struct Bar{
+    Bar(int use_i = L'A', int use_i2 = u8"B");
+};
+class@ Foo : public Bar{
+public:
+};
+)--";
+    expected = R"--(
+struct Bar{
+    Bar(int use_i = L'A', int use_i2 = u8"B");
+};
+class Foo : public Bar{
+public:
+    Foo(int use_i = L'A', int use_i2 = u8"B") : Bar(use_i, use_i2)
+    {}
+};
+)--";
+    QTest::newRow("parent constructor with char/string default value")
+        << header << expected << QByteArray() << QByteArray() << Inside;
+
     const QByteArray common = R"--(
 namespace N{
     template<typename T>

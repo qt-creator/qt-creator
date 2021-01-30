@@ -1253,12 +1253,39 @@ const StringLiteral *Bind::asStringLiteral(const AST *ast)
     const int firstToken = ast->firstToken();
     const int lastToken = ast->lastToken();
     std::string buffer;
+
+    const auto token = tokenAt(ast->firstToken());
+
+    if (token.isCharLiteral()) {
+        if (token.kind() == T_WIDE_CHAR_LITERAL)
+            buffer += 'L';
+        else if (token.kind() == T_UTF16_CHAR_LITERAL)
+            buffer += 'u';
+        else if (token.kind() == T_UTF32_CHAR_LITERAL)
+            buffer += 'U';
+        buffer += '\'';
+    } else if (token.isStringLiteral()) {
+        if (token.kind() == T_WIDE_STRING_LITERAL)
+            buffer += 'L';
+        else if (token.kind() == T_UTF16_STRING_LITERAL)
+            buffer += 'u';
+        else if (token.kind() == T_UTF32_STRING_LITERAL)
+            buffer += 'U';
+        else if (token.kind() == T_UTF8_STRING_LITERAL)
+            buffer += "u8";
+        buffer += '"';
+    }
     for (int index = firstToken; index != lastToken; ++index) {
         const Token &tk = tokenAt(index);
         if (index != firstToken && (tk.whitespace() || tk.newline()))
             buffer += ' ';
         buffer += tk.spell();
     }
+    if (token.isCharLiteral())
+        buffer += '\'';
+    else if (token.isStringLiteral())
+        buffer += '"';
+
     return control()->stringLiteral(buffer.c_str(), int(buffer.size()));
 }
 

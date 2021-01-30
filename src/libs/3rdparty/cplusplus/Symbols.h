@@ -544,6 +544,7 @@ public:
     int baseClassCount() const;
     BaseClass *baseClassAt(int index) const;
     void addBaseClass(BaseClass *baseClass);
+    const std::vector<BaseClass *> &baseClasses() const { return _baseClasses; }
 
     // Symbol's interface
     FullySpecifiedType type() const override;
