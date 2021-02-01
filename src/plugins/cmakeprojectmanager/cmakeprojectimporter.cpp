@@ -254,19 +254,50 @@ static FilePath qmakeFromCMakeCache(const CMakeConfig &config)
 static QVector<ToolChainDescription> extractToolChainsFromCache(const CMakeConfig &config)
 {
     QVector<ToolChainDescription> result;
+    bool haveCCxxCompiler = false;
     for (const CMakeConfigItem &i : config) {
         if (!i.key.startsWith("CMAKE_") || !i.key.endsWith("_COMPILER"))
             continue;
         const QByteArray language = i.key.mid(6, i.key.count() - 6 - 9); // skip "CMAKE_" and "_COMPILER"
         Id languageId;
-        if (language == "CXX")
+        if (language == "CXX") {
+            haveCCxxCompiler = true;
             languageId = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
-        else  if (language == "C")
+        }
+        else  if (language == "C") {
+            haveCCxxCompiler = true;
             languageId = ProjectExplorer::Constants::C_LANGUAGE_ID;
+        }
         else
             languageId = Id::fromName(language);
         result.append({FilePath::fromUtf8(i.value), languageId});
     }
+
+    if (!haveCCxxCompiler) {
+        const QByteArray generator = CMakeConfigItem::valueOf(QByteArray("CMAKE_GENERATOR"), config);
+        QString cCompilerName;
+        QString cxxCompilerName;
+        if (generator.contains("Visual Studio")) {
+            cCompilerName = "cl.exe";
+            cxxCompilerName = "cl.exe";
+        } else if (generator.contains("Xcode")) {
+            cCompilerName = "clang";
+            cxxCompilerName = "clang++";
+        }
+
+        if (!cCompilerName.isEmpty() && !cxxCompilerName.isEmpty()) {
+            const FilePath linker = FilePath::fromUtf8(
+                CMakeConfigItem::valueOf(QByteArray("CMAKE_LINKER"), config));
+            if (!linker.isEmpty()) {
+                const FilePath compilerPath = linker.parentDir();
+                result.append({compilerPath.pathAppended(cCompilerName),
+                               ProjectExplorer::Constants::C_LANGUAGE_ID});
+                result.append({compilerPath.pathAppended(cxxCompilerName),
+                               ProjectExplorer::Constants::CXX_LANGUAGE_ID});
+            }
+        }
+    }
+
     return result;
 }
 
@@ -365,8 +396,12 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
         if (!Utils::contains(allLanguages, [&tcd](const Id& language) {return language == tcd.language;}))
             continue;
         ToolChain *tc = ToolChainKitAspect::toolChain(k, tcd.language);
-        if (!tc || tc->compilerCommand().canonicalPath() != tcd.compilerPath.canonicalPath())
+        if (!tc
+            || !Utils::Environment::systemEnvironment()
+                    .isSameExecutable(tc->compilerCommand().toString(),
+                                      tcd.compilerPath.toString())) {
             return false;
+        }
     }
 
     qCDebug(cmInputLog) << k->displayName()
