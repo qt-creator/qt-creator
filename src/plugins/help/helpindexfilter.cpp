@@ -89,12 +89,8 @@ void HelpIndexFilter::prepareSearch(const QString &entry)
 
 QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
 {
-    m_mutex.lock(); // guard m_needsUpdate
-    bool forceUpdate = m_needsUpdate;
-    m_mutex.unlock();
-
-    if (forceUpdate || m_searchTermCache.size() < 2 || m_searchTermCache.isEmpty()
-            || !entry.contains(m_searchTermCache)) {
+    if (m_needsUpdate.exchange(false) || m_searchTermCache.size() < 2
+            || m_searchTermCache.isEmpty() || !entry.contains(m_searchTermCache)) {
         int limit = entry.size() < 2 ? 200 : INT_MAX;
         QSet<QString> results;
         for (const QString &filePath : qAsConst(m_helpDatabases)) {
@@ -108,9 +104,6 @@ QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFi
                                       Q_ARG(int, limit));
             results.unite(result);
         }
-        m_mutex.lock(); // guard m_needsUpdate
-        m_needsUpdate = false;
-        m_mutex.unlock();
         m_keywordCache = results;
         m_searchTermCache = entry;
     }
@@ -174,11 +167,10 @@ bool HelpIndexFilter::updateCache(QFutureInterface<LocatorFilterEntry> &future,
 
 QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
 {
-    if (m_needsUpdate) {
+    if (m_needsUpdate.exchange(false)) {
         QStringList indices;
         QMetaObject::invokeMethod(this, [this] { return allIndices(); },
                                   Qt::BlockingQueuedConnection, &indices);
-        m_needsUpdate = false;
         m_allIndicesCache = indices;
         // force updating the cache taking the m_allIndicesCache
         m_lastIndicesCache = QStringList();
