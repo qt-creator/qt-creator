@@ -31,7 +31,6 @@
 
 #include <coreplugin/core_global.h>
 
-#include <QIcon>
 #include <QMutex>
 
 namespace Core {
@@ -63,7 +62,6 @@ public:
     using ILocatorFilter::setDisplayName;
 
 private:
-    QIcon m_icon;
     QStringList m_remoteUrls;
     bool m_isCustomFilter = false;
     mutable QMutex m_mutex;
