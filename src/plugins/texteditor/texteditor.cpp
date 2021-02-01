@@ -177,12 +177,12 @@ public:
         connect(m_editor, &QPlainTextEdit::cursorPositionChanged, this, &LineColumnLabel::update);
         connect(this, &FixedSizeClickLabel::clicked, ActionManager::instance(), [this] {
             emit m_editor->activateEditor(EditorManager::IgnoreNavigationHistory);
-            QTimer::singleShot(0, ActionManager::instance(), [] {
+            QMetaObject::invokeMethod(ActionManager::instance(), [] {
                 if (Command *cmd = ActionManager::command(Core::Constants::GOTO)) {
                     if (QAction *act = cmd->action())
                         act->trigger();
                 }
-            });
+            }, Qt::QueuedConnection);
         });
     }
 
@@ -5421,7 +5421,7 @@ void TextEditorWidgetPrivate::updateHighlights()
     }
 
     if (m_highlightAutoComplete && !m_autoCompleteHighlightPos.isEmpty()) {
-        QTimer::singleShot(0, this, [this](){
+        QMetaObject::invokeMethod(this, [this]() {
             const QTextCursor &cursor = q->textCursor();
             auto popAutoCompletion = [&]() {
                 return !m_autoCompleteHighlightPos.isEmpty()
@@ -5432,7 +5432,7 @@ void TextEditorWidgetPrivate::updateHighlights()
                     m_autoCompleteHighlightPos.pop_back();
                 updateAutoCompleteHighlight();
             }
-        });
+        }, Qt::QueuedConnection);
     }
 
     updateCurrentLineHighlight();
@@ -6287,7 +6287,7 @@ void TextEditorWidgetPrivate::requestUpdateLink(QMouseEvent *e)
 
     if (onText) {
         m_pendingLinkUpdate = cursor;
-        QTimer::singleShot(0, this, &TextEditorWidgetPrivate::updateLink);
+        QMetaObject::invokeMethod(this, &TextEditorWidgetPrivate::updateLink, Qt::QueuedConnection);
         return;
     }
 
@@ -6444,7 +6444,8 @@ void TextEditorWidgetPrivate::scheduleUpdateHighlightScrollBar()
         return;
 
     m_scrollBarUpdateScheduled = true;
-    QTimer::singleShot(0, this, &TextEditorWidgetPrivate::updateHighlightScrollBarNow);
+    QMetaObject::invokeMethod(this, &TextEditorWidgetPrivate::updateHighlightScrollBarNow,
+                              Qt::QueuedConnection);
 }
 
 Highlight::Priority textMarkPrioToScrollBarPrio(const TextMark::Priority &prio)

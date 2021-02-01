@@ -51,7 +51,6 @@
 #include <QScrollBar>
 #include <QStringList>
 #include <QTextCodec>
-#include <QTimer>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -1014,7 +1013,8 @@ void TextDocument::removeMarkFromMarksCache(TextMark *mark)
     auto scheduleLayoutUpdate = [documentLayout](){
         // make sure all destructors that may directly or indirectly call this function are
         // completed before updating.
-        QTimer::singleShot(0, documentLayout, &QPlainTextDocumentLayout::requestUpdate);
+        QMetaObject::invokeMethod(documentLayout, &QPlainTextDocumentLayout::requestUpdate,
+                                  Qt::QueuedConnection);
     };
 
     if (d->m_marksCache.isEmpty()) {

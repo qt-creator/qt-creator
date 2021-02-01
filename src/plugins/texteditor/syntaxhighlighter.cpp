@@ -34,7 +34,6 @@
 
 #include <QTextDocument>
 #include <QPointer>
-#include <qtimer.h>
 
 #include <cmath>
 
@@ -310,7 +309,8 @@ void SyntaxHighlighter::setDocument(QTextDocument *doc)
         if (!d->noAutomaticHighlighting) {
             connect(d->doc, &QTextDocument::contentsChange, this, &SyntaxHighlighter::reformatBlocks);
             d->rehighlightPending = true;
-            QTimer::singleShot(0, this, &SyntaxHighlighter::delayedRehighlight);
+            QMetaObject::invokeMethod(this, &SyntaxHighlighter::delayedRehighlight,
+                                      Qt::QueuedConnection);
         }
         d->foldValidator.setup(qobject_cast<TextDocumentLayout *>(doc->documentLayout()));
     }

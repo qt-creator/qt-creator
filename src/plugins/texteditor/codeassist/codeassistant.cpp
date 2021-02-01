@@ -254,7 +254,9 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
     case IAssistProvider::Asynchronous: {
         processor->setAsyncCompletionAvailableHandler([this, reason, processor](IAssistProposal *newProposal) {
             // do not delete this processor directly since this function is called from within the processor
-            QTimer::singleShot(0, [processor]() { delete processor; });
+            QMetaObject::invokeMethod(QCoreApplication::instance(), [processor]() {
+                delete processor;
+            }, Qt::QueuedConnection);
             if (processor != m_asyncProcessor)
                 return;
             invalidateCurrentRequestData();
