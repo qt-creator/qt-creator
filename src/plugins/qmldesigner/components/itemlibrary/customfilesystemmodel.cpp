@@ -27,6 +27,7 @@
 
 #include <synchronousimagecache.h>
 #include <theme.h>
+#include <hdrimage.h>
 
 #include <utils/filesystemwatcher.h>
 
@@ -94,6 +95,11 @@ static QPixmap defaultPixmapForType(const QString &type, const QSize &size)
     return QPixmap(QStringLiteral(":/ItemLibrary/images/asset_%1_%2.png").arg(type).arg(size.width()));
 }
 
+static QPixmap texturePixmap(const QString &fileName)
+{
+    return HdrImage{fileName}.toPixmap();
+}
+
 QString fontFamily(const QFileInfo &info)
 {
     QRawFont font(info.absoluteFilePath(), 10);
@@ -117,24 +123,26 @@ public:
         const QString suffix = info.suffix();
         const QString filePath = info.absoluteFilePath();
 
+        // Provide icon depending on suffix
+        QPixmap origPixmap;
+
         if (supportedFontSuffixes().contains(suffix))
             return generateFontIcons(filePath);
+        else if (supportedImageSuffixes().contains(suffix))
+            origPixmap.load(filePath);
+        else if (supportedTexture3DSuffixes().contains(suffix))
+            origPixmap = texturePixmap(filePath);
 
         for (auto iconSize : iconSizes) {
-            // Provide icon depending on suffix
-            QPixmap pixmap;
-
-            if (supportedImageSuffixes().contains(suffix))
-                pixmap.load(filePath);
-            else if (supportedAudioSuffixes().contains(suffix))
-                pixmap = defaultPixmapForType("sound", iconSize);
-            else if (supportedShaderSuffixes().contains(suffix))
-                pixmap = defaultPixmapForType("shader", iconSize);
-            else if (supportedTexture3DSuffixes().contains(suffix))
-                pixmap = defaultPixmapForType("texture", iconSize);
-
-            if (pixmap.isNull())
-                return QFileIconProvider::icon(info);
+            QPixmap pixmap = origPixmap;
+            if (pixmap.isNull()) {
+                if (supportedAudioSuffixes().contains(suffix))
+                    pixmap = defaultPixmapForType("sound", iconSize);
+                else if (supportedShaderSuffixes().contains(suffix))
+                    pixmap = defaultPixmapForType("shader", iconSize);
+                if (pixmap.isNull())
+                    return QFileIconProvider::icon(info);
+            }
 
             if ((pixmap.width() > iconSize.width()) || (pixmap.height() > iconSize.height()))
                 pixmap = pixmap.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);

@@ -213,6 +213,7 @@ extend_qtc_plugin(QmlDesigner
     selectioncontext.cpp selectioncontext.h
     theme.cpp theme.h
     zoomaction.cpp zoomaction.h
+    hdrimage.cpp hdrimage.h
 )
 
 extend_qtc_plugin(QmlDesigner

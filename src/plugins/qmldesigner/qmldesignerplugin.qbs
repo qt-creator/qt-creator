@@ -481,6 +481,8 @@ Project {
                 "componentcore/componentcore.qrc",
                 "componentcore/zoomaction.cpp",
                 "componentcore/zoomaction.h",
+                "componentcore/hdrimage.cpp",
+                "componentcore/hdrimage.h",
                 "texteditor/texteditorstatusbar.cpp",
                 "texteditor/texteditorstatusbar.h",
                 "componentcore/changestyleaction.cpp",

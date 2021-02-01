@@ -19,6 +19,7 @@ SOURCES += navigation2d.cpp
 SOURCES += crumblebar.cpp
 SOURCES += qmldesignericonprovider.cpp
 SOURCES += zoomaction.cpp
+SOURCES += hdrimage.cpp
 
 HEADERS += modelnodecontextmenu.h
 HEADERS += addimagesdialog.h
@@ -41,6 +42,7 @@ HEADERS += actioninterface.h
 HEADERS += crumblebar.h
 HEADERS += qmldesignericonprovider.h
 HEADERS += zoomaction.h
+HEADERS += hdrimage.h
 
 FORMS += \
     $$PWD/addsignalhandlerdialog.ui

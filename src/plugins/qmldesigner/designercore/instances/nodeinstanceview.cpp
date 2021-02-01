@@ -86,6 +86,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/documentmanager.h>
+#include <hdrimage.h>
 #endif
 
 #include <projectexplorer/target.h>
@@ -1723,7 +1724,12 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
                     originalPixmap = QPixmap::fromImage(paintImage);
                 }
             } else {
-                originalPixmap.load(imageSource);
+#ifndef QMLDESIGNER_TEST
+                if (imageFi.suffix() == "hdr")
+                    originalPixmap = HdrImage{imageSource}.toPixmap();
+                else
+#endif
+                    originalPixmap.load(imageSource);
             }
             if (!originalPixmap.isNull()) {
                 const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
