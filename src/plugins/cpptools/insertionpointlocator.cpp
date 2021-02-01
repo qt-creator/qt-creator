@@ -38,8 +38,8 @@
 #include <utils/qtcassert.h>
 
 using namespace CPlusPlus;
-using namespace CppTools;
 
+namespace CppTools {
 namespace {
 
 static int ordering(InsertionPointLocator::AccessSpec xsSpec)
@@ -723,3 +723,137 @@ const QList<InsertionLocation> InsertionPointLocator::methodDefinition(
 
     return result;
 }
+
+/**
+ * @brief getListOfMissingNamespacesForLocation checks which namespaces are present at a given
+ * location and returns a list of namespace names that are needed to get the wanted namespace
+ * @param file The file of the location
+ * @param wantedNamespaces the namespace as list that should exists at the insert location
+ * @param loc The location that should be checked (the namespaces should be available there)
+ * @return A list of namespaces that are missing to reach the wanted namespaces.
+ */
+static QStringList getListOfMissingNamespacesForLocation(const CppRefactoringFile *file,
+                                                  const QStringList &wantedNamespaces,
+                                                  InsertionLocation loc)
+{
+    NSCheckerVisitor visitor(file, wantedNamespaces, file->position(loc.line(), loc.column()));
+    visitor.accept(file->cppDocument()->translationUnit()->ast());
+    return visitor.remainingNamespaces();
+}
+
+/**
+ * @brief getNamespaceNames Returns a list of namespaces for an enclosing namespaces of a
+ * namespace (contains the namespace itself)
+ * @param firstNamespace the starting namespace (included in the list)
+ * @return the enclosing namespaces, the outermost namespace is at the first index, the innermost
+ * at the last index
+ */
+QStringList getNamespaceNames(const Namespace *firstNamespace)
+{
+    QStringList namespaces;
+    for (const Namespace *scope = firstNamespace; scope; scope = scope->enclosingNamespace()) {
+        if (scope->name() && scope->name()->identifier()) {
+            namespaces.prepend(QString::fromUtf8(scope->name()->identifier()->chars(),
+                                                 scope->name()->identifier()->size()));
+        } else {
+            namespaces.prepend(""); // an unnamed namespace
+        }
+    }
+    namespaces.pop_front(); // the "global namespace" is one namespace, but not an unnamed
+    return namespaces;
+}
+
+/**
+ * @brief getNamespaceNames Returns a list of enclosing namespaces for a symbol
+ * @param symbol a symbol from which we want the enclosing namespaces
+ * @return the enclosing namespaces, the outermost namespace is at the first index, the innermost
+ * at the last index
+ */
+QStringList getNamespaceNames(const Symbol *symbol)
+{
+    return getNamespaceNames(symbol->enclosingNamespace());
+}
+
+InsertionLocation insertLocationForMethodDefinition(Symbol *symbol,
+                                                    const bool useSymbolFinder,
+                                                    NamespaceHandling namespaceHandling,
+                                                    const CppRefactoringChanges &refactoring,
+                                                    const QString &fileName,
+                                                    QStringList *insertedNamespaces)
+{
+    QTC_ASSERT(symbol, return InsertionLocation());
+
+    CppRefactoringFilePtr file = refactoring.file(fileName);
+    QStringList requiredNamespaces;
+    if (namespaceHandling == NamespaceHandling::CreateMissing) {
+        requiredNamespaces = getNamespaceNames(symbol);
+    }
+
+    // Try to find optimal location
+    // FIXME: The locator should not return a valid location if the namespaces don't match
+    //        (or provide enough context).
+    const InsertionPointLocator locator(refactoring);
+    const QList<InsertionLocation> list
+            = locator.methodDefinition(symbol, useSymbolFinder, fileName);
+    const bool isHeader = ProjectFile::isHeader(ProjectFile::classify(fileName));
+    const bool hasIncludeGuard = isHeader
+            && !file->cppDocument()->includeGuardMacroName().isEmpty();
+    int lastLine;
+    if (hasIncludeGuard) {
+        const TranslationUnit * const tu = file->cppDocument()->translationUnit();
+        tu->getTokenStartPosition(tu->ast()->lastToken(), &lastLine);
+    }
+    int i = 0;
+    for ( ; i < list.count(); ++i) {
+        InsertionLocation location = list.at(i);
+        if (!location.isValid() || location.fileName() != fileName)
+            continue;
+        if (hasIncludeGuard && location.line() == lastLine)
+            continue;
+        if (!requiredNamespaces.isEmpty()) {
+            QStringList missing = getListOfMissingNamespacesForLocation(file.get(),
+                                                                        requiredNamespaces,
+                                                                        location);
+            if (!missing.isEmpty())
+                continue;
+        }
+        return location;
+    }
+
+    // ...failed,
+    // if class member try to get position right after class
+    int line = 0, column = 0;
+    if (Class *clazz = symbol->enclosingClass()) {
+        if (symbol->fileName() == fileName.toUtf8()) {
+            file->cppDocument()->translationUnit()->getPosition(clazz->endOffset(), &line, &column);
+            if (line != 0) {
+                ++column; // Skipping the ";"
+                return InsertionLocation(fileName, QLatin1String("\n\n"), QLatin1String(""),
+                                         line, column);
+            }
+        }
+    }
+
+    // fall through: position at end of file, unless we find a matching namespace
+    const QTextDocument *doc = file->document();
+    int pos = qMax(0, doc->characterCount() - 1);
+    QString prefix = "\n\n";
+    QString suffix = "\n\n";
+    NSVisitor visitor(file.data(), requiredNamespaces, pos);
+    visitor.accept(file->cppDocument()->translationUnit()->ast());
+    if (visitor.enclosingNamespace())
+        pos = file->startOf(visitor.enclosingNamespace()->linkage_body) + 1;
+    for (const QString &ns : visitor.remainingNamespaces()) {
+        prefix += "namespace " + ns + " {\n";
+        suffix += "}\n";
+    }
+    if (insertedNamespaces)
+        *insertedNamespaces = visitor.remainingNamespaces();
+
+    //TODO watch for moc-includes
+
+    file->lineAndColumn(pos, &line, &column);
+    return InsertionLocation(fileName, prefix, suffix, line, column);
+}
+
+} // namespace CppTools;

@@ -28,6 +28,12 @@
 #include "cpptools_global.h"
 #include "cpprefactoringchanges.h"
 
+namespace CPlusPlus {
+class Namespace;
+class NamespaceAST;
+class Symbol;
+} // namespace CPlusPlus
+
 namespace CppTools {
 
 class CPPTOOLS_EXPORT InsertionLocation
@@ -124,5 +130,15 @@ public:
 private:
     CppRefactoringChanges m_refactoringChanges;
 };
+
+// TODO: We should use the "CreateMissing" approach everywhere.
+enum class NamespaceHandling { CreateMissing, Ignore };
+InsertionLocation CPPTOOLS_EXPORT
+insertLocationForMethodDefinition(CPlusPlus::Symbol *symbol,
+                                  const bool useSymbolFinder,
+                                  NamespaceHandling namespaceHandling,
+                                  const CppRefactoringChanges &refactoring,
+                                  const QString &fileName,
+                                  QStringList *insertedNamespaces = nullptr);
 
 } // namespace CppTools

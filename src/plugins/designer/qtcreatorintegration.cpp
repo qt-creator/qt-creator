@@ -32,6 +32,7 @@
 
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsconstants.h>
+#include <cpptools/cpptoolsreuse.h>
 #include <cpptools/cppworkingcopy.h>
 #include <cpptools/insertionpointlocator.h>
 #include <cpptools/symbolfinder.h>
@@ -167,7 +168,7 @@ QString fullyQualifiedName(const LookupContext &context, const Name *name, Scope
 // containing a member of the desired class type) or inheriting the desired class
 // in case of forms using the Multiple Inheritance approach
 static const Class *findClass(const Namespace *parentNameSpace, const LookupContext &context,
-                              const QString &className, QString *namespaceName)
+                              const QString &className)
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << className;
@@ -204,14 +205,9 @@ static const Class *findClass(const Namespace *parentNameSpace, const LookupCont
         } else {
             // Check namespaces
             if (const Namespace *ns = sym->asNamespace()) {
-                QString tempNS = *namespaceName;
-                tempNS += o.prettyName(ns->name());
-                tempNS += "::";
-                if (const Class *cl = findClass(ns, context, className, &tempNS)) {
-                    *namespaceName = tempNS;
+                if (const Class *cl = findClass(ns, context, className))
                     return cl;
-                }
-            } // member is namespave
+            } // member is namespace
         } // member is no class
     } // for members
     return nullptr;
@@ -247,22 +243,6 @@ static Function *findDeclaration(const Class *cl, const QString &functionName)
     return nullptr;
 }
 
-// TODO: remove me, this is taken from cppeditor.cpp. Find some common place for this function
-static Document::Ptr findDefinition(Function *functionDeclaration, int *line)
-{
-    CppTools::CppModelManager *cppModelManager = CppTools::CppModelManager::instance();
-    const Snapshot snapshot = cppModelManager->snapshot();
-    CppTools::SymbolFinder symbolFinder;
-    if (Function *fun = symbolFinder.findMatchingDefinition(functionDeclaration, snapshot)) {
-        if (line)
-            *line = fun->line();
-
-        return snapshot.document(QString::fromUtf8(fun->fileName(), fun->fileNameLength()));
-    }
-
-    return Document::Ptr();
-}
-
 static inline BaseTextEditor *editorAt(const QString &fileName, int line, int column)
 {
     return qobject_cast<BaseTextEditor *>(Core::EditorManager::openEditorAt(fileName, line, column,
@@ -295,50 +275,6 @@ static void addDeclaration(const Snapshot &snapshot,
         editor->textDocument()->autoIndent(tc);
         tc.endEditBlock();
     }
-}
-
-static Document::Ptr addDefinition(const Snapshot &docTable,
-                                   const QString &headerFileName,
-                                   const QString &className,
-                                   const QString &functionName,
-                                   int *line)
-{
-    const QString definition = "\nvoid " + className + "::" + functionName
-            + "\n{\n" + QString(indentation, ' ') + "\n}\n";
-
-    // we find all documents which include headerFileName
-    const QList<Document::Ptr> docList = findDocumentsIncluding(docTable, headerFileName, false);
-    if (docList.isEmpty())
-        return Document::Ptr();
-
-    QFileInfo headerFI(headerFileName);
-    const QString headerBaseName = headerFI.completeBaseName();
-    for (const Document::Ptr &doc : docList) {
-        const QFileInfo sourceFI(doc->fileName());
-        // we take only those documents which have the same filename
-        if (headerBaseName == sourceFI.baseName()) {
-            //
-            //! \todo change this to use the Refactoring changes.
-            //
-
-            if (BaseTextEditor *editor = editorAt(doc->fileName(), 0, 0)) {
-
-                //
-                //! \todo use the InsertionPointLocator to insert at the correct place.
-                // (we'll have to extend that class first to do definition insertions)
-
-                const QString contents = editor->textDocument()->plainText();
-                int column;
-                editor->convertPosition(contents.length(), line, &column);
-                // gotoLine accepts 0-based column.
-                editor->gotoLine(*line, column - 1);
-                editor->insert(definition);
-                *line += 1;
-            }
-            return doc;
-        }
-    }
-    return Document::Ptr();
 }
 
 static QString addConstRefIfNeeded(const QString &argument)
@@ -417,14 +353,14 @@ using ClassDocumentPtrPair = QPair<const Class *, Document::Ptr>;
 
 static ClassDocumentPtrPair
         findClassRecursively(const LookupContext &context, const QString &className,
-                             unsigned maxIncludeDepth, QString *namespaceName)
+                             unsigned maxIncludeDepth)
 {
     const Document::Ptr doc = context.thisDocument();
     const Snapshot docTable = context.snapshot();
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << doc->fileName() << className << maxIncludeDepth;
     // Check document
-    if (const Class *cl = findClass(doc->globalNamespace(), context, className, namespaceName))
+    if (const Class *cl = findClass(doc->globalNamespace(), context, className))
         return ClassDocumentPtrPair(cl, doc);
     if (maxIncludeDepth) {
         // Check the includes
@@ -436,7 +372,7 @@ static ClassDocumentPtrPair
                 const Document::Ptr &includeDoc = it.value();
                 LookupContext context(includeDoc, docTable);
                 const ClassDocumentPtrPair irc = findClassRecursively(context, className,
-                    recursionMaxIncludeDepth, namespaceName);
+                    recursionMaxIncludeDepth);
                 if (irc.first)
                     return irc;
             }
@@ -556,16 +492,14 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
 
     // Find the class definition (ui class defined as member or base class)
     // in the file itself or in the directly included files (order 1).
-    QString namespaceName;
     const Class *cl = nullptr;
-    Document::Ptr doc;
-
+    Document::Ptr declDoc;
     for (const Document::Ptr &d : qAsConst(docMap)) {
         LookupContext context(d, docTable);
-        const ClassDocumentPtrPair cd = findClassRecursively(context, uiClass, 1u , &namespaceName);
+        const ClassDocumentPtrPair cd = findClassRecursively(context, uiClass, 1u);
         if (cd.first) {
             cl = cd.first;
-            doc = cd.second;
+            declDoc = cd.second;
             break;
         }
     }
@@ -574,47 +508,69 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         return false;
     }
 
-    Overview o;
-    const QString className = namespaceName + o.prettyName(cl->name());
-    if (Designer::Constants::Internal::debug)
-        qDebug() << "Found class  " << className << doc->fileName();
-
     const QString functionName = "on_" + objectName + '_' + signalSignature;
     const QString functionNameWithParameterNames = addParameterNames(functionName, parameterNames);
 
     if (Designer::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << "Found " << uiClass << doc->fileName() << " checking " << functionName  << functionNameWithParameterNames;
+        qDebug() << Q_FUNC_INFO << "Found " << uiClass << declDoc->fileName() << " checking " << functionName  << functionNameWithParameterNames;
 
-    int line = 0;
-    Document::Ptr sourceDoc;
-
-    if (Function *fun = findDeclaration(cl, functionName)) {
-        sourceDoc = findDefinition(fun, &line);
-        if (!sourceDoc) {
-            // add function definition to cpp file
-            sourceDoc = addDefinition(docTable, doc->fileName(), className, functionNameWithParameterNames, &line);
-        }
-    } else {
+    Function *fun = findDeclaration(cl, functionName);
+    QString declFilePath;
+    if (!fun) {
         // add function declaration to cl
-        CppTools::WorkingCopy workingCopy =
-            CppTools::CppModelManager::instance()->workingCopy();
-        const QString fileName = doc->fileName();
-        getParsedDocument(fileName, workingCopy, docTable);
-        addDeclaration(docTable, fileName, cl, functionNameWithParameterNames);
+        CppTools::WorkingCopy workingCopy = CppTools::CppModelManager::instance()->workingCopy();
+        declFilePath = declDoc->fileName();
+        getParsedDocument(declFilePath, workingCopy, docTable);
+        addDeclaration(docTable, declFilePath, cl, functionNameWithParameterNames);
 
-        // add function definition to cpp file
-        sourceDoc = addDefinition(docTable, fileName, className, functionNameWithParameterNames, &line);
+        // Re-load C++ documents.
+        QList<Utils::FilePath> filePaths;
+        for (auto it = docTable.begin(); it != docTable.end(); ++it)
+            filePaths << it.key();
+        workingCopy = CppTools::CppModelManager::instance()->workingCopy();
+        docTable = CppTools::CppModelManager::instance()->snapshot();
+        newDocTable = {};
+        for (const auto &file : qAsConst(filePaths)) {
+            const Document::Ptr doc = docTable.document(file);
+            if (doc)
+                newDocTable.insert(doc);
+        }
+        docTable = newDocTable;
+        getParsedDocument(declFilePath, workingCopy, docTable);
+        const Document::Ptr headerDoc = docTable.document(declFilePath);
+        QTC_ASSERT(headerDoc, return false);
+        LookupContext context(headerDoc, docTable);
+        cl = findClass(headerDoc->globalNamespace(), context, uiClass);
+        QTC_ASSERT(cl, return false);
+        fun = findDeclaration(cl, functionName);
+    } else {
+        declFilePath = QLatin1String(fun->fileName());
+    }
+    QTC_ASSERT(fun, return false);
+
+    CppTools::CppRefactoringChanges refactoring(docTable);
+    CppTools::SymbolFinder symbolFinder;
+    if (symbolFinder.findMatchingDefinition(fun, docTable, true))
+        return true;
+    const QString implFilePath = CppTools::correspondingHeaderOrSource(declFilePath);
+    const CppTools::InsertionLocation location = CppTools::insertLocationForMethodDefinition
+            (fun, false, CppTools::NamespaceHandling::CreateMissing, refactoring, implFilePath);
+
+    if (BaseTextEditor *editor = editorAt(location.fileName(), location.line(), location.column())) {
+        Overview o;
+        const QString className = o.prettyName(cl->name());
+        const QString definition = location.prefix() + "void " + className + "::"
+            + functionNameWithParameterNames + "\n{\n" + QString(indentation, ' ') + "\n}\n"
+            + location.suffix();
+        editor->insert(definition);
+        Core::EditorManager::openEditorAt(location.fileName(),
+                                          location.line() + location.prefix().count('\n') + 2,
+                                          indentation);
+        return true;
     }
 
-    if (!sourceDoc) {
-        *errorMessage = tr("Unable to add the method definition.");
-        return false;
-    }
-
-    // jump to function definition, position within code
-    Core::EditorManager::openEditorAt(sourceDoc->fileName(), line + 2, indentation);
-
-    return true;
+    *errorMessage = tr("Unable to add the method definition.");
+    return false;
 }
 
 void QtCreatorIntegration::slotSyncSettingsToDesigner()

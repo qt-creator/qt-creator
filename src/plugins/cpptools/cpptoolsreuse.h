@@ -32,6 +32,7 @@
 #include <cpptools/clangdiagnosticconfig.h>
 #include <cpptools/compileroptionsbuilder.h>
 
+#include <cplusplus/ASTVisitor.h>
 #include <cplusplus/CppDocument.h>
 
 QT_BEGIN_NAMESPACE
@@ -47,6 +48,7 @@ class LookupContext;
 } // namespace CPlusPlus
 
 namespace CppTools {
+class CppRefactoringFile;
 
 void CPPTOOLS_EXPORT moveCursorToEndOfIdentifier(QTextCursor *tc);
 void CPPTOOLS_EXPORT moveCursorToStartOfIdentifier(QTextCursor *tc);
@@ -85,5 +87,68 @@ class ClangDiagnosticConfigsModel;
 ClangDiagnosticConfigsModel CPPTOOLS_EXPORT diagnosticConfigsModel();
 ClangDiagnosticConfigsModel CPPTOOLS_EXPORT
 diagnosticConfigsModel(const CppTools::ClangDiagnosticConfigs &customConfigs);
+
+
+QStringList CPPTOOLS_EXPORT getNamespaceNames(const CPlusPlus::Namespace *firstNamespace);
+QStringList CPPTOOLS_EXPORT getNamespaceNames(const CPlusPlus::Symbol *symbol);
+
+class CPPTOOLS_EXPORT NSVisitor : public CPlusPlus::ASTVisitor
+{
+public:
+    NSVisitor(const CppRefactoringFile *file, const QStringList &namespaces, int symbolPos);
+
+    const QStringList remainingNamespaces() const { return m_remainingNamespaces; }
+    const CPlusPlus::NamespaceAST *firstNamespace() const { return m_firstNamespace; }
+    const CPlusPlus::AST *firstToken() const { return m_firstToken; }
+    const CPlusPlus::NamespaceAST *enclosingNamespace() const { return m_enclosingNamespace; }
+
+private:
+    bool preVisit(CPlusPlus::AST *ast) override;
+    bool visit(CPlusPlus::NamespaceAST *ns) override;
+    void postVisit(CPlusPlus::AST *ast) override;
+
+    const CppRefactoringFile * const m_file;
+    const CPlusPlus::NamespaceAST *m_enclosingNamespace = nullptr;
+    const CPlusPlus::NamespaceAST *m_firstNamespace = nullptr;
+    const CPlusPlus::AST *m_firstToken = nullptr;
+    QStringList m_remainingNamespaces;
+    const int m_symbolPos;
+    bool m_done = false;
+};
+
+class CPPTOOLS_EXPORT NSCheckerVisitor : public CPlusPlus::ASTVisitor
+{
+public:
+    NSCheckerVisitor(const CppRefactoringFile *file, const QStringList &namespaces, int symbolPos);
+
+    /**
+     * @brief returns the names of the namespaces that are additionally needed at the symbolPos
+     * @return A list of namespace names, the outermost namespace at index 0 and the innermost
+     * at the last index
+     */
+    const QStringList remainingNamespaces() const { return m_remainingNamespaces; }
+
+private:
+    bool preVisit(CPlusPlus::AST *ast) override;
+    void postVisit(CPlusPlus::AST *ast) override;
+    bool visit(CPlusPlus::NamespaceAST *ns) override;
+    bool visit(CPlusPlus::UsingDirectiveAST *usingNS) override;
+    void endVisit(CPlusPlus::NamespaceAST *ns) override;
+    void endVisit(CPlusPlus::TranslationUnitAST *) override;
+
+    QString getName(CPlusPlus::NamespaceAST *ns);
+    CPlusPlus::NamespaceAST *currentNamespace();
+
+    const CppRefactoringFile *const m_file;
+    QStringList m_remainingNamespaces;
+    const int m_symbolPos;
+    std::vector<CPlusPlus::NamespaceAST *> m_enteredNamespaces;
+
+    // track 'using namespace ...' statements
+    std::unordered_map<CPlusPlus::NamespaceAST *, QStringList> m_usingsPerNamespace;
+
+    bool m_done = false;
+};
+
 
 } // CppTools
