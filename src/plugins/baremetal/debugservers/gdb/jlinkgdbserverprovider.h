@@ -91,25 +91,19 @@ public:
             JLinkGdbServerProvider *provider);
 
 private:
-    enum HostInterface {
-        HostInterfaceDefault = 0,
-        HostInterfaceUSB,
-        HostInterfaceIP
-    };
-
-    enum TargetInterface {
-        TargetInterfaceDefault = 0,
-        TargetInterfaceJTAG,
-        TargetInterfaceSWD,
-        TargetInterfaceFINE,
-        TargetInterface2Wire
-    };
-
     void apply() final;
     void discard() final;
 
-    void hostInterfaceChanged();
-    void targetInterfaceChanged();
+    void populateHostInterfaces();
+    void populateTargetInterfaces();
+    void populateTargetSpeeds();
+
+    void setHostInterface(const QString &newIface);
+    void setTargetInterface(const QString &newIface);
+    void setTargetSpeed(const QString &newSpeed);
+
+    void updateAllowedControls();
+
     void setFromProvider();
 
     HostWidget *m_hostWidget = nullptr;
@@ -123,11 +117,7 @@ private:
     QWidget *m_targetInterfaceWidget = nullptr;
     QComboBox *m_targetInterfaceComboBox = nullptr;
     QLabel *m_targetInterfaceSpeedLabel = nullptr;
-    QStringList m_targetSpeedList = {"5","10","20","30","50","100","200","300","400",
-                                     "500","600","750","800","900","1000","1334","1600","2000",
-                                     "2667","3200","4000","4800","5334","6000","8000","9600","12000"};
     QComboBox *m_targetInterfaceSpeedComboBox = nullptr;
-    QLabel *m_targetInterfaceSpeedUnitsLabel = nullptr;
 
     QLineEdit *m_jlinkDeviceLineEdit = nullptr;
     QPlainTextEdit *m_additionalArgumentsTextEdit = nullptr;

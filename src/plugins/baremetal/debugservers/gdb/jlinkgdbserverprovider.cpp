@@ -99,19 +99,19 @@ CommandLine JLinkGdbServerProvider::command() const
         cmd.addArgs("-port " + QString::number(channel().port()), CommandLine::Raw);
 
     if (m_jlinkHost == "USB") {
-        cmd.addArgs("-select usb ", CommandLine::Raw);
-    } else
-        if (m_jlinkHost == "IP") {
-            cmd.addArgs("-select ip=" + m_jlinkHostAddr + " ", CommandLine::Raw);
-        }
+        cmd.addArgs("-select usb", CommandLine::Raw);
+    } else if (m_jlinkHost == "IP") {
+        cmd.addArgs("-select ip=" + m_jlinkHostAddr, CommandLine::Raw);
+    }
 
-    if (m_jlinkTargetIface != "Default") {
-        cmd.addArgs("-if " + m_jlinkTargetIface +
-                    " -speed " + m_jlinkTargetIfaceSpeed + " ", CommandLine::Raw);
+    if (!m_jlinkTargetIface.isEmpty()) {
+        cmd.addArgs("-if " + m_jlinkTargetIface, CommandLine::Raw);
+        if (!m_jlinkTargetIfaceSpeed.isEmpty())
+            cmd.addArgs("-speed " + m_jlinkTargetIfaceSpeed, CommandLine::Raw);
     }
 
     if (!m_jlinkDevice.isEmpty())
-        cmd.addArgs("-device " + m_jlinkDevice + " ", CommandLine::Raw);
+        cmd.addArgs("-device " + m_jlinkDevice, CommandLine::Raw);
 
     if (!m_additionalArguments.isEmpty())
         cmd.addArgs(m_additionalArguments, CommandLine::Raw);
@@ -210,17 +210,12 @@ JLinkGdbServerProviderConfigWidget::JLinkGdbServerProviderConfigWidget(
     }
     m_mainLayout->addRow(tr("Executable file:"), m_executableFileChooser);
 
-    //Host interface settings
+    // Host interface settings.
     m_hostInterfaceWidget = new QWidget(this);
     m_hostInterfaceComboBox = new QComboBox(m_hostInterfaceWidget);
-    m_hostInterfaceComboBox->insertItem(HostInterfaceDefault, tr("Default"));
-    m_hostInterfaceComboBox->insertItem(HostInterfaceUSB, "USB");
-    m_hostInterfaceComboBox->insertItem(HostInterfaceIP, "IP");
-
     m_hostInterfaceAddressLabel = new QLabel(m_hostInterfaceWidget);
     m_hostInterfaceAddressLabel->setText(tr("IP Address"));
     m_hostInterfaceAddressLineEdit = new QLineEdit(m_hostInterfaceWidget);
-
     const auto hostInterfaceLayout = new QHBoxLayout(m_hostInterfaceWidget);
     hostInterfaceLayout->setContentsMargins(0, 0, 0, 0);
     hostInterfaceLayout->addWidget(m_hostInterfaceComboBox);
@@ -228,33 +223,18 @@ JLinkGdbServerProviderConfigWidget::JLinkGdbServerProviderConfigWidget(
     hostInterfaceLayout->addWidget(m_hostInterfaceAddressLineEdit);
     m_mainLayout->addRow(tr("Host interface:"), m_hostInterfaceWidget);
 
-    //Target interface settings
+    // Target interface settings.
     m_targetInterfaceWidget = new QWidget(this);
     m_targetInterfaceComboBox = new QComboBox(m_targetInterfaceWidget);
-    m_targetInterfaceComboBox->insertItem(TargetInterfaceDefault, tr("Default"));
-    m_targetInterfaceComboBox->insertItem(TargetInterfaceJTAG, "JTAG");
-    m_targetInterfaceComboBox->insertItem(TargetInterfaceSWD, "SWD");
-    m_targetInterfaceComboBox->insertItem(TargetInterfaceFINE, "FINE");
-    m_targetInterfaceComboBox->insertItem(TargetInterface2Wire, "2-wire-JTAG-PIC32");
-
     m_targetInterfaceSpeedLabel = new QLabel(m_targetInterfaceWidget);
     m_targetInterfaceSpeedLabel->setText(tr("Speed"));
-
     m_targetInterfaceSpeedComboBox = new QComboBox(m_targetInterfaceWidget);
-    m_targetInterfaceSpeedComboBox->insertItems(0, m_targetSpeedList);
-
-    m_targetInterfaceSpeedUnitsLabel = new QLabel(m_targetInterfaceWidget);
-    m_targetInterfaceSpeedUnitsLabel->setText(tr("kHz"));
-
     const auto targetInterfaceLayout = new QHBoxLayout(m_targetInterfaceWidget);
     targetInterfaceLayout->setContentsMargins(0, 0, 0, 0);
     targetInterfaceLayout->addWidget(m_targetInterfaceComboBox);
     targetInterfaceLayout->addWidget(m_targetInterfaceSpeedLabel);
     targetInterfaceLayout->addWidget(m_targetInterfaceSpeedComboBox);
-    targetInterfaceLayout->addWidget(m_targetInterfaceSpeedUnitsLabel);
-
     m_mainLayout->addRow(tr("Target interface:"), m_targetInterfaceWidget);
-    //
 
     m_jlinkDeviceLineEdit = new QLineEdit(this);
     m_mainLayout->addRow(tr("Device:"), m_jlinkDeviceLineEdit);
@@ -269,6 +249,9 @@ JLinkGdbServerProviderConfigWidget::JLinkGdbServerProviderConfigWidget(
     m_resetCommandsTextEdit->setToolTip(defaultResetCommandsTooltip());
     m_mainLayout->addRow(tr("Reset commands:"), m_resetCommandsTextEdit);
 
+    populateHostInterfaces();
+    populateTargetInterfaces();
+    populateTargetSpeeds();
     addErrorLabel();
     setFromProvider();
 
@@ -298,9 +281,11 @@ JLinkGdbServerProviderConfigWidget::JLinkGdbServerProviderConfigWidget(
             this, &GdbServerProviderConfigWidget::dirty);
 
     connect(m_hostInterfaceComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &JLinkGdbServerProviderConfigWidget::hostInterfaceChanged);
+            this, &JLinkGdbServerProviderConfigWidget::updateAllowedControls);
     connect(m_targetInterfaceComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &JLinkGdbServerProviderConfigWidget::targetInterfaceChanged);
+            this, &JLinkGdbServerProviderConfigWidget::updateAllowedControls);
+    connect(m_targetInterfaceSpeedComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, &JLinkGdbServerProviderConfigWidget::updateAllowedControls);
 }
 
 void JLinkGdbServerProviderConfigWidget::apply()
@@ -311,10 +296,10 @@ void JLinkGdbServerProviderConfigWidget::apply()
     p->setChannel(m_hostWidget->channel());
     p->m_executableFile = m_executableFileChooser->filePath();
     p->m_jlinkDevice = m_jlinkDeviceLineEdit->text();
-    p->m_jlinkHost = m_hostInterfaceComboBox->currentText();
+    p->m_jlinkHost = m_hostInterfaceComboBox->currentData().toString();
     p->m_jlinkHostAddr = m_hostInterfaceAddressLineEdit->text();
-    p->m_jlinkTargetIface = m_targetInterfaceComboBox->currentText();
-    p->m_jlinkTargetIfaceSpeed = m_targetInterfaceSpeedComboBox->currentText();
+    p->m_jlinkTargetIface = m_targetInterfaceComboBox->currentData().toString();
+    p->m_jlinkTargetIfaceSpeed = m_targetInterfaceSpeedComboBox->currentData().toString();
     p->m_additionalArguments = m_additionalArgumentsTextEdit->toPlainText();
     p->setInitCommands(m_initCommandsTextEdit->toPlainText());
     p->setResetCommands(m_resetCommandsTextEdit->toPlainText());
@@ -327,23 +312,86 @@ void JLinkGdbServerProviderConfigWidget::discard()
     GdbServerProviderConfigWidget::discard();
 }
 
-void JLinkGdbServerProviderConfigWidget::hostInterfaceChanged()
+void JLinkGdbServerProviderConfigWidget::populateHostInterfaces()
 {
-    const HostInterface selectedInterface = static_cast<HostInterface>(
-                m_hostInterfaceComboBox->currentIndex());
-    const bool isHostIfaceIP = selectedInterface == HostInterfaceIP;
-    m_hostInterfaceAddressLabel->setVisible(isHostIfaceIP);
-    m_hostInterfaceAddressLineEdit->setVisible(isHostIfaceIP);
+    m_hostInterfaceComboBox->addItem(tr("Default"));
+    m_hostInterfaceComboBox->addItem(tr("USB"), "USB");
+    m_hostInterfaceComboBox->addItem(tr("TCP/IP"), "IP");
 }
 
-void JLinkGdbServerProviderConfigWidget::targetInterfaceChanged()
+void JLinkGdbServerProviderConfigWidget::populateTargetInterfaces()
 {
-    const TargetInterface selectedInterface = static_cast<TargetInterface>(
-                m_targetInterfaceComboBox->currentIndex());
-    const bool isDefault = selectedInterface == TargetInterfaceDefault;
-    m_targetInterfaceSpeedLabel->setVisible(!isDefault);
-    m_targetInterfaceSpeedComboBox->setVisible(!isDefault);
-    m_targetInterfaceSpeedUnitsLabel->setVisible(!isDefault);
+    m_targetInterfaceComboBox->addItem(tr("Default"));
+    m_targetInterfaceComboBox->addItem(tr("JTAG"), "JTAG");
+    m_targetInterfaceComboBox->addItem(tr("Compact JTAG"), "cJTAG");
+    m_targetInterfaceComboBox->addItem(tr("SWD"), "SWD");
+    m_targetInterfaceComboBox->addItem(tr("Renesas RX FINE"), "FINE");
+    m_targetInterfaceComboBox->addItem(tr("ICSP"), "ICSP");
+}
+
+void JLinkGdbServerProviderConfigWidget::populateTargetSpeeds()
+{
+    m_targetInterfaceSpeedComboBox->addItem(tr("Default"));
+    m_targetInterfaceSpeedComboBox->addItem(tr("Auto"), "auto");
+    m_targetInterfaceSpeedComboBox->addItem(tr("Adaptive"), "adaptive");
+
+    const QStringList fixedSpeeds = {"1", "5", "10", "20", "30", "50", "100", "200", "300",
+                                     "400", "500", "600", "750", "800", "900", "1000", "1334",
+                                     "1600", "2000",  "2667" ,"3200", "4000", "4800", "5334",
+                                     "6000", "8000", "9600", "12000", "15000", "20000", "25000",
+                                     "30000", "40000", "50000"};
+    for (const auto &fixedSpeed : fixedSpeeds)
+        m_targetInterfaceSpeedComboBox->addItem(tr("%1 kHz").arg(fixedSpeed), fixedSpeed);
+}
+
+void JLinkGdbServerProviderConfigWidget::setHostInterface(const QString &newIface)
+{
+    for (int index = 0; index < m_hostInterfaceComboBox->count(); ++index) {
+        const auto iface = m_hostInterfaceComboBox->itemData(index).toString();
+        if (iface == newIface) {
+            m_hostInterfaceComboBox->setCurrentIndex(index);
+            return;
+        }
+    }
+    // Falling back to the first default entry.
+    m_hostInterfaceComboBox->setCurrentIndex(0);
+}
+
+void JLinkGdbServerProviderConfigWidget::setTargetInterface(const QString &newIface)
+{
+    for (int index = 0; index < m_targetInterfaceComboBox->count(); ++index) {
+        const auto iface = m_targetInterfaceComboBox->itemData(index).toString();
+        if (iface == newIface) {
+            m_targetInterfaceComboBox->setCurrentIndex(index);
+            return;
+        }
+    }
+    // Falling back to the first default entry.
+    m_targetInterfaceComboBox->setCurrentIndex(0);
+}
+
+void JLinkGdbServerProviderConfigWidget::setTargetSpeed(const QString &newSpeed)
+{
+    for (int index = 0; index < m_targetInterfaceSpeedComboBox->count(); ++index) {
+        const auto speed = m_targetInterfaceSpeedComboBox->itemData(index).toString();
+        if (speed == newSpeed) {
+            m_targetInterfaceSpeedComboBox->setCurrentIndex(index);
+            return;
+        }
+    }
+    // Falling back to the first default entry.
+    m_targetInterfaceSpeedComboBox->setCurrentIndex(0);
+}
+
+void JLinkGdbServerProviderConfigWidget::updateAllowedControls()
+{
+    const bool isHostIfaceIPSelected = (m_hostInterfaceComboBox->currentData().toString() == "IP");
+    m_hostInterfaceAddressLabel->setVisible(isHostIfaceIPSelected);
+    m_hostInterfaceAddressLineEdit->setVisible(isHostIfaceIPSelected);
+
+    const bool isTargetIfaceDefaultSelected = !m_targetInterfaceComboBox->currentData().isValid();
+    m_targetInterfaceSpeedLabel->setVisible(!isTargetIfaceDefaultSelected);
+    m_targetInterfaceSpeedComboBox->setVisible(!isTargetIfaceDefaultSelected);
 }
 
 void JLinkGdbServerProviderConfigWidget::setFromProvider()
@@ -352,19 +400,20 @@ void JLinkGdbServerProviderConfigWidget::setFromProvider()
     Q_ASSERT(p);
 
     const QSignalBlocker blocker(this);
-    m_hostWidget->setChannel(p->channel());
-    m_executableFileChooser->setFilePath(p->m_executableFile);
-    m_jlinkDeviceLineEdit->setText(p->m_jlinkDevice);
     m_additionalArgumentsTextEdit->setPlainText(p->m_additionalArguments);
-    m_jlinkDeviceLineEdit->setText( p->m_jlinkDevice);
-    m_hostInterfaceComboBox->setCurrentText(p->m_jlinkHost);
+    m_executableFileChooser->setFilePath(p->m_executableFile);
     m_hostInterfaceAddressLineEdit->setText(p->m_jlinkHostAddr);
-    m_targetInterfaceComboBox->setCurrentText(p->m_jlinkTargetIface);
-    m_targetInterfaceSpeedComboBox->setCurrentText(p->m_jlinkTargetIfaceSpeed);
+    m_hostWidget->setChannel(p->channel());
     m_initCommandsTextEdit->setPlainText(p->initCommands());
+    m_jlinkDeviceLineEdit->setText( p->m_jlinkDevice);
+    m_jlinkDeviceLineEdit->setText(p->m_jlinkDevice);
     m_resetCommandsTextEdit->setPlainText(p->resetCommands());
-    hostInterfaceChanged();
-    targetInterfaceChanged();
+
+    setHostInterface(p->m_jlinkHost);
+    setTargetInterface(p->m_jlinkTargetIface);
+    setTargetSpeed(p->m_jlinkTargetIfaceSpeed);
+
+    updateAllowedControls();
 }
 
 } // namespace Internal
