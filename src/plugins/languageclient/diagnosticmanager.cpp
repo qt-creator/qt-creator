@@ -76,10 +76,11 @@ DiagnosticManager::~DiagnosticManager()
 }
 
 void DiagnosticManager::setDiagnostics(const LanguageServerProtocol::DocumentUri &uri,
-                                       const QList<LanguageServerProtocol::Diagnostic> &diagnostics)
+                                       const QList<LanguageServerProtocol::Diagnostic> &diagnostics,
+                                       const Utils::optional<int> &version)
 {
     removeDiagnostics(uri);
-    m_diagnostics[uri] = diagnostics;
+    m_diagnostics[uri] = {version, diagnostics};
 }
 
 void DiagnosticManager::hideDiagnostics(TextDocument *doc)
@@ -115,10 +116,13 @@ void DiagnosticManager::showDiagnostics(const DocumentUri &uri)
     const FilePath &filePath = uri.toFilePath();
     if (TextDocument *doc = TextDocument::textDocumentForFilePath(filePath)) {
         QList<QTextEdit::ExtraSelection> extraSelections;
-
-        for (const Diagnostic &diagnostic : m_diagnostics.value(uri)) {
-            doc->addMark(new TextMark(filePath, diagnostic, m_clientId));
-            extraSelections << toDiagnosticsSelections(diagnostic, doc->document());
+        const VersionedDiagnostics &versionedDiagnostics =  m_diagnostics.value(uri);
+        const int docRevision = doc->document()->revision();
+        if (versionedDiagnostics.version.value_or(docRevision) == docRevision) {
+            for (const Diagnostic &diagnostic : versionedDiagnostics.diagnostics) {
+                doc->addMark(new TextMark(filePath, diagnostic, m_clientId));
+                extraSelections << toDiagnosticsSelections(diagnostic, doc->document());
+            }
         }
 
         for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(doc)) {
@@ -134,9 +138,16 @@ void DiagnosticManager::clearDiagnostics()
         removeDiagnostics(uri);
 }
 
-QList<Diagnostic> DiagnosticManager::diagnosticsAt(const DocumentUri &uri, const Range &range) const
+QList<Diagnostic> DiagnosticManager::diagnosticsAt(const DocumentUri &uri,
+                                                   const QTextCursor &cursor) const
 {
-    return Utils::filtered(m_diagnostics.value(uri), [range](const Diagnostic &diagnostic) {
+    const int documentRevision = cursor.document()->revision();
+    auto it = m_diagnostics.find(uri);
+    if (it == m_diagnostics.end())
+        return {};
+    if (documentRevision != it->version.value_or(documentRevision))
+        return {};
+    return Utils::filtered(it->diagnostics, [range = Range(cursor)](const Diagnostic &diagnostic) {
         return diagnostic.range().overlaps(range);
     });
 }

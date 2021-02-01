@@ -115,7 +115,7 @@ IAssistProposal *LanguageClientQuickFixAssistProcessor::perform(const AssistInte
     auto uri = DocumentUri::fromFilePath(interface->filePath());
     params.setTextDocument(TextDocumentIdentifier(uri));
     CodeActionParams::CodeActionContext context;
-    context.setDiagnostics(m_client->diagnosticsAt(uri, range));
+    context.setDiagnostics(m_client->diagnosticsAt(uri, cursor));
     params.setContext(context);
 
     CodeActionRequest request(params);

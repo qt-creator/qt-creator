@@ -946,9 +946,9 @@ void Client::removeAssistProcessor(TextEditor::IAssistProcessor *processor)
     m_runningAssistProcessors.remove(processor);
 }
 
-QList<Diagnostic> Client::diagnosticsAt(const DocumentUri &uri, const Range &range) const
+QList<Diagnostic> Client::diagnosticsAt(const DocumentUri &uri, const QTextCursor &cursor) const
 {
-    return m_diagnosticManager.diagnosticsAt(uri, range);
+    return m_diagnosticManager.diagnosticsAt(uri, cursor);
 }
 
 bool Client::start()
@@ -1219,7 +1219,7 @@ void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
     const DocumentUri &uri = params.uri();
 
     const QList<Diagnostic> &diagnostics = params.diagnostics();
-    m_diagnosticManager.setDiagnostics(uri, diagnostics);
+    m_diagnosticManager.setDiagnostics(uri, diagnostics, params.version());
     if (LanguageClientManager::clientForUri(uri) == this) {
         m_diagnosticManager.showDiagnostics(uri);
         requestCodeActions(uri, diagnostics);

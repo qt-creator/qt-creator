@@ -152,7 +152,7 @@ public:
 
     QList<LanguageServerProtocol::Diagnostic> diagnosticsAt(
         const LanguageServerProtocol::DocumentUri &uri,
-        const LanguageServerProtocol::Range &range) const;
+        const QTextCursor &cursor) const;
 
     bool start();
     bool reset();

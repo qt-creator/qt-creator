@@ -42,7 +42,8 @@ public:
     ~DiagnosticManager();
 
     void setDiagnostics(const LanguageServerProtocol::DocumentUri &uri,
-                        const QList<LanguageServerProtocol::Diagnostic> &diagnostics);
+                        const QList<LanguageServerProtocol::Diagnostic> &diagnostics,
+                        const Utils::optional<int> &version);
     void removeDiagnostics(const LanguageServerProtocol::DocumentUri &uri);
 
     void showDiagnostics(const LanguageServerProtocol::DocumentUri &uri);
@@ -52,10 +53,14 @@ public:
 
     QList<LanguageServerProtocol::Diagnostic> diagnosticsAt(
         const LanguageServerProtocol::DocumentUri &uri,
-        const LanguageServerProtocol::Range &range) const;
+        const QTextCursor &cursor) const;
 
 private:
-    QMap<LanguageServerProtocol::DocumentUri, QList<LanguageServerProtocol::Diagnostic>> m_diagnostics;
+    struct VersionedDiagnostics {
+        Utils::optional<int> version;
+        QList<LanguageServerProtocol::Diagnostic> diagnostics;
+    };
+    QMap<LanguageServerProtocol::DocumentUri, VersionedDiagnostics> m_diagnostics;
     Utils::Id m_clientId;
 };
 
