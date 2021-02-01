@@ -700,6 +700,47 @@ static char backslashed(char t)
     return t;
 }
 
+enum class Modifier {NONE,UPPERCASE,LOWERCASE};
+
+static QString applyReplacementLetterCases(QString repl,
+                                           Modifier &toggledModifier,
+                                           Modifier &nextCharacterModifier)
+{
+    if (toggledModifier == Modifier::UPPERCASE)
+        repl = repl.toUpper();
+    else if (toggledModifier == Modifier::LOWERCASE)
+        repl = repl.toLower();
+
+    if (nextCharacterModifier == Modifier::UPPERCASE) {
+        repl.replace(0, 1, repl.at(0).toUpper());
+        nextCharacterModifier = Modifier::NONE;
+    } else if (nextCharacterModifier == Modifier::LOWERCASE) {
+        repl.replace(0, 1, repl.at(0).toLower());
+        nextCharacterModifier = Modifier::NONE;
+    }
+    return repl;
+}
+
+static QChar applyReplacementLetterCases(QChar repl,
+                                         Modifier &toggledModifier,
+                                         Modifier &nextCharacterModifier)
+{
+    if (nextCharacterModifier == Modifier::UPPERCASE){
+        nextCharacterModifier = Modifier::NONE;
+        return repl.toUpper();
+    }
+    else if (nextCharacterModifier == Modifier::LOWERCASE) {
+        nextCharacterModifier = Modifier::NONE;
+        return repl.toLower();
+    }
+    else if (toggledModifier == Modifier::UPPERCASE)
+        return repl.toUpper();
+    else if (toggledModifier == Modifier::LOWERCASE)
+        return repl.toLower();
+    else
+        return repl;
+}
+
 static bool substituteText(QString *text,
                            const QRegularExpression &pattern,
                            const QString &replacement,
@@ -729,14 +770,31 @@ static bool substituteText(QString *text,
         QString matched = text->mid(pos, match.captured(0).size());
         QString repl;
         bool escape = false;
+        Modifier toggledModifier = Modifier::NONE;
+        Modifier nextCharacterModifier = Modifier::NONE;
         // insert captured texts
         for (int i = 0; i < replacement.size(); ++i) {
             const QChar &c = replacement[i];
             if (escape) {
                 escape = false;
                 if (c.isDigit()) {
-                    if (c.digitValue() <= match.lastCapturedIndex())
-                        repl += match.captured(c.digitValue());
+                    if (c.digitValue() <= match.lastCapturedIndex()) {
+                        repl += applyReplacementLetterCases(match.captured(c.digitValue()),
+                                                            toggledModifier,
+                                                            nextCharacterModifier);
+
+                    }
+                } else if (c == 'u') {
+                    nextCharacterModifier = Modifier::UPPERCASE;
+                } else if (c == 'l') {
+                    nextCharacterModifier = Modifier::LOWERCASE;
+                } else if (c == 'U') {
+                    toggledModifier = Modifier::UPPERCASE;
+                } else if (c == 'L') {
+                    toggledModifier = Modifier::LOWERCASE;
+                } else if (c == 'e' || c == 'E') {
+                    nextCharacterModifier = Modifier::NONE;
+                    toggledModifier = Modifier::NONE;
                 } else {
                     repl += backslashed(c.unicode());
                 }
@@ -744,9 +802,11 @@ static bool substituteText(QString *text,
                 if (c == '\\')
                     escape = true;
                 else if (c == '&')
-                    repl += match.captured(0);
+                    repl += applyReplacementLetterCases(match.captured(0),
+                                                        toggledModifier,
+                                                        nextCharacterModifier);
                 else
-                    repl += c;
+                    repl += applyReplacementLetterCases(c, toggledModifier, nextCharacterModifier);
             }
         }
         text->replace(pos, matched.size(), repl);

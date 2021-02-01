@@ -3006,6 +3006,18 @@ void FakeVimPlugin::test_vim_substitute()
     COMMAND("undo | s/[bcef]//g", "a d");
     COMMAND("undo | s/\\w//g", " ");
     COMMAND("undo | s/f\\|$/-/g", "abc de-");
+
+    // modifiers
+    data.setText("abC dEfGh");
+    COMMAND("s/b...E/\\u&", "aBC dEfGh");
+    COMMAND("undo | s/b...E/\\U&/g", "aBC DEfGh");
+    COMMAND("undo | s/C..E/\\l&/g",  "abc dEfGh");
+    COMMAND("undo | s/b...E/\\L&/g", "abc defGh");
+
+    COMMAND("undo | s/\\(b...E\\)/\\u\\1/g", "aBC dEfGh");
+    COMMAND("undo | s/\\(b...E\\)/\\U\\1/g", "aBC DEfGh");
+    COMMAND("undo | s/\\(C..E\\)/\\l\\1/g",  "abc dEfGh");
+    COMMAND("undo | s/\\(b...E\\)/\\L\\1/g", "abc defGh");
 }
 
 void FakeVimPlugin::test_vim_ex_commandbuffer_paste()
