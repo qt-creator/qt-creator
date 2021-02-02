@@ -32,14 +32,15 @@
 #include "cmaketoolmanager.h"
 
 #include <coreplugin/icore.h>
+#include <ios/iosconstants.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/toolchain.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
-#include <projectexplorer/projectexplorerconstants.h>
 
 #include <app/app_version.h>
 
@@ -65,6 +66,13 @@ namespace CMakeProjectManager {
 // --------------------------------------------------------------------
 // CMakeKitAspect:
 // --------------------------------------------------------------------
+
+static bool isIos(const Kit *k)
+{
+    const Utils::Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
+    return deviceType == Ios::Constants::IOS_DEVICE_TYPE
+           || deviceType == Ios::Constants::IOS_SIMULATOR_TYPE;
+}
 
 static Utils::Id defaultCMakeToolId()
 {
@@ -635,6 +643,9 @@ QVariant CMakeGeneratorKitAspect::defaultValue(const Kit *k) const
     if (!tool)
         return QVariant();
 
+    if (isIos(k))
+        return GeneratorInfo("Xcode").toVariant();
+
     const QList<CMakeTool::Generator> known = tool->supportedGenerators();
     auto it = std::find_if(known.constBegin(), known.constEnd(), [](const CMakeTool::Generator &g) {
         return g.matches("Ninja");
@@ -765,7 +776,7 @@ void CMakeGeneratorKitAspect::fix(Kit *k)
         dv.fromVariant(defaultValue(k));
         setGeneratorInfo(k, dv);
     } else {
-        const GeneratorInfo dv(info.generator,
+        const GeneratorInfo dv(isIos(k) ? QString("Xcode") : info.generator,
                                info.extraGenerator,
                                it->supportsPlatform ? info.platform : QString(),
                                it->supportsToolset ? info.toolset : QString());

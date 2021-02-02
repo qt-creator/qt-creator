@@ -32,6 +32,7 @@
 #include "cmakeprojectconstants.h"
 
 #include <android/androidconstants.h>
+#include <ios/iosconstants.h>
 #include <projectexplorer/buildaspects.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
@@ -67,6 +68,13 @@ const char CONFIGURATION_KEY[] = "CMake.Configuration";
 // Helper:
 // -----------------------------------------------------------------------------
 
+static bool isIos(const Kit *k)
+{
+    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
+    return deviceType == Ios::Constants::IOS_DEVICE_TYPE
+           || deviceType == Ios::Constants::IOS_SIMULATOR_TYPE;
+}
+
 static QStringList defaultInitialCMakeArguments(const Kit *k, const QString buildType)
 {
     // Generator:
@@ -78,15 +86,17 @@ static QStringList defaultInitialCMakeArguments(const Kit *k, const QString buil
     }
 
     // Cross-compilation settings:
-    const QString sysRoot = SysRootKitAspect::sysRoot(k).toString();
-    if (!sysRoot.isEmpty()) {
-        initialArgs.append(QString::fromLatin1("-DCMAKE_SYSROOT:PATH=%1").arg(sysRoot));
-        if (ToolChain *tc = ToolChainKitAspect::cxxToolChain(k)) {
-            const QString targetTriple = tc->originalTargetTriple();
-            initialArgs.append(
-                QString::fromLatin1("-DCMAKE_C_COMPILER_TARGET:STRING=%1").arg(targetTriple));
-            initialArgs.append(
-                QString::fromLatin1("-DCMAKE_CXX_COMPILER_TARGET:STRING=%1").arg(targetTriple));
+    if (!isIos(k)) { // iOS handles this differently
+        const QString sysRoot = SysRootKitAspect::sysRoot(k).toString();
+        if (!sysRoot.isEmpty()) {
+            initialArgs.append(QString::fromLatin1("-DCMAKE_SYSROOT:PATH=%1").arg(sysRoot));
+            if (ToolChain *tc = ToolChainKitAspect::cxxToolChain(k)) {
+                const QString targetTriple = tc->originalTargetTriple();
+                initialArgs.append(
+                    QString::fromLatin1("-DCMAKE_C_COMPILER_TARGET:STRING=%1").arg(targetTriple));
+                initialArgs.append(
+                    QString::fromLatin1("-DCMAKE_CXX_COMPILER_TARGET:STRING=%1").arg(targetTriple));
+            }
         }
     }
 
@@ -184,6 +194,29 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Utils::Id id)
                 initialArgs.append(QString("-DANDROID_SDK_ROOT:PATH=%1").arg(sdkLocation.toString()));
             } else {
                 initialArgs.append(QString("-DANDROID_SDK:PATH=%1").arg(sdkLocation.toString()));
+            }
+        }
+
+        if (isIos(k)) {
+            QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
+            if (qt && qt->qtVersion().majorVersion >= 6) {
+                // TODO it would be better if we could set
+                // CMAKE_SYSTEM_NAME=iOS and CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH=YES
+                // and build with "cmake --build . -- -arch <arch>" instead of setting the architecture
+                // and sysroot in the CMake configuration, but that currently doesn't work with Qt/CMake
+                // https://gitlab.kitware.com/cmake/cmake/-/issues/21276
+                const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
+                // TODO the architectures are probably not correct with Apple Silicon in the mix...
+                const QString architecture = deviceType == Ios::Constants::IOS_DEVICE_TYPE
+                                                 ? QLatin1String("arm64")
+                                                 : QLatin1String("x86_64");
+                const QString sysroot = deviceType == Ios::Constants::IOS_DEVICE_TYPE
+                                            ? QLatin1String("iphoneos")
+                                            : QLatin1String("iphonesimulator");
+                initialArgs.append("-DCMAKE_TOOLCHAIN_FILE:PATH=%{Qt:QT_INSTALL_PREFIX}/lib/cmake/"
+                                   "Qt6/qt.toolchain.cmake");
+                initialArgs.append("-DCMAKE_OSX_ARCHITECTURES:STRING=" + architecture);
+                initialArgs.append("-DCMAKE_OSX_SYSROOT:STRING=" + sysroot);
             }
         }
 
