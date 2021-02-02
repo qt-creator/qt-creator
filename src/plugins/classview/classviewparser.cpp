@@ -94,6 +94,9 @@ namespace Internal {
 class ParserPrivate
 {
 public:
+    // Keep timer as a child of Parser in order to move it together with its parent
+    // into another thread.
+    ParserPrivate(QObject *parent) : timer(parent) {}
     using CitDocumentList = QHash<QString, CPlusPlus::Document::Ptr>::const_iterator;
 
     //! Get document from documentList
@@ -160,7 +163,7 @@ CPlusPlus::Document::Ptr ParserPrivate::document(const QString &fileName) const
 
 Parser::Parser(QObject *parent)
     : QObject(parent),
-    d(new ParserPrivate())
+    d(new ParserPrivate(this))
 {
     d->timer.setSingleShot(true);
 
