@@ -310,6 +310,7 @@ void TextMark::addToToolTipLayout(QGridLayout *target) const
             QTC_ASSERT(!action->icon().isNull(), continue);
             auto button = new QToolButton;
             button->setIcon(action->icon());
+            button->setToolTip(action->toolTip());
             QObject::connect(button, &QToolButton::clicked, action, &QAction::triggered);
             QObject::connect(button, &QToolButton::clicked, []() {
                 Utils::ToolTip::hideImmediately();
@@ -398,6 +399,7 @@ void TextMark::setSettingsPage(Id settingsPage)
     delete m_settingsAction;
     m_settingsAction = new QAction;
     m_settingsAction->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
+    m_settingsAction->setToolTip(tr("Show Diagnostic Settings"));
     QObject::connect(m_settingsAction, &QAction::triggered, [this, settingsPage] {
         Core::ICore::showOptionsDialog(settingsPage);
     });
