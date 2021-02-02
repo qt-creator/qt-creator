@@ -123,9 +123,6 @@ public:
                                   const LanguageServerProtocol::DocumentUri &uri);
     void executeCommand(const LanguageServerProtocol::Command &command);
 
-    void formatFile(const TextEditor::TextDocument *document);
-    void formatRange(const TextEditor::TextDocument *document, const QTextCursor &cursor);
-
     // workspace control
     void setCurrentProject(ProjectExplorer::Project *project);
     const ProjectExplorer::Project *project() const;
