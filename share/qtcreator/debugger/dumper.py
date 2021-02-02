@@ -188,6 +188,7 @@ class DumperBase():
         self.displayStringLimit = 100
         self.useTimeStamps = False
 
+        self.output = ''
         self.typesReported = {}
         self.typesToReport = {}
         self.qtNamespaceToReport = None
