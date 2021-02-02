@@ -33,6 +33,7 @@
 #include <coreplugin/find/searchresultwindow.h>
 #include <coreplugin/icore.h>
 #include <languageserverprotocol/messages.h>
+#include <languageserverprotocol/progresssupport.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
@@ -67,6 +68,8 @@ LanguageClientManager::LanguageClientManager(QObject *parent)
     JsonRpcMessageHandler::registerMessageProvider<WorkSpaceFolderRequest>();
     JsonRpcMessageHandler::registerMessageProvider<RegisterCapabilityRequest>();
     JsonRpcMessageHandler::registerMessageProvider<UnregisterCapabilityRequest>();
+    JsonRpcMessageHandler::registerMessageProvider<WorkDoneProgressCreateRequest>();
+    JsonRpcMessageHandler::registerMessageProvider<ProgressNotification>();
     connect(EditorManager::instance(), &EditorManager::editorOpened,
             this, &LanguageClientManager::editorOpened);
     connect(EditorManager::instance(), &EditorManager::documentOpened,

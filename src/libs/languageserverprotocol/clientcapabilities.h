@@ -508,6 +508,27 @@ public:
     void clearConfiguration() { remove(configurationKey); }
 };
 
+class WindowClientClientCapabilities : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+
+    /**
+      * Whether client supports handling progress notifications.
+      * If set, servers are allowed to report in `workDoneProgress` property
+      * in the request specific server capabilities.
+      *
+      */
+    Utils::optional<bool> workDoneProgress() const
+    { return optionalValue<bool>(workDoneProgressKey); }
+    void setWorkDoneProgress(bool workDoneProgress)
+    { insert(workDoneProgressKey, workDoneProgress); }
+    void clearWorkDoneProgress() { remove(workDoneProgressKey); }
+
+private:
+    constexpr static const char workDoneProgressKey[] = "workDoneProgress";
+};
+
 class LANGUAGESERVERPROTOCOL_EXPORT ClientCapabilities : public JsonObject
 {
 public:
@@ -527,10 +548,17 @@ public:
     { insert(textDocumentKey, textDocument); }
     void clearTextDocument() { remove(textDocumentKey); }
 
+    // Window specific client capabilities.
+    Utils::optional<WindowClientClientCapabilities> window() const
+    { return optionalValue<WindowClientClientCapabilities>(windowKey); }
+    void setWindow(const WindowClientClientCapabilities &window)
+    { insert(windowKey, window); }
+    void clearWindow() { remove(windowKey); }
+
     // Experimental client capabilities.
     QJsonValue experimental() const { return value(experimentalKey); }
     void setExperimental(const QJsonValue &experimental) { insert(experimentalKey, experimental); }
     void clearExperimental() { remove(experimentalKey); }
 };
 
-}
+} // namespace LanguageServerProtocol

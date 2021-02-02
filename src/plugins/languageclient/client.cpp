@@ -40,6 +40,7 @@
 #include <languageserverprotocol/messages.h>
 #include <languageserverprotocol/servercapabilities.h>
 #include <languageserverprotocol/workspace.h>
+#include <languageserverprotocol/progresssupport.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <texteditor/codeassist/documentcontentcompletion.h>
@@ -54,6 +55,7 @@
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <QDebug>
 #include <QLoggingCategory>
@@ -245,6 +247,10 @@ static ClientCapabilities generateClientCapabilities()
     documentCapabilities.setRangeFormatting(allowDynamicRegistration);
     documentCapabilities.setOnTypeFormatting(allowDynamicRegistration);
     capabilities.setTextDocument(documentCapabilities);
+
+    WindowClientClientCapabilities window;
+    window.setWorkDoneProgress(true);
+    capabilities.setWindow(window);
 
     return capabilities;
 }
@@ -1110,6 +1116,16 @@ void Client::handleMethod(const QString &method, const MessageId &id, const ICon
         }
         response.setResult(result);
         sendContent(response);
+    } else if (method == WorkDoneProgressCreateRequest::methodName) {
+        sendContent(WorkDoneProgressCreateRequest::Response(
+            dynamic_cast<const WorkDoneProgressCreateRequest *>(content)->id()));
+    } else if (method == ProgressNotification::methodName) {
+        if (Utils::optional<ProgressParams> params
+            = dynamic_cast<const ProgressNotification *>(content)->params()) {
+            if (!params->isValid())
+                logError(*params);
+            m_progressManager.handleProgress(*params);
+        }
     } else if (id.isValid()) {
         Response<JsonObject, JsonObject> response(id);
         ResponseError<JsonObject> error;

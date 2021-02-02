@@ -35,6 +35,8 @@ Project {
             "lsputils.h",
             "messages.cpp",
             "messages.h",
+            "progresssupport.cpp",
+            "progresssupport.h",
             "servercapabilities.cpp",
             "servercapabilities.h",
             "shutdownmessages.cpp",

@@ -215,6 +215,7 @@ constexpr char valueSetKey[] = "valueSet";
 constexpr char versionKey[] = "version";
 constexpr char willSaveKey[] = "willSave";
 constexpr char willSaveWaitUntilKey[] = "willSaveWaitUntil";
+constexpr char windowKey[] = "window";
 constexpr char workDoneProgressKey[] = "workDoneProgress";
 constexpr char workspaceEditKey[] = "workspaceEdit";
 constexpr char workspaceFoldersKey[] = "workspaceFolders";

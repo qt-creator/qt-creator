@@ -17,15 +17,18 @@ HEADERS += \
     lsptypes.h \
     lsputils.h \
     messages.h \
+    progresssupport.h \
     servercapabilities.h \
     shutdownmessages.h \
     textsynchronization.h \
-    workspace.h
+    workspace.h \
 
 SOURCES += \
     basemessage.cpp \
+    client.cpp \
     clientcapabilities.cpp \
     completion.cpp \
+    diagnostics.cpp \
     initializemessages.cpp \
     jsonobject.cpp \
     jsonrpcmessages.cpp \
@@ -33,9 +36,8 @@ SOURCES += \
     lsptypes.cpp \
     lsputils.cpp \
     messages.cpp \
+    progresssupport.cpp \
     servercapabilities.cpp \
+    shutdownmessages.cpp \
     textsynchronization.cpp \
     workspace.cpp \
-    client.cpp \
-    shutdownmessages.cpp \
-    diagnostics.cpp

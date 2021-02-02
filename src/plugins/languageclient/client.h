@@ -36,6 +36,7 @@
 #include "languageclientquickfix.h"
 #include "languageclientsettings.h"
 #include "languageclientsymbolsupport.h"
+#include "progressmanager.h"
 
 #include <coreplugin/messagemanager.h>
 
@@ -47,6 +48,7 @@
 #include <languageserverprotocol/initializemessages.h>
 #include <languageserverprotocol/languagefeatures.h>
 #include <languageserverprotocol/messages.h>
+#include <languageserverprotocol/progresssupport.h>
 #include <languageserverprotocol/shutdownmessages.h>
 #include <languageserverprotocol/textsynchronization.h>
 
@@ -237,6 +239,7 @@ private:
     const ProjectExplorer::Project *m_project = nullptr;
     QSet<TextEditor::IAssistProcessor *> m_runningAssistProcessors;
     SymbolSupport m_symbolSupport;
+    ProgressManager m_progressManager;
 };
 
 } // namespace LanguageClient

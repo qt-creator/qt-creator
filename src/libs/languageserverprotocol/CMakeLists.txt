@@ -16,6 +16,7 @@ add_qtc_library(LanguageServerProtocol
     lsptypes.cpp lsptypes.h
     lsputils.cpp lsputils.h
     messages.cpp messages.h
+    progresssupport.cpp progresssupport.h
     servercapabilities.cpp servercapabilities.h
     shutdownmessages.cpp shutdownmessages.h
     textsynchronization.cpp textsynchronization.h

@@ -22,7 +22,8 @@ HEADERS += \
     languageclientutils.h \
     locatorfilter.h \
     lspinspector.h \
-    semantichighlightsupport.h
+    progressmanager.h \
+    semantichighlightsupport.h \
 
 
 SOURCES += \
@@ -44,7 +45,8 @@ SOURCES += \
     languageclientutils.cpp \
     locatorfilter.cpp \
     lspinspector.cpp \
-    semantichighlightsupport.cpp
+    progressmanager.cpp \
+    semantichighlightsupport.cpp \
 
 RESOURCES += \
     languageclient.qrc

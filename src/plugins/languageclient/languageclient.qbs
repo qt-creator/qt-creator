@@ -52,6 +52,8 @@ QtcPlugin {
         "locatorfilter.h",
         "lspinspector.cpp",
         "lspinspector.h",
+        "progressmanager.cpp",
+        "progressmanager.h",
         "semantichighlightsupport.cpp",
         "semantichighlightsupport.h",
     ]
