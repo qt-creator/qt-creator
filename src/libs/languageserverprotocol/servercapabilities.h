@@ -29,6 +29,19 @@
 
 namespace LanguageServerProtocol {
 
+class LANGUAGESERVERPROTOCOL_EXPORT WorkDoneProgressOptions : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+
+    Utils::optional<bool> workDoneProgress() const { return optionalValue<bool>(workDoneProgressKey); }
+    void setWorkDoneProgress(bool workDoneProgress) { insert(workDoneProgressKey, workDoneProgress); }
+    void clearWorkDoneProgress() { remove(workDoneProgressKey); }
+
+    bool isValid(ErrorHierarchy *error) const override
+    { return checkOptional<bool>(error, workDoneProgressKey); }
+};
+
 class LANGUAGESERVERPROTOCOL_EXPORT ResolveProviderOption : public JsonObject
 {
 public:
@@ -120,17 +133,16 @@ enum class TextDocumentSyncKind
     Incremental = 2
 };
 
-class LANGUAGESERVERPROTOCOL_EXPORT CodeActionOptions : public JsonObject
+class LANGUAGESERVERPROTOCOL_EXPORT CodeActionOptions : public WorkDoneProgressOptions
 {
 public:
-    using JsonObject::JsonObject;
+    using WorkDoneProgressOptions::WorkDoneProgressOptions;
 
     QList<QString> codeActionKinds() const { return array<QString>(codeActionKindsKey); }
     void setCodeActionKinds(const QList<QString> &codeActionKinds)
     { insertArray(codeActionKindsKey, codeActionKinds); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return checkArray<QString>(error, codeActionKindsKey); }
+    bool isValid(ErrorHierarchy *error) const override;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ServerCapabilities : public JsonObject
@@ -140,10 +152,10 @@ public:
 
     // Defines how the host (editor) should sync document changes to the language server.
 
-    class LANGUAGESERVERPROTOCOL_EXPORT CompletionOptions : public ResolveProviderOption
+    class LANGUAGESERVERPROTOCOL_EXPORT CompletionOptions : public WorkDoneProgressOptions
     {
     public:
-        using ResolveProviderOption::ResolveProviderOption;
+        using WorkDoneProgressOptions::WorkDoneProgressOptions;
 
         // The characters that trigger completion automatically.
         Utils::optional<QList<QString>> triggerCharacters() const
@@ -152,14 +164,17 @@ public:
         { insertArray(triggerCharactersKey, triggerCharacters); }
         void clearTriggerCharacters() { remove(triggerCharactersKey); }
 
-        bool isValid(ErrorHierarchy *error) const override
-        { return checkOptionalArray<QString>(error, triggerCharactersKey); }
+        Utils::optional<bool> resolveProvider() const { return optionalValue<bool>(resolveProviderKey); }
+        void setResolveProvider(bool resolveProvider) { insert(resolveProviderKey, resolveProvider); }
+        void clearResolveProvider() { remove(resolveProviderKey); }
+
+        bool isValid(ErrorHierarchy *error) const override;
     };
 
-    class LANGUAGESERVERPROTOCOL_EXPORT SignatureHelpOptions : public JsonObject
+    class LANGUAGESERVERPROTOCOL_EXPORT SignatureHelpOptions : public WorkDoneProgressOptions
     {
     public:
-        using JsonObject::JsonObject;
+        using WorkDoneProgressOptions::WorkDoneProgressOptions;
 
         // The characters that trigger signature help automatically.
         Utils::optional<QList<QString>> triggerCharacters() const
@@ -167,6 +182,8 @@ public:
         void setTriggerCharacters(const QList<QString> &triggerCharacters)
         { insertArray(triggerCharactersKey, triggerCharacters); }
         void clearTriggerCharacters() { remove(triggerCharactersKey); }
+
+        bool isValid(ErrorHierarchy *error) const override;
     };
 
     using CodeLensOptions = ResolveProviderOption;
@@ -197,16 +214,15 @@ public:
 
     using DocumentLinkOptions = ResolveProviderOption;
 
-    class LANGUAGESERVERPROTOCOL_EXPORT ExecuteCommandOptions : public JsonObject
+    class LANGUAGESERVERPROTOCOL_EXPORT ExecuteCommandOptions : public WorkDoneProgressOptions
     {
     public:
-        using JsonObject::JsonObject;
+        using WorkDoneProgressOptions::WorkDoneProgressOptions;
 
         QList<QString> commands() const { return array<QString>(commandsKey); }
         void setCommands(const QList<QString> &commands) { insertArray(commandsKey, commands); }
 
-        bool isValid(ErrorHierarchy *error) const override
-        { return checkArray<QString>(error, commandsKey); }
+        bool isValid(ErrorHierarchy *error) const override;
     };
 
     using ColorProviderOptions = JsonObject;
@@ -244,8 +260,8 @@ public:
     TextDocumentSyncKind textDocumentSyncKindHelper();
 
     // The server provides hover support.
-    Utils::optional<bool> hoverProvider() const { return optionalValue<bool>(hoverProviderKey); }
-    void setHoverProvider(bool hoverProvider) { insert(hoverProviderKey, hoverProvider); }
+    Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> hoverProvider() const;
+    void setHoverProvider(const Utils::variant<bool, WorkDoneProgressOptions> &hoverProvider);
     void clearHoverProvider() { remove(hoverProviderKey); }
 
     // The server provides completion support.
@@ -303,29 +319,24 @@ public:
     void clearImplementationProvider() { remove(implementationProviderKey); }
 
     // The server provides find references support.
-    Utils::optional<bool> referencesProvider() const { return optionalValue<bool>(referencesProviderKey); }
-    void setReferencesProvider(bool referenceProvider) { insert(referencesProviderKey, referenceProvider); }
+    Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> referencesProvider() const;
+    void setReferencesProvider(const Utils::variant<bool, WorkDoneProgressOptions> &referencesProvider);
     void clearReferencesProvider() { remove(referencesProviderKey); }
 
     // The server provides document highlight support.
-    Utils::optional<bool> documentHighlightProvider() const
-    { return optionalValue<bool>(documentHighlightProviderKey); }
-    void setDocumentHighlightProvider(bool documentHighlightProvider)
-    { insert(documentHighlightProviderKey, documentHighlightProvider); }
+    Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> documentHighlightProvider() const;
+    void setDocumentHighlightProvider(
+        const Utils::variant<bool, WorkDoneProgressOptions> &documentHighlightProvider);
     void clearDocumentHighlightProvider() { remove(documentHighlightProviderKey); }
 
     // The server provides document symbol support.
-    Utils::optional<bool> documentSymbolProvider() const
-    { return optionalValue<bool>(documentSymbolProviderKey); }
-    void setDocumentSymbolProvider(bool documentSymbolProvider)
-    { insert(documentSymbolProviderKey, documentSymbolProvider); }
+    Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> documentSymbolProvider() const;
+    void setDocumentSymbolProvider(Utils::variant<bool, WorkDoneProgressOptions> documentSymbolProvider);
     void clearDocumentSymbolProvider() { remove(documentSymbolProviderKey); }
 
     // The server provides workspace symbol support.
-    Utils::optional<bool> workspaceSymbolProvider() const
-    { return optionalValue<bool>(workspaceSymbolProviderKey); }
-    void setWorkspaceSymbolProvider(bool workspaceSymbolProvider)
-    { insert(workspaceSymbolProviderKey, workspaceSymbolProvider); }
+    Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> workspaceSymbolProvider() const;
+    void setWorkspaceSymbolProvider(Utils::variant<bool, WorkDoneProgressOptions> workspaceSymbolProvider);
     void clearWorkspaceSymbolProvider() { remove(workspaceSymbolProviderKey); }
 
     // The server provides code actions.
@@ -344,31 +355,27 @@ public:
     void clearCodeLensProvider() { remove(codeLensProviderKey); }
 
     // The server provides document formatting.
-    Utils::optional<bool> documentFormattingProvider() const
-    { return optionalValue<bool>(documentFormattingProviderKey); }
-    void setDocumentFormattingProvider(bool documentFormattingProvider)
-    { insert(documentFormattingProviderKey, documentFormattingProvider); }
+    Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> documentFormattingProvider() const;
+    void setDocumentFormattingProvider(
+        const Utils::variant<bool, WorkDoneProgressOptions> &documentFormattingProvider);
     void clearDocumentFormattingProvider() { remove(documentFormattingProviderKey); }
 
     // The server provides document formatting on typing.
-    Utils::optional<bool> documentRangeFormattingProvider() const
-    { return optionalValue<bool>(documentRangeFormattingProviderKey); }
-    void setDocumentRangeFormattingProvider(bool documentRangeFormattingProvider)
-    { insert(documentRangeFormattingProviderKey, documentRangeFormattingProvider); }
+    Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> documentRangeFormattingProvider() const;
+    void setDocumentRangeFormattingProvider(Utils::variant<bool, WorkDoneProgressOptions> documentRangeFormattingProvider);
     void clearDocumentRangeFormattingProvider() { remove(documentRangeFormattingProviderKey); }
 
-    class RenameOptions : public JsonObject
+    class LANGUAGESERVERPROTOCOL_EXPORT RenameOptions : public WorkDoneProgressOptions
     {
     public:
-        using JsonObject::JsonObject;
+        using WorkDoneProgressOptions::WorkDoneProgressOptions;
 
         // Renames should be checked and tested before being executed.
         Utils::optional<bool> prepareProvider() const { return optionalValue<bool>(prepareProviderKey); }
         void setPrepareProvider(bool prepareProvider) { insert(prepareProviderKey, prepareProvider); }
         void clearPrepareProvider() { remove(prepareProviderKey); }
 
-        bool isValid(ErrorHierarchy * error) const override
-        { return checkOptional<bool>(error, prepareProviderKey); }
+        bool isValid(ErrorHierarchy * error) const override;
     };
 
     // The server provides rename support.

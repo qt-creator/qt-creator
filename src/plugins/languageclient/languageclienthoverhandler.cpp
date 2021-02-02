@@ -74,7 +74,11 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
         return;
     }
 
-    bool sendMessage = m_client->capabilities().hoverProvider().value_or(false);
+    const Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> &provider
+        = m_client->capabilities().hoverProvider();
+    bool sendMessage = provider.has_value();
+    if (sendMessage && Utils::holds_alternative<bool>(*provider))
+        sendMessage = Utils::get<bool>(*provider);
     if (Utils::optional<bool> registered = m_client->dynamicCapabilities().isRegistered(
             HoverRequest::methodName)) {
         sendMessage = registered.value();

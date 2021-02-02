@@ -46,7 +46,7 @@ template<typename Request>
 static void sendTextDocumentPositionParamsRequest(Client *client,
                                                   const Request &request,
                                                   const DynamicCapabilities &dynamicCapabilities,
-                                                  const Utils::optional<bool> &serverCapability)
+                                                  const ServerCapabilities &serverCapability)
 {
     if (!request.isValid(nullptr))
         return;
@@ -62,7 +62,11 @@ static void sendTextDocumentPositionParamsRequest(Client *client,
         else
             sendMessage = supportedFile;
     } else {
-        sendMessage = serverCapability.value_or(sendMessage) && supportedFile;
+        const Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> &provider
+            = serverCapability.referencesProvider();
+        sendMessage = provider.has_value();
+        if (sendMessage && Utils::holds_alternative<bool>(*provider))
+            sendMessage = Utils::get<bool>(*provider);
     }
     if (sendMessage)
         client->sendContent(request);
@@ -121,7 +125,7 @@ void SymbolSupport::findLinkAt(TextEditor::TextDocument *document,
     sendTextDocumentPositionParamsRequest(m_client,
                                           request,
                                           m_client->dynamicCapabilities(),
-                                          m_client->capabilities().referencesProvider());
+                                          m_client->capabilities());
 
 }
 
@@ -230,7 +234,7 @@ void SymbolSupport::findUsages(TextEditor::TextDocument *document, const QTextCu
     sendTextDocumentPositionParamsRequest(m_client,
                                           request,
                                           m_client->dynamicCapabilities(),
-                                          m_client->capabilities().referencesProvider());
+                                          m_client->capabilities());
 }
 
 static bool supportsRename(Client *client,

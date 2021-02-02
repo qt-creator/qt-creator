@@ -55,11 +55,29 @@ TextDocumentSyncKind ServerCapabilities::textDocumentSyncKindHelper()
     return TextDocumentSyncKind::None;
 }
 
+Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> ServerCapabilities::hoverProvider()
+    const
+{
+    using RetType = Utils::variant<bool, WorkDoneProgressOptions>;
+    const QJsonValue &provider = value(hoverProviderKey);
+    if (provider.isBool())
+        return Utils::make_optional(RetType(provider.toBool()));
+    if (provider.isObject())
+        return Utils::make_optional(RetType(WorkDoneProgressOptions(provider.toObject())));
+    return Utils::nullopt;
+}
+
+void ServerCapabilities::setHoverProvider(
+    const Utils::variant<bool, WorkDoneProgressOptions> &hoverProvider)
+{
+    insertVariant<bool, WorkDoneProgressOptions>(hoverProviderKey, hoverProvider);
+}
+
 Utils::optional<Utils::variant<bool, ServerCapabilities::RegistrationOptions>>
 ServerCapabilities::typeDefinitionProvider() const
 {
     using RetType = Utils::variant<bool, ServerCapabilities::RegistrationOptions>;
-    QJsonValue provider = value(typeDefinitionProviderKey);
+    const QJsonValue &provider = value(typeDefinitionProviderKey);
     if (provider.isUndefined() || !(provider.isBool() || provider.isObject()))
         return Utils::nullopt;
     return Utils::make_optional(provider.isBool() ? RetType(provider.toBool())
@@ -77,7 +95,7 @@ Utils::optional<Utils::variant<bool, ServerCapabilities::RegistrationOptions>>
 ServerCapabilities::implementationProvider() const
 {
     using RetType = Utils::variant<bool, ServerCapabilities::RegistrationOptions>;
-    QJsonValue provider = value(implementationProviderKey);
+    const QJsonValue &provider = value(implementationProviderKey);
     if (provider.isUndefined() || !(provider.isBool() || provider.isObject()))
         return Utils::nullopt;
     return Utils::make_optional(provider.isBool() ? RetType(provider.toBool())
@@ -90,9 +108,85 @@ void ServerCapabilities::setImplementationProvider(
     insertVariant<bool, RegistrationOptions>(implementationProviderKey, implementationProvider);
 }
 
+Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>>
+ServerCapabilities::referencesProvider() const
+{
+    using RetType = Utils::variant<bool, WorkDoneProgressOptions>;
+    const QJsonValue &provider = value(referencesProviderKey);
+    if (provider.isBool())
+        return Utils::make_optional(RetType(provider.toBool()));
+    if (provider.isObject())
+        return Utils::make_optional(RetType(WorkDoneProgressOptions(provider.toObject())));
+    return Utils::nullopt;
+}
+
+void ServerCapabilities::setReferencesProvider(
+    const Utils::variant<bool, WorkDoneProgressOptions> &referencesProvider)
+{
+    insertVariant<bool, WorkDoneProgressOptions>(referencesProviderKey,
+                                                 referencesProvider);
+}
+
+Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>>
+ServerCapabilities::documentHighlightProvider() const
+{
+    using RetType = Utils::variant<bool, WorkDoneProgressOptions>;
+    const QJsonValue &provider = value(documentHighlightProviderKey);
+    if (provider.isBool())
+        return Utils::make_optional(RetType(provider.toBool()));
+    if (provider.isObject())
+        return Utils::make_optional(RetType(WorkDoneProgressOptions(provider.toObject())));
+    return Utils::nullopt;
+}
+
+void ServerCapabilities::setDocumentHighlightProvider(
+    const Utils::variant<bool, WorkDoneProgressOptions> &documentHighlightProvider)
+{
+    insertVariant<bool, WorkDoneProgressOptions>(documentHighlightProviderKey,
+                                                 documentHighlightProvider);
+}
+
+Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>>
+ServerCapabilities::documentSymbolProvider() const
+{
+    using RetType = Utils::variant<bool, WorkDoneProgressOptions>;
+    const QJsonValue &provider = value(documentSymbolProviderKey);
+    if (provider.isBool())
+        return Utils::make_optional(RetType(provider.toBool()));
+    if (provider.isObject())
+        return Utils::make_optional(RetType(WorkDoneProgressOptions(provider.toObject())));
+    return Utils::nullopt;
+}
+
+void ServerCapabilities::setDocumentSymbolProvider(
+    Utils::variant<bool, WorkDoneProgressOptions> documentSymbolProvider)
+{
+    insertVariant<bool, WorkDoneProgressOptions>(documentSymbolProviderKey,
+                                                 documentSymbolProvider);
+}
+
+Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>>
+ServerCapabilities::workspaceSymbolProvider() const
+{
+    using RetType = Utils::variant<bool, WorkDoneProgressOptions>;
+    const QJsonValue &provider = value(workspaceSymbolProviderKey);
+    if (provider.isBool())
+        return Utils::make_optional(RetType(provider.toBool()));
+    if (provider.isObject())
+        return Utils::make_optional(RetType(WorkDoneProgressOptions(provider.toObject())));
+    return Utils::nullopt;
+}
+
+void ServerCapabilities::setWorkspaceSymbolProvider(
+    Utils::variant<bool, WorkDoneProgressOptions> workspaceSymbolProvider)
+{
+    insertVariant<bool, WorkDoneProgressOptions>(workspaceSymbolProviderKey,
+                                                 workspaceSymbolProvider);
+}
+
 Utils::optional<Utils::variant<bool, CodeActionOptions>> ServerCapabilities::codeActionProvider() const
 {
-    QJsonValue provider = value(codeActionProviderKey);
+    const QJsonValue &provider = value(codeActionProviderKey);
     if (provider.isBool())
         return Utils::make_optional(Utils::variant<bool, CodeActionOptions>(provider.toBool()));
     if (provider.isObject()) {
@@ -101,6 +195,44 @@ Utils::optional<Utils::variant<bool, CodeActionOptions>> ServerCapabilities::cod
             return Utils::make_optional(Utils::variant<bool, CodeActionOptions>(options));
     }
     return Utils::nullopt;
+}
+
+Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>>
+ServerCapabilities::documentFormattingProvider() const
+{
+    using RetType = Utils::variant<bool, WorkDoneProgressOptions>;
+    const QJsonValue &provider = value(documentFormattingProviderKey);
+    if (provider.isBool())
+        return Utils::make_optional(RetType(provider.toBool()));
+    if (provider.isObject())
+        return Utils::make_optional(RetType(WorkDoneProgressOptions(provider.toObject())));
+    return Utils::nullopt;
+}
+
+void ServerCapabilities::setDocumentFormattingProvider(
+    const Utils::variant<bool, WorkDoneProgressOptions> &documentFormattingProvider)
+{
+    insertVariant<bool, WorkDoneProgressOptions>(documentFormattingProviderKey,
+                                                 documentFormattingProvider);
+}
+
+Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>>
+ServerCapabilities::documentRangeFormattingProvider() const
+{
+    using RetType = Utils::variant<bool, WorkDoneProgressOptions>;
+    const QJsonValue &provider = value(documentRangeFormattingProviderKey);
+    if (provider.isBool())
+        return Utils::make_optional(RetType(provider.toBool()));
+    if (provider.isObject())
+        return Utils::make_optional(RetType(WorkDoneProgressOptions(provider.toObject())));
+    return Utils::nullopt;
+}
+
+void ServerCapabilities::setDocumentRangeFormattingProvider(
+    Utils::variant<bool, WorkDoneProgressOptions> documentRangeFormattingProvider)
+{
+    insertVariant<bool, WorkDoneProgressOptions>(documentRangeFormattingProviderKey,
+                                                 documentRangeFormattingProvider);
 }
 
 Utils::optional<Utils::variant<ServerCapabilities::RenameOptions, bool>> ServerCapabilities::renameProvider() const
@@ -164,7 +296,7 @@ Utils::optional<Utils::variant<QString, bool> >
 ServerCapabilities::WorkspaceServerCapabilities::WorkspaceFoldersCapabilities::changeNotifications() const
 {
     using RetType = Utils::variant<QString, bool>;
-    QJsonValue provider = value(implementationProviderKey);
+    const QJsonValue &provider = value(implementationProviderKey);
     if (provider.isUndefined())
         return Utils::nullopt;
     return Utils::make_optional(provider.isBool() ? RetType(provider.toBool())
@@ -245,6 +377,36 @@ bool ServerCapabilities::SemanticHighlightingServerCapabilities::isValid(ErrorHi
                   return array.isArray() && Utils::allOf(array.toArray(), &QJsonValueRef::isString);
 #endif
               });
+}
+
+bool ServerCapabilities::ExecuteCommandOptions::isValid(ErrorHierarchy *error) const
+{
+    return WorkDoneProgressOptions::isValid(error) && checkArray<QString>(error, commandsKey);
+}
+
+bool ServerCapabilities::CompletionOptions::isValid(ErrorHierarchy *error) const
+{
+    return WorkDoneProgressOptions::isValid(error)
+           && checkOptionalArray<QString>(error, triggerCharactersKey)
+           && checkOptional<bool>(error, resolveProviderKey);
+}
+
+bool ServerCapabilities::SignatureHelpOptions::isValid(ErrorHierarchy *error) const
+{
+    return WorkDoneProgressOptions::isValid(error)
+           && checkOptionalArray<QString>(error, triggerCharactersKey);
+}
+
+bool CodeActionOptions::isValid(ErrorHierarchy *error) const
+{
+    return WorkDoneProgressOptions::isValid(error)
+           && checkArray<QString>(error, codeActionKindsKey);
+}
+
+bool ServerCapabilities::RenameOptions::isValid(ErrorHierarchy *error) const
+{
+    return WorkDoneProgressOptions::isValid(error)
+           && checkOptional<bool>(error, prepareProviderKey);
 }
 
 } // namespace LanguageServerProtocol

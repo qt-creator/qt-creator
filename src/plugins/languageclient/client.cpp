@@ -625,8 +625,13 @@ void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
                     m_dynamicCapabilities.option(DocumentHighlightsRequest::methodName));
         if (!option.filterApplies(widget->textDocument()->filePath()))
             return;
-    } else if (!m_serverCapabilities.documentHighlightProvider().value_or(false)) {
-        return;
+    } else {
+        Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> provider
+            = m_serverCapabilities.documentHighlightProvider();
+        if (!provider.has_value())
+            return;
+        if (Utils::holds_alternative<bool>(*provider) && !Utils::get<bool>(*provider))
+            return;
     }
 
     auto runningRequest = m_highlightRequests.find(uri);
@@ -1233,9 +1238,13 @@ void Client::initializeCallback(const InitializeRequest::Response &initResponse)
     qCDebug(LOGLSPCLIENT) << "language server " << m_displayName << " initialized";
     m_state = Initialized;
     sendContent(InitializeNotification(InitializedParams()));
-    if (m_dynamicCapabilities.isRegistered(DocumentSymbolsRequest::methodName)
-            .value_or(capabilities().documentSymbolProvider().value_or(false))) {
-        TextEditor::IOutlineWidgetFactory::updateOutline();
+    Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> documentSymbolProvider
+        = capabilities().documentSymbolProvider();
+    if (documentSymbolProvider.has_value()) {
+        if (!Utils::holds_alternative<bool>(*documentSymbolProvider)
+            || Utils::get<bool>(*documentSymbolProvider)) {
+            TextEditor::IOutlineWidgetFactory::updateOutline();
+        }
     }
 
     for (auto it = m_openedDocument.cbegin(); it != m_openedDocument.cend(); ++it)

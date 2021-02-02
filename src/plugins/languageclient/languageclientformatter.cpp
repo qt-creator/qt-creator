@@ -84,8 +84,13 @@ QFutureWatcher<ChangeSet> *LanguageClientFormatter::format(
                 && !option.filterApplies(filePath, Utils::mimeTypeForName(m_document->mimeType()))) {
             return nullptr;
         }
-    } else if (!m_client->capabilities().documentRangeFormattingProvider().value_or(false)) {
-        return nullptr;
+    } else {
+        const Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> &provider
+            = m_client->capabilities().documentRangeFormattingProvider();
+        if (!provider.has_value())
+            return nullptr;
+        if (Utils::holds_alternative<bool>(*provider) && !Utils::get<bool>(*provider))
+            return nullptr;
     }
     DocumentRangeFormattingParams params;
     const DocumentUri uri = DocumentUri::fromFilePath(filePath);

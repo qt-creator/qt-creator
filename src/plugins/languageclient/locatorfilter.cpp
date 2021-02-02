@@ -221,15 +221,19 @@ void WorkspaceLocatorFilter::prepareSearch(const QString &entry)
 
     QMutexLocker locker(&m_mutex);
     for (auto client : Utils::filtered(LanguageClientManager::clients(), &Client::reachable)) {
-        if (client->capabilities().workspaceSymbolProvider().value_or(false)) {
-            WorkspaceSymbolRequest request(params);
-            request.setResponseCallback(
-                [this, client](const WorkspaceSymbolRequest::Response &response) {
-                    handleResponse(client, response);
-                });
-            m_pendingRequests[client] = request.id();
-            client->sendContent(request);
-        }
+        Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> capability
+            = client->capabilities().workspaceSymbolProvider();
+        if (!capability.has_value())
+            continue;
+        if (Utils::holds_alternative<bool>(*capability) && !Utils::get<bool>(*capability))
+            continue;
+        WorkspaceSymbolRequest request(params);
+        request.setResponseCallback(
+            [this, client](const WorkspaceSymbolRequest::Response &response) {
+                handleResponse(client, response);
+            });
+        m_pendingRequests[client] = request.id();
+        client->sendContent(request);
     }
 }
 

@@ -234,7 +234,13 @@ bool LanguageClientOutlineWidgetFactory::clientSupportsDocumentSymbols(
         return !options.isValid(nullptr)
                || options.filterApplies(doc->filePath(), Utils::mimeTypeForName(doc->mimeType()));
     }
-    return client->capabilities().documentSymbolProvider().value_or(false);
+    const Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> &provider
+        = client->capabilities().documentSymbolProvider();
+    if (!provider.has_value())
+        return false;
+    if (Utils::holds_alternative<bool>(*provider))
+        return Utils::get<bool>(*provider);
+    return true;
 }
 
 bool LanguageClientOutlineWidgetFactory::supportsEditor(Core::IEditor *editor) const
