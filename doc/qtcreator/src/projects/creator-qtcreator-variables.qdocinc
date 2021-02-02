@@ -1,0 +1,74 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+//! [qtcreator variables]
+    \section1 Using Qt Creator Variables
+
+    You can use \QC variables in arguments, executable paths, and working
+    directories. The variables take care of quoting their expansions, so you do
+    not need to put them in quotes.
+
+    Select the \inlineimage replace.png
+    (\uicontrol {Variables}) button in a field to select from a list of
+    variables that are available in a particular context.
+    For more information about each variable, move the cursor over it in the
+    list.
+
+    \image qtcreator-variables.png "Qt Creator Variables dialog displaying a tooltip"
+
+    The following syntax enables you to use environment variables as \QC
+    variables: %{Env:VARNAME}.
+
+    \QC uses pattern substitution when expanding variable names. To replace the
+    first match of \e pattern within \e variable with \e replacement, use:
+
+    \badcode
+    %{variable/pattern/replacement}
+    \endcode
+
+    To replace all matches of \e pattern within \e variable with \e replacement,
+    use:
+
+    \badcode
+    %{variable//pattern/replacement}
+    \endcode
+
+    The pattern can be a regular expression and the replacement can contain
+    backreferences. For example, if \c %{variable} is \c my123var, then
+    \c %{variable/(..)(\d+)/\2\1} is expanded to \c {123myvar}.
+
+    Instead of the forward slash, you can also use the pound sign (\c #) as
+    the substitution character. This can be helpful if the value is supposed
+    to be a file path, in which case forward slashes might get translated
+    to backslashes on Windows hosts.
+
+    To use the default value if the variable is not set, use:
+
+    \badcode
+    %{variable:-default}
+    \endcode
+//! [qtcreator variables]
+*/

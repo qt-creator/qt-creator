@@ -67,7 +67,8 @@ const char ReferenceAssetTag[] = "referenceAsset";
 const char AssetPathTag[] = "assetPath";
 const char AssetBoundsTag[] = "assetBounds";
 const char OpacityTag[] = "opacity";
-const char TypeNameTag[] = "qmlType";
+const char TypeNameTag[] = "typeName";
+const char TypeIdTag[] = "typeId";
 
 const char TextDetailsTag[] = "textDetails";
 const char FontFamilyTag[] = "fontFamily";

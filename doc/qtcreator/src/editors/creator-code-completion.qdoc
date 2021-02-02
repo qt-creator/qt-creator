@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -218,12 +218,13 @@
     when you write code.
     \if defined(qtcreator)
     Also specify a text string or C++ or QML code construct
-    in the snippet editor, depending on the snippet category. You can use
-    \l{Using Qt Creator Variables}{predefined variables} in snippets.
+    in the snippet editor, depending on the snippet category.
     \else
     Also specify a text string or QML code in the snippet editor, depending on
     the snippet category.
     \endif
+    You can use \l{Using Qt Creator Variables}{predefined variables} in
+    snippets.
 
     The snippet editor provides you with:
 
@@ -319,5 +320,7 @@
     To use Nimsuggest, you must install it on the development PC. Then select
     \uicontrol Tools > \uicontrol Options > \uicontrol Nim > \uicontrol Tools,
     and enter the path to the tool executable in the \uicontrol Path field.
+    \else
+    \include qtcreator-variables.qdocinc qtcreator variables
     \endif
 */

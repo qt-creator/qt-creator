@@ -130,12 +130,6 @@ QJsonObject Component::nodeToJson(const ModelNode &node)
 
     std::unique_ptr<NodeDumper> dumper(createNodeDumper(node));
     if (dumper) {
-        if (dumper->uuid().isEmpty()) {
-            // Assign an unique identifier to the node.
-            QByteArray uuid = m_exporter.generateUuid(node);
-            node.setAuxiliaryData(Constants::UuidAuxTag, QString::fromLatin1(uuid));
-            node.model()->rewriterView()->writeAuxiliaryData();
-        }
         jsonObject = dumper->json(*this);
     } else {
         ExportNotification::addError(tr("Error exporting node %1. Cannot parse type %2.")

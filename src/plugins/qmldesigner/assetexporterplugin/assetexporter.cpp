@@ -28,6 +28,7 @@
 #include "exportnotification.h"
 
 #include "designdocument.h"
+#include "nodemetainfo.h"
 #include "qmldesignerplugin.h"
 #include "rewriterview.h"
 #include "qmlitemnode.h"
@@ -43,6 +44,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QLoggingCategory>
+#include <QPlainTextEdit>
 #include <QWaitCondition>
 
 #include <random>
@@ -130,13 +132,27 @@ void AssetExporter::exportQml(const Utils::FilePaths &qmlFiles, const Utils::Fil
     m_exportFiles = qmlFiles;
     m_totalFileCount = m_exportFiles.count();
     m_components.clear();
+    m_componentUuidCache.clear();
     m_exportPath = exportPath;
     m_currentState.change(ParsingState::Parsing);
-    triggerLoadNextFile();
     if (exportAssets)
         m_assetDumper = make_unique<AssetDumper>();
     else
         m_assetDumper.reset();
+
+    QTimer::singleShot(0, this, &AssetExporter::beginExport);
+}
+
+void AssetExporter::beginExport()
+{
+    for (const Utils::FilePath &p : m_exportFiles) {
+        if (m_cancelled)
+            break;
+        preprocessQmlFile(p);
+    }
+
+    if (!m_cancelled)
+        triggerLoadNextFile();
 }
 
 void AssetExporter::cancel()
@@ -253,6 +269,68 @@ Utils::FilePath AssetExporter::componentExportDir(const Component *component) co
     return m_exportPath.pathAppended(component->name());
 }
 
+void AssetExporter::preprocessQmlFile(const Utils::FilePath &path)
+{
+    // Load the QML file and assign UUIDs to items having none.
+    // Meanwhile cache the Component UUIDs as well
+    std::unique_ptr<Model> model(Model::create("Item", 2, 7));
+    Utils::FileReader reader;
+    if (!reader.fetch(path.toString())) {
+        ExportNotification::addError(tr("Cannot preprocess file: %1. Error %2")
+                                     .arg(path.toString()).arg(reader.errorString()));
+        return;
+    }
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(QString::fromUtf8(reader.data()));
+    NotIndentingTextEditModifier *modifier = new NotIndentingTextEditModifier(&textEdit);
+    modifier->setParent(model.get());
+    RewriterView *rewriterView = new RewriterView(QmlDesigner::RewriterView::Validate, model.get());
+    rewriterView->setCheckSemanticErrors(false);
+    rewriterView->setTextModifier(modifier);
+    model->attachView(rewriterView);
+    rewriterView->restoreAuxiliaryData();
+    ModelNode rootNode = rewriterView->rootModelNode();
+    if (!rootNode.isValid()) {
+        ExportNotification::addError(tr("Cannot preprocess file: %1").arg(path.toString()));
+        return;
+    }
+
+    if (assignUuids(rootNode)) {
+        // Some UUIDs were assigned. Rewrite the file.
+        rewriterView->writeAuxiliaryData();
+        const QByteArray data = textEdit.toPlainText().toUtf8();
+        Utils::FileSaver saver(path.toString(), QIODevice::Text);
+        saver.write(data);
+        if (!saver.finalize()) {
+            ExportNotification::addError(tr("Cannot update %1.\n%2")
+                                         .arg(path.toString()).arg(saver.errorString()));
+            return;
+        }
+    }
+
+    // Cache component UUID
+    const QString uuid = rootNode.auxiliaryData(Constants::UuidAuxTag).toString();
+    m_componentUuidCache[path.toString()] = uuid;
+}
+
+bool AssetExporter::assignUuids(const ModelNode &root)
+{
+    // Assign an UUID to the node without one.
+    // Return true if an assignment takes place.
+    bool changed = false;
+    for (const ModelNode &node : root.allSubModelNodesAndThisNode()) {
+        const QString uuid = node.auxiliaryData(Constants::UuidAuxTag).toString();
+        if (uuid.isEmpty()) {
+            // Assign an unique identifier to the node.
+            QByteArray uuid = generateUuid(node);
+            node.setAuxiliaryData(Constants::UuidAuxTag, QString::fromLatin1(uuid));
+            changed = true;
+        }
+    }
+    return changed;
+}
+
 QByteArray AssetExporter::generateUuid(const ModelNode &node)
 {
     QByteArray uuid;
@@ -261,6 +339,20 @@ QByteArray AssetExporter::generateUuid(const ModelNode &node)
     } while (m_usedHashes.contains(uuid));
     m_usedHashes.insert(uuid);
     return uuid;
+}
+
+QString AssetExporter::componentUuid(const ModelNode &instance) const
+{
+    // Returns the UUID of the component's root node
+    // Empty string is returned if the node is not an instance of a component within
+    // the project.
+    NodeMetaInfo metaInfo = instance.metaInfo();
+    if (!metaInfo.isValid())
+        return {};
+    const QString path = metaInfo.componentFileName();
+    if (m_componentUuidCache.contains(path))
+        return m_componentUuidCache[path];
+    return {};
 }
 
 void AssetExporter::triggerLoadNextFile()

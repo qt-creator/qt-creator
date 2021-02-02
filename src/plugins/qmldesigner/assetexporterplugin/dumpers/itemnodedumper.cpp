@@ -25,6 +25,8 @@
 
 #include "itemnodedumper.h"
 #include "assetexportpluginconstants.h"
+#include "assetexporter.h"
+#include "componentexporter.h"
 
 #include "qmlitemnode.h"
 
@@ -82,6 +84,10 @@ QJsonObject QmlDesigner::ItemNodeDumper::json(QmlDesigner::Component &component)
     metadata.insert(UuidTag, uuid());
     metadata.insert(ExportTypeTag, ExportTypeChild);
     metadata.insert(TypeNameTag, QString::fromLatin1(m_node.type()));
+
+    QString typeId = component.exporter().componentUuid(m_node);
+    if (!typeId.isEmpty())
+        metadata.insert(TypeIdTag, typeId);
 
     jsonObject.insert(MetadataTag, metadata);
     return jsonObject;
