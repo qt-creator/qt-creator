@@ -153,13 +153,12 @@ static QList<DeviceProcessItem> getLocalProcessesUsingProc(const QDir &procDir)
 }
 
 // Determine UNIX processes by running ps
-static QList<DeviceProcessItem> getLocalProcessesUsingPs()
+static QMap<qint64, QString> getLocalProcessDataUsingPs(const QString &column)
 {
-    QList<DeviceProcessItem> processes;
+    QMap<qint64, QString> result;
     QProcess psProcess;
-    QStringList args;
-    args << QLatin1String("-e") << QLatin1String("-o") << QLatin1String("pid,comm,args");
-    psProcess.start(QLatin1String("ps"), args);
+    const QStringList args{"-e", "-o", "pid," + column};
+    psProcess.start("ps", args);
     if (psProcess.waitForStarted()) {
         QByteArray output;
         if (Utils::SynchronousProcess::readDataFromProcess(psProcess, 30000, &output, nullptr, false)) {
@@ -168,23 +167,41 @@ static QList<DeviceProcessItem> getLocalProcessesUsingPs()
             const int lineCount = lines.size();
             const QChar blank = QLatin1Char(' ');
             for (int l = 1; l < lineCount; l++) { // Skip header
-                const QString line = lines.at(l).simplified();
+                const QString line = lines.at(l).trimmed();
                 const int pidSep = line.indexOf(blank);
-                const int cmdSep = pidSep != -1 ? line.indexOf(blank, pidSep + 1) : -1;
-                if (cmdSep > 0) {
-                    const int argsSep = line.indexOf(blank, cmdSep + 1);
-                    DeviceProcessItem procData;
-                    procData.pid = line.left(pidSep).toInt();
-                    procData.cmdLine = line.mid(cmdSep + 1);
-                    if (argsSep == -1)
-                        procData.exe = line.mid(cmdSep + 1);
-                    else
-                        procData.exe = line.mid(cmdSep + 1, argsSep - cmdSep -1);
-                    processes.push_back(procData);
-                }
+                const qint64 pid = line.left(pidSep).toLongLong();
+                result[pid] = line.mid(pidSep + 1);
             }
         }
     }
+    return result;
+}
+
+static QList<DeviceProcessItem> getLocalProcessesUsingPs()
+{
+    QList<DeviceProcessItem> processes;
+
+    // cmdLines are full command lines, usually with absolute path,
+    // exeNames only the file part of the executable's path.
+    const QMap<qint64, QString> exeNames = getLocalProcessDataUsingPs("comm");
+    const QMap<qint64, QString> cmdLines = getLocalProcessDataUsingPs("args");
+
+    for (auto it = exeNames.begin(), end = exeNames.end(); it != end; ++it) {
+        const qint64 pid = it.key();
+        if (pid <= 0)
+            continue;
+        const QString cmdLine = cmdLines.value(pid);
+        if (cmdLines.isEmpty())
+            continue;
+        const QString exeName = it.value();
+        if (exeName.isEmpty())
+            continue;
+        const int pos = cmdLine.indexOf(exeName);
+        if (pos == -1)
+            continue;
+        processes.append({pid, cmdLine, cmdLine.left(pos + exeName.size())});
+    }
+
     return processes;
 }
 
