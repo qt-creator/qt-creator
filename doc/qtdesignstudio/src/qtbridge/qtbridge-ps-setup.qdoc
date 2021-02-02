@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Bridge documentation.
@@ -33,7 +33,12 @@
     You can purchase a \QBPS license from the \l{https://marketplace.qt.io/}
     {Qt Marketplace}, and then use the Qt Installer to have the \QBPS
     installation package copied to the following path in your Qt installation
-    folder: \c {QtDesignStudio\photoshop_bridge}.
+    folder:
+
+    \list
+        \li On Windows: \c {Tools\QtDesignStudio\photoshop_bridge}
+        \li On \macos: \c {QtDesignStudio/photoshop_bridge}.
+    \endlist
 
     \QBPS is delivered as an Adobe extension (ZXP)
     package and requires Adobe Photoshop version 20.0.0, or later
@@ -49,7 +54,9 @@
         \li Download and install \l{http://zxpinstaller.com/}{ZXPInstaller}.
         \li Start ZXPInstaller.
         \li Drag and drop the \QBPS ZXP package from
-            \c {Qt\QtDesignStudio\photoshop_bridge} to ZXPInstaller.
+            \c {Qt\Tools\QtDesignStudio\photoshop_bridge} on Windows
+            or \c {Qt/QtDesignStudio/photoshop_bridge} on \macos
+            to ZXPInstaller.
         \li Follow the instructions of the installation program.
     \endlist
 
@@ -64,7 +71,7 @@
 
     \list 1
         \li Copy the \QBPS ZXP package from
-            \c {Qt\QtDesignStudio\photoshop_bridge} to the
+            \c {Qt\Tools\QtDesignStudio\photoshop_bridge} to the
             \c Documents directory in your user directory.
         \li Open Windows PowerShell.
         \li Enter the following commands:

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Bridge documentation.
@@ -33,7 +33,14 @@
     You can purchase a \QBSK license from the \l{https://marketplace.qt.io/}
     {Qt Marketplace}, and then use the Qt Installer to have the \QBSK
     plugin package copied to the following path in your Qt installation
-    folder: \c {QtDesignStudio\sketch_bridge\io.qt.qtbridge.sketchplugin}.
+    folder:
+
+    \list
+        \li On Windows:
+            \c {Tools\QtDesignStudio\sketch_bridge\io.qt.qtbridge.sketchplugin}
+        \li On \macos:
+            \c {QtDesignStudio/sketch_bridge/io.qt.qtbridge.sketchplugin}.
+    \endlist
 
     \note Install the Sketch app before installing the plugin.
 
