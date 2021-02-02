@@ -28,6 +28,7 @@
 #include "nimconstants.h"
 #include "nimbleproject.h"
 #include "nimbuildsystem.h"
+#include "nimoutputtaskparser.h"
 #include "nimtoolchain.h"
 
 #include <projectexplorer/buildconfiguration.h>
@@ -43,43 +44,6 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Nim {
-
-class NimParser : public OutputTaskParser
-{
-    Result handleLine(const QString &lne, Utils::OutputFormat) override
-    {
-        const QString line = lne.trimmed();
-        static const QRegularExpression regex("(.+.nim)\\((\\d+), (\\d+)\\) (.+)");
-        static const QRegularExpression warning("(Warning):(.*)");
-        static const QRegularExpression error("(Error):(.*)");
-
-        const QRegularExpressionMatch match = regex.match(line);
-        if (!match.hasMatch())
-            return Status::NotHandled;
-        const QString filename = match.captured(1);
-        bool lineOk = false;
-        const int lineNumber = match.captured(2).toInt(&lineOk);
-        const QString message = match.captured(4);
-        if (!lineOk)
-            return Status::NotHandled;
-
-        Task::TaskType type = Task::Unknown;
-
-        if (warning.match(message).hasMatch())
-            type = Task::Warning;
-        else if (error.match(message).hasMatch())
-            type = Task::Error;
-        else
-            return Status::NotHandled;
-
-        const CompileTask t(type, message, absoluteFilePath(FilePath::fromUserInput(filename)),
-                            lineNumber);
-        LinkSpecs linkSpecs;
-        addLinkSpecForAbsoluteFilePath(linkSpecs, t.file, t.line, match, 1);
-        scheduleTask(t, 1);
-        return {Status::Done, linkSpecs};
-    }
-};
 
 class NimbleBuildStep : public AbstractProcessStep
 {
