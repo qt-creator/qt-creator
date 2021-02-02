@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -30,16 +30,90 @@
 
     \title Concepts and Terms
 
-    This topic describes main \QDS concepts and terms.
+    This topic describes main \QDS concepts and terms:
+
+    \list
+        \li \l{glossary-asset}{Asset}
+        \li \l{glossary-component}{Component}
+        \li \l{glossary-device}{Device}
+        \li \l{glossary-Project}{Project}
+    \endlist
+
+    \section1 Asset
+    \target glossary-asset
+
+    An \e asset is an image, font file, 3D model, or other supported file that
+    you add to your \e project.
+
+    Assets are packaged with \e components for delivery to users.
+
+    Read more about assets:
+
+    \list
+        \li \l{Assets}
+    \endlist
 
     \section1 Component
     \target glossary-component
 
-    An instantiable QML definition, typically contained in a .qml file.
-    For example, a Button component may be defined in Button.qml. The
-    QML runtime may instantiate this Button component to create Button
-    objects. Alternatively, a component may be defined inside a
-    \l{Component} QML type.
+    A \e component is a reusable building block for a UI.
+
+    \QDS comes with \e {preset components} that you can use in your project.
+    These are similar to \e Symbols in Sketch or \e Prefab in Unity.
+
+    Some of the preset components represent simple shapes, text, or images,
+    while others represent complex UI controls with full functionality, such
+    as spin boxes or sliders.
+
+    You can modify the \e properties of the preset components and combine them
+    to build your own components.
+
+    A component is specified within one file (with the file extension
+    \e ui.qml or \e .qml). For example, a Button component may be defined
+    in Button.ui.qml. Typically, the visual appearance of a component is
+    defined in a \e {UI file}.
+
+    Read more about components:
+
+    \list
+        \li \l{Creating Components}{Library}
+        \li \l{Component Types}{Preset Components}
+        \li \l{Adding Components to Designs}{My Components}
+    \endlist
+
+    \section1 Device
+    \target glossary-device
+
+    An embedded device.
+
+    Read more about devices:
+
+    \list
+        \li \l{Previewing on Devices}
+    \endlist
+
+    \section1 Project
+    \target glossary-project
+
+    A project is a container for the \e components and \e assets that you
+    use in your UI. You can \ e package the UI and preview or run it on
+    different operating systems on the desktop or a \l{glossary-device}{device}.
+
+    You use templates to create different types of projects according to your
+    needs. The templates add preset components to the project by default. For
+    example, if you create a 3D project, preset 3D components are added to it.
+    You can add more preset components in \uicontrol Library.
+
+    Read more about projects:
+
+    \list
+        \li \l{Creating Projects}
+    \endlist
+
+    \omit
+
+    ## The following terms might or might not come back, but for now, the
+    ## descriptions are considered too technical for the designer target group.
 
     \section1 Deploy Configuration
     \target glossary-deploy-config
@@ -47,11 +121,6 @@
     Handles the packaging and copying of the necessary files to a location
     you want to preview the UI at. The files can be copied to a location in
     the file system of the development PC or a \l{glossary-device}{device}.
-
-    \section1 Device
-    \target glossary-device
-
-    An embedded device or an Anroid device.
 
     \section1 Kit
     \target glossary-buildandrun-kit
@@ -69,15 +138,7 @@
     relevant features and functions related to it. As a result, the majority
     of the \QDS window area is always dedicated to the actual task.
 
-    \section1 Project
-    \target glossary-project
-
-    Groups together a set of files, images, and other assets that you
-    can deploy and run on different desktop and \l{glossary-device}{device}
-    platforms, as specified by a \e {deploy configuration} and
-    \e {run configuration}.
-
-    \section1 Run Configuration
+   \section1 Run Configuration
     \target glossary-run-config
 
     Starts the UI in the location where it was copied by the
@@ -86,4 +147,6 @@
     selected \l{glossary-buildandrun-kit}{kit}, and runs it there. However,
     if you have not made any changes to the project since you last deployed
     it, \QC simply runs it again.
+
+    \endomit
 */

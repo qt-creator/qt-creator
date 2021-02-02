@@ -659,9 +659,11 @@
         \row
             \li  Open project
             \li  Ctrl+Shift+O
+        \if defined(qtcreator)
         \row
             \li  Select the \l{glossary-buildandrun-kit}{kit} to build and run your project with
             \li  Ctrl+T
+        \endif
         \row
             \li  Run
             \li  Ctrl+R
