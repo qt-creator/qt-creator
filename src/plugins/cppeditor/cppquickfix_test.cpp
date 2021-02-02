@@ -4593,6 +4593,68 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_notTriggeredForFriendFunc(
     QuickFixOperationTest(singleDocument(contents, ""), &factory);
 }
 
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_minimalFunctionParameterType()
+{
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = R"(
+class C {
+    typedef int A;
+    A @foo(A);
+};
+)";
+    expected = original;
+    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
+
+    // Source File
+    original = R"(
+#include "file.h"
+)";
+    expected = R"(
+#include "file.h"
+
+C::A C::foo(A)
+{
+
+}
+)";
+    testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
+
+    InsertDefFromDecl factory;
+    QuickFixOperationTest(testDocuments, &factory);
+
+    testDocuments.clear();
+    // Header File
+    original = R"(
+namespace N {
+    struct S;
+    S @foo(const S &s);
+};
+)";
+    expected = original;
+    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
+
+    // Source File
+    original = R"(
+#include "file.h"
+)";
+    expected = R"(
+#include "file.h"
+
+N::S N::foo(const S &s)
+{
+
+}
+)";
+    testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
+
+    QuickFixOperationTest(testDocuments, &factory);
+}
+
 void CppEditorPlugin::test_quickfix_InsertDefsFromDecls_data()
 {
     QTest::addColumn<QByteArrayList>("headers");

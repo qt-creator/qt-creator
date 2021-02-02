@@ -823,16 +823,31 @@ public:
                     headerChangeSet.insert(m_insertPosDecl, comment);
                     first = false;
                 }
-                // Construct declaration
-                // setup rewriting to get minimally qualified names
-                SubstitutionEnvironment env;
-                env.setContext(context());
-                env.switchScope(classItem->klass->enclosingScope());
-                env.enter(&useMinimalNames);
 
-                QString declaration;
-                const FullySpecifiedType tn = rewriteType(funcItem->function->type(), &env, control);
-                declaration += printer.prettyType(tn, funcItem->function->unqualifiedName());
+                // Function type minimalization: As base class and derived class could be in
+                // different namespaces, we must first make the type fully qualified before
+                // it can get minimized.
+                Clone cloner(control);
+                Function newFunc(&cloner, nullptr, const_cast<Function *>(funcItem->function));
+                newFunc.setEnclosingScope(const_cast<Class *>(targetClass));
+                SubstitutionEnvironment envQualified;
+                envQualified.setContext(context());
+                envQualified.switchScope(classItem->klass->enclosingScope());
+                UseQualifiedNames useQualifiedNames;
+                envQualified.enter(&useQualifiedNames);
+                newFunc.setReturnType(rewriteType(newFunc.returnType(), &envQualified, control));
+                const int argc = newFunc.argumentCount();
+                for (int i = 0; i < argc; ++i) {
+                    Argument * const arg = newFunc.argumentAt(i)->asArgument();
+                    QTC_ASSERT(arg, continue);
+                    arg->setType(rewriteType(arg->type(), &envQualified, control));
+                }
+                SubstitutionEnvironment envMinimized;
+                envMinimized.setContext(context());
+                envMinimized.switchScope(targetClass->enclosingScope());
+                envMinimized.enter(&useMinimalNames);
+                const FullySpecifiedType tn = rewriteType(newFunc.type(), &envMinimized, control);
+                QString declaration = printer.prettyType(tn, newFunc.unqualifiedName());
 
                 if (m_factory->settings()->insertVirtualKeyword)
                     declaration = QLatin1String("virtual ") + declaration;

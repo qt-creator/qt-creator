@@ -142,6 +142,17 @@ public:
 
             funTy->setReturnType(rewrite->rewriteType(type->returnType()));
 
+            // Function parameters have the function's enclosing scope.
+            Scope *scope = nullptr;
+            ClassOrNamespace *target = nullptr;
+            if (rewrite->env->context().bindings())
+                target = rewrite->env->context().lookupType(type->enclosingScope());
+            UseMinimalNames useMinimalNames(target);
+            if (target) {
+                scope = rewrite->env->switchScope(type->enclosingScope());
+                rewrite->env->enter(&useMinimalNames);
+            }
+
             for (unsigned i = 0, argc = type->argumentCount(); i < argc; ++i) {
                 Symbol *arg = type->argumentAt(i);
 
@@ -154,6 +165,11 @@ public:
                 // reset it to 0 before adding addMember to avoid assert
                 newArg->resetEnclosingScope();
                 funTy->addMember(newArg);
+            }
+
+            if (target) {
+                rewrite->env->switchScope(scope);
+                rewrite->env->leave();
             }
 
             temps.append(funTy);
