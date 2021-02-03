@@ -39,8 +39,6 @@ public:
     IosBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
 
 private:
-    friend class IosBuildSettingsWidget;
-
     QList<ProjectExplorer::NamedWidget *> createSubConfigWidgets() override;
     bool fromMap(const QVariantMap &map) override;
 

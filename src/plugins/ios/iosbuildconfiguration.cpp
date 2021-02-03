@@ -61,11 +61,12 @@ const char autoManagedSigningKey[] = "Ios.AutoManagedSigning";
 
 const int IdentifierRole = Qt::UserRole+1;
 
-
-class IosBuildSettingsWidget : public NamedWidget
+class IosSigningSettingsWidget : public NamedWidget
 {
 public:
-    explicit IosBuildSettingsWidget(IosBuildConfiguration *iosBuildConfiguration);
+    explicit IosSigningSettingsWidget(BuildConfiguration *buildConfiguration,
+                                      BoolAspect *autoManagedSigning,
+                                      StringAspect *signingIdentifier);
 
     bool isSigningAutomaticallyManaged() const;
 
@@ -83,7 +84,8 @@ private:
     void updateWarningText();
 
 private:
-    IosBuildConfiguration *m_bc = nullptr;
+    BoolAspect *m_autoManagedSigning = nullptr;
+    StringAspect *m_signingIdentifier = nullptr;
     QString m_lastProfileSelection;
     QString m_lastTeamSelection;
     const bool m_isDevice;
@@ -96,10 +98,13 @@ private:
     Utils::InfoLabel *m_warningLabel;
 };
 
-IosBuildSettingsWidget::IosBuildSettingsWidget(IosBuildConfiguration *bc)
-    : NamedWidget(IosBuildConfiguration::tr("iOS Settings")),
-      m_bc(bc),
-      m_isDevice(DeviceTypeKitAspect::deviceTypeId(bc->kit())
+IosSigningSettingsWidget::IosSigningSettingsWidget(BuildConfiguration *buildConfiguration,
+                                                   BoolAspect *autoManagedSigning,
+                                                   StringAspect *signingIdentifier)
+    : NamedWidget(IosBuildConfiguration::tr("iOS Settings"))
+    , m_autoManagedSigning(autoManagedSigning)
+    , m_signingIdentifier(signingIdentifier)
+    , m_isDevice(DeviceTypeKitAspect::deviceTypeId(buildConfiguration->kit())
                  == Constants::IOS_DEVICE_TYPE)
 {
     auto detailsWidget = new Utils::DetailsWidget(this);
@@ -126,7 +131,7 @@ IosBuildSettingsWidget::IosBuildSettingsWidget(IosBuildConfiguration *bc)
     m_autoSignCheckbox->setSizePolicy(sizePolicy2);
     m_autoSignCheckbox->setChecked(true);
     m_autoSignCheckbox->setText(IosBuildConfiguration::tr("Automatically manage signing"));
-    m_autoSignCheckbox->setChecked(bc->m_autoManagedSigning->value());
+    m_autoSignCheckbox->setChecked(m_autoManagedSigning->value());
     m_autoSignCheckbox->setEnabled(m_isDevice);
 
     m_signEntityLabel = new QLabel(container);
@@ -137,7 +142,7 @@ IosBuildSettingsWidget::IosBuildSettingsWidget(IosBuildConfiguration *bc)
 
     m_signEntityLabel->setText(IosBuildConfiguration::tr("Development team:"));
 
-    connect(m_qmakeDefaults, &QPushButton::clicked, this, &IosBuildSettingsWidget::onReset);
+    connect(m_qmakeDefaults, &QPushButton::clicked, this, &IosSigningSettingsWidget::onReset);
 
     m_infoLabel->hide();
 
@@ -147,13 +152,19 @@ IosBuildSettingsWidget::IosBuildSettingsWidget(IosBuildConfiguration *bc)
     detailsWidget->setWidget(container);
 
     if (m_isDevice) {
-        connect(IosConfigurations::instance(), &IosConfigurations::provisioningDataChanged,
-                this, &IosBuildSettingsWidget::populateDevelopmentTeams);
-        connect(m_signEntityCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
-                this, &IosBuildSettingsWidget::onSigningEntityComboIndexChanged);
-        connect(m_autoSignCheckbox, &QCheckBox::toggled,
-                this, &IosBuildSettingsWidget::configureSigningUi);
-        const QString signingIdentifier = bc->m_signingIdentifier->value();
+        connect(IosConfigurations::instance(),
+                &IosConfigurations::provisioningDataChanged,
+                this,
+                &IosSigningSettingsWidget::populateDevelopmentTeams);
+        connect(m_signEntityCombo,
+                QOverload<int>::of(&QComboBox::currentIndexChanged),
+                this,
+                &IosSigningSettingsWidget::onSigningEntityComboIndexChanged);
+        connect(m_autoSignCheckbox,
+                &QCheckBox::toggled,
+                this,
+                &IosSigningSettingsWidget::configureSigningUi);
+        const QString signingIdentifier = m_signingIdentifier->value();
         configureSigningUi(m_autoSignCheckbox->isChecked());
         setDefaultSigningIdentfier(signingIdentifier);
     }
@@ -178,7 +189,7 @@ IosBuildSettingsWidget::IosBuildSettingsWidget(IosBuildConfiguration *bc)
     verticalLayout->addWidget(m_warningLabel);
 }
 
-void IosBuildSettingsWidget::setDefaultSigningIdentfier(const QString &identifier) const
+void IosSigningSettingsWidget::setDefaultSigningIdentfier(const QString &identifier) const
 {
     if (identifier.isEmpty()) {
         m_signEntityCombo->setCurrentIndex(0);
@@ -204,12 +215,12 @@ void IosBuildSettingsWidget::setDefaultSigningIdentfier(const QString &identifie
     }
 }
 
-bool IosBuildSettingsWidget::isSigningAutomaticallyManaged() const
+bool IosSigningSettingsWidget::isSigningAutomaticallyManaged() const
 {
     return m_autoSignCheckbox->isChecked() && m_signEntityCombo->currentIndex() > 0;
 }
 
-void IosBuildSettingsWidget::onSigningEntityComboIndexChanged()
+void IosSigningSettingsWidget::onSigningEntityComboIndexChanged()
 {
     QString identifier = selectedIdentifier();
     (m_autoSignCheckbox->isChecked() ? m_lastTeamSelection : m_lastProfileSelection) = identifier;
@@ -219,7 +230,7 @@ void IosBuildSettingsWidget::onSigningEntityComboIndexChanged()
     announceSigningChanged(m_autoSignCheckbox->isChecked(), identifier);
 }
 
-void IosBuildSettingsWidget::onReset()
+void IosSigningSettingsWidget::onReset()
 {
     m_lastTeamSelection.clear();
     m_lastProfileSelection.clear();
@@ -227,7 +238,7 @@ void IosBuildSettingsWidget::onReset()
     setDefaultSigningIdentfier("");
 }
 
-void IosBuildSettingsWidget::configureSigningUi(bool autoManageSigning)
+void IosSigningSettingsWidget::configureSigningUi(bool autoManageSigning)
 {
     m_signEntityLabel->setText(autoManageSigning ? IosBuildConfiguration::tr("Development team:")
                                                  : IosBuildConfiguration::tr("Provisioning profile:"));
@@ -240,17 +251,16 @@ void IosBuildSettingsWidget::configureSigningUi(bool autoManageSigning)
     announceSigningChanged(autoManageSigning, selectedIdentifier());
 }
 
-void IosBuildSettingsWidget::announceSigningChanged(bool autoManagedSigning, QString identifier)
+void IosSigningSettingsWidget::announceSigningChanged(bool autoManagedSigning, QString identifier)
 {
-    if (m_bc->m_signingIdentifier->value().compare(identifier) != 0
-            || m_bc->m_autoManagedSigning->value() != autoManagedSigning) {
-        m_bc->m_autoManagedSigning->setValue(autoManagedSigning);
-        m_bc->m_signingIdentifier->setValue(identifier);
-        m_bc->updateQmakeCommand();
+    if (m_signingIdentifier->value().compare(identifier) != 0
+        || m_autoManagedSigning->value() != autoManagedSigning) {
+        m_autoManagedSigning->setValue(autoManagedSigning);
+        m_signingIdentifier->setValue(identifier);
     }
 }
 
-void IosBuildSettingsWidget::populateDevelopmentTeams()
+void IosSigningSettingsWidget::populateDevelopmentTeams()
 {
     {
         QSignalBlocker blocker(m_signEntityCombo);
@@ -269,7 +279,7 @@ void IosBuildSettingsWidget::populateDevelopmentTeams()
     updateWarningText();
 }
 
-void IosBuildSettingsWidget::populateProvisioningProfiles()
+void IosSigningSettingsWidget::populateProvisioningProfiles()
 {
     {
         // Populate Team id's
@@ -292,12 +302,12 @@ void IosBuildSettingsWidget::populateProvisioningProfiles()
     updateWarningText();
 }
 
-QString IosBuildSettingsWidget::selectedIdentifier() const
+QString IosSigningSettingsWidget::selectedIdentifier() const
 {
     return m_signEntityCombo->currentData(IdentifierRole).toString();
 }
 
-void IosBuildSettingsWidget::updateInfoText()
+void IosSigningSettingsWidget::updateInfoText()
 {
     if (!m_isDevice)
         return;
@@ -342,7 +352,7 @@ void IosBuildSettingsWidget::updateInfoText()
     m_infoLabel->setText(infoMessage);
 }
 
-void IosBuildSettingsWidget::updateWarningText()
+void IosSigningSettingsWidget::updateWarningText()
 {
     if (!m_isDevice)
         return;
@@ -387,6 +397,15 @@ IosBuildConfiguration::IosBuildConfiguration(Target *target, Utils::Id id)
     m_autoManagedSigning = addAspect<BoolAspect>();
     m_autoManagedSigning->setDefaultValue(true);
     m_autoManagedSigning->setSettingsKey(autoManagedSigningKey);
+
+    connect(m_signingIdentifier,
+            &BaseAspect::changed,
+            this,
+            &IosBuildConfiguration::updateQmakeCommand);
+    connect(m_autoManagedSigning,
+            &BaseAspect::changed,
+            this,
+            &IosBuildConfiguration::updateQmakeCommand);
 }
 
 QList<NamedWidget *> IosBuildConfiguration::createSubConfigWidgets()
@@ -394,7 +413,9 @@ QList<NamedWidget *> IosBuildConfiguration::createSubConfigWidgets()
     auto subConfigWidgets = QmakeBuildConfiguration::createSubConfigWidgets();
 
     // Ownership of this widget is with BuildSettingsWidget
-    auto buildSettingsWidget = new IosBuildSettingsWidget(this);
+    auto buildSettingsWidget = new IosSigningSettingsWidget(this,
+                                                            m_autoManagedSigning,
+                                                            m_signingIdentifier);
     subConfigWidgets.prepend(buildSettingsWidget);
     return subConfigWidgets;
 }
