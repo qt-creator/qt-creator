@@ -341,7 +341,7 @@ bool Bind::visit(UiInlineComponent *ast)
         _diagnosticMessages->append(
             errorMessage(ast, tr("Nested inline components are not supported")));
     }
-    _currentComponentName += ast->name;
+    _currentComponentName += ast->name.toString();
     _rootObjectValue = nullptr;
     return true;
 }
