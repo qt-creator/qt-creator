@@ -70,6 +70,11 @@ protected:
     iterator insert(const QString &key, const JsonObject &value);
     iterator insert(const QString &key, const QJsonValue &value);
 
+    template <typename T, typename V>
+    iterator insertVariant(const QString &key, const V &variant);
+    template <typename T1, typename T2, typename... Args, typename V>
+    iterator insertVariant(const QString &key, const V &variant);
+
     // QJSonObject redirections
     QJsonValue value(const QString &key) const { return m_jsonObject.value(key); }
     bool contains(const QString &key) const { return m_jsonObject.contains(key); }
@@ -128,6 +133,19 @@ protected:
 private:
     QJsonObject m_jsonObject;
 };
+
+template<typename T, typename V>
+JsonObject::iterator JsonObject::insertVariant(const QString &key, const V &variant)
+{
+    return Utils::holds_alternative<T>(variant) ? insert(key, Utils::get<T>(variant)) : end();
+}
+
+template<typename T1, typename T2, typename... Args, typename V>
+JsonObject::iterator JsonObject::insertVariant(const QString &key, const V &variant)
+{
+    auto result = insertVariant<T1>(key, variant);
+    return result != end() ? result : insertVariant<T2, Args...>(key, variant);
+}
 
 template<typename T>
 T JsonObject::typedValue(const QString &key) const

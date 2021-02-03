@@ -62,10 +62,7 @@ Utils::optional<Diagnostic::Code> Diagnostic::code() const
 
 void Diagnostic::setCode(const Diagnostic::Code &code)
 {
-    if (auto val = Utils::get_if<int>(&code))
-        insert(codeKey, *val);
-    else if (auto val = Utils::get_if<QString>(&code))
-        insert(codeKey, *val);
+    insertVariant<int, QString>(codeKey, code);
 }
 
 bool Diagnostic::isValid(ErrorHierarchy *error) const

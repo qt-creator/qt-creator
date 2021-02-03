@@ -38,10 +38,7 @@ Utils::optional<ServerCapabilities::TextDocumentSync> ServerCapabilities::textDo
 
 void ServerCapabilities::setTextDocumentSync(const ServerCapabilities::TextDocumentSync &textDocumentSync)
 {
-    if (auto val = Utils::get_if<int>(&textDocumentSync))
-        insert(textDocumentSyncKey, *val);
-    else if (auto val = Utils::get_if<TextDocumentSyncOptions>(&textDocumentSync))
-        insert(textDocumentSyncKey, *val);
+    insertVariant<TextDocumentSyncOptions, int>(textDocumentSyncKey, textDocumentSync);
 }
 
 TextDocumentSyncKind ServerCapabilities::textDocumentSyncKindHelper()
@@ -72,10 +69,8 @@ ServerCapabilities::typeDefinitionProvider() const
 void ServerCapabilities::setTypeDefinitionProvider(
         const Utils::variant<bool, ServerCapabilities::RegistrationOptions> &typeDefinitionProvider)
 {
-    if (auto activated = Utils::get_if<bool>(&typeDefinitionProvider))
-        insert(typeDefinitionProviderKey, *activated);
-    else if (auto options = Utils::get_if<RegistrationOptions>(&typeDefinitionProvider))
-        insert(typeDefinitionProviderKey, *options);
+    insertVariant<bool, ServerCapabilities::RegistrationOptions>(typeDefinitionProviderKey,
+                                                                 typeDefinitionProvider);
 }
 
 Utils::optional<Utils::variant<bool, ServerCapabilities::RegistrationOptions>>
@@ -92,10 +87,7 @@ ServerCapabilities::implementationProvider() const
 void ServerCapabilities::setImplementationProvider(
         const Utils::variant<bool, ServerCapabilities::RegistrationOptions> &implementationProvider)
 {
-    if (Utils::holds_alternative<bool>(implementationProvider))
-        insert(implementationProviderKey, Utils::get<bool>(implementationProvider));
-    else
-        insert(implementationProviderKey, Utils::get<RegistrationOptions>(implementationProvider));
+    insertVariant<bool, RegistrationOptions>(implementationProviderKey, implementationProvider);
 }
 
 Utils::optional<Utils::variant<bool, CodeActionOptions>> ServerCapabilities::codeActionProvider() const
@@ -124,10 +116,7 @@ Utils::optional<Utils::variant<ServerCapabilities::RenameOptions, bool>> ServerC
 
 void ServerCapabilities::setRenameProvider(Utils::variant<ServerCapabilities::RenameOptions, bool> renameProvider)
 {
-    if (Utils::holds_alternative<bool>(renameProvider))
-        insert(renameProviderKey, Utils::get<bool>(renameProvider));
-    else if (Utils::holds_alternative<RenameOptions>(renameProvider))
-        insert(renameProviderKey, Utils::get<RenameOptions>(renameProvider));
+    insertVariant<RenameOptions, bool>(renameProviderKey, renameProvider);
 }
 
 Utils::optional<Utils::variant<bool, JsonObject>> ServerCapabilities::colorProvider() const
@@ -143,10 +132,7 @@ Utils::optional<Utils::variant<bool, JsonObject>> ServerCapabilities::colorProvi
 
 void ServerCapabilities::setColorProvider(Utils::variant<bool, JsonObject> colorProvider)
 {
-    if (Utils::holds_alternative<bool>(colorProvider))
-        insert(renameProviderKey, Utils::get<bool>(colorProvider));
-    else if (Utils::holds_alternative<JsonObject>(colorProvider))
-        insert(renameProviderKey, Utils::get<JsonObject>(colorProvider));
+    insertVariant<bool, JsonObject>(renameProviderKey, colorProvider);
 }
 
 bool ServerCapabilities::isValid(ErrorHierarchy *error) const
@@ -188,10 +174,7 @@ ServerCapabilities::WorkspaceServerCapabilities::WorkspaceFoldersCapabilities::c
 void ServerCapabilities::WorkspaceServerCapabilities::WorkspaceFoldersCapabilities::setChangeNotifications(
         Utils::variant<QString, bool> changeNotifications)
 {
-    if (auto val = Utils::get_if<bool>(&changeNotifications))
-        insert(changeNotificationsKey, *val);
-    else if (auto val = Utils::get_if<QString>(&changeNotifications))
-        insert(changeNotificationsKey, *val);
+    insertVariant<QString, bool>(changeNotificationsKey, changeNotifications);
 }
 
 bool ServerCapabilities::WorkspaceServerCapabilities::WorkspaceFoldersCapabilities::isValid(ErrorHierarchy *error) const
