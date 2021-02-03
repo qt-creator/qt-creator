@@ -2,7 +2,9 @@ import qbs
 
 QtcAutotest {
     name: "QML code model check autotest"
+    Depends { name: "ExtensionSystem" }
     Depends { name: "LanguageUtils" }
+    Depends { name: "Utils" }
     Depends { name: "QmlJS" }
     Depends { name: "Qt.widgets" }
     files: "tst_check.cpp"
