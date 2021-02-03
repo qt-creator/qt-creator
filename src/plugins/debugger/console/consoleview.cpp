@@ -135,8 +135,7 @@ void ConsoleView::resizeEvent(QResizeEvent *e)
 void ConsoleView::drawBranches(QPainter *painter, const QRect &rect,
                                   const QModelIndex &index) const
 {
-    static_cast<ConsoleItemDelegate *>(itemDelegate())->drawBackground(painter, rect, index,
-                                                                            false);
+    static_cast<ConsoleItemDelegate *>(itemDelegate())->drawBackground(painter, rect, index, {});
     Utils::TreeView::drawBranches(painter, rect, index);
 }
 

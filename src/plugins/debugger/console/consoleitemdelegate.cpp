@@ -67,19 +67,14 @@ void ConsoleItemDelegate::emitSizeHintChanged(const QModelIndex &index)
 }
 
 QColor ConsoleItemDelegate::drawBackground(QPainter *painter, const QRect &rect,
-                                              const QModelIndex &index,
-                                              bool selected) const
+                                           const QModelIndex &index,
+                                           const QStyleOptionViewItem &opt) const
 {
-    const Utils::Theme *theme = Utils::creatorTheme();
-    painter->save();
-    QColor backgroundColor = theme->color(selected
-                                          ? Utils::Theme::BackgroundColorSelected
-                                          : Utils::Theme::BackgroundColorNormal);
-    if (!(index.flags() & Qt::ItemIsEditable))
-        painter->setBrush(backgroundColor);
-    painter->setPen(Qt::NoPen);
-    painter->drawRect(rect);
-    painter->restore();
+    const bool selected = opt.state & QStyle::State_Selected;
+    const bool editing = index.flags() & Qt::ItemIsEditable;
+    const QPalette::ColorRole cr = (selected && !editing) ? QPalette::Highlight : QPalette::Base;
+    const QColor backgroundColor = opt.palette.color(cr);
+    painter->fillRect(rect, backgroundColor);
     return backgroundColor;
 }
 
@@ -119,8 +114,7 @@ void ConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     }
 
     // Paint background
-    QColor backgroundColor = drawBackground(painter, opt.rect, index,
-                                            bool(opt.state & QStyle::State_Selected));
+    const QColor backgroundColor = drawBackground(painter, opt.rect, index, opt);
 
     // Calculate positions
     const auto view = qobject_cast<const QTreeView*>(opt.widget);
@@ -144,7 +138,8 @@ void ConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
                                             positions.typeIconHeight()));
 
     // Set Text Color
-    painter->setPen(textColor);
+    painter->setPen(opt.state & QStyle::State_Selected
+                    ? opt.palette.color(QPalette::HighlightedText) : textColor);
     // Paint TextArea:
     // Layout the description
     QString str = index.data(Qt::DisplayRole).toString();
