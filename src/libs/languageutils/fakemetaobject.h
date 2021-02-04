@@ -170,6 +170,7 @@ private:
     QList<FakeMetaMethod> m_methods;
     QString m_defaultPropertyName;
     QString m_attachedTypeName;
+    QString m_extensionTypeName;
     QByteArray m_fingerprint;
     bool m_isSingleton;
     bool m_isCreatable;
@@ -212,6 +213,8 @@ public:
 
     QString attachedTypeName() const;
     void setAttachedTypeName(const QString &name);
+    QString extensionTypeName() const;
+    void setExtensionTypeName(const QString &name);
     QByteArray calculateFingerprint() const;
     void updateFingerprint();
     QByteArray fingerprint() const;

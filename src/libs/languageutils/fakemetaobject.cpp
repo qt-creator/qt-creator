@@ -369,6 +369,11 @@ QString FakeMetaObject::attachedTypeName() const
 void FakeMetaObject::setAttachedTypeName(const QString &name)
 { m_attachedTypeName = name; }
 
+QString FakeMetaObject::extensionTypeName() const
+{ return m_extensionTypeName; }
+void FakeMetaObject::setExtensionTypeName(const QString &name)
+{ m_extensionTypeName = name; }
+
 QByteArray FakeMetaObject::calculateFingerprint() const
 {
     QCryptographicHash hash(QCryptographicHash::Sha1);

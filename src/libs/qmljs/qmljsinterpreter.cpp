@@ -358,6 +358,14 @@ void CppComponentValue::processMembers(MemberProcessor *processor) const
             attachedType->processMembers(processor);
     }
 
+    // look at extension types
+    const QString &extensionTypeName = m_metaObject->extensionTypeName();
+    if (!extensionTypeName.isEmpty()) {
+        const CppComponentValue *extensionType = valueOwner()->cppQmlTypes().objectByCppName(extensionTypeName);
+        if (extensionType && extensionType != this) // ### only weak protection against infinite loops
+            extensionType->processMembers(processor);
+    }
+
     ObjectValue::processMembers(processor);
 }
 

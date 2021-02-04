@@ -228,6 +228,8 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
                 readMetaObjectRevisions(script, fmo);
             } else if (name == QLatin1String("attachedType")) {
                 fmo->setAttachedTypeName(readStringBinding(script));
+            } else if (name == QLatin1String("extension")) {
+                fmo->setExtensionTypeName(readStringBinding(script));
             } else if (name == QLatin1String("isSingleton")) {
                 fmo->setIsSingleton(readBoolBinding(script));
             } else if (name == QLatin1String("isCreatable")) {
