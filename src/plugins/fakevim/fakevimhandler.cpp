@@ -7411,7 +7411,8 @@ void FakeVimHandler::Private::toggleComment(const Range &range)
 
         QStringList lines = text.split('\n');
 
-        const QRegExp checkForComment("^\\s*" + QRegExp::escape(commentString));
+        const QRegularExpression checkForComment("^\\s*"
+                                                 + QRegularExpression::escape(commentString));
 
         const bool firstLineIsComment
                 = !lines.empty() && lines.front().contains(checkForComment);
@@ -7419,13 +7420,13 @@ void FakeVimHandler::Private::toggleComment(const Range &range)
         for (auto& line : lines) {
             if (!line.isEmpty()) {
                 if (firstLineIsComment) {
-                    const bool hasSpaceAfterCommentString
-                            = line.contains(QRegExp(checkForComment.pattern() + "\\s"));
+                    const bool hasSpaceAfterCommentString = line.contains(
+                        QRegularExpression(checkForComment.pattern() + "\\s"));
                     const int sizeToReplace = hasSpaceAfterCommentString ? commentString.size() + 1
                                                                      : commentString.size();
                     line.replace(line.indexOf(commentString), sizeToReplace, "");
                 } else {
-                    const int indexOfFirstNonSpace = line.indexOf(QRegExp("[^\\s]"));
+                    const int indexOfFirstNonSpace = line.indexOf(QRegularExpression("[^\\s]"));
                     line = line.left(indexOfFirstNonSpace) + commentString  + " " + line.right(line.size() - indexOfFirstNonSpace);
                 }
             }
