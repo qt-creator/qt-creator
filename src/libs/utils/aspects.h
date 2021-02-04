@@ -125,6 +125,11 @@ public:
         return nullptr;
     }
 
+    template <typename T> T *aspect(Utils::Id id) const
+    {
+        return qobject_cast<T*>(aspect(id));
+    }
+
     void fromMap(const QVariantMap &map) const;
     void toMap(QVariantMap &map) const;
 
