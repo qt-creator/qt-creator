@@ -183,7 +183,8 @@ void CppHighlighter::highlightBlock(const QString &text)
             //  - the line starts in a C Comment (initalState != 0)
             //  - the first token of the line is a T_COMMENT (i == 0 && tk.is(T_COMMENT))
             //  - is not a continuation line (tokens.size() > 1 || !state)
-            if (initialLexerState && i == 0 && tk.is(T_COMMENT) && (tokens.size() > 1 || !lexerState)) {
+            if (initialLexerState && i == 0 && (tk.is(T_COMMENT) || tk.is(T_DOXY_COMMENT))
+                && (tokens.size() > 1 || !lexerState)) {
                 --braceDepth;
                 // unless we are at the end of the block, we reduce the folding indent
                 if (i == tokens.size()-1)
