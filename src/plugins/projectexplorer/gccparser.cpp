@@ -49,7 +49,7 @@ GccParser::GccParser()
     QTC_CHECK(m_regExp.isValid());
 
     m_regExpScope.setPattern(QLatin1Char('^') + FILE_PATTERN
-                                    + "(?:(\\d+):)?(\\d+:)?\\s+((?:In .*function .*|At global scope):)$");
+                                    + "(?:(\\d+):)?(\\d+:)?\\s+((?:In .*(?:function|constructor) .*|At global scope):)$");
     QTC_CHECK(m_regExpScope.isValid());
 
     m_regExpIncluded.setPattern(QString::fromLatin1("\\bfrom\\s") + QLatin1String(FILE_PATTERN)
@@ -666,7 +666,21 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                  FilePath::fromUserInput("C:/Symbian_SDK/epoc32/include/e32cmn.inl"),
                                  7094)}
             << QString();
-
+    QTest::newRow("In constructor 2")
+            << QString::fromUtf8("perfattributes.cpp: In constructor ‘PerfEventAttributes::PerfEventAttributes()’:\n"
+                                 "perfattributes.cpp:28:48: warning: ‘void* memset(void*, int, size_t)’ clearing an object of non-trivial type ‘class PerfEventAttributes’; use assignment or value-initialization instead [-Wclass-memaccess]\n"
+                                 "   28 |     memset(this, 0, sizeof(PerfEventAttributes));\n"
+                                 "      |                                                ^")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << Tasks{CompileTask(Task::Warning,
+                                 "‘void* memset(void*, int, size_t)’ clearing an object of non-trivial type ‘class PerfEventAttributes’; use assignment or value-initialization instead [-Wclass-memaccess]\n"
+                                 "perfattributes.cpp: In constructor ‘PerfEventAttributes::PerfEventAttributes()’:\n"
+                                 "perfattributes.cpp:28:48: warning: ‘void* memset(void*, int, size_t)’ clearing an object of non-trivial type ‘class PerfEventAttributes’; use assignment or value-initialization instead [-Wclass-memaccess]\n"
+                                 "   28 |     memset(this, 0, sizeof(PerfEventAttributes));\n"
+                                 "      |                                                ^",
+                                 FilePath::fromUserInput("perfattributes.cpp"), 28)}
+            << QString();
     QTest::newRow("QTCREATORBUG-2206")
             << QString::fromLatin1("../../../src/XmlUg/targetdelete.c: At top level:")
             << OutputParserTester::STDERR
