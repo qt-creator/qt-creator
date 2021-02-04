@@ -74,7 +74,8 @@ static bool isComment(const QString &text, int index,
 }
 
 
-void Utils::unCommentSelection(QPlainTextEdit *edit, const CommentDefinition &definition)
+void Utils::unCommentSelection(QPlainTextEdit *edit, const CommentDefinition &definition,
+                               bool preferSingleLine)
 {
     if (!definition.isValid())
         return;
@@ -103,7 +104,7 @@ void Utils::unCommentSelection(QPlainTextEdit *edit, const CommentDefinition &de
 
     bool hasSelection = cursor.hasSelection();
 
-    if (hasSelection && definition.hasMultiLineStyle()) {
+    if (hasSelection && definition.hasMultiLineStyle() && !preferSingleLine) {
 
         QString startText = startBlock.text();
         int startPos = start - startBlock.position();
@@ -145,6 +146,7 @@ void Utils::unCommentSelection(QPlainTextEdit *edit, const CommentDefinition &de
     } else if (!hasSelection && !definition.hasSingleLineStyle()) {
 
         QString text = startBlock.text().trimmed();
+
         doMultiLineStyleUncomment = text.startsWith(definition.multiLineStart)
                                     && text.endsWith(definition.multiLineEnd);
         doMultiLineStyleComment = !doMultiLineStyleUncomment && !text.isEmpty();

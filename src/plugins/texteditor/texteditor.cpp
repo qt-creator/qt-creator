@@ -7310,7 +7310,8 @@ void TextEditorWidget::rewrapParagraph()
 
 void TextEditorWidget::unCommentSelection()
 {
-    Utils::unCommentSelection(this, d->m_commentDefinition);
+    Utils::unCommentSelection(this, d->m_commentDefinition,
+                              d->m_document->typingSettings().m_preferSingleLineComments);
 }
 
 void TextEditorWidget::autoFormat()

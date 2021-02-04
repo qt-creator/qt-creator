@@ -58,6 +58,7 @@ public:
 
 QTCREATOR_UTILS_EXPORT
 void unCommentSelection(QPlainTextEdit *edit,
-                        const CommentDefinition &definiton = CommentDefinition());
+                        const CommentDefinition &definiton = CommentDefinition(),
+                        bool preferSingleLine = false);
 
 } // namespace Utils

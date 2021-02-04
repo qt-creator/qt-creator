@@ -175,6 +175,8 @@ void BehaviorSettingsWidget::setAssignedTypingSettings(const TypingSettings &typ
     d->m_ui.autoIndent->setChecked(typingSettings.m_autoIndent);
     d->m_ui.smartBackspaceBehavior->setCurrentIndex(typingSettings.m_smartBackspaceBehavior);
     d->m_ui.tabKeyBehavior->setCurrentIndex(typingSettings.m_tabKeyBehavior);
+
+    d->m_ui.preferSingleLineComments->setChecked(typingSettings.m_preferSingleLineComments);
 }
 
 void BehaviorSettingsWidget::assignedTypingSettings(TypingSettings *typingSettings) const
@@ -184,6 +186,8 @@ void BehaviorSettingsWidget::assignedTypingSettings(TypingSettings *typingSettin
         (TypingSettings::SmartBackspaceBehavior)(d->m_ui.smartBackspaceBehavior->currentIndex());
     typingSettings->m_tabKeyBehavior =
         (TypingSettings::TabKeyBehavior)(d->m_ui.tabKeyBehavior->currentIndex());
+
+    typingSettings->m_preferSingleLineComments = d->m_ui.preferSingleLineComments->isChecked();
 }
 
 void BehaviorSettingsWidget::setAssignedStorageSettings(const StorageSettings &storageSettings)
