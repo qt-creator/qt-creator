@@ -1000,9 +1000,12 @@ bool BoolAspect::value() const
 
 void BoolAspect::setValue(bool value)
 {
+    if (d->m_value == value)
+        return;
     d->m_value = value;
     if (d->m_checkBox)
         d->m_checkBox->setChecked(d->m_value);
+    emit changed();
 }
 
 void BoolAspect::setLabel(const QString &labelText, LabelPlacement labelPlacement)
