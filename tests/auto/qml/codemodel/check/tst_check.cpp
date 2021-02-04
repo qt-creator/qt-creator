@@ -100,9 +100,9 @@ void tst_Check::initTestCase()
     for (auto p: paths)
         lPaths.maybeInsert(Utils::FilePath::fromString(p), Dialect::Qml);
     ModelManagerInterface::importScan(result, ModelManagerInterface::workingCopy(), lPaths,
-                                      ModelManagerInterface::instance(), false);
+                                      modelManager, false);
     QCoreApplication::processEvents();
-    ModelManagerInterface::instance()->test_joinAllThreads();
+    modelManager->test_joinAllThreads();
     QCoreApplication::processEvents();
 }
 
