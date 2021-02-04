@@ -25,6 +25,7 @@
 
 #include "clanghighlightingresultreporter.h"
 
+#include <cpptools/semantichighlighter.h>
 #include <texteditor/textstyles.h>
 #include <utils/qtcassert.h>
 
@@ -143,9 +144,9 @@ TextEditor::HighlightingResult toHighlightingResult(
     TextEditor::HighlightingResult result(tokenInfo.line, tokenInfo.column, tokenInfo.length,
                                           textStyles);
     if (tokenInfo.types.mixinHighlightingTypes.contains(HighlightingType::AngleBracketOpen))
-        result.kind = 1;
+        result.kind = CppTools::SemanticHighlighter::AngleBracketOpen;
     else if (tokenInfo.types.mixinHighlightingTypes.contains(HighlightingType::AngleBracketClose))
-        result.kind = 2;
+        result.kind = CppTools::SemanticHighlighter::AngleBracketClose;
     return result;
 }
 

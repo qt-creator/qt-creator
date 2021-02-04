@@ -165,7 +165,7 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
     QPair<QTextBlock, Parentheses> parentheses;
     for (int i = from; i < to; ++i) {
         const HighlightingResult &result = m_watcher->future().resultAt(i);
-        if (result.kind == 0)
+        if (result.kind != AngleBracketOpen && result.kind != AngleBracketClose)
             continue;
         if (parentheses.first.isValid() && result.line - 1 > parentheses.first.blockNumber()) {
             TextDocumentLayout::setParentheses(parentheses.first, parentheses.second);
@@ -175,7 +175,7 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
             parentheses.first = m_baseTextDocument->document()->findBlockByNumber(result.line - 1);
             parentheses.second = TextDocumentLayout::parentheses(parentheses.first);
         }
-        if (result.kind == 1)
+        if (result.kind == AngleBracketOpen)
             parentheses.second << Parenthesis(Parenthesis::Opened, '<', result.column - 1);
         else
             parentheses.second << Parenthesis(Parenthesis::Closed, '>', result.column - 1);
