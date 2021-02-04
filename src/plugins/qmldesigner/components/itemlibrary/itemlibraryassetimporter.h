@@ -117,5 +117,6 @@ private:
     int m_importIdCounter = 1000000; // Use ids in range unlikely to clash with any normal process exit codes
     QHash<int, ParseData> m_parseData;
     QString m_progressTitle;
+    QList<Import> m_requiredImports;
 };
 } // QmlDesigner
