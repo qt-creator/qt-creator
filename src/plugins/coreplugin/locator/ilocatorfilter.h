@@ -97,7 +97,12 @@ struct LocatorFilterEntry
     static bool compareLexigraphically(const Core::LocatorFilterEntry &lhs,
                                        const Core::LocatorFilterEntry &rhs)
     {
-        return lhs.displayName < rhs.displayName;
+        const int cmp = lhs.displayName.compare(rhs.displayName);
+        if (cmp < 0)
+            return true;
+        if (cmp > 0)
+            return false;
+        return lhs.extraInfo < rhs.extraInfo;
     }
 };
 
