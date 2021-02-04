@@ -790,6 +790,15 @@ void Client::projectOpened(ProjectExplorer::Project *project)
 
 void Client::projectClosed(ProjectExplorer::Project *project)
 {
+    if (sendWorkspceFolderChanges()) {
+        WorkspaceFoldersChangeEvent event;
+        event.setRemoved({WorkSpaceFolder(DocumentUri::fromFilePath(project->projectDirectory()),
+                                          project->displayName())});
+        DidChangeWorkspaceFoldersParams params;
+        params.setEvent(event);
+        DidChangeWorkspaceFoldersNotification change(params);
+        sendContent(change);
+    }
     if (project == m_project) {
         if (m_state == Initialized) {
             shutdown();
@@ -798,15 +807,6 @@ void Client::projectClosed(ProjectExplorer::Project *project)
             emit finished();
         }
     }
-    if (!sendWorkspceFolderChanges())
-        return;
-    WorkspaceFoldersChangeEvent event;
-    event.setRemoved({WorkSpaceFolder(DocumentUri::fromFilePath(project->projectDirectory()),
-                                      project->displayName())});
-    DidChangeWorkspaceFoldersParams params;
-    params.setEvent(event);
-    DidChangeWorkspaceFoldersNotification change(params);
-    sendContent(change);
 }
 
 void Client::setSupportedLanguage(const LanguageFilter &filter)
@@ -1260,6 +1260,8 @@ void Client::shutDownCallback(const ShutdownRequest::Response &shutdownResponse)
 
 bool Client::sendWorkspceFolderChanges() const
 {
+    if (!reachable())
+        return false;
     if (m_dynamicCapabilities.isRegistered(
                 DidChangeWorkspaceFoldersNotification::methodName).value_or(false)) {
         return true;
