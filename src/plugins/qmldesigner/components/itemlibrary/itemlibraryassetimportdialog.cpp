@@ -88,7 +88,7 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(const QStringList &im
     // Skip unsupported assets
     QHash<QString, bool> supportMap;
     for (const auto &file : importFiles) {
-        QString suffix = QFileInfo(file).suffix();
+        QString suffix = QFileInfo(file).suffix().toLower();
         if (!supportMap.contains(suffix)) {
             bool supported = false;
             for (const auto &exts : supportedExts) {

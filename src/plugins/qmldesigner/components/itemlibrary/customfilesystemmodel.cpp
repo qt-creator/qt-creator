@@ -120,7 +120,7 @@ public:
     QIcon icon( const QFileInfo & info ) const override
     {
         QIcon icon;
-        const QString suffix = info.suffix();
+        const QString suffix = info.suffix().toLower();
         const QString filePath = info.absoluteFilePath();
 
         // Provide icon depending on suffix
@@ -288,7 +288,7 @@ void CustomFileSystemModel::setSearchFilter(const QString &nameFilterList)
 QPair<QString, QByteArray> CustomFileSystemModel::resourceTypeAndData(const QModelIndex &index) const
 {
     QFileInfo fi = fileInfo(index);
-    QString suffix = fi.suffix();
+    QString suffix = fi.suffix().toLower();
     if (!suffix.isEmpty()) {
         if (supportedImageSuffixes().contains(suffix)) {
             // Data: Image format (suffix)
@@ -365,16 +365,17 @@ QModelIndex CustomFileSystemModel::updatePath(const QString &newPath)
         nameFilterList.append(QString(QStringLiteral("*%1*")).arg(searchFilter));
     } else {
         const QString filterTemplate("*%1*.%2");
-        for (const QString &ext : supportedImageSuffixes())
-            nameFilterList.append(filterTemplate.arg(searchFilter, ext));
-        for (const QString &ext : supportedShaderSuffixes())
-            nameFilterList.append(filterTemplate.arg(searchFilter, ext));
-        for (const QString &ext : supportedFontSuffixes())
-            nameFilterList.append(filterTemplate.arg(searchFilter, ext));
-        for (const QString &ext : supportedAudioSuffixes())
-            nameFilterList.append(filterTemplate.arg(searchFilter, ext));
-        for (const QString &ext : supportedTexture3DSuffixes())
-            nameFilterList.append(filterTemplate.arg(searchFilter, ext));
+        auto appendFilters = [&](const QStringList &suffixes) {
+            for (const QString &ext : suffixes) {
+                nameFilterList.append(filterTemplate.arg(searchFilter, ext));
+                nameFilterList.append(filterTemplate.arg(searchFilter, ext.toUpper()));
+            }
+        };
+        appendFilters(supportedImageSuffixes());
+        appendFilters(supportedShaderSuffixes());
+        appendFilters(supportedFontSuffixes());
+        appendFilters(supportedAudioSuffixes());
+        appendFilters(supportedTexture3DSuffixes());
     }
 
     m_files.clear();

@@ -210,7 +210,7 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
         const QList<QUrl> urls = event->mimeData()->urls();
         for (const QUrl &url : urls) {
             QFileInfo fi(url.toLocalFile());
-            if (suffixes.contains(fi.suffix())) {
+            if (suffixes.contains(fi.suffix().toLower())) {
                 accept = true;
                 break;
             }
@@ -564,7 +564,7 @@ void ItemLibraryWidget::importDroppedFiles(const QList<Utils::DropSupport::FileS
     QStringList fileNames;
     for (const auto &file : files) {
         QFileInfo fi(file.filePath);
-        if (m_resourcesFileSystemModel->supportedSuffixes().contains(fi.suffix()))
+        if (m_resourcesFileSystemModel->supportedSuffixes().contains(fi.suffix().toLower()))
             fileNames.append(fi.absoluteFilePath());
     }
     if (!fileNames.isEmpty())
