@@ -798,8 +798,18 @@ void NavigatorTreeModel::handleItemLibraryShaderDrop(const QMimeData *mimeData, 
 {
     QTC_ASSERT(m_view, return);
     Import import = Import::createLibraryImport(QStringLiteral("QtQuick3D"));
-    if (!m_view->model()->hasImport(import, true, true))
-        return;
+    bool addImport = false;
+    if (!m_view->model()->hasImport(import, true, true)) {
+        const QList<Import> possImports = m_view->model()->possibleImports();
+        for (const auto &possImport : possImports) {
+            if (possImport.url() == import.url()) {
+                import = possImport;
+                addImport = true;
+                m_view->model()->changeImports({import}, {});
+                break;
+            }
+        }
+    }
 
     const QModelIndex rowModelIndex = dropModelIndex.sibling(dropModelIndex.row(), 0);
     int targetRowNumber = rowNumber;
@@ -853,6 +863,9 @@ void NavigatorTreeModel::handleItemLibraryShaderDrop(const QMimeData *mimeData, 
             moveNodesInteractive(targetProperty, {newModelNode}, targetRowNumber);
             m_view->setSelectedModelNode(newModelNode);
         }
+
+        if (addImport)
+            QmlDesignerPlugin::instance()->currentDesignDocument()->updateSubcomponentManager();
     }
 }
 
@@ -861,8 +874,18 @@ void NavigatorTreeModel::handleItemLibrarySoundDrop(const QMimeData *mimeData, i
 {
     QTC_ASSERT(m_view, return);
     Import import = Import::createLibraryImport(QStringLiteral("QtMultimedia"));
-    if (!m_view->model()->hasImport(import, true, true))
-        return;
+    bool addImport = false;
+    if (!m_view->model()->hasImport(import, true, true)) {
+        const QList<Import> possImports = m_view->model()->possibleImports();
+        for (const auto &possImport : possImports) {
+            if (possImport.url() == import.url()) {
+                import = possImport;
+                addImport = true;
+                m_view->model()->changeImports({import}, {});
+                break;
+            }
+        }
+    }
 
     const QModelIndex rowModelIndex = dropModelIndex.sibling(dropModelIndex.row(), 0);
     int targetRowNumber = rowNumber;
@@ -907,6 +930,9 @@ void NavigatorTreeModel::handleItemLibrarySoundDrop(const QMimeData *mimeData, i
             moveNodesInteractive(targetProperty, {newModelNode}, targetRowNumber);
             m_view->setSelectedModelNode(newModelNode);
         }
+
+        if (addImport)
+            QmlDesignerPlugin::instance()->currentDesignDocument()->updateSubcomponentManager();
     }
 }
 
