@@ -2421,11 +2421,17 @@ void GdbEngine::updateTracepointCaptures(const Breakpoint &bp)
             else
                 QTC_ASSERT(false, continue);
             caps << QVariant::fromValue<TracepointCaptureData>(
-                {type, {}, match.capturedStart(2), match.capturedEnd(2)});
+                {type,
+                 {},
+                 static_cast<int>(match.capturedStart(2)),
+                 static_cast<int>(match.capturedEnd(2))});
         } else {
             QString expression = t.mid(1, t.length() - 2);
             caps << QVariant::fromValue<TracepointCaptureData>(
-                {TracepointCaptureType::Expression, expression, match.capturedStart(2), match.capturedEnd(2)});
+                {TracepointCaptureType::Expression,
+                 expression,
+                 static_cast<int>(match.capturedStart(2)),
+                 static_cast<int>(match.capturedEnd(2))});
         }
         match = capsRegExp.match(message, match.capturedEnd());
     }
