@@ -1016,6 +1016,8 @@ void MainWindow::updateContextObject(const QList<IContext *> &context)
 void MainWindow::aboutToShutdown()
 {
     disconnect(qApp, &QApplication::focusChanged, this, &MainWindow::updateFocusWidget);
+    for (auto contextPair : m_contextWidgets)
+        disconnect(contextPair.second, &QObject::destroyed, this, nullptr);
     m_activeContext.clear();
     hide();
 }
