@@ -43,9 +43,10 @@ class CppProjectUpdater;
 } // namespace CppTools
 
 namespace CMakeProjectManager {
-namespace Internal {
 
 class CMakeBuildConfiguration;
+
+namespace Internal {
 
 // --------------------------------------------------------------------
 // CMakeBuildSystem:

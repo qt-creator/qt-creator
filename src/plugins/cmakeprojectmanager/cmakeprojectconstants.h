@@ -42,6 +42,8 @@ const char CMAKE_HOME_DIR[] = "CMakeProject.HomeDirectory";
 // Project
 const char CMAKE_PROJECT_ID[] = "CMakeProjectManager.CMakeProject";
 
+const char CMAKE_BUILDCONFIGURATION_ID[] = "CMakeProjectManager.CMakeBuildConfiguration";
+
 // Menu
 const char M_CONTEXT[] = "CMakeEditor.ContextMenu";
 

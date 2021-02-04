@@ -53,10 +53,12 @@ BuildDirParameters::BuildDirParameters(CMakeBuildConfiguration *bc)
 
     const Utils::MacroExpander *expander = bc->macroExpander();
 
-    initialCMakeArguments = Utils::transform(bc->initialCMakeArguments(),
-                                             [expander](const QString &s) {
-                                                 return expander->expand(s);
-                                             });
+    const QStringList expandedArguments = Utils::transform(bc->initialCMakeArguments(),
+                                                           [expander](const QString &s) {
+                                                               return expander->expand(s);
+                                                           });
+    initialCMakeArguments = Utils::filtered(expandedArguments,
+                                            [](const QString &s) { return !s.isEmpty(); });
     extraCMakeArguments = Utils::transform(bc->extraCMakeArguments(),
                                              [expander](const QString &s) {
                                                  return expander->expand(s);

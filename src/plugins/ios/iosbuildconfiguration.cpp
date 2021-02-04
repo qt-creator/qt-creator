@@ -32,6 +32,8 @@
 #include <projectexplorer/namedwidget.h>
 #include <projectexplorer/target.h>
 
+#include <cmakeprojectmanager/cmakeprojectconstants.h>
+
 #include <qmakeprojectmanager/qmakebuildinfo.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
@@ -46,6 +48,7 @@
 #include <QPushButton>
 
 using namespace QmakeProjectManager;
+using namespace CMakeProjectManager;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -101,7 +104,7 @@ private:
 IosSigningSettingsWidget::IosSigningSettingsWidget(BuildConfiguration *buildConfiguration,
                                                    BoolAspect *autoManagedSigning,
                                                    StringAspect *signingIdentifier)
-    : NamedWidget(IosBuildConfiguration::tr("iOS Settings"))
+    : NamedWidget(IosQmakeBuildConfiguration::tr("iOS Settings"))
     , m_autoManagedSigning(autoManagedSigning)
     , m_signingIdentifier(signingIdentifier)
     , m_isDevice(DeviceTypeKitAspect::deviceTypeId(buildConfiguration->kit())
@@ -115,7 +118,7 @@ IosSigningSettingsWidget::IosSigningSettingsWidget(BuildConfiguration *buildConf
     sizePolicy.setHorizontalStretch(0);
     sizePolicy.setVerticalStretch(0);
     m_qmakeDefaults->setSizePolicy(sizePolicy);
-    m_qmakeDefaults->setText(IosBuildConfiguration::tr("Reset"));
+    m_qmakeDefaults->setText(IosQmakeBuildConfiguration::tr("Reset"));
     m_qmakeDefaults->setEnabled(m_isDevice);
 
     m_signEntityCombo = new QComboBox(container);
@@ -130,7 +133,7 @@ IosSigningSettingsWidget::IosSigningSettingsWidget(BuildConfiguration *buildConf
     sizePolicy2.setVerticalStretch(0);
     m_autoSignCheckbox->setSizePolicy(sizePolicy2);
     m_autoSignCheckbox->setChecked(true);
-    m_autoSignCheckbox->setText(IosBuildConfiguration::tr("Automatically manage signing"));
+    m_autoSignCheckbox->setText(IosQmakeBuildConfiguration::tr("Automatically manage signing"));
     m_autoSignCheckbox->setChecked(m_autoManagedSigning->value());
     m_autoSignCheckbox->setEnabled(m_isDevice);
 
@@ -140,7 +143,7 @@ IosSigningSettingsWidget::IosSigningSettingsWidget(BuildConfiguration *buildConf
 
     m_warningLabel = new Utils::InfoLabel({}, Utils::InfoLabel::Warning, container);
 
-    m_signEntityLabel->setText(IosBuildConfiguration::tr("Development team:"));
+    m_signEntityLabel->setText(IosQmakeBuildConfiguration::tr("Development team:"));
 
     connect(m_qmakeDefaults, &QPushButton::clicked, this, &IosSigningSettingsWidget::onReset);
 
@@ -240,8 +243,9 @@ void IosSigningSettingsWidget::onReset()
 
 void IosSigningSettingsWidget::configureSigningUi(bool autoManageSigning)
 {
-    m_signEntityLabel->setText(autoManageSigning ? IosBuildConfiguration::tr("Development team:")
-                                                 : IosBuildConfiguration::tr("Provisioning profile:"));
+    m_signEntityLabel->setText(autoManageSigning
+                                   ? IosQmakeBuildConfiguration::tr("Development team:")
+                                   : IosQmakeBuildConfiguration::tr("Provisioning profile:"));
     if (autoManageSigning)
         populateDevelopmentTeams();
     else
@@ -266,7 +270,7 @@ void IosSigningSettingsWidget::populateDevelopmentTeams()
         QSignalBlocker blocker(m_signEntityCombo);
         // Populate Team id's
         m_signEntityCombo->clear();
-        m_signEntityCombo->addItem(IosBuildConfiguration::tr("Default"));
+        m_signEntityCombo->addItem(IosQmakeBuildConfiguration::tr("Default"));
         foreach (auto team, IosConfigurations::developmentTeams()) {
             m_signEntityCombo->addItem(team->displayName());
             const int index = m_signEntityCombo->count() - 1;
@@ -294,7 +298,7 @@ void IosSigningSettingsWidget::populateProvisioningProfiles()
                 m_signEntityCombo->setItemData(index, profile->details(), Qt::ToolTipRole);
             }
         } else {
-            m_signEntityCombo->addItem(IosBuildConfiguration::tr("None"));
+            m_signEntityCombo->addItem(IosQmakeBuildConfiguration::tr("None"));
         }
     }
     // Maintain previous selection.
@@ -325,11 +329,12 @@ void IosSigningSettingsWidget::updateInfoText()
     if (identifier.isEmpty()) {
         // No signing entity selection.
         if (configuringTeams)
-            addMessage(IosBuildConfiguration::tr("Development team is not selected."));
+            addMessage(IosQmakeBuildConfiguration::tr("Development team is not selected."));
         else
-            addMessage(IosBuildConfiguration::tr("Provisioning profile is not selected."));
+            addMessage(IosQmakeBuildConfiguration::tr("Provisioning profile is not selected."));
 
-        addMessage(IosBuildConfiguration::tr("Using default development team and provisioning profile."));
+        addMessage(IosQmakeBuildConfiguration::tr(
+            "Using default development team and provisioning profile."));
     } else {
         if (!configuringTeams) {
             ProvisioningProfilePtr profile =  IosConfigurations::provisioningProfile(identifier);
@@ -337,14 +342,17 @@ void IosSigningSettingsWidget::updateInfoText()
             auto team = profile->developmentTeam();
             if (team) {
                 // Display corresponding team information.
-                addMessage(IosBuildConfiguration::tr("Development team: %1 (%2)").arg(team->displayName())
-                           .arg(team->identifier()));
-                addMessage(IosBuildConfiguration::tr("Settings defined here override the QMake environment."));
+                addMessage(IosQmakeBuildConfiguration::tr("Development team: %1 (%2)")
+                               .arg(team->displayName())
+                               .arg(team->identifier()));
+                addMessage(IosQmakeBuildConfiguration::tr(
+                    "Settings defined here override the QMake environment."));
             } else {
                 qCDebug(iosSettingsLog) << "Development team not found for profile" << profile;
             }
         } else {
-            addMessage(IosBuildConfiguration::tr("Settings defined here override the QMake environment."));
+            addMessage(IosQmakeBuildConfiguration::tr(
+                "Settings defined here override the QMake environment."));
         }
     }
 
@@ -360,23 +368,27 @@ void IosSigningSettingsWidget::updateWarningText()
     QString warningText;
     bool configuringTeams = m_autoSignCheckbox->isChecked();
     if (m_signEntityCombo->count() < 2) {
-        warningText = IosBuildConfiguration::tr("%1 not configured. Use Xcode and Apple "
-                                                "developer account to configure the "
-                                                "provisioning profiles and teams.")
-                .arg(configuringTeams ? IosBuildConfiguration::tr("Development teams")
-                                      : IosBuildConfiguration::tr("Provisioning profiles"));
+        warningText = IosQmakeBuildConfiguration::tr("%1 not configured. Use Xcode and Apple "
+                                                     "developer account to configure the "
+                                                     "provisioning profiles and teams.")
+                          .arg(configuringTeams
+                                   ? IosQmakeBuildConfiguration::tr("Development teams")
+                                   : IosQmakeBuildConfiguration::tr("Provisioning profiles"));
     } else {
         QString identifier = selectedIdentifier();
         if (configuringTeams) {
             auto team = IosConfigurations::developmentTeam(identifier);
             if (team && !team->hasProvisioningProfile())
-                warningText = IosBuildConfiguration::tr("No provisioning profile found for the selected team.");
+                warningText = IosQmakeBuildConfiguration::tr(
+                    "No provisioning profile found for the selected team.");
         } else {
             auto profile = IosConfigurations::provisioningProfile(identifier);
             if (profile && QDateTime::currentDateTimeUtc() > profile->expirationDate()) {
-               warningText = IosBuildConfiguration::tr("Provisioning profile expired. Expiration date: %1")
-                       .arg(QLocale::system().toString(profile->expirationDate().toLocalTime(),
-                                                       QLocale::LongFormat));
+                warningText
+                    = IosQmakeBuildConfiguration::tr(
+                          "Provisioning profile expired. Expiration date: %1")
+                          .arg(QLocale::system().toString(profile->expirationDate().toLocalTime(),
+                                                          QLocale::LongFormat));
             }
         }
     }
@@ -388,7 +400,7 @@ void IosSigningSettingsWidget::updateWarningText()
 
 // IosBuildConfiguration
 
-IosBuildConfiguration::IosBuildConfiguration(Target *target, Utils::Id id)
+IosQmakeBuildConfiguration::IosQmakeBuildConfiguration(Target *target, Utils::Id id)
     : QmakeBuildConfiguration(target, id)
 {
     m_signingIdentifier = addAspect<StringAspect>();
@@ -401,14 +413,14 @@ IosBuildConfiguration::IosBuildConfiguration(Target *target, Utils::Id id)
     connect(m_signingIdentifier,
             &BaseAspect::changed,
             this,
-            &IosBuildConfiguration::updateQmakeCommand);
+            &IosQmakeBuildConfiguration::updateQmakeCommand);
     connect(m_autoManagedSigning,
             &BaseAspect::changed,
             this,
-            &IosBuildConfiguration::updateQmakeCommand);
+            &IosQmakeBuildConfiguration::updateQmakeCommand);
 }
 
-QList<NamedWidget *> IosBuildConfiguration::createSubConfigWidgets()
+QList<NamedWidget *> IosQmakeBuildConfiguration::createSubConfigWidgets()
 {
     auto subConfigWidgets = QmakeBuildConfiguration::createSubConfigWidgets();
 
@@ -420,7 +432,7 @@ QList<NamedWidget *> IosBuildConfiguration::createSubConfigWidgets()
     return subConfigWidgets;
 }
 
-bool IosBuildConfiguration::fromMap(const QVariantMap &map)
+bool IosQmakeBuildConfiguration::fromMap(const QVariantMap &map)
 {
     if (!QmakeBuildConfiguration::fromMap(map))
         return false;
@@ -428,7 +440,22 @@ bool IosBuildConfiguration::fromMap(const QVariantMap &map)
     return true;
 }
 
-void IosBuildConfiguration::updateQmakeCommand()
+static QString teamIdForProvisioningProfile(const QString &id)
+{
+    // Get the team id from provisioning profile
+    ProvisioningProfilePtr profile = IosConfigurations::provisioningProfile(id);
+    QString teamId;
+    if (profile)
+        teamId = profile->developmentTeam()->identifier();
+    else
+        qCDebug(iosLog) << "No provisioing profile found for id:" << id;
+
+    if (teamId.isEmpty())
+        qCDebug(iosLog) << "Development team unavailable for profile:" << profile;
+    return teamId;
+}
+
+void IosQmakeBuildConfiguration::updateQmakeCommand()
 {
     QMakeStep *qmakeStepInstance = qmakeStep();
     const QString forceOverrideArg("-after");
@@ -451,20 +478,10 @@ void IosBuildConfiguration::updateQmakeCommand()
             if (m_autoManagedSigning->value()) {
                 extraArgs << qmakeIosTeamSettings + signingIdentifier;
             } else {
-                // Get the team id from provisioning profile
-                ProvisioningProfilePtr profile =
-                        IosConfigurations::provisioningProfile(signingIdentifier);
-                QString teamId;
-                if (profile)
-                    teamId = profile->developmentTeam()->identifier();
-                else
-                    qCDebug(iosLog) << "No provisioing profile found for id:" << signingIdentifier;
-
+                const QString teamId = teamIdForProvisioningProfile(signingIdentifier);
                 if (!teamId.isEmpty()) {
                     extraArgs << qmakeProvisioningProfileSettings + signingIdentifier;
                     extraArgs << qmakeIosTeamSettings + teamId;
-                } else {
-                    qCDebug(iosLog) << "Development team unavailable for profile:" << profile;
                 }
             }
         }
@@ -473,9 +490,80 @@ void IosBuildConfiguration::updateQmakeCommand()
     }
 }
 
-IosBuildConfigurationFactory::IosBuildConfigurationFactory()
+IosQmakeBuildConfigurationFactory::IosQmakeBuildConfigurationFactory()
 {
-    registerBuildConfiguration<IosBuildConfiguration>(QmakeProjectManager::Constants::QMAKE_BC_ID);
+    registerBuildConfiguration<IosQmakeBuildConfiguration>(
+        QmakeProjectManager::Constants::QMAKE_BC_ID);
+    addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
+    addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
+}
+
+IosCMakeBuildConfiguration::IosCMakeBuildConfiguration(Target *target, Id id)
+    : CMakeBuildConfiguration(target, id)
+{
+    m_signingIdentifier = addAspect<StringAspect>();
+    m_signingIdentifier->setSettingsKey(signingIdentifierKey);
+
+    m_autoManagedSigning = addAspect<BoolAspect>();
+    m_autoManagedSigning->setDefaultValue(true);
+    m_autoManagedSigning->setSettingsKey(autoManagedSigningKey);
+
+    connect(m_signingIdentifier,
+            &BaseAspect::changed,
+            this,
+            &IosCMakeBuildConfiguration::signingFlagsChanged);
+    connect(m_autoManagedSigning,
+            &BaseAspect::changed,
+            this,
+            &IosCMakeBuildConfiguration::signingFlagsChanged);
+}
+
+QList<NamedWidget *> IosCMakeBuildConfiguration::createSubConfigWidgets()
+{
+    auto subConfigWidgets = CMakeBuildConfiguration::createSubConfigWidgets();
+
+    // Ownership of this widget is with BuildSettingsWidget
+    auto buildSettingsWidget = new IosSigningSettingsWidget(this,
+                                                            m_autoManagedSigning,
+                                                            m_signingIdentifier);
+    subConfigWidgets.prepend(buildSettingsWidget);
+    return subConfigWidgets;
+}
+
+bool IosCMakeBuildConfiguration::fromMap(const QVariantMap &map)
+{
+    if (!CMakeBuildConfiguration::fromMap(map))
+        return false;
+    return true;
+}
+
+CMakeConfig IosCMakeBuildConfiguration::signingFlags() const
+{
+    if (DeviceTypeKitAspect::deviceTypeId(kit()) != Constants::IOS_DEVICE_TYPE)
+        return {};
+    const QString signingIdentifier = m_signingIdentifier->value();
+    if (m_autoManagedSigning->value()) {
+        const DevelopmentTeams teams = IosConfigurations::developmentTeams();
+        const QString teamId = signingIdentifier.isEmpty() && !teams.isEmpty()
+                                   ? teams.first()->identifier()
+                                   : signingIdentifier;
+        CMakeConfigItem provisioningConfig("CMAKE_XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER",
+                                           "");
+        provisioningConfig.isUnset = true;
+        return {{"CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM", teamId.toUtf8()}, provisioningConfig};
+    }
+    const QString teamId = teamIdForProvisioningProfile(signingIdentifier);
+    if (!teamId.isEmpty())
+        return {{"CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM", teamId.toUtf8()},
+                {"CMAKE_XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER",
+                 signingIdentifier.toUtf8()}};
+    return {};
+}
+
+IosCMakeBuildConfigurationFactory::IosCMakeBuildConfigurationFactory()
+{
+    registerBuildConfiguration<IosCMakeBuildConfiguration>(
+        CMakeProjectManager::Constants::CMAKE_BUILDCONFIGURATION_ID);
     addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
     addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
 }

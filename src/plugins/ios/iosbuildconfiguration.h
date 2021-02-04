@@ -25,18 +25,18 @@
 #pragma once
 
 #include "qmakeprojectmanager/qmakebuildconfiguration.h"
-
+#include <cmakeprojectmanager/cmakebuildconfiguration.h>
 #include <utils/aspects.h>
 
 namespace Ios {
 namespace Internal {
 
-class IosBuildConfiguration : public QmakeProjectManager::QmakeBuildConfiguration
+class IosQmakeBuildConfiguration : public QmakeProjectManager::QmakeBuildConfiguration
 {
     Q_OBJECT
 
 public:
-    IosBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
+    IosQmakeBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
 
 private:
     QList<ProjectExplorer::NamedWidget *> createSubConfigWidgets() override;
@@ -48,10 +48,33 @@ private:
     Utils::BoolAspect *m_autoManagedSigning = nullptr;
 };
 
-class IosBuildConfigurationFactory : public QmakeProjectManager::QmakeBuildConfigurationFactory
+class IosQmakeBuildConfigurationFactory : public QmakeProjectManager::QmakeBuildConfigurationFactory
 {
 public:
-    IosBuildConfigurationFactory();
+    IosQmakeBuildConfigurationFactory();
+};
+
+class IosCMakeBuildConfiguration : public CMakeProjectManager::CMakeBuildConfiguration
+{
+    Q_OBJECT
+
+public:
+    IosCMakeBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
+
+private:
+    QList<ProjectExplorer::NamedWidget *> createSubConfigWidgets() override;
+    bool fromMap(const QVariantMap &map) override;
+
+    CMakeProjectManager::CMakeConfig signingFlags() const final;
+
+    Utils::StringAspect *m_signingIdentifier = nullptr;
+    Utils::BoolAspect *m_autoManagedSigning = nullptr;
+};
+
+class IosCMakeBuildConfigurationFactory : public CMakeProjectManager::CMakeBuildConfigurationFactory
+{
+public:
+    IosCMakeBuildConfigurationFactory();
 };
 
 } // namespace Internal

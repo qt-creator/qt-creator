@@ -1,6 +1,6 @@
 add_qtc_plugin(Ios
   DEPENDS QmlDebug Qt5::Xml
-  PLUGIN_DEPENDS Core Debugger ProjectExplorer QmakeProjectManager
+  PLUGIN_DEPENDS Core Debugger ProjectExplorer QmakeProjectManager CMakeProjectManager
   SOURCES
     createsimulatordialog.cpp createsimulatordialog.h createsimulatordialog.ui
     ios.qrc

@@ -35,9 +35,10 @@
 #include <QString>
 
 namespace CMakeProjectManager {
-namespace Internal {
 
 class CMakeBuildConfiguration;
+
+namespace Internal {
 
 class BuildDirParameters {
 public:
