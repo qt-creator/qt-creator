@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,42 +25,36 @@
 
 #pragma once
 
-#include "itemlibrarymodel.h"
+#include <QAbstractListModel>
+#include <import.h>
 
-#include <QObject>
-#include <QPointer>
+#include <QSet>
 
 namespace QmlDesigner {
 
-class ItemLibraryItem;
+class ItemLibraryEntry;
 
-class ItemLibrarySectionModel: public QAbstractListModel {
-
+class ItemLibraryAddImportModel : public QAbstractListModel
+{
     Q_OBJECT
 
 public:
-    ItemLibrarySectionModel(QObject *parent = nullptr);
-    ~ItemLibrarySectionModel() override;
+    explicit ItemLibraryAddImportModel(QObject *parent = nullptr);
+    ~ItemLibraryAddImportModel() override;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
 
-    void addItem(ItemLibraryItem *item);
+    void update(const QList<Import> &possibleImports);
+    void setSearchText(const QString &searchText);
+    Import getImportAt(int index) const;
 
-    const QList<QPointer<ItemLibraryItem> > &items() const;
-
-    void sortItems();
-    void resetModel();
-
-private: // functions
-    void addRoleNames();
-
-private: // variables
-    QList<QPointer<ItemLibraryItem>> m_itemList;
+private:
+    QString m_searchText;
+    QList<Import> m_importList;
+    QSet<QString> m_importFilterList;
     QHash<int, QByteArray> m_roleNames;
 };
 
 } // namespace QmlDesigner
-
-QML_DECLARE_TYPE(QmlDesigner::ItemLibrarySectionModel)

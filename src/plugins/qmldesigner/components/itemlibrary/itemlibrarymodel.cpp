@@ -24,17 +24,16 @@
 ****************************************************************************/
 
 #include "itemlibrarymodel.h"
-#include "itemlibraryinfo.h"
-#include "itemlibrarysection.h"
+#include "itemlibrarycategoriesmodel.h"
+#include "itemlibraryimport.h"
+#include "itemlibrarycategory.h"
 #include "itemlibraryitem.h"
-#include "itemlibrarysection.h"
+#include "itemlibraryinfo.h"
 
 #include <model.h>
 #include <nodehints.h>
 #include <nodemetainfo.h>
 
-#include <designdocument.h>
-#include <qmldesignerplugin.h>
 #include <designermcumanager.h>
 
 #include <utils/algorithm.h>
@@ -44,29 +43,18 @@
 #include <QMetaProperty>
 #include <QLoggingCategory>
 #include <QMimeData>
-#include <QPainter>
-#include <QPen>
-#include <qdebug.h>
-
-static Q_LOGGING_CATEGORY(itemlibraryPopulate, "qtc.itemlibrary.populate", QtWarningMsg)
-
-static bool inline registerItemLibrarySortedModel() {
-    qmlRegisterAnonymousType<QmlDesigner::ItemLibrarySectionModel>("ItemLibrarySectionModel", 1);
-    return true;
-}
 
 namespace QmlDesigner {
 
-static QHash<QString, bool> collapsedStateHash;
-
-
-void ItemLibraryModel::setExpanded(bool expanded, const QString &section)
+// sectionName can be an import or category section
+void ItemLibraryModel::setExpanded(bool expanded, const QString &sectionName)
 {
-    if (collapsedStateHash.contains(section))
-        collapsedStateHash.remove(section);
+    collapsedStateHash.insert(sectionName, expanded);
+}
 
-    if (!expanded) //default is true
-        collapsedStateHash.insert(section, expanded);
+bool ItemLibraryModel::sectionExpanded(const QString &sectionName) const
+{
+    return collapsedStateHash.value(sectionName, true);
 }
 
 void ItemLibraryModel::setFlowMode(bool b)
@@ -89,32 +77,27 @@ ItemLibraryModel::~ItemLibraryModel()
 
 int ItemLibraryModel::rowCount(const QModelIndex & /*parent*/) const
 {
-    return m_sections.count();
+    return m_importList.count();
 }
 
 QVariant ItemLibraryModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() +1 > m_sections.count())
-        return QVariant();
-
+    if (!index.isValid() || index.row() +1 > m_importList.count())
+        return {};
 
     if (m_roleNames.contains(role)) {
-        QVariant value = m_sections.at(index.row())->property(m_roleNames.value(role));
+        QVariant value = m_importList.at(index.row())->property(m_roleNames.value(role));
 
-        auto model = qobject_cast<ItemLibrarySectionModel *>(value.value<QObject*>());
+        auto model = qobject_cast<ItemLibraryCategoriesModel *>(value.value<QObject *>());
         if (model)
             return QVariant::fromValue(model);
-
-        auto model2 = qobject_cast<ItemLibraryModel *>(value.value<QObject*>());
-        if (model2)
-            return QVariant::fromValue(model2);
 
         return value;
     }
 
     qWarning() << Q_FUNC_INFO << "invalid role requested";
 
-    return QVariant();
+    return {};
 }
 
 QHash<int, QByteArray> ItemLibraryModel::roleNames() const
@@ -127,19 +110,15 @@ QString ItemLibraryModel::searchText() const
     return m_searchText;
 }
 
-
 void ItemLibraryModel::setSearchText(const QString &searchText)
 {
     QString lowerSearchText = searchText.toLower();
 
     if (m_searchText != lowerSearchText) {
         m_searchText = lowerSearchText;
-        emit searchTextChanged();
 
         bool changed = false;
         updateVisibility(&changed);
-        if (changed)
-            emit dataChanged(QModelIndex(), QModelIndex());
     }
 }
 
@@ -153,14 +132,6 @@ Import entryToImport(const ItemLibraryEntry &entry)
 
 }
 
-bool sectionExapanded(const QString &sectionName)
-{
-    if (collapsedStateHash.contains(sectionName))
-        return collapsedStateHash.value(sectionName);
-
-    return true;
-}
-
 void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 {
     if (!model)
@@ -169,32 +140,24 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
     beginResetModel();
     clearSections();
 
-    QStringList imports;
-    foreach (const Import &import, model->imports())
-        if (import.isLibraryImport())
-            imports << import.url() + QLatin1Char(' ') + import.version();
+    // create import sections
+    for (const Import &import : model->imports()) {
+        if (import.isLibraryImport()) {
+            ItemLibraryImport *itemLibImport = new ItemLibraryImport(import, this);
+            m_importList.append(itemLibImport);
+            itemLibImport->setExpanded(sectionExpanded(import.url()));
+        }
+    }
 
-
-    qCInfo(itemlibraryPopulate) << Q_FUNC_INFO;
-    foreach (ItemLibraryEntry entry, itemLibraryInfo->entries()) {
-
-        qCInfo(itemlibraryPopulate) << entry.typeName() << entry.majorVersion() << entry.minorVersion();
-
+    const QList<ItemLibraryEntry> itemLibEntries = itemLibraryInfo->entries();
+    for (const ItemLibraryEntry &entry : itemLibEntries) {
         NodeMetaInfo metaInfo = model->metaInfo(entry.typeName());
-
-        qCInfo(itemlibraryPopulate) << "valid: " << metaInfo.isValid() << metaInfo.majorVersion() << metaInfo.minorVersion();
 
         bool valid = metaInfo.isValid() && metaInfo.majorVersion() == entry.majorVersion();
         bool isItem = valid && metaInfo.isSubclassOf("QtQuick.Item");
-
-        qCInfo(itemlibraryPopulate) << "isItem: " << isItem;
-
-        qCInfo(itemlibraryPopulate) << "required import: " << entry.requiredImport() << entryToImport(entry).toImportString();
-
         bool forceVisiblity = valid && NodeHints::fromItemLibraryEntry(entry).visibleInLibrary();
 
         if (m_flowMode && metaInfo.isValid()) {
-
             isItem = metaInfo.isSubclassOf("FlowView.FlowItem")
                     || metaInfo.isSubclassOf("FlowView.FlowWildcard")
                     || metaInfo.isSubclassOf("FlowView.FlowDecision");
@@ -202,7 +165,6 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
         }
 
         const DesignerMcuManager &mcuManager = DesignerMcuManager::instance();
-
         if (mcuManager.isMCUProject()) {
             const QSet<QString> blockTypes = mcuManager.bannedItems();
 
@@ -210,22 +172,44 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
                 valid = false;
         }
 
-        if (valid && (isItem || forceVisiblity) //We can change if the navigator does support pure QObjects
+        if (valid && (isItem || forceVisiblity) // We can change if the navigator does support pure QObjects
             && (entry.requiredImport().isEmpty()
                 || model->hasImport(entryToImport(entry), true, true))) {
-            QString itemSectionName = entry.category();
-            qCInfo(itemlibraryPopulate) << "Adding:" << entry.typeName() << "to:" << entry.category();
-            ItemLibrarySection *sectionModel = sectionByName(itemSectionName);
 
-            if (sectionModel == nullptr) {
-                sectionModel = new ItemLibrarySection(itemSectionName, this);
-                m_sections.append(sectionModel);
-                sectionModel->setSectionExpanded(sectionExapanded(itemSectionName));
+            ItemLibraryImport *importSection = nullptr;
+
+            QString catName = entry.category();
+            if (catName == ItemLibraryImport::userComponentsTitle()) {
+                // create an import section for user components
+                importSection = importByUrl(ItemLibraryImport::userComponentsTitle());
+                if (!importSection) {
+                    importSection = new ItemLibraryImport({}, this);
+                    m_importList.append(importSection);
+                    importSection->setExpanded(sectionExpanded(catName));
+                }
+            } else {
+                if (catName.startsWith("Qt Quick - "))
+                    catName = catName.mid(11); // remove "Qt Quick - "
+
+                importSection = importByUrl(entry.requiredImport());
             }
 
-            auto item = new ItemLibraryItem(sectionModel);
-            item->setItemLibraryEntry(entry);
-            sectionModel->addSectionEntry(item);
+            if (!importSection) { // should not happen, but just in case
+                qWarning() << __FUNCTION__ << "No import section found! skipping entry: " << entry.name();
+                continue;
+            }
+
+            // get or create category section
+            ItemLibraryCategory *categorySection = importSection->getCategorySection(catName);
+            if (!categorySection) {
+                categorySection = new ItemLibraryCategory(catName, importSection);
+                importSection->addCategory(categorySection);
+                categorySection->setExpanded(sectionExpanded(categorySection->categoryName()));
+            }
+
+            // create item
+            auto item = new ItemLibraryItem(entry, categorySection);
+            categorySection->addItem(item);
         }
     }
 
@@ -251,67 +235,68 @@ QMimeData *ItemLibraryModel::getMimeData(const ItemLibraryEntry &itemLibraryEntr
 
 void ItemLibraryModel::clearSections()
 {
-    qDeleteAll(m_sections);
-    m_sections.clear();
+    qDeleteAll(m_importList);
+    m_importList.clear();
 }
 
 void ItemLibraryModel::registerQmlTypes()
 {
-    qmlRegisterAnonymousType<QmlDesigner::ItemLibrarySectionModel>("ItemLibrarySectionModel", 1);
     qmlRegisterAnonymousType<QmlDesigner::ItemLibraryModel>("ItemLibraryModel", 1);
 }
 
-ItemLibrarySection *ItemLibraryModel::sectionByName(const QString &sectionName)
+ItemLibraryImport *ItemLibraryModel::importByUrl(const QString &importUrl) const
 {
-    foreach (ItemLibrarySection *itemLibrarySection, m_sections) {
-        if (itemLibrarySection->sectionName() == sectionName)
-            return itemLibrarySection;
+    for (ItemLibraryImport *itemLibraryImport : std::as_const(m_importList)) {
+        if (itemLibraryImport->importUrl() == importUrl
+            || (importUrl.isEmpty() && itemLibraryImport->importUrl() == "QtQuick")
+            || (importUrl == ItemLibraryImport::userComponentsTitle()
+                && itemLibraryImport->importName() == ItemLibraryImport::userComponentsTitle())) {
+            return itemLibraryImport;
+        }
     }
 
     return nullptr;
 }
 
+void ItemLibraryModel::updateUsedImports(const QList<Import> &usedImports)
+{
+    // imports in the excludeList are not marked used and thus can always be removed even when in use.
+    const QList<QString> excludeList = {"SimulinkConnector"};
+
+    for (ItemLibraryImport *importSection : std::as_const(m_importList)) {
+        if (!excludeList.contains(importSection->importUrl()))
+            importSection->setImportUsed(usedImports.contains(importSection->importEntry()));
+    }
+}
+
 void ItemLibraryModel::updateVisibility(bool *changed)
 {
-    foreach (ItemLibrarySection *itemLibrarySection, m_sections) {
-        QString sectionSearchText = m_searchText;
+    for (ItemLibraryImport *import : std::as_const(m_importList)) {
+        bool categoryChanged = false;
+        import->updateCategoryVisibility(m_searchText, &categoryChanged);
 
-        bool sectionChanged = false;
-        bool sectionVisibility = itemLibrarySection->updateSectionVisibility(sectionSearchText,
-                                                                             &sectionChanged);
-
-        *changed |= sectionChanged;
-        *changed |= itemLibrarySection->setVisible(sectionVisibility);
+        *changed |= categoryChanged;
     }
 }
 
 void ItemLibraryModel::addRoleNames()
 {
     int role = 0;
-    for (int propertyIndex = 0; propertyIndex < ItemLibrarySection::staticMetaObject.propertyCount(); ++propertyIndex) {
-        QMetaProperty property = ItemLibrarySection::staticMetaObject.property(propertyIndex);
-        m_roleNames.insert(role, property.name());
-        ++role;
-    }
+    const QMetaObject meta = ItemLibraryImport::staticMetaObject;
+    for (int i = meta.propertyOffset(); i < meta.propertyCount(); ++i)
+        m_roleNames.insert(role++, meta.property(i).name());
 }
 
 void ItemLibraryModel::sortSections()
 {
-    int nullPointerSectionCount = m_sections.removeAll(QPointer<ItemLibrarySection>());
-    QTC_ASSERT(nullPointerSectionCount == 0,;);
-    auto sectionSort = [](ItemLibrarySection *first, ItemLibrarySection *second) {
+    auto sectionSort = [](ItemLibraryImport *first, ItemLibraryImport *second) {
         return QString::localeAwareCompare(first->sortingName(), second->sortingName()) < 0;
     };
 
-    std::sort(m_sections.begin(), m_sections.end(), sectionSort);
+    std::sort(m_importList.begin(), m_importList.end(), sectionSort);
 
-    for (const auto &itemLibrarySection : qAsConst(m_sections))
-        itemLibrarySection->sortItems();
-}
-
-void registerQmlTypes()
-{
-    registerItemLibrarySortedModel();
+    for (ItemLibraryImport *itemLibImport : qAsConst(m_importList))
+        itemLibImport->sortCategorySections();
 }
 
 } // namespace QmlDesigner

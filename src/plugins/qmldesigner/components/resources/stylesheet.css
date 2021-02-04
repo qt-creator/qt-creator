@@ -26,17 +26,6 @@ QGraphicsView {
      background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
 }
 
-QLineEdit#itemLibrarySearchInput
-{
-    color: creatorTheme.PanelTextColorLight;
-    font-size: creatorTheme.smallFontPixelSize;
-    border: 1px solid creatorTheme.QmlDesigner_BackgroundColorDarker;
-    border-width: 1;
-    max-height: 20px;
-    min-height: 20px;
-    background-color: creatorTheme.FancyToolButtonSelectedColor;
-}
-
  QTreeView {
     color: creatorTheme.PanelTextColorLight;
     selection-color: creatorTheme.PanelTextColorLight;
@@ -76,11 +65,7 @@ QTabBar::tab {
     border-image: none;
     background-color: creatorTheme.QmlDesigner_TabDark;
     color: creatorTheme.QmlDesigner_TabLight;
-
-    margin-top: 0x;
-    margin-bottom: 0px;
-    margin-left: 0px;
-    margin-right: 0px;
+    margin: 0px;
     font: bold;
     font-size: creatorTheme.captionFontPixelSize;
 }
@@ -89,8 +74,4 @@ QTabBar::tab:selected {
     border: none; /* no border for a flat push button */
     background-color: creatorTheme.QmlDesigner_TabLight;
     color: creatorTheme.QmlDesigner_TabDark;
-}
-
-QWidget#itemLibrarySearchInputSpacer {
-    background-color: creatorTheme.QmlDesigner_TabLight;
 }

@@ -23,7 +23,6 @@ INCLUDEPATH *= \
     $$PWD/designercore/include \
     $$PWD/components/integration \
     $$PWD/components/componentcore \
-    $$PWD/components/importmanager \
     $$PWD/components/itemlibrary \
     $$PWD/components/edit3d \
     $$PWD/components/formeditor \

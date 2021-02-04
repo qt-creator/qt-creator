@@ -18,7 +18,6 @@ QtcProduct {
         "../components/debugview",
         "../components/edit3d",
         "../components/formeditor",
-        "../components/importmanager",
         "../components/integration",
         "../components/itemlibrary",
         "../components/navigator",

@@ -33,7 +33,6 @@
 namespace QmlDesigner {
 
 class ItemLibraryWidget;
-class ImportManagerView;
 class ImageCacheData;
 class AsynchronousImageCache;
 
@@ -52,6 +51,8 @@ public:
     void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
+    void possibleImportsChanged(const QList<Import> &possibleImports) override;
+    void usedImportsChanged(const QList<Import> &usedImports) override;
     void documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings) override;
     void updateImport3DSupport(const QVariantMap &supportMap) override;
 
@@ -65,7 +66,6 @@ protected:
 private:
     std::unique_ptr<ImageCacheData> m_imageCacheData;
     QPointer<ItemLibraryWidget> m_widget;
-    ImportManagerView *m_importManagerView;
     bool m_hasErrors = false;
     QVariantMap m_importableExtensions3DMap;
     QVariantMap m_importOptions3DMap;

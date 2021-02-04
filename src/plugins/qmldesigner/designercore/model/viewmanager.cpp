@@ -37,7 +37,6 @@
 #include <designmodewidget.h>
 #include <edit3dview.h>
 #include <formeditorview.h>
-#include <importmanagerview.h>
 #include <itemlibraryview.h>
 #include <navigatorview.h>
 #include <nodeinstanceview.h>

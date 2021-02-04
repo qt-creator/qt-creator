@@ -37,7 +37,6 @@
 #include <imagecache/imagecachestorage.h>
 #include <imagecache/timestampprovider.h>
 #include <import.h>
-#include <importmanagerview.h>
 #include <nodelistproperty.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
@@ -80,8 +79,7 @@ public:
 };
 
 ItemLibraryView::ItemLibraryView(QObject* parent)
-    : AbstractView(parent),
-      m_importManagerView(new ImportManagerView(this))
+    : AbstractView(parent)
 
 {
     m_imageCacheData = std::make_unique<ImageCacheData>();
@@ -123,7 +121,6 @@ WidgetInfo ItemLibraryView::widgetInfo()
         m_widget = new ItemLibraryWidget{m_imageCacheData->cache,
                                          m_imageCacheData->asynchronousFontImageCache,
                                          m_imageCacheData->synchronousFontImageCache};
-        m_widget->setImportsWidget(m_importManagerView->widgetInfo().widget);
     }
 
     return createWidgetInfo(m_widget.data(),
@@ -141,7 +138,6 @@ void ItemLibraryView::modelAttached(Model *model)
     m_widget->clearSearchFilter();
     m_widget->setModel(model);
     updateImports();
-    model->attachView(m_importManagerView);
     m_hasErrors = !rewriterView()->errors().isEmpty();
     m_widget->setFlowMode(QmlItemNode(rootModelNode()).isFlowView());
     setResourcePath(DocumentManager::currentResourcePath().toFileInfo().absoluteFilePath());
@@ -149,8 +145,6 @@ void ItemLibraryView::modelAttached(Model *model)
 
 void ItemLibraryView::modelAboutToBeDetached(Model *model)
 {
-    model->detachView(m_importManagerView);
-
     AbstractView::modelAboutToBeDetached(model);
 
     m_widget->setModel(nullptr);
@@ -187,6 +181,16 @@ void ItemLibraryView::importsChanged(const QList<Import> &addedImports, const QL
             resetPuppet();
         }
     }
+}
+
+void ItemLibraryView::possibleImportsChanged(const QList<Import> &possibleImports)
+{
+    m_widget->updatePossibleImports(possibleImports);
+}
+
+void ItemLibraryView::usedImportsChanged(const QList<Import> &usedImports)
+{
+    m_widget->updateUsedImports(usedImports);
 }
 
 void ItemLibraryView::setResourcePath(const QString &resourcePath)

@@ -286,16 +286,6 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
-  SOURCES_PREFIX components/importmanager
-  SOURCES
-    importlabel.cpp importlabel.h
-    importmanager.qrc
-    importmanagercombobox.cpp importmanagercombobox.h
-    importmanagerview.cpp importmanagerview.h
-    importswidget.cpp importswidget.h
-)
-
-extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/integration
   PUBLIC_INCLUDES components/integration
   SOURCES
@@ -316,14 +306,17 @@ extend_qtc_plugin(QmlDesigner
     itemlibraryitem.cpp itemlibraryitem.h
     itemlibrarymodel.cpp itemlibrarymodel.h
     itemlibraryresourceview.cpp itemlibraryresourceview.h
-    itemlibrarysection.cpp itemlibrarysection.h
-    itemlibrarysectionmodel.cpp itemlibrarysectionmodel.h
+    itemlibrarycategory.cpp itemlibrarycategory.h
+    itemlibraryitemsmodel.cpp itemlibraryitemsmodel.h
     itemlibraryview.cpp itemlibraryview.h
     itemlibrarywidget.cpp itemlibrarywidget.h
     itemlibraryassetimportdialog.cpp itemlibraryassetimportdialog.h
     itemlibraryassetimportdialog.ui
     itemlibraryassetimporter.cpp itemlibraryassetimporter.h
     itemlibraryiconimageprovider.cpp itemlibraryiconimageprovider.h
+    itemLibraryimport.cpp itemLibraryimport.h
+    itemLibrarycategoriesmodel.cpp itemLibrarycategoriesmodel.h
+    itemlibraryaddimportmodel.cpp itemlibraryaddimportmodel.h
 )
 
 extend_qtc_plugin(QmlDesigner

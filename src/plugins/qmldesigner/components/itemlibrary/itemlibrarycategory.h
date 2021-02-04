@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,14 +25,49 @@
 
 #pragma once
 
-#include <QComboBox>
+#include "itemlibraryitemsmodel.h"
 
-class ImportManagerComboBox : public QComboBox
+namespace QmlDesigner {
+
+class ItemLibraryItem;
+
+class ItemLibraryCategory : public QObject
 {
     Q_OBJECT
-public:
-    explicit ImportManagerComboBox(QWidget *parent = nullptr);
 
-protected:
-    void paintEvent(QPaintEvent *e) override;
+    Q_PROPERTY(QString categoryName READ categoryName FINAL)
+    Q_PROPERTY(bool categoryVisible READ isVisible NOTIFY visibilityChanged FINAL)
+    Q_PROPERTY(bool categoryExpanded READ categoryExpanded FINAL)
+    Q_PROPERTY(QObject *itemModel READ itemModel NOTIFY itemModelChanged FINAL)
+
+public:
+    ItemLibraryCategory(const QString &groupName, QObject *parent = nullptr);
+
+    QString categoryName() const;
+    bool categoryExpanded() const;
+    QString sortingName() const;
+
+    void addItem(ItemLibraryItem *item);
+    QObject *itemModel();
+
+    bool updateItemVisibility(const QString &searchText, bool *changed);
+
+    bool setVisible(bool isVisible);
+    bool isVisible() const;
+
+    void sortItems();
+
+    void setExpanded(bool expanded);
+
+signals:
+    void itemModelChanged();
+    void visibilityChanged();
+
+private:
+    ItemLibraryItemsModel m_itemModel;
+    QString m_name;
+    bool m_categoryExpanded = true;
+    bool m_isVisible = true;
 };
+
+} // namespace QmlDesigner

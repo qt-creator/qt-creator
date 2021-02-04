@@ -25,6 +25,7 @@
 
 #include "subcomponentmanager.h"
 
+#include <itemlibraryimport.h>
 #include <qmldesignerconstants.h>
 
 #include "model.h"
@@ -336,7 +337,7 @@ void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QStri
         ItemLibraryEntry itemLibraryEntry;
         itemLibraryEntry.setType(componentName.toUtf8());
         itemLibraryEntry.setName(baseComponentName);
-        itemLibraryEntry.setCategory(tr("My QML Components"));
+        itemLibraryEntry.setCategory(ItemLibraryImport::userComponentsTitle());
         itemLibraryEntry.setCustomComponentSource(fileInfo.absoluteFilePath());
         if (!qualifier.isEmpty()) {
             itemLibraryEntry.setRequiredImport(fixedQualifier);

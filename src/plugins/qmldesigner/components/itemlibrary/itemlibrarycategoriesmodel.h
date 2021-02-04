@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,46 +25,39 @@
 
 #pragma once
 
-#include <import.h>
+#include "itemlibrarymodel.h"
 
-#include <QWidget>
-
-QT_BEGIN_NAMESPACE
-class QComboBox;
-QT_END_NAMESPACE
+#include <QObject>
+#include <QPointer>
 
 namespace QmlDesigner {
 
-class ImportLabel;
+class ItemLibraryCategory;
 
-class ImportsWidget : public QWidget
+class ItemLibraryCategoriesModel : public QAbstractListModel
 {
     Q_OBJECT
+
 public:
-    explicit ImportsWidget(QWidget *parent = nullptr);
+    ItemLibraryCategoriesModel(QObject *parent = nullptr);
+    ~ItemLibraryCategoriesModel() override;
 
-    void setImports(const QList<Import> &imports);
-    void removeImports();
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    QHash<int, QByteArray> roleNames() const override;
 
-    void setPossibleImports(QList<Import> possibleImports);
-    void removePossibleImports();
+    void addCategory(ItemLibraryCategory *category);
 
-    void setUsedImports(const QList<Import> &possibleImports);
-    void removeUsedImports();
+    const QList<QPointer<ItemLibraryCategory>> &categorySections() const;
 
-signals:
-    void removeImport(const Import &import);
-    void addImport(const Import &import);
-
-protected:
-    void updateLayout();
+    void sortCategorySections();
+    void resetModel();
 
 private:
-    void addSelectedImport(int addImportComboBoxIndex);
+    void addRoleNames();
 
-private:
-    QList<ImportLabel*> m_importLabels;
-    QComboBox *m_addImportComboBox;
+    QList<QPointer<ItemLibraryCategory>> m_categoryList;
+    QHash<int, QByteArray> m_roleNames;
 };
 
 } // namespace QmlDesigner

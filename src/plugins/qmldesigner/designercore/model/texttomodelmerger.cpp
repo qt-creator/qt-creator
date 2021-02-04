@@ -1024,9 +1024,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         collectLinkErrors(&errors, ctxt);
 
         setupImports(m_document, differenceHandler);
-
-        if (!justSanityCheck)
-            setupPossibleImports(snapshot, m_vContext);
+        setupPossibleImports(snapshot, m_vContext);
 
         qCInfo(rewriterBenchmark) << "imports setup:" << time.elapsed();
 

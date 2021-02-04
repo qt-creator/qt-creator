@@ -25,10 +25,9 @@
 
 #pragma once
 
-#include <QMap>
-#include <QIcon>
 #include <QAbstractListModel>
 #include <QtQml/qqml.h>
+#include <import.h>
 
 QT_FORWARD_DECLARE_CLASS(QMimeData)
 
@@ -37,12 +36,11 @@ namespace QmlDesigner {
 class ItemLibraryInfo;
 class ItemLibraryEntry;
 class Model;
-class ItemLibrarySection;
+class ItemLibraryImport;
 
-class ItemLibraryModel: public QAbstractListModel {
-
+class ItemLibraryModel : public QAbstractListModel
+{
     Q_OBJECT
-    Q_PROPERTY(QString searchText READ searchText WRITE setSearchText NOTIFY searchTextChanged)
 
 public:
     explicit ItemLibraryModel(QObject *parent = nullptr);
@@ -53,39 +51,34 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     QString searchText() const;
+    ItemLibraryImport *importByUrl(const QString &importName) const;
 
     void update(ItemLibraryInfo *itemLibraryInfo, Model *model);
+    void updateUsedImports(const QList<Import> &usedImports);
 
     QMimeData *getMimeData(const ItemLibraryEntry &itemLibraryEntry);
 
-    static void registerQmlTypes();
-
     void setSearchText(const QString &searchText);
+    void setFlowMode(bool);
+
+    static void registerQmlTypes();
 
     Q_INVOKABLE void setExpanded(bool, const QString &section);
 
-    void setFlowMode(bool);
-
-signals:
-    void qmlModelChanged();
-    void searchTextChanged();
-
-private: // functions
-    ItemLibrarySection *sectionByName(const QString &sectionName);
+private:
     void updateVisibility(bool *changed);
     void addRoleNames();
     void sortSections();
     void clearSections();
+    bool sectionExpanded(const QString &sectionName) const;
 
-
-private: // variables
-    QList<QPointer<ItemLibrarySection>> m_sections;
+    QList<QPointer<ItemLibraryImport>> m_importList;
     QHash<int, QByteArray> m_roleNames;
 
     QString m_searchText;
     bool m_flowMode = false;
+
+    QHash<QString, bool> collapsedStateHash;
 };
 
 } // namespace QmlDesigner
-
-QML_DECLARE_TYPE(QmlDesigner::ItemLibraryModel)

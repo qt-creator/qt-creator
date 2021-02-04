@@ -32,8 +32,9 @@ Flickable {
 
     property alias horizontalThickness: horizontalScrollBar.height
     property alias verticalThickness: verticalScrollBar.width
-    property bool bothVisible: verticalScrollBar.scrollBarVisible
-                               && horizontalScrollBar.scrollBarVisible
+    property bool verticalScrollBarVisible: verticalScrollBar.scrollBarVisible
+    property bool horizontalScrollBarVisible: horizontalScrollBar.scrollBarVisible
+    property bool bothVisible: verticalScrollBarVisible && horizontalScrollBarVisible
 
     contentWidth: areaItem.childrenRect.width
     contentHeight: areaItem.childrenRect.height

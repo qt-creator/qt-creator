@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,62 +23,87 @@
 **
 ****************************************************************************/
 
+#include "itemlibrarycategory.h"
+
 #include "itemlibraryitem.h"
 
 namespace QmlDesigner {
 
-ItemLibraryItem::ItemLibraryItem(const ItemLibraryEntry &itemLibraryEntry, QObject *parent)
+ItemLibraryCategory::ItemLibraryCategory(const QString &groupName, QObject *parent)
     : QObject(parent),
-      m_itemLibraryEntry(itemLibraryEntry)
+      m_name(groupName)
 {
 }
 
-ItemLibraryItem::~ItemLibraryItem() = default;
-
-QString ItemLibraryItem::itemName() const
+QString ItemLibraryCategory::categoryName() const
 {
-    return m_itemLibraryEntry.name();
+    return m_name;
 }
 
-QString ItemLibraryItem::typeName() const
+bool ItemLibraryCategory::categoryExpanded() const
 {
-    return QString::fromUtf8(m_itemLibraryEntry.typeName());
+    return m_categoryExpanded;
 }
 
-QString ItemLibraryItem::itemLibraryIconPath() const
+QString ItemLibraryCategory::sortingName() const
 {
-    if (m_itemLibraryEntry.customComponentSource().isEmpty()) {
-        return QStringLiteral("image://qmldesigner_itemlibrary/")
-               + m_itemLibraryEntry.libraryEntryIconPath();
-    } else {
-        return QStringLiteral("image://itemlibrary_preview/")
-               + m_itemLibraryEntry.customComponentSource();
+    return categoryName();
+}
+
+void ItemLibraryCategory::addItem(ItemLibraryItem *itemEntry)
+{
+    m_itemModel.addItem(itemEntry);
+}
+
+QObject *ItemLibraryCategory::itemModel()
+{
+    return &m_itemModel;
+}
+
+bool ItemLibraryCategory::updateItemVisibility(const QString &searchText, bool *changed)
+{
+    bool hasVisibleItems = false;
+
+    *changed = false;
+
+    for (const auto &item : m_itemModel.items()) {
+        bool itemVisible = item->itemName().toLower().contains(searchText)
+                        || item->typeName().toLower().contains(searchText);
+
+        bool itemChanged = item->setVisible(itemVisible);
+
+        *changed |= itemChanged;
+
+        if (itemVisible)
+            hasVisibleItems = true;
     }
+
+    return hasVisibleItems;
 }
 
-QString ItemLibraryItem::componentPath() const
-{
-    return m_itemLibraryEntry.customComponentSource();
-}
-
-bool ItemLibraryItem::setVisible(bool isVisible)
+bool ItemLibraryCategory::setVisible(bool isVisible)
 {
     if (isVisible != m_isVisible) {
         m_isVisible = isVisible;
-        emit visibilityChanged();
         return true;
     }
 
     return false;
 }
 
-bool ItemLibraryItem::isVisible() const
+bool ItemLibraryCategory::isVisible() const
 {
     return m_isVisible;
 }
 
-QVariant ItemLibraryItem::itemLibraryEntry() const
+void ItemLibraryCategory::sortItems()
 {
-    return QVariant::fromValue(m_itemLibraryEntry);
+    m_itemModel.sortItems();
 }
+
+void ItemLibraryCategory::setExpanded(bool expanded)
+{
+    m_categoryExpanded = expanded;
+}
+
 } // namespace QmlDesigner

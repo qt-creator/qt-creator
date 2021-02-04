@@ -34,8 +34,8 @@
 
 namespace QmlDesigner {
 
-class ItemLibraryItem: public QObject {
-
+class ItemLibraryItem: public QObject
+{
     Q_OBJECT
 
     Q_PROPERTY(QVariant itemLibraryEntry READ itemLibraryEntry FINAL)
@@ -45,7 +45,7 @@ class ItemLibraryItem: public QObject {
     Q_PROPERTY(QString componentPath READ componentPath FINAL)
 
 public:
-    ItemLibraryItem(QObject *parent);
+    ItemLibraryItem(const ItemLibraryEntry &itemLibraryEntry, QObject *parent);
     ~ItemLibraryItem() override;
 
     QString itemName() const;
@@ -56,7 +56,6 @@ public:
     bool setVisible(bool isVisible);
     bool isVisible() const;
 
-    void setItemLibraryEntry(const ItemLibraryEntry &itemLibraryEntry);
     QVariant itemLibraryEntry() const;
 
 signals:
@@ -64,7 +63,7 @@ signals:
 
 private:
     ItemLibraryEntry m_itemLibraryEntry;
-    bool m_isVisible;
+    bool m_isVisible = true;
 };
 
 } // namespace QmlDesigner

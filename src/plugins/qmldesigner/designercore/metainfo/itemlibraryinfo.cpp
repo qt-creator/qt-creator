@@ -344,6 +344,7 @@ QStringList ItemLibraryInfo::blacklistImports() const
     return list;
 }
 
+// TODO: remove this and its dependencies, as flow tags are removed
 QStringList ItemLibraryInfo::showTagsForImports() const
 {
     auto list = m_showTagsForImports;

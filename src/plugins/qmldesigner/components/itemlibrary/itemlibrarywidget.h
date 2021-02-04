@@ -27,6 +27,7 @@
 
 #include "itemlibraryinfo.h"
 #include "itemlibraryresourceview.h"
+#include "import.h"
 
 #include <utils/fancylineedit.h>
 #include <utils/dropsupport.h>
@@ -55,6 +56,7 @@ class CustomFileSystemModel;
 
 
 class ItemLibraryModel;
+class ItemLibraryAddImportModel;
 class ItemLibraryResourceView;
 class SynchronousImageCache;
 class AsynchronousImageCache;
@@ -63,11 +65,6 @@ class ImageCacheCollector;
 class ItemLibraryWidget : public QFrame
 {
     Q_OBJECT
-
-    enum FilterChangeFlag {
-      QtBasic = 0x0,
-      Meego = 0x1
-    };
 
 public:
     ItemLibraryWidget(AsynchronousImageCache &imageCache,
@@ -78,38 +75,33 @@ public:
     void setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo);
     QList<QToolButton *> createToolBarWidgets();
 
-    void updateImports();
-
-    void setImportsWidget(QWidget *importsWidget);
-
     static QString qmlSourcesPath();
     void clearSearchFilter();
 
-    void setSearchFilter(const QString &searchFilter);
     void delayedUpdateModel();
     void updateModel();
-    void updateSearch();
+    void updatePossibleImports(const QList<Import> &possibleImports);
+    void updateUsedImports(const QList<Import> &usedImports);
 
     void setResourcePath(const QString &resourcePath);
-
     void setModel(Model *model);
+    void setFlowMode(bool b);
 
     Q_INVOKABLE void startDragAndDrop(QQuickItem *mouseArea, QVariant itemLibId);
-
-    void setFlowMode(bool b);
+    Q_INVOKABLE void removeImport(const QString &importUrl);
 
 signals:
     void itemActivated(const QString& itemName);
 
+protected:
+    bool eventFilter(QObject *obj, QEvent *event) override;
+
 private:
-    void setCurrentIndexOfStackedWidget(int index);
     void reloadQmlSource();
-    void setupImportTagWidget();
-    void removeImport(const QString &name);
-    void addImport(const QString &name, const QString &version);
-    void addPossibleImport(const QString &name);
+
     void addResources(const QStringList &files);
     void importDroppedFiles(const QList<Utils::DropSupport::FileSpec> &files);
+    void updateSearch();
 
     QTimer m_compressionTimer;
     QSize m_itemIconSize;
@@ -117,23 +109,30 @@ private:
     QPointer<ItemLibraryInfo> m_itemLibraryInfo;
 
     QPointer<ItemLibraryModel> m_itemLibraryModel;
+    QPointer<ItemLibraryAddImportModel> m_itemLibraryAddImportModel;
     QPointer<CustomFileSystemModel> m_resourcesFileSystemModel;
 
     QPointer<QStackedWidget> m_stackedWidget;
 
-    QPointer<Utils::FancyLineEdit> m_filterLineEdit;
+    QScopedPointer<QQuickWidget> m_headerWidget;
+    QScopedPointer<QQuickWidget> m_addImportWidget;
     QScopedPointer<QQuickWidget> m_itemViewQuickWidget;
     QScopedPointer<ItemLibraryResourceView> m_resourcesView;
-    QScopedPointer<QWidget> m_importTagsWidget;
-    QScopedPointer<QWidget> m_addResourcesWidget;
     std::unique_ptr<PreviewTooltipBackend> m_previewTooltipBackend;
 
     QShortcut *m_qmlSourceUpdateShortcut;
     AsynchronousImageCache &m_imageCache;
     QPointer<Model> m_model;
-    FilterChangeFlag m_filterFlag;
     ItemLibraryEntry m_currentitemLibraryEntry;
     bool m_updateRetry = false;
+    QString m_filterText;
+
+private slots:
+    void handleTabChanged(int index);
+    void handleFilterChanged(const QString &filterText);
+    void handleAddLibrary();
+    void handleAddAsset();
+    void handleAddImport(int index);
 };
 
 }

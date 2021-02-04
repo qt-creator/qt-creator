@@ -25,30 +25,38 @@
 
 #pragma once
 
-#include <QLabel>
-#include <QPushButton>
-
-#include <import.h>
+#include <QAbstractListModel>
+#include <QObject>
+#include <QPointer>
 
 namespace QmlDesigner {
 
-class ImportLabel : public QWidget
+class ItemLibraryItem;
+
+class ItemLibraryItemsModel : public QAbstractListModel
 {
     Q_OBJECT
+
 public:
-    explicit ImportLabel(QWidget *parent = nullptr);
+    ItemLibraryItemsModel(QObject *parent = nullptr);
+    ~ItemLibraryItemsModel() override;
 
-    void setImport(const Import &import);
-    const Import import() const;
-    void setReadOnly(bool) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    QHash<int, QByteArray> roleNames() const override;
 
-signals:
-    void removeImport(const Import &import);
+    void addItem(ItemLibraryItem *item);
+
+    const QList<QPointer<ItemLibraryItem>> &items() const;
+
+    void sortItems();
+    void resetModel();
 
 private:
-    Import m_import;
-    QLabel *m_importLabel;
-    QPushButton *m_removeButton;
+    void addRoleNames();
+
+    QList<QPointer<ItemLibraryItem>> m_itemList;
+    QHash<int, QByteArray> m_roleNames;
 };
 
-}
+} // namespace QmlDesigner

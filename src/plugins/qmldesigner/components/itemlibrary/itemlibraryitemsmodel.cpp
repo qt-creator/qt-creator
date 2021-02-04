@@ -23,70 +23,62 @@
 **
 ****************************************************************************/
 
-#include "itemlibrarysectionmodel.h"
-
+#include "itemlibraryitemsmodel.h"
 #include "itemlibraryitem.h"
-
 #include <utils/qtcassert.h>
-
 #include <QDebug>
+#include <QMetaProperty>
 
 namespace QmlDesigner {
 
-ItemLibrarySectionModel::ItemLibrarySectionModel(QObject *parent) :
+ItemLibraryItemsModel::ItemLibraryItemsModel(QObject *parent) :
     QAbstractListModel(parent)
 {
     addRoleNames();
 }
 
-ItemLibrarySectionModel::~ItemLibrarySectionModel()
+ItemLibraryItemsModel::~ItemLibraryItemsModel()
 {
 }
 
-int ItemLibrarySectionModel::rowCount(const QModelIndex &) const
+int ItemLibraryItemsModel::rowCount(const QModelIndex &) const
 {
     return m_itemList.count();
 }
 
-QVariant ItemLibrarySectionModel::data(const QModelIndex &index, int role) const
+QVariant ItemLibraryItemsModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() + 1 > m_itemList.count()) {
+    if (!index.isValid() || index.row() >= m_itemList.count()) {
         qDebug() << Q_FUNC_INFO << "invalid index requested";
-        return QVariant();
+        return {};
     }
 
-    if (m_roleNames.contains(role)) {
-        QVariant value = m_itemList.at(index.row())->property(m_roleNames.value(role));
-
-        if (auto model = qobject_cast<ItemLibrarySectionModel *>(value.value<QObject*>()))
-            return QVariant::fromValue(model);
-
+    if (m_roleNames.contains(role))
         return m_itemList.at(index.row())->property(m_roleNames.value(role));
-    }
 
     qWarning() << Q_FUNC_INFO << "invalid role requested";
 
-    return QVariant();
+    return {};
 }
 
-QHash<int, QByteArray> ItemLibrarySectionModel::roleNames() const
+QHash<int, QByteArray> ItemLibraryItemsModel::roleNames() const
 {
     return m_roleNames;
 }
 
-void ItemLibrarySectionModel::addItem(ItemLibraryItem *element)
+void ItemLibraryItemsModel::addItem(ItemLibraryItem *element)
 {
     m_itemList.append(element);
 
     element->setVisible(true);
 }
 
-const QList<QPointer<ItemLibraryItem>> &ItemLibrarySectionModel::items() const
+const QList<QPointer<ItemLibraryItem>> &ItemLibraryItemsModel::items() const
 {
     return m_itemList;
 }
 
-void ItemLibrarySectionModel::sortItems()
+void ItemLibraryItemsModel::sortItems()
 {
     int nullPointerSectionCount = m_itemList.removeAll(QPointer<ItemLibraryItem>());
     QTC_ASSERT(nullPointerSectionCount == 0,;);
@@ -97,20 +89,18 @@ void ItemLibrarySectionModel::sortItems()
     std::sort(m_itemList.begin(), m_itemList.end(), itemSort);
 }
 
-void ItemLibrarySectionModel::resetModel()
+void ItemLibraryItemsModel::resetModel()
 {
     beginResetModel();
     endResetModel();
 }
 
-void ItemLibrarySectionModel::addRoleNames()
+void ItemLibraryItemsModel::addRoleNames()
 {
     int role = 0;
-    for (int propertyIndex = 0; propertyIndex < ItemLibraryItem::staticMetaObject.propertyCount(); ++propertyIndex) {
-        QMetaProperty property = ItemLibraryItem::staticMetaObject.property(propertyIndex);
-        m_roleNames.insert(role, property.name());
-        ++role;
-    }
+    const QMetaObject meta = ItemLibraryItem::staticMetaObject;
+    for (int i = meta.propertyOffset(); i < meta.propertyCount(); ++i)
+        m_roleNames.insert(role++, meta.property(i).name());
 }
 
 } // namespace QmlDesigner

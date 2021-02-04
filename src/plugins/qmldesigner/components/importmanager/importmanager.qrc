@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/importmanager">
-        <file>importmanager.css</file>
-    </qresource>
-</RCC>
