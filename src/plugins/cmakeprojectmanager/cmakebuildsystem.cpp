@@ -676,6 +676,24 @@ void CMakeBuildSystem::updateFallbackProjectData()
     qCDebug(cmakeBuildSystemLog) << "All fallback CMake project data up to date.";
 }
 
+void CMakeBuildSystem::updateCMakeConfiguration(QString &errorMessage)
+{
+    CMakeConfig cmakeConfig = m_reader.takeParsedConfiguration(errorMessage);
+    for (auto &ci : cmakeConfig)
+        ci.inCMakeCache = true;
+    if (!errorMessage.isEmpty()) {
+        const CMakeConfig changes = cmakeBuildConfiguration()->configurationChanges();
+        for (const auto &ci : changes) {
+            const bool haveConfigItem = Utils::contains(cmakeConfig, [ci](const CMakeConfigItem& i) {
+                return i.key == ci.key;
+            });
+            if (!haveConfigItem)
+                cmakeConfig.append(ci);
+        }
+    }
+    cmakeBuildConfiguration()->setConfigurationFromCMake(cmakeConfig);
+}
+
 void CMakeBuildSystem::handleParsingSucceeded()
 {
     if (!cmakeBuildConfiguration()->isActive()) {
@@ -699,10 +717,7 @@ void CMakeBuildSystem::handleParsingSucceeded()
     }
 
     {
-        CMakeConfig cmakeConfig = m_reader.takeParsedConfiguration(errorMessage);
-        for (auto &ci : cmakeConfig)
-            ci.inCMakeCache = true;
-        cmakeBuildConfiguration()->setConfigurationFromCMake(cmakeConfig);
+        updateCMakeConfiguration(errorMessage);
         checkAndReportError(errorMessage);
     }
 
@@ -722,10 +737,7 @@ void CMakeBuildSystem::handleParsingFailed(const QString &msg)
     cmakeBuildConfiguration()->setError(msg);
 
     QString errorMessage;
-    CMakeConfig cmakeConfig = m_reader.takeParsedConfiguration(errorMessage);
-    for (auto &ci : cmakeConfig)
-        ci.inCMakeCache = true;
-    cmakeBuildConfiguration()->setConfigurationFromCMake(cmakeConfig);
+    updateCMakeConfiguration(errorMessage);
     // ignore errorMessage here, we already got one.
 
     m_ctestPath.clear();

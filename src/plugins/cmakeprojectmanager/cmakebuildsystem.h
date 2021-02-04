@@ -134,6 +134,8 @@ private:
         const QList<const ProjectExplorer::FileNode *> &allFiles, bool includeHeadersNode);
     void checkAndReportError(QString &errorMessage);
 
+    void updateCMakeConfiguration(QString &errorMessage);
+
     void updateProjectData();
     void updateFallbackProjectData();
     QList<ProjectExplorer::ExtraCompiler *> findExtraCompilers();

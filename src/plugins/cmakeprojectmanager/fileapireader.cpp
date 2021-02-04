@@ -29,6 +29,8 @@
 #include "fileapiparser.h"
 #include "projecttreehelper.h"
 
+#include <coreplugin/messagemanager.h>
+
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/algorithm.h>
@@ -185,7 +187,8 @@ QList<CMakeBuildTarget> FileApiReader::takeBuildTargets(QString &errorMessage){
 
 CMakeConfig FileApiReader::takeParsedConfiguration(QString &errorMessage)
 {
-    Q_UNUSED(errorMessage)
+    if (m_lastCMakeExitCode != 0)
+        errorMessage = tr("CMake returned error code: %1").arg(m_lastCMakeExitCode);
 
     CMakeConfig cache = m_cache;
     m_cache.clear();
@@ -296,6 +299,34 @@ void FileApiReader::endState(const QFileInfo &replyFi)
     });
 }
 
+void FileApiReader::makeBackupConfiguration(bool store)
+{
+    FilePath reply = m_parameters.buildDirectory.pathAppended(".cmake/api/v1/reply");
+    FilePath replyPrev = m_parameters.buildDirectory.pathAppended(".cmake/api/v1/reply.prev");
+    if (!store)
+        std::swap(reply, replyPrev);
+
+    if (reply.exists()) {
+        if (replyPrev.exists())
+            FileUtils::removeRecursively(replyPrev);
+        QDir dir;
+        if (!dir.rename(reply.toString(), replyPrev.toString()))
+            Core::MessageManager::writeFlashing(tr("Failed to rename %1 to %2.")
+                                                .arg(reply.toString(), replyPrev.toString()));
+
+    }
+
+    FilePath cmakeCacheTxt = m_parameters.buildDirectory.pathAppended("CMakeCache.txt");
+    FilePath cmakeCacheTxtPrev = m_parameters.buildDirectory.pathAppended("CMakeCache.txt.prev");
+    if (!store)
+        std::swap(cmakeCacheTxt, cmakeCacheTxtPrev);
+
+    if (!FileUtils::copyIfDifferent(cmakeCacheTxt, cmakeCacheTxtPrev))
+        Core::MessageManager::writeFlashing(tr("Failed to copy %1 to %2.")
+                                            .arg(cmakeCacheTxt.toString(), cmakeCacheTxtPrev.toString()));
+
+}
+
 void FileApiReader::startCMakeState(const QStringList &configurationArguments)
 {
     qCDebug(cmakeFileApiMode) << "FileApiReader: START CMAKE STATE.";
@@ -306,6 +337,7 @@ void FileApiReader::startCMakeState(const QStringList &configurationArguments)
     connect(m_cmakeProcess.get(), &CMakeProcess::finished, this, &FileApiReader::cmakeFinishedState);
 
     qCDebug(cmakeFileApiMode) << ">>>>>> Running cmake with arguments:" << configurationArguments;
+    makeBackupConfiguration(true);
     m_cmakeProcess->run(m_parameters, configurationArguments);
 }
 
@@ -318,6 +350,9 @@ void FileApiReader::cmakeFinishedState(int code, QProcess::ExitStatus status)
 
     m_lastCMakeExitCode = m_cmakeProcess->lastExitCode();
     m_cmakeProcess.release()->deleteLater();
+
+    if (m_lastCMakeExitCode != 0)
+        makeBackupConfiguration(false);
 
     endState(FileApiParser::scanForCMakeReplyFile(m_parameters.workDirectory));
 }

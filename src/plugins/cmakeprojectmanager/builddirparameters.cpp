@@ -59,7 +59,7 @@ BuildDirParameters::BuildDirParameters(CMakeBuildConfiguration *bc)
                                                            });
     initialCMakeArguments = Utils::filtered(expandedArguments,
                                             [](const QString &s) { return !s.isEmpty(); });
-    extraCMakeArguments = Utils::transform(bc->extraCMakeArguments(),
+    extraCMakeArguments = Utils::transform(bc->configurationChangesArguments(),
                                              [expander](const QString &s) {
                                                  return expander->expand(s);
                                              });

@@ -470,8 +470,7 @@ void CMakeBuildSettingsWidget::updateButtonState()
     m_resetButton->setEnabled(m_configModel->hasChanges() && !isParsing);
     m_reconfigureButton->setEnabled((!configChanges.isEmpty() || m_configModel->hasCMakeChanges())
                                     && !isParsing);
-    m_buildConfiguration->setExtraCMakeArguments(
-        Utils::transform(configChanges, [](const CMakeConfigItem &i) { return i.toArgument(); }));
+    m_buildConfiguration->setConfigurationChanges(configChanges);
 }
 
 void CMakeBuildSettingsWidget::updateAdvancedCheckBox()
@@ -943,9 +942,14 @@ CMakeConfig CMakeBuildConfiguration::configurationFromCMake() const
     return m_configurationFromCMake;
 }
 
-QStringList CMakeBuildConfiguration::extraCMakeArguments() const
+CMakeConfig CMakeBuildConfiguration::configurationChanges() const
 {
-    return m_extraCMakeArguments;
+    return m_configurationChanges;
+}
+
+QStringList CMakeBuildConfiguration::configurationChangesArguments() const
+{
+    return Utils::transform(m_configurationChanges, [](const CMakeConfigItem &i) { return i.toArgument(); });
 }
 
 QStringList CMakeBuildConfiguration::initialCMakeArguments() const
@@ -953,19 +957,20 @@ QStringList CMakeBuildConfiguration::initialCMakeArguments() const
     return aspect<InitialCMakeArgumentsAspect>()->value().split('\n', Qt::SkipEmptyParts);
 }
 
-void CMakeBuildConfiguration::setExtraCMakeArguments(const QStringList &args)
-{
-    if (m_extraCMakeArguments == args)
-        return;
-
-    qCDebug(cmakeBuildConfigurationLog)
-        << "Extra Args changed from" << m_extraCMakeArguments << "to" << args << "...";
-    m_extraCMakeArguments = args;
-}
-
 void CMakeBuildConfiguration::setConfigurationFromCMake(const CMakeConfig &config)
 {
     m_configurationFromCMake = config;
+}
+
+void CMakeBuildConfiguration::setConfigurationChanges(const CMakeConfig &config)
+{
+    qCDebug(cmakeBuildConfigurationLog)
+        << "Configuration changes before:" << configurationChangesArguments();
+
+    m_configurationChanges = config;
+
+    qCDebug(cmakeBuildConfigurationLog)
+        << "Configuration changes after:" << configurationChangesArguments();
 }
 
 // FIXME: Run clean steps when a setting starting with "ANDROID_BUILD_ABI_" is changed.

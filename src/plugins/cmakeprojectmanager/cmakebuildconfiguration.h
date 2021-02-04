@@ -52,8 +52,9 @@ public:
     ~CMakeBuildConfiguration() override;
 
     CMakeConfig configurationFromCMake() const;
+    CMakeConfig configurationChanges() const;
 
-    QStringList extraCMakeArguments() const;
+    QStringList configurationChangesArguments() const;
 
     QStringList initialCMakeArguments() const;
 
@@ -96,8 +97,8 @@ private:
     void clearError(ForceEnabledChanged fec = ForceEnabledChanged::False);
 
     void setConfigurationFromCMake(const CMakeConfig &config);
+    void setConfigurationChanges(const CMakeConfig &config);
 
-    void setExtraCMakeArguments(const QStringList &args);
     void setInitialCMakeArguments(const QStringList &args);
 
     void setError(const QString &message);
@@ -108,6 +109,7 @@ private:
     QString m_warning;
 
     CMakeConfig m_configurationFromCMake;
+    CMakeConfig m_configurationChanges;
     Internal::CMakeBuildSystem *m_buildSystem = nullptr;
 
     QStringList m_extraCMakeArguments;
