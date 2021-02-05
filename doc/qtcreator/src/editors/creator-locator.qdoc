@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -149,6 +149,18 @@
 
         \li Searching for issues from the \l{https://bugreports.qt.io/}
             {Qt Project Bug Tracker} (\c bug).
+
+        \li Searching for applications, documents, and other files by using
+            platform-specific external tools or commands (\c md). The following
+            tools are used by default, but you can configure the locator to
+            use any other command:
+
+            \list
+                \li On \macOS: using Spotlight
+                \li On Windows: using \l{https://www.voidtools.com/downloads/}
+                    {Everything}
+                \li On Linux: using the \c Locate command
+            \endlist
 
         \if defined(qtcreator)
         \li Running external tools (\c x)
