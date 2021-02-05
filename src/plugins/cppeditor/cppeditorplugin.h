@@ -194,6 +194,8 @@ private slots:
     void test_quickfix_MoveFuncDefOutside_macroUses();
     void test_quickfix_MoveFuncDefOutside_template();
     void test_quickfix_MoveFuncDefOutside_unnamedTemplate();
+    void test_quickfix_MoveFuncDefOutside_MemberFuncToCpp_Static();
+    void test_quickfix_MoveFuncDefOutside_MemberFuncToCpp_WithInlinePartOfName();
 
     void test_quickfix_MoveAllFuncDefOutside_MemberFuncToCpp();
     void test_quickfix_MoveAllFuncDefOutside_MemberFuncOutside();

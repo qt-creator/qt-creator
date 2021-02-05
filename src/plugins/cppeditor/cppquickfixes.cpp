@@ -6262,6 +6262,10 @@ public:
         } else {
             QString textFuncDecl = m_fromFile->textOf(funcAST);
             textFuncDecl.truncate(startPosition - m_fromFile->startOf(funcAST));
+            if (textFuncDecl.left(7) == QLatin1String("inline "))
+                textFuncDecl = textFuncDecl.mid(7);
+            else
+                textFuncDecl.replace(" inline ", QLatin1String(" "));
             textFuncDecl = textFuncDecl.trimmed() + QLatin1Char(';');
             m_fromFileChangeSet.replace(m_fromFile->range(funcAST), textFuncDecl);
         }

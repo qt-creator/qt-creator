@@ -5897,7 +5897,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
         "};\n";
     expected =
         "class Foo {\n"
-        "  inline int number() const;\n"
+        "  int number() const;\n"
         "\n"
         "    void bar();\n"
         "};\n";
@@ -5914,6 +5914,86 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
         "    return 5;\n"
         "}\n"
         ;
+    testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
+
+    MoveFuncDefOutside factory;
+    QuickFixOperationTest(testDocuments, &factory);
+}
+
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp_Static()
+{
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "class Foo {\n"
+        "  static inline int numbe@r() const\n"
+        "  {\n"
+        "    return 5;\n"
+        "  }\n"
+        "\n"
+        "    void bar();\n"
+        "};\n";
+    expected =
+        "class Foo {\n"
+        "  static int number() const;\n"
+        "\n"
+        "    void bar();\n"
+        "};\n";
+    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
+
+    // Source File
+    original =
+        "#include \"file.h\"\n";
+    expected =
+        "#include \"file.h\"\n"
+        "\n"
+        "int Foo::number() const\n"
+        "{\n"
+        "    return 5;\n"
+        "}\n";
+    testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
+
+    MoveFuncDefOutside factory;
+    QuickFixOperationTest(testDocuments, &factory);
+}
+
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp_WithInlinePartOfName()
+{
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "class Foo {\n"
+        "  static inline int numbe@r_inline () const\n"
+        "  {\n"
+        "    return 5;\n"
+        "  }\n"
+        "\n"
+        "    void bar();\n"
+        "};\n";
+    expected =
+        "class Foo {\n"
+        "  static int number_inline () const;\n"
+        "\n"
+        "    void bar();\n"
+        "};\n";
+    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
+
+    // Source File
+    original =
+        "#include \"file.h\"\n";
+    expected =
+        "#include \"file.h\"\n"
+        "\n"
+        "int Foo::number_inline() const\n"
+        "{\n"
+        "    return 5;\n"
+        "}\n";
     testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
 
     MoveFuncDefOutside factory;
@@ -5984,7 +6064,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside1()
     QByteArray expected =
         "class Foo {\n"
         "    void f1();\n"
-        "    inline int f2@() const;\n"
+        "    int f2@() const;\n"
         "    void f3();\n"
         "    void f4();\n"
         "};\n"
@@ -6062,7 +6142,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS()
     expected =
         "namespace MyNs {\n"
         "class Foo {\n"
-        "  inline int number() const;\n"
+        "  int number() const;\n"
         "};\n"
         "}\n";
     testDocuments << QuickFixTestDocument::create("file.h", original, expected);
@@ -6103,7 +6183,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNSUsing()
     expected =
         "namespace MyNs {\n"
         "class Foo {\n"
-        "  inline int number() const;\n"
+        "  int number() const;\n"
         "};\n"
         "}\n";
     testDocuments << QuickFixTestDocument::create("file.h", original, expected);
@@ -6140,7 +6220,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutsideWithNs()
     QByteArray expected =
         "namespace MyNs {\n"
         "class Foo {\n"
-        "  inline int number() const;\n"
+        "  int number() const;\n"
         "};\n"
         "\n"
         "int Foo::number() const\n"
