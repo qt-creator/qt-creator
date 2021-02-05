@@ -112,11 +112,17 @@ QSSGRenderGraphObject *GridGeometry::updateSpatialNode(QSSGRenderGraphObject *no
     QByteArray vertexData;
     fillVertexData(vertexData);
 
+    geometry->setStride(12);
+#if QT_VERSION < QT_VERSION_CHECK(6, 1, 0)
     geometry->addAttribute(QSSGRenderGeometry::Attribute::PositionSemantic, 0,
                            QSSGRenderGeometry::Attribute::ComponentType::F32Type);
-    geometry->setStride(12);
-    geometry->setVertexData(vertexData);
     geometry->setPrimitiveType(QSSGRenderGeometry::Lines);
+#else
+    geometry->addAttribute(QSSGMesh::RuntimeMeshData::Attribute::PositionSemantic, 0,
+                           QSSGMesh::Mesh::ComponentType::Float32);
+    geometry->setPrimitiveType(QSSGMesh::Mesh::DrawMode::Lines);
+#endif
+    geometry->setVertexData(vertexData);
 
     int lastIndex = (vertexData.size() - 1) / int(sizeof(QVector3D));
     auto vertexPtr = reinterpret_cast<QVector3D *>(vertexData.data());

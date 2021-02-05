@@ -99,11 +99,17 @@ QSSGRenderGraphObject *LineGeometry::updateSpatialNode(QSSGRenderGraphObject *no
     dataPtr[4] = m_endPos[1];
     dataPtr[5] = m_endPos[2];
 
+    geometry->setStride(12);
+#if QT_VERSION < QT_VERSION_CHECK(6, 1, 0)
     geometry->addAttribute(QSSGRenderGeometry::Attribute::PositionSemantic, 0,
                            QSSGRenderGeometry::Attribute::ComponentType::F32Type);
-    geometry->setStride(12);
-    geometry->setVertexData(vertexData);
     geometry->setPrimitiveType(QSSGRenderGeometry::Lines);
+#else
+    geometry->addAttribute(QSSGMesh::RuntimeMeshData::Attribute::PositionSemantic, 0,
+                           QSSGMesh::Mesh::ComponentType::Float32);
+    geometry->setPrimitiveType(QSSGMesh::Mesh::DrawMode::Lines);
+#endif
+    geometry->setVertexData(vertexData);
     geometry->setBounds(m_startPos, m_endPos);
 
     return node;

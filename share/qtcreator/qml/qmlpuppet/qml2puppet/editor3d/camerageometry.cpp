@@ -159,14 +159,22 @@ QSSGRenderGraphObject *CameraGeometry::updateSpatialNode(QSSGRenderGraphObject *
     QVector3D maxBounds;
     fillVertexData(vertexData, indexData, minBounds, maxBounds);
 
+    geometry->setStride(12);
+#if QT_VERSION < QT_VERSION_CHECK(6, 1, 0)
     geometry->addAttribute(QSSGRenderGeometry::Attribute::PositionSemantic, 0,
                            QSSGRenderGeometry::Attribute::ComponentType::F32Type);
     geometry->addAttribute(QSSGRenderGeometry::Attribute::IndexSemantic, 0,
                            QSSGRenderGeometry::Attribute::ComponentType::U16Type);
-    geometry->setStride(12);
+    geometry->setPrimitiveType(QSSGRenderGeometry::Lines);
+#else
+    geometry->addAttribute(QSSGMesh::RuntimeMeshData::Attribute::PositionSemantic, 0,
+                           QSSGMesh::Mesh::ComponentType::Float32);
+    geometry->addAttribute(QSSGMesh::RuntimeMeshData::Attribute::IndexSemantic, 0,
+                           QSSGMesh::Mesh::ComponentType::UnsignedInt16);
+    geometry->setPrimitiveType(QSSGMesh::Mesh::DrawMode::Lines);
+#endif
     geometry->setVertexData(vertexData);
     geometry->setIndexData(indexData);
-    geometry->setPrimitiveType(QSSGRenderGeometry::Lines);
     geometry->setBounds(minBounds, maxBounds);
 
     return node;
