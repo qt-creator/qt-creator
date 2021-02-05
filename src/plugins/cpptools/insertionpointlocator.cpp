@@ -118,6 +118,7 @@ private:
 void findMatch(const QList<AccessRange> &ranges,
                InsertionPointLocator::AccessSpec xsSpec,
                InsertionPointLocator::Position positionInAccessSpec,
+               InsertionPointLocator::ForceAccessSpec forceAccessSpec,
                unsigned &beforeToken,
                bool &needsLeadingEmptyLine,
                bool &needsPrefix,
@@ -128,8 +129,10 @@ void findMatch(const QList<AccessRange> &ranges,
     const bool atEnd = positionInAccessSpec == InsertionPointLocator::AccessSpecEnd;
     needsLeadingEmptyLine = false;
 
-    // try an exact match, and ignore the first (default) access spec:
-    for (int i = lastIndex; i > 0; --i) {
+    // Try an exact match. Ignore the default access spec unless there is no explicit one.
+    const int firstIndex = ranges.size() == 1
+            && forceAccessSpec == InsertionPointLocator::ForceAccessSpec::No ? 0 : 1;
+    for (int i = lastIndex; i >= firstIndex; --i) {
         const AccessRange &range = ranges.at(i);
         if (range.xsSpec == xsSpec) {
             beforeToken = atEnd ? range.end : range.beforeStart;
@@ -270,23 +273,25 @@ InsertionPointLocator::InsertionPointLocator(const CppRefactoringChanges &refact
 InsertionLocation InsertionPointLocator::methodDeclarationInClass(
     const QString &fileName,
     const Class *clazz,
-    AccessSpec xsSpec) const
+    AccessSpec xsSpec,
+    ForceAccessSpec forceAccessSpec) const
 {
     const Document::Ptr doc = m_refactoringChanges.file(fileName)->cppDocument();
     if (doc) {
         FindInClass find(doc->translationUnit(), clazz);
         ClassSpecifierAST *classAST = find();
-        return methodDeclarationInClass(doc->translationUnit(), classAST, xsSpec);
+        return methodDeclarationInClass(doc->translationUnit(), classAST, xsSpec, AccessSpecEnd,
+                                        forceAccessSpec);
     } else {
         return InsertionLocation();
     }
 }
 
-InsertionLocation InsertionPointLocator::methodDeclarationInClass(
-    const TranslationUnit *tu,
+InsertionLocation InsertionPointLocator::methodDeclarationInClass(const TranslationUnit *tu,
     const ClassSpecifierAST *clazz,
     InsertionPointLocator::AccessSpec xsSpec,
-    Position pos) const
+    Position pos,
+    ForceAccessSpec forceAccessSpec) const
 {
     if (!clazz)
         return {};
@@ -302,7 +307,8 @@ InsertionLocation InsertionPointLocator::methodDeclarationInClass(
     bool needsLeadingEmptyLine = false;
     bool needsPrefix = false;
     bool needsSuffix = false;
-    findMatch(ranges, xsSpec, pos, beforeToken, needsLeadingEmptyLine, needsPrefix, needsSuffix);
+    findMatch(ranges, xsSpec, pos, forceAccessSpec, beforeToken, needsLeadingEmptyLine,
+              needsPrefix, needsSuffix);
 
     int line = 0, column = 0;
     if (pos == InsertionPointLocator::AccessSpecEnd)

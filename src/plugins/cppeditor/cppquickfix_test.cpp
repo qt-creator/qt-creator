@@ -4707,6 +4707,9 @@ void insertToSectionDeclFromDef(const QByteArray &section, int sectionIndex)
 
     QByteArray original;
     QByteArray expected;
+    QByteArray sectionString = section + ":\n";
+    if (sectionIndex == 4)
+        sectionString.clear();
 
     // Header File
     original =
@@ -4716,7 +4719,7 @@ void insertToSectionDeclFromDef(const QByteArray &section, int sectionIndex)
     expected =
         "class Foo\n"
         "{\n"
-        + section + ":\n" +
+        + sectionString +
         "    Foo();\n"
         "@};\n";
     testDocuments << QuickFixTestDocument::create("file.h", original, expected);

@@ -3962,9 +3962,9 @@ protected:
         const auto insertionPoint = m_headerInsertionPoints.find(spec);
         if (insertionPoint != m_headerInsertionPoints.end())
             return *insertionPoint;
-        const InsertionLocation loc = m_locator.methodDeclarationInClass(m_headerFile->fileName(),
-                                                                         m_class,
-                                                                         spec);
+        const InsertionLocation loc = m_locator.methodDeclarationInClass(
+                    m_headerFile->fileName(), m_class, spec,
+                    InsertionPointLocator::ForceAccessSpec::Yes);
         m_headerInsertionPoints.insert(spec, loc);
         return loc;
     }
