@@ -27,6 +27,7 @@
 
 #include <QFile>
 #include <QFileInfo>
+#include <QDebug>
 
 #include <cmath>
 
@@ -178,7 +179,7 @@ void HdrImage::loadHdr()
     QByteArray buf(fileToByteArray(m_fileName));
 
     auto handleError = [this](const QString &error) {
-        qWarning(QStringLiteral("Failed to load HDR image '%1': %2.").arg(m_fileName, error).toUtf8());
+        qWarning() << QStringLiteral("Failed to load HDR image '%1': %2.").arg(m_fileName, error).toUtf8();
     };
 
     if (buf.isEmpty()) {

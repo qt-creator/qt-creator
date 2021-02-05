@@ -34,6 +34,7 @@
 #include <QCoreApplication>
 #include <QTimer>
 #include <QScopedPointer>
+#include <QDebug>
 
 namespace Import3D
 {
