@@ -144,14 +144,14 @@ public:
         m_pathIsFile = fi.isFile();
         m_pathIsExecutable = fi.isExecutable();
 
-        auto cmake = std::make_unique<CMakeTool>(m_autodetected ? CMakeTool::AutoDetection
-                                                                : CMakeTool::ManualDetection, m_id);
-        cmake->setFilePath(m_executable);
-        m_isSupported = cmake->hasFileApi();
+        CMakeTool cmake(m_autodetected ? CMakeTool::AutoDetection
+                                       : CMakeTool::ManualDetection, m_id);
+        cmake.setFilePath(m_executable);
+        m_isSupported = cmake.hasFileApi();
 
         m_tooltip = tr("Version: %1<br>Supports fileApi: %2")
-                        .arg(QString::fromUtf8(cmake->version().fullVersion))
-                        .arg(cmake->hasFileApi() ? tr("yes") : tr("no"));
+                        .arg(QString::fromUtf8(cmake.version().fullVersion))
+                        .arg(cmake.hasFileApi() ? tr("yes") : tr("no"));
     }
 
     CMakeToolTreeItem() = default;
