@@ -163,7 +163,8 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
     ILocatorFilter *cppLocatorFilter = cppModelManager->locatorFilter();
 
     MyTestDataDir testDirectory("testdata_basic");
-    const QString testFile = testDirectory.file("file1.cpp");
+    QString testFile = testDirectory.file("file1.cpp");
+    testFile[0] = testFile[0].toLower(); // Ensure Windows path sorts after scope names.
     const QString objTestFile = testDirectory.file("file1.mm");
     const QString testFileShort = FilePath::fromString(testFile).shortNativePath();
     const QString objTestFileShort = FilePath::fromString(objTestFile).shortNativePath();
