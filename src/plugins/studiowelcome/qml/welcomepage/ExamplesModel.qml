@@ -67,4 +67,11 @@ ListModel {
         thumbnail: "images/progressbar_demo.png"
         displayName: "Progress Bar"
     }
+
+    ListElement {
+        projectName: "washingMachineUI"
+        qmlFileName: "washingMachineUI.qml"
+        thumbnail: "images/washingmachinedemo_thumbnail.png"
+        displayName: "Washing Machine"
+    }
 }
