@@ -322,8 +322,8 @@ void NodeInstanceServer::stopRenderTimer()
 
 void NodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
-    setTranslationLanguage(command.language);
     initializeView();
+    setTranslationLanguage(command.language);
 
     Internal::QmlPrivateGate::stopUnifiedTimer();
 
