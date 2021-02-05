@@ -15,6 +15,7 @@ find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 add_executable(examples
   clazy_example.cpp
+  icontest.cpp
   tidy_example.cpp
   tidy_example.h
 )
