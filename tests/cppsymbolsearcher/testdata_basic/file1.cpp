@@ -52,6 +52,7 @@ int MyClass::functionDefinedOutSideClass(char c) {}
 } // namespace MyNamespace
 
 int MyNamespace::MyClass::functionDefinedOutSideClassAndNamespace(float x) {}
+using MY_CLASS = MyNamespace::MyClass;
 
 //
 // Symbols in an anonymous namespace
@@ -78,5 +79,6 @@ int MyClass::functionDefinedOutSideClass(char c) {}
 
 } // anonymous namespace
 
+typedef MyClass MY_OTHER_CLASS;
 
 int main() {}

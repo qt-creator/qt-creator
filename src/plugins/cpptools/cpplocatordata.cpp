@@ -35,7 +35,8 @@ CppLocatorData::CppLocatorData()
 {
     m_search.setSymbolsToSearchFor(SymbolSearcher::Enums |
                                    SymbolSearcher::Classes |
-                                   SymbolSearcher::Functions);
+                                   SymbolSearcher::Functions |
+                                   SymbolSearcher::TypeAliases);
     m_pendingDocuments.reserve(MaxPendingDocuments);
 }
 

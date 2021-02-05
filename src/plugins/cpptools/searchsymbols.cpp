@@ -121,8 +121,10 @@ bool SearchSymbols::visit(Namespace *symbol)
 bool SearchSymbols::visit(Declaration *symbol)
 {
     if (!(symbolsToSearchFor & SymbolSearcher::Declarations)) {
-        // if we're searching for functions, still allow signal declarations to show up.
-        if (symbolsToSearchFor & SymbolSearcher::Functions) {
+        if ((symbolsToSearchFor & SymbolSearcher::TypeAliases) && symbol->type().isTypedef()) {
+            // Continue.
+        } else if (symbolsToSearchFor & SymbolSearcher::Functions) {
+            // if we're searching for functions, still allow signal declarations to show up.
             Function *funTy = symbol->type()->asFunctionType();
             if (!funTy) {
                 if (!symbol->type()->asObjCMethodType())

@@ -197,6 +197,7 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
             << ResultData(_("functionDefinedOutSideClass(char)"), _("MyNamespace::MyClass"))
             << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"),
                           _("MyNamespace::MyClass"))
+            << ResultData(_("MyNamespace::MyClass MY_CLASS"), _(""))
             << ResultData(_("int myVariable"), _("<anonymous namespace>"))
             << ResultData(_("myFunction(bool, int)"), _("<anonymous namespace>"))
             << ResultData(_("MyEnum"), _("<anonymous namespace>"))
@@ -211,6 +212,7 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
                           _("<anonymous namespace>::MyClass"))
             << ResultData(_("functionDefinedOutSideClass(char)"),
                           _("<anonymous namespace>::MyClass"))
+            << ResultData(_("MyClass MY_OTHER_CLASS"), _(""))
             << ResultData(_("main()"), _(""))
 
         );

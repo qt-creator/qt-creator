@@ -89,7 +89,7 @@ const char INCLUDES_FILTER_ID[] = "All Included C/C++ Files";
 const char INCLUDES_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppTools", "All Included C/C++ Files");
 
 const char LOCATOR_FILTER_ID[] = "Classes and Methods";
-const char LOCATOR_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppTools", "C++ Classes, Enums and Functions");
+const char LOCATOR_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppTools", "C++ Classes, Enums, Functions and Type Aliases");
 
 const char SYMBOLS_FIND_FILTER_ID[] = "Symbols";
 const char SYMBOLS_FIND_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppTools", "C++ Symbols");
