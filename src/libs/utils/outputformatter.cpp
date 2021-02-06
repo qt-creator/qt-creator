@@ -134,7 +134,7 @@ bool OutputLineParser::demoteErrorsToWarnings() const
     return d->demoteErrorsToWarnings;
 }
 
-FilePath OutputLineParser::absoluteFilePath(const FilePath &filePath)
+FilePath OutputLineParser::absoluteFilePath(const FilePath &filePath) const
 {
     if (filePath.isEmpty() || filePath.toFileInfo().isAbsolute())
         return filePath;

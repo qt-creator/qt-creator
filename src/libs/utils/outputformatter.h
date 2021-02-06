@@ -102,7 +102,7 @@ public:
 
 protected:
     static QString rightTrimmed(const QString &in);
-    Utils::FilePath absoluteFilePath(const Utils::FilePath &filePath);
+    Utils::FilePath absoluteFilePath(const Utils::FilePath &filePath) const;
     static QString createLinkTarget(const FilePath &filePath, int line, int column);
     static void addLinkSpecForAbsoluteFilePath(LinkSpecs &linkSpecs, const FilePath &filePath,
                                                int lineNo, int pos, int len);
