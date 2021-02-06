@@ -4231,6 +4231,53 @@ void FakeVimPlugin::test_vim_commentary_file_names()
     KEYS("gcc", X "// abc");
 }
 
+void FakeVimPlugin::test_vim_replace_with_register_emulation()
+{
+    TestData data;
+    setup(&data);
+    data.doCommand("set replacewithregister");
+
+    // Simple replace
+    data.setText("abc def ghi");
+    KEYS("yw", "abc def ghi");
+    KEYS("w", "abc " X "def ghi");
+    KEYS("grw", "abc " X "abc ghi");
+    KEYS("w", "abc abc " X "ghi");
+    KEYS(".", "abc abc " X "abc ");
+
+    // Registers
+    data.setText("abc def ghi jkl mno");
+    KEYS("\"xyiw", "abc def ghi jkl mno");
+    KEYS("w", "abc " X "def ghi jkl mno");
+    KEYS("yiw", "abc " X "def ghi jkl mno");
+    KEYS("w", "abc def " X "ghi jkl mno");
+    KEYS("griw", "abc def " X "def jkl mno");
+    KEYS("w", "abc def def " X "jkl mno");
+    KEYS("\"xgriw", "abc def def " X "abc mno");
+    KEYS("w", "abc def def abc " X "mno");
+    KEYS(".", "abc def def abc " X "abc");
+
+    // Replace entire line
+    data.setText("abc" N "def" N "ghi" N "jkhl");
+    KEYS("yyj", "abc" N X "def" N "ghi" N "jkhl");
+    KEYS("grr", "abc" N X "abc" N "ghi" N "jkhl");
+    KEYS("j", "abc" N "abc" N X "ghi" N "jkhl");
+    KEYS(".", "abc" N "abc" N X "abc" N "jkhl");
+
+    // Visual line mode
+    data.setText("abc" N "def" N "ghi" N "jkhl");
+    KEYS("yyj", "abc" N X "def" N "ghi" N "jkhl");
+    KEYS("Vgr", "abc" N X "abc" N "ghi" N "jkhl");
+    KEYS("j", "abc" N "abc" N X "ghi" N "jkhl");
+    KEYS(".", "abc" N "abc" N X "abc" N "jkhl");
+
+    // Visual char mode
+    data.setText("abc defghi");
+    KEYS("yiw", "abc defghi");
+    KEYS("w", "abc defghi");
+    KEYS("v4lgr", "abc abci");
+}
+
 void FakeVimPlugin::test_macros()
 {
     TestData data;

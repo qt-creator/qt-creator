@@ -120,6 +120,13 @@
     \list
         \li \l{https://github.com/tpope/vim-commentary}{vim-commentary}: \c gc
         action to comment code regions. For example, \c gcc, \c gc2j, \c gcip
+        \li
+        \l{https://github.com/vim-scripts/ReplaceWithRegister}{ReplaceWithRegister}:
+        \list
+            \li \c [count]["x]gr{motion} to replace \c {motion} with the contents of
+        register \c x.
+            \li ["x]grr to replace the current line.
+        \endlist
     \endlist
 
     \section2 Insert Mode

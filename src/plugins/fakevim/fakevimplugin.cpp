@@ -430,6 +430,7 @@ QWidget *FakeVimOptionPage::widget()
         m_group.insert(theFakeVimSetting(ConfigBlinkingCursor), m_ui.checkBoxBlinkingCursor);
 
         m_group.insert(theFakeVimSetting(ConfigEmulateVimCommentary), m_ui.checkBoxVimCommentary);
+        m_group.insert(theFakeVimSetting(ConfigEmulateReplaceWithRegister), m_ui.checkBoxReplaceWithRegister);
 
         connect(m_ui.pushButtonCopyTextEditorSettings, &QAbstractButton::clicked,
                 this, &FakeVimOptionPage::copyTextEditorSettings);

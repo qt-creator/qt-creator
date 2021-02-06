@@ -166,26 +166,27 @@ enum BlockInsertMode
 enum SubMode
 {
     NoSubMode,
-    ChangeSubMode,       // Used for c
-    DeleteSubMode,       // Used for d
-    FilterSubMode,       // Used for !
-    IndentSubMode,       // Used for =
-    RegisterSubMode,     // Used for "
-    ShiftLeftSubMode,    // Used for <
-    ShiftRightSubMode,   // Used for >
-    CommentSubMode,      // Used for gc
-    InvertCaseSubMode,   // Used for g~
-    DownCaseSubMode,     // Used for gu
-    UpCaseSubMode,       // Used for gU
-    WindowSubMode,       // Used for Ctrl-w
-    YankSubMode,         // Used for y
-    ZSubMode,            // Used for z
-    CapitalZSubMode,     // Used for Z
-    ReplaceSubMode,      // Used for r
-    MacroRecordSubMode,  // Used for q
-    MacroExecuteSubMode, // Used for @
-    CtrlVSubMode,        // Used for Ctrl-v in insert mode
-    CtrlRSubMode         // Used for Ctrl-r in insert mode
+    ChangeSubMode,              // Used for c
+    DeleteSubMode,              // Used for d
+    FilterSubMode,              // Used for !
+    IndentSubMode,              // Used for =
+    RegisterSubMode,            // Used for "
+    ShiftLeftSubMode,           // Used for <
+    ShiftRightSubMode,          // Used for >
+    CommentSubMode,             // Used for gc
+    ReplaceWithRegisterSubMode, // Used for gr
+    InvertCaseSubMode,          // Used for g~
+    DownCaseSubMode,            // Used for gu
+    UpCaseSubMode,              // Used for gU
+    WindowSubMode,              // Used for Ctrl-w
+    YankSubMode,                // Used for y
+    ZSubMode,                   // Used for z
+    CapitalZSubMode,            // Used for Z
+    ReplaceSubMode,             // Used for r
+    MacroRecordSubMode,         // Used for q
+    MacroExecuteSubMode,        // Used for @
+    CtrlVSubMode,               // Used for Ctrl-v in insert mode
+    CtrlRSubMode                // Used for Ctrl-r in insert mode
 };
 
 /*! A \e SubSubMode is used for things that require one more data item
@@ -1345,6 +1346,8 @@ QString dotCommandFromSubMode(SubMode submode)
         return QLatin1String("d");
     if (submode == CommentSubMode)
         return QLatin1String("gc");
+    if (submode == ReplaceWithRegisterSubMode)
+        return QLatin1String("gr");
     if (submode == InvertCaseSubMode)
         return QLatin1String("g~");
     if (submode == DownCaseSubMode)
@@ -1826,6 +1829,7 @@ public:
     void handleChangeDeleteYankSubModes();
     bool handleReplaceSubMode(const Input &);
     bool handleCommentSubMode(const Input &);
+    bool handleReplaceWithRegisterSubMode(const Input &);
     bool handleFilterSubMode(const Input &);
     bool handleRegisterSubMode(const Input &);
     bool handleShiftSubMode(const Input &);
@@ -2089,6 +2093,7 @@ public:
         return g.submode == ChangeSubMode
             || g.submode == DeleteSubMode
             || g.submode == CommentSubMode
+            || g.submode == ReplaceWithRegisterSubMode
             || g.submode == FilterSubMode
             || g.submode == IndentSubMode
             || g.submode == ShiftLeftSubMode
@@ -2165,6 +2170,8 @@ public:
     void invertCase(const Range &range);
 
     void toggleComment(const Range &range);
+
+    void replaceWithRegister(const Range &range);
 
     void upCase(const Range &range);
 
@@ -3590,6 +3597,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
     if (g.submode == ChangeSubMode
         || g.submode == DeleteSubMode
         || g.submode == CommentSubMode
+        || g.submode == ReplaceWithRegisterSubMode
         || g.submode == YankSubMode
         || g.submode == InvertCaseSubMode
         || g.submode == DownCaseSubMode
@@ -3620,6 +3628,12 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         pushUndoState(false);
         beginEditBlock();
         toggleComment(currentRange());
+        endEditBlock();
+    } else if (g.submode == ReplaceWithRegisterSubMode
+               && hasConfig(ConfigEmulateReplaceWithRegister)) {
+        pushUndoState(false);
+        beginEditBlock();
+        replaceWithRegister(currentRange());
         endEditBlock();
     } else if (g.submode == DeleteSubMode) {
         pushUndoState(false);
@@ -3679,9 +3693,13 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
     }
 
     if (!dotCommandMovement.isEmpty()) {
-        const QString dotCommand = dotCommandFromSubMode(g.submode);
-        if (!dotCommand.isEmpty())
+        QString dotCommand = dotCommandFromSubMode(g.submode);
+        if (!dotCommand.isEmpty()) {
+            if (g.submode == ReplaceWithRegisterSubMode)
+                dotCommand = QString("\"%1%2").arg(QChar(m_register)).arg(dotCommand);
+
             setDotCommand(dotCommand + dotCommandMovement);
+        }
     }
 
     // Change command continues in insert mode.
@@ -4269,6 +4287,9 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         handled = handleChangeDeleteYankSubModes(input);
     } else if (g.submode == CommentSubMode && hasConfig(ConfigEmulateVimCommentary)) {
         handled = handleCommentSubMode(input);
+    } else if (g.submode == ReplaceWithRegisterSubMode
+               && hasConfig(ConfigEmulateReplaceWithRegister)) {
+        handled = handleReplaceWithRegisterSubMode(input);
     } else if (g.submode == ReplaceSubMode) {
         handled = handleReplaceSubMode(input);
     } else if (g.submode == FilterSubMode) {
@@ -4433,6 +4454,14 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             g.movetype = MoveLineWise;
             g.submode = CommentSubMode;
             pushUndoState();
+            setAnchor();
+        }
+    } else if (g.gflag && input.is('r') && hasConfig(ConfigEmulateReplaceWithRegister)) {
+        g.submode = ReplaceWithRegisterSubMode;
+        if (isVisualMode()) {
+            dotCommand = visualDotCommand() + QString::number(count()) + "gr";
+            pasteText(true);
+        } else {
             setAnchor();
         }
     } else if ((input.is('c') || input.is('d') || input.is('y')) && isNoVisualMode()) {
@@ -4790,6 +4819,25 @@ bool FakeVimHandler::Private::handleCommentSubMode(const Input &input)
     finishMovement();
 
     g.submode = NoSubMode;
+
+    return true;
+}
+
+bool FakeVimHandler::Private::handleReplaceWithRegisterSubMode(const Input &input)
+{
+    if (!input.is('r'))
+        return false;
+
+    pushUndoState(false);
+    beginEditBlock();
+
+    const QString movement = (count() == 1)
+                             ? QString() : (QString::number(count() - 1) + "j");
+
+    g.dotCommand = "V" + movement + "gr";
+    replay(g.dotCommand);
+
+    endEditBlock();
 
     return true;
 }
@@ -7436,6 +7484,11 @@ void FakeVimHandler::Private::toggleComment(const Range &range)
     });
 }
 
+void FakeVimHandler::Private::replaceWithRegister(const Range &range)
+{
+    replaceText(range, registerContents(m_register));
+}
+
 void FakeVimHandler::Private::replaceText(const Range &range, const QString &str)
 {
     transformText(range, [&str](const QString &) { return str; } );
@@ -7452,7 +7505,7 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
     bool pasteAfter = isVisualMode() ? false : afterCursor;
 
     if (isVisualMode())
-        cutSelectedText('"');
+        cutSelectedText(g.submode == ReplaceWithRegisterSubMode ? '-' : '"');
 
     switch (rangeMode) {
         case RangeCharMode: {
