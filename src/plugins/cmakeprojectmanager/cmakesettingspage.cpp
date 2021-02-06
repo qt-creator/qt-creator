@@ -193,7 +193,7 @@ public:
             } else if (!m_isSupported) {
                 error = QCoreApplication::translate(
                     "CMakeProjectManager::Internal::CMakeToolTreeItem",
-                    "CMake executable does not provided required IDE integration features.");
+                    "CMake executable does not provide required IDE integration features.");
             }
             if (result.isEmpty() || error.isEmpty())
                 return QString("%1%2").arg(result).arg(error);
