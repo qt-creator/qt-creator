@@ -8534,7 +8534,7 @@ public:
         });
     }
 
-    int rowCount(const QModelIndex & /*parent*/ = {}) const override { return infos.size(); }
+    int rowCount(const QModelIndex & /*parent*/ = {}) const override { return int(infos.size()); }
     int columnCount(const QModelIndex & /*parent*/ = {}) const override { return 4; }
     QVariant data(const QModelIndex &index, int role) const override
     {
@@ -9182,7 +9182,7 @@ private:
             void generateConstructor(std::vector<ConstructorMemberInfo *> members,
                                      const ParentClassConstructors &parentClassConstructors)
             {
-                auto constructorLocation = m_settings->determineSetterLocation(members.size());
+                auto constructorLocation = m_settings->determineSetterLocation(int(members.size()));
                 if (constructorLocation == CppQuickFixSettings::FunctionLocation::CppFile
                     && !hasSourceFile())
                     constructorLocation = CppQuickFixSettings::FunctionLocation::OutsideClass;
@@ -9304,7 +9304,7 @@ private:
                                 m_locator.constructorDeclarationInClass(tu,
                                                                         m_classAST,
                                                                         m_accessSpec,
-                                                                        members.size()),
+                                                                        int(members.size())),
                                 inClassDeclaration);
 
                 if (constructorLocation == CppQuickFixSettings::FunctionLocation::CppFile) {
