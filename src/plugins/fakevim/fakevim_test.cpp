@@ -4071,6 +4071,17 @@ void FakeVimPlugin::test_vim_command_J()
     KEYS("3J", lmid(0, 5) + " " + lmid(5, 1) + " " + lmid(6, 1).mid(4) + "| " + lmid(7));
     KEYS("uu", lmid(0, 4) + "\nint |main(int argc, char *argv[])\n" + lmid(5));
     COMMAND("redo", lmid(0, 4) + "\nint |main(int argc, char *argv[]) " + lmid(5));
+
+    // Joining comments
+    data.doCommand("set formatoptions=f");
+    data.setText("// abc" N "// def");
+    KEYS("J", "// abc def");
+
+    data.setText("/*" N X "* abc" N "* def" N "*/");
+    KEYS("J", "/*" N "* abc def" N "*/");
+
+    data.setText("# abc" N "# def");
+    KEYS("J", "# abc def");
 }
 
 void FakeVimPlugin::test_vim_command_put_at_eol()

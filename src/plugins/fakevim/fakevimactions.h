@@ -107,6 +107,7 @@ enum FakeVimSettingsCode
     ConfigShowCmd,
     ConfigScrollOff,
     ConfigRelativeNumber,
+    ConfigFormatOptions,
 
     // Plugin emulation
     ConfigEmulateVimCommentary,

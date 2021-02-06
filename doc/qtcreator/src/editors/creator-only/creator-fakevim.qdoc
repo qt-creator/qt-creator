@@ -108,6 +108,8 @@
         \li \c :undo, \c :redo
         \li \c :normal
         \li \c :<, \c :>
+        \li \c{set formatoptions=}, see \c{:h fo-table} in the Vim documentation.
+            Currently supported letters: \c fo-j
     \endlist
 
     \section2 Plugin Emulation

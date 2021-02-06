@@ -7615,6 +7615,13 @@ void FakeVimHandler::Private::joinLines(int count, bool preserveSpace)
 {
     int pos = position();
     const int blockNumber = m_cursor.blockNumber();
+
+    const QString currentLine = lineContents(blockNumber + 1);
+    const bool startingLineIsComment
+            = currentLine.contains(QRegularExpression("^\\s*\\/\\/")) // Cpp-style
+              || currentLine.contains(QRegularExpression("^\\s*\\/?\\*")) // C-style
+              || currentLine.contains(QRegularExpression("^\\s*#")); // Python/Shell-style
+
     for (int i = qMax(count - 2, 0); i >= 0 && blockNumber < document()->blockCount(); --i) {
         moveBehindEndOfLine();
         pos = position();
@@ -7625,6 +7632,18 @@ void FakeVimHandler::Private::joinLines(int count, bool preserveSpace)
         } else {
             while (characterAtCursor() == ' ' || characterAtCursor() == '\t')
                 moveRight();
+
+            // If the line we started from is a comment, remove the comment string from the next line
+            if (startingLineIsComment && config(ConfigFormatOptions).toString().contains('f')) {
+                if (characterAtCursor() == '/' && characterAt(position() + 1) == '/')
+                    moveRight(2);
+                else if (characterAtCursor() == '*' || characterAtCursor() == '#')
+                    moveRight(1);
+
+                if (characterAtCursor() == ' ')
+                    moveRight();
+            }
+
             m_cursor.insertText(QString(' '));
         }
     }
