@@ -325,9 +325,9 @@ void NodeInstanceServer::stopRenderTimer()
 
 void NodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
+    initializeView();
     registerFonts(command.resourceUrl);
     setTranslationLanguage(command.language);
-    initializeView();
 
     Internal::QmlPrivateGate::stopUnifiedTimer();
 
@@ -1340,6 +1340,10 @@ void NodeInstanceServer::loadDummyContextObjectFile(const QFileInfo& qmlFileInfo
 
 void NodeInstanceServer::setTranslationLanguage(const QString &language)
 {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
+    // if there exists an /i18n directory it sets default translators
+    engine()->setUiLanguage(language);
+#endif
     static QPointer<MultiLanguage::Translator> multilanguageTranslator;
     if (!MultiLanguage::databaseFilePath().isEmpty()) {
         if (!multilanguageLink) {

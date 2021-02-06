@@ -121,7 +121,7 @@ QWidget *NinjaBuildStep::createConfigWidget()
 
     connect(this, &NinjaBuildStep::commandChanged, this, updateDetails);
 
-    connect(this, &NinjaBuildStep::targetListChanged, this, updateTargetList);
+    connect(this, &NinjaBuildStep::targetListChanged, widget, updateTargetList);
 
     connect(toolArguments, &QLineEdit::textEdited, this, [this, updateDetails](const QString &text) {
         setCommandArgs(text);

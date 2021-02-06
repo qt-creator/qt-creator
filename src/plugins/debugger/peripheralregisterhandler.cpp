@@ -59,6 +59,8 @@ constexpr char kDisplayName[] = "displayName";
 constexpr char kField[] = "field";
 constexpr char kFields[] = "fields";
 constexpr char kGroupName[] = "groupName";
+constexpr char kLsb[] = "lsb";
+constexpr char kMsb[] = "msb";
 constexpr char kName[] = "name";
 constexpr char kPeripheral[] = "peripheral";
 constexpr char kPeripherals[] = "peripherals";
@@ -566,6 +568,8 @@ PeripheralRegisterHandler::PeripheralRegisterHandler(DebuggerEngine *engine)
 static void handleField(QXmlStreamReader &in, PeripheralRegister &reg)
 {
     PeripheralRegisterField fld;
+    Utils::optional<int> from;
+    Utils::optional<int> to;
     while (in.readNextStartElement()) {
         const auto elementName = in.name();
         if (elementName == QLatin1String(kName)) {
@@ -593,9 +597,18 @@ static void handleField(QXmlStreamReader &in, PeripheralRegister &reg)
             fld.bitOffset = int(decodeNumeric(in.readElementText()));
         } else if (elementName == QLatin1String(kBitWidth)) {
             fld.bitWidth = int(decodeNumeric(in.readElementText()));
+        } else if (elementName == QLatin1String(kLsb)) {
+            from = int(decodeNumeric(in.readElementText()));
+        } else if (elementName == QLatin1String(kMsb)) {
+            to = int(decodeNumeric(in.readElementText()));
         } else {
             in.skipCurrentElement();
         }
+    }
+
+    if (from && to) {
+        fld.bitOffset = *from;
+        fld.bitWidth = *to - *from + 1;
     }
 
     // Inherit the field access from the register access if the filed
