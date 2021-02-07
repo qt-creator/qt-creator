@@ -130,6 +130,9 @@
             \li ["x]grr to replace the current line.
         \l{https://github.com/tommcdo/vim-exchange}{vim-exchange}
         \endlist
+        \li \l{https://github.com/vim-scripts/argtextobj.vim}{argtextobj.vim}:
+        Defines the \c ia and \c aa text objects for function parameters.
+        \endlist
     \endlist
 
     \section2 Insert Mode

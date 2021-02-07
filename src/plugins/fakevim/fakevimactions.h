@@ -113,6 +113,7 @@ enum FakeVimSettingsCode
     ConfigEmulateVimCommentary,
     ConfigEmulateReplaceWithRegister,
     ConfigEmulateExchange,
+    ConfigEmulateArgTextObj,
 
     ConfigBlinkingCursor
 };

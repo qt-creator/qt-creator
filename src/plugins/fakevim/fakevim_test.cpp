@@ -4317,6 +4317,30 @@ void FakeVimPlugin::test_vim_exchange_emulation()
     KEYS(".", "def" N "abc");
 }
 
+void FakeVimPlugin::test_vim_arg_text_obj_emulation()
+{
+    TestData data;
+    setup(&data);
+    data.doCommand("set argtextobj");
+
+    data.setText("foo(int" X " i, double d, float f)");
+    KEYS("dia", "foo(" X ", double d, float f)");
+    KEYS("wdia", "foo(, " X ", float f)");
+    KEYS("wdia", "foo(, , " X ")");
+
+    data.setText("foo(int" X " i, double d, float f, long l)");
+    KEYS("daa", "foo(" X "double d, float f, long l)");
+    KEYS("WWdaa", "foo(double d" X ", long l)");
+    KEYS("Wdaa", "foo(double d)");
+    KEYS("daa", "foo()");
+
+    data.setText("foo(std::map<int" X ", double> map)");
+    KEYS("dia", "foo()");
+
+    data.setText("foo(const C c" X " = C(bar, baz))");
+    KEYS("dia", "foo()");
+}
+
 void FakeVimPlugin::test_macros()
 {
     TestData data;

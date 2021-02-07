@@ -162,6 +162,13 @@
          <string>Plugin Emulation</string>
         </property>
         <layout class="QGridLayout" name="gridLayout">
+         <item row="1" column="0">
+          <widget class="QCheckBox" name="checkBoxReplaceWithRegister">
+           <property name="text">
+            <string>ReplaceWithRegister</string>
+           </property>
+          </widget>
+         </item>
          <item row="0" column="0">
           <widget class="QCheckBox" name="checkBoxVimCommentary">
            <property name="text">
@@ -172,10 +179,10 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QCheckBox" name="checkBoxReplaceWithRegister">
+         <item row="2" column="0">
+          <widget class="QCheckBox" name="checkBoxArgTextObj">
            <property name="text">
-            <string>ReplaceWithRegister</string>
+            <string>argtextobj.vim</string>
            </property>
           </widget>
          </item>

@@ -2127,6 +2127,7 @@ public:
     // return true only if cursor is in a block delimited with correct characters
     bool selectBlockTextObject(bool inner, QChar left, QChar right);
     bool selectQuotedStringTextObject(bool inner, const QString &quote);
+    bool selectArgumentTextObject(bool inner);
 
     void commitInsertState();
     void invalidateInsertState();
@@ -3925,6 +3926,8 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
             handled = selectBlockTextObject(g.subsubdata.is('i'), '{', '}');
         else if (input.is('"') || input.is('\'') || input.is('`'))
             handled = selectQuotedStringTextObject(g.subsubdata.is('i'), input.asChar());
+        else if (input.is('a') && hasConfig(ConfigEmulateArgTextObj))
+            handled = selectArgumentTextObject(g.subsubdata.is('i'));
         else
             handled = false;
         g.subsubmode = NoSubSubMode;
@@ -8844,6 +8847,89 @@ bool FakeVimHandler::Private::selectQuotedStringTextObject(bool inner,
     setAnchorAndPosition(p1, p2);
     g.movetype = MoveExclusive;
 
+    return true;
+}
+
+bool FakeVimHandler::Private::selectArgumentTextObject(bool inner)
+{
+    // We are just interested whether we're currently inside angled brackets,
+    // but selectBlockTextObject also moves the cursor, so set it back to
+    // its original position afterwards
+    QTextCursor prevCursor = m_cursor;
+    const bool insideTemplateParameter = selectBlockTextObject(true, '<', '>');
+    m_cursor = prevCursor;
+
+    int openAngleBracketCount = insideTemplateParameter ? 1 : 0;
+
+    QTextCursor tcStart(m_cursor);
+    while (true) {
+        if (tcStart.atStart())
+            return true;
+
+        const QChar currentChar = characterAt(tcStart.position());
+
+        if (openAngleBracketCount == 0
+                && (currentChar == '(' || currentChar == ','))
+            break;
+
+        if (currentChar == '<')
+            openAngleBracketCount--;
+        else if (currentChar == '>')
+            openAngleBracketCount++;
+
+        tcStart.setPosition(tcStart.position() - 1);
+    }
+
+    QTextCursor tcEnd(m_cursor);
+    openAngleBracketCount = insideTemplateParameter ? 1 : 0;
+    int openParanthesisCount = 0;
+
+    while (true) {
+        if (tcEnd.atEnd()) {
+            return true;
+        }
+
+        const QChar currentChar = characterAt(tcEnd.position());
+        if (openAngleBracketCount == 0
+                && openParanthesisCount == 0
+                && (currentChar == ')' || currentChar == ','))
+            break;
+
+        if (currentChar == '<')
+            openAngleBracketCount++;
+        else if (currentChar == '>')
+            openAngleBracketCount--;
+        else if (currentChar == '(')
+            openParanthesisCount++;
+        else if (currentChar == ')')
+            openParanthesisCount--;
+
+
+        tcEnd.setPosition(tcEnd.position() + 1);
+    }
+
+
+    if (!inner && characterAt(tcEnd.position()) == ',' && characterAt(tcStart.position()) == '(') {
+        tcEnd.setPosition(tcEnd.position() + 1);
+        if (characterAt(tcEnd.position()) == ' ')
+            tcEnd.setPosition(tcEnd.position() + 1);
+    }
+
+    // Never include the opening paranthesis
+    if (characterAt(tcStart.position()) == '(') {
+        tcStart.setPosition(tcStart.position() + 1);
+    } else if (inner) {
+        tcStart.setPosition(tcStart.position() + 1);
+        if (characterAt(tcStart.position()) == ' ')
+            tcStart.setPosition(tcStart.position() + 1);
+    }
+
+    if (isVisualMode())
+        tcEnd.setPosition(tcEnd.position() - 1);
+
+    g.movetype = MoveExclusive;
+
+    setAnchorAndPosition(tcStart.position(), tcEnd.position());
     return true;
 }
 
