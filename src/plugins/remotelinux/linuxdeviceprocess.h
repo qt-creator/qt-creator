@@ -52,8 +52,9 @@ private:
     const QStringList rcFilesToSource() const;
 
     QStringList m_rcFilesToSource;
-    QByteArray m_processIdString;
-    qint64 m_processId;
+    QByteArray m_output;
+    qint64 m_processId = 0;
+    bool m_pidParsed = false;
 };
 
 } // namespace RemoteLinux

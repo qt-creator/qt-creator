@@ -34,15 +34,18 @@ using namespace Utils;
 
 namespace RemoteLinux {
 
+const QByteArray pidMarker = "__qtc";
+
 LinuxDeviceProcess::LinuxDeviceProcess(const QSharedPointer<const ProjectExplorer::IDevice> &device,
                                        QObject *parent)
-    : ProjectExplorer::SshDeviceProcess(device, parent), m_processId(0)
+    : ProjectExplorer::SshDeviceProcess(device, parent)
 {
     connect(this, &DeviceProcess::finished, this, [this]() {
-        m_processId = -1;
+        m_processId = 0;
     });
     connect(this, &DeviceProcess::started, this, [this]() {
-        m_processId = 0;
+        m_pidParsed = false;
+        m_output.clear();
     });
 }
 
@@ -54,18 +57,26 @@ void LinuxDeviceProcess::setRcFilesToSource(const QStringList &filePaths)
 QByteArray LinuxDeviceProcess::readAllStandardOutput()
 {
     QByteArray output = SshDeviceProcess::readAllStandardOutput();
-    if (m_processId != 0 || runInTerminal())
+    if (m_pidParsed || runInTerminal())
         return output;
 
-    m_processIdString.append(output);
-    int cut = m_processIdString.indexOf('\n');
-    if (cut != -1) {
-        m_processId = m_processIdString.left(cut).toLongLong();
-        output = m_processIdString.mid(cut + 1);
-        m_processIdString.clear();
-        return output;
-    }
-    return QByteArray();
+    m_output.append(output);
+    static const QByteArray endMarker = pidMarker + '\n';
+    const int endMarkerOffset = m_output.indexOf(endMarker);
+    if (endMarkerOffset == -1)
+        return {};
+    const int startMarkerOffset = m_output.indexOf(pidMarker);
+    if (startMarkerOffset == endMarkerOffset) // Only theoretically possible.
+        return {};
+    const int pidStart = startMarkerOffset + pidMarker.length();
+    const QByteArray pidString = m_output.mid(pidStart, endMarkerOffset - pidStart);
+    m_pidParsed = true;
+    m_processId = pidString.toLongLong();
+
+    // We don't want to show output from e.g. /etc/profile.
+    const QByteArray actualOutput = m_output.mid(endMarkerOffset + endMarker.length());
+    m_output.clear();
+    return actualOutput;
 }
 
 qint64 LinuxDeviceProcess::processId() const
@@ -90,7 +101,7 @@ QString LinuxDeviceProcess::fullCommandLine(const Runnable &runnable) const
     }
 
     if (!runInTerminal())
-        cmd.addArgs("echo $$ && ", CommandLine::Raw);
+        cmd.addArgs(QString("echo ") + pidMarker + "$$" + pidMarker + " && ", CommandLine::Raw);
 
     const Environment &env = runnable.environment;
     for (auto it = env.constBegin(); it != env.constEnd(); ++it)
