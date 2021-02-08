@@ -64,31 +64,12 @@ namespace Internal {
 */
 
 /*!
-    \fn void NavigationWidget::requestGotoLocation(const QString &name,
-                                                   int line,
-                                                   int column)
-
-    Emits a signal that requests to open the file with \a name at \a line
-    and \a column.
-
-   \sa Manager::gotoLocation
-*/
-
-/*!
     \fn void NavigationWidget::requestGotoLocations(const QList<QVariant> &locations)
 
     Emits a signal to request to go to any of the Symbol \a locations in the
     list.
 
    \sa Manager::gotoLocations
-*/
-
-/*!
-    \fn void NavigationWidget::requestTreeDataUpdate()
-
-    Emits a signal that the widget wants to receive the latest tree info.
-
-   \sa Manager::onRequestTreeDataUpdate
 */
 
 NavigationWidget::NavigationWidget(QWidget *parent) :
@@ -124,17 +105,11 @@ NavigationWidget::NavigationWidget(QWidget *parent) :
     connect(this, &NavigationWidget::visibilityChanged,
             manager, &Manager::onWidgetVisibilityIsChanged);
 
-    connect(this, &NavigationWidget::requestGotoLocation,
-            manager, &Manager::gotoLocation);
-
     connect(this, &NavigationWidget::requestGotoLocations,
             manager, &Manager::gotoLocations);
 
     connect(manager, &Manager::treeDataUpdate,
             this, &NavigationWidget::onDataUpdate);
-
-    connect(this, &NavigationWidget::requestTreeDataUpdate,
-            manager, &Manager::onRequestTreeDataUpdate);
 }
 
 NavigationWidget::~NavigationWidget() = default;
@@ -148,9 +123,6 @@ void NavigationWidget::hideEvent(QHideEvent *event)
 void NavigationWidget::showEvent(QShowEvent *event)
 {
     emit visibilityChanged(true);
-
-    // request to update to the current state - to be sure
-    emit requestTreeDataUpdate();
 
     QWidget::showEvent(event);
 }

@@ -41,67 +41,33 @@ class ManagerPrivate;
 class Manager : public QObject
 {
     Q_OBJECT
-
 public:
     explicit Manager(QObject *parent = nullptr);
-
     ~Manager() override;
-
-    //! Get an instance of Manager
     static Manager *instance();
 
     bool canFetchMore(QStandardItem *item, bool skipRoot = false) const;
-
     void fetchMore(QStandardItem *item, bool skipRoot = false);
-
     bool hasChildren(QStandardItem *item) const;
 
-signals:
-    void stateChanged(bool state);
-
-    void treeDataUpdate(QSharedPointer<QStandardItem> result);
-
-    void requestTreeDataUpdate();
-
-    void requestDocumentUpdated(CPlusPlus::Document::Ptr doc);
-
-    void requestResetCurrentState();
-
-    void requestClearCache();
-
-    void requestClearCacheAll();
-
-    void requestSetFlatMode(bool flat);
-
-public:
     void gotoLocation(const QString &fileName, int line = 0, int column = 0);
-
     void gotoLocations(const QList<QVariant> &locations);
-
-    void onRequestTreeDataUpdate();
-
     void setFlatMode(bool flat);
-
     void onWidgetVisibilityIsChanged(bool visibility);
 
-protected:
-    void onStateChanged(bool state);
-    void onProjectListChanged();
-    void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
-    void onTaskStarted(Utils::Id type);
-    void onAllTasksFinished(Utils::Id type);
-    void onTreeDataUpdate(QSharedPointer<QStandardItem> result);
+signals:
+    void treeDataUpdate(QSharedPointer<QStandardItem> result);
 
-protected:
-    //! Perform an initialization
+private:
+    void onProjectListChanged();
+    void onTreeDataUpdate(QSharedPointer<QStandardItem> result);
+    void resetParser();
+
     void initialize();
 
     inline bool state() const;
-
     void setState(bool state);
 
-private:
-    //! private class data pointer
     ManagerPrivate *d;
 };
 

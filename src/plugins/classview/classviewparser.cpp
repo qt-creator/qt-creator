@@ -83,14 +83,6 @@ namespace Internal {
     Emits a signal about a tree data update.
 */
 
-/*!
-    \fn void Parser::resetDataDone()
-
-    Emits a signal that internal data is reset.
-
-    \sa resetData, resetDataToCurrentState
-*/
-
 class ParserPrivate
 {
 public:
@@ -167,12 +159,8 @@ Parser::Parser(QObject *parent)
 {
     d->timer.setSingleShot(true);
 
-    // connect signal/slots
-    // internal data reset
-    connect(this, &Parser::resetDataDone, this, &Parser::onResetDataDone, Qt::QueuedConnection);
-
     // timer for emitting changes
-    connect(&d->timer, &QTimer::timeout, this, &Parser::requestCurrentState, Qt::QueuedConnection);
+    connect(&d->timer, &QTimer::timeout, this, &Parser::requestCurrentState);
 }
 
 /*!
@@ -230,7 +218,7 @@ void Parser::setFlatMode(bool flatMode)
     d->flatMode = flatMode;
 
     // regenerate and resend current tree
-    emitCurrentTree();
+    requestCurrentState();
 }
 
 /*!
@@ -549,23 +537,6 @@ void Parser::parseDocument(const CPlusPlus::Document::Ptr &doc)
 }
 
 /*!
-    Requests to clear full internal stored data.
-*/
-
-void Parser::clearCacheAll()
-{
-    d->docLocker.lockForWrite();
-
-    d->cachedDocTrees.clear();
-    d->cachedDocTreesRevision.clear();
-    d->documentList.clear();
-
-    d->docLocker.unlock();
-
-    clearCache();
-}
-
-/*!
     Requests to clear internal stored data. The data has to be regenerated on
     the next request.
 */
@@ -612,8 +583,6 @@ void Parser::removeFiles(const QStringList &fileList)
         d->cachedPrjTrees.remove(name);
         d->cachedPrjFileLists.clear();
     }
-
-    emit filesAreRemoved();
 }
 
 /*!
@@ -643,7 +612,7 @@ void Parser::resetData(const CPlusPlus::Snapshot &snapshot)
         fileList += prj->files(Project::SourceFiles);
     setFileList(Utils::transform(fileList, &FilePath::toString));
 
-    emit resetDataDone();
+    requestCurrentState();
 }
 
 /*!
@@ -659,33 +628,11 @@ void Parser::resetDataToCurrentState()
 }
 
 /*!
-    Regenerates the tree when internal data changes.
-
-    \sa resetDataDone
-*/
-
-void Parser::onResetDataDone()
-{
-    // internal data is reset, update a tree and send it back
-    emitCurrentTree();
-}
-
-/*!
     Requests to emit a signal with the current tree state.
 */
 
 void Parser::requestCurrentState()
 {
-    emitCurrentTree();
-}
-
-/*!
-    Sends the current tree to listeners.
-*/
-
-void Parser::emitCurrentTree()
-{
-    // stop timer if it is active right now
     d->timer.stop();
 
     d->rootItemLocker.lockForWrite();

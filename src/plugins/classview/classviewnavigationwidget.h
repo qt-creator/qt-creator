@@ -58,11 +58,7 @@ public:
 signals:
     void visibilityChanged(bool visibility);
 
-    void requestGotoLocation(const QString &name, int line, int column);
-
     void requestGotoLocations(const QList<QVariant> &locations);
-
-    void requestTreeDataUpdate();
 
 public:
     void onItemActivated(const QModelIndex &index);

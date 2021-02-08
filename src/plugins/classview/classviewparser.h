@@ -53,69 +53,44 @@ public:
     explicit Parser(QObject *parent = nullptr);
     ~Parser() override;
 
+    // TODO: below three methods are called directly from different thread
     bool canFetchMore(QStandardItem *item, bool skipRoot = false) const;
-
     void fetchMore(QStandardItem *item, bool skipRoot = false) const;
     bool hasChildren(QStandardItem *item) const;
 
-signals:
-    //! File list is changed
-    void filesAreRemoved();
-
-    void treeDataUpdate(QSharedPointer<QStandardItem> result);
-
-    void resetDataDone();
-
-public:
-    void clearCacheAll();
-
     void clearCache();
-
     void requestCurrentState();
-
-    void setFileList(const QStringList &fileList);
-
     void removeFiles(const QStringList &fileList);
-
-    void resetData(const CPlusPlus::Snapshot &snapshot);
-
     void resetDataToCurrentState();
-
     void parseDocument(const CPlusPlus::Document::Ptr &doc);
-
     void setFlatMode(bool flat);
 
-protected:
+signals:
+    void treeDataUpdate(QSharedPointer<QStandardItem> result);
+
+private:
     using CitCachedDocTreeRevision = QHash<QString, unsigned>::const_iterator;
     using CitCachedPrjFileLists = QHash<QString, QStringList>::const_iterator;
 
-    void onResetDataDone();
-
+    void setFileList(const QStringList &fileList);
+    void resetData(const CPlusPlus::Snapshot &snapshot);
     void addProject(const ParserTreeItem::Ptr &item, const QStringList &fileList,
                     const QString &projectId = QString());
 
     void addSymbol(const ParserTreeItem::Ptr &item, const CPlusPlus::Symbol *symbol);
 
     ParserTreeItem::ConstPtr getParseDocumentTree(const CPlusPlus::Document::Ptr &doc);
-
     ParserTreeItem::ConstPtr getCachedOrParseDocumentTree(const CPlusPlus::Document::Ptr &doc);
-
     ParserTreeItem::Ptr getParseProjectTree(const QStringList &fileList, const QString &projectId);
-
     ParserTreeItem::Ptr getCachedOrParseProjectTree(const QStringList &fileList,
                                                     const QString &projectId);
-
-    void emitCurrentTree();
-
     ParserTreeItem::ConstPtr parse();
-
     ParserTreeItem::ConstPtr findItemByRoot(const QStandardItem *item, bool skipRoot = false) const;
 
     QStringList addProjectTree(const ParserTreeItem::Ptr &item, const ProjectExplorer::Project *project);
     QStringList getAllFiles(const ProjectExplorer::Project *project);
     void addFlatTree(const ParserTreeItem::Ptr &item, const ProjectExplorer::Project *project);
 
-private:
     //! Private class data pointer
     ParserPrivate *d;
 };

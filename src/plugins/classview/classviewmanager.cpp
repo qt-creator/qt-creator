@@ -73,62 +73,10 @@ static Manager *managerInstance = nullptr;
 */
 
 /*!
-    \fn void ClassView::Internal::Manager::stateChanged(bool state)
-
-    Changes the internal manager state. \a state returns true if manager is
-    enabled, otherwise false.
-
-    \sa setState, state
-*/
-
-/*!
     \fn void ClassView::Internal::Manager::treeDataUpdate(QSharedPointer<QStandardItem> result)
 
     Emits a signal about a tree data update (to tree view). \a result holds the
     item with the current tree.
-*/
-
-/*!
-    \fn void ClassView::Internal::Manager::requestTreeDataUpdate()
-
-    Emits a signal that a request for sending the tree view has to be handled by
-    listeners (the parser).
-
-    \sa onRequestTreeDataUpdate
-*/
-
-/*!
-    \fn void ClassView::Internal::Manager::requestDocumentUpdated(CPlusPlus::Document::Ptr doc)
-
-    Emits a signal that \a doc was updated and has to be reparsed.
-
-    \sa onDocumentUpdated
-*/
-
-/*!
-    \fn void ClassView::Internal::Manager::requestResetCurrentState()
-
-    Emits a signal that the parser has to reset its internal state to the
-    current state from the code manager.
-*/
-
-/*!
-    \fn void ClassView::Internal::Manager::requestClearCache()
-
-    Requests the parser to clear a cache.
-*/
-
-/*!
-    \fn void ClassView::Internal::Manager::requestClearCacheAll()
-
-    Requests the parser to clear a full cache.
-*/
-
-/*!
-    \fn void ClassView::Internal::Manager::requestSetFlatMode(bool flat)
-
-    Requests the manager to set the flat mode without subprojects. Set \a flat
-    to \c true to enable flat mode and to false to disable it.
 */
 
 /*!
@@ -142,9 +90,6 @@ static Manager *managerInstance = nullptr;
 class ManagerPrivate
 {
 public:
-    //! State mutex
-    QMutex mutexState;
-
     //! code state/changes parser
     Parser parser;
 
@@ -174,9 +119,6 @@ Manager::Manager(QObject *parent)
     // start a separate thread for the parser
     d->parser.moveToThread(&d->parserThread);
     d->parserThread.start();
-
-    // initial setup
-    onProjectListChanged();
 }
 
 Manager::~Manager()
@@ -220,58 +162,62 @@ void Manager::initialize()
 {
     using ProjectExplorer::SessionManager;
 
-    // use Qt::QueuedConnection everywhere
-
-    // internal manager state is changed
-    connect(this, &Manager::stateChanged, this, &Manager::onStateChanged, Qt::QueuedConnection);
-
     // connections to enable/disable navi widget factory
     SessionManager *sessionManager = SessionManager::instance();
     connect(sessionManager, &SessionManager::projectAdded,
-            this, &Manager::onProjectListChanged, Qt::QueuedConnection);
+            this, &Manager::onProjectListChanged);
     connect(sessionManager, &SessionManager::projectRemoved,
-            this, &Manager::onProjectListChanged, Qt::QueuedConnection);
+            this, &Manager::onProjectListChanged);
 
     // connect to the progress manager for signals about Parsing tasks
     connect(ProgressManager::instance(), &ProgressManager::taskStarted,
-            this, &Manager::onTaskStarted, Qt::QueuedConnection);
-    connect(ProgressManager::instance(), &ProgressManager::allTasksFinished,
-            this, &Manager::onAllTasksFinished, Qt::QueuedConnection);
+            this, [this](Id type) {
+        if (type != CppTools::Constants::TASK_INDEX)
+            return;
 
-    // when we signals that really document is updated - sent it to the parser
-    connect(this, &Manager::requestDocumentUpdated,
-            &d->parser, &Parser::parseDocument, Qt::QueuedConnection);
+        // disable tree updates to speed up
+        d->disableCodeParser = true;
+    });
+    connect(ProgressManager::instance(), &ProgressManager::allTasksFinished,
+            this, [this](Id type) {
+        if (type != CppTools::Constants::TASK_INDEX)
+            return;
+
+        // parsing is finished, enable tree updates
+        d->disableCodeParser = false;
+
+        // do nothing if Manager is disabled
+        if (!state())
+            return;
+
+        // any document might be changed, clear parser's cache
+        QMetaObject::invokeMethod(&d->parser, &Parser::clearCache, Qt::QueuedConnection);
+
+        // request to update a tree to the current state
+        resetParser();
+    });
 
     // translate data update from the parser to listeners
     connect(&d->parser, &Parser::treeDataUpdate,
             this, &Manager::onTreeDataUpdate, Qt::QueuedConnection);
-
-    // requet current state - immediately after a notification
-    connect(this, &Manager::requestTreeDataUpdate,
-            &d->parser, &Parser::requestCurrentState, Qt::QueuedConnection);
-
-    // full reset request to parser
-    connect(this, &Manager::requestResetCurrentState,
-            &d->parser, &Parser::resetDataToCurrentState, Qt::QueuedConnection);
-
-    // clear cache request
-    connect(this, &Manager::requestClearCache,
-            &d->parser, &Parser::clearCache, Qt::QueuedConnection);
-
-    // clear full cache request
-    connect(this, &Manager::requestClearCacheAll,
-            &d->parser, &Parser::clearCacheAll, Qt::QueuedConnection);
-
-    // flat mode request
-    connect(this, &Manager::requestSetFlatMode,
-            &d->parser, &Parser::setFlatMode, Qt::QueuedConnection);
 
     // connect to the cpp model manager for signals about document updates
     CppTools::CppModelManager *codeModelManager = CppTools::CppModelManager::instance();
 
     // when code manager signals that document is updated - handle it by ourselves
     connect(codeModelManager, &CppTools::CppModelManager::documentUpdated,
-            this, &Manager::onDocumentUpdated, Qt::QueuedConnection);
+            this, [this](CPlusPlus::Document::Ptr doc) {
+        // do nothing if Manager is disabled
+        if (!state())
+            return;
+
+        // do nothing if updates are disabled
+        if (d->disableCodeParser)
+            return;
+
+        QMetaObject::invokeMethod(&d->parser, [this, doc]() {
+            d->parser.parseDocument(doc); }, Qt::QueuedConnection);
+    }, Qt::QueuedConnection);
     //
     connect(codeModelManager, &CppTools::CppModelManager::aboutToRemoveFiles,
             &d->parser, &Parser::removeFiles, Qt::QueuedConnection);
@@ -300,15 +246,18 @@ bool Manager::state() const
 
 void Manager::setState(bool state)
 {
-    QMutexLocker locker(&d->mutexState);
-
-    // boolean comparsion - should be done correctly by any compiler
     if (state == d->state)
         return;
 
     d->state = state;
 
-    emit stateChanged(d->state);
+    if (state) // enabled - request a current snapshots etc?..
+        resetParser();
+}
+
+void Manager::resetParser()
+{
+    QMetaObject::invokeMethod(&d->parser, &Parser::resetDataToCurrentState, Qt::QueuedConnection);
 }
 
 /*!
@@ -321,26 +270,10 @@ void Manager::setState(bool state)
 void Manager::onWidgetVisibilityIsChanged(bool visibility)
 {
     // activate data handling - when 1st time 'Class View' will be open
-    if (visibility)
-        setState(true);
-}
-
-/*!
-    Reacts to the state changed signal for the current manager \a state.
-    For example, requests the currect code snapshot if needed.
-
-    \sa setState, state, stateChanged
-*/
-
-void Manager::onStateChanged(bool state)
-{
-    if (state) {
-        // enabled - request a current snapshots etc?..
-        emit requestResetCurrentState();
-    } else {
-        // disabled - clean parsers internal cache
-        emit requestClearCacheAll();
-    }
+    if (!visibility)
+        return;
+    setState(true);
+    onProjectListChanged();
 }
 
 /*!
@@ -354,70 +287,7 @@ void Manager::onProjectListChanged()
     if (!state())
         return;
 
-    // update to the latest state
-    emit requestTreeDataUpdate();
-}
-
-/*!
-    Handles parse tasks started by the progress manager. \a type holds the
-    task index, which should be \c CppTools::Constants::TASK_INDEX.
-
-   \sa CppTools::Constants::TASK_INDEX
-*/
-
-void Manager::onTaskStarted(Id type)
-{
-    if (type != CppTools::Constants::TASK_INDEX)
-        return;
-
-    // disable tree updates to speed up
-    d->disableCodeParser = true;
-}
-
-/*!
-    Handles parse tasks finished by the progress manager.\a type holds the
-    task index, which should be \c CppTools::Constants::TASK_INDEX.
-
-   \sa CppTools::Constants::TASK_INDEX
-*/
-
-void Manager::onAllTasksFinished(Id type)
-{
-    if (type != CppTools::Constants::TASK_INDEX)
-        return;
-
-    // parsing is finished, enable tree updates
-    d->disableCodeParser = false;
-
-    // do nothing if Manager is disabled
-    if (!state())
-        return;
-
-    // any document might be changed, emit signal to clear cache
-    emit requestClearCache();
-
-    // request to update a tree to the current state
-    emit requestResetCurrentState();
-}
-
-/*!
-    Emits the signal \c documentUpdated when the code model manager state is
-    changed for \a doc.
-
-    \sa documentUpdated
-*/
-
-void Manager::onDocumentUpdated(CPlusPlus::Document::Ptr doc)
-{
-    // do nothing if Manager is disabled
-    if (!state())
-        return;
-
-    // do nothing if updates are disabled
-    if (d->disableCodeParser)
-        return;
-
-    emit requestDocumentUpdated(doc);
+    QMetaObject::invokeMethod(&d->parser, &Parser::requestCurrentState, Qt::QueuedConnection);
 }
 
 /*!
@@ -472,28 +342,14 @@ void Manager::gotoLocations(const QList<QVariant> &list)
 }
 
 /*!
-    Emits the signal \c requestTreeDataUpdate if the latest tree info is
-    requested and if parsing is enabled.
-
-   \sa requestTreeDataUpdate, NavigationWidget::requestDataUpdate
-*/
-
-void Manager::onRequestTreeDataUpdate()
-{
-    // do nothing if Manager is disabled
-    if (!state())
-        return;
-
-    emit requestTreeDataUpdate();
-}
-
-/*!
     Switches to flat mode (without subprojects) if \a flat is set to \c true.
 */
 
 void Manager::setFlatMode(bool flat)
 {
-    emit requestSetFlatMode(flat);
+    QMetaObject::invokeMethod(&d->parser, [this, flat]() {
+        d->parser.setFlatMode(flat);
+    }, Qt::QueuedConnection);
 }
 
 /*!
