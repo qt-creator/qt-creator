@@ -83,6 +83,7 @@ public:
 
     QString m_name = QString("New Language Server");
     QString m_id = QUuid::createUuid().toString();
+    Utils::Id m_settingsTypeId;
     bool m_enabled = true;
     StartBehavior m_startBehavior = RequiresFile;
     LanguageFilter m_languageFilter;
@@ -137,13 +138,27 @@ protected:
     StdIOSettings &operator=(StdIOSettings &&other) = default;
 };
 
-class LanguageClientSettings
+struct ClientType {
+    Utils::Id id;
+    QString name;
+    using SettingsGenerator = std::function<BaseSettings*()>;
+    SettingsGenerator generator = nullptr;
+};
+
+class LANGUAGECLIENT_EXPORT LanguageClientSettings
 {
+    Q_DECLARE_TR_FUNCTIONS(LanguageClientSettings)
 public:
     static void init();
     static QList<BaseSettings *> fromSettings(QSettings *settings);
     static QList<BaseSettings *> pageSettings();
     static QList<BaseSettings *> changedSettings();
+
+    /**
+     * must be called before the delayed initialize phase
+     * otherwise the settings are not loaded correctly
+     */
+    static void registerClientType(const ClientType &type);
     static void addSettings(BaseSettings *settings);
     static void enableSettings(const QString &id);
     static void toSettings(QSettings *settings, const QList<BaseSettings *> &languageClientSettings);

@@ -51,6 +51,9 @@ LanguageClientPlugin *LanguageClientPlugin::instance()
 bool LanguageClientPlugin::initialize(const QStringList & /*arguments*/, QString * /*errorString*/)
 {
     LanguageClientManager::init();
+    LanguageClientSettings::registerClientType({Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID,
+                                                tr("Generic StdIO Language Server"),
+                                                []() { return new StdIOSettings; }});
     return true;
 }
 

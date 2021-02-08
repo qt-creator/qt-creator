@@ -38,6 +38,7 @@ namespace Constants {
 
 const char LANGUAGECLIENT_SETTINGS_CATEGORY[] = "ZY.LanguageClient";
 const char LANGUAGECLIENT_SETTINGS_PAGE[] = "LanguageClient.General";
+const char LANGUAGECLIENT_STDIO_SETTINGS_ID[] = "LanguageClient::StdIOSettingsID";
 const char LANGUAGECLIENT_SETTINGS_TR[] = QT_TRANSLATE_NOOP("LanguageClient", "Language Client");
 const char LANGUAGECLIENT_DOCUMENT_FILTER_ID[] = "Current Document Symbols";
 const char LANGUAGECLIENT_DOCUMENT_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("LanguageClient", "Symbols in Current Document");
