@@ -37,7 +37,7 @@ Item {
     property string backendExpression: backendValue.expression
 
     property string glyph: StudioTheme.Constants.actionIcon
-    property string color: StudioTheme.Constants.themeTextColor
+    property string color: StudioTheme.Values.themeTextColor
     property alias menuLoader: menuLoader
 
     signal reseted
