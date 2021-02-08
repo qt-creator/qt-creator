@@ -54,17 +54,9 @@ public:
 
     void addSymbolLocation(const SymbolLocation &location);
 
-    void addSymbolLocation(const QSet<SymbolLocation> &locations);
-
-    void removeSymbolLocation(const SymbolLocation &location);
-
-    void removeSymbolLocations(const QSet<SymbolLocation> &locations);
-
     QSet<SymbolLocation> symbolLocations() const;
 
     void appendChild(const ParserTreeItem::Ptr &item, const SymbolInformation &inf);
-
-    void removeChild(const SymbolInformation &inf);
 
     ParserTreeItem::Ptr child(const SymbolInformation &inf) const;
 

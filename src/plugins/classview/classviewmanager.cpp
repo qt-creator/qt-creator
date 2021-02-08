@@ -199,7 +199,14 @@ void Manager::initialize()
 
     // translate data update from the parser to listeners
     connect(&d->parser, &Parser::treeDataUpdate,
-            this, &Manager::onTreeDataUpdate, Qt::QueuedConnection);
+            this, [this](QSharedPointer<QStandardItem> result) {
+        // do nothing if Manager is disabled
+        if (!state())
+            return;
+
+        emit treeDataUpdate(result);
+
+    }, Qt::QueuedConnection);
 
     // connect to the cpp model manager for signals about document updates
     CppTools::CppModelManager *codeModelManager = CppTools::CppModelManager::instance();
@@ -350,20 +357,6 @@ void Manager::setFlatMode(bool flat)
     QMetaObject::invokeMethod(&d->parser, [this, flat]() {
         d->parser.setFlatMode(flat);
     }, Qt::QueuedConnection);
-}
-
-/*!
-    Sends a new tree data update to a tree view. \a result holds the item with
-    the current tree.
-*/
-
-void Manager::onTreeDataUpdate(QSharedPointer<QStandardItem> result)
-{
-    // do nothing if Manager is disabled
-    if (!state())
-        return;
-
-    emit treeDataUpdate(result);
 }
 
 } // namespace Internal

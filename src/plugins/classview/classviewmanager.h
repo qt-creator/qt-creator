@@ -60,7 +60,6 @@ signals:
 
 private:
     void onProjectListChanged();
-    void onTreeDataUpdate(QSharedPointer<QStandardItem> result);
     void resetParser();
 
     void initialize();

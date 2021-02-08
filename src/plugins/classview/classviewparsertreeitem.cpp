@@ -147,36 +147,6 @@ void ParserTreeItem::addSymbolLocation(const SymbolLocation &location)
 }
 
 /*!
-    Adds information about symbol locations from \a locations.
-    \sa SymbolLocation, removeSymbolLocation, symbolLocations
-*/
-
-void ParserTreeItem::addSymbolLocation(const QSet<SymbolLocation> &locations)
-{
-    d->symbolLocations.unite(locations);
-}
-
-/*!
-    Removes information about \a location.
-    \sa SymbolLocation, addSymbolLocation, symbolLocations
-*/
-
-void ParserTreeItem::removeSymbolLocation(const SymbolLocation &location)
-{
-    d->symbolLocations.remove(location);
-}
-
-/*!
-    Removes information about \a locations.
-    \sa SymbolLocation, addSymbolLocation, symbolLocations
-*/
-
-void ParserTreeItem::removeSymbolLocations(const QSet<SymbolLocation> &locations)
-{
-    d->symbolLocations.subtract(locations);
-}
-
-/*!
     Gets information about symbol positions.
     \sa SymbolLocation, addSymbolLocation, removeSymbolLocation
 */
@@ -197,15 +167,6 @@ void ParserTreeItem::appendChild(const ParserTreeItem::Ptr &item, const SymbolIn
         return;
 
     d->symbolInformations[inf] = item;
-}
-
-/*!
-    Removes the \a inf symbol information.
-*/
-
-void ParserTreeItem::removeChild(const SymbolInformation &inf)
-{
-    d->symbolInformations.remove(inf);
 }
 
 /*!
