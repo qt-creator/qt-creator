@@ -26,9 +26,13 @@
 #pragma once
 
 #include <QAbstractTableModel>
+#include <QDateTime>
 #include <QDir>
+#include <QHash>
+#include <QIcon>
 #include <QPair>
 #include <QSet>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QFileIconProvider;
@@ -40,6 +44,7 @@ namespace Utils { class FileSystemWatcher; }
 namespace QmlDesigner {
 
 class SynchronousImageCache;
+class ItemLibraryFileIconProvider;
 
 class CustomFileSystemModel : public QAbstractListModel
 {
@@ -78,6 +83,10 @@ private:
     QStringList m_files;
     QString m_searchFilter;
     Utils::FileSystemWatcher *m_fileSystemWatcher;
+    SynchronousImageCache &m_fontImageCache;
+    ItemLibraryFileIconProvider *m_fileIconProvider = nullptr;
+    QHash<QString, QPair<QDateTime, QIcon>> m_iconCache;
+    QTimer m_updatePathTimer;
 };
 
 } //QmlDesigner

@@ -82,6 +82,8 @@
 #include <QPushButton>
 #include <QGridLayout>
 #include <QPointer>
+#include <QMessageBox>
+#include <QPair>
 
 #include <algorithm>
 #include <functional>
@@ -980,9 +982,30 @@ static bool addFilesToProject(const QStringList &fileNames, const QString &defau
         return true;
 
     bool allSuccessful = true;
+    QList<QPair<QString, QString>> copyList;
+    QStringList removeList;
     for (const QString &fileName : fileNames) {
         const QString targetFile = directory + "/" + QFileInfo(fileName).fileName();
-        const bool success = QFile::copy(fileName, targetFile);
+        if (QFileInfo::exists(targetFile)) {
+            const QString title = QCoreApplication::translate(
+                        "ModelNodeOperations", "Overwrite Existing File?");
+            const QString question = QCoreApplication::translate(
+                        "ModelNodeOperations", "File already exists. Overwrite?\n\"%1\"").arg(targetFile);
+            if (QMessageBox::question(qobject_cast<QWidget *>(Core::ICore::dialogParent()),
+                                      title, question, QMessageBox::Yes | QMessageBox::No)
+                    != QMessageBox::Yes) {
+                continue;
+            }
+            removeList.append(targetFile);
+        }
+        copyList.append({fileName, targetFile});
+    }
+    // Defer actual file operations after we have dealt with possible popup dialogs to avoid
+    // unnecessarily refreshing file models multiple times during the operation
+    for (const auto &file : qAsConst(removeList))
+        QFile::remove(file);
+    for (const auto &filePair : qAsConst(copyList)) {
+        const bool success = QFile::copy(filePair.first, filePair.second);
 
         auto document = QmlDesignerPlugin::instance()->currentDesignDocument();
 
@@ -993,7 +1016,7 @@ static bool addFilesToProject(const QStringList &fileNames, const QString &defau
             if (node) {
                 ProjectExplorer::FolderNode *containingFolder = node->parentFolderNode();
                 if (containingFolder)
-                    containingFolder->addFiles(QStringList(targetFile));
+                    containingFolder->addFiles(QStringList(filePair.second));
             }
         } else {
             allSuccessful = false;
