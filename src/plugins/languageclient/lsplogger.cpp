@@ -32,6 +32,7 @@
 #include <utils/jsontreeitem.h>
 #include <utils/listmodel.h>
 
+#include <QAction>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QFileDialog>
@@ -333,6 +334,10 @@ void MessageDetailWidget::setMessage(const BaseMessage &message)
             auto model = new Utils::TreeModel<Utils::JsonTreeItem>(root);
             model->setHeader({{"Name"}, {"Value"}, {"Type"}});
             auto view = new QTreeView;
+            view->setContextMenuPolicy(Qt::ActionsContextMenu);
+            auto action = new QAction(tr("Expand All"), view);
+            connect(action, &QAction::triggered, view, &QTreeView::expandAll);
+            view->addAction(action);
             view->setModel(model);
             view->setAlternatingRowColors(true);
             view->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
