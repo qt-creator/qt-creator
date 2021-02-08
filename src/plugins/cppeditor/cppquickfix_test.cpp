@@ -4408,6 +4408,32 @@ void func(const N1::S &s)
 )";
     testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
     QuickFixOperationTest(testDocuments, &factory);
+
+    // No using declarations here, but the code model has one. No idea why.
+    testDocuments.clear();
+    original = R"(
+class B {};
+class D : public B {
+    @D();
+};
+)";
+    expected = original;
+    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
+
+    // Source File
+    original = R"(
+#include "file.h"
+)";
+    expected = R"(
+#include "file.h"
+
+D::D()
+{
+
+}
+)";
+    testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
+    QuickFixOperationTest(testDocuments, &factory);
 }
 
 /// Find right implementation file. (QTCREATORBUG-10728)

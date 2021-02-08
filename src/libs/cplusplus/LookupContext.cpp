@@ -273,9 +273,9 @@ const Name *LookupContext::minimalName(Symbol *symbol, ClassOrNamespace *target,
     ClassOrNamespace *current = target;
 
     const auto getNameFromItems = [symbol, target, control](const QList<LookupItem> &items,
-            const QList<const Name *> &names, bool checkSymbols) -> const Name * {
+            const QList<const Name *> &names) -> const Name * {
         for (const LookupItem &item : items) {
-            if (checkSymbols && !symbolIdentical(item.declaration(), symbol))
+            if (!symbol->asUsingDeclaration() && !symbolIdentical(item.declaration(), symbol))
                 continue;
 
             // eliminate inline namespaces
@@ -300,7 +300,7 @@ const Name *LookupContext::minimalName(Symbol *symbol, ClassOrNamespace *target,
 
         // once we're qualified enough to get the same symbol, break
         if (target) {
-            const Name * const minimal = getNameFromItems(target->lookup(n), names.mid(i), true);
+            const Name * const minimal = getNameFromItems(target->lookup(n), names.mid(i));
             if (minimal)
                 return minimal;
         }
@@ -312,7 +312,7 @@ const Name *LookupContext::minimalName(Symbol *symbol, ClassOrNamespace *target,
                 const QList<ClassOrNamespace *> usings = nested->usings();
                 for (ClassOrNamespace * const u : usings) {
                     const Name * const minimal = getNameFromItems(u->lookup(symbol->name()),
-                                                                  nameList, false);
+                                                                  nameList);
                     if (minimal)
                         return minimal;
                 }
