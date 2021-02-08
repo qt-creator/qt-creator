@@ -154,7 +154,7 @@ bool BreakpointParameters::isQmlFileAndLineBreakpoint() const
 
     QString qmlExtensionString = QString::fromLocal8Bit(qgetenv("QTC_QMLDEBUGGER_FILEEXTENSIONS"));
     if (qmlExtensionString.isEmpty())
-        qmlExtensionString = ".qml;.js";
+        qmlExtensionString = ".qml;.js;.mjs";
 
     const auto qmlFileExtensions = qmlExtensionString.split(';', Qt::SkipEmptyParts);
     const QString file = fileName.toString();
