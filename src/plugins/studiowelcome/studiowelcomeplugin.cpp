@@ -64,6 +64,7 @@ namespace Internal {
 const char DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY[] = "StudioSplashScreen";
 
 QPointer<QQuickWidget> s_view = nullptr;
+static StudioWelcomePlugin *s_pluginInstance = nullptr;
 
 static bool isUsageStatistic(const ExtensionSystem::PluginSpec *spec)
 {
@@ -115,10 +116,14 @@ public:
         plugin->setEnabledBySettings(b);
         ExtensionSystem::PluginManager::writeSettings();
 
+        // pause remove splash timer while dialog is open otherwise splash crashes upon removal
+        s_pluginInstance->pauseRemoveSplashTimer();
+
         const QString restartText = tr("The change will take effect after restart.");
         Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
         restartDialog.exec();
 
+        s_pluginInstance->resumeRemoveSplashTimer();
         setupModel();
     }
 
@@ -270,10 +275,14 @@ void StudioWelcomePlugin::showSystemSettings()
     Core::ICore::infoBar()->globallySuppressInfo("WarnCrashReporting");
 
     // pause remove splash timer while settings dialog is open otherwise splash crashes upon removal
-    int splashAutoCloseRemainingTime = m_removeSplashTimer.remainingTime(); // milliseconds
-    m_removeSplashTimer.stop();
+    pauseRemoveSplashTimer();
     Core::ICore::showOptionsDialog(Core::Constants::SETTINGS_ID_SYSTEM);
-    m_removeSplashTimer.start(splashAutoCloseRemainingTime);
+    resumeRemoveSplashTimer();
+}
+
+StudioWelcomePlugin::StudioWelcomePlugin()
+{
+    s_pluginInstance = this;
 }
 
 StudioWelcomePlugin::~StudioWelcomePlugin()
@@ -357,6 +366,20 @@ bool StudioWelcomePlugin::delayedInitialize()
             Q_ARG(bool, crashReportingEnabled), Q_ARG(bool, crashReportingOn));
 
     return false;
+}
+
+void StudioWelcomePlugin::pauseRemoveSplashTimer()
+{
+    if (m_removeSplashTimer.isActive()) {
+        m_removeSplashRemainingTime = m_removeSplashTimer.remainingTime(); // milliseconds
+        m_removeSplashTimer.stop();
+    }
+}
+
+void StudioWelcomePlugin::resumeRemoveSplashTimer()
+{
+    if (!m_removeSplashTimer.isActive())
+        m_removeSplashTimer.start(m_removeSplashRemainingTime);
 }
 
 WelcomeMode::WelcomeMode()
