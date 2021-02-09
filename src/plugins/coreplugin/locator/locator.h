@@ -76,6 +76,7 @@ private:
 
     LocatorData *m_locatorData = nullptr;
 
+    bool m_shuttingDown = false;
     bool m_settingsInitialized = false;
     QList<ILocatorFilter *> m_filters;
     QList<ILocatorFilter *> m_customFilters;

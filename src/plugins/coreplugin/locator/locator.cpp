@@ -171,6 +171,7 @@ bool Locator::delayedInitialize()
 
 void Locator::aboutToShutdown()
 {
+    m_shuttingDown = true;
     m_refreshTimer.stop();
     if (m_refreshTask.isRunning()) {
         m_refreshTask.cancel();
@@ -384,6 +385,9 @@ void Locator::setRefreshInterval(int interval)
 
 void Locator::refresh(QList<ILocatorFilter *> filters)
 {
+    if (m_shuttingDown)
+        return;
+
     if (m_refreshTask.isRunning()) {
         m_refreshTask.cancel();
         // this is not ideal because some of the previous filters might have finished, but we
