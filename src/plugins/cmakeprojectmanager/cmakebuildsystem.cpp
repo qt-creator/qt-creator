@@ -587,7 +587,7 @@ void CMakeBuildSystem::updateProjectData()
         }
         {
             CMakeConfigItem paths;
-            paths.key = "ANDROID_SO_LIBS_PATHS";
+            paths.key = Android::Constants::ANDROID_SO_LIBS_PATHS;
             paths.values = Utils::toList(res);
             patchedConfig.append(paths);
         }
@@ -607,7 +607,7 @@ void CMakeBuildSystem::updateProjectData()
         if (newRoot) {
             setRootProjectNode(std::move(newRoot));
             CMakeConfigItem settingFileItem;
-            settingFileItem.key = "ANDROID_DEPLOYMENT_SETTINGS_FILE";
+            settingFileItem.key = Android::Constants::ANDROID_DEPLOYMENT_SETTINGS_FILE;
 
             const FilePath buildDir = cmakeBuildConfiguration()->buildDirectory();
             if (p->rootProjectNode()) {

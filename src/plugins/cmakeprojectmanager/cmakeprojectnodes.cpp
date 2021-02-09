@@ -129,22 +129,22 @@ QVariant CMakeTargetNode::data(Utils::Id role) const
     };
 
     if (role == Android::Constants::AndroidPackageSourceDir)
-        return value("ANDROID_PACKAGE_SOURCE_DIR");
+        return value(Android::Constants::ANDROID_PACKAGE_SOURCE_DIR);
 
     if (role == Android::Constants::AndroidDeploySettingsFile)
-        return value("ANDROID_DEPLOYMENT_SETTINGS_FILE");
+        return value(Android::Constants::ANDROID_DEPLOYMENT_SETTINGS_FILE);
 
     if (role == Android::Constants::AndroidExtraLibs)
-        return value("ANDROID_EXTRA_LIBS");
+        return value(Android::Constants::ANDROID_EXTRA_LIBS);
 
     if (role == Android::Constants::ANDROID_APPLICATION_ARGUMENTS)
-        return value("QT_ANDROID_APPLICATION_ARGUMENTS");
+        return value(Android::Constants::QT_ANDROID_APPLICATION_ARGUMENTS);
 
     if (role == Android::Constants::AndroidArch)
-        return value("ANDROID_ABI");
+        return value(Android::Constants::ANDROID_ABI);
 
     if (role == Android::Constants::AndroidSoLibPath)
-        return values("ANDROID_SO_LIBS_PATHS");
+        return values(Android::Constants::ANDROID_SO_LIBS_PATHS);
 
     if (role == Android::Constants::AndroidTargets)
         return values("TARGETS_BUILD_PATH");

@@ -431,11 +431,14 @@ bool QmakeProFileNode::setData(Utils::Id role, const QVariant &value) const
     }
 
     if (role == Android::Constants::AndroidExtraLibs)
-        return pro->setProVariable("ANDROID_EXTRA_LIBS", value.toStringList(), scope, flags);
+        return pro->setProVariable(QLatin1String(Android::Constants::ANDROID_EXTRA_LIBS),
+                                   value.toStringList(), scope, flags);
     if (role == Android::Constants::AndroidPackageSourceDir)
-        return pro->setProVariable("ANDROID_PACKAGE_SOURCE_DIR", {value.toString()}, scope, flags);
+        return pro->setProVariable(QLatin1String(Android::Constants::ANDROID_PACKAGE_SOURCE_DIR),
+                                   {value.toString()}, scope, flags);
     if (role == Android::Constants::ANDROID_APPLICATION_ARGUMENTS)
-        return pro->setProVariable("ANDROID_APPLICATION_ARGUMENTS", {value.toString()}, scope, flags);
+        return pro->setProVariable(QLatin1String(Android::Constants::ANDROID_APPLICATION_ARGUMENTS),
+                                   {value.toString()}, scope, flags);
 
     return false;
 }
