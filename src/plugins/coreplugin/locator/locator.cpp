@@ -169,6 +169,16 @@ bool Locator::delayedInitialize()
     return true;
 }
 
+void Locator::aboutToShutdown()
+{
+    m_refreshTimer.stop();
+    if (m_refreshTask.isRunning()) {
+        m_refreshTask.cancel();
+        m_refreshTask.waitForFinished();
+    }
+    emit aboutToShutdownOccurred();
+}
+
 void Locator::loadSettings()
 {
     SettingsDatabase *settings = ICore::settingsDatabase();

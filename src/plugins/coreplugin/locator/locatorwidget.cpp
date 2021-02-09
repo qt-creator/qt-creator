@@ -616,6 +616,13 @@ LocatorWidget::LocatorWidget(Locator *locator) :
     connect(qApp, &QApplication::focusChanged, this, &LocatorWidget::updatePreviousFocusWidget);
 
     connect(locator, &Locator::filtersChanged, this, &LocatorWidget::updateFilterList);
+    connect(locator, &Locator::aboutToShutdownOccurred, this, [this]() {
+        m_shuttingDown = true;
+        if (m_entriesWatcher->isRunning()) {
+            m_entriesWatcher->cancel();
+            m_entriesWatcher->waitForFinished();
+        }
+    });
     updateFilterList();
 }
 
@@ -828,6 +835,9 @@ void LocatorWidget::setProgressIndicatorVisible(bool visible)
 
 void LocatorWidget::updateCompletionList(const QString &text)
 {
+    if (m_shuttingDown)
+        return;
+
     m_updateRequested = true;
     if (m_entriesWatcher->future().isRunning()) {
         // Cancel the old future. We may not just block the UI thread to wait for the search to

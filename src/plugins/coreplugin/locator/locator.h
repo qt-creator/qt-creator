@@ -48,6 +48,7 @@ public:
     ~Locator() override;
 
     static Locator *instance();
+    void aboutToShutdown();
 
     void initialize();
     void extensionsInitialized();
@@ -62,6 +63,7 @@ public:
 
 signals:
     void filtersChanged();
+    void aboutToShutdownOccurred();
 
 public slots:
     void refresh(QList<ILocatorFilter *> filters);

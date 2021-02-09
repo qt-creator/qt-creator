@@ -98,6 +98,7 @@ private:
     QTimer m_showPopupTimer;
     QFutureWatcher<LocatorFilterEntry> *m_entriesWatcher = nullptr;
     QString m_requestedCompletionText;
+    bool m_shuttingDown = false;
     bool m_needsClearResult = true;
     bool m_updateRequested = false;
     bool m_possibleToolTipRequest = false;

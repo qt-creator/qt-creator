@@ -443,6 +443,7 @@ QString CorePlugin::msgCrashpadInformation()
 ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()
 {
     Find::aboutToShutdown();
+    m_locator->aboutToShutdown();
     m_mainWindow->aboutToShutdown();
     return SynchronousShutdown;
 }
