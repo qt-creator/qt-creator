@@ -969,6 +969,8 @@ void Perspective::rampUpAsCurrent()
     theMainWindow->d->setCurrentPerspective(this);
     QTC_ASSERT(theMainWindow->d->m_currentPerspective == this, return);
 
+    theMainWindow->showCentralWidget(true);
+
     d->populatePerspective();
 
     theMainWindow->d->updatePerspectiveChooserWidth();
