@@ -55,5 +55,8 @@ const char FEATURE_QT_CONSOLE[] = "QtSupport.Wizards.FeatureQtConsole";
 const char FEATURE_MOBILE[] = "QtSupport.Wizards.FeatureMobile";
 const char FEATURE_DESKTOP[] = "QtSupport.Wizards.FeatureDesktop";
 
+// Kit flags
+const char FLAGS_SUPPLIES_QTQUICK_IMPORT_PATH[] = "QtSupport.SuppliesQtQuickImportPath";
+
 } // namepsace Constants
 } // namepsace QtSupport

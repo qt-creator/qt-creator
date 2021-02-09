@@ -600,7 +600,7 @@ void McuSupportOptions::setQulDir(const FilePath &dir)
     qtForMCUsSdkPackage->updateStatus();
     if (qtForMCUsSdkPackage->status() == McuPackage::Status::ValidPackage)
         Sdk::targetsAndPackages(dir, &packages, &mcuTargets);
-    for (auto package : packages)
+    for (auto package : qAsConst(packages))
         connect(package, &McuPackage::changed, this, &McuSupportOptions::changed);
 
     emit changed();
@@ -629,7 +629,8 @@ static void setKitProperties(const QString &kitName, Kit *k, const McuTarget *mc
     k->makeSticky();
     if (mcuTarget->toolChainPackage()->isDesktopToolchain())
         k->setDeviceTypeForIcon(DEVICE_TYPE);
-    QSet<Id> irrelevant = { SysRootKitAspect::id() };
+    k->setValue(QtSupport::SuppliesQtQuickImportPath::id(), true);
+    QSet<Id> irrelevant = { SysRootKitAspect::id(), QtSupport::SuppliesQtQuickImportPath::id() };
     if (!kitNeedsQtVersion())
         irrelevant.insert(QtSupport::QtKitAspect::id());
     k->setIrrelevantAspects(irrelevant);
@@ -910,6 +911,30 @@ void McuSupportOptions::createAutomaticKits()
 
     createKits();
     delete qtForMCUsPackage;
+}
+
+/**
+ * @brief Fix/update existing kits if needed
+ */
+void McuSupportOptions::fixExistingKits()
+{
+    for (Kit *kit : KitManager::kits()) {
+        if (!kit->hasValue(Constants::KIT_MCUTARGET_KITVERSION_KEY) )
+            continue;
+
+        // Check if the MCU kits are flagged as supplying a QtQuick import path, in order
+        // to tell the QMLJS code-model that it won't need to add a fall-back import
+        // path.
+        const auto bringsQtQuickImportPath = QtSupport::SuppliesQtQuickImportPath::id();
+        auto irrelevantAspects = kit->irrelevantAspects();
+        if (!irrelevantAspects.contains(bringsQtQuickImportPath)) {
+            irrelevantAspects.insert(bringsQtQuickImportPath);
+            kit->setIrrelevantAspects(irrelevantAspects);
+        }
+        if (!kit->hasValue(bringsQtQuickImportPath)) {
+            kit->setValue(bringsQtQuickImportPath, true);
+        }
+    }
 }
 
 } // Internal

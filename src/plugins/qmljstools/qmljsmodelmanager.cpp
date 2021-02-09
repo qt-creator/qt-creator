@@ -155,7 +155,7 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
         projectInfo.tryQmlDump = project && qtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT);
         projectInfo.qtQmlPath = qtVersion->qmlPath().toFileInfo().canonicalFilePath();
         projectInfo.qtVersionString = qtVersion->qtVersionString();
-    } else {
+    } else if (!activeKit->value(QtSupport::SuppliesQtQuickImportPath::id(), false).toBool()) {
         projectInfo.qtQmlPath = QFileInfo(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath)).canonicalFilePath();
         projectInfo.qtVersionString = QLatin1String(qVersion());
     }

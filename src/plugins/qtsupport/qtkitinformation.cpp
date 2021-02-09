@@ -464,4 +464,9 @@ int QtKitAspect::weight(const Kit *k) const
         return qtAbi.isCompatibleWith(tcAbi); }) ? 1 : 0;
 }
 
+Id SuppliesQtQuickImportPath::id()
+{
+    return QtSupport::Constants::FLAGS_SUPPLIES_QTQUICK_IMPORT_PATH;
+}
+
 } // namespace QtSupport

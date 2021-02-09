@@ -96,6 +96,7 @@ void McuSupportPlugin::extensionsInitialized()
     connect(KitManager::instance(), &KitManager::kitsLoaded, [](){
         McuSupportOptions::removeOutdatedKits();
         McuSupportOptions::createAutomaticKits();
+        McuSupportOptions::fixExistingKits();
         McuSupportPlugin::askUserAboutMcuSupportKitsSetup();
     });
 }

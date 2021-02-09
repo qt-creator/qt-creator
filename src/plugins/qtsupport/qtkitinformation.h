@@ -83,4 +83,10 @@ private:
     void kitsWereLoaded();
 };
 
+class QTSUPPORT_EXPORT SuppliesQtQuickImportPath
+{
+public:
+    static Utils::Id id();
+};
+
 } // namespace QtSupport
