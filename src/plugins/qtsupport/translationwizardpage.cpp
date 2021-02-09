@@ -138,7 +138,7 @@ bool TranslationWizardPage::validatePage()
 {
     const auto w = static_cast<JsonWizard *>(wizard());
     w->setValue("TsFileName", tsBaseName().isEmpty() ? QString() : QString(tsBaseName() + ".ts"));
-    w->setValue("TsLanguage", m_fileNameLineEdit.text());
+    w->setValue("TsLanguage", m_languageComboBox.currentData().toString());
     return true;
 }
 

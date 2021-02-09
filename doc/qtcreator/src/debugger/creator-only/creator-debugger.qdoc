@@ -124,6 +124,10 @@
     \uicontrol GDB and \uicontrol CDB. For more information, see
     \l{Specifying Debugger Settings}.
 
+    To allow reading the user's default .gdbinit file on debugger startup,
+    select the \uicontrol {Load .gdbinit file on startup} check box in
+    GDB settings. For more information, see \l{Specifying GDB Settings}.
+
     \note Starting a C++ program in the debugger can take a long time, typically
     in the range of several seconds to minutes if complex features are used.
 
@@ -411,6 +415,13 @@
 
     \endlist
 
+    By default, a non-responsive GDB process is terminated after 20 seconds.
+    To increase the timeout in the \uicontrol {GDB timeout} field, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
+    \uicontrol GDB. For more information about settings that you can specify
+    to manage the GDB process, see \l{Specifying GDB Settings} and
+    \l{Specifying Extended GDB Settings}.
+
     \section3 Using CDB
 
     In remote mode, the local CDB process talks to a CDB process that runs on
@@ -475,6 +486,10 @@
             \li  Click \uicontrol OK to start debugging.
 
     \endlist
+
+    To specify settings for managing the CDB process, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol Debugger > \uicontrol CDB. For more
+    information, see \l{Specifying CDB Settings}.
 */
 
 
@@ -608,6 +623,16 @@
     It is also possible to continue executing the program until the current
     function completes or jump to an arbitrary position in the current function.
 
+    \section2 Stepping Into Code
+
+    When using GDB as the debugging backend, you can compress several steps
+    into one step for less noisy debugging. For more information, see
+    \l{Specifying GDB Settings}.
+
+    The extended GDB settings provide the option to step backwards in code,
+    but this option should be used with care, as it is slow and unstable on the
+    GDB side. For more information, see \l{Specifying Extended GDB Settings}.
+
    \section2 Customizing Debug Views
 
     You can change the appearance and behavior of the debug views by specifying
@@ -736,6 +761,11 @@
     Right-click the view to open a context menu that contains menu items for
     reloading data and opening files.
 
+    To enable the debugger to step into the code and display the source code
+    when using a copy of the source tree at a location different from the one
+    at which the libraries were built, you can map source paths to target
+    paths. For more information, see \l{Mapping Source Paths}.
+
     By default, the \uicontrol {Source Files} view is hidden.
 
     \section2 Viewing Disassembled Code
@@ -751,6 +781,10 @@
     \uicontrol Debug > \uicontrol {Operate by Instruction} while the debugger is
     running. Alternatively, click the \inlineimage debugger_singleinstructionmode.png
     (\uicontrol {Operate by Instruction}) tool button on the debugger tool bar.
+
+    By default, GDB shows AT&T style disassembly. To switch to the Intel style,
+    select \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
+    \uicontrol GDB > \uicontrol {Use Intel style disassembly}.
 
     \section2 Viewing and Editing Register State
 
@@ -784,6 +818,8 @@
     \l{https://sourceware.org/gdb/onlinedocs/gdb/Core-File-Generation.html}.
 
     \endomit
+
+    \include creator-debugger-settings.qdocinc debugger-settings
 */
 
 
@@ -832,7 +868,7 @@
 
     \QC uses Python scripts to translate raw memory contents and type information
     data from native debugger backends (GDB, LLDB, and CDB are currently supported)
-    into the form presented to the user in the  \uicontrol {Locals} and
+    into the form presented to the user in the \uicontrol {Locals} and
     \uicontrol {Expressions} views.
 
     Unlike GDB's
@@ -842,6 +878,11 @@
     native debugging backend. That is, the same code can be used with GDB on
     Linux, LLDB on macOS, and CDB on Windows, or any other platform on which at
     least one of the three supported backends is available.
+
+    To use the default GDB pretty printers installed in your system or linked
+    to the libraries your application uses, select \uicontrol Options >
+    \uicontrol Debugger > \uicontrol GDB > \uicontrol {Load system GDB pretty
+    printers}. For more information, see \l{Specifying GDB Settings}.
 
     \section2 Customizing Built-In Debugging Helpers
 
@@ -867,6 +908,11 @@
     handle SIGSTOP nopass
     handle SIGSTOP nostop
     \endcode
+
+    To display a message box as soon as your application receives a signal
+    during debugging, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol Debugger > \uicontrol GDB > \uicontrol {Show a message box
+    when receiving a signal}.
 
     \section2 Adding Custom Debugging Helpers
 

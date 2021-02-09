@@ -71,6 +71,10 @@ CapturedDataCommand::StateData collectStateData(ServerNodeInstance rootNodeInsta
         if (!colorProperty.isNull())
             nodeData.properties.emplace_back(QString{"color"}, colorProperty);
 
+        auto visibleProperty = instance.property("visible");
+        if (!colorProperty.isNull())
+            nodeData.properties.emplace_back(QString{"visible"}, visibleProperty);
+
         stateData.nodeData.push_back(std::move(nodeData));
     }
 

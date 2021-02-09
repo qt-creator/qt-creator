@@ -321,6 +321,11 @@
     function after pressing \key {Shift+F11}, the \uicontrol {Return Value}
     pane displays the value returned by the function.
 
+    When using GDB, you can specify whether the dynamic or the static type of
+    objects will be displayed. Select \uicontrol {Use dynamic object type for
+    display} in the context menu. Keep in mind that choosing the dynamic type
+    might be slower.
+
 //! [debugger-locals]
 
 //! [debugger-expressions]
