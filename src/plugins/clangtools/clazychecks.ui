@@ -63,13 +63,23 @@
             </sizepolicy>
            </property>
            <property name="title">
-            <string>Topic Filter</string>
+            <string>Filters</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
             <item>
+             <widget class="Utils::FancyLineEdit" name="filterLineEdit">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QPushButton" name="topicsResetButton">
               <property name="text">
-               <string>Reset Filter</string>
+               <string>Reset Topic Filter</string>
               </property>
              </widget>
             </item>
@@ -161,6 +171,11 @@ Set a valid executable first.</string>
    <class>Utils::InfoLabel</class>
    <extends>QLabel</extends>
    <header location="global">utils/infolabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Utils::FancyLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">utils/fancylineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

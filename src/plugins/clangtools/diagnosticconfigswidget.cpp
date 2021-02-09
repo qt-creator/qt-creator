@@ -734,6 +734,9 @@ public:
 
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override
     {
+        if (!QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent))
+            return false;
+
         const QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
         if (!index.isValid())
             return false;
@@ -823,7 +826,16 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
     m_clazyChecks->invalidExecutableLabel->setElideMode(Qt::ElideNone);
     m_clazySortFilterProxyModel = new ClazyChecksSortFilterModel(this);
     m_clazySortFilterProxyModel->setSourceModel(m_clazyTreeModel.get());
+    m_clazySortFilterProxyModel->setRecursiveFilteringEnabled(true);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    m_clazySortFilterProxyModel->setAutoAcceptChildRows(true);
+#endif
     setupTreeView(m_clazyChecks->checksView, m_clazySortFilterProxyModel, 2);
+    m_clazyChecks->filterLineEdit->setFiltering(true);
+    m_clazyChecks->filterLineEdit->setPlaceholderText(tr("Textual Filter"));
+    connect(m_clazyChecks->filterLineEdit, &Utils::FancyLineEdit::filterChanged,
+            m_clazySortFilterProxyModel,
+            qOverload<const QString &>(&QSortFilterProxyModel::setFilterRegularExpression));
     m_clazyChecks->checksView->setSortingEnabled(true);
     m_clazyChecks->checksView->sortByColumn(0, Qt::AscendingOrder);
     auto topicsModel = new QStringListModel(Utils::toList(m_clazyTreeModel->topics()), this);
@@ -865,11 +877,21 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
     m_tidyChecks->setupUi(m_tidyChecksWidget);
     m_tidyChecks->invalidExecutableLabel->setType(Utils::InfoLabel::Warning);
     m_tidyChecks->invalidExecutableLabel->setElideMode(Qt::ElideNone);
-    setupTreeView(m_tidyChecks->checksPrefixesTree, m_tidyTreeModel.get());
+    const auto tidyFilterModel = new QSortFilterProxyModel(this);
+    tidyFilterModel->setRecursiveFilteringEnabled(true);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    tidyFilterModel->setAutoAcceptChildRows(true);
+#endif
+    tidyFilterModel->setSourceModel(m_tidyTreeModel.get());
+    setupTreeView(m_tidyChecks->checksPrefixesTree, tidyFilterModel);
+    m_tidyChecks->filterLineEdit->setFiltering(true);
+    connect(m_tidyChecks->filterLineEdit, &Utils::FancyLineEdit::filterChanged, tidyFilterModel,
+            qOverload<const QString &>(&QSortFilterProxyModel::setFilterRegularExpression));
 
     connect(m_tidyChecks->checksPrefixesTree,
             &QTreeView::clicked,
-            [this](const QModelIndex &index) {
+            [this, tidyFilterModel](const QModelIndex &proxyIndex) {
+                const QModelIndex index = tidyFilterModel->mapToSource(proxyIndex);
                 if (index.column() == 2) {
                     if (m_tidyTreeModel->hasChildren(index))
                         return;
