@@ -38,6 +38,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/qtcassert.h>
 
 #include <QLoggingCategory>
@@ -394,7 +395,9 @@ ProjectImporter::findOrCreateToolChains(const ToolChainDescription &tcd) const
 {
     ToolChainData result;
     result.tcs = ToolChainManager::toolChains([&tcd](const ToolChain *tc) {
-        return tc->language() == tcd.language && tc->compilerCommand() == tcd.compilerPath;
+        return tc->language() == tcd.language &&
+               Utils::Environment::systemEnvironment().isSameExecutable(
+                    tc->compilerCommand().toString(), tcd.compilerPath.toString());
     });
     for (const ToolChain *tc : result.tcs) {
         const QByteArray tcId = tc->id();
