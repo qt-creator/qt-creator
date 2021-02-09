@@ -190,9 +190,6 @@ void Manager::initialize()
         if (!state())
             return;
 
-        // any document might be changed, clear parser's cache
-        QMetaObject::invokeMethod(&d->parser, &Parser::clearCache, Qt::QueuedConnection);
-
         // request to update a tree to the current state
         resetParser();
     });
