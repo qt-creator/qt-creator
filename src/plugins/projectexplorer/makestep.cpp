@@ -103,6 +103,11 @@ MakeStep::MakeStep(BuildStepList *parent, Id id)
          .arg(text) + "</p></body></html>");
     m_nonOverrideWarning->setIconType(InfoLabel::Warning);
 
+    m_disabledForSubdirsAspect = addAspect<BoolAspect>();
+    m_disabledForSubdirsAspect->setSettingsKey(id.withSuffix(".disabledForSubdirs").toString());
+    m_disabledForSubdirsAspect->setLabel(tr("Disable in subdirectories:"));
+    m_disabledForSubdirsAspect->setToolTip(tr("Runs this step only for a top-level build."));
+
     m_buildTargetsAspect = addAspect<MultiSelectionAspect>();
     m_buildTargetsAspect->setSettingsKey(id.withSuffix(BUILD_TARGETS_SUFFIX).toString());
     m_buildTargetsAspect->setLabelText(tr("Targets:"));
@@ -249,6 +254,11 @@ bool MakeStep::makeflagsJobCountMismatch() const
     return makeFlagsJobCount.has_value() && *makeFlagsJobCount != m_userJobCountAspect->value();
 }
 
+bool MakeStep::enabledForSubDirs() const
+{
+    return !m_disabledForSubdirsAspect->value();
+}
+
 bool MakeStep::makeflagsContainsJobCount() const
 {
     const Environment env = makeEnvironment();
@@ -340,25 +350,13 @@ QWidget *MakeStep::createConfigWidget()
 {
     auto widget = new QWidget;
 
-    auto disableInSubDirsLabel = new QLabel(tr("Disable in subdirectories:"), widget);
-    auto disableInSubDirsCheckBox = new QCheckBox(widget);
-    disableInSubDirsCheckBox->setToolTip(tr("Runs this step only for a top-level build."));
-
     LayoutBuilder builder(widget);
     builder.addRow(m_makeCommandAspect);
     builder.addRow(m_userArgumentsAspect);
     builder.addRow(m_jobCountContainer);
-    builder.addRow({disableInSubDirsLabel, disableInSubDirsCheckBox});
+    if (m_disablingForSubDirsSupported)
+        builder.addRow(m_disabledForSubdirsAspect);
     builder.addRow(m_buildTargetsAspect);
-
-    if (!m_disablingForSubDirsSupported) {
-        disableInSubDirsLabel->hide();
-        disableInSubDirsCheckBox->hide();
-    } else {
-        connect(disableInSubDirsCheckBox, &QCheckBox::toggled, this, [this](bool disabled) {
-            m_enabledForSubDirs = !disabled;
-        });
-    }
 
     VariableChooser::addSupportForChildWidgets(widget, macroExpander());
 
@@ -384,7 +382,7 @@ QWidget *MakeStep::createConfigWidget()
         return param.summaryInWorkdir(displayName());
     });
 
-    auto updateDetails = [this, disableInSubDirsCheckBox] {
+    auto updateDetails = [this] {
         const bool jobCountVisible = isJobCountSupported();
         m_userJobCountAspect->setVisible(jobCountVisible);
         m_overrideMakeflagsAspect->setVisible(jobCountVisible);
@@ -394,7 +392,6 @@ QWidget *MakeStep::createConfigWidget()
         m_overrideMakeflagsAspect->setEnabled(jobCountEnabled);
         m_nonOverrideWarning->setVisible(makeflagsJobCountMismatch()
                                          && !jobCountOverridesMakeflags());
-        disableInSubDirsCheckBox->setChecked(!m_enabledForSubDirs);
     };
 
     updateDetails();

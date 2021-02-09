@@ -74,7 +74,7 @@ public:
     bool makeflagsJobCountMismatch() const;
 
     bool disablingForSubdirsSupported() const { return m_disablingForSubDirsSupported; }
-    bool enabledForSubDirs() const { return m_enabledForSubDirs; }
+    bool enabledForSubDirs() const;
 
     Utils::Environment makeEnvironment() const;
 
@@ -98,9 +98,9 @@ private:
     Utils::AspectContainer *m_jobCountContainer = nullptr;
     Utils::IntegerAspect *m_userJobCountAspect = nullptr;
     Utils::BoolAspect *m_overrideMakeflagsAspect = nullptr;
+    Utils::BoolAspect *m_disabledForSubdirsAspect = nullptr;
     Utils::TextDisplay *m_nonOverrideWarning = nullptr;
     bool m_disablingForSubDirsSupported = false;
-    bool m_enabledForSubDirs = true;
 };
 
 } // namespace ProjectExplorer
