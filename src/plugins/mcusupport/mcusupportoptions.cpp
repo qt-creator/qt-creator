@@ -565,12 +565,19 @@ void McuSupportOptions::registerExamples()
     if (docsDir.isEmpty())
         return;
 
-    const FilePath examplesDir = McuSupportOptions::qulDirFromSettings().pathAppended("demos");
-    if (!examplesDir.exists())
-        return;
+    auto examples = {
+        std::make_pair(QStringLiteral("demos"), tr("Qt for MCUs Demos")),
+        std::make_pair(QStringLiteral("examples"), tr("Qt for MCUs Examples"))
+    };
+    for (const auto &dir : examples) {
+        const FilePath examplesDir =
+                McuSupportOptions::qulDirFromSettings().pathAppended(dir.first);
+        if (!examplesDir.exists())
+            continue;
 
-    QtSupport::QtVersionManager::registerExampleSet("Qt for MCUs", docsDir.toString(),
-                                                    examplesDir.toString());
+        QtSupport::QtVersionManager::registerExampleSet(dir.second, docsDir.toString(),
+                                                        examplesDir.toString());
+    }
 }
 
 void McuSupportOptions::deletePackagesAndTargets()
