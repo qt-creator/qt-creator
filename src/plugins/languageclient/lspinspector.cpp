@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "lsplogger.h"
+#include "lspinspector.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
@@ -64,11 +64,11 @@ private:
     QLabel *m_mimeType = nullptr;
 };
 
-class LspLoggerWidget : public QDialog
+class LspInspectorWidget : public QDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(LspLoggerWidget)
+    Q_DECLARE_TR_FUNCTIONS(LspInspectorWidget)
 public:
-    explicit LspLoggerWidget(LspLogger *logger);
+    explicit LspInspectorWidget(LspInspector *inspector);
 
 private:
     void addMessage(const QString &clientName, const LspLogMessage &message);
@@ -77,7 +77,7 @@ private:
     void selectMatchingMessage(LspLogMessage::MessageSender sender, const QJsonValue &id);
     void saveLog();
 
-    LspLogger *m_logger = nullptr;
+    LspInspector *m_inspector = nullptr;
     QListWidget *m_clients = nullptr;
     MessageDetailWidget *m_clientDetails = nullptr;
     QListView *m_messages = nullptr;
@@ -85,14 +85,14 @@ private:
     Utils::ListModel<LspLogMessage> m_model;
 };
 
-QWidget *LspLogger::createWidget()
+QWidget *LspInspector::createWidget()
 {
-    return new LspLoggerWidget(this);
+    return new LspInspectorWidget(this);
 }
 
-void LspLogger::log(const LspLogMessage::MessageSender sender,
-                    const QString &clientName,
-                    const BaseMessage &message)
+void LspInspector::log(const LspLogMessage::MessageSender sender,
+                       const QString &clientName,
+                       const BaseMessage &message)
 {
     std::list<LspLogMessage> &clientLog = m_logs[clientName];
     while (clientLog.size() >= static_cast<std::size_t>(m_logSize))
@@ -101,12 +101,12 @@ void LspLogger::log(const LspLogMessage::MessageSender sender,
     emit newMessage(clientName, clientLog.back());
 }
 
-std::list<LspLogMessage> LspLogger::messages(const QString &clientName) const
+std::list<LspLogMessage> LspInspector::messages(const QString &clientName) const
 {
     return m_logs[clientName];
 }
 
-QList<QString> LspLogger::clients() const
+QList<QString> LspInspector::clients() const
 {
     return m_logs.keys();
 }
@@ -131,17 +131,20 @@ static QVariant messageData(const LspLogMessage &message, int, int role)
     return {};
 }
 
-LspLoggerWidget::LspLoggerWidget(LspLogger *logger)
-    : m_logger(logger)
+LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
+    : m_inspector(inspector)
 {
-    setWindowTitle(tr("Language Client Log"));
+    setWindowTitle(tr("Language Client Inspector"));
 
-    connect(logger, &LspLogger::newMessage, this, &LspLoggerWidget::addMessage);
+    connect(inspector, &LspInspector::newMessage, this, &LspInspectorWidget::addMessage);
     connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose, this, &QWidget::close);
 
     m_clients = new QListWidget;
-    m_clients->addItems(logger->clients());
-    connect(m_clients, &QListWidget::currentTextChanged, this, &LspLoggerWidget::setCurrentClient);
+    m_clients->addItems(inspector->clients());
+    connect(m_clients,
+            &QListWidget::currentTextChanged,
+            this,
+            &LspInspectorWidget::setCurrentClient);
     m_clients->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::MinimumExpanding);
 
     m_clientDetails = new MessageDetailWidget;
@@ -159,7 +162,7 @@ LspLoggerWidget::LspLoggerWidget(LspLogger *logger)
     connect(m_messages->selectionModel(),
             &QItemSelectionModel::currentChanged,
             this,
-            &LspLoggerWidget::currentMessageChanged);
+            &LspInspectorWidget::currentMessageChanged);
     m_messages->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
     m_messages->setSelectionMode(QAbstractItemView::MultiSelection);
 
@@ -182,14 +185,14 @@ LspLoggerWidget::LspLoggerWidget(LspLogger *logger)
     layout->addWidget(buttonBox);
 
     // save
-    connect(buttonBox, &QDialogButtonBox::accepted, this, &LspLoggerWidget::saveLog);
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &LspInspectorWidget::saveLog);
 
     // close
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     resize(1024, 768);
 }
 
-void LspLoggerWidget::addMessage(const QString &clientName, const LspLogMessage &message)
+void LspInspectorWidget::addMessage(const QString &clientName, const LspLogMessage &message)
 {
     if (m_clients->findItems(clientName, Qt::MatchExactly).isEmpty())
         m_clients->addItem(clientName);
@@ -198,14 +201,14 @@ void LspLoggerWidget::addMessage(const QString &clientName, const LspLogMessage 
     m_model.appendItem(message);
 }
 
-void LspLoggerWidget::setCurrentClient(const QString &clientName)
+void LspInspectorWidget::setCurrentClient(const QString &clientName)
 {
     m_model.clear();
-    for (const LspLogMessage &message : m_logger->messages(clientName))
+    for (const LspLogMessage &message : m_inspector->messages(clientName))
         m_model.appendItem(message);
 }
 
-void LspLoggerWidget::currentMessageChanged(const QModelIndex &index)
+void LspInspectorWidget::currentMessageChanged(const QModelIndex &index)
 {
     m_messages->clearSelection();
     if (!index.isValid())
@@ -244,8 +247,8 @@ static bool matches(LspLogMessage::MessageSender sender,
     return json.value(QString{idKey}) == id;
 }
 
-void LspLoggerWidget::selectMatchingMessage(LspLogMessage::MessageSender sender,
-                                            const QJsonValue &id)
+void LspInspectorWidget::selectMatchingMessage(LspLogMessage::MessageSender sender,
+                                               const QJsonValue &id)
 {
     LspLogMessage *matchingMessage = m_model.findData(
         [&](const LspLogMessage &message) { return matches(sender, id, message); });
@@ -261,7 +264,7 @@ void LspLoggerWidget::selectMatchingMessage(LspLogMessage::MessageSender sender,
         m_clientDetails->setMessage(matchingMessage->message);
 }
 
-void LspLoggerWidget::saveLog()
+void LspInspectorWidget::saveLog()
 {
     QString contents;
     QTextStream stream(&contents);

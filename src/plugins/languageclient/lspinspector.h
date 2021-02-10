@@ -41,11 +41,11 @@ struct LspLogMessage
     LanguageServerProtocol::BaseMessage message;
 };
 
-class LspLogger : public QObject
+class LspInspector : public QObject
 {
     Q_OBJECT
 public:
-    LspLogger() {}
+    LspInspector() {}
 
     QWidget *createWidget();
 

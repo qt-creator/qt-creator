@@ -50,8 +50,8 @@ QtcPlugin {
         "languageclientutils.h",
         "locatorfilter.cpp",
         "locatorfilter.h",
-        "lsplogger.cpp",
-        "lsplogger.h",
+        "lspinspector.cpp",
+        "lspinspector.h",
         "semantichighlightsupport.cpp",
         "semantichighlightsupport.h",
     ]

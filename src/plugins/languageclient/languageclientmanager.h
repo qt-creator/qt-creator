@@ -29,7 +29,7 @@
 #include "languageclient_global.h"
 #include "languageclientsettings.h"
 #include "locatorfilter.h"
-#include "lsplogger.h"
+#include "lspinspector.h"
 
 #include <utils/id.h>
 
@@ -94,7 +94,7 @@ public:
     static void logBaseMessage(const LspLogMessage::MessageSender sender,
                                const QString &clientName,
                                const LanguageServerProtocol::BaseMessage &message);
-    static void showLogger();
+    static void showInspector();
 
 signals:
     void shutdownFinished();
@@ -126,6 +126,6 @@ private:
     WorkspaceLocatorFilter m_workspaceLocatorFilter;
     WorkspaceClassLocatorFilter m_workspaceClassLocatorFilter;
     WorkspaceMethodLocatorFilter m_workspaceMethodLocatorFilter;
-    LspLogger m_logger;
+    LspInspector m_inspector;
 };
 } // namespace LanguageClient

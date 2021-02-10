@@ -21,6 +21,6 @@ add_qtc_plugin(LanguageClient
     languageclientutils.cpp languageclientutils.h
     languageclient_global.h
     locatorfilter.cpp locatorfilter.h
-    lsplogger.cpp lsplogger.h
+    lspinspector.cpp lspinspector.h
     semantichighlightsupport.cpp semantichighlightsupport.h
 )

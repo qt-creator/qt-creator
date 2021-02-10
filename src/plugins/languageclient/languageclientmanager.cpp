@@ -365,14 +365,14 @@ void LanguageClientManager::logBaseMessage(const LspLogMessage::MessageSender se
                                            const QString &clientName,
                                            const BaseMessage &message)
 {
-    instance()->m_logger.log(sender, clientName, message);
+    instance()->m_inspector.log(sender, clientName, message);
 }
 
-void LanguageClientManager::showLogger()
+void LanguageClientManager::showInspector()
 {
-    QWidget *loggerWidget = instance()->m_logger.createWidget();
-    loggerWidget->setAttribute(Qt::WA_DeleteOnClose);
-    loggerWidget->show();
+    QWidget *inspectorWidget = instance()->m_inspector.createWidget();
+    inspectorWidget->setAttribute(Qt::WA_DeleteOnClose);
+    inspectorWidget->show();
 }
 
 QVector<Client *> LanguageClientManager::reachableClients()

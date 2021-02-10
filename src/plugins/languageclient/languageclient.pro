@@ -21,7 +21,7 @@ HEADERS += \
     languageclientsymbolsupport.h \
     languageclientutils.h \
     locatorfilter.h \
-    lsplogger.h \
+    lspinspector.h \
     semantichighlightsupport.h
 
 
@@ -43,7 +43,7 @@ SOURCES += \
     languageclientsymbolsupport.cpp \
     languageclientutils.cpp \
     locatorfilter.cpp \
-    lsplogger.cpp \
+    lspinspector.cpp \
     semantichighlightsupport.cpp
 
 RESOURCES += \
