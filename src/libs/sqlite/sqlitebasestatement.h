@@ -37,9 +37,10 @@
 #include <utils/span.h>
 
 #include <cstdint>
+#include <functional>
 #include <memory>
-#include <type_traits>
 #include <tuple>
+#include <type_traits>
 
 using std::int64_t;
 
@@ -316,6 +317,25 @@ public:
         return statement.template fetchValue<Type>(0);
     }
 
+    template<int ResultTypeCount = 1, typename Callable, typename... QueryTypes>
+    void readCallback(Callable &&callable, const QueryTypes &...queryValues)
+    {
+        BaseStatement::checkColumnCount(ResultTypeCount);
+
+        Resetter resetter{*this};
+
+        bindValues(queryValues...);
+
+        while (BaseStatement::next()) {
+            auto control = callCallable<ResultTypeCount>(callable);
+
+            if (control == CallbackControl::Abort)
+                break;
+        }
+
+        resetter.reset();
+    }
+
 protected:
     ~StatementImplementation() = default;
 
@@ -396,6 +416,18 @@ private:
     ResultOptionalType assignValue()
     {
         return assignValue<ResultOptionalType>(std::make_integer_sequence<int, ResultTypeCount>{});
+    }
+
+    template<typename Callable, int... ColumnIndices>
+    CallbackControl callCallable(Callable &&callable, std::integer_sequence<int, ColumnIndices...>)
+    {
+        return std::invoke(callable, ValueGetter(*this, ColumnIndices)...);
+    }
+
+    template<int ResultTypeCount, typename Callable>
+    CallbackControl callCallable(Callable &&callable)
+    {
+        return callCallable(callable, std::make_integer_sequence<int, ResultTypeCount>{});
     }
 
     template<typename ValueType>
