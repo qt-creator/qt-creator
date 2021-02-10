@@ -72,6 +72,9 @@ const int LocatorEntryRole = int(HighlightingItemRole::User);
 namespace Core {
 namespace Internal {
 
+QFuture<void> LocatorWidget::m_sharedFuture;
+LocatorWidget *LocatorWidget::m_sharedFutureOrigin = nullptr;
+
 /* A model to represent the Locator results. */
 class LocatorModel : public QAbstractListModel
 {
@@ -839,13 +842,23 @@ void LocatorWidget::updateCompletionList(const QString &text)
         return;
 
     m_updateRequested = true;
-    if (m_entriesWatcher->future().isRunning()) {
+    if (m_sharedFuture.isRunning()) {
         // Cancel the old future. We may not just block the UI thread to wait for the search to
-        // actually cancel, so try again when the finshed signal of the watcher ends up in
-        // updateEntries() (which will call updateCompletionList again with the
-        // requestedCompletionText)
+        // actually cancel.
         m_requestedCompletionText = text;
-        m_entriesWatcher->future().cancel();
+        if (m_sharedFutureOrigin == this) {
+            // This locator widget is currently running. Make handleSearchFinished trigger another
+            // update.
+            m_rerunAfterFinished = true;
+        } else {
+            // Another locator widget is running. Trigger another update when that is finished.
+            Utils::onFinished(m_sharedFuture, this, [this](const QFuture<void> &) {
+                const QString text = m_requestedCompletionText;
+                m_requestedCompletionText.clear();
+                updateCompletionList(text);
+            });
+        }
+        m_sharedFuture.cancel();
         return;
     }
 
@@ -857,6 +870,8 @@ void LocatorWidget::updateCompletionList(const QString &text)
     for (ILocatorFilter *filter : filters)
         filter->prepareSearch(searchText);
     QFuture<LocatorFilterEntry> future = Utils::runAsync(&runSearch, filters, searchText);
+    m_sharedFuture = QFuture<void>(future);
+    m_sharedFutureOrigin = this;
     m_entriesWatcher->setFuture(future);
 }
 
@@ -870,7 +885,8 @@ void LocatorWidget::handleSearchFinished()
         m_rowRequestedForAccept.reset();
         return;
     }
-    if (m_entriesWatcher->future().isCanceled()) {
+    if (m_rerunAfterFinished) {
+        m_rerunAfterFinished = false;
         const QString text = m_requestedCompletionText;
         m_requestedCompletionText.clear();
         updateCompletionList(text);

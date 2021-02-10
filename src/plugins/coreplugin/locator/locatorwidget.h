@@ -97,10 +97,13 @@ private:
     Utils::FancyLineEdit *m_fileLineEdit = nullptr;
     QTimer m_showPopupTimer;
     QFutureWatcher<LocatorFilterEntry> *m_entriesWatcher = nullptr;
+    static QFuture<void> m_sharedFuture;
+    static LocatorWidget *m_sharedFutureOrigin;
     QString m_requestedCompletionText;
     bool m_shuttingDown = false;
     bool m_needsClearResult = true;
     bool m_updateRequested = false;
+    bool m_rerunAfterFinished = false;
     bool m_possibleToolTipRequest = false;
     QWidget *m_progressIndicator = nullptr;
     QTimer m_showProgressTimer;
