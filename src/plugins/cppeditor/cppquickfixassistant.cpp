@@ -57,8 +57,6 @@ class CppQuickFixAssistProcessor : public IAssistProcessor
     {
         QSharedPointer<const AssistInterface> assistInterface(interface);
         auto cppInterface = assistInterface.staticCast<const CppQuickFixInterface>();
-        if (cppInterface->path().isEmpty())
-            return nullptr;
 
         QuickFixOperations quickFixes;
         for (CppQuickFixFactory *factory : CppQuickFixFactory::cppQuickFixFactories())

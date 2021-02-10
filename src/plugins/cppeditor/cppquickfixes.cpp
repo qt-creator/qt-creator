@@ -750,6 +750,8 @@ void InverseLogicalComparison::match(const CppQuickFixInterface &interface,
     CppRefactoringFilePtr file = interface.currentFile();
 
     const QList<AST *> &path = interface.path();
+    if (path.isEmpty())
+        return;
     int index = path.size() - 1;
     BinaryExpressionAST *binary = path.at(index)->asBinaryExpression();
     if (!binary)
@@ -831,6 +833,8 @@ private:
 void FlipLogicalOperands::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
 {
     const QList<AST *> &path = interface.path();
+    if (path.isEmpty())
+        return;
     CppRefactoringFilePtr file = interface.currentFile();
 
     int index = path.size() - 1;
@@ -1098,6 +1102,8 @@ private:
 void AddBracesToIf::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
 {
     const QList<AST *> &path = interface.path();
+    if (path.isEmpty())
+        return;
 
     // show when we're on the 'if' of an if statement
     int index = path.size() - 1;
@@ -7520,6 +7526,8 @@ private:
 void EscapeStringLiteral::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
 {
     const QList<AST *> &path = interface.path();
+    if (path.isEmpty())
+        return;
 
     AST * const lastAst = path.last();
     ExpressionAST *literal = lastAst->asStringLiteral();
