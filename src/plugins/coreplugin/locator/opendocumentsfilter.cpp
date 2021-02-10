@@ -113,8 +113,7 @@ QList<OpenDocumentsFilter::Entry> OpenDocumentsFilter::editors() const
 void OpenDocumentsFilter::refresh(QFutureInterface<void> &future)
 {
     Q_UNUSED(future)
-    QMetaObject::invokeMethod(this, &OpenDocumentsFilter::refreshInternally,
-                              Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(this, &OpenDocumentsFilter::refreshInternally, Qt::QueuedConnection);
 }
 
 void OpenDocumentsFilter::accept(LocatorFilterEntry selection,
