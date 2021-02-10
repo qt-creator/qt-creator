@@ -851,7 +851,8 @@ TEST_F(TokenProcessor, OperatorColon)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(668, 28));
 
-    ASSERT_THAT(infos[6], HasTwoTypes(HighlightingType::Punctuation, HighlightingType::Operator));
+    ASSERT_THAT(infos[6], HasThreeTypes(HighlightingType::Punctuation, HighlightingType::Operator,
+                                        HighlightingType::TernaryElse));
 }
 
 TEST_F(TokenProcessor, PunctuationColon)

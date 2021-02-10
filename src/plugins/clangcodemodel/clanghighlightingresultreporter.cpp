@@ -115,6 +115,8 @@ bool ignore(ClangBackEnd::HighlightingType type)
     case HighlightingType::TemplateTemplateParameter:
     case HighlightingType::AngleBracketOpen:
     case HighlightingType::AngleBracketClose:
+    case HighlightingType::TernaryIf:
+    case HighlightingType::TernaryElse:
         return true;
     }
 
@@ -147,6 +149,10 @@ TextEditor::HighlightingResult toHighlightingResult(
         result.kind = CppTools::SemanticHighlighter::AngleBracketOpen;
     else if (tokenInfo.types.mixinHighlightingTypes.contains(HighlightingType::AngleBracketClose))
         result.kind = CppTools::SemanticHighlighter::AngleBracketClose;
+    else if (tokenInfo.types.mixinHighlightingTypes.contains(HighlightingType::TernaryIf))
+        result.kind = CppTools::SemanticHighlighter::TernaryIf;
+    else if (tokenInfo.types.mixinHighlightingTypes.contains(HighlightingType::TernaryElse))
+        result.kind = CppTools::SemanticHighlighter::TernaryElse;
     return result;
 }
 

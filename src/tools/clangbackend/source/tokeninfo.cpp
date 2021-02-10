@@ -586,6 +586,12 @@ void TokenInfo::punctuationOrOperatorKind()
         case CXCursor_CompoundAssignOperator:
         case CXCursor_ConditionalOperator:
             m_types.mixinHighlightingTypes.push_back(HighlightingType::Operator);
+            if (kind == CXCursor_ConditionalOperator) {
+                if (m_token->spelling() == "?")
+                    m_types.mixinHighlightingTypes.push_back(HighlightingType::TernaryIf);
+                else
+                    m_types.mixinHighlightingTypes.push_back(HighlightingType::TernaryElse);
+            }
             break;
         default:
             break;

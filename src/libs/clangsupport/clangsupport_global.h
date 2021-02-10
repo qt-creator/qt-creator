@@ -110,6 +110,8 @@ enum class HighlightingType : quint8
     TemplateTemplateParameter,
     AngleBracketOpen,
     AngleBracketClose,
+    TernaryIf,
+    TernaryElse,
 };
 
 enum class StorageClass : quint8

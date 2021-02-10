@@ -161,12 +161,16 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
     incrementalApplyExtraAdditionalFormats(highlighter, m_watcher->future(), from, to, m_formatMap,
                                            &splitRawStringLiteral);
 
-    // Add information about angle brackets, so they can be highlighted/animated.
+    // In addition to the paren matching that the syntactic highlighter does
+    // (parentheses, braces, brackets, comments), here we inject info from the code model
+    // for angle brackets in templates and the ternary operator.
     QPair<QTextBlock, Parentheses> parentheses;
     for (int i = from; i < to; ++i) {
         const HighlightingResult &result = m_watcher->future().resultAt(i);
-        if (result.kind != AngleBracketOpen && result.kind != AngleBracketClose)
+        if (result.kind != AngleBracketOpen && result.kind != AngleBracketClose
+                && result.kind != TernaryIf && result.kind != TernaryElse) {
             continue;
+        }
         if (parentheses.first.isValid() && result.line - 1 > parentheses.first.blockNumber()) {
             TextDocumentLayout::setParentheses(parentheses.first, parentheses.second);
             parentheses = {};
@@ -177,8 +181,12 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
         }
         if (result.kind == AngleBracketOpen)
             parentheses.second << Parenthesis(Parenthesis::Opened, '<', result.column - 1);
-        else
+        else if (result.kind == AngleBracketClose)
             parentheses.second << Parenthesis(Parenthesis::Closed, '>', result.column - 1);
+        else if (result.kind == TernaryIf)
+            parentheses.second << Parenthesis(Parenthesis::Opened, '?', result.column - 1);
+        else if (result.kind == TernaryElse)
+            parentheses.second << Parenthesis(Parenthesis::Closed, ':', result.column - 1);
     }
     if (parentheses.first.isValid())
         TextDocumentLayout::setParentheses(parentheses.first, parentheses.second);
