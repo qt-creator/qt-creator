@@ -37,6 +37,7 @@
 
 #include <QDir>
 
+#include <deque>
 #include <vector>
 
 namespace {
@@ -1030,6 +1031,64 @@ TEST_F(SqliteStatement, ReadCallbackCallsResetIfExceptionIsThrown)
 
     EXPECT_THROW(mockStatement.readCallback<2>(callbackMock.AsStdFunction()),
                  Sqlite::StatementHasError);
+}
+
+TEST_F(SqliteStatement, ReadToContainer)
+{
+    std::deque<FooValue> values;
+    ReadStatement statement("SELECT number FROM test", database);
+
+    statement.readTo<1>(values);
+
+    ASSERT_THAT(values, UnorderedElementsAre(Eq("blah"), Eq(23.3), Eq(40)));
+}
+
+TEST_F(SqliteStatement, ReadToContainerCallCallbackWithArguments)
+{
+    std::deque<FooValue> values;
+    ReadStatement statement("SELECT number FROM test WHERE value=?", database);
+
+    statement.readTo(values, 2);
+
+    ASSERT_THAT(values, ElementsAre(Eq(23.3)));
+}
+
+TEST_F(SqliteStatement, ThrowInvalidColumnFetchedForToManyArgumentsForReadTo)
+{
+    std::deque<FooValue> values;
+    SqliteTestStatement statement("SELECT name, number FROM test", database);
+
+    ASSERT_THROW(statement.readTo<1>(values, 2), Sqlite::ColumnCountDoesNotMatch);
+}
+
+TEST_F(SqliteStatement, ReadToCallsResetAfterPushingAllValuesBack)
+{
+    std::deque<FooValue> values;
+    MockSqliteStatement mockStatement;
+
+    EXPECT_CALL(mockStatement, reset());
+
+    mockStatement.readTo(values);
+}
+
+TEST_F(SqliteStatement, ReadToThrowsForError)
+{
+    std::deque<FooValue> values;
+    MockSqliteStatement mockStatement;
+    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+
+    ASSERT_THROW(mockStatement.readTo(values), Sqlite::StatementHasError);
+}
+
+TEST_F(SqliteStatement, ReadToCallsResetIfExceptionIsThrown)
+{
+    std::deque<FooValue> values;
+    MockSqliteStatement mockStatement;
+    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+
+    EXPECT_CALL(mockStatement, reset());
+
+    EXPECT_THROW(mockStatement.readTo(values), Sqlite::StatementHasError);
 }
 
 } // namespace
