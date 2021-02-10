@@ -27,11 +27,14 @@
 
 #include "locator.h"
 
+#include <extensionsystem/iplugin.h>
 #include <utils/optional.h>
 
 #include <QFutureWatcher>
 #include <QPointer>
 #include <QWidget>
+
+#include <functional>
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
@@ -63,6 +66,9 @@ public:
 
     void scheduleAcceptEntry(const QModelIndex &index);
 
+    static ExtensionSystem::IPlugin::ShutdownFlag aboutToShutdown(
+        const std::function<void()> &emitAsynchronousShutdownFinished);
+
 signals:
     void showCurrentItemToolTip();
     void lostFocus();
@@ -91,16 +97,17 @@ private:
 
     LocatorModel *m_locatorModel = nullptr;
 
+    static bool m_shuttingDown;
+    static QFuture<void> m_sharedFuture;
+    static LocatorWidget *m_sharedFutureOrigin;
+
     QMenu *m_filterMenu = nullptr;
     QAction *m_refreshAction = nullptr;
     QAction *m_configureAction = nullptr;
     Utils::FancyLineEdit *m_fileLineEdit = nullptr;
     QTimer m_showPopupTimer;
     QFutureWatcher<LocatorFilterEntry> *m_entriesWatcher = nullptr;
-    static QFuture<void> m_sharedFuture;
-    static LocatorWidget *m_sharedFutureOrigin;
     QString m_requestedCompletionText;
-    bool m_shuttingDown = false;
     bool m_needsClearResult = true;
     bool m_updateRequested = false;
     bool m_rerunAfterFinished = false;

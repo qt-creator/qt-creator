@@ -29,10 +29,13 @@
 #include "locatorconstants.h"
 
 #include <coreplugin/actionmanager/command.h>
+#include <extensionsystem/iplugin.h>
 
 #include <QFuture>
 #include <QObject>
 #include <QTimer>
+
+#include <functional>
 
 namespace Core {
 namespace Internal {
@@ -48,7 +51,8 @@ public:
     ~Locator() override;
 
     static Locator *instance();
-    void aboutToShutdown();
+    ExtensionSystem::IPlugin::ShutdownFlag aboutToShutdown(
+        const std::function<void()> &emitAsynchronousShutdownFinished);
 
     void initialize();
     void extensionsInitialized();
@@ -63,7 +67,6 @@ public:
 
 signals:
     void filtersChanged();
-    void aboutToShutdownOccurred();
 
 public slots:
     void refresh(QList<ILocatorFilter *> filters);

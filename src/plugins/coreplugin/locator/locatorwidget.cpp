@@ -72,6 +72,7 @@ const int LocatorEntryRole = int(HighlightingItemRole::User);
 namespace Core {
 namespace Internal {
 
+bool LocatorWidget::m_shuttingDown = false;
 QFuture<void> LocatorWidget::m_sharedFuture;
 LocatorWidget *LocatorWidget::m_sharedFutureOrigin = nullptr;
 
@@ -619,13 +620,6 @@ LocatorWidget::LocatorWidget(Locator *locator) :
     connect(qApp, &QApplication::focusChanged, this, &LocatorWidget::updatePreviousFocusWidget);
 
     connect(locator, &Locator::filtersChanged, this, &LocatorWidget::updateFilterList);
-    connect(locator, &Locator::aboutToShutdownOccurred, this, [this]() {
-        m_shuttingDown = true;
-        if (m_entriesWatcher->isRunning()) {
-            m_entriesWatcher->cancel();
-            m_entriesWatcher->waitForFinished();
-        }
-    });
     updateFilterList();
 }
 
@@ -910,6 +904,22 @@ void LocatorWidget::scheduleAcceptEntry(const QModelIndex &index)
     } else {
         acceptEntry(index.row());
     }
+}
+
+ExtensionSystem::IPlugin::ShutdownFlag LocatorWidget::aboutToShutdown(
+    const std::function<void()> &emitAsynchronousShutdownFinished)
+{
+    m_shuttingDown = true;
+    if (m_sharedFuture.isRunning()) {
+        Utils::onFinished(m_sharedFuture,
+                          Locator::instance(),
+                          [emitAsynchronousShutdownFinished](const QFuture<void> &) {
+                              emitAsynchronousShutdownFinished();
+                          });
+        m_sharedFuture.cancel();
+        return ExtensionSystem::IPlugin::AsynchronousShutdown;
+    }
+    return ExtensionSystem::IPlugin::SynchronousShutdown;
 }
 
 void LocatorWidget::acceptEntry(int row)

@@ -169,7 +169,8 @@ bool Locator::delayedInitialize()
     return true;
 }
 
-void Locator::aboutToShutdown()
+ExtensionSystem::IPlugin::ShutdownFlag Locator::aboutToShutdown(
+    const std::function<void()> &emitAsynchronousShutdownFinished)
 {
     m_shuttingDown = true;
     m_refreshTimer.stop();
@@ -177,7 +178,7 @@ void Locator::aboutToShutdown()
         m_refreshTask.cancel();
         m_refreshTask.waitForFinished();
     }
-    emit aboutToShutdownOccurred();
+    return LocatorWidget::aboutToShutdown(emitAsynchronousShutdownFinished);
 }
 
 void Locator::loadSettings()
