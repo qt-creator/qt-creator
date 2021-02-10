@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
         QInputDialog dlg;
         const QStringList appArgs = qApp->arguments();
         QString labelText = QCoreApplication::translate("qtc-askpass",
-                                                        "Password required for SSH login.");
+                                                        "Password required.");
         if (appArgs.count() > 1)
             labelText.append('\n').append(appArgs.at(1));
         dlg.setLabelText(labelText);
