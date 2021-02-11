@@ -3532,10 +3532,7 @@ void CppEditorPlugin::test_quickfix_InsertQtPropertyMembers_data()
              "    Q_PROPERTY(int it READ getIt WRITE setIt RESET resetIt NOTIFY itChanged)\n"
              "\n"
              "public:\n"
-             "    int getIt() const\n"
-             "    {\n"
-             "        return m_it;\n"
-             "    }\n"
+             "    int getIt() const;\n"
              "\n"
              "public slots:\n"
              "    void setIt(int it)\n"
@@ -3555,7 +3552,12 @@ void CppEditorPlugin::test_quickfix_InsertQtPropertyMembers_data()
              "\n"
              "private:\n"
              "    int m_it;\n"
-             "};\n");
+             "};\n"
+             "\n"
+             "int XmarksTheSpot::getIt() const\n"
+             "{\n"
+             "    return m_it;\n"
+             "}\n");
 
     QTest::newRow("InsertQtPropertyMembersResetWithoutSet")
         << _("struct XmarksTheSpot {\n"
@@ -3565,10 +3567,7 @@ void CppEditorPlugin::test_quickfix_InsertQtPropertyMembers_data()
              "    Q_PROPERTY(int it READ getIt RESET resetIt NOTIFY itChanged)\n"
              "\n"
              "public:\n"
-             "    int getIt() const\n"
-             "    {\n"
-             "        return m_it;\n"
-             "    }\n"
+             "    int getIt() const;\n"
              "\n"
              "public slots:\n"
              "    void resetIt()\n"
@@ -3586,7 +3585,12 @@ void CppEditorPlugin::test_quickfix_InsertQtPropertyMembers_data()
              "\n"
              "private:\n"
              "    int m_it;\n"
-             "};\n");
+             "};\n"
+             "\n"
+             "int XmarksTheSpot::getIt() const\n"
+             "{\n"
+             "    return m_it;\n"
+             "}\n");
 
     QTest::newRow("InsertQtPropertyMembersResetWithoutSetAndNotify")
         << _("struct XmarksTheSpot {\n"
@@ -3596,10 +3600,7 @@ void CppEditorPlugin::test_quickfix_InsertQtPropertyMembers_data()
              "    Q_PROPERTY(int it READ getIt RESET resetIt)\n"
              "\n"
              "public:\n"
-             "    int getIt() const\n"
-             "    {\n"
-             "        return m_it;\n"
-             "    }\n"
+             "    int getIt() const;\n"
              "\n"
              "public slots:\n"
              "    void resetIt()\n"
@@ -3611,7 +3612,12 @@ void CppEditorPlugin::test_quickfix_InsertQtPropertyMembers_data()
              "\n"
              "private:\n"
              "    int m_it;\n"
-             "};\n");
+             "};\n"
+             "\n"
+             "int XmarksTheSpot::getIt() const\n"
+             "{\n"
+             "    return m_it;\n"
+             "}\n");
 
     QTest::newRow("InsertQtPropertyMembersPrivateBeforePublic")
         << _("class XmarksTheSpot {\n"
@@ -3627,10 +3633,7 @@ void CppEditorPlugin::test_quickfix_InsertQtPropertyMembers_data()
              "\n"
              "public:\n"
              "    void find();\n"
-             "    int getIt() const\n"
-             "    {\n"
-             "        return m_it;\n"
-             "    }\n"
+             "    int getIt() const;\n"
              "public slots:\n"
              "    void setIt(int it)\n"
              "    {\n"
@@ -3641,7 +3644,12 @@ void CppEditorPlugin::test_quickfix_InsertQtPropertyMembers_data()
              "    }\n"
              "signals:\n"
              "    void itChanged(int);\n"
-             "};\n");
+             "};\n"
+             "\n"
+             "int XmarksTheSpot::getIt() const\n"
+             "{\n"
+             "    return m_it;\n"
+             "}\n");
 }
 
 void CppEditorPlugin::test_quickfix_InsertQtPropertyMembers()

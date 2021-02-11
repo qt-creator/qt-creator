@@ -138,9 +138,9 @@ public:
 
 public:
     int getterOutsideClassFrom = 0;
-    int getterInCppFileFrom = 2;
+    int getterInCppFileFrom = 1;
     int setterOutsideClassFrom = 0;
-    int setterInCppFileFrom = 2;
+    int setterInCppFileFrom = 1;
     QString getterAttributes;                 // e.g. [[nodiscard]]
     QString getterNameTemplate = "<name>";    // or get<Name>
     QString setterNameTemplate = "set<Name>"; // or set_<name> or Set<Name>
