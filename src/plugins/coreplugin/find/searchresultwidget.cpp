@@ -303,6 +303,11 @@ void SearchResultWidget::setSupportsReplace(bool replaceSupported, const QString
     m_dontAskAgainGroup = group;
 }
 
+bool SearchResultWidget::supportsReplace() const
+{
+    return m_replaceSupported;
+}
+
 void SearchResultWidget::setTextToReplace(const QString &textToReplace)
 {
     m_replaceTextEdit->setText(textToReplace);

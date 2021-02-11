@@ -60,6 +60,7 @@ public:
     int count() const;
 
     void setSupportsReplace(bool replaceSupported, const QString &group);
+    bool supportsReplace() const;
 
     void setTextToReplace(const QString &textToReplace);
     QString textToReplace() const;

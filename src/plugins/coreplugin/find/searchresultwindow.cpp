@@ -760,6 +760,11 @@ QVariant SearchResult::userData() const
     return m_userData;
 }
 
+bool SearchResult::supportsReplace() const
+{
+    return m_widget->supportsReplace();
+}
+
 /*!
     Returns the text that should replace the text in search results.
 */

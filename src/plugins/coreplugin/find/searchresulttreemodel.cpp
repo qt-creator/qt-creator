@@ -77,6 +77,7 @@ private:
     QSet<SearchResultTreeItem *> addPath(const QStringList &path);
     QVariant data(const SearchResultTreeItem *row, int role) const;
     bool setCheckState(const QModelIndex &idx, Qt::CheckState checkState, bool firstCall = true);
+    void updateCheckStateFromChildren(const QModelIndex &idx, SearchResultTreeItem *item);
     QModelIndex nextIndex(const QModelIndex &idx, bool *wrapped = nullptr) const;
     QModelIndex prevIndex(const QModelIndex &idx, bool *wrapped = nullptr) const;
 
@@ -247,31 +248,7 @@ bool SearchResultTreeModel::setCheckState(const QModelIndex &idx, Qt::CheckState
     item->setCheckState(checkState);
     if (firstCall) {
         emit dataChanged(idx, idx);
-        // check parents
-        SearchResultTreeItem *currentItem = item;
-        QModelIndex currentIndex = idx;
-        while (SearchResultTreeItem *parent = currentItem->parent()) {
-            bool hasChecked = false;
-            bool hasUnchecked = false;
-            for (int i = 0; i < parent->childrenCount(); ++i) {
-                SearchResultTreeItem *child = parent->childAt(i);
-                if (child->checkState() == Qt::Checked)
-                    hasChecked = true;
-                else if (child->checkState() == Qt::Unchecked)
-                    hasUnchecked = true;
-                else if (child->checkState() == Qt::PartiallyChecked)
-                    hasChecked = hasUnchecked = true;
-            }
-            if (hasChecked && hasUnchecked)
-                parent->setCheckState(Qt::PartiallyChecked);
-            else if (hasChecked)
-                parent->setCheckState(Qt::Checked);
-            else
-                parent->setCheckState(Qt::Unchecked);
-            emit dataChanged(idx.parent(), idx.parent());
-            currentItem = parent;
-            currentIndex = idx.parent();
-        }
+        updateCheckStateFromChildren(idx.parent(), item->parent());
     }
     // check children
     if (int children = item->childrenCount()) {
@@ -280,6 +257,34 @@ bool SearchResultTreeModel::setCheckState(const QModelIndex &idx, Qt::CheckState
         emit dataChanged(index(0, 0, idx), index(children-1, 0, idx));
     }
     return true;
+}
+
+void SearchResultTreeModel::updateCheckStateFromChildren(const QModelIndex &idx,
+                                                         SearchResultTreeItem *item)
+{
+    if (!item)
+        return;
+
+    bool hasChecked = false;
+    bool hasUnchecked = false;
+    for (int i = 0; i < item->childrenCount(); ++i) {
+        SearchResultTreeItem *child = item->childAt(i);
+        if (child->checkState() == Qt::Checked)
+            hasChecked = true;
+        else if (child->checkState() == Qt::Unchecked)
+            hasUnchecked = true;
+        else if (child->checkState() == Qt::PartiallyChecked)
+            hasChecked = hasUnchecked = true;
+    }
+    if (hasChecked && hasUnchecked)
+        item->setCheckState(Qt::PartiallyChecked);
+    else if (hasChecked)
+        item->setCheckState(Qt::Checked);
+    else
+        item->setCheckState(Qt::Unchecked);
+    emit dataChanged(idx, idx);
+
+    updateCheckStateFromChildren(idx.parent(), item->parent());
 }
 
 void setDataInternal(const QModelIndex &index, const QVariant &value, int role);
@@ -418,6 +423,7 @@ void SearchResultTreeModel::addResultsToCurrentParent(const QList<SearchResultIt
             }
         }
     }
+    updateCheckStateFromChildren(index(m_currentParent), m_currentParent);
     emit dataChanged(m_currentIndex, m_currentIndex); // Make sure that the number after the file name gets updated
 }
 

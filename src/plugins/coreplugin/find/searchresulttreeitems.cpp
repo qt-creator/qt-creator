@@ -33,7 +33,7 @@ SearchResultTreeItem::SearchResultTreeItem(const SearchResultItem &item,
   : item(item),
   m_parent(parent),
   m_isGenerated(false),
-  m_checkState(Qt::Checked)
+  m_checkState(item.selectForReplacement() ? Qt::Checked : Qt::Unchecked)
 {
 }
 

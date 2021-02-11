@@ -124,6 +124,9 @@ public:
     SearchResultColor::Style style() const { return m_style; }
     void setStyle(SearchResultColor::Style style) { m_style = style; }
 
+    bool selectForReplacement() const { return m_selectForReplacement; }
+    void setSelectForReplacement(bool select) { m_selectForReplacement = select; }
+
 private:
     QStringList m_path; // hierarchy to the parent item of this item
     QString m_lineText; // text to show for the item itself
@@ -131,6 +134,7 @@ private:
     QVariant m_userData; // user data for identification of the item
     Search::TextRange m_mainRange;
     bool m_useTextEditorFont = false;
+    bool m_selectForReplacement = true;
     SearchResultColor::Style m_style = SearchResultColor::Style::Default;
 };
 

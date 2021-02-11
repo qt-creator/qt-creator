@@ -69,6 +69,7 @@ public:
 
     void setUserData(const QVariant &data);
     QVariant userData() const;
+    bool supportsReplace() const;
     QString textToReplace() const;
     int count() const;
     void setSearchAgainSupported(bool supported);

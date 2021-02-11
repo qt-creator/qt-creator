@@ -37,6 +37,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/session.h>
 #include <texteditor/basefilefind.h>
 
 #include <utils/algorithm.h>
@@ -637,6 +638,8 @@ static void displayResults(SearchResult *search, QFutureWatcher<CPlusPlus::Usage
         item.setUserData(int(result.type));
         item.setStyle(colorStyleForUsageType(result.type));
         item.setUseTextEditorFont(true);
+        if (search->supportsReplace())
+            item.setSelectForReplacement(SessionManager::projectForFile(result.path));
         search->addResult(item);
 
         if (parameters.prettySymbolName.isEmpty())
@@ -829,10 +832,13 @@ void CppFindReferences::findMacroUses(const CPlusPlus::Macro &macro, const QStri
         const QString line = FindMacroUsesInFile::matchingLine(macro.bytesOffset(), source,
                                                                &column);
         SearchResultItem item;
-        item.setFilePath(Utils::FilePath::fromString(macro.fileName()));
+        const Utils::FilePath filePath = Utils::FilePath::fromString(macro.fileName());
+        item.setFilePath(filePath);
         item.setLineText(line);
         item.setMainRange(macro.line(), column, macro.nameToQString().length());
         item.setUseTextEditorFont(true);
+        if (search->supportsReplace())
+            item.setSelectForReplacement(SessionManager::projectForFile(filePath));
         search->addResult(item);
     }
 
