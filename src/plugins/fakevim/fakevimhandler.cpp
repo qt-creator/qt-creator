@@ -58,6 +58,8 @@
 #include "fakevimactions.h"
 #include "fakevimtr.h"
 
+#include <utils/optional.h>
+
 #include <QDebug>
 #include <QFile>
 #include <QObject>
