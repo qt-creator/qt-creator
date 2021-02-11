@@ -597,11 +597,13 @@ void Client::registerCapabilities(const QList<Registration> &registrations)
         for (auto document : m_openedDocument.keys())
             updateFunctionHintProvider(document);
     }
+    emit capabilitiesChanged(m_dynamicCapabilities);
 }
 
 void Client::unregisterCapabilities(const QList<Unregistration> &unregistrations)
 {
     m_dynamicCapabilities.unregisterCapability(unregistrations);
+    emit capabilitiesChanged(m_dynamicCapabilities);
 }
 
 TextEditor::HighlightingResult createHighlightingResult(const SymbolInformation &info)
@@ -1079,7 +1081,7 @@ void Client::handleMethod(const QString &method, const MessageId &id, const ICon
     } else if (method == UnregisterCapabilityRequest::methodName) {
         auto params = dynamic_cast<const UnregisterCapabilityRequest *>(content)->params().value_or(UnregistrationParams());
         if (params.isValid(&error))
-            m_dynamicCapabilities.unregisterCapability(params.unregistrations());
+            unregisterCapabilities(params.unregistrations());
         else
             logError(params);
     } else if (method == ApplyWorkspaceEditRequest::methodName) {

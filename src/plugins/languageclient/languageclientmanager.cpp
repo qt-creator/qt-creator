@@ -108,13 +108,20 @@ void LanguageClientManager::clientStarted(Client *client)
     }
     if (!managerInstance->m_clients.contains(client)) {
         managerInstance->m_clients << client;
-        connect(client, &Client::finished, managerInstance, [client](){
-            clientFinished(client);
-        });
+        connect(client, &Client::finished, managerInstance, [client]() { clientFinished(client); });
         connect(client,
                 &Client::initialized,
-                &managerInstance->m_currentDocumentLocatorFilter,
-                &DocumentLocatorFilter::updateCurrentClient);
+                managerInstance,
+                [client](const LanguageServerProtocol::ServerCapabilities &capabilities) {
+                    managerInstance->m_currentDocumentLocatorFilter.updateCurrentClient();
+                    managerInstance->m_inspector.clientInitialized(client->name(), capabilities);
+                });
+        connect(client,
+                &Client::capabilitiesChanged,
+                managerInstance,
+                [client](const DynamicCapabilities &capabilities) {
+                    managerInstance->m_inspector.updateCapabilities(client->name(), capabilities);
+                });
     }
 
     client->initialize();

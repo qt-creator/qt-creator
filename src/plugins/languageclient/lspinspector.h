@@ -25,10 +25,13 @@
 
 #pragma once
 
+#include "dynamiccapabilities.h"
+
 #include <QTime>
 #include <QWidget>
 
 #include <languageserverprotocol/basemessage.h>
+#include <languageserverprotocol/servercapabilities.h>
 
 #include <list>
 
@@ -39,6 +42,12 @@ struct LspLogMessage
     enum MessageSender { ClientMessage, ServerMessage } sender;
     QTime time;
     LanguageServerProtocol::BaseMessage message;
+};
+
+struct Capabilities
+{
+    LanguageServerProtocol::ServerCapabilities capabilities;
+    DynamicCapabilities dynamicCapabilities;
 };
 
 class LspInspector : public QObject
@@ -53,15 +62,22 @@ public:
     void log(const LspLogMessage::MessageSender sender,
              const QString &clientName,
              const LanguageServerProtocol::BaseMessage &message);
+    void clientInitialized(const QString &clientName,
+                           const LanguageServerProtocol::ServerCapabilities &capabilities);
+    void updateCapabilities(const QString &clientName,
+                            const DynamicCapabilities &dynamicCapabilities);
 
     std::list<LspLogMessage> messages(const QString &clientName) const;
+    Capabilities capabilities(const QString &clientName) const;
     QList<QString> clients() const;
 
 signals:
     void newMessage(const QString &clientName, const LspLogMessage &message);
+    void capabilitiesUpdated(const QString &clientName);
 
 private:
     QMap<QString, std::list<LspLogMessage>> m_logs;
+    QMap<QString, Capabilities> m_capabilities;
     int m_logSize = 100; // default log size if no widget is currently visible
 };
 

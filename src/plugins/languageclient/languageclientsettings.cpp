@@ -740,24 +740,6 @@ public:
     }
 };
 
-static QWidget *createCapabilitiesView(const QJsonValue &capabilities)
-{
-    auto root = new Utils::JsonTreeItem("Capabilities", capabilities);
-    if (root->canFetchMore())
-        root->fetchMore();
-
-    auto capabilitiesModel = new Utils::TreeModel<Utils::JsonTreeItem>(root);
-    capabilitiesModel->setHeader({BaseSettingsWidget::tr("Name"),
-                                  BaseSettingsWidget::tr("Value"),
-                                  BaseSettingsWidget::tr("Type")});
-    auto capabilitiesView = new QTreeView();
-    capabilitiesView->setModel(capabilitiesModel);
-    capabilitiesView->setAlternatingRowColors(true);
-    capabilitiesView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    capabilitiesView->setItemDelegate(new JsonTreeItemDelegate);
-    return capabilitiesView;
-}
-
 static QString startupBehaviorString(BaseSettings::StartBehavior behavior)
 {
     switch (behavior) {
@@ -809,32 +791,6 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
 
     connect(addMimeTypeButton, &QPushButton::pressed,
             this, &BaseSettingsWidget::showAddMimeTypeDialog);
-
-    auto createInfoLabel = []() {
-        return new QLabel(tr("Available after server was initialized"));
-    };
-
-    mainLayout->addWidget(new QLabel(tr("Capabilities:")), ++row, 0, Qt::AlignTop);
-    QVector<Client *> clients = LanguageClientManager::clientForSetting(settings);
-    if (clients.isEmpty()) {
-        mainLayout->addWidget(createInfoLabel());
-    } else { // TODO move the capabilities view into a new widget outside of the settings
-        Client *client = clients.first();
-        if (client->state() == Client::Initialized)
-            mainLayout->addWidget(createCapabilitiesView(QJsonValue(client->capabilities())));
-        else
-            mainLayout->addWidget(createInfoLabel(), row, 1);
-        connect(client, &Client::finished, mainLayout, [mainLayout, row, createInfoLabel]() {
-            delete mainLayout->itemAtPosition(row, 1)->widget();
-            mainLayout->addWidget(createInfoLabel(), row, 1);
-        });
-        connect(client, &Client::initialized, mainLayout,
-                [mainLayout, row](
-                    const LanguageServerProtocol::ServerCapabilities &capabilities) {
-                    delete mainLayout->itemAtPosition(row, 1)->widget();
-                    mainLayout->addWidget(createCapabilitiesView(QJsonValue(capabilities)), row, 1);
-                });
-    }
 
     mainLayout->addWidget(new QLabel(tr("Initialization options:")), ++row, 0);
     mainLayout->addWidget(m_initializationOptions, row, 1);

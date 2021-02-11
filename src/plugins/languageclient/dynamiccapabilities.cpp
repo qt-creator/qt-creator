@@ -56,6 +56,11 @@ Utils::optional<bool> DynamicCapabilities::isRegistered(const QString &method) c
     return m_capability[method].enabled();
 }
 
+QStringList DynamicCapabilities::registeredMethods() const
+{
+    return m_capability.keys();
+}
+
 void DynamicCapabilities::reset()
 {
     m_capability.clear();

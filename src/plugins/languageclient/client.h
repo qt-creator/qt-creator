@@ -170,7 +170,8 @@ public:
     bool documentUpdatePostponed(const Utils::FilePath &fileName) const;
 
 signals:
-    void initialized(LanguageServerProtocol::ServerCapabilities capabilities);
+    void initialized(const LanguageServerProtocol::ServerCapabilities &capabilities);
+    void capabilitiesChanged(const DynamicCapabilities &capabilities);
     void documentUpdated(TextEditor::TextDocument *document);
     void finished();
 
