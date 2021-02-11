@@ -623,6 +623,13 @@ LocatorWidget::LocatorWidget(Locator *locator) :
     updateFilterList();
 }
 
+LocatorWidget::~LocatorWidget()
+{
+    // no need to completely finish a running search, cancel it
+    if (m_entriesWatcher->future().isRunning())
+        m_entriesWatcher->future().cancel();
+}
+
 void LocatorWidget::updatePlaceholderText(Command *command)
 {
     QTC_ASSERT(command, return);

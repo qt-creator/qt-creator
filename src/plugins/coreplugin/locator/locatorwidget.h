@@ -57,6 +57,7 @@ class LocatorWidget
 
 public:
     explicit LocatorWidget(Locator *locator);
+    ~LocatorWidget() override;
 
     void showText(const QString &text, int selectionStart = -1, int selectionLength = 0);
     QString currentText() const;
