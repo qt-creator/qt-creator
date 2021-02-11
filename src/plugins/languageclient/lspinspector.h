@@ -56,7 +56,7 @@ class LspInspector : public QObject
 public:
     LspInspector() {}
 
-    QWidget *createWidget();
+    QWidget *createWidget(const QString &defaultClient = {});
 
 
     void log(const LspLogMessage::MessageSender sender,

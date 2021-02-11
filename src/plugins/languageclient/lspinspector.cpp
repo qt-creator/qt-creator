@@ -356,10 +356,11 @@ class LspInspectorWidget : public QDialog
 public:
     explicit LspInspectorWidget(LspInspector *inspector);
 
+    void selectClient(const QString &clientName);
 private:
     void addMessage(const QString &clientName, const LspLogMessage &message);
     void updateCapabilities(const QString &clientName);
-    void setCurrentClient(const QString &clientName);
+    void currentClientChanged(const QString &clientName);
 
     LspInspector *m_inspector = nullptr;
     LspLogWidget *m_log = nullptr;
@@ -367,9 +368,11 @@ private:
     QListWidget *m_clients = nullptr;
 };
 
-QWidget *LspInspector::createWidget()
+QWidget *LspInspector::createWidget(const QString &defaultClient)
 {
-    return new LspInspectorWidget(this);
+    auto *inspector = new LspInspectorWidget(this);
+    inspector->selectClient(defaultClient);
+    return inspector;
 }
 
 void LspInspector::log(const LspLogMessage::MessageSender sender,
@@ -399,7 +402,7 @@ void LspInspector::updateCapabilities(const QString &clientName,
 
 std::list<LspLogMessage> LspInspector::messages(const QString &clientName) const
 {
-    return m_logs[clientName];
+    return m_logs.value(clientName);
 }
 
 Capabilities LspInspector::capabilities(const QString &clientName) const
@@ -449,7 +452,7 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
     connect(m_clients,
             &QListWidget::currentTextChanged,
             this,
-            &LspInspectorWidget::setCurrentClient);
+            &LspInspectorWidget::currentClientChanged);
 
     // save
     connect(buttonBox, &QDialogButtonBox::accepted, m_log, &LspLogWidget::saveLog);
@@ -457,6 +460,14 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
     // close
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     resize(1024, 768);
+}
+
+void LspInspectorWidget::selectClient(const QString &clientName)
+{
+    auto items = m_clients->findItems(clientName, Qt::MatchExactly);
+    if (items.isEmpty())
+        return;
+    m_clients->setCurrentItem(items.first());
 }
 
 void LspInspectorWidget::addMessage(const QString &clientName, const LspLogMessage &message)
@@ -475,7 +486,7 @@ void LspInspectorWidget::updateCapabilities(const QString &clientName)
         m_capabilities->setCapabilities(m_inspector->capabilities(clientName));
 }
 
-void LspInspectorWidget::setCurrentClient(const QString &clientName)
+void LspInspectorWidget::currentClientChanged(const QString &clientName)
 {
     m_log->setMessages(m_inspector->messages(clientName));
     m_capabilities->setCapabilities(m_inspector->capabilities(clientName));

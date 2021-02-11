@@ -398,7 +398,10 @@ void LanguageClientManager::logBaseMessage(const LspLogMessage::MessageSender se
 
 void LanguageClientManager::showInspector()
 {
-    QWidget *inspectorWidget = instance()->m_inspector.createWidget();
+    QString clientName;
+    if (Client *client = clientForDocument(TextEditor::TextDocument::currentTextDocument()))
+        clientName = client->name();
+    QWidget *inspectorWidget = instance()->m_inspector.createWidget(clientName);
     inspectorWidget->setAttribute(Qt::WA_DeleteOnClose);
     inspectorWidget->show();
 }
