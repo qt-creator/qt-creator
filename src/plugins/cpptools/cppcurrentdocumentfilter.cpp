@@ -127,11 +127,6 @@ void CppCurrentDocumentFilter::accept(Core::LocatorFilterEntry selection,
     Core::EditorManager::openEditorAt(info->fileName(), info->line(), info->column());
 }
 
-void CppCurrentDocumentFilter::refresh(QFutureInterface<void> &future)
-{
-    Q_UNUSED(future)
-}
-
 void CppCurrentDocumentFilter::onDocumentUpdated(Document::Ptr doc)
 {
     QMutexLocker locker(&m_mutex);

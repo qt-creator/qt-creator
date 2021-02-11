@@ -61,11 +61,6 @@ Core::LocatorFilterEntry CppLocatorFilter::filterEntryFromIndexItem(IndexItem::P
     return filterEntry;
 }
 
-void CppLocatorFilter::refresh(QFutureInterface<void> &future)
-{
-    Q_UNUSED(future)
-}
-
 QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
         QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
 {

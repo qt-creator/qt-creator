@@ -52,7 +52,6 @@ public:
                 QString *newText,
                 int *selectionStart,
                 int *selectionLength) const override;
-    void refresh(QFutureInterface<void> &future) override;
 
 signals:
     void symbolsUpToDate(QPrivateSignal);
@@ -88,7 +87,6 @@ public:
                 QString *newText,
                 int *selectionStart,
                 int *selectionLength) const override;
-    void refresh(QFutureInterface<void> &future) override;
 
 signals:
     void allRequestsFinished(QPrivateSignal);

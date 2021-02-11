@@ -39,7 +39,6 @@ public:
     SpotlightLocatorFilter();
 
     void prepareSearch(const QString &entry) override;
-    void refresh(QFutureInterface<void> &future) override;
 
     using ILocatorFilter::openConfigDialog;
     bool openConfigDialog(QWidget *parent, bool &needsRefresh) final;

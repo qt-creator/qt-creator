@@ -90,11 +90,6 @@ void MenuBarFilter::accept(LocatorFilterEntry selection, QString *newText,
     }
 }
 
-void MenuBarFilter::refresh(QFutureInterface<void> &future)
-{
-    Q_UNUSED(future)
-}
-
 QList<LocatorFilterEntry> MenuBarFilter::matchesForAction(QAction *action,
                                                           const QStringList &entryPath,
                                                           const QStringList &path,

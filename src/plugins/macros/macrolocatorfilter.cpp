@@ -96,8 +96,3 @@ void MacroLocatorFilter::accept(Core::LocatorFilterEntry selection,
 
     MacroManager::instance()->executeMacro(selection.displayName);
 }
-
-void MacroLocatorFilter::refresh(QFutureInterface<void> &future)
-{
-    Q_UNUSED(future)
-}

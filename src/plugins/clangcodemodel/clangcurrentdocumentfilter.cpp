@@ -145,10 +145,6 @@ void ClangCurrentDocumentFilter::accept(Core::LocatorFilterEntry selection,
                                       lineColumn.column - 1);
 }
 
-void ClangCurrentDocumentFilter::refresh(QFutureInterface<void> &)
-{
-}
-
 void ClangCurrentDocumentFilter::reset(Core::IEditor *newCurrent, const QString &path)
 {
     m_currentEditor = newCurrent;

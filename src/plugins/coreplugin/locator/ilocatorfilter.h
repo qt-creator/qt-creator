@@ -145,7 +145,7 @@ public:
     virtual void accept(LocatorFilterEntry selection,
                         QString *newText, int *selectionStart, int *selectionLength) const = 0;
 
-    virtual void refresh(QFutureInterface<void> &future) = 0;
+    virtual void refresh(QFutureInterface<void> &future) { Q_UNUSED(future) };
 
     virtual QByteArray saveState() const;
     virtual void restoreState(const QByteArray &state);

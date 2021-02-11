@@ -133,8 +133,3 @@ void BookmarkFilter::accept(LocatorFilterEntry selection, QString *newText,
         m_manager->gotoBookmark(bookmark);
     }
 }
-
-void BookmarkFilter::refresh(QFutureInterface<void> &future)
-{
-    Q_UNUSED(future)
-}

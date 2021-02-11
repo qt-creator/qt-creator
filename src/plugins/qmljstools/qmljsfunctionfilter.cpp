@@ -50,10 +50,6 @@ FunctionFilter::FunctionFilter(LocatorData *data, QObject *parent)
 
 FunctionFilter::~FunctionFilter() = default;
 
-void FunctionFilter::refresh(QFutureInterface<void> &)
-{
-}
-
 QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(
         QFutureInterface<Core::LocatorFilterEntry> &future,
         const QString &entry)

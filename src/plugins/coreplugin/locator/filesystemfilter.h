@@ -49,7 +49,6 @@ public:
                 QString *newText, int *selectionStart, int *selectionLength) const override;
     void restoreState(const QByteArray &state) override;
     bool openConfigDialog(QWidget *parent, bool &needsRefresh) override;
-    void refresh(QFutureInterface<void> &) override {}
 
 protected:
     void saveState(QJsonObject &object) const final;

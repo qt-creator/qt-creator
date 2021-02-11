@@ -129,8 +129,4 @@ void CommandLocator::accept(LocatorFilterEntry entry,
     }, Qt::QueuedConnection);
 }
 
-void CommandLocator::refresh(QFutureInterface<void> &)
-{
-}
-
 }  // namespace Core

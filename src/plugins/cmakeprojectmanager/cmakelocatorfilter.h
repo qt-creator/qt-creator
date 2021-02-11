@@ -40,7 +40,6 @@ public:
     void prepareSearch(const QString &entry) override;
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) final;
-    void refresh(QFutureInterface<void> &future) final;
 
 private:
     void projectListUpdated();

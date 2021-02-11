@@ -53,7 +53,6 @@ public:
                                          const QString &entry) override;
     void accept(LocatorFilterEntry selection,
                 QString *newText, int *selectionStart, int *selectionLength) const override;
-    void refresh(QFutureInterface<void> &) override {}
 
 private:
     void finished(int exitCode, QProcess::ExitStatus status);

@@ -61,10 +61,6 @@ void ExternalToolsFilter::accept(LocatorFilterEntry selection,
         MessageManager::writeFlashing(runner->errorString());
 }
 
-void ExternalToolsFilter::refresh(QFutureInterface<void> &)
-{
-}
-
 void ExternalToolsFilter::prepareSearch(const QString &entry)
 {
     QList<LocatorFilterEntry> bestEntries;

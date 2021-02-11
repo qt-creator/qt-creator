@@ -110,12 +110,6 @@ void JavaScriptFilter::accept(Core::LocatorFilterEntry selection, QString *newTe
     clipboard->setText(selection.internalData.toString());
 }
 
-void JavaScriptFilter::refresh(QFutureInterface<void> &future)
-{
-    Q_UNUSED(future)
-    // Nothing to refresh
-}
-
 void JavaScriptFilter::setupEngine()
 {
     m_engine.reset(new QJSEngine);

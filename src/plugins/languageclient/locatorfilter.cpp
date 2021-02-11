@@ -197,8 +197,6 @@ void DocumentLocatorFilter::accept(Core::LocatorFilterEntry selection,
     }
 }
 
-void DocumentLocatorFilter::refresh(QFutureInterface<void> & /*future*/) {}
-
 WorkspaceLocatorFilter::WorkspaceLocatorFilter()
     : WorkspaceLocatorFilter(QVector<SymbolKind>())
 {}
@@ -278,8 +276,6 @@ void WorkspaceLocatorFilter::accept(Core::LocatorFilterEntry selection,
         Core::EditorManager::openEditorAt(link.targetFileName, link.targetLine, link.targetColumn);
     }
 }
-
-void WorkspaceLocatorFilter::refresh(QFutureInterface<void> & /*future*/) {}
 
 void WorkspaceLocatorFilter::handleResponse(Client *client,
                                             const WorkspaceSymbolRequest::Response &response)

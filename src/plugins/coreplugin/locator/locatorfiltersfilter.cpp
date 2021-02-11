@@ -99,9 +99,3 @@ void LocatorFiltersFilter::accept(LocatorFilterEntry selection,
         *selectionStart = shortcutString.length() + 1;
     }
 }
-
-void LocatorFiltersFilter::refresh(QFutureInterface<void> &future)
-{
-    Q_UNUSED(future)
-    // Nothing to refresh
-}

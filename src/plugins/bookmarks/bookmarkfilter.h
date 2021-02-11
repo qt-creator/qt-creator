@@ -42,7 +42,6 @@ public:
                                                const QString &entry) override;
     void accept(Core::LocatorFilterEntry selection, QString *newText,
                 int *selectionStart, int *selectionLength) const override;
-    void refresh(QFutureInterface<void> &future) override;
 
 private:
     BookmarkManager *m_manager = nullptr; // not owned

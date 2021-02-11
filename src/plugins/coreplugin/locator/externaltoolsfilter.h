@@ -40,7 +40,6 @@ public:
                                          const QString &entry) override;
     void accept(LocatorFilterEntry selection,
                 QString *newText, int *selectionStart, int *selectionLength) const override;
-    void refresh(QFutureInterface<void> &future) override;
     void prepareSearch(const QString &entry) override;
 
 private:

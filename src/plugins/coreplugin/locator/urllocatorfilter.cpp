@@ -175,12 +175,6 @@ void UrlLocatorFilter::accept(Core::LocatorFilterEntry selection,
         QDesktopServices::openUrl(url);
 }
 
-void UrlLocatorFilter::refresh(QFutureInterface<void> &future)
-{
-    Q_UNUSED(future)
-    // Nothing to refresh
-}
-
 const char kDisplayNameKey[] = "displayName";
 const char kRemoteUrlsKey[] = "remoteUrls";
 
