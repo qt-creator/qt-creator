@@ -2419,7 +2419,7 @@ public:
 
         // If empty, cx{motion} will store the range defined by {motion} here.
         // If non-empty, cx{motion} replaces the {motion} with selectText(*exchangeData)
-        std::optional<Range> exchangeRange;
+        Utils::optional<Range> exchangeRange;
     } g;
 };
 
