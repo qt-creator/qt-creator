@@ -53,7 +53,8 @@ HEADERS += \
     createandroidmanifestwizard.h \
     androidsdkdownloader.h \
     splashscreencontainerwidget.h \
-    splashscreenwidget.h
+    splashscreenwidget.h \
+    javalanguageserver.h \
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -99,7 +100,8 @@ SOURCES += \
     createandroidmanifestwizard.cpp \
     androidsdkdownloader.cpp \
     splashscreencontainerwidget.cpp \
-    splashscreenwidget.cpp
+    splashscreenwidget.cpp \
+    javalanguageserver.cpp \
 
 FORMS += \
     androidsettingswidget.ui \

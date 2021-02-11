@@ -41,6 +41,7 @@
 #include "androidsettingswidget.h"
 #include "androidtoolchain.h"
 #include "javaeditor.h"
+#include "javalanguageserver.h"
 
 #ifdef HAVE_QBS
 #  include "androidqbspropertyprovider.h"
@@ -49,6 +50,8 @@
 #include <coreplugin/icore.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/infobar.h>
+
+#include <languageclient/languageclientsettings.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -161,6 +164,10 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
 
     connect(KitManager::instance(), &KitManager::kitsLoaded,
             this, &AndroidPlugin::kitsRestored);
+
+    LanguageClient::LanguageClientSettings::registerClientType({Android::Constants::JLS_SETTINGS_ID,
+                                                                tr("Java Language Server"),
+                                                                []() { return new JLSSettings; }});
 
     return true;
 }

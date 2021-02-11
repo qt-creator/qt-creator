@@ -7,6 +7,7 @@ Project {
         Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
         Depends { name: "Core" }
         Depends { name: "Debugger" }
+        Depends { name: "LanguageClient" }
         Depends { name: "ProParser" }
         Depends { name: "ProjectExplorer" }
         Depends { name: "QmlDebug" }
@@ -109,6 +110,8 @@ Project {
             "javaeditor.h",
             "javaindenter.cpp",
             "javaindenter.h",
+            "javalanguageserver.cpp",
+            "javalanguageserver.h",
             "javaparser.cpp",
             "javaparser.h",
             "splashscreencontainerwidget.cpp",

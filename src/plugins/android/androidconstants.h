@@ -60,6 +60,7 @@ const char ANDROID_KIT_SDK[] = "Android.SDK";
 
 const char ANDROID_BUILDDIRECTORY[] = "android-build";
 const char JAVA_EDITOR_ID[] = "java.editor";
+const char JLS_SETTINGS_ID[] = "Java::JLSSettingsID";
 const char JAVA_MIMETYPE[] = "text/x-java";
 const char ANDROID_ARCHITECTURE[] = "Android.Architecture";
 const char ANDROID_PACKAGE_SOURCE_DIR[] = "ANDROID_PACKAGE_SOURCE_DIR";
