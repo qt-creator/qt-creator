@@ -391,6 +391,7 @@ void Locator::refresh(QList<ILocatorFilter *> filters)
 
     if (m_refreshTask.isRunning()) {
         m_refreshTask.cancel();
+        m_refreshTask.waitForFinished();
         // this is not ideal because some of the previous filters might have finished, but we
         // currently cannot find out which part of a map-reduce has finished
         filters = Utils::filteredUnique(m_refreshingFilters + filters);
