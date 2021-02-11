@@ -803,48 +803,18 @@ void SearchResult::setAdditionalReplaceWidget(QWidget *widget)
 /*!
     Adds a single result line to the \uicontrol {Search Results} output pane.
 
-    \a fileName, \a lineNumber, and \a lineText are shown on the result line.
-    \a searchTermStart and \a searchTermLength specify the region that
-    should be visually marked (string position and length in \a lineText).
-    You can attach arbitrary \a userData to the search result, which can
-    be used, for example, when reacting to the signals of the search results
-    for your search.
-
-    \sa addResults()
-*/
-void SearchResult::addResult(const QString &fileName, int lineNumber, const QString &lineText,
-                             int searchTermStart, int searchTermLength, const QVariant &userData,
-                             SearchResultColor::Style style)
-{
-    Search::TextRange mainRange;
-    mainRange.begin.line = lineNumber;
-    mainRange.begin.column = searchTermStart;
-    mainRange.end.line = mainRange.begin.line;
-    mainRange.end.column = mainRange.begin.column + searchTermLength;
-
-    m_widget->addResult(fileName, lineText, mainRange, userData, style);
-}
-
-/*!
-    Adds a single result line to the \uicontrol {Search Results} output pane.
-
-    \a mainRange specifies the region from the beginning of the search term
+    \a {item}.mainRange() specifies the region from the beginning of the search term
     through its length that should be visually marked.
-    \a fileName and \a lineText are shown on the result line.
-    You can attach arbitrary \a userData to the search result, which can
+    \a {item}.path(), \a {item}.text() are shown on the result line.
+    You can attach arbitrary \a {item}.userData() to the search result, which can
     be used, for example, when reacting to the signals of the search results
     for your search.
 
     \sa addResults()
 */
-void SearchResult::addResult(const QString &fileName,
-                             const QString &lineText,
-                             Search::TextRange mainRange,
-                             const QVariant &userData,
-                             SearchResultColor::Style style)
+void SearchResult::addResult(const SearchResultItem &item)
 {
-    m_widget->addResult(fileName, lineText, mainRange, userData, style);
-    emit countChanged(m_widget->count());
+    m_widget->addResults({item}, AddSorted);
 }
 
 /*!

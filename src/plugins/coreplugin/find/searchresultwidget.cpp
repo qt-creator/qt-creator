@@ -247,22 +247,6 @@ void SearchResultWidget::setAdditionalReplaceWidget(QWidget *widget)
     m_additionalReplaceWidget = widget;
 }
 
-void SearchResultWidget::addResult(const QString &fileName,
-                                   const QString &rowText,
-                                   Search::TextRange mainRange,
-                                   const QVariant &userData,
-                                   SearchResultColor::Style style)
-{
-    SearchResultItem item;
-    item.path = QStringList({QDir::toNativeSeparators(fileName)});
-    item.mainRange = mainRange;
-    item.text = rowText;
-    item.useTextEditorFont = true;
-    item.userData = userData;
-    item.style = style;
-    addResults(QList<SearchResultItem>() << item, SearchResult::AddOrdered);
-}
-
 void SearchResultWidget::addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode)
 {
     bool firstItems = (m_count == 0);

@@ -3118,14 +3118,14 @@ void EditorManager::openEditorAtSearchResult(const SearchResultItem &item,
                                              OpenEditorFlags flags,
                                              bool *newEditor)
 {
-    if (item.path.empty()) {
-        openEditor(QDir::fromNativeSeparators(item.text), editorId, flags, newEditor);
+    if (item.path().empty()) {
+        openEditor(QDir::fromNativeSeparators(item.lineText()), editorId, flags, newEditor);
         return;
     }
 
-    openEditorAt(QDir::fromNativeSeparators(item.path.first()),
-                 item.mainRange.begin.line,
-                 item.mainRange.begin.column,
+    openEditorAt(QDir::fromNativeSeparators(item.path().first()),
+                 item.mainRange().begin.line,
+                 item.mainRange().begin.column,
                  editorId,
                  flags,
                  newEditor);

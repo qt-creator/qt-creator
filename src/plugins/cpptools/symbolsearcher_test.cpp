@@ -64,7 +64,7 @@ public:
     {
         ResultDataList result;
         for (const Core::SearchResultItem &entry : entries)
-            result << ResultData(entry.text, entry.path.join(QLatin1String("::")));
+            result << ResultData(entry.lineText(), entry.path().join(QLatin1String("::")));
         return result;
     }
 

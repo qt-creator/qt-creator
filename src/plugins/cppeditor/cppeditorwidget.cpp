@@ -417,7 +417,11 @@ static void addSearchResults(CppTools::Usages usages, SearchResult &search, cons
         if (!lineContent.isEmpty()) {
             Search::TextRange range{Search::TextPosition(usage.line, usage.column - 1),
                                     Search::TextPosition(usage.line, usage.column + text.length() - 1)};
-            search.addResult(usage.path, lineContent, range);
+            SearchResultItem item;
+            item.setFilePath(FilePath::fromString(usage.path));
+            item.setLineText(lineContent);
+            item.setMainRange(range);
+            search.addResult(item);
         }
     }
 }

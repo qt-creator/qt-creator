@@ -202,7 +202,7 @@ class Filter : public Core::SearchResultFilter
 
     bool matches(const SearchResultItem &item) const override
     {
-        switch (static_cast<CPlusPlus::Usage::Type>(item.userData.toInt())) {
+        switch (static_cast<CPlusPlus::Usage::Type>(item.userData().toInt())) {
         case CPlusPlus::Usage::Type::Read:
             return m_showReads;
         case CPlusPlus::Usage::Type::Write:
@@ -630,9 +630,13 @@ static void displayResults(SearchResult *search, QFutureWatcher<CPlusPlus::Usage
     };
     for (int index = first; index != last; ++index) {
         const CPlusPlus::Usage result = watcher->future().resultAt(index);
-        search->addResult(result.path.toString(), result.line, result.lineText,
-                          result.col, result.len, int(result.type),
-                          colorStyleForUsageType(result.type));
+        SearchResultItem item;
+        item.setFilePath(result.path);
+        item.setMainRange(result.line, result.col, result.len);
+        item.setLineText(result.lineText);
+        item.setUserData(int(result.type));
+        item.setStyle(colorStyleForUsageType(result.type));
+        search->addResult(item);
 
         if (parameters.prettySymbolName.isEmpty())
             continue;
@@ -823,8 +827,11 @@ void CppFindReferences::findMacroUses(const CPlusPlus::Macro &macro, const QStri
         unsigned column;
         const QString line = FindMacroUsesInFile::matchingLine(macro.bytesOffset(), source,
                                                                &column);
-        search->addResult(macro.fileName(), macro.line(), line, column,
-                          macro.nameToQString().length());
+        SearchResultItem item;
+        item.setFilePath(Utils::FilePath::fromString(macro.fileName()));
+        item.setLineText(line);
+        item.setMainRange(macro.line(), column, macro.nameToQString().length());
+        search->addResult(item);
     }
 
     QFuture<CPlusPlus::Usage> result;

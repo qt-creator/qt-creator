@@ -308,10 +308,10 @@ public:
                         }
 
                         Core::SearchResultItem item;
-                        item.path = scope.split(QLatin1String("::"), Qt::SkipEmptyParts);
-                        item.text = text;
-                        item.icon = info->icon();
-                        item.userData = QVariant::fromValue(info);
+                        item.setPath(scope.split(QLatin1String("::"), Qt::SkipEmptyParts));
+                        item.setLineText(text);
+                        item.setIcon(info->icon());
+                        item.setUserData(QVariant::fromValue(info));
                         resultItems << item;
                     }
 

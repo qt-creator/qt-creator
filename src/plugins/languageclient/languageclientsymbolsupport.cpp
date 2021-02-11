@@ -170,17 +170,15 @@ QList<Core::SearchResultItem> generateSearchResultItems(
         const QString &fileName = it.key();
 
         Core::SearchResultItem item;
-        item.path = QStringList() << fileName;
-        item.useTextEditorFont = true;
+        item.setFilePath(Utils::FilePath::fromString(fileName));
+        item.setUseTextEditorFont(true);
 
         QStringList lines = getFileContents(fileName);
         for (const ItemData &data : it.value()) {
-            item.mainRange = data.range;
+            item.setMainRange(data.range);
             if (data.range.begin.line > 0 && data.range.begin.line <= lines.size())
-                item.text = lines[data.range.begin.line - 1];
-            else
-                item.text.clear();
-            item.userData = data.userData;
+                item.setLineText(lines[data.range.begin.line - 1]);
+            item.setUserData(data.userData);
             result << item;
         }
     }
@@ -411,8 +409,8 @@ void SymbolSupport::applyRename(const QList<Core::SearchResultItem> &checkedItem
 {
     QMap<DocumentUri, QList<TextEdit>> editsForDocuments;
     for (const Core::SearchResultItem &item : checkedItems) {
-        auto uri = DocumentUri::fromFilePath(Utils::FilePath::fromString(item.path.value(0)));
-        TextEdit edit(item.userData.toJsonObject());
+        auto uri = DocumentUri::fromFilePath(Utils::FilePath::fromString(item.path().value(0)));
+        TextEdit edit(item.userData().toJsonObject());
         if (edit.isValid(nullptr))
             editsForDocuments[uri] << edit;
     }

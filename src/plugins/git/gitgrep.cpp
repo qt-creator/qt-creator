@@ -312,13 +312,13 @@ IEditor *GitGrep::openEditor(const SearchResultItem &item,
                              const TextEditor::FileFindParameters &parameters)
 {
     GitGrepParameters params = parameters.searchEngineParameters.value<GitGrepParameters>();
-    if (params.ref.isEmpty() || item.path.isEmpty())
+    if (params.ref.isEmpty() || item.path().isEmpty())
         return nullptr;
-    const QString path = QDir::fromNativeSeparators(item.path.first());
+    const QString path = QDir::fromNativeSeparators(item.path().first());
     const QString topLevel = parameters.additionalParameters.toString();
     IEditor *editor = m_client->openShowEditor(
                 topLevel, params.ref, path, GitClient::ShowEditor::OnlyIfDifferent);
-    editor->gotoLine(item.mainRange.begin.line, item.mainRange.begin.column);
+    editor->gotoLine(item.mainRange().begin.line, item.mainRange().begin.column);
     return editor;
 }
 

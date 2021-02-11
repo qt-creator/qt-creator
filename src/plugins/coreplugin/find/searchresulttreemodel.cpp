@@ -294,44 +294,44 @@ QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) 
         result = row->checkState();
         break;
     case Qt::ToolTipRole:
-        result = row->item.text.trimmed();
+        result = row->item.lineText().trimmed();
         break;
     case Qt::FontRole:
-        if (row->item.useTextEditorFont)
+        if (row->item.useTextEditorFont())
             result = m_textEditorFont;
         else
             result = QVariant();
         break;
     case Qt::ForegroundRole:
-        result = m_colors.value(row->item.style).textForeground;
+        result = m_colors.value(row->item.style()).textForeground;
         break;
     case Qt::BackgroundRole:
-        result = m_colors.value(row->item.style).textBackground;
+        result = m_colors.value(row->item.style()).textBackground;
         break;
     case ItemDataRoles::ResultLineRole:
     case Qt::DisplayRole:
-        result = row->item.text;
+        result = row->item.lineText();
         break;
     case ItemDataRoles::ResultItemRole:
         result = QVariant::fromValue(row->item);
         break;
     case ItemDataRoles::ResultBeginLineNumberRole:
-        result = row->item.mainRange.begin.line;
+        result = row->item.mainRange().begin.line;
         break;
     case ItemDataRoles::ResultIconRole:
-        result = row->item.icon;
+        result = row->item.icon();
         break;
     case ItemDataRoles::ResultHighlightBackgroundColor:
-        result = m_colors.value(row->item.style).highlightBackground;
+        result = m_colors.value(row->item.style()).highlightBackground;
         break;
     case ItemDataRoles::ResultHighlightForegroundColor:
-        result = m_colors.value(row->item.style).highlightForeground;
+        result = m_colors.value(row->item.style()).highlightForeground;
         break;
     case ItemDataRoles::ResultBeginColumnNumberRole:
-        result = row->item.mainRange.begin.column;
+        result = row->item.mainRange().begin.column;
         break;
     case ItemDataRoles::SearchTermLengthRole:
-        result = row->item.mainRange.length(row->item.text);
+        result = row->item.mainRange().length(row->item.lineText());
         break;
     case ItemDataRoles::IsGeneratedRole:
         result = row->isGenerated();
@@ -368,8 +368,8 @@ QSet<SearchResultTreeItem *> SearchResultTreeModel::addPath(const QStringList &p
         const int insertionIndex = currentItem->insertionIndex(part, &partItem);
         if (!partItem) {
             SearchResultItem item;
-            item.path = currentPath;
-            item.text = part;
+            item.setPath(currentPath);
+            item.setLineText(part);
             partItem = new SearchResultTreeItem(item, currentItem);
             if (m_showReplaceUI)
                 partItem->setCheckState(Qt::Checked);
@@ -423,14 +423,14 @@ void SearchResultTreeModel::addResultsToCurrentParent(const QList<SearchResultIt
 
 static bool lessThanByPath(const SearchResultItem &a, const SearchResultItem &b)
 {
-    if (a.path.size() < b.path.size())
+    if (a.path().size() < b.path().size())
         return true;
-    if (a.path.size() > b.path.size())
+    if (a.path().size() > b.path().size())
         return false;
-    for (int i = 0; i < a.path.size(); ++i) {
-        if (a.path.at(i) < b.path.at(i))
+    for (int i = 0; i < a.path().size(); ++i) {
+        if (a.path().at(i) < b.path().at(i))
             return true;
-        if (a.path.at(i) > b.path.at(i))
+        if (a.path().at(i) > b.path().at(i))
             return false;
     }
     return false;
@@ -447,15 +447,15 @@ QList<QModelIndex> SearchResultTreeModel::addResults(const QList<SearchResultIte
     std::stable_sort(sortedItems.begin(), sortedItems.end(), lessThanByPath);
     QList<SearchResultItem> itemSet;
     foreach (const SearchResultItem &item, sortedItems) {
-        m_editorFontIsUsed |= item.useTextEditorFont;
-        if (!m_currentParent || (m_currentPath != item.path)) {
+        m_editorFontIsUsed |= item.useTextEditorFont();
+        if (!m_currentParent || (m_currentPath != item.path())) {
             // first add all the items from before
             if (!itemSet.isEmpty()) {
                 addResultsToCurrentParent(itemSet, mode);
                 itemSet.clear();
             }
             // switch parent
-            pathNodes += addPath(item.path);
+            pathNodes += addPath(item.path());
         }
         itemSet << item;
     }
@@ -642,7 +642,7 @@ bool SearchResultFilterModel::filterAcceptsRow(int source_row,
         return false;
     if (!m_filter)
         return true;
-    if (item->item.userData.isValid())
+    if (item->item.userData().isValid())
         return m_filter->matches(item->item);
     const int childCount = sourceModel()->rowCount(idx);
     for (int i = 0; i < childCount; ++i) {

@@ -234,14 +234,11 @@ static void displayResult(QFutureWatcher<FileSearchResultList> *watcher,
     QList<SearchResultItem> items;
     for (const FileSearchResult &result : results) {
         SearchResultItem item;
-        item.path = QStringList(QDir::toNativeSeparators(result.fileName));
-        item.mainRange.begin.line = result.lineNumber;
-        item.mainRange.begin.column = result.matchStart;
-        item.mainRange.end = item.mainRange.begin;
-        item.mainRange.end.column += result.matchLength;
-        item.text = result.matchingLine;
-        item.useTextEditorFont = true;
-        item.userData = result.regexpCapturedTexts;
+        item.setFilePath(Utils::FilePath::fromString(result.fileName));
+        item.setMainRange(result.lineNumber, result.matchStart, result.matchLength);
+        item.setLineText(result.matchingLine);
+        item.setUseTextEditorFont(true);
+        item.setUserData(result.regexpCapturedTexts);
         items << item;
     }
     search->addResults(items, SearchResult::AddOrdered);
@@ -493,7 +490,7 @@ QStringList BaseFileFind::replaceAll(const QString &text,
 
     QHash<QString, QList<SearchResultItem> > changes;
     for (const SearchResultItem &item : items)
-        changes[QDir::fromNativeSeparators(item.path.first())].append(item);
+        changes[QDir::fromNativeSeparators(item.path().first())].append(item);
 
     // Checking for files without write permissions
     QSet<FilePath> roFiles;
@@ -519,28 +516,28 @@ QStringList BaseFileFind::replaceAll(const QString &text,
         RefactoringFilePtr file = refactoring.file(fileName);
         QSet<QPair<int, int> > processed;
         for (const SearchResultItem &item : changeItems) {
-            const QPair<int, int> &p = qMakePair(item.mainRange.begin.line,
-                                                 item.mainRange.begin.column);
+            const QPair<int, int> &p = qMakePair(item.mainRange().begin.line,
+                                                 item.mainRange().begin.column);
             if (processed.contains(p))
                 continue;
             processed.insert(p);
 
             QString replacement;
-            if (item.userData.canConvert<QStringList>() && !item.userData.toStringList().isEmpty()) {
-                replacement = Utils::expandRegExpReplacement(text, item.userData.toStringList());
+            if (item.userData().canConvert<QStringList>() && !item.userData().toStringList().isEmpty()) {
+                replacement = Utils::expandRegExpReplacement(text, item.userData().toStringList());
             } else if (preserveCase) {
-                const QString originalText = (item.mainRange.length(item.text) == 0)
-                                                 ? item.text
-                                                 : item.mainRange.mid(item.text);
+                const QString originalText = (item.mainRange().length(item.lineText()) == 0)
+                                                 ? item.lineText()
+                                                 : item.mainRange().mid(item.lineText());
                 replacement = Utils::matchCaseReplacement(originalText, text);
             } else {
                 replacement = text;
             }
 
-            const int start = file->position(item.mainRange.begin.line,
-                                             item.mainRange.begin.column + 1);
-            const int end = file->position(item.mainRange.end.line,
-                                           item.mainRange.end.column + 1);
+            const int start = file->position(item.mainRange().begin.line,
+                                             item.mainRange().begin.column + 1);
+            const int end = file->position(item.mainRange().end.line,
+                                           item.mainRange().end.column + 1);
             changeSet.replace(start, end, replacement);
         }
         file->setChangeSet(changeSet);

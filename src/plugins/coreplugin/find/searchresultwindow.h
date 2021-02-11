@@ -76,18 +76,7 @@ public:
     void setAdditionalReplaceWidget(QWidget *widget);
 
 public slots:
-    void addResult(const QString &fileName,
-                   int lineNumber,
-                   const QString &lineText,
-                   int searchTermStart,
-                   int searchTermLength,
-                   const QVariant &userData = QVariant(),
-                   SearchResultColor::Style style = SearchResultColor::Style::Default);
-    void addResult(const QString &fileName,
-                   const QString &lineText,
-                   Search::TextRange mainRange,
-                   const QVariant &userData = QVariant(),
-                   SearchResultColor::Style style = SearchResultColor::Style::Default);
+    void addResult(const SearchResultItem &item);
     void addResults(const QList<SearchResultItem> &items, AddMode mode);
     void setFilter(SearchResultFilter *filter); // Takes ownership
     void finishSearch(bool canceled);

@@ -176,9 +176,9 @@ void SymbolsFindFilter::finish()
 
 void SymbolsFindFilter::openEditor(const SearchResultItem &item)
 {
-    if (!item.userData.canConvert<IndexItem::Ptr>())
+    if (!item.userData().canConvert<IndexItem::Ptr>())
         return;
-    IndexItem::Ptr info = item.userData.value<IndexItem::Ptr>();
+    IndexItem::Ptr info = item.userData().value<IndexItem::Ptr>();
     EditorManager::openEditorAt(info->fileName(), info->line(), info->column());
 }
 

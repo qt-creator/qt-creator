@@ -1008,11 +1008,11 @@ void FindReferences::displayResults(int first, int last)
     }
     for (int index = first; index != last; ++index) {
         Usage result = m_watcher.future().resultAt(index);
-        m_currentSearch->addResult(result.path,
-                                 result.line,
-                                 result.lineText,
-                                 result.col,
-                                 result.len);
+        SearchResultItem item;
+        item.setFilePath(Utils::FilePath::fromString(result.path));
+        item.setLineText(result.lineText);
+        item.setMainRange(result.line, result.col, result.len);
+        m_currentSearch->addResult(item);
     }
 }
 

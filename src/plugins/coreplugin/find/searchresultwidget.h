@@ -55,11 +55,6 @@ public:
     QWidget *additionalReplaceWidget() const;
     void setAdditionalReplaceWidget(QWidget *widget);
 
-    void addResult(const QString &fileName,
-                   const QString &lineText,
-                   Search::TextRange mainRange,
-                   const QVariant &userData = QVariant(),
-                   SearchResultColor::Style style = SearchResultColor::Style::Default);
     void addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode);
 
     int count() const;

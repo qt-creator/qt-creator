@@ -85,7 +85,7 @@ SearchResultTreeItem *SearchResultTreeItem::parent() const
 
 static bool lessThanByText(SearchResultTreeItem *a, const QString &b)
 {
-    return a->item.text < b;
+    return a->item.lineText() < b;
 }
 
 int SearchResultTreeItem::insertionIndex(const QString &text, SearchResultTreeItem **existingItem) const
@@ -93,7 +93,7 @@ int SearchResultTreeItem::insertionIndex(const QString &text, SearchResultTreeIt
     QList<SearchResultTreeItem *>::const_iterator insertionPosition =
             std::lower_bound(m_children.begin(), m_children.end(), text, lessThanByText);
     if (existingItem) {
-        if (insertionPosition != m_children.end() && (*insertionPosition)->item.text == text)
+        if (insertionPosition != m_children.end() && (*insertionPosition)->item.lineText() == text)
             (*existingItem) = (*insertionPosition);
         else
             *existingItem = nullptr;
@@ -103,7 +103,7 @@ int SearchResultTreeItem::insertionIndex(const QString &text, SearchResultTreeIt
 
 int SearchResultTreeItem::insertionIndex(const SearchResultItem &item, SearchResultTreeItem **existingItem) const
 {
-    return insertionIndex(item.text, existingItem);
+    return insertionIndex(item.lineText(), existingItem);
 }
 
 void SearchResultTreeItem::insertChild(int index, SearchResultTreeItem *child)
