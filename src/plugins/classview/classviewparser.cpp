@@ -281,10 +281,7 @@ ParserTreeItem::ConstPtr Parser::parse()
         SymbolInformation inf(prjName, prjType);
         item = ParserTreeItem::Ptr(new ParserTreeItem());
 
-        if (d->flatMode)
-            addFlatTree(item, prj);
-        else
-            addProjectTree(item, prj);
+        addFlatTree(item, prj);
 
         item->setIcon(prj->containerNode()->icon());
 
@@ -647,40 +644,6 @@ void Parser::requestCurrentState()
     emit treeDataUpdate(std);
 }
 
-/*!
-    Generates projects like the Project Explorer.
-    \a item specifies the item and \a node specifies the root node.
-
-    Returns a list of projects which were added to the item.
-*/
-
-QStringList Parser::addProjectTree(const ParserTreeItem::Ptr &item, const Project *project)
-{
-    QStringList projectList;
-    if (!project)
-        return projectList;
-
-    const QString projectPath = project->projectFilePath().toString();
-
-    // our own files
-    QStringList fileList;
-
-    CitCachedPrjFileLists cit = d->cachedPrjFileLists.constFind(projectPath);
-    // try to improve parsing speed by internal cache
-    if (cit != d->cachedPrjFileLists.constEnd()) {
-        fileList = cit.value();
-    } else {
-        fileList = Utils::transform(project->files(Project::SourceFiles), &FilePath::toString);
-        d->cachedPrjFileLists[projectPath] = fileList;
-    }
-    if (fileList.count() > 0) {
-        addProject(item, fileList, projectPath);
-        projectList << projectPath;
-    }
-
-    return projectList;
-}
-
 QStringList Parser::getAllFiles(const Project *project)
 {
     QStringList fileList;
@@ -707,11 +670,9 @@ void Parser::addFlatTree(const ParserTreeItem::Ptr &item, const Project *project
         return;
 
     QStringList fileList = getAllFiles(project);
-    fileList.removeDuplicates();
 
-    if (fileList.count() > 0) {
+    if (fileList.count() > 0)
         addProject(item, fileList, project->projectFilePath().toString());
-    }
 }
 
 } // namespace Internal

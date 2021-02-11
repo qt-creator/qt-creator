@@ -87,7 +87,6 @@ private:
     ParserTreeItem::ConstPtr parse();
     ParserTreeItem::ConstPtr findItemByRoot(const QStandardItem *item, bool skipRoot = false) const;
 
-    QStringList addProjectTree(const ParserTreeItem::Ptr &item, const ProjectExplorer::Project *project);
     QStringList getAllFiles(const ProjectExplorer::Project *project);
     void addFlatTree(const ParserTreeItem::Ptr &item, const ProjectExplorer::Project *project);
 
