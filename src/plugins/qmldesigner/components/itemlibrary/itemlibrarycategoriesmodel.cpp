@@ -25,6 +25,7 @@
 
 #include "itemlibrarycategoriesmodel.h"
 #include "itemlibrarycategory.h"
+#include "itemlibrarymodel.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -70,6 +71,24 @@ QVariant ItemLibraryCategoriesModel::data(const QModelIndex &index, int role) co
     qWarning() << Q_FUNC_INFO << "invalid role requested";
 
     return {};
+}
+
+bool ItemLibraryCategoriesModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    // currently only categoryExpanded property is updatable
+    if (index.isValid() && m_roleNames.contains(role)) {
+        QVariant currValue = m_categoryList.at(index.row())->property(m_roleNames.value(role));
+        if (currValue != value) {
+            m_categoryList[index.row()]->setProperty(m_roleNames.value(role), value);
+            if (m_roleNames.value(role) == "categoryExpanded") {
+                ItemLibraryModel::saveExpandedState(value.toBool(),
+                                                    m_categoryList[index.row()]->categoryName());
+            }
+            emit dataChanged(index, index, {role});
+            return true;
+        }
+    }
+    return false;
 }
 
 QHash<int, QByteArray> ItemLibraryCategoriesModel::roleNames() const

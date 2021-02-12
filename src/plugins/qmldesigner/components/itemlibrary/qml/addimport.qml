@@ -34,7 +34,7 @@ Column {
 
     Text {
         id: header
-        text: qsTr("Select a Library to add")
+        text: qsTr("Select a Module to Add")
         color: "#ffffff"
         font.pixelSize: 16
         width: parent.width

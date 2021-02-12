@@ -48,6 +48,7 @@ public:
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
     QHash<int, QByteArray> roleNames() const override;
 
     QString searchText() const;
@@ -62,15 +63,17 @@ public:
     void setFlowMode(bool);
 
     static void registerQmlTypes();
+    static void saveExpandedState(bool expanded, const QString &sectionName);
+    static bool loadExpandedState(const QString &sectionName);
 
-    Q_INVOKABLE void setExpanded(bool, const QString &section);
+    Q_INVOKABLE void expandAll();
+    Q_INVOKABLE void collapseAll();
 
 private:
     void updateVisibility(bool *changed);
     void addRoleNames();
     void sortSections();
     void clearSections();
-    bool sectionExpanded(const QString &sectionName) const;
 
     QList<QPointer<ItemLibraryImport>> m_importList;
     QHash<int, QByteArray> m_roleNames;
@@ -78,7 +81,7 @@ private:
     QString m_searchText;
     bool m_flowMode = false;
 
-    QHash<QString, bool> collapsedStateHash;
+    inline static QHash<QString, bool> expandedStateHash;
 };
 
 } // namespace QmlDesigner

@@ -117,8 +117,8 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
                      SLOT(handleTabChanged(int)));
     QObject::connect(m_headerWidget->rootObject(), SIGNAL(filterChanged(QString)), this,
                      SLOT(handleFilterChanged(QString)));
-    QObject::connect(m_headerWidget->rootObject(), SIGNAL(addLibraryClicked()), this,
-                     SLOT(handleAddLibrary()));
+    QObject::connect(m_headerWidget->rootObject(), SIGNAL(addModuleClicked()), this,
+                     SLOT(handleAddModule()));
     QObject::connect(m_headerWidget->rootObject(), SIGNAL(addAssetClicked()), this,
                      SLOT(handleAddAsset()));
 
@@ -245,7 +245,7 @@ void ItemLibraryWidget::handleFilterChanged(const QString &filterText)
     updateSearch();
 }
 
-void ItemLibraryWidget::handleAddLibrary()
+void ItemLibraryWidget::handleAddModule()
 {
     QMetaObject::invokeMethod(m_headerWidget->rootObject(), "setTab", Q_ARG(QVariant, 0));
     handleTabChanged(2);
@@ -267,7 +267,7 @@ void ItemLibraryWidget::handleAddImport(int index)
 
     m_model->changeImports({import}, {});
     QmlDesignerPlugin::instance()->currentDesignDocument()->updateSubcomponentManager();
-    m_stackedWidget->setCurrentIndex(0); // switch to the Components Library after import is added
+    m_stackedWidget->setCurrentIndex(0); // switch to the Components view after import is added
 }
 
 void ItemLibraryWidget::delayedUpdateModel()

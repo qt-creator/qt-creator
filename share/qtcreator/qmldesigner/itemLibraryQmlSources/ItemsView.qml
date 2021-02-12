@@ -33,9 +33,11 @@ import StudioTheme 1.0 as StudioTheme
 /* The view displaying the item grid.
 
 The following Qml context properties have to be set:
-- ItemLibraryModel listmodel
-- int itemLibraryIconWidth
-- int itemLibraryIconHeight
+- ItemLibraryModel  itemLibraryModel
+- int               itemLibraryIconWidth
+- int               itemLibraryIconHeight
+- ItemLibraryWidget rootView
+- QColor            highlightColor
 
 itemLibraryModel structure:
 
@@ -100,10 +102,21 @@ ScrollView {
             id: contextMenu
 
             StudioControls.MenuItem {
-                text: qsTr("Remove Library")
-                enabled: importToRemove !== ""
-                         && importToRemove !== "QtQuick"
+                text: qsTr("Remove Module")
+                enabled: importToRemove !== "" && importToRemove !== "QtQuick"
                 onTriggered: rootView.removeImport(importToRemove)
+            }
+
+            StudioControls.MenuSeparator {}
+
+            StudioControls.MenuItem {
+                text: qsTr("Expand All")
+                onTriggered: itemLibraryModel.expandAll()
+            }
+
+            StudioControls.MenuItem {
+                text: qsTr("Collapse All")
+                onTriggered: itemLibraryModel.collapseAll()
             }
         }
     }
@@ -125,7 +138,7 @@ ScrollView {
                 topPadding: 0
                 bottomPadding: 0
                 expanded: importExpanded
-                onExpandedChanged: itemLibraryModel.setExpanded(expanded, importUrl);
+                onToggleExpand: importExpanded = !importExpanded
                 onShowContextMenu: {
                     importToRemove = importUsed ? "" : importUrl
                     contextMenu.popup()
@@ -148,7 +161,7 @@ ScrollView {
                             caption: categoryName + " (" + itemModel.rowCount() + ")"
                             visible: categoryVisible
                             expanded: categoryExpanded
-                            onExpandedChanged: itemLibraryModel.setExpanded(expanded, categoryName);
+                            onToggleExpand: categoryExpanded = !categoryExpanded
 
                             Grid {
                                 id: itemGrid
@@ -171,5 +184,4 @@ ScrollView {
             }
         }
     }
-
 }

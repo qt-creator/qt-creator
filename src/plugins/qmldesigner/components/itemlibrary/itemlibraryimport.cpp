@@ -28,15 +28,16 @@
 
 namespace QmlDesigner {
 
-ItemLibraryImport::ItemLibraryImport(const Import &import, QObject *parent)
+ItemLibraryImport::ItemLibraryImport(const Import &import, QObject *parent, bool isUserSection)
     : QObject(parent),
-      m_import(import)
+      m_import(import),
+      m_isUserSection(isUserSection)
 {
 }
 
 QString ItemLibraryImport::importName() const
 {
-    if (importUrl().isEmpty())
+    if (m_isUserSection)
         return userComponentsTitle();
 
     if (importUrl() == "QtQuick")
@@ -47,6 +48,9 @@ QString ItemLibraryImport::importName() const
 
 QString ItemLibraryImport::importUrl() const
 {
+    if (m_isUserSection)
+        return userComponentsTitle();
+
     return m_import.url();
 }
 
@@ -57,7 +61,7 @@ bool ItemLibraryImport::importExpanded() const
 
 QString ItemLibraryImport::sortingName() const
 {
-    if (importName() == userComponentsTitle()) // user components always come first
+    if (m_isUserSection) // user components always come first
         return "_";
 
     return importName();
@@ -109,7 +113,7 @@ bool ItemLibraryImport::setVisible(bool isVisible)
     return false;
 }
 
-bool ItemLibraryImport::isVisible() const
+bool ItemLibraryImport::importVisible() const
 {
     return m_isVisible;
 }
@@ -119,9 +123,14 @@ void ItemLibraryImport::setImportUsed(bool importUsed)
     m_importUsed = importUsed;
 }
 
-bool ItemLibraryImport::isImportUsed() const
+bool ItemLibraryImport::importUsed() const
 {
     return m_importUsed;
+}
+
+bool ItemLibraryImport::hasCategories() const
+{
+    return m_categoryModel.rowCount() > 0;
 }
 
 void ItemLibraryImport::sortCategorySections()
@@ -129,7 +138,7 @@ void ItemLibraryImport::sortCategorySections()
     m_categoryModel.sortCategorySections();
 }
 
-void ItemLibraryImport::setExpanded(bool expanded)
+void ItemLibraryImport::setImportExpanded(bool expanded)
 {
     m_importExpanded = expanded;
 }
@@ -142,6 +151,11 @@ ItemLibraryCategory *ItemLibraryImport::getCategorySection(const QString &catego
     }
 
     return nullptr;
+}
+
+bool ItemLibraryImport::isUserSection() const
+{
+    return m_isUserSection;
 }
 
 // static

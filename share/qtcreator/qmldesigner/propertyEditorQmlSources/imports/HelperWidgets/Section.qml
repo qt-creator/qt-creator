@@ -43,8 +43,6 @@ Item {
     property int rightPadding: 0
     property int bottomPadding: 4
 
-    property int animationDuration: 0
-
     property bool expanded: true
     property int level: 0
     property int levelShift: 10
@@ -59,6 +57,7 @@ Item {
     clip: true
 
     signal showContextMenu()
+    signal toggleExpand()
 
     Rectangle {
         id: header
@@ -75,12 +74,6 @@ Item {
             anchors.left: parent.left
             anchors.leftMargin: 4 + (level * levelShift)
             anchors.verticalCenter: parent.verticalCenter
-            Behavior on rotation {
-                NumberAnimation {
-                    easing.type: Easing.OutCubic
-                    duration: section.animationDuration
-                }
-            }
         }
 
         Controls.Label {
@@ -98,8 +91,8 @@ Item {
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             onClicked: {
                 if (mouse.button === Qt.LeftButton) {
-                    section.animationDuration = 120
-                    section.expanded = !section.expanded
+                    trans.enabled = true
+                    section.toggleExpand()
                 } else {
                     section.showContextMenu()
                 }
@@ -135,13 +128,6 @@ Item {
         anchors.topMargin: section.topPadding
     }
 
-    Behavior on implicitHeight {
-        NumberAnimation {
-            easing.type: Easing.OutCubic
-            duration: section.animationDuration
-        }
-    }
-
     states: [
         State {
             name: "Collapsed"
@@ -156,4 +142,14 @@ Item {
             }
         }
     ]
+
+    transitions: Transition {
+            id: trans
+            enabled: false
+            NumberAnimation {
+                properties: "implicitHeight,rotation";
+                duration: 120;
+                easing.type: Easing.OutCubic
+            }
+        }
 }

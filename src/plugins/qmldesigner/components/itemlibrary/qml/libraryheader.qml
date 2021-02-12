@@ -34,7 +34,7 @@ Item {
 
     signal tabChanged(int index)
     signal filterChanged(string filterText)
-    signal addLibraryClicked()
+    signal addModuleClicked()
     signal addAssetClicked()
 
     function setTab(index)
@@ -65,7 +65,7 @@ Item {
             }
 
             Repeater {
-                model: [{title: qsTr("Components"), addToolTip: qsTr("Add Library")},
+                model: [{title: qsTr("Components"), addToolTip: qsTr("Add Module")},
                         {title: qsTr("Assets"), addToolTip: qsTr("Add new assets to project.")}]
 
                 TabButton {
@@ -105,7 +105,7 @@ Item {
                                 id: mouseArea
                                 anchors.fill: parent
                                 hoverEnabled: true
-                                onClicked: index == 0 ? addLibraryClicked() : addAssetClicked()
+                                onClicked: index == 0 ? addModuleClicked() : addAssetClicked()
                             }
                         }
 

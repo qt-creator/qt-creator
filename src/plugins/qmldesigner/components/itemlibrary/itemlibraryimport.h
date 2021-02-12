@@ -38,21 +38,22 @@ class ItemLibraryImport : public QObject
 
     Q_PROPERTY(QString importName READ importName FINAL)
     Q_PROPERTY(QString importUrl READ importUrl FINAL)
-    Q_PROPERTY(bool importVisible READ isVisible NOTIFY visibilityChanged FINAL)
-    Q_PROPERTY(bool importUsed READ isImportUsed NOTIFY importUsedChanged FINAL)
-    Q_PROPERTY(bool importExpanded READ importExpanded FINAL)
+    Q_PROPERTY(bool importVisible READ importVisible NOTIFY importVisibleChanged FINAL)
+    Q_PROPERTY(bool importUsed READ importUsed NOTIFY importUsedChanged FINAL)
+    Q_PROPERTY(bool importExpanded READ importExpanded WRITE setImportExpanded NOTIFY importExpandChanged FINAL)
     Q_PROPERTY(QObject *categoryModel READ categoryModel NOTIFY categoryModelChanged FINAL)
 
 public:
-    ItemLibraryImport(const Import &import, QObject *parent = nullptr);
+    ItemLibraryImport(const Import &import, QObject *parent = nullptr, bool isUserSection = false);
 
     QString importName() const;
     QString importUrl() const;
     bool importExpanded() const;
     QString sortingName() const;
     Import importEntry() const;
-    bool isVisible() const;
-    bool isImportUsed() const;
+    bool importVisible() const;
+    bool importUsed() const;
+    bool hasCategories() const;
     ItemLibraryCategory *getCategorySection(const QString &categoryName) const;
 
     void addCategory(ItemLibraryCategory *category);
@@ -61,20 +62,24 @@ public:
     bool setVisible(bool isVisible);
     void setImportUsed(bool importUsed);
     void sortCategorySections();
-    void setExpanded(bool expanded);
+    void setImportExpanded(bool expanded = true);
 
     static QString userComponentsTitle();
 
+    bool isUserSection() const;
+
 signals:
     void categoryModelChanged();
-    void visibilityChanged();
+    void importVisibleChanged();
     void importUsedChanged();
+    void importExpandChanged();
 
 private:
     Import m_import;
     bool m_importExpanded = true;
     bool m_isVisible = true;
     bool m_importUsed = false;
+    bool m_isUserSection = false; // user components import section
     ItemLibraryCategoriesModel m_categoryModel;
 };
 

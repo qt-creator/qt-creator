@@ -47,15 +47,48 @@
 
 namespace QmlDesigner {
 
-// sectionName can be an import or category section
-void ItemLibraryModel::setExpanded(bool expanded, const QString &sectionName)
+// sectionName can be an import url or a category name
+void ItemLibraryModel::saveExpandedState(bool expanded, const QString &sectionName)
 {
-    collapsedStateHash.insert(sectionName, expanded);
+    expandedStateHash.insert(sectionName, expanded);
 }
 
-bool ItemLibraryModel::sectionExpanded(const QString &sectionName) const
+bool ItemLibraryModel::loadExpandedState(const QString &sectionName)
 {
-    return collapsedStateHash.value(sectionName, true);
+    return expandedStateHash.value(sectionName, true);
+}
+
+void ItemLibraryModel::expandAll()
+{
+    bool changed = false;
+    for (const QPointer<ItemLibraryImport> &import : std::as_const(m_importList)) {
+        if (import->hasCategories() && !import->importExpanded()) {
+            changed = true;
+            import->setImportExpanded();
+            saveExpandedState(true, import->importUrl());
+        }
+    }
+
+    if (changed) {
+        beginResetModel();
+        endResetModel();
+    }
+}
+
+void ItemLibraryModel::collapseAll()
+{
+    bool changed = false;
+    for (const QPointer<ItemLibraryImport> &import : std::as_const(m_importList)) {
+        if (import->hasCategories() && import->importExpanded()) {
+            changed = true;
+            import->setImportExpanded(false);
+            saveExpandedState(false, import->importUrl());
+        }
+    }
+    if (changed) {
+        beginResetModel();
+        endResetModel();
+    }
 }
 
 void ItemLibraryModel::setFlowMode(bool b)
@@ -83,7 +116,7 @@ int ItemLibraryModel::rowCount(const QModelIndex & /*parent*/) const
 
 QVariant ItemLibraryModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() +1 > m_importList.count())
+    if (!index.isValid() || index.row() >= m_importList.count())
         return {};
 
     if (m_roleNames.contains(role)) {
@@ -99,6 +132,22 @@ QVariant ItemLibraryModel::data(const QModelIndex &index, int role) const
     qWarning() << Q_FUNC_INFO << "invalid role requested";
 
     return {};
+}
+
+bool ItemLibraryModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    // currently only importExpanded property is updatable
+    if (index.isValid() && m_roleNames.contains(role)) {
+        QVariant currValue = m_importList.at(index.row())->property(m_roleNames.value(role));
+        if (currValue != value) {
+            m_importList[index.row()]->setProperty(m_roleNames.value(role), value);
+            if (m_roleNames.value(role) == "importExpanded")
+                saveExpandedState(value.toBool(), m_importList[index.row()]->importUrl());
+            emit dataChanged(index, index, {role});
+            return true;
+        }
+    }
+    return false;
 }
 
 QHash<int, QByteArray> ItemLibraryModel::roleNames() const
@@ -146,7 +195,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
         if (import.isLibraryImport()) {
             ItemLibraryImport *itemLibImport = new ItemLibraryImport(import, this);
             m_importList.append(itemLibImport);
-            itemLibImport->setExpanded(sectionExpanded(import.url()));
+            itemLibImport->setImportExpanded(loadExpandedState(import.url()));
         }
     }
 
@@ -184,9 +233,9 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
                 // create an import section for user components
                 importSection = importByUrl(ItemLibraryImport::userComponentsTitle());
                 if (!importSection) {
-                    importSection = new ItemLibraryImport({}, this);
+                    importSection = new ItemLibraryImport({}, this, true);
                     m_importList.append(importSection);
-                    importSection->setExpanded(sectionExpanded(catName));
+                    importSection->setImportExpanded(loadExpandedState(catName));
                 }
             } else {
                 if (catName.startsWith("Qt Quick - "))
@@ -205,7 +254,8 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
             if (!categorySection) {
                 categorySection = new ItemLibraryCategory(catName, importSection);
                 importSection->addCategory(categorySection);
-                categorySection->setExpanded(sectionExpanded(categorySection->categoryName()));
+                if (!importSection->isUserSection())
+                    categorySection->setExpanded(loadExpandedState(categorySection->categoryName()));
             }
 
             // create item
@@ -251,7 +301,7 @@ ItemLibraryImport *ItemLibraryModel::importByUrl(const QString &importUrl) const
         if (itemLibraryImport->importUrl() == importUrl
             || (importUrl.isEmpty() && itemLibraryImport->importUrl() == "QtQuick")
             || (importUrl == ItemLibraryImport::userComponentsTitle()
-                && itemLibraryImport->importName() == ItemLibraryImport::userComponentsTitle())) {
+                && itemLibraryImport->isUserSection())) {
             return itemLibraryImport;
         }
     }

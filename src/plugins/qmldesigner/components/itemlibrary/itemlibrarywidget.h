@@ -130,7 +130,7 @@ private:
 private slots:
     void handleTabChanged(int index);
     void handleFilterChanged(const QString &filterText);
-    void handleAddLibrary();
+    void handleAddModule();
     void handleAddAsset();
     void handleAddImport(int index);
 };
