@@ -68,8 +68,6 @@ signals:
     void treeDataUpdate(QSharedPointer<QStandardItem> result);
 
 private:
-    using CitCachedDocTreeRevision = QHash<QString, unsigned>::const_iterator;
-
     void setFileList(const QStringList &fileList);
     void resetData(const CPlusPlus::Snapshot &snapshot);
     void addProject(const ParserTreeItem::Ptr &item, const QStringList &fileList,
