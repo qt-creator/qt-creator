@@ -549,12 +549,10 @@ void Parser::removeFiles(const QStringList &fileList)
 void Parser::resetData(const CPlusPlus::Snapshot &snapshot)
 {
     {
-        QWriteLocker locker(&d->m_projectLock);
+        QWriteLocker projectLocker(&d->m_projectLock);
+        QWriteLocker documentLocker(&d->m_documentLock);
         d->m_projectCache.clear();
-    }
-
-    {
-        QWriteLocker locker(&d->m_documentLock);
+        d->m_documentCache.clear();
         for (auto it = snapshot.begin(); it != snapshot.end(); ++it)
             d->m_documentCache[it.key().toString()].document = it.value();
     }
