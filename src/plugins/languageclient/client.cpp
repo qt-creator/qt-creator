@@ -861,9 +861,12 @@ QList<Diagnostic> Client::diagnosticsAt(const DocumentUri &uri, const QTextCurso
     return m_diagnosticManager.diagnosticsAt(uri, cursor);
 }
 
-bool Client::start()
+void Client::start()
 {
-    return m_clientInterface->start();
+    if (m_clientInterface->start())
+        LanguageClientManager::clientStarted(this);
+    else
+        LanguageClientManager::clientFinished(this);
 }
 
 bool Client::reset()

@@ -58,7 +58,8 @@ public:
 
     static void init();
 
-    static void startClient(Client *client);
+    static void clientStarted(Client *client);
+    static void clientFinished(Client *client);
     static Client *startClient(BaseSettings *setting, ProjectExplorer::Project *project = nullptr);
     static QVector<Client *> clients();
 
@@ -113,8 +114,6 @@ private:
     void projectRemoved(ProjectExplorer::Project *project);
 
     QVector<Client *> reachableClients();
-
-    void clientFinished(Client *client);
 
     bool m_shuttingDown = false;
     QVector<Client *> m_clients;

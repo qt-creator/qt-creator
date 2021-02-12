@@ -151,7 +151,7 @@ public:
         const LanguageServerProtocol::DocumentUri &uri,
         const QTextCursor &cursor) const;
 
-    bool start();
+    void start();
     bool reset();
 
     void log(const QString &message);
