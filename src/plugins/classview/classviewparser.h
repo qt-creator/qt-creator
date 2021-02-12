@@ -58,7 +58,6 @@ public:
     void fetchMore(QStandardItem *item, bool skipRoot = false) const;
     bool hasChildren(QStandardItem *item) const;
 
-    void clearCache();
     void requestCurrentState();
     void removeFiles(const QStringList &fileList);
     void resetDataToCurrentState();
@@ -70,7 +69,6 @@ signals:
 
 private:
     using CitCachedDocTreeRevision = QHash<QString, unsigned>::const_iterator;
-    using CitCachedPrjFileLists = QHash<QString, QStringList>::const_iterator;
 
     void setFileList(const QStringList &fileList);
     void resetData(const CPlusPlus::Snapshot &snapshot);

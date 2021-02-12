@@ -116,14 +116,14 @@ public:
     //! Projects read write lock
     QReadWriteLock prjLocker;
 
-    //! Parsed projects' revision - to speed up computations
-    QHash<QString, unsigned> cachedPrjTreesRevision;
+    struct ProjectCache {
+        unsigned treeRevision = 0;
+        ParserTreeItem::Ptr tree;
+        QStringList fileList;
+    };
 
-    //! Merged trees for projects. Not const - projects might be substracted/added
-    QHash<QString, ParserTreeItem::Ptr> cachedPrjTrees;
-
-    //! Cached file lists for projects (non-flat mode)
-    QHash<QString, QStringList> cachedPrjFileLists;
+    // Project file path to its cached data
+    QHash<QString, ProjectCache> m_projectCache;
 
     // other
     //! List for files which has to be parsed
@@ -413,8 +413,9 @@ ParserTreeItem::Ptr Parser::getParseProjectTree(const QStringList &fileList,
     if (!projectId.isEmpty()) {
         QWriteLocker locker(&d->prjLocker);
 
-        d->cachedPrjTrees[projectId] = item;
-        d->cachedPrjTreesRevision[projectId] = revision;
+        ParserPrivate::ProjectCache &projectCache = d->m_projectCache[projectId];
+        projectCache.tree = item;
+        projectCache.treeRevision = revision;
     }
     return item;
 }
@@ -430,12 +431,11 @@ ParserTreeItem::Ptr Parser::getCachedOrParseProjectTree(const QStringList &fileL
 {
     d->prjLocker.lockForRead();
 
-    ParserTreeItem::Ptr item = d->cachedPrjTrees.value(projectId);
-    // calculate current revision
-    if (!projectId.isEmpty() && !item.isNull()) {
+    const auto it = d->m_projectCache.constFind(projectId);
+    if (it != d->m_projectCache.constEnd() && !it.value().tree.isNull()) {
         // calculate project's revision
         unsigned revision = 0;
-        foreach (const QString &file, fileList) {
+        for (const QString &file : fileList) {
             const CPlusPlus::Document::Ptr &doc = d->document(file);
             if (doc.isNull())
                 continue;
@@ -443,9 +443,9 @@ ParserTreeItem::Ptr Parser::getCachedOrParseProjectTree(const QStringList &fileL
         }
 
         // if even revision is the same, return cached project
-        if (revision == d->cachedPrjTreesRevision[projectId]) {
+        if (revision == it.value().treeRevision) {
             d->prjLocker.unlock();
-            return item;
+            return it.value().tree;
         }
     }
 
@@ -534,24 +534,6 @@ void Parser::parseDocument(const CPlusPlus::Document::Ptr &doc)
 }
 
 /*!
-    Requests to clear internal stored data. The data has to be regenerated on
-    the next request.
-*/
-
-void Parser::clearCache()
-{
-    QWriteLocker locker(&d->prjLocker);
-
-    // remove cached trees
-    d->cachedPrjFileLists.clear();
-
-    //! \todo where better to clear project's trees?
-    //! When file is add/removed from a particular project?..
-    d->cachedPrjTrees.clear();
-    d->cachedPrjTreesRevision.clear();
-}
-
-/*!
     Specifies the files that must be allowed for the parsing as a \a fileList.
     Files outside of this list will not be in any tree.
 */
@@ -577,10 +559,9 @@ void Parser::removeFiles(const QStringList &fileList)
         d->cachedDocTrees.remove(name);
         d->cachedDocTreesRevision.remove(name);
         d->documentList.remove(name);
-        d->cachedPrjTrees.remove(name);
-        d->cachedPrjFileLists.remove(name);
-        for (auto it = d->cachedPrjFileLists.begin(); it != d->cachedPrjFileLists.end(); ++it)
-            it.value().removeOne(name);
+        d->m_projectCache.remove(name);
+        for (auto it = d->m_projectCache.begin(); it != d->m_projectCache.end(); ++it)
+            it.value().fileList.removeOne(name);
     }
 }
 
@@ -590,8 +571,10 @@ void Parser::removeFiles(const QStringList &fileList)
 
 void Parser::resetData(const CPlusPlus::Snapshot &snapshot)
 {
-    // clear internal cache
-    clearCache();
+    {
+        QWriteLocker locker(&d->prjLocker);
+        d->m_projectCache.clear();
+    }
 
     d->docLocker.lockForWrite();
 
@@ -648,21 +631,17 @@ void Parser::requestCurrentState()
 
 QStringList Parser::getAllFiles(const Project *project)
 {
-    QStringList fileList;
-
     if (!project)
-        return fileList;
+        return {};
 
-    const QString nodePath = project->projectFilePath().toString();
+    const QString projectPath = project->projectFilePath().toString();
+    const auto cit = d->m_projectCache.constFind(projectPath);
+    if (cit != d->m_projectCache.constEnd())
+        return cit.value().fileList;
 
-    CitCachedPrjFileLists cit = d->cachedPrjFileLists.constFind(nodePath);
-    // try to improve parsing speed by internal cache
-    if (cit != d->cachedPrjFileLists.constEnd()) {
-        fileList = cit.value();
-    } else {
-        fileList = Utils::transform(project->files(Project::SourceFiles), &FilePath::toString);
-        d->cachedPrjFileLists[nodePath] = fileList;
-    }
+    const QStringList fileList = Utils::transform(project->files(Project::SourceFiles),
+                                                  &FilePath::toString);
+    d->m_projectCache[projectPath].fileList = fileList;
     return fileList;
 }
 
