@@ -572,13 +572,15 @@ void Parser::removeFiles(const QStringList &fileList)
 
     QWriteLocker lockerPrj(&d->prjLocker);
     QWriteLocker lockerDoc(&d->docLocker);
-    foreach (const QString &name, fileList) {
+    for (const QString &name : fileList) {
         d->fileList.remove(name);
         d->cachedDocTrees.remove(name);
         d->cachedDocTreesRevision.remove(name);
         d->documentList.remove(name);
         d->cachedPrjTrees.remove(name);
-        d->cachedPrjFileLists.clear();
+        d->cachedPrjFileLists.remove(name);
+        for (auto it = d->cachedPrjFileLists.begin(); it != d->cachedPrjFileLists.end(); ++it)
+            it.value().removeOne(name);
     }
 }
 
