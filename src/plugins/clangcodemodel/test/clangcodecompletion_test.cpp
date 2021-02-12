@@ -608,6 +608,18 @@ void ClangCodeCompletionTest::testCompleteFunctions()
     QVERIFY(hasItem(t.proposal, "TType&lt;QString&gt; f(bool)"));
 }
 
+void ClangCodeCompletionTest::testCompleteOverloads()
+{
+    ProjectLessCompletionTest t("functionCompletionFiltered.cpp");
+    QCOMPARE(t.proposal->size(), 1);
+    QVERIFY(hasItem(t.proposal, "void func(int i, int j)"));
+
+    ProjectLessCompletionTest t2("functionCompletionFiltered2.cpp");
+    QCOMPARE(t2.proposal->size(), 2);
+    QVERIFY(hasItem(t2.proposal, "void func(const S &amp;s, int j)"));
+    QVERIFY(hasItem(t2.proposal, "void func(const S &amp;s, int j, int k)"));
+}
+
 void ClangCodeCompletionTest::testCompleteConstructor()
 {
     ProjectLessCompletionTest t("constructorCompletion.cpp");

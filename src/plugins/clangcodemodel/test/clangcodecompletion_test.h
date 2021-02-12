@@ -48,6 +48,7 @@ private slots:
     void testCompleteMembersFromOutside();
     void testCompleteMembersFromFriend();
     void testCompleteFunctions();
+    void testCompleteOverloads();
     void testCompleteConstructor();
     void testCompleteClassAndConstructor();
 

@@ -27,5 +27,7 @@
         <file>membercompletion-outside.cpp</file>
         <file>membercompletion-inside.cpp</file>
         <file>membercompletion-friend.cpp</file>
+        <file>functionCompletionFiltered.cpp</file>
+        <file>functionCompletionFiltered2.cpp</file>
     </qresource>
 </RCC>

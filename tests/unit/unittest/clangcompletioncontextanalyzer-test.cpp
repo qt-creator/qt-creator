@@ -261,14 +261,14 @@ TEST_F(ClangCompletionContextAnalyzer, ArgumentTwoAtCall)
 {
     auto analyzer = runAnalyzer("f(1,@");
 
-    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -2, -2, positionInText, false));
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, 0, -2, positionInText, false));
 }
 
 TEST_F(ClangCompletionContextAnalyzer, ArgumentTwoWithSpaceAtCall)
 {
     auto analyzer = runAnalyzer("f(1, @");
 
-    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -3, -3, positionInText, false));
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, 0, -3, positionInText, false));
 }
 
 TEST_F(ClangCompletionContextAnalyzer, WhitespaceAfterFunctionName)
@@ -289,7 +289,7 @@ TEST_F(ClangCompletionContextAnalyzer, ArgumentTwoWithSpaceAtConstructorCallWith
 {
     auto analyzer = runAnalyzer("f{1, @");
 
-    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -3, -3, positionInText, false));
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, 0, -3, positionInText, false));
 }
 
 TEST_F(ClangCompletionContextAnalyzer, WhitespaceBeforeConstructorCallWithBraceInitializer)
@@ -546,7 +546,7 @@ TEST_F(ClangCompletionContextAnalyzer, TemplatedFunctionSecondArgument)
 {
     auto analyzer = runAnalyzer("f < decltype(bar -> member) > (1, @");
 
-    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -3, -3, positionInText, false));
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, 0, -3, positionInText, false));
 }
 
 TEST_F(ClangCompletionContextAnalyzer, FunctionNameStartPosition)
