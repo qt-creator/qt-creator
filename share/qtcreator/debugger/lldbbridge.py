@@ -787,6 +787,8 @@ class Dumper(DumperBase):
     def removeTypePrefix(self, name):
         return re.sub('^(struct|class|union|enum|typedef) ', '', name)
 
+    __funcSignature_Regex__ = re.compile(r'^.+\(.*\)')
+
     def lookupNativeType(self, name):
         #DumperBase.warn('LOOKUP TYPE NAME: %s' % name)
         typeobj = self.typeCache.get(name)
@@ -807,6 +809,9 @@ class Dumper(DumperBase):
         # Note that specifying a prefix like enum or typedef or class will make the call fail to
         # find the type, thus the prefix is stripped.
         nonPrefixedName = self.canonicalTypeName(self.removeTypePrefix(name))
+        if __funcSignature_Regex__.match(nonPrefixedName) is not None:
+            return lldb.SBType()
+
         typeobjlist = self.target.FindTypes(nonPrefixedName)
         if typeobjlist.IsValid():
             for typeobj in typeobjlist:
