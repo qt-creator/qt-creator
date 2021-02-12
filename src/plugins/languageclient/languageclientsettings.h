@@ -164,7 +164,7 @@ public:
     static void toSettings(QSettings *settings, const QList<BaseSettings *> &languageClientSettings);
 };
 
-class BaseSettingsWidget : public QWidget
+class LANGUAGECLIENT_EXPORT BaseSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
@@ -190,7 +190,7 @@ private:
     static constexpr char filterSeparator = ';';
 };
 
-class StdIOSettingsWidget : public BaseSettingsWidget
+class LANGUAGECLIENT_EXPORT StdIOSettingsWidget : public BaseSettingsWidget
 {
     Q_OBJECT
 public:
