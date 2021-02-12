@@ -52,6 +52,7 @@ private:
     QRegularExpression m_additionalInfoRegExp;
 
     Task m_lastTask;
+    LinkSpecs m_linkSpecs;
     int m_lines = 0;
 };
 
