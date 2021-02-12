@@ -56,6 +56,8 @@ public:
     const QStringList &androidAbis() const;
     int minimumNDK() const;
 
+    static Utils::FilePath androidDeploymentSettings(const ProjectExplorer::Target *target);
+
 protected:
     void parseMkSpec(ProFileEvaluator *) const override;
 private:

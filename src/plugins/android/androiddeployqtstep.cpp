@@ -32,6 +32,7 @@
 #include "androidconstants.h"
 #include "androidglobal.h"
 #include "androidavdmanager.h"
+#include "androidqtversion.h"
 
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
@@ -200,7 +201,7 @@ bool AndroidDeployQtStep::init()
             m_command = AndroidConfigurations::currentConfig().adbToolPath();
             AndroidManager::setManifestPath(target(), m_manifestName);
         } else {
-            QString jsonFile = node->data(Constants::AndroidDeploySettingsFile).toString();
+            QString jsonFile = AndroidQtVersion::androidDeploymentSettings(target()).toString();
             if (jsonFile.isEmpty()) {
                 const QString error = tr("Cannot find the androiddeploy Json file.");
                 emit addOutput(error, OutputFormat::Stderr);

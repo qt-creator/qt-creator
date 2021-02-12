@@ -31,6 +31,7 @@
 #include "androidcreatekeystorecertificate.h"
 #include "androidextralibrarylistmodel.h"
 #include "androidmanager.h"
+#include "androidqtversion.h"
 #include "androidsdkmanager.h"
 #include "certificatesmodel.h"
 #include "createandroidmanifestwizard.h"
@@ -572,13 +573,9 @@ bool AndroidBuildApkStep::init()
 
     QString outputDir = buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY).toString();
 
-    const QString buildKey = target()->activeBuildKey();
-    const ProjectNode *node = project()->findNodeForBuildKey(buildKey);
-    if (node)
-        m_inputFile = node->data(Constants::AndroidDeploySettingsFile).toString();
-
+    m_inputFile = AndroidQtVersion::androidDeploymentSettings(target()).toString();
     if (m_inputFile.isEmpty()) {
-        qCDebug(buildapkstepLog) << "no input file" << node << buildKey;
+        qCDebug(buildapkstepLog) << "no input file" << target()->activeBuildKey();
         m_skipBuilding = true;
         return true;
     }

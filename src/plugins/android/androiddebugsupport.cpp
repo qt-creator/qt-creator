@@ -78,7 +78,8 @@ static QStringList getSoLibSearchPath(const ProjectNode *node)
          res.append(node->data(Constants::AndroidSoLibPath).toStringList());
     });
 
-    const QString jsonFile = node->data(Android::Constants::AndroidDeploySettingsFile).toString();
+    const QString jsonFile = AndroidQtVersion::androidDeploymentSettings(
+                node->getProject()->activeTarget()).toString();
     QFile deploymentSettings(jsonFile);
     if (deploymentSettings.open(QIODevice::ReadOnly)) {
         QJsonParseError error;

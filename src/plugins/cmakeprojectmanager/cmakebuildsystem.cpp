@@ -606,32 +606,12 @@ void CMakeBuildSystem::updateProjectData()
         auto newRoot = generateProjectTree(m_allFiles, true);
         if (newRoot) {
             setRootProjectNode(std::move(newRoot));
-            CMakeConfigItem settingFileItem;
-            settingFileItem.key = Android::Constants::ANDROID_DEPLOYMENT_SETTINGS_FILE;
 
             const FilePath buildDir = cmakeBuildConfiguration()->buildDirectory();
             if (p->rootProjectNode()) {
                 const QString nodeName = p->rootProjectNode()->displayName();
                 p->setDisplayName(nodeName);
-
-                const Kit *k = kit();
-                if (DeviceTypeKitAspect::deviceTypeId(k) == Android::Constants::ANDROID_DEVICE_TYPE) {
-                    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
-                    if (qt && qt->qtVersion() >= QtSupport::QtVersionNumber{6, 0, 0}) {
-                        const QLatin1String jsonFile("android-%1-deployment-settings.json");
-                        settingFileItem.value = buildDir.pathAppended(jsonFile.arg(nodeName))
-                                                    .toString()
-                                                    .toUtf8();
-                    }
-                }
             }
-
-            if (settingFileItem.value.isEmpty()) {
-                settingFileItem.value = buildDir.pathAppended("android_deployment_settings.json")
-                                            .toString()
-                                            .toUtf8();
-            }
-            patchedConfig.append(settingFileItem);
 
             for (const CMakeBuildTarget &bt : qAsConst(m_buildTargets)) {
                 const QString buildKey = bt.title;
