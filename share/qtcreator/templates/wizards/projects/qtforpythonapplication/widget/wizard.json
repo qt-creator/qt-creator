@@ -30,6 +30,12 @@
             "data" :
             [
                 {
+                    "name": "PySideVersion",
+                    "trDisplayName": "PySide version:",
+                    "type": "ComboBox",
+                    "data": { "items": [ "PySide2", "PySide6" ] }
+                },
+                {
                     "name": "Class",
                     "trDisplayName": "Class name:",
                     "mandatory": true,

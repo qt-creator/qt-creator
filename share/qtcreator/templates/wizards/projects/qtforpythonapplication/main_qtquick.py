@@ -2,9 +2,8 @@
 import sys
 import os
 
-from PySide2.QtGui import QGuiApplication
-from PySide2.QtQml import QQmlApplicationEngine
-
+from %{PySideVersion}.QtGui import QGuiApplication
+from %{PySideVersion}.QtQml import QQmlApplicationEngine
 
 if __name__ == "__main__":
     app = QGuiApplication(sys.argv)

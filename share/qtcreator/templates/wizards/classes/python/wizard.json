@@ -37,7 +37,7 @@
                     "type": "ComboBox",
                     "data":
                     {
-                        "items": ["<None>", "PySide2", "PyQt5"]
+                        "items": ["<None>", "PySide2", "PySide6", "PyQt5"]
                     }
                 },
                 {

@@ -1,13 +1,13 @@
 # This Python file uses the following encoding: utf-8
 import sys
 @if '%{BaseCB}' === 'QWidget'
-from PySide2.QtWidgets import QApplication, QWidget
+from %{PySideVersion}.QtWidgets import QApplication, QWidget
 @endif
 @if '%{BaseCB}' === 'QMainWindow'
-from PySide2.QtWidgets import QApplication, QMainWindow
+from %{PySideVersion}.QtWidgets import QApplication, QMainWindow
 @endif
 @if '%{BaseCB}' === ''
-from PySide2.QtWidgets import QApplication
+from %{PySideVersion}.QtWidgets import QApplication
 @endif
 
 

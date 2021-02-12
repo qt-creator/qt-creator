@@ -15,7 +15,8 @@
         { "key": "QmlFileName", "value": "main.qml" },
         { "key": "PyProjectFile", "value": "main.pyproject" },
         { "key": "QtQuickVersion", "value": "%{JS: value('QtVersion').QtQuickVersion}" },
-        { "key": "QtQuickWindowVersion", "value": "%{JS: value('QtVersion').QtQuickWindowVersion}" }
+        { "key": "QtQuickWindowVersion", "value": "%{JS: value('QtVersion').QtQuickWindowVersion}" },
+        { "key": "PySideVersion", "value": "%{JS: value('QtVersion').PySideVersion}" }
     ],
 
     "pages":
@@ -41,11 +42,21 @@
                         "items":
                         [
                             {
+                                "trKey": "PySide 6",
+                                "value":
+                                {
+                                    "QtQuickVersion": "",
+                                    "QtQuickWindowVersion": "",
+                                    "PySideVersion": "PySide6"
+                                }
+                            },
+                            {
                                 "trKey": "PySide 5.15",
                                 "value":
                                 {
                                     "QtQuickVersion": "2.15",
-                                    "QtQuickWindowVersion": "2.15"
+                                    "QtQuickWindowVersion": "2.15",
+                                    "PySideVersion": "PySide2"
                                 }
                             },
                             {
@@ -53,7 +64,8 @@
                                 "value":
                                 {
                                     "QtQuickVersion": "2.14",
-                                    "QtQuickWindowVersion": "2.14"
+                                    "QtQuickWindowVersion": "2.14",
+                                    "PySideVersion": "PySide2"
                                 }
                             },
                             {
@@ -61,7 +73,8 @@
                                 "value":
                                 {
                                     "QtQuickVersion": "2.13",
-                                    "QtQuickWindowVersion": "2.13"
+                                    "QtQuickWindowVersion": "2.13",
+                                    "PySideVersion": "PySide2"
                                 }
                             },
                             {
@@ -69,7 +82,8 @@
                                 "value":
                                 {
                                     "QtQuickVersion": "2.12",
-                                    "QtQuickWindowVersion": "2.12"
+                                    "QtQuickWindowVersion": "2.12",
+                                    "PySideVersion": "PySide2"
                                 }
                             }
                         ]

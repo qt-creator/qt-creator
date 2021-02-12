@@ -4,16 +4,16 @@ import os
 
 
 @if '%{BaseCB}' === 'QWidget'
-from PySide2.QtWidgets import QApplication, QWidget
+from %{PySideVersion}.QtWidgets import QApplication, QWidget
 @endif
 @if '%{BaseCB}' === 'QMainWindow'
-from PySide2.QtWidgets import QApplication, QMainWindow
+from %{PySideVersion}.QtWidgets import QApplication, QMainWindow
 @endif
 @if '%{BaseCB}' === 'QDialog'
-from PySide2.QtWidgets import QApplication, QDialog
+from %{PySideVersion}.QtWidgets import QApplication, QDialog
 @endif
-from PySide2.QtCore import QFile
-from PySide2.QtUiTools import QUiLoader
+from %{PySideVersion}.QtCore import QFile
+from %{PySideVersion}.QtUiTools import QUiLoader
 
 
 @if '%{BaseCB}'
