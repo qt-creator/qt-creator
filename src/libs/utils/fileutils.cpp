@@ -990,8 +990,10 @@ QTextStream &operator<<(QTextStream &s, const FilePath &fn)
 }
 
 #ifdef QT_GUI_LIB
-FileUtils::CopyAskingForOverwrite::CopyAskingForOverwrite(QWidget *dialogParent)
+FileUtils::CopyAskingForOverwrite::CopyAskingForOverwrite(
+    QWidget *dialogParent, const std::function<void(QFileInfo)> &postOperation)
     : m_parent(dialogParent)
+    , m_postOperation(postOperation)
 {}
 
 bool FileUtils::CopyAskingForOverwrite::operator()(const QFileInfo &src,
@@ -1036,6 +1038,8 @@ bool FileUtils::CopyAskingForOverwrite::operator()(const QFileInfo &src,
             }
             return false;
         }
+        if (m_postOperation)
+            m_postOperation(dest);
     }
     m_files.append(dest.absoluteFilePath());
     return true;

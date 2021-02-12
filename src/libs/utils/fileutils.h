@@ -168,13 +168,15 @@ public:
     class QTCREATOR_UTILS_EXPORT CopyAskingForOverwrite
     {
     public:
-        CopyAskingForOverwrite(QWidget *dialogParent);
+        CopyAskingForOverwrite(QWidget *dialogParent,
+                               const std::function<void(QFileInfo)> &postOperation = {});
         bool operator()(const QFileInfo &src, const QFileInfo &dest, QString *error);
         QStringList files() const;
 
     private:
         QWidget *m_parent;
         QStringList m_files;
+        std::function<void(QFileInfo)> m_postOperation;
         bool m_overwriteAll = false;
         bool m_skipAll = false;
     };
