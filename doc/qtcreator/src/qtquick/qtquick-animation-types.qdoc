@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -24,9 +24,15 @@
 ****************************************************************************/
 
 /*!
-//! [qtquick animation types]
+    \page quick-animations.html
+    \if defined(qtdesignstudio)
+    \previouspage quick-logic-helpers.html
+    \else
+    \previouspage quick-data-models.html
+    \endif
+    \nextpage quick-buttons.html
 
-    \section1 Using Qt Quick Animation Types
+    \title Animations
 
     To create an animation, use an appropriate animation type for the type of
     the property that is to be animated, and apply the animation depending on

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -702,6 +702,48 @@
     groups of items on a tool bar by separating them with a line. It can
     be used in horizontal or vertical toolbars by setting the value of
     the \uicontrol Orientation field.
+
+    \section1 Styling Controls
+
+    The UI controls can be \l {Styling Qt Quick Controls}{styled}.
+    \uicontrol {Form Editor} reads the preferred style from a
+    configuration file (\c qtquickcontrols2.conf). To change the
+    style, select another style from the list on the main toolbar. This
+    enables you to check how your UI looks when using the available
+    styles.
+
+    \image qtquick-designer-style-list.png "Style menu on the toolbar"
+
+    For an example of defining your own style and using it in the Design mode,
+    see \l {Qt Quick Controls 2 - Flat Style}.
+
+    For more information about how to customize a particular control, see
+    \l{Customization Reference}.
+
+    \if defined(qtcreator)
+    \section1 History of Qt Quick Controls
+
+    In Qt 4, ready-made Qt Quick 1 Components were provided for creating
+    UIs with a native look and feel for a particular target platform.
+    In Qt 5.1, Qt Quick Controls, Dialogs, and Layouts were added for
+    creating classic desktop-style user interfaces using Qt Quick 2.1. The
+    Qt Quick Controls Styles could be used to customize Qt Quick Controls.
+
+    Since Qt 5.7, \l {Qt Quick Controls 2} replace Qt Quick Controls 1 and
+    Qt Labs Controls. They provide lightweight components for creating performant
+    user interfaces for \l{glossary-device}{devices}.
+
+    Qt Quick Controls 2 work in conjunction with Qt Quick and Qt Quick Layouts.
+
+    The \QC project wizards create Qt Quick applications that use Qt Quick
+    2 types or Qt Quick Controls 2 types.
+
+    Even if you use Qt Quick Controls 2, you can still write cross-platform
+    applications, by using different sets of QML files for each platform.
+
+    Some ready-made controls, such as a gauge, dial, status indicator, and
+    tumbler, are provided by the \l {Qt Quick Extras} module.
+    \endif
 
     \section1 Summary of User Interaction Methods
 

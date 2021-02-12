@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Design Studio documentation.
@@ -36,12 +36,12 @@
             \uicontrol {Files and Classes} > \uicontrol {Qt Quick Controls}.
         \li Select the control to create, and then select \uicontrol Choose.
 
-            \note Components are listed in the \uicontrol {My QML Components}
+            \note Components are listed in the \uicontrol {My Components}
             tab of the \uicontrol Library only if the filename begins
             with a capital letter.
         \li Edit component properties in the \uicontrol Properties view.
 
-            The available properties depend on the QML type. You can
+            The available properties depend on the component type. You can
             \l{Specifying Dynamic Properties}{add properties for components} in
             the \uicontrol Properties tab of the \uicontrol {Connection View}.
     \endlist

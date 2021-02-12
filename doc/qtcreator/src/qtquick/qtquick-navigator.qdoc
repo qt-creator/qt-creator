@@ -142,5 +142,27 @@
     the item into a new position. The topmost item under the cursor becomes the
     new parent of the item.
 
+    \section1 Moving Within Components
+
+    The files that specify components (\c ui.qml, \c .qml) can contain
+    instances of other components specified in separate files. You can
+    open the file that specifies a component in different ways from
+    different views:
+
+    \list
+        \li In \uicontrol {Form Editor} or \uicontrol Navigator,
+            right-click an instance of a component and then select
+            \uicontrol {Go into Component} in the context menu or
+            press \key F2.
+        \li In \uicontrol Properties, select \uicontrol {Edit Master Component}.
+    \endlist
+
+    The component hierarchy is displayed as a bread crumb path, where you can
+    click the component names to open the respective files. This enables you
+    to easily navigate back to the top level when you are done editing the
+    component.
+
+    \image qmldesigner-breadcrumbs.png "Component hierarchy"
+
     \include qtquick-component-context-menu.qdocinc context-menu
 */

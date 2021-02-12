@@ -92,6 +92,9 @@
                 \li \l {Creating Qt Quick Projects}
                 \li \l {Editing QML Files in Design Mode}
 
+                    \list
+                        \li \l{Library}
+                    \endlist
                 \li \l {Creating UIs}
                     \list
                         \li \l {Creating Components}
@@ -102,6 +105,7 @@
                             \li \l{Images}
                             \li \l{User Interaction Methods}
                             \li \l{Lists and Other Data Models}
+                            \li \l{Animations}
                             \li \l{Creating Buttons}
                             \li \l{Creating Scalable Buttons and Borders}
                         \endlist

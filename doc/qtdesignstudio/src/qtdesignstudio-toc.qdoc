@@ -56,12 +56,13 @@
                 \li \l{User Interface}
                     \list
                         \li \l{Selecting Modes}
-                     \endlist
-                \li \l{Editing QML Files in Design Mode}
-                    \list
+                        \li \l{Editing QML Files in Design Mode}
+                        \list
+                            \li \l{Library}
+                        \endlist
                         \li \l{Managing Workspaces}
                         \li \l{Managing Sessions}
-                     \endlist
+                    \endlist
                 \li \l{Tutorials}
                 \li \l{Qt Quick Best Practices}
                     \list
@@ -93,6 +94,7 @@
                     \li \l{Lists and Other Data Models}
                     \li \l{2D Effects}
                     \li \l{Logic Helpers}
+                    \li \l Animations
                     \li \l{Creating Buttons}
                     \li \l{Creating Scalable Buttons and Borders}
                 \endlist

@@ -36,51 +36,43 @@
     \else
     \previouspage creator-using-qt-quick-designer.html
     \endif
-    \nextpage qtquick-form-editor.html
+    \nextpage quick-shapes.html
 
     \title Creating Components
 
-    A \l{glossary-component}{component} provides a way of defining a new visual item
-    that you can re-use in other QML files. A component is like a black box; it
-    interacts with the outside world through properties, signals, and slots, and
-    is generally defined in its own QML file. You can import components to
-    applications.
+    A \e component is a reusable building block for a UI.
 
-    The \uicontrol {Library} view lists the available QML types, UI
-    components, assets, and QML imports.
+    \QDS comes with \e {preset components} that you can use in your project.
+    These are similar to \e Symbols in Sketch or \e Prefab in Unity.
 
-    \image qmldesigner-qml-components.png "QML Components"
+    Some of the preset components represent simple shapes, text, or images,
+    while others represent complex UI controls with full functionality, such
+    as spin boxes or sliders.
 
-    The \uicontrol {QML Types} tab displays the QML types grouped by category,
-    such as your own QML components, basic types, layouts, positioner types, and
-    views.
+    You can modify the \e properties of the preset components and combine them
+    to build your own components.
 
-    \section1 QML Imports
+    A component is specified within one file (with the file extension
+    \e ui.qml or \e .qml). For example, a Button component may be defined
+    in \e Button.ui.qml. Typically, the visual appearance of a component
+    is defined in a \e {UI file} (ui.qml).
 
-    Sets of UI components with the look and feel of a particular mobile device
-    platform have been defined for Qt Quick 1. Since Qt 5.1, ready-made Qt
-    Quick Controls, Dialogs, and Layouts are available for creating user
-    interfaces using Qt Quick 2. The components and controls are based on
-    standard QML types. To view the components and controls in
-    \uicontrol {Library}, import the component sets in \uicontrol {QML Imports}.
+    The \l {Library} view \uicontrol Components tab lists the components that
+    have been added to your project.
 
-    The \uicontrol {Qt Quick Application} wizards for a particular platform add
-    the import statements automatically. You can remove import statements in
-    \uicontrol {QML Imports}.
+    \image qmldesigner-qml-components.png "Components"
 
-    \section1 Assets
-
-    \uicontrol {Assets} displays the images and other files that you import to
-    the project folder by selecting \uicontrol {Add New Assets}.
-
-    When you drag and drop assets from the tab to \uicontrol Navigator or
-    \uicontrol {Form Editor}, QML components with a suitable type are
-    automatically created for you. For example, when using graphical
-    assets to create components, the components will be of the Image type.
+    \note Use as few components as possible. To minimize the number of
+    components, use \l{Adding Property Aliases}{alias properties} and
+    \l{Adding States}{states} to create the differences in your component
+    instances. We recommend reusing components instead of duplicating them,
+    so the components do not need to be processed as completely new component
+    types. This reduces the time needed to load and build the application,
+    as well as the size of the application package.
 
     \section1 Adding Components to Designs
 
-    \image qmldesigner-editing-components.png "Editing QML components in Design mode"
+    \image qmldesigner-editing-components.png "Editing components in Form Editor"
 
     \list 1
         \li Drag and drop components from \uicontrol Library (1) to
@@ -102,7 +94,7 @@
             \image qmldesigner-connections.png "Connections view Connections tab"
         \li To dynamically change the behavior of an object when another object
             changes, create bindings between components in the
-            \uicontrol Connections view, \uicontrol Bindings tab.
+            \uicontrol {Connection View}, \uicontrol Bindings tab.
             For more information, see \l{Adding Bindings Between Properties}.
             \image qmldesigner-bindings.png "Connections view Bindings tab"
         \li Add states to apply sets of changes to the property values of one
@@ -112,71 +104,7 @@
             For more information, see \l{Creating Animations}.
     \endlist
 
-    \section1 Component Types
-
-    The following sections describe the types of components that you can create
-    in the Design mode.
-
-    \list
-        \li \l Shapes
-        \li \l Text
-        \li \l Images
-        \li \l {User Interaction Methods}
-        \li \l {Lists and Other Data Models}
-        \if defined(qtdesignstudio)
-        \li \l {2D Effects}
-        \li \l {Logic Helpers}
-        \endif
-    \endlist
-
-    \include qtquick-animation-types.qdocinc qtquick animation types
-
-    \include qtquick-mcu-support.qdocinc mcu qtquick components
-
-    \section1 Styling Controls
-
-    Qt Quick Controls provide lightweight QML types for creating performant
-    user interfaces for \l{glossary-device}{devices}. The controls can be
-    \l {Styling Qt Quick Controls}{styled}. The visual editor reads the
-    \c qtquickcontrols2.conf file that specifies the preferred style and some
-    style-specific arguments. To change the style, select another style from
-    the list on the toolbar. This enables you to check how your UI looks when
-    using the available styles.
-
-    \image qtquick-designer-style-list.png "Style menu on the toolbar"
-
-    For an example of defining your own style and using it in the Design mode,
-    see \l {Qt Quick Controls 2 - Flat Style}.
-
-    For more information about how to customize a particular control, see
-    \l{Customization Reference}.
-
-    \if defined(qtcreator)
-    \section1 History of Qt Quick Controls
-
-    In Qt 4, ready-made Qt Quick 1 Components were provided for creating
-    UIs with a native look and feel for a particular target platform.
-    In Qt 5.1, Qt Quick Controls, Dialogs, and Layouts were added for
-    creating classic desktop-style user interfaces using Qt Quick 2.1. The
-    Qt Quick Controls Styles could be used to customize Qt Quick Controls.
-
-    Since Qt 5.7, \l {Qt Quick Controls 2} replace Qt Quick Controls 1 and
-    Qt Labs Controls. They provide lightweight QML types for creating performant
-    user interfaces for \l{glossary-device}{devices}.
-
-    Qt Quick Controls 2 work in conjunction with Qt Quick and Qt Quick Layouts.
-
-    The \QC project wizards create Qt Quick applications that use Qt Quick
-    2 types or Qt Quick Controls 2 types.
-
-    Even if you use Qt Quick Controls 2, you can still write cross-platform
-    applications, by using different sets of QML files for each platform.
-
-    Some ready-made controls, such as a gauge, dial, status indicator, and
-    tumbler, are provided by the \l {Qt Quick Extras} module.
-    \endif
-
-    \section1 Creating Components in Design Mode
+    \section1 Creating Your Own Components
 
     You can either use project wizard templates to create custom components and
     controls or \l{Moving Components into Separate Files}{move subcomponents
@@ -196,20 +124,21 @@
             \endif
             \uicontrol Choose to create a new .qml file.
 
-            \note Components are listed in the \uicontrol {My QML Components}
+            \note Components are listed in the \uicontrol {My Components}
             tab in the \uicontrol Library view only if the filename begins with
             a capital letter.
 
-        \li Click \uicontrol Design to open the .qml file in the Design mode.
+        \li Click \uicontrol Design to open the component file (ui.qml] in
+            \uicontrol {Form Editor}.
 
-        \li Drag and drop a QML type from \uicontrol Library to
+        \li Drag and drop a component from \uicontrol Library to
             \uicontrol Navigator or \uicontrol {Form Editor}.
 
-        \li Edit its properties in \uicontrol Properties.
+        \li Edit component properties in \uicontrol Properties.
 
             \image qmldesigner-custom-component-properties.png
 
-            The available properties depend on the QML type. You can
+            The available properties depend on the component type. You can
             \l{Specifying Dynamic Properties}{add properties for
             components} in the \uicontrol Properties tab of the
             \uicontrol {Connection View}.
@@ -217,12 +146,15 @@
     \endlist
 
     The following sections contain more information about how to use
-    \uicontrol {Form Editor} to edit 2D content, as well as examples of
-    how to create some common components using basic QML types:
+    \uicontrol {Form Editor} to edit 2D content and \uicontrol {3D Editor}
+    to edit 3D scenes, as well as examples of how to create UI controls
+    using basic components:
 
     \list
 
         \li \l{Editing 2D Content}
+
+        \li \l{Working in 3D Editor}{3D Editor}
 
         \li \l{Creating Buttons}
 
@@ -236,15 +168,24 @@
 
     \section2 Moving Components into Separate Files
 
-    An alternative way of creating reusable components is to move them into
-    separate QML files. Right-click a component in the \uicontrol Navigator
-    or \uicontrol {Form Editor} view and select
+    An alternative way of creating reusable components is to move them
+    into separate component files (.ui.qml). Right-click a component
+    in \uicontrol Navigator or \uicontrol {Form Editor} and select
     \uicontrol {Move Component into Separate File} in the context menu.
 
     \image qtcreator-move-component-into-separate-file.png
 
     Give the new component a name and select whether properties are set for
     the new component or for the original one.
+
+    When you select \uicontrol OK, a new component file is created and a
+    reference to the component is added to the code in the current component
+    file. The way things look in \uicontrol {Form Editor} does not change.
+
+    To open the new component file for editing the properties that you want
+    to change for all instances of the component, right-click the component
+    and then select \uicontrol {Go into Component} in the context menu. For
+    additional ways of opening subcomponents, see \l{Moving Within Components}.
 
     For an example of creating a reusable custom component, see
     \if defined(qtcreator)
@@ -253,31 +194,17 @@
     \l{Progress Bar}.
     \endif
 
-    \section1 Moving Within Components
+    Custom components are listed in the \uicontrol {My Components} section
+    of the \uicontrol Components tab in \uicontrol Library and you can use
+    them to build more components.
 
-    The QML files that specify components can contain instances of other
-    components specified in separate QML files. You can open the QML file
-    that specifies a component in different ways from different views:
-
-    \list
-        \li In \uicontrol {Form Editor} or \uicontrol Navigator,
-            right-click an instance of a component and then select
-            \uicontrol {Go into Component} in the context-menu or
-            press \key F2.
-        \li In \uicontrol Properties, select \uicontrol {Edit Master Component}.
-    \endlist
-
-    The component hierarchy is displayed as a bread crumb path, where you can
-    click the component names to open the respective files. This enables you
-    to easily navigate back to the top level when you are done editing the
-    component.
-
-    \image qmldesigner-breadcrumbs.png "Component hierarchy"
+    \include qtquick-mcu-support.qdocinc mcu qtquick components
 
     \section1 Merging Files with Templates
 
-    You can merge the current QML file against an existing second QML file and
-    using the second QML file in a way similar to using a CSS stylesheet.
+    You can merge the current component file against an existing second
+    component file and using the second file in a way similar to using a
+    CSS stylesheet.
 
     To use this experimental feature, right-click a component in the
     \uicontrol Navigator or \uicontrol {Form Editor} view and select

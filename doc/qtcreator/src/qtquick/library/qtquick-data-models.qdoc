@@ -29,7 +29,7 @@
     \if defined(qtdesignstudio)
     \nextpage quick-2d-effects.html
     \else
-    \nextpage quick-buttons.html
+    \nextpage quick-animations.html
     \endif
 
     \title Lists and Other Data Models
