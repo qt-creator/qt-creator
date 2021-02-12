@@ -24,8 +24,6 @@ QtcPlugin {
         "cmake_global.h",
         "cmakebuildconfiguration.cpp",
         "cmakebuildconfiguration.h",
-        "cmakebuildsettingswidget.cpp",
-        "cmakebuildsettingswidget.h",
         "cmakebuildstep.cpp",
         "cmakebuildstep.h",
         "cmakebuildsystem.cpp",

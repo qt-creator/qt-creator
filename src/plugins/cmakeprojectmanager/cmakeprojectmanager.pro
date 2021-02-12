@@ -24,7 +24,6 @@ HEADERS = builddirparameters.h \
     cmaketoolmanager.h \
     cmake_global.h \
     cmakekitinformation.h \
-    cmakebuildsettingswidget.h \
     cmakeindenter.h \
     cmakeautocompleter.h \
     cmakespecificsettings.h \
@@ -56,7 +55,6 @@ SOURCES = builddirparameters.cpp \
     cmakesettingspage.cpp \
     cmaketoolmanager.cpp \
     cmakekitinformation.cpp \
-    cmakebuildsettingswidget.cpp \
     cmakeindenter.cpp \
     cmakeautocompleter.cpp \
     cmakespecificsettings.cpp \
