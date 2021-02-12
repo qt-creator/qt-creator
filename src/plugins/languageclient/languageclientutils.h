@@ -25,8 +25,10 @@
 
 #pragma once
 
-#include <languageserverprotocol/workspace.h>
+#include "languageclient_global.h"
+
 #include <languageserverprotocol/languagefeatures.h>
+#include <languageserverprotocol/workspace.h>
 
 #include <texteditor/refactoroverlay.h>
 #include <utils/changeset.h>
@@ -44,15 +46,17 @@ class Client;
 
 Utils::ChangeSet editsToChangeSet(const QList<LanguageServerProtocol::TextEdit> &edits,
                                   const QTextDocument *doc);
-bool applyWorkspaceEdit(const LanguageServerProtocol::WorkspaceEdit &edit);
-bool applyTextDocumentEdit(const LanguageServerProtocol::TextDocumentEdit &edit);
-bool applyTextEdits(const LanguageServerProtocol::DocumentUri &uri,
-                    const QList<LanguageServerProtocol::TextEdit> &edits);
-void applyTextEdit(TextEditor::TextDocumentManipulatorInterface &manipulator,
-                   const LanguageServerProtocol::TextEdit &edit);
-void updateCodeActionRefactoringMarker(Client *client,
-                                       const LanguageServerProtocol::CodeAction &action,
-                                       const LanguageServerProtocol::DocumentUri &uri);
+bool LANGUAGECLIENT_EXPORT applyWorkspaceEdit(const LanguageServerProtocol::WorkspaceEdit &edit);
+bool LANGUAGECLIENT_EXPORT
+applyTextDocumentEdit(const LanguageServerProtocol::TextDocumentEdit &edit);
+bool LANGUAGECLIENT_EXPORT applyTextEdits(const LanguageServerProtocol::DocumentUri &uri,
+                                          const QList<LanguageServerProtocol::TextEdit> &edits);
+void LANGUAGECLIENT_EXPORT applyTextEdit(TextEditor::TextDocumentManipulatorInterface &manipulator,
+                                         const LanguageServerProtocol::TextEdit &edit);
+void LANGUAGECLIENT_EXPORT
+updateCodeActionRefactoringMarker(Client *client,
+                                  const LanguageServerProtocol::CodeAction &action,
+                                  const LanguageServerProtocol::DocumentUri &uri);
 void updateEditorToolBar(Core::IEditor *editor);
 const QIcon symbolIcon(int type);
 

@@ -41,6 +41,7 @@ public:
     QVariantMap toMap() const final;
     void fromMap(const QVariantMap &map) final;
     LanguageClient::BaseSettings *copy() const final;
+    LanguageClient::Client *createClient(LanguageClient::BaseClientInterface *interface) const final;
 
     QString m_languageServer;
     QString m_workspace;

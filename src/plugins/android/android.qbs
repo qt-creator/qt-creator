@@ -8,6 +8,7 @@ Project {
         Depends { name: "Core" }
         Depends { name: "Debugger" }
         Depends { name: "LanguageClient" }
+        Depends { name: "LanguageServerProtocol" }
         Depends { name: "ProParser" }
         Depends { name: "ProjectExplorer" }
         Depends { name: "QmlDebug" }

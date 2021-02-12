@@ -145,7 +145,7 @@ public:
     void requestCodeActions(const LanguageServerProtocol::CodeActionRequest &request);
     void handleCodeActionResponse(const LanguageServerProtocol::CodeActionRequest::Response &response,
                                   const LanguageServerProtocol::DocumentUri &uri);
-    void executeCommand(const LanguageServerProtocol::Command &command);
+    virtual void executeCommand(const LanguageServerProtocol::Command &command);
 
     // language support
     void addAssistProcessor(TextEditor::IAssistProcessor *processor);

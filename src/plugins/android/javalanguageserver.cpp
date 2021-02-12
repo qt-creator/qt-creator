@@ -27,6 +27,8 @@
 
 #include "androidconstants.h"
 
+#include <languageclient/client.h>
+#include <languageclient/languageclientutils.h>
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
 #include <utils/variablechooser.h>
@@ -178,6 +180,35 @@ void JLSSettings::fromMap(const QVariantMap &map)
 LanguageClient::BaseSettings *JLSSettings::copy() const
 {
     return new JLSSettings(*this);
+}
+
+class JLSClient : public LanguageClient::Client
+{
+public:
+    using Client::Client;
+
+    void executeCommand(const LanguageServerProtocol::Command &command) override;
+};
+
+void JLSClient::executeCommand(const LanguageServerProtocol::Command &command)
+{
+    if (command.command() == "java.apply.workspaceEdit") {
+        const QJsonArray arguments = command.arguments().value_or(QJsonArray());
+        for (const QJsonValue &argument : arguments) {
+            if (!argument.isObject())
+                continue;
+            LanguageServerProtocol::WorkspaceEdit edit(argument.toObject());
+            if (edit.isValid(nullptr))
+                LanguageClient::applyWorkspaceEdit(edit);
+        }
+    } else {
+        Client::executeCommand(command);
+    }
+}
+
+LanguageClient::Client *JLSSettings::createClient(LanguageClient::BaseClientInterface *interface) const
+{
+    return new JLSClient(interface);
 }
 
 } // namespace Internal

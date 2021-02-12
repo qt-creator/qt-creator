@@ -101,6 +101,7 @@ public:
 
 protected:
     virtual BaseClientInterface *createInterface() const { return nullptr; }
+    virtual Client *createClient(BaseClientInterface *interface) const;
 
     BaseSettings(const BaseSettings &other) = default;
     BaseSettings(BaseSettings &&other) = default;

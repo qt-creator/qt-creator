@@ -9,6 +9,7 @@ QTC_PLUGIN_DEPENDS += \
 
 QTC_LIB_DEPENDS += \
     extensionsystem \
+    languageserverprotocol \
     qmldebug \
     ssh \
     utils

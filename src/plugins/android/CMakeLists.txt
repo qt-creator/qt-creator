@@ -1,5 +1,5 @@
 add_qtc_plugin(Android
-  DEPENDS QtcSsh QmlDebug Qt5::Xml
+  DEPENDS QtcSsh QmlDebug Qt5::Xml LanguageServerProtocol
   PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport LanguageClient
   SOURCES
     adbcommandswidget.cpp adbcommandswidget.h adbcommandswidget.ui

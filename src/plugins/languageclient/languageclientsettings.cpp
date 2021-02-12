@@ -561,11 +561,16 @@ Client *BaseSettings::createClient()
         return nullptr;
     BaseClientInterface *interface = createInterface();
     QTC_ASSERT(interface, return nullptr);
-    auto *client = new Client(interface);
+    auto *client = createClient(interface);
     client->setName(Utils::globalMacroExpander()->expand(m_name));
     client->setSupportedLanguage(m_languageFilter);
     client->setInitializationOptions(initializationOptions());
     return client;
+}
+
+Client *BaseSettings::createClient(BaseClientInterface *interface) const
+{
+    return new Client(interface);
 }
 
 QVariantMap BaseSettings::toMap() const
