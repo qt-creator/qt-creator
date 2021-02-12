@@ -49,7 +49,7 @@ jobs:
     - name: Checkout submodules
       run: |
         git submodule set-url -- perfparser https://code.qt.io/qt-creator/perfparser.git
-        git submodule update --init
+        git submodule update --init --recursive
 
     - name: Download Ninja and CMake
       shell: cmake -P {0}
