@@ -45,7 +45,7 @@ Utils::optional<int> NinjaParser::extractProgress(const QString &line)
 
 void NinjaParser::setSourceDirectory(const Utils::FilePath &sourceDir)
 {
-    emit addSearchDir(sourceDir);
+    emit newSearchDirFound(sourceDir);
 }
 
 Utils::OutputLineParser::Result NinjaParser::handleLine(const QString &line,

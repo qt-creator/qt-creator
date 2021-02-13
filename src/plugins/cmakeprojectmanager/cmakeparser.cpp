@@ -55,7 +55,7 @@ void CMakeParser::setSourceDirectory(const QString &sourceDir)
     if (m_sourceDirectory)
         emit searchDirExpired(FilePath::fromString(m_sourceDirectory.value().path()));
     m_sourceDirectory = QDir(sourceDir);
-    emit addSearchDir(FilePath::fromString(sourceDir));
+    emit newSearchDirFound(FilePath::fromString(sourceDir));
 }
 
 OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputFormat type)

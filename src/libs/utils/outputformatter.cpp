@@ -264,7 +264,7 @@ void OutputFormatter::addLineParser(OutputLineParser *parser)
 void OutputFormatter::setupLineParser(OutputLineParser *parser)
 {
     parser->setFileFinder(&d->fileFinder);
-    connect(parser, &OutputLineParser::newSearchDir, this, &OutputFormatter::addSearchDir);
+    connect(parser, &OutputLineParser::newSearchDirFound, this, &OutputFormatter::addSearchDir);
     connect(parser, &OutputLineParser::searchDirExpired, this, &OutputFormatter::dropSearchDir);
 }
 

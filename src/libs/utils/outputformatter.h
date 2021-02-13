@@ -114,7 +114,7 @@ protected:
                                                const QString &capName);
 
 signals:
-    void newSearchDir(const Utils::FilePath &dir);
+    void newSearchDirFound(const Utils::FilePath &dir);
     void searchDirExpired(const Utils::FilePath &dir);
 
 private:

@@ -112,7 +112,7 @@ OutputLineParser::Result GnuMakeParser::handleLine(const QString &line, OutputFo
             if (match.captured(6) == QLatin1String("Leaving"))
                 emit searchDirExpired(FilePath::fromString(match.captured(7)));
             else
-                emit newSearchDir(FilePath::fromString(match.captured(7)));
+                emit newSearchDirFound(FilePath::fromString(match.captured(7)));
             return Status::Done;
         }
         return Status::NotHandled;
