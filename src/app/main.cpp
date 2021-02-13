@@ -60,6 +60,7 @@
 #include <QProcess>
 #include <QStandardPaths>
 #include <QTemporaryDir>
+#include <QTextCodec>
 
 #include <string>
 #include <vector>
@@ -660,6 +661,10 @@ int main(int argc, char **argv)
             break;
         }
     }
+
+    QByteArray overrideCodecForLocale = settings->value("General/OverrideCodecForLocale").toByteArray();
+    if (!overrideCodecForLocale.isEmpty())
+        QTextCodec::setCodecForLocale(QTextCodec::codecForName(overrideCodecForLocale));
 
     app.setDesktopFileName("org.qt-project.qtcreator.desktop");
 
