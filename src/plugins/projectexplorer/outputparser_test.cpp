@@ -62,7 +62,7 @@ void OutputParserTester::testParsing(const QString &lines,
 {
     const auto terminator = new TestTerminator(this);
     if (!lineParsers().isEmpty())
-        terminator->setRedirectionDetector(lineParsers().last());
+        terminator->setRedirectionDetector(lineParsers().constLast());
     addLineParser(terminator);
     reset();
 
@@ -113,7 +113,7 @@ TestTerminator::TestTerminator(OutputParserTester *t) :
     m_tester(t)
 {
     if (!t->lineParsers().isEmpty()) {
-        for (const Utils::FilePath &searchDir : t->lineParsers().first()->searchDirectories())
+        for (const Utils::FilePath &searchDir : t->lineParsers().constFirst()->searchDirectories())
             addSearchDir(searchDir);
     }
 }

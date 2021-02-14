@@ -128,7 +128,7 @@ void ClangToolsUnitTests::testProject()
     QVERIFY(waitForFinishedTool.wait(m_timeout));
 
     // Check for errors
-    const QString errorText = waitForFinishedTool.takeFirst().first().toString();
+    const QString errorText = waitForFinishedTool.takeFirst().constFirst().toString();
     const bool finishedSuccessfully = errorText.isEmpty();
     if (!finishedSuccessfully)
         qWarning("Error: %s", qPrintable(errorText));

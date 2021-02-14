@@ -245,7 +245,7 @@ static FilePath qmakeFromCMakeCache(const CMakeConfig &config)
     if (!qmakeLocationTxt.open(QIODevice::ReadOnly)) {
         return FilePath();
     }
-    FilePath qmakeLocation = FilePath::fromUtf8(qmakeLocationTxt.readLine().data());
+    FilePath qmakeLocation = FilePath::fromUtf8(qmakeLocationTxt.readLine().constData());
     qCDebug(cmInputLog) << "qmake location: " << qmakeLocation.toUserOutput();
 
     return qmakeLocation;
