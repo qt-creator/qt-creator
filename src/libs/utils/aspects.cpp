@@ -61,7 +61,7 @@ public:
     bool m_enabled = true;
     bool m_readOnly = true;
     BaseAspect::ConfigWidgetCreator m_configWidgetCreator;
-    QList<QWidget *> m_subWidgets;
+    QList<QPointer<QWidget>> m_subWidgets;
 };
 
 } // Internal
@@ -125,8 +125,10 @@ bool BaseAspect::isVisible() const
 void BaseAspect::setVisible(bool visible)
 {
     d->m_visible = visible;
-    for (QWidget *w : qAsConst(d->m_subWidgets))
+    for (QWidget *w : qAsConst(d->m_subWidgets)) {
+        QTC_ASSERT(w, continue);
         w->setVisible(visible);
+    }
 }
 
 QString BaseAspect::toolTip() const
@@ -140,21 +142,26 @@ QString BaseAspect::toolTip() const
 void BaseAspect::setToolTip(const QString &tooltip)
 {
     d->m_tooltip = tooltip;
-    for (QWidget *w : qAsConst(d->m_subWidgets))
+    for (QWidget *w : qAsConst(d->m_subWidgets)) {
+        QTC_ASSERT(w, continue);
         w->setToolTip(tooltip);
+    }
 }
 
 void BaseAspect::setEnabled(bool enabled)
 {
     d->m_enabled = enabled;
-    for (QWidget *w : qAsConst(d->m_subWidgets))
+    for (QWidget *w : qAsConst(d->m_subWidgets)) {
+        QTC_ASSERT(w, continue);
         w->setEnabled(enabled);
+    }
 }
 
 void BaseAspect::setReadOnly(bool readOnly)
 {
     d->m_readOnly = readOnly;
     for (QWidget *w : qAsConst(d->m_subWidgets)) {
+        QTC_ASSERT(w, continue);
         if (auto lineEdit = qobject_cast<QLineEdit *>(w))
             lineEdit->setReadOnly(readOnly);
         else if (auto textEdit = qobject_cast<QTextEdit *>(w))
