@@ -15,7 +15,12 @@ HEADERS += itemlibraryview.h \
            itemlibraryaddimportmodel.h \
            itemlibraryassetimportdialog.h \
            itemlibraryassetimporter.h \
-           customfilesystemmodel.h
+           customfilesystemmodel.h \
+           assetimportupdatedialog.h \
+           assetimportupdatetreeitem.h \
+           assetimportupdatetreeitemdelegate.h \
+           assetimportupdatetreemodel.h \
+           assetimportupdatetreeview.h
 
 SOURCES += itemlibraryview.cpp \
            $$PWD/itemlibraryiconimageprovider.cpp \
@@ -31,7 +36,13 @@ SOURCES += itemlibraryview.cpp \
            itemlibraryaddimportmodel.cpp \
            itemlibraryassetimportdialog.cpp \
            itemlibraryassetimporter.cpp \
-           customfilesystemmodel.cpp
+           customfilesystemmodel.cpp \
+           assetimportupdatedialog.cpp \
+           assetimportupdatetreeitem.cpp \
+           assetimportupdatetreeitemdelegate.cpp \
+           assetimportupdatetreemodel.cpp \
+           assetimportupdatetreeview.cpp
 RESOURCES += itemlibrary.qrc
 
-FORMS += itemlibraryassetimportdialog.ui
+FORMS += itemlibraryassetimportdialog.ui \
+         assetimportupdatedialog.ui
