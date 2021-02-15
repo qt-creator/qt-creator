@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "mcusupportversiondetection.h"
+
 #include <utils/id.h>
 
 #include <QObject>
@@ -58,11 +60,13 @@ public:
         EmptyPath,
         InvalidPath,
         ValidPathInvalidPackage,
+        ValidPackageMismatchedVersion,
         ValidPackage
     };
 
-    McuPackage(const QString &label, const QString &defaultPath, const QString &detectionPath,
-               const QString &settingsKey);
+    McuPackage(const QString &label, const QString &defaultPath,
+               const QString &detectionPath, const QString &settingsKey,
+               const McuPackageVersionDetector *versionDetector = nullptr);
     virtual ~McuPackage() = default;
 
     QString basePath() const;
@@ -74,6 +78,7 @@ public:
     void updateStatus();
 
     Status status() const;
+    bool validStatus() const;
     void setDownloadUrl(const QString &url);
     void setEnvironmentVariableName(const QString &name);
     void setAddToPath(bool addToPath);
@@ -81,6 +86,7 @@ public:
     void writeGeneralSettings() const;
     void writeToSettings() const;
     void setRelativePathModifier(const QString &path);
+    void setVersions(const QVector<QString> &versions);
 
     bool automaticKitCreationEnabled() const;
     void setAutomaticKitCreationEnabled(const bool enabled);
@@ -105,9 +111,12 @@ private:
     const QString m_defaultPath;
     const QString m_detectionPath;
     const QString m_settingsKey;
+    const McuPackageVersionDetector *m_versionDetector;
 
     QString m_path;
     QString m_relativePathModifier; // relative path to m_path to be returned by path()
+    QString m_detectedVersion;
+    QVector<QString> m_versions;
     QString m_downloadUrl;
     QString m_environmentVariableName;
     bool m_addToPath = false;
@@ -133,7 +142,9 @@ public:
                         const QString &defaultPath,
                         const QString &detectionPath,
                         const QString &settingsKey,
-                        Type type);
+                        Type type,
+                        const McuPackageVersionDetector *versionDetector = nullptr
+            );
 
     Type type() const;
     bool isDesktopToolchain() const;

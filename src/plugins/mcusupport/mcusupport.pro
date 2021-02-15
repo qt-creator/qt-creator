@@ -12,7 +12,8 @@ HEADERS += \
     mcusupportoptionspage.h \
     mcusupportplugin.h \
     mcusupportsdk.h \
-    mcusupportrunconfiguration.h
+    mcusupportrunconfiguration.h \
+    mcusupportversiondetection.h
 
 SOURCES += \
     mcusupportdevice.cpp \
@@ -20,7 +21,8 @@ SOURCES += \
     mcusupportoptionspage.cpp \
     mcusupportplugin.cpp \
     mcusupportsdk.cpp \
-    mcusupportrunconfiguration.cpp
+    mcusupportrunconfiguration.cpp \
+    mcusupportversiondetection.cpp
 
 RESOURCES += \
     mcusupport.qrc

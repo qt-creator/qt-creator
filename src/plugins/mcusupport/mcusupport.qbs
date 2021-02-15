@@ -30,5 +30,7 @@ QtcPlugin {
         "mcusupportsdk.h",
         "mcusupportrunconfiguration.cpp",
         "mcusupportrunconfiguration.h",
+        "mcusupportversiondetection.cpp",
+        "mcusupportversiondetection.h",
     ]
 }

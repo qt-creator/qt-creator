@@ -96,11 +96,13 @@ static bool kitNeedsQtVersion()
 }
 
 McuPackage::McuPackage(const QString &label, const QString &defaultPath,
-                       const QString &detectionPath, const QString &settingsKey)
+                       const QString &detectionPath, const QString &settingsKey,
+                       const McuPackageVersionDetector *versionDetector)
     : m_label(label)
     , m_defaultPath(packagePathFromSettings(settingsKey, QSettings::SystemScope, defaultPath))
     , m_detectionPath(detectionPath)
     , m_settingsKey(settingsKey)
+    , m_versionDetector(versionDetector)
 {
     m_path = packagePathFromSettings(settingsKey, QSettings::UserScope, m_defaultPath);
     m_automaticKitCreation = automaticKitCreationFromSettings(QSettings::UserScope);
@@ -182,6 +184,11 @@ McuPackage::Status McuPackage::status() const
     return m_status;
 }
 
+bool McuPackage::validStatus() const
+{
+    return m_status == McuPackage::ValidPackage || m_status == McuPackage::ValidPackageMismatchedVersion;
+}
+
 void McuPackage::setDownloadUrl(const QString &url)
 {
     m_downloadUrl = url;
@@ -227,6 +234,11 @@ void McuPackage::setRelativePathModifier(const QString &path)
     m_relativePathModifier = path;
 }
 
+void McuPackage::setVersions(const QVector<QString> &versions)
+{
+    m_versions = versions;
+}
+
 bool McuPackage::automaticKitCreationEnabled() const
 {
     return m_automaticKitCreation;
@@ -249,34 +261,59 @@ void McuPackage::updateStatus()
     bool validPath = !m_path.isEmpty() && FilePath::fromString(m_path).exists();
     const FilePath detectionPath = FilePath::fromString(basePath() + "/" + m_detectionPath);
     const bool validPackage = m_detectionPath.isEmpty() || detectionPath.exists();
+    m_detectedVersion = validPath && validPackage && m_versionDetector ? m_versionDetector->parseVersion(basePath()) : QString();
+    const bool validVersion = m_detectedVersion.isEmpty() ||
+            m_versions.isEmpty() || m_versions.contains(m_detectedVersion);
 
-    m_status = validPath ? (validPackage ? ValidPackage : ValidPathInvalidPackage) :
-        m_path.isEmpty() ? EmptyPath : InvalidPath;
+    m_status = validPath ?
+                ( validPackage ?
+                      (validVersion ? ValidPackage : ValidPackageMismatchedVersion)
+                    : ValidPathInvalidPackage )
+              : m_path.isEmpty() ? EmptyPath : InvalidPath;
 
     emit statusChanged();
 }
 
 void McuPackage::updateStatusUi()
 {
-    m_infoLabel->setType(m_status == ValidPackage ? InfoLabel::Ok : InfoLabel::NotOk);
+    m_infoLabel->setType(validStatus() ? InfoLabel::Ok : InfoLabel::NotOk);
     m_infoLabel->setText(statusText());
 }
 
 QString McuPackage::statusText() const
 {
     const QString displayPackagePath = FilePath::fromString(m_path).toUserOutput();
-    const QString displayDetectionPath = FilePath::fromString(m_detectionPath).toUserOutput();
+    const QString displayVersions = m_versions.isEmpty() ? "" :
+        QString(" (%1)").arg(QStringList(m_versions.toList()).join(" / "));
+    const QString displayRequiredPath = QString("%1 %2").arg(
+        FilePath::fromString(m_detectionPath).toUserOutput(),
+        displayVersions);
+    const QString displayDetectedPath = QString("%1 %2").arg(
+        FilePath::fromString(m_detectionPath).toUserOutput(),
+        m_detectedVersion);
+
     QString response;
     switch (m_status) {
     case ValidPackage:
         response = m_detectionPath.isEmpty()
-                ? tr("Path %1 exists.").arg(displayPackagePath)
+                ? ( m_detectedVersion.isEmpty()
+                    ? tr("Path %1 exists.").arg(displayPackagePath)
+                    : tr("Path %1 exists. Version %2 was found.")
+                      .arg(displayPackagePath, m_detectedVersion) )
                 : tr("Path %1 is valid, %2 was found.")
-                  .arg(displayPackagePath, displayDetectionPath);
+                  .arg(displayPackagePath, displayDetectedPath);
         break;
+    case ValidPackageMismatchedVersion: {
+        const QString versionWarning = m_versions.size() == 1 ?
+                    tr("version %1 is recommended").arg(m_versions.first()) :
+                    tr("versions %1 are recommended").arg(displayVersions);
+        response = tr("Path %1 is valid, %2 was found, but %3.")
+                        .arg(displayPackagePath, displayDetectedPath, versionWarning);
+        break;
+    }
     case ValidPathInvalidPackage:
         response = tr("Path %1 exists, but does not contain %2.")
-                .arg(displayPackagePath, displayDetectionPath);
+                .arg(displayPackagePath, displayRequiredPath);
         break;
     case InvalidPath:
         response = tr("Path %1 does not exist.").arg(displayPackagePath);
@@ -285,7 +322,7 @@ QString McuPackage::statusText() const
         response = m_detectionPath.isEmpty()
                 ? tr("Path is empty.")
                 : tr("Path is empty, %1 not found.")
-                    .arg(displayDetectionPath);
+                    .arg(displayRequiredPath);
         break;
     }
     return response;
@@ -295,8 +332,9 @@ McuToolChainPackage::McuToolChainPackage(const QString &label,
                                          const QString &defaultPath,
                                          const QString &detectionPath,
                                          const QString &settingsKey,
-                                         McuToolChainPackage::Type type)
-    : McuPackage(label, defaultPath, detectionPath, settingsKey)
+                                         McuToolChainPackage::Type type,
+                                         const McuPackageVersionDetector *versionDetector)
+    : McuPackage(label, defaultPath, detectionPath, settingsKey, versionDetector)
     , m_type(type)
 {
 }
@@ -484,9 +522,9 @@ McuTarget::Platform McuTarget::platform() const
 
 bool McuTarget::isValid() const
 {
-    return !Utils::anyOf(packages(), [](McuPackage *package) {
+    return Utils::allOf(packages(), [](McuPackage *package) {
         package->updateStatus();
-        return package->status() != McuPackage::ValidPackage;
+        return package->validStatus();
     });
 }
 
@@ -494,12 +532,18 @@ void McuTarget::printPackageProblems() const
 {
     for (auto package: packages()) {
         package->updateStatus();
-        if (package->status() != McuPackage::ValidPackage)
-            printMessage(QString("Error creating kit for target %1, package %2: %3").arg(
+        if (!package->validStatus())
+            printMessage(tr("Error creating kit for target %1, package %2: %3").arg(
                              McuSupportOptions::kitName(this),
                              package->label(),
                              package->statusText()),
                          true);
+        if (package->status() == McuPackage::ValidPackageMismatchedVersion)
+            printMessage(tr("Warning creating kit for target %1, package %2: %3").arg(
+                             McuSupportOptions::kitName(this),
+                             package->label(),
+                             package->statusText()),
+                         false);
     }
 }
 
@@ -598,7 +642,7 @@ void McuSupportOptions::setQulDir(const FilePath &dir)
 {
     deletePackagesAndTargets();
     qtForMCUsSdkPackage->updateStatus();
-    if (qtForMCUsSdkPackage->status() == McuPackage::Status::ValidPackage)
+    if (qtForMCUsSdkPackage->validStatus())
         Sdk::targetsAndPackages(dir, &packages, &mcuTargets);
     for (auto package : qAsConst(packages))
         connect(package, &McuPackage::changed, this, &McuSupportOptions::changed);
@@ -858,7 +902,7 @@ void McuSupportOptions::createAutomaticKits()
     const auto createKits = [qtForMCUsPackage]() {
     if (qtForMCUsPackage->automaticKitCreationEnabled()) {
         qtForMCUsPackage->updateStatus();
-        if (qtForMCUsPackage->status() != McuPackage::ValidPackage) {
+        if (!qtForMCUsPackage->validStatus()) {
             switch (qtForMCUsPackage->status()) {
                 case McuPackage::ValidPathInvalidPackage: {
                     const QString displayPath = FilePath::fromString(qtForMCUsPackage->detectionPath())
@@ -900,8 +944,7 @@ void McuSupportOptions::createAutomaticKits()
             if (existingKits(target).isEmpty()) {
                 if (target->isValid())
                     newKit(target, qtForMCUsPackage);
-                else
-                    target->printPackageProblems();
+                target->printPackageProblems();
             }
 
         qDeleteAll(packages);
