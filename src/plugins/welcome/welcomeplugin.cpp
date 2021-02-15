@@ -121,6 +121,7 @@ private:
     QList<IWelcomePage *> m_pluginList;
     QList<WelcomePageButton *> m_pageButtons;
     Id m_activePage;
+    Id m_defaultPage;
 };
 
 class WelcomePlugin final : public ExtensionSystem::IPlugin
@@ -358,8 +359,10 @@ WelcomeMode::WelcomeMode()
 
 WelcomeMode::~WelcomeMode()
 {
-    QSettings *settings = ICore::settings();
-    settings->setValue(currentPageSettingsKeyC, m_activePage.toSetting());
+    QtcSettings *settings = ICore::settings();
+    settings->setValueWithDefault(currentPageSettingsKeyC,
+                                  m_activePage.toSetting(),
+                                  m_defaultPage.toSetting());
     delete m_modeWidget;
 }
 
@@ -371,13 +374,14 @@ void WelcomeMode::initPlugins()
     for (IWelcomePage *page : IWelcomePage::allWelcomePages())
         addPage(page);
 
-    if (!m_activePage.isValid() && !m_pageButtons.isEmpty()) {
+    if (!m_pageButtons.isEmpty()) {
         const int welcomeIndex = Utils::indexOf(m_pluginList,
                                                 Utils::equal(&IWelcomePage::id,
                                                              Utils::Id("Examples")));
         const int defaultIndex = welcomeIndex >= 0 ? welcomeIndex : 0;
-        m_activePage = m_pluginList.at(defaultIndex)->id();
-        m_pageButtons.at(defaultIndex)->click();
+        m_defaultPage = m_pluginList.at(defaultIndex)->id();
+        if (!m_activePage.isValid())
+            m_pageButtons.at(defaultIndex)->click();
     }
 }
 
