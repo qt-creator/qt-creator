@@ -29,14 +29,9 @@
 
 // cplusplus shared library. the same folder (cplusplus)
 #include <cplusplus/Symbol.h>
-#include <cplusplus/Symbols.h>
-#include <cplusplus/Scope.h>
-#include <cplusplus/Name.h>
 
 // other
 #include <cpptools/cppmodelmanager.h>
-#include <cplusplus/Overview.h>
-#include <cplusplus/Icons.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
@@ -92,8 +87,6 @@ public:
 
     //! Get document from documentList
     CPlusPlus::Document::Ptr document(const QString &fileName) const;
-
-    CPlusPlus::Overview overview;
 
     QTimer timer;
 
@@ -253,117 +246,36 @@ ParserTreeItem::ConstPtr Parser::findItemByRoot(const QStandardItem *item, bool 
 
 ParserTreeItem::ConstPtr Parser::parse()
 {
-    QElapsedTimer time;
-    if (debug)
-        time.start();
-
-    ParserTreeItem::Ptr rootItem(new ParserTreeItem());
-
-    // check all projects
-    for (const Project *prj : SessionManager::projects()) {
-        ParserTreeItem::Ptr item;
-        QString prjName(prj->displayName());
-        QString prjType = prj->projectFilePath().toString();
-        SymbolInformation inf(prjName, prjType);
-        item = ParserTreeItem::Ptr(new ParserTreeItem());
-
-        addFlatTree(item, prj);
-
-        item->setIcon(prj->containerNode()->icon());
-
-        rootItem->appendChild(item, inf);
+    QScopedPointer<QElapsedTimer> timer;
+    if (debug) {
+        timer.reset(new QElapsedTimer());
+        timer->start();
     }
 
-    if (debug)
+    QHash<SymbolInformation, ParserTreeItem::Ptr> projectTrees;
+
+    // TODO: move a call to SessionManager::projects() out of this thread
+    for (const Project *prj : SessionManager::projects()) {
+        const QString prjName(prj->displayName());
+        const QString prjType = prj->projectFilePath().toString();
+        const SymbolInformation inf(prjName, prjType);
+
+        ParserTreeItem::Ptr item = addFlatTree(prj);
+        if (item.isNull())
+            continue;
+        // TODO: remove a call to icon
+        item->setIcon(prj->containerNode()->icon());
+        projectTrees.insert(inf, item);
+    }
+
+    ParserTreeItem::Ptr rootItem(new ParserTreeItem(projectTrees));
+
+    if (debug) {
         qDebug() << "Class View:" << QDateTime::currentDateTime().toString()
-            << "Parsed in " << time.elapsed() << "msecs.";
+                 << "Parsed in " << timer->elapsed() << "msecs.";
+    }
 
     return rootItem;
-}
-
-/*!
-    Parses the project with the \a projectId and adds the documents
-    from the \a fileList to the tree item \a item.
-*/
-
-void Parser::addProject(const ParserTreeItem::Ptr &item, const QStringList &fileList,
-                        const QString &projectId)
-{
-    // recalculate cache tree if needed
-    ParserTreeItem::Ptr prj(getCachedOrParseProjectTree(fileList, projectId));
-    if (item.isNull())
-        return;
-
-    // if there is an item - copy project tree to that item
-    item->copy(prj);
-}
-
-/*!
-    Parses \a symbol and adds the results to \a item (as a parent).
-*/
-
-void Parser::addSymbol(const ParserTreeItem::Ptr &item, const CPlusPlus::Symbol *symbol)
-{
-    if (item.isNull() || !symbol)
-        return;
-
-    // easy solution - lets add any scoped symbol and
-    // any symbol which does not contain :: in the name
-
-    //! \todo collect statistics and reorder to optimize
-    if (symbol->isForwardClassDeclaration()
-        || symbol->isExtern()
-        || symbol->isFriend()
-        || symbol->isGenerated()
-        || symbol->isUsingNamespaceDirective()
-        || symbol->isUsingDeclaration()
-        )
-        return;
-
-    const CPlusPlus::Name *symbolName = symbol->name();
-    if (symbolName && symbolName->isQualifiedNameId())
-        return;
-
-    QString name = d->overview.prettyName(symbolName).trimmed();
-    QString type = d->overview.prettyType(symbol->type()).trimmed();
-    int iconType = CPlusPlus::Icons::iconTypeForSymbol(symbol);
-
-    SymbolInformation information(name, type, iconType);
-
-    ParserTreeItem::Ptr itemAdd;
-
-    // If next line will be removed, 5% speed up for the initial parsing.
-    // But there might be a problem for some files ???
-    // Better to improve qHash timing
-    itemAdd = item->child(information);
-
-    if (itemAdd.isNull())
-        itemAdd = ParserTreeItem::Ptr(new ParserTreeItem());
-
-    // locations have 1-based column in Symbol, use the same here.
-    SymbolLocation location(QString::fromUtf8(symbol->fileName() , symbol->fileNameLength()),
-                            symbol->line(), symbol->column());
-    itemAdd->addSymbolLocation(location);
-
-    // prevent showing a content of the functions
-    if (!symbol->isFunction()) {
-        if (const CPlusPlus::Scope *scope = symbol->asScope()) {
-            CPlusPlus::Scope::iterator cur = scope->memberBegin();
-            CPlusPlus::Scope::iterator last = scope->memberEnd();
-            while (cur != last) {
-                const CPlusPlus::Symbol *curSymbol = *cur;
-                ++cur;
-                if (!curSymbol)
-                    continue;
-
-                addSymbol(itemAdd, curSymbol);
-            }
-        }
-    }
-
-    // if item is empty and has not to be added
-    if (!(symbol->isNamespace() && itemAdd->childCount() == 0))
-        item->appendChild(itemAdd, information);
 }
 
 /*!
@@ -377,22 +289,23 @@ ParserTreeItem::Ptr Parser::getParseProjectTree(const QStringList &fileList,
 {
     //! \todo Way to optimize - for documentUpdate - use old cached project and subtract
     //! changed files only (old edition), and add curent editions
-    ParserTreeItem::Ptr item(new ParserTreeItem());
+
+    QList<ParserTreeItem::ConstPtr> docTrees;
     unsigned revision = 0;
-    foreach (const QString &file, fileList) {
+    for (const QString &file : fileList) {
         const CPlusPlus::Document::Ptr &doc = d->document(file);
         if (doc.isNull())
             continue;
 
         revision += doc->revision();
 
-        ParserTreeItem::ConstPtr list = getCachedOrParseDocumentTree(doc);
-        if (list.isNull())
+        const ParserTreeItem::ConstPtr docTree = getCachedOrParseDocumentTree(doc);
+        if (docTree.isNull())
             continue;
-
-        // add list to out document
-        item->add(list);
+        docTrees.append(docTree);
     }
+
+    ParserTreeItem::Ptr item = ParserTreeItem::mergeTrees(docTrees);
 
     // update the cache
     if (!projectId.isEmpty()) {
@@ -410,7 +323,7 @@ ParserTreeItem::Ptr Parser::getParseProjectTree(const QStringList &fileList,
 */
 
 ParserTreeItem::Ptr Parser::getCachedOrParseProjectTree(const QStringList &fileList,
-                                                const QString &projectId)
+                                                        const QString &projectId)
 {
     const auto it = d->m_projectCache.constFind(projectId);
     if (it != d->m_projectCache.constEnd() && !it.value().tree.isNull()) {
@@ -447,11 +360,7 @@ ParserTreeItem::ConstPtr Parser::getParseDocumentTree(const CPlusPlus::Document:
     if (!d->fileList.contains(fileName))
         return ParserTreeItem::ConstPtr();
 
-    ParserTreeItem::Ptr itemPtr(new ParserTreeItem());
-
-    const unsigned total = doc->globalSymbolCount();
-    for (unsigned i = 0; i < total; ++i)
-        addSymbol(itemPtr, doc->globalSymbolAt(i));
+    ParserTreeItem::Ptr itemPtr = ParserTreeItem::parseDocument(doc);
 
     d->m_documentCache.insert(fileName, { doc->revision(), itemPtr, doc } );
     return itemPtr;
@@ -542,7 +451,7 @@ void Parser::resetData(const CPlusPlus::Snapshot &snapshot)
     // recalculate file list
     FilePaths fileList;
 
-    // check all projects
+    // TODO: move a call to SessionManager::projects() out of this thread
     for (const Project *prj : SessionManager::projects())
         fileList += prj->files(Project::SourceFiles);
     setFileList(Utils::transform(fileList, &FilePath::toString));
@@ -582,6 +491,7 @@ void Parser::requestCurrentState()
     emit treeDataUpdate(std);
 }
 
+// TODO: don't use Project class in this thread
 QStringList Parser::getAllFiles(const Project *project)
 {
     if (!project)
@@ -598,15 +508,17 @@ QStringList Parser::getAllFiles(const Project *project)
     return fileList;
 }
 
-void Parser::addFlatTree(const ParserTreeItem::Ptr &item, const Project *project)
+// TODO: don't use Project class in this thread
+ParserTreeItem::Ptr Parser::addFlatTree(const Project *project)
 {
     if (!project)
-        return;
+        return {};
 
-    QStringList fileList = getAllFiles(project);
+    const QStringList fileList = getAllFiles(project);
+    if (fileList.isEmpty())
+        return {};
 
-    if (fileList.count() > 0)
-        addProject(item, fileList, project->projectFilePath().toString());
+    return getCachedOrParseProjectTree(fileList, project->projectFilePath().toString());
 }
 
 } // namespace Internal

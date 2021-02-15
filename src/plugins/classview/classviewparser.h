@@ -29,7 +29,6 @@
 
 #include "classviewparsertreeitem.h"
 
-#include <cplusplus/CPlusPlusForwardDeclarations.h>
 #include <cplusplus/CppDocument.h>
 
 // might be changed to forward declaration - is not done to be less dependent
@@ -70,10 +69,6 @@ signals:
 private:
     void setFileList(const QStringList &fileList);
     void resetData(const CPlusPlus::Snapshot &snapshot);
-    void addProject(const ParserTreeItem::Ptr &item, const QStringList &fileList,
-                    const QString &projectId = QString());
-
-    void addSymbol(const ParserTreeItem::Ptr &item, const CPlusPlus::Symbol *symbol);
 
     ParserTreeItem::ConstPtr getParseDocumentTree(const CPlusPlus::Document::Ptr &doc);
     ParserTreeItem::ConstPtr getCachedOrParseDocumentTree(const CPlusPlus::Document::Ptr &doc);
@@ -84,7 +79,7 @@ private:
     ParserTreeItem::ConstPtr findItemByRoot(const QStandardItem *item, bool skipRoot = false) const;
 
     QStringList getAllFiles(const ProjectExplorer::Project *project);
-    void addFlatTree(const ParserTreeItem::Ptr &item, const ProjectExplorer::Project *project);
+    ParserTreeItem::Ptr addFlatTree(const ProjectExplorer::Project *project);
 
     //! Private class data pointer
     ParserPrivate *d;
