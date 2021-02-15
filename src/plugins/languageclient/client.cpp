@@ -767,12 +767,7 @@ const ProjectExplorer::Project *Client::project() const
 
 void Client::setCurrentProject(ProjectExplorer::Project *project)
 {
-    using namespace ProjectExplorer;
-    if (m_project)
-        disconnect(m_project, &Project::fileListChanged, this, &Client::projectFileListChanged);
     m_project = project;
-    if (m_project)
-        connect(m_project, &Project::fileListChanged, this, &Client::projectFileListChanged);
 }
 
 void Client::projectOpened(ProjectExplorer::Project *project)
@@ -807,16 +802,6 @@ void Client::projectClosed(ProjectExplorer::Project *project)
     params.setEvent(event);
     DidChangeWorkspaceFoldersNotification change(params);
     sendContent(change);
-}
-
-void Client::projectFileListChanged()
-{
-    for (Core::IDocument *doc : Core::DocumentModel::openedDocuments()) {
-        if (m_project->isKnownFile(doc->filePath())) {
-            if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(doc))
-                openDocument(textDocument);
-        }
-    }
 }
 
 void Client::setSupportedLanguage(const LanguageFilter &filter)
