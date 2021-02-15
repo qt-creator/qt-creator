@@ -80,3 +80,16 @@ int Bar::operator&() {
 Bar& Bar::operator[](int) {
     return *this;
 }
+
+struct S {
+    union  {
+        int i = 12;
+        void *something;
+    };
+    int func(bool b) {
+        if (b)
+            return i;
+        int i = 42;
+        return i;
+    }
+};

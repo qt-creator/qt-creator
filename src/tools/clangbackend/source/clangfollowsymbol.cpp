@@ -95,6 +95,16 @@ FollowSymbolResult FollowSymbol::followSymbol(CXTranslationUnit tu,
         return SourceRangeContainer();
 
     Cursor cursor{cursors[tokenIndex]};
+    if (cursor.kind() == CXCursor_CXXThisExpr && tokenSpelling != "this") { // QTCREATORBUG-25342
+        cursor.semanticParent().visit([&cursor](CXCursor current, CXCursor parent) {
+            if (current == cursor && parent.kind == CXCursor_MemberRefExpr
+                    && cursor.sourceLocation() == Cursor(parent).sourceLocation()) {
+                cursor = parent;
+                return CXChildVisit_Break;
+            }
+            return CXChildVisit_Recurse;
+        });
+    }
 
     if (cursor.kind() == CXCursor_InclusionDirective) {
         CXFile file = clang_getIncludedFile(cursors[tokenIndex].cx());

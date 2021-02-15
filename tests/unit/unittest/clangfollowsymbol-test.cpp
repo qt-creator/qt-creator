@@ -209,6 +209,13 @@ TEST_F(FollowSymbol, CursorOnMemberReference)
     ASSERT_THAT(memberDeclaration, MatchesHeaderSourceRange(38, 18, 6));
 }
 
+TEST_F(FollowSymbol, CursorOnMemberReferenceAnonymousUnion)
+{
+    const auto memberDeclaration = followSymbol(91, 20);
+
+    ASSERT_THAT(memberDeclaration, MatchesSourceRange(86, 13, 1));
+}
+
 TEST_F(FollowSymbol, CursorOnMemberDeclaration)
 {
     const auto sameMemberDeclaration = followHeaderSymbol(38, 18);
