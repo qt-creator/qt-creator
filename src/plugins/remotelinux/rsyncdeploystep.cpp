@@ -99,7 +99,7 @@ void RsyncDeployService::filterDeployableFiles() const
 void RsyncDeployService::createRemoteDirectories()
 {
     QStringList remoteDirs;
-    for (const DeployableFile &f : m_deployableFiles)
+    for (const DeployableFile &f : qAsConst(m_deployableFiles))
         remoteDirs << f.remoteDirectory();
     remoteDirs.sort();
     remoteDirs.removeDuplicates();

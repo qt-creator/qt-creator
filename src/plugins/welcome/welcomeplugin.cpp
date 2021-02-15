@@ -438,7 +438,7 @@ void WelcomeMode::addPage(IWelcomePage *page)
     auto onClicked = [this, pageId, stackPage] {
         m_activePage = pageId;
         m_pageStack->setCurrentWidget(stackPage);
-        for (WelcomePageButton *pageButton : m_pageButtons)
+        for (WelcomePageButton *pageButton : qAsConst(m_pageButtons))
             pageButton->recheckActive();
     };
 

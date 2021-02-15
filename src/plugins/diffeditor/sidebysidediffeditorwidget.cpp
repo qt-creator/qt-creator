@@ -923,7 +923,7 @@ void SideBySideDiffEditorWidget::showDiff()
     int blockNumber = 0;
     QChar separator = '\n';
     QHash<int, int> foldingIndent;
-    for (const FileData &contextFileData : m_controller.m_contextFileData) {
+    for (const FileData &contextFileData : qAsConst(m_controller.m_contextFileData)) {
         QString leftText, rightText;
 
         foldingIndent.insert(blockNumber, 1);

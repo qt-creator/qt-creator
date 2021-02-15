@@ -578,7 +578,7 @@ void CMakeBuildSystem::updateProjectData()
     {
         QSet<QString> res;
         QStringList apps;
-        for (const auto &target : m_buildTargets) {
+        for (const auto &target : qAsConst(m_buildTargets)) {
             if (target.targetType == CMakeProjectManager::DynamicLibraryType) {
                 res.insert(target.executable.parentDir().toString());
                 apps.push_back(target.executable.toUserOutput());
@@ -633,7 +633,7 @@ void CMakeBuildSystem::updateProjectData()
             }
             patchedConfig.append(settingFileItem);
 
-            for (const CMakeBuildTarget &bt : m_buildTargets) {
+            for (const CMakeBuildTarget &bt : qAsConst(m_buildTargets)) {
                 const QString buildKey = bt.title;
                 if (ProjectNode *node = p->findNodeForBuildKey(buildKey)) {
                     if (auto targetNode = dynamic_cast<CMakeTargetNode *>(node))

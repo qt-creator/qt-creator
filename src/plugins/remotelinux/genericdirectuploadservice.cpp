@@ -301,7 +301,7 @@ void GenericDirectUploadService::uploadFiles()
     }
     emit progressMessage(tr("%n file(s) need to be uploaded.", "", d->filesToUpload.size()));
     FilesToTransfer filesToTransfer;
-    for (const DeployableFile &f : d->filesToUpload) {
+    for (const DeployableFile &f : qAsConst(d->filesToUpload)) {
         if (!f.localFilePath().exists()) {
             const QString message = tr("Local file \"%1\" does not exist.")
                     .arg(f.localFilePath().toUserOutput());
@@ -340,7 +340,7 @@ void GenericDirectUploadService::chmod()
     QTC_ASSERT(d->state == PostProcessing, return);
     if (!Utils::HostOsInfo::isWindowsHost())
         return;
-    for (const DeployableFile &f : d->filesToUpload) {
+    for (const DeployableFile &f : qAsConst(d->filesToUpload)) {
         if (!f.isExecutable())
             continue;
         const QString command = QLatin1String("chmod a+x ")

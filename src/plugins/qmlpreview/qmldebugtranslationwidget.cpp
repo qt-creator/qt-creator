@@ -368,7 +368,7 @@ void QmlDebugTranslationWidget::runTest()
                 });
             }
         };
-        for (auto filePath : m_selectedFilePaths) {
+        for (auto filePath : qAsConst(m_selectedFilePaths)) {
             testLanguages(timerCounter++, filePath.toString());
         }
     });

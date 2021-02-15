@@ -67,7 +67,7 @@ public:
     {
         auto arr = get<QJsonArray>(js.object(), "projectinfo", "buildsystem_files");
         appendFiles(arr, m_files);
-        auto subprojects = get<QJsonArray>(js.object(), "projectinfo", "subprojects");
+        const auto subprojects = get<QJsonArray>(js.object(), "projectinfo", "subprojects");
         for (const auto &subproject : *subprojects) {
             auto arr = get<QJsonArray>(subproject.toObject(), "buildsystem_files");
             appendFiles(arr, m_files);

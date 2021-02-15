@@ -140,7 +140,7 @@ void FlameGraphModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 
 void FlameGraphModel::finalize()
 {
-    for (FlameGraphData *child : m_stackBottom.children)
+    for (FlameGraphData *child : qAsConst(m_stackBottom.children))
         m_stackBottom.duration += child->duration;
 
     loadNotes(-1, false);

@@ -43,6 +43,14 @@ namespace Nim {
 
 const char C_NIMBLEPROJECT_TASKS[] = "Nim.NimbleProject.Tasks";
 
+static QList<QByteArray> linesFromProcessOutput(QProcess *process)
+{
+    QList<QByteArray> lines = process->readAllStandardOutput().split('\n');
+    lines = Utils::transform(lines, [](const QByteArray &line){ return line.trimmed(); });
+    Utils::erase(lines, [](const QByteArray &line) { return line.isEmpty(); });
+    return lines;
+}
+
 static std::vector<NimbleTask> parseTasks(const QString &nimblePath, const QString &workingDirectory)
 {
     QProcess process;
@@ -52,9 +60,7 @@ static std::vector<NimbleTask> parseTasks(const QString &nimblePath, const QStri
 
     std::vector<NimbleTask> result;
 
-    QList<QByteArray> lines = process.readAllStandardOutput().split('\n');
-    lines = Utils::transform(lines, [](const QByteArray &line){ return line.trimmed(); });
-    Utils::erase(lines, [](const QByteArray &line) { return line.isEmpty(); });
+    const QList<QByteArray> &lines = linesFromProcessOutput(&process);
 
     for (const QByteArray &line : lines) {
         QList<QByteArray> tokens = line.trimmed().split(' ');
@@ -76,9 +82,7 @@ static NimbleMetadata parseMetadata(const QString &nimblePath, const QString &wo
 
     NimbleMetadata result = {};
 
-    QList<QByteArray> lines = process.readAllStandardOutput().split('\n');
-    lines = Utils::transform(lines, [](const QByteArray &line){ return line.trimmed(); });
-    Utils::erase(lines, [](const QByteArray &line) { return line.isEmpty(); });
+    const QList<QByteArray> &lines = linesFromProcessOutput(&process);
 
     for (const QByteArray &line : lines) {
         QList<QByteArray> tokens = line.trimmed().split(':');

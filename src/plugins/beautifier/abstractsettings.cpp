@@ -343,7 +343,7 @@ void AbstractSettings::readDocumentation()
                 if (xml.readNext() == QXmlStreamReader::Characters) {
                     m_docu << xml.text().toString();
                     const int index = m_docu.size() - 1;
-                    for (const QString &key : keys)
+                    for (const QString &key : qAsConst(keys))
                         m_options.insert(key, index);
                 }
             }

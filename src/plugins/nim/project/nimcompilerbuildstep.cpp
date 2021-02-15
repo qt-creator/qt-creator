@@ -199,7 +199,7 @@ CommandLine NimCompilerBuildStep::commandLine()
     cmd.addArg("--out:" + outFilePath().toString());
     cmd.addArg("--nimCache:" + bc->cacheDirectory().toString());
 
-    for (const QString &arg : m_userCompilerOptions) {
+    for (const QString &arg : qAsConst(m_userCompilerOptions)) {
         if (!arg.isEmpty())
             cmd.addArg(arg);
     }

@@ -101,7 +101,7 @@ QString SnippetProvider::displayName() const
  */
 void SnippetProvider::decorateEditor(TextEditorWidget *editor, const QString &groupId)
 {
-    for (const SnippetProvider &provider : g_snippetProviders) {
+    for (const SnippetProvider &provider : qAsConst(g_snippetProviders)) {
         if (provider.m_groupId == groupId && provider.m_editorDecorator)
             provider.m_editorDecorator(editor);
     }

@@ -106,7 +106,7 @@ void PerfTimelineModelManager::finalize()
     });
 
     QVariantList modelsToAdd;
-    for (PerfTimelineModel *model : finished)
+    for (PerfTimelineModel *model : qAsConst(finished))
         modelsToAdd.append(QVariant::fromValue(model));
     setModels(modelsToAdd);
 }

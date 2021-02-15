@@ -450,7 +450,7 @@ QString ResourceFile::absolutePath(const QString &rel_path) const
 
 void ResourceFile::orderList()
 {
-    for (Prefix *p : m_prefix_list) {
+    for (Prefix *p : qAsConst(m_prefix_list)) {
         std::sort(p->file_list.begin(), p->file_list.end(), [&](File *f1, File *f2) {
             return *f1 < *f2;
         });

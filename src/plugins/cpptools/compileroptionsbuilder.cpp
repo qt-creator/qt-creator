@@ -343,9 +343,9 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
     using ProjectExplorer::HeaderPath;
     using ProjectExplorer::HeaderPathType;
 
-    for (const HeaderPath &headerPath : filter.userHeaderPaths)
+    for (const HeaderPath &headerPath : qAsConst(filter.userHeaderPaths))
         addIncludeDirOptionForPath(headerPath);
-    for (const HeaderPath &headerPath : filter.systemHeaderPaths)
+    for (const HeaderPath &headerPath : qAsConst(filter.systemHeaderPaths))
         addIncludeDirOptionForPath(headerPath);
 
     if (m_useTweakedHeaderPaths != UseTweakedHeaderPaths::No) {
@@ -356,7 +356,7 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
         m_options.prepend("-nostdinc++");
         m_options.prepend("-nostdinc");
 
-        for (const HeaderPath &headerPath : filter.builtInHeaderPaths)
+        for (const HeaderPath &headerPath : qAsConst(filter.builtInHeaderPaths))
             addIncludeDirOptionForPath(headerPath);
     }
 }

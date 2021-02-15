@@ -827,7 +827,7 @@ void QbsBuildStepConfigWidget::applyCachedProperties()
                                              Constants::QBS_INSTALL_ROOT_KEY});
     if (m_qbsStep->m_selectedAbis->isManagedByTarget())
         additionalSpecialKeys << Constants::QBS_ARCHITECTURES;
-    for (const QString &key : additionalSpecialKeys) {
+    for (const QString &key : qAsConst(additionalSpecialKeys)) {
         const auto it = tmp.constFind(key);
         if (it != tmp.cend())
             data.insert(key, it.value());

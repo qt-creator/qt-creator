@@ -1081,11 +1081,7 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
 void QmakeProject::configureAsExampleProject(Kit *kit)
 {
     QList<BuildInfo> infoList;
-    QList<Kit *> kits;
-    if (kit)
-        kits.append(kit);
-    else
-        kits = KitManager::kits();
+    const QList<Kit *> kits(kit != nullptr ? QList<Kit *>({kit}) : KitManager::kits());
     for (Kit *k : kits) {
         if (QtSupport::QtKitAspect::qtVersion(k) != nullptr) {
             if (auto factory = BuildConfigurationFactory::find(k, projectFilePath()))

@@ -268,7 +268,7 @@ void PythonBuildSystem::triggerParsing()
     if (modelManager) {
         auto projectInfo = modelManager->defaultProjectInfoForProject(project());
 
-        for (const QString &importPath : m_qmlImportPaths) {
+        for (const QString &importPath : qAsConst(m_qmlImportPaths)) {
             const Utils::FilePath filePath = Utils::FilePath::fromString(importPath);
             projectInfo.importPaths.maybeInsert(filePath, QmlJS::Dialect::Qml);
         }

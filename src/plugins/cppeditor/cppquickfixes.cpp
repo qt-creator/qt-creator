@@ -3113,7 +3113,7 @@ public:
         defaultImplTargetComboBox->insertItems(0, implTargetStrings);
         connect(defaultImplTargetComboBox, qOverload<int>(&QComboBox::currentIndexChanged), this,
                 [this](int index) {
-            for (QComboBox * const cb : m_implTargetBoxes)
+            for (QComboBox * const cb : qAsConst(m_implTargetBoxes))
                 cb->setCurrentIndex(index);
         });
         const auto defaultImplTargetLayout = new QHBoxLayout;
@@ -4621,7 +4621,7 @@ public:
         }
         const QStringList memberFunctionsAsStrings = toStringList(memberFunctions);
 
-        for (Symbol *const member : dataMembers) {
+        for (Symbol *const member : qAsConst(dataMembers)) {
             ExistingGetterSetterData existing;
             existing.memberVariableName = QString::fromUtf8(member->identifier()->chars(),
                                                             member->identifier()->size());
@@ -8000,7 +8000,7 @@ private:
             processIncludes(refactoring, filePath().toString());
         }
 
-        for (auto &file : m_changes)
+        for (auto &file : qAsConst(m_changes))
             file->apply();
     }
 

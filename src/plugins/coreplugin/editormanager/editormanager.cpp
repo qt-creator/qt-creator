@@ -3614,7 +3614,7 @@ bool EditorManager::restoreState(const QByteArray &state)
         // restore windows
         QVector<QVariantHash> windowStates;
         stream >> windowStates;
-        for (const QVariantHash &windowState : windowStates) {
+        for (const QVariantHash &windowState : qAsConst(windowStates)) {
             EditorWindow *window = d->createEditorWindow();
             window->restoreState(windowState);
             window->show();

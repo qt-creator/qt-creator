@@ -520,7 +520,7 @@ void UnifiedDiffEditorWidget::showDiff()
 
     QMap<int, QList<DiffSelection> > selections;
 
-    for (const FileData &fileData : m_controller.m_contextFileData) {
+    for (const FileData &fileData : qAsConst(m_controller.m_contextFileData)) {
         const QString leftFileInfo = "--- " + fileData.leftFileInfo.fileName + '\n';
         const QString rightFileInfo = "+++ " + fileData.rightFileInfo.fileName + '\n';
         setFileInfo(blockNumber, fileData.leftFileInfo, fileData.rightFileInfo);

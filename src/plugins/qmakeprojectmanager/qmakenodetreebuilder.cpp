@@ -227,7 +227,7 @@ static void createTree(QmakeBuildSystem *buildSystem,
         genFolder->setDisplayName(QCoreApplication::translate("QmakeProjectManager::QmakePriFile",
                                                               "Generated Files"));
         genFolder->setIsGenerated(true);
-        for (const FilePath &fp : generatedFiles) {
+        for (const FilePath &fp : qAsConst(generatedFiles)) {
             auto fileNode = std::make_unique<FileNode>(fp, FileNode::fileTypeForFileName(fp));
             fileNode->setIsGenerated(true);
             genFolder->addNestedNode(std::move(fileNode));

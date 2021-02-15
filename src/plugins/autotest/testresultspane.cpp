@@ -294,7 +294,7 @@ void TestResultsPane::addOutputLine(const QByteArray &outputLine, OutputChannel 
 
     const Utils::FormattedText formattedText
             = Utils::FormattedText{QString::fromUtf8(outputLine), m_defaultFormat};
-    QList<Utils::FormattedText> formatted = channel == OutputChannel::StdOut
+    const QList<Utils::FormattedText> formatted = channel == OutputChannel::StdOut
             ? m_stdOutHandler.parseText(formattedText)
             : m_stdErrHandler.parseText(formattedText);
 

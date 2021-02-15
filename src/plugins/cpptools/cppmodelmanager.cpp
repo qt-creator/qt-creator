@@ -730,7 +730,7 @@ void CppModelManager::ensureUpdated()
 QStringList CppModelManager::internalProjectFiles() const
 {
     QStringList files;
-    for (const ProjectInfo &pinfo : d->m_projectToProjectsInfo) {
+    for (const ProjectInfo &pinfo : qAsConst(d->m_projectToProjectsInfo)) {
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
             foreach (const ProjectFile &file, part->files)
                 files += file.path;
@@ -743,7 +743,7 @@ QStringList CppModelManager::internalProjectFiles() const
 ProjectExplorer::HeaderPaths CppModelManager::internalHeaderPaths() const
 {
     ProjectExplorer::HeaderPaths headerPaths;
-    for (const ProjectInfo &pinfo : d->m_projectToProjectsInfo) {
+    for (const ProjectInfo &pinfo : qAsConst(d->m_projectToProjectsInfo)) {
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
             foreach (const ProjectExplorer::HeaderPath &path, part->headerPaths) {
                 ProjectExplorer::HeaderPath hp(QDir::cleanPath(path.path), path.type);
@@ -771,7 +771,7 @@ ProjectExplorer::Macros CppModelManager::internalDefinedMacros() const
 {
     ProjectExplorer::Macros macros;
     QSet<ProjectExplorer::Macro> alreadyIn;
-    for (const ProjectInfo &pinfo : d->m_projectToProjectsInfo) {
+    for (const ProjectInfo &pinfo : qAsConst(d->m_projectToProjectsInfo)) {
         for (const ProjectPart::Ptr &part : pinfo.projectParts()) {
             addUnique(part->toolChainMacros, macros, alreadyIn);
             addUnique(part->projectMacros, macros, alreadyIn);

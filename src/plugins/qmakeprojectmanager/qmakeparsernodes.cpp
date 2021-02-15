@@ -1214,7 +1214,7 @@ QString QmakeProFile::displayName() const
 QList<QmakeProFile *> QmakeProFile::allProFiles()
 {
     QList<QmakeProFile *> result = { this };
-    for (QmakePriFile *c : m_children) {
+    for (QmakePriFile *c : qAsConst(m_children)) {
         auto proC = dynamic_cast<QmakeProFile *>(c);
         if (proC)
             result.append(proC->allProFiles());
@@ -1591,7 +1591,7 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
         toCompare.pop_front();
 
         // Loop prevention: Make sure that exact same node is not in our parent chain
-        for (QmakeIncludedPriFile *priFile : tree->children) {
+        for (QmakeIncludedPriFile *priFile : qAsConst(tree->children)) {
             bool loop = input.parentFilePaths.contains(priFile->name);
             for (const QmakePriFile *n = pn; n && !loop; n = n->parent()) {
                 if (n->filePath() == priFile->name)

@@ -520,7 +520,7 @@ void OutputWindow::flush()
         return;
     }
     d->queueTimer.stop();
-    for (const auto &chunk : d->queuedOutput)
+    for (const auto &chunk : qAsConst(d->queuedOutput))
         handleOutputChunk(chunk.first, chunk.second);
     d->queuedOutput.clear();
     d->formatter.flush();

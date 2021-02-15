@@ -112,11 +112,11 @@ void runSilverSeacher(FutureInterfaceType &fi, FileFindParameters parameters)
     if (!(parameters.flags & FindRegularExpression))
         arguments << "-Q";
 
-    for (const QString &filter : parameters.exclusionFilters)
+    for (const QString &filter : qAsConst(parameters.exclusionFilters))
         arguments << "--ignore" << filter;
 
     QString nameFiltersAsRegex;
-    for (const QString &filter : parameters.nameFilters)
+    for (const QString &filter : qAsConst(parameters.nameFilters))
         nameFiltersAsRegex += QString("(%1)|").arg(convertWildcardToRegex(filter));
     nameFiltersAsRegex.remove(nameFiltersAsRegex.length() - 1, 1);
 

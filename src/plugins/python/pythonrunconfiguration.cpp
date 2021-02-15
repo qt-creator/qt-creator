@@ -210,7 +210,7 @@ void InterpreterAspect::updateComboBox()
     int defaultIndex = -1;
     const QString currentId = m_currentId;
     m_comboBox->clear();
-    for (const Interpreter &interpreter : m_interpreters) {
+    for (const Interpreter &interpreter : qAsConst(m_interpreters)) {
         int index = m_comboBox->count();
         m_comboBox->addItem(interpreter.name);
         m_comboBox->setItemData(index, interpreter.command.toUserOutput(), Qt::ToolTipRole);

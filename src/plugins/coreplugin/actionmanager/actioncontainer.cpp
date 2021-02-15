@@ -481,7 +481,7 @@ bool MenuActionContainer::updateInternal()
     bool hasitems = false;
     QList<QAction *> actions = m_menu->actions();
 
-    for (const Group &group : m_groups) {
+    for (const Group &group : qAsConst(m_groups)) {
         foreach (QObject *item, group.items) {
             if (auto container = qobject_cast<ActionContainerPrivate*>(item)) {
                 actions.removeAll(container->menu()->menuAction());

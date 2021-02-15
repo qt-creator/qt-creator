@@ -253,7 +253,7 @@ void ResourceEditorPlugin::extensionsInitialized()
                 toReplace.append(fn);
         });
 
-        for (FileNode *file : toReplace) {
+        for (FileNode *file : qAsConst(toReplace)) {
             FolderNode *const pn = file->parentFolderNode();
             QTC_ASSERT(pn, continue);
             const Utils::FilePath path = file->filePath();

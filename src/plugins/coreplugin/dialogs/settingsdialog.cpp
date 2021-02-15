@@ -610,7 +610,7 @@ void SettingsDialog::ensureCategoryWidget(Category *category)
     m_model.ensurePages(category);
     auto tabWidget = new QTabWidget;
     tabWidget->tabBar()->setObjectName("qc_settings_main_tabbar"); // easier lookup in Squish
-    for (IOptionsPage *page : category->pages) {
+    for (IOptionsPage *page : qAsConst(category->pages)) {
         QWidget *widget = page->widget();
         ICore::setupScreenShooter(page->displayName(), widget);
         auto ssa = new SmartScrollArea(this);

@@ -211,7 +211,7 @@ void ModeManagerPrivate::extensionsInitializedHelper()
     Utils::sort(m_modes, &IMode::priority);
     std::reverse(m_modes.begin(), m_modes.end());
 
-    for (IMode *mode : m_modes)
+    for (IMode *mode : qAsConst(m_modes))
         appendMode(mode);
 
     if (m_pendingFirstActiveMode.isValid())

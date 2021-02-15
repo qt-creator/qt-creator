@@ -77,7 +77,7 @@ QString QnxQtVersion::qnxHost() const
     if (!m_environmentUpToDate)
         updateEnvironment();
 
-    for (const EnvironmentItem &item : m_qnxEnv) {
+    for (const EnvironmentItem &item : qAsConst(m_qnxEnv)) {
         if (item.name == QLatin1String(QNX_HOST_KEY))
             return item.value;
     }

@@ -303,7 +303,7 @@ void ConfigModel::generateTree()
 
     // Generate nodes for *all* prefixes
     QHash<QString, QList<Utils::TreeItem *>> prefixes;
-    for (const InternalDataItem &di : m_configuration) {
+    for (const InternalDataItem &di : qAsConst(m_configuration)) {
         const QString p = prefix(di.key);
         if (!prefixes.contains(p)) {
             prefixes.insert(p, {});

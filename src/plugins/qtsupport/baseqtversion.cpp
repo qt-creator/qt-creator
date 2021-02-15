@@ -2351,7 +2351,7 @@ BaseQtVersion *QtVersionFactory::create() const
 
 BaseQtVersion *BaseQtVersion::clone() const
 {
-    for (QtVersionFactory *factory : g_qtVersionFactories) {
+    for (QtVersionFactory *factory : qAsConst(g_qtVersionFactories)) {
         if (factory->m_supportedType == d->m_type) {
             BaseQtVersion *version = factory->create();
             QTC_ASSERT(version, return nullptr);

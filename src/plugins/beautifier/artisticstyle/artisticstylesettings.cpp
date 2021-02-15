@@ -219,7 +219,7 @@ void ArtisticStyleSettings::createDocumentationFile() const
                     // Write entry
                     stream.writeStartElement(Constants::DOCUMENTATION_XMLENTRY);
                     stream.writeStartElement(Constants::DOCUMENTATION_XMLKEYS);
-                    for (const QString &key : keys)
+                    for (const QString &key : qAsConst(keys))
                         stream.writeTextElement(Constants::DOCUMENTATION_XMLKEY, key);
                     stream.writeEndElement();
                     const QString text = "<p><span class=\"option\">"

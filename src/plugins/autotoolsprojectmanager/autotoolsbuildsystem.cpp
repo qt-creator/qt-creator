@@ -141,7 +141,7 @@ void AutotoolsBuildSystem::makefileParsingFinished()
     }
 
     auto newRoot = std::make_unique<ProjectNode>(project()->projectDirectory());
-    for (const QString &f : m_files) {
+    for (const QString &f : qAsConst(m_files)) {
         const Utils::FilePath path = Utils::FilePath::fromString(f);
         newRoot->addNestedNode(std::make_unique<FileNode>(path,
                                                           FileNode::fileTypeForFileName(path)));

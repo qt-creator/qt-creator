@@ -246,7 +246,7 @@ void McuSupportOptionsWidget::showMcuTargetPackages()
         row.fieldItem->widget()->hide();
     }
 
-    for (auto package : m_options.packages) {
+    for (auto package : qAsConst(m_options.packages)) {
         QWidget *packageWidget = package->widget();
         if (!mcuTarget->packages().contains(package))
             continue;
@@ -275,7 +275,7 @@ void McuSupportOptionsWidget::apply()
 {
     m_options.qtForMCUsSdkPackage->writeGeneralSettings();
     m_options.qtForMCUsSdkPackage->writeToSettings();
-    for (auto package : m_options.packages)
+    for (auto package : qAsConst(m_options.packages))
         package->writeToSettings();
 }
 
