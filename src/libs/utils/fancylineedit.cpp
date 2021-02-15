@@ -213,7 +213,8 @@ FancyLineEdit::~FancyLineEdit()
         // the QueuedConnection don't have enough time to call slot callback
         // because edit widget and all of its connections are destroyed before
         // QCoreApplicationPrivate::sendPostedEvents dispatch our queued signal.
-        d->m_historyCompleter->addEntry(text());
+        if (!text().isEmpty())
+            d->m_historyCompleter->addEntry(text());
     }
 }
 
