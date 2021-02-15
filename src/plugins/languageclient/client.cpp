@@ -904,7 +904,7 @@ void Client::handleMessage(const BaseMessage &message)
     }
 }
 
-void Client::log(const QString &message)
+void Client::log(const QString &message) const
 {
     Core::MessageManager::writeFlashing(QString("LanguageClient %1: %2").arg(name(), message));
 }
@@ -917,11 +917,6 @@ const ServerCapabilities &Client::capabilities() const
 const DynamicCapabilities &Client::dynamicCapabilities() const
 {
     return m_dynamicCapabilities;
-}
-
-const BaseClientInterface *Client::clientInterface() const
-{
-    return m_clientInterface.data();
 }
 
 DocumentSymbolCache *Client::documentSymbolCache()
