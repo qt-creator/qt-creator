@@ -230,10 +230,11 @@ ParserTreeItem::ConstPtr Parser::findItemByRoot(const QStandardItem *item, bool 
     if (skipRoot && uiList.count() > 0)
         uiList.removeLast();
 
-    QReadLocker locker(&d->rootItemLocker);
-
-    // using internal root - search correct item
-    ParserTreeItem::ConstPtr internal = d->rootItem;
+    ParserTreeItem::ConstPtr internal;
+    {
+        QReadLocker locker(&d->rootItemLocker);
+        internal = d->rootItem;
+    }
 
     while (uiList.count() > 0) {
         cur = uiList.last();
@@ -588,13 +589,13 @@ void Parser::requestCurrentState()
 {
     d->timer.stop();
 
-    d->rootItemLocker.lockForWrite();
-    d->rootItem = parse();
-    d->rootItemLocker.unlock();
+    const ParserTreeItem::ConstPtr newRoot = parse();
+    {
+        QWriteLocker locker(&d->rootItemLocker);
+        d->rootItem = newRoot;
+    }
 
-    // convert
     QSharedPointer<QStandardItem> std(new QStandardItem());
-
     d->rootItem->convertTo(std.data());
 
     emit treeDataUpdate(std);
