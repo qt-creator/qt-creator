@@ -79,9 +79,6 @@ public:
 
     void debugDump(int ident = 0) const;
 
-protected:
-    ParserTreeItem &operator=(const ParserTreeItem &other);
-
 private:
     using CitSymbolInformations = QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator;
     //! Private class data pointer

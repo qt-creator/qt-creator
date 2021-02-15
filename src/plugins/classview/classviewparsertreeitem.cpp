@@ -82,14 +82,6 @@ ParserTreeItem::~ParserTreeItem()
     delete d;
 }
 
-ParserTreeItem &ParserTreeItem::operator=(const ParserTreeItem &other)
-{
-    d->symbolLocations = other.d->symbolLocations;
-    d->icon = other.d->icon;
-    d->symbolInformations.clear();
-    return *this;
-}
-
 /*!
     Copies a parser tree item from the location specified by \a from to this
     item.
