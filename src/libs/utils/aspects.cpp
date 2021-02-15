@@ -229,6 +229,10 @@ void BaseAspect::registerSubWidget(QWidget *widget)
 {
     d->m_subWidgets.append(widget);
 
+    connect(widget, &QObject::destroyed, this, [this, widget] {
+        d->m_subWidgets.removeAll(widget);
+    });
+
     widget->setEnabled(d->m_enabled);
     widget->setToolTip(d->m_tooltip);
 
