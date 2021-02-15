@@ -423,19 +423,19 @@ void ValgrindGlobalSettings::setLastSuppressionDialogHistory(const QStringList &
 
 static const char groupC[] = "Analyzer";
 
-void ValgrindGlobalSettings::readSettings()
+static QVariantMap defaultSettings()
 {
     QVariantMap defaults;
 
     // General
     defaults.insert(valgrindExeC, "valgrind");
     defaults.insert(valgrindArgumentsC, QString());
-    defaults.insert(selfModifyingCodeDetectionC, DetectSmcStackOnly);
+    defaults.insert(selfModifyingCodeDetectionC, ValgrindBaseSettings::DetectSmcStackOnly);
 
     // Memcheck
     defaults.insert(memcheckArgumentsC, QString());
     defaults.insert(numCallersC, 25);
-    defaults.insert(leakCheckOnFinishC, LeakCheckOnFinishSummaryOnly);
+    defaults.insert(leakCheckOnFinishC, ValgrindBaseSettings::LeakCheckOnFinishSummaryOnly);
     defaults.insert(showReachableC, false);
     defaults.insert(trackOriginsC, true);
     defaults.insert(filterExternalIssuesC, true);
@@ -463,6 +463,13 @@ void ValgrindGlobalSettings::readSettings()
     defaults.insert(callgrindCycleDetectionC, true);
     defaults.insert(callgrindShortenTemplates, true);
 
+    return defaults;
+}
+
+void ValgrindGlobalSettings::readSettings()
+{
+    QVariantMap defaults = defaultSettings();
+
     // Read stored values
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(groupC);
@@ -476,12 +483,14 @@ void ValgrindGlobalSettings::readSettings()
 
 void ValgrindGlobalSettings::writeSettings() const
 {
-    QSettings *settings = Core::ICore::settings();
+    const QVariantMap defaults = defaultSettings();
+
+    Utils::QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(groupC);
     QVariantMap map;
     toMap(map);
     for (QVariantMap::ConstIterator it = map.constBegin(); it != map.constEnd(); ++it)
-        settings->setValue(it.key(), it.value());
+        settings->setValueWithDefault(it.key(), it.value(), defaults.value(it.key()));
     settings->endGroup();
 }
 
