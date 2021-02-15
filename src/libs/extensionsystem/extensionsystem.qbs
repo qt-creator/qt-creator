@@ -3,8 +3,6 @@ import qbs 1.0
 Project {
     name: "ExtensionSystem"
 
-    QtcDevHeaders { }
-
     QtcLibrary {
         cpp.defines: base.concat([
             "EXTENSIONSYSTEM_LIBRARY",

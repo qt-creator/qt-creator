@@ -3,8 +3,6 @@ import qbs 1.0
 Project {
     name: "RemoteLinux"
 
-    QtcDevHeaders { }
-
     QtcPlugin {
         Depends { name: "Qt.widgets" }
         Depends { name: "QtcSsh" }

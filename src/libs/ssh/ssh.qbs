@@ -3,8 +3,6 @@ import qbs 1.0
 Project {
     name: "QtcSsh"
 
-    QtcDevHeaders { }
-
     QtcLibrary {
         cpp.defines: base.concat("QTCSSH_LIBRARY")
         cpp.enableExceptions: true

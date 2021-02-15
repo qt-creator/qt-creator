@@ -3,8 +3,6 @@ import qbs 1.0
 Project {
     name: "ResourceEditor"
 
-    QtcDevHeaders { }
-
     QtcPlugin {
         Depends { name: "Qt"; submodules: ["widgets", "xml"] }
         Depends { name: "Aggregation" }

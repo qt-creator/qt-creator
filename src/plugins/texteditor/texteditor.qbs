@@ -5,8 +5,6 @@ import qbs.Environment
 Project {
     name: "TextEditor"
 
-    QtcDevHeaders { }
-
     QtcPlugin {
         Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "printsupport"] }
         Depends { name: "Aggregation" }

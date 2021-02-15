@@ -4,8 +4,6 @@ import qbs.FileInfo
 Project {
     name: "QmlDesigner"
 
-    QtcDevHeaders { }
-
     QtcPlugin {
         fileName: FileInfo.fileName(filePath)
 

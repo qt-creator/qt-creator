@@ -3,8 +3,6 @@ import qbs 1.0
 Project {
     name: "Android"
 
-    QtcDevHeaders { }
-
     QtcPlugin {
         Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
         Depends { name: "Core" }

@@ -3,8 +3,6 @@ import qbs 1.0
 Project {
     name: "QmakeProjectManager"
 
-    QtcDevHeaders { }
-
     QtcPlugin {
         Depends { name: "Qt"; submodules: ["widgets", "network"] }
         Depends { name: "QmlJS" }

@@ -3,8 +3,6 @@ import qbs 1.0
 Project {
     name: "LanguageServerProtocol"
 
-    QtcDevHeaders { }
-
     QtcLibrary {
         Depends { name: "Utils" }
         cpp.defines: base.concat("LANGUAGESERVERPROTOCOL_LIBRARY")

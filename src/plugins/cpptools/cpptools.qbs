@@ -4,8 +4,6 @@ import qbs.FileInfo
 Project {
     name: "CppTools"
 
-    QtcDevHeaders { }
-
     QtcPlugin {
         Depends { name: "Qt.widgets" }
         Depends { name: "Qt.testlib"; condition: project.withAutotests }

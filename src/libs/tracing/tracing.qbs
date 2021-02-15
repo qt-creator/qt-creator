@@ -5,8 +5,6 @@ import QtcLibrary
 Project {
     name: "Tracing"
 
-    QtcDevHeaders { }
-
     QtcLibrary {
         Depends { name: "Qt"; submodules: ["qml", "quick", "gui"] }
         Depends { name: "Qt.testlib"; condition: project.withAutotests }

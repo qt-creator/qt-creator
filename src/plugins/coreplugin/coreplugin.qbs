@@ -5,8 +5,6 @@ import qbs.Utilities
 Project {
     name: "Core"
 
-    QtcDevHeaders { }
-
     QtcPlugin {
         Depends {
             name: "Qt"

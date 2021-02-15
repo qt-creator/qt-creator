@@ -3,8 +3,6 @@ import qbs 1.0
 Project {
     name: "QtSupport"
 
-    QtcDevHeaders { }
-
     QtcPlugin {
         Depends { name: "Qt"; submodules: ["widgets", "xml"]; }
         Depends { name: "Utils" }

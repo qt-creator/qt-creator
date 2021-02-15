@@ -1,7 +1,6 @@
 import qbs
 import qbs.Environment
 import qbs.FileInfo
-import "qtc.js" as HelperFunctions
 
 Module {
     property string qtcreator_display_version: '4.15.0-beta1'
@@ -91,27 +90,4 @@ Module {
         "QT_USE_QSTRINGBUILDER",
     ].concat(testsEnabled ? ["WITH_TESTS"] : [])
      .concat(qbs.toolchain.contains("msvc") ? ["_CRT_SECURE_NO_WARNINGS"] : [])
-
-    Rule {
-        condition: make_dev_package
-        inputs: product.type.filter(function f(t) {
-            return t === "dynamiclibrary" || t === "staticlibrary" || t === "qtc.dev-headers";
-        })
-        explicitlyDependsOn: ["qbs"]
-        Artifact {
-            filePath: product.name + "-module.qbs"
-            fileTags: ["qtc.dev-module"]
-        }
-        prepare: {
-            var cmd = new JavaScriptCommand();
-            cmd.description = "Creating " + output.fileName;
-            cmd.sourceCode = function() {
-                var transformedExportBlock = HelperFunctions.transformedExportBlock(product, input,
-                                                                                    output);
-                HelperFunctions.writeModuleFile(output, transformedExportBlock);
-
-            };
-            return [cmd];
-        }
-    }
 }

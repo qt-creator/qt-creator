@@ -4,8 +4,6 @@ import qbs.FileInfo
 Project {
     name: "Utils"
 
-    QtcDevHeaders { }
-
     QtcLibrary {
 
         cpp.defines: base.concat([

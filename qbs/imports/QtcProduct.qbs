@@ -89,12 +89,6 @@ Product {
     }
 
     Group {
-        fileTagsFilter: ["qtc.dev-module"]
-        qbs.install: true
-        qbs.installDir: qtc.ide_qbs_modules_path + '/' + product.name
-    }
-
-    Group {
         name: "standard pch file (non-gui)"
         condition: useNonGuiPchFile
         prefix: pathToSharedSources + '/'

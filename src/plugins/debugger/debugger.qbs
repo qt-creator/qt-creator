@@ -3,8 +3,6 @@ import qbs 1.0
 Project {
     name: "Debugger"
 
-    QtcDevHeaders { }
-
     QtcPlugin {
         Depends { name: "Qt"; submodules: ["widgets", "network"] }
         Depends { name: "Aggregation" }

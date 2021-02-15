@@ -3,8 +3,6 @@ import qbs 1.0
 Project {
     name: "QmlDebug"
 
-    QtcDevHeaders { }
-
     QtcLibrary {
         cpp.defines: base.concat("QMLDEBUG_LIBRARY")
 

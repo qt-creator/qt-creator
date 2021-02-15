@@ -3,8 +3,6 @@ import qbs 1.0
 Project {
     name: "QmlJS"
 
-    QtcDevHeaders { }
-
     QtcLibrary {
         cpp.defines: base.concat(["QMLJS_LIBRARY"])
         cpp.optimization: "fast"

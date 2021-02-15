@@ -3,7 +3,7 @@ import qbs.FileInfo
 import QtcFunctions
 
 QtcProduct {
-    type: ["dynamiclibrary", "dynamiclibrary_symlink", "qtc.dev-module"]
+    type: ["dynamiclibrary", "dynamiclibrary_symlink"]
     installDir: qtc.ide_library_path
     installTags: ["dynamiclibrary", "dynamiclibrary_symlink", "debuginfo_dll"]
     useNonGuiPchFile: true

@@ -3,12 +3,6 @@ import qbs 1.0
 Project {
     name: "CPlusPlus"
 
-    QtcDevHeaders { }
-    QtcDevHeaders {
-        productName: "cplusplus (3rd party)"
-        baseDir: sourceDirectory + "/../3rdparty/cplusplus"
-    }
-
     QtcLibrary {
         cpp.includePaths: base.concat("../3rdparty")
         cpp.defines: base.concat([
