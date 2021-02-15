@@ -1154,6 +1154,8 @@ SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
     setId("SimpleTargetRunner");
     if (auto terminalAspect = runControl->aspect<TerminalAspect>())
         m_useTerminal = terminalAspect->useTerminal();
+    if (auto runAsRootAspect = runControl->aspect<RunAsRootAspect>())
+        m_runAsRoot = runAsRootAspect->value();
 }
 
 void SimpleTargetRunner::start()
@@ -1169,6 +1171,7 @@ void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstP
     m_stopReported = false;
     m_launcher.disconnect(this);
     m_launcher.setUseTerminal(m_useTerminal);
+    m_launcher.setRunAsRoot(m_runAsRoot);
 
     const bool isDesktop = device.isNull() || device.dynamicCast<const DesktopDevice>();
     const QString rawDisplayName = runnable.displayName();

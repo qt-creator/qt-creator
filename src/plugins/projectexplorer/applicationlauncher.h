@@ -54,6 +54,7 @@ public:
 
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
     void setUseTerminal(bool on);
+    void setRunAsRoot(bool on);
     void start(const Runnable &runnable);
     void start(const Runnable &runnable, const IDevice::ConstPtr &device);
     void stop();

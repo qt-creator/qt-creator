@@ -3853,11 +3853,20 @@ void GdbEngine::setupEngine()
     if (!boolSetting(LoadGdbInit))
         gdbCommand.addArg("-n");
 
+    Environment gdbEnv = rp.debugger.environment;
+    if (rp.runAsRoot) {
+        CommandLine wrapped("sudo", {"-A"});
+        wrapped.addArgs(gdbCommand);
+        gdbCommand = wrapped;
+        RunControl::provideAskPassEntry(gdbEnv);
+    }
+
     showMessage("STARTING " + gdbCommand.toUserOutput());
+
     m_gdbProc.setCommand(gdbCommand);
     if (QFileInfo(rp.debugger.workingDirectory).isDir())
         m_gdbProc.setWorkingDirectory(rp.debugger.workingDirectory);
-    m_gdbProc.setEnvironment(rp.debugger.environment);
+    m_gdbProc.setEnvironment(gdbEnv);
     m_gdbProc.start();
 
     if (!m_gdbProc.waitForStarted()) {
@@ -4256,7 +4265,15 @@ void GdbEngine::interruptLocalInferior(qint64 pid)
         return;
     }
     QString errorMessage;
-    if (interruptProcess(pid, GdbEngineType, &errorMessage)) {
+    if (runParameters().runAsRoot) {
+        Environment env = Environment::systemEnvironment();
+        RunControl::provideAskPassEntry(env);
+        QtcProcess proc;
+        proc.setCommand(CommandLine{"sudo", {"-A", "kill", "-s", "SIGINT", QString::number(pid)}});
+        proc.setEnvironment(env);
+        proc.start();
+        proc.waitForFinished();
+    } else if (interruptProcess(pid, GdbEngineType, &errorMessage)) {
         showMessage("Interrupted " + QString::number(pid));
     } else {
         showMessage(errorMessage, LogError);
@@ -4622,10 +4639,13 @@ void GdbEngine::interruptInferior2()
             }
         }
 
-    } else if (isTermEngine() || isPlainEngine()) {
+    } else if (isPlainEngine()) {
 
         interruptLocalInferior(inferiorPid());
 
+    } else if (isTermEngine()) {
+
+        terminal()->interruptProcess();
     }
 }
 

@@ -188,8 +188,18 @@ void TerminalRunner::interruptProcess()
     m_stubProc.interruptProcess();
 }
 
+void TerminalRunner::setRunAsRoot(bool on)
+{
+    m_runAsRoot = on;
+}
+
 void TerminalRunner::start()
 {
+    if (m_runAsRoot) {
+        m_stubProc.setRunAsRoot(true);
+        RunControl::provideAskPassEntry(m_stubRunnable.environment);
+    }
+
     m_stubProc.setEnvironment(m_stubRunnable.environment);
     m_stubProc.setWorkingDirectory(m_stubRunnable.workingDirectory);
 

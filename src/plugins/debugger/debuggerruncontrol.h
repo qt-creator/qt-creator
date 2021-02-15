@@ -108,6 +108,7 @@ public:
     void setUseCtrlCStub(bool on);
     void setBreakOnMain(bool on);
     void setUseTerminal(bool on);
+    void setRunAsRoot(bool on);
 
     void setCommandsAfterConnect(const QString &commands);
     void setCommandsForReset(const QString &commands);

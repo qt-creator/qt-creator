@@ -66,6 +66,7 @@ public:
 
     void setCommand(const Utils::CommandLine &command);
     Utils::CommandLine command() const;
+
     void setAbortOnMetaChars(bool abort);
 
     void setWorkingDirectory(const QString &dir);
@@ -73,6 +74,8 @@ public:
 
     void setEnvironment(const Environment &env);
     Environment environment() const;
+
+    void setRunAsRoot(bool on);
 
     QProcess::ProcessError error() const;
     QString errorString() const;

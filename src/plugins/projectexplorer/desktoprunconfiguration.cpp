@@ -88,6 +88,9 @@ DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Utils::Id id, K
         });
     }
 
+    if (HostOsInfo::isAnyUnixHost())
+        addAspect<RunAsRootAspect>();
+
     envAspect->addModifier([this, libAspect](Environment &env) {
         BuildTargetInfo bti = buildTargetInfo();
         if (bti.runEnvModifier)

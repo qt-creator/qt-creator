@@ -169,6 +169,7 @@ public:
     bool breakOnMain = false;
     bool multiProcess = false; // Whether to set detach-on-fork off.
     bool useTerminal = false;
+    bool runAsRoot = false;
 
     ProjectExplorer::Runnable debugger;
     QString overrideStartScript; // Used in attach to core and remote debugging

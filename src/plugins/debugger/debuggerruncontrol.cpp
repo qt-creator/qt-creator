@@ -395,11 +395,19 @@ void DebuggerRunTool::setUseTerminal(bool on)
 
     if (on && !d->terminalRunner && !useCdbConsole) {
         d->terminalRunner = new TerminalRunner(runControl(), m_runParameters.inferior);
+        d->terminalRunner->setRunAsRoot(m_runParameters.runAsRoot);
         addStartDependency(d->terminalRunner);
     }
     if (!on && d->terminalRunner) {
         QTC_CHECK(false); // User code can only switch from no terminal to one terminal.
     }
+}
+
+void DebuggerRunTool::setRunAsRoot(bool on)
+{
+    m_runParameters.runAsRoot = on;
+    if (d->terminalRunner)
+        d->terminalRunner->setRunAsRoot(on);
 }
 
 void DebuggerRunTool::setCommandsAfterConnect(const QString &commands)
@@ -948,6 +956,8 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
         m_runParameters.symbolFile = symbolsAspect->filePath();
     if (auto terminalAspect = runControl->aspect<TerminalAspect>())
         m_runParameters.useTerminal = terminalAspect->useTerminal();
+    if (auto runAsRootAspect = runControl->aspect<RunAsRootAspect>())
+        m_runParameters.runAsRoot = runAsRootAspect->value();
 
     Kit *kit = runControl->kit();
     QTC_ASSERT(kit, return);

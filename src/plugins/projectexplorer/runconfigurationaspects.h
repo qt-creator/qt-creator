@@ -147,6 +147,14 @@ public:
     UseDyldSuffixAspect();
 };
 
+class PROJECTEXPLORER_EXPORT RunAsRootAspect : public Utils::BoolAspect
+{
+    Q_OBJECT
+
+public:
+    RunAsRootAspect();
+};
+
 class PROJECTEXPLORER_EXPORT ExecutableAspect : public Utils::BaseAspect
 {
     Q_OBJECT
