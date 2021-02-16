@@ -30,8 +30,9 @@
 #include <QStandardItem>
 
 #include <cplusplus/CppDocument.h>
-
 #include <utils/id.h>
+
+#include "classviewparsertreeitem.h"
 
 namespace ClassView {
 namespace Internal {
@@ -59,6 +60,7 @@ signals:
     void treeDataUpdate(QSharedPointer<QStandardItem> result);
 
 private:
+    ParserTreeItem::ConstPtr findItemByRoot(const QStandardItem *item, bool skipRoot = false) const;
     void onProjectListChanged();
     void resetParser();
 

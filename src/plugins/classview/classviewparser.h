@@ -52,11 +52,6 @@ public:
     explicit Parser(QObject *parent = nullptr);
     ~Parser() override;
 
-    // TODO: below three methods are called directly from different thread
-    bool canFetchMore(QStandardItem *item, bool skipRoot = false) const;
-    void fetchMore(QStandardItem *item, bool skipRoot = false) const;
-    bool hasChildren(QStandardItem *item) const;
-
     void requestCurrentState();
     void removeFiles(const QStringList &fileList);
     void resetDataToCurrentState();
@@ -65,7 +60,7 @@ public:
     void aboutToShutdown();
 
 signals:
-    void treeDataUpdate(QSharedPointer<QStandardItem> result);
+    void treeRegenerated(const ParserTreeItem::ConstPtr &root);
 
 private:
     void setFileList(const QStringList &fileList);
@@ -77,7 +72,6 @@ private:
     ParserTreeItem::Ptr getCachedOrParseProjectTree(const QStringList &fileList,
                                                     const QString &projectId);
     ParserTreeItem::ConstPtr parse();
-    ParserTreeItem::ConstPtr findItemByRoot(const QStandardItem *item, bool skipRoot = false) const;
 
     QStringList getAllFiles(const ProjectExplorer::Project *project);
     ParserTreeItem::Ptr addFlatTree(const ProjectExplorer::Project *project);

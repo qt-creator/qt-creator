@@ -75,3 +75,5 @@ private:
 
 } // namespace Internal
 } // namespace ClassView
+
+Q_DECLARE_METATYPE(ClassView::Internal::ParserTreeItem::ConstPtr)

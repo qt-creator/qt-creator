@@ -96,6 +96,8 @@ public:
     //! separate thread for the parser
     QThread parserThread;
 
+    ParserTreeItem::ConstPtr m_root;
+
     //! Internal manager state. \sa Manager::state
     bool state = false;
 
@@ -136,27 +138,67 @@ Manager *Manager::instance()
 }
 
 /*!
+    Returns the internal tree item for \a item. \a skipRoot skips the root
+    item.
+*/
+ParserTreeItem::ConstPtr Manager::findItemByRoot(const QStandardItem *item, bool skipRoot) const
+{
+    if (!item)
+        return ParserTreeItem::ConstPtr();
+
+    // go item by item to the root
+    QList<const QStandardItem *> uiList;
+    const QStandardItem *cur = item;
+    while (cur) {
+        uiList.append(cur);
+        cur = cur->parent();
+    }
+
+    if (skipRoot && uiList.count() > 0)
+        uiList.removeLast();
+
+    ParserTreeItem::ConstPtr internal = d->m_root;
+    while (uiList.count() > 0) {
+        cur = uiList.last();
+        uiList.removeLast();
+        const SymbolInformation &inf = Internal::symbolInformationFromItem(cur);
+        internal = internal->child(inf);
+        if (internal.isNull())
+            break;
+    }
+
+    return internal;
+}
+
+/*!
     Checks \a item for lazy data population of a QStandardItemModel.
 */
-
 bool Manager::canFetchMore(QStandardItem *item, bool skipRoot) const
 {
-    return d->parser.canFetchMore(item, skipRoot);
+    ParserTreeItem::ConstPtr ptr = findItemByRoot(item, skipRoot);
+    if (ptr.isNull())
+        return false;
+    return ptr->canFetchMore(item);
 }
 
 /*!
     Checks \a item for lazy data population of a QStandardItemModel.
     \a skipRoot item is needed for the manual update, call not from model.
 */
-
 void Manager::fetchMore(QStandardItem *item, bool skipRoot)
 {
-    d->parser.fetchMore(item, skipRoot);
+    ParserTreeItem::ConstPtr ptr = findItemByRoot(item, skipRoot);
+    if (ptr.isNull())
+        return;
+    ptr->fetchMore(item);
 }
 
 bool Manager::hasChildren(QStandardItem *item) const
 {
-    return d->parser.hasChildren(item);
+    ParserTreeItem::ConstPtr ptr = findItemByRoot(item);
+    if (ptr.isNull())
+        return false;
+    return ptr->childCount() != 0;
 }
 
 void Manager::initialize()
@@ -195,15 +237,16 @@ void Manager::initialize()
         resetParser();
     });
 
-    // translate data update from the parser to listeners
-    connect(&d->parser, &Parser::treeDataUpdate,
-            this, [this](QSharedPointer<QStandardItem> result) {
-        // do nothing if Manager is disabled
+    connect(&d->parser, &Parser::treeRegenerated,
+            this, [this](const ParserTreeItem::ConstPtr &root) {
+        d->m_root = root;
+
         if (!state())
             return;
 
-        emit treeDataUpdate(result);
-
+        QSharedPointer<QStandardItem> rootItem(new QStandardItem());
+        d->m_root->convertTo(rootItem.data());
+        emit treeDataUpdate(rootItem);
     }, Qt::QueuedConnection);
 
     // connect to the cpp model manager for signals about document updates

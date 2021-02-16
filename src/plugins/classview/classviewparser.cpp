@@ -111,12 +111,6 @@ public:
     //! List for files which has to be parsed
     QSet<QString> fileList;
 
-    //! Root item read write lock
-    QReadWriteLock rootItemLocker;
-
-    //! Parsed root item
-    ParserTreeItem::ConstPtr rootItem;
-
     //! Flat mode
     bool flatMode = false;
 };
@@ -152,39 +146,6 @@ Parser::~Parser()
 }
 
 /*!
-    Checks \a item for lazy data population of a QStandardItemModel.
-*/
-
-bool Parser::canFetchMore(QStandardItem *item, bool skipRoot) const
-{
-    ParserTreeItem::ConstPtr ptr = findItemByRoot(item, skipRoot);
-    if (ptr.isNull())
-        return false;
-    return ptr->canFetchMore(item);
-}
-
-/*!
-    Checks \a item for lazy data population of a QStandardItemModel.
-    \a skipRoot skips the root item.
-*/
-
-void Parser::fetchMore(QStandardItem *item, bool skipRoot) const
-{
-    ParserTreeItem::ConstPtr ptr = findItemByRoot(item, skipRoot);
-    if (ptr.isNull())
-        return;
-    ptr->fetchMore(item);
-}
-
-bool Parser::hasChildren(QStandardItem *item) const
-{
-    ParserTreeItem::ConstPtr ptr = findItemByRoot(item);
-    if (ptr.isNull())
-        return false;
-    return ptr->childCount() != 0;
-}
-
-/*!
     Switches to flat mode (without subprojects) if \a flat returns \c true.
 */
 
@@ -204,45 +165,6 @@ void Parser::aboutToShutdown()
 {
     d->m_shuttingDown = true;
     d->timer.stop();
-}
-
-/*!
-    Returns the internal tree item for \a item. \a skipRoot skips the root
-    item.
-*/
-
-ParserTreeItem::ConstPtr Parser::findItemByRoot(const QStandardItem *item, bool skipRoot) const
-{
-    if (!item)
-        return ParserTreeItem::ConstPtr();
-
-    // go item by item to the root
-    QList<const QStandardItem *> uiList;
-    const QStandardItem *cur = item;
-    while (cur) {
-        uiList.append(cur);
-        cur = cur->parent();
-    }
-
-    if (skipRoot && uiList.count() > 0)
-        uiList.removeLast();
-
-    ParserTreeItem::ConstPtr internal;
-    {
-        QReadLocker locker(&d->rootItemLocker);
-        internal = d->rootItem;
-    }
-
-    while (uiList.count() > 0) {
-        cur = uiList.last();
-        uiList.removeLast();
-        const SymbolInformation &inf = Internal::symbolInformationFromItem(cur);
-        internal = internal->child(inf);
-        if (internal.isNull())
-            break;
-    }
-
-    return internal;
 }
 
 /*!
@@ -486,16 +408,7 @@ void Parser::requestCurrentState()
     d->timer.stop();
 
     // TODO: we need to have a fresh SessionManager data here, which we could pass to parse()
-    const ParserTreeItem::ConstPtr newRoot = parse();
-    {
-        QWriteLocker locker(&d->rootItemLocker);
-        d->rootItem = newRoot;
-    }
-
-    QSharedPointer<QStandardItem> std(new QStandardItem());
-    d->rootItem->convertTo(std.data());
-
-    emit treeDataUpdate(std);
+    emit treeRegenerated(parse());
 }
 
 // TODO: don't use Project class in this thread
