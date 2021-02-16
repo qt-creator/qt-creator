@@ -57,7 +57,6 @@ public:
     void resetDataToCurrentState();
     void parseDocument(const CPlusPlus::Document::Ptr &doc);
     void setFlatMode(bool flat);
-    void aboutToShutdown();
 
 signals:
     void treeRegenerated(const ParserTreeItem::ConstPtr &root);

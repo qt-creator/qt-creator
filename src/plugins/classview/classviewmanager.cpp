@@ -90,12 +90,8 @@ static Manager *managerInstance = nullptr;
 class ManagerPrivate
 {
 public:
-    //! code state/changes parser
-    Parser parser;
-
-    //! separate thread for the parser
-    QThread parserThread;
-
+    Parser *m_parser = nullptr;
+    QThread m_parserThread;
     ParserTreeItem::ConstPtr m_root;
 
     //! Internal manager state. \sa Manager::state
@@ -111,6 +107,9 @@ Manager::Manager(QObject *parent)
     : QObject(parent),
     d(new ManagerPrivate())
 {
+    d->m_parser = new Parser();
+    d->m_parser->moveToThread(&d->m_parserThread);
+    connect(&d->m_parserThread, &QThread::finished, d->m_parser, &QObject::deleteLater);
     managerInstance = this;
 
     // register - to be able send between signal/slots
@@ -119,15 +118,13 @@ Manager::Manager(QObject *parent)
     initialize();
 
     // start a separate thread for the parser
-    d->parser.moveToThread(&d->parserThread);
-    d->parserThread.start();
+    d->m_parserThread.start();
 }
 
 Manager::~Manager()
 {
-    QMetaObject::invokeMethod(&d->parser, &Parser::aboutToShutdown, Qt::BlockingQueuedConnection);
-    d->parserThread.quit();
-    d->parserThread.wait();
+    d->m_parserThread.quit();
+    d->m_parserThread.wait();
     delete d;
     managerInstance = nullptr;
 }
@@ -237,7 +234,7 @@ void Manager::initialize()
         resetParser();
     });
 
-    connect(&d->parser, &Parser::treeRegenerated,
+    connect(d->m_parser, &Parser::treeRegenerated,
             this, [this](const ParserTreeItem::ConstPtr &root) {
         d->m_root = root;
 
@@ -263,12 +260,12 @@ void Manager::initialize()
         if (d->disableCodeParser)
             return;
 
-        QMetaObject::invokeMethod(&d->parser, [this, doc]() {
-            d->parser.parseDocument(doc); }, Qt::QueuedConnection);
+        QMetaObject::invokeMethod(d->m_parser, [this, doc]() {
+            d->m_parser->parseDocument(doc); }, Qt::QueuedConnection);
     }, Qt::QueuedConnection);
     //
     connect(codeModelManager, &CppTools::CppModelManager::aboutToRemoveFiles,
-            &d->parser, &Parser::removeFiles, Qt::QueuedConnection);
+            d->m_parser, &Parser::removeFiles, Qt::QueuedConnection);
 }
 
 /*!
@@ -305,7 +302,7 @@ void Manager::setState(bool state)
 
 void Manager::resetParser()
 {
-    QMetaObject::invokeMethod(&d->parser, &Parser::resetDataToCurrentState, Qt::QueuedConnection);
+    QMetaObject::invokeMethod(d->m_parser, &Parser::resetDataToCurrentState, Qt::QueuedConnection);
 }
 
 /*!
@@ -335,7 +332,7 @@ void Manager::onProjectListChanged()
     if (!state())
         return;
 
-    QMetaObject::invokeMethod(&d->parser, &Parser::requestCurrentState, Qt::QueuedConnection);
+    QMetaObject::invokeMethod(d->m_parser, &Parser::requestCurrentState, Qt::QueuedConnection);
 }
 
 /*!
@@ -393,8 +390,8 @@ void Manager::gotoLocations(const QList<QVariant> &list)
 
 void Manager::setFlatMode(bool flat)
 {
-    QMetaObject::invokeMethod(&d->parser, [this, flat]() {
-        d->parser.setFlatMode(flat);
+    QMetaObject::invokeMethod(d->m_parser, [this, flat]() {
+        d->m_parser->setFlatMode(flat);
     }, Qt::QueuedConnection);
 }
 
