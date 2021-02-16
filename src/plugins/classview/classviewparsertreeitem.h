@@ -48,21 +48,19 @@ public:
 
 public:
     ParserTreeItem();
+    ParserTreeItem(const Utils::FilePath &projectFilePath);
     ParserTreeItem(const QHash<SymbolInformation, Ptr> &children);
     ~ParserTreeItem();
 
     static Ptr parseDocument(const CPlusPlus::Document::Ptr &doc);
-    static Ptr mergeTrees(const QList<ConstPtr> &docTrees);
+    static Ptr mergeTrees(const Utils::FilePath &projectFilePath, const QList<ConstPtr> &docTrees);
 
+    Utils::FilePath projectFilePath() const;
     QSet<SymbolLocation> symbolLocations() const;
     Ptr child(const SymbolInformation &inf) const;
     int childCount() const;
 
-    // TODO: Remove icon from this API, we can't use QIcons in non-GUI thread
-    QIcon icon() const;
-    void setIcon(const QIcon &icon);
-
-    void convertTo(QStandardItem *item) const;
+    // Make sure that below two methods are called only from the GUI thread
     bool canFetchMore(QStandardItem *item) const;
     void fetchMore(QStandardItem *item) const;
 

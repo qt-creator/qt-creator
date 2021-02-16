@@ -35,7 +35,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectnodes.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -192,8 +191,6 @@ ParserTreeItem::ConstPtr Parser::parse()
         ParserTreeItem::Ptr item = addFlatTree(prj);
         if (item.isNull())
             continue;
-        // TODO: remove a call to icon
-        item->setIcon(prj->containerNode()->icon());
         projectTrees.insert(inf, item);
     }
 
@@ -234,7 +231,7 @@ ParserTreeItem::Ptr Parser::getParseProjectTree(const QStringList &fileList,
         docTrees.append(docTree);
     }
 
-    ParserTreeItem::Ptr item = ParserTreeItem::mergeTrees(docTrees);
+    ParserTreeItem::Ptr item = ParserTreeItem::mergeTrees(Utils::FilePath::fromString(projectId), docTrees);
 
     // update the cache
     if (!projectId.isEmpty()) {

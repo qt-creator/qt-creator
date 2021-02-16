@@ -198,7 +198,7 @@ bool Manager::hasChildren(QStandardItem *item) const
     ParserTreeItem::ConstPtr ptr = findItemByRoot(item);
     if (ptr.isNull())
         return false;
-    return ptr->childCount() != 0;
+    return ptr->childCount();
 }
 
 void Manager::initialize()
@@ -245,7 +245,7 @@ void Manager::initialize()
             return;
 
         QSharedPointer<QStandardItem> rootItem(new QStandardItem());
-        d->m_root->convertTo(rootItem.data());
+        d->m_root->fetchMore(rootItem.data());
         emit treeDataUpdate(rootItem);
     }, Qt::QueuedConnection);
 
