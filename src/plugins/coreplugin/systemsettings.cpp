@@ -51,14 +51,14 @@
 
 using namespace Utils;
 
-static const char crashReportingEnabledKey[] = "CrashReportingEnabled";
-static const char showCrashButtonKey[] = "ShowCrashButton";
-
 namespace Core {
 namespace Internal {
 
-// TODO: move to somewhere in Utils
 #ifdef ENABLE_CRASHPAD
+const char crashReportingEnabledKey[] = "CrashReportingEnabled";
+const char showCrashButtonKey[] = "ShowCrashButton";
+
+// TODO: move to somewhere in Utils
 static QString formatSize(qint64 size)
 {
     QStringList units {QObject::tr("Bytes"), QObject::tr("KB"), QObject::tr("MB"),
