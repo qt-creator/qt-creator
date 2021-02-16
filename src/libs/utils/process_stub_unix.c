@@ -28,12 +28,6 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/wait.h>
-#ifdef __sun
-# define PT_TRACE_ME 0
-# define PT_DETACH 7
-#else
-# include <sys/ptrace.h>
-#endif
 #include <fcntl.h>
 #include <unistd.h>
 #include <signal.h>
@@ -116,52 +110,17 @@ static void sigchldHandler(int sig)
             doExit(3);
         }
         if (WIFSTOPPED(chldStatus)) {
-            /* The child stopped. This can be only the result of ptrace(TRACE_ME). */
-            /* We won't need the notification pipe any more, as we know that
+            /* The child stopped. This can be the result of the initial SIGSTOP handling.
+             * We won't need the notification pipe any more, as we know that
              * the exec() succeeded. */
             close(chldPipe[0]);
             close(chldPipe[1]);
             chldPipe[0] = -1;
-            /* If we are not debugging, just skip the "handover enabler".
-             * This is suboptimal, as it makes us ignore setuid/-gid bits. */
-            if (isDebug) {
-                /* Stop the child after we detach from it, so we can hand it over to gdb.
-                 * If the signal delivery is not queued, things will go awry. It works on
-                 * Linux and MacOSX ... */
-                kill(chldPid, SIGSTOP);
-            }
-#ifdef __linux__
-            ptrace(PTRACE_DETACH, chldPid, 0, 0);
-#else
-            ptrace(PT_DETACH, chldPid, 0, 0);
-#endif
-            sendMsg("pid %d\n", chldPid);
             if (isDetached == 2 && isDebug) {
                 /* qtcreator was not informed and died while debugging, killing the child */
                 kill(chldPid, SIGKILL);
             }
         } else if (WIFEXITED(chldStatus)) {
-            int errNo;
-
-            /* The child exited normally. */
-            if (chldPipe[0] >= 0) {
-                /* The child exited before being stopped by ptrace(). That can only
-                 * mean that the exec() failed. */
-                switch (read(chldPipe[0], &errNo, sizeof(errNo))) {
-                default:
-                    /* Read of unknown length. Should never happen ... */
-                    errno = EPROTO;
-                    /* fallthrough */
-                case -1:
-                    /* Read failed. Should never happen, either ... */
-                    perror("Cannot read status from child process");
-                    doExit(3);
-                case sizeof(errNo):
-                    /* Child telling us the errno from exec(). */
-                    sendMsg("err:exec %d\n", errNo);
-                    doExit(3);
-                }
-            }
             sendMsg("exit %d\n", WEXITSTATUS(chldStatus));
             doExit(0);
         } else {
@@ -300,13 +259,12 @@ int main(int argc, char *argv[])
             setpgid(0, 0);
             tcsetpgrp(0, getpid());
 
-            /* Get a SIGTRAP after exec() has loaded the new program. */
 #ifdef __linux__
             prctl(PR_SET_PTRACER, atoi(argv[ArgPid]));
-            ptrace(PTRACE_TRACEME);
-#else
-            ptrace(PT_TRACE_ME, 0, 0, 0);
 #endif
+            /* Stop the child to allow the debugger to attach */
+            if (isDebug)
+                kill(chldPid, SIGSTOP);
 
             if (env)
                 environ = env;
@@ -319,6 +277,7 @@ int main(int argc, char *argv[])
                 perror("Error passing errno to child");
             _exit(0);
         default:
+            sendMsg("pid %d\n", chldPid);
             for (;;) {
                 char buffer[100];
                 int nbytes;

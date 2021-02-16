@@ -1157,7 +1157,8 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         const QString func = frame["func"].data();
         if (from.endsWith("/ld-linux.so.2")
                 || from.endsWith("/ld-linux-x86-64.so.2")
-                || func == "clone")
+                || func == "clone"
+                || func == "kill")
         {
             showMessage("INTERNAL CONTINUE AFTER SIGSTOP FROM STUB", LogMisc);
             notifyInferiorSpontaneousStop();
