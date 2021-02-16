@@ -148,6 +148,7 @@ public:
 
     void addArg(const QString &arg, OsType osType = HostOsInfo::hostOs());
     void addArgs(const QStringList &inArgs, OsType osType = HostOsInfo::hostOs());
+    void addArgs(const CommandLine &cmd, OsType osType = HostOsInfo::hostOs());
 
     void addArgs(const QString &inArgs, RawType);
 

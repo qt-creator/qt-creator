@@ -106,6 +106,14 @@ void CommandLine::addArgs(const QStringList &inArgs, OsType osType)
         addArg(arg, osType);
 }
 
+// Adds cmd's executable and arguments one by one to this commandline.
+// Useful for 'sudo', 'nice', etc
+void CommandLine::addArgs(const CommandLine &cmd, OsType osType)
+{
+    addArg(cmd.executable().toString());
+    addArgs(cmd.splitArguments(osType));
+}
+
 void CommandLine::addArgs(const QString &inArgs, RawType)
 {
     QtcProcess::addArgs(&m_arguments, inArgs);
