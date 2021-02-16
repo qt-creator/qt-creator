@@ -154,7 +154,7 @@ SdkPlatform::SdkPlatform(QVersionNumber version, QString sdkStylePathStr, int ap
 
 SdkPlatform::~SdkPlatform()
 {
-    for (SystemImage *image : m_systemImages)
+    for (SystemImage *image : qAsConst(m_systemImages))
         delete image;
     m_systemImages.clear();
 }

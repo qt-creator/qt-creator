@@ -1494,7 +1494,7 @@ FilePath AndroidConfig::getJdkPath()
 #endif // Q_OS_WIN
         }
 
-        for (const QString &version : allVersions) {
+        for (const QString &version : qAsConst(allVersions)) {
             settings->beginGroup(version);
             jdkHome = FilePath::fromUserInput(settings->value("JavaHome").toString());
             settings->endGroup();
