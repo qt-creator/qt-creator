@@ -1580,7 +1580,7 @@ void AspectContainer::addAspectHelper(BaseAspect *aspect)
 */
 void AspectContainer::addToLayout(LayoutBuilder &builder)
 {
-    for (BaseAspect *aspect : d->m_items) {
+    for (BaseAspect *aspect : qAsConst(d->m_items)) {
         if (aspect->isVisible())
             aspect->addToLayout(builder);
     }
@@ -1591,7 +1591,7 @@ void AspectContainer::addToLayout(LayoutBuilder &builder)
 */
 void AspectContainer::fromMap(const QVariantMap &map)
 {
-    for (BaseAspect *aspect : d->m_items)
+    for (BaseAspect *aspect : qAsConst(d->m_items))
         aspect->fromMap(map);
 }
 
@@ -1600,7 +1600,7 @@ void AspectContainer::fromMap(const QVariantMap &map)
 */
 void AspectContainer::toMap(QVariantMap &map) const
 {
-    for (BaseAspect *aspect : d->m_items)
+    for (BaseAspect *aspect : qAsConst(d->m_items))
         aspect->toMap(map);
 }
 

@@ -164,7 +164,7 @@ bool PortList::hasMore() const { return !d->ranges.isEmpty(); }
 
 bool PortList::contains(Port port) const
 {
-    for (const Internal::Range &r : d->ranges) {
+    for (const Internal::Range &r : qAsConst(d->ranges)) {
         if (port >= r.first && port <= r.second)
             return true;
     }
@@ -174,7 +174,7 @@ bool PortList::contains(Port port) const
 int PortList::count() const
 {
     int n = 0;
-    for (const Internal::Range &r : d->ranges)
+    for (const Internal::Range &r : qAsConst(d->ranges))
         n += r.second.number() - r.first.number() + 1;
     return n;
 }
@@ -194,7 +194,7 @@ Port PortList::getNext()
 QString PortList::toString() const
 {
     QString stringRep;
-    for (const Internal::Range &range : d->ranges) {
+    for (const Internal::Range &range : qAsConst(d->ranges)) {
         stringRep += QString::number(range.first.number());
         if (range.second != range.first)
             stringRep += QLatin1Char('-') + QString::number(range.second.number());

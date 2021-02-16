@@ -162,7 +162,7 @@ void SftpTransfer::doStart()
             break;
         }
     }
-    for (const FileToTransfer &f : d->files) {
+    for (const FileToTransfer &f : qAsConst(d->files)) {
         QString sourceFileOrLinkTarget = f.sourceFile;
         bool link = false;
         if (d->transferType == Internal::FileTransferType::Upload) {

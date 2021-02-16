@@ -257,7 +257,7 @@ void InfoBarDisplay::infoBarDestroyed()
 
 void InfoBarDisplay::update()
 {
-    for (QWidget *widget : m_infoWidgets) {
+    for (QWidget *widget : qAsConst(m_infoWidgets)) {
         widget->disconnect(this); // We want no destroyed() signal now
         delete widget;
     }
@@ -266,7 +266,7 @@ void InfoBarDisplay::update()
     if (!m_infoBar)
         return;
 
-    for (const InfoBarEntry &info : m_infoBar->m_infoBarEntries) {
+    for (const InfoBarEntry &info : qAsConst(m_infoBar->m_infoBarEntries)) {
         auto infoWidget = new InfoBarWidget(m_edge);
 
         auto hbox = new QHBoxLayout;

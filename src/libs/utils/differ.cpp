@@ -89,14 +89,13 @@ static QList<Diff> decode(const QList<Diff> &diffList, const QStringList &lines)
 {
     QList<Diff> newDiffList;
     newDiffList.reserve(diffList.count());
-    for (Diff diff : diffList) {
+    for (const Diff &diff : diffList) {
         QString text;
         for (QChar c : diff.text) {
             const int idx = static_cast<ushort>(c.unicode());
             text += lines.value(idx);
         }
-        diff.text = text;
-        newDiffList.append(diff);
+        newDiffList.append({diff.command, text});
     }
     return newDiffList;
 }

@@ -467,7 +467,7 @@ void FileSystemWatcher::slotDirectoryChanged(const QString &path)
             toReadd.removeOne(rejected);
 
         // If we've successfully added the file, that means it was deleted and replaced.
-        for (const QString &reAdded : toReadd)
+        for (const QString &reAdded : qAsConst(toReadd))
             d->fileChanged(reAdded);
     }
 }

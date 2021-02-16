@@ -363,7 +363,7 @@ QStringList MimeType::suffixes() const
     MimeDatabasePrivate::instance()->provider()->loadMimeTypePrivate(*d);
 
     QStringList result;
-    for (const QString &pattern : d->globPatterns) {
+    for (const QString &pattern : qAsConst(d->globPatterns)) {
         const QString suffix = suffixFromPattern(pattern);
         if (!suffix.isEmpty())
             result.append(suffix);

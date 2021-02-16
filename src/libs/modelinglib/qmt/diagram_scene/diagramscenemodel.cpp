@@ -829,7 +829,7 @@ void DiagramSceneModel::onEndRemoveElement(int row, const MDiagram *diagram)
     Q_UNUSED(diagram)
     QMT_CHECK(m_busyState == RemoveElement);
     // update elements from store (see above)
-    for (const Uid &end_uid : m_relationEndsUid) {
+    for (const Uid &end_uid : qAsConst(m_relationEndsUid)) {
         DElement *dEnd = m_diagramController->findElement(end_uid, diagram);
         if (dEnd)
             updateGraphicsItem(graphicsItem(dEnd), dEnd);
