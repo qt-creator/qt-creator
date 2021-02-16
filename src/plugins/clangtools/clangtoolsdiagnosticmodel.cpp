@@ -160,7 +160,7 @@ void ClangToolsDiagnosticModel::clear()
 
 void ClangToolsDiagnosticModel::updateItems(const DiagnosticItem *changedItem)
 {
-    for (auto item : stepsToItemsCache[changedItem->diagnostic().explainingSteps]) {
+    for (auto item : qAsConst(stepsToItemsCache[changedItem->diagnostic().explainingSteps])) {
         if (item != changedItem)
             item->setFixItStatus(changedItem->fixItStatus());
     }

@@ -103,7 +103,7 @@ void VirtualFileSystemOverlay::update()
         jsonRoot["type"] = "directory";
         jsonRoot["name"] = root.toUserOutput();
         QJsonArray contents;
-        for (auto doc : documents)
+        for (auto doc : qAsConst(documents))
             contents << toContent(doc);
         jsonRoot["contents"] = contents;
         jsonRoots << jsonRoot;

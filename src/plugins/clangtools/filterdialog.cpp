@@ -74,7 +74,7 @@ public:
 
         setHeader({tr("Check"), "#"});
         setRootItem(new Utils::StaticTreeItem(QString()));
-        for (const Check &check : sortedChecks)
+        for (const Check &check : qAsConst(sortedChecks))
             m_root->appendChild(new CheckItem(check));
     }
 };

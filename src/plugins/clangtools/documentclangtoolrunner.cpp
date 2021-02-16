@@ -116,9 +116,9 @@ static void removeClangToolRefactorMarkers(TextEditor::TextEditorWidget *editor)
 
 void DocumentClangToolRunner::scheduleRun()
 {
-    for (DiagnosticMark *mark : m_marks)
+    for (DiagnosticMark *mark : qAsConst(m_marks))
         mark->disable();
-    for (TextEditor::TextEditorWidget *editor : m_editorsWithMarkers)
+    for (TextEditor::TextEditorWidget *editor : qAsConst(m_editorsWithMarkers))
         removeClangToolRefactorMarkers(editor);
     m_runTimer.start();
 }

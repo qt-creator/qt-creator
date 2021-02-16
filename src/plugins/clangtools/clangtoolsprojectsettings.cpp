@@ -204,7 +204,7 @@ void ClangToolsProjectSettings::store()
     map.insert(SETTINGS_KEY_SELECTED_FILES, files);
 
     QVariantList list;
-    for (const SuppressedDiagnostic &diag : m_suppressedDiagnostics) {
+    for (const SuppressedDiagnostic &diag : qAsConst(m_suppressedDiagnostics)) {
         QVariantMap diagMap;
         diagMap.insert(SETTINGS_KEY_SUPPRESSED_DIAGS_FILEPATH, diag.filePath.toString());
         diagMap.insert(SETTINGS_KEY_SUPPRESSED_DIAGS_MESSAGE, diag.description);
