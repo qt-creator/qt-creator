@@ -2082,7 +2082,7 @@ void WatchHandler::cleanup()
 {
     m_model->m_expandedINames.clear();
     theWatcherNames.remove(QString());
-    for (const QString &exp : theTemporaryWatchers)
+    for (const QString &exp : qAsConst(theTemporaryWatchers))
         theWatcherNames.remove(exp);
     theTemporaryWatchers.clear();
     saveWatchers();

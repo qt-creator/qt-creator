@@ -2066,7 +2066,7 @@ void CdbEngine::handleSessionIdle(const QString &message)
                elapsedLogTime(), qPrintable(message),
                qPrintable(stateName(state())));
 
-    for (const InterruptCallback &callback : m_interrupCallbacks)
+    for (const InterruptCallback &callback : qAsConst(m_interrupCallbacks))
         callback();
     m_interrupCallbacks.clear();
 

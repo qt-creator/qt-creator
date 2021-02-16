@@ -368,7 +368,7 @@ void DisassemblerAgent::removeBreakpointMarker(const Breakpoint &bp)
     if (!d->document)
         return;
 
-    for (DisassemblerBreakpointMarker *marker : d->breakpointMarks) {
+    for (DisassemblerBreakpointMarker *marker : qAsConst(d->breakpointMarks)) {
         if (marker->m_bp == bp) {
             d->breakpointMarks.removeOne(marker);
             d->document->removeMark(marker);

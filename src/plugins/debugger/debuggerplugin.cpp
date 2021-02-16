@@ -1777,7 +1777,7 @@ void DebuggerPluginPrivate::attachToQmlPort()
 
 void DebuggerPluginPrivate::runScheduled()
 {
-    for (DebuggerRunTool *debugger : m_scheduledStarts)
+    for (DebuggerRunTool *debugger : qAsConst(m_scheduledStarts))
         debugger->startRunControl();
 }
 

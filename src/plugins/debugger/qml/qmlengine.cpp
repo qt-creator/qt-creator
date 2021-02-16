@@ -1848,7 +1848,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
 
                         int newColumn = sourceLineText.indexOf('(') + 1;
 
-                        for (const Breakpoint &bp : v8Breakpoints) {
+                        for (const Breakpoint &bp : qAsConst(v8Breakpoints)) {
                             QTC_ASSERT(bp, continue);
                             const BreakpointParameters &params = bp->requestedParameters();
 
@@ -1874,7 +1874,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
 
                     if (inferiorStop) {
                         //Update breakpoint data
-                        for (const Breakpoint &bp : v8Breakpoints) {
+                        for (const Breakpoint &bp : qAsConst(v8Breakpoints)) {
                             QTC_ASSERT(bp, continue);
                             if (bp->functionName().isEmpty()) {
                                 bp->setFunctionName(invocationText);
@@ -1887,7 +1887,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                         }
 
                         if (engine->state() == InferiorRunOk) {
-                            for (const Breakpoint &bp : v8Breakpoints) {
+                            for (const Breakpoint &bp : qAsConst(v8Breakpoints)) {
                                 QTC_ASSERT(bp, continue);
                                 if (breakpointsTemp.contains(bp->responseId()))
                                     clearBreakpoint(bp);
