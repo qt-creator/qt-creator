@@ -250,6 +250,8 @@ public:
                                        const QString &cancelButtonText = QString(),
                                        bool *prompt = nullptr);
 
+    static void provideAskPassEntry(Utils::Environment &env);
+
     RunWorker *createWorker(Utils::Id workerId);
 
     bool createMainWorker();
