@@ -64,15 +64,13 @@ CommonVcsSettings::CommonVcsSettings() :
 
 void CommonVcsSettings::toSettings(Utils::QtcSettings *s) const
 {
-    s->beginGroup(QLatin1String(settingsGroupC));
-    s->setValue(QLatin1String(nickNameMailMapKeyC), nickNameMailMap);
-    s->setValue(QLatin1String(nickNameFieldListFileKeyC), nickNameFieldListFile);
-    s->setValue(QLatin1String(submitMessageCheckScriptKeyC), submitMessageCheckScript);
-    s->setValue(QLatin1String(lineWrapKeyC), lineWrap);
-    s->setValue(QLatin1String(lineWrapWidthKeyC), lineWrapWidth);
-    s->setValueWithDefault(QLatin1String(sshPasswordPromptKeyC),
-                           sshPasswordPrompt,
-                           sshPasswordPromptDefault());
+    s->beginGroup(settingsGroupC);
+    s->setValueWithDefault(nickNameMailMapKeyC, nickNameMailMap);
+    s->setValueWithDefault(nickNameFieldListFileKeyC, nickNameFieldListFile);
+    s->setValueWithDefault(submitMessageCheckScriptKeyC, submitMessageCheckScript);
+    s->setValueWithDefault(lineWrapKeyC, lineWrap, lineWrapDefault);
+    s->setValueWithDefault(lineWrapWidthKeyC, lineWrapWidth, lineWrapWidthDefault);
+    s->setValueWithDefault(sshPasswordPromptKeyC, sshPasswordPrompt, sshPasswordPromptDefault());
     s->endGroup();
 }
 

@@ -27,6 +27,8 @@
 
 #include "vcsbase_global.h"
 
+#include "vcsbaseclientsettings.h"
+
 #include <utils/fileutils.h>
 #include <utils/id.h>
 #include <utils/synchronousprocess.h>
@@ -47,7 +49,6 @@ namespace VcsBase {
 
 class VcsCommand;
 class VcsBaseEditorWidget;
-class VcsBaseClientSettings;
 class VcsJob;
 class VcsBaseClientImplPrivate;
 class VcsBaseEditorConfig;
@@ -128,6 +129,7 @@ private:
     void saveSettings();
 
     VcsBaseClientSettings *m_clientSettings;
+    VcsBaseClientSettings m_defaultSettings;
 };
 
 class VCSBASE_EXPORT VcsBaseClient : public VcsBaseClientImpl

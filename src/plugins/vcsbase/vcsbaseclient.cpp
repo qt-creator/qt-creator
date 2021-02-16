@@ -76,6 +76,7 @@ namespace VcsBase {
 VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseClientSettings *settings) :
     m_clientSettings(settings)
 {
+    m_defaultSettings = *m_clientSettings;
     m_clientSettings->readSettings(Core::ICore::settings());
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, &VcsBaseClientImpl::saveSettings);
@@ -249,7 +250,7 @@ VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Utils::Id kind, QString 
 
 void VcsBaseClientImpl::saveSettings()
 {
-    settings().writeSettings(Core::ICore::settings());
+    settings().writeSettings(Core::ICore::settings(), m_defaultSettings);
 }
 
 VcsBaseClient::VcsBaseClient(VcsBaseClientSettings *settings) :

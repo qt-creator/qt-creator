@@ -30,6 +30,7 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
 #include <utils/stringutils.h>
 
 #include <QSettings>
@@ -226,14 +227,15 @@ VcsBaseClientSettings::~VcsBaseClientSettings()
 {
 }
 
-void VcsBaseClientSettings::writeSettings(QSettings *settings) const
+void VcsBaseClientSettings::writeSettings(QSettings *settings,
+                                          const VcsBaseClientSettings &defaultSettings) const
 {
     QTC_ASSERT(!settingsGroup().isEmpty(), return);
 
     settings->remove(settingsGroup());
     settings->beginGroup(settingsGroup());
     foreach (const QString &key, keys())
-        settings->setValue(key, value(key));
+        QtcSettings::setValueWithDefault(settings, key, value(key), defaultSettings.value(key));
     settings->endGroup();
 }
 
