@@ -58,19 +58,5 @@ bool SubversionSettings::hasAuthentication() const
     return boolValue(useAuthenticationKey) && !stringValue(userKey).isEmpty();
 }
 
-void SubversionSettings::readLegacySettings(const QSettings *settings)
-{
-    const QString keyRoot = settingsGroup() + QLatin1Char('/');
-    const QString oldBinaryPathKey = keyRoot + QLatin1String("Command");
-    const QString oldPromptOnSubmitKey = keyRoot + QLatin1String("PromptForSubmit");
-    const QString oldTimeoutKey = keyRoot + QLatin1String("TimeOut");
-    if (settings->contains(oldBinaryPathKey))
-        this->setValue(binaryPathKey, settings->value(oldBinaryPathKey).toString());
-    if (settings->contains(oldPromptOnSubmitKey))
-        this->setValue(promptOnSubmitKey, settings->value(oldPromptOnSubmitKey).toBool());
-    if (settings->contains(oldTimeoutKey))
-        this->setValue(timeoutKey, settings->value(oldTimeoutKey).toInt());
-}
-
 } // namespace Internal
 } // namespace Subversion

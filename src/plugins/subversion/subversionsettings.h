@@ -42,9 +42,6 @@ public:
 
     SubversionSettings();
     bool hasAuthentication() const;
-
-protected:
-    void readLegacySettings(const QSettings *settings) override;
 };
 
 } // namespace Internal

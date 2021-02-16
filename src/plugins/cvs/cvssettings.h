@@ -44,9 +44,6 @@ public:
     int timeOutMs() const;
 
     QStringList addOptions(const QStringList &args) const;
-
-protected:
-    void readLegacySettings(const QSettings *settings) override;
 };
 
 } // namespace Internal
