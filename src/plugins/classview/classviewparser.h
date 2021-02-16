@@ -68,13 +68,13 @@ private:
 
     ParserTreeItem::ConstPtr getParseDocumentTree(const CPlusPlus::Document::Ptr &doc);
     ParserTreeItem::ConstPtr getCachedOrParseDocumentTree(const CPlusPlus::Document::Ptr &doc);
-    ParserTreeItem::Ptr getParseProjectTree(const QStringList &fileList, const QString &projectId);
-    ParserTreeItem::Ptr getCachedOrParseProjectTree(const QStringList &fileList,
+    ParserTreeItem::ConstPtr getParseProjectTree(const QStringList &fileList, const QString &projectId);
+    ParserTreeItem::ConstPtr getCachedOrParseProjectTree(const QStringList &fileList,
                                                     const QString &projectId);
     ParserTreeItem::ConstPtr parse();
 
     QStringList getAllFiles(const ProjectExplorer::Project *project);
-    ParserTreeItem::Ptr addFlatTree(const ProjectExplorer::Project *project);
+    ParserTreeItem::ConstPtr addFlatTree(const ProjectExplorer::Project *project);
 
     //! Private class data pointer
     ParserPrivate *d;

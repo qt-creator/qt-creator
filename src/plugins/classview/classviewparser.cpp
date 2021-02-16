@@ -92,12 +92,12 @@ public:
 
     struct DocumentCache {
         unsigned treeRevision = 0;
-        ParserTreeItem::Ptr tree;
+        ParserTreeItem::ConstPtr tree;
         CPlusPlus::Document::Ptr document;
     };
     struct ProjectCache {
         unsigned treeRevision = 0;
-        ParserTreeItem::Ptr tree;
+        ParserTreeItem::ConstPtr tree;
         QStringList fileList;
     };
 
@@ -180,7 +180,7 @@ ParserTreeItem::ConstPtr Parser::parse()
         timer->start();
     }
 
-    QHash<SymbolInformation, ParserTreeItem::Ptr> projectTrees;
+    QHash<SymbolInformation, ParserTreeItem::ConstPtr> projectTrees;
 
     // TODO: move a call to SessionManager::projects() out of this thread
     for (const Project *prj : SessionManager::projects()) {
@@ -188,13 +188,13 @@ ParserTreeItem::ConstPtr Parser::parse()
         const QString prjType = prj->projectFilePath().toString();
         const SymbolInformation inf(prjName, prjType);
 
-        ParserTreeItem::Ptr item = addFlatTree(prj);
+        ParserTreeItem::ConstPtr item = addFlatTree(prj);
         if (item.isNull())
             continue;
         projectTrees.insert(inf, item);
     }
 
-    ParserTreeItem::Ptr rootItem(new ParserTreeItem(projectTrees));
+    ParserTreeItem::ConstPtr rootItem(new ParserTreeItem(projectTrees));
 
     if (debug) {
         qDebug() << "Class View:" << QDateTime::currentDateTime().toString()
@@ -210,7 +210,7 @@ ParserTreeItem::ConstPtr Parser::parse()
     project.
 */
 
-ParserTreeItem::Ptr Parser::getParseProjectTree(const QStringList &fileList,
+ParserTreeItem::ConstPtr Parser::getParseProjectTree(const QStringList &fileList,
                                                 const QString &projectId)
 {
     //! \todo Way to optimize - for documentUpdate - use old cached project and subtract
@@ -231,7 +231,7 @@ ParserTreeItem::Ptr Parser::getParseProjectTree(const QStringList &fileList,
         docTrees.append(docTree);
     }
 
-    ParserTreeItem::Ptr item = ParserTreeItem::mergeTrees(Utils::FilePath::fromString(projectId), docTrees);
+    ParserTreeItem::ConstPtr item = ParserTreeItem::mergeTrees(Utils::FilePath::fromString(projectId), docTrees);
 
     // update the cache
     if (!projectId.isEmpty()) {
@@ -248,7 +248,7 @@ ParserTreeItem::Ptr Parser::getParseProjectTree(const QStringList &fileList,
     Updates the internal cached tree for this project.
 */
 
-ParserTreeItem::Ptr Parser::getCachedOrParseProjectTree(const QStringList &fileList,
+ParserTreeItem::ConstPtr Parser::getCachedOrParseProjectTree(const QStringList &fileList,
                                                         const QString &projectId)
 {
     const auto it = d->m_projectCache.constFind(projectId);
@@ -286,7 +286,7 @@ ParserTreeItem::ConstPtr Parser::getParseDocumentTree(const CPlusPlus::Document:
     if (!d->fileList.contains(fileName))
         return ParserTreeItem::ConstPtr();
 
-    ParserTreeItem::Ptr itemPtr = ParserTreeItem::parseDocument(doc);
+    ParserTreeItem::ConstPtr itemPtr = ParserTreeItem::parseDocument(doc);
 
     d->m_documentCache.insert(fileName, { doc->revision(), itemPtr, doc } );
     return itemPtr;
@@ -426,7 +426,7 @@ QStringList Parser::getAllFiles(const Project *project)
 }
 
 // TODO: don't use Project class in this thread
-ParserTreeItem::Ptr Parser::addFlatTree(const Project *project)
+ParserTreeItem::ConstPtr Parser::addFlatTree(const Project *project)
 {
     if (!project)
         return {};

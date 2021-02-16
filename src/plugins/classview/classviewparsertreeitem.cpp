@@ -66,9 +66,9 @@ class ParserTreeItemPrivate
 public:
     void mergeWith(const ParserTreeItem::ConstPtr &target);
     void mergeSymbol(const CPlusPlus::Symbol *symbol);
-    ParserTreeItem::Ptr cloneTree() const;
+    ParserTreeItem::ConstPtr cloneTree() const;
 
-    QHash<SymbolInformation, ParserTreeItem::Ptr> m_symbolInformations;
+    QHash<SymbolInformation, ParserTreeItem::ConstPtr> m_symbolInformations;
     QSet<SymbolLocation> m_symbolLocations;
     const Utils::FilePath m_projectFilePath;
 };
@@ -84,13 +84,13 @@ void ParserTreeItemPrivate::mergeWith(const ParserTreeItem::ConstPtr &target)
     for (auto it = target->d->m_symbolInformations.cbegin();
               it != target->d->m_symbolInformations.cend(); ++it) {
         const SymbolInformation &inf = it.key();
-        const ParserTreeItem::Ptr &targetChild = it.value();
+        const ParserTreeItem::ConstPtr &targetChild = it.value();
 
-        ParserTreeItem::Ptr child = m_symbolInformations.value(inf);
+        ParserTreeItem::ConstPtr child = m_symbolInformations.value(inf);
         if (!child.isNull()) {
             child->d->mergeWith(targetChild);
         } else {
-            const ParserTreeItem::Ptr clone = targetChild.isNull() ? ParserTreeItem::Ptr()
+            const ParserTreeItem::ConstPtr clone = targetChild.isNull() ? ParserTreeItem::ConstPtr()
                                                                    : targetChild->d->cloneTree();
             m_symbolInformations.insert(inf, clone);
         }
@@ -128,10 +128,10 @@ void ParserTreeItemPrivate::mergeSymbol(const CPlusPlus::Symbol *symbol)
     // If next line will be removed, 5% speed up for the initial parsing.
     // But there might be a problem for some files ???
     // Better to improve qHash timing
-    ParserTreeItem::Ptr childItem = m_symbolInformations.value(information);
+    ParserTreeItem::ConstPtr childItem = m_symbolInformations.value(information);
 
     if (childItem.isNull())
-        childItem = ParserTreeItem::Ptr(new ParserTreeItem());
+        childItem = ParserTreeItem::ConstPtr(new ParserTreeItem());
 
     // locations have 1-based column in Symbol, use the same here.
     SymbolLocation location(QString::fromUtf8(symbol->fileName() , symbol->fileNameLength()),
@@ -163,9 +163,9 @@ void ParserTreeItemPrivate::mergeSymbol(const CPlusPlus::Symbol *symbol)
 /*!
     Creates a deep clone of this tree.
 */
-ParserTreeItem::Ptr ParserTreeItemPrivate::cloneTree() const
+ParserTreeItem::ConstPtr ParserTreeItemPrivate::cloneTree() const
 {
-    ParserTreeItem::Ptr newItem(new ParserTreeItem(m_projectFilePath));
+    ParserTreeItem::ConstPtr newItem(new ParserTreeItem(m_projectFilePath));
     newItem->d->m_symbolLocations = m_symbolLocations;
 
     for (auto it = m_symbolInformations.cbegin(); it != m_symbolInformations.cend(); ++it) {
@@ -197,7 +197,7 @@ ParserTreeItem::ParserTreeItem(const Utils::FilePath &projectFilePath)
 {
 }
 
-ParserTreeItem::ParserTreeItem(const QHash<SymbolInformation, Ptr> &children)
+ParserTreeItem::ParserTreeItem(const QHash<SymbolInformation, ConstPtr> &children)
     : d(new ParserTreeItemPrivate({children, {}, {}}))
 {
 }
@@ -226,7 +226,7 @@ QSet<SymbolLocation> ParserTreeItem::symbolLocations() const
     Returns the child item specified by \a inf symbol information.
 */
 
-ParserTreeItem::Ptr ParserTreeItem::child(const SymbolInformation &inf) const
+ParserTreeItem::ConstPtr ParserTreeItem::child(const SymbolInformation &inf) const
 {
     return d->m_symbolInformations.value(inf);
 }
@@ -240,9 +240,9 @@ int ParserTreeItem::childCount() const
     return d->m_symbolInformations.count();
 }
 
-ParserTreeItem::Ptr ParserTreeItem::parseDocument(const CPlusPlus::Document::Ptr &doc)
+ParserTreeItem::ConstPtr ParserTreeItem::parseDocument(const CPlusPlus::Document::Ptr &doc)
 {
-    Ptr item(new ParserTreeItem());
+    ConstPtr item(new ParserTreeItem());
 
     const unsigned total = doc->globalSymbolCount();
     for (unsigned i = 0; i < total; ++i)
@@ -251,10 +251,10 @@ ParserTreeItem::Ptr ParserTreeItem::parseDocument(const CPlusPlus::Document::Ptr
     return item;
 }
 
-ParserTreeItem::Ptr ParserTreeItem::mergeTrees(const Utils::FilePath &projectFilePath,
+ParserTreeItem::ConstPtr ParserTreeItem::mergeTrees(const Utils::FilePath &projectFilePath,
                                                const QList<ConstPtr> &docTrees)
 {
-    Ptr item(new ParserTreeItem(projectFilePath));
+    ConstPtr item(new ParserTreeItem(projectFilePath));
     for (const ConstPtr &docTree : docTrees)
         item->d->mergeWith(docTree);
 
@@ -299,13 +299,13 @@ void ParserTreeItem::fetchMore(QStandardItem *item) const
         return;
 
     // convert to map - to sort it
-    QMap<SymbolInformation, Ptr> map;
+    QMap<SymbolInformation, ConstPtr> map;
     for (auto it = d->m_symbolInformations.cbegin(); it != d->m_symbolInformations.cend(); ++it)
         map.insert(it.key(), it.value());
 
     for (auto it = map.cbegin(); it != map.cend(); ++it) {
         const SymbolInformation &inf = it.key();
-        Ptr ptr = it.value();
+        ConstPtr ptr = it.value();
 
         auto add = new QStandardItem;
         add->setData(inf.name(), Constants::SymbolNameRole);
@@ -340,7 +340,7 @@ void ParserTreeItem::debugDump(int indent) const
 {
     for (auto it = d->m_symbolInformations.cbegin(); it != d->m_symbolInformations.cend(); ++it) {
         const SymbolInformation &inf = it.key();
-        const Ptr &child = it.value();
+        const ConstPtr &child = it.value();
         qDebug() << QString(2 * indent, QLatin1Char(' ')) << inf.iconType() << inf.name()
                  << inf.type() << child.isNull();
         if (!child.isNull())

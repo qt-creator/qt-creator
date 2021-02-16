@@ -43,21 +43,20 @@ class ParserTreeItemPrivate;
 class ParserTreeItem
 {
 public:
-    using Ptr = QSharedPointer<ParserTreeItem>;
     using ConstPtr = QSharedPointer<const ParserTreeItem>;
 
 public:
     ParserTreeItem();
     ParserTreeItem(const Utils::FilePath &projectFilePath);
-    ParserTreeItem(const QHash<SymbolInformation, Ptr> &children);
+    ParserTreeItem(const QHash<SymbolInformation, ConstPtr> &children);
     ~ParserTreeItem();
 
-    static Ptr parseDocument(const CPlusPlus::Document::Ptr &doc);
-    static Ptr mergeTrees(const Utils::FilePath &projectFilePath, const QList<ConstPtr> &docTrees);
+    static ConstPtr parseDocument(const CPlusPlus::Document::Ptr &doc);
+    static ConstPtr mergeTrees(const Utils::FilePath &projectFilePath, const QList<ConstPtr> &docTrees);
 
     Utils::FilePath projectFilePath() const;
     QSet<SymbolLocation> symbolLocations() const;
-    Ptr child(const SymbolInformation &inf) const;
+    ConstPtr child(const SymbolInformation &inf) const;
     int childCount() const;
 
     // Make sure that below two methods are called only from the GUI thread
