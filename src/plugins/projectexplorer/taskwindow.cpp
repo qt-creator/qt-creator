@@ -419,7 +419,7 @@ void TaskWindow::delayedInitialization()
 
     alreadyDone = true;
 
-    for (ITaskHandler *h : g_taskHandlers) {
+    for (ITaskHandler *h : qAsConst(g_taskHandlers)) {
         if (h->isDefaultHandler() && !d->m_defaultHandler)
             d->m_defaultHandler = h;
 
@@ -843,7 +843,7 @@ void TaskDelegate::currentChanged(const QModelIndex &current, const QModelIndex 
 
 QString TaskDelegate::hrefForPos(const QPointF &pos)
 {
-    for (const auto &link : m_hrefs) {
+    for (const auto &link : qAsConst(m_hrefs)) {
         if (link.first.contains(pos))
             return link.second;
     }

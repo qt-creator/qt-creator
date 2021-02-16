@@ -591,7 +591,7 @@ HeaderPaths GccToolChain::builtInHeaderPaths(const Utils::Environment &env,
     headerCache->insert(qMakePair(env, arguments), paths);
 
     qCDebug(gccLog) << "Reporting header paths to code model:";
-    for (const HeaderPath &hp : paths) {
+    for (const HeaderPath &hp : qAsConst(paths)) {
         qCDebug(gccLog) << compilerCommand.toUserOutput()
                         << (languageId == Constants::CXX_LANGUAGE_ID ? ": C++ [" : ": C [")
                         << arguments.join(", ") << "]" << hp.path;
@@ -1053,7 +1053,7 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(
             if (ccachePath.exists() && !searchPaths.contains(ccachePath))
                 searchPaths << ccachePath;
         }
-        for (const FilePath &dir : searchPaths) {
+        for (const FilePath &dir : qAsConst(searchPaths)) {
             static const QRegularExpression regexp(binaryRegexp);
             QDir binDir(dir.toString());
             QStringList nameFilters(compilerName);
@@ -1094,7 +1094,7 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(
         return true;
     });
     QList<ToolChain *> result;
-    for (const FilePath &compilerPath : compilerPaths) {
+    for (const FilePath &compilerPath : qAsConst(compilerPaths)) {
         bool alreadyExists = false;
         for (ToolChain * const existingTc : existingCandidates) {
             // We have a match if the existing toolchain ultimately refers to the same file

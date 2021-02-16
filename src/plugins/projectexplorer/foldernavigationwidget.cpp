@@ -877,7 +877,7 @@ FolderNavigationWidgetFactory::FolderNavigationWidgetFactory()
 Core::NavigationView FolderNavigationWidgetFactory::createWidget()
 {
     auto fnw = new FolderNavigationWidget;
-    for (const RootDirectory &root : m_rootDirectories)
+    for (const RootDirectory &root : qAsConst(m_rootDirectories))
         fnw->insertRootDirectory(root);
     connect(this,
             &FolderNavigationWidgetFactory::rootDirectoryAdded,

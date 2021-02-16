@@ -754,7 +754,7 @@ void AppOutputPane::slotRunControlFinished()
 {
     auto *rc = qobject_cast<RunControl *>(sender());
     QTimer::singleShot(0, this, [this, rc]() { slotRunControlFinished2(rc); });
-    for (const RunControlTab &t : m_runControlTabs) {
+    for (const RunControlTab &t : qAsConst(m_runControlTabs)) {
         if (t.runControl == rc) {
             t.window->flush();
             break;

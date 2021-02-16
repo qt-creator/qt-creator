@@ -396,7 +396,7 @@ static ProjectImporter::ToolChainData createToolChains(const ToolChainDescriptio
         if (data.tcs.isEmpty())
             continue;
 
-        for (ToolChain *tc : data.tcs)
+        for (ToolChain *tc : qAsConst(data.tcs))
             ToolChainManager::registerToolChain(tc);
 
         data.areTemporary = true;
@@ -413,7 +413,7 @@ ProjectImporter::findOrCreateToolChains(const ToolChainDescription &tcd) const
     result.tcs = ToolChainManager::toolChains([&tcd](const ToolChain *tc) {
         return tc->language() == tcd.language && tc->compilerCommand() == tcd.compilerPath;
     });
-    for (const ToolChain *tc : result.tcs) {
+    for (const ToolChain *tc : qAsConst(result.tcs)) {
         const QByteArray tcId = tc->id();
         result.areTemporary = result.areTemporary ? true : hasKitWithTemporaryData(ToolChainKitAspect::id(), tcId);
     }

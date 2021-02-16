@@ -204,7 +204,7 @@ TargetSetupPage::TargetSetupPage(QWidget *parent)
 
     setTitle(tr("Kit Selection"));
 
-    for (IPotentialKit *pk : g_potentialKits)
+    for (IPotentialKit *pk : qAsConst(g_potentialKits))
         if (pk->isEnabled())
             m_potentialWidgets.append(pk->createWidget(this));
 

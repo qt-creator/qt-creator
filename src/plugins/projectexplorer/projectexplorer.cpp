@@ -3545,7 +3545,7 @@ void ProjectExplorerPluginPrivate::addExistingProjects()
         return;
     QStringList failedProjects;
     QStringList addedProjects;
-    for (const QString &filePath : subProjectFilePaths) {
+    for (const QString &filePath : qAsConst(subProjectFilePaths)) {
         if (projectNode->addSubProject(filePath))
             addedProjects << filePath;
         else

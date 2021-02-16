@@ -516,7 +516,7 @@ void RunControlPrivate::initiateReStart()
     checkState(RunControlState::Stopped);
 
     // Re-set worked on re-runs.
-    for (RunWorker *worker : m_workers) {
+    for (RunWorker *worker : qAsConst(m_workers)) {
         if (worker->d->state == RunWorkerState::Done)
             worker->d->state = RunWorkerState::Initialized;
     }
@@ -532,7 +532,7 @@ void RunControlPrivate::continueStart()
     checkState(RunControlState::Starting);
     bool allDone = true;
     debugMessage("Looking for next worker");
-    for (RunWorker *worker : m_workers) {
+    for (RunWorker *worker : qAsConst(m_workers)) {
         if (worker) {
             const QString &workerId = worker->d->id;
             debugMessage("  Examining worker " + workerId);
@@ -595,7 +595,7 @@ void RunControlPrivate::continueStopOrFinish()
         }
     };
 
-    for (RunWorker *worker : m_workers) {
+    for (RunWorker *worker : qAsConst(m_workers)) {
         if (worker) {
             const QString &workerId = worker->d->id;
             debugMessage("  Examining worker " + workerId);
@@ -647,7 +647,7 @@ void RunControlPrivate::forceStop()
         debugMessage("Was finished, too late to force Stop");
         return;
     }
-    for (RunWorker *worker : m_workers) {
+    for (RunWorker *worker : qAsConst(m_workers)) {
         if (worker) {
             const QString &workerId = worker->d->id;
             debugMessage("  Examining worker " + workerId);
@@ -763,7 +763,7 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
         return;
     }
 
-    for (RunWorker *dependent : worker->d->stopDependencies) {
+    for (RunWorker *dependent : qAsConst(worker->d->stopDependencies)) {
         switch (dependent->d->state) {
         case RunWorkerState::Done:
             break;
@@ -780,7 +780,7 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
 
     debugMessage("Checking whether all stopped");
     bool allDone = true;
-    for (RunWorker *worker : m_workers) {
+    for (RunWorker *worker : qAsConst(m_workers)) {
         if (worker) {
             const QString &workerId = worker->d->id;
             debugMessage("  Examining worker " + workerId);

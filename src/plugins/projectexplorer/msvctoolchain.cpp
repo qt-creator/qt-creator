@@ -1229,7 +1229,7 @@ MsvcToolChainConfigWidget::MsvcToolChainConfigWidget(ToolChain *tc)
     m_varsBatPathCombo->setObjectName("varsBatCombo");
     m_varsBatPathCombo->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     m_varsBatPathCombo->setEditable(true);
-    for (const MsvcToolChain *tmpTc : g_availableMsvcToolchains) {
+    for (const MsvcToolChain *tmpTc : qAsConst(g_availableMsvcToolchains)) {
         const QString nativeVcVars = QDir::toNativeSeparators(tmpTc->varsBat());
         if (!tmpTc->varsBat().isEmpty()
                 && m_varsBatPathCombo->findText(nativeVcVars) == -1) {
@@ -1335,7 +1335,7 @@ void MsvcToolChainConfigWidget::updateAbis()
     // choose one appropriately.
     Abis supportedAbis;
     Abi targetAbi;
-    for (const MsvcToolChain *tc : g_availableMsvcToolchains) {
+    for (const MsvcToolChain *tc : qAsConst(g_availableMsvcToolchains)) {
         if (tc->varsBat() == normalizedVcVars && tc->targetAbi().wordWidth() == wordWidth
             && tc->targetAbi().architecture() == arch && tc->language() == currentTc->language()) {
             // We need to filter out duplicates as there might be multiple toolchains with
@@ -1436,7 +1436,7 @@ void ClangClToolChainConfigWidget::setFromClangClToolChain()
     m_nameDisplayLabel->setText(currentTC->displayName());
     m_varsBatDisplayCombo->clear();
     m_varsBatDisplayCombo->addItem(msvcVarsToDisplay(*currentTC));
-    for (const MsvcToolChain *tc : g_availableMsvcToolchains) {
+    for (const MsvcToolChain *tc : qAsConst(g_availableMsvcToolchains)) {
         const QString varsToDisplay = msvcVarsToDisplay(*tc);
         if (m_varsBatDisplayCombo->findText(varsToDisplay) == -1)
             m_varsBatDisplayCombo->addItem(varsToDisplay);
@@ -1867,7 +1867,7 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
 
     detectCppBuildTools2015(&results);
 
-    for (ToolChain *tc : results)
+    for (ToolChain *tc : qAsConst(results))
         tc->setDetection(ToolChain::AutoDetection);
 
     return results;

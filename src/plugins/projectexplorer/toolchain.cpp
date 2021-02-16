@@ -192,7 +192,7 @@ bool ToolChain::operator == (const ToolChain &tc) const
 
 ToolChain *ToolChain::clone() const
 {
-    for (ToolChainFactory *f : Internal::g_toolChainFactories) {
+    for (ToolChainFactory *f : qAsConst(Internal::g_toolChainFactories)) {
         if (f->supportedToolChainType() == d->m_typeId) {
             ToolChain *tc = f->create();
             QTC_ASSERT(tc, return nullptr);

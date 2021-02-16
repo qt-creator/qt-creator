@@ -913,7 +913,7 @@ void SessionManagerPrivate::restoreStartupProject(const PersistentSettingsReader
 {
     const QString startupProject = reader.restoreValue(QLatin1String("StartupProject")).toString();
     if (!startupProject.isEmpty()) {
-        for (Project *pro : m_projects) {
+        for (Project *pro : qAsConst(m_projects)) {
             if (pro->projectFilePath().toString() == startupProject) {
                 m_instance->setStartupProject(pro);
                 break;

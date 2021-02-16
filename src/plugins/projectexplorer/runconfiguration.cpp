@@ -556,7 +556,7 @@ RunConfiguration *RunConfigurationCreationInfo::create(Target *target) const
 
 RunConfiguration *RunConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
-    for (RunConfigurationFactory *factory : g_runConfigurationFactories) {
+    for (RunConfigurationFactory *factory : qAsConst(g_runConfigurationFactories)) {
         if (factory->canHandle(parent)) {
             const Utils::Id id = idFromMap(map);
             if (id.name().startsWith(factory->m_runConfigurationId.name())) {
@@ -581,7 +581,7 @@ RunConfiguration *RunConfigurationFactory::clone(Target *parent, RunConfiguratio
 const QList<RunConfigurationCreationInfo> RunConfigurationFactory::creatorsForTarget(Target *parent)
 {
     QList<RunConfigurationCreationInfo> items;
-    for (RunConfigurationFactory *factory : g_runConfigurationFactories) {
+    for (RunConfigurationFactory *factory : qAsConst(g_runConfigurationFactories)) {
         if (factory->canHandle(parent))
             items.append(factory->availableCreators(parent));
     }
