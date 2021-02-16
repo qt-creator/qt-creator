@@ -123,6 +123,7 @@ Manager::Manager(QObject *parent)
 
 Manager::~Manager()
 {
+    QMetaObject::invokeMethod(&d->parser, &Parser::aboutToShutdown, Qt::BlockingQueuedConnection);
     d->parserThread.quit();
     d->parserThread.wait();
     delete d;

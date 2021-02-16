@@ -89,6 +89,7 @@ public:
     CPlusPlus::Document::Ptr document(const QString &fileName) const;
 
     QTimer timer;
+    bool m_shuttingDown = false;
 
     struct DocumentCache {
         unsigned treeRevision = 0;
@@ -197,6 +198,12 @@ void Parser::setFlatMode(bool flatMode)
 
     // regenerate and resend current tree
     requestCurrentState();
+}
+
+void Parser::aboutToShutdown()
+{
+    d->m_shuttingDown = true;
+    d->timer.stop();
 }
 
 /*!
@@ -405,9 +412,8 @@ void Parser::parseDocument(const CPlusPlus::Document::Ptr &doc)
 
     getParseDocumentTree(doc);
 
-    if (!d->timer.isActive())
+    if (!d->timer.isActive() && !d->m_shuttingDown)
         d->timer.start(400); //! Delay in msecs before an update
-    return;
 }
 
 /*!
