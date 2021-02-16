@@ -49,13 +49,16 @@ SymbolInformation::SymbolInformation() :
 }
 
 SymbolInformation::SymbolInformation(const QString &valueName, const QString &valueType,
-                                     int valueIconType) :
-    m_iconType(valueIconType),
-    m_name(valueName),
-    m_type(valueType)
+                                     int valueIconType)
+    : m_iconType(valueIconType)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    , m_hash(qHashMulti(0, valueIconType, valueName, valueType))
+#else
+    , m_hash(qHash(qMakePair(valueIconType, qMakePair(valueName, valueType))))
+#endif
+    , m_name(valueName)
+    , m_type(valueType)
 {
-    // calculate hash
-    m_hash = qHash(qMakePair(m_iconType, qMakePair(m_name, m_type)));
 }
 
 /*!
@@ -94,7 +97,8 @@ int SymbolInformation::iconTypeSortOrder() const
 
     static QHash<int, int> sortOrder;
 
-    // initialization
+    // TODO: Check if this static initialization is OK when SymbolInformation object are
+    // instantiated in different threads.
     if (sortOrder.isEmpty()) {
         for (int i : IconSortOrder)
             sortOrder.insert(i, sortOrder.count());

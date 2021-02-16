@@ -317,8 +317,7 @@ void Manager::gotoLocations(const QList<QVariant> &list)
         return;
 
     // Default to first known location
-    SymbolLocation loc = *locations.constBegin();
-
+    auto locationIt = locations.constBegin();
     if (locations.size() > 1) {
         // The symbol has multiple locations. Check if we are already at one location,
         // and if so, cycle to the "next" one
@@ -329,20 +328,19 @@ void Manager::gotoLocations(const QList<QVariant> &list)
             int line;
             int column;
             textEditor->convertPosition(textEditor->position(), &line, &column);
-            SymbolLocation current(fileName, line, column);
-            QSet<SymbolLocation>::const_iterator it = locations.constFind(current);
-            QSet<SymbolLocation>::const_iterator end = locations.constEnd();
-            if (it != end) {
+            const SymbolLocation current(fileName, line, column);
+            if (auto it = locations.constFind(current), end = locations.constEnd(); it != end) {
                 // we already are at the symbol, cycle to next location
                 ++it;
                 if (it == end)
                     it = locations.constBegin();
-                loc = *it;
+                locationIt = it;
             }
         }
     }
+    const SymbolLocation &location = *locationIt;
     // line is 1-based, column is 0-based
-    gotoLocation(loc.fileName(), loc.line(), loc.column() - 1);
+    gotoLocation(location.fileName(), location.line(), location.column() - 1);
 }
 
 /*!

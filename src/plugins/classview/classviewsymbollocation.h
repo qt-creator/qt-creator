@@ -40,7 +40,7 @@ public:
     SymbolLocation();
 
     //! Constructor
-    explicit SymbolLocation(QString file, int lineNumber = 0, int columnNumber = 0);
+    explicit SymbolLocation(const QString &file, int lineNumber = 0, int columnNumber = 0);
 
     inline const QString &fileName() const { return m_fileName; }
     inline int line() const { return m_line; }
@@ -48,15 +48,15 @@ public:
     inline Utils::QHashValueType hash() const { return m_hash; }
     inline bool operator==(const SymbolLocation &other) const
     {
-        return line() == other.line() && column() == other.column()
+        return hash() == other.hash() && line() == other.line() && column() == other.column()
             && fileName() == other.fileName();
     }
 
 private:
-    QString m_fileName; //!< file name
-    int m_line;         //!< line number
-    int m_column;       //!< column
-    Utils::QHashValueType m_hash;   //!< precalculated hash value for the object, to speed up qHash
+    const QString m_fileName;
+    const int m_line;
+    const int m_column;
+    const Utils::QHashValueType m_hash; // precalculated hash value - to speed up qHash
 };
 
 //! qHash overload for QHash/QSet

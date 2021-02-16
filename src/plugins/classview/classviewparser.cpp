@@ -479,6 +479,7 @@ void Parser::requestCurrentState()
 {
     d->timer.stop();
 
+    // TODO: we need to have a fresh SessionManager data here, which we could pass to parse()
     const ParserTreeItem::ConstPtr newRoot = parse();
     {
         QWriteLocker locker(&d->rootItemLocker);

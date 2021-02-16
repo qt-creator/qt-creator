@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/porting.h>
+
 #include <QMetaType>
 #include <QString>
 
@@ -47,17 +49,17 @@ public:
     inline uint hash() const { return m_hash; }
     inline bool operator==(const SymbolInformation &other) const
     {
-        return iconType() == other.iconType() && name() == other.name()
+        return hash() == other.hash() && iconType() == other.iconType() && name() == other.name()
             && type() == other.type();
     }
 
     int iconTypeSortOrder() const;
 
 private:
-    int m_iconType; //!< icon type
-    uint m_hash;    //!< precalculated hash value - to speed up qHash
-    QString m_name; //!< symbol name (e.g. SymbolInformation)
-    QString m_type; //!< symbol type (e.g. (int char))
+    const int m_iconType;
+    const Utils::QHashValueType m_hash; // precalculated hash value - to speed up qHash
+    const QString m_name;               // symbol name (e.g. SymbolInformation)
+    const QString m_type;               // symbol type (e.g. (int char))
 
 };
 
