@@ -880,8 +880,9 @@ bool Client::reset()
     m_diagnosticManager.clearDiagnostics();
     for (auto it = m_openedDocument.cbegin(); it != m_openedDocument.cend(); ++it)
         it.key()->disconnect(this);
-    for (auto it = m_resetAssistProvider.cbegin(); it != m_resetAssistProvider.cend(); ++it)
-        resetAssistProviders(it.key());
+    // temporary container needed since m_resetAssistProvider is changed in resetAssistProviders
+    for (TextEditor::TextDocument *document : m_resetAssistProvider.keys())
+        resetAssistProviders(document);
     for (TextEditor::IAssistProcessor *processor : qAsConst(m_runningAssistProcessors))
         processor->setAsyncProposalAvailable(nullptr);
     m_runningAssistProcessors.clear();
