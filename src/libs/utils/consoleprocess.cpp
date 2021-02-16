@@ -604,6 +604,18 @@ bool ConsoleProcess::start()
     return true;
 }
 
+void ConsoleProcess::interruptProcess()
+{
+#ifdef Q_OS_WIN
+    // Not used.
+#else
+    if (d->m_stubSocket && d->m_stubSocket->isWritable()) {
+        d->m_stubSocket->write("i", 1);
+        d->m_stubSocket->flush();
+    }
+#endif
+}
+
 void ConsoleProcess::killProcess()
 {
 #ifdef Q_OS_WIN

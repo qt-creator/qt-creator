@@ -346,6 +346,13 @@ int main(int argc, char *argv[])
                                 kill(chldPid, SIGKILL);
                             }
                             break;
+                        case 'i':
+                            if (chldPid > 0) {
+                                int res = kill(chldPid, SIGINT);
+                                if (res)
+                                    perror("Stub could not interrupt inferior");
+                            }
+                            break;
                         case 'd':
                             isDetached = 1;
                             break;

@@ -87,6 +87,7 @@ public:
     bool isRunning() const; // This reflects the state of the console+stub
     qint64 applicationPID() const;
 
+    void interruptProcess();
     void killProcess();
     void killStub();
 
