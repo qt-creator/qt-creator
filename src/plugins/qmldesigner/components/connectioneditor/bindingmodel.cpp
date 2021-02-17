@@ -195,12 +195,12 @@ QStringList BindingModel::possibleSourceProperties(const BindingProperty &bindin
 
     NodeMetaInfo metaInfo = modelNode.metaInfo();
 
-    for (VariantProperty variantProperty : modelNode.variantProperties()) {
+    for (const VariantProperty &variantProperty : modelNode.variantProperties()) {
         if (variantProperty.isDynamic())
             possibleProperties << QString::fromUtf8(variantProperty.name());
     }
 
-    for (BindingProperty bindingProperty : modelNode.bindingProperties()) {
+    for (const BindingProperty &bindingProperty : modelNode.bindingProperties()) {
         if (bindingProperty.isDynamic())
             possibleProperties << QString::fromUtf8((bindingProperty.name()));
     }

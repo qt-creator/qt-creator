@@ -294,10 +294,10 @@ void ItemLibraryAssetImportDialog::createTab(const QString &tabLabel, int option
 
     widgets.append(QVector<QPair<QWidget *, QWidget *>>());
 
-    for (const auto group : groups) {
+    for (const auto &group : groups) {
         const QString name = group.toObject().value("name").toString();
         const QJsonArray items = group.toObject().value("items").toArray();
-        for (const auto item : items)
+        for (const auto &item : items)
             optionToGroupMap.insert(item.toString(), name);
         auto groupLabel = new QLabel(name, optionsAreaContents);
         QFont labelFont = groupLabel->font();

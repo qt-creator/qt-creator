@@ -283,7 +283,7 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
             if (msgBox.exec() == QMessageBox::Cancel)
                 return;
 
-            for (auto p : qAsConst(incompatibleProperties))
+            for (const auto &p : qAsConst(incompatibleProperties))
                 selectedNode.removeProperty(p);
         }
 
