@@ -314,8 +314,8 @@ extend_qtc_plugin(QmlDesigner
     itemlibraryassetimportdialog.ui
     itemlibraryassetimporter.cpp itemlibraryassetimporter.h
     itemlibraryiconimageprovider.cpp itemlibraryiconimageprovider.h
-    itemLibraryimport.cpp itemLibraryimport.h
-    itemLibrarycategoriesmodel.cpp itemLibrarycategoriesmodel.h
+    itemlibraryimport.cpp itemlibraryimport.h
+    itemlibrarycategoriesmodel.cpp itemlibrarycategoriesmodel.h
     itemlibraryaddimportmodel.cpp itemlibraryaddimportmodel.h
 )
 
