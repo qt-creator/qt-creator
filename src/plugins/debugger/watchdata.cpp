@@ -115,6 +115,7 @@ WatchItem::WatchItem() :
     wantsChildren(false),
     valueEnabled(true),
     valueEditable(true),
+    autoDerefCount(0),
     outdated(false)
 {
 }
@@ -387,6 +388,14 @@ void WatchItem::parseHelper(const GdbMi &input, bool maySort)
         valueEditable = true;
     else if (mi.data() == "false")
         valueEditable = false;
+
+    mi = input["autoderefcount"];
+    if (mi.isValid()) {
+        bool ok = false;
+        uint derefCount = mi.data().toUInt(&ok);
+        if (ok)
+            autoDerefCount = derefCount;
+    }
 
     mi = input["numchild"]; // GDB/MI
     if (mi.isValid())

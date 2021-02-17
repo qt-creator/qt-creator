@@ -869,6 +869,19 @@ static QString displayName(const WatchItem *item)
     else
         result = watchModel(item)->removeNamespaces(item->name);
 
+    // prepend '*'s to indicate where autodereferencing has taken place
+    if (item->autoDerefCount > 0) {
+        // add parentheses for everything except simple variable names (e.g. pointer arithmetics,...)
+        QRegularExpression variableNameRegex("^[a-zA-Z0-9_]+$");
+        bool addParanthesis = !variableNameRegex.match(result).hasMatch();
+        if (addParanthesis)
+            result = "(" + result;
+        for (uint i = 0; i < item->autoDerefCount; i++)
+            result = "*" + result;
+        if (addParanthesis)
+            result += ")";
+    }
+
     // Simplify names that refer to base classes.
     if (result.startsWith('[')) {
         result = simplifyType(result);
