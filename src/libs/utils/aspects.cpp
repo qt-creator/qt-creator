@@ -60,6 +60,10 @@ public:
     QString m_displayName;
     QString m_settingsKey; // Name of data in settings.
     QString m_tooltip;
+    QString m_labelText;
+    QPixmap m_labelPixmap;
+    QPointer<QLabel> m_label; // Owned by configuration widget
+
     bool m_visible = true;
     bool m_enabled = true;
     bool m_readOnly = true;
@@ -176,6 +180,52 @@ void BaseAspect::setVisible(bool visible)
         QTC_ASSERT(w, continue);
         w->setVisible(visible);
     }
+}
+
+void BaseAspect::setupLabel()
+{
+    QTC_ASSERT(!d->m_label, delete d->m_label);
+    d->m_label = new QLabel(d->m_labelText);
+    d->m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    if (!d->m_labelPixmap.isNull())
+        d->m_label->setPixmap(d->m_labelPixmap);
+    registerSubWidget(d->m_label);
+}
+
+/*!
+    Sets \a labelText as text for the separate label in the visual
+    representation of this aspect.
+*/
+void BaseAspect::setLabelText(const QString &labelText)
+{
+    d->m_labelText = labelText;
+    if (d->m_label)
+        d->m_label->setText(labelText);
+}
+
+/*!
+    Sets \a labelPixmap as pixmap for the separate label in the visual
+    representation of this aspect.
+*/
+void BaseAspect::setLabelPixmap(const QPixmap &labelPixmap)
+{
+    d->m_labelPixmap = labelPixmap;
+    if (d->m_label)
+        d->m_label->setPixmap(labelPixmap);
+}
+
+/*!
+    Returns the current text for the separate label in the visual
+    representation of this aspect.
+*/
+QString BaseAspect::labelText() const
+{
+    return d->m_labelText;
+}
+
+QLabel *BaseAspect::label() const
+{
+    return d->m_label.data();
 }
 
 QString BaseAspect::toolTip() const
@@ -381,9 +431,7 @@ class BoolAspectPrivate
 {
 public:
     BoolAspect::LabelPlacement m_labelPlacement = BoolAspect::LabelPlacement::AtCheckBox;
-    QString m_labelText;
     QPointer<QCheckBox> m_checkBox; // Owned by configuration widget
-    QPointer<QLabel> m_label; // Owned by configuration widget
 };
 
 class SelectionAspectPrivate
@@ -397,7 +445,6 @@ public:
     // These are all owned by the configuration widget.
     QList<QPointer<QRadioButton>> m_buttons;
     QPointer<QComboBox> m_comboBox;
-    QPointer<QLabel> m_label;
     QPointer<QButtonGroup> m_buttonGroup;
 };
 
@@ -412,11 +459,9 @@ public:
     QStringList m_allValues;
     MultiSelectionAspect::DisplayStyle m_displayStyle
         = MultiSelectionAspect::DisplayStyle::ListView;
-    QString m_labelText;
 
     // These are all owned by the configuration widget.
     QPointer<QListWidget> m_listView;
-    QPointer<QLabel> m_label;
 };
 
 class StringAspectPrivate
@@ -427,7 +472,6 @@ public:
         = StringAspect::CheckBoxPlacement::Right;
     StringAspect::UncheckedSemantics m_uncheckedSemantics
         = StringAspect::UncheckedSemantics::Disabled;
-    QString m_labelText;
     std::function<QString(const QString &)> m_displayFilter;
     std::unique_ptr<BoolAspect> m_checker;
 
@@ -435,13 +479,11 @@ public:
     QString m_historyCompleterKey;
     PathChooser::Kind m_expectedKind = PathChooser::File;
     Environment m_environment;
-    QPointer<QLabel> m_label;
     QPointer<QLabel> m_labelDisplay;
     QPointer<FancyLineEdit> m_lineEditDisplay;
     QPointer<PathChooser> m_pathChooserDisplay;
     QPointer<QTextEdit> m_textEditDisplay;
     MacroExpanderProvider m_expanderProvider;
-    QPixmap m_labelPixmap;
     FilePath m_baseFileName;
     StringAspect::ValueAcceptor m_valueAcceptor;
     FancyLineEdit::ValidationFunction m_validator;
@@ -468,10 +510,8 @@ public:
     QVariant m_maximumValue;
     int m_displayIntegerBase = 10;
     qint64 m_displayScaleFactor = 1;
-    QString m_labelText;
     QString m_prefix;
     QString m_suffix;
-    QPointer<QLabel> m_label;
     QPointer<QSpinBox> m_spinBox; // Owned by configuration widget
 };
 
@@ -640,43 +680,12 @@ void StringAspect::setFilePath(const FilePath &value)
 }
 
 /*!
-    Sets \a labelText as text for the separate label in the visual
-    representation of this string aspect.
-*/
-void StringAspect::setLabelText(const QString &labelText)
-{
-    d->m_labelText = labelText;
-    if (d->m_label)
-        d->m_label->setText(labelText);
-}
-
-/*!
-    Sets \a labelPixmap as pixmap for the separate label in the visual
-    representation of this aspect.
-*/
-void StringAspect::setLabelPixmap(const QPixmap &labelPixmap)
-{
-    d->m_labelPixmap = labelPixmap;
-    if (d->m_label)
-        d->m_label->setPixmap(labelPixmap);
-}
-
-/*!
     \internal
 */
 void StringAspect::setShowToolTipOnLabel(bool show)
 {
     d->m_showToolTipOnLabel = show;
     update();
-}
-
-/*!
-    Returns the current text for the separate label in the visual
-    representation of this string aspect.
-*/
-QString StringAspect::labelText() const
-{
-    return d->m_labelText;
 }
 
 /*!
@@ -823,18 +832,13 @@ void StringAspect::setUncheckedSemantics(StringAspect::UncheckedSemantics semant
 
 void StringAspect::addToLayout(LayoutBuilder &builder)
 {
-    QTC_CHECK(!d->m_label);
-
     if (d->m_checker && d->m_checkBoxPlacement == CheckBoxPlacement::Top) {
         d->m_checker->addToLayout(builder);
         builder.finishRow();
     }
 
-    d->m_label = createSubWidget<QLabel>(d->m_labelText);
-    d->m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    if (!d->m_labelPixmap.isNull())
-        d->m_label->setPixmap(d->m_labelPixmap);
-    builder.addItem(d->m_label.data());
+    setupLabel();
+    builder.addItem(label());
 
     const auto useMacroExpander = [this, &builder](QWidget *w) {
         if (!d->m_expanderProvider)
@@ -923,12 +927,6 @@ void StringAspect::update()
         d->m_labelDisplay->setToolTip(d->m_showToolTipOnLabel ? displayedString : toolTip());
     }
 
-    if (d->m_label) {
-        d->m_label->setText(d->m_labelText);
-        if (!d->m_labelPixmap.isNull())
-            d->m_label->setPixmap(d->m_labelPixmap);
-    }
-
     validateInput();
 }
 
@@ -993,15 +991,15 @@ void BoolAspect::addToLayout(LayoutBuilder &builder)
     d->m_checkBox = createSubWidget<QCheckBox>();
     switch (d->m_labelPlacement) {
     case LabelPlacement::AtCheckBoxWithoutDummyLabel:
-        d->m_checkBox->setText(d->m_labelText);
+        d->m_checkBox->setText(labelText());
         break;
     case LabelPlacement::AtCheckBox:
-        d->m_checkBox->setText(d->m_labelText);
+        d->m_checkBox->setText(labelText());
         builder.addItem(createSubWidget<QLabel>());
         break;
     case LabelPlacement::InExtraLabel:
-        d->m_label = createSubWidget<QLabel>(d->m_labelText);
-        builder.addItem(d->m_label.data());
+        setupLabel();
+        builder.addItem(label());
         break;
     }
     d->m_checkBox->setChecked(value());
@@ -1031,7 +1029,7 @@ void BoolAspect::setValue(bool value)
 
 void BoolAspect::setLabel(const QString &labelText, LabelPlacement labelPlacement)
 {
-    d->m_labelText = labelText;
+    BaseAspect::setLabelText(labelText);
     d->m_labelPlacement = labelPlacement;
 }
 
@@ -1082,22 +1080,23 @@ void SelectionAspect::addToLayout(LayoutBuilder &builder)
         }
         break;
     case DisplayStyle::ComboBox:
-        d->m_label = createSubWidget<QLabel>(displayName());
+        setupLabel();
+        setLabelText(displayName());
         d->m_comboBox = createSubWidget<QComboBox>();
         for (int i = 0, n = d->m_options.size(); i < n; ++i)
             d->m_comboBox->addItem(d->m_options.at(i).displayName);
         connect(d->m_comboBox.data(), QOverload<int>::of(&QComboBox::activated),
                 this, &SelectionAspect::setValue);
         d->m_comboBox->setCurrentIndex(value());
-        builder.addItems({d->m_label.data(), d->m_comboBox.data()});
+        builder.addItems({label(), d->m_comboBox.data()});
         break;
     }
 }
 
 void SelectionAspect::setVisibleDynamic(bool visible)
 {
-    if (d->m_label)
-        d->m_label->setVisible(visible);
+    if (QLabel *l = label())
+        l->setVisible(visible);
     if (d->m_comboBox)
         d->m_comboBox->setVisible(visible);
     for (QRadioButton * const button : qAsConst(d->m_buttons))
@@ -1168,7 +1167,7 @@ void MultiSelectionAspect::addToLayout(LayoutBuilder &builder)
 
     switch (d->m_displayStyle) {
     case DisplayStyle::ListView:
-        d->m_label = createSubWidget<QLabel>(d->m_labelText);
+        setupLabel();
         d->m_listView = createSubWidget<QListWidget>();
         for (const QString &val : qAsConst(d->m_allValues)) {
             auto item = new QListWidgetItem(val, d->m_listView);
@@ -1180,7 +1179,7 @@ void MultiSelectionAspect::addToLayout(LayoutBuilder &builder)
             if (d->setValueSelectedHelper(item->text(), item->checkState() & Qt::Checked))
                 emit changed();
         });
-        builder.addItems({d->m_label.data(), d->m_listView.data()});
+        builder.addItems({label(), d->m_listView.data()});
     }
 }
 
@@ -1210,15 +1209,10 @@ void MultiSelectionAspect::setAllValues(const QStringList &val)
     d->m_allValues = val;
 }
 
-void MultiSelectionAspect::setLabelText(const QString &labelText)
-{
-    d->m_labelText = labelText;
-}
-
 void MultiSelectionAspect::setVisibleDynamic(bool visible)
 {
-    if (d->m_label)
-        d->m_label->setVisible(visible);
+    if (QLabel *l = label())
+        l->setVisible(visible);
     if (d->m_listView)
         d->m_listView->setVisible(visible);
 }
@@ -1282,8 +1276,7 @@ IntegerAspect::~IntegerAspect() = default;
 */
 void IntegerAspect::addToLayout(LayoutBuilder &builder)
 {
-    QTC_CHECK(!d->m_label);
-    d->m_label = createSubWidget<QLabel>(d->m_labelText);
+    setupLabel();
 
     QTC_CHECK(!d->m_spinBox);
     d->m_spinBox = createSubWidget<QSpinBox>();
@@ -1295,7 +1288,7 @@ void IntegerAspect::addToLayout(LayoutBuilder &builder)
         d->m_spinBox->setRange(int(d->m_minimumValue.toLongLong() / d->m_displayScaleFactor),
                                int(d->m_maximumValue.toLongLong() / d->m_displayScaleFactor));
 
-    builder.addItems({d->m_label.data(), d->m_spinBox.data()});
+    builder.addItems({label(), d->m_spinBox.data()});
     connect(d->m_spinBox.data(), QOverload<int>::of(&QSpinBox::valueChanged),
             this, [this](int value) {
         setValue(value * d->m_displayScaleFactor);
@@ -1324,9 +1317,7 @@ void IntegerAspect::setRange(qint64 min, qint64 max)
 
 void IntegerAspect::setLabel(const QString &label)
 {
-    d->m_labelText = label;
-    if (d->m_label)
-        d->m_label->setText(label);
+    setLabelText(label);
 }
 
 void IntegerAspect::setPrefix(const QString &prefix)

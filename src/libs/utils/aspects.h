@@ -87,6 +87,10 @@ public:
 
     void setReadOnly(bool enabled);
 
+    QString labelText() const;
+    void setLabelText(const QString &labelText);
+    void setLabelPixmap(const QPixmap &labelPixmap);
+
     using ConfigWidgetCreator = std::function<QWidget *()>;
     void setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator);
     QWidget *createConfigWidget() const;
@@ -101,6 +105,9 @@ signals:
     void changed();
 
 protected:
+    QLabel *label() const;
+    void setupLabel();
+
     template <class Widget, typename ...Args>
     Widget *createSubWidget(Args && ...args) {
         auto w = new Widget(args...);
@@ -231,8 +238,6 @@ public:
     QStringList allValues() const;
     void setAllValues(const QStringList &val);
 
-    void setLabelText(const QString &labelText);
-
 protected:
     void setVisibleDynamic(bool visible) override;
 
@@ -256,9 +261,6 @@ public:
     QString value() const;
     void setValue(const QString &val);
 
-    QString labelText() const;
-    void setLabelText(const QString &labelText);
-    void setLabelPixmap(const QPixmap &labelPixmap);
     void setShowToolTipOnLabel(bool show);
 
     void setDisplayFilter(const std::function<QString (const QString &)> &displayFilter);
@@ -320,7 +322,7 @@ public:
     void setValue(qint64 val);
 
     void setRange(qint64 min, qint64 max);
-    void setLabel(const QString &label);
+    void setLabel(const QString &label); // FIXME: Use setLabelText
     void setPrefix(const QString &prefix);
     void setSuffix(const QString &suffix);
     void setDisplayIntegerBase(int base);
