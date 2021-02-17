@@ -27,7 +27,6 @@
 
 #include "qmljseditor_global.h"
 
-#include <QMutex>
 #include <QObject>
 #include <QFutureWatcher>
 #include <QPointer>

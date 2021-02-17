@@ -36,7 +36,6 @@
 #include <QTcpSocket>
 #include <QThread>
 #include <QProcess>
-#include <QMutex>
 
 namespace Android {
 namespace Internal {

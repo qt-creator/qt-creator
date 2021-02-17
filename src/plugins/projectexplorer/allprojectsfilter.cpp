@@ -30,8 +30,6 @@
 
 #include <utils/algorithm.h>
 
-#include <QMutexLocker>
-
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

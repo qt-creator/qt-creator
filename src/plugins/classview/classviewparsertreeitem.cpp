@@ -44,7 +44,6 @@
 #include <QPair>
 #include <QIcon>
 #include <QStandardItem>
-#include <QMutex>
 
 #include <QDebug>
 

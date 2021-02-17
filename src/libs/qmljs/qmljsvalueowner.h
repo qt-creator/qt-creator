@@ -29,6 +29,7 @@
 #include "qmljsinterpreter.h"
 
 #include <QList>
+#include <QMutex>
 
 namespace QmlJS {
 

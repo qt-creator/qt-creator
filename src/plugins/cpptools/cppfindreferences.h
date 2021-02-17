@@ -27,7 +27,6 @@
 
 #include <cplusplus/FindUsages.h>
 
-#include <QMutex>
 #include <QObject>
 #include <QPointer>
 #include <QFuture>

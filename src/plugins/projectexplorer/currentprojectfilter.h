@@ -28,7 +28,6 @@
 #include <coreplugin/locator/basefilefilter.h>
 
 #include <QFutureInterface>
-#include <QMutex>
 
 namespace ProjectExplorer {
 

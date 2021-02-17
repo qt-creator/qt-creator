@@ -32,7 +32,6 @@
 
 #include <QCoreApplication>
 #include <QMapIterator>
-#include <QMutexLocker>
 #include <QProcess>
 
 using namespace ProjectExplorer;

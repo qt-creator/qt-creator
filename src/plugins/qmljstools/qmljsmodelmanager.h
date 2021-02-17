@@ -30,7 +30,6 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <QFuture>
-#include <QMutex>
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 QT_FORWARD_DECLARE_CLASS(QLocale)

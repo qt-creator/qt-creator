@@ -35,7 +35,6 @@
 #include <QFileInfoList>
 #include <QHash>
 #include <QList>
-#include <QMutex>
 #include <QSet>
 #include <QSharedPointer>
 #include <QString>
