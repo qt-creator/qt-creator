@@ -408,6 +408,7 @@ IosQmakeBuildConfiguration::IosQmakeBuildConfiguration(Target *target, Utils::Id
 
     m_autoManagedSigning = addAspect<BoolAspect>();
     m_autoManagedSigning->setDefaultValue(true);
+    m_autoManagedSigning->setValue(true);
     m_autoManagedSigning->setSettingsKey(autoManagedSigningKey);
 
     connect(m_signingIdentifier,
@@ -506,6 +507,7 @@ IosCMakeBuildConfiguration::IosCMakeBuildConfiguration(Target *target, Id id)
 
     m_autoManagedSigning = addAspect<BoolAspect>();
     m_autoManagedSigning->setDefaultValue(true);
+    m_autoManagedSigning->setValue(true);
     m_autoManagedSigning->setSettingsKey(autoManagedSigningKey);
 
     connect(m_signingIdentifier,

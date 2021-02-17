@@ -84,6 +84,7 @@ ConanInstallStep::ConanInstallStep(BuildStepList *bsl, Id id)
     buildMissing->setSettingsKey("ConanPackageManager.InstallStep.BuildMissing");
     buildMissing->setLabel("Build missing:", BoolAspect::LabelPlacement::InExtraLabel);
     buildMissing->setDefaultValue(true);
+    buildMissing->setValue(true);
 
     setCommandLineProvider([=] {
         BuildConfiguration::BuildType bt = buildConfiguration()->buildType();

@@ -63,6 +63,13 @@ public:
     Utils::Id id() const;
     void setId(Utils::Id id);
 
+    QVariant value() const;
+    void setValue(const QVariant &value);
+    bool setValueQuietly(const QVariant &value);
+
+    QVariant defaultValue() const;
+    void setDefaultValue(const QVariant &value);
+
     QString settingsKey() const;
     void setSettingsKey(const QString &settingsKey);
     void setSettingsKey(const QString &group, const QString &key);
@@ -84,8 +91,8 @@ public:
     void setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator);
     QWidget *createConfigWidget() const;
 
-    virtual void fromMap(const QVariantMap &);
-    virtual void toMap(QVariantMap &) const;
+    virtual void fromMap(const QVariantMap &map);
+    virtual void toMap(QVariantMap &map) const;
     virtual void acquaintSiblings(const BaseAspects &);
 
     virtual void addToLayout(LayoutBuilder &builder);
@@ -170,15 +177,9 @@ public:
     bool value() const;
     void setValue(bool val);
 
-    bool defaultValue() const;
-    void setDefaultValue(bool defaultValue);
-
     enum class LabelPlacement { AtCheckBox, AtCheckBoxWithoutDummyLabel, InExtraLabel };
     void setLabel(const QString &labelText,
                   LabelPlacement labelPlacement = LabelPlacement::InExtraLabel);
-
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
 
 private:
     std::unique_ptr<Internal::BoolAspectPrivate> d;
@@ -199,16 +200,10 @@ public:
 
     QString stringValue() const;
 
-    int defaultValue() const;
-    void setDefaultValue(int defaultValue);
-
     enum class DisplayStyle { RadioButtons, ComboBox };
     void setDisplayStyle(DisplayStyle style);
 
     void addOption(const QString &displayName, const QString &toolTip = {});
-
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
 
 protected:
     void setVisibleDynamic(bool visible) override;
@@ -237,9 +232,6 @@ public:
     void setAllValues(const QStringList &val);
 
     void setLabelText(const QString &labelText);
-
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
 
 protected:
     void setVisibleDynamic(bool visible) override;
@@ -335,9 +327,6 @@ public:
     void setDisplayScaleFactor(qint64 factor);
     void setDefaultValue(qint64 defaultValue);
 
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
-
 private:
     std::unique_ptr<Internal::IntegerAspectPrivate> d;
 };
@@ -389,9 +378,6 @@ public:
 
     QStringList value() const;
     void setValue(const QStringList &val);
-
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
 
 private:
     std::unique_ptr<Internal::StringListAspectPrivate> d;
