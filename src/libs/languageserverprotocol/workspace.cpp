@@ -66,6 +66,12 @@ ApplyWorkspaceEditRequest::ApplyWorkspaceEditRequest(const ApplyWorkspaceEditPar
     : Request(methodName, params)
 { }
 
+WorkspaceFoldersChangeEvent::WorkspaceFoldersChangeEvent()
+{
+    insert(addedKey, QJsonArray());
+    insert(removedKey, QJsonArray());
+}
+
 bool WorkspaceFoldersChangeEvent::isValid(ErrorHierarchy *error) const
 {
     return checkArray<WorkSpaceFolder>(error, addedKey)

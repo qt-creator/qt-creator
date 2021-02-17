@@ -53,6 +53,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT WorkspaceFoldersChangeEvent : public JsonObj
 {
 public:
     using JsonObject::JsonObject;
+    WorkspaceFoldersChangeEvent();
 
     QList<WorkSpaceFolder> added() const { return array<WorkSpaceFolder>(addedKey); }
     void setAdded(const QList<WorkSpaceFolder> &added) { insertArray(addedKey, added); }
