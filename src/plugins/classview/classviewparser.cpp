@@ -44,9 +44,6 @@
 #include <QHash>
 #include <QSet>
 #include <QTimer>
-#include <QReadWriteLock>
-#include <QReadLocker>
-#include <QWriteLocker>
 #include <QElapsedTimer>
 
 enum { debug = false };

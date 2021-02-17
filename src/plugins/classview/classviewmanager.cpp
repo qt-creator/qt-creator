@@ -41,8 +41,6 @@
 #include <texteditor/texteditor.h>
 
 #include <QThread>
-#include <QMutex>
-#include <QMutexLocker>
 
 using namespace Core;
 using namespace Utils;
