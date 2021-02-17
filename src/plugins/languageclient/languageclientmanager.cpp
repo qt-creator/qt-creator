@@ -106,13 +106,16 @@ void LanguageClientManager::clientStarted(Client *client)
         clientFinished(client);
         return;
     }
-    connect(client, &Client::finished, managerInstance, [client](){
-        clientFinished(client);
-    });
-    connect(client,
-            &Client::initialized,
-            &managerInstance->m_currentDocumentLocatorFilter,
-            &DocumentLocatorFilter::updateCurrentClient);
+    if (!managerInstance->m_clients.contains(client)) {
+        managerInstance->m_clients << client;
+        connect(client, &Client::finished, managerInstance, [client](){
+            clientFinished(client);
+        });
+        connect(client,
+                &Client::initialized,
+                &managerInstance->m_currentDocumentLocatorFilter,
+                &DocumentLocatorFilter::updateCurrentClient);
+    }
 
     client->initialize();
 }
