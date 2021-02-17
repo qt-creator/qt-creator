@@ -150,7 +150,7 @@ void TimelineSelectionTool::reset()
 
 void TimelineSelectionTool::resetHighlights()
 {
-    for (auto *keyframe : m_aboutToSelectBuffer)
+    for (auto *keyframe : qAsConst(m_aboutToSelectBuffer))
         if (scene()->isKeyframeSelected(keyframe))
             keyframe->setHighlighted(true);
         else

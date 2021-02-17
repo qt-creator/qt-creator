@@ -172,7 +172,7 @@ QWidget *FpsLabelAction::createWidget(QWidget *parent)
 
 void FpsLabelAction::refreshFpsLabel(quint16 frames)
 {
-    for (const auto &labelPointer : fpsHandlerLabelList) {
+    for (const auto &labelPointer : qAsConst(fpsHandlerLabelList)) {
         if (labelPointer)
             labelPointer->setText(QString("%1 FPS").arg(frames));
     }

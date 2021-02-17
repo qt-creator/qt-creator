@@ -96,7 +96,7 @@ ViewManager::ViewManager()
 
 ViewManager::~ViewManager()
 {
-    for (const QPointer<AbstractView> &view : d->additionalViews)
+    for (const QPointer<AbstractView> &view : qAsConst(d->additionalViews))
         delete view.data();
 
 }

@@ -90,7 +90,7 @@ DesignerActionToolBar *DesignerActionManager::createToolBar(QWidget *parent) con
         return l->priority() > r->priority();
     });
 
-    for (auto *categoryAction : categories) {
+    for (auto *categoryAction : qAsConst(categories)) {
         QList<ActionInterface* > actions = Utils::filtered(designerActions(), [categoryAction](ActionInterface *action) {
                 return action->category() == categoryAction->menuId();
         });
@@ -101,7 +101,7 @@ DesignerActionToolBar *DesignerActionManager::createToolBar(QWidget *parent) con
 
         bool addSeparator = false;
 
-        for (auto *action : actions) {
+        for (auto *action : qAsConst(actions)) {
             if ((action->type() == ActionInterface::Action || action->type() == ActionInterface::ToolBarAction)
                     && action->action()) {
                 toolBar->registerAction(action);
@@ -164,7 +164,7 @@ QGraphicsWidget *DesignerActionManager::createFormEditorToolBar(QGraphicsItem *p
     layout->setSpacing(0);
     toolbar->setLayout(layout);
 
-    for (ActionInterface *action : actions) {
+    for (ActionInterface *action : qAsConst(actions)) {
         auto button = new FormEditorToolButton(action->action(), toolbar);
         layout->addItem(button);
     }
@@ -1490,7 +1490,7 @@ void DesignerActionManager::addCreatorCommand(Core::Command *command, const QByt
 QList<QSharedPointer<ActionInterface> > DesignerActionManager::actionsForTargetView(const ActionInterface::TargetView &target)
 {
     QList<QSharedPointer<ActionInterface> > out;
-    for (auto interface : m_designerActions)
+    for (auto interface : qAsConst(m_designerActions))
         if (interface->targetView() == target)
             out << interface;
 

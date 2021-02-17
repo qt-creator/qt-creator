@@ -238,7 +238,7 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(const QStringList &im
             this, &ItemLibraryAssetImportDialog::setImportProgress);
 
     addInfo(tr("Select import options and press \"Import\" to import the following files:"));
-    for (const auto &file : m_quick3DFiles)
+    for (const auto &file : qAsConst(m_quick3DFiles))
         addInfo(file);
 
     QTimer::singleShot(0, [this]() {

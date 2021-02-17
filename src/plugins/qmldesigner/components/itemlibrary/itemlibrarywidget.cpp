@@ -434,7 +434,7 @@ void ItemLibraryWidget::addResources(const QStringList &files)
     if (fileNames.isEmpty()) {
         QStringList filters;
 
-        for (const QString &key : sortedKeys) {
+        for (const QString &key : qAsConst(sortedKeys)) {
             QString str = key + " (";
             str.append(map.values(key).join(" "));
             str.append(")");
@@ -461,7 +461,7 @@ void ItemLibraryWidget::addResources(const QStringList &files)
 
     QMultiMap<QString, QString> partitionedFileNames;
 
-    for (const QString &fileName : fileNames) {
+    for (const QString &fileName : qAsConst(fileNames)) {
         const QString suffix = "*." + QFileInfo(fileName).suffix().toLower();
         const QString category = reverseMap.value(suffix);
         partitionedFileNames.insert(category, fileName);

@@ -456,7 +456,7 @@ void TimelineToolBar::resizeEvent(QResizeEvent *event)
 
     int width = 0;
     QWidget *spacer = nullptr;
-    for (auto *object : m_grp) {
+    for (auto *object : qAsConst(m_grp)) {
         if (isSpacer(object))
             spacer = qobject_cast<QWidget *>(object);
         else

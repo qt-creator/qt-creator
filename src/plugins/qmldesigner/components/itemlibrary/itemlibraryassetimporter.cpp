@@ -408,7 +408,7 @@ void ItemLibraryAssetImporter::copyImportedFiles()
         notifyProgress(0, progressTitle);
 
         int counter = 0;
-        for (const QString &dirPath : m_overwrittenImports) {
+        for (const QString &dirPath : qAsConst(m_overwrittenImports)) {
             QDir dir(dirPath);
             if (dir.exists())
                 dir.removeRecursively();

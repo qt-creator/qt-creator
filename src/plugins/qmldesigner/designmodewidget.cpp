@@ -150,7 +150,7 @@ DesignModeWidget::DesignModeWidget()
 
 DesignModeWidget::~DesignModeWidget()
 {
-    for (QPointer<QWidget> widget : m_viewWidgets) {
+    for (QPointer<QWidget> widget : qAsConst(m_viewWidgets)) {
         if (widget)
             widget.clear();
     }
@@ -510,7 +510,7 @@ void DesignModeWidget::aboutToShowWorkspaces()
     auto sortedWorkspaces = m_dockManager->workspaces();
     Utils::sort(sortedWorkspaces);
 
-    for (const auto &workspace : sortedWorkspaces)
+    for (const auto &workspace : qAsConst(sortedWorkspaces))
     {
         QAction *action = ag->addAction(workspace);
         action->setData(workspace);

@@ -216,21 +216,21 @@ void GraphicsScene::reset()
 
 void GraphicsScene::deleteSelectedKeyframes()
 {
-    for (auto *curve : m_curves)
+    for (auto *curve : qAsConst(m_curves))
         curve->deleteSelectedKeyframes();
 }
 
 void GraphicsScene::insertKeyframe(double time, bool all)
 {
     if (!all) {
-        for (auto *curve : m_curves) {
+        for (auto *curve : qAsConst(m_curves)) {
             if (curve->isUnderMouse())
                 curve->insertKeyframeByTime(std::round(time));
         }
         return;
     }
 
-    for (auto *curve : m_curves)
+    for (auto *curve : qAsConst(m_curves))
         curve->insertKeyframeByTime(std::round(time));
 }
 
@@ -242,7 +242,7 @@ void GraphicsScene::doNotMoveItems(bool val)
 void GraphicsScene::removeCurveItem(unsigned int id)
 {
     CurveItem *tmp = nullptr;
-    for (auto *curve : m_curves) {
+    for (auto *curve : qAsConst(m_curves)) {
         if (curve->id() == id) {
             removeItem(curve);
             tmp = curve;
@@ -260,7 +260,7 @@ void GraphicsScene::removeCurveItem(unsigned int id)
 
 void GraphicsScene::addCurveItem(CurveItem *item)
 {
-    for (auto *curve : m_curves) {
+    for (auto *curve : qAsConst(m_curves)) {
         if (curve->id() == item->id()) {
             delete item;
             return;
@@ -301,7 +301,7 @@ void GraphicsScene::setComponentTransform(const QTransform &transform)
 {
     QRectF bounds;
 
-    for (auto *curve : m_curves)
+    for (auto *curve : qAsConst(m_curves))
         bounds = bounds.united(curve->setComponentTransform(transform));
 
     if (bounds.isNull()) {
@@ -315,7 +315,7 @@ void GraphicsScene::setComponentTransform(const QTransform &transform)
 
 void GraphicsScene::keyframeMoved(KeyframeItem *movedItem, const QPointF &direction)
 {
-    for (auto *curve : m_curves) {
+    for (auto *curve : qAsConst(m_curves)) {
         for (auto *keyframe : curve->keyframes()) {
             if (keyframe != movedItem && keyframe->selected())
                 keyframe->moveKeyframe(direction);
@@ -325,7 +325,7 @@ void GraphicsScene::keyframeMoved(KeyframeItem *movedItem, const QPointF &direct
 
 void GraphicsScene::handleUnderMouse(HandleItem *handle)
 {
-    for (auto *curve : m_curves) {
+    for (auto *curve : qAsConst(m_curves)) {
         for (auto *keyframe : curve->keyframes()) {
             if (keyframe->selected())
                 keyframe->setActivated(handle->isUnderMouse(), handle->slot());
@@ -350,7 +350,7 @@ void GraphicsScene::handleMoved(KeyframeItem *frame,
         }
     };
 
-    for (auto *curve : m_curves) {
+    for (auto *curve : qAsConst(m_curves)) {
         for (auto *keyframe : curve->keyframes()) {
             if (keyframe == frame)
                 moveUnified(keyframe);
@@ -371,7 +371,7 @@ void GraphicsScene::setPinned(uint id, bool pinned)
 std::vector<CurveItem *> GraphicsScene::takePinnedItems()
 {
     std::vector<CurveItem *> out;
-    for (auto *curve : m_curves) {
+    for (auto *curve : qAsConst(m_curves)) {
         if (curve->pinned())
             out.push_back(curve);
     }
@@ -392,7 +392,7 @@ void GraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
     QPointF mouse = mouseEvent->scenePos();
     bool hasHandle = false;
 
-    for (auto *curve : m_curves) {
+    for (auto *curve : qAsConst(m_curves)) {
         for (auto *handle : curve->handles()) {
             bool intersects = handle->contains(mouse);
             handle->setIsUnderMouse(intersects);
@@ -402,10 +402,10 @@ void GraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
     }
 
     if (hasHandle) {
-        for (auto *curve : m_curves)
+        for (auto *curve : qAsConst(m_curves))
             curve->setIsUnderMouse(false);
     } else {
-        for (auto *curve : m_curves)
+        for (auto *curve : qAsConst(m_curves))
             curve->setIsUnderMouse(curve->contains(mouseEvent->scenePos()));
     }
 }
@@ -414,7 +414,7 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
     QGraphicsScene::mouseReleaseEvent(mouseEvent);
 
-    for (auto *curve : m_curves) {
+    for (auto *curve : qAsConst(m_curves)) {
         // CurveItems might become invalid after a keyframe-drag operation.
         curve->restore();
         if (curve->isDirty()) {

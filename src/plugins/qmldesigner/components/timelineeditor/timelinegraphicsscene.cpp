@@ -561,7 +561,7 @@ void AbstractScrollGraphicsScene::selectKeyframes(const SelectionMode &mode,
 
 void AbstractScrollGraphicsScene::clearSelection()
 {
-    for (auto *keyframe : m_selectedKeyframes)
+    for (auto *keyframe : qAsConst(m_selectedKeyframes))
         if (keyframe)
             keyframe->setHighlighted(false);
 

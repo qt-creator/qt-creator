@@ -254,7 +254,7 @@ std::vector<std::tuple<ModelNode, qreal>> getFramesRelative(const ModelNode &par
 
     if (!sortedByTime.empty()) {
         qreal firstTime = getTime(sortedByTime.first());
-        for (const ModelNode &keyframe : sortedByTime)
+        for (const ModelNode &keyframe : qAsConst(sortedByTime))
             result.emplace_back(keyframe, getTime(keyframe) - firstTime);
     }
 
