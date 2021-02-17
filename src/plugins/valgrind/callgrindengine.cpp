@@ -35,6 +35,7 @@
 #include <debugger/analyzer/analyzermanager.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 using namespace Valgrind::Callgrind;
@@ -95,6 +96,8 @@ QStringList CallgrindToolRunner::toolArguments() const
     // add extra arguments
     if (!m_argumentForToggleCollect.isEmpty())
         arguments << m_argumentForToggleCollect;
+
+    arguments << Utils::QtcProcess::splitArgs(m_settings.callgrindArguments());
 
     return arguments;
 }

@@ -220,6 +220,8 @@ QStringList MemcheckToolRunner::toolArguments() const
     if (m_withGdb)
         arguments << "--vgdb=yes" << "--vgdb-error=0";
 
+    arguments << Utils::QtcProcess::splitArgs(m_settings.memcheckArguments());
+
     return arguments;
 }
 

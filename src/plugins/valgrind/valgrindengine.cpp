@@ -78,6 +78,7 @@ void ValgrindToolRunner::start()
 #endif
 
     CommandLine valgrind{m_settings.valgrindExecutable()};
+    valgrind.addArgs(m_settings.valgrindArguments(), CommandLine::Raw);
     valgrind.addArgs(genericToolArguments());
     valgrind.addArgs(toolArguments());
 

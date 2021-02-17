@@ -93,6 +93,12 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings)
 
     connect(m_ui->valgrindExeChooser, &Utils::PathChooser::rawPathChanged,
             m_settings, &ValgrindBaseSettings::setValgrindExecutable);
+
+    connect(m_ui->valgrindArgumentsLineEdit, &QLineEdit::textChanged,
+            m_settings, &ValgrindBaseSettings::setValgrindArguments);
+    connect(m_settings, &ValgrindBaseSettings::valgrindArgumentsChanged,
+            m_ui->valgrindArgumentsLineEdit, &QLineEdit::setText);
+
     connect(m_ui->smcDetectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             m_settings, &ValgrindBaseSettings::setSelfModifyingCodeDetection);
 
@@ -108,6 +114,11 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings)
     //
     m_ui->kcachegrindExeChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_ui->kcachegrindExeChooser->setPromptDialogTitle(tr("KCachegrind Command"));
+    connect(m_ui->callgrindArgumentsLineEdit, &QLineEdit::textChanged,
+            m_settings, &ValgrindBaseSettings::setCallgrindArguments);
+    connect(m_settings, &ValgrindBaseSettings::callgrindArgumentsChanged,
+            m_ui->callgrindArgumentsLineEdit, &QLineEdit::setText);
+
     connect(m_ui->kcachegrindExeChooser, &Utils::PathChooser::rawPathChanged,
             m_settings, &ValgrindBaseSettings::setKCachegrindExecutable);
     connect(m_ui->enableCacheSim, &QCheckBox::toggled,
@@ -150,6 +161,11 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings)
     //
     m_ui->suppressionList->setModel(m_model);
     m_ui->suppressionList->setSelectionMode(QAbstractItemView::MultiSelection);
+
+    connect(m_ui->memcheckArgumentsLineEdit, &QLineEdit::textChanged,
+            m_settings, &ValgrindBaseSettings::setMemcheckArguments);
+    connect(m_settings, &ValgrindBaseSettings::memcheckArgumentsChanged,
+            m_ui->memcheckArgumentsLineEdit, &QLineEdit::setText);
 
     connect(m_ui->addSuppression, &QPushButton::clicked, this, &ValgrindConfigWidget::slotAddSuppression);
     connect(m_ui->removeSuppression, &QPushButton::clicked, this, &ValgrindConfigWidget::slotRemoveSuppression);
@@ -204,6 +220,9 @@ ValgrindConfigWidget::~ValgrindConfigWidget()
 void ValgrindConfigWidget::updateUi()
 {
     m_ui->valgrindExeChooser->setPath(m_settings->valgrindExecutable());
+    m_ui->valgrindArgumentsLineEdit->setText(m_settings->valgrindArguments());
+    m_ui->memcheckArgumentsLineEdit->setText(m_settings->memcheckArguments());
+    m_ui->callgrindArgumentsLineEdit->setText(m_settings->callgrindArguments());
     m_ui->smcDetectionComboBox->setCurrentIndex(m_settings->selfModifyingCodeDetection());
     m_ui->kcachegrindExeChooser->setPath(m_settings->kcachegrindExecutable());
     m_ui->enableCacheSim->setChecked(m_settings->enableCacheSim());

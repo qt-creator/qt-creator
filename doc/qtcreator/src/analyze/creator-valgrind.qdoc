@@ -131,7 +131,8 @@
 
     You can write your own suppression files if parts of your project contain
     errors you cannot fix and you do not want to be reminded of them. Click
-    \uicontrol Add in the \uicontrol {Memory Analysis} dialog to add the suppression files.
+    \uicontrol Add in the \uicontrol {MemCheck Memory Analysis} dialog to add
+    the suppression files.
     For more information about writing suppression files, see
     \l{http://valgrind.org/docs/manual/manual-core.html#manual-core.suppress}
     {Suppressing Errors} in the Valgrind documentation.
@@ -220,8 +221,8 @@
     of the project.
 
     To specify settings for Valgrind, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol Analyzer. The \uicontrol {Profiling Options}
-    group contains Callgrind options.
+    \uicontrol Options > \uicontrol Analyzer. The \uicontrol
+    {Callgrind Profiling Options} group contains Callgrind options.
 
     \image qtcreator-valgrind-callgrind-options.png "Valgrind options"
 

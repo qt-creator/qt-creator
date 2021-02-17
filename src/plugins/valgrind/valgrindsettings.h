@@ -72,16 +72,20 @@ signals:
  */
 public:
     QString valgrindExecutable() const;
+    QString valgrindArguments() const { return m_valgrindArguments; }
     SelfModifyingCodeDetection selfModifyingCodeDetection() const;
 
     void setValgrindExecutable(const QString &);
+    void setValgrindArguments(const QString &arguments);
     void setSelfModifyingCodeDetection(int);
 
 signals:
+    void valgrindArgumentsChanged(const QString &arguments);
     void selfModifyingCodeDetectionChanged(int);
 
 private:
     QString m_valgrindExecutable;
+    QString m_valgrindArguments;
     SelfModifyingCodeDetection m_selfModifyingCodeDetection;
 
 
@@ -89,6 +93,7 @@ private:
  * Base memcheck settings
  */
 public:
+    QString memcheckArguments() const { return m_memcheckArguments; }
     int numCallers() const { return m_numCallers; }
     LeakCheckOnFinish leakCheckOnFinish() const { return m_leakCheckOnFinish; }
     bool showReachable() const { return m_showReachable; }
@@ -100,6 +105,7 @@ public:
     virtual void addSuppressionFiles(const QStringList &) = 0;
     virtual void removeSuppressionFiles(const QStringList &) = 0;
 
+    void setMemcheckArguments(const QString &arguments);
     void setNumCallers(int);
     void setLeakCheckOnFinish(int);
     void setShowReachable(bool);
@@ -108,6 +114,7 @@ public:
     void setVisibleErrorKinds(const QList<int> &);
 
 signals:
+    void memcheckArgumentsChanged(const QString &arguments);
     void numCallersChanged(int);
     void leakCheckOnFinishChanged(int);
     void showReachableChanged(bool);
@@ -118,6 +125,7 @@ signals:
     void suppressionFilesAdded(const QStringList &);
 
 protected:
+    QString m_memcheckArguments;
     int m_numCallers;
     LeakCheckOnFinish m_leakCheckOnFinish;
     bool m_showReachable;
@@ -129,6 +137,7 @@ protected:
  * Base callgrind settings
  */
 public:
+    QString callgrindArguments() const { return m_callgrindArguments;}
     QString kcachegrindExecutable() const;
 
     bool enableCacheSim() const { return m_enableCacheSim; }
@@ -143,6 +152,7 @@ public:
     /// \return Minimum cost ratio, range [0.0..100.0]
     double visualisationMinimumInclusiveCostRatio() const { return m_visualisationMinimumInclusiveCostRatio; }
 
+    void setCallgrindArguments(const QString &arguments);
     void setKCachegrindExecutable(const QString &exec);
     void setEnableCacheSim(bool enable);
     void setEnableBranchSim(bool enable);
@@ -157,6 +167,7 @@ public:
     void setVisualisationMinimumInclusiveCostRatio(double minimumInclusiveCostRatio);
 
 signals:
+    void callgrindArgumentsChanged(const QString &argumnts);
     void enableCacheSimChanged(bool);
     void enableBranchSimChanged(bool);
     void collectSystimeChanged(bool);
@@ -166,6 +177,7 @@ signals:
     void visualisationMinimumInclusiveCostRatioChanged(double);
 
 private:
+    QString m_callgrindArguments;
     QString m_kcachegrindExecutable;
     bool m_enableCacheSim;
     bool m_collectSystime;

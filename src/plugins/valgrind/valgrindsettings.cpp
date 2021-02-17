@@ -45,6 +45,7 @@ const char removedSuppressionFilesC[] = "Analyzer.Valgrind.RemovedSuppressionFil
 const char addedSuppressionFilesC[] = "Analyzer.Valgrind.AddedSuppressionFiles";
 const char filterExternalIssuesC[] = "Analyzer.Valgrind.FilterExternalIssues";
 const char visibleErrorKindsC[] = "Analyzer.Valgrind.VisibleErrorKinds";
+const char memcheckArgumentsC[] = "Analyzer.Valgrind.Memcheck.Arguments";
 
 const char lastSuppressionDirectoryC[] = "Analyzer.Valgrind.LastSuppressionDirectory";
 const char lastSuppressionHistoryC[] = "Analyzer.Valgrind.LastSuppressionHistory";
@@ -61,8 +62,10 @@ const char callgrindVisualisationMinimumCostRatioC[] = "Analyzer.Valgrind.Callgr
 const char callgrindCycleDetectionC[] = "Analyzer.Valgrind.Callgrind.CycleDetection";
 const char callgrindShortenTemplates[] = "Analyzer.Valgrind.Callgrind.ShortenTemplates";
 const char callgrindCostFormatC[] = "Analyzer.Valgrind.Callgrind.CostFormat";
+const char callgrindArgumentsC[] = "Analyzer.Valgrind.Callgrind.Arguments";
 
 const char valgrindExeC[] = "Analyzer.Valgrind.ValgrindExecutable";
+const char valgrindArgumentsC[] = "Analyzer.Valgrind.ValgrindArguments";
 
 namespace Valgrind {
 namespace Internal {
@@ -88,11 +91,13 @@ void ValgrindBaseSettings::fromMap(const QVariantMap &map)
 {
     // General
     setIfPresent(map, valgrindExeC, &m_valgrindExecutable);
+    setIfPresent(map, valgrindArgumentsC, &m_valgrindArguments);
     setIfPresent(map, selfModifyingCodeDetectionC,
                  (int*) &m_selfModifyingCodeDetection);
 
     // Memcheck
     setIfPresent(map, numCallersC, &m_numCallers);
+    setIfPresent(map, memcheckArgumentsC, &m_memcheckArguments);
     setIfPresent(map, leakCheckOnFinishC, (int*) &m_leakCheckOnFinish);
     setIfPresent(map, showReachableC, &m_showReachable);
     setIfPresent(map, trackOriginsC, &m_trackOrigins);
@@ -104,6 +109,7 @@ void ValgrindBaseSettings::fromMap(const QVariantMap &map)
     }
 
     // Callgrind
+    setIfPresent(map, callgrindArgumentsC, &m_callgrindArguments);
     setIfPresent(map, kcachegrindExeC, &m_kcachegrindExecutable);
     setIfPresent(map, callgrindEnableCacheSimC, &m_enableCacheSim);
     setIfPresent(map, callgrindEnableBranchSimC, &m_enableBranchSim);
@@ -121,9 +127,11 @@ void ValgrindBaseSettings::toMap(QVariantMap &map) const
 {
     // General
     map.insert(valgrindExeC, m_valgrindExecutable);
+    map.insert(valgrindArgumentsC, m_valgrindArguments);
     map.insert(selfModifyingCodeDetectionC, m_selfModifyingCodeDetection);
 
     // Memcheck
+    map.insert(memcheckArgumentsC, m_memcheckArguments);
     map.insert(numCallersC, m_numCallers);
     map.insert(leakCheckOnFinishC, m_leakCheckOnFinish);
     map.insert(showReachableC, m_showReachable);
@@ -135,6 +143,7 @@ void ValgrindBaseSettings::toMap(QVariantMap &map) const
     map.insert(visibleErrorKindsC, errorKinds);
 
     // Callgrind
+    map.insert(callgrindArgumentsC, m_callgrindArguments);
     map.insert(kcachegrindExeC, m_kcachegrindExecutable);
     map.insert(callgrindEnableCacheSimC, m_enableCacheSim);
     map.insert(callgrindEnableBranchSimC, m_enableBranchSim);
@@ -151,11 +160,27 @@ void ValgrindBaseSettings::setValgrindExecutable(const QString &valgrindExecutab
     m_valgrindExecutable = valgrindExecutable;
 }
 
+void ValgrindBaseSettings::setValgrindArguments(const QString &arguments)
+{
+    if (m_valgrindArguments != arguments) {
+        m_valgrindArguments = arguments;
+        emit valgrindArgumentsChanged(arguments);
+    }
+}
+
 void ValgrindBaseSettings::setSelfModifyingCodeDetection(int smcDetection)
 {
     if (m_selfModifyingCodeDetection != smcDetection) {
         m_selfModifyingCodeDetection = (SelfModifyingCodeDetection) smcDetection;
         emit selfModifyingCodeDetectionChanged(smcDetection);
+    }
+}
+
+void ValgrindBaseSettings::setMemcheckArguments(const QString &arguments)
+{
+    if (m_memcheckArguments != arguments) {
+        m_memcheckArguments = arguments;
+        emit memcheckArgumentsChanged(arguments);
     }
 }
 
@@ -220,6 +245,14 @@ void ValgrindBaseSettings::setVisibleErrorKinds(const QList<int> &visibleErrorKi
 QString ValgrindBaseSettings::kcachegrindExecutable() const
 {
     return m_kcachegrindExecutable;
+}
+
+void ValgrindBaseSettings::setCallgrindArguments(const QString &arguments)
+{
+    if (m_callgrindArguments != arguments) {
+        m_callgrindArguments = arguments;
+        emit callgrindArgumentsChanged(arguments);
+    }
 }
 
 void ValgrindBaseSettings::setKCachegrindExecutable(const QString &exec)
@@ -396,9 +429,11 @@ void ValgrindGlobalSettings::readSettings()
 
     // General
     defaults.insert(valgrindExeC, "valgrind");
+    defaults.insert(valgrindArgumentsC, QString());
     defaults.insert(selfModifyingCodeDetectionC, DetectSmcStackOnly);
 
     // Memcheck
+    defaults.insert(memcheckArgumentsC, QString());
     defaults.insert(numCallersC, 25);
     defaults.insert(leakCheckOnFinishC, LeakCheckOnFinishSummaryOnly);
     defaults.insert(showReachableC, false);
@@ -414,6 +449,7 @@ void ValgrindGlobalSettings::readSettings()
     defaults.insert(lastSuppressionHistoryC, QStringList());
 
     // Callgrind
+    defaults.insert(callgrindArgumentsC, QString());
     defaults.insert(kcachegrindExeC, "kcachegrind");
     defaults.insert(callgrindEnableCacheSimC, false);
     defaults.insert(callgrindEnableBranchSimC, false);
