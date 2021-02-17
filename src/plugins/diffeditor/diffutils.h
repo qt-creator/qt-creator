@@ -46,8 +46,7 @@ public:
     };
 
     DiffFileInfo() = default;
-    DiffFileInfo(const QString &file) : fileName(file) {}
-    DiffFileInfo(const QString &file, const QString &type)
+    DiffFileInfo(const QString &file, const QString &type = {})
         : fileName(file), typeInfo(type) {}
     QString fileName;
     QString typeInfo;
@@ -61,7 +60,7 @@ public:
         Separator,
         Invalid
     };
-    TextLineData() {}
+    TextLineData() = default;
     TextLineData(const QString &txt) : text(txt), textLineType(TextLine) {}
     TextLineData(TextLineType t) : textLineType(t) {}
     QString text;
@@ -77,7 +76,7 @@ public:
 
 class DIFFEDITOR_EXPORT RowData {
 public:
-    RowData() {}
+    RowData() = default;
     RowData(const TextLineData &l)
         : leftLine(l), rightLine(l), equal(true) {}
     RowData(const TextLineData &l, const TextLineData &r)
@@ -89,7 +88,6 @@ public:
 
 class DIFFEDITOR_EXPORT ChunkData {
 public:
-    ChunkData() {}
     QList<RowData> rows;
     QString contextInfo;
     int leftStartingLineNumber = 0;
@@ -99,7 +97,7 @@ public:
 
 class DIFFEDITOR_EXPORT ChunkSelection {
 public:
-    ChunkSelection() {}
+    ChunkSelection() = default;
     ChunkSelection(const QList<int> &left, const QList<int> &right)
         : leftSelection(left), rightSelection(right) {}
     bool isNull() const { return leftSelection.isEmpty() && rightSelection.isEmpty(); }
@@ -119,7 +117,7 @@ public:
         RenameFile
     };
 
-    FileData() {}
+    FileData() = default;
     FileData(const ChunkData &chunkData) { chunks.append(chunkData); }
     QList<ChunkData> chunks;
     DiffFileInfo leftFileInfo;

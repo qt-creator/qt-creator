@@ -44,10 +44,10 @@ public:
         Insert,
         Equal
     };
-    Command command;
+    Command command = Equal;
     QString text;
-    Diff(Command com, const QString &txt = QString());
-    Diff();
+    Diff() = default;
+    Diff(Command com, const QString &txt = {});
     bool operator==(const Diff &other) const;
     bool operator!=(const Diff &other) const;
     QString toString() const;

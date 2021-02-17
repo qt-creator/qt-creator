@@ -159,7 +159,7 @@ static QList<Diff> cleanupOverlaps(const QList<Diff> &diffList)
         Diff thisDiff = diffList.at(i);
         Diff nextDiff = i < diffList.count() - 1
                 ? diffList.at(i + 1)
-                : Diff(Diff::Equal, QString());
+                : Diff(Diff::Equal);
         if (thisDiff.command == Diff::Delete
                 && nextDiff.command == Diff::Insert) {
             const int delInsOverlap = commonOverlap(thisDiff.text, nextDiff.text);
@@ -925,12 +925,6 @@ void Differ::diffBetweenEqualities(const QList<Diff> &leftInput,
 }
 
 ///////////////
-
-
-Diff::Diff() :
-    command(Diff::Equal)
-{
-}
 
 Diff::Diff(Command com, const QString &txt) :
     command(com),
