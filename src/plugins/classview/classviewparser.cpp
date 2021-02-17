@@ -351,6 +351,7 @@ void Parser::removeFiles(const QStringList &fileList)
         for (auto it = d->m_projectCache.begin(); it != d->m_projectCache.end(); ++it)
             it.value().fileList.removeOne(name);
     }
+    requestCurrentState();
 }
 
 /*!
