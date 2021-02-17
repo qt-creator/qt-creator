@@ -5032,7 +5032,7 @@ bool FakeVimHandler::Private::handleAddSurroundingSubMode(const Input &input)
     const int pos = lastPositionInLine(cursorLine() + 1);
 
     // Ignore leading spaces
-    while ((characterAt(anc) == " " || characterAt(anc) == "\t") && anc != pos) {
+    while ((characterAt(anc) == ' ' || characterAt(anc) == '\t') && anc != pos) {
         anc++;
     }
 

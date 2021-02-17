@@ -39,10 +39,11 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QVariant>
-#include <QMetaProperty>
+#include <QIODevice>
 #include <QLoggingCategory>
+#include <QMetaProperty>
 #include <QMimeData>
+#include <QVariant>
 
 namespace QmlDesigner {
 
