@@ -282,7 +282,7 @@ void ModelManagerInterface::loadQmlTypeDescriptionsInternal(const QString &resou
 void ModelManagerInterface::setDefaultProject(const ModelManagerInterface::ProjectInfo &pInfo,
                                               ProjectExplorer::Project *p)
 {
-    QMutexLocker l(mutex());
+    QMutexLocker locker(&m_mutex);
     m_defaultProject = p;
     m_defaultProjectInfo = pInfo;
 }
@@ -1282,11 +1282,6 @@ void ModelManagerInterface::startCppQmlTypeUpdate()
     m_queuedCppDocuments.clear();
 }
 
-QMutex *ModelManagerInterface::mutex() const
-{
-    return &m_mutex;
-}
-
 void ModelManagerInterface::asyncReset()
 {
     m_asyncResetTimer->start();
@@ -1547,7 +1542,7 @@ ViewerContext ModelManagerInterface::projectVContext(Dialect language, const Doc
 
 ModelManagerInterface::ProjectInfo ModelManagerInterface::defaultProjectInfo() const
 {
-    QMutexLocker l(mutex());
+    QMutexLocker locker(&m_mutex);
     return m_defaultProjectInfo;
 }
 
