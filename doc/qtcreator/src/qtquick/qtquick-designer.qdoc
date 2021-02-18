@@ -136,6 +136,129 @@
         \li \l{Viewing Open Documents}
     \endtable
 
+    \section1 Summary of Main Toolbar Actions
 
+    The top level toolbar in the Design mode contains shortcuts to widely used
+    actions.
 
+    \table
+    \header
+        \li Button/Field
+        \li Action
+        \li Read More
+    \row
+        \li \inlineimage prev.png
+        \li \uicontrol {Go Back} (\key Alt+<): moves a step backwards in your
+            location history. That is, returns focus to the last location in
+            the last file it was on.
+        \li \l{Navigating Between Open Files and Symbols}
+    \row
+        \li \inlineimage next.png
+        \li \uicontrol {Go Forward} (\key Alt+>): moves a step forward in your
+            location history.
+        \li \l{Navigating Between Open Files and Symbols}
+    \row
+        \li \inlineimage unlocked.png
+        \li Indicates that the currently open file can be modified and saved.
+        \li \l{Viewing Open Documents}
+    \row
+        \li File type icon
+        \li Indicates the type of the currently open file. Design views cannot
+            be split, so the icon cannot be dragged, contrary to the tooltip.
+        \li \l{Viewing Open Documents}
+    \row
+        \li Currently open file
+        \li Displays the location and filename of the currently open file. You
+            can select another file in the list of open files to view it in
+            \uicontrol {Form Editor} and \uicontrol Navigator.
+        \li \l{Viewing Open Documents}
+    \row
+        \li \inlineimage close.png
+        \li \uicontrol {Close Document} (\key Ctrl+W): closes the current file.
+        \li
+    \row
+        \li \inlineimage live_preview.png
+        \li \uicontrol {Show Live Preview} (\key Alt+P) shows a preview of the
+            current file or the entire UI. The changes you make to the UI are
+            instantly visible to you in the preview.
+        \li \l{Previewing}
+    \row
+        \li Preview size
+        \li Displays the size of the preview dialog as a percentage. You can
+            select another percentage in the list to view the UI in different
+            sizes.
+        \li \l{Previewing on Desktop}
+    \row
+        \li FPS
+        \li Displays the frames-per-second (FPS) refresh rate of previewed
+            animations.
+        \li \l{Previewing on Desktop}
+    \row
+        \li Preview language
+        \li Displays the language used for a localized application during
+            preview. You can select another language in the list of languages
+            that the application has been localized to.
+        \li
+    \row
+        \li \inlineimage qtcreator-reset-position-icon.png
+        \li Returns a component to its \e {implicit position} after it was
+            moved.
+        \li \l{Resetting Component Position and Size}
+    \row
+        \li \inlineimage qtcreator-reset-size-icon.png
+        \li Returns a component to its implicit size after it was scaled.
+        \li \l{Resetting Component Position and Size}
+    \row
+        \li \inlineimage icons/anchor-fill.png
+        \li Fills the selected component to its parent component.
+        \li \l{Setting Anchors and Margins}
+    \row
+        \li \inlineimage qtcreator-anchors-reset-icon.png
+        \li Resets anchors to their saved state.
+        \li \l{Setting Anchors and Margins}
+    \row
+        \li \inlineimage row.png
+        \li Uses a \uicontrol Row component to lay out the selected components.
+        \li \l{Using Layouts}
+    \row
+        \li \inlineimage column.png
+        \li Uses a \uicontrol Column component to lay out the selected
+            components.
+        \li \l{Using Layouts}
+    \row
+        \li \inlineimage grid.png
+        \li Uses a \uicontrol Grid component to lay out the selected
+            components.
+        \li \l{Using Layouts}
+    \row
+        \li \inlineimage icons/edit.png
+        \li \uicontrol {Show Event List} (\key {Alt+E}): opens a dialog for
+            viewing and creating an {event list} for an
+            application flow.
+        \li \l{Simulating Events}
+    \row
+        \li \inlineimage icons/assign.png
+        \li \uicontrol {Assign Events to Actions} (\key {Alt+A}): assigns
+            events to actions in an application flow.
+        \li \l{Simulating Events}
+    \row
+        \li Styling
+        \li Displays the UI style used for UI controls.
+        \li \l{Styling Controls}
+    \row
+        \li Subcomponents
+        \li Displays the components referred to in the current file. Select a
+            component in the list to open it in \uicontrol {Form Editor} and
+            \uicontrol Navigator.
+        \li \l{Creating Components}
+    \row
+        \li Workspace
+        \li Displays the currently selected workspace. To switch to another
+            workspace, select it in the list.
+        \li \l{Managing Workspaces}
+    \row
+        \li \inlineimage icons/annotation.png
+        \li Enables you to add or edit global annotations.
+        \li \l{Annotating Designs}
+    \endtable
 */
