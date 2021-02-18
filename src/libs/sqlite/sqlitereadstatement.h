@@ -34,9 +34,11 @@ class SQLITE_EXPORT ReadStatement final : protected StatementImplementation<Base
 public:
     explicit ReadStatement(Utils::SmallStringView sqlStatement, Database &database);
 
+    using StatementImplementation::readCallback;
+    using StatementImplementation::readTo;
+    using StatementImplementation::toValue;
     using StatementImplementation::value;
     using StatementImplementation::values;
-    using StatementImplementation::toValue;
 
 protected:
     void checkIsReadOnlyStatement();

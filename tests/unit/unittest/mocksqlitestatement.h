@@ -41,8 +41,10 @@ public:
     MOCK_CONST_METHOD1(fetchLongValue, long (int));
     MOCK_CONST_METHOD1(fetchLongLongValue, long long (int));
     MOCK_CONST_METHOD1(fetchDoubleValue, double (int));
-    MOCK_CONST_METHOD1(fetchSmallStringValue, Utils::SmallString (int));
+    MOCK_CONST_METHOD1(fetchSmallStringValue, Utils::SmallString(int));
+    MOCK_CONST_METHOD1(fetchSmallStringViewValue, Utils::SmallStringView(int));
     MOCK_CONST_METHOD1(fetchPathStringValue, Utils::PathString (int));
+    MOCK_CONST_METHOD1(fetchValueView, Sqlite::ValueView(int));
 
     template<typename Type>
     Type fetchValue(int column) const;

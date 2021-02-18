@@ -33,6 +33,7 @@
 #include "bindingproperty.h"
 #include "variantproperty.h"
 #include "rewritertransaction.h"
+#include "signalhandlerproperty.h"
 #include <rewritingexception.h>
 
 #include <QUrl>
@@ -75,6 +76,13 @@ static void syncBindingProperties(ModelNode &outputNode, const ModelNode &inputN
 {
     foreach (const BindingProperty &bindingProperty, inputNode.bindingProperties()) {
         outputNode.bindingProperty(bindingProperty.name()).setExpression(fixExpression(bindingProperty.expression(), idRenamingHash));
+    }
+}
+
+static void syncSignalHandlerProperties(ModelNode &outputNode, const ModelNode &inputNode,  const QHash<QString, QString> &idRenamingHash)
+{
+    foreach (const SignalHandlerProperty &signalProperty, inputNode.signalProperties()) {
+        outputNode.signalHandlerProperty(signalProperty.name()).setSource(fixExpression(signalProperty.source(), idRenamingHash));
     }
 }
 
@@ -152,6 +160,7 @@ static ModelNode createNodeFromNode(const ModelNode &modelNode,const QHash<QStri
                                             propertyList, variantPropertyList, modelNode.nodeSource(), modelNode.nodeSourceType()));
     syncAuxiliaryProperties(newNode, modelNode);
     syncBindingProperties(newNode, modelNode, idRenamingHash);
+    syncSignalHandlerProperties(newNode, modelNode, idRenamingHash);
     syncId(newNode, modelNode, idRenamingHash);
     syncNodeProperties(newNode, modelNode, idRenamingHash, view);
     syncNodeListProperties(newNode, modelNode, idRenamingHash, view);

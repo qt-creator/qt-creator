@@ -64,7 +64,7 @@ struct Data
 {
     FilePath sourcePath;
     FilePath extractedPath;
-    bool installIntoApplication;
+    bool installIntoApplication = false;
 };
 
 static QStringList libraryNameFilter()
@@ -354,7 +354,7 @@ public:
         vlayout->addSpacing(10);
 
         auto localInstall = new QRadioButton(PluginInstallWizard::tr("User plugins"));
-        localInstall->setChecked(true);
+        localInstall->setChecked(!m_data->installIntoApplication);
         auto localLabel = new QLabel(
             PluginInstallWizard::tr("The plugin will be available to all compatible %1 "
                                     "installations, but only for the current user.")
@@ -368,6 +368,7 @@ public:
 
         auto appInstall = new QRadioButton(
             PluginInstallWizard::tr("%1 installation").arg(Constants::IDE_DISPLAY_NAME));
+        appInstall->setChecked(m_data->installIntoApplication);
         auto appLabel = new QLabel(
             PluginInstallWizard::tr("The plugin will be available only to this %1 "
                                     "installation, but for all users that can access it.")

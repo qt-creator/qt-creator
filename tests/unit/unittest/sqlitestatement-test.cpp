@@ -37,6 +37,7 @@
 
 #include <QDir>
 
+#include <deque>
 #include <vector>
 
 namespace {
@@ -956,6 +957,150 @@ TEST_F(SqliteStatement, ThrowInvalidColumnFetchedForToManyArgumentsForToValues)
 {
     ASSERT_THROW(SqliteTestStatement::toValue<int>("SELECT name, number FROM test", database),
                  Sqlite::ColumnCountDoesNotMatch);
+}
+
+TEST_F(SqliteStatement, ReadCallback)
+{
+    MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, long long)> callbackMock;
+    ReadStatement statement("SELECT name, value FROM test", database);
+
+    EXPECT_CALL(callbackMock, Call(Eq("bar"), Eq(1)));
+    EXPECT_CALL(callbackMock, Call(Eq("foo"), Eq(2)));
+    EXPECT_CALL(callbackMock, Call(Eq("poo"), Eq(3)));
+
+    statement.readCallback<2>(callbackMock.AsStdFunction());
+}
+
+TEST_F(SqliteStatement, ReadCallbackCalledWithArguments)
+{
+    MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, long long)> callbackMock;
+    ReadStatement statement("SELECT name, value FROM test WHERE value=?", database);
+
+    EXPECT_CALL(callbackMock, Call(Eq("foo"), Eq(2)));
+
+    statement.readCallback<2>(callbackMock.AsStdFunction(), 2);
+}
+
+TEST_F(SqliteStatement, ReadCallbackAborts)
+{
+    MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, long long)> callbackMock;
+    ReadStatement statement("SELECT name, value FROM test ORDER BY name", database);
+
+    EXPECT_CALL(callbackMock, Call(Eq("bar"), Eq(1)));
+    EXPECT_CALL(callbackMock, Call(Eq("foo"), Eq(2))).WillOnce(Return(Sqlite::CallbackControl::Abort));
+    EXPECT_CALL(callbackMock, Call(Eq("poo"), Eq(3))).Times(0);
+
+    statement.readCallback<2>(callbackMock.AsStdFunction());
+}
+
+TEST_F(SqliteStatement, ThrowInvalidColumnFetchedForToManyArgumentsForReadCallback)
+{
+    MockFunction<Sqlite::CallbackControl(Utils::SmallStringView)> callbackMock;
+    SqliteTestStatement statement("SELECT name, number FROM test", database);
+
+    ASSERT_THROW(statement.readCallback<1>(callbackMock.AsStdFunction()),
+                 Sqlite::ColumnCountDoesNotMatch);
+}
+
+TEST_F(SqliteStatement, ReadCallbackCallsResetAfterCallbacks)
+{
+    MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, long long)> callbackMock;
+    MockSqliteStatement mockStatement;
+
+    EXPECT_CALL(mockStatement, reset());
+
+    mockStatement.readCallback<2>(callbackMock.AsStdFunction());
+}
+
+TEST_F(SqliteStatement, ReadCallbackCallsResetAfterCallbacksAborts)
+{
+    MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, long long)> callbackMock;
+    MockSqliteStatement mockStatement;
+    ON_CALL(callbackMock, Call(_, _)).WillByDefault(Return(Sqlite::CallbackControl::Abort));
+
+    EXPECT_CALL(mockStatement, reset());
+
+    mockStatement.readCallback<2>(callbackMock.AsStdFunction());
+}
+
+TEST_F(SqliteStatement, ReadCallbackThrowsForError)
+{
+    MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, long long)> callbackMock;
+    MockSqliteStatement mockStatement;
+    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+
+    ASSERT_THROW(mockStatement.readCallback<2>(callbackMock.AsStdFunction()),
+                 Sqlite::StatementHasError);
+}
+
+TEST_F(SqliteStatement, ReadCallbackCallsResetIfExceptionIsThrown)
+{
+    MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, long long)> callbackMock;
+    MockSqliteStatement mockStatement;
+    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+
+    EXPECT_CALL(mockStatement, reset());
+
+    EXPECT_THROW(mockStatement.readCallback<2>(callbackMock.AsStdFunction()),
+                 Sqlite::StatementHasError);
+}
+
+TEST_F(SqliteStatement, ReadToContainer)
+{
+    std::deque<FooValue> values;
+    ReadStatement statement("SELECT number FROM test", database);
+
+    statement.readTo<1>(values);
+
+    ASSERT_THAT(values, UnorderedElementsAre(Eq("blah"), Eq(23.3), Eq(40)));
+}
+
+TEST_F(SqliteStatement, ReadToContainerCallCallbackWithArguments)
+{
+    std::deque<FooValue> values;
+    ReadStatement statement("SELECT number FROM test WHERE value=?", database);
+
+    statement.readTo(values, 2);
+
+    ASSERT_THAT(values, ElementsAre(Eq(23.3)));
+}
+
+TEST_F(SqliteStatement, ThrowInvalidColumnFetchedForToManyArgumentsForReadTo)
+{
+    std::deque<FooValue> values;
+    SqliteTestStatement statement("SELECT name, number FROM test", database);
+
+    ASSERT_THROW(statement.readTo<1>(values, 2), Sqlite::ColumnCountDoesNotMatch);
+}
+
+TEST_F(SqliteStatement, ReadToCallsResetAfterPushingAllValuesBack)
+{
+    std::deque<FooValue> values;
+    MockSqliteStatement mockStatement;
+
+    EXPECT_CALL(mockStatement, reset());
+
+    mockStatement.readTo(values);
+}
+
+TEST_F(SqliteStatement, ReadToThrowsForError)
+{
+    std::deque<FooValue> values;
+    MockSqliteStatement mockStatement;
+    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+
+    ASSERT_THROW(mockStatement.readTo(values), Sqlite::StatementHasError);
+}
+
+TEST_F(SqliteStatement, ReadToCallsResetIfExceptionIsThrown)
+{
+    std::deque<FooValue> values;
+    MockSqliteStatement mockStatement;
+    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+
+    EXPECT_CALL(mockStatement, reset());
+
+    EXPECT_THROW(mockStatement.readTo(values), Sqlite::StatementHasError);
 }
 
 } // namespace
