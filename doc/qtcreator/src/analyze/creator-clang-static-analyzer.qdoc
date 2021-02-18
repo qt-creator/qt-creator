@@ -112,6 +112,10 @@
     \inlineimage refactormarker.png
     icon, hover the mouse pointer over the line.
 
+    You can disable particular type of checks either globally or for a
+    particular project by selecting \uicontrol {Disable This Check} or
+    \uicontrol {Disable These Checks} in the context menu.
+
     Select the \inlineimage settings.png
     button to customize Clang diagnostics for the current project.
 
