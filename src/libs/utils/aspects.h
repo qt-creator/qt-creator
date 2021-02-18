@@ -35,6 +35,11 @@
 #include <functional>
 #include <memory>
 
+QT_BEGIN_NAMESPACE
+class QAction;
+class QSettings;
+QT_END_NAMESPACE
+
 namespace Utils {
 
 class BaseAspects;
@@ -83,8 +88,10 @@ public:
     bool isVisible() const;
     void setVisible(bool visible);
 
-    void setEnabled(bool enabled);
+    bool isAutoApply() const;
+    void setAutoApply(bool on);
 
+    void setEnabled(bool enabled);
     void setReadOnly(bool enabled);
 
     QString labelText() const;
@@ -95,6 +102,8 @@ public:
     void setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator);
     QWidget *createConfigWidget() const;
 
+    virtual QAction *action();
+
     virtual void fromMap(const QVariantMap &map);
     virtual void toMap(QVariantMap &map) const;
     virtual void toActiveMap(QVariantMap &map) const { toMap(map); }
@@ -102,12 +111,25 @@ public:
 
     virtual void addToLayout(LayoutBuilder &builder);
 
+    virtual QVariant volatileValue() const;
+    virtual void setVolatileValue(const QVariant &val);
+
+    virtual void readSettings(const QSettings *settings);
+    virtual void writeSettings(QSettings *settings) const;
+
+    virtual void apply();
+    virtual void cancel();
+    virtual void finish();
+    bool isDirty() const;
+    bool hasAction() const;
+
 signals:
     void changed();
 
 protected:
     QLabel *label() const;
     void setupLabel();
+    void addLabeledItem(LayoutBuilder &builder, QWidget *widget);
 
     template <class Widget, typename ...Args>
     Widget *createSubWidget(Args && ...args) {
@@ -182,12 +204,22 @@ public:
 
     void addToLayout(LayoutBuilder &builder) override;
 
+    QAction *action() override;
+
+    QVariant volatileValue() const override;
+    void setVolatileValue(const QVariant &val) override;
+
     bool value() const;
     void setValue(bool val);
+    void setDefaultValue(bool val);
 
     enum class LabelPlacement { AtCheckBox, AtCheckBoxWithoutDummyLabel, InExtraLabel };
     void setLabel(const QString &labelText,
                   LabelPlacement labelPlacement = LabelPlacement::InExtraLabel);
+    void setLabelPlacement(LabelPlacement labelPlacement);
+
+signals:
+    void valueChanged(bool newValue);
 
 private:
     std::unique_ptr<Internal::BoolAspectPrivate> d;
@@ -205,6 +237,7 @@ public:
 
     int value() const;
     void setValue(int val);
+    void setDefaultValue(int val);
 
     QString stringValue() const;
 
@@ -256,11 +289,15 @@ public:
 
     void addToLayout(LayoutBuilder &builder) override;
 
+    QVariant volatileValue() const override;
+    void setVolatileValue(const QVariant &val) override;
+
     // Hook between UI and StringAspect:
     using ValueAcceptor = std::function<Utils::optional<QString>(const QString &, const QString &)>;
     void setValueAcceptor(ValueAcceptor &&acceptor);
     QString value() const;
     void setValue(const QString &val);
+    void setDefaultValue(const QString &val);
 
     void setShowToolTipOnLabel(bool show);
 
@@ -272,7 +309,9 @@ public:
     void setEnvironment(const Utils::Environment &env);
     void setBaseFileName(const Utils::FilePath &baseFileName);
     void setUndoRedoEnabled(bool readOnly);
+    void setAcceptRichText(bool acceptRichText);
     void setMacroExpanderProvider(const Utils::MacroExpanderProvider &expanderProvider);
+    void setUseGlobalMacroExpander();
     void setValidationFunction(const Utils::FancyLineEdit::ValidationFunction &validator);
     void setOpenTerminalHandler(const std::function<void()> &openTerminal);
 
@@ -319,8 +358,12 @@ public:
 
     void addToLayout(LayoutBuilder &builder) override;
 
+    QVariant volatileValue() const override;
+    void setVolatileValue(const QVariant &val) override;
+
     qint64 value() const;
     void setValue(qint64 val);
+    void setDefaultValue(qint64 defaultValue);
 
     void setRange(qint64 min, qint64 max);
     void setLabel(const QString &label); // FIXME: Use setLabelText
@@ -328,7 +371,8 @@ public:
     void setSuffix(const QString &suffix);
     void setDisplayIntegerBase(int base);
     void setDisplayScaleFactor(qint64 factor);
-    void setDefaultValue(qint64 defaultValue);
+    void setSpecialValueText(const QString &specialText);
+    void setSingleStep(qint64 step);
 
 private:
     std::unique_ptr<Internal::IntegerAspectPrivate> d;
@@ -399,6 +443,7 @@ public:
     void addToLayout(LayoutBuilder &builder) override;
 
     void setIconType(Utils::InfoLabel::InfoType t);
+    void setText(const QString &message);
 
 private:
     std::unique_ptr<Internal::TextDisplayPrivate> d;
@@ -416,18 +461,26 @@ public:
     Aspect *addAspect(Args && ...args)
     {
         auto aspect = new Aspect(args...);
-        addAspectHelper(aspect);
+        registerAspect(aspect);
         return aspect;
     }
+    void registerAspect(BaseAspect *aspect);
 
     void addToLayout(LayoutBuilder &builder) override;
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 
-private:
-    void addAspectHelper(BaseAspect *aspect);
+    void readSettings(const QSettings *settings) override;
+    void writeSettings(QSettings *settings) const override;
 
+    void apply() override;
+    void cancel() override;
+    void finish() override;
+
+    void forEachAspect(const std::function<void(BaseAspect *)> &run);
+
+private:
     std::unique_ptr<Internal::AspectContainerPrivate> d;
 };
 
