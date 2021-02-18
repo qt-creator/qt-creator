@@ -305,7 +305,7 @@ public:
     Utils::optional<QList<TextDocumentEdit>> documentChanges() const
     { return optionalArray<TextDocumentEdit>(documentChangesKey); }
     void setDocumentChanges(const QList<TextDocumentEdit> &changes)
-    { insertArray(changesKey, changes); }
+    { insertArray(documentChangesKey, changes); }
 
     bool isValid(ErrorHierarchy *error) const override
     { return checkOptionalArray<TextDocumentEdit>(error, documentChangesKey); }
