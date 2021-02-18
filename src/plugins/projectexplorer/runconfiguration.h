@@ -114,6 +114,7 @@ protected:
     friend class RunConfiguration;
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &data) const override;
+    void toActiveMap(QVariantMap &data) const override;
 
 private:
     bool m_useGlobalSettings = false;

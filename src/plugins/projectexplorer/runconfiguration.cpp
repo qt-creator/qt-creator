@@ -134,6 +134,16 @@ void GlobalOrProjectAspect::toMap(QVariantMap &map) const
     map.insert(id().toString() + ".UseGlobalSettings", m_useGlobalSettings);
 }
 
+void GlobalOrProjectAspect::toActiveMap(QVariantMap &data) const
+{
+    if (m_useGlobalSettings)
+        m_globalSettings->toMap(data);
+    else if (m_projectSettings)
+        m_projectSettings->toMap(data);
+    else
+        QTC_CHECK(false);
+}
+
 void GlobalOrProjectAspect::resetProjectToGlobalSettings()
 {
     QTC_ASSERT(m_globalSettings, return);
@@ -235,7 +245,7 @@ QMap<Utils::Id, QVariantMap> RunConfiguration::aspectData() const
 {
     QMap<Utils::Id, QVariantMap> data;
     for (BaseAspect *aspect : qAsConst(m_aspects))
-        aspect->toMap(data[aspect->id()]);
+        aspect->toActiveMap(data[aspect->id()]);
     return data;
 }
 
