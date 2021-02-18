@@ -60,10 +60,7 @@ signals:
     void treeDataUpdate(QSharedPointer<QStandardItem> result);
 
 private:
-    ParserTreeItem::ConstPtr findItemByRoot(const QStandardItem *item, bool skipRoot = false) const;
     void onProjectListChanged();
-    void resetParser();
-
     void initialize();
 
     inline bool state() const;

@@ -55,8 +55,9 @@ public:
     void requestCurrentState();
     void removeFiles(const QStringList &fileList);
     void resetDataToCurrentState();
-    void parseDocument(const CPlusPlus::Document::Ptr &doc);
     void setFlatMode(bool flat);
+
+    void updateDocuments(const QList<CPlusPlus::Document::Ptr> &docs);
 
 signals:
     void treeRegenerated(const ParserTreeItem::ConstPtr &root);

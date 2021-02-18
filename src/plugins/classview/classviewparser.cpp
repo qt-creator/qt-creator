@@ -43,7 +43,6 @@
 #include <QDebug>
 #include <QHash>
 #include <QSet>
-#include <QTimer>
 #include <QElapsedTimer>
 
 enum { debug = false };
@@ -77,14 +76,8 @@ namespace Internal {
 class ParserPrivate
 {
 public:
-    // Keep timer as a child of Parser in order to move it together with its parent
-    // into another thread.
-    ParserPrivate(QObject *parent) : timer(parent) {}
-
     //! Get document from documentList
     CPlusPlus::Document::Ptr document(const QString &fileName) const;
-
-    QTimer timer;
 
     struct DocumentCache {
         unsigned treeRevision = 0;
@@ -123,12 +116,8 @@ CPlusPlus::Document::Ptr ParserPrivate::document(const QString &fileName) const
 
 Parser::Parser(QObject *parent)
     : QObject(parent),
-    d(new ParserPrivate(this))
+    d(new ParserPrivate())
 {
-    d->timer.setSingleShot(true);
-
-    // timer for emitting changes
-    connect(&d->timer, &QTimer::timeout, this, &Parser::requestCurrentState);
 }
 
 /*!
@@ -304,25 +293,22 @@ ParserTreeItem::ConstPtr Parser::getCachedOrParseDocumentTree(const CPlusPlus::D
 }
 
 /*!
-    Parses the document \a doc if it is in the project files and adds a tree to
+    Parses the document list \a docs if they are in the project files and adds a tree to
     the internal storage.
 */
 
-void Parser::parseDocument(const CPlusPlus::Document::Ptr &doc)
+void Parser::updateDocuments(const QList<CPlusPlus::Document::Ptr> &docs)
 {
-    if (doc.isNull())
-        return;
+    for (const CPlusPlus::Document::Ptr &doc: docs) {
+        const QString &name = doc->fileName();
 
-    const QString &name = doc->fileName();
+        // if it is external file (not in any of our projects)
+        if (!d->fileList.contains(name))
+            continue;
 
-    // if it is external file (not in any of our projects)
-    if (!d->fileList.contains(name))
-        return;
-
-    getParseDocumentTree(doc);
-
-    if (!d->timer.isActive())
-        d->timer.start(400); //! Delay in msecs before an update
+        getParseDocumentTree(doc);
+    }
+    requestCurrentState();
 }
 
 /*!
@@ -393,8 +379,6 @@ void Parser::resetDataToCurrentState()
 
 void Parser::requestCurrentState()
 {
-    d->timer.stop();
-
     // TODO: we need to have a fresh SessionManager data here, which we could pass to parse()
     emit treeRegenerated(parse());
 }

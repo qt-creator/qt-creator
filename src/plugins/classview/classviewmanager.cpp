@@ -41,6 +41,7 @@
 #include <texteditor/texteditor.h>
 
 #include <QThread>
+#include <QTimer>
 
 using namespace Core;
 using namespace Utils;
@@ -92,12 +93,64 @@ public:
     QThread m_parserThread;
     ParserTreeItem::ConstPtr m_root;
 
+    QTimer m_timer;
+    QHash<QString, CPlusPlus::Document::Ptr> m_awaitingDocuments;
+
     //! Internal manager state. \sa Manager::state
     bool state = false;
 
     //! there is some massive operation ongoing so temporary we should wait
     bool disableCodeParser = false;
+
+    void cancelScheduledUpdate();
+    void resetParser();
+    ParserTreeItem::ConstPtr findItemByRoot(const QStandardItem *item, bool skipRoot = false) const;
 };
+
+void ManagerPrivate::cancelScheduledUpdate()
+{
+    m_timer.stop();
+    m_awaitingDocuments.clear();
+}
+
+void ManagerPrivate::resetParser()
+{
+    cancelScheduledUpdate();
+    QMetaObject::invokeMethod(m_parser, &Parser::resetDataToCurrentState, Qt::QueuedConnection);
+}
+
+/*!
+    Returns the internal tree item for \a item. \a skipRoot skips the root
+    item.
+*/
+ParserTreeItem::ConstPtr ManagerPrivate::findItemByRoot(const QStandardItem *item, bool skipRoot) const
+{
+    if (!item)
+        return ParserTreeItem::ConstPtr();
+
+    // go item by item to the root
+    QList<const QStandardItem *> uiList;
+    const QStandardItem *cur = item;
+    while (cur) {
+        uiList.append(cur);
+        cur = cur->parent();
+    }
+
+    if (skipRoot && uiList.count() > 0)
+        uiList.removeLast();
+
+    ParserTreeItem::ConstPtr internal = m_root;
+    while (uiList.count() > 0) {
+        cur = uiList.last();
+        uiList.removeLast();
+        const SymbolInformation &inf = Internal::symbolInformationFromItem(cur);
+        internal = internal->child(inf);
+        if (internal.isNull())
+            break;
+    }
+
+    return internal;
+}
 
 ///////////////////////////////// Manager //////////////////////////////////
 
@@ -133,44 +186,11 @@ Manager *Manager::instance()
 }
 
 /*!
-    Returns the internal tree item for \a item. \a skipRoot skips the root
-    item.
-*/
-ParserTreeItem::ConstPtr Manager::findItemByRoot(const QStandardItem *item, bool skipRoot) const
-{
-    if (!item)
-        return ParserTreeItem::ConstPtr();
-
-    // go item by item to the root
-    QList<const QStandardItem *> uiList;
-    const QStandardItem *cur = item;
-    while (cur) {
-        uiList.append(cur);
-        cur = cur->parent();
-    }
-
-    if (skipRoot && uiList.count() > 0)
-        uiList.removeLast();
-
-    ParserTreeItem::ConstPtr internal = d->m_root;
-    while (uiList.count() > 0) {
-        cur = uiList.last();
-        uiList.removeLast();
-        const SymbolInformation &inf = Internal::symbolInformationFromItem(cur);
-        internal = internal->child(inf);
-        if (internal.isNull())
-            break;
-    }
-
-    return internal;
-}
-
-/*!
     Checks \a item for lazy data population of a QStandardItemModel.
 */
 bool Manager::canFetchMore(QStandardItem *item, bool skipRoot) const
 {
-    ParserTreeItem::ConstPtr ptr = findItemByRoot(item, skipRoot);
+    ParserTreeItem::ConstPtr ptr = d->findItemByRoot(item, skipRoot);
     if (ptr.isNull())
         return false;
     return ptr->canFetchMore(item);
@@ -182,7 +202,7 @@ bool Manager::canFetchMore(QStandardItem *item, bool skipRoot) const
 */
 void Manager::fetchMore(QStandardItem *item, bool skipRoot)
 {
-    ParserTreeItem::ConstPtr ptr = findItemByRoot(item, skipRoot);
+    ParserTreeItem::ConstPtr ptr = d->findItemByRoot(item, skipRoot);
     if (ptr.isNull())
         return;
     ptr->fetchMore(item);
@@ -190,7 +210,7 @@ void Manager::fetchMore(QStandardItem *item, bool skipRoot)
 
 bool Manager::hasChildren(QStandardItem *item) const
 {
-    ParserTreeItem::ConstPtr ptr = findItemByRoot(item);
+    ParserTreeItem::ConstPtr ptr = d->findItemByRoot(item);
     if (ptr.isNull())
         return false;
     return ptr->childCount();
@@ -199,6 +219,7 @@ bool Manager::hasChildren(QStandardItem *item) const
 void Manager::initialize()
 {
     using ProjectExplorer::SessionManager;
+    d->m_timer.setSingleShot(true);
 
     // connections to enable/disable navi widget factory
     SessionManager *sessionManager = SessionManager::instance();
@@ -215,6 +236,7 @@ void Manager::initialize()
 
         // disable tree updates to speed up
         d->disableCodeParser = true;
+        d->cancelScheduledUpdate();
     });
     connect(ProgressManager::instance(), &ProgressManager::allTasksFinished,
             this, [this](Id type) {
@@ -229,7 +251,7 @@ void Manager::initialize()
             return;
 
         // request to update a tree to the current state
-        resetParser();
+        d->resetParser();
     });
 
     connect(d->m_parser, &Parser::treeRegenerated,
@@ -258,10 +280,23 @@ void Manager::initialize()
         if (d->disableCodeParser)
             return;
 
-        QMetaObject::invokeMethod(d->m_parser, [this, doc]() {
-            d->m_parser->parseDocument(doc); }, Qt::QueuedConnection);
-    }, Qt::QueuedConnection);
-    //
+        if (doc.data() == nullptr)
+            return;
+
+        d->m_awaitingDocuments.insert(doc->fileName(), doc);
+        d->m_timer.start(400); // Accumulate multiple requests into one, restarts the timer
+    });
+
+    connect(&d->m_timer, &QTimer::timeout, this, [this]() {
+        const QList<CPlusPlus::Document::Ptr> docsToBeUpdated = d->m_awaitingDocuments.values();
+        d->cancelScheduledUpdate();
+        if (!state() || d->disableCodeParser) // enabling any of them will trigger the total update
+            return;
+        QMetaObject::invokeMethod(d->m_parser, [this, docsToBeUpdated]() {
+            d->m_parser->updateDocuments(docsToBeUpdated);
+        }, Qt::QueuedConnection);
+    });
+
     connect(codeModelManager, &CppTools::CppModelManager::aboutToRemoveFiles,
             d->m_parser, &Parser::removeFiles, Qt::QueuedConnection);
 }
@@ -295,12 +330,7 @@ void Manager::setState(bool state)
     d->state = state;
 
     if (state) // enabled - request a current snapshots etc?..
-        resetParser();
-}
-
-void Manager::resetParser()
-{
-    QMetaObject::invokeMethod(d->m_parser, &Parser::resetDataToCurrentState, Qt::QueuedConnection);
+        d->resetParser();
 }
 
 /*!
