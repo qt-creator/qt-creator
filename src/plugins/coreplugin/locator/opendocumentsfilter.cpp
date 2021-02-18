@@ -91,7 +91,7 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locat
 
 void OpenDocumentsFilter::refreshInternally()
 {
-    QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
+    QMutexLocker lock(&m_mutex);
     m_editors.clear();
     const QList<DocumentModel::Entry *> documentEntries = DocumentModel::entries();
     for (DocumentModel::Entry *e : documentEntries) {
@@ -106,7 +106,7 @@ void OpenDocumentsFilter::refreshInternally()
 
 QList<OpenDocumentsFilter::Entry> OpenDocumentsFilter::editors() const
 {
-    QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
+    QMutexLocker lock(&m_mutex);
     return m_editors;
 }
 
