@@ -448,7 +448,8 @@ private:
     template<typename Container, int... ColumnIndices>
     void pushBackToContainer(Container &container, std::integer_sequence<int, ColumnIndices...>)
     {
-        container.push_back(Container::value_type(ValueGetter(*this, ColumnIndices)...));
+        using Type = typename Container::value_type;
+        container.push_back(Type(ValueGetter(*this, ColumnIndices)...));
     }
 
     template<int ResultTypeCount, typename Container>
