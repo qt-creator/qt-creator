@@ -31,6 +31,7 @@
 
 #include <QFormLayout>
 #include <QGridLayout>
+#include <QGroupBox>
 #include <QStyle>
 #include <QWidget>
 
@@ -43,8 +44,12 @@ namespace Utils {
     The LayoutType enum describes the type of \c QLayout a layout builder
     operates on.
 
-    \value FormLayout
-    \value GridLayout
+    \value Form
+    \value Grid
+    \value HBox
+    \value VBox
+    \value HBoxWithMargins
+    \value VBoxWithMargins
 */
 
 /*!
@@ -90,14 +95,41 @@ LayoutBuilder::LayoutItem::LayoutItem(QWidget *widget, int span, Alignment align
 
     \sa BaseAspect::addToLayout()
  */
-LayoutBuilder::LayoutItem::LayoutItem(BaseAspect *aspect)
-    : aspect(aspect)
+LayoutBuilder::LayoutItem::LayoutItem(BaseAspect &aspect, int span, Alignment align)
+    : aspect(&aspect), span(span), align(align)
+{}
+
+LayoutBuilder::LayoutItem::LayoutItem(BaseAspect *aspect, int span, Alignment align)
+    : aspect(aspect), span(span), align(align)
 {}
 
 /*!
     Constructs a layout item containing some static \a text.
  */
-LayoutBuilder::LayoutItem::LayoutItem(const QString &text) : text(text) {}
+LayoutBuilder::LayoutItem::LayoutItem(const QString &text, int span, Alignment align)
+    : text(text), span(span), align(align)
+{}
+
+/*!
+    Constructs a layout item from the contents of another LayoutBuilder
+ */
+LayoutBuilder::LayoutItem::LayoutItem(const LayoutBuilder &builder, int span, Alignment align)
+    : widget(builder.parentWidget()), span(span), align(align)
+{}
+
+/*!
+    \class Utils::LayoutBuilder::Space
+    \inmodule QtCreator
+
+    \brief The LayoutBuilder::Space class represents some empty space in a layout.
+ */
+
+/*!
+    \class Utils::LayoutBuilder::Stretch
+    \inmodule QtCreator
+
+    \brief The LayoutBuilder::Stretch class represents some stretch in a layout.
+ */
 
 /*!
     \class Utils::LayoutBuilder
@@ -121,13 +153,44 @@ LayoutBuilder::LayoutItem::LayoutItem(const QString &text) : text(text) {}
  */
 LayoutBuilder::LayoutBuilder(QWidget *parent, LayoutType layoutType)
 {
-    if (layoutType == FormLayout) {
+    init(parent, layoutType);
+}
+
+LayoutBuilder::LayoutBuilder(LayoutType layoutType, const LayoutItems &items)
+{
+    init(new QWidget, layoutType);
+    addItems(items);
+}
+
+void LayoutBuilder::init(QWidget *parent, LayoutType layoutType)
+{
+    switch (layoutType) {
+    case Form:
         m_formLayout = new QFormLayout(parent);
-        m_formLayout->setContentsMargins(0, 0, 0, 0);
         m_formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    } else {
+        break;
+    case Grid:
         m_gridLayout = new QGridLayout(parent);
-        m_gridLayout->setContentsMargins(0, 0, 0, 0);
+        break;
+    case HBox:
+    case HBoxWithMargins:
+        m_boxLayout = new QHBoxLayout(parent);
+        break;
+    case VBox:
+    case VBoxWithMargins:
+        m_boxLayout = new QVBoxLayout(parent);
+        break;
+    }
+
+    switch (layoutType) {
+    case Form:
+    case Grid:
+    case HBox:
+    case VBox:
+        layout()->setContentsMargins(0, 0, 0, 0);
+        break;
+    default:
+        break;
     }
 }
 
@@ -192,7 +255,7 @@ LayoutBuilder &LayoutBuilder::addRow(const LayoutItem &item)
 
     \sa finishRow(), addItem(), addItems()
  */
-LayoutBuilder &LayoutBuilder::addRow(const QList<LayoutBuilder::LayoutItem> &items)
+LayoutBuilder &LayoutBuilder::addRow(const LayoutItems &items)
 {
     return finishRow().addItems(items);
 }
@@ -255,7 +318,15 @@ QLayout *LayoutBuilder::layout() const
 {
     if (m_formLayout)
         return m_formLayout;
+    if (m_boxLayout)
+        return m_boxLayout;
     return m_gridLayout;
+}
+
+QWidget *LayoutBuilder::parentWidget() const
+{
+    QLayout *l = layout();
+    return l ? l->parentWidget() : nullptr;
 }
 
 /*!
@@ -277,6 +348,16 @@ LayoutBuilder &LayoutBuilder::addItem(const LayoutItem &item)
                 m_gridLayout->addWidget(widget, m_currentGridRow, m_currentGridColumn, 1, item.span, align);
             }
             m_currentGridColumn += item.span;
+            if (item.linebreak)
+                finishRow();
+        } else if (m_boxLayout) {
+            if (auto widget = item.widget) {
+                m_boxLayout->addWidget(widget);
+            } else if (item.stretch != 0) {
+                m_boxLayout->addStretch(item.stretch);
+            } else if (item.space != 0) {
+                m_boxLayout->addSpacing(item.space);
+            }
         } else {
             m_pendingFormItems.append(item);
         }
@@ -294,4 +375,32 @@ LayoutBuilder &LayoutBuilder::addItems(const QList<LayoutBuilder::LayoutItem> &i
     return *this;
 }
 
+void LayoutBuilder::attachTo(QWidget *w, bool stretchAtBottom)
+{
+    LayoutBuilder builder(w, VBoxWithMargins);
+    builder.addItem(*this);
+    if (stretchAtBottom)
+        builder.addItem(Stretch());
+}
+
+namespace Layouting {
+
+Group::Group(std::initializer_list<LayoutItem> items)
+    : LayoutBuilder(new QGroupBox, VBoxWithMargins)
+{
+    addItems(items);
+}
+
+Layouting::Group &Layouting::Group::withTitle(const QString &title)
+{
+    if (auto box = qobject_cast<QGroupBox *>(parentWidget()))
+        box->setTitle(title);
+    return *this;
+}
+
+Box::Box(LayoutType type, const LayoutItems &items)
+    : LayoutBuilder(type, items)
+{}
+
+} // Layouting
 } // Utils
