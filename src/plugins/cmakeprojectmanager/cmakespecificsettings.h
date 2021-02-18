@@ -50,9 +50,13 @@ public:
 
     Utils::FilePath ninjaPath() const { return m_ninjaPath; }
 
+    void setPackageManagerAutoSetup(bool checked) { m_packageManagerAutoSetup = checked; }
+    bool packageManagerAutoSetup() const { return m_packageManagerAutoSetup; }
+
 private:
     AfterAddFileAction m_afterAddFileToProjectSetting;
     Utils::FilePath m_ninjaPath;
+    bool m_packageManagerAutoSetup = true;
 };
 
 }

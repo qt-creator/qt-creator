@@ -31,6 +31,8 @@
 #include "cmakeconfigitem.h"
 #include "cmakekitinformation.h"
 #include "cmakeprojectconstants.h"
+#include "cmakeprojectplugin.h"
+#include "cmakespecificsettings.h"
 #include "configmodel.h"
 #include "configmodelitemdelegate.h"
 
@@ -673,6 +675,14 @@ static QStringList defaultInitialCMakeArguments(const Kit *k, const QString buil
     if (!buildType.isEmpty() && !CMakeGeneratorKitAspect::isMultiConfigGenerator(k)) {
         initialArgs.append(QString::fromLatin1("-DCMAKE_BUILD_TYPE:String=%1").arg(buildType));
     }
+
+    Internal::CMakeSpecificSettings *settings
+        = Internal::CMakeProjectPlugin::projectTypeSpecificSettings();
+
+    // Package manager
+    if (settings->packageManagerAutoSetup())
+        initialArgs.append(QString::fromLatin1("-DCMAKE_PROJECT_INCLUDE_BEFORE:PATH=%1")
+                           .arg("%{IDE:ResourcePath}/package-manager/auto-setup.cmake"));
 
     // Cross-compilation settings:
     if (!isIos(k)) { // iOS handles this differently

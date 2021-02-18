@@ -32,6 +32,7 @@ namespace {
 static const char SETTINGS_KEY[] = "CMakeSpecificSettings";
 static const char AFTER_ADD_FILE_ACTION_KEY[] = "ProjectPopupSetting";
 static const char NINJA_PATH[] = "NinjaPath";
+static const char PACKAGE_MANAGER_AUTO_SETUP[] = "PackageManagerAutoSetup";
 }
 
 void CMakeSpecificSettings::fromSettings(QSettings *settings)
@@ -43,12 +44,15 @@ void CMakeSpecificSettings::fromSettings(QSettings *settings)
 
     m_ninjaPath = Utils::FilePath::fromUserInput(
         settings->value(rootKey + NINJA_PATH, QString()).toString());
+
+    m_packageManagerAutoSetup = settings->value(rootKey + PACKAGE_MANAGER_AUTO_SETUP, true).toBool();
 }
 
 void CMakeSpecificSettings::toSettings(QSettings *settings) const
 {
     settings->beginGroup(QString(SETTINGS_KEY));
     settings->setValue(QString(AFTER_ADD_FILE_ACTION_KEY), static_cast<int>(m_afterAddFileToProjectSetting));
+    settings->setValue(QString(PACKAGE_MANAGER_AUTO_SETUP), m_packageManagerAutoSetup);
     settings->endGroup();
 }
 }
