@@ -87,6 +87,9 @@ void DiagnosticManager::hideDiagnostics(TextDocument *doc)
 {
     if (!doc)
         return;
+
+    for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(doc))
+        editor->editorWidget()->setExtraSelections(TextEditorWidget::CodeWarningsSelection, {});
     qDeleteAll(Utils::filtered(doc->marks(), Utils::equal(&TextMark::category, m_clientId)));
 }
 
