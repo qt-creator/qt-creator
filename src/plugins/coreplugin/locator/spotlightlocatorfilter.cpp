@@ -168,12 +168,11 @@ void SpotlightIterator::ensureNext()
     if (m_index + 1 < m_filePaths.size()) // nothing to do
         return;
     // check if there are items in the queue, otherwise wait for some
-    m_mutex.lock();
+    QMutexLocker lock(&m_mutex);
     if (m_queue.isEmpty() && !m_finished)
         m_waitForItems.wait(&m_mutex);
     m_filePaths.append(m_queue);
     m_queue.clear();
-    m_mutex.unlock();
 }
 
 // #pragma mark -- SpotlightLocatorFilter
