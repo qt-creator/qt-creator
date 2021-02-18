@@ -37,7 +37,7 @@
 using namespace CppTools;
 
 static Utils::Id initialClangDiagnosticConfigId()
-{ return Constants::CPP_CLANG_DIAG_CONFIG_QUESTIONABLE; }
+{ return Constants::CPP_CLANG_DIAG_CONFIG_BUILDSYSTEM; }
 
 static CppCodeModelSettings::PCHUsage initialPchUsage()
 { return CppCodeModelSettings::PchUse_BuildSystem; }
