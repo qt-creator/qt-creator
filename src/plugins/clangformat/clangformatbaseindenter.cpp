@@ -250,6 +250,9 @@ int forceIndentWithExtraText(QByteArray &buffer,
                              const QTextBlock &block,
                              bool secondTry)
 {
+    if (!block.isValid())
+        return 0;
+
     const QString blockText = block.text();
     int firstNonWhitespace = Utils::indexOf(blockText,
                                             [](const QChar &ch) { return !ch.isSpace(); });
@@ -287,7 +290,16 @@ int forceIndentWithExtraText(QByteArray &buffer,
         dummyText = dummyTextForContext(charContext, closingBraceBlock);
     }
 
-    buffer.insert(utf8Offset, dummyText);
+    // A comment at the end of the line appears to prevent clang-format from removing line breaks.
+    if (dummyText == "/**/" || dummyText.isEmpty()) {
+        if (block.previous().isValid()) {
+            const int prevEndOffset = Utils::Text::utf8NthLineOffset(block.document(), buffer,
+                    block.blockNumber()) + block.previous().text().length();
+            buffer.insert(prevEndOffset, "//");
+            extraLength += 2;
+        }
+    }
+    buffer.insert(utf8Offset + extraLength, dummyText);
     extraLength += dummyText.length();
 
     if (secondTry) {

@@ -198,14 +198,7 @@ TEST_F(ClangFormat, IndentLambdaWithReturnType)
                             "}"));
 }
 
-#ifndef KEEP_LINE_BREAKS_FOR_NON_EMPTY_LINES_BACKPORTED
-#  define DISABLED_FOR_VANILLA_CLANG(x) DISABLED_##x
-#else
-#  define DISABLED_FOR_VANILLA_CLANG(x) x
-#endif
-
-// This test requires the custom clang patch https://code.qt.io/cgit/clang/llvm-project.git/commit/?h=release_100-based&id=9b992a0f7f160dd6c75f20a4dcfcf7c60a4894df
-TEST_F(ClangFormat, DISABLED_FOR_VANILLA_CLANG(IndentFunctionArgumentLambdaWithNextLineScope))
+TEST_F(ClangFormat, ClangFormatIndentFunctionArgumentLambdaWithNextLineScope)
 {
     insertLines({"foo([]()",
                  "{",
@@ -954,6 +947,16 @@ TEST_F(ClangFormat, SortIncludes)
                                              "#include <aa.h>",
                                              "#include <bb.h>"));
 }
+
+TEST_F(ClangFormat, ChainedMemberFunctionCalls)
+{
+    insertLines({"S().func().func()",
+                 ".func();"});
+    indenter.indent(cursor, QChar::Null, TextEditor::TabSettings());
+    ASSERT_THAT(documentLines(), ElementsAre("S().func().func()",
+                                             "    .func();"));
+}
+
 // clang-format on
 
 } // namespace
