@@ -1074,13 +1074,13 @@ class Dumper(DumperBase):
     def handleQtCoreLoaded(self, objfile):
         fd, tmppath = tempfile.mkstemp()
         os.close(fd)
-        cmd = 'maint print msymbols %s "%s"' % (tmppath, objfile.filename)
         try:
+            cmd = 'maint print msymbols -objfile "%s" -- %s' % (objfile.filename, tmppath)
             symbols = gdb.execute(cmd, to_string=True)
         except:
-            # command syntax depends on gdb version - below is gdb 8+
-            cmd = 'maint print msymbols -objfile "%s" -- %s' % (objfile.filename, tmppath)
             try:
+                # command syntax depends on gdb version - below is gdb < 8
+                cmd = 'maint print msymbols %s "%s"' % (tmppath, objfile.filename)
                 symbols = gdb.execute(cmd, to_string=True)
             except:
                 pass
