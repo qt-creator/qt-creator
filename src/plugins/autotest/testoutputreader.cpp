@@ -125,6 +125,8 @@ QString TestOutputReader::removeCommandlineColors(const QString &original)
 
 void TestOutputReader::reportResult(const TestResultPtr &result)
 {
+    if (m_sanitizerResult)
+        sendAndResetSanitizerResult();
     m_futureInterface.reportResult(result);
     m_hadValidOutput = true;
 }
@@ -188,7 +190,8 @@ void TestOutputReader::sendAndResetSanitizerResult()
         }
     }
 
-    reportResult(m_sanitizerResult);
+    m_futureInterface.reportResult(m_sanitizerResult);
+    m_hadValidOutput = true;
     m_sanitizerLines.clear();
     m_sanitizerResult.reset();
     m_sanitizerOutputMode = SanitizerOutputMode::None;
