@@ -29,11 +29,12 @@
 
 #include <projectexplorer/projectmacro.h>
 
-#include <QMutex>
 #include <QStringList>
 #include <QTextStream>
 #include <QObject>
 #include <QVector>
+
+#include <atomic>
 
 QT_FORWARD_DECLARE_CLASS(QDir)
 
@@ -264,8 +265,7 @@ private:
 
     bool m_success = false;     ///< Return value for MakefileParser::parse().
 
-    bool m_cancel = false;      ///< True, if the parsing should be cancelled.
-    mutable QMutex m_mutex;     ///< Mutex to protect m_cancel.
+    std::atomic_bool m_cancel = false;      ///< True, if the parsing should be cancelled.
 
     QString m_makefile;         ///< Filename of the makefile
     QString m_executable;       ///< Return value for MakefileParser::executable()

@@ -47,9 +47,7 @@ MakefileParser::~MakefileParser()
 
 bool MakefileParser::parse()
 {
-    m_mutex.lock();
     m_cancel = false;
-    m_mutex.unlock();
 
     m_success = true;
     m_executable.clear();
@@ -125,13 +123,11 @@ QStringList MakefileParser::cxxflags() const
 
 void MakefileParser::cancel()
 {
-    QMutexLocker locker(&m_mutex);
     m_cancel = true;
 }
 
 bool MakefileParser::isCanceled() const
 {
-    QMutexLocker locker(&m_mutex);
     return m_cancel;
 }
 
