@@ -392,8 +392,7 @@ ClearCasePluginPrivate::~ClearCasePluginPrivate()
 {
     cleanCheckInMessageFile();
     // wait for sync thread to finish reading activities
-    m_activityMutex.lock();
-    m_activityMutex.unlock();
+    QMutexLocker locker(&m_activityMutex);
 }
 
 void ClearCasePluginPrivate::cleanCheckInMessageFile()
