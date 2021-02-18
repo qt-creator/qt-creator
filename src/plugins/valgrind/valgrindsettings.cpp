@@ -29,43 +29,16 @@
 #include "valgrindconfigwidget.h"
 
 #include <coreplugin/icore.h>
+
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
+
 #include <valgrind/xmlprotocol/error.h>
 
 #include <QSettings>
 #include <QDebug>
 
-const char numCallersC[]  = "Analyzer.Valgrind.NumCallers";
-const char leakCheckOnFinishC[]  = "Analyzer.Valgrind.LeakCheckOnFinish";
-const char showReachableC[] = "Analyzer.Valgrind.ShowReachable";
-const char trackOriginsC[] = "Analyzer.Valgrind.TrackOrigins";
-const char selfModifyingCodeDetectionC[] = "Analyzer.Valgrind.SelfModifyingCodeDetection";
-const char suppressionFilesC[] = "Analyzer.Valgrind.SupressionFiles";
-const char removedSuppressionFilesC[] = "Analyzer.Valgrind.RemovedSuppressionFiles";
-const char addedSuppressionFilesC[] = "Analyzer.Valgrind.AddedSuppressionFiles";
-const char filterExternalIssuesC[] = "Analyzer.Valgrind.FilterExternalIssues";
-const char visibleErrorKindsC[] = "Analyzer.Valgrind.VisibleErrorKinds";
-const char memcheckArgumentsC[] = "Analyzer.Valgrind.Memcheck.Arguments";
-
-const char lastSuppressionDirectoryC[] = "Analyzer.Valgrind.LastSuppressionDirectory";
-const char lastSuppressionHistoryC[] = "Analyzer.Valgrind.LastSuppressionHistory";
-
-const char kcachegrindExeC[] = "Analyzer.Valgrind.KCachegrindExecutable";
-const char callgrindEnableCacheSimC[] = "Analyzer.Valgrind.Callgrind.EnableCacheSim";
-const char callgrindEnableBranchSimC[] = "Analyzer.Valgrind.Callgrind.EnableBranchSim";
-const char callgrindCollectSystimeC[] = "Analyzer.Valgrind.Callgrind.CollectSystime";
-const char callgrindCollectBusEventsC[] = "Analyzer.Valgrind.Callgrind.CollectBusEvents";
-const char callgrindEnableEventToolTipsC[] = "Analyzer.Valgrind.Callgrind.EnableEventToolTips";
-const char callgrindMinimumCostRatioC[] = "Analyzer.Valgrind.Callgrind.MinimumCostRatio";
-const char callgrindVisualisationMinimumCostRatioC[] = "Analyzer.Valgrind.Callgrind.VisualisationMinimumCostRatio";
-
-const char callgrindCycleDetectionC[] = "Analyzer.Valgrind.Callgrind.CycleDetection";
-const char callgrindShortenTemplates[] = "Analyzer.Valgrind.Callgrind.ShortenTemplates";
-const char callgrindCostFormatC[] = "Analyzer.Valgrind.Callgrind.CostFormat";
-const char callgrindArgumentsC[] = "Analyzer.Valgrind.Callgrind.Arguments";
-
-const char valgrindExeC[] = "Analyzer.Valgrind.ValgrindExecutable";
-const char valgrindArgumentsC[] = "Analyzer.Valgrind.ValgrindArguments";
+using namespace Utils;
 
 namespace Valgrind {
 namespace Internal {
@@ -76,253 +49,181 @@ namespace Internal {
 //
 //////////////////////////////////////////////////////////////////
 
-/**
- * Utility function to set @p val if @p key is present in @p map.
- */
-template <typename T> void setIfPresent(const QVariantMap &map, const QString &key, T *val)
+ValgrindBaseSettings::ValgrindBaseSettings()
 {
-    if (map.contains(key))
-        *val = map.value(key).template value<T>();
-}
+    // Note that this is used twice, once for project settings in the .user files
+    // and once for global settings in QtCreator.ini. This uses intentionally
+    // the same key to facilitate copying using fromMap/toMap.
+    QString base = "Analyzer.Valgrind.";
 
-ValgrindBaseSettings::ValgrindBaseSettings() = default;
+    group.registerAspect(&valgrindExecutable);
+    valgrindExecutable.setSettingsKey(base + "ValgrindExecutable");
+    valgrindExecutable.setDefaultValue("valgrind");
+    valgrindExecutable.setDisplayStyle(StringAspect::PathChooserDisplay);
+    valgrindExecutable.setExpectedKind(PathChooser::Command);
+    valgrindExecutable.setHistoryCompleter("Valgrind.Command.History");
+    valgrindExecutable.setDisplayName(tr("Valgrind Command"));
+    valgrindExecutable.setLabelText(tr("Valgrind executable:"));
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        // On Window we know that we don't have a local valgrind
+        // executable, so having the "Browse" button in the path chooser
+        // (which is needed for the remote executable) is confusing.
+        // FIXME: not deadly, still...
+        //valgrindExecutable. ... buttonAtIndex(0)->hide();
+    }
+
+    group.registerAspect(&valgrindArguments);
+    valgrindArguments.setSettingsKey(base + "ValgrindArguments");
+    valgrindArguments.setDisplayStyle(StringAspect::LineEditDisplay);
+    valgrindArguments.setLabelText(tr("Valgrind arguments:"));
+
+    group.registerAspect(&selfModifyingCodeDetection);
+    selfModifyingCodeDetection.setSettingsKey(base + "SelfModifyingCodeDetection");
+    selfModifyingCodeDetection.setDefaultValue(DetectSmcStackOnly);
+    selfModifyingCodeDetection.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    selfModifyingCodeDetection.addOption("No");
+    selfModifyingCodeDetection.addOption("Only on Stack");
+    selfModifyingCodeDetection.addOption("Everywhere");
+    selfModifyingCodeDetection.addOption("Everywhere Except in File-backend Mappings");
+    selfModifyingCodeDetection.setLabelText(tr("Detect self-modifying code:"));
+
+    // Memcheck
+    group.registerAspect(&memcheckArguments);
+    memcheckArguments.setSettingsKey(base + "Memcheck.Arguments");
+    memcheckArguments.setDisplayStyle(StringAspect::LineEditDisplay);
+    memcheckArguments.setLabelText(tr("Extra MemCheck arguments:"));
+
+    group.registerAspect(&filterExternalIssues);
+    filterExternalIssues.setSettingsKey(base + "FilterExternalIssues");
+    filterExternalIssues.setDefaultValue(true);
+    filterExternalIssues.setIcon(Icons::FILTER.icon());
+    filterExternalIssues.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    filterExternalIssues.setLabelText(tr("Show Project Costs Only"));
+    filterExternalIssues.setToolTip(tr("Show only profiling info that originated from this project source."));
+
+    group.registerAspect(&trackOrigins);
+    trackOrigins.setSettingsKey(base + "TrackOrigins");
+    trackOrigins.setDefaultValue(true);
+    trackOrigins.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    trackOrigins.setLabelText(tr("Track origins of uninitialized memory"));
+
+    group.registerAspect(&showReachable);
+    showReachable.setSettingsKey(base + "ShowReachable");
+    showReachable.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    showReachable.setLabelText(tr("Show reachable and indirectly lost blocks"));
+
+    group.registerAspect(&leakCheckOnFinish);
+    leakCheckOnFinish.setSettingsKey(base + "LeakCheckOnFinish");
+    leakCheckOnFinish.setDefaultValue(LeakCheckOnFinishSummaryOnly);
+    leakCheckOnFinish.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    leakCheckOnFinish.addOption(tr("No"));
+    leakCheckOnFinish.addOption(tr("Summary Only"));
+    leakCheckOnFinish.addOption(tr("Full"));
+    leakCheckOnFinish.setLabelText(tr("Check for leaks on finish:"));
+
+    group.registerAspect(&numCallers);
+    numCallers.setSettingsKey(base + "NumCallers");
+    numCallers.setDefaultValue(25);
+    numCallers.setLabelText(tr("Backtrace frame count:"));
+
+    // Callgrind
+
+    group.registerAspect(&kcachegrindExecutable);
+    kcachegrindExecutable.setSettingsKey(base + "KCachegrindExecutable");
+    kcachegrindExecutable.setDefaultValue("kcachegrind");
+    kcachegrindExecutable.setDisplayStyle(StringAspect::PathChooserDisplay);
+    kcachegrindExecutable.setLabelText(tr("KCachegrind executable:"));
+    kcachegrindExecutable.setExpectedKind(Utils::PathChooser::Command);
+    kcachegrindExecutable.setDisplayName(tr("KCachegrind Command"));
+
+    group.registerAspect(&callgrindArguments);
+    callgrindArguments.setSettingsKey(base + "Callgrind.Arguments");
+    callgrindArguments.setDisplayStyle(StringAspect::LineEditDisplay);
+    callgrindArguments.setLabelText(tr("Extra CallGrind arguments:"));
+
+    group.registerAspect(&enableEventToolTips);
+    enableEventToolTips.setDefaultValue(true);
+    enableEventToolTips.setSettingsKey(base + "Callgrind.EnableEventToolTips");
+    enableEventToolTips.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    enableEventToolTips.setLabelText(tr("Show additional information for events in tooltips"));
+
+    group.registerAspect(&enableCacheSim);
+    enableCacheSim.setSettingsKey(base + "Callgrind.EnableCacheSim");
+    enableCacheSim.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    enableCacheSim.setLabelText(tr("Enable cache simulation"));
+    enableCacheSim.setToolTip("<html><head/><body>" + tr(
+        "<p>Does full cache simulation.</p>\n"
+        "<p>By default, only instruction read accesses will be counted (\"Ir\").</p>\n"
+        "<p>\n"
+        "With cache simulation, further event counters are enabled:\n"
+        "<ul><li>Cache misses on instruction reads (\"I1mr\"/\"I2mr\").</li>\n"
+        "<li>Data read accesses (\"Dr\") and related cache misses (\"D1mr\"/\"D2mr\").</li>\n"
+        "<li>Data write accesses (\"Dw\") and related cache misses (\"D1mw\"/\"D2mw\").</li></ul>\n"
+        "</p>") + "</body></html>");
+
+    group.registerAspect(&enableBranchSim);
+    enableBranchSim.setSettingsKey(base + "Callgrind.EnableBranchSim");
+    enableBranchSim.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    enableBranchSim.setLabelText(tr("Enable branch prediction simulation"));
+    enableBranchSim.setToolTip("<html><head/><body>\n" + tr(
+        "<p>Does branch prediction simulation.</p>\n"
+        "<p>Further event counters are enabled: </p>\n"
+        "<ul><li>Number of executed conditional branches and related predictor misses (\n"
+        "\"Bc\"/\"Bcm\").</li>\n"
+        "<li>Executed indirect jumps and related misses of the jump address predictor (\n"
+        "\"Bi\"/\"Bim\").)</li></ul>") + "</body></html>");
+
+    group.registerAspect(&collectSystime);
+    collectSystime.setSettingsKey(base + "Callgrind.CollectSystime");
+    collectSystime.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    collectSystime.setLabelText(tr("Collect system call time"));
+    collectSystime.setToolTip(tr("Collects information for system call times."));
+
+    group.registerAspect(&collectBusEvents);
+    collectBusEvents.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    collectBusEvents.setSettingsKey(base + "Callgrind.CollectBusEvents");
+    collectBusEvents.setLabelText(tr("Collect global bus events"));
+    collectBusEvents.setToolTip(tr("Collect the number of global bus events that are executed. "
+        "The event type \"Ge\" is used for these events."));
+
+    group.registerAspect(&minimumInclusiveCostRatio);
+    minimumInclusiveCostRatio.setSettingsKey(base + "Callgrind.MinimumCostRatio");
+    minimumInclusiveCostRatio.setDefaultValue(0.01);
+    minimumInclusiveCostRatio.setSuffix(tr("%"));
+    minimumInclusiveCostRatio.setLabelText(tr("Result view: Minimum event cost:"));
+    minimumInclusiveCostRatio.setToolTip(tr("Limits the amount of results the profiler gives you. "
+         "A lower limit will likely increase performance."));
+
+    group.registerAspect(&visualizationMinimumInclusiveCostRatio);
+    visualizationMinimumInclusiveCostRatio.setSettingsKey(base + "Callgrind.VisualisationMinimumCostRatio");
+    visualizationMinimumInclusiveCostRatio.setDefaultValue(10.0);
+    visualizationMinimumInclusiveCostRatio.setLabelText(tr("Visualization: Minimum event cost:"));
+    visualizationMinimumInclusiveCostRatio.setSuffix(tr("%"));
+
+    group.registerAspect(&visibleErrorKinds);
+    visibleErrorKinds.setSettingsKey(base + "VisibleErrorKinds");
+    QList<int> defaultErrorKinds;
+    for (int i = 0; i < Valgrind::XmlProtocol::MemcheckErrorKindCount; ++i)
+        defaultErrorKinds << i;
+    visibleErrorKinds.setDefaultValue(defaultErrorKinds);
+}
 
 void ValgrindBaseSettings::fromMap(const QVariantMap &map)
 {
-    // General
-    setIfPresent(map, valgrindExeC, &m_valgrindExecutable);
-    setIfPresent(map, valgrindArgumentsC, &m_valgrindArguments);
-    setIfPresent(map, selfModifyingCodeDetectionC,
-                 (int*) &m_selfModifyingCodeDetection);
-
-    // Memcheck
-    setIfPresent(map, numCallersC, &m_numCallers);
-    setIfPresent(map, memcheckArgumentsC, &m_memcheckArguments);
-    setIfPresent(map, leakCheckOnFinishC, (int*) &m_leakCheckOnFinish);
-    setIfPresent(map, showReachableC, &m_showReachable);
-    setIfPresent(map, trackOriginsC, &m_trackOrigins);
-    setIfPresent(map, filterExternalIssuesC, &m_filterExternalIssues);
-    if (map.contains(visibleErrorKindsC)) {
-        m_visibleErrorKinds.clear();
-        foreach (const QVariant &val, map.value(visibleErrorKindsC).toList())
-            m_visibleErrorKinds << val.toInt();
+    group.fromMap(map);
+    if (ValgrindGlobalSettings::instance() != this) {
+        // FIXME: Update project page e.g. on "Restore Global", aspects
+        // there are 'autoapply', and Aspect::cancel() is normally part of
+        // the 'manual apply' machinery.
+        group.setAutoApply(false);
+        group.cancel();
+        group.setAutoApply(true);
     }
-
-    // Callgrind
-    setIfPresent(map, callgrindArgumentsC, &m_callgrindArguments);
-    setIfPresent(map, kcachegrindExeC, &m_kcachegrindExecutable);
-    setIfPresent(map, callgrindEnableCacheSimC, &m_enableCacheSim);
-    setIfPresent(map, callgrindEnableBranchSimC, &m_enableBranchSim);
-    setIfPresent(map, callgrindCollectSystimeC, &m_collectSystime);
-    setIfPresent(map, callgrindCollectBusEventsC, &m_collectBusEvents);
-    setIfPresent(map, callgrindEnableEventToolTipsC, &m_enableEventToolTips);
-    setIfPresent(map, callgrindMinimumCostRatioC, &m_minimumInclusiveCostRatio);
-    setIfPresent(map, callgrindVisualisationMinimumCostRatioC,
-                 &m_visualisationMinimumInclusiveCostRatio);
-
-    emit changed();
 }
 
 void ValgrindBaseSettings::toMap(QVariantMap &map) const
 {
-    // General
-    map.insert(valgrindExeC, m_valgrindExecutable);
-    map.insert(valgrindArgumentsC, m_valgrindArguments);
-    map.insert(selfModifyingCodeDetectionC, m_selfModifyingCodeDetection);
-
-    // Memcheck
-    map.insert(memcheckArgumentsC, m_memcheckArguments);
-    map.insert(numCallersC, m_numCallers);
-    map.insert(leakCheckOnFinishC, m_leakCheckOnFinish);
-    map.insert(showReachableC, m_showReachable);
-    map.insert(trackOriginsC, m_trackOrigins);
-    map.insert(filterExternalIssuesC, m_filterExternalIssues);
-    QVariantList errorKinds;
-    foreach (int i, m_visibleErrorKinds)
-        errorKinds << i;
-    map.insert(visibleErrorKindsC, errorKinds);
-
-    // Callgrind
-    map.insert(callgrindArgumentsC, m_callgrindArguments);
-    map.insert(kcachegrindExeC, m_kcachegrindExecutable);
-    map.insert(callgrindEnableCacheSimC, m_enableCacheSim);
-    map.insert(callgrindEnableBranchSimC, m_enableBranchSim);
-    map.insert(callgrindCollectSystimeC, m_collectSystime);
-    map.insert(callgrindCollectBusEventsC, m_collectBusEvents);
-    map.insert(callgrindEnableEventToolTipsC, m_enableEventToolTips);
-    map.insert(callgrindMinimumCostRatioC, m_minimumInclusiveCostRatio);
-    map.insert(callgrindVisualisationMinimumCostRatioC,
-               m_visualisationMinimumInclusiveCostRatio);
-}
-
-void ValgrindBaseSettings::setValgrindExecutable(const QString &valgrindExecutable)
-{
-    m_valgrindExecutable = valgrindExecutable;
-}
-
-void ValgrindBaseSettings::setValgrindArguments(const QString &arguments)
-{
-    if (m_valgrindArguments != arguments) {
-        m_valgrindArguments = arguments;
-        emit valgrindArgumentsChanged(arguments);
-    }
-}
-
-void ValgrindBaseSettings::setSelfModifyingCodeDetection(int smcDetection)
-{
-    if (m_selfModifyingCodeDetection != smcDetection) {
-        m_selfModifyingCodeDetection = (SelfModifyingCodeDetection) smcDetection;
-        emit selfModifyingCodeDetectionChanged(smcDetection);
-    }
-}
-
-void ValgrindBaseSettings::setMemcheckArguments(const QString &arguments)
-{
-    if (m_memcheckArguments != arguments) {
-        m_memcheckArguments = arguments;
-        emit memcheckArgumentsChanged(arguments);
-    }
-}
-
-QString ValgrindBaseSettings::valgrindExecutable() const
-{
-    return m_valgrindExecutable;
-}
-
-ValgrindBaseSettings::SelfModifyingCodeDetection ValgrindBaseSettings::selfModifyingCodeDetection() const
-{
-    return m_selfModifyingCodeDetection;
-}
-
-void ValgrindBaseSettings::setNumCallers(int numCallers)
-{
-    if (m_numCallers != numCallers) {
-        m_numCallers = numCallers;
-        emit numCallersChanged(numCallers);
-    }
-}
-
-void ValgrindBaseSettings::setLeakCheckOnFinish(int leakCheckOnFinish)
-{
-    if (m_leakCheckOnFinish != leakCheckOnFinish) {
-        m_leakCheckOnFinish = (LeakCheckOnFinish) leakCheckOnFinish;
-        emit leakCheckOnFinishChanged(leakCheckOnFinish);
-    }
-}
-
-void ValgrindBaseSettings::setShowReachable(bool showReachable)
-{
-    if (m_showReachable != showReachable) {
-        m_showReachable = showReachable;
-        emit showReachableChanged(showReachable);
-    }
-}
-
-void ValgrindBaseSettings::setTrackOrigins(bool trackOrigins)
-{
-    if (m_trackOrigins != trackOrigins) {
-        m_trackOrigins = trackOrigins;
-        emit trackOriginsChanged(trackOrigins);
-    }
-}
-
-void ValgrindBaseSettings::setFilterExternalIssues(bool filterExternalIssues)
-{
-    if (m_filterExternalIssues != filterExternalIssues) {
-        m_filterExternalIssues = filterExternalIssues;
-        emit filterExternalIssuesChanged(filterExternalIssues);
-    }
-}
-
-void ValgrindBaseSettings::setVisibleErrorKinds(const QList<int> &visibleErrorKinds)
-{
-    if (m_visibleErrorKinds != visibleErrorKinds) {
-        m_visibleErrorKinds = visibleErrorKinds;
-        emit visibleErrorKindsChanged(visibleErrorKinds);
-    }
-}
-
-QString ValgrindBaseSettings::kcachegrindExecutable() const
-{
-    return m_kcachegrindExecutable;
-}
-
-void ValgrindBaseSettings::setCallgrindArguments(const QString &arguments)
-{
-    if (m_callgrindArguments != arguments) {
-        m_callgrindArguments = arguments;
-        emit callgrindArgumentsChanged(arguments);
-    }
-}
-
-void ValgrindBaseSettings::setKCachegrindExecutable(const QString &exec)
-{
-    m_kcachegrindExecutable = exec;
-}
-
-void ValgrindBaseSettings::setEnableCacheSim(bool enable)
-{
-    if (m_enableCacheSim == enable)
-        return;
-
-    m_enableCacheSim = enable;
-    emit enableCacheSimChanged(enable);
-}
-
-void ValgrindBaseSettings::setEnableBranchSim(bool enable)
-{
-    if (m_enableBranchSim == enable)
-        return;
-
-    m_enableBranchSim = enable;
-    emit enableBranchSimChanged(enable);
-}
-
-void ValgrindBaseSettings::setCollectSystime(bool collect)
-{
-    if (m_collectSystime == collect)
-        return;
-
-    m_collectSystime = collect;
-    emit collectSystimeChanged(collect);
-}
-
-void ValgrindBaseSettings::setCollectBusEvents(bool collect)
-{
-    if (m_collectBusEvents == collect)
-        return;
-
-    m_collectBusEvents = collect;
-    emit collectBusEventsChanged(collect);
-}
-
-void ValgrindBaseSettings::setEnableEventToolTips(bool enable)
-{
-    if (m_enableEventToolTips == enable)
-        return;
-
-    m_enableEventToolTips = enable;
-    emit enableEventToolTipsChanged(enable);
-}
-
-void ValgrindBaseSettings::setMinimumInclusiveCostRatio(
-    double minimumInclusiveCostRatio)
-{
-    if (m_minimumInclusiveCostRatio == minimumInclusiveCostRatio)
-        return;
-
-    m_minimumInclusiveCostRatio = qBound(0.0, minimumInclusiveCostRatio, 100.0);
-    emit minimumInclusiveCostRatioChanged(minimumInclusiveCostRatio);
-}
-
-void ValgrindBaseSettings::setVisualisationMinimumInclusiveCostRatio(
-    double minimumInclusiveCostRatio)
-{
-    if (m_visualisationMinimumInclusiveCostRatio == minimumInclusiveCostRatio)
-        return;
-
-    m_visualisationMinimumInclusiveCostRatio = qBound(0.0, minimumInclusiveCostRatio, 100.0);
-    emit visualisationMinimumInclusiveCostRatioChanged(minimumInclusiveCostRatio);
+    group.toMap(map);
 }
 
 
@@ -338,8 +239,39 @@ ValgrindGlobalSettings::ValgrindGlobalSettings()
 {
     theGlobalSettings = this;
 
+    const QString base = "Analyzer.Valgrind";
+
+    group.registerAspect(&suppressionFiles_);
+    suppressionFiles_.setSettingsKey(base + "SupressionFiles");
+
+    group.registerAspect(&lastSuppressionDirectory);
+    lastSuppressionDirectory.setSettingsKey(base + "LastSuppressionDirectory");
+
+    group.registerAspect(&lastSuppressionHistory);
+    lastSuppressionHistory.setSettingsKey(base + "LastSuppressionHistory");
+
+    group.registerAspect(&detectCycles);
+    detectCycles.setSettingsKey(base + "Callgrind.CycleDetection");
+    detectCycles.setDefaultValue(true);
+    detectCycles.setLabelText("O"); // FIXME: Create a real icon
+    detectCycles.setToolTip(tr("Enable cycle detection to properly handle recursive "
+        "or circular function calls."));
+
+    group.registerAspect(&costFormat);
+    costFormat.setSettingsKey(base + "Callgrind.CostFormat");
+    costFormat.setDefaultValue(CostDelegate::FormatRelative);
+    costFormat.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+
+    group.registerAspect(&shortenTemplates);
+    shortenTemplates.setSettingsKey(base + "Callgrind.ShortenTemplates");
+    shortenTemplates.setDefaultValue(true);
+    shortenTemplates.setLabelText("<>"); // FIXME: Create a real icon
+    shortenTemplates.setToolTip(tr("Remove template parameter lists when displaying function names."));
+
     setConfigWidgetCreator([this] { return ValgrindOptionsPage::createSettingsWidget(this); });
     readSettings();
+
+    group.forEachAspect([](BaseAspect *aspect) { aspect->setAutoApply(false); });
 }
 
 ValgrindGlobalSettings *ValgrindGlobalSettings::instance()
@@ -347,124 +279,34 @@ ValgrindGlobalSettings *ValgrindGlobalSettings::instance()
     return theGlobalSettings;
 }
 
-void ValgrindGlobalSettings::fromMap(const QVariantMap &map)
-{
-    ValgrindBaseSettings::fromMap(map);
-
-    // Memcheck
-    m_suppressionFiles = map.value(suppressionFilesC).toStringList();
-    m_lastSuppressionDirectory = map.value(lastSuppressionDirectoryC).toString();
-    m_lastSuppressionHistory = map.value(lastSuppressionHistoryC).toStringList();
-
-    // Callgrind
-    // special code as the default one does not cope with the enum properly
-    if (map.contains(callgrindCostFormatC))
-        m_costFormat = static_cast<CostDelegate::CostFormat>(map.value(callgrindCostFormatC).toInt());
-    setIfPresent(map, callgrindCycleDetectionC, &m_detectCycles);
-    setIfPresent(map, callgrindShortenTemplates, &m_shortenTemplates);
-}
-
-void ValgrindGlobalSettings::toMap(QVariantMap &map) const
-{
-    ValgrindBaseSettings::toMap(map);
-
-    // Memcheck
-    map.insert(suppressionFilesC, m_suppressionFiles);
-    map.insert(lastSuppressionDirectoryC, m_lastSuppressionDirectory);
-    map.insert(lastSuppressionHistoryC, m_lastSuppressionHistory);
-
-    // Callgrind
-    map.insert(callgrindCostFormatC, m_costFormat);
-    map.insert(callgrindCycleDetectionC, m_detectCycles);
-    map.insert(callgrindShortenTemplates, m_shortenTemplates);
-}
-
 //
 // Memcheck
 //
 QStringList ValgrindGlobalSettings::suppressionFiles() const
 {
-    return m_suppressionFiles;
+    return suppressionFiles_.value();
 }
 
 void ValgrindGlobalSettings::addSuppressionFiles(const QStringList &suppressions)
 {
-    foreach (const QString &s, suppressions)
-        if (!m_suppressionFiles.contains(s))
-            m_suppressionFiles.append(s);
+    suppressionFiles_.appendValues(suppressions);
 }
-
 
 void ValgrindGlobalSettings::removeSuppressionFiles(const QStringList &suppressions)
 {
-    foreach (const QString &s, suppressions)
-        m_suppressionFiles.removeAll(s);
+    suppressionFiles_.removeValues(suppressions);
 }
 
-QString ValgrindGlobalSettings::lastSuppressionDialogDirectory() const
+QVariantMap ValgrindBaseSettings::defaultSettings() const
 {
-    return m_lastSuppressionDirectory;
-}
-
-void ValgrindGlobalSettings::setLastSuppressionDialogDirectory(const QString &directory)
-{
-    m_lastSuppressionDirectory = directory;
-}
-
-QStringList ValgrindGlobalSettings::lastSuppressionDialogHistory() const
-{
-    return m_lastSuppressionHistory;
-}
-
-void ValgrindGlobalSettings::setLastSuppressionDialogHistory(const QStringList &history)
-{
-    m_lastSuppressionHistory = history;
+    QVariantMap defaults;
+    group.forEachAspect([&defaults](BaseAspect *aspect) {
+        defaults.insert(aspect->settingsKey(), aspect->defaultValue());
+    });
+    return defaults;
 }
 
 static const char groupC[] = "Analyzer";
-
-static QVariantMap defaultSettings()
-{
-    QVariantMap defaults;
-
-    // General
-    defaults.insert(valgrindExeC, "valgrind");
-    defaults.insert(valgrindArgumentsC, QString());
-    defaults.insert(selfModifyingCodeDetectionC, ValgrindBaseSettings::DetectSmcStackOnly);
-
-    // Memcheck
-    defaults.insert(memcheckArgumentsC, QString());
-    defaults.insert(numCallersC, 25);
-    defaults.insert(leakCheckOnFinishC, ValgrindBaseSettings::LeakCheckOnFinishSummaryOnly);
-    defaults.insert(showReachableC, false);
-    defaults.insert(trackOriginsC, true);
-    defaults.insert(filterExternalIssuesC, true);
-    QVariantList defaultErrorKinds;
-    for (int i = 0; i < Valgrind::XmlProtocol::MemcheckErrorKindCount; ++i)
-        defaultErrorKinds << i;
-    defaults.insert(visibleErrorKindsC, defaultErrorKinds);
-
-    defaults.insert(suppressionFilesC, QStringList());
-    defaults.insert(lastSuppressionDirectoryC, QString());
-    defaults.insert(lastSuppressionHistoryC, QStringList());
-
-    // Callgrind
-    defaults.insert(callgrindArgumentsC, QString());
-    defaults.insert(kcachegrindExeC, "kcachegrind");
-    defaults.insert(callgrindEnableCacheSimC, false);
-    defaults.insert(callgrindEnableBranchSimC, false);
-    defaults.insert(callgrindCollectSystimeC, false);
-    defaults.insert(callgrindCollectBusEventsC, false);
-    defaults.insert(callgrindEnableEventToolTipsC, true);
-    defaults.insert(callgrindMinimumCostRatioC, 0.01);
-    defaults.insert(callgrindVisualisationMinimumCostRatioC, 10.0);
-
-    defaults.insert(callgrindCostFormatC, CostDelegate::FormatRelative);
-    defaults.insert(callgrindCycleDetectionC, true);
-    defaults.insert(callgrindShortenTemplates, true);
-
-    return defaults;
-}
 
 void ValgrindGlobalSettings::readSettings()
 {
@@ -494,43 +336,6 @@ void ValgrindGlobalSettings::writeSettings() const
     settings->endGroup();
 }
 
-//
-// Callgrind
-//
-CostDelegate::CostFormat ValgrindGlobalSettings::costFormat() const
-{
-    return m_costFormat;
-}
-
-void ValgrindGlobalSettings::setCostFormat(CostDelegate::CostFormat format)
-{
-    m_costFormat = format;
-    writeSettings();
-}
-
-bool ValgrindGlobalSettings::detectCycles() const
-{
-    return m_detectCycles;
-}
-
-void ValgrindGlobalSettings::setDetectCycles(bool on)
-{
-    m_detectCycles = on;
-    writeSettings();
-}
-
-bool ValgrindGlobalSettings::shortenTemplates() const
-{
-    return m_shortenTemplates;
-}
-
-void ValgrindGlobalSettings::setShortenTemplates(bool on)
-{
-    m_shortenTemplates = on;
-    writeSettings();
-}
-
-
 //////////////////////////////////////////////////////////////////
 //
 // ValgrindProjectSettings
@@ -540,24 +345,12 @@ void ValgrindGlobalSettings::setShortenTemplates(bool on)
 ValgrindProjectSettings::ValgrindProjectSettings()
 {
     setConfigWidgetCreator([this] { return ValgrindOptionsPage::createSettingsWidget(this); });
-}
 
-void ValgrindProjectSettings::fromMap(const QVariantMap &map)
-{
-    ValgrindBaseSettings::fromMap(map);
+    group.registerAspect(&disabledGlobalSuppressionFiles);
+    disabledGlobalSuppressionFiles.setSettingsKey("Analyzer.Valgrind.RemovedSuppressionFiles");
 
-    // Memcheck
-    setIfPresent(map, addedSuppressionFilesC, &m_addedSuppressionFiles);
-    setIfPresent(map, removedSuppressionFilesC, &m_disabledGlobalSuppressionFiles);
-}
-
-void ValgrindProjectSettings::toMap(QVariantMap &map) const
-{
-    ValgrindBaseSettings::toMap(map);
-
-    // Memcheck
-    map.insert(addedSuppressionFilesC, m_addedSuppressionFiles);
-    map.insert(removedSuppressionFilesC, m_disabledGlobalSuppressionFiles);
+    group.registerAspect(&addedSuppressionFiles);
+    addedSuppressionFiles.setSettingsKey("Analyzer.Valgrind.AddedSuppressionFiles");
 }
 
 //
@@ -568,11 +361,11 @@ void ValgrindProjectSettings::addSuppressionFiles(const QStringList &suppression
 {
     const QStringList globalSuppressions = ValgrindGlobalSettings::instance()->suppressionFiles();
     for (const QString &s : suppressions) {
-        if (m_addedSuppressionFiles.contains(s))
+        if (addedSuppressionFiles.value().contains(s))
             continue;
-        m_disabledGlobalSuppressionFiles.removeAll(s);
+        disabledGlobalSuppressionFiles.removeValue(s);
         if (!globalSuppressions.contains(s))
-            m_addedSuppressionFiles.append(s);
+            addedSuppressionFiles.appendValue(s);
     }
 }
 
@@ -580,18 +373,18 @@ void ValgrindProjectSettings::removeSuppressionFiles(const QStringList &suppress
 {
     const QStringList globalSuppressions = ValgrindGlobalSettings::instance()->suppressionFiles();
     for (const QString &s : suppressions) {
-        m_addedSuppressionFiles.removeAll(s);
+        addedSuppressionFiles.removeValue(s);
         if (globalSuppressions.contains(s))
-            m_disabledGlobalSuppressionFiles.append(s);
+            disabledGlobalSuppressionFiles.appendValue(s);
     }
 }
 
 QStringList ValgrindProjectSettings::suppressionFiles() const
 {
     QStringList ret = ValgrindGlobalSettings::instance()->suppressionFiles();
-    for (const QString &s : m_disabledGlobalSuppressionFiles)
+    for (const QString &s : disabledGlobalSuppressionFiles.value())
         ret.removeAll(s);
-    ret.append(m_addedSuppressionFiles);
+    ret.append(addedSuppressionFiles.value());
     return ret;
 }
 

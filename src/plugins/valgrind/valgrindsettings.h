@@ -27,11 +27,9 @@
 #pragma once
 
 #include "callgrindcostdelegate.h"
-#include <projectexplorer/runconfiguration.h>
 
-#include <QObject>
-#include <QString>
-#include <QVariant>
+#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runconfigurationaspects.h>
 
 namespace Valgrind {
 namespace Internal {
@@ -46,6 +44,8 @@ class ValgrindBaseSettings : public ProjectExplorer::ISettingsAspect
     Q_OBJECT
 
 public:
+    ValgrindBaseSettings();
+
     enum SelfModifyingCodeDetection {
         DetectSmcNo,
         DetectSmcStackOnly,
@@ -59,8 +59,6 @@ public:
         LeakCheckOnFinishYes
     };
 
-    ValgrindBaseSettings();
-
     void toMap(QVariantMap &map) const override;
     void fromMap(const QVariantMap &map) override;
 
@@ -71,121 +69,49 @@ signals:
  * Base valgrind settings
  */
 public:
-    QString valgrindExecutable() const;
-    QString valgrindArguments() const { return m_valgrindArguments; }
-    SelfModifyingCodeDetection selfModifyingCodeDetection() const;
-
-    void setValgrindExecutable(const QString &);
-    void setValgrindArguments(const QString &arguments);
-    void setSelfModifyingCodeDetection(int);
-
-signals:
-    void valgrindArgumentsChanged(const QString &arguments);
-    void selfModifyingCodeDetectionChanged(int);
-
-private:
-    QString m_valgrindExecutable;
-    QString m_valgrindArguments;
-    SelfModifyingCodeDetection m_selfModifyingCodeDetection;
-
+    Utils::StringAspect valgrindExecutable;
+    Utils::StringAspect valgrindArguments;
+    Utils::SelectionAspect selfModifyingCodeDetection;
 
 /**
  * Base memcheck settings
  */
 public:
-    QString memcheckArguments() const { return m_memcheckArguments; }
-    int numCallers() const { return m_numCallers; }
-    LeakCheckOnFinish leakCheckOnFinish() const { return m_leakCheckOnFinish; }
-    bool showReachable() const { return m_showReachable; }
-    bool trackOrigins() const { return m_trackOrigins; }
-    bool filterExternalIssues() const { return m_filterExternalIssues; }
-    QList<int> visibleErrorKinds() const { return m_visibleErrorKinds; }
+    Utils::StringAspect memcheckArguments;
+    Utils::IntegerAspect numCallers;
+    Utils::SelectionAspect leakCheckOnFinish;
+    Utils::BoolAspect showReachable;
+    Utils::BoolAspect trackOrigins;
+    Utils::BoolAspect filterExternalIssues;
+    Utils::IntegersAspect visibleErrorKinds;
 
     virtual QStringList suppressionFiles() const = 0;
     virtual void addSuppressionFiles(const QStringList &) = 0;
     virtual void removeSuppressionFiles(const QStringList &) = 0;
 
-    void setMemcheckArguments(const QString &arguments);
-    void setNumCallers(int);
-    void setLeakCheckOnFinish(int);
-    void setShowReachable(bool);
-    void setTrackOrigins(bool);
-    void setFilterExternalIssues(bool);
     void setVisibleErrorKinds(const QList<int> &);
 
 signals:
-    void memcheckArgumentsChanged(const QString &arguments);
-    void numCallersChanged(int);
-    void leakCheckOnFinishChanged(int);
-    void showReachableChanged(bool);
-    void trackOriginsChanged(bool);
-    void filterExternalIssuesChanged(bool);
-    void visibleErrorKindsChanged(const QList<int> &);
     void suppressionFilesRemoved(const QStringList &);
     void suppressionFilesAdded(const QStringList &);
-
-protected:
-    QString m_memcheckArguments;
-    int m_numCallers;
-    LeakCheckOnFinish m_leakCheckOnFinish;
-    bool m_showReachable;
-    bool m_trackOrigins;
-    bool m_filterExternalIssues;
-    QList<int> m_visibleErrorKinds;
 
 /**
  * Base callgrind settings
  */
 public:
-    QString callgrindArguments() const { return m_callgrindArguments;}
-    QString kcachegrindExecutable() const;
+    Utils::StringAspect callgrindArguments;
+    Utils::StringAspect kcachegrindExecutable;
 
-    bool enableCacheSim() const { return m_enableCacheSim; }
-    bool enableBranchSim() const { return m_enableBranchSim; }
-    bool collectSystime() const { return m_collectSystime; }
-    bool collectBusEvents() const { return m_collectBusEvents; }
-    bool enableEventToolTips() const { return m_enableEventToolTips; }
+    Utils::BoolAspect enableCacheSim;
+    Utils::BoolAspect enableBranchSim;
+    Utils::BoolAspect collectSystime;
+    Utils::BoolAspect collectBusEvents;
+    Utils::BoolAspect enableEventToolTips;
+    Utils::DoubleAspect minimumInclusiveCostRatio;
+    Utils::DoubleAspect visualizationMinimumInclusiveCostRatio;
 
-    /// \return Minimum cost ratio, range [0.0..100.0]
-    double minimumInclusiveCostRatio() const { return m_minimumInclusiveCostRatio; }
-
-    /// \return Minimum cost ratio, range [0.0..100.0]
-    double visualisationMinimumInclusiveCostRatio() const { return m_visualisationMinimumInclusiveCostRatio; }
-
-    void setCallgrindArguments(const QString &arguments);
-    void setKCachegrindExecutable(const QString &exec);
-    void setEnableCacheSim(bool enable);
-    void setEnableBranchSim(bool enable);
-    void setCollectSystime(bool collect);
-    void setCollectBusEvents(bool collect);
-    void setEnableEventToolTips(bool enable);
-
-    /// \param minimumInclusiveCostRatio Minimum inclusive cost ratio, valid values are [0.0..100.0]
-    void setMinimumInclusiveCostRatio(double minimumInclusiveCostRatio);
-
-    /// \param minimumInclusiveCostRatio Minimum inclusive cost ratio, valid values are [0.0..100.0]
-    void setVisualisationMinimumInclusiveCostRatio(double minimumInclusiveCostRatio);
-
-signals:
-    void callgrindArgumentsChanged(const QString &argumnts);
-    void enableCacheSimChanged(bool);
-    void enableBranchSimChanged(bool);
-    void collectSystimeChanged(bool);
-    void collectBusEventsChanged(bool);
-    void enableEventToolTipsChanged(bool);
-    void minimumInclusiveCostRatioChanged(double);
-    void visualisationMinimumInclusiveCostRatioChanged(double);
-
-private:
-    QString m_callgrindArguments;
-    QString m_kcachegrindExecutable;
-    bool m_enableCacheSim;
-    bool m_collectSystime;
-    bool m_collectBusEvents;
-    bool m_enableBranchSim;
-    bool m_enableEventToolTips;
-    double m_minimumInclusiveCostRatio;
-    double m_visualisationMinimumInclusiveCostRatio;
+    Utils::AspectContainer group;
+    QVariantMap defaultSettings() const;
 };
 
 
@@ -201,50 +127,28 @@ public:
 
     static ValgrindGlobalSettings *instance();
 
-    void toMap(QVariantMap &map) const override;
-    void fromMap(const QVariantMap &map) override;
-
-    /*
+    /**
      * Global memcheck settings
      */
-public:
     QStringList suppressionFiles() const override;
     // in the global settings we change the internal list directly
     void addSuppressionFiles(const QStringList &) override;
     void removeSuppressionFiles(const QStringList &) override;
 
-    // internal settings which don't require any UI
-    void setLastSuppressionDialogDirectory(const QString &directory);
-    QString lastSuppressionDialogDirectory() const;
-
-    void setLastSuppressionDialogHistory(const QStringList &history);
-    QStringList lastSuppressionDialogHistory() const;
-
     void writeSettings() const;
     void readSettings();
 
-private:
-    QStringList m_suppressionFiles;
-    QString m_lastSuppressionDirectory;
-    QStringList m_lastSuppressionHistory;
+    Utils::StringListAspect suppressionFiles_;
+    Utils::StringAspect lastSuppressionDirectory;
+    Utils::StringAspect lastSuppressionHistory;
 
 
     /**
      * Global callgrind settings
      */
-public:
-    CostDelegate::CostFormat costFormat() const;
-    bool detectCycles() const;
-    bool shortenTemplates() const;
-
-    void setCostFormat(Valgrind::Internal::CostDelegate::CostFormat format);
-    void setDetectCycles(bool on);
-    void setShortenTemplates(bool on);
-
-private:
-    CostDelegate::CostFormat m_costFormat;
-    bool m_detectCycles;
-    bool m_shortenTemplates;
+    Utils::SelectionAspect costFormat;
+    Utils::BoolAspect detectCycles;
+    Utils::BoolAspect shortenTemplates;
 };
 
 
@@ -258,26 +162,17 @@ class ValgrindProjectSettings : public ValgrindBaseSettings
 public:
     ValgrindProjectSettings();
 
-    void toMap(QVariantMap &map) const override;
-    void fromMap(const QVariantMap &map) override;
-
     /**
      * Per-project memcheck settings, saves a diff to the global suppression files list
      */
-public:
     QStringList suppressionFiles() const override;
     // in the project-specific settings we store a diff to the global list
     void addSuppressionFiles(const QStringList &suppressions) override;
     void removeSuppressionFiles(const QStringList &suppressions) override;
 
 private:
-    QStringList m_disabledGlobalSuppressionFiles;
-    QStringList m_addedSuppressionFiles;
-
-
-    /**
-     * Per-project callgrind settings, saves a diff to the global suppression files list
-     */
+    Utils::StringListAspect disabledGlobalSuppressionFiles;
+    Utils::StringListAspect addedSuppressionFiles;
 };
 
 } // namespace Internal

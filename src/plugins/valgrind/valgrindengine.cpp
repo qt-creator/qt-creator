@@ -77,8 +77,8 @@ void ValgrindToolRunner::start()
     emit outputReceived(tr("Command line arguments: %1").arg(runnable().debuggeeArgs), LogMessageFormat);
 #endif
 
-    CommandLine valgrind{m_settings.valgrindExecutable()};
-    valgrind.addArgs(m_settings.valgrindArguments(), CommandLine::Raw);
+    CommandLine valgrind{m_settings.valgrindExecutable.value()};
+    valgrind.addArgs(m_settings.valgrindArguments.value(), CommandLine::Raw);
     valgrind.addArgs(genericToolArguments());
     valgrind.addArgs(toolArguments());
 
@@ -124,7 +124,7 @@ QStringList ValgrindToolRunner::genericToolArguments() const
 {
     QString smcCheckValue;
 
-    switch (m_settings.selfModifyingCodeDetection()) {
+    switch (m_settings.selfModifyingCodeDetection.value()) {
     case ValgrindBaseSettings::DetectSmcNo:
         smcCheckValue = "none";
         break;
@@ -175,7 +175,7 @@ void ValgrindToolRunner::receiveProcessOutput(const QString &output, OutputForma
 void ValgrindToolRunner::receiveProcessError(const QString &message, QProcess::ProcessError error)
 {
     if (error == QProcess::FailedToStart) {
-        const QString valgrind = m_settings.valgrindExecutable();
+        const QString valgrind = m_settings.valgrindExecutable.value();
         if (!valgrind.isEmpty())
             appendMessage(tr("Error: \"%1\" could not be started: %2").arg(valgrind, message), ErrorMessageFormat);
         else

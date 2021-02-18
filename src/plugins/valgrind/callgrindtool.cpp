@@ -133,8 +133,6 @@ public:
 
     void selectFunction(const Function *);
     void setCostFormat(CostDelegate::CostFormat format);
-    void enableCycleDetection(bool enabled);
-    void shortenTemplates(bool enabled);
     void setCostEvent(int index);
 
     /// This function will add custom text marks to the editor
@@ -198,8 +196,6 @@ public:
     QAction *m_costAbsolute = nullptr;
     QAction *m_costRelative = nullptr;
     QAction *m_costRelativeToParent = nullptr;
-    QAction *m_cycleDetection = nullptr;
-    QAction *m_shortenTemplates = nullptr;
     QComboBox *m_eventCombo = nullptr;
 
     QTimer m_updateTimer;
@@ -382,7 +378,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     action->setIcon(kCachegrindIcon.icon());
     action->setToolTip(CallgrindTool::tr("Open results in KCachegrind."));
     connect(action, &QAction::triggered, this, [this, settings] {
-        QProcess::startDetached(settings->kcachegrindExecutable(), { m_lastFileName });
+        QProcess::startDetached(settings->kcachegrindExecutable.value(), { m_lastFileName });
     });
 
     // dump action
@@ -488,40 +484,20 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     m_perspective.addToolBarWidget(button);
     }
 
-    // Cycle detection
-    //action = new QAction("Cycle Detection", this); ///FIXME: icon
-    action = m_cycleDetection = new QAction("O", this); ///FIXME: icon
-    action->setToolTip(CallgrindTool::tr("Enable cycle detection to properly handle recursive or circular function calls."));
-    action->setCheckable(true);
-    connect(action, &QAction::toggled, &m_dataModel, &DataModel::enableCycleDetection);
-    connect(action, &QAction::toggled, settings, &ValgrindGlobalSettings::setDetectCycles);
-
-    // Shorter template signature
-    action = m_shortenTemplates = new QAction("<>", this);
-    action->setToolTip(CallgrindTool::tr("Remove template parameter lists when displaying function names."));
-    action->setCheckable(true);
-    connect(action, &QAction::toggled, &m_dataModel, &DataModel::setShortenTemplates);
-    connect(action, &QAction::toggled, settings, &ValgrindGlobalSettings::setShortenTemplates);
-
     // Filtering
-    action = m_filterProjectCosts = new QAction(CallgrindTool::tr("Show Project Costs Only"), this);
-    action->setIcon(Utils::Icons::FILTER.icon());
-    action->setToolTip(CallgrindTool::tr("Show only profiling info that originated from this project source."));
-    action->setCheckable(true);
+    action = m_filterProjectCosts = settings->filterExternalIssues.action();
     connect(action, &QAction::toggled, this, &CallgrindToolPrivate::handleFilterProjectCosts);
 
     // Filter
-    ///FIXME: find workaround for https://bugreports.qt.io/browse/QTCREATORBUG-3247
     m_searchFilter = new QLineEdit;
     m_searchFilter->setPlaceholderText(CallgrindTool::tr("Filter..."));
     connect(m_searchFilter, &QLineEdit::textChanged,
             &m_updateTimer, QOverload<>::of(&QTimer::start));
 
-    setCostFormat(settings->costFormat());
-    enableCycleDetection(settings->detectCycles());
+    setCostFormat(CostDelegate::CostFormat(settings->costFormat.value()));
 
-    m_perspective.addToolBarAction(m_cycleDetection);
-    m_perspective.addToolBarAction(m_shortenTemplates);
+    m_perspective.addToolBarAction(settings->detectCycles.action());
+    m_perspective.addToolBarAction(settings->shortenTemplates.action());
     m_perspective.addToolBarAction(m_filterProjectCosts);
     m_perspective.addToolBarWidget(m_searchFilter);
 
@@ -640,16 +616,6 @@ void CallgrindToolPrivate::setCostEvent(int index)
     m_callersModel.setCostEvent(index);
 }
 
-void CallgrindToolPrivate::enableCycleDetection(bool enabled)
-{
-    m_cycleDetection->setChecked(enabled);
-}
-
-void CallgrindToolPrivate::shortenTemplates(bool enabled)
-{
-    m_shortenTemplates->setChecked(enabled);
-}
-
 // Following functions can be called with actions=0 or widgets=0
 // depending on initialization sequence (whether callgrind was current).
 CostDelegate::CostFormat CallgrindToolPrivate::costFormat() const
@@ -671,7 +637,7 @@ void CallgrindToolPrivate::updateCostFormat()
         m_callersView->setCostFormat(format);
     }
     if (ValgrindGlobalSettings *settings = ValgrindGlobalSettings::instance())
-        settings->setCostFormat(format);
+        settings->costFormat.setValue(format);
 }
 
 void CallgrindToolPrivate::handleFilterProjectCosts()
@@ -789,9 +755,9 @@ void CallgrindToolPrivate::setupRunner(CallgrindToolRunner *toolRunner)
     // apply project settings
     ValgrindProjectSettings settings;
     settings.fromMap(runControl->settingsData(ANALYZER_VALGRIND_SETTINGS));
-    m_visualization->setMinimumInclusiveCostRatio(settings.visualisationMinimumInclusiveCostRatio() / 100.0);
-    m_proxyModel.setMinimumInclusiveCostRatio(settings.minimumInclusiveCostRatio() / 100.0);
-    m_dataModel.setVerboseToolTipsEnabled(settings.enableEventToolTips());
+    m_visualization->setMinimumInclusiveCostRatio(settings.visualizationMinimumInclusiveCostRatio.value() / 100.0);
+    m_proxyModel.setMinimumInclusiveCostRatio(settings.minimumInclusiveCostRatio.value() / 100.0);
+    m_dataModel.setVerboseToolTipsEnabled(settings.enableEventToolTips.value());
 
     m_toolBusy = true;
     updateRunActions();
@@ -949,7 +915,8 @@ void CallgrindToolPrivate::takeParserData(ParseData *data)
     doClear(true);
 
     setParseData(data);
-    const QString kcachegrindExecutable = ValgrindGlobalSettings::instance()->kcachegrindExecutable();
+    const QString kcachegrindExecutable =
+            ValgrindGlobalSettings::instance()->kcachegrindExecutable.value();
     const bool kcachegrindExists = !Utils::Environment::systemEnvironment().searchInPath(
                 kcachegrindExecutable).isEmpty();
     m_startKCachegrind->setEnabled(kcachegrindExists && !m_lastFileName.isEmpty());

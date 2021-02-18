@@ -41,9 +41,6 @@ SOURCES += \
     memcheckerrorview.cpp \
     suppressiondialog.cpp
 
-FORMS += \
-    valgrindconfigwidget.ui
-
 RESOURCES += \
     valgrind.qrc
 

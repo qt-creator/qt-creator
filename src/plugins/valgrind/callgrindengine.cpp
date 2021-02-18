@@ -78,16 +78,16 @@ QStringList CallgrindToolRunner::toolArguments() const
 {
     QStringList arguments = {"--tool=callgrind"};
 
-    if (m_settings.enableCacheSim())
+    if (m_settings.enableCacheSim.value())
         arguments << "--cache-sim=yes";
 
-    if (m_settings.enableBranchSim())
+    if (m_settings.enableBranchSim.value())
         arguments << "--branch-sim=yes";
 
-    if (m_settings.collectBusEvents())
+    if (m_settings.collectBusEvents.value())
         arguments << "--collect-bus=yes";
 
-    if (m_settings.collectSystime())
+    if (m_settings.collectSystime.value())
         arguments << "--collect-systime=yes";
 
     if (m_markAsPaused)
@@ -97,7 +97,7 @@ QStringList CallgrindToolRunner::toolArguments() const
     if (!m_argumentForToggleCollect.isEmpty())
         arguments << m_argumentForToggleCollect;
 
-    arguments << Utils::QtcProcess::splitArgs(m_settings.callgrindArguments());
+    arguments << Utils::QtcProcess::splitArgs(m_settings.callgrindArguments.value());
 
     return arguments;
 }

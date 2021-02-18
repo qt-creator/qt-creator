@@ -443,7 +443,6 @@ QVariant BaseAspect::volatileValue() const
 void BaseAspect::setVolatileValue(const QVariant &val)
 {
     Q_UNUSED(val);
-    QTC_CHECK(false);
 }
 
 void BaseAspect::registerSubWidget(QWidget *widget)
@@ -1100,7 +1099,6 @@ QVariant StringAspect::volatileValue() const
 
 void StringAspect::setVolatileValue(const QVariant &val)
 {
-    QTC_CHECK(!isAutoApply());
     switch (d->m_displayStyle) {
     case PathChooserDisplay:
         if (d->m_pathChooserDisplay)
@@ -2082,6 +2080,12 @@ void AspectContainer::reset()
 {
     for (BaseAspect *aspect : qAsConst(d->m_items))
         aspect->setValueQuietly(aspect->defaultValue());
+}
+
+void AspectContainer::setAutoApply(bool on)
+{
+    for (BaseAspect *aspect : qAsConst(d->m_items))
+        aspect->setAutoApply(on);
 }
 
 void AspectContainer::fromMap(const QString &prefix, const QVariantMap &map)

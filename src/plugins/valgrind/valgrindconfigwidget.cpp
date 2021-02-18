@@ -28,19 +28,22 @@
 #include "valgrindsettings.h"
 #include "valgrindplugin.h"
 
-#include "ui_valgrindconfigwidget.h"
-
 #include <debugger/analyzer/analyzericons.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QStandardItemModel>
 #include <QFileDialog>
+#include <QListView>
+#include <QPushButton>
+#include <QStandardItemModel>
 
 #include <functional>
+
+using namespace Utils;
 
 namespace Valgrind {
 namespace Internal {
@@ -53,10 +56,10 @@ class ValgrindConfigWidget : public Core::IOptionsPageWidget
 
 public:
     explicit ValgrindConfigWidget(ValgrindBaseSettings *settings);
-    ~ValgrindConfigWidget() override;
 
     void apply() final
     {
+        ValgrindGlobalSettings::instance()->group.apply();
         ValgrindGlobalSettings::instance()->writeSettings();
     }
 
@@ -73,172 +76,102 @@ private:
     void updateUi();
 
     ValgrindBaseSettings *m_settings;
-    Ui::ValgrindConfigWidget *m_ui;
-    QStandardItemModel *m_model;
+
+    QPushButton *addSuppression;
+    QPushButton *removeSuppression;
+    QListView *suppressionList;
+
+    QStandardItemModel m_model;
 };
 
 ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings)
-    : m_settings(settings),
-      m_ui(new Ui::ValgrindConfigWidget)
+    : m_settings(settings)
 {
-    m_ui->setupUi(this);
-    m_model = new QStandardItemModel(this);
+    addSuppression = new QPushButton(tr("Add..."));
+    removeSuppression = new QPushButton(tr("Remove"));
 
-    m_ui->valgrindExeChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_ui->valgrindExeChooser->setHistoryCompleter("Valgrind.Command.History");
-    m_ui->valgrindExeChooser->setPromptDialogTitle(tr("Valgrind Command"));
+    suppressionList = new QListView;
+    suppressionList->setModel(&m_model);
+    suppressionList->setSelectionMode(QAbstractItemView::MultiSelection);
+
+    using namespace Layouting;
+    const Break nl;
+    ValgrindBaseSettings &s = *settings;
+
+    Grid generic {
+        s.valgrindExecutable, nl,
+        s.valgrindArguments, nl,
+        s.selfModifyingCodeDetection, nl
+    };
+
+    Grid memcheck {
+        s.memcheckArguments, nl,
+        s.trackOrigins, nl,
+        s.showReachable, nl,
+        s.leakCheckOnFinish, nl,
+        s.numCallers, nl,
+        s.filterExternalIssues, nl,
+        Item {
+            Group {
+                Title(tr("Suppression files:")),
+                Row {
+                    suppressionList,
+                    Column { addSuppression, removeSuppression, Stretch() }
+                }
+            },
+            2 // Span.
+        }
+    };
+
+    Grid callgrind {
+        s.callgrindArguments, nl,
+        s.kcachegrindExecutable, nl,
+        s.minimumInclusiveCostRatio, nl,
+        s.visualizationMinimumInclusiveCostRatio, nl,
+        s.enableEventToolTips, nl,
+        Item {
+            Group {
+                s.enableCacheSim,
+                s.enableBranchSim,
+                s.collectSystime,
+                s.collectBusEvents,
+            },
+            2 // Span.
+        }
+    };
+
+    Column {
+        Group { Title(tr("Valgrind Generic Settings")), generic },
+        Group { Title(tr("MemCheck Memory Analysis Options")), memcheck },
+        Group { Title(tr("CallGrind Profiling Options")), callgrind },
+        Stretch(),
+    }.attachTo(this);
+
 
     updateUi();
     connect(m_settings, &ValgrindBaseSettings::changed, this, &ValgrindConfigWidget::updateUi);
 
-    connect(m_ui->valgrindExeChooser, &Utils::PathChooser::rawPathChanged,
-            m_settings, &ValgrindBaseSettings::setValgrindExecutable);
+    connect(addSuppression, &QPushButton::clicked,
+            this, &ValgrindConfigWidget::slotAddSuppression);
+    connect(removeSuppression, &QPushButton::clicked,
+            this, &ValgrindConfigWidget::slotRemoveSuppression);
 
-    connect(m_ui->valgrindArgumentsLineEdit, &QLineEdit::textChanged,
-            m_settings, &ValgrindBaseSettings::setValgrindArguments);
-    connect(m_settings, &ValgrindBaseSettings::valgrindArgumentsChanged,
-            m_ui->valgrindArgumentsLineEdit, &QLineEdit::setText);
-
-    connect(m_ui->smcDetectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            m_settings, &ValgrindBaseSettings::setSelfModifyingCodeDetection);
-
-    if (Utils::HostOsInfo::isWindowsHost()) {
-        // FIXME: On Window we know that we don't have a local valgrind
-        // executable, so having the "Browse" button in the path chooser
-        // (which is needed for the remote executable) is confusing.
-        m_ui->valgrindExeChooser->buttonAtIndex(0)->hide();
-    }
-
-    //
-    // Callgrind
-    //
-    m_ui->kcachegrindExeChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_ui->kcachegrindExeChooser->setPromptDialogTitle(tr("KCachegrind Command"));
-    connect(m_ui->callgrindArgumentsLineEdit, &QLineEdit::textChanged,
-            m_settings, &ValgrindBaseSettings::setCallgrindArguments);
-    connect(m_settings, &ValgrindBaseSettings::callgrindArgumentsChanged,
-            m_ui->callgrindArgumentsLineEdit, &QLineEdit::setText);
-
-    connect(m_ui->kcachegrindExeChooser, &Utils::PathChooser::rawPathChanged,
-            m_settings, &ValgrindBaseSettings::setKCachegrindExecutable);
-    connect(m_ui->enableCacheSim, &QCheckBox::toggled,
-            m_settings, &ValgrindBaseSettings::setEnableCacheSim);
-    connect(m_settings, &ValgrindBaseSettings::enableCacheSimChanged,
-            m_ui->enableCacheSim, &QAbstractButton::setChecked);
-
-    connect(m_ui->enableBranchSim, &QCheckBox::toggled,
-            m_settings, &ValgrindBaseSettings::setEnableBranchSim);
-    connect(m_settings, &ValgrindBaseSettings::enableBranchSimChanged,
-            m_ui->enableBranchSim, &QAbstractButton::setChecked);
-
-    connect(m_ui->collectSystime, &QCheckBox::toggled,
-            m_settings, &ValgrindBaseSettings::setCollectSystime);
-    connect(m_settings, &ValgrindBaseSettings::collectSystimeChanged,
-            m_ui->collectSystime, &QAbstractButton::setChecked);
-
-    connect(m_ui->collectBusEvents, &QCheckBox::toggled,
-            m_settings, &ValgrindBaseSettings::setCollectBusEvents);
-    connect(m_settings, &ValgrindBaseSettings::collectBusEventsChanged,
-            m_ui->collectBusEvents, &QAbstractButton::setChecked);
-
-    connect(m_ui->enableEventToolTips, &QGroupBox::toggled,
-            m_settings, &ValgrindBaseSettings::setEnableEventToolTips);
-    connect(m_settings, &ValgrindBaseSettings::enableEventToolTipsChanged,
-            m_ui->enableEventToolTips, &QGroupBox::setChecked);
-
-    connect(m_ui->minimumInclusiveCostRatio, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            m_settings, &ValgrindBaseSettings::setMinimumInclusiveCostRatio);
-    connect(m_settings, &ValgrindBaseSettings::minimumInclusiveCostRatioChanged,
-            m_ui->minimumInclusiveCostRatio, &QDoubleSpinBox::setValue);
-
-    connect(m_ui->visualisationMinimumInclusiveCostRatio, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            m_settings, &ValgrindBaseSettings::setVisualisationMinimumInclusiveCostRatio);
-    connect(m_settings, &ValgrindBaseSettings::visualisationMinimumInclusiveCostRatioChanged,
-            m_ui->visualisationMinimumInclusiveCostRatio, &QDoubleSpinBox::setValue);
-
-    //
-    // Memcheck
-    //
-    m_ui->suppressionList->setModel(m_model);
-    m_ui->suppressionList->setSelectionMode(QAbstractItemView::MultiSelection);
-
-    connect(m_ui->memcheckArgumentsLineEdit, &QLineEdit::textChanged,
-            m_settings, &ValgrindBaseSettings::setMemcheckArguments);
-    connect(m_settings, &ValgrindBaseSettings::memcheckArgumentsChanged,
-            m_ui->memcheckArgumentsLineEdit, &QLineEdit::setText);
-
-    connect(m_ui->addSuppression, &QPushButton::clicked, this, &ValgrindConfigWidget::slotAddSuppression);
-    connect(m_ui->removeSuppression, &QPushButton::clicked, this, &ValgrindConfigWidget::slotRemoveSuppression);
-
-    connect(m_ui->numCallers, QOverload<int>::of(&QSpinBox::valueChanged),
-            m_settings, &ValgrindBaseSettings::setNumCallers);
-    connect(m_settings, &ValgrindBaseSettings::numCallersChanged,
-            m_ui->numCallers, &QSpinBox::setValue);
-
-    connect(m_ui->leakCheckOnFinish, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            m_settings, &ValgrindBaseSettings::setLeakCheckOnFinish);
-    connect(m_settings, &ValgrindBaseSettings::leakCheckOnFinishChanged,
-            m_ui->leakCheckOnFinish, &QComboBox::setCurrentIndex);
-
-    connect(m_ui->showReachable, &QCheckBox::toggled,
-            m_settings, &ValgrindBaseSettings::setShowReachable);
-    connect(m_settings, &ValgrindBaseSettings::showReachableChanged,
-            m_ui->showReachable, &QAbstractButton::setChecked);
-
-    connect(m_ui->trackOrigins, &QCheckBox::toggled, m_settings, &ValgrindBaseSettings::setTrackOrigins);
-    connect(m_settings, &ValgrindBaseSettings::trackOriginsChanged,
-            m_ui->trackOrigins, &QAbstractButton::setChecked);
-
-    connect(m_settings, &ValgrindBaseSettings::suppressionFilesRemoved,
+    connect(&s, &ValgrindBaseSettings::suppressionFilesRemoved,
             this, &ValgrindConfigWidget::slotSuppressionsRemoved);
-    connect(m_settings, &ValgrindBaseSettings::suppressionFilesAdded,
+    connect(&s, &ValgrindBaseSettings::suppressionFilesAdded,
             this, &ValgrindConfigWidget::slotSuppressionsAdded);
 
-    connect(m_ui->suppressionList->selectionModel(), &QItemSelectionModel::selectionChanged,
+    connect(suppressionList->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &ValgrindConfigWidget::slotSuppressionSelectionChanged);
+
     slotSuppressionSelectionChanged();
-
-    if (settings != ValgrindGlobalSettings::instance()) {
-        // In project settings we want a flat vertical list.
-        auto l = new QVBoxLayout;
-        while (layout()->count()) {
-            QLayoutItem *item = layout()->takeAt(0);
-            if (QWidget *w = item->widget())
-                l->addWidget(w);
-            delete item;
-        }
-        delete layout();
-        setLayout(l);
-    }
-}
-
-ValgrindConfigWidget::~ValgrindConfigWidget()
-{
-    delete m_ui;
 }
 
 void ValgrindConfigWidget::updateUi()
 {
-    m_ui->valgrindExeChooser->setPath(m_settings->valgrindExecutable());
-    m_ui->valgrindArgumentsLineEdit->setText(m_settings->valgrindArguments());
-    m_ui->memcheckArgumentsLineEdit->setText(m_settings->memcheckArguments());
-    m_ui->callgrindArgumentsLineEdit->setText(m_settings->callgrindArguments());
-    m_ui->smcDetectionComboBox->setCurrentIndex(m_settings->selfModifyingCodeDetection());
-    m_ui->kcachegrindExeChooser->setPath(m_settings->kcachegrindExecutable());
-    m_ui->enableCacheSim->setChecked(m_settings->enableCacheSim());
-    m_ui->enableBranchSim->setChecked(m_settings->enableBranchSim());
-    m_ui->collectSystime->setChecked(m_settings->collectSystime());
-    m_ui->collectBusEvents->setChecked(m_settings->collectBusEvents());
-    m_ui->enableEventToolTips->setChecked(m_settings->enableEventToolTips());
-    m_ui->minimumInclusiveCostRatio->setValue(m_settings->minimumInclusiveCostRatio());
-    m_ui->visualisationMinimumInclusiveCostRatio->setValue(m_settings->visualisationMinimumInclusiveCostRatio());
-    m_ui->numCallers->setValue(m_settings->numCallers());
-    m_ui->leakCheckOnFinish->setCurrentIndex(m_settings->leakCheckOnFinish());
-    m_ui->showReachable->setChecked(m_settings->showReachable());
-    m_ui->trackOrigins->setChecked(m_settings->trackOrigins());
-    m_model->clear();
+    m_model.clear();
     foreach (const QString &file, m_settings->suppressionFiles())
-        m_model->appendRow(new QStandardItem(file));
+        m_model.appendRow(new QStandardItem(file));
 }
 
 void ValgrindConfigWidget::slotAddSuppression()
@@ -247,14 +180,14 @@ void ValgrindConfigWidget::slotAddSuppression()
     QTC_ASSERT(conf, return);
     QStringList files = QFileDialog::getOpenFileNames(this,
         tr("Valgrind Suppression Files"),
-        conf->lastSuppressionDialogDirectory(),
+        conf->lastSuppressionDirectory.value(),
         tr("Valgrind Suppression File (*.supp);;All Files (*)"));
     //dialog.setHistory(conf->lastSuppressionDialogHistory());
     if (!files.isEmpty()) {
         foreach (const QString &file, files)
-            m_model->appendRow(new QStandardItem(file));
+            m_model.appendRow(new QStandardItem(file));
         m_settings->addSuppressionFiles(files);
-        conf->setLastSuppressionDialogDirectory(QFileInfo(files.at(0)).absolutePath());
+        conf->lastSuppressionDirectory.setValue(QFileInfo(files.at(0)).absolutePath());
         //conf->setLastSuppressionDialogHistory(dialog.history());
     }
 }
@@ -262,11 +195,11 @@ void ValgrindConfigWidget::slotAddSuppression()
 void ValgrindConfigWidget::slotSuppressionsAdded(const QStringList &files)
 {
     QStringList filesToAdd = files;
-    for (int i = 0, c = m_model->rowCount(); i < c; ++i)
-        filesToAdd.removeAll(m_model->item(i)->text());
+    for (int i = 0, c = m_model.rowCount(); i < c; ++i)
+        filesToAdd.removeAll(m_model.item(i)->text());
 
     foreach (const QString &file, filesToAdd)
-        m_model->appendRow(new QStandardItem(file));
+        m_model.appendRow(new QStandardItem(file));
 }
 
 void ValgrindConfigWidget::slotRemoveSuppression()
@@ -275,7 +208,7 @@ void ValgrindConfigWidget::slotRemoveSuppression()
     QList<int> rows;
 
     QStringList removed;
-    foreach (const QModelIndex &index, m_ui->suppressionList->selectionModel()->selectedIndexes()) {
+    foreach (const QModelIndex &index, suppressionList->selectionModel()->selectedIndexes()) {
         rows << index.row();
         removed << index.data().toString();
     }
@@ -283,16 +216,16 @@ void ValgrindConfigWidget::slotRemoveSuppression()
     Utils::sort(rows, std::greater<int>());
 
     foreach (int row, rows)
-        m_model->removeRow(row);
+        m_model.removeRow(row);
 
     m_settings->removeSuppressionFiles(removed);
 }
 
 void ValgrindConfigWidget::slotSuppressionsRemoved(const QStringList &files)
 {
-    for (int i = 0; i < m_model->rowCount(); ++i) {
-        if (files.contains(m_model->item(i)->text())) {
-            m_model->removeRow(i);
+    for (int i = 0; i < m_model.rowCount(); ++i) {
+        if (files.contains(m_model.item(i)->text())) {
+            m_model.removeRow(i);
             --i;
         }
     }
@@ -300,24 +233,24 @@ void ValgrindConfigWidget::slotSuppressionsRemoved(const QStringList &files)
 
 void ValgrindConfigWidget::setSuppressions(const QStringList &files)
 {
-    m_model->clear();
+    m_model.clear();
     foreach (const QString &file, files)
-        m_model->appendRow(new QStandardItem(file));
+        m_model.appendRow(new QStandardItem(file));
 }
 
 QStringList ValgrindConfigWidget::suppressions() const
 {
     QStringList ret;
 
-    for (int i = 0; i < m_model->rowCount(); ++i)
-        ret << m_model->item(i)->text();
+    for (int i = 0; i < m_model.rowCount(); ++i)
+        ret << m_model.item(i)->text();
 
     return ret;
 }
 
 void ValgrindConfigWidget::slotSuppressionSelectionChanged()
 {
-    m_ui->removeSuppression->setEnabled(m_ui->suppressionList->selectionModel()->hasSelection());
+    removeSuppression->setEnabled(suppressionList->selectionModel()->hasSelection());
 }
 
 // ValgrindOptionsPage
