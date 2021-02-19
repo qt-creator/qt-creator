@@ -134,6 +134,9 @@ Client::~Client()
     for (IAssistProcessor *processor : qAsConst(m_runningAssistProcessors))
         processor->setAsyncProposalAvailable(nullptr);
     updateEditorToolBar(m_openedDocument.keys());
+    // do not handle messages while shutting down
+    disconnect(m_clientInterface.data(), &BaseClientInterface::messageReceived,
+               this, &Client::handleMessage);
 }
 
 static ClientCapabilities generateClientCapabilities()
