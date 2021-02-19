@@ -593,9 +593,12 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
             continue; // private API
 
         if (!superType.hasProperty(propertyName)
-                && type.propertyIsWritable(propertyName)
-                && dotPropertyHeuristic(node, type, propertyName)) {
-            const QString typeName = QString::fromLatin1(type.propertyTypeName(propertyName));
+            && type.propertyIsWritable(propertyName)
+            && dotPropertyHeuristic(node, type, propertyName)) {
+            QString typeName = QString::fromLatin1(type.propertyTypeName(propertyName));
+
+            if (typeName == "alias" && node.isValid())
+                typeName = QString::fromLatin1(node.instanceType(propertyName));
 
             // Check if a template for the type exists
             if (allTypes.contains(typeName)) {
