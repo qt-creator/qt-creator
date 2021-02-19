@@ -138,6 +138,25 @@ else()
   )
 endif()
 
+# install qmake support files
+install(
+  FILES
+    qtcreator.pri
+    qtcreatordata.pri
+    qtcreator_ide_branding.pri
+  DESTINATION include
+  COMPONENT Devel EXCLUDE_FROM_ALL
+)
+install(
+  FILES
+    src/qtcreatorlibrary.pri
+    src/qtcreatorplugin.pri
+    src/qtcreatortool.pri
+    src/rpath.pri
+  DESTINATION include/src
+  COMPONENT Devel EXCLUDE_FROM_ALL
+)
+
 feature_summary(INCLUDE_QUIET_PACKAGES WHAT
   PACKAGES_FOUND PACKAGES_NOT_FOUND
   ENABLED_FEATURES DISABLED_FEATURES
