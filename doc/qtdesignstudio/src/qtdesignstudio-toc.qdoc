@@ -58,6 +58,7 @@
                         \li \l{Selecting Modes}
                         \li \l{Editing QML Files in Design Mode}
                         \list
+                            \li \l{Form Editor}
                             \li \l{Library}
                         \endlist
                         \li \l{Managing Workspaces}
@@ -86,7 +87,6 @@
                 \li \l{Designing Application Flows}
                 \li \l{Creating Components}
                 \list
-                    \li \l{Editing 2D Content}
                     \li \l{Shapes}
                     \li \l{Text}
                     \li \l{Images}

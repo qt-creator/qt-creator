@@ -25,13 +25,13 @@
 
 /*!
     \page qtquick-form-editor.html
-    \previouspage quick-components.html
-    \nextpage quick-shapes.html
+    \previouspage creator-using-qt-quick-designer.html
+    \nextpage quick-library.html
 
-    \title Editing 2D Content
+    \title Form Editor
 
     You design applications in the \uicontrol {Form Editor} view by placing
-    2D components and assets into it.
+    \l{Component Types}{2D components} and \l{Assets}{assets} into it.
 
     When you select items in \uicontrol {Form Editor}, markers
     appear around their edges and in their corners. Depending on the shape of
