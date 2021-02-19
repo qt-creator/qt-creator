@@ -722,7 +722,10 @@ Utils::CommandLine StdIOSettings::command() const
 
 BaseClientInterface *StdIOSettings::createInterface() const
 {
-    return new StdIOClientInterface(m_executable, arguments());
+    auto interface = new StdIOClientInterface;
+    interface->setExecutable(m_executable);
+    interface->setArguments(arguments());
+    return interface;
 }
 
 class JsonTreeItemDelegate : public QStyledItemDelegate

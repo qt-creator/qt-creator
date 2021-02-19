@@ -89,9 +89,7 @@ void BaseClientInterface::parseData(const QByteArray &data)
     }
 }
 
-StdIOClientInterface::StdIOClientInterface(const QString &executable, const QString &arguments)
-    : m_executable(executable)
-    , m_arguments(arguments)
+StdIOClientInterface::StdIOClientInterface()
 {
     connect(&m_process, &QProcess::readyReadStandardError,
             this, &StdIOClientInterface::readError);
@@ -99,19 +97,11 @@ StdIOClientInterface::StdIOClientInterface(const QString &executable, const QStr
             this, &StdIOClientInterface::readOutput);
     connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &StdIOClientInterface::onProcessFinished);
-
-    m_process.setArguments(Utils::QtcProcess::splitArgs(m_arguments));
-    m_process.setProgram(m_executable);
 }
 
 StdIOClientInterface::~StdIOClientInterface()
 {
     Utils::SynchronousProcess::stopProcess(m_process);
-}
-
-bool StdIOClientInterface::needsRestart(const StdIOSettings *settings) const
-{
-    return m_executable != settings->m_executable || m_arguments != settings->arguments();
 }
 
 bool StdIOClientInterface::start()
@@ -122,6 +112,16 @@ bool StdIOClientInterface::start()
         return false;
     }
     return true;
+}
+
+void StdIOClientInterface::setExecutable(const QString &executable)
+{
+    m_process.setProgram(executable);
+}
+
+void StdIOClientInterface::setArguments(const QString &arguments)
+{
+    m_process.setArguments(Utils::QtcProcess::splitArgs(arguments));
 }
 
 void StdIOClientInterface::setWorkingDirectory(const QString &workingDirectory)

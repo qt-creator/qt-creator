@@ -28,9 +28,11 @@
 #include "androidconstants.h"
 
 #include <languageclient/client.h>
+#include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientutils.h>
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
+#include <utils/temporarydirectory.h>
 #include <utils/variablechooser.h>
 
 #include <QGridLayout>
@@ -67,7 +69,6 @@ JLSSettingsWidget::JLSSettingsWidget(const JLSSettings *settings, QWidget *paren
     , m_name(new QLineEdit(settings->m_name, this))
     , m_java(new PathChooser(this))
     , m_ls(new PathChooser(this))
-    , m_workspace(new PathChooser(this))
 {
     int row = 0;
     auto *mainLayout = new QGridLayout;
@@ -87,11 +88,6 @@ JLSSettingsWidget::JLSSettingsWidget(const JLSSettings *settings, QWidget *paren
     m_ls->setPromptDialogFilter("org.eclipse.equinox.launcher_*.jar");
     m_ls->setPath(QDir::toNativeSeparators(settings->m_languageServer));
     mainLayout->addWidget(m_ls, row, 1);
-
-    mainLayout->addWidget(new QLabel(tr("Workspace:")), ++row, 0);
-    m_workspace->setExpectedKind(Utils::PathChooser::Directory);
-    m_workspace->setPath(QDir::toNativeSeparators(settings->m_workspace));
-    mainLayout->addWidget(m_workspace, row, 1);
 
     setLayout(mainLayout);
 }
@@ -117,9 +113,6 @@ bool JLSSettings::applyFromSettingsWidget(QWidget *widget)
     changed |= m_languageServer != jlswidget->languageServer();
     m_languageServer = jlswidget->languageServer();
 
-    changed |= m_workspace != jlswidget->workspace();
-    m_workspace = jlswidget->workspace();
-
     changed |= m_executable != jlswidget->java();
     m_executable = jlswidget->java();
 
@@ -130,8 +123,7 @@ bool JLSSettings::applyFromSettingsWidget(QWidget *widget)
                         "-noverify "
                         "-Xmx1G "
                         "-jar \"%1\" "
-                        "-configuration \"%2\" "
-                        "-data \"%3\"";
+                        "-configuration \"%2\"";
 
     QFileInfo languageServerFileInfo(m_languageServer);
     QDir configDir = languageServerFileInfo.absoluteDir();
@@ -145,7 +137,7 @@ bool JLSSettings::applyFromSettingsWidget(QWidget *widget)
             configDir.cd("config_mac");
     }
     if (configDir.exists()) {
-        arguments = arguments.arg(m_languageServer, configDir.absolutePath(), m_workspace);
+        arguments = arguments.arg(m_languageServer, configDir.absolutePath());
         changed |= m_arguments != arguments;
         m_arguments = arguments;
     }
@@ -159,14 +151,13 @@ QWidget *JLSSettings::createSettingsWidget(QWidget *parent) const
 
 bool JLSSettings::isValid() const
 {
-    return StdIOSettings::isValid() && !m_languageServer.isEmpty() && !m_workspace.isEmpty();
+    return StdIOSettings::isValid() && !m_languageServer.isEmpty();
 }
 
 QVariantMap JLSSettings::toMap() const
 {
     QVariantMap map = StdIOSettings::toMap();
     map.insert(languageServerKey, m_languageServer);
-    map.insert(workspaceKey, m_workspace);
     return map;
 }
 
@@ -174,12 +165,32 @@ void JLSSettings::fromMap(const QVariantMap &map)
 {
     StdIOSettings::fromMap(map);
     m_languageServer = map[languageServerKey].toString();
-    m_workspace = map[workspaceKey].toString();
 }
 
 LanguageClient::BaseSettings *JLSSettings::copy() const
 {
     return new JLSSettings(*this);
+}
+
+class JLSInterface : public LanguageClient::StdIOClientInterface
+{
+public:
+    JLSInterface() = default;
+
+    QString workspaceDir() const { return m_workspaceDir.path(); }
+
+private:
+    TemporaryDirectory m_workspaceDir = TemporaryDirectory("QtCreator-jls-XXXXXX");
+};
+
+LanguageClient::BaseClientInterface *JLSSettings::createInterface() const
+{
+    auto interface = new JLSInterface();
+    interface->setExecutable(m_executable);
+    QString arguments = this->arguments();
+    arguments += QString(" -data \"%1\"").arg(interface->workspaceDir());
+    interface->setArguments(arguments);
+    return interface;
 }
 
 class JLSClient : public LanguageClient::Client
