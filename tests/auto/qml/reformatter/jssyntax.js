@@ -5,6 +5,11 @@ var a_var = 1
 let a_let = 2
 const a_const = 3
 
+const tmpl = `template` + `t${i + 6}` + `t${i + `nested${i}`}` + `t${function () {
+    return 5
+}()}` + `t\${i}
+${i + 2}`
+
 function foo(a, b) {
     x = 15
     x += 4
