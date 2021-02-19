@@ -40,6 +40,11 @@
     existing environment variables or add, reset and unset new variables
     based on your project requirements.
 
+    To globally change the system environment from the one in which
+    \QC is started, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol Environment > \uicontrol System, and then select
+    \uicontrol Change in the \uicontrol Environment field.
+
     In addition, you can specify custom environment variables in the
     \uicontrol {Project Settings} > \uicontrol Environment settings.
     They are added to all build environments. The final build environment

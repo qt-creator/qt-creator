@@ -103,7 +103,7 @@
     When running on the desktop, the \uicontrol {Build Environment} is used by
     default, but you can also use the \uicontrol {System Environment} without the
     additions made to the build environment. For more information, see
-    \l {Build Environment}.
+    \l {Build Environment} and \l{Specifying Environment Settings}.
 
     To run in a clean system environment, select \uicontrol {Clean Environment}.
 
