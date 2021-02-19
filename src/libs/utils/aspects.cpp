@@ -973,6 +973,7 @@ void StringAspect::makeCheckable(CheckBoxPlacement checkBoxPlacement,
 BoolAspect::BoolAspect(const QString &settingsKey)
     : d(new Internal::BoolAspectPrivate)
 {
+    setValue(false);
     setDefaultValue(false);
     setSettingsKey(settingsKey);
 }
@@ -1148,6 +1149,7 @@ void SelectionAspect::addOption(const QString &displayName, const QString &toolT
 MultiSelectionAspect::MultiSelectionAspect()
     : d(new Internal::MultiSelectionAspectPrivate(this))
 {
+    setValue(QStringList());
     setDefaultValue(QStringList());
 }
 
@@ -1359,6 +1361,7 @@ TriStateAspect::TriStateAspect(const QString onString, const QString &offString,
                                const QString &defaultString)
 {
     setDisplayStyle(DisplayStyle::ComboBox);
+    setSetting(TriState::Default);
     setDefaultValue(2);
     addOption(onString);
     addOption(offString);
