@@ -2534,6 +2534,8 @@ void FakeVimPlugin::test_vim_copy_paste()
     KEYS("yy", "abc" N "abc" N X "def" N "ghi");
     KEYS("\"xp", "abc" N "abc" N "def" N X "abc" N "ghi");
     KEYS(".", "abc" N "abc" N "def" N "abc" N X "abc" N "ghi");
+    KEYS("\"xP", "abc" N "abc" N "def" N "abc" N X "abc" N "abc" N "ghi");
+    KEYS(".", "abc" N "abc" N "def" N "abc" N X "abc" N "abc" N "abc" N "ghi");
 
     // delete to black hole register
     data.setText("aaa bbb ccc");
