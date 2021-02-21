@@ -28,19 +28,24 @@
 #include <qmldesignercorelib_global.h>
 
 #include <QPointer>
+#include <functional>
 
 namespace QmlDesigner {
 
 class AbstractView;
 class ModelNode;
 
+using MergePredicate = std::function<bool(const ModelNode &)>;
+
 class QMLDESIGNERCORE_EXPORT ModelMerger
 {
 public:
     ModelMerger(AbstractView *view) : m_view(view) {}
 
-    ModelNode insertModel(const ModelNode &modelNode);
-    void replaceModel(const ModelNode &modelNode);
+    ModelNode insertModel(const ModelNode &modelNode,
+                          const MergePredicate &predicate = [](const ModelNode &) { return true; });
+    void replaceModel(const ModelNode &modelNode,
+                      const MergePredicate &predicate = [](const ModelNode &) { return true; });
 
 protected:
     AbstractView *view() const
