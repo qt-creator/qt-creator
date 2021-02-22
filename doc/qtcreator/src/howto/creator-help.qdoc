@@ -71,7 +71,8 @@
 
     \image qtcreator-help-options.png
 
-    By default, you can use the mouse scroll wheel to zoom help pages. To
+    You can set the default zoom level in the \uicontrol Zoom field. When
+    viewing help pages, you can use the mouse scroll wheel to zoom them. To
     disable this feature, deselect the \uicontrol {Enable scroll wheel zooming}
     check box.
 
