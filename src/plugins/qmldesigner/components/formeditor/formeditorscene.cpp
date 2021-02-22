@@ -186,7 +186,7 @@ FormEditorItem *FormEditorScene::addFormEditorItem(const QmlItemNode &qmlItemNod
     else
         formEditorItem = new FormEditorItem(qmlItemNode, this);
 
-    Q_ASSERT(!m_qmlItemNodeItemHash.contains(qmlItemNode));
+    QTC_ASSERT(!m_qmlItemNodeItemHash.contains(qmlItemNode), ;);
 
     m_qmlItemNodeItemHash.insert(qmlItemNode, formEditorItem);
     if (qmlItemNode.isRootNode()) {

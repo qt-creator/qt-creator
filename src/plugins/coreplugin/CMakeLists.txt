@@ -206,3 +206,6 @@ if ((NOT WIN32) AND (NOT APPLE))
     )
   endforeach()
 endif()
+
+# transitional qmake plugin build support
+qtc_add_public_header(coreplugin_dependencies.pri)
