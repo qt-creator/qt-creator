@@ -138,6 +138,7 @@ ScrollView {
                 topPadding: 0
                 bottomPadding: 0
                 expanded: importExpanded
+                expandOnClick: false
                 onToggleExpand: importExpanded = !importExpanded
                 onShowContextMenu: {
                     importToRemove = importUsed ? "" : importUrl
@@ -161,6 +162,7 @@ ScrollView {
                             caption: categoryName + " (" + itemModel.rowCount() + ")"
                             visible: categoryVisible
                             expanded: categoryExpanded
+                            expandOnClick: false
                             onToggleExpand: categoryExpanded = !categoryExpanded
 
                             Grid {

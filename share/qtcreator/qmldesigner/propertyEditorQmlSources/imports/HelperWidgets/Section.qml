@@ -47,6 +47,7 @@ Item {
     property int level: 0
     property int levelShift: 10
     property bool hideHeader: false
+    property bool expandOnClick: true // if false, toggleExpand signal will be emitted instead
 
     onHideHeaderChanged:
     {
@@ -92,7 +93,10 @@ Item {
             onClicked: {
                 if (mouse.button === Qt.LeftButton) {
                     trans.enabled = true
-                    section.toggleExpand()
+                    if (expandOnClick)
+                        expanded = !expanded
+                    else
+                        section.toggleExpand()
                 } else {
                     section.showContextMenu()
                 }
