@@ -503,10 +503,10 @@ void CMakeBuildSettingsWidget::updateFromKit()
 CMakeConfig CMakeBuildSettingsWidget::getQmlDebugCxxFlags()
 {
     const auto aspect = m_buildConfiguration->aspect<QtSupport::QmlDebuggingAspect>();
-    const TriState qmlDebuggingState = aspect->setting();
+    const TriState qmlDebuggingState = aspect->value();
     if (qmlDebuggingState == TriState::Default) // don't touch anything
         return {};
-    const bool enable = aspect->setting() == TriState::Enabled;
+    const bool enable = aspect->value() == TriState::Enabled;
 
     const CMakeConfig configList = m_buildConfiguration->configurationFromCMake();
     const QByteArrayList cxxFlags{"CMAKE_CXX_FLAGS", "CMAKE_CXX_FLAGS_DEBUG",

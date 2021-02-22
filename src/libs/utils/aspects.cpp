@@ -1361,21 +1361,26 @@ TriStateAspect::TriStateAspect(const QString onString, const QString &offString,
                                const QString &defaultString)
 {
     setDisplayStyle(DisplayStyle::ComboBox);
-    setSetting(TriState::Default);
-    setDefaultValue(2);
+    setValue(TriState::Default);
+    setDefaultValue(TriState::Default);
     addOption(onString);
     addOption(offString);
     addOption(defaultString);
 }
 
-TriState TriStateAspect::setting() const
+TriState TriStateAspect::value() const
 {
-    return TriState::fromVariant(value());
+    return TriState::fromVariant(BaseAspect::value());
 }
 
-void TriStateAspect::setSetting(TriState setting)
+void TriStateAspect::setValue(TriState value)
 {
-    setValue(setting.toVariant().toInt());
+    BaseAspect::setValue(value.toVariant());
+}
+
+void TriStateAspect::setDefaultValue(TriState value)
+{
+    BaseAspect::setDefaultValue(value.toVariant());
 }
 
 const TriState TriState::Enabled{TriState::EnabledValue};

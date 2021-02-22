@@ -249,7 +249,7 @@ bool DebuggerRunConfigurationAspect::useQmlDebugger() const
         // Try to find a build configuration to check whether qml debugging is enabled there
         if (BuildConfiguration *bc = m_target->activeBuildConfiguration()) {
             const auto aspect = bc->aspect<QtSupport::QmlDebuggingAspect>();
-            return aspect && aspect->setting() == TriState::Enabled;
+            return aspect && aspect->value() == TriState::Enabled;
         }
 
         return !languages.contains(ProjectExplorer::Constants::CXX_LANGUAGE_ID);

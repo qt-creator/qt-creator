@@ -136,7 +136,7 @@ SeparateDebugInfoAspect::SeparateDebugInfoAspect()
 {
     setDisplayName(tr("Separate debug info:"));
     setSettingsKey("SeparateDebugInfo");
-    setSetting(ProjectExplorerPlugin::buildPropertiesSettings().separateDebugInfo);
+    setValue(ProjectExplorerPlugin::buildPropertiesSettings().separateDebugInfo);
 }
 
 } // namespace ProjectExplorer

@@ -317,17 +317,17 @@ QString QbsBuildConfiguration::equivalentCommandLine(const QbsBuildStepData &ste
 
 TriState QbsBuildConfiguration::qmlDebuggingSetting() const
 {
-    return aspect<QtSupport::QmlDebuggingAspect>()->setting();
+    return aspect<QtSupport::QmlDebuggingAspect>()->value();
 }
 
 TriState QbsBuildConfiguration::qtQuickCompilerSetting() const
 {
-    return aspect<QtSupport::QtQuickCompilerAspect>()->setting();
+    return aspect<QtSupport::QtQuickCompilerAspect>()->value();
 }
 
 TriState QbsBuildConfiguration::separateDebugInfoSetting() const
 {
-    return aspect<SeparateDebugInfoAspect>()->setting();
+    return aspect<SeparateDebugInfoAspect>()->value();
 }
 
 // ---------------------------------------------------------------------------

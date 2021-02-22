@@ -365,8 +365,9 @@ public:
             const QString &offString = tr("Disable"),
             const QString &defaultString = tr("Leave at Default"));
 
-    TriState setting() const;
-    void setSetting(TriState setting);
+    TriState value() const;
+    void setValue(TriState setting);
+    void setDefaultValue(TriState setting);
 };
 
 class QTCREATOR_UTILS_EXPORT StringListAspect : public BaseAspect
