@@ -77,7 +77,7 @@
             QML types. You can import visual assets in various formats,
             such as PNG, JPG, and SVG for use in the components.
 
-       \li \l {Managing Item Hierarchy}
+       \li \l {Navigator}
 
             You can manage the items in the current QML file and their
             relationships in the \uicontrol Navigator view.

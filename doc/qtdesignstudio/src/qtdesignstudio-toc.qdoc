@@ -60,6 +60,7 @@
                         \list
                             \li \l{Form Editor}
                             \li \l{Library}
+                            \li \l{Navigator}
                         \endlist
                         \li \l{Managing Workspaces}
                         \li \l{Managing Sessions}
@@ -98,7 +99,6 @@
                     \li \l{Creating Buttons}
                     \li \l{Creating Scalable Buttons and Borders}
                 \endlist
-                \li \l{Managing Item Hierarchy}
                 \li \l{Specifying Item Properties}
                 \li \l{Positioning Items}
                 \li \l{Using Custom Fonts}

@@ -59,7 +59,7 @@
             Views}.
         \li \uicontrol {Navigator} (4) displays the items in the current QML
             file as a tree structure. For more information, see
-            \l {Managing Item Hierarchy}.
+            \l {Navigator}.
         \li \uicontrol {Properties} (5) organizes the properties of the
             selected item. You can change the properties also in \uicontrol
             {Text Editor}. For more information, see
