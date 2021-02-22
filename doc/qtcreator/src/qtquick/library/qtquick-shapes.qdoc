@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -54,7 +54,7 @@
     {Item} type. Even though it has no visual appearance itself (similarly
     to a mouse area, for example), it defines all the properties that are
     common across visual types, such as position, size, and visibility. For
-    more information, see \l{Specifying Basic Item Properties}.
+    more information, see \l{Specifying Basic Component Properties}.
 
     In addition, each type has a set of properties that specify its visual
     appearance and behavior. You can modify the property values to set fill

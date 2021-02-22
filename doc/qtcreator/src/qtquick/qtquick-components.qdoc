@@ -80,7 +80,7 @@
         \li Select components in \uicontrol Navigator to edit the
             values of their properties in \uicontrol Properties.
             \image qmldesigner-properties-view.png "Properties view"
-            For more information, see \l {Specifying Item Properties}.
+            For more information, see \l {Specifying Component Properties}.
         \li To change the appearance and behavior of your components in ways
             that are not supported out of the box, you can define custom
             properties for your components in the \uicontrol Connections view,

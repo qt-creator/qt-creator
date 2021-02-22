@@ -31,7 +31,7 @@
     To make movement between states smooth, you can use
     \uicontrol {Transition Editor} to animate the changes between
     states. First, you need to \l{Creating States}{add states} in
-    the \uicontrol States view and \l{Specifying Item Properties}
+    the \uicontrol States view and \l{Specifying Component Properties}
     {edit some properties} that can be animated, such as colors or
     numbers, in the \uicontrol Properties view. For example, you
     can animate the changes in the position of an object.

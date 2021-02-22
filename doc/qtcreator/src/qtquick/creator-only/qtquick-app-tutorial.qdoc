@@ -196,7 +196,7 @@
     \list
         \li \l{Creating Components}
         \li \l{Navigator}
-        \li \l{Specifying Item Properties}
+        \li \l{Specifying Component Properties}
     \endlist
 
     Next, we will make the image move between the rectangles when users click

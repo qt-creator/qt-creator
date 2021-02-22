@@ -83,7 +83,7 @@
     \image qtquick-custom-properties.png "Custom properties in Properties view"
 
     For more information about setting property values in the
-    \uicontrol Properties view, see \l{Specifying Item Properties}.
+    \uicontrol Properties view, see \l{Specifying Component Properties}.
 
     For an example of using custom properties in an application, see
     \l{Creating a Mobile Application}.

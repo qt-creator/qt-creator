@@ -63,7 +63,7 @@
         \li \uicontrol {Properties} (5) organizes the properties of the
             selected item. You can change the properties also in \uicontrol
             {Text Editor}. For more information, see
-            \l {Specifying Item Properties}.
+            \l {Specifying Component Properties}.
         \li \uicontrol Connections (6) enables you to create connections
             between objects, signals, and object properties. For more
             information, see \l{Adding Connections}.

@@ -82,7 +82,7 @@
             You can manage the items in the current QML file and their
             relationships in the \uicontrol Navigator view.
 
-        \li \l {Specifying Item Properties}
+        \li \l {Specifying Component Properties}
 
             You can specify values for the properties of a component to change
             its appearance and behavior. All QML types have a set of predefined
