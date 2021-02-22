@@ -75,7 +75,7 @@ Item {
             anchors.fill: parent
 
             onPressed: {
-                rootView.startDragAndDrop(mouseRegion, itemLibraryEntry)
+                rootView.startDragAndDrop(itemLibraryEntry)
             }
         }
     }

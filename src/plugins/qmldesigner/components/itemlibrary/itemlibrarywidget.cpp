@@ -84,6 +84,17 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::FocusOut) {
         if (obj == m_itemViewQuickWidget.data())
             QMetaObject::invokeMethod(m_itemViewQuickWidget->rootObject(), "closeContextMenu");
+    } else if (event->type() == QMouseEvent::MouseMove) {
+        if (m_itemToDrag.isValid()) {
+            ItemLibraryEntry entry = m_itemToDrag.value<ItemLibraryEntry>();
+            auto drag = new QDrag(this);
+            drag->setPixmap(Utils::StyleHelper::dpiSpecificImageFile(entry.libraryEntryIconPath()));
+            drag->setMimeData(m_itemLibraryModel->getMimeData(entry));
+            drag->exec();
+            drag->deleteLater();
+
+            m_itemToDrag = {};
+        }
     }
 
     return QObject::eventFilter(obj, event);
@@ -366,25 +377,12 @@ void ItemLibraryWidget::setResourcePath(const QString &resourcePath)
     updateSearch();
 }
 
-void ItemLibraryWidget::startDragAndDrop(QQuickItem *mouseArea, QVariant itemLibraryId)
+void ItemLibraryWidget::startDragAndDrop(const QVariant &itemLibEntry)
 {
-    m_currentitemLibraryEntry = itemLibraryId.value<ItemLibraryEntry>();
-
-    QMimeData *mimeData = m_itemLibraryModel->getMimeData(m_currentitemLibraryEntry);
-    auto drag = new QDrag(this);
-
-    drag->setPixmap(Utils::StyleHelper::dpiSpecificImageFile(
-                        m_currentitemLibraryEntry.libraryEntryIconPath()));
-    drag->setMimeData(mimeData);
-
-    /* Workaround for bug in Qt. The release event is not delivered for Qt < 5.9 if a drag is started */
-    QMouseEvent event (QEvent::MouseButtonRelease, QPoint(-1, -1), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-    QApplication::sendEvent(mouseArea, &event);
-
-    QTimer::singleShot(0, [drag]() {
-        drag->exec();
-        drag->deleteLater();
-    });
+    // Actual drag is created after mouse has moved to avoid a QDrag bug that causes drag to stay
+    // active (and blocks mouse release) if mouse is released at the same spot of the drag start.
+    // This doesn't completely eliminate the bug but makes it significantly harder to produce.
+    m_itemToDrag = itemLibEntry;
 }
 
 void ItemLibraryWidget::setFlowMode(bool b)
