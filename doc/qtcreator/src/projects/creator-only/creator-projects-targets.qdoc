@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -71,6 +71,8 @@
     \uicontrol Kits. For example, if you use CMake to build all your projects,
     you can hide Qbs and qmake settings by default.
 
+    \image qtcreator-kits.png
+
     To hide and show settings in the \uicontrol Kits tab for the
     current kit, select \uicontrol {Settings Filter}. To view and
     modify the settings displayed when you add a new kit, select
@@ -85,7 +87,7 @@
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
             \uicontrol Add.
 
-            \image qtcreator-kits.png
+            \image qtcreator-kits-add.png
 
             To clone the selected kit, select \uicontrol Clone.
 
