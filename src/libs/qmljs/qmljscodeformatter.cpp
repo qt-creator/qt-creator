@@ -163,6 +163,8 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case Import:
             case Signal:
             case Property:
+            case Required:
+            case Readonly:
             case Identifier:    enter(expression_or_objectdefinition); break;
 
             // error recovery
@@ -175,8 +177,10 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
         case objectdefinition_open:
             switch (kind) {
             case RightBrace:    leave(true); break;
-            case Default:       enter(default_property_start); break;
+            case Default:
+            case Readonly:      enter(property_modifiers); break;
             case Property:      enter(property_start); break;
+            case Required:      enter(required_property); break;
             case Function:      enter(function_start); break;
             case Signal:        enter(signal_start); break;
             case Enum:          enter(enum_start); break;
@@ -187,12 +191,14 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case Identifier:    enter(binding_or_objectdefinition); break;
             } break;
 
-        case default_property_start:
-            if (kind != Property)
-                leave(true);
-            else
-                turnInto(property_start);
-            break;
+        case property_modifiers:
+            switch (kind) {
+            case Property:      turnInto(property_start); break;
+            case Default:
+            case Readonly:      break;
+            case Required:      turnInto(required_property); break;
+            default:            leave(true); break;
+            } break;
 
         case property_start:
             switch (kind) {
@@ -200,6 +206,15 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case Var:
             case Identifier:    enter(property_name); break;
             case List:          enter(property_list_open); break;
+            default:            leave(true); continue;
+            } break;
+
+        case required_property:
+            switch (kind) {
+            case Property:      turnInto(property_start); break;
+            case Default:
+            case Readonly:      turnInto(property_modifiers); break;
+            case Identifier:    leave(true); break;
             default:            leave(true); continue;
             } break;
 
@@ -788,6 +803,8 @@ bool CodeFormatter::tryStatement()
     case As:
     case List:
     case Property:
+    case Required:
+    case Readonly:
     case Function:
     case Number:
     case String:
@@ -938,6 +955,10 @@ CodeFormatter::TokenKind CodeFormatter::extendedTokenKind(const QmlJS::Token &to
             return Signal;
         if (text == QLatin1String("property"))
             return Property;
+        if (text == QLatin1String("readonly"))
+            return Readonly;
+        if (text == QLatin1String("required"))
+            return Required;
         if (text == QLatin1String("on"))
             return On;
         if (text == QLatin1String("list"))

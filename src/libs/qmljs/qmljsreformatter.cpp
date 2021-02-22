@@ -669,6 +669,14 @@ protected:
         return false;
     }
 
+    bool visit(UiRequired *ast) override
+    {
+        out(ast->requiredToken);
+        out(" ");
+        out(ast->name.toString());
+        return true;
+    }
+
     bool visit(UiObjectBinding *ast) override
     {
         if (ast->hasOnToken) {

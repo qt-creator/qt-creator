@@ -104,7 +104,8 @@ public: // must be public to make Q_GADGET introspection work
         import_as,
 
         property_start, // after 'property'
-        default_property_start, // after 'default'
+        property_modifiers, // after 'default' or readonly
+        required_property, // after required
         property_list_open, // after 'list' as a type
         property_name, // after the type
         property_maybe_initializer, // after the identifier
@@ -237,6 +238,8 @@ protected:
         As,
         List,
         Property,
+        Required,
+        Readonly,
 
         Question,
         PlusPlus,
