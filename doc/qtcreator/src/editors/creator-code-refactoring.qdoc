@@ -51,6 +51,8 @@
     \uicontrol {C++} > \uicontrol {Find References to Symbol Under Cursor} or
     press \key {Ctrl+Shift+U}.
 
+    \image qtcreator-find-references-to-symbol-under-cursor.png "Search results for finding references to symbols"
+
     \note You can also select \uicontrol Edit > \uicontrol {Find/Replace} >
     \uicontrol {Advanced Find} > \uicontrol {C++ Symbols} to search for
     classes, functions, enums, and declarations either from files listed as
@@ -100,6 +102,10 @@
         \li To expand and collapse the list of all instances, click the
             \inlineimage qtcreator-expand.png
             (\uicontrol {Expand All}) button.
+        \li To filter the search results for the usage of symbols according to
+            access type, such as read, write, or declaration, click the
+            \inlineimage filtericon.png
+            (\uicontrol {Filter Tree}) button and select the access type.
         \li To clear the search results, click the
             \inlineimage clean_pane_small.png
             (\uicontrol Clear) button.
