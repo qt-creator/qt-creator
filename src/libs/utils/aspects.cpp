@@ -356,7 +356,7 @@ void BaseAspect::saveToMap(QVariantMap &data, const QVariant &value,
 */
 void BaseAspect::fromMap(const QVariantMap &map)
 {
-    setValue(map.value(settingsKey(), defaultValue()).toBool());
+    setValue(map.value(settingsKey(), defaultValue()));
 }
 
 /*!
