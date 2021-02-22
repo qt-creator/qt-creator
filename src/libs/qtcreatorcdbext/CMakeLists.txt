@@ -1,3 +1,19 @@
+cmake_minimum_required(VERSION 3.10)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake")
+
+project(qtcreatorcdbext)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+if (NOT QT_CREATOR_API_DEFINED)
+  # standalone build
+  include(QtCreatorIDEBranding)
+  include(QtCreatorAPI)
+endif()
+
 if (NOT WIN32 OR NOT MSVC)
   return()
 endif()
@@ -111,8 +127,10 @@ if (_library_enabled)
           COMPONENT qtcreatorcdbext)
 
   add_custom_target(copy_python_dll ALL VERBATIM)
+
+  qtc_output_binary_dir(output_binary_dir)
   add_custom_command(TARGET copy_python_dll POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different ${deployPythonFiles} "${PROJECT_BINARY_DIR}/lib/qtcreatorcdbext${ArchSuffix}/"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different ${deployPythonFiles} "${output_binary_dir}/lib/qtcreatorcdbext${ArchSuffix}/"
     VERBATIM
   )
 endif()
