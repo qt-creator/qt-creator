@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -184,7 +184,8 @@
     \section1 Creating Functions
 
     You can apply refactoring actions to implement member functions, insert
-    virtual functions of base classes, and greate getter and setter functions.
+    virtual functions of base classes, create getter and setter functions,
+    and generate constructors.
 
     \section2 Implementing Member Functions
 
@@ -217,6 +218,16 @@
     for member variables or only a getter or setter.
 
     \image qtcreator-refactoring-getters-and-setters.png "Getters and Setters dialog"
+
+    \section2 Generating Constructors
+
+    You can apply the \uicontrol {Generate Constructor} refactoring action to
+    create a public, protected, or private constructor for a class. Select the
+    class members to initialize in the constructor. Drag and drop the parameters
+    to specify their order in the constructor.
+
+    \image qtcreator-refactoring-constructor.png "Constructor dialog"
+
     \endif
 
     \section1 Summary of Refactoring Actions
@@ -668,6 +679,10 @@
             \li Creates either both getter and setter member functions for
                 member variables or only a getter or setter.
             \li Member variable in class definition
+        \row
+            \li Generate Constructor
+            \li Creates a constructor for a class.
+            \li Class definition
         \row
             \li Move Function Definition
             \li Moves a function definition to the implementation file, outside
