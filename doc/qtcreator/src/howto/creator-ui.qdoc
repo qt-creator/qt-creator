@@ -99,7 +99,7 @@
 
     \else
     You can use the \l{Selecting Modes}{mode selector} to switch to the
-    \l{Editing QML Files in Design Mode}{Design mode} (1), where you will do
+    \l{Design Views}{Design mode} (1), where you will do
     most of your work and the \l{Using the Help Mode}{Help} (2) mode, where
     you can read the product documentation. The other modes are for more
     advanced use, and you are likely to need them less often.
@@ -312,7 +312,7 @@
             mode for designing and developing application user interfaces.
             This mode is available for UI files.
         \else
-        \li \uicontrol{\l{Editing QML Files in Design Mode}{Design}}
+        \li \uicontrol{\l{Design Views}{Design}}
             mode for designing and developing application user interfaces.
             As a designer, you'll do most of your work in this mode.
         \endif

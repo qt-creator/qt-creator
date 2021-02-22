@@ -90,8 +90,7 @@
             \li \l{Developing Qt Quick Applications}
             \list
                 \li \l {Creating Qt Quick Projects}
-                \li \l {Editing QML Files in Design Mode}
-
+                \li \l {Design Views}
                     \list
                         \li \l{Form Editor}
                         \li \l{Library}

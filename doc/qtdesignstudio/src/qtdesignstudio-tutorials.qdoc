@@ -43,7 +43,7 @@
 
     Before you start, take a look at the following topics to familiarize
     yourself with the parts of \QDS in general, and the Design mode in
-    particular: \l{User Interface} and \l{Editing QML Files in Design Mode}.
+    particular: \l{User Interface} and \l{Design Views}.
 
     In addition to these entry-level tutorials, \QDS comes with examples
     and video tutorials that you can open from the \uicontrol Examples and

@@ -42,7 +42,7 @@
 
             You can use wizards to create Qt Quick projects.
 
-        \li \l {Editing QML Files in Design Mode}
+        \li \l {Design Views}
 
             You can use several different editors and views in the
             Design mode to develop Qt Quick applications.

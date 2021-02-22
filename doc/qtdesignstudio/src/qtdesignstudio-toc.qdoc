@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -56,13 +56,13 @@
                 \li \l{User Interface}
                     \list
                         \li \l{Selecting Modes}
-                        \li \l{Editing QML Files in Design Mode}
-                        \list
-                            \li \l{Form Editor}
-                            \li \l{Library}
-                            \li \l{Navigator}
-                            \li \l{Properties}
-                        \endlist
+                        \li \l{Design Views}
+                            \list
+                                \li \l{Form Editor}
+                                \li \l{Library}
+                                \li \l{Navigator}
+                                \li \l{Properties}
+                            \endlist
                         \li \l{Managing Workspaces}
                         \li \l{Managing Sessions}
                     \endlist
@@ -145,7 +145,6 @@
             \endlist
         \li \l{Advanced Topics}
         \list
-
             \li \l{Supported Platforms}
             \li \l{Keyboard Shortcuts}
             \li \l{Coding}

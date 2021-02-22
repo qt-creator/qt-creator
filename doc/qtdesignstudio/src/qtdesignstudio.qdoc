@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -29,10 +29,12 @@
 
     \title Qt Design Studio Manual
 
-    \QDS is a UI design and development environment for creating animated UIs
-    and previewing them on the desktop or on Android and embedded Linux devices.
-    It provides you with tools for accomplishing your tasks throughout the whole
-    process, from design to production.
+    Define the look and feel of the UI from wireframe to final implementation
+    with preset UI components. Import UI design files from 2D and 3D tools to
+    \QDS, which can turn them into code for developers. \QDS prototyping
+    features bring your designs to life and simulate and validate interactions
+    and dynamic behavior. You can test, preview, and fine-tune your designs to
+    pixel-perfection live on the desktop or target device.
 
     \table
         \row
@@ -47,7 +49,7 @@
             \list
                 \li \l{Exporting from Design Tools}
                 \li \l{User Interface}
-                \li \l{Editing QML Files in Design Mode}
+                \li \l{Design Views}
                 \li \l{Tutorials}
                 \li \l{Qt Quick Best Practices}
             \endlist

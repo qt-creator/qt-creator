@@ -72,7 +72,7 @@
     \endif
 
     For more information about views that are only available when editing QML
-    files in the Design mode, see \l{Editing QML Files in Design Mode}.
+    files in the Design mode, see \l{Design Views}.
 
     The additional options in each view are described in the following
     sections.

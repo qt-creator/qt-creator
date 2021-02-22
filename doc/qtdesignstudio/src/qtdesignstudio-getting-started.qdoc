@@ -74,7 +74,7 @@
         \li \l {User Interface}
 
             Describes the parts and basic features of \QDS.
-        \li \l{Editing QML Files in Design Mode}
+        \li \l{Design Views}
 
             Describes the views and basic features of the Design mode.
             This is where you'll do most of your work.
