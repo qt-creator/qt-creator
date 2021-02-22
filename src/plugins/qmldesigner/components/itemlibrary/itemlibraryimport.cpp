@@ -64,6 +64,9 @@ QString ItemLibraryImport::sortingName() const
     if (m_isUserSection) // user components always come first
         return "_";
 
+    if (!hasCategories()) // imports with no categories are at the bottom of the list
+        return "zzzzz" + importName();
+
     return importName();
 }
 
