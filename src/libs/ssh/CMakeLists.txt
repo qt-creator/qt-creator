@@ -20,3 +20,5 @@ add_qtc_library(QtcSsh
     sshremoteprocessrunner.cpp sshremoteprocessrunner.h
     sshsettings.cpp sshsettings.h
 )
+# transitional qmake plugin build support
+qtc_add_public_header(ssh_dependencies.pri)

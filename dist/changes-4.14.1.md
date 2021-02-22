@@ -50,12 +50,21 @@ Projects
 
 * Fixed crash in environment settings (QTCREATORBUG-25170)
 
+### CMake
+
+* Fixed that CMake version support was not re-checked when changing its path in
+  settings (QTCREATORBUG-25250)
+
 ### qmake
 
 * Fixed unnecessary `qmake` run if `separate_debug_info` is force-disabled
   (QTCREATORBUG-25134)
 * Fixed wrong messages in `Issues` pane from cumulative parsing
   (QTCREATORBUG-25201)
+
+### Meson
+
+* Fixed crash when switching build type
 
 Debugging
 ---------
@@ -86,13 +95,16 @@ Platforms
 Credits for these changes go to:
 --------------------------------
 Alessandro Portale  
+Alexis Jeandet  
 Andre Hartmann  
 André Pönitz  
 Björn Schäpers  
+Christiaan Janssen  
 Christian Kandeler  
 Christian Stenger  
 Cristian Adam  
 David Schulz  
+Denis Shienkov  
 Eike Ziller  
 Henning Gruendl  
 Ivan Komissarov  
@@ -105,6 +117,7 @@ Lukasz Ornatek
 Mahmoud Badri  
 Marco Bubke  
 Michael Winkelmann  
+Miikka Heikkinen  
 Orgad Shaneh  
 Thomas Hartmann  
 Tim Jenssen  
