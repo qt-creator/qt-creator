@@ -140,8 +140,9 @@ void GlobalOrProjectAspect::toActiveMap(QVariantMap &data) const
         m_globalSettings->toMap(data);
     else if (m_projectSettings)
         m_projectSettings->toMap(data);
-    else
-        QTC_CHECK(false);
+    // The debugger accesses the data directly, so this can actually happen.
+    //else
+    //    QTC_CHECK(false);
 }
 
 void GlobalOrProjectAspect::resetProjectToGlobalSettings()
