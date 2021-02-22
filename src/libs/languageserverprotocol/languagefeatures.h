@@ -786,10 +786,10 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentOnTypeFormattingRequest : public Request<
-        QList<TextEdit>, std::nullptr_t, DocumentFormattingParams>
+        LanguageClientArray<TextEdit>, std::nullptr_t, DocumentOnTypeFormattingParams>
 {
 public:
-    explicit DocumentOnTypeFormattingRequest(const DocumentFormattingParams &params);
+    explicit DocumentOnTypeFormattingRequest(const DocumentOnTypeFormattingParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/onTypeFormatting";
 };
