@@ -45,6 +45,7 @@ struct Tool
     QStringList arguments;
     QStringList supportedMimeTypes;
     QStringList additionalSearchDirs;
+    bool nativeWindowsArguments = false;
 };
 
 static QStringList additionalInstallDirs(const QString &registryKey, const QString &valueName)
@@ -64,6 +65,13 @@ static const QVector<Tool> &sTools()
 {
     static QVector<Tool> tools;
     if (tools.isEmpty()) {
+        if (Utils::HostOsInfo::isWindowsHost()) {
+            tools << Tool{{"powershell"},
+                          {"-command Expand-Archive -Force '%{src}' '%{dest}'"},
+                          {"application/zip"},
+                          {},
+                          true};
+        }
         tools << Tool{{"unzip"}, {"-o", "%{src}", "-d", "%{dest}"}, {"application/zip"}, {}};
         tools << Tool{{"7z"},
                       {"x", "-o%{dest}", "-y", "-bb", "%{src}"},
@@ -247,7 +255,15 @@ Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
                      workingDirectory));
     });
     archive->m_process->setProgram(tool->executable);
+
+#ifdef Q_OS_WIN
+    if (!tool->nativeWindowsArguments)
+        archive->m_process->setArguments(tool->arguments);
+    else if (!tool->arguments.isEmpty())
+        archive->m_process->setNativeArguments(tool->arguments.at(0));
+#else
     archive->m_process->setArguments(tool->arguments);
+#endif
     archive->m_process->setWorkingDirectory(workingDirectory);
     archive->m_process->start(QProcess::ReadOnly);
     return archive;
