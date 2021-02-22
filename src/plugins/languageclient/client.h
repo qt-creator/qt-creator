@@ -157,11 +157,6 @@ public:
         const LanguageServerProtocol::DocumentUri &uri,
         const QTextCursor &cursor) const;
 
-    // formatting
-    void formatFile(const TextEditor::TextDocument *document);
-    void formatRange(const TextEditor::TextDocument *document, const QTextCursor &cursor);
-
-
     // logging
     void log(const QString &message) const;
     template<typename Error>
