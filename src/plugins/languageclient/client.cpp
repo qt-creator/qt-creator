@@ -813,6 +813,7 @@ void Client::projectClosed(ProjectExplorer::Project *project)
             m_state = Shutdown; // otherwise the manager would try to restart this server
             emit finished();
         }
+        m_project = nullptr;
     }
 }
 
