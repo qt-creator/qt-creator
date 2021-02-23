@@ -134,7 +134,7 @@ public:
         }
     }
 
-    void storeIcon(Utils::SmallStringView name, Sqlite::TimeStamp newTimeStamp, const QIcon &icon)
+    void storeIcon(Utils::SmallStringView name, Sqlite::TimeStamp newTimeStamp, const QIcon &icon) override
     {
         try {
             Sqlite::ImmediateTransaction transaction{database};
