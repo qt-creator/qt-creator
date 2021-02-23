@@ -299,9 +299,9 @@ void JLSClient::updateProjectFiles()
             const FilePath &projectDir = project()->rootProjectDirectory();
             if (!projectDir.exists())
                 return;
-            FilePath sourceDir = FilePath::fromVariant(
+            const FilePath packageSourceDir = FilePath::fromVariant(
                 node->data(Constants::AndroidPackageSourceDir));
-            sourceDir = sourceDir.pathAppended("src");
+            FilePath sourceDir = packageSourceDir.pathAppended("src");
             if (!sourceDir.exists())
                 return;
             sourceDir = sourceDir.relativeChildPath(projectDir);
@@ -309,7 +309,10 @@ void JLSClient::updateProjectFiles()
             const QString &targetSDK = AndroidManager::buildTargetSDK(m_currentTarget);
             const QString androidJar = QString("%1/platforms/%2/android.jar")
                                            .arg(sdkLocation.toString(), targetSDK);
-            const QStringList libs(androidJar);
+            QStringList libs(androidJar);
+            QDir libDir(packageSourceDir.pathAppended("libs").toString());
+            libs << Utils::transform(libDir.entryInfoList({"*.jar"}, QDir::Files),
+                                     &QFileInfo::absoluteFilePath);
             generateClassPathFile(projectDir, sourceDir.toString(), libs);
             generateProjectFile(projectDir, project()->displayName());
         }
