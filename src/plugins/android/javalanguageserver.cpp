@@ -36,6 +36,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
+#include <qtsupport/qtkitinformation.h>
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
 #include <utils/temporarydirectory.h>
@@ -238,7 +239,9 @@ void JLSClient::setCurrentProject(ProjectExplorer::Project *project)
             this, &JLSClient::updateTarget);
 }
 
-static void generateProjectFile(const FilePath &projectDir, const QString &projectName)
+static void generateProjectFile(const FilePath &projectDir,
+                                const QString &qtSrc,
+                                const QString &projectName)
 {
     const FilePath projectFilePath = projectDir.pathAppended(".project");
     QFile projectFile(projectFilePath.toString());
@@ -253,6 +256,13 @@ static void generateProjectFile(const FilePath &projectDir, const QString &proje
         writer.writeStartElement("natures");
         writer.writeTextElement("nature", "org.eclipse.jdt.core.javanature");
         writer.writeEndElement(); // natures
+        writer.writeStartElement("linkedResources");
+        writer.writeStartElement("link");
+        writer.writeTextElement("name", "qtSrc");
+        writer.writeTextElement("type", "2");
+        writer.writeTextElement("location", qtSrc);
+        writer.writeEndElement(); // link
+        writer.writeEndElement(); // linkedResources
         writer.writeEndElement(); // projectDescription
         writer.writeEndDocument();
         projectFile.close();
@@ -275,6 +285,9 @@ static void generateClassPathFile(const FilePath &projectDir,
         writer.writeEmptyElement("classpathentry");
         writer.writeAttribute("kind", "src");
         writer.writeAttribute("path", sourceDir);
+        writer.writeEmptyElement("classpathentry");
+        writer.writeAttribute("kind", "src");
+        writer.writeAttribute("path", "qtSrc");
         for (const QString &lib : libs) {
             writer.writeEmptyElement("classpathentry");
             writer.writeAttribute("kind", "lib");
@@ -296,6 +309,10 @@ void JLSClient::updateProjectFiles()
         if (DeviceTypeKitAspect::deviceTypeId(kit) != Android::Constants::ANDROID_DEVICE_TYPE)
             return;
         if (ProjectNode *node = project()->findNodeForBuildKey(target->activeBuildKey())) {
+            QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
+            if (!version)
+                return;
+            const QString qtSrc = version->prefix().toString() + "/src/android/java/src";
             const FilePath &projectDir = project()->rootProjectDirectory();
             if (!projectDir.exists())
                 return;
@@ -313,8 +330,8 @@ void JLSClient::updateProjectFiles()
             QDir libDir(packageSourceDir.pathAppended("libs").toString());
             libs << Utils::transform(libDir.entryInfoList({"*.jar"}, QDir::Files),
                                      &QFileInfo::absoluteFilePath);
+            generateProjectFile(projectDir, qtSrc, project()->displayName());
             generateClassPathFile(projectDir, sourceDir.toString(), libs);
-            generateProjectFile(projectDir, project()->displayName());
         }
     }
 }
