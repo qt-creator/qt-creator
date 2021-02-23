@@ -15,7 +15,7 @@ function foo(a, b) {
     x += 4
 }
 
-var foo = function (a, b) {}
+var foo = function (a, b = 0) {}
 
 function spread() {
     iterableObj = [1, 2]

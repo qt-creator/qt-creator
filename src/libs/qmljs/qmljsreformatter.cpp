@@ -1023,7 +1023,7 @@ protected:
         }
         out(ast->identifierToken);
         if (ast->initializer) {
-            if (ast->isVariableDeclaration())
+            if (ast->isVariableDeclaration() || ast->type == PatternElement::Binding)
                 out(" = ");
             accept(ast->initializer);
         }
@@ -1394,7 +1394,7 @@ protected:
     bool visit(FormalParameterList *ast) override
     {
         for (FormalParameterList *it = ast; it; it = it->next) {
-            out(it->element->bindingIdentifier.toString()); // TODO
+            accept(it->element);
             if (it->next)
                 out(", ");
         }
