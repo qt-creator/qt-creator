@@ -2015,6 +2015,7 @@ void FormEditorFlowDecisionItem::updateGeometry()
         size = qmlItemNode().modelNode().auxiliaryData("blockSize").toInt();
 
     QRectF boundingRect(0, 0, size, size);
+    QRectF selectionRect = boundingRect;
     QTransform transform;
     if (qmlItemNode().isFlowDecision()) {
         transform.translate(boundingRect.center().x(), boundingRect.center().y());
@@ -2073,14 +2074,15 @@ void FormEditorFlowDecisionItem::updateGeometry()
             }
         }
 
-        // Unite the rotate item bounding rect with the label bounding rect.
+        // bounding rect is combination of label and icon but only icon can be clicked
         boundingRect = transform.mapRect(boundingRect);
+        selectionRect = boundingRect;
         boundingRect = boundingRect.united(labelBoundingRect);
     }
 
-    m_selectionBoundingRect = boundingRect;
-    m_paintedBoundingRect = m_selectionBoundingRect;
-    m_boundingRect = m_paintedBoundingRect;
+    m_selectionBoundingRect = selectionRect;
+    m_boundingRect = boundingRect;
+    m_paintedBoundingRect = boundingRect;
     setTransform(qmlItemNode().instanceTransformWithContentTransform());
     const QPointF pos = qmlItemNode().flowPosition();
     setTransform(QTransform::fromTranslate(pos.x(), pos.y()));
