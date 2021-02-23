@@ -598,6 +598,15 @@ protected:
         return false;
     }
 
+    bool visit(UiInlineComponent *ast) override
+    {
+        out(ast->componentToken);
+        out(" ");
+        out(ast->name.toString());
+        out(": ");
+        return true;
+    }
+
     bool visit(UiObjectDefinition *ast) override
     {
         accept(ast->qualifiedTypeNameId);

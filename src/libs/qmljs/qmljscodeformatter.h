@@ -109,6 +109,8 @@ public: // must be public to make Q_GADGET introspection work
         property_list_open, // after 'list' as a type
         property_name, // after the type
         property_maybe_initializer, // after the identifier
+        component_start, // after component
+        component_name, // after component Name
 
         enum_start, // after 'enum'
 
@@ -239,6 +241,7 @@ protected:
         List,
         Property,
         Required,
+        Component,
         Readonly,
 
         Question,

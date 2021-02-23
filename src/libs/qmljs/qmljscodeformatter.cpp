@@ -218,6 +218,12 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             default:            leave(true); continue;
             } break;
 
+        case component_start:
+            switch (kind) {
+            case Identifier:    turnInto(StateType::component_name); break;
+            default:            leave(true); continue;
+            } break;
+
         case property_name:
             turnInto(property_maybe_initializer);
             break;
@@ -957,6 +963,8 @@ CodeFormatter::TokenKind CodeFormatter::extendedTokenKind(const QmlJS::Token &to
             return Property;
         if (text == QLatin1String("readonly"))
             return Readonly;
+        if (text == QLatin1String("component"))
+            return Component;
         if (text == QLatin1String("required"))
             return Required;
         if (text == QLatin1String("on"))
