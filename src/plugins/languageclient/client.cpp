@@ -100,6 +100,13 @@ Client::Client(BaseClientInterface *clientInterface)
             &Client::rehighlight);
 }
 
+QString Client::name() const
+{
+    if (m_project && !m_project->displayName().isEmpty())
+        return tr("%1 for %2").arg(m_displayName, m_project->displayName());
+    return m_displayName;
+}
+
 static void updateEditorToolBar(QList<TextEditor::TextDocument *> documents)
 {
     for (TextEditor::TextDocument *document : documents) {

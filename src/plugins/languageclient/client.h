@@ -87,7 +87,7 @@ public:
     // basic properties
     Utils::Id id() const { return m_id; }
     void setName(const QString &name) { m_displayName = name; }
-    QString name() const { return m_displayName; }
+    QString name() const;
     void sendContent(const LanguageServerProtocol::IContent &content);
     void cancelRequest(const LanguageServerProtocol::MessageId &id);
 
