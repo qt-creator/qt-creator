@@ -230,17 +230,18 @@
         \li Uses a \uicontrol Grid component to lay out the selected
             components.
         \li \l{Using Layouts}
+    \if defined(qtdesignstudio)
     \row
         \li \inlineimage icons/edit.png
         \li \uicontrol {Show Event List} (\key {Alt+E}): opens a dialog for
-            viewing and creating an {event list} for an
-            application flow.
+            viewing and creating an event list for an application flow.
         \li \l{Simulating Events}
     \row
         \li \inlineimage icons/assign.png
         \li \uicontrol {Assign Events to Actions} (\key {Alt+A}): assigns
             events to actions in an application flow.
         \li \l{Simulating Events}
+    \endif
     \row
         \li Styling
         \li Displays the UI style used for UI controls.
