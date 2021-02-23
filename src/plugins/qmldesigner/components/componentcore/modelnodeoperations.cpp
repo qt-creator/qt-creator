@@ -1581,6 +1581,15 @@ void openSignalDialog(const SelectionContext &selectionContext)
     SignalList::showWidget(selectionContext.currentSingleSelectedNode());
 }
 
+void updateImported3DAsset(const SelectionContext &selectionContext)
+{
+    if (selectionContext.view()) {
+        selectionContext.view()->emitCustomNotification(
+                    "UpdateImported3DAsset", {selectionContext.currentSingleSelectedNode()});
+
+    }
+}
+
 } // namespace ModelNodeOperations
 
 } //QmlDesigner

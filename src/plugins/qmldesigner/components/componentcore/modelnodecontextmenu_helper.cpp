@@ -31,6 +31,7 @@
 #include <bindingproperty.h>
 #include <nodeproperty.h>
 #include <qmldesignerplugin.h>
+#include <qmldesignerconstants.h>
 
 namespace QmlDesigner {
 
@@ -97,6 +98,21 @@ bool selectionIsComponent(const SelectionContext &selectionState)
 {
     return selectionState.currentSingleSelectedNode().isValid()
             && selectionState.currentSingleSelectedNode().isComponent();
+}
+
+bool selectionIsImported3DAsset(const SelectionContext &selectionState)
+{
+    ModelNode node = selectionState.currentSingleSelectedNode();
+    if (selectionState.view() && node.isValid() && node.hasMetaInfo()) {
+        QString fileName = node.metaInfo().componentFileName(); // absolute path
+        if (fileName.isEmpty()) {
+            // Node is not a file component, so we have to check if the current doc itself is
+            fileName = node.model()->fileUrl().toLocalFile();
+        }
+        if (fileName.contains(Constants::QUICK_3D_ASSETS_FOLDER))
+            return true;
+    }
+    return false;
 }
 
 } //SelectionStateFunctors

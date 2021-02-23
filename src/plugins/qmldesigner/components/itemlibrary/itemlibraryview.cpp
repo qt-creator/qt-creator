@@ -48,6 +48,7 @@
 #include <utils/algorithm.h>
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
+#include <qmldesignerconstants.h>
 
 namespace QmlDesigner {
 
@@ -240,7 +241,7 @@ void ItemLibraryView::updateImport3DSupport(const QVariantMap &supportMap)
         auto handle3DModel = [this](const QStringList &fileNames, const QString &defaultDir) -> bool {
             auto importDlg = new ItemLibraryAssetImportDialog(fileNames, defaultDir,
                                                               m_importableExtensions3DMap,
-                                                              m_importOptions3DMap,
+                                                              m_importOptions3DMap, {}, {},
                                                               Core::ICore::mainWindow());
             importDlg->show();
             return true;
@@ -261,6 +262,17 @@ void ItemLibraryView::updateImport3DSupport(const QVariantMap &supportMap)
     }
 
     m_importOptions3DMap = qvariant_cast<QVariantMap>(supportMap.value("options"));
+}
+
+void ItemLibraryView::customNotification(const AbstractView *view, const QString &identifier,
+                                         const QList<ModelNode> &nodeList, const QList<QVariant> &data)
+{
+    if (identifier == "UpdateImported3DAsset" && nodeList.size() > 0) {
+        ItemLibraryAssetImportDialog::updateImport(nodeList[0], m_importableExtensions3DMap,
+                                                   m_importOptions3DMap);
+    } else {
+        AbstractView::customNotification(view, identifier, nodeList, data);
+    }
 }
 
 } // namespace QmlDesigner

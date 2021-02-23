@@ -25,9 +25,11 @@
 #pragma once
 
 #include "itemlibraryassetimporter.h"
+#include "modelnode.h"
 
-#include <QtWidgets/qdialog.h>
-#include <QtCore/qjsonobject.h>
+#include <QDialog>
+#include <QJsonObject>
+#include <QSet>
 
 namespace Utils {
 class OutputFormatter;
@@ -49,8 +51,14 @@ public:
                                           const QString &defaulTargetDirectory,
                                           const QVariantMap &supportedExts,
                                           const QVariantMap &supportedOpts,
+                                          const QJsonObject &defaultOpts,
+                                          const QSet<QString> &preselectedFilesForOverwrite,
                                           QWidget *parent = nullptr);
     ~ItemLibraryAssetImportDialog();
+
+    static void updateImport(const ModelNode &updateNode,
+                             const QVariantMap &supportedExts,
+                             const QVariantMap &supportedOpts);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
@@ -82,5 +90,6 @@ private:
     QHash<QString, int> m_extToImportOptionsMap;
     int m_optionsHeight = 0;
     int m_optionsRows = 0;
+    QSet<QString> m_preselectedFilesForOverwrite;
 };
 }
