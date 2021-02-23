@@ -229,14 +229,10 @@ void ItemLibraryWidget::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
     if (m_itemLibraryInfo) {
         disconnect(m_itemLibraryInfo.data(), &ItemLibraryInfo::entriesChanged,
                    this, &ItemLibraryWidget::delayedUpdateModel);
-        disconnect(m_itemLibraryInfo.data(), &ItemLibraryInfo::importTagsChanged,
-                   this, &ItemLibraryWidget::delayedUpdateModel);
     }
     m_itemLibraryInfo = itemLibraryInfo;
     if (itemLibraryInfo) {
         connect(m_itemLibraryInfo.data(), &ItemLibraryInfo::entriesChanged,
-                this, &ItemLibraryWidget::delayedUpdateModel);
-        connect(m_itemLibraryInfo.data(), &ItemLibraryInfo::importTagsChanged,
                 this, &ItemLibraryWidget::delayedUpdateModel);
     }
     delayedUpdateModel();

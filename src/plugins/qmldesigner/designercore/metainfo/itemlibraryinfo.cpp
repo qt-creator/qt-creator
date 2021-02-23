@@ -344,27 +344,9 @@ QStringList ItemLibraryInfo::blacklistImports() const
     return list;
 }
 
-// TODO: remove this and its dependencies, as flow tags are removed
-QStringList ItemLibraryInfo::showTagsForImports() const
-{
-    auto list = m_showTagsForImports;
-    if (m_baseInfo)
-        list.append(m_baseInfo->m_showTagsForImports);
-    list.removeDuplicates();
-    return list;
-}
-
 void ItemLibraryInfo::addBlacklistImports(const QStringList &list)
 {
     m_blacklistImports.append(list);
-}
-
-void ItemLibraryInfo::addShowTagsForImports(const QStringList &list)
-{
-    if (!list.isEmpty()) {
-        m_showTagsForImports.append(list);
-        emit importTagsChanged();
-    }
 }
 
 void ItemLibraryInfo::setBaseInfo(ItemLibraryInfo *baseInfo)
