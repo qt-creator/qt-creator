@@ -40,6 +40,7 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
+#include <utils/algorithm.h>
 #include <utils/executeondestruction.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/theme/theme.h>
@@ -373,6 +374,14 @@ Client *LanguageClientManager::clientForFilePath(const Utils::FilePath &filePath
 Client *LanguageClientManager::clientForUri(const DocumentUri &uri)
 {
     return clientForFilePath(uri.toFilePath());
+}
+
+const QList<Client *> LanguageClientManager::clientsForProject(
+        const ProjectExplorer::Project *project)
+{
+    return Utils::filtered(managerInstance->m_clients, [project](const Client *c) {
+        return c->project() == project;
+    }).toList();
 }
 
 void LanguageClientManager::openDocumentWithClient(TextEditor::TextDocument *document, Client *client)

@@ -113,10 +113,16 @@ public:
     bool reachable() const { return m_state == Initialized; }
 
     // capabilities
+    static LanguageServerProtocol::ClientCapabilities defaultClientCapabilities();
+    void setClientCapabilities(const LanguageServerProtocol::ClientCapabilities &caps);
     const LanguageServerProtocol::ServerCapabilities &capabilities() const;
     const DynamicCapabilities &dynamicCapabilities() const;
     void registerCapabilities(const QList<LanguageServerProtocol::Registration> &registrations);
     void unregisterCapabilities(const QList<LanguageServerProtocol::Unregistration> &unregistrations);
+
+    void setLocatorsEnabled(bool enabled) { m_locatorsEnabled = enabled; }
+    bool locatorsEnabled() const { return m_locatorsEnabled; }
+    void setDocumentActionsEnabled(bool enabled) { m_documentActionsEnabled = enabled; }
 
     // document synchronization
     void setSupportedLanguage(const LanguageFilter &filter);
@@ -226,6 +232,7 @@ private:
     QMap<TextEditor::TextEditorWidget *, QTimer *> m_documentHighlightsTimer;
     QTimer m_documentUpdateTimer;
     Utils::Id m_id;
+    LanguageServerProtocol::ClientCapabilities m_clientCapabilities = defaultClientCapabilities();
     LanguageServerProtocol::ServerCapabilities m_serverCapabilities;
     DynamicCapabilities m_dynamicCapabilities;
     struct AssistProviders
@@ -250,6 +257,8 @@ private:
     ProgressManager m_progressManager;
     bool m_activateDocAutomatically = false;
     SemanticTokenSupport m_tokentSupport;
+    bool m_locatorsEnabled = true;
+    bool m_documentActionsEnabled = true;
 };
 
 } // namespace LanguageClient

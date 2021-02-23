@@ -57,4 +57,6 @@ QtcPlugin {
         "semantichighlightsupport.cpp",
         "semantichighlightsupport.h",
     ]
+
+    Export { Depends { name: "LanguageServerProtocol" } }
 }

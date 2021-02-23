@@ -60,6 +60,7 @@ class BaseEditorDocumentProcessor;
 class CppCompletionAssistProvider;
 class CppEditorDocumentHandle;
 class CppIndexingSupport;
+class CppLocatorData;
 class ModelManagerSupportProvider;
 class FollowSymbolInterface;
 class SymbolFinder;
@@ -111,6 +112,7 @@ public:
     void updateCppEditorDocuments(bool projectsUpdated = false) const;
     WorkingCopy workingCopy() const;
     QByteArray codeModelConfiguration() const;
+    CppLocatorData *locatorData() const;
 
     QList<ProjectInfo> projectInfos() const;
     ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
@@ -215,6 +217,7 @@ public:
     static void addRefactoringEngine(RefactoringEngineType type,
                                      RefactoringEngineInterface *refactoringEngine);
     static void removeRefactoringEngine(RefactoringEngineType type);
+    static RefactoringEngineInterface *builtinRefactoringEngine();
 
     void setLocatorFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
     void setClassesFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);

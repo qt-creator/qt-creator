@@ -30,7 +30,6 @@
 #include <utils/fileutils.h>
 
 using namespace CppTools;
-using namespace CppTools::Internal;
 
 CppFunctionsFilter::CppFunctionsFilter(CppLocatorData *locatorData)
     : CppLocatorFilter(locatorData)

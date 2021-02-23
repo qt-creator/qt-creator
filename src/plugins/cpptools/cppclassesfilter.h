@@ -32,7 +32,7 @@
 namespace CppTools {
 class CppLocatorData;
 
-class CppClassesFilter : public Internal::CppLocatorFilter
+class CPPTOOLS_EXPORT CppClassesFilter : public CppLocatorFilter
 {
     Q_OBJECT
 

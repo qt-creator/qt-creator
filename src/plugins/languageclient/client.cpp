@@ -292,7 +292,7 @@ void Client::initialize()
     QTC_ASSERT(m_state == Uninitialized, return);
     qCDebug(LOGLSPCLIENT) << "initializing language server " << m_displayName;
     InitializeParams params;
-    params.setCapabilities(generateClientCapabilities());
+    params.setCapabilities(m_clientCapabilities);
     params.setInitializationOptions(m_initializationOptions);
     if (m_project) {
         params.setRootUri(DocumentUri::fromFilePath(m_project->projectDirectory()));
@@ -331,6 +331,16 @@ void Client::shutdown()
 Client::State Client::state() const
 {
     return m_state;
+}
+
+ClientCapabilities Client::defaultClientCapabilities()
+{
+    return generateClientCapabilities();
+}
+
+void Client::setClientCapabilities(const LanguageServerProtocol::ClientCapabilities &caps)
+{
+    m_clientCapabilities = caps;
 }
 
 void Client::openDocument(TextEditor::TextDocument *document)
@@ -532,6 +542,9 @@ void Client::requestDocumentHighlights(TextEditor::TextEditorWidget *widget)
 
 void Client::activateDocument(TextEditor::TextDocument *document)
 {
+    if (!m_documentActionsEnabled)
+        return;
+
     auto uri = DocumentUri::fromFilePath(document->filePath());
     m_diagnosticManager.showDiagnostics(uri);
     SemanticHighligtingSupport::applyHighlight(document, m_highlights.value(uri), capabilities());
@@ -558,6 +571,9 @@ void Client::activateDocument(TextEditor::TextDocument *document)
 
 void Client::deactivateDocument(TextEditor::TextDocument *document)
 {
+    if (!m_documentActionsEnabled)
+        return;
+
     m_diagnosticManager.hideDiagnostics(document);
     resetAssistProviders(document);
     document->setFormatter(nullptr);
@@ -1241,6 +1257,9 @@ void Client::handleMethod(const QString &method, const MessageId &id, const ICon
 
 void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
 {
+    if (!m_documentActionsEnabled)
+        return;
+
     const DocumentUri &uri = params.uri();
 
     const QList<Diagnostic> &diagnostics = params.diagnostics();
@@ -1253,6 +1272,9 @@ void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
 
 void Client::handleSemanticHighlight(const SemanticHighlightingParams &params)
 {
+    if (!m_documentActionsEnabled)
+        return;
+
     DocumentUri uri;
     LanguageClientValue<int> version;
     auto textDocument = params.textDocument();
@@ -1283,6 +1305,9 @@ void Client::handleSemanticHighlight(const SemanticHighlightingParams &params)
 
 void Client::rehighlight()
 {
+    if (!m_documentActionsEnabled)
+        return;
+
     using namespace TextEditor;
     for (auto it = m_highlights.begin(), end = m_highlights.end(); it != end; ++it) {
         if (TextDocument *doc = TextDocument::textDocumentForFilePath(it.key().toFilePath())) {

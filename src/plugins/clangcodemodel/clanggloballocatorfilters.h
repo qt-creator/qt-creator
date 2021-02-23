@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,23 +25,40 @@
 
 #pragma once
 
-#include "cpplocatordata.h"
-#include "cpplocatorfilter.h"
+#include <coreplugin/locator/ilocatorfilter.h>
 
+namespace ClangCodeModel {
+namespace Internal {
 
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppFunctionsFilter : public CppLocatorFilter
+class ClangGlobalSymbolFilter : public Core::ILocatorFilter
 {
-    Q_OBJECT
-
 public:
-    explicit CppFunctionsFilter(CppLocatorData *locatorData);
-    ~CppFunctionsFilter() override;
+    ClangGlobalSymbolFilter();
+    ClangGlobalSymbolFilter(Core::ILocatorFilter *cppFilter, Core::ILocatorFilter *lspFilter);
+    ~ClangGlobalSymbolFilter() override;
 
-protected:
-    IndexItem::ItemType matchTypes() const override { return IndexItem::Function; }
-    Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info) override;
+private:
+    void prepareSearch(const QString &entry) override;
+    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
+                                               const QString &entry) override;
+    void accept(Core::LocatorFilterEntry selection, QString *newText,
+                int *selectionStart, int *selectionLength) const override;
+
+    Core::ILocatorFilter * const m_cppFilter;
+    Core::ILocatorFilter * const m_lspFilter;
 };
 
-} // namespace CppTools
+class ClangClassesFilter : public ClangGlobalSymbolFilter
+{
+public:
+    ClangClassesFilter();
+};
+
+class ClangFunctionsFilter : public ClangGlobalSymbolFilter
+{
+public:
+    ClangFunctionsFilter();
+};
+
+} // namespace Internal
+} // namespace ClangCodeModel

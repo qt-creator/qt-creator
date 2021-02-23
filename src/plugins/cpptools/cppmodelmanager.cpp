@@ -328,7 +328,7 @@ void CppModelManager::globalRename(const CursorInEditor &data, UsagesCallback &&
 void CppModelManager::findUsages(const CppTools::CursorInEditor &data,
                                  UsagesCallback &&showUsagesCallback) const
 {
-    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines);
+    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines, false);
     QTC_ASSERT(engine, return;);
     engine->findUsages(data, std::move(showUsagesCallback));
 }
@@ -464,6 +464,11 @@ void CppModelManager::addRefactoringEngine(RefactoringEngineType type,
 void CppModelManager::removeRefactoringEngine(RefactoringEngineType type)
 {
     instance()->d->m_refactoringEngines.remove(type);
+}
+
+RefactoringEngineInterface *CppModelManager::builtinRefactoringEngine()
+{
+    return instance()->d->m_refactoringEngines.value(RefactoringEngineType::BuiltIn);
 }
 
 template<class FilterClass>
@@ -915,6 +920,11 @@ WorkingCopy CppModelManager::workingCopy() const
 QByteArray CppModelManager::codeModelConfiguration() const
 {
     return QByteArray::fromRawData(pp_configuration, qstrlen(pp_configuration));
+}
+
+CppLocatorData *CppModelManager::locatorData() const
+{
+    return &d->m_locatorData;
 }
 
 static QSet<QString> tooBigFilesRemoved(const QSet<QString> &files, int fileSizeLimitInMb)

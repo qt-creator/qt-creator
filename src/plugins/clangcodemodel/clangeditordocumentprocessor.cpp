@@ -31,7 +31,6 @@
 #include "clangfixitoperationsextractor.h"
 #include "clangmodelmanagersupport.h"
 #include "clanghighlightingresultreporter.h"
-#include "clangprojectsettings.h"
 #include "clangutils.h"
 
 #include <diagnosticcontainer.h>
@@ -65,12 +64,6 @@
 
 namespace ClangCodeModel {
 namespace Internal {
-
-static ClangProjectSettings &getProjectSettings(ProjectExplorer::Project *project)
-{
-    QTC_CHECK(project);
-    return ClangModelManagerSupport::instance()->projectSettings(project);
-}
 
 ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
         BackendCommunicator &communicator,
@@ -439,123 +432,6 @@ void ClangEditorDocumentProcessor::onParserFinished()
     updateBackendProjectPartAndDocument();
 }
 
-namespace {
-// TODO: Can we marry this with CompilerOptionsBuilder?
-class FileOptionsBuilder
-{
-public:
-    FileOptionsBuilder(const QString &filePath, CppTools::ProjectPart &projectPart)
-        : m_filePath(filePath)
-        , m_projectPart(projectPart)
-        , m_builder(projectPart)
-    {
-        // Determine the driver mode from toolchain and flags.
-        m_builder.evaluateCompilerFlags();
-        m_isClMode = m_builder.isClStyle();
-
-        addLanguageOptions();
-        addGlobalDiagnosticOptions(); // Before addDiagnosticOptions() so users still can overwrite.
-        addDiagnosticOptions();
-        addGlobalOptions();
-        addPrecompiledHeaderOptions();
-    }
-
-    const QStringList &options() const { return m_options; }
-    const ::Utils::Id &diagnosticConfigId() const { return m_diagnosticConfigId; }
-    CppTools::UseBuildSystemWarnings useBuildSystemWarnings() const
-    {
-        return m_useBuildSystemWarnings;
-    }
-
-private:
-    void addLanguageOptions()
-    {
-        // Determine file kind with respect to ambiguous headers.
-        CppTools::ProjectFile::Kind fileKind = CppTools::ProjectFile::classify(m_filePath);
-        if (fileKind == CppTools::ProjectFile::AmbiguousHeader) {
-            fileKind = m_projectPart.languageVersion <= ::Utils::LanguageVersion::LatestC
-                 ? CppTools::ProjectFile::CHeader
-                 : CppTools::ProjectFile::CXXHeader;
-        }
-
-        m_builder.reset();
-        m_builder.updateFileLanguage(fileKind);
-
-        m_options.append(m_builder.options());
-    }
-
-    void addDiagnosticOptions()
-    {
-        if (m_projectPart.project) {
-            ClangProjectSettings &projectSettings = getProjectSettings(m_projectPart.project);
-            if (!projectSettings.useGlobalConfig()) {
-                const ::Utils::Id warningConfigId = projectSettings.warningConfigId();
-                const CppTools::ClangDiagnosticConfigsModel configsModel
-                    = CppTools::diagnosticConfigsModel();
-                if (configsModel.hasConfigWithId(warningConfigId)) {
-                    addDiagnosticOptionsForConfig(configsModel.configWithId(warningConfigId));
-                    return;
-                }
-            }
-        }
-
-        addDiagnosticOptionsForConfig(CppTools::codeModelSettings()->clangDiagnosticConfig());
-    }
-
-    void addDiagnosticOptionsForConfig(const CppTools::ClangDiagnosticConfig &diagnosticConfig)
-    {
-        m_diagnosticConfigId = diagnosticConfig.id();
-        m_useBuildSystemWarnings = diagnosticConfig.useBuildSystemWarnings()
-                                       ? CppTools::UseBuildSystemWarnings::Yes
-                                       : CppTools::UseBuildSystemWarnings::No;
-
-        const QStringList options = m_isClMode
-                                        ? CppTools::clangArgsForCl(diagnosticConfig.clangOptions())
-                                        : diagnosticConfig.clangOptions();
-        m_options.append(options);
-    }
-
-    void addGlobalDiagnosticOptions()
-    {
-        m_options += CppTools::ClangDiagnosticConfigsModel::globalDiagnosticOptions();
-    }
-
-    void addGlobalOptions()
-    {
-        if (!m_projectPart.project)
-            m_options.append(ClangProjectSettings::globalCommandLineOptions());
-        else
-            m_options.append(getProjectSettings(m_projectPart.project).commandLineOptions());
-    }
-
-    void addPrecompiledHeaderOptions()
-    {
-        using namespace CppTools;
-
-        if (getPchUsage() == UsePrecompiledHeaders::No)
-            return;
-
-        if (m_projectPart.precompiledHeaders.contains(m_filePath))
-            return;
-
-        m_builder.reset();
-        m_builder.addPrecompiledHeaderOptions(UsePrecompiledHeaders::Yes);
-
-        m_options.append(m_builder.options());
-    }
-
-private:
-    const QString &m_filePath;
-    const CppTools::ProjectPart &m_projectPart;
-
-    ::Utils::Id m_diagnosticConfigId;
-    CppTools::UseBuildSystemWarnings m_useBuildSystemWarnings = CppTools::UseBuildSystemWarnings::No;
-    CppTools::CompilerOptionsBuilder m_builder;
-    bool m_isClMode = false;
-    QStringList m_options;
-};
-} // namespace
-
 void ClangEditorDocumentProcessor::updateBackendDocument(CppTools::ProjectPart &projectPart)
 {
     // On registration we send the document content immediately as an unsaved
@@ -572,17 +448,11 @@ void ClangEditorDocumentProcessor::updateBackendDocument(CppTools::ProjectPart &
             return;
     }
 
-    const FileOptionsBuilder fileOptions(filePath(), projectPart);
-    m_diagnosticConfigId = fileOptions.diagnosticConfigId();
-
-    const QStringList projectPartOptions = createClangOptions(
-        projectPart, fileOptions.useBuildSystemWarnings(),
-        CppTools::ProjectFile::Unsupported); // No language option as FileOptionsBuilder adds it.
-
-    const QStringList compilationArguments = projectPartOptions + fileOptions.options();
+    const auto clangOptions = createClangOptions(projectPart, filePath());
+    m_diagnosticConfigId = clangOptions.first;
 
     m_communicator.documentsOpened(
-        {fileContainerWithOptionsAndDocumentContent(compilationArguments, projectPart.headerPaths)});
+        {fileContainerWithOptionsAndDocumentContent(clangOptions.second, projectPart.headerPaths)});
     setLastSentDocumentRevision(filePath(), revision());
 }
 

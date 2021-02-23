@@ -30,6 +30,7 @@
 #include <cpptools/projectpart.h>
 #include <cpptools/compileroptionsbuilder.h>
 
+#include <QPair>
 #include <QTextCursor>
 
 QT_BEGIN_NAMESPACE
@@ -49,9 +50,8 @@ namespace Internal {
 CppTools::CppEditorDocumentHandle *cppDocument(const QString &filePath);
 void setLastSentDocumentRevision(const QString &filePath, uint revision);
 
-QStringList createClangOptions(const CppTools::ProjectPart &projectPart,
-                               CppTools::UseBuildSystemWarnings useBuildSystemWarnings,
-                               CppTools::ProjectFile::Kind fileKind);
+QPair<Utils::Id, QStringList> createClangOptions(const CppTools::ProjectPart &projectPart,
+                                                 const QString &filePath);
 
 CppTools::ProjectPart::Ptr projectPartForFile(const QString &filePath);
 CppTools::ProjectPart::Ptr projectPartForFileBasedOnProcessor(const QString &filePath);
@@ -78,7 +78,9 @@ public:
     QString error;
 };
 
-GenerateCompilationDbResult generateCompilationDB(CppTools::ProjectInfo projectInfo);
+enum CompilationDbPurpose { Project, CodeModel };
+GenerateCompilationDbResult generateCompilationDB(CppTools::ProjectInfo projectInfo,
+                                                  CompilationDbPurpose purpose);
 
 class DiagnosticTextInfo
 {

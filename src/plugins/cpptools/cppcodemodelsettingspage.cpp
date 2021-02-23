@@ -100,6 +100,9 @@ void CppCodeModelSettingsWidget::setupClangCodeModelWidgets()
     const bool isClangActive = CppModelManager::instance()->isClangCodeModelActive();
     m_ui->clangCodeModelIsDisabledHint->setVisible(!isClangActive);
     m_ui->clangCodeModelIsEnabledHint->setVisible(isClangActive);
+    m_ui->clangdCheckBox->setVisible(isClangActive);
+    m_ui->clangdChooser->setVisible(isClangActive);
+
     for (int i = 0; i < m_ui->clangDiagnosticConfigsSelectionWidget->layout()->count(); ++i) {
         QWidget *widget = m_ui->clangDiagnosticConfigsSelectionWidget->layout()->itemAt(i)->widget();
         if (widget)
@@ -117,6 +120,16 @@ void CppCodeModelSettingsWidget::setupGeneralWidgets()
 
     const bool ignorePch = m_settings->pchUsage() == CppCodeModelSettings::PchUse_None;
     m_ui->ignorePCHCheckBox->setChecked(ignorePch);
+
+    m_ui->clangdCheckBox->setChecked(m_settings->useClangd());
+    m_ui->clangdCheckBox->setToolTip(tr("Use clangd for locators and \"Find References\".\n"
+        "Changing this option does not affect projects that are already open."));
+    m_ui->clangdChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_ui->clangdChooser->setFilePath(codeModelSettings()->clangdFilePath());
+    m_ui->clangdChooser->setEnabled(m_ui->clangdCheckBox->isChecked());
+    connect(m_ui->clangdCheckBox, &QCheckBox::toggled, m_ui->clangdChooser, [this](bool checked) {
+        m_ui->clangdChooser->setEnabled(checked);
+    });
 }
 
 bool CppCodeModelSettingsWidget::applyClangCodeModelWidgetsToSettings() const
@@ -161,6 +174,16 @@ bool CppCodeModelSettingsWidget::applyGeneralWidgetsToSettings() const
     const int newFileSizeLimit = m_ui->bigFilesLimitSpinBox->value();
     if (m_settings->indexerFileSizeLimitInMb() != newFileSizeLimit) {
         m_settings->setIndexerFileSizeLimitInMb(newFileSizeLimit);
+        settingsChanged = true;
+    }
+    const bool newUseClangd = m_ui->clangdCheckBox->isChecked();
+    if (m_settings->useClangd() != newUseClangd) {
+        m_settings->setUseClangd(newUseClangd);
+        settingsChanged = true;
+    }
+    const Utils::FilePath newClangdPath = m_ui->clangdChooser->rawFilePath();
+    if (m_settings->clangdFilePath() != newClangdPath) {
+        m_settings->setClangdFilePath(newClangdPath);
         settingsChanged = true;
     }
 

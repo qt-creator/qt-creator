@@ -46,7 +46,8 @@ public:
                             RenameCallback &&renameSymbolsCallback) override;
     void globalRename(const CppTools::CursorInEditor &, CppTools::UsagesCallback &&,
                       const QString &) override {}
-    void findUsages(const CppTools::CursorInEditor &, CppTools::UsagesCallback &&) const override {}
+    void findUsages(const CppTools::CursorInEditor &cursor,
+                    CppTools::UsagesCallback &&callback) const override;
     void globalFollowSymbol(const CppTools::CursorInEditor &,
                             ::Utils::ProcessLinkCallback &&,
                             const CPlusPlus::Snapshot &,

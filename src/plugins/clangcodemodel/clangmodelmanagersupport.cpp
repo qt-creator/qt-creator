@@ -33,9 +33,12 @@
 #include "clangprojectsettings.h"
 #include "clangrefactoringengine.h"
 #include "clangcurrentdocumentfilter.h"
+#include "clanggloballocatorfilters.h"
 #include "clangoverviewmodel.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 
 #include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cppfollowsymbolundercursor.h>
@@ -44,23 +47,34 @@
 #include <cpptools/editordocumenthandle.h>
 #include <cpptools/projectinfo.h>
 
+#include <languageclient/client.h>
+#include <languageclient/languageclientinterface.h>
+#include <languageclient/languageclientmanager.h>
+
 #include <texteditor/quickfix.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
 
 #include <clangsupport/filecontainer.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 
 #include <QApplication>
+#include <QFile>
 #include <QMenu>
 #include <QTextBlock>
 #include <QTimer>
 
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
+using namespace LanguageClient;
 
+static Q_LOGGING_CATEGORY(clangdLog, "qtc.clangcodemodel.clangd", QtWarningMsg);
 static ClangModelManagerSupport *m_instance = nullptr;
 
 static CppTools::CppModelManager *cppModelManager()
@@ -79,6 +93,9 @@ ClangModelManagerSupport::ClangModelManagerSupport()
 
     CppTools::CppModelManager::instance()->setCurrentDocumentFilter(
                 std::make_unique<ClangCurrentDocumentFilter>());
+    cppModelManager()->setLocatorFilter(std::make_unique<ClangGlobalSymbolFilter>());
+    cppModelManager()->setClassesFilter(std::make_unique<ClangClassesFilter>());
+    cppModelManager()->setFunctionsFilter(std::make_unique<ClangFunctionsFilter>());
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     connect(editorManager, &Core::EditorManager::editorOpened,
@@ -104,9 +121,14 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     connect(sessionManager, &ProjectExplorer::SessionManager::aboutToRemoveProject,
             this, &ClangModelManagerSupport::onAboutToRemoveProject);
 
+    CppTools::CppCodeModelSettings::setDefaultClangdPath(Utils::FilePath::fromString(
+            Core::ICore::clangdExecutable(CLANG_BINDIR)));
     CppTools::CppCodeModelSettings *settings = CppTools::codeModelSettings();
     connect(settings, &CppTools::CppCodeModelSettings::clangDiagnosticConfigsInvalidated,
             this, &ClangModelManagerSupport::onDiagnosticConfigsInvalidated);
+
+    // TODO: Enable this once we do document-level stuff with clangd (highlighting etc)
+    // createClient(nullptr, {});
 }
 
 ClangModelManagerSupport::~ClangModelManagerSupport()
@@ -220,6 +242,136 @@ void ClangModelManagerSupport::connectToWidgetsMarkContextMenuRequested(QWidget 
     }
 }
 
+static QString clientName() { return "ccm-clangd"; }
+
+void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *project,
+                                                    const CppTools::ProjectInfo &projectInfo)
+{
+    if (!CppTools::codeModelSettings()->useClangd())
+        return;
+    const auto getJsonDbDir = [project] {
+        if (const ProjectExplorer::Target * const target = project->activeTarget()) {
+            if (const ProjectExplorer::BuildConfiguration * const bc
+                    = target->activeBuildConfiguration()) {
+                return bc->buildDirectory();
+            }
+        }
+        return Utils::FilePath();
+    };
+
+    const Utils::FilePath jsonDbDir = getJsonDbDir();
+    if (jsonDbDir.isEmpty())
+        return;
+    const auto generatorWatcher = new QFutureWatcher<GenerateCompilationDbResult>;
+    connect(generatorWatcher, &QFutureWatcher<GenerateCompilationDbResult>::finished,
+            [this, project, projectInfo, getJsonDbDir, jsonDbDir, generatorWatcher] {
+        generatorWatcher->deleteLater();
+        if (!CppTools::codeModelSettings()->useClangd())
+            return;
+        if (!ProjectExplorer::SessionManager::hasProject(project))
+            return;
+        if (cppModelManager()->projectInfo(project) != projectInfo)
+            return;
+        if (getJsonDbDir() != jsonDbDir)
+            return;
+        const GenerateCompilationDbResult result = generatorWatcher->result();
+        if (!result.error.isEmpty()) {
+            Core::MessageManager::writeDisrupting(
+                        tr("Cannot use clangd: Failed to generate compilation database:\n%1")
+                        .arg(result.error));
+            return;
+        }
+        if (Client * const oldClient = clientForProject(project))
+            LanguageClientManager::shutdownClient(oldClient);
+        Client * const client = createClient(project, jsonDbDir);
+        connect(client, &Client::initialized, this, [client, project, projectInfo, jsonDbDir] {
+            using namespace ProjectExplorer;
+            if (!CppTools::codeModelSettings()->useClangd())
+                return;
+            if (!SessionManager::hasProject(project))
+                return;
+            if (cppModelManager()->projectInfo(project) != projectInfo)
+                return;
+
+            // TODO: We'd like to add all open editor documents for the project to the client here,
+            //       but there doesn't seem to be such an interface.
+
+            // clangd oddity: Background indexing only starts after opening a random file.
+            // TODO: changes to the compilation db do not seem to trigger re-indexing.
+            //       How to force it?
+            ProjectNode * const rootNode = project->rootProjectNode();
+            if (!rootNode)
+                return;
+            const Node * const cxxNode = rootNode->findNode([](Node *n) {
+                const FileNode * const fileNode = n->asFileNode();
+                return fileNode && (fileNode->fileType() == FileType::Source
+                                    || fileNode->fileType() == FileType::Header)
+                    && fileNode->filePath().exists();
+            });
+            if (!cxxNode)
+                return;
+
+            QFile cxxFile(cxxNode->filePath().toString());
+            if (!cxxFile.open(QIODevice::ReadOnly))
+                return;
+            using namespace LanguageServerProtocol;
+            TextDocumentItem item;
+            item.setLanguageId("text/x-c++src");
+            item.setUri(DocumentUri::fromFilePath(cxxNode->filePath()));
+            item.setText(QString::fromUtf8(cxxFile.readAll()));
+            item.setVersion(0);
+            client->sendContent(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)));
+            client->sendContent(DidCloseTextDocumentNotification(DidCloseTextDocumentParams(
+                    TextDocumentIdentifier{item.uri()})));
+        });
+
+    });
+    generatorWatcher->setFuture(Utils::runAsync(&Internal::generateCompilationDB, projectInfo,
+                                                CompilationDbPurpose::CodeModel));
+}
+
+LanguageClient::Client *ClangModelManagerSupport::clientForProject(
+        const ProjectExplorer::Project *project)
+{
+    const QList<Client *> clients = Utils::filtered(
+                LanguageClientManager::clientsForProject(project),
+                    [](const LanguageClient::Client *c) {
+        return c->name().startsWith(clientName())
+                && c->state() != Client::ShutdownRequested
+                && c->state() != Client::Shutdown;
+    });
+    QTC_CHECK(clients.size() <= 1);
+    return clients.empty() ? nullptr : clients.first();
+}
+
+Client *ClangModelManagerSupport::createClient(ProjectExplorer::Project *project,
+                                               const Utils::FilePath &jsonDbDir)
+{
+    QString clangdArgs = "--index --background-index --limit-results=0";
+    if (!jsonDbDir.isEmpty())
+        clangdArgs += " --compile-commands-dir=" + jsonDbDir.toString();
+    if (clangdLog().isDebugEnabled())
+        clangdArgs += " --log=verbose --pretty";
+    const auto clientInterface = new StdIOClientInterface;
+    clientInterface->setExecutable(CppTools::codeModelSettings()->clangdFilePath().toString());
+    clientInterface->setArguments(clangdArgs);
+    const auto client = new Client(clientInterface);
+    client->setName(clientName());
+    LanguageFilter langFilter;
+    langFilter.mimeTypes = QStringList{"text/x-chdr", "text/x-c++hdr", "text/x-c++src",
+            "text/x-objc++src", "text/x-objcsrc"};
+    client->setSupportedLanguage(langFilter);
+    LanguageServerProtocol::ClientCapabilities caps = Client::defaultClientCapabilities();
+    caps.clearExperimental();
+    caps.clearTextDocument();
+    client->setClientCapabilities(caps);
+    client->setLocatorsEnabled(false);
+    client->setDocumentActionsEnabled(false);
+    client->setCurrentProject(project);
+    client->start();
+    return client;
+}
+
 void ClangModelManagerSupport::onEditorOpened(Core::IEditor *editor)
 {
     QTC_ASSERT(editor, return);
@@ -232,6 +384,11 @@ void ClangModelManagerSupport::onEditorOpened(Core::IEditor *editor)
         connectToWidgetsMarkContextMenuRequested(editor->widget());
 
         // TODO: Ensure that not fully loaded documents are updated?
+
+        ProjectExplorer::Project * const project
+                = ProjectExplorer::SessionManager::projectForFile(document->filePath());
+        if (Client * const client = clientForProject(project))
+            client->openDocument(textDocument);
     }
 }
 
@@ -419,6 +576,8 @@ void ClangModelManagerSupport::onProjectPartsUpdated(ProjectExplorer::Project *p
     QTC_ASSERT(project, return);
     const CppTools::ProjectInfo projectInfo = cppModelManager()->projectInfo(project);
     QTC_ASSERT(projectInfo.isValid(), return);
+
+    updateLanguageClient(project, projectInfo);
 
     QStringList projectPartIds;
     for (const CppTools::ProjectPart::Ptr &projectPart : projectInfo.projectParts())

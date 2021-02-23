@@ -47,6 +47,8 @@ class FollowSymbolInterface;
 class RefactoringEngineInterface;
 } // namespace CppTools
 
+namespace LanguageClient { class Client; }
+
 namespace ClangCodeModel {
 namespace Internal {
 
@@ -76,6 +78,8 @@ public:
     QString dummyUiHeaderOnDiskPath(const QString &filePath) const;
 
     ClangProjectSettings &projectSettings(ProjectExplorer::Project *project) const;
+
+    LanguageClient::Client *clientForProject(const ProjectExplorer::Project *project);
 
     static ClangModelManagerSupport *instance();
 
@@ -117,6 +121,11 @@ private:
             TextEditor::TextDocument *textDocument);
     void connectToTextDocumentContentsChangedForUnsavedFile(TextEditor::TextDocument *textDocument);
     void connectToWidgetsMarkContextMenuRequested(QWidget *editorWidget);
+
+    void updateLanguageClient(ProjectExplorer::Project *project,
+                              const CppTools::ProjectInfo &projectInfo);
+    LanguageClient::Client *createClient(ProjectExplorer::Project *project,
+                                         const Utils::FilePath &jsonDbDir);
 
 private:
     UiHeaderOnDiskManager m_uiHeaderOnDiskManager;

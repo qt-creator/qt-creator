@@ -5,6 +5,7 @@ QTC_LIB_DEPENDS += \
 QTC_PLUGIN_DEPENDS += \
     coreplugin \
     cpptools \
+    languageclient \
     texteditor
 QTC_TEST_DEPENDS += \
     cppeditor \

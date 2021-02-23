@@ -138,6 +138,10 @@
             edit the value for the \uicontrol {Do not index files greater than}
             check box. To index all files, deselect the check box.
 
+        \li To use clangd instead of the built-in code model for features such as
+            \e {Find References to Symbol}, check the \uicontrol {Use clangd} checkbox.
+            \note This is an experimental feature, which might not work reliably yet.
+
         \li The \uicontrol {Diagnostic Configuration} field shows the Clang
             checks to perform. Click the value of the field to open the
             \uicontrol {Diagnostic Configurations} dialog, where you can

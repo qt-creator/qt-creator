@@ -74,13 +74,16 @@ private:
     Utils::optional<LanguageServerProtocol::DocumentSymbolsResult> m_currentSymbols;
 };
 
-class WorkspaceLocatorFilter : public Core::ILocatorFilter
+class LANGUAGECLIENT_EXPORT WorkspaceLocatorFilter : public Core::ILocatorFilter
 {
     Q_OBJECT
 public:
     WorkspaceLocatorFilter();
 
+    /// request workspace symbols for all clients with enabled locator
     void prepareSearch(const QString &entry) override;
+    /// force request workspace symbols for all given clients
+    void prepareSearch(const QString &entry, const QVector<Client *> &clients);
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
     void accept(Core::LocatorFilterEntry selection,
@@ -95,6 +98,7 @@ protected:
     explicit WorkspaceLocatorFilter(const QVector<LanguageServerProtocol::SymbolKind> &filter);
 
 private:
+    void prepareSearch(const QString &entry, const QVector<Client *> &clients, bool force);
     void handleResponse(Client *client,
                         const LanguageServerProtocol::WorkspaceSymbolRequest::Response &response);
 
@@ -104,13 +108,13 @@ private:
     QVector<LanguageServerProtocol::SymbolKind> m_filterKinds;
 };
 
-class WorkspaceClassLocatorFilter : public WorkspaceLocatorFilter
+class LANGUAGECLIENT_EXPORT WorkspaceClassLocatorFilter : public WorkspaceLocatorFilter
 {
 public:
     WorkspaceClassLocatorFilter();
 };
 
-class WorkspaceMethodLocatorFilter : public WorkspaceLocatorFilter
+class LANGUAGECLIENT_EXPORT WorkspaceMethodLocatorFilter : public WorkspaceLocatorFilter
 {
 public:
     WorkspaceMethodLocatorFilter();

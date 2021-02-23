@@ -40,7 +40,8 @@ SOURCES += \
     clangtextmark.cpp \
     clanguiheaderondiskmanager.cpp \
     clangutils.cpp \
-    clangoverviewmodel.cpp
+    clangoverviewmodel.cpp \
+    clanggloballocatorfilters.cpp
 
 HEADERS += \
     clangactivationsequencecontextprocessor.h \
@@ -79,7 +80,8 @@ HEADERS += \
     clangtextmark.h \
     clanguiheaderondiskmanager.h \
     clangutils.h \
-    clangoverviewmodel.h
+    clangoverviewmodel.h \
+    clanggloballocatorfilters.h
 
 FORMS += clangprojectsettingswidget.ui
 

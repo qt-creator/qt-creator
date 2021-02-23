@@ -11,6 +11,7 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
     Depends { name: "ClangSupport" }
+    Depends { name: "LanguageClient" }
 
     Depends { name: "libclang"; required: false }
     Depends { name: "clang_defines" }
@@ -72,6 +73,8 @@ QtcPlugin {
         "clangfollowsymbol.h",
         "clangfunctionhintmodel.cpp",
         "clangfunctionhintmodel.h",
+        "clanggloballocatorfilters.cpp",
+        "clanggloballocatorfilters.h",
         "clanghighlightingresultreporter.cpp",
         "clanghighlightingresultreporter.h",
         "clanghoverhandler.cpp",

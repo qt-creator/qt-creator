@@ -25,15 +25,15 @@
 
 #pragma once
 
+#include "cpptools_global.h"
 #include "cpplocatordata.h"
 #include "searchsymbols.h"
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
 namespace CppTools {
-namespace Internal {
 
-class CppLocatorFilter : public Core::ILocatorFilter
+class CPPTOOLS_EXPORT CppLocatorFilter : public Core::ILocatorFilter
 {
     Q_OBJECT
 
@@ -54,5 +54,4 @@ protected:
     CppLocatorData *m_data = nullptr;
 };
 
-} // namespace Internal
 } // namespace CppTools

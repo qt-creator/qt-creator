@@ -31,24 +31,30 @@
 
 #include <QTextCursor>
 
+namespace TextEditor { class TextDocument; }
+
 namespace CppTools {
 
 class CursorInEditor
 {
 public:
     CursorInEditor(const QTextCursor &cursor, const Utils::FilePath &filePath,
-                 CppEditorWidgetInterface *editorWidget = nullptr)
+                 CppEditorWidgetInterface *editorWidget = nullptr,
+                 TextEditor::TextDocument *textDocument = nullptr)
         : m_cursor(cursor)
         , m_filePath(filePath)
         , m_editorWidget(editorWidget)
+        , m_textDocument(textDocument)
     {}
     CppEditorWidgetInterface *editorWidget() const { return m_editorWidget; }
+    TextEditor::TextDocument *textDocument() const { return m_textDocument; }
     const QTextCursor &cursor() const { return m_cursor; }
     const Utils::FilePath &filePath() const { return m_filePath; }
 private:
     QTextCursor m_cursor;
     Utils::FilePath m_filePath;
     CppEditorWidgetInterface *m_editorWidget = nullptr;
+    TextEditor::TextDocument * const m_textDocument;
 };
 
 } // namespace CppTools

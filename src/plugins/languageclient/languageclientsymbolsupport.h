@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "languageclient_global.h"
+
 #include <texteditor/textdocument.h>
 
 #include <languageserverprotocol/languagefeatures.h>
@@ -38,7 +40,7 @@ namespace LanguageClient {
 
 class Client;
 
-class SymbolSupport
+class LANGUAGECLIENT_EXPORT SymbolSupport
 {
     Q_DECLARE_TR_FUNCTIONS(SymbolSupport)
 public:

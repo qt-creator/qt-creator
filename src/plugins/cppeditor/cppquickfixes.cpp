@@ -2068,7 +2068,7 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
         const Snapshot forwardHeaders = forwardingHeaders(interface);
         foreach (const Core::LocatorFilterEntry &entry, matches) {
             IndexItem::Ptr info = entry.internalData.value<IndexItem::Ptr>();
-            if (info->symbolName() != className)
+            if (!info || info->symbolName() != className)
                 continue;
             indexItems << info;
 

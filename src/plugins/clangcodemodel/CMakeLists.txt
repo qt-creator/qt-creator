@@ -1,7 +1,7 @@
 add_qtc_plugin(ClangCodeModel
   CONDITION TARGET libclang
   DEPENDS ClangSupport CPlusPlus
-  PLUGIN_DEPENDS Core CppTools TextEditor
+  PLUGIN_DEPENDS Core CppTools LanguageClient TextEditor
   PLUGIN_TEST_DEPENDS CppEditor QmakeProjectManager
   SOURCES
     clangactivationsequencecontextprocessor.cpp clangactivationsequencecontextprocessor.h
@@ -29,6 +29,7 @@ add_qtc_plugin(ClangCodeModel
     clangfixitoperationsextractor.cpp clangfixitoperationsextractor.h
     clangfollowsymbol.cpp clangfollowsymbol.h
     clangfunctionhintmodel.cpp clangfunctionhintmodel.h
+    clanggloballocatorfilters.cpp clanggloballocatorfilters.h
     clanghighlightingresultreporter.cpp clanghighlightingresultreporter.h
     clanghoverhandler.cpp clanghoverhandler.h
     clangisdiagnosticrelatedtolocation.h

@@ -472,7 +472,8 @@ void CppEditorWidget::findUsages()
 void CppEditorWidget::findUsages(QTextCursor cursor)
 {
     // 'this' in cursorInEditor is never used (and must never be used) asynchronously.
-    const CppTools::CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this};
+    const CppTools::CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this,
+                textDocument()};
     QPointer<CppEditorWidget> cppEditorWidget = this;
     d->m_modelManager->findUsages(cursorInEditor,
                                   [=](const CppTools::Usages &usages) {

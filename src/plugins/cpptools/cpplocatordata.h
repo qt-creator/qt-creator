@@ -35,7 +35,7 @@
 
 namespace CppTools {
 
-class CppLocatorData : public QObject
+class CPPTOOLS_EXPORT CppLocatorData : public QObject
 {
     Q_OBJECT
 

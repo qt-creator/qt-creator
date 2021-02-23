@@ -29,6 +29,8 @@
 
 #include "clangdiagnosticconfigsmodel.h"
 
+#include <utils/fileutils.h>
+
 #include <QObject>
 #include <QStringList>
 
@@ -76,6 +78,13 @@ public:
     int indexerFileSizeLimitInMb() const;
     void setIndexerFileSizeLimitInMb(int sizeInMB);
 
+    void setUseClangd(bool use) { m_useClangd = use; }
+    bool useClangd() const { return m_useClangd; }
+
+    static void setDefaultClangdPath(const Utils::FilePath &filePath);
+    void setClangdFilePath(const Utils::FilePath &filePath) { m_clangdFilePath = filePath; }
+    Utils::FilePath clangdFilePath() const;
+
 signals:
     void clangDiagnosticConfigsInvalidated(const QVector<Utils::Id> &configId);
     void changed();
@@ -88,6 +97,8 @@ private:
     ClangDiagnosticConfigs m_clangCustomDiagnosticConfigs;
     Utils::Id m_clangDiagnosticConfigId;
     bool m_enableLowerClazyLevels = true; // For UI behavior only
+    Utils::FilePath m_clangdFilePath;
+    bool m_useClangd = false;
 };
 
 } // namespace CppTools

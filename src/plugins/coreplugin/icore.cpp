@@ -534,6 +534,14 @@ QString ICore::clangExecutable(const QString &clangBinDirectory)
 /*!
     \internal
 */
+QString ICore::clangdExecutable(const QString &clangBinDirectory)
+{
+    return clangBinary("clangd", clangBinDirectory);
+}
+
+/*!
+    \internal
+*/
 QString ICore::clangTidyExecutable(const QString &clangBinDirectory)
 {
     return clangBinary("clang-tidy", clangBinDirectory);

@@ -35,8 +35,7 @@
 #include <algorithm>
 #include <numeric>
 
-using namespace CppTools;
-using namespace CppTools::Internal;
+namespace CppTools {
 
 CppLocatorFilter::CppLocatorFilter(CppLocatorData *locatorData)
     : m_data(locatorData)
@@ -145,3 +144,5 @@ void CppLocatorFilter::accept(Core::LocatorFilterEntry selection,
     IndexItem::Ptr info = qvariant_cast<IndexItem::Ptr>(selection.internalData);
     Core::EditorManager::openEditorAt(info->fileName(), info->line(), info->column());
 }
+
+} // namespace CppTools

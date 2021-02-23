@@ -84,6 +84,7 @@ public:
     static Client *clientForDocument(TextEditor::TextDocument *document);
     static Client *clientForFilePath(const Utils::FilePath &filePath);
     static Client *clientForUri(const LanguageServerProtocol::DocumentUri &uri);
+    static const QList<Client *> clientsForProject(const ProjectExplorer::Project *project);
 
     ///
     /// \brief openDocumentWithClient

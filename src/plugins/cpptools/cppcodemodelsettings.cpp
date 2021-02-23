@@ -35,6 +35,7 @@
 #include <QSettings>
 
 using namespace CppTools;
+using namespace Utils;
 
 static Utils::Id initialClangDiagnosticConfigId()
 { return Constants::CPP_CLANG_DIAG_CONFIG_BUILDSYSTEM; }
@@ -59,6 +60,17 @@ static QString skipIndexingBigFilesKey()
 
 static QString indexerFileSizeLimitKey()
 { return QLatin1String(Constants::CPPTOOLS_INDEXER_FILE_SIZE_LIMIT); }
+
+static QString useClangdKey() { return QLatin1String("UseClangd"); }
+static QString clangdPathKey() { return QLatin1String("ClangdPath"); }
+
+static FilePath g_defaultClangdFilePath;
+static FilePath fallbackClangdFilePath()
+{
+    if (g_defaultClangdFilePath.exists())
+        return g_defaultClangdFilePath;
+    return FilePath::fromString("clangd");
+}
 
 static Utils::Id clangDiagnosticConfigIdFromSettings(QSettings *s)
 {
@@ -160,6 +172,9 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
     const QVariant indexerFileSizeLimit = s->value(indexerFileSizeLimitKey(), 5);
     setIndexerFileSizeLimitInMb(indexerFileSizeLimit.toInt());
 
+    setUseClangd(s->value(useClangdKey(), false).toBool());
+    setClangdFilePath(FilePath::fromString(s->value(clangdPathKey()).toString()));
+
     s->endGroup();
 
     if (write)
@@ -183,6 +198,8 @@ void CppCodeModelSettings::toSettings(QSettings *s)
     s->setValue(interpretAmbiguousHeadersAsCHeadersKey(), interpretAmbigiousHeadersAsCHeaders());
     s->setValue(skipIndexingBigFilesKey(), skipIndexingBigFiles());
     s->setValue(indexerFileSizeLimitKey(), indexerFileSizeLimitInMb());
+    s->setValue(useClangdKey(), useClangd());
+    s->setValue(clangdPathKey(), m_clangdFilePath.toString());
 
     s->endGroup();
 
@@ -281,4 +298,16 @@ bool CppCodeModelSettings::enableLowerClazyLevels() const
 void CppCodeModelSettings::setEnableLowerClazyLevels(bool yesno)
 {
     m_enableLowerClazyLevels = yesno;
+}
+
+void CppCodeModelSettings::setDefaultClangdPath(const Utils::FilePath &filePath)
+{
+    g_defaultClangdFilePath = filePath;
+}
+
+FilePath CppCodeModelSettings::clangdFilePath() const
+{
+    if (!m_clangdFilePath.isEmpty())
+        return m_clangdFilePath;
+    return fallbackClangdFilePath();
 }
