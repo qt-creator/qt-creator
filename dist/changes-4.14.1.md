@@ -72,6 +72,7 @@ Debugging
 ### LLDB
 
 * Fixed that application output could be printed delayed (QTCREATORBUG-24667)
+* Fixed performance issue (QTCREATORBUG-25185, QTCREATORBUG-25217)
 
 ### CDB
 
