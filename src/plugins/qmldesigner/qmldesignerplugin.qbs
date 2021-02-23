@@ -984,6 +984,8 @@ Project {
             "shortcutmanager.h",
             "designermcumanager.cpp",
             "designermcumanager.h",
+            "richtexteditordialog.cpp",
+            "richtexteditordialog.h",
         ]
     }
 }

@@ -10,7 +10,8 @@ HEADERS += $$PWD/qmldesignerconstants.h \
     $$PWD/documentwarningwidget.h \
     $$PWD/qmldesignericons.h \
     $$PWD/openuiqmlfiledialog.h \
-    $$PWD/designermcumanager.h
+    $$PWD/designermcumanager.h \
+    $$PWD/richtexteditordialog.h
 
 SOURCES += $$PWD/qmldesignerplugin.cpp \
     $$PWD/shortcutmanager.cpp \
@@ -22,7 +23,8 @@ SOURCES += $$PWD/qmldesignerplugin.cpp \
     $$PWD/documentmanager.cpp \
     $$PWD/documentwarningwidget.cpp \
     $$PWD/openuiqmlfiledialog.cpp \
-    $$PWD/designermcumanager.cpp
+    $$PWD/designermcumanager.cpp \
+    $$PWD/richtexteditordialog.cpp
 
 FORMS += $$PWD/settingspage.ui \
     $$PWD/openuiqmlfiledialog.ui
