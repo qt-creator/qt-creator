@@ -24,23 +24,25 @@
 ****************************************************************************/
 
 #include "richtexteditorproxy.h"
+#include "richtexteditor.h"
 
 #include <qmldesignerplugin.h>
 #include <qmldesignerconstants.h>
+
+#include <coreplugin/icore.h>
 
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QGridLayout>
 
-#include "richtexteditor.h"
-
 namespace QmlDesigner {
 
 RichTextEditorProxy::RichTextEditorProxy(QObject *parent)
     : QObject(parent)
-    , m_dialog(new QDialog{})
+    , m_dialog(new QDialog(Core::ICore::dialogParent()))
     , m_widget(new RichTextEditor{})
 {
+    m_dialog->setModal(true);
     QGridLayout *layout = new QGridLayout{};
 
     layout->addWidget(m_widget);
