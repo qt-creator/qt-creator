@@ -62,8 +62,13 @@ static QString fixExpression(const QString &expression, const QHash<QString, QSt
 
 static void syncVariantProperties(ModelNode &outputNode, const ModelNode &inputNode)
 {
-    foreach (const VariantProperty &variantProperty, inputNode.variantProperties()) {
-        outputNode.variantProperty(variantProperty.name()).setValue(variantProperty.value());
+    foreach (const VariantProperty &property, inputNode.variantProperties()) {
+        if (property.isDynamic()) {
+            outputNode.variantProperty(property.name()).
+                    setDynamicTypeNameAndValue(property.dynamicTypeName(), property.value());
+            continue;
+        }
+        outputNode.variantProperty(property.name()).setValue(property.value());
     }
 }
 
@@ -163,14 +168,10 @@ static ModelNode createNodeFromNode(const ModelNode &modelNode,
                                     const QHash<QString, QString> &idRenamingHash,
                                     AbstractView *view, const MergePredicate &mergePredicate)
 {
-    QList<QPair<PropertyName, QVariant> > propertyList;
-    QList<QPair<PropertyName, QVariant> > variantPropertyList;
-    foreach (const VariantProperty &variantProperty, modelNode.variantProperties()) {
-        propertyList.append(QPair<PropertyName, QVariant>(variantProperty.name(), variantProperty.value()));
-    }
     NodeMetaInfo nodeMetaInfo = view->model()->metaInfo(modelNode.type());
     ModelNode newNode(view->createModelNode(modelNode.type(), nodeMetaInfo.majorVersion(), nodeMetaInfo.minorVersion(),
-                                            propertyList, variantPropertyList, modelNode.nodeSource(), modelNode.nodeSourceType()));
+                                            {}, {}, modelNode.nodeSource(), modelNode.nodeSourceType()));
+    syncVariantProperties(newNode, modelNode);
     syncAuxiliaryProperties(newNode, modelNode);
     syncBindingProperties(newNode, modelNode, idRenamingHash);
     syncSignalHandlerProperties(newNode, modelNode, idRenamingHash);
