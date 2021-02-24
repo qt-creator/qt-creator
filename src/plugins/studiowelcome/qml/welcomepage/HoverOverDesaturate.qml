@@ -35,6 +35,8 @@ Item {
     property alias imageSource: image.source
     property alias labelText: label.text
 
+    property alias downloadIcon: downloadCloud.visible
+
     onVisibleChanged: {
         animateOpacity.start()
         animateScale.start()
@@ -88,6 +90,19 @@ Item {
                 saturationEffect.desaturation = 1
                 rectangle.color = "#262728"
                 label.color = "#686868"
+            }
+
+            Image {
+                id: downloadCloud
+                x: 210
+                y: 118
+                width: 60
+                height: 60
+                source: "images/downloadCloud.svg"
+                sourceSize.height: 60
+                sourceSize.width: 60
+                fillMode: Image.PreserveAspectFit
+                visible: false
             }
         }
     }
@@ -187,3 +202,9 @@ Item {
         font.family: StudioFonts.titilliumWeb_regular
     }
 }
+
+/*##^##
+Designer {
+    D{i:0;formeditorZoom:1.3300000429153442}D{i:8}
+}
+##^##*/

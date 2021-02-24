@@ -12,9 +12,11 @@ DEFINES += STUDIO_QML_PATH=\\\"$$PWD/qml/\\\"
 HEADERS += \
     studiowelcome_global.h \
     studiowelcomeplugin.h \
+    examplecheckout.h
 
 SOURCES += \
-    studiowelcomeplugin.cpp
+    studiowelcomeplugin.cpp \
+    examplecheckout.cpp
 
 OTHER_FILES += \
     StudioWelcome.json.in
