@@ -209,38 +209,33 @@ QList<ConfigModel::DataItem> ConfigModel::configurationForCMake() const
 void ConfigModel::setConfiguration(const CMakeConfig &config)
 {
     setConfiguration(Utils::transform(config, [](const CMakeConfigItem &i) {
-        ConfigModel::DataItem j;
-        j.key = QString::fromUtf8(i.key);
-        j.value = QString::fromUtf8(i.value);
-        j.description = QString::fromUtf8(i.documentation);
-        j.values = i.values;
-        j.inCMakeCache = i.inCMakeCache;
-
-        j.isAdvanced = i.isAdvanced;
-        j.isHidden = i.type == CMakeConfigItem::INTERNAL || i.type == CMakeConfigItem::STATIC;
-
-        switch (i.type) {
-        case CMakeConfigItem::FILEPATH:
-            j.type = ConfigModel::DataItem::FILE;
-            break;
-        case CMakeConfigItem::PATH:
-            j.type = ConfigModel::DataItem::DIRECTORY;
-            break;
-        case CMakeConfigItem::BOOL:
-            j.type = ConfigModel::DataItem::BOOLEAN;
-            break;
-        case CMakeConfigItem::STRING:
-            j.type = ConfigModel::DataItem::STRING;
-            break;
-        default:
-            j.type = ConfigModel::DataItem::UNKNOWN;
-            break;
-        }
-
-        return j;
+        return DataItem(i);
     }));
 }
 
+void ConfigModel::setBatchEditConfiguration(const CMakeConfig &config)
+{
+    for (const auto &c: config) {
+        DataItem di(c);
+        auto existing = std::find(m_configuration.begin(), m_configuration.end(), di);
+        if (existing != m_configuration.end()) {
+            existing->isUnset = c.isUnset;
+            if (!c.isUnset) {
+                existing->isUserChanged = true;
+                existing->setType(c.type);
+                existing->value = QString::fromUtf8(c.value);
+                existing->newValue = existing->value;
+            }
+        } else if (!c.isUnset) {
+            InternalDataItem i(di);
+            i.isUserNew = true;
+            i.newValue = di.value;
+            m_configuration.append(i);
+        }
+    }
+
+    generateTree();
+}
 
 void ConfigModel::setConfiguration(const QList<ConfigModel::InternalDataItem> &config)
 {
