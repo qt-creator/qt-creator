@@ -105,8 +105,15 @@ def __compFunc__(it, foundComp, foundCompNames):
         pathLineEdit = findObject(":Path.Utils_BaseValidatingLineEdit")
         foundComp.append(str(pathLineEdit.text))
     except:
-        varsBatCombo = waitForObjectExists("{name='varsBatCombo' type='QComboBox' visible='1'}")
-        foundComp.append({it:str(varsBatCombo.currentText)})
+        varsBatComboStr = "{name='varsBatCombo' type='QComboBox' visible='1'}"
+        varsBatCombo = waitForObjectExists(varsBatComboStr)
+        parameterComboStr = "{type='QComboBox' visible='1' unnamed='1' leftWidget=%s}" % varsBatComboStr
+        try:
+            parameterCombo = findObject(parameterComboStr)
+            parameter = ' ' + str(parameterCombo.currentText)
+        except:
+            parameter = ''
+        foundComp.append({it:str(varsBatCombo.currentText) + parameter})
 
     foundCompNames.append(it)
 
@@ -156,6 +163,21 @@ def __kitFunc__(it, foundQt, foundCompNames):
             details = details.replace("<b>", "").replace("</b>", "")
             test.warning("Detected error and/or warning: %s" % details)
 
+def __LLVMInRegistry__():
+    # following only works on Win64 (Win32 has different registry keys)
+    try:
+        output = subprocess.check_output(['reg', 'query',
+                                          r'HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\LLVM\LLVM'],
+                                          shell=True)
+        for line in output.splitlines():
+            if '(Default)' in line:
+                path = line.split(' REG_SZ ')[1].strip()
+                if os.path.exists(os.path.join(path, 'bin', 'clang-cl.exe')):
+                    return True
+    except subprocess.CalledProcessError:
+        pass
+    return False
+
 def __getExpectedCompilers__():
     # TODO: enhance this to distinguish between C and C++ compilers
     expected = []
@@ -172,6 +194,11 @@ def __getExpectedCompilers__():
             xcodeClang = getOutputFromCmdline(["xcrun", "--find", compilerExe]).strip("\n")
             if xcodeClang and os.path.exists(xcodeClang) and xcodeClang not in expected:
                 expected.append(xcodeClang)
+
+    if platform.system() in ('Microsoft', 'Windows'):
+        clangClInPath = len(findAllFilesInPATH('clang-cl.exe'))
+        if clangClInPath > 0 or __LLVMInRegistry__():
+            expected.append({'^LLVM \d{2} bit based on MSVC\d{4}$' : ''})
 
     for compiler in compilers:
         compilerPath = which(compiler)
@@ -195,19 +222,23 @@ def __getWinCompilers__():
             parameters = testData.field(record, "displayedParameters").split(",")
             usedParameters = testData.field(record, "usedParameters").split(",")
             idePath = testData.field(record, "IDEPath")
+            displayName = testData.field(record, 'displayName')
             if len(idePath):
                 if not os.path.exists(os.path.abspath(os.path.join(envvar, idePath))):
                     continue
             if testData.field(record, "isSDK") == "true":
                 for para, used in zip(parameters, usedParameters):
                     result.append(
-                                  {"%s \(.*?\) \(%s\)" % (testData.field(record, 'displayName'),
-                                                          para)
-                                   :"%s %s" % (compiler, used)})
+                                  {"%s \(.*?\) \(%s\)" % (displayName, para)
+                                   : "%s %s" % (compiler, used)})
             else:
                 for para, used in zip(parameters, usedParameters):
-                    result.append({"%s (%s)" % (testData.field(record, 'displayName'), para)
-                                   :"%s %s" % (compiler, used)})
+                    if "[.0-9]+" in displayName:
+                        result.append({"%s \(%s\)" % (displayName, para)
+                                       : "%s %s" % (compiler, used)})
+                    else:
+                        result.append({"%s (%s)" % (displayName, para)
+                                       : "%s %s" % (compiler, used)})
     return result
 
 def __getExpectedDebuggers__():
@@ -263,8 +294,10 @@ def __compareCompilers__(foundCompilers, expectedCompilers):
                 key = list(currentExp.keys())[0]
                 # the regex .*? is used for the different possible version strings of the WinSDK
                 # if it's present a regex will be validated otherwise simple string comparison
-                if (((".*?" in key and re.match(key, list(currentFound.keys())[0], flags))
-                    or currentFound.keys() == currentExp.keys())):
+                # same applies for [.0-9]+ which is used for minor/patch versions
+                isRegex = ".*?" in key or "[.0-9]+" in key
+                if (((isRegex and re.match(key, list(currentFound.keys())[0], flags)))
+                    or currentFound.keys() == currentExp.keys()):
                     if ((isWin and os.path.abspath(currentFound.values()[0].lower())
                          == os.path.abspath(currentExp.values()[0].lower()))
                         or currentFound.values() == currentExp.values()):
