@@ -472,13 +472,17 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
                         continue;
 
                     // check whether we already have a client running for this project
-                    if (Utils::findOrDefault(clients,
-                                             [project](const QPointer<Client> &client) {
-                                                 return client->project() == project;
-                                             })) {
-                        continue;
+                    Client *clientForProject = Utils::findOrDefault(clients,
+                                                                    [project](Client *client) {
+                                                                        return client->project()
+                                                                               == project;
+                                                                    });
+                    if (!clientForProject) {
+                        clientForProject = startClient(setting, project);
+                        clients << clientForProject;
                     }
-                    clients << startClient(setting, project);
+                    QTC_ASSERT(clientForProject, continue);
+                    openDocumentWithClient(textDocument, clientForProject);
                 }
             } else if (setting->m_startBehavior == BaseSettings::RequiresFile && clients.isEmpty()) {
                 clients << startClient(setting);

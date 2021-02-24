@@ -33,9 +33,11 @@ Editing
 
 ### C++
 
-* Added options for generation of getters and setters (QTCREATORBUG-1532)
-* Added `Create Constructor` refactoring operation
-* Added filtering of `Find Usages` based on access type (QTCREATORBUG-19373)
+* Added `Create Getter and Setter Member Functions` refactoring action
+  (QTCREATORBUG-1532)
+* Added `Generate Constructor` refactoring action
+* Added filtering of `Find References to Symbol Under Cursor` based on access
+  type (QTCREATORBUG-19373)
 * Added `Open in Editor` and `Open Type Hierarchy` to context menu on items in
   type hierarchy
 * Added highlighting of previous class when navigating in type hierarchy

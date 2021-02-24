@@ -25,12 +25,21 @@
 
 #include "javalanguageserver.h"
 
+#include "androidconfigurations.h"
 #include "androidconstants.h"
+#include "androidmanager.h"
 
 #include <languageclient/client.h>
+#include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientutils.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/target.h>
+#include <qtsupport/qtkitinformation.h>
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
+#include <utils/temporarydirectory.h>
 #include <utils/variablechooser.h>
 
 #include <QGridLayout>
@@ -39,7 +48,6 @@
 using namespace Utils;
 
 constexpr char languageServerKey[] = "languageServer";
-constexpr char workspaceKey[] = "workspace";
 
 namespace Android {
 namespace Internal {
@@ -67,7 +75,6 @@ JLSSettingsWidget::JLSSettingsWidget(const JLSSettings *settings, QWidget *paren
     , m_name(new QLineEdit(settings->m_name, this))
     , m_java(new PathChooser(this))
     , m_ls(new PathChooser(this))
-    , m_workspace(new PathChooser(this))
 {
     int row = 0;
     auto *mainLayout = new QGridLayout;
@@ -87,11 +94,6 @@ JLSSettingsWidget::JLSSettingsWidget(const JLSSettings *settings, QWidget *paren
     m_ls->setPromptDialogFilter("org.eclipse.equinox.launcher_*.jar");
     m_ls->setPath(QDir::toNativeSeparators(settings->m_languageServer));
     mainLayout->addWidget(m_ls, row, 1);
-
-    mainLayout->addWidget(new QLabel(tr("Workspace:")), ++row, 0);
-    m_workspace->setExpectedKind(Utils::PathChooser::Directory);
-    m_workspace->setPath(QDir::toNativeSeparators(settings->m_workspace));
-    mainLayout->addWidget(m_workspace, row, 1);
 
     setLayout(mainLayout);
 }
@@ -117,9 +119,6 @@ bool JLSSettings::applyFromSettingsWidget(QWidget *widget)
     changed |= m_languageServer != jlswidget->languageServer();
     m_languageServer = jlswidget->languageServer();
 
-    changed |= m_workspace != jlswidget->workspace();
-    m_workspace = jlswidget->workspace();
-
     changed |= m_executable != jlswidget->java();
     m_executable = jlswidget->java();
 
@@ -130,8 +129,7 @@ bool JLSSettings::applyFromSettingsWidget(QWidget *widget)
                         "-noverify "
                         "-Xmx1G "
                         "-jar \"%1\" "
-                        "-configuration \"%2\" "
-                        "-data \"%3\"";
+                        "-configuration \"%2\"";
 
     QFileInfo languageServerFileInfo(m_languageServer);
     QDir configDir = languageServerFileInfo.absoluteDir();
@@ -145,7 +143,7 @@ bool JLSSettings::applyFromSettingsWidget(QWidget *widget)
             configDir.cd("config_mac");
     }
     if (configDir.exists()) {
-        arguments = arguments.arg(m_languageServer, configDir.absolutePath(), m_workspace);
+        arguments = arguments.arg(m_languageServer, configDir.absolutePath());
         changed |= m_arguments != arguments;
         m_arguments = arguments;
     }
@@ -159,14 +157,13 @@ QWidget *JLSSettings::createSettingsWidget(QWidget *parent) const
 
 bool JLSSettings::isValid() const
 {
-    return StdIOSettings::isValid() && !m_languageServer.isEmpty() && !m_workspace.isEmpty();
+    return StdIOSettings::isValid() && !m_languageServer.isEmpty();
 }
 
 QVariantMap JLSSettings::toMap() const
 {
     QVariantMap map = StdIOSettings::toMap();
     map.insert(languageServerKey, m_languageServer);
-    map.insert(workspaceKey, m_workspace);
     return map;
 }
 
@@ -174,12 +171,32 @@ void JLSSettings::fromMap(const QVariantMap &map)
 {
     StdIOSettings::fromMap(map);
     m_languageServer = map[languageServerKey].toString();
-    m_workspace = map[workspaceKey].toString();
 }
 
 LanguageClient::BaseSettings *JLSSettings::copy() const
 {
     return new JLSSettings(*this);
+}
+
+class JLSInterface : public LanguageClient::StdIOClientInterface
+{
+public:
+    JLSInterface() = default;
+
+    QString workspaceDir() const { return m_workspaceDir.path(); }
+
+private:
+    TemporaryDirectory m_workspaceDir = TemporaryDirectory("QtCreator-jls-XXXXXX");
+};
+
+LanguageClient::BaseClientInterface *JLSSettings::createInterface() const
+{
+    auto interface = new JLSInterface();
+    interface->setExecutable(m_executable);
+    QString arguments = this->arguments();
+    arguments += QString(" -data \"%1\"").arg(interface->workspaceDir());
+    interface->setArguments(arguments);
+    return interface;
 }
 
 class JLSClient : public LanguageClient::Client
@@ -188,6 +205,12 @@ public:
     using Client::Client;
 
     void executeCommand(const LanguageServerProtocol::Command &command) override;
+    void setCurrentProject(ProjectExplorer::Project *project) override;
+    void updateProjectFiles();
+    void updateTarget(ProjectExplorer::Target *target);
+
+private:
+    ProjectExplorer::Target *m_currentTarget = nullptr;
 };
 
 void JLSClient::executeCommand(const LanguageServerProtocol::Command &command)
@@ -204,6 +227,127 @@ void JLSClient::executeCommand(const LanguageServerProtocol::Command &command)
     } else {
         Client::executeCommand(command);
     }
+}
+
+void JLSClient::setCurrentProject(ProjectExplorer::Project *project)
+{
+    Client::setCurrentProject(project);
+    QTC_ASSERT(project, return);
+    updateTarget(project->activeTarget());
+    updateProjectFiles();
+    connect(project, &ProjectExplorer::Project::activeTargetChanged,
+            this, &JLSClient::updateTarget);
+}
+
+static void generateProjectFile(const FilePath &projectDir,
+                                const QString &qtSrc,
+                                const QString &projectName)
+{
+    const FilePath projectFilePath = projectDir.pathAppended(".project");
+    QFile projectFile(projectFilePath.toString());
+    if (projectFile.open(QFile::Truncate | QFile::WriteOnly)) {
+        QXmlStreamWriter writer(&projectFile);
+        writer.setAutoFormatting(true);
+        writer.writeStartDocument();
+        writer.writeComment("Autogenerated by Qt Creator. "
+                            "Changes to this file will not be taken into account.");
+        writer.writeStartElement("projectDescription");
+        writer.writeTextElement("name", projectName);
+        writer.writeStartElement("natures");
+        writer.writeTextElement("nature", "org.eclipse.jdt.core.javanature");
+        writer.writeEndElement(); // natures
+        writer.writeStartElement("linkedResources");
+        writer.writeStartElement("link");
+        writer.writeTextElement("name", "qtSrc");
+        writer.writeTextElement("type", "2");
+        writer.writeTextElement("location", qtSrc);
+        writer.writeEndElement(); // link
+        writer.writeEndElement(); // linkedResources
+        writer.writeEndElement(); // projectDescription
+        writer.writeEndDocument();
+        projectFile.close();
+    }
+}
+
+static void generateClassPathFile(const FilePath &projectDir,
+                                  const QString &sourceDir,
+                                  const QStringList &libs)
+{
+    const FilePath classPathFilePath = projectDir.pathAppended(".classpath");
+    QFile classPathFile(classPathFilePath.toString());
+    if (classPathFile.open(QFile::Truncate | QFile::WriteOnly)) {
+        QXmlStreamWriter writer(&classPathFile);
+        writer.setAutoFormatting(true);
+        writer.writeStartDocument();
+        writer.writeComment("Autogenerated by Qt Creator. "
+                            "Changes to this file will not be taken into account.");
+        writer.writeStartElement("classpath");
+        writer.writeEmptyElement("classpathentry");
+        writer.writeAttribute("kind", "src");
+        writer.writeAttribute("path", sourceDir);
+        writer.writeEmptyElement("classpathentry");
+        writer.writeAttribute("kind", "src");
+        writer.writeAttribute("path", "qtSrc");
+        for (const QString &lib : libs) {
+            writer.writeEmptyElement("classpathentry");
+            writer.writeAttribute("kind", "lib");
+            writer.writeAttribute("path", lib);
+        }
+        writer.writeEndElement(); // classpath
+        writer.writeEndDocument();
+        classPathFile.close();
+    }
+}
+
+void JLSClient::updateProjectFiles()
+{
+    using namespace ProjectExplorer;
+    if (!m_currentTarget)
+        return;
+    if (Target *target = m_currentTarget) {
+        Kit *kit = m_currentTarget->kit();
+        if (DeviceTypeKitAspect::deviceTypeId(kit) != Android::Constants::ANDROID_DEVICE_TYPE)
+            return;
+        if (ProjectNode *node = project()->findNodeForBuildKey(target->activeBuildKey())) {
+            QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
+            if (!version)
+                return;
+            const QString qtSrc = version->prefix().toString() + "/src/android/java/src";
+            const FilePath &projectDir = project()->rootProjectDirectory();
+            if (!projectDir.exists())
+                return;
+            const FilePath packageSourceDir = FilePath::fromVariant(
+                node->data(Constants::AndroidPackageSourceDir));
+            FilePath sourceDir = packageSourceDir.pathAppended("src");
+            if (!sourceDir.exists())
+                return;
+            sourceDir = sourceDir.relativeChildPath(projectDir);
+            const FilePath &sdkLocation = AndroidConfigurations::currentConfig().sdkLocation();
+            const QString &targetSDK = AndroidManager::buildTargetSDK(m_currentTarget);
+            const QString androidJar = QString("%1/platforms/%2/android.jar")
+                                           .arg(sdkLocation.toString(), targetSDK);
+            QStringList libs(androidJar);
+            QDir libDir(packageSourceDir.pathAppended("libs").toString());
+            libs << Utils::transform(libDir.entryInfoList({"*.jar"}, QDir::Files),
+                                     &QFileInfo::absoluteFilePath);
+            generateProjectFile(projectDir, qtSrc, project()->displayName());
+            generateClassPathFile(projectDir, sourceDir.toString(), libs);
+        }
+    }
+}
+
+void JLSClient::updateTarget(ProjectExplorer::Target *target)
+{
+    if (m_currentTarget) {
+        disconnect(m_currentTarget, &ProjectExplorer::Target::parsingFinished,
+                   this, &JLSClient::updateProjectFiles);
+    }
+    m_currentTarget = target;
+    if (m_currentTarget) {
+        connect(m_currentTarget, &ProjectExplorer::Target::parsingFinished,
+                this, &JLSClient::updateProjectFiles);
+    }
+    updateProjectFiles();
 }
 
 LanguageClient::Client *JLSSettings::createClient(LanguageClient::BaseClientInterface *interface) const

@@ -100,6 +100,13 @@ Client::Client(BaseClientInterface *clientInterface)
             &Client::rehighlight);
 }
 
+QString Client::name() const
+{
+    if (m_project && !m_project->displayName().isEmpty())
+        return tr("%1 for %2").arg(m_displayName, m_project->displayName());
+    return m_displayName;
+}
+
 static void updateEditorToolBar(QList<TextEditor::TextDocument *> documents)
 {
     for (TextEditor::TextDocument *document : documents) {
@@ -790,6 +797,15 @@ void Client::projectOpened(ProjectExplorer::Project *project)
 
 void Client::projectClosed(ProjectExplorer::Project *project)
 {
+    if (sendWorkspceFolderChanges()) {
+        WorkspaceFoldersChangeEvent event;
+        event.setRemoved({WorkSpaceFolder(DocumentUri::fromFilePath(project->projectDirectory()),
+                                          project->displayName())});
+        DidChangeWorkspaceFoldersParams params;
+        params.setEvent(event);
+        DidChangeWorkspaceFoldersNotification change(params);
+        sendContent(change);
+    }
     if (project == m_project) {
         if (m_state == Initialized) {
             shutdown();
@@ -797,16 +813,8 @@ void Client::projectClosed(ProjectExplorer::Project *project)
             m_state = Shutdown; // otherwise the manager would try to restart this server
             emit finished();
         }
+        m_project = nullptr;
     }
-    if (!sendWorkspceFolderChanges())
-        return;
-    WorkspaceFoldersChangeEvent event;
-    event.setRemoved({WorkSpaceFolder(DocumentUri::fromFilePath(project->projectDirectory()),
-                                      project->displayName())});
-    DidChangeWorkspaceFoldersParams params;
-    params.setEvent(event);
-    DidChangeWorkspaceFoldersNotification change(params);
-    sendContent(change);
 }
 
 void Client::setSupportedLanguage(const LanguageFilter &filter)
@@ -1260,6 +1268,8 @@ void Client::shutDownCallback(const ShutdownRequest::Response &shutdownResponse)
 
 bool Client::sendWorkspceFolderChanges() const
 {
+    if (!reachable())
+        return false;
     if (m_dynamicCapabilities.isRegistered(
                 DidChangeWorkspaceFoldersNotification::methodName).value_or(false)) {
         return true;

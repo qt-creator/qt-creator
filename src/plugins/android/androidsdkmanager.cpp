@@ -566,7 +566,7 @@ void SdkManagerOutputParser::compilePackageAssociations()
     deleteAlreadyInstalled(images);
 
     // Associate the system images with sdk platforms.
-    for (AndroidSdkPackage *image : images) {
+    for (AndroidSdkPackage *image : qAsConst(images)) {
         int imageApi = m_systemImages[image];
         auto itr = std::find_if(m_packages.begin(), m_packages.end(),
                                 [imageApi](const AndroidSdkPackage *p) {
@@ -1151,7 +1151,7 @@ void AndroidSdkManagerPrivate::parseCommonArguments(QFutureInterface<QString> &f
 
 void AndroidSdkManagerPrivate::clearPackages()
 {
-    for (AndroidSdkPackage *p : m_allPackages)
+    for (AndroidSdkPackage *p : qAsConst(m_allPackages))
         delete p;
     m_allPackages.clear();
 }

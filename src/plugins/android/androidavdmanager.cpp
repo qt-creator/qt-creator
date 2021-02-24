@@ -403,7 +403,7 @@ AndroidDeviceInfoList AvdManagerOutputParser::listVirtualDevices(const AndroidCo
         avdList = parseAvdList(output);
     } while (output.contains(avdManufacturerError));
 
-    for (const QString &avdPathStr : avdErrorPaths)
+    for (const QString &avdPathStr : qAsConst(avdErrorPaths))
         AvdConfigEditManufacturerTag(avdPathStr, true);
 
     return avdList;

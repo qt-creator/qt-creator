@@ -139,7 +139,10 @@ ScrollView {
                 bottomPadding: 0
                 expanded: importExpanded
                 expandOnClick: false
-                onToggleExpand: importExpanded = !importExpanded
+                onToggleExpand: {
+                    if (categoryModel.rowCount() > 0)
+                        importExpanded = !importExpanded
+                }
                 onShowContextMenu: {
                     importToRemove = importUsed ? "" : importUrl
                     contextMenu.popup()

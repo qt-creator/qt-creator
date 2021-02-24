@@ -12,6 +12,17 @@ function foo(a, b) {
 
 var foo = function (a, b) {}
 
+function spread() {
+    iterableObj = [1, 2]
+    obj = {
+        "a": 42
+    }
+    foo(...iterableObj)
+    let arr = [...iterableObj, '4', 'five', 6]
+    foo(-1, ...args, 2, ...[3])
+    console.log(Math.max(...[1, 2, 3, 4]))
+}
+
 const func1 = x => x * 2
 const func2 = x => {
     return x * 7

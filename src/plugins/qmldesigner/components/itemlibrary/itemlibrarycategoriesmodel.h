@@ -48,6 +48,7 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     void addCategory(ItemLibraryCategory *category);
+    void expandCategories(bool expand = true);
 
     const QList<QPointer<ItemLibraryCategory>> &categorySections() const;
 

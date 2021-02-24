@@ -61,34 +61,28 @@ bool ItemLibraryModel::loadExpandedState(const QString &sectionName)
 
 void ItemLibraryModel::expandAll()
 {
-    bool changed = false;
+    int i = 0;
     for (const QPointer<ItemLibraryImport> &import : std::as_const(m_importList)) {
-        if (import->hasCategories() && !import->importExpanded()) {
-            changed = true;
+        if (!import->importExpanded()) {
             import->setImportExpanded();
+            emit dataChanged(index(i), index(i), {m_roleNames.key("importExpanded")});
             saveExpandedState(true, import->importUrl());
         }
-    }
-
-    if (changed) {
-        beginResetModel();
-        endResetModel();
+        import->expandCategories(true);
+        ++i;
     }
 }
 
 void ItemLibraryModel::collapseAll()
 {
-    bool changed = false;
+    int i = 0;
     for (const QPointer<ItemLibraryImport> &import : std::as_const(m_importList)) {
         if (import->hasCategories() && import->importExpanded()) {
-            changed = true;
             import->setImportExpanded(false);
+            emit dataChanged(index(i), index(i), {m_roleNames.key("importExpanded")});
             saveExpandedState(false, import->importUrl());
         }
-    }
-    if (changed) {
-        beginResetModel();
-        endResetModel();
+        ++i;
     }
 }
 
@@ -329,9 +323,18 @@ void ItemLibraryModel::updateVisibility(bool *changed)
 {
     for (ItemLibraryImport *import : std::as_const(m_importList)) {
         bool categoryChanged = false;
-        import->updateCategoryVisibility(m_searchText, &categoryChanged);
+        bool hasVisibleItems = import->updateCategoryVisibility(m_searchText, &categoryChanged);
 
         *changed |= categoryChanged;
+
+        // expand import if it has an item matching search criteria
+        if (hasVisibleItems && !import->importExpanded())
+            import->setImportExpanded();
+    }
+
+    if (changed) {
+        beginResetModel();
+        endResetModel();
     }
 }
 

@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "languageclient_global.h"
+
 #include <languageserverprotocol/basemessage.h>
 
 #include <QBuffer>
@@ -34,13 +36,13 @@ namespace LanguageClient {
 
 class StdIOSettings;
 
-class BaseClientInterface : public QObject
+class LANGUAGECLIENT_EXPORT BaseClientInterface : public QObject
 {
     Q_OBJECT
 public:
     BaseClientInterface();
 
-    virtual ~BaseClientInterface();
+    ~BaseClientInterface() override;
 
     void sendMessage(const LanguageServerProtocol::BaseMessage &message);
     virtual bool start() { return true; }
@@ -61,23 +63,23 @@ private:
     LanguageServerProtocol::BaseMessage m_currentMessage;
 };
 
-class StdIOClientInterface : public BaseClientInterface
+class LANGUAGECLIENT_EXPORT StdIOClientInterface : public BaseClientInterface
 {
     Q_OBJECT
 public:
-    StdIOClientInterface(const QString &executable, const QString &arguments);
+    StdIOClientInterface();
     ~StdIOClientInterface() override;
 
-    StdIOClientInterface() = delete;
     StdIOClientInterface(const StdIOClientInterface &) = delete;
     StdIOClientInterface(StdIOClientInterface &&) = delete;
     StdIOClientInterface &operator=(const StdIOClientInterface &) = delete;
     StdIOClientInterface &operator=(StdIOClientInterface &&) = delete;
 
-    bool needsRestart(const StdIOSettings *settings) const;
-
     bool start() override;
 
+    // These functions only have an effect if they are called before start
+    void setExecutable(const QString &executable);
+    void setArguments(const QString &arguments);
     void setWorkingDirectory(const QString &workingDirectory);
 
 protected:
@@ -88,9 +90,6 @@ private:
     void readError();
     void readOutput();
     void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
-
-    const QString m_executable;
-    const QString m_arguments;
 };
 
 } // namespace LanguageClient

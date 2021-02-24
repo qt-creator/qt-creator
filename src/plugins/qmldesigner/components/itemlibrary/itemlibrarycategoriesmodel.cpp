@@ -96,6 +96,18 @@ QHash<int, QByteArray> ItemLibraryCategoriesModel::roleNames() const
     return m_roleNames;
 }
 
+void ItemLibraryCategoriesModel::expandCategories(bool expand)
+{
+    int i = 0;
+    for (const auto &category : std::as_const(m_categoryList)) {
+        if (category->categoryExpanded() != expand) {
+            category->setExpanded(expand);
+            emit dataChanged(index(i), index(i), {m_roleNames.key("categoryExpanded")});
+        }
+        ++i;
+    }
+}
+
 void ItemLibraryCategoriesModel::addCategory(ItemLibraryCategory *category)
 {
     m_categoryList.append(category);

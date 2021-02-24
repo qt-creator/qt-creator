@@ -80,25 +80,28 @@ QObject *ItemLibraryImport::categoryModel()
     return &m_categoryModel;
 }
 
+void ItemLibraryImport::expandCategories(bool expand)
+{
+    m_categoryModel.expandCategories(expand);
+}
+
 bool ItemLibraryImport::updateCategoryVisibility(const QString &searchText, bool *changed)
 {
-    bool hasVisibleItems = false;
-
+    bool hasVisibleCategories = false;
     *changed = false;
 
     for (const auto &category : m_categoryModel.categorySections()) {
         bool categoryChanged = false;
-        hasVisibleItems = category->updateItemVisibility(searchText, &categoryChanged);
+        bool hasVisibleItems = category->updateItemVisibility(searchText, &categoryChanged);
         categoryChanged |= category->setVisible(hasVisibleItems);
 
         *changed |= categoryChanged;
-        *changed |= hasVisibleItems;
+
+        if (hasVisibleItems)
+            hasVisibleCategories = true;
     }
 
-    if (*changed)
-        m_categoryModel.resetModel();
-
-    return hasVisibleItems;
+    return hasVisibleCategories;
 }
 
 Import ItemLibraryImport::importEntry() const

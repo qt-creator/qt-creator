@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -51,6 +51,8 @@
     \uicontrol {C++} > \uicontrol {Find References to Symbol Under Cursor} or
     press \key {Ctrl+Shift+U}.
 
+    \image qtcreator-find-references-to-symbol-under-cursor.png "Search results for finding references to symbols"
+
     \note You can also select \uicontrol Edit > \uicontrol {Find/Replace} >
     \uicontrol {Advanced Find} > \uicontrol {C++ Symbols} to search for
     classes, functions, enums, and declarations either from files listed as
@@ -100,6 +102,10 @@
         \li To expand and collapse the list of all instances, click the
             \inlineimage qtcreator-expand.png
             (\uicontrol {Expand All}) button.
+        \li To filter the search results for the usage of symbols according to
+            access type, such as read, write, or declaration, click the
+            \inlineimage filtericon.png
+            (\uicontrol {Filter Tree}) button and select the access type.
         \li To clear the search results, click the
             \inlineimage clean_pane_small.png
             (\uicontrol Clear) button.
@@ -184,7 +190,8 @@
     \section1 Creating Functions
 
     You can apply refactoring actions to implement member functions, insert
-    virtual functions of base classes, and greate getter and setter functions.
+    virtual functions of base classes, create getter and setter functions,
+    and generate constructors.
 
     \section2 Implementing Member Functions
 
@@ -217,6 +224,16 @@
     for member variables or only a getter or setter.
 
     \image qtcreator-refactoring-getters-and-setters.png "Getters and Setters dialog"
+
+    \section2 Generating Constructors
+
+    You can apply the \uicontrol {Generate Constructor} refactoring action to
+    create a public, protected, or private constructor for a class. Select the
+    class members to initialize in the constructor. Drag and drop the parameters
+    to specify their order in the constructor.
+
+    \image qtcreator-refactoring-constructor.png "Constructor dialog"
+
     \endif
 
     \section1 Summary of Refactoring Actions
@@ -668,6 +685,10 @@
             \li Creates either both getter and setter member functions for
                 member variables or only a getter or setter.
             \li Member variable in class definition
+        \row
+            \li Generate Constructor
+            \li Creates a constructor for a class.
+            \li Class definition
         \row
             \li Move Function Definition
             \li Moves a function definition to the implementation file, outside

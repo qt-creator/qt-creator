@@ -177,7 +177,7 @@ void AvdDialog::updateDeviceDefinitionComboBox()
         m_avdDialog.deviceDefinitionTypeComboBox->currentText());
 
     m_avdDialog.deviceDefinitionComboBox->clear();
-    for (const DeviceDefinitionStruct &item : m_deviceDefinitionsList) {
+    for (const DeviceDefinitionStruct &item : qAsConst(m_deviceDefinitionsList)) {
         if (item.deviceType == curDeviceType)
             m_avdDialog.deviceDefinitionComboBox->addItem(item.name_id);
     }
@@ -231,7 +231,7 @@ void AvdDialog::updateApiLevelComboBox()
     });
 
     m_avdDialog.targetApiComboBox->clear();
-    for (SystemImage *image : filteredList) {
+    for (SystemImage *image : qAsConst(filteredList)) {
             QString imageString = "android-" % QString::number(image->apiLevel());
             const QStringList imageSplits = image->sdkStylePath().split(';');
             if (imageSplits.size() == 4)

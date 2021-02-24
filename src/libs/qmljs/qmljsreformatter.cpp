@@ -989,6 +989,21 @@ protected:
                 out("const ");
             }
         }
+        switch (ast->type) {
+        case PatternElement::Literal:
+        case PatternElement::Method:
+        case PatternElement::Binding:
+            break;
+        case PatternElement::Getter:
+            out("get ");
+            break;
+        case PatternElement::Setter:
+            out("set ");
+            break;
+        case PatternElement::SpreadElement:
+            out("...");
+            break;
+        }
         out(ast->identifierToken);
         if (ast->initializer) {
             if (ast->isVariableDeclaration())
@@ -1312,6 +1327,8 @@ protected:
     bool visit(ArgumentList *ast) override
     {
         for (ArgumentList *it = ast; it; it = it->next) {
+            if (it->isSpreadElement)
+                out("...");
             accept(it->expression);
             if (it->next) {
                 out(", ", it->commaToken);

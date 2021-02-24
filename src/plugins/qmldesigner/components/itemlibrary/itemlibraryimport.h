@@ -63,6 +63,7 @@ public:
     void setImportUsed(bool importUsed);
     void sortCategorySections();
     void setImportExpanded(bool expanded = true);
+    void expandCategories(bool expand = true);
 
     static QString userComponentsTitle();
 

@@ -87,7 +87,7 @@ public:
     // basic properties
     Utils::Id id() const { return m_id; }
     void setName(const QString &name) { m_displayName = name; }
-    QString name() const { return m_displayName; }
+    QString name() const;
     void sendContent(const LanguageServerProtocol::IContent &content);
     void cancelRequest(const LanguageServerProtocol::MessageId &id);
 
@@ -134,10 +134,10 @@ public:
     bool documentUpdatePostponed(const Utils::FilePath &fileName) const;
 
     // workspace control
-    void setCurrentProject(ProjectExplorer::Project *project);
+    virtual void setCurrentProject(ProjectExplorer::Project *project);
     const ProjectExplorer::Project *project() const;
-    void projectOpened(ProjectExplorer::Project *project);
-    void projectClosed(ProjectExplorer::Project *project);
+    virtual void projectOpened(ProjectExplorer::Project *project);
+    virtual void projectClosed(ProjectExplorer::Project *project);
 
     // commands
     void requestCodeActions(const LanguageServerProtocol::DocumentUri &uri,

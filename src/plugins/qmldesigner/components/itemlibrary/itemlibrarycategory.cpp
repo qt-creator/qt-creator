@@ -78,6 +78,10 @@ bool ItemLibraryCategory::updateItemVisibility(const QString &searchText, bool *
             hasVisibleItems = true;
     }
 
+    // expand category if it has an item matching search criteria
+    if (hasVisibleItems && !categoryExpanded())
+        setExpanded(true);
+
     return hasVisibleItems;
 }
 
