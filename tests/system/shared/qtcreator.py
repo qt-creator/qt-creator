@@ -66,10 +66,12 @@ def startQC(additionalParameters=None, withPreparedSettingsPath=True, closeLinkT
         appWithOptions.extend(('-platform', 'windows:dialogs=none'))
     test.log("Starting now: %s" % ' '.join(appWithOptions))
     appContext = startApplication(' '.join(appWithOptions))
-    if closeLinkToQt:
-        clickButton(waitForObject(":*Qt Creator.Do Not Show Again_QToolButton"))
-    if cancelTour:
-        clickButton(waitForObject(":*Qt Creator.Do Not Show Again_QToolButton"))
+    if closeLinkToQt or cancelTour:
+        progressBarWait(3000)  # wait for the "Updating documentation" progress bar
+        if closeLinkToQt:
+            clickButton(waitForObject(":*Qt Creator.Do Not Show Again_QToolButton"))
+        if cancelTour:
+            clickButton(waitForObject(":*Qt Creator.Do Not Show Again_QToolButton"))
     return appContext;
 
 def startedWithoutPluginError():
