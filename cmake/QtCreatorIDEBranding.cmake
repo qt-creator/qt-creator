@@ -1,6 +1,6 @@
-set(IDE_VERSION "4.14.1")                             # The IDE version.
+set(IDE_VERSION "4.14.2")                             # The IDE version.
 set(IDE_VERSION_COMPAT "4.14.0")                      # The IDE Compatibility version.
-set(IDE_VERSION_DISPLAY "4.14.1")                     # The IDE display version.
+set(IDE_VERSION_DISPLAY "4.14.2")                     # The IDE display version.
 set(IDE_COPYRIGHT_YEAR "2020")                        # The IDE current copyright year.
 
 set(IDE_SETTINGSVARIANT "QtProject")                  # The IDE settings variation.
