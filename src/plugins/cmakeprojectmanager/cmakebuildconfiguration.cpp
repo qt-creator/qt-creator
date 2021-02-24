@@ -66,14 +66,18 @@
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/variablechooser.h>
 
 #include <QBoxLayout>
 #include <QCheckBox>
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QGridLayout>
 #include <QLoggingCategory>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPlainTextEdit>
 #include <QPushButton>
 #include <QTimer>
 
@@ -112,6 +116,8 @@ private:
 
     bool eventFilter(QObject *target, QEvent *event) override;
 
+    void batchEditConfiguration();
+
     CMakeBuildConfiguration *m_buildConfiguration;
     QTreeView *m_configView;
     ConfigModel *m_configModel;
@@ -130,6 +136,8 @@ private:
     QTimer m_showProgressTimer;
     FancyLineEdit *m_filterEdit;
     InfoLabel *m_warningMessageLabel;
+
+    QPushButton *m_batchEditButton = nullptr;
 };
 
 static QModelIndex mapToSource(const QAbstractItemView *view, const QModelIndex &idx)
@@ -288,6 +296,9 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_clearSelectionButton->setEnabled(false);
     buttonLayout->addWidget(m_clearSelectionButton);
     buttonLayout->addWidget(m_resetButton);
+    m_batchEditButton = new QPushButton(tr("Batch Edit..."));
+    m_batchEditButton->setToolTip(tr("Set or reset multiple values in the CMake Configuration."));
+    buttonLayout->addWidget(m_batchEditButton);
     buttonLayout->addItem(new QSpacerItem(10, 10, QSizePolicy::Fixed, QSizePolicy::Fixed));
     m_showAdvancedCheckBox = new QCheckBox(tr("Advanced"));
     buttonLayout->addWidget(m_showAdvancedCheckBox);
@@ -403,6 +414,8 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         m_configView->setCurrentIndex(idx);
         m_configView->edit(idx);
     });
+    connect(m_batchEditButton, &QAbstractButton::clicked,
+            this, &CMakeBuildSettingsWidget::batchEditConfiguration);
 
     connect(bc, &CMakeBuildConfiguration::errorOccurred, this, &CMakeBuildSettingsWidget::setError);
     connect(bc, &CMakeBuildConfiguration::warningOccurred, this, &CMakeBuildSettingsWidget::setWarning);
@@ -416,6 +429,47 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     });
 
     updateSelection();
+}
+
+
+void CMakeBuildSettingsWidget::batchEditConfiguration()
+{
+    auto dialog = new QDialog(this);
+    dialog->setWindowTitle(tr("Edit CMake Configuration"));
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setModal(true);
+    auto layout = new QVBoxLayout(dialog);
+    auto editor = new QPlainTextEdit(dialog);
+
+    auto label = new QLabel(dialog);
+    label->setText(tr("Enter one CMake variable per line.\n"
+       "To set or change a variable, use -D<variable>:<type>=<value>.\n"
+       "<type> can have one of the following values: FILEPATH, PATH, BOOL, INTERNAL, or STRING.\n"
+       "To unset a variable, use -U<variable>.\n"));
+    editor->setMinimumSize(800, 200);
+
+    auto chooser = new Utils::VariableChooser(dialog);
+    chooser->addSupportedWidget(editor);
+    chooser->addMacroExpanderProvider([this]() { return m_buildConfiguration->macroExpander(); });
+
+    auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
+
+    layout->addWidget(editor);
+    layout->addWidget(label);
+    layout->addWidget(buttons);
+
+    connect(buttons, &QDialogButtonBox::accepted, dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+    connect(dialog, &QDialog::accepted, this, [=]{
+        const CMakeConfig config = CMakeConfigItem::itemsFromArguments(
+                    editor->toPlainText().split('\n', Qt::SkipEmptyParts));
+
+        m_configModel->setBatchEditConfiguration(config);
+    });
+
+    editor->setPlainText(m_buildConfiguration->configurationChangesArguments().join('\n'));
+
+    dialog->show();
 }
 
 void CMakeBuildSettingsWidget::setError(const QString &message)

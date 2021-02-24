@@ -52,7 +52,7 @@ def get_arguments():
     parser = argparse.ArgumentParser(description='Build Qt Creator for packaging')
     parser.add_argument('--src', help='path to sources', required=True)
     parser.add_argument('--build', help='path that should be used for building', required=True)
-    parser.add_argument('--qt-path', help='Path to Qt', required=True)
+    parser.add_argument('--qt-path', help='Path to Qt')
 
     parser.add_argument('--build-type', help='Build type to pass to CMake (defaults to RelWithDebInfo)',
                         default='RelWithDebInfo')
@@ -79,6 +79,9 @@ def get_arguments():
     parser.add_argument('--python3', help='File path to python3 executable for generating translations',
                         default=default_python3())
 
+    parser.add_argument('--no-qtcreator',
+                        help='Skip Qt Creator build (only build separate tools)',
+                        action='store_true', default=False)
     parser.add_argument('--no-cdb',
                         help='Skip cdbextension and the python dependency packaging step (Windows)',
                         action='store_true', default=(not common.is_windows_platform()))
@@ -105,6 +108,9 @@ def get_arguments():
                         default='')
     args = parser.parse_args()
     args.with_debug_info = args.build_type == 'RelWithDebInfo'
+
+    if not args.qt_path and not args.no_qtcreator:
+        parser.error("argument --qt-path is required if --no-qtcreator is not given")
     return args
 
 def common_cmake_arguments(args):
@@ -136,6 +142,8 @@ def common_cmake_arguments(args):
     return cmake_args
 
 def build_qtcreator(args, paths):
+    if args.no_qtcreator:
+        return
     if not os.path.exists(paths.build):
         os.makedirs(paths.build)
     prefix_paths = [os.path.abspath(fp) for fp in args.prefix_paths] + [paths.qt]
@@ -235,19 +243,20 @@ def build_qtcreatorcdbext(args, paths):
 
 def package_qtcreator(args, paths):
     if not args.no_zip:
-        common.check_print_call(['7z', 'a', '-mmt2',
-                                 os.path.join(paths.result, 'qtcreator' + args.zip_infix + '.7z'),
-                                 '*'],
-                                paths.install)
-        common.check_print_call(['7z', 'a', '-mmt2',
-                                 os.path.join(paths.result, 'qtcreator' + args.zip_infix + '_dev.7z'),
-                                 '*'],
-                                paths.dev_install)
-        if args.with_debug_info:
+        if not args.no_qtcreator:
             common.check_print_call(['7z', 'a', '-mmt2',
-                                     os.path.join(paths.result, 'qtcreator' + args.zip_infix + '-debug.7z'),
+                                     os.path.join(paths.result, 'qtcreator' + args.zip_infix + '.7z'),
                                      '*'],
-                                    paths.debug_install)
+                                    paths.install)
+            common.check_print_call(['7z', 'a', '-mmt2',
+                                     os.path.join(paths.result, 'qtcreator' + args.zip_infix + '_dev.7z'),
+                                     '*'],
+                                    paths.dev_install)
+            if args.with_debug_info:
+                common.check_print_call(['7z', 'a', '-mmt2',
+                                         os.path.join(paths.result, 'qtcreator' + args.zip_infix + '-debug.7z'),
+                                         '*'],
+                                        paths.debug_install)
         if common.is_windows_platform():
             common.check_print_call(['7z', 'a', '-mmt2',
                                      os.path.join(paths.result, 'wininterrupt' + args.zip_infix + '.7z'),
@@ -259,17 +268,16 @@ def package_qtcreator(args, paths):
                                          '*'],
                                         paths.qtcreatorcdbext_install)
 
-    if common.is_mac_platform():
+    if common.is_mac_platform() and not args.no_dmg and not args.no_qtcreator:
         if args.keychain_unlock_script:
             common.check_print_call([args.keychain_unlock_script], paths.install)
-        if not args.no_dmg:
-            common.check_print_call(['python', '-u',
-                                     os.path.join(paths.src, 'scripts', 'makedmg.py'),
-                                     'qt-creator' + args.zip_infix + '.dmg',
-                                     'Qt Creator',
-                                     paths.src,
-                                     paths.install],
-                                    paths.result)
+        common.check_print_call(['python', '-u',
+                                 os.path.join(paths.src, 'scripts', 'makedmg.py'),
+                                 'qt-creator' + args.zip_infix + '.dmg',
+                                 'Qt Creator',
+                                 paths.src,
+                                 paths.install],
+                                paths.result)
 
 def get_paths(args):
     Paths = collections.namedtuple('Paths',
@@ -279,7 +287,8 @@ def get_paths(args):
                                     'elfutils', 'llvm'])
     build_path = os.path.abspath(args.build)
     install_path = os.path.join(build_path, 'install')
-    return Paths(qt=os.path.abspath(args.qt_path),
+    qt_path = os.path.abspath(args.qt_path) if args.qt_path else None
+    return Paths(qt=qt_path,
                  src=os.path.abspath(args.src),
                  build=os.path.join(build_path, 'build'),
                  wininterrupt_build=os.path.join(build_path, 'build-wininterrupt'),

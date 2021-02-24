@@ -44,8 +44,45 @@ public:
         ItemIsAdvancedRole = Qt::UserRole,
     };
 
-    class DataItem {
-    public:
+    struct DataItem {
+        bool operator == (const DataItem& other) const {
+            return key == other.key;
+        }
+
+        DataItem() {}
+        DataItem(const CMakeConfigItem &cmi) {
+            key = QString::fromUtf8(cmi.key);
+            value = QString::fromUtf8(cmi.value);
+            description = QString::fromUtf8(cmi.documentation);
+            values = cmi.values;
+            inCMakeCache = cmi.inCMakeCache;
+
+            isAdvanced = cmi.isAdvanced;
+            isHidden = cmi.type == CMakeConfigItem::INTERNAL || cmi.type == CMakeConfigItem::STATIC;
+
+            setType(cmi.type);
+        }
+
+        void setType(CMakeConfigItem::Type cmt) {
+            switch (cmt) {
+            case CMakeConfigItem::FILEPATH:
+                type = FILE;
+                break;
+            case CMakeConfigItem::PATH:
+                type = DIRECTORY;
+                break;
+            case CMakeConfigItem::BOOL:
+                type = BOOLEAN;
+                break;
+            case CMakeConfigItem::STRING:
+                type = STRING;
+                break;
+            default:
+                type = UNKNOWN;
+                break;
+            }
+        }
+
         enum Type { BOOLEAN, FILE, DIRECTORY, STRING, UNKNOWN};
 
         QString key;
@@ -70,6 +107,7 @@ public:
                              const QString &description = QString(),
                              const QStringList &values = QStringList());
     void setConfiguration(const CMakeConfig &config);
+    void setBatchEditConfiguration(const CMakeConfig &config);
     void setConfiguration(const QList<DataItem> &config);
     void setConfigurationFromKit(const QHash<QString, QString> &kitConfig);
 
