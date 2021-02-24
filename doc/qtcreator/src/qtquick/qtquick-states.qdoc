@@ -89,9 +89,10 @@
 
     \image qmldesigner-states.png "States and Properties views"
 
-    \note If you have \l{Locking Items}{locked an item} in \uicontrol Navigator,
-    and you attempt to remove states where you change the values of its
-    properties, you are prompted to confirm the removal.
+    \note If you have \l{Locking Components}{locked a component} in
+    \uicontrol Navigator, and you attempt to remove states where you
+    change the values of its properties, you are prompted to confirm
+    the removal.
 
     For more information, watch the following video:
 

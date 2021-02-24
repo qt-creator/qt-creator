@@ -369,23 +369,6 @@ void SubComponentManager::parseQuick3DAssetDir(const QString &assetPath)
     for (QString &asset : assets)
         asset.prepend(assetImportRoot + QLatin1Char('.'));
 
-    QStringList newFlowTags;
-    const QStringList flowTags = model()->metaInfo().itemLibraryInfo()->showTagsForImports();
-    const QString quick3Dlib = QLatin1String(Constants::QT_QUICK_3D_MODULE_NAME);
-    const QList<Import> possibleImports = model()->possibleImports();
-
-    auto isPossibleImport = [&possibleImports](const QString &asset) {
-        for (const Import &import : possibleImports) {
-            if (import.url() == asset)
-                return true;
-        }
-        return false;
-    };
-
-    // If there are 3D assets in import path, add a flow tag for QtQuick3D
-    if (!assets.isEmpty() && !flowTags.contains(quick3Dlib) && isPossibleImport(quick3Dlib))
-        newFlowTags << quick3Dlib;
-
     // Create item library entries for Quick3D assets that are imported by document
     const QString iconPath = QStringLiteral(":/ItemLibrary/images/item-3D_model-icon.png");
     for (auto &import : qAsConst(m_imports)) {
@@ -427,17 +410,6 @@ void SubComponentManager::parseQuick3DAssetDir(const QString &assetPath)
             }
         }
     }
-
-    // Create flow tags for the rest, if they are possible imports
-    if (!assets.isEmpty()) {
-        for (const QString &asset : qAsConst(assets)) {
-            if (!flowTags.contains(asset) && isPossibleImport(asset))
-                newFlowTags << asset;
-        }
-    }
-
-    if (!newFlowTags.isEmpty())
-        model()->metaInfo().itemLibraryInfo()->addShowTagsForImports(newFlowTags);
 }
 
 QStringList SubComponentManager::quick3DAssetPaths() const

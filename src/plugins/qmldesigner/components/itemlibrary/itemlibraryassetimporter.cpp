@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 #include "itemlibraryassetimporter.h"
+#include "assetimportupdatedialog.h"
 #include "qmldesignerplugin.h"
 #include "qmldesignerconstants.h"
 
@@ -41,6 +42,7 @@
 #include <QApplication>
 #include <QMessageBox>
 #include <QJsonDocument>
+#include <QPushButton>
 
 namespace
 {
@@ -262,11 +264,43 @@ bool ItemLibraryAssetImporter::preParseQuick3DAsset(const QString &file, ParseDa
             pd.assetName = assetDirs[0];
             pd.targetDirPath = pd.targetDir.filePath(pd.assetName);
         }
-        if (!confirmAssetOverwrite(pd.assetName)) {
+        OverwriteResult result = confirmAssetOverwrite(pd.assetName);
+        if (result == OverwriteResult::Skip) {
             addWarning(tr("Skipped import of existing asset: \"%1\"").arg(pd.assetName));
             return false;
+        } else if (result == OverwriteResult::Update) {
+            // Add generated icons and existing source asset file, as those will always need
+            // to be overwritten
+            QSet<QString> alwaysOverwrite;
+            QString iconPath = pd.targetDirPath + '/' + Constants::QUICK_3D_ASSET_ICON_DIR;
+            // Note: Despite the name, QUICK_3D_ASSET_LIBRARY_ICON_SUFFIX is not a traditional file
+            // suffix. It's guaranteed to be in the generated icon filename, though.
+            QStringList filters {QStringLiteral("*%1*").arg(Constants::QUICK_3D_ASSET_LIBRARY_ICON_SUFFIX)};
+            QDirIterator iconIt(iconPath, filters, QDir::Files);
+            while (iconIt.hasNext()) {
+                iconIt.next();
+                alwaysOverwrite.insert(iconIt.fileInfo().absoluteFilePath());
+            }
+            alwaysOverwrite.insert(sourceSceneTargetFilePath(pd));
+
+            Internal::AssetImportUpdateDialog dlg {pd.targetDirPath, {}, alwaysOverwrite,
+                                                   qobject_cast<QWidget *>(parent())};
+            int exitVal = dlg.exec();
+
+            QStringList overwriteFiles;
+            if (exitVal == QDialog::Accepted)
+                overwriteFiles = dlg.selectedFiles();
+            if (!overwriteFiles.isEmpty()) {
+                overwriteFiles.append(QStringList::fromSet(alwaysOverwrite));
+                m_overwrittenImports.insert(pd.targetDirPath, overwriteFiles);
+            } else {
+                addWarning(tr("No files selected for overwrite, skipping import: \"%1\"").arg(pd.assetName));
+                return false;
+            }
+
+        } else {
+            m_overwrittenImports.insert(pd.targetDirPath, {});
         }
-        m_overwrittenImports << pd.targetDirPath;
     }
 
     pd.outDir.mkpath(pd.assetName);
@@ -395,8 +429,7 @@ void ItemLibraryAssetImporter::postParseQuick3DAsset(const ParseData &pd)
     }
 
     // Copy the original asset into a subdirectory
-    assetFiles.insert(pd.sourceInfo.absoluteFilePath(),
-                      pd.targetDirPath + QStringLiteral("/source scene/") + pd.sourceInfo.fileName());
+    assetFiles.insert(pd.sourceInfo.absoluteFilePath(), sourceSceneTargetFilePath(pd));
     m_importFiles.insert(assetFiles);
 }
 
@@ -408,11 +441,22 @@ void ItemLibraryAssetImporter::copyImportedFiles()
         notifyProgress(0, progressTitle);
 
         int counter = 0;
-        for (const QString &dirPath : qAsConst(m_overwrittenImports)) {
-            QDir dir(dirPath);
-            if (dir.exists())
-                dir.removeRecursively();
+        auto it = m_overwrittenImports.constBegin();
+        while (it != m_overwrittenImports.constEnd()) {
+            QDir dir(it.key());
+            if (dir.exists()) {
+                const auto &overwrittenFiles = it.value();
+                if (overwrittenFiles.isEmpty()) {
+                    // Overwrite entire import
+                    dir.removeRecursively();
+                } else {
+                    // Overwrite just selected files
+                    for (const auto &fileName : overwrittenFiles)
+                        QFile::remove(fileName);
+                }
+            }
             notifyProgress((100 * ++counter) / m_overwrittenImports.size(), progressTitle);
+            ++it;
         }
     }
 
@@ -430,7 +474,7 @@ void ItemLibraryAssetImporter::copyImportedFiles()
             // by filesystem watchers.
             QHash<QString, QString>::const_iterator it = assetFiles.begin();
             while (it != assetFiles.end()) {
-                if (QFileInfo::exists(it.key())) {
+                if (QFileInfo::exists(it.key()) && !QFileInfo::exists(it.value())) {
                     QDir targetDir = QFileInfo(it.value()).dir();
                     if (!targetDir.exists())
                         targetDir.mkpath(".");
@@ -461,13 +505,26 @@ void ItemLibraryAssetImporter::keepUiAlive() const
     QApplication::processEvents();
 }
 
-bool ItemLibraryAssetImporter::confirmAssetOverwrite(const QString &assetName)
+ItemLibraryAssetImporter::OverwriteResult ItemLibraryAssetImporter::confirmAssetOverwrite(const QString &assetName)
 {
     const QString title = tr("Overwrite Existing Asset?");
-    const QString question = tr("Asset already exists. Overwrite?\n\"%1\"").arg(assetName);
-    return QMessageBox::question(qobject_cast<QWidget *>(parent()),
-                                 title, question,
-                                 QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes;
+    const QString question = tr("Asset already exists. Overwrite existing or skip?\n\"%1\"").arg(assetName);
+
+    QMessageBox msgBox {QMessageBox::Question, title, question, QMessageBox::NoButton,
+                        qobject_cast<QWidget *>(parent())};
+    QPushButton *updateButton = msgBox.addButton(tr("Overwrite Selected Files"), QMessageBox::NoRole);
+    QPushButton *overwriteButton = msgBox.addButton(tr("Overwrite All Files"), QMessageBox::NoRole);
+    QPushButton *skipButton = msgBox.addButton(tr("Skip"), QMessageBox::NoRole);
+    msgBox.setDefaultButton(overwriteButton);
+    msgBox.setEscapeButton(skipButton);
+
+    msgBox.exec();
+
+    if (msgBox.clickedButton() == updateButton)
+        return OverwriteResult::Update;
+    else if (msgBox.clickedButton() == overwriteButton)
+        return OverwriteResult::Overwrite;
+    return OverwriteResult::Skip;
 }
 
 bool ItemLibraryAssetImporter::startImportProcess(const ParseData &pd)
@@ -621,6 +678,11 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
             notifyFinished();
         }
     }
+}
+
+QString ItemLibraryAssetImporter::sourceSceneTargetFilePath(const ParseData &pd)
+{
+    return pd.targetDirPath + QStringLiteral("/source scene/") + pd.sourceInfo.fileName();
 }
 
 bool ItemLibraryAssetImporter::isCancelled() const

@@ -108,14 +108,11 @@ public:
     void clearEntries();
 
     QStringList blacklistImports() const;
-    QStringList showTagsForImports() const;
 
     void addBlacklistImports(const QStringList &list);
-    void addShowTagsForImports(const QStringList &list);
 
 signals:
     void entriesChanged();
-    void importTagsChanged();
 
 private: // functions
     ItemLibraryInfo(QObject *parent = nullptr);
@@ -126,7 +123,6 @@ private: // variables
     QPointer<ItemLibraryInfo> m_baseInfo;
 
     QStringList m_blacklistImports;
-    QStringList m_showTagsForImports;
 };
 
 } // namespace QmlDesigner

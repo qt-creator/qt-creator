@@ -87,7 +87,7 @@ public:
     void setModel(Model *model);
     void setFlowMode(bool b);
 
-    Q_INVOKABLE void startDragAndDrop(QQuickItem *mouseArea, QVariant itemLibId);
+    Q_INVOKABLE void startDragAndDrop(const QVariant &itemLibEntry);
     Q_INVOKABLE void removeImport(const QString &importUrl);
 
 signals:
@@ -123,7 +123,7 @@ private:
     QShortcut *m_qmlSourceUpdateShortcut;
     AsynchronousImageCache &m_imageCache;
     QPointer<Model> m_model;
-    ItemLibraryEntry m_currentitemLibraryEntry;
+    QVariant m_itemToDrag;
     bool m_updateRetry = false;
     QString m_filterText;
 

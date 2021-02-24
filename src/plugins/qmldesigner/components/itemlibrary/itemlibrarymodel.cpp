@@ -30,12 +30,13 @@
 #include "itemlibraryitem.h"
 #include "itemlibraryinfo.h"
 
+#include <designermcumanager.h>
 #include <model.h>
 #include <nodehints.h>
 #include <nodemetainfo.h>
-
-#include <designermcumanager.h>
-
+#include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
+#include "qmldesignerplugin.h"
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -184,9 +185,13 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
     beginResetModel();
     clearSections();
 
+    Utils::FilePath qmlFileName = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName();
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(qmlFileName);
+    QString projectName = project ? project->displayName() : "";
+
     // create import sections
     for (const Import &import : model->imports()) {
-        if (import.isLibraryImport()) {
+        if (import.isLibraryImport() && import.url() != projectName) {
             ItemLibraryImport *itemLibImport = new ItemLibraryImport(import, this);
             m_importList.append(itemLibImport);
             itemLibImport->setImportExpanded(loadExpandedState(import.url()));

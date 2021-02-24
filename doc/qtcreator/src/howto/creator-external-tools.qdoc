@@ -163,8 +163,10 @@
             To globally change the system environment from the one in which
             \QC is started, select \uicontrol Tools > \uicontrol Options >
             \uicontrol Environment > \uicontrol System, and then select
-            \uicontrol Change in the \uicontrol Environment field. For more
-            information, see \l{Specifying Environment Settings}.
+            \uicontrol Change in the \uicontrol Environment field.
+            \if defined(qtcreator)
+            For more information, see \l{Specifying Environment Settings}.
+            \endif
 
         \li Select the \uicontrol {Modifies current document} check box to make sure
             that if the current document is modified by the tool, it is saved

@@ -231,7 +231,7 @@ void MetaInfoReader::readImportsProperty(const QString &name, const QVariant &va
     if (name == "blacklistImports" && !values.isEmpty()) {
         m_metaInfo.itemLibraryInfo()->addBlacklistImports(values);
     } else if (name == "showTagsForImports" && !values.isEmpty()) {
-        m_metaInfo.itemLibraryInfo()->addShowTagsForImports(values);
+        // Flow tags removed, but keeping this for now to avoid errors parsing old metadata files
     } else {
         addError(tr("Unknown property for Imports %1").arg(name), currentSourceLocation());
         setParserState(Error);

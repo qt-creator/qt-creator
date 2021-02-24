@@ -300,6 +300,12 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/itemlibrary
   SOURCES
+    assetimportupdatedialog.cpp assetimportupdatedialog.h
+    assetimportupdatedialog.ui
+    assetimportupdatetreeitem.cpp assetimportupdatetreeitem.h
+    assetimportupdatetreeitemdelegate.cpp assetimportupdatetreeitemdelegate.h
+    assetimportupdatetreemodel.cpp assetimportupdatetreemodel.h
+    assetimportupdatetreeview.cpp assetimportupdatetreeview.h
     customfilesystemmodel.cpp customfilesystemmodel.h
     itemlibrary.qrc
     itemlibraryimageprovider.cpp itemlibraryimageprovider.h

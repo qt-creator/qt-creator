@@ -307,7 +307,7 @@ QmlDesigner_ScrollBarHandleColor=ff595b5c
 
 ;palette colors
 
-;outline colors on the combo box, zoom slider, flowtag button, dialog outlines, on loading project the whole screen flashes this color
+;outline colors on the combo box, zoom slider, dialog outlines, on loading project the whole screen flashes this color
 ;PaletteWindow=normalBackground
 PaletteWindow=ff262626
 
@@ -347,7 +347,7 @@ PaletteText=text
 
 
 
-;text for flowtags, import dropdown, ticks for tick boxes.
+; text for ticks for tick boxes.
 PaletteButtonText=text
 ;PaletteButtonText=ffd3299a
 

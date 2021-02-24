@@ -242,7 +242,7 @@ bool DocumentOnTypeFormattingParams::isValid(ErrorHierarchy *error) const
 }
 
 DocumentOnTypeFormattingRequest::DocumentOnTypeFormattingRequest(
-        const DocumentFormattingParams &params)
+        const DocumentOnTypeFormattingParams &params)
     : Request(methodName, params)
 { }
 
