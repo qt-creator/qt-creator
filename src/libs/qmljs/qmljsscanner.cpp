@@ -25,6 +25,8 @@
 
 #include <qmljs/qmljsscanner.h>
 
+#include <QDebug>
+
 #include <algorithm>
 
 using namespace QmlJS;
