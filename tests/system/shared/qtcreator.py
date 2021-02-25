@@ -54,6 +54,14 @@ source("../../shared/clang.py")
 source("../../shared/welcome.py")
 source("../../shared/workarounds.py") # include this at last
 
+
+def __closeInfoBarEntry__(leftButtonText):
+    toolButton = ("text='%s' type='QToolButton' unnamed='1' visible='1' "
+                  "window=':Qt Creator_Core::Internal::MainWindow'")
+    doNotShowAgain = toolButton % "Do Not Show Again"
+    leftWidget = "leftWidget={%s}" % (toolButton % leftButtonText)
+    clickButton(waitForObject("{%s %s}" % (doNotShowAgain, leftWidget)))
+
 # additionalParameters must be a list or tuple of strings or None
 def startQC(additionalParameters=None, withPreparedSettingsPath=True, closeLinkToQt=True, cancelTour=True):
     global SettingsPath
@@ -69,9 +77,9 @@ def startQC(additionalParameters=None, withPreparedSettingsPath=True, closeLinkT
     if closeLinkToQt or cancelTour:
         progressBarWait(3000)  # wait for the "Updating documentation" progress bar
         if closeLinkToQt:
-            clickButton(waitForObject(":*Qt Creator.Do Not Show Again_QToolButton"))
+            __closeInfoBarEntry__("Link with Qt")
         if cancelTour:
-            clickButton(waitForObject(":*Qt Creator.Do Not Show Again_QToolButton"))
+            __closeInfoBarEntry__("Take UI Tour")
     return appContext;
 
 def startedWithoutPluginError():
