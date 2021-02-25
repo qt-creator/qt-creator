@@ -155,6 +155,8 @@ OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget 
 
     connect(verticalScrollBar(), &QAbstractSlider::sliderMoved,
             this, &OutputWindow::updateAutoScroll);
+    connect(verticalScrollBar(), &QAbstractSlider::sliderReleased,
+            this, &OutputWindow::updateAutoScroll);
 
     undoAction->setEnabled(false);
     redoAction->setEnabled(false);
@@ -449,7 +451,7 @@ void OutputWindow::handleOutputChunk(const QString &output, OutputFormat format)
 
 void OutputWindow::updateAutoScroll()
 {
-    d->scrollToBottom = isScrollbarAtBottom();
+    d->scrollToBottom = verticalScrollBar()->value() >= verticalScrollBar()->maximum() - 1;
 }
 
 void OutputWindow::setMaxCharCount(int count)
@@ -471,11 +473,6 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
         d->queuedOutput.last().first.append(output);
     if (!d->queueTimer.isActive())
         d->queueTimer.start();
-}
-
-bool OutputWindow::isScrollbarAtBottom() const
-{
-    return verticalScrollBar()->value() == verticalScrollBar()->maximum();
 }
 
 QMimeData *OutputWindow::createMimeDataFromSelection() const
