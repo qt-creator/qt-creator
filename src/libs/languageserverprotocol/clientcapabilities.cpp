@@ -47,4 +47,58 @@ WorkspaceClientCapabilities::WorkspaceClientCapabilities()
     setWorkspaceFolders(true);
 }
 
+Utils::optional<Utils::variant<bool, QJsonObject>> SemanticTokensClientCapabilities::Requests::range()
+    const
+{
+    using RetType = Utils::variant<bool, QJsonObject>;
+    const QJsonValue &rangeOptions = value(rangeKey);
+    if (rangeOptions.isBool())
+        return RetType(rangeOptions.toBool());
+    if (rangeOptions.isObject())
+        return RetType(rangeOptions.toObject());
+    return Utils::nullopt;
+}
+
+void SemanticTokensClientCapabilities::Requests::setRange(
+    const Utils::variant<bool, QJsonObject> &range)
+{
+    insertVariant<bool, QJsonObject>(rangeKey, range);
+}
+
+Utils::optional<Utils::variant<bool, FullSemanticTokenOptions>>
+SemanticTokensClientCapabilities::Requests::full() const
+{
+    using RetType = Utils::variant<bool, FullSemanticTokenOptions>;
+    const QJsonValue &fullOptions = value(fullKey);
+    if (fullOptions.isBool())
+        return RetType(fullOptions.toBool());
+    if (fullOptions.isObject())
+        return RetType(FullSemanticTokenOptions(fullOptions.toObject()));
+    return Utils::nullopt;
+}
+
+void SemanticTokensClientCapabilities::Requests::setFull(
+    const Utils::variant<bool, FullSemanticTokenOptions> &full)
+{
+    insertVariant<bool, FullSemanticTokenOptions>(fullKey, full);
+}
+
+Utils::optional<SemanticTokensClientCapabilities> TextDocumentClientCapabilities::semanticTokens()
+    const
+{
+    return optionalValue<SemanticTokensClientCapabilities>(semanticTokensKey);
+}
+
+void TextDocumentClientCapabilities::setSemanticTokens(
+    const SemanticTokensClientCapabilities &semanticTokens)
+{
+    insert(semanticTokensKey, semanticTokens);
+}
+
+bool SemanticTokensClientCapabilities::isValid() const
+{
+    return contains(requestsKey) && contains(tokenTypesKey) && contains(tokenModifiersKey)
+           && contains(formatsKey);
+}
+
 } // namespace LanguageServerProtocol

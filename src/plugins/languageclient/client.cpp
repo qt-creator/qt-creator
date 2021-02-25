@@ -81,6 +81,7 @@ Client::Client(BaseClientInterface *clientInterface)
     , m_documentSymbolCache(this)
     , m_hoverHandler(this)
     , m_symbolSupport(this)
+    , m_tokentSupport(this)
 {
     m_clientProviders.completionAssistProvider = new LanguageClientCompletionAssistProvider(this);
     m_clientProviders.functionHintProvider = new FunctionHintAssistProvider(this);
@@ -100,6 +101,9 @@ Client::Client(BaseClientInterface *clientInterface)
             &TextEditor::TextEditorSettings::fontSettingsChanged,
             this,
             &Client::rehighlight);
+
+    m_tokentSupport.setTokenTypesMap(SemanticTokens::defaultTokenTypesMap());
+    m_tokentSupport.setTokenModifiersMap(SemanticTokens::defaultTokenModifiersMap());
 }
 
 QString Client::name() const
@@ -160,6 +164,7 @@ static ClientCapabilities generateClientCapabilities()
     allowDynamicRegistration.setDynamicRegistration(true);
     workspaceCapabilities.setDidChangeConfiguration(allowDynamicRegistration);
     workspaceCapabilities.setExecuteCommand(allowDynamicRegistration);
+    workspaceCapabilities.setConfiguration(true);
     capabilities.setWorkspace(workspaceCapabilities);
 
     TextDocumentClientCapabilities documentCapabilities;
@@ -248,6 +253,29 @@ static ClientCapabilities generateClientCapabilities()
     documentCapabilities.setFormatting(allowDynamicRegistration);
     documentCapabilities.setRangeFormatting(allowDynamicRegistration);
     documentCapabilities.setOnTypeFormatting(allowDynamicRegistration);
+    SemanticTokensClientCapabilities tokens;
+    tokens.setDynamicRegistration(true);
+    FullSemanticTokenOptions tokenOptions;
+    tokenOptions.setDelta(true);
+    SemanticTokensClientCapabilities::Requests tokenRequests;
+    tokenRequests.setFull(tokenOptions);
+    tokens.setRequests(tokenRequests);
+    tokens.setTokenTypes({"type",
+                          "class",
+                          "enumMember",
+                          "typeParameter",
+                          "parameter",
+                          "variable",
+                          "function",
+                          "macro",
+                          "keyword",
+                          "comment",
+                          "string",
+                          "number",
+                          "operator"});
+    tokens.setTokenModifiers({"declaration", "definition"});
+    tokens.setFormats({"relative"});
+    documentCapabilities.setSemanticTokens(tokens);
     capabilities.setTextDocument(documentCapabilities);
 
     WindowClientClientCapabilities window;
@@ -312,6 +340,7 @@ void Client::openDocument(TextEditor::TextDocument *document)
         return;
 
     m_openedDocument[document] = document->plainText();
+
     if (m_state != Initialized)
         return;
 
@@ -506,6 +535,7 @@ void Client::activateDocument(TextEditor::TextDocument *document)
     auto uri = DocumentUri::fromFilePath(document->filePath());
     m_diagnosticManager.showDiagnostics(uri);
     SemanticHighligtingSupport::applyHighlight(document, m_highlights.value(uri), capabilities());
+    m_tokentSupport.updateSemanticTokens(document);
     // only replace the assist provider if the language server support it
     updateCompletionProvider(document);
     updateFunctionHintProvider(document);
@@ -678,6 +708,13 @@ void Client::registerCapabilities(const QList<Registration> &registrations)
             for (auto document : m_openedDocument.keys())
                 updateFunctionHintProvider(document);
         }
+        if (registration.method() == "textDocument/semanticTokens") {
+            SemanticTokensOptions options(registration.registerOptions());
+            if (options.isValid())
+                m_tokentSupport.setLegend(options.legend());
+            for (auto document : m_openedDocument.keys())
+                m_tokentSupport.updateSemanticTokens(document);
+        }
     }
     emit capabilitiesChanged(m_dynamicCapabilities);
 }
@@ -693,6 +730,10 @@ void Client::unregisterCapabilities(const QList<Unregistration> &unregistrations
         if (unregistration.method() == SignatureHelpRequest::methodName) {
             for (auto document : m_openedDocument.keys())
                 updateFunctionHintProvider(document);
+        }
+        if (unregistration.method() == "textDocument/semanticTokens") {
+            for (auto document : m_openedDocument.keys())
+                m_tokentSupport.updateSemanticTokens(document);
         }
     }
     emit capabilitiesChanged(m_dynamicCapabilities);
@@ -1087,6 +1128,8 @@ void Client::sendPostponedDocumentUpdates()
 
         if (currentWidget && currentWidget->textDocument() == update.document)
             cursorPositionChanged(currentWidget);
+
+        m_tokentSupport.updateSemanticTokens(update.document);
     }
 }
 
@@ -1304,6 +1347,10 @@ void Client::initializeCallback(const InitializeRequest::Response &initResponse)
                 .value_or(ServerCapabilities::SignatureHelpOptions())
                 .triggerCharacters());
     }
+    auto tokenProvider = m_serverCapabilities.semanticTokensProvider().value_or(
+        SemanticTokensOptions());
+    if (tokenProvider.isValid())
+        m_tokentSupport.setLegend(tokenProvider.legend());
 
     qCDebug(LOGLSPCLIENT) << "language server " << m_displayName << " initialized";
     m_state = Initialized;

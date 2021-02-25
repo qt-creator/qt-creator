@@ -26,6 +26,7 @@
 #pragma once
 
 #include "lsptypes.h"
+#include "semantictokens.h"
 
 namespace LanguageServerProtocol {
 
@@ -131,6 +132,49 @@ public:
     { insertArray(codeActionKindsKey, codeActionKinds); }
 
     bool isValid() const override;
+};
+
+enum class SemanticRequestType {
+    None = 0x0,
+    Full = 0x1,
+    FullDelta = 0x2,
+    Range = 0x4
+};
+Q_DECLARE_FLAGS(SemanticRequestTypes, SemanticRequestType)
+
+class LANGUAGESERVERPROTOCOL_EXPORT SemanticTokensOptions : public WorkDoneProgressOptions
+{
+public:
+    using WorkDoneProgressOptions::WorkDoneProgressOptions;
+
+    /// The legend used by the server
+    SemanticTokensLegend legend() const { return typedValue<SemanticTokensLegend>(legendKey); }
+    void setLegend(const SemanticTokensLegend &legend) { insert(legendKey, legend); }
+
+    /// Server supports providing semantic tokens for a specific range of a document.
+    Utils::optional<Utils::variant<bool, QJsonObject>> range() const;
+    void setRange(const Utils::variant<bool, QJsonObject> &range);
+    void clearRange() { remove(rangeKey); }
+
+    class FullSemanticTokenOptions : public JsonObject
+    {
+    public:
+        using JsonObject::JsonObject;
+
+        /// The server supports deltas for full documents.
+        Utils::optional<bool> delta() const { return optionalValue<bool>(deltaKey); }
+        void setDelta(bool delta) { insert(deltaKey, delta); }
+        void clearDelta() { remove(deltaKey); }
+    };
+
+    /// Server supports providing semantic tokens for a full document.
+    Utils::optional<Utils::variant<bool, FullSemanticTokenOptions>> full() const;
+    void setFull(const Utils::variant<bool, FullSemanticTokenOptions> &full);
+    void clearFull() { remove(fullKey); }
+
+    bool isValid() const override { return contains(legendKey); }
+
+    SemanticRequestTypes supportedRequests() const;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ServerCapabilities : public JsonObject
@@ -312,6 +356,10 @@ public:
     Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> documentSymbolProvider() const;
     void setDocumentSymbolProvider(Utils::variant<bool, WorkDoneProgressOptions> documentSymbolProvider);
     void clearDocumentSymbolProvider() { remove(documentSymbolProviderKey); }
+
+    Utils::optional<SemanticTokensOptions> semanticTokensProvider() const;
+    void setSemanticTokensProvider(const SemanticTokensOptions &semanticTokensProvider);
+    void clearSemanticTokensProvider() { remove(semanticTokensProviderKey); }
 
     // The server provides workspace symbol support.
     Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> workspaceSymbolProvider() const;

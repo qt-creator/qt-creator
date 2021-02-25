@@ -27,6 +27,7 @@
 
 #include "jsonkeys.h"
 #include "lsptypes.h"
+#include "semantictokens.h"
 
 namespace LanguageServerProtocol {
 
@@ -38,6 +39,84 @@ public:
     Utils::optional<bool> dynamicRegistration() const { return optionalValue<bool>(dynamicRegistrationKey); }
     void setDynamicRegistration(bool dynamicRegistration) { insert(dynamicRegistrationKey, dynamicRegistration); }
     void clearDynamicRegistration() { remove(dynamicRegistrationKey); }
+};
+
+class LANGUAGESERVERPROTOCOL_EXPORT FullSemanticTokenOptions : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+
+    /**
+      * The client will send the `textDocument/semanticTokens/full/delta`
+      * request if the server provides a corresponding handler.
+      */
+    Utils::optional<bool> delta() const { return optionalValue<bool>(deltaKey); }
+    void setDelta(bool delta) { insert(deltaKey, delta); }
+    void clearDelta() { remove(deltaKey); }
+};
+
+class LANGUAGESERVERPROTOCOL_EXPORT SemanticTokensClientCapabilities : public DynamicRegistrationCapabilities
+{
+public:
+    using DynamicRegistrationCapabilities::DynamicRegistrationCapabilities;
+    class LANGUAGESERVERPROTOCOL_EXPORT Requests : public JsonObject
+    {
+        /**
+         * Which requests the client supports and might send to the server
+         * depending on the server's capability. Please note that clients might not
+         * show semantic tokens or degrade some of the user experience if a range
+         * or full request is advertised by the client but not provided by the
+         * server. If for example the client capability `requests.full` and
+         * `request.range` are both set to true but the server only provides a
+         * range provider the client might not render a minimap correctly or might
+         * even decide to not show any semantic tokens at all.
+         */
+    public:
+        using JsonObject::JsonObject;
+
+        /**
+         * The client will send the `textDocument/semanticTokens/range` request
+         * if the server provides a corresponding handler.
+         */
+        Utils::optional<Utils::variant<bool, QJsonObject>> range() const;
+        void setRange(const Utils::variant<bool, QJsonObject> &range);
+        void clearRange() { remove(rangeKey); }
+
+        /**
+         * The client will send the `textDocument/semanticTokens/full` request
+         * if the server provides a corresponding handler.
+         */
+        Utils::optional<Utils::variant<bool, FullSemanticTokenOptions>> full() const;
+        void setFull(const Utils::variant<bool, FullSemanticTokenOptions> &full);
+        void clearFull() { remove(fullKey); }
+    };
+
+    Requests requests() const { return typedValue<Requests>(requestsKey); }
+    void setRequests(const Requests &requests) { insert(requestsKey, requests); }
+
+    /// The token types that the client supports.
+    QList<QString> tokenTypes() const { return array<QString>(tokenTypesKey); }
+    void setTokenTypes(const QList<QString> &value) { insertArray(tokenTypesKey, value); }
+
+    /// The token modifiers that the client supports.
+    QList<QString> tokenModifiers() const { return array<QString>(tokenModifiersKey); }
+    void setTokenModifiers(const QList<QString> &value) { insertArray(tokenModifiersKey, value); }
+
+    /// The formats the clients supports.
+    QList<QString> formats() const { return array<QString>(formatsKey); }
+    void setFormats(const QList<QString> &value) { insertArray(formatsKey, value); }
+
+    /// Whether the client supports tokens that can overlap each other.
+    Utils::optional<bool> overlappingTokenSupport() const { return optionalValue<bool>(overlappingTokenSupportKey); }
+    void setOverlappingTokenSupport(bool overlappingTokenSupport) { insert(overlappingTokenSupportKey, overlappingTokenSupport); }
+    void clearOverlappingTokenSupport() { remove(overlappingTokenSupportKey); }
+
+    /// Whether the client supports tokens that can span multiple lines.
+    Utils::optional<bool> multiLineTokenSupport() const { return optionalValue<bool>(multiLineTokenSupportKey); }
+    void setMultiLineTokenSupport(bool multiLineTokenSupport) { insert(multiLineTokenSupportKey, multiLineTokenSupport); }
+    void clearMultiLineTokenSupport() { remove(multiLineTokenSupportKey); }
+
+    bool isValid() const override;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT SymbolCapabilities : public DynamicRegistrationCapabilities
@@ -432,6 +511,10 @@ public:
     void setRename(const RenameClientCapabilities &rename)
     { insert(renameKey, rename); }
     void clearRename() { remove(renameKey); }
+
+    Utils::optional<SemanticTokensClientCapabilities> semanticTokens() const;
+    void setSemanticTokens(const SemanticTokensClientCapabilities &semanticTokens);
+    void clearSemanticTokens() { remove(semanticTokensKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT WorkspaceClientCapabilities : public JsonObject

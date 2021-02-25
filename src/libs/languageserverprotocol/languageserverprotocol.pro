@@ -18,6 +18,7 @@ HEADERS += \
     lsputils.h \
     messages.h \
     progresssupport.h \
+    semantictokens.h \
     servercapabilities.h \
     shutdownmessages.h \
     textsynchronization.h \
@@ -37,6 +38,7 @@ SOURCES += \
     lsputils.cpp \
     messages.cpp \
     progresssupport.cpp \
+    semantictokens.cpp \
     servercapabilities.cpp \
     shutdownmessages.cpp \
     textsynchronization.cpp \

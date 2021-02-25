@@ -37,6 +37,8 @@ Project {
             "messages.h",
             "progresssupport.cpp",
             "progresssupport.h",
+            "semantictokens.cpp",
+            "semantictokens.h",
             "servercapabilities.cpp",
             "servercapabilities.h",
             "shutdownmessages.cpp",

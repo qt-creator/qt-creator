@@ -165,6 +165,17 @@ void ServerCapabilities::setDocumentSymbolProvider(
                                                  documentSymbolProvider);
 }
 
+Utils::optional<SemanticTokensOptions> ServerCapabilities::semanticTokensProvider() const
+{
+    return optionalValue<SemanticTokensOptions>(semanticTokensProviderKey);
+}
+
+void ServerCapabilities::setSemanticTokensProvider(
+    const SemanticTokensOptions &semanticTokensProvider)
+{
+    insert(semanticTokensProviderKey, semanticTokensProvider);
+}
+
 Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>>
 ServerCapabilities::workspaceSymbolProvider() const
 {
@@ -347,6 +358,58 @@ bool ServerCapabilities::ExecuteCommandOptions::isValid() const
 bool CodeActionOptions::isValid() const
 {
     return WorkDoneProgressOptions::isValid() && contains(codeActionKindsKey);
+}
+
+Utils::optional<Utils::variant<bool, QJsonObject>> SemanticTokensOptions::range() const
+{
+    using RetType = Utils::variant<bool, QJsonObject>;
+    const QJsonValue &rangeOptions = value(rangeKey);
+    if (rangeOptions.isBool())
+        return RetType(rangeOptions.toBool());
+    if (rangeOptions.isObject())
+        return RetType(rangeOptions.toObject());
+    return Utils::nullopt;
+}
+
+void SemanticTokensOptions::setRange(const Utils::variant<bool, QJsonObject> &range)
+{
+    insertVariant<bool, QJsonObject>(rangeKey, range);
+}
+
+Utils::optional<Utils::variant<bool, SemanticTokensOptions::FullSemanticTokenOptions>>
+SemanticTokensOptions::full() const
+{
+    using RetType = Utils::variant<bool, SemanticTokensOptions::FullSemanticTokenOptions>;
+    const QJsonValue &fullOptions = value(fullKey);
+    if (fullOptions.isBool())
+        return RetType(fullOptions.toBool());
+    if (fullOptions.isObject())
+        return RetType(FullSemanticTokenOptions(fullOptions.toObject()));
+    return Utils::nullopt;
+}
+
+void SemanticTokensOptions::setFull(
+    const Utils::variant<bool, SemanticTokensOptions::FullSemanticTokenOptions> &full)
+{
+    insertVariant<bool, FullSemanticTokenOptions>(fullKey, full);
+}
+
+SemanticRequestTypes SemanticTokensOptions::supportedRequests() const
+{
+    SemanticRequestTypes result;
+    QJsonValue rangeValue = value(rangeKey);
+    if (rangeValue.isObject() || rangeValue.toBool())
+        result |= SemanticRequestType::Range;
+    QJsonValue fullValue = value(fullKey);
+    if (fullValue.isObject()) {
+        SemanticTokensOptions::FullSemanticTokenOptions options(fullValue.toObject());
+        if (options.delta().value_or(false))
+            result |= SemanticRequestType::FullDelta;
+        result |= SemanticRequestType::Full;
+    } else if (fullValue.toBool()) {
+        result |= SemanticRequestType::Full;
+    }
+    return result;
 }
 
 } // namespace LanguageServerProtocol

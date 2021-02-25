@@ -37,6 +37,7 @@
 #include "languageclientsettings.h"
 #include "languageclientsymbolsupport.h"
 #include "progressmanager.h"
+#include "semantichighlightsupport.h"
 
 #include <coreplugin/messagemanager.h>
 
@@ -49,6 +50,7 @@
 #include <languageserverprotocol/languagefeatures.h>
 #include <languageserverprotocol/messages.h>
 #include <languageserverprotocol/progresssupport.h>
+#include <languageserverprotocol/semantictokens.h>
 #include <languageserverprotocol/shutdownmessages.h>
 #include <languageserverprotocol/textsynchronization.h>
 
@@ -201,6 +203,9 @@ private:
     void updateFunctionHintProvider(TextEditor::TextDocument *document);
 
     void requestDocumentHighlights(TextEditor::TextEditorWidget *widget);
+    LanguageServerProtocol::SemanticRequestTypes supportedSemanticRequests(TextEditor::TextDocument *document) const;
+    void requestSemanticTokens(TextEditor::TextEditorWidget *widget);
+    void handleSemanticTokens(const LanguageServerProtocol::SemanticTokens &tokens);
     void rehighlight();
 
     using ContentHandler = std::function<void(const QByteArray &, QTextCodec *, QString &,
@@ -244,6 +249,7 @@ private:
     SymbolSupport m_symbolSupport;
     ProgressManager m_progressManager;
     bool m_activateDocAutomatically = false;
+    SemanticTokenSupport m_tokentSupport;
 };
 
 } // namespace LanguageClient

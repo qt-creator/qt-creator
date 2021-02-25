@@ -458,9 +458,9 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
     // check whether we have to start servers for this document
     const QList<BaseSettings *> settings = currentSettings();
     for (BaseSettings *setting : settings) {
-        QVector<Client *> clients = clientForSetting(setting);
         if (setting->isValid() && setting->m_enabled
             && setting->m_languageFilter.isSupported(document)) {
+            QVector<Client *> clients = clientForSetting(setting);
             if (setting->m_startBehavior == BaseSettings::RequiresProject) {
                 const Utils::FilePath &filePath = document->filePath();
                 for (ProjectExplorer::Project *project :
@@ -475,12 +475,14 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
                                                                         return client->project()
                                                                                == project;
                                                                     });
-                    if (!clientForProject) {
+                    if (!clientForProject)
                         clientForProject = startClient(setting, project);
-                        clients << clientForProject;
-                    }
+
                     QTC_ASSERT(clientForProject, continue);
                     openDocumentWithClient(textDocument, clientForProject);
+                    // Since we already opened the document in this client we remove the client
+                    // from the list of clients that receive the openDocument call
+                    clients.removeAll(clientForProject);
                 }
             } else if (setting->m_startBehavior == BaseSettings::RequiresFile && clients.isEmpty()) {
                 clients << startClient(setting);

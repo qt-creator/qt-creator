@@ -32,7 +32,11 @@
 #include <texteditor/semantichighlighter.h>
 #include <texteditor/textdocument.h>
 
+#include <QTextCharFormat>
+
 namespace LanguageClient {
+class Client;
+
 namespace SemanticHighligtingSupport {
 
 TextEditor::HighlightingResults generateResults(
@@ -43,4 +47,46 @@ void applyHighlight(TextEditor::TextDocument *doc,
                     const LanguageServerProtocol::ServerCapabilities &capabilities);
 
 } // namespace SemanticHighligtingSupport
+
+class SemanticTokenSupport
+{
+public:
+    explicit SemanticTokenSupport(Client *client);
+
+    void reloadSemanticTokens(TextEditor::TextDocument *doc);
+    void updateSemanticTokens(TextEditor::TextDocument *doc);
+    void rehighlight();
+    void setLegend(const LanguageServerProtocol::SemanticTokensLegend &legend);
+
+    void setTokenTypesMap(const QMap<QString, int> &tokenTypesMap);
+    void setTokenModifiersMap(const QMap<QString, int> &tokenModifiersMap);
+
+    void setAdditionalTokenTypeStyles(const QHash<int, TextEditor::TextStyle> &typeStyles);
+    // TODO: currently only declaration and definition modifiers are supported. The TextStyles
+    // mixin capabilities need to be extended to be able to support more
+//    void setAdditionalTokenModifierStyles(const QHash<int, TextEditor::TextStyle> &modifierStyles);
+
+private:
+    LanguageServerProtocol::SemanticRequestTypes supportedSemanticRequests(
+        TextEditor::TextDocument *document) const;
+    void handleSemanticTokens(const Utils::FilePath &filePath,
+                              const LanguageServerProtocol::SemanticTokensResult &result);
+    void handleSemanticTokensDelta(const Utils::FilePath &filePath,
+                                   const LanguageServerProtocol::SemanticTokensDeltaResult &result);
+    void highlight(const Utils::FilePath &filePath);
+    void updateFormatHash();
+    void currentEditorChanged();
+
+    Client *m_client = nullptr;
+
+    QHash<Utils::FilePath, LanguageServerProtocol::SemanticTokens> m_tokens;
+    QList<int> m_tokenTypes;
+    QList<int> m_tokenModifiers;
+    QHash<int, QTextCharFormat> m_formatHash;
+    QHash<int, TextEditor::TextStyle> m_additionalTypeStyles;
+//    QHash<int, TextEditor::TextStyle> m_additionalModifierStyles;
+    QMap<QString, int> m_tokenTypesMap;
+    QMap<QString, int> m_tokenModifiersMap;
+};
+
 } // namespace LanguageClient
