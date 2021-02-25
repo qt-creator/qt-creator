@@ -1147,26 +1147,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         return;
     }
 
-    // Ignore signals from the process stub.
-    const GdbMi frame = data["frame"];
-    if (terminal()
-            && data["reason"].data() == "signal-received"
-            && data["signal-name"].data() == "SIGSTOP")
-    {
-        const QString from = frame["from"].data();
-        const QString func = frame["func"].data();
-        if (from.endsWith("/ld-linux.so.2")
-                || from.endsWith("/ld-linux-x86-64.so.2")
-                || func == "clone"
-                || func == "kill")
-        {
-            showMessage("INTERNAL CONTINUE AFTER SIGSTOP FROM STUB", LogMisc);
-            notifyInferiorSpontaneousStop();
-            continueInferiorInternal();
-            return;
-        }
-    }
-
     if (!m_onStop.isEmpty()) {
         notifyInferiorStopOk();
         showMessage("HANDLING QUEUED COMMANDS AFTER TEMPORARY STOP", LogMisc);
@@ -1184,6 +1164,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     QString fullName;
     QString function;
     QString language;
+    const GdbMi frame = data["frame"];
     if (frame.isValid()) {
         const GdbMi lineNumberG = frame["line"];
         function = frame["function"].data(); // V4 protocol
@@ -4919,7 +4900,9 @@ void GdbEngine::handleStubAttached(const DebuggerResponse &response, qint64 main
             notifyEngineRunAndInferiorStopOk();
             continueInferiorInternal();
         } else {
-            showMessage("INFERIOR ATTACHED AND RUNNING");
+            showMessage("INFERIOR ATTACHED");
+            QTC_ASSERT(terminal(), return);
+            terminal()->kickoffProcess();
             //notifyEngineRunAndInferiorRunOk();
             // Wait for the upcoming *stopped and handle it there.
         }

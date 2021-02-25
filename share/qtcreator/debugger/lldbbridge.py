@@ -904,14 +904,6 @@ class Dumper(DumperBase):
             except:  # Could have been deleted in the mean time.
                 pass
 
-        self.ignoreStops = 0
-        if platform.system() == 'Linux':
-            if self.startMode_ == DebuggerStartMode.AttachCore:
-                pass
-            else:
-                if self.useTerminal_:
-                    self.ignoreStops = 1
-
         if self.platform_:
             self.debugger.SetCurrentPlatform(self.platform_)
         # sysroot has to be set *after* the platform
@@ -1450,9 +1442,6 @@ class Dumper(DumperBase):
                 if self.isInterrupting_:
                     self.isInterrupting_ = False
                     self.reportState("inferiorstopok")
-                elif self.ignoreStops > 0:
-                    self.ignoreStops -= 1
-                    self.process.Continue()
                 else:
                     self.reportState("stopped")
             else:
