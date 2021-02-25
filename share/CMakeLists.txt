@@ -6,6 +6,6 @@ if (NOT APPLE AND NOT WIN32)
       applications
       metainfo
     DESTINATION
-      share
+      ${CMAKE_INSTALL_DATAROOTDIR}
   )
 endif()
