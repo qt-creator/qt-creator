@@ -13,7 +13,6 @@ versionAtLeast(QT_VERSION, 5.15.0) {
 
 HEADERS += $$PWD/qt5nodeinstanceserver.h \
     $$PWD/capturenodeinstanceserverdispatcher.h \
-    $$PWD/capturescenecreatedcommand.h \
     $$PWD/nodeinstanceserverdispatcher.h \
     $$PWD/qt5captureimagenodeinstanceserver.h \
     $$PWD/qt5capturepreviewnodeinstanceserver.h \
