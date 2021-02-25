@@ -329,6 +329,8 @@ void AbstractView::variantPropertiesChanged(const QList<VariantProperty>& /*prop
 {
 }
 
+void AbstractView::bindingPropertiesAboutToBeChanged(const QList<BindingProperty> &) {}
+
 void AbstractView::bindingPropertiesChanged(const QList<BindingProperty>& /*propertyList*/, PropertyChangeFlags /*propertyChange*/)
 {
 }

@@ -767,6 +767,21 @@ void ModelPrivate::notifyNodeIdChanged(const InternalNodePointer &node,
     });
 }
 
+void ModelPrivate::notifyBindingPropertiesAboutToBeChanged(
+    const QList<InternalBindingPropertyPointer> &internalPropertyList)
+{
+    notifyNodeInstanceViewLast([&](AbstractView *view) {
+        QList<BindingProperty> propertyList;
+        for (const InternalBindingPropertyPointer &bindingProperty : internalPropertyList) {
+            propertyList.append(BindingProperty(bindingProperty->name(),
+                                                bindingProperty->propertyOwner(),
+                                                m_model,
+                                                view));
+        }
+        view->bindingPropertiesAboutToBeChanged(propertyList);
+    });
+}
+
 void ModelPrivate::notifyBindingPropertiesChanged(
     const QList<InternalBindingPropertyPointer> &internalPropertyList,
     AbstractView::PropertyChangeFlags propertyChange)
@@ -1030,6 +1045,7 @@ void ModelPrivate::setBindingProperty(const InternalNodePointer &node, const Pro
     }
 
     InternalBindingPropertyPointer bindingProperty = node->bindingProperty(name);
+    notifyBindingPropertiesAboutToBeChanged({bindingProperty});
     bindingProperty->setExpression(expression);
     notifyBindingPropertiesChanged({bindingProperty}, propertyChange);
 }
@@ -1087,6 +1103,7 @@ void ModelPrivate::setDynamicBindingProperty(const InternalNodePointer &node,
     }
 
     InternalBindingPropertyPointer bindingProperty = node->bindingProperty(name);
+    notifyBindingPropertiesAboutToBeChanged({bindingProperty});
     bindingProperty->setDynamicExpression(dynamicPropertyType, expression);
     notifyBindingPropertiesChanged({bindingProperty}, propertyChange);
 }

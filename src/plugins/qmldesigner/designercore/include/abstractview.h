@@ -205,6 +205,7 @@ public:
     virtual void propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList);
     virtual void propertiesRemoved(const QList<AbstractProperty>& propertyList);
     virtual void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange);
+    virtual void bindingPropertiesAboutToBeChanged(const QList<BindingProperty> &propertyList);
     virtual void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange);
     virtual void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty>& propertyList, PropertyChangeFlags propertyChange);
     virtual void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
