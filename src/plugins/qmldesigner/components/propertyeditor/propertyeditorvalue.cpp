@@ -144,6 +144,7 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
 
         setValue(newValue);
         m_isBound = false;
+        m_expression.clear();
         emit valueChanged(nameAsQString(), value);
         emit valueChangedQml();
         emit isBoundChanged();
@@ -182,6 +183,7 @@ void PropertyEditorValue::setExpressionWithEmit(const QString &expression)
 {
     if ( m_expression != expression) {
         setExpression(expression);
+        m_value.clear();
         emit expressionChanged(nameAsQString());
     }
 }
