@@ -184,7 +184,7 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
             while (it != defaultOpts.constEnd()) {
                 if (m_importOptions.last().contains(it.key())) {
                     QJsonObject optObj = m_importOptions.last()[it.key()].toObject();
-                    QJsonValue value(it.value()["value"]);
+                    QJsonValue value(it.value().toObject()["value"]);
                     optObj.insert("value", value);
                     m_importOptions.last().insert(it.key(), optObj);
                 }

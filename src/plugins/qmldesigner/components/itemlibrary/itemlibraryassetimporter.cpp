@@ -33,17 +33,19 @@
 #include "rewritertransaction.h"
 #include "rewritingexception.h"
 
+#include <utils/algorithm.h>
+
+#include <QApplication>
 #include <QDir>
 #include <QDirIterator>
-#include <QSaveFile>
 #include <QFile>
-#include <QLoggingCategory>
-#include <QTemporaryDir>
-#include <QApplication>
-#include <QMessageBox>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLoggingCategory>
+#include <QMessageBox>
 #include <QPushButton>
+#include <QSaveFile>
+#include <QTemporaryDir>
 
 namespace
 {
@@ -300,7 +302,7 @@ bool ItemLibraryAssetImporter::preParseQuick3DAsset(const QString &file, ParseDa
             if (exitVal == QDialog::Accepted)
                 overwriteFiles = dlg.selectedFiles();
             if (!overwriteFiles.isEmpty()) {
-                overwriteFiles.append(QStringList::fromSet(alwaysOverwrite));
+                overwriteFiles.append(Utils::toList(alwaysOverwrite));
                 m_overwrittenImports.insert(pd.targetDirPath, overwriteFiles);
             } else {
                 addWarning(tr("No files selected for overwrite, skipping import: \"%1\"").arg(pd.assetName));
