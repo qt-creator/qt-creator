@@ -28,7 +28,6 @@
 #include "fakevimactions.h"
 #include "fakevimhandler.h"
 #include "fakevimtr.h"
-#include "ui_fakevimoptions.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -67,26 +66,31 @@
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/genericproposal.h>
 
+#include <utils/aspects.h>
 #include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
+#include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
-#include <utils/savedaction.h>
+#include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
 #include <cpptools/cpptoolsconstants.h>
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <QAction>
 #include <QAbstractTableModel>
 #include <QDebug>
 #include <QFile>
+#include <QGridLayout>
+#include <QGroupBox>
 #include <QGuiApplication>
 #include <QItemDelegate>
 #include <QPainter>
 #include <QPlainTextEdit>
 #include <QPointer>
+#include <QPushButton>
 #include <QRegularExpression>
 #include <QScrollBar>
 #include <QSettings>
@@ -380,129 +384,149 @@ private:
     void updateVimRcWidgets();
 
     QPointer<QWidget> m_widget;
-    Ui::FakeVimOptionPage m_ui;
-    SavedActionSet m_group;
 };
 
 QWidget *FakeVimOptionPage::widget()
 {
     if (!m_widget) {
         m_widget = new QWidget;
-        m_ui.setupUi(m_widget);
-        const QString vimrcDefault = QLatin1String(HostOsInfo::isAnyUnixHost()
-                ? "$HOME/.vimrc" : "%USERPROFILE%\\_vimrc");
-        m_ui.pathChooserVimRcPath->setExpectedKind(PathChooser::File);
-        m_ui.pathChooserVimRcPath->lineEdit()->setToolTip(Tr::tr("Keep empty to use the default path, i.e. "
-                                                             "%USERPROFILE%\\_vimrc on Windows, ~/.vimrc otherwise."));
-        m_ui.pathChooserVimRcPath->lineEdit()->setPlaceholderText(Tr::tr("Default: %1").arg(vimrcDefault));
 
-        m_group.clear();
-        m_group.insert(theFakeVimSetting(ConfigUseFakeVim), m_ui.checkBoxUseFakeVim);
-        m_group.insert(theFakeVimSetting(ConfigReadVimRc), m_ui.checkBoxReadVimRc);
-        m_group.insert(theFakeVimSetting(ConfigVimRcPath), m_ui.pathChooserVimRcPath);
+        auto copyTextEditorSettings = new QPushButton(tr("Copy Text Editor Settings"));
+        auto setQtStyle = new QPushButton(tr("Set Qt Style"));
+        auto setPlainStyle = new QPushButton(tr("Set Plain Style"));
 
-        m_group.insert(theFakeVimSetting(ConfigExpandTab), m_ui.checkBoxExpandTab);
-        m_group.insert(theFakeVimSetting(ConfigHlSearch), m_ui.checkBoxHlSearch);
-        m_group.insert(theFakeVimSetting(ConfigShiftWidth), m_ui.spinBoxShiftWidth);
-        m_group.insert(theFakeVimSetting(ConfigShowMarks), m_ui.checkBoxShowMarks);
+        using namespace Layouting;
+        FakeVimSettings &s = *fakeVimSettings();
 
-        m_group.insert(theFakeVimSetting(ConfigSmartTab), m_ui.checkBoxSmartTab);
-        m_group.insert(theFakeVimSetting(ConfigStartOfLine), m_ui.checkBoxStartOfLine);
-        m_group.insert(theFakeVimSetting(ConfigPassKeys), m_ui.checkBoxPassKeys);
-        m_group.insert(theFakeVimSetting(ConfigTabStop), m_ui.spinBoxTabStop);
-        m_group.insert(theFakeVimSetting(ConfigScrollOff), m_ui.spinBoxScrollOff);
-        m_group.insert(theFakeVimSetting(ConfigBackspace), m_ui.lineEditBackspace);
-        m_group.insert(theFakeVimSetting(ConfigIsKeyword), m_ui.lineEditIsKeyword);
+        Row bools {
+            Column {
+                s.autoIndent,
+                s.smartIndent,
+                s.expandTab,
+                s.smartTab,
+                s.hlSearch,
+                s.showCmd,
+                s.startOfLine,
+                s.passKeys,
+                s.blinkingCursor
+            },
+            Column {
+                s.incSearch,
+                s.useCoreSearch,
+                s.ignoreCase,
+                s.smartCase,
+                s.wrapScan,
+                s.showMarks,
+                s.passControlKey,
+                s.relativeNumber,
+                s.tildeOp
+            }
+        };
 
-        m_group.insert(theFakeVimSetting(ConfigPassControlKey), m_ui.checkBoxPassControlKey);
-        m_group.insert(theFakeVimSetting(ConfigAutoIndent), m_ui.checkBoxAutoIndent);
-        m_group.insert(theFakeVimSetting(ConfigSmartIndent), m_ui.checkBoxSmartIndent);
+        Row ints { s.shiftWidth, s.tabStop, s.scrollOff, Stretch() };
 
-        m_group.insert(theFakeVimSetting(ConfigIncSearch), m_ui.checkBoxIncSearch);
-        m_group.insert(theFakeVimSetting(ConfigUseCoreSearch), m_ui.checkBoxUseCoreSearch);
-        m_group.insert(theFakeVimSetting(ConfigSmartCase), m_ui.checkBoxSmartCase);
-        m_group.insert(theFakeVimSetting(ConfigIgnoreCase), m_ui.checkBoxIgnoreCase);
-        m_group.insert(theFakeVimSetting(ConfigWrapScan), m_ui.checkBoxWrapScan);
+        Column strings {
+            s.backspace,
+            s.isKeyword,
+            Row {s.readVimRc, s.vimRcPath}
+        };
 
-        m_group.insert(theFakeVimSetting(ConfigShowCmd), m_ui.checkBoxShowCmd);
+        Column {
+            s.useFakeVim,
 
-        m_group.insert(theFakeVimSetting(ConfigRelativeNumber), m_ui.checkBoxRelativeNumber);
-        m_group.insert(theFakeVimSetting(ConfigBlinkingCursor), m_ui.checkBoxBlinkingCursor);
+            Group {
+                bools,
+                ints,
+                strings
+            }.withTitle(tr("Vim Behavior")),
 
-        m_group.insert(theFakeVimSetting(ConfigEmulateVimCommentary), m_ui.checkBoxVimCommentary);
-        m_group.insert(theFakeVimSetting(ConfigEmulateReplaceWithRegister), m_ui.checkBoxReplaceWithRegister);
-        m_group.insert(theFakeVimSetting(ConfigEmulateExchange), m_ui.checkBoxExchange);
-        m_group.insert(theFakeVimSetting(ConfigEmulateArgTextObj), m_ui.checkBoxArgTextObj);
-        m_group.insert(theFakeVimSetting(ConfigEmulateSurround), m_ui.checkBoxVimSurround);
+            Group {
+                s.emulateVimCommentary,
+                s.emulateReplaceWithRegister,
+                s.emulateArgTextObj,
+                s.emulateExchange,
+                s.emulateSurround
+            }.withTitle(tr("Plugin Emulation")),
 
-        connect(m_ui.pushButtonCopyTextEditorSettings, &QAbstractButton::clicked,
+            Row { copyTextEditorSettings, setQtStyle, setPlainStyle, Stretch() },
+            Stretch()
+
+        }.attachTo(m_widget);
+
+        connect(copyTextEditorSettings, &QAbstractButton::clicked,
                 this, &FakeVimOptionPage::copyTextEditorSettings);
-        connect(m_ui.pushButtonSetQtStyle, &QAbstractButton::clicked,
+        connect(setQtStyle, &QAbstractButton::clicked,
                 this, &FakeVimOptionPage::setQtStyle);
-        connect(m_ui.pushButtonSetPlainStyle, &QAbstractButton::clicked,
+        connect(setPlainStyle, &QAbstractButton::clicked,
                 this, &FakeVimOptionPage::setPlainStyle);
-        connect(m_ui.checkBoxReadVimRc, &QCheckBox::stateChanged,
+        connect(&s.readVimRc, &FvBaseAspect::changed,
                 this, &FakeVimOptionPage::updateVimRcWidgets);
         updateVimRcWidgets();
-
     }
     return m_widget;
 }
 
 void FakeVimOptionPage::apply()
 {
-    m_group.apply(ICore::settings());
+    FakeVimSettings &s = *fakeVimSettings();
+    s.apply();
+    s.writeSettings(ICore::settings());
 }
 
 void FakeVimOptionPage::finish()
 {
-    m_group.finish();
+    FakeVimSettings &s = *fakeVimSettings();
+    s.cancel();
     delete m_widget;
 }
 
 void FakeVimOptionPage::copyTextEditorSettings()
 {
+    FakeVimSettings &s = *fakeVimSettings();
     TabSettings ts = TextEditorSettings::codeStyle()->tabSettings();
     TypingSettings tps = TextEditorSettings::typingSettings();
-    m_ui.checkBoxExpandTab->setChecked(ts.m_tabPolicy != TabSettings::TabsOnlyTabPolicy);
-    m_ui.spinBoxTabStop->setValue(ts.m_tabSize);
-    m_ui.spinBoxShiftWidth->setValue(ts.m_indentSize);
-    m_ui.checkBoxSmartTab->setChecked(
-        tps.m_smartBackspaceBehavior == TypingSettings::BackspaceFollowsPreviousIndents);
-    m_ui.checkBoxAutoIndent->setChecked(true);
-    m_ui.checkBoxSmartIndent->setChecked(tps.m_autoIndent);
-    m_ui.checkBoxIncSearch->setChecked(true);
+    s.expandTab.setValue(ts.m_tabPolicy != TabSettings::TabsOnlyTabPolicy);
+    s.tabStop.setValue(ts.m_tabSize);
+    s.shiftWidth.setValue(ts.m_indentSize);
+    s.smartTab.setValue(tps.m_smartBackspaceBehavior
+                        == TypingSettings::BackspaceFollowsPreviousIndents);
+    s.autoIndent.setValue(true);
+    s.smartIndent.setValue(tps.m_autoIndent);
+    s.incSearch.setValue(true);
 }
 
 void FakeVimOptionPage::setQtStyle()
 {
-    m_ui.checkBoxExpandTab->setChecked(true);
-    m_ui.spinBoxTabStop->setValue(4);
-    m_ui.spinBoxShiftWidth->setValue(4);
-    m_ui.checkBoxSmartTab->setChecked(true);
-    m_ui.checkBoxAutoIndent->setChecked(true);
-    m_ui.checkBoxSmartIndent->setChecked(true);
-    m_ui.checkBoxIncSearch->setChecked(true);
-    m_ui.lineEditBackspace->setText("indent,eol,start");
-    m_ui.checkBoxPassKeys->setChecked(true);
+    FakeVimSettings &s = *fakeVimSettings();
+    s.expandTab.setVolatileValue(true);
+    s.tabStop.setVolatileValue(4);
+    s.shiftWidth.setVolatileValue(4);
+    s.smartTab.setVolatileValue(true);
+    s.autoIndent.setVolatileValue(true);
+    s.smartIndent.setVolatileValue(true);
+    s.incSearch.setVolatileValue(true);
+    s.backspace.setVolatileValue(QString("indent,eol,start"));
+    s.passKeys.setVolatileValue(true);
 }
 
 void FakeVimOptionPage::setPlainStyle()
 {
-    m_ui.checkBoxExpandTab->setChecked(false);
-    m_ui.spinBoxTabStop->setValue(8);
-    m_ui.spinBoxShiftWidth->setValue(8);
-    m_ui.checkBoxSmartTab->setChecked(false);
-    m_ui.checkBoxAutoIndent->setChecked(false);
-    m_ui.checkBoxSmartIndent->setChecked(false);
-    m_ui.checkBoxIncSearch->setChecked(false);
-    m_ui.lineEditBackspace->clear();
-    m_ui.checkBoxPassKeys->setChecked(false);
+    FakeVimSettings &s = *fakeVimSettings();
+    s.expandTab.setVolatileValue(false);
+    s.tabStop.setVolatileValue(8);
+    s.shiftWidth.setVolatileValue(8);
+    s.smartTab.setVolatileValue(false);
+    s.autoIndent.setVolatileValue(false);
+    s.smartIndent.setVolatileValue(false);
+    s.incSearch.setVolatileValue(false);
+    s.backspace.setVolatileValue(QString());
+    s.passKeys.setVolatileValue(false);
 }
 
 void FakeVimOptionPage::updateVimRcWidgets()
 {
-    m_ui.pathChooserVimRcPath->setEnabled(m_ui.checkBoxReadVimRc->isChecked());
+    FakeVimSettings &s = *fakeVimSettings();
+    s.vimRcPath.setEnabled(s.readVimRc.value());
 }
 
 
@@ -531,13 +555,13 @@ public:
     void documentRenamed(Core::IDocument *document, const QString &oldName, const QString &newName);
     void renameFileNameInEditors(const QString &oldName, const QString &newName);
 
-    void setUseFakeVim(const QVariant &value);
+    void setUseFakeVim(bool on);
     void setUseFakeVimInternal(bool on);
     void quitFakeVim();
     void fold(FakeVimHandler *handler, int depth, bool fold);
     void maybeReadVimRc();
-    void setShowRelativeLineNumbers(const QVariant &value);
-    void updateCursorBlinking(const QVariant &value);
+    void setShowRelativeLineNumbers(bool on);
+    void setCursorBlinking(bool on);
 
     void resetCommandBuffer();
     void showCommandBuffer(FakeVimHandler *handler, const QString &contents,
@@ -1199,8 +1223,13 @@ bool FakeVimPluginPrivate::initialize()
 */
     readSettings();
 
+    // Vimrc can break test so don't source it if running tests.
+    if (!ExtensionSystem::PluginManager::testRunRequested())
+        maybeReadVimRc();
+
     Command *cmd = nullptr;
-    cmd = ActionManager::registerAction(theFakeVimSetting(ConfigUseFakeVim)->action(),
+
+    cmd = ActionManager::registerAction(fakeVimSettings()->useFakeVim.action(),
         INSTALL_HANDLER, Context(Core::Constants::C_GLOBAL), true);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Shift+Y,Meta+Shift+Y")
                                                             : Tr::tr("Alt+Y,Alt+Y")));
@@ -1238,16 +1267,17 @@ bool FakeVimPluginPrivate::initialize()
     connect(DocumentManager::instance(), &DocumentManager::documentRenamed,
             this, &FakeVimPluginPrivate::documentRenamed);
 
-    connect(theFakeVimSetting(ConfigUseFakeVim), &SavedAction::valueChanged,
+    FakeVimSettings &s = *fakeVimSettings();
+    connect(&s.useFakeVim, &FvBoolAspect::valueChanged,
             this, &FakeVimPluginPrivate::setUseFakeVim);
-    connect(theFakeVimSetting(ConfigReadVimRc), &SavedAction::valueChanged,
+    connect(&s.readVimRc, &FvBaseAspect::changed,
             this, &FakeVimPluginPrivate::maybeReadVimRc);
-    connect(theFakeVimSetting(ConfigVimRcPath), &SavedAction::valueChanged,
+    connect(&s.vimRcPath, &FvBaseAspect::changed,
             this, &FakeVimPluginPrivate::maybeReadVimRc);
-    connect(theFakeVimSetting(ConfigRelativeNumber), &SavedAction::valueChanged,
+    connect(&s.relativeNumber, &FvBoolAspect::valueChanged,
             this, &FakeVimPluginPrivate::setShowRelativeLineNumbers);
-    connect(theFakeVimSetting(ConfigBlinkingCursor), &SavedAction::valueChanged,
-            this, &FakeVimPluginPrivate::updateCursorBlinking);
+    connect(&s.blinkingCursor, &FvBoolAspect::valueChanged,
+            this, &FakeVimPluginPrivate::setCursorBlinking);
 
     // Delayed operations.
     connect(this, &FakeVimPluginPrivate::delayedQuitRequested,
@@ -1255,12 +1285,7 @@ bool FakeVimPluginPrivate::initialize()
     connect(this, &FakeVimPluginPrivate::delayedQuitAllRequested,
             this, &FakeVimPluginPrivate::handleDelayedQuitAll, Qt::QueuedConnection);
 
-    // Vimrc can break test so don't source it if running tests.
-    if (!ExtensionSystem::PluginManager::testRunRequested())
-        maybeReadVimRc();
-    //    << "MODE: " << theFakeVimSetting(ConfigUseFakeVim)->value();
-
-    updateCursorBlinking(theFakeVimSetting(ConfigBlinkingCursor)->value());
+    setCursorBlinking(s.blinkingCursor.value());
 
     return true;
 }
@@ -1271,7 +1296,7 @@ void FakeVimPluginPrivate::userActionTriggered(int key)
     FakeVimHandler *handler = m_editorToHandler[editor];
     if (handler) {
         // If disabled, enable FakeVim mode just for single user command.
-        bool enableFakeVim = !theFakeVimSetting(ConfigUseFakeVim)->value().toBool();
+        bool enableFakeVim = !fakeVimSettings()->useFakeVim.value();
         if (enableFakeVim)
             setUseFakeVimInternal(true);
 
@@ -1287,9 +1312,9 @@ void FakeVimPluginPrivate::createRelativeNumberWidget(IEditor *editor)
 {
     if (auto textEditor = TextEditorWidget::fromEditor(editor)) {
         auto relativeNumbers = new RelativeNumbersColumn(textEditor);
-        connect(theFakeVimSetting(ConfigRelativeNumber), &SavedAction::valueChanged,
+        connect(&fakeVimSettings()->relativeNumber, &FvBaseAspect::changed,
                 relativeNumbers, &QObject::deleteLater);
-        connect(theFakeVimSetting(ConfigUseFakeVim), &SavedAction::valueChanged,
+        connect(&fakeVimSettings()->useFakeVim, &FvBaseAspect::changed,
                 relativeNumbers, &QObject::deleteLater);
         relativeNumbers->show();
     }
@@ -1298,14 +1323,14 @@ void FakeVimPluginPrivate::createRelativeNumberWidget(IEditor *editor)
 void FakeVimPluginPrivate::writeSettings()
 {
     QSettings *settings = ICore::settings();
-    theFakeVimSettings()->writeSettings(settings);
+    fakeVimSettings()->writeSettings(settings);
 }
 
 void FakeVimPluginPrivate::readSettings()
 {
     QSettings *settings = ICore::settings();
 
-    theFakeVimSettings()->readSettings(settings);
+    fakeVimSettings()->readSettings(settings);
 
     m_exCommandMap = m_defaultExCommandMap;
     int size = settings->beginReadArray(exCommandMapGroup);
@@ -1333,9 +1358,9 @@ void FakeVimPluginPrivate::maybeReadVimRc()
     //qDebug() << theFakeVimSetting(ConfigReadVimRc)
     //    << theFakeVimSetting(ConfigReadVimRc)->value();
     //qDebug() << theFakeVimSetting(ConfigShiftWidth)->value();
-    if (!theFakeVimSetting(ConfigReadVimRc)->value().toBool())
+    if (!fakeVimSettings()->readVimRc.value())
         return;
-    QString fileName = theFakeVimSetting(ConfigVimRcPath)->value().toString();
+    QString fileName = fakeVimSettings()->vimRcPath.value();
     if (fileName.isEmpty()) {
         fileName = QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
             + QLatin1String(HostOsInfo::isWindowsHost() ? "/_vimrc" : "/.vimrc");
@@ -1642,9 +1667,9 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
             return;
 
         TabSettings tabSettings;
-        tabSettings.m_indentSize = theFakeVimSetting(ConfigShiftWidth)->value().toInt();
-        tabSettings.m_tabSize = theFakeVimSetting(ConfigTabStop)->value().toInt();
-        tabSettings.m_tabPolicy = theFakeVimSetting(ConfigExpandTab)->value().toBool()
+        tabSettings.m_indentSize = fakeVimSettings()->shiftWidth.value();
+        tabSettings.m_tabSize = fakeVimSettings()->tabStop.value();
+        tabSettings.m_tabPolicy = fakeVimSettings()->expandTab.value()
                 ? TabSettings::SpacesOnlyTabPolicy : TabSettings::TabsOnlyTabPolicy;
         tabSettings.m_continuationAlignBehavior =
                 tew->textDocument()->tabSettings().m_continuationAlignBehavior;
@@ -1847,11 +1872,11 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
     handler->installEventFilter();
 
     // pop up the bar
-    if (theFakeVimSetting(ConfigUseFakeVim)->value().toBool()) {
+    if (fakeVimSettings()->useFakeVim.value()) {
        resetCommandBuffer();
        handler->setupWidget();
 
-       if (theFakeVimSetting(ConfigRelativeNumber)->value().toBool())
+       if (fakeVimSettings()->relativeNumber.value())
            createRelativeNumberWidget(editor);
     }
 }
@@ -1888,14 +1913,13 @@ void FakeVimPluginPrivate::renameFileNameInEditors(const QString &oldName, const
     }
 }
 
-void FakeVimPluginPrivate::setUseFakeVim(const QVariant &value)
+void FakeVimPluginPrivate::setUseFakeVim(bool on)
 {
-    //qDebug() << "SET USE FAKEVIM" << value;
-    bool on = value.toBool();
+    //qDebug() << "SET USE FAKEVIM" << on;
     Find::setUseFakeVim(on);
     setUseFakeVimInternal(on);
-    setShowRelativeLineNumbers(theFakeVimSetting(ConfigRelativeNumber)->value());
-    updateCursorBlinking(theFakeVimSetting(ConfigBlinkingCursor)->value());
+    setShowRelativeLineNumbers(fakeVimSettings()->relativeNumber.value());
+    setCursorBlinking(fakeVimSettings()->blinkingCursor.value());
 }
 
 void FakeVimPluginPrivate::setUseFakeVimInternal(bool on)
@@ -1918,20 +1942,20 @@ void FakeVimPluginPrivate::setUseFakeVimInternal(bool on)
     }
 }
 
-void FakeVimPluginPrivate::setShowRelativeLineNumbers(const QVariant &value)
+void FakeVimPluginPrivate::setShowRelativeLineNumbers(bool on)
 {
-    if (value.toBool() && theFakeVimSetting(ConfigUseFakeVim)->value().toBool()) {
+    if (on && fakeVimSettings()->useFakeVim.value()) {
         foreach (IEditor *editor, m_editorToHandler.keys())
             createRelativeNumberWidget(editor);
     }
 }
 
-void FakeVimPluginPrivate::updateCursorBlinking(const QVariant &value)
+void FakeVimPluginPrivate::setCursorBlinking(bool on)
 {
     if (m_savedCursorFlashTime == 0)
         m_savedCursorFlashTime = QGuiApplication::styleHints()->cursorFlashTime();
 
-    bool blink = value.toBool() || !theFakeVimSetting(ConfigUseFakeVim)->value().toBool();
+    const bool blink = on || !fakeVimSettings()->useFakeVim.value();
     QGuiApplication::styleHints()->setCursorFlashTime(blink ? m_savedCursorFlashTime : 0);
 }
 
@@ -2062,7 +2086,7 @@ void FakeVimPluginPrivate::handleDelayedQuitAll(bool forced)
 
 void FakeVimPluginPrivate::quitFakeVim()
 {
-    theFakeVimSetting(ConfigUseFakeVim)->setValue(false);
+    fakeVimSettings()->useFakeVim.setValue(false);
 }
 
 void FakeVimPluginPrivate::resetCommandBuffer()
