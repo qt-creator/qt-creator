@@ -70,7 +70,11 @@ AnnotationCommentTab::AnnotationCommentTab(QWidget *parent)
                                                              "project type",
                                                              "project version",
                                                              "Screen Description",
-                                                             "Section"}});
+                                                             "Section",
+                                                             "normalcolor",
+                                                             "focuscolor",
+                                                             "selectedcolor",
+                                                             "pressedcolor"}});
 
     connect(ui->titleEdit, &QComboBox::currentTextChanged,
             this, &AnnotationCommentTab::commentTitleChanged);
