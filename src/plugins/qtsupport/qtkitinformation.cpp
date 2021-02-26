@@ -469,4 +469,9 @@ Id SuppliesQtQuickImportPath::id()
     return QtSupport::Constants::FLAGS_SUPPLIES_QTQUICK_IMPORT_PATH;
 }
 
+Id KitQmlImportPath::id()
+{
+    return QtSupport::Constants::KIT_QML_IMPORT_PATH;
+}
+
 } // namespace QtSupport

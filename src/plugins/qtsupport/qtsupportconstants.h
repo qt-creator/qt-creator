@@ -57,6 +57,7 @@ const char FEATURE_DESKTOP[] = "QtSupport.Wizards.FeatureDesktop";
 
 // Kit flags
 const char FLAGS_SUPPLIES_QTQUICK_IMPORT_PATH[] = "QtSupport.SuppliesQtQuickImportPath";
+const char KIT_QML_IMPORT_PATH[] = "QtSupport.KitQmlImportPath";
 
 } // namepsace Constants
 } // namepsace QtSupport

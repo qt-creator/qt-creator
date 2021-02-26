@@ -29,6 +29,7 @@
 
 #include <baremetal/baremetalconstants.h>
 #include <cmakeprojectmanager/cmaketoolmanager.h>
+#include <cmakeprojectmanager/cmakekitinformation.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/messagemanager.h>
@@ -660,7 +661,8 @@ FilePath McuSupportOptions::qulDirFromSettings()
                                         QSettings::UserScope));
 }
 
-static void setKitProperties(const QString &kitName, Kit *k, const McuTarget *mcuTarget)
+static void setKitProperties(const QString &kitName, Kit *k, const McuTarget *mcuTarget,
+                             const QString &sdkPath)
 {
     using namespace Constants;
 
@@ -677,7 +679,12 @@ static void setKitProperties(const QString &kitName, Kit *k, const McuTarget *mc
     if (mcuTarget->toolChainPackage()->isDesktopToolchain())
         k->setDeviceTypeForIcon(DEVICE_TYPE);
     k->setValue(QtSupport::SuppliesQtQuickImportPath::id(), true);
-    QSet<Id> irrelevant = { SysRootKitAspect::id(), QtSupport::SuppliesQtQuickImportPath::id() };
+    k->setValue(QtSupport::KitQmlImportPath::id(), QVariant(sdkPath + "/include/qul"));
+    QSet<Id> irrelevant = {
+        SysRootKitAspect::id(),
+        QtSupport::SuppliesQtQuickImportPath::id(),
+        QtSupport::KitQmlImportPath::id()
+    };
     if (!kitNeedsQtVersion())
         irrelevant.insert(QtSupport::QtKitAspect::id());
     k->setIrrelevantAspects(irrelevant);
@@ -874,7 +881,7 @@ Kit *McuSupportOptions::newKit(const McuTarget *mcuTarget, const McuPackage *qtF
     const auto init = [mcuTarget, qtForMCUsSdk](Kit *k) {
         KitGuard kitGuard(k);
 
-        setKitProperties(kitName(mcuTarget), k, mcuTarget);
+        setKitProperties(kitName(mcuTarget), k, mcuTarget, qtForMCUsSdk->path());
         setKitDevice(k, mcuTarget);
         setKitToolchains(k, mcuTarget->toolChainPackage());
         setKitDebugger(k, mcuTarget->toolChainPackage());
@@ -979,6 +986,24 @@ void McuSupportOptions::fixExistingKits()
         }
         if (!kit->hasValue(bringsQtQuickImportPath)) {
             kit->setValue(bringsQtQuickImportPath, true);
+        }
+
+        // Check if the MCU kit supplies its import path.
+        const auto kitQmlImportPath = QtSupport::KitQmlImportPath::id();
+        if (!irrelevantAspects.contains(kitQmlImportPath)) {
+            irrelevantAspects.insert(kitQmlImportPath);
+            kit->setIrrelevantAspects(irrelevantAspects);
+        }
+        if (!kit->hasValue(kitQmlImportPath)) {
+            auto config = CMakeProjectManager::CMakeConfigurationKitAspect::configuration(kit);
+            for (const auto &cfgItem : qAsConst(config)) {
+                if (cfgItem.key == "QUL_GENERATORS") {
+                    auto idx = cfgItem.value.indexOf("/lib/cmake/Qul");
+                    auto qulDir = cfgItem.value.left(idx);
+                    kit->setValue(kitQmlImportPath, QVariant(qulDir + "/include/qul"));
+                    break;
+                }
+            }
         }
     }
 }

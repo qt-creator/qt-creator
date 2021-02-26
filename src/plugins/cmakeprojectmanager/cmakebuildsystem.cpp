@@ -1188,11 +1188,15 @@ void CMakeBuildSystem::updateQmlJSCodeModel()
 
     projectInfo.importPaths.clear();
 
+    auto addImports = [&projectInfo](const QString &imports) {
+        foreach (const QString &import, CMakeConfigItem::cmakeSplitValue(imports))
+            projectInfo.importPaths.maybeInsert(FilePath::fromString(import), QmlJS::Dialect::Qml);
+    };
+
     const CMakeConfig &cm = cmakeBuildConfiguration()->configurationFromCMake();
     const QString cmakeImports = QString::fromUtf8(CMakeConfigItem::valueOf("QML_IMPORT_PATH", cm));
-
-    foreach (const QString &cmakeImport, CMakeConfigItem::cmakeSplitValue(cmakeImports))
-        projectInfo.importPaths.maybeInsert(FilePath::fromString(cmakeImport), QmlJS::Dialect::Qml);
+    addImports(cmakeImports);
+    addImports(kit()->value(QtSupport::KitQmlImportPath::id()).toString());
 
     project()->setProjectLanguage(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID,
                                   !projectInfo.sourceFiles.isEmpty());

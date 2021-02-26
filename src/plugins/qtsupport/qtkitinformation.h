@@ -89,4 +89,10 @@ public:
     static Utils::Id id();
 };
 
+class QTSUPPORT_EXPORT KitQmlImportPath
+{
+public:
+    static Utils::Id id();
+};
+
 } // namespace QtSupport
