@@ -219,10 +219,11 @@ function(add_qtc_library name)
   endif()
 
   qtc_output_binary_dir(_output_binary_dir)
+  string(REGEX MATCH "^[0-9]*" IDE_VERSION_MAJOR ${IDE_VERSION})
   set_target_properties(${name} PROPERTIES
     SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
     VERSION "${IDE_VERSION}"
-    SOVERSION "${PROJECT_VERSION_MAJOR}"
+    SOVERSION "${IDE_VERSION_MAJOR}"
     MACHO_CURRENT_VERSION ${IDE_VERSION}
     MACHO_COMPATIBILITY_VERSION ${IDE_VERSION_COMPAT}
     CXX_EXTENSIONS OFF
@@ -240,7 +241,7 @@ function(add_qtc_library name)
   if (WIN32 AND library_type STREQUAL "SHARED" AND NOT _arg_UNVERSIONED)
     # Match qmake naming scheme e.g. Library4.dll
     set_target_properties(${name} PROPERTIES
-      SUFFIX "${PROJECT_VERSION_MAJOR}${CMAKE_SHARED_LIBRARY_SUFFIX}"
+      SUFFIX "${IDE_VERSION_MAJOR}${CMAKE_SHARED_LIBRARY_SUFFIX}"
       PREFIX ""
     )
   endif()
@@ -491,8 +492,9 @@ function(add_qtc_plugin target_name)
 
   if (WIN32)
     # Match qmake naming scheme e.g. Plugin4.dll
+    string(REGEX MATCH "^[0-9]*" IDE_VERSION_MAJOR ${IDE_VERSION})
     set_target_properties(${target_name} PROPERTIES
-      SUFFIX "${PROJECT_VERSION_MAJOR}${CMAKE_SHARED_LIBRARY_SUFFIX}"
+      SUFFIX "${IDE_VERSION_MAJOR}${CMAKE_SHARED_LIBRARY_SUFFIX}"
       PREFIX ""
     )
   endif()
