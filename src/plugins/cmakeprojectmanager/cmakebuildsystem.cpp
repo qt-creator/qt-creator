@@ -658,13 +658,13 @@ void CMakeBuildSystem::updateProjectData()
     QtSupport::CppKitInfo kitInfo(kit());
     QTC_ASSERT(kitInfo.isValid(), return );
 
-    {
-        QString errorMessage;
-        RawProjectParts rpps = m_reader.createRawProjectParts(errorMessage);
-        if (!errorMessage.isEmpty())
-            cmakeBuildConfiguration()->setError(errorMessage);
-        qCDebug(cmakeBuildSystemLog) << "Raw project parts created." << errorMessage;
+    QString errorMessage;
+    RawProjectParts rpps = m_reader.createRawProjectParts(errorMessage);
+    if (!errorMessage.isEmpty())
+        cmakeBuildConfiguration()->setError(errorMessage);
+    qCDebug(cmakeBuildSystemLog) << "Raw project parts created." << errorMessage;
 
+    {
         for (RawProjectPart &rpp : rpps) {
             rpp.setQtVersion(
                 kitInfo.projectPartQtVersion); // TODO: Check if project actually uses Qt.
@@ -682,7 +682,18 @@ void CMakeBuildSystem::updateProjectData()
         m_cppCodeModelUpdater->update({p, kitInfo, cmakeBuildConfiguration()->environment(), rpps});
     }
     {
-        updateQmlJSCodeModel();
+        const bool mergedHeaderPathsAndQmlImportPaths = kit()->value(
+                    QtSupport::KitHasMergedHeaderPathsWithQmlImportPaths::id(), false).toBool();
+        QStringList extraHeaderPaths;
+        for (const RawProjectPart &rpp : qAsConst(rpps)) {
+            if (mergedHeaderPathsAndQmlImportPaths) {
+                for (const auto &headerPath : rpp.headerPaths) {
+                    if (headerPath.type == HeaderPathType::User)
+                        extraHeaderPaths.append(headerPath.path);
+                }
+            }
+        }
+        updateQmlJSCodeModel(extraHeaderPaths);
     }
     emit cmakeBuildConfiguration()->buildTypeChanged();
 
@@ -1176,7 +1187,7 @@ QList<ProjectExplorer::ExtraCompiler *> CMakeBuildSystem::findExtraCompilers()
     return extraCompilers;
 }
 
-void CMakeBuildSystem::updateQmlJSCodeModel()
+void CMakeBuildSystem::updateQmlJSCodeModel(const QStringList &extraHeaderPaths)
 {
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
 
@@ -1198,6 +1209,10 @@ void CMakeBuildSystem::updateQmlJSCodeModel()
     const QString cmakeImports = QString::fromUtf8(CMakeConfigItem::valueOf("QML_IMPORT_PATH", cm));
     addImports(cmakeImports);
     addImports(kit()->value(QtSupport::KitQmlImportPath::id()).toString());
+
+    for (const QString &extraHeaderPath : extraHeaderPaths)
+        projectInfo.importPaths.maybeInsert(FilePath::fromString(extraHeaderPath),
+                                            QmlJS::Dialect::Qml);
 
     project()->setProjectLanguage(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID,
                                   !projectInfo.sourceFiles.isEmpty());

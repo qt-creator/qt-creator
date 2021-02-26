@@ -58,6 +58,8 @@ const char FEATURE_DESKTOP[] = "QtSupport.Wizards.FeatureDesktop";
 // Kit flags
 const char FLAGS_SUPPLIES_QTQUICK_IMPORT_PATH[] = "QtSupport.SuppliesQtQuickImportPath";
 const char KIT_QML_IMPORT_PATH[] = "QtSupport.KitQmlImportPath";
+const char KIT_HAS_MERGED_HEADER_PATHS_WITH_QML_IMPORT_PATHS[] =
+        "QtSupport.KitHasMergedHeaderPathsWithQmlImportPaths";
 
 } // namepsace Constants
 } // namepsace QtSupport

@@ -95,4 +95,10 @@ public:
     static Utils::Id id();
 };
 
+class QTSUPPORT_EXPORT KitHasMergedHeaderPathsWithQmlImportPaths
+{
+public:
+    static Utils::Id id();
+};
+
 } // namespace QtSupport

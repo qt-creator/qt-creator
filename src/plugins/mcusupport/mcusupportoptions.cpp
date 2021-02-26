@@ -680,10 +680,12 @@ static void setKitProperties(const QString &kitName, Kit *k, const McuTarget *mc
         k->setDeviceTypeForIcon(DEVICE_TYPE);
     k->setValue(QtSupport::SuppliesQtQuickImportPath::id(), true);
     k->setValue(QtSupport::KitQmlImportPath::id(), QVariant(sdkPath + "/include/qul"));
+    k->setValue(QtSupport::KitHasMergedHeaderPathsWithQmlImportPaths::id(), true);
     QSet<Id> irrelevant = {
         SysRootKitAspect::id(),
         QtSupport::SuppliesQtQuickImportPath::id(),
-        QtSupport::KitQmlImportPath::id()
+        QtSupport::KitQmlImportPath::id(),
+        QtSupport::KitHasMergedHeaderPathsWithQmlImportPaths::id(),
     };
     if (!kitNeedsQtVersion())
         irrelevant.insert(QtSupport::QtKitAspect::id());
@@ -1026,6 +1028,16 @@ void McuSupportOptions::fixExistingKits()
                     break;
                 }
             }
+        }
+
+        // Check if the MCU kit has the flag for merged header/qml-import paths set.
+        const auto mergedPaths = QtSupport::KitHasMergedHeaderPathsWithQmlImportPaths::id();
+        if (!irrelevantAspects.contains(mergedPaths)) {
+            irrelevantAspects.insert(mergedPaths);
+            kit->setIrrelevantAspects(irrelevantAspects);
+        }
+        if (!kit->value(mergedPaths, false).toBool()) {
+            kit->setValue(mergedPaths, true);
         }
     }
 
