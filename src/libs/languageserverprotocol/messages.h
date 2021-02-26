@@ -49,8 +49,8 @@ public:
 
     QString toString() const;
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return check<int>(error, typeKey) && check<QString>(error, messageKey); }
+    bool isValid() const override
+    { return contains(typeKey) && contains(messageKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ShowMessageNotification : public Notification<ShowMessageParams>
@@ -70,7 +70,7 @@ public:
     QString title() const { return typedValue<QString>(titleKey); }
     void setTitle(QString title) { insert(titleKey, title); }
 
-    bool isValid(ErrorHierarchy *error) const override { return check<QString>(error, titleKey); }
+    bool isValid() const override { return contains(titleKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ShowMessageRequestParams : public ShowMessageParams
@@ -82,8 +82,6 @@ public:
     { return optionalArray<MessageActionItem>(actionsKey); }
     void setActions(const QList<MessageActionItem> &actions) { insertArray(actionsKey, actions); }
     void clearActions() { remove(actionsKey); }
-
-    bool isValid(ErrorHierarchy *error) const override;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ShowMessageRequest : public Request<

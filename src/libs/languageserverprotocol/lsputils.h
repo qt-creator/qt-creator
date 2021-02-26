@@ -46,7 +46,10 @@ T fromJsonValue(const QJsonValue &value)
 {
     if (conversionLog().isDebugEnabled() && !value.isObject())
         qCDebug(conversionLog) << "Expected Object in json value but got: " << value;
-    return T(value.toObject());
+    T result(value.toObject());
+    if (conversionLog().isDebugEnabled() && !result.isValid())
+        qCDebug(conversionLog) << typeid(result).name() << " is not valid: " << result;
+    return result;
 }
 
 template<>
@@ -62,7 +65,13 @@ template<>
 LANGUAGESERVERPROTOCOL_EXPORT bool fromJsonValue<bool>(const QJsonValue &value);
 
 template<>
+LANGUAGESERVERPROTOCOL_EXPORT QJsonObject fromJsonValue<QJsonObject>(const QJsonValue &value);
+
+template<>
 LANGUAGESERVERPROTOCOL_EXPORT QJsonArray fromJsonValue<QJsonArray>(const QJsonValue &value);
+
+template<>
+LANGUAGESERVERPROTOCOL_EXPORT QJsonValue fromJsonValue<QJsonValue>(const QJsonValue &value);
 
 template <typename T>
 class LanguageClientArray : public Utils::variant<QList<T>, std::nullptr_t>
@@ -165,24 +174,4 @@ QList<T> jsonArrayToList(const QJsonArray &array)
     return list;
 }
 
-class LANGUAGESERVERPROTOCOL_EXPORT ErrorHierarchy
-{
-public:
-    ErrorHierarchy() = default;
-
-    void setError(const QString &error) { m_error = error; }
-    void prependMember(const QString &member) { m_hierarchy.prepend(member); }
-    void addVariantHierachy(const ErrorHierarchy &subError) { m_children.append(subError); }
-    void clear();
-
-    bool isEmpty() const;
-    QString toString() const;
-
-    bool operator==(const ErrorHierarchy &other) const;
-private:
-    QStringList m_hierarchy;
-    QList<ErrorHierarchy> m_children;
-    QString m_error;
-};
-
-} // namespace LanguageClient
+} // namespace LanguageServerProtocol

@@ -74,12 +74,6 @@ DidChangeTextDocumentParams::DidChangeTextDocumentParams(
     setContentChanges({TextDocumentContentChangeEvent(text)});
 }
 
-bool DidChangeTextDocumentParams::isValid(ErrorHierarchy *error) const
-{
-    return check<VersionedTextDocumentIdentifier>(error, textDocumentKey)
-            && checkArray<TextDocumentContentChangeEvent>(error, contentChangesKey);
-}
-
 DidOpenTextDocumentParams::DidOpenTextDocumentParams(const TextDocumentItem &document)
 {
     setTextDocument(document);
@@ -96,22 +90,9 @@ DidChangeTextDocumentParams::TextDocumentContentChangeEvent::TextDocumentContent
     setText(text);
 }
 
-bool DidChangeTextDocumentParams::TextDocumentContentChangeEvent::isValid(ErrorHierarchy *error) const
-{
-    return checkOptional<Range>(error, rangeKey)
-            && checkOptional<int>(error, rangeLengthKey)
-            && check<QString>(error, textKey);
-}
-
 DidSaveTextDocumentParams::DidSaveTextDocumentParams(const TextDocumentIdentifier &document)
 {
     setTextDocument(document);
-}
-
-bool DidSaveTextDocumentParams::isValid(ErrorHierarchy *error) const
-{
-    return check<TextDocumentIdentifier>(error, textDocumentKey)
-            && checkOptional<QString>(error, textKey);
 }
 
 WillSaveTextDocumentParams::WillSaveTextDocumentParams(
@@ -120,18 +101,6 @@ WillSaveTextDocumentParams::WillSaveTextDocumentParams(
 {
     setTextDocument(document);
     setReason(reason);
-}
-
-bool WillSaveTextDocumentParams::isValid(ErrorHierarchy *error) const
-{
-    return check<TextDocumentIdentifier>(error, textDocumentKey)
-            && check<int>(error, reasonKey);
-}
-
-bool TextDocumentSaveRegistrationOptions::isValid(ErrorHierarchy *error) const
-{
-    return TextDocumentRegistrationOptions::isValid(error)
-            && checkOptional<bool>(error, includeTextKey);
 }
 
 } // namespace LanguageServerProtocol

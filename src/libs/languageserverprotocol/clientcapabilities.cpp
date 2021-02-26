@@ -42,96 +42,9 @@ void SymbolCapabilities::SymbolKindCapabilities::setValueSet(const QList<SymbolK
     insert(valueSetKey, enumArrayToJsonArray<SymbolKind>(valueSet));
 }
 
-bool ClientCapabilities::isValid(ErrorHierarchy *error) const
-{
-    return checkOptional<WorkspaceClientCapabilities>(error, workspaceKey)
-            && checkOptional<TextDocumentClientCapabilities>(error, textDocumentKey);
-}
-
 WorkspaceClientCapabilities::WorkspaceClientCapabilities()
 {
     setWorkspaceFolders(true);
-}
-
-bool WorkspaceClientCapabilities::isValid(ErrorHierarchy *error) const
-{
-    return checkOptional<bool>(error,applyEditKey)
-            && checkOptional<WorkspaceEditCapabilities>(error,workspaceEditKey)
-            && checkOptional<DynamicRegistrationCapabilities>(error,didChangeConfigurationKey)
-            && checkOptional<DynamicRegistrationCapabilities>(error,didChangeWatchedFilesKey)
-            && checkOptional<SymbolCapabilities>(error,symbolKey)
-            && checkOptional<DynamicRegistrationCapabilities>(error,executeCommandKey)
-            && checkOptional<bool>(error,workspaceFoldersKey)
-            && checkOptional<bool>(error,configurationKey);
-}
-
-bool TextDocumentClientCapabilities::SynchronizationCapabilities::isValid(ErrorHierarchy *error) const
-{
-    return DynamicRegistrationCapabilities::isValid(error)
-            && checkOptional<bool>(error, willSaveKey)
-            && checkOptional<bool>(error, willSaveWaitUntilKey)
-            && checkOptional<bool>(error, didSaveKey);
-}
-
-bool TextDocumentClientCapabilities::isValid(ErrorHierarchy *error) const
-{
-    return checkOptional<SynchronizationCapabilities>(error, synchronizationKey)
-           && checkOptional<CompletionCapabilities>(error, completionKey)
-           && checkOptional<HoverCapabilities>(error, hoverKey)
-           && checkOptional<SignatureHelpCapabilities>(error, signatureHelpKey)
-           && checkOptional<DynamicRegistrationCapabilities>(error, referencesKey)
-           && checkOptional<DynamicRegistrationCapabilities>(error, documentHighlightKey)
-           && checkOptional<SymbolCapabilities>(error, documentSymbolKey)
-           && checkOptional<DynamicRegistrationCapabilities>(error, formattingKey)
-           && checkOptional<DynamicRegistrationCapabilities>(error, rangeFormattingKey)
-           && checkOptional<DynamicRegistrationCapabilities>(error, onTypeFormattingKey)
-           && checkOptional<DynamicRegistrationCapabilities>(error, definitionKey)
-           && checkOptional<DynamicRegistrationCapabilities>(error, typeDefinitionKey)
-           && checkOptional<DynamicRegistrationCapabilities>(error, implementationKey)
-           && checkOptional<CodeActionCapabilities>(error, codeActionKey)
-           && checkOptional<DynamicRegistrationCapabilities>(error, codeLensKey)
-           && checkOptional<DynamicRegistrationCapabilities>(error, documentLinkKey)
-           && checkOptional<DynamicRegistrationCapabilities>(error, colorProviderKey)
-           && checkOptional<RenameClientCapabilities>(error, renameKey)
-           && checkOptional<SemanticHighlightingCapabilities>(error, semanticHighlightingCapabilitiesKey);
-}
-
-bool SymbolCapabilities::isValid(ErrorHierarchy *error) const
-{
-    return DynamicRegistrationCapabilities::isValid(error)
-            && checkOptional<SymbolKindCapabilities>(error, symbolKindKey);
-}
-
-bool TextDocumentClientCapabilities::CompletionCapabilities::isValid(ErrorHierarchy *error) const
-{
-    return DynamicRegistrationCapabilities::isValid(error)
-            && checkOptional<CompletionItemCapbilities>(error, completionItemKey)
-            && checkOptional<CompletionItemKindCapabilities>(error, completionItemKindKey)
-            && checkOptional<bool>(error, contextSupportKey);
-}
-
-bool TextDocumentClientCapabilities::HoverCapabilities::isValid(ErrorHierarchy *error) const
-{
-    return DynamicRegistrationCapabilities::isValid(error)
-            && checkOptionalArray<int>(error, contentFormatKey);
-}
-
-bool TextDocumentClientCapabilities::SignatureHelpCapabilities::isValid(ErrorHierarchy *error) const
-{
-    return DynamicRegistrationCapabilities::isValid(error)
-            && checkOptional<SignatureHelpCapabilities>(error, signatureInformationKey);
-}
-
-bool TextDocumentClientCapabilities::CodeActionCapabilities::isValid(ErrorHierarchy *errorHierarchy) const
-{
-    return DynamicRegistrationCapabilities::isValid(errorHierarchy)
-            && checkOptional<CodeActionLiteralSupport>(errorHierarchy, codeActionLiteralSupportKey);
-}
-
-bool TextDocumentClientCapabilities::RenameClientCapabilities::isValid(ErrorHierarchy *error) const
-{
-    return DynamicRegistrationCapabilities::isValid(error)
-           && checkOptional<bool>(error, prepareSupportKey);
 }
 
 } // namespace LanguageServerProtocol

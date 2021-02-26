@@ -80,11 +80,6 @@ Utils::optional<MarkupOrString> ParameterInformation::documentation() const
     return MarkupOrString(documentation);
 }
 
-bool SignatureHelp::isValid(ErrorHierarchy *error) const
-{
-    return checkArray<SignatureInformation>(error, signaturesKey);
-}
-
 GotoDefinitionRequest::GotoDefinitionRequest(const TextDocumentPositionParams &params)
     : Request(methodName, params)
 { }
@@ -119,18 +114,6 @@ void CodeActionParams::CodeActionContext::setOnly(const QList<CodeActionKind> &o
     insertArray(onlyKey, only);
 }
 
-bool CodeActionParams::CodeActionContext::isValid(ErrorHierarchy *error) const
-{
-    return checkArray<Diagnostic>(error, diagnosticsKey);
-}
-
-bool CodeActionParams::isValid(ErrorHierarchy *error) const
-{
-    return check<TextDocumentIdentifier>(error, textDocumentKey)
-            && check<Range>(error, rangeKey)
-            && check<CodeActionContext>(error, contextKey);
-}
-
 CodeActionRequest::CodeActionRequest(const CodeActionParams &params)
     : Request(methodName, params)
 { }
@@ -154,21 +137,6 @@ DocumentLinkResolveRequest::DocumentLinkResolveRequest(const DocumentLink &param
 DocumentColorRequest::DocumentColorRequest(const DocumentColorParams &params)
     : Request(methodName, params)
 { }
-
-bool Color::isValid(ErrorHierarchy *error) const
-{
-    return check<int>(error, redKey)
-            && check<int>(error, greenKey)
-            && check<int>(error, blueKey)
-            && check<int>(error, alphaKey);
-}
-
-bool ColorPresentationParams::isValid(ErrorHierarchy *error) const
-{
-    return check<TextDocumentIdentifier>(error, textDocumentKey)
-            && check<Color>(error, colorInfoKey)
-            && check<Range>(error, rangeKey);
-}
 
 ColorPresentationRequest::ColorPresentationRequest(const ColorPresentationParams &params)
     : Request(methodName, params)
@@ -202,43 +170,19 @@ void FormattingOptions::setProperty(const QString &key, const DocumentFormatting
         insert(key, *val);
 }
 
-bool FormattingOptions::isValid(ErrorHierarchy *error) const
-{
-    return Utils::allOf(keys(), [this, &error](auto key){
-        return (key == tabSizeKey && this->check<int>(error, key))
-                || (key == insertSpaceKey && this->check<bool>(error, key))
-                || this->check<DocumentFormattingProperty>(error, key);
-    });
-}
-
-bool DocumentFormattingParams::isValid(ErrorHierarchy *error) const
-{
-    return check<TextDocumentIdentifier>(error, textDocumentKey)
-            && check<FormattingOptions>(error, optionsKey);
-}
-
 DocumentFormattingRequest::DocumentFormattingRequest(const DocumentFormattingParams &params)
     : Request(methodName, params)
 { }
-
-bool DocumentRangeFormattingParams::isValid(ErrorHierarchy *error) const
-{
-    return check<TextDocumentIdentifier>(error, textDocumentKey)
-            && check<Range>(error, rangeKey)
-            && check<FormattingOptions>(error, optionsKey);
-}
 
 DocumentRangeFormattingRequest::DocumentRangeFormattingRequest(
         const DocumentRangeFormattingParams &params)
     : Request(methodName, params)
 { }
 
-bool DocumentOnTypeFormattingParams::isValid(ErrorHierarchy *error) const
+bool DocumentOnTypeFormattingParams::isValid() const
 {
-    return check<TextDocumentIdentifier>(error, textDocumentKey)
-            && check<Position>(error, positionKey)
-            && check<QString>(error, chKey)
-            && check<FormattingOptions>(error, optionsKey);
+    return contains(textDocumentKey) && contains(positionKey) && contains(chKey)
+           && contains(optionsKey);
 }
 
 DocumentOnTypeFormattingRequest::DocumentOnTypeFormattingRequest(
@@ -250,11 +194,9 @@ PrepareRenameRequest::PrepareRenameRequest(const TextDocumentPositionParams &par
     : Request(methodName, params)
 { }
 
-bool RenameParams::isValid(ErrorHierarchy *error) const
+bool RenameParams::isValid() const
 {
-    return check<TextDocumentIdentifier>(error, textDocumentKey)
-            && check<Position>(error, positionKey)
-            && check<QString>(error, newNameKey);
+    return contains(textDocumentKey) && contains(positionKey) && contains(newNameKey);
 }
 
 RenameRequest::RenameRequest(const RenameParams &params)
@@ -267,6 +209,11 @@ Utils::optional<DocumentUri> DocumentLink::target() const
     return optionalTarget.has_value()
             ? Utils::make_optional(DocumentUri::fromProtocol(optionalTarget.value()))
             : Utils::nullopt;
+}
+
+Utils::optional<QJsonValue> DocumentLink::data() const
+{
+    return contains(dataKey) ? Utils::make_optional(value(dataKey)) : Utils::nullopt;
 }
 
 TextDocumentParams::TextDocumentParams()
@@ -340,13 +287,17 @@ DocumentHighlightsResult::DocumentHighlightsResult(const QJsonValue &value)
 
 MarkedString::MarkedString(const QJsonValue &value)
 {
-    if (value.isObject()) {
-        MarkedLanguageString string(value.toObject());
-        if (string.isValid(nullptr))
-            emplace<MarkedLanguageString>(string);
-    } else if (value.isString()) {
+    if (value.isObject())
+        emplace<MarkedLanguageString>(MarkedLanguageString(value.toObject()));
+    else
         emplace<QString>(value.toString());
-    }
+}
+
+bool MarkedString::isValid() const
+{
+    if (auto markedLanguageString = Utils::get_if<MarkedLanguageString>(this))
+        return markedLanguageString->isValid();
+    return true;
 }
 
 LanguageServerProtocol::MarkedString::operator QJsonValue() const
@@ -365,7 +316,7 @@ HoverContent::HoverContent(const QJsonValue &value)
     } else if (value.isObject()) {
         const QJsonObject &object = value.toObject();
         MarkedLanguageString markedLanguageString(object);
-        if (markedLanguageString.isValid(nullptr))
+        if (markedLanguageString.isValid())
             emplace<MarkedString>(markedLanguageString);
         else
             emplace<MarkupContent>(MarkupContent(object));
@@ -374,20 +325,11 @@ HoverContent::HoverContent(const QJsonValue &value)
     }
 }
 
-bool HoverContent::isValid(ErrorHierarchy *errorHierarchy) const
+bool HoverContent::isValid() const
 {
-    if (Utils::holds_alternative<MarkedString>(*this)
-            || Utils::holds_alternative<MarkupContent>(*this)
-            || Utils::holds_alternative<QList<MarkedString>>(*this)) {
-        return true;
-    }
-    if (errorHierarchy) {
-        errorHierarchy->setError(
-            QCoreApplication::translate("LanguageServerProtocol::HoverContent",
-                                        "HoverContent should be either MarkedString, "
-                                        "MarkupContent, or QList<MarkedString>."));
-    }
-    return false;
+    if (Utils::holds_alternative<MarkedString>(*this))
+        return Utils::get<MarkedString>(*this).isValid();
+    return true;
 }
 
 DocumentFormattingProperty::DocumentFormattingProperty(const QJsonValue &value)
@@ -398,21 +340,6 @@ DocumentFormattingProperty::DocumentFormattingProperty(const QJsonValue &value)
         *this = value.toDouble();
     if (value.isString())
         *this = value.toString();
-}
-
-bool DocumentFormattingProperty::isValid(ErrorHierarchy *error) const
-{
-    if (Utils::holds_alternative<bool>(*this)
-            || Utils::holds_alternative<double>(*this)
-            || Utils::holds_alternative<QString>(*this)) {
-        return true;
-    }
-    if (error) {
-        error->setError(QCoreApplication::translate(
-            "LanguageServerProtocol::MarkedString",
-            "DocumentFormattingProperty should be either bool, double, or QString."));
-    }
-    return false;
 }
 
 SignatureHelpRequest::SignatureHelpRequest(const TextDocumentPositionParams &params)
@@ -427,7 +354,7 @@ CodeActionResult::CodeActionResult(const QJsonValue &val)
         ResultArray result;
         for (const QJsonValue &val : array) {
             Command command(val);
-            if (command.isValid(nullptr))
+            if (command.isValid())
                 result << command;
             else
                 result << CodeAction(val);
@@ -436,15 +363,6 @@ CodeActionResult::CodeActionResult(const QJsonValue &val)
         return;
     }
     emplace<std::nullptr_t>(nullptr);
-}
-
-bool CodeAction::isValid(ErrorHierarchy *error) const
-{
-    return check<QString>(error, titleKey)
-           && checkOptional<CodeActionKind>(error, codeActionKindKey)
-           && checkOptionalArray<Diagnostic>(error, diagnosticsKey)
-           && checkOptional<WorkspaceEdit>(error, editKey)
-           && checkOptional<Command>(error, commandKey);
 }
 
 Utils::optional<QList<SemanticHighlightToken>> SemanticHighlightingInformation::tokens() const
@@ -501,19 +419,7 @@ SemanticHighlightingParams::textDocument() const
 {
     VersionedTextDocumentIdentifier textDocument = fromJsonValue<VersionedTextDocumentIdentifier>(
         value(textDocumentKey));
-    ErrorHierarchy error;
-    if (!textDocument.isValid(&error)) {
-        return TextDocumentIdentifier(textDocument);
-    } else {
-        return textDocument;
-    }
-}
-
-bool SemanticHighlightingParams::isValid(ErrorHierarchy *error) const
-{
-    return checkVariant<VersionedTextDocumentIdentifier, TextDocumentIdentifier>(error,
-                                                                                 textDocumentKey)
-           && checkArray<SemanticHighlightingInformation>(error, linesKey);
+    return textDocument.isValid() ? textDocument : TextDocumentIdentifier(textDocument);
 }
 
 PrepareRenameResult::PrepareRenameResult()
@@ -550,5 +456,10 @@ PrepareRenameResult::PrepareRenameResult(const QJsonValue &val)
 SemanticHighlightNotification::SemanticHighlightNotification(const SemanticHighlightingParams &params)
     : Notification(methodName, params)
 {}
+
+Utils::optional<QJsonValue> CodeLens::data() const
+{
+    return contains(dataKey) ? Utils::make_optional(value(dataKey)) : Utils::nullopt;
+}
 
 } // namespace LanguageServerProtocol

@@ -60,8 +60,6 @@ private slots:
     void jsonMessageToBaseMessage_data();
     void jsonMessageToBaseMessage();
 
-    void jsonObject();
-
     void documentUri_data();
     void documentUri();
 
@@ -476,127 +474,6 @@ void tst_LanguageServerProtocol::jsonMessageToBaseMessage()
     QFETCH(BaseMessage, baseMessage);
 
     QCOMPARE(jsonMessage.toBaseMessage(), baseMessage);
-}
-
-class JsonTestObject : public JsonObject
-{
-public:
-    using JsonObject::JsonObject;
-    using JsonObject::insert;
-    using JsonObject::value;
-    using JsonObject::contains;
-    using JsonObject::find;
-    using JsonObject::end;
-    using JsonObject::remove;
-    using JsonObject::keys;
-    using JsonObject::typedValue;
-    using JsonObject::optionalValue;
-    using JsonObject::clientValue;
-    using JsonObject::optionalClientValue;
-    using JsonObject::array;
-    using JsonObject::optionalArray;
-    using JsonObject::clientArray;
-    using JsonObject::optionalClientArray;
-    using JsonObject::insertArray;
-    using JsonObject::checkKey;
-    using JsonObject::valueTypeString;
-    using JsonObject::check;
-    using JsonObject::checkType;
-    using JsonObject::checkVal;
-    using JsonObject::checkArray;
-    using JsonObject::checkOptional;
-    using JsonObject::checkOptionalArray;
-    using JsonObject::errorString;
-    using JsonObject::operator==;
-};
-
-void tst_LanguageServerProtocol::jsonObject()
-{
-    JsonTestObject obj;
-
-    obj.insert("integer", 42);
-    obj.insert("double", 42.42);
-    obj.insert("bool", false);
-    obj.insert("null", QJsonValue::Null);
-    obj.insert("string", "foobar");
-    obj.insertArray("strings", QStringList{"foo", "bar"});
-    const JsonTestObject innerObj(obj);
-    obj.insert("object", innerObj);
-
-    QCOMPARE(obj.value("integer"), QJsonValue(42));
-    QCOMPARE(obj.value("double"), QJsonValue(42.42));
-    QCOMPARE(obj.value("bool"), QJsonValue(false));
-    QCOMPARE(obj.value("null"), QJsonValue(QJsonValue::Null));
-    QCOMPARE(obj.value("string"), QJsonValue("foobar"));
-    QCOMPARE(obj.value("strings"), QJsonValue(QJsonArray({"foo", "bar"})));
-    QCOMPARE(obj.value("object"), QJsonValue(QJsonObject(innerObj)));
-
-    QCOMPARE(obj.typedValue<int>("integer"), 42);
-    QCOMPARE(obj.typedValue<double>("double"), 42.42);
-    QCOMPARE(obj.typedValue<bool>("bool"), false);
-    QCOMPARE(obj.typedValue<QString>("string"), QString("foobar"));
-    QCOMPARE(obj.typedValue<JsonTestObject>("object"), innerObj);
-
-    QVERIFY(!obj.optionalValue<int>("doesNotExist").has_value());
-    QVERIFY(obj.optionalValue<int>("integer").has_value());
-    QCOMPARE(obj.optionalValue<int>("integer").value_or(0), 42);
-
-    QVERIFY(obj.clientValue<int>("null").isNull());
-    QVERIFY(!obj.clientValue<int>("integer").isNull());
-    QCOMPARE(obj.clientValue<int>("integer").value(), 42);
-
-    QVERIFY(!obj.optionalClientValue<int>("doesNotExist").has_value());
-    QVERIFY(obj.optionalClientValue<int>("null").has_value());
-    QVERIFY(obj.optionalClientValue<int>("null").value().isNull());
-    QVERIFY(obj.optionalClientValue<int>("integer").has_value());
-    QVERIFY(!obj.optionalClientValue<int>("integer").value().isNull());
-    QCOMPARE(obj.optionalClientValue<int>("integer").value().value(0), 42);
-
-    QCOMPARE(obj.array<QString>("strings"), QList<QString>({"foo", "bar"}));
-
-    QVERIFY(!obj.optionalArray<QString>("doesNotExist").has_value());
-    QVERIFY(obj.optionalArray<QString>("strings").has_value());
-    QCOMPARE(obj.optionalArray<QString>("strings").value_or(QList<QString>()),
-             QList<QString>({"foo", "bar"}));
-
-    QVERIFY(obj.clientArray<QString>("null").isNull());
-    QVERIFY(!obj.clientArray<QString>("strings").isNull());
-    QCOMPARE(obj.clientArray<QString>("strings").toList(), QList<QString>({"foo", "bar"}));
-
-    QVERIFY(!obj.optionalClientArray<QString>("doesNotExist").has_value());
-    QVERIFY(obj.optionalClientArray<QString>("null").has_value());
-    QVERIFY(obj.optionalClientArray<QString>("null").value().isNull());
-    QVERIFY(obj.optionalClientArray<QString>("strings").has_value());
-    QVERIFY(!obj.optionalClientArray<QString>("strings").value().isNull());
-    QCOMPARE(obj.optionalClientArray<QString>("strings").value().toList(),
-             QList<QString>({"foo", "bar"}));
-
-    ErrorHierarchy errorHierarchy;
-    QVERIFY(!obj.check<int>(&errorHierarchy, "doesNotExist"));
-    ErrorHierarchy errorDoesNotExists;
-    errorDoesNotExists.setError(
-                JsonTestObject::errorString(QJsonValue::Double, QJsonValue::Undefined));
-    errorDoesNotExists.prependMember("doesNotExist");
-    QCOMPARE(errorHierarchy, errorDoesNotExists);
-    errorHierarchy.clear();
-
-    QVERIFY(!obj.check<int>(&errorHierarchy, "bool"));
-    ErrorHierarchy errorWrongType;
-    errorWrongType.setError(JsonTestObject::errorString(QJsonValue::Double, QJsonValue::Bool));
-    errorWrongType.prependMember("bool");
-    QCOMPARE(errorHierarchy, errorWrongType);
-    errorHierarchy.clear();
-
-    QVERIFY(obj.check<int>(&errorHierarchy, "integer"));
-    QVERIFY(errorHierarchy.isEmpty());
-    QVERIFY(obj.check<double>(&errorHierarchy, "double"));
-    QVERIFY(errorHierarchy.isEmpty());
-    QVERIFY(obj.check<bool>(&errorHierarchy, "bool"));
-    QVERIFY(errorHierarchy.isEmpty());
-    QVERIFY(obj.check<std::nullptr_t>(&errorHierarchy, "null"));
-    QVERIFY(errorHierarchy.isEmpty());
-    QVERIFY(obj.check<QString>(&errorHierarchy, "string"));
-    QVERIFY(errorHierarchy.isEmpty());
 }
 
 void tst_LanguageServerProtocol::documentUri_data()

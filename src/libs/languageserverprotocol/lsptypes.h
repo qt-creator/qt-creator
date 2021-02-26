@@ -83,8 +83,8 @@ public:
     int character() const { return typedValue<int>(characterKey); }
     void setCharacter(int character) { insert(characterKey, character); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return check<int>(error, lineKey) && check<int>(error, characterKey); }
+    bool isValid() const override
+    { return contains(lineKey) && contains(characterKey); }
 
     int toPositionInDocument(QTextDocument *doc) const;
     QTextCursor toTextCursor(QTextDocument *doc) const;
@@ -115,8 +115,8 @@ public:
     bool contains(const Position &pos) const { return start() <= pos && pos <= end(); }
     bool overlaps(const Range &range) const;
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return check<Position>(error, startKey) && check<Position>(error, endKey); }
+    bool isValid() const override
+    { return JsonObject::contains(startKey) && JsonObject::contains(endKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT Location : public JsonObject
@@ -133,8 +133,7 @@ public:
 
     Utils::Link toLink() const;
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return check<QString>(error, uriKey) && check<Range>(error, rangeKey); }
+    bool isValid() const override { return contains(uriKey) && contains(rangeKey); }
 };
 
 enum class DiagnosticSeverity
@@ -180,7 +179,7 @@ public:
     { return typedValue<QString>(messageKey); }
     void setMessage(const QString &message) { insert(messageKey, message); }
 
-    bool isValid(ErrorHierarchy *error) const override;
+    bool isValid() const override { return contains(rangeKey) && contains(messageKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT Command : public JsonObject
@@ -203,10 +202,7 @@ public:
     void setArguments(const QJsonArray &arguments) { insert(argumentsKey, arguments); }
     void clearArguments() { remove(argumentsKey); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return check<QString>(error, titleKey)
-                && check<QString>(error, commandKey)
-                && checkOptional<QJsonArray>(error, argumentsKey); }
+    bool isValid() const override { return contains(titleKey) && contains(commandKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT TextEdit : public JsonObject
@@ -225,8 +221,8 @@ public:
 
     Utils::Text::Replacement toReplacement(QTextDocument *document) const;
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return check<Range>(error, rangeKey) && check<QString>(error, newTextKey); }
+    bool isValid() const override
+    { return contains(rangeKey) && contains(newTextKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT TextDocumentIdentifier : public JsonObject
@@ -240,7 +236,7 @@ public:
     DocumentUri uri() const { return DocumentUri::fromProtocol(typedValue<QString>(uriKey)); }
     void setUri(const DocumentUri &uri) { insert(uriKey, uri); }
 
-    bool isValid(ErrorHierarchy *error) const override { return check<QString>(error, uriKey); }
+    bool isValid() const override { return contains(uriKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT VersionedTextDocumentIdentifier : public TextDocumentIdentifier
@@ -258,10 +254,9 @@ public:
     LanguageClientValue<int> version() const { return clientValue<int>(versionKey); }
     void setVersion(LanguageClientValue<int> version) { insert(versionKey, version); }
 
-    bool isValid(ErrorHierarchy *error) const override
+    bool isValid() const override
     {
-        return TextDocumentIdentifier::isValid(error)
-               && checkVariant<int, std::nullptr_t>(error, versionKey);
+        return TextDocumentIdentifier::isValid() && contains(versionKey);
     }
 };
 
@@ -280,7 +275,7 @@ public:
     QList<TextEdit> edits() const { return array<TextEdit>(editsKey); }
     void setEdits(const QList<TextEdit> edits) { insertArray(editsKey, edits); }
 
-    bool isValid(ErrorHierarchy *error) const override;
+    bool isValid() const override { return contains(textDocumentKey) && contains(editsKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT WorkspaceEdit : public JsonObject
@@ -306,9 +301,6 @@ public:
     { return optionalArray<TextDocumentEdit>(documentChangesKey); }
     void setDocumentChanges(const QList<TextDocumentEdit> &changes)
     { insertArray(documentChangesKey, changes); }
-
-    bool isValid(ErrorHierarchy *error) const override
-    { return checkOptionalArray<TextDocumentEdit>(error, documentChangesKey); }
 };
 
 LANGUAGESERVERPROTOCOL_EXPORT QMap<QString, QString> languageIds();
@@ -334,7 +326,7 @@ public:
     QString text() const { return typedValue<QString>(textKey); }
     void setText(const QString &text) { insert(textKey, text); }
 
-    bool isValid(ErrorHierarchy *error) const override;
+    bool isValid() const override;
 
     static QString mimeTypeToLanguageId(const Utils::MimeType &mimeType);
     static QString mimeTypeToLanguageId(const QString &mimeTypeName);
@@ -356,7 +348,7 @@ public:
     Position position() const { return typedValue<Position>(positionKey); }
     void setPosition(const Position &position) { insert(positionKey, position); }
 
-    bool isValid(ErrorHierarchy *error) const override;
+    bool isValid() const override { return contains(textDocumentKey) && contains(positionKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentFilter : public JsonObject
@@ -381,8 +373,6 @@ public:
 
     bool applies(const Utils::FilePath &fileName,
                  const Utils::MimeType &mimeType = Utils::MimeType()) const;
-
-    bool isValid(ErrorHierarchy *error) const override;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT MarkupKind
@@ -400,7 +390,7 @@ public:
 
     bool operator==(const Value &value) const { return m_value == value; }
 
-    bool isValid(void *) const { return true; }
+    bool isValid() const { return true; }
 private:
     Value m_value = plaintext;
 };
@@ -420,8 +410,8 @@ public:
     QString content() const { return typedValue<QString>(contentKey); }
     void setContent(const QString &content) { insert(contentKey, content); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return check<MarkupKind>(error, kindKey) && check<QString>(error, contentKey); }
+    bool isValid() const override
+    { return contains(kindKey) && contains(contentKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT MarkupOrString : public Utils::variant<QString, MarkupContent>
@@ -433,7 +423,7 @@ public:
     explicit MarkupOrString(const MarkupContent &val);
     MarkupOrString(const QJsonValue &val);
 
-    bool isValid(ErrorHierarchy *error) const;
+    bool isValid() const { return true; }
 
     QJsonValue toJson() const;
 };
@@ -453,8 +443,8 @@ public:
     QString name() const { return typedValue<QString>(nameKey); }
     void setName(const QString &name) { insert(nameKey, name); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return check<QString>(error, uriKey) && check<QString>(error, nameKey); }
+    bool isValid() const override
+    { return contains(uriKey) && contains(nameKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT SymbolInformation : public JsonObject
@@ -480,7 +470,8 @@ public:
     void setContainerName(const QString &containerName) { insert(containerNameKey, containerName); }
     void clearContainerName() { remove(containerNameKey); }
 
-    bool isValid(ErrorHierarchy *error) const override;
+    bool isValid() const override
+    { return contains(nameKey) && contains(kindKey) && contains(locationKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentSymbol : public JsonObject

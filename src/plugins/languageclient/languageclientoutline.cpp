@@ -231,7 +231,7 @@ bool LanguageClientOutlineWidgetFactory::clientSupportsDocumentSymbols(
     DynamicCapabilities dc = client->dynamicCapabilities();
     if (dc.isRegistered(DocumentSymbolsRequest::methodName).value_or(false)) {
         TextDocumentRegistrationOptions options(dc.option(DocumentSymbolsRequest::methodName));
-        return !options.isValid(nullptr)
+        return !options.isValid()
                || options.filterApplies(doc->filePath(), Utils::mimeTypeForName(doc->mimeType()));
     }
     const Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> &provider

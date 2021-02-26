@@ -65,15 +65,6 @@ void Diagnostic::setCode(const Diagnostic::Code &code)
     insertVariant<int, QString>(codeKey, code);
 }
 
-bool Diagnostic::isValid(ErrorHierarchy *error) const
-{
-    return check<Range>(error, rangeKey)
-            && checkOptional<int>(error, severityKey)
-            && (checkOptional<int>(error, codeKey) || checkOptional<QString>(error, codeKey))
-            && checkOptional<QString>(error, sourceKey)
-            && check<QString>(error, messageKey);
-}
-
 Utils::optional<WorkspaceEdit::Changes> WorkspaceEdit::changes() const
 {
     auto it = find(changesKey);
@@ -123,21 +114,9 @@ MarkupOrString::MarkupOrString(const QJsonValue &val)
         emplace<QString>(val.toString());
     } else {
         MarkupContent markupContent(val.toObject());
-        if (markupContent.isValid(nullptr))
+        if (markupContent.isValid())
             emplace<MarkupContent>(MarkupContent(val.toObject()));
     }
-}
-
-bool MarkupOrString::isValid(ErrorHierarchy *error) const
-{
-    if (Utils::holds_alternative<MarkupContent>(*this) || Utils::holds_alternative<QString>(*this))
-        return true;
-    if (error) {
-        error->setError(
-            QCoreApplication::translate("LanguageServerProtocoll::MarkupOrString",
-                                        "Expected a string or MarkupContent in MarkupOrString."));
-    }
-    return false;
 }
 
 QJsonValue MarkupOrString::toJson() const
@@ -147,28 +126,6 @@ QJsonValue MarkupOrString::toJson() const
     if (Utils::holds_alternative<MarkupContent>(*this))
         return QJsonValue(Utils::get<MarkupContent>(*this));
     return {};
-}
-
-bool SymbolInformation::isValid(ErrorHierarchy *error) const
-{
-    return check<QString>(error, nameKey)
-            && check<int>(error, kindKey)
-            && check<Location>(error, locationKey)
-            && checkOptional<QString>(error, containerNameKey);
-}
-
-bool TextDocumentEdit::isValid(ErrorHierarchy *error) const
-{
-    return check<VersionedTextDocumentIdentifier>(error, textDocumentKey)
-            && checkArray<TextEdit>(error, editsKey);
-}
-
-bool TextDocumentItem::isValid(ErrorHierarchy *error) const
-{
-    return check<QString>(error, uriKey)
-            && check<QString>(error, languageIdKey)
-            && check<int>(error, versionKey)
-            && check<QString>(error, textKey);
 }
 
 static QHash<Utils::MimeType, QString> mimeTypeLanguageIdMap()
@@ -281,6 +238,11 @@ QMap<QString, QString> languageIds()
     return languages;
 }
 
+bool TextDocumentItem::isValid() const
+{
+    return contains(uriKey) && contains(languageIdKey) && contains(versionKey) && contains(textKey);
+}
+
 QString TextDocumentItem::mimeTypeToLanguageId(const Utils::MimeType &mimeType)
 {
     return mimeTypeLanguageIdMap().value(mimeType);
@@ -302,12 +264,6 @@ TextDocumentPositionParams::TextDocumentPositionParams(
 {
     setTextDocument(document);
     setPosition(position);
-}
-
-bool TextDocumentPositionParams::isValid(ErrorHierarchy *error) const
-{
-    return check<TextDocumentIdentifier>(error, textDocumentKey)
-            && check<Position>(error, positionKey);
 }
 
 Position::Position(int line, int character)
@@ -388,16 +344,9 @@ bool DocumentFilter::applies(const Utils::FilePath &fileName, const Utils::MimeT
     return !contains(schemeKey) && !contains(languageKey) && !contains(patternKey);
 }
 
-bool DocumentFilter::isValid(ErrorHierarchy *error) const
-{
-    return Utils::allOf(QStringList{languageKey, schemeKey, patternKey}, [this, &error](auto key){
-        return this->checkOptional<QString>(error, key);
-    });
-}
-
 Utils::Link Location::toLink() const
 {
-    if (!isValid(nullptr))
+    if (!isValid())
         return Utils::Link();
 
     // Ensure %xx like %20 are really decoded using fromPercentEncoding

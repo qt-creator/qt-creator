@@ -184,7 +184,7 @@ bool LanguageClientCompletionItem::isSnippet() const
 
 bool LanguageClientCompletionItem::isValid() const
 {
-    return m_item.isValid(nullptr);
+    return m_item.isValid();
 }
 
 quint64 LanguageClientCompletionItem::hash() const

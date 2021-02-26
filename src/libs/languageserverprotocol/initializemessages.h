@@ -91,8 +91,7 @@ public:
     { insert(rootUriKey, uri); }
 
     // User provided initialization options.
-    Utils::optional<QJsonObject> initializationOptions() const
-    { return optionalValue<QJsonObject>(initializationOptionsKey); }
+    Utils::optional<QJsonObject> initializationOptions() const;
     void setInitializationOptions(const QJsonObject &options)
     { insert(initializationOptionsKey, options); }
     void clearInitializationOptions() { remove(initializationOptionsKey); }
@@ -121,7 +120,8 @@ public:
     { insert(workspaceFoldersKey, folders.toJson()); }
     void clearWorkSpaceFolders() { remove(workspaceFoldersKey); }
 
-    bool isValid(ErrorHierarchy *error) const override;
+    bool isValid() const override
+    { return contains(processIdKey) && contains(rootUriKey) && contains(capabilitiesKey); }
 };
 
 using InitializedParams = JsonObject;
@@ -146,9 +146,6 @@ public:
     void setCapabilities(const ServerCapabilities &capabilities)
     { insert(capabilitiesKey, capabilities); }
     void clearCapabilities() { remove(capabilitiesKey); }
-
-    bool isValid(ErrorHierarchy *error) const override
-    { return checkOptional<ServerCapabilities>(error, capabilitiesKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT InitializeError : public JsonObject
@@ -165,8 +162,6 @@ public:
     Utils::optional<bool> retry() const { return optionalValue<bool>(retryKey); }
     void setRetry(bool retry) { insert(retryKey, retry); }
     void clearRetry() { remove(retryKey); }
-
-    bool isValid(ErrorHierarchy *error) const override { return checkOptional<bool>(error, retryKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT InitializeRequest : public Request<

@@ -80,7 +80,7 @@ QFutureWatcher<ChangeSet> *LanguageClientFormatter::format(
         if (!registered.value())
             return nullptr;
         const TextDocumentRegistrationOptions option(dynamicCapabilities.option(method).toObject());
-        if (option.isValid(nullptr)
+        if (option.isValid()
                 && !option.filterApplies(filePath, Utils::mimeTypeForName(m_document->mimeType()))) {
             return nullptr;
         }

@@ -191,7 +191,7 @@ Utils::optional<Utils::variant<bool, CodeActionOptions>> ServerCapabilities::cod
         return Utils::make_optional(Utils::variant<bool, CodeActionOptions>(provider.toBool()));
     if (provider.isObject()) {
         CodeActionOptions options(provider);
-        if (options.isValid(nullptr))
+        if (options.isValid())
             return Utils::make_optional(Utils::variant<bool, CodeActionOptions>(options));
     }
     return Utils::nullopt;
@@ -267,31 +267,6 @@ void ServerCapabilities::setColorProvider(Utils::variant<bool, JsonObject> color
     insertVariant<bool, JsonObject>(renameProviderKey, colorProvider);
 }
 
-bool ServerCapabilities::isValid(ErrorHierarchy *error) const
-{
-    return checkOptional<TextDocumentSyncOptions, int>(error, textDocumentSyncKey)
-            && checkOptional<bool>(error, hoverProviderKey)
-            && checkOptional<CompletionOptions>(error, completionProviderKey)
-            && checkOptional<SignatureHelpOptions>(error, signatureHelpProviderKey)
-            && checkOptional<bool>(error, definitionProviderKey)
-            && checkOptional<bool, RegistrationOptions>(error, typeDefinitionProviderKey)
-            && checkOptional<bool, RegistrationOptions>(error, implementationProviderKey)
-            && checkOptional<bool>(error, referencesProviderKey)
-            && checkOptional<bool>(error, documentHighlightProviderKey)
-            && checkOptional<bool>(error, documentSymbolProviderKey)
-            && checkOptional<bool>(error, workspaceSymbolProviderKey)
-            && checkOptional<bool, CodeActionOptions>(error, codeActionProviderKey)
-            && checkOptional<CodeLensOptions>(error, codeLensProviderKey)
-            && checkOptional<bool>(error, documentFormattingProviderKey)
-            && checkOptional<bool>(error, documentRangeFormattingProviderKey)
-            && checkOptional<bool, RenameOptions>(error, renameProviderKey)
-            && checkOptional<DocumentLinkOptions>(error, documentLinkProviderKey)
-            && checkOptional<bool, JsonObject>(error, colorProviderKey)
-            && checkOptional<ExecuteCommandOptions>(error, executeCommandProviderKey)
-            && checkOptional<WorkspaceServerCapabilities>(error, workspaceKey)
-            && checkOptional<SemanticHighlightingServerCapabilities>(error, semanticHighlightingKey);
-}
-
 Utils::optional<Utils::variant<QString, bool> >
 ServerCapabilities::WorkspaceServerCapabilities::WorkspaceFoldersCapabilities::changeNotifications() const
 {
@@ -309,12 +284,6 @@ void ServerCapabilities::WorkspaceServerCapabilities::WorkspaceFoldersCapabiliti
     insertVariant<QString, bool>(changeNotificationsKey, changeNotifications);
 }
 
-bool ServerCapabilities::WorkspaceServerCapabilities::WorkspaceFoldersCapabilities::isValid(ErrorHierarchy *error) const
-{
-    return checkOptional<bool>(error, supportedKey)
-            && checkOptional<QString, bool>(error, changeNotificationsKey);
-}
-
 bool TextDocumentRegistrationOptions::filterApplies(const Utils::FilePath &fileName,
                                                     const Utils::MimeType &mimeType) const
 {
@@ -324,15 +293,6 @@ bool TextDocumentRegistrationOptions::filterApplies(const Utils::FilePath &fileN
             || Utils::anyOf(selector.toList(), [&](auto filter){
         return filter.applies(fileName, mimeType);
     });
-}
-
-bool TextDocumentSyncOptions::isValid(ErrorHierarchy *error) const
-{
-    return checkOptional<bool>(error, openCloseKey)
-            && checkOptional<int>(error, changeKey)
-            && checkOptional<bool>(error, willSaveKey)
-            && checkOptional<bool>(error, willSaveWaitUntilKey)
-            && checkOptional<SaveOptions>(error, saveKey);
 }
 
 Utils::optional<QList<QList<QString>>> ServerCapabilities::SemanticHighlightingServerCapabilities::scopes() const
@@ -367,7 +327,7 @@ void ServerCapabilities::SemanticHighlightingServerCapabilities::setScopes(
     insert(scopesKey, jsonScopes);
 }
 
-bool ServerCapabilities::SemanticHighlightingServerCapabilities::isValid(ErrorHierarchy *) const
+bool ServerCapabilities::SemanticHighlightingServerCapabilities::isValid() const
 {
     return contains(scopesKey) && value(scopesKey).isArray()
            && Utils::allOf(value(scopesKey).toArray(), [](const QJsonValue &array) {
@@ -379,34 +339,14 @@ bool ServerCapabilities::SemanticHighlightingServerCapabilities::isValid(ErrorHi
               });
 }
 
-bool ServerCapabilities::ExecuteCommandOptions::isValid(ErrorHierarchy *error) const
+bool ServerCapabilities::ExecuteCommandOptions::isValid() const
 {
-    return WorkDoneProgressOptions::isValid(error) && checkArray<QString>(error, commandsKey);
+    return WorkDoneProgressOptions::isValid() && contains(commandsKey);
 }
 
-bool ServerCapabilities::CompletionOptions::isValid(ErrorHierarchy *error) const
+bool CodeActionOptions::isValid() const
 {
-    return WorkDoneProgressOptions::isValid(error)
-           && checkOptionalArray<QString>(error, triggerCharactersKey)
-           && checkOptional<bool>(error, resolveProviderKey);
-}
-
-bool ServerCapabilities::SignatureHelpOptions::isValid(ErrorHierarchy *error) const
-{
-    return WorkDoneProgressOptions::isValid(error)
-           && checkOptionalArray<QString>(error, triggerCharactersKey);
-}
-
-bool CodeActionOptions::isValid(ErrorHierarchy *error) const
-{
-    return WorkDoneProgressOptions::isValid(error)
-           && checkArray<QString>(error, codeActionKindsKey);
-}
-
-bool ServerCapabilities::RenameOptions::isValid(ErrorHierarchy *error) const
-{
-    return WorkDoneProgressOptions::isValid(error)
-           && checkOptional<bool>(error, prepareProviderKey);
+    return WorkDoneProgressOptions::isValid() && contains(codeActionKindsKey);
 }
 
 } // namespace LanguageServerProtocol

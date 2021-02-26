@@ -50,12 +50,6 @@ TelemetryNotification::TelemetryNotification(const JsonObject &params)
     : Notification(methodName, params)
 { }
 
-bool ShowMessageRequestParams::isValid(ErrorHierarchy *error) const
-{
-    return ShowMessageParams::isValid(error)
-            && checkOptionalArray<MessageActionItem>(error, actionsKey);
-}
-
 static QString messageTypeName(int messageType)
 {
     switch (messageType) {

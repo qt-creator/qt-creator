@@ -75,34 +75,18 @@ QJsonArray fromJsonValue<QJsonArray>(const QJsonValue &value)
     return value.toArray();
 }
 
-void ErrorHierarchy::clear()
+template<>
+QJsonObject fromJsonValue<QJsonObject>(const QJsonValue &value)
 {
-    m_hierarchy.clear();
-    m_children.clear();
-    m_error.clear();
+    if (conversionLog().isDebugEnabled() && !value.isObject())
+        qCDebug(conversionLog) << "Expected Object in json value but got: " << value;
+    return value.toObject();
 }
 
-bool ErrorHierarchy::isEmpty() const
+template<>
+QJsonValue fromJsonValue<QJsonValue>(const QJsonValue &value)
 {
-    return m_hierarchy.isEmpty() && m_children.isEmpty() && m_error.isEmpty();
-}
-
-QString ErrorHierarchy::toString() const
-{
-    if (m_error.isEmpty() && m_hierarchy.isEmpty())
-        return {};
-    QString error = m_hierarchy.join(" > ") + ": " + m_error;
-    if (!m_children.isEmpty()) {
-        error.append("\n\t");
-        error.append(Utils::transform(m_children, &ErrorHierarchy::toString).join("\n\t"));
-    }
-    return error;
-}
-
-bool ErrorHierarchy::operator==(const ErrorHierarchy &other) const
-{
-    return m_hierarchy == other.m_hierarchy && m_children == other.m_children
-           && m_error == other.m_error;
+    return value;
 }
 
 } // namespace LanguageServerProtocol

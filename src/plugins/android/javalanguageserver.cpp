@@ -221,7 +221,7 @@ void JLSClient::executeCommand(const LanguageServerProtocol::Command &command)
             if (!argument.isObject())
                 continue;
             LanguageServerProtocol::WorkspaceEdit edit(argument.toObject());
-            if (edit.isValid(nullptr))
+            if (edit.isValid())
                 LanguageClient::applyWorkspaceEdit(edit);
         }
     } else {

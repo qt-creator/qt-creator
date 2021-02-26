@@ -152,7 +152,7 @@ void updateCodeActionRefactoringMarker(Client *client,
     RefactorMarkers markers;
     RefactorMarker marker;
     marker.type = client->id();
-    if (action.isValid(nullptr))
+    if (action.isValid())
         marker.tooltip = action.title();
     if (action.edit().has_value()) {
         WorkspaceEdit edit = action.edit().value();

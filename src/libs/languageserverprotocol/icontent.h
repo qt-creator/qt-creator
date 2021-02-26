@@ -60,7 +60,7 @@ public:
             *this = MessageId(value.toString());
     }
 
-    QJsonValue toJson() const
+    operator QJsonValue() const
     {
         QTC_CHECK(Utils::holds_alternative<int>(*this) || Utils::holds_alternative<QString>(*this));
         if (auto id = Utils::get_if<int>(this))
@@ -70,14 +70,7 @@ public:
         return QJsonValue();
     }
 
-    bool isValid(ErrorHierarchy *error = nullptr) const
-    {
-        if (Utils::holds_alternative<int>(*this) || Utils::holds_alternative<QString>(*this))
-            return true;
-        if (error)
-            error->setError("Expected int or string as MessageId");
-        return false;
-    }
+    bool isValid() const { return true; }
 
     QString toString() const
     {

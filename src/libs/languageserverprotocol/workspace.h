@@ -61,7 +61,7 @@ public:
     QList<WorkSpaceFolder> removed() const { return array<WorkSpaceFolder>(removedKey); }
     void setRemoved(const QList<WorkSpaceFolder> &removed) { insertArray(removedKey, removed); }
 
-    bool isValid(ErrorHierarchy *error) const override;
+    bool isValid() const override { return contains(addedKey) && contains(removedKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DidChangeWorkspaceFoldersParams : public JsonObject
@@ -73,8 +73,7 @@ public:
     { return typedValue<WorkspaceFoldersChangeEvent>(eventKey); }
     void setEvent(const WorkspaceFoldersChangeEvent &event) { insert(eventKey, event); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return check<WorkspaceFoldersChangeEvent>(error, eventKey); }
+    bool isValid() const override { return contains(eventKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DidChangeWorkspaceFoldersNotification : public Notification<
@@ -91,10 +90,10 @@ class LANGUAGESERVERPROTOCOL_EXPORT DidChangeConfigurationParams : public JsonOb
 public:
     using JsonObject::JsonObject;
 
-    QJsonValue settings() const { return typedValue<QJsonValue>(settingsKey); }
+    QJsonValue settings() const { return value(settingsKey); }
     void setSettings(QJsonValue settings) { insert(settingsKey, settings); }
 
-    bool isValid(ErrorHierarchy *error) const override;
+    bool isValid() const override { return contains(settingsKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DidChangeConfigurationNotification : public Notification<
@@ -123,14 +122,13 @@ public:
         void setSection(const QString &section) { insert(sectionKey, section); }
         void clearSection() { remove(sectionKey); }
 
-        bool isValid(ErrorHierarchy *error) const override;
+        bool isValid() const override { return contains(scopeUriKey); }
     };
 
     QList<ConfigureationItem> items() const { return array<ConfigureationItem>(itemsKey); }
     void setItems(const QList<ConfigureationItem> &items) { insertArray(itemsKey, items); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return checkArray<ConfigureationItem>(error, itemsKey); }
+    bool isValid() const override { return contains(itemsKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ConfigurationRequest : public Request<
@@ -164,15 +162,13 @@ public:
             Deleted = 3
         };
 
-        bool isValid(ErrorHierarchy *error) const override
-        { return check<QString>(error, uriKey) && check<int>(error, typeKey); }
+        bool isValid() const override { return contains(uriKey) && contains(typeKey); }
     };
 
     QList<FileEvent> changes() const { return array<FileEvent>(changesKey); }
     void setChanges(const QList<FileEvent> &changes) { insertArray(changesKey, changes); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return checkArray<FileEvent>(error, changesKey); }
+    bool isValid() const override { return contains(changesKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DidChangeWatchedFilesNotification : public Notification<
@@ -192,7 +188,7 @@ public:
     QString query() const { return typedValue<QString>(queryKey); }
     void setQuery(const QString &query) { insert(queryKey, query); }
 
-    bool isValid(ErrorHierarchy *error) const override { return check<QString>(error, queryKey); }
+    bool isValid() const override { return contains(queryKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT WorkspaceSymbolRequest : public Request<
@@ -219,11 +215,7 @@ public:
     void setArguments(const QJsonArray &arguments) { insert(argumentsKey, arguments); }
     void clearArguments() { remove(argumentsKey); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    {
-        return check<QString>(error, commandKey)
-                && checkOptionalArray<QJsonValue>(error, argumentsKey);
-    }
+    bool isValid() const override { return contains(commandKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ExecuteCommandRequest : public Request<
@@ -247,8 +239,7 @@ public:
     WorkspaceEdit edit() const { return typedValue<WorkspaceEdit>(editKey); }
     void setEdit(const WorkspaceEdit &edit) { insert(editKey, edit); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return check<WorkspaceEdit>(error, editKey) && checkOptional<QString>(error, labelKey); }
+    bool isValid() const override { return contains(editKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ApplyWorkspaceEditResponse : public JsonObject
@@ -259,7 +250,7 @@ public:
     bool applied() const { return typedValue<bool>(appliedKey); }
     void setApplied(bool applied) { insert(appliedKey, applied); }
 
-    bool isValid(ErrorHierarchy *error) const override { return check<bool>(error, appliedKey); }
+    bool isValid() const override { return contains(appliedKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ApplyWorkspaceEditRequest : public Request<

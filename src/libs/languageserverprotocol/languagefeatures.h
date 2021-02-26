@@ -54,8 +54,7 @@ public:
     QString value() const { return typedValue<QString>(valueKey); }
     void setValue(const QString &value) { insert(valueKey, value); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return check<QString>(error, languageKey) && check<QString>(error, valueKey); }
+    bool isValid() const override { return contains(languageKey) && contains(valueKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT MarkedString
@@ -71,6 +70,7 @@ public:
     {}
     explicit MarkedString(const QJsonValue &value);
 
+    bool isValid() const;
     operator QJsonValue() const;
 };
 
@@ -83,7 +83,7 @@ public:
     explicit HoverContent(const QList<MarkedString> &other) : variant(other) {}
     explicit HoverContent(const MarkupContent &other) : variant(other) {}
     explicit HoverContent(const QJsonValue &value);
-    bool isValid(ErrorHierarchy *errorHierarchy) const;
+    bool isValid() const;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT Hover : public JsonObject
@@ -98,8 +98,7 @@ public:
     void setRange(const Range &range) { insert(rangeKey, range); }
     void clearRange() { remove(rangeKey); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return check<HoverContent>(error, contentsKey) && checkOptional<Range>(error, rangeKey); }
+    bool isValid() const override { return contains(contentsKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT HoverRequest
@@ -128,11 +127,7 @@ public:
     { insert(documentationKey, documentation.toJson()); }
     void clearDocumentation() { remove(documentationKey); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    {
-        return check<QString>(error, labelKey)
-                && checkOptional<MarkupOrString>(error, documentationKey);
-    }
+    bool isValid() const override { return contains(labelKey); }
 };
 
 /**
@@ -194,7 +189,7 @@ public:
     void setActiveParameter(int activeParameter) { insert(activeParameterKey, activeParameter); }
     void clearActiveParameter() { remove(activeParameterKey); }
 
-    bool isValid(ErrorHierarchy *error) const override;
+    bool isValid() const override { return contains(signaturesKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT SignatureHelpRequest
@@ -258,17 +253,14 @@ public:
         void setIncludeDeclaration(bool includeDeclaration)
         { insert(includeDeclarationKey, includeDeclaration); }
 
-        bool isValid(ErrorHierarchy *error) const override
-        { return check<bool>(error, includeDeclarationKey); }
+        bool isValid() const override { return contains(includeDeclarationKey); }
     };
 
     ReferenceContext context() const { return typedValue<ReferenceContext>(contextKey); }
     void setContext(const ReferenceContext &context) { insert(contextKey, context); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    {
-        return TextDocumentPositionParams::isValid(error)
-                && check<ReferenceContext>(error, contextKey); }
+    bool isValid() const override
+    { return TextDocumentPositionParams::isValid() && contains(contextKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT FindReferencesRequest : public Request<
@@ -298,8 +290,7 @@ public:
     void setKind(int kind) { insert(kindKey, kind); }
     void clearKind() { remove(kindKey); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return check<Range>(error, rangeKey) && checkOptional<int>(error, kindKey); }
+    bool isValid() const override { return contains(rangeKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentHighlightsResult
@@ -333,8 +324,7 @@ public:
     void setTextDocument(const TextDocumentIdentifier &textDocument)
     { insert(textDocumentKey, textDocument); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return check<TextDocumentIdentifier>(error, textDocumentKey); }
+    bool isValid() const override { return contains(textDocumentKey); }
 };
 
 using DocumentSymbolParams = TextDocumentParams;
@@ -417,7 +407,7 @@ public:
         void setOnly(const QList<CodeActionKind> &only);
         void clearOnly() { remove(onlyKey); }
 
-        bool isValid(ErrorHierarchy *error) const override;
+        bool isValid() const override { return contains(diagnosticsKey); }
     };
 
     TextDocumentIdentifier textDocument() const
@@ -431,7 +421,8 @@ public:
     CodeActionContext context() const { return typedValue<CodeActionContext>(contextKey); }
     void setContext(const CodeActionContext &context) { insert(contextKey, context); }
 
-    bool isValid(ErrorHierarchy *error) const override;
+    bool isValid() const override
+    { return contains(textDocumentKey) && contains(rangeKey) && contains(contextKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT CodeAction : public JsonObject
@@ -460,7 +451,7 @@ public:
     void setCommand(const Command &command) { insert(commandKey, command); }
     void clearCommand() { remove(commandKey); }
 
-    bool isValid(ErrorHierarchy *) const override;
+    bool isValid() const override { return contains(titleKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT CodeActionResult
@@ -494,12 +485,11 @@ public:
     void setCommand(const Command &command) { insert(commandKey, command); }
     void clearCommand() { remove(commandKey); }
 
-    Utils::optional<QJsonValue> data() const { return optionalValue<QJsonValue>(dataKey); }
+    Utils::optional<QJsonValue> data() const;
     void setData(const QJsonValue &data) { insert(dataKey, data); }
     void clearData() { remove(dataKey); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return check<Range>(error, rangeKey) && checkOptional<Command>(error, commandKey); }
+    bool isValid() const override { return contains(rangeKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT CodeLensRequest : public Request<
@@ -532,12 +522,11 @@ public:
     void setTarget(const DocumentUri &target) { insert(targetKey, target.toString()); }
     void clearTarget() { remove(targetKey); }
 
-    Utils::optional<QJsonValue> data() const { return optionalValue<QJsonValue>(dataKey); }
+    Utils::optional<QJsonValue> data() const;
     void setData(const QJsonValue &data) { insert(dataKey, data); }
     void clearData() { remove(dataKey); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return check<Range>(error, rangeKey) && checkOptional<QString>(error, targetKey); }
+    bool isValid() const override { return contains(rangeKey); }
 };
 
 using DocumentLinkParams = TextDocumentParams;
@@ -579,7 +568,8 @@ public:
     double alpha() const { return typedValue<double>(alphaKey); }
     void setAlpha(double alpha) { insert(alphaKey, alpha); }
 
-    bool isValid(ErrorHierarchy *error) const override;
+    bool isValid() const override
+    { return contains(redKey) && contains(greenKey) && contains(blueKey) && contains(alphaKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ColorInformation : public JsonObject
@@ -593,8 +583,7 @@ public:
     Color color() const { return typedValue<Color>(colorKey); }
     void setColor(const Color &color) { insert(colorKey, color); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return check<Range>(error, rangeKey) && check<Color>(error, colorKey); }
+    bool isValid() const override { return contains(rangeKey) && contains(colorKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentColorRequest : public Request<
@@ -622,7 +611,8 @@ public:
     Range range() const { return typedValue<Range>(rangeKey); }
     void setRange(const Range &range) { insert(rangeKey, range); }
 
-    bool isValid(ErrorHierarchy *error) const override;
+    bool isValid() const override
+    { return contains(textDocumentKey) && contains(colorInfoKey) && contains(rangeKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ColorPresentation : public JsonObject
@@ -643,12 +633,7 @@ public:
     { insertArray(additionalTextEditsKey, additionalTextEdits); }
     void clearAdditionalTextEdits() { remove(additionalTextEditsKey); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    {
-        return check<QString>(error, labelKey)
-                && checkOptional<TextEdit>(error, textEditKey)
-                && checkOptionalArray<TextEdit>(error, additionalTextEditsKey);
-    }
+    bool isValid() const override { return contains(labelKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ColorPresentationRequest : public Request<
@@ -670,8 +655,6 @@ public:
 
     using variant::variant;
     using variant::operator=;
-
-    bool isValid(ErrorHierarchy *error) const;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT FormattingOptions : public JsonObject
@@ -707,7 +690,7 @@ public:
     void setProperty(const QString &key, const DocumentFormattingProperty &property);
     void removeProperty(const QString &key) { remove(key); }
 
-    bool isValid(ErrorHierarchy *error) const override;
+    bool isValid() const override { return contains(insertSpaceKey) && contains(tabSizeKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentFormattingParams : public JsonObject
@@ -723,7 +706,7 @@ public:
     FormattingOptions options() const { return typedValue<FormattingOptions>(optionsKey); }
     void setOptions(const FormattingOptions &options) { insert(optionsKey, options); }
 
-    bool isValid(ErrorHierarchy *error) const override;
+    bool isValid() const override { return contains(textDocumentKey) && contains(optionsKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentFormattingRequest : public Request<
@@ -751,7 +734,8 @@ public:
     FormattingOptions options() const { return typedValue<FormattingOptions>(optionsKey); }
     void setOptions(const FormattingOptions &options) { insert(optionsKey, options); }
 
-    bool isValid(ErrorHierarchy *error) const override;
+    bool isValid() const override
+    { return contains(textDocumentKey) && contains(rangeKey) && contains(optionsKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentRangeFormattingRequest : public Request<
@@ -782,7 +766,7 @@ public:
     FormattingOptions options() const { return typedValue<FormattingOptions>(optionsKey); }
     void setOptions(const FormattingOptions &options) { insert(optionsKey, options); }
 
-    bool isValid(ErrorHierarchy *error) const override;
+    bool isValid() const override;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentOnTypeFormattingRequest : public Request<
@@ -805,10 +789,7 @@ public:
     QString placeHolder() const { return typedValue<QString>(placeHolderKey); }
     void setPlaceHolder(const QString &placeHolder) { insert(placeHolderKey, placeHolder); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    {
-        return check<Range>(error, rangeKey) && checkOptional<QString>(error, placeHolderKey);
-    }
+    bool isValid() const override { return contains(rangeKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT PrepareRenameResult
@@ -821,7 +802,7 @@ public:
     explicit PrepareRenameResult(const Range &val);
     explicit PrepareRenameResult(const QJsonValue &val);
 
-    bool isValid(ErrorHierarchy *error) const;
+    bool isValid() const;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT PrepareRenameRequest
@@ -849,7 +830,7 @@ public:
     QString newName() const { return typedValue<QString>(newNameKey); }
     void setNewName(const QString &newName) { insert(newNameKey, newName); }
 
-    bool isValid(ErrorHierarchy *error) const override;
+    bool isValid() const override;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT RenameRequest : public Request<
@@ -887,8 +868,7 @@ public:
     void setTokens(const QList<SemanticHighlightToken> &tokens);
     void clearTokens() { remove(tokensKey); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return check<int>(error, lineKey) && checkOptional<QString>(error, tokensKey); }
+    bool isValid() const override { return contains(lineKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT SemanticHighlightingParams : public JsonObject
@@ -907,7 +887,7 @@ public:
     void setLines(const QList<SemanticHighlightingInformation> &lines)
     { insertArray(linesKey, lines); }
 
-    bool isValid(ErrorHierarchy *error) const override;
+    bool isValid() const override { return contains(textDocumentKey) && contains(linesKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT SemanticHighlightNotification

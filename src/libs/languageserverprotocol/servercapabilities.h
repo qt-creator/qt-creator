@@ -37,9 +37,6 @@ public:
     Utils::optional<bool> workDoneProgress() const { return optionalValue<bool>(workDoneProgressKey); }
     void setWorkDoneProgress(bool workDoneProgress) { insert(workDoneProgressKey, workDoneProgress); }
     void clearWorkDoneProgress() { remove(workDoneProgressKey); }
-
-    bool isValid(ErrorHierarchy *error) const override
-    { return checkOptional<bool>(error, workDoneProgressKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ResolveProviderOption : public JsonObject
@@ -50,9 +47,6 @@ public:
     Utils::optional<bool> resolveProvider() const { return optionalValue<bool>(resolveProviderKey); }
     void setResolveProvider(bool resolveProvider) { insert(resolveProviderKey, resolveProvider); }
     void clearResolveProvider() { remove(resolveProviderKey); }
-
-    bool isValid(ErrorHierarchy *error) const override
-    { return checkOptional<bool>(error, resolveProviderKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT TextDocumentRegistrationOptions : public JsonObject
@@ -68,8 +62,7 @@ public:
     bool filterApplies(const Utils::FilePath &fileName,
                        const Utils::MimeType &mimeType = Utils::MimeType()) const;
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return checkArray<DocumentFilter>(error, documentSelectorKey); }
+    bool isValid() const override { return contains(documentSelectorKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT SaveOptions : public JsonObject
@@ -81,9 +74,6 @@ public:
     Utils::optional<bool> includeText() const { return optionalValue<bool>(includeTextKey); }
     void setIncludeText(bool includeText) { insert(includeTextKey, includeText); }
     void clearIncludeText() { remove(includeTextKey); }
-
-    bool isValid(ErrorHierarchy *error) const override
-    { return checkOptional<bool>(error, includeTextKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT TextDocumentSyncOptions : public JsonObject
@@ -118,8 +108,6 @@ public:
     Utils::optional<SaveOptions> save() const { return optionalValue<SaveOptions>(saveKey); }
     void setSave(const SaveOptions &save) { insert(saveKey, save); }
     void clearSave() { remove(saveKey); }
-
-    bool isValid(ErrorHierarchy *error) const override;
 };
 
 enum class TextDocumentSyncKind
@@ -142,7 +130,7 @@ public:
     void setCodeActionKinds(const QList<QString> &codeActionKinds)
     { insertArray(codeActionKindsKey, codeActionKinds); }
 
-    bool isValid(ErrorHierarchy *error) const override;
+    bool isValid() const override;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ServerCapabilities : public JsonObject
@@ -167,8 +155,6 @@ public:
         Utils::optional<bool> resolveProvider() const { return optionalValue<bool>(resolveProviderKey); }
         void setResolveProvider(bool resolveProvider) { insert(resolveProviderKey, resolveProvider); }
         void clearResolveProvider() { remove(resolveProviderKey); }
-
-        bool isValid(ErrorHierarchy *error) const override;
     };
 
     class LANGUAGESERVERPROTOCOL_EXPORT SignatureHelpOptions : public WorkDoneProgressOptions
@@ -182,8 +168,6 @@ public:
         void setTriggerCharacters(const QList<QString> &triggerCharacters)
         { insertArray(triggerCharactersKey, triggerCharacters); }
         void clearTriggerCharacters() { remove(triggerCharactersKey); }
-
-        bool isValid(ErrorHierarchy *error) const override;
     };
 
     using CodeLensOptions = ResolveProviderOption;
@@ -205,11 +189,7 @@ public:
         { insertArray(moreTriggerCharacterKey, moreTriggerCharacter); }
         void clearMoreTriggerCharacter() { remove(moreTriggerCharacterKey); }
 
-        bool isValid(ErrorHierarchy *error) const override
-        {
-            return check<QString>(error, firstTriggerCharacterKey)
-                    && checkOptionalArray<QString>(error, moreTriggerCharacterKey);
-        }
+        bool isValid() const override { return contains(firstTriggerCharacterKey); }
     };
 
     using DocumentLinkOptions = ResolveProviderOption;
@@ -222,7 +202,7 @@ public:
         QList<QString> commands() const { return array<QString>(commandsKey); }
         void setCommands(const QList<QString> &commands) { insertArray(commandsKey, commands); }
 
-        bool isValid(ErrorHierarchy *error) const override;
+        bool isValid() const override;
     };
 
     using ColorProviderOptions = JsonObject;
@@ -247,7 +227,7 @@ public:
         Utils::optional<QList<QList<QString>>> scopes() const;
         void setScopes(const QList<QList<QString>> &scopes);
 
-        bool isValid(ErrorHierarchy *) const override;
+        bool isValid() const override;
     };
 
     // Defines how text documents are synced. Is either a detailed structure defining each
@@ -304,8 +284,7 @@ public:
         void setId(const QString &id) { insert(idKey, id); }
         void clearId() { remove(idKey); }
 
-        bool isValid(ErrorHierarchy *error) const override
-        { return checkArray<DocumentFilter>(error, documentSelectorKey) && checkOptional<bool>(error, idKey); }
+        bool isValid() const override { return contains(documentSelectorKey); }
     };
 
     // The server provides Goto Type Definition support.
@@ -374,8 +353,6 @@ public:
         Utils::optional<bool> prepareProvider() const { return optionalValue<bool>(prepareProviderKey); }
         void setPrepareProvider(bool prepareProvider) { insert(prepareProviderKey, prepareProvider); }
         void clearPrepareProvider() { remove(prepareProviderKey); }
-
-        bool isValid(ErrorHierarchy * error) const override;
     };
 
     // The server provides rename support.
@@ -420,8 +397,6 @@ public:
             Utils::optional<Utils::variant<QString, bool>> changeNotifications() const;
             void setChangeNotifications(Utils::variant<QString, bool> changeNotifications);
             void clearChangeNotifications() { remove(changeNotificationsKey); }
-
-            bool isValid(ErrorHierarchy *error) const override;
         };
 
         Utils::optional<WorkspaceFoldersCapabilities> workspaceFolders() const
@@ -446,8 +421,6 @@ public:
     void setSemanticHighlighting(const SemanticHighlightingServerCapabilities &semanticHighlighting)
     { insert(semanticHighlightingKey, semanticHighlighting); }
     void clearSemanticHighlighting() { remove(semanticHighlightingKey); }
-
-    bool isValid(ErrorHierarchy *error) const override;
 };
 
 } // namespace LanguageClient

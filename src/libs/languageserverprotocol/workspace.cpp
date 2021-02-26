@@ -72,27 +72,6 @@ WorkspaceFoldersChangeEvent::WorkspaceFoldersChangeEvent()
     insert(removedKey, QJsonArray());
 }
 
-bool WorkspaceFoldersChangeEvent::isValid(ErrorHierarchy *error) const
-{
-    return checkArray<WorkSpaceFolder>(error, addedKey)
-            && checkArray<WorkSpaceFolder>(error, removedKey);
-}
-
-bool ConfigurationParams::ConfigureationItem::isValid(ErrorHierarchy *error) const
-{
-    return checkOptional<QString>(error, scopeUriKey)
-            && checkOptional<QString>(error, sectionKey);
-}
-
-bool DidChangeConfigurationParams::isValid(ErrorHierarchy *error) const
-{
-    if (contains(settingsKey))
-        return true;
-    if (error)
-        error->prependMember(settingsKey);
-    return false;
-}
-
 DidChangeWatchedFilesNotification::DidChangeWatchedFilesNotification(
         const DidChangeWatchedFilesParams &params)
     : Notification(methodName, params)

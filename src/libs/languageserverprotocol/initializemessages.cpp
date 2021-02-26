@@ -132,23 +132,20 @@ InitializeParams::InitializeParams()
     setTrace(s_trace);
 }
 
+Utils::optional<QJsonObject> InitializeParams::initializationOptions() const
+{
+    const QJsonValue &optionsValue = value(initializationOptionsKey);
+    if (optionsValue.isObject())
+        return optionsValue.toObject();
+    return Utils::nullopt;
+}
+
 Utils::optional<Trace> InitializeParams::trace() const
 {
     const QJsonValue &traceValue = value(traceKey);
     if (traceValue.isUndefined())
         return Utils::nullopt;
     return Utils::make_optional(Trace(traceValue.toString()));
-}
-
-bool InitializeParams::isValid(ErrorHierarchy *error) const
-{
-    return checkVariant<int, std::nullptr_t>(error, processIdKey)
-            && checkOptional<QString, std::nullptr_t>(error, rootPathKey)
-            && checkOptional<QString, std::nullptr_t>(error, rootUriKey)
-            && check<ClientCapabilities>(error, capabilitiesKey)
-            && checkOptional<int>(error, traceKey)
-            && (checkOptional<std::nullptr_t>(error, workspaceFoldersKey)
-                || checkOptionalArray<WorkSpaceFolder>(error, workspaceFoldersKey));
 }
 
 InitializeRequest::InitializeRequest(const InitializeParams &params)

@@ -50,8 +50,7 @@ public:
     void setRegisterOptions(const QJsonValue &registerOptions)
     { insert(registerOptionsKey, registerOptions); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return check<QString>(error, idKey) && check<QString>(error, methodKey); }
+    bool isValid() const override { return contains(idKey) && contains(methodKey); }
 };
 
 class RegistrationParams : public JsonObject
@@ -66,8 +65,7 @@ public:
     void setRegistrations(const QList<Registration> &registrations)
     { insertArray(registrationsKey, registrations); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return checkArray<Registration>(error, registrationsKey); }
+    bool isValid() const override { return contains(registrationsKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT RegisterCapabilityRequest : public Request<
@@ -90,8 +88,7 @@ public:
     QString method() const { return typedValue<QString>(methodKey); }
     void setMethod(const QString &method) { insert(methodKey, method); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return check<QString>(error, idKey) && check<QString>(error, methodKey); }
+    bool isValid() const override { return contains(idKey) && contains(methodKey); }
 };
 
 class UnregistrationParams : public JsonObject
@@ -104,8 +101,7 @@ public:
     void setUnregistrations(const QList<Unregistration> &unregistrations)
     { insertArray(unregistrationsKey, unregistrations); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return checkArray<Unregistration>(error, unregistrationsKey); }
+    bool isValid() const override { return contains(unregistrationsKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT UnregisterCapabilityRequest : public Request<

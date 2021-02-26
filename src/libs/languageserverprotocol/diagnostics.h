@@ -46,8 +46,7 @@ public:
     void setVersion(int version) { insert(versionKey, version); }
     void clearVersion() { remove(versionKey); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    { return checkArray<Diagnostic>(error, diagnosticsKey); }
+    bool isValid() const override { return contains(diagnosticsKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT PublishDiagnosticsNotification : public Notification<PublishDiagnosticsParams>

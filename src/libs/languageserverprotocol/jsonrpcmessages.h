@@ -121,7 +121,7 @@ public:
     virtual bool parametersAreValid(QString *errorMessage) const
     {
         if (auto parameter = params())
-            return parameter.value().isValid(nullptr);
+            return parameter.value().isValid();
         if (errorMessage)
             *errorMessage = QCoreApplication::translate("LanguageServerProtocol::Notification",
                                                         "No parameters in \"%1\".").arg(method());
@@ -179,12 +179,7 @@ public:
     void setData(const Error &data) { insert(dataKey, data); }
     void clearData() { remove(dataKey); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    {
-        return check<int>(error, codeKey)
-                && check<QString>(error, messageKey)
-                && checkOptional<Error>(error, dataKey);
-    }
+    bool isValid() const override { return contains(codeKey) && contains(messageKey); }
 
     QString toString() const { return errorCodesToString(code()) + ": " + message(); }
 
@@ -237,7 +232,7 @@ public:
     MessageId id() const
     { return MessageId(m_jsonObject.value(idKey)); }
     void setId(MessageId id)
-    { this->m_jsonObject.insert(idKey, id.toJson()); }
+    { this->m_jsonObject.insert(idKey, id); }
 
     Utils::optional<Result> result() const
     {
@@ -277,7 +272,7 @@ public:
     MessageId id() const
     { return MessageId(JsonRpcMessage::m_jsonObject.value(idKey)); }
     void setId(const MessageId &id)
-    { JsonRpcMessage::m_jsonObject.insert(idKey, id.toJson()); }
+    { JsonRpcMessage::m_jsonObject.insert(idKey, id); }
 
     using Response = LanguageServerProtocol::Response<Result, ErrorDataType>;
     using ResponseCallback = std::function<void(Response)>;
@@ -328,17 +323,10 @@ public:
     CancelParameter() = default;
     using JsonObject::JsonObject;
 
-    MessageId id() const { return MessageId(value(idKey)); }
-    void setId(const MessageId &id) { insert(idKey, id.toJson()); }
+    MessageId id() const { return typedValue<MessageId>(idKey); }
+    void setId(const MessageId &id) { insert(idKey, id); }
 
-    bool isValid(ErrorHierarchy *error) const override
-    {
-        if (MessageId(value(idKey)).isValid(error))
-            return true;
-        if (error)
-            error->prependMember(idKey);
-        return false;
-    }
+    bool isValid() const override { return contains(idKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT CancelRequest : public Notification<CancelParameter>

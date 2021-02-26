@@ -56,7 +56,7 @@ static void sendTextDocumentPositionParamsRequest(Client *client,
     if (sendMessage) {
         const TextDocumentRegistrationOptions option(
             dynamicCapabilities.option(Request::methodName));
-        if (option.isValid(nullptr))
+        if (option.isValid())
             sendMessage = option.filterApplies(
                 Utils::FilePath::fromString(QUrl(uri).adjusted(QUrl::PreferLocalFile).toString()));
         else
@@ -248,7 +248,7 @@ static bool supportsRename(Client *client,
         prepareSupported = ServerCapabilities::RenameOptions(options).prepareProvider().value_or(
             false);
         const TextDocumentRegistrationOptions docOps(options);
-        if (docOps.isValid(nullptr)
+        if (docOps.isValid()
             && !docOps.filterApplies(document->filePath(),
                                      Utils::mimeTypeForName(document->mimeType()))) {
             return false;
@@ -411,7 +411,7 @@ void SymbolSupport::applyRename(const QList<Core::SearchResultItem> &checkedItem
     for (const Core::SearchResultItem &item : checkedItems) {
         auto uri = DocumentUri::fromFilePath(Utils::FilePath::fromString(item.path().value(0)));
         TextEdit edit(item.userData().toJsonObject());
-        if (edit.isValid(nullptr))
+        if (edit.isValid())
             editsForDocuments[uri] << edit;
     }
 

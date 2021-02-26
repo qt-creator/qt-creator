@@ -314,7 +314,7 @@ void Client::openDocument(TextEditor::TextDocument *document)
             return;
         const TextDocumentRegistrationOptions option(
             m_dynamicCapabilities.option(method).toObject());
-        if (option.isValid(nullptr)
+        if (option.isValid()
             && !option.filterApplies(filePath, Utils::mimeTypeForName(document->mimeType()))) {
             return;
         }
@@ -387,7 +387,7 @@ void Client::updateCompletionProvider(TextEditor::TextDocument *document)
                                                      Utils::mimeTypeForName(document->mimeType()));
 
         const ServerCapabilities::CompletionOptions completionOptions(options);
-        if (completionOptions.isValid(nullptr))
+        if (completionOptions.isValid())
             clientCompletionProvider->setTriggerCharacters(completionOptions.triggerCharacters());
     }
 
@@ -415,7 +415,7 @@ void Client::updateFunctionHintProvider(TextEditor::TextDocument *document)
                                                      Utils::mimeTypeForName(document->mimeType()));
 
         const ServerCapabilities::SignatureHelpOptions signatureOptions(options);
-        if (signatureOptions.isValid(nullptr))
+        if (signatureOptions.isValid())
             clientFunctionHintProvider->setTriggerCharacters(signatureOptions.triggerCharacters());
     }
 
@@ -488,7 +488,7 @@ void Client::documentContentsSaved(TextEditor::TextDocument *document)
         if (sendMessage) {
             const TextDocumentSaveRegistrationOptions option(
                         m_dynamicCapabilities.option(method).toObject());
-            if (option.isValid(nullptr)) {
+            if (option.isValid()) {
                 sendMessage = option.filterApplies(document->filePath(),
                                                    Utils::mimeTypeForName(document->mimeType()));
                 includeText = option.includeText().value_or(includeText);
@@ -522,7 +522,7 @@ void Client::documentWillSave(Core::IDocument *document)
         sendMessage = registered.value();
         if (sendMessage) {
             const TextDocumentRegistrationOptions option(m_dynamicCapabilities.option(method));
-            if (option.isValid(nullptr)) {
+            if (option.isValid()) {
                 sendMessage = option.filterApplies(filePath,
                                                    Utils::mimeTypeForName(document->mimeType()));
             }
@@ -553,7 +553,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
         if (syncKind != TextDocumentSyncKind::None) {
             const TextDocumentChangeRegistrationOptions option(
                                     m_dynamicCapabilities.option(method).toObject());
-            syncKind = option.isValid(nullptr) ? option.syncKind() : syncKind;
+            syncKind = option.isValid() ? option.syncKind() : syncKind;
         }
     }
 
@@ -618,7 +618,7 @@ void Client::unregisterCapabilities(const QList<Unregistration> &unregistrations
 
 TextEditor::HighlightingResult createHighlightingResult(const SymbolInformation &info)
 {
-    if (!info.isValid(nullptr))
+    if (!info.isValid())
         return {};
     const Position &start = info.location().range().start();
     return TextEditor::HighlightingResult(start.line() + 1,
@@ -730,7 +730,7 @@ void Client::requestCodeActions(const CodeActionRequest &request)
             return;
         const TextDocumentRegistrationOptions option(
             m_dynamicCapabilities.option(method).toObject());
-        if (option.isValid(nullptr) && !option.filterApplies(fileName))
+        if (option.isValid() && !option.filterApplies(fileName))
             return;
     } else {
         Utils::variant<bool, CodeActionOptions> provider
@@ -965,8 +965,8 @@ void Client::showMessageBox(const ShowMessageRequestParams &message, const Messa
     connect(box, &QMessageBox::finished, this, [=]{
         ShowMessageRequest::Response response(id);
         const MessageActionItem &item = itemForButton.value(box->clickedButton());
-        response.setResult(item.isValid(nullptr) ? LanguageClientValue<MessageActionItem>(item)
-                                                 : LanguageClientValue<MessageActionItem>());
+        response.setResult(item.isValid() ? LanguageClientValue<MessageActionItem>(item)
+                                          : LanguageClientValue<MessageActionItem>());
         sendContent(response);
     });
     box->show();
@@ -1032,40 +1032,39 @@ void Client::handleResponse(const MessageId &id, const QByteArray &content, QTex
 
 void Client::handleMethod(const QString &method, const MessageId &id, const IContent *content)
 {
-    ErrorHierarchy error;
     auto logError = [&](const JsonObject &content) {
         log(QJsonDocument(content).toJson(QJsonDocument::Indented) + '\n'
-            + tr("Invalid parameter in \"%1\": %2").arg(method, error.toString()));
+            + tr("Invalid parameter in \"%1\"").arg(method));
     };
 
     if (method == PublishDiagnosticsNotification::methodName) {
         auto params = dynamic_cast<const PublishDiagnosticsNotification *>(content)->params().value_or(PublishDiagnosticsParams());
-        if (params.isValid(&error))
+        if (params.isValid())
             handleDiagnostics(params);
         else
             logError(params);
     } else if (method == LogMessageNotification::methodName) {
         auto params = dynamic_cast<const LogMessageNotification *>(content)->params().value_or(LogMessageParams());
-        if (params.isValid(&error))
+        if (params.isValid())
             log(params);
         else
             logError(params);
     } else if (method == SemanticHighlightNotification::methodName) {
         auto params = dynamic_cast<const SemanticHighlightNotification *>(content)->params().value_or(SemanticHighlightingParams());
-        if (params.isValid(&error))
+        if (params.isValid())
             handleSemanticHighlight(params);
         else
             logError(params);
     } else if (method == ShowMessageNotification::methodName) {
         auto params = dynamic_cast<const ShowMessageNotification *>(content)->params().value_or(ShowMessageParams());
-        if (params.isValid(&error))
+        if (params.isValid())
             log(params);
         else
             logError(params);
     } else if (method == ShowMessageRequest::methodName) {
         auto request = dynamic_cast<const ShowMessageRequest *>(content);
         auto params = request->params().value_or(ShowMessageRequestParams());
-        if (params.isValid(&error)) {
+        if (params.isValid()) {
             showMessageBox(params, request->id());
         } else {
             ShowMessageRequest::Response response(request->id());
@@ -1080,19 +1079,19 @@ void Client::handleMethod(const QString &method, const MessageId &id, const ICon
         }
     } else if (method == RegisterCapabilityRequest::methodName) {
         auto params = dynamic_cast<const RegisterCapabilityRequest *>(content)->params().value_or(RegistrationParams());
-        if (params.isValid(&error))
+        if (params.isValid())
             registerCapabilities(params.registrations());
         else
             logError(params);
     } else if (method == UnregisterCapabilityRequest::methodName) {
         auto params = dynamic_cast<const UnregisterCapabilityRequest *>(content)->params().value_or(UnregistrationParams());
-        if (params.isValid(&error))
+        if (params.isValid())
             unregisterCapabilities(params.unregistrations());
         else
             logError(params);
     } else if (method == ApplyWorkspaceEditRequest::methodName) {
         auto params = dynamic_cast<const ApplyWorkspaceEditRequest *>(content)->params().value_or(ApplyWorkspaceEditParams());
-        if (params.isValid(&error))
+        if (params.isValid())
             applyWorkspaceEdit(params.edit());
         else
             logError(params);
@@ -1111,7 +1110,7 @@ void Client::handleMethod(const QString &method, const MessageId &id, const ICon
         }
         response.setResult(result);
         sendContent(response);
-    } else if (id.isValid(&error)) {
+    } else if (id.isValid()) {
         Response<JsonObject, JsonObject> response(id);
         ResponseError<JsonObject> error;
         error.setCode(ResponseError<JsonObject>::MethodNotFound);
@@ -1208,10 +1207,9 @@ void Client::initializeCallback(const InitializeRequest::Response &initResponse)
         log(tr("No initialize result."));
     } else {
         const InitializeResult &result = _result.value();
-        ErrorHierarchy error;
-        if (!result.isValid(&error)) { // continue on ill formed result
+        if (!result.isValid()) { // continue on ill formed result
             log(QJsonDocument(result).toJson(QJsonDocument::Indented) + '\n'
-                + tr("Initialize result is not valid: ") + error.toString());
+                + tr("Initialize result is not valid"));
         }
 
         m_serverCapabilities = result.capabilities().value_or(ServerCapabilities());

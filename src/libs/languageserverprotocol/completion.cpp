@@ -49,39 +49,11 @@ Utils::optional<CompletionItem::InsertTextFormat> CompletionItem::insertTextForm
             : Utils::make_optional(CompletionItem::InsertTextFormat(value.value()));
 }
 
-bool CompletionItem::isValid(ErrorHierarchy *error) const
-{
-    return check<QString>(error, labelKey)
-            && checkOptional<int>(error, kindKey)
-            && checkOptional<QString>(error, detailKey)
-            && checkOptional<QString>(error, documentationKey)
-            && checkOptional<QString>(error, sortTextKey)
-            && checkOptional<QString>(error, filterTextKey)
-            && checkOptional<QString>(error, insertTextKey)
-            && checkOptional<int>(error, insertTextFormatKey)
-            && checkOptional<TextEdit>(error, textEditKey)
-            && checkOptionalArray<TextEdit>(error, additionalTextEditsKey)
-            && checkOptionalArray<QString>(error, commitCharactersKey)
-            && checkOptional<Command>(error, commandKey)
-            && checkOptional<QJsonValue>(error, dataKey);
-}
+
 
 CompletionItemResolveRequest::CompletionItemResolveRequest(const CompletionItem &params)
     : Request(methodName, params)
 { }
-
-bool CompletionList::isValid(ErrorHierarchy *error) const
-{
-    return check<bool>(error, isIncompleteKey)
-            && checkOptionalArray<CompletionItem>(error, itemsKey);
-
-}
-
-bool CompletionParams::isValid(ErrorHierarchy *error) const
-{
-    return TextDocumentPositionParams::isValid(error)
-            && checkOptional<CompletionContext>(error, contextKey);
-}
 
 CompletionResult::CompletionResult(const QJsonValue &value)
 {

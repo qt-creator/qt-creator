@@ -85,7 +85,7 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
         if (sendMessage) {
             const TextDocumentRegistrationOptions option(
                 m_client->dynamicCapabilities().option(HoverRequest::methodName).toObject());
-            if (option.isValid(nullptr)) {
+            if (option.isValid()) {
                 sendMessage = option.filterApplies(editorWidget->textDocument()->filePath(),
                                                    Utils::mimeTypeForName(
                                                        editorWidget->textDocument()->mimeType()));

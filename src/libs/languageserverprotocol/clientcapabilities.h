@@ -38,9 +38,6 @@ public:
     Utils::optional<bool> dynamicRegistration() const { return optionalValue<bool>(dynamicRegistrationKey); }
     void setDynamicRegistration(bool dynamicRegistration) { insert(dynamicRegistrationKey, dynamicRegistration); }
     void clearDynamicRegistration() { remove(dynamicRegistrationKey); }
-
-    bool isValid(ErrorHierarchy *error) const override
-    { return checkOptional<bool>(error, dynamicRegistrationKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT SymbolCapabilities : public DynamicRegistrationCapabilities
@@ -66,9 +63,6 @@ public:
         Utils::optional<QList<SymbolKind>> valueSet() const;
         void setValueSet(const QList<SymbolKind> &valueSet);
         void clearValueSet() { remove(valueSetKey); }
-
-        bool isValid(ErrorHierarchy *error) const override
-        { return checkOptionalArray<int>(error, valueSetKey); }
     };
 
     // Specific capabilities for the `SymbolKind` in the `workspace/symbol` request.
@@ -76,8 +70,6 @@ public:
     { return optionalValue<SymbolKindCapabilities>(symbolKindKey); }
     void setSymbolKind(const SymbolKindCapabilities &symbolKind) { insert(symbolKindKey, symbolKind); }
     void clearSymbolKind() { remove(symbolKindKey); }
-
-    bool isValid(ErrorHierarchy *error) const override;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT TextDocumentClientCapabilities : public JsonObject
@@ -110,8 +102,6 @@ public:
         Utils::optional<bool> didSave() const { return optionalValue<bool>(didSaveKey); }
         void setDidSave(bool didSave) { insert(didSaveKey, didSave); }
         void clearDidSave() { remove(didSaveKey); }
-
-        bool isValid(ErrorHierarchy *error) const override;
     };
 
     Utils::optional<SynchronizationCapabilities> synchronization() const
@@ -129,8 +119,7 @@ public:
         void setSemanticHighlighting(bool semanticHighlighting)
         { insert(semanticHighlightingKey, semanticHighlighting); }
 
-        bool isValid(ErrorHierarchy *error) const override
-        { return check<bool>(error, semanticHighlightingKey); }
+        bool isValid() const override { return contains(semanticHighlightingKey); }
     };
 
     Utils::optional<SemanticHighlightingCapabilities> semanticHighlightingCapabilities() const
@@ -178,13 +167,6 @@ public:
             Utils::optional<QList<MarkupKind>> documentationFormat() const;
             void setDocumentationFormat(const QList<MarkupKind> &documentationFormat);
             void clearDocumentationFormat() { remove(documentationFormatKey); }
-
-            bool isValid(ErrorHierarchy *error) const override
-            {
-                return checkOptional<bool>(error, snippetSupportKey)
-                        && checkOptional<bool>(error, commitCharacterSupportKey)
-                        && checkOptionalArray<int>(error, documentationFormatKey);
-            }
         };
 
         // The client supports the following `CompletionItem` specific capabilities.
@@ -212,9 +194,6 @@ public:
             Utils::optional<QList<CompletionItemKind::Kind>> valueSet() const;
             void setValueSet(const QList<CompletionItemKind::Kind> &valueSet);
             void clearValueSet() { remove(valueSetKey); }
-
-            bool isValid(ErrorHierarchy *error) const override
-            { return checkOptionalArray<int>(error, valueSetKey); }
         };
 
         Utils::optional<CompletionItemKindCapabilities> completionItemKind() const
@@ -230,8 +209,6 @@ public:
         Utils::optional<bool> contextSupport() const { return optionalValue<bool>(contextSupportKey); }
         void setContextSupport(bool contextSupport) { insert(contextSupportKey, contextSupport); }
         void clearContextSupport() { remove(contextSupportKey); }
-
-        bool isValid(ErrorHierarchy *error) const override;
     };
 
     // Capabilities specific to the `textDocument/completion`
@@ -252,8 +229,6 @@ public:
         Utils::optional<QList<MarkupKind>> contentFormat() const;
         void setContentFormat(const QList<MarkupKind> &contentFormat);
         void clearContentFormat() { remove(contentFormatKey); }
-
-        bool isValid(ErrorHierarchy *error) const override;
     };
 
     Utils::optional<HoverCapabilities> hover() const { return optionalValue<HoverCapabilities>(hoverKey); }
@@ -276,9 +251,6 @@ public:
             Utils::optional<QList<MarkupKind>> documentationFormat() const;
             void setDocumentationFormat(const QList<MarkupKind> &documentationFormat);
             void clearDocumentationFormat() { remove(documentationFormatKey); }
-
-            bool isValid(ErrorHierarchy *error) const override
-            { return checkOptionalArray<int>(error, documentationFormatKey); }
         };
 
         // The client supports the following `SignatureInformation` specific properties.
@@ -287,8 +259,6 @@ public:
         void setSignatureInformation(const SignatureInformationCapabilities &signatureInformation)
         { insert(signatureInformationKey, signatureInformation); }
         void clearSignatureInformation() { remove(signatureInformationKey); }
-
-        bool isValid(ErrorHierarchy *error) const override;
     };
 
     // Capabilities specific to the `textDocument/signatureHelp`
@@ -390,8 +360,7 @@ public:
                 void setValueSet(const QList<QString> &valueSet)
                 { insertArray(valueSetKey, valueSet); }
 
-                bool isValid(ErrorHierarchy *errorHierarchy) const override
-                { return checkArray<QString>(errorHierarchy, valueSetKey); }
+                bool isValid() const override { return contains(valueSetKey); }
             };
 
             CodeActionKind codeActionKind() const
@@ -399,8 +368,7 @@ public:
             void setCodeActionKind(const CodeActionKind &codeActionKind)
             { insert(codeActionKindKey, codeActionKind); }
 
-            bool isValid(ErrorHierarchy *errorHierarchy) const override
-            { return check<CodeActionKind>(errorHierarchy, codeActionKindKey); }
+            bool isValid() const override { return contains(codeActionKindKey); }
         };
 
         Utils::optional<CodeActionLiteralSupport> codeActionLiteralSupport() const
@@ -408,8 +376,6 @@ public:
         void setCodeActionLiteralSupport(const CodeActionLiteralSupport &codeActionLiteralSupport)
         { insert(codeActionLiteralSupportKey, codeActionLiteralSupport); }
         void clearCodeActionLiteralSupport() { remove(codeActionLiteralSupportKey); }
-
-        bool isValid(ErrorHierarchy *errorHierarchy) const override;
     };
 
     // Whether code action supports dynamic registration.
@@ -458,8 +424,6 @@ public:
         Utils::optional<bool> prepareSupport() const { return optionalValue<bool>(prepareSupportKey); }
         void setPrepareSupport(bool prepareSupport) { insert(prepareSupportKey, prepareSupport); }
         void clearPrepareSupport() { remove(prepareSupportKey); }
-
-        bool isValid(ErrorHierarchy *error) const override;
     };
 
     // Whether rename supports dynamic registration.
@@ -468,8 +432,6 @@ public:
     void setRename(const RenameClientCapabilities &rename)
     { insert(renameKey, rename); }
     void clearRename() { remove(renameKey); }
-
-    bool isValid(ErrorHierarchy *error) const override;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT WorkspaceClientCapabilities : public JsonObject
@@ -497,9 +459,6 @@ public:
         void setDocumentChanges(bool documentChanges)
         { insert(documentChangesKey, documentChanges); }
         void clearDocumentChanges() { remove(documentChangesKey); }
-
-        bool isValid(ErrorHierarchy *error) const override
-        { return checkOptional<bool>(error, documentChangesKey); }
     };
 
     // Capabilities specific to `WorkspaceEdit`s
@@ -547,8 +506,6 @@ public:
     Utils::optional<bool> configuration() const { return optionalValue<bool>(configurationKey); }
     void setConfiguration(bool configuration) { insert(configurationKey, configuration); }
     void clearConfiguration() { remove(configurationKey); }
-
-    bool isValid(ErrorHierarchy *error) const override;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ClientCapabilities : public JsonObject
@@ -574,8 +531,6 @@ public:
     QJsonValue experimental() const { return value(experimentalKey); }
     void setExperimental(const QJsonValue &experimental) { insert(experimentalKey, experimental); }
     void clearExperimental() { remove(experimentalKey); }
-
-    bool isValid(ErrorHierarchy *error) const override;
 };
 
 }
