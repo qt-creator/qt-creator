@@ -1,4 +1,4 @@
-/****************************************************************************
+﻿/****************************************************************************
 **
 ** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
@@ -317,6 +317,25 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
     QTest::addColumn<Tasks >("tasks");
     QTest::addColumn<QString>("outputLines");
 
+    auto compileTask = [](Task::TaskType type,
+                          const QString &description,
+                          const Utils::FilePath &file,
+                          int line,
+                          const QVector<QTextLayout::FormatRange> formats)
+    {
+        CompileTask task(type, description, file, line);
+        task.formats = formats;
+        return task;
+    };
+
+    auto formatRange = [](int start, int length, const QString &anchorHref = QString())
+    {
+        QTextCharFormat format;
+        format.setAnchorHref(anchorHref);
+
+        return QTextLayout::FormatRange{start, length, format};
+    };
+
     QTest::newRow("pass-through stdout")
             << "Sometext" << OutputParserTester::STDOUT
             << "Sometext\n" << ""
@@ -436,14 +455,17 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
             << OutputParserTester::STDOUT
             << "" << ""
             << (Tasks()
-                << CompileTask(Task::Error,
+                << compileTask(Task::Error,
                                "C2440: 'initializing' : cannot convert from 'int' to 'std::_Tree<_Traits>::iterator'\n"
                                "        with\n"
                                "        [\n"
                                "            _Traits=std::_Tmap_traits<int,double,std::less<int>,std::allocator<std::pair<const int,double>>,false>\n"
                                "        ]\n"
                                "        No constructor could take the source type, or constructor overload resolution was ambiguous",
-                               FilePath::fromUserInput("..\\untitled\\main.cpp"), 19))
+                               FilePath::fromUserInput("..\\untitled\\main.cpp"),
+                               19,
+                               QVector<QTextLayout::FormatRange>()
+                                   << formatRange(85, 247)))
             << "";
 
     QTest::newRow("Linker error 1")
@@ -502,14 +524,17 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
                 << CompileTask(Task::Unknown,
                         "see declaration of 'std::_Copy_impl'",
                         FilePath::fromUserInput("c:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\INCLUDE\\xutility"), 2212)
-                << CompileTask(Task::Unknown,
+                << compileTask(Task::Unknown,
                         "see reference to function template instantiation '_OutIt std::copy<const unsigned char*,unsigned short*>(_InIt,_InIt,_OutIt)' being compiled\n"
                         "        with\n"
                         "        [\n"
                         "            _OutIt=unsigned short *,\n"
                         "            _InIt=const unsigned char *\n"
                         "        ]",
-                        FilePath::fromUserInput("symbolgroupvalue.cpp"), 2314))
+                        FilePath::fromUserInput("symbolgroupvalue.cpp"),
+                        2314,
+                        QVector<QTextLayout::FormatRange>()
+                            << formatRange(141, 109)))
             << "";
 
     QTest::newRow("Ambiguous symbol")
@@ -542,10 +567,13 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
                "main.cpp(6): note: see declaration of 'func'"
             << OutputParserTester::STDOUT
             << "" << ""
-            << Tasks{CompileTask(Task::Error,
+            << Tasks{compileTask(Task::Error,
                                "C2733: 'func': second C linkage of overloaded function not allowed\n"
                                "main.cpp(6): note: see declaration of 'func'",
-                               FilePath::fromUserInput("main.cpp"), 7)}
+                               FilePath::fromUserInput("main.cpp"),
+                               7,
+                               QVector<QTextLayout::FormatRange>()
+                                   << formatRange(67, 44))}
             << "";
 
     QTest::newRow("cyrillic warning") // QTCREATORBUG-20297
