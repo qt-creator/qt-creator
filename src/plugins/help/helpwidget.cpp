@@ -931,7 +931,10 @@ void HelpWidget::updateCloseButton()
 {
     if (supportsPages()) {
         const bool closeOnReturn = LocalHelpManager::returnOnClose() && m_style == ModeWidget;
-        m_closeAction->setEnabled(closeOnReturn || m_viewerStack->count() > 1);
+        const bool hasMultiplePages = m_viewerStack->count() > 1;
+        m_closeAction->setEnabled(closeOnReturn || hasMultiplePages);
+        m_gotoPrevious->setEnabled(hasMultiplePages);
+        m_gotoNext->setEnabled(hasMultiplePages);
     }
 }
 

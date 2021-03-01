@@ -81,7 +81,9 @@ void OpenPagesSwitcher::gotoPreviousPage()
 void OpenPagesSwitcher::selectAndHide()
 {
     setVisible(false);
-    emit setCurrentPage(m_openPagesWidget->currentIndex());
+    QModelIndex index = m_openPagesWidget->currentIndex();
+    if (index.isValid())
+        emit setCurrentPage(index);
 }
 
 void OpenPagesSwitcher::selectCurrentPage(int index)
