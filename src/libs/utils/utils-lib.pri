@@ -60,7 +60,6 @@ SOURCES += \
     $$PWD/classnamevalidatinglineedit.cpp \
     $$PWD/fancylineedit.cpp \
     $$PWD/qtcolorbutton.cpp \
-    $$PWD/savedaction.cpp \
     $$PWD/synchronousprocess.cpp \
     $$PWD/savefile.cpp \
     $$PWD/fileutils.cpp \
@@ -188,7 +187,6 @@ HEADERS += \
     $$PWD/classnamevalidatinglineedit.h \
     $$PWD/fancylineedit.h \
     $$PWD/qtcolorbutton.h \
-    $$PWD/savedaction.h \
     $$PWD/consoleprocess.h \
     $$PWD/synchronousprocess.h \
     $$PWD/savefile.h \

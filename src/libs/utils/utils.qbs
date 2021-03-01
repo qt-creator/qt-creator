@@ -232,8 +232,6 @@ Project {
             "removefiledialog.ui",
             "runextensions.cpp",
             "runextensions.h",
-            "savedaction.cpp",
-            "savedaction.h",
             "savefile.cpp",
             "savefile.h",
             "scopedswap.h",
