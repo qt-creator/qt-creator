@@ -67,6 +67,7 @@ public:
     QString m_tooltip;
     QString m_labelText;
     QPixmap m_labelPixmap;
+    QIcon m_icon;
     QPointer<QLabel> m_label; // Owned by configuration widget
     QPointer<QAction> m_action; // Owned by us.
 
@@ -240,6 +241,13 @@ void BaseAspect::setLabelPixmap(const QPixmap &labelPixmap)
         d->m_label->setPixmap(labelPixmap);
 }
 
+void BaseAspect::setIcon(const QIcon &icon)
+{
+    d->m_icon = icon;
+    if (d->m_action)
+        d->m_action->setIcon(icon);
+}
+
 /*!
     Returns the current text for the separate label in the visual
     representation of this aspect.
@@ -371,8 +379,8 @@ QWidget *BaseAspect::createConfigWidget() const
 QAction *BaseAspect::action()
 {
     if (!d->m_action) {
-        //qDebug() << "Creation action for " << labelText() << "with" << value();
         d->m_action = new QAction(labelText());
+        d->m_action->setIcon(d->m_icon);
     }
     return d->m_action;
 }

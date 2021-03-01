@@ -97,6 +97,7 @@ public:
     QString labelText() const;
     void setLabelText(const QString &labelText);
     void setLabelPixmap(const QPixmap &labelPixmap);
+    void setIcon(const QIcon &labelIcon);
 
     using ConfigWidgetCreator = std::function<QWidget *()>;
     void setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator);
