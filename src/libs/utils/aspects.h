@@ -49,6 +49,7 @@ namespace Internal {
 class AspectContainerPrivate;
 class BaseAspectPrivate;
 class BoolAspectPrivate;
+class DoubleAspectPrivate;
 class IntegerAspectPrivate;
 class MultiSelectionAspectPrivate;
 class SelectionAspectPrivate;
@@ -377,6 +378,33 @@ public:
 
 private:
     std::unique_ptr<Internal::IntegerAspectPrivate> d;
+};
+
+class QTCREATOR_UTILS_EXPORT DoubleAspect : public BaseAspect
+{
+    Q_OBJECT
+
+public:
+    DoubleAspect();
+    ~DoubleAspect() override;
+
+    void addToLayout(LayoutBuilder &builder) override;
+
+    QVariant volatileValue() const override;
+    void setVolatileValue(const QVariant &val) override;
+
+    double value() const;
+    void setValue(double val);
+    void setDefaultValue(double defaultValue);
+
+    void setRange(double min, double max);
+    void setPrefix(const QString &prefix);
+    void setSuffix(const QString &suffix);
+    void setSpecialValueText(const QString &specialText);
+    void setSingleStep(double step);
+
+private:
+    std::unique_ptr<Internal::DoubleAspectPrivate> d;
 };
 
 class QTCREATOR_UTILS_EXPORT TriState

@@ -654,6 +654,18 @@ public:
     QPointer<QSpinBox> m_spinBox; // Owned by configuration widget
 };
 
+class DoubleAspectPrivate
+{
+public:
+    Utils::optional<double> m_minimumValue;
+    Utils::optional<double> m_maximumValue;
+    QString m_prefix;
+    QString m_suffix;
+    QString m_specialValueText;
+    double m_singleStep = 1;
+    QPointer<QDoubleSpinBox> m_spinBox; // Owned by configuration widget
+};
+
 class StringListAspectPrivate
 {
 public:
@@ -1613,6 +1625,109 @@ void IntegerAspect::setSpecialValueText(const QString &specialText)
 }
 
 void IntegerAspect::setSingleStep(qint64 step)
+{
+    d->m_singleStep = step;
+}
+
+
+/*!
+    \class Utils::DoubleAspect
+    \inmodule QtCreator
+
+    \brief An double aspect is a numerical property of some object, together with
+    a description of its behavior for common operations like visualizing or
+    persisting.
+
+    The double aspect is displayed using a \c QDoubleSpinBox.
+
+    The visual representation often contains a label in front
+    the display of the spin box.
+*/
+
+DoubleAspect::DoubleAspect()
+    : d(new Internal::DoubleAspectPrivate)
+{
+    setDefaultValue(double(0));
+}
+
+/*!
+    \reimp
+*/
+DoubleAspect::~DoubleAspect() = default;
+
+/*!
+    \reimp
+*/
+void DoubleAspect::addToLayout(LayoutBuilder &builder)
+{
+    QTC_CHECK(!d->m_spinBox);
+    d->m_spinBox = createSubWidget<QDoubleSpinBox>();
+    d->m_spinBox->setValue(value());
+    d->m_spinBox->setPrefix(d->m_prefix);
+    d->m_spinBox->setSuffix(d->m_suffix);
+    d->m_spinBox->setSingleStep(d->m_singleStep);
+    d->m_spinBox->setSpecialValueText(d->m_specialValueText);
+    if (d->m_maximumValue && d->m_maximumValue)
+        d->m_spinBox->setRange(d->m_minimumValue.value(), d->m_maximumValue.value());
+    addLabeledItem(builder, d->m_spinBox);
+
+    if (isAutoApply()) {
+        connect(d->m_spinBox.data(), QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+                this, [this] { setValue(d->m_spinBox->value()); });
+    }
+}
+
+QVariant DoubleAspect::volatileValue() const
+{
+    QTC_CHECK(!isAutoApply());
+    QTC_ASSERT(d->m_spinBox, return {});
+    return d->m_spinBox->value();
+}
+
+void DoubleAspect::setVolatileValue(const QVariant &val)
+{
+    QTC_CHECK(!isAutoApply());
+    if (d->m_spinBox)
+        d->m_spinBox->setValue(val.toDouble());
+}
+
+double DoubleAspect::value() const
+{
+    return BaseAspect::value().toDouble();
+}
+
+void DoubleAspect::setValue(double value)
+{
+    BaseAspect::setValue(value);
+}
+
+void DoubleAspect::setRange(double min, double max)
+{
+    d->m_minimumValue = min;
+    d->m_maximumValue = max;
+}
+
+void DoubleAspect::setPrefix(const QString &prefix)
+{
+    d->m_prefix = prefix;
+}
+
+void DoubleAspect::setSuffix(const QString &suffix)
+{
+    d->m_suffix = suffix;
+}
+
+void DoubleAspect::setDefaultValue(double defaultValue)
+{
+    BaseAspect::setDefaultValue(defaultValue);
+}
+
+void DoubleAspect::setSpecialValueText(const QString &specialText)
+{
+    d->m_specialValueText = specialText;
+}
+
+void DoubleAspect::setSingleStep(double step)
 {
     d->m_singleStep = step;
 }
