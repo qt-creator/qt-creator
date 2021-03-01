@@ -25,20 +25,20 @@
 
 #pragma once
 
-#include <utils/savedaction.h>
+#include <utils/aspects.h>
 
 namespace Debugger {
 namespace Internal {
 
-class RegisterPostMortemAction : public Utils::SavedAction
+class RegisterPostMortemAction : public Utils::BoolAspect
 {
 public:
-    RegisterPostMortemAction(QObject *parent = nullptr);
+    RegisterPostMortemAction();
     void readSettings(const QSettings *settings = nullptr) override;
-    void writeSettings(QSettings *) override {}
+    void writeSettings(QSettings *) const override {}
 
 private:
-    void registerNow(const QVariant &value);
+    void registerNow(bool value);
 };
 
 } // namespace Internal

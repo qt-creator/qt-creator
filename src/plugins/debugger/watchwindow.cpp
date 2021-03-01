@@ -30,8 +30,8 @@
 #include "debuggercore.h"
 #include "watchhandler.h"
 
+#include <utils/aspects.h>
 #include <utils/qtcassert.h>
-#include <utils/savedaction.h>
 
 #include <QHeaderView>
 #include <QScrollBar>
@@ -54,7 +54,7 @@ WatchTreeView::WatchTreeView(WatchType type)
     connect(this, &QTreeView::expanded, this, &WatchTreeView::expandNode);
     connect(this, &QTreeView::collapsed, this, &WatchTreeView::collapseNode);
 
-    connect(action(LogTimeStamps)->action(), &QAction::triggered,
+    connect(&debuggerSettings()->logTimeStamps, &Utils::BaseAspect::changed,
             this, &WatchTreeView::updateTimeColumn);
 }
 
@@ -106,7 +106,8 @@ void WatchTreeView::setModel(QAbstractItemModel *model)
 void WatchTreeView::updateTimeColumn()
 {
     if (header())
-        header()->setSectionHidden(WatchModelBase::TimeColumn, !boolSetting(LogTimeStamps));
+        header()->setSectionHidden(WatchModelBase::TimeColumn,
+                                   debuggerSettings()->logTimeStamps.value());
 }
 
 void WatchTreeView::handleItemIsExpanded(const QModelIndex &idx)

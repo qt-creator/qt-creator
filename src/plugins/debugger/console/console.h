@@ -28,6 +28,7 @@
 #include "consoleitem.h"
 
 #include <coreplugin/ioutputpane.h>
+#include <utils/aspects.h>
 
 #include <functional>
 
@@ -38,7 +39,7 @@ class QToolButton;
 class QLabel;
 QT_END_NAMESPACE
 
-namespace Utils { class SavedAction; }
+namespace Utils { class BoolAspect; }
 
 namespace Debugger {
 namespace Internal {
@@ -87,9 +88,9 @@ private:
     QToolButton *m_showDebugButton;
     QToolButton *m_showWarningButton;
     QToolButton *m_showErrorButton;
-    Utils::SavedAction *m_showDebugButtonAction;
-    Utils::SavedAction *m_showWarningButtonAction;
-    Utils::SavedAction *m_showErrorButtonAction;
+    Utils::BoolAspect m_showDebug;
+    Utils::BoolAspect m_showWarning;
+    Utils::BoolAspect m_showError;
     QWidget *m_spacer;
     QLabel *m_statusLabel;
     ConsoleItemModel *m_consoleItemModel;

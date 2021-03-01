@@ -862,7 +862,7 @@ bool compareConsoleItems(const ConsoleItem *a, const ConsoleItem *b)
 static ConsoleItem *constructLogItemTree(const QVariant &result,
                                          const QString &key = QString())
 {
-    bool sorted = boolSetting(SortStructMembers);
+    bool sorted = debuggerSettings()->sortStructMembers.value();
     if (!result.isValid())
         return nullptr;
 
@@ -2226,7 +2226,7 @@ void QmlEnginePrivate::constructChildLogItems(ConsoleItem *item, const QmlV8Obje
     for (const QVariant &property : objectData.properties)
         *(it++) = constructLogItemTree(extractData(property), seenHandles);
 
-    if (boolSetting(SortStructMembers))
+    if (debuggerSettings()->sortStructMembers.value())
         std::sort(children.begin(), children.end(), compareConsoleItems);
 
     foreach (ConsoleItem *child, children)
@@ -2339,7 +2339,7 @@ void QmlEnginePrivate::insertSubItems(WatchItem *parent, const QVariantList &pro
         parent->appendChild(item.release());
     }
 
-    if (boolSetting(SortStructMembers)) {
+    if (debuggerSettings()->sortStructMembers.value()) {
         parent->sortChildren([](const WatchItem *item1, const WatchItem *item2) {
             return item1->name < item2->name;
         });

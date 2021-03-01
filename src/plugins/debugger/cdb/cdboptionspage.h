@@ -34,8 +34,6 @@ class CdbOptionsPage final : public Core::IOptionsPage
 {
 public:
     CdbOptionsPage();
-
-    static const char *crtDbgReport;
 };
 
 class CdbPathsPage final : public Core::IOptionsPage

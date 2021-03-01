@@ -37,10 +37,7 @@ class QMenu;
 class QAction;
 QT_END_NAMESPACE
 
-namespace Utils {
-class BaseTreeView;
-class SavedAction;
-}
+namespace Utils { class BaseTreeView; }
 
 namespace Debugger {
 namespace Internal {
@@ -59,12 +56,6 @@ void openTextEditor(const QString &titlePattern, const QString &contents);
 GlobalDebuggerOptions *globalDebuggerOptions();
 
 bool isTestRun();
-
-Utils::SavedAction *action(int code);
-
-bool boolSetting(int code);
-QString stringSetting(int code);
-QStringList stringListSetting(int code);
 
 QAction *addAction(QMenu *menu, const QString &display, bool on,
                    const std::function<void()> &onTriggered = {});

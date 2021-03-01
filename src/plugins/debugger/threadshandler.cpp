@@ -35,7 +35,6 @@
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
 #include <utils/qtcassert.h>
-#include <utils/savedaction.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -258,7 +257,7 @@ bool ThreadsHandler::setData(const QModelIndex &idx, const QVariant &data, int r
 
         if (ev.as<QContextMenuEvent>()) {
             auto menu = new QMenu;
-            menu->addAction(action(SettingsDialog)->action());
+            menu->addAction(debuggerSettings()->settingsDialog.action());
             menu->popup(ev.globalPos());
             return true;
         }

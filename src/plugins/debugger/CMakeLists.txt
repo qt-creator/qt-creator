@@ -17,7 +17,6 @@ add_qtc_plugin(Debugger
     breakpoint.cpp breakpoint.h
     cdb/cdbengine.cpp cdb/cdbengine.h
     cdb/cdboptionspage.cpp cdb/cdboptionspage.h
-    cdb/cdboptionspagewidget.ui
     cdb/cdbparsehelpers.cpp cdb/cdbparsehelpers.h
     cdb/stringinputstream.cpp cdb/stringinputstream.h
     commonoptionspage.cpp commonoptionspage.h

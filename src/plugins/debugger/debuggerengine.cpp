@@ -78,7 +78,6 @@
 #include <utils/processhandle.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/savedaction.h>
 #include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 
@@ -286,7 +285,7 @@ public:
         m_logWindow = new LogWindow(m_engine); // Needed before start()
         m_logWindow->setObjectName("Debugger.Dock.Output");
 
-        connect(action(EnableReverseDebugging), &SavedAction::valueChanged, this, [this] {
+        connect(&debuggerSettings()->enableReverseDebugging, &BaseAspect::changed, this, [this] {
             updateState();
             if (m_companionEngine)
                 m_companionEngine->d->updateState();
@@ -427,7 +426,7 @@ public:
         m_watchHandler.cleanup();
         m_engine->showMessage(tr("Debugger finished."), StatusBar);
         m_engine->setState(DebuggerFinished); // Also destroys views.
-        if (boolSetting(SwitchModeOnExit))
+        if (debuggerSettings()->switchModeOnExit.value())
             EngineManager::deactivateDebugMode();
     }
 
@@ -831,7 +830,7 @@ void DebuggerEnginePrivate::setupViews()
 
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
             this, [this](const FontSettings &settings) {
-        if (!boolSetting(FontSizeFollowsEditor))
+        if (!debuggerSettings()->fontSizeFollowsEditor.value())
             return;
         const qreal size = settings.fontZoom() * settings.fontSize() / 100.;
         QFont font = m_breakWindow->font();
@@ -1102,7 +1101,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
                                                 &newEditor);
     QTC_ASSERT(editor, return); // Unreadable file?
 
-    editor->gotoLine(line, 0, !boolSetting(StationaryEditorWhileStepping));
+    editor->gotoLine(line, 0, !debuggerSettings()->stationaryEditorWhileStepping.value());
 
     if (newEditor)
         editor->document()->setProperty(Constants::OPENED_BY_DEBUGGER, true);
@@ -1364,7 +1363,7 @@ void DebuggerEngine::notifyInferiorSpontaneousStop()
     d->m_perspective->select();
     showMessage(tr("Stopped."), StatusBar);
     setState(InferiorStopOk);
-    if (boolSetting(RaiseOnInterrupt))
+    if (debuggerSettings()->raiseOnInterrupt.value())
         ICore::raiseWindow(DebuggerMainWindow::instance());
 }
 
@@ -1422,8 +1421,8 @@ void DebuggerEnginePrivate::setInitialActionStates()
     m_jumpToLineAction.setVisible(false);
     m_stepOverAction.setEnabled(true);
 
-    action(AutoDerefPointers)->setEnabled(true);
-    action(ExpandStack)->setEnabled(false);
+    debuggerSettings()->autoDerefPointers.setEnabled(true);
+    debuggerSettings()->expandStack.setEnabled(false);
 
     m_threadLabel->setEnabled(false);
 }
@@ -1561,9 +1560,9 @@ void DebuggerEnginePrivate::updateState()
 
     const bool actionsEnabled = m_engine->debuggerActionsEnabled();
     const bool canDeref = actionsEnabled && m_engine->hasCapability(AutoDerefPointersCapability);
-    action(AutoDerefPointers)->setEnabled(canDeref);
-    action(AutoDerefPointers)->setEnabled(true);
-    action(ExpandStack)->setEnabled(actionsEnabled);
+    debuggerSettings()->autoDerefPointers.setEnabled(canDeref);
+    debuggerSettings()->autoDerefPointers.setEnabled(true);
+    debuggerSettings()->expandStack.setEnabled(actionsEnabled);
 
     const bool notbusy = state == InferiorStopOk
         || state == DebuggerNotReady
@@ -1575,7 +1574,7 @@ void DebuggerEnginePrivate::updateState()
 void DebuggerEnginePrivate::updateReverseActions()
 {
     const bool stopped = m_state == InferiorStopOk;
-    const bool reverseEnabled = boolSetting(EnableReverseDebugging);
+    const bool reverseEnabled = debuggerSettings()->enableReverseDebugging.value();
     const bool canReverse = reverseEnabled && m_engine->hasCapability(ReverseSteppingCapability);
     const bool doesRecord = m_recordForReverseOperationAction.isChecked();
 
@@ -1593,8 +1592,8 @@ void DebuggerEnginePrivate::updateReverseActions()
 
 void DebuggerEnginePrivate::cleanupViews()
 {
-    const bool closeSource = boolSetting(CloseSourceBuffersOnExit);
-    const bool closeMemory = boolSetting(CloseMemoryBuffersOnExit);
+    const bool closeSource = debuggerSettings()->closeSourceBuffersOnExit.value();
+    const bool closeMemory = debuggerSettings()->closeMemoryBuffersOnExit.value();
 
     QList<IDocument *> toClose;
     foreach (IDocument *document, DocumentModel::openedDocuments()) {
@@ -1880,7 +1879,7 @@ QString DebuggerEngine::expand(const QString &string) const
 
 QString DebuggerEngine::nativeStartupCommands() const
 {
-    return expand(QStringList({stringSetting(GdbStartupCommands),
+    return expand(QStringList({debuggerSettings()->gdbStartupCommands.value(),
                                runParameters().additionalStartupCommands}).join('\n'));
 }
 
@@ -2718,7 +2717,8 @@ Context CppDebuggerEngine::languageContext() const
 
 void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
 {
-    const bool warnOnRelease = boolSetting(WarnOnReleaseBuilds) && rp.toolChainAbi.osFlavor() != Abi::AndroidLinuxFlavor;
+    const bool warnOnRelease = debuggerSettings()->warnOnReleaseBuilds.value()
+                               && rp.toolChainAbi.osFlavor() != Abi::AndroidLinuxFlavor;
     bool warnOnInappropriateDebugger = false;
     QString detailedWarning;
     switch (rp.toolChainAbi.binaryFormat()) {

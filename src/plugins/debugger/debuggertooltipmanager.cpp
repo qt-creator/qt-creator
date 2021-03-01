@@ -1188,7 +1188,7 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
     QTC_ASSERT(handled, return);
     QTC_ASSERT(editorWidget, return);
 
-    if (!boolSetting(UseToolTipsInMainEditor))
+    if (!debuggerSettings()->useToolTipsInMainEditor.value())
         return;
 
     const TextDocument *document = editorWidget->textDocument();

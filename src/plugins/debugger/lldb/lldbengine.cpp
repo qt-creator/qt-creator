@@ -50,7 +50,6 @@
 #include <coreplugin/icore.h>
 
 #include <utils/qtcassert.h>
-#include <utils/savedaction.h>
 #include <utils/qtcprocess.h>
 
 #include <QApplication>
@@ -87,15 +86,16 @@ LldbEngine::LldbEngine()
     setObjectName("LldbEngine");
     setDebuggerName("LLDB");
 
-    connect(action(AutoDerefPointers), &SavedAction::valueChanged,
+    DebuggerSettings &ds = *debuggerSettings();
+    connect(&ds.autoDerefPointers, &BaseAspect::changed,
             this, &LldbEngine::updateLocals);
-    connect(action(CreateFullBacktrace)->action(), &QAction::triggered,
+    connect(ds.createFullBacktrace.action(), &QAction::triggered,
             this, &LldbEngine::fetchFullBacktrace);
-    connect(action(UseDebuggingHelpers), &SavedAction::valueChanged,
+    connect(&ds.useDebuggingHelpers, &BaseAspect::changed,
             this, &LldbEngine::updateLocals);
-    connect(action(UseDynamicType), &SavedAction::valueChanged,
+    connect(&ds.useDynamicType, &BaseAspect::changed,
             this, &LldbEngine::updateLocals);
-    connect(action(IntelFlavor), &SavedAction::valueChanged,
+    connect(&ds.intelFlavor, &BaseAspect::changed,
             this, &LldbEngine::updateAll);
 
     connect(&m_lldbProc, &QProcess::errorOccurred,
@@ -244,14 +244,14 @@ void LldbEngine::setupEngine()
         executeCommand(commands.toLocal8Bit());
 
 
-    const QString path = stringSetting(ExtraDumperFile);
+    const QString path = debuggerSettings()->extraDumperFile.value();
     if (!path.isEmpty() && QFileInfo(path).isReadable()) {
         DebuggerCommand cmd("addDumperModule");
         cmd.arg("path", path);
         runCommand(cmd);
     }
 
-    commands = stringSetting(ExtraDumperCommands);
+    commands = debuggerSettings()->extraDumperCommands.value();
     if (!commands.isEmpty()) {
         DebuggerCommand cmd("executeDebuggerCommand");
         cmd.arg("command", commands);
@@ -480,7 +480,7 @@ void LldbEngine::selectThread(const Thread &thread)
     DebuggerCommand cmd("selectThread");
     cmd.arg("id", thread->id());
     cmd.callback = [this](const DebuggerResponse &) {
-        fetchStack(action(MaximalStackDepth)->value().toInt());
+        fetchStack(debuggerSettings()->maximalStackDepth.value());
     };
     runCommand(cmd);
 }
@@ -711,7 +711,7 @@ void LldbEngine::updateAll()
     DebuggerCommand cmd("fetchThreads");
     cmd.callback = [this](const DebuggerResponse &response) {
         threadsHandler()->setThreads(response.data);
-        fetchStack(action(MaximalStackDepth)->value().toInt());
+        fetchStack(debuggerSettings()->maximalStackDepth.value());
         reloadRegisters();
     };
     runCommand(cmd);
@@ -765,20 +765,21 @@ void LldbEngine::doUpdateLocals(const UpdateParameters &params)
     watchHandler()->appendWatchersAndTooltipRequests(&cmd);
 
     const static bool alwaysVerbose = qEnvironmentVariableIsSet("QTC_DEBUGGER_PYTHON_VERBOSE");
+    const DebuggerSettings &s = *debuggerSettings();
     cmd.arg("passexceptions", alwaysVerbose);
-    cmd.arg("fancy", boolSetting(UseDebuggingHelpers));
-    cmd.arg("autoderef", boolSetting(AutoDerefPointers));
-    cmd.arg("dyntype", boolSetting(UseDynamicType));
+    cmd.arg("fancy", s.useDebuggingHelpers.value());
+    cmd.arg("autoderef", s.autoDerefPointers.value());
+    cmd.arg("dyntype", s.useDynamicType.value());
     cmd.arg("partialvar", params.partialVariable);
-    cmd.arg("qobjectnames", boolSetting(ShowQObjectNames));
-    cmd.arg("timestamps", boolSetting(LogTimeStamps));
+    cmd.arg("qobjectnames", s.showQObjectNames.value());
+    cmd.arg("timestamps", s.logTimeStamps.value());
 
     StackFrame frame = stackHandler()->currentFrame();
     cmd.arg("context", frame.context);
     cmd.arg("nativemixed", isNativeMixedActive());
 
-    cmd.arg("stringcutoff", action(MaximalStringLength)->value().toString());
-    cmd.arg("displaystringlimit", action(DisplayStringLimit)->value().toString());
+    cmd.arg("stringcutoff", s.maximalStringLength.value());
+    cmd.arg("displaystringlimit", s.displayStringLimit.value());
 
     //cmd.arg("resultvarname", m_resultVarName);
     cmd.arg("partialvar", params.partialVariable);
@@ -993,7 +994,7 @@ void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)
     DebuggerCommand cmd("fetchDisassembler");
     cmd.arg("address", loc.address());
     cmd.arg("function", loc.functionName());
-    cmd.arg("flavor", boolSetting(IntelFlavor) ? "intel" : "att");
+    cmd.arg("flavor", debuggerSettings()->intelFlavor.value() ? "intel" : "att");
     cmd.callback = [this, id](const DebuggerResponse &response) {
         DisassemblerLines result;
         QPointer<DisassemblerAgent> agent = m_disassemblerAgents.key(id);

@@ -572,7 +572,7 @@ void PdbEngine::updateLocals()
 
     const static bool alwaysVerbose = qEnvironmentVariableIsSet("QTC_DEBUGGER_PYTHON_VERBOSE");
     cmd.arg("passexceptions", alwaysVerbose);
-    cmd.arg("fancy", boolSetting(UseDebuggingHelpers));
+    cmd.arg("fancy", debuggerSettings()->useDebuggingHelpers.value());
 
     //cmd.arg("resultvarname", m_resultVarName);
     //m_lastDebuggableCommand = cmd;

@@ -63,7 +63,6 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/savedaction.h>
 #include <utils/stringutils.h>
 #include <utils/synchronousprocess.h>
 #include <utils/temporaryfile.h>
@@ -158,13 +157,14 @@ GdbEngine::GdbEngine()
     connect(&m_commandTimer, &QTimer::timeout,
             this, &GdbEngine::commandTimeout);
 
-    connect(action(AutoDerefPointers), &SavedAction::valueChanged,
+    DebuggerSettings &s = *debuggerSettings();
+    connect(&s.autoDerefPointers, &BaseAspect::changed,
             this, &GdbEngine::reloadLocals);
-    connect(action(CreateFullBacktrace)->action(), &QAction::triggered,
+    connect(s.createFullBacktrace.action(), &QAction::triggered,
             this, &GdbEngine::createFullBacktrace);
-    connect(action(UseDebuggingHelpers), &SavedAction::valueChanged,
+    connect(&s.useDebuggingHelpers, &BaseAspect::changed,
             this, &GdbEngine::reloadLocals);
-    connect(action(UseDynamicType), &SavedAction::valueChanged,
+    connect(&s.useDynamicType, &BaseAspect::changed,
             this, &GdbEngine::reloadLocals);
 
     connect(&m_gdbProc, &QProcess::errorOccurred,
@@ -804,7 +804,7 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
 
 int GdbEngine::commandTimeoutTime() const
 {
-    int time = action(GdbWatchdogTimeout)->value().toInt();
+    const int time = debuggerSettings()->gdbWatchdogTimeout.value();
     return 1000 * qMax(20, time);
 }
 
@@ -946,7 +946,7 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
 
     DebuggerCommand cmd = m_commandForToken.take(token);
     const int flags = m_flagsForToken.take(token);
-    if (boolSetting(LogTimeStamps)) {
+    if (debuggerSettings()->logTimeStamps.value()) {
         showMessage(QString("Response time: %1: %2 s")
             .arg(cmd.function)
             .arg(QTime::fromMSecsSinceStartOfDay(cmd.postTime).msecsTo(QTime::currentTime()) / 1000.),
@@ -1020,7 +1020,7 @@ void GdbEngine::updateAll()
 {
     //PENDING_DEBUG("UPDATING ALL\n");
     QTC_CHECK(state() == InferiorUnrunnable || state() == InferiorStopOk);
-    DebuggerCommand cmd(stackCommand(action(MaximalStackDepth)->value().toInt()));
+    DebuggerCommand cmd(stackCommand(debuggerSettings()->maximalStackDepth.value()));
     cmd.callback = [this](const DebuggerResponse &r) { handleStackListFrames(r, false); };
     runCommand(cmd);
     stackHandler()->setCurrentIndex(0);
@@ -1293,7 +1293,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
 
     // Jump over well-known frames.
     static int stepCounter = 0;
-    if (boolSetting(SkipKnownFrames)) {
+    if (debuggerSettings()->skipKnownFrames.value()) {
         if (reason == "end-stepping-range" || reason == "function-finished") {
             //showMessage(frame.toString());
             QString funcName = frame["function"].data();
@@ -1330,7 +1330,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
 
     if (!m_systemDumpersLoaded) {
         m_systemDumpersLoaded = true;
-        if (m_gdbVersion >= 70400 && boolSetting(LoadGdbDumpers))
+        if (m_gdbVersion >= 70400 && debuggerSettings()->loadGdbDumpers.value())
             runCommand({"importPlainDumpers on"});
         else
             runCommand({"importPlainDumpers off"});
@@ -1443,7 +1443,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
                 showMessage("SIGNAL 0 CONSIDERED BOGUS.");
             } else {
                 showMessage("HANDLING SIGNAL " + name);
-                if (boolSetting(UseMessageBoxForSignals) && !isStopperThread)
+                if (debuggerSettings()->useMessageBoxForSignals.value() && !isStopperThread)
                     if (!showStoppedBySignalMessageBox(meaning, name)) {
                         showMessage("SIGNAL RECEIVED WHILE SHOWING SIGNAL MESSAGE");
                         return;
@@ -1602,7 +1602,7 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
             cleanFilePath = QDir::cleanPath(fi.absoluteFilePath());
     }
 
-    if (!boolSetting(AutoEnrichParameters))
+    if (!debuggerSettings()->autoEnrichParameters.value())
         return cleanFilePath;
 
     const QString sysroot = runParameters().sysRoot.toString();
@@ -2057,7 +2057,7 @@ void GdbEngine::setTokenBarrier()
     QTC_ASSERT(good, return);
     PENDING_DEBUG("\n--- token barrier ---\n");
     showMessage("--- token barrier ---", LogMiscInput);
-    if (boolSetting(LogTimeStamps))
+    if (debuggerSettings()->logTimeStamps.value())
         showMessage(LogWindow::logTimeStamp(), LogMiscInput);
     m_oldestAcceptableToken = currentToken();
     m_stackNeeded = false;
@@ -2179,7 +2179,7 @@ void GdbEngine::handleCatchInsert(const DebuggerResponse &response, const Breakp
 void GdbEngine::handleBkpt(const GdbMi &bkpt, const Breakpoint &bp)
 {
     QTC_ASSERT(bp, return);
-    bool usePseudoTracepoints = boolSetting(UsePseudoTracepoints);
+    const bool usePseudoTracepoints = debuggerSettings()->usePseudoTracepoints.value();
     const QString nr = bkpt["number"].data();
     if (nr.contains('.')) {
         // A sub-breakpoint.
@@ -2594,7 +2594,7 @@ void GdbEngine::insertBreakpoint(const Breakpoint &bp)
         int spec = requested.threadSpec;
         if (requested.isTracepoint()) {
 
-            if (boolSetting(UsePseudoTracepoints)) {
+            if (debuggerSettings()->usePseudoTracepoints.value()) {
                 cmd.function = "createTracepoint";
 
                 if (requested.oneShot)
@@ -2629,14 +2629,15 @@ void GdbEngine::insertBreakpoint(const Breakpoint &bp)
 
                 // for dumping of expressions
                 const static bool alwaysVerbose = qEnvironmentVariableIsSet("QTC_DEBUGGER_PYTHON_VERBOSE");
+                const DebuggerSettings &s = *debuggerSettings();
                 cmd.arg("passexceptions", alwaysVerbose);
-                cmd.arg("fancy", boolSetting(UseDebuggingHelpers));
-                cmd.arg("autoderef", boolSetting(AutoDerefPointers));
-                cmd.arg("dyntype", boolSetting(UseDynamicType));
-                cmd.arg("qobjectnames", boolSetting(ShowQObjectNames));
+                cmd.arg("fancy", s.useDebuggingHelpers.value());
+                cmd.arg("autoderef", s.autoDerefPointers.value());
+                cmd.arg("dyntype", s.useDynamicType.value());
+                cmd.arg("qobjectnames", s.showQObjectNames.value());
                 cmd.arg("nativemixed", isNativeMixedActive());
-                cmd.arg("stringcutoff", action(MaximalStringLength)->value().toString());
-                cmd.arg("displaystringlimit", action(DisplayStringLimit)->value().toString());
+                cmd.arg("stringcutoff", s.maximalStringLength.value());
+                cmd.arg("displaystringlimit", s.displayStringLimit.value());
 
                 cmd.arg("spec", breakpointLocation2(requested));
                 cmd.callback = [this, bp](const DebuggerResponse &r) { handleTracepointInsert(r, bp); };
@@ -3132,7 +3133,7 @@ DebuggerCommand GdbEngine::stackCommand(int depth)
 void GdbEngine::reloadStack()
 {
     PENDING_DEBUG("RELOAD STACK");
-    DebuggerCommand cmd = stackCommand(action(MaximalStackDepth)->value().toInt());
+    DebuggerCommand cmd = stackCommand(debuggerSettings()->maximalStackDepth.value());
     cmd.callback = [this](const DebuggerResponse &r) { handleStackListFrames(r, false); };
     cmd.flags = Discardable;
     runCommand(cmd);
@@ -3196,8 +3197,8 @@ void GdbEngine::handleThreadInfo(const DebuggerResponse &response)
         ThreadsHandler *handler = threadsHandler();
         handler->setThreads(response.data);
         updateState(); // Adjust Threads combobox.
-        if (boolSetting(ShowThreadNames)) {
-            runCommand({"threadnames " + action(MaximalStackDepth)->value().toString(),
+        if (debuggerSettings()->showThreadNames.value()) {
+            runCommand({QString("threadnames %1").arg(debuggerSettings()->maximalStackDepth.value()),
                 Discardable, CB(handleThreadNames)});
         }
         reloadStack(); // Will trigger register reload.
@@ -3665,7 +3666,7 @@ public:
 
 void GdbEngine::fetchDisassembler(DisassemblerAgent *agent)
 {
-    if (boolSetting(IntelFlavor))
+    if (debuggerSettings()->intelFlavor.value())
         runCommand({"set disassembly-flavor intel"});
     else
         runCommand({"set disassembly-flavor att"});
@@ -3850,7 +3851,7 @@ void GdbEngine::setupEngine()
     }
 
     gdbCommand.addArgs({"-i", "mi"});
-    if (!boolSetting(LoadGdbInit))
+    if (!debuggerSettings()->loadGdbInit.value())
         gdbCommand.addArg("-n");
 
     Environment gdbEnv = rp.debugger.environment;
@@ -3977,7 +3978,7 @@ void GdbEngine::setupEngine()
     //if (!ba.isEmpty())
     //    runCommand("set solib-search-path " + ba);
 
-    if (boolSetting(MultiInferior) || runParameters().multiProcess) {
+    if (debuggerSettings()->multiInferior.value() || runParameters().multiProcess) {
         //runCommand("set follow-exec-mode new");
         runCommand({"set detach-on-fork off"});
     }
@@ -3998,14 +3999,14 @@ void GdbEngine::setupEngine()
     runCommand({"python sys.path.append('" + uninstalledData + "')"});
     runCommand({"python from gdbbridge import *"});
 
-    const QString path = stringSetting(ExtraDumperFile);
+    const QString path = debuggerSettings()->extraDumperFile.value();
     if (!path.isEmpty() && QFileInfo(path).isReadable()) {
         DebuggerCommand cmd("addDumperModule");
         cmd.arg("path", path);
         runCommand(cmd);
     }
 
-    const QString commands = stringSetting(ExtraDumperCommands);
+    const QString commands = debuggerSettings()->extraDumperCommands.value();
     if (!commands.isEmpty())
         runCommand({commands});
 
@@ -4213,7 +4214,7 @@ bool GdbEngine::usesExecInterrupt() const
 
 bool GdbEngine::usesTargetAsync() const
 {
-    return runParameters().useTargetAsync || boolSetting(TargetAsync);
+    return runParameters().useTargetAsync || debuggerSettings()->targetAsync.value();
 }
 
 void GdbEngine::scheduleTestResponse(int testCase, const QString &response)
@@ -4322,9 +4323,10 @@ void GdbEngine::claimInitialBreakpoints()
         showMessage(tr("Setting breakpoints..."));
         BreakpointManager::claimBreakpointsForEngine(this);
 
-        const bool onAbort = boolSetting(BreakOnAbort);
-        const bool onWarning = boolSetting(BreakOnWarning);
-        const bool onFatal = boolSetting(BreakOnFatal);
+        const DebuggerSettings &s = *debuggerSettings();
+        const bool onAbort = s.breakOnAbort.value();
+        const bool onWarning = s.breakOnWarning.value();
+        const bool onFatal = s.breakOnFatal.value();
         if (onAbort || onWarning || onFatal) {
             DebuggerCommand cmd("createSpecialBreakpoints");
             cmd.arg("breakonabort", onAbort);
@@ -4782,7 +4784,7 @@ void GdbEngine::handleTargetRemote(const DebuggerResponse &response)
         // gdb server will stop the remote application itself.
         showMessage("INFERIOR STARTED");
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
-        QString commands = expand(stringSetting(GdbPostAttachCommands));
+        QString commands = expand(debuggerSettings()->gdbPostAttachCommands.value());
         if (!commands.isEmpty())
             runCommand({commands, NativeCommand});
         handleInferiorPrepared();
@@ -4798,7 +4800,7 @@ void GdbEngine::handleTargetExtendedRemote(const DebuggerResponse &response)
     if (response.resultClass == ResultDone) {
         showMessage("ATTACHED TO GDB SERVER STARTED");
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
-        QString commands = expand(stringSetting(GdbPostAttachCommands));
+        QString commands = expand(debuggerSettings()->gdbPostAttachCommands.value());
         if (!commands.isEmpty())
             runCommand({commands, NativeCommand});
         if (runParameters().attachPID.isValid()) { // attach to pid if valid
@@ -5051,19 +5053,20 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
     watchHandler()->appendWatchersAndTooltipRequests(&cmd);
 
     const static bool alwaysVerbose = qEnvironmentVariableIsSet("QTC_DEBUGGER_PYTHON_VERBOSE");
+    const DebuggerSettings &s = *debuggerSettings();
     cmd.arg("passexceptions", alwaysVerbose);
-    cmd.arg("fancy", boolSetting(UseDebuggingHelpers));
-    cmd.arg("autoderef", boolSetting(AutoDerefPointers));
-    cmd.arg("dyntype", boolSetting(UseDynamicType));
-    cmd.arg("qobjectnames", boolSetting(ShowQObjectNames));
-    cmd.arg("timestamps", boolSetting(LogTimeStamps));
+    cmd.arg("fancy", s.useDebuggingHelpers.value());
+    cmd.arg("autoderef", s.autoDerefPointers.value());
+    cmd.arg("dyntype", s.useDynamicType.value());
+    cmd.arg("qobjectnames", s.showQObjectNames.value());
+    cmd.arg("timestamps", s.logTimeStamps.value());
 
     StackFrame frame = stackHandler()->currentFrame();
     cmd.arg("context", frame.context);
     cmd.arg("nativemixed", isNativeMixedActive());
 
-    cmd.arg("stringcutoff", action(MaximalStringLength)->value().toString());
-    cmd.arg("displaystringlimit", action(DisplayStringLimit)->value().toString());
+    cmd.arg("stringcutoff", s.maximalStringLength.value());
+    cmd.arg("displaystringlimit", s.displayStringLimit.value());
 
     cmd.arg("resultvarname", m_resultVarName);
     cmd.arg("partialvar", params.partialVariable);

@@ -36,7 +36,6 @@
 
 #include <utils/basetreeview.h>
 #include <utils/qtcassert.h>
-#include <utils/savedaction.h>
 
 #include <QDebug>
 #include <QItemDelegate>
@@ -834,7 +833,7 @@ bool RegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
     addFormatAction(tr("Octal"), OctalFormat);
     addFormatAction(tr("Binary"), BinaryFormat);
 
-    menu->addAction(action(SettingsDialog)->action());
+    menu->addAction(debuggerSettings()->settingsDialog.action());
     menu->popup(ev.globalPos());
     return true;
 }

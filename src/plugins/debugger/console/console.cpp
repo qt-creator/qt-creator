@@ -31,11 +31,11 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
-#include <utils/savedaction.h>
 #include <utils/utilsicons.h>
 #include <aggregation/aggregate.h>
 #include <coreplugin/find/itemviewfind.h>
 
+#include <QAction>
 #include <QCoreApplication>
 #include <QToolButton>
 #include <QLabel>
@@ -101,42 +101,39 @@ Console::Console()
 
     m_showDebugButton = new QToolButton(m_consoleWidget);
 
-    m_showDebugButtonAction = new Utils::SavedAction(this);
-    m_showDebugButtonAction->setDefaultValue(true);
-    m_showDebugButtonAction->setSettingsKey(CONSOLE, SHOW_LOG);
-    m_showDebugButtonAction->setToolTip(tr("Show debug, log, and info messages."));
-    m_showDebugButtonAction->setCheckable(true);
-    m_showDebugButtonAction->setChecked(true);
-    m_showDebugButtonAction->setIcon(Utils::Icons::INFO_TOOLBAR.icon());
-    connect(m_showDebugButtonAction->action(), &QAction::toggled,
+    m_showDebug.setDefaultValue(true);
+    m_showDebug.setSettingsKey(CONSOLE, SHOW_LOG);
+    m_showDebug.setLabelText(tr("Show debug, log, and info messages."));
+    m_showDebug.setToolTip(tr("Show debug, log, and info messages."));
+    m_showDebug.setValue(true);
+    m_showDebug.action()->setIcon(Utils::Icons::INFO_TOOLBAR.icon());
+    connect(&m_showDebug, &Utils::BoolAspect::valueChanged,
             proxyModel, &ConsoleProxyModel::setShowLogs);
-    m_showDebugButton->setDefaultAction(m_showDebugButtonAction->action());
+    m_showDebugButton->setDefaultAction(m_showDebug.action());
 
     m_showWarningButton = new QToolButton(m_consoleWidget);
 
-    m_showWarningButtonAction = new Utils::SavedAction(this);
-    m_showWarningButtonAction->setDefaultValue(true);
-    m_showWarningButtonAction->setSettingsKey(CONSOLE, SHOW_WARNING);
-    m_showWarningButtonAction->setToolTip(tr("Show warning messages."));
-    m_showWarningButtonAction->setCheckable(true);
-    m_showWarningButtonAction->setChecked(true);
-    m_showWarningButtonAction->setIcon(Utils::Icons::WARNING_TOOLBAR.icon());
-    connect(m_showWarningButtonAction->action(), &QAction::toggled,
+    m_showWarning.setDefaultValue(true);
+    m_showWarning.setSettingsKey(CONSOLE, SHOW_WARNING);
+    m_showWarning.setLabelText(tr("Show warning messages."));
+    m_showWarning.setToolTip(tr("Show warning messages."));
+    m_showWarning.setValue(true);
+    m_showWarning.action()->setIcon(Utils::Icons::WARNING_TOOLBAR.icon());
+    connect(m_showWarning.action(), &QAction::toggled,
             proxyModel, &ConsoleProxyModel::setShowWarnings);
-    m_showWarningButton->setDefaultAction(m_showWarningButtonAction->action());
+    m_showWarningButton->setDefaultAction(m_showWarning.action());
 
     m_showErrorButton = new QToolButton(m_consoleWidget);
 
-    m_showErrorButtonAction = new Utils::SavedAction(this);
-    m_showErrorButtonAction->setDefaultValue(true);
-    m_showErrorButtonAction->setSettingsKey(CONSOLE, SHOW_ERROR);
-    m_showErrorButtonAction->setToolTip(tr("Show error messages."));
-    m_showErrorButtonAction->setCheckable(true);
-    m_showErrorButtonAction->setChecked(true);
-    m_showErrorButtonAction->setIcon(Utils::Icons::CRITICAL_TOOLBAR.icon());
-    connect(m_showErrorButtonAction->action(), &QAction::toggled,
+    m_showError.setDefaultValue(true);
+    m_showError.setSettingsKey(CONSOLE, SHOW_ERROR);
+    m_showError.setLabelText(tr("Show error messages."));
+    m_showError.setToolTip(tr("Show error messages."));
+    m_showError.setValue(true);
+    m_showError.action()->setIcon(Utils::Icons::CRITICAL_TOOLBAR.icon());
+    connect(m_showError.action(), &QAction::toggled,
             proxyModel, &ConsoleProxyModel::setShowErrors);
-    m_showErrorButton->setDefaultAction(m_showErrorButtonAction->action());
+    m_showErrorButton->setDefaultAction(m_showError.action());
 
     m_spacer = new QWidget(m_consoleWidget);
     m_spacer->setMinimumWidth(30);
@@ -221,9 +218,9 @@ bool Console::canNavigate() const
 void Console::readSettings()
 {
     QSettings *settings = Core::ICore::settings();
-    m_showDebugButtonAction->readSettings(settings);
-    m_showWarningButtonAction->readSettings(settings);
-    m_showErrorButtonAction->readSettings(settings);
+    m_showDebug.readSettings(settings);
+    m_showWarning.readSettings(settings);
+    m_showError.readSettings(settings);
 }
 
 void Console::setContext(const QString &context)
@@ -234,9 +231,9 @@ void Console::setContext(const QString &context)
 void Console::writeSettings() const
 {
     QSettings *settings = Core::ICore::settings();
-    m_showDebugButtonAction->writeSettings(settings);
-    m_showWarningButtonAction->writeSettings(settings);
-    m_showErrorButtonAction->writeSettings(settings);
+    m_showDebug.writeSettings(settings);
+    m_showWarning.writeSettings(settings);
+    m_showError.writeSettings(settings);
 }
 
 void Console::setScriptEvaluator(const ScriptEvaluator &evaluator)

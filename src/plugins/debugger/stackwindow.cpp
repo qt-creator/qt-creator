@@ -29,8 +29,6 @@
 #include "debuggercore.h"
 #include "stackhandler.h"
 
-#include <utils/savedaction.h>
-
 #include <QAction>
 #include <QHeaderView>
 

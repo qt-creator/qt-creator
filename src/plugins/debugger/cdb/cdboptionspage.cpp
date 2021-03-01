@@ -26,7 +26,7 @@
 #include "cdboptionspage.h"
 
 #include "cdbengine.h"
-#include "ui_cdboptionspagewidget.h"
+
 #include <debugger/commonoptionspage.h>
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
@@ -35,15 +35,17 @@
 
 #include <coreplugin/icore.h>
 
-#include <utils/savedaction.h>
+#include <utils/aspects.h>
+#include <utils/layoutbuilder.h>
 
-#include <QDialogButtonBox>
+#include <QCheckBox>
+#include <QFormLayout>
 #include <QTextStream>
+
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
-
-const char *CdbOptionsPage::crtDbgReport = "CrtDbgReport";
 
 struct EventsDescription {
     const char *abbreviation;
@@ -192,56 +194,59 @@ private:
     void apply() final;
     void finish() final;
 
-    Utils::SavedActionSet m_group;
-    Ui::CdbOptionsPageWidget m_ui;
+    Utils::AspectContainer &m_group = debuggerSettings()->page5;
     CdbBreakEventWidget *m_breakEventWidget;
 };
 
 CdbOptionsPageWidget::CdbOptionsPageWidget()
     : m_breakEventWidget(new CdbBreakEventWidget)
 {
-    m_ui.setupUi(this);
-    // Squeeze the groupbox layouts vertically to
-    // accommodate all options. This page only shows on
-    // Windows, which has large margins by default.
+    using namespace Layouting;
+    DebuggerSettings &s = *debuggerSettings();
 
-    int left, top, right, bottom;
-    layout()->getContentsMargins(&left, &top, &right, &bottom);
-    const QMargins margins(left, top / 3, right, bottom / 3);
+    m_breakEventWidget->setBreakEvents(debuggerSettings()->cdbBreakEvents.value());
 
-    m_ui.startupFormLayout->setContentsMargins(margins);
+    Column {
+        Row {
+            Group {
+                Title(tr("Startup")),
+                s.cdbAdditionalArguments,
+                s.useCdbConsole,
+                Stretch()
+            },
 
-    auto eventLayout = new QVBoxLayout;
-    eventLayout->setContentsMargins(margins);
-    eventLayout->addWidget(m_breakEventWidget);
-    m_ui.eventGroupBox->setLayout(eventLayout);
-    m_ui.breakCrtDbgReportCheckBox
-        ->setText(CommonOptionsPage::msgSetBreakpointAtFunction(CdbOptionsPage::crtDbgReport));
-    const QString hint = tr("This is useful to catch runtime error messages, for example caused by assert().");
-    m_ui.breakCrtDbgReportCheckBox
-        ->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip(CdbOptionsPage::crtDbgReport, hint));
+            Group {
+                Title(tr("Various")),
+                s.ignoreFirstChanceAccessViolation,
+                s.cdbBreakOnCrtDbgReport,
+                s.cdbBreakPointCorrection,
+                s.cdbUsePythonDumper
+            }
+        },
 
-    m_group.insert(action(CdbAdditionalArguments), m_ui.additionalArgumentsLineEdit);
-    m_group.insert(action(CdbBreakOnCrtDbgReport), m_ui.breakCrtDbgReportCheckBox);
-    m_group.insert(action(UseCdbConsole), m_ui.consoleCheckBox);
-    m_group.insert(action(CdbBreakPointCorrection), m_ui.breakpointCorrectionCheckBox);
-    m_group.insert(action(CdbUsePythonDumper), m_ui.usePythonDumper);
-    m_group.insert(action(FirstChanceExceptionTaskEntry), m_ui.firstChance);
-    m_group.insert(action(SecondChanceExceptionTaskEntry), m_ui.secondChance);
-    m_group.insert(action(IgnoreFirstChanceAccessViolation),
-                   m_ui.ignoreFirstChanceAccessViolationCheckBox);
+        Group {
+            Title(tr("Break on")),
+            m_breakEventWidget
+        },
 
-    m_breakEventWidget->setBreakEvents(stringListSetting(CdbBreakEvents));
+        Group {
+            Title(tr("Add Exceptions to Issues View")),
+            s.firstChanceExceptionTaskEntry,
+            s.secondChanceExceptionTaskEntry
+        }
+
+    }.attachTo(this);
 }
 
 void CdbOptionsPageWidget::apply()
 {
-    m_group.apply(Core::ICore::settings());
-    action(CdbBreakEvents)->setValue(m_breakEventWidget->breakEvents());
+    m_group.apply(); m_group.writeSettings(Core::ICore::settings());
+    debuggerSettings()->cdbBreakEvents.setValue(m_breakEventWidget->breakEvents());
 }
 
 void CdbOptionsPageWidget::finish()
 {
+    m_breakEventWidget->setBreakEvents(debuggerSettings()->cdbBreakEvents.value());
     m_group.finish();
 }
 
@@ -263,33 +268,40 @@ class CdbPathsPageWidget : public Core::IOptionsPageWidget
 public:
     CdbPathsPageWidget();
 
-    void apply() final { m_group.apply(Core::ICore::settings()); }
-    void finish() final { m_group.finish(); }
+    void apply() final;
+    void finish() final;
 
-    Utils::SavedActionSet m_group;
+    AspectContainer &m_group = debuggerSettings()->page6;
+
+private:
+    PathListEditor *m_symbolPaths = nullptr;
+    PathListEditor *m_sourcePaths = nullptr;
 };
 
 CdbPathsPageWidget::CdbPathsPageWidget()
+    : m_symbolPaths(new CdbSymbolPathListEditor)
+    , m_sourcePaths(new PathListEditor)
 {
-    auto layout = new QVBoxLayout(this);
+    using namespace Layouting;
 
-    auto gbSymbolPath = new QGroupBox(tr("Symbol Paths"), this);
-    auto gbSymbolPathLayout = new QVBoxLayout(gbSymbolPath);
+    finish();
+    Column {
+        Group { Title(tr("Symbol Paths")), m_symbolPaths },
+        Group { Title(tr("Source Paths")), m_sourcePaths }
+    }.attachTo(this, false);
+}
 
-    auto symbolPathListEditor = new CdbSymbolPathListEditor(gbSymbolPath);
-    gbSymbolPathLayout->addWidget(symbolPathListEditor);
+void CdbPathsPageWidget::apply()
+{
+    debuggerSettings()->cdbSymbolPaths.setValue(m_symbolPaths->pathList());
+    debuggerSettings()->cdbSourcePaths.setValue(m_sourcePaths->pathList());
+    m_group.writeSettings(Core::ICore::settings());
+}
 
-    auto gbSourcePath = new QGroupBox(tr("Source Paths"), this);
-
-    auto gbSourcePathLayout = new QVBoxLayout(gbSourcePath);
-    auto sourcePathListEditor = new Utils::PathListEditor(gbSourcePath);
-    gbSourcePathLayout->addWidget(sourcePathListEditor);
-
-    layout->addWidget(gbSymbolPath);
-    layout->addWidget(gbSourcePath);
-
-    m_group.insert(action(CdbSymbolPaths), symbolPathListEditor);
-    m_group.insert(action(CdbSourcePaths), sourcePathListEditor);
+void CdbPathsPageWidget::finish()
+{
+    m_symbolPaths->setPathList(debuggerSettings()->cdbSymbolPaths.value());
+    m_sourcePaths->setPathList(debuggerSettings()->cdbSourcePaths.value());
 }
 
 CdbPathsPage::CdbPathsPage()

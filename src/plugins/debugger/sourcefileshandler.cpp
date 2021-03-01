@@ -30,7 +30,6 @@
 #include "debuggerengine.h"
 
 #include <utils/basetreeview.h>
-#include <utils/savedaction.h>
 
 #include <QDebug>
 #include <QFileInfo>
@@ -137,7 +136,7 @@ bool SourceFilesHandler::setData(const QModelIndex &idx, const QVariant &data, i
                 addAction(tr("Open File \"%1\"").arg(name), true,
                           [this, name] { m_engine->gotoLocation(FilePath::fromString(name)); });
 
-            menu->addAction(action(SettingsDialog)->action());
+            menu->addAction(debuggerSettings()->settingsDialog.action());
             menu->popup(ev.globalPos());
             return true;
         }

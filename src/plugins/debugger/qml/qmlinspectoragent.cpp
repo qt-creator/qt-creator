@@ -45,8 +45,8 @@
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-#include <utils/savedaction.h>
 
+#include <QAction>
 #include <QElapsedTimer>
 #include <QFileInfo>
 #include <QLoggingCategory>
@@ -68,12 +68,12 @@ QmlInspectorAgent::QmlInspectorAgent(QmlEngine *engine, QmlDebugConnection *conn
     : m_qmlEngine(engine)
     , m_inspectorToolsContext("Debugger.QmlInspector")
     , m_selectAction(new QAction(this))
-    , m_showAppOnTopAction(action(ShowAppOnTop)->action())
+    , m_showAppOnTopAction(debuggerSettings()->showAppOnTop.action())
 {
     m_debugIdToIname.insert(WatchItem::InvalidId, "inspect");
-    connect(action(ShowQmlObjectTree),
-            &Utils::SavedAction::valueChanged, this, &QmlInspectorAgent::updateState);
-    connect(action(SortStructMembers), &Utils::SavedAction::valueChanged,
+    connect(&debuggerSettings()->showQmlObjectTree, &Utils::BaseAspect::changed,
+            this, &QmlInspectorAgent::updateState);
+    connect(&debuggerSettings()->sortStructMembers, &Utils::BaseAspect::changed,
             this, &QmlInspectorAgent::updateState);
     m_delayQueryTimer.setSingleShot(true);
     m_delayQueryTimer.setInterval(100);
@@ -193,7 +193,7 @@ void QmlInspectorAgent::addObjectWatch(int objectDebugId)
     if (objectDebugId == WatchItem::InvalidId)
         return;
 
-    if (!isConnected() || !boolSetting(ShowQmlObjectTree))
+    if (!isConnected() || !debuggerSettings()->showQmlObjectTree.value())
         return;
 
     // already set
@@ -212,7 +212,8 @@ void QmlInspectorAgent::updateState()
     m_qmlEngine->logServiceStateChange(m_engineClient->name(), m_engineClient->serviceVersion(),
                                        m_engineClient->state());
 
-    if (m_engineClient->state() == QmlDebugClient::Enabled && boolSetting(ShowQmlObjectTree))
+    if (m_engineClient->state() == QmlDebugClient::Enabled
+            && debuggerSettings()->showQmlObjectTree.value())
         reloadEngines();
     else
         clearObjectTree();
@@ -301,7 +302,7 @@ void QmlInspectorAgent::newObject(int engineId, int /*objectId*/, int /*parentId
 
 static void sortChildrenIfNecessary(WatchItem *propertiesWatch)
 {
-    if (boolSetting(SortStructMembers)) {
+    if (debuggerSettings()->sortStructMembers.value()) {
         propertiesWatch->sortChildren([](const WatchItem *item1, const WatchItem *item2) {
             return item1->name < item2->name;
         });
@@ -375,7 +376,7 @@ void QmlInspectorAgent::queryEngineContext()
 {
     qCDebug(qmlInspectorLog) << __FUNCTION__ << "pending queries:" << m_rootContextQueryIds;
 
-    if (!isConnected() || !boolSetting(ShowQmlObjectTree))
+    if (!isConnected() || !debuggerSettings()->showQmlObjectTree.value())
         return;
 
     log(LogSend, "LIST_OBJECTS");
@@ -390,7 +391,7 @@ void QmlInspectorAgent::fetchObject(int debugId)
 {
     qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << debugId << ')';
 
-    if (!isConnected() || !boolSetting(ShowQmlObjectTree))
+    if (!isConnected() || !debuggerSettings()->showQmlObjectTree.value())
         return;
 
     log(LogSend, "FETCH_OBJECT " + QString::number(debugId));
@@ -404,7 +405,7 @@ void QmlInspectorAgent::updateObjectTree(const ContextReference &context, int en
 {
     qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << context << ')';
 
-    if (!isConnected() || !boolSetting(ShowQmlObjectTree))
+    if (!isConnected() || !debuggerSettings()->showQmlObjectTree.value())
         return;
 
     for (const ObjectReference &obj : context.objects())

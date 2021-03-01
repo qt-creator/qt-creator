@@ -31,7 +31,7 @@
 #include <QRegularExpression>
 #include <QVector>
 
-namespace Utils { class SavedAction; }
+#include <utils/aspects.h>
 
 namespace Debugger {
 namespace Internal {
@@ -50,6 +50,12 @@ public:
     SourcePathRegExpMap sourcePathRegExpMap;
 };
 
+class GeneralSettings
+{
+    GeneralSettings();
+    ~GeneralSettings();
+};
+
 class DebuggerSettings
 {
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::DebuggerSettings)
@@ -58,10 +64,113 @@ public:
     explicit DebuggerSettings();
     ~DebuggerSettings();
 
-    void insertItem(int code, Utils::SavedAction *item);
-    Utils::SavedAction *item(int code) const;
-
     static QString dump();
+
+    // Page 1: General
+    Utils::BoolAspect useAlternatingRowColors;
+    Utils::BoolAspect useAnnotationsInMainEditor;
+    Utils::BoolAspect useToolTipsInMainEditor;
+    Utils::BoolAspect closeSourceBuffersOnExit;
+    Utils::BoolAspect closeMemoryBuffersOnExit;
+    Utils::BoolAspect raiseOnInterrupt;
+    Utils::BoolAspect breakpointsFullPathByDefault;
+    Utils::BoolAspect warnOnReleaseBuilds;
+    Utils::IntegerAspect maximalStackDepth;
+
+    Utils::BoolAspect fontSizeFollowsEditor;
+    Utils::BoolAspect switchModeOnExit;
+    Utils::BoolAspect showQmlObjectTree;
+    Utils::BoolAspect stationaryEditorWhileStepping;
+
+    // Page 2: GDB
+    Utils::IntegerAspect gdbWatchdogTimeout;
+    Utils::BoolAspect skipKnownFrames;
+    Utils::BoolAspect useMessageBoxForSignals;
+    Utils::BoolAspect adjustBreakpointLocations;
+    Utils::BoolAspect useDynamicType;
+    Utils::BoolAspect loadGdbInit;
+    Utils::BoolAspect loadGdbDumpers;
+    Utils::BoolAspect intelFlavor;
+    Utils::BoolAspect usePseudoTracepoints;
+    Utils::StringAspect gdbStartupCommands;
+    Utils::StringAspect gdbPostAttachCommands;
+
+    // Page 3: GDB Extended
+    Utils::BoolAspect targetAsync;
+    Utils::BoolAspect autoEnrichParameters;
+    Utils::BoolAspect breakOnThrow;
+    Utils::BoolAspect breakOnCatch;
+    Utils::BoolAspect breakOnWarning;
+    Utils::BoolAspect breakOnFatal;
+    Utils::BoolAspect breakOnAbort;
+    Utils::BoolAspect enableReverseDebugging;
+    Utils::BoolAspect multiInferior;
+
+    // Page 4: Locals and expressions
+    Utils::BoolAspect useDebuggingHelpers;
+    Utils::BoolAspect useCodeModel;
+    Utils::BoolAspect showThreadNames;
+    Utils::StringAspect extraDumperFile;     // For loading a file. Recommended.
+    Utils::StringAspect extraDumperCommands; // To modify an existing setup.
+
+    Utils::BoolAspect showStdNamespace;
+    Utils::BoolAspect showQtNamespace;
+    Utils::BoolAspect showQObjectNames;
+
+    // Page 5: CDB
+    Utils::StringAspect cdbAdditionalArguments;
+    Utils::StringListAspect cdbBreakEvents;
+    Utils::BoolAspect cdbBreakOnCrtDbgReport;
+    Utils::BoolAspect useCdbConsole;
+    Utils::BoolAspect cdbBreakPointCorrection;
+    Utils::BoolAspect cdbUsePythonDumper;
+    Utils::BoolAspect firstChanceExceptionTaskEntry;
+    Utils::BoolAspect secondChanceExceptionTaskEntry;
+    Utils::BoolAspect ignoreFirstChanceAccessViolation;
+
+    Utils::BoolAspect *registerForPostMortem = nullptr;
+
+    // Page 6: CDB Paths
+    Utils::StringListAspect cdbSymbolPaths;
+    Utils::StringListAspect cdbSourcePaths;
+
+    // Without pages
+    Utils::BoolAspect alwaysAdjustColumnWidths;
+    Utils::BaseAspect settingsDialog;
+    Utils::BoolAspect autoQuit;
+    Utils::BoolAspect lockView;
+    Utils::BoolAspect logTimeStamps;
+
+    // Stack
+    Utils::BaseAspect expandStack;
+    Utils::BaseAspect createFullBacktrace;
+    Utils::BoolAspect useToolTipsInStackView;
+
+    // Watchers & Locals
+    Utils::BoolAspect autoDerefPointers;
+    Utils::IntegerAspect maximalStringLength;
+    Utils::IntegerAspect displayStringLimit;
+    Utils::BoolAspect sortStructMembers;
+    Utils::BoolAspect useToolTipsInLocalsView;
+
+    // Breakpoints
+    Utils::BoolAspect synchronizeBreakpoints; // ?
+    Utils::BoolAspect allPluginBreakpoints;
+    Utils::BoolAspect selectedPluginBreakpoints;
+    Utils::BoolAspect noPluginBreakpoints;
+    Utils::StringAspect selectedPluginBreakpointsPattern;
+    Utils::BoolAspect useToolTipsInBreakpointsView;
+
+    // QML Tools
+    Utils::BoolAspect showAppOnTop;
+
+    Utils::AspectContainer all; // All
+    Utils::AspectContainer page1; // General
+    Utils::AspectContainer page2; // GDB
+    Utils::AspectContainer page3; // GDB Extended
+    Utils::AspectContainer page4; // Locals & Expressions
+    Utils::AspectContainer page5; // CDB
+    Utils::AspectContainer page6; // CDB Paths
 
     void readSettings();
     void writeSettings() const;
@@ -69,108 +178,11 @@ public:
 private:
     DebuggerSettings(const DebuggerSettings &) = delete;
     DebuggerSettings &operator=(const DebuggerSettings &) = delete;
-
-    QHash<int, Utils::SavedAction *> m_items;
 };
+
+DebuggerSettings *debuggerSettings();
 
 ///////////////////////////////////////////////////////////
-
-enum DebuggerActionCode
-{
-    // General
-    SettingsDialog,
-    UseAlternatingRowColors,
-    FontSizeFollowsEditor,
-    UseMessageBoxForSignals,
-    AutoQuit,
-    LockView,
-    LogTimeStamps,
-    CloseSourceBuffersOnExit,
-    CloseMemoryBuffersOnExit,
-    SwitchModeOnExit,
-    BreakpointsFullPathByDefault,
-    RaiseOnInterrupt,
-    StationaryEditorWhileStepping,
-
-    UseDebuggingHelpers,
-
-    UseCodeModel,
-    ShowThreadNames,
-
-    UseToolTipsInMainEditor,
-    UseAnnotationsInMainEditor,
-    UseToolTipsInLocalsView,
-    UseToolTipsInBreakpointsView,
-    UseToolTipsInStackView,
-
-    RegisterForPostMortem,
-    AlwaysAdjustColumnWidths,
-
-    ExtraDumperFile,     // For loading a file. Recommended.
-    ExtraDumperCommands, // To modify an existing setup.
-
-    // Cdb
-    CdbAdditionalArguments,
-    CdbSymbolPaths,
-    CdbSourcePaths,
-    CdbBreakEvents,
-    CdbBreakOnCrtDbgReport,
-    UseCdbConsole,
-    CdbBreakPointCorrection,
-    CdbUsePythonDumper,
-    FirstChanceExceptionTaskEntry,
-    SecondChanceExceptionTaskEntry,
-    IgnoreFirstChanceAccessViolation,
-
-    // Gdb
-    LoadGdbInit,
-    LoadGdbDumpers,
-    GdbStartupCommands,
-    GdbPostAttachCommands,
-    GdbWatchdogTimeout,
-    AutoEnrichParameters,
-    UseDynamicType,
-    TargetAsync,
-    WarnOnReleaseBuilds,
-    MultiInferior,
-    IntelFlavor,
-    UsePseudoTracepoints,
-
-    // Stack
-    MaximalStackDepth,
-    ExpandStack,
-    CreateFullBacktrace,
-
-    // Watchers & Locals
-    ShowStdNamespace,
-    ShowQtNamespace,
-    ShowQObjectNames,
-    SortStructMembers,
-    AutoDerefPointers,
-    MaximalStringLength,
-    DisplayStringLimit,
-
-    // Running
-    SkipKnownFrames,
-    EnableReverseDebugging,
-
-    // Breakpoints
-    SynchronizeBreakpoints,
-    AllPluginBreakpoints,
-    SelectedPluginBreakpoints,
-    AdjustBreakpointLocations,
-    NoPluginBreakpoints,
-    SelectedPluginBreakpointsPattern,
-    BreakOnThrow,
-    BreakOnCatch,
-    BreakOnWarning,
-    BreakOnFatal,
-    BreakOnAbort,
-
-    // QML Tools
-    ShowQmlObjectTree,
-    ShowAppOnTop
-};
 
 } // namespace Internal
 } // namespace Debugger

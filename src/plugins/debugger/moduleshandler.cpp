@@ -33,7 +33,6 @@
 #include <utils/basetreeview.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
-#include <utils/savedaction.h>
 #include <utils/treemodel.h>
 
 #include <QCoreApplication>
@@ -223,7 +222,7 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
               canShowSymbols && moduleNameValid,
               [this, modulePath] { engine->requestModuleSections(modulePath); });
 
-    menu->addAction(action(SettingsDialog)->action());
+    menu->addAction(debuggerSettings()->settingsDialog.action());
 
     menu->popup(ev.globalPos());
     return true;

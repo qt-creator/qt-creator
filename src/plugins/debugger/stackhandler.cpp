@@ -40,7 +40,6 @@
 #include <utils/basetreeview.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-#include <utils/savedaction.h>
 
 #include <QApplication>
 #include <QClipboard>
@@ -52,6 +51,7 @@
 #include <QInputDialog>
 #include <QMenu>
 #include <QTextStream>
+#include <QTimer>
 
 using namespace Utils;
 
@@ -70,9 +70,9 @@ StackHandler::StackHandler(DebuggerEngine *engine)
     setObjectName("StackModel");
     setHeader({tr("Level"), tr("Function"), tr("File"), tr("Line"), tr("Address") });
 
-    connect(action(ExpandStack)->action(), &QAction::triggered,
+    connect(debuggerSettings()->expandStack.action(), &QAction::triggered,
             this, &StackHandler::reloadFullStack);
-    connect(action(MaximalStackDepth)->action(), &QAction::triggered,
+    connect(debuggerSettings()->maximalStackDepth.action(), &QAction::triggered,
             this, &StackHandler::reloadFullStack);
 
     // For now there's always only "the" current thread.
@@ -115,7 +115,7 @@ QVariant StackFrameItem::data(int column, int role) const
     if (role == Qt::DecorationRole && column == StackLevelColumn)
         return handler->iconForRow(row);
 
-    if (role == Qt::ToolTipRole && boolSetting(UseToolTipsInStackView))
+    if (role == Qt::ToolTipRole && debuggerSettings()->useToolTipsInStackView.value())
         return frame.toToolTip();
 
     return QVariant();
@@ -257,8 +257,8 @@ void StackHandler::setFramesAndCurrentIndex(const GdbMi &frames, bool isFull)
             targetFrame = i;
     }
 
-    bool canExpand = !isFull && (n >= action(MaximalStackDepth)->value().toInt());
-    action(ExpandStack)->setEnabled(canExpand);
+    bool canExpand = !isFull && (n >= debuggerSettings()->maximalStackDepth.value());
+    debuggerSettings()->expandStack.setEnabled(canExpand);
     setFrames(stackFrames, canExpand);
 
     // We can't jump to any file if we don't have any frames.
@@ -455,7 +455,7 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
         frame = frameAt(row);
     const quint64 address = frame.address;
 
-    menu->addAction(action(ExpandStack)->action());
+    menu->addAction(debuggerSettings()->expandStack.action());
 
     addAction(menu, tr("Copy Contents to Clipboard"), true, [ev] {
         copyTextToClipboard(selectedText(ev.view(), true));
@@ -468,7 +468,7 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
     addAction(menu, tr("Save as Task File..."), true, [this] { saveTaskFile(); });
 
     if (m_engine->hasCapability(CreateFullBacktraceCapability))
-        menu->addAction(action(CreateFullBacktrace)->action());
+        menu->addAction(debuggerSettings()->createFullBacktrace.action());
 
     if (m_engine->hasCapability(AdditionalQmlStackCapability))
         addAction(menu, tr("Load QML Stack"), true, [this] { m_engine->loadAdditionalQmlStack(); });
@@ -516,8 +516,8 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
     }
 
     menu->addSeparator();
-    menu->addAction(action(UseToolTipsInStackView)->action());
-    menu->addAction(action(SettingsDialog)->action());
+    menu->addAction(debuggerSettings()->useToolTipsInStackView.action());
+    menu->addAction(debuggerSettings()->settingsDialog.action());
     menu->popup(ev.globalPos());
     return true;
 }

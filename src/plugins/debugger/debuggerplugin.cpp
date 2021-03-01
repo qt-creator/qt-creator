@@ -116,7 +116,6 @@
 #include <utils/hostosinfo.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
-#include <utils/savedaction.h>
 #include <utils/statuslabel.h>
 #include <utils/styledbar.h>
 #include <utils/temporarydirectory.h>
@@ -657,7 +656,6 @@ public:
     void parseCommandLineArguments();
 
     void updatePresetState();
-    SavedAction *action(int code);
     QWidget *addSearch(BaseTreeView *treeView);
 
 public:
@@ -796,7 +794,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     const auto addFontSizeAdaptation = [this](QWidget *widget) {
         QObject::connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
                 [widget](const FontSettings &settings) {
-            if (!boolSetting(FontSizeFollowsEditor))
+            if (!debuggerSettings()->fontSizeFollowsEditor.value())
                 return;
             qreal size = settings.fontZoom() * settings.fontSize() / 100.;
             QFont font = widget->font();
@@ -1173,7 +1171,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
             this, &DebuggerPluginPrivate::updateBreakMenuItem);
 
     // Application interaction
-    connect(action(SettingsDialog)->action(), &QAction::triggered,
+    connect(debuggerSettings()->settingsDialog.action(), &QAction::triggered,
             [] { ICore::showOptionsDialog(DEBUGGER_COMMON_SETTINGS_ID); });
 
     m_perspective.useSubPerspectiveSwitcher(EngineManager::engineChooser());
@@ -1478,9 +1476,10 @@ void DebuggerPluginPrivate::updatePresetState()
 // FIXME: Decentralize the actions below
     const bool actionsEnabled = currentEngine->debuggerActionsEnabled();
     const bool canDeref = actionsEnabled && currentEngine->hasCapability(AutoDerefPointersCapability);
-    action(AutoDerefPointers)->setEnabled(canDeref);
-    action(AutoDerefPointers)->setEnabled(true);
-    action(ExpandStack)->setEnabled(actionsEnabled);
+    DebuggerSettings *s = debuggerSettings();
+    s->autoDerefPointers.setEnabled(canDeref);
+    s->autoDerefPointers.setEnabled(true);
+    s->expandStack.setEnabled(actionsEnabled);
 
     m_startAndDebugApplicationAction.setEnabled(true);
     m_attachToQmlPortAction.setEnabled(true);
@@ -1924,8 +1923,8 @@ void DebuggerPluginPrivate::setInitialState()
     m_breakAction.setEnabled(false);
     //m_snapshotAction.setEnabled(false);
 
-    action(AutoDerefPointers)->setEnabled(true);
-    action(ExpandStack)->setEnabled(false);
+    debuggerSettings()->autoDerefPointers.setEnabled(true);
+    debuggerSettings()->expandStack.setEnabled(false);
 }
 
 void DebuggerPluginPrivate::updateDebugWithoutDeployMenu()
@@ -2016,17 +2015,14 @@ void DebuggerPluginPrivate::extensionsInitialized()
     DebuggerMainWindow::ensureMainWindowExists();
 }
 
-SavedAction *DebuggerPluginPrivate::action(int code)
-{
-    return m_debuggerSettings.item(code);
-}
-
 QWidget *DebuggerPluginPrivate::addSearch(BaseTreeView *treeView)
 {
-    QAction *act = action(UseAlternatingRowColors)->action();
-    treeView->setAlternatingRowColors(act->isChecked());
+    BoolAspect &act = debuggerSettings()->useAlternatingRowColors;
+    treeView->setAlternatingRowColors(act.value());
     treeView->setProperty(PerspectiveState::savesHeaderKey(), true);
-    connect(act, &QAction::toggled, treeView, &BaseTreeView::setAlternatingRowColors);
+    connect(&act, &BaseAspect::changed, treeView, [treeView] {
+        treeView->setAlternatingRowColors(debuggerSettings()->useAlternatingRowColors.value());
+    });
 
     return ItemViewFind::createSearchableWrapper(treeView);
 }
@@ -2036,29 +2032,9 @@ Console *debuggerConsole()
     return &dd->m_console;
 }
 
-SavedAction *action(int code)
-{
-    return dd->action(code);
-}
-
 QWidget *addSearch(BaseTreeView *treeView)
 {
     return dd->addSearch(treeView);
-}
-
-bool boolSetting(int code)
-{
-    return action(code)->value().toBool();
-}
-
-QString stringSetting(int code)
-{
-    return action(code)->value().toString();
-}
-
-QStringList stringListSetting(int code)
-{
-    return action(code)->value().toStringList();
 }
 
 void openTextEditor(const QString &titlePattern0, const QString &contents)

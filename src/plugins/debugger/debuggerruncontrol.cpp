@@ -391,7 +391,7 @@ void DebuggerRunTool::setUseTerminal(bool on)
     bool useCdbConsole = m_runParameters.cppEngineType == CdbEngineType
             && (m_runParameters.startMode == StartInternal
                 || m_runParameters.startMode == StartExternal)
-            && boolSetting(UseCdbConsole);
+            && debuggerSettings()->useCdbConsole.value();
 
     if (on && !d->terminalRunner && !useCdbConsole) {
         d->terminalRunner = new TerminalRunner(runControl(), m_runParameters.inferior);
@@ -856,7 +856,7 @@ bool DebuggerRunTool::fixupParameters()
         }
     }
 
-    if (!boolSetting(AutoEnrichParameters)) {
+    if (!debuggerSettings()->autoEnrichParameters.value()) {
         const QString sysroot = rp.sysRoot.toString();
         if (rp.debugInfoLocation.isEmpty())
             rp.debugInfoLocation = sysroot + "/usr/lib/debug";

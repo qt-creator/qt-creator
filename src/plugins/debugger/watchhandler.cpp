@@ -56,7 +56,6 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
-#include <utils/savedaction.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
@@ -514,15 +513,16 @@ WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
     connect(&m_requestUpdateTimer, &QTimer::timeout,
         this, &WatchModel::updateStarted);
 
-    connect(action(SortStructMembers), &SavedAction::valueChanged,
+    DebuggerSettings &s = *debuggerSettings();
+    connect(&s.sortStructMembers, &BaseAspect::changed,
         m_engine, &DebuggerEngine::updateLocals);
-    connect(action(ShowStdNamespace), &SavedAction::valueChanged,
+    connect(&s.showStdNamespace, &BaseAspect::changed,
         m_engine, &DebuggerEngine::updateAll);
-    connect(action(ShowQtNamespace), &SavedAction::valueChanged,
+    connect(&s.showQtNamespace, &BaseAspect::changed,
         m_engine, &DebuggerEngine::updateAll);
-    connect(action(ShowQObjectNames), &SavedAction::valueChanged,
+    connect(&s.showQObjectNames, &BaseAspect::changed,
         m_engine, &DebuggerEngine::updateAll);
-    connect(action(UseAnnotationsInMainEditor), &SavedAction::valueChanged,
+    connect(&s.useAnnotationsInMainEditor, &BaseAspect::changed,
         m_engine, &DebuggerEngine::updateAll);
 
     connect(SessionManager::instance(), &SessionManager::sessionLoaded,
@@ -566,9 +566,9 @@ static QString niceTypeHelper(const QString &typeIn)
 
 QString WatchModel::removeNamespaces(QString str) const
 {
-    if (!boolSetting(ShowStdNamespace))
+    if (!debuggerSettings()->showStdNamespace.value())
         str.remove("std::");
-    if (!boolSetting(ShowQtNamespace)) {
+    if (!debuggerSettings()->showQtNamespace.value()) {
         const QString qtNamespace = m_engine->qtNamespace();
         if (!qtNamespace.isEmpty())
             str.remove(qtNamespace);
@@ -1055,7 +1055,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         }
 
         case Qt::ToolTipRole:
-            return boolSetting(UseToolTipsInLocalsView)
+            return debuggerSettings()->useToolTipsInLocalsView.value()
                 ? item->toToolTip() : QVariant();
 
         case Qt::ForegroundRole:
@@ -1757,12 +1757,13 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
 
     menu->addSeparator();
 
-    menu->addAction(action(UseDebuggingHelpers)->action());
-    menu->addAction(action(UseToolTipsInLocalsView)->action());
-    menu->addAction(action(AutoDerefPointers)->action());
-    menu->addAction(action(SortStructMembers)->action());
-    menu->addAction(action(UseDynamicType)->action());
-    menu->addAction(action(SettingsDialog)->action());
+    DebuggerSettings &s = *debuggerSettings();
+    menu->addAction(s.useDebuggingHelpers.action());
+    menu->addAction(s.useToolTipsInLocalsView.action());
+    menu->addAction(s.autoDerefPointers.action());
+    menu->addAction(s.sortStructMembers.action());
+    menu->addAction(s.useDynamicType.action());
+    menu->addAction(s.settingsDialog.action());
 
     connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(ev.globalPos());
@@ -2114,7 +2115,7 @@ void WatchHandler::insertItems(const GdbMi &data)
 {
     QSet<WatchItem *> itemsToSort;
 
-    const bool sortStructMembers = boolSetting(SortStructMembers);
+    const bool sortStructMembers = debuggerSettings()->sortStructMembers.value();
     for (const GdbMi &child : data) {
         auto item = new WatchItem;
         item->parse(child, sortStructMembers);
@@ -2255,7 +2256,7 @@ void WatchHandler::notifyUpdateFinished()
     });
 
     QMap<QString, QString> values;
-    if (boolSetting(UseAnnotationsInMainEditor)) {
+    if (debuggerSettings()->useAnnotationsInMainEditor.value()) {
         m_model->forAllItems([&values](WatchItem *item) {
             const QString expr = item->sourceExpression();
             if (!expr.isEmpty())

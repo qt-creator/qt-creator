@@ -24,15 +24,20 @@
 ****************************************************************************/
 
 #include "debuggeractions.h"
+
+#include "commonoptionspage.h"
 #include "debuggericons.h"
+#include "debuggerinternalconstants.h"
 
 #ifdef Q_OS_WIN
 #include "registerpostmortemaction.h"
 #endif
 
+#include <app/app_version.h>
+
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-#include <utils/savedaction.h>
+
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -101,595 +106,624 @@ void GlobalDebuggerOptions::fromSettings()
 //
 //////////////////////////////////////////////////////////////////////////
 
-static DebuggerSettings *theDebuggerSettings = nullptr;
+static DebuggerSettings *theDebuggerSettings_ = nullptr;
+
+DebuggerSettings *debuggerSettings()
+{
+    QTC_CHECK(theDebuggerSettings_);
+    return theDebuggerSettings_;
+}
 
 DebuggerSettings::DebuggerSettings()
 {
-    theDebuggerSettings = this;
+    theDebuggerSettings_ = this;
 
     const QString debugModeGroup(debugModeSettingsGroupC);
     const QString cdbSettingsGroup(cdbSettingsGroupC);
 
-    SavedAction *item = nullptr;
+    settingsDialog.setLabelText(tr("Configure Debugger..."));
 
-    item = new SavedAction;
-    insertItem(SettingsDialog, item);
-    item->setText(tr("Configure Debugger..."));
+    /*
+    groupBoxPluginDebugging = new QGroupBox(q);
+    groupBoxPluginDebugging->setTitle(GdbOptionsPage::tr(
+        "Behavior of Breakpoint Setting in Plugins"));
+
+    radioButtonAllPluginBreakpoints = new QRadioButton(groupBoxPluginDebugging);
+    radioButtonAllPluginBreakpoints->setText(GdbOptionsPage::tr(
+        "Always try to set breakpoints in plugins automatically"));
+    radioButtonAllPluginBreakpoints->setToolTip(GdbOptionsPage::tr(
+        "This is the slowest but safest option."));
+
+    radioButtonSelectedPluginBreakpoints = new QRadioButton(groupBoxPluginDebugging);
+    radioButtonSelectedPluginBreakpoints->setText(GdbOptionsPage::tr(
+        "Try to set breakpoints in selected plugins"));
+
+    radioButtonNoPluginBreakpoints = new QRadioButton(groupBoxPluginDebugging);
+    radioButtonNoPluginBreakpoints->setText(GdbOptionsPage::tr(
+        "Never set breakpoints in plugins automatically"));
+
+    lineEditSelectedPluginBreakpointsPattern = new QLineEdit(groupBoxPluginDebugging);
+
+    labelSelectedPluginBreakpoints = new QLabel(groupBoxPluginDebugging);
+    labelSelectedPluginBreakpoints->setText(GdbOptionsPage::tr(
+        "Matching regular expression: "));
+    */
 
     //
     // View
     //
-    item = new SavedAction;
-    item->setText(tr("Always Adjust View Column Widths to Contents"));
-    item->setCheckable(true);
-    item->setValue(true);
-    item->setDefaultValue(true);
-    item->setSettingsKey(debugModeGroup, "AlwaysAdjustColumnWidths");
-    insertItem(AlwaysAdjustColumnWidths, item);
+    alwaysAdjustColumnWidths.setLabelText(tr("Always Adjust View Column Widths to Contents"));
+    alwaysAdjustColumnWidths.setSettingsKey(debugModeGroup, "AlwaysAdjustColumnWidths");
+    alwaysAdjustColumnWidths.setDefaultValue(true);
 
     // Needed by QML Inspector
-    item = new SavedAction;
-    item->setText(tr("Use Alternating Row Colors"));
-    item->setSettingsKey(debugModeGroup, "UseAlternatingRowColours");
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(UseAlternatingRowColors, item);
+    //useAlternatingRowColors.setLabelText(tr("Use Alternating Row Colors"));
+    useAlternatingRowColors.setSettingsKey(debugModeGroup, "UseAlternatingRowColours");
+    useAlternatingRowColors.setLabelText(tr("Use alternating row colors in debug views"));
 
-    item = new SavedAction;
-    item->setText(tr("Keep Editor Stationary When Stepping"));
-    item->setSettingsKey(debugModeGroup, "StationaryEditorWhileStepping");
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(StationaryEditorWhileStepping, item);
+    stationaryEditorWhileStepping.setSettingsKey(debugModeGroup, "StationaryEditorWhileStepping");
+    stationaryEditorWhileStepping.setLabelText(tr("Keep editor stationary when stepping"));
+    stationaryEditorWhileStepping.setToolTip(tr("Scrolls the editor only when it is necessary "
+                                                 "to keep the current line in view, "
+                                                 "instead of keeping the next statement centered at "
+                                                 "all times."));
 
-    item = new SavedAction;
-    item->setText(tr("Debugger Font Size Follows Main Editor"));
-    item->setSettingsKey(debugModeGroup, "FontSizeFollowsEditor");
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(FontSizeFollowsEditor, item);
+    fontSizeFollowsEditor.setSettingsKey(debugModeGroup, "FontSizeFollowsEditor");
+    fontSizeFollowsEditor.setToolTip(tr("Changes the font size in the debugger views when"
+                                        "the font size in the main editor changes."));
+    fontSizeFollowsEditor.setLabelText(tr("Debugger font size follows main editor"));
 
-    item = new SavedAction;
-    item->setText(tr("Show a Message Box When Receiving a Signal"));
-    item->setSettingsKey(debugModeGroup, "UseMessageBoxForSignals");
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    item->setValue(true);
-    insertItem(UseMessageBoxForSignals, item);
+    useMessageBoxForSignals.setSettingsKey(debugModeGroup, "UseMessageBoxForSignals");
+    useMessageBoxForSignals.setDefaultValue(true);
+    useMessageBoxForSignals.setLabelText(/*GdbOptionsPage::*/tr(
+        "Show a message box when receiving a signal"));
+    useMessageBoxForSignals.setToolTip(/*GdbOptionsPage::*/tr(
+        "Displays a message box as soon as your application\n"
+        "receives a signal like SIGSEGV during debugging."));
 
-    item = new SavedAction;
-    item->setText(tr("Log Time Stamps"));
-    item->setSettingsKey(debugModeGroup, "LogTimeStamps");
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(LogTimeStamps, item);
+    logTimeStamps.setLabelText(tr("Log Time Stamps"));
+    logTimeStamps.setSettingsKey(debugModeGroup, "LogTimeStamps");
 
-    item = new SavedAction;
-    item->setText(tr("Dereference Pointers Automatically"));
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    item->setSettingsKey(debugModeGroup, "AutoDerefPointers");
-    item->setToolTip(tr("<p>This switches the Locals and Expressions views to "
+    autoDerefPointers.setLabelText(tr("Dereference Pointers Automatically"));
+    autoDerefPointers.setDefaultValue(true);
+    autoDerefPointers.setSettingsKey(debugModeGroup, "AutoDerefPointers");
+    autoDerefPointers.setToolTip(tr("<p>This switches the Locals and Expressions views to "
         "automatically dereference pointers. This saves a level in the "
         "tree view, but also loses data for the now-missing intermediate "
         "level."));
-    insertItem(AutoDerefPointers, item);
 
     //
     // Cdb Options
     //
 
-    item = new SavedAction;
-    item->setDefaultValue(QString());
-    item->setSettingsKey(cdbSettingsGroup, "AdditionalArguments");
-    insertItem(CdbAdditionalArguments, item);
+    cdbAdditionalArguments.setSettingsKey(cdbSettingsGroup, "AdditionalArguments");
+    cdbAdditionalArguments.setDisplayStyle(StringAspect::LineEditDisplay);
+    cdbAdditionalArguments.setLabelText(tr("Additional arguments:"));
 
-    item = new SavedAction;
-    item->setDefaultValue(QStringList());
-    item->setSettingsKey(cdbSettingsGroup, "SymbolPaths");
-    insertItem(CdbSymbolPaths, item);
+    cdbSymbolPaths.setSettingsKey(cdbSettingsGroup, "SymbolPaths");
+    cdbSourcePaths.setSettingsKey(cdbSettingsGroup, "SourcePaths");
 
-    item = new SavedAction;
-    item->setDefaultValue(QStringList());
-    item->setSettingsKey(cdbSettingsGroup, "SourcePaths");
-    insertItem(CdbSourcePaths, item);
+    cdbBreakEvents.setSettingsKey(cdbSettingsGroup, "BreakEvent");
+    cdbBreakOnCrtDbgReport.setSettingsKey(cdbSettingsGroup, "BreakOnCrtDbgReport");
+    cdbBreakOnCrtDbgReport.setLabelText(
+        CommonOptionsPage::msgSetBreakpointAtFunction(Constants::CRT_DEBUG_REPORT));
+    cdbBreakOnCrtDbgReport.setToolTip(
+        CommonOptionsPage::msgSetBreakpointAtFunctionToolTip(Constants::CRT_DEBUG_REPORT,
+            tr("This is useful to catch runtime error messages for example caused by assert().")));
 
-    item = new SavedAction;
-    item->setDefaultValue(QStringList());
-    item->setSettingsKey(cdbSettingsGroup, "BreakEvent");
-    insertItem(CdbBreakEvents, item);
+    useCdbConsole.setSettingsKey(cdbSettingsGroup, "CDB_Console");
+    useCdbConsole.setToolTip("<html><head/><body><p>" + tr(
+        "Uses CDB's native console for console applications. "
+        "This overrides the setting in Environment > System. "
+        "The native console does not prompt on application exit. "
+        "It is suitable for diagnosing cases in which the application does not "
+        "start up properly in the configured console and the subsequent attach fails.")
+        + "</p></body></html>");
+    useCdbConsole.setLabelText(tr("Use CDB &console"));
 
-    item = new SavedAction;
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    item->setSettingsKey(cdbSettingsGroup, "BreakOnCrtDbgReport");
-    insertItem(CdbBreakOnCrtDbgReport, item);
+    cdbBreakPointCorrection.setSettingsKey(cdbSettingsGroup, "BreakpointCorrection");
+    cdbBreakPointCorrection.setDefaultValue(true);
+    cdbBreakPointCorrection.setToolTip("<html><head/><body><p>" + tr(
+        "Attempts to correct the location of a breakpoint based on file and line number should"
+        "it be in a comment or in a line for which no code is generated. "
+        "The correction is based on the code model.") + "</p></body></html>");
+    cdbBreakPointCorrection.setLabelText(tr("Correct breakpoint location"));
 
-    item = new SavedAction;
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    item->setSettingsKey(cdbSettingsGroup, "CDB_Console");
-    insertItem(UseCdbConsole, item);
+    cdbUsePythonDumper.setSettingsKey(cdbSettingsGroup, "UsePythonDumper");
+    cdbUsePythonDumper.setDefaultValue(true);
+    cdbUsePythonDumper.setLabelText(tr("Use Python dumper"));
 
-    item = new SavedAction;
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    item->setSettingsKey(cdbSettingsGroup, "BreakpointCorrection");
-    insertItem(CdbBreakPointCorrection, item);
+    firstChanceExceptionTaskEntry.setSettingsKey(cdbSettingsGroup, "FirstChanceExceptionTaskEntry");
+    firstChanceExceptionTaskEntry.setDefaultValue(true);
+    firstChanceExceptionTaskEntry.setLabelText(tr("First chance exceptions"));
 
-    item = new SavedAction;
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    item->setSettingsKey(cdbSettingsGroup, "UsePythonDumper");
-    insertItem(CdbUsePythonDumper, item);
+    secondChanceExceptionTaskEntry.setSettingsKey(cdbSettingsGroup, "SecondChanceExceptionTaskEntry");
+    secondChanceExceptionTaskEntry.setDefaultValue(true);
+    secondChanceExceptionTaskEntry.setLabelText(tr("Second chance exceptions"));
 
-    item = new SavedAction;
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    item->setSettingsKey(cdbSettingsGroup, "FirstChanceExceptionTaskEntry");
-    insertItem(FirstChanceExceptionTaskEntry, item);
-
-    item = new SavedAction;
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    item->setSettingsKey(cdbSettingsGroup, "SecondChanceExceptionTaskEntry");
-    insertItem(SecondChanceExceptionTaskEntry, item);
-
-    item = new SavedAction;
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    item->setSettingsKey(cdbSettingsGroup, "IgnoreFirstChanceAccessViolation");
-    insertItem(IgnoreFirstChanceAccessViolation, item);
+    ignoreFirstChanceAccessViolation.setSettingsKey(cdbSettingsGroup, "IgnoreFirstChanceAccessViolation");
+    ignoreFirstChanceAccessViolation.setLabelText(tr("Ignore first chance access violations"));
 
     //
     // Locals & Watchers
     //
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "ShowStandardNamespace");
-    item->setText(tr("Show \"std::\" Namespace in Types"));
-    item->setDialogText(tr("Show \"std::\" namespace in types"));
-    item->setToolTip(tr("<p>Shows \"std::\" prefix for types from the standard library."));
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    item->setValue(true);
-    insertItem(ShowStdNamespace, item);
+    showStdNamespace.setSettingsKey(debugModeGroup, "ShowStandardNamespace");
+    showStdNamespace.setDefaultValue(true);
+    showStdNamespace.setDisplayName(tr("Show \"std::\" Namespace in Types"));
+    showStdNamespace.setLabelText(tr("Show \"std::\" namespace in types"));
+    showStdNamespace.setToolTip(tr("<p>Shows \"std::\" prefix for types from the standard library."));
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "ShowQtNamespace");
-    item->setText(tr("Show Qt's Namespace in Types"));
-    item->setDialogText(tr("Show Qt's namespace in types"));
-    item->setToolTip(tr("<p>Shows Qt namespace prefix for Qt types. This is only "
+    showQtNamespace.setSettingsKey(debugModeGroup, "ShowQtNamespace");
+    showQtNamespace.setDefaultValue(true);
+    showQtNamespace.setDisplayName(tr("Show Qt's Namespace in Types"));
+    showQtNamespace.setLabelText(tr("Show Qt's namespace in types"));
+    showQtNamespace.setToolTip(tr("<p>Shows Qt namespace prefix for Qt types. This is only "
                         "relevant if Qt was configured with \"-qtnamespace\"."));
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    item->setValue(true);
-    insertItem(ShowQtNamespace, item);
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "ShowQObjectNames2");
-    item->setText(tr("Show QObject names if available"));
-    item->setDialogText(tr("Show QObject names if available"));
-    item->setToolTip(tr("<p>Displays the objectName property of QObject based items. "
+    showQObjectNames.setSettingsKey(debugModeGroup, "ShowQObjectNames2");
+    showQObjectNames.setDefaultValue(true);
+    showQObjectNames.setDisplayName(tr("Show QObject names if available"));
+    showQObjectNames.setLabelText(tr("Show QObject names if available"));
+    showQObjectNames.setToolTip(tr("<p>Displays the objectName property of QObject based items. "
                         "Note that this can negatively impact debugger performance "
                         "even if no QObjects are present."));
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    item->setValue(true);
-    insertItem(ShowQObjectNames, item);
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "SortStructMembers");
-    item->setText(tr("Sort Members of Classes and Structs Alphabetically"));
-    item->setDialogText(tr("Sort members of classes and structs alphabetically"));
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    item->setValue(true);
-    insertItem(SortStructMembers, item);
+    sortStructMembers.setSettingsKey(debugModeGroup, "SortStructMembers");
+    sortStructMembers.setDisplayName(tr("Sort Members of Classes and Structs Alphabetically"));
+    sortStructMembers.setLabelText(tr("Sort members of classes and structs alphabetically"));
+    sortStructMembers.setDefaultValue(true);
 
     //
     // DebuggingHelper
     //
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "UseDebuggingHelper");
-    item->setText(tr("Use Debugging Helpers"));
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    item->setValue(true);
-    insertItem(UseDebuggingHelpers, item);
+    useDebuggingHelpers.setSettingsKey(debugModeGroup, "UseDebuggingHelper");
+    useDebuggingHelpers.setDefaultValue(true);
+    useDebuggingHelpers.setLabelText(tr("Use Debugging Helpers"));
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "UseCodeModel");
-    item->setDialogText(tr("Use code model"));
-    item->setToolTip(tr("<p>Selecting this causes the C++ Code Model being asked "
+    useCodeModel.setSettingsKey(debugModeGroup, "UseCodeModel");
+    useCodeModel.setDefaultValue(true);
+    useCodeModel.setLabelText(tr("Use code model"));
+    useCodeModel.setToolTip(tr("<p>Selecting this causes the C++ Code Model being asked "
       "for variable scope information. This might result in slightly faster "
       "debugger operation but may fail for optimized code."));
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    item->setValue(true);
-    insertItem(UseCodeModel, item);
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "ShowThreadNames");
-    item->setToolTip(tr("<p>Displays names of QThread based threads."));
-    item->setDialogText(tr("Display thread names"));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    item->setValue(false);
-    insertItem(ShowThreadNames, item);
+    showThreadNames.setSettingsKey(debugModeGroup, "ShowThreadNames");
+    showThreadNames.setLabelText(tr("Display thread names"));
+    showThreadNames.setToolTip(tr("<p>Displays names of QThread based threads."));
 
 
     //
     // Breakpoints
     //
-    item = new SavedAction;
-    item->setText(tr("Synchronize Breakpoints"));
-    insertItem(SynchronizeBreakpoints, item);
+    synchronizeBreakpoints.setLabelText(tr("Synchronize Breakpoints"));
 
-    item = new SavedAction;
-    item->setText(tr("Adjust Breakpoint Locations"));
-    item->setToolTip(tr("<p>Not all source code lines generate "
+    adjustBreakpointLocations.setLabelText(tr("Adjust Breakpoint Locations"));
+    adjustBreakpointLocations.setToolTip(tr("<p>Not all source code lines generate "
       "executable code. Putting a breakpoint on such a line acts as "
       "if the breakpoint was set on the next line that generated code. "
       "Selecting 'Adjust Breakpoint Locations' shifts the red "
       "breakpoint markers in such cases to the location of the true "
       "breakpoint."));
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    item->setValue(true);
-    item->setSettingsKey(debugModeGroup, "AdjustBreakpointLocations");
-    insertItem(AdjustBreakpointLocations, item);
+    adjustBreakpointLocations.setDefaultValue(true);
+    adjustBreakpointLocations.setSettingsKey(debugModeGroup, "AdjustBreakpointLocations");
+    adjustBreakpointLocations.setLabelText(/*GdbOptionsPage::*/tr(
+        "Adjust breakpoint locations"));
+    adjustBreakpointLocations.setToolTip(/*GdbOptionsPage::*/tr(
+        "GDB allows setting breakpoints on source lines for which no code \n"
+        "was generated. In such situations the breakpoint is shifted to the\n"
+        "next source code line for which code was actually generated.\n"
+        "This option reflects such temporary change by moving the breakpoint\n"
+        "markers in the source code editor."));
 
-    item = new SavedAction;
-    item->setText(tr("Break on \"throw\""));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    item->setValue(false);
-    item->setSettingsKey(debugModeGroup, "BreakOnThrow");
-    insertItem(BreakOnThrow, item);
 
-    item = new SavedAction;
-    item->setText(tr("Break on \"catch\""));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    item->setValue(false);
-    item->setSettingsKey(debugModeGroup, "BreakOnCatch");
-    insertItem(BreakOnCatch, item);
+    breakOnThrow.setLabelText(tr("Break on \"throw\""));
+    breakOnThrow.setSettingsKey(debugModeGroup, "BreakOnThrow");
 
-    item = new SavedAction;
-    item->setText(tr("Break on \"qWarning\""));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    item->setValue(false);
-    item->setSettingsKey(debugModeGroup, "BreakOnWarning");
-    insertItem(BreakOnWarning, item);
+    breakOnCatch.setLabelText(tr("Break on \"catch\""));
+    breakOnCatch.setSettingsKey(debugModeGroup, "BreakOnCatch");
 
-    item = new SavedAction;
-    item->setText(tr("Break on \"qFatal\""));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    item->setValue(false);
-    item->setSettingsKey(debugModeGroup, "BreakOnFatal");
-    insertItem(BreakOnFatal, item);
+    breakOnWarning.setLabelText(tr("Break on \"qWarning\""));
+    breakOnWarning.setSettingsKey(debugModeGroup, "BreakOnWarning");
+    // FIXME: Move to common settings page.
+    breakOnWarning.setLabelText(CommonOptionsPage::msgSetBreakpointAtFunction("qWarning"));
+    breakOnWarning.setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("qWarning"));
 
-    item = new SavedAction;
-    item->setText(tr("Break on \"abort\""));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    item->setValue(false);
-    item->setSettingsKey(debugModeGroup, "BreakOnAbort");
-    insertItem(BreakOnAbort, item);
+    breakOnFatal.setLabelText(tr("Break on \"qFatal\""));
+    breakOnFatal.setSettingsKey(debugModeGroup, "BreakOnFatal");
+    breakOnFatal.setLabelText(CommonOptionsPage::msgSetBreakpointAtFunction("qFatal"));
+    breakOnFatal.setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("qFatal"));
+
+    breakOnAbort.setLabelText(tr("Break on \"abort\""));
+    breakOnAbort.setSettingsKey(debugModeGroup, "BreakOnAbort");
+    breakOnAbort.setLabelText(CommonOptionsPage::msgSetBreakpointAtFunction("abort"));
+    breakOnAbort.setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("abort"));
 
     //
     // Settings
     //
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "LoadGdbInit");
-    item->setDefaultValue(QString());
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    item->setValue(true);
-    insertItem(LoadGdbInit, item);
+    loadGdbInit.setSettingsKey(debugModeGroup, "LoadGdbInit");
+    loadGdbInit.setDefaultValue(true);
+    loadGdbInit.setLabelText(/*GdbOptionsPage::*/tr("Load .gdbinit file on startup"));
+    loadGdbInit.setToolTip(/*GdbOptionsPage::*/tr(
+        "Allows or inhibits reading the user's default\n"
+        ".gdbinit file on debugger startup."));
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "LoadGdbDumpers2");
-    item->setDefaultValue(QString());
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    item->setValue(false);
-    insertItem(LoadGdbDumpers, item);
+    loadGdbDumpers.setSettingsKey(debugModeGroup, "LoadGdbDumpers2");
+    loadGdbDumpers.setLabelText(/*GdbOptionsPage::*/tr("Load system GDB pretty printers"));
+    loadGdbDumpers.setToolTip(/*GdbOptionsPage::*/tr(
+        "Uses the default GDB pretty printers installed in your "
+        "system or linked to the libraries your application uses."));
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "AutoEnrichParameters");
-    item->setDefaultValue(QString());
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    item->setValue(true);
-    insertItem(AutoEnrichParameters, item);
+    autoEnrichParameters.setSettingsKey(debugModeGroup, "AutoEnrichParameters");
+    autoEnrichParameters.setDefaultValue(true);
+    autoEnrichParameters.setLabelText(/*GdbOptionsPage::*/tr(
+        "Use common locations for debug information"));
+    autoEnrichParameters.setToolTip(/*GdbOptionsPage::*/tr(
+        "<html><head/><body>Adds common paths to locations "
+        "of debug information such as <i>/usr/src/debug</i> "
+        "when starting GDB.</body></html>"));
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "UseDynamicType");
-    item->setText(tr("Use Dynamic Object Type for Display"));
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    item->setValue(true);
-    insertItem(UseDynamicType, item);
+    useDynamicType.setSettingsKey(debugModeGroup, "UseDynamicType");
+    useDynamicType.setLabelText(tr("Use Dynamic Object Type for Display"));
+    useDynamicType.setDefaultValue(true);
+    useDynamicType.setLabelText(/*GdbOptionsPage::*/tr(
+        "Use dynamic object type for display"));
+    useDynamicType.setToolTip(/*GdbOptionsPage::*/tr(
+        "Specifies whether the dynamic or the static type of objects will be "
+        "displayed. Choosing the dynamic type might be slower."));
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "TargetAsync");
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    item->setValue(false);
-    insertItem(TargetAsync, item);
+    targetAsync.setSettingsKey(debugModeGroup, "TargetAsync");
+    targetAsync.setLabelText(/*GdbOptionsPage::*/tr(
+        "Use asynchronous mode to control the inferior"));
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "WarnOnReleaseBuilds");
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    insertItem(WarnOnReleaseBuilds, item);
+    warnOnReleaseBuilds.setSettingsKey(debugModeGroup, "WarnOnReleaseBuilds");
+    warnOnReleaseBuilds.setDefaultValue(true);
+    warnOnReleaseBuilds.setLabelText(tr("Warn when debugging \"Release\" builds"));
+    warnOnReleaseBuilds.setToolTip(tr("Shows a warning when starting the debugger "
+                                      "on a binary with insufficient debug information."));
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "GdbStartupCommands");
-    item->setDefaultValue(QString());
-    insertItem(GdbStartupCommands, item);
+    QString howToUsePython = /*GdbOptionsPage::*/tr(
+        "<p>To execute simple Python commands, prefix them with \"python\".</p>"
+        "<p>To execute sequences of Python commands spanning multiple lines "
+        "prepend the block with \"python\" on a separate line, and append "
+        "\"end\" on a separate line.</p>"
+        "<p>To execute arbitrary Python scripts, "
+        "use <i>python execfile('/path/to/script.py')</i>.</p>");
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "GdbCustomDumperCommands");
-    item->setDefaultValue(QString());
-    insertItem(ExtraDumperCommands, item);
+    gdbStartupCommands.setSettingsKey(debugModeGroup, "GdbStartupCommands");
+    gdbStartupCommands.setDisplayStyle(StringAspect::TextEditDisplay);
+    gdbStartupCommands.setUseGlobalMacroExpander();
+    gdbStartupCommands.setToolTip("<html><head/><body><p>" + /*GdbOptionsPage::*/tr(
+        "GDB commands entered here will be executed after "
+        "GDB has been started, but before the debugged program is started or "
+        "attached, and before the debugging helpers are initialized.") + "</p>"
+        + howToUsePython + "</body></html>");
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "ExtraDumperFile");
-    item->setDefaultValue(QString());
-    insertItem(ExtraDumperFile, item);
+    gdbPostAttachCommands.setSettingsKey(debugModeGroup, "GdbPostAttachCommands");
+    gdbPostAttachCommands.setDisplayStyle(StringAspect::TextEditDisplay);
+    gdbPostAttachCommands.setUseGlobalMacroExpander();
+    gdbPostAttachCommands.setToolTip("<html><head/><body><p>" + /*GdbOptionsPage::*/tr(
+        "GDB commands entered here will be executed after "
+        "GDB has successfully attached to remote targets.</p>"
+        "<p>You can add commands to further set up the target here, "
+        "such as \"monitor reset\" or \"load\".") + "</p>"
+        + howToUsePython + "</body></html>");
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "GdbPostAttachCommands");
-    item->setDefaultValue(QString());
-    insertItem(GdbPostAttachCommands, item);
+    extraDumperCommands.setSettingsKey(debugModeGroup, "GdbCustomDumperCommands");
+    extraDumperCommands.setDisplayStyle(StringAspect::TextEditDisplay);
+    extraDumperCommands.setUseGlobalMacroExpander();
+    extraDumperCommands.setToolTip("<html><head/><body><p>"
+                        + tr("Python commands entered here will be executed after built-in "
+                             "debugging helpers have been loaded and fully initialized. You can "
+                             "load additional debugging helpers or modify existing ones here.")
+                        + "</p></body></html>");
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "CloseBuffersOnExit");
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(CloseSourceBuffersOnExit, item);
+    extraDumperFile.setSettingsKey(debugModeGroup, "ExtraDumperFile");
+    extraDumperFile.setDisplayStyle(StringAspect::PathChooserDisplay);
+    extraDumperFile.setToolTip(tr("Path to a Python file containing additional data dumpers."));
+    //extraDumperFile.setLabelText(tr("Extra Debugging Helpers")); // Intentional empty in the GUI.
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "CloseMemoryBuffersOnExit");
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    insertItem(CloseMemoryBuffersOnExit, item);
+    const QString t = tr("Stopping and stepping in the debugger "
+          "will automatically open views associated with the current location.") + '\n';
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "SwitchModeOnExit");
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(SwitchModeOnExit, item);
+    closeSourceBuffersOnExit.setSettingsKey(debugModeGroup, "CloseBuffersOnExit");
+    closeSourceBuffersOnExit.setLabelText(tr("Close temporary source views on debugger exit"));
+    closeSourceBuffersOnExit.setToolTip(t + tr("Closes automatically opened source views when the debugger exits."));
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "BreakpointsFullPath");
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(BreakpointsFullPathByDefault, item);
+    closeMemoryBuffersOnExit.setSettingsKey(debugModeGroup, "CloseMemoryBuffersOnExit");
+    closeMemoryBuffersOnExit.setDefaultValue(true);
+    closeMemoryBuffersOnExit.setLabelText(tr("Close temporary memory views on debugger exit"));
+    closeMemoryBuffersOnExit.setToolTip(t + tr("Closes automatically opened memory views when the debugger exits."));
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "RaiseOnInterrupt");
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    insertItem(RaiseOnInterrupt, item);
+    switchModeOnExit.setSettingsKey(debugModeGroup, "SwitchModeOnExit");
+    switchModeOnExit.setLabelText(tr("Switch to previous mode on debugger exit"));
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "AutoQuit");
-    item->setText(tr("Automatically Quit Debugger"));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(AutoQuit, item);
+    breakpointsFullPathByDefault.setSettingsKey(debugModeGroup, "BreakpointsFullPath");
+    breakpointsFullPathByDefault.setToolTip(tr("Enables a full file path in breakpoints by default also for GDB."));
+    breakpointsFullPathByDefault.setLabelText(tr("Set breakpoints using a full absolute path"));
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "MultiInferior");
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(MultiInferior, item);
+    raiseOnInterrupt.setSettingsKey(debugModeGroup, "RaiseOnInterrupt");
+    raiseOnInterrupt.setDefaultValue(true);
+    raiseOnInterrupt.setLabelText(tr("Bring %1 to foreground when application interrupts")
+                                  .arg(Core::Constants::IDE_DISPLAY_NAME));
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "IntelFlavor");
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(IntelFlavor, item);
+    autoQuit.setSettingsKey(debugModeGroup, "AutoQuit");
+    autoQuit.setLabelText(tr("Automatically Quit Debugger"));
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "UseAnnotations");
-    item->setText(tr("Use annotations in main editor when debugging"));
-    item->setToolTip(tr("<p>Checking this will show simple variable values "
+    multiInferior.setSettingsKey(debugModeGroup, "MultiInferior");
+    multiInferior.setLabelText(/*GdbOptionsPage::*/tr("Debug all child processes"));
+    multiInferior.setToolTip(/*GdbOptionsPage::*/tr(
+        "<html><head/><body>Keeps debugging all children after a fork."
+        "</body></html>"));
+
+    intelFlavor.setSettingsKey(debugModeGroup, "IntelFlavor");
+    intelFlavor.setLabelText(/*GdbOptionsPage::*/tr("Use Intel style disassembly"));
+    intelFlavor.setToolTip(/*GdbOptionsPage::*/tr(
+        "GDB shows by default AT&&T style disassembly."));
+
+    useAnnotationsInMainEditor.setSettingsKey(debugModeGroup, "UseAnnotations");
+    useAnnotationsInMainEditor.setLabelText(tr("Use annotations in main editor when debugging"));
+    useAnnotationsInMainEditor.setToolTip(tr("<p>Checking this will show simple variable values "
         "as annotations in the main editor during debugging."));
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    insertItem(UseAnnotationsInMainEditor, item);
+    useAnnotationsInMainEditor.setDefaultValue(true);
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "UsePseudoTracepoints");
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    insertItem(UsePseudoTracepoints, item);
+    usePseudoTracepoints.setSettingsKey(debugModeGroup, "UsePseudoTracepoints");
+    usePseudoTracepoints.setLabelText(/*GdbOptionsPage::*/tr("Use pseudo message tracepoints"));
+    usePseudoTracepoints.setToolTip(/*GdbOptionsPage::*/tr(
+        "Uses python to extend the ordinary GDB breakpoint class."));
+    usePseudoTracepoints.setDefaultValue(true);
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "UseToolTips");
-    item->setText(tr("Use tooltips in main editor when debugging"));
-    item->setToolTip(tr("<p>Checking this will enable tooltips for variable "
+    useToolTipsInMainEditor.setSettingsKey(debugModeGroup, "UseToolTips");
+    useToolTipsInMainEditor.setLabelText(tr("Use tooltips in main editor when debugging"));
+    useToolTipsInMainEditor.setToolTip(tr("<p>Checking this will enable tooltips for variable "
         "values during debugging. Since this can slow down debugging and "
         "does not provide reliable information as it does not use scope "
         "information, it is switched off by default."));
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    insertItem(UseToolTipsInMainEditor, item);
+    useToolTipsInMainEditor.setDefaultValue(true);
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "UseToolTipsInLocalsView");
-    item->setText(tr("Use Tooltips in Locals View when Debugging"));
-    item->setToolTip(tr("<p>Checking this will enable tooltips in the locals "
+    useToolTipsInLocalsView.setSettingsKey(debugModeGroup, "UseToolTipsInLocalsView");
+    useToolTipsInLocalsView.setLabelText(tr("Use Tooltips in Locals View when Debugging"));
+    useToolTipsInLocalsView.setToolTip(tr("<p>Checking this will enable tooltips in the locals "
         "view during debugging."));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(UseToolTipsInLocalsView, item);
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "UseToolTipsInBreakpointsView");
-    item->setText(tr("Use Tooltips in Breakpoints View when Debugging"));
-    item->setToolTip(tr("<p>Checking this will enable tooltips in the breakpoints "
+    useToolTipsInBreakpointsView.setSettingsKey(debugModeGroup, "UseToolTipsInBreakpointsView");
+    useToolTipsInBreakpointsView.setLabelText(tr("Use Tooltips in Breakpoints View when Debugging"));
+    useToolTipsInBreakpointsView.setToolTip(tr("<p>Checking this will enable tooltips in the breakpoints "
         "view during debugging."));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(UseToolTipsInBreakpointsView, item);
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "UseToolTipsInStackView");
-    item->setText(tr("Use Tooltips in Stack View when Debugging"));
-    item->setToolTip(tr("<p>Checking this will enable tooltips in the stack "
+    useToolTipsInStackView.setSettingsKey(debugModeGroup, "UseToolTipsInStackView");
+    useToolTipsInStackView.setLabelText(tr("Use Tooltips in Stack View when Debugging"));
+    useToolTipsInStackView.setToolTip(tr("<p>Checking this will enable tooltips in the stack "
         "view during debugging."));
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    insertItem(UseToolTipsInStackView, item);
+    useToolTipsInStackView.setDefaultValue(true);
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "SkipKnownFrames");
-    item->setText(tr("Skip Known Frames"));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(SkipKnownFrames, item);
+    skipKnownFrames.setSettingsKey(debugModeGroup, "SkipKnownFrames");
+    skipKnownFrames.setLabelText(tr("Skip Known Frames"));
+    skipKnownFrames.setLabelText(/*GdbOptionsPage::*/tr("Skip known frames when stepping"));
+    skipKnownFrames.setToolTip(/*GdbOptionsPage::*/tr(
+        "<html><head/><body><p>"
+        "Allows <i>Step Into</i> to compress several steps into one step\n"
+        "for less noisy debugging. For example, the atomic reference\n"
+        "counting code is skipped, and a single <i>Step Into</i> for a signal\n"
+        "emission ends up directly in the slot connected to it."));
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "EnableReverseDebugging");
-    item->setText(tr("Enable Reverse Debugging"));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    item->setIcon(Icons::REVERSE_MODE.icon());
-    insertItem(EnableReverseDebugging, item);
+    enableReverseDebugging.setSettingsKey(debugModeGroup, "EnableReverseDebugging");
+    enableReverseDebugging.setLabelText(tr("Enable Reverse Debugging"));
+// FIXME    enableReverseDebugging.setIcon(Icons::REVERSE_MODE.icon());
+    enableReverseDebugging.setLabelText(/*GdbOptionsPage::*/tr("Enable reverse debugging"));
+    enableReverseDebugging.setToolTip(/*GdbOptionsPage::*/tr(
+       "<html><head/><body><p>Enables stepping backwards.</p><p>"
+       "<b>Note:</b> This feature is very slow and unstable on the GDB side. "
+       "It exhibits unpredictable behavior when going backwards over system "
+       "calls and is very likely to destroy your debugging session.</p></body></html>"));
+
 
 #ifdef Q_OS_WIN
-    item = new RegisterPostMortemAction;
-    item->setSettingsKey(debugModeGroup, "RegisterForPostMortem");
-    item->setText(tr("Register For Post-Mortem Debugging"));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(RegisterForPostMortem, item);
+    registerForPostMortem = new RegisterPostMortemAction;
+    registerForPostMortem->setSettingsKey(debugModeGroup, "RegisterForPostMortem");
+    registerForPostMortem->setToolTip(
+                tr("Registers %1 for debugging crashed applications.")
+                .arg(Core::Constants::IDE_DISPLAY_NAME));
+    registerForPostMortem->setLabelText(
+                tr("Use %1 for post-mortem debugging")
+                .arg(Core::Constants::IDE_DISPLAY_NAME));
+#else
+    // Some dummy.
+    registerForPostMortem = new BoolAspect;
+    registerForPostMortem->setVisible(false);
 #endif
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "AllPluginBreakpoints");
-    item->setDefaultValue(true);
-    insertItem(AllPluginBreakpoints, item);
+    allPluginBreakpoints.setSettingsKey(debugModeGroup, "AllPluginBreakpoints");
+    allPluginBreakpoints.setDefaultValue(true);
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "SelectedPluginBreakpoints");
-    item->setDefaultValue(false);
-    insertItem(SelectedPluginBreakpoints, item);
+    selectedPluginBreakpoints.setSettingsKey(debugModeGroup, "SelectedPluginBreakpoints");
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "NoPluginBreakpoints");
-    item->setDefaultValue(false);
-    insertItem(NoPluginBreakpoints, item);
+    noPluginBreakpoints.setSettingsKey(debugModeGroup, "NoPluginBreakpoints");
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "SelectedPluginBreakpointsPattern");
-    item->setDefaultValue(".*");
-    insertItem(SelectedPluginBreakpointsPattern, item);
+    selectedPluginBreakpointsPattern.setSettingsKey(debugModeGroup, "SelectedPluginBreakpointsPattern");
+    selectedPluginBreakpointsPattern.setDefaultValue(QString(".*"));
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "MaximalStackDepth");
-    item->setDefaultValue(20);
-    insertItem(MaximalStackDepth, item);
+    maximalStackDepth.setSettingsKey(debugModeGroup, "MaximalStackDepth");
+    maximalStackDepth.setDefaultValue(20);
+    maximalStackDepth.setSpecialValueText(tr("<unlimited>"));
+    maximalStackDepth.setRange(0, 1000);
+    maximalStackDepth.setSingleStep(5);
+    maximalStackDepth.setLabelText(tr("Maximum stack depth:"));
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "DisplayStringLimit");
-    item->setToolTip(tr("<p>The maximum length of string entries in the "
+    displayStringLimit.setSettingsKey(debugModeGroup, "DisplayStringLimit");
+    displayStringLimit.setDefaultValue(100);
+    displayStringLimit.setSpecialValueText(tr("<unlimited>"));
+    displayStringLimit.setRange(20, 10000);
+    displayStringLimit.setSingleStep(10);
+    displayStringLimit.setLabelText(tr("Display string length:"));
+    displayStringLimit.setToolTip(tr("<p>The maximum length of string entries in the "
         "Locals and Expressions views. Longer than that are cut off "
         "and displayed with an ellipsis attached."));
-    item->setDefaultValue(100);
-    insertItem(DisplayStringLimit, item);
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "MaximalStringLength");
-    item->setToolTip(tr("<p>The maximum length for strings in separated windows. "
+    maximalStringLength.setSettingsKey(debugModeGroup, "MaximalStringLength");
+    maximalStringLength.setDefaultValue(10000);
+    maximalStringLength.setSpecialValueText(tr("<unlimited>"));
+    maximalStringLength.setRange(20, 10000000);
+    maximalStringLength.setSingleStep(20);
+    maximalStringLength.setLabelText(tr("Maximum string length:"));
+    maximalStringLength.setToolTip(tr("<p>The maximum length for strings in separated windows. "
         "Longer strings are cut off and displayed with an ellipsis attached."));
-    item->setDefaultValue(10000);
-    insertItem(MaximalStringLength, item);
 
-    item = new SavedAction;
-    item->setText(tr("Reload Full Stack"));
-    insertItem(ExpandStack, item);
+    expandStack.setLabelText(tr("Reload Full Stack"));
 
-    item = new SavedAction;
-    item->setText(tr("Create Full Backtrace"));
-    insertItem(CreateFullBacktrace, item);
+    createFullBacktrace.setLabelText(tr("Create Full Backtrace"));
 
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "WatchdogTimeout");
-    item->setDefaultValue(20);
-    insertItem(GdbWatchdogTimeout, item);
+    gdbWatchdogTimeout.setSettingsKey(debugModeGroup, "WatchdogTimeout");
+    gdbWatchdogTimeout.setDefaultValue(20);
+    gdbWatchdogTimeout.setSuffix(/*GdbOptionsPage::*/tr("sec"));
+    gdbWatchdogTimeout.setRange(20, 1000000);
+    gdbWatchdogTimeout.setLabelText(/*GdbOptionsPage::*/tr("GDB timeout:"));
+    gdbWatchdogTimeout.setToolTip(/*GdbOptionsPage::*/tr(
+        "The number of seconds before a non-responsive GDB process is terminated.\n"
+        "The default value of 20 seconds should be sufficient for most\n"
+        "applications, but there are situations when loading big libraries or\n"
+        "listing source files takes much longer than that on slow machines.\n"
+        "In this case, the value should be increased."));
 
     //
     // QML Tools
     //
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "ShowQmlObjectTree");
-    item->setDefaultValue(true);
-    insertItem(ShowQmlObjectTree, item);
+    showQmlObjectTree.setSettingsKey(debugModeGroup, "ShowQmlObjectTree");
+    showQmlObjectTree.setDefaultValue(true);
+    showQmlObjectTree.setToolTip(tr("Shows QML object tree in Locals and Expressions when connected and not stepping."));
+    showQmlObjectTree.setLabelText(tr("Show QML object tree"));
 
     const QString qmlInspectorGroup = "QML.Inspector";
-    item = new SavedAction;
-    item->setSettingsKey(qmlInspectorGroup, "QmlInspector.ShowAppOnTop");
-    item->setDefaultValue(false);
-    insertItem(ShowAppOnTop, item);
+    showAppOnTop.setSettingsKey(qmlInspectorGroup, "QmlInspector.ShowAppOnTop");
+
+    // Page 1
+    page1.registerAspect(&useAlternatingRowColors);
+    page1.registerAspect(&useAnnotationsInMainEditor);
+    page1.registerAspect(&useToolTipsInMainEditor);
+    page1.registerAspect(&closeSourceBuffersOnExit);
+    page1.registerAspect(&closeMemoryBuffersOnExit);
+    page1.registerAspect(&raiseOnInterrupt);
+    page1.registerAspect(&breakpointsFullPathByDefault);
+    page1.registerAspect(&warnOnReleaseBuilds);
+    page1.registerAspect(&maximalStackDepth);
+
+    page1.registerAspect(&fontSizeFollowsEditor);
+    page1.registerAspect(&switchModeOnExit);
+    page1.registerAspect(&showQmlObjectTree);
+    page1.registerAspect(&stationaryEditorWhileStepping);
+
+    // Page 2
+    page2.registerAspect(&gdbWatchdogTimeout);
+    page2.registerAspect(&skipKnownFrames);
+    page2.registerAspect(&useMessageBoxForSignals);
+    page2.registerAspect(&adjustBreakpointLocations);
+    page2.registerAspect(&useDynamicType);
+    page2.registerAspect(&loadGdbInit);
+    page2.registerAspect(&loadGdbDumpers);
+    page2.registerAspect(&intelFlavor);
+    page2.registerAspect(&skipKnownFrames);
+    page2.registerAspect(&usePseudoTracepoints);
+    page2.registerAspect(&gdbStartupCommands);
+    page2.registerAspect(&gdbPostAttachCommands);
+
+    // Page 3
+    page3.registerAspect(&targetAsync);
+    page3.registerAspect(&autoEnrichParameters);
+    page3.registerAspect(&breakOnWarning);
+    page3.registerAspect(&breakOnFatal);
+    page3.registerAspect(&breakOnAbort);
+    page3.registerAspect(&enableReverseDebugging);
+    page3.registerAspect(&multiInferior);
+
+    // Page 4
+    page4.registerAspect(&useDebuggingHelpers);
+    page4.registerAspect(&useCodeModel);
+    page4.registerAspect(&showThreadNames);
+    page4.registerAspect(&showStdNamespace);
+    page4.registerAspect(&showQtNamespace);
+    page4.registerAspect(&extraDumperFile);
+    page4.registerAspect(&extraDumperCommands);
+    page4.registerAspect(&showQObjectNames);
+    page4.registerAspect(&displayStringLimit);
+    page4.registerAspect(&maximalStringLength);
+
+    // Page 5
+    page5.registerAspect(&cdbAdditionalArguments);
+    page5.registerAspect(&cdbBreakEvents);
+    page5.registerAspect(&cdbBreakOnCrtDbgReport);
+    page5.registerAspect(&useCdbConsole);
+    page5.registerAspect(&cdbBreakPointCorrection);
+    page5.registerAspect(&cdbUsePythonDumper);
+    page5.registerAspect(&firstChanceExceptionTaskEntry);
+    page5.registerAspect(&secondChanceExceptionTaskEntry);
+    page5.registerAspect(&ignoreFirstChanceAccessViolation);
+    if (HostOsInfo::isWindowsHost())
+        page5.registerAspect(registerForPostMortem);
+
+    // Page 6
+    page6.registerAspect(&cdbSymbolPaths);
+    page6.registerAspect(&cdbSourcePaths);
+
+    // Pageless
+    all.registerAspect(&autoDerefPointers);
+    all.registerAspect(&useToolTipsInLocalsView);
+    all.registerAspect(&alwaysAdjustColumnWidths);
+    all.registerAspect(&useToolTipsInBreakpointsView);
+    all.registerAspect(&useToolTipsInStackView);
+    all.registerAspect(&logTimeStamps);
+    all.registerAspect(&sortStructMembers);
+    all.registerAspect(&breakOnThrow); // ??
+    all.registerAspect(&breakOnCatch); // ??
+
+    // Collect all
+    all.registerAspect(&page1);
+    all.registerAspect(&page2);
+    all.registerAspect(&page3);
+    all.registerAspect(&page4);
+    all.registerAspect(&page5);
+    all.registerAspect(&page6);
+
+    all.forEachAspect([](BaseAspect *aspect) {
+        aspect->setAutoApply(false);
+        // FIXME: Make the positioning part of the LayoutBuilder later
+        if (auto boolAspect = dynamic_cast<BoolAspect *>(aspect))
+            boolAspect->setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    });
 }
 
 DebuggerSettings::~DebuggerSettings()
 {
-    qDeleteAll(m_items);
-}
-
-void DebuggerSettings::insertItem(int code, SavedAction *item)
-{
-    QTC_ASSERT(!m_items.contains(code),
-        qDebug() << code << item->toString(); return);
-    QTC_ASSERT(item->settingsKey().isEmpty() || item->defaultValue().isValid(),
-        qDebug() << "NO DEFAULT VALUE FOR " << item->settingsKey());
-    m_items[code] = item;
+    delete registerForPostMortem;
 }
 
 void DebuggerSettings::readSettings()
 {
-    QSettings *settings = Core::ICore::settings();
-    for (SavedAction *item : qAsConst(m_items))
-        item->readSettings(settings);
+    all.readSettings(Core::ICore::settings());
 }
 
 void DebuggerSettings::writeSettings() const
 {
-    QSettings *settings = Core::ICore::settings();
-    for (SavedAction *item : qAsConst(m_items))
-        item->writeSettings(settings);
-}
-
-SavedAction *DebuggerSettings::item(int code) const
-{
-    QTC_ASSERT(m_items.value(code, nullptr), qDebug() << "CODE: " << code; return nullptr);
-    return m_items.value(code, nullptr);
+    all.writeSettings(Core::ICore::settings());
 }
 
 QString DebuggerSettings::dump()
 {
     QStringList settings;
-    for (SavedAction *item : qAsConst(theDebuggerSettings->m_items)) {
-        QString key = item->settingsKey();
+    debuggerSettings()->all.forEachAspect([&settings](BaseAspect *aspect) {
+        QString key = aspect->settingsKey();
         if (!key.isEmpty()) {
-            const QString current = item->value().toString();
-            const QString default_ = item->defaultValue().toString();
+            const int pos = key.indexOf('/');
+            if (pos >= 0)
+                key = key.mid(pos);
+            const QString current = aspect->value().toString();
+            const QString default_ = aspect->defaultValue().toString();
             QString setting = key + ": " + current + "  (default: " + default_ + ')';
             if (current != default_)
                 setting +=  "  ***";
             settings << setting;
         }
-    }
+    });
     settings.sort();
     return "Debugger settings:\n" + settings.join('\n');
 }

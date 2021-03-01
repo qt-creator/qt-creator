@@ -95,7 +95,6 @@ Project {
             files: [
                 "cdbengine.cpp", "cdbengine.h",
                 "cdboptionspage.cpp", "cdboptionspage.h",
-                "cdboptionspagewidget.ui",
                 "cdbparsehelpers.cpp", "cdbparsehelpers.h",
                 "stringinputstream.cpp", "stringinputstream.h",
             ]

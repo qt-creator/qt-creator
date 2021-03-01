@@ -50,7 +50,6 @@
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/find/basetextfind.h>
 
-#include <utils/savedaction.h>
 #include <utils/fancylineedit.h>
 #include <utils/fileutils.h>
 #include <utils/theme/theme.h>
@@ -220,10 +219,10 @@ public:
         QMenu *menu = createStandardContextMenu();
         menu->addAction(m_clearContentsAction);
         menu->addAction(m_saveContentsAction); // X11 clipboard is unreliable for long texts
-        menu->addAction(action(LogTimeStamps)->action());
+        menu->addAction(debuggerSettings()->logTimeStamps.action());
         menu->addAction(m_reloadDebuggingHelpersAction);
         menu->addSeparator();
-        menu->addAction(action(SettingsDialog)->action());
+        menu->addAction(debuggerSettings()->settingsDialog.action());
         menu->exec(ev->globalPos());
         delete menu;
     }
@@ -526,7 +525,7 @@ void LogWindow::showOutput(int channel, const QString &output)
     QString out;
     out.reserve(output.size() + 1000);
 
-    if (output.at(0) != '~' && boolSetting(LogTimeStamps)) {
+    if (output.at(0) != '~' && debuggerSettings()->logTimeStamps.value()) {
         out.append(charForChannel(LogTime));
         out.append(logTimeStamp());
         out.append(nchar);
@@ -594,7 +593,7 @@ void LogWindow::showInput(int channel, const QString &input)
         m_inputText->setTextCursor(cursor);
         return;
     }
-    if (boolSetting(LogTimeStamps))
+    if (debuggerSettings()->logTimeStamps.value())
         m_inputText->append(logTimeStamp());
     m_inputText->append(input);
     QTextCursor cursor = m_inputText->textCursor();
@@ -726,7 +725,7 @@ void GlobalLogWindow::doOutput(const QString &output)
 
 void GlobalLogWindow::doInput(const QString &input)
 {
-    if (boolSetting(LogTimeStamps))
+    if (debuggerSettings()->logTimeStamps.value())
         m_leftPane->append(LogWindow::logTimeStamp());
     m_leftPane->append(input);
     QTextCursor cursor = m_leftPane->textCursor();

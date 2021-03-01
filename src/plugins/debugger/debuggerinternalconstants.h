@@ -74,6 +74,8 @@ const char OPENED_BY_DEBUGGER[]               = "OpenedByDebugger";
 const char OPENED_WITH_DISASSEMBLY[]          = "DisassemblerView";
 const char DISASSEMBLER_SOURCE_FILE[]         = "DisassemblerSourceFile";
 
+const char CRT_DEBUG_REPORT[]                 = "CrtDbgReport";
+
 } // namespace Constants
 
 enum ModelRoles

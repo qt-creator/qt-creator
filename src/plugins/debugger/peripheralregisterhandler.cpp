@@ -30,7 +30,6 @@
 #include "debuggerdialogs.h"
 
 #include <utils/basetreeview.h>
-#include <utils/savedaction.h>
 
 #include <QActionGroup>
 #include <QFile>
@@ -799,7 +798,7 @@ bool PeripheralRegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
         menu->addMenu(fmtMenu);
     }
 
-    menu->addAction(action(SettingsDialog)->action());
+    menu->addAction(debuggerSettings()->settingsDialog.action());
     menu->popup(ev.globalPos());
     return true;
 }

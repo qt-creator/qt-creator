@@ -40,9 +40,8 @@ using namespace RegistryAccess;
 namespace Debugger {
 namespace Internal {
 
-void RegisterPostMortemAction::registerNow(const QVariant &value)
+void RegisterPostMortemAction::registerNow(bool value)
 {
-    const bool boolValue = value.toBool();
     const QString debuggerExe = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + '/'
                                 + QLatin1String(debuggerApplicationFileC) + ".exe");
     const ushort *debuggerWString = debuggerExe.utf16();
@@ -54,7 +53,7 @@ void RegisterPostMortemAction::registerNow(const QVariant &value)
     shExecInfo.hwnd   = NULL;
     shExecInfo.lpVerb = L"runas";
     shExecInfo.lpFile = reinterpret_cast<LPCWSTR>(debuggerWString);
-    shExecInfo.lpParameters = boolValue ? L"-register" : L"-unregister";
+    shExecInfo.lpParameters = value ? L"-register" : L"-unregister";
     shExecInfo.lpDirectory  = NULL;
     shExecInfo.nShow        = SW_SHOWNORMAL;
     shExecInfo.hProcess     = NULL;
@@ -64,9 +63,9 @@ void RegisterPostMortemAction::registerNow(const QVariant &value)
     readSettings();
 }
 
-RegisterPostMortemAction::RegisterPostMortemAction(QObject *parent) : Utils::SavedAction(parent)
+RegisterPostMortemAction::RegisterPostMortemAction()
 {
-    connect(this, &SavedAction::valueChanged, this, &RegisterPostMortemAction::registerNow);
+    connect(this, &BoolAspect::valueChanged, this, &RegisterPostMortemAction::registerNow);
 }
 
 void RegisterPostMortemAction::readSettings(const QSettings *)
@@ -80,7 +79,7 @@ void RegisterPostMortemAction::readSettings(const QSettings *)
         registered = isRegistered(handle, debuggerCall(), &errorMessage);
     if (handle)
         RegCloseKey(handle);
-    setValue(registered, false);
+    setValueQuietly(registered);
 }
 
 } // namespace Internal

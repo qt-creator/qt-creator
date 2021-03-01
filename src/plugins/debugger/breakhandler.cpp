@@ -51,7 +51,6 @@
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
-#include <utils/savedaction.h>
 #include <utils/theme/theme.h>
 
 #if USE_BREAK_MODEL_TEST
@@ -1121,7 +1120,7 @@ QVariant BreakpointItem::data(int column, int role) const
             break;
     }
 
-    if (role == Qt::ToolTipRole && boolSetting(UseToolTipsInBreakpointsView))
+    if (role == Qt::ToolTipRole && debuggerSettings()->useToolTipsInBreakpointsView.value())
         return toolTip();
 
     return QVariant();
@@ -1698,8 +1697,8 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
 
     menu->addSeparator();
 
-    menu->addAction(action(UseToolTipsInBreakpointsView)->action());
-    menu->addAction(action(SettingsDialog)->action());
+    menu->addAction(debuggerSettings()->useToolTipsInBreakpointsView.action());
+    menu->addAction(debuggerSettings()->settingsDialog.action());
 
     menu->popup(ev.globalPos());
 
@@ -2225,7 +2224,7 @@ QVariant GlobalBreakpointItem::data(int column, int role) const
             break;
     }
 
-    if (role == Qt::ToolTipRole && boolSetting(UseToolTipsInBreakpointsView))
+    if (role == Qt::ToolTipRole && debuggerSettings()->useToolTipsInBreakpointsView.value())
         return toolTip();
 
     return QVariant();
@@ -2502,7 +2501,7 @@ void BreakpointManager::toggleBreakpoint(const ContextData &location, const QStr
         BreakpointParameters data;
         if (location.type == LocationByFile) {
             data.type = BreakpointByFileAndLine;
-            if (boolSetting(BreakpointsFullPathByDefault))
+            if (debuggerSettings()->breakpointsFullPathByDefault.value())
                 data.pathUsage = BreakpointUseFullPath;
             data.tracepoint = !tracePointMessage.isEmpty();
             data.message = tracePointMessage;
@@ -2684,8 +2683,8 @@ bool BreakpointManager::contextMenuEvent(const ItemViewEvent &ev)
 
     menu->addSeparator();
 
-    menu->addAction(action(UseToolTipsInBreakpointsView)->action());
-    menu->addAction(action(SettingsDialog)->action());
+    menu->addAction(debuggerSettings()->useToolTipsInBreakpointsView.action());
+    menu->addAction(debuggerSettings()->settingsDialog.action());
 
     menu->popup(ev.globalPos());
 
