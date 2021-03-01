@@ -78,6 +78,15 @@ private:
     const bool m_isFile;
 };
 
+// Get version from the path of the package itself
+class McuPackagePathVersionDetector : public McuPackageVersionDetector {
+public:
+    McuPackagePathVersionDetector(const QString &versionRegExp);
+    QString parseVersion(const QString &packagePath) const;
+private:
+    const QString m_versionRegExp;
+};
+
 } // Internal
 } // McuSupport
 

@@ -40,6 +40,8 @@ namespace Sdk {
 
 McuPackage *createQtForMCUsPackage();
 
+bool checkDeprecatedSdkError(const Utils::FilePath &qulDir, QString &message);
+
 void targetsAndPackages(const Utils::FilePath &qulDir,
                         QVector<McuPackage*> *packages, QVector<McuTarget*> *mcuTargets);
 

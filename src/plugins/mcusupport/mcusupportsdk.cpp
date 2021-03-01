@@ -63,8 +63,7 @@ static QString findInProgramFiles(const QString &folder)
 McuPackage *createQtForMCUsPackage()
 {
     auto result = new McuPackage(
-                McuPackage::tr("Qt for MCUs %1+ SDK").arg(
-                    McuSupportOptions::minimalQulVersion().toString()),
+                McuPackage::tr("Qt for MCUs SDK"),
                 QDir::homePath(),
                 Utils::HostOsInfo::withExecutableSuffix("bin/qmltocpp"),
                 Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK);
@@ -497,7 +496,8 @@ protected:
                     boardSdkPkgs.insert(desc.boardSdkEnvVar, boardSdkPkg);
                 }
                 auto boardSdkPkg = boardSdkPkgs.value(desc.boardSdkEnvVar);
-                boardSdkPkg->setVersions(desc.boardSdkVersions);
+                if (QVersionNumber::fromString(desc.qulVersion) >= QVersionNumber({1,8}))
+                    boardSdkPkg->setVersions(desc.boardSdkVersions);
                 boardSdkDefaultPath = boardSdkPkg->defaultPath();
                 required3rdPartyPkgs.append(boardSdkPkg);
             }
@@ -609,6 +609,30 @@ static McuTargetDescription parseDescriptionJson(const QByteArray &data)
     };
 }
 
+const QHash<QString, QString> oldSdkQtcRequiredVersion = {
+    {{"1.0"}, {"4.11.x"}},
+    {{"1.1"}, {"4.12.0 or 4.12.1"}},
+    {{"1.2"}, {"4.12.2 or 4.12.3"}},
+};
+
+bool checkDeprecatedSdkError(const Utils::FilePath &qulDir, QString &message)
+{
+    const McuPackagePathVersionDetector versionDetector("(?<=\\bQtMCUs.)(\\d+\\.\\d+)");
+    const QString sdkDetectedVersion = versionDetector.parseVersion(qulDir.toString());
+
+    if (oldSdkQtcRequiredVersion.contains(sdkDetectedVersion)) {
+        message = McuTarget::tr("Qt for MCUs SDK version %1 detected, "
+                                "only supported by QtCreator version %2. "
+                                "SDK version %3 or greater required."
+                                ).arg(sdkDetectedVersion,
+                                      oldSdkQtcRequiredVersion.value(sdkDetectedVersion),
+                                      McuSupportOptions::minimalQulVersion().toString());
+        return true;
+    }
+
+    return false;
+}
+
 void targetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage *> *packages,
                         QVector<McuTarget *> *mcuTargets)
 {
@@ -621,11 +645,16 @@ void targetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage *> *packa
             continue;
         const McuTargetDescription desc = parseDescriptionJson(file.readAll());
         if (QVersionNumber::fromString(desc.qulVersion) < McuSupportOptions::minimalQulVersion()) {
-            auto pth = Utils::FilePath::fromString(fileInfo.filePath());
-            printMessage(McuTarget::tr("Skipped %1 - Unsupported version \"%2\" (should be >= %3)")
+            const auto pth = Utils::FilePath::fromString(fileInfo.filePath());
+            const QString qtcSupportText = oldSdkQtcRequiredVersion.contains(desc.qulVersion) ?
+                        McuTarget::tr("Detected version \"%1\", only supported by Qt Creator %2.")
+                        .arg(desc.qulVersion, oldSdkQtcRequiredVersion.value(desc.qulVersion))
+                      : McuTarget::tr("Unsupported version \"%1\".")
+                        .arg(desc.qulVersion);
+            printMessage(McuTarget::tr("Skipped %1. %2 Qt for MCUs version >= %3 required.")
                          .arg(
                              QDir::toNativeSeparators(pth.fileNameWithPathComponents(1)),
-                             desc.qulVersion,
+                             qtcSupportText,
                              McuSupportOptions::minimalQulVersion().toString()),
                              false);
             continue;
@@ -633,10 +662,19 @@ void targetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage *> *packa
         descriptions.append(desc);
     }
 
-    // No valid description means invalid SDK installation.
-    if (descriptions.empty() && kitsPath(dir).exists()) {
-        printMessage(McuTarget::tr("No valid kit descriptions found at %1.").arg(kitsPath(dir).toUserOutput()), true);
-        return;
+    // No valid description means invalid or old SDK installation.
+    if (descriptions.empty()) {
+        if (kitsPath(dir).exists()) {
+            printMessage(McuTarget::tr("No valid kit descriptions found at %1.")
+                         .arg(kitsPath(dir).toUserOutput()), true);
+            return;
+        } else {
+            QString deprecationMessage;
+            if (checkDeprecatedSdkError(dir, deprecationMessage)) {
+                printMessage(deprecationMessage, true);
+                return;
+            }
+        }
     }
 
     // Workaround for missing JSON file for Desktop target.

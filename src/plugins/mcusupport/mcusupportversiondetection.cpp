@@ -33,6 +33,15 @@
 namespace McuSupport {
 namespace Internal {
 
+QString matchRegExp(const QString &text, const QString &regExp)
+{
+    const QRegularExpression regularExpression(regExp);
+    const QRegularExpressionMatch match = regularExpression.match(text);
+    if (match.hasMatch())
+        return match.captured(regularExpression.captureCount());
+    return QString();
+}
+
 McuPackageVersionDetector::McuPackageVersionDetector()
 {
 }
@@ -57,7 +66,6 @@ QString McuPackageExecutableVersionDetector::parseVersion(const QString &package
     if (!Utils::FilePath::fromString(binaryPath).exists())
         return QString();
 
-    const QRegularExpression regExp(m_detectionRegExp);
 
     const int execTimeout = 3000; // usually runs below 1s, but we want to be on the safe side
     QProcess binaryProcess;
@@ -69,12 +77,10 @@ QString McuPackageExecutableVersionDetector::parseVersion(const QString &package
         const QString processOutput = QString::fromUtf8(
                     binaryProcess.readAllStandardOutput().append(
                         binaryProcess.readAllStandardError()));
-        const QRegularExpressionMatch match = regExp.match(processOutput);
-        if (match.hasMatch())
-            return match.captured(regExp.captureCount());
+        return matchRegExp(processOutput, m_detectionRegExp);
     }
 
-    // Fail gracefully: return empty string if execution failed or regexp did not match
+    // Fail gracefully: return empty string if execution failed
     return QString();
 }
 
@@ -91,7 +97,6 @@ McuPackageXmlVersionDetector::McuPackageXmlVersionDetector(const QString &filePa
 
 QString McuPackageXmlVersionDetector::parseVersion(const QString &packagePath) const
 {
-    const QRegularExpression regExp(m_versionRegExp);
     const auto files = QDir(packagePath, m_filePattern).entryInfoList();
     for (const auto &xmlFile: files) {
         QFile sdkXmlFile = QFile(xmlFile.absoluteFilePath());
@@ -100,8 +105,8 @@ QString McuPackageXmlVersionDetector::parseVersion(const QString &packagePath) c
         while (xmlReader.readNext()) {
             if (xmlReader.name() == m_versionElement) {
                 const QString versionString = xmlReader.attributes().value(m_versionAttribute).toString();
-                const QRegularExpressionMatch match = regExp.match(versionString);
-                return match.hasMatch() ? match.captured(regExp.captureCount()) : versionString;
+                const QString matched = matchRegExp(versionString, m_versionRegExp);
+                return !matched.isEmpty() ? matched : versionString;
             }
         }
     }
@@ -123,12 +128,23 @@ QString McuPackageDirectoryVersionDetector::parseVersion(const QString &packageP
     const auto files = QDir(packagePath, m_filePattern)
             .entryInfoList(m_isFile ? QDir::Filter::Files : QDir::Filter::Dirs);
     for (const auto &entry: files) {
-        const QRegularExpression regExp(m_versionRegExp);
-        const QRegularExpressionMatch match = regExp.match(entry.fileName());
-        if (match.hasMatch())
-            return match.captured(regExp.captureCount());
+        const QString matched = matchRegExp(entry.fileName(), m_versionRegExp);
+        if (!matched.isEmpty())
+            return matched;
     }
     return QString();
+}
+
+McuPackagePathVersionDetector::McuPackagePathVersionDetector(const QString &versionRegExp)
+    : m_versionRegExp(versionRegExp)
+{
+}
+
+QString McuPackagePathVersionDetector::parseVersion(const QString &packagePath) const
+{
+    if (!Utils::FilePath::fromString(packagePath).exists())
+        return QString();
+    return matchRegExp(packagePath, m_versionRegExp);
 }
 
 } // Internal

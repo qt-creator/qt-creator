@@ -193,8 +193,13 @@ void McuSupportOptionsWidget::updateStatus()
         m_mcuTargetsInfoLabel->setVisible(valid && m_options.mcuTargets.isEmpty());
         if (m_mcuTargetsInfoLabel->isVisible()) {
             m_mcuTargetsInfoLabel->setType(Utils::InfoLabel::NotOk);
-            auto displayKitsPath = Sdk::kitsPath(Utils::FilePath::fromString(m_options.qtForMCUsSdkPackage->basePath())).toUserOutput();
-            m_mcuTargetsInfoLabel->setText(tr("No valid kit descriptions found at %1.").arg(displayKitsPath));
+            const auto sdkPath = Utils::FilePath::fromString(m_options.qtForMCUsSdkPackage->basePath());
+            QString deprecationMessage;
+            if (Sdk::checkDeprecatedSdkError(sdkPath, deprecationMessage))
+                m_mcuTargetsInfoLabel->setText(deprecationMessage);
+            else
+                m_mcuTargetsInfoLabel->setText(tr("No valid kit descriptions found at %1.")
+                                               .arg(Sdk::kitsPath(sdkPath).toUserOutput()));
         }
     }
 
