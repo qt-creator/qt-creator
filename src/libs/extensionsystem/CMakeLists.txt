@@ -17,3 +17,11 @@ add_qtc_library(ExtensionSystem
     pluginmanager_p.h
   SKIP_AUTOMOC pluginmanager.cpp
 )
+
+find_package(Qt5 COMPONENTS Test QUIET)
+
+extend_qtc_library(ExtensionSystem
+  CONDITION TARGET Qt5::Test
+  DEPENDS Qt5::Test
+  DEFINES WITH_TESTS
+)
