@@ -101,7 +101,7 @@
             actions.
         \li \l{Adding States}
     \row
-        \li \l{Animating Transitions Between States}{Transition Editor}
+        \li \l{Transition Editor}
         \li Enables you to make movement between states smooth by animating
             the changes between states.
         \li \l{Animating Transitions Between States}
