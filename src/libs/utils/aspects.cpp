@@ -782,7 +782,7 @@ void StringAspect::fromMap(const QVariantMap &map)
 */
 void StringAspect::toMap(QVariantMap &map) const
 {
-    saveToMap(map, value(), QString());
+    saveToMap(map, value(), defaultValue());
     if (d->m_checker)
         d->m_checker->toMap(map);
 }
