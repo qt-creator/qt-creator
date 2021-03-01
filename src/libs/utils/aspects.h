@@ -533,6 +533,12 @@ public:
     void cancel() override;
     void finish() override;
 
+    void reset();
+    void fromMap(const QString &prefix, const QVariantMap &map);
+    void toMap(const QString &prefix, QVariantMap &map) const;
+    bool equals(const AspectContainer &other) const;
+    void copyFrom(const AspectContainer &other);
+
     void forEachAspect(const std::function<void(BaseAspect *)> &run) const;
 
 private:

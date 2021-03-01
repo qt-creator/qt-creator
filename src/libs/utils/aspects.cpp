@@ -2078,6 +2078,40 @@ void AspectContainer::finish()
         aspect->finish();
 }
 
+void AspectContainer::reset()
+{
+    for (BaseAspect *aspect : qAsConst(d->m_items))
+        aspect->setValueQuietly(aspect->defaultValue());
+}
+
+void AspectContainer::fromMap(const QString &prefix, const QVariantMap &map)
+{
+    for (BaseAspect *aspect : qAsConst(d->m_items))
+        aspect->setValue(map.value(prefix + aspect->settingsKey()));
+}
+
+void AspectContainer::toMap(const QString &prefix, QVariantMap &map) const
+{
+    for (BaseAspect *aspect : qAsConst(d->m_items))
+        map.insert(prefix + aspect->settingsKey(), aspect->value());
+}
+
+bool AspectContainer::equals(const AspectContainer &other) const
+{
+    // FIXME: Expensive, but should not really be needed in a fully aspectified world.
+    QVariantMap thisMap, thatMap;
+    toMap(thisMap);
+    other.toMap(thatMap);
+    return thisMap == thatMap;
+}
+
+void AspectContainer::copyFrom(const AspectContainer &other)
+{
+    QVariantMap map;
+    other.toMap(map);
+    fromMap(map);
+}
+
 void AspectContainer::forEachAspect(const std::function<void(BaseAspect *)> &run) const
 {
     for (BaseAspect *aspect : qAsConst(d->m_items)) {
