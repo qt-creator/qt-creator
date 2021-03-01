@@ -137,8 +137,10 @@ QVariant BaseAspect::value() const
 */
 void BaseAspect::setValue(const QVariant &value)
 {
-    if (setValueQuietly(value))
+    if (setValueQuietly(value)) {
         emit changed();
+        emitChangedValue();
+    }
 }
 
 /*!
@@ -1218,6 +1220,10 @@ void BoolAspect::addToLayout(LayoutBuilder &builder)
         break;
     }
     d->m_checkBox->setChecked(value());
+    builder.addItem(d->m_checkBox.data());
+    connect(d->m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
+        setValue(d->m_checkBox->isChecked());
+    });
     if (isAutoApply()) {
         connect(d->m_checkBox.data(), &QAbstractButton::clicked,
                 this, [this](bool val) { setValue(val); });
@@ -1251,6 +1257,12 @@ void BoolAspect::setVolatileValue(const QVariant &val)
     if (d->m_checkBox)
         d->m_checkBox->setChecked(val.toBool());
 }
+
+void BoolAspect::emitChangedValue()
+{
+    emit valueChanged(value());
+}
+
 
 /*!
     \reimp

@@ -115,6 +115,7 @@ public:
 
     virtual QVariant volatileValue() const;
     virtual void setVolatileValue(const QVariant &val);
+    virtual void emitChangedValue() {}
 
     virtual void readSettings(const QSettings *settings);
     virtual void writeSettings(QSettings *settings) const;
@@ -210,6 +211,7 @@ public:
 
     QVariant volatileValue() const override;
     void setVolatileValue(const QVariant &val) override;
+    void emitChangedValue() override;
 
     bool value() const;
     void setValue(bool val);
