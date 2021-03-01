@@ -56,6 +56,7 @@
 
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
+#include <utils/macroexpander.h>
 #include <utils/mimetypes/mimetype.h>
 #include <utils/qtcassert.h>
 
@@ -372,6 +373,27 @@ QString CMakeBuildSystem::reparseParametersString(int reparseFlags)
     return result.trimmed();
 }
 
+void CMakeBuildSystem::writeConfigurationIntoBuildDirectory()
+{
+    const Utils::MacroExpander *expander = cmakeBuildConfiguration()->macroExpander();
+    const FilePath buildDir = workDirectory(m_parameters);
+    QTC_ASSERT(buildDir.exists(), return );
+
+    const FilePath settingsFile = buildDir.pathAppended("qtcsettings.cmake");
+
+    QByteArray contents;
+    contents.append("# This file is managed by Qt Creator, do not edit!\n\n");
+    contents.append(
+        transform(cmakeBuildConfiguration()->configurationChanges(),
+                  [expander](const CMakeConfigItem &item) { return item.toCMakeSetLine(expander); })
+            .join('\n')
+            .toUtf8());
+
+    QFile file(settingsFile.toString());
+    QTC_ASSERT(file.open(QFile::WriteOnly | QFile::Truncate), return );
+    file.write(contents);
+}
+
 void CMakeBuildSystem::setParametersAndRequestParse(const BuildDirParameters &parameters,
                                                     const int reparseParameters)
 {
@@ -404,6 +426,8 @@ void CMakeBuildSystem::setParametersAndRequestParse(const BuildDirParameters &pa
     updateReparseParameters(reparseParameters);
 
     m_reader.setParameters(m_parameters);
+
+    writeConfigurationIntoBuildDirectory();
 
     if (reparseParameters & REPARSE_URGENT) {
         qCDebug(cmakeBuildSystemLog) << "calling requestReparse";

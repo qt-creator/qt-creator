@@ -29,7 +29,6 @@
 #include "cmakebuildtarget.h"
 #include "cmakeprojectnodes.h"
 #include "fileapireader.h"
-#include "utils/macroexpander.h"
 
 #include <projectexplorer/buildsystem.h>
 
@@ -154,6 +153,8 @@ private:
     int takeReparseParameters();
 
     void runCTest();
+
+    void writeConfigurationIntoBuildDirectory();
 
     ProjectExplorer::TreeScanner m_treeScanner;
     QHash<QString, bool> m_mimeBinaryCache;
