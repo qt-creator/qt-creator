@@ -1857,7 +1857,7 @@ void AspectContainer::finish()
         aspect->finish();
 }
 
-void AspectContainer::forEachAspect(const std::function<void(BaseAspect *)> &run)
+void AspectContainer::forEachAspect(const std::function<void(BaseAspect *)> &run) const
 {
     for (BaseAspect *aspect : qAsConst(d->m_items)) {
         if (auto container = dynamic_cast<AspectContainer *>(aspect))

@@ -478,7 +478,7 @@ public:
     void cancel() override;
     void finish() override;
 
-    void forEachAspect(const std::function<void(BaseAspect *)> &run);
+    void forEachAspect(const std::function<void(BaseAspect *)> &run) const;
 
 private:
     std::unique_ptr<Internal::AspectContainerPrivate> d;
