@@ -230,8 +230,10 @@ void MetaInfoReader::readImportsProperty(const QString &name, const QVariant &va
 
     if (name == "blacklistImports" && !values.isEmpty()) {
         m_metaInfo.itemLibraryInfo()->addBlacklistImports(values);
-    } else if (name == "showTagsForImports" && !values.isEmpty()) {
-        // Flow tags removed, but keeping this for now to avoid errors parsing old metadata files
+    } else if ((name == "priorityImports" || name == "showTagsForImports") && !values.isEmpty()) {
+        // Flow tags are no longer shown, but the old property is still supported for prioritizing
+        // imports to keep compatibility with old metainfo files.
+        m_metaInfo.itemLibraryInfo()->addPriorityImports(values.toSet());
     } else {
         addError(tr("Unknown property for Imports %1").arg(name), currentSourceLocation());
         setParserState(Error);

@@ -40,6 +40,7 @@ ItemLibraryAddImportModel::ItemLibraryAddImportModel(QObject *parent)
     // add role names
     m_roleNames.insert(Qt::UserRole + 1, "importUrl");
     m_roleNames.insert(Qt::UserRole + 2, "importVisible");
+    m_roleNames.insert(Qt::UserRole + 3, "isSeparator");
 }
 
 ItemLibraryAddImportModel::~ItemLibraryAddImportModel()
@@ -63,7 +64,10 @@ QVariant ItemLibraryAddImportModel::data(const QModelIndex &index, int role) con
         return importUrl;
 
     if (m_roleNames[role] == "importVisible")
-        return m_searchText.isEmpty() || m_importFilterList.contains(importUrl);
+        return m_searchText.isEmpty() || importUrl.isEmpty() || m_importFilterList.contains(importUrl);
+
+    if (m_roleNames[role] == "isSeparator")
+        return importUrl.isEmpty();
 
     qWarning() << Q_FUNC_INFO << "invalid role requested";
 
@@ -83,9 +87,9 @@ void ItemLibraryAddImportModel::update(const QList<Import> &possibleImports)
     const DesignerMcuManager &mcuManager = DesignerMcuManager::instance();
     const bool isQtForMCUs = mcuManager.isMCUProject();
     QList<Import> filteredImports;
-    const QStringList mcuAllowedList = mcuManager.allowedImports();
-    const QStringList mcuBannedList = mcuManager.bannedImports();
     if (isQtForMCUs) {
+        const QStringList mcuAllowedList = mcuManager.allowedImports();
+        const QStringList mcuBannedList = mcuManager.bannedImports();
         filteredImports = Utils::filtered(possibleImports,
                                           [&](const Import &import) {
                                               return (mcuAllowedList.contains(import.url())
@@ -96,7 +100,7 @@ void ItemLibraryAddImportModel::update(const QList<Import> &possibleImports)
         filteredImports = possibleImports;
     }
 
-    Utils::sort(filteredImports, [](const Import &firstImport, const Import &secondImport) {
+    Utils::sort(filteredImports, [this](const Import &firstImport, const Import &secondImport) {
         if (firstImport.url() == secondImport.url())
             return firstImport.toString() < secondImport.toString();
 
@@ -105,6 +109,10 @@ void ItemLibraryAddImportModel::update(const QList<Import> &possibleImports)
 
         if (secondImport.url() == "QtQuick")
             return false;
+
+        const bool firstPriority = m_priorityImports.contains(firstImport.url());
+        if (firstPriority != m_priorityImports.contains(secondImport.url()))
+            return firstPriority;
 
         if (firstImport.isLibraryImport() && secondImport.isFileImport())
             return false;
@@ -122,9 +130,15 @@ void ItemLibraryAddImportModel::update(const QList<Import> &possibleImports)
     });
 
     // create import sections
+    bool previousIsPriority = false;
     for (const Import &import : std::as_const(filteredImports)) {
-        if (import.isLibraryImport())
+        if (import.isLibraryImport()) {
+            bool currentIsPriority = m_priorityImports.contains(import.url());
+            if (previousIsPriority && !currentIsPriority)
+                m_importList.append(Import::empty()); // empty import acts as a separator
             m_importList.append(import);
+            previousIsPriority = currentIsPriority;
+        }
     }
 
     endResetModel();
@@ -151,6 +165,11 @@ void ItemLibraryAddImportModel::setSearchText(const QString &searchText)
 Import ItemLibraryAddImportModel::getImportAt(int index) const
 {
     return m_importList.at(index);
+}
+
+void ItemLibraryAddImportModel::setPriorityImports(const QSet<QString> &priorityImports)
+{
+    m_priorityImports = priorityImports;
 }
 
 } // namespace QmlDesigner

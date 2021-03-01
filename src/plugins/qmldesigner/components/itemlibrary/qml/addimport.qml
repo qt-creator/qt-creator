@@ -57,9 +57,11 @@ Column {
 
                 delegate: Rectangle {
                     width: listView.width
-                    height: 25
-                    color:  mouseArea.containsMouse ? Qt.lighter(Theme.qmlDesignerButtonColor(), 1.3)
-                                                    : Theme.qmlDesignerButtonColor()
+                    height: isSeparator ? 4 : 25
+                    color: isSeparator ? Theme.color(Theme.BackgroundColorNormal)
+                                       : mouseArea.containsMouse
+                                         ? Qt.lighter(Theme.qmlDesignerButtonColor(), 1.3)
+                                         : Theme.qmlDesignerButtonColor()
                     visible: importVisible
 
                     Text {
@@ -77,6 +79,7 @@ Column {
                         anchors.fill: parent
                         hoverEnabled: true
                         onClicked: addImport(index)
+                        enabled: !isSeparator
                     }
                 }
             }

@@ -229,11 +229,16 @@ void ItemLibraryWidget::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
     if (m_itemLibraryInfo) {
         disconnect(m_itemLibraryInfo.data(), &ItemLibraryInfo::entriesChanged,
                    this, &ItemLibraryWidget::delayedUpdateModel);
+        disconnect(m_itemLibraryInfo.data(), &ItemLibraryInfo::priorityImportsChanged,
+                   this, &ItemLibraryWidget::handlePriorityImportsChanged);
     }
     m_itemLibraryInfo = itemLibraryInfo;
     if (itemLibraryInfo) {
         connect(m_itemLibraryInfo.data(), &ItemLibraryInfo::entriesChanged,
                 this, &ItemLibraryWidget::delayedUpdateModel);
+        connect(m_itemLibraryInfo.data(), &ItemLibraryInfo::priorityImportsChanged,
+                this, &ItemLibraryWidget::handlePriorityImportsChanged);
+        m_itemLibraryAddImportModel->setPriorityImports(m_itemLibraryInfo->priorityImports());
     }
     delayedUpdateModel();
 }
@@ -362,6 +367,14 @@ void ItemLibraryWidget::updateSearch()
         m_resourcesView->scrollToTop();
     } else if (m_stackedWidget->currentIndex() == 2) {  // QML imports tab selected
         m_itemLibraryAddImportModel->setSearchText(m_filterText);
+    }
+}
+
+void ItemLibraryWidget::handlePriorityImportsChanged()
+{
+    if (!m_itemLibraryInfo.isNull()) {
+        m_itemLibraryAddImportModel->setPriorityImports(m_itemLibraryInfo->priorityImports());
+        m_itemLibraryAddImportModel->update(m_model->possibleImports());
     }
 }
 

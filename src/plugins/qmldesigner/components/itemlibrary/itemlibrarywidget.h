@@ -102,6 +102,7 @@ private:
     void addResources(const QStringList &files);
     void importDroppedFiles(const QList<Utils::DropSupport::FileSpec> &files);
     void updateSearch();
+    void handlePriorityImportsChanged();
 
     QTimer m_compressionTimer;
     QSize m_itemIconSize;

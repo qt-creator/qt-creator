@@ -29,6 +29,7 @@
 
 #include "propertycontainer.h"
 #include <QPointer>
+#include <QSet>
 #include <memory>
 
 namespace QmlDesigner {
@@ -108,11 +109,14 @@ public:
     void clearEntries();
 
     QStringList blacklistImports() const;
+    QSet<QString> priorityImports() const;
 
     void addBlacklistImports(const QStringList &list);
+    void addPriorityImports(const QSet<QString> &set);
 
 signals:
     void entriesChanged();
+    void priorityImportsChanged();
 
 private: // functions
     ItemLibraryInfo(QObject *parent = nullptr);
@@ -123,6 +127,7 @@ private: // variables
     QPointer<ItemLibraryInfo> m_baseInfo;
 
     QStringList m_blacklistImports;
+    QSet<QString> m_priorityImports;
 };
 
 } // namespace QmlDesigner

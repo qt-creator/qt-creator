@@ -344,9 +344,25 @@ QStringList ItemLibraryInfo::blacklistImports() const
     return list;
 }
 
+QSet<QString> ItemLibraryInfo::priorityImports() const
+{
+    QSet<QString> set = m_priorityImports;
+    if (m_baseInfo)
+        set.unite(m_baseInfo->m_priorityImports);
+    return set;
+}
+
 void ItemLibraryInfo::addBlacklistImports(const QStringList &list)
 {
     m_blacklistImports.append(list);
+}
+
+void ItemLibraryInfo::addPriorityImports(const QSet<QString> &set)
+{
+    if (!set.isEmpty()) {
+        m_priorityImports.unite(set);
+        emit priorityImportsChanged();
+    }
 }
 
 void ItemLibraryInfo::setBaseInfo(ItemLibraryInfo *baseInfo)
