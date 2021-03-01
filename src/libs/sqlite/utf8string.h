@@ -268,6 +268,13 @@ public:
         return second == first;
     }
 
+    friend bool operator!=(const Utf8String &first, const char *second)
+    {
+        return first.byteArray != second;
+    }
+
+    friend bool operator!=(const char *first, const Utf8String &second) { return second != first; }
+
     friend bool operator==(const Utf8String &first, const QString &second)
     {
         return first.byteArray == second.toUtf8();

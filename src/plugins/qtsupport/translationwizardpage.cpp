@@ -41,6 +41,8 @@
 #include <QPair>
 #include <QVBoxLayout>
 
+#include <algorithm>
+
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -107,6 +109,8 @@ TranslationWizardPage::TranslationWizardPage(const QString &enabledExpr)
                 });
     sort(localeStrings, [](const LocalePair &l1, const LocalePair &l2) {
         return l1.first < l2.first; });
+    localeStrings.erase(std::unique(localeStrings.begin(), localeStrings.end()),
+                        localeStrings.end());
     for (const LocalePair &lp : qAsConst(localeStrings))
         m_languageComboBox.addItem(lp.first, lp.second);
     formLayout->addRow(tr("Language:"), &m_languageComboBox);

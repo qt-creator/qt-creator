@@ -83,6 +83,35 @@ public:
             }
         }
 
+        CMakeConfigItem toCMakeConfigItem() const {
+            CMakeConfigItem cmi;
+            cmi.key = key.toUtf8();
+            cmi.value = value.toUtf8();
+            switch (type) {
+                case DataItem::BOOLEAN:
+                    cmi.type = CMakeConfigItem::BOOL;
+                    break;
+                case DataItem::FILE:
+                    cmi.type = CMakeConfigItem::FILEPATH;
+                    break;
+                case DataItem::DIRECTORY:
+                    cmi.type = CMakeConfigItem::PATH;
+                    break;
+                case DataItem::STRING:
+                    cmi.type = CMakeConfigItem::STRING;
+                    break;
+                case DataItem::UNKNOWN:
+                    cmi.type = CMakeConfigItem::INTERNAL;
+                    break;
+            }
+            cmi.isUnset = isUnset;
+            cmi.isAdvanced = isAdvanced;
+            cmi.values = values;
+            cmi.documentation = description.toUtf8();
+
+            return cmi;
+        }
+
         enum Type { BOOLEAN, FILE, DIRECTORY, STRING, UNKNOWN};
 
         QString key;

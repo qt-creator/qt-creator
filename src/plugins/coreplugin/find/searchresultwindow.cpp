@@ -814,7 +814,7 @@ void SearchResult::setAdditionalReplaceWidget(QWidget *widget)
 */
 void SearchResult::addResult(const SearchResultItem &item)
 {
-    m_widget->addResults({item}, AddSorted);
+    m_widget->addResults({item}, AddOrdered);
 }
 
 /*!

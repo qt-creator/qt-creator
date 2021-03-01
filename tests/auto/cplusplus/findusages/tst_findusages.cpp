@@ -2021,7 +2021,7 @@ void tst_FindUsages::writableRefs()
 struct S {
     S() : value2(value) {}
     static int value;
-    int value2;
+    int value2 : 2;
     static void *p;
     static const void *p2;
     struct Nested {

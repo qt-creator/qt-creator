@@ -796,6 +796,14 @@ void MainWindow::registerDefaultActions()
 //    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
 //    tmpaction->setEnabled(true);
 //    connect(tmpaction, &QAction::triggered, qApp, &QApplication::aboutQt);
+
+    // Contact
+    tmpaction = new QAction(tr("Contact..."), this);
+    cmd = ActionManager::registerAction(tmpaction, "QtCreator.Contact");
+    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
+    tmpaction->setEnabled(true);
+    connect(tmpaction, &QAction::triggered, this, &MainWindow::contact);
+
     // About sep
     if (!HostOsInfo::isMacHost()) { // doesn't have the "About" actions in the Help menu
         tmpaction = new QAction(this);
@@ -1235,6 +1243,33 @@ void MainWindow::aboutPlugins()
 {
     PluginDialog dialog(this);
     dialog.exec();
+}
+
+void MainWindow::contact()
+{
+    QMessageBox dlg(QMessageBox::Information, tr("Contact"),
+           tr("<p>Qt Creator developers can be reached at the Qt Creator mailing list:</p>"
+              "%1"
+              "<p>or the #qt-creator channel on FreeNode IRC:</p>"
+              "%2"
+              "<p>Our bug tracker is located at %3.</p>"
+              "<p>Please use %4 for bigger chunks of text.</p>")
+                    .arg("<p>&nbsp;&nbsp;&nbsp;&nbsp;"
+                            "<a href=\"https://lists.qt-project.org/listinfo/qt-creator\">"
+                            "mailto:qt-creator@qt-project.org"
+                         "</a></p>")
+                    .arg("<p>&nbsp;&nbsp;&nbsp;&nbsp;"
+                            "<a href=\"https://irc.freenode.org\">"
+                            "irc://freenode.org/qt-creator"
+                         "</a></p>")
+                    .arg("<a href=\"https://bugreports.qt.io/projects/QTCREATORBUG\">"
+                            "https://bugreports.qt.io"
+                         "</a>")
+                    .arg("<a href=\"https://pastebin.com\">"
+                            "https://pastebin.com"
+                         "</a>"),
+           QMessageBox::Ok, this);
+    dlg.exec();
 }
 
 QPrinter *MainWindow::printer() const

@@ -229,7 +229,8 @@ public:
             }
             if (const auto declarator = (*it)->asDeclarator()) {
                 if (containsToken(declarator->core_declarator)) {
-                    if (declarator->initializer && (!declarator->postfix_declarator_list
+                    if (declarator->initializer && declarator->equal_token
+                            && (!declarator->postfix_declarator_list
                             || !declarator->postfix_declarator_list->value
                             || !declarator->postfix_declarator_list->value->asFunctionDeclarator())) {
                         return Usage::Type::Initialization;

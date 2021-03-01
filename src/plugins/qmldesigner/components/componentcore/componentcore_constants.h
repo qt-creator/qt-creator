@@ -90,6 +90,7 @@ const char fitSelectionToScreenCommandId[] = "FitSelectionToScreen";
 const char editAnnotationCommandId[] = "EditAnnotation";
 
 const char openSignalDialogCommandId[] = "OpenSignalDialog";
+const char update3DAssetCommandId[] = "Update3DAsset";
 
 const char selectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Selection");
 const char flowConnectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Connect");
@@ -131,6 +132,7 @@ const char moveToComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextM
 const char editAnnotationDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit Annotation");
 
 const char openSignalDialogDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Open Signal Dialog");
+const char update3DAssetDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Update 3D Asset");
 
 const char setIdDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Set Id");
 

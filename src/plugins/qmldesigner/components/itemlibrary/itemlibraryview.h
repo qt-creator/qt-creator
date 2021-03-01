@@ -55,6 +55,8 @@ public:
     void usedImportsChanged(const QList<Import> &usedImports) override;
     void documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings) override;
     void updateImport3DSupport(const QVariantMap &supportMap) override;
+    void customNotification(const AbstractView *view, const QString &identifier,
+                            const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
 
     void setResourcePath(const QString &resourcePath);
 

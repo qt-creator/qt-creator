@@ -129,6 +129,7 @@ private:
     static void setFocusToEditor();
     void aboutQtCreator();
     void aboutPlugins();
+    void contact();
     void updateFocusWidget(QWidget *old, QWidget *now);
     NavigationWidget *navigationWidget(Side side) const;
     void setSidebarVisible(bool visible, Side side);

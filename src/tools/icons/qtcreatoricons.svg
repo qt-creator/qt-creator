@@ -9334,6 +9334,28 @@
          id="path5210-3" />
     </g>
     <g
+       id="src/plugins/projectexplorer/images/fileoverlay_product"
+       transform="translate(160)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#transparentBackgroundRect"
+         id="use2479-2"
+         width="100%"
+         transform="translate(80,68)"
+         height="100%" />
+      <path
+         id="path2592"
+         style="fill:#6300aa;stroke:#ffffff;stroke-width:2;stroke-linejoin:round;stroke-opacity:0.75;paint-order:stroke fill"
+         d="m 73.99414,527.11523 -1.03125,0.42579 0.22852,1.06445 -0.58399,0.58789 -1.0664,-0.22852 -0.42579,1.0293 0.91407,0.5918 v 0.82812 l -0.91407,0.5918 0.42579,1.03125 1.06445,-0.22852 0.58789,0.58399 -0.22852,1.0664 1.0293,0.42579 0.5918,-0.91407 h 0.82812 l 0.5918,0.91407 1.03125,-0.42579 -0.22852,-1.06445 0.58399,-0.58789 1.0664,0.22852 0.42579,-1.0293 -0.91407,-0.5918 v -0.82812 l 0.91407,-0.5918 -0.42579,-1.03125 -1.06445,0.22852 -0.58789,-0.58399 0.22852,-1.0664 -1.0293,-0.42579 -0.5918,0.91407 h -0.82812 z" />
+      <circle
+         style="fill:none;stroke:#ffffff"
+         id="path2669"
+         cx="75"
+         cy="531"
+         r="1.5" />
+    </g>
+    <g
        id="src/libs/utils/images/filesave">
       <rect
          style="display:inline;fill:#ffffff;fill-opacity:1"

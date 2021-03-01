@@ -327,8 +327,19 @@
 
     \section1 Viewing Type Hierarchy
 
-    To view the base classes of a class, right-click the class and select
-    \uicontrol {Open Type Hierarchy} or press \key {Ctrl+Shift+T}.
+    To view the base classes and derived classes of a class, right-click the
+    class in the code editor and select \uicontrol {Open Type Hierarchy} or
+    press \key {Ctrl+Shift+T}.
+
+    \image qtcreator-type-hierarchy-view.png "Type Hierarchy view"
+
+    To navigate in the type hierarchy, double-click a class or select it,
+    and then select \uicontrol {Open Type Hierarchy} in the context menu.
+    The previous class is highlighted in the view.
+
+    The definition of the selected class is opened in the code editor. You
+    can also select \uicontrol {Open in Editor} in the context menu to open
+    it.
 
     \section1 Viewing Include Hierarchy
 

@@ -54,7 +54,8 @@ public:
 
     void importQuick3D(const QStringList &inputFiles, const QString &importPath,
                        const QVector<QJsonObject> &options,
-                       const QHash<QString, int> &extToImportOptionsMap);
+                       const QHash<QString, int> &extToImportOptionsMap,
+                       const QSet<QString> &preselectedFilesForOverwrite);
 
     bool isImporting() const;
     void cancelImport();
@@ -91,8 +92,10 @@ private:
     void notifyFinished();
     void reset();
     void parseFiles(const QStringList &filePaths, const QVector<QJsonObject> &options,
-                    const QHash<QString, int> &extToImportOptionsMap);
-    bool preParseQuick3DAsset(const QString &file, ParseData &pd);
+                    const QHash<QString, int> &extToImportOptionsMap,
+                    const QSet<QString> &preselectedFilesForOverwrite);
+    bool preParseQuick3DAsset(const QString &file, ParseData &pd,
+                              const QSet<QString> &preselectedFilesForOverwrite);
     void postParseQuick3DAsset(const ParseData &pd);
     void copyImportedFiles();
 

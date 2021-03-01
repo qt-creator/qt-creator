@@ -1412,6 +1412,17 @@ void DesignerActionManager::createDefaultDesignerActions()
                           66,
                           &openSignalDialog,
                           &singleSelectionAndHasSlotTrigger));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          update3DAssetCommandId,
+                          update3DAssetDisplayName,
+                          {},
+                          rootCategory,
+                          QKeySequence(),
+                          priorityGenericToolBar,
+                          &updateImported3DAsset,
+                          &selectionIsImported3DAsset,
+                          &selectionIsImported3DAsset));
 }
 
 void DesignerActionManager::createDefaultAddResourceHandler()

@@ -33,16 +33,19 @@
 #include "rewritertransaction.h"
 #include "rewritingexception.h"
 
+#include <utils/algorithm.h>
+
+#include <QApplication>
 #include <QDir>
 #include <QDirIterator>
-#include <QSaveFile>
 #include <QFile>
-#include <QLoggingCategory>
-#include <QTemporaryDir>
-#include <QApplication>
-#include <QMessageBox>
 #include <QJsonDocument>
+#include <QJsonObject>
+#include <QLoggingCategory>
+#include <QMessageBox>
 #include <QPushButton>
+#include <QSaveFile>
+#include <QTemporaryDir>
 
 namespace
 {
@@ -64,7 +67,8 @@ ItemLibraryAssetImporter::~ItemLibraryAssetImporter() {
 void ItemLibraryAssetImporter::importQuick3D(const QStringList &inputFiles,
                                              const QString &importPath,
                                              const QVector<QJsonObject> &options,
-                                             const QHash<QString, int> &extToImportOptionsMap)
+                                             const QHash<QString, int> &extToImportOptionsMap,
+                                             const QSet<QString> &preselectedFilesForOverwrite)
 {
     if (m_isImporting)
         cancelImport();
@@ -79,7 +83,7 @@ void ItemLibraryAssetImporter::importQuick3D(const QStringList &inputFiles,
 
     m_importPath = importPath;
 
-    parseFiles(inputFiles, options, extToImportOptionsMap);
+    parseFiles(inputFiles, options, extToImportOptionsMap, preselectedFilesForOverwrite);
 
     if (!isCancelled()) {
         const auto parseData = m_parseData;
@@ -203,7 +207,8 @@ void ItemLibraryAssetImporter::reset()
 
 void ItemLibraryAssetImporter::parseFiles(const QStringList &filePaths,
                                           const QVector<QJsonObject> &options,
-                                          const QHash<QString, int> &extToImportOptionsMap)
+                                          const QHash<QString, int> &extToImportOptionsMap,
+                                          const QSet<QString> &preselectedFilesForOverwrite)
 {
     if (isCancelled())
         return;
@@ -219,7 +224,7 @@ void ItemLibraryAssetImporter::parseFiles(const QStringList &filePaths,
         int index = extToImportOptionsMap.value(QFileInfo(file).suffix());
         ParseData pd;
         pd.options = options[index];
-        if (preParseQuick3DAsset(file, pd)) {
+        if (preParseQuick3DAsset(file, pd, preselectedFilesForOverwrite)) {
             pd.importId = ++m_importIdCounter;
             m_parseData.insert(pd.importId, pd);
         }
@@ -227,7 +232,8 @@ void ItemLibraryAssetImporter::parseFiles(const QStringList &filePaths,
     }
 }
 
-bool ItemLibraryAssetImporter::preParseQuick3DAsset(const QString &file, ParseData &pd)
+bool ItemLibraryAssetImporter::preParseQuick3DAsset(const QString &file, ParseData &pd,
+                                                    const QSet<QString> &preselectedFilesForOverwrite)
 {
     pd.targetDir = QDir(m_importPath);
     pd.outDir = QDir(m_tempDir->path());
@@ -264,7 +270,9 @@ bool ItemLibraryAssetImporter::preParseQuick3DAsset(const QString &file, ParseDa
             pd.assetName = assetDirs[0];
             pd.targetDirPath = pd.targetDir.filePath(pd.assetName);
         }
-        OverwriteResult result = confirmAssetOverwrite(pd.assetName);
+        OverwriteResult result = preselectedFilesForOverwrite.isEmpty()
+                ? confirmAssetOverwrite(pd.assetName)
+                : OverwriteResult::Update;
         if (result == OverwriteResult::Skip) {
             addWarning(tr("Skipped import of existing asset: \"%1\"").arg(pd.assetName));
             return false;
@@ -282,8 +290,11 @@ bool ItemLibraryAssetImporter::preParseQuick3DAsset(const QString &file, ParseDa
                 alwaysOverwrite.insert(iconIt.fileInfo().absoluteFilePath());
             }
             alwaysOverwrite.insert(sourceSceneTargetFilePath(pd));
+            alwaysOverwrite.insert(pd.targetDirPath + '/' + Constants::QUICK_3D_ASSET_IMPORT_DATA_NAME);
 
-            Internal::AssetImportUpdateDialog dlg {pd.targetDirPath, {}, alwaysOverwrite,
+            Internal::AssetImportUpdateDialog dlg {pd.targetDirPath,
+                                                   preselectedFilesForOverwrite,
+                                                   alwaysOverwrite,
                                                    qobject_cast<QWidget *>(parent())};
             int exitVal = dlg.exec();
 
@@ -291,7 +302,7 @@ bool ItemLibraryAssetImporter::preParseQuick3DAsset(const QString &file, ParseDa
             if (exitVal == QDialog::Accepted)
                 overwriteFiles = dlg.selectedFiles();
             if (!overwriteFiles.isEmpty()) {
-                overwriteFiles.append(QStringList::fromSet(alwaysOverwrite));
+                overwriteFiles.append(Utils::toList(alwaysOverwrite));
                 m_overwrittenImports.insert(pd.targetDirPath, overwriteFiles);
             } else {
                 addWarning(tr("No files selected for overwrite, skipping import: \"%1\"").arg(pd.assetName));
@@ -421,6 +432,18 @@ void ItemLibraryAssetImporter::postParseQuick3DAsset(const ParseData &pd)
         }
     }
 
+    // Generate import metadata file
+    const QString sourcePath = pd.sourceInfo.absoluteFilePath();
+    QString importDataFileName = outDir.absoluteFilePath(Constants::QUICK_3D_ASSET_IMPORT_DATA_NAME);
+    QSaveFile importDataFile(importDataFileName);
+    if (importDataFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        QJsonObject optObj;
+        optObj.insert(Constants::QUICK_3D_ASSET_IMPORT_DATA_OPTIONS_KEY, pd.options);
+        optObj.insert(Constants::QUICK_3D_ASSET_IMPORT_DATA_SOURCE_KEY, sourcePath);
+        importDataFile.write(QJsonDocument{optObj}.toJson());
+        importDataFile.commit();
+    }
+
     // Gather all generated files
     QDirIterator dirIt(outDir.path(), QDir::Files, QDirIterator::Subdirectories);
     while (dirIt.hasNext()) {
@@ -429,7 +452,7 @@ void ItemLibraryAssetImporter::postParseQuick3DAsset(const ParseData &pd)
     }
 
     // Copy the original asset into a subdirectory
-    assetFiles.insert(pd.sourceInfo.absoluteFilePath(), sourceSceneTargetFilePath(pd));
+    assetFiles.insert(sourcePath, sourceSceneTargetFilePath(pd));
     m_importFiles.insert(assetFiles);
 }
 

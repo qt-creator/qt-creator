@@ -91,7 +91,6 @@ public slots:
     void setWordWrapEnabled(bool wrap);
 
 protected:
-    bool isScrollbarAtBottom() const;
     virtual void handleLink(const QPoint &pos);
 
 private:
