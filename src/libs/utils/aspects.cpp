@@ -1703,6 +1703,38 @@ void StringListAspect::setValue(const QStringList &value)
     BaseAspect::setValue(value);
 }
 
+void StringListAspect::appendValue(const QString &s, bool allowDuplicates)
+{
+    QStringList val = value();
+    if (allowDuplicates || !val.contains(s))
+        val.append(s);
+    setValue(val);
+}
+
+void StringListAspect::removeValue(const QString &s)
+{
+    QStringList val = value();
+    val.removeAll(s);
+    setValue(val);
+}
+
+void StringListAspect::appendValues(const QStringList &values, bool allowDuplicates)
+{
+    QStringList val = value();
+    for (const QString &s : values) {
+        if (allowDuplicates || !val.contains(s))
+            val.append(s);
+    }
+    setValue(val);
+}
+
+void StringListAspect::removeValues(const QStringList &values)
+{
+    QStringList val = value();
+    for (const QString &s : values)
+        val.removeAll(s);
+    setValue(val);
+}
 /*!
     \class Utils::TextDisplay
 

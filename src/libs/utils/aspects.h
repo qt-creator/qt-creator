@@ -428,6 +428,11 @@ public:
     QStringList value() const;
     void setValue(const QStringList &val);
 
+    void appendValue(const QString &value, bool allowDuplicates = true);
+    void removeValue(const QString &value);
+    void appendValues(const QStringList &values, bool allowDuplicates = true);
+    void removeValues(const QStringList &values);
+
 private:
     std::unique_ptr<Internal::StringListAspectPrivate> d;
 };
