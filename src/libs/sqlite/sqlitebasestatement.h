@@ -349,7 +349,7 @@ public:
         bindValues(queryValues...);
 
         while (BaseStatement::next())
-            pushBackToContainer<ResultTypeCount>(container);
+            emplaceBackValues<ResultTypeCount>(container);
 
         resetter.reset();
     }
@@ -446,19 +446,6 @@ private:
     CallbackControl callCallable(Callable &&callable)
     {
         return callCallable(callable, std::make_integer_sequence<int, ResultTypeCount>{});
-    }
-
-    template<typename Container, int... ColumnIndices>
-    void pushBackToContainer(Container &container, std::integer_sequence<int, ColumnIndices...>)
-    {
-        using Type = typename Container::value_type;
-        container.push_back(Type(ValueGetter(*this, ColumnIndices)...));
-    }
-
-    template<int ResultTypeCount, typename Container>
-    void pushBackToContainer(Container &container)
-    {
-        pushBackToContainer(container, std::make_integer_sequence<int, ResultTypeCount>{});
     }
 
     template<typename ValueType>
