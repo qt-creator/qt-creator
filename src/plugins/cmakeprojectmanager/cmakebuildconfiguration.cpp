@@ -526,8 +526,7 @@ void CMakeBuildSettingsWidget::updateButtonState()
             });
 
     m_resetButton->setEnabled(m_configModel->hasChanges() && !isParsing);
-    m_reconfigureButton->setEnabled((!configChanges.isEmpty() || m_configModel->hasCMakeChanges())
-                                    && !isParsing);
+    m_reconfigureButton->setEnabled(!configChanges.isEmpty() && !isParsing);
     m_buildConfiguration->setConfigurationChanges(configChanges);
 }
 
