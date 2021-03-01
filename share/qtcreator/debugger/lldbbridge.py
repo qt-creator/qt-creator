@@ -849,7 +849,7 @@ class Dumper(DumperBase):
     def lookupNativeTypeInAllModules(self, name):
         needle = self.canonicalTypeName(name)
         #DumperBase.warn('NEEDLE: %s ' % needle)
-        self.warn('Searching for type %s across all target modules, this could be very slow' % name)
+        DumperBase.warn('Searching for type %s across all target modules, this could be very slow' % name)
         for i in range(self.target.GetNumModules()):
             module = self.target.GetModuleAtIndex(i)
             # SBModule.GetType is new somewhere after early 300.x
