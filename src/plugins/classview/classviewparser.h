@@ -54,27 +54,28 @@ public:
 
     void requestCurrentState();
     void removeFiles(const QStringList &fileList);
-    void resetDataToCurrentState();
+    void resetData(const QHash<Utils::FilePath, QPair<QString, Utils::FilePaths>> &projects);
+    void addProject(const Utils::FilePath &projectPath, const QString &projectName,
+                    const Utils::FilePaths &filesInProject);
+    void removeProject(const Utils::FilePath &projectPath);
     void setFlatMode(bool flat);
 
-    void updateDocuments(const QList<CPlusPlus::Document::Ptr> &docs);
+    void updateDocuments(const QSet<Utils::FilePath> &documentPaths);
 
 signals:
     void treeRegenerated(const ParserTreeItem::ConstPtr &root);
 
 private:
-    void setFileList(const QStringList &fileList);
-    void resetData(const CPlusPlus::Snapshot &snapshot);
+    void updateDocumentsFromSnapshot(const QSet<Utils::FilePath> &documentPaths,
+                                     const CPlusPlus::Snapshot &snapshot);
 
     ParserTreeItem::ConstPtr getParseDocumentTree(const CPlusPlus::Document::Ptr &doc);
     ParserTreeItem::ConstPtr getCachedOrParseDocumentTree(const CPlusPlus::Document::Ptr &doc);
-    ParserTreeItem::ConstPtr getParseProjectTree(const QStringList &fileList, const QString &projectId);
-    ParserTreeItem::ConstPtr getCachedOrParseProjectTree(const QStringList &fileList,
-                                                    const QString &projectId);
+    ParserTreeItem::ConstPtr getParseProjectTree(const Utils::FilePath &projectPath,
+                                                 const QSet<Utils::FilePath> &filesInProject);
+    ParserTreeItem::ConstPtr getCachedOrParseProjectTree(const Utils::FilePath &projectPath,
+                                                         const QSet<Utils::FilePath> &filesInProject);
     ParserTreeItem::ConstPtr parse();
-
-    QStringList getAllFiles(const ProjectExplorer::Project *project);
-    ParserTreeItem::ConstPtr addFlatTree(const ProjectExplorer::Project *project);
 
     //! Private class data pointer
     ParserPrivate *d;

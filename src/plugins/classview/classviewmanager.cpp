@@ -44,6 +44,7 @@
 #include <QTimer>
 
 using namespace Core;
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace ClassView {
@@ -94,7 +95,7 @@ public:
     ParserTreeItem::ConstPtr m_root;
 
     QTimer m_timer;
-    QHash<QString, CPlusPlus::Document::Ptr> m_awaitingDocuments;
+    QSet<FilePath> m_awaitingDocuments;
 
     //! Internal manager state. \sa Manager::state
     bool state = false;
@@ -116,7 +117,15 @@ void ManagerPrivate::cancelScheduledUpdate()
 void ManagerPrivate::resetParser()
 {
     cancelScheduledUpdate();
-    QMetaObject::invokeMethod(m_parser, &Parser::resetDataToCurrentState, Qt::QueuedConnection);
+
+    QHash<FilePath, QPair<QString, FilePaths>> projectData;
+    for (const Project *project : SessionManager::projects()) {
+        projectData.insert(project->projectFilePath(),
+                           qMakePair(project->displayName(), project->files(Project::SourceFiles)));
+    }
+    QMetaObject::invokeMethod(m_parser, [this, projectData]() {
+        m_parser->resetData(projectData);
+    }, Qt::QueuedConnection);
 }
 
 /*!
@@ -218,15 +227,26 @@ bool Manager::hasChildren(QStandardItem *item) const
 
 void Manager::initialize()
 {
-    using ProjectExplorer::SessionManager;
     d->m_timer.setSingleShot(true);
 
     // connections to enable/disable navi widget factory
     SessionManager *sessionManager = SessionManager::instance();
     connect(sessionManager, &SessionManager::projectAdded,
-            this, &Manager::onProjectListChanged);
+            this, [this](Project *project) {
+        const FilePath projectPath = project->projectFilePath();
+        const QString projectName = project->displayName();
+        const FilePaths projectFiles = project->files(Project::SourceFiles);
+        QMetaObject::invokeMethod(d->m_parser, [this, projectPath, projectName, projectFiles]() {
+            d->m_parser->addProject(projectPath, projectName, projectFiles);
+        }, Qt::QueuedConnection);
+    });
     connect(sessionManager, &SessionManager::projectRemoved,
-            this, &Manager::onProjectListChanged);
+            this, [this](Project *project) {
+        const FilePath projectPath = project->projectFilePath();
+        QMetaObject::invokeMethod(d->m_parser, [this, projectPath]() {
+            d->m_parser->removeProject(projectPath);
+        }, Qt::QueuedConnection);
+    });
 
     // connect to the progress manager for signals about Parsing tasks
     connect(ProgressManager::instance(), &ProgressManager::taskStarted,
@@ -283,12 +303,12 @@ void Manager::initialize()
         if (doc.data() == nullptr)
             return;
 
-        d->m_awaitingDocuments.insert(doc->fileName(), doc);
+        d->m_awaitingDocuments.insert(FilePath::fromString(doc->fileName()));
         d->m_timer.start(400); // Accumulate multiple requests into one, restarts the timer
     });
 
     connect(&d->m_timer, &QTimer::timeout, this, [this]() {
-        const QList<CPlusPlus::Document::Ptr> docsToBeUpdated = d->m_awaitingDocuments.values();
+        const QSet<FilePath> docsToBeUpdated = d->m_awaitingDocuments;
         d->cancelScheduledUpdate();
         if (!state() || d->disableCodeParser) // enabling any of them will trigger the total update
             return;
@@ -346,20 +366,7 @@ void Manager::onWidgetVisibilityIsChanged(bool visibility)
     if (!visibility)
         return;
     setState(true);
-    onProjectListChanged();
-}
-
-/*!
-    Reacts to the project list being changed by updating the navigation pane
-    visibility if necessary.
-*/
-
-void Manager::onProjectListChanged()
-{
-    // do nothing if Manager is disabled
-    if (!state())
-        return;
-
+    // TODO: this one may change into getter (when a new class view widget is being shown)
     QMetaObject::invokeMethod(d->m_parser, &Parser::requestCurrentState, Qt::QueuedConnection);
 }
 

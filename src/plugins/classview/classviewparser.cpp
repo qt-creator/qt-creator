@@ -32,18 +32,13 @@
 
 // other
 #include <cpptools/cppmodelmanager.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
-#include <projectexplorer/project.h>
-
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QStandardItem>
+#include <QElapsedTimer>
 #include <QDebug>
 #include <QHash>
 #include <QSet>
-#include <QElapsedTimer>
 
 enum { debug = false };
 
@@ -67,17 +62,11 @@ namespace Internal {
    \brief The Parser class parses C++ information. Multithreading is supported.
 */
 
-/*!
-    \fn void Parser::treeDataUpdate(QSharedPointer<QStandardItem> result)
-
-    Emits a signal about a tree data update.
-*/
-
 class ParserPrivate
 {
 public:
     //! Get document from documentList
-    CPlusPlus::Document::Ptr document(const QString &fileName) const;
+    CPlusPlus::Document::Ptr document(const Utils::FilePath &fileName) const;
 
     struct DocumentCache {
         unsigned treeRevision = 0;
@@ -87,23 +76,20 @@ public:
     struct ProjectCache {
         unsigned treeRevision = 0;
         ParserTreeItem::ConstPtr tree;
-        QStringList fileList;
+        QString projectName;
+        QSet<FilePath> fileNames;
     };
 
     // Project file path to its cached data
-    QHash<QString, DocumentCache> m_documentCache;
+    QHash<FilePath, DocumentCache> m_documentCache;
     // Project file path to its cached data
-    QHash<QString, ProjectCache> m_projectCache;
-
-    // other
-    //! List for files which has to be parsed
-    QSet<QString> fileList;
+    QHash<FilePath, ProjectCache> m_projectCache;
 
     //! Flat mode
     bool flatMode = false;
 };
 
-CPlusPlus::Document::Ptr ParserPrivate::document(const QString &fileName) const
+CPlusPlus::Document::Ptr ParserPrivate::document(const FilePath &fileName) const
 {
     return m_documentCache.value(fileName).document;
 }
@@ -161,16 +147,14 @@ ParserTreeItem::ConstPtr Parser::parse()
 
     QHash<SymbolInformation, ParserTreeItem::ConstPtr> projectTrees;
 
-    // TODO: move a call to SessionManager::projects() out of this thread
-    for (const Project *prj : SessionManager::projects()) {
-        const QString prjName(prj->displayName());
-        const QString prjType = prj->projectFilePath().toString();
-        const SymbolInformation inf(prjName, prjType);
-
-        ParserTreeItem::ConstPtr item = addFlatTree(prj);
+    for (auto it = d->m_projectCache.cbegin(); it != d->m_projectCache.cend(); ++it) {
+        const ParserPrivate::ProjectCache &projectCache = it.value();
+        const FilePath projectPath = it.key();
+        const SymbolInformation projectInfo = { projectCache.projectName, projectPath.toString() };
+        ParserTreeItem::ConstPtr item = getCachedOrParseProjectTree(projectPath, projectCache.fileNames);
         if (item.isNull())
             continue;
-        projectTrees.insert(inf, item);
+        projectTrees.insert(projectInfo, item);
     }
 
     ParserTreeItem::ConstPtr rootItem(new ParserTreeItem(projectTrees));
@@ -189,16 +173,16 @@ ParserTreeItem::ConstPtr Parser::parse()
     project.
 */
 
-ParserTreeItem::ConstPtr Parser::getParseProjectTree(const QStringList &fileList,
-                                                const QString &projectId)
+ParserTreeItem::ConstPtr Parser::getParseProjectTree(const FilePath &projectPath,
+                                                     const QSet<FilePath> &filesInProject)
 {
     //! \todo Way to optimize - for documentUpdate - use old cached project and subtract
     //! changed files only (old edition), and add curent editions
 
     QList<ParserTreeItem::ConstPtr> docTrees;
     unsigned revision = 0;
-    for (const QString &file : fileList) {
-        const CPlusPlus::Document::Ptr &doc = d->document(file);
+    for (const FilePath &fileInProject : filesInProject) {
+        const CPlusPlus::Document::Ptr &doc = d->document(fileInProject);
         if (doc.isNull())
             continue;
 
@@ -210,11 +194,11 @@ ParserTreeItem::ConstPtr Parser::getParseProjectTree(const QStringList &fileList
         docTrees.append(docTree);
     }
 
-    ParserTreeItem::ConstPtr item = ParserTreeItem::mergeTrees(Utils::FilePath::fromString(projectId), docTrees);
+    ParserTreeItem::ConstPtr item = ParserTreeItem::mergeTrees(projectPath, docTrees);
 
     // update the cache
-    if (!projectId.isEmpty()) {
-        ParserPrivate::ProjectCache &projectCache = d->m_projectCache[projectId];
+    if (!projectPath.isEmpty()) {
+        ParserPrivate::ProjectCache &projectCache = d->m_projectCache[projectPath];
         projectCache.tree = item;
         projectCache.treeRevision = revision;
     }
@@ -227,15 +211,15 @@ ParserTreeItem::ConstPtr Parser::getParseProjectTree(const QStringList &fileList
     Updates the internal cached tree for this project.
 */
 
-ParserTreeItem::ConstPtr Parser::getCachedOrParseProjectTree(const QStringList &fileList,
-                                                        const QString &projectId)
+ParserTreeItem::ConstPtr Parser::getCachedOrParseProjectTree(const FilePath &projectPath,
+                                                             const QSet<FilePath> &filesInProject)
 {
-    const auto it = d->m_projectCache.constFind(projectId);
+    const auto it = d->m_projectCache.constFind(projectPath);
     if (it != d->m_projectCache.constEnd() && !it.value().tree.isNull()) {
         // calculate project's revision
         unsigned revision = 0;
-        for (const QString &file : fileList) {
-            const CPlusPlus::Document::Ptr &doc = d->document(file);
+        for (const FilePath &fileInProject : filesInProject) {
+            const CPlusPlus::Document::Ptr &doc = d->document(fileInProject);
             if (doc.isNull())
                 continue;
             revision += doc->revision();
@@ -246,7 +230,7 @@ ParserTreeItem::ConstPtr Parser::getCachedOrParseProjectTree(const QStringList &
             return it.value().tree;
     }
 
-    return getParseProjectTree(fileList, projectId);
+    return getParseProjectTree(projectPath, filesInProject);
 }
 
 /*!
@@ -261,9 +245,7 @@ ParserTreeItem::ConstPtr Parser::getParseDocumentTree(const CPlusPlus::Document:
     if (doc.isNull())
         return ParserTreeItem::ConstPtr();
 
-    const QString &fileName = doc->fileName();
-    if (!d->fileList.contains(fileName))
-        return ParserTreeItem::ConstPtr();
+    const FilePath fileName = FilePath::fromString(doc->fileName());
 
     ParserTreeItem::ConstPtr itemPtr = ParserTreeItem::parseDocument(doc);
 
@@ -284,7 +266,7 @@ ParserTreeItem::ConstPtr Parser::getCachedOrParseDocumentTree(const CPlusPlus::D
         return ParserTreeItem::ConstPtr();
 
     const QString &fileName = doc->fileName();
-    const auto it = d->m_documentCache.constFind(fileName);
+    const auto it = d->m_documentCache.constFind(FilePath::fromString(fileName));
     if (it != d->m_documentCache.constEnd() && !it.value().tree.isNull()
             && it.value().treeRevision == doc->revision()) {
         return it.value().tree;
@@ -297,28 +279,22 @@ ParserTreeItem::ConstPtr Parser::getCachedOrParseDocumentTree(const CPlusPlus::D
     the internal storage.
 */
 
-void Parser::updateDocuments(const QList<CPlusPlus::Document::Ptr> &docs)
+void Parser::updateDocuments(const QSet<FilePath> &documentPaths)
 {
-    for (const CPlusPlus::Document::Ptr &doc: docs) {
-        const QString &name = doc->fileName();
+    updateDocumentsFromSnapshot(documentPaths, CppTools::CppModelManager::instance()->snapshot());
+}
 
-        // if it is external file (not in any of our projects)
-        if (!d->fileList.contains(name))
+void Parser::updateDocumentsFromSnapshot(const QSet<Utils::FilePath> &documentPaths,
+                                 const CPlusPlus::Snapshot &snapshot)
+{
+    for (const FilePath &documentPath : documentPaths) {
+        CPlusPlus::Document::Ptr doc = snapshot.document(documentPath);
+        if (doc.isNull())
             continue;
 
         getParseDocumentTree(doc);
     }
     requestCurrentState();
-}
-
-/*!
-    Specifies the files that must be allowed for the parsing as a \a fileList.
-    Files outside of this list will not be in any tree.
-*/
-
-void Parser::setFileList(const QStringList &fileList)
-{
-    d->fileList = Utils::toSet(fileList);
 }
 
 /*!
@@ -331,11 +307,11 @@ void Parser::removeFiles(const QStringList &fileList)
         return;
 
     for (const QString &name : fileList) {
-        d->fileList.remove(name);
-        d->m_documentCache.remove(name);
-        d->m_projectCache.remove(name);
+        const FilePath filePath = FilePath::fromString(name);
+        d->m_documentCache.remove(filePath);
+        d->m_projectCache.remove(filePath);
         for (auto it = d->m_projectCache.begin(); it != d->m_projectCache.end(); ++it)
-            it.value().fileList.removeOne(name);
+            it.value().fileNames.remove(filePath);
     }
     requestCurrentState();
 }
@@ -343,74 +319,65 @@ void Parser::removeFiles(const QStringList &fileList)
 /*!
     Fully resets the internal state of the code parser to \a snapshot.
 */
-void Parser::resetData(const CPlusPlus::Snapshot &snapshot)
+void Parser::resetData(const QHash<FilePath, QPair<QString, FilePaths>> &projects)
 {
     d->m_projectCache.clear();
     d->m_documentCache.clear();
-    for (auto it = snapshot.begin(); it != snapshot.end(); ++it)
-        d->m_documentCache[it.key().toString()].document = it.value();
 
-    // recalculate file list
-    FilePaths fileList;
+    const CPlusPlus::Snapshot &snapshot = CppTools::CppModelManager::instance()->snapshot();
+    for (auto it = projects.cbegin(); it != projects.cend(); ++it) {
+        const auto projectData = it.value();
+        QSet<FilePath> commonFiles;
+        for (const auto &fileInProject : projectData.second) {
+            CPlusPlus::Document::Ptr doc = snapshot.document(fileInProject);
+            if (doc.isNull())
+                continue;
+            commonFiles.insert(fileInProject);
+            d->m_documentCache[fileInProject].document = doc;
+        }
+        d->m_projectCache.insert(it.key(), { 0, nullptr, projectData.first, commonFiles });
+    }
 
-    // TODO: move a call to SessionManager::projects() out of this thread
-    for (const Project *prj : SessionManager::projects())
-        fileList += prj->files(Project::SourceFiles);
-    setFileList(Utils::transform(fileList, &FilePath::toString));
+    requestCurrentState();
+}
+
+void Parser::addProject(const FilePath &projectPath, const QString &projectName,
+                        const FilePaths &filesInProject)
+{
+    const CPlusPlus::Snapshot &snapshot = CppTools::CppModelManager::instance()->snapshot();
+    QSet<FilePath> commonFiles;
+    for (const auto &fileInProject : filesInProject) {
+        CPlusPlus::Document::Ptr doc = snapshot.document(fileInProject);
+        if (doc.isNull())
+            continue;
+        commonFiles.insert(fileInProject);
+        d->m_documentCache[fileInProject].document = doc;
+    }
+    d->m_projectCache.insert(projectPath, { 0, nullptr, projectName, commonFiles });
+    updateDocumentsFromSnapshot(commonFiles, snapshot);
+}
+
+void Parser::removeProject(const FilePath &projectPath)
+{
+    auto it = d->m_projectCache.find(projectPath);
+    if (it == d->m_projectCache.end())
+        return;
+
+    const QSet<FilePath> &filesInProject = it.value().fileNames;
+    for (const FilePath &fileInProject : filesInProject)
+        d->m_documentCache.remove(fileInProject);
+
+    d->m_projectCache.erase(it);
 
     requestCurrentState();
 }
 
 /*!
-    Fully resets the internal state of the code parser to the current state.
-
-    \sa resetData
-*/
-
-void Parser::resetDataToCurrentState()
-{
-    // get latest data
-    resetData(CppTools::CppModelManager::instance()->snapshot());
-}
-
-/*!
     Requests to emit a signal with the current tree state.
 */
-
 void Parser::requestCurrentState()
 {
-    // TODO: we need to have a fresh SessionManager data here, which we could pass to parse()
     emit treeRegenerated(parse());
-}
-
-// TODO: don't use Project class in this thread
-QStringList Parser::getAllFiles(const Project *project)
-{
-    if (!project)
-        return {};
-
-    const QString projectPath = project->projectFilePath().toString();
-    const auto it = d->m_projectCache.constFind(projectPath);
-    if (it != d->m_projectCache.constEnd())
-        return it.value().fileList;
-
-    const QStringList fileList = Utils::transform(project->files(Project::SourceFiles),
-                                                  &FilePath::toString);
-    d->m_projectCache[projectPath].fileList = fileList;
-    return fileList;
-}
-
-// TODO: don't use Project class in this thread
-ParserTreeItem::ConstPtr Parser::addFlatTree(const Project *project)
-{
-    if (!project)
-        return {};
-
-    const QStringList fileList = getAllFiles(project);
-    if (fileList.isEmpty())
-        return {};
-
-    return getCachedOrParseProjectTree(fileList, project->projectFilePath().toString());
 }
 
 } // namespace Internal

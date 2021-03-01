@@ -60,7 +60,6 @@ signals:
     void treeDataUpdate(QSharedPointer<QStandardItem> result);
 
 private:
-    void onProjectListChanged();
     void initialize();
 
     inline bool state() const;
