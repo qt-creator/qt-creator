@@ -1862,6 +1862,56 @@ void StringListAspect::removeValues(const QStringList &values)
         val.removeAll(s);
     setValue(val);
 }
+
+/*!
+    \class Utils::IntegerListAspect
+    \inmodule QtCreator
+
+    \brief A string list aspect represents a property of some object
+    that is a list of strings.
+*/
+
+IntegersAspect::IntegersAspect()
+{
+    setDefaultValue({});
+}
+
+/*!
+    \reimp
+*/
+IntegersAspect::~IntegersAspect() = default;
+
+/*!
+    \reimp
+*/
+void IntegersAspect::addToLayout(LayoutBuilder &builder)
+{
+    Q_UNUSED(builder)
+    // TODO - when needed.
+}
+
+void IntegersAspect::emitChangedValue()
+{
+    emit valueChanged(value());
+}
+
+QList<int> IntegersAspect::value() const
+{
+    return Utils::transform(BaseAspect::value().toList(),
+                            [](QVariant v) { return v.toInt(); });
+}
+
+void IntegersAspect::setValue(const QList<int> &value)
+{
+    BaseAspect::setValue(Utils::transform(value, &QVariant::fromValue<int>));
+}
+
+void IntegersAspect::setDefaultValue(const QList<int> &value)
+{
+    BaseAspect::setDefaultValue(Utils::transform(value, &QVariant::fromValue<int>));
+}
+
+
 /*!
     \class Utils::TextDisplay
 

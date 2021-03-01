@@ -467,6 +467,25 @@ private:
     std::unique_ptr<Internal::StringListAspectPrivate> d;
 };
 
+class QTCREATOR_UTILS_EXPORT IntegersAspect : public BaseAspect
+{
+    Q_OBJECT
+
+public:
+    IntegersAspect();
+    ~IntegersAspect() override;
+
+    void addToLayout(LayoutBuilder &builder) override;
+    void emitChangedValue() override;
+
+    QList<int> value() const;
+    void setValue(const QList<int> &value);
+    void setDefaultValue(const QList<int> &value);
+
+signals:
+    void valueChanged(const QList<int> &values);
+};
+
 class QTCREATOR_UTILS_EXPORT TextDisplay : public BaseAspect
 {
     Q_OBJECT
