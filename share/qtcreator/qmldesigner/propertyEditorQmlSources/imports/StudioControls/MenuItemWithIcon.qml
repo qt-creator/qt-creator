@@ -35,9 +35,10 @@ T.MenuItem {
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
-    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
-                             implicitContentHeight + topPadding + bottomPadding,
-                             implicitIndicatorHeight + topPadding + bottomPadding)
+    implicitHeight: Math.max(
+                        implicitBackgroundHeight + topInset + bottomInset,
+                        implicitContentHeight + topPadding + bottomPadding,
+                        implicitIndicatorHeight + topPadding + bottomPadding)
 
     padding: 0
     spacing: 0
@@ -46,40 +47,33 @@ T.MenuItem {
 
     contentItem: Item {
         Text {
-            id: textLabel
-            text: control.text
-            font: control.font
-            color: control.enabled ? StudioTheme.Values.themeTextColor
-                                   : StudioTheme.Values.themeTextColorDisabled
+            id: iconLabel
+            text: control.checked ? StudioTheme.Constants.tickIcon : ""
+            visible: true
+            color: control.enabled ? StudioTheme.Values.themeTextColor : StudioTheme.Values.themeTextColorDisabled
+            font.family: StudioTheme.Constants.iconFont.family
+            font.pixelSize: StudioTheme.Values.myIconFontSize
             anchors.verticalCenter: parent.verticalCenter
         }
 
         Text {
-            id: shortcutLabel
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            text: shortcut.nativeText
+            id: textLabel
+            x: StudioTheme.Values.height
+            text: control.text
             font: control.font
-            color: textLabel.color
-
-            Shortcut {
-                id: shortcut
-                property int shortcutWorkaround: control.action.shortcut ? control.action.shortcut : 0
-                sequence: shortcutWorkaround
-            }
+            color: control.enabled ? StudioTheme.Values.themeTextColor : StudioTheme.Values.themeTextColorDisabled
+            anchors.verticalCenter: parent.verticalCenter
         }
     }
 
     background: Rectangle {
-        implicitWidth: textLabel.implicitWidth + control.labelSpacing + shortcutLabel.implicitWidth
+        implicitWidth: iconLabel.implicitWidth + textLabel.implicitWidth + control.labelSpacing
                        + control.leftPadding + control.rightPadding
         implicitHeight: StudioTheme.Values.height
         x: StudioTheme.Values.border
         y: StudioTheme.Values.border
         width: control.menu.width - (StudioTheme.Values.border * 2)
         height: control.height - (StudioTheme.Values.border * 2)
-        color: control.down ? control.palette.midlight
-                            : control.highlighted ? StudioTheme.Values.themeInteraction
-                                                  : "transparent"
+        color: control.down ? control.palette.midlight : control.highlighted ? StudioTheme.Values.themeInteraction : "transparent"
     }
 }

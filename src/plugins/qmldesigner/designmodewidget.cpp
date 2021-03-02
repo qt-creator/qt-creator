@@ -215,7 +215,7 @@ void DesignModeWidget::disableWidgets()
 static void addSpacerToToolBar(QToolBar *toolBar)
 {
     QWidget* empty = new QWidget();
-    empty->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+    empty->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     toolBar->addWidget(empty);
 }
 
@@ -231,6 +231,7 @@ void DesignModeWidget::setup()
 
     ADS::DockManager::setConfigFlags(ADS::DockManager::DefaultNonOpaqueConfig);
     ADS::DockManager::setConfigFlag(ADS::DockManager::FocusHighlighting, true);
+    ADS::DockManager::setConfigFlag(ADS::DockManager::AllTabsHaveCloseButton, true);
     m_dockManager = new ADS::DockManager(this);
     m_dockManager->setSettings(settings);
     m_dockManager->setWorkspacePresetsPath(Core::ICore::resourcePath() + QLatin1String("/qmldesigner/workspacePresets/"));
@@ -239,32 +240,30 @@ void DesignModeWidget::setup()
     m_dockManager->setStyleSheet(Theme::replaceCssColors(sheet));
 
     // Setup icons
-    const QColor iconColor(Theme::getColor(Theme::IconsBaseColor));
-    const QColor buttonColor(Theme::getColor(Theme::QmlDesigner_TabLight)); // TODO Use correct color roles
-    const QColor tabColor(Theme::getColor(Theme::QmlDesigner_TabDark));
+    const QColor iconColor(Theme::getColor(Theme::DStitleBarIcon));
 
     const QString closeUnicode = Theme::getIconUnicode(Theme::Icon::adsClose);
     const QString menuUnicode = Theme::getIconUnicode(Theme::Icon::adsDropDown);
     const QString undockUnicode = Theme::getIconUnicode(Theme::Icon::adsDetach);
 
     const QString fontName = "qtds_propertyIconFont.ttf";
-    const QIcon closeIcon = Utils::StyleHelper::getIconFromIconFont(fontName, closeUnicode, 28, 28, buttonColor);
-    const QIcon menuIcon = Utils::StyleHelper::getIconFromIconFont(fontName, menuUnicode, 28, 28, buttonColor);
-    const QIcon undockIcon = Utils::StyleHelper::getIconFromIconFont(fontName, undockUnicode, 28, 28, buttonColor);
+    const QSize size = QSize(28, 28);
 
-    auto closeIconNormal = Utils::StyleHelper::IconFontHelper(closeUnicode,
-                                                              tabColor,
-                                                              QSize(28, 28),
-                                                              QIcon::Normal,
-                                                              QIcon::Off);
+    const QIcon closeIcon = Utils::StyleHelper::getIconFromIconFont(fontName, closeUnicode, 28, 28, iconColor);
+    const QIcon menuIcon = Utils::StyleHelper::getIconFromIconFont(fontName, menuUnicode, 28, 28, iconColor);
+    const QIcon undockIcon = Utils::StyleHelper::getIconFromIconFont(fontName, undockUnicode, 28, 28, iconColor);
 
-    auto closeIconFocused = Utils::StyleHelper::IconFontHelper(closeUnicode,
-                                                               Theme::getColor(Theme::DStextColor),
-                                                               QSize(28, 28),
-                                                               QIcon::Normal,
-                                                               QIcon::On);
+    auto tabCloseIconNormal = Utils::StyleHelper::IconFontHelper(
+        closeUnicode, Theme::getColor(Theme::DStabInactiveIcon), size, QIcon::Normal, QIcon::Off);
+    auto tabCloseIconActive = Utils::StyleHelper::IconFontHelper(
+        closeUnicode, Theme::getColor(Theme::DStabActiveIcon), size, QIcon::Active, QIcon::Off);
+    auto tabCloseIconFocus = Utils::StyleHelper::IconFontHelper(
+        closeUnicode, Theme::getColor(Theme::DStabFocusIcon), size, QIcon::Selected, QIcon::Off);
 
-    const QIcon tabsCloseIcon = Utils::StyleHelper::getIconFromIconFont(fontName, {closeIconNormal, closeIconFocused});
+    const QIcon tabsCloseIcon = Utils::StyleHelper::getIconFromIconFont(
+                fontName, {tabCloseIconNormal,
+                           tabCloseIconActive,
+                           tabCloseIconFocus});
 
     ADS::DockManager::iconProvider().registerCustomIcon(ADS::TabCloseIcon, tabsCloseIcon);
     ADS::DockManager::iconProvider().registerCustomIcon(ADS::DockAreaMenuIcon, menuIcon);
@@ -470,7 +469,8 @@ void DesignModeWidget::setup()
     });
 
     const QIcon gaIcon = Utils::StyleHelper::getIconFromIconFont(
-                fontName, Theme::getIconUnicode(Theme::Icon::annotationBubble), 36, 36, iconColor);
+                fontName, Theme::getIconUnicode(Theme::Icon::annotationBubble),
+                36, 36, Theme::getColor(Theme::IconsBaseColor));
     toolBar->addAction(gaIcon, tr("Edit global annotation for current file."), [&](){
         ModelNode node = currentDesignDocument()->rewriterView()->rootModelNode();
 

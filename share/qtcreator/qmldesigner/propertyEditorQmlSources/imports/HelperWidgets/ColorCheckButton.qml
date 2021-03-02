@@ -24,34 +24,35 @@
 ****************************************************************************/
 
 import QtQuick 2.1
+import StudioTheme 1.0 as StudioTheme
 
 Item {
     id: root
     property bool checked: false
     property alias buttonColor: checkBox.color
-    width: 30
-    height: 24
+    width: StudioTheme.Values.height
+    height: StudioTheme.Values.height
 
     signal rightMouseButtonClicked
 
     Rectangle {
         id: backgroundBox
-        width: 24
-        height: 24
+        width: StudioTheme.Values.height
+        height: StudioTheme.Values.height
         anchors.right: parent.right
 
         color: "white"
         border.color: "white"
-        border.width: 1
+        border.width: StudioTheme.Values.border
 
         Rectangle {
             id: checkBox
-            width: 22
-            height: 22
+            width: StudioTheme.Values.height - 2 * StudioTheme.Values.border
+            height: StudioTheme.Values.height - 2 * StudioTheme.Values.border
             anchors.centerIn: parent
 
             border.color: "black"
-            border.width: 1
+            border.width: StudioTheme.Values.border
         }
     }
 
@@ -62,7 +63,7 @@ Item {
         source: "image://icons/down-arrow"
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: backgroundBox.left
-        anchors.rightMargin: 2
+        anchors.rightMargin: 4
         opacity: colorToolTip.containsMouse ? 1 : 0.8
         rotation: root.checked ? 0.0 : 270.0
     }

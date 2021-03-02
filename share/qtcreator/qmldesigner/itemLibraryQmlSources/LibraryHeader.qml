@@ -26,6 +26,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuickDesignerTheme 1.0
+import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
@@ -47,7 +48,7 @@ Item {
     Column {
         anchors.left: parent.left
         anchors.right: parent.right
-        spacing: 10
+        spacing: 9
 
         TabBar {
             id: tabBar
@@ -58,7 +59,7 @@ Item {
             spacing: 40
 
             background: Rectangle {
-                color: Theme.color(Theme.QmlDesigner_BackgroundColorDarkAlternate)
+                color: StudioTheme.Values.themePanelBackground
             }
 
             Repeater {
@@ -74,8 +75,9 @@ Item {
                         Text { // TabButton text
                             text: modelData.title
                             font.pixelSize: 13
-                            font.bold: true
-                            color: tabBar.currentIndex === index ? "#0094ce" : "#dadada"
+                            font.bold: false
+                            color: tabBar.currentIndex === index ? StudioTheme.Values.themeInteraction
+                                                                 : StudioTheme.Values.themeTextColor
                             anchors.left: parent.left
                             anchors.top: parent.top
                             anchors.bottom: parent.bottom
@@ -93,11 +95,8 @@ Item {
                             anchors.topMargin: 1
                             width: 24
                             height: 24
-                            color: mouseArea.containsMouse ? "#353535" : "#262626"
-
-                            ToolTip.delay: 500
-                            ToolTip.text: modelData.addToolTip
-                            ToolTip.visible: mouseArea.containsMouse
+                            color: mouseArea.containsMouse ? StudioTheme.Values.themeControlBackgroundHover
+                                                           : StudioTheme.Values.themeControlBackground
 
                             Label { // + sign
                                 text: StudioTheme.Constants.plus
@@ -106,15 +105,17 @@ Item {
                                 verticalAlignment: Text.AlignVCenter
                                 horizontalAlignment: Text.AlignHCenter
                                 anchors.centerIn: parent
-                                color: tabBar.currentIndex === index  ? "#0094ce" : "#a8a8a8"
+                                color: tabBar.currentIndex === index ? StudioTheme.Values.themeIconColorSelected
+                                                                     : StudioTheme.Values.themeIconColor
                             }
 
-                            MouseArea {
+                            HelperWidgets.ToolTipArea {
                                 id: mouseArea
                                 anchors.fill: parent
                                 hoverEnabled: true
                                 onClicked: index == 0 ? rootView.handleAddModule()
                                                       : rootView.handleAddAsset()
+                                tooltip: modelData.addToolTip
                             }
                         }
                     }
@@ -124,7 +125,8 @@ Item {
                             anchors.bottom: parent.bottom
                             width: parent.width
                             height: 2
-                            color: tabBar.currentIndex === index  ? "#0094ce" : "#a8a8a8"
+                            color: tabBar.currentIndex === index ? StudioTheme.Values.themeInteraction
+                                                                 : StudioTheme.Values.themeTextColor
                         }
                     }
 
@@ -136,29 +138,50 @@ Item {
         TextField { // filter
             id: searchFilterText
             placeholderText: qsTr("Search")
-            placeholderTextColor: "#a8a8a8"
-            color: "#dadada"
-            selectedTextColor: "#0094ce"
+            placeholderTextColor: StudioTheme.Values.themePlaceholderTextColor
+            color: StudioTheme.Values.themeTextColor
+            selectionColor: StudioTheme.Values.themeTextSelectionColor
+            selectedTextColor: StudioTheme.Values.themeTextSelectedTextColor
             background: Rectangle {
-                color: "#111111"
-                border.color: "#666666"
+                id: textFieldBackground
+                color: StudioTheme.Values.themeControlBackground
+                border.color: StudioTheme.Values.themeControlOutline
+                border.width: StudioTheme.Values.border
             }
+
+            height: StudioTheme.Values.defaultControlHeight
+
+            leftPadding: 32
+            rightPadding: 30
+
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.leftMargin: 5
             anchors.rightMargin: 5
             selectByMouse: true
+            hoverEnabled: true
 
             onTextChanged: rootView.handleSearchfilterChanged(text)
 
+            Label {
+                text: StudioTheme.Constants.search
+                font.family: StudioTheme.Constants.iconFont.family
+                font.pixelSize: 16
+                anchors.left: parent.left
+                anchors.leftMargin: 7
+                anchors.verticalCenter: parent.verticalCenter
+                color: StudioTheme.Values.themeIconColor
+            }
+
             Rectangle { // x button
-                width: 15
+                width: 16
                 height: 15
                 anchors.right: parent.right
                 anchors.rightMargin: 5
                 anchors.verticalCenter: parent.verticalCenter
                 visible: searchFilterText.text !== ""
-                color: xMouseArea.containsMouse ? "#353535" : "transparent"
+                color: xMouseArea.containsMouse ? StudioTheme.Values.themePanelBackground
+                                                : "transparent"
 
                 Label {
                     text: StudioTheme.Constants.closeCross
@@ -167,7 +190,7 @@ Item {
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     anchors.centerIn: parent
-                    color: "#dadada"
+                    color: StudioTheme.Values.themeIconColor
                 }
 
                 MouseArea {
@@ -177,6 +200,49 @@ Item {
                     onClicked: searchFilterText.text = ""
                 }
             }
+
+            states: [
+                State {
+                    name: "default"
+                    when: !searchFilterText.hovered && !searchFilterText.activeFocus
+                    PropertyChanges {
+                        target: textFieldBackground
+                        color: StudioTheme.Values.themeControlBackground
+                        border.color: StudioTheme.Values.themeControlOutline
+                    }
+                    PropertyChanges {
+                        target: searchFilterText
+                        placeholderTextColor: StudioTheme.Values.themePlaceholderTextColor
+                    }
+                },
+                State {
+                    name: "hover"
+                    when: searchFilterText.hovered && !searchFilterText.activeFocus
+                    PropertyChanges {
+                        target: textFieldBackground
+                        color: StudioTheme.Values.themeControlBackgroundHover
+                        border.color: StudioTheme.Values.themeControlOutline
+                    }
+
+                    PropertyChanges {
+                        target: searchFilterText
+                        placeholderTextColor: StudioTheme.Values.themePlaceholderTextColor
+                    }
+                },
+                State {
+                    name: "edit"
+                    when: searchFilterText.activeFocus
+                    PropertyChanges {
+                        target: textFieldBackground
+                        color: StudioTheme.Values.themeControlBackgroundInteraction
+                        border.color: StudioTheme.Values.themeControlOutlineInteraction
+                    }
+                    PropertyChanges {
+                        target: searchFilterText
+                        placeholderTextColor: StudioTheme.Values.themePlaceholderTextColorInteraction
+                    }
+                }
+            ]
         }
     }
 }

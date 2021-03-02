@@ -25,6 +25,7 @@
 
 import QtQuick 2.1
 import HelperWidgets 2.0
+import StudioTheme 1.0 as StudioTheme
 
 Item {
     width: 300
@@ -42,8 +43,8 @@ Item {
         Rectangle {
             height: 16
             width: parent.width
-            border.color: "#555555"
-            border.width: 1
+            border.color: StudioTheme.Values.themeControlOutline
+            border.width: StudioTheme.Values.border
 
             id: colorLine
             color: "white"

@@ -127,19 +127,17 @@ Section {
             text: qsTr("Alignment")
         }
 
-        AligmentHorizontalButtons {
+        Row {
+            AligmentHorizontalButtons {}
 
+            Item {
+                visible: showVerticalAlignment
+                width: 20
+                height: 2
+            }
+
+            AligmentVerticalButtons { visible: showVerticalAlignment }
         }
-
-        Label {
-            visible: showVerticalAlignment
-            text: ("")
-        }
-
-        AligmentVerticalButtons {
-            visible: showVerticalAlignment
-        }
-
 
         Label {
             visible: showFormatProperty

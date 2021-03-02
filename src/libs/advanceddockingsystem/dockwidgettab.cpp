@@ -45,6 +45,8 @@
 #include "floatingdragpreview.h"
 #include "iconprovider.h"
 
+#include <utils/theme/theme.h>
+
 #include <QApplication>
 #include <QBoxLayout>
 #include <QLabel>
@@ -54,7 +56,10 @@
 #include <QPushButton>
 #include <QSplitter>
 #include <QStyle>
+#include <QStyleOption>
 #include <QToolButton>
+#include <QPainter>
+#include <QStylePainter>
 
 #include <iostream>
 
@@ -81,7 +86,7 @@ namespace ADS
         eDragState m_dragState = DraggingInactive;
         AbstractFloatingWidget *m_floatingWidget = nullptr;
         QIcon m_icon;
-        QAbstractButton *m_closeButton = nullptr;
+        TabButton *m_closeButton = nullptr;
         QPoint m_tabDragStartPosition;
 
         /**
@@ -122,8 +127,9 @@ namespace ADS
         /**
          * Creates the close button as QPushButton or as QToolButton
          */
-        QAbstractButton *createCloseButton() const
+        TabButton *createCloseButton() const
         {
+            /*
             if (testConfigFlag(DockManager::TabCloseButtonIsToolButton)) {
                 auto button = new QToolButton();
                 button->setAutoRaise(true);
@@ -131,6 +137,8 @@ namespace ADS
             } else {
                 return new QPushButton();
             }
+            */
+            return new TabButton();
         }
 
         template<typename T>
@@ -179,7 +187,8 @@ namespace ADS
                                 QStyle::SP_TitleBarCloseButton,
                                 TabCloseIcon);
         m_closeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        m_closeButton->setIconSize(QSize(14, 14));
+        m_closeButton->setIconSize(QSize(11, 11));
+        m_closeButton->setFixedSize(QSize(17, 17));
         q->onDockWidgetFeaturesChanged();
         internal::setToolTip(m_closeButton, QObject::tr("Close Tab"));
         QObject::connect(m_closeButton,
@@ -196,9 +205,9 @@ namespace ADS
         boxLayout->setSpacing(0);
         q->setLayout(boxLayout);
         boxLayout->addWidget(m_titleLabel, 1, Qt::AlignVCenter);
-        boxLayout->addSpacing(spacing);
-        boxLayout->addWidget(m_closeButton, 0, Qt::AlignVCenter);
         boxLayout->addSpacing(qRound(spacing * 4.0 / 3.0));
+        boxLayout->addWidget(m_closeButton, 0, Qt::AlignVCenter);
+        boxLayout->addSpacing(1);
         boxLayout->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
 
         if (DockManager::testConfigFlag(DockManager::FocusHighlighting))
@@ -262,6 +271,39 @@ namespace ADS
 
         return true;
     }
+
+
+    TabButton::TabButton(QWidget *parent)
+        : TabButtonType(parent)
+        , m_active(false)
+        , m_focus(false)
+    {}
+
+    void TabButton::setActive(bool value) { m_active = value; }
+    void TabButton::setFocus(bool value) { m_focus = value; }
+
+    void TabButton::paintEvent(QPaintEvent *event)
+    {
+        Q_UNUSED(event)
+
+        QStylePainter p(this);
+        QStyleOptionToolButton opt;
+        initStyleOption(&opt);
+        opt.icon = QIcon(); // set to null icon otherwise it is drawn twice
+        p.drawComplexControl(QStyle::CC_ToolButton, opt);
+
+        QIcon::Mode mode = QIcon::Mode::Normal;
+        if (m_active)
+            mode = QIcon::Mode::Active;
+        if (m_focus)
+            mode = QIcon::Mode::Selected;
+
+        const QPoint iconPosition = rect().center() - QPoint(iconSize().width() * 0.5,
+                                                             iconSize().height() * 0.5);
+
+        p.drawPixmap(iconPosition, icon().pixmap(iconSize(), mode));
+    }
+
 
     DockWidgetTab::DockWidgetTab(DockWidget *dockWidget, QWidget *parent)
         : QFrame(parent)
@@ -420,6 +462,8 @@ namespace ADS
         bool tabHasCloseButton = (activeTabHasCloseButton && active) | allTabsHaveCloseButton;
         d->m_closeButton->setVisible(dockWidgetClosable && tabHasCloseButton);
 
+        d->m_closeButton->setActive(active);
+
         // Focus related stuff
         if (DockManager::testConfigFlag(DockManager::FocusHighlighting)
             && !d->m_dockWidget->dockManager()->isRestoringState()) {
@@ -550,12 +594,8 @@ namespace ADS
 
     void DockWidgetTab::updateStyle()
     {
-        if (DockManager::testConfigFlag(DockManager::FocusHighlighting)) {
-            if (property("focused").toBool())
-                d->m_closeButton->setChecked(true);
-            else
-                d->m_closeButton->setChecked(false);
-        }
+        if (DockManager::testConfigFlag(DockManager::FocusHighlighting))
+            d->m_closeButton->setFocus(property("focused").toBool());
 
         internal::repolishStyle(this, internal::RepolishDirectChildren);
     }

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -39,14 +39,15 @@ T.TabButton {
 
     background: Rectangle {
         id: buttonBackground
-        color: myButton.checked ? StudioTheme.Values.themeTabLight : StudioTheme.Values.themeTabDark
-        border.color: StudioTheme.Values.themeControlOutline
+        color: myButton.checked ? StudioTheme.Values.themeTabActiveBackground
+                                : StudioTheme.Values.themeTabInactiveBackground
         border.width: 0
     }
 
     contentItem: T.Label {
         id: buttonIcon
-        color: myButton.checked ? StudioTheme.Values.themeTabDark : StudioTheme.Values.themeTabLight
+        color: myButton.checked ? StudioTheme.Values.themeTabActiveText
+                                : StudioTheme.Values.themeTabInactiveText
         font.weight: Font.Bold
         //font.family: StudioTheme.Constants.font.family
         font.pixelSize: StudioTheme.Values.myFontSize

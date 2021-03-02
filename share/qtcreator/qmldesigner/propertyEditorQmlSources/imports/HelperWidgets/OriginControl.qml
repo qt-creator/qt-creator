@@ -35,12 +35,12 @@ Item {
 
     property variant backendValue
     property color borderColorSelected: colorLogic.textColor
-    property color borderColor: Theme.qmlDesignerBorderColor()
+    property color borderColor: StudioTheme.Values.themeControlOutline
 
     property bool showTranslateCheckBox: true
 
-    readonly property color selectedColor: Theme.qmlDesignerBackgroundColorDarkAlternate()
-    readonly property color unselectedColor: Theme.qmlDesignerBackgroundColorDarker()
+    readonly property color selectedColor: StudioTheme.Values.themeControlBackgroundInteraction
+    readonly property color unselectedColor: StudioTheme.Values.themeControlBackground
 
     property bool enabled: true
 

@@ -38,12 +38,35 @@
 #include "ads_globals.h"
 
 #include <QFrame>
+#include <QToolButton>
 
 namespace ADS {
 
 class DockWidget;
 class DockAreaWidget;
 class DockWidgetTabPrivate;
+
+using TabButtonType = QToolButton;
+
+class TabButton : public TabButtonType
+{
+    Q_OBJECT
+
+public:
+    using Super = TabButtonType;
+    TabButton(QWidget *parent = nullptr);
+
+    void setActive(bool value);
+    void setFocus(bool value);
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+
+private:
+    bool m_active;
+    bool m_focus;
+};
+
 
 /**
  * A dock widget tab that shows a title and an icon.

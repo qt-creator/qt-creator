@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -33,27 +33,33 @@ Rectangle {
     property T.Control myControl
     property T.Popup myPopup
 
-    property bool hover: false
+    property bool hover: checkIndicatorMouseArea.containsMouse
+    property bool pressed: checkIndicatorMouseArea.containsPress
     property bool checked: false
 
     color: StudioTheme.Values.themeControlBackground
-    border.color: StudioTheme.Values.themeControlOutline
-    state: "default"
+    border.width: 0
 
     Connections {
         target: myPopup
-        onClosed: checkIndicator.checked = false
-        onOpened: checkIndicator.checked = true
+        function onClosed() { checkIndicator.checked = false }
+        function onOpened() { checkIndicator.checked = true }
     }
 
     MouseArea {
         id: checkIndicatorMouseArea
         anchors.fill: parent
         hoverEnabled: true
-        onContainsMouseChanged: checkIndicator.hover = checkIndicatorMouseArea.containsMouse
         onPressed: {
-            myControl.forceActiveFocus() // TODO
-            myPopup.opened ? myPopup.close() : myPopup.open()
+            if (myPopup.opened) {
+                myPopup.close()
+            } else {
+                myPopup.open()
+                myPopup.forceActiveFocus()
+            }
+
+            if (myControl.activeFocus)
+                myControl.focus = false
         }
     }
 
@@ -71,34 +77,44 @@ Rectangle {
     states: [
         State {
             name: "default"
-            when: myControl.enabled && !(checkIndicator.hover
-                                         || myControl.hover)
-                  && !checkIndicator.checked && !myControl.edit
-                  && !myControl.drag
+            when: myControl.enabled && checkIndicator.enabled && !myControl.edit
+                  && !checkIndicator.hover && !myControl.hover && !myControl.drag
+                  && !checkIndicator.checked
             PropertyChanges {
                 target: checkIndicator
                 color: StudioTheme.Values.themeControlBackground
-                border.color: StudioTheme.Values.themeControlOutline
             }
         },
         State {
-            name: "hovered"
-            when: (checkIndicator.hover || myControl.hover)
-                  && !checkIndicator.checked && !myControl.edit
-                  && !myControl.drag
+            name: "globalHover"
+            when: myControl.enabled && checkIndicator.enabled && !myControl.drag
+                  && !checkIndicator.hover && myControl.hover && !myControl.edit
+                  && !checkIndicator.checked
             PropertyChanges {
                 target: checkIndicator
-                color: StudioTheme.Values.themeHoverHighlight
-                border.color: StudioTheme.Values.themeControlOutline
+                color: StudioTheme.Values.themeControlBackgroundGlobalHover
             }
         },
         State {
-            name: "checked"
+            name: "hover"
+            when: myControl.enabled && checkIndicator.enabled && !myControl.drag
+                  && checkIndicator.hover && myControl.hover && !checkIndicator.pressed
+                  && !checkIndicator.checked
+            PropertyChanges {
+                target: checkIndicator
+                color: StudioTheme.Values.themeControlBackgroundHover
+            }
+        },
+        State {
+            name: "check"
             when: checkIndicator.checked
+            PropertyChanges {
+                target: checkIndicatorIcon
+                color: StudioTheme.Values.themeIconColorInteraction
+            }
             PropertyChanges {
                 target: checkIndicator
                 color: StudioTheme.Values.themeInteraction
-                border.color: StudioTheme.Values.themeInteraction
             }
         },
         State {
@@ -106,28 +122,42 @@ Rectangle {
             when: myControl.edit && !checkIndicator.checked
                   && !(checkIndicator.hover && myControl.hover)
             PropertyChanges {
+                target: checkIndicatorIcon
+                color: StudioTheme.Values.themeTextColor
+            }
+            PropertyChanges {
                 target: checkIndicator
-                color: StudioTheme.Values.themeFocusEdit
-                border.color: StudioTheme.Values.themeInteraction
+                color: StudioTheme.Values.themeControlBackground
+            }
+        },
+        State {
+            name: "press"
+            when: myControl.enabled && checkIndicator.enabled && !myControl.drag
+                  && checkIndicator.pressed
+            PropertyChanges {
+                target: checkIndicatorIcon
+                color: StudioTheme.Values.themeIconColorInteraction
+            }
+            PropertyChanges {
+                target: checkIndicator
+                color: StudioTheme.Values.themeInteraction
             }
         },
         State {
             name: "drag"
-            when: myControl.drag && !checkIndicator.checked
+            when: (myControl.drag !== undefined && myControl.drag) && !checkIndicator.checked
                   && !(checkIndicator.hover && myControl.hover)
             PropertyChanges {
                 target: checkIndicator
-                color: StudioTheme.Values.themeFocusDrag
-                border.color: StudioTheme.Values.themeInteraction
+                color: StudioTheme.Values.themeControlBackgroundInteraction
             }
         },
         State {
-            name: "disabled"
+            name: "disable"
             when: !myControl.enabled
             PropertyChanges {
                 target: checkIndicator
                 color: StudioTheme.Values.themeControlBackgroundDisabled
-                border.color: StudioTheme.Values.themeControlOutlineDisabled
             }
             PropertyChanges {
                 target: checkIndicatorIcon

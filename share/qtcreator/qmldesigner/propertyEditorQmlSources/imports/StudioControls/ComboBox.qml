@@ -1,8 +1,6 @@
-
-
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -35,14 +33,16 @@ T.ComboBox {
     property alias actionIndicator: actionIndicator
     property alias labelColor: comboBoxInput.color
 
-    property bool hover: false // This property is used to indicate the global hover state
-    property bool edit: myComboBox.activeFocus
+    // This property is used to indicate the global hover state
+    property bool hover: comboBoxInput.hover || actionIndicator.hover || popupIndicator.hover
+    property bool edit: myComboBox.activeFocus && myComboBox.editable
+    property bool open: comboBoxPopup.opened
 
     property bool dirty: false // user modification flag
 
     property alias actionIndicatorVisible: actionIndicator.visible
-    property real __actionIndicatorWidth: StudioTheme.Values.squareComponentWidth
-    property real __actionIndicatorHeight: StudioTheme.Values.height
+    property real __actionIndicatorWidth: StudioTheme.Values.actionIndicatorWidth
+    property real __actionIndicatorHeight: StudioTheme.Values.actionIndicatorHeight
 
     property alias textInput: comboBoxInput
 
@@ -50,12 +50,11 @@ T.ComboBox {
 
     enum ActivatedReason { EditingFinished, Other }
 
-    width: StudioTheme.Values.squareComponentWidth * 5
-    height: StudioTheme.Values.height
+    width: StudioTheme.Values.defaultControlWidth
+    height: StudioTheme.Values.defaultControlHeight
 
     leftPadding: actionIndicator.width
-                 - (myComboBox.actionIndicatorVisible ? StudioTheme.Values.border : 0)
-    rightPadding: popupIndicator.width - StudioTheme.Values.border
+    rightPadding: popupIndicator.width + StudioTheme.Values.border
     font.pixelSize: StudioTheme.Values.myFontSize
     wheelEnabled: false
 
@@ -94,19 +93,18 @@ T.ComboBox {
         id: popupIndicator
         myControl: myComboBox
         myPopup: myComboBox.popup
-        x: comboBoxInput.x + comboBoxInput.width - StudioTheme.Values.border
-        y: 0
-        width: StudioTheme.Values.squareComponentWidth
-        height: StudioTheme.Values.height
+        x: comboBoxInput.x + comboBoxInput.width
+        y: StudioTheme.Values.border
+        width: StudioTheme.Values.checkIndicatorWidth - StudioTheme.Values.border
+        height: StudioTheme.Values.checkIndicatorHeight - (StudioTheme.Values.border * 2)
     }
 
     background: Rectangle {
         id: comboBoxBackground
-        color: StudioTheme.Values.themeControlOutline
+        color: StudioTheme.Values.themeControlBackground
         border.color: StudioTheme.Values.themeControlOutline
         border.width: StudioTheme.Values.border
         x: actionIndicator.width
-           - (myComboBox.actionIndicatorVisible ? StudioTheme.Values.border : 0)
         width: myComboBox.width - actionIndicator.width
         height: myComboBox.height
     }
@@ -138,7 +136,8 @@ T.ComboBox {
         contentItem: Text {
             leftPadding: itemDelegateIconArea.width
             text: myComboBox.textRole ? (Array.isArray(myComboBox.model) ? modelData[myComboBox.textRole] : model[myComboBox.textRole]) : modelData
-            color: StudioTheme.Values.themeTextColor
+            color: myItemDelegate.highlighted ? StudioTheme.Values.themeTextSelectedTextColor
+                                              : StudioTheme.Values.themeTextColor
             font: myComboBox.font
             elide: Text.ElideRight
             verticalAlignment: Text.AlignVCenter
@@ -152,7 +151,8 @@ T.ComboBox {
             T.Label {
                 id: itemDelegateIcon
                 text: StudioTheme.Constants.tickIcon
-                color: myItemDelegate.highlighted ? StudioTheme.Values.themeTextColor : StudioTheme.Values.themeInteraction
+                color: myItemDelegate.highlighted ? StudioTheme.Values.themeTextSelectedTextColor
+                                                  : StudioTheme.Values.themeTextColor
                 font.family: StudioTheme.Constants.iconFont.family
                 font.pixelSize: StudioTheme.Values.spinControlIconSizeMulti
                 visible: myComboBox.currentIndex === index ? true : false
@@ -177,9 +177,9 @@ T.ComboBox {
 
     popup: T.Popup {
         id: comboBoxPopup
-        x: comboBoxInput.x
-        y: myComboBox.height - StudioTheme.Values.border
-        width: comboBoxInput.width + popupIndicator.width - StudioTheme.Values.border
+        x: actionIndicator.width + StudioTheme.Values.border
+        y: myComboBox.height
+        width: myComboBox.width - actionIndicator.width - (StudioTheme.Values.border * 2)
         // TODO Setting the height on the popup solved the problem with the popup of height 0,
         // but it has the problem that it sometimes extend over the border of the actual window
         // and is then cut off.
@@ -205,9 +205,8 @@ T.ComboBox {
         }
 
         background: Rectangle {
-            color: StudioTheme.Values.themeControlBackground
-            border.color: StudioTheme.Values.themeInteraction
-            border.width: StudioTheme.Values.border
+            color: StudioTheme.Values.themePopupBackground
+            border.width: 0
         }
 
         enter: Transition {
@@ -219,7 +218,8 @@ T.ComboBox {
     states: [
         State {
             name: "default"
-            when: !myComboBox.hover && !myComboBox.edit
+            when: myComboBox.enabled && !myComboBox.hover && !myComboBox.edit && !myComboBox.open
+                  && !myComboBox.activeFocus
             PropertyChanges {
                 target: myComboBox
                 wheelEnabled: false
@@ -230,13 +230,16 @@ T.ComboBox {
             }
             PropertyChanges {
                 target: comboBoxBackground
-                color: StudioTheme.Values.themeControlOutline
+                color: StudioTheme.Values.themeControlBackground
                 border.color: StudioTheme.Values.themeControlOutline
             }
         },
+        // This state is intended for ComboBoxes which aren't editable, but have focus e.g. via
+        // tab focus. It is therefor possible to use the mouse wheel to scroll through the items.
         State {
             name: "focus"
-            when: myComboBox.edit && !myComboBox.editable
+            when: myComboBox.enabled && myComboBox.activeFocus && !myComboBox.editable
+                  && !myComboBox.open
             PropertyChanges {
                 target: myComboBox
                 wheelEnabled: true
@@ -248,7 +251,7 @@ T.ComboBox {
         },
         State {
             name: "edit"
-            when: myComboBox.edit && myComboBox.editable && !comboBoxPopup.opened
+            when: myComboBox.enabled && myComboBox.edit && myComboBox.editable && !myComboBox.open
             PropertyChanges {
                 target: myComboBox
                 wheelEnabled: true
@@ -260,8 +263,8 @@ T.ComboBox {
             }
             PropertyChanges {
                 target: comboBoxBackground
-                color: StudioTheme.Values.themeInteraction
-                border.color: StudioTheme.Values.themeInteraction
+                color: StudioTheme.Values.themeControlBackgroundInteraction
+                border.color: StudioTheme.Values.themeControlOutline
             }
             StateChangeScript {
                 script: comboBoxPopup.close()
@@ -269,7 +272,7 @@ T.ComboBox {
         },
         State {
             name: "popup"
-            when: myComboBox.edit && comboBoxPopup.opened
+            when: myComboBox.enabled && myComboBox.open
             PropertyChanges {
                 target: myComboBox
                 wheelEnabled: true
@@ -278,6 +281,20 @@ T.ComboBox {
                 target: comboBoxInput
                 selectByMouse: false
                 readOnly: true
+            }
+            PropertyChanges {
+                target: comboBoxBackground
+                color: StudioTheme.Values.themeControlBackgroundInteraction
+                border.color: StudioTheme.Values.themeControlOutlineInteraction
+            }
+        },
+        State {
+            name: "disable"
+            when: !myComboBox.enabled
+            PropertyChanges {
+                target: comboBoxBackground
+                color: StudioTheme.Values.themeControlBackgroundDisabled
+                border.color: StudioTheme.Values.themeControlOutlineDisabled
             }
         }
     ]

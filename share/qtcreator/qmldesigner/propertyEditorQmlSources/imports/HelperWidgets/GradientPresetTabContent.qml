@@ -53,11 +53,12 @@ Rectangle {
         Layout.fillHeight: true
         anchors.fill: parent
         anchors.leftMargin: 10
+        rightMargin: StudioTheme.Values.scrollBarThickness
         clip: true
         delegate: gradientDelegate
 
-        property int gridColumns: width / tabBackground.gridCellWidth;
-        cellWidth: width / gridColumns
+        property int gridColumns: (width - rightMargin) / tabBackground.gridCellWidth;
+        cellWidth: (width - rightMargin) / gridColumns
         cellHeight: 185
 
         property bool bothVisible: horizontal.scrollBarVisible && vertical.scrollBarVisible
@@ -133,7 +134,7 @@ Rectangle {
                         PropertyChanges {
                             target: backgroundCard
                             color: StudioTheme.Values.themeControlBackgroundPressed
-                            border.width: 1
+                            border.width: StudioTheme.Values.border
                             border.color: StudioTheme.Values.themeInteraction
                         }
                     },
@@ -143,7 +144,7 @@ Rectangle {
                         PropertyChanges {
                             target: backgroundCard
                             color:StudioTheme.Values.themeInteraction
-                            border.width: 1
+                            border.width: StudioTheme.Values.border
                             border.color: StudioTheme.Values.themeControlBackgroundPressed
                         }
                     }
@@ -312,7 +313,7 @@ Rectangle {
                                     target: nameBackgroundColor
                                     color: StudioTheme.Values.themeControlBackgroundPressed
                                     border.color: StudioTheme.Values.themeInteraction
-                                    border.width: 1
+                                    border.width: StudioTheme.Values.border
                                 }
                                 PropertyChanges { target: nameText; visible: false }
                                 PropertyChanges { target: nameInput; visible: true }

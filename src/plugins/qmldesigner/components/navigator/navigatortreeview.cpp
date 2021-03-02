@@ -74,7 +74,7 @@ public:
                 mouseOverStateSavedFrameRectangle = option->rect;
 
             painter->fillRect(option->rect.adjusted(0, delegateMargin, 0, -delegateMargin),
-                              Theme::getColor(Theme::Color::QmlDesigner_BorderColor));
+                              Theme::getColor(Theme::Color::DSnavigatorItemBackground));
         } else if (element == PE_IndicatorItemViewItemDrop) {
             // between elements and on elements we have a width
             if (option->rect.width() > 0) {
@@ -101,7 +101,8 @@ public:
             int bef_v = mid_v;
             int aft_h = mid_h;
             int aft_v = mid_v;
-            QBrush brush(Theme::getColor(Theme::Color::DSsliderHandle), Qt::SolidPattern);
+
+            QBrush brush(Theme::getColor(Theme::Color::DSnavigatorBranch), Qt::SolidPattern);
             if (option->state & State_Item) {
                 if (option->direction == Qt::RightToLeft)
                     painter->fillRect(option->rect.left(), mid_v, bef_h - option->rect.left(), 1, brush);
@@ -116,11 +117,11 @@ public:
                 int delta = decoration_size / 2;
                 bef_h -= delta;
                 bef_v -= delta;
-                aft_h += delta;
-                aft_v += delta;
+                //aft_h += delta;
+                //aft_v += delta;
 
                 const QRectF rect(bef_h, bef_v, decoration_size + 1, decoration_size + 1);
-                painter->fillRect(rect, QBrush(Theme::getColor(Theme::Color::QmlDesigner_BackgroundColorDarkAlternate)));
+                painter->fillRect(rect, QBrush(Theme::getColor(Theme::Color::DSpanelBackground)));
 
                 static const QPointF collapsePoints[3] = {
                     QPointF(0.0, 0.0),
@@ -134,7 +135,7 @@ public:
                     QPointF(4.0, 4.0)
                 };
 
-                auto color = Theme::getColor(Theme::Color::IconsBaseColor);
+                auto color = Theme::getColor(Theme::Color::DSnavigatorBranchIndicator);
                 painter->setPen(color);
                 painter->setBrush(color);
 
@@ -167,23 +168,15 @@ public:
 private: // functions
     QColor highlightBrushColor() const
     {
-        QColor highlightBrushColor = m_currentTextColor;
-        highlightBrushColor.setAlphaF(0.7);
-        return highlightBrushColor;
+        QColor color = Theme::getColor(Theme::Color::DSnavigatorDropIndicatorBackground);
+        color.setAlphaF(0.7);
+        return color;
     }
     QColor highlightLineColor() const
     {
-        return highlightBrushColor().lighter();
-    }
-    QColor backgroundBrushColor() const
-    {
-        QColor backgroundBrushColor = highlightBrushColor();
-        backgroundBrushColor.setAlphaF(0.2);
-        return backgroundBrushColor;
-    }
-    QColor backgroundLineColor() const
-    {
-        return backgroundBrushColor().lighter();
+        QColor color = Theme::getColor(Theme::Color::DSnavigatorDropIndicatorOutline);
+        color.setAlphaF(0.7);
+        return color;
     }
 
     void drawHighlightFrame(const QRect &frameRectangle, QPainter *painter) const
@@ -192,12 +185,7 @@ private: // functions
         painter->setBrush(highlightBrushColor());
         painter->drawRect(frameRectangle);
     }
-    void drawBackgroundFrame(const QRect &frameRectangle, QPainter *painter) const
-    {
-        painter->setPen(QPen(backgroundLineColor(), 2));
-        painter->setBrush(backgroundBrushColor());
-        painter->drawRect(frameRectangle);
-    }
+
     void drawIndicatorLine(const QPoint &leftPoint, const QPoint &rightPoint, QPainter *painter) const
     {
         painter->setPen(QPen(highlightLineColor(), 3));
@@ -231,7 +219,7 @@ void NavigatorTreeView::drawSelectionBackground(QPainter *painter, const QStyleO
 {
     painter->save();
     painter->fillRect(option.rect.adjusted(0, delegateMargin, 0, -delegateMargin),
-                      Theme::getColor(Theme::Color::QmlDesigner_HighlightColor));
+                      Theme::getColor(Theme::Color::DSnavigatorItemBackgroundSelected));
     painter->restore();
 }
 

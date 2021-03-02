@@ -1,112 +1,119 @@
-ADS--DockContainerWidget
-{
-    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
+ADS--DockContainerWidget {
+    background: creatorTheme.DSdockContainerBackground;
 }
 
-ADS--DockContainerWidget QSplitter::handle
-{
-    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
+ADS--DockContainerWidget QSplitter::handle {
+    background: creatorTheme.DSdockContainerSplitter;
 }
 
-ADS--DockAreaWidget
-{
-    background-color: creatorTheme.BackgroundColorNormal;
+ADS--DockAreaWidget {
+    background: creatorTheme.DSdockAreaBackground;
 }
 
-ADS--DockAreaWidget #tabsMenuButton::menu-indicator
-{
+ADS--DockAreaWidget #tabsMenuButton::menu-indicator {
     image: none;
 }
 
 ADS--DockSplitter::handle:horizontal {
     width: 1px;
-    background-color: creatorTheme.SplitterColor;
+    background: creatorTheme.DSdockWidgetSplitter;
 }
 
 ADS--DockSplitter::handle:vertical {
     height: 1px;
-    background-color: creatorTheme.SplitterColor;
+    background: creatorTheme.DSdockWidgetSplitter;
 }
 
-ADS--DockWidgetTab
-{
-    background-color: creatorTheme.BackgroundColorDark;
-    border-color: creatorTheme.SplitterColor;
+ADS--DockWidgetTab {
+    background-color: creatorTheme.DStabInactiveBackground;
+    border-color: creatorTheme.DStabSplitter;
     border-style: solid;
     border-width: 0 1px 0 0;
 }
 
-ADS--DockWidgetTab[activeTab="true"]
-{
-    background-color: creatorTheme.QmlDesigner_TabLight;
+ADS--DockWidgetTab QLabel {
+    color: creatorTheme.DStabInactiveText;
 }
 
-ADS--DockWidgetTab QLabel
-{
-    color: creatorTheme.QmlDesigner_TabLight;
+ADS--DockWidgetTab[activeTab="true"] {
+    background: creatorTheme.DStabActiveBackground;
 }
 
-ADS--DockWidgetTab[activeTab="true"] QLabel
-{
-    color: creatorTheme.QmlDesigner_TabDark;
+ADS--DockWidgetTab[activeTab="true"] QLabel {
+    color: creatorTheme.DStabActiveText;
 }
 
-ADS--DockWidget
-{
-    background-color: palette(light);
-    border-color: red;
-    border-style: solid;
-    border-width: 0;
+ADS--DockWidgetTab[activeTab="true"] > #tabCloseButton:hover {
+    background: creatorTheme.DStabActiveButtonHover;
 }
 
-ADS--DockAreaTitleBar
-{
-    background-color: creatorTheme.BackgroundColorDark;
+ADS--DockWidgetTab[activeTab="true"] > #tabCloseButton:pressed {
+    background: creatorTheme.DStabActiveButtonPress;
 }
 
-QWidget#tabsContainerWidget
-{
-    background-color: creatorTheme.BackgroundColorDark;
+ADS--DockWidget {
+    background: creatorTheme.DSdockWidgetBackground;
+    border: none;
 }
 
-ADS--TitleBarButton
-{
-    padding: 0px 0px;
+QWidget#tabsContainerWidget {
+    background: creatorTheme.DStabContainerBackground;
 }
 
-ADS--TitleBarButton:hover
-{
-    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
+ADS--TitleBarButton {
+    margin: 1px;
+    background: none;
+    border: none;
 }
 
-QScrollArea#dockWidgetScrollArea
-{
-    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
+ADS--TitleBarButton:hover {
+    background-color: creatorTheme.DStitleBarButtonHover;
+}
+
+ADS--TitleBarButton:press {
+    background-color: creatorTheme.DStitleBarButtonPress;
+}
+
+#floatingTitleLabel {
+    color: creatorTheme.DStitleBarText;
+}
+
+#floatingTitleCloseButton {
+    margin: 1px;
+    background: none;
+    border: none;
+}
+
+#floatingTitleCloseButton:hover {
+    background: creatorTheme.DStitleBarButtonHover;
+}
+
+#floatingTitleCloseButton:pressed {
+    background: creatorTheme.DStitleBarButtonPress;
+}
+
+QScrollArea#dockWidgetScrollArea {
+    background-color: creatorTheme.DSpanelBackground;
     padding: 0px;
     border: none;
 }
 
-#tabCloseButton
-{
-    margin-top: 2px;
+#tabCloseButton {
+    margin: 1px;
     background: none;
     border: none;
-    padding: 0px -2px;
 }
 
-#tabCloseButton:hover
-{
-    border: 1px solid rgba(0, 0, 0, 32);
-    background: rgba(0, 0, 0, 16);
+#tabCloseButton:hover {
+    background: creatorTheme.DStabInactiveButtonHover;
 }
 
-#tabCloseButton:pressed
-{
-    background: rgba(0, 0, 0, 32);
+#tabCloseButton:pressed {
+    background: creatorTheme.DStabInactiveButtonPress;
 }
 
 QScrollBar {
-    background-color: creatorTheme.BackgroundColorDark;
+    background: creatorTheme.DSscrollBarTrack;
 }
 
 QScrollBar:vertical {
@@ -118,7 +125,7 @@ QScrollBar:horizontal {
 }
 
 QScrollBar::handle {
-    background-color: creatorTheme.QmlDesigner_ScrollBarHandleColor;
+    background: creatorTheme.DSscrollBarHandle;
 }
 
 QScrollBar::handle:vertical {
@@ -141,28 +148,27 @@ QScrollBar::sub-page {
 
 /* Focus related styling */
 ADS--DockWidgetTab[focused="true"] {
-    background: creatorTheme.DSinteraction;
-    border-color: creatorTheme.DSinteraction;
+    background: creatorTheme.DStabFocusBackground;
 }
 
 ADS--DockWidgetTab[focused="true"] > #tabCloseButton:hover {
-    background: rgba(255, 255, 255, 48);
+    background: creatorTheme.DStabFocusButtonHover;
 }
 
 ADS--DockWidgetTab[focused="true"] > #tabCloseButton:pressed {
-    background: rgba(255, 255, 255, 92);
+    background: creatorTheme.DStabFocusButtonPress;
 }
 
 ADS--DockWidgetTab[focused="true"] QLabel {
-    color: palette(creatorTheme.DStextColor);
+    color: creatorTheme.DStabFocusText;
 }
 
 ADS--DockAreaTitleBar {
-    background: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
-    border-bottom: 2px solid creatorTheme.QmlDesigner_TabLight;
+    background: creatorTheme.DSdockWidgetTitleBar;
+    border-bottom: 2px solid creatorTheme.DStabActiveBackground;
     padding-bottom: 0px;
 }
 
 ADS--DockAreaWidget[focused="true"] ADS--DockAreaTitleBar {
-    border-bottom-color: creatorTheme.DSinteraction;
+    border-bottom-color: creatorTheme.DStabFocusBackground;
 }

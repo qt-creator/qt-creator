@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,10 +25,11 @@
 
 import QtQuick 2.12
 import QtQuick.Layouts 1.12
+import StudioTheme 1.0 as StudioTheme
 
 GridLayout {
     columns: 2
-    columnSpacing: 12
-    rowSpacing: 4
-    width: parent.width - 16
+    columnSpacing: StudioTheme.Values.sectionColumnSpacing
+    rowSpacing: StudioTheme.Values.sectionRowSpacing
+    width: parent.width - 16 // TODO parameterize
 }

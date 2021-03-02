@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -32,35 +32,29 @@ Item {
 
     property Item myControl
 
-    property bool hover: false
-    property bool pressed: false
+    property bool hover: translationIndicatorMouseArea.containsMouse
+    property bool pressed: translationIndicatorMouseArea.pressed
     property bool checked: false
 
     signal clicked
 
-    state: "default"
-
     Rectangle {
         id: translationIndicatorBackground
-        color: StudioTheme.Values.themeColumnBackground // TODO create extra variable, this one is used
-        border.color: StudioTheme.Values.themeTranslationIndicatorBorder
+        color: StudioTheme.Values.themeControlBackground
+        border.color: StudioTheme.Values.themeControlOutline
+        border.width: StudioTheme.Values.border
 
         anchors.centerIn: parent
 
-        width: matchParity(translationIndicator.height,
-                           StudioTheme.Values.smallRectWidth)
-        height: matchParity(translationIndicator.height,
-                            StudioTheme.Values.smallRectWidth)
+        width: matchParity(translationIndicator.height, StudioTheme.Values.smallRectWidth)
+        height: matchParity(translationIndicator.height, StudioTheme.Values.smallRectWidth)
 
         function matchParity(root, value) {
-            // TODO maybe not necessary
             var v = Math.round(value)
 
             if (root % 2 == 0)
-                // even
                 return (v % 2 == 0) ? v : v - 1
             else
-                // odd
                 return (v % 2 == 0) ? v - 1 : v
         }
 
@@ -68,7 +62,6 @@ Item {
             id: translationIndicatorMouseArea
             anchors.fill: parent
             hoverEnabled: true
-            onContainsMouseChanged: translationIndicator.hover = containsMouse
             onPressed: mouse.accepted = true // TODO
             onClicked: {
                 translationIndicator.checked = !translationIndicator.checked
@@ -87,6 +80,43 @@ Item {
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
         anchors.fill: parent
+
+        states: [
+            State {
+                name: "default"
+                when: translationIndicator.enabled && !translationIndicator.pressed
+                      && !translationIndicator.checked
+                PropertyChanges {
+                    target: translationIndicatorIcon
+                    color: StudioTheme.Values.themeIconColor
+                }
+            },
+            State {
+                name: "press"
+                when: translationIndicator.enabled && translationIndicator.pressed
+                PropertyChanges {
+                    target: translationIndicatorIcon
+                    color: StudioTheme.Values.themeIconColorInteraction
+                }
+            },
+            State {
+                name: "check"
+                when: translationIndicator.enabled && !translationIndicator.pressed
+                      && translationIndicator.checked
+                PropertyChanges {
+                    target: translationIndicatorIcon
+                    color: StudioTheme.Values.themeIconColorSelected
+                }
+            },
+            State {
+                name: "disable"
+                when: !myControl.enabled
+                PropertyChanges {
+                    target: translationIndicatorIcon
+                    color: StudioTheme.Values.themeTextColorDisabled
+                }
+            }
+        ]
     }
 
     states: [
@@ -94,43 +124,47 @@ Item {
             name: "default"
             when: myControl.enabled && !translationIndicator.hover
                   && !translationIndicator.pressed && !myControl.hover
-                  && !myControl.edit && !myControl.drag
-                  && !translationIndicator.checked
+                  && !myControl.edit && !translationIndicator.checked
             PropertyChanges {
                 target: translationIndicatorBackground
-                color: StudioTheme.Values.themeColumnBackground
-                border.color: StudioTheme.Values.themeTranslationIndicatorBorder
+                color: StudioTheme.Values.themeControlBackground
+                border.color: StudioTheme.Values.themeControlOutline
             }
         },
         State {
-            name: "checked"
-            when: translationIndicator.checked
-
+            name: "globalHover"
+            when: myControl.hover && !translationIndicator.hover
             PropertyChanges {
                 target: translationIndicatorBackground
-                color: StudioTheme.Values.themeInteraction // TODO
+                color: StudioTheme.Values.themeControlBackgroundGlobalHover
+                border.color: StudioTheme.Values.themeControlOutline
             }
         },
         State {
-            name: "hovered"
+            name: "hover"
             when: translationIndicator.hover && !translationIndicator.pressed
-                  && !myControl.edit && !myControl.drag && !myControl.drag
             PropertyChanges {
                 target: translationIndicatorBackground
-                color: StudioTheme.Values.themeFocusDrag // TODO
+                color: StudioTheme.Values.themeControlBackgroundHover
+                border.color: StudioTheme.Values.themeControlOutline
             }
         },
         State {
-            name: "disabled"
+            name: "press"
+            when: translationIndicator.hover && translationIndicator.pressed
+            PropertyChanges {
+                target: translationIndicatorBackground
+                color: StudioTheme.Values.themeControlBackgroundInteraction
+                border.color: StudioTheme.Values.themeControlOutlineInteraction
+            }
+        },
+        State {
+            name: "disable"
             when: !myControl.enabled
             PropertyChanges {
                 target: translationIndicatorBackground
                 color: StudioTheme.Values.themeControlBackgroundDisabled
                 border.color: StudioTheme.Values.themeControlOutlineDisabled
-            }
-            PropertyChanges {
-                target: translationIndicatorIcon
-                color: StudioTheme.Values.themeTextColorDisabled
             }
         }
     ]

@@ -170,7 +170,7 @@ Rectangle {
     Rectangle {
         anchors.margins: (isDefaultState || (isBaseState && !modelHasDefaultState)) ? -myRoot.highlightBorderWidth : 0
         anchors.fill: column
-        color: Theme.color(Theme.DSsliderActiveTrackFocus)
+        color: StudioTheme.Values.themeStateSeparator
         border.color: StudioTheme.Values.themeStateDefaultHighlight
         border.width: (isDefaultState || (isBaseState && !modelHasDefaultState)) ? myRoot.highlightBorderWidth : 0
     }
@@ -188,14 +188,14 @@ Rectangle {
             width: myRoot.width - 2 * myRoot.stateMargin
             height: myRoot.topAreaHeight
 
-            color: Theme.color(Theme.DShoverHighlight)
+            color: StudioTheme.Values.themeStateBackground
 
             StudioControls.TextField {
                 id: stateNameField
 
                 property string oldValue
 
-                width: StudioTheme.Values.height * 7
+                width: StudioTheme.Values.height * 5.5
 
                 anchors.top: parent.top
                 anchors.topMargin: myRoot.textFieldMargin
@@ -247,7 +247,7 @@ Rectangle {
                 anchors.rightMargin: myRoot.previewMargin
                 anchors.verticalCenter: stateNameField.verticalCenter
 
-                color: Theme.color(Theme.DStextColor)
+                color: StudioTheme.Values.themeTextColor
                 font.italic: true
                 font.pixelSize: StudioTheme.Values.myFontSize
                 font.family: StudioTheme.Constants.font
@@ -261,27 +261,29 @@ Rectangle {
 
         Rectangle {
             id: stateImageArea
-
             width: myRoot.width - 2 * myRoot.stateMargin
             height: myRoot.bottomAreaHeight
-
-            color: Theme.color(Theme.DShoverHighlight)
-
+            color: StudioTheme.Values.themeStateBackground
             visible: expanded
 
+            Image {
+                anchors.fill: stateImageBackground
+                source: "images/checkers.png"
+                fillMode: Image.Tile
+            }
+
             Rectangle {
-                border.width: StudioTheme.Values.border
-                border.color: Theme.color(Theme.DSsliderActiveTrackFocus)
-                color: Theme.color(Theme.DSsliderInactiveTrack)
-
+                id: stateImageBackground
                 anchors.centerIn: parent
-
                 width: Math.round(stateImage.paintedWidth) + 2 * StudioTheme.Values.border
                 height: Math.round(stateImage.paintedHeight) + 2 * StudioTheme.Values.border
+                color: "transparent"
+                border.width: StudioTheme.Values.border
+                border.color: StudioTheme.Values.themeStatePreviewOutline
             }
+
             Image {
                 id: stateImage
-
                 anchors.margins: myRoot.previewMargin
                 anchors.centerIn: parent
                 anchors.fill: parent

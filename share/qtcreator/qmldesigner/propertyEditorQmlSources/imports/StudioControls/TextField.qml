@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -33,16 +33,18 @@ T.TextField {
     property alias actionIndicator: actionIndicator
     property alias translationIndicator: translationIndicator
 
+    // This property is used to indicate the global hover state
+    property bool hover: actionIndicator.hover || mouseArea.containsMouse
+                         || translationIndicator.hover
     property bool edit: myTextField.activeFocus
-    property bool hover: false // This property is used to indicate the global hover state
 
     property alias actionIndicatorVisible: actionIndicator.visible
-    property real __actionIndicatorWidth: StudioTheme.Values.squareComponentWidth
-    property real __actionIndicatorHeight: StudioTheme.Values.height
+    property real __actionIndicatorWidth: StudioTheme.Values.actionIndicatorWidth
+    property real __actionIndicatorHeight: StudioTheme.Values.actionIndicatorHeight
 
     property alias translationIndicatorVisible: translationIndicator.visible
-    property real __translationIndicatorWidth: StudioTheme.Values.squareComponentWidth
-    property real __translationIndicatorHeight: StudioTheme.Values.height
+    property real __translationIndicatorWidth: StudioTheme.Values.translationIndicatorWidth
+    property real __translationIndicatorHeight: StudioTheme.Values.translationIndicatorHeight
 
     horizontalAlignment: Qt.AlignLeft
     verticalAlignment: Qt.AlignVCenter
@@ -58,14 +60,12 @@ T.TextField {
     persistentSelection: focus // QTBUG-73807
     clip: true
 
-    width: StudioTheme.Values.height * 5
-    height: StudioTheme.Values.height
-    implicitHeight: StudioTheme.Values.height
+    width: StudioTheme.Values.defaultControlWidth
+    height: StudioTheme.Values.defaultControlHeight
+    implicitHeight: StudioTheme.Values.defaultControlHeight
 
     leftPadding: StudioTheme.Values.inputHorizontalPadding + actionIndicator.width
-                 - (actionIndicatorVisible ? StudioTheme.Values.border : 0)
     rightPadding: StudioTheme.Values.inputHorizontalPadding + translationIndicator.width
-                  - (translationIndicatorVisible ? StudioTheme.Values.border : 0)
 
     MouseArea {
         id: mouseArea
@@ -75,7 +75,6 @@ T.TextField {
         propagateComposedEvents: true
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         cursorShape: Qt.PointingHandCursor
-        onContainsMouseChanged: myTextField.hover = containsMouse // Sets the global hover
         onPressed: {
             if (mouse.button === Qt.RightButton)
                 contextMenu.popup(myTextField)
@@ -104,8 +103,8 @@ T.TextField {
         myControl: myTextField
         x: 0
         y: 0
-        width: actionIndicator.visible ? __actionIndicatorWidth : 0
-        height: actionIndicator.visible ? __actionIndicatorHeight : 0
+        width: actionIndicator.visible ? myTextField.__actionIndicatorWidth : 0
+        height: actionIndicator.visible ? myTextField.__actionIndicatorHeight : 0
     }
 
     background: Rectangle {
@@ -113,7 +112,7 @@ T.TextField {
         color: StudioTheme.Values.themeControlBackground
         border.color: StudioTheme.Values.themeControlOutline
         border.width: StudioTheme.Values.border
-        x: actionIndicator.width - (actionIndicatorVisible ? StudioTheme.Values.border : 0)
+        x: actionIndicator.width
         width: myTextField.width - actionIndicator.width
         height: myTextField.height
     }
@@ -137,17 +136,39 @@ T.TextField {
                 border.color: StudioTheme.Values.themeControlOutline
             }
             PropertyChanges {
+                target: myTextField
+                color: StudioTheme.Values.themeTextColor
+            }
+            PropertyChanges {
                 target: mouseArea
                 cursorShape: Qt.PointingHandCursor
             }
         },
         State {
-            name: "hovered"
-            when: myTextField.hover && !myTextField.edit
+            name: "globalHover"
+            when: (actionIndicator.hover || translationIndicator.hover) && !myTextField.edit
             PropertyChanges {
                 target: textFieldBackground
-                color: StudioTheme.Values.themeHoverHighlight
+                color: StudioTheme.Values.themeControlBackgroundGlobalHover
                 border.color: StudioTheme.Values.themeControlOutline
+            }
+            PropertyChanges {
+                target: myTextField
+                color: StudioTheme.Values.themeTextColor
+            }
+        },
+        State {
+            name: "hover"
+            when: mouseArea.containsMouse && !actionIndicator.hover && !translationIndicator.hover
+                  && !myTextField.edit
+            PropertyChanges {
+                target: textFieldBackground
+                color: StudioTheme.Values.themeControlBackgroundHover
+                border.color: StudioTheme.Values.themeControlOutline
+            }
+            PropertyChanges {
+                target: myTextField
+                color: StudioTheme.Values.themeTextColor
             }
         },
         State {
@@ -155,8 +176,12 @@ T.TextField {
             when: myTextField.edit
             PropertyChanges {
                 target: textFieldBackground
-                color: StudioTheme.Values.themeFocusEdit
-                border.color: StudioTheme.Values.themeInteraction
+                color: StudioTheme.Values.themeControlBackgroundInteraction
+                border.color: StudioTheme.Values.themeControlOutlineInteraction
+            }
+            PropertyChanges {
+                target: myTextField
+                color: StudioTheme.Values.themeTextColor
             }
             PropertyChanges {
                 target: mouseArea
@@ -164,12 +189,16 @@ T.TextField {
             }
         },
         State {
-            name: "disabled"
+            name: "disable"
             when: !myTextField.enabled
             PropertyChanges {
                 target: textFieldBackground
                 color: StudioTheme.Values.themeControlBackgroundDisabled
                 border.color: StudioTheme.Values.themeControlOutlineDisabled
+            }
+            PropertyChanges {
+                target: myTextField
+                color: StudioTheme.Values.themeTextColorDisabled
             }
         }
     ]

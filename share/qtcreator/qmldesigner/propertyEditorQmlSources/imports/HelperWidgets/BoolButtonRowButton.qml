@@ -34,7 +34,8 @@ StudioControls.Button {
     property variant backendValue
     property bool isHighlighted: false
 
-    iconColor: isHighlighted ? StudioTheme.Values.themeInteraction : StudioTheme.Values.themeTextColor
+    iconColor: isHighlighted ? StudioTheme.Values.themeIconColorInteraction
+                             : StudioTheme.Values.themeIconColor
     actionIndicatorVisible: true
     checkable: true
 

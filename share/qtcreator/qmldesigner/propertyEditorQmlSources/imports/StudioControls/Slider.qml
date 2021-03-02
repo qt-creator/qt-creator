@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -50,8 +50,8 @@ T.Slider {
     property bool edit: slider.activeFocus
 
     property alias actionIndicatorVisible: actionIndicator.visible
-    property real __actionIndicatorWidth: StudioTheme.Values.squareComponentWidth
-    property real __actionIndicatorHeight: StudioTheme.Values.height
+    property real __actionIndicatorWidth: StudioTheme.Values.actionIndicatorWidth
+    property real __actionIndicatorHeight: StudioTheme.Values.actionIndicatorHeight
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitHandleWidth + leftPadding + rightPadding)
@@ -231,7 +231,7 @@ T.Slider {
             }
         },
         State {
-            name: "hovered"
+            name: "hover"
             when: slider.enabled && slider.hover && !slider.edit
             PropertyChanges {
                 target: slider
@@ -258,7 +258,7 @@ T.Slider {
             }
         },
         State {
-            name: "disabled"
+            name: "disable"
             when: !slider.enabled
             PropertyChanges {
                 target: tickmarkFromLabel

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -30,12 +30,15 @@ import StudioTheme 1.0 as StudioTheme
 T.AbstractButton {
     id: myButton
 
+    property bool globalHover: false
+
     property alias buttonIcon: buttonIcon.text
     property alias iconColor: buttonIcon.color
     property alias iconFont: buttonIcon.font.family
     property alias iconSize: buttonIcon.font.pixelSize
     property alias iconItalic: buttonIcon.font.italic
     property alias iconBold: buttonIcon.font.bold
+    property alias iconRotation: buttonIcon.rotation
     property alias backgroundVisible: buttonBackground.visible
     property alias backgroundRadius: buttonBackground.radius
 
@@ -49,14 +52,14 @@ T.AbstractButton {
     activeFocusOnTab: false
 
     onHoveredChanged: {
-        if (parent !== undefined && parent.hover !== undefined)
-            parent.hover = hovered
+        if (parent !== undefined && parent.hoverCallback !== undefined)
+            parent.hoverCallback()
     }
 
     background: Rectangle {
         id: buttonBackground
-        color: myButton.checked ? StudioTheme.Values.themeControlBackgroundChecked : StudioTheme.Values.themeControlBackground
-        border.color: myButton.checked ? StudioTheme.Values.themeInteraction : StudioTheme.Values.themeControlOutline
+        color: StudioTheme.Values.themeControlBackground
+        border.color: StudioTheme.Values.themeControlOutline
         border.width: StudioTheme.Values.border
     }
 
@@ -75,14 +78,49 @@ T.AbstractButton {
             horizontalAlignment: Text.AlignHCenter
             anchors.fill: parent
             renderType: Text.QtRendering
+
+            states: [
+                State {
+                    name: "default"
+                    when: myButton.enabled && !myButton.pressed && !myButton.checked
+                    PropertyChanges {
+                        target: buttonIcon
+                        color: StudioTheme.Values.themeIconColor
+                    }
+                },
+                State {
+                    name: "press"
+                    when: myButton.enabled && myButton.pressed
+                    PropertyChanges {
+                        target: buttonIcon
+                        color: StudioTheme.Values.themeIconColorInteraction
+                    }
+                },
+                State {
+                    name: "select"
+                    when: myButton.enabled && !myButton.pressed && myButton.checked
+                    PropertyChanges {
+                        target: buttonIcon
+                        color: StudioTheme.Values.themeIconColorSelected
+                    }
+                },
+                State {
+                    name: "disable"
+                    when: !myButton.enabled
+                    PropertyChanges {
+                        target: buttonIcon
+                        color: StudioTheme.Values.themeTextColorDisabled
+                    }
+                }
+            ]
         }
     }
 
     states: [
         State {
             name: "default"
-            when: myButton.enabled && !myButton.hovered && !myButton.pressed
-                  && !myButton.checked
+            when: myButton.enabled && !myButton.globalHover && !myButton.hovered
+                  && !myButton.pressed && !myButton.checked
             PropertyChanges {
                 target: buttonBackground
                 color: StudioTheme.Values.themeControlBackground
@@ -93,37 +131,41 @@ T.AbstractButton {
             }
         },
         State {
-            name: "hovered"
-            when: myButton.hovered && !myButton.pressed
+            name: "globalHover"
+            when: myButton.globalHover && !myButton.hovered && !myButton.pressed
             PropertyChanges {
                 target: buttonBackground
-                color: StudioTheme.Values.themeHoverHighlight
+                color: StudioTheme.Values.themeControlBackgroundGlobalHover
             }
         },
         State {
-            name: "pressed"
+            name: "hover"
+            when: myButton.hovered && !myButton.pressed
+            PropertyChanges {
+                target: buttonBackground
+                color: StudioTheme.Values.themeControlBackgroundHover
+            }
+        },
+        State {
+            name: "press"
             when: myButton.hovered && myButton.pressed
             PropertyChanges {
                 target: buttonBackground
-                color: StudioTheme.Values.themeControlBackgroundPressed
+                color: StudioTheme.Values.themeControlBackgroundInteraction
                 border.color: StudioTheme.Values.themeInteraction
             }
             PropertyChanges {
                 target: myButton
-                z: 10
+                z: 100
             }
         },
         State {
-            name: "disabled"
+            name: "disable"
             when: !myButton.enabled
             PropertyChanges {
                 target: buttonBackground
                 color: StudioTheme.Values.themeControlBackgroundDisabled
                 border.color: StudioTheme.Values.themeControlOutlineDisabled
-            }
-            PropertyChanges {
-                target: buttonIcon
-                color: StudioTheme.Values.themeTextColorDisabled
             }
         }
     ]

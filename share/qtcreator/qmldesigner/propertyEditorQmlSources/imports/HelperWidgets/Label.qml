@@ -38,7 +38,7 @@ Label {
 
     width: Math.max(Math.min(240, parent.width - 280), 50)
     color: ((label.disabledState || label.disabledStateSoft)
-            ? StudioTheme.Values.themeDisabledTextColor
+            ? StudioTheme.Values.themeTextColorDisabled
             : StudioTheme.Values.themeTextColor)
 
     elide: Text.ElideRight

@@ -68,7 +68,7 @@ Dialog {
         anchors.fill: parent
         anchors.margins: -12
         anchors.bottomMargin: -70
-        color: StudioTheme.Values.themeColumnBackground
+        color: StudioTheme.Values.themePanelBackground
 
         ColumnLayout {
             anchors.fill: parent

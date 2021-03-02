@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.15
 import HelperWidgets 2.0
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
@@ -35,7 +35,8 @@ RowLayout {
     id: urlChooser
 
     property variant backendValue
-    property color textColor: colorLogic.highlight ? colorLogic.textColor : "white"
+    property color textColor: colorLogic.highlight ? colorLogic.textColor
+                                                   : StudioTheme.Values.themeTextColor
     property string filter: "*.png *.gif *.jpg *.bmp *.jpeg *.svg *.pbm *.pgm *.ppm *.xbm *.xpm *.hdr *.webp"
 
     FileResourcesModel {
@@ -57,50 +58,85 @@ RowLayout {
         property int hoverIndex: -1
 
         ToolTip {
-            visible: comboBox.hovered
+            id: toolTip
+            visible: comboBox.hovered && toolTip.text !== ""
             text: urlChooser.backendValue.valueToString
-            delay: 1000
+            delay: StudioTheme.Values.toolTipDelay
+            height: StudioTheme.Values.toolTipHeight
+            background: Rectangle {
+                color: StudioTheme.Values.themeToolTipBackground
+                border.color: StudioTheme.Values.themeToolTipOutline
+                border.width: StudioTheme.Values.border
+            }
+            contentItem: Label {
+                color: StudioTheme.Values.themeToolTipText
+                text: toolTip.text
+                verticalAlignment: Text.AlignVCenter
+            }
         }
 
         delegate: ItemDelegate {
             id: delegateItem
             width: parent.width
-            height: 20
-            highlighted: comboBox.hoverIndex === index
+            height: StudioTheme.Values.height - 2 * StudioTheme.Values.border
+            padding: 0
+            highlighted: comboBox.highlightedIndex === index
 
-            indicator: Label { // selected item check mark
-                padding: 5
-                y: (parent.height - height) / 2
-                text: StudioTheme.Constants.tickIcon
-                font.pixelSize: 10
-                font.family: StudioTheme.Constants.iconFont.family
-                color: Theme.color(comboBox.hoverIndex === index ? Theme.PanelTextColorLight
-                                                                 : Theme.QmlDesigner_HighlightColor)
-                visible: comboBox.currentIndex === index
+            indicator: Item {
+                id: itemDelegateIconArea
+                width: delegateItem.height
+                height: delegateItem.height
+
+                Label {
+                    id: itemDelegateIcon
+                    text: StudioTheme.Constants.tickIcon
+                    color: delegateItem.highlighted ? StudioTheme.Values.themeTextSelectedTextColor
+                                                    : StudioTheme.Values.themeTextColor
+                    font.family: StudioTheme.Constants.iconFont.family
+                    font.pixelSize: StudioTheme.Values.spinControlIconSizeMulti
+                    visible: comboBox.currentIndex === index ? true : false
+                    anchors.fill: parent
+                    renderType: Text.NativeRendering
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
             }
 
-            contentItem: Label {
-                leftPadding: 10
+            contentItem: Text {
+                leftPadding: itemDelegateIconArea.width
                 text: modelData
-                anchors.top: parent.top
-                color: Theme.color(Theme.PanelTextColorLight)
-                font.pixelSize: 13
+                color: delegateItem.highlighted ? StudioTheme.Values.themeTextSelectedTextColor
+                                                : StudioTheme.Values.themeTextColor
+                font: comboBox.font
+                elide: Text.ElideRight
+                verticalAlignment: Text.AlignVCenter
             }
 
             background: Rectangle {
-                anchors.fill: parent
-                color: parent.highlighted ? Theme.color(Theme.QmlDesigner_HighlightColor) : "transparent"
+                id: itemDelegateBackground
+                x: 0
+                y: 0
+                width: delegateItem.width
+                height: delegateItem.height
+                color: delegateItem.highlighted ? StudioTheme.Values.themeInteraction : "transparent"
             }
 
             ToolTip {
+                id: itemToolTip
                 visible: delegateItem.hovered && comboBox.highlightedIndex === index
                 text: fileModel.fullPathModel[index]
-                delay: 1000
-            }
-
-            onHoveredChanged: {
-                if (hovered)
-                    comboBox.hoverIndex = index
+                delay: StudioTheme.Values.toolTipDelay
+                height: StudioTheme.Values.toolTipHeight
+                background: Rectangle {
+                    color: StudioTheme.Values.themeToolTipBackground
+                    border.color: StudioTheme.Values.themeToolTipOutline
+                    border.width: StudioTheme.Values.border
+                }
+                contentItem: Label {
+                    color: StudioTheme.Values.themeToolTipText
+                    text: itemToolTip.text
+                    verticalAlignment: Text.AlignVCenter
+                }
             }
         }
 

@@ -175,12 +175,11 @@ bool DocumentWarningWidget::eventFilter(QObject *object, QEvent *event)
 
 void DocumentWarningWidget::showEvent(QShowEvent *event)
 {
-    const QColor backgroundColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_BackgroundColor);
+    const QColor backgroundColor = Utils::creatorTheme()->color(Utils::Theme::DScontrolBackground);
+    const QColor outlineColor = Utils::creatorTheme()->color(Utils::Theme::DScontrolOutline);
     QPalette pal = palette();
-    QColor color = pal.color(QPalette::ToolTipBase);
-    const QColor backgroundNoAlpha = Utils::StyleHelper::alphaBlendedColors(color, backgroundColor);
-    color.setAlpha(255);
-    pal.setColor(QPalette::ToolTipBase, backgroundNoAlpha);
+    pal.setColor(QPalette::ToolTipBase, backgroundColor);
+    pal.setColor(QPalette::ToolTipText, outlineColor);
     setPalette(pal);
     m_gotoCodeWasClicked = false;
     moveToParentCenter();

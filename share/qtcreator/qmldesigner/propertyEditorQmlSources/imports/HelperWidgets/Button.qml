@@ -72,7 +72,7 @@ T.AbstractButton {
             when: myButton.hovered && !myButton.pressed
             PropertyChanges {
                 target: buttonBackground
-                color: StudioTheme.Values.themeHoverHighlight
+                color: StudioTheme.Values.themeControlBackgroundHover
             }
         },
         State {

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -34,7 +34,7 @@ Item {
     property int topPadding: 4
     property int rightPadding: 0
 
-    property int animationDuration: 0
+    property int animationDuration: 120
 
     property bool expanded: true
 
@@ -42,28 +42,27 @@ Item {
 
     Rectangle {
         id: header
-        height: StudioTheme.Values.height
+        height: StudioTheme.Values.sectionHeadHeight
 
         anchors.left: parent.left
         anchors.right: parent.right
 
-        color: StudioTheme.Values.themeControlBackground
+        color: StudioTheme.Values.themeSectionHeadBackground
 
         SectionLabel {
             id: label
             anchors.verticalCenter: parent.verticalCenter
             color: StudioTheme.Values.themeTextColor
             x: 22
-            //font.bold: true
             font.pixelSize: StudioTheme.Values.myFontSize
-            // TODO font size?
+            font.capitalization: Font.AllUppercase
         }
 
         SectionLabel {
             id: arrow
             width: StudioTheme.Values.spinControlIconSizeMulti
             height: StudioTheme.Values.spinControlIconSizeMulti
-            text: StudioTheme.Constants.upDownSquare2
+            text: StudioTheme.Constants.startNode
             color: StudioTheme.Values.themeTextColor
             renderType: Text.NativeRendering
             anchors.left: parent.left
@@ -74,7 +73,7 @@ Item {
             Behavior on rotation {
                 NumberAnimation {
                     easing.type: Easing.OutCubic
-                    duration: animationDuration
+                    duration: section.animationDuration
                 }
             }
         }
@@ -82,7 +81,6 @@ Item {
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                section.animationDuration = 120
                 section.expanded = !section.expanded
                 if (!section.expanded) // TODO
                     section.forceActiveFocus()
@@ -94,7 +92,13 @@ Item {
 
     readonly property alias contentItem: row
 
-    implicitHeight: Math.round(row.height + header.height)
+    implicitHeight: Math.round(row.height + header.height + topRow.height + bottomRow.height)
+
+    Row {
+        id: topRow
+        height: StudioTheme.Values.sectionHeadSpacerHeight
+        anchors.top: header.bottom
+    }
 
     Row {
         id: row
@@ -102,18 +106,31 @@ Item {
         anchors.leftMargin: leftPadding
         anchors.right: parent.right
         anchors.rightMargin: rightPadding
-        anchors.top: header.bottom
-        anchors.topMargin: topPadding
+        anchors.top: topRow.bottom
+    }
+
+    Row {
+        id: bottomRow
+        height: StudioTheme.Values.sectionHeadSpacerHeight
+        anchors.top: row.bottom
     }
 
     Behavior on implicitHeight {
         NumberAnimation {
             easing.type: Easing.OutCubic
-            duration: animationDuration
+            duration: section.animationDuration
         }
     }
 
     states: [
+        State {
+            name: "Expanded"
+            when: section.expanded
+            PropertyChanges {
+                target: arrow
+                rotation: 90
+            }
+        },
         State {
             name: "Collapsed"
             when: !section.expanded
@@ -123,7 +140,7 @@ Item {
             }
             PropertyChanges {
                 target: arrow
-                rotation: -90
+                rotation: 0
             }
         }
     ]

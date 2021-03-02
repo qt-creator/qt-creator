@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -50,8 +50,10 @@ T.SpinBox {
     }
 
     property bool edit: spinBoxInput.activeFocus
-    property bool hover: false // This property is used to indicate the global hover state
+    // This property is used to indicate the global hover state
+    property bool hover: mySpinBox.hovered || actionIndicator.hover
     property bool drag: false
+    property bool sliderDrag: sliderPopup.drag
 
     property bool dirty: false // user modification flag
 
@@ -59,18 +61,16 @@ T.SpinBox {
     property real realDragRange: mySpinBox.realTo - mySpinBox.realFrom
 
     property alias actionIndicatorVisible: actionIndicator.visible
-    property real __actionIndicatorWidth: StudioTheme.Values.squareComponentWidth
-    property real __actionIndicatorHeight: StudioTheme.Values.height
+    property real __actionIndicatorWidth: StudioTheme.Values.actionIndicatorWidth
+    property real __actionIndicatorHeight: StudioTheme.Values.actionIndicatorHeight
 
     property bool spinBoxIndicatorVisible: true
-    property real __spinBoxIndicatorWidth: StudioTheme.Values.smallRectWidth - 2
-                                           * StudioTheme.Values.border
-    property real __spinBoxIndicatorHeight: StudioTheme.Values.height / 2
-                                            - StudioTheme.Values.border
+    property real __spinBoxIndicatorWidth: StudioTheme.Values.spinBoxIndicatorWidth
+    property real __spinBoxIndicatorHeight: StudioTheme.Values.spinBoxIndicatorHeight
 
     property alias sliderIndicatorVisible: sliderIndicator.visible
-    property real __sliderIndicatorWidth: StudioTheme.Values.squareComponentWidth
-    property real __sliderIndicatorHeight: StudioTheme.Values.height
+    property real __sliderIndicatorWidth: StudioTheme.Values.sliderIndicatorWidth
+    property real __sliderIndicatorHeight: StudioTheme.Values.sliderIndicatorHeight
 
     property alias compressedValueTimer: myTimer
 
@@ -83,13 +83,13 @@ T.SpinBox {
     // Use custom wheel handling due to bugs
     property bool __wheelEnabled: false
     wheelEnabled: false
+    hoverEnabled: true
 
-    width: StudioTheme.Values.squareComponentWidth * 5
-    height: StudioTheme.Values.height
+    width: StudioTheme.Values.defaultControlWidth
+    height: StudioTheme.Values.defaultControlHeight
 
     leftPadding: spinBoxIndicatorDown.x + spinBoxIndicatorDown.width
-                 - (spinBoxIndicatorVisible ? 0 : StudioTheme.Values.border)
-    rightPadding: sliderIndicator.width - (sliderIndicatorVisible ? StudioTheme.Values.border : 0)
+    rightPadding: sliderIndicator.width + StudioTheme.Values.border
 
     font.pixelSize: StudioTheme.Values.myFontSize
     editable: true
@@ -113,8 +113,8 @@ T.SpinBox {
         myControl: mySpinBox
         x: 0
         y: 0
-        width: actionIndicator.visible ? __actionIndicatorWidth : 0
-        height: actionIndicator.visible ? __actionIndicatorHeight : 0
+        width: actionIndicator.visible ? mySpinBox.__actionIndicatorWidth : 0
+        height: actionIndicator.visible ? mySpinBox.__actionIndicatorHeight : 0
     }
 
     up.indicator: RealSpinBoxIndicator {
@@ -124,12 +124,13 @@ T.SpinBox {
         visible: mySpinBox.spinBoxIndicatorVisible
         onRealReleased: mySpinBox.realIncrease()
         onRealPressAndHold: mySpinBox.realIncrease()
-        x: actionIndicator.width + (mySpinBox.actionIndicatorVisible ? 0 : StudioTheme.Values.border)
+        x: actionIndicator.width + StudioTheme.Values.border
         y: StudioTheme.Values.border
         width: mySpinBox.spinBoxIndicatorVisible ? mySpinBox.__spinBoxIndicatorWidth : 0
         height: mySpinBox.spinBoxIndicatorVisible ? mySpinBox.__spinBoxIndicatorHeight : 0
 
-        realEnabled: (mySpinBox.realFrom < mySpinBox.realTo) ? (mySpinBox.realValue < mySpinBox.realTo) : (mySpinBox.realValue > mySpinBox.realTo)
+        realEnabled: (mySpinBox.realFrom < mySpinBox.realTo) ? (mySpinBox.realValue < mySpinBox.realTo)
+                                                             : (mySpinBox.realValue > mySpinBox.realTo)
     }
 
     down.indicator: RealSpinBoxIndicator {
@@ -138,12 +139,13 @@ T.SpinBox {
         visible: mySpinBox.spinBoxIndicatorVisible
         onRealReleased: mySpinBox.realDecrease()
         onRealPressAndHold: mySpinBox.realDecrease()
-        x: actionIndicator.width + (mySpinBox.actionIndicatorVisible ? 0 : StudioTheme.Values.border)
+        x: actionIndicator.width + StudioTheme.Values.border
         y: spinBoxIndicatorUp.y + spinBoxIndicatorUp.height
         width: mySpinBox.spinBoxIndicatorVisible ? mySpinBox.__spinBoxIndicatorWidth : 0
         height: mySpinBox.spinBoxIndicatorVisible ? mySpinBox.__spinBoxIndicatorHeight : 0
 
-        realEnabled: (mySpinBox.realFrom < mySpinBox.realTo) ? (mySpinBox.realValue > mySpinBox.realFrom) : (mySpinBox.realValue < mySpinBox.realFrom)
+        realEnabled: (mySpinBox.realFrom < mySpinBox.realTo) ? (mySpinBox.realValue > mySpinBox.realFrom)
+                                                             : (mySpinBox.realValue < mySpinBox.realFrom)
     }
 
     contentItem: RealSpinBoxInput {
@@ -173,7 +175,7 @@ T.SpinBox {
         color: StudioTheme.Values.themeControlOutline
         border.color: StudioTheme.Values.themeControlOutline
         border.width: StudioTheme.Values.border
-        x: actionIndicator.width - (mySpinBox.actionIndicatorVisible ? StudioTheme.Values.border : 0)
+        x: actionIndicator.width
         width: mySpinBox.width - actionIndicator.width
         height: mySpinBox.height
     }
@@ -182,18 +184,19 @@ T.SpinBox {
         id: sliderIndicator
         myControl: mySpinBox
         myPopup: sliderPopup
-        x: spinBoxInput.x + spinBoxInput.width - StudioTheme.Values.border
-        width: sliderIndicator.visible ? mySpinBox.__sliderIndicatorWidth : 0
-        height: sliderIndicator.visible ? mySpinBox.__sliderIndicatorHeight : 0
+        x: spinBoxInput.x + spinBoxInput.width
+        y: StudioTheme.Values.border
+        width: sliderIndicator.visible ? mySpinBox.__sliderIndicatorWidth - StudioTheme.Values.border : 0
+        height: sliderIndicator.visible ? mySpinBox.__sliderIndicatorHeight - (StudioTheme.Values.border * 2) : 0
         visible: false // reasonable default
     }
 
     RealSliderPopup {
         id: sliderPopup
         myControl: mySpinBox
-        x: spinBoxInput.x
-        y: StudioTheme.Values.height - StudioTheme.Values.border
-        width: spinBoxInput.width + sliderIndicator.width - StudioTheme.Values.border
+        x: actionIndicator.width + StudioTheme.Values.border
+        y: StudioTheme.Values.height
+        width: mySpinBox.width - actionIndicator.width - (StudioTheme.Values.border * 2)
         height: StudioTheme.Values.sliderHeight
 
         enter: Transition {
@@ -203,6 +206,7 @@ T.SpinBox {
     }
 
     textFromValue: function (value, locale) {
+        locale.numberOptions = Locale.OmitGroupSeparator
         return Number(mySpinBox.realValue).toLocaleString(locale, 'f', mySpinBox.decimals)
     }
 
@@ -214,8 +218,8 @@ T.SpinBox {
     states: [
         State {
             name: "default"
-            when: mySpinBox.enabled && !mySpinBox.hover
-                  && !mySpinBox.edit && !mySpinBox.drag
+            when: mySpinBox.enabled && !mySpinBox.hover && !mySpinBox.hovered
+                  && !mySpinBox.edit && !mySpinBox.drag && !mySpinBox.sliderDrag
             PropertyChanges {
                 target: mySpinBox
                 __wheelEnabled: false
@@ -226,7 +230,7 @@ T.SpinBox {
             }
             PropertyChanges {
                 target: spinBoxBackground
-                color: StudioTheme.Values.themeControlOutline
+                color: StudioTheme.Values.themeControlBackground
                 border.color: StudioTheme.Values.themeControlOutline
             }
         },
@@ -243,21 +247,21 @@ T.SpinBox {
             }
             PropertyChanges {
                 target: spinBoxBackground
-                color: StudioTheme.Values.themeInteraction
-                border.color: StudioTheme.Values.themeInteraction
+                color: StudioTheme.Values.themeControlBackgroundInteraction
+                border.color: StudioTheme.Values.themeControlOutline
             }
         },
         State {
             name: "drag"
-            when: mySpinBox.drag
+            when: mySpinBox.drag || mySpinBox.sliderDrag
             PropertyChanges {
                 target: spinBoxBackground
-                color: StudioTheme.Values.themeInteraction
-                border.color: StudioTheme.Values.themeInteraction
+                color: StudioTheme.Values.themeControlBackgroundInteraction
+                border.color: StudioTheme.Values.themeControlOutlineInteraction
             }
         },
         State {
-            name: "disabled"
+            name: "disable"
             when: !mySpinBox.enabled
             PropertyChanges {
                 target: spinBoxBackground
@@ -296,12 +300,8 @@ T.SpinBox {
     }
     onDisplayTextChanged: spinBoxInput.text = mySpinBox.displayText
     onActiveFocusChanged: {
-        if (mySpinBox.activeFocus)
-            // QTBUG-75862 && mySpinBox.focusReason === Qt.TabFocusReason)
+        if (mySpinBox.activeFocus) // QTBUG-75862 && mySpinBox.focusReason === Qt.TabFocusReason)
             spinBoxInput.selectAll()
-
-        if (sliderPopup.opened && !mySpinBox.activeFocus)
-            sliderPopup.close()
     }
 
     Keys.onPressed: {
@@ -336,7 +336,6 @@ T.SpinBox {
     }
 
     function setValueFromInput() {
-
         if (!mySpinBox.dirty)
             return
 

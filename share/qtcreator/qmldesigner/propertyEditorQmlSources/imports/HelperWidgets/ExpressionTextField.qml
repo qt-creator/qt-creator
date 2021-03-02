@@ -66,9 +66,9 @@ StudioControls.TextField {
 
     Popup {
         id: textFieldPopup
-        x: textField.x
-        y: textField.height - StudioTheme.Values.border
-        width: textField.width
+        x: StudioTheme.Values.border
+        y: textField.height
+        width: textField.width - (StudioTheme.Values.border * 2)
         // TODO Setting the height on the popup solved the problem with the popup of height 0,
         // but it has the problem that it sometimes extend over the border of the actual window
         // and is then cut off.
@@ -106,11 +106,14 @@ StudioControls.TextField {
                 padding: 0
                 text: itemDelegateText.text
 
+                highlighted: listView.currentIndex === index
+
                 contentItem: Text {
                     id: itemDelegateText
                     leftPadding: 8
                     text: modelData
-                    color: StudioTheme.Values.themeTextColor
+                    color: highlighted ? StudioTheme.Values.themeTextSelectedTextColor
+                                       : StudioTheme.Values.themeTextColor
                     font: textField.font
                     elide: Text.ElideRight
                     verticalAlignment: Text.AlignVCenter
@@ -144,9 +147,8 @@ StudioControls.TextField {
         }
 
         background: Rectangle {
-            color: StudioTheme.Values.themeControlBackground
-            border.color: StudioTheme.Values.themeInteraction
-            border.width: StudioTheme.Values.border
+            color: StudioTheme.Values.themePopupBackground
+            border.width: 0
         }
 
         enter: Transition {
@@ -155,7 +157,7 @@ StudioControls.TextField {
         }
     }
 
-    verticalAlignment: Text.AlignTop
+    verticalAlignment: Text.AlignVCenter
 
     onPressed: listView.model = null
 

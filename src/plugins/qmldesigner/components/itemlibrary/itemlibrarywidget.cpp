@@ -144,13 +144,14 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
     m_headerWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
     Theme::setupTheme(m_headerWidget->engine());
     m_headerWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
-    m_headerWidget->setClearColor(Theme::getColor(Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
+    m_headerWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));
     m_headerWidget->rootContext()->setContextProperty("rootView", QVariant::fromValue(this));
 
     // create add imports widget
     m_addImportWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
-    m_addImportWidget->setClearColor(Theme::getColor(Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
     Theme::setupTheme(m_addImportWidget->engine());
+    m_addImportWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
+    m_addImportWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));
     m_addImportWidget->rootContext()->setContextProperties({
         {"addImportModel", QVariant::fromValue(m_itemLibraryAddImportModel.data())},
         {"rootView", QVariant::fromValue(this)},
@@ -172,7 +173,7 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
     m_itemViewQuickWidget->rootContext()->setContextProperty("tooltipBackend",
                                                              m_previewTooltipBackend.get());
 
-    m_itemViewQuickWidget->setClearColor(Theme::getColor(Theme::Color::QmlDesigner_ButtonColor));
+    m_itemViewQuickWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));
     m_itemViewQuickWidget->engine()->addImageProvider(QStringLiteral("qmldesigner_itemlibrary"),
                                                       new Internal::ItemLibraryImageProvider);
     Theme::setupTheme(m_itemViewQuickWidget->engine());

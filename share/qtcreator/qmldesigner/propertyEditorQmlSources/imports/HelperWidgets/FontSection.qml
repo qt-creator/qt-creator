@@ -124,7 +124,6 @@ Section {
             StudioControls.ComboBox {
                 id: sizeType
                 model: ["pixels", "points"]
-                property color textColor: Theme.color(Theme.PanelTextColorLight)
                 actionIndicatorVisible: false
 
                 onActivated: {
@@ -148,7 +147,6 @@ Section {
             text: qsTr("Font style")
         }
         FontStyleButtons {
-
             bold: fontSection.boldStyle
             italic: fontSection.italicStyle
             underline: fontSection.underlineStyle

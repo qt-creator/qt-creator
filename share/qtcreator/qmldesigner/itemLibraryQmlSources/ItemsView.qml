@@ -193,8 +193,12 @@ ScrollView {
                             Grid {
                                 id: itemGrid
 
-                                columns: parent.width / styleConstants.cellWidth
-                                property int flexibleWidth: (parent.width - styleConstants.cellWidth * columns) / columns
+                                property real actualWidth: parent.width - itemGrid.leftPadding -itemGrid.rightPadding
+                                property int flexibleWidth: (itemGrid.actualWidth / columns) - styleConstants.cellWidth
+
+                                leftPadding: 6
+                                rightPadding: 6
+                                columns: itemGrid.actualWidth / styleConstants.cellWidth
 
                                 Repeater {
                                     model: itemModel

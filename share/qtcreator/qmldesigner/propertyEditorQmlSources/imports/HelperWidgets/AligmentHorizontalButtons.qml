@@ -39,7 +39,8 @@ Row {
 
     property bool baseStateFlag: isBaseState;
 
-    property color __currentColor: blueHighlight ? StudioTheme.Values.themeInteraction : StudioTheme.Values.themeTextColor
+    property color __currentColor: blueHighlight ? StudioTheme.Values.themeIconColorInteraction
+                                                 : StudioTheme.Values.themeIconColor
 
     onValueChanged: {
         buttonAlignLeft.checked = true

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -36,7 +36,7 @@ T.TabBar {
                              implicitContentHeight + topPadding + bottomPadding)
 
     spacing: 0
-    bottomPadding: 4
+    bottomPadding: 2
 
     contentItem: ListView {
         model: myButton.contentModel
@@ -50,6 +50,6 @@ T.TabBar {
     }
 
     background: Rectangle {
-        color: StudioTheme.Values.themeTabLight
+        color: StudioTheme.Values.themeTabActiveBackground
     }
 }

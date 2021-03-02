@@ -39,7 +39,7 @@
 
 namespace ADS {
     /**
-     * Private data of public ClickableLabel
+     * Private data of public ElidingLabel
      */
     struct ElidingLabelPrivate
     {

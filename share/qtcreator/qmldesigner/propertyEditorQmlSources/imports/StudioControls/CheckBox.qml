@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -32,25 +32,24 @@ T.CheckBox {
 
     property alias actionIndicator: actionIndicator
 
+    // This property is used to indicate the global hover state
     property bool hover: myCheckBox.hovered
     property bool edit: false
 
     property alias actionIndicatorVisible: actionIndicator.visible
-    property real __actionIndicatorWidth: StudioTheme.Values.squareComponentWidth
-    property real __actionIndicatorHeight: StudioTheme.Values.height
+    property real __actionIndicatorWidth: StudioTheme.Values.actionIndicatorWidth
+    property real __actionIndicatorHeight: StudioTheme.Values.actionIndicatorHeight
 
     property alias labelVisible: checkBoxLabel.visible
     property alias labelColor: checkBoxLabel.color
 
     font.pixelSize: StudioTheme.Values.myFontSize
 
-    implicitWidth: Math.max(
-                       implicitBackgroundWidth + leftInset + rightInset,
-                       implicitContentWidth + leftPadding + rightPadding)
-    implicitHeight: Math.max(
-                        implicitBackgroundHeight + topInset + bottomInset,
-                        implicitContentHeight + topPadding + bottomPadding,
-                        implicitIndicatorHeight + topPadding + bottomPadding)
+    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
+                            implicitContentWidth + leftPadding + rightPadding)
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             implicitContentHeight + topPadding + bottomPadding,
+                             implicitIndicatorHeight + topPadding + bottomPadding)
 
     spacing: StudioTheme.Values.checkBoxSpacing
     hoverEnabled: true
@@ -58,15 +57,14 @@ T.CheckBox {
 
     ActionIndicator {
         id: actionIndicator
-        myControl: myCheckBox // TODO global hover issue. Can be solved with extra property in ActionIndicator
-        width: actionIndicator.visible ? __actionIndicatorWidth : 0
-        height: actionIndicator.visible ? __actionIndicatorHeight : 0
+        myControl: myCheckBox
+        width: actionIndicator.visible ? myCheckBox.__actionIndicatorWidth : 0
+        height: actionIndicator.visible ? myCheckBox.__actionIndicatorHeight : 0
     }
 
     indicator: Rectangle {
         id: checkBoxBackground
-        x: actionIndicator.x + actionIndicator.width
-           - (actionIndicator.visible ? StudioTheme.Values.border : 0)
+        x: actionIndicator.width
         y: 0
         z: 5
         implicitWidth: StudioTheme.Values.height
@@ -112,33 +110,75 @@ T.CheckBox {
     states: [
         State {
             name: "default"
-            when: myCheckBox.enabled && !myCheckBox.hovered
-                  && !myCheckBox.pressed
+            when: myCheckBox.enabled && !myCheckBox.hover
+                  && !myCheckBox.pressed && !actionIndicator.hover
             PropertyChanges {
                 target: checkBoxBackground
                 color: StudioTheme.Values.themeControlBackground
+                border.color: StudioTheme.Values.themeControlOutline
+            }
+            PropertyChanges {
+                target: checkedIcon
+                color: StudioTheme.Values.themeIconColor
+            }
+            PropertyChanges {
+                target: partiallyCheckedIcon
+                color: StudioTheme.Values.themeIconColor
             }
         },
         State {
-            name: "hovered"
-            when: myCheckBox.hovered && !myCheckBox.pressed
-                  && !actionIndicator.hover
+            name: "globalHover"
+            when: actionIndicator.hover && myCheckBox.hover && !myCheckBox.pressed
             PropertyChanges {
                 target: checkBoxBackground
-                color: StudioTheme.Values.themeHoverHighlight
+                color: StudioTheme.Values.themeControlBackgroundGlobalHover
+                border.color: StudioTheme.Values.themeControlOutline
+            }
+            PropertyChanges {
+                target: checkedIcon
+                color: StudioTheme.Values.themeIconColor
+            }
+            PropertyChanges {
+                target: partiallyCheckedIcon
+                color: StudioTheme.Values.themeIconColor
             }
         },
         State {
-            name: "pressed"
-            when: myCheckBox.hovered && myCheckBox.pressed
+            name: "hover"
+            when: myCheckBox.hover && !actionIndicator.hover && !myCheckBox.pressed
             PropertyChanges {
                 target: checkBoxBackground
-                color: StudioTheme.Values.themeFocusEdit
-                border.color: StudioTheme.Values.themeInteraction
+                color: StudioTheme.Values.themeControlBackgroundHover
+                border.color: StudioTheme.Values.themeControlOutline
+            }
+            PropertyChanges {
+                target: checkedIcon
+                color: StudioTheme.Values.themeIconColor // TODO naming
+            }
+            PropertyChanges {
+                target: partiallyCheckedIcon
+                color: StudioTheme.Values.themeIconColor
             }
         },
         State {
-            name: "disabled"
+            name: "press"
+            when: myCheckBox.hover && myCheckBox.pressed
+            PropertyChanges {
+                target: checkBoxBackground
+                color: StudioTheme.Values.themeControlBackgroundInteraction
+                border.color: StudioTheme.Values.themeControlOutlineInteraction
+            }
+            PropertyChanges {
+                target: checkedIcon
+                color: StudioTheme.Values.themeIconColorInteraction
+            }
+            PropertyChanges {
+                target: partiallyCheckedIcon
+                color: StudioTheme.Values.themeIconColorInteraction
+            }
+        },
+        State {
+            name: "disable"
             when: !myCheckBox.enabled
             PropertyChanges {
                 target: checkBoxBackground
@@ -147,11 +187,11 @@ T.CheckBox {
             }
             PropertyChanges {
                 target: checkedIcon
-                color: StudioTheme.Values.themeTextColorDisabled
+                color: StudioTheme.Values.themeIconColorDisabled
             }
             PropertyChanges {
                 target: partiallyCheckedIcon
-                color: StudioTheme.Values.themeTextColorDisabled
+                color: StudioTheme.Values.themeIconColorDisabled
             }
             PropertyChanges {
                 target: checkBoxLabel

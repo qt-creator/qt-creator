@@ -32,7 +32,8 @@ StudioControls.ComboBox {
 
     property variant backendValue
 
-    labelColor: edit && !colorLogic.errorState ? StudioTheme.Values.themeTextColor : colorLogic.textColor
+    labelColor: edit && !colorLogic.errorState ? StudioTheme.Values.themeTextColor
+                                               : colorLogic.textColor
     property string scope: "Qt"
 
     enum ValueType { String, Integer, Enum }
