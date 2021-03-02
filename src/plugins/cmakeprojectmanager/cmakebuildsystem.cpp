@@ -284,9 +284,8 @@ void CMakeBuildSystem::triggerParsing()
     }
 
     if ((0 == (reparseParameters & REPARSE_FORCE_EXTRA_CONFIGURATION))
-        && !m_parameters.extraCMakeArguments.isEmpty()) {
-        if (mustApplyExtraArguments())
-            reparseParameters |= REPARSE_FORCE_CMAKE_RUN | REPARSE_FORCE_EXTRA_CONFIGURATION;
+        && mustApplyExtraArguments(m_parameters)) {
+        reparseParameters |= REPARSE_FORCE_CMAKE_RUN | REPARSE_FORCE_EXTRA_CONFIGURATION;
     }
 
     qCDebug(cmakeBuildSystemLog) << "Asking reader to parse";
@@ -438,15 +437,15 @@ void CMakeBuildSystem::setParametersAndRequestParse(const BuildDirParameters &pa
     }
 }
 
-bool CMakeBuildSystem::mustApplyExtraArguments() const
+bool CMakeBuildSystem::mustApplyExtraArguments(const BuildDirParameters &parameters) const
 {
-    if (m_parameters.extraCMakeArguments.isEmpty())
+    if (parameters.extraCMakeArguments.isEmpty())
         return false;
 
     auto answer = QMessageBox::question(Core::ICore::mainWindow(),
                                         tr("Apply configuration changes?"),
                                         tr("Run CMake with \"%1\"?")
-                                            .arg(m_parameters.extraCMakeArguments.join(" ")),
+                                            .arg(parameters.extraCMakeArguments.join(" ")),
                                         QMessageBox::Apply | QMessageBox::Discard,
                                         QMessageBox::Apply);
     return answer == QMessageBox::Apply;
@@ -506,12 +505,10 @@ bool CMakeBuildSystem::persistCMakeState()
     qCDebug(cmakeBuildSystemLog) << "Checking whether build system needs to be persisted:"
                                  << "workdir:" << parameters.workDirectory
                                  << "buildDir:" << parameters.buildDirectory
-                                 << "Has extraargs:" << !parameters.extraCMakeArguments.isEmpty()
-                                 << "must apply extra Args:"
-                                 << mustApplyExtraArguments();
+                                 << "Has extraargs:" << !parameters.extraCMakeArguments.isEmpty();
 
     if (parameters.workDirectory == parameters.buildDirectory
-        && !parameters.extraCMakeArguments.isEmpty() && mustApplyExtraArguments()) {
+        && mustApplyExtraArguments(parameters)) {
         reparseFlags = REPARSE_FORCE_EXTRA_CONFIGURATION;
         qCDebug(cmakeBuildSystemLog) << "   -> must run CMake with extra arguments.";
     }

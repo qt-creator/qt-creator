@@ -116,7 +116,7 @@ private:
     void setParametersAndRequestParse(const BuildDirParameters &parameters,
                                       const int reparseParameters);
 
-    bool mustApplyExtraArguments() const;
+    bool mustApplyExtraArguments(const BuildDirParameters &parameters) const;
 
     // State handling:
     // Parser states:
