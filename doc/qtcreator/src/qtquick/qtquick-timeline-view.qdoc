@@ -1,0 +1,281 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page qtquick-timeline-view.html
+    \previouspage qtquick-transition-editor.html
+    \nextpage qtquick-curve-editor.html
+
+    \title Timeline
+
+    You can use the timeline and keyframe based editor in the
+    \uicontrol Timeline view to animate the properties of
+    \l{glossary_component}{components}. The view is empty until
+    you create a timeline.
+
+    \image studio-timeline-empty.png "Empty Timeline view"
+
+    Select the \inlineimage plus.png
+    (\uicontrol {Add Timeline (A)}) button, or press \key {A} to
+    \l{Creating Timelines}{create a timeline} and specify settings
+    for it in the \uicontrol {Timeline Settings} dialog.
+
+    \image studio-timeline-settings.png "Timeline Settings dialog"
+
+    When you select \uicontrol Close, the \uicontrol Timeline view appears.
+    It now displays a \l{Timeline Toolbar}{toolbar} and a ruler but no
+    keyframe tracks.
+
+    \image studio-timeline-no-tracks.png "Timeline view without keyframe tracks"
+
+    To animate component properties in the \uicontrol Timeline view, you
+    must \l{Setting Keyframe Values}{insert keyframes} for them. In the
+    \l Properties view, select \uicontrol Settings >
+    \uicontrol {Insert Keyframe} for a property that you want to animate.
+    A keyframe track is generated for each component that you insert keyframes
+    for.
+
+    \image studio-timeline-with-empty-tracks.png "Timeline view with a property"
+
+    You can now select \inlineimage local_record_keyframes.png
+    to \l{Setting Keyframe Values}{record changes} in component properties
+    while you \l{Navigating in Timeline}{navigate the timeline}.
+
+    The following video shows how to insert keyframes for component properties
+    and to animate them in \uicontrol Timeline:
+
+    \youtube V3Po15bNErw
+
+    \if defined(qtdesignstudio)
+    To try it yourself, follow the \l{Log In UI - Part 4} tutorial.
+    \endif
+
+
+    For more information about creating timeline animations, see
+    \l{Creating Animations}.
+
+    \section1 Navigating in Timeline
+
+    \image studio-timeline.png "Timeline view"
+
+    You can navigate the timeline in the following ways:
+
+    \list
+        \li Drag the playhead (1) to a frame.
+        \li Click on the ruler (2) to move to a frame.
+        \li Select the \uicontrol {To Start (Home)}, \uicontrol {Previous (,)},
+            \uicontrol {Next (.)}, or \uicontrol {To End (End)} buttons (3), or
+            use the keyboard shortcuts to move to the first, previous, next, or
+            last frame on the timeline.
+        \li Enter the number of a frame in the current keyframe field (4) to
+            move to that frame.
+        \li Select the \uicontrol Previous and \uicontrol Next buttons next to
+            a property name on the timeline (5) to move to the previous or next
+            keyframe for that property.
+    \endlist
+
+    \section1 Zooming in Timeline
+
+    Use the slider on the toolbar to set the zooming level in the
+    \uicontrol Timeline view. Select the \inlineimage zoom_small.png
+    and \inlineimage zoom_big.png
+    buttons to zoom out of or into the view.
+
+    \section1 Setting Keyframe Track Color
+
+    To change the color of a keyframe track, select \uicontrol {Override Color}
+    in the context menu, and then select a color in the \l{Picking Colors}
+    {color picker}. To reset the color, select \uicontrol {Reset Color}.
+
+    \image studio-timeline-keyframe-track-colors.png "Keyframe track colors in Timeline"
+
+    \section1 Timeline Toolbar
+
+    The \uicontrol Timeline toolbar contains the following buttons and fields.
+
+    \table
+    \header
+        \li Button/Field
+        \li Action
+        \li Read More
+    \row
+        \li \inlineimage animation.png
+        \li Opens the \uicontrol {Timeline Settings} dialog for editing
+            timeline settings.
+        \li \l{Creating Timelines}
+    \row
+        \li Timeline ID
+        \li Displays the ID of the current timeline.
+        \li \l{Creating Timelines}
+    \row
+        \li \inlineimage to_first_frame.png
+        \li \uicontrol {To Start (Home)} moves to the first frame on the
+            timeline.
+        \li \l{Navigating in Timeline}
+    \row
+        \li \inlineimage back_one_frame.png
+        \li \uicontrol {Previous (,)} moves to the previous frame on the
+            timeline.
+        \li \l{Navigating in Timeline}
+    \row
+        \li \inlineimage start_playback.png
+        \li \uicontrol {Play (Space)} previews the animation.
+        \li \l{Viewing the Animation}
+    \row
+        \li \inlineimage forward_one_frame.png
+        \li \uicontrol {Next (.)} moves to the next frame on the timeline.
+        \li \l{Navigating in Timeline}
+    \row
+        \li \inlineimage to_last_frame.png
+        \li \uicontrol {To End (End)} moves to the last frame on the timeline.
+        \li \l{Navigating in Timeline}
+    \row
+        \li Current Keyframe
+        \li Displays the frame that the playhead is currently on. Enter a
+            number in the field to move the playhead to the respective frame.
+        \li \l{Navigating in Timeline}
+    \row
+        \li \inlineimage global_record_keyframes.png
+        \li Records changes in keyframe values.
+        \li \l {Setting Keyframe Values}
+    \row
+        \li \inlineimage curve_editor.png
+        \li Opens \uicontrol {Easing Curve Editor} for attaching an easing
+            curve to the selected transition.
+        \li \l{Editing Easing Curves}
+    \row
+        \li Start Frame
+        \li Specifies the first frame of the timeline. Negative values are
+            allowed. The difference between the start frame and the end frame
+            determines the duration of the animation.
+        \li \l{Creating Timelines}
+    \row
+        \li \inlineimage zoom_small.png
+        \li \uicontrol {Zoom Out} (\key Ctrl+-) zooms out of the view.
+        \li \l{Zooming in Timeline}
+    \row
+        \li Slider
+        \li Sets the zooming level.
+        \li \l{Zooming in Timeline}
+    \row
+        \li \inlineimage zoom_big.png
+        \li \uicontrol {Zoom In} (\key Ctrl++) zooms into the view.
+        \li \l{Zooming in Timeline}
+    \row
+        \li End Frame
+        \li Specifies the last frame of the timeline. The difference between
+            the start frame and the end frame determines the duration of the
+            animation, so if the start frame is 0, the end frame equals the
+            duration.
+        \li \l{Creating Timelines}
+    \row
+        \li State Name
+        \li Displays the name of the current state.
+        \li \l{Binding Animations to States}
+    \endtable
+
+    \section1 Keyframe Track Icons
+
+    Each keyframe track can contain the following buttons and markers.
+
+    \table
+    \header
+        \li Button/Icon
+        \li Action
+        \li Read More
+    \row
+        \li \inlineimage previous_keyframe.png
+        \li Jumps to the previous frame on the timeline.
+        \li \l{Setting Keyframe Values}
+    \row
+        \li \inlineimage next_keyframe.png
+        \li Jumps to the next frame on the timeline.
+        \li \l{Setting Keyframe Values}
+    \row
+        \li \inlineimage local_record_keyframes.png
+        \li Records changes in keyframe values for a particular property.
+        \li \l {Setting Keyframe Values}
+    \target keyframe_marker
+    \row
+        \li \inlineimage keyframe.png
+        \li Indicates the type of easing curve attached to the keyframe.
+            When a keyframe track is selected, the keyframe markers on it turn
+            gray, and when a keyframe itself is selected, its marker turns
+            brown:
+            \list
+                \li \inlineimage keyframe_linear_inactive.png
+                    - linear easing curve
+                \li \inlineimage keyframe_manualbezier_inactive.png
+                    - manually set Bezier curve
+                \li \inlineimage keyframe_autobezier_inactive.png
+                    - automatically set Bezier curve
+                \li \inlineimage keyframe_lineartobezier_inactive.png
+                    - linear-to-Bezier curve
+            \endlist
+        \li \l {Editing Easing Curves}
+    \endtable
+
+    \section1 Timeline Context Menu
+
+    The following table summarizes the context menu items available for each
+    keyframe track for a component, property, or keyframe marker and provides
+    links to more information about them.
+
+    \table
+    \header
+        \li To Learn About
+        \li Go To
+    \row
+        \li Delete All Keyframes
+        \li \l{Deleting Keyframes}
+    \row
+        \li Add Keyframes at Current Frame
+        \li \l{Setting Keyframe Values}
+    \row
+        \li Copy All Keyframes
+        \li \l{Copying Keyframes}
+    \row
+        \li Paste Keyframes
+        \li \l{Copying Keyframes}
+    \row
+        \li Remove Property
+        \li \l{Setting Keyframe Values}
+    \row
+        \li Delete Keyframe
+        \li \l{Deleting Keyframes}
+    \row
+        \li Edit Easing Curve
+        \li \l{Editing Easing Curves}
+    \row
+        \li Edit Keyframe
+        \li \l{Editing Keyframe Values}
+    \row
+        \li Override Color
+        \li \l{Setting Keyframe Track Color}
+    \row
+        \li Reset Color
+        \li \l{Setting Keyframe Track Color}
+    \endtable
+*/

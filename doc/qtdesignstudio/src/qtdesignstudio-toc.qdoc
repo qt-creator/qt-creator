@@ -63,6 +63,8 @@
                                 \li \l{Navigator}
                                 \li \l{Properties}
                                 \li \l{Transition Editor}
+                                \li \l{Timeline}
+                                \li \l{Curve Editor}
                             \endlist
                         \li \l{Managing Workspaces}
                         \li \l{Managing Sessions}
@@ -110,6 +112,9 @@
        \li \l {Adding Dynamics}
             \list
                 \li \l{Creating Animations}
+                \list
+                    \li \l{Editing Easing Curves}
+                \endlist
                 \li \l{Adding Connections}
                 \list
                     \li\l{Connecting Objects to Signals}

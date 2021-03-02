@@ -1,0 +1,125 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page qtquick-curve-editor.html
+    \previouspage qtquick-timeline-view.html
+    \nextpage creator-project-managing-workspaces.html
+
+    \title Curve Editor
+
+    \uicontrol {Curve Editor} shows the interpolated values of an animated
+    property over the animation range.
+
+    \image studio-curve-editor.png "Curve Editor"
+
+    When you edit an animation curve, you implicitly edit the
+    \l{Editing Easing Curves}{easing curves} that the underlying system uses
+    to define an animation. The animation curve is an extension to visualize
+    both the value of a keyframe and the interpolation between keyframes
+    simultaneously.
+
+    You can use the toolbar buttons to add \uicontrol Linear, \uicontrol Step,
+    or \uicontrol Spline interpolation between two keyframes.
+
+    When you set interpolation to \uicontrol Spline, handles appear in
+    \uicontrol {Curve Editor} that you can use to modify the curve. Select
+    \uicontrol Unify to lock the handle on the left of a keyframe to the one
+    on the right of it so that moving the left handle also moves the right
+    handle.
+
+    If the component that contains the animated property has been locked
+    in \l Navigator, you can select \inlineimage icons/lockon.png
+    to unlock it. You can also lock individual easing curves for editing.
+
+    To lock an animation curve, hover the mouse over the keyframe in the list,
+    and then select \inlineimage icons/lockoff.png
+    .
+
+    To pin an animation curve, hover the mouse over the keyframe in the list,
+    and then select \inlineimage icons/pin.png
+    .
+
+    \section1 Curve Editor Toolbar
+
+    The \uicontrol {Curve Editor} toolbar contains the following buttons and
+    fields.
+
+    \table
+    \header
+        \li Button/Field
+        \li Action
+    \row
+        \li \inlineimage icons/easing-curve-linear-icon.png
+        \li \uicontrol Linear specifies that the interpolation between
+            keyframes is linear.
+    \row
+        \li \inlineimage icons/easing-curve-step-icon.png
+        \li \uicontrol Step uses steps for interpolation between keyframes.
+    \row
+        \li \inlineimage icons/easing-curve-spline-icon.png
+        \li \uicontrol Spline uses bezier spline curves for interpolation
+            between keyframes and displays handles for managing them.
+    \row
+        \li \uicontrol {Set Default}
+        \li Currently not used.
+    \row
+        \li \uicontrol Unify
+        \li For \uicontrol Spline curves, locks the handle on the left of a
+            keyframe to the one on the right.
+    \row
+        \li Start Frame
+        \li Specifies the first frame of the curve.
+    \row
+        \li End Frame
+        \li Specifies the last frame of the curve.
+    \row
+        \li Current Frame
+        \li Displays the frame that the playhead is currently on. Enter a
+            number in the field to move the playhead to the respective frame.
+    \endtable
+
+    \section1 Editing Animation Curves
+
+    To edit animation curves:
+
+    \list 1
+        \li In the \l Timeline view, animate at least one property value by
+            \l{Managing Keyframes}{inserting keyframes} for it.
+        \li Select \uicontrol View > \uicontrol Views >
+            \uicontrol {Curve Editor} to open the animation curve editor.
+        \li Right-click in \uicontrol {Curve Editor}, and select
+            \uicontrol {Insert Keyframe} to add a keyframe.
+        \li Select keyframes to display the easing curves attached to them.
+            To select multiple keyframes, press and hold \key Ctrl.
+    \endlist
+
+    Your changes are automatically saved when you close the view.
+
+    \section1 Deleting Keyframes in Curve Editor
+
+    To delete the selected keyframe, select \uicontrol {Delete All Keyframes}
+    in the context menu.
+*/
