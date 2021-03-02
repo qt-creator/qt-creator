@@ -1184,8 +1184,7 @@ void Client::initializeCallback(const InitializeRequest::Response &initResponse)
 {
     QTC_ASSERT(m_state == InitializeRequested, return);
     if (optional<ResponseError<InitializeError>> error = initResponse.error()) {
-        if (error.value().data().has_value()
-                && error.value().data().value().retry().value_or(false)) {
+        if (error.value().data().has_value() && error.value().data().value().retry()) {
             const QString title(tr("Language Server \"%1\" Initialize Error").arg(m_displayName));
             auto result = QMessageBox::warning(Core::ICore::dialogParent(),
                                                title,
@@ -1212,7 +1211,7 @@ void Client::initializeCallback(const InitializeRequest::Response &initResponse)
                 + tr("Initialize result is not valid"));
         }
 
-        m_serverCapabilities = result.capabilities().value_or(ServerCapabilities());
+        m_serverCapabilities = result.capabilities();
     }
 
     if (auto completionProvider = qobject_cast<LanguageClientCompletionAssistProvider *>(

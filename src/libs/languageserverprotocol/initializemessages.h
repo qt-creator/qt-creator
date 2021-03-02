@@ -141,11 +141,12 @@ class LANGUAGESERVERPROTOCOL_EXPORT InitializeResult : public JsonObject
 public:
     using JsonObject::JsonObject;
 
-    Utils::optional<ServerCapabilities> capabilities() const
-    { return optionalValue<ServerCapabilities>(capabilitiesKey); }
+    ServerCapabilities capabilities() const
+    { return typedValue<ServerCapabilities>(capabilitiesKey); }
     void setCapabilities(const ServerCapabilities &capabilities)
     { insert(capabilitiesKey, capabilities); }
-    void clearCapabilities() { remove(capabilitiesKey); }
+
+    bool isValid() const override { return contains(capabilitiesKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT InitializeError : public JsonObject
@@ -159,9 +160,10 @@ public:
      * (2) user selects retry or cancel
      * (3) if user selected retry the initialize method is sent again.
      */
-    Utils::optional<bool> retry() const { return optionalValue<bool>(retryKey); }
-    void setRetry(bool retry) { insert(retryKey, retry); }
-    void clearRetry() { remove(retryKey); }
+    bool retry() const { return typedValue<bool>(retryKey); }
+    void setRetry(const bool &retry) { insert(retryKey, retry); }
+
+    bool isValid() const override { return contains(retryKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT InitializeRequest : public Request<
