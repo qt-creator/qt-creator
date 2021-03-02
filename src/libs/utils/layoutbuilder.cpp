@@ -348,15 +348,15 @@ LayoutBuilder &LayoutBuilder::addItem(const LayoutItem &item)
                 m_gridLayout->addWidget(widget, m_currentGridRow, m_currentGridColumn, 1, item.span, align);
             }
             m_currentGridColumn += item.span;
-            if (item.linebreak)
+            if (item.specialType == SpecialType::Break)
                 finishRow();
         } else if (m_boxLayout) {
             if (auto widget = item.widget) {
                 m_boxLayout->addWidget(widget);
-            } else if (item.stretch != 0) {
-                m_boxLayout->addStretch(item.stretch);
-            } else if (item.space != 0) {
-                m_boxLayout->addSpacing(item.space);
+            } else if (item.specialType == SpecialType::Stretch) {
+                m_boxLayout->addStretch(item.specialValue.toInt());
+            } else if (item.specialType == SpecialType::Space) {
+                m_boxLayout->addSpacing(item.specialValue.toInt());
             }
         } else {
             m_pendingFormItems.append(item);
@@ -383,19 +383,54 @@ void LayoutBuilder::attachTo(QWidget *w, bool stretchAtBottom)
         builder.addItem(Stretch());
 }
 
-namespace Layouting {
-
-Group::Group(std::initializer_list<LayoutItem> items)
-    : LayoutBuilder(new QGroupBox, VBoxWithMargins)
+LayoutBuilder::Break::Break()
 {
-    addItems(items);
+    specialType = LayoutBuilder::SpecialType::Break;
 }
+
+LayoutBuilder::Stretch::Stretch(int stretch)
+{
+    specialType = LayoutBuilder::SpecialType::Stretch;
+    specialValue = stretch;
+}
+
+LayoutBuilder::Space::Space(int space)
+{
+    specialType = LayoutBuilder::SpecialType::Space;
+    specialValue = space;
+}
+
+LayoutBuilder::Title::Title(const QString &title)
+{
+    specialType = LayoutBuilder::SpecialType::Title;
+    specialValue = title;
+}
+
+// FIXME: Decide on which style to use:
+//    Group { Title(...), child1, child2, ...};   or
+//    Group { child1, child2, ... }.withTitle(...);
 
 Layouting::Group &Layouting::Group::withTitle(const QString &title)
 {
     if (auto box = qobject_cast<QGroupBox *>(parentWidget()))
         box->setTitle(title);
     return *this;
+}
+
+namespace Layouting {
+
+Group::Group(std::initializer_list<LayoutItem> items)
+    : LayoutBuilder(new QGroupBox, VBoxWithMargins)
+{
+    for (const LayoutItem &item : items) {
+        if (item.specialType == LayoutBuilder::SpecialType::Title) {
+            auto box = qobject_cast<QGroupBox *>(parentWidget());
+            QTC_ASSERT(box, continue);
+            box->setTitle(item.specialValue.toString());
+        } else {
+            addItem(item);
+        }
+    }
 }
 
 Box::Box(LayoutType type, const LayoutItems &items)

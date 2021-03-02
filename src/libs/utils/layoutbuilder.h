@@ -29,6 +29,7 @@
 
 #include <QList>
 #include <QString>
+#include <QVariant>
 
 QT_BEGIN_NAMESPACE
 class QBoxLayout;
@@ -58,6 +59,16 @@ public:
     };
     enum Alignment { DefaultAlignment, AlignAsFormLabel };
 
+    enum class SpecialType {
+        NotSpecial,
+        Align,
+        Space,
+        Span,
+        Stretch,
+        Break,
+        Title
+    };
+
     class QTCREATOR_UTILS_EXPORT LayoutItem
     {
     public:
@@ -72,33 +83,14 @@ public:
         QLayout *layout = nullptr;
         QWidget *widget = nullptr;
         BaseAspect *aspect = nullptr;
-        QString text;
+        QString text; // FIXME: Use specialValue for that
         int span = 1;
         Alignment align;
-        int space = 0;
-        int stretch = 0;
-        bool linebreak = false;
+        SpecialType specialType = SpecialType::NotSpecial;
+        QVariant specialValue;
     };
 
     using LayoutItems = QList<LayoutItem>;
-
-    class QTCREATOR_UTILS_EXPORT Space : public LayoutItem
-    {
-    public:
-        explicit Space(int space_) { space = space_; }
-    };
-
-    class QTCREATOR_UTILS_EXPORT Stretch : public LayoutItem
-    {
-    public:
-        explicit Stretch(int stretch_ = 1) { stretch = stretch_; }
-    };
-
-    class QTCREATOR_UTILS_EXPORT Break : public LayoutItem
-    {
-    public:
-        Break() { linebreak = true; }
-    };
 
     explicit LayoutBuilder(QWidget *parent, LayoutType layoutType = Form);
     explicit LayoutBuilder(QLayout *layout); // Adds to existing layout.
@@ -122,6 +114,30 @@ public:
     QWidget *parentWidget() const;
 
     void attachTo(QWidget *w, bool stretchAtBottom = true);
+
+    class QTCREATOR_UTILS_EXPORT Space : public LayoutItem
+    {
+    public:
+        explicit Space(int space);
+    };
+
+    class QTCREATOR_UTILS_EXPORT Stretch : public LayoutItem
+    {
+    public:
+        explicit Stretch(int stretch = 1);
+    };
+
+    class QTCREATOR_UTILS_EXPORT Break : public LayoutItem
+    {
+    public:
+        Break();
+    };
+
+    class QTCREATOR_UTILS_EXPORT Title : public LayoutBuilder::LayoutItem
+    {
+    public:
+        explicit Title(const QString &title);
+    };
 
 private:
     void flushPendingFormItems();
@@ -175,9 +191,19 @@ public:
     {}
 };
 
+class QTCREATOR_UTILS_EXPORT Form : public Box
+{
+public:
+    Form(std::initializer_list<LayoutItem> items)
+        : Box(FormLayout, items)
+    {}
+};
+
+using Item = LayoutBuilder::LayoutItem;
 using Stretch = LayoutBuilder::Stretch;
 using Space = LayoutBuilder::Space;
 using Break = LayoutBuilder::Break;
+using Title = LayoutBuilder::Title;
 
 }
 } // namespace Utils
