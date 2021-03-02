@@ -338,7 +338,8 @@ void CurveEditorView::commitKeyframes(TreeItem *item)
                     group.setValue(QVariant(pos.y()), pos.x());
 
                     if (previous.isValid()) {
-                        if (frame.interpolation() == Keyframe::Interpolation::Bezier) {
+                        if (frame.interpolation() == Keyframe::Interpolation::Bezier ||
+                            frame.interpolation() == Keyframe::Interpolation::Step ) {
                             CurveSegment segment(previous, frame);
                             if (segment.isValid())
                                 attachEasingCurve(group, pos.x(), segment.easingCurve());
@@ -346,8 +347,6 @@ void CurveEditorView::commitKeyframes(TreeItem *item)
                             QVariant data = frame.data();
                             if (data.type() == static_cast<int>(QMetaType::QEasingCurve))
                                 attachEasingCurve(group, pos.x(), data.value<QEasingCurve>());
-                        } else if (frame.interpolation() == Keyframe::Interpolation::Step) {
-                            // Warning: Keyframe::Interpolation::Step not yet implemented
                         }
                     }
 

@@ -100,7 +100,9 @@ QToolBar *CurveEditor::createToolBar(CurveEditorModel *model)
     auto setLinearInterpolation = [this]() {
         m_view->setInterpolation(Keyframe::Interpolation::Linear);
     };
-    auto setStepInterpolation = [this]() { m_view->setInterpolation(Keyframe::Interpolation::Step); };
+    auto setStepInterpolation = [this]() {
+        m_view->setInterpolation(Keyframe::Interpolation::Step);
+    };
     auto setSplineInterpolation = [this]() {
         m_view->setInterpolation(Keyframe::Interpolation::Bezier);
     };
