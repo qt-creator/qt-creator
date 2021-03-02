@@ -167,7 +167,7 @@ void ItemLibraryModel::setSearchText(const QString &searchText)
     }
 }
 
-Import entryToImport(const ItemLibraryEntry &entry)
+Import ItemLibraryModel::entryToImport(const ItemLibraryEntry &entry)
 {
     if (entry.majorVersion() == -1 && entry.minorVersion() == -1)
         return Import::createFileImport(entry.requiredImport());
@@ -204,46 +204,61 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
         bool valid = metaInfo.isValid() && metaInfo.majorVersion() == entry.majorVersion();
         bool isItem = valid && metaInfo.isSubclassOf("QtQuick.Item");
-        bool forceVisiblity = valid && NodeHints::fromItemLibraryEntry(entry).visibleInLibrary();
+        bool forceVisibility = valid && NodeHints::fromItemLibraryEntry(entry).visibleInLibrary();
 
         if (m_flowMode && metaInfo.isValid()) {
             isItem = metaInfo.isSubclassOf("FlowView.FlowItem")
                     || metaInfo.isSubclassOf("FlowView.FlowWildcard")
                     || metaInfo.isSubclassOf("FlowView.FlowDecision");
-            forceVisiblity = isItem;
+            forceVisibility = isItem;
         }
 
+        bool blocked = false;
         const DesignerMcuManager &mcuManager = DesignerMcuManager::instance();
         if (mcuManager.isMCUProject()) {
             const QSet<QString> blockTypes = mcuManager.bannedItems();
 
             if (blockTypes.contains(QString::fromUtf8(entry.typeName())))
-                valid = false;
+                blocked = true;
         }
 
-        if (valid && (isItem || forceVisiblity) // We can change if the navigator does support pure QObjects
-            && (entry.requiredImport().isEmpty()
-                || model->hasImport(entryToImport(entry), true, true))) {
-
+        Import import = entryToImport(entry);
+        bool hasImport = model->hasImport(import, true, true);
+        bool isImportPossible = false;
+        if (!hasImport)
+            isImportPossible = model->isImportPossible(import, true, true);
+        bool isUsable = (valid && (isItem || forceVisibility))
+                && (entry.requiredImport().isEmpty() || hasImport);
+        if (!blocked && (isUsable || isImportPossible)) {
             ItemLibraryImport *importSection = nullptr;
-
             QString catName = entry.category();
-            if (catName == ItemLibraryImport::userComponentsTitle()) {
-                // create an import section for user components
-                importSection = importByUrl(ItemLibraryImport::userComponentsTitle());
+            if (isUsable) {
+                if (catName == ItemLibraryImport::userComponentsTitle()) {
+                    // create an import section for user components
+                    importSection = importByUrl(ItemLibraryImport::userComponentsTitle());
+                    if (!importSection) {
+                        importSection = new ItemLibraryImport(
+                                    {}, this, ItemLibraryImport::SectionType::User);
+                        m_importList.append(importSection);
+                        importSection->setImportExpanded(loadExpandedState(catName));
+                    }
+                } else {
+                    if (catName.startsWith("Qt Quick - "))
+                        catName = catName.mid(11); // remove "Qt Quick - "
+                    importSection = importByUrl(entry.requiredImport());
+                }
+            } else {
+                catName = ItemLibraryImport::unimportedComponentsTitle();
+                importSection = importByUrl(catName);
                 if (!importSection) {
-                    importSection = new ItemLibraryImport({}, this, true);
+                    importSection = new ItemLibraryImport(
+                                {}, this, ItemLibraryImport::SectionType::Unimported);
                     m_importList.append(importSection);
                     importSection->setImportExpanded(loadExpandedState(catName));
                 }
-            } else {
-                if (catName.startsWith("Qt Quick - "))
-                    catName = catName.mid(11); // remove "Qt Quick - "
-
-                importSection = importByUrl(entry.requiredImport());
             }
 
-            if (!importSection) { // should not happen, but just in case
+            if (!importSection) {
                 qWarning() << __FUNCTION__ << "No import section found! skipping entry: " << entry.name();
                 continue;
             }
@@ -253,12 +268,12 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
             if (!categorySection) {
                 categorySection = new ItemLibraryCategory(catName, importSection);
                 importSection->addCategory(categorySection);
-                if (!importSection->isUserSection())
+                if (importSection->sectionType() == ItemLibraryImport::SectionType::Default)
                     categorySection->setExpanded(loadExpandedState(categorySection->categoryName()));
             }
 
             // create item
-            auto item = new ItemLibraryItem(entry, categorySection);
+            auto item = new ItemLibraryItem(entry, isUsable, categorySection);
             categorySection->addItem(item);
         }
     }
@@ -300,7 +315,9 @@ ItemLibraryImport *ItemLibraryModel::importByUrl(const QString &importUrl) const
         if (itemLibraryImport->importUrl() == importUrl
             || (importUrl.isEmpty() && itemLibraryImport->importUrl() == "QtQuick")
             || (importUrl == ItemLibraryImport::userComponentsTitle()
-                && itemLibraryImport->isUserSection())) {
+                && itemLibraryImport->sectionType() == ItemLibraryImport::SectionType::User)
+            || (importUrl == ItemLibraryImport::unimportedComponentsTitle()
+                && itemLibraryImport->sectionType() == ItemLibraryImport::SectionType::Unimported)) {
             return itemLibraryImport;
         }
     }
@@ -324,8 +341,10 @@ void ItemLibraryModel::updateVisibility(bool *changed)
     for (ItemLibraryImport *import : std::as_const(m_importList)) {
         bool categoryChanged = false;
         bool hasVisibleItems = import->updateCategoryVisibility(m_searchText, &categoryChanged);
-
         *changed |= categoryChanged;
+
+        if (import->sectionType() == ItemLibraryImport::SectionType::Unimported)
+            *changed |= import->setVisible(!m_searchText.isEmpty());
 
         // expand import if it has an item matching search criteria
         if (hasVisibleItems && !import->importExpanded())

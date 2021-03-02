@@ -69,6 +69,8 @@ public:
     Q_INVOKABLE void expandAll();
     Q_INVOKABLE void collapseAll();
 
+    Import entryToImport(const ItemLibraryEntry &entry);
+
 private:
     void updateVisibility(bool *changed);
     void addRoleNames();

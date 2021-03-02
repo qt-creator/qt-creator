@@ -28,17 +28,21 @@
 
 namespace QmlDesigner {
 
-ItemLibraryImport::ItemLibraryImport(const Import &import, QObject *parent, bool isUserSection)
+ItemLibraryImport::ItemLibraryImport(const Import &import, QObject *parent, SectionType sectionType)
     : QObject(parent),
       m_import(import),
-      m_isUserSection(isUserSection)
+      m_sectionType(sectionType)
 {
+    updateRemovable();
 }
 
 QString ItemLibraryImport::importName() const
 {
-    if (m_isUserSection)
+    if (m_sectionType == SectionType::User)
         return userComponentsTitle();
+
+    if (m_sectionType == SectionType::Unimported)
+        return unimportedComponentsTitle();
 
     if (importUrl() == "QtQuick")
         return tr("Default Components");
@@ -48,8 +52,11 @@ QString ItemLibraryImport::importName() const
 
 QString ItemLibraryImport::importUrl() const
 {
-    if (m_isUserSection)
+    if (m_sectionType == SectionType::User)
         return userComponentsTitle();
+
+    if (m_sectionType == SectionType::Unimported)
+        return unimportedComponentsTitle();
 
     return m_import.url();
 }
@@ -61,11 +68,14 @@ bool ItemLibraryImport::importExpanded() const
 
 QString ItemLibraryImport::sortingName() const
 {
-    if (m_isUserSection) // user components always come first
-        return "_";
+    if (m_sectionType == SectionType::User)
+        return "_"; // user components always come first
+
+    if (m_sectionType == SectionType::Unimported)
+        return "zzzzzz"; // Unimported components always come last
 
     if (!hasCategories()) // imports with no categories are at the bottom of the list
-        return "zzzzz" + importName();
+        return "zzzzz_" + importName();
 
     return importName();
 }
@@ -113,6 +123,7 @@ bool ItemLibraryImport::setVisible(bool isVisible)
 {
     if (isVisible != m_isVisible) {
         m_isVisible = isVisible;
+        emit importVisibleChanged();
         return true;
     }
 
@@ -126,12 +137,21 @@ bool ItemLibraryImport::importVisible() const
 
 void ItemLibraryImport::setImportUsed(bool importUsed)
 {
-    m_importUsed = importUsed;
+    if (importUsed != m_importUsed) {
+        m_importUsed = importUsed;
+        updateRemovable();
+        emit importUsedChanged();
+    }
 }
 
 bool ItemLibraryImport::importUsed() const
 {
     return m_importUsed;
+}
+
+bool ItemLibraryImport::importRemovable() const
+{
+    return m_importRemovable;
 }
 
 bool ItemLibraryImport::hasCategories() const
@@ -146,7 +166,10 @@ void ItemLibraryImport::sortCategorySections()
 
 void ItemLibraryImport::setImportExpanded(bool expanded)
 {
-    m_importExpanded = expanded;
+    if (expanded != m_importExpanded) {
+        m_importExpanded = expanded;
+        emit importExpandChanged();
+    }
 }
 
 ItemLibraryCategory *ItemLibraryImport::getCategorySection(const QString &categoryName) const
@@ -159,15 +182,30 @@ ItemLibraryCategory *ItemLibraryImport::getCategorySection(const QString &catego
     return nullptr;
 }
 
-bool ItemLibraryImport::isUserSection() const
-{
-    return m_isUserSection;
-}
-
 // static
 QString ItemLibraryImport::userComponentsTitle()
 {
     return tr("My Components");
+}
+
+QString ItemLibraryImport::unimportedComponentsTitle()
+{
+    return tr("All Other Components");
+}
+
+ItemLibraryImport::SectionType ItemLibraryImport::sectionType() const
+{
+    return m_sectionType;
+}
+
+void ItemLibraryImport::updateRemovable()
+{
+    bool importRemovable = !m_importUsed && m_sectionType == SectionType::Default
+            && m_import.url() != "QtQuick";
+    if (importRemovable != m_importRemovable) {
+        m_importRemovable = importRemovable;
+        emit importRemovableChanged();
+    }
 }
 
 } // namespace QmlDesigner

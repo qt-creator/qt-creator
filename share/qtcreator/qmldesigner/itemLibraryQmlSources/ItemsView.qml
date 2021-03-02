@@ -77,11 +77,14 @@ ScrollView {
     id: itemsView
 
     property string importToRemove: ""
+    property string importToAdd: ""
+    property var currentItem: null
 
     // called from C++ to close context menu on focus out
     function closeContextMenu()
     {
-        contextMenu.close()
+        importContextMenu.close()
+        itemContextMenu.close()
     }
 
     Item {
@@ -99,11 +102,11 @@ ScrollView {
                                  2 * cellVerticalMargin + cellVerticalSpacing
 
         StudioControls.Menu {
-            id: contextMenu
+            id: importContextMenu
 
             StudioControls.MenuItem {
                 text: qsTr("Remove Module")
-                enabled: importToRemove !== "" && importToRemove !== "QtQuick"
+                enabled: importToRemove !== ""
                 onTriggered: rootView.removeImport(importToRemove)
             }
 
@@ -117,6 +120,19 @@ ScrollView {
             StudioControls.MenuItem {
                 text: qsTr("Collapse All")
                 onTriggered: itemLibraryModel.collapseAll()
+            }
+        }
+
+        StudioControls.Menu {
+            id: itemContextMenu
+            // Workaround for menu item implicit width not properly propagating to menu
+            width: importMenuItem.implicitWidth
+
+            StudioControls.MenuItem {
+                id: importMenuItem
+                text: qsTr("Import Module: ") + importToAdd
+                enabled: currentItem
+                onTriggered: rootView.addImportForItem(currentItem)
             }
         }
     }
@@ -144,8 +160,8 @@ ScrollView {
                         importExpanded = !importExpanded
                 }
                 onShowContextMenu: {
-                    importToRemove = importUsed ? "" : importUrl
-                    contextMenu.popup()
+                    importToRemove = importRemovable ? importUrl : ""
+                    importContextMenu.popup()
                 }
 
                 Column {
@@ -180,6 +196,15 @@ ScrollView {
                                         visible: itemVisible
                                         width: styleConstants.cellWidth + itemGrid.flexibleWidth
                                         height: styleConstants.cellHeight
+                                        onShowContextMenu: {
+                                            if (!itemUsable) {
+                                                importToAdd = itemRequiredImport
+                                                if (importToAdd !== "") {
+                                                    currentItem = itemLibraryEntry
+                                                    itemContextMenu.popup()
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }

@@ -30,12 +30,19 @@ import QtQuick.Layouts 1.0
 MouseArea {
     id: mouseArea
 
+    signal showContextMenu()
+
     onExited: tooltipBackend.hideTooltip()
     onCanceled: tooltipBackend.hideTooltip()
-    onClicked: forceActiveFocus()
     onPositionChanged: tooltipBackend.reposition()
+    onClicked: {
+        forceActiveFocus()
+        if (mouse.button === Qt.RightButton)
+            showContextMenu()
+    }
 
     hoverEnabled: true
+    acceptedButtons: Qt.LeftButton | Qt.RightButton
 
     Timer {
         interval: 1000

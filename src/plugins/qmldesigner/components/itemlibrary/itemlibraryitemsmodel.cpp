@@ -70,7 +70,7 @@ void ItemLibraryItemsModel::addItem(ItemLibraryItem *element)
 {
     m_itemList.append(element);
 
-    element->setVisible(true);
+    element->setVisible(element->isUsable());
 }
 
 const QList<QPointer<ItemLibraryItem>> &ItemLibraryItemsModel::items() const

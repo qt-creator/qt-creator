@@ -41,10 +41,18 @@ class ItemLibraryImport : public QObject
     Q_PROPERTY(bool importVisible READ importVisible NOTIFY importVisibleChanged FINAL)
     Q_PROPERTY(bool importUsed READ importUsed NOTIFY importUsedChanged FINAL)
     Q_PROPERTY(bool importExpanded READ importExpanded WRITE setImportExpanded NOTIFY importExpandChanged FINAL)
+    Q_PROPERTY(bool importRemovable READ importRemovable NOTIFY importRemovableChanged FINAL)
     Q_PROPERTY(QObject *categoryModel READ categoryModel NOTIFY categoryModelChanged FINAL)
 
 public:
-    ItemLibraryImport(const Import &import, QObject *parent = nullptr, bool isUserSection = false);
+    enum class SectionType {
+        Default,
+        User,
+        Unimported
+    };
+
+    ItemLibraryImport(const Import &import, QObject *parent = nullptr,
+                      SectionType sectionType = SectionType::Default);
 
     QString importName() const;
     QString importUrl() const;
@@ -53,6 +61,7 @@ public:
     Import importEntry() const;
     bool importVisible() const;
     bool importUsed() const;
+    bool importRemovable() const;
     bool hasCategories() const;
     ItemLibraryCategory *getCategorySection(const QString &categoryName) const;
 
@@ -66,21 +75,26 @@ public:
     void expandCategories(bool expand = true);
 
     static QString userComponentsTitle();
+    static QString unimportedComponentsTitle();
 
-    bool isUserSection() const;
+    SectionType sectionType() const;
 
 signals:
     void categoryModelChanged();
     void importVisibleChanged();
     void importUsedChanged();
     void importExpandChanged();
+    void importRemovableChanged();
 
 private:
+    void updateRemovable();
+
     Import m_import;
     bool m_importExpanded = true;
     bool m_isVisible = true;
     bool m_importUsed = false;
-    bool m_isUserSection = false; // user components import section
+    bool m_importRemovable = false;
+    SectionType m_sectionType = SectionType::Default;
     ItemLibraryCategoriesModel m_categoryModel;
 };
 
