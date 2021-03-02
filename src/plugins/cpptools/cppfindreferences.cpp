@@ -636,6 +636,7 @@ static void displayResults(SearchResult *search, QFutureWatcher<CPlusPlus::Usage
         item.setLineText(result.lineText);
         item.setUserData(int(result.type));
         item.setStyle(colorStyleForUsageType(result.type));
+        item.setUseTextEditorFont(true);
         search->addResult(item);
 
         if (parameters.prettySymbolName.isEmpty())
@@ -831,6 +832,7 @@ void CppFindReferences::findMacroUses(const CPlusPlus::Macro &macro, const QStri
         item.setFilePath(Utils::FilePath::fromString(macro.fileName()));
         item.setLineText(line);
         item.setMainRange(macro.line(), column, macro.nameToQString().length());
+        item.setUseTextEditorFont(true);
         search->addResult(item);
     }
 

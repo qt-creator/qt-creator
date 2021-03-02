@@ -1012,6 +1012,7 @@ void FindReferences::displayResults(int first, int last)
         item.setFilePath(Utils::FilePath::fromString(result.path));
         item.setLineText(result.lineText);
         item.setMainRange(result.line, result.col, result.len);
+        item.setUseTextEditorFont(true);
         m_currentSearch->addResult(item);
     }
 }

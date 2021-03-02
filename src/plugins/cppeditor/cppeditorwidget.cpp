@@ -421,6 +421,7 @@ static void addSearchResults(CppTools::Usages usages, SearchResult &search, cons
             item.setFilePath(FilePath::fromString(usage.path));
             item.setLineText(lineContent);
             item.setMainRange(range);
+            item.setUseTextEditorFont(true);
             search.addResult(item);
         }
     }
