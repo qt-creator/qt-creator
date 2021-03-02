@@ -171,6 +171,12 @@ ThemeChooser::~ThemeChooser()
     delete d;
 }
 
+static QString defaultThemeId()
+{
+    return Theme::systemUsesDarkMode() ? QString(Constants::DEFAULT_DARK_THEME)
+                                       : QString(Constants::DEFAULT_THEME);
+}
+
 void ThemeChooser::apply()
 {
     const int index = d->m_themeComboBox->currentIndex();
@@ -181,9 +187,7 @@ void ThemeChooser::apply()
     const QString currentThemeId = ThemeEntry::themeSetting().toString();
     if (currentThemeId != themeId) {
         // save filename of selected theme in global config
-        settings->setValueWithDefault(Constants::SETTINGS_THEME,
-                                      themeId,
-                                      QString(Constants::DEFAULT_THEME));
+        settings->setValueWithDefault(Constants::SETTINGS_THEME, themeId, defaultThemeId());
         RestartDialog restartDialog(ICore::dialogParent(),
                                     tr("The theme change will take effect after restart."));
         restartDialog.exec();
@@ -225,10 +229,8 @@ QList<ThemeEntry> ThemeEntry::availableThemes()
 
 Id ThemeEntry::themeSetting()
 {
-    auto defaultId = Theme::systemUsesDarkMode() ? Constants::DEFAULT_DARK_THEME
-                                                 : Constants::DEFAULT_THEME;
     const Id setting = Id::fromSetting(
-        ICore::settings()->value(Constants::SETTINGS_THEME, defaultId));
+        ICore::settings()->value(Constants::SETTINGS_THEME, defaultThemeId()));
 
     const QList<ThemeEntry> themes = availableThemes();
     if (themes.empty())
