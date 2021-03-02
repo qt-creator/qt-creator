@@ -46,7 +46,9 @@ CMakeInputsNode::CMakeInputsNode(const Utils::FilePath &cmakeLists) :
 {
     setPriority(Node::DefaultPriority - 10); // Bottom most!
     setDisplayName(QCoreApplication::translate("CMakeFilesProjectNode", "CMake Modules"));
-    setIcon(QIcon(":/projectexplorer/images/session.png")); // TODO: Use a better icon!
+    static const QIcon modulesIcon = Core::FileIconProvider::directoryIcon(
+                ProjectExplorer::Constants::FILEOVERLAY_MODULES);
+    setIcon(modulesIcon);
     setListInProject(false);
 }
 

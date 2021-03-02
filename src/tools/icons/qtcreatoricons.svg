@@ -20,6 +20,18 @@
      id="defs4">
     <linearGradient
        inkscape:collect="always"
+       id="linearGradient2550">
+      <stop
+         style="stop-color:#459933;stop-opacity:1"
+         offset="0"
+         id="stop2546" />
+      <stop
+         style="stop-color:#79cc66;stop-opacity:1"
+         offset="1"
+         id="stop2548" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
        id="linearGradient3970">
       <stop
          style="stop-color:#000000;stop-opacity:0"
@@ -587,6 +599,15 @@
          values="0.66 0 0 0.35 0.0182292 0.02 0.66 0.02 0.35 0.0182292 0.08 0.08 0.66 0.35 0.02 0 0 0 1 0 "
          id="feColorMatrix2747" />
     </filter>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2550"
+       id="linearGradient2552"
+       x1="74"
+       y1="530.5"
+       x2="75"
+       y2="534"
+       gradientUnits="userSpaceOnUse" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -9354,6 +9375,50 @@
          cx="75"
          cy="531"
          r="1.5" />
+    </g>
+    <g
+       id="src/plugins/projectexplorer/images/fileoverlay_modules"
+       transform="translate(176)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#transparentBackgroundRect"
+         id="use2538"
+         width="100%"
+         transform="translate(80,68)"
+         height="100%" />
+      <path
+         style="opacity:0.75;fill:#ffffff;stroke:#ffffff;stroke-linejoin:round"
+         d="m 68.5,529.19 7.5,-3.69 3.5,1.7 V 531.8 L 72,535.5 68.5,533.8 Z"
+         id="path4572"
+         sodipodi:nodetypes="ccccccc" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g2810"
+         id="use2833"
+         transform="translate(4,-2)"
+         width="100%"
+         height="100%" />
+      <g
+         id="g2810"
+         transform="translate(-1)">
+        <path
+           style="fill:#97d98c;fill-opacity:1"
+           d="m 70,529.5 3,-1.5 3,1.5 -3,5.5 z"
+           id="path2816"
+           sodipodi:nodetypes="ccccc" />
+        <path
+           style="fill:url(#linearGradient2552);fill-opacity:1"
+           d="m 76,529.5 v 4 l -3,1.5 -3,-2.5 z"
+           id="path2814"
+           sodipodi:nodetypes="ccccc" />
+        <path
+           style="fill:#2e7326;fill-opacity:1"
+           d="m 70,529.5 v 4 l 3,1.5 v -4 z"
+           id="path2812"
+           sodipodi:nodetypes="ccccc" />
+      </g>
     </g>
     <g
        id="src/libs/utils/images/filesave">
