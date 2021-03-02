@@ -1238,7 +1238,11 @@ QAction *BoolAspect::action()
     act->setCheckable(true);
     act->setChecked(value());
     connect(act, &QAction::triggered, this, [this](bool newValue) {
-        QTC_CHECK(isAutoApply());
+        // The check would be nice to have in simple conditions, but if we
+        // have an action that's used both on a settings page and as action
+        // in a menu like "Use FakeVim", isAutoApply() is false, and yet this
+        // here can trigger.
+        //QTC_CHECK(isAutoApply());
         setValue(newValue);
     });
     return act;
