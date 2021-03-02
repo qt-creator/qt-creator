@@ -3919,11 +3919,13 @@ namespace qurl {
 
     void testQUrl()
     {
+        QString s("123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_");
+        QUrl u(QString("123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_"));
         QUrl url(QString("http://qt-project.org"));
         BREAK_HERE;
         // Check url "http://qt-project.org" QUrl.
         // Continue.
-        dummyStatement(&url);
+        dummyStatement(&url, &u);
     }
 
 } // namespace qurl
