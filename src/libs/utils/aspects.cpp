@@ -645,8 +645,8 @@ public:
 class IntegerAspectPrivate
 {
 public:
-    QVariant m_minimumValue;
-    QVariant m_maximumValue;
+    Utils::optional<qint64> m_minimumValue;
+    Utils::optional<qint64> m_maximumValue;
     int m_displayIntegerBase = 10;
     qint64 m_displayScaleFactor = 1;
     QString m_prefix;
@@ -1554,15 +1554,15 @@ void IntegerAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_spinBox);
     d->m_spinBox = createSubWidget<QSpinBox>();
-    d->m_spinBox->setValue(int(value() / d->m_displayScaleFactor));
     d->m_spinBox->setDisplayIntegerBase(d->m_displayIntegerBase);
     d->m_spinBox->setPrefix(d->m_prefix);
     d->m_spinBox->setSuffix(d->m_suffix);
     d->m_spinBox->setSingleStep(d->m_singleStep);
     d->m_spinBox->setSpecialValueText(d->m_specialValueText);
-    if (d->m_maximumValue.isValid() && d->m_maximumValue.isValid())
-        d->m_spinBox->setRange(int(d->m_minimumValue.toLongLong() / d->m_displayScaleFactor),
-                               int(d->m_maximumValue.toLongLong() / d->m_displayScaleFactor));
+    if (d->m_maximumValue && d->m_maximumValue)
+        d->m_spinBox->setRange(int(d->m_minimumValue.value() / d->m_displayScaleFactor),
+                               int(d->m_maximumValue.value() / d->m_displayScaleFactor));
+    d->m_spinBox->setValue(int(value() / d->m_displayScaleFactor)); // Must happen after setRange()
     addLabeledItem(builder, d->m_spinBox);
 
     if (isAutoApply()) {
@@ -1674,13 +1674,13 @@ void DoubleAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_spinBox);
     d->m_spinBox = createSubWidget<QDoubleSpinBox>();
-    d->m_spinBox->setValue(value());
     d->m_spinBox->setPrefix(d->m_prefix);
     d->m_spinBox->setSuffix(d->m_suffix);
     d->m_spinBox->setSingleStep(d->m_singleStep);
     d->m_spinBox->setSpecialValueText(d->m_specialValueText);
     if (d->m_maximumValue && d->m_maximumValue)
         d->m_spinBox->setRange(d->m_minimumValue.value(), d->m_maximumValue.value());
+    d->m_spinBox->setValue(value()); // Must happen after setRange()!
     addLabeledItem(builder, d->m_spinBox);
 
     if (isAutoApply()) {
