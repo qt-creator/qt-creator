@@ -1854,7 +1854,7 @@ def qdump__QUrl(d, value):
 
     userNameEnc = d.encodeString(userName)
     hostEnc = d.encodeString(host)
-    pathEnc = d.encodeString(path)
+    elided, pathEnc = d.encodeStringHelper(path, d.displayStringLimit)
     url = d.encodeString(scheme)
     url += '3a002f002f00'  # '://'
     if len(userNameEnc):
@@ -1863,7 +1863,7 @@ def qdump__QUrl(d, value):
     if port >= 0:
         url += '3a00' + ''.join(['%02x00' % ord(c) for c in str(port)])
     url += pathEnc
-    d.putValue(url, 'utf16')
+    d.putValue(url, 'utf16', elided=elided)
 
     displayFormat = d.currentItemFormat()
     if displayFormat == DisplayFormat.Separate:
