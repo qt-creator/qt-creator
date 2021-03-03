@@ -519,7 +519,7 @@ void CMakeBuildSettingsWidget::updateButtonState()
                     break;
                 case CMakeProjectManager::ConfigModel::DataItem::UNKNOWN:
                 default:
-                    ni.type = CMakeConfigItem::INTERNAL;
+                    ni.type = CMakeConfigItem::UNINITIALIZED;
                     break;
                 }
                 return ni;

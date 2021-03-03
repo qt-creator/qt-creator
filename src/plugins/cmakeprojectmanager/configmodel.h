@@ -101,7 +101,7 @@ public:
                     cmi.type = CMakeConfigItem::STRING;
                     break;
                 case DataItem::UNKNOWN:
-                    cmi.type = CMakeConfigItem::INTERNAL;
+                    cmi.type = CMakeConfigItem::UNINITIALIZED;
                     break;
             }
             cmi.isUnset = isUnset;
