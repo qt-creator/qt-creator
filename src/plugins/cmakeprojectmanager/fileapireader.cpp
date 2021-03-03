@@ -253,7 +253,7 @@ void FileApiReader::endState(const QFileInfo &replyFi)
     const FilePath sourceDirectory = m_parameters.sourceDirectory;
     const FilePath buildDirectory = m_parameters.workDirectory;
     const FilePath topCmakeFile = m_cmakeFiles.size() == 1 ? *m_cmakeFiles.begin() : FilePath{};
-    const QString cmakeBuildType = m_parameters.cmakeBuildType;
+    const QString cmakeBuildType = m_parameters.cmakeBuildType == "Build" ? "" : m_parameters.cmakeBuildType;
 
     m_lastReplyTimestamp = replyFi.lastModified();
 
