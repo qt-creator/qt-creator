@@ -162,6 +162,8 @@ FormatDescriptions TextEditorSettingsPrivate::initialFormats()
                              Qt::darkMagenta);
     formatDescr.emplace_back(C_LOCAL, tr("Local"),
                              tr("Local variables."), QColor(9, 46, 100));
+    formatDescr.emplace_back(C_PARAMETER, tr("Parameter"),
+                             tr("Function or method parameters."), QColor(9, 46, 100));
     formatDescr.emplace_back(C_FIELD, tr("Field"),
                              tr("Class' data members."), Qt::darkRed);
     formatDescr.emplace_back(C_GLOBAL, tr("Global"),

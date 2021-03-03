@@ -78,6 +78,7 @@ enum class HighlightingType : quint8
     Type,
     PrimitiveType,
     LocalVariable,
+    Parameter,
     Field,
     GlobalVariable,
     Enumeration,

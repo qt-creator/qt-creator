@@ -138,6 +138,7 @@ public:
 
         return extraInfo.declaration
                 && types.mainHighlightingType != HighlightingType::LocalVariable
+                && types.mainHighlightingType != HighlightingType::Parameter
                 && (types.mixinHighlightingTypes.contains(HighlightingType::Operator)
                     == extraInfo.token.startsWith("operator"));
     }

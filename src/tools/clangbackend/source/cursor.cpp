@@ -110,6 +110,11 @@ bool Cursor::isInvalidDeclaration() const
     return clang_isInvalidDeclaration(m_cxCursor);
 }
 
+bool Cursor::isParameter() const
+{
+    return kind() == CXCursor_ParmDecl;
+}
+
 bool Cursor::isLocalVariable() const
 {
     switch (semanticParent().kind()) {

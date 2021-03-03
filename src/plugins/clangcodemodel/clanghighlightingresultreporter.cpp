@@ -50,6 +50,8 @@ TextEditor::TextStyle toTextStyle(ClangBackEnd::HighlightingType type)
         return TextEditor::C_PRIMITIVE_TYPE;
     case HighlightingType::LocalVariable:
         return TextEditor::C_LOCAL;
+    case HighlightingType::Parameter:
+        return TextEditor::C_PARAMETER;
     case HighlightingType::Field:
     case HighlightingType::QtProperty:
         return TextEditor::C_FIELD;

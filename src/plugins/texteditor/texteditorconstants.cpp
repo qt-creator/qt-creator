@@ -55,6 +55,7 @@ const char *nameForStyle(TextStyle style)
     case C_STRING:              return "String";
     case C_TYPE:                return "Type";
     case C_LOCAL:               return "Local";
+    case C_PARAMETER:           return "Parameter";
     case C_GLOBAL:              return "Global";
     case C_FIELD:               return "Field";
     // TODO: Rename "Static" to "Enumeration" in next major update,

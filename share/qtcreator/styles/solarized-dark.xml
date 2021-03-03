@@ -26,6 +26,7 @@
   <style name="String" foreground="#2aa198"/>
   <style name="Type" foreground="#b58900"/>
   <style name="Local" foreground="#839496"/>
+  <style name="Parameter" foreground="#839496"/>
   <style name="Global"/>
   <style name="Field" foreground="#268bd2"/>
   <style name="Static" foreground="#b58900" italic="true"/>

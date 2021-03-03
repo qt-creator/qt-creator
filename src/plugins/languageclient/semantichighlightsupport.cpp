@@ -80,7 +80,7 @@ static Utils::optional<TextEditor::TextStyle> styleForScopes(const QList<QString
         {"variable.other.member", TextEditor::C_FIELD},
         {"variable.other.field", TextEditor::C_FIELD},
         {"variable.other.field.static", TextEditor::C_GLOBAL},
-        {"variable.parameter", TextEditor::C_LOCAL},
+        {"variable.parameter", TextEditor::C_PARAMETER},
     };
 
     for (QString scope : scopes) {

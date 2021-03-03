@@ -62,6 +62,7 @@ public:
     bool isCompoundType() const;
     bool isDeclaration() const;
     bool isInvalidDeclaration() const;
+    bool isParameter() const;
     bool isLocalVariable() const;
     bool isReference() const;
     bool isExpression() const;

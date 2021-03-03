@@ -142,7 +142,9 @@ void TokenInfo::overloadedDeclRefKind(const Cursor &cursor)
 
 void TokenInfo::variableKind(const Cursor &cursor)
 {
-    if (cursor.isLocalVariable())
+    if (cursor.isParameter())
+        m_types.mainHighlightingType = HighlightingType::Parameter;
+    else if (cursor.isLocalVariable())
         m_types.mainHighlightingType = HighlightingType::LocalVariable;
     else
         m_types.mainHighlightingType = HighlightingType::GlobalVariable;
