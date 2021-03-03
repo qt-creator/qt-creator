@@ -27,76 +27,62 @@
 #include "analyzerrunconfigwidget.h"
 
 #include <utils/detailswidget.h>
-#include <utils/qtcassert.h>
+#include <utils/layoutbuilder.h>
 
-#include <QDebug>
-#include <QApplication>
-#include <QLabel>
-#include <QVBoxLayout>
 #include <QComboBox>
+#include <QLayout>
 #include <QPushButton>
+
+using namespace Utils;
 
 namespace Debugger {
 
 AnalyzerRunConfigWidget::AnalyzerRunConfigWidget(ProjectExplorer::GlobalOrProjectAspect *aspect)
 {
-    m_aspect = aspect;
+    using namespace Layouting;
 
-    auto globalSetting = new QWidget;
-    auto globalSettingLayout = new QHBoxLayout(globalSetting);
-    globalSettingLayout->setContentsMargins(0, 0, 0, 0);
+    auto settingsCombo = new QComboBox;
+    settingsCombo->addItem(tr("Global"));
+    settingsCombo->addItem(tr("Custom"));
 
-    m_settingsCombo = new QComboBox(globalSetting);
-    m_settingsCombo->addItems(QStringList({
-            QApplication::translate("ProjectExplorer::Internal::EditorSettingsPropertiesPage", "Global"),
-            QApplication::translate("ProjectExplorer::Internal::EditorSettingsPropertiesPage", "Custom")
-            }));
-    globalSettingLayout->addWidget(m_settingsCombo);
-    connect(m_settingsCombo, QOverload<int>::of(&QComboBox::activated),
-            this, &AnalyzerRunConfigWidget::chooseSettings);
-    m_restoreButton = new QPushButton(
-                QApplication::translate("ProjectExplorer::Internal::EditorSettingsPropertiesPage", "Restore Global"),
-                globalSetting);
-    globalSettingLayout->addWidget(m_restoreButton);
-    connect(m_restoreButton, &QPushButton::clicked, this, &AnalyzerRunConfigWidget::restoreGlobal);
-    globalSettingLayout->addStretch(2);
+    auto restoreButton = new QPushButton(tr("Restore Global"));
 
-    QWidget *innerPane = new QWidget;
-    m_configWidget = aspect->projectSettings()->createConfigWidget();
+    auto innerPane = new QWidget;
+    auto configWidget = aspect->projectSettings()->createConfigWidget();
 
-    auto layout = new QVBoxLayout(innerPane);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(globalSetting);
-    layout->addWidget(m_configWidget);
+    auto details = new DetailsWidget;
+    details->setWidget(innerPane);
 
-    m_details = new Utils::DetailsWidget;
-    m_details->setWidget(innerPane);
+    Column {
+        Row { settingsCombo, restoreButton, Stretch() },
+        configWidget
+    }.attachTo(innerPane);
 
-    auto outerLayout = new QVBoxLayout(this);
-    outerLayout->addWidget(m_details);
-    outerLayout->setContentsMargins(0, 0, 0, 0);
+    Column { details }.attachTo(this);
 
-    chooseSettings(m_aspect->isUsingGlobalSettings() ? 0 : 1);
-}
+    details->layout()->setContentsMargins(0, 0, 0, 0);
+    innerPane->layout()->setContentsMargins(0, 0, 0, 0);
+    layout()->setContentsMargins(0, 0, 0, 0);
 
-void AnalyzerRunConfigWidget::chooseSettings(int setting)
-{
-    QTC_ASSERT(m_aspect, return);
-    bool isCustom = (setting == 1);
+    auto chooseSettings = [=](int setting) {
+        const bool isCustom = (setting == 1);
 
-    m_settingsCombo->setCurrentIndex(setting);
-    m_aspect->setUsingGlobalSettings(!isCustom);
-    m_configWidget->setEnabled(isCustom);
-    m_restoreButton->setEnabled(isCustom);
-    m_details->setSummaryText(isCustom
-        ? tr("Use Customized Settings")
-        : tr("Use Global Settings"));
-}
+        settingsCombo->setCurrentIndex(setting);
+        aspect->setUsingGlobalSettings(!isCustom);
+        configWidget->setEnabled(isCustom);
+        restoreButton->setEnabled(isCustom);
+        details->setSummaryText(isCustom
+                                  ? tr("Use Customized Settings")
+                                  : tr("Use Global Settings"));
+    };
 
-void AnalyzerRunConfigWidget::restoreGlobal()
-{
-    QTC_ASSERT(m_aspect, return);
-    m_aspect->resetProjectToGlobalSettings();
+    chooseSettings(aspect->isUsingGlobalSettings() ? 0 : 1);
+
+    connect(settingsCombo, QOverload<int>::of(&QComboBox::activated),
+            this, chooseSettings);
+
+    connect(restoreButton, &QPushButton::clicked,
+            aspect, &ProjectExplorer::GlobalOrProjectAspect::resetProjectToGlobalSettings);
 }
 
 } // namespace Debugger
