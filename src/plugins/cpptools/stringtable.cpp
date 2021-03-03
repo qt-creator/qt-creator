@@ -26,9 +26,11 @@
 #include "stringtable.h"
 
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 
 #include <QDebug>
 #include <QElapsedTimer>
+#include <QFutureSynchronizer>
 #include <QMutex>
 #include <QSet>
 #include <QThreadPool>
@@ -48,18 +50,14 @@ class StringTablePrivate : public QObject
 {
 public:
     StringTablePrivate();
+    ~StringTablePrivate() override { m_futureSynchronizer.waitForFinished(); }
 
     QString insert(const QString &string);
-    void startGC() { QThreadPool::globalInstance()->start(&m_gcRunner); }
+    void addFuture(const QFuture<void> &future);
+    void startGC() { addFuture(Utils::runAsync(&StringTablePrivate::GC, this)); }
     void GC();
 
-    class GCRunner: public QRunnable {
-        StringTablePrivate &m_stringTable;
-
-    public:
-        explicit GCRunner(StringTablePrivate &stringTable): m_stringTable(stringTable) {}
-        void run() override { m_stringTable.GC(); }
-    } m_gcRunner;
+    QFutureSynchronizer<void> m_futureSynchronizer;
 
     mutable QMutex m_lock;
     QAtomicInt m_stopGCRequested{false};
@@ -67,14 +65,25 @@ public:
     QTimer m_gcCountDown;
 };
 
+void StringTablePrivate::addFuture(const QFuture<void> &future)
+{
+    m_futureSynchronizer.addFuture(future);
+    const QList<QFuture<void>> futures = m_futureSynchronizer.futures();
+    const int maxFuturesCount = 10;
+    if (futures.count() <= maxFuturesCount)
+        return;
+    m_futureSynchronizer.clearFutures();
+    for (const auto &future : futures) {
+        if (!future.isFinished())
+            m_futureSynchronizer.addFuture(future);
+    }
+}
+
 static StringTablePrivate *m_instance = nullptr;
 
 StringTablePrivate::StringTablePrivate()
-    : m_gcRunner(*this)
 {
     m_strings.reserve(1000);
-
-    m_gcRunner.setAutoDelete(false);
 
     m_gcCountDown.setObjectName(QLatin1String("StringTable::m_gcCountDown"));
     m_gcCountDown.setSingleShot(true);
