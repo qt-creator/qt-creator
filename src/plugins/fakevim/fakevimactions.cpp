@@ -111,7 +111,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&blinkingCursor, false, "BlinkingCursor", "bc",  tr("Blinking cursor"));
     setup(&scrollOff,      0,     "ScrollOff",      "so",  tr("Scroll offset:"));
     setup(&backspace,      "indent,eol,start",
-                                  "ConfigBackspace","bs",  tr("Backspace:"));
+                                  "Backspace",      "bs",  tr("Backspace:"));
     setup(&isKeyword,      "@,48-57,_,192-255,a-z,A-Z",
                                   "IsKeyword",      "isk", tr("Keyword characters:"));
     setup(&clipboard,      {},    "Clipboard",      "cb",  tr(""));
