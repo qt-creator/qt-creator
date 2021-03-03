@@ -7712,7 +7712,8 @@ void FakeVimHandler::Private::surroundCurrentRange(const Input &input, const QSt
     leaveVisualMode();
 
     if (dotCommand.isEmpty()) { // i.e. we came from normal mode
-        dotCommand = dotCommandFromSubMode(g.submode) + (g.surroundUpperCaseS ? "S" : "s")
+        dotCommand = dotCommandFromSubMode(g.submode)
+                     + QLatin1Char(g.surroundUpperCaseS ? 'S' : 's')
                      + g.dotCommand + input.asChar();
     }
 
