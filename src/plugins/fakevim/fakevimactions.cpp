@@ -59,6 +59,7 @@ QVariant FvBaseAspect::value() const
 void FvBaseAspect::setDefaultValue(const QVariant &value)
 {
     m_defaultValue = value;
+    m_value = value;
 }
 
 QVariant FvBaseAspect::defaultValue() const
