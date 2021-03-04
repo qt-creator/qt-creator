@@ -65,7 +65,7 @@ void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
                              "Only use in a safe environment.");
         }
         warningLabel->setText(warningText);
-        setVisibleDynamic(supported);
+        setVisible(supported);
         const bool warningLabelsVisible = supported && !warningText.isEmpty();
         warningLabel->setVisible(warningLabelsVisible);
     };
@@ -98,7 +98,7 @@ void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
             warningText = tr("Disables QML debugging. QML profiling will still work.");
         }
         warningLabel->setText(warningText);
-        setVisibleDynamic(supported);
+        setVisible(supported);
         const bool warningLabelsVisible = supported && !warningText.isEmpty();
         warningLabel->setVisible(warningLabelsVisible);
     };

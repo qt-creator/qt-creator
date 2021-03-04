@@ -88,7 +88,7 @@ public:
     bool isManagedByTarget() const { return m_isManagedByTarget; }
 
 private:
-    void setVisibleDynamic(bool visible) final;
+    void setVisibleDynamic(bool visible);
 
     const ProjectExplorer::Kit *m_kit = nullptr;
     QMap<QString, QString> m_abisToArchMap;
@@ -146,7 +146,7 @@ QStringList ArchitecturesAspect::selectedArchitectures() const
 
 void ArchitecturesAspect::setVisibleDynamic(bool visible)
 {
-    MultiSelectionAspect::setVisibleDynamic(visible);
+    MultiSelectionAspect::setVisible(visible);
     m_isManagedByTarget = visible;
 }
 

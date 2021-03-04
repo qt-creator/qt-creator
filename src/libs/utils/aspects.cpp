@@ -1401,16 +1401,6 @@ void SelectionAspect::setVolatileValue(const QVariant &val)
     }
 }
 
-void SelectionAspect::setVisibleDynamic(bool visible)
-{
-    if (QLabel *l = label())
-        l->setVisible(visible);
-    if (d->m_comboBox)
-        d->m_comboBox->setVisible(visible);
-    for (QRadioButton * const button : qAsConst(d->m_buttons))
-        button->setVisible(visible);
-}
-
 void SelectionAspect::setDisplayStyle(SelectionAspect::DisplayStyle style)
 {
     d->m_displayStyle = style;
@@ -1519,14 +1509,6 @@ QStringList MultiSelectionAspect::allValues() const
 void MultiSelectionAspect::setAllValues(const QStringList &val)
 {
     d->m_allValues = val;
-}
-
-void MultiSelectionAspect::setVisibleDynamic(bool visible)
-{
-    if (QLabel *l = label())
-        l->setVisible(visible);
-    if (d->m_listView)
-        d->m_listView->setVisible(visible);
 }
 
 void MultiSelectionAspect::setDisplayStyle(MultiSelectionAspect::DisplayStyle style)

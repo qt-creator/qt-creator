@@ -142,7 +142,6 @@ protected:
     }
 
     void registerSubWidget(QWidget *widget);
-    virtual void setVisibleDynamic(bool visible) { Q_UNUSED(visible) } // TODO: Better name? Merge with setVisible() somehow?
     void saveToMap(QVariantMap &data, const QVariant &value,
                    const QVariant &defaultValue, const QString &keyExtension = {}) const;
 
@@ -252,9 +251,6 @@ public:
 
     void addOption(const QString &displayName, const QString &toolTip = {});
 
-protected:
-    void setVisibleDynamic(bool visible) override;
-
 private:
     std::unique_ptr<Internal::SelectionAspectPrivate> d;
 };
@@ -277,9 +273,6 @@ public:
 
     QStringList allValues() const;
     void setAllValues(const QStringList &val);
-
-protected:
-    void setVisibleDynamic(bool visible) override;
 
 private:
     std::unique_ptr<Internal::MultiSelectionAspectPrivate> d;
