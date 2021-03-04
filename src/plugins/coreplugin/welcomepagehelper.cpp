@@ -84,6 +84,7 @@ GridView::GridView(QWidget *parent)
     setSelectionMode(QAbstractItemView::NoSelection);
     setFrameShape(QFrame::NoFrame);
     setGridStyle(Qt::NoPen);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     QPalette pal;
     pal.setColor(QPalette::Base, themeColor(Theme::Welcome_BackgroundColor));
