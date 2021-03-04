@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,78 +25,64 @@
 
 #pragma once
 
-#include "iostooltypes.h"
+#include "iosdevicemanager.h"
 
+#include <QFile>
 #include <QObject>
 #include <QString>
-#include <QStringList>
-#include <QMap>
+#include <QXmlStreamWriter>
 
 namespace Ios {
-namespace Internal {
-class DevInfoSession;
-class IosDeviceManagerPrivate;
-} // namespace Internal
+class GdbRunner;
+class SingleRelayServer;
+class GenericRelayServer;
 
-
-class DeviceSession;
-
-class IosDeviceManager : public QObject
+class IosTool: public QObject
 {
     Q_OBJECT
 
 public:
-    typedef QMap<QString,QString> Dict;
-    enum OpStatus {
-        Success = 0,
-        Warning = 1,
-        Failure = 2
-    };
-    enum AppOp {
-        None = 0,
-        Install = 1,
-        Run = 2,
-        InstallAndRun = 3
-    };
+    IosTool(QObject *parent = 0);
+    virtual ~IosTool();
+    void run(const QStringList &args);
+    void doExit(int errorCode = 0);
+    void writeMsg(const char *msg);
+    void writeMsg(const QString &msg);
+    void stopXml(int errorCode);
+    void writeTextInElement(const QString &output);
+    void stopRelayServers(int errorCode = 0);
+    void writeMaybeBin(const QString &extraMsg, const char *msg, quintptr len);
+    void errorMsg(const QString &msg);
+    Q_INVOKABLE void stopGdbRunner();
+    bool echoRelays() const { return m_echoRelays; }
 
-    static IosDeviceManager *instance();
-    bool watchDevices();
-    void requestAppOp(const QString &bundlePath, const QStringList &extraArgs, AppOp appOp,
-                      const QString &deviceId, int timeout = 1000);
-    void requestDeviceInfo(const QString &deviceId, int timeout = 1000);
-    int processGdbServer(int fd);
-    void stopGdbServer(int fd, int phase);
-    QStringList errors();
-
-signals:
-    void deviceAdded(const QString &deviceId);
-    void deviceRemoved(const QString &deviceId);
+private:
+    void stopGdbRunner2();
     void isTransferringApp(const QString &bundlePath, const QString &deviceId, int progress,
                            const QString &info);
     void didTransferApp(const QString &bundlePath, const QString &deviceId,
                         Ios::IosDeviceManager::OpStatus status);
     void didStartApp(const QString &bundlePath, const QString &deviceId,
-                     Ios::IosDeviceManager::OpStatus status, int gdbFd,
-                     Ios::DeviceSession *deviceSession);
+                     IosDeviceManager::OpStatus status, int gdbFd,
+                     DeviceSession *deviceSession);
     void deviceInfo(const QString &deviceId, const Ios::IosDeviceManager::Dict &info);
     void appOutput(const QString &output);
-    void errorMsg(const QString &msg);
+    void readStdin();
 
-private:
-    friend class Internal::IosDeviceManagerPrivate;
-    friend class Internal::DevInfoSession;
-    IosDeviceManager(QObject *parent = 0);
-    void checkPendingLookups();
-    Internal::IosDeviceManagerPrivate *d;
+    QRecursiveMutex m_xmlMutex;
+    int maxProgress;
+    int opLeft;
+    bool debug;
+    bool inAppOutput;
+    bool splitAppOutput; // as QXmlStreamReader reports the text attributes atomically it is better to split
+    Ios::IosDeviceManager::AppOp appOp;
+    QFile outFile;
+    QString m_qmlPort;
+    QXmlStreamWriter out;
+    SingleRelayServer *gdbServer;
+    GenericRelayServer *qmlServer;
+    GdbRunner *gdbRunner;
+    bool m_echoRelays = false;
+    friend class GdbRunner;
 };
-
-class DeviceSession {
-public:
-    DeviceSession(const QString &deviceId);
-    virtual ~DeviceSession();
-    QString deviceId;
-    virtual int qmljsDebugPort() const = 0;
-    virtual bool connectToPort(quint16 port, ServiceSocket *fd) = 0;
-};
-
-} // namespace Ios
+}

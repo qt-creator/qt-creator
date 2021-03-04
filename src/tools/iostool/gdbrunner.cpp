@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,31 +23,51 @@
 **
 ****************************************************************************/
 
+#include "gdbrunner.h"
+
 #include "iostool.h"
 
-#include <QGuiApplication>
-#include <QStringList>
+#ifdef Q_OS_UNIX
+#include <unistd.h>
+#include <fcntl.h>
+#endif
 
-int main(int argc, char *argv[])
+namespace Ios {
+
+GdbRunner::GdbRunner(IosTool *iosTool, int gdbFd) :
+    QObject(nullptr),
+    m_iosTool(iosTool),
+    m_gdbFd(gdbFd)
 {
-    //This keeps iostool from stealing focus
-    qputenv("QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "true");
-    // We do not pass the real arguments to QCoreApplication because this wrapper needs to be able
-    // to forward arguments like -qmljsdebugger=... that are filtered by QCoreApplication
-    QStringList args;
-    for (int iarg = 0; iarg < argc ; ++iarg)
-        args << QString::fromLocal8Bit(argv[iarg]);
-    char *qtArg = 0;
-    int qtArgc = 0;
-    if (argc > 0) {
-        qtArg = argv[0];
-        qtArgc = 1;
-    }
-
-    QGuiApplication a(qtArgc, &qtArg);
-    Ios::IosTool tool;
-    tool.run(args);
-    int res = a.exec();
-    exit(res);
 }
 
+void GdbRunner::run()
+{
+    {
+        QMutexLocker l(&m_iosTool->m_xmlMutex);
+        if (!m_iosTool->splitAppOutput) {
+            m_iosTool->out.writeStartElement(QLatin1String("app_output"));
+            m_iosTool->inAppOutput = true;
+        }
+        m_iosTool->outFile.flush();
+    }
+    Ios::IosDeviceManager::instance()->processGdbServer(m_gdbFd);
+    {
+        QMutexLocker l(&m_iosTool->m_xmlMutex);
+        if (!m_iosTool->splitAppOutput) {
+            m_iosTool->inAppOutput = false;
+            m_iosTool->out.writeEndElement();
+        }
+        m_iosTool->outFile.flush();
+    }
+    close(m_gdbFd);
+    m_iosTool->doExit();
+    emit finished();
+}
+
+void GdbRunner::stop(int phase)
+{
+    Ios::IosDeviceManager::instance()->stopGdbServer(m_gdbFd, phase);
+}
+
+}

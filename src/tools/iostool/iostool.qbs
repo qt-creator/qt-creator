@@ -12,9 +12,18 @@ QtcTool {
 
     files: [
         "Info.plist",
-        "main.cpp",
+        "gdbrunner.cpp",
+        "gdbrunner.h",
         "iosdevicemanager.cpp",
-        "iosdevicemanager.h"
+        "iosdevicemanager.h",
+        "iostool.cpp",
+        "iostool.h",
+        "iostooltypes.h",
+        "main.cpp",
+        "mobiledevicelib.cpp",
+        "mobiledevicelib.h",
+        "relayserver.cpp",
+        "relayserver.h"
     ]
     cpp.frameworks: base.concat(["CoreFoundation", "CoreServices", "IOKit", "Security",
                                  "SystemConfiguration"])

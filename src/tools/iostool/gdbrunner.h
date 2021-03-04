@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,31 +23,26 @@
 **
 ****************************************************************************/
 
-#include "iostool.h"
+#pragma once
 
-#include <QGuiApplication>
-#include <QStringList>
+#include <QObject>
 
-int main(int argc, char *argv[])
+namespace Ios {
+class IosTool;
+class GdbRunner: public QObject
 {
-    //This keeps iostool from stealing focus
-    qputenv("QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "true");
-    // We do not pass the real arguments to QCoreApplication because this wrapper needs to be able
-    // to forward arguments like -qmljsdebugger=... that are filtered by QCoreApplication
-    QStringList args;
-    for (int iarg = 0; iarg < argc ; ++iarg)
-        args << QString::fromLocal8Bit(argv[iarg]);
-    char *qtArg = 0;
-    int qtArgc = 0;
-    if (argc > 0) {
-        qtArg = argv[0];
-        qtArgc = 1;
-    }
+    Q_OBJECT
 
-    QGuiApplication a(qtArgc, &qtArg);
-    Ios::IosTool tool;
-    tool.run(args);
-    int res = a.exec();
-    exit(res);
+public:
+    GdbRunner(IosTool *iosTool, int gdbFd);
+    void stop(int phase);
+    void run();
+
+signals:
+    void finished();
+
+private:
+    IosTool *m_iosTool;
+    int m_gdbFd;
+};
 }
-

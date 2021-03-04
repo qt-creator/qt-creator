@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,31 +23,16 @@
 **
 ****************************************************************************/
 
-#include "iostool.h"
+#pragma once
 
-#include <QGuiApplication>
-#include <QStringList>
+#include <CoreFoundation/CFDictionary.h>
+#include <CoreFoundation/CFData.h>
+#include <CoreFoundation/CFURL.h>
 
-int main(int argc, char *argv[])
-{
-    //This keeps iostool from stealing focus
-    qputenv("QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "true");
-    // We do not pass the real arguments to QCoreApplication because this wrapper needs to be able
-    // to forward arguments like -qmljsdebugger=... that are filtered by QCoreApplication
-    QStringList args;
-    for (int iarg = 0; iarg < argc ; ++iarg)
-        args << QString::fromLocal8Bit(argv[iarg]);
-    char *qtArg = 0;
-    int qtArgc = 0;
-    if (argc > 0) {
-        qtArg = argv[0];
-        qtArgc = 1;
-    }
+#include <mach/error.h>
 
-    QGuiApplication a(qtArgc, &qtArg);
-    Ios::IosTool tool;
-    tool.run(args);
-    int res = a.exec();
-    exit(res);
-}
 
+extern "C" {
+typedef unsigned int ServiceSocket; // match_port_t (i.e. natural_t) or socket (on windows, i.e sock_t)
+typedef unsigned int *ServiceConnRef;
+} // extern C
