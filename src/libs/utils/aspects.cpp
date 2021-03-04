@@ -1571,7 +1571,7 @@ void IntegerAspect::addToLayout(LayoutBuilder &builder)
 
     if (isAutoApply()) {
         connect(d->m_spinBox.data(), QOverload<int>::of(&QSpinBox::valueChanged),
-                this, [this] { apply(); });
+                this, [this] { setValue(d->m_spinBox->value()); });
     }
 }
 
