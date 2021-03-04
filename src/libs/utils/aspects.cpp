@@ -1348,7 +1348,7 @@ void SelectionAspect::addToLayout(LayoutBuilder &builder)
             button->setToolTip(option.tooltip);
             builder.addItems({{}, button});
             d->m_buttons.append(button);
-            d->m_buttonGroup->addButton(button);
+            d->m_buttonGroup->addButton(button, i);
             connect(button, &QAbstractButton::clicked, this, [this, i] {
                 setValue(i);
             });
@@ -1363,6 +1363,39 @@ void SelectionAspect::addToLayout(LayoutBuilder &builder)
                 this, &SelectionAspect::setValue);
         d->m_comboBox->setCurrentIndex(value());
         addLabeledItem(builder, d->m_comboBox);
+        break;
+    }
+}
+
+QVariant SelectionAspect::volatileValue() const
+{
+    QTC_CHECK(!isAutoApply());
+    switch (d->m_displayStyle) {
+    case DisplayStyle::RadioButtons:
+        QTC_ASSERT(d->m_buttonGroup, return {});
+        return d->m_buttonGroup->checkedId();
+    case DisplayStyle::ComboBox:
+        QTC_ASSERT(d->m_comboBox, return {});
+        return d->m_comboBox->currentIndex();
+    }
+    return {};
+}
+
+void SelectionAspect::setVolatileValue(const QVariant &val)
+{
+    QTC_CHECK(!isAutoApply());
+    switch (d->m_displayStyle) {
+    case DisplayStyle::RadioButtons: {
+        if (d->m_buttonGroup) {
+            QAbstractButton *button = d->m_buttonGroup->button(val.toInt());
+            QTC_ASSERT(button, return);
+            button->setChecked(true);
+        }
+        break;
+    }
+    case DisplayStyle::ComboBox:
+        if (d->m_comboBox)
+            d->m_comboBox->setCurrentIndex(val.toInt());
         break;
     }
 }

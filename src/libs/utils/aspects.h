@@ -238,6 +238,8 @@ public:
     ~SelectionAspect() override;
 
     void addToLayout(LayoutBuilder &builder) override;
+    QVariant volatileValue() const override;
+    void setVolatileValue(const QVariant &val) override;
 
     int value() const;
     void setValue(int val);
