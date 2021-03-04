@@ -24,40 +24,45 @@
 ****************************************************************************/
 
 /*!
-    \previouspage quick-signals.html
     \page quick-dynamic-properties.html
-    \nextpage quick-property-bindings.html
+    \previouspage quick-property-bindings.html
+    \if defined(qtdesignstudio)
+    \nextpage quick-states.html
+    \else
+    \nextpage quick-connections-backend.html
+    \endif
 
     \title Specifying Dynamic Properties
 
-    Each predefined QML type has a set of predefined properties that you can
-    specify values for. You can add custom properties that would not otherwise
-    exist for a particular type. You bind the properties to dynamic expressions
-    to define global properties for an object that can be read by other objects.
-    For example, you can specify global properties for the root object that you
-    can use in the child objects.
+    Each preset \l{glossary-component}{component} has a set of preset properties
+    that you can specify values for. You can add custom properties that would
+    not otherwise exist for a particular \l{Component Types}{component type}.
+    You bind the properties to dynamic expressions to define global properties
+    for a component that can be read by other components. For example, you can
+    specify global properties for the root component that you can use in the
+    child components.
 
     For example, to specify spacing between UI elements, you could define a
-    margin for an object of a QML type that does not have a margin property,
-    and then use bindings to refer to the value of the margin property from
-    other objects.
+    margin for a component that does not have a margin property, and then use
+    \l{Adding Bindings Between Properties}{bindings} to refer to the value of
+    the margin property from other components.
 
-    Similarly, you can add custom properties for your own QML types that are
-    based on the predefined types.
+    Similarly, you can add custom properties for your own components that are
+    based on preset components.
 
-    You can add properties for objects in the \uicontrol Connections view,
-    \uicontrol Properties tab.
+    You can add properties for components in \uicontrol {Connections View} >
+    \uicontrol Properties.
 
     \image qmldesigner-dynamicprops.png "Custom properties in Connection View Custom Properties tab"
 
-    To add properties for an object:
+    To add properties for a component:
 
     \list 1
         \li Select \uicontrol View > \uicontrol Views >
             \uicontrol {Connections View} > \uicontrol {Properties}.
         \li Select the \inlineimage plus.png
             (\uicontrol Add) button to add a dynamic property for the currently
-            selected item. The item ID is displayed in the \uicontrol Item
+            selected component. The component ID is displayed in the \uicontrol Item
             column.
         \li Double-click the value in the \uicontrol Property column to give a
             name to the property. Property names must begin with a lower case
@@ -76,17 +81,19 @@
 
     \image qmldesigner-binding-editor.png "Binding Editor"
 
-    The properties you add for a QML type are displayed in the
-    \uicontrol Properties view when you select a component of
-    that type in \uicontrol Navigator or \uicontrol {Form Editor}.
+    The properties you add for a component are displayed in the \l Properties
+    view when you select a component of that type in \l Navigator or
+    \l {Form Editor}.
 
     \image qtquick-custom-properties.png "Custom properties in Properties view"
 
     For more information about setting property values in the
-    \uicontrol Properties view, see \l{Specifying Component Properties}.
+    \l Properties view, see \l{Specifying Component Properties}.
 
+    \if defined(qtcreator)
     For an example of using custom properties in an application, see
     \l{Creating a Mobile Application}.
+    \endif
 
     \section1 Supported Property Types
 

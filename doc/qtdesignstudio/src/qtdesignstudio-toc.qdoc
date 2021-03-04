@@ -62,6 +62,7 @@
                                 \li \l{Library}
                                 \li \l{Navigator}
                                 \li \l{Properties}
+                                \li \l{Connection View}
                                 \li \l{Transition Editor}
                                 \li \l{Timeline}
                                 \li \l{Curve Editor}
@@ -117,9 +118,9 @@
                 \endlist
                 \li \l{Adding Connections}
                 \list
-                    \li\l{Connecting Objects to Signals}
-                    \li\l{Specifying Dynamic Properties}
+                    \li\l{Connecting Components to Signals}
                     \li\l{Adding Bindings Between Properties}
+                    \li\l{Specifying Dynamic Properties}
                 \endlist
                 \li \l{Adding States}
             \endlist

@@ -89,9 +89,9 @@
         \li Enables you to modify the properties of the selected component.
         \li \l {Specifying Component Properties}
     \row
-        \li \l{Adding Connections}{Connection View}
+        \li \l{Connection View}
         \li Enables you to add functionality to the UI by creating
-            connections between objects, signals, and object properties.
+            connections between components, signals, and component properties.
         \li \l{Adding Connections}
     \row
         \li \l{Adding States}{States}

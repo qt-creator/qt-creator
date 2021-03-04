@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -26,55 +26,57 @@
 /*!
     \previouspage qmldesigner-connections.html
     \page quick-signals.html
-    \nextpage quick-dynamic-properties.html
+    \nextpage quick-property-bindings.html
 
-    \title Connecting Objects to Signals
+    \title Connecting Components to Signals
+
+    A signal and handler mechanism enables components to respond to application
+    events, which are represented by \e signals. When a signal is emitted, the
+    corresponding \e {signal handler} is invoked to respond to the event by
+    using scripts or other operations placed in the handler.
 
     To receive a notification when a particular signal is emitted for a
-    particular object, the object definition should declare a signal handler
+    particular component, the component definition should declare a signal handler
     named \e {on<Signal>} where \e {<Signal>} is the name of the signal, with
     the first letter capitalized. The signal handler should contain the
     JavaScript code to be executed when the signal handler is invoked.
 
-    QML types have predefined signals that are emitted when users interact with
-    the application. For example, the \l {Mouse Area} type has a
-    \c clicked signal that is emitted whenever the mouse is
-    clicked within the area. Since the signal name is \c clicked, the signal
-    handler for receiving this signal is named \c onClicked.
+    Components have predefined signals that are emitted when users interact with
+    the application. For example, the \l {Mouse Area} component has a \c clicked
+    signal that is emitted whenever the mouse is clicked within the area. Since
+    the signal name is \c clicked, the signal handler for receiving this signal
+    is named \c onClicked.
 
-    A signal is automatically emitted when the value of a QML property changes.
+    A signal is automatically emitted when the value of a property changes.
     This type of signal is a \e{property change signal} and signal handlers
     for these signals are written in the form \c on<Property>Changed, where
     \e <Property> is the name of the property, with the first letter
     capitalized.
 
-    For example, the Mouse Area type has a \c pressed property. To receive a
-    notification whenever this property changes, you would use a signal handler
+    For example, the Mouse Area component has a \c pressed property. To receive
+    a notification whenever this property changes, you would use a signal handler
     called \c onPressedChanged.
 
     For more information about signals and signal handlers, see
     \l{Signal and Handler Event System}.
 
-    To access a signal outside of the object that emits it, you can use the
-    \l Connections type for connecting to signals of arbitrary objects. A
-    connections object can receive any signal from its specified target.
-    You can connect objects to signals that are available to them in the
-    \uicontrol Connections view.
+    You can connect components to signals that are available to them in
+    \uicontrol Connections.
 
     \image qmldesigner-connections.png
 
-    To connect objects to signals:
+    To connect components to signals:
 
     \list 1
-        \li In the \uicontrol {Connections} view, select the
-            \uicontrol {Connections} tab.
+        \li Select \uicontrol View > \uicontrol Views >
+            \uicontrol {Connection View} > \uicontrol {Connections}.
         \li Select the \inlineimage plus.png
             (\uicontrol Add) button to add a connection.
         \li Double-click the value in the \uicontrol Target column to add the
-            object to connect to a signal.
+            component to connect to a signal.
         \li Double-click the value in the \uicontrol {Signal Handler} column to
             select the signal that the connection will listen to from a list of
-            all signals available for the object.
+            all signals available for the component.
         \li Double-click the value in the \uicontrol Actions column to specify
             the action to perform when the signal is emitted. You use JavaScript
             to specify the actions.
@@ -83,6 +85,18 @@
     Right-click a connection and select \uicontrol {Open Connection Editor}
     in the context menu to specify the connection in
     \uicontrol {Connection Editor}.
+
+    \if defined(qtcreator)
+    For an example of using the \uicontrol {Connections} view, see
+    \l{Connecting Mouse Clicks to State Changes}.
+    \else
+    For examples of using the \uicontrol {Connections} view, see:
+
+    \list
+        \li \l{Connecting Buttons to States} in \l{Log In UI - Part 3}
+        \li \l{Connecting Buttons to State Changes} in \l{Washing Machine UI}
+    \endlist
+    \endif
 
     \section1 Adding Signal Handlers
 
@@ -100,43 +114,41 @@
         \li Select \uicontrol OK.
     \endlist
 
-    The added signal handler is automatically \l{Using Qt Quick UI Forms}
+    The added signal handler is automatically \l{Adding Property Aliases}
     {exported as a property}.
 
-    \if defined(qtdesignstudio)
     \section1 Adding Actions and Assignments
 
     You use the \uicontrol {Connection Editor} to create the JavaScript
     expressions for \e actions and \e assignments. An \e action connects
-    an object to a signal, whereas an \e assignment fetches property values
-    from another object.
+    an component to a signal, whereas an \e assignment fetches property values
+    from another component.
 
     For more information about the logical operators that you can use to
     construct conditional expressions, see \l {Summary of Logical Operators}.
 
     To create JavaScript expressions for actions:
 
-    \image qtquick-connection-editor-action.png
-
     \list 1
-        \li Select \uicontrol Action as the type of the connections object.
-        \li Select the object to connect to a signal.
+        \li Select \uicontrol {Open Connection Editor} in the context menu
+            in \uicontrol {Connections}.
+            \image qtquick-connection-editor-action.png
+        \li Select \uicontrol Action as the type of the connections component.
+        \li Select the component to connect to a signal.
         \li Select the action to perform when the signal is emitted.
     \endlist
 
     To create JavaScript expressions for assignments:
 
-    \image qtquick-connection-editor-assignment.png
-
     \list 1
-        \li Select \uicontrol Assignment as the type of the connections object.
-        \li Select the target object for the property assignment.
-        \li Select the property of the target object to assign a value to.
-        \li Select the source object for the property assignment.
-        \li Select the property of the source object to fetch the value from.
+        \li Select \uicontrol {Open Connection Editor} in the context menu
+            in \uicontrol {Connections}.
+            \image qtquick-connection-editor-assignment.png
+        \li Select \uicontrol Assignment as the type of the connections
+            component.
+        \li Select the target component for the property assignment.
+        \li Select the property of the target component to assign a value to.
+        \li Select the source component for the property assignment.
+        \li Select the property of the source component to fetch the value from.
     \endlist
-
-    For an example of connecting the \c clicked signal of a button to a
-    \l{Adding States}{state}, see \l {Log In UI - Part 3}.
-    \endif
 */

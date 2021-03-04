@@ -205,8 +205,8 @@
 
     The side menu is fully visible and accepts input only in the \e open state.
 
-    For more information about connecting objects to signals, see
-    \l {Connecting Objects to Signals}.
+    For more information about Connecting Components to Signals, see
+    \l {Connecting Components to Signals}.
 
     \section1 Applying Effects
 
