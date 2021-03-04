@@ -276,15 +276,18 @@ void McuPackage::updateStatus()
 
 void McuPackage::updateStatusUi()
 {
-    m_infoLabel->setType(validStatus() ? InfoLabel::Ok : InfoLabel::NotOk);
+    switch (m_status) {
+    case ValidPackage: m_infoLabel->setType(InfoLabel::Ok); break;
+    case ValidPackageMismatchedVersion: m_infoLabel->setType(InfoLabel::Warning); break;
+    default: m_infoLabel->setType(InfoLabel::NotOk); break;
+    }
     m_infoLabel->setText(statusText());
 }
 
 QString McuPackage::statusText() const
 {
     const QString displayPackagePath = FilePath::fromString(m_path).toUserOutput();
-    const QString displayVersions = m_versions.isEmpty() ? "" :
-        QString(" (%1)").arg(QStringList(m_versions.toList()).join(" / "));
+    const QString displayVersions = QStringList(m_versions.toList()).join(" or ");
     const QString displayRequiredPath = QString("%1 %2").arg(
         FilePath::fromString(m_detectionPath).toUserOutput(),
         displayVersions);
@@ -305,10 +308,10 @@ QString McuPackage::statusText() const
         break;
     case ValidPackageMismatchedVersion: {
         const QString versionWarning = m_versions.size() == 1 ?
-                    tr("version %1 is recommended").arg(m_versions.first()) :
-                    tr("versions %1 are recommended").arg(displayVersions);
-        response = tr("Path %1 is valid, %2 was found, but %3.")
-                        .arg(displayPackagePath, displayDetectedPath, versionWarning);
+                    tr("but only version %1 is supported").arg(m_versions.first()) :
+                    tr("but only versions %1 are supported").arg(displayVersions);
+        response = tr("Path %1 is valid, %2 was found, %3.")
+                .arg(displayPackagePath, displayDetectedPath, versionWarning);
         break;
     }
     case ValidPathInvalidPackage:

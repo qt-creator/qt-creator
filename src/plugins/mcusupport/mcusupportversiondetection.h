@@ -31,7 +31,8 @@
 namespace McuSupport {
 namespace Internal {
 
-class McuPackageVersionDetector : public QObject {
+class McuPackageVersionDetector : public QObject
+{
     Q_OBJECT
 public:
     McuPackageVersionDetector();
@@ -40,7 +41,8 @@ public:
 };
 
 // Get version from the output of an executable
-class McuPackageExecutableVersionDetector : public McuPackageVersionDetector {
+class McuPackageExecutableVersionDetector : public McuPackageVersionDetector
+{
 public:
     McuPackageExecutableVersionDetector(const QString &detectionPath,
                                         const QStringList &detectionArgs,
@@ -53,7 +55,8 @@ private:
 };
 
 // Get version through parsing an XML file
-class McuPackageXmlVersionDetector : public McuPackageVersionDetector {
+class McuPackageXmlVersionDetector : public McuPackageVersionDetector
+{
 public:
     McuPackageXmlVersionDetector(const QString &filePattern,
                                  const QString &elementName,
@@ -68,7 +71,8 @@ private:
 };
 
 // Get version from the filename of a given file/dir in the package directory
-class McuPackageDirectoryVersionDetector : public McuPackageVersionDetector {
+class McuPackageDirectoryVersionDetector : public McuPackageVersionDetector
+{
 public:
     McuPackageDirectoryVersionDetector(const QString &filePattern, const QString &versionRegExp, const bool isFile);
     QString parseVersion(const QString &packagePath) const;
@@ -79,7 +83,8 @@ private:
 };
 
 // Get version from the path of the package itself
-class McuPackagePathVersionDetector : public McuPackageVersionDetector {
+class McuPackagePathVersionDetector : public McuPackageVersionDetector
+{
 public:
     McuPackagePathVersionDetector(const QString &versionRegExp);
     QString parseVersion(const QString &packagePath) const;

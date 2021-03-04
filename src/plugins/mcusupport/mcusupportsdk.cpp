@@ -609,6 +609,7 @@ static McuTargetDescription parseDescriptionJson(const QByteArray &data)
     };
 }
 
+// https://doc.qt.io/qtcreator/creator-developing-mcu.html#supported-qt-for-mcus-sdks
 const QHash<QString, QString> oldSdkQtcRequiredVersion = {
     {{"1.0"}, {"4.11.x"}},
     {{"1.1"}, {"4.12.0 or 4.12.1"}},
@@ -622,8 +623,8 @@ bool checkDeprecatedSdkError(const Utils::FilePath &qulDir, QString &message)
 
     if (oldSdkQtcRequiredVersion.contains(sdkDetectedVersion)) {
         message = McuTarget::tr("Qt for MCUs SDK version %1 detected, "
-                                "only supported by QtCreator version %2. "
-                                "SDK version %3 or greater required."
+                                "only supported by Qt Creator version %2. "
+                                "This version of Qt Creator requires Qt for MCUs %3 or greater."
                                 ).arg(sdkDetectedVersion,
                                       oldSdkQtcRequiredVersion.value(sdkDetectedVersion),
                                       McuSupportOptions::minimalQulVersion().toString());

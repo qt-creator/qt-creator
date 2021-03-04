@@ -195,4 +195,27 @@
         \li Select \uicontrol Run to specify run settings.
             Usually, you can use the default settings.
     \endlist
+
+    \section1 Supported Qt for MCUs SDKs
+
+    Since version 4.12.4, \QC supports version 1.3 and later of the Qt for MCUs SDK.
+    For older versions refer to the following table.
+
+    \table
+    \header
+        \li \QC version
+        \li Qt for MCUs SDK version
+    \row
+        \li 4.12.4 or later
+        \li 1.3 or later
+    \row
+        \li 4.12.2 or 4.12.3
+        \li 1.2
+    \row
+        \li 4.12.0 or 4.12.1
+        \li 1.1
+    \row
+        \li 4.11.x
+        \li 1.0
+    \endtable
 */
