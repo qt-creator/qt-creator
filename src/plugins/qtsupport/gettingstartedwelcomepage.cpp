@@ -287,6 +287,10 @@ public:
             m_searcher->setPlaceholderText(ExamplesWelcomePage::tr("Search in Examples..."));
 
             auto exampleSetSelector = new QComboBox(this);
+            QPalette pal = exampleSetSelector->palette();
+            // for macOS dark mode
+            pal.setColor(QPalette::Text, Utils::creatorTheme()->color(Theme::Welcome_TextColor));
+            exampleSetSelector->setPalette(pal);
             exampleSetSelector->setMinimumWidth(GridProxyModel::GridItemWidth);
             exampleSetSelector->setMaximumWidth(GridProxyModel::GridItemWidth);
             ExampleSetModel *exampleSetModel = m_examplesModel->exampleSetModel();

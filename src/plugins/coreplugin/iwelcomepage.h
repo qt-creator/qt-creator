@@ -68,6 +68,8 @@ public:
     WelcomePageFrame(QWidget *parent);
 
     void paintEvent(QPaintEvent *event) override;
+
+    static QPalette buttonPalette(bool isActive, bool isCursorInside, bool forText);
 };
 
 class CORE_EXPORT WelcomePageButton : public WelcomePageFrame
