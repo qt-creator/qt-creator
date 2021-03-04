@@ -41,7 +41,6 @@
 #include <QComboBox>
 #include <QDebug>
 #include <QFormLayout>
-#include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
@@ -2018,8 +2017,6 @@ class AspectContainerPrivate
 {
 public:
     QList<BaseAspect *> m_items; // Not owned
-
-    QPointer<QGroupBox> m_groupBox; // Not owned, owned by configuration widget
 };
 
 } // Internal
@@ -2039,40 +2036,20 @@ AspectContainer::~AspectContainer() = default;
 void AspectContainer::registerAspect(BaseAspect *aspect)
 {
     d->m_items.append(aspect);
-    connect(aspect, &BaseAspect::changed, this, &BaseAspect::changed);
 }
 
-/*!
-    Adds all visible sub-aspects to \a builder.
-*/
-void AspectContainer::addToLayout(LayoutBuilder &builder)
+void AspectContainer::registerAspects(const AspectContainer &aspects)
 {
-    if (!d->m_groupBox) {
-        d->m_groupBox = createSubWidget<QGroupBox>();
-        d->m_groupBox->setTitle(displayName());
-    }
-
-    LayoutBuilder innerBuilder(d->m_groupBox);
-    for (BaseAspect *aspect : qAsConst(d->m_items)) {
-        if (aspect->isVisible())
-            aspect->addToLayout(innerBuilder);
-    }
-
-    builder.addItem(d->m_groupBox.data());
+    for (BaseAspect *aspect : qAsConst(aspects.d->m_items))
+        d->m_items.append(aspect);
 }
 
-/*!
-    \reimp
-*/
 void AspectContainer::fromMap(const QVariantMap &map)
 {
     for (BaseAspect *aspect : qAsConst(d->m_items))
         aspect->fromMap(map);
 }
 
-/*!
-    \reimp
-*/
 void AspectContainer::toMap(QVariantMap &map) const
 {
     for (BaseAspect *aspect : qAsConst(d->m_items))

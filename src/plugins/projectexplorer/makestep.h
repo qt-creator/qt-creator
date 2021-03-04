@@ -95,7 +95,6 @@ private:
     QStringList m_availableTargets; // FIXME: Unused, remove in 4.15.
     Utils::StringAspect *m_makeCommandAspect = nullptr;
     Utils::StringAspect *m_userArgumentsAspect = nullptr;
-    Utils::AspectContainer *m_jobCountContainer = nullptr;
     Utils::IntegerAspect *m_userJobCountAspect = nullptr;
     Utils::BoolAspect *m_overrideMakeflagsAspect = nullptr;
     Utils::BoolAspect *m_disabledForSubdirsAspect = nullptr;

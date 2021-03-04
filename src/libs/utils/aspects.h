@@ -506,13 +506,11 @@ private:
     std::unique_ptr<Internal::TextDisplayPrivate> d;
 };
 
-class QTCREATOR_UTILS_EXPORT AspectContainer : public BaseAspect
+class QTCREATOR_UTILS_EXPORT AspectContainer
 {
-    Q_OBJECT
-
 public:
     AspectContainer();
-    ~AspectContainer() override;
+    ~AspectContainer();
 
     template <class Aspect, typename ...Args>
     Aspect *addAspect(Args && ...args)
@@ -522,18 +520,17 @@ public:
         return aspect;
     }
     void registerAspect(BaseAspect *aspect);
+    void registerAspects(const AspectContainer &aspects);
 
-    void addToLayout(LayoutBuilder &builder) override;
+    void fromMap(const QVariantMap &map);
+    void toMap(QVariantMap &map) const;
 
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
+    void readSettings(const QSettings *settings);
+    void writeSettings(QSettings *settings) const;
 
-    void readSettings(const QSettings *settings) override;
-    void writeSettings(QSettings *settings) const override;
-
-    void apply() override;
-    void cancel() override;
-    void finish() override;
+    void apply();
+    void cancel();
+    void finish();
 
     void reset();
     void fromMap(const QString &prefix, const QVariantMap &map);

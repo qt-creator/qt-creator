@@ -83,9 +83,7 @@ MakeStep::MakeStep(BuildStepList *parent, Id id)
     m_userArgumentsAspect->setLabelText(tr("Make arguments:"));
     m_userArgumentsAspect->setDisplayStyle(StringAspect::LineEditDisplay);
 
-    m_jobCountContainer = addAspect<AspectContainer>();
-
-    m_userJobCountAspect = m_jobCountContainer->addAspect<IntegerAspect>();
+    m_userJobCountAspect = addAspect<IntegerAspect>();
     m_userJobCountAspect->setSettingsKey(id.withSuffix(JOBCOUNT_SUFFIX).toString());
     m_userJobCountAspect->setLabel(tr("Parallel jobs:"));
     m_userJobCountAspect->setRange(1, 999);
@@ -93,11 +91,11 @@ MakeStep::MakeStep(BuildStepList *parent, Id id)
     m_userJobCountAspect->setDefaultValue(defaultJobCount());
 
     const QString text = tr("Override MAKEFLAGS");
-    m_overrideMakeflagsAspect = m_jobCountContainer->addAspect<BoolAspect>();
+    m_overrideMakeflagsAspect = addAspect<BoolAspect>();
     m_overrideMakeflagsAspect->setSettingsKey(id.withSuffix(OVERRIDE_MAKEFLAGS_SUFFIX).toString());
     m_overrideMakeflagsAspect->setLabel(text, BoolAspect::LabelPlacement::AtCheckBox);
 
-    m_nonOverrideWarning = m_jobCountContainer->addAspect<TextDisplay>();
+    m_nonOverrideWarning = addAspect<TextDisplay>();
     m_nonOverrideWarning->setToolTip("<html><body><p>" +
          tr("<code>MAKEFLAGS</code> specifies parallel jobs. Check \"%1\" to override.")
          .arg(text) + "</p></body></html>");
@@ -353,7 +351,7 @@ QWidget *MakeStep::createConfigWidget()
     LayoutBuilder builder(widget);
     builder.addRow(m_makeCommandAspect);
     builder.addRow(m_userArgumentsAspect);
-    builder.addRow(m_jobCountContainer);
+    builder.addRow({m_userJobCountAspect, m_overrideMakeflagsAspect, m_nonOverrideWarning});
     if (m_disablingForSubDirsSupported)
         builder.addRow(m_disabledForSubdirsAspect);
     builder.addRow(m_buildTargetsAspect);

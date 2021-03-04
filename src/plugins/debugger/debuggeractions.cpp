@@ -677,12 +677,12 @@ DebuggerSettings::DebuggerSettings()
     all.registerAspect(&breakOnCatch); // ??
 
     // Collect all
-    all.registerAspect(&page1);
-    all.registerAspect(&page2);
-    all.registerAspect(&page3);
-    all.registerAspect(&page4);
-    all.registerAspect(&page5);
-    all.registerAspect(&page6);
+    all.registerAspects(page1);
+    all.registerAspects(page2);
+    all.registerAspects(page3);
+    all.registerAspects(page4);
+    all.registerAspects(page5);
+    all.registerAspects(page6);
 
     all.forEachAspect([](BaseAspect *aspect) {
         aspect->setAutoApply(false);
