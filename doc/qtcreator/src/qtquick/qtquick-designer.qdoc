@@ -94,7 +94,7 @@
             connections between components, signals, and component properties.
         \li \l{Adding Connections}
     \row
-        \li \l{Adding States}{States}
+        \li \l States
         \li Displays the different states that can be applied to a component.
             Typically, states describe UI configurations, such as the
             visibility and behavior of components and the available user
