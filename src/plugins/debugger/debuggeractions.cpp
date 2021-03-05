@@ -297,7 +297,7 @@ DebuggerSettings::DebuggerSettings()
     //
     synchronizeBreakpoints.setLabelText(tr("Synchronize Breakpoints"));
 
-    adjustBreakpointLocations.setLabelText(tr("Adjust Breakpoint Locations"));
+    adjustBreakpointLocations.setDisplayName(tr("Adjust Breakpoint Locations"));
     adjustBreakpointLocations.setToolTip(tr("<p>Not all source code lines generate "
       "executable code. Putting a breakpoint on such a line acts as "
       "if the breakpoint was set on the next line that generated code. "
@@ -365,8 +365,8 @@ DebuggerSettings::DebuggerSettings()
         "when starting GDB.</body></html>"));
 
     useDynamicType.setSettingsKey(debugModeGroup, "UseDynamicType");
-    useDynamicType.setLabelText(tr("Use Dynamic Object Type for Display"));
     useDynamicType.setDefaultValue(true);
+    useDynamicType.setDisplayName(tr("Use Dynamic Object Type for Display"));
     useDynamicType.setLabelText(/*GdbOptionsPage::*/tr(
         "Use dynamic object type for display"));
     useDynamicType.setToolTip(/*GdbOptionsPage::*/tr(
@@ -421,8 +421,9 @@ DebuggerSettings::DebuggerSettings()
 
     extraDumperFile.setSettingsKey(debugModeGroup, "ExtraDumperFile");
     extraDumperFile.setDisplayStyle(StringAspect::PathChooserDisplay);
+    extraDumperFile.setDisplayName(tr("Extra Debugging Helpers"));
+    // Label text is intentional empty in the GUI.
     extraDumperFile.setToolTip(tr("Path to a Python file containing additional data dumpers."));
-    //extraDumperFile.setLabelText(tr("Extra Debugging Helpers")); // Intentional empty in the GUI.
 
     const QString t = tr("Stopping and stepping in the debugger "
           "will automatically open views associated with the current location.") + '\n';
@@ -499,7 +500,7 @@ DebuggerSettings::DebuggerSettings()
     useToolTipsInStackView.setDefaultValue(true);
 
     skipKnownFrames.setSettingsKey(debugModeGroup, "SkipKnownFrames");
-    skipKnownFrames.setLabelText(tr("Skip Known Frames"));
+    skipKnownFrames.setDisplayName(tr("Skip Known Frames"));
     skipKnownFrames.setLabelText(/*GdbOptionsPage::*/tr("Skip known frames when stepping"));
     skipKnownFrames.setToolTip(/*GdbOptionsPage::*/tr(
         "<html><head/><body><p>"
@@ -509,8 +510,8 @@ DebuggerSettings::DebuggerSettings()
         "emission ends up directly in the slot connected to it."));
 
     enableReverseDebugging.setSettingsKey(debugModeGroup, "EnableReverseDebugging");
-    enableReverseDebugging.setLabelText(tr("Enable Reverse Debugging"));
-// FIXME    enableReverseDebugging.setIcon(Icons::REVERSE_MODE.icon());
+    enableReverseDebugging.setIcon(Icons::REVERSE_MODE.icon());
+    enableReverseDebugging.setDisplayName(tr("Enable Reverse Debugging"));
     enableReverseDebugging.setLabelText(/*GdbOptionsPage::*/tr("Enable reverse debugging"));
     enableReverseDebugging.setToolTip(/*GdbOptionsPage::*/tr(
        "<html><head/><body><p>Enables stepping backwards.</p><p>"
