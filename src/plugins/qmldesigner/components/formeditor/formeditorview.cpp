@@ -637,8 +637,21 @@ void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyN
     }
 }
 
+static void updateTransitions(FormEditorScene *scene, const QmlItemNode &qmlItemNode)
+{
+    QmlFlowTargetNode flowItem(qmlItemNode);
+    if (flowItem.isValid() && flowItem.flowView().isValid()) {
+        const auto nodes = flowItem.flowView().transitions();
+        for (const ModelNode &node : nodes) {
+            if (FormEditorItem *item = scene->itemForQmlItemNode(node))
+                item->updateGeometry();
+        }
+    };
+}
+
 void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeList)
 {
+    const bool isFlow = rootModelNode().isValid() && QmlItemNode(rootModelNode()).isFlowView();
     QList<FormEditorItem*> itemNodeList;
     for (const ModelNode &node : completedNodeList) {
         const QmlItemNode qmlItemNode(node);
@@ -646,6 +659,8 @@ void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeL
             if (FormEditorItem *item = scene()->itemForQmlItemNode(qmlItemNode)) {
                 scene()->synchronizeParent(qmlItemNode);
                 itemNodeList.append(item);
+                if (isFlow && qmlItemNode.isFlowItem())
+                    updateTransitions(scene(), qmlItemNode);
             }
         }
     }
