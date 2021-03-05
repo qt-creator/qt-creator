@@ -141,27 +141,19 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
 
     // create header widget
     m_headerWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
-    m_headerWidget->setClearColor(Theme::getColor(Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
     Theme::setupTheme(m_headerWidget->engine());
-    m_headerWidget->setSource(QUrl("qrc:/ItemLibrary/qml/libraryheader.qml"));
-    QObject::connect(m_headerWidget->rootObject(), SIGNAL(tabChanged(int)), this,
-                     SLOT(handleTabChanged(int)));
-    QObject::connect(m_headerWidget->rootObject(), SIGNAL(filterChanged(QString)), this,
-                     SLOT(handleFilterChanged(QString)));
-    QObject::connect(m_headerWidget->rootObject(), SIGNAL(addModuleClicked()), this,
-                     SLOT(handleAddModule()));
-    QObject::connect(m_headerWidget->rootObject(), SIGNAL(addAssetClicked()), this,
-                     SLOT(handleAddAsset()));
+    m_headerWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
+    m_headerWidget->setClearColor(Theme::getColor(Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
+    m_headerWidget->rootContext()->setContextProperty("rootView", QVariant::fromValue(this));
 
     // create add imports widget
     m_addImportWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
     m_addImportWidget->setClearColor(Theme::getColor(Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
     Theme::setupTheme(m_addImportWidget->engine());
-    m_addImportWidget->setSource(QUrl("qrc:/ItemLibrary/qml/addimport.qml"));
-    m_addImportWidget->rootContext()->setContextProperty(
-        "addImportModel", QVariant::fromValue(m_itemLibraryAddImportModel.data()));
-    QObject::connect(m_addImportWidget->rootObject(), SIGNAL(addImport(int)), this,
-                     SLOT(handleAddImport(int)));
+    m_addImportWidget->rootContext()->setContextProperties({
+        {"addImportModel", QVariant::fromValue(m_itemLibraryAddImportModel.data())},
+        {"rootView", QVariant::fromValue(this)},
+    });
 
     // set up Item Library view and model
     m_itemViewQuickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
@@ -270,7 +262,7 @@ QList<QToolButton *> ItemLibraryWidget::createToolBarWidgets()
     return buttons;
 }
 
-void ItemLibraryWidget::handleFilterChanged(const QString &filterText)
+void ItemLibraryWidget::handleSearchfilterChanged(const QString &filterText)
 {
     m_filterText = filterText;
 
@@ -339,11 +331,20 @@ void ItemLibraryWidget::clearSearchFilter()
 
 void ItemLibraryWidget::reloadQmlSource()
 {
-    QString itemLibraryQmlFilePath = qmlSourcesPath() + QStringLiteral("/ItemsView.qml");
+    const QString libraryHeaderQmlPath = qmlSourcesPath() + "/LibraryHeader.qml";
+    QTC_ASSERT(QFileInfo::exists(libraryHeaderQmlPath), return);
+    m_headerWidget->engine()->clearComponentCache();
+    m_headerWidget->setSource(QUrl::fromLocalFile(libraryHeaderQmlPath));
 
-    QTC_ASSERT(QFileInfo::exists(itemLibraryQmlFilePath), return);
+    const QString addImportQmlPath = qmlSourcesPath() + "/AddImport.qml";
+    QTC_ASSERT(QFileInfo::exists(addImportQmlPath), return);
+    m_addImportWidget->engine()->clearComponentCache();
+    m_addImportWidget->setSource(QUrl::fromLocalFile(addImportQmlPath));
+
+    const QString itemLibraryQmlPath = qmlSourcesPath() + "/ItemsView.qml";
+    QTC_ASSERT(QFileInfo::exists(itemLibraryQmlPath), return);
     m_itemViewQuickWidget->engine()->clearComponentCache();
-    m_itemViewQuickWidget->setSource(QUrl::fromLocalFile(itemLibraryQmlFilePath));
+    m_itemViewQuickWidget->setSource(QUrl::fromLocalFile(itemLibraryQmlPath));
 }
 
 void ItemLibraryWidget::updateModel()

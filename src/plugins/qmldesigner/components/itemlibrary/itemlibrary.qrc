@@ -29,17 +29,7 @@
         <file>images/asset_sound_192.png</file>
         <file>images/asset_sound_256.png</file>
         <file>images/asset_sound_384.png</file>
-        <file>images/tab_icon.png</file>
-        <file>images/tab_icon@2x.png</file>
         <file>images/x.png</file>
         <file>images/x@2x.png</file>
-        <file>images/add.png</file>
-        <file>images/add@2x.png</file>
-        <file>images/add_unselected.png</file>
-        <file>images/add_unselected@2x.png</file>
-        <file>images/down.png</file>
-        <file>images/down@2x.png</file>
-        <file>qml/libraryheader.qml</file>
-        <file>qml/addimport.qml</file>
     </qresource>
 </RCC>

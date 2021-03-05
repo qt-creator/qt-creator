@@ -26,16 +26,13 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuickDesignerTheme 1.0
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 Item {
     id: root
     width: 200
     height: 75
-
-    signal tabChanged(int index)
-    signal filterChanged(string filterText)
-    signal addModuleClicked()
-    signal addAssetClicked()
 
     function setTab(index)
     {
@@ -86,26 +83,30 @@ Item {
                             anchors.bottom: parent.bottom
                             anchors.rightMargin: 2
                             anchors.bottomMargin: 2
-                            width: img.width + 10
-                            height: img.height + 10
+                            width: 25
+                            height: 25
                             color: mouseArea.containsMouse ? "#353535" : "#262626"
 
                             ToolTip.delay: 500
                             ToolTip.text: modelData.addToolTip
                             ToolTip.visible: mouseArea.containsMouse
 
-                            Image {
-                                id: img
-                                source: tabBar.currentIndex === index ? "../images/add.png"
-                                                                      : "../images/add_unselected.png"
+                            Label { // + sign
+                                text: StudioTheme.Constants.plus
+                                font.family: StudioTheme.Constants.iconFont.family
+                                font.pixelSize: StudioTheme.Values.myIconFontSize
+                                verticalAlignment: Text.AlignVCenter
+                                horizontalAlignment: Text.AlignHCenter
                                 anchors.centerIn: parent
+                                color: tabBar.currentIndex === index  ? "#0094ce" : "#a8a8a8"
                             }
 
                             MouseArea {
                                 id: mouseArea
                                 anchors.fill: parent
                                 hoverEnabled: true
-                                onClicked: index == 0 ? addModuleClicked() : addAssetClicked()
+                                onClicked: index == 0 ? rootView.handleAddModule()
+                                                      : rootView.handleAddAsset()
                             }
                         }
 
@@ -117,7 +118,7 @@ Item {
                         }
                     }
 
-                    onClicked: tabChanged(index)
+                    onClicked: rootView.handleTabChanged(index);
                 }
             }
         }
@@ -138,16 +139,30 @@ Item {
             anchors.rightMargin: 5
             selectByMouse: true
 
-            onTextChanged: filterChanged(text)
+            onTextChanged: rootView.handleSearchfilterChanged(text)
 
-            Image { // clear text button
-                source: "../images/x.png"
+            Rectangle { // x button
+                width: 15
+                height: 15
                 anchors.right: parent.right
                 anchors.rightMargin: 5
                 anchors.verticalCenter: parent.verticalCenter
                 visible: searchFilterText.text !== ""
+                color: xMouseArea.containsMouse ? "#353535" : "transparent"
+
+                Label {
+                    text: StudioTheme.Constants.closeCross
+                    font.family: StudioTheme.Constants.iconFont.family
+                    font.pixelSize: StudioTheme.Values.myIconFontSize
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
+                    anchors.centerIn: parent
+                    color: "#dadada"
+                }
 
                 MouseArea {
+                    id: xMouseArea
+                    hoverEnabled: true
                     anchors.fill: parent
                     onClicked: searchFilterText.text = ""
                 }
