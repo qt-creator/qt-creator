@@ -72,8 +72,6 @@ public:
 
         GlobalDebuggerOptions *options = Internal::globalDebuggerOptions();
         SourcePathMap allPathMap = options->sourcePathMap;
-        for (const auto &regExpMap : qAsConst(options->sourcePathRegExpMap))
-            allPathMap.insert(regExpMap.first.pattern(), regExpMap.second);
         m_sourceMappingWidget->setSourcePathMap(allPathMap);
 
         DebuggerSettings &s = *debuggerSettings();
@@ -121,17 +119,7 @@ void CommonOptionsPageWidget::apply()
     m_group.writeSettings(ICore::settings());
 
     GlobalDebuggerOptions *options = Internal::globalDebuggerOptions();
-    options->sourcePathMap.clear();
-    options->sourcePathRegExpMap.clear();
-
-    SourcePathMap allPathMap = m_sourceMappingWidget->sourcePathMap();
-    for (auto it = allPathMap.begin(), end = allPathMap.end(); it != end; ++it) {
-        const QString key = it.key();
-        if (key.startsWith('('))
-            options->sourcePathRegExpMap.append(qMakePair(QRegularExpression(key), it.value()));
-        else
-            options->sourcePathMap.insert(key, it.value());
-    }
+    options->sourcePathMap = m_sourceMappingWidget->sourcePathMap();
     options->toSettings();
 }
 

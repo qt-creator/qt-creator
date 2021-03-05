@@ -2813,12 +2813,14 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
         bool hasLink = elfData.indexOf(".gnu_debuglink") >= 0;
         if (hasEmbeddedInfo) {
             const GlobalDebuggerOptions *options = Internal::globalDebuggerOptions();
-            SourcePathRegExpMap globalRegExpSourceMap;
-            globalRegExpSourceMap.reserve(options->sourcePathRegExpMap.size());
-            for (const auto &entry : qAsConst(options->sourcePathRegExpMap)) {
-                const QString expanded = Utils::globalMacroExpander()->expand(entry.second);
-                if (!expanded.isEmpty())
-                    globalRegExpSourceMap.push_back(qMakePair(entry.first, expanded));
+            QList<QPair<QRegularExpression, QString>> globalRegExpSourceMap;
+            globalRegExpSourceMap.reserve(options->sourcePathMap.size());
+            for (auto it = options->sourcePathMap.begin(), end = options->sourcePathMap.end(); it != end; ++it) {
+                if (it.key().startsWith('(')) {
+                    const QString expanded = Utils::globalMacroExpander()->expand(it.value());
+                    if (!expanded.isEmpty())
+                        globalRegExpSourceMap.push_back(qMakePair(it.key(), expanded));
+                }
             }
             if (globalRegExpSourceMap.isEmpty())
                 return;
@@ -2828,13 +2830,11 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
                 bool found = false;
                 while (str < limit) {
                     const QString string = QString::fromUtf8(str);
-                    for (auto itExp = globalRegExpSourceMap.begin(), itEnd = globalRegExpSourceMap.end();
-                         itExp != itEnd;
-                         ++itExp) {
-                        const QRegularExpressionMatch match = itExp->first.match(string);
+                    for (auto pair : qAsConst(globalRegExpSourceMap)) {
+                        const QRegularExpressionMatch match = pair.first.match(string);
                         if (match.hasMatch()) {
                             rp.sourcePathMap.insert(string.left(match.capturedStart()) + match.captured(1),
-                                                    itExp->second);
+                                                    pair.second);
                             found = true;
                             break;
                         }

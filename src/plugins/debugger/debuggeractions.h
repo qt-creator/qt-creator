@@ -28,7 +28,6 @@
 #include <QCoreApplication>
 #include <QHash>
 #include <QMap>
-#include <QRegularExpression>
 #include <QVector>
 
 #include <utils/aspects.h>
@@ -37,7 +36,6 @@ namespace Debugger {
 namespace Internal {
 
 using SourcePathMap = QMap<QString, QString>;
-using SourcePathRegExpMap = QVector<QPair<QRegularExpression, QString>>;
 
 // Global debugger options that are not stored as saved action.
 class GlobalDebuggerOptions
@@ -46,8 +44,13 @@ public:
     void toSettings() const;
     void fromSettings();
 
+    // Entries starting with '(' are considered regular expressions in the ElfReader.
+    // This is useful when there are multiple build machines with different
+    // path, and the user would like to match anything up to some known
+    // directory to his local project.
+    // Syntax: (/home/.*)/KnownSubdir -> /home/my/project
+
     SourcePathMap sourcePathMap;
-    SourcePathRegExpMap sourcePathRegExpMap;
 };
 
 class GeneralSettings
