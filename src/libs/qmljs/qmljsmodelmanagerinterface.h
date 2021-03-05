@@ -244,7 +244,7 @@ protected:
     void setDefaultProject(const ProjectInfo &pInfo, ProjectExplorer::Project *p);
 
 private:
-    void joinAllThreads();
+    void joinAllThreads(bool cancelOnWait = false);
     void iterateQrcFiles(ProjectExplorer::Project *project,
                          QrcResourceSelector resources,
                          const std::function<void(Utils::QrcParser::ConstPtr)> &callback);

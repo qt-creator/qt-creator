@@ -140,6 +140,7 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
 
 ModelManagerInterface::~ModelManagerInterface()
 {
+    joinAllThreads(true);
     m_cppQmlTypesUpdater.cancel();
     m_cppQmlTypesUpdater.waitForFinished();
     Q_ASSERT(g_instance == this);
@@ -1558,7 +1559,7 @@ void ModelManagerInterface::setDefaultVContext(const ViewerContext &vContext)
     m_defaultVContexts[vContext.language] = vContext;
 }
 
-void ModelManagerInterface::joinAllThreads()
+void ModelManagerInterface::joinAllThreads(bool cancelOnWait)
 {
     while (true) {
         FutureSynchronizer futureSynchronizer;
@@ -1567,6 +1568,7 @@ void ModelManagerInterface::joinAllThreads()
             futureSynchronizer = m_futureSynchronizer;
             m_futureSynchronizer.clearFutures();
         }
+        futureSynchronizer.setCancelOnWait(cancelOnWait);
         if (futureSynchronizer.isEmpty())
             return;
     }
