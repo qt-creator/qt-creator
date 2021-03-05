@@ -94,7 +94,7 @@ function(qtc_output_binary_dir varName)
 endfunction()
 
 function(add_qtc_library name)
-  cmake_parse_arguments(_arg "STATIC;OBJECT;SKIP_TRANSLATION;ALLOW_ASCII_CASTS;UNVERSIONED"
+  cmake_parse_arguments(_arg "STATIC;OBJECT;SKIP_TRANSLATION;ALLOW_ASCII_CASTS;UNVERSIONED;FEATURE_INFO"
     "DESTINATION;COMPONENT;SOURCES_PREFIX;BUILD_DEFAULT"
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES" ${ARGN}
   )
@@ -110,6 +110,7 @@ function(add_qtc_library name)
 
   update_cached_list(__QTC_LIBRARIES "${name}")
 
+  condition_info(_extra_text _arg_CONDITION)
   if (NOT _arg_CONDITION)
     set(_arg_CONDITION ON)
   endif()
@@ -131,6 +132,9 @@ function(add_qtc_library name)
     set(_library_enabled OFF)
   endif()
 
+  if(DEFINED _arg_FEATURE_INFO)
+    add_feature_info("Library ${name}" _library_enabled "${_extra_text}")
+  endif()
   if (NOT _library_enabled)
     return()
   endif()

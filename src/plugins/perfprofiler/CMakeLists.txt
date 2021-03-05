@@ -1,4 +1,5 @@
 add_qtc_plugin(PerfProfiler
+  CONDITION TARGET Tracing
   DEPENDS Tracing Qt5::QuickWidgets
   PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport
   SOURCES

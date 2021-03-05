@@ -45,7 +45,7 @@ namespace CMakeProjectManager {
 
 class CMAKE_EXPORT CMakeConfigItem {
 public:
-    enum Type { FILEPATH, PATH, BOOL, STRING, INTERNAL, STATIC };
+    enum Type { FILEPATH, PATH, BOOL, STRING, INTERNAL, STATIC, UNINITIALIZED };
     CMakeConfigItem();
     CMakeConfigItem(const QByteArray &k, Type t, const QByteArray &d, const QByteArray &v, const QStringList &s = {});
     CMakeConfigItem(const QByteArray &k, const QByteArray &v);

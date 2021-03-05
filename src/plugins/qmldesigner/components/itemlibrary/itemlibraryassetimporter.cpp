@@ -664,7 +664,12 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
             timer->callOnTimeout([this, timer, progressTitle, model, doc]() {
                 if (!isCancelled()) {
                     notifyProgress(++counter * 5, progressTitle);
-                    if (counter == 10) {
+                    if (counter < 10) {
+                        // Do not proceed while application isn't active as the filesystem
+                        // watcher qmljs uses won't trigger unless application is active
+                        if (QApplication::applicationState() != Qt::ApplicationActive)
+                            --counter;
+                    } else if (counter == 10) {
                         model->rewriterView()->textModifier()->replace(0, 0, {});
                     } else if (counter == 19) {
                         try {

@@ -27,9 +27,10 @@
 
 namespace QmlDesigner {
 
-ItemLibraryItem::ItemLibraryItem(const ItemLibraryEntry &itemLibraryEntry, QObject *parent)
-    : QObject(parent),
-      m_itemLibraryEntry(itemLibraryEntry)
+ItemLibraryItem::ItemLibraryItem(const ItemLibraryEntry &itemLibraryEntry, bool isUsable, QObject *parent)
+    : QObject(parent)
+    , m_itemLibraryEntry(itemLibraryEntry)
+    , m_isUsable(isUsable)
 {
 }
 
@@ -61,6 +62,11 @@ QString ItemLibraryItem::componentPath() const
     return m_itemLibraryEntry.customComponentSource();
 }
 
+QString ItemLibraryItem::requiredImport() const
+{
+    return m_itemLibraryEntry.requiredImport();
+}
+
 bool ItemLibraryItem::setVisible(bool isVisible)
 {
     if (isVisible != m_isVisible) {
@@ -75,6 +81,11 @@ bool ItemLibraryItem::setVisible(bool isVisible)
 bool ItemLibraryItem::isVisible() const
 {
     return m_isVisible;
+}
+
+bool ItemLibraryItem::isUsable() const
+{
+    return m_isUsable;
 }
 
 QVariant ItemLibraryItem::itemLibraryEntry() const

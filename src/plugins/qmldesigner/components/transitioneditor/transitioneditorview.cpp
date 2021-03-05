@@ -110,7 +110,7 @@ void TransitionEditorView::nodeReparented(const ModelNode &node,
 
     const ModelNode parent = newPropertyParent.parentModelNode();
 
-    qDebug() << Q_FUNC_INFO << parent;
+    // qDebug() << Q_FUNC_INFO << parent;
     if (parent.isValid() && parent.metaInfo().isValid()
         && parent.metaInfo().isSubclassOf("QtQuick.Transition")) {
         asyncUpdate(parent);

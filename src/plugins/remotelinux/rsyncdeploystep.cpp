@@ -159,8 +159,19 @@ void RsyncDeployService::deployNextFile()
     }
     const DeployableFile file = m_deployableFiles.takeFirst();
     const RsyncCommandLine cmdLine = RsyncDeployStep::rsyncCommand(*connection(), m_flags);
+    QString localFilePath = file.localFilePath().toString();
+
+    // On Windows, rsync is either from msys or cygwin. Neither work with the other's ssh.exe.
+    if (HostOsInfo::isWindowsHost()) {
+        localFilePath = '/' + localFilePath.at(0) + localFilePath.mid(2);
+        if (anyOf(cmdLine.options, [](const QString &opt) {
+                return opt.contains("cygwin", Qt::CaseInsensitive); })) {
+            localFilePath.prepend("/cygdrive");
+        }
+    }
+
     const QStringList args = QStringList(cmdLine.options)
-            << (file.localFilePath().toString() + (file.localFilePath().isDir() ? "/" : QString()))
+            << (localFilePath + (file.localFilePath().isDir() ? "/" : QString()))
             << (cmdLine.remoteHostSpec + ':' + file.remoteFilePath());
     m_rsync.start("rsync", args); // TODO: Get rsync location from settings?
 }
@@ -228,7 +239,7 @@ RsyncCommandLine RsyncDeployStep::rsyncCommand(const SshConnection &sshConnectio
 {
     const QString sshCmdLine = QtcProcess::joinArgs(
                 QStringList{SshSettings::sshFilePath().toUserOutput()}
-                << sshConnection.connectionOptions(SshSettings::sshFilePath()));
+                << sshConnection.connectionOptions(SshSettings::sshFilePath()), OsTypeLinux);
     const SshConnectionParameters sshParams = sshConnection.connectionParameters();
     return RsyncCommandLine(QStringList{"-e", sshCmdLine, flags},
                             sshParams.userName() + '@' + sshParams.host());

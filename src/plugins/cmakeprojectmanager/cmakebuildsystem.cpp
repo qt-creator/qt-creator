@@ -56,6 +56,7 @@
 
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
+#include <utils/macroexpander.h>
 #include <utils/mimetypes/mimetype.h>
 #include <utils/qtcassert.h>
 
@@ -283,9 +284,8 @@ void CMakeBuildSystem::triggerParsing()
     }
 
     if ((0 == (reparseParameters & REPARSE_FORCE_EXTRA_CONFIGURATION))
-        && !m_parameters.extraCMakeArguments.isEmpty()) {
-        if (mustApplyExtraArguments())
-            reparseParameters |= REPARSE_FORCE_CMAKE_RUN | REPARSE_FORCE_EXTRA_CONFIGURATION;
+        && mustApplyExtraArguments(m_parameters)) {
+        reparseParameters |= REPARSE_FORCE_CMAKE_RUN | REPARSE_FORCE_EXTRA_CONFIGURATION;
     }
 
     qCDebug(cmakeBuildSystemLog) << "Asking reader to parse";
@@ -372,6 +372,27 @@ QString CMakeBuildSystem::reparseParametersString(int reparseFlags)
     return result.trimmed();
 }
 
+void CMakeBuildSystem::writeConfigurationIntoBuildDirectory()
+{
+    const Utils::MacroExpander *expander = cmakeBuildConfiguration()->macroExpander();
+    const FilePath buildDir = workDirectory(m_parameters);
+    QTC_ASSERT(buildDir.exists(), return );
+
+    const FilePath settingsFile = buildDir.pathAppended("qtcsettings.cmake");
+
+    QByteArray contents;
+    contents.append("# This file is managed by Qt Creator, do not edit!\n\n");
+    contents.append(
+        transform(cmakeBuildConfiguration()->configurationChanges(),
+                  [expander](const CMakeConfigItem &item) { return item.toCMakeSetLine(expander); })
+            .join('\n')
+            .toUtf8());
+
+    QFile file(settingsFile.toString());
+    QTC_ASSERT(file.open(QFile::WriteOnly | QFile::Truncate), return );
+    file.write(contents);
+}
+
 void CMakeBuildSystem::setParametersAndRequestParse(const BuildDirParameters &parameters,
                                                     const int reparseParameters)
 {
@@ -405,6 +426,8 @@ void CMakeBuildSystem::setParametersAndRequestParse(const BuildDirParameters &pa
 
     m_reader.setParameters(m_parameters);
 
+    writeConfigurationIntoBuildDirectory();
+
     if (reparseParameters & REPARSE_URGENT) {
         qCDebug(cmakeBuildSystemLog) << "calling requestReparse";
         requestParse();
@@ -414,15 +437,15 @@ void CMakeBuildSystem::setParametersAndRequestParse(const BuildDirParameters &pa
     }
 }
 
-bool CMakeBuildSystem::mustApplyExtraArguments() const
+bool CMakeBuildSystem::mustApplyExtraArguments(const BuildDirParameters &parameters) const
 {
-    if (m_parameters.extraCMakeArguments.isEmpty())
+    if (parameters.extraCMakeArguments.isEmpty())
         return false;
 
     auto answer = QMessageBox::question(Core::ICore::mainWindow(),
                                         tr("Apply configuration changes?"),
                                         tr("Run CMake with \"%1\"?")
-                                            .arg(m_parameters.extraCMakeArguments.join(" ")),
+                                            .arg(parameters.extraCMakeArguments.join(" ")),
                                         QMessageBox::Apply | QMessageBox::Discard,
                                         QMessageBox::Apply);
     return answer == QMessageBox::Apply;
@@ -482,12 +505,10 @@ bool CMakeBuildSystem::persistCMakeState()
     qCDebug(cmakeBuildSystemLog) << "Checking whether build system needs to be persisted:"
                                  << "workdir:" << parameters.workDirectory
                                  << "buildDir:" << parameters.buildDirectory
-                                 << "Has extraargs:" << !parameters.extraCMakeArguments.isEmpty()
-                                 << "must apply extra Args:"
-                                 << mustApplyExtraArguments();
+                                 << "Has extraargs:" << !parameters.extraCMakeArguments.isEmpty();
 
     if (parameters.workDirectory == parameters.buildDirectory
-        && !parameters.extraCMakeArguments.isEmpty() && mustApplyExtraArguments()) {
+        && mustApplyExtraArguments(parameters)) {
         reparseFlags = REPARSE_FORCE_EXTRA_CONFIGURATION;
         qCDebug(cmakeBuildSystemLog) << "   -> must run CMake with extra arguments.";
     }

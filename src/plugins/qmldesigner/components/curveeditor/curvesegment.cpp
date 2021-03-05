@@ -294,6 +294,13 @@ void CurveSegment::extend(QPainterPath &path) const
 
 QEasingCurve CurveSegment::easingCurve() const
 {
+    if (interpolation() == Keyframe::Interpolation::Step) {
+        QEasingCurve curve;
+        curve.addCubicBezierSegment(QPointF(0.1, 0.0), QPointF(0.9, 0.0), QPointF(1.0, 0.0));
+        curve.addCubicBezierSegment(QPointF(1.0, 0.1), QPointF(1.0, 0.9), QPointF(1.0, 1.0));
+        return curve;
+    }
+
     auto mapPosition = [this](const QPointF &position) {
         QPointF min = m_left.position();
         QPointF max = m_right.position();

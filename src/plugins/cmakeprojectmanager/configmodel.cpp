@@ -123,11 +123,6 @@ bool ConfigModel::hasChanges() const
     });
 }
 
-bool ConfigModel::hasCMakeChanges() const
-{
-    return Utils::contains(m_configuration, [](const InternalDataItem &i) { return i.isCMakeChanged; });
-}
-
 bool ConfigModel::canForceTo(const QModelIndex &idx, const ConfigModel::DataItem::Type type) const
 {
     if (idx.model() != const_cast<ConfigModel *>(this) || idx.column() != 1)
@@ -264,7 +259,6 @@ void ConfigModel::setConfiguration(const QList<ConfigModel::InternalDataItem> &c
             // merge old/new entry:
             InternalDataItem item(*newIt);
             item.newValue = (newIt->value != oldIt->newValue) ? oldIt->newValue : QString();
-            item.isCMakeChanged = (oldIt->value != newIt->value);
             item.isUserChanged = !item.newValue.isEmpty() && (item.newValue != item.value);
             result << item;
             ++newIt;
@@ -390,7 +384,6 @@ QVariant ConfigModelTreeItem::data(int column, int role) const
             return toolTip();
         case Qt::FontRole: {
             QFont font;
-            font.setItalic(dataItem->isCMakeChanged);
             font.setBold(dataItem->isUserNew);
             font.setStrikeOut((!dataItem->inCMakeCache && !dataItem->isUserNew) || dataItem->isUnset);
             return font;
@@ -414,7 +407,6 @@ QVariant ConfigModelTreeItem::data(int column, int role) const
         case Qt::FontRole: {
             QFont font;
             font.setBold((dataItem->isUserChanged || dataItem->isUserNew) && !dataItem->isUnset);
-            font.setItalic(dataItem->isCMakeChanged);
             font.setStrikeOut((!dataItem->inCMakeCache && !dataItem->isUserNew) || dataItem->isUnset);
             return font;
         }

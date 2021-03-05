@@ -370,7 +370,8 @@ void DesignDocument::close()
 void DesignDocument::updateSubcomponentManager()
 {
     Q_ASSERT(m_subComponentManager);
-    m_subComponentManager->update(QUrl::fromLocalFile(fileName().toString()), currentModel()->imports());
+    m_subComponentManager->update(QUrl::fromLocalFile(fileName().toString()),
+                                  currentModel()->imports() + currentModel()->possibleImports());
 }
 
 void DesignDocument::deleteSelected()

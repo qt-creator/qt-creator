@@ -33,47 +33,129 @@
     You design applications in the \uicontrol {Form Editor} view by placing
     \l{Component Types}{2D components} and \l{Assets}{assets} into it.
 
-    When you select items in \uicontrol {Form Editor}, markers
-    appear around their edges and in their corners. Depending on the shape of
-    the cursor, you can move, resize, or rotate the item by dragging it.
-    The following image shows the move cursor.
-
     \image qmldesigner-form-editor.png "Form Editor view"
 
-    \section1 Resizing 2D Items
+    When you select components in \uicontrol {Form Editor}, markers appear
+    around their edges and in their corners. Depending on the shape of the
+    cursor, you can apply the following actions on the components by dragging
+    them:
 
-    When the resize cursor is displayed, you can drag the selection handles
-    to resize items.
+    \list
+        \li \l{Moving Components}{Move components}
+        \li \l{Resizing 2D Components}{Resize components}
+        \li \l{Rotating 2D Components}{Rotate components}
+    \endlist
+
+    \section1 Summary of Form Editor Buttons
+
+    The \uicontrol {Form Editor} toolbar contains the following buttons and
+    fields.
+
+    \table
+    \header
+        \li Button/Field
+        \li Tooltip
+        \li Read More
+    \row
+        \li \inlineimage no_snapping.png
+        \li Disables snapping.
+        \li \l{Snapping to Parent and Sibling Components}
+    \row
+        \li \inlineimage snapping_and_anchoring.png
+        \li Anchors the component to the components that it is snapped to.
+        \li \l{Snapping to Parent and Sibling Components}
+    \row
+        \li \inlineimage snapping.png
+        \li Snaps components to their parent or sibling components when you
+            align them.
+        \li \l{Snapping to Parent and Sibling Components}
+    \row
+        \li \inlineimage boundingrect.png
+        \li Hides and shows component boundaries.
+        \li \l{Hiding Component Boundaries}
+    \row
+        \li \uicontrol {Override Width}
+        \li Shows a preview of the component using the specified width.
+        \li \l{Previewing Component Size}
+    \row
+        \li \uicontrol {Override Height}
+        \li Shows a preview of the component using the specified height.
+        \li \l{Previewing Component Size}
+    \row
+        \li \inlineimage icons/canvas-color.png
+        \li Sets the color of the \uicontrol {Form Editor} working area.
+        \li \l{Setting Canvas Color}
+    \row
+        \li \inlineimage icons/zoomIn.png
+        \li Zooms in.
+        \li \l{Zooming}
+    \row
+        \li \inlineimage icons/zoomOut.png
+        \li Zooms out.
+        \li \l{Zooming}
+    \row
+        \li Zoom level
+        \li Sets the zoom level that you select from the list.
+        \li \l{Zooming}
+    \row
+        \li \inlineimage icons/zoomAll.png
+        \li Zooms to fit all content.
+        \li \l{Zooming}
+    \row
+        \li \inlineimage icons/zoomSelection.png
+        \li Zooms to fit the current selection.
+        \li \l{Zooming}
+    \row
+        \li \inlineimage reset.png
+        \li Refreshes the contents of \uicontrol {Form Editor}.
+        \li \l{Refreshing Form Editor Contents}
+    \endtable
+
+    \section1 Moving Components
+
+    When the move cursor is displayed, you can move the selected component to
+    any position in \uicontrol {Form Editor}.
+
+    \image qmldesigner-form-editor-move-cursor.png "Move cursor in Form Editor view"
+
+    For more information about alternative ways of positioning components in
+    UIs, see \l{Positioning Items}.
+
+    \section1 Resizing 2D Components
+
+    When the resize cursor is displayed, you can drag the markers to resize
+    components.
 
     \image qtquick-designer-scaling-items.png "Form Editor view"
 
-    \if defined(qtdesignstudio)
-    To have the resizing done from the center of the selected item instead from
-    its edges, press \key Alt.
+    To have the resizing done from the center of the selected component rather
+    than from its edges, press \key Alt (or the option key on \macos).
 
     To preserve the image aspect ratio while resizing when using the corner
-    handles, press \key Shift. This also works on items that are anchored
+    markers, press \key Shift. This also works on components that are anchored
     using left, right, top, or bottom anchors.
 
-    To both resize from the center of the item and preserve the aspect ratio,
-    press \key Alt+Shift.
-    \endif
+    To both resize from the center of the component and preserve the aspect
+    ratio, press \key Alt+Shift (or the option key + \key Shift on \macos).
 
-    \section1 Rotating 2D Items
+    For more information about alternative ways to specify the size of a
+    component in a UI, see \l{2D Geometry}.
+
+    \section1 Rotating 2D Components
 
     When the rotation cursor \inlineimage icons/rotation-cursor.png
-    is displayed in one of the corners of an item, you can drag
-    clockwise or counter-clockwise to freely rotate the item around
-    its origin in \uicontrol {Form Editor}.
+    is displayed in one of the corners of a component, you can drag
+    clockwise or counter-clockwise to freely rotate the component around
+    its origin.
 
     \image qtquick-designer-rotating-items.png "2D rotation tool"
 
-    Additionally, press \key Shift or \key Alt to rotate items in steps of 5 or
-    45 degrees, respectively.
+    Additionally, press \key Shift or \key Alt (or the option key on \macos)
+    to rotate components in steps of 5 or 45 degrees, respectively.
 
     You can set the \l{Managing 2D Transformations}{origin} in the
     \uicontrol Origin field in the \uicontrol Advanced tab in the
-    \uicontrol Properties view. There, you can also enter the value
+    \l Properties view. There, you can also enter the value
     of the \uicontrol Rotation property in degrees.
 
     \section1 Zooming
@@ -85,43 +167,23 @@
 
     \image qmldesigner-zooming.gif "Zooming in Form Editor"
 
-    The following table lists the zoom buttons:
+    \section1 Snapping to Parent and Sibling Components
 
-    \table
-    \header
-        \li Icon
-        \li Tooltip
-    \row
-        \li \inlineimage icons/zoomIn.png
-        \li Zoom in
-    \row
-        \li \inlineimage icons/zoomOut.png
-        \li Zoom out
-    \row
-        \li \inlineimage icons/zoomAll.png
-        \li Zoom to fit all content
-    \row
-        \li \inlineimage icons/zoomSelection.png
-        \li Zoom to fit the current selection
-    \endtable
-
-    \section1 Snapping to Parent and Sibling Items
-
-    When you are working on a design, you can use snapping to align
-    items in \uicontrol {Form Editor}. Click the \inlineimage snapping.png
-    button to have the items snap to their parent or sibling items. Snapping
-    lines automatically appear to help you position the items.
+    You can use snapping to align components in \uicontrol {Form Editor}.
+    Click the \inlineimage snapping.png
+    button to have the components snap to their parent or sibling components.
+    Snapping lines automatically appear to help you position the components.
     Click the \inlineimage snapping_and_anchoring.png
-    button to anchor the item to the items that you snap to.
+    button to anchor the component to the components that you snap to.
     Only one snapping button can be selected at the time. Selecting
     one snapping button automatically deselects the others.
 
     Choose \uicontrol Tools > \uicontrol Options > \uicontrol {Qt Quick} >
     \uicontrol {Qt Quick Designer} to specify settings for snapping. In the
     \uicontrol {Parent item padding} field, specify the
-    distance in pixels between the parent item and the snapping lines. In the
-    \uicontrol {Sibling item spacing} field, specify the distance in pixels between
-    sibling items and the snapping lines.
+    distance in pixels between the parent component and the snapping lines. In
+    the \uicontrol {Sibling item spacing} field, specify the distance in pixels
+    between sibling components and the snapping lines.
 
     \image qtquick-designer-options.png "Qt Quick Designer options"
 
@@ -130,33 +192,36 @@
 
     \image qmldesigner-snap-margins.png "Snapping lines on canvas"
 
-    \section1 Hiding Item Boundaries
+    For alternative ways of aligning and distributing components by using the
+    \l Properties view, see \l{Aligning and Distributing Items}.
 
-    \uicontrol {Form Editor} displays the boundaries of items.
+    \section1 Hiding Component Boundaries
+
+    \uicontrol {Form Editor} displays the boundaries of components.
     To hide them, select the \inlineimage boundingrect.png
     button.
 
     \section1 Previewing Component Size
 
-    The width and height of the root item in a QML file determine the size of
-    the component. You can reuse components, such as buttons, in different
-    sizes in other QML files and design UIs for use with different device
+    The width and height of the root component in a UI file determine the size
+    of the component. You can reuse components, such as buttons, in different
+    sizes in other UI files and design UIs for use with different device
     profiles, screen resolution, or screen orientation. The component size
-    might also be zero (0,0) if its final size is determined by property
-    bindings.
+    might also be zero (0,0) if its final size is determined by
+    \l{Setting Bindings}{property bindings}.
 
     To experiment with different component sizes, enter values in the
     \uicontrol {Override Width} and \uicontrol {Override Height} fields (1) on
-    the canvas toolbar. The changes are displayed in the \uicontrol {Form Editor}
+    the toolbar. The changes are displayed in the \uicontrol {Form Editor}
     view (2) and in the \uicontrol States view (3), but the property
-    values are not changed permanently in the QML file. You can permanently
+    values are not changed permanently in the UI file. You can permanently
     change the property values in the \uicontrol Properties view (4).
 
-    \image qmldesigner-preview-size.png "Canvas width and height"
+    \image qmldesigner-preview-size.png "Component width and height"
 
-    To set the initial size of the root item, select \uicontrol Tools >
+    To set the initial size of the root component, select \uicontrol Tools >
     \uicontrol Options > \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer} and
-    specify the item width and height in the \uicontrol {Root Item Init Size}
+    specify the component width and height in the \uicontrol {Root Item Init Size}
     group.
 
     \section1 Specifying Canvas Size
@@ -167,8 +232,8 @@
 
     \section1 Setting Canvas Color
 
-    If you set the background of the root item of your component transparent,
-    the canvas color can make it difficult to see the component you are working
+    If you set the background of the root component transparent, the color of
+    the working area can make it difficult to see the component you are working
     on. To make components more visible, you can select the canvas color in
     the \inlineimage icons/canvas-color.png
     list. By default, the color is transparent. Setting the canvas color does
@@ -176,13 +241,14 @@
 
     \image qmldesigner-canvas-color.png "Transparent canvas color for a transparent component"
 
-    \section1 Refreshing the Form Editor Contents
+    \section1 Refreshing Form Editor Contents
 
-    When you open QML files in the Design mode, the items in the file are drawn
-    in \uicontrol {Form Editor}. When you edit the item properties, the QML
-    file and the contents of the editor might get out of sync. For example, when
-    you change the position of an item within a column or a row, the new
-    position might not be displayed correctly in \uicontrol {Form Editor}.
+    When you open a UI file, the components in the file are drawn in
+    \uicontrol {Form Editor}. When you edit component properties in
+    \l Properties, the code and its representation in \uicontrol {Form Editor}
+    might get out of sync. For example, when you change the position of a
+    component within a column or a row, the new position might not be displayed
+    correctly in \uicontrol {Form Editor}.
 
     To refresh the contents of \uicontrol {Form Editor}, press \key R or
     select the \inlineimage reset.png

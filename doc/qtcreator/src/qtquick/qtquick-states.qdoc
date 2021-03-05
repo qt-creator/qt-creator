@@ -61,6 +61,8 @@
         \li Show a different view.
     \endlist
 
+    You can animate transitions between states in \l{Transition Editor}.
+
     \section1 Creating States
 
     To open the \uicontrol States view, select \uicontrol View >
@@ -208,6 +210,4 @@
     \if defined(qtcreator)
     \include qtquick-states-scxml.qdocinc scxml state machines
     \endif
-
-    \include qtquick-transition-editor.qdocinc transition editor
 */

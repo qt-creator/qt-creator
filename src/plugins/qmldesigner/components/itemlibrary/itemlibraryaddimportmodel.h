@@ -50,11 +50,14 @@ public:
     void setSearchText(const QString &searchText);
     Import getImportAt(int index) const;
 
+    void setPriorityImports(const QSet<QString> &priorityImports);
+
 private:
     QString m_searchText;
     QList<Import> m_importList;
     QSet<QString> m_importFilterList;
     QHash<int, QByteArray> m_roleNames;
+    QSet<QString> m_priorityImports;
 };
 
 } // namespace QmlDesigner

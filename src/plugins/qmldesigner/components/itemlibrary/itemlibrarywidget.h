@@ -39,6 +39,7 @@
 #include <QQuickWidget>
 #include <QQmlPropertyMap>
 #include <QTimer>
+#include <QPointF>
 
 #include <memory>
 
@@ -87,8 +88,9 @@ public:
     void setModel(Model *model);
     void setFlowMode(bool b);
 
-    Q_INVOKABLE void startDragAndDrop(const QVariant &itemLibEntry);
+    Q_INVOKABLE void startDragAndDrop(const QVariant &itemLibEntry, const QPointF &mousePos);
     Q_INVOKABLE void removeImport(const QString &importUrl);
+    Q_INVOKABLE void addImportForItem(const QVariant &entry);
 
 signals:
     void itemActivated(const QString& itemName);
@@ -102,6 +104,7 @@ private:
     void addResources(const QStringList &files);
     void importDroppedFiles(const QList<Utils::DropSupport::FileSpec> &files);
     void updateSearch();
+    void handlePriorityImportsChanged();
 
     QTimer m_compressionTimer;
     QSize m_itemIconSize;
@@ -126,6 +129,7 @@ private:
     QVariant m_itemToDrag;
     bool m_updateRetry = false;
     QString m_filterText;
+    QPoint m_dragStartPoint;
 
 private slots:
     void handleTabChanged(int index);

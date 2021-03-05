@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "studiowelcomeplugin.h"
+#include "examplecheckout.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/restartdialog.h>
@@ -175,9 +176,29 @@ public:
         QDesktopServices::openUrl(QUrl("qthelp://org.qt-project.qtcreator/doc/index.html"));
     }
 
-    Q_INVOKABLE void openExample(const QString &example, const QString &formFile)
+    Q_INVOKABLE void openExample(const QString &example, const QString &formFile, const QString &url)
     {
-        const QString projectFile = Core::ICore::resourcePath() + "/examples/" + example + "/" + example + ".qmlproject";
+        if (!url.isEmpty()) {
+            ExampleCheckout *checkout = new ExampleCheckout;
+            checkout->checkoutExample(QUrl::fromUserInput(url));
+            connect(checkout,
+                    &ExampleCheckout::finishedSucessfully,
+                    this,
+                    [checkout, this, formFile, example]() {
+                        const QString projectFile = checkout->extractionFolder() + "/" + example
+                                                    + "/" + example + ".qmlproject";
+
+                        ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
+                        const QString qmlFile = checkout->extractionFolder() + "/" + example + "/"
+                                                + formFile;
+
+                        Core::EditorManager::openEditor(qmlFile);
+                    });
+            return;
+        }
+
+        const QString projectFile = Core::ICore::resourcePath() + "/examples/" + example + "/"
+                                    + example + ".qmlproject";
         ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
         const QString qmlFile = Core::ICore::resourcePath() + "/examples/" + example + "/" + formFile;
         Core::EditorManager::openEditor(qmlFile);

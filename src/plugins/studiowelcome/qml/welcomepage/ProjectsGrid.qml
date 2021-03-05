@@ -39,6 +39,7 @@ GridView {
         id: hoverOverDesaturate
         imageSource: typeof(thumbnail) === "undefined" ? "images/thumbnail_test.png" : thumbnail;
         labelText: displayName
+        downloadIcon: typeof(showDownload) === "undefined" ? false : showDownload;
 
         SequentialAnimation {
             id: animation

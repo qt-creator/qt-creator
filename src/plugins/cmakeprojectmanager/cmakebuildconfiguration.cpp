@@ -519,15 +519,14 @@ void CMakeBuildSettingsWidget::updateButtonState()
                     break;
                 case CMakeProjectManager::ConfigModel::DataItem::UNKNOWN:
                 default:
-                    ni.type = CMakeConfigItem::INTERNAL;
+                    ni.type = CMakeConfigItem::UNINITIALIZED;
                     break;
                 }
                 return ni;
             });
 
     m_resetButton->setEnabled(m_configModel->hasChanges() && !isParsing);
-    m_reconfigureButton->setEnabled((!configChanges.isEmpty() || m_configModel->hasCMakeChanges())
-                                    && !isParsing);
+    m_reconfigureButton->setEnabled(!configChanges.isEmpty() && !isParsing);
     m_buildConfiguration->setConfigurationChanges(configChanges);
 }
 

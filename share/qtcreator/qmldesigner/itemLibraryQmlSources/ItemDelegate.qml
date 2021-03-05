@@ -29,6 +29,9 @@ import QtQuickDesignerTheme 1.0
 import HelperWidgets 2.0
 
 Item {
+    id: delegateRoot
+    signal showContextMenu()
+
     Rectangle {
         anchors.rightMargin: 1
         anchors.topMargin: 1
@@ -71,11 +74,12 @@ Item {
 
         ImagePreviewTooltipArea {
             id: mouseRegion
-
             anchors.fill: parent
 
+            onShowContextMenu: delegateRoot.showContextMenu()
             onPressed: {
-                rootView.startDragAndDrop(itemLibraryEntry)
+                if (mouse.button === Qt.LeftButton)
+                    rootView.startDragAndDrop(itemLibraryEntry, mapToGlobal(mouse.x, mouse.y))
             }
         }
     }

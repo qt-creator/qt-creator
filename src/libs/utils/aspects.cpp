@@ -1131,7 +1131,9 @@ void StringAspect::update()
     }
 
     if (d->m_textEditDisplay) {
-        d->m_textEditDisplay->setText(displayedString);
+        const QString old = d->m_textEditDisplay->document()->toPlainText();
+        if (displayedString != old)
+            d->m_textEditDisplay->setText(displayedString);
         d->updateWidgetFromCheckStatus(d->m_textEditDisplay.data());
     }
 

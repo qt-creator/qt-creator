@@ -43,18 +43,22 @@ class ItemLibraryItem: public QObject
     Q_PROPERTY(QString itemLibraryIconPath READ itemLibraryIconPath FINAL)
     Q_PROPERTY(bool itemVisible READ isVisible NOTIFY visibilityChanged FINAL)
     Q_PROPERTY(QString componentPath READ componentPath FINAL)
+    Q_PROPERTY(bool itemUsable READ isUsable FINAL)
+    Q_PROPERTY(QString itemRequiredImport READ requiredImport FINAL)
 
 public:
-    ItemLibraryItem(const ItemLibraryEntry &itemLibraryEntry, QObject *parent);
+    ItemLibraryItem(const ItemLibraryEntry &itemLibraryEntry, bool isImported, QObject *parent);
     ~ItemLibraryItem() override;
 
     QString itemName() const;
     QString typeName() const;
     QString itemLibraryIconPath() const;
     QString componentPath() const;
+    QString requiredImport() const;
 
     bool setVisible(bool isVisible);
     bool isVisible() const;
+    bool isUsable() const;
 
     QVariant itemLibraryEntry() const;
 
@@ -64,6 +68,7 @@ signals:
 private:
     ItemLibraryEntry m_itemLibraryEntry;
     bool m_isVisible = true;
+    bool m_isUsable = false;
 };
 
 } // namespace QmlDesigner

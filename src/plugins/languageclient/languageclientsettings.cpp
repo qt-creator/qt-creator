@@ -79,6 +79,7 @@ constexpr char executableKey[] = "executable";
 constexpr char argumentsKey[] = "arguments";
 constexpr char settingsGroupKey[] = "LanguageClient";
 constexpr char clientsKey[] = "clients";
+constexpr char typedClientsKey[] = "typedClients";
 constexpr char mimeType[] = "application/language.client.setting";
 
 namespace LanguageClient {
@@ -615,16 +616,21 @@ QList<BaseSettings *> LanguageClientSettings::fromSettings(QSettings *settingsIn
 {
     settingsIn->beginGroup(settingsGroupKey);
     QList<BaseSettings *> result;
-    for (const QVariant& var : settingsIn->value(clientsKey).toList()) {
-        const QMap<QString, QVariant> &map = var.toMap();
-        Utils::Id typeId = Utils::Id::fromSetting(map.value(typeIdKey));
-        if (!typeId.isValid())
-            typeId = Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID;
-        if (BaseSettings *settings = generateSettings(typeId)) {
-            settings->fromMap(var.toMap());
-            result << settings;
+
+    for (auto varList :
+         {settingsIn->value(clientsKey).toList(), settingsIn->value(typedClientsKey).toList()}) {
+        for (const QVariant &var : varList) {
+            const QMap<QString, QVariant> &map = var.toMap();
+            Utils::Id typeId = Utils::Id::fromSetting(map.value(typeIdKey));
+            if (!typeId.isValid())
+                typeId = Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID;
+            if (BaseSettings *settings = generateSettings(typeId)) {
+                settings->fromMap(map);
+                result << settings;
+            }
         }
     }
+
     settingsIn->endGroup();
     return result;
 }
@@ -659,10 +665,16 @@ void LanguageClientSettings::toSettings(QSettings *settings,
                                         const QList<BaseSettings *> &languageClientSettings)
 {
     settings->beginGroup(settingsGroupKey);
-    settings->setValue(clientsKey, Utils::transform(languageClientSettings,
-                                                    [](const BaseSettings *setting){
-        return QVariant(setting->toMap());
-    }));
+    auto transform = [](const QList<BaseSettings *> &settings) {
+        return Utils::transform(settings, [](const BaseSettings *setting) {
+            return QVariant(setting->toMap());
+        });
+    };
+    auto isStdioSetting = Utils::equal(&BaseSettings::m_settingsTypeId,
+                                       Utils::Id(Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID));
+    auto [stdioSettings, typedSettings] = Utils::partition(languageClientSettings, isStdioSetting);
+    settings->setValue(clientsKey, transform(stdioSettings));
+    settings->setValue(typedClientsKey, transform(typedSettings));
     settings->endGroup();
 }
 

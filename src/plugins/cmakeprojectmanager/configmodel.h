@@ -101,7 +101,7 @@ public:
                     cmi.type = CMakeConfigItem::STRING;
                     break;
                 case DataItem::UNKNOWN:
-                    cmi.type = CMakeConfigItem::INTERNAL;
+                    cmi.type = CMakeConfigItem::UNINITIALIZED;
                     break;
             }
             cmi.isUnset = isUnset;
@@ -144,7 +144,6 @@ public:
     void resetAllChanges();
 
     bool hasChanges() const;
-    bool hasCMakeChanges() const;
 
     bool canForceTo(const QModelIndex &idx, const DataItem::Type type) const;
     void forceTo(const QModelIndex &idx, const DataItem::Type type);
@@ -168,7 +167,6 @@ private:
 
         bool isUserChanged = false;
         bool isUserNew = false;
-        bool isCMakeChanged = false;
         QString newValue;
         QString kitValue;
     };

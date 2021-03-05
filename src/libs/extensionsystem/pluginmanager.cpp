@@ -1474,7 +1474,7 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
         return;
 
     std::unique_ptr<LockFile> lockFile;
-    if (enableCrashCheck)
+    if (enableCrashCheck && destState < PluginSpec::Stopped)
         lockFile.reset(new LockFile(this, spec));
 
     switch (destState) {

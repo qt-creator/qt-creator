@@ -30,6 +30,8 @@
 #include "textmark.h"
 #include "textdocument.h"
 
+#include <utils/id.h>
+
 #include <State>
 
 #include <QTextBlockUserData>
@@ -48,6 +50,7 @@ struct TEXTEDITOR_EXPORT Parenthesis
         : pos(position), chr(c), type(t) {}
     int pos = -1;
     QChar chr;
+    Utils::Id source;
     Type type = Opened;
 };
 

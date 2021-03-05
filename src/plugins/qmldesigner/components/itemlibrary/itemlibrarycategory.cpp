@@ -70,6 +70,8 @@ bool ItemLibraryCategory::updateItemVisibility(const QString &searchText, bool *
         bool itemVisible = item->itemName().toLower().contains(searchText)
                         || item->typeName().toLower().contains(searchText);
 
+        if (searchText.isEmpty() && !item->isUsable())
+            itemVisible = false;
         bool itemChanged = item->setVisible(itemVisible);
 
         *changed |= itemChanged;

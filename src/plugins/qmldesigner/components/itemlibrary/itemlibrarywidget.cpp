@@ -86,15 +86,35 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
             QMetaObject::invokeMethod(m_itemViewQuickWidget->rootObject(), "closeContextMenu");
     } else if (event->type() == QMouseEvent::MouseMove) {
         if (m_itemToDrag.isValid()) {
-            ItemLibraryEntry entry = m_itemToDrag.value<ItemLibraryEntry>();
-            auto drag = new QDrag(this);
-            drag->setPixmap(Utils::StyleHelper::dpiSpecificImageFile(entry.libraryEntryIconPath()));
-            drag->setMimeData(m_itemLibraryModel->getMimeData(entry));
-            drag->exec();
-            drag->deleteLater();
+            QMouseEvent *me = static_cast<QMouseEvent *>(event);
+            if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 10) {
+                ItemLibraryEntry entry = m_itemToDrag.value<ItemLibraryEntry>();
+                // For drag to be handled correctly, we must have the component properly imported
+                // beforehand, so we import the module immediately when the drag starts
+                if (!entry.requiredImport().isEmpty()) {
+                    Import import = Import::createLibraryImport(entry.requiredImport());
+                    if (!m_model->hasImport(import, true, true)) {
+                        const QList<Import> possImports = m_model->possibleImports();
+                        for (const auto &possImport : possImports) {
+                            if (possImport.url() == import.url()) {
+                                m_model->changeImports({possImport}, {});
+                                break;
+                            }
+                        }
+                    }
+                }
 
-            m_itemToDrag = {};
+                auto drag = new QDrag(this);
+                drag->setPixmap(Utils::StyleHelper::dpiSpecificImageFile(entry.libraryEntryIconPath()));
+                drag->setMimeData(m_itemLibraryModel->getMimeData(entry));
+                drag->exec();
+                drag->deleteLater();
+
+                m_itemToDrag = {};
+            }
         }
+    } else if (event->type() == QMouseEvent::MouseButtonRelease) {
+        m_itemToDrag = {};
     }
 
     return QObject::eventFilter(obj, event);
@@ -229,11 +249,16 @@ void ItemLibraryWidget::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
     if (m_itemLibraryInfo) {
         disconnect(m_itemLibraryInfo.data(), &ItemLibraryInfo::entriesChanged,
                    this, &ItemLibraryWidget::delayedUpdateModel);
+        disconnect(m_itemLibraryInfo.data(), &ItemLibraryInfo::priorityImportsChanged,
+                   this, &ItemLibraryWidget::handlePriorityImportsChanged);
     }
     m_itemLibraryInfo = itemLibraryInfo;
     if (itemLibraryInfo) {
         connect(m_itemLibraryInfo.data(), &ItemLibraryInfo::entriesChanged,
                 this, &ItemLibraryWidget::delayedUpdateModel);
+        connect(m_itemLibraryInfo.data(), &ItemLibraryInfo::priorityImportsChanged,
+                this, &ItemLibraryWidget::handlePriorityImportsChanged);
+        m_itemLibraryAddImportModel->setPriorityImports(m_itemLibraryInfo->priorityImports());
     }
     delayedUpdateModel();
 }
@@ -344,6 +369,7 @@ void ItemLibraryWidget::updateModel()
 void ItemLibraryWidget::updatePossibleImports(const QList<Import> &possibleImports)
 {
     m_itemLibraryAddImportModel->update(possibleImports);
+    delayedUpdateModel();
 }
 
 void ItemLibraryWidget::updateUsedImports(const QList<Import> &usedImports)
@@ -365,6 +391,14 @@ void ItemLibraryWidget::updateSearch()
     }
 }
 
+void ItemLibraryWidget::handlePriorityImportsChanged()
+{
+    if (!m_itemLibraryInfo.isNull()) {
+        m_itemLibraryAddImportModel->setPriorityImports(m_itemLibraryInfo->priorityImports());
+        m_itemLibraryAddImportModel->update(m_model->possibleImports());
+    }
+}
+
 void ItemLibraryWidget::setResourcePath(const QString &resourcePath)
 {
     if (m_resourcesView->model() == m_resourcesFileSystemModel.data()) {
@@ -374,12 +408,13 @@ void ItemLibraryWidget::setResourcePath(const QString &resourcePath)
     updateSearch();
 }
 
-void ItemLibraryWidget::startDragAndDrop(const QVariant &itemLibEntry)
+void ItemLibraryWidget::startDragAndDrop(const QVariant &itemLibEntry, const QPointF &mousePos)
 {
     // Actual drag is created after mouse has moved to avoid a QDrag bug that causes drag to stay
     // active (and blocks mouse release) if mouse is released at the same spot of the drag start.
     // This doesn't completely eliminate the bug but makes it significantly harder to produce.
     m_itemToDrag = itemLibEntry;
+    m_dragStartPoint = mousePos.toPoint();
 }
 
 void ItemLibraryWidget::setFlowMode(bool b)
@@ -394,6 +429,15 @@ void ItemLibraryWidget::removeImport(const QString &importUrl)
     ItemLibraryImport *importSection = m_itemLibraryModel->importByUrl(importUrl);
     if (importSection)
         m_model->changeImports({}, {importSection->importEntry()});
+}
+
+void ItemLibraryWidget::addImportForItem(const QVariant &entry)
+{
+    QTC_ASSERT(m_itemLibraryModel, return);
+    QTC_ASSERT(m_model, return);
+
+    Import import = m_itemLibraryModel->entryToImport(entry.value<ItemLibraryEntry>());
+    m_model->changeImports({import}, {});
 }
 
 void ItemLibraryWidget::addResources(const QStringList &files)

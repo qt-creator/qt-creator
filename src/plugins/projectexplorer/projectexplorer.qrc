@@ -24,7 +24,6 @@
         <file>images/debugger_overlay_small@2x.png</file>
         <file>images/analyzer_overlay_small.png</file>
         <file>images/analyzer_overlay_small@2x.png</file>
-        <file>images/session.png</file>
         <file>images/BuildSettings.png</file>
         <file>images/CodeStyleSettings.png</file>
         <file>images/RunSettings.png</file>
@@ -67,6 +66,8 @@
         <file>images/fileoverlay_product@2x.png</file>
         <file>images/fileoverlay_group.png</file>
         <file>images/fileoverlay_group@2x.png</file>
+        <file>images/fileoverlay_modules.png</file>
+        <file>images/fileoverlay_modules@2x.png</file>
         <file>images/fileoverlay_ui.png</file>
         <file>images/fileoverlay_ui@2x.png</file>
         <file>images/fileoverlay_scxml.png</file>

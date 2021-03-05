@@ -31,6 +31,7 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QLoggingCategory>
@@ -44,6 +45,8 @@ using SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd;
 static Q_LOGGING_CATEGORY(log, "qtc.cpptools.semantichighlighter", QtWarningMsg)
 
 namespace CppTools {
+
+static Utils::Id parenSource() { return "CppTools"; }
 
 static const QList<std::pair<HighlightingResult, QTextBlock>>
 splitRawStringLiteral(const HighlightingResult &result, const QTextBlock &startBlock)
@@ -147,6 +150,13 @@ void SemanticHighlighter::run()
     m_watcher->setFuture(m_highlightingRunner());
 }
 
+static Parentheses getClearedParentheses(const QTextBlock &block)
+{
+    return Utils::filtered(TextDocumentLayout::parentheses(block), [](const Parenthesis &p) {
+        return p.source != parenSource();
+    });
+}
+
 void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
 {
     if (documentRevision() != m_revision)
@@ -169,6 +179,9 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
         const HighlightingResult &result = m_watcher->future().resultAt(i);
         if (result.kind != AngleBracketOpen && result.kind != AngleBracketClose
                 && result.kind != TernaryIf && result.kind != TernaryElse) {
+            const QTextBlock block =
+                    m_baseTextDocument->document()->findBlockByNumber(result.line - 1);
+            TextDocumentLayout::setParentheses(block, getClearedParentheses(block));
             continue;
         }
         if (parentheses.first.isValid() && result.line - 1 > parentheses.first.blockNumber()) {
@@ -177,16 +190,20 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
         }
         if (!parentheses.first.isValid()) {
             parentheses.first = m_baseTextDocument->document()->findBlockByNumber(result.line - 1);
-            parentheses.second = TextDocumentLayout::parentheses(parentheses.first);
+            parentheses.second = getClearedParentheses(parentheses.first);
         }
+        Parenthesis paren;
         if (result.kind == AngleBracketOpen)
-            parentheses.second << Parenthesis(Parenthesis::Opened, '<', result.column - 1);
+            paren = {Parenthesis::Opened, '<', result.column - 1};
         else if (result.kind == AngleBracketClose)
-            parentheses.second << Parenthesis(Parenthesis::Closed, '>', result.column - 1);
+            paren = {Parenthesis::Closed, '>', result.column - 1};
         else if (result.kind == TernaryIf)
-            parentheses.second << Parenthesis(Parenthesis::Opened, '?', result.column - 1);
+            paren = {Parenthesis::Opened, '?', result.column - 1};
         else if (result.kind == TernaryElse)
-            parentheses.second << Parenthesis(Parenthesis::Closed, ':', result.column - 1);
+            paren = {Parenthesis::Closed, ':', result.column - 1};
+        QTC_ASSERT(paren.pos != -1, continue);
+        paren.source = parenSource();
+        parentheses.second << paren;
     }
     if (parentheses.first.isValid())
         TextDocumentLayout::setParentheses(parentheses.first, parentheses.second);
@@ -202,6 +219,27 @@ void SemanticHighlighter::onHighlighterFinished()
             clearExtraAdditionalFormatsUntilEnd(highlighter, m_watcher->future());
         }
     }
+
+    // Clear out previous "semantic parentheses".
+    QTextBlock firstResultBlock;
+    QTextBlock lastResultBlock;
+    if (m_watcher->future().resultCount() == 0) {
+        firstResultBlock = lastResultBlock = m_baseTextDocument->document()->lastBlock();
+    } else {
+        firstResultBlock = m_baseTextDocument->document()->findBlockByNumber(
+                    m_watcher->resultAt(0).line - 1);
+        lastResultBlock = m_baseTextDocument->document()->findBlockByNumber(
+                    m_watcher->future().resultAt(m_watcher->future().resultCount() - 1).line - 1);
+    }
+    for (QTextBlock currentBlock = m_baseTextDocument->document()->firstBlock();
+         currentBlock != firstResultBlock; currentBlock = currentBlock.next()) {
+        TextDocumentLayout::setParentheses(currentBlock, getClearedParentheses(currentBlock));
+    }
+    for (QTextBlock currentBlock = lastResultBlock.next(); currentBlock.isValid();
+         currentBlock = currentBlock.next()) {
+        TextDocumentLayout::setParentheses(currentBlock, getClearedParentheses(currentBlock));
+    }
+
     m_watcher.reset();
 }
 

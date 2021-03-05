@@ -17,6 +17,8 @@ QtcPlugin {
         "studiowelcome_global.h",
         "studiowelcomeplugin.h",
         "studiowelcomeplugin.cpp",
+        "examplecheckout.h",
+        "examplecheckout.cpp",
         "studiowelcome.qrc",
     ]
 

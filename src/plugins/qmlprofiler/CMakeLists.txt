@@ -1,4 +1,5 @@
 add_qtc_plugin(QmlProfiler
+  CONDITION TARGET Tracing
   DEPENDS QmlDebug QmlJS Tracing Qt5::QuickWidgets
   PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport TextEditor
   SOURCES

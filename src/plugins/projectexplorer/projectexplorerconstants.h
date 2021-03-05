@@ -215,6 +215,7 @@ const char PROJECTTREE_ID[] = "Projects";
 const char FILEOVERLAY_QT[]=":/projectexplorer/images/fileoverlay_qt.png";
 const char FILEOVERLAY_GROUP[] = ":/projectexplorer/images/fileoverlay_group.png";
 const char FILEOVERLAY_PRODUCT[] = ":/projectexplorer/images/fileoverlay_product.png";
+const char FILEOVERLAY_MODULES[] = ":/projectexplorer/images/fileoverlay_modules.png";
 const char FILEOVERLAY_QML[]=":/projectexplorer/images/fileoverlay_qml.png";
 const char FILEOVERLAY_UI[]=":/projectexplorer/images/fileoverlay_ui.png";
 const char FILEOVERLAY_QRC[]=":/projectexplorer/images/fileoverlay_qrc.png";

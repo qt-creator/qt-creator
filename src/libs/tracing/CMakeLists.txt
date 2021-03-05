@@ -5,6 +5,8 @@ if (WITH_TESTS)
 endif()
 
 add_qtc_library(Tracing
+  CONDITION Qt5_VERSION VERSION_LESS 6.0.0
+  FEATURE_INFO
   DEPENDS Utils Qt5::Qml Qt5::Quick
   PUBLIC_DEPENDS Qt5::Widgets
   SOURCES ${TEST_SOURCES}

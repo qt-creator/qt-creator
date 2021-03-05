@@ -4,6 +4,7 @@ add_qtc_plugin(StudioWelcome
   DEFINES STUDIO_QML_PATH="${CMAKE_CURRENT_SOURCE_DIR}/qml/"
   SOURCES
     studiowelcomeplugin.cpp studiowelcomeplugin.h
+    examplecheckout.cpp examplecheckout.h
     studiowelcome_global.h
     studiowelcome.qrc
     "${PROJECT_SOURCE_DIR}/src/share/3rdparty/studiofonts/studiofonts.qrc"

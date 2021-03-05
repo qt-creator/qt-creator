@@ -60,7 +60,7 @@ Item {
             ScrollView {
                 ProjectsGrid {
                     model: ExamplesModel {}
-                    onItemSelected: projectModel.openExample(item.projectName, item.qmlFileName)
+                    onItemSelected: projectModel.openExample(item.projectName, item.qmlFileName, item.url)
                 }
             }
 
