@@ -177,6 +177,28 @@ Import ItemLibraryModel::entryToImport(const ItemLibraryEntry &entry)
 
 }
 
+// Returns true if first import version is higher or equal to second import version
+static bool compareVersions(const QString &version1, const QString &version2)
+{
+    if (version2.isEmpty() || version1 == version2)
+        return true;
+    const QStringList version1List = version1.split(QLatin1Char('.'));
+    const QStringList version2List = version2.split(QLatin1Char('.'));
+    if (version1List.count() == 2 && version2List.count() == 2) {
+        int major1 = version1List.constFirst().toInt();
+        int major2 = version2List.constFirst().toInt();
+        if (major1 > major2) {
+            return true;
+        } else if (major1 == major2) {
+            int minor1 = version1List.constLast().toInt();
+            int minor2 = version2List.constLast().toInt();
+            if (minor1 >= minor2)
+                return true;
+        }
+    }
+    return false;
+}
+
 void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 {
     if (!model)
@@ -190,12 +212,28 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
     QString projectName = project ? project->displayName() : "";
 
     // create import sections
+    QHash<QString, ItemLibraryImport *> importHash;
     for (const Import &import : model->imports()) {
         if (import.isLibraryImport() && import.url() != projectName) {
-            ItemLibraryImport *itemLibImport = new ItemLibraryImport(import, this);
-            m_importList.append(itemLibImport);
-            itemLibImport->setImportExpanded(loadExpandedState(import.url()));
+            bool addNew = true;
+            ItemLibraryImport *oldImport = importHash.value(import.url());
+            if (oldImport && oldImport->importEntry().url() == import.url()) {
+                // Retain the higher version if multiples exist
+                if (compareVersions(oldImport->importEntry().version(), import.version()))
+                    addNew = false;
+                else
+                    delete oldImport;
+            }
+            if (addNew) {
+                ItemLibraryImport *itemLibImport = new ItemLibraryImport(import, this);
+                importHash.insert(import.url(), itemLibImport);
+            }
         }
+    }
+
+    for (const auto itemLibImport : qAsConst(importHash)) {
+        m_importList.append(itemLibImport);
+        itemLibImport->setImportExpanded(loadExpandedState(itemLibImport->importEntry().url()));
     }
 
     const QList<ItemLibraryEntry> itemLibEntries = itemLibraryInfo->entries();
