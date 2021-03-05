@@ -892,7 +892,9 @@ FileApiData FileApiParser::parseData(const QFileInfo &replyFileInfo, const QStri
     }
 
     auto it = std::find_if(codeModels.cbegin(), codeModels.cend(),
-                           [cmakeBuildType](const Configuration& cfg) { return cfg.name == cmakeBuildType; });
+                           [cmakeBuildType](const Configuration& cfg) {
+                               return QString::compare(cfg.name, cmakeBuildType, Qt::CaseInsensitive) == 0;
+                           });
     if (it == codeModels.cend()) {
         errorMessage = QString("No '%1' CMake configuration found!").arg(cmakeBuildType);
         qWarning() << errorMessage;
