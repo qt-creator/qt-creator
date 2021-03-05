@@ -32,6 +32,7 @@
 
 #include <cplusplus/CppDocument.h>
 #include <utils/environment.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/qrcparser.h>
 
 #include <QFuture>
@@ -243,7 +244,7 @@ protected:
     void setDefaultProject(const ProjectInfo &pInfo, ProjectExplorer::Project *p);
 
 private:
-    void cleanupFutures();
+    void joinAllThreads();
     void iterateQrcFiles(ProjectExplorer::Project *project,
                          QrcResourceSelector resources,
                          const std::function<void(Utils::QrcParser::ConstPtr)> &callback);
@@ -280,7 +281,7 @@ private:
     PluginDumper *m_pluginDumper = nullptr;
 
     mutable QMutex m_futuresMutex;
-    QList<QFuture<void>> m_futures;
+    Utils::FutureSynchronizer m_futureSynchronizer;
 
     bool m_indexerDisabled = false;
 };

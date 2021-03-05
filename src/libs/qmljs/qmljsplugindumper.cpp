@@ -300,9 +300,10 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
                                                         QLatin1String("<dump of ") + libraryPath + QLatin1Char('>'));
             future.reportFinished(&infos);
         });
+        m_modelManager->addFuture(future);
 
-        auto finalFuture = Utils::onFinished(future, this,
-                [this, libraryInfo, privatePlugin, libraryPath] (const QFuture<CppQmlTypesInfo>& future) {
+        Utils::onFinished(future, this, [this, libraryInfo, privatePlugin, libraryPath]
+                          (const QFuture<CppQmlTypesInfo>& future) {
             CppQmlTypesInfo infos = future.result();
 
             LibraryInfo libInfo = libraryInfo;
@@ -325,7 +326,6 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
 
             m_modelManager->updateLibraryInfo(libraryPath, libInfo);
         });
-        m_modelManager->addFuture(finalFuture);
     } else {
         libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpDone);
         libraryInfo.updateFingerprint();
@@ -395,6 +395,7 @@ QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(c
 
         future.reportFinished(&result);
     });
+    m_modelManager->addFuture(future);
 
     return future;
 }
@@ -598,12 +599,12 @@ void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
                                     const QString &libraryPath,
                                     QmlJS::LibraryInfo libraryInfo)
 {
-    auto future = Utils::onFinished(loadQmlTypeDescription(qmltypesFilePaths), this, [=](const QFuture<PluginDumper::QmlTypeDescription> &typesFuture)
+    Utils::onFinished(loadQmlTypeDescription(qmltypesFilePaths), this, [=](const QFuture<PluginDumper::QmlTypeDescription> &typesFuture)
     {
         PluginDumper::QmlTypeDescription typesResult = typesFuture.result();
         if (!typesResult.dependencies.isEmpty())
         {
-            auto depFuture = Utils::onFinished(loadDependencies(typesResult.dependencies, QSharedPointer<QSet<QString>>()), this,
+            Utils::onFinished(loadDependencies(typesResult.dependencies, QSharedPointer<QSet<QString>>()), this,
                               [typesResult, libraryInfo, libraryPath, this] (const QFuture<PluginDumper::DependencyInfo> &loadFuture)
             {
                 PluginDumper::DependencyInfo loadResult = loadFuture.result();
@@ -621,7 +622,6 @@ void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
                                    typesResult.moduleApis, objects);
                 m_modelManager->updateLibraryInfo(libraryPath, libInfo);
             });
-            m_modelManager->addFuture(depFuture);
         } else {
             QmlJS::LibraryInfo libInfo = libraryInfo;
             prepareLibraryInfo(libInfo, libraryPath, typesResult.dependencies,
@@ -630,7 +630,6 @@ void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
             m_modelManager->updateLibraryInfo(libraryPath, libInfo);
         }
     });
-    m_modelManager->addFuture(future);
 }
 
 void PluginDumper::runQmlDump(const QmlJS::ModelManagerInterface::ProjectInfo &info,

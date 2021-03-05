@@ -106,6 +106,7 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
       m_defaultImportPaths(environmentImportPaths()),
       m_pluginDumper(new PluginDumper(this))
 {
+    m_futureSynchronizer.setCancelOnWait(false);
     m_indexerDisabled = qEnvironmentVariableIsSet("QTC_NO_CODE_INDEXER");
 
     m_updateCppQmlTypesTimer = new QTimer(this);
@@ -307,20 +308,6 @@ void ModelManagerInterface::updateSourceFiles(const QStringList &files,
     refreshSourceFiles(files, emitDocumentOnDiskChanged);
 }
 
-void ModelManagerInterface::cleanupFutures()
-{
-    QMutexLocker lock(&m_futuresMutex);
-    const int maxFutures = 10;
-    if (m_futures.size() > maxFutures) {
-        const QList<QFuture<void>> futures = m_futures;
-        m_futures.clear();
-        for (const QFuture<void> &future : futures) {
-            if (!(future.isFinished() || future.isCanceled()))
-                m_futures.append(future);
-        }
-    }
-}
-
 QFuture<void> ModelManagerInterface::refreshSourceFiles(const QStringList &sourceFiles,
                                                         bool emitDocumentOnDiskChanged)
 {
@@ -355,9 +342,9 @@ QFuture<void> ModelManagerInterface::refreshSourceFiles(const QStringList &sourc
 
 void ModelManagerInterface::fileChangedOnDisk(const QString &path)
 {
-    Utils::runAsync(&ModelManagerInterface::parse,
+    addFuture(Utils::runAsync(&ModelManagerInterface::parse,
                     workingCopyInternal(), QStringList(path),
-                    this, Dialect(Dialect::AnyLanguage), true);
+                    this, Dialect(Dialect::AnyLanguage), true));
 }
 
 void ModelManagerInterface::removeFiles(const QStringList &files)
@@ -654,7 +641,7 @@ QList<ModelManagerInterface::ProjectInfo> ModelManagerInterface::allProjectInfos
 
 bool ModelManagerInterface::isIdle() const
 {
-    return m_futures.isEmpty();
+    return m_futureSynchronizer.isEmpty();
 }
 
 void ModelManagerInterface::emitDocumentChangedOnDisk(Document::Ptr doc)
@@ -1571,41 +1558,37 @@ void ModelManagerInterface::setDefaultVContext(const ViewerContext &vContext)
     m_defaultVContexts[vContext.language] = vContext;
 }
 
+void ModelManagerInterface::joinAllThreads()
+{
+    while (true) {
+        FutureSynchronizer futureSynchronizer;
+        {
+            QMutexLocker locker(&m_futuresMutex);
+            futureSynchronizer = m_futureSynchronizer;
+            m_futureSynchronizer.clearFutures();
+        }
+        if (futureSynchronizer.isEmpty())
+            return;
+    }
+}
+
 void ModelManagerInterface::test_joinAllThreads()
 {
-    // Loop since futures can spawn more futures as they finish.
     while (true) {
-        QFuture<void> f;
-        // get one future
-        {
-            QMutexLocker lock(&m_futuresMutex);
-            for (QFuture<void> &future : m_futures) {
-                if (!future.isFinished() && !future.isCanceled()) {
-                    f = future;
-                    break;
-                }
-            }
-        }
-        if (!f.isFinished() && !f.isCanceled()) {
-            f.waitForFinished();
-
-            // Some futures trigger more futures from connected signals
-            // and in tests, we care about finishing all of these too.
-            QEventLoop().processEvents();
-        } else {
-            break;
-        }
+        joinAllThreads();
+        // In order to process all onFinished handlers of finished futures
+        QCoreApplication::processEvents();
+        QMutexLocker lock(&m_futuresMutex);
+        // If handlers created new futures, repeat the loop
+        if (m_futureSynchronizer.isEmpty())
+            return;
     }
-    m_futures.clear();
 }
 
 void ModelManagerInterface::addFuture(const QFuture<void> &future)
 {
-    {
-        QMutexLocker lock(&m_futuresMutex);
-        m_futures.append(future);
-    }
-    cleanupFutures();
+    QMutexLocker lock(&m_futuresMutex);
+    m_futureSynchronizer.addFuture(future);
 }
 
 Document::Ptr ModelManagerInterface::ensuredGetDocumentForPath(const QString &filePath)

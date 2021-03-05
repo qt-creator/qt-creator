@@ -101,9 +101,7 @@ void tst_Check::initTestCase()
         lPaths.maybeInsert(Utils::FilePath::fromString(p), Dialect::Qml);
     ModelManagerInterface::importScan(result, ModelManagerInterface::workingCopy(), lPaths,
                                       modelManager, false);
-    QCoreApplication::processEvents();
     modelManager->test_joinAllThreads();
-    QCoreApplication::processEvents();
 }
 
 static bool offsetComparator(const Message &lhs, const Message &rhs)

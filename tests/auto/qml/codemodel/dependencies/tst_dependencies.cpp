@@ -151,9 +151,7 @@ void tst_Dependencies::test()
         lPaths.maybeInsert(Utils::FilePath::fromString(p), Dialect::Qml);
     ModelManagerInterface::importScan(result, ModelManagerInterface::workingCopy(), lPaths,
                                       ModelManagerInterface::instance(), false);
-    QCoreApplication::processEvents();
     ModelManagerInterface::instance()->test_joinAllThreads();
-    QCoreApplication::processEvents();
     TestData data = testData(filename);
     Document::MutablePtr doc = data.doc;
     int nExpectedSemanticMessages = data.semanticMessages;

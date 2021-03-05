@@ -76,7 +76,6 @@ void scanDirectory(const QString &dir)
     paths.maybeInsert(Utils::FilePath::fromString(dir), Dialect::Qml);
     ModelManagerInterface::importScan(result, ModelManagerInterface::workingCopy(), paths,
                                       ModelManagerInterface::instance(), false);
-    QCoreApplication::processEvents();
     ModelManagerInterface::instance()->test_joinAllThreads();
     ViewerContext vCtx;
     vCtx.paths.append(dir);
@@ -273,7 +272,6 @@ void tst_ImportCheck::importTypes()
     modelManager->activateScan();
 
     modelManager->updateSourceFiles(QStringList(qmlFile), false);
-    QCoreApplication::processEvents();
     modelManager->test_joinAllThreads();
 
     Snapshot snapshot = modelManager->newestSnapshot();
@@ -288,7 +286,6 @@ void tst_ImportCheck::importTypes()
         return link();
     };
     getContext();
-    QCoreApplication::processEvents();
     modelManager->test_joinAllThreads();
     snapshot = modelManager->newestSnapshot();
     doc = snapshot.document(qmlFile);
@@ -367,7 +364,6 @@ void tst_ImportCheck::moduleMapping()
     scanDirectory(qtQuickImportPath);
 
     modelManager->updateSourceFiles(QStringList(qmlFile), false);
-    QCoreApplication::processEvents();
     modelManager->test_joinAllThreads();
 
     Snapshot snapshot = modelManager->newestSnapshot();
@@ -383,7 +379,6 @@ void tst_ImportCheck::moduleMapping()
         return link();
     };
     getContext();
-    QCoreApplication::processEvents();
     modelManager->test_joinAllThreads();
     snapshot = modelManager->newestSnapshot();
     doc = snapshot.document(qmlFile);
