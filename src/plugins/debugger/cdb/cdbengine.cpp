@@ -254,7 +254,7 @@ void CdbEngine::init()
         }
     }
 
-    const SourcePathMap &sourcePathMap = Internal::globalDebuggerOptions()->sourcePathMap;
+    const SourcePathMap &sourcePathMap = debuggerSettings()->sourcePathMap.value();
     if (!sourcePathMap.isEmpty()) {
         for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd(); it != cend; ++it) {
             m_sourcePathMappings.push_back({QDir::toNativeSeparators(it.key()),

@@ -27,30 +27,14 @@
 
 #include "debuggeractions.h"
 #include "debuggerinternalconstants.h"
-#include "debuggercore.h"
-#include "debuggersourcepathmappingwidget.h"
 
 #include <coreplugin/icore.h>
 
-#include <app/app_version.h>
-
-#include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
-#include <utils/pathchooser.h>
-#include <utils/qtcassert.h>
-#include <utils/variablechooser.h>
-
-#include <QCoreApplication>
-#include <QLabel>
-#include <QTextStream>
 
 using namespace Core;
 using namespace Debugger::Constants;
-using namespace ProjectExplorer;
 using namespace Utils;
-
-namespace Utils {
-}
 
 namespace Debugger {
 namespace Internal {
@@ -68,12 +52,6 @@ class CommonOptionsPageWidget : public Core::IOptionsPageWidget
 public:
     explicit CommonOptionsPageWidget()
     {
-        m_sourceMappingWidget = new DebuggerSourcePathMappingWidget(this);
-
-        GlobalDebuggerOptions *options = Internal::globalDebuggerOptions();
-        SourcePathMap allPathMap = options->sourcePathMap;
-        m_sourceMappingWidget->setSourcePathMap(allPathMap);
-
         DebuggerSettings &s = *debuggerSettings();
         using namespace Layouting;
 
@@ -100,28 +78,17 @@ public:
 
         Column {
             Group { Title("Behavior"), Row { col1, col2, Stretch() } },
-            m_sourceMappingWidget,
+            s.sourcePathMap,
             Stretch()
         }.attachTo(this);
     }
 
-    void apply() final;
+    void apply() final { m_group.apply(); m_group.writeSettings(ICore::settings()); }
     void finish() final { m_group.finish(); }
 
 private:
     AspectContainer &m_group = debuggerSettings()->page1;
-    DebuggerSourcePathMappingWidget *m_sourceMappingWidget = nullptr;
 };
-
-void CommonOptionsPageWidget::apply()
-{
-    m_group.apply();
-    m_group.writeSettings(ICore::settings());
-
-    GlobalDebuggerOptions *options = Internal::globalDebuggerOptions();
-    options->sourcePathMap = m_sourceMappingWidget->sourcePathMap();
-    options->toSettings();
-}
 
 CommonOptionsPage::CommonOptionsPage()
 {

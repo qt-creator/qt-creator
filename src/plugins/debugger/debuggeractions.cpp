@@ -41,54 +41,14 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QSettings>
 
 using namespace Utils;
 
-static const char debugModeSettingsGroupC[] = "DebugMode";
-static const char cdbSettingsGroupC[] = "CDB2";
-static const char sourcePathMappingArrayNameC[] = "SourcePathMappings";
-static const char sourcePathMappingSourceKeyC[] = "Source";
-static const char sourcePathMappingTargetKeyC[] = "Target";
+const char debugModeSettingsGroupC[] = "DebugMode";
+const char cdbSettingsGroupC[] = "CDB2";
 
 namespace Debugger {
 namespace Internal {
-
-void GlobalDebuggerOptions::toSettings() const
-{
-    QSettings *s = Core::ICore::settings();
-    s->beginWriteArray(sourcePathMappingArrayNameC);
-    if (!sourcePathMap.isEmpty()) {
-        const QString sourcePathMappingSourceKey(sourcePathMappingSourceKeyC);
-        const QString sourcePathMappingTargetKey(sourcePathMappingTargetKeyC);
-        int i = 0;
-        for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd();
-             it != cend;
-             ++it, ++i) {
-            s->setArrayIndex(i);
-            s->setValue(sourcePathMappingSourceKey, it.key());
-            s->setValue(sourcePathMappingTargetKey, it.value());
-        }
-    }
-    s->endArray();
-}
-
-void GlobalDebuggerOptions::fromSettings()
-{
-    QSettings *s = Core::ICore::settings();
-    sourcePathMap.clear();
-    if (const int count = s->beginReadArray(sourcePathMappingArrayNameC)) {
-        const QString sourcePathMappingSourceKey(sourcePathMappingSourceKeyC);
-        const QString sourcePathMappingTargetKey(sourcePathMappingTargetKeyC);
-        for (int i = 0; i < count; ++i) {
-             s->setArrayIndex(i);
-             const QString key = s->value(sourcePathMappingSourceKey).toString();
-             const QString value = s->value(sourcePathMappingTargetKey).toString();
-             sourcePathMap.insert(key, value);
-        }
-    }
-    s->endArray();
-}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -603,6 +563,8 @@ DebuggerSettings::DebuggerSettings()
     page1.registerAspect(&switchModeOnExit);
     page1.registerAspect(&showQmlObjectTree);
     page1.registerAspect(&stationaryEditorWhileStepping);
+
+    page1.registerAspect(&sourcePathMap);
 
     // Page 2
     page2.registerAspect(&gdbWatchdogTimeout);

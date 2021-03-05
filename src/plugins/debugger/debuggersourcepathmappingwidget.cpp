@@ -24,33 +24,74 @@
 ****************************************************************************/
 
 #include "debuggersourcepathmappingwidget.h"
+
+#include "debuggeractions.h"
 #include "debuggerengine.h"
 
 #include <utils/buildablehelperlibrary.h>
 #include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
+#include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 #include <utils/variablechooser.h>
 
-#include <QStandardItemModel>
-#include <QTreeView>
+#include <QFileDialog>
+#include <QFormLayout>
+#include <QGroupBox>
+#include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QFormLayout>
-#include <QFileDialog>
-#include <QLabel>
+#include <QSettings>
+#include <QStandardItemModel>
+#include <QTreeView>
 
 using namespace Utils;
-
-enum { SourceColumn, TargetColumn, ColumnCount };
 
 namespace Debugger {
 namespace Internal {
 
+class SourcePathMappingModel;
+
+enum { SourceColumn, TargetColumn, ColumnCount };
+
 using Mapping = QPair<QString, QString>;
-using SourcePathMap = DebuggerSourcePathMappingWidget::SourcePathMap;
+
+class DebuggerSourcePathMappingWidget : public QGroupBox
+{
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::DebuggerSourcePathMappingWidget)
+
+public:
+    DebuggerSourcePathMappingWidget();
+
+    SourcePathMap sourcePathMap() const;
+    void setSourcePathMap(const SourcePathMap &);
+
+private:
+    void slotAdd();
+    void slotAddQt();
+    void slotRemove();
+    void slotCurrentRowChanged(const QModelIndex &,const QModelIndex &);
+    void slotEditSourceFieldChanged();
+    void slotEditTargetFieldChanged();
+
+    void resizeColumns();
+    void updateEnabled();
+    QString editSourceField() const;
+    QString editTargetField() const;
+    void setEditFieldMapping(const QPair<QString, QString> &m);
+    int currentRow() const;
+    void setCurrentRow(int r);
+
+    SourcePathMappingModel *m_model;
+    QTreeView *m_treeView;
+    QPushButton *m_addButton;
+    QPushButton *m_addQtButton;
+    QPushButton *m_removeButton;
+    QLineEdit *m_sourceLineEdit;
+    Utils::PathChooser *m_targetChooser;
+};
 
 // Qt's various build paths for unpatched versions.
 QStringList qtBuildPaths()
@@ -198,8 +239,7 @@ void SourcePathMappingModel::setTarget(int row, const QString &t)
     Path mappings to be applied using source path substitution in GDB.
 */
 
-DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent) :
-    QGroupBox(parent),
+DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget() :
     m_model(new SourcePathMappingModel(this)),
     m_treeView(new QTreeView(this)),
     m_addButton(new QPushButton(tr("Add"), this)),
@@ -431,11 +471,8 @@ static QString findQtInstallPath(const FilePath &qmakePath)
     return QString();
 }
 
-/* Merge settings for an installed Qt (unless another setting
- * is already in the map. */
-DebuggerSourcePathMappingWidget::SourcePathMap
-    DebuggerSourcePathMappingWidget::mergePlatformQtPath(const DebuggerRunParameters &sp,
-                                                         const SourcePathMap &in)
+/* Merge settings for an installed Qt (unless another setting is already in the map. */
+SourcePathMap mergePlatformQtPath(const DebuggerRunParameters &sp, const SourcePathMap &in)
 {
     const FilePath qmake = BuildableHelperLibrary::findSystemQt(sp.inferior.environment);
     // FIXME: Get this from the profile?
@@ -454,6 +491,106 @@ DebuggerSourcePathMappingWidget::SourcePathMap
             rc.insert(buildPath, qtInstallPath + "/../Src");
     }
     return rc;
+}
+
+//
+// SourcePathMapAspect
+//
+
+class SourcePathMapAspectPrivate
+{
+public:
+    QPointer<DebuggerSourcePathMappingWidget> m_widget;
+};
+
+
+SourcePathMapAspect::SourcePathMapAspect()
+    : d(new SourcePathMapAspectPrivate)
+{
+}
+
+SourcePathMapAspect::~SourcePathMapAspect()
+{
+    delete d;
+}
+
+void SourcePathMapAspect::fromMap(const QVariantMap &)
+{
+    QTC_CHECK(false); // This is only used via read/writeSettings
+}
+
+void SourcePathMapAspect::toMap(QVariantMap &) const
+{
+    QTC_CHECK(false);
+}
+
+void SourcePathMapAspect::addToLayout(LayoutBuilder &builder)
+{
+    QTC_CHECK(!d->m_widget);
+    d->m_widget = createSubWidget<DebuggerSourcePathMappingWidget>();
+    d->m_widget->setSourcePathMap(value());
+    builder.addRow(d->m_widget.data());
+}
+
+QVariant SourcePathMapAspect::volatileValue() const
+{
+    QTC_CHECK(!isAutoApply());
+    QTC_ASSERT(d->m_widget, return {});
+    return QVariant::fromValue(d->m_widget->sourcePathMap());
+}
+
+void SourcePathMapAspect::setVolatileValue(const QVariant &val)
+{
+    QTC_CHECK(!isAutoApply());
+    if (d->m_widget)
+        d->m_widget->setSourcePathMap(val.value<SourcePathMap>());
+}
+
+const char sourcePathMappingArrayNameC[] = "SourcePathMappings";
+const char sourcePathMappingSourceKeyC[] = "Source";
+const char sourcePathMappingTargetKeyC[] = "Target";
+
+SourcePathMap SourcePathMapAspect::value() const
+{
+    return BaseAspect::value().value<SourcePathMap>();
+}
+
+void SourcePathMapAspect::writeSettings(QSettings *s) const
+{
+    const SourcePathMap sourcePathMap = value();
+    s->beginWriteArray(sourcePathMappingArrayNameC);
+    if (!sourcePathMap.isEmpty()) {
+        const QString sourcePathMappingSourceKey(sourcePathMappingSourceKeyC);
+        const QString sourcePathMappingTargetKey(sourcePathMappingTargetKeyC);
+        int i = 0;
+        for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd();
+             it != cend;
+             ++it, ++i) {
+            s->setArrayIndex(i);
+            s->setValue(sourcePathMappingSourceKey, it.key());
+            s->setValue(sourcePathMappingTargetKey, it.value());
+        }
+    }
+    s->endArray();
+}
+
+void SourcePathMapAspect::readSettings(const QSettings *settings)
+{
+    // Eeks. But legitimate, this operates on ICore::settings();
+    QSettings *s = const_cast<QSettings *>(settings);
+    SourcePathMap sourcePathMap;
+    if (const int count = s->beginReadArray(sourcePathMappingArrayNameC)) {
+        const QString sourcePathMappingSourceKey(sourcePathMappingSourceKeyC);
+        const QString sourcePathMappingTargetKey(sourcePathMappingTargetKeyC);
+        for (int i = 0; i < count; ++i) {
+             s->setArrayIndex(i);
+             const QString key = s->value(sourcePathMappingSourceKey).toString();
+             const QString value = s->value(sourcePathMappingTargetKey).toString();
+             sourcePathMap.insert(key, value);
+        }
+    }
+    s->endArray();
+    setValue(QVariant::fromValue(sourcePathMap));
 }
 
 } // namespace Internal

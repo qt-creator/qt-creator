@@ -694,7 +694,6 @@ public:
     Console m_console; // ensure Debugger Console is created before settings are taken into account
     DebuggerSettings m_debuggerSettings;
     QStringList m_arguments;
-    GlobalDebuggerOptions m_globalDebuggerOptions;
 
     DebuggerItemManager m_debuggerItemManager;
 
@@ -1189,8 +1188,6 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
         this, &DebuggerPluginPrivate::updatePresetState);
     connect(EngineManager::instance(), &EngineManager::currentEngineChanged,
         this, &DebuggerPluginPrivate::updatePresetState);
-
-    m_globalDebuggerOptions.fromSettings();
 }
 
 
@@ -2052,11 +2049,6 @@ void openTextEditor(const QString &titlePattern0, const QString &contents)
         textEditor->textDocument()->setFallbackSaveAsFileName(suggestion);
     }
     QTC_ASSERT(editor, return);
-}
-
-Internal::GlobalDebuggerOptions *globalDebuggerOptions()
-{
-    return &dd->m_globalDebuggerOptions;
 }
 
 ///////////////////////////////////////////////////////////////////////

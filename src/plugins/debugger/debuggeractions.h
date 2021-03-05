@@ -35,22 +35,36 @@
 namespace Debugger {
 namespace Internal {
 
+class SourcePathMapAspectPrivate;
+
+// Entries starting with '(' are considered regular expressions in the ElfReader.
+// This is useful when there are multiple build machines with different
+// path, and the user would like to match anything up to some known
+// directory to his local project.
+// Syntax: (/home/.*)/KnownSubdir -> /home/my/project
 using SourcePathMap = QMap<QString, QString>;
 
-// Global debugger options that are not stored as saved action.
-class GlobalDebuggerOptions
+class SourcePathMapAspect : public Utils::BaseAspect
 {
 public:
-    void toSettings() const;
-    void fromSettings();
+    SourcePathMapAspect();
+    ~SourcePathMapAspect() override;
 
-    // Entries starting with '(' are considered regular expressions in the ElfReader.
-    // This is useful when there are multiple build machines with different
-    // path, and the user would like to match anything up to some known
-    // directory to his local project.
-    // Syntax: (/home/.*)/KnownSubdir -> /home/my/project
+    void fromMap(const QVariantMap &map) override;
+    void toMap(QVariantMap &map) const override;
 
-    SourcePathMap sourcePathMap;
+    void addToLayout(Utils::LayoutBuilder &builder) override;
+
+    QVariant volatileValue() const override;
+    void setVolatileValue(const QVariant &val) override;
+
+    void readSettings(const QSettings *settings) override;
+    void writeSettings(QSettings *settings) const override;
+
+    SourcePathMap value() const;
+
+private:
+    SourcePathMapAspectPrivate *d = nullptr;
 };
 
 class GeneralSettings
@@ -84,6 +98,8 @@ public:
     Utils::BoolAspect switchModeOnExit;
     Utils::BoolAspect showQmlObjectTree;
     Utils::BoolAspect stationaryEditorWhileStepping;
+
+    SourcePathMapAspect sourcePathMap;
 
     // Page 2: GDB
     Utils::IntegerAspect gdbWatchdogTimeout;
@@ -189,3 +205,5 @@ DebuggerSettings *debuggerSettings();
 
 } // namespace Internal
 } // namespace Debugger
+
+Q_DECLARE_METATYPE(Debugger::Internal::SourcePathMap)

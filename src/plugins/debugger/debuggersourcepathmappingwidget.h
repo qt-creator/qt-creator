@@ -25,67 +25,17 @@
 
 #pragma once
 
-#include <QGroupBox>
 #include <QMap>
-
-QT_BEGIN_NAMESPACE
-class QStandardItemModel;
-class QTreeView;
-class QLineEdit;
-class QPushButton;
-class QLineEdit;
-class QModelIndex;
-QT_END_NAMESPACE
-
-namespace Utils { class PathChooser; }
+#include <QString>
 
 namespace Debugger {
 namespace Internal {
 
 class DebuggerRunParameters;
-class SourcePathMappingModel;
-
-class DebuggerSourcePathMappingWidget : public QGroupBox
-{
-    Q_OBJECT
-
-public:
-    using SourcePathMap = QMap<QString, QString>;
-
-    explicit DebuggerSourcePathMappingWidget(QWidget *parent = nullptr);
-
-    SourcePathMap sourcePathMap() const;
-    void setSourcePathMap(const SourcePathMap &);
-
-    /* Merge settings for an installed Qt (unless another setting
-     * is already in the map. */
-    static SourcePathMap mergePlatformQtPath(const DebuggerRunParameters &sp,
-                                             const SourcePathMap &in);
-
-private:
-    void slotAdd();
-    void slotAddQt();
-    void slotRemove();
-    void slotCurrentRowChanged(const QModelIndex &,const QModelIndex &);
-    void slotEditSourceFieldChanged();
-    void slotEditTargetFieldChanged();
-
-    void resizeColumns();
-    void updateEnabled();
-    QString editSourceField() const;
-    QString editTargetField() const;
-    void setEditFieldMapping(const QPair<QString, QString> &m);
-    int currentRow() const;
-    void setCurrentRow(int r);
-
-    SourcePathMappingModel *m_model;
-    QTreeView *m_treeView;
-    QPushButton *m_addButton;
-    QPushButton *m_addQtButton;
-    QPushButton *m_removeButton;
-    QLineEdit *m_sourceLineEdit;
-    Utils::PathChooser *m_targetChooser;
-};
+using SourcePathMap = QMap<QString, QString>;
+/* Merge settings for an installed Qt (unless another setting
+ * is already in the map. */
+SourcePathMap mergePlatformQtPath(const DebuggerRunParameters &sp, const SourcePathMap &in);
 
 } // namespace Internal
 } // namespace Debugger

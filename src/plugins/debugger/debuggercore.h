@@ -42,8 +42,6 @@ namespace Utils { class BaseTreeView; }
 namespace Debugger {
 namespace Internal {
 
-class GlobalDebuggerOptions;
-
 enum TestCases
 {
     // Gdb
@@ -52,8 +50,6 @@ enum TestCases
 
 // Some convenience.
 void openTextEditor(const QString &titlePattern, const QString &contents);
-
-GlobalDebuggerOptions *globalDebuggerOptions();
 
 bool isTestRun();
 

@@ -267,8 +267,7 @@ void LldbEngine::setupEngine()
     const DebuggerRunParameters &rp = runParameters();
 
     const SourcePathMap sourcePathMap =
-        DebuggerSourcePathMappingWidget::mergePlatformQtPath(rp,
-                Internal::globalDebuggerOptions()->sourcePathMap);
+            mergePlatformQtPath(rp, debuggerSettings()->sourcePathMap.value());
     for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd();
          it != cend;
          ++it) {

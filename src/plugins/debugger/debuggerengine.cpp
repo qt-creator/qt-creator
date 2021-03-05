@@ -2812,10 +2812,10 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
         bool hasEmbeddedInfo = elfData.indexOf(".debug_info") >= 0;
         bool hasLink = elfData.indexOf(".gnu_debuglink") >= 0;
         if (hasEmbeddedInfo) {
-            const GlobalDebuggerOptions *options = Internal::globalDebuggerOptions();
+            const SourcePathMap sourcePathMap = debuggerSettings()->sourcePathMap.value();
             QList<QPair<QRegularExpression, QString>> globalRegExpSourceMap;
-            globalRegExpSourceMap.reserve(options->sourcePathMap.size());
-            for (auto it = options->sourcePathMap.begin(), end = options->sourcePathMap.end(); it != end; ++it) {
+            globalRegExpSourceMap.reserve(sourcePathMap.size());
+            for (auto it = sourcePathMap.begin(), end = sourcePathMap.end(); it != end; ++it) {
                 if (it.key().startsWith('(')) {
                     const QString expanded = Utils::globalMacroExpander()->expand(it.value());
                     if (!expanded.isEmpty())
