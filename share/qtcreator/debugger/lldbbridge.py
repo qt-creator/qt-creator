@@ -787,8 +787,6 @@ class Dumper(DumperBase):
     def removeTypePrefix(self, name):
         return re.sub('^(struct|class|union|enum|typedef) ', '', name)
 
-    __funcSignature_Regex__ = re.compile(r'^.+\(.*\)')
-
     def lookupNativeType(self, name):
         #DumperBase.warn('LOOKUP TYPE NAME: %s' % name)
         typeobj = self.typeCache.get(name)
@@ -809,7 +807,7 @@ class Dumper(DumperBase):
         # Note that specifying a prefix like enum or typedef or class will make the call fail to
         # find the type, thus the prefix is stripped.
         nonPrefixedName = self.canonicalTypeName(self.removeTypePrefix(name))
-        if __funcSignature_Regex__.match(nonPrefixedName) is not None:
+        if re.match(r'^.+\(.*\)', nonPrefixedName) is not None:
             return lldb.SBType()
 
         typeobjlist = self.target.FindTypes(nonPrefixedName)
@@ -851,7 +849,7 @@ class Dumper(DumperBase):
     def lookupNativeTypeInAllModules(self, name):
         needle = self.canonicalTypeName(name)
         #DumperBase.warn('NEEDLE: %s ' % needle)
-        self.warn('Searching for type %s across all target modules, this could be very slow' % name)
+        DumperBase.warn('Searching for type %s across all target modules, this could be very slow' % name)
         for i in range(self.target.GetNumModules()):
             module = self.target.GetModuleAtIndex(i)
             # SBModule.GetType is new somewhere after early 300.x

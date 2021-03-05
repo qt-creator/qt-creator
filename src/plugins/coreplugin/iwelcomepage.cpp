@@ -57,7 +57,7 @@ IWelcomePage::~IWelcomePage()
     g_welcomePages.removeOne(this);
 }
 
-static QPalette buttonPalette(bool isActive, bool isCursorInside, bool forText)
+QPalette WelcomePageFrame::buttonPalette(bool isActive, bool isCursorInside, bool forText)
 {
     QPalette pal;
     Theme *theme = Utils::creatorTheme();
@@ -174,8 +174,8 @@ bool WelcomePageButtonPrivate::isActive() const
 void WelcomePageButtonPrivate::doUpdate(bool cursorInside)
 {
     const bool active = isActive();
-    q->setPalette(buttonPalette(active, cursorInside, false));
-    const QPalette lpal = buttonPalette(active, cursorInside, true);
+    q->setPalette(WelcomePageFrame::buttonPalette(active, cursorInside, false));
+    const QPalette lpal = WelcomePageFrame::buttonPalette(active, cursorInside, true);
     m_label->setPalette(lpal);
     if (m_icon)
         m_icon->setPalette(lpal);
