@@ -63,7 +63,7 @@ private:
     void didTransferApp(const QString &bundlePath, const QString &deviceId,
                         Ios::IosDeviceManager::OpStatus status);
     void didStartApp(const QString &bundlePath, const QString &deviceId,
-                     IosDeviceManager::OpStatus status, int gdbFd,
+                     IosDeviceManager::OpStatus status, ServiceConnRef conn, int gdbFd,
                      DeviceSession *deviceSession);
     void deviceInfo(const QString &deviceId, const Ios::IosDeviceManager::Dict &info);
     void appOutput(const QString &output);

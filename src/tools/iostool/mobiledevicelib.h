@@ -103,6 +103,11 @@ typedef am_res_t (MDEV_API *AMDeviceSecureStartServicePtr)(AMDeviceRef, CFString
 typedef int (MDEV_API *AMDeviceSecureTransferPathPtr)(int, AMDeviceRef, CFURLRef, CFDictionaryRef, AMDeviceSecureInstallApplicationCallback, int);
 typedef int (MDEV_API *AMDeviceSecureInstallApplicationPtr)(int, AMDeviceRef, CFURLRef, CFDictionaryRef, AMDeviceSecureInstallApplicationCallback, int);
 typedef int (MDEV_API *AMDServiceConnectionGetSocketPtr)(ServiceConnRef);
+
+typedef int (MDEV_API *AMDServiceConnectionSendPtr)(ServiceConnRef, const void *, size_t);
+typedef int (MDEV_API *AMDServiceConnectionReceivePtr)(ServiceConnRef, void *, size_t);
+typedef void (MDEV_API *AMDServiceConnectionInvalidatePtr)(ServiceConnRef);
+typedef bool (MDEV_API *AMDeviceIsAtLeastVersionOnPlatformPtr)(AMDeviceRef, CFDictionaryRef);
 }
 
 class MobileDeviceLib {
@@ -147,9 +152,18 @@ public :
     am_res_t deviceSecureStartService(AMDeviceRef, CFStringRef, ServiceConnRef *);
     int deviceConnectionGetSocket(ServiceConnRef);
     int deviceSecureTransferApplicationPath(int, AMDeviceRef, CFURLRef,
-                                            CFDictionaryRef, AMDeviceSecureInstallApplicationCallback callback, int);
+                                            CFDictionaryRef,
+                                            AMDeviceSecureInstallApplicationCallback callback, int);
     int deviceSecureInstallApplication(int zero, AMDeviceRef device, CFURLRef url,
-                                       CFDictionaryRef options, AMDeviceSecureInstallApplicationCallback callback, int arg);
+                                       CFDictionaryRef options,
+                                       AMDeviceSecureInstallApplicationCallback callback, int arg);
+
+    // Use MobileDevice API's to communicate with service launched on the device.
+    // The communication is encrypted if ServiceConnRef::sslContext is valid.
+    int serviceConnectionSend(ServiceConnRef ref, const void *data, size_t size);
+    int serviceConnectionReceive(ServiceConnRef ref, void *data, size_t size);
+    void serviceConnectionInvalidate(ServiceConnRef serviceConnRef);
+    bool deviceIsAtLeastVersionOnPlatform(AMDeviceRef device, CFDictionaryRef versions);
 
     QStringList m_errors;
 
@@ -175,6 +189,10 @@ private:
     AMDeviceSecureTransferPathPtr m_AMDeviceSecureTransferPath;
     AMDeviceSecureInstallApplicationPtr m_AMDeviceSecureInstallApplication;
     AMDServiceConnectionGetSocketPtr m_AMDServiceConnectionGetSocket;
+    AMDServiceConnectionSendPtr m_AMDServiceConnectionSend;
+    AMDServiceConnectionReceivePtr m_AMDServiceConnectionReceive;
+    AMDServiceConnectionInvalidatePtr m_AMDServiceConnectionInvalidate;
+    AMDeviceIsAtLeastVersionOnPlatformPtr m_AMDeviceIsAtLeastVersionOnPlatform;
     AMDeviceUninstallApplicationPtr m_AMDeviceUninstallApplication;
     AMDeviceLookupApplicationsPtr m_AMDeviceLookupApplications;
     AMDErrorStringPtr m_AMDErrorString;

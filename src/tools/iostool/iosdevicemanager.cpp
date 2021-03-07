@@ -45,6 +45,7 @@
 #include <CoreFoundation/CoreFoundation.h>
 
 #include <mach/error.h>
+#include <dlfcn.h>
 
 static const bool debugGdbServer = false;
 static const bool debugAll = false;
@@ -200,6 +201,19 @@ static bool findDeveloperDiskImage(const QString &versionStr, const QString &bui
     return true;
 }
 
+bool disable_ssl(ServiceConnRef ref)
+{
+    typedef void (*SSL_free_t)(void*);
+    static SSL_free_t SSL_free = nullptr;
+    if (!SSL_free)
+        SSL_free = (SSL_free_t)dlsym(RTLD_DEFAULT, "SSL_free");
+    if (!SSL_free)
+        return false;
+    SSL_free(ref->sslContext);
+    ref->sslContext = nullptr;
+    return true;
+}
+
 extern "C" {
 typedef void (*DeviceAvailableCallback)(QString deviceId, AMDeviceRef, void *userData);
 }
@@ -234,11 +248,11 @@ public:
     void addError(const QString &msg);
     bool writeAll(ServiceSocket fd, const char *cmd, qptrdiff len = -1);
     bool mountDeveloperDiskImage();
-    bool sendGdbCommand(ServiceSocket fd, const char *cmd, qptrdiff len = -1);
-    QByteArray readGdbReply(ServiceSocket fd);
-    bool expectGdbReply(ServiceSocket gdbFd, QByteArray expected);
-    bool expectGdbOkReply(ServiceSocket gdbFd);
-    bool startServiceSecure(const QString &serviceName, ServiceSocket &fd);
+    bool sendGdbCommand(ServiceConnRef conn, const char *cmd, qptrdiff len = -1);
+    QByteArray readGdbReply(ServiceConnRef conn);
+    bool expectGdbReply(ServiceConnRef conn, QByteArray expected);
+    bool expectGdbOkReply(ServiceConnRef conn);
+    bool startServiceSecure(const QString &serviceName, ServiceConnRef &conn);
 
     MobileDeviceLib *lib();
 
@@ -252,7 +266,7 @@ private:
 
 private:
     bool checkRead(qptrdiff nRead, int &maxRetry);
-    int handleChar(int sock, QByteArray &res, char c, int status);
+    int handleChar(ServiceConnRef conn, QByteArray &res, char c, int status);
 };
 
 // ------- IosManagerPrivate interface --------
@@ -275,12 +289,12 @@ public:
     void didTransferApp(const QString &bundlePath, const QString &deviceId,
                         Ios::IosDeviceManager::OpStatus status);
     void didStartApp(const QString &bundlePath, const QString &deviceId,
-                     Ios::IosDeviceManager::OpStatus status, int gdbFd, DeviceSession *deviceSession);
+                     Ios::IosDeviceManager::OpStatus status, ServiceConnRef conn, int gdbFd, DeviceSession *deviceSession);
     void isTransferringApp(const QString &bundlePath, const QString &deviceId, int progress,
                            const QString &info);
     void deviceWithId(QString deviceId, int timeout, DeviceAvailableCallback callback, void *userData);
-    int processGdbServer(int fd);
-    void stopGdbServer(int fd, int phase);
+    int processGdbServer(ServiceConnRef conn);
+    void stopGdbServer(ServiceConnRef conn, int phase);
 private:
     IosDeviceManager *q;
     QMutex m_sendMutex;
@@ -601,11 +615,11 @@ void IosDeviceManagerPrivate::didTransferApp(const QString &bundlePath, const QS
 }
 
 void IosDeviceManagerPrivate::didStartApp(const QString &bundlePath, const QString &deviceId,
-                                          IosDeviceManager::OpStatus status, int gdbFd,
-                                          DeviceSession *deviceSession)
+                                          IosDeviceManager::OpStatus status, ServiceConnRef conn,
+                                          int gdbFd, DeviceSession *deviceSession)
 {
-    emit IosDeviceManagerPrivate::instance()->q->didStartApp(bundlePath, deviceId, status, gdbFd,
-                                                             deviceSession);
+    emit IosDeviceManagerPrivate::instance()->q->didStartApp(bundlePath, deviceId, status, conn,
+                                                             gdbFd, deviceSession);
 }
 
 void IosDeviceManagerPrivate::isTransferringApp(const QString &bundlePath, const QString &deviceId,
@@ -655,18 +669,18 @@ enum GdbServerStatus {
     PROTOCOL_UNHANDLED
 };
 
-int IosDeviceManagerPrivate::processGdbServer(int fd)
+int IosDeviceManagerPrivate::processGdbServer(ServiceConnRef conn)
 {
     CommandSession session((QString()));
     {
         QMutexLocker l(&m_sendMutex);
-        session.sendGdbCommand(fd, "vCont;c"); // resume all threads
+        session.sendGdbCommand(conn, "vCont;c"); // resume all threads
     }
     GdbServerStatus state = NORMAL_PROCESS;
     int maxRetry = 10;
     int maxSignal = 5;
     while (state == NORMAL_PROCESS) {
-        QByteArray repl = session.readGdbReply(fd);
+        QByteArray repl = session.readGdbReply(conn);
         int signal = 0;
         if (repl.size() > 0) {
             state = PROTOCOL_ERROR;
@@ -746,7 +760,7 @@ int IosDeviceManagerPrivate::processGdbServer(int fd)
                         state = NORMAL_PROCESS; // Ctrl-C to kill the process
                     } else {
                         QMutexLocker l(&m_sendMutex);
-                        if (session.sendGdbCommand(fd, "vCont;c"))
+                        if (session.sendGdbCommand(conn, "vCont;c"))
                             state = NORMAL_PROCESS;
                         else
                             break;
@@ -764,14 +778,14 @@ int IosDeviceManagerPrivate::processGdbServer(int fd)
     return state != INFERIOR_EXITED;
 }
 
-void IosDeviceManagerPrivate::stopGdbServer(int fd, int phase)
+void IosDeviceManagerPrivate::stopGdbServer(ServiceConnRef conn, int phase)
 {
     CommandSession session((QString()));
     QMutexLocker l(&m_sendMutex);
     if (phase == 0)
-        session.writeAll(fd,"\x03",1);
+        lib()->serviceConnectionSend(conn, "\x03", 1);
     else
-        session.sendGdbCommand(fd, "k", 1);
+        session.sendGdbCommand(conn, "k", 1);
 }
 
 // ------- ConnectSession implementation --------
@@ -827,21 +841,22 @@ bool CommandSession::disconnectDevice()
     return true;
 }
 
-bool CommandSession::startServiceSecure(const QString &serviceName, ServiceSocket &fd)
+bool CommandSession::startServiceSecure(const QString &serviceName, ServiceConnRef &conn)
 {
     bool success = true;
 
     // Connect device. AMDeviceConnect + AMDeviceIsPaired + AMDeviceValidatePairing + AMDeviceStartSession
     if (connectDevice()) {
         CFStringRef cfsService = serviceName.toCFString();
-        ServiceConnRef ref;
-        if (am_res_t error = lib()->deviceSecureStartService(device, cfsService, &ref)) {
+        if (am_res_t error = lib()->deviceSecureStartService(device, cfsService, &conn)) {
             addError(QString::fromLatin1("Starting(Secure) service \"%1\" on device %2 failed, AMDeviceStartSecureService returned %3 (0x%4)")
                      .arg(serviceName).arg(deviceId).arg(mobileDeviceErrorString(lib(), error)).arg(QString::number(error, 16)));
             success = false;
-            fd = 0;
         } else {
-            fd = lib()->deviceConnectionGetSocket(ref);
+            if (!conn) {
+                addError(QString("Starting(Secure) service \"%1\" on device %2 failed."
+                         "Invalid service connection").arg(serviceName).arg(deviceId));
+            }
         }
         disconnectDevice();
         CFRelease(cfsService);
@@ -985,23 +1000,23 @@ bool CommandSession::mountDeveloperDiskImage() {
     return success;
 }
 
-bool CommandSession::sendGdbCommand(ServiceSocket fd, const char *cmd, qptrdiff len)
+bool CommandSession::sendGdbCommand(ServiceConnRef conn, const char *cmd, qptrdiff len)
 {
     if (len == -1)
         len = strlen(cmd);
     unsigned char checkSum = 0;
     for (int i = 0; i < len; ++i)
         checkSum += static_cast<unsigned char>(cmd[i]);
-    bool failure = !writeAll(fd, "$", 1);
+    bool failure = lib()->serviceConnectionSend(conn, "$", 1) == 0;
     if (!failure)
-        failure = !writeAll(fd, cmd, len);
+        failure = lib()->serviceConnectionSend(conn, cmd, len) == 0;
     char buf[3];
     buf[0] = '#';
     const char *hex = "0123456789abcdef";
     buf[1]   = hex[(checkSum >> 4) & 0xF];
     buf[2] = hex[checkSum & 0xF];
     if (!failure)
-        failure = !writeAll(fd, buf, 3);
+        failure = lib()->serviceConnectionSend(conn, buf, 3) == 0;
     return !failure;
 }
 
@@ -1029,7 +1044,7 @@ bool CommandSession::checkRead(qptrdiff nRead, int &maxRetry)
     return true;
 }
 
-int CommandSession::handleChar(int fd, QByteArray &res, char c, int status)
+int CommandSession::handleChar(ServiceConnRef conn, QByteArray &res, char c, int status)
 {
     switch (status) {
     case 0:
@@ -1065,7 +1080,7 @@ int CommandSession::handleChar(int fd, QByteArray &res, char c, int status)
             }
         }
         if (status == 3 && aknowledge)
-            writeAll(fd, "+", 1);
+            lib()->serviceConnectionSend(conn, "+", 1);
         return status + 1;
     case 4:
         addError(QString::fromLatin1("gone past end in readGdbReply"));
@@ -1078,7 +1093,7 @@ int CommandSession::handleChar(int fd, QByteArray &res, char c, int status)
     }
 }
 
-QByteArray CommandSession::readGdbReply(ServiceSocket fd)
+QByteArray CommandSession::readGdbReply(ServiceConnRef conn)
 {
     // read with minimal buffering because we might want to give the socket away...
     QByteArray res;
@@ -1087,7 +1102,7 @@ QByteArray CommandSession::readGdbReply(ServiceSocket fd)
     int status = 0;
     int toRead = 4;
     while (status < 4 && toRead > 0) {
-        qptrdiff nRead = read(fd, buf, toRead);
+        qptrdiff nRead = lib()->serviceConnectionReceive(conn, buf, toRead);
         if (!checkRead(nRead, maxRetry))
             return QByteArray();
         if (debugGdbServer) {
@@ -1095,7 +1110,7 @@ QByteArray CommandSession::readGdbReply(ServiceSocket fd)
             qDebug() << "gdbReply read " << buf;
         }
         for (qptrdiff i = 0; i< nRead; ++i)
-            status = handleChar(fd, res, buf[i], status);
+            status = handleChar(conn, res, buf[i], status);
         toRead = 4 - status;
     }
     if (status != 4) {
@@ -1133,9 +1148,9 @@ QString CommandSession::commandName()
     return QString::fromLatin1("CommandSession(%1)").arg(deviceId);
 }
 
-bool CommandSession::expectGdbReply(ServiceSocket gdbFd, QByteArray expected)
+bool CommandSession::expectGdbReply(ServiceConnRef conn, QByteArray expected)
 {
-    QByteArray repl = readGdbReply(gdbFd);
+    QByteArray repl = readGdbReply(conn);
     if (repl != expected) {
         addError(QString::fromLatin1("Unexpected reply: %1 (%2) vs %3 (%4)")
                  .arg(QString::fromLocal8Bit(repl.constData(), repl.size()))
@@ -1147,9 +1162,9 @@ bool CommandSession::expectGdbReply(ServiceSocket gdbFd, QByteArray expected)
     return true;
 }
 
-bool CommandSession::expectGdbOkReply(ServiceSocket gdbFd)
+bool CommandSession::expectGdbOkReply(ServiceConnRef conn)
 {
-    return expectGdbReply(gdbFd, QByteArray("OK"));
+    return expectGdbReply(conn, QByteArray("OK"));
 }
 
 MobileDeviceLib *CommandSession::lib()
@@ -1304,23 +1319,40 @@ bool AppOpSession::runApp()
 {
     bool failure = (device == 0);
     QString exe = appPathOnDevice();
-    ServiceSocket gdbFd = -1;
     if (!mountDeveloperDiskImage()) {
         addError(QString::fromLatin1("Running app \"%1\" failed. Mount developer disk failed.").arg(bundlePath));
         failure = true;
     }
-    if (!failure && !startServiceSecure(QLatin1String("com.apple.debugserver"), gdbFd))
-        gdbFd = 0;
 
-    if (gdbFd > 0) {
+    CFStringRef keys[] = { CFSTR("MinIPhoneVersion"), CFSTR("MinAppleTVVersion") };
+    CFStringRef values[] = { CFSTR("14.0"), CFSTR("14.0")};
+    CFDictionaryRef version = CFDictionaryCreate(NULL, (const void **)&keys, (const void **)&values,
+                                                 2, &kCFTypeDictionaryKeyCallBacks,
+                                                 &kCFTypeDictionaryValueCallBacks);
+    bool useSecureProxy = lib()->deviceIsAtLeastVersionOnPlatform(device, version);
+    // The debugserver service cannot be launched directly on iOS 14+
+    // A secure proxy service sits between the actual debugserver service.
+    const QString &serviceName = useSecureProxy ? DebugSecureServiceName : DebugServiceName;
+    ServiceConnRef conn = nullptr;
+    if (!failure)
+        startServiceSecure(serviceName, conn);
+
+    if (conn) {
+        // For older devices remove the ssl encryption as we can directly connecting with the
+        // debugserver service, i.e. not the secure proxy service.
+        if (!useSecureProxy)
+            disable_ssl(conn);
         // gdbServer protocol, see http://sourceware.org/gdb/onlinedocs/gdb/Remote-Protocol.html#Remote-Protocol
         // and the lldb handling of that (with apple specific stuff)
         // http://llvm.org/viewvc/llvm-project/lldb/trunk/tools/debugserver/source/RNBRemote.cpp
         //failure = !sendGdbCommand(gdbFd, "QStartNoAckMode"); // avoid and send required aknowledgements?
         //if (!failure) failure = !expectGdbOkReply(gdbFd);
-        if (!failure) failure = !sendGdbCommand(gdbFd, "QEnvironmentHexEncoded:"); // send the environment with a series of these commands...
-        if (!failure) failure = !sendGdbCommand(gdbFd, "QSetDisableASLR:1"); // avoid address randomization to debug
-        if (!failure) failure = !expectGdbOkReply(gdbFd);
+
+        // send the environment with a series of these commands...
+        if (!failure) failure = !sendGdbCommand(conn, "QEnvironmentHexEncoded:");
+        // avoid address randomization to debug
+        if (!failure) failure = !sendGdbCommand(conn, "QSetDisableASLR:1");
+        if (!failure) failure = !expectGdbOkReply(conn);
         QStringList args = extraArgs;
         QByteArray runCommand("A");
         args.insert(0, exe);
@@ -1336,14 +1368,17 @@ bool AppOpSession::runApp()
             runCommand.append(',');
             runCommand.append(arg);
         }
-        if (!failure) failure = !sendGdbCommand(gdbFd, runCommand.constData(), runCommand.size());
-        if (!failure) failure = !expectGdbOkReply(gdbFd);
-        if (!failure) failure = !sendGdbCommand(gdbFd, "qLaunchSuccess");
-        if (!failure) failure = !expectGdbOkReply(gdbFd);
+        if (!failure) failure = !sendGdbCommand(conn, runCommand.constData(), runCommand.size());
+        if (!failure) failure = !expectGdbOkReply(conn);
+        if (!failure) failure = !sendGdbCommand(conn, "qLaunchSuccess");
+        if (!failure) failure = !expectGdbOkReply(conn);
+    } else {
+        failure = true;
     }
-    IosDeviceManagerPrivate::instance()->didStartApp(
-                bundlePath, deviceId,
-                (failure ? IosDeviceManager::Failure : IosDeviceManager::Success), gdbFd, this);
+
+    CFSocketNativeHandle fd = failure ? 0 : lib()->deviceConnectionGetSocket(conn);
+    auto status = failure ? IosDeviceManager::Failure : IosDeviceManager::Success;
+    IosDeviceManagerPrivate::instance()->didStartApp(bundlePath, deviceId, status, conn, fd, this);
     return !failure;
 }
 
@@ -1544,14 +1579,14 @@ void IosDeviceManager::requestDeviceInfo(const QString &deviceId, int timeout)
     d->requestDeviceInfo(deviceId, timeout);
 }
 
-int IosDeviceManager::processGdbServer(int fd)
+int IosDeviceManager::processGdbServer(ServiceConnRef conn)
 {
-    return d->processGdbServer(fd);
+    return d->processGdbServer(conn);
 }
 
-void IosDeviceManager::stopGdbServer(int fd, int phase)
+void IosDeviceManager::stopGdbServer(ServiceConnRef conn, int phase)
 {
-    return d->stopGdbServer(fd, phase);
+    return d->stopGdbServer(conn, phase);
 }
 
 QStringList IosDeviceManager::errors() {

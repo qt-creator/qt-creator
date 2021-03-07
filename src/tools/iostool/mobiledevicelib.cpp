@@ -130,6 +130,18 @@ bool MobileDeviceLib::load()
     if (m_AMDServiceConnectionGetSocket == nullptr)
         addError("MobileDeviceLib does not define AMDServiceConnectionGetSocket");
     m_AMDeviceUninstallApplication = reinterpret_cast<AMDeviceUninstallApplicationPtr>(lib.resolve("AMDeviceUninstallApplication"));
+    m_AMDServiceConnectionSend = reinterpret_cast<AMDServiceConnectionSendPtr>(lib.resolve("AMDServiceConnectionSend"));
+    if (m_AMDServiceConnectionSend == nullptr)
+        addError("MobileDeviceLib does not define AMDServiceConnectionSend");
+    m_AMDServiceConnectionReceive = reinterpret_cast<AMDServiceConnectionReceivePtr>(lib.resolve("AMDServiceConnectionReceive"));
+    if (m_AMDServiceConnectionReceive == nullptr)
+        addError("MobileDeviceLib does not define AMDServiceConnectionReceive");
+    m_AMDServiceConnectionInvalidate = reinterpret_cast<AMDServiceConnectionInvalidatePtr>(lib.resolve("AMDServiceConnectionInvalidate"));
+    if (m_AMDServiceConnectionInvalidate == nullptr)
+        addError("MobileDeviceLib does not define AMDServiceConnectionInvalidate");
+    m_AMDeviceIsAtLeastVersionOnPlatform = reinterpret_cast<AMDeviceIsAtLeastVersionOnPlatformPtr>(lib.resolve("AMDeviceIsAtLeastVersionOnPlatform"));
+    if (m_AMDeviceIsAtLeastVersionOnPlatform == nullptr)
+        addError("MobileDeviceLib does not define AMDeviceIsAtLeastVersionOnPlatform");
     if (m_AMDeviceUninstallApplication == 0)
         addError("MobileDeviceLib does not define AMDeviceUninstallApplication");
     m_AMDeviceLookupApplications = reinterpret_cast<AMDeviceLookupApplicationsPtr>(lib.resolve("AMDeviceLookupApplications"));
@@ -347,4 +359,36 @@ int MobileDeviceLib::deviceConnectionGetSocket(ServiceConnRef ref) {
         fd = m_AMDServiceConnectionGetSocket(ref);
     return fd;
 }
+
+int MobileDeviceLib::serviceConnectionSend(ServiceConnRef ref, const void *data, size_t size)
+{
+    int bytesSent = -1;
+    if (m_AMDServiceConnectionSend) {
+        bytesSent = m_AMDServiceConnectionSend(ref, data, size);
+    }
+    return bytesSent;
+}
+
+int MobileDeviceLib::serviceConnectionReceive(ServiceConnRef ref, void *data, size_t size)
+{
+    int bytestRead = 0;
+    if (m_AMDServiceConnectionReceive) {
+        bytestRead = m_AMDServiceConnectionReceive(ref, data, size);
+    }
+    return bytestRead;
+}
+
+void MobileDeviceLib::serviceConnectionInvalidate(ServiceConnRef serviceConnRef)
+{
+    if (m_AMDServiceConnectionInvalidate)
+        m_AMDServiceConnectionInvalidate(serviceConnRef);
+}
+
+bool MobileDeviceLib::deviceIsAtLeastVersionOnPlatform(AMDeviceRef device, CFDictionaryRef versions)
+{
+    if (m_AMDeviceIsAtLeastVersionOnPlatform)
+        return m_AMDeviceIsAtLeastVersionOnPlatform(device, versions);
+    return false;
+}
+
 } // IOS

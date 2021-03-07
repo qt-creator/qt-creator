@@ -227,7 +227,7 @@ void IosTool::didTransferApp(const QString &bundlePath, const QString &deviceId,
 }
 
 void IosTool::didStartApp(const QString &bundlePath, const QString &deviceId,
-                          IosDeviceManager::OpStatus status, int gdbFd,
+                          IosDeviceManager::OpStatus status, ServiceConnRef conn, int gdbFd,
                           DeviceSession *deviceSession)
 {
     Q_UNUSED(bundlePath)
@@ -281,7 +281,7 @@ void IosTool::didStartApp(const QString &bundlePath, const QString &deviceId,
         outFile.flush();
     }
     if (!debug) {
-        gdbRunner = new GdbRunner(this, gdbFd);
+        gdbRunner = new GdbRunner(this, conn);
         // we should not stop the event handling of the main thread
         // all output moves to the new thread (other option would be to signal it back)
         QThread *gdbProcessThread = new QThread();

@@ -64,8 +64,8 @@ public:
     void requestAppOp(const QString &bundlePath, const QStringList &extraArgs, AppOp appOp,
                       const QString &deviceId, int timeout = 1000);
     void requestDeviceInfo(const QString &deviceId, int timeout = 1000);
-    int processGdbServer(int fd);
-    void stopGdbServer(int fd, int phase);
+    int processGdbServer(ServiceConnRef conn);
+    void stopGdbServer(ServiceConnRef conn, int phase);
     QStringList errors();
 
 signals:
@@ -76,7 +76,7 @@ signals:
     void didTransferApp(const QString &bundlePath, const QString &deviceId,
                         Ios::IosDeviceManager::OpStatus status);
     void didStartApp(const QString &bundlePath, const QString &deviceId,
-                     Ios::IosDeviceManager::OpStatus status, int gdbFd,
+                     Ios::IosDeviceManager::OpStatus status, ServiceConnRef conn, int gdbFd,
                      Ios::DeviceSession *deviceSession);
     void deviceInfo(const QString &deviceId, const Ios::IosDeviceManager::Dict &info);
     void appOutput(const QString &output);

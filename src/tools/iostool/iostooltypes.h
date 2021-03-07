@@ -31,8 +31,12 @@
 
 #include <mach/error.h>
 
-
 extern "C" {
+struct service_conn_t {
+    char unknown[0x10];
+    int sockfd;
+    void *sslContext = nullptr;
+};
+typedef service_conn_t *ServiceConnRef;
 typedef unsigned int ServiceSocket; // match_port_t (i.e. natural_t) or socket (on windows, i.e sock_t)
-typedef unsigned int *ServiceConnRef;
 } // extern C

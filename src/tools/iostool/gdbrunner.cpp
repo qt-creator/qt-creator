@@ -26,6 +26,7 @@
 #include "gdbrunner.h"
 
 #include "iostool.h"
+#include "mobiledevicelib.h"
 
 #ifdef Q_OS_UNIX
 #include <unistd.h>
@@ -34,10 +35,10 @@
 
 namespace Ios {
 
-GdbRunner::GdbRunner(IosTool *iosTool, int gdbFd) :
+GdbRunner::GdbRunner(IosTool *iosTool, ServiceConnRef conn) :
     QObject(nullptr),
     m_iosTool(iosTool),
-    m_gdbFd(gdbFd)
+    m_conn(conn)
 {
 }
 
@@ -51,7 +52,7 @@ void GdbRunner::run()
         }
         m_iosTool->outFile.flush();
     }
-    Ios::IosDeviceManager::instance()->processGdbServer(m_gdbFd);
+    Ios::IosDeviceManager::instance()->processGdbServer(m_conn);
     {
         QMutexLocker l(&m_iosTool->m_xmlMutex);
         if (!m_iosTool->splitAppOutput) {
@@ -60,14 +61,14 @@ void GdbRunner::run()
         }
         m_iosTool->outFile.flush();
     }
-    close(m_gdbFd);
+    close(m_conn->sockfd);
     m_iosTool->doExit();
     emit finished();
 }
 
 void GdbRunner::stop(int phase)
 {
-    Ios::IosDeviceManager::instance()->stopGdbServer(m_gdbFd, phase);
+    Ios::IosDeviceManager::instance()->stopGdbServer(m_conn, phase);
 }
 
 }

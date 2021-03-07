@@ -27,6 +27,8 @@
 
 #include <QObject>
 
+#include "iostooltypes.h"
+
 namespace Ios {
 class IosTool;
 class GdbRunner: public QObject
@@ -34,7 +36,7 @@ class GdbRunner: public QObject
     Q_OBJECT
 
 public:
-    GdbRunner(IosTool *iosTool, int gdbFd);
+    GdbRunner(IosTool *iosTool, ServiceConnRef conn);
     void stop(int phase);
     void run();
 
@@ -43,6 +45,6 @@ signals:
 
 private:
     IosTool *m_iosTool;
-    int m_gdbFd;
+    ServiceConnRef m_conn = nullptr;
 };
 }
