@@ -145,7 +145,11 @@ static clang::format::FormatStyle qtcStyle()
     style.PenaltyReturnTypeOnItsOwnLine = 300;
     style.PointerAlignment = FormatStyle::PAS_Right;
     style.ReflowComments = false;
+#ifdef LLVM_VERSION_MAJOR >= 13
+    style.SortIncludes = FormatStyle::SI_CaseSensitive;
+#else
     style.SortIncludes = true;
+#endif
     style.SortUsingDeclarations = true;
     style.SpaceAfterCStyleCast = true;
     style.SpaceAfterTemplateKeyword = false;
