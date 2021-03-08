@@ -66,25 +66,33 @@ Item {
                         {title: qsTr("Assets"), addToolTip: qsTr("Add new assets to project.")}]
 
                 TabButton {
-                    contentItem: Text { // TabButton text
-                        text: modelData.title
-                        font.pixelSize: 13
-                        font.bold: true
-                        color: tabBar.currentIndex === index ? "#0094ce" : "#dadada"
-                        anchors.bottomMargin: 2
-                        horizontalAlignment: Text.AlignLeft
-                        verticalAlignment: Text.AlignBottom
-                        elide: Text.ElideRight
-                    }
+                    topPadding: 4
+                    bottomPadding: 4
+                    contentItem: Item {
+                        implicitHeight: plusButton.height
 
-                    background: Item { // TabButton background
-                        Rectangle { // + button
-                            anchors.right: parent.right
+                        Text { // TabButton text
+                            text: modelData.title
+                            font.pixelSize: 13
+                            font.bold: true
+                            color: tabBar.currentIndex === index ? "#0094ce" : "#dadada"
+                            anchors.left: parent.left
+                            anchors.top: parent.top
                             anchors.bottom: parent.bottom
-                            anchors.rightMargin: 2
+                            anchors.right: plusButton.left
                             anchors.bottomMargin: 2
-                            width: 25
-                            height: 25
+                            horizontalAlignment: Text.AlignLeft
+                            verticalAlignment: Text.AlignBottom
+                            elide: Text.ElideRight
+                        }
+
+                        Rectangle { // + button
+                            id: plusButton
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            anchors.topMargin: 1
+                            width: 24
+                            height: 24
                             color: mouseArea.containsMouse ? "#353535" : "#262626"
 
                             ToolTip.delay: 500
@@ -109,7 +117,9 @@ Item {
                                                       : rootView.handleAddAsset()
                             }
                         }
+                    }
 
+                    background: Item { // TabButton background
                         Rectangle { // bottom strip
                             anchors.bottom: parent.bottom
                             width: parent.width
