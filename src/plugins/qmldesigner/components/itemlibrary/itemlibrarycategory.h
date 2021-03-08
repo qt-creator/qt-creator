@@ -50,7 +50,7 @@ public:
     void addItem(ItemLibraryItem *item);
     QObject *itemModel();
 
-    bool updateItemVisibility(const QString &searchText, bool *changed);
+    bool updateItemVisibility(const QString &searchText, bool *changed, bool expand = false);
 
     bool setVisible(bool isVisible);
     bool isVisible() const;
