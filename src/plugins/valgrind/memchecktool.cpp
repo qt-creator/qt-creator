@@ -128,7 +128,7 @@ public:
     void start() override;
     void stop() override;
 
-    QStringList suppressionFiles() const;
+    const QStringList suppressionFiles() const;
 
 signals:
     void internalParserError(const QString &errorString);
@@ -212,7 +212,7 @@ QStringList MemcheckToolRunner::toolArguments() const
     }
     arguments << "--leak-check=" + leakCheckValue;
 
-    foreach (const QString &file, m_settings.suppressionFiles())
+    for (const QString &file : m_settings.suppressions.value())
         arguments << QString("--suppressions=%1").arg(file);
 
     arguments << QString("--num-callers=%1").arg(m_settings.numCallers.value());
@@ -225,9 +225,9 @@ QStringList MemcheckToolRunner::toolArguments() const
     return arguments;
 }
 
-QStringList MemcheckToolRunner::suppressionFiles() const
+const QStringList MemcheckToolRunner::suppressionFiles() const
 {
-    return m_settings.suppressionFiles();
+    return m_settings.suppressions.value();
 }
 
 void MemcheckToolRunner::startDebugger(qint64 valgrindPid)

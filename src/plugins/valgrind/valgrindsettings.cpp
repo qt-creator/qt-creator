@@ -30,18 +30,260 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
+#include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 
 #include <valgrind/xmlprotocol/error.h>
 
-#include <QSettings>
 #include <QDebug>
+#include <QFileDialog>
+#include <QListView>
+#include <QPushButton>
+#include <QSettings>
+#include <QStandardItemModel>
 
 using namespace Utils;
 
 namespace Valgrind {
 namespace Internal {
+
+//
+// SuppressionAspect
+//
+
+// This is somewhat unusual, as it looks the same in Global Settings and Project
+// settings, but behaves differently (Project only stores a diff) depending on
+// context.
+
+const char globalSuppressionKey[] = "Analyzer.Valgrind.SupressionFiles";
+const char removedProjectSuppressionKey[] = "Analyzer.Valgrind.RemovedSuppressionFiles";
+const char addedProjectSuppressionKey[] = "Analyzer.Valgrind.AddedSuppressionFiles";
+
+class SuppressionAspectPrivate : public QObject
+{
+    Q_DECLARE_TR_FUNCTIONS(Valgrind::Internal::ValgrindConfigWidget)
+
+public:
+    SuppressionAspectPrivate(SuppressionAspect *q, bool global) : q(q), isGlobal(global) {}
+
+    void slotAddSuppression();
+    void slotRemoveSuppression();
+    void slotSuppressionSelectionChanged();
+
+    SuppressionAspect *q;
+    const bool isGlobal;
+
+    QPointer<QPushButton> addEntry;
+    QPointer<QPushButton> removeEntry;
+    QPointer<QListView> entryList;
+
+    QStandardItemModel m_model; // The volatile value of this aspect.
+
+    QStringList globalSuppressionFiles; // Real value, only used for global settings
+
+    QStringList removedProjectSuppressionFiles; // Part of real value for project settings
+    QStringList addedProjectSuppressionFiles; // Part of real value for project settings
+};
+
+void SuppressionAspect::addSuppressionFile(const QString &suppression)
+{
+    if (d->isGlobal) {
+        d->globalSuppressionFiles.append(suppression);
+    } else {
+        const QStringList globalSuppressions = ValgrindGlobalSettings::instance()->suppressions.value();
+        if (!d->addedProjectSuppressionFiles.contains(suppression))
+            d->addedProjectSuppressionFiles.append(suppression);
+        d->removedProjectSuppressionFiles.removeAll(suppression);
+    }
+    setVolatileValue(value());
+}
+
+void SuppressionAspectPrivate::slotAddSuppression()
+{
+    ValgrindGlobalSettings *conf = ValgrindGlobalSettings::instance();
+    QTC_ASSERT(conf, return);
+    const QStringList files =
+            QFileDialog::getOpenFileNames(Core::ICore::dialogParent(),
+                      tr("Valgrind Suppression Files"),
+                      conf->lastSuppressionDirectory.value(),
+                      tr("Valgrind Suppression File (*.supp);;All Files (*)"));
+    //dialog.setHistory(conf->lastSuppressionDialogHistory());
+    if (!files.isEmpty()) {
+        for (const QString &file : files)
+            m_model.appendRow(new QStandardItem(file));
+        conf->lastSuppressionDirectory.setValue(QFileInfo(files.at(0)).absolutePath());
+        //conf->setLastSuppressionDialogHistory(dialog.history());
+        if (!isGlobal)
+            q->apply();
+    }
+}
+
+void SuppressionAspectPrivate::slotRemoveSuppression()
+{
+    // remove from end so no rows get invalidated
+    QList<int> rows;
+
+    QStringList removed;
+    const QModelIndexList selected = entryList->selectionModel()->selectedIndexes();
+    for (const QModelIndex &index : selected) {
+        rows << index.row();
+        removed << index.data().toString();
+    }
+
+    Utils::sort(rows, std::greater<int>());
+
+    for (int row : qAsConst(rows))
+        m_model.removeRow(row);
+
+    if (!isGlobal)
+        q->apply();
+}
+
+void SuppressionAspectPrivate::slotSuppressionSelectionChanged()
+{
+    removeEntry->setEnabled(entryList->selectionModel()->hasSelection());
+}
+
+//
+// SuppressionAspect
+//
+
+SuppressionAspect::SuppressionAspect(bool global)
+{
+    d = new SuppressionAspectPrivate(this, global);
+}
+
+SuppressionAspect::~SuppressionAspect()
+{
+    delete d;
+}
+
+QStringList SuppressionAspect::value() const
+{
+    // Note: BaseAspect::d->value is /not/ used.
+    if (d->isGlobal)
+        return d->globalSuppressionFiles;
+
+    QStringList ret = ValgrindGlobalSettings::instance()->suppressions.value();
+    for (const QString &s : d->removedProjectSuppressionFiles)
+        ret.removeAll(s);
+    ret.append(d->addedProjectSuppressionFiles);
+    return ret;
+}
+
+void SuppressionAspect::setValue(const QStringList &val)
+{
+    if (d->isGlobal) {
+        d->globalSuppressionFiles = val;
+    } else {
+        const QStringList globals = ValgrindGlobalSettings::instance()->suppressions.value();
+        d->addedProjectSuppressionFiles.clear();
+        for (const QString &s : val) {
+            if (!globals.contains(s))
+                d->addedProjectSuppressionFiles.append(s);
+        }
+        d->removedProjectSuppressionFiles.clear();
+        for (const QString &s : globals) {
+            if (!val.contains(s))
+                d->removedProjectSuppressionFiles.append(s);
+        }
+    }
+}
+
+void SuppressionAspect::addToLayout(LayoutBuilder &builder)
+{
+    QTC_CHECK(!d->addEntry);
+    QTC_CHECK(!d->removeEntry);
+    QTC_CHECK(!d->entryList);
+
+    using namespace Layouting;
+
+    d->addEntry = new QPushButton(tr("Add..."));
+    d->removeEntry = new QPushButton(tr("Remove"));
+
+    d->entryList = new QListView;
+    d->entryList->setModel(&d->m_model);
+    d->entryList->setSelectionMode(QAbstractItemView::MultiSelection);
+
+    connect(d->addEntry, &QPushButton::clicked,
+            d, &SuppressionAspectPrivate::slotAddSuppression);
+    connect(d->removeEntry, &QPushButton::clicked,
+            d, &SuppressionAspectPrivate::slotRemoveSuppression);
+    connect(d->entryList->selectionModel(), &QItemSelectionModel::selectionChanged,
+            d, &SuppressionAspectPrivate::slotSuppressionSelectionChanged);
+
+    Group group {
+        Title(tr("Suppression files:")),
+        Row {
+            d->entryList.data(),
+            Column { d->addEntry.data(), d->removeEntry.data(), Stretch() }
+        }
+    };
+    builder.addItem(Item { group, 2 });
+}
+
+void SuppressionAspect::fromMap(const QVariantMap &map)
+{
+    if (d->isGlobal) {
+        d->globalSuppressionFiles = map.value(globalSuppressionKey).toStringList();
+    } else {
+        d->addedProjectSuppressionFiles = map.value(addedProjectSuppressionKey).toStringList();
+        d->removedProjectSuppressionFiles = map.value(removedProjectSuppressionKey).toStringList();
+    }
+    setVolatileValue(value());
+}
+
+void SuppressionAspect::toMap(QVariantMap &map) const
+{
+    auto save = [&map](const QStringList &data, const QString &key) {
+        if (data.isEmpty())
+            map.remove(key);
+        else
+            map.insert(key, data);
+    };
+
+    if (d->isGlobal) {
+        save(d->globalSuppressionFiles, globalSuppressionKey);
+    } else {
+        save(d->addedProjectSuppressionFiles, addedProjectSuppressionKey);
+        save(d->removedProjectSuppressionFiles, removedProjectSuppressionKey);
+    }
+}
+
+QVariant SuppressionAspect::volatileValue() const
+{
+    QStringList ret;
+
+    for (int i = 0; i < d->m_model.rowCount(); ++i)
+        ret << d->m_model.item(i)->text();
+
+    return ret;
+}
+
+void SuppressionAspect::setVolatileValue(const QVariant &val)
+{
+    const QStringList files = val.toStringList();
+    d->m_model.clear();
+    for (const QString &file : files)
+        d->m_model.appendRow(new QStandardItem(file));
+}
+
+void SuppressionAspect::cancel()
+{
+    setVolatileValue(value());
+}
+
+void SuppressionAspect::apply()
+{
+    setValue(volatileValue().toStringList());
+}
+
+void SuppressionAspect::finish()
+{
+    setVolatileValue(value()); // Clean up m_model content
+}
 
 //////////////////////////////////////////////////////////////////
 //
@@ -49,12 +291,15 @@ namespace Internal {
 //
 //////////////////////////////////////////////////////////////////
 
-ValgrindBaseSettings::ValgrindBaseSettings()
+ValgrindBaseSettings::ValgrindBaseSettings(bool global)
+    : suppressions(global)
 {
     // Note that this is used twice, once for project settings in the .user files
     // and once for global settings in QtCreator.ini. This uses intentionally
     // the same key to facilitate copying using fromMap/toMap.
     QString base = "Analyzer.Valgrind.";
+
+    group.registerAspect(&suppressions);
 
     group.registerAspect(&valgrindExecutable);
     valgrindExecutable.setSettingsKey(base + "ValgrindExecutable");
@@ -236,13 +481,11 @@ void ValgrindBaseSettings::toMap(QVariantMap &map) const
 static ValgrindGlobalSettings *theGlobalSettings = nullptr;
 
 ValgrindGlobalSettings::ValgrindGlobalSettings()
+    : ValgrindBaseSettings(true)
 {
     theGlobalSettings = this;
 
     const QString base = "Analyzer.Valgrind";
-
-    group.registerAspect(&suppressionFiles_);
-    suppressionFiles_.setSettingsKey(base + "SupressionFiles");
 
     group.registerAspect(&lastSuppressionDirectory);
     lastSuppressionDirectory.setSettingsKey(base + "LastSuppressionDirectory");
@@ -282,20 +525,6 @@ ValgrindGlobalSettings *ValgrindGlobalSettings::instance()
 //
 // Memcheck
 //
-QStringList ValgrindGlobalSettings::suppressionFiles() const
-{
-    return suppressionFiles_.value();
-}
-
-void ValgrindGlobalSettings::addSuppressionFiles(const QStringList &suppressions)
-{
-    suppressionFiles_.appendValues(suppressions);
-}
-
-void ValgrindGlobalSettings::removeSuppressionFiles(const QStringList &suppressions)
-{
-    suppressionFiles_.removeValues(suppressions);
-}
 
 QVariantMap ValgrindBaseSettings::defaultSettings() const
 {
@@ -310,14 +539,13 @@ static const char groupC[] = "Analyzer";
 
 void ValgrindGlobalSettings::readSettings()
 {
-    QVariantMap defaults = defaultSettings();
-
     // Read stored values
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(groupC);
-    QVariantMap map = defaults;
-    for (QVariantMap::ConstIterator it = defaults.constBegin(); it != defaults.constEnd(); ++it)
-        map.insert(it.key(), settings->value(it.key(), it.value()));
+    QVariantMap map;
+    const QStringList childKey = settings->childKeys();
+    for (const QString &key : childKey)
+        map.insert(key, settings->value(key));
     settings->endGroup();
 
     fromMap(map);
@@ -343,49 +571,9 @@ void ValgrindGlobalSettings::writeSettings() const
 //////////////////////////////////////////////////////////////////
 
 ValgrindProjectSettings::ValgrindProjectSettings()
+    : ValgrindBaseSettings(false)
 {
     setConfigWidgetCreator([this] { return ValgrindOptionsPage::createSettingsWidget(this); });
-
-    group.registerAspect(&disabledGlobalSuppressionFiles);
-    disabledGlobalSuppressionFiles.setSettingsKey("Analyzer.Valgrind.RemovedSuppressionFiles");
-
-    group.registerAspect(&addedSuppressionFiles);
-    addedSuppressionFiles.setSettingsKey("Analyzer.Valgrind.AddedSuppressionFiles");
-}
-
-//
-// Memcheck
-//
-
-void ValgrindProjectSettings::addSuppressionFiles(const QStringList &suppressions)
-{
-    const QStringList globalSuppressions = ValgrindGlobalSettings::instance()->suppressionFiles();
-    for (const QString &s : suppressions) {
-        if (addedSuppressionFiles.value().contains(s))
-            continue;
-        disabledGlobalSuppressionFiles.removeValue(s);
-        if (!globalSuppressions.contains(s))
-            addedSuppressionFiles.appendValue(s);
-    }
-}
-
-void ValgrindProjectSettings::removeSuppressionFiles(const QStringList &suppressions)
-{
-    const QStringList globalSuppressions = ValgrindGlobalSettings::instance()->suppressionFiles();
-    for (const QString &s : suppressions) {
-        addedSuppressionFiles.removeValue(s);
-        if (globalSuppressions.contains(s))
-            disabledGlobalSuppressionFiles.appendValue(s);
-    }
-}
-
-QStringList ValgrindProjectSettings::suppressionFiles() const
-{
-    QStringList ret = ValgrindGlobalSettings::instance()->suppressionFiles();
-    for (const QString &s : disabledGlobalSuppressionFiles.value())
-        ret.removeAll(s);
-    ret.append(addedSuppressionFiles.value());
-    return ret;
 }
 
 } // namespace Internal

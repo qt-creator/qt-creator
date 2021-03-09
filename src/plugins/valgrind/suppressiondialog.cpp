@@ -44,13 +44,12 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QFile>
-
 #include <QDialogButtonBox>
+#include <QFile>
 #include <QFormLayout>
-#include <QPushButton>
 #include <QLabel>
 #include <QPlainTextEdit>
+#include <QPushButton>
 
 using namespace Valgrind::XmlProtocol;
 
@@ -217,7 +216,7 @@ void SuppressionDialog::accept()
         }
     }
 
-    m_settings->addSuppressionFiles(QStringList(path));
+    m_settings->suppressions.addSuppressionFile(path);
 
     QModelIndexList indices = m_view->selectionModel()->selectedRows();
     Utils::sort(indices, [](const QModelIndex &l, const QModelIndex &r) {

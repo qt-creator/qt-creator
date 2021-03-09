@@ -36,6 +36,36 @@ namespace Internal {
 
 const char ANALYZER_VALGRIND_SETTINGS[] = "Analyzer.Valgrind.Settings";
 
+class SuppressionAspectPrivate;
+
+class SuppressionAspect final : public Utils::BaseAspect
+{
+public:
+    explicit SuppressionAspect(bool global);
+    ~SuppressionAspect() final;
+
+    QStringList value() const;
+    void setValue(const QStringList &val);
+
+    void addToLayout(Utils::LayoutBuilder &builder) final;
+
+    void fromMap(const QVariantMap &map) final;
+    void toMap(QVariantMap &map) const final;
+
+    QVariant volatileValue() const final;
+    void setVolatileValue(const QVariant &val) final;
+
+    void cancel() final;
+    void apply() final;
+    void finish() final;
+
+    void addSuppressionFile(const QString &suppressionFile);
+
+private:
+    friend class ValgrindBaseSettings;
+    SuppressionAspectPrivate *d = nullptr;
+};
+
 /**
  * Valgrind settings shared for global and per-project.
  */
@@ -44,7 +74,7 @@ class ValgrindBaseSettings : public ProjectExplorer::ISettingsAspect
     Q_OBJECT
 
 public:
-    ValgrindBaseSettings();
+    explicit ValgrindBaseSettings(bool global);
 
     enum SelfModifyingCodeDetection {
         DetectSmcNo,
@@ -73,6 +103,8 @@ public:
     Utils::StringAspect valgrindArguments;
     Utils::SelectionAspect selfModifyingCodeDetection;
 
+    SuppressionAspect suppressions;
+
 /**
  * Base memcheck settings
  */
@@ -85,15 +117,7 @@ public:
     Utils::BoolAspect filterExternalIssues;
     Utils::IntegersAspect visibleErrorKinds;
 
-    virtual QStringList suppressionFiles() const = 0;
-    virtual void addSuppressionFiles(const QStringList &) = 0;
-    virtual void removeSuppressionFiles(const QStringList &) = 0;
-
     void setVisibleErrorKinds(const QList<int> &);
-
-signals:
-    void suppressionFilesRemoved(const QStringList &);
-    void suppressionFilesAdded(const QStringList &);
 
 /**
  * Base callgrind settings
@@ -130,15 +154,10 @@ public:
     /**
      * Global memcheck settings
      */
-    QStringList suppressionFiles() const override;
-    // in the global settings we change the internal list directly
-    void addSuppressionFiles(const QStringList &) override;
-    void removeSuppressionFiles(const QStringList &) override;
 
     void writeSettings() const;
     void readSettings();
 
-    Utils::StringListAspect suppressionFiles_;
     Utils::StringAspect lastSuppressionDirectory;
     Utils::StringAspect lastSuppressionHistory;
 
@@ -161,18 +180,6 @@ class ValgrindProjectSettings : public ValgrindBaseSettings
 
 public:
     ValgrindProjectSettings();
-
-    /**
-     * Per-project memcheck settings, saves a diff to the global suppression files list
-     */
-    QStringList suppressionFiles() const override;
-    // in the project-specific settings we store a diff to the global list
-    void addSuppressionFiles(const QStringList &suppressions) override;
-    void removeSuppressionFiles(const QStringList &suppressions) override;
-
-private:
-    Utils::StringListAspect disabledGlobalSuppressionFiles;
-    Utils::StringListAspect addedSuppressionFiles;
 };
 
 } // namespace Internal
