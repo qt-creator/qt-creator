@@ -138,6 +138,7 @@ public:
     QString linguistCommand() const;
     QString qscxmlcCommand() const;
     QString qmlsceneCommand() const;
+    QString qmlplugindumpCommand() const;
 
     QString qtVersionString() const;
     QtVersionNumber qtVersion() const;
@@ -181,11 +182,7 @@ public:
     static bool isQtQuickCompilerSupported(const ProjectExplorer::Kit *k, QString *reason = nullptr);
     bool isQtQuickCompilerSupported(QString *reason = nullptr) const;
 
-    QString qmlDumpTool(bool debugVersion) const;
-
-    bool hasQmlDump() const;
     bool hasQmlDumpWithRelocatableFlag() const;
-    bool needsQmlDump() const;
 
     virtual QtConfigWidget *createConfigurationWidget() const;
 
