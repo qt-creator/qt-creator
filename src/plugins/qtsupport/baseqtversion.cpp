@@ -171,7 +171,7 @@ private:
     mutable std::unique_ptr<MacroExpander> m_expander;
 };
 
-enum HostBinaries { Designer, Linguist, Uic, QScxmlc };
+enum HostBinaries { Designer, Linguist, Rcc, Uic, QScxmlc };
 
 class BaseQtVersionPrivate
 {
@@ -232,6 +232,7 @@ public:
 
     FilePath m_qmakeCommand;
 
+    QString m_rccCommand;
     QString m_uicCommand;
     QString m_designerCommand;
     QString m_linguistCommand;
@@ -1021,6 +1022,7 @@ QString BaseQtVersionPrivate::findHostBinary(HostBinaries binary) const
         case Linguist:
             baseDir = m_mkspecValues.value("QT.designer.bins");
             break;
+        case Rcc:
         case Uic:
         case QScxmlc:
             baseDir = q->hostBinPath().toString();
@@ -1050,6 +1052,14 @@ QString BaseQtVersionPrivate::findHostBinary(HostBinaries binary) const
         else
             possibleCommands << HostOsInfo::withExecutableSuffix("linguist");
         break;
+    case Rcc:
+        if (HostOsInfo::isWindowsHost()) {
+            possibleCommands << "rcc.exe";
+        } else {
+            const QString majorString = QString::number(q->qtVersion().majorVersion);
+            possibleCommands << ("rcc-qt" + majorString) << ("rcc" + majorString) << "rcc";
+        }
+        break;
     case Uic:
         if (HostOsInfo::isWindowsHost()) {
             possibleCommands << "uic.exe";
@@ -1070,6 +1080,16 @@ QString BaseQtVersionPrivate::findHostBinary(HostBinaries binary) const
             return QDir::cleanPath(fullPath);
     }
     return QString();
+}
+
+QString BaseQtVersion::rccCommand() const
+{
+    if (!isValid())
+        return QString();
+    if (!d->m_rccCommand.isNull())
+        return d->m_rccCommand;
+    d->m_rccCommand = d->findHostBinary(Rcc);
+    return d->m_rccCommand;
 }
 
 QString BaseQtVersion::uicCommand() const
