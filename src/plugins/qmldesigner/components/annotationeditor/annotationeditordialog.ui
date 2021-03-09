@@ -56,7 +56,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QTabWidget" name="tabWidget">
+    <widget class="AnnotationTabWidget" name="tabWidget">
      <property name="currentIndex">
       <number>0</number>
      </property>
@@ -90,6 +90,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>AnnotationTabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>annotationtabwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>targetIdEdit</tabstop>
   <tabstop>customIdEdit</tabstop>

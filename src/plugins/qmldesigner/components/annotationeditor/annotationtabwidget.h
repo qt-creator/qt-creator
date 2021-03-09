@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,58 +23,37 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include <QTabWidget>
 
-#include "annotationeditordialog.h"
+#include "annotation.h"
+#include "defaultannotations.h"
 
 namespace QmlDesigner {
+class AnnotationCommentTab;
 
-namespace Ui {
-class GlobalAnnotationEditorDialog;
-}
-
-class GlobalAnnotationEditorDialog : public BasicAnnotationEditorDialog
+class AnnotationTabWidget : public QTabWidget
 {
     Q_OBJECT
 public:
-    enum ViewMode {
-        TableView,
-        TabsView
-    };
+    AnnotationTabWidget(QWidget *parent = nullptr);
+    ~AnnotationTabWidget();
 
-    explicit GlobalAnnotationEditorDialog(
-        QWidget *parent = nullptr, GlobalAnnotationStatus status = GlobalAnnotationStatus::NoStatus);
-    ~GlobalAnnotationEditorDialog();
+    QVector<Comment> fetchComments() const;
+    void setupComments(QVector<Comment> const &comments);
 
-    ViewMode viewMode() const;
-
-    void setStatus(GlobalAnnotationStatus status);
-    GlobalAnnotationStatus globalStatus() const;
+    DefaultAnnotationsModel *defaultAnnotations() const;
+    void setDefaultAnnotations(DefaultAnnotationsModel *);
 
 public slots:
-    void showStatusContainer(bool show);
-    void switchToTabView();
-    void switchToTableView();
+    void addCommentTab(const Comment &comment = {});
+    void deleteAllTabs();
 
 private slots:
-    void acceptedClicked() override;
+    void onCommentTitleChanged(const QString &text, QWidget *tab);
 
 private:
+    const QString defaultTabName = {tr("Annotation")};
 
-    void fillFields() override;
-    void updateAnnotation();
-    void addComment(const Comment &comment);
-    void removeComment(int index);
-
-    void setStatusVisibility(bool hasStatus);
-
-private:
-    const QString globalEditorTitle = {tr("Global Annotation Editor")};
-
-    Ui::GlobalAnnotationEditorDialog *ui;
-
-    GlobalAnnotationStatus m_globalStatus;
-    bool m_statusIsActive;
+    QPointer<DefaultAnnotationsModel> m_defaults;
 };
-
-} //namespace QmlDesigner
+} // namespace QmlDesigner

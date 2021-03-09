@@ -24,12 +24,12 @@
 ****************************************************************************/
 
 #include "annotationcommenttab.h"
+#include "defaultannotations.h"
 #include "ui_annotationcommenttab.h"
 
 #include "richtexteditor/richtexteditor.h"
 
 #include <QCryptographicHash>
-#include "QStringListModel"
 
 #include "projectexplorer/session.h"
 #include "projectexplorer/target.h"
@@ -40,7 +40,7 @@ namespace QmlDesigner {
 
 AnnotationCommentTab::AnnotationCommentTab(QWidget *parent)
     : QWidget(parent)
-    , ui(new Ui::AnnotationCommentTab)
+    , ui(std::make_unique<Ui::AnnotationCommentTab>())
 {
     ui->setupUi(this);
 
@@ -57,33 +57,12 @@ AnnotationCommentTab::AnnotationCommentTab(QWidget *parent)
 
     ui->formLayout->setWidget(3, QFormLayout::FieldRole, m_editor);
 
-    ui->titleEdit->setModel(new QStringListModel{QStringList{"Description",
-                                                             "Display Condition",
-                                                             "helper lines",
-                                                             "position marker",
-                                                             "highlight",
-                                                             "project author",
-                                                             "project confirmed",
-                                                             "project developer",
-                                                             "project distributor",
-                                                             "project modified",
-                                                             "project type",
-                                                             "project version",
-                                                             "Screen Description",
-                                                             "Section",
-                                                             "normalcolor",
-                                                             "focuscolor",
-                                                             "selectedcolor",
-                                                             "pressedcolor"}});
-
-    connect(ui->titleEdit, &QComboBox::currentTextChanged,
-            this, &AnnotationCommentTab::commentTitleChanged);
+    connect(ui->titleEdit, &QComboBox::currentTextChanged, this, [this](QString const &text) {
+        emit titleChanged(text, this);
+    });
 }
 
-AnnotationCommentTab::~AnnotationCommentTab()
-{
-    delete ui;
-}
+AnnotationCommentTab::~AnnotationCommentTab() {}
 
 Comment AnnotationCommentTab::currentComment() const
 {
@@ -91,7 +70,10 @@ Comment AnnotationCommentTab::currentComment() const
 
     result.setTitle(ui->titleEdit->currentText().trimmed());
     result.setAuthor(ui->authorEdit->text().trimmed());
-    result.setText(m_editor->richText().trimmed());
+    if (defaultAnnotations() && !defaultAnnotations()->isRichText(result)) {
+        result.setText(m_editor->plainText().trimmed());
+    } else
+        result.setText(m_editor->richText().trimmed());
 
     if (m_comment.sameContent(result))
         result.setTimestamp(m_comment.timestamp());
@@ -129,9 +111,15 @@ void AnnotationCommentTab::resetComment()
     m_comment = currentComment();
 }
 
-void AnnotationCommentTab::commentTitleChanged(const QString &text)
+DefaultAnnotationsModel *AnnotationCommentTab::defaultAnnotations() const
 {
-    emit titleChanged(text, this);
+    return m_defaults;
+}
+
+void AnnotationCommentTab::setDefaultAnnotations(DefaultAnnotationsModel *defaults)
+{
+    m_defaults = defaults;
+    ui->titleEdit->setModel(m_defaults);
 }
 
 QString AnnotationCommentTab::backupFile(const QString &filePath)
@@ -153,10 +141,8 @@ QString AnnotationCommentTab::backupFile(const QString &filePath)
         if (!newFile.exists()) {
             QFile(oldFile.absoluteFilePath()).copy(newFile.absoluteFilePath());
             break;
-        } else if (compareFileChecksum(oldFile.absoluteFilePath(),
-                                       newFile.absoluteFilePath()) == 0) {
+        } else if (compareFileChecksum(oldFile.absoluteFilePath(), newFile.absoluteFilePath()) == 0)
             break;
-        }
 
         newFile.setFile(imgDir, newName.arg(i));
     }
@@ -166,9 +152,8 @@ QString AnnotationCommentTab::backupFile(const QString &filePath)
 
 void AnnotationCommentTab::ensureDir(const QDir &dir)
 {
-    if (!dir.exists()) {
+    if (!dir.exists())
         dir.mkdir(".");
-    }
 }
 
 int AnnotationCommentTab::compareFileChecksum(const QString &firstFile, const QString &secondFile)

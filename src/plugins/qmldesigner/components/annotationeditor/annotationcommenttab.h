@@ -25,9 +25,12 @@
 
 #pragma once
 
-#include <QWidget>
-
 #include "annotation.h"
+
+#include <QWidget>
+#include <QPointer>
+
+#include <memory>
 
 QT_BEGIN_NAMESPACE
 class QDir;
@@ -40,6 +43,7 @@ class AnnotationCommentTab;
 }
 
 class RichTextEditor;
+class DefaultAnnotationsModel;
 
 class AnnotationCommentTab : public QWidget
 {
@@ -57,17 +61,18 @@ public:
     void resetUI();
     void resetComment();
 
+    DefaultAnnotationsModel *defaultAnnotations() const;
+    void setDefaultAnnotations(DefaultAnnotationsModel *);
+
 signals:
     void titleChanged(const QString &text, QWidget *widget);
 
-private slots:
-    void commentTitleChanged(const QString &text);
-
 private:
-    Ui::AnnotationCommentTab *ui;
+    std::unique_ptr<Ui::AnnotationCommentTab> ui;
     RichTextEditor *m_editor;
 
     Comment m_comment;
+    QPointer<DefaultAnnotationsModel> m_defaults;
 
     QString backupFile(const QString &filePath);
     void ensureDir(const QDir &dir);

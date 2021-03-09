@@ -50,8 +50,8 @@ GlobalAnnotationEditor::~GlobalAnnotationEditor()
 void GlobalAnnotationEditor::showWidget()
 {
     m_dialog = new GlobalAnnotationEditorDialog(Core::ICore::dialogParent(),
-                                                modelNode().globalAnnotation(),
                                                 modelNode().globalStatus());
+    m_dialog->setAnnotation(modelNode().globalAnnotation());
 
     QObject::connect(m_dialog, &GlobalAnnotationEditorDialog::acceptedDialog,
                      this, &GlobalAnnotationEditor::acceptedClicked);
@@ -142,7 +142,6 @@ void GlobalAnnotationEditor::acceptedClicked()
     hideWidget();
 
     emit accepted();
-
     emit annotationChanged();
 }
 

@@ -637,6 +637,10 @@ extend_qtc_plugin(QmlDesigner
   globalannotationeditordialog.cpp globalannotationeditordialog.h globalannotationeditordialog.ui
   annotationeditor.cpp annotationeditor.h
   globalannotationeditor.cpp globalannotationeditor.h
+  defaultannotations.cpp defaultannotations.h
+  annotationtableview.cpp annotationtableview.h
+  annotationtabwidget.cpp annotationtabwidget.h
+  annotationeditor.qrc
 )
 
 extend_qtc_plugin(QmlDesigner

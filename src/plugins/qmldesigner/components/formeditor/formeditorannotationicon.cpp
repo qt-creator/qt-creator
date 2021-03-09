@@ -426,8 +426,8 @@ void FormEditorAnnotationIcon::createAnnotationEditor()
 
     m_annotationEditor = new AnnotationEditorDialog(Core::ICore::dialogParent(),
                                                     m_modelNode.displayName(),
-                                                    m_modelNode.customId(),
-                                                    m_modelNode.annotation());
+                                                    m_modelNode.customId());
+    m_annotationEditor->setAnnotation(m_modelNode.annotation());
 
     connect(m_annotationEditor, &AnnotationEditorDialog::acceptedDialog,
             this, &FormEditorAnnotationIcon::annotationDialogAccepted);

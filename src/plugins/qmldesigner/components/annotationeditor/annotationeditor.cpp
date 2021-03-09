@@ -61,8 +61,8 @@ void AnnotationEditor::showWidget()
 {
     m_dialog = new AnnotationEditorDialog(Core::ICore::dialogParent(),
                                           m_modelNode.id(),
-                                          m_modelNode.customId(),
-                                          m_modelNode.annotation());
+                                          m_modelNode.customId());
+    m_dialog->setAnnotation(m_modelNode.annotation());
 
     QObject::connect(m_dialog, &AnnotationEditorDialog::acceptedDialog,
                      this, &AnnotationEditor::acceptedClicked);

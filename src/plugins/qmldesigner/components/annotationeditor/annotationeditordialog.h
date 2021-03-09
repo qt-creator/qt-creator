@@ -34,46 +34,62 @@ namespace QmlDesigner {
 namespace Ui {
 class AnnotationEditorDialog;
 }
+class DefaultAnnotationsModel;
 
-class AnnotationEditorDialog : public QDialog
+class BasicAnnotationEditorDialog : public QDialog
 {
     Q_OBJECT
-
 public:
-    explicit AnnotationEditorDialog(QWidget *parent, const QString &targetId, const QString &customId, const Annotation &annotation);
-    ~AnnotationEditorDialog();
+    explicit BasicAnnotationEditorDialog(QWidget *parent);
+    ~BasicAnnotationEditorDialog();
 
+    Annotation const &annotation() const;
     void setAnnotation(const Annotation &annotation);
-    Annotation annotation() const;
 
-    void setCustomId(const QString &customId);
-    QString customId() const;
+    void loadDefaultAnnotations(QString const &filename);
+
+    DefaultAnnotationsModel *defaultAnnotations() const;
 
 signals:
     void acceptedDialog(); //use instead of QDialog::accepted
 
+protected:
+    virtual void fillFields() = 0;
+    virtual void acceptedClicked() = 0;
+
+    Annotation m_annotation;
+    std::unique_ptr<DefaultAnnotationsModel> m_defaults;
+};
+
+class AnnotationEditorDialog : public BasicAnnotationEditorDialog
+{
+    Q_OBJECT
+
+public:
+    explicit AnnotationEditorDialog(QWidget *parent,
+                                    const QString &targetId,
+                                    const QString &customId);
+    ~AnnotationEditorDialog();
+
+    void setCustomId(const QString &customId);
+    QString customId() const;
+
 private slots:
-    void acceptedClicked();
-    void tabChanged(int index);
-    void commentTitleChanged(const QString &text, QWidget *tab);
+    void acceptedClicked() override;
 
 private:
-    void fillFields();
-    void setupComments();
+    void fillFields() override;
+    void updateAnnotation();
+
     void addComment(const Comment &comment);
     void removeComment(int index);
 
-    void addCommentTab(const Comment &comment);
-    void removeCommentTab(int index);
-    void deleteAllTabs();
-
 private:
     const QString annotationEditorTitle = {tr("Annotation Editor")};
-    const QString defaultTabName = {tr("Annotation")};
+
     Ui::AnnotationEditorDialog *ui;
 
     QString m_customId;
-    Annotation m_annotation;
 };
 
 } //namespace QmlDesigner

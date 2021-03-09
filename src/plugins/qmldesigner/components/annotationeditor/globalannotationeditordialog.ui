@@ -74,6 +74,23 @@
        </widget>
       </item>
       <item>
+       <widget class="QRadioButton" name="rbTabView">
+        <property name="text">
+         <string>Tab View</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="rbTableView">
+        <property name="text">
+         <string>Table View</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -90,7 +107,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QTabWidget" name="tabWidget">
+    <widget class="AnnotationTabWidget" name="tabWidget">
      <property name="currentIndex">
       <number>0</number>
      </property>
@@ -110,6 +127,9 @@
     </widget>
    </item>
    <item>
+    <widget class="AnnotationTableView" name="tableView"/>
+   </item>
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -124,6 +144,19 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>AnnotationTabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>annotationtabwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AnnotationTableView</class>
+   <extends>QTableView</extends>
+   <header>annotationtableview.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>tabWidget</tabstop>
  </tabstops>
