@@ -28,10 +28,10 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
+#include <QElapsedTimer>
 #include <QMutex>
 #include <QSet>
 #include <QThreadPool>
-#include <QTime>
 #include <QTimer>
 
 using namespace CppTools::Internal;
@@ -139,10 +139,10 @@ void StringTablePrivate::GC()
     QMutexLocker locker(&m_lock);
 
     int initialSize = 0;
-    QTime startTime;
+    QElapsedTimer timer;
     if (DebugStringTable) {
         initialSize = m_strings.size();
-        startTime = QTime::currentTime();
+        timer.start();
     }
 
     // Collect all QStrings which have refcount 1. (One reference in m_strings and nowhere else.)
@@ -159,7 +159,6 @@ void StringTablePrivate::GC()
     if (DebugStringTable) {
         const int currentSize = m_strings.size();
         qDebug() << "StringTable::GC removed" << initialSize - currentSize
-                 << "strings in" << startTime.msecsTo(QTime::currentTime())
-                 << "ms, size is now" << currentSize;
+                 << "strings in" << timer.elapsed() << "ms, size is now" << currentSize;
     }
 }
