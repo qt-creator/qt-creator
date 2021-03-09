@@ -118,6 +118,12 @@ DebuggerSettings::DebuggerSettings()
                                                  "instead of keeping the next statement centered at "
                                                  "all times."));
 
+    forceLoggingToConsole.setSettingsKey(debugModeGroup, "ForceLoggingToConsole");
+    forceLoggingToConsole.setLabelText(tr("Force logging to console"));
+    forceLoggingToConsole.setToolTip(tr("This sets QT_LOGGING_TO_CONSOLE=1 in the environment "
+        "of the debugged program, preventing storing debug output "
+        "in system logs."));
+
     fontSizeFollowsEditor.setSettingsKey(debugModeGroup, "FontSizeFollowsEditor");
     fontSizeFollowsEditor.setToolTip(tr("Changes the font size in the debugger views when"
                                         "the font size in the main editor changes."));
@@ -563,6 +569,7 @@ DebuggerSettings::DebuggerSettings()
     page1.registerAspect(&switchModeOnExit);
     page1.registerAspect(&showQmlObjectTree);
     page1.registerAspect(&stationaryEditorWhileStepping);
+    page1.registerAspect(&forceLoggingToConsole);
 
     page1.registerAspect(&sourcePathMap);
 

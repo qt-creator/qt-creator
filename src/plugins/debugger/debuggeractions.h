@@ -98,6 +98,7 @@ public:
     Utils::BoolAspect switchModeOnExit;
     Utils::BoolAspect showQmlObjectTree;
     Utils::BoolAspect stationaryEditorWhileStepping;
+    Utils::BoolAspect forceLoggingToConsole;
 
     SourcePathMapAspect sourcePathMap;
 

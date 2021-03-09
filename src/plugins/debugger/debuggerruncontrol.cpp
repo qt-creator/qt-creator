@@ -913,6 +913,9 @@ bool DebuggerRunTool::fixupParameters()
     if (rp.isNativeMixedDebugging())
         rp.inferior.environment.set("QV4_FORCE_INTERPRETER", "1");
 
+    if (debuggerSettings()->forceLoggingToConsole.value())
+        rp.inferior.environment.set("QT_LOGGING_TO_CONSOLE", "1");
+
     return true;
 }
 

@@ -72,6 +72,7 @@ public:
             s.switchModeOnExit,
             s.showQmlObjectTree,
             s.stationaryEditorWhileStepping,
+            s.forceLoggingToConsole,
             s.registerForPostMortem,
             Stretch()
         };
