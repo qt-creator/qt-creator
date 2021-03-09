@@ -152,11 +152,7 @@ WebEngineHelpViewer::WebEngineHelpViewer(QWidget *parent) :
     QTC_ASSERT(viewProfile, return);
     if (!viewProfile->urlSchemeHandler("qthelp"))
         viewProfile->installUrlSchemeHandler("qthelp", helpUrlSchemeHandler());
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
     viewProfile->setUrlRequestInterceptor(helpurlRequestInterceptor());
-#else
-    viewProfile->setRequestInterceptor(helpurlRequestInterceptor());
-#endif
 }
 
 void WebEngineHelpViewer::setViewerFont(const QFont &font)

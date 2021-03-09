@@ -209,13 +209,8 @@ void TimelineRenderer::wheelEvent(QWheelEvent *event)
 
         int degrees = (event->angleDelta().x() + event->angleDelta().y()) / 8;
         const qint64 circle = 360;
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-        qint64 mouseTime = event->pos().x() * zoom->windowDuration() / width() +
-                zoom->windowStart();
-#else
         qint64 mouseTime = event->position().toPoint().x() * zoom->windowDuration() / width() +
                 zoom->windowStart();
-#endif
         qint64 beforeMouse = (mouseTime - zoom->rangeStart()) * (circle - degrees) / circle;
         qint64 afterMouse = (zoom->rangeEnd() - mouseTime) * (circle - degrees) / circle;
 

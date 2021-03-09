@@ -64,11 +64,7 @@ bool GeometryUtilities::intersect(const QPolygonF &polygon, const QLineF &line,
     for (int i = 0; i <= polygon.size() - 2; ++i) {
         QLineF polygonLine(polygon.at(i), polygon.at(i+1));
         QPointF point;
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-        QLineF::IntersectType intersectionType = polygonLine.intersect(line, &point);
-#else
         QLineF::IntersectType intersectionType = polygonLine.intersects(line, &point);
-#endif
         if (intersectionType == QLineF::BoundedIntersection) {
             qreal dist = QLineF(point, nearestPoint <= 0 ? line.p1() : line.p2()).length();
             if (!found || dist < mindist) {
@@ -102,11 +98,7 @@ bool GeometryUtilities::intersect(const QList<QPolygonF> &polygons, const QLineF
         for (int i = 0; i <= polygon.size() - 2; ++i) {
             const QLineF polygonLine(polygon.at(i), polygon.at(i + 1));
             QPointF point;
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-            QLineF::IntersectType intersectionType = polygonLine.intersect(line, &point);
-#else
             QLineF::IntersectType intersectionType = polygonLine.intersects(line, &point);
-#endif
             if (intersectionType == QLineF::BoundedIntersection) {
                 qreal dist = QLineF(point, nearestPoint <= 0 ? line.p1() : line.p2()).length();
                 if (!found || dist < mindist) {

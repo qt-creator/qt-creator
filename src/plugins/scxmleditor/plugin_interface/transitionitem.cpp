@@ -306,19 +306,11 @@ void TransitionItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
                     QPointF intersPoint;
                     QLineF line2(p, p + QPointF(SELECTION_DISTANCE, SELECTION_DISTANCE));
                     line2.setAngle(line.angle() + 90);
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-                    if (line.intersect(line2, &intersPoint) == QLineF::BoundedIntersection)
-#else
-                    if (line.intersects(line2, &intersPoint) == QLineF::BoundedIntersection)
-#endif
+                    if (line.intersects(line2, &intersPoint) == QLineF::BoundedIntersection) {
                         sel = true;
-                    else {
+                    } else {
                         line2.setAngle(line.angle() - 90);
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-                        sel = line.intersect(line2, &intersPoint) == QLineF::BoundedIntersection;
-#else
                         sel = line.intersects(line2, &intersPoint) == QLineF::BoundedIntersection;
-#endif
                     }
 
                     if (sel)
@@ -805,11 +797,7 @@ QPointF TransitionItem::findIntersectionPoint(ConnectableItem *item, const QLine
         for (int i = 1; i < itemPolygon.count(); ++i) {
             p2 = itemPolygon.at(i) + item->scenePos();
             checkLine = QLineF(p1, p2);
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-            if (checkLine.intersect(line, &intersectPoint) == QLineF::BoundedIntersection)
-#else
             if (checkLine.intersects(line, &intersectPoint) == QLineF::BoundedIntersection)
-#endif
                 return intersectPoint;
             p1 = p2;
         }
@@ -1096,19 +1084,11 @@ bool TransitionItem::containsScenePoint(const QPointF &p) const
         QPointF intersPoint;
         QLineF line2(pp, pp + QPointF(SELECTION_DISTANCE, SELECTION_DISTANCE));
         line2.setAngle(line.angle() + 90);
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-        if (line.intersect(line2, &intersPoint) == QLineF::BoundedIntersection) {
-#else
         if (line.intersects(line2, &intersPoint) == QLineF::BoundedIntersection) {
-#endif
             return true;
         } else {
             line2.setAngle(line.angle() - 90);
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-            if (line.intersect(line2, &intersPoint) == QLineF::BoundedIntersection)
-#else
             if (line.intersects(line2, &intersPoint) == QLineF::BoundedIntersection)
-#endif
                 return true;
         }
     }

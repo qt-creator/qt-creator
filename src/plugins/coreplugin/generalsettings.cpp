@@ -94,9 +94,6 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
                 tr("Show keyboard shortcuts in context menus (default: %1)")
                 .arg(q->m_defaultShowShortcutsInContextMenu ? tr("on") : tr("off")));
     m_ui.showShortcutsInContextMenus->setChecked(GeneralSettings::showShortcutsInContextMenu());
-#if (QT_VERSION < QT_VERSION_CHECK(5, 13, 0))
-    m_ui.showShortcutsInContextMenus->setVisible(false);
-#endif
 
     if (Utils::HostOsInfo::isMacHost()) {
         m_ui.dpiCheckbox->setVisible(false);
@@ -250,9 +247,7 @@ void GeneralSettings::setShowShortcutsInContextMenu(bool show)
     ICore::settings()->setValueWithDefault(settingsKeyShortcutsInContextMenu,
                                            show,
                                            m_defaultShowShortcutsInContextMenu);
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
     QGuiApplication::styleHints()->setShowShortcutsInContextMenus(show);
-#endif
 }
 
 GeneralSettings::GeneralSettings()

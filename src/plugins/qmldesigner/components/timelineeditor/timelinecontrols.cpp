@@ -56,9 +56,7 @@ FloatControl::FloatControl()
     setValue(0.0);
     setButtonSymbols(QAbstractSpinBox::NoButtons);
     setFrame(false);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
     setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
-#endif
 
     setMinimum(std::numeric_limits<float>::lowest());
     setMaximum(std::numeric_limits<float>::max());

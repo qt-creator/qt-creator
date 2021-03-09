@@ -91,11 +91,7 @@ QWidget *ChangeStyleWidgetAction::createWidget(QWidget *parent)
     });
 
     connect(comboBox,
-        #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-            QOverload<const QString &>::of(&QComboBox::activated),
-        #else
             &QComboBox::textActivated,
-        #endif
             this,
             [this](const QString &style) {
 

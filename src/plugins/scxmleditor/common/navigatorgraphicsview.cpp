@@ -80,11 +80,7 @@ void NavigatorGraphicsView::wheelEvent(QWheelEvent *event)
         else
             emit zoomOut();
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-        emit moveMainViewTo(mapToScene(event->pos()));
-#else
         emit moveMainViewTo(mapToScene(event->position().toPoint()));
-#endif
     } else
         QGraphicsView::wheelEvent(event);
 }

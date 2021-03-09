@@ -35,6 +35,7 @@
 namespace Utils {
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+// Keep the support code for lower Qt versions for sdktool
 constexpr QString::SplitBehavior SkipEmptyParts = QString::SkipEmptyParts;
 #else
 constexpr Qt::SplitBehaviorFlags SkipEmptyParts = Qt::SkipEmptyParts;

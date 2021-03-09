@@ -352,13 +352,8 @@ void PropertiesView::MView::visitMElement(const MElement *element)
         m_stereotypeComboBox->addItems(m_propertiesView->stereotypeController()->knownStereotypes(m_stereotypeElement));
         connect(m_stereotypeComboBox->lineEdit(), &QLineEdit::textEdited,
                 this, &PropertiesView::MView::onStereotypesChanged);
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-        connect(m_stereotypeComboBox, QOverload<const QString &>::of(&QComboBox::activated),
-                this, &PropertiesView::MView::onStereotypesChanged);
-#else
         connect(m_stereotypeComboBox, &QComboBox::textActivated,
                 this, &PropertiesView::MView::onStereotypesChanged);
-#endif
     }
     if (!m_stereotypeComboBox->hasFocus()) {
         QList<QString> stereotypeList;

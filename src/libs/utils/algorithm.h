@@ -1283,37 +1283,21 @@ OutputIterator set_union(InputIterator1 first1,
 template <class T>
 QSet<T> toSet(const QList<T> &list)
 {
-#if (QT_VERSION < QT_VERSION_CHECK(5, 14, 0))
-    return list.toSet();
-#else
     return QSet<T>(list.begin(), list.end());
-#endif
 }
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 template<class T>
 QSet<T> toSet(const QVector<T> &vec)
 {
-#if (QT_VERSION < QT_VERSION_CHECK(5, 14, 0))
-    QSet<T> result;
-    for (const T &p : vec) {
-        result.insert(p);
-    }
-    return result;
-#else
     return QSet<T>(vec.begin(), vec.end());
-#endif
 }
 #endif
 
 template<class T>
 QList<T> toList(const QSet<T> &set)
 {
-#if (QT_VERSION < QT_VERSION_CHECK(5, 14, 0))
-    return set.toList();
-#else
     return QList<T>(set.begin(), set.end());
-#endif
 }
 
 template <class Key, class T>

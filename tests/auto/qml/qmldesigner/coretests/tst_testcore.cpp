@@ -4709,7 +4709,6 @@ void tst_TestCore::testImplicitComponents()
 
 void tst_TestCore::testRevisionedProperties()
 {
-#if QT_VERSION > QT_VERSION_CHECK(5, 11, 0)
     const char* qmlString
             =   "import QtQuick 2.12\n"
                 "import QtQuick.Controls 2.0\n"
@@ -4761,8 +4760,6 @@ void tst_TestCore::testRevisionedProperties()
 
     QVERIFY(metaInfo12.hasProperty("orientation"));
     QVERIFY(metaInfoU.hasProperty("orientation"));
-
-#endif
 }
 
 void tst_TestCore::testStatesRewriter()

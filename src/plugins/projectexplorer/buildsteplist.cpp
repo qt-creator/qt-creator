@@ -192,11 +192,7 @@ bool BuildStepList::removeStep(int position)
 
 void BuildStepList::moveStepUp(int position)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
     m_steps.swapItemsAt(position - 1, position);
-#else
-    m_steps.swap(position - 1, position);
-#endif
     emit stepMoved(position, position - 1);
 }
 

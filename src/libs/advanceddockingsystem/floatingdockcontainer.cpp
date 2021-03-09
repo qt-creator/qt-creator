@@ -878,13 +878,8 @@ bool FloatingDockContainer::event(QEvent *event)
         // is clicked.
         // It is really great to work around the whole NonClientMouseArea
         // bugs
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 2))
         if (event->type() == QEvent::NonClientAreaMouseButtonPress
                 /*&& QGuiApplication::mouseButtons().testFlag(Qt::LeftButton)*/)
-#else
-        if (event->type() == QEvent::NonClientAreaMouseButtonPress
-                && QGuiApplication::mouseButtons().testFlag(Qt::LeftButton))
-#endif
         {
             qCInfo(adsLog) << Q_FUNC_INFO << "QEvent::NonClientAreaMouseButtonPress"
                                           << event->type();

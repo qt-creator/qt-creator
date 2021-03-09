@@ -36,20 +36,6 @@
 
 #include <unordered_map>
 
-#if (QT_VERSION < QT_VERSION_CHECK(5, 14, 0))
-namespace std {
-template<> struct hash<QString>
-{
-    using argument_type = QString;
-    using result_type = size_t;
-    result_type operator()(const argument_type &v) const
-    {
-        return hash<string>()(v.toStdString());
-    }
-};
-} // namespace std
-#endif
-
 using ExtensionMap = std::unordered_map<QString, Core::JsExpander::ObjectFactory>;
 Q_GLOBAL_STATIC(ExtensionMap, globalJsExtensions);
 
