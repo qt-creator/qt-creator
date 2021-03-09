@@ -1485,6 +1485,13 @@ BaseQtVersion::createMacroExpander(const std::function<const BaseQtVersion *()> 
                                    return version->hostPrefixPath().toString();
                                }));
 
+    expander->registerVariable("Qt:QT_HOST_LIBEXECS",
+                               QtKitAspect::tr("The installation location of the current Qt "
+                                               "version's internal host executable files."),
+                               versionProperty([](const BaseQtVersion *version) {
+                                   return version->hostLibexecPath().toString();
+                               }));
+
     expander->registerVariable(
         "Qt:QT_INSTALL_HEADERS",
         QtKitAspect::tr("The installation location of the current Qt version's header files."),
@@ -1508,6 +1515,13 @@ BaseQtVersion::createMacroExpander(const std::function<const BaseQtVersion *()> 
         "Qt:QT_INSTALL_BINS",
         QtKitAspect::tr("The installation location of the current Qt version's executable files."),
         versionProperty([](const BaseQtVersion *version) { return version->binPath().toString(); }));
+
+    expander->registerVariable(
+        "Qt:QT_INSTALL_LIBEXECS",
+        QtKitAspect::tr(
+            "The installation location of the current Qt version's internal executable files."),
+        versionProperty(
+            [](const BaseQtVersion *version) { return version->libExecPath().toString(); }));
 
     expander
         ->registerVariable("Qt:QT_INSTALL_PLUGINS",
