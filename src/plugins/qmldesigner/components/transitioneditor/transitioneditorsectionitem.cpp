@@ -302,8 +302,8 @@ void TransitionEditorSectionItem::paint(QPainter *painter,
         painter->save();
 
         const QColor textColor = Theme::getColor(Theme::PanelTextColorLight);
-        const QColor penColor = Theme::instance()->qmlDesignerBackgroundColorDarker();
-        QColor brushColor = Theme::getColor(Theme::BackgroundColorDark);
+        const QColor penColor = Theme::getColor(Theme::BackgroundColorDark);
+        QColor brushColor = Theme::getColor(Theme::DScontrolBackground);
 
         int fillOffset = 0;
         if (isSelected()) {
@@ -320,7 +320,7 @@ void TransitionEditorSectionItem::paint(QPainter *painter,
                           0,
                           size().width() - TimelineConstants::sectionWidth,
                           size().height(),
-                          Theme::instance()->qmlDesignerBackgroundColorDarkAlternate());
+                          Theme::getColor(Theme::DScontrolBackground));
 
         painter->setPen(penColor);
         drawLine(painter,
