@@ -48,8 +48,8 @@
     \list
         \li \uicontrol {3D Editor} (1) is the working area where you create the
             scene, position the model, light and camera, as well as move, rotate
-            and scale items. For more information, see
-            \l {Working in 3D Editor}.
+            and scale items. For more information on how to edit 3D scenes, see
+            \l {3D Editor}.
         \li \uicontrol {Form Editor} (2) is where you see the scene projected by
             the camera.
         \li \uicontrol {Library} (3) displays the building blocks that you

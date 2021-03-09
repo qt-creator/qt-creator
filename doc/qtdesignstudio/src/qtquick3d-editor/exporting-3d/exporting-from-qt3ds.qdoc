@@ -232,8 +232,7 @@
         simply by changing the z position sign from positive to negative, or
         vice versa, in some cases.
 
-        For more information on how to edit a scene in \uicontrol {3D Editor},
-        see \l {Working in 3D Editor}.
+        See \l{3D Editor} for more information on how to edit 3D scenes.
         \image exporting-from-qt3ds/23-replace-objects.png "Replace objects in 3D Editor"
 
     \li Recreate animations in subpresentation_ADAS according to the original

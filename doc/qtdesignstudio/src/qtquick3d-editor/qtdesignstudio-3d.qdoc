@@ -35,7 +35,7 @@
 
     \title Editing 3D Scenes
 
-    You can use \uicontrol {3D Editor} in the Design mode to edit files you
+    You can use \l{3D Editor} in the Design mode to edit files you
     created using 3D graphics applications and stored in one of the supported
     formats. You cannot create 3D models or other assets in the editor, but you
     can \l{Importing 3D Assets}{import} the assets you need and work with them
@@ -68,10 +68,6 @@
             \QDS opens QML files that contain 3D scenes in the Design mode and
             the scenes in \uicontrol {3D Editor}. You can add imported 3D assets
             to projects as 3D components.
-        \li \l {Working in 3D Editor}
-
-            You can select 3D components in \uicontrol {3D Editor} to move,
-            rotate, and scale them in the scene projected by the camera.
         \li \l{Adding 3D Views}
 
             You can drag and drop 3D components from \uicontrol Library
