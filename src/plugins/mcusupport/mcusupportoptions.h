@@ -26,8 +26,10 @@
 #pragma once
 
 #include "mcusupportversiondetection.h"
+#include "mcusupport_global.h"
 
 #include <utils/id.h>
+#include <projectexplorer/kitinformation.h>
 
 #include <QObject>
 #include <QVector>
@@ -234,4 +236,24 @@ signals:
 };
 
 } // namespace Internal
+
+class MCUSUPPORTSHARED_EXPORT McuDependenciesKitAspect : public ProjectExplorer::KitAspect
+{
+    Q_OBJECT
+
+public:
+    McuDependenciesKitAspect();
+
+    ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const override;
+    void fix(ProjectExplorer::Kit *k) override;
+
+    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
+
+    ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
+
+    static Utils::Id id();
+    static Utils::NameValueItems dependencies(const ProjectExplorer::Kit *k);
+    static void setDependencies(ProjectExplorer::Kit *k, const Utils::NameValueItems &dependencies);
+};
+
 } // namespace McuSupport

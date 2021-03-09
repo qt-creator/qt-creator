@@ -59,6 +59,7 @@ public:
         {Constants::RUNCONFIGURATION}
     };
     McuSupportOptionsPage optionsPage;
+    McuDependenciesKitAspect environmentPathsKitAspect;
 };
 
 static McuSupportPluginPrivate *dd = nullptr;
