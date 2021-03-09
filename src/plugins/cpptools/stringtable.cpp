@@ -30,7 +30,6 @@
 
 #include <QDebug>
 #include <QElapsedTimer>
-#include <QFutureSynchronizer>
 #include <QMutex>
 #include <QSet>
 #include <QThreadPool>
@@ -50,34 +49,18 @@ class StringTablePrivate : public QObject
 {
 public:
     StringTablePrivate();
-    ~StringTablePrivate() override { m_futureSynchronizer.waitForFinished(); }
+    ~StringTablePrivate() override { cancelAndWait(); }
 
+    void cancelAndWait();
     QString insert(const QString &string);
-    void addFuture(const QFuture<void> &future);
-    void startGC() { addFuture(Utils::runAsync(&StringTablePrivate::GC, this)); }
-    void GC();
+    void startGC();
+    void GC(QFutureInterface<void> &futureInterface);
 
-    QFutureSynchronizer<void> m_futureSynchronizer;
-
-    mutable QMutex m_lock;
-    QAtomicInt m_stopGCRequested{false};
+    QFuture<void> m_future;
+    QMutex m_lock;
     QSet<QString> m_strings;
     QTimer m_gcCountDown;
 };
-
-void StringTablePrivate::addFuture(const QFuture<void> &future)
-{
-    m_futureSynchronizer.addFuture(future);
-    const QList<QFuture<void>> futures = m_futureSynchronizer.futures();
-    const int maxFuturesCount = 10;
-    if (futures.count() <= maxFuturesCount)
-        return;
-    m_futureSynchronizer.clearFutures();
-    for (const auto &future : futures) {
-        if (!future.isFinished())
-            m_futureSynchronizer.addFuture(future);
-    }
-}
 
 static StringTablePrivate *m_instance = nullptr;
 
@@ -96,6 +79,14 @@ QString StringTable::insert(const QString &string)
     return m_instance->insert(string);
 }
 
+void StringTablePrivate::cancelAndWait()
+{
+    if (!m_future.isRunning())
+        return;
+    m_future.cancel();
+    m_future.waitForFinished();
+}
+
 QString StringTablePrivate::insert(const QString &string)
 {
     if (string.isEmpty())
@@ -107,12 +98,21 @@ QString StringTablePrivate::insert(const QString &string)
 #endif
 #endif
 
-    m_stopGCRequested.fetchAndStoreAcquire(true);
-
     QMutexLocker locker(&m_lock);
-    QString result = *m_strings.insert(string);
-    m_stopGCRequested.fetchAndStoreRelease(false);
-    return result;
+    // From this point of time any possible new call to startGC() will be held until
+    // we finish this function. So we are sure that after canceling the running GC() method now,
+    // no new call to GC() will be executed until we finish this function.
+    cancelAndWait();
+    // A possibly running GC() thread already finished, so it's safe to modify m_strings from
+    // now until we unlock the mutex.
+    return *m_strings.insert(string);
+}
+
+void StringTablePrivate::startGC()
+{
+    QMutexLocker locker(&m_lock);
+    cancelAndWait();
+    m_future = Utils::runAsync(&StringTablePrivate::GC, this);
 }
 
 void StringTable::scheduleGC()
@@ -143,10 +143,8 @@ static inline bool isQStringInUse(const QString &string)
 #endif
 }
 
-void StringTablePrivate::GC()
+void StringTablePrivate::GC(QFutureInterface<void> &futureInterface)
 {
-    QMutexLocker locker(&m_lock);
-
     int initialSize = 0;
     QElapsedTimer timer;
     if (DebugStringTable) {
@@ -156,7 +154,7 @@ void StringTablePrivate::GC()
 
     // Collect all QStrings which have refcount 1. (One reference in m_strings and nowhere else.)
     for (QSet<QString>::iterator i = m_strings.begin(); i != m_strings.end();) {
-        if (m_stopGCRequested.testAndSetRelease(true, false))
+        if (futureInterface.isCanceled())
             return;
 
         if (!isQStringInUse(*i))
