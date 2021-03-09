@@ -394,7 +394,8 @@ void DebuggerRunTool::setUseTerminal(bool on)
             && debuggerSettings()->useCdbConsole.value();
 
     if (on && !d->terminalRunner && !useCdbConsole) {
-        d->terminalRunner = new TerminalRunner(runControl(), m_runParameters.inferior);
+        d->terminalRunner =
+            new TerminalRunner(runControl(), [this] { return m_runParameters.inferior; });
         d->terminalRunner->setRunAsRoot(m_runParameters.runAsRoot);
         addStartDependency(d->terminalRunner);
     }

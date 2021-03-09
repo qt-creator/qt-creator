@@ -168,12 +168,11 @@ void Terminal::onSlaveReaderActivated(int fd)
 #endif
 }
 
-TerminalRunner::TerminalRunner(RunControl *runControl, const Runnable &stubRunnable)
-    : RunWorker(runControl)
+TerminalRunner::TerminalRunner(RunControl *runControl,
+                               const std::function<Runnable()> &stubRunnable)
+    : RunWorker(runControl), m_stubRunnable(stubRunnable)
 {
     setId("TerminalRunner");
-
-    m_stubRunnable = stubRunnable;
 
     connect(&m_stubProc, &ConsoleProcess::processError,
             this, &TerminalRunner::stubError);
@@ -200,13 +199,16 @@ void TerminalRunner::setRunAsRoot(bool on)
 
 void TerminalRunner::start()
 {
+    QTC_ASSERT(m_stubRunnable, reportFailure({}); return);
+    Runnable stub = m_stubRunnable();
+
     if (m_runAsRoot) {
         m_stubProc.setRunAsRoot(true);
-        RunControl::provideAskPassEntry(m_stubRunnable.environment);
+        RunControl::provideAskPassEntry(stub.environment);
     }
 
-    m_stubProc.setEnvironment(m_stubRunnable.environment);
-    m_stubProc.setWorkingDirectory(m_stubRunnable.workingDirectory);
+    m_stubProc.setEnvironment(stub.environment);
+    m_stubProc.setWorkingDirectory(stub.workingDirectory);
 
     if (HostOsInfo::isWindowsHost()) {
         m_stubProc.setMode(ConsoleProcess::Suspend);
@@ -216,7 +218,7 @@ void TerminalRunner::start()
     }
 
     // Error message for user is delivered via a signal.
-    m_stubProc.setCommand(m_stubRunnable.commandLine());
+    m_stubProc.setCommand(stub.commandLine());
     m_stubProc.start();
 }
 

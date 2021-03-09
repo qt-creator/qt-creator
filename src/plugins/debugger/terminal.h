@@ -72,7 +72,7 @@ class TerminalRunner : public ProjectExplorer::RunWorker
 {
 public:
     TerminalRunner(ProjectExplorer::RunControl *runControl,
-                   const ProjectExplorer::Runnable &stubRunnable);
+                   const std::function<ProjectExplorer::Runnable()> &stubRunnable);
 
     qint64 applicationPid() const { return m_applicationPid; }
     qint64 applicationMainThreadId() const { return m_applicationMainThreadId; }
@@ -89,7 +89,7 @@ private:
     void stubError(const QString &msg);
 
     Utils::ConsoleProcess m_stubProc;
-    ProjectExplorer::Runnable m_stubRunnable;
+    std::function<ProjectExplorer::Runnable()> m_stubRunnable;
     qint64 m_applicationPid = 0;
     qint64 m_applicationMainThreadId = 0;
     bool m_runAsRoot = false;
