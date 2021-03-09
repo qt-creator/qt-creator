@@ -44,6 +44,7 @@ Editing
 * Added type aliases to `C++ Classes, Enums and Functions` locator filter
   (QTCREATORBUG-5800)
 * Added parentheses highlighting for ternary operator (QTCREATORBUG-1410)
+* Improved type name minimization for `Add definition` (QTCREATORBUG-8030)
 * Fixed type hierarchy with templates classes and typedefs
 * Fixed that `-include` compile option was ignored by code model
   (QTCREATORBUG-20602)
@@ -73,12 +74,14 @@ Editing
 * Added support for inline components (QTCREATORBUG-24766, QTCREATORBUG-24705)
 * Fixed issues with multiple import paths (QTCREATORBUG-24405)
 * Fixed reformatting of arrow functions (QTCREATORBUG-25198)
+* Fixed reformatting of JavaScript spread operator (QTCREATORBUG-23402)
 
 ### Language Client
 
 * Added support for new formatting options in LSP 3.15.0
 * Added support for versioned diagnostics
 * Added support for server progress messages
+* Improved Java language server support
 
 ### Java
 
@@ -89,6 +92,8 @@ Projects
 --------
 
 * Added `Open Terminal Here` for project nodes (QTCREATORBUG-25107)
+* Added option for running application as root user (QTCREATORBUG-2831,
+  QTCREATORBUG-25330)
 
 ### qmake
 
@@ -101,6 +106,11 @@ Projects
 * Added filesystem node to project tree (QTCREATORBUG-24677)
 * Added `install/strip` and `package` targets (QTCREATORBUG-22047,
   QTCREATORBUG-22620)
+* Added automatic run of conan install on initial CMake call
+  (QTCREATORBUG-25362)
+* Added batch editing for CMake configuration
+* Made it possible to copy CMake variables from configuration
+  (QTCREATORBUG-24781)
 * Removed utility targets from CMake target locator filters (QTCREATORBUG-24718)
 * Fixed that configuration changes were lost when CMake configuration fails
   (QTCREATORBUG-24593)
@@ -136,6 +146,10 @@ Debugging
 * Added option to copy selected items from stack view (QTCREATORBUG-24701)
 * Added visualization of hit breakpoint in `Breakpoints` view
   (QTCREATORBUG-6999)
+* Fixed type display for automatically dereferenced pointers
+  (QTCREATORBUG-20907)
+* Fixed that debugging repeatedly stopped with `SIGSTOP` (QTCREATORBUG-25073,
+  QTCREATORBUG-25082, QTCREATORBUG-25227)
 
 ### QML
 
@@ -184,6 +198,7 @@ Platforms
 ### Remote Linux
 
 * Fixed issues with remote process PID parsing (QTCREATORBUG-25306)
+* Fixed issues with `rsync` on Windows (QTCREATORBUG-25333)
 
 ### MCU
 
