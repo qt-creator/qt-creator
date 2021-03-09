@@ -132,6 +132,8 @@ RichTextEditor::RichTextEditor(QWidget *parent)
             this, &RichTextEditor::currentCharFormatChanged);
     connect(ui->textEdit, &QTextEdit::cursorPositionChanged,
             this, &RichTextEditor::cursorPositionChanged);
+    connect(ui->textEdit, &QTextEdit::textChanged,
+            this, &RichTextEditor::onTextChanged);
     connect(m_linkDialog, &QDialog::accepted, [this]() {
         QTextCharFormat oldFormat = ui->textEdit->textCursor().charFormat();
 
@@ -221,6 +223,10 @@ void RichTextEditor::cursorPositionChanged()
     alignmentChanged(ui->textEdit->alignment());
     styleChanged(ui->textEdit->textCursor());
     tableChanged(ui->textEdit->textCursor());
+}
+
+void RichTextEditor::onTextChanged() {
+    emit textChanged(richText());
 }
 
 void RichTextEditor::mergeFormatOnWordOrSelection(const QTextCharFormat &format)

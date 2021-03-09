@@ -49,6 +49,7 @@ class SmallStringView
 {
 public:
     using const_iterator = Internal::SmallStringIterator<std::random_access_iterator_tag, const char>;
+    using iterator = Internal::SmallStringIterator<std::random_access_iterator_tag, char>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     using size_type = std::size_t;
 
@@ -62,14 +63,22 @@ public:
     constexpr SmallStringView(const char *const string, const size_type size) noexcept
         : m_pointer(string)
         , m_size(size)
-    {
-    }
+    {}
 
-    constexpr SmallStringView(const const_iterator begin, const const_iterator end) noexcept
+    constexpr SmallStringView(const char *const begin, const char *const end) noexcept
+        : m_pointer(begin)
+        , m_size(static_cast<std::size_t>(std::distance(begin, end)))
+    {}
+
+    constexpr SmallStringView(const_iterator begin, const_iterator end) noexcept
         : m_pointer(begin.data())
         , m_size(std::size_t(end - begin))
-    {
-    }
+    {}
+
+    constexpr SmallStringView(iterator begin, iterator end) noexcept
+        : m_pointer(begin.data())
+        , m_size(std::size_t(end - begin))
+    {}
 
     template<typename String, typename Utils::enable_if_has_char_data_pointer<String> = 0>
     constexpr SmallStringView(const String &string) noexcept

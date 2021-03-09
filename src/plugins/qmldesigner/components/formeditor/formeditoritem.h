@@ -128,8 +128,10 @@ protected:
     QList<FormEditorItem*> offspringFormEditorItemsRecursive(const FormEditorItem *formEditorItem) const;
     FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* scene);
     QTransform viewportTransform() const;
-    qreal getFontSize(QPainter *painter) const;
-    qreal getScaleFactor() const;
+
+    qreal getItemScaleFactor() const;
+    qreal getLineScaleFactor() const;
+    qreal getTextScaleFactor() const;
 
     QRectF m_boundingRect;
     QRectF m_paintedBoundingRect;
@@ -161,6 +163,7 @@ public:
     void setDataModelPositionInBaseState(const QPointF &position) override;
     void updateGeometry() override;
     QPointF instancePosition() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
 protected:
     FormEditorFlowItem(const QmlItemNode &qmlItemNode, FormEditorScene *scene)

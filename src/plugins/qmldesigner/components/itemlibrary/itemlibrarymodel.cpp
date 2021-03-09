@@ -163,7 +163,7 @@ void ItemLibraryModel::setSearchText(const QString &searchText)
         m_searchText = lowerSearchText;
 
         bool changed = false;
-        updateVisibility(&changed);
+        updateVisibility(&changed, !m_searchText.isEmpty());
     }
 }
 
@@ -374,18 +374,18 @@ void ItemLibraryModel::updateUsedImports(const QList<Import> &usedImports)
     }
 }
 
-void ItemLibraryModel::updateVisibility(bool *changed)
+void ItemLibraryModel::updateVisibility(bool *changed, bool expand)
 {
     for (ItemLibraryImport *import : std::as_const(m_importList)) {
         bool categoryChanged = false;
-        bool hasVisibleItems = import->updateCategoryVisibility(m_searchText, &categoryChanged);
+        bool hasVisibleItems = import->updateCategoryVisibility(m_searchText, &categoryChanged, expand);
         *changed |= categoryChanged;
 
         if (import->sectionType() == ItemLibraryImport::SectionType::Unimported)
             *changed |= import->setVisible(!m_searchText.isEmpty());
 
         // expand import if it has an item matching search criteria
-        if (hasVisibleItems && !import->importExpanded())
+        if (expand && hasVisibleItems && !import->importExpanded())
             import->setImportExpanded();
     }
 

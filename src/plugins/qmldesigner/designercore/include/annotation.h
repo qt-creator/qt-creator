@@ -94,7 +94,7 @@ public:
     static bool sameContent(const Comment &a, const Comment &b);
     bool operator==(const Comment &comment) const; //everything is similar.
 
-    bool isEmpty();
+    bool isEmpty() const;
 
     QString toQString() const;
 

@@ -36,6 +36,7 @@
 
 #include "nodemetainfo.h"
 #include "qmlitemnode.h"
+#include "richtexteditordialog.h"
 #include <qmldesignerplugin.h>
 
 #include <abstractaction.h>
@@ -207,13 +208,22 @@ void TextTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList)
     }
     if (!itemList.isEmpty()) {
         FormEditorItem *formEditorItem = itemList.constFirst();
-        m_textItem = new TextEditItem(scene());
-        textItem()->setParentItem(scene()->manipulatorLayerItem());
-        textItem()->setFormEditorItem(formEditorItem);
-        connect(textItem(), &TextEditItem::returnPressed, [this] {
-            textItem()->writeTextToProperty();
+        auto text = formEditorItem->qmlItemNode().instanceValue("text").toString();
+        auto format = formEditorItem->qmlItemNode().instanceValue("format").value<int>();
+        if (format == Qt::RichText || Qt::mightBeRichText(text)) {
+            RichTextEditorDialog* editorDialog = new RichTextEditorDialog(text);
+            editorDialog->setFormEditorItem(formEditorItem);
+            editorDialog->show();
             view()->changeToSelectionTool();
-        });
+        } else {
+            m_textItem = new TextEditItem(scene());
+            textItem()->setParentItem(scene()->manipulatorLayerItem());
+            textItem()->setFormEditorItem(formEditorItem);
+            connect(textItem(), &TextEditItem::returnPressed, [this] {
+                textItem()->writeTextToProperty();
+                view()->changeToSelectionTool();
+            });
+        }
     } else {
         view()->changeToSelectionTool();
     }

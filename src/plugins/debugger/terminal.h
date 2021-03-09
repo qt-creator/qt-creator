@@ -77,6 +77,7 @@ public:
     qint64 applicationPid() const { return m_applicationPid; }
     qint64 applicationMainThreadId() const { return m_applicationMainThreadId; }
 
+    void kickoffProcess();
     void interruptProcess();
     void setRunAsRoot(bool on);
 

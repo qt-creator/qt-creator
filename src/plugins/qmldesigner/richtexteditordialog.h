@@ -23,52 +23,34 @@
 **
 ****************************************************************************/
 
-#pragma once
+#ifndef RICHTEXTEDITORDIALOG_H
+#define RICHTEXTEDITORDIALOG_H
 
-#include "itemlibraryitemsmodel.h"
+#include <QDialog>
+#include "richtexteditor/richtexteditor.h"
+#include "formeditor/formeditoritem.h"
 
 namespace QmlDesigner {
 
-class ItemLibraryItem;
 
-class ItemLibraryCategory : public QObject
-{
+class RichTextEditorDialog : public QDialog {
     Q_OBJECT
-
-    Q_PROPERTY(QString categoryName READ categoryName FINAL)
-    Q_PROPERTY(bool categoryVisible READ isVisible NOTIFY visibilityChanged FINAL)
-    Q_PROPERTY(bool categoryExpanded READ categoryExpanded WRITE setExpanded NOTIFY expandedChanged FINAL)
-    Q_PROPERTY(QObject *itemModel READ itemModel NOTIFY itemModelChanged FINAL)
-
 public:
-    ItemLibraryCategory(const QString &groupName, QObject *parent = nullptr);
-
-    QString categoryName() const;
-    bool categoryExpanded() const;
-    QString sortingName() const;
-
-    void addItem(ItemLibraryItem *item);
-    QObject *itemModel();
-
-    bool updateItemVisibility(const QString &searchText, bool *changed, bool expand = false);
-
-    bool setVisible(bool isVisible);
-    bool isVisible() const;
-
-    void sortItems();
-
-    void setExpanded(bool expanded);
+    explicit RichTextEditorDialog(const QString text);
+    void setFormEditorItem(FormEditorItem* formEditorItem);
 
 signals:
-    void itemModelChanged();
-    void visibilityChanged();
-    void expandedChanged();
-
+    void textChanged(QString text);
 private:
-    ItemLibraryItemsModel m_itemModel;
-    QString m_name;
-    bool m_categoryExpanded = true;
-    bool m_isVisible = true;
+    RichTextEditor* m_editor;
+    FormEditorItem* m_formEditorItem;
+
+private slots:
+    void onTextChanged(QString text);
+    void onFinished();
+    void setTextToFormEditorItem(QString text);
 };
 
 } // namespace QmlDesigner
+
+#endif // RICHTEXTEDITORDIALOG_H

@@ -57,6 +57,7 @@ extern char **environ;
 static int qtcFd;
 static char *sleepMsg;
 static int chldPipe[2];
+static int blockingPipe[2];
 static int isDebug;
 static volatile int isDetached;
 static volatile int chldPid;
@@ -236,10 +237,21 @@ int main(int argc, char *argv[])
         perror("Cannot create status pipe");
         doExit(3);
     }
+
     /* The debugged program is not supposed to inherit these handles. But we cannot
      * close the writing end before calling exec(). Just handle both ends the same way ... */
     fcntl(chldPipe[0], F_SETFD, FD_CLOEXEC);
     fcntl(chldPipe[1], F_SETFD, FD_CLOEXEC);
+
+    if (isDebug) {
+        /* Create execution start notification pipe. The child waits on this until
+           the parent writes to it, triggered by an 'c' message from Creator */
+        if (pipe(blockingPipe)) {
+            perror("Cannot create blocking pipe");
+            doExit(3);
+        }
+    }
+
     switch ((chldPid = fork())) {
         case -1:
             perror("Cannot fork child process");
@@ -262,9 +274,15 @@ int main(int argc, char *argv[])
 #ifdef __linux__
             prctl(PR_SET_PTRACER, atoi(argv[ArgPid]));
 #endif
-            /* Stop the child to allow the debugger to attach */
-            if (isDebug)
-                kill(chldPid, SIGSTOP);
+            /* Block to allow the debugger to attach */
+            if (isDebug) {
+                char buf;
+                int res = read(blockingPipe[0], &buf, 1);
+                if (res < 0)
+                    perror("Could not read from blocking pipe");
+                close(blockingPipe[0]);
+                close(blockingPipe[1]);
+            }
 
             if (env)
                 environ = env;
@@ -296,6 +314,7 @@ int main(int argc, char *argv[])
                     break;
                 } else {
                     int i;
+                    char c = 'i';
                     for (i = 0; i < nbytes; ++i) {
                         switch (buffer[i]) {
                         case 'k':
@@ -305,13 +324,12 @@ int main(int argc, char *argv[])
                                 kill(chldPid, SIGKILL);
                             }
                             break;
-                        case 'i':
-                            if (chldPid > 0) {
-                                int res = kill(chldPid, SIGINT);
-                                if (res)
-                                    perror("Stub could not interrupt inferior");
-                            }
+                        case 'c': {
+                            int res = write(blockingPipe[1], &c, 1);
+                            if (res < 0)
+                                perror("Could not write to blocking pipe");
                             break;
+                        }
                         case 'd':
                             isDetached = 1;
                             break;

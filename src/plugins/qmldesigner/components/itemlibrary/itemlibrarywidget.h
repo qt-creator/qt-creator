@@ -91,6 +91,11 @@ public:
     Q_INVOKABLE void startDragAndDrop(const QVariant &itemLibEntry, const QPointF &mousePos);
     Q_INVOKABLE void removeImport(const QString &importUrl);
     Q_INVOKABLE void addImportForItem(const QVariant &entry);
+    Q_INVOKABLE void handleTabChanged(int index);
+    Q_INVOKABLE void handleAddModule();
+    Q_INVOKABLE void handleAddAsset();
+    Q_INVOKABLE void handleSearchfilterChanged(const QString &filterText);
+    Q_INVOKABLE void handleAddImport(int index);
 
 signals:
     void itemActivated(const QString& itemName);
@@ -130,13 +135,6 @@ private:
     bool m_updateRetry = false;
     QString m_filterText;
     QPoint m_dragStartPoint;
-
-private slots:
-    void handleTabChanged(int index);
-    void handleFilterChanged(const QString &filterText);
-    void handleAddModule();
-    void handleAddAsset();
-    void handleAddImport(int index);
 };
 
-}
+} // namespace QmlDesigner

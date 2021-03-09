@@ -149,6 +149,8 @@ public:
 
     void notifyPropertiesRemoved(const QList<PropertyPair> &propertyList);
     void notifyPropertiesAboutToBeRemoved(const QList<InternalPropertyPointer> &internalPropertyList);
+    void notifyBindingPropertiesAboutToBeChanged(
+        const QList<InternalBindingPropertyPointer> &internalPropertyList);
     void notifyBindingPropertiesChanged(const QList<InternalBindingPropertyPointer> &internalPropertyList, AbstractView::PropertyChangeFlags propertyChange);
     void notifySignalHandlerPropertiesChanged(const QVector<InternalSignalHandlerPropertyPointer> &propertyList, AbstractView::PropertyChangeFlags propertyChange);
     void notifyVariantPropertiesChanged(const InternalNodePointer &node, const PropertyNameList &propertyNameList, AbstractView::PropertyChangeFlags propertyChange);

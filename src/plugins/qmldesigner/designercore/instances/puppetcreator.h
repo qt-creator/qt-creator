@@ -103,6 +103,7 @@ protected:
 
     bool useOnlyFallbackPuppet() const;
     QString getStyleConfigFileName() const;
+    bool usesVirtualKeyboard() const;
 
 private:
     mutable QString m_compileLog;

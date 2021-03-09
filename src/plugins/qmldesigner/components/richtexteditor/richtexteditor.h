@@ -69,11 +69,12 @@ public:
 
 signals:
     void insertingImage(QString &filePath);
+    void textChanged(QString text);
 
 private slots:
     void currentCharFormatChanged(const QTextCharFormat &format);
     void cursorPositionChanged();
-
+    void onTextChanged();
 private:
     QIcon getIcon(Theme::Icon icon);
     void mergeFormatOnWordOrSelection(const QTextCharFormat &format);

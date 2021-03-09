@@ -133,7 +133,7 @@ bool Comment::operator==(const Comment &comment) const
     return (sameContent(comment) && (m_timestamp == comment.timestamp()));
 }
 
-bool Comment::isEmpty()
+bool Comment::isEmpty() const
 {
     return sameContent(Comment());
 }
