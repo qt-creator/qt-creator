@@ -39,6 +39,7 @@
 #include <android/androidconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/reaper.h>
 #include <cpptools/cppprojectupdater.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/generatedcodemodelsupport.h>
@@ -59,6 +60,7 @@
 #include <utils/macroexpander.h>
 #include <utils/mimetypes/mimetype.h>
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 
 #include <QClipboard>
 #include <QDir>
@@ -207,6 +209,7 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
 
 CMakeBuildSystem::~CMakeBuildSystem()
 {
+    m_futureSynchronizer.waitForFinished();
     if (!m_treeScanner.isFinished()) {
         auto future = m_treeScanner.future();
         future.cancel();
@@ -576,7 +579,7 @@ void CMakeBuildSystem::combineScanAndParse()
 
     emitBuildSystemUpdated();
 
-    QTimer::singleShot(0, this, &CMakeBuildSystem::runCTest);
+    runCTest();
 }
 
 void CMakeBuildSystem::checkAndReportError(QString &errorMessage)
@@ -921,42 +924,62 @@ void CMakeBuildSystem::runCTest()
     }
     qCDebug(cmakeBuildSystemLog) << "Requesting ctest run after cmake run";
 
-    BuildDirParameters parameters(cmakeBuildConfiguration());
+    const BuildDirParameters parameters(cmakeBuildConfiguration());
     QTC_ASSERT(parameters.isValid(), return);
 
-    FilePath workingDirectory = workDirectory(parameters);
-    CommandLine cmd{m_ctestPath, {"-N", "--show-only=json-v1"}};
-    SynchronousProcess ctest;
-    ctest.setTimeoutS(1);
-    ctest.setEnvironment(cmakeBuildConfiguration()->environment().toStringList());
-    ctest.setWorkingDirectory(workingDirectory.toString());
+    const CommandLine cmd { m_ctestPath, { "-N", "--show-only=json-v1" } };
+    const QString workingDirectory = workDirectory(parameters).toString();
+    const QStringList environment = cmakeBuildConfiguration()->environment().toStringList();
 
-    const SynchronousProcessResponse response = ctest.run(cmd);
-    if (response.result == SynchronousProcessResponse::Finished) {
-        const QJsonDocument json = QJsonDocument::fromJson(response.allRawOutput());
-        if (!json.isEmpty() && json.isObject()) {
-            const QJsonObject jsonObj = json.object();
-            const QJsonObject btGraph = jsonObj.value("backtraceGraph").toObject();
-            const QJsonArray cmakelists = btGraph.value("files").toArray();
-            const QJsonArray nodes = btGraph.value("nodes").toArray();
-            const QJsonArray tests = jsonObj.value("tests").toArray();
-            for (const QJsonValue &testVal : tests) {
-                const QJsonObject test = testVal.toObject();
-                QTC_ASSERT(!test.isEmpty(), continue);
-                const int bt = test.value("backtrace").toInt(-1);
-                QTC_ASSERT(bt != -1, continue);
-                const QJsonObject btRef = nodes.at(bt).toObject();
-                int file = btRef.value("file").toInt(-1);
-                int line = btRef.value("line").toInt(-1);
-                QTC_ASSERT(file != -1 && line != -1, continue);
-                m_testNames.append({test.value("name").toString(),
-                                    FilePath::fromString(cmakelists.at(file).toString()),
-                                    line
-                                   });
+    auto future = Utils::runAsync([cmd, workingDirectory, environment]
+                                  (QFutureInterface<QByteArray> &futureInterface) {
+        QProcess process;
+        process.setEnvironment(environment);
+        process.setWorkingDirectory(workingDirectory);
+        process.start(cmd.executable().toString(), cmd.splitArguments(), QIODevice::ReadOnly);
+
+        if (!process.waitForStarted(1000) || !process.waitForFinished(1000)) {
+            if (process.state() == QProcess::NotRunning)
+                return;
+            process.terminate();
+            if (process.waitForFinished(1000))
+                return;
+            process.kill();
+            process.waitForFinished(1000);
+            return;
+        }
+        if (process.exitCode() || process.exitStatus() != QProcess::NormalExit)
+            return;
+        futureInterface.reportResult(process.readAllStandardOutput());
+    });
+
+    Utils::onFinished(future, this, [this](const QFuture<QByteArray> &future) {
+        if (future.resultCount()) {
+            const QJsonDocument json = QJsonDocument::fromJson(future.result());
+            if (!json.isEmpty() && json.isObject()) {
+                const QJsonObject jsonObj = json.object();
+                const QJsonObject btGraph = jsonObj.value("backtraceGraph").toObject();
+                const QJsonArray cmakelists = btGraph.value("files").toArray();
+                const QJsonArray nodes = btGraph.value("nodes").toArray();
+                const QJsonArray tests = jsonObj.value("tests").toArray();
+                for (const QJsonValue &testVal : tests) {
+                    const QJsonObject test = testVal.toObject();
+                    QTC_ASSERT(!test.isEmpty(), continue);
+                    const int bt = test.value("backtrace").toInt(-1);
+                    QTC_ASSERT(bt != -1, continue);
+                    const QJsonObject btRef = nodes.at(bt).toObject();
+                    int file = btRef.value("file").toInt(-1);
+                    int line = btRef.value("line").toInt(-1);
+                    QTC_ASSERT(file != -1 && line != -1, continue);
+                    m_testNames.append({ test.value("name").toString(),
+                                         FilePath::fromString(cmakelists.at(file).toString()), line });
+                }
             }
         }
-    }
-    emit testInformationUpdated();
+        emit testInformationUpdated();
+    });
+
+    m_futureSynchronizer.addFuture(future);
 }
 
 CMakeBuildConfiguration *CMakeBuildSystem::cmakeBuildConfiguration() const

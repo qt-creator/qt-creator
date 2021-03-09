@@ -47,6 +47,7 @@
 #include <QStyleOptionGraphicsItem>
 #include <QTimeLine>
 #include <QGraphicsView>
+#include <QtMath>
 
 #include <cmath>
 
@@ -57,8 +58,8 @@ const int blockRadius = 18;
 const int blockAdjust = 40;
 const int startItemOffset = 96;
 
-const qreal fontSize = 10; // points
-const qreal zoomLevelLabel = 0.5; // Everything lower than that will hide all labels
+const qreal labelFontSize = 10;
+const qreal labelShowThreshold = 0.25; // Everything lower than that will hide all labels
 const qreal defaultDpi = 96.0;
 
 void drawIcon(QPainter *painter,
@@ -627,11 +628,67 @@ void FormEditorFlowItem::updateGeometry()
     }
 }
 
+void FormEditorFlowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    FormEditorItem::paint(painter, option, widget);
+
+    if (!painter->isActive())
+        return;
+
+    if (!qmlItemNode().isValid())
+        return;
+
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing);
+
+    QPen pen;
+    pen.setJoinStyle(Qt::MiterJoin);
+
+    QColor flowColor(0xe71919);
+
+    if (qmlItemNode().rootModelNode().hasAuxiliaryData("areaColor"))
+        flowColor = qmlItemNode().rootModelNode().auxiliaryData("areaColor").value<QColor>();
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("color"))
+        flowColor = qmlItemNode().modelNode().auxiliaryData("color").value<QColor>();
+
+    pen.setColor(flowColor);
+
+    qreal width = 2;
+
+//    if (qmlItemNode().modelNode().hasAuxiliaryData("width"))
+//        width = qmlItemNode().modelNode().auxiliaryData("width").toInt();
+
+    width *= getLineScaleFactor();
+
+    pen.setWidthF(width);
+
+
+    bool dash = false;
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("dash"))
+        dash = qmlItemNode().modelNode().auxiliaryData("dash").toBool();
+
+    if (dash)
+        pen.setStyle(Qt::DashLine);
+    else
+        pen.setStyle(Qt::SolidLine);
+
+    pen.setCosmetic(false);
+    painter->setPen(pen);
+
+    QColor fillColor = QColor(Qt::transparent);
+    painter->setBrush(fillColor);
+
+    painter->drawRoundedRect(boundingRect(), blockRadius, blockRadius);
+
+    painter->restore();
+}
+
 QPointF FormEditorFlowItem::instancePosition() const
 {
     return qmlItemNode().flowPosition();
 }
-
 
 void FormEditorFlowActionItem::setDataModelPosition(const QPointF &position)
 {
@@ -691,7 +748,6 @@ void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     QPen pen;
     pen.setJoinStyle(Qt::MiterJoin);
-    pen.setCosmetic(true);
 
     QColor flowColor(0xe71919);
 
@@ -706,8 +762,9 @@ void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphi
     if (qmlItemNode().modelNode().hasAuxiliaryData("width"))
         width = qmlItemNode().modelNode().auxiliaryData("width").toInt();
 
-    bool dash = false;
+    width *= getLineScaleFactor();
 
+    bool dash = false;
 
     if (qmlItemNode().modelNode().hasAuxiliaryData("dash"))
         dash = qmlItemNode().modelNode().auxiliaryData("dash").toBool();
@@ -719,7 +776,7 @@ void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphi
         pen.setStyle(Qt::SolidLine);
 
     pen.setWidthF(width);
-    pen.setCosmetic(true);
+    pen.setCosmetic(false);
     painter->setPen(pen);
 
     QColor fillColor = QColor(Qt::transparent);
@@ -867,10 +924,8 @@ class ConnectionConfiguration
 public:
     ConnectionConfiguration(const QmlItemNode &node,
                             const ResolveConnection &resolveConnection,
-                            const qreal scaleFactor,
                             bool hitTest = false)
         : width(2)
-        , adjustedWidth(width / scaleFactor)
         , color(QColor(0xe71919))
         , lineBrush(QBrush(color))
         , penStyle(Qt::SolidLine)
@@ -883,9 +938,10 @@ public:
         , breakOffset(50)
         , radius(8)
         , bezier(50)
+        , fontSize(labelFontSize)
         , type(ConnectionType::Default)
         , label()
-        , labelOffset(14 / scaleFactor)
+        , labelOffset(14)
         , labelPosition(50.0)
         , labelFlags(Qt::AlignHCenter | Qt::AlignVCenter | Qt::TextDontClip)
         , labelFlipSide(false)
@@ -895,12 +951,12 @@ public:
     {
         // width
         if (node.modelNode().hasAuxiliaryData("width"))
-            width = node.modelNode().auxiliaryData("width").toInt();
+            width = node.modelNode().auxiliaryData("width").toFloat();
         // adjusted width
         if (node.modelNode().isSelected())
             width += 2;
         if (hitTest)
-            width = width * 8 / scaleFactor;
+            width = width * 8;
         // color
         if (resolveConnection.isStartLine)
             color = QColor("blue");
@@ -966,7 +1022,6 @@ public:
     }
 
     qreal width;
-    qreal adjustedWidth;
     QColor color; // TODO private/setter
     QBrush lineBrush;
     Qt::PenStyle penStyle;
@@ -980,6 +1035,7 @@ public:
     int breakOffset;
     int radius;
     int bezier;
+    qreal fontSize;
     ConnectionType type;
     QString label;
     qreal labelOffset;
@@ -1285,7 +1341,7 @@ public:
         const bool boolExitRight = fromRect.right() < toRect.center().x();
         const bool boolExitBottom = fromRect.bottom() < toRect.center().y();
 
-        const qreal padding = 8;
+        const int padding = 4 * config.width;
 
         if (horizontalFirst) {
             const qreal startX = boolExitRight ? fromRect.right() + padding : fromRect.x() - padding;
@@ -1405,7 +1461,7 @@ void FormEditorTransitionItem::updateGeometry()
     QPixmap pixmap(640, 480);
     QPainter localPainter(&pixmap);
     QFont font = localPainter.font();
-    font.setPointSizeF(getFontSize(&localPainter) / getScaleFactor());
+    font.setPixelSize(labelFontSize * getTextScaleFactor());
     localPainter.setFont(font);
 
     const auto fromNodes = resolved.from;
@@ -1481,7 +1537,7 @@ void FormEditorTransitionItem::drawSingleLabel(QPainter *painter, const Connecti
     QPointF position;
     qreal angle;
 
-    const qreal hMargin = 10.0 / getScaleFactor();
+    const qreal hMargin = 10.0 * getItemScaleFactor();
     QFontMetrics metric(painter->font());
 
     const qreal lineHeight = metric.boundingRect("Xyz").height();
@@ -1506,7 +1562,7 @@ void FormEditorTransitionItem::drawSingleLabel(QPainter *painter, const Connecti
     labelRect.adjust(-hMargin, 0.0, hMargin, 0.0);
 
     if (singleEvent && singleSignal)
-        labelRect.setHeight(eventRect.height() + signalRect.height() + (6.0 / getScaleFactor()));
+        labelRect.setHeight(eventRect.height() + signalRect.height() + (6.0 * getTextScaleFactor()));
 
     const qreal halfHeight = labelRect.height() * 0.5;
 
@@ -1526,7 +1582,7 @@ void FormEditorTransitionItem::drawSingleLabel(QPainter *painter, const Connecti
 
         // Calculate font bounding box without taking into account the cale factor
         QFont originalFont = painter->font();
-        originalFont.setPointSizeF(getFontSize(painter));
+        originalFont.setPixelSize(labelFontSize * getTextScaleFactor());
         QFontMetrics originalMetric(originalFont);
         QRectF originalTextRect = originalMetric.boundingRect(events);
         originalTextRect.adjust(-10.0, 0.0, 10.0, 0.0);
@@ -1588,9 +1644,9 @@ void FormEditorTransitionItem::drawSingleLabel(QPainter *painter, const Connecti
     painter->setPen(Qt::white);
     if (singleEvent && singleSignal) {
         eventRect.setWidth(labelRect.width());
-        eventRect.moveTopLeft(labelRect.topLeft() + QPointF(0.0, 4.0 / getScaleFactor()));
+        eventRect.moveTopLeft(labelRect.topLeft() + QPointF(0.0, 4.0 * getItemScaleFactor()));
         signalRect.setWidth(labelRect.width());
-        signalRect.moveBottomLeft(labelRect.bottomLeft() - QPointF(0.0, 4.0 / getScaleFactor()));
+        signalRect.moveBottomLeft(labelRect.bottomLeft() - QPointF(0.0, 4.0 * getItemScaleFactor()));
 
         painter->drawText(eventRect, Qt::AlignCenter, events);
         painter->drawText(signalRect, Qt::AlignCenter, targetSignal);
@@ -1619,9 +1675,8 @@ void FormEditorTransitionItem::drawSelectionLabel(QPainter *painter, const Conne
         const QStringList events = connection.config.events.split(',');
         const int eventCount = events.size();
 
-        const qreal scaleFactor = getScaleFactor();
-        const qreal radius = 7.0 / scaleFactor;
-        const qreal hMargin = 10.0 / scaleFactor;
+        const qreal radius = 7.0 * getItemScaleFactor();
+        const qreal hMargin = 10.0 * getItemScaleFactor();
 
         QFontMetrics metric(painter->font());
         const qreal lineHeight = metric.boundingRect("Xyz").height();
@@ -1657,7 +1712,7 @@ void FormEditorTransitionItem::drawSelectionLabel(QPainter *painter, const Conne
         }
 
         const int signalCount = signalList.size();
-        const qreal offset = 10.0 / scaleFactor;
+        const qreal offset = 10.0 * getItemScaleFactor();
 
         qreal totalHeight = 0;
         if (hasEvents)
@@ -1730,34 +1785,33 @@ void FormEditorTransitionItem::drawSelectionLabel(QPainter *painter, const Conne
 static void drawArrow(QPainter *painter,
                       const QPointF &point,
                       const qreal &angle,
-                      const qreal &arrowLength,
-                      const qreal &arrowWidth)
+                      qreal arrowSize,
+                      qreal arrowTipAngle = 90.0)
 {
     const QPointF peakP(0, 0);
-    const QPointF leftP(-arrowLength, -arrowWidth * 0.5);
-    const QPointF rightP(-arrowLength, arrowWidth * 0.5);
+    const QPointF endP(-arrowSize, 0);
 
     painter->save();
 
     painter->translate(point);
-    painter->rotate(-angle);
-    painter->drawLine(leftP, peakP);
-    painter->drawLine(rightP, peakP);
+    painter->rotate(-angle - (arrowTipAngle/2.0));
+    painter->drawLine(peakP, endP);
+    painter->rotate(arrowTipAngle);
+    painter->drawLine(peakP, endP);
 
     painter->restore();
 }
 
 void FormEditorTransitionItem::paintConnection(QPainter *painter, const Connection &connection)
 {
-    const qreal arrowLength = 4 * connection.config.adjustedWidth;
-    const qreal arrowWidth = 8 * connection.config.adjustedWidth;
+    const int arrowSize = 12 * getLineScaleFactor();
 
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing);
 
     // Draw path/connection line
     QPen pen;
-    pen.setCosmetic(true);
+    pen.setCosmetic(false);
     pen.setJoinStyle(Qt::MiterJoin);
     pen.setCapStyle(Qt::RoundCap);
     pen.setBrush(connection.config.lineBrush);
@@ -1769,12 +1823,12 @@ void FormEditorTransitionItem::paintConnection(QPainter *painter, const Connecti
         pen.setStyle(connection.config.penStyle);
     }
 
-    pen.setWidthF(connection.config.width);
+    pen.setWidthF(connection.config.width * getLineScaleFactor());
     painter->setPen(pen);
 
     painter->drawPath(connection.path);
 
-    pen.setWidthF(connection.config.width);
+    pen.setWidthF(connection.config.width * getLineScaleFactor());
     pen.setStyle(Qt::SolidLine);
     pen.setColor(connection.config.color);
     painter->setPen(pen);
@@ -1791,16 +1845,16 @@ void FormEditorTransitionItem::paintConnection(QPainter *painter, const Connecti
     }
 
     if (connection.config.drawEnd)
-        drawArrow(painter, connection.end, angle, arrowLength, arrowWidth);
+        drawArrow(painter, connection.end, angle, arrowSize, 60.0);
 
     // Draw start ellipse
     if (connection.config.drawStart) {
         painter->setBrush(Qt::white);
-        painter->drawEllipse(connection.start, arrowLength / 2.0, arrowLength / 2.0);
+        painter->drawEllipse(connection.start, arrowSize / 5, arrowSize / 5);
     }
 
     // Draw labels
-    if (viewportTransform().m11() >= zoomLevelLabel)
+    if (viewportTransform().m11() >= labelShowThreshold)
         drawLabels(painter, connection);
 
     painter->restore();
@@ -1825,11 +1879,11 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
     if (!isModelNodeValid(resolved.from))
         return;
 
-    ConnectionConfiguration config(qmlItemNode(), resolved, viewportTransform().m11(), m_hitTest);
+    ConnectionConfiguration config(qmlItemNode(), resolved, m_hitTest);
 
-    QFont f = painter->font();
-    f.setPointSizeF(getFontSize(painter) / getScaleFactor());
-    painter->setFont(f);
+    QFont font = painter->font();
+    font.setPixelSize(config.fontSize * getTextScaleFactor());
+    painter->setFont(font);
 
     const auto fromNodes = resolved.from;
     const auto toNodes = resolved.to;
@@ -1896,7 +1950,7 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
                 const QString icon = Theme::getIconUnicode(Theme::startNode);
 
                 QPen pen;
-                pen.setCosmetic(true);
+                pen.setCosmetic(false);
                 pen.setColor(config.color);
                 painter->setPen(pen);
 
@@ -1937,18 +1991,19 @@ QTransform FormEditorItem::viewportTransform() const
     return scene()->views().first()->viewportTransform();
 }
 
-qreal FormEditorItem::getFontSize(QPainter *painter) const
+qreal FormEditorItem::getItemScaleFactor() const
 {
-    const int dpi = std::max(painter->device()->logicalDpiX(),
-                             painter->device()->logicalDpiY());
-
-    return fontSize * (dpi / defaultDpi);
+    return 1.0 / viewportTransform().m11();
 }
 
-qreal FormEditorItem::getScaleFactor() const
+qreal FormEditorItem::getLineScaleFactor() const
 {
-    // Cap scaling at 100% zoom
-    return (viewportTransform().m11() >= 1.0) ? viewportTransform().m11() : 1.0;
+    return 2 / qSqrt(viewportTransform().m11());
+}
+
+qreal FormEditorItem::getTextScaleFactor() const
+{
+    return 2 / qSqrt(viewportTransform().m11());
 }
 
 void FormEditorFlowDecisionItem::updateGeometry()
@@ -1960,6 +2015,7 @@ void FormEditorFlowDecisionItem::updateGeometry()
         size = qmlItemNode().modelNode().auxiliaryData("blockSize").toInt();
 
     QRectF boundingRect(0, 0, size, size);
+    QRectF selectionRect = boundingRect;
     QTransform transform;
     if (qmlItemNode().isFlowDecision()) {
         transform.translate(boundingRect.center().x(), boundingRect.center().y());
@@ -1982,7 +2038,7 @@ void FormEditorFlowDecisionItem::updateGeometry()
                 QPixmap pixmap(640, 480);
                 QPainter localPainter(&pixmap);
                 QFont font = localPainter.font();
-                font.setPointSizeF(getFontSize(&localPainter) / getScaleFactor());
+                font.setPixelSize(labelFontSize * getTextScaleFactor());
                 localPainter.setFont(font);
 
                 const qreal margin = blockAdjust * 0.5;
@@ -2018,14 +2074,15 @@ void FormEditorFlowDecisionItem::updateGeometry()
             }
         }
 
-        // Unite the rotate item bounding rect with the label bounding rect.
+        // bounding rect is combination of label and icon but only icon can be clicked
         boundingRect = transform.mapRect(boundingRect);
+        selectionRect = boundingRect;
         boundingRect = boundingRect.united(labelBoundingRect);
     }
 
-    m_selectionBoundingRect = boundingRect;
-    m_paintedBoundingRect = m_selectionBoundingRect;
-    m_boundingRect = m_paintedBoundingRect;
+    m_selectionBoundingRect = selectionRect;
+    m_boundingRect = boundingRect;
+    m_paintedBoundingRect = boundingRect;
     setTransform(qmlItemNode().instanceTransformWithContentTransform());
     const QPointF pos = qmlItemNode().flowPosition();
     setTransform(QTransform::fromTranslate(pos.x(), pos.y()));
@@ -2045,7 +2102,7 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGrap
 
     QPen pen;
     pen.setJoinStyle(Qt::MiterJoin);
-    pen.setCosmetic(true);
+    pen.setCosmetic(false);
 
     QColor flowColor(0xe71919);
 
@@ -2055,24 +2112,26 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGrap
     if (qmlItemNode().modelNode().hasAuxiliaryData("color"))
         flowColor = qmlItemNode().modelNode().auxiliaryData("color").value<QColor>();
 
+    pen.setColor(flowColor);
+
     qreal width = 2;
 
     if (qmlItemNode().modelNode().hasAuxiliaryData("width"))
         width = qmlItemNode().modelNode().auxiliaryData("width").toInt();
+
+    width *= getLineScaleFactor();
+    pen.setWidthF(width);
 
     bool dash = false;
 
     if (qmlItemNode().modelNode().hasAuxiliaryData("dash"))
         dash = qmlItemNode().modelNode().auxiliaryData("dash").toBool();
 
-    pen.setColor(flowColor);
     if (dash)
         pen.setStyle(Qt::DashLine);
     else
         pen.setStyle(Qt::SolidLine);
 
-    pen.setWidthF(width);
-    pen.setCosmetic(true);
     painter->setPen(pen);
 
     QColor fillColor = QColor(Qt::transparent);
@@ -2119,7 +2178,7 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGrap
     if (qmlItemNode().modelNode().hasAuxiliaryData("showDialogLabel"))
         showDialogLabel = qmlItemNode().modelNode().auxiliaryData("showDialogLabel").toBool();
 
-    if (showDialogLabel && viewportTransform().m11() >= zoomLevelLabel) {
+    if (showDialogLabel && viewportTransform().m11() >= labelShowThreshold) {
         QString dialogTitle;
         if (qmlItemNode().modelNode().hasVariantProperty("dialogTitle"))
             dialogTitle = qmlItemNode().modelNode().variantProperty("dialogTitle").value().toString();
@@ -2127,7 +2186,7 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGrap
         if (!dialogTitle.isEmpty()) {
 
             QFont font = painter->font();
-            font.setPointSizeF(getFontSize(painter) / getScaleFactor());
+            font.setPixelSize(labelFontSize * getTextScaleFactor());
             painter->setFont(font);
 
             QRectF textRect(0, 0, 100, 20);

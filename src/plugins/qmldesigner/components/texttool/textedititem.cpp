@@ -76,6 +76,9 @@ void TextEditItem::setFormEditorItem(FormEditorItem *formEditorItem)
         QSize maximumSize = rect.size().toSize();
         activateTextEdit(maximumSize);
     } else {
+        auto lineEdit = TextEditItemWidget::lineEdit();
+        auto node = m_formEditorItem->qmlItemNode();
+        lineEdit->setFont(node.instanceValue("font").value<QFont>());
         activateLineEdit();
     }
 

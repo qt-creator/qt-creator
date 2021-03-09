@@ -47,6 +47,7 @@
 
 #include <qmlprojectmanager/qmlmultilanguageaspect.h>
 
+#include <qmlprojectmanager/qmlproject.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -165,6 +166,20 @@ QString PuppetCreator::getStyleConfigFileName() const
     }
 #endif
     return QString();
+}
+
+bool PuppetCreator::usesVirtualKeyboard() const
+{
+#ifndef QMLDESIGNER_TEST
+    if (m_target) {
+        auto *qmlbuild = qobject_cast<QmlProjectManager::QmlBuildSystem *>(m_target->buildSystem());
+
+        const Utils::EnvironmentItem virtualKeyboard("QT_IM_MODULE", "qtvirtualkeyboard");
+        return qmlbuild && qmlbuild->environment().indexOf(virtualKeyboard);
+    }
+
+#endif
+    return false;
 }
 
 PuppetCreator::PuppetCreator(ProjectExplorer::Target *target, const Model *model)
@@ -492,6 +507,11 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
 
     if (!m_qrcMapping.isEmpty()) {
         environment.set("QMLDESIGNER_RC_PATHS", m_qrcMapping);
+    }
+
+    if (usesVirtualKeyboard()) {
+        environment.set("QT_IM_MODULE", "qtvirtualkeyboard");
+        environment.set("QT_VIRTUALKEYBOARD_DESKTOP_DISABLE", "1");
     }
 
 #ifndef QMLDESIGNER_TEST

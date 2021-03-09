@@ -23,52 +23,54 @@
 **
 ****************************************************************************/
 
-#pragma once
-
-#include "itemlibraryitemsmodel.h"
+#include "richtexteditordialog.h"
+#include <QVBoxLayout>
 
 namespace QmlDesigner {
 
-class ItemLibraryItem;
-
-class ItemLibraryCategory : public QObject
+RichTextEditorDialog::RichTextEditorDialog(QString text)
 {
-    Q_OBJECT
+    m_editor = new RichTextEditor(this);
+    m_editor->setRichText(text);
 
-    Q_PROPERTY(QString categoryName READ categoryName FINAL)
-    Q_PROPERTY(bool categoryVisible READ isVisible NOTIFY visibilityChanged FINAL)
-    Q_PROPERTY(bool categoryExpanded READ categoryExpanded WRITE setExpanded NOTIFY expandedChanged FINAL)
-    Q_PROPERTY(QObject *itemModel READ itemModel NOTIFY itemModelChanged FINAL)
+    auto layout = new QVBoxLayout(this);
+    layout->addWidget(m_editor);
+    setLayout(layout);
 
-public:
-    ItemLibraryCategory(const QString &groupName, QObject *parent = nullptr);
+    connect(m_editor, &RichTextEditor::textChanged,
+            this, &RichTextEditorDialog::onTextChanged);
 
-    QString categoryName() const;
-    bool categoryExpanded() const;
-    QString sortingName() const;
+    connect(this, &QDialog::finished,
+            this, &RichTextEditorDialog::onFinished);
 
-    void addItem(ItemLibraryItem *item);
-    QObject *itemModel();
+    setModal(true);
+}
 
-    bool updateItemVisibility(const QString &searchText, bool *changed, bool expand = false);
+void RichTextEditorDialog::setFormEditorItem(FormEditorItem* formEditorItem)
+{
+    m_formEditorItem = formEditorItem;
+}
 
-    bool setVisible(bool isVisible);
-    bool isVisible() const;
+void RichTextEditorDialog::onTextChanged(QString text)
+{
+    Q_UNUSED(text);
+    // TODO: try adding following and make it react faster
+    // setTextToFormEditorItem(text);
+}
 
-    void sortItems();
+void RichTextEditorDialog::onFinished()
+{
+    setTextToFormEditorItem(m_editor->richText());
+}
 
-    void setExpanded(bool expanded);
+void RichTextEditorDialog::setTextToFormEditorItem(QString text)
+{
+    if (m_formEditorItem) {
+        if (text.isEmpty())
+            m_formEditorItem->qmlItemNode().removeProperty("text");
+        else
+            m_formEditorItem->qmlItemNode().setVariantProperty("text", text);
+    }
+}
 
-signals:
-    void itemModelChanged();
-    void visibilityChanged();
-    void expandedChanged();
-
-private:
-    ItemLibraryItemsModel m_itemModel;
-    QString m_name;
-    bool m_categoryExpanded = true;
-    bool m_isVisible = true;
-};
-
-} // namespace QmlDesigner
+} //namespace QmlDesigner

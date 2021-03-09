@@ -183,6 +183,11 @@ TerminalRunner::TerminalRunner(RunControl *runControl, const Runnable &stubRunna
             this, [this] { reportDone(); });
 }
 
+void TerminalRunner::kickoffProcess()
+{
+    m_stubProc.kickoffProcess();
+}
+
 void TerminalRunner::interruptProcess()
 {
     m_stubProc.interruptProcess();

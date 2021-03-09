@@ -102,6 +102,7 @@ void ItemLibraryCategoriesModel::expandCategories(bool expand)
     for (const auto &category : std::as_const(m_categoryList)) {
         if (category->categoryExpanded() != expand) {
             category->setExpanded(expand);
+            ItemLibraryModel::saveExpandedState(expand, category->categoryName());
             emit dataChanged(index(i), index(i), {m_roleNames.key("categoryExpanded")});
         }
         ++i;

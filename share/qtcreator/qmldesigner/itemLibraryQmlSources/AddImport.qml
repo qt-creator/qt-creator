@@ -30,8 +30,6 @@ import QtQuickDesignerTheme 1.0
 Column {
     id: root
 
-    signal addImport(int index)
-
     Text {
         id: header
         text: qsTr("Select a Module to Add")
@@ -78,7 +76,7 @@ Column {
                         id: mouseArea
                         anchors.fill: parent
                         hoverEnabled: true
-                        onClicked: addImport(index)
+                        onClicked: rootView.handleAddImport(index)
                         enabled: !isSeparator
                     }
                 }

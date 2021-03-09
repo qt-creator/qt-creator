@@ -716,7 +716,7 @@ StringType convertToTextForColumn(sqlite3_stmt *sqlStatment, int column)
         break;
     }
 
-    return StringType{"", 0};
+    return {};
 }
 } // namespace
 

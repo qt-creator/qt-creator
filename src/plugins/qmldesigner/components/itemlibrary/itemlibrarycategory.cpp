@@ -60,7 +60,7 @@ QObject *ItemLibraryCategory::itemModel()
     return &m_itemModel;
 }
 
-bool ItemLibraryCategory::updateItemVisibility(const QString &searchText, bool *changed)
+bool ItemLibraryCategory::updateItemVisibility(const QString &searchText, bool *changed, bool expand)
 {
     bool hasVisibleItems = false;
 
@@ -81,7 +81,7 @@ bool ItemLibraryCategory::updateItemVisibility(const QString &searchText, bool *
     }
 
     // expand category if it has an item matching search criteria
-    if (hasVisibleItems && !categoryExpanded())
+    if (expand && hasVisibleItems && !categoryExpanded())
         setExpanded(true);
 
     return hasVisibleItems;

@@ -87,6 +87,12 @@ ScrollView {
         itemContextMenu.close()
     }
 
+    onContentHeightChanged: {
+        var maxPosition = Math.max(contentHeight - height, 0)
+        if (contentY > maxPosition)
+            contentY = maxPosition
+    }
+
     Item {
         id: styleConstants
         property int textWidth: 58
