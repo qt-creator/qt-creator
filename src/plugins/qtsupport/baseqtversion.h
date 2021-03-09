@@ -195,6 +195,7 @@ public:
     Utils::FilePath prefix() const;
 
     Utils::FilePath binPath() const;
+    Utils::FilePath libExecPath() const;
     Utils::FilePath configurationPath() const;
     Utils::FilePath dataPath() const;
     Utils::FilePath demosPath() const;
@@ -209,6 +210,7 @@ public:
     Utils::FilePath translationsPath() const;
 
     Utils::FilePath hostBinPath() const;
+    Utils::FilePath hostLibexecPath() const;
     Utils::FilePath hostDataPath() const;
     Utils::FilePath hostPrefixPath() const;
 

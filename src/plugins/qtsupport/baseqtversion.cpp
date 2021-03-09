@@ -110,6 +110,7 @@ public:
     Utils::FilePath prefix;
 
     Utils::FilePath binPath;
+    Utils::FilePath libExecPath;
     Utils::FilePath configurationPath;
     Utils::FilePath dataPath;
     Utils::FilePath demosPath;
@@ -124,6 +125,7 @@ public:
     Utils::FilePath translationsPath;
 
     Utils::FilePath hostBinPath;
+    Utils::FilePath hostLibexecPath;
     Utils::FilePath hostDataPath;
     Utils::FilePath hostPrefixPath;
 
@@ -558,6 +560,11 @@ FilePath BaseQtVersion::binPath() const // QT_INSTALL_BINS
     return d->m_data.binPath;
 }
 
+FilePath BaseQtVersion::libExecPath() const // QT_INSTALL_LIBEXECS
+{
+    d->updateVersionInfo();
+    return d->m_data.libExecPath;
+}
 FilePath BaseQtVersion::configurationPath() const // QT_INSTALL_CONFIGURATION
 {
     d->updateVersionInfo();
@@ -616,6 +623,12 @@ FilePath BaseQtVersion::hostBinPath() const // QT_HOST_BINS
 {
     d->updateVersionInfo();
     return d->m_data.hostBinPath;
+}
+
+FilePath BaseQtVersion::hostLibexecPath() const // QT_HOST_LIBEXECS
+{
+    d->updateVersionInfo();
+    return d->m_data.hostLibexecPath;
 }
 
 FilePath BaseQtVersion::hostDataPath() const // QT_HOST_DATA
@@ -1277,6 +1290,7 @@ void BaseQtVersionPrivate::updateVersionInfo()
     m_data.prefix = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_PREFIX"));
 
     m_data.binPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_BINS"));
+    m_data.libExecPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_LIBEXECS"));
     m_data.configurationPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_CONFIGURATION"));
     m_data.dataPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_DATA"));
     m_data.demosPath = FilePath::fromString(
@@ -1292,6 +1306,7 @@ void BaseQtVersionPrivate::updateVersionInfo()
     m_data.translationsPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_TRANSLATIONS"));
 
     m_data.hostBinPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_BINS"));
+    m_data.hostLibexecPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_LIBEXECS"));
     m_data.hostDataPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_DATA"));
     m_data.hostPrefixPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_PREFIX"));
 
