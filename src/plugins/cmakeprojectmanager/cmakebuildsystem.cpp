@@ -447,8 +447,9 @@ bool CMakeBuildSystem::mustApplyExtraArguments(const BuildDirParameters &paramet
 
     auto answer = QMessageBox::question(Core::ICore::mainWindow(),
                                         tr("Apply configuration changes?"),
-                                        tr("Run CMake with \"%1\"?")
-                                            .arg(parameters.extraCMakeArguments.join(" ")),
+                                        "<p>" + tr("Run CMake with configuration changes?")
+                                            + "</p><pre>"
+                                            + parameters.extraCMakeArguments.join("\n") + "</pre>",
                                         QMessageBox::Apply | QMessageBox::Discard,
                                         QMessageBox::Apply);
     return answer == QMessageBox::Apply;
