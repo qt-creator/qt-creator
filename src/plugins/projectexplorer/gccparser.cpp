@@ -389,6 +389,14 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                8))
             << QString();
 
+    QVector<QTextLayout::FormatRange> formatRanges;
+    if (HostOsInfo::isWindowsHost()) {
+        formatRanges << formatRange(51, 28)
+                     << formatRange(79, 31, "olpfile://C:/temp/test/untitled8/main.cpp::8::-1")
+                     << formatRange(110, 54);
+    } else {
+        formatRanges << formatRange(51, 113);
+    }
     QTest::newRow("Undefined reference (debug)")
             << QString::fromLatin1("main.o: In function `main':\n"
                                    "C:\\temp\\test\\untitled8/main.cpp:8: undefined reference to `MainWindow::doSomething()'\n"
@@ -402,12 +410,19 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                "C:\\temp\\test\\untitled8/main.cpp:8: undefined reference to `MainWindow::doSomething()'",
                                FilePath::fromUserInput("C:\\temp\\test\\untitled8/main.cpp"),
                                8,
-                               QVector<QTextLayout::FormatRange>()
-                                   << formatRange(51, 113))
+                               formatRanges)
                 << CompileTask(Task::Error,
                                "collect2: ld returned 1 exit status"))
             << QString();
 
+    formatRanges.clear();
+    if (HostOsInfo::isWindowsHost()) {
+        formatRanges << formatRange(51, 28)
+                     << formatRange(79, 31, "olpfile://C:/temp/test/untitled8/main.cpp::0::-1")
+                     << formatRange(110, 65);
+    } else {
+        formatRanges << formatRange(51, 124);
+    }
     QTest::newRow("Undefined reference (release)")
             << QString::fromLatin1("main.o: In function `main':\n"
                                    "C:\\temp\\test\\untitled8/main.cpp:(.text+0x40): undefined reference to `MainWindow::doSomething()'\n"
@@ -421,8 +436,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                "C:\\temp\\test\\untitled8/main.cpp:(.text+0x40): undefined reference to `MainWindow::doSomething()'",
                                FilePath::fromUserInput("C:\\temp\\test\\untitled8/main.cpp"),
                                -1,
-                               QVector<QTextLayout::FormatRange>()
-                                   << formatRange(51, 124))
+                               formatRanges)
                 << CompileTask(Task::Error,
                                "collect2: ld returned 1 exit status"))
             << QString();
@@ -654,6 +668,14 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                 54))
             << QString();
 
+    formatRanges.clear();
+    if (HostOsInfo::isWindowsHost()) {
+        formatRanges << formatRange(46, 44)
+                     << formatRange(90, 39, "olpfile://M:/Development/x64/QtPlot/qplotaxis.cpp::26::-1")
+                     << formatRange(129, 50);
+    } else {
+        formatRanges << formatRange(46, 133);
+    }
     QTest::newRow("QTCREATORBUG-597")
             << QString::fromLatin1("debug/qplotaxis.o: In function `QPlotAxis':\n"
                                    "M:\\Development\\x64\\QtPlot/qplotaxis.cpp:26: undefined reference to `vtable for QPlotAxis'\n"
@@ -668,8 +690,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                "M:\\Development\\x64\\QtPlot/qplotaxis.cpp:26: undefined reference to `vtable for QPlotAxis'",
                                FilePath::fromUserInput("M:\\Development\\x64\\QtPlot/qplotaxis.cpp"),
                                26,
-                               QVector<QTextLayout::FormatRange>()
-                                   << formatRange(46, 133))
+                               formatRanges)
                 << CompileTask(Task::Error,
                                "undefined reference to `vtable for QPlotAxis'",
                                FilePath::fromUserInput("M:\\Development\\x64\\QtPlot/qplotaxis.cpp"),
@@ -708,6 +729,20 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                    << formatRange(23, 85)))
             << QString();
 
+    formatRanges.clear();
+    if (HostOsInfo::isWindowsHost()) {
+        formatRanges << formatRange(33, 22)
+                     << formatRange(55, 38, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.h::6792::-1")
+                     << formatRange(93, 29)
+                     << formatRange(122, 38, "olpfile://C:/Symbian_SDK/epoc32/include/e32std.h::25::-1")
+                     << formatRange(160, 5)
+                     << formatRange(165, 40, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.inl::0::-1")
+                     << formatRange(205, 69)
+                     << formatRange(274, 40, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.inl::7094::-1")
+                     << formatRange(314, 48);
+    } else {
+        formatRanges << formatRange(33, 329);
+    }
     QTest::newRow("GCCE from lines")
             << QString::fromLatin1("In file included from C:/Symbian_SDK/epoc32/include/e32cmn.h:6792,\n"
                                    "                 from C:/Symbian_SDK/epoc32/include/e32std.h:25,\n"
@@ -723,8 +758,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                  "C:/Symbian_SDK/epoc32/include/e32cmn.inl:7094: warning: returning reference to temporary",
                                  FilePath::fromUserInput("C:/Symbian_SDK/epoc32/include/e32cmn.inl"),
                                  7094,
-                                 QVector<QTextLayout::FormatRange>()
-                                     << formatRange(33, 329))}
+                                 formatRanges)}
             << QString();
     QTest::newRow("In constructor 2")
             << QString::fromUtf8("perfattributes.cpp: In constructor ‘PerfEventAttributes::PerfEventAttributes()’:\n"
