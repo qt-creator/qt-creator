@@ -38,7 +38,7 @@ namespace Ios {
 class DeviceSession;
 class IosTool;
 class RelayServer;
-class GenericRelayServer;
+class QmlRelayServer;
 
 class Relayer: public QObject
 {
@@ -55,11 +55,29 @@ public:
     void handleClientHasError(QAbstractSocket::SocketError error);
 
 protected:
+    virtual int readData(int socketFd, void* buf, size_t size);
+    virtual int writeData(int socketFd, const void *data, size_t size);
+    virtual void closeConnection();
+
     IosTool *iosTool() const;
     RelayServer *server() const;
     ServiceSocket m_serverFileDescriptor;
-    QTcpSocket *m_clientSocket;
-    QSocketNotifier *m_serverNotifier;
+    QTcpSocket *m_clientSocket = nullptr;
+    QSocketNotifier *m_serverNotifier = nullptr;
+};
+
+class ServiceConnectionRelayer : public Relayer
+{
+public:
+    ServiceConnectionRelayer(RelayServer *parent, QTcpSocket *clientSocket, ServiceConnRef conn);
+
+protected:
+    int readData(int socketFd, void* buf, size_t size) override;
+    int writeData(int socketFd, const void *data, size_t size) override;
+    void closeConnection() override;
+
+private:
+    ServiceConnRef m_serviceConn;
 };
 
 class RemotePortRelayer: public Relayer
@@ -69,11 +87,11 @@ class RemotePortRelayer: public Relayer
 public:
     static const int reconnectMsecDelay = 500;
     static const int maxReconnectAttempts = 2*60*5; // 5 min
-    RemotePortRelayer(GenericRelayServer *parent, QTcpSocket *clientSocket);
+    RemotePortRelayer(QmlRelayServer *parent, QTcpSocket *clientSocket);
     void tryRemoteConnect();
 
 signals:
-    void didConnect(GenericRelayServer *serv);
+    void didConnect(QmlRelayServer *serv);
 
 private:
     QTimer m_remoteConnectTimer;
@@ -103,27 +121,28 @@ protected:
     QList<Relayer *> m_connections;
 };
 
-class SingleRelayServer: public RelayServer
+class GdbRelayServer: public RelayServer
 {
     Q_OBJECT
 
 public:
-    SingleRelayServer(IosTool *parent, int serverFileDescriptor);
+    GdbRelayServer(IosTool *parent, int serverFileDescriptor, ServiceConnRef conn);
 
 protected:
     void newRelayConnection() override;
 
 private:
-    int m_serverFileDescriptor;
+    int m_serverFileDescriptor = -1;
+    ServiceConnRef m_serviceConn = nullptr;
 };
 
-class GenericRelayServer: public RelayServer
+class QmlRelayServer: public RelayServer
 {
     Q_OBJECT
 
 public:
-    GenericRelayServer(IosTool *parent, int remotePort,
-                       Ios::DeviceSession *deviceSession);
+    QmlRelayServer(IosTool *parent, int remotePort,
+                   Ios::DeviceSession *deviceSession);
 
 protected:
     void newRelayConnection() override;

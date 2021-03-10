@@ -34,8 +34,8 @@
 
 namespace Ios {
 class GdbRunner;
-class SingleRelayServer;
-class GenericRelayServer;
+class GdbRelayServer;
+class QmlRelayServer;
 
 class IosTool: public QObject
 {
@@ -79,8 +79,8 @@ private:
     QFile outFile;
     QString m_qmlPort;
     QXmlStreamWriter out;
-    SingleRelayServer *gdbServer;
-    GenericRelayServer *qmlServer;
+    GdbRelayServer *gdbServer;
+    QmlRelayServer *qmlServer;
     GdbRunner *gdbRunner;
     bool m_echoRelays = false;
     friend class GdbRunner;

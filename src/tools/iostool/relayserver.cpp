@@ -26,6 +26,7 @@
 #include "relayserver.h"
 
 #include "iostool.h"
+#include "mobiledevicelib.h"
 
 #ifdef Q_OS_UNIX
 #include <unistd.h>
@@ -45,15 +46,7 @@ Relayer::Relayer(RelayServer *parent, QTcpSocket *clientSocket) :
 
 Relayer::~Relayer()
 {
-    if (m_serverFileDescriptor > 0) {
-        ::close(m_serverFileDescriptor);
-        m_serverFileDescriptor = -1;
-        if (m_serverNotifier)
-            delete m_serverNotifier;
-    }
-    if (m_clientSocket->isOpen())
-        m_clientSocket->close();
-    delete m_clientSocket;
+    closeConnection();
 }
 
 void Relayer::setClientSocket(QTcpSocket *clientSocket)
@@ -93,7 +86,7 @@ void Relayer::handleSocketHasData(int socket)
     m_serverNotifier->setEnabled(false);
     char buf[255];
     while (true) {
-        qptrdiff rRead = read(socket, &buf, sizeof(buf)-1);
+        qptrdiff rRead = readData(socket, &buf, sizeof(buf)-1);
         if (rRead == -1) {
             if (errno == EINTR)
                 continue;
@@ -158,7 +151,7 @@ void Relayer::handleClientHasData()
                                      .arg((quintptr)(void *)this), buf, rRead);
         }
         while (true) {
-            qptrdiff written = write(m_serverFileDescriptor, buf + pos, rRead);
+            qptrdiff written = writeData(m_serverFileDescriptor, buf + pos, rRead);
             if (written == -1) {
                 if (errno == EINTR)
                     continue;
@@ -193,6 +186,32 @@ void Relayer::handleClientHasError(QAbstractSocket::SocketError error)
     server()->removeRelayConnection(this);
 }
 
+int Relayer::readData(int socketFd, void *buf, size_t size)
+{
+    return read(socketFd, buf, size);
+}
+
+int Relayer::writeData(int socketFd, const void *data, size_t size)
+{
+    return write(socketFd, data, size);
+}
+
+void Relayer::closeConnection()
+{
+    if (m_serverFileDescriptor > 0) {
+        ::close(m_serverFileDescriptor);
+        m_serverFileDescriptor = -1;
+        if (m_serverNotifier) {
+            delete m_serverNotifier;
+            m_serverNotifier = nullptr;
+        }
+    }
+    if (m_clientSocket->isOpen())
+        m_clientSocket->close();
+    delete m_clientSocket;
+    m_clientSocket = nullptr;
+}
+
 IosTool *Relayer::iosTool() const
 {
     return (server() ? server()->iosTool() : 0);
@@ -203,7 +222,7 @@ RelayServer *Relayer::server() const
     return qobject_cast<RelayServer *>(parent());
 }
 
-RemotePortRelayer::RemotePortRelayer(GenericRelayServer *parent, QTcpSocket *clientSocket) :
+RemotePortRelayer::RemotePortRelayer(QmlRelayServer *parent, QTcpSocket *clientSocket) :
     Relayer(parent, clientSocket)
 {
     m_remoteConnectTimer.setSingleShot(true);
@@ -217,7 +236,7 @@ void RemotePortRelayer::tryRemoteConnect()
     if (m_serverFileDescriptor > 0)
         return;
     ServiceSocket ss;
-    GenericRelayServer *grServer = qobject_cast<GenericRelayServer *>(server());
+    QmlRelayServer *grServer = qobject_cast<QmlRelayServer *>(server());
     if (!grServer)
         return;
     if (grServer->m_deviceSession->connectToPort(grServer->m_remotePort, &ss)) {
@@ -294,16 +313,17 @@ void RelayServer::removeRelayConnection(Relayer *relayer)
     relayer->deleteLater();
 }
 
-SingleRelayServer::SingleRelayServer(IosTool *parent,
-                                     int serverFileDescriptor) :
-    RelayServer(parent)
+GdbRelayServer::GdbRelayServer(IosTool *parent,
+                                     int serverFileDescriptor, ServiceConnRef conn) :
+    RelayServer(parent),
+    m_serverFileDescriptor(serverFileDescriptor),
+    m_serviceConn(conn)
 {
-    m_serverFileDescriptor = serverFileDescriptor;
     if (m_serverFileDescriptor > 0)
         fcntl(m_serverFileDescriptor, F_SETFL, fcntl(m_serverFileDescriptor, F_GETFL, 0) | O_NONBLOCK);
 }
 
-void SingleRelayServer::newRelayConnection()
+void GdbRelayServer::newRelayConnection()
 {
     QTcpSocket *clientSocket = m_ipv4Server.hasPendingConnections()
             ? m_ipv4Server.nextPendingConnection() : m_ipv6Server.nextPendingConnection();
@@ -312,13 +332,13 @@ void SingleRelayServer::newRelayConnection()
         return;
     }
     if (clientSocket) {
-        Relayer *newConnection = new Relayer(this, clientSocket);
+        Relayer *newConnection = new ServiceConnectionRelayer(this, clientSocket, m_serviceConn);
         m_connections.append(newConnection);
         newConnection->startRelay(m_serverFileDescriptor);
     }
 }
 
-GenericRelayServer::GenericRelayServer(IosTool *parent, int remotePort,
+QmlRelayServer::QmlRelayServer(IosTool *parent, int remotePort,
                                        Ios::DeviceSession *deviceSession) :
     RelayServer(parent),
     m_remotePort(remotePort),
@@ -328,7 +348,7 @@ GenericRelayServer::GenericRelayServer(IosTool *parent, int remotePort,
 }
 
 
-void GenericRelayServer::newRelayConnection()
+void QmlRelayServer::newRelayConnection()
 {
     QTcpSocket *clientSocket = m_ipv4Server.hasPendingConnections()
             ? m_ipv4Server.nextPendingConnection() : m_ipv6Server.nextPendingConnection();
@@ -339,4 +359,42 @@ void GenericRelayServer::newRelayConnection()
         newConnection->tryRemoteConnect();
     }
 }
+
+ServiceConnectionRelayer::ServiceConnectionRelayer(RelayServer *parent, QTcpSocket *clientSocket,
+                                                   ServiceConnRef conn)
+    : Relayer(parent, clientSocket),
+      m_serviceConn(conn)
+{
+
+}
+
+int ServiceConnectionRelayer::readData(int socketFd, void *buf, size_t size)
+{
+    Q_UNUSED(socketFd)
+    if (!buf || !m_serviceConn)
+        return 0;
+    MobileDeviceLib &mlib = MobileDeviceLib::instance();
+    return mlib.serviceConnectionReceive(m_serviceConn, buf, size);
+}
+
+int ServiceConnectionRelayer::writeData(int socketFd, const void *data, size_t size)
+{
+    Q_UNUSED(socketFd)
+    if (!data || !m_serviceConn)
+        return 0;
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    return mLib.serviceConnectionSend(m_serviceConn, data, size);
+}
+
+void ServiceConnectionRelayer::closeConnection()
+{
+    Relayer::closeConnection();
+    if (m_serviceConn) {
+        MobileDeviceLib &mLib = MobileDeviceLib::instance();
+        mLib.serviceConnectionInvalidate(m_serviceConn);
+        m_serviceConn = nullptr;
+    }
+
+}
+
 }

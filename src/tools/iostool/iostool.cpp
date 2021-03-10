@@ -259,12 +259,12 @@ void IosTool::didStartApp(const QString &bundlePath, const QString &deviceId,
     if (deviceSession) {
         int qmlPort = deviceSession->qmljsDebugPort();
         if (qmlPort) {
-            qmlServer = new GenericRelayServer(this, qmlPort, deviceSession);
+            qmlServer = new QmlRelayServer(this, qmlPort, deviceSession);
             qmlServer->startServer();
         }
     }
     if (debug) {
-        gdbServer = new SingleRelayServer(this, gdbFd);
+        gdbServer = new GdbRelayServer(this, gdbFd, conn);
         if (!gdbServer->startServer()) {
             doExit(-4);
             return;
