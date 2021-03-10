@@ -1016,12 +1016,9 @@ QString BaseQtVersionPrivate::findHostBinary(HostBinaries binary) const
     if (q->qtVersion() < QtVersionNumber(5, 0, 0)) {
         baseDir = q->binPath().toString();
     } else {
-        q->ensureMkSpecParsed();
         switch (binary) {
         case Designer:
         case Linguist:
-            baseDir = m_mkspecValues.value("QT.designer.bins");
-            break;
         case Rcc:
         case Uic:
         case QScxmlc:
@@ -1168,12 +1165,10 @@ void BaseQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
         else if (value == "qt_framework")
             d->m_frameworkBuild = true;
     }
-    const QString designerBins = "QT.designer.bins";
     const QString qmlBins = "QT.qml.bins";
     const QString declarativeBins = "QT.declarative.bins";
     const QString libinfix = MKSPEC_VALUE_LIBINFIX;
     const QString ns = MKSPEC_VALUE_NAMESPACE;
-    d->m_mkspecValues.insert(designerBins, evaluator->value(designerBins));
     d->m_mkspecValues.insert(qmlBins, evaluator->value(qmlBins));
     d->m_mkspecValues.insert(declarativeBins, evaluator->value(declarativeBins));
     d->m_mkspecValues.insert(libinfix, evaluator->value(libinfix));
