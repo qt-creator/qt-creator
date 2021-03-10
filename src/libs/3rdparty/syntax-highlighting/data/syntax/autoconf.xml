@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language SYSTEM "/opt/kde3/share/apps/katepart/syntax/language.dtd">
+<!-- (c) 2008-2011 by Jürgen Heinemann http://www.hjcms.de 
+  @see http://www.gnu.org/software/automake/manual/autoconf/
+-->
+<language name="Autoconf Language" version="2" kateversion="2.4" section="Other"
+  extensions="configure.ac;configure.in;configure.in.in;*.m4;*.M4"
+  mimetype="text/x-m4;text/x-autoconf"
+  author="Juergen Heinemann (nospam@hjcms.de)" license="LGPL">
+  <highlighting>
+    <!-- http://www.gnu.org/software/automake/manual/autoconf/Program-_0026-Function-Index.html -->
+    <list name="keywords">
+      <item> if </item>
+      <item> then </item>
+      <item> elif </item>
+      <item> else </item>
+      <item> fi </item>
+      <item> for </item>
+      <item> in </item>
+      <item> do </item>
+      <item> don </item>
+      <item> function </item>
+      <item> select </item>
+      <item> until </item>
+      <item> while </item>
+      <item> set </item>
+      <item> ifelse </item>
+      <item> case </item>
+      <item> esac </item>
+    </list>
+
+    <!-- http://www.gnu.org/software/automake/manual/autoconf/Limitations-of-Builtins.html -->
+    <list name="builtins">
+      <item> : </item>
+      <item> source </item>
+      <item> alias </item>
+      <item> bg </item>
+      <item> bind </item>
+      <item> break </item>
+      <item> builtin </item>
+      <item> cd </item>
+      <item> caller </item>
+      <item> command </item>
+      <item> compgen </item>
+      <item> complete </item>
+      <item> continue </item>
+      <item> dirs </item>
+      <item> disown </item>
+      <item> echo </item>
+      <item> enable </item>
+      <item> eval </item>
+      <item> exec </item>
+      <item> exit </item>
+      <item> fc </item>
+      <item> fg </item>
+      <item> getopts </item>
+      <item> hash </item>
+      <item> help </item>
+      <item> history </item>
+      <item> jobs </item>
+      <item> kill </item>
+      <item> let </item>
+      <item> logout </item>
+      <item> popd </item>
+      <item> printf </item>
+      <item> pushd </item>
+      <item> pwd </item>
+      <item> return </item>
+      <item> set </item>
+      <item> shift </item>
+      <item> shopt </item>
+      <item> suspend </item>
+      <item> test </item>
+      <item> time </item>
+      <item> times </item>
+      <item> trap </item>
+      <item> type </item>
+      <item> ulimit </item>
+      <item> umask </item>
+      <item> unalias </item>
+      <item> wait </item>
+    </list>
+
+    <list name="bools">
+      <item> no </item>
+      <item> yes </item>
+      <item> false </item>
+      <item> true </item>
+    </list>
+
+    <!-- 
+      This is an alphabetical list of the M4, M4sugar, and M4sh macros.
+      http://www.gnu.org/software/automake/manual/autoconf/M4-Macro-Index.html
+    -->
+    <list name="m4sugar">
+      <item> AS_BOURNE_COMPATIBLE </item>
+      <item> AS_BOX </item>
+      <item> AS_CASE </item>
+      <item> AS_DIRNAME </item>
+      <item> AS_ECHO </item>
+      <item> AS_ECHO_N </item>
+      <item> AS_ESCAPE </item>
+      <item> AS_EXIT </item>
+      <item> AS_HELP_STRING </item>
+      <item> AS_IF </item>
+      <item> AS_INIT </item>
+      <item> AS_INIT_GENERATED </item>
+      <item> AS_LINENO_PREPARE </item>
+      <item> AS_LITERAL_IF </item>
+      <item> AS_LITERAL_WORD_IF </item>
+      <item> AS_ME_PREPARE </item>
+      <item> AS_MESSAGE_FD </item>
+      <item> AS_MESSAGE_LOG_FD </item>
+      <item> AS_MKDIR_P </item>
+      <item> AS_ORIGINAL_STDIN_FD </item>
+      <item> AS_SET_CATFILE </item>
+      <item> AS_SET_STATUS </item>
+      <item> AS_SHELL_SANITIZE </item>
+      <item> AS_TMPDIR </item>
+      <item> AS_TR_CPP </item>
+      <item> AS_TR_SH </item>
+      <item> AS_UNSET </item>
+      <item> AS_VAR_APPEND </item>
+      <item> AS_VAR_ARITH </item>
+      <item> AS_VAR_COPY </item>
+      <item> AS_VAR_IF </item>
+      <item> AS_VAR_POPDEF </item>
+      <item> AS_VAR_PUSHDEF </item>
+      <item> AS_VAR_SET </item>
+      <item> AS_VAR_SET_IF </item>
+      <item> AS_VAR_TEST_SET </item>
+      <item> AS_VERSION_COMPARE </item>
+      <item> m4_append </item>
+      <item> m4_append_uniq </item>
+      <item> m4_append_uniq_w </item>
+      <item> m4_apply </item>
+      <item> m4_argn </item>
+      <item> m4_assert </item>
+      <item> m4_bmatch </item>
+      <item> m4_bpatsubst </item>
+      <item> m4_bpatsubsts </item>
+      <item> m4_bregexp </item>
+      <item> m4_builtin </item>
+      <item> m4_car </item>
+      <item> m4_case </item>
+      <item> m4_cdr </item>
+      <item> m4_changecom </item>
+      <item> m4_changequote </item>
+      <item> m4_chomp </item>
+      <item> m4_chomp_all </item>
+      <item> m4_cleardivert </item>
+      <item> m4_cmp </item>
+      <item> m4_combine </item>
+      <item> m4_cond </item>
+      <item> m4_copy </item>
+      <item> m4_copy_force </item>
+      <item> m4_count </item>
+      <item> m4_curry </item>
+      <item> m4_debugfile </item>
+      <item> m4_debugmode </item>
+      <item> m4_decr </item>
+      <item> m4_default </item>
+      <item> m4_default_nblank </item>
+      <item> m4_default_nblank_quoted </item>
+      <item> m4_default_quoted </item>
+      <item> m4_define </item>
+      <item> m4_define_default </item>
+      <item> m4_defn </item>
+      <item> m4_divert </item>
+      <item> m4_divert_once </item>
+      <item> m4_divert_pop </item>
+      <item> m4_divert_push </item>
+      <item> m4_divert_text </item>
+      <item> m4_divnum </item>
+      <item> m4_do </item>
+      <item> m4_dquote </item>
+      <item> m4_dquote_elt </item>
+      <item> m4_dumpdef </item>
+      <item> m4_dumpdefs </item>
+      <item> m4_echo </item>
+      <item> m4_errprint </item>
+      <item> m4_errprintn </item>
+      <item> m4_escape </item>
+      <item> m4_esyscmd </item>
+      <item> m4_esyscmd_s </item>
+      <item> m4_eval </item>
+      <item> m4_exit </item>
+      <item> m4_expand </item>
+      <item> m4_fatal </item>
+      <item> m4_flatten </item>
+      <item> m4_for </item>
+      <item> m4_foreach </item>
+      <item> m4_foreach_w </item>
+      <item> m4_format </item>
+      <item> m4_if </item>
+      <item> m4_ifblank </item>
+      <item> m4_ifdef </item>
+      <item> m4_ifnblank </item>
+      <item> m4_ifndef </item>
+      <item> m4_ifset </item>
+      <item> m4_ifval </item>
+      <item> m4_ifvaln </item>
+      <item> m4_ignore </item>
+      <item> m4_include </item>
+      <item> m4_incr </item>
+      <item> m4_index </item>
+      <item> m4_indir </item>
+      <item> m4_init </item>
+      <item> m4_join </item>
+      <item> m4_joinall </item>
+      <item> m4_len </item>
+      <item> m4_list_cmp </item>
+      <item> m4_location </item>
+      <item> m4_make_list </item>
+      <item> m4_maketemp </item>
+      <item> m4_map </item>
+      <item> m4_map_args </item>
+      <item> m4_map_args_pair </item>
+      <item> m4_map_args_sep </item>
+      <item> m4_map_args_w </item>
+      <item> m4_map_sep </item>
+      <item> m4_mapall </item>
+      <item> m4_mapall_sep </item>
+      <item> m4_max </item>
+      <item> m4_min </item>
+      <item> m4_mkstemp </item>
+      <item> m4_n </item>
+      <item> m4_newline </item>
+      <item> m4_normalize </item>
+      <item> m4_pattern_allow </item>
+      <item> m4_pattern_forbid </item>
+      <item> m4_popdef </item>
+      <item> m4_pushdef </item>
+      <item> m4_quote </item>
+      <item> m4_re_escape </item>
+      <item> m4_rename </item>
+      <item> m4_rename_force </item>
+      <item> m4_reverse </item>
+      <item> m4_set_add </item>
+      <item> m4_set_add_all </item>
+      <item> m4_set_contains </item>
+      <item> m4_set_contents </item>
+      <item> m4_set_delete </item>
+      <item> m4_set_difference </item>
+      <item> m4_set_dump </item>
+      <item> m4_set_empty </item>
+      <item> m4_set_foreach </item>
+      <item> m4_set_intersection </item>
+      <item> m4_set_list </item>
+      <item> m4_set_listc </item>
+      <item> m4_set_map </item>
+      <item> m4_set_map_sep </item>
+      <item> m4_set_remove </item>
+      <item> m4_set_size </item>
+      <item> m4_set_union </item>
+      <item> m4_shift </item>
+      <item> m4_shift2 </item>
+      <item> m4_shift3 </item>
+      <item> m4_shiftn </item>
+      <item> m4_sign </item>
+      <item> m4_sinclude </item>
+      <item> m4_split </item>
+      <item> m4_stack_foreach </item>
+      <item> m4_stack_foreach_lifo </item>
+      <item> m4_stack_foreach_sep </item>
+      <item> m4_stack_foreach_sep_lifo </item>
+      <item> m4_strip </item>
+      <item> m4_substr </item>
+      <item> m4_syscmd </item>
+      <item> m4_sysval </item>
+      <item> m4_text_box </item>
+      <item> m4_text_wrap </item>
+      <item> m4_tolower </item>
+      <item> m4_toupper </item>
+      <item> m4_traceoff </item>
+      <item> m4_traceon </item>
+      <item> m4_translit </item>
+      <item> m4_undefine </item>
+      <item> m4_undivert </item>
+      <item> m4_unquote </item>
+      <item> m4_version_compare </item>
+      <item> m4_version_prereq </item>
+      <item> m4_warn </item>
+      <item> m4_wrap </item>
+      <item> m4_wrap_lifo </item>
+    </list>
+
+    <!-- Autotest Macro Index -->
+    <list name="autotest_macro">
+      <item> AT_ARG_OPTION </item>
+      <item> AT_ARG_OPTION_ARG </item>
+      <item> AT_BANNER </item>
+      <item> AT_CAPTURE_FILE </item>
+      <item> AT_CHECK </item>
+      <item> AT_CHECK_EUNIT </item>
+      <item> AT_CHECK_UNQUOTED </item>
+      <item> AT_CLEANUP </item>
+      <item> AT_COLOR_TESTS </item>
+      <item> AT_COPYRIGHT </item>
+      <item> AT_DATA </item>
+      <item> AT_FAIL_IF </item>
+      <item> AT_INIT </item>
+      <item> AT_KEYWORDS </item>
+      <item> AT_PACKAGE_BUGREPORT </item>
+      <item> AT_PACKAGE_NAME </item>
+      <item> AT_PACKAGE_STRING </item>
+      <item> AT_PACKAGE_TARNAME </item>
+      <item> AT_PACKAGE_URL </item>
+      <item> AT_PACKAGE_VERSION </item>
+      <item> AT_SETUP </item>
+      <item> AT_SKIP_IF </item>
+      <item> AT_TESTED </item>
+      <item> AT_XFAIL_IF </item>
+    </list>
+
+    <list name="libtool">
+      <item> LT_PREREQ </item>
+      <item> LT_LANG </item>
+      <item> LT_INIT </item>
+      <item> LTDL_INIT </item>
+      <item> LT_CONFIG_LTDL_DIR </item>
+    </list>
+
+    <list name="pkgconfig">
+      <item> PKG_CHECK_MODULES </item>
+      <item> PKG_PROG_PKG_CONFIG </item>
+      <item> PKG_CHECK_EXISTS </item>
+    </list>
+
+    <contexts>
+      <context attribute="Normal Text" lineEndContext="#stay" name="Default">
+        <!-- <IncludeRules context="##Bash" /> -->
+        <keyword attribute="Keyword" context="#stay" String="keywords" />
+        <RegExpr attribute="Builtin" context="#stay" String="\.(?=\s)" />
+        <keyword attribute="Builtin" context="#stay" String="builtins" />
+        <keyword attribute="Boolean" context="#stay" String="bools" />
+        <!-- Autoconf Macros -->
+        <keyword attribute="M4 Sugar Macros" context="#stay" String="m4sugar" />
+        <!-- Autotest Macro Index -->
+        <keyword attribute="Autotest Macros" context="#stay" String="autotest_macro" />
+        <!-- Other Macros -->
+        <keyword attribute="pkg-config Macros" context="#stay" String="pkgconfig" />
+        <!-- libtool Macros -->
+        <keyword attribute="Libtool Macros" context="#stay" String="libtool" />
+        <!-- Autoconf Macros -->
+        <RegExpr attribute="Autoconf Macros" context="#stay" String="\bAC_[A-Z0-9_]+\b" insensitive="false" endRegion="BeginRegion" />
+        <!-- Automake Macros -->
+        <RegExpr attribute="Automake Macros" context="#stay" String="\bAM_[A-Z0-9_]+\b" insensitive="false" endRegion="BeginRegion" />
+        <!-- Script temp Defined Macros -->
+        <RegExpr attribute="Inline Macros" context="#stay" String="\bac_[a-z_]+\b" insensitive="false" endRegion="BeginRegion" />
+        <RegExpr attribute="Char" context="#stay" String="'.'"/>
+        <DetectChar attribute="String" context="String" char="&quot;"/>
+        <AnyChar attribute="Symbol" context="#stay" String=":!%&amp;()+,-/.*&lt;=&gt;|"/>
+        <RegExpr attribute="Variable" context="#stay" String="\$[a-z_]+" insensitive="true" endRegion="BeginRegion" />
+        <Float attribute="Float" context="#stay"/>
+        <Int attribute="Decimal" context="#stay"/>
+        <RegExpr attribute="Pragmas" context="#stay" String="([\s\t]+#).*$" insensitive="true" endRegion="BeginRegion" />
+        <RegExpr attribute="Comment" context="#stay" String="(^#).*$" insensitive="true" endRegion="BeginRegion" />
+        <RegExpr attribute="Comment" context="#stay" String="(\bdnl\s).*$" insensitive="true" endRegion="BeginRegion" />
+      </context>
+      <context attribute="Region Marker" lineEndContext="#pop" name="Region Marker"/>
+      <context attribute="String" lineEndContext="#pop" name="String">
+        <DetectChar attribute="String" context="#pop" char="&quot;"/>
+      </context>
+    </contexts>
+    <itemDatas>
+      <itemData name="Normal Text"       defStyleNum="dsNormal" />
+      <itemData name="Keyword"           defStyleNum="dsKeyword" />
+      <itemData name="Builtin"           defStyleNum="dsKeyword" color="#808" />
+      <itemData name="M4 Sugar Macros"   defStyleNum="dsKeyword" />
+      <itemData name="Autotest Macros"   defStyleNum="dsKeyword" />
+      <itemData name="Autoconf Macros"   defStyleNum="dsKeyword" color="#0095ff" selColor="#ffffff" bold="1" />
+      <itemData name="Automake Macros"   defStyleNum="dsKeyword" color="#6666cc" selColor="#ffffff" bold="1" />
+      <itemData name="Libtool Macros"    defStyleNum="dsKeyword" color="#6666cc" selColor="#ffffff" bold="1" />
+      <itemData name="Inline Macros"     defStyleNum="dsKeyword" color="#6666cc" selColor="#ffffff" />
+      <itemData name="pkg-config Macros" defStyleNum="dsKeyword" />
+      <itemData name="Boolean"           defStyleNum="dsOthers" />
+      <itemData name="Variable"          defStyleNum="dsOthers" />
+      <itemData name="Decimal"           defStyleNum="dsDecVal" />
+      <itemData name="Float"             defStyleNum="dsFloat" />
+      <itemData name="Char"              defStyleNum="dsChar" />
+      <itemData name="String"            defStyleNum="dsString" />
+      <itemData name="Pragmas"           defStyleNum="dsOthers" color="#00C000" />
+      <itemData name="Comment"           defStyleNum="dsComment" />
+      <itemData name="Symbol"            defStyleNum="dsNormal"/>
+      <itemData name="Region Marker"     defStyleNum="dsRegionMarker" />
+    </itemDatas>
+  </highlighting>
+  <general>
+    <comments>
+      <comment name="singleLine" start="dnl" />
+      <comment name="multiLine" start="/*" end="*/" />
+    </comments>
+    <keywords casesensitive="0" />
+  </general>
+</language>
