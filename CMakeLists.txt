@@ -25,7 +25,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 option(WITH_TESTS "Build Tests" OFF)
 add_feature_info("Build tests" ${WITH_TESTS} "")
 option(WITH_DEBUG_CMAKE "Enabled CMake project debugging functionality (e.g. source file disk checking)" OFF)
-option(BUILD_WITH_PCH "Build with precompiled headers" ON)
 
 # merge binary directories of sub projects into top level
 set(QTC_MERGE_BINARY_DIR ON)
@@ -50,9 +49,14 @@ find_package(Qt5
 )
 if (Qt5_VERSION VERSION_LESS 6.0.0)
   install(TARGETS Qt6Core5Compat EXPORT QtCreator)
+  set(BUILD_WITH_PCH_DEFAULT ON)
+else()
+  set(BUILD_WITH_PCH_DEFAULT OFF)
 endif()
 find_package(Qt5 COMPONENTS LinguistTools QUIET)
 find_package(Qt5 COMPONENTS Designer DesignerComponents Help SerialPort Svg Tools QUIET)
+
+option(BUILD_WITH_PCH "Build with precompiled headers" ${BUILD_WITH_PCH_DEFAULT})
 
 find_package(Threads)
 find_package(Clang QUIET)

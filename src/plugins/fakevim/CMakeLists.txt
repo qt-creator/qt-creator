@@ -1,4 +1,5 @@
 add_qtc_plugin(FakeVim
+  CONDITION Qt5_VERSION VERSION_LESS 6.0.0
   PLUGIN_DEPENDS Core TextEditor
   PLUGIN_TEST_DEPENDS CppEditor CppTools
   SOURCES ${TEST_SOURCES}
