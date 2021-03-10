@@ -1040,10 +1040,15 @@ QString BaseQtVersionPrivate::findHostBinary(HostBinaries binary) const
         switch (binary) {
         case Designer:
         case Linguist:
-        case Rcc:
-        case Uic:
         case QScxmlc:
             baseDir = q->hostBinPath().toString();
+            break;
+        case Rcc:
+        case Uic:
+            if (q->qtVersion() >= QtVersionNumber(6, 1))
+                baseDir = q->hostLibexecPath().toString();
+            else
+                baseDir = q->hostBinPath().toString();
             break;
         default:
             // Can't happen
