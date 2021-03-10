@@ -73,6 +73,7 @@ const QString tabular(const std::unique_ptr<Operation> &o)
 void printHelp(const std::vector<std::unique_ptr<Operation>> &operations)
 {
     std::cout << Core::Constants::IDE_DISPLAY_NAME << "SDK setup tool." << std::endl;
+    std::cout << "Based on Qt " << qVersion() << std::endl;
     std::cout << "    Usage: " << qPrintable(QCoreApplication::arguments().at(0))
               << " <ARGS> <OPERATION> <OPERATION_ARGS>" << std::endl << std::endl;
     std::cout << "ARGS:" << std::endl;
