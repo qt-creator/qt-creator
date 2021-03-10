@@ -33,8 +33,21 @@
 #endif
 
 namespace Ios {
+MobileDeviceLib &MobileDeviceLib::instance()
+{
+    static MobileDeviceLib lib;
+    return lib;
+}
+
 MobileDeviceLib::MobileDeviceLib()
 {
+    if (!load())
+        addError(QLatin1String("Error loading MobileDevice.framework"));
+    if (!errors().isEmpty()) {
+        foreach (const QString &msg, errors())
+            addError(msg);
+    }
+    setLogLevel(5);
 }
 
 bool MobileDeviceLib::load()

@@ -77,12 +77,13 @@ static const QString DebugServiceName = "com.apple.debugserver";
 static const QString DebugSecureServiceName = "com.apple.debugserver.DVTSecureSocketProxy";
 
 
-static QString mobileDeviceErrorString(MobileDeviceLib *lib, am_res_t code)
+static QString mobileDeviceErrorString(am_res_t code)
 {
     QString s = QStringLiteral("Unknown error (0x%08x)").arg(code);
 
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
     // AMDErrors, 0x0, 0xe8000001-0xe80000db
-    if (char *ptr = lib->errorString(code)) {
+    if (char *ptr = mLib.errorString(code)) {
         CFStringRef key = QString::fromLatin1(ptr).toCFString();
 
         CFURLRef url = QUrl::fromLocalFile(
@@ -98,7 +99,7 @@ static QString mobileDeviceErrorString(MobileDeviceLib *lib, am_res_t code)
         }
 
         CFRelease(key);
-    } else if (CFStringRef str = lib->misErrorStringForErrorCode(code)) {
+    } else if (CFStringRef str = mLib.misErrorStringForErrorCode(code)) {
         // MIS errors, 0xe8008001-0xe800801e
         s = QString::fromCFString(str);
         CFRelease(str);
@@ -254,8 +255,6 @@ public:
     bool expectGdbOkReply(ServiceConnRef conn);
     bool startServiceSecure(const QString &serviceName, ServiceConnRef &conn);
 
-    MobileDeviceLib *lib();
-
     AMDeviceRef device;
     int progressBase;
     int unexpectedChars;
@@ -301,7 +300,6 @@ private:
     QHash<QString, AMDeviceRef> m_devices;
     QMultiHash<QString, PendingDeviceLookup *> m_pendingLookups;
     AMDeviceNotificationRef m_notification;
-    MobileDeviceLib m_lib;
 };
 
 class DevInfoSession: public CommandSession {
@@ -472,14 +470,8 @@ IosDeviceManagerPrivate::IosDeviceManagerPrivate (IosDeviceManager *q) : q(q), m
 
 bool IosDeviceManagerPrivate::watchDevices()
 {
-    if (!m_lib.load())
-        addError(QLatin1String("Error loading MobileDevice.framework"));
-    if (!m_lib.errors().isEmpty()) {
-        foreach (const QString &msg, m_lib.errors())
-            addError(msg);
-    }
-    m_lib.setLogLevel(5);
-    am_res_t e = m_lib.deviceNotificationSubscribe(&deviceNotificationCallback, 0, 0,
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    am_res_t e = mLib.deviceNotificationSubscribe(&deviceNotificationCallback, 0, 0,
                                                          0, &m_notification);
     if (e != 0) {
         addError(QLatin1String("AMDeviceNotificationSubscribe failed"));
@@ -508,7 +500,8 @@ void IosDeviceManagerPrivate::requestDeviceInfo(const QString &deviceId, int tim
 
 QStringList IosDeviceManagerPrivate::errors()
 {
-    return m_lib.errors();
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    return mLib.errors();
 }
 
 void IosDeviceManagerPrivate::addError(QString errorMsg)
@@ -520,7 +513,8 @@ void IosDeviceManagerPrivate::addError(QString errorMsg)
 
 QString IosDeviceManagerPrivate::deviceId(AMDeviceRef device)
 {
-    CFStringRef s = m_lib.deviceCopyDeviceIdentifier(device);
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    CFStringRef s = mLib.deviceCopyDeviceIdentifier(device);
     // remove dashes as a hotfix for QTCREATORBUG-21291
     const auto id = QString::fromCFString(s).remove('-');
     if (s) CFRelease(s);
@@ -532,7 +526,8 @@ void IosDeviceManagerPrivate::addDevice(AMDeviceRef device)
     const QString devId = deviceId(device);
     CFRetain(device);
 
-    DeviceInterfaceType interfaceType = static_cast<DeviceInterfaceType>(lib()->deviceGetInterfaceType(device));
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    DeviceInterfaceType interfaceType = static_cast<DeviceInterfaceType>(mLib.deviceGetInterfaceType(device));
     if (interfaceType == DeviceInterfaceType::UNKNOWN) {
         if (debugAll)
             qDebug() << "Skipping device." << devId << "Interface type: Unknown.";
@@ -601,11 +596,6 @@ void IosDeviceManagerPrivate::checkPendingLookups()
             }
         }
     }
-}
-
-MobileDeviceLib *IosDeviceManagerPrivate::lib()
-{
-    return &m_lib;
 }
 
 void IosDeviceManagerPrivate::didTransferApp(const QString &bundlePath, const QString &deviceId,
@@ -782,8 +772,9 @@ void IosDeviceManagerPrivate::stopGdbServer(ServiceConnRef conn, int phase)
 {
     CommandSession session((QString()));
     QMutexLocker l(&m_sendMutex);
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
     if (phase == 0)
-        lib()->serviceConnectionSend(conn, "\x03", 1);
+        mLib.serviceConnectionSend(conn, "\x03", 1);
     else
         session.sendGdbCommand(conn, "k", 1);
 }
@@ -801,26 +792,27 @@ bool CommandSession::connectDevice()
     if (!device)
         return false;
 
-    if (am_res_t error1 = lib()->deviceConnect(device)) {
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    if (am_res_t error1 = mLib.deviceConnect(device)) {
         addError(QString::fromLatin1("connectDevice %1 failed, AMDeviceConnect returned %2 (0x%3)")
-                 .arg(deviceId).arg(mobileDeviceErrorString(lib(), error1)).arg(error1));
+                 .arg(deviceId).arg(mobileDeviceErrorString(error1)).arg(error1));
         return false;
     }
-    if (lib()->deviceIsPaired(device) == 0) { // not paired
-        if (am_res_t error = lib()->devicePair(device)) {
+    if (mLib.deviceIsPaired(device) == 0) { // not paired
+        if (am_res_t error = mLib.devicePair(device)) {
             addError(QString::fromLatin1("connectDevice %1 failed, AMDevicePair returned %2 (0x%3)")
-                     .arg(deviceId).arg(mobileDeviceErrorString(lib(), error)).arg(error));
+                     .arg(deviceId).arg(mobileDeviceErrorString(error)).arg(error));
             return false;
         }
     }
-    if (am_res_t error2 = lib()->deviceValidatePairing(device)) {
+    if (am_res_t error2 = mLib.deviceValidatePairing(device)) {
         addError(QString::fromLatin1("connectDevice %1 failed, AMDeviceValidatePairing returned %2 (0x%3)")
-                 .arg(deviceId).arg(mobileDeviceErrorString(lib(), error2)).arg(error2));
+                 .arg(deviceId).arg(mobileDeviceErrorString(error2)).arg(error2));
         return false;
     }
-    if (am_res_t error3 = lib()->deviceStartSession(device)) {
+    if (am_res_t error3 = mLib.deviceStartSession(device)) {
         addError(QString::fromLatin1("connectDevice %1 failed, AMDeviceStartSession returned %2 (0x%3)")
-                 .arg(deviceId).arg(mobileDeviceErrorString(lib(), error3)).arg(error3));
+                 .arg(deviceId).arg(mobileDeviceErrorString(error3)).arg(error3));
         return false;
     }
     return true;
@@ -828,14 +820,15 @@ bool CommandSession::connectDevice()
 
 bool CommandSession::disconnectDevice()
 {
-    if (am_res_t error = lib()->deviceStopSession(device)) {
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    if (am_res_t error = mLib.deviceStopSession(device)) {
         addError(QString::fromLatin1("stopSession %1 failed, AMDeviceStopSession returned %2 (0x%3)")
-                 .arg(deviceId).arg(mobileDeviceErrorString(lib(), error)).arg(error));
+                 .arg(deviceId).arg(mobileDeviceErrorString(error)).arg(error));
         return false;
     }
-    if (am_res_t error = lib()->deviceDisconnect(device)) {
+    if (am_res_t error = mLib.deviceDisconnect(device)) {
         addError(QString::fromLatin1("disconnectDevice %1 failed, AMDeviceDisconnect returned %2 (0x%3)")
-                          .arg(deviceId).arg(mobileDeviceErrorString(lib(), error)).arg(error));
+                          .arg(deviceId).arg(mobileDeviceErrorString(error)).arg(error));
         return false;
     }
     return true;
@@ -848,9 +841,10 @@ bool CommandSession::startServiceSecure(const QString &serviceName, ServiceConnR
     // Connect device. AMDeviceConnect + AMDeviceIsPaired + AMDeviceValidatePairing + AMDeviceStartSession
     if (connectDevice()) {
         CFStringRef cfsService = serviceName.toCFString();
-        if (am_res_t error = lib()->deviceSecureStartService(device, cfsService, &conn)) {
+        MobileDeviceLib &mLib = MobileDeviceLib::instance();
+        if (am_res_t error = mLib.deviceSecureStartService(device, cfsService, &conn)) {
             addError(QString::fromLatin1("Starting(Secure) service \"%1\" on device %2 failed, AMDeviceStartSecureService returned %3 (0x%4)")
-                     .arg(serviceName).arg(deviceId).arg(mobileDeviceErrorString(lib(), error)).arg(QString::number(error, 16)));
+                     .arg(serviceName).arg(deviceId).arg(mobileDeviceErrorString(error)).arg(QString::number(error, 16)));
             success = false;
         } else {
             if (!conn) {
@@ -877,7 +871,9 @@ bool CommandSession::connectToPort(quint16 port, ServiceSocket *fd)
     ServiceSocket fileDescriptor;
     if (!connectDevice())
         return false;
-    if (am_res_t error = lib()->connectByPort(lib()->deviceGetConnectionID(device), htons(port), &fileDescriptor)) {
+
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    if (am_res_t error = mLib.connectByPort(mLib.deviceGetConnectionID(device), htons(port), &fileDescriptor)) {
         addError(QString::fromLatin1("connectByPort on device %1 port %2 failed, AMDeviceStartService returned %3")
                  .arg(deviceId).arg(port).arg(error));
         failure = true;
@@ -977,13 +973,14 @@ bool CommandSession::mountDeveloperDiskImage() {
 
             if (connectDevice()) {
                 CFStringRef cfImgPath = imagePath.toCFString();
-                am_res_t result = lib()->deviceMountImage(device, cfImgPath, options, &mountCallback, 0);
+                MobileDeviceLib &mLib = MobileDeviceLib::instance();
+                am_res_t result = mLib.deviceMountImage(device, cfImgPath, options, &mountCallback, 0);
                 if (result == 0 || result == kAMDMobileImageMounterImageMountFailed)  {
                     // Mounting succeeded or developer image already installed
                     success = true;
                 } else {
                     addError(QString::fromLatin1("Mount Developer Disk Image \"%1\" failed, AMDeviceMountImage returned %2 (0x%3)")
-                             .arg(imagePath).arg(mobileDeviceErrorString(lib(), result)).arg(QString::number(result, 16)));
+                             .arg(imagePath).arg(mobileDeviceErrorString(result)).arg(QString::number(result, 16)));
                 }
                 CFRelease(cfImgPath);
                 disconnectDevice();
@@ -1007,16 +1004,18 @@ bool CommandSession::sendGdbCommand(ServiceConnRef conn, const char *cmd, qptrdi
     unsigned char checkSum = 0;
     for (int i = 0; i < len; ++i)
         checkSum += static_cast<unsigned char>(cmd[i]);
-    bool failure = lib()->serviceConnectionSend(conn, "$", 1) == 0;
+
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    bool failure = mLib.serviceConnectionSend(conn, "$", 1) == 0;
     if (!failure)
-        failure = lib()->serviceConnectionSend(conn, cmd, len) == 0;
+        failure = mLib.serviceConnectionSend(conn, cmd, len) == 0;
     char buf[3];
     buf[0] = '#';
     const char *hex = "0123456789abcdef";
     buf[1]   = hex[(checkSum >> 4) & 0xF];
     buf[2] = hex[checkSum & 0xF];
     if (!failure)
-        failure = lib()->serviceConnectionSend(conn, buf, 3) == 0;
+        failure = mLib.serviceConnectionSend(conn, buf, 3) == 0;
     return !failure;
 }
 
@@ -1079,8 +1078,10 @@ int CommandSession::handleChar(ServiceConnRef conn, QByteArray &res, char c, int
                 ++unexpectedChars;
             }
         }
-        if (status == 3 && aknowledge)
-            lib()->serviceConnectionSend(conn, "+", 1);
+        if (status == 3 && aknowledge) {
+            MobileDeviceLib &mLib = MobileDeviceLib::instance();
+            mLib.serviceConnectionSend(conn, "+", 1);
+        }
         return status + 1;
     case 4:
         addError(QString::fromLatin1("gone past end in readGdbReply"));
@@ -1101,8 +1102,9 @@ QByteArray CommandSession::readGdbReply(ServiceConnRef conn)
     int maxRetry = 10;
     int status = 0;
     int toRead = 4;
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
     while (status < 4 && toRead > 0) {
-        qptrdiff nRead = lib()->serviceConnectionReceive(conn, buf, toRead);
+        qptrdiff nRead = mLib.serviceConnectionReceive(conn, buf, toRead);
         if (!checkRead(nRead, maxRetry))
             return QByteArray();
         if (debugGdbServer) {
@@ -1167,22 +1169,18 @@ bool CommandSession::expectGdbOkReply(ServiceConnRef conn)
     return expectGdbReply(conn, QByteArray("OK"));
 }
 
-MobileDeviceLib *CommandSession::lib()
-{
-    return IosDeviceManagerPrivate::instance()->lib();
-}
-
 bool CommandSession::developerDiskImagePath(QString *path, QString *signaturePath)
 {
     if (device && path && connectDevice()) {
-        CFPropertyListRef cfProductVersion = lib()->deviceCopyValue(device, 0, CFSTR("ProductVersion"));
+        MobileDeviceLib &mLib = MobileDeviceLib::instance();
+        CFPropertyListRef cfProductVersion = mLib.deviceCopyValue(device, 0, CFSTR("ProductVersion"));
         QString versionString;
         if (cfProductVersion && CFGetTypeID(cfProductVersion) == CFStringGetTypeID()) {
             versionString = QString::fromCFString(reinterpret_cast<CFStringRef>(cfProductVersion));
         }
         CFRelease(cfProductVersion);
 
-        CFPropertyListRef cfBuildVersion = lib()->deviceCopyValue(device, 0, CFSTR("BuildVersion"));
+        CFPropertyListRef cfBuildVersion = mLib.deviceCopyValue(device, 0, CFSTR("BuildVersion"));
         QString buildString;
         if (cfBuildVersion && CFGetTypeID(cfBuildVersion) == CFStringGetTypeID()) {
             buildString = QString::fromCFString(reinterpret_cast<CFStringRef>(cfBuildVersion));
@@ -1225,19 +1223,20 @@ bool AppOpSession::installApp()
                                                      &kCFTypeDictionaryKeyCallBacks,
                                                      &kCFTypeDictionaryValueCallBacks);
 
+        MobileDeviceLib &mLib = MobileDeviceLib::instance();
         // Transfer bundle with secure API AMDeviceTransferApplication.
-        if (int error = lib()->deviceSecureTransferApplicationPath(0, device, bundleUrl, options,
+        if (int error = mLib.deviceSecureTransferApplicationPath(0, device, bundleUrl, options,
                                                          &appSecureTransferSessionCallback,0)) {
             addError(QString::fromLatin1("TransferAppSession(%1,%2) failed, AMDeviceTransferApplication returned %3 (0x%4)")
-                     .arg(bundlePath, deviceId).arg(mobileDeviceErrorString(lib(), error)).arg(error));
+                     .arg(bundlePath, deviceId).arg(mobileDeviceErrorString(error)).arg(error));
             success = false;
         } else {
             // App is transferred. Try installing.
             if (connectDevice()) {
                 // Secure install app api requires device to be connected.
-                if (am_res_t error = lib()->deviceSecureInstallApplication(0, device, bundleUrl, options,
+                if (am_res_t error = mLib.deviceSecureInstallApplication(0, device, bundleUrl, options,
                                                                            &appSecureTransferSessionCallback,0)) {
-                    const QString errorString = mobileDeviceErrorString(lib(), error);
+                    const QString errorString = mobileDeviceErrorString(error);
                     if (!errorString.isEmpty()) {
                         addError(errorString
                                  + QStringLiteral(" (0x")
@@ -1329,7 +1328,8 @@ bool AppOpSession::runApp()
     CFDictionaryRef version = CFDictionaryCreate(NULL, (const void **)&keys, (const void **)&values,
                                                  2, &kCFTypeDictionaryKeyCallBacks,
                                                  &kCFTypeDictionaryValueCallBacks);
-    bool useSecureProxy = lib()->deviceIsAtLeastVersionOnPlatform(device, version);
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    bool useSecureProxy = mLib.deviceIsAtLeastVersionOnPlatform(device, version);
     // The debugserver service cannot be launched directly on iOS 14+
     // A secure proxy service sits between the actual debugserver service.
     const QString &serviceName = useSecureProxy ? DebugSecureServiceName : DebugServiceName;
@@ -1376,7 +1376,7 @@ bool AppOpSession::runApp()
         failure = true;
     }
 
-    CFSocketNativeHandle fd = failure ? 0 : lib()->deviceConnectionGetSocket(conn);
+    CFSocketNativeHandle fd = failure ? 0 : mLib.deviceConnectionGetSocket(conn);
     auto status = failure ? IosDeviceManager::Failure : IosDeviceManager::Success;
     IosDeviceManagerPrivate::instance()->didStartApp(bundlePath, deviceId, status, conn, fd, this);
     return !failure;
@@ -1413,7 +1413,8 @@ QString AppOpSession::appPathOnDevice()
                                  (const void**)(&lookupKeys), 1,
                                  &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
     CFRelease(lookupKeys);
-    if (int err = lib()->deviceLookupApplications(device, options, &apps)) {
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    if (int err = mLib.deviceLookupApplications(device, options, &apps)) {
         addError(QString::fromLatin1("app lookup failed, AMDeviceLookupApplications returned %1")
                  .arg(err));
     }
@@ -1475,7 +1476,8 @@ QString DevInfoSession::getStringValue(AMDevice *device,
                                        const QString &fallback)
 {
     QString value = fallback;
-    CFPropertyListRef cfValue = lib()->deviceCopyValue(device, domain, key);
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    CFPropertyListRef cfValue = mLib.deviceCopyValue(device, domain, key);
     if (cfValue) {
         if (CFGetTypeID(cfValue) == CFStringGetTypeID())
             value = QString::fromCFString(reinterpret_cast<CFStringRef>(cfValue));

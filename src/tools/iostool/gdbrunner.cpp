@@ -61,7 +61,8 @@ void GdbRunner::run()
         }
         m_iosTool->outFile.flush();
     }
-    close(m_conn->sockfd);
+    MobileDeviceLib::instance().serviceConnectionInvalidate(m_conn);
+    m_conn = nullptr;
     m_iosTool->doExit();
     emit finished();
 }

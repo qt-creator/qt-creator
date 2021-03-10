@@ -111,13 +111,17 @@ typedef bool (MDEV_API *AMDeviceIsAtLeastVersionOnPlatformPtr)(AMDeviceRef, CFDi
 }
 
 class MobileDeviceLib {
-public :
     MobileDeviceLib();
-
     bool load();
+
+public:
+    MobileDeviceLib( const MobileDeviceLib& ) = delete;
+    MobileDeviceLib &operator=( const MobileDeviceLib& ) = delete;
+
+    static MobileDeviceLib &instance();
+
     bool isLoaded();
     QStringList errors();
-//
 
     void setLogLevel(int i) ;
     am_res_t deviceNotificationSubscribe(AMDeviceNotificationCallback callback,
