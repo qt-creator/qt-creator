@@ -44,6 +44,7 @@ public:
     bool initialize(const QStringList &arguments, QString *errorString) override;
     void extensionsInitialized() override;
     static void askUserAboutMcuSupportKitsSetup();
+    static void askUserAboutMcuSupportKitsUpgrade();
 };
 
 } // namespace Internal

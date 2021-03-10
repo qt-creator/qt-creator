@@ -122,5 +122,33 @@ void McuSupportPlugin::askUserAboutMcuSupportKitsSetup()
     ICore::infoBar()->addInfo(info);
 }
 
+void McuSupportPlugin::askUserAboutMcuSupportKitsUpgrade()
+{
+    const char upgradeMcuSupportKits[] = "UpgradeMcuSupportKits";
+
+    if (!ICore::infoBar()->canInfoBeAdded(upgradeMcuSupportKits))
+        return;
+
+    Utils::InfoBarEntry info(upgradeMcuSupportKits,
+                             tr("New version of Qt for MCUs detected. Upgrade existing Kits?"),
+                             Utils::InfoBarEntry::GlobalSuppression::Enabled);
+
+    static McuSupportOptions::UpgradeOption selectedOption;
+    const QStringList options = { tr("Create new kits"), tr("Replace existing kits") };
+    selectedOption = McuSupportOptions::UpgradeOption::Keep;
+    info.setComboInfo(options, [upgradeMcuSupportKits, options](const QString &selected) {
+        selectedOption = options.indexOf(selected) == 0 ?
+                    McuSupportOptions::UpgradeOption::Keep :
+                    McuSupportOptions::UpgradeOption::Replace;
+    });
+
+    info.setCustomButtonInfo(tr("Proceed"), [upgradeMcuSupportKits] {
+        ICore::infoBar()->removeInfo(upgradeMcuSupportKits);
+        QTimer::singleShot(0, []() { McuSupportOptions::upgradeKits(selectedOption); });
+    });
+
+    ICore::infoBar()->addInfo(info);
+}
+
 } // namespace Internal
 } // namespace McuSupport

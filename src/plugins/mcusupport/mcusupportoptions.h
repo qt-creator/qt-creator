@@ -204,6 +204,12 @@ class McuSupportOptions : public QObject
     Q_OBJECT
 
 public:
+    enum UpgradeOption {
+        Ignore,
+        Keep,
+        Replace
+    };
+
     McuSupportOptions(QObject *parent = nullptr);
     ~McuSupportOptions() override;
 
@@ -216,11 +222,14 @@ public:
 
     static QString kitName(const McuTarget* mcuTarget);
 
-    static QList<ProjectExplorer::Kit *> existingKits(const McuTarget *mcuTarget);
+    static QList<ProjectExplorer::Kit *> existingKits(const McuTarget *mcuTarget, bool autoDetectedOnly = true);
     static QList<ProjectExplorer::Kit *> outdatedKits();
     static void removeOutdatedKits();
     static ProjectExplorer::Kit *newKit(const McuTarget *mcuTarget, const McuPackage *qtForMCUsSdk);
     static void createAutomaticKits();
+    static UpgradeOption askForKitUpgrades();
+    static void upgradeKits(UpgradeOption upgradeOption);
+    void checkUpgradeableKits();
     static void fixExistingKits();
     void populatePackagesAndTargets();
     static void registerQchFiles();

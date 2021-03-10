@@ -26,6 +26,7 @@
 #include "mcusupportconstants.h"
 #include "mcusupportoptions.h"
 #include "mcusupportsdk.h"
+#include "mcusupportplugin.h"
 
 #include <baremetal/baremetalconstants.h>
 #include <cmakeprojectmanager/cmaketoolmanager.h>
@@ -57,6 +58,8 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QLabel>
+#include <QMessageBox>
+#include <QPushButton>
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QVariant>
@@ -866,11 +869,11 @@ QString McuSupportOptions::kitName(const McuTarget *mcuTarget)
                  compilerName);
 }
 
-QList<Kit *> McuSupportOptions::existingKits(const McuTarget *mcuTarget)
+QList<Kit *> McuSupportOptions::existingKits(const McuTarget *mcuTarget, bool autoDetectedOnly)
 {
     using namespace Constants;
-    return Utils::filtered(KitManager::kits(), [mcuTarget](Kit *kit) {
-        return kit->isAutoDetected()
+    return Utils::filtered(KitManager::kits(), [mcuTarget, autoDetectedOnly](Kit *kit) {
+        return (!autoDetectedOnly || kit->isAutoDetected())
                 && kit->value(KIT_MCUTARGET_KITVERSION_KEY) == KIT_VERSION
                 && (!mcuTarget || (
                         kit->value(KIT_MCUTARGET_VENDOR_KEY) == mcuTarget->platform().vendor
@@ -929,6 +932,42 @@ void printMessage(const QString &message, bool important)
         Core::MessageManager::writeSilently(displayMessage);
 }
 
+QVersionNumber kitQulVersion(const Kit *kit)
+{
+    return QVersionNumber::fromString(
+                kit->value(McuSupport::Constants::KIT_MCUTARGET_SDKVERSION_KEY)
+                .toString());
+}
+
+QString kitDependencyPath(const Kit *kit, const QString &variableName)
+{
+    for (const NameValueItem &nameValueItem : EnvironmentKitAspect::environmentChanges(kit)) {
+        if (nameValueItem.name == variableName)
+            return nameValueItem.value;
+    }
+    return QString();
+}
+
+McuSupportOptions::UpgradeOption McuSupportOptions::askForKitUpgrades()
+{
+    QMessageBox upgradePopup(Core::ICore::dialogParent());
+    upgradePopup.setStandardButtons(QMessageBox::Cancel);
+    QPushButton *replaceButton = upgradePopup.addButton(tr("Replace existing kits"),QMessageBox::NoRole);
+    QPushButton *keepButton = upgradePopup.addButton(tr("Create new kits"),QMessageBox::NoRole);
+    upgradePopup.setWindowTitle(tr("Qt for MCUs"));
+    upgradePopup.setText(tr("New version of Qt for MCUs detected. Upgrade existing Kits?"));
+
+    upgradePopup.exec();
+
+    if (upgradePopup.clickedButton() == keepButton)
+        return Keep;
+
+    if (upgradePopup.clickedButton() == replaceButton)
+        return Replace;
+
+    return Ignore;
+}
+
 void McuSupportOptions::createAutomaticKits()
 {
     auto qtForMCUsPackage = Sdk::createQtForMCUsPackage();
@@ -974,19 +1013,107 @@ void McuSupportOptions::createAutomaticKits()
         QVector<McuTarget*> mcuTargets;
         Sdk::targetsAndPackages(dir, &packages, &mcuTargets);
 
-        for (auto target: qAsConst(mcuTargets))
-            if (existingKits(target).isEmpty()) {
+        bool needsUpgrade = false;
+        for (auto target: qAsConst(mcuTargets)) {
+            const auto kitsForTarget = existingKits(target, false);
+            if (Utils::anyOf(kitsForTarget, [&target, &qtForMCUsPackage](const Kit *kit) {
+                return kitQulVersion(kit) == target->qulVersion() &&
+                             kitDependencyPath(kit, qtForMCUsPackage->environmentVariableName()) == qtForMCUsPackage->path();
+                })) {
+                // if kit already exists, skip
+                continue;
+            }
+            if (!kitsForTarget.empty()) {
+                // if kit exists but wrong version/path
+                needsUpgrade = true;
+            } else {
+                // if no kits for this target, create
                 if (target->isValid())
                     newKit(target, qtForMCUsPackage);
                 target->printPackageProblems();
             }
+        }
 
         qDeleteAll(packages);
         qDeleteAll(mcuTargets);
+
+        if (needsUpgrade)
+            McuSupportPlugin::askUserAboutMcuSupportKitsUpgrade();
     }
    };
 
     createKits();
+    delete qtForMCUsPackage;
+}
+
+void McuSupportOptions::checkUpgradeableKits()
+{
+    if (!qtForMCUsSdkPackage->validStatus() || mcuTargets.length() == 0)
+        return;
+
+    const auto performCheck = [this]() {
+        const QString envVar = qtForMCUsSdkPackage->environmentVariableName();
+        const QString path = qtForMCUsSdkPackage->path();
+        for (auto target: qAsConst(this->mcuTargets)) {
+            const auto kitsForTarget = existingKits(target, false);
+            if (!kitsForTarget.empty() &&
+                    Utils::allOf(kitsForTarget, [&target, &envVar, &path](const Kit *kit) {
+                                 return kitQulVersion(kit) != target->qulVersion() ||
+                                 kitDependencyPath(kit,envVar) != path;
+        }))
+                return true;
+        }
+        return false;
+    };
+
+    if (performCheck())
+        upgradeKits(askForKitUpgrades());
+}
+
+void McuSupportOptions::upgradeKits(UpgradeOption upgradeOption)
+{
+    if (upgradeOption == Ignore)
+        return;
+
+    auto qtForMCUsPackage = Sdk::createQtForMCUsPackage();
+
+    auto dir = FilePath::fromUserInput(qtForMCUsPackage->path());
+    QVector<McuPackage*> packages;
+    QVector<McuTarget*> mcuTargets;
+    Sdk::targetsAndPackages(dir, &packages, &mcuTargets);
+
+    const QString envVar = qtForMCUsPackage->environmentVariableName();
+    const QString path = qtForMCUsPackage->path();
+
+    for (auto target: qAsConst(mcuTargets)) {
+        const auto kitsForTarget = existingKits(target, false);
+        if (Utils::anyOf(kitsForTarget, [&target, &envVar, &path](const Kit *kit) {
+            return kitQulVersion(kit) == target->qulVersion() && kitDependencyPath(kit, envVar) == path;
+            })) {
+            // already up-to-date
+            continue;
+        }
+        if (!kitsForTarget.empty()) {
+            for (auto existingKit : kitsForTarget) {
+                switch (upgradeOption) {
+                case Keep:
+                    existingKit->setAutoDetected(false);
+                    break;
+                case Replace:
+                    KitManager::deregisterKit(existingKit);
+                    break;
+                default: break;
+                }
+            }
+
+            if (target->isValid())
+                newKit(target, qtForMCUsPackage);
+            target->printPackageProblems();
+        }
+    }
+
+    qDeleteAll(packages);
+    qDeleteAll(mcuTargets);
     delete qtForMCUsPackage;
 }
 

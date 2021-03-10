@@ -282,6 +282,8 @@ void McuSupportOptionsWidget::apply()
     m_options.qtForMCUsSdkPackage->writeToSettings();
     for (auto package : qAsConst(m_options.packages))
         package->writeToSettings();
+
+    m_options.checkUpgradeableKits();
 }
 
 void McuSupportOptionsWidget::populateMcuTargetsComboBox()
