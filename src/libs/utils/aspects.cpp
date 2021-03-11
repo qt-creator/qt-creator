@@ -2082,18 +2082,6 @@ void AspectContainer::setAutoApply(bool on)
         aspect->setAutoApply(on);
 }
 
-void AspectContainer::fromMap(const QString &prefix, const QVariantMap &map)
-{
-    for (BaseAspect *aspect : qAsConst(d->m_items))
-        aspect->setValue(map.value(prefix + aspect->settingsKey()));
-}
-
-void AspectContainer::toMap(const QString &prefix, QVariantMap &map) const
-{
-    for (BaseAspect *aspect : qAsConst(d->m_items))
-        map.insert(prefix + aspect->settingsKey(), aspect->value());
-}
-
 bool AspectContainer::equals(const AspectContainer &other) const
 {
     // FIXME: Expensive, but should not really be needed in a fully aspectified world.

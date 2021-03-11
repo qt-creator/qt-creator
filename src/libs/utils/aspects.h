@@ -526,8 +526,6 @@ public:
     void finish();
 
     void reset();
-    void fromMap(const QString &prefix, const QVariantMap &map);
-    void toMap(const QString &prefix, QVariantMap &map) const;
     bool equals(const AspectContainer &other) const;
     void copyFrom(const AspectContainer &other);
     void setAutoApply(bool on);
