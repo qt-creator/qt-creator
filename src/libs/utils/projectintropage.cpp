@@ -165,16 +165,15 @@ bool ProjectIntroPage::validate()
         return false;
     }
 
-    // Name valid? Ignore 'DisplayingPlaceholderText' state.
-    bool nameValid = false;
+    // Name valid?
     switch (d->m_ui.nameLineEdit->state()) {
     case FancyLineEdit::Invalid:
         displayStatusMessage(InfoLabel::Error, d->m_ui.nameLineEdit->errorMessage());
         return false;
     case FancyLineEdit::DisplayingPlaceholderText:
-        break;
+        displayStatusMessage(InfoLabel::Error, tr("Name is empty."));
+        return false;
     case FancyLineEdit::Valid:
-        nameValid = true;
         break;
     }
 
@@ -183,12 +182,12 @@ bool ProjectIntroPage::validate()
                                    + QDir::fromNativeSeparators(d->m_ui.nameLineEdit->text()));
     if (!projectDirFile.exists()) { // All happy
         hideStatusLabel();
-        return nameValid;
+        return true;
     }
 
     if (projectDirFile.isDir()) {
         displayStatusMessage(InfoLabel::Warning, tr("The project already exists."));
-        return nameValid;
+        return true;
     }
     // Not a directory, but something else, likely causing directory creation to fail
     displayStatusMessage(InfoLabel::Error, tr("A file with that name already exists."));

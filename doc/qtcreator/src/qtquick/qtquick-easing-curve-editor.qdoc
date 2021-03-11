@@ -1,0 +1,106 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page qtquick-editing-easing-curves.html
+    \previouspage studio-timeline.html
+    \nextpage qmldesigner-connections.html
+
+    \title Editing Easing Curves
+
+    You can use \uicontrol {Easing Curve Editor} to edit the easing curve
+    between two keyframes.
+
+    \image studio-easing-curve-editor.png "Easing Curve Editor"
+
+    You can use the preset curves or modify them by dragging the curve handles
+    around. You can add points to the curve and drag them and the point handles
+    to modify the curve. When you are happy with the curve, you can save it as
+    a custom curve. For more information about easing curve types, see the
+    technical documentation for \l [QML] {PropertyAnimation}{easing curves}.
+
+    To zoom into and out of the easing curve editor, use the mouse
+    roller. To reset the zoom factor, right-click in the picker and
+    select \uicontrol {Reset Zoom}.
+
+    You can also use the more advanced \l {Curve Editor} that
+    shows the interpolated values of an animated property over
+    the \l{Creating Animations}{animation} range.
+
+    The animation curves present a more readable view of the animation by
+    showing the effective values of the animated properties over the animation
+    range. In order to do so, they need to be converted to and from easing
+    curves. This comes with the following side effects:
+
+    \list
+        \li Interpolation between identical current and previous keyframe values
+            is meaningless regardless of what the easing curve looks like.
+        \li Some easing curves are not trivially mappable to animation curves
+            and are therefore painted in a different color and without handles.
+    \endlist
+
+    \section1 Attaching Easing Curves to Keyframes
+
+    To attach easing curves to keyframes:
+
+    \list 1
+        \li Right-click a keyframe in \l Timeline and select
+            \uicontrol {Easing Curve Editor} in the context menu.
+        \li Select an easing curve in the \uicontrol Presets tab.
+        \li In the \uicontrol {Duration (ms)} field, select the
+            duration of the easing function in milliseconds.
+        \li Select \uicontrol Preview to preview the curve.
+        \li Select \uicontrol OK to attach the easing curve to the
+            keyframe, close \uicontrol {Easing Curve Editor}, and
+            return to \l Timeline.
+    \endlist
+
+    When you attach easing curves to keyframes, the shape of the
+    \l{keyframe_marker}{keyframe marker} on a keyframe track in
+    \l Timeline changes from \inlineimage keyframe_linear_inactive.png
+    to a marker that describes the type of the selected easing curve.
+
+    \section1 Customizing Easing Curves
+
+    To customize easing curves:
+
+    \list 1
+        \li In \uicontrol {Easing Curve Editor}, select an easing curve in
+            the \uicontrol Presets tab.
+        \li Drag the curve handles to modify the curve.
+        \li Right-click in the editor, and select \uicontrol {Add Point} to add
+            points to the curve.
+        \li Drag the points or the point handles to modify the curve. If the
+            curve becomes invalid, it turns red in the editor and the
+            \uicontrol Save button is disabled.
+        \li Select \uicontrol Save to save your changes to the curve.
+        \li In the \uicontrol Name field, enter a name for the custom curve,
+            and then select \uicontrol OK to save the curve in the
+            \uicontrol Custom tab.
+    \endlist
+
+    To paste easing curve definitions to \uicontrol {Easing Curve Editor} as
+    text, select the \uicontrol Text tab.
+*/

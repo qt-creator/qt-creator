@@ -92,6 +92,15 @@ void OutputParserTester::testParsing(const QString &lines,
                      msgFileComparisonFail(m_receivedTasks.at(i).file, tasks.at(i).file));
             QCOMPARE(m_receivedTasks.at(i).line, tasks.at(i).line);
             QCOMPARE(static_cast<int>(m_receivedTasks.at(i).type), static_cast<int>(tasks.at(i).type));
+            // Skip formats check if we haven't specified expected
+            if (tasks.at(i).formats.size() == 0)
+                continue;
+            QCOMPARE(m_receivedTasks.at(i).formats.size(), tasks.at(i).formats.size());
+            for (int j = 0; j < tasks.at(i).formats.size(); ++j) {
+                QCOMPARE(m_receivedTasks.at(i).formats.at(j).start, tasks.at(i).formats.at(j).start);
+                QCOMPARE(m_receivedTasks.at(i).formats.at(j).length, tasks.at(i).formats.at(j).length);
+                QCOMPARE(m_receivedTasks.at(i).formats.at(j).format.anchorHref(), tasks.at(i).formats.at(j).format.anchorHref());
+            }
         }
     }
 }

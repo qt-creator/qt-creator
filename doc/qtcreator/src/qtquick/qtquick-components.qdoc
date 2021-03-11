@@ -90,7 +90,7 @@
         \li To enable users to interact with components, connect the components
             to signals in the \uicontrol Connections view. For example, you can
             specify what happens when a component is clicked.
-            For more information, see \l{Connecting Objects to Signals}.
+            For more information, see \l{Connecting Components to Signals}.
             \image qmldesigner-connections.png "Connections view Connections tab"
         \li To dynamically change the behavior of an object when another object
             changes, create bindings between components in the

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -24,49 +24,42 @@
 ****************************************************************************/
 
 /*!
-    \previouspage studio-timeline.html
+    \previouspage qtquick-editing-easing-curves.html
     \page qmldesigner-connections.html
     \nextpage quick-signals.html
 
     \title Adding Connections
 
-    The user interface components and the application need to communicate with
-    each other. For example, a button needs to know that the user has clicked
-    on it. The button may then change color to indicate its state or perform an
-    action. Further, the application needs to know whether the user is clicking
-    the button, because it may need to relay this clicking event to other
-    applications.
-
-    QML has a signal and handler mechanism, that enables components to respond
-    to application events. Events are represented by \e signals. When a signal
-    is emitted, the corresponding \e {signal handler} is invoked to respond to
-    the event by using scripts or other operations placed in the handler.
-
-    To access a signal outside of the object that emits it, you can use the
-    \l Connections type for connecting to signals of arbitrary objects. A
-    Connections object can receive any signal from its specified target.
-
-    A component's property can be assigned a static value which stays constant
-    until it is explicitly assigned a new value. However, to make the fullest
-    use of QML and its built-in support for dynamic object behaviors, most QML
-    types use property bindings. This means that you can specify relationships
-    between different object properties so that when a property's dependencies
-    change in value, the property's value is automatically updated accordingly.
-
-    Behind the scenes, the QML engine monitors the property's dependencies (that
-    is, the variables in the binding expression). When a change is detected, the
-    QML engine re-evaluates the binding expression and applies the new result to
-    the property.
-
-    The following sections describe how to use the \uicontrol {Connections} view
-    to perform the following tasks:
-
     \list
-        \li \l{Connecting Objects to Signals}
-        \li \l{Specifying Dynamic Properties}
+        \li \l{Connecting Components to Signals}
+
+            A signal and handler mechanism enables components to respond to
+            application events, which are represented by \e signals. When a
+            signal is emitted, the corresponding \e {signal handler} is
+            invoked to respond to the event by applying an action, for
+            example.
+
         \li \l{Adding Bindings Between Properties}
+
+            A component's property can be assigned a static value that stays
+            constant until it is explicitly changed. To make the UI more
+            dynamic, you can use \e {property bindings}. This means that you
+            can specify relationships between component properties so that when
+            the value of a property changes, the values of any properties that
+            are bound to it are automatically updated accordingly.
+
+        \li \l{Specifying Dynamic Properties}
+
+            Each preset component has a set of preset properties that you
+            can specify values for. You can add custom properties that would
+            not otherwise exist for a particular \l{Component Types}
+            {component type} or your custom components.
+
         \if defined(qtcreator)
         \li \l{Managing C++ Backend Objects}
+
+            Application developers can access QObject objects implemented in C++
+            from QML files.
         \endif
     \endlist
 

@@ -89,12 +89,12 @@
         \li Enables you to modify the properties of the selected component.
         \li \l {Specifying Component Properties}
     \row
-        \li \l{Adding Connections}{Connection View}
+        \li \l{Connection View}
         \li Enables you to add functionality to the UI by creating
-            connections between objects, signals, and object properties.
+            connections between components, signals, and component properties.
         \li \l{Adding Connections}
     \row
-        \li \l{Adding States}{States}
+        \li \l States
         \li Displays the different states that can be applied to a component.
             Typically, states describe UI configurations, such as the
             visibility and behavior of components and the available user
@@ -106,16 +106,15 @@
             the changes between states.
         \li \l{Animating Transitions Between States}
     \row
-        \li \l{Creating Animations}{Timeline}
+        \li \l Timeline
         \li Provides a timeline and keyframe based editor for animating
             the properties of components.
         \li \l{Creating Animations}
     \row
-        \li \l{Editing Animation Curves}{Curve Editor}
+        \li \l{Curve Editor}
         \li Enables you to view and modify the whole animation curve by
             inserting keyframes to the curve and dragging them and the point
-            handlers to modify the curve. You can modify the appearance of
-            the curve in the style editor.
+            handlers to modify the curve.
         \li \l {Editing Animation Curves}
     \row
         \li \l{Working in Edit Mode}{Text Editor}

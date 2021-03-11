@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -83,6 +83,14 @@
             \li The operands are of the same type but not equal, or are of
                 different type.
     \endtable
+
+    \if defined(qtdesignstudio)
+    Alternatively, you can use \uicontrol {And Operator},
+    \uicontrol {Or Operator}, and \uicontrol {Not Operator}
+    components to bind property values using the boolean AND,
+    OR, and NOT operator. For more information, see \l{Logic Helpers}.
+    \endif
+
 
     In addition, you can use arithmetic operators to compare numbers before
     checks. However, we recommend that you create separate properties for this

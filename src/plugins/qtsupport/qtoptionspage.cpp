@@ -848,7 +848,7 @@ static bool canLinkWithQt(QString *toolTip)
     const QString link = installSettingsValue ? *installSettingsValue : QString();
     if (!link.isEmpty())
         tip << QtOptionsPageWidget::tr("%1 is currently linked to \"%2\".")
-                   .arg(QString(Core::Constants::IDE_DISPLAY_NAME), link);
+                   .arg(QString(Core::Constants::IDE_DISPLAY_NAME), QDir::toNativeSeparators(link));
     if (toolTip)
         *toolTip = tip.join("\n\n");
     return canLink;

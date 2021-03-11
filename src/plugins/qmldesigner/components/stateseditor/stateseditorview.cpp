@@ -298,7 +298,7 @@ void StatesEditorView::renameState(int internalNodeId, const QString &newName)
                 setCurrentState(baseState());
                 const bool updateDefault = state.isDefault();
 
-                state.setName(newName);
+                state.setName(newName.trimmed());
 
                 if (updateDefault)
                     state.setAsDefault();

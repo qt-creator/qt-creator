@@ -1515,6 +1515,14 @@ QList<ActionInterface* > DesignerActionManager::designerActions() const
     });
 }
 
+ActionInterface *DesignerActionManager::actionByMenuId(const QByteArray &id)
+{
+    for (const auto &action : m_designerActions)
+        if (action->menuId() == id)
+            return action.data();
+    return nullptr;
+}
+
 DesignerActionManager::DesignerActionManager(DesignerActionManagerView *designerActionManagerView)
     : m_designerActionManagerView(designerActionManagerView)
 {

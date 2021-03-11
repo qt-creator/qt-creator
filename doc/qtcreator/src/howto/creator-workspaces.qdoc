@@ -26,7 +26,7 @@
 /*!
     \page creator-project-managing-workspaces.html
     \if defined(qtdesignstudio)
-    \previouspage creator-using-qt-quick-designer.html
+    \previouspage qtquick-curve-editor.html
     \nextpage creator-project-managing-sessions.html
     \else
     \previouspage creator-sidebars.html

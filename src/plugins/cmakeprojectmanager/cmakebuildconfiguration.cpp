@@ -463,8 +463,14 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
     connect(buttons, &QDialogButtonBox::accepted, dialog, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
     connect(dialog, &QDialog::accepted, this, [=]{
-        const CMakeConfig config = CMakeConfigItem::itemsFromArguments(
-                    editor->toPlainText().split('\n', Qt::SkipEmptyParts));
+        const auto expander = m_buildConfiguration->macroExpander();
+
+        const QStringList lines = editor->toPlainText().split('\n', Qt::SkipEmptyParts);
+        const QStringList expandedLines = Utils::transform(lines,
+                                           [expander](const QString &s) {
+                                               return expander->expand(s);
+                                           });
+        const CMakeConfig config = CMakeConfigItem::itemsFromArguments(expandedLines);
 
         m_configModel->setBatchEditConfiguration(config);
     });

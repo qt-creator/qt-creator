@@ -110,6 +110,7 @@ public:
     QList<QSharedPointer<ActionInterface>> actionsForTargetView(const ActionInterface::TargetView &target);
 
     QList<ActionInterface* > designerActions() const;
+    ActionInterface *actionByMenuId(const QByteArray &id);
 
     void createDefaultDesignerActions();
     void createDefaultAddResourceHandler();

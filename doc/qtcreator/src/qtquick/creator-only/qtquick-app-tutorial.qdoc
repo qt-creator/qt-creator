@@ -248,7 +248,7 @@
 
     \list
         \li \l{Adding States}
-        \li \l{Connecting Objects to Signals}
+        \li \l{Connecting Components to Signals}
     \endlist
 
     \section1 Animating Transitions

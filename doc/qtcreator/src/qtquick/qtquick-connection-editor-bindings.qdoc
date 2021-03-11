@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -25,43 +25,44 @@
 
 /*!
     \page quick-property-bindings.html
-    \previouspage quick-dynamic-properties.html
-    \if defined(qtdesignstudio)
-    \nextpage quick-states.html
-    \else
-    \nextpage quick-connections-backend.html
-    \endif
+    \previouspage quick-signals.html
+    \nextpage quick-dynamic-properties.html
 
     \title Adding Bindings Between Properties
 
-    To dynamically change the behavior of an object, you can create a \e binding
-    between the properties of two objects. To create a property binding, a
-    property is assigned a JavaScript expression that evaluates to the desired
-    value. At its simplest, a binding may be a reference to another property.
-    For example, the height of an object can be bound to the height of its
-    parent, so that when the parent height changes, the object height is
+    To dynamically change the behavior of a component, you can create a
+    \e binding between the properties of two components. To create a property
+    binding, a property is assigned a JavaScript expression that evaluates to
+    the desired value. Behind the scenes, the variables in the binding
+    expression are monitored. When a change is detected, the binding
+    expression is re-evaluated and the new result is applied to the property.
+
+    At its simplest, a binding may be a reference to another property.
+    For example, the height of a component can be bound to the height of its
+    parent, so that when the parent height changes, the component height is
     adjusted automatically.
 
     For more information about the use of property bindings, see
     \l{Property Binding}.
 
-    You can create bindings between objects in the \uicontrol Connections view.
+    You can create bindings between components in \uicontrol Bindings.
 
     \image qmldesigner-bindings.png
 
-    To bind a property of an object to the property of another object:
+    To bind a property of a component to the property of another component:
 
     \list 1
-        \li In the \uicontrol {Connections} view, select the
-            \uicontrol {Bindings} tab.
+        \li Select \uicontrol View > \uicontrol Views >
+             \uicontrol {Connection view} > \uicontrol {Bindings}.
         \li Select the \inlineimage plus.png
             (\uicontrol Add) button to add a binding for the currently selected
-            item. The ID is displayed in the \uicontrol Item column.
+            component. The component ID is displayed in the \uicontrol Item
+            column.
           \li Double-click the value in the \uicontrol Property column to select
             the property to bind to a source property.
         \li Double-click the value in the \uicontrol {Source Item} column to
-            select the object whose property you want to use to determine the
-            behavior of the target object.
+            select the component whose property you want to use to determine the
+            behavior of the target component.
         \li Double-click the value in the \uicontrol {Source Property} column
             to select the property to bind the target property to.
     \endlist
@@ -71,6 +72,17 @@
     \uicontrol {Binding Editor}. For more information, see \l{Setting Bindings}.
 
     \image qmldesigner-binding-editor.png "Binding Editor"
+
+    For examples of creating property bindings, see:
+
+    \list
+        \li \l{Using States to Change Component Property Values}
+        \if defined(qtdesignstudio)
+        \li \l{Exporting Properties}
+        \else
+        \li \l{Moving the Bubble} in \l{Creating a Mobile Application}
+        \endif
+    \endlist
 
     For more information, watch the following video:
 

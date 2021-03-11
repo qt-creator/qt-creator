@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -34,13 +34,13 @@
 
     \title Adding States
 
-    User interfaces are designed to present different interface configurations
-    in different scenarios, or to modify their appearances in response to user
+    UIs are designed to present different UI configurations in different
+    scenarios, or to modify their appearances in response to user
     interaction. Often, there are a set of changes that are made concurrently,
-    such that the interface could be seen to be internally changing from one
+    such that the UI could be seen to be internally changing from one
     \e state to another.
 
-    This applies generally to interfaces regardless of their complexity. A photo
+    This applies generally to UIs regardless of their complexity. A photo
     viewer may initially present images in a grid, and when an image is clicked,
     change to a detailed state where the individual image is expanded and the
     interface is changed to present new options for image editing. At the other
@@ -48,16 +48,16 @@
     \e pressed state in which its color and position are modified so that it
     appears to be pressed down.
 
-    In QML, any item can change between different states to apply sets of
-    changes that modify the properties of relevant items. Each state can
+    Any component can change between different states to apply sets of
+    changes that modify the properties of relevant components. Each state can
     present a different configuration that can, for example:
 
     \list
-        \li Show some UI items and hide others.
+        \li Show some UI components and hide others.
         \li Present different available actions to the user.
         \li Start, stop, or pause animations.
         \li Execute some script required in the new state.
-        \li Change a property value for a particular item.
+        \li Change a property value for a particular component.
         \li Show a different view.
     \endlist
 
@@ -65,24 +65,17 @@
 
     \section1 Creating States
 
-    To open the \uicontrol States view, select \uicontrol View >
-    \uicontrol Views > \uicontrol States. To collapse or expand
-    the open view, select \uicontrol {Toggle States} or press
-    \key {Ctr+Alt+S}. You can also right-click the view and select
-    \uicontrol Collapse or \uicontrol Expand.
-
-    The \uicontrol States view displays the different \l{State}{states}
-    of a UI, beginning with a \e {base state}.
+    You can create states in the \l States view, by selecting
+    \uicontrol {Create New State}.
 
     \image qmldesigner-transitions.png "States view"
 
-    To add states, select \uicontrol {Create New State}. Click the new state to
-    switch to it in \uicontrol {Form Editor}, and then modify the properties of
-    components in \uicontrol Properties.
+    Click the new state to switch to it in \l {Form Editor}, and then modify the
+    properties of components in \l Properties.
 
     For example, to change the appearance of a button, you can hide the button
     image and show another image in its place. Or, to add movement to the view,
-    you can change the position of an object in \uicontrol {Form Editor}
+    you can change the position of a component in \uicontrol {Form Editor}
     and then add animation to the change between the states.
 
     The properties that you change in a state are highlighted with blue color.
@@ -92,9 +85,8 @@
     \image qmldesigner-states.png "States and Properties views"
 
     \note If you have \l{Locking Components}{locked a component} in
-    \uicontrol Navigator, and you attempt to remove states where you
-    change the values of its properties, you are prompted to confirm
-    the removal.
+    \l Navigator, and you attempt to remove states where you change the
+    values of its properties, you are prompted to confirm the removal.
 
     For more information, watch the following video:
 
@@ -170,18 +162,18 @@
 
     \section1 Using States
 
-    To keep the QML code clean, you should create a base state that contains all
-    the types you will need in the application. You can then create states,
-    in which you hide and show a set of items and modify their properties.
+    To keep the code clean, you should create a base state that contains all
+    the components you will need in the application. You can then create states,
+    in which you hide and show a set of components and modify their properties.
     This allows you to:
 
     \list
-        \li Align items on different views with each other.
-        \li Avoid excessive property changes. If an item is invisible in the
-            base state, you must define all changes to its child types as
-            property changes, which leads to complicated QML code.
+        \li Align components on different views with each other.
+        \li Avoid excessive property changes. If a component is invisible in
+            the base state, you must define all changes to its child components
+            as property changes, which leads to complicated code.
         \li Minimize the differences between the base state and the other states
-            to keep the QML code short and readable and to improve performance.
+            to keep the code short and readable and to improve performance.
         \li Avoid problems when using transitions and animation when changing
             states.
     \endlist
@@ -191,18 +183,20 @@
     \image qmldesigner-screen-design.png "Designing views"
 
     \list 1
-        \li In the base state, add all items you will need in the application
-            (1). While you work on one view, you can click the
+        \li In the base state, add all components you will need in the
+            application (1). While you work on one view, you can click the
             \inlineimage eye_open.png
-            icon to hide items on the canvas that are not part of a view.
-        \li In \uicontrol States, click the empty slot to create a
-            new state and give it a name. For example, \c Normal.
-        \li In \uicontrol Properties (2), deselect the \uicontrol Visibility
-            check box or set \uicontrol Opacity to 0 for each item that is not
-            needed in this view. If you specify the setting for the parent item,
-            all child items inherit it and are also hidden.
+            icon in \l Navigator to hide components on the canvas that are
+            not part of a view.
+        \li In \uicontrol States, select \uicontrol {Create New State} to create
+            a new state and give it a name. For example, \c Normal.
+        \li In \l Properties (2), deselect the \uicontrol Visibility
+            check box or set \uicontrol Opacity to 0 for each component that
+            is not needed in this view. If you specify the setting for the
+            parent component, all child components inherit it and are also
+            hidden.
         \li Create additional states for each view and set the visibility
-            or opacity of the items in the view.
+            or opacity of the components in the view.
         \li To determine which state is applied when the application starts,
             select \uicontrol Actions > \uicontrol {Set as Default}.
     \endlist

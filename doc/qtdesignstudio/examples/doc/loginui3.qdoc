@@ -186,7 +186,7 @@
     is clicked within the area.
 
     You will now use the \uicontrol Connections view to
-    \l{Connecting Objects to Signals}{connect} the clicked signal of
+    \l{Connecting Components to Signals}{connect} the clicked signal of
     \e registerButton to \e registerState and that of \e backButton
     to \e loginState:
 

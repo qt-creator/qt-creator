@@ -1,0 +1,96 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page qtquick-connection-view.html
+    \previouspage qtquick-properties-view.html
+    \nextpage qtquick-states-view.html
+
+    \title Connection View
+
+    The \uicontrol {Connection View} is a collection of views that enable you
+    to create connections between components and the application, to bind
+    component properties together, and to add custom properties for components.
+
+    \image qmldesigner-connections.png "Connections View"
+
+    The \l{glossary-component}{components} of the application UI and the
+    application logic need to communicate with each other. For example, a
+    button needs to know that the user has clicked it. The button may then
+    change color to indicate its state or perform an action. Further, the
+    application needs to know whether the user clicked the button because
+    it may need to relay this clicking event to other applications. For
+    this purpose, a button typically contains a \l{Mouse Area} component,
+    which can receive different pointer events and emit \e signals in
+    response to them.
+
+    Another way to connect components is to bind their \l{Properties}
+    {properties} together. A component's property can be assigned a static
+    value which stays constant until it is explicitly changed. To make the
+    UI more dynamic, you can use \e {property bindings}. This means that
+    you can specify relationships between component properties so that when
+    the value of a property changes, the values of any properties that are
+    bound to it are updated accordingly.
+
+    Each preset component has a set of \l{Specifying Component Properties}
+    {preset properties} that you can specify values for. You can add
+    custom properties that would not otherwise exist for a particular
+    \l{Component Types}{component type}.
+
+    \if defined(qtcreator)
+    In addition, application developers can use the \uicontrol Backends view
+    to access QObject objects implemented in C++ from QML files.
+    \endif
+
+    \section1 Summary of Connection Views
+
+    \table
+    \header
+        \li View
+        \li Purpose
+        \li Read More
+    \row
+        \li \uicontrol Connections
+        \li Create connections between components and the application logic
+            by accessing signals outside of the components that emit them.
+        \li \l{Connecting Components to Signals}
+    \row
+        \li \uicontrol Bindings
+        \li Dynamically change the behavior of a component by creating a
+            binding between the properties of two components.
+        \li \l{Adding Bindings Between Properties}
+        \row
+        \li \uicontrol Properties
+        \li Add custom properties that would not otherwise exist for a
+            particular preset component or your own custom component.
+        \li \l{Specifying Dynamic Properties}
+    \if defined(qtcreator)
+    \row
+        \li \uicontrol Backends
+        \li Access QObject objects implemented in C++ from QML files.
+        \li \l{Managing C++ Backend Objects}
+    \endif
+    \endtable
+*/

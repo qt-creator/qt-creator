@@ -138,6 +138,7 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
     ItemLibraryModel::registerQmlTypes();
 
     setWindowTitle(tr("Library", "Title of library view"));
+    setMinimumWidth(100);
 
     // create header widget
     m_headerWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);

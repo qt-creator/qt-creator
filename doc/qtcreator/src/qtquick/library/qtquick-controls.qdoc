@@ -76,7 +76,7 @@
     can define an area smaller or larger than the parent. Several controls,such
     as \l {Button}{buttons}, contain a mouse area.
 
-    A mouse area emits \l{Connecting Objects to Signals}{signals} in response
+    A mouse area emits \l{Connecting Components to Signals}{signals} in response
     to different mouse events:
 
     \list
@@ -437,7 +437,7 @@
     \section2 Button Signals
 
     A button emits the \c clicked() signal when it is activated by users.
-    \l{Connecting Objects to Signals}{Connect to this signal} to perform
+    \l{Connecting Components to Signals}{Connect to this signal} to perform
     the button's action. Buttons provide the following additional signals:
     \c canceled(), \c doubleClicked(), \c pressed(), \c released(), and
     \c pressAndHold() for long presses.

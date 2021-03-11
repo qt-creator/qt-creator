@@ -1,0 +1,103 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page qtquick-states-view.html
+    \previouspage qtquick-connection-view.html
+    \nextpage qtquick-transition-editor.html
+
+    \title States
+
+    The \uicontrol States view displays the different \l{Adding States}{states}
+    of a UI.
+
+    \image qmldesigner-transitions.png "States view"
+
+    To open the \uicontrol States view, select \uicontrol View >
+    \uicontrol Views > \uicontrol States.
+
+    To collapse or expand the \uicontrol States view, select:
+
+    \list
+        \li Select \uicontrol View > \uicontrol Views >
+            \uicontrol {Toggle States}.
+        \li Press \key {Ctr+Alt+S} on Windows or \key {Cmd+Option+S} on \macOS.
+        \li Right-click the view and select \uicontrol Collapse or
+            \uicontrol Expand.
+    \endlist
+
+    Initially, \uicontrol States displays a \e {base state} that shows the
+    selected \l{glossary-component}{component} in its initial state. To add
+    states, select \uicontrol {Create New State}.
+
+    For more information, watch the following video:
+
+    \youtube FzmLuRHQXaw
+
+    \section1 Summary of States View Actions
+
+    To open the \uicontrol Actions menu, select
+    \inlineimage icons/action-icon.png
+    . The actions available in the menu depend on the current context. For
+    example, the option for editing an annotation becomes available after
+    you add an annotation.
+
+    \table
+    \header
+        \li Action
+        \li Purpose
+        \li Read More
+    \row
+        \li \uicontrol {Set when Condition}
+        \li Determines when a state should be applied.
+        \li \l{Applying States}
+    \row
+        \li \uicontrol {Reset when Condition}
+        \li Removes \c when condition for the state.
+        \li \l{Applying States}
+    \row
+        \li \uicontrol {Set as Default}
+        \li Sets the current state as the startup state of the application.
+        \li \l{Setting the Default State}
+    \row
+        \li\uicontrol {Reset Default}
+        \li Resets the current state as the default state.
+        \li \l{Setting the Default State}
+    \row
+        \li \uicontrol {Add Annotation}
+        \li Opens the \uicontrol {Annotation Editor} when you can add an
+            annotation for the states that you create.
+        \li \l{Annotating Designs}
+    \row
+        \li \uicontrol {Edit Annotation}
+        \li Opens the \uicontrol {Annotation Editor} where you can edit the
+            annotation for the state.
+        \li \l{Annotating Designs}
+    \row
+        \li \uicontrol {Add Annotation}
+        \li Removes the annotation for the state.
+        \li \l{Annotating Designs}
+    \endtable
+*/
