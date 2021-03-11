@@ -216,24 +216,32 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
     for (const Import &import : model->imports()) {
         if (import.isLibraryImport() && import.url() != projectName) {
             bool addNew = true;
-            ItemLibraryImport *oldImport = importHash.value(import.url());
-            if (oldImport && oldImport->importEntry().url() == import.url()) {
+            bool isQuick3DAsset = import.url().startsWith("Quick3DAssets.");
+            QString importUrl = isQuick3DAsset ? ItemLibraryImport::quick3DAssetsTitle() : import.url();
+            ItemLibraryImport *oldImport = importHash.value(importUrl);
+            if (oldImport && oldImport->sectionType() == ItemLibraryImport::SectionType::Quick3DAssets
+                && isQuick3DAsset) {
+                addNew = false; // add only 1 Quick3DAssets import section
+            } else if (oldImport && oldImport->importEntry().url() == import.url()) {
                 // Retain the higher version if multiples exist
                 if (compareVersions(oldImport->importEntry().version(), import.version()))
                     addNew = false;
                 else
                     delete oldImport;
             }
+
             if (addNew) {
-                ItemLibraryImport *itemLibImport = new ItemLibraryImport(import, this);
-                importHash.insert(import.url(), itemLibImport);
+                auto sectionType = isQuick3DAsset ? ItemLibraryImport::SectionType::Quick3DAssets
+                                                  : ItemLibraryImport::SectionType::Default;
+                ItemLibraryImport *itemLibImport = new ItemLibraryImport(import, this, sectionType);
+                importHash.insert(importUrl, itemLibImport);
             }
         }
     }
 
     for (const auto itemLibImport : qAsConst(importHash)) {
         m_importList.append(itemLibImport);
-        itemLibImport->setImportExpanded(loadExpandedState(itemLibImport->importEntry().url()));
+        itemLibImport->setImportExpanded(loadExpandedState(itemLibImport->importUrl()));
     }
 
     const QList<ItemLibraryEntry> itemLibEntries = itemLibraryInfo->entries();
@@ -280,6 +288,8 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
                         m_importList.append(importSection);
                         importSection->setImportExpanded(loadExpandedState(catName));
                     }
+                } else if (catName == "My Quick3D Components") {
+                    importSection = importByUrl(ItemLibraryImport::quick3DAssetsTitle());
                 } else {
                     if (catName.startsWith("Qt Quick - "))
                         catName = catName.mid(11); // remove "Qt Quick - "
@@ -354,6 +364,8 @@ ItemLibraryImport *ItemLibraryModel::importByUrl(const QString &importUrl) const
             || (importUrl.isEmpty() && itemLibraryImport->importUrl() == "QtQuick")
             || (importUrl == ItemLibraryImport::userComponentsTitle()
                 && itemLibraryImport->sectionType() == ItemLibraryImport::SectionType::User)
+            || (importUrl == ItemLibraryImport::quick3DAssetsTitle()
+                && itemLibraryImport->sectionType() == ItemLibraryImport::SectionType::Quick3DAssets)
             || (importUrl == ItemLibraryImport::unimportedComponentsTitle()
                 && itemLibraryImport->sectionType() == ItemLibraryImport::SectionType::Unimported)) {
             return itemLibraryImport;

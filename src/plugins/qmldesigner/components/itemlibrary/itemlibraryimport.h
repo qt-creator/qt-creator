@@ -48,6 +48,7 @@ public:
     enum class SectionType {
         Default,
         User,
+        Quick3DAssets,
         Unimported
     };
 
@@ -75,6 +76,7 @@ public:
     void expandCategories(bool expand = true);
 
     static QString userComponentsTitle();
+    static QString quick3DAssetsTitle();
     static QString unimportedComponentsTitle();
 
     SectionType sectionType() const;
