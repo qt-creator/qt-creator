@@ -462,11 +462,10 @@ void BaseAspect::registerSubWidget(QWidget *widget)
 }
 
 void BaseAspect::saveToMap(QVariantMap &data, const QVariant &value,
-                           const QVariant &defaultValue, const QString &keyExtension) const
+                           const QVariant &defaultValue, const QString &key)
 {
-    if (settingsKey().isEmpty())
+    if (key.isEmpty())
         return;
-    const QString key = settingsKey() + keyExtension;
     if (value == defaultValue)
         data.remove(key);
     else
@@ -486,7 +485,7 @@ void BaseAspect::fromMap(const QVariantMap &map)
 */
 void BaseAspect::toMap(QVariantMap &map) const
 {
-    saveToMap(map, d->m_value, d->m_defaultValue);
+    saveToMap(map, d->m_value, d->m_defaultValue, settingsKey());
 }
 
 void BaseAspect::readSettings(const QSettings *settings)
@@ -802,7 +801,7 @@ void StringAspect::fromMap(const QVariantMap &map)
 */
 void StringAspect::toMap(QVariantMap &map) const
 {
-    saveToMap(map, value(), defaultValue());
+    saveToMap(map, value(), defaultValue(), settingsKey());
     if (d->m_checker)
         d->m_checker->toMap(map);
 }

@@ -142,8 +142,8 @@ protected:
     }
 
     void registerSubWidget(QWidget *widget);
-    void saveToMap(QVariantMap &data, const QVariant &value,
-                   const QVariant &defaultValue, const QString &keyExtension = {}) const;
+    static void saveToMap(QVariantMap &data, const QVariant &value,
+                          const QVariant &defaultValue, const QString &key);
 
 private:
     std::unique_ptr<Internal::BaseAspectPrivate> d;

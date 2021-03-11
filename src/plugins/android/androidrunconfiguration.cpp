@@ -85,7 +85,7 @@ void BaseStringListAspect::fromMap(const QVariantMap &map)
 
 void BaseStringListAspect::toMap(QVariantMap &data) const
 {
-    saveToMap(data, m_value, QStringList());
+    saveToMap(data, m_value, QStringList(), settingsKey());
 }
 
 QStringList BaseStringListAspect::value() const

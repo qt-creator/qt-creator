@@ -235,8 +235,8 @@ void WorkingDirectoryAspect::toMap(QVariantMap &data) const
 {
     const QString wd = m_workingDirectory == m_defaultWorkingDirectory
         ? QString() : m_workingDirectory.toString();
-    saveToMap(data, wd, QString());
-    saveToMap(data, m_defaultWorkingDirectory.toString(), QString(), ".default");
+    saveToMap(data, wd, QString(), settingsKey());
+    saveToMap(data, m_defaultWorkingDirectory.toString(), QString(), settingsKey() + ".default");
 }
 
 /*!
@@ -411,8 +411,8 @@ void ArgumentsAspect::fromMap(const QVariantMap &map)
 */
 void ArgumentsAspect::toMap(QVariantMap &map) const
 {
-    saveToMap(map, m_arguments, QString());
-    saveToMap(map, m_multiLine, false, ".multi");
+    saveToMap(map, m_arguments, QString(), settingsKey());
+    saveToMap(map, m_multiLine, false, settingsKey() + ".multi");
 }
 
 /*!
