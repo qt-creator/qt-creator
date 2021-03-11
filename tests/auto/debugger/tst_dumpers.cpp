@@ -2303,35 +2303,6 @@ void tst_Dumpers::dumper_data()
                //     Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime") % Optional();
 
 
-#ifdef Q_OS_WIN
-    QString tempDir = "C:/Program Files";
-#else
-    QString tempDir = "/tmp";
-#endif
-    auto quoted = [](const QString &str) { return QString('"' + str + '"'); };
-
-    QTest::newRow("QDir")
-            << Data("#include <QDir>\n",
-
-                    "QDir dir(" + quoted(tempDir) + ");\n"
-                    "QString s = dir.absolutePath();\n"
-                    "QFileInfoList fil = dir.entryInfoList();\n"
-                    "QFileInfo fi = fil.first();",
-
-                    "&dir, &s, &fi")
-
-               + CoreProfile()
-               + QtVersion(0x50300)
-
-               + Check("dir", quoted(tempDir), "@QDir")
-            // + Check("dir.canonicalPath", quoted(tempDir), "@QString")
-               + Check("dir.absolutePath", quoted(tempDir), "@QString") % Optional()
-               + Check("dir.entryInfoList.0", "[0]", quoted(tempDir + "/."), "@QFileInfo") % NoCdbEngine
-               + Check("dir.entryInfoList.1", "[1]", quoted(tempDir + "/.."), "@QFileInfo") % NoCdbEngine
-               + Check("dir.entryList.0", "[0]", "\".\"", "@QString") % NoCdbEngine
-               + Check("dir.entryList.1", "[1]", "\"..\"", "@QString") % NoCdbEngine;
-
-
     QTest::newRow("QFileInfo")
 #ifdef Q_OS_WIN
             << Data("#include <QFile>\n"
@@ -8176,6 +8147,37 @@ void tst_Dumpers::dumper_data()
         + Check("x.2", "[2]", "3", "NI");
 #endif
 #endif
+
+
+/* FIXME for unknown reasons the following test must be the last one to not interfere with the
+         dumper tests and make all following fail */
+#ifdef Q_OS_WIN
+    QString tempDir = "C:/Program Files";
+#else
+    QString tempDir = "/tmp";
+#endif
+    auto quoted = [](const QString &str) { return QString('"' + str + '"'); };
+
+    QTest::newRow("QDir")
+            << Data("#include <QDir>\n",
+
+                    "QDir dir(" + quoted(tempDir) + ");\n"
+                    "QString s = dir.absolutePath();\n"
+                    "QFileInfoList fil = dir.entryInfoList();\n"
+                    "QFileInfo fi = fil.first();",
+
+                    "&dir, &s, &fi")
+
+               + CoreProfile()
+               + QtVersion(0x50300)
+
+               + Check("dir", quoted(tempDir), "@QDir")
+            // + Check("dir.canonicalPath", quoted(tempDir), "@QString")
+               + Check("dir.absolutePath", quoted(tempDir), "@QString") % Optional()
+               + Check("dir.entryInfoList.0", "[0]", quoted(tempDir + "/."), "@QFileInfo") % NoCdbEngine
+               + Check("dir.entryInfoList.1", "[1]", quoted(tempDir + "/.."), "@QFileInfo") % NoCdbEngine
+               + Check("dir.entryList.0", "[0]", "\".\"", "@QString") % NoCdbEngine
+               + Check("dir.entryList.1", "[1]", "\"..\"", "@QString") % NoCdbEngine;
 }
 
 int main(int argc, char *argv[])
