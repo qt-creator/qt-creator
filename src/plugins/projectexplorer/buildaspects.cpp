@@ -111,7 +111,7 @@ void BuildDirectoryAspect::addToLayout(LayoutBuilder &builder)
     builder.addRow({{}, d->problemLabel.data()});
     updateProblemLabel();
     if (!d->sourceDir.isEmpty()) {
-        connect(this, &StringAspect::checkedChanged, builder.layout(), [this] {
+        connect(this, &StringAspect::checkedChanged, this, [this] {
             if (isChecked()) {
                 setFilePath(d->savedShadowBuildDir.isEmpty()
                             ? d->sourceDir : d->savedShadowBuildDir);

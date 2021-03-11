@@ -195,7 +195,11 @@ void BaseAspect::setVisible(bool visible)
     d->m_visible = visible;
     for (QWidget *w : qAsConst(d->m_subWidgets)) {
         QTC_ASSERT(w, continue);
-        w->setVisible(visible);
+        // This may happen during layout building. Explicit setting visibility here
+        // may create a show a toplevel widget for a moment until it is parented
+        // to some non-shown widget.
+        if (visible && w->parentWidget())
+            w->setVisible(visible);
     }
 }
 
@@ -1000,10 +1004,10 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         builder.finishRow();
     }
 
-    const auto useMacroExpander = [this, &builder](QWidget *w) {
+    const auto useMacroExpander = [this](QWidget *w) {
         if (!d->m_expanderProvider)
             return;
-        const auto chooser = new VariableChooser(builder.layout()->parentWidget());
+        const auto chooser = new VariableChooser(w);
         chooser->addSupportedWidget(w);
         chooser->addMacroExpanderProvider(d->m_expanderProvider);
     };
@@ -1208,17 +1212,19 @@ void BoolAspect::addToLayout(LayoutBuilder &builder)
         d->m_checkBox->setText(labelText());
         builder.addItem(d->m_checkBox.data());
         break;
-    case LabelPlacement::AtCheckBox:
+    case LabelPlacement::AtCheckBox: {
         d->m_checkBox->setText(labelText());
-        builder.addItem(createSubWidget<QLabel>());
+        LayoutBuilder::LayoutType type = builder.layoutType();
+        if (type == LayoutBuilder::FormLayout)
+            builder.addItem(createSubWidget<QLabel>());
         builder.addItem(d->m_checkBox.data());
         break;
+    }
     case LabelPlacement::InExtraLabel:
         addLabeledItem(builder, d->m_checkBox);
         break;
     }
     d->m_checkBox->setChecked(value());
-    builder.addItem(d->m_checkBox.data());
     connect(d->m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
         setValue(d->m_checkBox->isChecked());
     });
@@ -1965,9 +1971,12 @@ void TextDisplay::addToLayout(LayoutBuilder &builder)
         d->m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
         d->m_label->setElideMode(Qt::ElideNone);
         d->m_label->setWordWrap(true);
+        // Do not use m_label->setVisible(isVisible()) unconditionally, it does not
+        // have a QWidget parent yet when used in a LayoutBuilder.
+        if (!isVisible())
+            d->m_label->setVisible(false);
     }
     builder.addItem(d->m_label.data());
-    d->m_label->setVisible(isVisible());
 }
 
 /*!

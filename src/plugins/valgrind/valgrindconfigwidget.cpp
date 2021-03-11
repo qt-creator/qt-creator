@@ -88,14 +88,14 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings)
         s.minimumInclusiveCostRatio, nl,
         s.visualizationMinimumInclusiveCostRatio, nl,
         s.enableEventToolTips, nl,
-        Item {
+        Span {
+            2,
             Group {
                 s.enableCacheSim,
                 s.enableBranchSim,
                 s.collectSystime,
                 s.collectBusEvents,
-            },
-            2 // Span.
+            }
         }
     };
 

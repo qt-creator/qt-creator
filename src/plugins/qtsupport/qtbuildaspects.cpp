@@ -67,10 +67,11 @@ void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
         warningLabel->setText(warningText);
         setVisible(supported);
         const bool warningLabelsVisible = supported && !warningText.isEmpty();
-        warningLabel->setVisible(warningLabelsVisible);
+        if (!warningLabel->parentWidget())
+            warningLabel->setVisible(warningLabelsVisible);
     };
-    connect(KitManager::instance(), &KitManager::kitsChanged, builder.layout(), changeHandler);
-    connect(this, &QmlDebuggingAspect::changed, builder.layout(), changeHandler);
+    connect(KitManager::instance(), &KitManager::kitsChanged, this, changeHandler);
+    connect(this, &QmlDebuggingAspect::changed, this, changeHandler);
     changeHandler();
 }
 
@@ -102,11 +103,11 @@ void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
         const bool warningLabelsVisible = supported && !warningText.isEmpty();
         warningLabel->setVisible(warningLabelsVisible);
     };
-    connect(KitManager::instance(), &KitManager::kitsChanged, builder.layout(), changeHandler);
-    connect(this, &QmlDebuggingAspect::changed, builder.layout(), changeHandler);
-    connect(this, &QtQuickCompilerAspect::changed, builder.layout(), changeHandler);
+    connect(KitManager::instance(), &KitManager::kitsChanged, this, changeHandler);
+    connect(this, &QmlDebuggingAspect::changed, this, changeHandler);
+    connect(this, &QtQuickCompilerAspect::changed, this, changeHandler);
     if (m_qmlDebuggingAspect) {
-        connect(m_qmlDebuggingAspect, &QmlDebuggingAspect::changed, builder.layout(),
+        connect(m_qmlDebuggingAspect, &QmlDebuggingAspect::changed, this,
                 changeHandler);
     }
     changeHandler();

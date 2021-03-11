@@ -185,10 +185,11 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     });
     auto initialCMakeAspect = bc->aspect<InitialCMakeArgumentsAspect>();
     auto aspectWidget = new QWidget;
-    LayoutBuilder aspectWidgetBuilder(aspectWidget);
+    Layouting::Form aspectWidgetBuilder;
     buildDirAspect->addToLayout(aspectWidgetBuilder);
     aspectWidgetBuilder.finishRow();
     initialCMakeAspect->addToLayout(aspectWidgetBuilder);
+    aspectWidgetBuilder.attachTo(aspectWidget, false);
     mainLayout->addWidget(aspectWidget, row, 0, 1, -1);
     ++row;
 
@@ -196,9 +197,9 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     connect(qmlDebugAspect, &QtSupport::QmlDebuggingAspect::changed, this, [this]() {
         updateButtonState();
     });
-    auto widget = new QWidget;
-    LayoutBuilder builder(widget);
+    Layouting::Form builder;
     qmlDebugAspect->addToLayout(builder);
+    auto widget = builder.emerge();
     mainLayout->addWidget(widget, row, 0, 1, -1);
 
     ++row;

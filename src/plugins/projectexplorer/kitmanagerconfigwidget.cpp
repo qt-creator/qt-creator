@@ -68,10 +68,8 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
-    LayoutBuilder builder(this, LayoutBuilder::GridLayout);
     QLabel *label = new QLabel(tr("Name:"));
     label->setToolTip(tr("Kit name and icon."));
-    builder.addRow({{label, 1, LayoutBuilder::AlignAsFormLabel}, m_nameEdit, m_iconButton});
 
     QString toolTip =
         tr("<html><head/><body><p>The name of the kit suitable for generating "
@@ -85,9 +83,14 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
 
     label = new QLabel(tr("File system name:"));
     label->setToolTip(toolTip);
-    builder.addRow({{label, 1, LayoutBuilder::AlignAsFormLabel}, m_fileSystemFriendlyNameLineEdit});
     connect(m_fileSystemFriendlyNameLineEdit, &QLineEdit::textChanged,
             this, &KitManagerConfigWidget::setFileSystemFriendlyName);
+
+    using namespace Layouting;
+    Grid {
+        AlignAsFormLabel(label), m_nameEdit, m_iconButton, Break(),
+        AlignAsFormLabel(label), m_fileSystemFriendlyNameLineEdit
+    }.attachTo(this);
 
     m_iconButton->setToolTip(tr("Kit icon."));
     auto setIconAction = new QAction(tr("Select Icon..."), this);
@@ -230,7 +233,7 @@ void KitManagerConfigWidget::addAspectToWorkingCopy(KitAspect *aspect)
 
     m_actions << action;
 
-    LayoutBuilder builder(layout());
+    LayoutExtender builder(layout());
     widget->addToLayout(builder);
     m_widgets.append(widget);
 }

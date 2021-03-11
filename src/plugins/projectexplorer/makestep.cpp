@@ -346,15 +346,15 @@ CommandLine MakeStep::effectiveMakeCommand(MakeCommandType type) const
 
 QWidget *MakeStep::createConfigWidget()
 {
-    auto widget = new QWidget;
-
-    LayoutBuilder builder(widget);
+    Layouting::Form builder;
     builder.addRow(m_makeCommandAspect);
     builder.addRow(m_userArgumentsAspect);
     builder.addRow({m_userJobCountAspect, m_overrideMakeflagsAspect, m_nonOverrideWarning});
     if (m_disablingForSubDirsSupported)
         builder.addRow(m_disabledForSubdirsAspect);
     builder.addRow(m_buildTargetsAspect);
+
+    auto widget = builder.emerge(false);
 
     VariableChooser::addSupportForChildWidgets(widget, macroExpander());
 

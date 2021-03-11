@@ -32,9 +32,6 @@
 #include <QVariant>
 
 QT_BEGIN_NAMESPACE
-class QBoxLayout;
-class QFormLayout;
-class QGridLayout;
 class QLayout;
 class QWidget;
 QT_END_NAMESPACE
@@ -47,53 +44,49 @@ class QTCREATOR_UTILS_EXPORT LayoutBuilder
 {
 public:
     enum LayoutType {
-        Form,              // Plain QFormLayout, without contentMargins
-        Grid,              // Plain QGridLayout, without contentMargins
-        HBox,              // Plain QHBoxLayout, without contentMargins
-        VBox,              // Plain QVBoxLayout, without contentMargins
-        HBoxWithMargins,   // QHBoxLayout with margins
-        VBoxWithMargins,   // QVBoxLayout with margins
-        // Compat
-        FormLayout = Form, // FIXME: Remove
-        GridLayout = Grid, // FIXME: Remove
+        HBoxLayout,
+        VBoxLayout,
+        FormLayout,
+        GridLayout,
     };
-    enum Alignment { DefaultAlignment, AlignAsFormLabel };
+
+    enum class AlignmentType {
+        DefaultAlignment,
+        AlignAsFormLabel,
+    };
 
     enum class SpecialType {
         NotSpecial,
-        Align,
         Space,
-        Span,
         Stretch,
         Break,
-        Title
+        Title,
     };
 
     class QTCREATOR_UTILS_EXPORT LayoutItem
     {
     public:
         LayoutItem();
-        LayoutItem(QLayout *layout, int span = 1, Alignment align = {});
-        LayoutItem(QWidget *widget, int span = 1, Alignment align = {});
-        LayoutItem(BaseAspect *aspect, int span = 1, Alignment align = {}); // Remove
-        LayoutItem(BaseAspect &aspect, int span = 1, Alignment align = {});
-        LayoutItem(const QString &text, int span = 1, Alignment align = {});
-        LayoutItem(const LayoutBuilder &builder, int span = 1, Alignment align = {});
+        LayoutItem(QLayout *layout);
+        LayoutItem(QWidget *widget);
+        LayoutItem(BaseAspect *aspect); // Remove
+        LayoutItem(BaseAspect &aspect);
+        LayoutItem(const QString &text);
+        LayoutItem(const LayoutBuilder &builder);
 
         QLayout *layout = nullptr;
         QWidget *widget = nullptr;
         BaseAspect *aspect = nullptr;
+
         QString text; // FIXME: Use specialValue for that
         int span = 1;
-        Alignment align;
+        AlignmentType align = AlignmentType::DefaultAlignment;
         SpecialType specialType = SpecialType::NotSpecial;
         QVariant specialValue;
     };
 
     using LayoutItems = QList<LayoutItem>;
 
-    explicit LayoutBuilder(QWidget *parent, LayoutType layoutType = Form);
-    explicit LayoutBuilder(QLayout *layout); // Adds to existing layout.
     explicit LayoutBuilder(LayoutType layoutType, const LayoutItems &items = {});
 
     LayoutBuilder(const LayoutBuilder &) = delete;
@@ -110,15 +103,27 @@ public:
     LayoutBuilder &addRow(const LayoutItem &item);
     LayoutBuilder &addRow(const LayoutItems &items);
 
-    QLayout *layout() const;
-    QWidget *parentWidget() const;
+    LayoutType layoutType() const { return m_layoutType; }
 
-    void attachTo(QWidget *w, bool stretchAtBottom = true);
+    void attachTo(QWidget *w, bool withMargins = true);
+    QWidget *emerge(bool withMargins = true);
 
     class QTCREATOR_UTILS_EXPORT Space : public LayoutItem
     {
     public:
         explicit Space(int space);
+    };
+
+    class QTCREATOR_UTILS_EXPORT Span : public LayoutItem
+    {
+    public:
+        Span(int span, const LayoutItem &item);
+    };
+
+    class QTCREATOR_UTILS_EXPORT AlignAsFormLabel : public LayoutItem
+    {
+    public:
+        AlignAsFormLabel(const LayoutItem &item);
     };
 
     class QTCREATOR_UTILS_EXPORT Stretch : public LayoutItem
@@ -133,75 +138,72 @@ public:
         Break();
     };
 
-    class QTCREATOR_UTILS_EXPORT Title : public LayoutBuilder::LayoutItem
+    class QTCREATOR_UTILS_EXPORT Title : public LayoutItem
     {
     public:
         explicit Title(const QString &title);
     };
 
-private:
-    void flushPendingFormItems();
-    void init(QWidget *parent, LayoutType layoutType);
+protected:
+    explicit LayoutBuilder(); // Adds to existing layout.
 
-    QFormLayout *m_formLayout = nullptr;
-    QGridLayout *m_gridLayout = nullptr;
-    QBoxLayout *m_boxLayout = nullptr;
-    LayoutItems m_pendingFormItems;
-    int m_currentGridRow = 0;
-    int m_currentGridColumn = 0;
+    void doLayout(QWidget *parent);
+
+    LayoutItems m_items;
+    LayoutType m_layoutType;
+    bool m_withMargins = false;
+};
+
+class QTCREATOR_UTILS_EXPORT LayoutExtender : public LayoutBuilder
+{
+public:
+    explicit LayoutExtender(QLayout *layout);
+    ~LayoutExtender();
+
+private:
+    QLayout *m_layout = nullptr;
 };
 
 namespace Layouting {
 
-class QTCREATOR_UTILS_EXPORT Group : public LayoutBuilder
+class QTCREATOR_UTILS_EXPORT Group : public LayoutBuilder::LayoutItem
 {
 public:
     Group(std::initializer_list<LayoutBuilder::LayoutItem> items);
-
-    Group &withTitle(const QString &title);
 };
 
-class QTCREATOR_UTILS_EXPORT Box : public LayoutBuilder
+class QTCREATOR_UTILS_EXPORT Column : public LayoutBuilder
 {
 public:
-    Box(LayoutType type, const LayoutItems &items);
+    Column() : Column({}) {}
+    Column(std::initializer_list<LayoutItem> items) : LayoutBuilder(VBoxLayout, items) {}
 };
 
-class QTCREATOR_UTILS_EXPORT Column : public Box
+class QTCREATOR_UTILS_EXPORT Row : public LayoutBuilder
 {
 public:
-    Column(std::initializer_list<LayoutItem> items)
-        : Box(VBox, items)
-    {}
+    Row() : Row({}) {}
+    Row(std::initializer_list<LayoutItem> items) : LayoutBuilder(HBoxLayout, items) {}
 };
 
-class QTCREATOR_UTILS_EXPORT Row : public Box
+class QTCREATOR_UTILS_EXPORT Grid : public LayoutBuilder
 {
 public:
-    Row(std::initializer_list<LayoutItem> items)
-        : Box(HBox, items)
-    {}
+    Grid() : Grid({}) {}
+    Grid(std::initializer_list<LayoutItem> items) : LayoutBuilder(GridLayout, items) {}
 };
 
-class QTCREATOR_UTILS_EXPORT Grid : public Box
+class QTCREATOR_UTILS_EXPORT Form : public LayoutBuilder
 {
 public:
-    Grid(std::initializer_list<LayoutItem> items)
-        : Box(GridLayout, items)
-    {}
+    Form() : Form({}) {}
+    Form(std::initializer_list<LayoutItem> items) : LayoutBuilder(FormLayout, items) {}
 };
 
-class QTCREATOR_UTILS_EXPORT Form : public Box
-{
-public:
-    Form(std::initializer_list<LayoutItem> items)
-        : Box(FormLayout, items)
-    {}
-};
-
-using Item = LayoutBuilder::LayoutItem;
 using Stretch = LayoutBuilder::Stretch;
 using Space = LayoutBuilder::Space;
+using Span = LayoutBuilder::Span;
+using AlignAsFormLabel = LayoutBuilder::AlignAsFormLabel;
 using Break = LayoutBuilder::Break;
 using Title = LayoutBuilder::Title;
 

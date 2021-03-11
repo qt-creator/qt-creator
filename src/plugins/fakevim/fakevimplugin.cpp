@@ -435,23 +435,25 @@ QWidget *FakeVimOptionPage::widget()
             s.useFakeVim,
 
             Group {
+                Title(tr("Vim Behavior")),
                 bools,
                 ints,
                 strings
-            }.withTitle(tr("Vim Behavior")),
+            },
 
             Group {
+                Title(tr("Plugin Emulation")),
                 s.emulateVimCommentary,
                 s.emulateReplaceWithRegister,
                 s.emulateArgTextObj,
                 s.emulateExchange,
                 s.emulateSurround
-            }.withTitle(tr("Plugin Emulation")),
+            },
 
             Row { copyTextEditorSettings, setQtStyle, setPlainStyle, Stretch() },
             Stretch()
 
-        }.attachTo(m_widget);
+        }.attachTo(m_widget, true);
 
         connect(copyTextEditorSettings, &QAbstractButton::clicked,
                 this, &FakeVimOptionPage::copyTextEditorSettings);

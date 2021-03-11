@@ -102,17 +102,17 @@ NimbleTaskStep::NimbleTaskStep(BuildStepList *parentList, Id id)
 
 QWidget *NimbleTaskStep::createConfigWidget()
 {
-    auto widget = new QWidget;
-
-    auto taskList = new QListView(widget);
+    auto taskList = new QListView;
     taskList->setFrameShape(QFrame::StyledPanel);
     taskList->setSelectionMode(QAbstractItemView::NoSelection);
     taskList->setSelectionBehavior(QAbstractItemView::SelectRows);
     taskList->setModel(&m_tasks);
 
-    LayoutBuilder builder(widget);
-    builder.addRow(m_taskArgs);
-    builder.addRow({tr("Tasks:"), taskList});
+    using namespace Layouting;
+    auto widget = Form {
+        m_taskArgs, Break(),
+        tr("Tasks:"), taskList
+    }.emerge(false);
 
     auto buildSystem = dynamic_cast<NimbleBuildSystem *>(this->buildSystem());
     QTC_ASSERT(buildSystem, return widget);

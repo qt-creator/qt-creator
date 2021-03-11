@@ -737,7 +737,7 @@ void KitAspectWidget::addToLayout(LayoutBuilder &builder)
     m_label = new QLabel(m_kitInformation->displayName() + ':');
     m_label->setToolTip(m_kitInformation->description());
 
-    builder.addRow({{m_label, 1, LayoutBuilder::AlignAsFormLabel}, mainWidget(), buttonWidget()});
+    builder.addRow({LayoutBuilder::AlignAsFormLabel(m_label), mainWidget(), buttonWidget()});
 }
 
 void KitAspectWidget::setVisible(bool visible)

@@ -517,10 +517,11 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
             AndroidManager::installQASIPackage(target(), packagePath);
     });
 
-    LayoutBuilder builder(widget);
+    Layouting::Form builder;
     builder.addRow(m_uninstallPreviousPackage);
     builder.addRow(resetDefaultDevices);
     builder.addRow(installCustomApkButton);
+    builder.attachTo(widget);
 
     return widget;
 }

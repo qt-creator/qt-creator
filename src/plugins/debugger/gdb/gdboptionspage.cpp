@@ -87,7 +87,8 @@ GdbOptionsPageWidget::GdbOptionsPageWidget()
 
     Column commands {
         Group { Title { tr("Additional Startup Commands") }, s.gdbStartupCommands },
-        Group { Title { tr("Additional Attach Commands") }, s.gdbPostAttachCommands }
+        Group { Title { tr("Additional Attach Commands") }, s.gdbPostAttachCommands },
+        Stretch()
     };
 
     Row { general, commands }.attachTo(this);
@@ -128,7 +129,7 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2()
     using namespace Layouting;
     DebuggerSettings &s = *debuggerSettings();
 
-    Group {
+    Group extended {
         Title(GdbOptionsPage::tr("Extended")),
         labelDangerous,
         s.targetAsync,
@@ -138,7 +139,9 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2()
         s.breakOnAbort,
         s.enableReverseDebugging,
         s.multiInferior,
-    }.attachTo(this);
+    };
+
+    Column { extended, Stretch() }.attachTo(this);
 }
 
 // The "Dangerous" options.

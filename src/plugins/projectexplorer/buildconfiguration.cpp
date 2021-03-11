@@ -326,11 +326,12 @@ NamedWidget *BuildConfiguration::createConfigWidget()
         widget = named;
     }
 
-    LayoutBuilder builder(widget);
+    Layouting::Form builder;
     for (BaseAspect *aspect : aspects()) {
         if (aspect->isVisible())
             aspect->addToLayout(builder.finishRow());
     }
+    builder.attachTo(widget, false);
 
     return named;
 }

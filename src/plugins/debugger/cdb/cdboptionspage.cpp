@@ -233,7 +233,9 @@ CdbOptionsPageWidget::CdbOptionsPageWidget()
             Title(tr("Add Exceptions to Issues View")),
             s.firstChanceExceptionTaskEntry,
             s.secondChanceExceptionTaskEntry
-        }
+        },
+
+        Stretch()
 
     }.attachTo(this);
 }
@@ -287,8 +289,9 @@ CdbPathsPageWidget::CdbPathsPageWidget()
     finish();
     Column {
         Group { Title(tr("Symbol Paths")), m_symbolPaths },
-        Group { Title(tr("Source Paths")), m_sourcePaths }
-    }.attachTo(this, false);
+        Group { Title(tr("Source Paths")), m_sourcePaths },
+        Stretch()
+    }.attachTo(this);
 }
 
 void CdbPathsPageWidget::apply()

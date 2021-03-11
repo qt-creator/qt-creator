@@ -51,9 +51,10 @@ MesonBuildSettingsWidget::MesonBuildSettingsWidget(MesonBuildConfiguration *buil
     ui->setupUi(this);
     ui->container->setState(Utils::DetailsWidget::NoSummary);
     ui->container->setWidget(ui->details);
-    LayoutBuilder buildDirWBuilder{ui->buildDirWidget};
-    auto buildDirAspect = buildCfg->buildDirectoryAspect();
-    buildDirAspect->addToLayout(buildDirWBuilder);
+
+    Layouting::Form buildDirWBuilder;
+    buildCfg->buildDirectoryAspect()->addToLayout(buildDirWBuilder);
+    buildDirWBuilder.attachTo(ui->buildDirWidget);
 
     ui->parametersLineEdit->setText(buildCfg->parameters());
     ui->optionsFilterLineEdit->setFiltering(true);

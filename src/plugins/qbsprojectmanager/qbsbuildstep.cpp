@@ -129,8 +129,8 @@ void ArchitecturesAspect::addToLayout(LayoutBuilder &builder)
 
         setVisibleDynamic(true);
     };
-    connect(KitManager::instance(), &KitManager::kitsChanged, builder.layout(), changeHandler);
-    connect(this, &ArchitecturesAspect::changed, builder.layout(), changeHandler);
+    connect(KitManager::instance(), &KitManager::kitsChanged, this, changeHandler);
+    connect(this, &ArchitecturesAspect::changed, this, changeHandler);
     changeHandler();
 }
 
@@ -668,7 +668,7 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     installDirChooser = new PathChooser(this);
     installDirChooser->setExpectedKind(PathChooser::Directory);
 
-    LayoutBuilder builder(this);
+    Layouting::Form builder;
     builder.addRow(m_qbsStep->m_buildVariant);
     builder.addRow(m_qbsStep->m_selectedAbis);
     builder.addRow(m_qbsStep->m_maxJobCount);
@@ -686,6 +686,7 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
 
     builder.addRow({tr("Installation directory:"), installDirChooser});
     builder.addRow(m_qbsStep->m_commandLine);
+    builder.attachTo(this, false);
 
     propertyEdit->setToolTip(tr("Properties to pass to the project."));
     defaultInstallDirCheckBox->setText(tr("Use default location"));

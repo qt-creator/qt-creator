@@ -442,8 +442,6 @@ QString CMakeBuildStep::activeRunConfigTarget() const
 
 QWidget *CMakeBuildStep::createConfigWidget()
 {
-    auto widget = new QWidget;
-
     auto updateDetails = [this] {
         ProcessParameters param;
         setupProcessParameters(&param);
@@ -452,10 +450,6 @@ QWidget *CMakeBuildStep::createConfigWidget()
     };
 
     setDisplayName(tr("Build", "ConfigWidget display name."));
-
-    LayoutBuilder builder(widget);
-    builder.addRow(m_cmakeArguments);
-    builder.addRow(m_toolArguments);
 
     auto buildTargetsView = new QTreeView;
     buildTargetsView->setMinimumHeight(200);
@@ -466,7 +460,11 @@ QWidget *CMakeBuildStep::createConfigWidget()
     auto frame = ItemViewFind::createSearchableWrapper(buildTargetsView,
                                                        ItemViewFind::LightColored);
 
+    Layouting::Form builder;
+    builder.addRow(m_cmakeArguments);
+    builder.addRow(m_toolArguments);
     builder.addRow({new QLabel(tr("Targets:")), frame});
+    auto widget = builder.emerge();
 
     updateDetails();
 

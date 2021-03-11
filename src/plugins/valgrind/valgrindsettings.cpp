@@ -214,14 +214,12 @@ void SuppressionAspect::addToLayout(LayoutBuilder &builder)
     connect(d->entryList->selectionModel(), &QItemSelectionModel::selectionChanged,
             d, &SuppressionAspectPrivate::slotSuppressionSelectionChanged);
 
-    Group group {
-        Title(tr("Suppression files:")),
-        Row {
-            d->entryList.data(),
-            Column { d->addEntry.data(), d->removeEntry.data(), Stretch() }
-        }
+    builder.addItem(tr("Suppression files:"));
+    Row group {
+        d->entryList.data(),
+                Column { d->addEntry.data(), d->removeEntry.data(), Stretch() }
     };
-    builder.addItem(Item { group, 2 });
+    builder.addItem(Span { 2, group });
 }
 
 void SuppressionAspect::fromMap(const QVariantMap &map)

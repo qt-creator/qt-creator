@@ -511,18 +511,17 @@ bool QMakeStep::fromMap(const QVariantMap &map)
 
 QWidget *QMakeStep::createConfigWidget()
 {
-    auto widget = new QWidget;
-
-    abisLabel = new QLabel(tr("ABIs:"), widget);
+    abisLabel = new QLabel(tr("ABIs:"));
     abisLabel->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
 
-    abisListWidget = new QListWidget(widget);
+    abisListWidget = new QListWidget;
 
-    LayoutBuilder builder(widget);
+    Layouting::Form builder;
     builder.addRow(m_buildType);
     builder.addRow(m_userArgs);
     builder.addRow(m_effectiveCall);
     builder.addRow({abisLabel, abisListWidget});
+    auto widget = builder.emerge(false);
 
     qmakeBuildConfigChanged();
 

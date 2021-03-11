@@ -193,7 +193,7 @@ QWidget *QbsInstallStep::createConfigWidget()
     commandLineTextEdit->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
     commandLineTextEdit->setMinimumHeight(QFontMetrics(widget->font()).height() * 8);
 
-    LayoutBuilder builder(widget);
+    Layouting::Form builder;
     builder.addRow({tr("Install root:"), installRootValueLabel});
     builder.addRow(tr("Flags:"));
     m_dryRun->addToLayout(builder);
@@ -201,6 +201,7 @@ QWidget *QbsInstallStep::createConfigWidget()
     m_cleanInstallRoot->addToLayout(builder);
 
     builder.addRow({commandLineKeyLabel, commandLineTextEdit});
+    builder.attachTo(widget);
 
     const auto updateState = [this, commandLineTextEdit, installRootValueLabel] {
         installRootValueLabel->setText(installRoot());

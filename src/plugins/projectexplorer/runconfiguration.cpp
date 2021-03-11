@@ -215,14 +215,13 @@ bool RunConfiguration::isEnabled() const
 
 QWidget *RunConfiguration::createConfigurationWidget()
 {
-    auto widget = new QWidget;
-    {
-        LayoutBuilder builder(widget);
-        for (BaseAspect *aspect : qAsConst(m_aspects)) {
-            if (aspect->isVisible())
-                aspect->addToLayout(builder.finishRow());
-        }
+    Layouting::Form builder;
+    for (BaseAspect *aspect : qAsConst(m_aspects)) {
+        if (aspect->isVisible())
+            aspect->addToLayout(builder.finishRow());
     }
+
+    auto widget = builder.emerge(false);
 
     VariableChooser::addSupportForChildWidgets(widget, &m_expander);
 
