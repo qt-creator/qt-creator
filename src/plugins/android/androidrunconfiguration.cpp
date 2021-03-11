@@ -69,42 +69,26 @@ void BaseStringListAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!m_widget);
     m_widget = new AdbCommandsWidget;
-    m_widget->setCommandList(m_value);
-    m_widget->setTitleText(m_label);
+    m_widget->setCommandList(value());
+    m_widget->setTitleText(labelText());
     builder.addItem(m_widget.data());
     connect(m_widget.data(), &AdbCommandsWidget::commandsChanged, this, [this] {
-        m_value = m_widget->commandsList();
+        BaseAspect::setValue(m_widget->commandsList());
         emit changed();
     });
 }
 
-void BaseStringListAspect::fromMap(const QVariantMap &map)
-{
-    m_value = map.value(settingsKey()).toStringList();
-}
-
-void BaseStringListAspect::toMap(QVariantMap &data) const
-{
-    saveToMap(data, m_value, QStringList(), settingsKey());
-}
-
 QStringList BaseStringListAspect::value() const
 {
-    return m_value;
+    return BaseAspect::value().toStringList();
 }
 
 void BaseStringListAspect::setValue(const QStringList &value)
 {
-    m_value = value;
+    BaseAspect::setValue(value);
     if (m_widget)
-        m_widget->setCommandList(m_value);
+        m_widget->setCommandList(value);
 }
-
-void BaseStringListAspect::setLabel(const QString &label)
-{
-    m_label = label;
-}
-
 
 AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Utils::Id id)
     : RunConfiguration(target, id)
@@ -141,12 +125,14 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Utils::Id id)
     auto preStartShellCmdAspect = addAspect<BaseStringListAspect>();
     preStartShellCmdAspect->setId(Constants::ANDROID_PRESTARTSHELLCMDLIST);
     preStartShellCmdAspect->setSettingsKey("Android.PreStartShellCmdListKey");
-    preStartShellCmdAspect->setLabel(tr("Shell commands to run on Android device before application launch."));
+    preStartShellCmdAspect->setLabelText(
+        tr("Shell commands to run on Android device before application launch."));
 
     auto postStartShellCmdAspect = addAspect<BaseStringListAspect>();
     postStartShellCmdAspect->setId(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
     postStartShellCmdAspect->setSettingsKey("Android.PostStartShellCmdListKey");
-    postStartShellCmdAspect->setLabel(tr("Shell commands to run on Android device after application quits."));
+    postStartShellCmdAspect->setLabelText(
+        tr("Shell commands to run on Android device after application quits."));
 
     setUpdater([this, target] {
         const BuildTargetInfo bti = buildTargetInfo();

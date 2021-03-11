@@ -48,14 +48,7 @@ public:
     QStringList value() const;
     void setValue(const QStringList &val);
 
-    void setLabel(const QString &label);
-
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
-
 private:
-    QStringList m_value;
-    QString m_label;
     QPointer<Android::Internal::AdbCommandsWidget> m_widget; // Owned by RunConfigWidget
 };
 
