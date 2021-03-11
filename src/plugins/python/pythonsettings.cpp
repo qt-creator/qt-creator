@@ -35,6 +35,7 @@
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/listmodel.h>
+#include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/synchronousprocess.h>
 #include <utils/treemodel.h>
@@ -46,13 +47,13 @@
 #include <QSettings>
 #include <QStackedWidget>
 #include <QTreeView>
-#include <QVBoxLayout>
 #include <QWidget>
 
 namespace Python {
 namespace Internal {
 
 using namespace Utils;
+using namespace Layouting;
 
 class InterpreterDetailsWidget : public QWidget
 {
@@ -61,13 +62,12 @@ public:
         : m_name(new QLineEdit)
         , m_executable(new Utils::PathChooser())
     {
-        auto mainLayout = new QGridLayout();
-        mainLayout->addWidget(new QLabel(PythonSettings::tr("Name:")), 0, 0);
-        mainLayout->addWidget(m_name, 0, 1);
-        mainLayout->addWidget(new QLabel(PythonSettings::tr("Executable")), 1, 0);
-        mainLayout->addWidget(m_executable, 1, 1);
         m_executable->setExpectedKind(Utils::PathChooser::ExistingCommand);
-        setLayout(mainLayout);
+
+        Form {
+            PythonSettings::tr("Name:"), m_name, Break(),
+            PythonSettings::tr("Executable"), m_executable
+        }.attachTo(this, false);
     }
 
     void updateInterpreter(const Interpreter &interpreter)
@@ -125,8 +125,6 @@ InterpreterOptionsWidget::InterpreterOptionsWidget(const QList<Interpreter> &int
     });
     m_model.setAllData(interpreters);
 
-    auto mainLayout = new QVBoxLayout();
-    auto layout = new QHBoxLayout();
     m_view.setModel(&m_model);
     m_view.setHeaderHidden(true);
     m_view.setSelectionMode(QAbstractItemView::SingleSelection);
@@ -135,25 +133,31 @@ InterpreterOptionsWidget::InterpreterOptionsWidget(const QList<Interpreter> &int
             &QItemSelectionModel::currentChanged,
             this,
             &InterpreterOptionsWidget::currentChanged);
-    auto buttonLayout = new QVBoxLayout();
+
     auto addButton = new QPushButton(PythonSettings::tr("&Add"));
     connect(addButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::addItem);
+
     m_deleteButton = new QPushButton(PythonSettings::tr("&Delete"));
     m_deleteButton->setEnabled(false);
     connect(m_deleteButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::deleteItem);
+
     m_makeDefaultButton = new QPushButton(PythonSettings::tr("&Make Default"));
     m_makeDefaultButton->setEnabled(false);
     connect(m_makeDefaultButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::makeDefault);
-    mainLayout->addLayout(layout);
-    mainLayout->addWidget(m_detailsWidget);
+
     m_detailsWidget->hide();
-    setLayout(mainLayout);
-    layout->addWidget(&m_view);
-    layout->addLayout(buttonLayout);
-    buttonLayout->addWidget(addButton);
-    buttonLayout->addWidget(m_deleteButton);
-    buttonLayout->addWidget(m_makeDefaultButton);
-    buttonLayout->addStretch(10);
+
+    Column buttons {
+        addButton,
+        m_deleteButton,
+        m_makeDefaultButton,
+        Stretch()
+    };
+
+    Column {
+        Row { &m_view, buttons },
+        m_detailsWidget
+    }.attachTo(this);
 }
 
 void InterpreterOptionsWidget::apply()
