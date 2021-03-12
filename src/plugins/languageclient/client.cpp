@@ -140,6 +140,8 @@ Client::~Client()
     }
     for (IAssistProcessor *processor : qAsConst(m_runningAssistProcessors))
         processor->setAsyncProposalAvailable(nullptr);
+    qDeleteAll(m_documentHighlightsTimer);
+    m_documentHighlightsTimer.clear();
     updateEditorToolBar(m_openedDocument.keys());
     // do not handle messages while shutting down
     disconnect(m_clientInterface.data(), &BaseClientInterface::messageReceived,
@@ -431,6 +433,64 @@ void Client::updateFunctionHintProvider(TextEditor::TextDocument *document)
     }
 }
 
+void Client::requestDocumentHighlights(TextEditor::TextEditorWidget *widget)
+{
+    const auto uri = DocumentUri::fromFilePath(widget->textDocument()->filePath());
+    if (m_dynamicCapabilities.isRegistered(DocumentHighlightsRequest::methodName).value_or(false)) {
+        TextDocumentRegistrationOptions option(
+            m_dynamicCapabilities.option(DocumentHighlightsRequest::methodName));
+        if (!option.filterApplies(widget->textDocument()->filePath()))
+            return;
+    } else {
+        Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> provider
+            = m_serverCapabilities.documentHighlightProvider();
+        if (!provider.has_value())
+            return;
+        if (Utils::holds_alternative<bool>(*provider) && !Utils::get<bool>(*provider))
+            return;
+    }
+
+    auto runningRequest = m_highlightRequests.find(uri);
+    if (runningRequest != m_highlightRequests.end())
+        cancelRequest(runningRequest.value());
+
+    DocumentHighlightsRequest request(
+        TextDocumentPositionParams(TextDocumentIdentifier(uri), Position(widget->textCursor())));
+    request.setResponseCallback(
+        [widget = QPointer<TextEditor::TextEditorWidget>(widget), this, uri]
+        (const DocumentHighlightsRequest::Response &response)
+        {
+            m_highlightRequests.remove(uri);
+            if (!widget)
+                return;
+
+            const Id &id = TextEditor::TextEditorWidget::CodeSemanticsSelection;
+            QList<QTextEdit::ExtraSelection> selections;
+            const Utils::optional<DocumentHighlightsResult> &result = response.result();
+            if (!result.has_value() || holds_alternative<std::nullptr_t>(result.value())) {
+                widget->setExtraSelections(id, selections);
+                return;
+            }
+
+            const QTextCharFormat &format =
+                widget->textDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES);
+            QTextDocument *document = widget->document();
+            for (const auto &highlight : get<QList<DocumentHighlight>>(result.value())) {
+                QTextEdit::ExtraSelection selection{widget->textCursor(), format};
+                const int &start = highlight.range().start().toPositionInDocument(document);
+                const int &end = highlight.range().end().toPositionInDocument(document);
+                if (start < 0 || end < 0)
+                    continue;
+                selection.cursor.setPosition(start);
+                selection.cursor.setPosition(end, QTextCursor::KeepAnchor);
+                selections << selection;
+            }
+            widget->setExtraSelections(id, selections);
+        });
+    m_highlightRequests[uri] = request.id();
+    sendContent(request);
+}
+
 void Client::activateDocument(TextEditor::TextDocument *document)
 {
     auto uri = DocumentUri::fromFilePath(document->filePath());
@@ -447,11 +507,11 @@ void Client::activateDocument(TextEditor::TextDocument *document)
     for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document)) {
         updateEditorToolBar(editor);
         if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor)) {
-            textEditor->editorWidget()->addHoverHandler(&m_hoverHandler);
-            if (symbolSupport().supportsRename(document)) {
-                textEditor->editorWidget()->addOptionalActions(
-                    TextEditor::TextEditorActionHandler::RenameSymbol);
-            }
+            TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
+            widget->addHoverHandler(&m_hoverHandler);
+            requestDocumentHighlights(widget);
+            if (symbolSupport().supportsRename(document))
+                widget->addOptionalActions(TextEditor::TextEditorActionHandler::RenameSymbol);
         }
     }
 }
@@ -466,8 +526,11 @@ void Client::deactivateDocument(TextEditor::TextDocument *document)
             highlighter->clearAllExtraFormats();
     }
     for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document)) {
-        if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor))
-            textEditor->editorWidget()->removeHoverHandler(&m_hoverHandler);
+        if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor)) {
+            TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
+            widget->removeHoverHandler(&m_hoverHandler);
+            widget->setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection, {});
+        }
     }
 }
 
@@ -629,61 +692,38 @@ TextEditor::HighlightingResult createHighlightingResult(const SymbolInformation 
 
 void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
 {
-    if (m_documentsToUpdate.contains(widget->textDocument()))
+    TextEditor::TextDocument *document = widget->textDocument();
+    if (m_documentsToUpdate.contains(document))
         return; // we are currently changing this document so postpone the DocumentHighlightsRequest
-    const auto uri = DocumentUri::fromFilePath(widget->textDocument()->filePath());
-    if (m_dynamicCapabilities.isRegistered(DocumentHighlightsRequest::methodName).value_or(false)) {
-        TextDocumentRegistrationOptions option(
-                    m_dynamicCapabilities.option(DocumentHighlightsRequest::methodName));
-        if (!option.filterApplies(widget->textDocument()->filePath()))
-            return;
-    } else {
-        Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> provider
-            = m_serverCapabilities.documentHighlightProvider();
-        if (!provider.has_value())
-            return;
-        if (Utils::holds_alternative<bool>(*provider) && !Utils::get<bool>(*provider))
-            return;
+    QTimer *timer = m_documentHighlightsTimer[widget];
+    if (!timer) {
+        const auto uri = DocumentUri::fromFilePath(widget->textDocument()->filePath());
+        auto runningRequest = m_highlightRequests.find(uri);
+        if (runningRequest != m_highlightRequests.end())
+            cancelRequest(runningRequest.value());
+        timer = new QTimer;
+        timer->setSingleShot(true);
+        m_documentHighlightsTimer.insert(widget, timer);
+        connect(timer, &QTimer::timeout, this, [this, widget]() {
+            requestDocumentHighlights(widget);
+            m_documentHighlightsTimer.take(widget)->deleteLater();
+        });
+        connect(widget, &QWidget::destroyed, this, [widget, this]() {
+            delete m_documentHighlightsTimer.take(widget);
+        });
     }
-
-    auto runningRequest = m_highlightRequests.find(uri);
-    if (runningRequest != m_highlightRequests.end())
-        cancelRequest(runningRequest.value());
-
-    DocumentHighlightsRequest request(
-        TextDocumentPositionParams(TextDocumentIdentifier(uri), Position(widget->textCursor())));
-    request.setResponseCallback(
-                [widget = QPointer<TextEditor::TextEditorWidget>(widget), this, uri]
-                (DocumentHighlightsRequest::Response response)
-    {
-        m_highlightRequests.remove(uri);
-        if (!widget)
-            return;
-
-        QList<QTextEdit::ExtraSelection> selections;
-        const DocumentHighlightsResult result = response.result().value_or(DocumentHighlightsResult());
-        if (!holds_alternative<QList<DocumentHighlight>>(result)) {
-            widget->setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection, selections);
-            return;
-        }
-
-        const QTextCharFormat &format =
-                widget->textDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES);
-        QTextDocument *document = widget->document();
-        for (const auto &highlight : get<QList<DocumentHighlight>>(result)) {
-            QTextEdit::ExtraSelection selection{widget->textCursor(), format};
-            const int &start = highlight.range().start().toPositionInDocument(document);
-            const int &end = highlight.range().end().toPositionInDocument(document);
-            if (start < 0 || end < 0)
-                continue;
-            selection.cursor.setPosition(start);
-            selection.cursor.setPosition(end, QTextCursor::KeepAnchor);
-            selections << selection;
-        }
-        widget->setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection, selections);
-    });
-    m_highlightRequests[uri] = request.id();
-    sendContent(request);
+    const Id selectionsId(TextEditor::TextEditorWidget::CodeSemanticsSelection);
+    const QList semanticSelections = widget->extraSelections(selectionsId);
+    if (!semanticSelections.isEmpty()) {
+        auto selectionContainsPos =
+            [pos = widget->position()](const QTextEdit::ExtraSelection &selection) {
+                const QTextCursor cursor = selection.cursor;
+                return cursor.selectionStart() <= pos && cursor.selectionEnd() >= pos;
+            };
+        if (!Utils::anyOf(semanticSelections, selectionContainsPos))
+            widget->setExtraSelections(selectionsId, {});
+    }
+    timer->start(250);
 }
 
 SymbolSupport &Client::symbolSupport()
@@ -887,6 +927,8 @@ bool Client::reset()
     for (TextEditor::IAssistProcessor *processor : qAsConst(m_runningAssistProcessors))
         processor->setAsyncProposalAvailable(nullptr);
     m_runningAssistProcessors.clear();
+    qDeleteAll(m_documentHighlightsTimer);
+    m_documentHighlightsTimer.clear();
     return true;
 }
 
