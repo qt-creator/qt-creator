@@ -58,11 +58,86 @@ bool isPropertyBlackListed(const QmlDesigner::PropertyName &propertyName)
     return QQuickDesignerSupportProperties::isPropertyBlackListed(propertyName);
 }
 
+static void addToPropertyNameListIfNotBlackListed(
+    PropertyNameList *propertyNameList, const QQuickDesignerSupport::PropertyName &propertyName)
+{
+    if (!QQuickDesignerSupportProperties::isPropertyBlackListed(propertyName))
+        propertyNameList->append(propertyName);
+}
+
+PropertyNameList allPropertyNamesInline(QObject *object,
+                                        const PropertyName &baseName,
+                                        QObjectList *inspectedObjects,
+                                        int depth = 0)
+{
+    QQuickDesignerSupport::PropertyNameList propertyNameList;
+
+    QObjectList localObjectList;
+
+    if (inspectedObjects == nullptr)
+        inspectedObjects = &localObjectList;
+
+    if (depth > 2)
+        return propertyNameList;
+
+    if (!inspectedObjects->contains(object))
+        inspectedObjects->append(object);
+
+    const QMetaObject *metaObject = object->metaObject();
+
+    QStringList deferredPropertyNames;
+    const int namesIndex = metaObject->indexOfClassInfo("DeferredPropertyNames");
+    if (namesIndex != -1) {
+        QMetaClassInfo classInfo = metaObject->classInfo(namesIndex);
+        deferredPropertyNames = QString::fromUtf8(classInfo.value()).split(QLatin1Char(','));
+    }
+
+    for (int index = 0; index < metaObject->propertyCount(); ++index) {
+        QMetaProperty metaProperty = metaObject->property(index);
+        QQmlProperty declarativeProperty(object, QString::fromUtf8(metaProperty.name()));
+        if (declarativeProperty.isValid()
+            && declarativeProperty.propertyTypeCategory() == QQmlProperty::Object) {
+            if (declarativeProperty.name() != QLatin1String("parent")
+                && !deferredPropertyNames.contains(declarativeProperty.name())) {
+                QObject *childObject = QQmlMetaType::toQObject(declarativeProperty.read());
+                if (childObject)
+                    propertyNameList.append(
+                        allPropertyNamesInline(childObject,
+                                               baseName
+                                                   + QQuickDesignerSupport::PropertyName(
+                                                       metaProperty.name())
+                                                   + '.',
+                                               inspectedObjects,
+                                               depth + 1));
+            }
+        } else if (QQmlGadgetPtrWrapper *valueType
+                   = QQmlGadgetPtrWrapper::instance(qmlEngine(object), metaProperty.userType())) {
+            valueType->setValue(metaProperty.read(object));
+            propertyNameList.append(baseName
+                                    + QQuickDesignerSupport::PropertyName(metaProperty.name()));
+            propertyNameList.append(
+                allPropertyNamesInline(valueType,
+                                       baseName
+                                           + QQuickDesignerSupport::PropertyName(metaProperty.name())
+                                           + '.',
+                                       inspectedObjects,
+                                       depth + 1));
+        } else {
+            addToPropertyNameListIfNotBlackListed(&propertyNameList,
+                                                  baseName
+                                                      + QQuickDesignerSupport::PropertyName(
+                                                          metaProperty.name()));
+        }
+    }
+
+    return propertyNameList;
+}
+
 PropertyNameList allPropertyNames(QObject *object,
                                   const PropertyName &baseName,
                                   QObjectList *inspectedObjects)
 {
-    return QQuickDesignerSupportProperties::allPropertyNames(object, baseName, inspectedObjects);
+    return allPropertyNamesInline(object, baseName, inspectedObjects);
 }
 
 PropertyNameList propertyNameListForWritableProperties(QObject *object,
