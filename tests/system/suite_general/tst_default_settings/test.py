@@ -149,7 +149,7 @@ def __qtFunc__(it, foundQt, qmakePath):
 
 def __kitFunc__(it, foundQt, foundCompNames):
     global currentSelectedTreeItem, warningOrError
-    qtVersionStr = str(waitForObject(":Kits_QtVersion_QComboBox").currentText)
+    qtVersionStr = str(waitForObjectExists(":Kits_QtVersion_QComboBox").currentText)
     test.compare(it, "Desktop (default)", "Verifying whether default Desktop kit has been created.")
     if foundQt:
         test.compare(qtVersionStr, foundQt, "Verifying if Qt versions match.")
