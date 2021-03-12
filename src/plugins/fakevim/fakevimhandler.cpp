@@ -1300,6 +1300,11 @@ public:
             << quoteUnprintable(m_text);
     }
 
+    friend uint qHash(const Input &i)
+    {
+        return ::qHash(i.m_key);
+    }
+
 private:
     int m_key = 0;
     int m_xkey = 0;
@@ -1645,7 +1650,7 @@ private:
 };
 
 // Mappings for a specific mode (trie structure)
-class ModeMapping : public QMap<Input, ModeMapping>
+class ModeMapping : public QHash<Input, ModeMapping>
 {
 public:
     const Inputs &value() const { return m_value; }
