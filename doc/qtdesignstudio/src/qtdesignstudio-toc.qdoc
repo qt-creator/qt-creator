@@ -59,6 +59,7 @@
                         \li \l{Design Views}
                             \list
                                 \li \l{Form Editor}
+                                \li \l{3D Editor}
                                 \li \l{Library}
                                 \li \l{Navigator}
                                 \li \l{Properties}
@@ -128,7 +129,6 @@
         \li \l{Editing 3D Scenes}
                 \list
                     \li \l{Editing 3D Assets in Design Mode}
-                    \li \l{Working in 3D Editor}
                     \li \l{Adding 3D Views}
                     \li \l{Using 3D Components}
                     \list

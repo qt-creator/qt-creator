@@ -47,7 +47,7 @@ static Utils::FilePath getMultilanguageDatabaseFilePath(ProjectExplorer::Target 
 {
     if (target) {
         auto filePath = target->project()->projectDirectory().pathAppended(
-            "multilanguage-experimental-v4.db");
+            "multilanguage-experimental-v5.db");
         if (filePath.exists())
             return filePath;
     }

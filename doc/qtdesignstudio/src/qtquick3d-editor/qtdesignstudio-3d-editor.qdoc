@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -24,45 +24,52 @@
 ****************************************************************************/
 
 /*!
-    \previouspage studio-3d-design-mode.html
+    \previouspage qtquick-form-editor.html
     \page studio-3d-editor.html
-    \nextpage studio-3d-view.html
+    \nextpage quick-library.html
 
-    \title Working in 3D Editor
+    \title 3D Editor
 
     When editing a 3D scene, you view the scene in the \uicontrol {3D Editor}
     view. You can change the projection of the view by switching between
     \e {perspective camera} and \e {orthographic camera} modes. When using the
-    perspective camera mode, objects that are far from the camera appear smaller
-    than those nearby. In the orthographic camera mode, all objects appear at
-    the same scale irrespective of their distance from the camera. Both of them
-    are free-form camera modes that you can use to orbit around the scene.
+    perspective camera mode, components that are far from the camera appear
+    smaller than those nearby. In the orthographic camera mode, all components
+    appear at the same scale irrespective of their distance from the camera.
+    Both of them are free-form camera modes that you can use to orbit around
+    the scene.
 
     When you import 3D scenes from files that you exported from 3D graphics
     tools, you also import a \l{Using Scene Camera}{scene camera},
     \l{Using Lights}{light}, \l{Adding Models}{model}, and
     \l {Using Materials and Shaders}{materials}. If your scene did not contain
-    them, you can add the corresponding Qt Quick 3D types from \uicontrol
-    Library.
+    them, you can add the corresponding \l {Using 3D Components}{Qt Quick 3D}
+    components from \l Library > \uicontrol Components > \uicontrol QtQuick3D >
+    \uicontrol {Qt Quick 3D}.
 
-    You can use the toolbar buttons to \e transform 3D objects and manipulate
-    the 3D scene. Transformation refers to moving, rotating, or scaling of an
-    object. The \e pivot of the component is used as the origin for
-    transformations. You can set a \l{Managing 3D Transformations}{local pivot
-    offset} for an item in \uicontrol Properties to transform the component
-    around a point other than its local origin. A line is drawn in \uicontrol
-    {3D Editor} from the pivot point to the center of the component to provide
-    a visual connection between them.
+    You can use the \l{Summary of the 3D Editor Toolbar Buttons}{toolbar buttons}
+    to \e transform 3D components and manipulate the 3D scene. Transformation
+    refers to moving, rotating, or scaling of a component. The \e pivot of the
+    component is used as the origin for transformations. You can set a
+    \l{Managing 3D Transformations}{local pivot offset} for a component in
+    \uicontrol Properties to transform the component around a point other than
+    its local origin. A line is drawn in \uicontrol {3D Editor} from the pivot
+    point to the center of the component to provide a visual connection between
+    them.
 
     Toggle between local and global orientation to determine whether the gizmos
-    affect only the local transformations of the item or whether they transform
-    with respect to the global space.
+    affect only the local transformations of the component or whether they
+    transform with respect to the global space.
 
     Additional helpful features when editing 3D scenes are the \e {edit light},
     which is a quick way to light the scene, and the grid that helps you to
     navigate in 3D space. Select the \inlineimage grid_on.png
     (\uicontrol {Toggle Grid Visibility}) or press \key G to show or hide the
     grid.
+
+    To refresh the contents of \uicontrol {3D Editor}, press \key P or
+    select the \inlineimage reset.png
+    (\uicontrol {Reset View}) button.
 
     \image studio-3d-editor.png "3D Editor"
 
@@ -78,14 +85,16 @@
     (\uicontrol {Toggle Perspective/Orthographic Edit Camera}).
     To switch to orthographic camera mode, select
     \inlineimage orthographic_camera.png
-    .
+    . You can also Toggle the camera mode by using the keyboard shortcut \key T.
 
     You can navigate the scene by panning, rotating, and zooming the 3D Editor
     camera:
 
     \list
-        \li To pan, press \key Alt and use the middle mouse button to click and
-            drag anywhere in the rendered view to slide the view around.
+        \li To pan, press \key Alt (or \key Option on \macos) and use the
+            middle mouse button to click and drag anywhere in the rendered
+            view to slide the view around.
+            \note At the moment it is not possible to pan using Magic Mouse.
         \li To orbit, press \key Alt and click and drag anywhere in the rendered
             view to rotate the view.
         \li To zoom, use the mouse wheel or press \key Alt and right-click
@@ -93,7 +102,7 @@
             up or down.
     \endlist
 
-    To zoom and focus the 3D Editor camera on a selected item,
+    To zoom and focus the 3D Editor camera on a selected component,
     select \inlineimage fit_selected.png
     (\uicontrol {Fit Selected}) or press \key F.
 
@@ -106,12 +115,12 @@
 
     \image studio-3d-editor-axis-helper.png "Axis helper in 3D Editor"
 
-    You can use scene cameras (2) to view the the View3D type from a specific
-    angle in \uicontrol {Form Editor} while editing scenes. Different types of
-    cameras are available in \uicontrol Library under \uicontrol
-    {Qt Quick 3D}. For more information about using cameras in the scene,
-    the available camera types, and their properties, see
-    \l{Using Scene Camera}.
+    You can use scene cameras (2) to view the \uicontrol View3D component from a
+    specific angle in \l {Form Editor} while editing scenes. Different
+    types of cameras are available in \uicontrol Library > \uicontrol Components
+    > \uicontrol QtQuick3D > \uicontrol {Qt Quick 3D}. For more information about
+    using cameras in the scene, the available camera types, and their properties,
+    see \l{Using Scene Camera}.
 
     \section1 Using Global and Local Orientation
 
@@ -121,17 +130,17 @@
     (\uicontrol {Toggle Local/Global Orientation})
     or press \key Y.
 
-    In global orientation mode, transformation of a selected object is presented
-    with respect to the global space. For example, while the move tool is
-    selected, selecting a cube will show its move gizmo aligned with the axes
-    of global space. Dragging on the red arrow of the gizmo moves the object in
-    the global x direction.
+    In global orientation mode, transformation of a selected component is
+    presented with respect to the global space. For example, while the move tool
+    is selected, selecting a cube will show its move gizmo aligned with the axes
+    of global space. Dragging on the red arrow of the gizmo moves the component
+    in the global x direction.
 
-    In local orientation mode, the position of a selected object is shown
-    according to local axes specific to the selected object. For example,
+    In local orientation mode, the position of a selected component is shown
+    according to local axes specific to the selected component. For example,
     selecting a rotated cube will show its axes rotated, and not aligned with
-    the axes of global space. Dragging on the red arrow of the gizmo
-    moves the object in the local x direction in relation to the object.
+    the axes of global space. Dragging on the red arrow of the gizmo moves the
+    component in the local x direction in relation to the component.
 
     \section1 Using Edit Light
 
@@ -144,74 +153,146 @@
     For more information about the available scene light types and their
     properties, see \l{Using Lights}.
 
-    \section1 Selecting Items
+    \section1 Selecting Components
 
-    To move, rotate, or scale items in the scene, you need to select them first.
-    The selection mode buttons determine how items are selected when you click
-    them in \uicontrol {3D Editor}:
+    To move, rotate, or scale components in the scene, you need to select them
+    first. The selection mode buttons determine how components are selected when
+    you click them in \uicontrol {3D Editor}:
 
     \list
         \li In the \inlineimage select_item.png
-            (\uicontrol {Select Item}) mode, a single item is selected.
+            (\uicontrol {Single Selection}) mode, a single component is selected.
         \li In the \inlineimage select_group.png
-            (\uicontrol {Select Group}) mode, the top level parent of the item
-            is selected. This enables you to move, rotate, or scale a group of
-            items.
+            (\uicontrol {Group Selection}) mode, the top level parent of the
+            component is selected. This enables you to move, rotate, or scale a
+            group of components.
     \endlist
 
     To toggle the selection mode, press \key Q.
 
-    \section1 Moving Items
+    \section1 Moving Components
 
     \image studio-3d-editor-move.png "3D Editor in move mode"
 
-    You can move items in relation to their coordinate system, along the x, y,
-    or z axis or on the top, bottom, left, and right clip planes of the
+    You can move components in relation to their coordinate system, along the x,
+    y, or z axis or on the top, bottom, left, and right clip planes of the
     \uicontrol {3D Editor} view.
 
-    To move items, select \inlineimage move_on.png
+    To move components, select \inlineimage move_on.png
     or press \key W:
 
     \list
-        \li To move items along the axes of the move gizmo, click the axis and
-            drag the item along the axis.
-        \li To move items on a plane, click the plane handle and drag the item
-            on the plane.
-        \li To move an item freely in 3D editor, click and drag the gray handle
-            at the center of the move gizmo.
+        \li To move components along the axes of the move gizmo, click the axis,
+            and drag the component along the axis.
+        \li To move components on a plane, click the plane handle and drag the
+            component on the plane.
+        \li To move an component freely in 3D editor, click and drag the gray
+            handle at the center of the move gizmo.
      \endlist
 
-    \section1 Rotating Items
+    \section1 Rotating Components
 
     \image studio-3d-editor-rotate.png "3D Editor in rotate mode"
 
-    To rotate items, select \inlineimage rotate_on.png
+    To rotate components, select \inlineimage rotate_on.png
     or press \key E:
 
     \list
-        \li To rotate an item around its rotation gizmo, click the axis ring and
-            drag in the direction you want to rotate the item in.
-        \li To freely rotate the item, click and drag the inner center circle of
-            the gizmo.
+        \li To rotate a component around its rotation gizmo, click the axis ring
+            and drag in the direction you want to rotate the component in.
+        \li To freely rotate the component, click and drag the inner center
+            circle of the gizmo.
     \endlist
 
-    \section1 Scaling Items
+    \section1 Scaling Components
 
     \image studio-3d-editor-scale.png "3D Editor in scale mode"
 
-    You can use the scale handles to adjust the local x, y, or z scale of an
-    item. You can adjust the scale across one, two, or three axes, depending on
-    the handle.
+    You can use the scale handles to adjust the local x, y, or z scale of a
+    component. You can adjust the scale across one, two, or three axes,
+    depending on the handle.
 
-    To scale items, select \inlineimage scale_on.png
+    To scale components, select \inlineimage scale_on.png
     or press \key R:
 
     \list
         \li To adjust the scale across one axis, click and drag the scale handle
             attached to the axis.
         \li To adjust the scale across a plane, click the plane handle and drag
-            the item on the plane.
-        \li To uniformly scale an item across all axes, click and drag the gray
-            handle at the center of the item.
+            the component on the plane.
+        \li To uniformly scale a component across all axes, click and drag the
+            gray handle at the center of the component.
     \endlist
+
+    \section1 Summary of the 3D Editor Toolbar Buttons
+
+    The \uicontrol {3D Editor} toolbar contains the following buttons:
+
+    \table
+    \header
+        \li Button
+        \li Tooltip
+        \li Keyboard Shortcut
+        \li Read More
+    \row
+        \li \inlineimage select_group.png
+            \inlineimage select_item.png
+        \li Toggle Group/Single Selection Mode
+        \li \key Q
+        \li \l{Selecting Components}
+    \row
+        \li \inlineimage move_off.png
+            \inlineimage move_on.png
+        \li Activate the Move Tool
+        \li \key W
+        \li \l{Moving Components}
+    \row
+        \li \inlineimage rotate_off.png
+            \inlineimage rotate_on.png
+        \li Activate Rotate Tool
+        \li \key E
+        \li \l{Rotating Components}
+    \row
+        \li \inlineimage scale_off.png
+            \inlineimage scale_on.png
+        \li Activate Scale Tool
+        \li \key R
+        \li \l{Scaling Components}
+    \row
+        \li \inlineimage fit_selected.png
+        \li Fit Selected Object to View
+        \li \key F
+        \li \l{Controlling the 3D Editor Camera}
+    \row
+        \li  \inlineimage perspective_camera.png
+             \inlineimage orthographic_camera.png
+        \li Toggle Perspective/Orthographic Edit Camera
+        \li \key T
+        \li \l{Controlling the 3D Editor Camera}
+    \row
+        \li \inlineimage global.png
+            \inlineimage local.png
+        \li Toggle Global/Local Orientation
+        \li \key Y
+        \li \l{Using Global and Local Orientation}
+    \row
+        \li \inlineimage edit_light_off.png
+            \inlineimage edit_light_on.png
+        \li Toggle Edit Light On/Off
+        \li \key U
+        \li \l{Using Edit Light}
+    \row
+        \li \inlineimage grid_off.png
+            \inlineimage grid_on.png
+        \li Toggle Grid Visibility
+        \li \key G
+        \li
+    \row
+        \li \inlineimage reset.png
+        \li Reset View
+        \li \key R
+        \li
+    \endtable
+
+
 */

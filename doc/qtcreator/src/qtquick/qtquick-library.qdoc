@@ -26,7 +26,7 @@
 /*!
     \page quick-library.html
     \if defined(qtdesignstudio)
-    \previouspage qtquick-form-editor.html
+    \previouspage studio-3d-editor.html
     \else
     \previouspage creator-using-qt-quick-designer.html
     \endif

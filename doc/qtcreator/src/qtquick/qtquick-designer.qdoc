@@ -68,7 +68,7 @@
             used as a canvas for the 3D scene projected by the camera.
         \li \l{Form Editor}
     \row
-        \li \l{Working in 3D Editor}{3D Editor}
+        \li \l{3D Editor}
         \li Provides an editor for files you created using 3D graphics
             applications and stored in one of the supported formats.
         \li \l{Editing 3D Scenes}
