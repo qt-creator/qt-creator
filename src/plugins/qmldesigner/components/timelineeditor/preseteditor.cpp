@@ -55,11 +55,10 @@ constexpr int spacingg = 5;
 
 const QColor background = Qt::white;
 
-const QColor labelBackground = qRgb(0x70, 0x70, 0x70);
-const QColor canvasBackground = qRgb(0x46, 0x46, 0x46);
-const QColor curveLine = qRgb(0xe6, 0xe7, 0xe8);
-
-PresetItemDelegate::PresetItemDelegate() = default;
+PresetItemDelegate::PresetItemDelegate(const QColor& background)
+    : QStyledItemDelegate()
+    , m_background(background)
+{}
 
 void PresetItemDelegate::paint(QPainter *painter,
                                const QStyleOptionViewItem &opt,
@@ -80,10 +79,10 @@ void PresetItemDelegate::paint(QPainter *painter,
     option.font.setPixelSize(Theme::instance()->smallFontPixelSize());
 
     painter->save();
-    painter->fillRect(option.rect, canvasBackground);
+    painter->fillRect(option.rect, m_background);
 
     if (option.text.isEmpty())
-        painter->fillRect(textRect, canvasBackground);
+        painter->fillRect(textRect, m_background);
     else
         painter->fillRect(textRect, Theme::instance()->qmlDesignerButtonColor());
 
@@ -118,23 +117,25 @@ QSize PresetItemDelegate::sizeHint(const QStyleOptionViewItem &opt, const QModel
     return size;
 }
 
-QIcon paintPreview()
+QIcon paintPreview(const QColor& background)
 {
     QPixmap pm(iconWidth, iconHeight);
-    pm.fill(canvasBackground);
+    pm.fill(background);
     return QIcon(pm);
 }
 
-QIcon paintPreview(const EasingCurve &curve)
+QIcon paintPreview(const EasingCurve &curve, const QColor& background, const QColor& curveColor)
 {
+    const QColor curveLine = Theme::getColor(Theme::DStextColor);
+
     QPixmap pm(iconWidth, iconHeight);
-    pm.fill(canvasBackground);
+    pm.fill(background);
 
     QPainter painter(&pm);
     painter.setRenderHint(QPainter::Antialiasing, true);
 
     Canvas canvas(iconWidth, iconHeight, 2, 2, 9, 6, 0, 1);
-    canvas.paintCurve(&painter, curve, curveLine);
+    canvas.paintCurve(&painter, curve, curveColor);
 
     return QIcon(pm);
 }
@@ -159,6 +160,8 @@ PresetList::PresetList(QSettings::Scope scope, QWidget *parent)
     , m_scope(scope)
     , m_index(-1)
     , m_filename(Internal::settingsFullFilePath(scope))
+    , m_background(Theme::getColor(Theme::DSsectionHeadBackground ))
+    , m_curveColor(Theme::getColor(Theme::DStextColor))
 {
     int magic = 4;
     int scrollBarWidth = this->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
@@ -168,7 +171,7 @@ PresetList::PresetList(QSettings::Scope scope, QWidget *parent)
 
     setModel(new QStandardItemModel);
 
-    setItemDelegate(new PresetItemDelegate);
+    setItemDelegate(new PresetItemDelegate(m_background));
 
     setSpacing(spacingg);
 
@@ -260,6 +263,16 @@ bool PresetList::isEditable(const QModelIndex &index) const
     return flags.testFlag(Qt::ItemIsEditable);
 }
 
+QColor PresetList::backgroundColor() const
+{
+    return m_background;
+}
+
+QColor PresetList::curveColor() const
+{
+    return m_curveColor;
+}
+
 void PresetList::initialize(int index)
 {
     m_index = index;
@@ -278,7 +291,7 @@ void PresetList::readPresets()
     for (int i = 0; i < curves.size(); ++i) {
         QVariant curveData = QVariant::fromValue(curves[i].curve());
 
-        auto *item = new QStandardItem(paintPreview(curves[i].curve()), curves[i].name());
+        auto *item = new QStandardItem(paintPreview(curves[i].curve(), m_background, m_curveColor), curves[i].name());
         item->setData(curveData, ItemRole_Data);
         item->setEditable(m_scope == QSettings::UserScope);
         item->setToolTip(curves[i].name());
@@ -320,7 +333,7 @@ void PresetList::revert(const QModelIndex &index)
         for (const auto &curve : curves) {
             if (curve.name() == name) {
                 item->setData(false, ItemRole_Dirty);
-                item->setData(paintPreview(curve.curve()), Qt::DecorationRole);
+                item->setData(paintPreview(curve.curve(), m_background, m_curveColor), Qt::DecorationRole);
                 item->setData(QVariant::fromValue(curve.curve()), ItemRole_Data);
                 item->setToolTip(name);
                 return;
@@ -334,7 +347,7 @@ void PresetList::updateCurve(const EasingCurve &curve)
     if (!selectionModel()->hasSelection())
         return;
 
-    QVariant icon = QVariant::fromValue(paintPreview(curve));
+    QVariant icon = QVariant::fromValue(paintPreview(curve, m_background, m_curveColor));
     QVariant curveData = QVariant::fromValue(curve);
 
     for (const auto &index : selectionModel()->selectedIndexes())
@@ -382,7 +395,7 @@ void PresetList::createItem()
 
 void PresetList::createItem(const QString &name, const EasingCurve &curve)
 {
-    auto *item = new QStandardItem(paintPreview(curve), name);
+    auto *item = new QStandardItem(paintPreview(curve, m_background, m_curveColor), name);
     item->setData(QVariant::fromValue(curve), ItemRole_Data);
     item->setToolTip(name);
 
@@ -507,7 +520,8 @@ void PresetEditor::update(const EasingCurve &curve)
         m_presets->selectionModel()->clear();
     else {
         if (m_customs->selectionModel()->hasSelection()) {
-            QVariant icon = QVariant::fromValue(paintPreview(curve));
+            QVariant icon = QVariant::fromValue(
+                paintPreview(curve, m_presets->backgroundColor(), m_presets->curveColor()));
             QVariant curveData = QVariant::fromValue(curve);
             for (const QModelIndex &index : m_customs->selectionModel()->selectedIndexes())
                 m_customs->setItemData(index, curveData, icon);
