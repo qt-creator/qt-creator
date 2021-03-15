@@ -127,7 +127,6 @@ private:
     CategorySortFilterModel *m_configTextFilterModel;
     ProgressIndicator *m_progressIndicator;
     QPushButton *m_addButton;
-    QMenu *m_addButtonMenu;
     QPushButton *m_editButton;
     QPushButton *m_setButton;
     QPushButton *m_unsetButton;
@@ -174,52 +173,22 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     auto details = new QWidget(container);
     container->setWidget(details);
 
-    auto mainLayout = new QGridLayout(details);
-    mainLayout->setContentsMargins(0, 0, 0, 0);
-    mainLayout->setColumnStretch(1, 10);
-
-    int row = 0;
     auto buildDirAspect = bc->buildDirectoryAspect();
     connect(buildDirAspect, &BaseAspect::changed, this, [this]() {
         m_configModel->flush(); // clear out config cache...;
     });
-    auto initialCMakeAspect = bc->aspect<InitialCMakeArgumentsAspect>();
-    auto aspectWidget = new QWidget;
-    Layouting::Form aspectWidgetBuilder;
-    buildDirAspect->addToLayout(aspectWidgetBuilder);
-    aspectWidgetBuilder.finishRow();
-    initialCMakeAspect->addToLayout(aspectWidgetBuilder);
-    aspectWidgetBuilder.attachTo(aspectWidget, false);
-    mainLayout->addWidget(aspectWidget, row, 0, 1, -1);
-    ++row;
 
     auto qmlDebugAspect = bc->aspect<QtSupport::QmlDebuggingAspect>();
     connect(qmlDebugAspect, &QtSupport::QmlDebuggingAspect::changed, this, [this]() {
         updateButtonState();
     });
-    Layouting::Form builder;
-    qmlDebugAspect->addToLayout(builder);
-    auto widget = builder.emerge();
-    mainLayout->addWidget(widget, row, 0, 1, -1);
 
-    ++row;
-    mainLayout->addItem(new QSpacerItem(20, 10), row, 0);
-
-    ++row;
     m_warningMessageLabel = new InfoLabel({}, InfoLabel::Warning);
     m_warningMessageLabel->setVisible(false);
-    mainLayout->addWidget(m_warningMessageLabel, row, 0, 1, -1, Qt::AlignHCenter);
 
-    ++row;
-    mainLayout->addItem(new QSpacerItem(20, 10), row, 0);
-
-    ++row;
     m_filterEdit = new FancyLineEdit;
     m_filterEdit->setPlaceholderText(tr("Filter"));
     m_filterEdit->setFiltering(true);
-    mainLayout->addWidget(m_filterEdit, row, 0, 1, 2);
-
-    ++row;
     auto tree = new TreeView;
     connect(tree, &TreeView::activated,
             tree, [tree](const QModelIndex &idx) { tree->edit(idx); });
@@ -264,60 +233,79 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_showProgressTimer.setInterval(50); // don't show progress for < 50ms tasks
     connect(&m_showProgressTimer, &QTimer::timeout, [this]() { m_progressIndicator->show(); });
 
-    mainLayout->addWidget(findWrapper, row, 0, 1, 2);
-
-    auto buttonLayout = new QVBoxLayout;
     m_addButton = new QPushButton(tr("&Add"));
     m_addButton->setToolTip(tr("Add a new configuration value."));
-    buttonLayout->addWidget(m_addButton);
-    {
-        m_addButtonMenu = new QMenu(this);
-        m_addButtonMenu->addAction(tr("&Boolean"))->setData(
-                    QVariant::fromValue(static_cast<int>(ConfigModel::DataItem::BOOLEAN)));
-        m_addButtonMenu->addAction(tr("&String"))->setData(
-                    QVariant::fromValue(static_cast<int>(ConfigModel::DataItem::STRING)));
-        m_addButtonMenu->addAction(tr("&Directory"))->setData(
-                    QVariant::fromValue(static_cast<int>(ConfigModel::DataItem::DIRECTORY)));
-        m_addButtonMenu->addAction(tr("&File"))->setData(
-                    QVariant::fromValue(static_cast<int>(ConfigModel::DataItem::FILE)));
-        m_addButton->setMenu(m_addButtonMenu);
-    }
+    auto addButtonMenu = new QMenu(this);
+    addButtonMenu->addAction(tr("&Boolean"))->setData(
+                QVariant::fromValue(static_cast<int>(ConfigModel::DataItem::BOOLEAN)));
+    addButtonMenu->addAction(tr("&String"))->setData(
+                QVariant::fromValue(static_cast<int>(ConfigModel::DataItem::STRING)));
+    addButtonMenu->addAction(tr("&Directory"))->setData(
+                QVariant::fromValue(static_cast<int>(ConfigModel::DataItem::DIRECTORY)));
+    addButtonMenu->addAction(tr("&File"))->setData(
+                QVariant::fromValue(static_cast<int>(ConfigModel::DataItem::FILE)));
+    m_addButton->setMenu(addButtonMenu);
+
     m_editButton = new QPushButton(tr("&Edit"));
     m_editButton->setToolTip(tr("Edit the current CMake configuration value."));
-    buttonLayout->addWidget(m_editButton);
+
     m_setButton = new QPushButton(tr("&Set"));
     m_setButton->setToolTip(tr("Set a value in the CMake configuration."));
-    buttonLayout->addWidget(m_setButton);
+
     m_unsetButton = new QPushButton(tr("&Unset"));
     m_unsetButton->setToolTip(tr("Unset a value in the CMake configuration."));
-    buttonLayout->addWidget(m_unsetButton);
+
     m_resetButton = new QPushButton(tr("&Reset"));
     m_resetButton->setToolTip(tr("Reset all unapplied changes."));
     m_resetButton->setEnabled(false);
+
     m_clearSelectionButton = new QPushButton(tr("Clear Selection"));
     m_clearSelectionButton->setToolTip(tr("Clear selection."));
     m_clearSelectionButton->setEnabled(false);
-    buttonLayout->addWidget(m_clearSelectionButton);
-    buttonLayout->addWidget(m_resetButton);
+
     m_batchEditButton = new QPushButton(tr("Batch Edit..."));
     m_batchEditButton->setToolTip(tr("Set or reset multiple values in the CMake Configuration."));
-    buttonLayout->addWidget(m_batchEditButton);
-    buttonLayout->addItem(new QSpacerItem(10, 10, QSizePolicy::Fixed, QSizePolicy::Fixed));
-    m_showAdvancedCheckBox = new QCheckBox(tr("Advanced"));
-    buttonLayout->addWidget(m_showAdvancedCheckBox);
-    buttonLayout->addItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
-    mainLayout->addLayout(buttonLayout, row, 2);
+    m_showAdvancedCheckBox = new QCheckBox(tr("Advanced"));
 
     connect(m_configView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, [this](const QItemSelection &, const QItemSelection &) {
                 updateSelection();
     });
 
-    ++row;
     m_reconfigureButton = new QPushButton(tr("Apply Configuration Changes"));
     m_reconfigureButton->setEnabled(false);
-    mainLayout->addWidget(m_reconfigureButton, row, 0, 1, 3);
+
+    using namespace Layouting;
+    Grid cmakeConfiguration {
+        m_filterEdit, Break(),
+        findWrapper,
+        Column {
+            m_addButton,
+            m_editButton,
+            m_setButton,
+            m_unsetButton,
+            m_clearSelectionButton,
+            m_resetButton,
+            m_batchEditButton,
+            Space(10),
+            m_showAdvancedCheckBox,
+            Stretch()
+        }
+    };
+
+    Column {
+        Form {
+            buildDirAspect, Break(),
+            bc->aspect<InitialCMakeArgumentsAspect>(), Break(),
+            qmlDebugAspect
+        },
+        Space(10),
+        m_warningMessageLabel,
+        Space(10),
+        cmakeConfiguration,
+        m_reconfigureButton,
+    }.attachTo(details, false);
 
     updateAdvancedCheckBox();
     setError(bc->error());
@@ -398,7 +386,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     connect(m_clearSelectionButton, &QPushButton::clicked, this, [this]() {
         m_configView->selectionModel()->clear();
     });
-    connect(m_addButtonMenu, &QMenu::triggered, this, [this](QAction *action) {
+    connect(addButtonMenu, &QMenu::triggered, this, [this](QAction *action) {
         ConfigModel::DataItem::Type type =
                 static_cast<ConfigModel::DataItem::Type>(action->data().value<int>());
         QString value = tr("<UNSET>");
