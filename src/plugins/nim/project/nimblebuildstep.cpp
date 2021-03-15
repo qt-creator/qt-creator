@@ -26,19 +26,13 @@
 #include "nimblebuildstep.h"
 
 #include "nimconstants.h"
-#include "nimbleproject.h"
 #include "nimbuildsystem.h"
 #include "nimoutputtaskparser.h"
-#include "nimtoolchain.h"
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
-#include <projectexplorer/target.h>
-
-#include <QRegularExpression>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -48,6 +42,7 @@ namespace Nim {
 class NimbleBuildStep : public AbstractProcessStep
 {
     Q_DECLARE_TR_FUNCTIONS(Nim::NimbleBuilStep)
+
 public:
     NimbleBuildStep(BuildStepList *parentList, Id id);
 
@@ -55,22 +50,19 @@ public:
 
 private:
     QString defaultArguments() const;
-    void onArgumentsChanged();
-
-    ArgumentsAspect *m_arguments;
 };
 
 NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList, Id id)
     : AbstractProcessStep(parentList, id)
 {
-    m_arguments = addAspect<ArgumentsAspect>();
-    m_arguments->setSettingsKey(Constants::C_NIMBLEBUILDSTEP_ARGUMENTS);
-    m_arguments->setResetter([this] { return defaultArguments(); });
-    m_arguments->setArguments(defaultArguments());
+    auto arguments = addAspect<ArgumentsAspect>();
+    arguments->setSettingsKey(Constants::C_NIMBLEBUILDSTEP_ARGUMENTS);
+    arguments->setResetter([this] { return defaultArguments(); });
+    arguments->setArguments(defaultArguments());
 
-    setCommandLineProvider([this] {
+    setCommandLineProvider([this, arguments] {
         return CommandLine(Nim::nimblePathFromKit(kit()),
-                           {"build", m_arguments->arguments(macroExpander())});
+                           {"build", arguments->arguments(macroExpander())});
     });
     setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });
     setEnvironmentModifier([this](Environment &env) {
@@ -85,9 +77,9 @@ NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList, Id id)
 
     QTC_ASSERT(buildConfiguration(), return);
     QObject::connect(buildConfiguration(), &BuildConfiguration::buildTypeChanged,
-                     m_arguments, &ArgumentsAspect::resetArguments);
-    QObject::connect(m_arguments, &ArgumentsAspect::changed,
-                     this, &NimbleBuildStep::onArgumentsChanged);
+                     arguments, &ArgumentsAspect::resetArguments);
+    QObject::connect(arguments, &ArgumentsAspect::changed,
+                     this, &AbstractProcessStep::updateSummary);
 }
 
 void NimbleBuildStep::setupOutputFormatter(OutputFormatter *formatter)
@@ -100,22 +92,9 @@ void NimbleBuildStep::setupOutputFormatter(OutputFormatter *formatter)
 
 QString NimbleBuildStep::defaultArguments() const
 {
-    switch (buildType()) {
-    case BuildConfiguration::Debug:
+    if (buildType() == BuildConfiguration::Debug)
         return {"--debugger:native"};
-    case BuildConfiguration::Unknown:
-    case BuildConfiguration::Profile:
-    case BuildConfiguration::Release:
-    default:
-        return {};
-    }
-}
-
-void NimbleBuildStep::onArgumentsChanged()
-{
-    ProcessParameters *params = processParameters();
-    params->setCommandLine({Nim::nimblePathFromKit(kit()),
-                            {"build", m_arguments->arguments(macroExpander())}});
+    return {};
 }
 
 NimbleBuildStepFactory::NimbleBuildStepFactory()
