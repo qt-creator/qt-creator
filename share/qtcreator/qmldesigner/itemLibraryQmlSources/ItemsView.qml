@@ -155,6 +155,8 @@ ScrollView {
                 sectionHeight: 30
                 sectionFontSize: 15
                 showArrow: categoryModel.rowCount() > 0
+                labelColor: importUnimported ? StudioTheme.Values.themeUnimportedModuleColor
+                                             : StudioTheme.Values.themeTextColor
                 leftPadding: 0
                 rightPadding: 0
                 topPadding: 0
@@ -204,6 +206,8 @@ ScrollView {
                                     model: itemModel
                                     delegate: ItemDelegate {
                                         visible: itemVisible
+                                        textColor: importUnimported ? StudioTheme.Values.themeUnimportedModuleColor
+                                                                    : StudioTheme.Values.themeTextColor
                                         width: styleConstants.cellWidth + itemGrid.flexibleWidth
                                         height: styleConstants.cellHeight
                                         onShowContextMenu: {

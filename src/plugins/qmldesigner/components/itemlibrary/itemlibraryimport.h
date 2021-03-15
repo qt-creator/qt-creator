@@ -42,6 +42,7 @@ class ItemLibraryImport : public QObject
     Q_PROPERTY(bool importUsed READ importUsed NOTIFY importUsedChanged FINAL)
     Q_PROPERTY(bool importExpanded READ importExpanded WRITE setImportExpanded NOTIFY importExpandChanged FINAL)
     Q_PROPERTY(bool importRemovable READ importRemovable NOTIFY importRemovableChanged FINAL)
+    Q_PROPERTY(bool importUnimported READ importUnimported FINAL)
     Q_PROPERTY(QObject *categoryModel READ categoryModel NOTIFY categoryModelChanged FINAL)
 
 public:
@@ -90,6 +91,7 @@ signals:
 
 private:
     void updateRemovable();
+    bool importUnimported() const { return m_sectionType == SectionType::Unimported; }
 
     Import m_import;
     bool m_importExpanded = true;

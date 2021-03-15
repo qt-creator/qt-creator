@@ -32,6 +32,7 @@ import StudioTheme 1.0 as StudioTheme
 Item {
     id: section
     property alias caption: label.text
+    property alias labelColor: label.color
     property alias sectionHeight: header.height
     property alias sectionBackgroundColor: header.color
     property alias sectionFontSize: label.font.pixelSize

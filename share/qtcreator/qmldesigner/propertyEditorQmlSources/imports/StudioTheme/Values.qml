@@ -198,6 +198,8 @@ QtObject {
     property string themeStateBackground: Theme.color(Theme.DSstateBackgroundColor)
     property string themeStatePreviewOutline: Theme.color(Theme.DSstatePreviewOutline)
 
+    property string themeUnimportedModuleColor: "#e33c2e"
+
     // Taken out of Constants.js
     property string themeChangedStateText: Theme.color(Theme.DSchangedStateText)
 

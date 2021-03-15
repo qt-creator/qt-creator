@@ -31,6 +31,9 @@ import StudioTheme 1.0 as StudioTheme
 
 Item {
     id: delegateRoot
+
+    property alias textColor: text.color
+
     signal showContextMenu()
 
     Rectangle {
