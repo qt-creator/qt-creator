@@ -153,8 +153,6 @@ public:
 
     // Deprecated. Use filePath().toString() or better suitable conversions.
     QString path() const { return filePath().toString(); }
-    // Deprecated. Use filePath()
-    FilePath fileName() const { return filePath(); }
 
     // this sets the placeHolderText to defaultValue and enables to use this as
     // input value during validation if the real value is empty
@@ -179,8 +177,6 @@ signals:
 
 public slots:
     void setPath(const QString &);
-    // Deprecated: Use setFilePath()
-    void setFileName(const FilePath &path) { setFilePath(path); }
     void setFilePath(const FilePath &);
 
 private:

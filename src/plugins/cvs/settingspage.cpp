@@ -64,7 +64,7 @@ CvsSettingsPageWidget::CvsSettingsPageWidget(const std::function<void()> &onAppl
     m_ui.commandPathChooser->setPromptDialogTitle(tr("CVS Command"));
 
     const VcsBaseClientSettings &s = *settings;
-    m_ui.commandPathChooser->setFileName(s.binaryPath());
+    m_ui.commandPathChooser->setFilePath(s.binaryPath());
     m_ui.rootLineEdit->setText(s.stringValue(CvsSettings::cvsRootKey));
     m_ui.diffOptionsLineEdit->setText(s.stringValue(CvsSettings::diffOptionsKey));
     m_ui.timeOutSpinBox->setValue(s.intValue(CvsSettings::timeoutKey));

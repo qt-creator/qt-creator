@@ -80,7 +80,7 @@ AssetExportDialog::AssetExportDialog(const Utils::FilePath &exportPath,
 {
     m_ui->setupUi(this);
 
-    m_ui->exportPath->setFileName(exportPath);
+    m_ui->exportPath->setFilePath(exportPath);
     m_ui->exportPath->setPromptDialogTitle(tr("Choose Export Path"));
     m_ui->exportPath->lineEdit()->setReadOnly(true);
     m_ui->exportPath->addButton(tr("Open"), this, [this]() {
@@ -153,7 +153,7 @@ void AssetExportDialog::onExport()
     TaskHub::clearTasks(Constants::TASK_CATEGORY_ASSET_EXPORT);
     m_exportLogs->clear();
 
-    m_assetExporter.exportQml(m_filePathModel.files(), m_ui->exportPath->fileName(),
+    m_assetExporter.exportQml(m_filePathModel.files(), m_ui->exportPath->filePath(),
                               m_exportAssetsCheck->isChecked(),
                               m_perComponentExportCheck->isChecked());
 }
