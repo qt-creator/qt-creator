@@ -593,13 +593,18 @@ void targetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage *> *packa
         });
 
         if (!hasDesktopDescription) {
-            Utils::FilePath desktopLib;
-            if (Utils::HostOsInfo::isWindowsHost())
-                desktopLib = dir / "lib/QulQuickUltralite_QT_32bpp_Windows_Release.lib";
-            else
-                desktopLib = dir / "lib/libQulQuickUltralite_QT_32bpp_Linux_Debug.a";
+            QVector<Utils::FilePath> desktopLibs;
+            if (Utils::HostOsInfo::isWindowsHost()) {
+                desktopLibs << dir / "lib/QulQuickUltralite_QT_32bpp_Windows_Release.lib"; // older versions of QUL (<1.5?)
+                desktopLibs << dir / "lib/QulQuickUltralitePlatform_QT_32bpp_Windows_msvc_Release.lib"; // newer versions of QUL
+            } else {
+                desktopLibs << dir / "lib/libQulQuickUltralite_QT_32bpp_Linux_Debug.a"; // older versions of QUL (<1.5?)
+                desktopLibs << dir / "lib/libQulQuickUltralitePlatform_QT_32bpp_Linux_gnu_Debug.a"; // newer versions of QUL
+            }
 
-            if (desktopLib.exists()) {
+            if (Utils::anyOf(desktopLibs, [](const Utils::FilePath &desktopLib) {
+                             return desktopLib.exists(); })
+                    ) {
                 McuTargetDescription desktopDescription;
                 desktopDescription.qulVersion = descriptions.empty() ?
                             McuSupportOptions::minimalQulVersion().toString()
@@ -613,8 +618,10 @@ void targetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage *> *packa
                 descriptions.prepend(desktopDescription);
             } else {
                 if (dir.exists())
-                    printMessage(McuTarget::tr("Skipped creating fallback desktop kit: Could not find %1.")
-                        .arg(QDir::toNativeSeparators(desktopLib.fileNameWithPathComponents(1))),
+                    printMessage(McuTarget::tr("Skipped creating fallback desktop kit: Could not find any of %1.")
+                                 .arg(Utils::transform(desktopLibs, [](const auto &path) {
+                                    return QDir::toNativeSeparators(path.fileNameWithPathComponents(1));
+                                 }).toList().join(" or ")),
                                  false);
             }
         }
