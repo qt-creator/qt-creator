@@ -197,6 +197,8 @@ public:
 
     Utils::MacroExpander *macroExpander = nullptr;
 
+    Utils::optional<int> exitCode = {};
+
     // For Debugger testing.
     int testCase = 0;
 
@@ -381,6 +383,7 @@ public:
 
     static QString stateName(int s);
 
+    void notifyExitCode(int code);
     void notifyInferiorPid(const Utils::ProcessHandle &pid);
     qint64 inferiorPid() const;
 

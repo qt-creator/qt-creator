@@ -738,7 +738,8 @@ void DebuggerRunTool::start()
         }
     }
 
-    appendMessage(tr("Debugging starts"), NormalMessageFormat);
+    appendMessage(tr("Debugging %1 ...").arg(m_runParameters.inferior.commandLine().toUserOutput()),
+                  NormalMessageFormat);
     QString debuggerName = m_engine->objectName();
     if (m_engine2)
         debuggerName += ' ' + m_engine2->objectName();
@@ -782,7 +783,12 @@ void DebuggerRunTool::handleEngineFinished(DebuggerEngine *engine)
 {
     engine->prepareForRestart();
     if (--d->engineStopsNeeded == 0) {
-        appendMessage(tr("Debugging has finished"), NormalMessageFormat);
+        QString cmd = m_runParameters.inferior.commandLine().toUserOutput();
+        QString msg = engine->runParameters().exitCode // Main engine.
+            ? tr("Debugging of %1 has finished with exit code %2.")
+                .arg(cmd).arg(engine->runParameters().exitCode.value())
+            : tr("Debugging of %1 has finished.").arg(cmd);
+        appendMessage(msg, NormalMessageFormat);
         reportStopped();
     }
 }

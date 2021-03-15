@@ -920,6 +920,11 @@ QString DebuggerEngine::stateName(int s)
 #    undef SN
 }
 
+void DebuggerEngine::notifyExitCode(int code)
+{
+    d->m_runParameters.exitCode = code;
+}
+
 void DebuggerEngine::showStatusMessage(const QString &msg, int timeout) const
 {
     showMessage(msg, StatusBar, timeout);

@@ -1134,8 +1134,9 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         //               qDebug() << state());
         QString msg;
         if (reason == "exited") {
-            msg = tr("Application exited with exit code %1")
-                .arg(data["exit-code"].toString());
+            const int exitCode = data["exit-code"].toInt();
+            notifyExitCode(exitCode);
+            msg = tr("Application exited with exit code %1").arg(exitCode);
         } else if (reason == "exited-signalled" || reason == "signal-received") {
             msg = tr("Application exited after receiving signal %1")
                 .arg(data["signal-name"].toString());
@@ -1712,6 +1713,8 @@ void GdbEngine::handleThreadGroupExited(const GdbMi &result)
 {
     QString groupId = result["id"].data();
     if (threadsHandler()->notifyGroupExited(groupId)) {
+        const int exitCode = result["exit-code"].toInt();
+        notifyExitCode(exitCode);
         if (m_rerunPending)
             m_rerunPending = false;
         else
