@@ -10,9 +10,9 @@
 #include "abstracthighlighter.h"
 #include "ksyntaxhighlighting_export.h"
 
+#include <QFlags>
 #include <QIODevice>
 #include <QString>
-#include <QFlags>
 
 #include <memory>
 
@@ -23,26 +23,29 @@ class AnsiHighlighterPrivate;
 class KSYNTAXHIGHLIGHTING_EXPORT AnsiHighlighter final : public AbstractHighlighter
 {
 public:
-    enum class AnsiFormat
-    {
+    enum class AnsiFormat {
         TrueColor,
         XTerm256Color,
     };
 
-    enum class TraceOption
-    {
+    enum class TraceOption {
         NoOptions,
-        Format  = 1 << 0,
-        Region  = 1 << 1,
+        Format = 1 << 0,
+        Region = 1 << 1,
         Context = 1 << 2,
+        StackSize = 1 << 3,
     };
     Q_DECLARE_FLAGS(TraceOptions, TraceOption)
 
     AnsiHighlighter();
     ~AnsiHighlighter() override;
 
-    void highlightFile(const QString &fileName, AnsiFormat format = AnsiFormat::TrueColor, bool useEditorBackground = true, TraceOptions traceOptions = TraceOptions());
-    void highlightData(QIODevice *device, AnsiFormat format = AnsiFormat::TrueColor, bool useEditorBackground = true, TraceOptions traceOptions = TraceOptions());
+    void highlightFile(const QString &fileName,
+                       AnsiFormat format = AnsiFormat::TrueColor,
+                       bool useEditorBackground = true,
+                       TraceOptions traceOptions = TraceOptions());
+    void
+    highlightData(QIODevice *device, AnsiFormat format = AnsiFormat::TrueColor, bool useEditorBackground = true, TraceOptions traceOptions = TraceOptions());
 
     void setOutputFile(const QString &fileName);
     void setOutputFile(FILE *fileHandle);

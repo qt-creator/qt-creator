@@ -11,3 +11,4 @@ heaptrack.*
 *.unc-backup*
 .clang-format
 .cmake/
+*.code-workspace

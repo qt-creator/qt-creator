@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd"
 [
-	<!ENTITY int "[0-9]([0-9_]*[0-9])?">
-	<!ENTITY hex "[0-9a-fA-F]([0-9a-fA-F_]*[0-9a-fA-F])?">
+	<!ENTITY int "(?:[0-9]++(_++[0-9]++)*+)">
+	<!ENTITY hex "(?:[0-9a-fA-F]++(_++[0-9a-fA-F]++)*+)">
+	<!ENTITY exp "(?:[eE][-+]?&int;)">
+	<!ENTITY float "(\b&int;(\.((&int;&exp;?+|&exp;)[fFdD]?\b|[fFdD]\b)?|&exp;[fFdD]?\b|[fFdD]\b)|\.&int;&exp;?[fFdD]?\b)">
+	<!ENTITY hexfloat "\b0[xX](&hex;\.?+&hex;?+|\.&hex;?)[pP][-+]?&int;[fFdD]?\b">
 ]>
-<language name="Java" version="7" kateversion="5.0" section="Sources" extensions="*.java" mimetype="text/x-java" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
+<language name="Java" version="9" kateversion="5.62" section="Sources" extensions="*.java" mimetype="text/x-java" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
 	<highlighting>
 		<list name="java15">
 			<item>ACTIVE</item>
@@ -3704,21 +3707,11 @@
 		</list>
 		<list name="keywords">
 			<item>abstract</item>
-			<item>break</item>
-			<item>case</item>
-			<item>catch</item>
 			<item>class</item>
-			<item>continue</item>
 			<item>default</item>
-			<item>do</item>
-			<item>else</item>
 			<item>enum</item>
 			<item>extends</item>
 			<item>false</item>
-			<item>finally</item>
-			<item>for</item>
-			<item>goto</item>
-			<item>if</item>
 			<item>implements</item>
 			<item>instanceof</item>
 			<item>@interface</item>
@@ -3729,18 +3722,30 @@
 			<item>private</item>
 			<item>protected</item>
 			<item>public</item>
-			<item>return</item>
 			<item>super</item>
 			<item>strictfp</item>
-			<item>switch</item>
 			<item>synchronized</item>
 			<item>this</item>
 			<item>throws</item>
-			<item>throw</item>
 			<item>transient</item>
 			<item>true</item>
-			<item>try</item>
 			<item>volatile</item>
+		</list>
+		<list name="control flow">
+			<item>break</item>
+			<item>case</item>
+			<item>catch</item>
+			<item>continue</item>
+			<item>do</item>
+			<item>else</item>
+			<item>finally</item>
+			<item>for</item>
+			<item>goto</item>
+			<item>if</item>
+			<item>return</item>
+			<item>switch</item>
+			<item>throw</item>
+			<item>try</item>
 			<item>while</item>
 		</list>
 		<list name="types">
@@ -3759,87 +3764,127 @@
 		</list>
 		<contexts>
 			<context attribute="Normal Text" lineEndContext="#stay" name="Normal">
-				<!-- Comment next line if you don't use Javadoc tool -->
-				<IncludeRules context="##Javadoc"/>
-				<keyword attribute="Keyword" context="#stay" String="keywords"/>
-				<keyword attribute="Data Type" context="#stay" String="types"/>
-				<keyword attribute="Java15" context="#stay" String="java15"/>
-				<RegExpr attribute="Float" context="#stay" String="(\b&int;\.?|(\b&int;)?\.&int;)([eE][\-\+]?&int;[fFdD]?|[fFdD])\b"/>
-				<RegExpr attribute="Float" context="#stay" String="(\b&int;\.|(\b&int;)?\.&int;\b)"/>
-				<RegExpr attribute="Float" context="#stay" String="\b0[xX](&hex;\.?|(&hex;)?\.&hex;)[pP][\-\+]?&int;[fFdD]?\b"/>
-				<RegExpr attribute="Hex" context="#stay" String="\b0[xX]&hex;[lL]?\b"/>
-				<RegExpr attribute="Binary" context="#stay" String="\b0[bB][01]([01_]*[01])?[lL]?\b"/>
-				<RegExpr attribute="Octal" context="#stay" String="\b0[0-7]([0-7_]*[0-7])?[lL]?\b"/>
-				<RegExpr attribute="Decimal" context="#stay" String="\b(0|[1-9]([0-9_]*[0-9])?)[lL]?\b"/>
-				<HlCChar attribute="Char" context="#stay"/>
-				<RegExpr attribute="Char" context="#stay" String="'\\u[0-9a-fA-F]{4}'"/>
-				<RegExpr attribute="Decimal" context="#stay" String="//\s*BEGIN.*$" beginRegion="Region1"/>
-				<RegExpr attribute="Decimal" context="#stay" String="//\s*END.*$" endRegion="Region1"/>
-				<DetectChar attribute="String" context="String" char="&quot;"/>
-				<RegExpr attribute="Function" context="EnterPrintf" String="\.(format|printf)\b"/>
-				<Detect2Chars attribute="Comment" context="Commentar 1" char="/" char1="/"/>
-				<Detect2Chars attribute="Comment" context="Commentar 2" char="/" char1="*" beginRegion="Comment"/>
+				<DetectSpaces context="#stay"/>
+
+				<DetectChar attribute="Symbol" context="Dot" char="." lookAhead="1"/>
 				<DetectChar attribute="Symbol" context="#stay" char="{" beginRegion="Brace1"/>
 				<DetectChar attribute="Symbol" context="#stay" char="}" endRegion="Brace1"/>
-				<RegExpr attribute="Keyword" context="#stay" String="\.{3,3}\s+" />
-				<RegExpr attribute="Keyword" context="StaticImports" String="\b(import\s+static)\b" />
-				<RegExpr attribute="Keyword" context="Imports" String="\b(package|import)\b" />
-				<RegExpr attribute="Function" context="#stay" String="\b[_\w][_\w\d]*(?=[\s]*(/\*\s*\d+\s*\*/\s*)?[(])" />
-				<RegExpr attribute="Annotation" context="#stay" String="@[_\w][_\w\d]*" />
-				<DetectChar attribute="Symbol" context="Member" char="." />
+				<DetectChar attribute="Annotation" context="Annotation" char="@" />
 				<DetectChar attribute="Symbol" context="InFunctionCall" char="("/>
-				<AnyChar attribute="Symbol" context="#stay" String=":!%&amp;+,-/*&lt;=&gt;?[]|~^&#59;"/>
+
+				<!-- Comment next line if you don't use Javadoc tool -->
+				<IncludeRules context="##Javadoc"/>
+				<Detect2Chars attribute="Comment" context="Commentar 1" char="/" char1="/"/>
+				<Detect2Chars attribute="Comment" context="Commentar 2" char="/" char1="*" beginRegion="Comment"/>
+
+				<AnyChar attribute="Symbol" context="#stay" String="[]&amp;|+,-/*&lt;=&gt;;!%?:~^"/>
+
+				<AnyChar context="Number" String="0123456789" lookAhead="1"/>
+
+				<DetectChar attribute="String" context="String" char="&quot;"/>
+				<DetectChar context="Char" char="'" lookAhead="1"/>
+
+				<keyword attribute="Keyword" context="#stay" String="keywords"/>
+				<keyword attribute="Control Flow" context="#stay" String="control flow"/>
+				<keyword attribute="Data Type" context="#stay" String="types"/>
+				<keyword attribute="Java15" context="#stay" String="java15"/>
+
+				<WordDetect attribute="Keyword" context="Imports" String="package" />
+				<WordDetect attribute="Keyword" context="ImportsOrStaticImports" String="import" />
+
+				<RegExpr attribute="Function" context="#stay" String="\b[_a-zA-Z]\w*(?=[\s]*(/\*\s*\d+\s*\*/\s*)?[(])" />
+				<DetectIdentifier attribute="Normal Text"/>
 			</context>
+
+			<context attribute="Normal Text" lineEndContext="#stay" name="Number">
+				<IncludeRules context="FindFloat"/>
+				<RegExpr attribute="Hex" context="#pop" String="\b0[xX]&hex;[lL]?\b"/>
+				<RegExpr attribute="Binary" context="#pop" String="\b0[bB][01]++(_++[01]++)*+[lL]?\b"/>
+				<RegExpr attribute="Octal" context="#pop" String="\b0_*+[0-7]++(_++[0-7_]++)*+[lL]?\b"/>
+				<RegExpr attribute="Decimal" context="#pop" String="\b(0|[1-9][0-9]*+(_++[0-9_]++)*+)[lL]?\b"/>
+				<AnyChar attribute="Error" context="#pop" String="0123456789"/>
+			</context>
+			<context attribute="Normal Text" lineEndContext="#stay" name="FindFloat">
+				<RegExpr attribute="Float" context="#pop" String="&float;|&hexfloat;"/>
+			</context>
+
+			<context attribute="Normal Text" lineEndContext="#stay" name="Char">
+				<HlCChar attribute="Char" context="#pop"/>
+				<RegExpr attribute="Char" context="#pop" String="'\\u+[0-9a-fA-F]{4}'"/>
+				<RegExpr attribute="Error" context="#pop" String="'(\\(u+[0-9a-fA-F]*|.))?'?"/>
+			</context>
+
 			<context attribute="Normal Text" lineEndContext="#stay" name="InFunctionCall">
 				<IncludeRules context="Normal"/>
 				<DetectChar attribute="Symbol" context="#pop" char=")"/>
 			</context>
+
 			<context attribute="String" lineEndContext="#pop" name="String">
-				<LineContinue attribute="String" context="#stay"/>
-				<HlCStringChar attribute="String Char" context="#stay"/>
-				<RegExpr attribute="String Char" context="#stay" String="\\u[0-9a-fA-F]{4}"/>
+				<DetectChar context="StringEscapedChar" char="\" lookAhead="1"/>
 				<DetectChar attribute="String" context="#pop" char="&quot;"/>
 			</context>
-			<context attribute="Normal Text" lineEndContext="#stay" name="EnterPrintf" fallthrough="true" fallthroughContext="#pop">
-				<DetectChar attribute="Symbol" context="Printf" char="("/>
+			<context attribute="String" lineEndContext="#pop" name="StringEscapedChar">
+				<HlCStringChar attribute="String Char" context="#pop"/>
+				<RegExpr attribute="String Char" context="#pop" String="\\u+[0-9a-fA-F]{4}"/>
+				<RegExpr attribute="Error" context="#pop" String="\\(u+[0-9a-fA-F]*|.)?"/>
+			</context>
+
+			<context attribute="Normal Text" lineEndContext="#stay" name="Printf" fallthroughContext="#pop">
+				<DetectChar attribute="Symbol" context="#pop!InPrintf" char="("/>
 				<DetectSpaces attribute="Normal Text" context="#stay"/>
 			</context>
-			<context attribute="Normal Text" lineEndContext="#stay" name="Printf">
+			<context attribute="Normal Text" lineEndContext="#stay" name="InPrintf">
 				<DetectChar attribute="String" context="PrintfString" char="&quot;"/>
 				<IncludeRules context="InFunctionCall"/>
 			</context>
 			<context attribute="PrintfString" lineEndContext="#pop" name="PrintfString">
-				<LineContinue attribute="String" context="#stay"/>
-				<HlCStringChar attribute="String Char" context="#stay"/>
-				<DetectChar attribute="String" context="#pop" char="&quot;"/>
-				<RegExpr attribute="String Char" context="#stay" String="%(\d+\$)?(-|#|\+|\ |0|,|\()*\d*(\.\d+)?[a-hosxA-CEGHSX]" />
-				<RegExpr attribute="String Char" context="#stay" String="%(\d+\$)?(-|#|\+|\ |0|,|\()*\d*(t|T)(a|A|b|B|c|C|d|D|e|F|h|H|I|j|k|l|L|m|M|N|p|P|Q|r|R|s|S|T|y|Y|z|Z)" />
-				<RegExpr attribute="String Char" context="#stay" String="%(%|n)" />
+				<IncludeRules context="String"/>
+				<RegExpr attribute="String Char" context="#stay" String="%((\d+\$)?[-#+ 0,(]*\d*((\.\d+)?[a-hosxA-CEGHSX]|[tT][aAbBcCdDeFhHIjklLmMNpPQrRsSTyYzZ])|[%n])" />
 			</context>
-			<context attribute="Normal Text" lineEndContext="#pop" name="Member" fallthrough="true" fallthroughContext="#pop">
-				<RegExpr attribute="Function" context="#pop" String="\b[_a-zA-Z]\w*(?=[\s]*)" />
+
+			<context attribute="Normal Text" lineEndContext="#stay" name="Dot">
+				<StringDetect attribute="Keyword" context="#pop" String="..." />
+				<IncludeRules context="FindFloat"/>
+				<DetectChar attribute="Symbol" context="#pop!Member" char="." />
 			</context>
-			<context attribute="Normal Text" lineEndContext="#pop" name="StaticImports">
-				<RegExpr attribute="StaticImports" context="#pop" String="\s*.*;" />
+			<context attribute="Normal Text" lineEndContext="#stay" name="Member" fallthroughContext="#pop">
+				<DetectSpaces attribute="Normal Text" context="#stay"/>
+				<WordDetect attribute="Function" context="#pop!Printf" String="printf"/>
+				<WordDetect attribute="Function" context="#pop!Printf" String="format"/>
+				<DetectIdentifier attribute="Function" context="#pop"/>
 			</context>
-			<context attribute="Normal Text" lineEndContext="#pop" name="Imports">
-				<RegExpr attribute="Imports" context="#pop" String="\s*.*;" />
+
+			<context attribute="Normal Text" lineEndContext="#pop" name="Annotation" fallthroughContext="#pop">
+				<DetectIdentifier attribute="Annotation" context="#pop"/>
 			</context>
+
+			<context attribute="Normal Text" lineEndContext="#pop" name="ImportsOrStaticImports" fallthroughContext="#pop!Imports">
+				<DetectSpaces attribute="Normal Text"/>
+				<WordDetect attribute="Keyword" context="#pop!StaticImports" String="static"/>
+			</context>
+			<context attribute="StaticImports" lineEndContext="#pop" name="StaticImports">
+				<IncludeRules context="Imports"/>
+			</context>
+			<context attribute="Imports" lineEndContext="#pop" name="Imports">
+				<AnyChar attribute="Symbol" context="#stay" String=".*"/>
+				<DetectChar attribute="Symbol" context="#pop" char=";"/>
+			</context>
+
 			<context attribute="Comment" lineEndContext="#pop" name="Commentar 1">
 				<DetectSpaces />
-				<IncludeRules context="##Alerts"/>
-				<IncludeRules context="##Modelines"/>
+				<IncludeRules context="##Comments"/>
 			</context>
 			<context attribute="Comment" lineEndContext="#stay" name="Commentar 2">
 				<Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" endRegion="Comment"/>
 				<DetectSpaces />
-				<IncludeRules context="##Alerts"/>
-				<IncludeRules context="##Modelines"/>
+				<IncludeRules context="##Comments"/>
 			</context>
+
 		</contexts>
 		<itemDatas>
 			<itemData name="Normal Text"  defStyleNum="dsNormal" spellChecking="false"/>
 			<itemData name="Keyword"      defStyleNum="dsKeyword" spellChecking="false"/>
+			<itemData name="Control Flow" defStyleNum="dsControlFlow" spellChecking="false"/>
 			<itemData name="Annotation"   defStyleNum="dsAttribute" spellChecking="false"/>
 			<itemData name="Function"     defStyleNum="dsFunction" spellChecking="false"/>
 			<itemData name="StaticImports" defStyleNum="dsImport" spellChecking="false"/>
@@ -3855,8 +3900,9 @@
 			<itemData name="String Char"  defStyleNum="dsSpecialChar" spellChecking="false"/>
 			<itemData name="PrintfString" defStyleNum="dsString"/>
 			<itemData name="Comment"      defStyleNum="dsComment"/>
-			<itemData name="Symbol"       defStyleNum="dsNormal" spellChecking="false"/>
+			<itemData name="Symbol"       defStyleNum="dsOperator" spellChecking="false"/>
 			<itemData name="Java15"       defStyleNum="dsBuiltIn" spellChecking="false"/>
+			<itemData name="Error"       defStyleNum="dsError" spellChecking="false"/>
 		</itemDatas>
 	</highlighting>
 	<general>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
-<language name="INI Files" section="Configuration" extensions="*.ini;*.pls;*.kcfgc" mimetype="" version="6" kateversion="2.4" author="Jan Janssen (medhefgo@web.de)" license="LGPL">
+<language name="INI Files" section="Configuration" extensions="*.ini;*.pls;*.kcfgc" mimetype="" version="8" kateversion="5.0" author="Jan Janssen (medhefgo@web.de)" license="LGPL">
 
 <highlighting>
 <list name="keywords">
@@ -36,8 +36,7 @@
  <context name="ini" attribute="Normal Text" lineEndContext="#stay">
   <RangeDetect attribute="Section" context="#stay" char="["  char1="]" beginRegion="Section" endRegion="Section" />
   <DetectChar attribute="Assignment" context="Value" char="=" />
-  <DetectChar char=";" attribute="Comment" context="Comment" firstNonSpace="true" />
-  <DetectChar char="#" attribute="Comment" context="Comment" firstNonSpace="true" />
+  <AnyChar String=";#" attribute="Comment" context="Comment" firstNonSpace="true" />
  </context>
 
  <context name="Value" attribute="Value" lineEndContext="#pop" >
@@ -48,8 +47,7 @@
 
  <context name="Comment" attribute="Comment" lineEndContext="#pop">
   <DetectSpaces />
-  <IncludeRules context="##Alerts" />
-  <IncludeRules context="##Modelines" />
+  <IncludeRules context="##Comments" />
   <DetectIdentifier />
  </context>
 </contexts>

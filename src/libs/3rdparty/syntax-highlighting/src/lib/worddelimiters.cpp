@@ -11,7 +11,7 @@ using namespace KSyntaxHighlighting;
 WordDelimiters::WordDelimiters()
     : asciiDelimiters{}
 {
-    for(const char *p = "\t !%&()*+,-./:;<=>?[\\]^{|}~"; *p; ++p)
+    for (const char *p = "\t !%&()*+,-./:;<=>?[\\]^{|}~"; *p; ++p)
         // int(*p) fix -Wchar-subscripts
         asciiDelimiters[int(*p)] = true;
 }
@@ -24,20 +24,24 @@ bool WordDelimiters::contains(QChar c) const
     return notAsciiDelimiters.contains(c);
 }
 
-void WordDelimiters::append(QChar c)
+void WordDelimiters::append(QStringView s)
 {
-    if (c.unicode() < 128) {
-        asciiDelimiters[c.unicode()] = true;
-    } else {
-        notAsciiDelimiters.append(c);
+    for (QChar c : s) {
+        if (c.unicode() < 128) {
+            asciiDelimiters[c.unicode()] = true;
+        } else {
+            notAsciiDelimiters.append(c);
+        }
     }
 }
 
-void WordDelimiters::remove(QChar c)
+void WordDelimiters::remove(QStringView s)
 {
-    if (c.unicode() < 128) {
-        asciiDelimiters[c.unicode()] = false;
-    } else {
-        notAsciiDelimiters.remove(c);
+    for (QChar c : s) {
+        if (c.unicode() < 128) {
+            asciiDelimiters[c.unicode()] = false;
+        } else {
+            notAsciiDelimiters.remove(c);
+        }
     }
 }

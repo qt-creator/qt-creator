@@ -1,9 +1,9 @@
 <!DOCTYPE language SYSTEM "language.dtd">
 <language
   name="PowerShell"
-  version="7"
+  version="11"
   kateversion="5.0"
-  extensions="*.ps1;*.ps1m;*.ps1d"
+  extensions="*.ps1;*.psm1;*.psd1"
   section="Scripts"
   author="Motoki Kashihara (motoki8791@gmail.com); Michael Lombardi (Michael.T.Lombardi@outlook.com)"
   casesensitive="0"
@@ -884,16 +884,14 @@
         <Detect2Chars attribute="Comment" context="Commentar 2" char="&lt;" char1="#" beginRegion="CommentRegion"/>
         <DetectChar attribute="Symbol" context="#stay" char="{" beginRegion="block1"/>
         <DetectChar attribute="Symbol" context="#stay" char="}" endRegion="block1"/>
-        <RegExpr attribute="Keyword" context="#stay" String="\b\$global(?=\s+(:))"/>
-        <RegExpr attribute="Keyword" context="#stay" String="\b\$script(?=\s+(:))"/>
+        <RegExpr attribute="Keyword" context="#stay" String="\b\$(global|script)(?=\s+(:))"/>
         <RegExpr attribute="Variable" context="#stay" String="\$+[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*" />
         <keyword attribute="Special Variable" context="#stay" String="special-variables"/>
         <DetectChar attribute="Symbol" context="Member" char="." />
         <AnyChar attribute="Symbol" context="#stay" String=":!%&amp;()+,-/*&lt;=&gt;?[]|~^&#59;"/>
       </context>
       <context attribute="String Char" lineEndContext="#stay" name="StringEscape">
-        <RegExpr attribute="String Char" String="`[`&quot;0abefnrtv]" context="#stay"/>
-        <RegExpr attribute="String Char" String="`u\{[0-9A-Fa-f]+\}" context="#stay"/>
+        <RegExpr attribute="String Char" String="`[`&quot;0abefnrtv]|`u\{[0-9A-Fa-f]+\}" context="#stay"/>
       </context>
       <context attribute="String" lineEndContext="#pop" name="String">
         <IncludeRules context="StringEscape"/>
@@ -908,14 +906,12 @@
       </context>
       <context attribute="Comment" lineEndContext="#pop" name="Commentar 1">
         <DetectSpaces />
-        <IncludeRules context="##Alerts"/>
-        <IncludeRules context="##Modelines"/>
+        <IncludeRules context="##Comments"/>
       </context>
       <context attribute="Comment" lineEndContext="#stay" name="Commentar 2">
         <DetectSpaces />
         <Detect2Chars attribute="Comment" context="#pop" char="#" char1="&gt;" endRegion="CommentRegion"/>
-        <IncludeRules context="##Alerts"/>
-        <IncludeRules context="##Modelines"/>
+        <IncludeRules context="##Comments"/>
       </context>
       <context attribute="Cmdlets" lineEndContext="#stay" name="Cmdlet">
         <keyword attribute="Function" context="#stay" String="cmdlets"/>
@@ -931,7 +927,7 @@
       <itemData name="HereString"       defStyleNum="dsVerbatimString"/>
       <itemData name="Comment"      defStyleNum="dsComment"/>
       <itemData name="Cmdlets"      defStyleNum="dsBuiltIn" spellChecking="false"/>
-      <itemData name="Symbol"       defStyleNum="dsNormal" spellChecking="false"/>
+      <itemData name="Symbol"       defStyleNum="dsOperator" spellChecking="false"/>
       <itemData name="Variable" defStyleNum="dsVariable" spellChecking="false"/>
       <itemData name="Special Variable" defStyleNum="dsVariable" bold="1" spellChecking="false"/>
     </itemDatas>

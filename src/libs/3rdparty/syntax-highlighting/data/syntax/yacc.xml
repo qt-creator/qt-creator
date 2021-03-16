@@ -32,7 +32,7 @@ This code is released under the LGPL as part of kdelibs/kate.
 
 ========================================================================
 -->
-<language name="Yacc/Bison" version="7" kateversion="5.0" section="Sources" extensions="*.y;*.yy;*.ypp;*.y++" mimetype="text/x-yacc;text/x-bison" priority="5" author="Jan Villat (jan.villat@net2000.ch)" license="LGPL">
+<language name="Yacc/Bison" version="9" kateversion="5.0" section="Sources" extensions="*.y;*.yy;*.ypp;*.y++" mimetype="text/x-yacc;text/x-bison" priority="5" author="Jan Villat (jan.villat@net2000.ch)" license="LGPL">
 
 <highlighting>
 <contexts>
@@ -139,9 +139,9 @@ This code is released under the LGPL as part of kdelibs/kate.
     <WordDetect attribute="Directive" context="#stay" String="%merge" />
 
     <!-- Finish rule without the ';' character (see the 'rhses.1' rule in the 'src/parse-gram.y' file, from the Bison source) -->
-    <RegExpr attribute="Open Rule" context="#pop" String="[\w\-\.](?=[\w\-\.]*:)" column="0" endRegion="rule" />
+    <RegExpr attribute="Open Rule" context="#pop" String="^[\w\-\.](?=[\w\-\.]*:)" column="0" endRegion="rule" />
     <Detect2Chars attribute="Content-Type Delimiter" context="#pop" char="%" char1="%" lookAhead="true" firstNonSpace="true" endRegion="rule" />
-    <RegExpr attribute="Directive" context="#pop" String="%(?:union|code|destructor|printer|start|(?:no\-)?default\-prec|nterm|token|type|left|right|nonassoc|precedence)\b" lookAhead="true" column="0" endRegion="rule" />
+    <RegExpr attribute="Directive" context="#pop" String="^%(?:union|code|destructor|printer|start|(?:no\-)?default\-prec|nterm|token|type|left|right|nonassoc|precedence)\b" lookAhead="true" column="0" endRegion="rule" />
   </context>
   <!-- The Bison parser allows to have ';' followed by '|', without the rule ending.
        The problem here is that the ';' char has endRegion="rule" (although it is not very relevant). -->
@@ -201,13 +201,11 @@ This code is released under the LGPL as part of kdelibs/kate.
   <context name="CommentStar" attribute="Comment" lineEndContext="#stay">
     <DetectSpaces />
     <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" endRegion="comment" />
-    <IncludeRules context="##Alerts" />
-    <IncludeRules context="##Modelines" />
+    <IncludeRules context="##Comments" />
   </context>
   <context name="CommentSlash" attribute="Comment" lineEndContext="#pop">
     <DetectSpaces />
-    <IncludeRules context="##Alerts" />
-    <IncludeRules context="##Modelines" />
+    <IncludeRules context="##Comments" />
   </context>
 
   <context name="StringOrChar" attribute="Normal Text" lineEndContext="#stay">

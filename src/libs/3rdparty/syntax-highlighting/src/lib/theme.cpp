@@ -47,7 +47,7 @@ QString Theme::name() const
 
 QString Theme::translatedName() const
 {
-    return m_data ? QCoreApplication::translate("Theme", m_data->name().toUtf8().constData()) : QString();
+    return m_data ? QCoreApplication::instance()->translate("Theme", m_data->name().toUtf8().constData()) : QString();
 }
 
 bool Theme::isReadOnly() const

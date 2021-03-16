@@ -9,7 +9,7 @@
             "SPDX-FileCopyrightText: 2018 Andrew Crouthamel <andrew.crouthamel@kdemail.net>"
         ],
         "license": "SPDX-License-Identifier: MIT",
-        "revision" : 2,
+        "revision" : 5,
         "name" : "Solarized Dark"
     },
     "text-styles": {
@@ -23,8 +23,7 @@
         },
         "Keyword" : {
             "text-color" : "#859900",
-            "selected-text-color" : "#859900",
-            "bold" : true
+            "selected-text-color" : "#859900"
         },
         "Function" : {
             "text-color" : "#268bd2",
@@ -36,8 +35,7 @@
         },
         "ControlFlow" : {
             "text-color" : "#859900",
-            "selected-text-color" : "#859900",
-            "bold" : true
+            "selected-text-color" : "#859900"
         },
         "Operator" : {
             "text-color" : "#859900",
@@ -49,8 +47,7 @@
         },
         "Extension" : {
             "text-color" : "#268bd2",
-            "selected-text-color" : "#268bd2",
-            "bold" : true
+            "selected-text-color" : "#268bd2"
         },
         "Preprocessor" : {
             "text-color" : "#cb4b16",
@@ -86,8 +83,7 @@
         },
         "DataType" : {
             "text-color" : "#b58900",
-            "selected-text-color" : "#b58900",
-            "bold" : true
+            "selected-text-color" : "#b58900"
         },
         "DecVal" : {
             "text-color" : "#2aa198",
@@ -153,13 +149,13 @@
    },
     "editor-colors": {
         "BackgroundColor" : "#002b36",
-        "CodeFolding" : "#6c71c4",
-        "BracketMatching" : "#073642",
+        "CodeFolding": "#083d4a",
+        "BracketMatching" : "#083d4a",
         "CurrentLine" : "#073642",
         "IconBorder" : "#073642",
-        "IndentationLine" : "#073642",
+        "IndentationLine" : "#083d4a",
         "LineNumbers" : "#586e75",
-        "CurrentLineNumber" : "#586e75",
+        "CurrentLineNumber": "#93a1a1",
         "MarkBookmark" : "#268bd2",
         "MarkBreakpointActive" : "#dc322f",
         "MarkBreakpointReached" : "#b58900",
@@ -168,11 +164,11 @@
         "MarkWarning" : "#cb4b16",
         "MarkError" : "#dc322f",
         "ModifiedLines" : "#cb4b16",
-        "ReplaceHighlight" : "#859900",
+        "ReplaceHighlight": "#3c4300",
         "SavedLines" : "#2aa198",
-        "SearchHighlight" : "#b58900",
-        "TextSelection" : "#eee8d5",
-        "Separator" : "#002b36",
+        "SearchHighlight": "#0a4d5e",
+        "TextSelection": "#083d4a",
+        "Separator" : "#1c3e49",
         "SpellChecking" : "#dc322f",
         "TabMarker" : "#586e75",
         "TemplateBackground" : "#073642",
@@ -180,5 +176,17 @@
         "TemplateFocusedPlaceholder" : "#073642",
         "TemplateReadOnlyPlaceholder" : "#073642",
         "WordWrapMarker" : "#586e75"
+    },
+    "custom-styles": {
+        "XML": {
+            "Element": {
+                "selected-text-color": "#839496",
+                "text-color": "#268bd2"
+            },
+            "Element Symbols": {
+                "selected-text-color": "#586e75",
+                "text-color": "#657b83"
+            }
+        }
     }
 }

@@ -12,7 +12,7 @@
 <!-- v10 by Peter J. Mello <admin@petermello.net>
      Add recognition of POSIX 2013 '::=' operator for variable assignment -->
 <language name="Makefile" section="Other"
-          version="10" kateversion="3.4"
+          version="13" kateversion="5.0"
           extensions="GNUmakefile;Makefile;makefile;GNUmakefile.*;Makefile.*;makefile.*;*.mk"
           mimetype="text/x-makefile" priority="11"
           author="Per Wigren (wigren@home.se)" license="">
@@ -384,6 +384,8 @@
           TODO :[range]
         -->
         <!--  Modifiers without arguments:-->
+        <!-- :Ox  Randomize words in variable. -->
+        <Detect2Chars attribute="Builtin" context="#pop!expect}" char="O" char1="x"/>
         <!--
           :E Replaces each word in the variable with its suffix.
           :H Replaces each word in the variable with everything but the last component.
@@ -398,8 +400,6 @@
         <AnyChar    attribute="Builtin" context="#pop!expect}" String="EHOQRTuLP"/>
         <!-- :sh  If the variable is non-empty it is run as a command and the output becomes the new value. -->
         <Detect2Chars attribute="Builtin" context="#pop!expect}" char="s" char1="h"/>
-        <!-- :Ox  Randomize words in variable. -->
-        <Detect2Chars attribute="Builtin" context="#pop!expect}" char="O" char1="x"/>
         <!-- :tA  Attempt to convert variable to an absolute path using realpath(3),-->
         <Detect2Chars attribute="Builtin" context="#pop!expect}" char="t" char1="A"/>
         <!-- :tl  Converts variable to lower-case letters.-->
@@ -417,12 +417,11 @@
           :Dnewval If the variable is defined newval is the value.
           :Unewval If the variable is undefined newval is the value.
         -->
-        <AnyChar    attribute="Builtin" context="#pop!bmake_var_modifier_arg" String="MNDU"/>
         <!-- TODO: add new context to highligh old_string and new_string differently
           :S/old_string/new_string/[1gW]
           :C/pattern/replacement/[1gW]
         -->
-        <AnyChar attribute="Builtin" context="#pop!bmake_var_modifier_arg" String="SC"/>
+        <AnyChar    attribute="Builtin" context="#pop!bmake_var_modifier_arg" String="MNDUSC"/>
         <!-- ::=str The variable is assigned the value str after substitution. -->
         <Detect2Chars attribute="Builtin" context="#pop!bmake_var_modifier_arg" char=":" char1="="/>
         <!-- ::?=str As for ::= but only if the variable does not already have a value. -->
@@ -477,8 +476,7 @@
 
       <context attribute="Comment" lineEndContext="#pop" name="Comment">
         <LineContinue attribute="Comment" context="#stay" />
-        <IncludeRules context="##Alerts" />
-        <IncludeRules context="##Modelines" />
+        <IncludeRules context="##Comments" />
       </context>
 
     </contexts>

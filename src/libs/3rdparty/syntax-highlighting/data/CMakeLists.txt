@@ -1,9 +1,27 @@
+# create a directory for generated definitions
+execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/generated/syntax)
+
+macro(generate_syntax_definition generator targetFile srcFile)
+    add_custom_target(
+        ${targetFile} ALL
+        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/generated/syntax/${targetFile}
+    )
+    add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/generated/syntax/${targetFile}
+        COMMAND ${PERL_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/generators/${generator}
+                ${CMAKE_CURRENT_SOURCE_DIR}/syntax/${srcFile}
+                ${CMAKE_CURRENT_BINARY_DIR}/generated/syntax/${targetFile}
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/generators/${generator}
+                ${CMAKE_CURRENT_SOURCE_DIR}/syntax/${srcFile}
+                ${ARGN}
+        VERBATIM
+    )
+    set(gen_defs ${gen_defs} ${CMAKE_CURRENT_BINARY_DIR}/generated/syntax/${targetFile})
+endmacro()
+
 # generate PHP definitions
 macro(generate_php_syntax_definition targetFile srcFile)
-    execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/generated/syntax)
-    execute_process(COMMAND ${PERL_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/generators/generate-php.pl
-        INPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/syntax/${srcFile}
-        OUTPUT_FILE ${CMAKE_CURRENT_BINARY_DIR}/generated/syntax/${targetFile})
+    generate_syntax_definition(generate-php.pl ${targetFile} ${srcFile} ${CMAKE_CURRENT_SOURCE_DIR}/syntax/php.xml)
 endmacro()
 
 generate_php_syntax_definition(javascript-php.xml javascript.xml)
@@ -13,17 +31,12 @@ generate_php_syntax_definition(javascript-react-php.xml javascript-react.xml)
 generate_php_syntax_definition(typescript-php.xml typescript.xml)
 generate_php_syntax_definition(mustache-php.xml mustache.xml)
 
+# generate DoxygenLua definition
+generate_syntax_definition(generate-doxygenlua.pl doxygenlua.xml doxygen.xml)
+
 # find all definitions
 file(GLOB src_defs "${CMAKE_CURRENT_SOURCE_DIR}/syntax/*.xml")
-set(defs
-    ${src_defs}
-    ${CMAKE_CURRENT_BINARY_DIR}/generated/syntax/html-php.xml
-    ${CMAKE_CURRENT_BINARY_DIR}/generated/syntax/css-php.xml
-    ${CMAKE_CURRENT_BINARY_DIR}/generated/syntax/javascript-php.xml
-    ${CMAKE_CURRENT_BINARY_DIR}/generated/syntax/javascript-react-php.xml
-    ${CMAKE_CURRENT_BINARY_DIR}/generated/syntax/typescript-php.xml
-    ${CMAKE_CURRENT_BINARY_DIR}/generated/syntax/mustache-php.xml
-)
+set(defs ${src_defs} ${gen_defs})
 
 # theme data resource
 qt5_add_resources(themes_QRC ${CMAKE_CURRENT_SOURCE_DIR}/themes/theme-data.qrc)
@@ -43,7 +56,7 @@ if (QRC_SYNTAX)
     # generate the index file
     add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/index.katesyntax"
     COMMAND katehighlightingindexer "${CMAKE_CURRENT_BINARY_DIR}/index.katesyntax" "${CMAKE_CURRENT_SOURCE_DIR}/schema/language.xsd" "${CMAKE_CURRENT_BINARY_DIR}/syntax-data.qrc"
-    DEPENDS ${defs} ${CMAKE_CURRENT_SOURCE_DIR}/schema/language.xsd ${CMAKE_CURRENT_BINARY_DIR}/syntax-data.qrc
+    DEPENDS katehighlightingindexer ${defs} ${CMAKE_CURRENT_SOURCE_DIR}/schema/language.xsd ${CMAKE_CURRENT_BINARY_DIR}/syntax-data.qrc
     )
 
     # generate the qrc file manually, to make dependencies on generated files work...
@@ -57,7 +70,7 @@ if (QRC_SYNTAX)
     add_library(SyntaxHighlightingData OBJECT ${themes_QRC} ${CMAKE_CURRENT_BINARY_DIR}/qrc_syntax-data.cpp)
 else()
     # install the syntax files as normal files into the prefix
-    install (FILES ${defs} DESTINATION share/org.kde.syntax-highlighting/syntax)
+    install (FILES ${defs} DESTINATION ${KDE_INSTALL_DATADIR}/org.kde.syntax-highlighting/syntax)
 
     # object library to make cross-folder dependencies work, only themes
     add_library(SyntaxHighlightingData OBJECT ${themes_QRC})

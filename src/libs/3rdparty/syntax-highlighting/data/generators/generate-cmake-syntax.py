@@ -3,7 +3,7 @@
 #
 # Generate Kate syntax file for CMake
 #
-# SPDX-FileCopyrightText: 2017-2019 Alex Turbov <i.zaufi@gmail.com>
+# SPDX-FileCopyrightText: 2017-2020 Alex Turbov <i.zaufi@gmail.com>
 #
 # To install prerequisites:
 #
@@ -43,21 +43,29 @@ def try_transform_placeholder_string_to_regex(name):
     '''
     m = _TEMPLATED_NAME.split(name)
     if 'CMAKE_MATCH_' in m:
-        return '\\bCMAKE_MATCH_[0-9]+\\b'
+        return 'CMAKE_MATCH_[0-9]+'
 
     if 'CMAKE_ARGV' in m:
-        return '\\bCMAKE_ARGV[0-9]+\\b'
+        return 'CMAKE_ARGV[0-9]+'
 
     if 'CMAKE_POLICY_DEFAULT_CMP' in m:
-        return '\\bCMAKE_POLICY_DEFAULT_CMP[0-9]{4}\\b'
+        return 'CMAKE_POLICY_DEFAULT_CMP[0-9]{4}'
 
     if 'CMAKE_POLICY_WARNING_CMP' in m:
-        return '\\bCMAKE_POLICY_WARNING_CMP[0-9]{4}\\b'
+        return 'CMAKE_POLICY_WARNING_CMP[0-9]{4}'
 
     if 'ARGV' in m:
-        return '\\bARGV[0-9]+\\b'
+        return 'ARGV[0-9]+'
 
-    return '\\b{}\\b'.format('&id_re;'.join(list(m))) if 1 < len(m) else name
+    return '&id_re;'.join(m) if 1 < len(m) else name
+
+
+def try_placeholders_to_regex(names):
+    if not names:
+        return None
+    l = map(try_transform_placeholder_string_to_regex, names)
+    l = sorted(l, reverse=True)
+    return '\\b(?:' + '|'.join(l) + ')\\b'
 
 
 def partition_iterable(fn, iterable):
@@ -73,7 +81,7 @@ def _transform_command_set(cmd, list_name):
     list_name = list_name.replace('-', '_')
 
     cmd[list_name] = {k: sorted(set(v)) for k, v in zip(_KW_RE_LIST, [args, args_re])}
-    cmd[list_name]['re'] = [*map(lambda x: try_transform_placeholder_string_to_regex(x), args_re)]
+    cmd[list_name]['re'] = try_placeholders_to_regex(args_re)
 
     return cmd
 
@@ -136,12 +144,7 @@ def cli(input_yaml, template):
               , [*partition_iterable(lambda x: _TEMPLATED_NAME.search(x) is None, data[var_key])]
               )
         }
-        data[var_key]['re'] = [
-            *map(
-                lambda x: try_transform_placeholder_string_to_regex(x)
-              , data[var_key]['re']
-              )
-          ]
+        data[var_key]['re'] = try_placeholders_to_regex(data[var_key]['re'])
 
     # Transform properties and make all-properties list
     data['properties'] = {}
@@ -153,18 +156,16 @@ def cli(input_yaml, template):
         data['properties'][python_prop_list_name] = {
             k: sorted(set(v)) for k, v in zip(_KW_RE_LIST, [props, props_re])
           }
-        data['properties'][python_prop_list_name]['re'] = [
-            *map(lambda x: try_transform_placeholder_string_to_regex(x), props_re)
-          ]
+        data['properties'][python_prop_list_name]['re'] = try_placeholders_to_regex(props_re)
 
-    data['properties']['kinds'] = [*map(lambda name: name.replace('-', '_'), _PROPERTY_KEYS)]
+    data['properties']['kinds'] = list(map(lambda name: name.replace('-', '_'), _PROPERTY_KEYS))
 
     # Make all commands list
-    data['commands'] = [
-        *map(
-            lambda cmd: transform_command(cmd)
+    data['commands'] = list(
+        map(
+            transform_command
           , data['scripting-commands'] + data['project-commands'] + data['ctest-commands'])
-      ]
+      )
 
     # Fix node names to be accessible from Jinja template
     data['generator_expressions'] = data['generator-expressions']
@@ -177,6 +178,12 @@ def cli(input_yaml, template):
     env = jinja2.Environment(
         keep_trailing_newline=True
       )
+    env.block_start_string = '<!--['
+    env.block_end_string = ']-->'
+    env.variable_start_string = '<!--{'
+    env.variable_end_string = '}-->'
+    env.comment_start_string = '<!--#'
+    env.comment_end_string = '#-->'
 
     # Register convenience filters
     env.tests['nulary'] = cmd_is_nulary

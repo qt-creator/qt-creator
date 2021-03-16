@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd"
 [
-    <!ENTITY wordsep "([][,?;()]|\.$|\.?\s)">     <!-- things that end a TagWord -->
+    <!ENTITY wordsep "(?:[][,?;()]|\.$|\.?\s)">   <!-- things that end a TagWord -->
     <!ENTITY sl_word ".*?(?=&wordsep;)">
     <!ENTITY ml_word ".*?(?=&wordsep;|\*/)">
 ]>
 <language name="Doxygen"
-          version="9"
+          version="13"
           kateversion="5.0"
           section="Markup"
           extensions="*.dox;*.doxygen"
@@ -230,19 +230,17 @@
       <context attribute="Comment" lineEndContext="#pop" name="LineComment">
         <LineContinue attribute="Comment" context="#stay" />
         <DetectSpaces />
-        <IncludeRules context="##Alerts" />
+        <IncludeRules context="##Comments" />
         <DetectIdentifier />
-        <DetectChar attribute="Comment" context="SL_StartTag" char="\" lookAhead="true" />
-        <DetectChar attribute="Comment" context="SL_StartTag" char="@" lookAhead="true" />
+        <AnyChar attribute="Comment" context="SL_StartTag" String="\@" lookAhead="true" />
         <DetectChar attribute="Comment" context="SL_StartHTMLTag" char="&lt;" lookAhead="true" />
         <DetectChar attribute="Comment" context="Entities" char="&amp;" lookAhead="true" />
       </context>
       <context attribute="Comment" lineEndContext="#stay" name="BlockComment">
         <DetectSpaces />
-        <IncludeRules context="##Alerts" />
+        <IncludeRules context="##Comments" />
         <DetectIdentifier />
-        <DetectChar attribute="Comment" context="ML_StartTag" char="\" lookAhead="true" />
-        <DetectChar attribute="Comment" context="ML_StartTag" char="@" lookAhead="true" />
+        <AnyChar attribute="Comment" context="ML_StartTag" String="\@" lookAhead="true" />
         <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" endRegion="BlockComment" />
         <DetectChar attribute="Comment" context="ML_StartHTMLTag" char="&lt;" lookAhead="true" />
         <DetectChar attribute="Comment" context="Entities" char="&amp;" lookAhead="true" />
@@ -335,7 +333,7 @@
       <context name="ML_htmlcomment" attribute="HTML Comment" lineEndContext="#stay">
         <DetectSpaces />
         <Detect2Chars attribute="Comment" context="#pop#pop" char="*" char1="/" endRegion="BlockComment" />
-        <IncludeRules context="##Alerts" />
+        <IncludeRules context="##Comments" />
         <DetectIdentifier />
         <StringDetect attribute="HTML Comment" context="#pop" String="--&gt;" />
       </context>
@@ -354,7 +352,7 @@
         <DetectChar attribute="Types" context="#pop#pop" char="&quot;" />
       </context>
 
-      <context name="ML_FindNextLine" attribute="Comment" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">
+      <context name="ML_FindNextLine" attribute="Comment" lineEndContext="#stay" fallthrough="true" fallthroughContext="#pop">
         <DetectSpaces />
         <Detect2Chars attribute="Comment" context="#pop!ML_End_BlockComment" char="*" char1="/" endRegion="VerbatimBlock" lookAhead="1"/>
         <Detect2Chars attribute="Comment" context="ML_VerbatimPrefix" char="*" char1="*" lookAhead="true" />
@@ -498,7 +496,7 @@
       </context>
       <context name="SL_htmlcomment" attribute="HTML Comment" lineEndContext="#pop">
         <DetectSpaces />
-        <IncludeRules context="##Alerts" />
+        <IncludeRules context="##Comments" />
         <DetectIdentifier />
         <StringDetect attribute="HTML Comment" context="#pop" String="--&gt;" />
       </context>
@@ -590,8 +588,7 @@
         <RegExpr attribute="Error" context="#pop" String="[@\\]f[]}]" />
         <RegExpr attribute="Tags" context="#pop" String="[@\\](?:[#$%&amp;&lt;&gt;&quot;@\\.]|::|---?)(?=&wordsep;)" />
         <RegExpr attribute="Custom Tags" context="#pop" String="[@\\](?:[^@\\ \t\*]|\*(?!/))+" />
-        <DetectChar attribute="Comment" context="#pop" char="\" />
-        <DetectChar attribute="Comment" context="#pop" char="@" />
+        <AnyChar attribute="Comment" context="#pop" String="\@" />
       </context>
 
       <context name="LanguageId" attribute="Word" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">

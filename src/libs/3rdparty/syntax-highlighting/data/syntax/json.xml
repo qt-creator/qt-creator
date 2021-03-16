@@ -12,7 +12,7 @@
  ** http://tools.ietf.org/html/rfc4627
  ***************************************************************************
 -->
-<language name="JSON" section="Markup" version="5" kateversion="2.4" extensions="*.json;.kateproject;.arcconfig;*.geojson;*.gltf;*.theme" mimetype="application/json" author="Sebastian Pipping (sebastian@pipping.org)" license="GPL">
+<language name="JSON" section="Markup" version="6" kateversion="2.4" extensions="*.json;.kateproject;.arcconfig;*.geojson;*.gltf;*.theme" mimetype="application/json" author="Sebastian Pipping (sebastian@pipping.org)" license="GPL">
   <highlighting>
     <list name="Constants">
       <item>null</item>
@@ -46,8 +46,7 @@
         <DetectChar char="&quot;"  context="String_Value" attribute="Style_String_Value" />
         <DetectChar char="{"       context="Pair" beginRegion="Region_Object" attribute="Style_Seperator_Pair" />
         <DetectChar char="["       context="Array" beginRegion="Region_Array" attribute="Style_Seperator_Array" />
-        <DetectChar char="}"       context="#pop" lookAhead="true" />
-        <DetectChar char=","       context="#pop" lookAhead="true" />
+        <AnyChar String="},"       context="#pop" lookAhead="true" />
 
         <DetectSpaces context="#stay" attribute="Style_Normal" />
 

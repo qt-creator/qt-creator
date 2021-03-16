@@ -6,10 +6,10 @@
 
 #include "ksyntaxhighlighting_version.h"
 
+#include <ansihighlighter.h>
 #include <definition.h>
 #include <definitiondownloader.h>
 #include <htmlhighlighter.h>
-#include <ansihighlighter.h>
 #include <repository.h>
 #include <theme.h>
 
@@ -21,8 +21,14 @@
 
 using namespace KSyntaxHighlighting;
 
-template<class Highlighter, class ...Ts>
-static void applyHighlighter(Highlighter &highlighter, QCommandLineParser &parser, bool fromFileName, const QString &inFileName, const QCommandLineOption &stdinOption, const QCommandLineOption &outputName, const Ts &...highlightParams)
+template<class Highlighter, class... Ts>
+static void applyHighlighter(Highlighter &highlighter,
+                             QCommandLineParser &parser,
+                             bool fromFileName,
+                             const QString &inFileName,
+                             const QCommandLineOption &stdinOption,
+                             const QCommandLineOption &outputName,
+                             const Ts &...highlightParams)
 {
     if (parser.isSet(outputName))
         highlighter.setOutputFile(parser.value(outputName));
@@ -56,16 +62,19 @@ int main(int argc, char **argv)
     parser.addVersionOption();
     parser.addPositionalArgument(app.translate("SyntaxHighlightingCLI", "source"), app.translate("SyntaxHighlightingCLI", "The source file to highlight."));
 
-    QCommandLineOption listDefs(QStringList() << QStringLiteral("l") << QStringLiteral("list"), app.translate("SyntaxHighlightingCLI", "List all available syntax definitions."));
+    QCommandLineOption listDefs(QStringList() << QStringLiteral("l") << QStringLiteral("list"),
+                                app.translate("SyntaxHighlightingCLI", "List all available syntax definitions."));
     parser.addOption(listDefs);
     QCommandLineOption listThemes(QStringList() << QStringLiteral("list-themes"), app.translate("SyntaxHighlightingCLI", "List all available themes."));
     parser.addOption(listThemes);
 
-    QCommandLineOption updateDefs(QStringList() << QStringLiteral("u") << QStringLiteral("update"), app.translate("SyntaxHighlightingCLI", "Download new/updated syntax definitions."));
+    QCommandLineOption updateDefs(QStringList() << QStringLiteral("u") << QStringLiteral("update"),
+                                  app.translate("SyntaxHighlightingCLI", "Download new/updated syntax definitions."));
     parser.addOption(updateDefs);
 
-    QCommandLineOption outputName(
-        QStringList() << QStringLiteral("o") << QStringLiteral("output"), app.translate("SyntaxHighlightingCLI", "File to write HTML output to (default: stdout)."), app.translate("SyntaxHighlightingCLI", "output"));
+    QCommandLineOption outputName(QStringList() << QStringLiteral("o") << QStringLiteral("output"),
+                                  app.translate("SyntaxHighlightingCLI", "File to write HTML output to (default: stdout)."),
+                                  app.translate("SyntaxHighlightingCLI", "output"));
     parser.addOption(outputName);
 
     QCommandLineOption syntaxName(QStringList() << QStringLiteral("s") << QStringLiteral("syntax"),
@@ -73,18 +82,23 @@ int main(int argc, char **argv)
                                   app.translate("SyntaxHighlightingCLI", "syntax"));
     parser.addOption(syntaxName);
 
-    QCommandLineOption themeName(
-        QStringList() << QStringLiteral("t") << QStringLiteral("theme"), app.translate("SyntaxHighlightingCLI", "Color theme to use for highlighting."), app.translate("SyntaxHighlightingCLI", "theme"), repo.defaultTheme(Repository::LightTheme).name());
+    QCommandLineOption themeName(QStringList() << QStringLiteral("t") << QStringLiteral("theme"),
+                                 app.translate("SyntaxHighlightingCLI", "Color theme to use for highlighting."),
+                                 app.translate("SyntaxHighlightingCLI", "theme"),
+                                 repo.defaultTheme(Repository::LightTheme).name());
     parser.addOption(themeName);
 
-    QCommandLineOption outputFormatOption(QStringList() << QStringLiteral("f") << QStringLiteral("output-format"),
-                                          app.translate("SyntaxHighlightingCLI", "Use the specified format instead of html. Must be html, ansi or ansi256Colors."),
-                                          app.translate("SyntaxHighlightingCLI", "format"),
-                                          QStringLiteral("html"));
+    QCommandLineOption outputFormatOption(
+        QStringList() << QStringLiteral("f") << QStringLiteral("output-format"),
+        app.translate("SyntaxHighlightingCLI", "Use the specified format instead of html. Must be html, ansi or ansi256Colors."),
+        app.translate("SyntaxHighlightingCLI", "format"),
+        QStringLiteral("html"));
     parser.addOption(outputFormatOption);
 
     QCommandLineOption traceOption(QStringList() << QStringLiteral("syntax-trace"),
-                                   app.translate("SyntaxHighlightingCLI", "Add information to debug a syntax file. Only works with --output-format=ansi or ansi256Colors. Possible values are format, region and context."),
+                                   app.translate("SyntaxHighlightingCLI",
+                                                 "Add information to debug a syntax file. Only works with --output-format=ansi or ansi256Colors. Possible "
+                                                 "values are format, region, context and stackSize."),
                                    app.translate("SyntaxHighlightingCLI", "type"));
     parser.addOption(traceOption);
 
@@ -92,12 +106,14 @@ int main(int argc, char **argv)
                                       app.translate("SyntaxHighlightingCLI", "Disable ANSI background for the default color."));
     parser.addOption(noAnsiEditorBg);
 
-    QCommandLineOption titleOption(QStringList() << QStringLiteral("T") << QStringLiteral("title"),
-                                   app.translate("SyntaxHighlightingCLI", "Set HTML page's title\n(default: the filename or \"Kate Syntax Highlighter\" if reading from stdin)."),
-                                   app.translate("SyntaxHighlightingCLI", "title"));
+    QCommandLineOption titleOption(
+        QStringList() << QStringLiteral("T") << QStringLiteral("title"),
+        app.translate("SyntaxHighlightingCLI", "Set HTML page's title\n(default: the filename or \"Kate Syntax Highlighter\" if reading from stdin)."),
+        app.translate("SyntaxHighlightingCLI", "title"));
     parser.addOption(titleOption);
 
-    QCommandLineOption stdinOption(QStringList() << QStringLiteral("stdin"), app.translate("SyntaxHighlightingCLI", "Read file from stdin. The -s option must also be used."));
+    QCommandLineOption stdinOption(QStringList() << QStringLiteral("stdin"),
+                                   app.translate("SyntaxHighlightingCLI", "Read file from stdin. The -s option must also be used."));
     parser.addOption(stdinOption);
 
     parser.process(app);
@@ -117,7 +133,9 @@ int main(int argc, char **argv)
 
     if (parser.isSet(updateDefs)) {
         DefinitionDownloader downloader(&repo);
-        QObject::connect(&downloader, &DefinitionDownloader::informationMessage, [](const QString &msg) { std::cout << qPrintable(msg) << std::endl; });
+        QObject::connect(&downloader, &DefinitionDownloader::informationMessage, [](const QString &msg) {
+            std::cout << qPrintable(msg) << std::endl;
+        });
         QObject::connect(&downloader, &DefinitionDownloader::done, &app, &QCoreApplication::quit);
         downloader.start();
         return app.exec();
@@ -139,7 +157,7 @@ int main(int argc, char **argv)
             def = repo.definitionForMimeType(syntax);
             if (!def.isValid()) {
                 /* see if it's a extension instead */
-                def = repo.definitionForFileName(QLatin1String("f.")+syntax);
+                def = repo.definitionForFileName(QLatin1String("f.") + syntax);
                 if (!def.isValid())
                     /* see if it's a filename instead */
                     def = repo.definitionForFileName(syntax);
@@ -178,13 +196,15 @@ int main(int argc, char **argv)
         auto debugOptions = AnsiHighlighter::TraceOptions();
         if (parser.isSet(traceOption)) {
             const auto options = parser.values(traceOption);
-            for (auto const& option : options) {
+            for (auto const &option : options) {
                 if (option == QStringLiteral("format")) {
                     debugOptions |= AnsiHighlighter::TraceOption::Format;
                 } else if (option == QStringLiteral("region")) {
                     debugOptions |= AnsiHighlighter::TraceOption::Region;
                 } else if (option == QStringLiteral("context")) {
                     debugOptions |= AnsiHighlighter::TraceOption::Context;
+                } else if (option == QStringLiteral("stackSize")) {
+                    debugOptions |= AnsiHighlighter::TraceOption::StackSize;
                 } else {
                     std::cerr << "Unknown trace name." << std::endl;
                     return 2;

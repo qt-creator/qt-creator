@@ -232,6 +232,9 @@ target-properties:
     - INTERPROCEDURAL_OPTIMIZATION_<CONFIG>
     - INTERPROCEDURAL_OPTIMIZATION
     - IOS_INSTALL_COMBINED
+    - ISPC_HEADER_DIRECTORY                                 # Since 3.19
+    - ISPC_HEADER_SUFFIX                                    # Since 3.19.2
+    - ISPC_INSTRUCTION_SETS                                 # Since 3.19
     - JOB_POOL_COMPILE
     - JOB_POOL_LINK
     - LABELS
@@ -274,6 +277,14 @@ target-properties:
     - NAME
     - NO_SONAME
     - NO_SYSTEM_FROM_IMPORTED
+    - OBJC_EXTENSIONS                                       # Since 3.16
+    - OBJC_STANDARD                                         # Since 3.16
+    - OBJC_STANDARD_REQUIRED                                # Since 3.16
+    - OBJCXX_EXTENSIONS                                     # Since 3.16
+    - OBJCXX_STANDARD                                       # Since 3.16
+    - OBJCXX_STANDARD_REQUIRED                              # Since 3.16
+    - OPTIMIZE_DEPENDENCIES                                 # Since 3.19
+    - OBJC_STANDARD
     - OSX_ARCHITECTURES_<CONFIG>
     - OSX_ARCHITECTURES
     - OSX_CURRENT_VERSION                                   # Since 3.17
@@ -281,6 +292,7 @@ target-properties:
     - OUTPUT_NAME_<CONFIG>
     - OUTPUT_NAME
     - PCH_WARN_INVALID                                      # Since 3.18
+    - PCH_INSTANTIATE_TEMPLATES                             # Since 3.19
     - PDB_NAME_<CONFIG>
     - PDB_NAME
     - PDB_OUTPUT_DIRECTORY_<CONFIG>
@@ -362,6 +374,7 @@ target-properties:
     - XCODE_ATTRIBUTE_<an-attribute>
     - XCODE_EXPLICIT_FILE_TYPE
     - XCODE_GENERATE_SCHEME                                 # Since 3.15
+    - XCODE_LINK_BUILD_PHASE_MODE                           # Since 3.19
     - XCODE_PRODUCT_TYPE
     - XCODE_SCHEME_ADDRESS_SANITIZER                        # Since 3.13
     - XCODE_SCHEME_ADDRESS_SANITIZER_USE_AFTER_RETURN       # Since 3.13
@@ -669,9 +682,12 @@ variables:
     - CMAKE_VS_PLATFORM_TOOLSET_CUDA
     - CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE
     - CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION
-    - CMAKE_XCODE_GENERATE_SCHEME
+    - CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION_MAXIMUM      # Since 3.19
+    - CMAKE_XCODE_BUILD_SYSTEM                              # Since 3.19
     - CMAKE_XCODE_PLATFORM_TOOLSET
     - <PROJECT-NAME>_BINARY_DIR
+    - <PROJECT-NAME>_DESCRIPTION                            # Since 3.12
+    - <PROJECT-NAME>_HOMEPAGE_URL                           # Since 3.12
     - <PROJECT-NAME>_SOURCE_DIR
     - <PROJECT-NAME>_VERSION
     - <PROJECT-NAME>_VERSION_MAJOR
@@ -679,7 +695,7 @@ variables:
     - <PROJECT-NAME>_VERSION_PATCH
     - <PROJECT-NAME>_VERSION_TWEAK
     - PROJECT_BINARY_DIR
-    - PROJECT_DESCRIPTION
+    - PROJECT_DESCRIPTION                                   # Since 3.9
     - PROJECT_HOMEPAGE_URL                                  # Since 3.12
     - PROJECT_NAME
     - PROJECT_SOURCE_DIR
@@ -695,6 +711,7 @@ variables:
     - CMAKE_AUTOMOC_RELAXED_MODE
     - CMAKE_BACKWARDS_COMPATIBILITY
     - CMAKE_BUILD_TYPE
+    - CMAKE_CLANG_VFS_OVERLAY                               # Since 3.19
     - CMAKE_CODEBLOCKS_COMPILER_ID                          # Since 3.11
     - CMAKE_CODEBLOCKS_EXCLUDE_EXTERNAL_FILES               # Since 3.10
     - CMAKE_CODELITE_USE_TARGETS
@@ -777,7 +794,9 @@ variables:
     - CMAKE_USER_MAKE_RULES_OVERRIDE
     - CMAKE_WARN_DEPRECATED
     - CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION
+    - CMAKE_XCODE_GENERATE_SCHEME
     - CMAKE_XCODE_GENERATE_TOP_LEVEL_PROJECT_ONLY           # Since 3.13
+    - CMAKE_XCODE_LINK_BUILD_PHASE_MODE                     # Since 3.19
     - CMAKE_XCODE_SCHEME_ADDRESS_SANITIZER                  # Since 3.13
     - CMAKE_XCODE_SCHEME_ADDRESS_SANITIZER_USE_AFTER_RETURN # Since 3.13
     - CMAKE_XCODE_SCHEME_WORKING_DIRECTORY                  # Since 3.17
@@ -869,6 +888,7 @@ variables:
     - CMAKE_ANDROID_SKIP_ANT_STEP
     - CMAKE_ANDROID_STANDALONE_TOOLCHAIN
     - CMAKE_ANDROID_STL_TYPE
+    - CMAKE_APPLE_SILICON_PROCESSOR                         # Since 3.19.2
     - CMAKE_ARCHIVE_OUTPUT_DIRECTORY
     - CMAKE_ARCHIVE_OUTPUT_DIRECTORY_<CONFIG>
     - CMAKE_AUTOGEN_ORIGIN_DEPENDS                          # Since 3.14
@@ -951,10 +971,12 @@ variables:
     - CMAKE_NINJA_OUTPUT_PATH_PREFIX
     - CMAKE_NO_BUILTIN_CHRPATH
     - CMAKE_NO_SYSTEM_FROM_IMPORTED
+    - CMAKE_OPTIMIZE_DEPENDENCIES                           # Since 3.19
     - CMAKE_OSX_ARCHITECTURES
     - CMAKE_OSX_DEPLOYMENT_TARGET
     - CMAKE_OSX_SYSROOT
     - CMAKE_PCH_WARN_INVALID                                # Since 3.18
+    - CMAKE_PCH_INSTANTIATE_TEMPLATES                       # Since 3.19
     - CMAKE_PDB_OUTPUT_DIRECTORY
     - CMAKE_PDB_OUTPUT_DIRECTORY_<CONFIG>
     - CMAKE_POSITION_INDEPENDENT_CODE
@@ -1015,6 +1037,9 @@ variables:
     - CMAKE_Fortran_MODDIR_DEFAULT
     - CMAKE_Fortran_MODDIR_FLAG
     - CMAKE_Fortran_MODOUT_FLAG
+    - CMAKE_ISPC_HEADER_DIRECTORY                           # Since 3.19
+    - CMAKE_ISPC_HEADER_SUFFIX                              # Since 3.19.2
+    - CMAKE_ISPC_INSTRUCTION_SETS                           # Since 3.19
     - CMAKE_<LANG>_ANDROID_TOOLCHAIN_MACHINE
     - CMAKE_<LANG>_ANDROID_TOOLCHAIN_PREFIX
     - CMAKE_<LANG>_ANDROID_TOOLCHAIN_SUFFIX
@@ -1063,6 +1088,12 @@ variables:
     - CMAKE_<LANG>_SOURCE_FILE_EXTENSIONS
     - CMAKE_<LANG>_STANDARD_INCLUDE_DIRECTORIES
     - CMAKE_<LANG>_STANDARD_LIBRARIES
+    - CMAKE_OBJC_EXTENSIONS                                 # Since 3.16
+    - CMAKE_OBJC_STANDARD                                   # Since 3.16
+    - CMAKE_OBJC_STANDARD_REQUIRED                          # Since 3.16
+    - CMAKE_OBJCXX_EXTENSIONS                               # Since 3.16
+    - CMAKE_OBJCXX_STANDARD                                 # Since 3.16
+    - CMAKE_OBJCXX_STANDARD_REQUIRED                        # Since 3.16
     - CMAKE_Swift_LANGUAGE_VERSION
     - CMAKE_USER_MAKE_RULES_OVERRIDE_<LANG>
     # Variables for CTest
@@ -1190,8 +1221,11 @@ variables:
     - <pfx>_UNPARSED_ARGUMENTS
     - <pfx>_KEYWORDS_MISSING_VALUES
     # Well known CMake's official module's variables
+    # - CheckCompilerFlag
     # - CheckCCompilerFlag
+    # - CheckSourceCompiles
     # - CheckCSourceCompiles
+    # - CheckSourceRuns
     # - CheckCSourceRuns
     # - CheckCxxCompilerFlag
     # - CheckCxxSourceCompiles
@@ -1337,6 +1371,7 @@ variables:
     - CPACK_EXTERNAL_REQUESTED_VERSIONS
     - CPACK_EXTERNAL_ENABLE_STAGING
     - CPACK_EXTERNAL_PACKAGE_SCRIPT
+    - CPACK_EXTERNAL_BUILT_PACKAGES                         # Since 3.19
     # - CPackIFW
     - CPACK_IFW_ROOT
     - QTIFWDIR
@@ -1597,6 +1632,9 @@ variables:
     - CPACK_PACKAGE_INSTALL_REGISTRY_KEY
     - CPACK_CREATE_DESKTOP_LINKS
     - CPACK_BINARY_<GENNAME>
+    - CPACK_PRE_BUILD_SCRIPTS                               # Since 3.19
+    - CPACK_POST_BUILD_SCRIPTS                              # Since 3.19
+    - CPACK_PACKAGE_FILES                                   # Since 3.19
     # - CPackWIX
     - CPACK_WIX_UPGRADE_GUID
     - CPACK_WIX_PRODUCT_GUID
@@ -1621,6 +1659,7 @@ variables:
     - CPACK_WIX_SKIP_PROGRAM_FOLDER
     - CPACK_WIX_ROOT_FOLDER_ID
     - CPACK_WIX_ROOT
+    - CPACK_WIX_CUSTOM_XMLNS                                # Since 3.19
     # - CTest
     # - Dart
     - BUILD_TESTING
@@ -1750,6 +1789,7 @@ deprecated-or-internal-variables:
 # NOTE Added to syntax file version 14 at 3.15.0 version of CMake
 environment-variables:
     # Environment Variables that Control the Build
+    - CMAKE_APPLE_SILICON_PROCESSOR                         # Since 3.19.2
     - CMAKE_BUILD_PARALLEL_LEVEL
     - CMAKE_CONFIG_TYPE
     - CMAKE_EXPORT_COMPILE_COMMANDS                         # Since 3.17
@@ -1837,7 +1877,19 @@ scripting-commands:
           ]
     -
         name: cmake_language
-        named-args: [CALL, EVAL, CODE]
+        named-args: [
+            CALL
+          , EVAL
+          , CODE
+            # Since 3.19
+          , DEFER
+          , DIRECTORY
+          , ID
+          , ID_VAR
+          , GET_CALL_IDS
+          , GET_CALL
+          , CANCEL_CALL
+          ]
     -
         name: cmake_minimum_required
         named-args: [VERSION, FATAL_ERROR]
@@ -1850,7 +1902,13 @@ scripting-commands:
         special-args: [OLD, NEW]
     -
         name: configure_file
-        named-args: [COPYONLY, ESCAPE_QUOTES, "@ONLY", NEWLINE_STYLE]
+        named-args: [
+            COPYONLY
+          , ESCAPE_QUOTES
+          , NO_SOURCE_PERMISSIONS                           # Since 3.19
+          , "@ONLY"
+          , NEWLINE_STYLE
+          ]
         special-args: [UNIX, DOS, WIN32, LF, CRLF]
     -
         name: continue
@@ -1934,6 +1992,7 @@ scripting-commands:
           , ENCODING
           , ECHO_OUTPUT_VARIABLE                            # Since 3.18
           , ECHO_ERROR_VARIABLE                             # Since 3.18
+          , COMMAND_ERROR_IS_FATAL                          # Since 3.19
           ]
         special-args: [
             NONE
@@ -1943,6 +2002,8 @@ scripting-commands:
           , UTF8
           , STDERR                                          # Since 3.15: the value for `COMMAND_ECHO`
           , STDOUT                                          # Since 3.15: the value for `COMMAND_ECHO`
+          , ANY                                             # Since 3.19: the value for `COMMAND_ERROR_IS_FATAL`
+          , LAST                                            # Since 3.19: the value for `COMMAND_ERROR_IS_FATAL`
           ]
         nested-parentheses?: true
     -
@@ -2009,6 +2070,7 @@ scripting-commands:
           , INPUT
           , CONTENT
           , CONDITION
+          , TARGET                                          # Since 3.19
           , COPY
           , INSTALL
           , DESTINATION
@@ -2040,7 +2102,8 @@ scripting-commands:
           , ARCHIVE_CREATE
           , FILES
           , FORMAT
-          , TYPE
+          , COMPRESSION
+          , COMPRESSION_LEVEL                               # Since 3.19
           , MTIME
           , VERBOSE
           , ARCHIVE_EXTRACT
@@ -2049,6 +2112,10 @@ scripting-commands:
           , ESCAPE_QUOTES
           , "@ONLY"
           , NEWLINE_STYLE
+          , CHMOD                                           # Since 3.19
+          , CHMOD_RECURSE                                   # Since 3.19
+          , REAL_PATH                                       # Since 3.19
+          , BASE_DIRECTORY                                  # Since 3.19
           ]
         special-args: [
             UTF-8
@@ -2345,7 +2412,13 @@ scripting-commands:
         nulary?: true
     -
         name: separate_arguments
-        named-args: [NATIVE_COMMAND, UNIX_COMMAND, WINDOWS_COMMAND]
+        named-args: [
+            NATIVE_COMMAND
+          , UNIX_COMMAND
+          , WINDOWS_COMMAND
+          , PROGRAM                                         # Since 3.19
+          , SEPARATE_ARGS                                   # Since 3.19
+          ]
     -
         name: set_directory_properties
         named-args: [PROPERTIES]
@@ -2429,6 +2502,16 @@ scripting-commands:
           , NAME
           , TYPE
           , UPPER
+            # Since 3.19
+          , JSON
+          , ERROR_VARIABLE
+          , GET
+          , TYPE
+          , MEMBER
+          , LENGTH
+          , REMOVE
+          , SET
+          , EQUAL
           ]
     -
         name: unset
@@ -2532,6 +2615,7 @@ project-commands:
           , CSharp
           , CXX
           , CUDA
+          , ISPC                                            # Since 3.19
           , Java
           , OBJC                                            # Since 3.16
           , OBJCXX                                          # Since 3.16
@@ -2656,6 +2740,7 @@ project-commands:
           , CSharp
           , CXX
           , CUDA
+          , ISPC                                            # Since 3.19
           , Java
           , OBJC                                            # Since 3.16
           , OBJCXX                                          # Since 3.16

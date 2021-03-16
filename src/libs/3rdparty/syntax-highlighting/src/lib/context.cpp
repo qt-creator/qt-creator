@@ -135,7 +135,8 @@ void Context::resolveIncludes()
                 context = defData->contextByName(inc->contextName());
         }
         if (!context) {
-            qCWarning(Log) << "Unable to resolve include rule for definition" << inc->contextName() << "##" << inc->definitionName() << "in" << m_def.definition().name();
+            qCWarning(Log) << "Unable to resolve include rule for definition" << inc->contextName() << "##" << inc->definitionName() << "in"
+                           << m_def.definition().name();
             ++it;
             continue;
         }
@@ -171,7 +172,8 @@ void Context::resolveAttributeFormat()
         m_attributeFormat = DefinitionData::get(def)->formatByName(m_attribute);
         if (!m_attributeFormat.isValid()) {
             if (m_attributeContext) {
-                qCWarning(Log) << "Context: Unknown format" << m_attribute << "in context" << m_name << "of definition" << m_def.definition().name() << "from included context" << m_attributeContext->m_name << "of definition" << def.name();
+                qCWarning(Log) << "Context: Unknown format" << m_attribute << "in context" << m_name << "of definition" << m_def.definition().name()
+                               << "from included context" << m_attributeContext->m_name << "of definition" << def.name();
             } else {
                 qCWarning(Log) << "Context: Unknown format" << m_attribute << "in context" << m_name << "of definition" << m_def.definition().name();
             }

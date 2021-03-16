@@ -27,7 +27,7 @@ elseif(CMAKE_CROSSCOMPILING)
         ${CMAKE_CURRENT_BINARY_DIR}/native_katehighlightingindexer-prefix/src/native_katehighlightingindexer-build/bin/katehighlightingindexer)
 else()
     # host build
-    add_executable(katehighlightingindexer katehighlightingindexer.cpp)
+    add_executable(katehighlightingindexer katehighlightingindexer.cpp ../lib/worddelimiters.cpp)
     if(Qt5XmlPatterns_FOUND)
         target_link_libraries(katehighlightingindexer Qt5::XmlPatterns)
     else()

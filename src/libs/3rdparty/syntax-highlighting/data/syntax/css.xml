@@ -38,7 +38,7 @@ Changelog:
 
 -->
 
-<language name="CSS" version="10" kateversion="5.0" section="Markup" extensions="*.css" indenter="cstyle" mimetype="text/css" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
+<language name="CSS" version="12" kateversion="5.53" section="Markup" extensions="*.css" indenter="cstyle" mimetype="text/css" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
     <!-- https://www.w3.org/Style/CSS/current-work -->
 
     <highlighting>
@@ -822,6 +822,7 @@ Changelog:
             <item>static</item>
             <item>static-position</item>
             <item>status-bar</item>
+            <item>sticky</item>
             <item>thick</item>
             <item>thin</item>
             <item>ultra-condensed</item>
@@ -1584,8 +1585,7 @@ Changelog:
             <context name="Comment" attribute="Comment" lineEndContext="#stay">
                 <DetectSpaces />
                 <Detect2Chars attribute="Comment" context="#pop#pop" char="*" char1="/" endRegion="comment" />
-                <IncludeRules context="##Alerts" />
-                <IncludeRules context="##Modelines" />
+                <IncludeRules context="##Comments" />
                 <DetectIdentifier />
             </context>
 
