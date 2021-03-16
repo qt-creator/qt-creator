@@ -81,7 +81,17 @@ QTabBar::tab:selected {
 
 QLineEdit {
     color: creatorTheme.DStextColor;
-    background-color: creatorTheme.DSdockAreaBackground;
+    background-color: creatorTheme.DScontrolBackground;
+    border: 1px solid creatorTheme.DScontrolOutline;
     selection-color: creatorTheme.DStextSelectedTextColor;
     selection-background-color: creatorTheme.DStextSelectionColor;
+}
+
+QLineEdit:hover {
+    background-color: creatorTheme.DScontrolBackgroundHover;
+}
+
+QLineEdit:focus {
+    background-color: creatorTheme.DScontrolBackgroundInteraction;
+    border-color: creatorTheme.DScontrolOutlineInteraction;
 }
