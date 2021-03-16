@@ -58,6 +58,8 @@ bool isPropertyBlackListed(const QmlDesigner::PropertyName &propertyName)
     return QQuickDesignerSupportProperties::isPropertyBlackListed(propertyName);
 }
 
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0)) && (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
+
 static void addToPropertyNameListIfNotBlackListed(
     PropertyNameList *propertyNameList, const QQuickDesignerSupport::PropertyName &propertyName)
 {
@@ -132,12 +134,19 @@ PropertyNameList allPropertyNamesInline(QObject *object,
 
     return propertyNameList;
 }
+#endif
 
 PropertyNameList allPropertyNames(QObject *object,
                                   const PropertyName &baseName,
                                   QObjectList *inspectedObjects)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return QQuickDesignerSupportProperties::allPropertyNames(object, baseName, inspectedObjects);
+#elif QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     return allPropertyNamesInline(object, baseName, inspectedObjects);
+#else
+    return QQuickDesignerSupportProperties::allPropertyNames(object, baseName, inspectedObjects);
+#endif
 }
 
 PropertyNameList propertyNameListForWritableProperties(QObject *object,
