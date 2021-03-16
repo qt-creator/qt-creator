@@ -25,9 +25,11 @@
 
 #pragma once
 
-#include <QFutureInterface>
+#include <coreplugin/progressmanager/futureprogress.h>
 
-namespace Core { class FutureProgress; }
+#include <QFutureInterface>
+#include <QPointer>
+
 namespace LanguageServerProtocol {
 class ProgressParams;
 class ProgressToken;
