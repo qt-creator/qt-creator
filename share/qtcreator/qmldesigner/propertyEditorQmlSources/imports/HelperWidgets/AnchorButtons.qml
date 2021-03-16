@@ -124,8 +124,9 @@ StudioControls.ButtonRow {
         }
     }
 
-    AbstractButton {
-        enabled: false
+    Item {
+        width: 16 + 2 * StudioTheme.Values.border
+        height: 5
     }
 
     AbstractButton {
@@ -147,8 +148,9 @@ StudioControls.ButtonRow {
         }
     }
 
-    AbstractButton {
-        enabled: false
+    Item {
+        width: 16 + 2 * StudioTheme.Values.border
+        height: 5
     }
 
     AbstractButton {

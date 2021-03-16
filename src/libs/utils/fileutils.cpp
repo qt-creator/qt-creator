@@ -121,7 +121,10 @@ void CommandLine::addArgs(const QString &inArgs, RawType)
 
 QString CommandLine::toUserOutput() const
 {
-    return m_executable.toUserOutput() + ' ' + m_arguments;
+    QString res = m_executable.toUserOutput();
+    if (!m_arguments.isEmpty())
+        res += ' ' + m_arguments;
+    return res;
 }
 
 QStringList CommandLine::splitArguments(OsType osType) const

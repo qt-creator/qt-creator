@@ -24,10 +24,19 @@ RPATH_BASE = $$DESTDIR
 include(../../rpath.pri)
 
 SOURCES += main.cpp \
-    iosdevicemanager.cpp
+    gdbrunner.cpp \
+    iosdevicemanager.cpp \
+    iostool.cpp \
+    mobiledevicelib.cpp \
+    relayserver.cpp
 
 HEADERS += \
-    iosdevicemanager.h
+    gdbrunner.h \
+    iosdevicemanager.h \
+    iostool.h \
+    iostooltypes.h \
+    mobiledevicelib.h \
+    relayserver.h
 
 DISTFILES += Info.plist
 

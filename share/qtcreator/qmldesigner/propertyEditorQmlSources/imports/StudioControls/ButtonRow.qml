@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -31,22 +31,41 @@ import StudioTheme 1.0 as StudioTheme
 Row {
     id: myButtonRow
 
-    property bool hover: false
+    property bool hover: actionIndicator.hover || myButtonRow.childHover
+    property bool childHover: false
 
     property alias actionIndicator: actionIndicator
 
     property alias actionIndicatorVisible: actionIndicator.visible
-    property real __actionIndicatorWidth: StudioTheme.Values.squareComponentWidth
-    property real __actionIndicatorHeight: StudioTheme.Values.height
+    property real __actionIndicatorWidth: StudioTheme.Values.actionIndicatorWidth
+    property real __actionIndicatorHeight: StudioTheme.Values.actionIndicatorHeight
 
     ActionIndicator {
         id: actionIndicator
         myControl: myButtonRow
         x: 0
         y: 0
-        width: actionIndicator.visible ? __actionIndicatorWidth : 0
-        height: actionIndicator.visible ? __actionIndicatorHeight : 0
+        // + StudioTheme.Values.border on width because of negative spacing on the row
+        width: actionIndicator.visible ? myButtonRow.__actionIndicatorWidth + StudioTheme.Values.border : 0
+        height: actionIndicator.visible ? myButtonRow.__actionIndicatorHeight : 0
     }
 
     spacing: -StudioTheme.Values.border
+
+    function hoverCallback() {
+        var hover = false
+
+        for (var i = 0; i < children.length; ++i) {
+            if (children[i].hovered !== undefined)
+                hover = hover || children[i].hovered
+        }
+
+        myButtonRow.childHover = hover
+    }
+
+    onHoverChanged: {
+        for (var i = 0; i < children.length; ++i)
+            if (children[i].globalHover !== undefined)
+                children[i].globalHover = myButtonRow.hover
+    }
 }

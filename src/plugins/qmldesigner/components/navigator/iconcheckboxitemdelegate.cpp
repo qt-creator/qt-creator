@@ -45,12 +45,9 @@
 
 namespace QmlDesigner {
 
-IconCheckboxItemDelegate::IconCheckboxItemDelegate(QObject *parent,
-                                                   const QIcon &checkedIcon,
-                                                   const QIcon &uncheckedIcon)
+IconCheckboxItemDelegate::IconCheckboxItemDelegate(QObject *parent, const QIcon &icon)
     : QStyledItemDelegate(parent),
-      m_checkedIcon(checkedIcon),
-      m_uncheckedIcon(uncheckedIcon)
+      m_icon(icon)
 {}
 
 QSize IconCheckboxItemDelegate::sizeHint(const QStyleOptionViewItem & /*option*/,
@@ -83,12 +80,18 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
                                      const QStyleOptionViewItem &styleOption,
                                      const QModelIndex &modelIndex) const
 {
-    if (styleOption.state & QStyle::State_MouseOver && !isThisOrAncestorLocked(modelIndex))
-        painter->fillRect(styleOption.rect.adjusted(0, delegateMargin, 0, -delegateMargin),
-                          Theme::getColor(Theme::Color::DSsliderHandle));
+    QIcon::Mode mode = QIcon::Mode::Normal;
 
-    if (styleOption.state & QStyle::State_Selected)
+    if (styleOption.state & QStyle::State_MouseOver && !isThisOrAncestorLocked(modelIndex)) {
+        painter->fillRect(styleOption.rect.adjusted(0, delegateMargin, 0, -delegateMargin),
+                          Theme::getColor(Theme::Color::DSnavigatorItemBackgroundHover));
+        mode = QIcon::Mode::Active; // hover
+    }
+
+    if (styleOption.state & QStyle::State_Selected) {
         NavigatorTreeView::drawSelectionBackground(painter, styleOption);
+        mode = QIcon::Mode::Selected;
+    }
 
     bool isVisibilityIcon = modelIndex.column() != NavigatorTreeModel::ColumnType::Visibility;
     // We need to invert the check status if visibility icon
@@ -106,8 +109,8 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
     const QPoint iconPosition(styleOption.rect.left() + (styleOption.rect.width() - iconSize.width()) / 2,
                               styleOption.rect.top() + 2 + delegateMargin);
 
-    const QIcon &icon = isChecked(modelIndex) ? m_checkedIcon : m_uncheckedIcon;
-    const QPixmap iconPixmap = icon.pixmap(window, iconSize);
+    const QIcon::State state = isChecked(modelIndex) ? QIcon::State::On : QIcon::State::Off;
+    const QPixmap iconPixmap = m_icon.pixmap(window, iconSize, mode, state);
 
     painter->save();
 

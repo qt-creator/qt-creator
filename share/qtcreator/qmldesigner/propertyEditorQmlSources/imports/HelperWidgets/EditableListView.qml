@@ -181,7 +181,9 @@ Rectangle {
                 id: actionIndicator
                 width: actionIndicator.visible ? __actionIndicatorWidth : 0
                 height: actionIndicator.visible ? __actionIndicatorHeight : 0
-                showBackground: true
+
+                border.width: StudioTheme.Values.border
+                border.color: StudioTheme.Values.themeControlOutline
 
                 icon.color: extFuncLogic.color
                 icon.text: extFuncLogic.glyph

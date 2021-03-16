@@ -255,7 +255,7 @@ void TimelineSectionItem::paint(QPainter *painter,
         painter->save();
 
         const QColor textColor = Theme::getColor(Theme::PanelTextColorLight);
-        const QColor penColor = Theme::instance()->qmlDesignerBackgroundColorDarker();
+        const QColor penColor = Theme::getColor(Theme::BackgroundColorDark);
         QColor brushColor = Theme::getColor(Theme::BackgroundColorDark);
 
         int fillOffset = 0;
@@ -273,7 +273,7 @@ void TimelineSectionItem::paint(QPainter *painter,
                           0,
                           size().width() - TimelineConstants::sectionWidth,
                           size().height(),
-                          Theme::instance()->qmlDesignerBackgroundColorDarkAlternate());
+                          Theme::getColor(Theme::DScontrolBackground));
 
         painter->setPen(penColor);
         drawLine(painter,
@@ -640,8 +640,7 @@ qreal TimelineRulerSectionItem::endFrame() const
 
 void TimelineRulerSectionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
-    static const QColor backgroundColor = Theme::instance()
-                                              ->qmlDesignerBackgroundColorDarkAlternate();
+    static const QColor backgroundColor = Theme::getColor(Theme::DScontrolBackground);
     static const QColor penColor = Theme::getColor(Theme::PanelTextColorLight);
     static const QColor highlightColor = Theme::instance()->Theme::qmlDesignerButtonColor();
     static const QColor handleColor = Theme::getColor(Theme::QmlDesigner_HighlightColor);

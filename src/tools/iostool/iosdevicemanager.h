@@ -25,17 +25,12 @@
 
 #pragma once
 
+#include "iostooltypes.h"
+
 #include <QObject>
 #include <QString>
 #include <QStringList>
 #include <QMap>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <unistd.h>
-#include <string.h>
-
-#include <qglobal.h>
 
 namespace Ios {
 namespace Internal {
@@ -43,13 +38,13 @@ class DevInfoSession;
 class IosDeviceManagerPrivate;
 } // namespace Internal
 
-typedef unsigned int ServiceSocket;
 
 class DeviceSession;
 
 class IosDeviceManager : public QObject
 {
     Q_OBJECT
+
 public:
     typedef QMap<QString,QString> Dict;
     enum OpStatus {
@@ -69,9 +64,10 @@ public:
     void requestAppOp(const QString &bundlePath, const QStringList &extraArgs, AppOp appOp,
                       const QString &deviceId, int timeout = 1000);
     void requestDeviceInfo(const QString &deviceId, int timeout = 1000);
-    int processGdbServer(int fd);
-    void stopGdbServer(int fd, int phase);
+    int processGdbServer(ServiceConnRef conn);
+    void stopGdbServer(ServiceConnRef conn, int phase);
     QStringList errors();
+
 signals:
     void deviceAdded(const QString &deviceId);
     void deviceRemoved(const QString &deviceId);
@@ -80,11 +76,12 @@ signals:
     void didTransferApp(const QString &bundlePath, const QString &deviceId,
                         Ios::IosDeviceManager::OpStatus status);
     void didStartApp(const QString &bundlePath, const QString &deviceId,
-                     Ios::IosDeviceManager::OpStatus status, int gdbFd,
+                     Ios::IosDeviceManager::OpStatus status, ServiceConnRef conn, int gdbFd,
                      Ios::DeviceSession *deviceSession);
     void deviceInfo(const QString &deviceId, const Ios::IosDeviceManager::Dict &info);
     void appOutput(const QString &output);
     void errorMsg(const QString &msg);
+
 private:
     friend class Internal::IosDeviceManagerPrivate;
     friend class Internal::DevInfoSession;

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -30,11 +30,11 @@ import QtQuickDesignerTheme 1.0
 QtObject {
     id: values
 
-    property real baseHeight: 20
+    property real baseHeight: 29
     property real baseFont: 12
-    property real baseIconFont: 10
+    property real baseIconFont: 12
 
-    property real scaleFactor: 1.1
+    property real scaleFactor: 1.0
 
     property real height: Math.round(values.baseHeight * values.scaleFactor)
     property real myFontSize: Math.round(values.baseFont * values.scaleFactor)
@@ -54,9 +54,9 @@ QtObject {
     property real spinControlIconSize: 8
     property real spinControlIconSizeMulti: values.spinControlIconSize * values.scaleFactor
 
-    property real sliderTrackHeight: values.height / 4
-    property real sliderHandleHeight: values.sliderTrackHeight * 2
-    property real sliderHandleWidth: values.sliderTrackHeight
+    property real sliderTrackHeight: values.height / 3
+    property real sliderHandleHeight: values.sliderTrackHeight * 1.8
+    property real sliderHandleWidth: values.sliderTrackHeight * 0.5
     property real sliderFontSize: Math.round(8 * values.scaleFactor)
     property real sliderPadding: Math.round(6 * values.scaleFactor)
     property real sliderMargin: Math.round(3 * values.scaleFactor)
@@ -77,52 +77,128 @@ QtObject {
     property real contextMenuLabelSpacing: Math.round(30 * values.scaleFactor)
     property real contextMenuHorizontalPadding: Math.round(6 * values.scaleFactor)
 
-    property real inputHorizontalPadding: Math.round(4 * values.scaleFactor)
+    property real inputHorizontalPadding: Math.round(6 * values.scaleFactor)
+    property real typeLabelVerticalShift: Math.round(5 * values.scaleFactor)
 
     property real scrollBarThickness: 10
 
+    property real toolTipHeight: 25
+    property int toolTipDelay: 1000
+
+    // Layout sizes
+    property real sectionColumnSpacing: 30 // distance between label and sliderControlSize
+    property real sectionRowSpacing: 5
+    property real sectionHeadGap: 15
+    property real sectionHeadHeight: 21 // tab and section
+    property real sectionHeadSpacerHeight: 15
+
+    property real controlLabelWidth: 15
+    property real controlLabelGap: 5
+    property real controlGap: 5 // TODO different name
+
+
+    property real columnGap: 10
+
+    property real iconAreaWidth: Math.round(21 * values.scaleFactor)
+
+    // Control sizes
+
+    property real defaultControlWidth: values.squareComponentWidth * 5
+    property real defaultControlHeight: values.height
+
+    property real actionIndicatorWidth: values.iconAreaWidth //StudioTheme.Values.squareComponentWidth
+    property real actionIndicatorHeight: values.height
+
+    property real spinBoxIndicatorWidth: values.smallRectWidth - 2 * values.border
+    property real spinBoxIndicatorHeight: values.height / 2 - values.border
+
+    property real sliderIndicatorWidth: values.squareComponentWidth
+    property real sliderIndicatorHeight: values.height
+
+    property real translationIndicatorWidth: values.squareComponentWidth
+    property real translationIndicatorHeight: values.height
+
+    property real checkIndicatorWidth: values.squareComponentWidth
+    property real checkIndicatorHeight: values.height
+
     // Theme Colors
 
-    // COLORS NOW COME FROM THE THEME FILES
-    property string themeControlBackground: Theme.color(Theme.DScontrolBackground)
-    property string themeControlOutline: Theme.color(Theme.DScontrolOutline)
-    property string themeTextColor: Theme.color(Theme.DStextColor)
-    property string themeDisabledTextColor: Theme.color(Theme.DSdisabledTextColor)
     property string themePanelBackground: Theme.color(Theme.DSpanelBackground)
-    property string themeHoverHighlight: Theme.color(Theme.DShoverHighlight)
-    property string themeColumnBackground: Theme.color(Theme.DScolumnBackground)
-    property string themeFocusEdit: Theme.color(Theme.DSfocusEdit)
-    property string themeFocusDrag: Theme.color(Theme.DSfocusDrag)
-    property string themeControlBackgroundPressed: Theme.color(Theme.DScontrolBackgroundPressed)
-    property string themeControlBackgroundChecked: Theme.color(Theme.DScontrolBackgroundChecked)
-    property string themeInteraction: Theme.color(Theme.DSinteraction)
-    property string themeSliderActiveTrack: Theme.color(Theme.DSsliderActiveTrack)
-    property string themeSliderInactiveTrack: Theme.color(Theme.DSsliderInactiveTrack)
-    property string themeSliderHandle: Theme.color(Theme.DSsliderHandle)
-    property string themeSliderActiveTrackHover: Theme.color(Theme.DSactiveTrackHover)
-    property string themeSliderInactiveTrackHover: Theme.color(Theme.DSsliderInactiveTrackHover)
-    property string themeSliderHandleHover: Theme.color(Theme.DSsliderHandleHover)
-    property string themeSliderActiveTrackFocus: Theme.color(Theme.DSsliderActiveTrackFocus)
-    property string themeSliderInactiveTrackFocus:Theme.color(Theme.DSsliderInactiveTrackFocus)
-    property string themeSliderHandleFocus: Theme.color(Theme.DSsliderHandleFocus)
-    property string themeErrorColor: Theme.color(Theme.DSerrorColor)
 
-    // NEW NEW NEW NEW NEW
+    property string themeInteraction: Theme.color(Theme.DSinteraction)
+    property string themeError: Theme.color(Theme.DSerrorColor)
+    property string themeDisabled: Theme.color(Theme.DSdisabledColor)
+
+    // Control colors
+    property string themeControlBackground: Theme.color(Theme.DScontrolBackground)
+    property string themeControlBackgroundInteraction: Theme.color(Theme.DScontrolBackgroundInteraction)
     property string themeControlBackgroundDisabled: Theme.color(Theme.DScontrolBackgroundDisabled)
+    property string themeControlBackgroundGlobalHover: Theme.color(Theme.DScontrolBackgroundGlobalHover)
+    property string themeControlBackgroundHover: Theme.color(Theme.DScontrolBackgroundHover)
+
+    property string themeControlOutline: Theme.color(Theme.DScontrolOutline)
+    property string themeControlOutlineInteraction: Theme.color(Theme.DScontrolOutlineInteraction)
     property string themeControlOutlineDisabled: Theme.color(Theme.DScontrolOutlineDisabled)
+
+    // Text colors
+    property string themeTextColor: Theme.color(Theme.DStextColor)
     property string themeTextColorDisabled: Theme.color(Theme.DStextColorDisabled)
     property string themeTextSelectionColor: Theme.color(Theme.DStextSelectionColor)
-    property string themeTextSelectedTextColor:Theme.color(Theme.DStextSelectedTextColor)
+    property string themeTextSelectedTextColor: Theme.color(Theme.DStextSelectedTextColor)
+
+    property string themePlaceholderTextColor: Theme.color(Theme.DSplaceholderTextColor)
+    property string themePlaceholderTextColorInteraction: Theme.color(Theme.DSplaceholderTextColorInteraction)
+
+    // Icon colors
+    property string themeIconColor: Theme.color(Theme.DSiconColor)
+    property string themeIconColorHover: Theme.color(Theme.DSiconColorHover)
+    property string themeIconColorInteraction: Theme.color(Theme.DSiconColorInteraction)
+    property string themeIconColorDisabled: Theme.color(Theme.DSiconColorDisabled)
+    property string themeIconColorSelected: Theme.color(Theme.DSiconColorSelected)
+
+    property string themeLinkIndicatorColor: Theme.color(Theme.DSlinkIndicatorColor)
+    property string themeLinkIndicatorColorHover: Theme.color(Theme.DSlinkIndicatorColorHover)
+    property string themeLinkIndicatorColorInteraction: Theme.color(Theme.DSlinkIndicatorColorInteraction)
+    property string themeLinkIndicatorColorDisabled: Theme.color(Theme.DSlinkIndicatorColorDisabled)
+
+    // Popup background color (ComboBox, SpinBox, TextArea)
+    property string themePopupBackground: Theme.color(Theme.DSpopupBackground)
+    // GradientPopupDialog modal overly color
+    property string themePopupOverlayColor: Theme.color(Theme.DSpopupOverlayColor)
+
+    // ToolTip (UrlChooser)
+    property string themeToolTipBackground: Theme.color(Theme.DStoolTipBackground)
+    property string themeToolTipOutline: Theme.color(Theme.DStoolTipOutline)
+    property string themeToolTipText: Theme.color(Theme.DStoolTipText)
+
+    // Slider colors
+    property string themeSliderActiveTrack: Theme.color(Theme.DSsliderActiveTrack)
+    property string themeSliderActiveTrackHover: Theme.color(Theme.DSactiveTrackHover)
+    property string themeSliderActiveTrackFocus: Theme.color(Theme.DSsliderActiveTrackFocus)
+    property string themeSliderInactiveTrack: Theme.color(Theme.DSsliderInactiveTrack)
+    property string themeSliderInactiveTrackHover: Theme.color(Theme.DSsliderInactiveTrackHover)
+    property string themeSliderInactiveTrackFocus: Theme.color(Theme.DSsliderInactiveTrackFocus)
+    property string themeSliderHandle: Theme.color(Theme.DSsliderHandle)
+    property string themeSliderHandleHover: Theme.color(Theme.DSsliderHandleHover)
+    property string themeSliderHandleFocus: Theme.color(Theme.DSsliderHandleFocus)
+    property string themeSliderHandleInteraction: Theme.color(Theme.DSsliderHandleInteraction)
+
     property string themeScrollBarTrack: Theme.color(Theme.DSscrollBarTrack)
     property string themeScrollBarHandle: Theme.color(Theme.DSscrollBarHandle)
-    property string themeControlBackgroundInteraction: Theme.color(Theme.DScontrolBackgroundInteraction) // TODO Name. Right now themeFocusEdit is used for all 'edit' states. Is that correct? Different color!
-    property string themeTranslationIndicatorBorder: Theme.color(Theme.DStranlsationIndicatorBorder)
+
     property string themeSectionHeadBackground: Theme.color(Theme.DSsectionHeadBackground)
 
-    property string themeTabDark: Theme.color(Theme.QmlDesigner_TabDark)
-    property string themeTabLight: Theme.color(Theme.QmlDesigner_TabLight)
+    property string themeTabActiveBackground: Theme.color(Theme.DStabActiveBackground)
+    property string themeTabActiveText: Theme.color(Theme.DStabActiveText)
+    property string themeTabInactiveBackground: Theme.color(Theme.DStabInactiveBackground)
+    property string themeTabInactiveText: Theme.color(Theme.DStabInactiveText)
 
-    property string themeStateDefaultHighlight: "#ffe400"
+    property string themeStateDefaultHighlight: Theme.color(Theme.DSstateDefaultHighlight)
+    property string themeStateSeparator: Theme.color(Theme.DSstateSeparatorColor)
+    property string themeStateBackground: Theme.color(Theme.DSstateBackgroundColor)
+    property string themeStatePreviewOutline: Theme.color(Theme.DSstatePreviewOutline)
+
+    property string themeUnimportedModuleColor: "#e33c2e"
 
     // Taken out of Constants.js
     property string themeChangedStateText: Theme.color(Theme.DSchangedStateText)
@@ -131,4 +207,16 @@ QtObject {
     property string theme3DAxisXColor: Theme.color(Theme.DS3DAxisXColor)
     property string theme3DAxisYColor: Theme.color(Theme.DS3DAxisYColor)
     property string theme3DAxisZColor: Theme.color(Theme.DS3DAxisZColor)
+
+    property string themeActionBinding: Theme.color(Theme.DSactionBinding)
+    property string themeActionAlias: Theme.color(Theme.DSactionAlias)
+    property string themeActionKeyframe: Theme.color(Theme.DSactionKeyframe)
+    property string themeActionJIT: Theme.color(Theme.DSactionJIT)
+
+    property string themeListItemBackground: Theme.color(Theme.DSnavigatorItemBackground)
+    property string themeListItemBackgroundHover: Theme.color(Theme.DSnavigatorItemBackgroundHover)
+    property string themeListItemBackgroundPress: Theme.color(Theme.DSnavigatorItemBackgroundSelected)
+    property string themeListItemText: Theme.color(Theme.DSnavigatorText)
+    property string themeListItemTextHover: Theme.color(Theme.DSnavigatorTextHover)
+    property string themeListItemTextPress: Theme.color(Theme.DSnavigatorTextSelected)
 }

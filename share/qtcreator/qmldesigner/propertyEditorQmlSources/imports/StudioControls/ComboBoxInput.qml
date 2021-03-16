@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -33,7 +33,7 @@ TextInput {
     property T.Control myControl
 
     property bool edit: textInput.activeFocus
-    property bool drag: false
+    property bool hover: mouseArea.containsMouse
 
     z: 2
     font: myControl.font
@@ -54,15 +54,14 @@ TextInput {
     clip: true
 
     Rectangle {
-        id: textInputArea
-        x: 0
-        y: 0
+        id: textInputBackground
+        x: StudioTheme.Values.border
+        y: StudioTheme.Values.border
         z: -1
         width: textInput.width
-        height: StudioTheme.Values.height
+        height: StudioTheme.Values.height - (StudioTheme.Values.border * 2)
         color: StudioTheme.Values.themeControlBackground
-        border.color: StudioTheme.Values.themeControlOutline
-        border.width: StudioTheme.Values.border
+        border.width: 0
     }
 
     TapHandler {
@@ -73,6 +72,7 @@ TextInput {
             if (textInput.readOnly) {
                 if (myControl.popup.opened) {
                     myControl.popup.close()
+                    myControl.focus = false
                 } else {
                     myControl.forceActiveFocus()
                     myControl.popup.open()
@@ -91,20 +91,17 @@ TextInput {
         propagateComposedEvents: true
         acceptedButtons: Qt.LeftButton
         cursorShape: Qt.PointingHandCursor
-        // Sets the global hover
-        onContainsMouseChanged: myControl.hover = containsMouse
         onPressed: mouse.accepted = false
     }
 
     states: [
         State {
             name: "default"
-            when: myControl.enabled && !textInput.edit
-                  && !mouseArea.containsMouse && !myControl.drag
+            when: myControl.enabled && !textInput.edit && !textInput.hover && !myControl.hover
+                  && !myControl.open
             PropertyChanges {
-                target: textInputArea
+                target: textInputBackground
                 color: StudioTheme.Values.themeControlBackground
-                border.color: StudioTheme.Values.themeControlOutline
             }
             PropertyChanges {
                 target: tapHandler
@@ -116,27 +113,38 @@ TextInput {
             }
         },
         State {
-            name: "hovered"
-            when: myControl.hover && !textInput.edit && !myControl.drag
+            name: "globalHover"
+            when: myControl.hover && !textInput.hover && !textInput.edit && !myControl.open
             PropertyChanges {
-                target: textInputArea
-                color: StudioTheme.Values.themeHoverHighlight
-                border.color: StudioTheme.Values.themeControlOutline
+                target: textInputBackground
+                color: StudioTheme.Values.themeControlBackgroundGlobalHover
             }
         },
+        State {
+            name: "hover"
+            when: textInput.hover && myControl.hover && !textInput.edit
+            PropertyChanges {
+                target: textInputBackground
+                color: StudioTheme.Values.themeControlBackgroundHover
+            }
+        },
+        // This state is intended for ComboBoxes which aren't editable, but have focus e.g. via
+        // tab focus. It is therefor possible to use the mouse wheel to scroll through the items.
         State {
             name: "focus"
             when: textInput.edit && !myControl.editable
             PropertyChanges {
-                target: textInputArea
-                color: StudioTheme.Values.themeFocusEdit
-                border.color: StudioTheme.Values.themeInteraction
+                target: textInputBackground
+                color: StudioTheme.Values.themeControlBackgroundInteraction
             }
         },
         State {
             name: "edit"
             when: textInput.edit && myControl.editable
-            extend: "focus"
+            PropertyChanges {
+                target: textInputBackground
+                color: StudioTheme.Values.themeControlBackgroundInteraction
+            }
             PropertyChanges {
                 target: tapHandler
                 enabled: false
@@ -147,12 +155,19 @@ TextInput {
             }
         },
         State {
-            name: "disabled"
+            name: "popup"
+            when: myControl.open
+            PropertyChanges {
+                target: textInputBackground
+                color: StudioTheme.Values.themeControlBackgroundHover
+            }
+        },
+        State {
+            name: "disable"
             when: !myControl.enabled
             PropertyChanges {
-                target: textInputArea
+                target: textInputBackground
                 color: StudioTheme.Values.themeControlBackgroundDisabled
-                border.color: StudioTheme.Values.themeControlOutlineDisabled
             }
             PropertyChanges {
                 target: textInput

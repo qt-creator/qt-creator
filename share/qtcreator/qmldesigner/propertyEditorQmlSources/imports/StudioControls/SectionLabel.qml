@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -35,7 +35,7 @@ T.Label {
     // workaround because PictureSpecifics.qml still use this
     //property alias toolTip: toolTipArea.tooltip
 
-    width: Math.max(Math.min(240, parent.width - 220), 80)
+    width: Math.max(Math.min(240, parent.width - 220), 90)
     color: StudioTheme.Values.themeTextColor
     font.pixelSize: StudioTheme.Values.myFontSize // TODO
     elide: Text.ElideRight

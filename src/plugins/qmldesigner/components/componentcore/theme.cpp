@@ -76,7 +76,7 @@ QColor Theme::evaluateColorAtThemeInstance(const QString &themeColorName)
     const QMetaEnum e = m.enumerator(m.indexOfEnumerator("Color"));
     for (int i = 0, total = e.keyCount(); i < total; ++i) {
         if (QString::fromLatin1(e.key(i)) == themeColorName)
-            return color(static_cast<Utils::Theme::Color>(i)).name();
+            return color(static_cast<Utils::Theme::Color>(i));
     }
 
     qWarning() << Q_FUNC_INFO << "error while evaluating" << themeColorName;
@@ -101,14 +101,21 @@ QString Theme::replaceCssColors(const QString &input)
     while (it.hasNext()) {
         const QRegularExpressionMatch match = it.next();
         const QString themeColorName = match.captured(1);
+        const QRegularExpression replaceExp("creatorTheme\\." + themeColorName + "(\\s|;|\\n)");
 
         if (themeColorName == "smallFontPixelSize") {
-            output.replace("creatorTheme." + themeColorName, QString::number(instance()->smallFontPixelSize()) + "px");
+            output.replace(replaceExp,
+                           QString::number(instance()->smallFontPixelSize()) + "px" + "\\1");
         } else if (themeColorName == "captionFontPixelSize") {
-            output.replace("creatorTheme." + themeColorName, QString::number(instance()->captionFontPixelSize()) + "px");
+            output.replace(replaceExp,
+                           QString::number(instance()->captionFontPixelSize()) + "px" + "\\1");
         } else {
             const QColor color = instance()->evaluateColorAtThemeInstance(themeColorName);
-            output.replace("creatorTheme." + themeColorName, color.name());
+            // Create rgba(r, g, b, a)
+            const QString rgbaStr = QString("rgba(%1, %2, %3, %4)")
+                                    .arg(color.red()).arg(color.green()).arg(color.blue())
+                                    .arg(color.alpha());
+            output.replace(replaceExp, rgbaStr + "\\1");
         }
         pos += match.capturedLength();
     }

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -32,6 +32,7 @@ ButtonRow {
 
     property alias buttonIcon: myAbstractButton.buttonIcon
     property alias iconColor: myAbstractButton.iconColor
+    property alias iconRotation: myAbstractButton.iconRotation
     property alias checkable: myAbstractButton.checkable
     property alias checked: myAbstractButton.checked
 

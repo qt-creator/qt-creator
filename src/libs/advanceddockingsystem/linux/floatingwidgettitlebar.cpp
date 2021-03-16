@@ -81,7 +81,8 @@ void FloatingWidgetTitleBarPrivate::createLayout()
                             QStyle::SP_TitleBarCloseButton,
                             ADS::FloatingWidgetCloseIcon);
     m_closeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    m_closeButton->setIconSize(QSize(14, 14));
+    m_closeButton->setIconSize(QSize(11, 11));
+    m_closeButton->setFixedSize(QSize(17, 17));
     m_closeButton->setVisible(true);
     m_closeButton->setFocusPolicy(Qt::NoFocus);
     QObject::connect(m_closeButton,
@@ -100,6 +101,7 @@ void FloatingWidgetTitleBarPrivate::createLayout()
     layout->addWidget(m_titleLabel, 1);
     layout->addSpacing(spacing);
     layout->addWidget(m_closeButton);
+    layout->addSpacing(1);
     layout->setAlignment(Qt::AlignCenter);
 
     m_titleLabel->setVisible(true);

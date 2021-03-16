@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -34,6 +34,7 @@ TextInput {
 
     property bool edit: textInput.activeFocus
     property bool drag: false
+    property bool hover: mouseArea.containsMouse
 
     z: 2
     font: myControl.font
@@ -59,15 +60,14 @@ TextInput {
     onActiveFocusChanged: textInput.focus = activeFocus
 
     Rectangle {
-        id: textInputArea
-        color: StudioTheme.Values.themeControlBackground
-        border.color: StudioTheme.Values.themeControlOutline
-        border.width: StudioTheme.Values.border
+        id: textInputBackground
         x: 0
-        y: 0
+        y: StudioTheme.Values.border
         z: -1
         width: textInput.width
-        height: StudioTheme.Values.height
+        height: StudioTheme.Values.height - (StudioTheme.Values.border * 2)
+        color: StudioTheme.Values.themeControlBackground
+        border.width: 0
     }
 
     Item {
@@ -118,8 +118,6 @@ TextInput {
         propagateComposedEvents: true
         acceptedButtons: Qt.LeftButton
         cursorShape: Qt.PointingHandCursor
-        // Sets the global hover
-        onContainsMouseChanged: myControl.hover = containsMouse
 
         onPositionChanged: {
             if (!mouseArea.dragging
@@ -238,12 +236,11 @@ TextInput {
     states: [
         State {
             name: "default"
-            when: myControl.enabled && !textInput.edit
-                  && !mouseArea.containsMouse && !myControl.drag
+            when: myControl.enabled && !textInput.edit && !textInput.hover && !myControl.hover
+                  && !myControl.drag && !myControl.sliderDrag
             PropertyChanges {
-                target: textInputArea
+                target: textInputBackground
                 color: StudioTheme.Values.themeControlBackground
-                border.color: StudioTheme.Values.themeControlOutline
             }
             PropertyChanges {
                 target: mouseArea
@@ -251,21 +248,28 @@ TextInput {
             }
         },
         State {
-            name: "hovered"
-            when: myControl.hover && !textInput.edit && !myControl.drag
+            name: "globalHover"
+            when: myControl.hover && !textInput.hover
+                  && !textInput.edit && !myControl.drag
             PropertyChanges {
-                target: textInputArea
-                color: StudioTheme.Values.themeHoverHighlight
-                border.color: StudioTheme.Values.themeControlOutline
+                target: textInputBackground
+                color: StudioTheme.Values.themeControlBackgroundGlobalHover
+            }
+        },
+        State {
+            name: "hover"
+            when: textInput.hover && myControl.hover && !textInput.edit && !myControl.drag
+            PropertyChanges {
+                target: textInputBackground
+                color: StudioTheme.Values.themeControlBackgroundHover
             }
         },
         State {
             name: "edit"
             when: textInput.edit && !myControl.drag
             PropertyChanges {
-                target: textInputArea
-                color: StudioTheme.Values.themeFocusEdit
-                border.color: StudioTheme.Values.themeInteraction
+                target: textInputBackground
+                color: StudioTheme.Values.themeControlBackgroundInteraction
             }
             PropertyChanges {
                 target: mouseArea
@@ -276,18 +280,32 @@ TextInput {
             name: "drag"
             when: myControl.drag
             PropertyChanges {
-                target: textInputArea
-                color: StudioTheme.Values.themeFocusDrag
-                border.color: StudioTheme.Values.themeInteraction
+                target: textInputBackground
+                color: StudioTheme.Values.themeControlBackgroundInteraction
+            }
+            PropertyChanges {
+                target: textInput
+                color: StudioTheme.Values.themeInteraction
             }
         },
         State {
-            name: "disabled"
+            name: "sliderDrag"
+            when: myControl.sliderDrag
+            PropertyChanges {
+                target: textInputBackground
+                color: StudioTheme.Values.themeControlBackground
+            }
+            PropertyChanges {
+                target: textInput
+                color: StudioTheme.Values.themeInteraction
+            }
+        },
+        State {
+            name: "disable"
             when: !myControl.enabled
             PropertyChanges {
-                target: textInputArea
+                target: textInputBackground
                 color: StudioTheme.Values.themeControlBackgroundDisabled
-                border.color: StudioTheme.Values.themeControlOutlineDisabled
             }
             PropertyChanges {
                 target: textInput

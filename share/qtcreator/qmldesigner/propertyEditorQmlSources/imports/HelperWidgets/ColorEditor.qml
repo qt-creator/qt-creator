@@ -27,6 +27,7 @@ import QtQuick 2.1
 import QtQuick.Layouts 1.0
 import QtQuickDesignerTheme 1.0
 import QtQuick.Dialogs 1.3
+import StudioTheme 1.0 as StudioTheme
 import StudioControls 1.0 as StudioControls
 
 Column {
@@ -214,6 +215,10 @@ Column {
 
         SecondColumnLayout {
 
+            Item {
+                width: 6
+            }
+
             ColorCheckButton {
                 id: checkButton
                 buttonColor: colorEditor.color
@@ -260,7 +265,6 @@ Column {
             }
 
             ButtonRow {
-
                 id: buttonRow
                 exclusive: true
 
@@ -303,59 +307,48 @@ Column {
                         GradientDialogPopup {
                             id: gradientDialogPopupLinear
 
-                            dialogHeight: 80
-                            content: GridLayout {
-                                rowSpacing: 4
-                                anchors.fill: parent
-                                height: 40
+                            dialogHeight: 110
+                            content: Column {
+                                spacing: StudioTheme.Values.sectionRowSpacing
 
-                                columns: 4
-                                rows: 2
+                                RowLayout {
+                                    Label {
+                                        text: "X1"
+                                        width: 18
+                                        tooltip: qsTr("Defines the start point for color interpolation.")
+                                    }
 
-                                anchors.leftMargin: 12
-                                anchors.rightMargin: 6
+                                    GradientPropertySpinBox { propertyName: "x1" }
 
-                                anchors.topMargin: 28
-                                anchors.bottomMargin: 6
+                                    Item { width: StudioTheme.Values.controlLabelGap }
 
-                                Label {
-                                    text: "X1"
-                                    width: 18
-                                    tooltip: qsTr("Defines the start point for color interpolation.")
+                                    Label {
+                                        text: "X2"
+                                        width: 18
+                                        tooltip: qsTr("Defines the end point for color interpolation.")
+                                    }
+
+                                    GradientPropertySpinBox { propertyName: "x2" }
                                 }
 
-                                GradientPropertySpinBox {
-                                    propertyName: "x1"
-                                }
+                                RowLayout {
+                                    Label {
+                                        text: "Y1"
+                                        width: 18
+                                        tooltip: qsTr("Defines the start point for color interpolation.")
+                                    }
 
-                                Label {
-                                    text: "X2"
-                                    width: 18
-                                    tooltip: qsTr("Defines the end point for color interpolation.")
-                                }
+                                    GradientPropertySpinBox { propertyName: "y1" }
 
-                                GradientPropertySpinBox {
-                                    propertyName: "x2"
-                                }
+                                    Item { width: StudioTheme.Values.controlLabelGap }
 
-                                Label {
-                                    text: "y1"
-                                    width: 18
-                                    tooltip: qsTr("Defines the start point for color interpolation.")
-                                }
+                                    Label {
+                                        text: "Y2"
+                                        width: 18
+                                        tooltip: qsTr("Defines the end point for color interpolation.")
+                                    }
 
-                                GradientPropertySpinBox {
-                                    propertyName: "y1"
-                                }
-
-                                Label {
-                                    text: "Y2"
-                                    width: 18
-                                    tooltip: qsTr("Defines the end point for color interpolation.")
-                                }
-
-                                GradientPropertySpinBox {
-                                    propertyName: "y2"
+                                    GradientPropertySpinBox { propertyName: "y2" }
                                 }
                             }
                         }
@@ -384,78 +377,67 @@ Column {
                         GradientDialogPopup {
                             id: gradientDialogPopupRadial
                             dialogHeight: 140
-                            content: GridLayout {
-                                rowSpacing: 4
-                                anchors.fill: parent
-                                height: 40
+                            content: Column {
+                                spacing: StudioTheme.Values.sectionRowSpacing
 
-                                columns: 4
-                                rows: 3
+                                RowLayout {
+                                    Label {
+                                        text: "CenterX"
+                                        width: 74
+                                        tooltip: qsTr("Defines the center point.")
+                                    }
 
-                                anchors.leftMargin: 12
-                                anchors.rightMargin: 6
+                                    GradientPropertySpinBox { propertyName: "centerX" }
 
-                                anchors.topMargin: 28
-                                anchors.bottomMargin: 6
+                                    Item { width: StudioTheme.Values.controlLabelGap }
 
-                                Label {
-                                    text: "CenterX"
-                                    width: 64
-                                    tooltip: qsTr("Defines the center point.")
+                                    Label {
+                                        text: "CenterY"
+                                        width: 74
+                                        tooltip: qsTr("Defines the center point.")
+                                    }
+
+                                    GradientPropertySpinBox { propertyName: "centerY" }
                                 }
 
-                                GradientPropertySpinBox {
-                                    propertyName: "centerX"
+                                RowLayout {
+                                    Label {
+                                        text: "FocalX"
+                                        width: 74
+                                        tooltip: qsTr("Defines the focal point.")
+                                    }
+
+                                    GradientPropertySpinBox { propertyName: "focalX" }
+
+                                    Item { width: StudioTheme.Values.controlLabelGap }
+
+                                    Label {
+                                        text: "FocalY"
+                                        width: 74
+                                        tooltip: qsTr("Defines the focal point.")
+                                    }
+
+                                    GradientPropertySpinBox { propertyName: "focalY" }
                                 }
 
-                                Label {
-                                    text: "CenterY"
-                                    width: 64
-                                    tooltip: qsTr("Defines the center point.")
-                                }
+                                RowLayout {
+                                    Label {
+                                        text: "Center Radius"
+                                        width: 74
+                                        tooltip: qsTr("Defines the center point.")
+                                    }
 
-                                GradientPropertySpinBox {
-                                    propertyName: "centerY"
-                                }
+                                    GradientPropertySpinBox { propertyName: "centerRadius" }
 
-                                Label {
-                                    text: "FocalX"
-                                    width: 64
-                                    tooltip: qsTr("Defines the focal point.")
-                                }
+                                    Item { width: StudioTheme.Values.controlLabelGap }
 
-                                GradientPropertySpinBox {
-                                    propertyName: "focalX"
-                                }
+                                    Label {
+                                        text: "Focal Radius"
+                                        width: 74
+                                        tooltip: qsTr("Defines the focal radius. Set to 0 for simple radial gradients.")
+                                    }
 
-                                Label {
-                                    text: "FocalY"
-                                    width: 64
-                                    tooltip: qsTr("Defines the focal point.")
-                                }
-
-                                GradientPropertySpinBox {
-                                    propertyName: "focalY"
-                                }
-
-                                Label {
-                                    text: "Center Radius"
-                                    width: 64
-                                    tooltip: qsTr("Defines the center point.")
-                                }
-
-                                GradientPropertySpinBox {
-                                    propertyName: "centerRadius"
-                                }
-
-                                Label {
-                                    text: "Focal Radius"
-                                    width: 64
-                                    tooltip: qsTr("Defines the focal radius. Set to 0 for simple radial gradients.")
-                                }
-
-                                GradientPropertySpinBox {
-                                    propertyName: "focalRadius"
+                                    GradientPropertySpinBox { propertyName: "focalRadius" }
                                 }
                             }
                         }
@@ -484,50 +466,39 @@ Column {
 
                         GradientDialogPopup {
                             id: gradientDialogPopupConical
-                            dialogHeight: 80
-                            content: GridLayout {
-                                rowSpacing: 4
-                                anchors.fill: parent
-                                height: 40
+                            dialogHeight: 110
+                            content: Column {
+                                spacing: StudioTheme.Values.sectionRowSpacing
 
-                                columns: 4
-                                rows: 2
+                                RowLayout {
+                                    Label {
+                                        text: "CenterX"
+                                        width: 64
+                                        tooltip: qsTr("Defines the center point.")
+                                    }
 
-                                anchors.leftMargin: 12
-                                anchors.rightMargin: 6
+                                    GradientPropertySpinBox { propertyName: "centerX" }
 
-                                anchors.topMargin: 28
-                                anchors.bottomMargin: 6
+                                    Item { width: StudioTheme.Values.controlLabelGap }
 
-                                Label {
-                                    text: "CenterX"
-                                    width: 64
-                                    tooltip: qsTr("Defines the center point.")
+                                    Label {
+                                        text: "CenterY"
+                                        width: 64
+                                        tooltip: qsTr("Defines the center point.")
+                                    }
+
+                                    GradientPropertySpinBox { propertyName: "centerY" }
                                 }
 
-                                GradientPropertySpinBox {
-                                    propertyName: "centerX"
-                                }
+                                RowLayout {
+                                    Label {
+                                        text: "Angle"
+                                        width: 64
+                                        tooltip: qsTr("Defines the start angle for the conical gradient. The value is in degrees (0-360).")
+                                    }
 
-                                Label {
-                                    text: "CenterY"
-                                    width: 64
-                                    tooltip: qsTr("Defines the center point.")
-                                }
-
-                                GradientPropertySpinBox {
-                                    propertyName: "centerY"
-                                }
-
-                                Label {
-                                    text: "Angle"
-                                    width: 64
-                                    tooltip: qsTr("Defines the start angle for the conical gradient. The value is in degrees (0-360).")
-                                }
-
-                                GradientPropertySpinBox {
-                                    propertyName: "angle"
-                                }
+                                    GradientPropertySpinBox { propertyName: "angle" }
+                                    }
                             }
                         }
                     }
@@ -546,13 +517,13 @@ Column {
 
             Rectangle {
                 id: gradientPickerButton
-                width: 20
-                height: 20
+                width: StudioTheme.Values.height
+                height: StudioTheme.Values.height
                 visible: colorEditor.supportGradient
 
-                color: Theme.qmlDesignerButtonColor()
-                border.color: Theme.qmlDesignerBorderColor()
-                border.width: 1
+                color: StudioTheme.Values.themeControlBackground
+                border.color: StudioTheme.Values.themeControlOutline
+                border.width: StudioTheme.Values.border
 
                 ToolTipArea {
                     anchors.fill: parent

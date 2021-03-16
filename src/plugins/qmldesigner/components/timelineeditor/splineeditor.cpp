@@ -91,21 +91,18 @@ void SplineEditor::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
 
-    QPen pen(Qt::black);
+    QPen pen(Theme::getColor(Theme::DScontrolOutline));
     pen.setWidth(1);
     painter.drawRect(0, 0, width() - 1, height() - 1);
 
     painter.setRenderHint(QPainter::Antialiasing);
 
-    pen = QPen(Qt::darkGray);
-    pen.setWidth(1);
-    painter.setPen(pen);
-
-    QColor curveColor = Qt::white;
+    QColor curveColor = Theme::getColor(Theme::PanelTextColorLight);
     if (!m_curve.isLegal())
-        curveColor = Qt::red;
+        curveColor = Theme::getColor(Theme::DSerrorColor);
 
-    QBrush background(Theme::instance()->qmlDesignerBackgroundColorDarker());
+    QBrush background(Theme::getColor(Theme::BackgroundColorDark));
+
     m_canvas.paintGrid(&painter, background);
     m_canvas.paintCurve(&painter, m_curve, curveColor);
     m_canvas.paintControlPoints(&painter, m_curve);

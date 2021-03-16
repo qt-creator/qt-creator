@@ -51,9 +51,8 @@ TimelinePlaceholder *TimelinePlaceholder::create(QGraphicsScene * /*parentScene*
 void TimelinePlaceholder::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
     painter->save();
-    static const QColor penColor = Theme::instance()->qmlDesignerBackgroundColorDarker();
-    static const QColor backgroundColor = Theme::instance()
-                                              ->qmlDesignerBackgroundColorDarkAlternate();
+    static const QColor penColor = Theme::getColor(Theme::BackgroundColorDark);
+    static const QColor backgroundColor = Theme::getColor(Theme::DScontrolBackground);
     static const QColor backgroundColorSection = Theme::getColor(Theme::BackgroundColorDark);
 
     painter->fillRect(0, 0, size().width(), size().height(), backgroundColor);

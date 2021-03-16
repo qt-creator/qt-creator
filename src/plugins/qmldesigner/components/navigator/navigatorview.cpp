@@ -615,44 +615,85 @@ void NavigatorView::setupWidget()
 
 #ifndef QMLDESIGNER_TEST
     const QString fontName = "qtds_propertyIconFont.ttf";
+    const QSize size = QSize(28, 28);
 
-    const QIcon visibilityOnIcon =
-            Utils::StyleHelper::getIconFromIconFont(fontName,
-                                                    Theme::getIconUnicode(Theme::Icon::visibilityOn),
-                                                    20, 20, QColor(Qt::white));
-    const QIcon visibilityOffIcon =
-            Utils::StyleHelper::getIconFromIconFont(fontName,
-                                                    Theme::getIconUnicode(Theme::Icon::visibilityOff),
-                                                    20, 20, QColor(Qt::white));
+    const QString visibilityOnUnicode = Theme::getIconUnicode(Theme::Icon::visibilityOn);
+    const QString visibilityOffUnicode = Theme::getIconUnicode(Theme::Icon::visibilityOff);
 
-    const QIcon aliasOnIcon =
-            Utils::StyleHelper::getIconFromIconFont(fontName,
-                                                    Theme::getIconUnicode(Theme::Icon::idAliasOn),
-                                                    20, 20, QColor(Qt::red));
-    const QIcon aliasOffIcon =
-            Utils::StyleHelper::getIconFromIconFont(fontName,
-                                                    Theme::getIconUnicode(Theme::Icon::idAliasOff),
-                                                    20, 20, QColor(Qt::white));
+    const QString aliasOnUnicode = Theme::getIconUnicode(Theme::Icon::idAliasOn);
+    const QString aliasOffUnicode = Theme::getIconUnicode(Theme::Icon::idAliasOff);
 
-    const QIcon lockOnIcon =
-            Utils::StyleHelper::getIconFromIconFont(fontName,
-                                                    Theme::getIconUnicode(Theme::Icon::lockOn),
-                                                    20, 20, QColor(Qt::white));
-    const QIcon lockOffIcon =
-            Utils::StyleHelper::getIconFromIconFont(fontName,
-                                                    Theme::getIconUnicode(Theme::Icon::lockOff),
-                                                    20, 20, QColor(Qt::white));
+    const QString lockOnUnicode = Theme::getIconUnicode(Theme::Icon::lockOn);
+    const QString lockOffUnicode = Theme::getIconUnicode(Theme::Icon::lockOff);
+
+    auto visibilityIconOffNormal = Utils::StyleHelper::IconFontHelper(
+        visibilityOffUnicode, Theme::getColor(Theme::DSnavigatorIcon), size, QIcon::Normal, QIcon::Off);
+    auto visibilityIconOffHover = Utils::StyleHelper::IconFontHelper(
+        visibilityOffUnicode, Theme::getColor(Theme::DSnavigatorIconHover), size, QIcon::Active, QIcon::Off);
+    auto visibilityIconOffSelected = Utils::StyleHelper::IconFontHelper(
+        visibilityOffUnicode, Theme::getColor(Theme::DSnavigatorIconSelected), size, QIcon::Selected, QIcon::Off);
+    auto visibilityIconOnNormal = Utils::StyleHelper::IconFontHelper(
+        visibilityOnUnicode, Theme::getColor(Theme::DSnavigatorIcon), size, QIcon::Normal, QIcon::On);
+    auto visibilityIconOnHover = Utils::StyleHelper::IconFontHelper(
+        visibilityOnUnicode, Theme::getColor(Theme::DSnavigatorIconHover), size, QIcon::Active, QIcon::On);
+    auto visibilityIconOnSelected = Utils::StyleHelper::IconFontHelper(
+        visibilityOnUnicode, Theme::getColor(Theme::DSnavigatorIconSelected), size, QIcon::Selected, QIcon::On);
+
+    const QIcon visibilityIcon = Utils::StyleHelper::getIconFromIconFont(
+                fontName, {visibilityIconOffNormal,
+                           visibilityIconOffHover,
+                           visibilityIconOffSelected,
+                           visibilityIconOnNormal,
+                           visibilityIconOnHover,
+                           visibilityIconOnSelected});
+
+    auto aliasIconOffNormal = Utils::StyleHelper::IconFontHelper(
+        aliasOffUnicode, Theme::getColor(Theme::DSnavigatorIcon), size, QIcon::Normal, QIcon::Off);
+    auto aliasIconOffHover = Utils::StyleHelper::IconFontHelper(
+        aliasOffUnicode, Theme::getColor(Theme::DSnavigatorIconHover), size, QIcon::Active, QIcon::Off);
+    auto aliasIconOffSelected = Utils::StyleHelper::IconFontHelper(
+        aliasOffUnicode, Theme::getColor(Theme::DSnavigatorIconSelected), size, QIcon::Selected, QIcon::Off);
+    auto aliasIconOnNormal = Utils::StyleHelper::IconFontHelper(
+        aliasOnUnicode, Theme::getColor(Theme::DSnavigatorAliasIconChecked), size, QIcon::Normal, QIcon::On);
+    auto aliasIconOnHover = Utils::StyleHelper::IconFontHelper(
+        aliasOnUnicode, Theme::getColor(Theme::DSnavigatorAliasIconChecked), size, QIcon::Active, QIcon::On);
+    auto aliasIconOnSelected = Utils::StyleHelper::IconFontHelper(
+        aliasOnUnicode, Theme::getColor(Theme::DSnavigatorAliasIconChecked), size, QIcon::Selected, QIcon::On);
+
+    const QIcon aliasIcon = Utils::StyleHelper::getIconFromIconFont(
+                fontName, {aliasIconOffNormal,
+                           aliasIconOffHover,
+                           aliasIconOffSelected,
+                           aliasIconOnNormal,
+                           aliasIconOnHover,
+                           aliasIconOnSelected});
+
+    auto lockIconOffNormal = Utils::StyleHelper::IconFontHelper(
+        lockOffUnicode, Theme::getColor(Theme::DSnavigatorIcon), size, QIcon::Normal, QIcon::Off);
+    auto lockIconOffHover = Utils::StyleHelper::IconFontHelper(
+        lockOffUnicode, Theme::getColor(Theme::DSnavigatorIconHover), size, QIcon::Active, QIcon::Off);
+    auto lockIconOffSelected = Utils::StyleHelper::IconFontHelper(
+        lockOffUnicode, Theme::getColor(Theme::DSnavigatorIconSelected), size, QIcon::Selected, QIcon::Off);
+    auto lockIconOnNormal = Utils::StyleHelper::IconFontHelper(
+        lockOnUnicode, Theme::getColor(Theme::DSnavigatorIcon), size, QIcon::Normal, QIcon::On);
+    auto lockIconOnHover = Utils::StyleHelper::IconFontHelper(
+        lockOnUnicode, Theme::getColor(Theme::DSnavigatorIconHover), size, QIcon::Active, QIcon::On);
+    auto lockIconOnSelected = Utils::StyleHelper::IconFontHelper(
+        lockOnUnicode, Theme::getColor(Theme::DSnavigatorIconSelected), size, QIcon::Selected, QIcon::On);
+
+    const QIcon lockIcon = Utils::StyleHelper::getIconFromIconFont(
+                fontName, {lockIconOffNormal,
+                           lockIconOffHover,
+                           lockIconOffSelected,
+                           lockIconOnNormal,
+                           lockIconOnHover,
+                           lockIconOnSelected});
 
     auto idDelegate = new NameItemDelegate(this);
 
-    IconCheckboxItemDelegate *visibilityDelegate =
-            new IconCheckboxItemDelegate(this, visibilityOnIcon, visibilityOffIcon);
-
-    IconCheckboxItemDelegate *aliasDelegate =
-            new IconCheckboxItemDelegate(this, aliasOnIcon, aliasOffIcon);
-
-    IconCheckboxItemDelegate *lockDelegate =
-            new IconCheckboxItemDelegate(this, lockOnIcon, lockOffIcon);
+    auto visibilityDelegate = new IconCheckboxItemDelegate(this, visibilityIcon);
+    auto aliasDelegate = new IconCheckboxItemDelegate(this, aliasIcon);
+    auto lockDelegate = new IconCheckboxItemDelegate(this, lockIcon);
 
     treeWidget()->setItemDelegateForColumn(NavigatorTreeModel::ColumnType::Name, idDelegate);
     treeWidget()->setItemDelegateForColumn(NavigatorTreeModel::ColumnType::Alias, aliasDelegate);

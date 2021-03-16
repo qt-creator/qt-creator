@@ -33,7 +33,7 @@ import StudioTheme 1.0 as StudioTheme
 FocusScope {
     id: root
 
-    property int delegateTopAreaHeight: 30
+    property int delegateTopAreaHeight: StudioTheme.Values.height + 8
     property int delegateBottomAreaHeight: 200
     property int delegateColumnSpacing: 2
     property int delegateStateMargin: 16
@@ -72,7 +72,7 @@ FocusScope {
     Rectangle {
         id: background
         anchors.fill: parent
-        color: Theme.color(Theme.QmlDesigner_BackgroundColorDarkAlternate)
+        color: StudioTheme.Values.themePanelBackground
     }
 
     MouseArea {
@@ -137,7 +137,7 @@ FocusScope {
     }
 
     Rectangle {
-        color: Theme.color(Theme.DSsliderActiveTrackFocus)
+        color: StudioTheme.Values.themeStateSeparator
         x: root.padding
         y: root.padding
         width: Math.min((root.delegateWidth * flickable.count) + (2 * (flickable.count - 1)),
@@ -168,7 +168,7 @@ FocusScope {
             height: root.delegateHeight
             isBaseState: 0 === internalNodeId
             isCurrentState: root.currentStateInternalId === internalNodeId
-            baseColor: isCurrentState ? Theme.color(Theme.DSinteraction) : background.color
+            baseColor: isCurrentState ? StudioTheme.Values.themeInteraction : background.color
             delegateStateName: stateName
             delegateStateImageSource: stateImageSource
             delegateStateImageSize: stateImageSize

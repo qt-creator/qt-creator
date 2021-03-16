@@ -71,6 +71,7 @@ Rectangle {
                             Label {
                                 anchors.fill: parent
                                 anchors.leftMargin: StudioTheme.Values.inputHorizontalPadding
+                                anchors.topMargin: StudioTheme.Values.typeLabelVerticalShift
                                 text: backendValues.className.value
                             }
                             ToolTipArea {
@@ -338,6 +339,7 @@ Rectangle {
 
                     SecondColumnLayout {
                         SpinBox {
+                            width: StudioTheme.Values.squareComponentWidth * 4
                             sliderIndicatorVisible: true
                             backendValue: backendValues.opacity
                             decimals: 2

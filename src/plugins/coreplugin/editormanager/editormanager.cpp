@@ -1730,9 +1730,8 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
             if (editor == viewCurrentEditor && view == views.last()) {
                 // Avoid removing the globally current editor from its view,
                 // set a new current editor before.
-                const EditorManager::OpenEditorFlags flags = view != currentView
-                                                                 ? EditorManager::DoNotChangeCurrentEditor
-                                                                 : EditorManager::NoFlags;
+                EditorManager::OpenEditorFlags flags = view != currentView
+                        ? EditorManager::DoNotChangeCurrentEditor : EditorManager::NoFlags;
                 const QList<IEditor *> viewEditors = view->editors();
                 IEditor *newCurrent = viewEditors.size() > 1 ? viewEditors.at(viewEditors.size() - 2)
                                                              : nullptr;
@@ -1748,6 +1747,10 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
                         const QList<DocumentModel::Entry *> documents = DocumentModel::entries();
                         if (!documents.isEmpty()) {
                             if (IDocument *document = documents.last()->document) {
+                                // Do not auto-switch to design mode if the new editor will be for
+                                // the same document as the one that was closed.
+                                if (view == currentView && document == editor->document())
+                                    flags = EditorManager::DoNotSwitchToDesignMode;
                                 activateEditorForDocument(view, document, flags);
                             }
                         }

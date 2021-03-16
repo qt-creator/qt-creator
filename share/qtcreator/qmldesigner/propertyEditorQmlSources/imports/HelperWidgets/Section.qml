@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -32,6 +32,7 @@ import StudioTheme 1.0 as StudioTheme
 Item {
     id: section
     property alias caption: label.text
+    property alias labelColor: label.color
     property alias sectionHeight: header.height
     property alias sectionBackgroundColor: header.color
     property alias sectionFontSize: label.font.pixelSize
@@ -62,7 +63,7 @@ Item {
 
     Rectangle {
         id: header
-        height: 20
+        height: StudioTheme.Values.sectionHeadHeight
         anchors.left: parent.left
         anchors.right: parent.right
         color: Qt.lighter(StudioTheme.Values.themeSectionHeadBackground, 1.0 + (0.2 * level))
@@ -82,8 +83,8 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             color: StudioTheme.Values.themeTextColor
             x: 22 + (level * levelShift)
-            font.bold: true
             font.pixelSize: StudioTheme.Values.myFontSize
+            font.capitalization: Font.AllUppercase
         }
 
         MouseArea {
@@ -112,15 +113,20 @@ Item {
         anchors.rightMargin: 5 + leftPadding
         anchors.leftMargin: 5 - leftPadding
         visible: false
-        color: "#666666"
+        color: StudioTheme.Values.themeControlOutline
     }
 
     default property alias __content: row.children
 
     readonly property alias contentItem: row
 
-    implicitHeight: Math.round(row.height + header.height
-                               + section.topPadding + section.bottomPadding)
+    implicitHeight: Math.round(row.height + header.height + topRow.height + bottomRow.height)
+
+    Row {
+        id: topRow
+        height: StudioTheme.Values.sectionHeadSpacerHeight
+        anchors.top: header.bottom
+    }
 
     Row {
         id: row
@@ -128,8 +134,13 @@ Item {
         anchors.leftMargin: section.leftPadding
         anchors.right: parent.right
         anchors.rightMargin: section.rightPadding
-        anchors.top: header.bottom
-        anchors.topMargin: section.topPadding
+        anchors.top: topRow.bottom
+    }
+
+    Row {
+        id: bottomRow
+        height: StudioTheme.Values.sectionHeadSpacerHeight
+        anchors.top: row.bottom
     }
 
     states: [

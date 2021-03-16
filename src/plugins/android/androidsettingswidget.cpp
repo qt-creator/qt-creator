@@ -600,7 +600,7 @@ void AndroidSettingsWidget::onSdkPathChanged()
     FilePath currentOpenSslPath = m_androidConfig.openSslLocation();
     if (currentOpenSslPath.isEmpty() || !currentOpenSslPath.exists())
         currentOpenSslPath = sdkPath.pathAppended("android_openssl");
-    m_ui.openSslPathChooser->setFileName(currentOpenSslPath);
+    m_ui.openSslPathChooser->setFilePath(currentOpenSslPath);
     // Package reload will trigger validateSdk.
     m_sdkManager.reloadPackages();
 }

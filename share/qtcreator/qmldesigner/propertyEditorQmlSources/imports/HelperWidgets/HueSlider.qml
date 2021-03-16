@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.1
+import StudioTheme 1.0 as StudioTheme
 
 Item {
     id: colorSlider
@@ -63,7 +64,7 @@ Item {
             Rectangle {
                 anchors.fill: track
                 anchors.margins: -1
-                color: "darkGray"
+                color: StudioTheme.Values.themeControlOutline
             }
 
             Rectangle {

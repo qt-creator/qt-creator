@@ -27,6 +27,8 @@
 
 #include "timelinecontrols.h"
 
+#include <theme.h>
+
 #include <QColor>
 #include <QDialog>
 
@@ -41,14 +43,14 @@ struct CanvasStyle
     qreal thinLineWidth = 0.3;
     qreal thickLineWidth = 2.5;
 
-    QColor thinLineColor = qRgb(0x99, 0x99, 0x99);
-    QColor thickLineColor = qRgb(0x5f, 0x5f, 0x5f);
+    QColor thinLineColor = Theme::getColor(Theme::DSscrollBarHandle);
+    QColor thickLineColor = Theme::getColor(Theme::DSscrollBarHandle);
 
     qreal handleSize = 7.0;
     qreal handleLineWidth = 2.0;
 
-    QColor endPointColor = qRgb(0xd6, 0xd3, 0x51);
-    QColor interPointColor = qRgb(0xce, 0x17, 0x17);
+    QColor endPointColor = Theme::getColor(Theme::IconsWarningToolBarColor);
+    QColor interPointColor = Theme::getColor(Theme::DSerrorColor);
 
     qreal curveWidth = 3.0;
 };

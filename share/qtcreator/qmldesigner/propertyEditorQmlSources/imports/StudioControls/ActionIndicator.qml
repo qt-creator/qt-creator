@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -32,18 +32,16 @@ Rectangle {
 
     property Item myControl
 
-    property bool showBackground: StudioTheme.Constants.showActionIndicatorBackground
     property alias icon: actionIndicatorIcon
 
     property bool hover: false
     property bool pressed: false
     property bool forceVisible: false
 
-    color: actionIndicator.showBackground ? StudioTheme.Values.themeControlBackground : "transparent"
-    border.color: actionIndicator.showBackground ? StudioTheme.Values.themeControlOutline : "transparent"
+    color: "transparent"
 
-    implicitWidth: StudioTheme.Values.height
-    implicitHeight: StudioTheme.Values.height
+    implicitWidth: StudioTheme.Values.actionIndicatorWidth
+    implicitHeight: StudioTheme.Values.actionIndicatorHeight
 
     signal clicked
     z: 10
@@ -65,7 +63,7 @@ Rectangle {
 
         states: [
             State {
-                name: "hovered"
+                name: "hover"
                 when: actionIndicator.hover && !actionIndicator.pressed
                       && (!myControl || (!myControl.edit && !myControl.drag))
                       && actionIndicator.enabled
@@ -76,7 +74,7 @@ Rectangle {
                 }
             },
             State {
-                name: "disabled"
+                name: "disable"
                 when: !actionIndicator.enabled
                 PropertyChanges {
                     target: actionIndicatorIcon
@@ -93,59 +91,4 @@ Rectangle {
         onContainsMouseChanged: actionIndicator.hover = containsMouse
         onClicked: actionIndicator.clicked()
     }
-
-    states: [
-        State {
-            name: "default"
-            when: myControl !== undefined && myControl.enabled && !actionIndicator.hover
-                  && !actionIndicator.pressed && !myControl.hover
-                  && !myControl.edit && !myControl.drag && actionIndicator.showBackground
-            PropertyChanges {
-                target: actionIndicator
-                color: StudioTheme.Values.themeControlBackground
-                border.color: StudioTheme.Values.themeControlOutline
-            }
-        },
-        State {
-            name: "globalHover"
-            when: myControl !== undefined && myControl.hover !== undefined
-                  && myControl.hover && !actionIndicator.hover && !actionIndicator.pressed
-                  && myControl.edit !== undefined && !myControl.edit && myControl.drag !== undefined
-                  && !myControl.drag && actionIndicator.showBackground
-            PropertyChanges {
-                target: actionIndicator
-                color: StudioTheme.Values.themeHoverHighlight
-                border.color: StudioTheme.Values.themeControlOutline
-            }
-        },
-        State {
-            name: "edit"
-            when: myControl !== undefined && myControl.edit !== undefined
-                  && myControl.edit && actionIndicator.showBackground
-            PropertyChanges {
-                target: actionIndicator
-                color: StudioTheme.Values.themeFocusEdit
-                border.color: StudioTheme.Values.themeInteraction
-            }
-        },
-        State {
-            name: "drag"
-            when: myControl !== undefined && myControl.drag !== undefined
-                  && myControl.drag && actionIndicator.showBackground
-            PropertyChanges {
-                target: actionIndicator
-                color: StudioTheme.Values.themeFocusDrag
-                border.color: StudioTheme.Values.themeInteraction
-            }
-        },
-        State {
-            name: "disabled"
-            when: myControl !== undefined && !myControl.enabled && actionIndicator.showBackground
-            PropertyChanges {
-                target: actionIndicator
-                color: StudioTheme.Values.themeControlBackgroundDisabled
-                border.color: StudioTheme.Values.themeControlOutlineDisabled
-            }
-        }
-    ]
 }

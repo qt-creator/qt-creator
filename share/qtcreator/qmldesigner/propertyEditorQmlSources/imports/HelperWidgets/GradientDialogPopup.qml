@@ -44,7 +44,7 @@ Loader {
     property Component content
 
     property int dialogHeight: 240
-    property int dialogWidth: 440
+    property int dialogWidth: 400
 
     sourceComponent: Component {
         FocusScope {
@@ -61,8 +61,7 @@ Loader {
 
             Rectangle {
                 anchors.fill: parent
-                color: Theme.qmlDesignerBackgroundColorDarker()
-                opacity: 0.6
+                color: StudioTheme.Values.themePopupOverlayColor
             }
 
             MouseArea {
@@ -84,10 +83,11 @@ Loader {
                 width: parent.width - 8 - xOffset
                 height: gradientDialogLoader.dialogHeight
 
-                color: Theme.qmlDesignerBackgroundColorDarkAlternate()
-                border.color: Theme.qmlDesignerBorderColor()
+                color: StudioTheme.Values.themePanelBackground
+                border.color: StudioTheme.Values.themeControlOutline
 
                 Label {
+                    id: title
                     x: 8
                     y: 6
                     font.bold: true
@@ -106,7 +106,10 @@ Loader {
                 }
 
                 Loader {
-                    anchors.fill: parent
+                    anchors.top: title.bottom
+                    anchors.topMargin: 8
+                    anchors.left: parent.left
+                    anchors.leftMargin: 8
                     sourceComponent: gradientDialogLoader.content
                 }
             }

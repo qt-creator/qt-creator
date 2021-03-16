@@ -217,12 +217,18 @@ void NameItemDelegate::paint(QPainter *painter,
 {
     painter->save();
 
-    if (styleOption.state & QStyle::State_MouseOver && !isThisOrAncestorLocked(modelIndex))
-        painter->fillRect(styleOption.rect.adjusted(0, delegateMargin, 0, -delegateMargin),
-                          Theme::getColor(Theme::Color::DSsliderHandle));
+    painter->setPen(Theme::getColor(Theme::Color::DSnavigatorText));
 
-    if (styleOption.state & QStyle::State_Selected)
+    if (styleOption.state & QStyle::State_MouseOver && !isThisOrAncestorLocked(modelIndex)) {
+        painter->fillRect(styleOption.rect.adjusted(0, delegateMargin, 0, -delegateMargin),
+                          Theme::getColor(Theme::Color::DSnavigatorItemBackgroundHover));
+        painter->setPen(Theme::getColor(Theme::Color::DSnavigatorTextHover));
+    }
+
+    if (styleOption.state & QStyle::State_Selected) {
         NavigatorTreeView::drawSelectionBackground(painter, styleOption);
+        painter->setPen(Theme::getColor(Theme::Color::DSnavigatorTextSelected));
+    }
 
     iconOffset = drawIcon(painter, styleOption, modelIndex);
 

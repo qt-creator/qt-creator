@@ -26,6 +26,7 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuickDesignerTheme 1.0
+import StudioTheme 1.0 as StudioTheme
 
 Item {
     id: buttonRowButton
@@ -41,8 +42,8 @@ Item {
 
     property alias tooltip: toolTipArea.tooltip
 
-    width: 24 + leftPadding
-    height: 24
+    width: StudioTheme.Values.height + leftPadding
+    height: StudioTheme.Values.height
 
     property int leftPadding: 0
 
@@ -69,7 +70,7 @@ Item {
 
             anchors.fill: parent
             visible: checked
-            color: Theme.qmlDesignerBackgroundColorDarker()
+            color: StudioTheme.Values.themeControlBackgroundInteraction
         }
 
         RoundedPanel {
@@ -77,7 +78,7 @@ Item {
 
             anchors.fill: parent
             visible: !checked
-            color: Theme.qmlDesignerButtonColor()
+            color: StudioTheme.Values.themeControlBackground
         }
     }
 
@@ -102,6 +103,5 @@ Item {
             buttonRowButton.clicked()
         }
         onDoubleClicked: buttonRowButton.doubleClicked()
-
     }
 }

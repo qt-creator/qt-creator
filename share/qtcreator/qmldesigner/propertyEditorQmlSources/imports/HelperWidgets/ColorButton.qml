@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.1
+import StudioTheme 1.0 as StudioTheme
 
 Item {
     id: colorButton
@@ -229,10 +230,10 @@ Item {
         }
         Rectangle {
             anchors.fill: parent
-            anchors.margins: -1
+            anchors.margins: -StudioTheme.Values.border
             color: "#00000000"
-            border.color: "black"
-            border.width: 1
+            border.color: StudioTheme.Values.themeControlOutline
+            border.width: StudioTheme.Values.border
         }
     }
 
@@ -249,188 +250,194 @@ Item {
         onClicked: colorButton.updateColor()
     }
 
-    Row {
+    Column {
         anchors.left: hueSlider.right
         anchors.margins: colorButton.sliderMargins
-        spacing: 10
+        spacing: StudioTheme.Values.sectionRowSpacing
 
-        Column {
-            spacing: 10
-            Row {
-                z: 3
-                spacing: 1
-                Label {
-                    text: "R"
-                    width: 16
-                    color: "#eee"
-                    elide: Text.ElideRight
-                    anchors.verticalCenter: parent.verticalCenter
+        Row {
+            spacing: 20
+
+            Column {
+                spacing: StudioTheme.Values.sectionRowSpacing
+
+                Row {
+                    z: 3
+                    spacing: 1
+                    Label {
+                        text: "R"
+                        width: 16
+                        color: StudioTheme.Values.themeTextColor
+                        elide: Text.ElideRight
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    DoubleSpinBox {
+                        id: redSlider
+                        width: 68
+
+                        stepSize: 1
+                        minimumValue: 0
+                        maximumValue: 255
+                        decimals: 0
+
+                        onValueModified: {
+                            var tmp = redSlider.value / 255.0
+                            if (colorButton.color.r !== tmp && !colorButton.block) {
+                                colorButton.color.r = tmp
+                                colorButton.updateColor()
+                            }
+                        }
+                    }
                 }
-                DoubleSpinBox {
-                    id: redSlider
-                    width: 68
 
-                    stepSize: 1
-                    minimumValue: 0
-                    maximumValue: 255
-                    decimals: 0
+                Row {
+                    z: 2
+                    spacing: 1
+                    Label {
+                        text: "G"
+                        width: 16
+                        color: StudioTheme.Values.themeTextColor
+                        elide: Text.ElideRight
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    DoubleSpinBox {
+                        id: greenSlider
+                        width: 68
 
-                    onValueModified: {
-                        var tmp = redSlider.value / 255.0
-                        if (colorButton.color.r !== tmp && !colorButton.block) {
-                            colorButton.color.r = tmp
-                            colorButton.updateColor()
+                        stepSize: 1
+                        minimumValue: 0
+                        maximumValue: 255
+                        decimals: 0
+
+                        onValueModified: {
+                            var tmp = greenSlider.value / 255.0
+                            if (colorButton.color.g !== tmp && !colorButton.block) {
+                                colorButton.color.g = tmp
+                                colorButton.updateColor()
+                            }
+                        }
+                    }
+                }
+
+                Row {
+                    z: 1
+                    spacing: 1
+                    Label {
+                        text: "B"
+                        width: 16
+                        color: StudioTheme.Values.themeTextColor
+                        elide: Text.ElideRight
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    DoubleSpinBox {
+                        id: blueSlider
+                        width: 68
+
+                        stepSize: 1
+                        minimumValue: 0
+                        maximumValue: 255
+                        decimals: 0
+
+                        onValueModified: {
+                            var tmp = blueSlider.value / 255.0
+                            if (colorButton.color.b !== tmp && !colorButton.block) {
+                                colorButton.color.b = tmp
+                                colorButton.updateColor()
+                            }
                         }
                     }
                 }
             }
 
-            Row {
-                z: 2
-                spacing: 1
-                Label {
-                    text: "G"
-                    width: 16
-                    color: "#eee"
-                    elide: Text.ElideRight
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-                DoubleSpinBox {
-                    id: greenSlider
-                    width: 68
+            Column {
+                spacing: StudioTheme.Values.sectionRowSpacing
 
-                    stepSize: 1
-                    minimumValue: 0
-                    maximumValue: 255
-                    decimals: 0
-
-                    onValueModified: {
-                        var tmp = greenSlider.value / 255.0
-                        if (colorButton.color.g !== tmp && !colorButton.block) {
-                            colorButton.color.g = tmp
-                            colorButton.updateColor()
+                Row {
+                    z: 3
+                    spacing: 1
+                    Label {
+                        text: "H"
+                        width: 16
+                        color: StudioTheme.Values.themeTextColor
+                        elide: Text.ElideRight
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    DoubleSpinBox {
+                        id: hueSlider2
+                        width: 64
+                        onValueModified: {
+                            if (colorButton.hue !== hueSlider2.value && !colorButton.block) {
+                                colorButton.hue = hueSlider2.value
+                                colorButton.updateColor()
+                            }
                         }
                     }
                 }
-            }
 
-            Row {
-                z: 1
-                spacing: 1
-                Label {
-                    text: "B"
-                    width: 16
-                    color: "#eee"
-                    elide: Text.ElideRight
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-                DoubleSpinBox {
-                    id: blueSlider
-                    width: 68
-
-                    stepSize: 1
-                    minimumValue: 0
-                    maximumValue: 255
-                    decimals: 0
-
-                    onValueModified: {
-                        var tmp = blueSlider.value / 255.0
-                        if (colorButton.color.b !== tmp && !colorButton.block) {
-                            colorButton.color.b = tmp
-                            colorButton.updateColor()
+                Row {
+                    z: 2
+                    spacing: 1
+                    Label {
+                        text: "S"
+                        width: 16
+                        color: StudioTheme.Values.themeTextColor
+                        elide: Text.ElideRight
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    DoubleSpinBox {
+                        id: saturationSlider
+                        width: 64
+                        onValueModified: {
+                            if (colorButton.saturation !== saturationSlider.value && !colorButton.block) {
+                                colorButton.saturation = saturationSlider.value
+                                colorButton.updateColor()
+                            }
                         }
                     }
                 }
-            }
 
-            Row {
-                z: 0
-                spacing: 1
-                Label {
-                    text: "A"
-                    width: 16
-                    color: "#eee"
-                    elide: Text.ElideRight
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-                DoubleSpinBox {
-                    id: alphaSlider
-                    sliderIndicatorVisible: true
-                    width: 68
-                    onValueModified: {
-                        if (colorButton.alpha !== alphaSlider.value && !colorButton.block) {
-                            colorButton.alpha = alphaSlider.value
-                            colorButton.updateColor()
+                Row {
+                    z: 1
+                    spacing: 1
+                    Label {
+                        text: "L"
+                        width: 16
+                        color: StudioTheme.Values.themeTextColor
+                        elide: Text.ElideRight
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    DoubleSpinBox {
+                        id: lightnessSlider
+                        width: 64
+                        onValueModified: {
+                            if (colorButton.lightness !== lightnessSlider.value && !colorButton.block) {
+                                colorButton.lightness = lightnessSlider.value
+                                colorButton.updateColor()
+                            }
                         }
                     }
                 }
             }
         }
 
-        Column {
-            spacing: 10
-            Row {
-                z: 3
-                spacing: 1
-                Label {
-                    text: "H"
-                    width: 16
-                    color: "#eee"
-                    elide: Text.ElideRight
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-                DoubleSpinBox {
-                    id: hueSlider2
-                    width: 64
-                    onValueModified: {
-                        if (colorButton.hue !== hueSlider2.value && !colorButton.block) {
-                            colorButton.hue = hueSlider2.value
-                            colorButton.updateColor()
-                        }
-                    }
-                }
+        Row {
+            z: 0
+            spacing: 1
+            Label {
+                text: "A"
+                width: 16
+                color: StudioTheme.Values.themeTextColor
+                elide: Text.ElideRight
+                anchors.verticalCenter: parent.verticalCenter
             }
-
-            Row {
-                z: 2
-                spacing: 1
-                Label {
-                    text: "S"
-                    width: 16
-                    color: "#eee"
-                    elide: Text.ElideRight
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-                DoubleSpinBox {
-                    id: saturationSlider
-                    width: 64
-                    onValueModified: {
-                        if (colorButton.saturation !== saturationSlider.value && !colorButton.block) {
-                            colorButton.saturation = saturationSlider.value
-                            colorButton.updateColor()
-                        }
-                    }
-                }
-            }
-
-            Row {
-                z: 1
-                spacing: 1
-                Label {
-                    text: "L"
-                    width: 16
-                    color: "#eee"
-                    elide: Text.ElideRight
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-                DoubleSpinBox {
-                    id: lightnessSlider
-                    width: 64
-                    onValueModified: {
-                        if (colorButton.lightness !== lightnessSlider.value && !colorButton.block) {
-                            colorButton.lightness = lightnessSlider.value
-                            colorButton.updateColor()
-                        }
+            DoubleSpinBox {
+                id: alphaSlider
+                sliderIndicatorVisible: true
+                width: 169
+                onValueModified: {
+                    if (colorButton.alpha !== alphaSlider.value && !colorButton.block) {
+                        colorButton.alpha = alphaSlider.value
+                        colorButton.updateColor()
                     }
                 }
             }

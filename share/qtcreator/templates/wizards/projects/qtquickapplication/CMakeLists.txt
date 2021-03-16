@@ -76,3 +76,7 @@ set_target_properties(%{ProjectName} PROPERTIES
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
 )
+
+if(QT_VERSION_MAJOR EQUAL 6)
+    qt_import_qml_plugins(%{ProjectName})
+endif()

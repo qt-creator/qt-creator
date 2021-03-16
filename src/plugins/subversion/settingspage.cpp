@@ -69,7 +69,7 @@ SubversionSettingsPageWidget::SubversionSettingsPageWidget(const std::function<v
     m_ui.pathChooser->setPromptDialogTitle(tr("Subversion Command"));
 
     SubversionSettings &s = *m_settings;
-    m_ui.pathChooser->setFileName(s.binaryPath());
+    m_ui.pathChooser->setFilePath(s.binaryPath());
     m_ui.usernameLineEdit->setText(s.stringValue(SubversionSettings::userKey));
     m_ui.passwordLineEdit->setText(s.stringValue(SubversionSettings::passwordKey));
     m_ui.userGroupBox->setChecked(s.boolValue(SubversionSettings::useAuthenticationKey));

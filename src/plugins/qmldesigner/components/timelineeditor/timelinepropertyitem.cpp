@@ -368,10 +368,9 @@ void TimelinePropertyItem::paint(QPainter *painter, const QStyleOptionGraphicsIt
 {
     painter->save();
 
-    static const QColor penColor = Theme::instance()->qmlDesignerBackgroundColorDarker();
+    static const QColor penColor = Theme::getColor(Theme::BackgroundColorDark);
     static const QColor textColor = Theme::getColor(Theme::PanelTextColorLight);
-    static const QColor backgroundColor = Theme::instance()
-                                              ->qmlDesignerBackgroundColorDarkAlternate();
+    static const QColor backgroundColor = Theme::getColor(Theme::DScontrolBackground);
 
     static const QPixmap keyframe = TimelineIcons::KEYFRAME.pixmap();
     static const QPixmap isKeyframe = TimelineIcons::IS_KEYFRAME.pixmap();

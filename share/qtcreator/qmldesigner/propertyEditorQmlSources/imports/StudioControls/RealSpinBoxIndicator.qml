@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -32,8 +32,8 @@ Rectangle {
 
     property T.Control myControl
 
-    property bool hover: false
-    property bool pressed: false
+    property bool hover: spinBoxIndicatorMouseArea.containsMouse
+    property bool pressed: spinBoxIndicatorMouseArea.containsPress
     property bool released: false
     property bool realEnabled: true
 
@@ -77,15 +77,12 @@ Rectangle {
         property bool pressedAndHeld: false
 
         anchors.fill: parent
-        // Shift the MouseArea down by 1 pixel due to potentially overlapping areas
-        anchors.topMargin: iconFlip < 0 ? 0 : 1
-        anchors.bottomMargin: iconFlip < 0 ? 1 : 0
         hoverEnabled: true
         pressAndHoldInterval: 500
-        onContainsMouseChanged: spinBoxIndicator.hover = containsMouse
-        onContainsPressChanged: spinBoxIndicator.pressed = containsPress
         onPressed: {
-            myControl.forceActiveFocus()
+            if (myControl.activeFocus)
+                spinBoxIndicator.forceActiveFocus()
+
             spinBoxIndicator.realPressed()
             mouse.accepted = true
         }
@@ -130,15 +127,42 @@ Rectangle {
 
         states: [
             State {
-                name: "default"
-                when: myControl.enabled && spinBoxIndicator.enabled
+                name: "globalHover"
+                when: myControl.enabled && spinBoxIndicator.enabled && !myControl.drag
+                      && !spinBoxIndicator.hover && myControl.hover && !myControl.edit
                 PropertyChanges {
                     target: spinBoxIndicatorIcon
                     color: StudioTheme.Values.themeTextColor
                 }
             },
             State {
-                name: "disabled"
+                name: "hover"
+                when: myControl.enabled && spinBoxIndicator.enabled && !myControl.drag
+                      && spinBoxIndicator.hover && myControl.hover && !spinBoxIndicator.pressed
+                PropertyChanges {
+                    target: spinBoxIndicatorIcon
+                    color: StudioTheme.Values.themeIconColorHover
+                }
+            },
+            State {
+                name: "press"
+                when: myControl.enabled && spinBoxIndicator.enabled && !myControl.drag
+                      && spinBoxIndicator.pressed
+                PropertyChanges {
+                    target: spinBoxIndicatorIcon
+                    color: "#323232" // TODO
+                }
+            },
+            State {
+                name: "edit"
+                when: myControl.edit
+                PropertyChanges {
+                    target: spinBoxIndicatorIcon
+                    color: StudioTheme.Values.themeTextColor
+                }
+            },
+            State {
+                name: "disable"
                 when: !myControl.enabled || !spinBoxIndicator.enabled
                 PropertyChanges {
                     target: spinBoxIndicatorIcon
@@ -151,55 +175,102 @@ Rectangle {
     states: [
         State {
             name: "default"
-            when: myControl.enabled && !(spinBoxIndicator.hover
-                                         || myControl.hover)
-                  && !spinBoxIndicator.pressed && !myControl.edit
-                  && !myControl.drag
+            when: myControl.enabled && !myControl.edit
+                  && !spinBoxIndicator.hover && !myControl.hover && !myControl.drag
+            PropertyChanges {
+                target: spinBoxIndicatorIcon
+                visible: false
+            }
             PropertyChanges {
                 target: spinBoxIndicator
                 color: StudioTheme.Values.themeControlBackground
             }
         },
         State {
-            name: "hovered"
-            when: (spinBoxIndicator.hover || myControl.hover)
-                  && !spinBoxIndicator.pressed && !myControl.edit
-                  && !myControl.drag
+            name: "globalHover"
+            when: myControl.enabled && spinBoxIndicator.enabled && !myControl.drag
+                  && !spinBoxIndicator.hover && myControl.hover && !myControl.edit
+            PropertyChanges {
+                target: spinBoxIndicatorIcon
+                visible: true
+            }
             PropertyChanges {
                 target: spinBoxIndicator
-                color: StudioTheme.Values.themeHoverHighlight
+                color: StudioTheme.Values.themeControlBackgroundGlobalHover
             }
         },
         State {
-            name: "pressed"
-            when: spinBoxIndicator.pressed
+            name: "hover"
+            when: myControl.enabled && !myControl.drag
+                  && spinBoxIndicator.hover && myControl.hover && !spinBoxIndicator.pressed
+            PropertyChanges {
+                target: spinBoxIndicatorIcon
+                visible: true
+            }
             PropertyChanges {
                 target: spinBoxIndicator
-                color: StudioTheme.Values.themeInteraction
+                color: StudioTheme.Values.themeControlBackgroundHover
+            }
+        },
+        State {
+            name: "press"
+            when: myControl.enabled && spinBoxIndicator.enabled && !myControl.drag
+                  && spinBoxIndicator.pressed
+            PropertyChanges {
+                target: spinBoxIndicatorIcon
+                visible: true
+            }
+            PropertyChanges {
+                target: spinBoxIndicator
+                color: "#2aafd3" // TODO
             }
         },
         State {
             name: "edit"
             when: myControl.edit
             PropertyChanges {
+                target: spinBoxIndicatorIcon
+                visible: true
+            }
+            PropertyChanges {
                 target: spinBoxIndicator
-                color: StudioTheme.Values.themeFocusEdit
+                color: StudioTheme.Values.themeControlBackground
             }
         },
         State {
             name: "drag"
             when: myControl.drag
             PropertyChanges {
+                target: spinBoxIndicatorIcon
+                visible: false
+            }
+            PropertyChanges {
                 target: spinBoxIndicator
-                color: StudioTheme.Values.themeFocusDrag
+                color: StudioTheme.Values.themeControlBackgroundInteraction
             }
         },
         State {
-            name: "disabled"
+            name: "disable"
             when: !myControl.enabled
             PropertyChanges {
+                target: spinBoxIndicatorIcon
+                visible: false
+            }
+            PropertyChanges {
                 target: spinBoxIndicator
-                color: StudioTheme.Values.themeControlBackgroundDisabled
+                color: StudioTheme.Values.themeControlBackground
+            }
+        },
+        State {
+            name: "limit"
+            when: !spinBoxIndicator.enabled && !spinBoxIndicator.realEnabled && myControl.hover
+            PropertyChanges {
+                target: spinBoxIndicatorIcon
+                visible: true
+            }
+            PropertyChanges {
+                target: spinBoxIndicator
+                color: StudioTheme.Values.themeControlBackground
             }
         }
     ]

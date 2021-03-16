@@ -11,8 +11,13 @@ add_qtc_executable(iostool
     ${FWSystemConfiguration}
   SOURCES
     Info.plist
-    main.cpp
+    gdbrunner.cpp gdbrunner.h
     iosdevicemanager.cpp iosdevicemanager.h
+    iostool.cpp iostool.h
+    iostooltypes.h
+    main.cpp
+    mobiledevicelib.cpp mobiledevicelib.h
+    relayserver.cpp relayserver.h
 )
 
 if (TARGET iostool)

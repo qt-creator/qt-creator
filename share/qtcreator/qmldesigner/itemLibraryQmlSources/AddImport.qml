@@ -26,6 +26,8 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuickDesignerTheme 1.0
+import HelperWidgets 2.0
+import StudioTheme 1.0 as StudioTheme
 
 Column {
     id: root
@@ -33,7 +35,7 @@ Column {
     Text {
         id: header
         text: qsTr("Select a Module to Add")
-        color: "#ffffff"
+        color: StudioTheme.Values.themeTextColor
         font.pixelSize: 16
         width: parent.width
         height: 50
@@ -54,17 +56,16 @@ Column {
                 model: addImportModel
 
                 delegate: Rectangle {
+                    id: itemBackground
                     width: listView.width
                     height: isSeparator ? 4 : 25
-                    color: isSeparator ? Theme.color(Theme.BackgroundColorNormal)
-                                       : mouseArea.containsMouse
-                                         ? Qt.lighter(Theme.qmlDesignerButtonColor(), 1.3)
-                                         : Theme.qmlDesignerButtonColor()
+                    color: StudioTheme.Values.themeListItemBackground
                     visible: importVisible
 
                     Text {
+                        id: itemText
                         text: importUrl
-                        color: Theme.color(Theme.PanelTextColorLight)
+                        color: StudioTheme.Values.themeListItemText
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: parent.left
                         anchors.right: parent.right
@@ -79,6 +80,53 @@ Column {
                         onClicked: rootView.handleAddImport(index)
                         enabled: !isSeparator
                     }
+
+                    states: [
+                        State {
+                            name: "default"
+                            when: !isSeparator && !mouseArea.containsMouse && !mouseArea.pressed
+                            PropertyChanges {
+                                target: itemBackground
+                                color: StudioTheme.Values.themeListItemBackground
+                            }
+                            PropertyChanges {
+                                target: itemText
+                                color: StudioTheme.Values.themeListItemText
+                            }
+                        },
+                        State {
+                            name: "separator"
+                            when: isSeparator
+                            PropertyChanges {
+                                target: itemBackground
+                                color: StudioTheme.Values.themePanelBackground
+                            }
+                        },
+                        State {
+                            name: "hover"
+                            when: !isSeparator && mouseArea.containsMouse && !mouseArea.containsPress
+                            PropertyChanges {
+                                target: itemBackground
+                                color: StudioTheme.Values.themeListItemBackgroundHover
+                            }
+                            PropertyChanges {
+                                target: itemText
+                                color: StudioTheme.Values.themeListItemTextHover
+                            }
+                        },
+                        State {
+                            name: "press"
+                            when: !isSeparator && mouseArea.containsPress
+                            PropertyChanges {
+                                target: itemBackground
+                                color: StudioTheme.Values.themeListItemBackgroundPress
+                            }
+                            PropertyChanges {
+                                target: itemText
+                                color: StudioTheme.Values.themeListItemTextPress
+                            }
+                        }
+                    ]
                 }
             }
         }

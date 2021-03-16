@@ -2,7 +2,6 @@
 :*Qt Creator.Cancel Build_QToolButton	{text='Cancel Build' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Clear_QToolButton	{text='Clear' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Continue_Core::Internal::FancyToolButton	{name='Debug.Button' toolTip?='Continue *' type='Core::Internal::FancyToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:*Qt Creator.Do Not Show Again_QToolButton	{text='Do Not Show Again' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Find_Find::Internal::FindToolBar	{name='Core__Internal__FindWidget' type='Core::Internal::FindToolBar' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Find'}
 :*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack	{name='FormEditorStack' type='Designer::Internal::FormEditorStack' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Interrupt_Core::Internal::FancyToolButton	{name='Debug.Button' toolTip='Interrupt' type='Core::Internal::FancyToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}

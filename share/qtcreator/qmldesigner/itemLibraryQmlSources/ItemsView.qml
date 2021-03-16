@@ -155,6 +155,8 @@ ScrollView {
                 sectionHeight: 30
                 sectionFontSize: 15
                 showArrow: categoryModel.rowCount() > 0
+                labelColor: importUnimported ? StudioTheme.Values.themeUnimportedModuleColor
+                                             : StudioTheme.Values.themeTextColor
                 leftPadding: 0
                 rightPadding: 0
                 topPadding: 0
@@ -193,13 +195,19 @@ ScrollView {
                             Grid {
                                 id: itemGrid
 
-                                columns: parent.width / styleConstants.cellWidth
-                                property int flexibleWidth: (parent.width - styleConstants.cellWidth * columns) / columns
+                                property real actualWidth: parent.width - itemGrid.leftPadding -itemGrid.rightPadding
+                                property int flexibleWidth: (itemGrid.actualWidth / columns) - styleConstants.cellWidth
+
+                                leftPadding: 6
+                                rightPadding: 6
+                                columns: itemGrid.actualWidth / styleConstants.cellWidth
 
                                 Repeater {
                                     model: itemModel
                                     delegate: ItemDelegate {
                                         visible: itemVisible
+                                        textColor: importUnimported ? StudioTheme.Values.themeUnimportedModuleColor
+                                                                    : StudioTheme.Values.themeTextColor
                                         width: styleConstants.cellWidth + itemGrid.flexibleWidth
                                         height: styleConstants.cellHeight
                                         onShowContextMenu: {

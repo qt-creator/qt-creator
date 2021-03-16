@@ -46,8 +46,8 @@ class CppLocatorData : public QObject
 public:
     void filterAllFiles(IndexItem::Visitor func) const
     {
-        flushPendingDocument(true);
         QMutexLocker locker(&m_pendingDocumentsMutex);
+        flushPendingDocument(true);
         QHash<QString, IndexItem::Ptr> infosByFile = m_infosByFile;
         locker.unlock();
         for (auto i = infosByFile.constBegin(), ei = infosByFile.constEnd(); i != ei; ++i)
@@ -60,13 +60,13 @@ public slots:
     void onAboutToRemoveFiles(const QStringList &files);
 
 private:
+    // Ensure to protect every call to this method with m_pendingDocumentsMutex
     void flushPendingDocument(bool force) const;
-    QList<IndexItem::Ptr> allIndexItems(const QHash<QString, QList<IndexItem::Ptr>> &items) const;
 
     mutable SearchSymbols m_search;
     mutable QHash<QString, IndexItem::Ptr> m_infosByFile;
 
-    mutable QRecursiveMutex m_pendingDocumentsMutex;
+    mutable QMutex m_pendingDocumentsMutex;
     mutable QVector<CPlusPlus::Document::Ptr> m_pendingDocuments;
 };
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -32,14 +32,16 @@ T.Popup {
 
     property T.Control myControl
 
+    property bool drag: slider.pressed
+
     dim: false
     closePolicy: T.Popup.CloseOnPressOutside | T.Popup.CloseOnPressOutsideParent
                  | T.Popup.CloseOnEscape | T.Popup.CloseOnReleaseOutside
                  | T.Popup.CloseOnReleaseOutsideParent
 
     background: Rectangle {
-        color: StudioTheme.Values.themeControlBackground
-        border.color: StudioTheme.Values.themeInteraction
+        color: StudioTheme.Values.themePopupBackground
+        border.width: 0
     }
 
     contentItem: T.Slider {
@@ -63,7 +65,8 @@ T.Popup {
             width: StudioTheme.Values.sliderHandleWidth
             height: StudioTheme.Values.sliderHandleHeight
             radius: 0
-            color: slider.pressed ? StudioTheme.Values.themeInteraction : StudioTheme.Values.themeControlOutline
+            color: slider.pressed ? StudioTheme.Values.themeSliderHandleInteraction
+                                  : StudioTheme.Values.themeSliderHandle
         }
 
         background: Rectangle {

@@ -128,6 +128,7 @@ void OpenDocumentsTreeView::setModel(QAbstractItemModel *model)
     header()->setStretchLastSection(false);
     header()->setSectionResizeMode(0, QHeaderView::Stretch);
     header()->setSectionResizeMode(1, QHeaderView::Fixed);
+    header()->setMinimumSectionSize(0);
     header()->resizeSection(1, 16);
 }
 

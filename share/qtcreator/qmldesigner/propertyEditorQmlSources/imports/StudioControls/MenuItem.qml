@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -35,10 +35,9 @@ T.MenuItem {
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
-    implicitHeight: Math.max(
-                        implicitBackgroundHeight + topInset + bottomInset,
-                        implicitContentHeight + topPadding + bottomPadding,
-                        implicitIndicatorHeight + topPadding + bottomPadding)
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             implicitContentHeight + topPadding + bottomPadding,
+                             implicitIndicatorHeight + topPadding + bottomPadding)
 
     padding: 0
     spacing: 0
@@ -50,7 +49,8 @@ T.MenuItem {
             id: textLabel
             text: control.text
             font: control.font
-            color: control.enabled ? StudioTheme.Values.themeTextColor : StudioTheme.Values.themeTextColorDisabled
+            color: control.enabled ? StudioTheme.Values.themeTextColor
+                                   : StudioTheme.Values.themeTextColorDisabled
             anchors.verticalCenter: parent.verticalCenter
         }
 
@@ -78,6 +78,8 @@ T.MenuItem {
         y: StudioTheme.Values.border
         width: control.menu.width - (StudioTheme.Values.border * 2)
         height: control.height - (StudioTheme.Values.border * 2)
-        color: control.down ? control.palette.midlight : control.highlighted ? StudioTheme.Values.themeInteraction : "transparent"
+        color: control.down ? control.palette.midlight
+                            : control.highlighted ? StudioTheme.Values.themeInteraction
+                                                  : "transparent"
     }
 }

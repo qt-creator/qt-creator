@@ -73,7 +73,7 @@ CurveEditorStyle CurveEditorModel::style() const
     out.timeAxisHeight = 60;
     out.timeOffsetLeft = 10;
     out.timeOffsetRight = 10;
-    out.rangeBarColor = QmlDesigner::Theme::instance()->qmlDesignerBackgroundColorDarkAlternate();
+    out.rangeBarColor = QmlDesigner::Theme::getColor(Theme::DScontrolBackground);
     out.rangeBarCapsColor = QmlDesigner::Theme::getColor(
         QmlDesigner::Theme::QmlDesigner_HighlightColor);
     out.valueAxisWidth = 60;

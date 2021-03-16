@@ -68,6 +68,7 @@ Rectangle {
                             Label {
                                 anchors.fill: parent
                                 anchors.leftMargin: StudioTheme.Values.inputHorizontalPadding
+                                anchors.topMargin: StudioTheme.Values.typeLabelVerticalShift
                                 text: backendValues.className.value
                             }
                             ToolTipArea {

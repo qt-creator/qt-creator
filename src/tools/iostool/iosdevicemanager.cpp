@@ -24,45 +24,28 @@
 ****************************************************************************/
 
 #include "iosdevicemanager.h"
-#include <QLibrary>
+
+#include "mobiledevicelib.h"
+
 #include <QDebug>
-#include <QStringList>
-#include <QString>
-#include <QHash>
-#include <QMultiHash>
-#include <QTimer>
-#include <QThread>
-#include <QSettings>
-#include <QRegularExpression>
-#include <QUrl>
-#include <mach/error.h>
-
-/* // annoying to import, do without
-#include <QtCore/private/qcore_mac_p.h>
-*/
-/* standard calling convention under Win32 is __stdcall */
-/* Note: When compiling Intel EFI (Extensible Firmware Interface) under MS Visual Studio, the */
-/* _WIN32 symbol is defined by the compiler even though it's NOT compiling code for Windows32 */
-#if defined(_WIN32) && !defined(EFI32) && !defined(EFI64)
-#define MDEV_API __stdcall
-#else
-#define MDEV_API
-#endif
-
-#include <CoreFoundation/CoreFoundation.h>
-#include <CoreFoundation/CFRunLoop.h>
-#include <CoreFoundation/CFDictionary.h>
-#include <CoreFoundation/CFData.h>
-
 #include <QDir>
 #include <QFile>
+#include <QHash>
+#include <QLibrary>
+#include <QMultiHash>
 #include <QProcess>
 #include <QRegularExpression>
+#include <QRegularExpression>
+#include <QSettings>
+#include <QThread>
+#include <QTimer>
+#include <QUrl>
 #include <QVersionNumber>
 
-#ifdef MOBILE_DEV_DIRECT_LINK
-#include "MobileDevice.h"
-#endif
+#include <CoreFoundation/CoreFoundation.h>
+
+#include <mach/error.h>
+#include <dlfcn.h>
 
 static const bool debugGdbServer = false;
 static const bool debugAll = false;
@@ -82,72 +65,7 @@ enum ADNCI_MSG {
 };
 #endif
 
-extern "C" {
-typedef unsigned int ServiceSocket; // match_port_t (i.e. natural_t) or socket (on windows, i.e sock_t)
-typedef unsigned int *ServiceConnRef;
-typedef unsigned int am_res_t; // mach_error_t
 
-#ifndef MOBILE_DEV_DIRECT_LINK
-class AMDeviceNotification;
-typedef const AMDeviceNotification *AMDeviceNotificationRef;
-class AMDevice;
-
-struct AMDeviceNotificationCallbackInfo {
-    AMDevice *_device;
-    unsigned int _message;
-    AMDeviceNotification *_subscription;
-};
-
-enum DeviceInterfaceType {
-    UNKNOWN = 0,
-    WIRED,
-    WIFI
-};
-
-typedef void (MDEV_API *AMDeviceNotificationCallback)(AMDeviceNotificationCallbackInfo *, void *);
-typedef am_res_t (MDEV_API *AMDeviceInstallApplicationCallback)(CFDictionaryRef, void *);
-typedef mach_error_t (MDEV_API *AMDeviceSecureInstallApplicationCallback)(CFDictionaryRef, int);
-
-
-typedef AMDevice *AMDeviceRef;
-#endif
-typedef void (MDEV_API *AMDeviceMountImageCallback)(CFDictionaryRef, int);
-
-
-
-typedef void (MDEV_API *AMDSetLogLevelPtr)(int);
-typedef am_res_t (MDEV_API *AMDeviceNotificationSubscribePtr)(AMDeviceNotificationCallback,
-                                                               unsigned int, unsigned int, void *,
-                                                               const AMDeviceNotification **);
-typedef am_res_t (MDEV_API *AMDeviceNotificationUnsubscribePtr)(void *);
-typedef int (MDEV_API* AMDeviceGetInterfaceTypePtr)(AMDeviceRef device);
-typedef CFPropertyListRef (MDEV_API *AMDeviceCopyValuePtr)(AMDeviceRef,CFStringRef,CFStringRef);
-typedef unsigned int (MDEV_API *AMDeviceGetConnectionIDPtr)(AMDeviceRef);
-typedef CFStringRef (MDEV_API *AMDeviceCopyDeviceIdentifierPtr)(AMDeviceRef);
-typedef am_res_t (MDEV_API *AMDeviceConnectPtr)(AMDeviceRef);
-typedef am_res_t (MDEV_API *AMDevicePairPtr)(AMDeviceRef);
-typedef am_res_t (MDEV_API *AMDeviceIsPairedPtr)(AMDeviceRef);
-typedef am_res_t (MDEV_API *AMDeviceValidatePairingPtr)(AMDeviceRef);
-typedef am_res_t (MDEV_API *AMDeviceStartSessionPtr)(AMDeviceRef);
-typedef am_res_t (MDEV_API *AMDeviceStopSessionPtr)(AMDeviceRef);
-typedef am_res_t (MDEV_API *AMDeviceDisconnectPtr)(AMDeviceRef);
-typedef am_res_t (MDEV_API *AMDeviceMountImagePtr)(AMDeviceRef, CFStringRef, CFDictionaryRef,
-                                                        AMDeviceMountImageCallback, void *);
-typedef am_res_t (MDEV_API *AMDeviceUninstallApplicationPtr)(ServiceSocket, CFStringRef, CFDictionaryRef,
-                                                                AMDeviceInstallApplicationCallback,
-                                                                void*);
-typedef am_res_t (MDEV_API *AMDeviceLookupApplicationsPtr)(AMDeviceRef, CFDictionaryRef, CFDictionaryRef *);
-typedef char * (MDEV_API *AMDErrorStringPtr)(am_res_t);
-typedef CFStringRef (MDEV_API *MISCopyErrorStringForErrorCodePtr)(am_res_t);
-typedef am_res_t (MDEV_API *USBMuxConnectByPortPtr)(unsigned int, int, ServiceSocket*);
-// secure Api's
-typedef am_res_t (MDEV_API *AMDeviceSecureStartServicePtr)(AMDeviceRef, CFStringRef, unsigned int *, ServiceConnRef *);
-typedef int (MDEV_API *AMDeviceSecureTransferPathPtr)(int, AMDeviceRef, CFURLRef, CFDictionaryRef, AMDeviceSecureInstallApplicationCallback, int);
-typedef int (MDEV_API *AMDeviceSecureInstallApplicationPtr)(int, AMDeviceRef, CFURLRef, CFDictionaryRef, AMDeviceSecureInstallApplicationCallback, int);
-typedef int (MDEV_API *AMDServiceConnectionGetSocketPtr)(ServiceConnRef);
-
-
-} // extern C
 
 } // anonymous namespace
 
@@ -155,89 +73,17 @@ namespace Ios {
 namespace Internal {
 
 static const am_res_t kAMDMobileImageMounterImageMountFailed = 0xe8000076;
+static const QString DebugServiceName = "com.apple.debugserver";
+static const QString DebugSecureServiceName = "com.apple.debugserver.DVTSecureSocketProxy";
 
-class MobileDeviceLib {
-public :
-    MobileDeviceLib();
 
-    bool load();
-    bool isLoaded();
-    QStringList errors();
-//
-
-    void setLogLevel(int i) ;
-    am_res_t deviceNotificationSubscribe(AMDeviceNotificationCallback callback,
-                                         unsigned int v1, unsigned int v2, void *v3,
-                                         const AMDeviceNotification **handle);
-    am_res_t deviceNotificationUnsubscribe(void *handle);
-    int deviceGetInterfaceType(AMDeviceRef device);
-    CFPropertyListRef deviceCopyValue(AMDeviceRef,CFStringRef,CFStringRef);
-    unsigned int deviceGetConnectionID(AMDeviceRef);
-    CFStringRef deviceCopyDeviceIdentifier(AMDeviceRef);
-    am_res_t deviceConnect(AMDeviceRef);
-    am_res_t devicePair(AMDeviceRef);
-    am_res_t deviceIsPaired(AMDeviceRef);
-    am_res_t deviceValidatePairing(AMDeviceRef);
-    am_res_t deviceStartSession(AMDeviceRef);
-    am_res_t deviceStopSession(AMDeviceRef);
-    am_res_t deviceDisconnect(AMDeviceRef);
-    am_res_t deviceMountImage(AMDeviceRef, CFStringRef, CFDictionaryRef,
-                                    AMDeviceMountImageCallback, void *);
-    am_res_t deviceUninstallApplication(int, CFStringRef, CFDictionaryRef,
-                                                                    AMDeviceInstallApplicationCallback,
-                                                                    void*);
-    am_res_t deviceLookupApplications(AMDeviceRef, CFDictionaryRef, CFDictionaryRef *);
-    char *errorString(am_res_t error);
-    CFStringRef misErrorStringForErrorCode(am_res_t error);
-    am_res_t connectByPort(unsigned int connectionId, int port, ServiceSocket *resFd);
-
-    void addError(const QString &msg);
-    void addError(const char *msg);
-
-    // Secure API's
-    am_res_t deviceSecureStartService(AMDeviceRef, CFStringRef, ServiceConnRef *);
-    int deviceConnectionGetSocket(ServiceConnRef);
-    int deviceSecureTransferApplicationPath(int, AMDeviceRef, CFURLRef,
-                                            CFDictionaryRef, AMDeviceSecureInstallApplicationCallback callback, int);
-    int deviceSecureInstallApplication(int zero, AMDeviceRef device, CFURLRef url,
-                                       CFDictionaryRef options, AMDeviceSecureInstallApplicationCallback callback, int arg);
-
-    QStringList m_errors;
-private:
-    QLibrary lib;
-    QList<QLibrary *> deps;
-    AMDSetLogLevelPtr m_AMDSetLogLevel;
-    AMDeviceNotificationSubscribePtr m_AMDeviceNotificationSubscribe;
-    AMDeviceNotificationUnsubscribePtr m_AMDeviceNotificationUnsubscribe;
-    AMDeviceGetInterfaceTypePtr m_AMDeviceGetInterfaceType;
-    AMDeviceCopyValuePtr m_AMDeviceCopyValue;
-    AMDeviceGetConnectionIDPtr m_AMDeviceGetConnectionID;
-    AMDeviceCopyDeviceIdentifierPtr m_AMDeviceCopyDeviceIdentifier;
-    AMDeviceConnectPtr m_AMDeviceConnect;
-    AMDevicePairPtr m_AMDevicePair;
-    AMDeviceIsPairedPtr m_AMDeviceIsPaired;
-    AMDeviceValidatePairingPtr m_AMDeviceValidatePairing;
-    AMDeviceStartSessionPtr m_AMDeviceStartSession;
-    AMDeviceStopSessionPtr m_AMDeviceStopSession;
-    AMDeviceDisconnectPtr m_AMDeviceDisconnect;
-    AMDeviceMountImagePtr m_AMDeviceMountImage;
-    AMDeviceSecureStartServicePtr m_AMDeviceSecureStartService;
-    AMDeviceSecureTransferPathPtr m_AMDeviceSecureTransferPath;
-    AMDeviceSecureInstallApplicationPtr m_AMDeviceSecureInstallApplication;
-    AMDServiceConnectionGetSocketPtr m_AMDServiceConnectionGetSocket;
-    AMDeviceUninstallApplicationPtr m_AMDeviceUninstallApplication;
-    AMDeviceLookupApplicationsPtr m_AMDeviceLookupApplications;
-    AMDErrorStringPtr m_AMDErrorString;
-    MISCopyErrorStringForErrorCodePtr m_MISCopyErrorStringForErrorCode;
-    USBMuxConnectByPortPtr m_USBMuxConnectByPort;
-};
-
-static QString mobileDeviceErrorString(MobileDeviceLib *lib, am_res_t code)
+static QString mobileDeviceErrorString(am_res_t code)
 {
     QString s = QStringLiteral("Unknown error (0x%08x)").arg(code);
 
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
     // AMDErrors, 0x0, 0xe8000001-0xe80000db
-    if (char *ptr = lib->errorString(code)) {
+    if (char *ptr = mLib.errorString(code)) {
         CFStringRef key = QString::fromLatin1(ptr).toCFString();
 
         CFURLRef url = QUrl::fromLocalFile(
@@ -253,7 +99,7 @@ static QString mobileDeviceErrorString(MobileDeviceLib *lib, am_res_t code)
         }
 
         CFRelease(key);
-    } else if (CFStringRef str = lib->misErrorStringForErrorCode(code)) {
+    } else if (CFStringRef str = mLib.misErrorStringForErrorCode(code)) {
         // MIS errors, 0xe8008001-0xe800801e
         s = QString::fromCFString(str);
         CFRelease(str);
@@ -262,7 +108,7 @@ static QString mobileDeviceErrorString(MobileDeviceLib *lib, am_res_t code)
     return s;
 }
 
-qint64 toBuildNumber(const QString &versionStr)
+static qint64 toBuildNumber(const QString &versionStr)
 {
     QString buildNumber;
     const QRegularExpression re("\\s\\((\\X+)\\)");
@@ -356,6 +202,19 @@ static bool findDeveloperDiskImage(const QString &versionStr, const QString &bui
     return true;
 }
 
+bool disable_ssl(ServiceConnRef ref)
+{
+    typedef void (*SSL_free_t)(void*);
+    static SSL_free_t SSL_free = nullptr;
+    if (!SSL_free)
+        SSL_free = (SSL_free_t)dlsym(RTLD_DEFAULT, "SSL_free");
+    if (!SSL_free)
+        return false;
+    SSL_free(ref->sslContext);
+    ref->sslContext = nullptr;
+    return true;
+}
+
 extern "C" {
 typedef void (*DeviceAvailableCallback)(QString deviceId, AMDeviceRef, void *userData);
 }
@@ -390,13 +249,11 @@ public:
     void addError(const QString &msg);
     bool writeAll(ServiceSocket fd, const char *cmd, qptrdiff len = -1);
     bool mountDeveloperDiskImage();
-    bool sendGdbCommand(ServiceSocket fd, const char *cmd, qptrdiff len = -1);
-    QByteArray readGdbReply(ServiceSocket fd);
-    bool expectGdbReply(ServiceSocket gdbFd, QByteArray expected);
-    bool expectGdbOkReply(ServiceSocket gdbFd);
-    bool startServiceSecure(const QString &serviceName, ServiceSocket &fd);
-
-    MobileDeviceLib *lib();
+    bool sendGdbCommand(ServiceConnRef conn, const char *cmd, qptrdiff len = -1);
+    QByteArray readGdbReply(ServiceConnRef conn);
+    bool expectGdbReply(ServiceConnRef conn, QByteArray expected);
+    bool expectGdbOkReply(ServiceConnRef conn);
+    bool startServiceSecure(const QString &serviceName, ServiceConnRef &conn);
 
     AMDeviceRef device;
     int progressBase;
@@ -408,7 +265,7 @@ private:
 
 private:
     bool checkRead(qptrdiff nRead, int &maxRetry);
-    int handleChar(int sock, QByteArray &res, char c, int status);
+    int handleChar(ServiceConnRef conn, QByteArray &res, char c, int status);
 };
 
 // ------- IosManagerPrivate interface --------
@@ -431,19 +288,18 @@ public:
     void didTransferApp(const QString &bundlePath, const QString &deviceId,
                         Ios::IosDeviceManager::OpStatus status);
     void didStartApp(const QString &bundlePath, const QString &deviceId,
-                     Ios::IosDeviceManager::OpStatus status, int gdbFd, DeviceSession *deviceSession);
+                     Ios::IosDeviceManager::OpStatus status, ServiceConnRef conn, int gdbFd, DeviceSession *deviceSession);
     void isTransferringApp(const QString &bundlePath, const QString &deviceId, int progress,
                            const QString &info);
     void deviceWithId(QString deviceId, int timeout, DeviceAvailableCallback callback, void *userData);
-    int processGdbServer(int fd);
-    void stopGdbServer(int fd, int phase);
+    int processGdbServer(ServiceConnRef conn);
+    void stopGdbServer(ServiceConnRef conn, int phase);
 private:
     IosDeviceManager *q;
     QMutex m_sendMutex;
     QHash<QString, AMDeviceRef> m_devices;
     QMultiHash<QString, PendingDeviceLookup *> m_pendingLookups;
     AMDeviceNotificationRef m_notification;
-    MobileDeviceLib m_lib;
 };
 
 class DevInfoSession: public CommandSession {
@@ -498,7 +354,7 @@ DeviceSession::~DeviceSession()
 namespace {
 // ------- callbacks --------
 
-extern "C" void deviceNotificationCallback(AMDeviceNotificationCallbackInfo *info, void *user)
+extern "C" void deviceNotificationCallback(Ios::AMDeviceNotificationCallbackInfo *info, void *user)
 {
     if (info == 0)
         Ios::Internal::IosDeviceManagerPrivate::instance()->addError(QLatin1String("null info in deviceNotificationCallback"));
@@ -526,7 +382,7 @@ extern "C" void deviceNotificationCallback(AMDeviceNotificationCallbackInfo *inf
     }
 }
 
-extern "C" void deviceAvailableSessionCallback(QString deviceId, AMDeviceRef device, void *userData)
+extern "C" void deviceAvailableSessionCallback(QString deviceId, Ios::AMDeviceRef device, void *userData)
 {
     if (debugAll)
         qDebug() << "deviceAvailableSessionCallback" << QThread::currentThread();
@@ -538,7 +394,7 @@ extern "C" void deviceAvailableSessionCallback(QString deviceId, AMDeviceRef dev
     session->internalDeviceAvailableCallback(deviceId, device);
 }
 
-extern "C" am_res_t appTransferSessionCallback(CFDictionaryRef dict, void *userData)
+extern "C" Ios::am_res_t appTransferSessionCallback(CFDictionaryRef dict, void *userData)
 {
     if (debugAll) {
         qDebug() << "appTransferSessionCallback" << QThread::currentThread();
@@ -584,7 +440,7 @@ extern "C" mach_error_t appSecureTransferSessionCallback(CFDictionaryRef dict, i
     return 0;
 }
 
-extern "C" am_res_t appInstallSessionCallback(CFDictionaryRef dict, void *userData)
+extern "C" Ios::am_res_t appInstallSessionCallback(CFDictionaryRef dict, void *userData)
 {
     if (debugAll) {
         qDebug() << "appInstallSessionCallback" << QThread::currentThread();
@@ -614,13 +470,8 @@ IosDeviceManagerPrivate::IosDeviceManagerPrivate (IosDeviceManager *q) : q(q), m
 
 bool IosDeviceManagerPrivate::watchDevices()
 {
-    if (!m_lib.load())
-        addError(QLatin1String("Error loading MobileDevice.framework"));
-    if (!m_lib.errors().isEmpty())
-        foreach (const QString &msg, m_lib.errors())
-            addError(msg);
-    m_lib.setLogLevel(5);
-    am_res_t e = m_lib.deviceNotificationSubscribe(&deviceNotificationCallback, 0, 0,
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    am_res_t e = mLib.deviceNotificationSubscribe(&deviceNotificationCallback, 0, 0,
                                                          0, &m_notification);
     if (e != 0) {
         addError(QLatin1String("AMDeviceNotificationSubscribe failed"));
@@ -649,7 +500,8 @@ void IosDeviceManagerPrivate::requestDeviceInfo(const QString &deviceId, int tim
 
 QStringList IosDeviceManagerPrivate::errors()
 {
-    return m_lib.errors();
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    return mLib.errors();
 }
 
 void IosDeviceManagerPrivate::addError(QString errorMsg)
@@ -661,7 +513,8 @@ void IosDeviceManagerPrivate::addError(QString errorMsg)
 
 QString IosDeviceManagerPrivate::deviceId(AMDeviceRef device)
 {
-    CFStringRef s = m_lib.deviceCopyDeviceIdentifier(device);
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    CFStringRef s = mLib.deviceCopyDeviceIdentifier(device);
     // remove dashes as a hotfix for QTCREATORBUG-21291
     const auto id = QString::fromCFString(s).remove('-');
     if (s) CFRelease(s);
@@ -673,7 +526,8 @@ void IosDeviceManagerPrivate::addDevice(AMDeviceRef device)
     const QString devId = deviceId(device);
     CFRetain(device);
 
-    DeviceInterfaceType interfaceType = static_cast<DeviceInterfaceType>(lib()->deviceGetInterfaceType(device));
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    DeviceInterfaceType interfaceType = static_cast<DeviceInterfaceType>(mLib.deviceGetInterfaceType(device));
     if (interfaceType == DeviceInterfaceType::UNKNOWN) {
         if (debugAll)
             qDebug() << "Skipping device." << devId << "Interface type: Unknown.";
@@ -744,11 +598,6 @@ void IosDeviceManagerPrivate::checkPendingLookups()
     }
 }
 
-MobileDeviceLib *IosDeviceManagerPrivate::lib()
-{
-    return &m_lib;
-}
-
 void IosDeviceManagerPrivate::didTransferApp(const QString &bundlePath, const QString &deviceId,
                                        IosDeviceManager::OpStatus status)
 {
@@ -756,11 +605,11 @@ void IosDeviceManagerPrivate::didTransferApp(const QString &bundlePath, const QS
 }
 
 void IosDeviceManagerPrivate::didStartApp(const QString &bundlePath, const QString &deviceId,
-                                          IosDeviceManager::OpStatus status, int gdbFd,
-                                          DeviceSession *deviceSession)
+                                          IosDeviceManager::OpStatus status, ServiceConnRef conn,
+                                          int gdbFd, DeviceSession *deviceSession)
 {
-    emit IosDeviceManagerPrivate::instance()->q->didStartApp(bundlePath, deviceId, status, gdbFd,
-                                                             deviceSession);
+    emit IosDeviceManagerPrivate::instance()->q->didStartApp(bundlePath, deviceId, status, conn,
+                                                             gdbFd, deviceSession);
 }
 
 void IosDeviceManagerPrivate::isTransferringApp(const QString &bundlePath, const QString &deviceId,
@@ -810,18 +659,18 @@ enum GdbServerStatus {
     PROTOCOL_UNHANDLED
 };
 
-int IosDeviceManagerPrivate::processGdbServer(int fd)
+int IosDeviceManagerPrivate::processGdbServer(ServiceConnRef conn)
 {
     CommandSession session((QString()));
     {
         QMutexLocker l(&m_sendMutex);
-        session.sendGdbCommand(fd, "vCont;c"); // resume all threads
+        session.sendGdbCommand(conn, "vCont;c"); // resume all threads
     }
     GdbServerStatus state = NORMAL_PROCESS;
     int maxRetry = 10;
     int maxSignal = 5;
     while (state == NORMAL_PROCESS) {
-        QByteArray repl = session.readGdbReply(fd);
+        QByteArray repl = session.readGdbReply(conn);
         int signal = 0;
         if (repl.size() > 0) {
             state = PROTOCOL_ERROR;
@@ -901,7 +750,7 @@ int IosDeviceManagerPrivate::processGdbServer(int fd)
                         state = NORMAL_PROCESS; // Ctrl-C to kill the process
                     } else {
                         QMutexLocker l(&m_sendMutex);
-                        if (session.sendGdbCommand(fd, "vCont;c"))
+                        if (session.sendGdbCommand(conn, "vCont;c"))
                             state = NORMAL_PROCESS;
                         else
                             break;
@@ -919,14 +768,15 @@ int IosDeviceManagerPrivate::processGdbServer(int fd)
     return state != INFERIOR_EXITED;
 }
 
-void IosDeviceManagerPrivate::stopGdbServer(int fd, int phase)
+void IosDeviceManagerPrivate::stopGdbServer(ServiceConnRef conn, int phase)
 {
     CommandSession session((QString()));
     QMutexLocker l(&m_sendMutex);
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
     if (phase == 0)
-        session.writeAll(fd,"\x03",1);
+        mLib.serviceConnectionSend(conn, "\x03", 1);
     else
-        session.sendGdbCommand(fd, "k", 1);
+        session.sendGdbCommand(conn, "k", 1);
 }
 
 // ------- ConnectSession implementation --------
@@ -942,26 +792,27 @@ bool CommandSession::connectDevice()
     if (!device)
         return false;
 
-    if (am_res_t error1 = lib()->deviceConnect(device)) {
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    if (am_res_t error1 = mLib.deviceConnect(device)) {
         addError(QString::fromLatin1("connectDevice %1 failed, AMDeviceConnect returned %2 (0x%3)")
-                 .arg(deviceId).arg(mobileDeviceErrorString(lib(), error1)).arg(error1));
+                 .arg(deviceId).arg(mobileDeviceErrorString(error1)).arg(error1));
         return false;
     }
-    if (lib()->deviceIsPaired(device) == 0) { // not paired
-        if (am_res_t error = lib()->devicePair(device)) {
+    if (mLib.deviceIsPaired(device) == 0) { // not paired
+        if (am_res_t error = mLib.devicePair(device)) {
             addError(QString::fromLatin1("connectDevice %1 failed, AMDevicePair returned %2 (0x%3)")
-                     .arg(deviceId).arg(mobileDeviceErrorString(lib(), error)).arg(error));
+                     .arg(deviceId).arg(mobileDeviceErrorString(error)).arg(error));
             return false;
         }
     }
-    if (am_res_t error2 = lib()->deviceValidatePairing(device)) {
+    if (am_res_t error2 = mLib.deviceValidatePairing(device)) {
         addError(QString::fromLatin1("connectDevice %1 failed, AMDeviceValidatePairing returned %2 (0x%3)")
-                 .arg(deviceId).arg(mobileDeviceErrorString(lib(), error2)).arg(error2));
+                 .arg(deviceId).arg(mobileDeviceErrorString(error2)).arg(error2));
         return false;
     }
-    if (am_res_t error3 = lib()->deviceStartSession(device)) {
+    if (am_res_t error3 = mLib.deviceStartSession(device)) {
         addError(QString::fromLatin1("connectDevice %1 failed, AMDeviceStartSession returned %2 (0x%3)")
-                 .arg(deviceId).arg(mobileDeviceErrorString(lib(), error3)).arg(error3));
+                 .arg(deviceId).arg(mobileDeviceErrorString(error3)).arg(error3));
         return false;
     }
     return true;
@@ -969,34 +820,37 @@ bool CommandSession::connectDevice()
 
 bool CommandSession::disconnectDevice()
 {
-    if (am_res_t error = lib()->deviceStopSession(device)) {
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    if (am_res_t error = mLib.deviceStopSession(device)) {
         addError(QString::fromLatin1("stopSession %1 failed, AMDeviceStopSession returned %2 (0x%3)")
-                 .arg(deviceId).arg(mobileDeviceErrorString(lib(), error)).arg(error));
+                 .arg(deviceId).arg(mobileDeviceErrorString(error)).arg(error));
         return false;
     }
-    if (am_res_t error = lib()->deviceDisconnect(device)) {
+    if (am_res_t error = mLib.deviceDisconnect(device)) {
         addError(QString::fromLatin1("disconnectDevice %1 failed, AMDeviceDisconnect returned %2 (0x%3)")
-                          .arg(deviceId).arg(mobileDeviceErrorString(lib(), error)).arg(error));
+                          .arg(deviceId).arg(mobileDeviceErrorString(error)).arg(error));
         return false;
     }
     return true;
 }
 
-bool CommandSession::startServiceSecure(const QString &serviceName, ServiceSocket &fd)
+bool CommandSession::startServiceSecure(const QString &serviceName, ServiceConnRef &conn)
 {
     bool success = true;
 
     // Connect device. AMDeviceConnect + AMDeviceIsPaired + AMDeviceValidatePairing + AMDeviceStartSession
     if (connectDevice()) {
         CFStringRef cfsService = serviceName.toCFString();
-        ServiceConnRef ref;
-        if (am_res_t error = lib()->deviceSecureStartService(device, cfsService, &ref)) {
+        MobileDeviceLib &mLib = MobileDeviceLib::instance();
+        if (am_res_t error = mLib.deviceSecureStartService(device, cfsService, &conn)) {
             addError(QString::fromLatin1("Starting(Secure) service \"%1\" on device %2 failed, AMDeviceStartSecureService returned %3 (0x%4)")
-                     .arg(serviceName).arg(deviceId).arg(mobileDeviceErrorString(lib(), error)).arg(QString::number(error, 16)));
+                     .arg(serviceName).arg(deviceId).arg(mobileDeviceErrorString(error)).arg(QString::number(error, 16)));
             success = false;
-            fd = 0;
         } else {
-            fd = lib()->deviceConnectionGetSocket(ref);
+            if (!conn) {
+                addError(QString("Starting(Secure) service \"%1\" on device %2 failed."
+                         "Invalid service connection").arg(serviceName).arg(deviceId));
+            }
         }
         disconnectDevice();
         CFRelease(cfsService);
@@ -1017,7 +871,9 @@ bool CommandSession::connectToPort(quint16 port, ServiceSocket *fd)
     ServiceSocket fileDescriptor;
     if (!connectDevice())
         return false;
-    if (am_res_t error = lib()->connectByPort(lib()->deviceGetConnectionID(device), htons(port), &fileDescriptor)) {
+
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    if (am_res_t error = mLib.connectByPort(mLib.deviceGetConnectionID(device), htons(port), &fileDescriptor)) {
         addError(QString::fromLatin1("connectByPort on device %1 port %2 failed, AMDeviceStartService returned %3")
                  .arg(deviceId).arg(port).arg(error));
         failure = true;
@@ -1117,13 +973,14 @@ bool CommandSession::mountDeveloperDiskImage() {
 
             if (connectDevice()) {
                 CFStringRef cfImgPath = imagePath.toCFString();
-                am_res_t result = lib()->deviceMountImage(device, cfImgPath, options, &mountCallback, 0);
+                MobileDeviceLib &mLib = MobileDeviceLib::instance();
+                am_res_t result = mLib.deviceMountImage(device, cfImgPath, options, &mountCallback, 0);
                 if (result == 0 || result == kAMDMobileImageMounterImageMountFailed)  {
                     // Mounting succeeded or developer image already installed
                     success = true;
                 } else {
                     addError(QString::fromLatin1("Mount Developer Disk Image \"%1\" failed, AMDeviceMountImage returned %2 (0x%3)")
-                             .arg(imagePath).arg(mobileDeviceErrorString(lib(), result)).arg(QString::number(result, 16)));
+                             .arg(imagePath).arg(mobileDeviceErrorString(result)).arg(QString::number(result, 16)));
                 }
                 CFRelease(cfImgPath);
                 disconnectDevice();
@@ -1140,23 +997,25 @@ bool CommandSession::mountDeveloperDiskImage() {
     return success;
 }
 
-bool CommandSession::sendGdbCommand(ServiceSocket fd, const char *cmd, qptrdiff len)
+bool CommandSession::sendGdbCommand(ServiceConnRef conn, const char *cmd, qptrdiff len)
 {
     if (len == -1)
         len = strlen(cmd);
     unsigned char checkSum = 0;
     for (int i = 0; i < len; ++i)
         checkSum += static_cast<unsigned char>(cmd[i]);
-    bool failure = !writeAll(fd, "$", 1);
+
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    bool failure = mLib.serviceConnectionSend(conn, "$", 1) == 0;
     if (!failure)
-        failure = !writeAll(fd, cmd, len);
+        failure = mLib.serviceConnectionSend(conn, cmd, len) == 0;
     char buf[3];
     buf[0] = '#';
     const char *hex = "0123456789abcdef";
     buf[1]   = hex[(checkSum >> 4) & 0xF];
     buf[2] = hex[checkSum & 0xF];
     if (!failure)
-        failure = !writeAll(fd, buf, 3);
+        failure = mLib.serviceConnectionSend(conn, buf, 3) == 0;
     return !failure;
 }
 
@@ -1184,7 +1043,7 @@ bool CommandSession::checkRead(qptrdiff nRead, int &maxRetry)
     return true;
 }
 
-int CommandSession::handleChar(int fd, QByteArray &res, char c, int status)
+int CommandSession::handleChar(ServiceConnRef conn, QByteArray &res, char c, int status)
 {
     switch (status) {
     case 0:
@@ -1219,8 +1078,10 @@ int CommandSession::handleChar(int fd, QByteArray &res, char c, int status)
                 ++unexpectedChars;
             }
         }
-        if (status == 3 && aknowledge)
-            writeAll(fd, "+", 1);
+        if (status == 3 && aknowledge) {
+            MobileDeviceLib &mLib = MobileDeviceLib::instance();
+            mLib.serviceConnectionSend(conn, "+", 1);
+        }
         return status + 1;
     case 4:
         addError(QString::fromLatin1("gone past end in readGdbReply"));
@@ -1233,7 +1094,7 @@ int CommandSession::handleChar(int fd, QByteArray &res, char c, int status)
     }
 }
 
-QByteArray CommandSession::readGdbReply(ServiceSocket fd)
+QByteArray CommandSession::readGdbReply(ServiceConnRef conn)
 {
     // read with minimal buffering because we might want to give the socket away...
     QByteArray res;
@@ -1241,8 +1102,9 @@ QByteArray CommandSession::readGdbReply(ServiceSocket fd)
     int maxRetry = 10;
     int status = 0;
     int toRead = 4;
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
     while (status < 4 && toRead > 0) {
-        qptrdiff nRead = read(fd, buf, toRead);
+        qptrdiff nRead = mLib.serviceConnectionReceive(conn, buf, toRead);
         if (!checkRead(nRead, maxRetry))
             return QByteArray();
         if (debugGdbServer) {
@@ -1250,7 +1112,7 @@ QByteArray CommandSession::readGdbReply(ServiceSocket fd)
             qDebug() << "gdbReply read " << buf;
         }
         for (qptrdiff i = 0; i< nRead; ++i)
-            status = handleChar(fd, res, buf[i], status);
+            status = handleChar(conn, res, buf[i], status);
         toRead = 4 - status;
     }
     if (status != 4) {
@@ -1288,9 +1150,9 @@ QString CommandSession::commandName()
     return QString::fromLatin1("CommandSession(%1)").arg(deviceId);
 }
 
-bool CommandSession::expectGdbReply(ServiceSocket gdbFd, QByteArray expected)
+bool CommandSession::expectGdbReply(ServiceConnRef conn, QByteArray expected)
 {
-    QByteArray repl = readGdbReply(gdbFd);
+    QByteArray repl = readGdbReply(conn);
     if (repl != expected) {
         addError(QString::fromLatin1("Unexpected reply: %1 (%2) vs %3 (%4)")
                  .arg(QString::fromLocal8Bit(repl.constData(), repl.size()))
@@ -1302,27 +1164,23 @@ bool CommandSession::expectGdbReply(ServiceSocket gdbFd, QByteArray expected)
     return true;
 }
 
-bool CommandSession::expectGdbOkReply(ServiceSocket gdbFd)
+bool CommandSession::expectGdbOkReply(ServiceConnRef conn)
 {
-    return expectGdbReply(gdbFd, QByteArray("OK"));
-}
-
-MobileDeviceLib *CommandSession::lib()
-{
-    return IosDeviceManagerPrivate::instance()->lib();
+    return expectGdbReply(conn, QByteArray("OK"));
 }
 
 bool CommandSession::developerDiskImagePath(QString *path, QString *signaturePath)
 {
     if (device && path && connectDevice()) {
-        CFPropertyListRef cfProductVersion = lib()->deviceCopyValue(device, 0, CFSTR("ProductVersion"));
+        MobileDeviceLib &mLib = MobileDeviceLib::instance();
+        CFPropertyListRef cfProductVersion = mLib.deviceCopyValue(device, 0, CFSTR("ProductVersion"));
         QString versionString;
         if (cfProductVersion && CFGetTypeID(cfProductVersion) == CFStringGetTypeID()) {
             versionString = QString::fromCFString(reinterpret_cast<CFStringRef>(cfProductVersion));
         }
         CFRelease(cfProductVersion);
 
-        CFPropertyListRef cfBuildVersion = lib()->deviceCopyValue(device, 0, CFSTR("BuildVersion"));
+        CFPropertyListRef cfBuildVersion = mLib.deviceCopyValue(device, 0, CFSTR("BuildVersion"));
         QString buildString;
         if (cfBuildVersion && CFGetTypeID(cfBuildVersion) == CFStringGetTypeID()) {
             buildString = QString::fromCFString(reinterpret_cast<CFStringRef>(cfBuildVersion));
@@ -1365,19 +1223,20 @@ bool AppOpSession::installApp()
                                                      &kCFTypeDictionaryKeyCallBacks,
                                                      &kCFTypeDictionaryValueCallBacks);
 
+        MobileDeviceLib &mLib = MobileDeviceLib::instance();
         // Transfer bundle with secure API AMDeviceTransferApplication.
-        if (int error = lib()->deviceSecureTransferApplicationPath(0, device, bundleUrl, options,
+        if (int error = mLib.deviceSecureTransferApplicationPath(0, device, bundleUrl, options,
                                                          &appSecureTransferSessionCallback,0)) {
             addError(QString::fromLatin1("TransferAppSession(%1,%2) failed, AMDeviceTransferApplication returned %3 (0x%4)")
-                     .arg(bundlePath, deviceId).arg(mobileDeviceErrorString(lib(), error)).arg(error));
+                     .arg(bundlePath, deviceId).arg(mobileDeviceErrorString(error)).arg(error));
             success = false;
         } else {
             // App is transferred. Try installing.
             if (connectDevice()) {
                 // Secure install app api requires device to be connected.
-                if (am_res_t error = lib()->deviceSecureInstallApplication(0, device, bundleUrl, options,
+                if (am_res_t error = mLib.deviceSecureInstallApplication(0, device, bundleUrl, options,
                                                                            &appSecureTransferSessionCallback,0)) {
-                    const QString errorString = mobileDeviceErrorString(lib(), error);
+                    const QString errorString = mobileDeviceErrorString(error);
                     if (!errorString.isEmpty()) {
                         addError(errorString
                                  + QStringLiteral(" (0x")
@@ -1459,23 +1318,41 @@ bool AppOpSession::runApp()
 {
     bool failure = (device == 0);
     QString exe = appPathOnDevice();
-    ServiceSocket gdbFd = -1;
     if (!mountDeveloperDiskImage()) {
         addError(QString::fromLatin1("Running app \"%1\" failed. Mount developer disk failed.").arg(bundlePath));
         failure = true;
     }
-    if (!failure && !startServiceSecure(QLatin1String("com.apple.debugserver"), gdbFd))
-        gdbFd = 0;
 
-    if (gdbFd > 0) {
+    CFStringRef keys[] = { CFSTR("MinIPhoneVersion"), CFSTR("MinAppleTVVersion") };
+    CFStringRef values[] = { CFSTR("14.0"), CFSTR("14.0")};
+    CFDictionaryRef version = CFDictionaryCreate(NULL, (const void **)&keys, (const void **)&values,
+                                                 2, &kCFTypeDictionaryKeyCallBacks,
+                                                 &kCFTypeDictionaryValueCallBacks);
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    bool useSecureProxy = mLib.deviceIsAtLeastVersionOnPlatform(device, version);
+    // The debugserver service cannot be launched directly on iOS 14+
+    // A secure proxy service sits between the actual debugserver service.
+    const QString &serviceName = useSecureProxy ? DebugSecureServiceName : DebugServiceName;
+    ServiceConnRef conn = nullptr;
+    if (!failure)
+        startServiceSecure(serviceName, conn);
+
+    if (conn) {
+        // For older devices remove the ssl encryption as we can directly connecting with the
+        // debugserver service, i.e. not the secure proxy service.
+        if (!useSecureProxy)
+            disable_ssl(conn);
         // gdbServer protocol, see http://sourceware.org/gdb/onlinedocs/gdb/Remote-Protocol.html#Remote-Protocol
         // and the lldb handling of that (with apple specific stuff)
         // http://llvm.org/viewvc/llvm-project/lldb/trunk/tools/debugserver/source/RNBRemote.cpp
         //failure = !sendGdbCommand(gdbFd, "QStartNoAckMode"); // avoid and send required aknowledgements?
         //if (!failure) failure = !expectGdbOkReply(gdbFd);
-        if (!failure) failure = !sendGdbCommand(gdbFd, "QEnvironmentHexEncoded:"); // send the environment with a series of these commands...
-        if (!failure) failure = !sendGdbCommand(gdbFd, "QSetDisableASLR:1"); // avoid address randomization to debug
-        if (!failure) failure = !expectGdbOkReply(gdbFd);
+
+        // send the environment with a series of these commands...
+        if (!failure) failure = !sendGdbCommand(conn, "QEnvironmentHexEncoded:");
+        // avoid address randomization to debug
+        if (!failure) failure = !sendGdbCommand(conn, "QSetDisableASLR:1");
+        if (!failure) failure = !expectGdbOkReply(conn);
         QStringList args = extraArgs;
         QByteArray runCommand("A");
         args.insert(0, exe);
@@ -1491,14 +1368,17 @@ bool AppOpSession::runApp()
             runCommand.append(',');
             runCommand.append(arg);
         }
-        if (!failure) failure = !sendGdbCommand(gdbFd, runCommand.constData(), runCommand.size());
-        if (!failure) failure = !expectGdbOkReply(gdbFd);
-        if (!failure) failure = !sendGdbCommand(gdbFd, "qLaunchSuccess");
-        if (!failure) failure = !expectGdbOkReply(gdbFd);
+        if (!failure) failure = !sendGdbCommand(conn, runCommand.constData(), runCommand.size());
+        if (!failure) failure = !expectGdbOkReply(conn);
+        if (!failure) failure = !sendGdbCommand(conn, "qLaunchSuccess");
+        if (!failure) failure = !expectGdbOkReply(conn);
+    } else {
+        failure = true;
     }
-    IosDeviceManagerPrivate::instance()->didStartApp(
-                bundlePath, deviceId,
-                (failure ? IosDeviceManager::Failure : IosDeviceManager::Success), gdbFd, this);
+
+    CFSocketNativeHandle fd = failure ? 0 : mLib.deviceConnectionGetSocket(conn);
+    auto status = failure ? IosDeviceManager::Failure : IosDeviceManager::Success;
+    IosDeviceManagerPrivate::instance()->didStartApp(bundlePath, deviceId, status, conn, fd, this);
     return !failure;
 }
 
@@ -1533,7 +1413,8 @@ QString AppOpSession::appPathOnDevice()
                                  (const void**)(&lookupKeys), 1,
                                  &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
     CFRelease(lookupKeys);
-    if (int err = lib()->deviceLookupApplications(device, options, &apps)) {
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    if (int err = mLib.deviceLookupApplications(device, options, &apps)) {
         addError(QString::fromLatin1("app lookup failed, AMDeviceLookupApplications returned %1")
                  .arg(err));
     }
@@ -1595,7 +1476,8 @@ QString DevInfoSession::getStringValue(AMDevice *device,
                                        const QString &fallback)
 {
     QString value = fallback;
-    CFPropertyListRef cfValue = lib()->deviceCopyValue(device, domain, key);
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+    CFPropertyListRef cfValue = mLib.deviceCopyValue(device, domain, key);
     if (cfValue) {
         if (CFGetTypeID(cfValue) == CFStringGetTypeID())
             value = QString::fromCFString(reinterpret_cast<CFStringRef>(cfValue));
@@ -1655,318 +1537,7 @@ void DevInfoSession::deviceCallbackReturned()
 
 // ------- MobileDeviceLib implementation --------
 
-MobileDeviceLib::MobileDeviceLib() { }
 
-bool MobileDeviceLib::load()
-{
-#ifdef MOBILE_DEV_DIRECT_LINK
-    m_AMDSetLogLevel = &AMDSetLogLevel;
-    m_AMDeviceNotificationSubscribe = &AMDeviceNotificationSubscribe;
-    //m_AMDeviceNotificationUnsubscribe = &AMDeviceNotificationUnsubscribe;
-    m_AMDeviceCopyValue = &AMDeviceCopyValue;
-    m_AMDeviceGetConnectionID = &AMDeviceGetConnectionID;
-    m_AMDeviceCopyDeviceIdentifier = &AMDeviceCopyDeviceIdentifier;
-    m_AMDeviceConnect = &AMDeviceConnect;
-    //m_AMDevicePair = &AMDevicePair;
-    m_AMDeviceIsPaired = &AMDeviceIsPaired;
-    m_AMDeviceValidatePairing = &AMDeviceValidatePairing;
-    m_AMDeviceStartSession = &AMDeviceStartSession;
-    m_AMDeviceStopSession = &AMDeviceStopSession;
-    m_AMDeviceDisconnect = &AMDeviceDisconnect;
-    m_AMDeviceMountImage = &AMDeviceMountImage;
-    m_AMDeviceStartService = &AMDeviceStartService;
-    m_AMDeviceTransferApplication = &AMDeviceTransferApplication;
-    m_AMDeviceInstallApplication = &AMDeviceInstallApplication;
-    //m_AMDeviceUninstallApplication = &AMDeviceUninstallApplication;
-    //m_AMDeviceLookupApplications = &AMDeviceLookupApplications;
-    m_USBMuxConnectByPort = &USBMuxConnectByPort;
-#else
-    QLibrary *libAppleFSCompression = new QLibrary(QLatin1String("/System/Library/PrivateFrameworks/AppleFSCompression.framework/AppleFSCompression"));
-    if (!libAppleFSCompression->load())
-        addError("MobileDevice dependency AppleFSCompression failed to load");
-    deps << libAppleFSCompression;
-    QLibrary *libBom = new QLibrary(QLatin1String("/System/Library/PrivateFrameworks/Bom.framework/Bom"));
-    if (!libBom->load())
-        addError("MobileDevice dependency Bom failed to load");
-    deps << libBom;
-    lib.setFileName(QLatin1String("/System/Library/PrivateFrameworks/MobileDevice.framework/MobileDevice"));
-    if (!lib.load())
-        return false;
-    m_AMDSetLogLevel = reinterpret_cast<AMDSetLogLevelPtr>(lib.resolve("AMDSetLogLevel"));
-    if (m_AMDSetLogLevel == 0)
-        addError("MobileDeviceLib does not define AMDSetLogLevel");
-    m_AMDeviceNotificationSubscribe = reinterpret_cast<AMDeviceNotificationSubscribePtr>(lib.resolve("AMDeviceNotificationSubscribe"));
-    if (m_AMDeviceNotificationSubscribe == 0)
-        addError("MobileDeviceLib does not define AMDeviceNotificationSubscribe");
-    m_AMDeviceNotificationUnsubscribe = reinterpret_cast<AMDeviceNotificationUnsubscribePtr>(lib.resolve("AMDeviceNotificationUnsubscribe"));
-    if (m_AMDeviceNotificationUnsubscribe == 0)
-        addError("MobileDeviceLib does not define AMDeviceNotificationUnsubscribe");
-    m_AMDeviceGetInterfaceType = reinterpret_cast<AMDeviceGetInterfaceTypePtr>(lib.resolve("AMDeviceGetInterfaceType"));
-    if (m_AMDeviceGetInterfaceType == 0)
-        addError("MobileDeviceLib does not define AMDeviceGetInterfaceType");
-    m_AMDeviceCopyValue = reinterpret_cast<AMDeviceCopyValuePtr>(lib.resolve("AMDeviceCopyValue"));
-    if (m_AMDSetLogLevel == 0)
-        addError("MobileDeviceLib does not define AMDSetLogLevel");
-    m_AMDeviceGetConnectionID = reinterpret_cast<AMDeviceGetConnectionIDPtr>(lib.resolve("AMDeviceGetConnectionID"));
-    if (m_AMDeviceGetConnectionID == 0)
-        addError("MobileDeviceLib does not define AMDeviceGetConnectionID");
-    m_AMDeviceCopyDeviceIdentifier = reinterpret_cast<AMDeviceCopyDeviceIdentifierPtr>(lib.resolve("AMDeviceCopyDeviceIdentifier"));
-    if (m_AMDeviceCopyDeviceIdentifier == 0)
-        addError("MobileDeviceLib does not define AMDeviceCopyDeviceIdentifier");
-    m_AMDeviceConnect = reinterpret_cast<AMDeviceConnectPtr>(lib.resolve("AMDeviceConnect"));
-    if (m_AMDeviceConnect == 0)
-        addError("MobileDeviceLib does not define AMDeviceConnect");
-    m_AMDevicePair = reinterpret_cast<AMDevicePairPtr>(lib.resolve("AMDevicePair"));
-    if (m_AMDevicePair == 0)
-        addError("MobileDeviceLib does not define AMDevicePair");
-    m_AMDeviceIsPaired = reinterpret_cast<AMDeviceIsPairedPtr>(lib.resolve("AMDeviceIsPaired"));
-    if (m_AMDeviceIsPaired == 0)
-        addError("MobileDeviceLib does not define AMDeviceIsPaired");
-    m_AMDeviceValidatePairing = reinterpret_cast<AMDeviceValidatePairingPtr>(lib.resolve("AMDeviceValidatePairing"));
-    if (m_AMDeviceValidatePairing == 0)
-        addError("MobileDeviceLib does not define AMDeviceValidatePairing");
-    m_AMDeviceStartSession = reinterpret_cast<AMDeviceStartSessionPtr>(lib.resolve("AMDeviceStartSession"));
-    if (m_AMDeviceStartSession == 0)
-        addError("MobileDeviceLib does not define AMDeviceStartSession");
-    m_AMDeviceStopSession = reinterpret_cast<AMDeviceStopSessionPtr>(lib.resolve("AMDeviceStopSession"));
-    if (m_AMDeviceStopSession == 0)
-        addError("MobileDeviceLib does not define AMDeviceStopSession");
-    m_AMDeviceDisconnect = reinterpret_cast<AMDeviceDisconnectPtr>(lib.resolve("AMDeviceDisconnect"));
-    if (m_AMDeviceDisconnect == 0)
-        addError("MobileDeviceLib does not define AMDeviceDisconnect");
-    m_AMDeviceMountImage = reinterpret_cast<AMDeviceMountImagePtr>(lib.resolve("AMDeviceMountImage"));
-    if (m_AMDeviceMountImage == 0)
-        addError("MobileDeviceLib does not define AMDeviceMountImage");
-    m_AMDeviceSecureStartService = reinterpret_cast<AMDeviceSecureStartServicePtr>(lib.resolve("AMDeviceSecureStartService"));
-    if (m_AMDeviceSecureStartService == 0)
-        addError("MobileDeviceLib does not define AMDeviceSecureStartService");
-    m_AMDeviceSecureTransferPath = reinterpret_cast<AMDeviceSecureTransferPathPtr>(lib.resolve("AMDeviceSecureTransferPath"));
-    if (m_AMDeviceSecureTransferPath == 0)
-        addError("MobileDeviceLib does not define AMDeviceSecureTransferPath");
-    m_AMDeviceSecureInstallApplication = reinterpret_cast<AMDeviceSecureInstallApplicationPtr>(lib.resolve("AMDeviceSecureInstallApplication"));
-    if (m_AMDeviceSecureInstallApplication == 0)
-        addError("MobileDeviceLib does not define AMDeviceSecureInstallApplication");
-    m_AMDServiceConnectionGetSocket = reinterpret_cast<AMDServiceConnectionGetSocketPtr>(lib.resolve("AMDServiceConnectionGetSocket"));
-    if (m_AMDServiceConnectionGetSocket == nullptr)
-        addError("MobileDeviceLib does not define AMDServiceConnectionGetSocket");
-    m_AMDeviceUninstallApplication = reinterpret_cast<AMDeviceUninstallApplicationPtr>(lib.resolve("AMDeviceUninstallApplication"));
-    if (m_AMDeviceUninstallApplication == 0)
-        addError("MobileDeviceLib does not define AMDeviceUninstallApplication");
-    m_AMDeviceLookupApplications = reinterpret_cast<AMDeviceLookupApplicationsPtr>(lib.resolve("AMDeviceLookupApplications"));
-    if (m_AMDeviceLookupApplications == 0)
-        addError("MobileDeviceLib does not define AMDeviceLookupApplications");
-    m_AMDErrorString = reinterpret_cast<AMDErrorStringPtr>(lib.resolve("AMDErrorString"));
-    if (m_AMDErrorString == 0)
-        addError("MobileDeviceLib does not define AMDErrorString");
-    m_MISCopyErrorStringForErrorCode = reinterpret_cast<MISCopyErrorStringForErrorCodePtr>(lib.resolve("MISCopyErrorStringForErrorCode"));
-    if (m_MISCopyErrorStringForErrorCode == 0)
-        addError("MobileDeviceLib does not define MISCopyErrorStringForErrorCode");
-    m_USBMuxConnectByPort = reinterpret_cast<USBMuxConnectByPortPtr>(lib.resolve("USBMuxConnectByPort"));
-    if (m_USBMuxConnectByPort == 0)
-        addError("MobileDeviceLib does not define USBMuxConnectByPort");
-#endif
-    return true;
-}
-
-bool MobileDeviceLib::isLoaded()
-{
-    return lib.isLoaded();
-}
-
-QStringList MobileDeviceLib::errors()
-{
-    return m_errors;
-}
-
-void MobileDeviceLib::setLogLevel(int i)
-{
-    if (m_AMDSetLogLevel)
-        m_AMDSetLogLevel(i);
-}
-
-am_res_t MobileDeviceLib::deviceNotificationSubscribe(AMDeviceNotificationCallback callback,
-                                           unsigned int v1, unsigned int v2, void *callbackArgs,
-                                           const AMDeviceNotification **handle)
-{
-    if (m_AMDeviceNotificationSubscribe)
-        return m_AMDeviceNotificationSubscribe(callback,v1,v2,callbackArgs,handle);
-    return -1;
-}
-
-am_res_t MobileDeviceLib::deviceNotificationUnsubscribe(void *handle)
-{
-    if (m_AMDeviceNotificationUnsubscribe)
-        return m_AMDeviceNotificationUnsubscribe(handle);
-    return -1;
-}
-
-int MobileDeviceLib::deviceGetInterfaceType(AMDeviceRef device)
-{
-    if (m_AMDeviceGetInterfaceType)
-        return m_AMDeviceGetInterfaceType(device);
-    return DeviceInterfaceType::UNKNOWN;
-}
-
-CFPropertyListRef MobileDeviceLib::deviceCopyValue(AMDeviceRef device,CFStringRef group,CFStringRef key)
-{
-    if (m_AMDeviceCopyValue)
-        return m_AMDeviceCopyValue(device, group, key);
-    return 0;
-}
-
-unsigned int MobileDeviceLib::deviceGetConnectionID(AMDeviceRef device)
-{
-    if (m_AMDeviceGetConnectionID)
-        return m_AMDeviceGetConnectionID(device);
-    return -1;
-}
-
-CFStringRef MobileDeviceLib::deviceCopyDeviceIdentifier(AMDeviceRef device)
-{
-    if (m_AMDeviceCopyDeviceIdentifier)
-        return m_AMDeviceCopyDeviceIdentifier(device);
-    return 0;
-}
-
-am_res_t MobileDeviceLib::deviceConnect(AMDeviceRef device)
-{
-    if (m_AMDeviceConnect)
-        return m_AMDeviceConnect(device);
-    return -1;
-}
-
-am_res_t MobileDeviceLib::devicePair(AMDeviceRef device)
-{
-    if (m_AMDevicePair)
-        return m_AMDevicePair(device);
-    return -1;
-}
-
-am_res_t MobileDeviceLib::deviceIsPaired(AMDeviceRef device)
-{
-    if (m_AMDeviceIsPaired)
-        return m_AMDeviceIsPaired(device);
-    return -1;
-}
-
-am_res_t MobileDeviceLib::deviceValidatePairing(AMDeviceRef device)
-{
-    if (m_AMDeviceValidatePairing)
-        return m_AMDeviceValidatePairing(device);
-    return -1;
-}
-
-am_res_t MobileDeviceLib::deviceStartSession(AMDeviceRef device)
-{
-    if (m_AMDeviceStartSession)
-        return m_AMDeviceStartSession(device);
-    return -1;
-}
-
-am_res_t MobileDeviceLib::deviceStopSession(AMDeviceRef device)
-{
-    if (m_AMDeviceStopSession)
-        return m_AMDeviceStopSession(device);
-    return -1;
-}
-
-am_res_t MobileDeviceLib::deviceDisconnect(AMDeviceRef device)
-{
-    if (m_AMDeviceDisconnect)
-        return m_AMDeviceDisconnect(device);
-    return -1;
-}
-
-am_res_t MobileDeviceLib::deviceMountImage(AMDeviceRef device, CFStringRef imagePath,
-                                                 CFDictionaryRef options,
-                                                 AMDeviceMountImageCallback callback,
-                                                 void *callbackExtraArgs)
-{
-    if (m_AMDeviceMountImage)
-        return m_AMDeviceMountImage(device, imagePath, options, callback, callbackExtraArgs);
-    return -1;
-}
-
-am_res_t MobileDeviceLib::deviceUninstallApplication(int serviceFd, CFStringRef bundleId,
-                                                           CFDictionaryRef options,
-                                                           AMDeviceInstallApplicationCallback callback,
-                                                           void *callbackExtraArgs)
-{
-    if (m_AMDeviceUninstallApplication)
-        return m_AMDeviceUninstallApplication(serviceFd, bundleId, options, callback, callbackExtraArgs);
-    return -1;
-}
-
-am_res_t MobileDeviceLib::deviceLookupApplications(AMDeviceRef device, CFDictionaryRef options,
-                                                         CFDictionaryRef *res)
-{
-    if (m_AMDeviceLookupApplications)
-        return m_AMDeviceLookupApplications(device, options, res);
-    return -1;
-}
-
-char *MobileDeviceLib::errorString(am_res_t error)
-{
-    if (m_AMDErrorString)
-        return m_AMDErrorString(error);
-    return 0;
-}
-
-CFStringRef MobileDeviceLib::misErrorStringForErrorCode(am_res_t error)
-{
-    if (m_MISCopyErrorStringForErrorCode)
-        return m_MISCopyErrorStringForErrorCode(error);
-    return NULL;
-}
-
-am_res_t MobileDeviceLib::connectByPort(unsigned int connectionId, int port, ServiceSocket *resFd)
-{
-    if (m_USBMuxConnectByPort)
-        return m_USBMuxConnectByPort(connectionId, port, resFd);
-    return -1;
-}
-
-void MobileDeviceLib::addError(const QString &msg)
-{
-    qDebug() << "MobileDeviceLib ERROR:" << msg;
-    m_errors << QLatin1String("MobileDeviceLib ERROR:") << msg;
-}
-
-void MobileDeviceLib::addError(const char *msg)
-{
-    addError(QLatin1String(msg));
-}
-
-am_res_t MobileDeviceLib::deviceSecureStartService(AMDeviceRef device, CFStringRef serviceName, ServiceConnRef *fdRef)
-{
-    if (m_AMDeviceSecureStartService)
-        return m_AMDeviceSecureStartService(device, serviceName, nullptr, fdRef);
-    return 0;
-}
-
-int MobileDeviceLib::deviceSecureTransferApplicationPath(int zero, AMDeviceRef device, CFURLRef url, CFDictionaryRef dict, AMDeviceSecureInstallApplicationCallback callback, int args)
-{
-    int returnCode = -1;
-    if (m_AMDeviceSecureTransferPath)
-        returnCode = m_AMDeviceSecureTransferPath(zero, device, url, dict, callback, args);
-    return returnCode;
-}
-
-int MobileDeviceLib::deviceSecureInstallApplication(int zero, AMDeviceRef device, CFURLRef url, CFDictionaryRef options, AMDeviceSecureInstallApplicationCallback callback, int arg)
-{
-    int returnCode = -1;
-    if (m_AMDeviceSecureInstallApplication) {
-        returnCode = m_AMDeviceSecureInstallApplication(zero, device, url, options, callback, arg);
-    }
-    return returnCode;
-}
-
-int MobileDeviceLib::deviceConnectionGetSocket(ServiceConnRef ref) {
-    int fd = 0;
-    if (m_AMDServiceConnectionGetSocket)
-        fd = m_AMDServiceConnectionGetSocket(ref);
-    return fd;
-}
 
 void CommandSession::internalDeviceAvailableCallback(QString deviceId, AMDeviceRef device)
 {
@@ -2010,14 +1581,14 @@ void IosDeviceManager::requestDeviceInfo(const QString &deviceId, int timeout)
     d->requestDeviceInfo(deviceId, timeout);
 }
 
-int IosDeviceManager::processGdbServer(int fd)
+int IosDeviceManager::processGdbServer(ServiceConnRef conn)
 {
-    return d->processGdbServer(fd);
+    return d->processGdbServer(conn);
 }
 
-void IosDeviceManager::stopGdbServer(int fd, int phase)
+void IosDeviceManager::stopGdbServer(ServiceConnRef conn, int phase)
 {
-    return d->stopGdbServer(fd, phase);
+    return d->stopGdbServer(conn, phase);
 }
 
 QStringList IosDeviceManager::errors() {

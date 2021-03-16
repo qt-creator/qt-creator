@@ -41,7 +41,7 @@ ScrollBar {
     padding: 0
 
     background: Rectangle {
-        color: StudioTheme.Values.themeSectionHeadBackground
+        color: StudioTheme.Values.themeScrollBarTrack
     }
 
     contentItem: Rectangle {

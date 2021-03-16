@@ -1,8 +1,6 @@
-
-
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -24,6 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Templates 2.12 as T
