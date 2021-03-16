@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -53,8 +53,8 @@
         \li \l {Log In UI - Part 3}
     \endlist
 
-    The \e {Learn Qt Quick} sections provide additional information about the
-    features of QML and Qt Quick that are relevant to the task at hand.
+    The \e {Learn More} sections provide additional information relevant to the
+    task at hand.
 
     \section1 Animating UI Components
 
@@ -287,14 +287,14 @@
 
     \image loginui4.gif "Moving between login page and registration page"
 
-    \section2 Learn Qt Quick - Timeline
+    \section2 Learn More - Timeline
 
-    The Qt Quick Timeline module provides QML types to use timelines and
+    The Qt Quick Timeline module provides components to use timelines and
     keyframes to animate component properties in UIs. Animating properties
     enables their values to move through intermediate values instead of
     immediately changing to the target value.
 
-    The Keyframe type specifies the value of a keyframe on a timeline. \QDS
+    The Keyframe component specifies the value of a keyframe on a timeline. \QDS
     automatically adds keyframes between two keyframes, and sets their values
     evenly to create an appearance of movement or transformation.
 
@@ -302,14 +302,15 @@
     of the animation. For more information about easing curve types, see the
     documentation for \l [QML] {PropertyAnimation}{easing curves}.
 
-    To be able to use the functionality of Qt Quick Timeline types, \QDS adds
-    the following \e import statement to the QML files where it uses the types:
+    To be able to use the functionality of Timeline components, \QDS adds
+    the following \e import statement to the UI files where it uses the
+    components:
 
     \quotefromfile loginui4/Screen01.ui.qml
     \skipto QtQuick.Timeline
     \printuntil 1.0
 
-    All the properties and functions of the QML types from this module are
+    All the properties and functions of the components from this module are
     available in the Design mode, and therefore it is enough to learn how to
     use \uicontrol Timeline, as described in \l {Creating Animations}.
 

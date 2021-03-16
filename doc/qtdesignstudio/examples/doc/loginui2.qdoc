@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -48,8 +48,8 @@
 
     These instructions build on \l {Log In UI - Part 1}.
 
-    The \e {Learn Qt Quick} sections provide additional information about the
-    features of QML and Qt Quick that are relevant to the task at hand.
+    The \e {Learn More} sections provide additional information about the
+    task at hand.
 
     \section1 Anchoring UI Components
 
@@ -91,23 +91,23 @@
 
     \image loginui2-loginpage.png "Login page in the Design mode"
 
-    \section2 Learn Qt Quick - Anchors
+    \section2 Learn More - Anchors
 
-    In an anchor-based layout, each QML type can be thought of as having a set
+    In an anchor-based layout, each component can be thought of as having a set
     of invisible \e anchor lines: top, bottom, left, right, fill, horizontal
     center, vertical center, and baseline.
 
-    Anchors enable placing an object either adjacent to or inside of another
-    object, by attaching one or more of the object's anchor lines to the anchor
-    lines of the other object. If an object changes, the objects that are
-    anchored to it will adjust automatically to maintain the anchoring.
+    Anchors enable placing a component either adjacent to or inside of another
+    component, by attaching one or more of the component's anchor lines to the
+    anchor lines of the other component. If a component changes, the components
+    that are anchored to it will adjust automatically to maintain the anchoring.
 
     For more information, see \l{Positioning with Anchors}.
 
     \section1 Using Column Positioners
 
     You will now add two entry fields to the page and position them in a column
-    to learn another method of \l{Using Positioners}{positioning items}.
+    to learn another method of \l{Using Positioners}{positioning components}.
     Next, you will position the push buttons on the page in another column.
     Finally, you will anchor the columns to the page to enable their positions
     to change when the screen size changes.
@@ -115,15 +115,15 @@
     To add entry fields to the page:
 
     \list 1
-        \li In \uicontrol Library > \uicontrol {QML Types}, select the
-            \uicontrol {+ \QtQuick.Controls} button to display the
-            \l {Qt Quick Controls 2} types in the tab:
+        \li In \l Library > \uicontrol Components, select the
+            \inlineimage plus.png
+            button to add the \l {Qt Quick Controls} module to the project:
             \image loginui2-imports.png
         \li Drag and drop two instances of the \uicontrol {Text Field}
-            type from the \uicontrol {Qt Quick Controls 2} tab to
-            \uicontrol {Form Editor}.
-        \li Select one of the text fields in \uicontrol Navigator, and
-            change its id to \e usernameField in \uicontrol Properties.
+            component from the \uicontrol {Qt Quick Controls} tab to
+            \l {Form Editor}.
+        \li Select one of the text fields in \l Navigator, and
+            change its id to \e usernameField in \l Properties.
         \li In the \uicontrol Geometry group, \uicontrol Size field,
             make the field wide enough to accommodate long user names
             by setting its width to \e 300 pixels.
@@ -136,7 +136,7 @@
             and width to \e 300 pixels.
     \endlist
 
-    The Text Field type has additional properties that you can use to change
+    The Text Field component has additional properties that you can use to change
     its appearance. For example, you can change the color, font, alignment, or
     word and letter spacing of the placeholder text.
 
@@ -187,21 +187,17 @@
 
     \image loginui2-loginpage-ready.png "Login page in the Design mode"
 
-    \section1 Learn Qt Quick - Positioners
+    \section1 Learn More - Positioners
 
-    Qt Quick provides built-in positioner items. For many use cases, the best
-    positioner to use is a simple grid, row, or column, and Qt Quick provides
-    items that will position children in these formations in the most efficient
-    manner possible. For more information about using pre-defined positioners,
-    see \l {Item Positioners}.
+    For many use cases, the best positioner to use is a simple grid, row, or
+    column, and \QDS provides components that will position children in these
+    formations in the most efficient manner possible. For more information
+    about using preset positioners, see \l {Using Positioners}.
 
-    For more complicated UI designs, you can use QML types from the
-    \l {Qt Quick Layouts Overview}{Qt Quick Layouts module}.
+    For more complicated UI designs, you can use components from the
+    \l {Using Layouts}{Qt Quick Layouts module}.
 
     \section1 Next Steps
-
-    To learn more about positioning items in \QDS, see
-    \l{Positioning Items}.
 
     To learn how to add a second page and move to it from the main page, see
     the next tutorial in the series, \l {Log In UI - Part 3}.

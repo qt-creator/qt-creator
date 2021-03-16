@@ -52,15 +52,15 @@
                 target platforms.
 
             \li \uicontrol {Qt Quick Application - Scroll} uses the
-                \l{ScrollView} type to implement a scrollable list view
+                \l{ScrollView} component to implement a scrollable list view
                 (requires Qt 5.9 or later).
 
             \li \uicontrol {Qt Quick Application - Stack} uses the
-                \l{StackView} type to implement a set of pages with a stack-based
+                \l{StackView} component to implement a set of pages with a stack-based
                 navigation model (requires Qt 5.7 or later).
 
             \li \uicontrol {Qt Quick Application - Swipe} uses the
-                \l{SwipeView} type to implement a set of pages with a swipe-based
+                \l{SwipeView} component to implement a set of pages with a swipe-based
                 navigation model (requires Qt 5.7 or later).
 
             \endlist
@@ -179,7 +179,7 @@
     \e main.qml, that you can modify in the \uicontrol {Form Editor}
     or the \uicontrol {Text Editor}.
 
-    For the Stack and Swipe applications, \QC generates two UI files,
+    For the Stack and Swipe applications, \QC generates two \l{UI Files}{UI files},
     \e Page1Form.ui.qml and \e Page2Form.ui.qml, that you can modify in the
     \uicontrol {Form Editor} and a QML file, \e main.qml, that you can
     modify in the \uicontrol {Text Editor} to add the application logic.
@@ -269,7 +269,7 @@
             files in the project folder belong to the project. Therefore, you do
             not need to individually list all the files in the project.
 
-        \li .qml file defines an UI item, such as a component or the
+        \li .qml file defines a UI item, such as a component or the
             whole application UI.
 
         \li ui.qml file defines a form for the application UI. This file is

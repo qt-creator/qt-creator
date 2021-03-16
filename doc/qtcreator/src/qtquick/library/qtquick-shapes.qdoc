@@ -45,18 +45,18 @@
     \image studio-shapes.png "Shapes in Form Editor"
 
     \else
-    You can use the Rectangle type to draw basic shapes in
-    \uicontrol {Form Editor}.
+    You can use the Rectangle component to draw basic shapes in
+    \l {Form Editor}.
     \image qml-shapes.png "Shapes in Form Editor"
     \endif
 
-    Most visual types in \uicontrol Library are based on the \l [QtQuick]
-    {Item} type. Even though it has no visual appearance itself (similarly
+    Most visual components in \uicontrol Library are based on the \l [QtQuick]
+    {Item} component. Even though it has no visual appearance itself (similarly
     to a mouse area, for example), it defines all the properties that are
-    common across visual types, such as position, size, and visibility. For
+    common across visual components, such as position, size, and visibility. For
     more information, see \l{Specifying Basic Component Properties}.
 
-    In addition, each type has a set of properties that specify its visual
+    In addition, each component has a set of properties that specify its visual
     appearance and behavior. You can modify the property values to set fill
     and border colors, stroke width, and other characteristics of the shapes.
 
@@ -67,7 +67,7 @@
     \target basic-rectangle
     \section1 Rectangle
 
-    The basic \l [QtQuick] {Rectangle} QML type is used for drawing shapes
+    The basic \l [QtQuick] {Rectangle} component is used for drawing shapes
     with four sides and corners, as well as a solid border.
 
     \if defined(qtdesignstudio)
@@ -101,9 +101,9 @@
     \section2 Studio Rectangle
 
     If you want to modify each corner of the rectangle independently
-    or use a dashed border, select the Rectangle type in the
+    or use a dashed border, select the Rectangle component in the
     \uicontrol {Studio Components} tab of \uicontrol Library instead
-    of the basic rectangle type.
+    of the basic rectangle component.
 
     By setting the values of properties in the \uicontrol {Corner Radiuses}
     group, you can draw each corner independently. By using radius values
@@ -121,7 +121,7 @@
 
     \section1 Border
 
-    The Border type is used to create borders out of four segments:
+    The Border component is used to create borders out of four segments:
     left, top, right, and bottom. By selecting the \uicontrol {Draw top},
     \uicontrol {Draw right}, \uicontrol {Draw bottom}, and
     \uicontrol {Draw left} check boxes, you can determine whether each
@@ -141,7 +141,7 @@
     line.
 
     In the \uicontrol {Border mode} field, you can specify whether the border
-    is drawn along the inside or outside edge of the item, or on top of the
+    is drawn along the inside or outside edge of the component, or on top of the
     edge.
 
     If you select a dashed or dotted pattern in the \uicontrol {Stroke style}
@@ -170,8 +170,8 @@
 
     \section1 Triangle
 
-    The Triangle type can be used to draw triangles with different dimensions
-    and shapes. The type is enclosed in an invisible rectangle that determines
+    The Triangle component can be used to draw triangles with different dimensions
+    and shapes. The component is enclosed in an invisible rectangle that determines
     its size. The dimensions of the triangle can be changed to make it elongated
     or squatter with space around it by setting the left, right, top, and bottom
     margins in the \uicontrol Margins group. The margins are set between the
@@ -210,7 +210,7 @@
 
     \section1 Pie
 
-    The Pie type is used to create a pie slice, a pie that is missing slices,
+    The Pie component is used to create a pie slice, a pie that is missing slices,
     or just the pie rind (similar to an arc), depending on the values of the
     \uicontrol Begin, \uicontrol End, and \uicontrol {Hide line} properties.
 
@@ -222,10 +222,10 @@
 
     \section1 Summary of Shapes
 
-    The following table lists the QML types that you can use to draw shapes.
-    The \e Location column contains the tab name where you can find the type
-    in \uicontrol Library. The \e MCU column indicates which types are supported
-    on MCUs.
+    The following table lists the components that you can use to draw shapes.
+    The \e Location column contains the tab name where you can find the
+    component in \l Library > \uicontrol Components. The \e MCU column
+    indicates which components are supported on MCUs.
 
     \table
     \header
@@ -255,7 +255,7 @@
     \row
         \li \inlineimage rect-icon16.png
         \li \l Rectangle
-        \li Qt Quick - Basic
+        \li Default Components - Basic
         \li \inlineimage ok
         \li A rectangle that is painted with a solid fill color or linear
             gradient and an optional border. You can use the radius property

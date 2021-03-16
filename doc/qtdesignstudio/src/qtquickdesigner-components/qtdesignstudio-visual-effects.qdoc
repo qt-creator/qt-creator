@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -30,24 +30,23 @@
 
     \title 2D Effects
 
-    \QDS provides a set of Qt Quick Studio effects that inherit the types in the
-    \l {Qt Graphical Effects} module. To apply a visual effect to a component,
-    drag-and-drop it from \uicontrol Library > \uicontrol Effects to the
-    component in \uicontrol Navigator.
+    \QDS provides a set of effects that you can apply to components by
+    dragging-and-dropping them from \l Library > \uicontrol Components
+    > \uicontrol {Qt Quick Studio Effects} to the component in \l Navigator.
 
     \image studio-2d-effects.png "Effects tab in Library"
 
     Effects have one or more source properties for specifying the visual input
-    for which the effect is applied to an item. The altered visual output is
-    then presented in the effect item itself. The source can be another, often
-    hidden, item in the QML scene. More complex effects can have multiple
-    sources. The source item type can be any QML type, even video or another
+    for which the effect is applied to a component. The altered visual output is
+    then presented in the effect component itself. The source can be another,
+    often hidden, component in the scene. More complex effects can have multiple
+    sources. The source component can be any component, even video or another
     effect. Pipelining multiple effects together is a simple way to create
     even more impressive output.
 
     Each effect has a set of properties that can be used to configure the effect
-    output. Properties can be animated just like any other QML properties. The
-    QML type documentation contains property descriptions and basic usage
+    output. They can be animated just like any other properties. The
+    component documentation contains property descriptions and basic usage
     examples.
 
     In addition to the effects described in this topic, you can set linear,
@@ -64,29 +63,29 @@
     cache when the source or the effect properties are animated.
 
     The \uicontrol {Transparent border} property determines the blur behavior
-    near the edges of the item, where the pixel blurring is affected by
+    near the edges of the component, where the pixel blurring is affected by
     the pixels outside the source edges.
 
     If the property is set to \c true, the pixels outside the source are
     interpreted as being transparent, which is similar to OpenGL clamp-to-border
-    extension. The blur is expanded slightly outside the effect item area.
+    extension. The blur is expanded slightly outside the effect component area.
 
     If the property is set to \c false, the pixels outside the source are
     interpreted as containing the same color as the pixels at the edge of
-    the item, which is similar to OpenGL clamp-to-edge behavior. The blur
-    does not expand outside the effect item area.
+    the component, which is similar to OpenGL clamp-to-edge behavior. The blur
+    does not expand outside the effect component area.
 
     \section1 Summary of 2D Effects
 
     The following table summarizes the available effects and contains links to
-    the documentation of the inherited QML type.
+    the developer documentation of the inherited component.
 
     \note The effects are available when running with OpenGL.
 
     \table
     \header
         \li Icon
-        \li Qt Quick Studio Effect
+        \li Effect
         \li Description
     \row
         \li \inlineimage icons/blend-mode-16px.png
@@ -122,13 +121,13 @@
             \uicontrol Desaturation field. The value ranges from \c 0.0
             (no change) to \c 1.0 (desaturated). Desaturated pixel values are
             calculated as averages of the original RGB component values
-            of the source item.
+            of the source component.
     \row
         \li \inlineimage icons/directional-blur-16px.png
         \li \l {DirectionalBlur}{Directional Blur}
         \li Applies a blur effect to the specified direction. The value of the
             \uicontrol Angle field, defines the direction of the blur. This
-            effect makes the source item appear to be moving in the direction of
+            effect makes the source component appear to be moving in the direction of
             the blur. Blur is applied to both sides of each pixel, and therefore
             setting the direction to \c 0 and \c 180 provides the same result.
 
@@ -142,7 +141,7 @@
     \row
         \li \inlineimage icons/displace-16px.png
         \li \l Displace
-        \li Moves the pixels of the source item according to the displacement
+        \li Moves the pixels of the source component according to the displacement
             map specified in the \uicontrol {Displacement source} field.
 
             The value of the \uicontrol Displacement field specifies the
@@ -156,7 +155,7 @@
         \li \l {DropShadow}{Drop Shadow}
         \li Generates a soft shadow behind the source component using a
             gaussian blur. This effect blurs the alpha channel of the input and
-            colorizes the result, which it then places behind the source object
+            colorizes the result, which it then places behind the source component
             to create a soft shadow. You can set the shadow's color in the
             \uicontrol {Drop Shadow Color} field and change its location in the
             \uicontrol {Horizontal offset} and \uicontrol {Vertical offset}
@@ -192,7 +191,7 @@
     \row
         \li \inlineimage icons/gamma-adjust-16px.png
         \li \l [QML] {GammaAdjust}{Gamma Adjust}
-        \li Alters the luminance of the source item. This effect is applied
+        \li Alters the luminance of the source component. This effect is applied
             to each pixel according to the curve that is pre-defined as a
             power-law expression, where the value of the \uicontrol Gamma
             field is used as the reciprocal scaling exponent.
@@ -223,7 +222,7 @@
         \li Generates a halo-like glow around the source component. This effect
             blurs the alpha channel of the source and colorizes it with
             \uicontrol {Glow color}. It then places the alpha channel behind the
-            source, resulting in a halo or glow around the object. The quality
+            source, resulting in a halo or glow around the component. The quality
             of the blurred edge can be controlled by using the values of the
             \uicontrol Samples and \uicontrol Radius and the strength of the
             glow can be changed using the value of the \uicontrol Spread field.
@@ -261,8 +260,8 @@
         \li \inlineimage icons/levels-16px.png
         \li \l {LevelAdjust}{Level Adjust}
         \li Adjusts color levels in the RGBA color space. This effect adjusts
-            the source item colors separately for each color channel. Source
-            item contrast can be adjusted and color balance altered.
+            the source component colors separately for each color channel. Source
+            component contrast can be adjusted and color balance altered.
 
             The value of the \uicontrol Gamma field specifies the change factor
             for how the value of each pixel color channel is altered according
@@ -303,9 +302,9 @@
         \li \inlineimage icons/opacity-mask-16px.png
         \li \l {OpacityMask}{Opacity Mask}
         \li Masks the source component with another component specified in the
-            \uicontrol {Mask source} field. The mask item gets rendered into an
+            \uicontrol {Mask source} field. The mask component gets rendered into an
             intermediate pixel buffer and the alpha values from the result are
-            used to determine the visibility of the source item's pixels in the
+            used to determine the visibility of the source component's pixels in the
             display.
 
             Select the \uicontrol Invert check box to specify that the
@@ -317,7 +316,7 @@
         \li \inlineimage icons/radial-blur-16px.png
         \li \l {RadialBlur}{Radial Blur}
         \li Applies a directional blur effect in a circular direction around the
-            component's center point. This effect makes the source item appear
+            component's center point. This effect makes the source component appear
             to be rotating into the direction of the blur. Other available
             motionblur effects are \uicontrol {Zoom Blur} and
             \uicontrol {Directional Blur}.
@@ -345,7 +344,7 @@
     \row
         \li \inlineimage icons/threshold-16px.png
         \li \l {ThresholdMask}{Threshold Mask}
-        \li Masks the source item with another item specified by
+        \li Masks the source component with another component specified by
             \uicontrol {Mask source}. The value of the \uicontrol Spread
             field determines the smoothness of the mask edges near the
             \uicontrol Threshold alpha value. Setting spread to \c 0.0 uses
@@ -356,7 +355,7 @@
         \li \inlineimage icons/zoom-blur-16px.png
         \li \l {ZoomBlur}{Zoom Blur}
         \li Applies a directional blur effect towards source component's
-            center point. This effect makes the source item appear to be
+            center point. This effect makes the source component appear to be
             moving towards the center point in Z-direction or the camera
             appear to be zooming rapidly.
 

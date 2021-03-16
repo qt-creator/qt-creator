@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -55,11 +55,10 @@
             changed in all the child components, for example.
         \li \l {Adding States}
 
-            Qt Quick allows you to declare various UI states that describe
-            how component properties change from a base state. Therefore,
-            states can be a useful way of organizing your UI
-            logic. You can associate transitions with items to define
-            how their properties will animate when they change due to a state
-            change.
+            You can declare various UI states that describe how component
+            properties change from a base state. Therefore, states can be
+            a useful way of organizing your UI logic. You can associate
+            transitions with components to define how their properties will
+            animate when they change due to a state change.
     \endlist
 */

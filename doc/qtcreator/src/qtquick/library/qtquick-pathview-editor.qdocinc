@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -28,7 +28,7 @@
 
     \section1 Path View
 
-    The Path View type lays out data provided by data models on a \l{Path}.
+    The Path View component lays out data provided by data models on a \l{Path}.
 
     A graphical spline editor enables you to specify path view paths, which
     is a non-trivial task to do in the code editor.
@@ -36,7 +36,7 @@
     \image qmldesigner-pathview-editor.png "Path View editor"
 
     To start editing the path, double-click the path view in
-    \uicontrol {Form Editor}. The editor composes the path of PathCubic path
+    \l {Form Editor}. The editor composes the path of PathCubic path
     objects. They are cubic Bezier curves to a given position with two control
     points. Drag and drop the control points in \uicontrol {Form Editor} to
     construct the curve.
@@ -78,7 +78,7 @@
 
     \section1 SvgPath
 
-    The Svg Path type uses an SVG path data string to draw a path as a line.
+    The Svg Path component uses an SVG path data string to draw a path as a line.
 
     The stroke property values that specify the appearance of the path are
     described in \l{Strokes}.
@@ -89,10 +89,10 @@
     string that  specifies the path. For more information, see
     \l{https://www.w3.org/TR/SVG/paths.html#PathData}{W3C SVG Path Data}.
 
-    \note Mixing SvgPath with other types of elements is not always supported.
+    \note Mixing SvgPath with other types of components is not always supported.
     For example, when \l Shape is backed by \c GL_NV_path_rendering, a
     \l ShapePath can contain one or more SvgPath elements, or one or more
-    elements of other types, but not both.
+    components of other types, but not both.
 
 //! [svgpath]
 */

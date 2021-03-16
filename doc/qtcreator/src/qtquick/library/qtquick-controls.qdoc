@@ -30,13 +30,13 @@
 
     \title User Interaction Methods
 
-    You can use a set of basic QML types to add interaction methods to UIs,
+    You can use a set of basic components to add interaction methods to UIs,
     such as performing actions by using a pointing device or the keyboard,
     or flicking the visible area of the screen horizontally or vertically.
-    Further, you can use \l{Qt Quick Controls} types to inform users about
+    Further, you can use \l{Qt Quick Controls} components to inform users about
     the progress of the application or to gather input from users.
 
-    \image qtquick-designer-qtquickcontrols-types.png "Qt Quick Controls 2 types in Library"
+    \image qtquick-designer-qtquickcontrols-types.png "Qt Quick Controls components in Library"
 
     The following types of controls are available for user interaction:
 
@@ -50,7 +50,7 @@
     \endlist
 
     You can specify values for the properties of components in the
-    \uicontrol Properties view. Some properties are common to all components,
+    \l Properties view. Some properties are common to all components,
     whereas some are common to particular types of controls. Some properties
     are only available for a particular component. The following sections
     describe the basic interaction methods, the controls, and their properties.
@@ -63,17 +63,17 @@
 
     \section2 Mouse Area
 
-    QML uses signals and handlers to deliver mouse interactions. Specifically,
-    Qt Quick provides a \uicontrol {Mouse Area} type that developers can use to
-    define JavaScript callbacks (also called signal handlers), which accept
-    mouse events within a defined area.
+    Signals and handlers are used to deliver mouse interactions. Specifically,
+    you can use a \uicontrol {Mouse Area} component to define JavaScript
+    callbacks (also called signal handlers), which accept mouse events within
+    a defined area.
 
     A mouse area receives events within a defined area. One quick way to define
     this area is to \l{Setting Anchors and Margins}{anchor} the mouse area to
     its parent's area. If the parent is a \l {basic-rectangle}{Rectangle} (or
     any component that is derived from an \l {basic-item}{Item}), the mouse area
     will fill the area defined by the parent's dimensions. Alternatively, you
-    can define an area smaller or larger than the parent. Several controls,such
+    can define an area smaller or larger than the parent. Several controls, such
     as \l {Button}{buttons}, contain a mouse area.
 
     A mouse area emits \l{Connecting Components to Signals}{signals} in response
@@ -102,38 +102,38 @@
     to the focused component. If no component has active focus, the key event
     is ignored. If the component with active focus accepts the key event,
     propagation stops. Otherwise the event is sent to the component's parent
-    until the event is accepted, or the root item is reached and the event is
-    ignored.
+    until the event is accepted, or the root component is reached and the event
+    is ignored.
 
     A component has focus when the \uicontrol Focus property in the
     \uicontrol Advanced tab is set to \c true. However, for reusable
     or imported components, this is not sufficient, and you should use
-    a \uicontrol {Focus Scope} type.
+    a \uicontrol {Focus Scope} component.
 
     Within each focus scope, one object may have focus enabled. If more
     than one component have it enabled, the last component to enable it
     will have the focus and the others are unset, similarly to when there
     are no focus scopes.
 
-    When a focus scope receives active focus, the contained type with
-    focus set (if any) also gets the active focus. If this type is
-    also a focus scope, both the focus scope and the sub-focused item
+    When a focus scope receives active focus, the contained component with
+    focus set (if any) also gets the active focus. If this component is
+    also a focus scope, both the focus scope and the sub-focused component
     will have active focus.
 
-    The \uicontrol {Focus Scope} type is not a visual type, and therefore the
-    properties of its children need to be exposed to the parent item of the
-    focus scope. \l{Using Layouts}{Layouts} and \l{Using Positioners}
-    {positioners} will use these visual and styling properties to create the
-    layout.
+    The \uicontrol {Focus Scope} component is not a visual component and
+    therefore the properties of its children need to be exposed to the parent
+    component of the focus scope. \l{Using Layouts}{Layouts} and
+    \l{Using Positioners}{positioners} will use these visual and styling
+    properties to create the layout.
 
     For more information, see \l {Keyboard Focus in Qt Quick}.
 
     \section2 Flickable
 
     \uicontrol Flickable places its children on a surface that can be dragged
-    and flicked, causing the view onto the child items to scroll. This
+    and flicked, causing the view onto the child components to scroll. This
     behavior forms the basis of components that are designed to show large
-    numbers of child items, such as \uicontrol {List View} and
+    numbers of child components, such as \uicontrol {List View} and
     \uicontrol {Grid View}. For more information, see \l{List and Grid Views}.
 
     In traditional user interfaces, views can be scrolled using standard
@@ -144,14 +144,14 @@
     scrolling continues after the user has stopped touching the view.
 
     The contents of a flickable component are not automatically clipped. If
-    the component is not used as a full-screen item, consider selecting the
+    the component is not used as a full-screen component, consider selecting the
     \uicontrol Clip check box in the \uicontrol Visibility section.
 
     \image qtquick-designer-flickable-properties.png "Flickable properties"
 
     Users can interact with a flickable component if the \uicontrol Interactive
     property is set to \c true. Set it to \c false to temporarily disable
-    flicking. This enables special interaction with the components children.
+    flicking. This enables special interaction with the component's children.
     For example, you might want to freeze a flickable map while scrolling
     through a pop-up that is a child of the Flickable.
 
@@ -202,20 +202,20 @@
 
     The \uicontrol {Content size} field specifies the dimensions of the
     surface controlled by a flickable. Typically, set the values of the
-    \uicontrol W and \uicontrol H fields to the combined size of the items
+    \uicontrol W and \uicontrol H fields to the combined size of the components
     placed in the flickable. You can set additional margins around the
     content in the \uicontrol Margins field.
 
     The \uicontrol Origin field specifies the origin of the content. It
     refers to the top-left position of the content regardless of layout
-    direction. Usually, the \uicontrol X and \uicontrol Y are set to 0.
+    direction. Usually, the \uicontrol X and \uicontrol Y values are set to 0.
     However, a \l{ListView}{List View} and \l {GridView}{Grid View}
-    may have an arbitrary origin due to delegate size variation, or item
+    may have an arbitrary origin due to delegate size variation, or component
     insertion or removal outside the visible region.
 
     \section1 General Control Properties
 
-    You can set control properties in the \uicontrol Properties view.
+    You can set control properties in the \l Properties view.
 
     \image qtquick-designer-control-properties.png "Control section in Properties"
 
@@ -229,7 +229,7 @@
     components, unless it has been explicitly set for them.
 
     \note Take care when enabling wheel events for controls within scrollable
-    items, such as \l Flickable, because the control will consume the
+    components, such as \l Flickable, because the control will consume the
     events, and therefore interrupt scrolling of the flickable.
 
     \uicontrol Spacing is useful for controls that have multiple or repetitive
@@ -296,7 +296,7 @@
     \if defined(qtdesignstudio)
     To create a button that contains an icon, use the wizard template to
     \l{Creating Custom Controls}{create a custom button} and drag-and-drop
-    the icon to the button background item. For an example of using the
+    the icon to the button background component. For an example of using the
     wizard template, see \l{Creating a Push Button}.
     \endif
 
@@ -323,7 +323,7 @@
 
     \image qtquickcontrols2-checkdelegate.gif "Check delegate"
 
-    Use check boxes to build multi-selection option lists, where any number
+    Use check boxes to build multi-selection option lists where any number
     of options can be selected, including none, but the options are not
     mutually exclusive.
 
@@ -346,11 +346,11 @@
     When options can be grouped, you can use a partially checked check box to
     represent the whole group. Select \uicontrol PartiallyChecked in the
     \uicontrol {Check state} field to indicate that users selected some
-    sub-items in the group, but not all of them.
+    sub-components in the group but not all of them.
 
     The checkable options are often listed vertically.
 
-    The check box label should be a statement that the check mark makes true,
+    The check box label should be a statement that the check mark makes true
     and that the absence of a check mark makes false. Therefore, the check box
     label should not contain a negative statement.
 
@@ -421,7 +421,7 @@
     focus. Select the \uicontrol Checkable check box to make a button checkable.
     To make the button checked, select the \uicontrol Checked check box.
 
-    Buttons that belong to the same parent item can be mutually exclusive.
+    Buttons that belong to the same parent component can be mutually exclusive.
     Users can click a button to check it, and the previous selection is
     cleared. Users cannot uncheck the currently checked button by clicking
     it. Instead, they must click another button in the group to set the new
@@ -463,7 +463,7 @@
     that the UI has to wait for the operation to complete.
 
     A busy indicator is similar to an indeterminate \l {Progress Bar}. Both can
-    be used to indicate background activity. The main difference is visual, and
+    be used to indicate background activity. The main difference is visual and
     that a progress bar can also present a concrete amount of progress (when it
     can be determined). Due to the visual difference, busy indicators and
     indeterminate progress bars fit in different places in UIs.
@@ -620,7 +620,7 @@
 
     A flat combo box does not draw a background unless it is
     interacted with, which makes it blend into the UI. Use flat combo
-    boxes on a tool bar, for example, to match the flat look of tool
+    boxes on a toolbar, for example, to match the flat look of tool
     buttons. To create a flat combo box, select the \uicontrol Flat
     check box.
 
@@ -682,24 +682,24 @@
 
     \uicontrol {Tool Bar} contains application-wide and context-sensitive
     actions and controls, such as navigation buttons and search fields. A
-    tool bar is commonly used as a header or footer of an \l ApplicationWindow.
+    toolbar is commonly used as a header or footer of an \l ApplicationWindow.
     Select the toolbar position in the \uicontrol Position field.
 
     \image qtquick-designer-toolbar-properties.png "Tool Bar properties"
 
     \uicontrol {Tool Button} is nearly identical to \l Button, but it has a
     graphical appearance that makes it more suitable for insertion into a
-    tool bar.
+    toolbar.
 
-    A tool bar does not provide a layout of its own, but requires you to
+    A toolbar does not provide a layout of its own, but requires you to
     position its contents, for instance by creating a \l RowLayout. If the
-    tool bar contains only one item, it will resize to fit the implicit item
-    size. This makes a tool bar particularly suitable for use together with
+    toolbar contains only one item, it will resize to fit the implicit item
+    size. This makes a toolbar particularly suitable for use together with
     \l{Using Layouts}{layouts}. However, you can specify content size in the
     \uicontrol {Content width} and \uicontrol {Content height} fields.
 
     \uicontrol {Tool Separator} is used to visually distinguish between
-    groups of items on a tool bar by separating them with a line. It can
+    groups of items on a toolbar by separating them with a line. It can
     be used in horizontal or vertical toolbars by setting the value of
     the \uicontrol Orientation field.
 
@@ -747,10 +747,10 @@
 
     \section1 Summary of User Interaction Methods
 
-    The following table lists the QML types that you can use to add interaction
-    methods to UIs. The \e Location column contains the tab name where you can
-    find the type in \uicontrol Library. The \e MCU column indicates which types
-    are supported on MCUs.
+    The following table lists the components that you can use to add interaction
+    methods to UIs. The \e Location column contains the module where you can
+    find the component in \l Library > \uicontrol Components. The \e MCU column
+    indicates which components are supported on MCUs.
 
     \table
     \header
@@ -762,118 +762,118 @@
     \row
         \li \inlineimage icons/busyindicator-icon16.png
         \li \l [QtQuickControls]{BusyIndicator}{Busy Indicator}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li Indicates activity while content is being loaded.
     \row
         \li \inlineimage icons/button-icon16.png
         \li \l [QtQuickControls]{Button}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li \inlineimage ok
         \li A push button that you can associate with an action.
     \row
         \li \inlineimage icons/checkbox-icon16.png
         \li \l [QtQuickControls]{CheckBox}{Check Box}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li \inlineimage ok
         \li An option button that can be toggled on (checked) or off
             (unchecked).
     \row
         \li \inlineimage icons/checkbox-icon16.png
         \li \l [QtQuickControls]{CheckDelegate}{Check Delegate}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li An item delegate that can be toggled on (checked) or off
             (unchecked).
     \row
         \li \inlineimage icons/combobox-icon16.png
         \li \l [QtQuickControls]{ComboBox}{Combo Box}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li A combined button and popup list that is populated by using a data
             model.
     \row
         \li \inlineimage icons/delaybutton-icon16.png
         \li \l [QtQuickControls]{DelayButton}{Delay Button}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li An option button that is triggered when held down long enough.
     \row
         \li \inlineimage icons/dial-icon16.png
         \li \l [QtQuickControls]{Dial}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li \inlineimage ok
         \li A circular dial that is rotated to set a value.
     \row
         \li \inlineimage flickable-icon16.png
         \li \l [QML]{Flickable}
-        \li Qt Quick - Basic
+        \li Default Components - Basic
         \li \inlineimage ok
         \li Items can be flicked horizontally or vertically.
     \row
         \li \inlineimage focusscope-icon16.png
         \li \l{FocusScope}{Focus Scope}
-        \li Qt Quick - Basic
+        \li Default Components - Basic
         \li
         \li Assists in keyboard focus handling when building reusable QML
             components.
     \row
         \li \inlineimage mouse-area-icon16.png
         \li \l [QtQuick]{MouseArea}{Mouse Area}
-        \li Qt Quick - Basic
+        \li Default Components - Basic
         \li \inlineimage ok
         \li Enables simple mouse handling.
     \row
         \li \inlineimage icons/pageindicator-icon16.png
         \li \l [QtQuickControls]{PageIndicator}{Page Indicator}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li Indicates the indicate the currently active page in a container of
             multiple pages.
     \row
         \li \inlineimage icons/progressbar-icon16.png
         \li \l [QtQuickControls]{ProgressBar}{Progress Bar}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li \inlineimage ok
         \li Indicates the progress of an operation.
     \row
         \li \inlineimage icons/radiobutton-icon16.png
         \li \l [QtQuickControls]{RadioButton}{Radio Button}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li \inlineimage ok
         \li An option button that can be switched on (checked) or off
             (unchecked).
     \row
         \li \inlineimage icons/radiobutton-icon16.png
         \li \l [QtQuickControls]{RadioDelegate}{Radio Delegate}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li An item delegate that can be toggled on (checked) or off
             (unchecked).
     \row
         \li \inlineimage icons/rangeslider-icon16.png
         \li \l [QtQuickControls]{RangeSlider}{Range Slider}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li Enables users to select a range of values by sliding two handles
             along a track.
     \row
         \li \inlineimage icons/roundbutton-icon16.png
         \li \l [QtQuickControls]{RoundButton}{Round Button}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li A push button with rounded corners that you can associate with an
             action.
     \row
         \li \inlineimage icons/slider-icon16.png
         \li \l [QtQuickControls]{Slider}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li \inlineimage ok
         \li Enables users to select a value by sliding a handle along a track.
     \row
         \li \inlineimage icons/spinbox-icon16.png
         \li \l [QtQuickControls]{SpinBox}{Spin Box}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li Enables users to specify a value by clicking the up or down buttons,
             by pressing up or down on the keyboard, or by entering a value in
@@ -881,54 +881,54 @@
     \row
         \li \inlineimage icons/switch-icon16.png
         \li \l [QtQuickControls]{Switch}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li \inlineimage ok
         \li An option button that can be toggled on or off.
     \row
         \li \inlineimage icons/switch-icon16.png
         \li \l [QtQuickControls]{SwitchDelegate}{Switch Delegate}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li An item delegate with a switch indicator that can be toggled on or
             off.
     \row
         \li \inlineimage icons/toolbar-icon16.png
         \li \l [QtQuickControls] {TabBar}{Tab Bar}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li Enables users to switch between different views or subtasks.
     \row
         \li \inlineimage icons/toolbutton-icon16.png
         \li \l [QtQuickControls]{TabButton}{Tab Button}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li A button that is functionally similar to \uicontrol Button, but
             provides a look that is more suitable for a \uicontrol {Tab Bar}.
     \row
         \li \inlineimage icons/toolbar-icon16.png
         \li \l [QtQuickControls]{ToolBar}{Tool Bar}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li A container of application-wide and context sensitive actions and
             controls, such as navigation buttons and search fields.
     \row
         \li \inlineimage icons/toolbutton-icon16.png
         \li \l [QtQuickControls]{ToolButton}{Tool Button}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li A button that is functionally similar to \uicontrol Button, but
             provides a look that is more suitable for a \uicontrol {Tool Bar}.
     \row
         \li \inlineimage icons/toolseparator-icon16.png
         \li \l [QtQuickControls]{ToolSeparator}{Tool Separator}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li Separates a group of items from adjacent items on a
             \uicontrol {Tool Bar}.
     \row
         \li \inlineimage icons/tumbler-icon16.png
         \li \l [QtQuickControls]{Tumbler}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li A spinnable wheel of items that can be selected.
     \endtable
