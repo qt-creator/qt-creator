@@ -397,4 +397,74 @@ QVariant VcsBaseClientSettings::keyDefaultValue(const QString &key) const
     return QVariant(valueType(key));
 }
 
+// VcsBaseSettings
+
+VcsBaseSettings::VcsBaseSettings()
+{
+    setAutoApply(false);
+
+    registerAspect(&binaryPath);
+    binaryPath.setSettingsKey("BinaryPath");
+
+    registerAspect(&userName);
+    userName.setSettingsKey("Username");
+
+    registerAspect(&userEmail);
+    userEmail.setSettingsKey("UserEmail");
+
+    registerAspect(&logCount);
+    logCount.setSettingsKey("LogCount");
+    logCount.setRange(0, 1000 * 1000);
+    logCount.setDefaultValue(100);
+    logCount.setLabelText(tr("Log count:"));
+
+    registerAspect(&path);
+    path.setSettingsKey("Path");
+
+    registerAspect(&promptOnSubmit);
+    promptOnSubmit.setSettingsKey("PromptOnSubmit");
+    promptOnSubmit.setDefaultValue(true);
+    promptOnSubmit.setLabelText(tr("Prompt on submit"));
+
+    registerAspect(&timeout);
+    timeout.setSettingsKey("Timeout");
+    timeout.setRange(0, 3600 * 24 * 365);
+    timeout.setDefaultValue(30);
+    timeout.setLabelText(tr("Timeout:"));
+    timeout.setSuffix(tr("s"));
+}
+
+QStringList VcsBaseSettings::searchPathList() const
+{
+    return path.value().split(HostOsInfo::pathListSeparator(), Qt::SkipEmptyParts);
+}
+
+void VcsBaseSettings::setSettingsGroup(const QString &key)
+{
+    m_settingsGroup = key;
+}
+
+void VcsBaseSettings::writeSettings(QSettings *settings) const
+{
+    QTC_ASSERT(!m_settingsGroup.isEmpty(), return);
+
+    settings->remove(m_settingsGroup);
+    settings->beginGroup(m_settingsGroup);
+    forEachAspect([settings](BaseAspect *aspect) {
+        QtcSettings::setValueWithDefault(settings, aspect->settingsKey(),
+                                         aspect->value(), aspect->defaultValue());
+    });
+    settings->endGroup();
+}
+
+void VcsBaseSettings::readSettings(const QSettings *settings)
+{
+    const QString keyRoot = m_settingsGroup + '/';
+    forEachAspect([settings, keyRoot](BaseAspect *aspect) {
+        QString key = aspect->settingsKey();
+        const QVariant value = settings->value(keyRoot + key, aspect->defaultValue());
+        aspect->setValue(value);
+    });
+}
+
 } // namespace VcsBase

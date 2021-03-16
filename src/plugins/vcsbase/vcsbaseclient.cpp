@@ -73,11 +73,15 @@ static Core::IEditor *locateEditor(const char *property, const QString &entry)
 
 namespace VcsBase {
 
-VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseClientSettings *settings) :
-    m_clientSettings(settings)
+VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseClientSettings *settings, VcsBaseSettings *baseSettings) :
+    m_clientSettings(settings), m_baseSettings(baseSettings)
 {
-    m_defaultSettings = *m_clientSettings;
-    m_clientSettings->readSettings(Core::ICore::settings());
+    if (settings) {
+        m_defaultSettings = *m_clientSettings;
+        m_clientSettings->readSettings(Core::ICore::settings());
+    } else {
+        m_baseSettings->readSettings(Core::ICore::settings());
+    }
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, &VcsBaseClientImpl::saveSettings);
 }
@@ -85,6 +89,11 @@ VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseClientSettings *settings) :
 VcsBaseClientSettings &VcsBaseClientImpl::settings() const
 {
     return *m_clientSettings;
+}
+
+VcsBaseSettings &VcsBaseClientImpl::baseSettings() const
+{
+    return *m_baseSettings;
 }
 
 FilePath VcsBaseClientImpl::vcsBinary() const
@@ -215,7 +224,9 @@ SynchronousProcessResponse VcsBaseClientImpl::vcsSynchronousExec(const QString &
 
 int VcsBaseClientImpl::vcsTimeoutS() const
 {
-    return m_clientSettings->vcsTimeoutS();
+    if (m_clientSettings)
+        return m_clientSettings->vcsTimeoutS();
+    return m_baseSettings->timeout.value();
 }
 
 VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Utils::Id kind, QString title,
@@ -250,7 +261,10 @@ VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Utils::Id kind, QString 
 
 void VcsBaseClientImpl::saveSettings()
 {
-    settings().writeSettings(Core::ICore::settings(), m_defaultSettings);
+    if (m_clientSettings)
+        m_clientSettings->writeSettings(Core::ICore::settings(), m_defaultSettings);
+    else
+        m_baseSettings->writeSettings(Core::ICore::settings());
 }
 
 VcsBaseClient::VcsBaseClient(VcsBaseClientSettings *settings) :

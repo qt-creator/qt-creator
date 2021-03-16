@@ -140,6 +140,7 @@ public:
 
     explicit GitClient(GitSettings *settings);
     static GitClient *instance();
+    static GitSettings &settings();
 
     Utils::FilePath vcsBinary() const override;
     unsigned gitVersion(QString *errorMessage = nullptr) const;
@@ -416,14 +417,14 @@ private:
                                     const QString &gitCommand, ContinueCommandMode continueMode);
 
     mutable Utils::FilePath m_gitVersionForBinary;
-    mutable unsigned m_cachedGitVersion;
+    mutable unsigned m_cachedGitVersion = 0;
 
     QString m_gitQtcEditor;
     QMap<QString, StashInfo> m_stashInfo;
     QString m_pushFallbackCommand;
     QString m_diffCommit;
     QStringList m_updatedSubmodules;
-    bool m_disableEditor;
+    bool m_disableEditor = false;
     QFutureSynchronizer<void> m_synchronizer; // for commit updates
 };
 

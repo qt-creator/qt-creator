@@ -121,8 +121,7 @@ BranchView::BranchView() :
     connect(m_includeOldEntriesAction, &QAction::toggled,
             this, &BranchView::setIncludeOldEntries);
     m_includeTagsAction->setCheckable(true);
-    m_includeTagsAction->setChecked(
-                GitClient::instance()->settings().boolValue(GitSettings::showTagsKey));
+    m_includeTagsAction->setChecked(GitClient::settings().showTags.value());
     connect(m_includeTagsAction, &QAction::toggled,
             this, &BranchView::setIncludeTags);
 
@@ -309,7 +308,7 @@ void BranchView::setIncludeOldEntries(bool filter)
 
 void BranchView::setIncludeTags(bool includeTags)
 {
-    GitClient::instance()->settings().setValue(GitSettings::showTagsKey, includeTags);
+    GitClient::settings().showTags.setValue(includeTags);
     refreshCurrentRepository();
 }
 

@@ -493,17 +493,16 @@ class BaseGitDiffArgumentsWidget : public VcsBaseEditorConfig
     Q_OBJECT
 
 public:
-    BaseGitDiffArgumentsWidget(VcsBaseClientSettings &settings, QToolBar *toolBar) :
+    BaseGitDiffArgumentsWidget(GitSettings &settings, QToolBar *toolBar) :
         VcsBaseEditorConfig(toolBar)
     {
         m_patienceButton
                 = addToggleButton("--patience", tr("Patience"),
                                   tr("Use the patience algorithm for calculating the differences."));
-        mapSetting(m_patienceButton, settings.boolPointer(GitSettings::diffPatienceKey));
+        mapSetting(m_patienceButton, &settings.diffPatience);
         m_ignoreWSButton = addToggleButton("--ignore-space-change", tr("Ignore Whitespace"),
                                            tr("Ignore whitespace only changes."));
-        mapSetting(m_ignoreWSButton,
-                   settings.boolPointer(GitSettings::ignoreSpaceChangesInDiffKey));
+        mapSetting(m_ignoreWSButton, &settings.ignoreSpaceChangesInDiff);
     }
 
 protected:
@@ -516,15 +515,15 @@ class GitBlameArgumentsWidget : public VcsBaseEditorConfig
     Q_OBJECT
 
 public:
-    GitBlameArgumentsWidget(VcsBaseClientSettings &settings, QToolBar *toolBar) :
+    GitBlameArgumentsWidget(GitSettings &settings, QToolBar *toolBar) :
         VcsBaseEditorConfig(toolBar)
     {
         mapSetting(addToggleButton(QString(), tr("Omit Date"),
                                    tr("Hide the date of a change from the output.")),
-                   settings.boolPointer(GitSettings::omitAnnotationDateKey));
+                   &settings.omitAnnotationDate);
         mapSetting(addToggleButton("-w", tr("Ignore Whitespace"),
                                    tr("Ignore whitespace only changes.")),
-                   settings.boolPointer(GitSettings::ignoreSpaceChangesInBlameKey));
+                   &settings.ignoreSpaceChangesInBlame);
 
         const QList<ChoiceItem> logChoices = {
             ChoiceItem(tr("No Move Detection"), ""),
@@ -533,7 +532,7 @@ public:
             ChoiceItem(tr("Detect Moves and Copies Between Files"), "-M -C -C")
         };
         mapSetting(addChoices(tr("Move detection"), {}, logChoices),
-                   settings.intPointer(GitSettings::blameMoveDetection));
+                   &settings.blameMoveDetection);
 
         addReloadButton();
     }
@@ -544,13 +543,13 @@ class BaseGitLogArgumentsWidget : public BaseGitDiffArgumentsWidget
     Q_OBJECT
 
 public:
-    BaseGitLogArgumentsWidget(VcsBaseClientSettings &settings, GitEditorWidget *editor) :
+    BaseGitLogArgumentsWidget(GitSettings &settings, GitEditorWidget *editor) :
         BaseGitDiffArgumentsWidget(settings, editor->toolBar())
     {
         QToolBar *toolBar = editor->toolBar();
         QAction *diffButton = addToggleButton(patchOption, tr("Diff"),
                                               tr("Show difference."));
-        mapSetting(diffButton, settings.boolPointer(GitSettings::logDiffKey));
+        mapSetting(diffButton, &settings.logDiff);
         connect(diffButton, &QAction::toggled, m_patienceButton, &QAction::setVisible);
         connect(diffButton, &QAction::toggled, m_ignoreWSButton, &QAction::setVisible);
         m_patienceButton->setVisible(diffButton->isChecked());
@@ -585,27 +584,27 @@ class GitLogArgumentsWidget : public BaseGitLogArgumentsWidget
     Q_OBJECT
 
 public:
-    GitLogArgumentsWidget(VcsBaseClientSettings &settings, bool fileRelated, GitEditorWidget *editor) :
+    GitLogArgumentsWidget(GitSettings &settings, bool fileRelated, GitEditorWidget *editor) :
         BaseGitLogArgumentsWidget(settings, editor)
     {
         QAction *firstParentButton =
                 addToggleButton({"-m", "--first-parent"},
                                 tr("First Parent"),
                                 tr("Follow only the first parent on merge commits."));
-        mapSetting(firstParentButton, settings.boolPointer(GitSettings::firstParentKey));
+        mapSetting(firstParentButton, &settings.firstParent);
         QAction *graphButton = addToggleButton(graphArguments(), tr("Graph"),
                                                tr("Show textual graph log."));
-        mapSetting(graphButton, settings.boolPointer(GitSettings::graphLogKey));
+        mapSetting(graphButton, &settings.graphLog);
 
         QAction *colorButton = addToggleButton(QStringList{colorOption},
                                         tr("Color"), tr("Use colors in log."));
-        mapSetting(colorButton, settings.boolPointer(GitSettings::colorLogKey));
+        mapSetting(colorButton, &settings.colorLog);
 
         if (fileRelated) {
             QAction *followButton = addToggleButton(
                         "--follow", tr("Follow"),
                         tr("Show log also for previous names of the file."));
-            mapSetting(followButton, settings.boolPointer(GitSettings::followRenamesKey));
+            mapSetting(followButton, &settings.followRenames);
         }
 
         addReloadButton();
@@ -644,14 +643,14 @@ class GitRefLogArgumentsWidget : public BaseGitLogArgumentsWidget
     Q_OBJECT
 
 public:
-    GitRefLogArgumentsWidget(VcsBaseClientSettings &settings, GitEditorWidget *editor) :
+    GitRefLogArgumentsWidget(GitSettings &settings, GitEditorWidget *editor) :
         BaseGitLogArgumentsWidget(settings, editor)
     {
         QAction *showDateButton =
                 addToggleButton("--date=iso",
                                 tr("Show Date"),
                                 tr("Show date instead of sequence."));
-        mapSetting(showDateButton, settings.boolPointer(GitSettings::refLogShowDateKey));
+        mapSetting(showDateButton, &settings.refLogShowDate);
 
         addReloadButton();
     }
@@ -784,9 +783,8 @@ static inline void msgCannotRun(const QStringList &args, const QString &workingD
 
 // ---------------- GitClient
 
-GitClient::GitClient(GitSettings *settings) : VcsBase::VcsBaseClientImpl(settings),
-    m_cachedGitVersion(0),
-    m_disableEditor(false)
+GitClient::GitClient(GitSettings *settings)
+    : VcsBase::VcsBaseClientImpl(nullptr, settings)
 {
     m_instance = this;
     m_gitQtcEditor = QString::fromLatin1("\"%1\" -client -block -pid %2")
@@ -797,6 +795,11 @@ GitClient::GitClient(GitSettings *settings) : VcsBase::VcsBaseClientImpl(setting
 GitClient *GitClient::instance()
 {
     return m_instance;
+}
+
+GitSettings &GitClient::settings()
+{
+    return static_cast<GitSettings &>(m_instance->baseSettings());
 }
 
 QString GitClient::findRepositoryForDirectory(const QString &directory) const
@@ -977,8 +980,8 @@ void GitClient::requestReload(const QString &documentId, const QString &source,
     QTC_ASSERT(document, return);
     GitBaseDiffEditorController *controller = factory(document);
     QTC_ASSERT(controller, return);
-    controller->setVcsBinary(settings().binaryPath());
-    controller->setVcsTimeoutS(settings().vcsTimeoutS());
+    controller->setVcsBinary(settings().binaryPath.filePath());
+    controller->setVcsTimeoutS(settings().timeout.value());
     controller->setProcessEnvironment(processEnvironment());
     controller->setWorkingDirectory(workingDirectory);
     controller->initialize();
@@ -1118,7 +1121,7 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
     editor->setWorkingDirectory(workingDir);
 
     QStringList arguments = {"log", decorateOption};
-    int logCount = settings().intValue(GitSettings::logCountKey);
+    int logCount = settings().logCount.value();
     if (logCount > 0)
         arguments << "-n" << QString::number(logCount);
 
@@ -1171,7 +1174,7 @@ void GitClient::reflog(const QString &workingDirectory, const QString &ref)
 
     QStringList arguments = {"reflog", noColorOption, decorateOption};
     arguments << argWidget->arguments();
-    int logCount = settings().intValue(GitSettings::logCountKey);
+    int logCount = settings().logCount.value();
     if (logCount > 0)
         arguments << "-n" << QString::number(logCount);
 
@@ -2194,16 +2197,14 @@ bool GitClient::synchronousApplyPatch(const QString &workingDirectory,
 QProcessEnvironment GitClient::processEnvironment() const
 {
     QProcessEnvironment environment = VcsBaseClientImpl::processEnvironment();
-    QString gitPath = settings().stringValue(GitSettings::pathKey);
+    QString gitPath = settings().path.value();
     if (!gitPath.isEmpty()) {
         gitPath += HostOsInfo::pathListSeparator();
         gitPath += environment.value("PATH");
         environment.insert("PATH", gitPath);
     }
-    if (HostOsInfo::isWindowsHost()
-            && settings().boolValue(GitSettings::winSetHomeEnvironmentKey)) {
+    if (HostOsInfo::isWindowsHost() && settings().winSetHomeEnvironment.value())
         environment.insert("HOME", QDir::toNativeSeparators(QDir::homePath()));
-    }
     environment.insert("GIT_EDITOR", m_disableEditor ? "true" : m_gitQtcEditor);
     return environment;
 }
@@ -2551,7 +2552,7 @@ void GitClient::launchGitK(const QString &workingDirectory, const QString &fileN
 
 void GitClient::launchRepositoryBrowser(const QString &workingDirectory) const
 {
-    const QString repBrowserBinary = settings().stringValue(GitSettings::repositoryBrowserCmd);
+    const QString repBrowserBinary = settings().repositoryBrowserCmd.value();
     if (!repBrowserBinary.isEmpty())
         QProcess::startDetached(repBrowserBinary, {workingDirectory}, workingDirectory);
 }
@@ -2571,7 +2572,7 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
             binary = wish;
         }
     }
-    const QString gitkOpts = settings().stringValue(GitSettings::gitkOptionsKey);
+    const QString gitkOpts = settings().gitkOptions.value();
     if (!gitkOpts.isEmpty())
         arguments.append(QtcProcess::splitArgs(gitkOpts, HostOsInfo::hostOs()));
     if (!fileName.isEmpty())
@@ -2580,7 +2581,7 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
     // This should always use QProcess::startDetached (as not to kill
     // the child), but that does not have an environment parameter.
     bool success = false;
-    if (!settings().stringValue(GitSettings::pathKey).isEmpty()) {
+    if (!settings().path.value().isEmpty()) {
         auto process = new QProcess;
         process->setWorkingDirectory(workingDirectory);
         process->setProcessEnvironment(env);
@@ -3226,7 +3227,7 @@ void GitClient::synchronousSubversionFetch(const QString &workingDirectory) cons
 void GitClient::subversionLog(const QString &workingDirectory) const
 {
     QStringList arguments = {"svn", "log"};
-    int logCount = settings().intValue(GitSettings::logCountKey);
+    int logCount = settings().logCount.value();
     if (logCount > 0)
          arguments << ("--limit=" + QString::number(logCount));
 

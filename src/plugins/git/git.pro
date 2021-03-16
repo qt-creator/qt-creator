@@ -7,7 +7,6 @@ HEADERS += gitplugin.h \
     gitclient.h \
     changeselectiondialog.h \
     commitdata.h \
-    settingspage.h \
     giteditor.h \
     annotationhighlighter.h \
     gitsubmiteditorwidget.h \
@@ -30,7 +29,6 @@ SOURCES += gitplugin.cpp \
     gitclient.cpp \
     changeselectiondialog.cpp \
     commitdata.cpp \
-    settingspage.cpp \
     giteditor.cpp \
     annotationhighlighter.cpp \
     gitsubmiteditorwidget.cpp \
@@ -50,7 +48,6 @@ SOURCES += gitplugin.cpp \
     branchview.cpp
 
 FORMS += changeselectiondialog.ui \
-    settingspage.ui \
     gitsubmitpanel.ui \
     stashdialog.ui \
     remotedialog.ui \

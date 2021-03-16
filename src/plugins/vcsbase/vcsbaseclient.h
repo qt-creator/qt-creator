@@ -58,10 +58,12 @@ class VCSBASE_EXPORT VcsBaseClientImpl : public QObject
     Q_OBJECT
 
 public:
-    explicit VcsBaseClientImpl(VcsBaseClientSettings *settings);
+    explicit VcsBaseClientImpl(VcsBaseClientSettings *settings,
+                               VcsBaseSettings *baseSettings = nullptr);
     ~VcsBaseClientImpl() override = default;
 
-    VcsBaseClientSettings &settings() const;
+    VcsBaseClientSettings &settings() const; // FIXME: Phase out.
+    VcsBaseSettings &baseSettings() const; // FIXME: Rename into settings() when the original is gone.
 
     virtual Utils::FilePath vcsBinary() const;
     int vcsTimeoutS() const;
@@ -128,8 +130,9 @@ protected:
 private:
     void saveSettings();
 
-    VcsBaseClientSettings *m_clientSettings;
+    VcsBaseClientSettings *m_clientSettings; // "old" style.
     VcsBaseClientSettings m_defaultSettings;
+    VcsBaseSettings *m_baseSettings = nullptr; // Aspect based.
 };
 
 class VCSBASE_EXPORT VcsBaseClient : public VcsBaseClientImpl

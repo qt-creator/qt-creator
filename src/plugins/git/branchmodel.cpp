@@ -793,7 +793,7 @@ void BranchModel::Private::parseOutputLine(const QString &line, bool force)
         const qint64 age = dateTime.daysTo(QDateTime::currentDateTime());
         isOld = age > Constants::OBSOLETE_COMMIT_AGE_IN_DAYS;
     }
-    bool showTags = client->settings().boolValue(GitSettings::showTagsKey);
+    const bool showTags = client->settings().showTags.value();
 
     // insert node into tree:
     QStringList nameParts = fullName.split('/');

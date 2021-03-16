@@ -27,18 +27,41 @@
 
 #include "vcsbase_global.h"
 
+#include <utils/aspects.h>
+
 #include <QStringList>
 #include <QVariant>
 #include <QSharedDataPointer>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
-namespace Utils { class FilePath; }
 namespace VcsBase {
 
 namespace Internal { class VcsBaseClientSettingsPrivate; }
+
+class VCSBASE_EXPORT VcsBaseSettings : public Utils::AspectContainer
+{
+    Q_DECLARE_TR_FUNCTIONS(VcsBase::VcsBaseSettings)
+
+public:
+    VcsBaseSettings();
+
+    Utils::StringAspect binaryPath;
+    Utils::StringAspect userName;
+    Utils::StringAspect userEmail;
+    Utils::IntegerAspect logCount;
+    Utils::BoolAspect promptOnSubmit;
+    Utils::IntegerAspect timeout; // Seconds
+    Utils::StringAspect path;
+
+    QStringList searchPathList() const;
+
+    void writeSettings(QSettings *settings) const;
+    void readSettings(const QSettings *settings);
+
+    void setSettingsGroup(const QString &key);
+
+private:
+    QString m_settingsGroup;
+};
 
 class VCSBASE_EXPORT VcsBaseClientSettings
 {

@@ -34,7 +34,6 @@
 #include "gitsubmiteditor.h"
 #include "remotedialog.h"
 #include "stashdialog.h"
-#include "settingspage.h"
 #include "logchangedialog.h"
 #include "mergetool.h"
 #include "gitutils.h"
@@ -1486,7 +1485,7 @@ void GitPluginPrivate::pull()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     QString topLevel = state.topLevel();
-    bool rebase = m_settings.boolValue(GitSettings::pullRebaseKey);
+    bool rebase = m_settings.pullRebase.value();
 
     if (!rebase) {
         QString currentBranch = m_gitClient.synchronousCurrentLocalBranch(topLevel);
@@ -1821,8 +1820,7 @@ QObject *GitPlugin::remoteCommand(const QStringList &options, const QString &wor
 void GitPluginPrivate::updateRepositoryBrowserAction()
 {
     const bool repositoryEnabled = currentState().hasTopLevel();
-    const bool hasRepositoryBrowserCmd
-            = !m_settings.stringValue(GitSettings::repositoryBrowserCmd).isEmpty();
+    const bool hasRepositoryBrowserCmd = !m_settings.repositoryBrowserCmd.value().isEmpty();
     m_repositoryBrowserAction->setEnabled(repositoryEnabled && hasRepositoryBrowserCmd);
 }
 
