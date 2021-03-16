@@ -35,6 +35,12 @@ class QComboBox;
 class QToolButton;
 QT_END_NAMESPACE
 
+namespace Utils {
+class BoolAspect;
+class IntegerAspect;
+class StringAspect;
+} // Utils
+
 namespace VcsBase {
 
 class VcsBaseEditorWidget;
@@ -74,6 +80,10 @@ public:
     void mapSetting(QAction *button, bool *setting);
     void mapSetting(QComboBox *comboBox, QString *setting);
     void mapSetting(QComboBox *comboBox, int *setting);
+
+    void mapSetting(QAction *button, Utils::BoolAspect *setting);
+    void mapSetting(QComboBox *comboBox, Utils::StringAspect *setting);
+    void mapSetting(QComboBox *comboBox, Utils::IntegerAspect *setting);
 
     // Return the effective arguments according to setting.
     virtual QStringList arguments() const;
