@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -36,27 +36,24 @@
     \title Creating UIs
 
     \if defined(qtdesignstudio)
-    When you install \QDS, everything you'll need to design UIs
-    using \l{Qt Quick} and to preview them on the desktop or on Android or
-    embedded Linux devices is automatically installed and configured correctly
-    for you.
+    When you install \QDS, everything you'll need to design UIs and to preview
+    them on the desktop or embedded Linux devices is automatically installed
+    and configured correctly for you.
     \endif
 
-    Qt Quick enables you to build UIs around the behavior of \e components and
-    how they connect with one another. You create components using Qt Quick and
-    QML types that are available in the \uicontrol Library view in the Design
-    mode. You can specify values for the \e properties of a
-    component to change its appearance and behavior. All QML types have a
+    In \QC, you build UIs around the behavior of \l{glossary-component}
+    {components} and how they connect with one another. You can use preset
+    components available in the \l Library view or combine them to create
+    your own components. You can specify values for the \e properties of a
+    component to change its appearance and behavior. All components have a
     set of predefined properties, some of which control things that are
     visible to users, while others are used behind the scene.
 
-    While it is useful to learn the basics of Qt Quick, you can also rely on
-    \QMLD to write the code for you when you drag-and-drop the ready-made
-    components from the \uicontrol Library view to the \uicontrol {Form Editor}
-    or \uicontrol Navigator view and change them to your liking by modifying
-    their properties in the \uicontrol Properties view.
-    You can always check up details in the extensive Qt Quick
-    documentation by pressing \key F1.
+    When you drag-and-drop the preset components from the \uicontrol Library
+    view to the \l {Form Editor} or \l Navigator view and change them to your
+    liking by modifying their properties in the \l Properties view, the
+    application code is generated for you accordingly. For more information
+    about the code, open the developer documentation by pressing \key F1.
 
     \list
 
@@ -72,35 +69,31 @@
 
         \li \l {Creating Components}
 
-            You can enhance imported designs by customizing ready-made
+            You can enhance imported designs by customizing preset
             components or design custom forms and shapes directly as
-            QML types. You can import visual assets in various formats,
+            components. You can import visual assets in various formats,
             such as PNG, JPG, and SVG for use in the components.
-
-       \li \l {Navigator}
-
-            You can manage the items in the current QML file and their
-            relationships in the \uicontrol Navigator view.
 
         \li \l {Specifying Component Properties}
 
             You can specify values for the properties of a component to change
-            its appearance and behavior. All QML types have a set of predefined
+            its appearance and behavior. All components have a set of predefined
             properties. Some properties, such as position, size, and visibility,
-            are common to all QML types, whereas others are specific to the QML
-            type. You can specify properties for your components in the
-            \uicontrol Properties view.
+            are common to all components, whereas others are specific to the
+            component. You can specify properties for your components in the
+            \l Properties view.
 
-        \li \l {Positioning Items}
+        \li \l {Positioning Components}
 
-            The position of an item in a UI can be either absolute or relative
-            to other items. While manual positioning is efficient for a static
-            UI, consider the other available method, such as anchors, layouts,
-            positioners, and property bindings, for dynamic UIs.
+            The position of a component in a UI can be either absolute
+            or relative to other components. While manual positioning
+            is efficient for a static UI, consider the other available
+            methods, such as anchors, layouts, positioners, and property
+            bindings, for dynamic UIs.
 
         \li \l {Using Custom Fonts}
 
-            You can load custom fonts to \QMLD and use them in your designs.
+            You can load custom fonts to \QC and use them in your designs.
 
         \li \l {Annotating Designs}
 
