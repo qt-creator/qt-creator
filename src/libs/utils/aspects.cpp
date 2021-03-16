@@ -2081,6 +2081,15 @@ void AspectContainer::setAutoApply(bool on)
         aspect->setAutoApply(on);
 }
 
+bool AspectContainer::isDirty() const
+{
+    for (BaseAspect *aspect : qAsConst(d->m_items)) {
+        if (aspect->isDirty())
+            return true;
+    }
+    return false;
+}
+
 bool AspectContainer::equals(const AspectContainer &other) const
 {
     // FIXME: Expensive, but should not really be needed in a fully aspectified world.

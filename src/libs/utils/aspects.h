@@ -529,6 +529,7 @@ public:
     bool equals(const AspectContainer &other) const;
     void copyFrom(const AspectContainer &other);
     void setAutoApply(bool on);
+    bool isDirty() const;
 
     void forEachAspect(const std::function<void(BaseAspect *)> &run) const;
 
