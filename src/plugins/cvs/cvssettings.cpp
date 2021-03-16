@@ -25,40 +25,62 @@
 
 #include "cvssettings.h"
 
-#include <utils/environment.h>
-#include <utils/hostosinfo.h>
+#include <coreplugin/icore.h>
 
-#include <QSettings>
-#include <QTextStream>
+#include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
+
+#include <vcsbase/vcsbaseconstants.h>
+
+using namespace Utils;
+using namespace VcsBase;
 
 namespace Cvs {
 namespace Internal {
 
-const QLatin1String CvsSettings::cvsRootKey("Root");
-const QLatin1String CvsSettings::diffOptionsKey("DiffOptions");
-const QLatin1String CvsSettings::describeByCommitIdKey("DescribeByCommitId");
-const QLatin1String CvsSettings::diffIgnoreWhiteSpaceKey("DiffIgnoreWhiteSpace");
-const QLatin1String CvsSettings::diffIgnoreBlankLinesKey("DiffIgnoreBlankLines");
+// CvsSettings
 
 CvsSettings::CvsSettings()
 {
-    setSettingsGroup(QLatin1String("CVS"));
-    declareKey(binaryPathKey, QLatin1String("cvs" QTC_HOST_EXE_SUFFIX));
-    declareKey(cvsRootKey, QString());
-    declareKey(diffOptionsKey, QLatin1String("-du"));
-    declareKey(describeByCommitIdKey, true);
-    declareKey(diffIgnoreWhiteSpaceKey, false);
-    declareKey(diffIgnoreBlankLinesKey, false);
-}
+    setSettingsGroup("CVS");
 
-int CvsSettings::timeOutMs() const
-{
-    return 1000 * intValue(timeoutKey);
+    registerAspect(&binaryPath);
+    binaryPath.setDefaultValue("cvs" QTC_HOST_EXE_SUFFIX);
+    binaryPath.setDisplayStyle(StringAspect::PathChooserDisplay);
+    binaryPath.setExpectedKind(PathChooser::ExistingCommand);
+    binaryPath.setHistoryCompleter(QLatin1String("Cvs.Command.History"));
+    binaryPath.setDisplayName(tr("CVS Command"));
+    binaryPath.setLabelText(tr("CVS command:"));
+
+    registerAspect(&cvsRoot);
+    cvsRoot.setDisplayStyle(StringAspect::LineEditDisplay);
+    cvsRoot.setSettingsKey("Root");
+    cvsRoot.setLabelText(tr("CVS root:"));
+
+    registerAspect(&diffOptions);
+    diffOptions.setDisplayStyle(StringAspect::LineEditDisplay);
+    diffOptions.setSettingsKey("DiffOptions");
+    diffOptions.setDefaultValue("-du");
+    diffOptions.setLabelText("Diff options:");
+
+    registerAspect(&describeByCommitId);
+    describeByCommitId.setSettingsKey("DescribeByCommitId");
+    describeByCommitId.setDefaultValue(true);
+    describeByCommitId.setLabelText(tr("Describe all files matching commit id"));
+    describeByCommitId.setToolTip(tr("When checked, all files touched by a commit will be "
+        "displayed when clicking on a revision number in the annotation view "
+        "(retrieved via commit ID). Otherwise, only the respective file will be displayed."));
+
+    registerAspect(&diffIgnoreWhiteSpace);
+    diffIgnoreWhiteSpace.setSettingsKey("DiffIgnoreWhiteSpace");
+
+    registerAspect(&diffIgnoreBlankLines);
+    diffIgnoreBlankLines.setSettingsKey("DiffIgnoreBlankLines");
 }
 
 QStringList CvsSettings::addOptions(const QStringList &args) const
 {
-    const QString cvsRoot = stringValue(cvsRootKey);
+    const QString cvsRoot = this->cvsRoot.value();
     if (cvsRoot.isEmpty())
         return args;
 
@@ -69,5 +91,65 @@ QStringList CvsSettings::addOptions(const QStringList &args) const
     return rc;
 }
 
-} // namespace Internal
-} // namespace Cvs
+// CvsSettingsPage
+
+class CvsSettingsPageWidget final : public Core::IOptionsPageWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(Cvs::Internal::SettingsPageWidget)
+
+public:
+    CvsSettingsPageWidget(const std::function<void()> & onApply, CvsSettings *settings);
+
+    void apply() final;
+
+private:
+    std::function<void()> m_onApply;
+    CvsSettings *m_settings;
+};
+
+CvsSettingsPageWidget::CvsSettingsPageWidget(const std::function<void()> &onApply, CvsSettings *settings)
+    : m_onApply(onApply), m_settings(settings)
+{
+    CvsSettings &s = *settings;
+    using namespace Layouting;
+    const Break nl;
+
+    Column {
+        Group {
+            Title(tr("Configuration")),
+            Form {
+                s.binaryPath, nl,
+                s.cvsRoot
+            }
+        },
+        Group {
+            Title(tr("Miscellaneous")),
+            Form {
+                s.timeout, nl,
+                s.diffOptions,
+            },
+            s.promptOnSubmit,
+            s.describeByCommitId,
+        },
+        Stretch()
+    }.attachTo(this);
+}
+
+void CvsSettingsPageWidget::apply()
+{
+    if (m_settings->isDirty()) {
+        m_settings->apply();
+        m_onApply();
+    }
+}
+
+CvsSettingsPage::CvsSettingsPage(const std::function<void()> &onApply, CvsSettings *settings)
+{
+    setId(VcsBase::Constants::VCS_ID_CVS);
+    setDisplayName(CvsSettingsPageWidget::tr("CVS"));
+    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+    setWidgetCreator([onApply, settings] { return new CvsSettingsPageWidget(onApply, settings); });
+}
+
+} // Internal
+} // Cvs

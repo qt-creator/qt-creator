@@ -25,25 +25,33 @@
 
 #pragma once
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <vcsbase/vcsbaseclientsettings.h>
 
 namespace Cvs {
 namespace Internal {
 
-class CvsSettings : public VcsBase::VcsBaseClientSettings
+class CvsSettings : public VcsBase::VcsBaseSettings
 {
+    Q_DECLARE_TR_FUNCTIONS(Cvs::Internal::SettingsPage)
+
 public:
-    static const QLatin1String cvsRootKey;
-    static const QLatin1String diffOptionsKey;
-    static const QLatin1String describeByCommitIdKey;
-    static const QLatin1String diffIgnoreWhiteSpaceKey;
-    static const QLatin1String diffIgnoreBlankLinesKey;
+    Utils::StringAspect cvsRoot;
+    Utils::StringAspect diffOptions;
+    Utils::BoolAspect diffIgnoreWhiteSpace;
+    Utils::BoolAspect diffIgnoreBlankLines;
+    Utils::BoolAspect describeByCommitId;
 
     CvsSettings();
 
-    int timeOutMs() const;
-
     QStringList addOptions(const QStringList &args) const;
+};
+
+class CvsSettingsPage final : public Core::IOptionsPage
+{
+public:
+    CvsSettingsPage(const std::function<void()> &onApply, CvsSettings *settings);
 };
 
 } // namespace Internal

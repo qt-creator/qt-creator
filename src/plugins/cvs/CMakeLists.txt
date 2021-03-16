@@ -7,5 +7,4 @@ add_qtc_plugin(CVS
     cvssettings.cpp cvssettings.h
     cvssubmiteditor.cpp cvssubmiteditor.h
     cvsutils.cpp cvsutils.h
-    settingspage.cpp settingspage.h settingspage.ui
 )

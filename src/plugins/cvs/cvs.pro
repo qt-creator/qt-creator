@@ -2,7 +2,6 @@ include(../../qtcreatorplugin.pri)
 
 HEADERS += annotationhighlighter.h \
     cvsplugin.h \
-    settingspage.h \
     cvseditor.h \
     cvssubmiteditor.h \
     cvssettings.h \
@@ -10,10 +9,7 @@ HEADERS += annotationhighlighter.h \
 
 SOURCES += annotationhighlighter.cpp \
     cvsplugin.cpp \
-    settingspage.cpp \
     cvseditor.cpp \
     cvssubmiteditor.cpp \
     cvssettings.cpp \
     cvsutils.cpp
-
-FORMS += settingspage.ui

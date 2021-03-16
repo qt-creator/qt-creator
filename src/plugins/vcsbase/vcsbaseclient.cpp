@@ -267,8 +267,8 @@ void VcsBaseClientImpl::saveSettings()
         m_baseSettings->writeSettings(Core::ICore::settings());
 }
 
-VcsBaseClient::VcsBaseClient(VcsBaseClientSettings *settings) :
-    VcsBaseClientImpl(settings)
+VcsBaseClient::VcsBaseClient(VcsBaseClientSettings *settings, VcsBaseSettings *baseSettings) :
+    VcsBaseClientImpl(settings, baseSettings)
 {
     qRegisterMetaType<QVariant>();
 }

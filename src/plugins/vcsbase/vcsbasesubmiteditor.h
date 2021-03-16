@@ -29,6 +29,8 @@
 
 #include <coreplugin/editormanager/ieditor.h>
 
+#include <utils/aspects.h>
+
 #include <QAbstractItemView>
 
 QT_BEGIN_NAMESPACE
@@ -85,9 +87,10 @@ public:
     // prompt setting. The user can uncheck it from the message box.
     enum PromptSubmitResult { SubmitConfirmed, SubmitCanceled, SubmitDiscarded };
     PromptSubmitResult promptSubmit(VcsBasePluginPrivate *plugin,
-                                    bool *promptSetting,
+                                    bool *promptSettingOld,
                                     bool forcePrompt = false,
-                                    bool canCommitOnFailure = true);
+                                    bool canCommitOnFailure = true,
+                                    Utils::BoolAspect *promptSetting = nullptr);
 
     QAbstractItemView::SelectionMode fileListSelectionMode() const;
     void setFileListSelectionMode(QAbstractItemView::SelectionMode sm);

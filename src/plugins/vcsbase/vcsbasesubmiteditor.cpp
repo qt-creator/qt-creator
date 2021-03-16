@@ -514,12 +514,13 @@ static QString withUnusedMnemonic(QString string, const QList<QPushButton *> &ot
 
 VcsBaseSubmitEditor::PromptSubmitResult
         VcsBaseSubmitEditor::promptSubmit(VcsBasePluginPrivate *plugin,
-                                          bool *promptSetting,
+                                          bool *promptSettingOld,
                                           bool forcePrompt,
-                                          bool canCommitOnFailure)
+                                          bool canCommitOnFailure,
+                                          BoolAspect *promptSetting)
 {
-    bool dummySetting = false;
-    if (!promptSetting)
+    BoolAspect dummySetting;
+    if (!promptSetting && !promptSettingOld)
         promptSetting = &dummySetting;
     auto submitWidget = static_cast<SubmitEditorWidget *>(this->widget());
 
@@ -530,7 +531,8 @@ VcsBaseSubmitEditor::PromptSubmitResult
 
     QString errorMessage;
 
-    const bool prompt = forcePrompt || *promptSetting;
+    const bool value = promptSettingOld ? *promptSettingOld : promptSetting->value();
+    const bool prompt = forcePrompt || value;
 
     // Pop up a message depending on whether the check succeeded and the
     // user wants to be prompted
@@ -552,9 +554,9 @@ VcsBaseSubmitEditor::PromptSubmitResult
     }
     mb.setText(message);
     mb.setCheckBoxText(tr("Prompt to %1").arg(commitName.toLower()));
-    mb.setChecked(*promptSetting);
+    mb.setChecked(value);
     // Provide check box to turn off prompt ONLY if it was not forced
-    mb.setCheckBoxVisible(*promptSetting && !forcePrompt);
+    mb.setCheckBoxVisible(value && !forcePrompt);
     QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Close | QDialogButtonBox::Cancel;
     if (canCommit || canCommitOnFailure)
         buttons |= QDialogButtonBox::Ok;
@@ -570,8 +572,12 @@ VcsBaseSubmitEditor::PromptSubmitResult
         commitButton->setText(withUnusedMnemonic(commitName,
                               {cancelButton, mb.button(QDialogButtonBox::Close)}));
     }
-    if (mb.exec() == QDialog::Accepted)
-        *promptSetting = mb.isChecked();
+    if (mb.exec() == QDialog::Accepted) {
+        if (promptSettingOld)
+            *promptSettingOld = mb.isChecked();
+        else
+            promptSetting->setValue(mb.isChecked());
+    }
     QAbstractButton *chosen = mb.clickedButton();
     if (!chosen || chosen == cancelButton)
         return SubmitCanceled;

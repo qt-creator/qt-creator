@@ -148,7 +148,8 @@ public:
         QString file;
     };
 
-    explicit VcsBaseClient(VcsBaseClientSettings *settings);
+    explicit VcsBaseClient(VcsBaseClientSettings *settings,
+                           VcsBaseSettings *baseSettings = nullptr);
 
     virtual bool synchronousCreateRepository(const QString &workingDir,
                                              const QStringList &extraOptions = QStringList());
