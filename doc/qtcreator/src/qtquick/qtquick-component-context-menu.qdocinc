@@ -83,7 +83,7 @@
         \li \l{Adding Signal Handlers}
     \row
         \li Go to Implementation
-        \li \l{Using Qt Quick UI Forms}
+        \li \l{Using UI Files}
     \row
         \li Go into Component
         \li \l{Moving Within Components}

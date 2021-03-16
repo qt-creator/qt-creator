@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -34,8 +34,8 @@
 
     You can add icons from an ISO 7000 icon library that is installed with \QC
     to Qt Quick applications (commercial only). You can use the
-    \uicontrol {ISO Icon Browser} to add a \l {Picture} type and select the
-    icon to use for the type. You can change the default color of the icon.
+    \uicontrol {ISO Icon Browser} to add a \l {Picture} component and select the
+    icon to use for the component. You can change the default color of the icon.
 
     \image qtcreator-iso-icon-browser.png
 
@@ -45,16 +45,16 @@
 
         \li Create a new Qt Quick Application or open an application in \QC.
 
-        \li Open the Qt Quick UI form in the \uicontrol Design mode.
+        \li Open the \l{UI Files}{UI file} (.ui.qml) in \l {Form Editor}.
 
-        \li In the \uicontrol Library, select \uicontrol {QML Imports} >
-            \uicontrol {Add Import} > \uicontrol {QtQuick.Extras} to import the
-            \l {Qt Quick Extras} module.
+        \li Select \l Library > \uicontrol Components > \inlineimage plus.png
+            > \uicontrol {QtQuick.Extras} to import the \l {Qt Quick Extras}
+            module.
 
-        \li Drag and drop a \uicontrol Picture element from the library to the
-            canvas.
+        \li Drag and drop a \uicontrol Picture component from \uicontrol Library
+            to \l {Form Editor}.
 
-        \li Right-click the picture element and select \uicontrol {Choose Icon}
+        \li Right-click the picture component and select \uicontrol {Choose Icon}
             to open the \uicontrol {ISO Icon Browser}.
 
         \li To find icons, select a criterion for filtering icons and enter a

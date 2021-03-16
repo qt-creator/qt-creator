@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -101,9 +101,9 @@
             convert them to Qt Quick Application projects that contain .pro,
             .cpp, and .qrc files.
 
-        \li \l {Exporting QML}
+        \li \l {Exporting Components}
 
-            \l{Qt Quick UI Forms}{UI forms} (ui.qml files) can be exported to
+            \l{UI Files}{UI files} (.ui.qml) can be exported to
             JSON metadata format and PNG assets.
 
     \endlist

@@ -48,9 +48,9 @@
 
     \section1 Naming Conventions
 
-    Establish naming conventions to keep the items in your UI organized.
-    Name your items accurately and give them suitable QML IDs. You should
-    manually specify the names of the items you export from design tools to
+    Establish naming conventions to keep the components in your UI organized.
+    Name your components accurately and give them suitable IDs. You should
+    manually specify the names of the components you export from design tools to
     create reliable and self-explanatory names that follow the naming
     conventions you have established.
 
@@ -82,20 +82,21 @@
             components that can be conveniently recombined to suit the needs of
             your UI.
         \li Use as few components as necessary. To minimize the number of
-            components, use alias properties and states to create the
-            differences in your instances. We recommend reusing components
+            components, use \l{Adding Property Aliases}{alias properties} and
+            \l{Adding States}{states} to create the differences in your
+            component instances. We recommend reusing components
             instead of duplicating them, so the components do not need to be
-            processed as completely new types. This reduces loading and
-            compilation time as well as the size of the binary.
+            processed as completely new component types. This reduces loading
+            and compilation time as well as the size of the binary.
         \li Any content that is data-driven should be
-            \l {Using Qt Quick UI Forms}{exported as a public property} of the
+            \l {Using UI Files}{exported as a public property} of the
             relevant component. For example, a speedometer should have an \c int
             or \c real property for speed to which the UI is bound.
         \li Separate UI from the application logic. Designers should work with
-            the UI forms (.ui.qml files), while developers should work on the
-            corresponding QML files (.qml) to define their programmatic
-            behaviors or JavaScript. This enables iteration from both the design
-            and development side of the process without the the risk of
-            overwriting each other's work.
+            the \l{UI Files}{UI files} (.ui.qml), while developers should work
+            on the corresponding implementation files (.qml) to define their
+            programmatic behaviors or JavaScript. This enables iteration from
+            both the design and development side of the process without the the
+            risk of overwriting each other's work.
     \endlist
 */

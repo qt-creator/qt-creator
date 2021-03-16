@@ -88,7 +88,7 @@
                         \li \l{Importing 3D Assets}
                     \endlist
                 \li \l{Converting UI Projects to Applications}
-                \li \l{Exporting QML}
+                \li \l{Exporting Components}
             \endlist
         \li \l{Creating UIs}
             \list
@@ -110,7 +110,7 @@
                 \li \l{Positioning Items}
                 \li \l{Using Custom Fonts}
                 \li \l{Annotating Designs}
-                \li \l{Qt Quick UI Forms}
+                \li \l{UI Files}
            \endlist
        \li \l {Adding Dynamics}
             \list

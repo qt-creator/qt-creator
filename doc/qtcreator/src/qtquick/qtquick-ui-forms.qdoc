@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -38,13 +38,12 @@
     \endif
     \nextpage qtquick-adding-dynamics.html
 
-    \title Qt Quick UI Forms
+    \title UI Files
 
-    You can use \QC wizards to create UI forms that have the filename extension
-    \e .ui.qml. The UI forms contain a purely declarative subset of the QML
-    language. It is recommended that you edit the forms in the \uicontrol Design mode.
-    \QC enforces the use of the supported QML features by displaying error
-    messages.
+    You can use \QC wizards to create UI files that have the filename
+    extension \e .ui.qml. The UI files can be edited in \l {Form Editor}.
+    If you use \uicontrol {Text Editor} to add code that is not supported
+    by \uicontrol {Form Editor}, \QC displays error messages.
 
     The following features are not supported:
 
@@ -52,11 +51,12 @@
         \li JavaScript blocks
         \li Other bindings than pure expressions
         \li Signal handlers
-        \li States in other items than the root item
-        \li Root items that are not derived from \l QQuickItem or \l [QML]{Item}
+        \li States in other components than the root component
+        \li Root components that are not derived from \l QQuickItem or
+            \l [QML]{Item}
     \endlist
 
-    The following types are not supported:
+    The following components are not supported:
 
     \list
         \li Behavior
@@ -161,11 +161,11 @@
     For more information about using the methods, see
     \l{https://doc.qt.io/qt/qml-qtqml-qt.html}{Qt QML Methods}.
 
-    \section1 Using Qt Quick UI Forms
+    \section1 Using UI Files
 
-    You can edit the forms in the \uicontrol {Form Editor} and
-    \uicontrol {Text Editor} tabs in the \uicontrol Design mode. Items that are
-    supposed to be used in QML code have to be exported as properties:
+    You can edit the UI files in the \l {Form Editor} and
+    \uicontrol {Text Editor} views. Components that are
+    supposed to be used in code have to be exported as properties:
 
     \code
     Item {
@@ -182,17 +182,16 @@
     }
     \endcode
 
-    The property alias exports the button to the QML code that uses the form.
-    You can use the
-    \inlineimage export_checked.png
-    (\uicontrol Export) button in the \uicontrol Navigator to export an item as
-    a property:
+    The property alias exports the button to the code that uses the form.
+    You can use the \inlineimage export_unchecked.png
+    (\uicontrol Export) button in \l Navigator to export a component
+    as a property:
 
     \image qmldesigner-export-item.png
 
-    In the QML file that uses the form, you can use the \c button property alias
-    to implement signal handlers, for example. In the following code snippet,
-    the UI form is called \e MainForm.ui.qml:
+    In the UI file where the component is used, you can use the \c button
+    property alias to implement signal handlers, for example. In the
+    following code snippet, the UI file is called \e MainForm.ui.qml:
 
     \code
     MainForm {
@@ -203,8 +202,9 @@
 
     You can also assign properties or define behavior or transitions.
 
-    To move from the \uicontrol Design mode directly to the implementation of a
-    type in the .qml file, right-click the type in the \uicontrol Navigator and
-    select \uicontrol {Go to Implementation} in the context menu.
+    To move from \l {Form Editor} or \l Navigator directly to the
+    implementation of a component in the .qml file, right-click the
+    component and select \uicontrol {Go to Implementation} in the
+    context menu.
 
 */
