@@ -55,13 +55,13 @@ public:
     using MutexType = std::mutex;
     using ReadStatement = Sqlite::ReadStatement;
     using WriteStatement = Sqlite::WriteStatement;
+    using BusyHandler = DatabaseBackend::BusyHandler;
 
     Database();
+    Database(Utils::PathString &&databaseFilePath, JournalMode journalMode = JournalMode::Wal);
     Database(Utils::PathString &&databaseFilePath,
-             JournalMode journalMode);
-    Database(Utils::PathString &&databaseFilePath,
-             std::chrono::milliseconds busyTimeout = 1000ms,
-             JournalMode journalMode=JournalMode::Wal);
+             std::chrono::milliseconds busyTimeout,
+             JournalMode journalMode = JournalMode::Wal);
     ~Database();
 
     Database(const Database &) = delete;
@@ -131,6 +131,11 @@ public:
 
     void setAttachedTables(const Utils::SmallStringVector &tables) override;
     void applyAndUpdateSessions() override;
+
+    void setBusyHandler(BusyHandler busyHandler)
+    {
+        m_databaseBackend.setBusyHandler(std::move(busyHandler));
+    }
 
     SessionChangeSets changeSets() const;
 

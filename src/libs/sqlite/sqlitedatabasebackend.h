@@ -41,6 +41,8 @@ class Database;
 class SQLITE_EXPORT DatabaseBackend
 {
 public:
+    using BusyHandler = std::function<bool(int count)>;
+
     DatabaseBackend(Database &database);
     ~DatabaseBackend();
 
@@ -90,15 +92,16 @@ public:
         void (*callback)(void *object, int, char const *database, char const *, long long rowId));
     void resetUpdateHook();
 
+    void setBusyHandler(BusyHandler &&busyHandler);
+
+    void registerBusyHandler();
+
 protected:
     bool databaseIsOpen() const;
 
     void setPragmaValue(Utils::SmallStringView pragma, Utils::SmallStringView value);
     Utils::SmallString pragmaValue(Utils::SmallStringView pragma);
 
-    void registerBusyHandler();
-    void registerRankingFunction();
-    static int busyHandlerCallback(void*, int counter);
 
     void checkForOpenDatabaseWhichCanBeClosed();
     void checkDatabaseClosing(int resultCode);
@@ -126,6 +129,7 @@ protected:
 private:
     Database &m_database;
     sqlite3 *m_databaseHandle;
+    BusyHandler m_busyHandler;
 };
 
 } // namespace Sqlite
