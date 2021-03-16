@@ -1730,6 +1730,11 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
                             if (IDocument *document = documents.last()->document) {
                                 activateEditorForDocument(view, document, flags);
                             }
+                        } else {
+                            // no documents left - set current view since view->removeEditor can
+                            // trigger a focus change, context change, and updateActions, which
+                            // requests the current EditorView
+                            setCurrentView(currentView);
                         }
                     }
                 }
