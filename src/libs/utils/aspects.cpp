@@ -1225,9 +1225,6 @@ void BoolAspect::addToLayout(LayoutBuilder &builder)
         break;
     }
     d->m_checkBox->setChecked(value());
-    connect(d->m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
-        setValue(d->m_checkBox->isChecked());
-    });
     if (isAutoApply()) {
         connect(d->m_checkBox.data(), &QAbstractButton::clicked,
                 this, [this](bool val) { setValue(val); });
