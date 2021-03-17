@@ -28,8 +28,10 @@
 #include "nimbuildsystem.h"
 #include "nimbleproject.h"
 #include "nimproject.h"
+#include "../nimconstants.h"
 
 #include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -60,6 +62,13 @@ static std::vector<NimbleTask> parseTasks(const QString &nimblePath, const QStri
 
     std::vector<NimbleTask> result;
 
+    if (process.exitCode() != 0) {
+        TaskHub::addTask(Task(Task::Error,
+                              QString::fromUtf8(process.readAllStandardOutput()),
+                              {}, -1, Constants::C_NIMPARSE_ID));
+        return result;
+    }
+
     const QList<QByteArray> &lines = linesFromProcessOutput(&process);
 
     for (const QByteArray &line : lines) {
@@ -82,6 +91,12 @@ static NimbleMetadata parseMetadata(const QString &nimblePath, const QString &wo
 
     NimbleMetadata result = {};
 
+    if (process.exitCode() != 0) {
+        TaskHub::addTask(Task(Task::Error,
+                              QString::fromUtf8(process.readAllStandardOutput()),
+                              {}, -1, Constants::C_NIMPARSE_ID));
+        return result;
+    }
     const QList<QByteArray> &lines = linesFromProcessOutput(&process);
 
     for (const QByteArray &line : lines) {
@@ -153,6 +168,7 @@ void NimbleBuildSystem::triggerParsing()
 
 void NimbleBuildSystem::updateProject()
 {
+    TaskHub::clearTasks(Constants::C_NIMPARSE_ID);
     const FilePath projectDir = projectDirectory();
     const FilePath nimble = Nim::nimblePathFromKit(kit());
 

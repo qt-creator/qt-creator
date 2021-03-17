@@ -49,6 +49,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/runcontrol.h>
+#include <projectexplorer/taskhub.h>
 #include <texteditor/snippets/snippetprovider.h>
 
 using namespace Utils;
@@ -135,6 +136,7 @@ void NimPlugin::extensionsInitialized()
         Core::FileIconProvider::registerIconOverlayForMimeType(icon, Constants::C_NIM_SCRIPT_MIMETYPE);
         Core::FileIconProvider::registerIconOverlayForMimeType(icon, Constants::C_NIMBLE_MIMETYPE);
     }
+    TaskHub::addCategory(Constants::C_NIMPARSE_ID, "Nim");
 }
 
 } // namespace Nim
