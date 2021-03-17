@@ -52,9 +52,13 @@ const char M_DEBUG_STARTDEBUGGING[] = "ProjectExplorer.Menu.Debug.StartDebugging
 
 // Menu groups
 const char G_BUILD_BUILD[]        = "ProjectExplorer.Group.Build";
-const char G_BUILD_DEPLOY[]       = "ProjectExplorer.Group.Deploy";
-const char G_BUILD_REBUILD[]      = "ProjectExplorer.Group.Rebuild";
-const char G_BUILD_CLEAN[]        = "ProjectExplorer.Group.Clean";
+const char G_BUILD_ALLPROJECTS[]  = "ProjectExplorer.Group.AllProjects";
+const char G_BUILD_PROJECT[]      = "ProjectExplorer.Group.Project";
+const char G_BUILD_PRODUCT[]      = "ProjectExplorer.Group.Product";
+const char G_BUILD_SUBPROJECT[]   = "ProjectExplorer.Group.SubProject";
+const char G_BUILD_FILE[]         = "ProjectExplorer.Group.File";
+const char G_BUILD_ALLPROJECTS_ALLCONFIGURATIONS[] = "ProjectExplorer.Group.AllProjects.AllConfigurations";
+const char G_BUILD_PROJECT_ALLCONFIGURATIONS[] = "ProjectExplorer.Group.Project.AllConfigurations";
 const char G_BUILD_RUN[]          = "ProjectExplorer.Group.Run";
 const char G_BUILD_CANCEL[]       = "ProjectExplorer.Group.BuildCancel";
 

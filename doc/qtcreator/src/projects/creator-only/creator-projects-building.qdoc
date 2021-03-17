@@ -103,11 +103,10 @@
     You can also use the \c cm filter in the \l {Searching with the Locator}
     {locator}.
 
-    To remove all build artifacts, select \uicontrol {Clean Project} or one
-    of its variants.
+    To remove all build artifacts, select one of \uicontrol {Clean} menu commands.
 
     To clean the build directory and then build the project, select
-    \uicontrol {Rebuild Project} or one of its variants.
+    one of \uicontrol {Rebuild} menu commands.
 
     To build and clean projects without dependencies, select the
     \uicontrol {Build Without Dependencies},

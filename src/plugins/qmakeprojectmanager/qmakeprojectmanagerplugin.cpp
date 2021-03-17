@@ -56,6 +56,7 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorericons.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditoractionhandler.h>
@@ -63,6 +64,7 @@
 
 #include <utils/hostosinfo.h>
 #include <utils/parameteraction.h>
+#include <utils/utilsicons.h>
 
 #ifdef WITH_TESTS
 #    include <QTest>
@@ -118,8 +120,8 @@ public:
     QAction *m_cleanSubProjectContextMenu = nullptr;
     QAction *m_buildFileContextMenu = nullptr;
     Utils::ParameterAction *m_buildSubProjectAction = nullptr;
-    Utils::ParameterAction *m_rebuildSubProjectAction = nullptr;
-    Utils::ParameterAction *m_cleanSubProjectAction = nullptr;
+    QAction *m_rebuildSubProjectAction = nullptr;
+    QAction *m_cleanSubProjectAction = nullptr;
     Utils::ParameterAction *m_buildFileAction = nullptr;
     QAction *m_addLibraryAction = nullptr;
     QAction *m_addLibraryActionContextMenu = nullptr;
@@ -231,7 +233,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     command->setAttribute(Command::CA_Hide);
     command->setAttribute(Command::CA_UpdateText);
     command->setDescription(d->m_buildSubProjectAction->text());
-    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
+    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_SUBPROJECT);
     connect(d->m_buildSubProjectAction, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::buildSubDirContextMenu);
 
@@ -242,23 +244,22 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     connect(d->m_runQMakeAction, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::runQMake);
 
-    d->m_rebuildSubProjectAction = new Utils::ParameterAction(tr("Rebuild Subproject"), tr("Rebuild Subproject \"%1\""),
-                                                           Utils::ParameterAction::AlwaysEnabled, this);
+    d->m_rebuildSubProjectAction = new QAction(Icons::REBUILD.icon(), tr("Rebuild"),
+                                             this);
     command = ActionManager::registerAction(d->m_rebuildSubProjectAction, Constants::REBUILDSUBDIR, projectContext);
     command->setAttribute(Command::CA_Hide);
     command->setAttribute(Command::CA_UpdateText);
     command->setDescription(d->m_rebuildSubProjectAction->text());
-    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_REBUILD);
+    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_SUBPROJECT);
     connect(d->m_rebuildSubProjectAction, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::rebuildSubDirContextMenu);
 
-    d->m_cleanSubProjectAction = new Utils::ParameterAction(tr("Clean Subproject"), tr("Clean Subproject \"%1\""),
-                                                         Utils::ParameterAction::AlwaysEnabled, this);
+    d->m_cleanSubProjectAction = new QAction(Utils::Icons::CLEAN.icon(),tr("Clean"), this);
     command = ActionManager::registerAction(d->m_cleanSubProjectAction, Constants::CLEANSUBDIR, projectContext);
     command->setAttribute(Command::CA_Hide);
     command->setAttribute(Command::CA_UpdateText);
     command->setDescription(d->m_cleanSubProjectAction->text());
-    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_CLEAN);
+    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_SUBPROJECT);
     connect(d->m_cleanSubProjectAction, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::cleanSubDirContextMenu);
 
@@ -269,7 +270,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     command->setAttribute(Command::CA_UpdateText);
     command->setDescription(d->m_buildFileAction->text());
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+B")));
-    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
+    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_FILE);
     connect(d->m_buildFileAction, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::buildFile);
 
@@ -547,8 +548,6 @@ void QmakeProjectManagerPluginPrivate::updateContextActions()
         subProjectName = subProjectNode->displayName();
 
     m_buildSubProjectAction->setParameter(subProjectName);
-    m_rebuildSubProjectAction->setParameter(subProjectName);
-    m_cleanSubProjectAction->setParameter(subProjectName);
     m_buildSubProjectContextMenu->setParameter(proFileNode ? proFileNode->displayName() : QString());
 
     auto buildConfiguration = (qmakeProject && qmakeProject->activeTarget()) ?

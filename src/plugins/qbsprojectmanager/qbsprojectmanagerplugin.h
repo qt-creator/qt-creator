@@ -96,8 +96,8 @@ private:
     QAction *m_rebuildSubprojectCtx = nullptr;
     Utils::ParameterAction *m_buildFile = nullptr;
     Utils::ParameterAction *m_buildProduct = nullptr;
-    Utils::ParameterAction *m_cleanProduct = nullptr;
-    Utils::ParameterAction *m_rebuildProduct = nullptr;
+    QAction *m_cleanProduct = nullptr;
+    QAction *m_rebuildProduct = nullptr;
 };
 
 } // namespace Internal

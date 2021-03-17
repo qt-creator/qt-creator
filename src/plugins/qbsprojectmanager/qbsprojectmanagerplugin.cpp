@@ -52,6 +52,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runcontrol.h>
@@ -63,6 +64,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QAction>
 
@@ -141,7 +143,7 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     m_reparseQbsCtx = new QAction(tr("Reparse Qbs"), this);
     command = Core::ActionManager::registerAction(m_reparseQbsCtx, Constants::ACTION_REPARSE_QBS_CONTEXT, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
-    mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
+    mproject->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
     connect(m_reparseQbsCtx, &QAction::triggered,
             this, &QbsProjectManagerPlugin::reparseSelectedProject);
 
@@ -159,7 +161,7 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDescription(m_buildFile->text());
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+B")));
-    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
+    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_FILE);
     connect(m_buildFile, &QAction::triggered, this, &QbsProjectManagerPlugin::buildFile);
 
     m_buildProductCtx = new QAction(tr("Build"), this);
@@ -176,7 +178,7 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDescription(m_buildFile->text());
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Shift+B")));
-    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
+    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_PRODUCT);
     connect(m_buildProduct, &QAction::triggered, this, &QbsProjectManagerPlugin::buildProduct);
 
     m_cleanProductCtx = new QAction(tr("Clean"), this);
@@ -187,12 +189,11 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     connect(m_cleanProductCtx, &QAction::triggered,
             this, &QbsProjectManagerPlugin::cleanProductContextMenu);
 
-    m_cleanProduct = new Utils::ParameterAction(tr("Clean Product"), tr("Clean Product \"%1\""),
-                                                Utils::ParameterAction::AlwaysEnabled, this);
+    m_cleanProduct = new QAction(Utils::Icons::CLEAN.icon(), tr("Clean"), this);
     command = Core::ActionManager::registerAction(m_cleanProduct, Constants::ACTION_CLEAN_PRODUCT);
     command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);
-    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_CLEAN);
+    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_PRODUCT);
     connect(m_cleanProduct, &QAction::triggered, this, &QbsProjectManagerPlugin::cleanProduct);
 
     m_rebuildProductCtx = new QAction(tr("Rebuild"), this);
@@ -203,14 +204,12 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     connect(m_rebuildProductCtx, &QAction::triggered,
             this, &QbsProjectManagerPlugin::rebuildProductContextMenu);
 
-    m_rebuildProduct = new Utils::ParameterAction(
-                tr("Rebuild Product"), tr("Rebuild Product \"%1\""),
-                Utils::ParameterAction::AlwaysEnabled, this);
+    m_rebuildProduct = new QAction(ProjectExplorer::Icons::REBUILD.icon(), tr("Rebuild"), this);
     command = Core::ActionManager::registerAction(m_rebuildProduct,
                                                   Constants::ACTION_REBUILD_PRODUCT);
     command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);
-    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_REBUILD);
+    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_PRODUCT);
     connect(m_rebuildProduct, &QAction::triggered, this, &QbsProjectManagerPlugin::rebuildProduct);
 
     m_buildSubprojectCtx = new QAction(tr("Build"), this);
@@ -358,10 +357,8 @@ void QbsProjectManagerPlugin::updateBuildActions()
     m_buildProduct->setParameter(productName);
     m_cleanProduct->setEnabled(enabled);
     m_cleanProduct->setVisible(productVisible);
-    m_cleanProduct->setParameter(productName);
     m_rebuildProduct->setEnabled(enabled);
     m_rebuildProduct->setVisible(productVisible);
-    m_rebuildProduct->setParameter(productName);
 }
 
 void QbsProjectManagerPlugin::projectChanged()

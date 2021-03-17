@@ -172,7 +172,7 @@
 
     \section2 Cleaning Projects
 
-    To clean the working directory, select \uicontrol {Clean Project}.
+    To clean the working directory, select \uicontrol {Build Project} > \uicontrol {Clean}.
     All files that are not under version control are displayed in
     the \uicontrol {Clean Repository} dialog. Ignored files are
     deselected by default. Select the files to delete and click
