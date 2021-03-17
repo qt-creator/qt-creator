@@ -65,6 +65,7 @@ public:
     bool importUsed() const;
     bool importRemovable() const;
     bool hasCategories() const;
+    bool hasSingleCategory() const;
     ItemLibraryCategory *getCategorySection(const QString &categoryName) const;
 
     void addCategory(ItemLibraryCategory *category);

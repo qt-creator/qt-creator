@@ -50,6 +50,9 @@ QString ItemLibraryImport::importName() const
     if (importUrl() == "QtQuick")
         return tr("Default Components");
 
+    if (m_import.isFileImport())
+        return m_import.toString(true, true);
+
     return importUrl().replace('.', ' ');
 }
 
@@ -63,6 +66,9 @@ QString ItemLibraryImport::importUrl() const
 
     if (m_sectionType == SectionType::Unimported)
         return unimportedComponentsTitle();
+
+    if (m_import.isFileImport())
+        return m_import.file();
 
     return m_import.url();
 }
@@ -166,6 +172,11 @@ bool ItemLibraryImport::importRemovable() const
 bool ItemLibraryImport::hasCategories() const
 {
     return m_categoryModel.rowCount() > 0;
+}
+
+bool ItemLibraryImport::hasSingleCategory() const
+{
+    return m_categoryModel.rowCount() == 1;
 }
 
 void ItemLibraryImport::sortCategorySections()
