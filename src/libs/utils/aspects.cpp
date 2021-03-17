@@ -406,7 +406,8 @@ void BaseAspect::addToLayout(LayoutBuilder &)
 void BaseAspect::apply()
 {
     QTC_CHECK(!d->m_autoApply);
-    setValue(volatileValue());
+    if (isDirty())
+        setValue(volatileValue());
 }
 
 /*!
@@ -418,7 +419,8 @@ void BaseAspect::apply()
 void BaseAspect::cancel()
 {
     QTC_CHECK(!d->m_autoApply);
-    setVolatileValue(d->m_value);
+    if (!d->m_subWidgets.isEmpty())
+        setVolatileValue(d->m_value);
 }
 
 void BaseAspect::finish()
@@ -434,6 +436,9 @@ bool BaseAspect::hasAction() const
 bool BaseAspect::isDirty() const
 {
     QTC_CHECK(!isAutoApply());
+    // Aspects that were never shown cannot contain unsaved user changes.
+    if (d->m_subWidgets.isEmpty())
+        return false;
     return volatileValue() != d->m_value;
 }
 
