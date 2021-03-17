@@ -2009,6 +2009,7 @@ class AspectContainerPrivate
 {
 public:
     QList<BaseAspect *> m_items; // Not owned
+    bool m_autoApply = true;
 };
 
 } // Internal
@@ -2027,13 +2028,14 @@ AspectContainer::~AspectContainer() = default;
 */
 void AspectContainer::registerAspect(BaseAspect *aspect)
 {
+    aspect->setAutoApply(d->m_autoApply);
     d->m_items.append(aspect);
 }
 
 void AspectContainer::registerAspects(const AspectContainer &aspects)
 {
     for (BaseAspect *aspect : qAsConst(aspects.d->m_items))
-        d->m_items.append(aspect);
+        registerAspect(aspect);
 }
 
 void AspectContainer::fromMap(const QVariantMap &map)
@@ -2086,6 +2088,7 @@ void AspectContainer::reset()
 
 void AspectContainer::setAutoApply(bool on)
 {
+    d->m_autoApply = on;
     for (BaseAspect *aspect : qAsConst(d->m_items))
         aspect->setAutoApply(on);
 }
