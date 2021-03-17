@@ -363,7 +363,8 @@ void CurveEditorView::commitKeyframes(TreeItem *item)
 void CurveEditorView::commitCurrentFrame(int frame)
 {
     QmlTimeline timeline = activeTimeline();
-    timeline.modelNode().setAuxiliaryData("currentFrame@NodeInstance", frame);
+    if (timeline.isValid())
+        timeline.modelNode().setAuxiliaryData("currentFrame@NodeInstance", frame);
 }
 
 void CurveEditorView::commitStartFrame(int frame)
