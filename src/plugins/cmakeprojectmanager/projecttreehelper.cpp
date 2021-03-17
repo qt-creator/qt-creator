@@ -233,7 +233,8 @@ void addFileSystemNodes(ProjectNode *root, const QList<const FileNode *> &allFil
 
     if (!fileSystemNode->isEmpty()) {
         // make file system nodes less probable to be selected when syncing with the current document
-        fileSystemNode->forEachGenericNode([](Node *n) { n->setPriority(n->priority() + 10); });
+        fileSystemNode->forEachGenericNode(
+            [](Node *n) { n->setPriority(n->priority() + Node::DefaultProjectFilePriority + 1); });
         root->addNode(std::move(fileSystemNode));
     }
 }
