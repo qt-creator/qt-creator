@@ -1,0 +1,3 @@
+module MyControls
+import QtQuick
+Oblong 1.0 Oblong.qml

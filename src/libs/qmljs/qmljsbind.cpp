@@ -221,19 +221,21 @@ bool Bind::visit(UiImport *ast)
     if (ast->version)
         version = ComponentVersion(ast->version->majorVersion, ast->version->minorVersion);
 
-    if (ast->importUri) {
+    if (auto importUri = ast->importUri) {
         QVersionNumber qtVersion;
+        QString uri = toString(importUri);
         if (ModelManagerInterface *model = ModelManagerInterface::instance()) {
             ModelManagerInterface::ProjectInfo pInfo = model->projectInfoForPath(_doc->fileName());
             qtVersion = QVersionNumber::fromString(pInfo.qtVersionString);
+            uri = pInfo.moduleMappings.value(uri, uri);
         }
         if (!version.isValid() && (!qtVersion.isNull() && qtVersion.majorVersion() < 6)) {
             _diagnosticMessages->append(
                         errorMessage(ast, tr("package import requires a version number")));
         }
         const QString importId = ast->importId.toString();
-        ImportInfo import = ImportInfo::moduleImport(toString(ast->importUri), version,
-                                                     importId, ast);
+
+        ImportInfo import = ImportInfo::moduleImport(uri, version, importId, ast);
         if (_doc->language() == Dialect::Qml) {
             const QString importStr = import.name() + importId;
             if (ModelManagerInterface::instance()) {

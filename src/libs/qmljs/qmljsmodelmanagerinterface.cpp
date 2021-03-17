@@ -615,6 +615,7 @@ ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfoForPath(
         res.applicationDirectories.append(pInfo.applicationDirectories);
         for (const auto &importPath : pInfo.importPaths)
             res.importPaths.maybeInsert(importPath);
+        res.moduleMappings.insert(pInfo.moduleMappings);
     }
     res.applicationDirectories = Utils::filteredUnique(res.applicationDirectories);
     return res;

@@ -140,7 +140,8 @@ private:
     void updateProjectData();
     void updateFallbackProjectData();
     QList<ProjectExplorer::ExtraCompiler *> findExtraCompilers();
-    void updateQmlJSCodeModel(const QStringList &extraHeaderPaths);
+    void updateQmlJSCodeModel(const QStringList &extraHeaderPaths,
+                              const QList<QByteArray> &moduleMappings);
 
     void handleParsingSucceeded();
     void handleParsingFailed(const QString &msg);

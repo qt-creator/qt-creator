@@ -61,18 +61,22 @@ private slots:
     void importTypes_data();
     void importTypes();
 
+    void moduleMapping_data();
+    void moduleMapping();
+
     void initTestCase();
 private:
     QStringList m_basePaths;
 };
 
-void scanDir(const QString &dir)
+void scanDirectory(const QString &dir)
 {
     QFutureInterface<void> result;
     PathsAndLanguages paths;
     paths.maybeInsert(Utils::FilePath::fromString(dir), Dialect::Qml);
     ModelManagerInterface::importScan(result, ModelManagerInterface::workingCopy(), paths,
                                       ModelManagerInterface::instance(), false);
+    QCoreApplication::processEvents();
     ModelManagerInterface::instance()->test_joinAllThreads();
     ViewerContext vCtx;
     vCtx.paths.append(dir);
@@ -269,6 +273,7 @@ void tst_ImportCheck::importTypes()
     modelManager->activateScan();
 
     modelManager->updateSourceFiles(QStringList(qmlFile), false);
+    QCoreApplication::processEvents();
     modelManager->test_joinAllThreads();
 
     Snapshot snapshot = modelManager->newestSnapshot();
@@ -283,6 +288,7 @@ void tst_ImportCheck::importTypes()
         return link();
     };
     getContext();
+    QCoreApplication::processEvents();
     modelManager->test_joinAllThreads();
     snapshot = modelManager->newestSnapshot();
     doc = snapshot.document(qmlFile);
@@ -297,6 +303,102 @@ void tst_ImportCheck::importTypes()
         }
     }
     QVERIFY(allFound);
+}
+
+typedef QHash<QString, QString> StrStrHash;
+
+void tst_ImportCheck::moduleMapping_data()
+{
+    QTest::addColumn<QString>("qmlFile");
+    QTest::addColumn<QString>("importPath");
+    QTest::addColumn<StrStrHash>("moduleMappings");
+    QTest::addColumn<QStringList>("expectedTypes");
+    QTest::addColumn<bool>("expectedResult");
+
+    QTest::newRow("check for plain QtQuick/Controls")
+            << QString(TESTSRCDIR "/moduleMapping/importQtQuick.qml")
+            << QString(TESTSRCDIR "/moduleMapping")
+            << StrStrHash()
+            << QStringList({ "Item", "Button" })
+            << true;
+    QTest::newRow("check that MyControls is not imported")
+            << QString(TESTSRCDIR "/moduleMapping/importQtQuick.qml")
+            << QString(TESTSRCDIR "/moduleMapping")
+            << StrStrHash()
+            << QStringList({ "Item", "Oblong" })
+            << false;
+    QTest::newRow("check that QtQuick controls cannot be found with a mapping")
+            << QString(TESTSRCDIR "/moduleMapping/importQtQuick.qml")
+            << QString(TESTSRCDIR "/moduleMapping")
+            << StrStrHash({ std::make_pair(QStringLiteral("QtQuick.Controls"), QStringLiteral("MyControls")) })
+            << QStringList({ "Item", "Button" })
+            << false;
+    QTest::newRow("check that custom controls can be found with a mapping")
+            << QString(TESTSRCDIR "/moduleMapping/importQtQuick.qml")
+            << QString(TESTSRCDIR "/moduleMapping")
+            << StrStrHash({ std::make_pair(QStringLiteral("QtQuick.Controls"), QStringLiteral("MyControls")) })
+            << QStringList({ "Item", "Oblong" })  // item is in QtQuick, and should still be found, as only
+                                                  // the QtQuick.Controls are redirected
+            << true;
+}
+
+void tst_ImportCheck::moduleMapping()
+{
+    QFETCH(QString, qmlFile);
+    QFETCH(QString, importPath);
+    QFETCH(StrStrHash, moduleMappings);
+    QFETCH(QStringList, expectedTypes);
+    QFETCH(bool, expectedResult);
+
+    // full reset
+    delete ModelManagerInterface::instance();
+    MyModelManager *modelManager = new MyModelManager;
+
+    ModelManagerInterface::ProjectInfo defaultProject;
+    defaultProject.importPaths = PathsAndLanguages();
+    QString qtQuickImportPath = QString(TESTSRCDIR "/importTypes/imports-QtQuick-qmldir-import");
+    defaultProject.importPaths.maybeInsert(Utils::FilePath::fromString(qtQuickImportPath), Dialect::Qml);
+    defaultProject.importPaths.maybeInsert(Utils::FilePath::fromString(importPath), Dialect::Qml);
+    defaultProject.moduleMappings = moduleMappings;
+    modelManager->setDefaultProject(defaultProject, nullptr);
+    modelManager->activateScan();
+
+    scanDirectory(importPath);
+    scanDirectory(qtQuickImportPath);
+
+    modelManager->updateSourceFiles(QStringList(qmlFile), false);
+    QCoreApplication::processEvents();
+    modelManager->test_joinAllThreads();
+
+    Snapshot snapshot = modelManager->newestSnapshot();
+    Document::Ptr doc = snapshot.document(qmlFile);
+    QVERIFY(!doc.isNull());
+
+    // It's unfortunate, but nowadays linking can trigger async module loads,
+    // so do it once to start the process, then do it again for real once the
+    // dependencies are available.
+    const auto getContext = [&]() {
+        Link link(snapshot, modelManager->completeVContext(modelManager->projectVContext(doc->language(), doc),doc),
+                  modelManager->builtins(doc));
+        return link();
+    };
+    getContext();
+    QCoreApplication::processEvents();
+    modelManager->test_joinAllThreads();
+    snapshot = modelManager->newestSnapshot();
+    doc = snapshot.document(qmlFile);
+
+    ContextPtr context = getContext();
+
+    bool allFound = true;
+    for (const auto &expected : expectedTypes) {
+        if (!context->lookupType(doc.data(), QStringList(expected))) {
+            allFound = false;
+            qWarning() << "Type '" << expected << "' not found";
+        }
+    }
+    QVERIFY(allFound == expectedResult);
+    delete ModelManagerInterface::instance();
 }
 
 #ifdef MANUAL_IMPORT_SCANNER

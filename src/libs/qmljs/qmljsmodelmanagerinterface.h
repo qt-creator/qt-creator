@@ -72,6 +72,7 @@ public:
         QStringList allResourceFiles;
         QHash<QString, QString> resourceFileContents;
         QStringList applicationDirectories;
+        QHash<QString, QString> moduleMappings; // E.g.: QtQuick.Controls -> MyProject.MyControls
 
         // whether trying to run qmldump makes sense
         bool tryQmlDump = false;

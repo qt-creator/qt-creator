@@ -1,0 +1,3 @@
+module MyControls
+import QtQuick
+Button 1.0 Button.qml
