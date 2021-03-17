@@ -175,28 +175,28 @@ public:
 class QTCREATOR_UTILS_EXPORT Column : public LayoutBuilder
 {
 public:
-    Column() : Column({}) {}
+    Column() : LayoutBuilder(VBoxLayout) {}
     Column(std::initializer_list<LayoutItem> items) : LayoutBuilder(VBoxLayout, items) {}
 };
 
 class QTCREATOR_UTILS_EXPORT Row : public LayoutBuilder
 {
 public:
-    Row() : Row({}) {}
+    Row() : LayoutBuilder(HBoxLayout) {}
     Row(std::initializer_list<LayoutItem> items) : LayoutBuilder(HBoxLayout, items) {}
 };
 
 class QTCREATOR_UTILS_EXPORT Grid : public LayoutBuilder
 {
 public:
-    Grid() : Grid({}) {}
+    Grid() : LayoutBuilder(GridLayout) {}
     Grid(std::initializer_list<LayoutItem> items) : LayoutBuilder(GridLayout, items) {}
 };
 
 class QTCREATOR_UTILS_EXPORT Form : public LayoutBuilder
 {
 public:
-    Form() : Form({}) {}
+    Form() : LayoutBuilder(FormLayout) {}
     Form(std::initializer_list<LayoutItem> items) : LayoutBuilder(FormLayout, items) {}
 };
 
