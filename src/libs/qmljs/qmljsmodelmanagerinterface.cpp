@@ -641,6 +641,10 @@ QList<ModelManagerInterface::ProjectInfo> ModelManagerInterface::allProjectInfos
         if (!info.project.isNull())
             infos.append(info);
     }
+    if (infos.isEmpty()) {
+        QMutexLocker locker(&m_mutex);
+        return { m_defaultProjectInfo };
+    }
     std::sort(infos.begin(), infos.end(), &pInfoLessThanImports);
     return infos;
 }
@@ -1200,6 +1204,10 @@ void ModelManagerInterface::updateImportPaths()
             allImportPaths.maybeInsert(Utils::FilePath::fromString(pathAtt), Dialect::QmlQtQuick2);
     }
 
+    for (const auto &importPath : defaultProjectInfo().importPaths) {
+        allImportPaths.maybeInsert(importPath);
+    }
+
     for (const QString &path : qAsConst(m_defaultImportPaths))
         allImportPaths.maybeInsert(Utils::FilePath::fromString(path), Dialect::Qml);
     allImportPaths.compact();
@@ -1432,6 +1440,8 @@ ViewerContext ModelManagerInterface::getVContext(const ViewerContext &vCtx,
         info.qtQmlPath = defaultInfo.qtQmlPath;
         info.qtVersionString = defaultInfo.qtVersionString;
     }
+    if (info.qtQmlPath.isEmpty() && info.importPaths.size() == 0)
+        info.importPaths = defaultInfo.importPaths;
     info.applicationDirectories = Utils::filteredUnique(info.applicationDirectories
                                                         + defaultInfo.applicationDirectories);
     switch (res.flags) {
