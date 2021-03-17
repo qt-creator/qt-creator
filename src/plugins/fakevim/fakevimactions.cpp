@@ -81,6 +81,8 @@ QString FvBaseAspect::settingsKey() const
 
 FakeVimSettings::FakeVimSettings()
 {
+    setAutoApply(false);
+
 #ifndef FAKEVIM_STANDALONE
     setup(&useFakeVim,     false, "UseFakeVim",     {},    tr("Use FakeVim"));
 #endif
