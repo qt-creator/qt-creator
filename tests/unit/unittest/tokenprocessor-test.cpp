@@ -350,14 +350,14 @@ TEST_F(TokenProcessor, LocalVariableReference)
     ASSERT_THAT(infos[0], IsHighlightingMark(81u, 5u, 3u, HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenProcessor, LocalVariableFunctionArgumentDeclaration)
+TEST_F(TokenProcessor, ParameterFunctionArgumentDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(84, 45));
 
     ASSERT_THAT(infos[5], IsHighlightingMark(84u, 41u, 3u, HighlightingType::Parameter));
 }
 
-TEST_F(TokenProcessor, LocalVariableFunctionArgumentReference)
+TEST_F(TokenProcessor, ParameterFunctionArgumentReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(86, 26));
 
