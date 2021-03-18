@@ -156,7 +156,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget()
     auto checkBoxUsePseudoTracepoints = new QCheckBox(groupBoxGeneral);
     checkBoxUsePseudoTracepoints->setText(GdbOptionsPage::tr("Use pseudo message tracepoints"));
     checkBoxUsePseudoTracepoints->setToolTip(GdbOptionsPage::tr(
-        "Uses python to extend the ordinary GDB breakpoint class."));
+        "Uses Python to extend the ordinary GDB breakpoint class."));
 
     QString howToUsePython = GdbOptionsPage::tr(
         "<p>To execute simple Python commands, prefix them with \"python\".</p>"
