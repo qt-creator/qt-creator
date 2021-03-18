@@ -5,7 +5,7 @@
             "SPDX-FileCopyrightText: 2016 Dominik Haumann <dhaumann@kde.org>"
         ],
         "license": "SPDX-License-Identifier: MIT",
-        "revision" : 2,
+        "revision" : 6,
         "name" : "Breeze Dark"
     },
     "text-styles": {
@@ -36,8 +36,8 @@
             "bold" : true
         },
         "Operator" : {
-            "text-color" : "#cfcfc2",
-            "selected-text-color" : "#cfcfc2"
+            "text-color" : "#3f8058",
+            "selected-text-color" : "#54aa75"
         },
         "BuiltIn" : {
             "text-color" : "#7f8c8d",
@@ -149,7 +149,7 @@
     "editor-colors": {
         "BackgroundColor" : "#232629",
         "CodeFolding" : "#224e65",
-        "BracketMatching" : "#8e44ad",
+        "BracketMatching" : "#323030",
         "CurrentLine" : "#2A2E32",
         "IconBorder" : "#31363b",
         "IndentationLine" : "#3a3f44",
@@ -167,7 +167,7 @@
         "SavedLines" : "#1c8042",
         "SearchHighlight" : "#218058",
         "TextSelection" : "#2d5c76",
-        "Separator" : "#7a7c7d",
+        "Separator" : "#3f4347",
         "SpellChecking" : "#c0392b",
         "TabMarker" : "#4d4d4d",
         "TemplateBackground" : "#31363b",

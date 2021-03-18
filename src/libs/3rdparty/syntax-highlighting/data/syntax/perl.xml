@@ -39,7 +39,7 @@
 
    Enhance tr/// and y/// support.
 -->
-<language name="Perl" version="13" kateversion="5.0" section="Scripts" extensions="*.pl;*.PL;*.pm" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPLv2">
+<language name="Perl" version="17" kateversion="5.0" section="Scripts" extensions="*.pl;*.PL;*.pm" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPLv2">
   <highlighting>
     <list name="keywords">
       <item>if</item>
@@ -339,7 +339,7 @@
     </list>
     <contexts>
       <context name="normal" attribute="Normal Text" lineEndContext="#stay">
-        <RegExpr attribute="Keyword" context="#stay" String="^#!\/.*" />
+        <RegExpr attribute="Keyword" context="#stay" String="^#!\/.*" column="0" />
         <StringDetect attribute="Keyword" context="data_handle" String="__DATA__" firstNonSpace="true" />
         <StringDetect attribute="Keyword" context="#stay" String="__END__" firstNonSpace="true"/>
         <RegExpr attribute="Keyword" context="sub_name_def" String="\bsub\s+" />
@@ -347,7 +347,7 @@
         <keyword attribute="Operator" context="#stay" String="operators" />
         <keyword attribute="Function" context="#stay" String="functions" />
         <keyword attribute="Pragma" context="#stay" String="pragmas" />
-        <RegExpr attribute="Pod" context="pod" String="\=\w+(\s|$)" column="0" beginRegion="POD"/>
+        <RegExpr attribute="Pod" context="pod" String="^\=\w+(\s|$)" column="0" beginRegion="POD"/>
         <DetectSpaces />
         <DetectChar attribute="Comment" context="comment" char="#" />
 
@@ -384,8 +384,7 @@
 
         <RegExpr attribute="Operator" context="find_pattern" String="\b(?:m|qr)(?=\s*[^\w\s\]})])" />
 
-        <RegExpr attribute="Normal Text" context="#stay" String="[\w_]+\s*//?\=?" />
-        <RegExpr attribute="Normal Text" context="#stay" String="[&lt;&gt;&quot;':]//?\=?" />
+        <RegExpr attribute="Normal Text" context="#stay" String="[\w_]+\s*//?\=?|[&lt;&gt;&quot;':]//?\=?" />
         <!-- Avoid conflicts between operators / and // -->
         <StringDetect attribute="Normal Text" context="#stay" String="//=" />
         <Detect2Chars attribute="Normal Text" context="#stay" char="/" char1="/" />
@@ -428,15 +427,7 @@
       <!-- ====== Contexts for strings ===== -->
       <context name="ipstring_internal" attribute="String (interpolated)" lineEndContext="#stay">
         <DetectIdentifier />
-        <RegExpr attribute="String Special Character" context="#stay" String="\\c[^\s\\]" />
-        <RegExpr attribute="String Special Character" context="#stay" String="\\g(\{(\w+|\-\d+)\}|\d+)" />
-        <RegExpr attribute="String Special Character" context="#stay" String="\\k(\{\w+\}|&lt;\w+&gt;|'\w+')" />
-        <RegExpr attribute="String Special Character" context="#stay" String="\\N\{[^\{\}]*\}" />
-        <RegExpr attribute="String Special Character" context="#stay" String="\\o\{[0-7]+\}" />
-        <RegExpr attribute="String Special Character" context="#stay" String="\\[pP](\{\w+\}|P)" />
-        <RegExpr attribute="String Special Character" context="#stay" String="\\x([0-9a-fA-F]{2}|\{[0-9a-fA-F]+\})" />
-        <RegExpr attribute="String Special Character" context="#stay" String="\\[0-7]{3}" />
-        <RegExpr attribute="String Special Character" context="#stay" String="\\[1aAbBdDeEfFGhHKlLnNQrRsStuUvVwWXzZ]" />
+        <RegExpr attribute="String Special Character" context="#stay" String="\\c[^\s\\]|\\g(\{(\w+|\-\d+)\}|\d+)|\\k(\{\w+\}|&lt;\w+&gt;|'\w+')|\\N\{[^\{\}]*\}|\\o\{[0-7]+\}|\\[pP](\{\w+\}|P)|\\x([0-9a-fA-F]{2}|\{[0-9a-fA-F]+\})|\\[0-7]{3}|\\[1aAbBdDeEfFGhHKlLnNQrRsStuUvVwWXzZ]" />
         <RegExpr attribute="String (interpolated)" context="#stay" String="\\." />
         <RegExpr attribute="Normal Text" context="find_variable_unsafe" String="(?:[\$@]\S|%([\w\{\-\+!]|\^H))" lookAhead="true" />
       </context>
@@ -465,7 +456,7 @@
         <IncludeRules context="ipstring_internal" />
       </context>
       <context name="ip_string_6" attribute="String (interpolated)" lineEndContext="#stay" dynamic="true">
-        <RegExpr attribute="String (interpolated)" context="#stay" String="\%1" dynamic="true" />
+        <StringDetect attribute="String (interpolated)" context="#stay" String="\%1" dynamic="true" />
         <DetectChar attribute="Operator" context="#pop#pop#pop" char="1" dynamic="true"  endRegion="String"/>
         <IncludeRules context="ipstring_internal" />
       </context>
@@ -508,7 +499,7 @@
       <context name="string_6" attribute="String" lineEndContext="#stay" dynamic="true">
         <DetectIdentifier />
         <Detect2Chars attribute="String Special Character" context="#stay" char="\" char1="\" />
-        <RegExpr attribute="String Special Character" context="#stay" String="\%1" dynamic="true"/>
+        <StringDetect attribute="String Special Character" context="#stay" String="\%1" dynamic="true"/>
         <DetectChar attribute="Operator" context="#pop#pop" char="1" dynamic="true" endRegion="String" />
       </context>
 
@@ -605,10 +596,7 @@
       </context>
 
       <context name="tr" attribute="Pattern" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop" >
-        <RegExpr attribute="Pattern" context="#pop" String="\([^)]*\)\s*\(?:[^)]*\)" />
-        <RegExpr attribute="Pattern" context="#pop" String="\{[^}]*\}\s*\{[^}]*\}" />
-        <RegExpr attribute="Pattern" context="#pop" String="\[[^]]*\]\s*\[[^\]]*\]" />
-        <RegExpr attribute="Pattern" context="#pop" String="([^a-zA-Z0-9_\s[\]{}()]).*\1.*\1" minimal="true"/>
+        <RegExpr attribute="Pattern" context="#pop" String="\([^)]*\)\s*\(?:[^)]*\)|\{[^}]*\}\s*\{[^}]*\}|\[[^]]*\]\s*\[[^\]]*\]|([^a-zA-Z0-9_\s[\]{}()]).*?\1.*?\1"/>
       </context>
 
       <!-- ====== PATTERNs ====== -->
@@ -629,7 +617,6 @@
         <RegExpr attribute="Pattern Internal Operator" context="#stay" String="\$(?=%1)" dynamic="true" />
         <RegExpr attribute="Operator" context="#pop#pop" String="%1[cgimosx]*" dynamic="true" endRegion="Pattern" />
         <IncludeRules context="regex_pattern_internal_ip" />
-        <RegExpr attribute="Pattern Internal Operator" context="#stay" String="\$(?=\%1)" dynamic="true" />
       </context>
       <context name="pattern_brace" attribute="Pattern" lineEndContext="#stay">
         <RegExpr attribute="Operator" context="#pop#pop" String="\}[cgimosx]*" endRegion="Pattern" />
@@ -663,13 +650,7 @@
       <!-- rules internal stuff wrt regex patterns -->
       <context name="regex_pattern_internal_rules_1" attribute="Pattern" lineEndContext="#stay">
         <DetectChar attribute="Comment" context="comment" char="#" firstNonSpace="true" />
-        <RegExpr attribute="Special Variable" context="#stay" String="\\c[^\s\\]" />
-        <RegExpr attribute="Special Variable" context="#stay" String="\\g(\{(\w+|\-\d+)\}|\d+)" />
-        <RegExpr attribute="Special Variable" context="#stay" String="\\k(\{\w+\}|&lt;\w+&gt;|'\w+')" />
-        <RegExpr attribute="Special Variable" context="#stay" String="\\N\{[^\{\}]*\}" />
-        <RegExpr attribute="Special Variable" context="#stay" String="\\o\{[0-7]+\}" />
-        <RegExpr attribute="Special Variable" context="#stay" String="\\[pP](\{\w+\}|P)" />
-        <RegExpr attribute="Special Variable" context="#stay" String="\\x([0-9a-fA-F]{2}|\{[0-9a-fA-F]+\})" />
+        <RegExpr attribute="Special Variable" context="#stay" String="\\c[^\s\\]|\\g(\{(\w+|\-\d+)\}|\d+)|\\k(\{\w+\}|&lt;\w+&gt;|'\w+')|\\N\{[^\{\}]*\}|\\o\{[0-7]+\}|\\[pP](\{\w+\}|P)|\\x([0-9a-fA-F]{2}|\{[0-9a-fA-F]+\})" />
         <RegExpr attribute="Pattern Character Class" context="#stay" String="\\[anDdSsWw]" />
         <RegExpr attribute="Pattern Internal Operator" context="#stay" String="\\[ABbEGLlNUuQdQZz]" /> <!-- Also?: efFhHKrRtvVX -->
         <RegExpr attribute="Special Variable" context="#stay" String="\\[\d]+" />
@@ -713,17 +694,10 @@
       <!-- ====== Variables ====== -->
       <context name="find_variable" attribute="Data Type" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop" >
         <RegExpr attribute="Data Type" context="var_detect" String="\$[#_][\w_]" />
-        <RegExpr attribute="Special Variable" context="var_detect" String="\$[0-9]+" />
-        <RegExpr attribute="Special Variable" context="var_detect" String="[@\$](?:[\+\-_]\B|ARGV\b|INC\b)" />
-        <RegExpr attribute="Special Variable" context="var_detect" String="[%\$](?:INC\b|ENV\b|SIG\b)" />
-        <RegExpr attribute="Special Variable" context="var_detect" String="\$\^[A-Z_\]\[\^\?\\]" />
-        <RegExpr attribute="Special Variable" context="var_detect" String="%([\-\+!]|\^H)" />
-        <RegExpr attribute="Data Type" context="var_detect" String="\$\$[\$\w_]" />
-        <RegExpr attribute="Data Type" context="var_detect" String="\$+::" />
+        <RegExpr attribute="Special Variable" context="var_detect" String="\$[0-9]+|[@\$](?:[\+\-_]\B|ARGV\b|INC\b)|[%\$](?:INC\b|ENV\b|SIG\b)|\$\^[A-Z_\]\[\^\?\\]|%([\-\+!]|\^H)" />
+        <RegExpr attribute="Data Type" context="var_detect" String="\$\$[\$\w_]|\$+::" />
         <RegExpr attribute="Special Variable" context="var_detect" String="\$[^a-zA-Z0-9\s{][A-Z]?" />
-        <RegExpr attribute="Data Type" context="var_detect" String="[\$@%]\{\^?[\w_]+\}" />
-        <AnyChar attribute="Data Type" context="var_detect" String="$@%" />
-        <RegExpr attribute="Data Type" context="var_detect" String="\*[a-zA-Z_]+" />
+        <RegExpr attribute="Data Type" context="var_detect" String="[\$@%]\{\^?[\w_]+\}|[$@%]|\*[a-zA-Z_]+" />
         <!-- Do not highlight brackets after *, Ex: (... @*) (see bug #391577) -->
         <RegExpr attribute="Special Variable" context="#stay" String="\*[^a-zA-Z0-9\s\{\(\)\[\]\}][A-Z]?" />
         <!-- this should be a rare case! -->
@@ -732,17 +706,11 @@
       <!-- This does not check fo a trailing slash, for usage in strings. -->
       <context name="find_variable_unsafe" attribute="Data Type" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop" >
         <RegExpr attribute="Data Type" context="var_detect_unsafe" String="\$[#_][\w_]" />
-        <RegExpr attribute="Special Variable" context="var_detect_unsafe" String="\$[0-9]+" />
-        <RegExpr attribute="Special Variable" context="var_detect_unsafe" String="[@\$](?:[\+\-_]\B|ARGV\b|INC\b)" />
-        <RegExpr attribute="Special Variable" context="var_detect_unsafe" String="[%\$](?:INC\b|ENV\b|SIG\b)" />
-        <RegExpr attribute="Special Variable" context="var_detect" String="\$\^[A-Z_\]\[\^\?\\]" />
-        <RegExpr attribute="Special Variable" context="var_detect" String="%([\-\+!]|\^H)" />
-        <RegExpr attribute="Data Type" context="var_detect_unsafe" String="\$\$[\$\w_]" />
-        <RegExpr attribute="Data Type" context="var_detect_unsafe" String="\$+::" />
+        <RegExpr attribute="Special Variable" context="var_detect_unsafe" String="\$[0-9]+|[@\$](?:[\+\-_]\B|ARGV\b|INC\b)|[%\$](?:INC\b|ENV\b|SIG\b)" />
+        <RegExpr attribute="Special Variable" context="var_detect" String="\$\^[A-Z_\]\[\^\?\\]|%([\-\+!]|\^H)" />
+        <RegExpr attribute="Data Type" context="var_detect_unsafe" String="\$\$[\$\w_]|\$+::" />
         <RegExpr attribute="Special Variable" context="#stay" String="\$[^a-zA-Z0-9\s{][A-Z]?" />
-        <RegExpr attribute="Data Type" context="var_detect_unsafe" String="[\$@%]\{\^?[\w_]+\}" />
-        <AnyChar attribute="Data Type" context="var_detect_unsafe" String="$@%" />
-        <RegExpr attribute="Data Type" context="var_detect_unsafe" String="\*\w+" />
+        <RegExpr attribute="Data Type" context="var_detect_unsafe" String="[\$@%]\{\^?[\w_]+\}|[$@%]|\*\w+" />
         <AnyChar attribute="Operator" context="#pop" String="$@%*" />
       </context>
       <context name="var_detect"  attribute="Data Type" lineEndContext="#pop#pop" fallthrough="true" fallthroughContext="#pop#pop">
@@ -767,7 +735,7 @@
       <context name="quote_word" attribute="Normal Text" lineEndContext="#stay" dynamic="true">
         <DetectSpaces />
         <DetectIdentifier />
-        <RegExpr attribute="Normal Text" context="#stay" String="\\%1" dynamic="true" />
+        <StringDetect attribute="Normal Text" context="#stay" String="\%1" dynamic="true" />
         <DetectChar attribute="Operator" context="#pop#pop#pop" char="1" dynamic="true" endRegion="Wordlist" />
       </context>
       <context name="quote_word_paren" attribute="Normal Text" lineEndContext="#stay">
@@ -791,26 +759,24 @@
 
       <!-- ====== Here Documents ====== -->
       <context name="find_here_document" attribute="Normal Text" lineEndContext="#pop" >
-        <RegExpr attribute="Keyword" context="here_document" String="(\w+)\s*;?" />
-        <RegExpr attribute="Keyword" context="here_document" String="\s*&quot;([^&quot;]+)&quot;\s*;?" />
-        <RegExpr attribute="Keyword" context="here_document" String="\s*`([^`]+)`\s*;?" />
+        <RegExpr attribute="Keyword" context="here_document" String="(?|(\w+)\s*;?|\s*&quot;([^&quot;]+)&quot;\s*;?|\s*`([^`]+)`\s*;?)" />
         <RegExpr attribute="Keyword" context="here_document_dumb" String="\s*'([^']+)'\s*;?" />
       </context>
       <context name="here_document" attribute="String (interpolated)" lineEndContext="#stay" dynamic="true">
-        <RegExpr attribute="Keyword" context="#pop#pop" String="%1\b" column="0" dynamic="true" endRegion="HereDocument"/>
+        <RegExpr attribute="Keyword" context="#pop#pop" String="^%1\b" column="0" dynamic="true" endRegion="HereDocument"/>
         <RegExpr attribute="Keyword" context="here_document" String="\=\s*&lt;&lt;\s*[&quot;']?([A-Z0-9_\-]+)[&quot;']?" beginRegion="HEREDoc" />
         <IncludeRules context="ipstring_internal" />
         <DetectSpaces />
       </context>
       <context name="here_document_dumb" attribute="Normal Text" lineEndContext="#stay" dynamic="true">
-        <RegExpr attribute="Keyword" context="#pop#pop" String="%1" column="0" dynamic="true" endRegion="HereDocument"/>
+        <StringDetect attribute="Keyword" context="#pop#pop" String="%1" column="0" dynamic="true" endRegion="HereDocument"/>
         <DetectSpaces />
         <DetectIdentifier />
       </context>
 
       <!-- ====== Misc ====== -->
       <context name="data_handle" attribute="Data" lineEndContext="#stay">
-        <RegExpr attribute="Pod" context="pod" String="\=(?:head[1-6]|over|back|item|for|begin|end|pod)\s+.*" column="0" beginRegion="POD"/>
+        <RegExpr attribute="Pod" context="pod" String="^\=(?:head[1-6]|over|back|item|for|begin|end|pod)\s+.*" column="0" beginRegion="POD"/>
         <StringDetect attribute="Keyword" context="normal" String="__END__" firstNonSpace="true" />
       </context>
 
@@ -841,14 +807,13 @@
       <context name="pod" attribute="Pod" lineEndContext="#stay">
         <DetectSpaces />
         <DetectIdentifier />
-        <RegExpr attribute="Pod" context="#stay" String="\=(?:head[1-6]|over|back|item|for|begin|end|pod)\s*.*" column="0" beginRegion="POD" endRegion="POD"/>
+        <RegExpr attribute="Pod" context="#stay" String="^\=(?:head[1-6]|over|back|item|for|begin|end|pod)\s*.*" column="0" beginRegion="POD" endRegion="POD"/>
         <StringDetect attribute="Pod" context="Pod" String="=cut" column="0" endRegion="POD"/>
       </context>
 
       <context name="comment" attribute="Comment" lineEndContext="#pop">
         <DetectSpaces />
-        <IncludeRules context="##Alerts" />
-        <IncludeRules context="##Modelines" />
+        <IncludeRules context="##Comments" />
         <DetectIdentifier />
       </context>
 

@@ -76,6 +76,33 @@ void HtmlHighlighter::highlightFile(const QString &fileName, const QString &titl
         highlightData(&f, title);
 }
 
+/**
+ * @brief toHtmlRgba
+ * Converts QColor -> rgba(r, g, b, a) if there is an alpha channel
+ * otherwise it will just return the hexcode. This is because QColor
+ * outputs #AARRGGBB, whereas browser support #RRGGBBAA.
+ *
+ * @param color
+ * @return
+ */
+static QString toHtmlRgbaString(const QColor &color)
+{
+    if (color.alpha() == 0xFF)
+        return color.name();
+
+    QString rgba = QStringLiteral("rgba(");
+    rgba.append(QString::number(color.red()));
+    rgba.append(QLatin1Char(','));
+    rgba.append(QString::number(color.green()));
+    rgba.append(QLatin1Char(','));
+    rgba.append(QString::number(color.blue()));
+    rgba.append(QLatin1Char(','));
+    // this must be alphaF
+    rgba.append(QString::number(color.alphaF()));
+    rgba.append(QLatin1Char(')'));
+    return rgba;
+}
+
 void HtmlHighlighter::highlightData(QIODevice *dev, const QString &title)
 {
     if (!d->out) {
@@ -94,11 +121,12 @@ void HtmlHighlighter::highlightData(QIODevice *dev, const QString &title)
     *d->out << "<html><head>\n";
     *d->out << "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n";
     *d->out << "<title>" << htmlTitle << "</title>\n";
-    *d->out << "<meta name=\"generator\" content=\"KF5::SyntaxHighlighting - Definition (" << definition().name() << ") - Theme (" << theme().name() << ")\"/>\n";
+    *d->out << "<meta name=\"generator\" content=\"KF5::SyntaxHighlighting - Definition (" << definition().name() << ") - Theme (" << theme().name()
+            << ")\"/>\n";
     *d->out << "</head><body";
-    *d->out << " style=\"background-color:" << QColor(theme().editorColor(Theme::BackgroundColor)).name();
+    *d->out << " style=\"background-color:" << toHtmlRgbaString(QColor::fromRgba(theme().editorColor(Theme::BackgroundColor)));
     if (theme().textColor(Theme::Normal))
-        *d->out << ";color:" << QColor(theme().textColor(Theme::Normal)).name();
+        *d->out << ";color:" << toHtmlRgbaString(QColor::fromRgba(theme().textColor(Theme::Normal)));
     *d->out << "\"><pre>\n";
 
     QTextStream in(dev);
@@ -128,9 +156,9 @@ void HtmlHighlighter::applyFormat(int offset, int length, const Format &format)
     // collect potential output, cheaper than thinking about "is there any?"
     QVarLengthArray<QString, 16> formatOutput;
     if (format.hasTextColor(theme()))
-        formatOutput << QStringLiteral("color:") << format.textColor(theme()).name() << QStringLiteral(";");
+        formatOutput << QStringLiteral("color:") << toHtmlRgbaString(format.textColor(theme())) << QStringLiteral(";");
     if (format.hasBackgroundColor(theme()))
-        formatOutput << QStringLiteral("background-color:") << format.backgroundColor(theme()).name() << QStringLiteral(";");
+        formatOutput << QStringLiteral("background-color:") << toHtmlRgbaString(format.backgroundColor(theme())) << QStringLiteral(";");
     if (format.isBold(theme()))
         formatOutput << QStringLiteral("font-weight:bold;");
     if (format.isItalic(theme()))

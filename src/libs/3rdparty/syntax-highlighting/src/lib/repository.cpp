@@ -18,6 +18,7 @@
 #include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
+#include <QPalette>
 
 #ifndef NO_STANDARD_PATHS
 #include <QStandardPaths>
@@ -62,7 +63,9 @@ Definition Repository::definitionForName(const QString &defName) const
 
 static void sortDefinitions(QVector<Definition> &definitions)
 {
-    std::stable_sort(definitions.begin(), definitions.end(), [](const Definition &lhs, const Definition &rhs) { return lhs.priority() > rhs.priority(); });
+    std::stable_sort(definitions.begin(), definitions.end(), [](const Definition &lhs, const Definition &rhs) {
+        return lhs.priority() > rhs.priority();
+    });
 }
 
 Definition Repository::definitionForFileName(const QString &fileName) const
@@ -133,11 +136,50 @@ Theme Repository::theme(const QString &themeName) const
     return Theme();
 }
 
-Theme Repository::defaultTheme(Repository::DefaultTheme t)
+Theme Repository::defaultTheme(Repository::DefaultTheme t) const
 {
     if (t == DarkTheme)
         return theme(QLatin1String("Breeze Dark"));
     return theme(QLatin1String("Breeze Light"));
+}
+
+Theme Repository::defaultTheme(Repository::DefaultTheme t)
+{
+    return qAsConst(*this).defaultTheme(t);
+}
+
+Theme Repository::themeForPalette(const QPalette &palette) const
+{
+    const auto base = palette.color(QPalette::Base);
+    const auto themes = d->m_themes;
+
+    // find themes with matching background colors
+    QVector<KSyntaxHighlighting::Theme> matchingThemes;
+    for (const auto &theme : themes) {
+        const auto background = theme.editorColor(KSyntaxHighlighting::Theme::EditorColorRole::BackgroundColor);
+        if (background == base.rgb()) {
+            matchingThemes.append(theme);
+        }
+    }
+    if (!matchingThemes.empty()) {
+        // if there's multiple, search for one with a matching highlight color
+        const auto highlight = palette.color(QPalette::Highlight);
+        for (const auto &theme : qAsConst(matchingThemes)) {
+            auto selection = theme.editorColor(KSyntaxHighlighting::Theme::EditorColorRole::TextSelection);
+            if (selection == highlight.rgb()) {
+                return theme;
+            }
+        }
+        return matchingThemes.first();
+    }
+
+    // fallback to just use the default light or dark theme
+    return defaultTheme((base.lightness() < 128) ? KSyntaxHighlighting::Repository::DarkTheme : KSyntaxHighlighting::Repository::LightTheme);
+}
+
+Theme Repository::themeForPalette(const QPalette &palette)
+{
+    return qAsConst(*this).themeForPalette(palette);
 }
 
 void RepositoryPrivate::load(Repository *repo)
@@ -147,7 +189,8 @@ void RepositoryPrivate::load(Repository *repo)
 
     // do lookup in standard paths, if not disabled
 #ifndef NO_STANDARD_PATHS
-    for (const auto &dir : QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("org.kde.syntax-highlighting/syntax"), QStandardPaths::LocateDirectory))
+    for (const auto &dir :
+         QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("org.kde.syntax-highlighting/syntax"), QStandardPaths::LocateDirectory))
         loadSyntaxFolder(repo, dir);
 
     // backward compatibility with Kate
@@ -176,7 +219,8 @@ void RepositoryPrivate::load(Repository *repo)
 
     // do lookup in standard paths, if not disabled
 #ifndef NO_STANDARD_PATHS
-    for (const auto &dir : QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("org.kde.syntax-highlighting/themes"), QStandardPaths::LocateDirectory))
+    for (const auto &dir :
+         QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("org.kde.syntax-highlighting/themes"), QStandardPaths::LocateDirectory))
         loadThemeFolder(dir);
 #endif
 
@@ -256,7 +300,9 @@ static int themeRevision(const Theme &theme)
 
 void RepositoryPrivate::addTheme(const Theme &theme)
 {
-    const auto it = std::lower_bound(m_themes.begin(), m_themes.end(), theme, [](const Theme &lhs, const Theme &rhs) { return lhs.name() < rhs.name(); });
+    const auto it = std::lower_bound(m_themes.begin(), m_themes.end(), theme, [](const Theme &lhs, const Theme &rhs) {
+        return lhs.name() < rhs.name();
+    });
     if (it == m_themes.end() || (*it).name() != theme.name()) {
         m_themes.insert(it, theme);
         return;

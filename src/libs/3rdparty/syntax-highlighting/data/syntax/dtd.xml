@@ -3,7 +3,7 @@
   <!ENTITY nmtoken "[\-\w\d\.:_]+">
   <!ENTITY entref  "(#[0-9]+|#[xX][0-9A-Fa-f]+|&nmtoken;);">
 ]>
-<language name="DTD" version="3" kateversion="3.4" section="Markup" extensions="*.dtd" mimetype="application/xml-dtd" author="Andriy Lesyuk (s-andy@in.if.ua)" license="LGPL">
+<language name="DTD" version="4" kateversion="5.0" section="Markup" extensions="*.dtd" mimetype="application/xml-dtd" author="Andriy Lesyuk (s-andy@in.if.ua)" license="LGPL">
   <highlighting>
 
     <list name="Category">
@@ -45,8 +45,7 @@
       <context name="Comment" attribute="Comment" lineEndContext="#stay">
         <DetectSpaces />
         <StringDetect attribute="Comment" context="#pop" String="--&gt;" endRegion="comment" />
-        <IncludeRules context="##Alerts" />
-        <IncludeRules context="##Modelines" />
+        <IncludeRules context="##Comments" />
         <DetectIdentifier />
       </context>
 
@@ -78,7 +77,7 @@
       <context name="InlineComment" attribute="Comment" lineEndContext="#pop">
         <DetectSpaces />
         <Detect2Chars attribute="Comment" context="#pop" char="-" char1="-" />
-        <IncludeRules context="##Alerts" />
+        <IncludeRules context="##Comments" />
         <DetectIdentifier />
       </context>
 

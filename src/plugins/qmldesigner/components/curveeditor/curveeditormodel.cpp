@@ -63,9 +63,9 @@ CurveEditorStyle CurveEditorModel::style() const
 {
     // Pseudo auto generated. See: CurveEditorStyleDialog
     CurveEditorStyle out;
-    out.backgroundBrush = QBrush(QColor(21, 21, 21));
-    out.backgroundAlternateBrush = QBrush(QColor(32, 32, 32));
-    out.fontColor = QColor(255, 255, 255);
+    out.backgroundBrush = QmlDesigner::Theme::getColor(QmlDesigner::Theme::DSsectionHeadBackground);
+    out.backgroundAlternateBrush = QmlDesigner::Theme::getColor(QmlDesigner::Theme::DSpanelBackground);
+    out.fontColor = QmlDesigner::Theme::getColor(QmlDesigner::Theme::DStextColor);
     out.gridColor = QColor(114, 116, 118);
     out.canvasMargin = 15;
     out.zoomInWidth = 99;

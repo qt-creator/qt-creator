@@ -5,36 +5,39 @@
 */
 
 #include "ansihighlighter.h"
+#include "context_p.h"
 #include "definition.h"
+#include "definition_p.h"
 #include "format.h"
 #include "ksyntaxhighlighting_logging.h"
 #include "state.h"
-#include "theme.h"
 #include "state_p.h"
-#include "context_p.h"
-#include "definition_p.h"
+#include "theme.h"
 
+#include <QColor>
 #include <QFile>
 #include <QFileInfo>
-#include <QTextStream>
-#include <QColor>
 #include <QMap>
-#include <QtMath>
+#include <QTextStream>
 
-#include <vector>
 #include <cmath>
+#include <vector>
 
 using namespace KSyntaxHighlighting;
 
 namespace
 {
-    struct CieLab
-    {
-        double l;
-        double a;
-        double b;
-    };
+struct CieLab {
+    double l;
+    double a;
+    double b;
+};
 
+#ifndef M_PI
+constexpr double M_PI = 3.14159265358979323846;
+#endif
+
+// clang-format off
     // xterm color reference
     // constexpr Rgb888 xterm256Colors[] {
     //     {0x00, 0x00, 0x00}, {0x80, 0x00, 0x00}, {0x00, 0x80, 0x00}, {0x80, 0x80, 0x00},
@@ -377,207 +380,208 @@ namespace
     constexpr double illuminant_D65[] {
         0.95047, 1.00000, 1.08883,
     };
+// clang-format on
 
-    // convert a sRGB (D65) color to CIELAB (D65)
-    CieLab rgbToLab(QRgb rgb)
-    {
-        // Perform the inverse gamma companding for a sRGB color
-        // http://www.brucelindbloom.com/index.html?Eqn_RGB_to_XYZ.html
-        auto inverseGammaCompanding = [](int c){
-            if (c <= 10)
-                return c / (255.0 * 12.92);
-            else
-                return std::pow((c / 255.0 + 0.055) / 1.055, 2.4);
-        };
-
-        const double r = inverseGammaCompanding(qRed(rgb));
-        const double g = inverseGammaCompanding(qGreen(rgb));
-        const double b = inverseGammaCompanding(qBlue(rgb));
-
-        const double x = (r * sRGB_D65[0] + g * sRGB_D65[1] + b * sRGB_D65[2]);
-        const double y = (r * sRGB_D65[3] + g * sRGB_D65[4] + b * sRGB_D65[5]);
-        const double z = (r * sRGB_D65[6] + g * sRGB_D65[7] + b * sRGB_D65[8]);
-
-        // http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_Lab.html
-        auto f = [](double t) {
-            if (t > 216.0 / 24389.0)
-                return std::cbrt(t);
-            else
-                return t * (24389.0 / (27.0 * 116.0)) + 4.0 / 29.0;
-        };
-
-        const double f_x = f(x / illuminant_D65[0]);
-        const double f_y = f(y / illuminant_D65[1]);
-        const double f_z = f(z / illuminant_D65[2]);
-
-        return CieLab{
-            116.0 * f_y - 16.0,
-            500.0 * (f_x - f_y),
-            200.0 * (f_y - f_z),
-        };
-    }
-
-
-    constexpr double epsilon = 1e-15;
-
-    inline double sinDegree(double x) { return std::sin(x * M_PI / 180.0); }
-
-    inline double cosDegree(double x) { return std::cos(x * M_PI / 180.0); }
-
-    inline double pow2(double x) { return x * x; }
-
-    inline double computeHPrime(double a_prime, double b)
-    {
-        if (std::abs(a_prime) < epsilon && std::abs(b) < epsilon)
-            return 0.0;
-
-        const double value = std::atan2(b, a_prime) * 180.0 / M_PI;
-        return (value < 0.0) ? value + 360.0 : value;
-    }
-
-    inline double computeDeltaHPrime(double C1_prime, double C2_prime, double h1_prime, double h2_prime)
-    {
-        if (C1_prime * C2_prime < epsilon)
-            return 0.0;
-
-        const double diff = h2_prime - h1_prime;
-
-        if (std::abs(diff) <= 180.0)
-            return diff;
-        else if (diff > 180.0)
-            return diff - 360.0;
+// convert a sRGB (D65) color to CIELAB (D65)
+CieLab rgbToLab(QRgb rgb)
+{
+    // Perform the inverse gamma companding for a sRGB color
+    // http://www.brucelindbloom.com/index.html?Eqn_RGB_to_XYZ.html
+    auto inverseGammaCompanding = [](int c) {
+        if (c <= 10)
+            return c / (255.0 * 12.92);
         else
-            return diff + 360.0;
-    }
+            return std::pow((c / 255.0 + 0.055) / 1.055, 2.4);
+    };
 
-    inline double computeHPrimeBar(double C1_prime, double C2_prime, double h1_prime, double h2_prime)
-    {
-        const double sum  = h1_prime + h2_prime;
+    const double r = inverseGammaCompanding(qRed(rgb));
+    const double g = inverseGammaCompanding(qGreen(rgb));
+    const double b = inverseGammaCompanding(qBlue(rgb));
 
-        if (C1_prime * C2_prime < epsilon)
-            return sum;
+    const double x = (r * sRGB_D65[0] + g * sRGB_D65[1] + b * sRGB_D65[2]);
+    const double y = (r * sRGB_D65[3] + g * sRGB_D65[4] + b * sRGB_D65[5]);
+    const double z = (r * sRGB_D65[6] + g * sRGB_D65[7] + b * sRGB_D65[8]);
 
-        const double dist = std::abs(h1_prime - h2_prime);
-
-        if (dist <= 180.0)
-            return 0.5 * sum;
-        else if (sum < 360.0)
-            return 0.5 * (sum + 360.0);
+    // http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_Lab.html
+    auto f = [](double t) {
+        if (t > 216.0 / 24389.0)
+            return std::cbrt(t);
         else
-            return 0.5 * (sum - 360.0);
+            return t * (24389.0 / (27.0 * 116.0)) + 4.0 / 29.0;
+    };
+
+    const double f_x = f(x / illuminant_D65[0]);
+    const double f_y = f(y / illuminant_D65[1]);
+    const double f_z = f(z / illuminant_D65[2]);
+
+    return CieLab{
+        116.0 * f_y - 16.0,
+        500.0 * (f_x - f_y),
+        200.0 * (f_y - f_z),
+    };
+}
+
+constexpr double epsilon = 1e-15;
+
+inline double sinDegree(double x)
+{
+    return std::sin(x * M_PI / 180.0);
+}
+
+inline double cosDegree(double x)
+{
+    return std::cos(x * M_PI / 180.0);
+}
+
+inline double pow2(double x)
+{
+    return x * x;
+}
+
+inline double computeHPrime(double a_prime, double b)
+{
+    if (std::abs(a_prime) < epsilon && std::abs(b) < epsilon)
+        return 0.0;
+
+    const double value = std::atan2(b, a_prime) * 180.0 / M_PI;
+    return (value < 0.0) ? value + 360.0 : value;
+}
+
+inline double computeDeltaHPrime(double C1_prime, double C2_prime, double h1_prime, double h2_prime)
+{
+    if (C1_prime * C2_prime < epsilon)
+        return 0.0;
+
+    const double diff = h2_prime - h1_prime;
+
+    if (std::abs(diff) <= 180.0)
+        return diff;
+    else if (diff > 180.0)
+        return diff - 360.0;
+    else
+        return diff + 360.0;
+}
+
+inline double computeHPrimeBar(double C1_prime, double C2_prime, double h1_prime, double h2_prime)
+{
+    const double sum = h1_prime + h2_prime;
+
+    if (C1_prime * C2_prime < epsilon)
+        return sum;
+
+    const double dist = std::abs(h1_prime - h2_prime);
+
+    if (dist <= 180.0)
+        return 0.5 * sum;
+    else if (sum < 360.0)
+        return 0.5 * (sum + 360.0);
+    else
+        return 0.5 * (sum - 360.0);
+}
+
+/// Calculate the perceptual color difference based on CIEDE2000.
+/// https://en.wikipedia.org/wiki/Color_difference#CIEDE2000
+/// \return The color difference of the two colors.
+double calculate_CIEDE2000(const CieLab &color1, const CieLab &color2)
+{
+    const double L1 = color1.l;
+    const double a1 = color1.a;
+    const double b1 = color1.b;
+    const double L2 = color2.l;
+    const double a2 = color2.a;
+    const double b2 = color2.b;
+
+    const double _25_pow_7 = /*std::pow(25.0, 7.0) = */ 6103515625.0;
+
+    const double C1_ab = std::sqrt(a1 * a1 + b1 * b1);
+    const double C2_ab = std::sqrt(a2 * a2 + b2 * b2);
+    const double C_ab_bar = 0.5 * (C1_ab + C2_ab);
+    const double c_ab_bar_pow_7 = std::pow(C_ab_bar, 7.0);
+    const double G = 0.5 * (1.0 - std::sqrt(c_ab_bar_pow_7 / (c_ab_bar_pow_7 + _25_pow_7)));
+    const double a1_prime = (1.0 + G) * a1;
+    const double a2_prime = (1.0 + G) * a2;
+    const double C1_prime = std::sqrt(a1_prime * a1_prime + b1 * b1);
+    const double C2_prime = std::sqrt(a2_prime * a2_prime + b2 * b2);
+    const double h1_prime = computeHPrime(a1_prime, b1);
+    const double h2_prime = computeHPrime(a2_prime, b2);
+
+    const double deltaL_prime = L2 - L1;
+    const double deltaC_prime = C2_prime - C1_prime;
+    const double deltah_prime = computeDeltaHPrime(C1_prime, C2_prime, h1_prime, h2_prime);
+    const double deltaH_prime = 2.0 * std::sqrt(C1_prime * C2_prime) * sinDegree(0.5 * deltah_prime);
+
+    const double L_primeBar = 0.5 * (L1 + L2);
+    const double C_primeBar = 0.5 * (C1_prime + C2_prime);
+    const double h_primeBar = computeHPrimeBar(C1_prime, C2_prime, h1_prime, h2_prime);
+
+    const double T = 1.0 - 0.17 * cosDegree(h_primeBar - 30.0) + 0.24 * cosDegree(2.0 * h_primeBar) + 0.32 * cosDegree(3.0 * h_primeBar + 6.0)
+        - 0.20 * cosDegree(4.0 * h_primeBar - 63.0);
+
+    const double C_primeBar_pow7 = std::pow(C_primeBar, 7.0);
+    const double R_C = 2.0 * std::sqrt(C_primeBar_pow7 / (C_primeBar_pow7 + _25_pow_7));
+    const double S_L = 1.0 + (0.015 * pow2(L_primeBar - 50.0)) / std::sqrt(20.0 + pow2(L_primeBar - 50.0));
+    const double S_C = 1.0 + 0.045 * C_primeBar;
+    const double S_H = 1.0 + 0.015 * C_primeBar * T;
+    const double R_T = -R_C * sinDegree(60.0 * std::exp(-pow2((h_primeBar - 275) / 25.0)));
+
+    constexpr double kL = 1.0;
+    constexpr double kC = 1.0;
+    constexpr double kH = 1.0;
+
+    const double deltaL = deltaL_prime / (kL * S_L);
+    const double deltaC = deltaC_prime / (kC * S_C);
+    const double deltaH = deltaH_prime / (kH * S_H);
+
+    return /*std::sqrt*/ (deltaL * deltaL + deltaC * deltaC + deltaH * deltaH + R_T * deltaC * deltaH);
+}
+
+struct AnsiBuffer {
+    using ColorCache = QMap<QRgb, int>;
+
+    void append(char c)
+    {
+        Q_ASSERT(remaining() >= 1);
+        m_data[m_size] = c;
+        ++m_size;
     }
 
-    /// Calculate the perceptual color difference based on CIEDE2000.
-    /// https://en.wikipedia.org/wiki/Color_difference#CIEDE2000
-    /// \return The color difference of the two colors.
-    double calculate_CIEDE2000(const CieLab& color1, const CieLab& color2)
+    void append(QLatin1String str)
     {
-        const double L1 = color1.l;
-        const double a1 = color1.a;
-        const double b1 = color1.b;
-        const double L2 = color2.l;
-        const double a2 = color2.a;
-        const double b2 = color2.b;
-
-        const double _25_pow_7 = /*std::pow(25.0, 7.0) = */6103515625.0;
-
-        const double C1_ab = std::sqrt(a1 * a1 + b1 * b1);
-        const double C2_ab = std::sqrt(a2 * a2 + b2 * b2);
-        const double C_ab_bar = 0.5 * (C1_ab + C2_ab);
-        const double c_ab_bar_pow_7 = std::pow(C_ab_bar, 7.0);
-        const double G = 0.5 * (1.0 - std::sqrt(c_ab_bar_pow_7 / (c_ab_bar_pow_7 + _25_pow_7)));
-        const double a1_prime = (1.0 + G) * a1;
-        const double a2_prime = (1.0 + G) * a2;
-        const double C1_prime = std::sqrt(a1_prime * a1_prime + b1 * b1);
-        const double C2_prime = std::sqrt(a2_prime * a2_prime + b2 * b2);
-        const double h1_prime = computeHPrime(a1_prime, b1);
-        const double h2_prime = computeHPrime(a2_prime, b2);
-
-        const double deltaL_prime = L2 - L1;
-        const double deltaC_prime = C2_prime - C1_prime;
-        const double deltah_prime = computeDeltaHPrime(C1_prime, C2_prime, h1_prime, h2_prime);
-        const double deltaH_prime = 2.0 * std::sqrt(C1_prime * C2_prime) * sinDegree(0.5 * deltah_prime);
-
-        const double L_primeBar = 0.5 * (L1 + L2);
-        const double C_primeBar = 0.5 * (C1_prime + C2_prime);
-        const double h_primeBar = computeHPrimeBar(C1_prime, C2_prime, h1_prime, h2_prime);
-
-        const double T = 1.0
-                       - 0.17 * cosDegree(h_primeBar - 30.0)
-                       + 0.24 * cosDegree(2.0 * h_primeBar)
-                       + 0.32 * cosDegree(3.0 * h_primeBar + 6.0)
-                       - 0.20 * cosDegree(4.0 * h_primeBar - 63.0);
-
-        const double C_primeBar_pow7 = std::pow(C_primeBar, 7.0);
-        const double R_C = 2.0 * std::sqrt(C_primeBar_pow7 / (C_primeBar_pow7 + _25_pow_7));
-        const double S_L = 1.0 + (0.015 * pow2(L_primeBar - 50.0))
-                                / std::sqrt(20.0 + pow2(L_primeBar - 50.0));
-        const double S_C = 1.0 + 0.045 * C_primeBar;
-        const double S_H = 1.0 + 0.015 * C_primeBar * T;
-        const double R_T = -R_C * sinDegree(60.0 * std::exp(-pow2((h_primeBar - 275) / 25.0)));
-
-        constexpr double kL = 1.0;
-        constexpr double kC = 1.0;
-        constexpr double kH = 1.0;
-
-        const double deltaL = deltaL_prime / (kL * S_L);
-        const double deltaC = deltaC_prime / (kC * S_C);
-        const double deltaH = deltaH_prime / (kH * S_H);
-
-        return /*std::sqrt*/( deltaL * deltaL
-                            + deltaC * deltaC
-                            + deltaH * deltaH
-                            + R_T * deltaC * deltaH);
+        Q_ASSERT(remaining() >= str.size());
+        memcpy(m_data + m_size, str.data(), str.size());
+        m_size += str.size();
     }
 
-    struct AnsiBuffer
+    void appendForeground(QRgb rgb, bool is256Colors, ColorCache &colorCache)
     {
-        using ColorCache = QMap<QRgb, int>;
+        append(QLatin1String("38;"));
+        append(rgb, is256Colors, colorCache);
+    }
 
-        void append(char c)
-        {
-            Q_ASSERT(remaining() >= 1);
-            m_data[m_size] = c;
-            ++m_size;
-        }
+    void appendBackground(QRgb rgb, bool is256Colors, ColorCache &colorCache)
+    {
+        append(QLatin1String("48;"));
+        append(rgb, is256Colors, colorCache);
+    }
 
-        void append(QLatin1String str)
-        {
-            Q_ASSERT(remaining() >= str.size());
-            memcpy(m_data + m_size, str.data(), str.size());
-            m_size += str.size();
-        }
-
-        void appendForeground(QRgb rgb, bool is256Colors, ColorCache& colorCache)
-        {
-            append(QLatin1String("38;"));
-            append(rgb, is256Colors, colorCache);
-        }
-
-        void appendBackground(QRgb rgb, bool is256Colors, ColorCache& colorCache)
-        {
-            append(QLatin1String("48;"));
-            append(rgb, is256Colors, colorCache);
-        }
-
-        void append(QRgb rgb, bool is256Colors, ColorCache& colorCache)
-        {
-            auto appendUInt8 = [&](int x){
-                Q_ASSERT(x <= 255 && x >= 0);
-                if (x > 99) {
-                    if (x >= 200) {
-                        append('2');
-                        x -= 200;
-                    }
-                    else {
-                        append('1');
-                        x -= 100;
-                    }
-                } else if (x < 10) {
-                    append(char('0' + x));
-                    return ;
+    void append(QRgb rgb, bool is256Colors, ColorCache &colorCache)
+    {
+        auto appendUInt8 = [&](int x) {
+            Q_ASSERT(x <= 255 && x >= 0);
+            if (x > 99) {
+                if (x >= 200) {
+                    append('2');
+                    x -= 200;
+                } else {
+                    append('1');
+                    x -= 100;
                 }
+            } else if (x < 10) {
+                append(char('0' + x));
+                return;
+            }
 
+            // clang-format off
                 constexpr char const* tb2digits =
                     "00" "01" "02" "03" "04" "05" "06" "07" "08" "09"
                     "10" "11" "12" "13" "14" "15" "16" "17" "18" "19"
@@ -588,518 +592,540 @@ namespace
                     "60" "61" "62" "63" "64" "65" "66" "67" "68" "69"
                     "70" "71" "72" "73" "74" "75" "76" "77" "78" "79"
                     "80" "81" "82" "83" "84" "85" "86" "87" "88" "89"
-                    "90" "91" "92" "93" "94" "95" "96" "97" "98" "99"
-                ;
-                auto* p = tb2digits + x * 2;
-                append(p[0]);
-                append(p[1]);
-            };
+                    "90" "91" "92" "93" "94" "95" "96" "97" "98" "99";
+            // clang-format on
 
-            if (is256Colors) {
-                double dist = 1e24;
-                int idx = 0;
-                auto it = colorCache.find(rgb);
-                if (it == colorCache.end()) {
-                    const auto lab = rgbToLab(rgb);
-                    // find the nearest xterm color
-                    for (CieLab const& xtermLab : xterm240Labs) {
-                        auto dist2 = calculate_CIEDE2000(lab, xtermLab);
-                        if (dist2 < dist) {
-                            dist = dist2;
-                            idx = &xtermLab - xterm240Labs;
-                        }
+            auto *p = tb2digits + x * 2;
+            append(p[0]);
+            append(p[1]);
+        };
+
+        if (is256Colors) {
+            double dist = 1e24;
+            int idx = 0;
+            auto it = colorCache.find(rgb);
+            if (it == colorCache.end()) {
+                const auto lab = rgbToLab(rgb);
+                // find the nearest xterm color
+                for (CieLab const &xtermLab : xterm240Labs) {
+                    auto dist2 = calculate_CIEDE2000(lab, xtermLab);
+                    if (dist2 < dist) {
+                        dist = dist2;
+                        idx = &xtermLab - xterm240Labs;
                     }
-                    // add 16 to convert 240 colors mode to 256 colors mode
-                    idx += 16;
-                    colorCache.insert(rgb, idx);
                 }
-                else {
-                    idx = it.value();
-                }
-
-                append('5');
-                append(';');
-                appendUInt8(idx);
+                // add 16 to convert 240 colors mode to 256 colors mode
+                idx += 16;
+                colorCache.insert(rgb, idx);
             } else {
-                append('2');
-                append(';');
-                appendUInt8(qRed(rgb));
-                append(';');
-                appendUInt8(qGreen(rgb));
-                append(';');
-                appendUInt8(qBlue(rgb));
+                idx = it.value();
             }
+
+            append('5');
             append(';');
+            appendUInt8(idx);
+        } else {
+            append('2');
+            append(';');
+            appendUInt8(qRed(rgb));
+            append(';');
+            appendUInt8(qGreen(rgb));
+            append(';');
+            appendUInt8(qBlue(rgb));
         }
+        append(';');
+    }
 
-        // Replace last character with 'm'. Last character must be ';'
-        void setFinalStyle()
-        {
-            Q_ASSERT(m_data[m_size-1] == ';');
-            m_data[m_size-1] = 'm';
-        }
-
-        void clear()
-        {
-            m_size = 0;
-        }
-
-        QLatin1String latin1() const
-        {
-            return QLatin1String(m_data, m_size);
-        }
-
-    private:
-        char m_data[128];
-        int m_size = 0;
-
-        int remaining() const noexcept
-        {
-            return 128 - m_size;
-        }
-    };
-
-    void fillString(QString &s, int n, const QString &fill)
+    // Replace last character with 'm'. Last character must be ';'
+    void setFinalStyle()
     {
-        if (n > 0) {
-            for (; n > fill.size(); n -= fill.size()) {
-                s += fill;
-            }
-            s += fill.left(n);
+        Q_ASSERT(m_data[m_size - 1] == ';');
+        m_data[m_size - 1] = 'm';
+    }
+
+    void clear()
+    {
+        m_size = 0;
+    }
+
+    QLatin1String latin1() const
+    {
+        return QLatin1String(m_data, m_size);
+    }
+
+private:
+    char m_data[128];
+    int m_size = 0;
+
+    int remaining() const noexcept
+    {
+        return 128 - m_size;
+    }
+};
+
+void fillString(QString &s, int n, const QString &fill)
+{
+    if (n > 0) {
+        for (; n > fill.size(); n -= fill.size()) {
+            s += fill;
+        }
+        s += fill.left(n);
+    }
+}
+
+struct GraphLine {
+    QString graphLine;
+    QString labelLine;
+    int graphLineLength = 0;
+    int labelLineLength = 0;
+    int nextLabelOffset = 0;
+
+    template<class String> void pushLabel(int offset, String const &s, int charCounter)
+    {
+        Q_ASSERT(offset >= labelLineLength);
+        const int n = offset - labelLineLength;
+        labelLineLength += charCounter + n;
+        fillLine(labelLine, n);
+        labelLine += s;
+        nextLabelOffset = labelLineLength;
+    }
+
+    template<class String> void pushGraph(int offset, String const &s, int charCounter)
+    {
+        Q_ASSERT(offset >= graphLineLength);
+        const int n = offset - graphLineLength;
+        graphLineLength += charCounter + n;
+        fillLine(graphLine, n);
+        const int ps1 = graphLine.size();
+        graphLine += s;
+        if (offset >= labelLineLength) {
+            const int n2 = offset - labelLineLength;
+            labelLineLength += n2 + 1;
+            fillLine(labelLine, n2);
+            labelLine += graphLine.rightRef(graphLine.size() - ps1);
         }
     }
 
-    struct GraphLine
+private:
+    static void fillLine(QString &s, int n)
     {
-        QString graphLine;
-        QString labelLine;
-        int graphLineLength = 0;
-        int labelLineLength = 0;
-        int nextLabelOffset = 0;
+        Q_ASSERT(n >= 0);
+        fillString(s,
+                   n,
+                   QStringLiteral("                              "
+                                  "                              "
+                                  "                              "));
+    }
+};
 
-        template<class String>
-        void pushLabel(int offset, String const& s, int charCounter)
-        {
-            Q_ASSERT(offset >= labelLineLength);
-            const int n = offset - labelLineLength;
-            labelLineLength += charCounter + n;
-            fillLine(labelLine, n);
-            labelLine += s;
-            nextLabelOffset = labelLineLength;
-        }
+/**
+ * Returns the first free line at a given position or create a new one
+ */
+GraphLine &lineAtOffset(std::vector<GraphLine> &graphLines, int offset)
+{
+    const auto last = graphLines.end();
+    auto p = std::find_if(graphLines.begin(), last, [=](GraphLine const &line) {
+        return line.nextLabelOffset < offset;
+    });
+    if (p == last) {
+        graphLines.emplace_back();
+        return graphLines.back();
+    }
+    return *p;
+}
 
-        template<class String>
-        void pushGraph(int offset, String const& s, int charCounter)
-        {
-            Q_ASSERT(offset >= graphLineLength);
-            const int n = offset - graphLineLength;
-            graphLineLength += charCounter + n;
-            fillLine(graphLine, n);
-            const int ps1 = graphLine.size();
-            graphLine += s;
-            if (offset >= labelLineLength) {
-                const int n2 = offset - labelLineLength;
-                labelLineLength += n2 + 1;
-                fillLine(labelLine, n2);
-                labelLine += graphLine.rightRef(graphLine.size() - ps1);
-            }
-        }
+// disable bold, italic and underline on |
+const QLatin1String graphSymbol("\x1b[21;23;24m|");
+// reverse video
+const QLatin1String nameStyle("\x1b[7m");
 
-    private:
-        static void fillLine(QString& s, int n)
-        {
-            Q_ASSERT(n >= 0);
-            fillString(s, n, QStringLiteral(
-                "                              "
-                "                              "
-                "                              "
-            ));
-        }
-    };
+/**
+ * ANSI Highlighter dedicated to traces
+ */
+class DebugSyntaxHighlighter : public KSyntaxHighlighting::AbstractHighlighter
+{
+public:
+    using TraceOption = KSyntaxHighlighting::AnsiHighlighter::TraceOption;
+    using TraceOptions = KSyntaxHighlighting::AnsiHighlighter::TraceOptions;
 
-    /**
-     * Returns the first free line at a given position or create a new one
-     */
-    GraphLine& lineAtOffset(std::vector<GraphLine> &graphLines, int offset)
+    void setDefinition(const KSyntaxHighlighting::Definition &def) override
     {
-        const auto last = graphLines.end();
-        auto p = std::find_if(graphLines.begin(), last, [=](GraphLine const& line) {
-            return line.nextLabelOffset < offset;
-        });
-        if (p == last) {
-            graphLines.emplace_back();
-            return graphLines.back();
-        }
-        return *p;
+        AbstractHighlighter::setDefinition(def);
+        m_defData = DefinitionData::get(def);
+        m_contextCapture.setDefinition(def);
     }
 
-    // disable bold, italic and underline on |
-    const QLatin1String graphSymbol("\x1b[21;23;24m|");
-    // reverse video
-    const QLatin1String nameStyle("\x1b[7m");
-
-    /**
-     * ANSI Highlighter dedicated to traces
-     */
-    class DebugSyntaxHighlighter : public KSyntaxHighlighting::AbstractHighlighter
+    void highlightData(QTextStream &in,
+                       QTextStream &out,
+                       QLatin1String infoStyle,
+                       QLatin1String editorBackground,
+                       const std::vector<QPair<QString, QString>> &ansiStyles,
+                       TraceOptions traceOptions)
     {
-    public:
-        using TraceOption = KSyntaxHighlighting::AnsiHighlighter::TraceOption;
-        using TraceOptions = KSyntaxHighlighting::AnsiHighlighter::TraceOptions;
+        initRegionStyles(ansiStyles);
 
-        void setDefinition(const KSyntaxHighlighting::Definition & def) override
-        {
-            AbstractHighlighter::setDefinition(def);
-            m_defData = DefinitionData::get(def);
-            m_contextCapture.setDefinition(def);
-        }
+        m_hasFormatTrace = traceOptions.testFlag(TraceOption::Format);
+        m_hasRegionTrace = traceOptions.testFlag(TraceOption::Region);
+        m_hasStackSizeTrace = traceOptions.testFlag(TraceOption::StackSize);
+        m_hasContextTrace = traceOptions.testFlag(TraceOption::Context);
+        const bool hasFormatOrContextTrace = m_hasFormatTrace || m_hasContextTrace || m_hasStackSizeTrace;
 
-        void highlightData(QTextStream &in, QTextStream &out, QLatin1String infoStyle, QLatin1String editorBackground, const std::vector<QPair<QString, QString>> &ansiStyles, TraceOptions traceOptions)
-        {
-            initRegionStyles(ansiStyles);
+        const bool hasSeparator = hasFormatOrContextTrace && m_hasRegionTrace;
+        const QString resetBgColor = (editorBackground.isEmpty() ? QStringLiteral("\x1b[0m") : editorBackground);
 
-            m_hasFormatTrace = traceOptions.testFlag(TraceOption::Format);
-            m_hasRegionTrace = traceOptions.testFlag(TraceOption::Region);
-            const bool hasContextTrace = traceOptions.testFlag(TraceOption::Context);
-            const bool hasFormatOrContextTrace = m_hasFormatTrace || hasContextTrace;
+        bool firstLine = true;
+        State state;
+        while (!in.atEnd()) {
+            const QString currentLine = in.readLine();
+            auto oldState = state;
+            state = highlightLine(currentLine, state);
 
-            const bool hasSeparator = hasFormatOrContextTrace && m_hasRegionTrace;
-            const QString resetBgColor = (editorBackground.isEmpty() ? QStringLiteral("\x1b[0m") : editorBackground);
-
-            bool firstLine = true;
-            State state;
-            while (!in.atEnd()) {
-                const QString currentLine = in.readLine();
-                auto oldState = state;
-                state = highlightLine(currentLine, state);
-
-                if (hasSeparator) {
-                    if (!firstLine)
-                        out << QStringLiteral("\x1b[0m────────────────────────────────────────────────────\x1b[K\n");
-                    firstLine = false;
-                }
-
-                if (!m_regions.empty()) {
-                    printRegions(out, infoStyle, currentLine.size());
-                    out << resetBgColor;
-                }
-
-                for (const auto &fragment : m_highlightedFragments) {
-                    auto const& ansiStyle = ansiStyles[fragment.formatId];
-                    out << ansiStyle.first << currentLine.midRef(fragment.offset, fragment.length) << ansiStyle.second;
-                }
-
-                out << QStringLiteral("\x1b[K\n");
-
-                if (hasFormatOrContextTrace && !m_highlightedFragments.empty()) {
-                    if (hasContextTrace)
-                        appendContextNames(oldState, currentLine);
-
-                    printFormats(out, infoStyle, ansiStyles);
-                    out << resetBgColor;
-                }
-
-                m_highlightedFragments.clear();
+            if (hasSeparator) {
+                if (!firstLine)
+                    out << QStringLiteral("\x1b[0m────────────────────────────────────────────────────\x1b[K\n");
+                firstLine = false;
             }
+
+            if (!m_regions.empty()) {
+                printRegions(out, infoStyle, currentLine.size());
+                out << resetBgColor;
+            }
+
+            for (const auto &fragment : m_highlightedFragments) {
+                auto const &ansiStyle = ansiStyles[fragment.formatId];
+                out << ansiStyle.first << currentLine.midRef(fragment.offset, fragment.length) << ansiStyle.second;
+            }
+
+            out << QStringLiteral("\x1b[K\n");
+
+            if (hasFormatOrContextTrace && !m_highlightedFragments.empty()) {
+                if (m_hasContextTrace || m_hasStackSizeTrace)
+                    appendContextNames(oldState, currentLine);
+
+                printFormats(out, infoStyle, ansiStyles);
+                out << resetBgColor;
+            }
+
+            m_highlightedFragments.clear();
         }
+    }
 
-        void applyFormat(int offset, int length, const KSyntaxHighlighting::Format &format) override
-        {
-            m_highlightedFragments.push_back({m_hasFormatTrace ? format.name() : QString(), offset, length, format.id()});
-        }
+    void applyFormat(int offset, int length, const KSyntaxHighlighting::Format &format) override
+    {
+        m_highlightedFragments.push_back({m_hasFormatTrace ? format.name() : QString(), offset, length, format.id()});
+    }
 
-        void applyFolding(int offset, int /*length*/, FoldingRegion region) override
-        {
-            if (!m_hasRegionTrace) return;
+    void applyFolding(int offset, int /*length*/, FoldingRegion region) override
+    {
+        if (!m_hasRegionTrace)
+            return;
 
-            const auto id = region.id();
+        const auto id = region.id();
 
-            if (region.type() == FoldingRegion::Begin) {
-                m_regions.push_back(Region{m_regionDepth, offset, -1, id, Region::State::Open});
-                ++m_regionDepth;
+        if (region.type() == FoldingRegion::Begin) {
+            m_regions.push_back(Region{m_regionDepth, offset, -1, id, Region::State::Open});
+            // swap with previous region if this is a closing region with same offset in order to superimpose labels
+            if (m_regions.size() >= 2) {
+                auto &previousRegion = m_regions[m_regions.size() - 2];
+                if (previousRegion.state == Region::State::Close && previousRegion.offset == offset) {
+                    std::swap(previousRegion, m_regions.back());
+                    if (previousRegion.bindIndex != -1)
+                        m_regions[previousRegion.bindIndex].bindIndex = m_regions.size() - 1;
+                }
+            }
+            ++m_regionDepth;
+        } else {
+            // find open region
+            auto it = m_regions.rbegin();
+            auto eit = m_regions.rend();
+            for (int depth = 0; it != eit; ++it) {
+                if (it->regionId == id && it->bindIndex < 0) {
+                    if (it->state == Region::State::Close)
+                        ++depth;
+                    else if (--depth < 0)
+                        break;
+                }
+            }
+
+            if (it != eit) {
+                it->bindIndex = int(m_regions.size());
+                int bindIndex = int(&*it - m_regions.data());
+                m_regions.push_back(Region{it->depth, offset, bindIndex, id, Region::State::Close});
             } else {
-                // find open region
-                auto it = m_regions.rbegin();
-                auto eit = m_regions.rend();
-                for (int depth = 0; it != eit; ++it) {
-                    if (it->regionId == id && it->bindIndex < 0) {
-                        if (it->state == Region::State::Close)
-                            ++depth;
-                        else if (--depth < 0)
-                            break;
-                    }
-                }
-
-                if (it != eit) {
-                    it->bindIndex = int(m_regions.size());
-                    int bindIndex = int(&*it - m_regions.data());
-                    m_regions.push_back(Region{it->depth, offset, bindIndex, id, Region::State::Close});
-                } else {
-                    m_regions.push_back(Region{-1, offset, -1, id, Region::State::Close});
-                }
-
-                m_regionDepth = std::max(m_regionDepth-1, 0);
+                m_regions.push_back(Region{-1, offset, -1, id, Region::State::Close});
             }
+
+            m_regionDepth = std::max(m_regionDepth - 1, 0);
         }
+    }
 
-        using KSyntaxHighlighting::AbstractHighlighter::highlightLine;
+    using KSyntaxHighlighting::AbstractHighlighter::highlightLine;
 
-    private:
-        /**
-         * Initializes with colors of \p ansiStyle without duplicate.
-         */
-        void initRegionStyles(const std::vector<QPair<QString, QString>> &ansiStyles)
-        {
-            m_regionStyles.resize(ansiStyles.size());
-            for (std::size_t i = 0; i < m_regionStyles.size(); ++i)
-                m_regionStyles[i] = ansiStyles[i].first;
+private:
+    /**
+     * Initializes with colors of \p ansiStyle without duplicate.
+     */
+    void initRegionStyles(const std::vector<QPair<QString, QString>> &ansiStyles)
+    {
+        m_regionStyles.resize(ansiStyles.size());
+        for (std::size_t i = 0; i < m_regionStyles.size(); ++i)
+            m_regionStyles[i] = ansiStyles[i].first;
 
-            std::sort(m_regionStyles.begin(), m_regionStyles.end());
-            m_regionStyles.erase(std::unique(m_regionStyles.begin(), m_regionStyles.end()), m_regionStyles.end());
-        }
+        std::sort(m_regionStyles.begin(), m_regionStyles.end());
+        m_regionStyles.erase(std::unique(m_regionStyles.begin(), m_regionStyles.end()), m_regionStyles.end());
+    }
 
-        /**
-         * Append the context name in front of the format name.
-         */
-        void appendContextNames(State &state, const QString &currentLine)
-        {
-            auto newState = state;
-            for (auto &fragment : m_highlightedFragments) {
-                QString contextName = extractContextName(StateData::get(newState));
+    /**
+     * Append the context name in front of the format name.
+     */
+    void appendContextNames(State &state, const QString &currentLine)
+    {
+        auto newState = state;
+        for (auto &fragment : m_highlightedFragments) {
+            QString contextName = extractContextName(StateData::get(newState));
 
-                m_contextCapture.offsetNext = 0;
-                m_contextCapture.lengthNext = 0;
-                // truncate the line to deduce the context from the format
-                const auto lineFragment = currentLine.mid(0, fragment.offset + fragment.length + 1);
-                newState = m_contextCapture.highlightLine(lineFragment, state);
+            m_contextCapture.offsetNext = 0;
+            m_contextCapture.lengthNext = 0;
+            // truncate the line to deduce the context from the format
+            const auto lineFragment = currentLine.mid(0, fragment.offset + fragment.length + 1);
+            newState = m_contextCapture.highlightLine(lineFragment, state);
 
-                // Deduced context does not start at the position of the format.
-                // This can happen because of lookAhead/fallthrought attribute,
-                // assertion in regex, etc.
-                if (m_contextCapture.offset != fragment.offset && m_contextCapture.length != fragment.length) {
-                    contextName.insert(0, QLatin1Char('~'));
-                }
-                fragment.name.insert(0, contextName);
+            // Deduced context does not start at the position of the format.
+            // This can happen because of lookAhead/fallthrought attribute,
+            // assertion in regex, etc.
+            if (m_contextCapture.offset != fragment.offset && m_contextCapture.length != fragment.length) {
+                contextName.insert(0, QLatin1Char('~'));
             }
+            fragment.name.insert(0, contextName);
+        }
+    }
+
+    /**
+     * \return Current context name with definition name if different
+     * from the current definition name
+     */
+    QString extractContextName(StateData *stateData) const
+    {
+        QString label;
+
+        if (m_hasStackSizeTrace) {
+            label += QLatin1Char('(') % QString::number(stateData->size()) % QLatin1Char(')');
         }
 
-        /**
-         * \return Current context name with definition name if different
-         * from the current definition name
-         */
-        QString extractContextName(StateData *stateData) const
-        {
+        if (m_hasContextTrace) {
             // first state is empty
             if (stateData->isEmpty()) {
-                return QStringLiteral("[???]");
+                return label + QStringLiteral("[???]");
             }
 
             const auto context = stateData->topContext();
             const auto defData = DefinitionData::get(context->definition());
-            const auto contextName = (defData != m_defData)
-                ? QString(QLatin1Char('<') % defData->name % QLatin1Char('>'))
-                : QString();
-            return QString(contextName % QLatin1Char('[') % context->name() % QLatin1Char(']'));
+            const auto contextName = (defData != m_defData) ? QString(QLatin1Char('<') % defData->name % QLatin1Char('>')) : QString();
+            return QString(label % contextName % QLatin1Char('[') % context->name() % QLatin1Char(']'));
         }
 
-        void printFormats(QTextStream &out, QLatin1String regionStyle, const std::vector<QPair<QString, QString>> &ansiStyles)
-        {
-            // init graph
-            m_formatGraph.clear();
-            for (auto const& fragment : m_highlightedFragments) {
-                GraphLine& line = lineAtOffset(m_formatGraph, fragment.offset);
-                auto const& style = ansiStyles[fragment.formatId].first;
-                line.pushLabel(fragment.offset, style % nameStyle % fragment.name % regionStyle, fragment.name.size());
+        return label;
+    }
 
-                for (GraphLine* pline = m_formatGraph.data(); pline <= &line; ++pline) {
-                    pline->pushGraph(fragment.offset, style % graphSymbol % regionStyle, 1);
-                }
-            }
+    void printFormats(QTextStream &out, QLatin1String regionStyle, const std::vector<QPair<QString, QString>> &ansiStyles)
+    {
+        // init graph
+        m_formatGraph.clear();
+        for (auto const &fragment : m_highlightedFragments) {
+            GraphLine &line = lineAtOffset(m_formatGraph, fragment.offset);
+            auto const &style = ansiStyles[fragment.formatId].first;
+            line.pushLabel(fragment.offset, style % nameStyle % fragment.name % regionStyle, fragment.name.size());
 
-            // display graph
-            out << regionStyle;
-            auto first = m_formatGraph.begin();
-            auto last = m_formatGraph.end();
-            --last;
-            for (; first != last; ++first) {
-                out << first->graphLine << "\x1b[K\n" << first->labelLine << "\x1b[K\n";
-            }
-            out << first->graphLine << "\x1b[K\n" << first->labelLine << "\x1b[K\x1b[0m\n";
-        }
-
-        void printRegions(QTextStream &out, QLatin1String regionStyle, int lineLength)
-        {
-            const QString continuationLine = QStringLiteral(
-                "------------------------------"
-                "------------------------------"
-                "------------------------------");
-
-            bool hasContinuation = false;
-
-            m_regionGraph.clear();
-            QString label;
-            QString numStr;
-
-            // init graph
-            for (Region& region : m_regions) {
-                if (region.state == Region::State::Continuation) {
-                    hasContinuation = true;
-                    continue;
-                }
-
-                auto pushGraphs = [&](int offset, const GraphLine *endline, const QStringView &style){
-                    for (GraphLine* pline = m_regionGraph.data(); pline <= endline; ++pline) {
-                        // a label can hide a graph
-                        if (pline->graphLineLength <= offset) {
-                            pline->pushGraph(offset, style % graphSymbol % regionStyle, 1);
-                        }
-                    }
-                };
-
-                QChar openChar;
-                QChar closeChar;
-                int lpad = 0;
-                int rpad = 0;
-
-                int offsetLabel = region.offset;
-
-                numStr.setNum(region.regionId);
-
-                if (region.state == Region::State::Open) {
-                    openChar = QLatin1Char('(');
-                    if (region.bindIndex == -1) {
-                        rpad = lineLength - region.offset - numStr.size();
-                    } else {
-                        rpad = m_regions[region.bindIndex].offset - region.offset - 2;
-                        closeChar = QLatin1Char(')');
-                    }
-                    // close without open
-                } else if (region.bindIndex == -1) {
-                    closeChar = QLatin1Char('>');
-                    // label already present, we only display the graph
-                } else if (m_regions[region.bindIndex].state == Region::State::Open) {
-                    const auto &openRegion = m_regions[region.bindIndex];
-                    // here offset is a graph index
-                    const GraphLine &line = m_regionGraph[openRegion.offset];
-                    const auto &style = m_regionStyles[openRegion.depth % m_regionStyles.size()];
-                    pushGraphs(region.offset, &line, style);
-                    continue;
-                } else {
-                    closeChar = QLatin1Char(')');
-                    lpad = region.offset - numStr.size();
-                    offsetLabel = 0;
-                }
-
-                const QStringView openS(&openChar, openChar.unicode() ? 1 : 0);
-                const QStringView closeS(&closeChar, closeChar.unicode() ? 1 : 0);
-
-                label.clear();
-                fillString(label, lpad, continuationLine);
-                label += numStr;
-                fillString(label, rpad, continuationLine);
-
-                GraphLine &line = lineAtOffset(m_regionGraph, offsetLabel);
-                const auto &style = m_regionStyles[region.depth % m_regionStyles.size()];
-                line.pushLabel(offsetLabel, style % nameStyle % openS % label % closeS % regionStyle, label.size() + openS.size() + closeS.size());
-                pushGraphs(region.offset, &line, style);
-
-                // transforms offset into graph index when region is on 1 line
-                if (region.state == Region::State::Open && region.bindIndex != -1) {
-                    region.offset = &line - m_regionGraph.data();
-                }
-            }
-
-            out << regionStyle;
-
-            // display regions which are neither closed nor open
-            if (hasContinuation) {
-                label.clear();
-                fillString(label, lineLength ? lineLength : 5, continuationLine);
-                for (const auto &region : m_regions) {
-                    if (region.state == Region::State::Continuation && region.bindIndex == -1) {
-                        const auto &style = m_regionStyles[region.depth % m_regionStyles.size()];
-                        out << style << nameStyle << label << regionStyle << "\x1b[K\n";
-                    }
-                }
-            }
-
-            // display graph
-            if (!m_regionGraph.empty()) {
-                auto first = m_regionGraph.rbegin();
-                auto last = m_regionGraph.rend();
-                --last;
-                for (; first != last; ++first) {
-                    out << first->labelLine << "\x1b[K\n" << first->graphLine << "\x1b[K\n";
-                }
-                out << first->labelLine << "\x1b[K\n" << first->graphLine << "\x1b[K\x1b[0m\n";
-            }
-
-            // keep regions that are not closed
-            m_regions.erase(std::remove_if(m_regions.begin(), m_regions.end(), [](Region const& region){
-                return region.bindIndex != -1 || region.state == Region::State::Close;
-            }), m_regions.end());
-            // all remaining regions become Continuation
-            for (auto& region : m_regions) {
-                region.offset = 0;
-                region.state = Region::State::Continuation;
+            for (GraphLine *pline = m_formatGraph.data(); pline <= &line; ++pline) {
+                pline->pushGraph(fragment.offset, style % graphSymbol % regionStyle, 1);
             }
         }
 
-        struct HighlightFragment
-        {
-            QString name;
-            int offset;
-            int length;
-            quint16 formatId;
-        };
+        // display graph
+        out << regionStyle;
+        auto first = m_formatGraph.begin();
+        auto last = m_formatGraph.end();
+        --last;
+        for (; first != last; ++first) {
+            out << first->graphLine << "\x1b[K\n" << first->labelLine << "\x1b[K\n";
+        }
+        out << first->graphLine << "\x1b[K\n" << first->labelLine << "\x1b[K\x1b[0m\n";
+    }
 
-        struct ContextCaptureHighlighter : KSyntaxHighlighting::AbstractHighlighter
-        {
-            int offset;
-            int length;
-            int offsetNext;
-            int lengthNext;
+    void printRegions(QTextStream &out, QLatin1String regionStyle, int lineLength)
+    {
+        const QString continuationLine = QStringLiteral(
+            "------------------------------"
+            "------------------------------"
+            "------------------------------");
 
-            void applyFormat(int offset, int length, const KSyntaxHighlighting::Format &/*format*/) override
-            {
-                offset = offsetNext;
-                length = lengthNext;
-                offsetNext = offset;
-                lengthNext = length;
+        bool hasContinuation = false;
+
+        m_regionGraph.clear();
+        QString label;
+        QString numStr;
+
+        // init graph
+        for (Region &region : m_regions) {
+            if (region.state == Region::State::Continuation) {
+                hasContinuation = true;
+                continue;
             }
 
-            using KSyntaxHighlighting::AbstractHighlighter::highlightLine;
-        };
-
-        struct Region
-        {
-            enum class State : int8_t
-            {
-                Open,
-                Close,
-                Continuation,
+            auto pushGraphs = [&](int offset, const GraphLine *endline, const QStringView &style) {
+                for (GraphLine *pline = m_regionGraph.data(); pline <= endline; ++pline) {
+                    // a label can hide a graph
+                    if (pline->graphLineLength <= offset) {
+                        pline->pushGraph(offset, style % graphSymbol % regionStyle, 1);
+                    }
+                }
             };
 
-            int depth;
-            int offset;
-            int bindIndex;
-            quint16 regionId;
-            State state;
+            QChar openChar;
+            QChar closeChar;
+            int lpad = 0;
+            int rpad = 0;
+
+            int offsetLabel = region.offset;
+
+            numStr.setNum(region.regionId);
+
+            if (region.state == Region::State::Open) {
+                openChar = QLatin1Char('(');
+                if (region.bindIndex == -1) {
+                    rpad = lineLength - region.offset - numStr.size();
+                } else {
+                    rpad = m_regions[region.bindIndex].offset - region.offset - 2;
+                    closeChar = QLatin1Char(')');
+                }
+                // close without open
+            } else if (region.bindIndex == -1) {
+                closeChar = QLatin1Char('>');
+                // label already present, we only display the graph
+            } else if (m_regions[region.bindIndex].state == Region::State::Open) {
+                const auto &openRegion = m_regions[region.bindIndex];
+                // here offset is a graph index
+                const GraphLine &line = m_regionGraph[openRegion.offset];
+                const auto &style = m_regionStyles[openRegion.depth % m_regionStyles.size()];
+                pushGraphs(region.offset, &line, style);
+                continue;
+            } else {
+                closeChar = QLatin1Char(')');
+                lpad = region.offset - numStr.size();
+                offsetLabel = 0;
+            }
+
+            const QStringView openS(&openChar, openChar.unicode() ? 1 : 0);
+            const QStringView closeS(&closeChar, closeChar.unicode() ? 1 : 0);
+
+            label.clear();
+            fillString(label, lpad, continuationLine);
+            label += numStr;
+            fillString(label, rpad, continuationLine);
+
+            GraphLine &line = lineAtOffset(m_regionGraph, offsetLabel);
+            const auto &style = m_regionStyles[region.depth % m_regionStyles.size()];
+            line.pushLabel(offsetLabel, style % nameStyle % openS % label % closeS % regionStyle, label.size() + openS.size() + closeS.size());
+            pushGraphs(region.offset, &line, style);
+
+            // transforms offset into graph index when region is on 1 line
+            if (region.state == Region::State::Open && region.bindIndex != -1) {
+                region.offset = &line - m_regionGraph.data();
+            }
+        }
+
+        out << regionStyle;
+
+        // display regions which are neither closed nor open
+        if (hasContinuation) {
+            label.clear();
+            fillString(label, lineLength ? lineLength : 5, continuationLine);
+            for (const auto &region : m_regions) {
+                if (region.state == Region::State::Continuation && region.bindIndex == -1) {
+                    const auto &style = m_regionStyles[region.depth % m_regionStyles.size()];
+                    out << style << nameStyle << label << regionStyle << "\x1b[K\n";
+                }
+            }
+        }
+
+        // display graph
+        if (!m_regionGraph.empty()) {
+            auto first = m_regionGraph.rbegin();
+            auto last = m_regionGraph.rend();
+            --last;
+            for (; first != last; ++first) {
+                out << first->labelLine << "\x1b[K\n" << first->graphLine << "\x1b[K\n";
+            }
+            out << first->labelLine << "\x1b[K\n" << first->graphLine << "\x1b[K\x1b[0m\n";
+        }
+
+        // keep regions that are not closed
+        m_regions.erase(std::remove_if(m_regions.begin(),
+                                       m_regions.end(),
+                                       [](Region const &region) {
+                                           return region.bindIndex != -1 || region.state == Region::State::Close;
+                                       }),
+                        m_regions.end());
+        // all remaining regions become Continuation
+        for (auto &region : m_regions) {
+            region.offset = 0;
+            region.state = Region::State::Continuation;
+        }
+    }
+
+    struct HighlightFragment {
+        QString name;
+        int offset;
+        int length;
+        quint16 formatId;
+    };
+
+    struct ContextCaptureHighlighter : KSyntaxHighlighting::AbstractHighlighter {
+        int offset;
+        int length;
+        int offsetNext;
+        int lengthNext;
+
+        void applyFormat(int offset, int length, const KSyntaxHighlighting::Format & /*format*/) override
+        {
+            offset = offsetNext;
+            length = lengthNext;
+            offsetNext = offset;
+            lengthNext = length;
+        }
+
+        using KSyntaxHighlighting::AbstractHighlighter::highlightLine;
+    };
+
+    struct Region {
+        enum class State : int8_t {
+            Open,
+            Close,
+            Continuation,
         };
 
-        bool m_hasFormatTrace;
-        bool m_hasRegionTrace;
-
-        std::vector<HighlightFragment> m_highlightedFragments;
-        std::vector<GraphLine> m_formatGraph;
-        ContextCaptureHighlighter m_contextCapture;
-        DefinitionData* m_defData;
-
-        int m_regionDepth = 0;
-        std::vector<Region> m_regions;
-        std::vector<GraphLine> m_regionGraph;
-        std::vector<QStringView> m_regionStyles;
+        int depth;
+        int offset;
+        int bindIndex;
+        quint16 regionId;
+        State state;
     };
+
+    bool m_hasFormatTrace;
+    bool m_hasRegionTrace;
+    bool m_hasStackSizeTrace;
+    bool m_hasContextTrace;
+
+    std::vector<HighlightFragment> m_highlightedFragments;
+    std::vector<GraphLine> m_formatGraph;
+    ContextCaptureHighlighter m_contextCapture;
+    DefinitionData *m_defData;
+
+    int m_regionDepth = 0;
+    std::vector<Region> m_regions;
+    std::vector<GraphLine> m_regionGraph;
+    std::vector<QStringView> m_regionStyles;
+};
 } // anonymous namespace
 
 class KSyntaxHighlighting::AnsiHighlighterPrivate
@@ -1186,13 +1212,13 @@ void AnsiHighlighter::highlightData(QIODevice *dev, AnsiFormat format, bool useE
     }
 
     // initialize ansiStyles
-    for (auto&& definition : qAsConst(definitions)) {
+    for (auto &&definition : qAsConst(definitions)) {
         const auto formats = definition.formats();
-        for (auto&& format : formats) {
+        for (auto &&format : formats) {
             const auto id = format.id();
             if (id >= d->ansiStyles.size()) {
                 // better than id + 1 to avoid successive allocations
-                d->ansiStyles.resize(std::max(std::size_t(id*2), std::size_t(32)));
+                d->ansiStyles.resize(std::max(std::size_t(id * 2), std::size_t(32)));
             }
 
             AnsiBuffer buffer;
@@ -1210,11 +1236,16 @@ void AnsiHighlighter::highlightData(QIODevice *dev, AnsiFormat format, bool useE
                 buffer.appendForeground(format.textColor(theme).rgb(), is256Colors, colorCache);
             else
                 buffer.append(foregroundDefaultColor);
-            if (hasBg) buffer.appendBackground(format.backgroundColor(theme).rgb(), is256Colors, colorCache);
-            if (hasBold) buffer.append(QLatin1String("1;"));
-            if (hasItalic) buffer.append(QLatin1String("3;"));
-            if (hasUnderline) buffer.append(QLatin1String("4;"));
-            if (hasStrikeThrough) buffer.append(QLatin1String("9;"));
+            if (hasBg)
+                buffer.appendBackground(format.backgroundColor(theme).rgb(), is256Colors, colorCache);
+            if (hasBold)
+                buffer.append(QLatin1String("1;"));
+            if (hasItalic)
+                buffer.append(QLatin1String("3;"));
+            if (hasUnderline)
+                buffer.append(QLatin1String("4;"));
+            if (hasStrikeThrough)
+                buffer.append(QLatin1String("9;"));
 
             // if there is ANSI style
             if (buffer.latin1().size() > 2) {
@@ -1231,10 +1262,14 @@ void AnsiHighlighter::highlightData(QIODevice *dev, AnsiFormat format, bool useE
                         d->ansiStyles[id].second = buffer.latin1();
                     } else if (hasEffect) {
                         buffer.append(QLatin1String("\x1b["));
-                        if (hasBold) buffer.append(QLatin1String("21;"));
-                        if (hasItalic) buffer.append(QLatin1String("23;"));
-                        if (hasUnderline) buffer.append(QLatin1String("24;"));
-                        if (hasStrikeThrough) buffer.append(QLatin1String("29;"));
+                        if (hasBold)
+                            buffer.append(QLatin1String("21;"));
+                        if (hasItalic)
+                            buffer.append(QLatin1String("23;"));
+                        if (hasUnderline)
+                            buffer.append(QLatin1String("24;"));
+                        if (hasStrikeThrough)
+                            buffer.append(QLatin1String("29;"));
                         buffer.setFinalStyle();
                         d->ansiStyles[id].second = buffer.latin1();
                     }
@@ -1286,6 +1321,6 @@ void AnsiHighlighter::highlightData(QIODevice *dev, AnsiFormat format, bool useE
 
 void AnsiHighlighter::applyFormat(int offset, int length, const Format &format)
 {
-    auto const& ansiStyle = d->ansiStyles[format.id()];
+    auto const &ansiStyle = d->ansiStyles[format.id()];
     d->out << ansiStyle.first << d->currentLine.midRef(offset, length) << ansiStyle.second;
 }

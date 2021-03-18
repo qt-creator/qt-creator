@@ -43,13 +43,16 @@ class PresetItemDelegate : public QStyledItemDelegate
     Q_OBJECT
 
 public:
-    PresetItemDelegate();
+    PresetItemDelegate(const QColor& background);
 
     void paint(QPainter *painter,
                const QStyleOptionViewItem &opt,
                const QModelIndex &index) const override;
 
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+
+private:
+    QColor m_background;
 };
 
 class PresetList : public QListView
@@ -79,6 +82,10 @@ public:
     int index() const;
 
     bool isEditable(const QModelIndex &index) const;
+
+    QColor backgroundColor() const;
+
+    QColor curveColor() const;
 
     void initialize(int index);
 
@@ -118,6 +125,10 @@ private:
     int m_index;
 
     QString m_filename;
+
+    QColor m_background;
+
+    QColor m_curveColor;
 };
 
 class PresetEditor : public QStackedWidget

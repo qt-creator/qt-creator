@@ -435,15 +435,10 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
                         if (auto client = clientForDocument(document))
                             client->symbolSupport().renameSymbol(document, cursor);
                     });
-            connect(widget, &TextEditorWidget::cursorPositionChanged, this, [this, widget]() {
-                // TODO This would better be a compressing timer
-                QTimer::singleShot(50, this, [widget = QPointer<TextEditorWidget>(widget)]() {
-                    if (!widget)
-                        return;
-                    if (Client *client = clientForDocument(widget->textDocument()))
-                        if (client->reachable())
-                            client->cursorPositionChanged(widget);
-                });
+            connect(widget, &TextEditorWidget::cursorPositionChanged, this, [widget]() {
+                if (Client *client = clientForDocument(widget->textDocument()))
+                    if (client->reachable())
+                        client->cursorPositionChanged(widget);
             });
             updateEditorToolBar(editor);
             if (TextEditor::TextDocument *document = textEditor->textDocument()) {

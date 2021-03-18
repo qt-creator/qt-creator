@@ -395,49 +395,61 @@
       commonAttributes: Common attributes
       insensitive:      Is this list case-insensitive? [boolean, optional, see note]
       String:           Name of the list
-      weakDelimiter:    Use weak deliminator
+      weakDeliminator:  Add weak deliminators [optional, see note]
+      additionalDeliminator: Add deliminators [optional, see note]
 
       By default, case sensitivity is determined from <keywords casesensitive> in
       <general> (default=true), but can be overridden per-list with 'insensitive'.
 
-    TODO:
-      - Should be weakDeliminator
-      - Explain deliminator
-      - Doesn't seem to be supported in highligh.cpp
+      weakDeliminator and additionalDeliminator are accumulated to those defined in
+      <keywords weakDeliminator additionalDeliminator> in <general>.
   -->
   <xs:element name="keyword">
     <xs:complexType>
       <xs:attributeGroup ref="commonAttributes"/>
       <xs:attribute name="insensitive" type="xs:boolean"/>
       <xs:attribute name="String" use="required"/>
-      <xs:attribute name="weakDelimiter"/>
+      <xs:attribute name="weakDeliminator"/>
+      <xs:attribute name="additionalDeliminator"/>
     </xs:complexType>
   </xs:element>
   <!--
     Detect a floating point number
     commonAttributes: Common attributes
+    weakDeliminator:  Add weak deliminators [optional]
+    additionalDeliminator: Add deliminators [optional]
   -->
   <xs:element name="Float">
     <xs:complexType>
       <xs:attributeGroup ref="commonAttributes"/>
+      <xs:attribute name="weakDeliminator"/>
+      <xs:attribute name="additionalDeliminator"/>
     </xs:complexType>
   </xs:element>
   <!--
     Detect an octal number
     commonAttributes: Common attributes
+    weakDeliminator:  Add weak deliminators [optional]
+    additionalDeliminator: Add deliminators [optional]
   -->
   <xs:element name="HlCOct">
     <xs:complexType>
       <xs:attributeGroup ref="commonAttributes"/>
+      <xs:attribute name="weakDeliminator"/>
+      <xs:attribute name="additionalDeliminator"/>
     </xs:complexType>
   </xs:element>
   <!--
     Detect a hexadecimal number
     commonAttributes: Common attributes
+    weakDeliminator:  Add weak deliminators [optional]
+    additionalDeliminator: Add deliminators [optional]
   -->
   <xs:element name="HlCHex">
     <xs:complexType>
       <xs:attributeGroup ref="commonAttributes"/>
+      <xs:attribute name="weakDeliminator"/>
+      <xs:attribute name="additionalDeliminator"/>
     </xs:complexType>
   </xs:element>
   <!--
@@ -455,10 +467,14 @@
   <!--
     Detect an integer number
     commonAttributes: Common attributes
+    weakDeliminator:  Add weak deliminators [optional]
+    additionalDeliminator: Add deliminators [optional]
   -->
   <xs:element name="Int">
     <xs:complexType>
       <xs:attributeGroup ref="commonAttributes"/>
+      <xs:attribute name="weakDeliminator"/>
+      <xs:attribute name="additionalDeliminator"/>
     </xs:complexType>
   </xs:element>
   <!--
@@ -524,6 +540,8 @@
       commonAttributes: Common attributes
       String:           The string to look for
       insensitive:      Whether the string is matched case INsensitive. [boolean, optional, default=false]
+      weakDeliminator:  Add weak deliminators [optional]
+      additionalDeliminator: Add deliminators [optional]
 
     TODO
       - What's default of insensitive? I'm not sure...
@@ -533,6 +551,8 @@
       <xs:attributeGroup ref="commonAttributes"/>
       <xs:attribute name="String" use="required"/>
       <xs:attribute name="insensitive" type="xs:boolean"/>
+      <xs:attribute name="weakDeliminator"/>
+      <xs:attribute name="additionalDeliminator"/>
     </xs:complexType>
   </xs:element>
   <!--

@@ -30,7 +30,7 @@ ThemeData::ThemeData()
 
 /**
  * Convert QJsonValue @p val into a color, if possible. Valid colors are only
- * in hex format: #rrggbb. On error, returns 0x00000000.
+ * in hex format: #aarrggbb. On error, returns 0x00000000.
  */
 static inline QRgb readColor(const QJsonValue &val)
 {
@@ -43,7 +43,7 @@ static inline QRgb readColor(const QJsonValue &val)
         return unsetColor;
     }
     const QColor color(str);
-    return color.isValid() ? color.rgb() : unsetColor;
+    return color.isValid() ? color.rgba() : unsetColor;
 }
 
 static inline TextStyleData readThemeData(const QJsonObject &obj)

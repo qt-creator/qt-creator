@@ -10,8 +10,8 @@
 #include "definition_p.h"
 #include "ksyntaxhighlighting_logging.h"
 #include "rule_p.h"
-#include "xml_p.h"
 #include "worddelimiters_p.h"
+#include "xml_p.h"
 
 #include <QString>
 #include <QXmlStreamReader>
@@ -31,9 +31,7 @@ static bool isOctalChar(QChar c)
 
 static bool isHexChar(QChar c)
 {
-    return isDigit(c)
-        || (c <= QLatin1Char('f') && QLatin1Char('a') <= c)
-        || (c <= QLatin1Char('F') && QLatin1Char('A') <= c);
+    return isDigit(c) || (c <= QLatin1Char('f') && QLatin1Char('a') <= c) || (c <= QLatin1Char('F') && QLatin1Char('A') <= c);
 }
 
 static int matchEscapedChar(const QString &text, int offset)
@@ -44,9 +42,18 @@ static int matchEscapedChar(const QString &text, int offset)
     const auto c = text.at(offset + 1);
     switch (c.unicode()) {
     // control chars
-    case 'a': case 'b': case 'e': case 'f':
-    case 'n': case 'r': case 't': case 'v':
-    case '"': case '\'': case '?': case '\\':
+    case 'a':
+    case 'b':
+    case 'e':
+    case 'f':
+    case 'n':
+    case 'r':
+    case 't':
+    case 'v':
+    case '"':
+    case '\'':
+    case '?':
+    case '\\':
         return offset + 2;
 
     // hex encoded character
@@ -59,8 +66,14 @@ static int matchEscapedChar(const QString &text, int offset)
         return offset;
 
     // octal encoding, simple \0 is OK, too, unlike simple \x above
-    case '0': case '1': case '2': case '3':
-    case '4': case '5': case '6': case '7':
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
         if (offset + 2 < text.size() && isOctalChar(text.at(offset + 2))) {
             if (offset + 3 < text.size() && isOctalChar(text.at(offset + 3)))
                 return offset + 4;
@@ -79,6 +92,13 @@ static QString replaceCaptures(const QString &pattern, const QStringList &captur
         result.replace(QLatin1Char('%') + QString::number(i), quote ? QRegularExpression::escape(captures.at(i)) : captures.at(i));
     }
     return result;
+}
+
+Rule::~Rule()
+{
+    if (!m_additionalDeliminator.isEmpty() || !m_weakDeliminator.isEmpty()) {
+        delete m_wordDelimiters;
+    }
 }
 
 Definition Rule::definition() const
@@ -124,12 +144,17 @@ bool Rule::load(QXmlStreamReader &reader)
 
 void Rule::resolveContext()
 {
-    auto const& def = m_def.definition();
+    auto const &def = m_def.definition();
 
     m_context.resolve(def);
 
     // cache for DefinitionData::wordDelimiters, is accessed VERY often
     m_wordDelimiters = &DefinitionData::get(def)->wordDelimiters;
+    if (!m_additionalDeliminator.isEmpty() || !m_weakDeliminator.isEmpty()) {
+        m_wordDelimiters = new WordDelimiters(*m_wordDelimiters);
+        m_wordDelimiters->append(m_additionalDeliminator);
+        m_wordDelimiters->remove(m_weakDeliminator);
+    }
 }
 
 void Rule::resolveAttributeFormat(Context *lookupContext)
@@ -149,6 +174,12 @@ bool Rule::doLoad(QXmlStreamReader &reader)
 {
     Q_UNUSED(reader);
     return true;
+}
+
+void Rule::loadAdditionalWordDelimiters(QXmlStreamReader &reader)
+{
+    m_additionalDeliminator = reader.attributes().value(QLatin1String("additionalDeliminator")).toString();
+    m_weakDeliminator = reader.attributes().value(QLatin1String("weakDeliminator")).toString();
 }
 
 Rule::Ptr Rule::create(const QStringView &name)
@@ -283,6 +314,12 @@ MatchResult DetectSpaces::doMatch(const QString &text, int offset, const QString
     return offset;
 }
 
+bool Float::doLoad(QXmlStreamReader &reader)
+{
+    loadAdditionalWordDelimiters(reader);
+    return true;
+}
+
 MatchResult Float::doMatch(const QString &text, int offset, const QStringList &) const
 {
     if (offset > 0 && !isWordDelimiter(text.at(offset - 1)))
@@ -344,6 +381,12 @@ MatchResult HlCChar::doMatch(const QString &text, int offset, const QStringList 
     return offset;
 }
 
+bool HlCHex::doLoad(QXmlStreamReader &reader)
+{
+    loadAdditionalWordDelimiters(reader);
+    return true;
+}
+
 MatchResult HlCHex::doMatch(const QString &text, int offset, const QStringList &) const
 {
     if (offset > 0 && !isWordDelimiter(text.at(offset - 1)))
@@ -365,6 +408,12 @@ MatchResult HlCHex::doMatch(const QString &text, int offset, const QStringList &
     // TODO Kate matches U/L suffix, QtC does not?
 
     return offset;
+}
+
+bool HlCOct::doLoad(QXmlStreamReader &reader)
+{
+    loadAdditionalWordDelimiters(reader);
+    return true;
 }
 
 MatchResult HlCOct::doMatch(const QString &text, int offset, const QStringList &) const
@@ -411,11 +460,7 @@ bool IncludeRules::includeAttribute() const
 bool IncludeRules::doLoad(QXmlStreamReader &reader)
 {
     const auto s = reader.attributes().value(QLatin1String("context"));
-#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
-    const auto split = s.split(QLatin1String("##"), QString::KeepEmptyParts);
-#else
     const auto split = s.split(QString::fromLatin1("##"), Qt::KeepEmptyParts);
-#endif
     if (split.isEmpty())
         return false;
     m_contextName = split.at(0).toString();
@@ -431,6 +476,12 @@ MatchResult IncludeRules::doMatch(const QString &text, int offset, const QString
     Q_UNUSED(text);
     qCWarning(Log) << "Unresolved include rule for" << m_contextName << "##" << m_defName;
     return offset;
+}
+
+bool Int::doLoad(QXmlStreamReader &reader)
+{
+    loadAdditionalWordDelimiters(reader);
+    return true;
 }
 
 MatchResult Int::doMatch(const QString &text, int offset, const QStringList &) const
@@ -465,6 +516,8 @@ bool KeywordListRule::doLoad(QXmlStreamReader &reader)
     } else {
         m_hasCaseSensitivityOverride = false;
     }
+
+    loadAdditionalWordDelimiters(reader);
 
     return !m_keywordList->isEmpty();
 }
@@ -540,21 +593,52 @@ bool RegExpr::doLoad(QXmlStreamReader &reader)
 
     const auto isMinimal = Xml::attrToBool(reader.attributes().value(QLatin1String("minimal")));
     const auto isCaseInsensitive = Xml::attrToBool(reader.attributes().value(QLatin1String("insensitive")));
-    m_regexp.setPatternOptions((isMinimal ? QRegularExpression::InvertedGreedinessOption : QRegularExpression::NoPatternOption) | (isCaseInsensitive ? QRegularExpression::CaseInsensitiveOption : QRegularExpression::NoPatternOption));
+    m_regexp.setPatternOptions((isMinimal ? QRegularExpression::InvertedGreedinessOption : QRegularExpression::NoPatternOption)
+                               | (isCaseInsensitive ? QRegularExpression::CaseInsensitiveOption : QRegularExpression::NoPatternOption)
+                               // DontCaptureOption is removed by resolvePostProcessing() when necessary
+                               | QRegularExpression::DontCaptureOption);
+
+    m_dynamic = Xml::attrToBool(reader.attributes().value(QLatin1String("dynamic")));
+
+    return !m_regexp.pattern().isEmpty();
+}
+
+void KSyntaxHighlighting::RegExpr::resolvePostProcessing()
+{
+    if (m_isResolved)
+        return;
+
+    m_isResolved = true;
+    bool hasCapture = false;
+
+    // disable DontCaptureOption when reference a context with dynamic rule
+    if (auto *ctx = context().context()) {
+        for (const Rule::Ptr &rule : ctx->rules()) {
+            if (rule->isDynamic()) {
+                hasCapture = true;
+                m_regexp.setPatternOptions(m_regexp.patternOptions() & ~QRegularExpression::DontCaptureOption);
+                break;
+            }
+        }
+    }
 
     // optimize the pattern for the non-dynamic case, we use them OFTEN
-    m_dynamic = Xml::attrToBool(reader.attributes().value(QLatin1String("dynamic")));
     if (!m_dynamic) {
         m_regexp.optimize();
     }
 
-    // always using m_regexp.isValid() would be better, but parses the regexp and thus is way too expensive for release builds
+    bool isValid = m_regexp.isValid();
+    if (!isValid) {
+        // DontCaptureOption with back reference capture is an error, remove this option then try again
+        if (!hasCapture) {
+            m_regexp.setPatternOptions(m_regexp.patternOptions() & ~QRegularExpression::DontCaptureOption);
+            isValid = m_regexp.isValid();
+        }
 
-    if (Log().isDebugEnabled()) {
-        if (!m_regexp.isValid())
+        if (!isValid) {
             qCDebug(Log) << "Invalid regexp:" << m_regexp.pattern();
+        }
     }
-    return !m_regexp.pattern().isEmpty();
 }
 
 MatchResult RegExpr::doMatch(const QString &text, int offset, const QStringList &captures) const
@@ -616,6 +700,7 @@ bool WordDetect::doLoad(QXmlStreamReader &reader)
 {
     m_word = reader.attributes().value(QLatin1String("String")).toString();
     m_caseSensitivity = Xml::attrToBool(reader.attributes().value(QLatin1String("insensitive"))) ? Qt::CaseInsensitive : Qt::CaseSensitive;
+    loadAdditionalWordDelimiters(reader);
     return !m_word.isEmpty();
 }
 

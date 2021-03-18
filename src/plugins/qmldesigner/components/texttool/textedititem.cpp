@@ -70,15 +70,17 @@ void TextEditItem::setFormEditorItem(FormEditorItem *formEditorItem)
     setGeometry(rect);
 
     NodeMetaInfo metaInfo = m_formEditorItem->qmlItemNode().modelNode().metaInfo();
+    auto node = m_formEditorItem->qmlItemNode();
+    auto font = node.instanceValue("font").value<QFont>();
     if (metaInfo.isValid() &&
             (metaInfo.isSubclassOf("QtQuick.TextEdit")
              || metaInfo.isSubclassOf("QtQuick.Controls.TextArea"))) {
         QSize maximumSize = rect.size().toSize();
+        textEdit()->setFont(font);
         activateTextEdit(maximumSize);
     } else {
         auto lineEdit = TextEditItemWidget::lineEdit();
-        auto node = m_formEditorItem->qmlItemNode();
-        lineEdit->setFont(node.instanceValue("font").value<QFont>());
+        lineEdit->setFont(font);
         activateLineEdit();
     }
 

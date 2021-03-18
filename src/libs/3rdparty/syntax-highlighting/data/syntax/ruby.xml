@@ -31,7 +31,7 @@
 
 <!-- Hold the "language" opening tag on a single line, as mentioned in "language.dtd". -->
 <language name="Ruby" section="Scripts"
-	  version="12" kateversion="3.3"
+	  version="16" kateversion="5.0"
 	  extensions="*.rb;*.rjs;*.rxml;*.xml.erb;*.js.erb;*.rake;Rakefile;Gemfile;*.gemspec;Vagrantfile"
 	  mimetype="application/x-ruby"
 	  style="ruby" indenter="ruby"
@@ -191,19 +191,17 @@
 				<LineContinue attribute="Normal Text" context="Line Continue"/>
 
 				<!-- __END__ token on own line. -->
-				<RegExpr attribute="Keyword" String="__END__$" context="DATA" column="0"/>
+				<RegExpr attribute="Keyword" String="^__END__$" context="DATA" column="0"/>
 
 				<!-- "shebang" line -->
-				<RegExpr attribute="Keyword" String="#!\/.*" context="#stay" column="0"/>
+				<RegExpr attribute="Keyword" String="^#!\/.*" context="#stay" column="0"/>
 
 				<!-- "def" - "end" blocks -->
 				<!-- check for statement modifiers with regexes -->
 				<DetectChar attribute="Operator" char="{" context="Find closing block brace" beginRegion="def block"/>
-				<RegExpr attribute="Keyword" String="(\=|\(|\[|\{)\s*(if|unless|while|until)\b" context="#stay" beginRegion="def block"/>
-				<RegExpr attribute="Keyword" String="(while|until)\b(?!.*\bdo\b)" context="#stay" beginRegion="def block" />
-				<RegExpr attribute="Keyword" String="\;\s*(while|until)\b(?!.*\bdo\b)" context="#stay" beginRegion="def block"/>
+				<DetectChar attribute="Delimiter" char="}" context="check_div_1" endRegion="def block"/>
+				<RegExpr attribute="Keyword" String="[=([]\s*(if|unless|while|until)\b|(while|until)\b(?!.*\bdo\b)|\;\s*(while|until)\b(?!.*\bdo\b)|\;\s*(if|unless)\b" context="#stay" beginRegion="def block"/>
 				<RegExpr attribute="Keyword" String="(if|unless)\b" context="#stay" beginRegion="def block" firstNonSpace="true"/>
-				<RegExpr attribute="Keyword" String="\;\s*(if|unless)\b" context="#stay" beginRegion="def block"/>
 				<WordDetect attribute="Keyword" String="class" context="no_heredoc" beginRegion="def block"/>
 				<WordDetect attribute="Keyword" String="module" context="#stay" beginRegion="def block"/>
 				<WordDetect attribute="Keyword" String="begin" context="#stay" beginRegion="def block"/>
@@ -236,8 +234,7 @@
 				<!-- (global) vars starting with $
 						Match them before $_.
 				-->
-				<RegExpr attribute="Global Variable" String="\$[a-zA-Z_0-9]+" context="check_div_1"/>
-				<RegExpr attribute="Global Variable" String="\$\-[a-zA-Z_]\b" context="check_div_1"/>
+				<RegExpr attribute="Global Variable" String="\$[a-zA-Z_0-9]+|\$\-[a-zA-Z_]\b" context="check_div_1"/>
 				<!-- special-character globals -->
 				<RegExpr attribute="Default globals" String="\$[\d_*`+@;,.~=\!\$:?'/\\\-\&amp;&quot;&gt;&lt;]" context="check_div_1"/>
 				<RegExpr attribute="Global Constant" String="\b[_A-Z]+[A-Z_0-9]+\b" context="check_div_2"/>
@@ -269,21 +266,16 @@
 				<DetectChar attribute="Operator" char="." context="#stay"/>
 				<Detect2Chars attribute="Operator" char="&amp;" char1="&amp;" context="#stay"/>
 				<Detect2Chars attribute="Operator" char="|" char1="|" context="#stay"/>
-				<RegExpr attribute="Operator" String="\s[\?\:\%]\s" context="#stay"/>
-				<RegExpr attribute="Operator" String="[|&amp;&lt;&gt;\^\+*~\-=]+" context="#stay"/>
-				<!-- regexp hack -->
-				<RegExpr attribute="Operator" String="\s!" context="#stay"/>
-				<RegExpr attribute="Operator" String="/=\s" context="#stay" insensitive="0"/>
+				<!-- \s! is regexp hack -->
+				<RegExpr attribute="Operator" String="\s[\?\:\%]\s|[|&amp;&lt;&gt;\^\+*~\-=]+|\s!|/=\s" context="#stay"/>
 				<Detect2Chars attribute="Operator" char="%" char1="=" context="#stay"/>
 				<Detect2Chars attribute="Operator" char=":" char1=":" context="Member Access"/>
 
-				<RegExpr attribute="Symbol" String=":(@{1,2}|\$)?[a-zA-Z_][a-zA-Z0-9_]*[=?!]?" context="check_div_1"/>
-				<RegExpr attribute="Symbol" String=":\[\]=?" context="check_div_1"/>
+				<RegExpr attribute="Symbol" String=":(@{1,2}|\$)?[a-zA-Z_][a-zA-Z0-9_]*[=?!]?|:\[\]=?" context="check_div_1"/>
 
 				<!-- Do not send to "check_div_1" context!:
 				     after detecting these rules (": ") there can be a regular expression (see bug: #361875) -->
-				<RegExpr attribute="Symbol" String="(@{1,2}|\$)?[a-zA-Z_][a-zA-Z0-9_]*[=?!]?: " context="#stay"/>
-				<RegExpr attribute="Symbol" String="\[\]=?: " context="#stay"/>
+				<RegExpr attribute="Symbol" String="(@{1,2}|\$)?[a-zA-Z_][a-zA-Z0-9_]*[=?!]?: |\[\]=?: " context="#stay"/>
 
 				<DetectChar attribute="String" char="&quot;" context="Quoted String"/>
 				<DetectChar attribute="Raw String" char="'" context="Apostrophed String"/>
@@ -291,14 +283,12 @@
 
 				<Detect2Chars attribute="Normal Text" char="?" char1="#" context="#stay"/>
 
-				<RegExpr attribute="Comment" String="#\s*BEGIN.*$"  context="#stay" beginRegion="marker" column="0"/>
-				<RegExpr attribute="Comment" String="#\s*END.*$"  context="#stay" endRegion="marker" column="0"/>
+				<RegExpr attribute="Comment" String="^#\s*BEGIN.*$"  context="#stay" beginRegion="marker" column="0"/>
+				<RegExpr attribute="Comment" String="^#\s*END.*$"  context="#stay" endRegion="marker" column="0"/>
 				<DetectChar attribute="Comment" char="#" context="General Comment"/>
 
 				<DetectChar attribute="Delimiter" char="["  context="#stay"/>
 				<DetectChar attribute="Delimiter" char="]"  context="check_div_1"/>
-				<DetectChar attribute="Delimiter" char="{" context="#stay" beginRegion="def block"/>
-				<DetectChar attribute="Delimiter" char="}" context="check_div_1" endRegion="def block"/>
 
 				<RegExpr attribute="Instance Variable" String="@[a-zA-Z_0-9]+" context="check_div_1"/>
 				<RegExpr attribute="Class Variable" String="@@[a-zA-Z_0-9]+" context="check_div_1"/>
@@ -320,20 +310,20 @@
 
 			<!-- A slash is always a division operator, even if preceeded by whitespace -->
 			<context name="check_div_1" attribute="Normal Text" fallthrough="true" fallthroughContext="#pop" lineEndContext="#pop">
-				<RegExpr attribute="Normal Text" String="\s*" context="#stay"/>
+				<DetectSpaces attribute="Normal Text" context="#stay"/>
 				<AnyChar attribute="Operator" String="/%" context="#pop"/>
 			</context>
 
 			<!-- Same as check_div_1, but with double pop to exit the surrounding context -->
 			<context name="check_div_1_pop" attribute="Normal Text" fallthrough="true" fallthroughContext="#pop#pop" lineEndContext="#pop#pop">
-				<RegExpr attribute="Normal Text" String="\s*" context="#stay"/>
+				<DetectSpaces attribute="Normal Text" context="#stay"/>
 				<AnyChar attribute="Operator" String="/%" context="#pop#pop"/>
 			</context>
 
 			<!-- A slash is division operator if it's the first character, or if preceeded and followed by whitespace -->
 			<context name="check_div_2" attribute="Normal Text" fallthrough="true" fallthroughContext="#pop" lineEndContext="#pop">
 				<AnyChar attribute="Operator" String="/%" context="#pop"/>
-				<RegExpr attribute="Normal Text" String="\s+" context="check_div_2_internal"/>
+				<DetectSpaces attribute="Normal Text" context="check_div_2_internal"/>
 			</context>
 
 			<!-- Internal context used by check_div_2 -->
@@ -345,7 +335,7 @@
 			<!-- Same as check_div_2, but with double pop to exit the surrounding context -->
 			<context name="check_div_2_pop" attribute="Normal Text" fallthrough="true" fallthroughContext="#pop#pop" lineEndContext="#pop#pop">
 				<AnyChar attribute="Operator" String="/%" context="#pop#pop"/>
-				<RegExpr attribute="Normal Text" String="\s+" context="check_div_2_pop_internal"/>
+				<DetectSpaces attribute="Normal Text" context="check_div_2_pop_internal"/>
 			</context>
 
 			<!-- Internal context used by check_div_2_pop -->
@@ -355,8 +345,7 @@
 			</context>
 
 			<context name="Line Continue" attribute="Normal Text" lineEndContext="#pop">
-				<RegExpr attribute="Keyword" String="(while|until)\b(?!.*\bdo\b)" context="#stay" firstNonSpace="true"/>
-				<RegExpr attribute="Keyword" String="(if|unless)\b" context="#stay" firstNonSpace="true"/>
+				<RegExpr attribute="Keyword" String="(while|until)\b(?!.*\bdo\b)|(if|unless)\b" context="#stay" firstNonSpace="true"/>
 				<IncludeRules context="Normal"/>
 			</context>
 
@@ -390,7 +379,7 @@
 			<context name="Embedded documentation" attribute="Blockcomment" lineEndContext="#stay">
 				<RegExpr attribute="Comment" String="^=end(?:\s.*|$)" context="#pop" endRegion="comment block" column="0"/>
 				<DetectSpaces />
-				<IncludeRules context="##Alerts" />
+				<IncludeRules context="##Comments" />
 			</context>
 
 			<context name="RegEx 1" attribute="Regular Expression" lineEndContext="#stay">
@@ -433,8 +422,7 @@
 
 			<context name="General Comment" attribute="Comment" lineEndContext="#pop">
 				<DetectSpaces />
-				<IncludeRules context="##Alerts" />
-				<IncludeRules context="##Modelines" />
+				<IncludeRules context="##Comments" />
 			</context>
 
 			<!-- HEREDOC support
@@ -443,15 +431,11 @@
 			<!-- here we markup the heredoc markers -->
 			<context name="find_heredoc" attribute="Normal Text" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">
 				<RegExpr attribute="Keyword" context="apostrophed_normal_heredoc" String="'(\w+)'" />
-				<RegExpr attribute="Keyword" context="normal_heredoc" String="(\w+)" />
-				<RegExpr attribute="Keyword" context="normal_heredoc" String="&quot;(\w+)&quot;" />
-				<RegExpr attribute="Keyword" context="normal_heredoc" String="`(\w+)`" />
+				<RegExpr attribute="Keyword" context="normal_heredoc" String="(?|(\w+)|&quot;(\w+)&quot;|`(\w+)`)" />
 			</context>
 			<context name="find_indented_heredoc" attribute="Normal Text" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">
 				<RegExpr attribute="Keyword" context="apostrophed_indented_heredoc" String="'(\w+)'" />
-				<RegExpr attribute="Keyword" context="indented_heredoc" String="(\w+)" />
-				<RegExpr attribute="Keyword" context="indented_heredoc" String="&quot;(\w+)&quot;" />
-				<RegExpr attribute="Keyword" context="indented_heredoc" String="`(\w+)`" />
+				<RegExpr attribute="Keyword" context="indented_heredoc" String="(?|(\w+)|&quot;(\w+)&quot;|`(\w+)`)" />
 			</context>
 			<!-- these are the real heredoc contexts -->
 			<context name="indented_heredoc" attribute="Here Document" lineEndContext="#stay" dynamic="true">
@@ -463,11 +447,11 @@
 			</context>
 
 			<context name="normal_heredoc" attribute="Here Document" lineEndContext="#stay" dynamic="true">
-				<RegExpr attribute="Keyword" context="#pop#pop" String="%1$" dynamic="true" endRegion="HereDocument" column="0"/>
+				<RegExpr attribute="Keyword" context="#pop#pop" String="^%1$" dynamic="true" endRegion="HereDocument" column="0"/>
 				<IncludeRules context="heredoc_rules" />
 			</context>
 			<context name="apostrophed_normal_heredoc" attribute="Here Document" lineEndContext="#stay" dynamic="true">
-				<RegExpr attribute="Keyword" context="#pop#pop" String="%1$" dynamic="true" endRegion="HereDocument" column="0"/>
+				<RegExpr attribute="Keyword" context="#pop#pop" String="^%1$" dynamic="true" endRegion="HereDocument" column="0"/>
 			</context>
 
 			<!-- rules for heredoc types -->
@@ -481,8 +465,8 @@
 				<DetectSpaces />
 				<Detect2Chars attribute="Operator" char="&lt;" char1="&lt;" context="#pop"/>
 				<!-- comments -->
-				<RegExpr attribute="Comment" String="#\s*BEGIN.*$"  context="#stay" beginRegion="marker" column="0"/>
-				<RegExpr attribute="Comment" String="#\s*END.*$"  context="#stay" endRegion="marker" column="0"/>
+				<RegExpr attribute="Comment" String="^#\s*BEGIN.*$"  context="#stay" beginRegion="marker" column="0"/>
+				<RegExpr attribute="Comment" String="^#\s*END.*$"  context="#stay" endRegion="marker" column="0"/>
 				<DetectChar attribute="Comment" char="#" context="General Comment"/>
 			</context>
 
@@ -602,7 +586,7 @@
 			 -->
 			<context name="gdl_dq_string_5" attribute="String" lineEndContext="#stay" dynamic="true">
 				<IncludeRules context="dq_string_rules" />
-				<RegExpr attribute="String" String="\\%1" context="#stay" dynamic="true" />
+				<StringDetect attribute="String" String="\%1" context="#stay" dynamic="true" />
 				<RegExpr attribute="GDL input" context="#pop#pop" String="\s*%1" dynamic="true" endRegion="GdlInput" />
 			</context>
 			<!-- rules to be included in all dq_string contexts -->
@@ -667,7 +651,7 @@
 			 -->
 			<context name="gdl_token_array_5" attribute="String" lineEndContext="#stay" dynamic="true">
 				<IncludeRules context="token_array_rules" />
-				<RegExpr attribute="String" String="\\%1" context="#stay" dynamic="true"/>
+				<StringDetect attribute="String" String="\%1" context="#stay" dynamic="true"/>
 				<RegExpr attribute="GDL input" context="#pop#pop" String="\s*%1" dynamic="true" endRegion="GdlInput" />
 			</context>
 
@@ -731,7 +715,7 @@
 			 -->
 			<context name="gdl_apostrophed_5" attribute="Raw String" lineEndContext="#stay" dynamic="true">
 				<IncludeRules context="apostrophed_rules" />
-				<RegExpr attribute="Raw String" String="\\%1" context="#stay" dynamic="true"/>
+				<StringDetect attribute="Raw String" String="\%1" context="#stay" dynamic="true"/>
 				<RegExpr attribute="GDL input" context="#pop#pop" String="\s*%1" dynamic="true" endRegion="GdlInput" />
 			</context>
 
@@ -795,7 +779,7 @@
 			 -->
 			<context name="gdl_shell_command_5" attribute="Command" lineEndContext="#stay" dynamic="true">
 				<IncludeRules context="shell_command_rules" />
-				<RegExpr attribute="Command" String="\\%1" context="#stay" dynamic="true" />
+				<StringDetect attribute="Command" String="\%1" context="#stay" dynamic="true" />
 				<RegExpr attribute="GDL input" context="#pop#pop" String="\s*%1" dynamic="true" endRegion="GdlInput" />
 			</context>
 
@@ -861,7 +845,7 @@
 			 -->
 			<context name="gdl_regexpr_5" attribute="Regular Expression" lineEndContext="#stay" dynamic="true">
 				<IncludeRules context="regexpr_rules" />
-				<RegExpr attribute="Regular Expression" String="\\%1" context="#stay" dynamic="true" />
+				<StringDetect attribute="Regular Expression" String="\%1" context="#stay" dynamic="true" />
 				<RegExpr attribute="GDL input" context="#pop#pop" String="\s*%1[uiomxn]*" dynamic="true" endRegion="GdlInput" />
 			</context>
 

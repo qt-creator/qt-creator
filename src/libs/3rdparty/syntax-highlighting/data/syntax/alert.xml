@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
-<language version="5" kateversion="3.1" name="Alerts" section="Other" extensions="" mimetype="" author="Dominik Haumann (dhaumann@kde.org)" license="MIT" hidden="true">
+<language version="6" kateversion="3.1" name="Alerts" section="Other" extensions="" mimetype="" author="Dominik Haumann (dhaumann@kde.org)" license="MIT" hidden="true">
   <highlighting>
     <list name="alerts_hi">
       <item>ALERT</item>
@@ -19,6 +19,7 @@
       <item>WARNING</item>
       <item>CAUTION</item>
       <item>NOLINT</item>
+      <item>NOQA</item>
     </list>
     <list name="alerts_lo">
       <item>###</item>

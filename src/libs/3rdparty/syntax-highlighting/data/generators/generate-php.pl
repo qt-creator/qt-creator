@@ -19,7 +19,13 @@
 
 my $file = "";
 
-while (<>)
+open(my $input, '<:encoding(UTF-8)', $ARGV[0])
+  or die "Could not open file '$ARGV[0]': $!";
+
+open(my $output, '>:encoding(UTF-8)', $ARGV[1])
+  or die "Could not open file '$ARGV[1]': $!";
+
+while (<$input>)
 {
   $file .= $_;
 }
@@ -55,12 +61,17 @@ else
   $file =~ s/<language([^>]+)mimetype="[^"]*"/<language$1mimetype=""/s;
 }
 
-$findphp = "<context name=\"FindPHP\" attribute=\"Normal Text\" lineEndContext=\"#stay\">\n<RegExpr context=\"##PHP/PHP\" String=\"&lt;\\?(?:=|php)?\" lookAhead=\"true\" />\n</context>\n";
+if ($root == 1 || $ARGV[0] =~ /mustache.xml$/)
+{
+  $file =~ s/<(?:RegExpr (attribute="Processing Instruction" context="PI"|context="PI" attribute="Processing Instruction")|itemData name="Processing Instruction")[^\/]+\/>|<context name="PI".*?<\/context>//gs;
+}
 
-$file =~ s/<IncludeRules\s([^>]*)context="([^"#]*)##(?!Alerts|Doxygen|Modelines)([^"]+)"/<IncludeRules $1context="$2##$3\/PHP"/g;
+$findphp = "<context name=\"FindPHP\" attribute=\"Normal Text\" lineEndContext=\"#stay\">\n<Detect2Chars context=\"##PHP/PHP\" char=\"&lt;\" char1=\"?\" lookAhead=\"true\" />\n</context>\n";
+
+$file =~ s/<IncludeRules\s([^>]*)context="([^"#]*)##(?!Alerts|Comments|Doxygen|Modelines)([^"]+)"/<IncludeRules $1context="$2##$3\/PHP"/g;
 $file =~ s/(<context\s[^>]*[^>\/]>)/$1\n<IncludeRules context="FindPHP" \/>/g;
 $file =~ s/(<context\s[^>]*[^>\/])\s*\/>/$1>\n<IncludeRules context="FindPHP" \/>\n<\/context>/g;
 $file =~ s/(?=<\/contexts\s*>)/$findphp/;
 
-print $file;
-print $warning;
+print $output $file;
+print $output $warning;

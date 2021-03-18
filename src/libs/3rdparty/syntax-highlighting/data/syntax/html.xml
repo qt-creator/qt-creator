@@ -5,7 +5,7 @@
 	<!ENTITY attributeName "[A-Za-z_:*#\(\[][\)\]\w.:_-]*">
 	<!ENTITY entref        "&amp;(?:#[0-9]+|#[xX][0-9A-Fa-f]+|&name;);">
 ]>
-<language name="HTML" version="12" kateversion="5.53" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm" mimetype="text/html"  author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
+<language name="HTML" version="14" kateversion="5.53" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm" mimetype="text/html"  author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
 
 <highlighting>
 <contexts>
@@ -79,8 +79,7 @@
   </context>
 
   <context name="FindAttributes" attribute="Other Text" lineEndContext="#stay">
-    <RegExpr attribute="Attribute" context="#stay" String="&attributeName;" column="0"/>
-    <RegExpr attribute="Attribute" context="#stay" String="\s+&attributeName;" />
+    <RegExpr attribute="Attribute" context="#stay" String="^&attributeName;|\s+&attributeName;" />
     <DetectChar attribute="Attribute" context="Value" char="=" />
   </context>
 
@@ -92,8 +91,7 @@
   <context name="Comment" attribute="Comment" lineEndContext="#stay">
     <DetectSpaces/>
     <StringDetect attribute="Comment" context="#pop" String="--&gt;" endRegion="comment" />
-    <IncludeRules context="##Alerts" />
-    <IncludeRules context="##Modelines" />
+    <IncludeRules context="##Comments" />
     <DetectIdentifier/>
     <RegExpr attribute="Error" context="#stay" String="-(?:-(?!-&gt;))+" />
   </context>
@@ -195,7 +193,7 @@
   <context name="JS comment close" attribute="Comment" lineEndContext="#pop">
     <RegExpr attribute="Element" context="El Close 3" String="&lt;/script\b" insensitive="true" endRegion="script" />
     <DetectSpaces />
-    <IncludeRules context="##Alerts" />
+    <IncludeRules context="##Comments" />
   </context>
 
   <context name="Value" attribute="Other Text" lineEndContext="#stay" fallthrough="true" fallthroughContext="Value NQ">
@@ -206,8 +204,7 @@
 
   <context name="Value NQ" attribute="Other Text" lineEndContext="#pop#pop" fallthrough="true" fallthroughContext="#pop#pop">
     <IncludeRules context="FindEntityRefs" />
-    <RegExpr attribute="Value" context="#stay" String="/(?!&gt;)" />
-    <RegExpr attribute="Value" context="#stay" String="[^/&gt;&lt;&quot;&apos;\s]" />
+    <RegExpr attribute="Value" context="#stay" String="/(?!&gt;)|[^/&gt;&lt;&quot;&apos;\s]" />
   </context>
 
   <context name="Value DQ" attribute="Value" lineEndContext="#stay">

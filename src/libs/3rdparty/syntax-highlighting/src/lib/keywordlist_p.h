@@ -9,8 +9,8 @@
 #define KSYNTAXHIGHLIGHTING_KEYWORDLIST_P_H
 
 #include <QString>
-#include <QStringView>
 #include <QStringList>
+#include <QStringView>
 
 #include <vector>
 

@@ -6010,6 +6010,7 @@ void TextEditorWidgetPrivate::toggleBlockVisible(const QTextBlock &block)
 void TextEditorWidget::setLanguageSettingsId(Id settingsId)
 {
     d->m_tabSettingsId = settingsId;
+    setCodeStyle(TextEditorSettings::codeStyle(settingsId));
 }
 
 Id TextEditorWidget::languageSettingsId() const
@@ -6019,20 +6020,24 @@ Id TextEditorWidget::languageSettingsId() const
 
 void TextEditorWidget::setCodeStyle(ICodeStylePreferences *preferences)
 {
-    textDocument()->indenter()->setCodeStylePreferences(preferences);
+    TextDocument *document = d->m_document.data();
+    // Not fully initialized yet... wait for TextEditorWidgetPrivate::setupDocumentSignals
+    if (!document)
+        return;
+    document->indenter()->setCodeStylePreferences(preferences);
     if (d->m_codeStylePreferences) {
         disconnect(d->m_codeStylePreferences, &ICodeStylePreferences::currentTabSettingsChanged,
-                   d->m_document.data(), &TextDocument::setTabSettings);
+                   document, &TextDocument::setTabSettings);
         disconnect(d->m_codeStylePreferences, &ICodeStylePreferences::currentValueChanged,
                    this, &TextEditorWidget::slotCodeStyleSettingsChanged);
     }
     d->m_codeStylePreferences = preferences;
     if (d->m_codeStylePreferences) {
         connect(d->m_codeStylePreferences, &ICodeStylePreferences::currentTabSettingsChanged,
-                d->m_document.data(), &TextDocument::setTabSettings);
+                document, &TextDocument::setTabSettings);
         connect(d->m_codeStylePreferences, &ICodeStylePreferences::currentValueChanged,
                 this, &TextEditorWidget::slotCodeStyleSettingsChanged);
-        d->m_document->setTabSettings(d->m_codeStylePreferences->currentTabSettings());
+        document->setTabSettings(d->m_codeStylePreferences->currentTabSettings());
         slotCodeStyleSettingsChanged(d->m_codeStylePreferences->currentValue());
     }
 }

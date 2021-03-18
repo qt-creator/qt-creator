@@ -30,14 +30,14 @@ public:
     bool contains(QChar c) const;
 
     /**
-     * Appends the character @p c to word delimiter.
+     * Appends each character of @p s to word delimiters.
      */
-    void append(QChar c);
+    void append(QStringView s);
 
     /**
-     * Removes the character @p c from word delimiters.
+     * Removes each character of @p s from word delimiters.
      */
-    void remove(QChar c);
+    void remove(QStringView c);
 
 private:
     /**

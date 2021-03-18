@@ -55,7 +55,7 @@ ecm_generate_headers(SyntaxHighlighting_HEADERS
     REQUIRED_HEADERS SyntaxHighlighting_HEADERS
 )
 
-install(TARGETS KF5SyntaxHighlighting EXPORT KF5SyntaxHighlightingTargets ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS KF5SyntaxHighlighting EXPORT KF5SyntaxHighlightingTargets ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 install(FILES
     ${SyntaxHighlighting_HEADERS}
     ${CMAKE_CURRENT_BINARY_DIR}/ksyntaxhighlighting_export.h
@@ -66,7 +66,7 @@ if(BUILD_QCH)
         KF5SyntaxHighlighting_QCH
         NAME KSyntaxHighlighting
         BASE_NAME KF5SyntaxHighlighting
-        VERSION ${KF5_VERSION}
+        VERSION ${KF_VERSION}
         ORG_DOMAIN org.kde
         SOURCES # using only public headers, to cover only public API
             ${SyntaxHighlighting_HEADERS}

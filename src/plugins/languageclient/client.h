@@ -199,6 +199,7 @@ private:
     void updateCompletionProvider(TextEditor::TextDocument *document);
     void updateFunctionHintProvider(TextEditor::TextDocument *document);
 
+    void requestDocumentHighlights(TextEditor::TextEditorWidget *widget);
     void rehighlight();
 
     using ContentHandler = std::function<void(const QByteArray &, QTextCodec *, QString &,
@@ -216,6 +217,7 @@ private:
     QMap<TextEditor::TextDocument *,
          QList<LanguageServerProtocol::DidChangeTextDocumentParams::TextDocumentContentChangeEvent>>
         m_documentsToUpdate;
+    QMap<TextEditor::TextEditorWidget *, QTimer *> m_documentHighlightsTimer;
     QTimer m_documentUpdateTimer;
     Utils::Id m_id;
     LanguageServerProtocol::ServerCapabilities m_serverCapabilities;

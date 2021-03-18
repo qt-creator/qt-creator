@@ -1753,6 +1753,11 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
                                     flags = EditorManager::DoNotSwitchToDesignMode;
                                 activateEditorForDocument(view, document, flags);
                             }
+                        } else {
+                            // no documents left - set current view since view->removeEditor can
+                            // trigger a focus change, context change, and updateActions, which
+                            // requests the current EditorView
+                            setCurrentView(currentView);
                         }
                     }
                 }
@@ -1766,10 +1771,12 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
     foreach (IEditor *editor, acceptedEditors)
         delete editor;
 
-    if (focusView)
+    if (focusView) {
         activateView(focusView);
-    else
+    } else {
+        setCurrentView(currentView);
         setCurrentEditor(currentView->currentEditor());
+    }
 
     if (!EditorManager::currentEditor()) {
         emit m_instance->currentEditorChanged(nullptr);
