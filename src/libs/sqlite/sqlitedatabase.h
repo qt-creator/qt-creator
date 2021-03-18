@@ -44,6 +44,7 @@ using namespace std::chrono_literals;
 
 class ReadStatement;
 class WriteStatement;
+class ReadWriteStatement;
 
 class SQLITE_EXPORT Database final : public TransactionInterface, public DatabaseInterface
 {
@@ -55,6 +56,7 @@ public:
     using MutexType = std::mutex;
     using ReadStatement = Sqlite::ReadStatement;
     using WriteStatement = Sqlite::WriteStatement;
+    using ReadWriteStatement = Sqlite::ReadWriteStatement;
     using BusyHandler = DatabaseBackend::BusyHandler;
 
     Database();
