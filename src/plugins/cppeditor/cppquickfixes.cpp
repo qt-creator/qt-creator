@@ -4556,7 +4556,7 @@ public:
         });
 
         const auto mainLayout = new QVBoxLayout(this);
-        mainLayout->addWidget(new QLabel(tr("Please select the getters and/or setters "
+        mainLayout->addWidget(new QLabel(tr("Select the getters and setters "
                                             "to be created.")));
         for (auto checkBox : checkBoxes) {
             if (checkBox)
