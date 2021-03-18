@@ -185,8 +185,8 @@ void TestSettingsWidget::onFrameworkItemChanged()
         } else {
             m_ui.frameworksWarn->setText(tr("Mixing test frameworks and test tools."));
             m_ui.frameworksWarn->setToolTip(tr("Mixing test frameworks and test tools can lead "
-                                               "to duplicating run information when using e.g. "
-                                                "'Run All Tests'."));
+                                               "to duplicating run information when using "
+                                                "\"Run All Tests\", for example."));
         }
     }
     m_ui.frameworksWarn->setVisible(!atLeastOneEnabled
