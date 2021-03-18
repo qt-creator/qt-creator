@@ -36,7 +36,6 @@ namespace LanguageServerProtocol {
 class LANGUAGESERVERPROTOCOL_EXPORT ProgressToken : public Utils::variant<int, QString>
 {
 public:
-    ProgressToken();
     using variant::variant;
     explicit ProgressToken(const QJsonValue &value);
 

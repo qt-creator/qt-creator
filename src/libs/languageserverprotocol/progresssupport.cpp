@@ -31,10 +31,6 @@
 
 namespace LanguageServerProtocol {
 
-ProgressToken::ProgressToken()
-    : Utils::variant<int, QString>(QUuid::createUuid().toString())
-{}
-
 ProgressToken::ProgressToken(const QJsonValue &value)
 {
     if (!QTC_GUARD(value.isDouble() || value.isString()))
