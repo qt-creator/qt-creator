@@ -354,14 +354,14 @@ TEST_F(TokenProcessor, LocalVariableFunctionArgumentDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(84, 45));
 
-    ASSERT_THAT(infos[5], IsHighlightingMark(84u, 41u, 3u, HighlightingType::LocalVariable));
+    ASSERT_THAT(infos[5], IsHighlightingMark(84u, 41u, 3u, HighlightingType::Parameter));
 }
 
 TEST_F(TokenProcessor, LocalVariableFunctionArgumentReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(86, 26));
 
-    ASSERT_THAT(infos[0], IsHighlightingMark(86u, 5u, 3u, HighlightingType::LocalVariable));
+    ASSERT_THAT(infos[0], IsHighlightingMark(86u, 5u, 3u, HighlightingType::Parameter));
 }
 
 TEST_F(TokenProcessor, ClassVariableDeclaration)
@@ -1208,7 +1208,7 @@ TEST_F(TokenProcessor, FriendArgumentDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(351, 65));
 
-    ASSERT_THAT(infos[8], HasOnlyType(HighlightingType::LocalVariable));
+    ASSERT_THAT(infos[8], HasOnlyType(HighlightingType::Parameter));
 }
 
 TEST_F(TokenProcessor, FieldInitialization)
@@ -1396,7 +1396,7 @@ TEST_F(TokenProcessor, NonConstReferenceArgumentFromFunctionParameter)
     infos[1];
 
     ASSERT_THAT(infos[2],
-                HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
+                HasTwoTypes(HighlightingType::Parameter, HighlightingType::OutputArgument));
 }
 
 TEST_F(TokenProcessor, NonConstPointerArgumentAsExpression)
@@ -1497,7 +1497,7 @@ TEST_F(TokenProcessor, VariableInOperatorFunctionCall)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(566, 12));
 
-    ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::LocalVariable));
+    ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Parameter));
 }
 
 TEST_F(TokenProcessor, UsingTemplateFunction)

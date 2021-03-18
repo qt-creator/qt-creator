@@ -835,6 +835,7 @@ static const char *highlightingTypeToCStringLiteral(HighlightingType type)
         RETURN_TEXT_FOR_CASE(VirtualFunction);
         RETURN_TEXT_FOR_CASE(Type);
         RETURN_TEXT_FOR_CASE(LocalVariable);
+        RETURN_TEXT_FOR_CASE(Parameter);
         RETURN_TEXT_FOR_CASE(GlobalVariable);
         RETURN_TEXT_FOR_CASE(Field);
         RETURN_TEXT_FOR_CASE(Enumeration);
