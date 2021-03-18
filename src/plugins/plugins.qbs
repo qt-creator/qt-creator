@@ -37,6 +37,7 @@ Project {
         "debugger/ptracepreload.qbs",
         "designer/designer.qbs",
         "diffeditor/diffeditor.qbs",
+        "docker/docker.qbs",
         "fakevim/fakevim.qbs",
         "emacskeys/emacskeys.qbs",
         "genericprojectmanager/genericprojectmanager.qbs",

@@ -27,6 +27,7 @@ add_subdirectory(resourceeditor)
 add_subdirectory(tasklist)
 add_subdirectory(nim)
 add_subdirectory(conan)
+add_subdirectory(docker)
 
 # Level 4: (only depends on Level 3 and below)
 add_subdirectory(clangpchmanager)

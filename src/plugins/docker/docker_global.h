@@ -1,0 +1,10 @@
+#ifndef DOCKER_GLOBAL_H
+#define DOCKER_GLOBAL_H
+
+#if defined(DOCKER_LIBRARY)
+#  define DOCKER_EXPORT Q_DECL_EXPORT
+#else
+#  define DOCKER_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // DOCKER_GLOBAL_H

@@ -67,7 +67,8 @@ SUBDIRS   = \
     mcusupport \
     marketplace \
     incredibuild \
-    conan
+    conan \
+    docker
 
 qtHaveModule(serialport) {
     SUBDIRS += serialterminal
