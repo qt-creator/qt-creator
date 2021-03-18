@@ -32,7 +32,7 @@
         <item row="0" column="0">
          <widget class="QLabel" name="snapMarginLabel">
           <property name="text">
-           <string>Parent item padding:</string>
+           <string>Parent component padding:</string>
           </property>
          </widget>
         </item>
@@ -46,7 +46,7 @@
         <item row="1" column="0">
          <widget class="QLabel" name="itemSpacingLabel">
           <property name="text">
-           <string>Sibling item spacing:</string>
+           <string>Sibling component spacing:</string>
           </property>
          </widget>
         </item>
@@ -105,7 +105,7 @@
      <item>
       <widget class="QGroupBox" name="groupBox_4">
        <property name="title">
-        <string>Root Item Init Size</string>
+        <string>Root Component Init Size</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_7">
         <item row="0" column="0">
@@ -247,7 +247,7 @@
          </widget>
         </item>
         <item>
-         <widget class="Utils::PathChooser" name="fallbackPuppetPathLineEdit">
+         <widget class="Utils::PathChooser" name="fallbackPuppetPathLineEdit" native="true">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -288,7 +288,7 @@
          </widget>
         </item>
         <item>
-         <widget class="Utils::PathChooser" name="puppetBuildPathLineEdit">
+         <widget class="Utils::PathChooser" name="puppetBuildPathLineEdit" native="true">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -348,7 +348,7 @@
            <string>Also warns in the code editor about QML features that are not properly supported by the Qt Quick Designer.</string>
           </property>
           <property name="text">
-           <string>Warn about unsupported features of Qt Quick Designer in the code editor</string>
+           <string>Warn about unsupported features of .ui.qml files in code editor</string>
           </property>
          </widget>
         </item>
@@ -358,7 +358,7 @@
            <string>Warns about QML features that are not properly supported by the Qt Quick Designer.</string>
           </property>
           <property name="text">
-           <string>Warn about unsupported features in the Qt Quick Designer</string>
+           <string>Warn about unsupported features in .ui.qml files</string>
           </property>
          </widget>
         </item>

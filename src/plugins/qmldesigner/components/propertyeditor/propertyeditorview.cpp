@@ -163,9 +163,9 @@ void PropertyEditorView::changeValue(const QString &name)
             value->setValue(m_selectedNode.id());
             m_locked = false;
             if (!QmlDesigner::ModelNode::isValidId(newId))
-                Core::AsynchronousMessageBox::warning(tr("Invalid Id"),  tr("%1 is an invalid id.").arg(newId));
+                Core::AsynchronousMessageBox::warning(tr("Invalid ID"),  tr("%1 is an invalid ID.").arg(newId));
             else
-                Core::AsynchronousMessageBox::warning(tr("Invalid Id"),  tr("%1 already exists.").arg(newId));
+                Core::AsynchronousMessageBox::warning(tr("Invalid ID"),  tr("%1 already exists.").arg(newId));
         }
         return;
     }
@@ -323,7 +323,7 @@ void PropertyEditorView::exportPopertyAsAlias(const QString &name)
         PropertyName propertyName = aliasName.toUtf8();
         if (rootModelNode().hasProperty(propertyName)) {
             Core::AsynchronousMessageBox::warning(tr("Cannot Export Property as Alias"),
-                                                  tr("Property %1 does already exist for root item.").arg(aliasName));
+                                                  tr("Property %1 does already exist for root component.").arg(aliasName));
             return;
         }
         rootModelNode().bindingProperty(propertyName).setDynamicTypeNameAndExpression("alias", id + "." + name);
