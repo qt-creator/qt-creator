@@ -213,7 +213,6 @@ public:
     Utils::FilePath hostPrefixPath() const;
 
     Utils::FilePath mkspecsPath() const;
-    Utils::FilePath qmlBinPath() const;
     Utils::FilePath librarySearchPath() const;
 
     Utils::FilePaths directoriesToIgnoreInProjectTree() const;

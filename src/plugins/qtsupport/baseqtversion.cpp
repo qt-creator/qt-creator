@@ -639,12 +639,6 @@ FilePath BaseQtVersion::mkspecsPath() const
     return result.pathAppended("mkspecs");
 }
 
-FilePath BaseQtVersion::qmlBinPath() const
-{
-    d->updateVersionInfo();
-    return FilePath::fromUserInput(d->m_mkspecValues.value("QT.qml.bins"));
-}
-
 FilePath BaseQtVersion::librarySearchPath() const
 {
     return HostOsInfo::isWindowsHost() ? binPath() : libraryPath();
@@ -1000,10 +994,8 @@ QString BaseQtVersion::qmlsceneCommand() const
     if (!d->m_qmlsceneCommand.isNull())
         return d->m_qmlsceneCommand;
 
-    ensureMkSpecParsed();
-
-    const QString path =
-        qmlBinPath().pathAppended(HostOsInfo::withExecutableSuffix("qmlscene")).toString();
+    const QString path
+        = binPath().pathAppended(HostOsInfo::withExecutableSuffix("qmlscene")).toString();
 
     d->m_qmlsceneCommand = QFileInfo(path).isFile() ? path : QString();
 
@@ -1018,10 +1010,8 @@ QString BaseQtVersion::qmlplugindumpCommand() const
     if (!d->m_qmlplugindumpCommand.isNull())
         return d->m_qmlplugindumpCommand;
 
-    ensureMkSpecParsed();
-
     const QString path
-        = qmlBinPath().pathAppended(HostOsInfo::withExecutableSuffix("qmlplugindump")).toString();
+        = binPath().pathAppended(HostOsInfo::withExecutableSuffix("qmlplugindump")).toString();
 
     d->m_qmlplugindumpCommand = QFileInfo(path).isFile() ? path : QString();
 
@@ -1183,12 +1173,8 @@ void BaseQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
         else if (value == "qt_framework")
             d->m_frameworkBuild = true;
     }
-    const QString qmlBins = "QT.qml.bins";
-    const QString declarativeBins = "QT.declarative.bins";
     const QString libinfix = MKSPEC_VALUE_LIBINFIX;
     const QString ns = MKSPEC_VALUE_NAMESPACE;
-    d->m_mkspecValues.insert(qmlBins, evaluator->value(qmlBins));
-    d->m_mkspecValues.insert(declarativeBins, evaluator->value(declarativeBins));
     d->m_mkspecValues.insert(libinfix, evaluator->value(libinfix));
     d->m_mkspecValues.insert(ns, evaluator->value(ns));
 }
