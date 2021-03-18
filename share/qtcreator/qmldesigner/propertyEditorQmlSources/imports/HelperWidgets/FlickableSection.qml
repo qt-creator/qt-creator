@@ -96,7 +96,7 @@ Section {
 
         Label {
             text: qsTr("Interactive")
-            tooltip: qsTr("Allows users to drag or flick a flickable item.")
+            tooltip: qsTr("Allows users to drag or flick a flickable component.")
         }
 
         SecondColumnLayout {

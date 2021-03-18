@@ -34,7 +34,7 @@ Column {
     padding: 10
 
     Label {
-        text: qsTr("This item is an instance of a Component")
+        text: qsTr("This is an instance of a component")
         anchors.horizontalCenter: parent.horizontalCenter
         width: 300
         horizontalAlignment: Text.AlignHCenter
@@ -45,7 +45,7 @@ Column {
         anchors.horizontalCenter: parent.horizontalCenter
         width: 180
 
-        buttonIcon: qsTr("Edit Master Component")
+        buttonIcon: qsTr("Edit Base Component")
         iconFont: StudioTheme.Constants.font
 
         onClicked: goIntoComponent()

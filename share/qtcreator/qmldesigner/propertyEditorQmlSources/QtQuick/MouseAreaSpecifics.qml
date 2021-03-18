@@ -195,7 +195,7 @@ Column {
         SectionLayout {
             Label {
                 text: qsTr("Target")
-                tooltip: qsTr("Id of the item to drag.")
+                tooltip: qsTr("ID of the component to drag.")
             }
             SecondColumnLayout {
                 ItemFilterComboBox {

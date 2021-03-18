@@ -42,7 +42,7 @@ Rectangle {
 
             Label {
                 id: test
-                text: qsTr("None or multiple items selected.");
+                text: qsTr("None or multiple components selected.");
                 anchors.fill: parent
             }
         }

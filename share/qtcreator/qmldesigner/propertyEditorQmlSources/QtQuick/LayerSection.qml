@@ -54,7 +54,7 @@ Section {
 
         Label {
             text: qsTr("Enabled")
-            tooltip: qsTr("Whether the item is layered or not.")
+            tooltip: qsTr("Whether the component is layered or not.")
         }
         SecondColumnLayout {
             CheckBox {

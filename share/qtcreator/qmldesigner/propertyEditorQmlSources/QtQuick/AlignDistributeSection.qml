@@ -327,7 +327,7 @@ Section {
                 font.pixelSize: StudioTheme.Values.myFontSize
                 color: StudioTheme.Values.themeTextColor
                 wrapMode: Text.WordWrap
-                text: qsTr("- The selection contains the root item.")
+                text: qsTr("- The selection contains the root component.")
             }
             Text {
                 id: warningNonVisual
@@ -337,7 +337,7 @@ Section {
                 font.pixelSize: StudioTheme.Values.myFontSize
                 color: StudioTheme.Values.themeTextColor
                 wrapMode: Text.WordWrap
-                text: qsTr("- The selection contains a non visual item.")
+                text: qsTr("- The selection contains a non-visual component.")
             }
             Text {
                 id: warningAnchors
@@ -347,7 +347,7 @@ Section {
                 font.pixelSize: StudioTheme.Values.myFontSize
                 color: StudioTheme.Values.themeTextColor
                 wrapMode: Text.WordWrap
-                text: qsTr("- An item in the selection uses anchors.")
+                text: qsTr("- A component in the selection uses anchors.")
             }
         }
     }

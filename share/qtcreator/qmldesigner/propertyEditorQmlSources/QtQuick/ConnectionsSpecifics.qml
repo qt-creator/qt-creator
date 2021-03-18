@@ -39,7 +39,7 @@ Column {
         SectionLayout {
             Label {
                 text: qsTr("Enabled")
-                tooltip: qsTr("Sets whether the item accepts change events.")
+                tooltip: qsTr("Sets whether the component accepts change events.")
             }
             SecondColumnLayout {
                 CheckBox {
@@ -65,7 +65,7 @@ Column {
 
             Label {
                 text: qsTr("Target")
-                tooltip: qsTr("Sets the object that sends the signal.")
+                tooltip: qsTr("Sets the component that sends the signal.")
             }
             SecondColumnLayout {
                 ItemFilterComboBox {
