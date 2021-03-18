@@ -37,6 +37,9 @@ template<unsigned int TableCount = 0>
 class LastChangedRowId
 {
 public:
+    LastChangedRowId(const LastChangedRowId &) = delete;
+    LastChangedRowId &operator=(const LastChangedRowId &) = delete;
+
     LastChangedRowId(DatabaseInterface &database)
         : database(database)
 
