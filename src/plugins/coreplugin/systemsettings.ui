@@ -314,7 +314,7 @@
         <item>
          <widget class="QPushButton" name="clearCrashReportsButton">
           <property name="text">
-           <string>Clear local crash reports</string>
+           <string>Clear Local Crash Reports</string>
           </property>
          </widget>
         </item>
