@@ -77,6 +77,9 @@ QString FvBaseAspect::settingsKey() const
 {
     return m_settingsKey;
 }
+
+// unused but kept for compile
+void setAutoApply(bool ) {}
 #endif
 
 FakeVimSettings::FakeVimSettings()
