@@ -247,6 +247,8 @@ function(add_qtc_library name)
     set_target_properties(${name} PROPERTIES
       SUFFIX "${IDE_VERSION_MAJOR}${CMAKE_SHARED_LIBRARY_SUFFIX}"
       PREFIX ""
+      IMPORT_SUFFIX "${IDE_VERSION_MAJOR}${CMAKE_IMPORT_LIBRARY_SUFFIX}"
+      IMPORT_PREFIX ""
     )
   endif()
 
@@ -500,6 +502,8 @@ function(add_qtc_plugin target_name)
     set_target_properties(${target_name} PROPERTIES
       SUFFIX "${IDE_VERSION_MAJOR}${CMAKE_SHARED_LIBRARY_SUFFIX}"
       PREFIX ""
+      IMPORT_SUFFIX "${IDE_VERSION_MAJOR}${CMAKE_IMPORT_LIBRARY_SUFFIX}"
+      IMPORT_PREFIX ""
     )
   endif()
   enable_pch(${target_name})
