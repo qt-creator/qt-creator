@@ -416,10 +416,11 @@ LayoutBuilder::Space::Space(int space)
     specialValue = space;
 }
 
-LayoutBuilder::Title::Title(const QString &title)
+LayoutBuilder::Title::Title(const QString &title, BoolAspect *check)
 {
     specialType = SpecialType::Title;
     specialValue = title;
+    aspect = check;
 }
 
 LayoutBuilder::Span::Span(int span_, const LayoutItem &item)
@@ -445,6 +446,12 @@ Group::Group(std::initializer_list<LayoutItem> items)
         if (item.specialType == LayoutBuilder::SpecialType::Title) {
             box->setTitle(item.specialValue.toString());
             box->setObjectName(item.specialValue.toString());
+            if (auto check = qobject_cast<BoolAspect *>(item.aspect)) {
+                box->setCheckable(true);
+                QObject::connect(box, &QGroupBox::clicked, box, [check](bool on) {
+                    check->setValue(on);
+                });
+            }
         } else {
             builder.addItem(item);
         }

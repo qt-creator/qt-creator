@@ -14,9 +14,6 @@ QtcPlugin {
     files: [
         "annotationhighlighter.cpp",
         "annotationhighlighter.h",
-        "settingspage.cpp",
-        "settingspage.h",
-        "settingspage.ui",
         "subversionclient.cpp",
         "subversionclient.h",
         "subversionconstants.h",

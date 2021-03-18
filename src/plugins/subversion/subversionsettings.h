@@ -25,23 +25,32 @@
 
 #pragma once
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <vcsbase/vcsbaseclientsettings.h>
 
 namespace Subversion {
 namespace Internal {
 
-class SubversionSettings : public VcsBase::VcsBaseClientSettings
+class SubversionSettings : public VcsBase::VcsBaseSettings
+{
+    Q_DECLARE_TR_FUNCTIONS(Subversion::Internal::SubversionSettings)
+
+public:
+    SubversionSettings();
+
+    bool hasAuthentication() const;
+
+    Utils::BoolAspect useAuthentication;
+    Utils::StringAspect password;
+    Utils::BoolAspect spaceIgnorantAnnotation;
+    Utils::BoolAspect diffIgnoreWhiteSpace;
+    Utils::BoolAspect logVerbose;
+};
+
+class SubversionSettingsPage final : public Core::IOptionsPage
 {
 public:
-    static const QLatin1String useAuthenticationKey;
-    static const QLatin1String userKey;
-    static const QLatin1String passwordKey;
-    static const QLatin1String spaceIgnorantAnnotationKey;
-    static const QLatin1String diffIgnoreWhiteSpaceKey;
-    static const QLatin1String logVerboseKey;
-
-    SubversionSettings();
-    bool hasAuthentication() const;
+    SubversionSettingsPage(const std::function<void()> &onApply, SubversionSettings *settings);
 };
 
 } // namespace Internal

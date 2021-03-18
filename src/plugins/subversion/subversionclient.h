@@ -64,7 +64,7 @@ public:
     void describe(const QString &workingDirectory, int changeNumber, const QString &title);
 
     // Add authorization options to the command line arguments.
-    static QStringList addAuthenticationOptions(const VcsBase::VcsBaseClientSettings &settings);
+    static QStringList addAuthenticationOptions(const SubversionSettings &settings);
 
     QString synchronousTopic(const QString &repository) const;
 

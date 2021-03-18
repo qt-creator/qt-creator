@@ -39,6 +39,7 @@ QT_END_NAMESPACE
 namespace Utils {
 
 class BaseAspect;
+class BoolAspect;
 
 class QTCREATOR_UTILS_EXPORT LayoutBuilder
 {
@@ -141,7 +142,7 @@ public:
     class QTCREATOR_UTILS_EXPORT Title : public LayoutItem
     {
     public:
-        explicit Title(const QString &title);
+        explicit Title(const QString &title, BoolAspect *check = nullptr);
     };
 
 protected:

@@ -60,16 +60,16 @@ class SubversionLogConfig : public VcsBaseEditorConfig
 {
     Q_OBJECT
 public:
-    SubversionLogConfig(VcsBaseClientSettings &settings, QToolBar *toolBar) :
+    SubversionLogConfig(SubversionSettings &settings, QToolBar *toolBar) :
         VcsBaseEditorConfig(toolBar)
     {
-        mapSetting(addToggleButton(QLatin1String("--verbose"), tr("Verbose"),
+        mapSetting(addToggleButton("--verbose", tr("Verbose"),
                                    tr("Show files changed in each revision")),
-                   settings.boolPointer(SubversionSettings::logVerboseKey));
+                   &settings.logVerbose);
     }
 };
 
-SubversionClient::SubversionClient(SubversionSettings *settings) : VcsBaseClient(settings)
+SubversionClient::SubversionClient(SubversionSettings *settings) : VcsBaseClient(nullptr, settings)
 {
     setLogConfigCreator([settings](QToolBar *toolBar) {
         return new SubversionLogConfig(*settings, toolBar);
@@ -83,7 +83,7 @@ bool SubversionClient::doCommit(const QString &repositoryRoot,
 {
     const QStringList svnExtraOptions =
             QStringList(extraOptions)
-            << SubversionClient::addAuthenticationOptions(settings())
+            << SubversionClient::addAuthenticationOptions(static_cast<SubversionSettings &>(baseSettings()))
             << QLatin1String(Constants::NON_INTERACTIVE_OPTION)
             << QLatin1String("--encoding") << QLatin1String("UTF-8")
             << QLatin1String("--file") << commitMessageFile;
@@ -117,13 +117,13 @@ Id SubversionClient::vcsEditorKind(VcsCommandTag cmd) const
 }
 
 // Add authorization options to the command line arguments.
-QStringList SubversionClient::addAuthenticationOptions(const VcsBaseClientSettings &settings)
+QStringList SubversionClient::addAuthenticationOptions(const SubversionSettings &settings)
 {
-    if (!static_cast<const SubversionSettings &>(settings).hasAuthentication())
+    if (!settings.hasAuthentication())
         return QStringList();
 
-    const QString userName = settings.stringValue(SubversionSettings::userKey);
-    const QString password = settings.stringValue(SubversionSettings::passwordKey);
+    const QString userName = settings.userName.value();
+    const QString password = settings.password.value();
 
     if (userName.isEmpty())
         return QStringList();
@@ -260,13 +260,14 @@ SubversionDiffEditorController *SubversionClient::findOrCreateDiffEditor(const Q
                                                          const QString &title,
                                                          const QString &workingDirectory)
 {
+    auto &settings = static_cast<SubversionSettings &>(baseSettings());
     IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
     auto controller = qobject_cast<SubversionDiffEditorController *>(
                 DiffEditorController::controller(document));
     if (!controller) {
-        controller = new SubversionDiffEditorController(document, addAuthenticationOptions(settings()));
-        controller->setVcsBinary(settings().binaryPath());
-        controller->setVcsTimeoutS(settings().vcsTimeoutS());
+        controller = new SubversionDiffEditorController(document, addAuthenticationOptions(settings));
+        controller->setVcsBinary(settings.binaryPath.filePath());
+        controller->setVcsTimeoutS(settings.timeout.value());
         controller->setProcessEnvironment(processEnvironment());
         controller->setWorkingDirectory(workingDirectory);
     }
@@ -295,10 +296,10 @@ void SubversionClient::log(const QString &workingDir,
                            const QStringList &extraOptions,
                            bool enableAnnotationContextMenu)
 {
-    const auto logCount = settings().intValue(SubversionSettings::logCountKey);
-    QStringList svnExtraOptions =
-            QStringList(extraOptions)
-            << SubversionClient::addAuthenticationOptions(settings());
+    auto &settings = static_cast<SubversionSettings &>(baseSettings());
+    const int logCount = settings.logCount.value();
+    QStringList svnExtraOptions = extraOptions;
+    svnExtraOptions.append(SubversionClient::addAuthenticationOptions(settings));
     if (logCount > 0)
         svnExtraOptions << QLatin1String("-l") << QString::number(logCount);
 

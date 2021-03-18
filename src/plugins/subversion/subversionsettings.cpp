@@ -25,38 +25,152 @@
 
 #include "subversionsettings.h"
 
+#include "subversionclient.h"
+#include "subversionplugin.h"
+
+#include <coreplugin/icore.h>
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
+
+#include <vcsbase/vcsbaseconstants.h>
 
 #include <QSettings>
+
+using namespace Utils;
+using namespace VcsBase;
 
 namespace Subversion {
 namespace Internal {
 
-const QLatin1String SubversionSettings::useAuthenticationKey("Authentication");
-const QLatin1String SubversionSettings::userKey("User");
-const QLatin1String SubversionSettings::passwordKey("Password");
-const QLatin1String SubversionSettings::spaceIgnorantAnnotationKey("SpaceIgnorantAnnotation");
-const QLatin1String SubversionSettings::diffIgnoreWhiteSpaceKey("DiffIgnoreWhiteSpace");
-const QLatin1String SubversionSettings::logVerboseKey("LogVerbose");
+// SubversionSettings
 
 SubversionSettings::SubversionSettings()
 {
-    setSettingsGroup(QLatin1String("Subversion"));
-    declareKey(binaryPathKey, QLatin1String("svn" QTC_HOST_EXE_SUFFIX));
-    declareKey(logCountKey, 1000);
-    declareKey(useAuthenticationKey, false);
-    declareKey(userKey, QString());
-    declareKey(passwordKey, QString());
-    declareKey(spaceIgnorantAnnotationKey, true);
-    declareKey(diffIgnoreWhiteSpaceKey, false);
-    declareKey(logVerboseKey, false);
+    setAutoApply(false);
+    setSettingsGroup("Subversion");
+
+    registerAspect(&binaryPath);
+    binaryPath.setDisplayStyle(StringAspect::PathChooserDisplay);
+    binaryPath.setExpectedKind(PathChooser::ExistingCommand);
+    binaryPath.setHistoryCompleter("Subversion.Command.History");
+    binaryPath.setDefaultValue("svn" QTC_HOST_EXE_SUFFIX);
+    binaryPath.setDisplayName(tr("Subversion Command"));
+    binaryPath.setLabelText(tr("Subversion command:"));
+
+    registerAspect(&useAuthentication);
+    useAuthentication.setSettingsKey("Authentication");
+    useAuthentication.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+
+    registerAspect(&userName);
+    userName.setSettingsKey("User");
+    userName.setDisplayStyle(StringAspect::LineEditDisplay);
+    userName.setLabelText(tr("Username:"));
+
+    registerAspect(&password);
+    password.setSettingsKey("Password");
+    password.setDisplayStyle(StringAspect::LineEditDisplay);
+    password.setLabelText(tr("Password:"));
+
+    registerAspect(&spaceIgnorantAnnotation);
+    spaceIgnorantAnnotation.setSettingsKey("SpaceIgnorantAnnotation");
+    spaceIgnorantAnnotation.setDefaultValue(true);
+    spaceIgnorantAnnotation.setLabelText(tr("Ignore whitespace changes in annotation"));
+
+    registerAspect(&diffIgnoreWhiteSpace);
+    diffIgnoreWhiteSpace.setSettingsKey("DiffIgnoreWhiteSpace");
+
+    registerAspect(&logVerbose);
+    logVerbose.setSettingsKey("LogVerbose");
+
+    registerAspect(&logCount);
+    logCount.setDefaultValue(1000);
+    logCount.setLabelText(tr("Log count:"));
+
+    registerAspect(&timeout);
+    timeout.setLabelText(tr("Timeout:"));
+    timeout.setSuffix(tr("s"));
+
+    registerAspect(&promptOnSubmit);
+    promptOnSubmit.setLabelText(tr("Prompt on submit"));
+
+    QObject::connect(&useAuthentication, &BaseAspect::changed, [this] {
+        userName.setEnabled(useAuthentication.value());
+        password.setEnabled(useAuthentication.value());
+    });
 }
 
 bool SubversionSettings::hasAuthentication() const
 {
-    return boolValue(useAuthenticationKey) && !stringValue(userKey).isEmpty();
+    return useAuthentication.value() && !userName.value().isEmpty();
 }
 
-} // namespace Internal
-} // namespace Subversion
+// SubversionSettingsPage
+
+class SubversionSettingsPageWidget final : public Core::IOptionsPageWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(Subversion::Internal::SettingsPageWidget)
+
+public:
+    SubversionSettingsPageWidget(const std::function<void()> &onApply, SubversionSettings *settings);
+
+    void apply() final;
+
+private:
+    std::function<void()> m_onApply;
+    SubversionSettings *m_settings;
+};
+
+SubversionSettingsPageWidget::SubversionSettingsPageWidget(const std::function<void()> &onApply,
+                                                           SubversionSettings *settings)
+    : m_onApply(onApply), m_settings(settings)
+{
+    SubversionSettings &s = *m_settings;
+
+    using namespace Layouting;
+    Break nl;
+
+    Column {
+        Group {
+            Title(tr("Configuration")),
+            s.binaryPath
+        },
+
+        Group {
+            Title(tr("Authentication"), &s.useAuthentication),
+            Form {
+                s.userName, nl,
+                s.password,
+             }
+        },
+
+        Group {
+            Title(tr("Miscellaneous")),
+            Row { s.logCount, s.timeout, Stretch() }, nl,
+            s.promptOnSubmit, nl,
+            s.spaceIgnorantAnnotation,
+        },
+
+        Stretch()
+    }.attachTo(this);
+}
+
+void SubversionSettingsPageWidget::apply()
+{
+    m_settings->apply();
+    m_onApply();
+}
+
+SubversionSettingsPage::SubversionSettingsPage(const std::function<void()> &onApply, SubversionSettings *settings)
+{
+    setId(VcsBase::Constants::VCS_ID_SUBVERSION);
+    setDisplayName(SubversionSettingsPageWidget::tr("Subversion"));
+    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+    setWidgetCreator([onApply, settings] { return new SubversionSettingsPageWidget(onApply, settings); });
+}
+
+} // Internal
+} // Subversion
