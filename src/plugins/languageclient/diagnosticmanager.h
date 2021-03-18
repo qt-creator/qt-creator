@@ -37,6 +37,7 @@ namespace LanguageClient {
 
 class DiagnosticManager
 {
+    Q_DECLARE_TR_FUNCTIONS(LanguageClient::DiagnosticManager)
 public:
     explicit DiagnosticManager(const Utils::Id &clientId);
     ~DiagnosticManager();
