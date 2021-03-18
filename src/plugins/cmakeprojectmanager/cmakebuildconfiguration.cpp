@@ -189,6 +189,17 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     buildDirAspect->addToLayout(aspectWidgetBuilder);
     aspectWidgetBuilder.finishRow();
     initialCMakeAspect->addToLayout(aspectWidgetBuilder);
+    aspectWidgetBuilder.finishRow();
+    auto buildTypeAspect = bc->aspect<BuildTypeAspect>();
+    connect(buildTypeAspect, &BaseAspect::changed, this, [this, buildTypeAspect]() {
+        if (!m_buildConfiguration->isMultiConfig()) {
+            CMakeConfig config;
+            config << CMakeConfigItem("CMAKE_BUILD_TYPE", buildTypeAspect->value().toUtf8());
+
+            m_configModel->setBatchEditConfiguration(config);
+        }
+    });
+    buildTypeAspect->addToLayout(aspectWidgetBuilder);
     mainLayout->addWidget(aspectWidget, row, 0, 1, -1);
     ++row;
 
@@ -1257,12 +1268,56 @@ FilePath CMakeBuildConfiguration::sourceDirectory() const
 
 QString CMakeBuildConfiguration::cmakeBuildType() const
 {
-    return aspect<BuildTypeAspect>()->value();
+    if (!isMultiConfig()) {
+        auto configChanges = configurationChanges();
+        auto it = std::find_if(configChanges.begin(), configChanges.end(),
+                            [](const CMakeConfigItem &item) { return item.key == "CMAKE_BUILD_TYPE";});
+        if (it != configChanges.end())
+            const_cast<CMakeBuildConfiguration*>(this)
+                ->setCMakeBuildType(QString::fromUtf8(it->value));
+    }
+
+    QString cmakeBuildType = aspect<BuildTypeAspect>()->value();
+
+    const Utils::FilePath cmakeCacheTxt = buildDirectory().pathAppended("CMakeCache.txt");
+    const bool hasCMakeCache = QFile::exists(cmakeCacheTxt.toString());
+    CMakeConfig config;
+
+    if (cmakeBuildType == "Unknown") {
+        // The "Unknown" type is the case of loading of an existing project
+        // that doesn't have the "CMake.Build.Type" aspect saved
+        if (hasCMakeCache) {
+            QString errorMessage;
+            config = CMakeBuildSystem::parseCMakeCacheDotTxt(cmakeCacheTxt, &errorMessage);
+        } else {
+            config = CMakeConfigItem::itemsFromArguments(initialCMakeArguments());
+        }
+    } else if (!hasCMakeCache) {
+        config = CMakeConfigItem::itemsFromArguments(initialCMakeArguments());
+    }
+
+    if (!config.isEmpty()) {
+        cmakeBuildType = QString::fromUtf8(CMakeConfigItem::valueOf("CMAKE_BUILD_TYPE", config));
+        const_cast<CMakeBuildConfiguration*>(this)
+            ->setCMakeBuildType(cmakeBuildType);
+    }
+
+    return cmakeBuildType;
 }
 
-void CMakeBuildConfiguration::setCMakeBuildType(const QString &cmakeBuildType)
+void CMakeBuildConfiguration::setCMakeBuildType(const QString &cmakeBuildType, bool quiet)
 {
-    aspect<BuildTypeAspect>()->setValue(cmakeBuildType);
+    if (quiet) {
+        aspect<BuildTypeAspect>()->setValueQuietly(cmakeBuildType);
+        aspect<BuildTypeAspect>()->update();
+    } else {
+        aspect<BuildTypeAspect>()->setValue(cmakeBuildType);
+    }
+}
+
+bool CMakeBuildConfiguration::isMultiConfig() const
+{
+    return m_buildSystem->isMultiConfig();
 }
 
 namespace Internal {
@@ -1293,6 +1348,9 @@ SourceDirectoryAspect::SourceDirectoryAspect()
 BuildTypeAspect::BuildTypeAspect()
 {
     setSettingsKey("CMake.Build.Type");
+    setLabelText(tr("Build type:"));
+    setDisplayStyle(LineEditDisplay);
+    setDefaultValue("Unknown");
 }
 
 } // namespace Internal

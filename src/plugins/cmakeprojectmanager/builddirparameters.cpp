@@ -76,16 +76,6 @@ BuildDirParameters::BuildDirParameters(CMakeBuildConfiguration *bc)
     buildDirectory = bc->buildDirectory();
 
     cmakeBuildType = bc->cmakeBuildType();
-    if (cmakeBuildType.isEmpty()) {
-        // The empty build type might be just a case of loading of an existing project
-        // that doesn't have the "CMake.Build.Type" aspect saved
-        const CMakeConfig config = CMakeConfigItem::itemsFromArguments(initialCMakeArguments);
-        if (!config.isEmpty()) {
-            cmakeBuildType = QString::fromLatin1(CMakeConfigItem::valueOf("CMAKE_BUILD_TYPE", config));
-            if (!cmakeBuildType.isEmpty())
-                bc->setCMakeBuildType(cmakeBuildType);
-        }
-    }
 
     environment = bc->environment();
     // Disable distributed building for configuration runs. CMake does not do those in parallel,

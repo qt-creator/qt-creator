@@ -75,7 +75,9 @@ public:
     Utils::FilePath sourceDirectory() const;
 
     QString cmakeBuildType() const;
-    void setCMakeBuildType(const QString &cmakeBuildType);
+    void setCMakeBuildType(const QString &cmakeBuildType, bool quiet = false);
+
+    bool isMultiConfig() const;
 
 signals:
     void errorOccurred(const QString &message);
@@ -163,6 +165,7 @@ class BuildTypeAspect final : public Utils::StringAspect
 
 public:
     BuildTypeAspect();
+    using Utils::StringAspect::update;
 };
 
 } // namespace Internal
