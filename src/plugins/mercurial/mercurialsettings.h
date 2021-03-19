@@ -25,18 +25,26 @@
 
 #pragma once
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <vcsbase/vcsbaseclientsettings.h>
 
 namespace Mercurial {
 namespace Internal {
 
-class MercurialSettings : public VcsBase::VcsBaseClientSettings
+class MercurialSettings : public VcsBase::VcsBaseSettings
 {
 public:
-    static const QLatin1String diffIgnoreWhiteSpaceKey;
-    static const QLatin1String diffIgnoreBlankLinesKey;
+    Utils::StringAspect diffIgnoreWhiteSpace;
+    Utils::StringAspect diffIgnoreBlankLines;
 
     MercurialSettings();
+};
+
+class OptionsPage final : public Core::IOptionsPage
+{
+public:
+    OptionsPage(const std::function<void()> &onApply, MercurialSettings *settings);
 };
 
 } // namespace Internal

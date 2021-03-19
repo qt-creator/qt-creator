@@ -24,14 +24,14 @@
 ****************************************************************************/
 
 #include "mercurialplugin.h"
-#include "optionspage.h"
+
+#include "commiteditor.h"
 #include "constants.h"
 #include "mercurialclient.h"
 #include "mercurialeditor.h"
+#include "mercurialsettings.h"
 #include "revertdialog.h"
 #include "srcdestdialog.h"
-#include "commiteditor.h"
-#include "mercurialsettings.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -662,8 +662,8 @@ void MercurialPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusI
 
     const QString branch = vcsTopic(m_submitRepository);
     commitEditor->setFields(QFileInfo(m_submitRepository), branch,
-                            m_settings.stringValue(MercurialSettings::userNameKey),
-                            m_settings.stringValue(MercurialSettings::userEmailKey), status);
+                            m_settings.userName.value(),
+                            m_settings.userEmail.value(), status);
 }
 
 void MercurialPluginPrivate::diffFromEditorSelected(const QStringList &files)
@@ -767,7 +767,7 @@ bool MercurialPluginPrivate::managesFile(const QString &workingDirectory, const 
 
 bool MercurialPluginPrivate::isConfigured() const
 {
-    const Utils::FilePath binary = m_settings.binaryPath();
+    const FilePath binary = m_settings.binaryPath.filePath();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();
@@ -839,7 +839,7 @@ Core::ShellCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const Q
     args << QLatin1String("clone") << extraArgs << url << localName;
     auto command = new VcsBase::VcsCommand(baseDirectory.toString(),
                                            m_client.processEnvironment());
-    command->addJob({m_settings.binaryPath(), args}, -1);
+    command->addJob({m_settings.binaryPath.filePath(), args}, -1);
     return command;
 }
 

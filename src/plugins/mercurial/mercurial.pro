@@ -1,6 +1,5 @@
 include(../../qtcreatorplugin.pri)
 SOURCES += mercurialplugin.cpp \
-    optionspage.cpp \
     mercurialclient.cpp \
     annotationhighlighter.cpp \
     mercurialeditor.cpp \
@@ -12,7 +11,6 @@ SOURCES += mercurialplugin.cpp \
     authenticationdialog.cpp
 HEADERS += mercurialplugin.h \
     constants.h \
-    optionspage.h \
     mercurialclient.h \
     annotationhighlighter.h \
     mercurialeditor.h \
@@ -22,7 +20,7 @@ HEADERS += mercurialplugin.h \
     commiteditor.h \
     mercurialsettings.h \
     authenticationdialog.h
-FORMS += optionspage.ui \
+FORMS += \
     revertdialog.ui \
     srcdestdialog.ui \
     mercurialcommitpanel.ui \
