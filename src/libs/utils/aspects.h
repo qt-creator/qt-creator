@@ -338,6 +338,8 @@ public:
     Utils::FilePath filePath() const;
     void setFilePath(const Utils::FilePath &value);
 
+    PathChooser *pathChooser() const; // Avoid to use.
+
 signals:
     void checkedChanged();
 

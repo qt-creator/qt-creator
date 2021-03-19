@@ -839,6 +839,11 @@ void StringAspect::setFilePath(const FilePath &value)
     setValue(value.toUserOutput());
 }
 
+PathChooser *StringAspect::pathChooser() const
+{
+    return d->m_pathChooserDisplay.data();
+}
+
 /*!
     \internal
 */
