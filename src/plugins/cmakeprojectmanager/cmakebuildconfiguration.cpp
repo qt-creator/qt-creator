@@ -40,6 +40,7 @@
 #include <ios/iosconstants.h>
 
 #include <coreplugin/find/itemviewfind.h>
+#include <coreplugin/icore.h>
 
 #include <projectexplorer/buildaspects.h>
 #include <projectexplorer/buildinfo.h>
@@ -58,6 +59,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/categorysortfiltermodel.h>
+#include <utils/checkablemessagebox.h>
 #include <utils/detailswidget.h>
 #include <utils/headerviewstretcher.h>
 #include <utils/infolabel.h>
@@ -189,6 +191,36 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     buildDirAspect->addToLayout(aspectWidgetBuilder);
     aspectWidgetBuilder.finishRow();
     initialCMakeAspect->addToLayout(aspectWidgetBuilder);
+    aspectWidgetBuilder.finishRow();
+    auto clearCMakeConfiguration = new QPushButton(tr("Re-configure with Initial Parameters"));
+    connect(clearCMakeConfiguration, &QPushButton::clicked, this, [bc]() {
+        auto *settings = CMakeProjectPlugin::projectTypeSpecificSettings();
+        bool doNotAsk{!settings->askBeforeReConfigureInitialParams()};
+        if (!doNotAsk) {
+            QDialogButtonBox::StandardButton reply = Utils::CheckableMessageBox::question(
+                nullptr,
+                tr("Re-configure with Initial Parameters"),
+                tr("Clear CMake configuration and configure with initial parameters?"),
+                tr("Do not ask again"),
+                &doNotAsk,
+                QDialogButtonBox::Yes | QDialogButtonBox::No,
+                QDialogButtonBox::Yes);
+
+            settings->setAskBeforeReConfigureInitialParams(!doNotAsk);
+            settings->toSettings(Core::ICore::settings());
+
+            if (reply != QDialogButtonBox::Yes) {
+                return;
+            }
+        }
+
+        auto cbc = static_cast<CMakeBuildSystem*>(bc->buildSystem());
+        cbc->clearCMakeCache();
+        if (ProjectExplorerPlugin::saveModifiedFiles())
+            cbc->runCMake();
+    });
+    aspectWidgetBuilder.addItem(LayoutBuilder::LayoutItem(new QLabel("")));
+    aspectWidgetBuilder.addItem(LayoutBuilder::LayoutItem(clearCMakeConfiguration));
     aspectWidgetBuilder.finishRow();
     auto buildTypeAspect = bc->aspect<BuildTypeAspect>();
     connect(buildTypeAspect, &BaseAspect::changed, this, [this, buildTypeAspect]() {

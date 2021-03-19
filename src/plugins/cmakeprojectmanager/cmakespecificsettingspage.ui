@@ -71,6 +71,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="askBeforeReConfigureWithInitialParams">
+     <property name="text">
+      <string>Ask before re-configuring with initial parameters</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
