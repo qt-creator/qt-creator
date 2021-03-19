@@ -132,18 +132,6 @@ GitSettings::GitSettings()
     refLogShowDate.setSettingsKey("RefLogShowDate");
 
     timeout.setDefaultValue(Utils::HostOsInfo::isWindowsHost() ? 60 : 30);
-
-    note.setText(tr("<b>Note:</b>") + tr("Git needs to find Perl in the environment."));
-
-    const auto updateNoteField = [this] {
-        Environment env = Environment::systemEnvironment();
-        env.prependOrSetPath(path.value());
-        const bool showNote = env.searchInPath("perl").isEmpty();
-        note.setVisible(showNote);
-    };
-
-    updateNoteField();
-    QObject::connect(&path, &BaseAspect::changed, &note, updateNoteField);
 }
 
 FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const

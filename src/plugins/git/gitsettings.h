@@ -63,7 +63,6 @@ public:
     Utils::BoolAspect followRenames;
     Utils::IntegerAspect lastResetIndex;
     Utils::BoolAspect refLogShowDate;
-    Utils::TextDisplay note;
 
     Utils::FilePath gitExecutable(bool *ok = nullptr, QString *errorMessage = nullptr) const;
 };
