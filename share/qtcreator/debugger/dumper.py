@@ -1430,7 +1430,7 @@ class DumperBase():
             intSize = 4
             ptrSize = self.ptrSize()
             if self.qtVersion() >= 0x060000:
-                # Size of QObjectData: 7 pointer + 2 int
+                # Size of QObjectData: 9 pointer + 2 int
                 #   - vtable
                 #   - QObject *q_ptr;
                 #   - QObject *parent;
@@ -1438,7 +1438,8 @@ class DumperBase():
                 #   - uint isWidget : 1; etc...
                 #   - int postedEvents;
                 #   - QDynamicMetaObjectData *metaObject;
-                extra = self.extractPointer(dd + 7 * ptrSize + 2 * intSize)
+                #   - QBindingStorage bindingStorage;
+                extra = self.extractPointer(dd + 9 * ptrSize + 2 * intSize)
                 if extra == 0:
                     return False
 
