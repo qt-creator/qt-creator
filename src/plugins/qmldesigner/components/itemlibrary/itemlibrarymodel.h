@@ -72,7 +72,7 @@ public:
     Import entryToImport(const ItemLibraryEntry &entry);
 
 private:
-    void updateVisibility(bool *changed, bool expand = false);
+    void updateVisibility(bool *changed);
     void addRoleNames();
     void sortSections();
     void clearSections();
