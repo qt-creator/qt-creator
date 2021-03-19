@@ -744,7 +744,7 @@ QMakeStepFactory::QMakeStepFactory()
     setSupportedConfiguration(Constants::QMAKE_BC_ID);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     //: QMakeStep default display name
-    setDisplayName(QMakeStep::tr("qmake"));
+    setDisplayName(::QmakeProjectManager::QMakeStep::tr("qmake"));
     setFlags(BuildStepInfo::UniqueStep);
 }
 

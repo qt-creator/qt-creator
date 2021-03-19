@@ -8530,7 +8530,7 @@ public:
         if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
             switch (section) {
             case 0:
-                return tr("Base Class Constructors");
+                return CppQuickFixFactory::tr("Base Class Constructors");
             }
         }
         return {};

@@ -101,6 +101,8 @@ namespace Internal {
 
 class CMakeBuildSettingsWidget : public NamedWidget
 {
+    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeBuildSettingsWidget)
+
 public:
     CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc);
 

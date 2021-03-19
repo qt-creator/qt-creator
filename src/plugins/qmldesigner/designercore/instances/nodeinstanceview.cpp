@@ -285,7 +285,8 @@ void NodeInstanceView::handleCrash()
     if (elaspsedTimeSinceLastCrash > forceRestartTime)
         restartProcess();
     else
-        emitDocumentMessage(tr("Qt Quick emulation layer crashed."));
+        emitDocumentMessage(
+            ::QmlDesigner::NodeInstanceView::tr("Qt Quick emulation layer crashed."));
 
     emitCustomNotification(QStringLiteral("puppet crashed"));
 }
@@ -1507,7 +1508,7 @@ void NodeInstanceView::token(const TokenCommand &command)
 
 void NodeInstanceView::debugOutput(const DebugOutputCommand & command)
 {
-    DocumentMessage error(tr("Qt Quick emulation layer crashed."));
+    DocumentMessage error(::QmlDesigner::NodeInstanceView::tr("Qt Quick emulation layer crashed."));
     if (command.instanceIds().isEmpty()) {
         emitDocumentMessage(command.text());
     } else {
@@ -1695,7 +1696,8 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
                     imageData.pixmap.setDevicePixelRatio(ratio);
 
                 }
-                imageData.info = QObject::tr("Source item: %1").arg(boundNode.id());
+                imageData.info = ::QmlDesigner::NodeInstanceView::tr("Source item: %1")
+                                     .arg(boundNode.id());
             }
         }
     } else {
@@ -1746,7 +1748,10 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
                 imageData.pixmap.setDevicePixelRatio(ratio);
 
                 double imgSize = double(imageFi.size());
-                static QStringList units({QObject::tr("B"), QObject::tr("KB"), QObject::tr("MB"), QObject::tr("GB")});
+                static QStringList units({::QmlDesigner::NodeInstanceView::tr("B"),
+                                          ::QmlDesigner::NodeInstanceView::tr("KB"),
+                                          ::QmlDesigner::NodeInstanceView::tr("MB"),
+                                          ::QmlDesigner::NodeInstanceView::tr("GB")});
                 int unitIndex = 0;
                 while (imgSize > 1024. && unitIndex < units.size() - 1) {
                     ++unitIndex;
