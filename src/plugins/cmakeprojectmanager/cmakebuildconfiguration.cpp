@@ -751,7 +751,7 @@ static QStringList defaultInitialCMakeArguments(const Kit *k, const QString buil
 
     // CMAKE_BUILD_TYPE:
     if (!buildType.isEmpty() && !CMakeGeneratorKitAspect::isMultiConfigGenerator(k)) {
-        initialArgs.append(QString::fromLatin1("-DCMAKE_BUILD_TYPE:String=%1").arg(buildType));
+        initialArgs.append(QString::fromLatin1("-DCMAKE_BUILD_TYPE:STRING=%1").arg(buildType));
     }
 
     Internal::CMakeSpecificSettings *settings
