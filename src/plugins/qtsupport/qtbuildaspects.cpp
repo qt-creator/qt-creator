@@ -67,7 +67,7 @@ void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
         warningLabel->setText(warningText);
         setVisible(supported);
         const bool warningLabelsVisible = supported && !warningText.isEmpty();
-        if (!warningLabel->parentWidget())
+        if (warningLabel->parentWidget())
             warningLabel->setVisible(warningLabelsVisible);
     };
     connect(KitManager::instance(), &KitManager::kitsChanged, this, changeHandler);
@@ -87,6 +87,7 @@ void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
     SelectionAspect::addToLayout(builder);
     const auto warningLabel = new Utils::InfoLabel({}, Utils::InfoLabel::Warning);
     warningLabel->setElideMode(Qt::ElideNone);
+    warningLabel->setVisible(false);
     builder.addRow({{}, warningLabel});
     const auto changeHandler = [this, warningLabel] {
         QString warningText;
@@ -101,7 +102,8 @@ void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
         warningLabel->setText(warningText);
         setVisible(supported);
         const bool warningLabelsVisible = supported && !warningText.isEmpty();
-        warningLabel->setVisible(warningLabelsVisible);
+        if (warningLabel->parentWidget())
+            warningLabel->setVisible(warningLabelsVisible);
     };
     connect(KitManager::instance(), &KitManager::kitsChanged, this, changeHandler);
     connect(this, &QmlDebuggingAspect::changed, this, changeHandler);
