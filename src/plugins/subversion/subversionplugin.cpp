@@ -402,6 +402,7 @@ SubversionPluginPrivate::SubversionPluginPrivate()
 
     const QString prefix = QLatin1String("svn");
     m_commandLocator = new CommandLocator("Subversion", prefix, prefix, this);
+    m_commandLocator->setDescription(tr("Triggers a Subversion version control operation."));
 
     // Register actions
     ActionContainer *toolsContainer = ActionManager::actionContainer(M_TOOLS);

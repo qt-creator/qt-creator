@@ -111,6 +111,9 @@ QVariant FilterItem::data(int column, int role) const
     default:
         break;
     }
+
+    if (role == Qt::ToolTipRole)
+        return m_filter->description();
     return QVariant();
 }
 

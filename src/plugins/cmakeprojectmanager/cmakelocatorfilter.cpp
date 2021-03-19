@@ -116,6 +116,7 @@ BuildCMakeTargetLocatorFilter::BuildCMakeTargetLocatorFilter()
 {
     setId("Build CMake target");
     setDisplayName(tr("Build CMake target"));
+    setDescription(tr("Builds a target of any open CMake project."));
     setDefaultShortcutString("cm");
     setPriority(High);
 }
@@ -165,6 +166,7 @@ OpenCMakeTargetLocatorFilter::OpenCMakeTargetLocatorFilter()
 {
     setId("Open CMake target definition");
     setDisplayName(tr("Open CMake target"));
+    setDescription(tr("Jumps to the definition of a target of any open CMake project."));
     setDefaultShortcutString("cmo");
     setPriority(Medium);
 }

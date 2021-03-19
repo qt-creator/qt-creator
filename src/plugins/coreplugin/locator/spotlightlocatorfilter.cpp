@@ -241,6 +241,10 @@ SpotlightLocatorFilter::SpotlightLocatorFilter()
     setDefaultShortcutString("md");
     setDefaultIncludedByDefault(false);
     setDisplayName(tr("File Name Index"));
+    setDescription(
+        tr("Matches files from a global file system index (Spotlight, Locate, Everything). Append "
+           "\"+<number>\" or \":<number>\" to jump to the given line number. Append another "
+           "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setConfigurable(true);
     reset();
 }

@@ -400,6 +400,7 @@ PerforcePluginPrivate::PerforcePluginPrivate()
 
     const QString prefix = QLatin1String("p4");
     m_commandLocator = new CommandLocator("Perforce", prefix, prefix, this);
+    m_commandLocator->setDescription(tr("Triggers a Perforce version control operation."));
 
     ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
 

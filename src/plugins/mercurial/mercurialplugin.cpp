@@ -279,6 +279,7 @@ MercurialPluginPrivate::MercurialPluginPrivate()
 
     const QString prefix = QLatin1String("hg");
     m_commandLocator = new Core::CommandLocator("Mercurial", prefix, prefix, this);
+    m_commandLocator->setDescription(tr("Triggers a Mercurial version control operation."));
 
     createMenu(context);
 }

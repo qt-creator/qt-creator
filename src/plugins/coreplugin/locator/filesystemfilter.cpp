@@ -66,6 +66,9 @@ FileSystemFilter::FileSystemFilter()
 {
     setId("Files in file system");
     setDisplayName(tr("Files in File System"));
+    setDescription(tr("Opens a file given by a relative path to the current document, or absolute "
+                      "path. \"~\" refers to your home directory. You have the option to create a "
+                      "file if it does not exist yet."));
     setDefaultShortcutString("f");
     setDefaultIncludedByDefault(false);
 }

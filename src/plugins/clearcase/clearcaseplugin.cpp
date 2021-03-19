@@ -660,6 +660,7 @@ ClearCasePluginPrivate::ClearCasePluginPrivate()
     const QString prefix = QLatin1String("cc");
     // register cc prefix in Locator
     m_commandLocator = new CommandLocator("cc", description, prefix, this);
+    m_commandLocator->setDescription(tr("Triggers a ClearCase version control operation."));
 
     //register actions
     ActionContainer *toolsContainer = ActionManager::actionContainer(M_TOOLS);

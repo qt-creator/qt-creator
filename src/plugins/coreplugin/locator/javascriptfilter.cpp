@@ -38,6 +38,7 @@ JavaScriptFilter::JavaScriptFilter()
 {
     setId("JavaScriptFilter");
     setDisplayName(tr("Evaluate JavaScript"));
+    setDescription(tr("Evaluates arbitrary JavaScript expressions and copies the result."));
     setDefaultIncludedByDefault(false);
     setDefaultShortcutString("=");
     m_abortTimer.setSingleShot(true);

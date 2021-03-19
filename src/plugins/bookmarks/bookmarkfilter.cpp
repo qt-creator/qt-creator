@@ -39,6 +39,8 @@ BookmarkFilter::BookmarkFilter(BookmarkManager *manager)
 {
     setId("Bookmarks");
     setDisplayName(tr("Bookmarks"));
+    setDescription(tr("Matches all bookmarks. Filter by file name, by the text on the line of the "
+                      "bookmark, or by the bookmark's note text."));
     setPriority(Medium);
     setDefaultShortcutString("b");
 }

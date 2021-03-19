@@ -319,6 +319,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
 
     const QString prefix = QLatin1String("bzr");
     m_commandLocator = new CommandLocator("Bazaar", prefix, prefix, this);
+    m_commandLocator->setDescription(tr("Triggers a Bazaar version control operation."));
 
     // Create menu item for Bazaar
     m_bazaarContainer = ActionManager::createMenu("Bazaar.BazaarMenu");

@@ -38,6 +38,9 @@ AllProjectsFilter::AllProjectsFilter()
 {
     setId("Files in any project");
     setDisplayName(tr("Files in Any Project"));
+    setDescription(tr("Matches all files of all open projects. Append \"+<number>\" or "
+                      "\":<number>\" to jump to the given line number. Append another "
+                      "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setDefaultShortcutString("a");
     setDefaultIncludedByDefault(true);
 

@@ -662,6 +662,7 @@ GitPluginPrivate::GitPluginPrivate()
 
     const QString prefix = "git";
     m_commandLocator = new CommandLocator("Git", prefix, prefix, this);
+    m_commandLocator->setDescription(tr("Triggers a Git version control operation."));
 
     //register actions
     ActionContainer *toolsContainer = ActionManager::actionContainer(Core::Constants::M_TOOLS);

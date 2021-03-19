@@ -546,6 +546,7 @@ CvsPluginPrivate::CvsPluginPrivate()
 
     const QString prefix = QLatin1String("cvs");
     m_commandLocator = new CommandLocator("CVS", prefix, prefix, this);
+    m_commandLocator->setDescription(tr("Triggers a CVS version control operation."));
 
     // Register actions
     ActionContainer *toolsContainer = ActionManager::actionContainer(M_TOOLS);

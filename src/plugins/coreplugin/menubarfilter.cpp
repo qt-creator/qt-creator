@@ -54,6 +54,9 @@ MenuBarFilter::MenuBarFilter()
 {
     setId("Actions from the menu");
     setDisplayName(tr("Actions from the Menu"));
+    setDescription(
+        tr("Triggers an action from the menu. Matches any part of a menu hierarchy, separated by "
+           "\">\". For example \"sess def\" matches \"File > Sessions > Default\"."));
     setDefaultShortcutString("t");
     connect(ICore::instance(), &ICore::contextAboutToChange, this, [this] {
         if (LocatorManager::locatorHasFocus())

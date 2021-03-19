@@ -250,6 +250,7 @@ void Locator::updateFilterActions()
             action = actionCopy.take(filterId);
             action->setText(filter->displayName());
         }
+        action->setToolTip(filter->description());
         m_filterActionMap.insert(filterId, action);
     }
 

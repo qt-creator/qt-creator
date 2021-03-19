@@ -38,6 +38,9 @@ ExecuteFilter::ExecuteFilter()
 {
     setId("Execute custom commands");
     setDisplayName(tr("Execute Custom Commands"));
+    setDescription(tr(
+        "Runs an arbitrary command with arguments. The command is searched for in the PATH "
+        "environment variable if needed. Note that the command is run directly, not in a shell."));
     setDefaultShortcutString("!");
     setPriority(High);
     setDefaultIncludedByDefault(false);

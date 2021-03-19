@@ -121,6 +121,10 @@ CppIncludesFilter::CppIncludesFilter()
 {
     setId(Constants::INCLUDES_FILTER_ID);
     setDisplayName(Constants::INCLUDES_FILTER_DISPLAY_NAME);
+    setDescription(
+        tr("Matches all files that are included by all C++ files in all projects. Append "
+           "\"+<number>\" or \":<number>\" to jump to the given line number. Append another "
+           "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setDefaultShortcutString("ai");
     setDefaultIncludedByDefault(true);
     setPriority(ILocatorFilter::Low);

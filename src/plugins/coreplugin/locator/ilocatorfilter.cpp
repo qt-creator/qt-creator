@@ -460,6 +460,26 @@ void ILocatorFilter::setDisplayName(const QString &displayString)
 }
 
 /*!
+    Returns a longer, human-readable description of what the filter does.
+
+    \sa setDescription()
+*/
+QString ILocatorFilter::description() const
+{
+    return m_description;
+}
+
+/*!
+    Sets the longer, human-readable \a description of what the filter does.
+
+    \sa description()
+*/
+void ILocatorFilter::setDescription(const QString &description)
+{
+    m_description = description;
+}
+
+/*!
     Sets whether the filter provides a configuration dialog to \a configurable.
     Most filters should at least provide the default dialog.
 

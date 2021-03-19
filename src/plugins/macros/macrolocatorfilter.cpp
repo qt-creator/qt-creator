@@ -42,6 +42,8 @@ MacroLocatorFilter::MacroLocatorFilter()
 {
     setId("Macros");
     setDisplayName(tr("Text Editing Macros"));
+    setDescription(tr("Runs a text editing macro that was recorded with Tools > Text Editing "
+                      "Macros > Record Macro."));
     setDefaultShortcutString("rm");
 }
 

@@ -38,6 +38,9 @@ CurrentProjectFilter::CurrentProjectFilter()
 {
     setId("Files in current project");
     setDisplayName(tr("Files in Current Project"));
+    setDescription(tr("Matches all files from the current document's project. Append \"+<number>\" "
+                      "or \":<number>\" to jump to the given line number. Append another "
+                      "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setDefaultShortcutString("p");
     setDefaultIncludedByDefault(false);
 

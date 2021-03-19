@@ -132,6 +132,9 @@ public:
     QString displayName() const;
     void setDisplayName(const QString &displayString);
 
+    QString description() const;
+    void setDescription(const QString &description);
+
     Priority priority() const;
 
     QString shortcutString() const;
@@ -193,6 +196,7 @@ private:
     QString m_shortcut;
     Priority m_priority = Medium;
     QString m_displayName;
+    QString m_description;
     QString m_defaultShortcut;
     bool m_defaultIncludedByDefault = false;
     bool m_includedByDefault = m_defaultIncludedByDefault;

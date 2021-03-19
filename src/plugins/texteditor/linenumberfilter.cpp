@@ -48,6 +48,7 @@ LineNumberFilter::LineNumberFilter(QObject *parent)
 {
     setId("Line in current document");
     setDisplayName(tr("Line in Current Document"));
+    setDescription(tr("Jumps to the given line in the current document."));
     setPriority(High);
     setDefaultShortcutString("l");
     setDefaultIncludedByDefault(true);

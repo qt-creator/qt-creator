@@ -67,6 +67,9 @@ DirectoryFilter::DirectoryFilter(Id id)
     setId(id);
     setDefaultIncludedByDefault(true);
     setDisplayName(defaultDisplayName());
+    setDescription(tr("Matches all files from a custom set of directories. Append \"+<number>\" or "
+                      "\":<number>\" to jump to the given line number. Append another "
+                      "\"+<number>\" or \":<number>\" to jump to the column number as well."));
 }
 
 void DirectoryFilter::saveState(QJsonObject &object) const
