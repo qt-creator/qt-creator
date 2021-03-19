@@ -70,6 +70,11 @@ TEST(FactorialTest_Iterative, DISABLED_HandlesPositiveInput)
     ASSERT_EQ(40320, factorial_it(8));
 }
 
+TEST(NumberAsNameStart, 1IsEnough)
+{
+    EXPECT_FALSE(false);
+}
+
 int main(int argc, char *argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
