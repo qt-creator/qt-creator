@@ -1,0 +1,185 @@
+type: Group
+instructions:
+  - type: Group
+    instructions:
+      - type: ExecuteCommand
+        command: "mkdir {{.AgentWorkingDir}}/qt_temp"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to create folder qt_temp, check logs."
+      - type: ExecuteCommand
+        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}/qt_temp/icu-linux-g++-Rhel7.2-x64.7z http://master.qt.io/development_releases/prebuilt/icu/prebuilt/56.1/icu-linux-g++-Rhel7.2-x64.7z"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to download icu package, check logs."
+      - type: ExecuteCommand
+        command: "/usr/bin/7z x -y {{.AgentWorkingDir}}/qt_temp/icu-linux-g++-Rhel7.2-x64.7z -o{{.InstallDir}}/lib"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to extract icu package, check logs."
+      - type: ExecuteCommand
+        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}/qt_temp/elfutils-release_0.175qt-linux-x86_64.7z http://master.qt.io/development_releases/prebuilt/elfutils/elfutils-release_0.175qt-linux-x86_64.7z"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to download elfutils package, check logs."
+      - type: ExecuteCommand
+        command: "/usr/bin/7z x -y {{.AgentWorkingDir}}/qt_temp/elfutils-release_0.175qt-linux-x86_64.7z -o{{.AgentWorkingDir}}/qt_temp/elfutils"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to extract elfutils package, check logs."
+      - type: ExecuteCommand
+        command: "python {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py --src {{.AgentWorkingDir}}/qt-creator/qt-creator --build {{.AgentWorkingDir}}/qt-creator/qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt5_install_dir --elfutils-path {{.AgentWorkingDir}}/qt_temp/elfutils"
+        maxTimeInSeconds: 36000
+        maxTimeBetweenOutput: 3600
+        userMessageOnFailure: "Failed to run build.py, check logs."
+    enable_if:
+      condition: and
+      conditions:
+        - condition: property
+          property: host.os
+          equals_value: Linux
+        - condition: property
+          property: target.compiler
+          in_values: [GCC]
+
+  - type: Group
+    instructions:
+      - type: ExecuteCommand
+        command: "python {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py --src {{.AgentWorkingDir}}/qt-creator/qt-creator --build {{.AgentWorkingDir}}/qt-creator/qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt5_install_dir --keychain-unlock-script /Users/qt/unlock-keychain.sh"
+        maxTimeInSeconds: 36000
+        maxTimeBetweenOutput: 3600
+        userMessageOnFailure: "Failed to run build.py, check logs."
+    enable_if:
+      condition: property
+      property: host.os
+      equals_value: MacOS
+
+  - type: Group
+    instructions:
+      - type: MakeDirectory
+        directory: "{{.AgentWorkingDir}}/qt_temp"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to create folder qt_temp, check logs."
+      - type: ExecuteCommand
+        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}\\qt_temp\\elfutils-release_0.175qt-windows-x86_64.7z http://master.qt.io/development_releases/prebuilt/elfutils/elfutils-release_0.175qt-windows-x86_64.7z"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to download elfutils package, check logs."
+      - type: ExecuteCommand
+        command: "C:\\Utils\\sevenzip\\7z.exe x -y {{.AgentWorkingDir}}\\qt_temp\\elfutils-release_0.175qt-windows-x86_64.7z -o{{.AgentWorkingDir}}\\qt_temp\\elfutils"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to extract elfutils package, check logs."
+      - type: ExecuteCommand
+        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}\\qt_temp\\Python38-win-x64.7z http://master.qt.io/development_releases/prebuilt/python/Python38-win-x64.7z"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to download python package, check logs."
+      - type: ExecuteCommand
+        command: "C:\\Utils\\sevenzip\\7z.exe x -y {{.AgentWorkingDir}}\\qt_temp\\Python38-win-x64.7z -o{{.AgentWorkingDir}}\\qt_temp\\python"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to extract python package, check logs."
+      - type: MakeDirectory
+        directory: "{{.AgentWorkingDir}}/qt_temp/openssl"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to create folder openssl, check logs."
+      - type: ExecuteCommand
+        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}\\qt_temp\\openssl\\openssl_1.1.1d_prebuild_x64.7z http://ci-files02-hki.intra.qt.io/packages/jenkins/openssl/openssl_1.1.1d_prebuild_x64.7z"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to download openssl package, check logs."
+      - type: ExecuteCommand
+        command: "C:\\Utils\\sevenzip\\7z.exe x -y {{.AgentWorkingDir}}\\qt_temp\\openssl\\openssl_1.1.1d_prebuild_x64.7z"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to extract openssl package, check logs."
+      - type: ExecuteCommand
+        command: "cmd copy {{.AgentWorkingDir}}\\qt_temp\\openssl\\openssl_1.1.1d_prebuild_x64\\Win_x64\\bin\\*.dll {{.InstallDir}}\\bin\\"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to copy openssl ddl's, check logs."
+      - type: ExecuteCommand
+        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}\\qt_temp\\opengl32sw-64.7z http://master.qt.io/development_releases/prebuilt/llvmpipe/windows/opengl32sw-64.7z"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to download opengl package, check logs."
+      - type: ExecuteCommand
+        command: "C:\\Utils\\sevenzip\\7z.exe x -y {{.AgentWorkingDir}}\\qt_temp\\opengl32sw-64.7z -o{{.InstallDir}}\\bin"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to extract opengl package, check logs."
+      - type: ExecuteCommand
+        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}\\qt_temp\\d3dcompiler_47-x64.7z http://master.qt.io/development_releases/prebuilt/d3dcompiler/msvc2013/d3dcompiler_47-x64.7z"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to download d3dcompiler package, check logs."
+      - type: ExecuteCommand
+        command: "C:\\Utils\\sevenzip\\7z.exe x -y {{.AgentWorkingDir}}\\qt_temp\\d3dcompiler_47-x64.7z -o{{.InstallDir}}\\bin"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to extract d3dcompiler package, check logs."
+      - type: ExecuteCommand
+        command: "python -u {{.AgentWorkingDir}}\\qt-creator\\qt-creator\\scripts\\build.py --src {{.AgentWorkingDir}}\\qt-creator\\qt-creator --build {{.AgentWorkingDir}}\\qt-creator\\qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt5_install_dir --python-path {{.AgentWorkingDir}}\\qt_temp\\python --elfutils-path {{.AgentWorkingDir}}\\qt_temp\\elfutils"
+        maxTimeInSeconds: 36000
+        maxTimeBetweenOutput: 3600
+        userMessageOnFailure: "Failed to run build.py, check logs."
+    enable_if:
+      condition: and
+      conditions:
+        - condition: property
+          property: target.compiler
+          in_values: [MSVC2013, MSVC2015, MSVC2017, MSVC2019]
+        - condition: property
+          property: target.arch
+          equals_value: X86_64
+
+  - type: Group
+    instructions:
+      - type: MakeDirectory
+        directory: "{{.AgentWorkingDir}}/qt_temp"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to create folder qt_temp, check logs."
+      - type: ExecuteCommand
+        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}\\qt_temp\\Python38-win-x86.7z http://master.qt.io/development_releases/prebuilt/python/Python38-win-x86.7z"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to download python package, check logs."
+      - type: ExecuteCommand
+        command: "C:\\Utils\\sevenzip\\7z.exe x -y {{.AgentWorkingDir}}\\qt_temp\\Python38-win-x86.7z -o{{.AgentWorkingDir}}\\qt_temp\\python"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to extract python package, check logs."
+      - type: ExecuteCommand
+        command: "python -u {{.AgentWorkingDir}}\\qt-creator\\qt-creator\\scripts\\build.py --src {{.AgentWorkingDir}}\\qt-creator\\qt-creator --build {{.AgentWorkingDir}}\\qt-creator\\qt-creator_build --python-path {{.AgentWorkingDir}}\\qt_temp\\python --no-qtcreator"
+        maxTimeInSeconds: 36000
+        maxTimeBetweenOutput: 3600
+        userMessageOnFailure: "Failed to run build.py, check logs."
+    enable_if:
+      condition: and
+      conditions:
+        - condition: property
+          property: target.compiler
+          in_values: [MSVC2013, MSVC2015, MSVC2017, MSVC2019]
+        - condition: property
+          property: target.arch
+          equals_value: X86
+
+  - type: SignPackage
+    directory: "{{.AgentWorkingDir}}/qt-creator/qt-creator_build/install/"
+    maxTimeInSeconds: 1200
+    maxTimeBetweenOutput: 1200
+    enable_if:
+      condition: property
+      property: host.os
+      equals_value: Windows
+
+  - type: UploadArtifact
+    archiveDirectory: "{{.AgentWorkingDir}}/qt-creator/qt-creator_build/install/"
+    transferType: UploadModuleBuildArtifact
+    maxTimeInSeconds: 1800
+    maxTimeBetweenOutput: 1800
+
