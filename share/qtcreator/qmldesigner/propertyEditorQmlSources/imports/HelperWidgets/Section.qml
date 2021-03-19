@@ -40,15 +40,15 @@ Item {
     property alias showArrow: arrow.visible
 
     property int leftPadding: 8
-    property int topPadding: 4
     property int rightPadding: 0
-    property int bottomPadding: 4
 
     property bool expanded: true
     property int level: 0
     property int levelShift: 10
     property bool hideHeader: false
     property bool expandOnClick: true // if false, toggleExpand signal will be emitted instead
+    property bool addTopPadding: true
+    property bool addBottomPadding: true
 
     onHideHeaderChanged:
     {
@@ -120,11 +120,12 @@ Item {
 
     readonly property alias contentItem: row
 
-    implicitHeight: Math.round(row.height + header.height + topRow.height + bottomRow.height)
+    implicitHeight: Math.round(row.height + header.height + topSpacer.height + bottomSpacer.height)
 
-    Row {
-        id: topRow
-        height: StudioTheme.Values.sectionHeadSpacerHeight
+
+    Item {
+        id: topSpacer
+        height: addTopPadding && row.height > 0 ? StudioTheme.Values.sectionHeadSpacerHeight : 0
         anchors.top: header.bottom
     }
 
@@ -134,12 +135,12 @@ Item {
         anchors.leftMargin: section.leftPadding
         anchors.right: parent.right
         anchors.rightMargin: section.rightPadding
-        anchors.top: topRow.bottom
+        anchors.top: topSpacer.bottom
     }
 
-    Row {
-        id: bottomRow
-        height: StudioTheme.Values.sectionHeadSpacerHeight
+    Item {
+        id: bottomSpacer
+        height: addBottomPadding && row.height > 0 ? StudioTheme.Values.sectionHeadSpacerHeight : 0
         anchors.top: row.bottom
     }
 

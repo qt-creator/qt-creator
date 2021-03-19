@@ -159,8 +159,6 @@ ScrollView {
                                              : StudioTheme.Values.themeTextColor
                 leftPadding: 0
                 rightPadding: 0
-                topPadding: 0
-                bottomPadding: 0
                 expanded: importExpanded
                 expandOnClick: false
                 onToggleExpand: {
@@ -184,8 +182,8 @@ ScrollView {
                             hideHeader: categoryModel.rowCount() <= 1
                             leftPadding: 0
                             rightPadding: 0
-                            topPadding: 0
-                            bottomPadding: 0
+                            addTopPadding: categoryModel.rowCount() > 1
+                            addBottomPadding: index != categoryModel.rowCount() - 1
                             caption: categoryName + " (" + itemModel.rowCount() + ")"
                             visible: categoryVisible
                             expanded: categoryExpanded
