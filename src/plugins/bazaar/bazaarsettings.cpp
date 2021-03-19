@@ -24,36 +24,145 @@
 ****************************************************************************/
 
 #include "bazaarsettings.h"
+
+#include "bazaarclient.h"
 #include "constants.h"
+
+#include <coreplugin/icore.h>
+
+#include <utils/layoutbuilder.h>
+
+#include <vcsbase/vcsbaseconstants.h>
+
+using namespace Utils;
 
 namespace Bazaar {
 namespace Internal {
 
-const QLatin1String BazaarSettings::diffIgnoreWhiteSpaceKey("diffIgnoreWhiteSpace");
-const QLatin1String BazaarSettings::diffIgnoreBlankLinesKey("diffIgnoreBlankLines");
-const QLatin1String BazaarSettings::logVerboseKey("logVerbose");
-const QLatin1String BazaarSettings::logForwardKey("logForward");
-const QLatin1String BazaarSettings::logIncludeMergesKey("logIncludeMerges");
-const QLatin1String BazaarSettings::logFormatKey("logFormat");
-
 BazaarSettings::BazaarSettings()
 {
-    setSettingsGroup(QLatin1String(Constants::BAZAAR));
-    // Override default binary path
-    declareKey(binaryPathKey, QLatin1String(Constants::BAZAARDEFAULT));
-    declareKey(diffIgnoreWhiteSpaceKey, false);
-    declareKey(diffIgnoreBlankLinesKey, false);
-    declareKey(logVerboseKey, false);
-    declareKey(logForwardKey, false);
-    declareKey(logIncludeMergesKey, false);
-    declareKey(logFormatKey, QLatin1String("long"));
+    setSettingsGroup(Constants::BAZAAR);
+    setAutoApply(false);
+
+    registerAspect(&binaryPath);
+    binaryPath.setDisplayStyle(StringAspect::PathChooserDisplay);
+    binaryPath.setExpectedKind(PathChooser::ExistingCommand);
+    binaryPath.setDefaultValue(Constants::BAZAARDEFAULT);
+    binaryPath.setDisplayName(tr("Bazaar Command"));
+    binaryPath.setHistoryCompleter("Bazaar.Command.History");
+    binaryPath.setLabelText(tr("Command:"));
+
+    registerAspect(&diffIgnoreWhiteSpace);
+    diffIgnoreWhiteSpace.setSettingsKey("diffIgnoreWhiteSpace");
+
+    registerAspect(&diffIgnoreBlankLines);
+    diffIgnoreBlankLines.setSettingsKey("diffIgnoreBlankLines");
+
+    registerAspect(&logVerbose);
+    logVerbose.setSettingsKey("logVerbose");
+
+    registerAspect(&logFormat);
+    logForward.setSettingsKey("logForward");
+
+    registerAspect(&logIncludeMerges);
+    logIncludeMerges.setSettingsKey("logIncludeMerges");
+
+    registerAspect(&logFormat);
+    logFormat.setDisplayStyle(StringAspect::LineEditDisplay);
+    logFormat.setSettingsKey("logFormat");
+    logFormat.setDefaultValue("long");
+
+    registerAspect(&userName);
+    userName.setDisplayStyle(StringAspect::LineEditDisplay);
+    userName.setLabelText(tr("Default username:"));
+    userName.setToolTip(tr("Username to use by default on commit."));
+
+    registerAspect(&userEmail);
+    userEmail.setDisplayStyle(StringAspect::LineEditDisplay);
+    userEmail.setLabelText(tr("Default email:"));
+    userEmail.setToolTip(tr("Email to use by default on commit."));
+
+    registerAspect(&logCount);
+    logCount.setLabelText(tr("Log count:"));
+    logCount.setToolTip(tr("The number of recent commit logs to show. Choose 0 to see all entries."));
+
+    registerAspect(&logCount);
+    timeout.setLabelText(tr("Timeout:"));
+    timeout.setSuffix(tr("s"));
 }
 
 bool BazaarSettings::sameUserId(const BazaarSettings &other) const
 {
-    return stringValue(userNameKey) == other.stringValue(userNameKey)
-            && stringValue(userEmailKey) == other.stringValue(userEmailKey);
+    return userName.value() == other.userName.value()
+        && userEmail.value() == other.userEmail.value();
 }
 
-} // namespace Internal
-} // namespace Bazaar
+// OptionsPage
+
+class OptionsPageWidget final : public Core::IOptionsPageWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(Bazaar::Internal::OptionsPageWidget)
+
+public:
+    OptionsPageWidget(const std::function<void()> &onApply, BazaarSettings *settings);
+
+    void apply() final;
+
+private:
+    const std::function<void()> m_onApply;
+    BazaarSettings *m_settings;
+};
+
+void OptionsPageWidget::apply()
+{
+    if (!m_settings->isDirty())
+        return;
+    m_settings->apply();
+    m_onApply();
+}
+
+OptionsPageWidget::OptionsPageWidget(const std::function<void(void)> &onApply, BazaarSettings *settings)
+    : m_onApply(onApply), m_settings(settings)
+{
+    BazaarSettings &s = *m_settings;
+
+    using namespace Layouting;
+    const Break nl;
+
+    Column {
+        Group {
+            Title(tr("Configuration")),
+            Row { s.binaryPath }
+        },
+
+        Group {
+            Title(tr("User")),
+            Form {
+                s.userName, nl,
+                s.userEmail
+            }
+        },
+
+        Group {
+            Title(tr("Miscellaneous")),
+            Row {
+                s.logCount,
+                s.timeout,
+                Stretch()
+            }
+        },
+        Stretch()
+
+    }.attachTo(this);
+}
+
+OptionsPage::OptionsPage(const std::function<void(void)> &onApply, BazaarSettings *settings)
+{
+    setId(VcsBase::Constants::VCS_ID_BAZAAR);
+    setDisplayName(OptionsPageWidget::tr("Bazaar"));
+    setWidgetCreator([onApply, settings] { return new OptionsPageWidget(onApply, settings); });
+    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+}
+
+} // Internal
+} // Bazaar

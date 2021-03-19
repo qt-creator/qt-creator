@@ -31,7 +31,6 @@
 #include "bazaarsettings.h"
 #include "commiteditor.h"
 #include "constants.h"
-#include "optionspage.h"
 #include "pullorpushdialog.h"
 
 #include "ui_revertdialog.h"
@@ -490,7 +489,7 @@ void BazaarPluginPrivate::logRepository()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     QStringList extraOptions;
-    extraOptions += QLatin1String("--limit=") + QString::number(m_settings.intValue(BazaarSettings::logCountKey));
+    extraOptions += "--limit=" + QString::number(m_settings.logCount.value());
     m_client.log(state.topLevel(), QStringList(), extraOptions);
 }
 
@@ -677,8 +676,8 @@ void BazaarPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusItem
 
     const BranchInfo branch = m_client.synchronousBranchQuery(m_submitRepository);
     commitEditor->setFields(m_submitRepository, branch,
-                            m_settings.stringValue(BazaarSettings::userNameKey),
-                            m_settings.stringValue(BazaarSettings::userEmailKey), status);
+                            m_settings.userName.value(),
+                            m_settings.userEmail.value(), status);
 }
 
 void BazaarPluginPrivate::diffFromEditorSelected(const QStringList &files)
@@ -865,7 +864,7 @@ bool BazaarPluginPrivate::managesFile(const QString &workingDirectory, const QSt
 
 bool BazaarPluginPrivate::isConfigured() const
 {
-    const Utils::FilePath binary = m_settings.binaryPath();
+    const FilePath binary = m_settings.binaryPath.filePath();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();

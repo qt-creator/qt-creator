@@ -25,23 +25,33 @@
 
 #pragma once
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
+#include <utils/aspects.h>
+
 #include <vcsbase/vcsbaseclientsettings.h>
 
 namespace Bazaar {
 namespace Internal {
 
-class BazaarSettings : public VcsBase::VcsBaseClientSettings
+class BazaarSettings : public VcsBase::VcsBaseSettings
 {
 public:
-    static const QLatin1String diffIgnoreWhiteSpaceKey;
-    static const QLatin1String diffIgnoreBlankLinesKey;
-    static const QLatin1String logVerboseKey;
-    static const QLatin1String logForwardKey;
-    static const QLatin1String logIncludeMergesKey;
-    static const QLatin1String logFormatKey;
+    Utils::BoolAspect diffIgnoreWhiteSpace;
+    Utils::BoolAspect diffIgnoreBlankLines;
+    Utils::BoolAspect logVerbose;
+    Utils::BoolAspect logForward;
+    Utils::BoolAspect logIncludeMerges;
+    Utils::StringAspect logFormat;
 
     BazaarSettings();
     bool sameUserId(const BazaarSettings &other) const;
+};
+
+class OptionsPage final : public Core::IOptionsPage
+{
+public:
+    OptionsPage(const std::function<void()> &onApply, BazaarSettings *settings);
 };
 
 } // namespace Internal

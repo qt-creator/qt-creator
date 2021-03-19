@@ -49,13 +49,13 @@ class BazaarDiffConfig : public VcsBaseEditorConfig
 {
     Q_OBJECT
 public:
-    BazaarDiffConfig(VcsBaseClientSettings &settings, QToolBar *toolBar) :
+    BazaarDiffConfig(BazaarSettings &settings, QToolBar *toolBar) :
         VcsBaseEditorConfig(toolBar)
     {
-        mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore Whitespace")),
-                   settings.boolPointer(BazaarSettings::diffIgnoreWhiteSpaceKey));
-        mapSetting(addToggleButton(QLatin1String("-B"), tr("Ignore Blank Lines")),
-                   settings.boolPointer(BazaarSettings::diffIgnoreBlankLinesKey));
+        mapSetting(addToggleButton("-w", tr("Ignore Whitespace")),
+                   &settings.diffIgnoreWhiteSpace);
+        mapSetting(addToggleButton("-B", tr("Ignore Blank Lines")),
+                   &settings.diffIgnoreBlankLines);
     }
 
     QStringList arguments() const override
@@ -64,8 +64,7 @@ public:
         // Bazaar wants "--diff-options=-w -B.."
         const QStringList formatArguments = VcsBaseEditorConfig::arguments();
         if (!formatArguments.isEmpty()) {
-            const QString a = QLatin1String("--diff-options=")
-                    + formatArguments.join(QString(QLatin1Char(' ')));
+            const QString a = "--diff-options=" + formatArguments.join(' ');
             args.append(a);
         }
         return args;
@@ -76,31 +75,31 @@ class BazaarLogConfig : public VcsBaseEditorConfig
 {
     Q_OBJECT
 public:
-    BazaarLogConfig(VcsBaseClientSettings &settings, QToolBar *toolBar) :
+    BazaarLogConfig(BazaarSettings &settings, QToolBar *toolBar) :
         VcsBaseEditorConfig(toolBar)
     {
-        mapSetting(addToggleButton(QLatin1String("--verbose"), tr("Verbose"),
+        mapSetting(addToggleButton("--verbose", tr("Verbose"),
                                    tr("Show files changed in each revision.")),
-                   settings.boolPointer(BazaarSettings::logVerboseKey));
-        mapSetting(addToggleButton(QLatin1String("--forward"), tr("Forward"),
+                   &settings.logVerbose);
+        mapSetting(addToggleButton("--forward", tr("Forward"),
                                    tr("Show from oldest to newest.")),
-                   settings.boolPointer(BazaarSettings::logForwardKey));
-        mapSetting(addToggleButton(QLatin1String("--include-merges"), tr("Include Merges"),
+                   &settings.logForward);
+        mapSetting(addToggleButton("--include-merges", tr("Include Merges"),
                                    tr("Show merged revisions.")),
-                   settings.boolPointer(BazaarSettings::logIncludeMergesKey));
+                   &settings.logIncludeMerges);
 
         const QList<ChoiceItem> logChoices = {
-            ChoiceItem(tr("Detailed"), QLatin1String("long")),
-            ChoiceItem(tr("Moderately Short"), QLatin1String("short")),
-            ChoiceItem(tr("One Line"), QLatin1String("line")),
-            ChoiceItem(tr("GNU Change Log"), QLatin1String("gnu-changelog"))
+            {tr("Detailed"), "long"},
+            {tr("Moderately Short"), "short"},
+            {tr("One Line"), "line"},
+            {tr("GNU Change Log"), "gnu-changelog"}
         };
         mapSetting(addChoices(tr("Format"), { "--log-format=%1" }, logChoices),
-                   settings.stringPointer(BazaarSettings::logFormatKey));
+                   &settings.logFormat);
     }
 };
 
-BazaarClient::BazaarClient(BazaarSettings *settings) : VcsBaseClient(settings)
+BazaarClient::BazaarClient(BazaarSettings *settings) : VcsBaseClient(nullptr, settings)
 {
     setDiffConfigCreator([settings](QToolBar *toolBar) {
         return new BazaarDiffConfig(*settings, toolBar);

@@ -11,7 +11,6 @@ add_qtc_plugin(Bazaar
     branchinfo.cpp branchinfo.h
     commiteditor.cpp commiteditor.h
     constants.h
-    optionspage.cpp optionspage.h optionspage.ui
     pullorpushdialog.cpp pullorpushdialog.h pullorpushdialog.ui
     revertdialog.ui
     uncommitdialog.ui
