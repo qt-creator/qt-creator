@@ -1891,7 +1891,13 @@ class DumperBase():
         extraData = 0
         if qobjectPtr:
             dd = self.extractPointer(qobjectPtr + ptrSize)
-            if self.qtVersion() >= 0x50000:
+            if self.qtVersion() >= 0x60000:
+                (dvtablePtr, qptr, parent, children, bindingStorageData, bindingStatus,
+                    flags, postedEvents, dynMetaObjectPtr, # Up to here QObjectData.
+                    extraData, threadDataPtr, connectionListsPtr,
+                    sendersPtr, currentSenderPtr) \
+                    = self.split('pp{@QObject*}{@QList<@QObject *>}ppIIp' + 'ppppp', dd)
+            elif self.qtVersion() >= 0x50000:
                 (dvtablePtr, qptr, parent, children, flags, postedEvents,
                     dynMetaObjectPtr,  # Up to here QObjectData.
                     extraData, threadDataPtr, connectionListsPtr,
