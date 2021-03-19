@@ -48,7 +48,7 @@ Rectangle {
             y: -1
             width: itemPane.width
             Section {
-                caption: qsTr("Type")
+                caption: qsTr("Component")
 
                 anchors.left: parent.left
                 anchors.right: parent.right
