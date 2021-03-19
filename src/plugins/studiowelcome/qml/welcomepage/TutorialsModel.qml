@@ -141,8 +141,20 @@ ListModel {
     }
 
     ListElement {
-        displayName: "Getting Started - Create New Project"
+        displayName: "Create New Project"
         thumbnail: "images/gettingStarted_newProject.png"
         url: "https://youtu.be/9ihYeC0YJ0M"
+    }
+
+    ListElement {
+        displayName: "Using Qt Quick 3D Components"
+        thumbnail: "images/gettingStarted_3dComponents.png"
+        url: "https://youtu.be/u3kZJjlk3CY"
+    }
+
+    ListElement {
+        displayName: "Using Custom Shaders, Materials, and Effects"
+        thumbnail: "images/gettingStarted_shaders.png"
+        url: "https://youtu.be/bMXeeQw6BYs"
     }
 }
