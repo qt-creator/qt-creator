@@ -31,17 +31,10 @@
 #include <vcsbase/vcsbaseplugin.h>
 #include <coreplugin/icontext.h>
 
-namespace Core {
-class ActionContainer;
-class CommandLocator;
-} // namespace Core
-
 namespace Fossil {
 namespace Internal {
 
-class OptionsPage;
 class FossilClient;
-class FossilEditorWidget;
 
 class FossilPlugin final : public ExtensionSystem::IPlugin
 {

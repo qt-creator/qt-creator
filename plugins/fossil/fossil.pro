@@ -8,7 +8,6 @@ include($$IDE_SOURCE_TREE/src/qtcreatorplugin.pri)
 SOURCES += \
     fossilclient.cpp \
     fossilplugin.cpp \
-    optionspage.cpp \
     fossilsettings.cpp \
     commiteditor.cpp \
     fossilcommitwidget.cpp \
@@ -23,7 +22,6 @@ HEADERS += \
     fossilclient.h \
     constants.h \
     fossilplugin.h \
-    optionspage.h \
     fossilsettings.h \
     commiteditor.h \
     fossilcommitwidget.h \
@@ -35,7 +33,6 @@ HEADERS += \
     revisioninfo.h \
     wizard/fossiljsextension.h
 FORMS += \
-    optionspage.ui \
     revertdialog.ui \
     fossilcommitpanel.ui \
     pullorpushdialog.ui \

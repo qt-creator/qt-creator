@@ -25,25 +25,26 @@
 
 #pragma once
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <vcsbase/vcsbaseclientsettings.h>
 
 namespace Fossil {
 namespace Internal {
 
-class FossilSettings : public VcsBase::VcsBaseClientSettings
+class FossilSettings : public VcsBase::VcsBaseSettings
 {
 public:
-    static const QString defaultRepoPathKey;
-    static const QString sslIdentityFileKey;
-    static const QString diffIgnoreAllWhiteSpaceKey;
-    static const QString diffStripTrailingCRKey;
-    static const QString annotateShowCommittersKey;
-    static const QString annotateListVersionsKey;
-    static const QString timelineWidthKey;
-    static const QString timelineLineageFilterKey;
-    static const QString timelineVerboseKey;
-    static const QString timelineItemTypeKey;
-    static const QString disableAutosyncKey;
+    Utils::StringAspect defaultRepoPath;
+    Utils::StringAspect sslIdentityFile;
+    Utils::BoolAspect diffIgnoreAllWhiteSpace;
+    Utils::BoolAspect diffStripTrailingCR;
+    Utils::BoolAspect annotateShowCommitters;
+    Utils::BoolAspect annotateListVersions;
+    Utils::IntegerAspect timelineWidth;
+    Utils::StringAspect timelineLineageFilter;
+    Utils::BoolAspect timelineVerbose;
+    Utils::StringAspect timelineItemType;
+    Utils::BoolAspect disableAutosync;
 
     FossilSettings();
 };
@@ -65,6 +66,12 @@ inline bool operator== (const RepositorySettings &lh, const RepositorySettings &
             && lh.autosync == rh.autosync
             && lh.sslIdentityFile == rh.sslIdentityFile);
 }
+
+class OptionsPage : public Core::IOptionsPage
+{
+public:
+    OptionsPage(const std::function<void()> &onApply, FossilSettings *settings);
+};
 
 } // namespace Internal
 } // namespace Fossil

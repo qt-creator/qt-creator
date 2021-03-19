@@ -26,7 +26,6 @@
 #include "fossilplugin.h"
 #include "constants.h"
 #include "fossilclient.h"
-#include "optionspage.h"
 #include "fossilcommitwidget.h"
 #include "fossileditor.h"
 #include "pullorpushdialog.h"
@@ -54,10 +53,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
-#include <utils/id.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
-#include <utils/stringutils.h>
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
@@ -437,10 +434,10 @@ void FossilPluginPrivate::logCurrentFile()
     QTC_ASSERT(state.hasFile(), return);
     FossilClient::SupportedFeatures features = m_client.supportedFeatures();
     QStringList extraOptions;
-    extraOptions << "-n" << QString::number(m_client.settings().intValue(FossilSettings::logCountKey));
+    extraOptions << "-n" << QString::number(m_client.settings().logCount.value());
 
     if (features.testFlag(FossilClient::TimelineWidthFeature))
-        extraOptions << "-W" << QString::number(m_client.settings().intValue(FossilSettings::timelineWidthKey));
+        extraOptions << "-W" << QString::number(m_client.settings().timelineWidth.value());
 
     // disable annotate context menu for older client versions, used to be supported for current revision only
     bool enableAnnotationContextMenu = features.testFlag(FossilClient::AnnotateRevisionFeature);
@@ -520,10 +517,10 @@ void FossilPluginPrivate::logRepository()
     QTC_ASSERT(state.hasTopLevel(), return);
     FossilClient::SupportedFeatures features = m_client.supportedFeatures();
     QStringList extraOptions;
-    extraOptions << "-n" << QString::number(m_client.settings().intValue(FossilSettings::logCountKey));
+    extraOptions << "-n" << QString::number(m_client.settings().logCount.value());
 
     if (features.testFlag(FossilClient::TimelineWidthFeature))
-        extraOptions << "-W" << QString::number(m_client.settings().intValue(FossilSettings::timelineWidthKey));
+        extraOptions << "-W" << QString::number(m_client.settings().timelineWidth.value());
 
     m_client.log(state.topLevel(), QStringList(), extraOptions);
 }
@@ -616,7 +613,7 @@ bool FossilPluginPrivate::pullOrPush(FossilPluginPrivate::SyncMode mode)
     QTC_ASSERT(state.hasTopLevel(), return false);
 
     PullOrPushDialog dialog(pullOrPushMode, Core::ICore::dialogParent());
-    dialog.setLocalBaseDirectory(m_client.settings().stringValue(FossilSettings::defaultRepoPathKey));
+    dialog.setLocalBaseDirectory(m_client.settings().defaultRepoPath.value());
     const QString defaultURL(m_client.synchronousGetRepositoryURL(state.topLevel()));
     dialog.setDefaultRemoteLocation(defaultURL);
     if (dialog.exec() != QDialog::Accepted)
@@ -835,7 +832,7 @@ bool FossilPluginPrivate::submitEditorAboutToClose()
         //rewrite entries of the form 'file => newfile' to 'newfile' because
         //this would mess the commit command
         for (QStringList::iterator iFile = files.begin(); iFile != files.end(); ++iFile) {
-            const QStringList parts = iFile->split(" => ", Utils::SkipEmptyParts);
+            const QStringList parts = iFile->split(" => ", Qt::SkipEmptyParts);
             if (!parts.isEmpty())
                 *iFile = parts.last();
         }
@@ -932,7 +929,7 @@ bool FossilPluginPrivate::isConfigured() const
         return false;
 
     // Local repositories default path must be set and exist
-    const QString repoPath = m_client.settings().stringValue(FossilSettings::defaultRepoPathKey);
+    const QString repoPath = m_client.settings().defaultRepoPath.value();
     if (repoPath.isEmpty())
         return false;
 

@@ -15,7 +15,6 @@ QtcPlugin {
         "constants.h",
         "fossilclient.cpp", "fossilclient.h",
         "fossilplugin.cpp", "fossilplugin.h",
-        "optionspage.cpp", "optionspage.h", "optionspage.ui",
         "fossilsettings.cpp", "fossilsettings.h",
         "commiteditor.cpp", "commiteditor.h",
         "fossilcommitwidget.cpp", "fossilcommitwidget.h",

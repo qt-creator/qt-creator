@@ -32,7 +32,6 @@
 
 #include <utils/completingtextedit.h>
 #include <utils/qtcassert.h>
-#include <utils/stringutils.h>
 
 #include <QSyntaxHighlighter>
 #include <QTextEdit>
@@ -123,7 +122,7 @@ QStringList FossilCommitWidget::tags() const
         return QStringList();
 
     tagsText.replace(',', ' ');
-    const QStringList tags = tagsText.split(' ', Utils::SkipEmptyParts);
+    const QStringList tags = tagsText.split(' ', Qt::SkipEmptyParts);
     return tags;
 }
 

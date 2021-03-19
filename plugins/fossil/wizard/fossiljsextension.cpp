@@ -48,7 +48,7 @@ public:
     }
 
     Utils::Id m_vscId;
-    VcsBase::VcsBaseClientSettings *m_settings;
+    FossilSettings *m_settings;
 };
 
 
@@ -59,7 +59,7 @@ void FossilJsExtension::parseArgOptions(const QStringList &args, QMap<QString, Q
     foreach (const QString &arg, args) {
         if (arg.isEmpty()) continue;
 
-        QStringList opt = arg.split('|'); //keep empty parts
+        QStringList opt = arg.split('|', Qt::KeepEmptyParts);
         options.insert(opt[0], opt.size() > 1 ? opt[1] : QString());
     }
 }
@@ -90,7 +90,7 @@ QString FossilJsExtension::defaultAdminUser() const
     if (!isConfigured())
         return QString();
 
-    return d->m_settings->stringValue(FossilSettings::userNameKey);
+    return d->m_settings->userName.value();
 }
 
 QString FossilJsExtension::defaultSslIdentityFile() const
@@ -98,7 +98,7 @@ QString FossilJsExtension::defaultSslIdentityFile() const
     if (!isConfigured())
         return QString();
 
-    return d->m_settings->stringValue(FossilSettings::sslIdentityFileKey);
+    return d->m_settings->sslIdentityFile.value();
 }
 
 QString FossilJsExtension::defaultLocalRepoPath() const
@@ -106,7 +106,7 @@ QString FossilJsExtension::defaultLocalRepoPath() const
     if (!isConfigured())
         return QString();
 
-    return d->m_settings->stringValue(FossilSettings::defaultRepoPathKey);
+    return d->m_settings->defaultRepoPath.value();
 }
 
 bool FossilJsExtension::defaultDisableAutosync() const
@@ -114,7 +114,7 @@ bool FossilJsExtension::defaultDisableAutosync() const
     if (!isConfigured())
         return false;
 
-    return d->m_settings->boolValue(FossilSettings::disableAutosyncKey);
+    return d->m_settings->disableAutosync.value();
 }
 
 } // namespace Internal

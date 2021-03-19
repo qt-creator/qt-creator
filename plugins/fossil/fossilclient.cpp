@@ -36,9 +36,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
-#include <utils/id.h>
 #include <utils/qtcassert.h>
-#include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
 #include <QSyntaxHighlighter>
@@ -67,15 +65,14 @@ public:
     {
         QTC_ASSERT(client, return);
 
-        VcsBase::VcsBaseClientSettings &settings = client->settings();
         FossilClient::SupportedFeatures features = client->supportedFeatures();
 
         addReloadButton();
         if (features.testFlag(FossilClient::DiffIgnoreWhiteSpaceFeature)) {
             mapSetting(addToggleButton("-w", tr("Ignore All Whitespace")),
-                       settings.boolPointer(FossilSettings::diffIgnoreAllWhiteSpaceKey));
+                       &client->settings().diffIgnoreAllWhiteSpace);
             mapSetting(addToggleButton("--strip-trailing-cr", tr("Strip Trailing CR")),
-                       settings.boolPointer(FossilSettings::diffStripTrailingCRKey));
+                       &client->settings().diffStripTrailingCR);
         }
     }
 };
@@ -91,20 +88,20 @@ public:
     {
         QTC_ASSERT(client, return);
 
-        VcsBase::VcsBaseClientSettings &settings = client->settings();
+        FossilSettings &settings = client->settings();
         FossilClient::SupportedFeatures features = client->supportedFeatures();
 
         if (features.testFlag(FossilClient::AnnotateBlameFeature)) {
             mapSetting(addToggleButton("|BLAME|", tr("Show Committers")),
-                       settings.boolPointer(FossilSettings::annotateShowCommittersKey));
+                       &settings.annotateShowCommitters);
         }
 
         // Force listVersions setting to false by default.
         // This way the annotated line number would not get offset by the version list.
-        settings.setValue(FossilSettings::annotateListVersionsKey, false);
+        settings.annotateListVersions.setValue(false);
 
         mapSetting(addToggleButton("--log", tr("List Versions")),
-                   settings.boolPointer(FossilSettings::annotateListVersionsKey));
+                   &settings.annotateListVersions);
     }
 };
 
@@ -141,7 +138,7 @@ public:
 
     void addLineageComboBox()
     {
-        VcsBase::VcsBaseClientSettings &settings = m_client->settings();
+        FossilSettings &settings = m_client->settings();
 
         // ancestors/descendants filter
         // This is a positional argument not an option.
@@ -156,22 +153,22 @@ public:
             ChoiceItem(tr("Unfiltered"), "")
         };
         mapSetting(addChoices(tr("Lineage"), QStringList("|LINEAGE|%1|current"), lineageFilterChoices),
-                   settings.stringPointer(FossilSettings::timelineLineageFilterKey));
+                   &settings.timelineLineageFilter);
     }
 
     void addVerboseToggleButton()
     {
-        VcsBase::VcsBaseClientSettings &settings = m_client->settings();
+        FossilSettings &settings = m_client->settings();
 
         // show files
         mapSetting(addToggleButton("-showfiles", tr("Verbose"),
                                    tr("Show files changed in each revision")),
-                   settings.boolPointer(FossilSettings::timelineVerboseKey));
+                   &settings.timelineVerbose);
     }
 
     void addItemTypeComboBox()
     {
-        VcsBase::VcsBaseClientSettings &settings = m_client->settings();
+        FossilSettings &settings = m_client->settings();
 
         // option: -t <val>
         const QList<ChoiceItem> itemTypeChoices = {
@@ -188,7 +185,7 @@ public:
         // Fossil expects separate arguments for option and value ( i.e. "-t" "all")
         // so we need to handle the splitting explicitly in arguments().
         mapSetting(addChoices(tr("Item Types"), QStringList("-t %1"), itemTypeChoices),
-                   settings.stringPointer(FossilSettings::timelineItemTypeKey));
+                   &settings.timelineItemType);
     }
 
     QStringList arguments() const final
@@ -244,16 +241,22 @@ QString FossilClient::makeVersionString(unsigned version)
                     .arg(versionPart(version));
 }
 
-FossilClient::FossilClient(FossilSettings *settings) : VcsBase::VcsBaseClient(settings)
+FossilClient::FossilClient(FossilSettings *settings)
+    : VcsBase::VcsBaseClient(settings), m_settings(settings)
 {
     setDiffConfigCreator([this](QToolBar *toolBar) {
         return new FossilDiffConfig(this, toolBar);
     });
 }
 
+FossilSettings &FossilClient::settings() const
+{
+    return *m_settings;
+}
+
 unsigned int FossilClient::synchronousBinaryVersion() const
 {
-    if (settings().binaryPath().isEmpty())
+    if (settings().binaryPath.value().isEmpty())
         return 0;
 
     QStringList args("version");
@@ -282,7 +285,7 @@ QList<BranchInfo> FossilClient::branchListFromOutput(const QString &output, cons
     // Branch list format:
     // "  branch-name"
     // "* current-branch"
-    return Utils::transform(output.split('\n', Utils::SkipEmptyParts), [=](const QString& l) {
+    return Utils::transform(output.split('\n', Qt::SkipEmptyParts), [=](const QString &l) {
         const QString &name = l.mid(2);
         QTC_ASSERT(!name.isEmpty(), return BranchInfo());
         const BranchInfo::BranchFlags flags = (l.startsWith("* ") ? defaultFlags | BranchInfo::Current : defaultFlags);
@@ -395,9 +398,9 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const QString &workingDirect
     const QString hashToken =
             QString::fromUtf8(supportedFeatures().testFlag(InfoHashFeature) ? "hash: " : "uuid: ");
 
-    for (const QString &l : output.split('\n', Utils::SkipEmptyParts)) {
+    for (const QString &l : output.split('\n', Qt::SkipEmptyParts)) {
         if (l.startsWith("checkout: ", Qt::CaseInsensitive)
-            || l.startsWith(hashToken, Qt::CaseInsensitive)) {
+            || l.startsWith("uuid: ", Qt::CaseInsensitive)) {
             const QRegularExpressionMatch idMatch = idRx.match(l);
             QTC_ASSERT(idMatch.hasMatch(), return RevisionInfo());
             revisionId = idMatch.captured(1);
@@ -446,7 +449,7 @@ QStringList FossilClient::synchronousTagQuery(const QString &workingDirectory, c
 
     const QString output = sanitizeFossilOutput(response.stdOut());
 
-    return output.split('\n', Utils::SkipEmptyParts);
+    return output.split('\n', Qt::SkipEmptyParts);
 }
 
 RepositorySettings FossilClient::synchronousSettingsQuery(const QString &workingDirectory)
@@ -458,7 +461,7 @@ RepositorySettings FossilClient::synchronousSettingsQuery(const QString &working
 
     repoSettings.user = synchronousUserDefaultQuery(workingDirectory);
     if (repoSettings.user.isEmpty())
-        repoSettings.user = settings().stringValue(FossilSettings::userNameKey);
+        repoSettings.user = settings().userName.value();
 
     const QStringList args("settings");
 
@@ -468,12 +471,12 @@ RepositorySettings FossilClient::synchronousSettingsQuery(const QString &working
 
     const QString output = sanitizeFossilOutput(response.stdOut());
 
-    for (const QString &line : output.split('\n', Utils::SkipEmptyParts)) {
+    for (const QString &line : output.split('\n', Qt::SkipEmptyParts)) {
         // parse settings line:
         // <property> <(local|global)> <value>
         // Fossil properties are case-insensitive; force them to lower-case.
         // Values may be in mixed-case; force lower-case for fixed values.
-        const QStringList fields = line.split(' ', Utils::SkipEmptyParts);
+        const QStringList fields = line.split(' ', Qt::SkipEmptyParts);
 
         const QString property = fields.at(0).toLower();
         const QString value = (fields.size() >= 3 ? fields.at(2) : QString());
@@ -636,8 +639,8 @@ bool FossilClient::synchronousCreateRepository(const QString &workingDirectory, 
     // use the configured default user for admin
 
     const QString repoName = QDir(workingDirectory).dirName().simplified();
-    const QString repoPath = settings().stringValue(FossilSettings::defaultRepoPathKey);
-    const QString adminUser = settings().stringValue(FossilSettings::userNameKey);
+    const QString repoPath = settings().defaultRepoPath.value();
+    const QString adminUser = settings().userName.value();
 
     if (repoName.isEmpty() || repoPath.isEmpty())
         return false;
@@ -855,7 +858,7 @@ unsigned int FossilClient::binaryVersion() const
     static unsigned int cachedBinaryVersion = 0;
     static QString cachedBinaryPath;
 
-    const QString currentBinaryPath = settings().binaryPath().toString();
+    const QString currentBinaryPath = settings().binaryPath.value();
 
     if (currentBinaryPath.isEmpty())
         return 0;
