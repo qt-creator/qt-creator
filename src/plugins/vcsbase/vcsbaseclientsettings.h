@@ -29,13 +29,7 @@
 
 #include <utils/aspects.h>
 
-#include <QStringList>
-#include <QVariant>
-#include <QSharedDataPointer>
-
 namespace VcsBase {
-
-namespace Internal { class VcsBaseClientSettingsPrivate; }
 
 class VCSBASE_EXPORT VcsBaseSettings : public Utils::AspectContainer
 {
@@ -62,65 +56,5 @@ public:
 private:
     QString m_settingsGroup;
 };
-
-class VCSBASE_EXPORT VcsBaseClientSettings
-{
-public:
-    static const QLatin1String binaryPathKey;
-    static const QLatin1String userNameKey;
-    static const QLatin1String userEmailKey;
-    static const QLatin1String logCountKey;
-    static const QLatin1String promptOnSubmitKey;
-    static const QLatin1String timeoutKey; // Seconds
-    static const QLatin1String pathKey;
-
-    VcsBaseClientSettings();
-    VcsBaseClientSettings(const VcsBaseClientSettings &other);
-    VcsBaseClientSettings &operator=(const VcsBaseClientSettings &other);
-    virtual ~VcsBaseClientSettings();
-
-    void writeSettings(QSettings *settings, const VcsBaseClientSettings &defaultSettings) const;
-    void readSettings(const QSettings *settings);
-
-    bool equals(const VcsBaseClientSettings &rhs) const;
-
-    QStringList keys() const;
-    bool hasKey(const QString &key) const;
-
-    int *intPointer(const QString &key);
-    int intValue(const QString &key, int defaultValue = 0) const;
-
-    bool *boolPointer(const QString &key);
-    bool boolValue(const QString &key, bool defaultValue = false) const;
-
-    QString *stringPointer(const QString &key);
-    QString stringValue(const QString &key, const QString &defaultValue = QString()) const;
-
-    QVariant value(const QString &key) const;
-    void setValue(const QString &key, const QVariant &v);
-    QVariant::Type valueType(const QString &key) const;
-
-    Utils::FilePath binaryPath() const;
-
-    QStringList searchPathList() const;
-    int vcsTimeoutS() const;
-
-protected:
-    QString settingsGroup() const;
-    void setSettingsGroup(const QString &group);
-
-    void declareKey(const QString &key, const QVariant &defaultValue);
-    QVariant keyDefaultValue(const QString &key) const;
-
-private:
-    friend bool equals(const VcsBaseClientSettings &rhs);
-    friend class VcsBaseClientSettingsPrivate;
-    QSharedDataPointer<Internal::VcsBaseClientSettingsPrivate> d;
-};
-
-inline bool operator==(const VcsBaseClientSettings &s1, const VcsBaseClientSettings &s2)
-{ return s1.equals(s2); }
-inline bool operator!=(const VcsBaseClientSettings &s1, const VcsBaseClientSettings &s2)
-{ return !s1.equals(s2); }
 
 } // namespace VcsBase

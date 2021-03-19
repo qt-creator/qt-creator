@@ -86,7 +86,7 @@ QStringList MercurialDiffEditorController::addConfigurationArguments(const QStri
 
 /////////////////////////////////////////////////////////////
 
-MercurialClient::MercurialClient(MercurialSettings *settings) : VcsBaseClient(nullptr, settings)
+MercurialClient::MercurialClient(MercurialSettings *settings) : VcsBaseClient(settings)
 {
 }
 
@@ -458,8 +458,8 @@ void MercurialClient::requestReload(const QString &documentId, const QString &so
     controller->setReloader([controller, args] {
         controller->runCommand({controller->addConfigurationArguments(args)});
     });
-    controller->setVcsBinary(baseSettings().binaryPath.filePath());
-    controller->setVcsTimeoutS(baseSettings().timeout.value());
+    controller->setVcsBinary(settings().binaryPath.filePath());
+    controller->setVcsTimeoutS(settings().timeout.value());
     controller->setProcessEnvironment(processEnvironment());
     controller->setWorkingDirectory(workingDirectory);
 

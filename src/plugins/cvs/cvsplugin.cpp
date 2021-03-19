@@ -193,7 +193,7 @@ private:
 class CvsClient : public VcsBaseClient
 {
 public:
-    explicit CvsClient(CvsSettings *settings) : VcsBaseClient(nullptr, settings)
+    explicit CvsClient(CvsSettings *settings) : VcsBaseClient(settings)
     {
         setDiffConfigCreator([settings](QToolBar *toolBar) {
             return new CvsDiffConfig(*settings, toolBar);

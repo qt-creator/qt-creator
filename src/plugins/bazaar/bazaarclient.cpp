@@ -99,7 +99,7 @@ public:
     }
 };
 
-BazaarClient::BazaarClient(BazaarSettings *settings) : VcsBaseClient(nullptr, settings)
+BazaarClient::BazaarClient(BazaarSettings *settings) : VcsBaseClient(settings)
 {
     setDiffConfigCreator([settings](QToolBar *toolBar) {
         return new BazaarDiffConfig(*settings, toolBar);

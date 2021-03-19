@@ -784,7 +784,7 @@ static inline void msgCannotRun(const QStringList &args, const QString &workingD
 // ---------------- GitClient
 
 GitClient::GitClient(GitSettings *settings)
-    : VcsBase::VcsBaseClientImpl(nullptr, settings)
+    : VcsBase::VcsBaseClientImpl(settings)
 {
     m_instance = this;
     m_gitQtcEditor = QString::fromLatin1("\"%1\" -client -block -pid %2")
@@ -799,7 +799,7 @@ GitClient *GitClient::instance()
 
 GitSettings &GitClient::settings()
 {
-    return static_cast<GitSettings &>(m_instance->baseSettings());
+    return static_cast<GitSettings &>(m_instance->VcsBaseClientImpl::settings());
 }
 
 QString GitClient::findRepositoryForDirectory(const QString &directory) const

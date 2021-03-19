@@ -69,7 +69,7 @@ public:
     }
 };
 
-SubversionClient::SubversionClient(SubversionSettings *settings) : VcsBaseClient(nullptr, settings)
+SubversionClient::SubversionClient(SubversionSettings *settings) : VcsBaseClient(settings)
 {
     setLogConfigCreator([settings](QToolBar *toolBar) {
         return new SubversionLogConfig(*settings, toolBar);
@@ -83,7 +83,7 @@ bool SubversionClient::doCommit(const QString &repositoryRoot,
 {
     const QStringList svnExtraOptions =
             QStringList(extraOptions)
-            << SubversionClient::addAuthenticationOptions(static_cast<SubversionSettings &>(baseSettings()))
+            << SubversionClient::addAuthenticationOptions(static_cast<SubversionSettings &>(settings()))
             << QLatin1String(Constants::NON_INTERACTIVE_OPTION)
             << QLatin1String("--encoding") << QLatin1String("UTF-8")
             << QLatin1String("--file") << commitMessageFile;
@@ -260,7 +260,7 @@ SubversionDiffEditorController *SubversionClient::findOrCreateDiffEditor(const Q
                                                          const QString &title,
                                                          const QString &workingDirectory)
 {
-    auto &settings = static_cast<SubversionSettings &>(baseSettings());
+    auto &settings = static_cast<SubversionSettings &>(this->settings());
     IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
     auto controller = qobject_cast<SubversionDiffEditorController *>(
                 DiffEditorController::controller(document));
@@ -296,7 +296,7 @@ void SubversionClient::log(const QString &workingDir,
                            const QStringList &extraOptions,
                            bool enableAnnotationContextMenu)
 {
-    auto &settings = static_cast<SubversionSettings &>(baseSettings());
+    auto &settings = static_cast<SubversionSettings &>(this->settings());
     const int logCount = settings.logCount.value();
     QStringList svnExtraOptions = extraOptions;
     svnExtraOptions.append(SubversionClient::addAuthenticationOptions(settings));

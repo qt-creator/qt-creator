@@ -58,12 +58,10 @@ class VCSBASE_EXPORT VcsBaseClientImpl : public QObject
     Q_OBJECT
 
 public:
-    explicit VcsBaseClientImpl(VcsBaseClientSettings *settings,
-                               VcsBaseSettings *baseSettings = nullptr);
+    explicit VcsBaseClientImpl(VcsBaseSettings *baseSettings);
     ~VcsBaseClientImpl() override = default;
 
-    VcsBaseClientSettings &settings() const; // FIXME: Phase out.
-    VcsBaseSettings &baseSettings() const; // FIXME: Rename into settings() when the original is gone.
+    VcsBaseSettings &settings() const;
 
     virtual Utils::FilePath vcsBinary() const;
     int vcsTimeoutS() const;
@@ -130,8 +128,6 @@ protected:
 private:
     void saveSettings();
 
-    VcsBaseClientSettings *m_clientSettings; // "old" style.
-    VcsBaseClientSettings m_defaultSettings;
     VcsBaseSettings *m_baseSettings = nullptr; // Aspect based.
 };
 
@@ -148,8 +144,7 @@ public:
         QString file;
     };
 
-    explicit VcsBaseClient(VcsBaseClientSettings *settings,
-                           VcsBaseSettings *baseSettings = nullptr);
+    explicit VcsBaseClient(VcsBaseSettings *baseSettings);
 
     virtual bool synchronousCreateRepository(const QString &workingDir,
                                              const QStringList &extraOptions = QStringList());

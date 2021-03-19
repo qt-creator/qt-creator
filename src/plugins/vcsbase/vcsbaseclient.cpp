@@ -73,32 +73,22 @@ static Core::IEditor *locateEditor(const char *property, const QString &entry)
 
 namespace VcsBase {
 
-VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseClientSettings *settings, VcsBaseSettings *baseSettings) :
-    m_clientSettings(settings), m_baseSettings(baseSettings)
+VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseSettings *baseSettings)
+    : m_baseSettings(baseSettings)
 {
-    if (settings) {
-        m_defaultSettings = *m_clientSettings;
-        m_clientSettings->readSettings(Core::ICore::settings());
-    } else {
-        m_baseSettings->readSettings(Core::ICore::settings());
-    }
+    m_baseSettings->readSettings(Core::ICore::settings());
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, &VcsBaseClientImpl::saveSettings);
 }
 
-VcsBaseClientSettings &VcsBaseClientImpl::settings() const
-{
-    return *m_clientSettings;
-}
-
-VcsBaseSettings &VcsBaseClientImpl::baseSettings() const
+VcsBaseSettings &VcsBaseClientImpl::settings() const
 {
     return *m_baseSettings;
 }
 
 FilePath VcsBaseClientImpl::vcsBinary() const
 {
-    return settings().binaryPath();
+    return m_baseSettings->binaryPath.filePath();
 }
 
 VcsCommand *VcsBaseClientImpl::createCommand(const QString &workingDirectory,
@@ -224,8 +214,6 @@ SynchronousProcessResponse VcsBaseClientImpl::vcsSynchronousExec(const QString &
 
 int VcsBaseClientImpl::vcsTimeoutS() const
 {
-    if (m_clientSettings)
-        return m_clientSettings->vcsTimeoutS();
     return m_baseSettings->timeout.value();
 }
 
@@ -261,14 +249,11 @@ VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Utils::Id kind, QString 
 
 void VcsBaseClientImpl::saveSettings()
 {
-    if (m_clientSettings)
-        m_clientSettings->writeSettings(Core::ICore::settings(), m_defaultSettings);
-    else
-        m_baseSettings->writeSettings(Core::ICore::settings());
+    m_baseSettings->writeSettings(Core::ICore::settings());
 }
 
-VcsBaseClient::VcsBaseClient(VcsBaseClientSettings *settings, VcsBaseSettings *baseSettings) :
-    VcsBaseClientImpl(settings, baseSettings)
+VcsBaseClient::VcsBaseClient(VcsBaseSettings *baseSettings)
+    : VcsBaseClientImpl(baseSettings)
 {
     qRegisterMetaType<QVariant>();
 }
