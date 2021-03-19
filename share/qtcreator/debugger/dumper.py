@@ -1781,7 +1781,10 @@ class DumperBase():
 
     def metaString(self, metaObjectPtr, index, revision):
         ptrSize = self.ptrSize()
-        stringdata = self.extractPointer(toInteger(metaObjectPtr) + ptrSize)
+        stringdataOffset = ptrSize
+        if self.isWindowsTarget():
+            stringdataOffset += ptrSize # indirect super data member
+        stringdata = self.extractPointer(toInteger(metaObjectPtr) + stringdataOffset)
 
         def unpackString(base, size):
             try:
