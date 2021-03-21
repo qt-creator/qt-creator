@@ -247,7 +247,7 @@ void CompileOutputWindow::registerPositionOf(const Task &task, int linkedOutputL
     if (linkedOutputLines <= 0)
         return;
 
-    const int blocknumber = m_outputWindow->document()->blockCount() - offset - 1;
+    const int blocknumber = m_outputWindow->document()->blockCount() - offset;
     const int firstLine = blocknumber - linkedOutputLines - skipLines;
     const int lastLine = firstLine + linkedOutputLines - 1;
 
