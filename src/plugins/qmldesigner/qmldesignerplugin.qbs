@@ -977,6 +977,8 @@ Project {
             "documentmanager.h",
             "documentwarningwidget.cpp",
             "documentwarningwidget.h",
+            "editorproxy.h",
+            "editorproxy.cpp",
             "openuiqmlfiledialog.cpp",
             "openuiqmlfiledialog.h",
             "openuiqmlfiledialog.ui",

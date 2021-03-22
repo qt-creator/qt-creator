@@ -3,6 +3,7 @@ HEADERS += $$PWD/qmldesignerconstants.h \
     $$PWD/qmldesignerplugin.h \
     $$PWD/designmodewidget.h \
     $$PWD/designersettings.h \
+    $$PWD/editorproxy.h \
     $$PWD/generateresource.h \
     $$PWD/settingspage.h \
     $$PWD/designmodecontext.h \
@@ -17,6 +18,7 @@ SOURCES += $$PWD/qmldesignerplugin.cpp \
     $$PWD/shortcutmanager.cpp \
     $$PWD/designmodewidget.cpp \
     $$PWD/designersettings.cpp \
+    $$PWD/editorproxy.cpp \
     $$PWD/generateresource.cpp \
     $$PWD/settingspage.cpp \
     $$PWD/designmodecontext.cpp \

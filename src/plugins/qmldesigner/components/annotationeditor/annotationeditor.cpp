@@ -25,8 +25,8 @@
 
 #include "annotationeditor.h"
 
-#include "annotationeditordialog.h"
 #include "annotation.h"
+#include "annotationeditordialog.h"
 
 #include "qmlmodelnodeproxy.h"
 
@@ -35,126 +35,52 @@
 
 #include <coreplugin/icore.h>
 
-#include <QObject>
-#include <QToolBar>
 #include <QAction>
 #include <QMessageBox>
+#include <QObject>
+#include <QToolBar>
 
 namespace QmlDesigner {
 
 AnnotationEditor::AnnotationEditor(QObject *parent)
-    : QObject(parent)
-{
-}
+    : ModelNodeEditorProxy(parent)
+{}
 
-AnnotationEditor::~AnnotationEditor()
+AnnotationEditor::~AnnotationEditor() {}
+
+QWidget *AnnotationEditor::createWidget()
 {
-    hideWidget();
+    const auto &node = m_modelNode;
+    auto dialog = new AnnotationEditorDialog(Core::ICore::dialogParent(),
+                                             node.id(),
+                                             node.customId());
+    dialog->setAnnotation(node.annotation());
+
+    QObject::connect(dialog,
+                     &AnnotationEditorDialog::acceptedDialog,
+                     this,
+                     &AnnotationEditor::acceptedClicked);
+    QObject::connect(dialog,
+                     &AnnotationEditorDialog::rejected,
+                     this,
+                     &AnnotationEditor::cancelClicked);
+    return dialog;
 }
 
 void AnnotationEditor::registerDeclarativeType()
 {
-    qmlRegisterType<AnnotationEditor>("HelperWidgets", 2, 0, "AnnotationEditor");
-}
-
-void AnnotationEditor::showWidget()
-{
-    m_dialog = new AnnotationEditorDialog(Core::ICore::dialogParent(),
-                                          m_modelNode.id(),
-                                          m_modelNode.customId());
-    m_dialog->setAnnotation(m_modelNode.annotation());
-
-    QObject::connect(m_dialog, &AnnotationEditorDialog::acceptedDialog,
-                     this, &AnnotationEditor::acceptedClicked);
-    QObject::connect(m_dialog, &AnnotationEditorDialog::rejected,
-                     this, &AnnotationEditor::cancelClicked);
-
-    m_dialog->setAttribute(Qt::WA_DeleteOnClose);
-
-    m_dialog->show();
-    m_dialog->raise();
-}
-
-void AnnotationEditor::showWidget(int x, int y)
-{
-    showWidget();
-    m_dialog->move(x, y);
-}
-
-void AnnotationEditor::hideWidget()
-{
-    if (m_dialog)
-        m_dialog->close();
-    m_dialog = nullptr;
-}
-
-AnnotationEditor* AnnotationEditor::showWidget(const ModelNode &modelNode)
-{
-    auto editor = new AnnotationEditor;
-
-    editor->setModelNode(modelNode);
-    editor->showWidget();
-
-    connect(editor->m_dialog, &QDialog::destroyed,
-            [editor]() { editor->deleteLater(); } );
-
-    return editor;
-}
-
-void AnnotationEditor::setModelNode(const ModelNode &modelNode)
-{
-    m_modelNodeBackend = {};
-    m_modelNode = modelNode;
-}
-
-ModelNode AnnotationEditor::modelNode() const
-{
-    return m_modelNode;
-}
-
-void AnnotationEditor::setModelNodeBackend(const QVariant &modelNodeBackend)
-{
-    if (!modelNodeBackend.isNull() && modelNodeBackend.isValid()) {
-        m_modelNodeBackend = modelNodeBackend;
-
-        const auto modelNodeBackendObject = modelNodeBackend.value<QObject*>();
-        const auto backendObjectCasted =
-                qobject_cast<const QmlDesigner::QmlModelNodeProxy *>(modelNodeBackendObject);
-
-        if (backendObjectCasted)
-            m_modelNode = backendObjectCasted->qmlObjectNode().modelNode();
-
-        emit modelNodeBackendChanged();
-    }
-}
-
-QVariant AnnotationEditor::modelNodeBackend() const
-{
-    return m_modelNodeBackend;
-}
-
-bool AnnotationEditor::hasCustomId() const
-{
-    if (m_modelNode.isValid())
-        return m_modelNode.hasCustomId();
-    return false;
-}
-
-bool AnnotationEditor::hasAnnotation() const
-{
-    if (m_modelNode.isValid())
-        return m_modelNode.hasAnnotation();
-    return false;
+    registerType<AnnotationEditor>("AnnotationEditor");
 }
 
 void AnnotationEditor::removeFullAnnotation()
 {
-    if (!m_modelNode.isValid())
+    auto &node = this->m_modelNode;
+    if (!node.isValid())
         return;
 
     QString dialogTitle = tr("Annotation");
-    if (!m_modelNode.customId().isNull()) {
-        dialogTitle = m_modelNode.customId();
+    if (!node.customId().isNull()) {
+        dialogTitle = node.customId();
     }
     QPointer<QMessageBox> deleteDialog = new QMessageBox(Core::ICore::dialogParent());
     deleteDialog->setWindowTitle(dialogTitle);
@@ -168,8 +94,8 @@ void AnnotationEditor::removeFullAnnotation()
         deleteDialog->deleteLater();
 
     if (result == QMessageBox::Yes) {
-        m_modelNode.removeCustomId();
-        m_modelNode.removeAnnotation();
+        node.removeCustomId();
+        node.removeAnnotation();
     }
 
     emit customIdChanged();
@@ -178,23 +104,23 @@ void AnnotationEditor::removeFullAnnotation()
 
 void AnnotationEditor::acceptedClicked()
 {
-    if (m_dialog) {
+    if (const auto *dialog = qobject_cast<AnnotationEditorDialog *>(widget())) {
         QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_ANNOTATION_ADDED);
-        QString customId = m_dialog->customId();
-        Annotation annotation = m_dialog->annotation();
+        const QString customId = dialog->customId();
+        const Annotation annotation = dialog->annotation();
+        auto &node = this->m_modelNode;
 
-        m_modelNode.setCustomId(customId);
+        node.setCustomId(customId);
 
         if (annotation.comments().isEmpty())
-            m_modelNode.removeAnnotation();
+            node.removeAnnotation();
         else
-            m_modelNode.setAnnotation(annotation);
+            node.setAnnotation(annotation);
     }
 
     hideWidget();
 
     emit accepted();
-
     emit customIdChanged();
     emit annotationChanged();
 }

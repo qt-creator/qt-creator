@@ -26,32 +26,25 @@
 #pragma once
 
 #include <QObject>
-#include <QtQml>
 #include <QPointer>
+#include <QtQml>
 
-#include "globalannotationeditordialog.h"
+#include "abstractaction.h"
 #include "annotation.h"
+#include "globalannotationeditordialog.h"
 
+#include "editorproxy.h"
 #include "modelnode.h"
 
 namespace QmlDesigner {
-
-class GlobalAnnotationEditor : public QObject
+class GlobalAnnotationEditor : public ModelNodeEditorProxy
 {
     Q_OBJECT
-
 public:
     explicit GlobalAnnotationEditor(QObject *parent = nullptr);
     ~GlobalAnnotationEditor();
 
-    Q_INVOKABLE void showWidget();
-    Q_INVOKABLE void showWidget(int x, int y);
-    Q_INVOKABLE void hideWidget();
-
-    void setModelNode(const ModelNode &modelNode);
-    ModelNode modelNode() const;
-
-    Q_INVOKABLE bool hasAnnotation() const;
+    QWidget *createWidget() override;
 
     Q_INVOKABLE void removeFullAnnotation();
 
@@ -59,17 +52,11 @@ signals:
     void accepted();
     void canceled();
     void modelNodeBackendChanged();
-
     void annotationChanged();
 
 private slots:
     void acceptedClicked();
     void cancelClicked();
-
-private:
-    QPointer<GlobalAnnotationEditorDialog> m_dialog;
-
-    ModelNode m_modelNode;
 };
 
 } //namespace QmlDesigner
