@@ -39,14 +39,13 @@ class AbstractFilePathView : public Utils::SmallStringView
 public:
     constexpr AbstractFilePathView() = default;
     explicit AbstractFilePathView(const char *const string, const size_type size) noexcept
-        : Utils::SmallStringView(string, size),
-          m_slashIndex(lastSlashIndex(*this))
+        : AbstractFilePathView{Utils::SmallStringView{string, size}}
     {
     }
 
     explicit AbstractFilePathView(Utils::SmallStringView filePath)
-        : Utils::SmallStringView(filePath),
-          m_slashIndex(lastSlashIndex(filePath))
+        : Utils::SmallStringView(filePath)
+        , m_slashIndex(lastSlashIndex(filePath))
     {
     }
 
@@ -91,9 +90,10 @@ public:
         constexpr char separator = Utils::HostOsInfo::isWindowsHost() ? WindowsSlash : '/';
         auto foundReverse = std::find(filePath.rbegin(), filePath.rend(), separator);
         auto found = foundReverse.base();
-        --found;
 
-        return std::distance(filePath.begin(), found);
+        auto distance = std::distance(filePath.begin(), found);
+
+        return distance - 1;
     }
 
     friend bool operator==(const AbstractFilePathView &first, const AbstractFilePathView &second)

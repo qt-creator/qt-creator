@@ -32,6 +32,7 @@
 
 #include <cstring>
 #include <string>
+#include <string_view>
 
 namespace Utils {
 
@@ -45,45 +46,24 @@ using enable_if_has_char_data_pointer = typename std::enable_if_t<
                                                     >, char>::value
                                             , int>;
 
-class SmallStringView
+class SmallStringView : public std::string_view
 {
 public:
-    using const_iterator = Internal::SmallStringIterator<std::random_access_iterator_tag, const char>;
-    using iterator = Internal::SmallStringIterator<std::random_access_iterator_tag, char>;
-    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
-    using size_type = std::size_t;
-
-    constexpr SmallStringView() = default;
-
-    constexpr SmallStringView(const char *characterPointer) noexcept
-        : m_pointer(characterPointer)
-        , m_size(std::char_traits<char>::length(characterPointer))
-    {}
-
-    constexpr SmallStringView(const char *const string, const size_type size) noexcept
-        : m_pointer(string)
-        , m_size(size)
-    {}
-
-    constexpr SmallStringView(const char *const begin, const char *const end) noexcept
-        : m_pointer(begin)
-        , m_size(static_cast<std::size_t>(std::distance(begin, end)))
-    {}
+    using std::string_view::string_view;
 
     constexpr SmallStringView(const_iterator begin, const_iterator end) noexcept
-        : m_pointer(begin.data())
-        , m_size(std::size_t(end - begin))
+        : std::string_view{std::addressof(*begin), static_cast<std::size_t>(std::distance(begin, end))}
     {}
 
-    constexpr SmallStringView(iterator begin, iterator end) noexcept
-        : m_pointer(begin.data())
-        , m_size(std::size_t(end - begin))
+#ifdef Q_OS_WINDOWS
+    constexpr SmallStringView(const char *const begin, const char *const end) noexcept
+        : std::string_view{begin, static_cast<std::size_t>(std::distance(begin, end))}
     {}
+#endif
 
     template<typename String, typename Utils::enable_if_has_char_data_pointer<String> = 0>
     constexpr SmallStringView(const String &string) noexcept
-        : m_pointer(string.data())
-        , m_size(string.size())
+        : std::string_view{string.data(), static_cast<std::size_t>(string.size())}
     {}
 
     static constexpr SmallStringView fromUtf8(const char *const characterPointer)
@@ -91,29 +71,7 @@ public:
         return SmallStringView(characterPointer);
     }
 
-    constexpr
-    const char *data() const noexcept
-    {
-        return m_pointer;
-    }
-
-    constexpr
-    size_type size() const noexcept
-    {
-        return m_size;
-    }
-
-    constexpr
-    size_type isEmpty() const noexcept
-    {
-        return m_size == 0;
-    }
-
-    constexpr
-    size_type empty() const noexcept
-    {
-        return m_size == 0;
-    }
+    constexpr size_type isEmpty() const noexcept { return empty(); }
 
     constexpr
     SmallStringView mid(size_type position) const noexcept
@@ -127,28 +85,6 @@ public:
         return SmallStringView(data() + position, length);
     }
 
-    constexpr
-    const_iterator begin() const noexcept
-    {
-        return data();
-    }
-
-    constexpr
-    const_iterator end() const noexcept
-    {
-        return data() + size();
-    }
-
-    constexpr const_reverse_iterator rbegin() const noexcept
-    {
-        return const_reverse_iterator(end());
-    }
-
-    constexpr const_reverse_iterator rend() const noexcept
-    {
-        return const_reverse_iterator(begin());
-    }
-
     constexpr20 operator std::string() const { return std::string(data(), size()); }
 
     explicit operator QString() const
@@ -159,7 +95,7 @@ public:
     constexpr bool startsWith(SmallStringView subStringToSearch) const noexcept
     {
         if (size() >= subStringToSearch.size())
-            return !std::char_traits<char>::compare(m_pointer,
+            return !std::char_traits<char>::compare(data(),
                                                     subStringToSearch.data(),
                                                     subStringToSearch.size());
 
@@ -168,16 +104,8 @@ public:
 
     constexpr bool startsWith(char characterToSearch) const noexcept
     {
-        return m_pointer[0] == characterToSearch;
+        return *begin() == characterToSearch;
     }
-
-    constexpr char back() const { return m_pointer[m_size - 1]; }
-
-    constexpr char operator[](std::size_t index) { return m_pointer[index]; }
-
-private:
-    const char *m_pointer = "";
-    size_type m_size = 0;
 };
 
 constexpr bool operator==(SmallStringView first, SmallStringView second) noexcept
