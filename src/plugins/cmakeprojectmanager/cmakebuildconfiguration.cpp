@@ -474,6 +474,9 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             this, [this]() {
         if (m_buildConfiguration->isEnabled())
             setError(QString());
+
+        m_batchEditButton->setEnabled(m_buildConfiguration->isEnabled());
+        m_addButton->setEnabled(m_buildConfiguration->isEnabled());
     });
 
     updateSelection();
