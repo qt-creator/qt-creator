@@ -136,7 +136,7 @@ ScrollView {
 
             StudioControls.MenuItem {
                 id: importMenuItem
-                text: qsTr("Import Module: ") + importToAdd
+                text: qsTr("Add Module: ") + importToAdd
                 enabled: currentItem
                 onTriggered: rootView.addImportForItem(currentItem)
             }
