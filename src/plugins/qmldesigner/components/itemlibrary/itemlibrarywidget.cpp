@@ -434,12 +434,12 @@ void ItemLibraryWidget::removeImport(const QString &importUrl)
         m_model->changeImports({}, {importSection->importEntry()});
 }
 
-void ItemLibraryWidget::addImportForItem(const QVariant &entry)
+void ItemLibraryWidget::addImportForItem(const QString &importUrl)
 {
     QTC_ASSERT(m_itemLibraryModel, return);
     QTC_ASSERT(m_model, return);
 
-    Import import = m_itemLibraryModel->entryToImport(entry.value<ItemLibraryEntry>());
+    Import import = m_itemLibraryAddImportModel->getImport(importUrl);
     m_model->changeImports({import}, {});
 }
 

@@ -78,7 +78,6 @@ ScrollView {
 
     property string importToRemove: ""
     property string importToAdd: ""
-    property var currentItem: null
 
     // called from C++ to close context menu on focus out
     function closeContextMenu()
@@ -137,8 +136,8 @@ ScrollView {
             StudioControls.MenuItem {
                 id: importMenuItem
                 text: qsTr("Add Module: ") + importToAdd
-                enabled: currentItem
-                onTriggered: rootView.addImportForItem(currentItem)
+                enabled: importToAdd !== ""
+                onTriggered: rootView.addImportForItem(importToAdd)
             }
         }
     }
@@ -211,10 +210,7 @@ ScrollView {
                                         onShowContextMenu: {
                                             if (!itemUsable) {
                                                 importToAdd = itemRequiredImport
-                                                if (importToAdd !== "") {
-                                                    currentItem = itemLibraryEntry
-                                                    itemContextMenu.popup()
-                                                }
+                                                itemContextMenu.popup()
                                             }
                                         }
                                     }
