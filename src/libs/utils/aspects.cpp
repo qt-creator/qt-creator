@@ -1391,9 +1391,11 @@ void SelectionAspect::addToLayout(LayoutBuilder &builder)
             builder.addItems({{}, button});
             d->m_buttons.append(button);
             d->m_buttonGroup->addButton(button, i);
-            connect(button, &QAbstractButton::clicked, this, [this, i] {
-                setValue(i);
-            });
+            if (isAutoApply()) {
+                connect(button, &QAbstractButton::clicked, this, [this, i] {
+                    setValue(i);
+                });
+            }
         }
         break;
     case DisplayStyle::ComboBox:
@@ -1401,8 +1403,10 @@ void SelectionAspect::addToLayout(LayoutBuilder &builder)
         d->m_comboBox = createSubWidget<QComboBox>();
         for (int i = 0, n = d->m_options.size(); i < n; ++i)
             d->m_comboBox->addItem(d->m_options.at(i).displayName);
-        connect(d->m_comboBox.data(), QOverload<int>::of(&QComboBox::activated),
-                this, &SelectionAspect::setValue);
+        if (isAutoApply()) {
+            connect(d->m_comboBox.data(), QOverload<int>::of(&QComboBox::activated),
+                    this, &SelectionAspect::setValue);
+        }
         d->m_comboBox->setCurrentIndex(value());
         addLabeledItem(builder, d->m_comboBox);
         break;
