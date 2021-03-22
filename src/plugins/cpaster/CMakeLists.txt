@@ -24,7 +24,6 @@ add_qtc_plugin(CodePaster
     pasteview.cpp pasteview.h pasteview.ui
     protocol.cpp protocol.h
     settings.cpp settings.h
-    settingspage.cpp settingspage.h settingspage.ui
     stickynotespasteprotocol.cpp stickynotespasteprotocol.h
     urlopenprotocol.cpp urlopenprotocol.h
 

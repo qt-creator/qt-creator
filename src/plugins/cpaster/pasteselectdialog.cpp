@@ -84,9 +84,9 @@ void PasteSelectDialog::setProtocol(const QString &p)
     }
 }
 
-QString PasteSelectDialog::protocol() const
+int PasteSelectDialog::protocol() const
 {
-    return m_ui.protocolBox->currentText();
+    return m_ui.protocolBox->currentIndex();
 }
 
 int PasteSelectDialog::protocolIndex() const

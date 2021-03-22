@@ -24,51 +24,109 @@
 ****************************************************************************/
 
 #include "settings.h"
+
+#include "cpasterconstants.h"
 #include "pastebindotcomprotocol.h"
 
-#include <utils/environment.h>
+#include <coreplugin/icore.h>
 
-#include <QSettings>
+#include <utils/layoutbuilder.h>
 
-static const char groupC[] = "CodePaster";
-static const char userNameKeyC[] = "UserName";
-static const char expiryDaysKeyC[] = "ExpiryDays";
-static const char defaultProtocolKeyC[] = "DefaultProtocol";
-static const char copyToClipboardKeyC[] = "CopyToClipboard";
-static const char displayOutputKeyC[] = "DisplayOutput";
-static const char publicPasteKeyC[] = "DisplayOutput";
+using namespace Utils;
 
 namespace CodePaster {
 
-bool Settings::equals(const Settings &rhs) const
+Settings::Settings()
 {
-    return copyToClipboard == rhs.copyToClipboard && displayOutput == rhs.displayOutput
-            && expiryDays == rhs.expiryDays && username == rhs.username
-            && protocol == rhs.protocol && publicPaste == rhs.publicPaste;
+    setSettingsGroup("CodePaster");
+    setAutoApply(false);
+
+    registerAspect(&username);
+    username.setDisplayStyle(StringAspect::LineEditDisplay);
+    username.setSettingsKey("UserName");
+    username.setLabelText(tr("Username:"));
+
+    registerAspect(&protocols);
+    protocols.setSettingsKey("DefaultProtocol");
+    protocols.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    protocols.setLabelText(tr("Default protocol:"));
+    protocols.setToSettingsTransformation([this](const QVariant &val) {
+        return protocols.displayForIndex(val.toInt());
+    });
+    protocols.setFromSettingsTransformation([this](const QVariant &val) {
+        return protocols.indexForDisplay(val.toString());
+    });
+
+    registerAspect(&expiryDays);
+    expiryDays.setSettingsKey("ExpiryDays");
+    expiryDays.setDefaultValue(1);
+    expiryDays.setSuffix(tr(" Days"));
+    expiryDays.setLabelText(tr("&Expires after:"));
+
+    registerAspect(&copyToClipboard);
+    copyToClipboard.setSettingsKey("CopyToClipboard");
+    copyToClipboard.setDefaultValue(true);
+    copyToClipboard.setLabelText(tr("Copy-paste URL to clipboard"));
+
+    registerAspect(&displayOutput);
+    displayOutput.setSettingsKey("DisplayOutput");
+    displayOutput.setDefaultValue(true);
+    displayOutput.setLabelText(tr("Display Output pane after sending a post"));
+
+    registerAspect(&publicPaste);
+    publicPaste.setSettingsKey("DisplayOutput");
+    publicPaste.setLabelText(tr("Make pasted content public by default"));
 }
 
-void Settings::toSettings(QSettings *settings) const
+// SettingsPage
+
+class SettingsWidget final : public Core::IOptionsPageWidget
 {
-    settings->beginGroup(QLatin1String(groupC));
-    settings->setValue(QLatin1String(userNameKeyC), username);
-    settings->setValue(QLatin1String(defaultProtocolKeyC), protocol);
-    settings->setValue(QLatin1String(expiryDaysKeyC), expiryDays);
-    settings->setValue(QLatin1String(copyToClipboardKeyC), copyToClipboard);
-    settings->setValue(QLatin1String(displayOutputKeyC), displayOutput);
-    settings->setValue(publicPasteKeyC, publicPaste);
-    settings->endGroup();
+public:
+    SettingsWidget(Settings *settings);
+
+private:
+    void apply() final;
+
+    Settings *m_settings;
+};
+
+SettingsWidget::SettingsWidget(Settings *settings)
+    : m_settings(settings)
+{
+    Settings &s = *settings;
+    using namespace Layouting;
+    const Break nl;
+
+    Column {
+        Form {
+            s.protocols, nl,
+            s.username, nl,
+            s.expiryDays
+        },
+        s.copyToClipboard,
+        s.displayOutput,
+        s.publicPaste,
+        Stretch()
+    }.attachTo(this);
 }
 
-void Settings::fromSettings(const QSettings *settings)
+void SettingsWidget::apply()
 {
-    const QString rootKey = QLatin1String(groupC) + QLatin1Char('/');
-    const QString defaultUser = Utils::Environment::systemEnvironment().userName();
-    expiryDays = settings->value(rootKey + QLatin1String(expiryDaysKeyC), 1).toInt();
-    username = settings->value(rootKey + QLatin1String(userNameKeyC), defaultUser).toString();
-    protocol = settings->value(rootKey + QLatin1String(defaultProtocolKeyC), PasteBinDotComProtocol::protocolName()).toString();
-    copyToClipboard = settings->value(rootKey + QLatin1String(copyToClipboardKeyC), true).toBool();
-    displayOutput = settings->value(rootKey + QLatin1String(displayOutputKeyC), true).toBool();
-    publicPaste = settings->value(rootKey + publicPasteKeyC, false).toBool();
+    if (m_settings->isDirty()) {
+        m_settings->apply();
+        m_settings->writeSettings(Core::ICore::settings());
+    }
+}
+
+SettingsPage::SettingsPage(Settings *settings)
+{
+    setId("A.CodePaster.General");
+    setDisplayName(tr("General"));
+    setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate("CodePaster", "Code Pasting"));
+    setCategoryIconPath(":/cpaster/images/settingscategory_cpaster.png");
+    setWidgetCreator([settings] { return new SettingsWidget(settings); });
 }
 
 } // namespace CodePaster

@@ -63,7 +63,7 @@ public:
     QString description() const;
     QString comment() const;
     QString content() const;
-    QString protocol() const;
+    int protocol() const;
     void setExpiryDays(int d);
     void setMakePublic(bool p);
     int expiryDays() const;

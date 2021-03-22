@@ -2,7 +2,6 @@ QT += network
 include(../../qtcreatorplugin.pri)
 HEADERS += cpasterplugin.h \
     dpastedotcomprotocol.h \
-    settingspage.h \
     protocol.h \
     pasteview.h \
     cpasterconstants.h \
@@ -18,7 +17,6 @@ HEADERS += cpasterplugin.h \
 
 SOURCES += cpasterplugin.cpp \
     dpastedotcomprotocol.cpp \
-    settingspage.cpp \
     protocol.cpp \
     pasteview.cpp \
     pastebindotcomprotocol.cpp \
@@ -30,7 +28,7 @@ SOURCES += cpasterplugin.cpp \
     stickynotespasteprotocol.cpp \
     urlopenprotocol.cpp
 
-FORMS += settingspage.ui \
+FORMS += \
     pasteselect.ui \
     pasteview.ui \
     pastebindotcomsettings.ui \

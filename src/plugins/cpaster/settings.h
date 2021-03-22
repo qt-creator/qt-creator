@@ -25,29 +25,33 @@
 
 #pragma once
 
-#include <QString>
+#include <coreplugin/dialogs/ioptionspage.h>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include <utils/aspects.h>
 
 namespace CodePaster {
 
-class Settings {
-public:
-    void toSettings(QSettings *s) const;
-    void fromSettings(const QSettings *s);
-    bool equals(const Settings &s) const;
+class Settings : public Utils::AspectContainer
+{
+    Q_DECLARE_TR_FUNCTIONS(CodePaster::Settings)
 
-    QString username;
-    QString protocol;
-    int expiryDays = 1;
-    bool copyToClipboard = true;
-    bool displayOutput = true;
-    bool publicPaste = false;
+public:
+    Settings();
+
+    Utils::StringAspect username;
+    Utils::SelectionAspect protocols;
+    Utils::IntegerAspect expiryDays;
+    Utils::BoolAspect copyToClipboard;
+    Utils::BoolAspect displayOutput;
+    Utils::BoolAspect publicPaste;
 };
 
-inline bool operator==(const Settings &s1, const Settings &s2) { return s1.equals(s2); }
-inline bool operator!=(const Settings &s1, const Settings &s2) { return !s1.equals(s2); }
+class SettingsPage final : public Core::IOptionsPage
+{
+    Q_DECLARE_TR_FUNCTIONS(CodePaster::SettingsPage)
+
+public:
+    SettingsPage(Settings *settings);
+};
 
 } // namespace CodePaster

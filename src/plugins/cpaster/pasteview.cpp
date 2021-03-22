@@ -94,9 +94,9 @@ QString PasteView::content() const
     return newContent;
 }
 
-QString PasteView::protocol() const
+int PasteView::protocol() const
 {
-    return m_ui.protocolBox->currentText();
+    return m_ui.protocolBox->currentIndex();
 }
 
 void PasteView::contentChanged()

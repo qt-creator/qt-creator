@@ -30,7 +30,6 @@
 #include "pastebindotcomprotocol.h"
 #include "pasteselectdialog.h"
 #include "pasteview.h"
-#include "settingspage.h"
 #include "settings.h"
 #include "urlopenprotocol.h"
 
@@ -98,10 +97,7 @@ public:
         &dpasteProto
     };
 
-    SettingsPage m_settingsPage {
-        &m_settings,
-        Utils::transform(m_protocols, &Protocol::name)
-    };
+    SettingsPage m_settingsPage{&m_settings};
 
     QStringList m_fetchedSnippets;
 
@@ -154,14 +150,18 @@ bool CodePasterPlugin::initialize(const QStringList &arguments, QString *errorMe
 
 CodePasterPluginPrivate::CodePasterPluginPrivate()
 {
-    // Create the settings Page
-    m_settings.fromSettings(ICore::settings());
-
     // Connect protocols
-    for (Protocol *proto : m_protocols) {
-        connect(proto, &Protocol::pasteDone, this, &CodePasterPluginPrivate::finishPost);
-        connect(proto, &Protocol::fetchDone, this, &CodePasterPluginPrivate::finishFetch);
+    if (!m_protocols.isEmpty()) {
+        for (Protocol *proto : m_protocols) {
+            m_settings.protocols.addOption(proto->name());
+            connect(proto, &Protocol::pasteDone, this, &CodePasterPluginPrivate::finishPost);
+            connect(proto, &Protocol::fetchDone, this, &CodePasterPluginPrivate::finishFetch);
+        }
+        m_settings.protocols.setDefaultValue(m_protocols.at(0)->name());
     }
+
+    // Create the settings Page
+    m_settings.readSettings(ICore::settings());
 
     connect(&m_urlOpen, &Protocol::fetchDone, this, &CodePasterPluginPrivate::finishFetch);
 
@@ -267,20 +267,20 @@ void CodePasterPluginPrivate::post(QString data, const QString &mimeType)
 {
     fixSpecialCharacters(data);
 
-    const QString username = m_settings.username;
+    const QString username = m_settings.username.value();
 
     PasteView view(m_protocols, mimeType, ICore::dialogParent());
-    view.setProtocol(m_settings.protocol);
+    view.setProtocol(m_settings.protocols.stringValue());
 
     const FileDataList diffChunks = splitDiffToFiles(data);
     const int dialogResult = diffChunks.isEmpty() ?
-        view.show(username, QString(), QString(), m_settings.expiryDays, m_settings.publicPaste, data) :
-        view.show(username, QString(), QString(), m_settings.expiryDays, m_settings.publicPaste, diffChunks);
+        view.show(username, {}, {}, m_settings.expiryDays.value(), m_settings.publicPaste.value(), data) :
+        view.show(username, {}, {}, m_settings.expiryDays.value(), m_settings.publicPaste.value(), diffChunks);
 
     // Save new protocol in case user changed it.
-    if (dialogResult == QDialog::Accepted && m_settings.protocol != view.protocol()) {
-        m_settings.protocol = view.protocol();
-        m_settings.toSettings(ICore::settings());
+    if (dialogResult == QDialog::Accepted && m_settings.protocols.value() != view.protocol()) {
+        m_settings.protocols.setValue(view.protocol());
+        m_settings.writeSettings(ICore::settings());
     }
 }
 
@@ -304,14 +304,14 @@ void CodePasterPluginPrivate::pasteSnippet()
 void CodePasterPluginPrivate::fetch()
 {
     PasteSelectDialog dialog(m_protocols, ICore::dialogParent());
-    dialog.setProtocol(m_settings.protocol);
+    dialog.setProtocol(m_settings.protocols.stringValue());
 
     if (dialog.exec() != QDialog::Accepted)
         return;
     // Save new protocol in case user changed it.
-    if (m_settings.protocol != dialog.protocol()) {
-        m_settings.protocol = dialog.protocol();
-        m_settings.toSettings(ICore::settings());
+    if (m_settings.protocols.value() != dialog.protocol()) {
+        m_settings.protocols.setValue(dialog.protocol());
+        m_settings.writeSettings(ICore::settings());
     }
 
     const QString pasteID = dialog.pasteId();
@@ -324,9 +324,9 @@ void CodePasterPluginPrivate::fetch()
 
 void CodePasterPluginPrivate::finishPost(const QString &link)
 {
-    if (m_settings.copyToClipboard)
+    if (m_settings.copyToClipboard.value())
         QApplication::clipboard()->setText(link);
-    if (m_settings.displayOutput)
+    if (m_settings.displayOutput.value())
         MessageManager::writeDisrupting(link);
     else
         MessageManager::writeSilently(link);

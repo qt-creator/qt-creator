@@ -44,7 +44,7 @@ public:
 
     QString pasteId() const;
 
-    QString protocol() const;
+    int protocol() const;
     void setProtocol(const QString &);
 
     int protocolIndex() const;
