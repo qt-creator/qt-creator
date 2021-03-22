@@ -132,7 +132,7 @@ Column {
 
             Label {
                 text: qsTr("Spacing")
-                tooltip: qsTr("Spacing between items.")
+                tooltip: qsTr("Spacing between components.")
             }
 
             SectionLayout {

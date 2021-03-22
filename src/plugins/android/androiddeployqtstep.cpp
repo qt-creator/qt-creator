@@ -564,7 +564,7 @@ void AndroidDeployQtStep::stdError(const QString &line)
     if (newOutput.startsWith("warning", Qt::CaseInsensitive)
         || newOutput.startsWith("note", Qt::CaseInsensitive))
         TaskHub::addTask(DeploymentTask(Task::Warning, newOutput));
-    else
+    else if (newOutput != QLatin1String("All files should be loaded. Notifying the device."))
         TaskHub::addTask(DeploymentTask(Task::Error, newOutput));
 }
 

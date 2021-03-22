@@ -64,7 +64,7 @@ Import::Import(const QString &url, const QString &file, const QString &version, 
 {
 }
 
-QString Import::toString(bool skipAlias) const
+QString Import::toString(bool skipAlias, bool skipVersion) const
 {
     QString result;
 
@@ -75,7 +75,7 @@ QString Import::toString(bool skipAlias) const
     else
         return QString();
 
-    if (hasVersion())
+    if (hasVersion() && !skipVersion)
         result += QLatin1Char(' ') + version();
 
     if (hasAlias() && !skipAlias)

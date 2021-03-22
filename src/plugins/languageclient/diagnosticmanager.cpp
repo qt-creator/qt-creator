@@ -34,6 +34,9 @@
 #include <texteditor/textstyles.h>
 #include <utils/utilsicons.h>
 
+#include <QAction>
+#include <QApplication>
+#include <QClipboard>
 #include <QTextEdit>
 
 using namespace LanguageServerProtocol;
@@ -122,8 +125,19 @@ void DiagnosticManager::showDiagnostics(const DocumentUri &uri)
         const VersionedDiagnostics &versionedDiagnostics =  m_diagnostics.value(uri);
         const int docRevision = doc->document()->revision();
         if (versionedDiagnostics.version.value_or(docRevision) == docRevision) {
+            const auto icon = QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon());
+            const QString tooltip = tr("Copy to Clipboard");
             for (const Diagnostic &diagnostic : versionedDiagnostics.diagnostics) {
-                doc->addMark(new TextMark(filePath, diagnostic, m_clientId));
+                QAction *action = new QAction();
+                action->setIcon(icon);
+                action->setToolTip(tooltip);
+                QObject::connect(action, &QAction::triggered, [text = diagnostic.message()]() {
+                    QApplication::clipboard()->setText(text);
+                });
+                auto mark = new TextMark(filePath, diagnostic, m_clientId);
+                mark->setActions({action});
+
+                doc->addMark(mark);
                 extraSelections << toDiagnosticsSelections(diagnostic, doc->document());
             }
         }

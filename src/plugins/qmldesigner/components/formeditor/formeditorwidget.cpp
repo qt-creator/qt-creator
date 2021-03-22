@@ -87,13 +87,13 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_noSnappingAction->setIcon(Icons::NO_SNAPPING.icon());
     registerActionAsCommand(m_noSnappingAction, Constants::FORMEDITOR_NO_SNAPPING, QKeySequence(Qt::Key_T));
 
-    m_snappingAndAnchoringAction = layoutActionGroup->addAction(tr("Snap to parent or sibling items and generate anchors."));
+    m_snappingAndAnchoringAction = layoutActionGroup->addAction(tr("Snap to parent or sibling components and generate anchors."));
     m_snappingAndAnchoringAction->setCheckable(true);
     m_snappingAndAnchoringAction->setChecked(true);
     m_snappingAndAnchoringAction->setIcon(Icons::NO_SNAPPING_AND_ANCHORING.icon());
     registerActionAsCommand(m_snappingAndAnchoringAction, Constants::FORMEDITOR_NO_SNAPPING_AND_ANCHORING, QKeySequence(Qt::Key_W));
 
-    m_snappingAction = layoutActionGroup->addAction(tr("Snap to parent or sibling items but do not generate anchors."));
+    m_snappingAction = layoutActionGroup->addAction(tr("Snap to parent or sibling components but do not generate anchors."));
     m_snappingAction->setCheckable(true);
     m_snappingAction->setChecked(true);
     m_snappingAction->setIcon(Icons::SNAPPING.icon());
@@ -108,7 +108,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     upperActions.append(separatorAction);
 
     m_showBoundingRectAction = new QAction(Utils::Icons::BOUNDING_RECT.icon(),
-                                           tr("Show bounding rectangles and stripes for empty items."),
+                                           tr("Show bounding rectangles and stripes for empty components."),
                                            this);
     m_showBoundingRectAction->setCheckable(true);
     m_showBoundingRectAction->setChecked(false);
@@ -123,14 +123,14 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     upperActions.append(separatorAction);
 
     m_rootWidthAction = new LineEditAction(tr("Override Width"), this);
-    m_rootWidthAction->setToolTip(tr("Override width of root item."));
+    m_rootWidthAction->setToolTip(tr("Override width of root component."));
     connect(m_rootWidthAction.data(), &LineEditAction::textChanged,
             this, &FormEditorWidget::changeRootItemWidth);
     addAction(m_rootWidthAction.data());
     upperActions.append(m_rootWidthAction.data());
 
     m_rootHeightAction = new LineEditAction(tr("Override Height"), this);
-    m_rootHeightAction->setToolTip(tr("Override height of root item."));
+    m_rootHeightAction->setToolTip(tr("Override height of root component."));
     connect(m_rootHeightAction.data(), &LineEditAction::textChanged,
             this, &FormEditorWidget::changeRootItemHeight);
     addAction(m_rootHeightAction.data());

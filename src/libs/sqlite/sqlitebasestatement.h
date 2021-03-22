@@ -212,10 +212,8 @@ public:
         return resultValues;
     }
 
-    template <typename ResultType,
-              int ResultTypeCount = 1,
-              typename... QueryTypes>
-    std::vector<ResultType> values(std::size_t reserveSize, const QueryTypes&... queryValues)
+    template<typename ResultType, int ResultTypeCount = 1, typename... QueryTypes>
+    auto values(std::size_t reserveSize, const QueryTypes &...queryValues)
     {
         BaseStatement::checkColumnCount(ResultTypeCount);
 
@@ -235,11 +233,8 @@ public:
         return resultValues;
     }
 
-    template <typename ResultType,
-              int ResultTypeCount = 1,
-              typename QueryElementType>
-    std::vector<ResultType> values(std::size_t reserveSize,
-                                   const std::vector<QueryElementType> &queryValues)
+    template<typename ResultType, int ResultTypeCount = 1, typename QueryElementType>
+    auto values(std::size_t reserveSize, const std::vector<QueryElementType> &queryValues)
     {
         BaseStatement::checkColumnCount(ResultTypeCount);
 
@@ -261,11 +256,9 @@ public:
         return resultValues;
     }
 
-    template <typename ResultType,
-              int ResultTypeCount = 1,
-              typename... QueryElementTypes>
-    std::vector<ResultType> values(std::size_t reserveSize,
-                                   const std::vector<std::tuple<QueryElementTypes...>> &queryTuples)
+    template<typename ResultType, int ResultTypeCount = 1, typename... QueryElementTypes>
+    auto values(std::size_t reserveSize,
+                const std::vector<std::tuple<QueryElementTypes...>> &queryTuples)
     {
         BaseStatement::checkColumnCount(ResultTypeCount);
 
@@ -288,10 +281,8 @@ public:
         return resultValues;
     }
 
-    template <typename ResultType,
-              int ResultTypeCount = 1,
-              typename... QueryTypes>
-    Utils::optional<ResultType> value(const QueryTypes&... queryValues)
+    template<typename ResultType, int ResultTypeCount = 1, typename... QueryTypes>
+    auto value(const QueryTypes &...queryValues)
     {
         BaseStatement::checkColumnCount(ResultTypeCount);
 
@@ -308,8 +299,8 @@ public:
         return resultValue;
     }
 
-    template <typename Type>
-    static Type toValue(Utils::SmallStringView sqlStatement, Database &database)
+    template<typename Type>
+    static auto toValue(Utils::SmallStringView sqlStatement, Database &database)
     {
         StatementImplementation statement(sqlStatement, database);
 

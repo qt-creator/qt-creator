@@ -643,7 +643,7 @@ QVariant RegisterGroup::data(int column, int role) const
         break;
 
     case Qt::ToolTipRole:
-        return RegisterHandler::tr("Registers group");
+        return RegisterHandler::tr("A group of registers.");
 
     default:
         break;

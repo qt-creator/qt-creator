@@ -104,11 +104,11 @@ FormatDescriptions TextEditorSettingsPrivate::initialFormats()
     formatDescr.emplace_back(C_SEARCH_RESULT, tr("Search Result"),
                              tr("Highlighted search results inside the editor."),
                              FormatDescription::ShowBackgroundControl);
-    formatDescr.emplace_back(C_SEARCH_RESULT_ALT1, tr("Search Result (alternative 1)"),
+    formatDescr.emplace_back(C_SEARCH_RESULT_ALT1, tr("Search Result (Alternative 1)"),
                              tr("Highlighted search results inside the editor.\n"
                                 "Used to mark read accesses to C++ symbols."),
                              FormatDescription::ShowBackgroundControl);
-    formatDescr.emplace_back(C_SEARCH_RESULT_ALT2, tr("Search Result (alternative 2)"),
+    formatDescr.emplace_back(C_SEARCH_RESULT_ALT2, tr("Search Result (Alternative 2)"),
                              tr("Highlighted search results inside the editor.\n"
                                 "Used to mark write accesses to C++ symbols."),
                              FormatDescription::ShowBackgroundControl);

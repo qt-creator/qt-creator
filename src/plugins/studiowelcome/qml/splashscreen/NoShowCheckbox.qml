@@ -31,7 +31,7 @@ CheckBox {
     id: do_not_show_checkBox
     width: 268
     height: 40
-    text:  qsTr("Don't show this again")
+    text:  qsTr("Do not show this again")
     spacing: 12
 
 

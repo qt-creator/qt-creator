@@ -98,7 +98,7 @@ Column {
             }
 
             Label {
-                text: qsTr("Horizontal item alignment")
+                text: qsTr("Horizontal component alignment")
             }
 
             SecondColumnLayout {
@@ -111,7 +111,7 @@ Column {
             }
 
             Label {
-                text: qsTr("Vertical item alignment")
+                text: qsTr("Vertical component alignment")
             }
 
             SecondColumnLayout {

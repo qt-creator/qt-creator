@@ -38,9 +38,9 @@
     the property that is to be animated, and apply the animation depending on
     the type of behavior that is required.
 
-    You can drag and drop the following QML types from \uicontrol Library
-    > \uicontrol {QML Types} > \uicontrol {Qt Quick - Animation} to
-    \uicontrol Navigator or \uicontrol {Form Editor}:
+    You can drag and drop the following components from \l Library >
+    \uicontrol Components > \uicontrol {Default Components} >
+    \uicontrol Animation to \l Navigator or \l {Form Editor}:
 
     \list
         \li \l [QML] {ColorAnimation}{Color Animation} is a specialized
@@ -65,10 +65,10 @@
             animations to be run sequentially.
     \endlist
 
-    For more information about using the QML types, see
+    For more information about using the components, see
     \l{Animation and Transitions in Qt Quick}.
 
-    For more information about animating properties in the \uicontrol Timeline
+    For more information about animating properties in the \l Timeline
     view, see \l{Creating Animations}. For more information about animating
     property changes in states, see \l{Animating Transitions Between States}.
 

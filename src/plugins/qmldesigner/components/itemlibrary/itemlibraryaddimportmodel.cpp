@@ -58,16 +58,15 @@ QVariant ItemLibraryAddImportModel::data(const QModelIndex &index, int role) con
     if (!index.isValid() || index.row() >= m_importList.count())
         return {};
 
-    QString importUrl = m_importList[index.row()].url();
-
+    Import import = m_importList[index.row()];
     if (m_roleNames[role] == "importUrl")
-        return importUrl;
+        return m_importList[index.row()].toString(true, true);
 
     if (m_roleNames[role] == "importVisible")
-        return m_searchText.isEmpty() || importUrl.isEmpty() || m_importFilterList.contains(importUrl);
+        return m_searchText.isEmpty() || import.url().isEmpty() || m_importFilterList.contains(import.url());
 
     if (m_roleNames[role] == "isSeparator")
-        return importUrl.isEmpty();
+        return import.isEmpty();
 
     qWarning() << Q_FUNC_INFO << "invalid role requested";
 
@@ -132,13 +131,11 @@ void ItemLibraryAddImportModel::update(const QList<Import> &possibleImports)
     // create import sections
     bool previousIsPriority = false;
     for (const Import &import : std::as_const(filteredImports)) {
-        if (import.isLibraryImport()) {
             bool currentIsPriority = m_priorityImports.contains(import.url());
             if (previousIsPriority && !currentIsPriority)
                 m_importList.append(Import::empty()); // empty import acts as a separator
             m_importList.append(import);
             previousIsPriority = currentIsPriority;
-        }
     }
 
     endResetModel();

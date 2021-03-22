@@ -124,7 +124,7 @@
             layer into. The component that is generated during import will be
             of this type. For example, if you drew a rectangle, you can export
             it as a \l Rectangle component. You can provide the
-            \l{Learn Qt Quick - QML Types}{import statement} of the component
+            \l{Learn More - Components}{import statement} of the component
             set where the component is defined in the \uicontrol {Imports} field.
     \row
         \li \uicontrol Properties

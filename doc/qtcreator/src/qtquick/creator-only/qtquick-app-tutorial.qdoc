@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -30,11 +30,11 @@
 
     \title Creating a Qt Quick Application
 
-    This tutorial uses built-in QML types and illustrates basic concepts of
+    This tutorial uses preset components and illustrates basic concepts of
     \l{Qt Quick}.
     For more information about the UI choices you have, see \l{User Interfaces}.
 
-    This tutorial describes how to use \QC to implement Qt Quick states and
+    This tutorial describes how to use \QC to implement states and
     transitions. We create an application that displays a Qt logo that moves
     between three rectangles on the page when you click them.
 
@@ -47,13 +47,13 @@
 
     \include qtquick-tutorial-create-empty-project.qdocinc qtquick empty application
 
-    \QC generates a QML file, \e main.qml, and opens it in
-    \uicontrol {Text Editor}. The wizard template uses the \l Window type,
+    \QC generates a component file, \e main.qml, and opens it in
+    \uicontrol {Text Editor}. The wizard template uses the \l Window component,
     which does not support adding states. Because we want to use states in
-    this example, we first replace the Window type with a \l {basic-rectangle}
-    {Rectangle} type. We must also remove the line that sets the \c title
-    property, which the Rectangle type does not have. If you change the value of
-    the \uicontrol Type property in the \uicontrol Properties view, \QC offers
+    this example, we first replace the Window component with a \l {basic-rectangle}
+    {Rectangle} component. We must also remove the line that sets the \c title
+    property, which the Rectangle component does not have. If you change the value of
+    the \uicontrol component property in the \l Properties view, \QC offers
     to automatically remove the \c title property.
 
     \section1 Creating the Main View
@@ -62,20 +62,19 @@
     the top left corner of the view and two empty rectangles.
 
     We use the \e qt-logo.png image in this tutorial, but you can also use
-    any other image or a QML type, instead.
+    any other image or a component, instead.
 
     \note If a view is hidden, you can show it by selecting \uicontrol View >
     \uicontrol Views.
 
     \list 1
 
-        \li Select \uicontrol Rectangle in \uicontrol Navigator, and enter
-            \e page in the \uicontrol Id field in the \uicontrol Properties
-            view.
+        \li Select \uicontrol Rectangle in \l Navigator, and enter
+            \e page in the \uicontrol Id field in \uicontrol Properties.
 
-        \li Select \uicontrol Library > \uicontrol Assets >
-            \uicontrol {Add New Assets} to locate qt-logo.png (or your own
-            image) and add it to the project folder.
+        \li Select \l Library > \uicontrol Assets > \inlineimage plus.png
+            to locate qt-logo.png (or your own image) and add it to the
+            project folder.
 
         \li Drag and drop the image from \uicontrol Assets to \e page in
             \uicontrol Navigator.
@@ -93,9 +92,10 @@
 
         \endlist
 
-        \li In \uicontrol Library > \uicontrol {QML Types} >
-            \uicontrol {Qt Quick - Basic}, select \uicontrol Rectangle and
-            drag and drop it to \e page in \uicontrol Navigator.
+        \li In \uicontrol Library > \uicontrol Components >
+            \uicontrol {Default Components} > \uicontrol Basic, select
+            \uicontrol Rectangle and drag and drop it to \e page in
+            \uicontrol Navigator.
 
             \image qmldesigner-tutorial-topleftrect.png "Rectangle properties"
 
@@ -131,7 +131,7 @@
 
         \endlist
 
-        \li Drag and drop a \uicontrol {Mouse Area} type from the
+        \li Drag and drop a \uicontrol {Mouse Area} component from the
             \uicontrol Library to \e topLeftRect in \uicontrol Navigator.
 
         \li Click \uicontrol {Layout}, and then click the
@@ -142,7 +142,7 @@
         \li In the \uicontrol Navigator, copy topLeftRect (by pressing
             \key {Ctrl+C}) and paste it to \e page in \uicontrol Navigator
             twice (by pressing \key {Ctrl+V}). \QC renames the new instances
-            of the type topLeftRect1 and topLeftRect2.
+            of the component topLeftRect1 and topLeftRect2.
 
         \li  Select topLeftRect1 and edit its properties:
 
@@ -194,9 +194,9 @@
     For more information about the views you used, see:
 
     \list
-        \li \l{Creating Components}
-        \li \l{Navigator}
-        \li \l{Specifying Component Properties}
+        \li \l Library
+        \li \l Navigator
+        \li \l Properties
     \endlist
 
     Next, we will make the image move between the rectangles when users click
@@ -247,7 +247,7 @@
     For more information about the views you used, see:
 
     \list
-        \li \l{Adding States}
+        \li \l States
         \li \l{Connecting Components to Signals}
     \endlist
 
@@ -305,7 +305,7 @@
 
     \list
         \li \l{Editing Easing Curves}
-        \li \l{Animating Transitions Between States}
+        \li \l{Transition Editor}
     \endlist
 
     Click the rectangles to view the animated transitions.

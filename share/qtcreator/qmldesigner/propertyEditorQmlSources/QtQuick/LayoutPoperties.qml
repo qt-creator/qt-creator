@@ -118,7 +118,7 @@ SectionLayout {
 
     Label {
         text: qsTr("Alignment")
-        tooltip: qsTr("Alignment of an item within the cells it occupies.")
+        tooltip: qsTr("Alignment of a component within the cells it occupies.")
     }
 
     SecondColumnLayout {
@@ -201,7 +201,7 @@ SectionLayout {
 
     Label {
         text: qsTr("Fill layout")
-        tooltip: qsTr("Expands the item as much as possible within the given constraints.")
+        tooltip: qsTr("Expands the component as much as possible within the given constraints.")
     }
 
     SecondColumnLayout {
@@ -220,7 +220,7 @@ SectionLayout {
 
     Label {
         text: qsTr("Preferred size")
-        tooltip: qsTr("Preferred size of an item in a layout. If the preferred height or width is -1, it is ignored.")
+        tooltip: qsTr("Preferred size of a component in a layout. If the preferred height or width is -1, it is ignored.")
     }
 
     SecondColumnLayout {
@@ -260,7 +260,7 @@ SectionLayout {
 
     Label {
         text: qsTr("Minimum size")
-        tooltip: qsTr("Minimum size of an item in a layout.")
+        tooltip: qsTr("Minimum size of a component in a layout.")
     }
 
     SecondColumnLayout {
@@ -300,7 +300,7 @@ SectionLayout {
 
     Label {
         text: qsTr("Maximum size")
-        tooltip: qsTr("Maximum size of an item in a layout.")
+        tooltip: qsTr("Maximum size of a component in a layout.")
     }
 
     SecondColumnLayout {
@@ -340,7 +340,7 @@ SectionLayout {
 
     Label {
         text: qsTr("Row span")
-        tooltip: qsTr("Row span of an item in a Grid Layout.")
+        tooltip: qsTr("Row span of a component in a Grid Layout.")
     }
 
     SecondColumnLayout {
@@ -362,7 +362,7 @@ SectionLayout {
 
     Label {
         text: qsTr("Column span")
-        tooltip: qsTr("Column span of an item in a Grid Layout.")
+        tooltip: qsTr("Column span of a component in a Grid Layout.")
     }
 
     SecondColumnLayout {

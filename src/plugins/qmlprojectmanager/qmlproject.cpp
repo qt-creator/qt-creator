@@ -53,11 +53,14 @@
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
+#include <utils/checkablemessagebox.h>
 
 #include <QDebug>
+#include <QLoggingCategory>
+#include <QMessageBox>
 #include <QRegularExpression>
 #include <QTextCodec>
-#include <QLoggingCategory>
+#include <QTimer>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -79,6 +82,64 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
 
     setNeedsBuildConfigurations(false);
     setBuildSystemCreator([](Target *t) { return new QmlBuildSystem(t); });
+
+    QSettings *settings = Core::ICore::settings();
+    const QString qdsStandaloneEntry = "QML/Designer/StandAloneMode"; //entry from qml settings
+    const QString qdsInstallationEntry = "QML/Designer/DesignStudioInstallation"; //set in installer
+
+    const bool isDesigner = settings->value(qdsStandaloneEntry, false).toBool();
+
+    if (!isDesigner) {
+        const QString qdsPath = settings->value(qdsInstallationEntry).toString();
+        const bool foundQDS = Utils::FilePath::fromString(qdsPath).exists();
+
+        if (foundQDS) {
+            auto lambda = [fileName, qdsPath]() {
+                const QString projectName = fileName.fileName();
+                const QString doNotShowAgainKey = "OpenInQDSApp"; //entry that is used only here
+                const QString openInQDSKey = "QML/Designer/OpenQmlprojectInQDS"; //entry from qml settings
+                QSettings *settings = Core::ICore::settings();
+                const bool shouldAskAgain = Utils::CheckableMessageBox::shouldAskAgain(settings,
+                                                                                       doNotShowAgainKey);
+                bool openInQDS = false;
+
+                if (shouldAskAgain) {
+                    bool dontShow = false;
+                    const auto dialogResult =
+                            Utils::CheckableMessageBox::question(Core::ICore::dialogParent(),
+                                                                 projectName,
+                                                                 tr("Would you like to open the project in Qt Design Studio?"),
+                                                                 tr("Do not show this dialog anymore."),
+                                                                 &dontShow);
+                    openInQDS = (dialogResult == QDialogButtonBox::Yes);
+
+                    if (dontShow) {
+                        Utils::CheckableMessageBox::doNotAskAgain(settings, doNotShowAgainKey);
+                        settings->setValue(openInQDSKey, openInQDS);
+                    }
+                } else {
+                    openInQDS = settings->value(openInQDSKey, false).toBool();
+                }
+
+                if (openInQDS) {
+                    bool qdsStarted = false;
+                    //-a and -client arguments help to append project to open design studio application
+                    if (Utils::HostOsInfo::isMacHost())
+                        qdsStarted = QProcess::startDetached("/usr/bin/open", {"-a", qdsPath, fileName.toString()});
+                    else
+                        qdsStarted = QProcess::startDetached(qdsPath, {"-client", fileName.toString()});
+
+                    if (!qdsStarted) {
+                        QMessageBox::warning(Core::ICore::dialogParent(),
+                                             projectName,
+                                             tr("Failed to start Qt Design Studio."));
+                    }
+                }
+            };
+
+            QTimer::singleShot(0, this, lambda);
+        }
+    }
 }
 
 QmlBuildSystem::QmlBuildSystem(Target *target)

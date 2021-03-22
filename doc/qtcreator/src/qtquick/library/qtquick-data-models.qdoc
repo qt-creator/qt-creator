@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -35,15 +35,15 @@
     \title Lists and Other Data Models
 
     Applications typically need to handle and display data that is organized
-    into list or grid views. Qt Quick uses models, views, and delegates for
+    into list or grid views. Models, views, and delegates are used for
     this purpose. They modularize the visualization of data in order to give
     you control over the different aspects of the data. For example, you can
     swap a list view with a grid view with little changes to the data.
     Similarly, encapsulating an instance of the data in a delegate allows
     developers to dictate how to present or handle the data.
 
-    A \e model contains the data and its structure. There are several QML
-    types for creating different types of models. A \e view is a container
+    A \e model contains the data and its structure. There are several
+    components for creating different types of models. A \e view is a container
     that displays the data in a list or a grid, or along a path. A \e delegate
     dictates how the data should appear in the view. The delegate takes each
     piece of data in the model and encapsulates it. The data is then accessible
@@ -56,10 +56,10 @@
 
     \section1 List and Grid Views
 
-    A list view organizes items as a list, whereas a grid view organizes them as
-    a grid. By default, items in list and grid views flow vertically from left
-    to right. They are laid out from left to right horizontally, and from top to
-    bottom vertically.
+    A list view organizes components as a list, whereas a grid view organizes
+    them as a grid. By default, components in list and grid views flow
+    vertically from left to right. They are laid out from left to right
+    horizontally, and from top to bottom vertically.
 
     You can change the list view orientation in the \uicontrol Orientation
     field and the grid view flow in the \uicontrol Flow field. You can change
@@ -111,7 +111,7 @@
 
     \note Setting the \uicontrol Cache property is not a replacement for
     creating efficient delegates. It can improve the smoothness of scrolling
-    behavior at the expense of additional memory usage. The fewer objects and
+    behavior at the expense of additional memory usage. The fewer items and
     bindings in a delegate, the faster a view can be scrolled. It is important
     to realize that setting a cache will only postpone issues caused by
     slow-loading delegates, it is not a solution to this problem.
@@ -174,7 +174,7 @@
     You can replace the default model and delegate with other,
     more complex models and delegates in \uicontrol {Text Editor}.
     \l{ItemDelegate}{Item Delegate} and \l{SwipeDelegate}{Swipe Delegate}
-    types are also available in \uicontrol Library.
+    components are also available in \uicontrol Library.
 
     \include qtquick-pathview-editor.qdocinc pathview
     \if defined(qtdesignstudio)
@@ -183,10 +183,10 @@
 
     \section1 Summary of Model Components
 
-    The following table lists the QML types that you can use to add data models
+    The following table lists the components that you can use to add data models
     to UIs. The \e Location column contains the tab name where you can find the
-    type in \uicontrol Library. The \e MCU column indicates which types are
-    supported on MCUs.
+    component in \l Library > \uicontrol Components. The \e MCU column indicates
+    which components are supported on MCUs.
 
     \table
     \header
@@ -198,39 +198,39 @@
     \row
         \li \inlineimage gridview-icon16.png
         \li \l{GridView}{Grid View}
-        \li Qt Quick - Views
+        \li Default Components - Views
         \li
         \li A grid vizualization of a model.
     \row
         \li \inlineimage icons/itemdelegate-icon16.png
         \li \l{ItemDelegate}{Item Delegate}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li A standard view item that can be used as a delegate in various
             views and controls, such as \l ListView and \l ComboBox.
     \row
         \li \inlineimage listview-icon16.png
         \li \l{ListView}{List View}
-        \li Qt Quick - Views
+        \li Default Components - Views
         \li \inlineimage ok
         \li A list vizualization of a model.
     \row
         \li \inlineimage pathview-icon16.png
         \li \l{Path View}
-        \li Qt Quick - Views
+        \li Default Components - Views
         \li
         \li Vizualizes the contents of a model along a path.
     \row
         \li \inlineimage icons/scrollview-icon16.png
         \li \l [QtQuickControls] {ScrollView}{Scroll View}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li Provides scrolling for user-defined content. It can be used instead
-            of a \l Flickable item.
+            of a \l Flickable component.
     \row
         \li \inlineimage icons/stackview-icon16.png
         \li \l [QtQuickControls] {StackView}{Stack View}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li A stack-based navigation model.
     \if defined(qtdesignstudio)
@@ -244,7 +244,7 @@
     \row
         \li \inlineimage icons/itemdelegate-icon16.png
         \li \l{SwipeDelegate}{Swipe Delegate}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li A view item that can be swiped left or right to expose more
             options or information. It is used as a delegate in views such
@@ -252,7 +252,7 @@
     \row
         \li \inlineimage icons/swipeview-icon16.png
         \li \l[QtQuickControls] {SwipeView}{Swipe View}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li \inlineimage ok
         \li Enables users to navigate pages by swiping sideways.
     \endtable

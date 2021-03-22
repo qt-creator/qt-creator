@@ -846,12 +846,20 @@ void CMakeBuildSystem::wireUpConnections()
                 // No CMakeCache? Run with initial arguments!
                 qCDebug(cmakeBuildSystemLog) << "Requesting parse due to build directory change";
                 const BuildDirParameters parameters(cmakeBuildConfiguration());
-                const bool hasCMakeCache = QFile::exists(
-                    (parameters.buildDirectory / "CMakeCache.txt").toString());
+                const FilePath cmakeCacheTxt = parameters.buildDirectory.pathAppended("CMakeCache.txt");
+                const bool hasCMakeCache = QFile::exists(cmakeCacheTxt.toString());
                 const auto options = ReparseParameters(
                     hasCMakeCache
                         ? REPARSE_DEFAULT
                         : (REPARSE_FORCE_INITIAL_CONFIGURATION | REPARSE_FORCE_CMAKE_RUN));
+                if (hasCMakeCache) {
+                    QString errorMessage;
+                    const CMakeConfig config = CMakeBuildSystem::parseCMakeCacheDotTxt(cmakeCacheTxt, &errorMessage);
+                    if (!config.isEmpty() && errorMessage.isEmpty()) {
+                        QByteArray cmakeBuildTypeName = CMakeConfigItem::valueOf("CMAKE_BUILD_TYPE", config);
+                        cmakeBuildConfiguration()->setCMakeBuildType(QString::fromUtf8(cmakeBuildTypeName), true);
+                    }
+                }
                 setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()), options);
             });
 

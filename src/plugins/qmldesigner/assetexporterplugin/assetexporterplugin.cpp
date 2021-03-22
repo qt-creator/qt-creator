@@ -106,8 +106,8 @@ void AssetExporterPlugin::onExport()
 
 void AssetExporterPlugin::addActions()
 {
-    auto exportAction = new QAction(tr("Export QML"));
-    exportAction->setToolTip(tr("Export QML code of the current project."));
+    auto exportAction = new QAction(tr("Export Components"));
+    exportAction->setToolTip(tr("Export components in the current project."));
     connect(exportAction, &QAction::triggered, this, &AssetExporterPlugin::onExport);
     Core::Command *cmd = Core::ActionManager::registerAction(exportAction, Constants::EXPORT_QML);
 

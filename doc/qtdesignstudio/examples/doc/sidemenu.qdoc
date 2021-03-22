@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -50,17 +50,17 @@
 
     The button can have the following states: checked, hover, pressed, and
     normal. We construct the button using different images for the button
-    background, frame, and front. We then add states in the \uicontrol States
-    view for each of the button states. In each state, we turn the visibility
-    of the appropriate images on or off in the button properties, to change
-    the appearance of the button.
+    background, frame, and front. We then add \l{Adding States}{states} in
+    the \l States view for each of the button states. In each state, we turn
+    the visibility of the appropriate images on or off in the button properties,
+    to change the appearance of the button.
 
-    \image sidemenu-custombutton-states.png "CustomButton QML type states"
+    \image sidemenu-custombutton-states.png "CustomButton component states"
 
     To change the button text when the button state changes, we bind the
-    text property to the state of the button in the \uicontrol Properties view.
-    When \e control is selected in the \uicontrol Navigator, we select the
-    \uicontrol Settings menu for the \uicontrol Text property, and then select
+    text property to the state of the button in the \l Properties view.
+    When \e control is selected in the \l Navigator, we select the
+    \uicontrol Actions menu for the \uicontrol Text property, and then select
     \uicontrol {Set Binding}. In the \uicontrol {Binding Editor}, we set the
     binding to \c control.state.
 
@@ -69,7 +69,7 @@
     We want the buttons to be checkable, so we set the
     \l {AbstractButton::}{checkable} property to \c true.
 
-    We now select \uicontrol {Set when Condition} in the \uicontrol Settings menu
+    We now select \uicontrol {Set when Condition} in the \uicontrol Actions menu
     for the states to bind the properties to the states using \c when
     conditions. First, we specify that a button instance enters the \e checked
     state when the \l {AbstractButton::}{checked} property is set to \c true.
@@ -99,11 +99,10 @@
     \section1 Constructing a Menu Bar
 
     We construct the menu bar in the \e {MainFile.ui.qml} file using the
-    \uicontrol {Form Editor}. The CustomButton type is listed in
-    \uicontrol Library > \uicontrol {QML Types} >
-    \uicontrol {My QML Components}. We drag and drop several instances of
-    the type to the \uicontrol {Form Editor} and enclose them in a RowLayout
-    type to lay them out as a menu bar.
+    \l {Form Editor}. The CustomButton component is listed in
+    \l Library > \uicontrol Components > \uicontrol {My Components}.
+    We drag and drop several instances of the component to the \l {Form Editor}
+    and enclose them in a RowLayout component to lay them out as a menu bar.
 
     \image sidemenu-menubar.png
 
@@ -126,10 +125,10 @@
     click the burger menu. In the \uicontrol {Form Editor}, we use the
     \l Text and \l {slider-control}{Slider} components to create separate
     submenus for each set of effects we want to apply to the images. We use
-    a background image for the menu background and a BurgerMenu custom QML
-    type for the burger menu icon.
+    a background image for the menu background and a BurgerMenu custom
+    component for the burger menu icon.
 
-    \image sidemenu-ui.png "SliderMenu type"
+    \image sidemenu-ui.png "SliderMenu component"
 
     We add states to the \e {SideMenu.qml} file in the \uicontrol {Form Editor}.
     When the application starts, the side menu is in the \e closed state, which
@@ -148,7 +147,7 @@
     \image sidemenu-states.png "Side menu states"
 
     We then select the \inlineimage plus.png
-    button in the \uicontrol Timeline view to add animation
+    button in the \l Timeline view to add animation
     for transitions to the \e open and \e close states:
 
     \image sidemenu-timeline-settings.png "Side menu timeline settings"
@@ -182,7 +181,7 @@
     We select \inlineimage animation.png "Timeline Settings button"
     to open the \uicontrol {Timeline Settings} dialog. In the
     \uicontrol {Transitions to states} field, we select the state to
-    switch to when the animation finishes. In the lower part of the
+    apply when the animation finishes. In the lower part of the
     dialog, we bind the states that don't have animations to fixed frames.
 
     For more information about using the timeline, see \l {Creating Animations}.
@@ -192,7 +191,7 @@
     In \e {SideMenu.qml}, we use connections to bind the action of clicking
     the burger menu to the signal handler for triggering the opening or
     closing animation, depending on the current state. We create the connections
-    in the \uicontrol Connections view.
+    in the \l Connections view.
 
     \image sidemenu-connections.png
 
@@ -211,13 +210,14 @@
     \section1 Applying Effects
 
     We nest the effects in an effects stack and bind them to the
-    \l {slider-control}{Slider} type instances. The effects apply
+    \l {slider-control}{Slider} component instances. The effects apply
     to all the images in the example application, not just the
     currently open one.
 
     We use property bindings to connect the controls in the slider menu to
     \l {2D Effects}{graphical effects}. To have access to the
-    properties from all the slider type instances, we export them as aliases
+    properties from all the slider component instances, we export them as
+
     in \e SliderMenu.ui.qml. We select \uicontrol {Export Property as Alias}
     in the \uicontrol Settings menu of the \uicontrol Value property in
     \uicontrol Properties > \uicontrol Slider.
@@ -227,9 +227,10 @@
 
     \image sidemenu-effects-stack.png "Effects stack in the Navigator"
 
-    We use the \l {Images}{Image} type as the last item in the stack to display
-    images that we apply the effects to. We export the image source property as
-    an alias to be able to switch the image inside the stack.
+    We use the \l {Images}{Image} component as the last item in the stack to
+    display images that we apply the effects to. We export the image source
+    property as an \l{Adding Property Aliases}{alias} to be able to switch
+    the image inside the stack.
 
     For more information about the available graphical effects, see
     \l {2D Effects}.

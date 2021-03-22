@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -55,7 +55,7 @@
 
     Our viewport contains 1000 frames, so we select the
     \inlineimage plus.png "Plus button"
-    button to add a 5000-frame timeline to the root element.
+    button to add a 5000-frame timeline to the root component.
     We use the default values for all other fields.
 
     To start recording the transitions between the Standard screen and the
@@ -79,10 +79,10 @@
     new timeline appears in the view.
 
     When we select \e tripScreen in the \uicontrol Navigator, we can see the
-    properties of the TripScreen QML type that we can animate in the
+    properties of the TripScreen component that we can animate in the
     \uicontrol Properties view.
 
-    \image ebikedesign-trip-properties.png "Properties view of the Trip type"
+    \image ebikedesign-trip-properties.png "Properties view of the Trip component"
 
     We set values for the \uicontrol Visibility,
     \uicontrol Opacity, \uicontrol currentFrame, and \uicontrol Scale properties

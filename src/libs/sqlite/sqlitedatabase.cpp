@@ -61,7 +61,7 @@ Database::Database()
 }
 
 Database::Database(Utils::PathString &&databaseFilePath, JournalMode journalMode)
-    : Database(std::move(databaseFilePath), 1000ms, journalMode)
+    : Database{std::move(databaseFilePath), 0ms, journalMode}
 {}
 
 Database::Database(Utils::PathString &&databaseFilePath,
@@ -89,7 +89,10 @@ void Database::open()
 {
     m_databaseBackend.open(m_databaseFilePath, m_openMode);
     m_databaseBackend.setJournalMode(m_journalMode);
-    m_databaseBackend.setBusyTimeout(m_busyTimeout);
+    if (m_busyTimeout > 0ms)
+        m_databaseBackend.setBusyTimeout(m_busyTimeout);
+    else
+        m_databaseBackend.registerBusyHandler();
     registerTransactionStatements();
     initializeTables();
     m_isOpen = true;

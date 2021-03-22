@@ -158,7 +158,7 @@ void AssetExporter::beginExport()
 void AssetExporter::cancel()
 {
     if (!m_cancelled) {
-        ExportNotification::addInfo(tr("Cancelling export."));
+        ExportNotification::addInfo(tr("Canceling export."));
         m_assetDumper.reset();
         m_cancelled = true;
     }
@@ -227,13 +227,13 @@ void AssetExporter::notifyLoadError(AssetExporterView::LoadState state)
         errorStr = tr("Loading file is taking too long.");
         break;
     case AssetExporterView::LoadState::QmlErrorState:
-        errorStr = tr("Cannot parse. QML file has errors.");
+        errorStr = tr("Cannot parse. The file contains coding errors.");
         break;
     default:
         return;
     }
     qCDebug(loggerError) << "QML load error:" << errorStr;
-    ExportNotification::addError(tr("Loading QML failed. %1").arg(errorStr));
+    ExportNotification::addError(tr("Loading components failed. %1").arg(errorStr));
 }
 
 void AssetExporter::notifyProgress(double value) const
@@ -250,13 +250,13 @@ void AssetExporter::onQmlFileLoaded()
                                                           ->documentManager()
                                                           .currentDesignDocument();
     if (designDocument->hasQmlParseErrors()) {
-        ExportNotification::addError(tr("Cannot export QML. Document \"%1\" have parsing errors.")
+        ExportNotification::addError(tr("Cannot export component. Document \"%1\" has parsing errors.")
                                      .arg(designDocument->displayName()));
     } else {
         exportComponent(m_view->rootModelNode());
         QString error;
         if (!m_view->saveQmlFile(&error)) {
-            ExportNotification::addError(tr("Error saving QML file. %1")
+            ExportNotification::addError(tr("Error saving component file. %1")
                                          .arg(error.isEmpty()? tr("Unknown") : error));
         }
     }

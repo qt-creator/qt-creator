@@ -162,7 +162,7 @@
 
     For example, to use a \l Text component to display the value of a
     slider, we drag-and-drop \uicontrol Text, \uicontrol Slider, and
-    \uicontrol {String Mapper} components to the same parent item. Then
+    \uicontrol {String Mapper} components to the same parent component. Then
     we select \uicontrol {String Mapper} in \uicontrol Navigator to display
     its properties in \uicontrol Properties. There we bind the value of the
     \c input property of the string mapper to the value of the \c value

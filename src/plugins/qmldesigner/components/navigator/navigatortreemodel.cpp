@@ -91,7 +91,7 @@ bool fitsToTargetProperty(const NodeAbstractProperty &targetProperty,
 
 static inline QString msgUnknownItem(const QString &t)
 {
-    return NavigatorTreeModel::tr("Unknown item: %1").arg(t);
+    return NavigatorTreeModel::tr("Unknown component: %1").arg(t);
 }
 
 static void removePosition(const ModelNode &node)
@@ -250,20 +250,20 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
         if (role == Qt::CheckStateRole)
             return currentQmlObjectNode.isAliasExported() ? Qt::Checked : Qt::Unchecked;
         else if (role == Qt::ToolTipRole && !modelNodeForIndex(index).isRootNode())
-            return tr("Toggles whether this item is exported as an "
-                      "alias property of the root item.");
+            return tr("Toggles whether this component is exported as an "
+                      "alias property of the root component.");
     } else if (index.column() == ColumnType::Visibility) { // visible
         if (role == Qt::CheckStateRole)
             return m_view->isNodeInvisible(modelNode) ? Qt::Unchecked : Qt::Checked;
         else if (role == Qt::ToolTipRole && !modelNodeForIndex(index).isRootNode())
-            return tr("Toggles the visibility of this item in the form editor.\n"
-                      "This is independent of the visibility property in QML.");
+            return tr("Toggles the visibility of this component in the form editor.\n"
+                      "This is independent of the visibility property.");
     } else if (index.column() == ColumnType::Lock) { // lock
         if (role == Qt::CheckStateRole)
             return modelNode.locked() ? Qt::Checked : Qt::Unchecked;
         else if (role == Qt::ToolTipRole && !modelNodeForIndex(index).isRootNode())
-            return tr("Toggles whether this item is locked.\n"
-                      "Locked items cannot be modified or selected.");
+            return tr("Toggles whether this component is locked.\n"
+                      "Locked components cannot be modified or selected.");
     }
 
     return QVariant();

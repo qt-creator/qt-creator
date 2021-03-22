@@ -180,15 +180,15 @@
 
     Choose \uicontrol Tools > \uicontrol Options > \uicontrol {Qt Quick} >
     \uicontrol {Qt Quick Designer} to specify settings for snapping. In the
-    \uicontrol {Parent item padding} field, specify the
+    \uicontrol {Parent component padding} field, specify the
     distance in pixels between the parent component and the snapping lines. In
-    the \uicontrol {Sibling item spacing} field, specify the distance in pixels
-    between sibling components and the snapping lines.
+    the \uicontrol {Sibling component spacing} field, specify the distance in
+    pixels between sibling components and the snapping lines.
 
     \image qtquick-designer-options.png "Qt Quick Designer options"
 
     The following image shows the snapping lines (1) when
-    \uicontrol {Parent item padding} is set to 5 pixels.
+    \uicontrol {Parent component padding} is set to 5 pixels.
 
     \image qmldesigner-snap-margins.png "Snapping lines on canvas"
 
@@ -220,9 +220,9 @@
     \image qmldesigner-preview-size.png "Component width and height"
 
     To set the initial size of the root component, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer} and
-    specify the component width and height in the \uicontrol {Root Item Init Size}
-    group.
+    \uicontrol Options > \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer}
+    and specify the component width and height in the
+    \uicontrol {Root Component Init Size} group.
 
     \section1 Specifying Canvas Size
 

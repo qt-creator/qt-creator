@@ -109,7 +109,7 @@ Section {
         Label {
             visible: showElide
             text: qsTr("Maximum line count")
-            tooltip: qsTr("Limits the number of lines that the text item will show.")
+            tooltip: qsTr("Limits the number of lines that the text component will show.")
             disabledState: !backendValues.maximumLineCount.isAvailable
         }
 
@@ -155,7 +155,7 @@ Section {
 
         Label {
             text: qsTr("Render type")
-            toolTip: qsTr("Overrides the default rendering type for this item.")
+            toolTip: qsTr("Overrides the default rendering type for this component.")
             disabledState: !backendValues.renderType.isAvailable
         }
         ComboBox {

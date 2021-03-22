@@ -66,7 +66,7 @@ class ParserPrivate
 {
 public:
     //! Get document from documentList
-    CPlusPlus::Document::Ptr document(const Utils::FilePath &fileName) const;
+    CPlusPlus::Document::Ptr document(const FilePath &fileName) const;
 
     struct DocumentCache {
         unsigned treeRevision = 0;
@@ -284,7 +284,7 @@ void Parser::updateDocuments(const QSet<FilePath> &documentPaths)
     updateDocumentsFromSnapshot(documentPaths, CppTools::CppModelManager::instance()->snapshot());
 }
 
-void Parser::updateDocumentsFromSnapshot(const QSet<Utils::FilePath> &documentPaths,
+void Parser::updateDocumentsFromSnapshot(const QSet<FilePath> &documentPaths,
                                  const CPlusPlus::Snapshot &snapshot)
 {
     for (const FilePath &documentPath : documentPaths) {
