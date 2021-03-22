@@ -523,6 +523,8 @@ public:
     void readSettings(const QSettings *settings);
     void writeSettings(QSettings *settings) const;
 
+    void setSettingsGroup(const QString &key);
+
     void apply();
     void cancel();
     void finish();

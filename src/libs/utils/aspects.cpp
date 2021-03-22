@@ -2019,6 +2019,7 @@ class AspectContainerPrivate
 public:
     QList<BaseAspect *> m_items; // Not owned
     bool m_autoApply = true;
+    QString m_settingsGroup;
 };
 
 } // Internal
@@ -2061,14 +2062,38 @@ void AspectContainer::toMap(QVariantMap &map) const
 
 void AspectContainer::readSettings(const QSettings *settings)
 {
-    for (BaseAspect *aspect : qAsConst(d->m_items))
-        aspect->readSettings(settings);
+    if (d->m_settingsGroup.isEmpty()) {
+        for (BaseAspect *aspect : qAsConst(d->m_items))
+            aspect->readSettings(settings);
+    } else {
+        const QString keyRoot = d->m_settingsGroup + '/';
+        forEachAspect([settings, keyRoot](BaseAspect *aspect) {
+            QString key = aspect->settingsKey();
+            const QVariant value = settings->value(keyRoot + key, aspect->defaultValue());
+            aspect->setValue(value);
+        });
+    }
 }
 
 void AspectContainer::writeSettings(QSettings *settings) const
 {
-    for (BaseAspect *aspect : qAsConst(d->m_items))
-        aspect->writeSettings(settings);
+    if (d->m_settingsGroup.isEmpty()) {
+        for (BaseAspect *aspect : qAsConst(d->m_items))
+            aspect->writeSettings(settings);
+    } else {
+        settings->remove(d->m_settingsGroup);
+        settings->beginGroup(d->m_settingsGroup);
+        forEachAspect([settings](BaseAspect *aspect) {
+            QtcSettings::setValueWithDefault(settings, aspect->settingsKey(),
+                                             aspect->value(), aspect->defaultValue());
+        });
+        settings->endGroup();
+    }
+}
+
+void AspectContainer::setSettingsGroup(const QString &key)
+{
+    d->m_settingsGroup = key;
 }
 
 void AspectContainer::apply()

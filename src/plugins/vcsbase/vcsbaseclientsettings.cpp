@@ -80,32 +80,4 @@ QStringList VcsBaseSettings::searchPathList() const
     return path.value().split(HostOsInfo::pathListSeparator(), Qt::SkipEmptyParts);
 }
 
-void VcsBaseSettings::setSettingsGroup(const QString &key)
-{
-    m_settingsGroup = key;
-}
-
-void VcsBaseSettings::writeSettings(QSettings *settings) const
-{
-    QTC_ASSERT(!m_settingsGroup.isEmpty(), return);
-
-    settings->remove(m_settingsGroup);
-    settings->beginGroup(m_settingsGroup);
-    forEachAspect([settings](BaseAspect *aspect) {
-        QtcSettings::setValueWithDefault(settings, aspect->settingsKey(),
-                                         aspect->value(), aspect->defaultValue());
-    });
-    settings->endGroup();
-}
-
-void VcsBaseSettings::readSettings(const QSettings *settings)
-{
-    const QString keyRoot = m_settingsGroup + '/';
-    forEachAspect([settings, keyRoot](BaseAspect *aspect) {
-        QString key = aspect->settingsKey();
-        const QVariant value = settings->value(keyRoot + key, aspect->defaultValue());
-        aspect->setValue(value);
-    });
-}
-
 } // namespace VcsBase

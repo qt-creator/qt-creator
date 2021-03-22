@@ -48,11 +48,6 @@ public:
 
     QStringList searchPathList() const;
 
-    void writeSettings(QSettings *settings) const;
-    void readSettings(const QSettings *settings);
-
-    void setSettingsGroup(const QString &key);
-
 private:
     QString m_settingsGroup;
 };
