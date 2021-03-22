@@ -120,6 +120,12 @@ public:
     virtual void readSettings(const QSettings *settings);
     virtual void writeSettings(QSettings *settings) const;
 
+    using SavedValueTransformation = std::function<QVariant(const QVariant &)>;
+    void setFromSettingsTransformation(const SavedValueTransformation &transform);
+    void setToSettingsTransformation(const SavedValueTransformation &transform);
+    QVariant toSettingsValue(const QVariant &val) const;
+    QVariant fromSettingsValue(const QVariant &val) const;
+
     virtual void apply();
     virtual void cancel();
     virtual void finish();
@@ -242,7 +248,9 @@ public:
 
     int value() const;
     void setValue(int val);
+    void setStringValue(const QString &val);
     void setDefaultValue(int val);
+    void setDefaultValue(const QString &val);
 
     QString stringValue() const;
 
@@ -250,6 +258,8 @@ public:
     void setDisplayStyle(DisplayStyle style);
 
     void addOption(const QString &displayName, const QString &toolTip = {});
+    int indexForDisplay(const QString &displayName) const;
+    QString displayForIndex(int index) const;
 
 private:
     std::unique_ptr<Internal::SelectionAspectPrivate> d;

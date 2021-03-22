@@ -60,6 +60,8 @@ public:
     Utils::Id m_id;
     QVariant m_value;
     QVariant m_defaultValue;
+    std::function<QVariant(const QVariant &)> m_toSettings;
+    std::function<QVariant(const QVariant &)> m_fromSettings;
 
     QString m_displayName;
     QString m_settingsKey; // Name of data in settings.
@@ -488,7 +490,8 @@ void BaseAspect::saveToMap(QVariantMap &data, const QVariant &value,
 */
 void BaseAspect::fromMap(const QVariantMap &map)
 {
-    setValue(map.value(settingsKey(), defaultValue()));
+    const QVariant val = map.value(settingsKey(), toSettingsValue(defaultValue()));
+    setValue(fromSettingsValue(val));
 }
 
 /*!
@@ -496,21 +499,45 @@ void BaseAspect::fromMap(const QVariantMap &map)
 */
 void BaseAspect::toMap(QVariantMap &map) const
 {
-    saveToMap(map, d->m_value, d->m_defaultValue, settingsKey());
+    saveToMap(map, toSettingsValue(d->m_value), toSettingsValue(d->m_defaultValue), settingsKey());
 }
 
 void BaseAspect::readSettings(const QSettings *settings)
 {
     if (settingsKey().isEmpty())
         return;
-    setValue(settings->value(settingsKey(), defaultValue()));
+    const QVariant val = settings->value(settingsKey(), toSettingsValue(defaultValue()));
+    setValue(fromSettingsValue(val));
 }
 
 void BaseAspect::writeSettings(QSettings *settings) const
 {
     if (settingsKey().isEmpty())
         return;
-    QtcSettings::setValueWithDefault(settings, settingsKey(), value(), defaultValue());
+    QtcSettings::setValueWithDefault(settings,
+                                     settingsKey(),
+                                     toSettingsValue(value()),
+                                     toSettingsValue(defaultValue()));
+}
+
+void BaseAspect::setFromSettingsTransformation(const SavedValueTransformation &transform)
+{
+    d->m_fromSettings = transform;
+}
+
+void BaseAspect::setToSettingsTransformation(const SavedValueTransformation &transform)
+{
+    d->m_toSettings = transform;
+}
+
+QVariant BaseAspect::toSettingsValue(const QVariant &val) const
+{
+    return d->m_toSettings ? d->m_toSettings(val) : val;
+}
+
+QVariant BaseAspect::fromSettingsValue(const QVariant &val) const
+{
+    return d->m_fromSettings ? d->m_fromSettings(val) : val;
 }
 
 /*!
@@ -1436,9 +1463,22 @@ void SelectionAspect::setValue(int value)
     }
 }
 
+void SelectionAspect::setStringValue(const QString &val)
+{
+    const int index = indexForDisplay(val);
+    QTC_ASSERT(index >= 0, return);
+    setValue(index);
+}
+
 void SelectionAspect::setDefaultValue(int val)
 {
     BaseAspect::setDefaultValue(val);
+}
+
+// Note: This needs to be set after all options are added.
+void SelectionAspect::setDefaultValue(const QString &val)
+{
+    BaseAspect::setDefaultValue(indexForDisplay(val));
 }
 
 QString SelectionAspect::stringValue() const
@@ -1449,6 +1489,20 @@ QString SelectionAspect::stringValue() const
 void SelectionAspect::addOption(const QString &displayName, const QString &toolTip)
 {
     d->m_options.append({displayName, toolTip});
+}
+
+int SelectionAspect::indexForDisplay(const QString &displayName) const
+{
+    for (int i = 0, n = d->m_options.size(); i < n; ++i) {
+        if (d->m_options.at(i).displayName == displayName)
+            return i;
+    }
+    return -1;
+}
+
+QString SelectionAspect::displayForIndex(int index) const
+{
+    return d->m_options.at(index).displayName;
 }
 
 /*!
