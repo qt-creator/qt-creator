@@ -271,6 +271,11 @@ QString QmlBuildSystem::mainFile() const
     return QString();
 }
 
+Utils::FilePath QmlBuildSystem::mainFilePath() const
+{
+    return projectDirectory().pathAppended(mainFile());
+}
+
 bool QmlBuildSystem::qtForMCUs() const
 {
     if (m_projectItem)
