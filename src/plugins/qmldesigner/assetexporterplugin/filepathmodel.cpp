@@ -70,10 +70,10 @@ FilePathModel::~FilePathModel()
 {
     if (m_preprocessWatcher && !m_preprocessWatcher->isCanceled() &&
             !m_preprocessWatcher->isFinished()) {
-        ExportNotification::addInfo(tr("Canceling QML files preparation."));
+        ExportNotification::addInfo(tr("Canceling file preparation."));
         m_preprocessWatcher->cancel();
         m_preprocessWatcher->waitForFinished();
-        qCDebug(loggerInfo) << "Canceling QML files preparation done.";
+        qCDebug(loggerInfo) << "Canceled file preparation.";
     }
 }
 

@@ -319,7 +319,7 @@ void ItemLibraryAssetImportDialog::updateImport(const ModelNode &updateNode,
                     if (options.isEmpty() || sourcePath.isEmpty()) {
                         errorMsg = QCoreApplication::translate(
                                     "ModelNodeOperations",
-                                    "Asset import data file '%1' is invalid.").arg(jsonFileName);
+                                    "Asset import data file \"%1\" is invalid.").arg(jsonFileName);
                     } else {
                         QFileInfo sourceInfo{sourcePath};
                         if (!sourceInfo.exists()) {
@@ -334,7 +334,7 @@ void ItemLibraryAssetImportDialog::updateImport(const ModelNode &updateNode,
                                 initialPath = compFileInfo.absolutePath();
                             QStringList selectedFiles = QFileDialog::getOpenFileNames(
                                         Core::ICore::dialogParent(),
-                                        tr("Locate 3D Asset '%1'").arg(sourceInfo.fileName()),
+                                        tr("Locate 3D Asset \"%1\"").arg(sourceInfo.fileName()),
                                         initialPath, sourceInfo.fileName());
                             if (!selectedFiles.isEmpty()
                                     && QFileInfo{selectedFiles[0]}.fileName() == sourceInfo.fileName()) {
@@ -361,7 +361,7 @@ void ItemLibraryAssetImportDialog::updateImport(const ModelNode &updateNode,
 
                         } else {
                             errorMsg = QCoreApplication::translate(
-                                        "ModelNodeOperations", "Unable to locate source scene '%1'.")
+                                        "ModelNodeOperations", "Unable to locate source scene \"%1\".")
                                     .arg(sourceInfo.fileName());
                         }
                     }
@@ -370,7 +370,7 @@ void ItemLibraryAssetImportDialog::updateImport(const ModelNode &updateNode,
                 }
             } else {
                 errorMsg = QCoreApplication::translate("ModelNodeOperations",
-                                                       "Opening asset import data file '%1' failed.")
+                                                       "Opening asset import data file \"%1\" failed.")
                         .arg(jsonFileName);
             }
         } else {

@@ -30,11 +30,11 @@
 
     \title Text
 
-    You can use several different text types to add read-only or editable text
-    to a UI, such as titles or labels and text input fields with placeholder
-    text. The \l Text type adds formatted text, the \l TextEdit type adds a
-    multiline line edit, and the \l TextInput type adds a single editable line
-    field.
+    You can use several different text components to add read-only or editable
+    text to a UI, such as titles or labels and text input fields with
+    placeholder text. The \l Text component adds formatted text, the \l TextEdit
+    component adds a multiline line edit, and the \l TextInput component adds a
+    single editable line field.
 
     You can select the font to use and specify extensive properties for each
     text string, such as size in points or pixels, style name, emphasis,
@@ -44,7 +44,7 @@
 
     \youtube yOUdg1o2KJM
 
-    To create a label with a background, use the \l Label type from the
+    To create a label with a background, use the \l Label component from the
     Qt Quick Controls module.
 
     \section1 Using Rich Text
@@ -78,7 +78,7 @@
     size, emphasis, aligment, and spacing of the text. Specify the font
     size in either points or pixels in the \uicontrol Size field.
 
-    \image qtquick-designer-text-properties.png "Text type properties"
+    \image qtquick-designer-text-properties.png "Text component properties"
 
     To display custom fonts in the list of available fonts in the
     \uicontrol Font field, add them in the \uicontrol Assets tab
@@ -104,8 +104,8 @@
 
     \section1 Text Alignment
 
-    You can align text items horizontally and vertically. By default, text is
-    vertically aligned to the top. Horizontal alignment follows the natural
+    You can align text components horizontally and vertically. By default, text
+    is vertically aligned to the top. Horizontal alignment follows the natural
     alignment of the text. By default, left-to-right text like English is
     aligned to the left side of the text area, whereas right-to-left text
     like Arabic is aligned to the right side of the text area.
@@ -116,7 +116,7 @@
     For a single line of text, the size of the text is the area of the text.
     In this common case, all alignments are equivalent. To center a text in
     its parent, use \l{Setting Anchors and Margins}{anchoring} or bind the
-    width of the text item to that of the parent. For more information, see
+    width of the text component to that of the parent. For more information, see
     \l{Setting Bindings}.
 
     \section1 Text and Style Colors
@@ -129,17 +129,17 @@
     or sunken text. You set the font style in the \uicontrol Style field of
     the \uicontrol Font section.
 
-    For the \uicontrol {Text Edit} and \uicontrol {Text Input} types, you
+    For the \uicontrol {Text Edit} and \uicontrol {Text Input} components, you
     can also set the color of selected text and the text highlight color
     that is used behind selections in the \uicontrol {Selected text color}
     and \uicontrol {Selection color} fields.
 
     For more information about selecting colors, see \l{Picking Colors}. You
-    can only set solid colors for text items.
+    can only set solid colors for text components.
 
     \section1 Advanced Text Properties
 
-    The height and width of a text item are determined automatically depending
+    The height and width of a text component are determined automatically depending
     on the values of the properties you set, to accommodate the length of the
     string that you specify in the \uicontrol Text field and the font size, for
     example.
@@ -148,15 +148,15 @@
     size of the displayed text is determined. Select \uicontrol FixedSize to
     use the size specified in the \uicontrol Size field in pixels or points.
     Select \uicontrol HorizontalFit or \uicontrol VerticalFit to use the largest
-    size up to the size specified that fits the width or height of the item.
+    size up to the size specified that fits the width or height of the component.
     Select \uicontrol Fit to use the largest size up to the size specified that
-    fits within the width and height of the item. The font size of fitted text
+    fits within the width and height of the component. The font size of fitted text
     has a minimum bound specified by the \uicontrol {Minimum size} field and
     maximum bound specified by the \uicontrol Size field.
 
     In the \uicontrol {Wrap mode} field, you can wrap the text to the text
-    item's width. The text will only wrap if you set an explicit width for
-    the text item. By default, text is not wrapped. Select \uicontrol WordWrap
+    component's width. The text will only wrap if you set an explicit width for
+    the text component. By default, text is not wrapped. Select \uicontrol WordWrap
     to restrict wrapping to word boundaries only. Select \uicontrol WrapAnywhere
     to enable wrapping at any point on a line, even if it occurs in the middle
     of a word. Select \uicontrol Wrap to wrap at a word boundary, if possible,
@@ -165,7 +165,7 @@
     You can use the \uicontrol Elide property with the \uicontrol Wrap
     option to fit a single line of plain text to a set width. Select
     \uicontrol ElideRight, and set the \uicontrol {Maximum line count}
-    or the text item height (in the \uicontrol H field). If you set both,
+    or the text component height (in the \uicontrol H field). If you set both,
     the maximum line count will apply unless the lines do not fit in the
     height allowed.
 
@@ -197,7 +197,7 @@
     better performance than rich text.
 
     In the \uicontrol {Render type} field, you can override the default
-    rendering type for a text item. Select \uicontrol NativeRendering if
+    rendering type for a text component. Select \uicontrol NativeRendering if
     you prefer text to look native on the target platform and do not
     require advanced features such as \l {Managing 2D Transformations}
     {transformation} of the text. Using rotation or scaling in combination
@@ -206,12 +206,12 @@
     \target text-edit
     \section1 Text Input
 
-    You can use the \uicontrol {Text Edit} and \uicontrol {Text Input} types to
-    add text fields where users can enter text.
+    You can use the \uicontrol {Text Edit} and \uicontrol {Text Input}
+    components to add text fields where users can enter text.
 
-    The Text Input type displays a single line of editable plain text, whereas
-    the Text Edit type displays a block of editable, formatted text. Both types
-    are used to accept text input.
+    The Text Input component displays a single line of editable plain text,
+    whereas the Text Edit component displays a block of editable, formatted
+    text. Both components are used to accept text input.
 
     \image qtquick-designer-text-input-properties.png "Text input field properties"
 
@@ -258,7 +258,7 @@
     be overwritten.
 
     If the \uicontrol {Persistent selection} check box is selected, a text edit
-    or input keeps its selection when active focus moves to another item.
+    or input keeps its selection when active focus moves to another component.
 
     To use a pointer device for selecting text, select the
     \uicontrol {Select by mouse} check box.
@@ -276,10 +276,10 @@
 
     \section1 Summary of Text Components
 
-    The following table lists the QML types that you can use to add text to
+    The following table lists the components that you can use to add text to
     UIs. The \e Location column contains the tab name where you can find the
-    type in \uicontrol Library. The \e MCU column indicates which types are
-    supported on MCUs.
+    component in \l Library > \uicontrol Components. The \e MCU column
+    indicates which components are supported on MCUs.
 
     \table
     \header
@@ -291,37 +291,37 @@
     \row
         \li \inlineimage icons/label-icon16.png
         \li \l [QtQuickControls]{Label}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li A text label with inherited styling and font.
     \row
         \li \inlineimage text-icon16.png
         \li \l [QtQuick]{Text}
-        \li Qt Quick - Basic
+        \li Default Components - Basic
         \li \inlineimage ok
         \li Formatted read-only text.
     \row
         \li \inlineimage icons/textarea-icon16.png
         \li \l [QtQuickControls]{TextArea}{Text Area}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li Multiple lines of editable formatted text.
     \row
         \li \inlineimage text-edit-icon16.png
         \li \l [QtQuick]{TextEdit}{Text Edit}
-        \li Qt Quick - Basic
+        \li Default Components - Basic
         \li
         \li A single line of editable formatted text that can be validated.
     \row
         \li \inlineimage icons/textfield-icon16.png
         \li \l [QtQuickControls]{TextField}{Text Field}
-        \li Qt Quick - Controls 2
+        \li Qt Quick Controls
         \li
         \li A single line of editable plain text.
     \row
         \li \inlineimage text-input-icon16.png
         \li \l [QtQuick]{TextInput}{Text Input}
-        \li Qt Quick - Basic
+        \li Default Components - Basic
         \li
         \li A single line of editable plain text that can be validated.
     \endtable

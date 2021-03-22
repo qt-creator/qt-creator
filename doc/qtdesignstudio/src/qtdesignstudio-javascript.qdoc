@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Design Studio documentation.
@@ -60,7 +60,7 @@
         \li In the File Explorer, create a new folder for the mock data
             inside the \e imports folder in your project folder (for example, \e Data).
             \note Make sure to capitalize the \e Data folder name, because you
-            will need to import it as a QML type later, and QML type names must
+            will need to import it as a component later, and component names must
             be capitalized.
             \note If you place this folder somewhere else in the project, you will
             need to add the path to the list of imports. To do this, in \QDS, open
@@ -79,7 +79,7 @@
             in the data folder. In these instructions, the file is called
             \e Values.qml.
             \note Make sure to capitalize the filename, because it will become
-            a custom QML type.
+            a custom component.
         \li Select \uicontrol File > \uicontrol {New File or Project} >
             \uicontrol {Files and Classes} > \uicontrol {JavaScript} >
             \uicontrol {JavaScript File} > \uicontrol Choose to create a
@@ -120,7 +120,7 @@
 
             }
             \endcode
-        \li Add the following code to use a \l Timer type to specify a range of
+        \li Add the following code to use a \l Timer component to specify a range of
             values for the property:
             \code
             property Timer name1Timer: Timer{

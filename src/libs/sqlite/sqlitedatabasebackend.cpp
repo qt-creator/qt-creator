@@ -37,15 +37,24 @@
 
 #include "sqlite3.h"
 
+#include <chrono>
+#include <thread>
+
 extern "C" {
 int sqlite3_carray_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines *pApi);
 }
 
 namespace Sqlite {
 
+using namespace std::literals;
+
 DatabaseBackend::DatabaseBackend(Database &database)
     : m_database(database)
     , m_databaseHandle(nullptr)
+    , m_busyHandler([](int) {
+        std::this_thread::sleep_for(10ms);
+        return true;
+    })
 {
 }
 
@@ -197,26 +206,22 @@ void DatabaseBackend::closeWithoutException()
     }
 }
 
+namespace {
+
+int busyHandlerCallback(void *userData, int counter)
+{
+    auto &&busyHandler = *static_cast<DatabaseBackend::BusyHandler *>(userData);
+
+    return busyHandler(counter);
+}
+
+} // namespace
+
 void DatabaseBackend::registerBusyHandler()
 {
-    int resultCode = sqlite3_busy_handler(sqliteDatabaseHandle(), &busyHandlerCallback, nullptr);
+    int resultCode = sqlite3_busy_handler(sqliteDatabaseHandle(), &busyHandlerCallback, &m_busyHandler);
 
     checkIfBusyTimeoutWasSet(resultCode);
-}
-
-void DatabaseBackend::registerRankingFunction()
-{
-}
-
-int DatabaseBackend::busyHandlerCallback(void *, int counter)
-{
-    Q_UNUSED(counter)
-#ifdef QT_DEBUG
-    //qWarning() << "Busy handler invoked" << counter << "times!";
-#endif
-    QThread::msleep(10);
-
-    return true;
 }
 
 void DatabaseBackend::checkForOpenDatabaseWhichCanBeClosed()
@@ -414,6 +419,12 @@ void DatabaseBackend::setUpdateHook(
 void DatabaseBackend::resetUpdateHook()
 {
     sqlite3_update_hook(m_databaseHandle, nullptr, nullptr);
+}
+
+void DatabaseBackend::setBusyHandler(DatabaseBackend::BusyHandler &&busyHandler)
+{
+    m_busyHandler = std::move(busyHandler);
+    registerBusyHandler();
 }
 
 void DatabaseBackend::throwExceptionStatic(const char *whatHasHappens)

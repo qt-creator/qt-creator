@@ -171,7 +171,7 @@ private:
     mutable std::unique_ptr<MacroExpander> m_expander;
 };
 
-enum HostBinaries { Designer, Linguist, Uic, QScxmlc };
+enum HostBinaries { Designer, Linguist, Rcc, Uic, QScxmlc };
 
 class BaseQtVersionPrivate
 {
@@ -232,6 +232,7 @@ public:
 
     FilePath m_qmakeCommand;
 
+    QString m_rccCommand;
     QString m_uicCommand;
     QString m_designerCommand;
     QString m_linguistCommand;
@@ -1015,12 +1016,10 @@ QString BaseQtVersionPrivate::findHostBinary(HostBinaries binary) const
     if (q->qtVersion() < QtVersionNumber(5, 0, 0)) {
         baseDir = q->binPath().toString();
     } else {
-        q->ensureMkSpecParsed();
         switch (binary) {
         case Designer:
         case Linguist:
-            baseDir = m_mkspecValues.value("QT.designer.bins");
-            break;
+        case Rcc:
         case Uic:
         case QScxmlc:
             baseDir = q->hostBinPath().toString();
@@ -1050,6 +1049,14 @@ QString BaseQtVersionPrivate::findHostBinary(HostBinaries binary) const
         else
             possibleCommands << HostOsInfo::withExecutableSuffix("linguist");
         break;
+    case Rcc:
+        if (HostOsInfo::isWindowsHost()) {
+            possibleCommands << "rcc.exe";
+        } else {
+            const QString majorString = QString::number(q->qtVersion().majorVersion);
+            possibleCommands << ("rcc-qt" + majorString) << ("rcc" + majorString) << "rcc";
+        }
+        break;
     case Uic:
         if (HostOsInfo::isWindowsHost()) {
             possibleCommands << "uic.exe";
@@ -1070,6 +1077,16 @@ QString BaseQtVersionPrivate::findHostBinary(HostBinaries binary) const
             return QDir::cleanPath(fullPath);
     }
     return QString();
+}
+
+QString BaseQtVersion::rccCommand() const
+{
+    if (!isValid())
+        return QString();
+    if (!d->m_rccCommand.isNull())
+        return d->m_rccCommand;
+    d->m_rccCommand = d->findHostBinary(Rcc);
+    return d->m_rccCommand;
 }
 
 QString BaseQtVersion::uicCommand() const
@@ -1148,12 +1165,10 @@ void BaseQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
         else if (value == "qt_framework")
             d->m_frameworkBuild = true;
     }
-    const QString designerBins = "QT.designer.bins";
     const QString qmlBins = "QT.qml.bins";
     const QString declarativeBins = "QT.declarative.bins";
     const QString libinfix = MKSPEC_VALUE_LIBINFIX;
     const QString ns = MKSPEC_VALUE_NAMESPACE;
-    d->m_mkspecValues.insert(designerBins, evaluator->value(designerBins));
     d->m_mkspecValues.insert(qmlBins, evaluator->value(qmlBins));
     d->m_mkspecValues.insert(declarativeBins, evaluator->value(declarativeBins));
     d->m_mkspecValues.insert(libinfix, evaluator->value(libinfix));

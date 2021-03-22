@@ -163,7 +163,7 @@ Section {
 
         Label {
             text: qsTr("Focus")
-            tooltip: qsTr("Sets focus on the item within the enclosing focus scope.")
+            tooltip: qsTr("Sets focus on the component within the enclosing focus scope.")
             disabledState: !backendValues.focus.isAvailable
         }
         SecondColumnLayout {
@@ -178,7 +178,7 @@ Section {
 
         Label {
             text: qsTr("Active focus on tab")
-            tooltip: qsTr("Adds the item to the tab focus chain.")
+            tooltip: qsTr("Adds the component to the tab focus chain.")
             disabledState: !backendValues.activeFocusOnTab.isAvailable
         }
         SecondColumnLayout {
@@ -193,7 +193,7 @@ Section {
 
         Label {
             text: qsTr("Baseline offset")
-            tooltip: qsTr("Position of the item's baseline in local coordinates.")
+            tooltip: qsTr("Position of the component's baseline in local coordinates.")
             disabledState: !backendValues.baselineOffset.isAvailable
         }
         SecondColumnLayout {

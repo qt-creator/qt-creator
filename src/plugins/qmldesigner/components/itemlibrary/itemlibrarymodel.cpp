@@ -214,10 +214,15 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
     // create import sections
     QHash<QString, ItemLibraryImport *> importHash;
     for (const Import &import : model->imports()) {
-        if (import.isLibraryImport() && import.url() != projectName) {
+        if (import.url() != projectName) {
             bool addNew = true;
             bool isQuick3DAsset = import.url().startsWith("Quick3DAssets.");
-            QString importUrl = isQuick3DAsset ? ItemLibraryImport::quick3DAssetsTitle() : import.url();
+            QString importUrl = import.url();
+            if (isQuick3DAsset)
+                importUrl = ItemLibraryImport::quick3DAssetsTitle();
+            else if (import.isFileImport())
+                importUrl = import.toString(true, true).remove("\"");
+
             ItemLibraryImport *oldImport = importHash.value(importUrl);
             if (oldImport && oldImport->sectionType() == ItemLibraryImport::SectionType::Quick3DAssets
                 && isQuick3DAsset) {
@@ -280,28 +285,36 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
             QString catName = entry.category();
             if (isUsable) {
                 if (catName == ItemLibraryImport::userComponentsTitle()) {
-                    // create an import section for user components
-                    importSection = importByUrl(ItemLibraryImport::userComponentsTitle());
-                    if (!importSection) {
-                        importSection = new ItemLibraryImport(
-                                    {}, this, ItemLibraryImport::SectionType::User);
-                        m_importList.append(importSection);
-                        importSection->setImportExpanded(loadExpandedState(catName));
+                    if (entry.requiredImport().isEmpty()) { // user components
+                        importSection = importHash[ItemLibraryImport::userComponentsTitle()];
+                        if (!importSection) {
+                            importSection = new ItemLibraryImport(
+                                        {}, this, ItemLibraryImport::SectionType::User);
+                            m_importList.append(importSection);
+                            importHash.insert(ItemLibraryImport::userComponentsTitle(), importSection);
+                            importSection->setImportExpanded(loadExpandedState(catName));
+                        }
+                    } else { // directory import
+                        importSection = importHash[entry.requiredImport()];
+
                     }
                 } else if (catName == "My Quick3D Components") {
-                    importSection = importByUrl(ItemLibraryImport::quick3DAssetsTitle());
+                    importSection = importHash[ItemLibraryImport::quick3DAssetsTitle()];
                 } else {
                     if (catName.startsWith("Qt Quick - "))
                         catName = catName.mid(11); // remove "Qt Quick - "
-                    importSection = importByUrl(entry.requiredImport());
+
+                    importSection = importHash[entry.requiredImport().isEmpty() ? "QtQuick"
+                                                                                : entry.requiredImport()];
                 }
             } else {
                 catName = ItemLibraryImport::unimportedComponentsTitle();
-                importSection = importByUrl(catName);
+                importSection = importHash[catName];
                 if (!importSection) {
                     importSection = new ItemLibraryImport(
                                 {}, this, ItemLibraryImport::SectionType::Unimported);
                     m_importList.append(importSection);
+                    importHash.insert(ItemLibraryImport::unimportedComponentsTitle(), importSection);
                     importSection->setImportExpanded(loadExpandedState(catName));
                 }
             }
@@ -316,8 +329,10 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
             if (!categorySection) {
                 categorySection = new ItemLibraryCategory(catName, importSection);
                 importSection->addCategory(categorySection);
-                if (importSection->sectionType() == ItemLibraryImport::SectionType::Default)
+                if (importSection->sectionType() == ItemLibraryImport::SectionType::Default
+                    && !importSection->hasSingleCategory()) {
                     categorySection->setExpanded(loadExpandedState(categorySection->categoryName()));
+                }
             }
 
             // create item

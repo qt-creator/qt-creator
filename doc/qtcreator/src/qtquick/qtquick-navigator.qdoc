@@ -38,9 +38,9 @@
     \image qmldesigner-navigator.png "Navigator with component preview"
 
     You can select components in the \uicontrol Navigator view to edit their
-    properties in the \uicontrol Properties view. Components can access the
+    properties in the \l Properties view. Components can access the
     properties of their parent component. To select components in the
-    \uicontrol {Form Editor} view, right-click a component, and select another
+    \l {Form Editor} view, right-click a component, and select another
     component in the \uicontrol Selection submenu.
 
     Typically, child components are located within the parent component in
@@ -123,7 +123,8 @@
 
     To hide invisible components in \uicontrol Navigator, click
     \inlineimage filtericon.png
-    (\uicontrol {Filter Tree}) and select \uicontrol {Show only visible items}.
+    (\uicontrol {Filter Tree}) and select
+    \uicontrol {Show Only Visible Components}.
 
     \section1 Locking Components
 
@@ -142,14 +143,14 @@
     \image qtquick-designer-navigator-lock.gif "Locking components in Navigator"
 
     You cannot select locked components in \uicontrol {Form Editor} or
-    \uicontrol {3D Editor} nor access their properties in
+    \l {3D Editor} nor access their properties in
     \uicontrol Properties.
 
     If you attempt to \l{Adding States}{remove a state} that changes the
     properties of a locked component, you are prompted to confirm the removal.
 
     If you have \l{Editing Animation Curves}{added easing curves} to keyframe
-    animations, you can lock and unlock them in the \uicontrol {Curve Editor}
+    animations, you can lock and unlock them in the \l {Curve Editor}
     view. If you lock the components that contain the easing curves, the lock
     status is synchronized between \uicontrol Navigator and
     \uicontrol {Curve Editor}.
@@ -164,7 +165,7 @@
     components in \uicontrol {Form Editor}. To list the components in the order
     in which they appear in the file, as some other tools do, click
     \inlineimage filtericon.png
-    (\uicontrol {Filter Tree}), and select \uicontrol {Reverse item order}.
+    (\uicontrol {Filter Tree}), and select \uicontrol {Reverse Component Order}.
 
     To move a component to the top or bottom of the tree within its parent,
     right-click it in \uicontrol Navigator or \uicontrol {Form Editor}
@@ -218,7 +219,7 @@
             right-click an instance of a component and then select
             \uicontrol {Go into Component} in the context menu or
             press \key F2.
-        \li In \uicontrol Properties, select \uicontrol {Edit Master Component}.
+        \li In \uicontrol Properties, select \uicontrol {Edit Base Component}.
     \endlist
 
     The component hierarchy is displayed as a bread crumb path, where you can

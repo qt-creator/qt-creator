@@ -35,6 +35,7 @@ namespace Internal {
 
 class DiagnosticMark : public TextEditor::TextMark
 {
+    Q_DECLARE_TR_FUNCTIONS(ClangTools::Internal::DiagnosticMark)
 public:
     explicit DiagnosticMark(const Diagnostic &diagnostic);
 

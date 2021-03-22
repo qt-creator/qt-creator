@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -31,30 +31,30 @@
     \title Images
     \target basic-image
 
-    The Image type is used for adding images to the UI in several supported
+    The Image component is used for adding images to the UI in several supported
     formats, including bitmap formats, such as PNG and JPEG, and vector graphics
     formats, such as SVG. You must add the images to your project in the
     \uicontrol Assets tab of \uicontrol Library to be able to use them in
     designs.
 
-    \image qtquick-designer-image-type.png "Image type in different views"
+    \image qtquick-designer-image-type.png "Image component in different views"
 
     When you drag and drop an image file from the \uicontrol Assets tab of
     \uicontrol Library to \uicontrol Navigator or \uicontrol {Form Editor},
-    \QC automatically creates a component of the Image type for you with
+    \QC automatically creates a component of the Image component for you with
     the path to the image file set as the value of the \uicontrol Source
     field in \uicontrol Properties.
 
     To load images from a URL using a supported URL scheme, specify the URL
     in the \uicontrol Source field.
 
-    You can use the \l {Border Image} type to display an image,
+    You can use the \l {Border Image} component to display an image,
     such as a PNG file, as a border and a background. For more
     information about using border images to create buttons, see
     \l {Creating Scalable Buttons and Borders}.
 
     If you need to display animated images, such as GIFs, use the
-    \l {Animated Image} type.
+    \l {Animated Image} component.
 
     \section1 Image Size
 
@@ -63,13 +63,13 @@
     If the image \uicontrol Size is not specified, the size of the source
     image is used automatically.
 
-    By default, explicitly setting the width and height of the item causes
+    By default, explicitly setting the width and height of the component causes
     the image to be scaled to that size. To change this behavior, set the
     value of the \uicontrol {Fill mode} field. Images can be stretched, tiled,
     or scaled uniformly to the specified size with or without cropping. The
     \uicontrol Pad option means that the image is not transformed.
 
-    \note If the \uicontrol Clip check box is not selected, the item might
+    \note If the \uicontrol Clip check box is not selected, the component might
     paint outside its bounding rectangle even if the \uicontrol {Fill mode}
     is set to \uicontrol PreserveAspectCrop.
 
@@ -146,11 +146,11 @@
 
     \section1 Border Image
 
-    The Border Image type extends the features of the Image type. It is used
-    to create borders out of images by scaling or tiling parts of each image. A
-    source image is broken into 9 regions that are scaled or tiled individually.
-    The corner regions are not scaled at all, while the horizontal and vertical
-    regions are scaled according to the values of the
+    The Border Image component extends the features of the Image component.
+    It is used to create borders out of images by scaling or tiling parts
+    of each image. A source image is broken into 9 regions that are scaled or
+    tiled individually. The corner regions are not scaled at all, while the
+    horizontal and vertical regions are scaled according to the values of the
     \uicontrol {Horizontal tile mode} and \uicontrol {Vertical tile mode} field,
     or both.
 
@@ -169,13 +169,13 @@
     \note You cannot change the \uicontrol {Source size} of a border image.
 
     For examples of using border images, see the documentation of the
-    \l [QtQuick]{BorderImage} type.
+    \l [QtQuick]{BorderImage} component.
 
     \section1 Animated Image
 
-    The Animated Image type extends the features of the Image type, providing
-    a way to play animations stored as images containing a series of frames,
-    such as those stored in GIF files.
+    The Animated Image component extends the features of the Image component,
+    providing a way to play animations stored as images containing a series of
+    frames, such as those stored in GIF files.
 
     Set the speed of the animation in the \uicontrol Speed field. The speed is
     measured in percentage of the original animated image speed. The default
@@ -199,10 +199,10 @@
 
     \section1 Summary of Images
 
-    The following table lists the QML types that you can use to add images.
-    The \e Location column contains the tab name where you can find the type
-    in \uicontrol Library. The \e MCU column indicates which types are supported
-    on MCUs.
+    The following table lists the components that you can use to add images.
+    The \e Location column contains the tab name where you can find the
+    component in \l Library > \uicontrol Components. The \e MCU column
+    indicates which components are supported on MCUs.
 
     \table
     \header
@@ -214,20 +214,20 @@
     \row
         \li \inlineimage animated-image-icon16.png
         \li \l [QtQuick]{AnimatedImage}{Animated Image}
-        \li Qt Quick - Basic
+        \li Default Components - Basic
         \li
         \li An images that stores animations containing a series of frames,
             such as those stored in GIF files.
     \row
         \li \inlineimage border-image-icon16.png
         \li \l [QtQuick]{BorderImage}{Border Image}
-        \li Qt Quick - Basic
+        \li Default Components - Basic
         \li \inlineimage ok
         \li An image that is used as a border or background.
     \row
         \li \inlineimage image-icon16.png
         \li \l [QtQuick]{Image}
-        \li Qt Quick - Basic
+        \li Default Components - Basic
         \li \inlineimage ok
         \li An image in one of the supported formats, including bitmap formats
             such as PNG and JPEG and vector graphics formats such as SVG.
@@ -238,7 +238,7 @@
         \li Studio Components
         \li
         \li An icon from an ISO 7000 icon library specified as a \l Picture
-            type. You can select the icon to use and its color.
+            component. You can select the icon to use and its color.
     \endif
     \endtable
 */

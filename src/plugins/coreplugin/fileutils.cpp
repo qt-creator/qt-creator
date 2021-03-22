@@ -188,7 +188,7 @@ void FileUtils::removeFiles(const FilePaths &filePaths, bool deleteFromFS)
             continue;
         if (!file.remove()) {
             MessageManager::writeDisrupting(
-                QCoreApplication::translate("Core::Internal", "Failed to remove file \"%1\")1.")
+                QCoreApplication::translate("Core::Internal", "Failed to remove file \"%1\".")
                     .arg(fp.toUserOutput()));
         }
     }

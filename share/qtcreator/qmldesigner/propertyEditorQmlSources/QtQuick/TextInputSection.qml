@@ -76,7 +76,7 @@ Section {
 
         Label {
             visible: textInputSection.isTextInput
-            text: qsTr("Pass. char")
+            text: qsTr("Password character")
             tooltip: qsTr("Character displayed when users enter passwords.")
         }
 
@@ -116,7 +116,7 @@ Section {
         Label {
             visible: textInputSection.isTextInput
             text: qsTr("Maximum length")
-            tooltip: qsTr("Maximum permitted length of the text in the TextInput.")
+            tooltip: qsTr("Maximum permitted length of the text in the Text Input.")
         }
         SpinBox {
             visible: textInputSection.isTextInput

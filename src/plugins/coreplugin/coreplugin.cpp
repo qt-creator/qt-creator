@@ -396,7 +396,7 @@ void CorePlugin::warnAboutCrashReporing()
             ? tr("%1 collects crash reports for the sole purpose of fixing bugs. "
                  "To disable this feature go to %2.")
             : tr("%1 can collect crash reports for the sole purpose of fixing bugs. "
-                 "to enable this feature go to %2.");
+                 "To enable this feature go to %2.");
 
     if (Utils::HostOsInfo::isMacHost()) {
         warnStr = warnStr.arg(Core::Constants::IDE_DISPLAY_NAME)

@@ -131,6 +131,7 @@ public:
     bool isInSourceDirectory(const Utils::FilePath &filePath);
     bool isSubProject(const Utils::FilePath &filePath) const;
 
+    QString rccCommand() const;
     // used by UiCodeModelSupport
     QString uicCommand() const;
     QString designerCommand() const;

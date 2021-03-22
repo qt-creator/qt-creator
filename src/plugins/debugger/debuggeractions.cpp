@@ -427,8 +427,8 @@ DebuggerSettings::DebuggerSettings()
 
     usePseudoTracepoints.setSettingsKey(debugModeGroup, "UsePseudoTracepoints");
     usePseudoTracepoints.setLabelText(/*GdbOptionsPage::*/tr("Use pseudo message tracepoints"));
-    usePseudoTracepoints.setToolTip(/*GdbOptionsPage::*/tr(
-        "Uses python to extend the ordinary GDB breakpoint class."));
+    usePseudoTracepoints.setToolTip(
+        /*GdbOptionsPage::*/ tr("Uses Python to extend the ordinary GDB breakpoint class."));
     usePseudoTracepoints.setDefaultValue(true);
 
     useToolTipsInMainEditor.setSettingsKey(debugModeGroup, "UseToolTips");

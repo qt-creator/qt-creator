@@ -800,7 +800,7 @@ void StringAspect::setDefaultValue(const QString &val)
 void StringAspect::fromMap(const QVariantMap &map)
 {
     if (!settingsKey().isEmpty())
-        BaseAspect::setValueQuietly(map.value(settingsKey()));
+        BaseAspect::setValueQuietly(map.value(settingsKey(), defaultValue()));
     if (d->m_checker)
         d->m_checker->fromMap(map);
 }

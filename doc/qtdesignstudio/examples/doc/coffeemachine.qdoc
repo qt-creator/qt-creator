@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -113,7 +113,8 @@
     \section1 Using Timelines to Animate Transitions
 
     The Coffee Machine application screens for choosing coffee, empty cup, and
-    brewing each use custom QML types specified in separate QML files.
+    brewing each use custom components specified in separate component files
+    (.qml).
 
     We use the \uicontrol Timeline view to animate the transitions between
     the screens during the application flow in \e {ApplicationFlow.ui.qml}.
@@ -122,7 +123,7 @@
 
     Our viewport contains 200 frames, so we select the
     \inlineimage plus.png "Plus button"
-    button to add a 1200-frame timeline to the root element.
+    button to add a 1200-frame timeline to the root component.
     We use the default values for all other fields.
 
     To start recording the transition from the startup screen to the coffee

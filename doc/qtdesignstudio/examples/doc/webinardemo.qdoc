@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -42,7 +42,7 @@
     \section1 Exporting from Adobe Photoshop
 
     We use Adobe Photoshop to design our application and \QB to export our
-    design to \QDS as PNG images and custom QML types.
+    design to \QDS as PNG images and custom components.
 
     Before we can begin, we must set up \QB as instructed in
     \l{Exporting Designs from Adobe Photoshop}.
@@ -63,10 +63,10 @@
     will be exported as PNG files, with references to them in the component file
     that contains them.
 
-    We can export some components as QML types that provide the functionality
-    that we want. To use the types in \QDS, we need to add import statements
-    that pull in the modules that contain the types. We can even specify
-    properties for the types to export, so that we won't have to do that in
+    We can export some components as components that provide the functionality
+    that we want. To use the components in \QDS, we need to add import statements
+    that pull in the modules that contain the components. We can even specify
+    properties for the components to export, so that we won't have to do that in
     \QDS.
 
     \section2 Creating a Reference Image
@@ -94,12 +94,12 @@
 
     \image webinardemo-qb-stacklayout.png "Settings for exporting stackLayout artboard"
 
-    For the stackLayoutFrame layer, we want to use a \l StackLayout QML type,
+    For the stackLayoutFrame layer, we want to use a \l StackLayout component,
     which provides a stack of items where only one item is visible at a time.
     In the \uicontrol {QML Type} field, we enter \e StackLayout.
 
-    To be able to use the type, we enter the statement that imports the
-    Qt Quick Layouts module, which contains the type, in the
+    To be able to use the component, we enter the statement that imports the
+    Qt Quick Layouts module, which contains the component, in the
     \uicontrol {Add Imports} field: \c {QtQuick.Layouts 1.3}.
 
     We will add content to the stack layout in \QDS.
@@ -110,10 +110,10 @@
 
     We want to apply the \l {FastBlur} effect to the smallPopup UI control.
     In the artboard, we have a blurEffect layer that we want to export as a
-    FastBlurItem QML type. In the \uicontrol {QML Type} field, we enter
+    FastBlurItem component. In the \uicontrol {QML Type} field, we enter
     \e FastBlurItem.
 
-    To be able to use the type, we added the statement that imports the
+    To be able to use the component, we added the statement that imports the
     Qt Quick Studio Effects module: \c {QtQuick.Studio.Effects 1.0}.
 
     We specify that the component to which we want to apply the effect is a
@@ -121,7 +121,7 @@
     in the \uicontrol {QML Properties} field. We can modify the property in
     the \uicontrol Radius field in the \uicontrol Properties view in \QDS.
 
-    \image webinardemo-blureffect.png "FastBlurItem QML item in Design mode"
+    \image webinardemo-blureffect.png "FastBlurItem component in Design mode"
 
     \section2 Creating a Menu with Reusable Buttons
 
@@ -159,12 +159,12 @@
 
     \section1 Using Imported Components
 
-    The \e {LayoutReference.ui.qml} file contains a reference image of the
-    UI we will create. We use the imported components to create the
+    The \e {LayoutReference.ui.qml} file contains a reference image of
+    the UI we will create. We use the imported components to create the
     UI in the \e {MainApp.ui.qml} file. The imported components are
-    listed in \uicontrol Library > \uicontrol {QML Types} >
-    \uicontrol {My QML Components}, and we can drag and drop them to the
-    \uicontrol {Form Editor}.
+    listed in \uicontrol Library > \uicontrol Components >
+    \uicontrol {My Components}, and we can drag and drop them to the
+    \l {Form Editor}.
 
     \image webinardemo-mainappui.png "Main app UI in Design mode"
 

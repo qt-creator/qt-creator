@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -46,12 +46,11 @@
     the contained components, and therefore, the modules must provide extra type
     information for code completion and the semantic checks to work correctly.
 
-    To create a QML module and make it appear in the \uicontrol Library view in
-    the Design mode:
+    To create a QML module and make it appear in the \l Library view:
 
     \list 1
 
-        \li Create custom QML controls and place all the \c .qml files in a
+        \li Create custom components and place all the \c .qml files in a
            directory dedicated to your module. For example:
            \c {imports\asset_imports}.
 
@@ -72,8 +71,8 @@
 
         \li Create a \c .metainfo file for your module and place it in the
             \c designer directory. Meta information is needed to display the
-            components in the \uicontrol {QML Types} tab in \uicontrol
-            Library. Use a metainfo file delivered with Qt, such as
+            components in the \uicontrol Components tab in \uicontrol Library.
+            Use a metainfo file delivered with Qt, such as
             \c qtquickcontrols2.metainfo, as an example.
 
         \if defined(qtcreator)
@@ -91,9 +90,9 @@
 
     \endlist
 
-    Your module should now appear in the \uicontrol {QML Imports} tab in
-    \uicontrol Library in the Design mode. Your components should appear in the
-    \uicontrol {QML Types} tab if a valid \c .metainfo file is in place.
+    Your module should now appear in the \uicontrol Components tab in
+    \uicontrol Library. Your components should appear in a subsection of
+    the \uicontrol Components tab if a valid \c .metainfo file is in place.
 
     \if defined(qtcreator)
     \section1 Registering QML Types
@@ -116,7 +115,7 @@
 
     Ideally, QML modules have a \c{plugins.qmltypes} file in the same directory
     as the \c qmldir file. The \c qmltypes file contains a description of the
-    types exported by the module's plugins and is loaded by \QC when the
+    components exported by the module's plugins and is loaded by \QC when the
     module is imported.
 
     For Qt 4.8 and later, one or more \c qmltypes files can be listed in the
@@ -131,7 +130,7 @@
     Once you have obtained \c qmlplugindump for the Qt version the QML module's
     plugins were compiled with, run the following command to load My.Module
     version 1.0 from \c{/import/path/my/module} including all its plugins and
-    output a description of the plugins' types to
+    output a description of the plugins' components to
     \c{/import/path/my/module/plugins.qmltypes}:
 
     \code
@@ -175,7 +174,7 @@
     \section1 Running QML Modules in Design Mode
 
     A QML emulation layer (also called QML Puppet) is used in the Design mode to
-    render and preview images and to collect data. To be able to render custom types
+    render and preview images and to collect data. To be able to render custom components
     correctly from QML modules, the emulation layer must be built with the same
     Qt version and compiler as the QML modules.
 

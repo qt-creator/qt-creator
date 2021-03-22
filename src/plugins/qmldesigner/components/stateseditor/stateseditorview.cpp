@@ -109,7 +109,7 @@ void StatesEditorView::removeState(int nodeId)
 
                 if (!lockedTargets.empty()) {
                     Utils::sort(lockedTargets);
-                    QString detailedText = QString("<b>" + tr("Locked items:") + "</b><br>");
+                    QString detailedText = QString("<b>" + tr("Locked components:") + "</b><br>");
 
                     for (const auto &id : qAsConst(lockedTargets))
                         detailedText.append("- " + id + "<br>");
@@ -120,7 +120,7 @@ void StatesEditorView::removeState(int nodeId)
                     msgBox.setTextFormat(Qt::RichText);
                     msgBox.setIcon(QMessageBox::Question);
                     msgBox.setWindowTitle(tr("Remove State"));
-                    msgBox.setText(QString(tr("Removing this state will modify locked items.") + "<br><br>%1")
+                    msgBox.setText(QString(tr("Removing this state will modify locked components.") + "<br><br>%1")
                                            .arg(detailedText));
                     msgBox.setInformativeText(tr("Continue by removing the state?"));
                     msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);

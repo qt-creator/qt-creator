@@ -343,7 +343,7 @@ public:
 signals:
     void checkedChanged();
 
-private:
+protected:
     void update();
 
     std::unique_ptr<Internal::StringAspectPrivate> d;

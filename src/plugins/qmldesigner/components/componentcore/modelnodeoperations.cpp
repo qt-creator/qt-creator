@@ -633,7 +633,7 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
 
     if (!qmlObjectNode.isValid()) {
         QString title = QCoreApplication::translate("ModelNodeOperations", "Go to Implementation");
-        QString description = QCoreApplication::translate("ModelNodeOperations", "Invalid item.");
+        QString description = QCoreApplication::translate("ModelNodeOperations", "Invalid component.");
         Core::AsynchronousMessageBox::warning(title, description);
         return;
     }

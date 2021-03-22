@@ -59,10 +59,10 @@
         <item>
          <widget class="QCheckBox" name="useIndenter">
           <property name="toolTip">
-           <string>If available, use a different margin. For example, the ColumnLimit from the clang-format plugin.</string>
+           <string>If available, use a different margin. For example, the ColumnLimit from the ClangFormat plugin.</string>
           </property>
           <property name="text">
-           <string>Use context specific margin</string>
+           <string>Use context-specific margin</string>
           </property>
          </widget>
         </item>
