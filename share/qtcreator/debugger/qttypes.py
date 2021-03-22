@@ -2101,7 +2101,9 @@ def qdumpHelper__QVariant6(d, value):
         _, data  = d.split('8s{%s}' % typeName, ptr)
         d.putItem(data)
     else:
-        d.putItem(d.createValue(data, typeName))
+        val = d.createValue(data, typeName)
+        val.laddress = value.laddress
+        d.putItem(val)
 
     d.putBetterType('@QVariant (%s)' % typeName)
 
