@@ -821,7 +821,9 @@ static Utils::optional<QString> currentlyLinkedQtDir(bool *hasInstallSettings)
 static QString linkingPurposeText()
 {
     return QtOptionsPageWidget::tr(
-        "Linking with a Qt installation automatically registers Qt versions and kits.");
+        "Linking with a Qt installation automatically registers Qt versions and kits, and other "
+        "tools that were installed with that Qt installer, in this Qt Creator installation. Other "
+        "Qt Creator installations are not affected.");
 }
 
 static bool canLinkWithQt(QString *toolTip)
@@ -961,7 +963,9 @@ void QtOptionsPageWidget::linkWithQt()
     dialog.setWindowTitle(title);
     auto layout = new QVBoxLayout;
     dialog.setLayout(layout);
-    layout->addWidget(new QLabel(linkingPurposeText()));
+    auto tipLabel = new QLabel(linkingPurposeText());
+    tipLabel->setWordWrap(true);
+    layout->addWidget(tipLabel);
     auto pathLayout = new QHBoxLayout;
     layout->addLayout(pathLayout);
     auto pathLabel = new QLabel(tr("Qt installation path:"));
@@ -983,6 +987,7 @@ void QtOptionsPageWidget::linkWithQt()
     const Utils::optional<QString> currentLink = currentlyLinkedQtDir(nullptr);
     pathInput->setPath(currentLink ? *currentLink : defaultQtInstallationPath());
     auto buttons = new QDialogButtonBox;
+    layout->addStretch(10);
     layout->addWidget(buttons);
     auto linkButton = buttons->addButton(tr("Link with Qt"), QDialogButtonBox::AcceptRole);
     connect(linkButton, &QPushButton::clicked, &dialog, &QDialog::accept);
