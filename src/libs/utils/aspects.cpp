@@ -610,6 +610,8 @@ public:
 class SelectionAspectPrivate
 {
 public:
+    ~SelectionAspectPrivate() { delete m_buttonGroup; }
+
     SelectionAspect::DisplayStyle m_displayStyle
             = SelectionAspect::DisplayStyle::RadioButtons;
     struct Option { QString displayName; QString tooltip; };
@@ -1385,7 +1387,7 @@ void SelectionAspect::addToLayout(LayoutBuilder &builder)
         d->m_buttonGroup->setExclusive(true);
         for (int i = 0, n = d->m_options.size(); i < n; ++i) {
             const Internal::SelectionAspectPrivate::Option &option = d->m_options.at(i);
-            auto button = new QRadioButton(option.displayName);
+            auto button = createSubWidget<QRadioButton>(option.displayName);
             button->setChecked(i == value());
             button->setToolTip(option.tooltip);
             builder.addItems({{}, button});
