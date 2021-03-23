@@ -78,28 +78,15 @@ void AnnotationEditor::removeFullAnnotation()
     if (!node.isValid())
         return;
 
-    QString dialogTitle = tr("Annotation");
-    if (!node.customId().isNull()) {
-        dialogTitle = node.customId();
-    }
-    QPointer<QMessageBox> deleteDialog = new QMessageBox(Core::ICore::dialogParent());
-    deleteDialog->setWindowTitle(dialogTitle);
-    deleteDialog->setText(tr("Delete this annotation?"));
-    deleteDialog->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    deleteDialog->setDefaultButton(QMessageBox::Yes);
-
-    int result = deleteDialog->exec();
-
-    if (deleteDialog)
-        deleteDialog->deleteLater();
-
-    if (result == QMessageBox::Yes) {
+    if (QMessageBox::question(Core::ICore::dialogParent(),
+                              node.customId().isNull() ? tr("Annotation") : node.customId(),
+                              tr("Delete this annotation?"))
+        == QMessageBox::Yes) {
         node.removeCustomId();
         node.removeAnnotation();
+        emit customIdChanged();
+        emit annotationChanged();
     }
-
-    emit customIdChanged();
-    emit annotationChanged();
 }
 
 void AnnotationEditor::acceptedClicked()

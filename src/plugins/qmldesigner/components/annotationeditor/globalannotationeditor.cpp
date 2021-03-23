@@ -62,21 +62,13 @@ void GlobalAnnotationEditor::removeFullAnnotation()
         return;
 
     QString dialogTitle = tr("Global Annotation");
-    QMessageBox *deleteDialog = new QMessageBox(Core::ICore::dialogParent());
-    deleteDialog->setWindowTitle(dialogTitle);
-    deleteDialog->setText(tr("Delete this annotation?"));
-    deleteDialog->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    deleteDialog->setDefaultButton(QMessageBox::Yes);
-
-    int result = deleteDialog->exec();
-    if (deleteDialog)
-        deleteDialog->deleteLater();
-
-    if (result == QMessageBox::Yes) {
+    if (QMessageBox::question(Core::ICore::dialogParent(),
+                              tr("Global Annotation"),
+                              tr("Delete this annotation?"))
+        == QMessageBox::Yes) {
         node.removeGlobalAnnotation();
+        emit annotationChanged();
     }
-
-    emit annotationChanged();
 }
 
 void GlobalAnnotationEditor::acceptedClicked()

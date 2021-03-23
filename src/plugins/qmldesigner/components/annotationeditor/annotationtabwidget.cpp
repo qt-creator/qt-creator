@@ -49,8 +49,8 @@ AnnotationTabWidget::AnnotationTabWidget(QWidget *parent)
         int currentIndex = this->currentIndex();
         QString currentTitle = tabText(currentIndex);
         if (QMessageBox::question(this,
-                                  tr("Global Annotation"),
-                                  tr("Do you want to delete this annotation?"))
+                                  currentTitle,
+                                  tr("Delete this comment?"))
             == QMessageBox::Yes) {
             removeTab(currentIndex);
             if (count() == 0) //lets be sure that tabWidget is never empty
