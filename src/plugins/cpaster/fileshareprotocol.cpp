@@ -48,10 +48,9 @@ static const char textElementC[] = "text";
 namespace CodePaster {
 
 FileShareProtocol::FileShareProtocol() :
-    m_settings(new FileShareProtocolSettings),
-    m_settingsPage(new FileShareProtocolSettingsPage(m_settings))
+    m_settingsPage(new FileShareProtocolSettingsPage(&m_settings))
 {
-    m_settings->fromSettings(Core::ICore::settings());
+    m_settings.readSettings(Core::ICore::settings());
 }
 
 FileShareProtocol::~FileShareProtocol()
@@ -127,7 +126,7 @@ static bool parse(const QString &fileName,
 
 bool FileShareProtocol::checkConfiguration(QString *errorMessage)
 {
-    if (m_settings->path.isEmpty()) {
+    if (m_settings.path.value().isEmpty()) {
         if (errorMessage)
             *errorMessage = tr("Please configure a path.");
         return false;
@@ -140,7 +139,7 @@ void FileShareProtocol::fetch(const QString &id)
     // Absolute or relative path name.
     QFileInfo fi(id);
     if (fi.isRelative())
-        fi = QFileInfo(m_settings->path + QLatin1Char('/') + id);
+        fi = QFileInfo(m_settings.path.value() + '/' + id);
     QString errorMessage;
     QString text;
     if (parse(fi.absoluteFilePath(), &errorMessage, nullptr, nullptr, &text))
@@ -152,7 +151,7 @@ void FileShareProtocol::fetch(const QString &id)
 void FileShareProtocol::list()
 {
     // Read out directory, display by date (latest first)
-    QDir dir(m_settings->path, QLatin1String(tempGlobPatternC),
+    QDir dir(m_settings.path.value(), tempGlobPatternC,
              QDir::Time, QDir::Files|QDir::NoDotAndDotDot|QDir::Readable);
     QStringList entries;
     QString user;
@@ -160,7 +159,7 @@ void FileShareProtocol::list()
     QString errorMessage;
     const QChar blank = QLatin1Char(' ');
     const QFileInfoList entryInfoList = dir.entryInfoList();
-    const int count = qMin(m_settings->displayCount, entryInfoList.size());
+    const int count = qMin(int(m_settings.displayCount.value()), entryInfoList.size());
     for (int i = 0; i < count; i++) {
         const QFileInfo& entryFi = entryInfoList.at(i);
         if (parse(entryFi.absoluteFilePath(), &errorMessage, &user, &description)) {
@@ -188,7 +187,7 @@ void FileShareProtocol::paste(
         )
 {
     // Write out temp XML file
-    Utils::TempFileSaver saver(m_settings->path + QLatin1Char('/') + QLatin1String(tempPatternC));
+    Utils::TempFileSaver saver(m_settings.path.value() + '/' + tempPatternC);
     saver.setAutoRemove(false);
     if (!saver.hasError()) {
         // Flat text sections embedded into pasterElement

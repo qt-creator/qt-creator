@@ -31,8 +31,7 @@ SOURCES += cpasterplugin.cpp \
 FORMS += \
     pasteselect.ui \
     pasteview.ui \
-    pastebindotcomsettings.ui \
-    fileshareprotocolsettingswidget.ui
+    pastebindotcomsettings.ui
 include(../../shared/cpaster/cpaster.pri)
 
 RESOURCES += \

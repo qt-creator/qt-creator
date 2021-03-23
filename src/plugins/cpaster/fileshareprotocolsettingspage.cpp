@@ -28,93 +28,76 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/layoutbuilder.h>
 #include <utils/temporarydirectory.h>
 
-#include <QSettings>
-#include <QCoreApplication>
-
-static const char settingsGroupC[] = "FileSharePasterSettings";
-static const char pathKeyC[] = "Path";
-static const char displayCountKeyC[] = "DisplayCount";
+using namespace Utils;
 
 namespace CodePaster {
 
-FileShareProtocolSettings::FileShareProtocolSettings() :
-        path(Utils::TemporaryDirectory::masterDirectoryPath()), displayCount(10)
+FileShareProtocolSettings::FileShareProtocolSettings()
 {
+    setSettingsGroup("FileSharePasterSettings");
+    setAutoApply(false);
+
+    registerAspect(&path);
+    path.setSettingsKey("Path");
+    path.setDisplayStyle(StringAspect::PathChooserDisplay);
+    path.setExpectedKind(PathChooser::ExistingDirectory);
+    path.setDefaultValue(TemporaryDirectory::masterDirectoryPath());
+    path.setLabelText(tr("&Path:"));
+
+    registerAspect(&displayCount);
+    displayCount.setSettingsKey("DisplayCount");
+    displayCount.setDefaultValue(10);
+    displayCount.setSuffix(' ' + tr("entries"));
+    displayCount.setLabelText(tr("&Display:"));
 }
 
-void FileShareProtocolSettings::toSettings(QSettings *s) const
+// Settings page
+
+class FileShareProtocolSettingsWidget final : public Core::IOptionsPageWidget
 {
-    s->beginGroup(QLatin1String(settingsGroupC));
-    s->setValue(QLatin1String(pathKeyC), path);
-    s->setValue(QLatin1String(displayCountKeyC), displayCount);
-    s->endGroup();
-}
+public:
+    FileShareProtocolSettingsWidget(FileShareProtocolSettings *settings)
+        : m_settings(settings)
+    {
+        FileShareProtocolSettings &s = *settings;
+        using namespace Layouting;
 
-void FileShareProtocolSettings::fromSettings(const QSettings *s)
-{
-    FileShareProtocolSettings defaultValues;
-    const QString keyRoot = QLatin1String(settingsGroupC) + QLatin1Char('/');
-    path = s->value(keyRoot + QLatin1String(pathKeyC), defaultValues.path).toString();
-    displayCount = s->value(keyRoot + QLatin1String(displayCountKeyC), defaultValues.displayCount).toInt();
-}
+        auto label = new QLabel(tr("The fileshare-based paster protocol allows for sharing code"
+                                   "snippets using simple files on a shared network drive. "
+                                   "Files are never deleted."));
+        label->setWordWrap(true);
 
-bool FileShareProtocolSettings::equals(const FileShareProtocolSettings &rhs) const
-{
-    return displayCount == rhs.displayCount &&  path == rhs.path;
-}
+        Column {
+            Form {
+            label, Break(),
+                s.path,
+                s.displayCount
+            },
+            Stretch()
+        }.attachTo(this);
+    }
 
-FileShareProtocolSettingsWidget::FileShareProtocolSettingsWidget()
-{
-    m_ui.setupUi(this);
+    void apply() final
+    {
+        if (m_settings->isDirty()) {
+            m_settings->apply();
+            m_settings->writeSettings(Core::ICore::settings());
+        }
+    }
 
-    // Add a space in front of the suffix
-    QString suffix = m_ui.displayCountSpinBox->suffix();
-    suffix.prepend(QLatin1Char(' '));
-    m_ui.displayCountSpinBox->setSuffix(suffix);
-}
+private:
+    FileShareProtocolSettings *m_settings;
+};
 
-void FileShareProtocolSettingsWidget::setSettings(const FileShareProtocolSettings &s)
-{
-    m_ui.pathChooser->setPath(s.path);
-    m_ui.displayCountSpinBox->setValue(s.displayCount);
-}
-
-FileShareProtocolSettings FileShareProtocolSettingsWidget::settings() const
-{
-    FileShareProtocolSettings rc;
-    rc.path = m_ui.pathChooser->filePath().toString();
-    rc.displayCount = m_ui.displayCountSpinBox->value();
-    return rc;
-}
-
-// ----------FileShareProtocolSettingsPage
-FileShareProtocolSettingsPage::FileShareProtocolSettingsPage(const QSharedPointer<FileShareProtocolSettings> &s)
-    : m_settings(s), m_widget(nullptr)
+FileShareProtocolSettingsPage::FileShareProtocolSettingsPage(FileShareProtocolSettings *s)
 {
     setId("X.CodePaster.FileSharePaster");
-    setDisplayName(tr("Fileshare"));
+    setDisplayName(FileShareProtocolSettingsWidget::tr("Fileshare"));
     setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
+    setWidgetCreator([s] { return new FileShareProtocolSettingsWidget(s); });
 }
 
-QWidget *FileShareProtocolSettingsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new FileShareProtocolSettingsWidget;
-        m_widget->setSettings(*m_settings);
-    }
-    return m_widget;
-}
-
-void FileShareProtocolSettingsPage::apply()
-{
-    if (!m_widget) // page was never shown
-        return;
-    const FileShareProtocolSettings newSettings = m_widget->settings();
-    if (newSettings != *m_settings) {
-        *m_settings = newSettings;
-        m_settings->toSettings(Core::ICore::settings());
-    }
-}
 } // namespace CodePaster

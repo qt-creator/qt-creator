@@ -25,7 +25,6 @@ QtcPlugin {
         "fileshareprotocol.h",
         "fileshareprotocolsettingspage.cpp",
         "fileshareprotocolsettingspage.h",
-        "fileshareprotocolsettingswidget.ui",
         "pastebindotcomprotocol.cpp",
         "pastebindotcomprotocol.h",
         "pastebindotcomsettings.ui",

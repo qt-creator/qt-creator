@@ -26,61 +26,26 @@
 #pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include "ui_fileshareprotocolsettingswidget.h"
 
-#include <QSharedPointer>
-#include <QPointer>
-#include <QWidget>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include <utils/aspects.h>
 
 namespace CodePaster {
 
-class FileShareProtocolSettings {
+class FileShareProtocolSettings : public Utils::AspectContainer
+{
+    Q_DECLARE_TR_FUNCTIONS(CodePaster::FileShareProtocolSettings)
+
 public:
     FileShareProtocolSettings();
-    void toSettings(QSettings *) const;
-    void fromSettings(const QSettings *);
-    bool equals(const FileShareProtocolSettings &rhs) const;
 
-    QString path;
-    int displayCount;
+    Utils::StringAspect path;
+    Utils::IntegerAspect displayCount;
 };
 
-inline bool operator==(const FileShareProtocolSettings &s1, const FileShareProtocolSettings &s2)
-{ return s1.equals(s2); }
-inline bool operator!=(const FileShareProtocolSettings &s1, const FileShareProtocolSettings &s2)
-{ return !s1.equals(s2); }
-
-class FileShareProtocolSettingsWidget : public QWidget
+class FileShareProtocolSettingsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
-    FileShareProtocolSettingsWidget();
-
-    void setSettings(const FileShareProtocolSettings &);
-    FileShareProtocolSettings settings() const;
-
-private:
-    Internal::Ui::FileShareProtocolSettingsWidget m_ui;
+    explicit FileShareProtocolSettingsPage(FileShareProtocolSettings *s);
 };
 
-class FileShareProtocolSettingsPage : public Core::IOptionsPage
-{
-    Q_OBJECT
-
-public:
-    explicit FileShareProtocolSettingsPage(const QSharedPointer<FileShareProtocolSettings> &s);
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override { }
-
-private:
-    const QSharedPointer<FileShareProtocolSettings> m_settings;
-    QPointer<FileShareProtocolSettingsWidget> m_widget;
-};
 } // namespace CodePaster

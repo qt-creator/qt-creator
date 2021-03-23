@@ -14,7 +14,6 @@ add_qtc_plugin(CodePaster
     dpastedotcomprotocol.cpp dpastedotcomprotocol.h
     fileshareprotocol.cpp fileshareprotocol.h
     fileshareprotocolsettingspage.cpp fileshareprotocolsettingspage.h
-    fileshareprotocolsettingswidget.ui
     frontend/argumentscollector.cpp frontend/argumentscollector.h
     frontend/main.cpp
     pastebindotcomprotocol.cpp pastebindotcomprotocol.h

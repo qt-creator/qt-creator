@@ -26,13 +26,11 @@
 #pragma once
 
 #include "protocol.h"
-
-#include <QSharedPointer>
+#include "fileshareprotocolsettingspage.h"
 
 namespace CodePaster {
 
 class FileShareProtocolSettingsPage;
-class FileShareProtocolSettings;
 
 /* FileShareProtocol: Allows for pasting via a shared network
  * drive by writing XML files. */
@@ -60,7 +58,7 @@ public:
                const QString &description = QString()) override;
 
 private:
-    const QSharedPointer<FileShareProtocolSettings> m_settings;
+    FileShareProtocolSettings m_settings;
     FileShareProtocolSettingsPage *m_settingsPage;
 };
 
