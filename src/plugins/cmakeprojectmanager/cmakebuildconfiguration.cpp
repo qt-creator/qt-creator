@@ -38,6 +38,7 @@
 
 #include <android/androidconstants.h>
 #include <ios/iosconstants.h>
+#include <webassembly/webassemblyconstants.h>
 
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/icore.h>
@@ -96,6 +97,8 @@ static Q_LOGGING_CATEGORY(cmakeBuildConfigurationLog, "qtc.cmake.bc", QtWarningM
 const char CONFIGURATION_KEY[] = "CMake.Configuration";
 const char DEVELOPMENT_TEAM_FLAG[] = "Ios:DevelopmentTeam:Flag";
 const char PROVISIONING_PROFILE_FLAG[] = "Ios:ProvisioningProfile:Flag";
+const char CMAKE_QT6_TOOLCHAIN_FILE_ARG[] =
+        "-DCMAKE_TOOLCHAIN_FILE:PATH=%{Qt:QT_INSTALL_PREFIX}/lib/cmake/Qt6/qt.toolchain.cmake";
 
 namespace Internal {
 
@@ -793,6 +796,11 @@ static bool isIos(const Kit *k)
            || deviceType == Ios::Constants::IOS_SIMULATOR_TYPE;
 }
 
+static bool isWebAssembly(const Kit *k)
+{
+    return DeviceTypeKitAspect::deviceTypeId(k) == WebAssembly::Constants::WEBASSEMBLY_DEVICE_TYPE;
+}
+
 static QStringList defaultInitialCMakeArguments(const Kit *k, const QString buildType)
 {
     // Generator:
@@ -958,13 +966,18 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                 const QString sysroot = deviceType == Ios::Constants::IOS_DEVICE_TYPE
                                             ? QLatin1String("iphoneos")
                                             : QLatin1String("iphonesimulator");
-                initialArgs.append("-DCMAKE_TOOLCHAIN_FILE:PATH=%{Qt:QT_INSTALL_PREFIX}/lib/cmake/"
-                                   "Qt6/qt.toolchain.cmake");
+                initialArgs.append(CMAKE_QT6_TOOLCHAIN_FILE_ARG);
                 initialArgs.append("-DCMAKE_OSX_ARCHITECTURES:STRING=" + architecture);
                 initialArgs.append("-DCMAKE_OSX_SYSROOT:STRING=" + sysroot);
                 initialArgs.append("%{" + QLatin1String(DEVELOPMENT_TEAM_FLAG) + "}");
                 initialArgs.append("%{" + QLatin1String(PROVISIONING_PROFILE_FLAG) + "}");
             }
+        }
+
+        if (isWebAssembly(k)) {
+            const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
+            if (qt && qt->qtVersion().majorVersion >= 6)
+                initialArgs.append(CMAKE_QT6_TOOLCHAIN_FILE_ARG);
         }
 
         if (info.buildDirectory.isEmpty()) {
