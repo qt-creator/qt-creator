@@ -546,10 +546,10 @@ void SubmitEditorWidget::verifyDescription()
                        "<ul>"
                        "<li>Avoid very short commit messages.</li>"
                        "<li>Consider the first line as subject (like in email) "
-                       "and keep it shorter than %1 characters.</li>"
+                       "and keep it shorter than %n characters.</li>"
                        "<li>After an empty second line, a longer description can be added.</li>"
                        "<li>Describe why the change was done, not how it was done.</li>"
-                       "</ul>").arg(MaxSubjectLength));
+                       "</ul>", nullptr, MaxSubjectLength));
         }
 }
 
