@@ -2,7 +2,7 @@ configure_file(app_version.h.cmakein app_version.h ESCAPE_QUOTES)
 
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/app_version.h
-  DESTINATION include/src/app
+  DESTINATION ${IDE_HEADER_INSTALL_PATH}/src/app
   COMPONENT Devel EXCLUDE_FROM_ALL
 )
 

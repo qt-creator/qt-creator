@@ -18,6 +18,9 @@ set(IDE_DATA_PATH "${_IDE_DATA_PATH}")                  # The IDE data path (rel
 set(IDE_DOC_PATH "${_IDE_DOC_PATH}")                    # The IDE documentation path (relative to CMAKE_INSTALL_PREFIX).
 set(IDE_BIN_PATH "${_IDE_BIN_PATH}")                    # The IDE bin path (relative to CMAKE_INSTALL_PREFIX).
 
+set(IDE_HEADER_INSTALL_PATH "${_IDE_HEADER_INSTALL_PATH}")
+set(IDE_CMAKE_INSTALL_PATH "${_IDE_CMAKE_INSTALL_PATH}")
+
 file(RELATIVE_PATH RELATIVE_PLUGIN_PATH "/${IDE_BIN_PATH}" "/${IDE_PLUGIN_PATH}")
 file(RELATIVE_PATH RELATIVE_LIBEXEC_PATH "/${IDE_BIN_PATH}" "/${IDE_LIBEXEC_PATH}")
 file(RELATIVE_PATH RELATIVE_DATA_PATH "/${IDE_BIN_PATH}" "/${IDE_DATA_PATH}")
@@ -90,6 +93,14 @@ function(qtc_output_binary_dir varName)
     set(${varName} ${QtCreator_BINARY_DIR} PARENT_SCOPE)
   else()
     set(${varName} ${PROJECT_BINARY_DIR} PARENT_SCOPE)
+  endif()
+endfunction()
+
+function(qtc_source_dir varName)
+  if (QTC_MERGE_BINARY_DIR)
+    set(${varName} ${QtCreator_SOURCE_DIR} PARENT_SCOPE)
+  else()
+    set(${varName} ${PROJECT_SOURCE_DIR} PARENT_SCOPE)
   endif()
 endfunction()
 
@@ -208,7 +219,7 @@ function(add_qtc_library name)
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
       PUBLIC
         "$<BUILD_INTERFACE:${public_build_interface_dir}>"
-        "$<INSTALL_INTERFACE:include/${include_dir_relative_path}>"
+        "$<INSTALL_INTERFACE:${IDE_HEADER_INSTALL_PATH}/${include_dir_relative_path}>"
     )
   endif()
 
@@ -463,7 +474,7 @@ function(add_qtc_plugin target_name)
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
     PUBLIC
       "$<BUILD_INTERFACE:${public_build_interface_dir}>"
-      "$<INSTALL_INTERFACE:include/${include_dir_relative_path}>"
+      "$<INSTALL_INTERFACE:${IDE_HEADER_INSTALL_PATH}/${include_dir_relative_path}>"
   )
 
   set(plugin_dir "${IDE_PLUGIN_PATH}")
@@ -531,18 +542,18 @@ function(add_qtc_plugin target_name)
       # export of external plugins
       install(EXPORT ${export}
         FILE ${export}Targets.cmake
-        DESTINATION lib/cmake/${export}
+        DESTINATION ${IDE_CMAKE_INSTALL_PATH}/${export}
         COMPONENT Devel EXCLUDE_FROM_ALL
         NAMESPACE QtCreator::
       )
       include(CMakePackageConfigHelpers)
       configure_package_config_file(${_THIS_MODULE_BASE_DIR}/Config.cmake.in
         "${CMAKE_BINARY_DIR}/cmake/${export}Config.cmake"
-        INSTALL_DESTINATION lib/cmake/${export}
+        INSTALL_DESTINATION ${IDE_CMAKE_INSTALL_PATH}/${export}
       )
       install(
         FILES ${CMAKE_BINARY_DIR}/cmake/${export}Config.cmake
-        DESTINATION lib/cmake/${export}
+        DESTINATION ${IDE_CMAKE_INSTALL_PATH}/${export}
         COMPONENT Devel EXCLUDE_FROM_ALL
       )
       export(EXPORT ${export}
@@ -971,12 +982,13 @@ function(qtc_add_public_header header)
     set(header "${CMAKE_CURRENT_SOURCE_DIR}/${header}")
   endif()
 
+  qtc_source_dir(qtcreator_source_dir)
   get_filename_component(source_dir ${header} DIRECTORY)
-  file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} ${source_dir})
+  file(RELATIVE_PATH include_dir_relative_path ${qtcreator_source_dir} ${source_dir})
 
   install(
     FILES ${header}
-    DESTINATION "include/${include_dir_relative_path}"
+    DESTINATION "${IDE_HEADER_INSTALL_PATH}/${include_dir_relative_path}"
     COMPONENT Devel EXCLUDE_FROM_ALL
   )
 endfunction()

@@ -69,6 +69,14 @@ def build(args, paths):
     if not os.path.exists(paths.result):
         os.makedirs(paths.result)
     prefix_paths = [os.path.abspath(fp) for fp in args.prefix_paths] + [paths.qt_creator, paths.qt]
+    if common.is_mac_platform():
+        # --qtc-path may be
+        # "/path/Qt Creator.app/Contents/Resources",
+        # "/path/Qt Creator.app", or
+        # "/path",
+        # so add some variants to the prefix path
+        prefix_paths += [os.path.join(paths.qt_creator, 'Contents', 'Resources'),
+                         os.path.join(paths.qt_creator, 'Qt Creator.app', 'Contents', 'Resources')]
     prefix_paths = [common.to_posix_path(fp) for fp in prefix_paths]
     separate_debug_info_option = 'ON' if args.with_debug_info else 'OFF'
     cmake_args = ['cmake',

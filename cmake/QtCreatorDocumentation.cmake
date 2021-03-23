@@ -219,7 +219,10 @@ function(qtc_docs_dir varName)
     set(${varName} "${QtCreator_SOURCE_DIR}/doc" PARENT_SCOPE)
   elseif(QtCreatorDocumentation_LIST_DIR MATCHES /lib/cmake/QtCreator$)
     # Dev package
-    set(${varName} "${QtCreatorDocumentation_LIST_DIR}/../../../doc" PARENT_SCOPE)
+    file(RELATIVE_PATH relative_header_path "/${IDE_CMAKE_INSTALL_PATH}/QtCreator" "/${IDE_HEADER_INSTALL_PATH}")
+    set(${varName}
+        "${QtCreatorDocumentation_LIST_DIR}/${relative_header_path}/doc"
+        PARENT_SCOPE)
   else()
     message(FATAL_ERROR "Could not find qtc_docs_dir")
   endif()

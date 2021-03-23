@@ -37,7 +37,7 @@ if (APPLE)
   set(_IDE_APP_PATH ".")
   set(_IDE_APP_TARGET "${IDE_DISPLAY_NAME}")
 
-  set(_IDE_OUTPUT_PATH "${_IDE_APP_PATH}/${_IDE_APP_TARGET}.app/Contents")
+  set(_IDE_OUTPUT_PATH "${_IDE_APP_TARGET}.app/Contents")
 
   set(_IDE_LIBRARY_BASE_PATH "Frameworks")
   set(_IDE_LIBRARY_PATH "${_IDE_OUTPUT_PATH}/${_IDE_LIBRARY_BASE_PATH}")
@@ -46,6 +46,9 @@ if (APPLE)
   set(_IDE_DATA_PATH "${_IDE_OUTPUT_PATH}/Resources")
   set(_IDE_DOC_PATH "${_IDE_OUTPUT_PATH}/Resources/doc")
   set(_IDE_BIN_PATH "${_IDE_OUTPUT_PATH}/MacOS")
+
+  set(_IDE_HEADER_INSTALL_PATH "${_IDE_DATA_PATH}/Headers/qtcreator")
+  set(_IDE_CMAKE_INSTALL_PATH "${_IDE_DATA_PATH}/lib/cmake")
 elseif(WIN32)
   set(_IDE_APP_PATH "bin")
   set(_IDE_APP_TARGET "${IDE_ID}")
@@ -57,6 +60,9 @@ elseif(WIN32)
   set(_IDE_DATA_PATH "share/qtcreator")
   set(_IDE_DOC_PATH "share/doc/qtcreator")
   set(_IDE_BIN_PATH "bin")
+
+  set(_IDE_HEADER_INSTALL_PATH "include/qtcreator")
+  set(_IDE_CMAKE_INSTALL_PATH "lib/cmake")
 else ()
   include(GNUInstallDirs)
   set(_IDE_APP_PATH "${CMAKE_INSTALL_BINDIR}")
@@ -69,6 +75,9 @@ else ()
   set(_IDE_DATA_PATH "${CMAKE_INSTALL_DATAROOTDIR}/qtcreator")
   set(_IDE_DOC_PATH "${CMAKE_INSTALL_DATAROOTDIR}/doc/qtcreator")
   set(_IDE_BIN_PATH "${CMAKE_INSTALL_BINDIR}")
+
+  set(_IDE_HEADER_INSTALL_PATH "include/qtcreator")
+  set(_IDE_CMAKE_INSTALL_PATH "lib/cmake")
 endif ()
 
 file(RELATIVE_PATH _PLUGIN_TO_LIB "/${_IDE_PLUGIN_PATH}" "/${_IDE_LIBRARY_PATH}")
@@ -192,7 +201,7 @@ function(set_public_includes target includes)
     file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} ${inc_dir})
     target_include_directories(${target} PUBLIC
       $<BUILD_INTERFACE:${inc_dir}>
-      $<INSTALL_INTERFACE:include/${include_dir_relative_path}>
+      $<INSTALL_INTERFACE:${_IDE_HEADER_INSTALL_PATH}/${include_dir_relative_path}>
     )
   endforeach()
 endfunction()

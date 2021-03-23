@@ -162,7 +162,7 @@ install(
     qtcreator.pri
     qtcreatordata.pri
     qtcreator_ide_branding.pri
-  DESTINATION include
+  DESTINATION ${IDE_HEADER_INSTALL_PATH}
   COMPONENT Devel EXCLUDE_FROM_ALL
 )
 install(
@@ -171,7 +171,7 @@ install(
     src/qtcreatorplugin.pri
     src/qtcreatortool.pri
     src/rpath.pri
-  DESTINATION include/src
+  DESTINATION ${IDE_HEADER_INSTALL_PATH}/src
   COMPONENT Devel EXCLUDE_FROM_ALL
 )
 
