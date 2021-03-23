@@ -70,8 +70,8 @@ void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
         if (warningLabel->parentWidget())
             warningLabel->setVisible(warningLabelsVisible);
     };
-    connect(KitManager::instance(), &KitManager::kitsChanged, this, changeHandler);
-    connect(this, &QmlDebuggingAspect::changed, this, changeHandler);
+    connect(KitManager::instance(), &KitManager::kitsChanged, warningLabel, changeHandler);
+    connect(this, &QmlDebuggingAspect::changed, warningLabel, changeHandler);
     changeHandler();
 }
 
@@ -105,13 +105,11 @@ void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
         if (warningLabel->parentWidget())
             warningLabel->setVisible(warningLabelsVisible);
     };
-    connect(KitManager::instance(), &KitManager::kitsChanged, this, changeHandler);
-    connect(this, &QmlDebuggingAspect::changed, this, changeHandler);
-    connect(this, &QtQuickCompilerAspect::changed, this, changeHandler);
-    if (m_qmlDebuggingAspect) {
-        connect(m_qmlDebuggingAspect, &QmlDebuggingAspect::changed, this,
-                changeHandler);
-    }
+    connect(KitManager::instance(), &KitManager::kitsChanged, warningLabel, changeHandler);
+    connect(this, &QmlDebuggingAspect::changed, warningLabel, changeHandler);
+    connect(this, &QtQuickCompilerAspect::changed, warningLabel, changeHandler);
+    if (m_qmlDebuggingAspect)
+        connect(m_qmlDebuggingAspect, &QmlDebuggingAspect::changed,  warningLabel, changeHandler);
     changeHandler();
 }
 
