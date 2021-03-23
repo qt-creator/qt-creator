@@ -541,13 +541,18 @@ void CMakeBuildSystem::clearCMakeCache()
 
     stopParsingAndClearState();
 
-    const FilePath cmakeCache = m_parameters.workDirectory / "CMakeCache.txt";
-    const FilePath cmakeFiles = m_parameters.workDirectory / "CMakeFiles";
+    const QList<FilePath> pathsToDelete = {
+        m_parameters.workDirectory / "CMakeCache.txt",
+        m_parameters.workDirectory / "CMakeCache.txt.prev",
+        m_parameters.workDirectory / "CMakeFiles",
+        m_parameters.workDirectory / ".cmake/api/v1/reply",
+        m_parameters.workDirectory / ".cmake/api/v1/reply.prev"
+    };
 
-    if (cmakeCache.exists())
-        Utils::FileUtils::removeRecursively(cmakeCache);
-    if (cmakeFiles.exists())
-        Utils::FileUtils::removeRecursively(cmakeFiles);
+    for (const FilePath &path : pathsToDelete) {
+        if (path.exists())
+            Utils::FileUtils::removeRecursively(path);
+    }
 }
 
 std::unique_ptr<CMakeProjectNode> CMakeBuildSystem::generateProjectTree(
