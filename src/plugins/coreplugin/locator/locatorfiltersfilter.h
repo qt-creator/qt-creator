@@ -55,6 +55,7 @@ public:
 private:
     QStringList m_filterShortcutStrings;
     QStringList m_filterDisplayNames;
+    QStringList m_filterDescriptions;
     QIcon m_icon;
 };
 

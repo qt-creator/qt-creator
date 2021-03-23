@@ -197,13 +197,15 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
         else if (index.column() == ExtraInfoColumn)
             return mEntries.at(index.row()).extraInfo;
         break;
-    case Qt::ToolTipRole:
-        if (mEntries.at(index.row()).extraInfo.isEmpty())
-            return QVariant(mEntries.at(index.row()).displayName);
-        else
-            return QVariant(mEntries.at(index.row()).displayName
-                            + "\n\n" + mEntries.at(index.row()).extraInfo);
-        break;
+    case Qt::ToolTipRole: {
+        const LocatorFilterEntry &entry = mEntries.at(index.row());
+        QString toolTip = entry.displayName;
+        if (!entry.extraInfo.isEmpty())
+            toolTip += "\n\n" + entry.extraInfo;
+        if (!entry.toolTip.isEmpty())
+            toolTip += "\n\n" + entry.toolTip;
+        return QVariant(toolTip);
+    }
     case Qt::DecorationRole:
         if (index.column() == DisplayNameColumn) {
             LocatorFilterEntry &entry = mEntries[index.row()];

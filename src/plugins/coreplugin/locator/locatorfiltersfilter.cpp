@@ -51,6 +51,7 @@ void LocatorFiltersFilter::prepareSearch(const QString &entry)
 {
     m_filterShortcutStrings.clear();
     m_filterDisplayNames.clear();
+    m_filterDescriptions.clear();
     if (!entry.isEmpty())
         return;
 
@@ -65,6 +66,7 @@ void LocatorFiltersFilter::prepareSearch(const QString &entry)
         if (!filter->shortcutString().isEmpty() && !filter->isHidden() && filter->isEnabled()) {
             m_filterShortcutStrings.append(filter->shortcutString());
             m_filterDisplayNames.append(filter->displayName());
+            m_filterDescriptions.append(filter->description());
         }
     }
 }
@@ -81,6 +83,7 @@ QList<LocatorFilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<Loca
                                 i,
                                 m_icon);
         filterEntry.extraInfo = m_filterDisplayNames.at(i);
+        filterEntry.toolTip = m_filterDescriptions.at(i);
         entries.append(filterEntry);
     }
     return entries;

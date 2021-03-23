@@ -85,6 +85,8 @@ struct LocatorFilterEntry
     QString displayName;
     /* extra information displayed in light-gray in a second column (optional) */
     QString extraInfo;
+    /* additional tooltip */
+    QString toolTip;
     /* can be used by the filter to save more information about the entry */
     QVariant internalData;
     /* icon to display along with the entry */
