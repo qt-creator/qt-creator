@@ -2828,14 +2828,14 @@ def qdump_64__QJSValue_6(d, value):
     elif typ > 7:
         val = d.Value(d)
         val.ldata = struct.pack('q', dd ^ 0xfffc000000000000)
-        val.type = d.createType('double')
+        val._type = d.createType('double')
         d.putItem(val)
         d.putType(value.type.name + ' (double)')
     elif typ <= 3: # Heap
         if dd & 1: # String
             val = d.Value(d)
             val.ldata = struct.pack('q', dd & ~1)
-            val.type = d.createType('@QString*')
+            val._type = d.createType('@QString*')
             d.putItem(val)
             d.putType(value.type.name + ' (QString)')
         else:
