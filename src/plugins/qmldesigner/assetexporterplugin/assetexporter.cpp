@@ -33,6 +33,7 @@
 #include "rewriterview.h"
 #include "qmlitemnode.h"
 #include "qmlobjectnode.h"
+#include "coreplugin/editormanager/editormanager.h"
 #include "utils/qtcassert.h"
 #include "utils/runextensions.h"
 #include "variantproperty.h"
@@ -306,6 +307,16 @@ void AssetExporter::preprocessQmlFile(const Utils::FilePath &path)
             ExportNotification::addError(tr("Cannot update %1.\n%2")
                                          .arg(path.toString()).arg(saver.errorString()));
             return;
+        }
+
+        // Close the document if already open.
+        // UUIDS are changed and editor must reopen the document, otherwise stale state of the
+        // document is loaded.
+        for (Core::IDocument *doc : Core::DocumentModel::openedDocuments()) {
+            if (doc->filePath() == path) {
+                Core::EditorManager::closeDocuments({doc}, false);
+                break;
+            }
         }
     }
 
