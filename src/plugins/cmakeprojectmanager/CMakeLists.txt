@@ -27,7 +27,6 @@ add_qtc_plugin(CMakeProjectManager
     cmakeprojectplugin.cpp cmakeprojectplugin.h
     cmakesettingspage.cpp cmakesettingspage.h
     cmakespecificsettings.cpp cmakespecificsettings.h
-    cmakespecificsettingspage.cpp cmakespecificsettingspage.h cmakespecificsettingspage.ui
     cmaketool.cpp cmaketool.h
     cmaketoolmanager.cpp cmaketoolmanager.h
     cmaketoolsettingsaccessor.cpp cmaketoolsettingsaccessor.h

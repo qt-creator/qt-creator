@@ -37,7 +37,6 @@
 #include "cmakeprojectnodes.h"
 #include "cmakesettingspage.h"
 #include "cmakespecificsettings.h"
-#include "cmakespecificsettingspage.h"
 #include "cmaketoolmanager.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -100,7 +99,7 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     Q_UNUSED(errorMessage)
 
     d = new CMakeProjectPluginPrivate;
-    projectTypeSpecificSettings()->fromSettings(ICore::settings());
+    projectTypeSpecificSettings()->readSettings(ICore::settings());
 
     const Context projectContext{CMakeProjectManager::Constants::CMAKE_PROJECT_ID};
 

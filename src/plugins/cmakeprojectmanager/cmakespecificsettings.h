@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QSettings>
+#include <utils/aspects.h>
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -38,29 +38,43 @@ enum AfterAddFileAction : int {
     NEVER_COPY_FILE_PATH
 };
 
-class CMakeSpecificSettings
+class CMakeSpecificSettings : public Utils::AspectContainer
 {
+    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeSpecificSettings)
+
 public:
-    CMakeSpecificSettings() = default;
-    void fromSettings(QSettings *settings);
-    void toSettings(QSettings *settings) const;
+    CMakeSpecificSettings();
 
-    void setAfterAddFileSetting(AfterAddFileAction settings) { m_afterAddFileToProjectSetting = settings; }
-    AfterAddFileAction afterAddFileSetting() const { return m_afterAddFileToProjectSetting; }
+    void setAfterAddFileSetting(AfterAddFileAction settings) {
+        m_afterAddFileToProjectSetting.setValue(settings);
+    }
+    AfterAddFileAction afterAddFileSetting() const {
+        return static_cast<AfterAddFileAction>(m_afterAddFileToProjectSetting.value());
+    }
 
-    Utils::FilePath ninjaPath() const { return m_ninjaPath; }
+    Utils::FilePath ninjaPath() const { return m_ninjaPath.filePath(); }
 
-    void setPackageManagerAutoSetup(bool checked) { m_packageManagerAutoSetup = checked; }
-    bool packageManagerAutoSetup() const { return m_packageManagerAutoSetup; }
+    void setPackageManagerAutoSetup(bool checked) { m_packageManagerAutoSetup.setValue(checked); }
+    bool packageManagerAutoSetup() const { return m_packageManagerAutoSetup.value(); }
 
-    bool askBeforeReConfigureInitialParams() const { return m_askBeforeReConfigureInitialParams; }
-    void setAskBeforeReConfigureInitialParams(bool doAsk) { m_askBeforeReConfigureInitialParams = doAsk; }
+    void setAskBeforeReConfigureInitialParams(bool doAsk) { m_askBeforeReConfigureInitialParams.setValue(doAsk); }
+    bool askBeforeReConfigureInitialParams() const { return m_askBeforeReConfigureInitialParams.value(); }
+
 private:
-    AfterAddFileAction m_afterAddFileToProjectSetting;
-    Utils::FilePath m_ninjaPath;
-    bool m_packageManagerAutoSetup = true;
-    bool m_askBeforeReConfigureInitialParams = true;
+    friend class CMakeSpecificSettingWidget;
+
+    Utils::SelectionAspect m_afterAddFileToProjectSetting;
+    Utils::StringAspect m_ninjaPath;
+    Utils::BoolAspect m_packageManagerAutoSetup;
+    Utils::BoolAspect m_askBeforeReConfigureInitialParams;
 };
 
-}
-}
+
+class CMakeSpecificSettingsPage final : public Core::IOptionsPage
+{
+public:
+    explicit CMakeSpecificSettingsPage(CMakeSpecificSettings *settings);
+};
+
+} // Internal
+} // CMakeProjectManager

@@ -25,37 +25,99 @@
 
 #include "cmakespecificsettings.h"
 
+#include <coreplugin/icore.h>
+
+#include <projectexplorer/projectexplorerconstants.h>
+
+#include <utils/layoutbuilder.h>
+
+using namespace Utils;
+
 namespace CMakeProjectManager {
 namespace Internal {
 
-namespace {
-static const char SETTINGS_KEY[] = "CMakeSpecificSettings";
-static const char AFTER_ADD_FILE_ACTION_KEY[] = "ProjectPopupSetting";
-static const char NINJA_PATH[] = "NinjaPath";
-static const char PACKAGE_MANAGER_AUTO_SETUP[] = "PackageManagerAutoSetup";
-static const char ASK_RECONFIGURE_INITIAL_PARAMS[] = "AskReConfigureInitialParams";
-}
-
-void CMakeSpecificSettings::fromSettings(QSettings *settings)
+CMakeSpecificSettings::CMakeSpecificSettings()
 {
-    const QString rootKey = QString(SETTINGS_KEY) + '/';
-    m_afterAddFileToProjectSetting = static_cast<AfterAddFileAction>(
-                              settings->value(rootKey + AFTER_ADD_FILE_ACTION_KEY,
-                                              static_cast<int>(AfterAddFileAction::ASK_USER)).toInt());
+    setSettingsGroup("CMakeSpecificSettings");
+    setAutoApply(false);
 
-    m_ninjaPath = Utils::FilePath::fromUserInput(
-        settings->value(rootKey + NINJA_PATH, QString()).toString());
+    registerAspect(&m_afterAddFileToProjectSetting);
+    m_afterAddFileToProjectSetting.setSettingsKey("ProjectPopupSetting");
+    m_afterAddFileToProjectSetting.setDefaultValue(AfterAddFileAction::ASK_USER);
+    m_afterAddFileToProjectSetting.addOption(tr("Ask about copying file paths"));
+    m_afterAddFileToProjectSetting.addOption(tr("Do not copy file paths"));
+    m_afterAddFileToProjectSetting.addOption(tr("Copy file paths"));
+    m_afterAddFileToProjectSetting.setToolTip(tr("Determines whether file paths are copied "
+        "to the clipboard for pasting to the CMakeLists.txt file when you "
+        "add new files to CMake projects."));
 
-    m_packageManagerAutoSetup = settings->value(rootKey + PACKAGE_MANAGER_AUTO_SETUP, true).toBool();
+    registerAspect(&m_ninjaPath);
+    m_ninjaPath.setSettingsKey("NinjaPath");
+
+    registerAspect(&m_packageManagerAutoSetup);
+    m_packageManagerAutoSetup.setSettingsKey("PackageManagerAutoSetup");
+    m_packageManagerAutoSetup.setDefaultValue(true);
+    m_packageManagerAutoSetup.setLabelText(tr("Package manager auto setup"));
+    m_packageManagerAutoSetup.setToolTip(tr("Add the CMAKE_PROJECT_INCLUDE_BEFORE variable "
+        "pointing to a CMake script that will install dependencies from the conanfile.txt, "
+        "conanfile.py, or vcpkg.json file from the project source directory."));
+
+    registerAspect(&m_askBeforeReConfigureInitialParams);
+    m_askBeforeReConfigureInitialParams.setSettingsKey("AskReConfigureInitialParams");
+    m_askBeforeReConfigureInitialParams.setDefaultValue(true);
+    m_askBeforeReConfigureInitialParams.setLabelText(tr("Ask before re-configuring with "
+        "initial parameters"));
 }
 
-void CMakeSpecificSettings::toSettings(QSettings *settings) const
+// CMakeSpecificSettingWidget
+
+class CMakeSpecificSettingWidget final : public Core::IOptionsPageWidget
 {
-    settings->beginGroup(QString(SETTINGS_KEY));
-    settings->setValue(QString(AFTER_ADD_FILE_ACTION_KEY), static_cast<int>(m_afterAddFileToProjectSetting));
-    settings->setValue(QString(PACKAGE_MANAGER_AUTO_SETUP), m_packageManagerAutoSetup);
-    settings->setValue(QString(ASK_RECONFIGURE_INITIAL_PARAMS), m_askBeforeReConfigureInitialParams);
-    settings->endGroup();
+    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeSpecificSettingWidget)
+
+public:
+    explicit CMakeSpecificSettingWidget(CMakeSpecificSettings *settings);
+
+    void apply() final;
+
+private:
+    CMakeSpecificSettings *m_settings;
+};
+
+CMakeSpecificSettingWidget::CMakeSpecificSettingWidget(CMakeSpecificSettings *settings)
+    : m_settings(settings)
+{
+    CMakeSpecificSettings &s = *m_settings;
+    using namespace Layouting;
+
+    Column {
+        Group {
+            Title(tr("Adding Files")),
+            s.m_afterAddFileToProjectSetting
+        },
+        s.m_packageManagerAutoSetup,
+        s.m_askBeforeReConfigureInitialParams,
+        Stretch(),
+    }.attachTo(this);
 }
+
+void CMakeSpecificSettingWidget::apply()
+{
+    if (m_settings->isDirty()) {
+        m_settings->apply();
+        m_settings->writeSettings(Core::ICore::settings());
+    }
 }
+
+// CMakeSpecificSettingsPage
+
+CMakeSpecificSettingsPage::CMakeSpecificSettingsPage(CMakeSpecificSettings *settings)
+{
+    setId("CMakeSpecificSettings");
+    setDisplayName(CMakeSpecificSettingWidget::tr("CMake"));
+    setCategory(ProjectExplorer::Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
+    setWidgetCreator([settings] { return new CMakeSpecificSettingWidget(settings); });
 }
+
+} // Internal
+} // CMakeProjectManager

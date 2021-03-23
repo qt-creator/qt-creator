@@ -200,7 +200,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
                 QDialogButtonBox::Yes);
 
             settings->setAskBeforeReConfigureInitialParams(!doNotAsk);
-            settings->toSettings(Core::ICore::settings());
+            settings->writeSettings(Core::ICore::settings());
 
             if (reply != QDialogButtonBox::Yes) {
                 return;

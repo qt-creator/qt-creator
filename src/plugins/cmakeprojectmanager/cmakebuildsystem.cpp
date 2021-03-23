@@ -122,7 +122,7 @@ void noAutoAdditionNotify(const QStringList &filePaths, const ProjectExplorer::P
                     settings->setAfterAddFileSetting(
                         CMakeProjectManager::Internal::AfterAddFileAction::NEVER_COPY_FILE_PATH);
 
-                settings->toSettings(Core::ICore::settings());
+                settings->writeSettings(Core::ICore::settings());
             }
 
             if (QDialogButtonBox::Yes == reply) {
