@@ -218,10 +218,12 @@ void BaseAspect::setupLabel()
 void BaseAspect::addLabeledItem(LayoutBuilder &builder, QWidget *widget)
 {
     setupLabel();
-    if (label())
-        builder.addItems({label(), widget});
-    else
+    if (QLabel *l = label()) {
+        l->setBuddy(widget);
+        builder.addItems({l, widget});
+    } else {
         builder.addItems({LayoutBuilder::LayoutItem(widget)});
+    }
 }
 
 /*!
