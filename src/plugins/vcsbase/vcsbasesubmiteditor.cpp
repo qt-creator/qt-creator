@@ -128,7 +128,7 @@ using namespace Utils;
 
 static inline QString submitMessageCheckScript()
 {
-    return VcsPlugin::instance()->settings().submitMessageCheckScript;
+    return VcsPlugin::instance()->settings().submitMessageCheckScript.value();
 }
 
 class VcsBaseSubmitEditorPrivate
@@ -199,32 +199,33 @@ void VcsBaseSubmitEditor::setParameters(const VcsBaseSubmitEditorParameters &par
     connect(descriptionEdit, &QTextEdit::textChanged,
             this, &VcsBaseSubmitEditor::fileContentsChanged);
 
-    const CommonVcsSettings settings = VcsPlugin::instance()->settings();
+    const CommonVcsSettings &settings = VcsPlugin::instance()->settings();
     // Add additional context menu settings
-    if (!settings.submitMessageCheckScript.isEmpty() || !settings.nickNameMailMap.isEmpty()) {
+    if (!settings.submitMessageCheckScript.value().isEmpty()
+            || !settings.nickNameMailMap.value().isEmpty()) {
         auto sep = new QAction(this);
         sep->setSeparator(true);
         d->m_widget->addDescriptionEditContextMenuAction(sep);
         // Run check action
-        if (!settings.submitMessageCheckScript.isEmpty()) {
+        if (!settings.submitMessageCheckScript.value().isEmpty()) {
             auto checkAction = new QAction(tr("Check Message"), this);
             connect(checkAction, &QAction::triggered,
                     this, &VcsBaseSubmitEditor::slotCheckSubmitMessage);
             d->m_widget->addDescriptionEditContextMenuAction(checkAction);
         }
         // Insert nick
-        if (!settings.nickNameMailMap.isEmpty()) {
+        if (!settings.nickNameMailMap.value().isEmpty()) {
             auto insertAction = new QAction(tr("Insert Name..."), this);
             connect(insertAction, &QAction::triggered, this, &VcsBaseSubmitEditor::slotInsertNickName);
             d->m_widget->addDescriptionEditContextMenuAction(insertAction);
         }
     }
     // Do we have user fields?
-    if (!settings.nickNameFieldListFile.isEmpty())
-        createUserFields(settings.nickNameFieldListFile);
+    if (!settings.nickNameFieldListFile.value().isEmpty())
+        createUserFields(settings.nickNameFieldListFile.value());
 
     // wrapping. etc
-    slotUpdateEditorSettings(settings);
+    slotUpdateEditorSettings();
     connect(VcsPlugin::instance(), &VcsPlugin::settingsChanged,
             this, &VcsBaseSubmitEditor::slotUpdateEditorSettings);
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
@@ -250,10 +251,11 @@ VcsBaseSubmitEditor::~VcsBaseSubmitEditor()
     delete d;
 }
 
-void VcsBaseSubmitEditor::slotUpdateEditorSettings(const CommonVcsSettings &s)
+void VcsBaseSubmitEditor::slotUpdateEditorSettings()
 {
-    setLineWrapWidth(s.lineWrapWidth);
-    setLineWrap(s.lineWrap);
+    const CommonVcsSettings &s = VcsPlugin::instance()->settings();
+    setLineWrapWidth(s.lineWrapWidth.value());
+    setLineWrap(s.lineWrap.value());
 }
 
 // Return a trimmed list of non-empty field texts

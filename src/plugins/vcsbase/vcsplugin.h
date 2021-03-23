@@ -52,7 +52,7 @@ public:
 
     static VcsPlugin *instance();
 
-    CommonVcsSettings settings() const;
+    CommonVcsSettings &settings() const;
 
     // Model of user nick names used for the submit
     // editor. Stored centrally here to achieve delayed
@@ -60,7 +60,7 @@ public:
     QStandardItemModel *nickNameModel();
 
 signals:
-    void settingsChanged(const VcsBase::Internal::CommonVcsSettings &s);
+    void settingsChanged();
     void submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *e, bool *result);
 
 private:

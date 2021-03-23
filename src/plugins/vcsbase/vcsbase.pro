@@ -17,7 +17,6 @@ HEADERS += vcsbase_global.h \
     basevcssubmiteditorfactory.h \
     submitfilemodel.h \
     commonvcssettings.h \
-    commonsettingspage.h \
     nicknamedialog.h \
     vcsoutputwindow.h \
     cleandialog.h \
@@ -44,7 +43,6 @@ SOURCES += vcsplugin.cpp \
     basevcssubmiteditorfactory.cpp \
     submitfilemodel.cpp \
     commonvcssettings.cpp \
-    commonsettingspage.cpp \
     nicknamedialog.cpp \
     vcsoutputwindow.cpp \
     cleandialog.cpp \
@@ -58,7 +56,7 @@ SOURCES += vcsplugin.cpp \
 
 RESOURCES += vcsbase.qrc
 
-FORMS += commonsettingspage.ui \
+FORMS += \
     nicknamedialog.ui \
     cleandialog.ui \
     submiteditorwidget.ui

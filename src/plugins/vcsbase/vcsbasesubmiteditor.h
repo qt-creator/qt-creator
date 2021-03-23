@@ -153,7 +153,7 @@ private:
     void slotCheckSubmitMessage();
     void slotInsertNickName();
     void slotSetFieldNickName(int);
-    void slotUpdateEditorSettings(const VcsBase::Internal::CommonVcsSettings &);
+    void slotUpdateEditorSettings();
 
     void createUserFields(const QString &fieldConfigFile);
     bool checkSubmitMessage(QString *errorMessage) const;

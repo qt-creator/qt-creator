@@ -25,44 +25,51 @@
 
 #pragma once
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
+#include <utils/aspects.h>
 #include <utils/qtcsettings.h>
-
-#include <QString>
-
-QT_BEGIN_NAMESPACE
-class QDebug;
-QT_END_NAMESPACE
 
 namespace VcsBase {
 namespace Internal {
 
-// Common VCS settings, message check script and user nick names.
-class CommonVcsSettings
+class CommonVcsSettings : public Utils::AspectContainer
 {
+    Q_DECLARE_TR_FUNCTIONS(VcsBase::Internal::CommonVcsSettings)
+
 public:
     CommonVcsSettings();
 
-    QString nickNameMailMap;
-    QString nickNameFieldListFile;
+    Utils::StringAspect nickNameMailMap;
+    Utils::StringAspect nickNameFieldListFile;
 
-    QString submitMessageCheckScript;
+    Utils::StringAspect submitMessageCheckScript;
 
     // Executable run to graphically prompt for a SSH-password.
-    QString sshPasswordPrompt;
+    Utils::StringAspect sshPasswordPrompt;
 
-    bool lineWrap;
-    int lineWrapWidth;
-
-    void toSettings(Utils::QtcSettings *) const;
-    void fromSettings(QSettings *);
-
-    bool equals(const CommonVcsSettings &rhs) const;
+    Utils::BoolAspect lineWrap;
+    Utils::IntegerAspect lineWrapWidth;
 };
 
-inline bool operator==(const CommonVcsSettings &s1, const CommonVcsSettings &s2) { return s1.equals(s2); }
-inline bool operator!=(const CommonVcsSettings &s1, const CommonVcsSettings &s2) { return !s1.equals(s2); }
 
 QDebug operator<<(QDebug, const CommonVcsSettings &);
+
+class CommonOptionsPage final : public Core::IOptionsPage
+{
+    Q_OBJECT
+
+public:
+    explicit CommonOptionsPage();
+
+    CommonVcsSettings &settings() { return m_settings; }
+
+signals:
+    void settingsChanged();
+
+private:
+    CommonVcsSettings m_settings;
+};
 
 } // namespace Internal
 } // namespace VcsBase

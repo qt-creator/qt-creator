@@ -721,7 +721,7 @@ QString findRepositoryForDirectory(const QString &dirS, const QString &checkFile
 // Is SSH prompt configured?
 QString sshPrompt()
 {
-    return Internal::VcsPlugin::instance()->settings().sshPasswordPrompt;
+    return Internal::VcsPlugin::instance()->settings().sshPasswordPrompt.value();
 }
 
 bool isSshPromptConfigured()

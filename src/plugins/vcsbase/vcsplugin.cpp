@@ -28,7 +28,7 @@
 #include "vcsbaseconstants.h"
 #include "vcsbasesubmiteditor.h"
 
-#include "commonsettingspage.h"
+#include "commonvcssettings.h"
 #include "nicknamedialog.h"
 #include "vcsoutputwindow.h"
 #include "wizard/vcscommandpage.h"
@@ -140,7 +140,7 @@ VcsPlugin *VcsPlugin::instance()
     return m_instance;
 }
 
-CommonVcsSettings VcsPlugin::settings() const
+CommonVcsSettings &VcsPlugin::settings() const
 {
     return d->m_settingsPage.settings();
 }
@@ -158,7 +158,7 @@ QStandardItemModel *VcsPlugin::nickNameModel()
 void VcsPlugin::populateNickNameModel()
 {
     QString errorMessage;
-    if (!NickNameDialog::populateModelFromMailCapFile(settings().nickNameMailMap,
+    if (!NickNameDialog::populateModelFromMailCapFile(settings().nickNameMailMap.value(),
                                                       d->m_nickNameModel,
                                                       &errorMessage)) {
         qWarning("%s", qPrintable(errorMessage));
