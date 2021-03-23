@@ -129,9 +129,7 @@ SubversionSettingsPageWidget::SubversionSettingsPageWidget(const std::function<v
     : m_onApply(onApply), m_settings(settings)
 {
     SubversionSettings &s = *m_settings;
-
     using namespace Layouting;
-    Break nl;
 
     Column {
         Group {
@@ -142,15 +140,15 @@ SubversionSettingsPageWidget::SubversionSettingsPageWidget(const std::function<v
         Group {
             Title(tr("Authentication"), &s.useAuthentication),
             Form {
-                s.userName, nl,
+                s.userName,
                 s.password,
              }
         },
 
         Group {
             Title(tr("Miscellaneous")),
-            Row { s.logCount, s.timeout, Stretch() }, nl,
-            s.promptOnSubmit, nl,
+            Row { s.logCount, s.timeout, Stretch() },
+            s.promptOnSubmit,
             s.spaceIgnorantAnnotation,
         },
 

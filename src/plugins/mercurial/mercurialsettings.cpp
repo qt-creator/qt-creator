@@ -85,9 +85,7 @@ OptionsPageWidget::OptionsPageWidget(const std::function<void()> &onApply, Mercu
     : m_onApply(onApply), m_settings(settings)
 {
     MercurialSettings &s = *settings;
-
     using namespace Layouting;
-    const Break nl;
 
     Column {
         Group {
@@ -98,7 +96,7 @@ OptionsPageWidget::OptionsPageWidget(const std::function<void()> &onApply, Mercu
         Group {
             Title(tr("User")),
             Form {
-                s.userName, nl,
+                s.userName,
                 s.userEmail
             }
         },

@@ -137,7 +137,7 @@ DockerConfigWidget::DockerConfigWidget(DockerSettings *settings)
         Group {
             Title(tr("Search images on Docker Hub")),
             Form {
-                s.imageListFilter, Break(),
+                s.imageListFilter,
                 s.imageList
             },
         },

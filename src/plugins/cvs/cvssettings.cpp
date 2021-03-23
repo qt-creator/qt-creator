@@ -112,20 +112,19 @@ CvsSettingsPageWidget::CvsSettingsPageWidget(const std::function<void()> &onAppl
 {
     CvsSettings &s = *settings;
     using namespace Layouting;
-    const Break nl;
 
     Column {
         Group {
             Title(tr("Configuration")),
             Form {
-                s.binaryPath, nl,
+                s.binaryPath,
                 s.cvsRoot
             }
         },
         Group {
             Title(tr("Miscellaneous")),
             Form {
-                s.timeout, nl,
+                s.timeout,
                 s.diffOptions,
             },
             s.promptOnSubmit,

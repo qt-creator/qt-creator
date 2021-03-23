@@ -125,9 +125,7 @@ OptionsPageWidget::OptionsPageWidget(const std::function<void(void)> &onApply, B
     : m_onApply(onApply), m_settings(settings)
 {
     BazaarSettings &s = *m_settings;
-
     using namespace Layouting;
-    const Break nl;
 
     Column {
         Group {
@@ -138,7 +136,7 @@ OptionsPageWidget::OptionsPageWidget(const std::function<void(void)> &onApply, B
         Group {
             Title(tr("User")),
             Form {
-                s.userName, nl,
+                s.userName,
                 s.userEmail
             }
         },

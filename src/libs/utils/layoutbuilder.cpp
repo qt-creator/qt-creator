@@ -331,10 +331,13 @@ LayoutBuilder &LayoutBuilder::addRow(const LayoutItems &items)
  */
 LayoutBuilder &LayoutBuilder::addItem(const LayoutItem &item)
 {
-    if (item.aspect)
+    if (item.aspect) {
         item.aspect->addToLayout(*this);
-    else
+        if (m_layoutType == FormLayout || m_layoutType == VBoxLayout)
+            finishRow();
+    } else {
         m_items.push_back(item);
+    }
     return *this;
 }
 

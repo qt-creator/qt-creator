@@ -110,7 +110,7 @@ QWidget *NimbleTaskStep::createConfigWidget()
 
     using namespace Layouting;
     auto widget = Form {
-        m_taskArgs, Break(),
+        m_taskArgs,
         tr("Tasks:"), taskList
     }.emerge(false);
 

@@ -306,9 +306,9 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     Column {
         Form {
-            buildDirAspect, Break(),
-            bc->aspect<InitialCMakeArgumentsAspect>(), Break(),
-            bc->aspect<BuildTypeAspect>(), Break(),
+            buildDirAspect,
+            bc->aspect<InitialCMakeArgumentsAspect>(),
+            bc->aspect<BuildTypeAspect>(),
             qmlDebugAspect
         },
         Space(10),
