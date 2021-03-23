@@ -27,52 +27,37 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QObject>
-#include <QPointer>
+#include <utils/aspects.h>
 
 namespace QmakeProjectManager {
 namespace Internal {
 
-class QmakeSettingsData {
-public:
-    bool warnAgainstUnalignedBuildDir = false;
-    bool alwaysRunQmake = false;
-    bool runSystemFunction = true;
-};
-
-class QmakeSettings : public QObject
+class QmakeSettings : public QObject, public Utils::AspectContainer
 {
     Q_OBJECT
+
 public:
     static QmakeSettings &instance();
     static bool warnAgainstUnalignedBuildDir();
     static bool alwaysRunQmake();
     static bool runSystemFunction();
-    static void setSettingsData(const QmakeSettingsData &settings);
 
 signals:
     void settingsChanged();
 
 private:
     QmakeSettings();
-    void loadSettings();
-    void storeSettings() const;
+    friend class SettingsWidget;
 
-    QmakeSettingsData m_settings;
+    Utils::BoolAspect m_warnAgainstUnalignedBuildDir;
+    Utils::BoolAspect m_alwaysRunQmake;
+    Utils::BoolAspect m_ignoreSystemFunction;
 };
 
 class QmakeSettingsPage final : public Core::IOptionsPage
 {
 public:
     QmakeSettingsPage();
-
-private:
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-    class SettingsWidget;
-    QPointer<SettingsWidget> m_widget;
 };
 
 } // namespace Internal

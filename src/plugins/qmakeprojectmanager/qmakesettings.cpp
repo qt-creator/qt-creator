@@ -26,44 +26,56 @@
 #include "qmakesettings.h"
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <utils/hostosinfo.h>
 
-#include <QCheckBox>
-#include <QCoreApplication>
-#include <QVBoxLayout>
+#include <projectexplorer/projectexplorerconstants.h>
+
+#include <utils/layoutbuilder.h>
+
+using namespace Utils;
 
 namespace QmakeProjectManager {
 namespace Internal {
 
-const char BUILD_DIR_WARNING_KEY[] = "QmakeProjectManager/WarnAgainstUnalignedBuildDir";
-const char ALWAYS_RUN_QMAKE_KEY[] = "QmakeProjectManager/AlwaysRunQmake";
-const char RUN_SYSTEM_KEY[] = "QmakeProjectManager/RunSystemFunction";
+QmakeSettings::QmakeSettings()
+{
+    setAutoApply(false);
 
-static bool operator==(const QmakeSettingsData &s1, const QmakeSettingsData &s2)
-{
-    return s1.warnAgainstUnalignedBuildDir == s2.warnAgainstUnalignedBuildDir
-            && s1.alwaysRunQmake == s2.alwaysRunQmake
-            && s1.runSystemFunction == s2.runSystemFunction;
-}
-static bool operator!=(const QmakeSettingsData &s1, const QmakeSettingsData &s2)
-{
-    return !(s1 == s2);
+    registerAspect(&m_warnAgainstUnalignedBuildDir);
+    m_warnAgainstUnalignedBuildDir.setSettingsKey("QmakeProjectManager/WarnAgainstUnalignedBuildDir");
+    m_warnAgainstUnalignedBuildDir.setLabelText(tr("Warn if a project's source and "
+            "build directories are not at the same level"));
+    m_warnAgainstUnalignedBuildDir.setToolTip(tr("Qmake has subtle bugs that "
+            "can be triggered if source and build directory are not at the same level."));
+
+    registerAspect(&m_alwaysRunQmake);
+    m_alwaysRunQmake.setSettingsKey("QmakeProjectManager/AlwaysRunQmake");
+    m_alwaysRunQmake.setLabelText(tr("Run qmake on every build"));
+    m_alwaysRunQmake.setToolTip(tr("This option can help to prevent failures on "
+            "incremental builds, but might slow them down unnecessarily in the general case."));
+
+    registerAspect(&m_ignoreSystemFunction);
+    m_ignoreSystemFunction.setSettingsKey("QmakeProjectManager/RunSystemFunction");
+    m_ignoreSystemFunction.setDefaultValue(true);
+    m_ignoreSystemFunction.setLabelText(tr("Ignore qmake's system() function when parsing a project"));
+    m_ignoreSystemFunction.setToolTip(tr("Checking this option avoids unwanted side effects, "
+             "but may result in inexact parsing results."));
+
+    readSettings(Core::ICore::settings());
 }
 
 bool QmakeSettings::warnAgainstUnalignedBuildDir()
 {
-    return instance().m_settings.warnAgainstUnalignedBuildDir;
+    return instance().m_warnAgainstUnalignedBuildDir.value();
 }
 
 bool QmakeSettings::alwaysRunQmake()
 {
-    return instance().m_settings.alwaysRunQmake;
+    return instance().m_alwaysRunQmake.value();
 }
 
 bool QmakeSettings::runSystemFunction()
 {
-    return instance().m_settings.runSystemFunction;
+    return !instance().m_ignoreSystemFunction.value(); // Note: negated.
 }
 
 QmakeSettings &QmakeSettings::instance()
@@ -72,78 +84,31 @@ QmakeSettings &QmakeSettings::instance()
     return theSettings;
 }
 
-void QmakeSettings::setSettingsData(const QmakeSettingsData &settings)
-{
-    if (instance().m_settings != settings) {
-        instance().m_settings = settings;
-        instance().storeSettings();
-        emit instance().settingsChanged();
-    }
-}
-
-QmakeSettings::QmakeSettings()
-{
-    loadSettings();
-}
-
-void QmakeSettings::loadSettings()
-{
-    QSettings * const s = Core::ICore::settings();
-    m_settings.warnAgainstUnalignedBuildDir = s->value(
-                BUILD_DIR_WARNING_KEY, Utils::HostOsInfo::isWindowsHost()).toBool();
-    m_settings.alwaysRunQmake = s->value(ALWAYS_RUN_QMAKE_KEY, false).toBool();
-    m_settings.runSystemFunction = s->value(RUN_SYSTEM_KEY, true).toBool();
-}
-
-void QmakeSettings::storeSettings() const
-{
-    QSettings * const s = Core::ICore::settings();
-    s->setValue(BUILD_DIR_WARNING_KEY, warnAgainstUnalignedBuildDir());
-    s->setValue(ALWAYS_RUN_QMAKE_KEY, alwaysRunQmake());
-    s->setValue(RUN_SYSTEM_KEY, runSystemFunction());
-}
-
-class QmakeSettingsPage::SettingsWidget : public QWidget
+class SettingsWidget final : public Core::IOptionsPageWidget
 {
     Q_DECLARE_TR_FUNCTIONS(QmakeProjectManager::Internal::QmakeSettingsPage)
+
 public:
     SettingsWidget()
     {
-        m_warnAgainstUnalignedBuildDirCheckbox.setText(tr("Warn if a project's source and "
-            "build directories are not at the same level"));
-        m_warnAgainstUnalignedBuildDirCheckbox.setToolTip(tr("Qmake has subtle bugs that "
-            "can be triggered if source and build directory are not at the same level."));
-        m_warnAgainstUnalignedBuildDirCheckbox.setChecked(
-                    QmakeSettings::warnAgainstUnalignedBuildDir());
-        m_alwaysRunQmakeCheckbox.setText(tr("Run qmake on every build"));
-        m_alwaysRunQmakeCheckbox.setToolTip(tr("This option can help to prevent failures on "
-            "incremental builds, but might slow them down unnecessarily in the general case."));
-        m_alwaysRunQmakeCheckbox.setChecked(QmakeSettings::alwaysRunQmake());
-        m_ignoreSystemCheckbox.setText(tr("Ignore qmake's system() function "
-                                       "when parsing a project"));
-        m_ignoreSystemCheckbox.setToolTip(tr("Checking this option avoids unwanted side effects, "
-                "but may result in inexact parsing results."));
-        m_ignoreSystemCheckbox.setChecked(!QmakeSettings::runSystemFunction());
-        const auto layout = new QVBoxLayout(this);
-        layout->addWidget(&m_warnAgainstUnalignedBuildDirCheckbox);
-        layout->addWidget(&m_alwaysRunQmakeCheckbox);
-        layout->addWidget(&m_ignoreSystemCheckbox);
-        layout->addStretch(1);
+        auto &s = QmakeSettings::instance();
+        using namespace Layouting;
+        Column {
+            s.m_warnAgainstUnalignedBuildDir,
+            s.m_alwaysRunQmake,
+            s.m_ignoreSystemFunction,
+            Stretch()
+        }.attachTo(this);
     }
 
-    void apply()
+    void apply() final
     {
-        QmakeSettingsData settings;
-        settings.warnAgainstUnalignedBuildDir = m_warnAgainstUnalignedBuildDirCheckbox.isChecked();
-        settings.alwaysRunQmake = m_alwaysRunQmakeCheckbox.isChecked();
-        settings.runSystemFunction = !m_ignoreSystemCheckbox.isChecked();
-        QmakeSettings::setSettingsData(settings);
+        auto &s = QmakeSettings::instance();
+        if (s.isDirty()) {
+            s.apply();
+            s.writeSettings(Core::ICore::settings());
+        }
     }
-
-private:
-    QCheckBox m_warnAgainstUnalignedBuildDirCheckbox;
-    QCheckBox m_alwaysRunQmakeCheckbox;
-    QCheckBox m_ignoreSystemCheckbox;
 };
 
 QmakeSettingsPage::QmakeSettingsPage()
@@ -151,25 +116,7 @@ QmakeSettingsPage::QmakeSettingsPage()
     setId("K.QmakeProjectManager.QmakeSettings");
     setDisplayName(SettingsWidget::tr("Qmake"));
     setCategory(ProjectExplorer::Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
-}
-
-QWidget *QmakeSettingsPage::widget()
-{
-    if (!m_widget)
-        m_widget = new SettingsWidget;
-    return m_widget;
-
-}
-
-void QmakeSettingsPage::apply()
-{
-    if (m_widget)
-        m_widget->apply();
-}
-
-void QmakeSettingsPage::finish()
-{
-    delete m_widget;
+    setWidgetCreator([] { return new SettingsWidget; });
 }
 
 } // namespace Internal
