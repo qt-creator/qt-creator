@@ -70,7 +70,6 @@ const char ENABLE_TIMELINEVIEW[] = "EnableTimelineView";
 const char SIMPLE_COLOR_PALETTE_CONTENT[] = "SimpleColorPaletteContent";
 const char ALWAYS_DESIGN_MODE[] = "AlwaysDesignMode";
 const char DISABLE_ITEM_LIBRARY_UPDATE_TIMER[] = "DisableItemLibraryUpdateTimer";
-const char OPEN_QMLPROJECT_IN_QDS[] = "OpenQmlprojectInQDS"; /* This key value is used in QmlProjectManager */
 }
 
 class QMLDESIGNERCORE_EXPORT DesignerSettings : public QHash<QByteArray, QVariant>
