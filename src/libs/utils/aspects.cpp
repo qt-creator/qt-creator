@@ -1502,6 +1502,7 @@ int SelectionAspect::indexForDisplay(const QString &displayName) const
 
 QString SelectionAspect::displayForIndex(int index) const
 {
+    QTC_ASSERT(index >= 0 && index < d->m_options.size(), return {});
     return d->m_options.at(index).displayName;
 }
 
