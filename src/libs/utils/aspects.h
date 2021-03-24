@@ -534,7 +534,8 @@ public:
     void readSettings(QSettings *settings);
     void writeSettings(QSettings *settings) const;
 
-    void setSettingsGroup(const QString &key);
+    void setSettingsGroup(const QString &groupKey);
+    void setSettingsGroups(const QString &groupKey, const QString &subGroupKey);
 
     void apply();
     void cancel();

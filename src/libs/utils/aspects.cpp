@@ -2087,7 +2087,7 @@ class AspectContainerPrivate
 public:
     QList<BaseAspect *> m_items; // Not owned
     bool m_autoApply = true;
-    QString m_settingsGroup;
+    QStringList m_settingsGroup;
 };
 
 } // Internal
@@ -2130,27 +2130,36 @@ void AspectContainer::toMap(QVariantMap &map) const
 
 void AspectContainer::readSettings(QSettings *settings)
 {
-    if (!d->m_settingsGroup.isEmpty())
-        settings->beginGroup(d->m_settingsGroup);
+    for (const QString &group : d->m_settingsGroup)
+        settings->beginGroup(group);
+
     for (BaseAspect *aspect : qAsConst(d->m_items))
         aspect->readSettings(settings);
-    if (!d->m_settingsGroup.isEmpty())
+
+    for (int i = 0; i != d->m_settingsGroup.size(); ++i)
         settings->endGroup();
 }
 
 void AspectContainer::writeSettings(QSettings *settings) const
 {
-    if (!d->m_settingsGroup.isEmpty())
-        settings->beginGroup(d->m_settingsGroup);
+    for (const QString &group : d->m_settingsGroup)
+        settings->beginGroup(group);
+
     for (BaseAspect *aspect : qAsConst(d->m_items))
         aspect->writeSettings(settings);
-    if (!d->m_settingsGroup.isEmpty())
+
+    for (int i = 0; i != d->m_settingsGroup.size(); ++i)
         settings->endGroup();
 }
 
-void AspectContainer::setSettingsGroup(const QString &key)
+void AspectContainer::setSettingsGroup(const QString &groupKey)
 {
-    d->m_settingsGroup = key;
+    d->m_settingsGroup = QStringList{groupKey};
+}
+
+void AspectContainer::setSettingsGroups(const QString &groupKey, const QString &subGroupKey)
+{
+    d->m_settingsGroup = QStringList{groupKey, subGroupKey};
 }
 
 void AspectContainer::apply()
