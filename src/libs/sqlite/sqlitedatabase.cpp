@@ -47,11 +47,11 @@ public:
 
 public:
     Database &database;
-    ReadWriteStatement deferredBegin{"BEGIN", database};
-    ReadWriteStatement immediateBegin{"BEGIN IMMEDIATE", database};
-    ReadWriteStatement exclusiveBegin{"BEGIN EXCLUSIVE", database};
-    ReadWriteStatement commitBegin{"COMMIT", database};
-    ReadWriteStatement rollbackBegin{"ROLLBACK", database};
+    ReadWriteStatement<> deferredBegin{"BEGIN", database};
+    ReadWriteStatement<> immediateBegin{"BEGIN IMMEDIATE", database};
+    ReadWriteStatement<> exclusiveBegin{"BEGIN EXCLUSIVE", database};
+    ReadWriteStatement<> commitBegin{"COMMIT", database};
+    ReadWriteStatement<> rollbackBegin{"ROLLBACK", database};
     Sessions sessions{database, "main", "databaseSessions"};
 };
 

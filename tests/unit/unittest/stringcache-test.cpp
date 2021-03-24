@@ -27,7 +27,7 @@
 
 #include "mockfilepathstorage.h"
 #include "mockmutex.h"
-#include "mocksqlitedatabase.h"
+#include "sqlitedatabasemock.h"
 
 #include <stringcache.h>
 
@@ -86,8 +86,8 @@ protected:
     }
 
 protected:
-    NiceMock<MockSqliteDatabase> mockDatabase;
-    NiceMock<MockFilePathStorage> mockStorage{mockDatabase};
+    NiceMock<SqliteDatabaseMock> databaseMock;
+    NiceMock<MockFilePathStorage> mockStorage{databaseMock};
     StorageIdFunction mockStorageFetchDirectyId;
     StorageStringFunction mockStorageFetchDirectyPath;
     Cache cache;

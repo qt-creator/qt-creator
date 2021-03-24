@@ -27,15 +27,15 @@
 
 #include "googletest.h"
 
-#include "mocksqlitedatabase.h"
+#include "sqlitedatabasemock.h"
 
 #include <filepathstoragesources.h>
 
 class MockFilePathStorage
 {
 public:
-    MockFilePathStorage(MockSqliteDatabase &mockDatabase)
-        : mockDatabase{mockDatabase}
+    MockFilePathStorage(SqliteDatabaseMock &databaseMock)
+        : databaseMock{databaseMock}
     {}
 
     MOCK_METHOD1(fetchDirectoryId, int(Utils::SmallStringView directoryPath));
@@ -50,8 +50,8 @@ public:
     MOCK_METHOD0(fetchAllDirectories, std::vector<ClangBackEnd::Sources::Directory>());
     MOCK_METHOD0(fetchAllSources, std::vector<ClangBackEnd::Sources::Source>());
 
-    MockSqliteDatabase &database() { return mockDatabase; }
+    SqliteDatabaseMock &database() { return databaseMock; }
 
-    MockSqliteDatabase &mockDatabase;
+    SqliteDatabaseMock &databaseMock;
 };
 

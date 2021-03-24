@@ -29,20 +29,26 @@
 
 namespace Sqlite {
 
-class SQLITE_EXPORT ReadWriteStatement final : protected StatementImplementation<BaseStatement>
+template<int ResultCount = 0>
+class ReadWriteStatement final : protected StatementImplementation<BaseStatement, ResultCount>
 {
     friend class DatabaseBackend;
+    using Base = StatementImplementation<BaseStatement, ResultCount>;
 
 public:
-    ReadWriteStatement(Utils::SmallStringView sqlStatement, Database &database);
+    ReadWriteStatement(Utils::SmallStringView sqlStatement, Database &database)
+        : Base{sqlStatement, database}
+    {
+        Base::checkColumnCount(ResultCount);
+    }
 
-    using StatementImplementation::execute;
-    using StatementImplementation::readCallback;
-    using StatementImplementation::readTo;
-    using StatementImplementation::toValue;
-    using StatementImplementation::value;
-    using StatementImplementation::values;
-    using StatementImplementation::write;
+    using Base::execute;
+    using Base::readCallback;
+    using Base::readTo;
+    using Base::toValue;
+    using Base::value;
+    using Base::values;
+    using Base::write;
 };
 
 } // namespace Sqlite

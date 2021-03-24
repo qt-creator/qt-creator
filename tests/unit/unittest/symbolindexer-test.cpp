@@ -263,7 +263,7 @@ protected:
                                         mockProjectPartsStorage,
                                         mockModifiedTimeChecker,
                                         testEnvironment};
-    NiceMock<MockSqliteDatabase> mockSqliteDatabase;
+    NiceMock<SqliteDatabaseMock> mockSqliteDatabase;
     SymbolIndexerTaskQueue indexerQueue{indexerScheduler, progressCounter, mockSqliteDatabase};
     Scheduler indexerScheduler{collectorManger,
                                indexerQueue,

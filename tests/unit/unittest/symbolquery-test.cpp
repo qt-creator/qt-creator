@@ -25,8 +25,7 @@
 
 #include "googletest.h"
 
-#include "mocksqlitedatabase.h"
-#include "mocksqlitereadstatement.h"
+#include "sqlitedatabasemock.h"
 
 #include <querysqlitestatementfactory.h>
 #include <refactoringdatabaseinitializer.h>
@@ -42,28 +41,32 @@ using ClangRefactoring::QuerySqliteStatementFactory;
 using Sqlite::Database;
 using ClangBackEnd::SourceLocationKind;
 using ClangBackEnd::SymbolKind;
-using MockStatementFactory = QuerySqliteStatementFactory<MockSqliteDatabase,
-                                                         MockSqliteReadStatement>;
+using MockStatementFactory = QuerySqliteStatementFactory<SqliteDatabaseMock>;
 using MockQuery = ClangRefactoring::SymbolQuery<MockStatementFactory>;
 
-using RealStatementFactory = QuerySqliteStatementFactory<Sqlite::Database,
-                                                         Sqlite::ReadStatement>;
+using RealStatementFactory = QuerySqliteStatementFactory<Sqlite::Database>;
 using RealQuery = ClangRefactoring::SymbolQuery<RealStatementFactory>;
 
 class SymbolQuery : public testing::Test
 {
+    template<int ResultCount>
+    using ReadStatement = typename SqliteDatabaseMock::template ReadStatement<ResultCount>;
+
 protected:
-    NiceMock<MockSqliteDatabase> mockDatabase;
-    MockStatementFactory mockStatementFactory{mockDatabase};
-    MockSqliteReadStatement &selectLocationsForSymbolLocation = mockStatementFactory.selectLocationsForSymbolLocation;
-    MockSqliteReadStatement &selectSourceUsagesForSymbolLocation = mockStatementFactory.selectSourceUsagesForSymbolLocation;
-    MockSqliteReadStatement &selectSymbolsForKindAndStartsWith = mockStatementFactory.selectSymbolsForKindAndStartsWith;
-    MockSqliteReadStatement &selectSymbolsForKindAndStartsWith2 = mockStatementFactory.selectSymbolsForKindAndStartsWith2;
-    MockSqliteReadStatement &selectSymbolsForKindAndStartsWith3 = mockStatementFactory.selectSymbolsForKindAndStartsWith3;
-    MockSqliteReadStatement &selectLocationOfSymbol = mockStatementFactory.selectLocationOfSymbol;
-    MockSqliteReadStatement &selectSourceUsagesOrderedForSymbolLocation = mockStatementFactory
-                                                                              .selectSourceUsagesOrderedForSymbolLocation;
-    MockSqliteReadStatement &selectSourceUsagesByLocationKindForSymbolLocation
+    NiceMock<SqliteDatabaseMock> databaseMock;
+    MockStatementFactory mockStatementFactory{databaseMock};
+    ReadStatement<3> &selectLocationsForSymbolLocation = mockStatementFactory.selectLocationsForSymbolLocation;
+    ReadStatement<3> &selectSourceUsagesForSymbolLocation = mockStatementFactory
+                                                                .selectSourceUsagesForSymbolLocation;
+    ReadStatement<3> &selectSymbolsForKindAndStartsWith = mockStatementFactory.selectSymbolsForKindAndStartsWith;
+    ReadStatement<3> &selectSymbolsForKindAndStartsWith2 = mockStatementFactory
+                                                               .selectSymbolsForKindAndStartsWith2;
+    ReadStatement<3> &selectSymbolsForKindAndStartsWith3 = mockStatementFactory
+                                                               .selectSymbolsForKindAndStartsWith3;
+    ReadStatement<3> &selectLocationOfSymbol = mockStatementFactory.selectLocationOfSymbol;
+    ReadStatement<3> &selectSourceUsagesOrderedForSymbolLocation = mockStatementFactory
+                                                                       .selectSourceUsagesOrderedForSymbolLocation;
+    ReadStatement<3> &selectSourceUsagesByLocationKindForSymbolLocation
         = mockStatementFactory.selectSourceUsagesByLocationKindForSymbolLocation;
     SourceLocations locations{{1, 1, 1}, {1, 2, 3}, {2, 1, 1}, {2, 3, 1}, {4, 1, 1}, {4, 1, 3}};
     MockQuery query{mockStatementFactory};

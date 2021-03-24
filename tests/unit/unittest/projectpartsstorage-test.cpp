@@ -25,7 +25,7 @@
 
 #include "googletest.h"
 
-#include "mocksqlitedatabase.h"
+#include "sqlitedatabasemock.h"
 
 #include <builddependenciesstorage.h>
 #include <projectpartsstorage.h>
@@ -72,7 +72,10 @@ protected:
 
 class ProjectPartsStorage : public testing::Test, public Data
 {
-    using Storage = ClangBackEnd::ProjectPartsStorage<MockSqliteDatabase>;
+    using Storage = ClangBackEnd::ProjectPartsStorage<SqliteDatabaseMock>;
+    template<int ResultCount>
+    using ReadStatement = NiceMock<SqliteDatabaseMock>::ReadStatement<ResultCount>;
+    using WriteStatement = NiceMock<SqliteDatabaseMock>::WriteStatement;
 
 protected:
     ProjectPartsStorage()
@@ -90,26 +93,25 @@ protected:
         ON_CALL(fetchProjectPartsSourcesByIdStatement, valuesReturnFilePathIds(_, Eq(2)))
             .WillByDefault(Return(projectPart2.sourcePathIds));
     }
-    NiceMock<MockSqliteDatabase> mockDatabase;
-    Storage storage{mockDatabase};
-    MockSqliteReadStatement &fetchProjectPartIdStatement = storage.fetchProjectPartIdStatement;
-    MockSqliteWriteStatement &insertProjectPartNameStatement = storage.insertProjectPartNameStatement;
-    MockSqliteReadStatement &fetchProjectPartNameStatement = storage.fetchProjectPartNameStatement;
-    MockSqliteReadStatement &fetchProjectPartsStatement = storage.fetchProjectPartsStatement;
-    MockSqliteReadStatement &fetchProjectPartByIdStatement = storage.fetchProjectPartByIdStatement;
-    MockSqliteWriteStatement &updateProjectPartStatement = storage.updateProjectPartStatement;
-    MockSqliteReadStatement &getProjectPartArtefactsBySourceId = storage.getProjectPartArtefactsBySourceId;
-    MockSqliteReadStatement &getProjectPartArtefactsByProjectPartId = storage.getProjectPartArtefactsByProjectPartId;
-    MockSqliteWriteStatement &deleteProjectPartsHeadersByIdStatement = storage.deleteProjectPartsHeadersByIdStatement;
-    MockSqliteWriteStatement &deleteProjectPartsSourcesByIdStatement = storage.deleteProjectPartsSourcesByIdStatement;
-    MockSqliteWriteStatement &insertProjectPartsHeadersStatement = storage.insertProjectPartsHeadersStatement;
-    MockSqliteWriteStatement &insertProjectPartsSourcesStatement = storage.insertProjectPartsSourcesStatement;
-    MockSqliteReadStatement &fetchProjectPartsHeadersByIdStatement = storage.fetchProjectPartsHeadersByIdStatement;
-    MockSqliteReadStatement &fetchProjectPartsSourcesByIdStatement = storage.fetchProjectPartsSourcesByIdStatement;
-    MockSqliteReadStatement &fetchProjectPrecompiledHeaderPathStatement = storage.fetchProjectPrecompiledHeaderBuildTimeStatement;
-    MockSqliteReadStatement &fetchProjectPrecompiledHeaderBuildTimeStatement = storage.fetchProjectPrecompiledHeaderBuildTimeStatement;
-    MockSqliteWriteStatement &resetDependentIndexingTimeStampsStatement = storage.resetDependentIndexingTimeStampsStatement;
-    MockSqliteReadStatement &fetchAllProjectPartNamesAndIdsStatement = storage.fetchAllProjectPartNamesAndIdsStatement;
+    NiceMock<SqliteDatabaseMock> databaseMock;
+    Storage storage{databaseMock};
+    ReadStatement<1> &fetchProjectPartIdStatement = storage.fetchProjectPartIdStatement;
+    WriteStatement &insertProjectPartNameStatement = storage.insertProjectPartNameStatement;
+    ReadStatement<1> &fetchProjectPartNameStatement = storage.fetchProjectPartNameStatement;
+    ReadStatement<8> &fetchProjectPartsStatement = storage.fetchProjectPartsStatement;
+    ReadStatement<8> &fetchProjectPartByIdStatement = storage.fetchProjectPartByIdStatement;
+    WriteStatement &updateProjectPartStatement = storage.updateProjectPartStatement;
+    ReadStatement<8> &getProjectPartArtefactsBySourceId = storage.getProjectPartArtefactsBySourceId;
+    ReadStatement<8> &getProjectPartArtefactsByProjectPartId = storage.getProjectPartArtefactsByProjectPartId;
+    WriteStatement &deleteProjectPartsHeadersByIdStatement = storage.deleteProjectPartsHeadersByIdStatement;
+    WriteStatement &deleteProjectPartsSourcesByIdStatement = storage.deleteProjectPartsSourcesByIdStatement;
+    WriteStatement &insertProjectPartsHeadersStatement = storage.insertProjectPartsHeadersStatement;
+    WriteStatement &insertProjectPartsSourcesStatement = storage.insertProjectPartsSourcesStatement;
+    ReadStatement<1> &fetchProjectPartsHeadersByIdStatement = storage.fetchProjectPartsHeadersByIdStatement;
+    ReadStatement<1> &fetchProjectPartsSourcesByIdStatement = storage.fetchProjectPartsSourcesByIdStatement;
+    ReadStatement<1> &fetchProjectPrecompiledHeaderBuildTimeStatement = storage.fetchProjectPrecompiledHeaderBuildTimeStatement;
+    WriteStatement &resetDependentIndexingTimeStampsStatement = storage.resetDependentIndexingTimeStampsStatement;
+    ReadStatement<2> &fetchAllProjectPartNamesAndIdsStatement = storage.fetchAllProjectPartNamesAndIdsStatement;
     IncludeSearchPaths systemIncludeSearchPaths{{"/includes", 1, IncludeSearchPathType::BuiltIn},
                                                 {"/other/includes", 2, IncludeSearchPathType::System}};
     IncludeSearchPaths projectIncludeSearchPaths{{"/project/includes", 1, IncludeSearchPathType::User},
@@ -134,11 +136,11 @@ TEST_F(ProjectPartsStorage, CallsFetchProjectIdWithNonExistingProjectPartName)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchProjectPartIdStatement,
                 valueReturnProjectPartId(TypedEq<Utils::SmallStringView>("test")));
     EXPECT_CALL(insertProjectPartNameStatement, write(TypedEq<Utils::SmallStringView>("test")));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchProjectPartId("test");
 }
@@ -158,12 +160,12 @@ TEST_F(ProjectPartsStorage, CallsFetchProjectIdWithExistingProjectPart)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchProjectPartIdStatement,
                 valueReturnProjectPartId(TypedEq<Utils::SmallStringView>("test")))
         .WillOnce(Return(Utils::optional<ProjectPartId>{20}));
     EXPECT_CALL(insertProjectPartNameStatement, write(TypedEq<Utils::SmallStringView>("test"))).Times(0);
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchProjectPartId("test");
 }
@@ -184,17 +186,17 @@ TEST_F(ProjectPartsStorage, CallsFetchProjectIdWithBusyDatabaset)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchProjectPartIdStatement,
                 valueReturnProjectPartId(TypedEq<Utils::SmallStringView>("test")));
     EXPECT_CALL(insertProjectPartNameStatement, write(TypedEq<Utils::SmallStringView>("test")))
         .WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
-    EXPECT_CALL(mockDatabase, rollback());
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, rollback());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchProjectPartIdStatement,
                 valueReturnProjectPartId(TypedEq<Utils::SmallStringView>("test")));
     EXPECT_CALL(insertProjectPartNameStatement, write(TypedEq<Utils::SmallStringView>("test")));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchProjectPartId("test");
 }
@@ -204,7 +206,7 @@ TEST_F(ProjectPartsStorage, FetchProjectIdWithNonExistingProjectPartName)
     ON_CALL(fetchProjectPartIdStatement,
             valueReturnProjectPartId(TypedEq<Utils::SmallStringView>("test")))
         .WillByDefault(Return(Utils::optional<ProjectPartId>{}));
-    ON_CALL(mockDatabase, lastInsertedRowId()).WillByDefault(Return(21));
+    ON_CALL(databaseMock, lastInsertedRowId()).WillByDefault(Return(21));
 
     auto id = storage.fetchProjectPartId("test");
 
@@ -216,7 +218,7 @@ TEST_F(ProjectPartsStorage, FetchProjectIdWithNonExistingProjectPartNameUnguarde
     ON_CALL(fetchProjectPartIdStatement,
             valueReturnProjectPartId(TypedEq<Utils::SmallStringView>("test")))
         .WillByDefault(Return(Utils::optional<ProjectPartId>{}));
-    ON_CALL(mockDatabase, lastInsertedRowId()).WillByDefault(Return(21));
+    ON_CALL(databaseMock, lastInsertedRowId()).WillByDefault(Return(21));
 
     auto id = storage.fetchProjectPartIdUnguarded("test");
 
@@ -232,7 +234,7 @@ TEST_F(ProjectPartsStorage, FetchProjectIdWithNonExistingProjectPartNameAndIsBus
     EXPECT_CALL(fetchProjectPartIdStatement,
                 valueReturnProjectPartId(TypedEq<Utils::SmallStringView>("test")))
         .WillOnce(Return(ClangBackEnd::ProjectPartId{21}));
-    ON_CALL(mockDatabase, lastInsertedRowId()).WillByDefault(Return(21));
+    ON_CALL(databaseMock, lastInsertedRowId()).WillByDefault(Return(21));
 
     auto id = storage.fetchProjectPartId("test");
 
@@ -265,10 +267,10 @@ TEST_F(ProjectPartsStorage, FetchProjectPartName)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchProjectPartNameStatement, valueReturnPathString(TypedEq<int>(12)))
         .WillOnce(Return(Utils::optional<Utils::PathString>{"test"}));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchProjectPartName(12);
 }
@@ -277,14 +279,14 @@ TEST_F(ProjectPartsStorage, FetchProjectPartNameStatementIsBusy)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchProjectPartNameStatement, valueReturnPathString(TypedEq<int>(12)))
         .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
-    EXPECT_CALL(mockDatabase, rollback());
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, rollback());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchProjectPartNameStatement, valueReturnPathString(TypedEq<int>(12)))
         .WillOnce(Return(Utils::optional<Utils::PathString>{"test"}));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchProjectPartName(12);
 }
@@ -293,9 +295,9 @@ TEST_F(ProjectPartsStorage, FetchProjectParts)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchProjectPartsStatement, valuesReturnProjectPartContainers(4096));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchProjectParts();
 }
@@ -304,7 +306,7 @@ TEST_F(ProjectPartsStorage, FetchProjectPartsByIds)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchProjectPartByIdStatement, valueReturnProjectPartContainer(Eq(1)));
     EXPECT_CALL(fetchProjectPartsHeadersByIdStatement, valuesReturnFilePathIds(1024, Eq(1)));
     EXPECT_CALL(fetchProjectPartsSourcesByIdStatement, valuesReturnFilePathIds(1024, Eq(1)));
@@ -313,7 +315,7 @@ TEST_F(ProjectPartsStorage, FetchProjectPartsByIds)
     EXPECT_CALL(fetchProjectPartsHeadersByIdStatement, valuesReturnFilePathIds(1024, Eq(2)));
     EXPECT_CALL(fetchProjectPartsSourcesByIdStatement, valuesReturnFilePathIds(1024, Eq(2)));
     EXPECT_CALL(fetchProjectPrecompiledHeaderBuildTimeStatement, valueReturnInt64(Eq(2)));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchProjectParts({1, 2});
 }
@@ -322,15 +324,15 @@ TEST_F(ProjectPartsStorage, FetchProjectPartsByIdsIsBusy)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchProjectPartByIdStatement, valueReturnProjectPartContainer(Eq(1)));
     EXPECT_CALL(fetchProjectPartByIdStatement, valueReturnProjectPartContainer(Eq(2)))
         .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
-    EXPECT_CALL(mockDatabase, rollback());
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, rollback());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchProjectPartByIdStatement, valueReturnProjectPartContainer(Eq(1)));
     EXPECT_CALL(fetchProjectPartByIdStatement, valueReturnProjectPartContainer(Eq(2)));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchProjectParts({1, 2});
 }
@@ -385,7 +387,7 @@ TEST_F(ProjectPartsStorage, UpdateProjectParts)
 {
     InSequence sequence;
 
-    EXPECT_CALL(mockDatabase, immediateBegin());
+    EXPECT_CALL(databaseMock, immediateBegin());
     EXPECT_CALL(updateProjectPartStatement,
                 write(TypedEq<int>(1),
                       TypedEq<Utils::SmallStringView>(R"(["-m32"])"),
@@ -416,7 +418,7 @@ TEST_F(ProjectPartsStorage, UpdateProjectParts)
     EXPECT_CALL(deleteProjectPartsSourcesByIdStatement, write(TypedEq<int>(2)));
     EXPECT_CALL(insertProjectPartsSourcesStatement, write(TypedEq<int>(2), TypedEq<int>(7)));
     EXPECT_CALL(insertProjectPartsSourcesStatement, write(TypedEq<int>(2), TypedEq<int>(8)));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.updateProjectParts({projectPart1, projectPart2});
 }
@@ -425,8 +427,8 @@ TEST_F(ProjectPartsStorage, UpdateProjectPartsIsBusy)
 {
     InSequence sequence;
 
-    EXPECT_CALL(mockDatabase, immediateBegin()).WillOnce(Throw(Sqlite::StatementIsBusy{""}));
-    EXPECT_CALL(mockDatabase, immediateBegin());
+    EXPECT_CALL(databaseMock, immediateBegin()).WillOnce(Throw(Sqlite::StatementIsBusy{""}));
+    EXPECT_CALL(databaseMock, immediateBegin());
     EXPECT_CALL(updateProjectPartStatement,
                 write(TypedEq<int>(1),
                       TypedEq<Utils::SmallStringView>(R"(["-m32"])"),
@@ -436,7 +438,7 @@ TEST_F(ProjectPartsStorage, UpdateProjectPartsIsBusy)
                       2,
                       35,
                       2));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.updateProjectParts({projectPart1});
 }
@@ -445,10 +447,10 @@ TEST_F(ProjectPartsStorage, FetchProjectPartArtefactBySourceIdCallsValueInStatem
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(getProjectPartArtefactsBySourceId, valueReturnProjectPartArtefact(1))
         .WillRepeatedly(Return(artefact));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchProjectPartArtefact(FilePathId{1});
 }
@@ -457,14 +459,14 @@ TEST_F(ProjectPartsStorage, FetchProjectPartArtefactBySourceIdCallsValueInStatem
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(getProjectPartArtefactsBySourceId, valueReturnProjectPartArtefact(1))
         .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
-    EXPECT_CALL(mockDatabase, rollback());
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, rollback());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(getProjectPartArtefactsBySourceId, valueReturnProjectPartArtefact(1))
         .WillRepeatedly(Return(artefact));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchProjectPartArtefact(FilePathId{1});
 }
@@ -483,10 +485,10 @@ TEST_F(ProjectPartsStorage, FetchProjectPartArtefactByProjectPartIdCallsValueInS
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(getProjectPartArtefactsByProjectPartId, valueReturnProjectPartArtefact(74))
         .WillRepeatedly(Return(artefact));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchProjectPartArtefact(ProjectPartId{74});
 }
@@ -505,14 +507,14 @@ TEST_F(ProjectPartsStorage, FetchProjectPartArtefactByProjectPartIdReturnArtefac
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(getProjectPartArtefactsByProjectPartId, valueReturnProjectPartArtefact(74))
         .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
-    EXPECT_CALL(mockDatabase, rollback());
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, rollback());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(getProjectPartArtefactsByProjectPartId, valueReturnProjectPartArtefact(74))
         .WillRepeatedly(Return(artefact));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchProjectPartArtefact(ProjectPartId{74});
 }
@@ -521,12 +523,12 @@ TEST_F(ProjectPartsStorage, ResetDependentIndexingTimeStamps)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, immediateBegin());
+    EXPECT_CALL(databaseMock, immediateBegin());
     EXPECT_CALL(resetDependentIndexingTimeStampsStatement, write(TypedEq<int>(3)));
     EXPECT_CALL(resetDependentIndexingTimeStampsStatement, write(TypedEq<int>(4)));
     EXPECT_CALL(resetDependentIndexingTimeStampsStatement, write(TypedEq<int>(7)));
     EXPECT_CALL(resetDependentIndexingTimeStampsStatement, write(TypedEq<int>(8)));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.resetIndexingTimeStamps({projectPart1, projectPart2});
 }
@@ -535,13 +537,13 @@ TEST_F(ProjectPartsStorage, ResetDependentIndexingTimeStampsIsBusy)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, immediateBegin()).WillOnce(Throw(Sqlite::StatementIsBusy{""}));
-    EXPECT_CALL(mockDatabase, immediateBegin());
+    EXPECT_CALL(databaseMock, immediateBegin()).WillOnce(Throw(Sqlite::StatementIsBusy{""}));
+    EXPECT_CALL(databaseMock, immediateBegin());
     EXPECT_CALL(resetDependentIndexingTimeStampsStatement, write(TypedEq<int>(3)));
     EXPECT_CALL(resetDependentIndexingTimeStampsStatement, write(TypedEq<int>(4)));
     EXPECT_CALL(resetDependentIndexingTimeStampsStatement, write(TypedEq<int>(7)));
     EXPECT_CALL(resetDependentIndexingTimeStampsStatement, write(TypedEq<int>(8)));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.resetIndexingTimeStamps({projectPart1, projectPart2});
 }
@@ -550,10 +552,10 @@ TEST_F(ProjectPartsStorage, FetchAllProjectPartNamesAndIdsCalls)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchAllProjectPartNamesAndIdsStatement, valuesReturnProjectPartNameIds(_))
         .WillRepeatedly(Return(projectPartNameIds));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchAllProjectPartNamesAndIds();
 }
@@ -562,14 +564,14 @@ TEST_F(ProjectPartsStorage, FetchAllProjectPartNamesAndIdsCallsIsBusy)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchAllProjectPartNamesAndIdsStatement, valuesReturnProjectPartNameIds(_))
         .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
-    EXPECT_CALL(mockDatabase, rollback());
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, rollback());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchAllProjectPartNamesAndIdsStatement, valuesReturnProjectPartNameIds(_))
         .WillRepeatedly(Return(projectPartNameIds));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchAllProjectPartNamesAndIds();
 }

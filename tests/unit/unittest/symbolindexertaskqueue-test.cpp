@@ -25,7 +25,7 @@
 
 #include "googletest.h"
 
-#include "mocksqlitedatabase.h"
+#include "sqlitedatabasemock.h"
 #include "mocktaskscheduler.h"
 
 #include <symbolindexertaskqueue.h>
@@ -55,7 +55,7 @@ protected:
     NiceMock<MockFunction<void(int, int)>> mockSetProgressCallback;
     ClangBackEnd::ProgressCounter progressCounter{mockSetProgressCallback.AsStdFunction()};
     NiceMock<MockTaskScheduler<Callable>> mockTaskScheduler;
-    NiceMock<MockSqliteDatabase> mockSqliteDatabase;
+    NiceMock<SqliteDatabaseMock> mockSqliteDatabase;
     ClangBackEnd::SymbolIndexerTaskQueue queue{mockTaskScheduler, progressCounter, mockSqliteDatabase};
 };
 

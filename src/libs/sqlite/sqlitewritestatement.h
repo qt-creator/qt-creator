@@ -29,17 +29,28 @@
 
 namespace Sqlite {
 
-class SQLITE_EXPORT WriteStatement : protected StatementImplementation<BaseStatement>
+class WriteStatement : protected StatementImplementation<BaseStatement, -1>
 {
-public:
-    explicit WriteStatement(Utils::SmallStringView sqlStatement, Database &database);
+    using Base = StatementImplementation<BaseStatement, -1>;
 
-    using StatementImplementation::execute;
+public:
+    WriteStatement(Utils::SmallStringView sqlStatement, Database &database)
+        : StatementImplementation(sqlStatement, database)
+    {
+        checkIsWritableStatement();
+    }
+
     using StatementImplementation::database;
+    using StatementImplementation::execute;
     using StatementImplementation::write;
 
 protected:
-    void checkIsWritableStatement();
+    void checkIsWritableStatement()
+    {
+        if (Base::isReadOnlyStatement())
+            throw NotWriteSqlStatement(
+                "SqliteStatement::SqliteWriteStatement: is not a writable statement!");
+    }
 };
 
 } // namespace Sqlite

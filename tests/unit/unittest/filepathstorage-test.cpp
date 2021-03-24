@@ -26,17 +26,18 @@
 #include "googletest.h"
 
 #include "mockmutex.h"
-#include "mocksqlitedatabase.h"
-#include "mocksqlitereadstatement.h"
-#include "mocksqlitewritestatement.h"
+#include "sqlitedatabasemock.h"
 
 #include <filepathstorage.h>
 #include <filepathstoragesqlitestatementfactory.h>
 
 namespace {
 
-using StatementFactory = ClangBackEnd::FilePathStorageSqliteStatementFactory<NiceMock<MockSqliteDatabase>>;
+using StatementFactory = ClangBackEnd::FilePathStorageSqliteStatementFactory<NiceMock<SqliteDatabaseMock>>;
 using Storage = ClangBackEnd::FilePathStorage<StatementFactory>;
+template<int ResultCount>
+using ReadStatement = NiceMock<SqliteDatabaseMock>::ReadStatement<ResultCount>;
+using WriteStatement = NiceMock<SqliteDatabaseMock>::WriteStatement;
 using ClangBackEnd::Sources::Directory;
 using ClangBackEnd::Sources::Source;
 
@@ -54,7 +55,7 @@ protected:
         ON_CALL(selectDirectoryIdFromDirectoriesByDirectoryPath,
                 valueReturnInt32(Utils::SmallStringView("/path/to")))
                 .WillByDefault(Return(Utils::optional<int>(5)));
-        ON_CALL(mockDatabase, lastInsertedRowId())
+        ON_CALL(databaseMock, lastInsertedRowId())
                 .WillByDefault(Return(12));
         ON_CALL(selectAllDirectories, valuesReturnStdVectorDirectory(_))
             .WillByDefault(Return(std::vector<Directory>{{"/path/to", 1}, {"/other/path", 2}}));
@@ -98,17 +99,17 @@ protected:
     }
 
 protected:
-    NiceMock<MockSqliteDatabase> mockDatabase;
-    StatementFactory factory{mockDatabase};
-    MockSqliteReadStatement &selectDirectoryIdFromDirectoriesByDirectoryPath = factory.selectDirectoryIdFromDirectoriesByDirectoryPath;
-    MockSqliteReadStatement &selectSourceIdFromSourcesByDirectoryIdAndSourceName = factory.selectSourceIdFromSourcesByDirectoryIdAndSourceName;
-    MockSqliteReadStatement &selectDirectoryPathFromDirectoriesByDirectoryId = factory.selectDirectoryPathFromDirectoriesByDirectoryId;
-    MockSqliteReadStatement &selectSourceNameAndDirectoryIdFromSourcesBySourceId = factory.selectSourceNameAndDirectoryIdFromSourcesBySourceId;
-    MockSqliteReadStatement &selectAllDirectories = factory.selectAllDirectories;
-    MockSqliteWriteStatement &insertIntoDirectories = factory.insertIntoDirectories;
-    MockSqliteWriteStatement &insertIntoSources = factory.insertIntoSources;
-    MockSqliteReadStatement &selectAllSources = factory.selectAllSources;
-    MockSqliteReadStatement &selectDirectoryIdFromSourcesBySourceId = factory.selectDirectoryIdFromSourcesBySourceId;
+    NiceMock<SqliteDatabaseMock> databaseMock;
+    StatementFactory factory{databaseMock};
+    ReadStatement<1> &selectDirectoryIdFromDirectoriesByDirectoryPath = factory.selectDirectoryIdFromDirectoriesByDirectoryPath;
+    ReadStatement<1> &selectSourceIdFromSourcesByDirectoryIdAndSourceName = factory.selectSourceIdFromSourcesByDirectoryIdAndSourceName;
+    ReadStatement<1> &selectDirectoryPathFromDirectoriesByDirectoryId = factory.selectDirectoryPathFromDirectoriesByDirectoryId;
+    ReadStatement<2> &selectSourceNameAndDirectoryIdFromSourcesBySourceId = factory.selectSourceNameAndDirectoryIdFromSourcesBySourceId;
+    ReadStatement<2> &selectAllDirectories = factory.selectAllDirectories;
+    WriteStatement &insertIntoDirectories = factory.insertIntoDirectories;
+    WriteStatement &insertIntoSources = factory.insertIntoSources;
+    ReadStatement<3> &selectAllSources = factory.selectAllSources;
+    ReadStatement<1> &selectDirectoryIdFromSourcesBySourceId = factory.selectDirectoryIdFromSourcesBySourceId;
     Storage storage{factory};
 };
 
@@ -229,10 +230,10 @@ TEST_F(FilePathStorage, CallSelectForFetchingDirectoryIdForKnownPath)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(selectDirectoryIdFromDirectoriesByDirectoryPath,
                 valueReturnInt32(TypedEq<Utils::SmallStringView>("/path/to")));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchDirectoryId("/path/to");
 }
@@ -241,10 +242,10 @@ TEST_F(FilePathStorage, CallSelectForFetchingSourceIdForKnownPath)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(selectSourceIdFromSourcesByDirectoryIdAndSourceName,
                 valueReturnInt32(5, Eq("file.h")));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchSourceId(5, "file.h");
 }
@@ -267,11 +268,11 @@ TEST_F(FilePathStorage, CallSelectAndWriteForFetchingDirectoryIdForUnknownPath)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(selectDirectoryIdFromDirectoriesByDirectoryPath,
                 valueReturnInt32(TypedEq<Utils::SmallStringView>("/some/not/known/path")));
     EXPECT_CALL(insertIntoDirectories, write(TypedEq<Utils::SmallStringView>("/some/not/known/path")));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchDirectoryId("/some/not/known/path");
 }
@@ -280,12 +281,12 @@ TEST_F(FilePathStorage, CallSelectAndWriteForFetchingSourceIdForUnknownEntry)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(selectSourceIdFromSourcesByDirectoryIdAndSourceName,
                 valueReturnInt32(5, Eq("unknownfile.h")));
     EXPECT_CALL(insertIntoSources,
                 write(TypedEq<int>(5), TypedEq<Utils::SmallStringView>("unknownfile.h")));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchSourceId(5, "unknownfile.h");
 }
@@ -294,13 +295,13 @@ TEST_F(FilePathStorage, RestartFetchDirectoryIDIfTheStatementIsBusyInBeginBecaus
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
-    EXPECT_CALL(mockDatabase, rollback()).Times(0);
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
+    EXPECT_CALL(databaseMock, rollback()).Times(0);
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(selectDirectoryIdFromDirectoriesByDirectoryPath,
                 valueReturnInt32(TypedEq<Utils::SmallStringView>("/other/unknow/path")));
     EXPECT_CALL(insertIntoDirectories, write(TypedEq<Utils::SmallStringView>("/other/unknow/path")));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchDirectoryId("/other/unknow/path");
 }
@@ -310,17 +311,17 @@ TEST_F(FilePathStorage,
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(selectDirectoryIdFromDirectoriesByDirectoryPath,
                 valueReturnInt32(TypedEq<Utils::SmallStringView>("/other/unknow/path")));
     EXPECT_CALL(insertIntoDirectories, write(TypedEq<Utils::SmallStringView>("/other/unknow/path")))
             .WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
-    EXPECT_CALL(mockDatabase, rollback());
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, rollback());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(selectDirectoryIdFromDirectoriesByDirectoryPath,
                 valueReturnInt32(TypedEq<Utils::SmallStringView>("/other/unknow/path")));
     EXPECT_CALL(insertIntoDirectories, write(TypedEq<Utils::SmallStringView>("/other/unknow/path")));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchDirectoryId("/other/unknow/path");
 }
@@ -329,16 +330,16 @@ TEST_F(FilePathStorage, CallSelectAndWriteForFetchingDirectoryIdTwoTimesIfTheInd
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase,deferredBegin());
+    EXPECT_CALL(databaseMock,deferredBegin());
     EXPECT_CALL(selectDirectoryIdFromDirectoriesByDirectoryPath,
                 valueReturnInt32(TypedEq<Utils::SmallStringView>("/other/unknow/path")));
     EXPECT_CALL(insertIntoDirectories, write(TypedEq<Utils::SmallStringView>("/other/unknow/path")))
             .WillOnce(Throw(Sqlite::ConstraintPreventsModification("busy")));
-    EXPECT_CALL(mockDatabase, rollback());
-    EXPECT_CALL(mockDatabase,deferredBegin());
+    EXPECT_CALL(databaseMock, rollback());
+    EXPECT_CALL(databaseMock,deferredBegin());
     EXPECT_CALL(selectDirectoryIdFromDirectoriesByDirectoryPath,
                 valueReturnInt32(TypedEq<Utils::SmallStringView>("/other/unknow/path")));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchDirectoryId("/other/unknow/path");
 }
@@ -347,14 +348,14 @@ TEST_F(FilePathStorage, RestartFetchSourceIdIfTheStatementIsBusyInBeginBecauseTh
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
-    EXPECT_CALL(mockDatabase, rollback()).Times(0);
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
+    EXPECT_CALL(databaseMock, rollback()).Times(0);
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(selectSourceIdFromSourcesByDirectoryIdAndSourceName,
                 valueReturnInt32(5, Eq("otherunknownfile.h")));
     EXPECT_CALL(insertIntoSources,
                 write(TypedEq<int>(5), TypedEq<Utils::SmallStringView>("otherunknownfile.h")));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchSourceId(5, "otherunknownfile.h");
 }
@@ -364,19 +365,19 @@ TEST_F(FilePathStorage,
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(selectSourceIdFromSourcesByDirectoryIdAndSourceName,
                 valueReturnInt32(5, Eq("otherunknownfile.h")));
     EXPECT_CALL(insertIntoSources,
                 write(TypedEq<int>(5), TypedEq<Utils::SmallStringView>("otherunknownfile.h")))
         .WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
-    EXPECT_CALL(mockDatabase, rollback());
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, rollback());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(selectSourceIdFromSourcesByDirectoryIdAndSourceName,
                 valueReturnInt32(5, Eq("otherunknownfile.h")));
     EXPECT_CALL(insertIntoSources,
                 write(TypedEq<int>(5), TypedEq<Utils::SmallStringView>("otherunknownfile.h")));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchSourceId(5, "otherunknownfile.h");
 }
@@ -385,18 +386,18 @@ TEST_F(FilePathStorage, CallSelectAndWriteForFetchingSourceTwoTimesIfTheIndexIsC
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase,deferredBegin());
+    EXPECT_CALL(databaseMock,deferredBegin());
     EXPECT_CALL(selectSourceIdFromSourcesByDirectoryIdAndSourceName,
                 valueReturnInt32(5, Eq("otherunknownfile.h")));
     EXPECT_CALL(insertIntoSources,
                 write(TypedEq<int>(5), TypedEq<Utils::SmallStringView>("otherunknownfile.h")))
         .WillOnce(Throw(Sqlite::ConstraintPreventsModification("busy")));
-    EXPECT_CALL(mockDatabase, rollback());
-    EXPECT_CALL(mockDatabase,deferredBegin());
+    EXPECT_CALL(databaseMock, rollback());
+    EXPECT_CALL(databaseMock,deferredBegin());
     EXPECT_CALL(selectSourceIdFromSourcesByDirectoryIdAndSourceName,
                 valueReturnInt32(5, Eq("otherunknownfile.h")))
         .WillOnce(Return(Utils::optional<int>(42)));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchSourceId(5, "otherunknownfile.h");
 }
@@ -417,27 +418,27 @@ TEST_F(FilePathStorage, SelectAllSources)
 
 TEST_F(FilePathStorage, CallSelectAllDirectories)
 {
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(selectAllDirectories, valuesReturnStdVectorDirectory(256));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchAllDirectories();
 }
 
 TEST_F(FilePathStorage, CallSelectAllSources)
 {
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(selectAllSources, valuesReturnStdVectorSource(8192));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchAllSources();
 }
 
 TEST_F(FilePathStorage, CallValueForFetchDirectoryPathForId)
 {
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(selectDirectoryPathFromDirectoriesByDirectoryId, valueReturnPathString(5));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchDirectoryPath(5);
 }
@@ -456,9 +457,9 @@ TEST_F(FilePathStorage, ThrowAsFetchingDirectoryPathForNonExistingId)
 
 TEST_F(FilePathStorage, CallValueForFetchSoureNameForId)
 {
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(selectSourceNameAndDirectoryIdFromSourcesBySourceId, valueReturnSourceNameAndDirectoryId(42));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchSourceNameAndDirectoryId(42);
 }
@@ -480,15 +481,15 @@ TEST_F(FilePathStorage, RestartFetchSourceNameIfTheStatementIsBusyInBegin)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, lock());
-    EXPECT_CALL(mockDatabase, deferredBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
-    EXPECT_CALL(mockDatabase, rollback()).Times(0);
-    EXPECT_CALL(mockDatabase, unlock());
-    EXPECT_CALL(mockDatabase, lock());
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, lock());
+    EXPECT_CALL(databaseMock, deferredBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
+    EXPECT_CALL(databaseMock, rollback()).Times(0);
+    EXPECT_CALL(databaseMock, unlock());
+    EXPECT_CALL(databaseMock, lock());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(selectSourceNameAndDirectoryIdFromSourcesBySourceId, valueReturnSourceNameAndDirectoryId(42));
-    EXPECT_CALL(mockDatabase, commit());
-    EXPECT_CALL(mockDatabase, unlock());
+    EXPECT_CALL(databaseMock, commit());
+    EXPECT_CALL(databaseMock, unlock());
 
     storage.fetchSourceNameAndDirectoryId(42);
 }
@@ -497,15 +498,15 @@ TEST_F(FilePathStorage, RestartFetchDirectoryPathIfTheStatementIsBusyInBegin)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, lock());
-    EXPECT_CALL(mockDatabase, deferredBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
-    EXPECT_CALL(mockDatabase, rollback()).Times(0);
-    EXPECT_CALL(mockDatabase, unlock());
-    EXPECT_CALL(mockDatabase, lock());
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, lock());
+    EXPECT_CALL(databaseMock, deferredBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
+    EXPECT_CALL(databaseMock, rollback()).Times(0);
+    EXPECT_CALL(databaseMock, unlock());
+    EXPECT_CALL(databaseMock, lock());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(selectDirectoryPathFromDirectoriesByDirectoryId, valueReturnPathString(5));
-    EXPECT_CALL(mockDatabase, commit());
-    EXPECT_CALL(mockDatabase, unlock());
+    EXPECT_CALL(databaseMock, commit());
+    EXPECT_CALL(databaseMock, unlock());
 
     storage.fetchDirectoryPath(5);
 }
@@ -514,15 +515,15 @@ TEST_F(FilePathStorage, RestartFetchAllDirectoriesIfBeginIsBusy)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, lock());
-    EXPECT_CALL(mockDatabase, deferredBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
-    EXPECT_CALL(mockDatabase, rollback()).Times(0);
-    EXPECT_CALL(mockDatabase, unlock());
-    EXPECT_CALL(mockDatabase, lock());
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, lock());
+    EXPECT_CALL(databaseMock, deferredBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
+    EXPECT_CALL(databaseMock, rollback()).Times(0);
+    EXPECT_CALL(databaseMock, unlock());
+    EXPECT_CALL(databaseMock, lock());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(selectAllDirectories, valuesReturnStdVectorDirectory(256));
-    EXPECT_CALL(mockDatabase, commit());
-    EXPECT_CALL(mockDatabase, unlock());
+    EXPECT_CALL(databaseMock, commit());
+    EXPECT_CALL(databaseMock, unlock());
 
     storage.fetchAllDirectories();
 }
@@ -531,15 +532,15 @@ TEST_F(FilePathStorage, RestartFetchAllSourcesIfBeginIsBusy)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, lock());
-    EXPECT_CALL(mockDatabase, deferredBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
-    EXPECT_CALL(mockDatabase, rollback()).Times(0);
-    EXPECT_CALL(mockDatabase, unlock());
-    EXPECT_CALL(mockDatabase, lock());
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, lock());
+    EXPECT_CALL(databaseMock, deferredBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
+    EXPECT_CALL(databaseMock, rollback()).Times(0);
+    EXPECT_CALL(databaseMock, unlock());
+    EXPECT_CALL(databaseMock, lock());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(selectAllSources, valuesReturnStdVectorSource(8192));
-    EXPECT_CALL(mockDatabase, commit());
-    EXPECT_CALL(mockDatabase, unlock());
+    EXPECT_CALL(databaseMock, commit());
+    EXPECT_CALL(databaseMock, unlock());
 
     storage.fetchAllSources();
 }
@@ -560,11 +561,11 @@ TEST_F(FilePathStorage, FetchDirectoryIdCalls)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, lock());
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, lock());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(selectDirectoryIdFromSourcesBySourceId, valueReturnInt32(TypedEq<int>(42)));
-    EXPECT_CALL(mockDatabase, commit());
-    EXPECT_CALL(mockDatabase, unlock());
+    EXPECT_CALL(databaseMock, commit());
+    EXPECT_CALL(databaseMock, unlock());
 
     storage.fetchDirectoryId(42);
 }
@@ -573,15 +574,15 @@ TEST_F(FilePathStorage, FetchDirectoryIdCallsDatabaseIsBusy)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, lock());
-    EXPECT_CALL(mockDatabase, deferredBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
-    EXPECT_CALL(mockDatabase, rollback()).Times(0);
-    EXPECT_CALL(mockDatabase, unlock());
-    EXPECT_CALL(mockDatabase, lock());
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, lock());
+    EXPECT_CALL(databaseMock, deferredBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
+    EXPECT_CALL(databaseMock, rollback()).Times(0);
+    EXPECT_CALL(databaseMock, unlock());
+    EXPECT_CALL(databaseMock, lock());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(selectDirectoryIdFromSourcesBySourceId, valueReturnInt32(TypedEq<int>(42)));
-    EXPECT_CALL(mockDatabase, commit());
-    EXPECT_CALL(mockDatabase, unlock());
+    EXPECT_CALL(databaseMock, commit());
+    EXPECT_CALL(databaseMock, unlock());
 
     storage.fetchDirectoryId(42);
 }
@@ -590,11 +591,11 @@ TEST_F(FilePathStorage, FetchDirectoryIdCallsThrows)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, lock());
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, lock());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(selectDirectoryIdFromSourcesBySourceId, valueReturnInt32(TypedEq<int>(41)));
-    EXPECT_CALL(mockDatabase, rollback());
-    EXPECT_CALL(mockDatabase, unlock());
+    EXPECT_CALL(databaseMock, rollback());
+    EXPECT_CALL(databaseMock, unlock());
 
     ASSERT_ANY_THROW(storage.fetchDirectoryId(41));
 }

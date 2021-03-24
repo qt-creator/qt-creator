@@ -124,8 +124,8 @@ class Sessions : public testing::Test
 protected:
     Sessions() { sessions.setAttachedTables({"data", "tags"}); }
 
-    std::vector<Data> fetchData() { return selectData.values<Data, 3>(8); }
-    std::vector<Tag> fetchTags() { return selectTags.values<Tag, 2>(8); }
+    std::vector<Data> fetchData() { return selectData.values<Data>(8); }
+    std::vector<Tag> fetchTags() { return selectTags.values<Tag>(8); }
 
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
@@ -150,10 +150,10 @@ protected:
         "DELETE FROM tags WHERE dataId=(SELECT id FROM data WHERE name=?)", database};
     Sqlite::WriteStatement insertTag{
         "INSERT INTO tags(dataId, tag) VALUES ((SELECT id FROM data WHERE name=?1), ?2) ", database};
-    Sqlite::ReadStatement selectData{"SELECT name, number, value FROM data", database};
-    Sqlite::ReadStatement selectTags{"SELECT name, tag FROM tags JOIN data ON data.id=tags.dataId",
-                                     database};
-    Sqlite::ReadStatement selectChangeSets{"SELECT changeset FROM testsessions", database};
+    Sqlite::ReadStatement<3> selectData{"SELECT name, number, value FROM data", database};
+    Sqlite::ReadStatement<2> selectTags{
+        "SELECT name, tag FROM tags JOIN data ON data.id=tags.dataId", database};
+    Sqlite::ReadStatement<1> selectChangeSets{"SELECT changeset FROM testsessions", database};
 };
 
 TEST_F(Sessions, DontThrowForCommittingWithoutSessionStart)

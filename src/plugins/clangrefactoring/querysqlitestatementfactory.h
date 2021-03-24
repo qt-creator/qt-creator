@@ -27,51 +27,54 @@
 
 namespace ClangRefactoring {
 
-template<typename Database,
-         typename ReadStatement>
+template<typename Database>
 class QuerySqliteStatementFactory
 {
 public:
     using DatabaseType = Database;
-    using ReadStatementType = ReadStatement;
+    template<int ResultCount>
+    using ReadStatement = typename Database::template ReadStatement<ResultCount>;
 
     QuerySqliteStatementFactory(Database &database)
         : database(database)
     {}
     Database &database;
-    ReadStatement selectLocationsForSymbolLocation{
+    ReadStatement<3> selectLocationsForSymbolLocation{
         "SELECT sourceId, line, column FROM locations WHERE symbolId = "
         "  (SELECT symbolId FROM locations WHERE sourceId=? AND line=? AND column=?) "
         "ORDER BY sourceId, line, column",
         database};
-    ReadStatement selectSourceUsagesForSymbolLocation{
+    ReadStatement<3> selectSourceUsagesForSymbolLocation{
         "SELECT directoryPath || '/' || sourceName, line, column "
         "FROM locations NATURAL JOIN sources NATURAL JOIN directories "
         "WHERE symbolId = (SELECT symbolId FROM locations WHERE sourceId=? AND line=? AND "
         "column=?)",
         database};
-    ReadStatement selectSourceUsagesOrderedForSymbolLocation{
+    ReadStatement<3> selectSourceUsagesOrderedForSymbolLocation{
         "SELECT directoryPath || '/' || sourceName, line, column "
         "FROM locations NATURAL JOIN sources NATURAL JOIN directories "
         "WHERE symbolId = (SELECT symbolId FROM locations WHERE sourceId=? AND line=? AND "
         "column=?) ORDER BY locationKind LIMIT 2",
         database};
-    ReadStatement selectSourceUsagesByLocationKindForSymbolLocation{
+    ReadStatement<3> selectSourceUsagesByLocationKindForSymbolLocation{
         "SELECT directoryPath || '/' || sourceName, line, column "
         "FROM locations NATURAL JOIN sources NATURAL JOIN directories "
         "WHERE symbolId = (SELECT symbolId FROM locations WHERE sourceId=? AND line=? AND "
         "column=?) AND locationKind = ?",
         database};
-    ReadStatement selectSymbolsForKindAndStartsWith{
-        "SELECT symbolId, symbolName, signature FROM symbols WHERE symbolKind = ? AND symbolName LIKE ?",
+    ReadStatement<3> selectSymbolsForKindAndStartsWith{
+        "SELECT symbolId, symbolName, signature FROM symbols WHERE symbolKind = ? AND symbolName "
+        "LIKE ?",
         database};
-    ReadStatement selectSymbolsForKindAndStartsWith2{
-        "SELECT symbolId, symbolName, signature FROM symbols WHERE symbolKind IN (?,?) AND symbolName LIKE ?",
+    ReadStatement<3> selectSymbolsForKindAndStartsWith2{
+        "SELECT symbolId, symbolName, signature FROM symbols WHERE symbolKind IN (?,?) AND "
+        "symbolName LIKE ?",
         database};
-    ReadStatement selectSymbolsForKindAndStartsWith3{
-        "SELECT symbolId, symbolName, signature FROM symbols WHERE symbolKind IN (?,?,?) AND symbolName LIKE ?",
+    ReadStatement<3> selectSymbolsForKindAndStartsWith3{
+        "SELECT symbolId, symbolName, signature FROM symbols WHERE symbolKind IN (?,?,?) AND "
+        "symbolName LIKE ?",
         database};
-    ReadStatement selectLocationOfSymbol{
+    ReadStatement<3> selectLocationOfSymbol{
         "SELECT sourceId, line, column FROM locations AS l WHERE symbolId = ? AND locationKind = ?",
         database};
 };

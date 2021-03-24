@@ -27,11 +27,13 @@
 
 #include <sqlitebasestatement.h>
 
-class SqliteTestStatement : public Sqlite::StatementImplementation<Sqlite::BaseStatement>
+class SqliteTestStatement : public Sqlite::StatementImplementation<Sqlite::BaseStatement, 1>
 {
+    using Base = Sqlite::StatementImplementation<Sqlite::BaseStatement, 1>;
+
 public:
     explicit SqliteTestStatement(Utils::SmallStringView sqlStatement, Sqlite::Database &database)
-        : Sqlite::StatementImplementation<Sqlite::BaseStatement>(sqlStatement, database)
+        : Base(sqlStatement, database)
     {}
 };
 

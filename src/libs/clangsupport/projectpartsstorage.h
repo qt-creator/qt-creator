@@ -36,7 +36,8 @@ namespace ClangBackEnd {
 template<typename Database = Sqlite::Database>
 class ProjectPartsStorage final : public ProjectPartsStorageInterface
 {
-    using ReadStatement = typename Database::ReadStatement;
+    template<int ResultCount>
+    using ReadStatement = typename Database::template ReadStatement<ResultCount>;
     using WriteStatement = typename Database::WriteStatement;
 
 public:
@@ -52,7 +53,7 @@ public:
         try {
             Sqlite::DeferredTransaction transaction{database};
 
-            auto values = fetchProjectPartsStatement.template values<ProjectPartContainer, 8>(4096);
+            auto values = fetchProjectPartsStatement.template values<ProjectPartContainer>(4096);
 
             transaction.commit();
 
@@ -91,7 +92,7 @@ public:
             Sqlite::DeferredTransaction transaction{database};
 
             for (ProjectPartId projectPartId : projectPartIds) {
-                auto value = fetchProjectPartByIdStatement.template value<ProjectPartContainer, 8>(
+                auto value = fetchProjectPartByIdStatement.template value<ProjectPartContainer>(
                     projectPartId.projectPathId);
                 if (value) {
                     value->headerPathIds = fetchHeaders(projectPartId);
@@ -243,9 +244,9 @@ public:
         try {
             Sqlite::DeferredTransaction transaction{database};
 
-            ReadStatement &statement = getProjectPartArtefactsBySourceId;
+            auto &statement = getProjectPartArtefactsBySourceId;
 
-            auto value = statement.template value<ProjectPartArtefact, 8>(sourceId.filePathId);
+            auto value = statement.template value<ProjectPartArtefact>(sourceId.filePathId);
 
             transaction.commit();
 
@@ -260,9 +261,9 @@ public:
         try {
             Sqlite::DeferredTransaction transaction{database};
 
-            ReadStatement &statement = getProjectPartArtefactsByProjectPartId;
+            auto &statement = getProjectPartArtefactsByProjectPartId;
 
-            auto value = statement.template value<ProjectPartArtefact, 8>(projectPartId.projectPathId);
+            auto value = statement.template value<ProjectPartArtefact>(projectPartId.projectPathId);
 
             transaction.commit();
 
@@ -342,9 +343,9 @@ public:
         try {
             Sqlite::DeferredTransaction transaction{database};
 
-            ReadStatement &statement = fetchAllProjectPartNamesAndIdsStatement;
+            auto &statement = fetchAllProjectPartNamesAndIdsStatement;
 
-            auto values = statement.template values<Internal::ProjectPartNameId, 2>(256);
+            auto values = statement.template values<Internal::ProjectPartNameId>(256);
 
             transaction.commit();
 
@@ -357,18 +358,18 @@ public:
 public:
     Sqlite::ImmediateNonThrowingDestructorTransaction transaction;
     Database &database;
-    mutable ReadStatement fetchProjectPartIdStatement{
+    mutable ReadStatement<1> fetchProjectPartIdStatement{
         "SELECT projectPartId FROM projectParts WHERE projectPartName = ?", database};
     mutable WriteStatement insertProjectPartNameStatement{
         "INSERT INTO projectParts(projectPartName) VALUES (?)", database};
-    mutable ReadStatement fetchProjectPartNameStatement{
+    mutable ReadStatement<1> fetchProjectPartNameStatement{
         "SELECT projectPartName FROM projectParts WHERE projectPartId = ?", database};
-    mutable ReadStatement fetchProjectPartsStatement{
+    mutable ReadStatement<8> fetchProjectPartsStatement{
         "SELECT toolChainArguments, compilerMacros, systemIncludeSearchPaths, "
         "projectIncludeSearchPaths, projectPartId, language, languageVersion, languageExtension "
         "FROM projectParts",
         database};
-    mutable ReadStatement fetchProjectPartByIdStatement{
+    mutable ReadStatement<8> fetchProjectPartByIdStatement{
         "SELECT toolChainArguments, compilerMacros, systemIncludeSearchPaths, "
         "projectIncludeSearchPaths, projectPartId, language, languageVersion, languageExtension "
         "FROM projectParts WHERE projectPartId = ?",
@@ -378,13 +379,13 @@ public:
         "systemIncludeSearchPaths=?004, projectIncludeSearchPaths=?005, language=?006, "
         "languageVersion=?007, languageExtension=?008 WHERE projectPartId = ?001",
         database};
-    mutable ReadStatement getProjectPartArtefactsBySourceId{
+    mutable ReadStatement<8> getProjectPartArtefactsBySourceId{
         "SELECT toolChainArguments, compilerMacros, systemIncludeSearchPaths, "
         "projectIncludeSearchPaths, projectPartId, language, languageVersion, languageExtension "
         "FROM projectParts WHERE projectPartId = (SELECT "
         "projectPartId FROM projectPartsFiles WHERE sourceId = ?)",
         database};
-    mutable ReadStatement getProjectPartArtefactsByProjectPartId{
+    mutable ReadStatement<8> getProjectPartArtefactsByProjectPartId{
         "SELECT toolChainArguments, compilerMacros, systemIncludeSearchPaths, "
         "projectIncludeSearchPaths, projectPartId, language, languageVersion, languageExtension "
         "FROM projectParts WHERE projectPartId = ?",
@@ -397,17 +398,17 @@ public:
         "INSERT INTO projectPartsHeaders(projectPartId, sourceId) VALUES (?,?)", database};
     WriteStatement insertProjectPartsSourcesStatement{
         "INSERT INTO projectPartsSources(projectPartId, sourceId) VALUES (?,?)", database};
-    mutable ReadStatement fetchProjectPartsHeadersByIdStatement{
+    mutable ReadStatement<1> fetchProjectPartsHeadersByIdStatement{
         "SELECT sourceId FROM projectPartsHeaders WHERE projectPartId = ? ORDER BY sourceId",
         database};
-    mutable ReadStatement fetchProjectPartsSourcesByIdStatement{
+    mutable ReadStatement<1> fetchProjectPartsSourcesByIdStatement{
         "SELECT sourceId FROM projectPartsSources WHERE projectPartId = ? ORDER BY sourceId",
         database};
-    mutable ReadStatement fetchProjectPrecompiledHeaderBuildTimeStatement{
+    mutable ReadStatement<1> fetchProjectPrecompiledHeaderBuildTimeStatement{
         "SELECT projectPchBuildTime FROM precompiledHeaders WHERE projectPartId = ?", database};
     WriteStatement resetDependentIndexingTimeStampsStatement{
         "UPDATE fileStatuses SET indexingTimeStamp = NULL WHERE sourceId = ?", database};
-    mutable ReadStatement fetchAllProjectPartNamesAndIdsStatement{
+    mutable ReadStatement<2> fetchAllProjectPartNamesAndIdsStatement{
         "SELECT projectPartName, projectPartId FROM projectParts", database};
 };
 } // namespace ClangBackEnd

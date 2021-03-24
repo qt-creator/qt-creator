@@ -159,7 +159,7 @@ extern template SQLITE_EXPORT Utils::SmallStringView BaseStatement::fetchValue<U
 extern template SQLITE_EXPORT Utils::SmallString BaseStatement::fetchValue<Utils::SmallString>(int column) const;
 extern template SQLITE_EXPORT Utils::PathString BaseStatement::fetchValue<Utils::PathString>(int column) const;
 
-template <typename BaseStatement>
+template<typename BaseStatement, int ResultCount>
 class StatementImplementation : public BaseStatement
 {
 
@@ -192,18 +192,15 @@ public:
         resetter.reset();
     }
 
-    template <typename ResultType,
-              int ResultTypeCount = 1>
+    template<typename ResultType>
     std::vector<ResultType> values(std::size_t reserveSize)
     {
-        BaseStatement::checkColumnCount(ResultTypeCount);
-
         Resetter resetter{*this};
         std::vector<ResultType> resultValues;
         resultValues.reserve(std::max(reserveSize, m_maximumResultCount));
 
         while (BaseStatement::next())
-            emplaceBackValues<ResultTypeCount>(resultValues);
+            emplaceBackValues(resultValues);
 
         setMaximumResultCount(resultValues.size());
 
@@ -212,11 +209,9 @@ public:
         return resultValues;
     }
 
-    template<typename ResultType, int ResultTypeCount = 1, typename... QueryTypes>
+    template<typename ResultType, typename... QueryTypes>
     auto values(std::size_t reserveSize, const QueryTypes &...queryValues)
     {
-        BaseStatement::checkColumnCount(ResultTypeCount);
-
         Resetter resetter{*this};
         std::vector<ResultType> resultValues;
         resultValues.reserve(std::max(reserveSize, m_maximumResultCount));
@@ -224,7 +219,7 @@ public:
         bindValues(queryValues...);
 
         while (BaseStatement::next())
-            emplaceBackValues<ResultTypeCount>(resultValues);
+            emplaceBackValues(resultValues);
 
         setMaximumResultCount(resultValues.size());
 
@@ -233,66 +228,16 @@ public:
         return resultValues;
     }
 
-    template<typename ResultType, int ResultTypeCount = 1, typename QueryElementType>
-    auto values(std::size_t reserveSize, const std::vector<QueryElementType> &queryValues)
-    {
-        BaseStatement::checkColumnCount(ResultTypeCount);
-
-        std::vector<ResultType> resultValues;
-        resultValues.reserve(std::max(reserveSize, m_maximumResultCount));
-
-        for (const QueryElementType &queryValue : queryValues) {
-            Resetter resetter{*this};
-            bindValues(queryValue);
-
-            while (BaseStatement::next())
-                emplaceBackValues<ResultTypeCount>(resultValues);
-
-            setMaximumResultCount(resultValues.size());
-
-            resetter.reset();
-        }
-
-        return resultValues;
-    }
-
-    template<typename ResultType, int ResultTypeCount = 1, typename... QueryElementTypes>
-    auto values(std::size_t reserveSize,
-                const std::vector<std::tuple<QueryElementTypes...>> &queryTuples)
-    {
-        BaseStatement::checkColumnCount(ResultTypeCount);
-
-        using Container = std::vector<ResultType>;
-        Container resultValues;
-        resultValues.reserve(std::max(reserveSize, m_maximumResultCount));
-
-        for (const auto &queryTuple : queryTuples) {
-            Resetter resetter{*this};
-            bindTupleValues(queryTuple);
-
-            while (BaseStatement::next())
-                emplaceBackValues<ResultTypeCount>(resultValues);
-
-            setMaximumResultCount(resultValues.size());
-
-            resetter.reset();
-        }
-
-        return resultValues;
-    }
-
-    template<typename ResultType, int ResultTypeCount = 1, typename... QueryTypes>
+    template<typename ResultType, typename... QueryTypes>
     auto value(const QueryTypes &...queryValues)
     {
-        BaseStatement::checkColumnCount(ResultTypeCount);
-
         Resetter resetter{*this};
         Utils::optional<ResultType> resultValue;
 
         bindValues(queryValues...);
 
         if (BaseStatement::next())
-           resultValue = assignValue<Utils::optional<ResultType>, ResultTypeCount>();
+            resultValue = assignValue<Utils::optional<ResultType>>();
 
         resetter.reset();
 
@@ -311,17 +256,15 @@ public:
         return statement.template fetchValue<Type>(0);
     }
 
-    template<int ResultTypeCount = 1, typename Callable, typename... QueryTypes>
+    template<typename Callable, typename... QueryTypes>
     void readCallback(Callable &&callable, const QueryTypes &...queryValues)
     {
-        BaseStatement::checkColumnCount(ResultTypeCount);
-
         Resetter resetter{*this};
 
         bindValues(queryValues...);
 
         while (BaseStatement::next()) {
-            auto control = callCallable<ResultTypeCount>(callable);
+            auto control = callCallable(callable);
 
             if (control == CallbackControl::Abort)
                 break;
@@ -333,14 +276,12 @@ public:
     template<int ResultTypeCount = 1, typename Container, typename... QueryTypes>
     void readTo(Container &container, const QueryTypes &...queryValues)
     {
-        BaseStatement::checkColumnCount(ResultTypeCount);
-
         Resetter resetter{*this};
 
         bindValues(queryValues...);
 
         while (BaseStatement::next())
-            emplaceBackValues<ResultTypeCount>(container);
+            emplaceBackValues(container);
 
         resetter.reset();
     }
@@ -399,18 +340,21 @@ private:
         int column;
     };
 
-    template <typename ContainerType,
-              int... ColumnIndices>
+    constexpr int resultCount(int localResultCount) const
+    {
+        return ResultCount < 0 ? localResultCount : ResultCount;
+    }
+
+    template<typename ContainerType, int... ColumnIndices>
     void emplaceBackValues(ContainerType &container, std::integer_sequence<int, ColumnIndices...>)
     {
         container.emplace_back(ValueGetter(*this, ColumnIndices)...);
     }
 
-    template <int ResultTypeCount,
-              typename ContainerType>
+    template<typename ContainerType>
     void emplaceBackValues(ContainerType &container)
     {
-        emplaceBackValues(container, std::make_integer_sequence<int, ResultTypeCount>{});
+        emplaceBackValues(container, std::make_integer_sequence<int, ResultCount>{});
     }
 
     template <typename ResultOptionalType,
@@ -420,11 +364,10 @@ private:
         return ResultOptionalType(Utils::in_place, ValueGetter(*this, ColumnIndices)...);
     }
 
-    template <typename ResultOptionalType,
-              int ResultTypeCount>
+    template<typename ResultOptionalType>
     ResultOptionalType assignValue()
     {
-        return assignValue<ResultOptionalType>(std::make_integer_sequence<int, ResultTypeCount>{});
+        return assignValue<ResultOptionalType>(std::make_integer_sequence<int, ResultCount>{});
     }
 
     template<typename Callable, int... ColumnIndices>
@@ -433,10 +376,10 @@ private:
         return std::invoke(callable, ValueGetter(*this, ColumnIndices)...);
     }
 
-    template<int ResultTypeCount, typename Callable>
+    template<typename Callable>
     CallbackControl callCallable(Callable &&callable)
     {
-        return callCallable(callable, std::make_integer_sequence<int, ResultTypeCount>{});
+        return callCallable(callable, std::make_integer_sequence<int, ResultCount>{});
     }
 
     template<typename ValueType>

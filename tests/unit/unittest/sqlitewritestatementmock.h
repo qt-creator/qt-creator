@@ -74,8 +74,35 @@ public:
                  Utils::SmallStringView,
                  Utils::SmallStringView),
                 ());
+    MOCK_METHOD(void,
+                write,
+                (int,
+                 Utils::SmallStringView,
+                 Utils::SmallStringView,
+                 Utils::SmallStringView,
+                 Utils::SmallStringView,
+                 int,
+                 int,
+                 int),
+                ());
 
     MOCK_METHOD(void, write, (void *, long long), ());
+    MOCK_METHOD(void, write, (int), ());
+    MOCK_METHOD(void, write, (int, long long), ());
+    MOCK_METHOD(void, write, (int, int), ());
+    MOCK_METHOD(void, write, (uint, uint, uint), ());
+    MOCK_METHOD(void, write, (int, off_t, time_t), ());
+    MOCK_METHOD(void, write, (uint, uint), ());
+    MOCK_METHOD(void, write, (uchar, int), ());
+    MOCK_METHOD(void, write, (int, int, uchar, uchar), ());
+    MOCK_METHOD(void, write, (long long, int), ());
+    MOCK_METHOD(void, write, (uint, Utils::SmallStringView, Utils::SmallStringView, uint), ());
+    MOCK_METHOD(void, write, (uint, uint, uint, uint), ());
+    MOCK_METHOD(void, write, (long long, int, int, int), ());
+    MOCK_METHOD(void, write, (long long, int, int, int, int), ());
+    MOCK_METHOD(void, write, (uint, Utils::SmallStringView), ());
+    MOCK_METHOD(void, write, (int, Utils::SmallStringView), ());
+    MOCK_METHOD(void, write, (int, Utils::SmallStringView, long long), ());
 
     Utils::SmallString sqlStatement;
 };

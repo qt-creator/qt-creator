@@ -26,7 +26,7 @@
 #include "googletest.h"
 
 #include "mockfilepathcaching.h"
-#include "mocksqlitedatabase.h"
+#include "sqlitedatabasemock.h"
 
 #include <builddependenciesstorage.h>
 #include <refactoringdatabaseinitializer.h>
@@ -48,37 +48,40 @@ using Sqlite::Database;
 using Sqlite::Table;
 using Utils::PathString;
 
-using Storage = ClangBackEnd::BuildDependenciesStorage<MockSqliteDatabase>;
+using Storage = ClangBackEnd::BuildDependenciesStorage<SqliteDatabaseMock>;
 
 class BuildDependenciesStorage : public testing::Test
 {
 protected:
-    NiceMock<MockSqliteDatabase> mockDatabase;
-    Storage storage{mockDatabase};
-    MockSqliteWriteStatement &insertIntoNewUsedMacrosStatement = storage.insertIntoNewUsedMacrosStatement;
-    MockSqliteWriteStatement &syncNewUsedMacrosStatement =storage.syncNewUsedMacrosStatement;
-    MockSqliteWriteStatement &deleteOutdatedUsedMacrosStatement = storage.deleteOutdatedUsedMacrosStatement;
-    MockSqliteWriteStatement &deleteNewUsedMacrosTableStatement = storage.deleteNewUsedMacrosTableStatement;
-    MockSqliteWriteStatement &insertOrUpdateFileStatusesStatement = storage.insertOrUpdateFileStatusesStatement;
-    MockSqliteWriteStatement &insertIntoNewSourceDependenciesStatement = storage.insertIntoNewSourceDependenciesStatement;
-    MockSqliteWriteStatement &syncNewSourceDependenciesStatement = storage.syncNewSourceDependenciesStatement;
-    MockSqliteWriteStatement &deleteOutdatedSourceDependenciesStatement = storage.deleteOutdatedSourceDependenciesStatement;
-    MockSqliteWriteStatement &deleteNewSourceDependenciesStatement = storage.deleteNewSourceDependenciesStatement;
-    MockSqliteReadStatement &getLowestLastModifiedTimeOfDependencies = storage.getLowestLastModifiedTimeOfDependencies;
-    MockSqliteWriteStatement &insertOrUpdateProjectPartsFilesStatement = storage.insertOrUpdateProjectPartsFilesStatement;
-    MockSqliteReadStatement &fetchSourceDependenciesStatement = storage.fetchSourceDependenciesStatement;
-    MockSqliteReadStatement &fetchProjectPartIdStatement = storage.fetchProjectPartIdStatement;
-    MockSqliteReadStatement &fetchUsedMacrosStatement = storage.fetchUsedMacrosStatement;
-    MockSqliteWriteStatement &insertProjectPartNameStatement = storage.insertProjectPartNameStatement;
-    MockSqliteWriteStatement &updatePchCreationTimeStampStatement = storage.updatePchCreationTimeStampStatement;
-    MockSqliteWriteStatement &deleteAllProjectPartsFilesWithProjectPartNameStatement
+    NiceMock<SqliteDatabaseMock> databaseMock;
+    template<int ResultCount>
+    using ReadStatement = NiceMock<SqliteDatabaseMock>::ReadStatement<ResultCount>;
+    using WriteStatement = NiceMock<SqliteDatabaseMock>::WriteStatement;
+    Storage storage{databaseMock};
+    WriteStatement &insertIntoNewUsedMacrosStatement = storage.insertIntoNewUsedMacrosStatement;
+    WriteStatement &syncNewUsedMacrosStatement = storage.syncNewUsedMacrosStatement;
+    WriteStatement &deleteOutdatedUsedMacrosStatement = storage.deleteOutdatedUsedMacrosStatement;
+    WriteStatement &deleteNewUsedMacrosTableStatement = storage.deleteNewUsedMacrosTableStatement;
+    WriteStatement &insertOrUpdateFileStatusesStatement = storage.insertOrUpdateFileStatusesStatement;
+    WriteStatement &insertIntoNewSourceDependenciesStatement = storage.insertIntoNewSourceDependenciesStatement;
+    WriteStatement &syncNewSourceDependenciesStatement = storage.syncNewSourceDependenciesStatement;
+    WriteStatement &deleteOutdatedSourceDependenciesStatement = storage.deleteOutdatedSourceDependenciesStatement;
+    WriteStatement &deleteNewSourceDependenciesStatement = storage.deleteNewSourceDependenciesStatement;
+    ReadStatement<1> &getLowestLastModifiedTimeOfDependencies = storage.getLowestLastModifiedTimeOfDependencies;
+    WriteStatement &insertOrUpdateProjectPartsFilesStatement = storage.insertOrUpdateProjectPartsFilesStatement;
+    ReadStatement<4> &fetchSourceDependenciesStatement = storage.fetchSourceDependenciesStatement;
+    ReadStatement<1> &fetchProjectPartIdStatement = storage.fetchProjectPartIdStatement;
+    ReadStatement<2> &fetchUsedMacrosStatement = storage.fetchUsedMacrosStatement;
+    WriteStatement &insertProjectPartNameStatement = storage.insertProjectPartNameStatement;
+    WriteStatement &updatePchCreationTimeStampStatement = storage.updatePchCreationTimeStampStatement;
+    WriteStatement &deleteAllProjectPartsFilesWithProjectPartNameStatement
         = storage.deleteAllProjectPartsFilesWithProjectPartNameStatement;
-    MockSqliteReadStatement &fetchPchSourcesStatement = storage.fetchPchSourcesStatement;
-    MockSqliteReadStatement &fetchSourcesStatement = storage.fetchSourcesStatement;
-    MockSqliteWriteStatement &inserOrUpdateIndexingTimesStampStatement = storage.inserOrUpdateIndexingTimesStampStatement;
-    MockSqliteReadStatement &fetchIndexingTimeStampsStatement = storage.fetchIndexingTimeStampsStatement;
-    MockSqliteReadStatement &fetchIncludedIndexingTimeStampsStatement = storage.fetchIncludedIndexingTimeStampsStatement;
-    MockSqliteReadStatement &fetchDependentSourceIdsStatement = storage.fetchDependentSourceIdsStatement;
+    ReadStatement<1> &fetchPchSourcesStatement = storage.fetchPchSourcesStatement;
+    ReadStatement<1> &fetchSourcesStatement = storage.fetchSourcesStatement;
+    WriteStatement &inserOrUpdateIndexingTimesStampStatement = storage.inserOrUpdateIndexingTimesStampStatement;
+    ReadStatement<2> &fetchIndexingTimeStampsStatement = storage.fetchIndexingTimeStampsStatement;
+    ReadStatement<2> &fetchIncludedIndexingTimeStampsStatement = storage.fetchIncludedIndexingTimeStampsStatement;
+    ReadStatement<1> &fetchDependentSourceIdsStatement = storage.fetchDependentSourceIdsStatement;
 };
 
 TEST_F(BuildDependenciesStorage, ConvertStringsToJson)
@@ -132,14 +135,24 @@ TEST_F(BuildDependenciesStorage, AddTablesInConstructor)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, immediateBegin());
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newUsedMacros(sourceId INTEGER, macroName TEXT)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newUsedMacros_sourceId_macroName ON newUsedMacros(sourceId, macroName)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newSourceDependencies(sourceId INTEGER, dependencySourceId TEXT)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSourceDependencies_sourceId_dependencySourceId ON newSourceDependencies(sourceId, dependencySourceId)")));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, immediateBegin());
+    EXPECT_CALL(databaseMock,
+                execute(
+                    Eq("CREATE TEMPORARY TABLE newUsedMacros(sourceId INTEGER, macroName TEXT)")));
+    EXPECT_CALL(databaseMock,
+                execute(Eq("CREATE INDEX IF NOT EXISTS index_newUsedMacros_sourceId_macroName ON "
+                           "newUsedMacros(sourceId, macroName)")));
+    EXPECT_CALL(databaseMock,
+                execute(Eq("CREATE TEMPORARY TABLE newSourceDependencies(sourceId INTEGER, "
+                           "dependencySourceId TEXT)")));
+    EXPECT_CALL(
+        databaseMock,
+        execute(
+            Eq("CREATE INDEX IF NOT EXISTS index_newSourceDependencies_sourceId_dependencySourceId "
+               "ON newSourceDependencies(sourceId, dependencySourceId)")));
+    EXPECT_CALL(databaseMock, commit());
 
-    Storage storage{mockDatabase};
+    Storage storage{databaseMock};
 }
 
 TEST_F(BuildDependenciesStorage, FetchLowestLastModifiedTimeIfNoModificationTimeExists)
@@ -165,8 +178,12 @@ TEST_F(BuildDependenciesStorage, AddNewUsedMacroTable)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newUsedMacros(sourceId INTEGER, macroName TEXT)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newUsedMacros_sourceId_macroName ON newUsedMacros(sourceId, macroName)")));
+    EXPECT_CALL(databaseMock,
+                execute(
+                    Eq("CREATE TEMPORARY TABLE newUsedMacros(sourceId INTEGER, macroName TEXT)")));
+    EXPECT_CALL(databaseMock,
+                execute(Eq("CREATE INDEX IF NOT EXISTS index_newUsedMacros_sourceId_macroName ON "
+                           "newUsedMacros(sourceId, macroName)")));
 
     storage.createNewUsedMacrosTable();
 }
@@ -175,8 +192,14 @@ TEST_F(BuildDependenciesStorage, AddNewSourceDependenciesTable)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newSourceDependencies(sourceId INTEGER, dependencySourceId TEXT)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSourceDependencies_sourceId_dependencySourceId ON newSourceDependencies(sourceId, dependencySourceId)")));
+    EXPECT_CALL(databaseMock,
+                execute(Eq("CREATE TEMPORARY TABLE newSourceDependencies(sourceId INTEGER, "
+                           "dependencySourceId TEXT)")));
+    EXPECT_CALL(
+        databaseMock,
+        execute(
+            Eq("CREATE INDEX IF NOT EXISTS index_newSourceDependencies_sourceId_dependencySourceId "
+               "ON newSourceDependencies(sourceId, dependencySourceId)")));
 
     storage.createNewSourceDependenciesTable();
 }
@@ -200,9 +223,9 @@ TEST_F(BuildDependenciesStorage, UpdatePchCreationTimeStamp)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, immediateBegin());
+    EXPECT_CALL(databaseMock, immediateBegin());
     EXPECT_CALL(updatePchCreationTimeStampStatement, write(TypedEq<long long>(101), TypedEq<int>(1)));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.updatePchCreationTimeStamp(101, 1);
 }
@@ -255,9 +278,9 @@ TEST_F(BuildDependenciesStorage, FetchPchSourcesCalls)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchPchSourcesStatement, valuesReturnFilePathIds(_, 22));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     auto sources = storage.fetchPchSources(22);
 }
@@ -266,13 +289,13 @@ TEST_F(BuildDependenciesStorage, FetchPchSourcesCallsIsBusy)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchPchSourcesStatement, valuesReturnFilePathIds(_, 22))
         .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
-    EXPECT_CALL(mockDatabase, rollback());
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, rollback());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchPchSourcesStatement, valuesReturnFilePathIds(_, 22));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     auto sources = storage.fetchPchSources(22);
 }
@@ -291,13 +314,13 @@ TEST_F(BuildDependenciesStorage, FetchIndexingTimeStampsIsBusy)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchIndexingTimeStampsStatement, valuesReturnSourceTimeStamps(1024))
         .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
-    EXPECT_CALL(mockDatabase, rollback());
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, rollback());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchIndexingTimeStampsStatement, valuesReturnSourceTimeStamps(1024));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchIndexingTimeStamps();
 }
@@ -306,12 +329,12 @@ TEST_F(BuildDependenciesStorage, InsertIndexingTimeStampWithoutTransaction)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, immediateBegin()).Times(0);
+    EXPECT_CALL(databaseMock, immediateBegin()).Times(0);
     EXPECT_CALL(inserOrUpdateIndexingTimesStampStatement,
                 write(TypedEq<int>(1), TypedEq<long long>(34)));
     EXPECT_CALL(inserOrUpdateIndexingTimesStampStatement,
                 write(TypedEq<int>(2), TypedEq<long long>(34)));
-    EXPECT_CALL(mockDatabase, commit()).Times(0);
+    EXPECT_CALL(databaseMock, commit()).Times(0);
 
     storage.insertOrUpdateIndexingTimeStampsWithoutTransaction({1, 2}, 34);
 }
@@ -320,12 +343,12 @@ TEST_F(BuildDependenciesStorage, InsertIndexingTimeStamp)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, immediateBegin());
+    EXPECT_CALL(databaseMock, immediateBegin());
     EXPECT_CALL(inserOrUpdateIndexingTimesStampStatement,
                 write(TypedEq<int>(1), TypedEq<long long>(34)));
     EXPECT_CALL(inserOrUpdateIndexingTimesStampStatement,
                 write(TypedEq<int>(2), TypedEq<long long>(34)));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.insertOrUpdateIndexingTimeStamps({1, 2}, 34);
 }
@@ -334,13 +357,13 @@ TEST_F(BuildDependenciesStorage, InsertIndexingTimeStampsIsBusy)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, immediateBegin()).WillOnce(Throw(Sqlite::StatementIsBusy{""}));
-    EXPECT_CALL(mockDatabase, immediateBegin());
+    EXPECT_CALL(databaseMock, immediateBegin()).WillOnce(Throw(Sqlite::StatementIsBusy{""}));
+    EXPECT_CALL(databaseMock, immediateBegin());
     EXPECT_CALL(inserOrUpdateIndexingTimesStampStatement,
                 write(TypedEq<int>(1), TypedEq<long long>(34)));
     EXPECT_CALL(inserOrUpdateIndexingTimesStampStatement,
                 write(TypedEq<int>(2), TypedEq<long long>(34)));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.insertOrUpdateIndexingTimeStamps({1, 2}, 34);
 }
@@ -349,15 +372,15 @@ TEST_F(BuildDependenciesStorage, FetchIncludedIndexingTimeStampsIsBusy)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchIncludedIndexingTimeStampsStatement,
                 valuesReturnSourceTimeStamps(1024, TypedEq<int>(1)))
         .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
-    EXPECT_CALL(mockDatabase, rollback());
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, rollback());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchIncludedIndexingTimeStampsStatement,
                 valuesReturnSourceTimeStamps(1024, TypedEq<int>(1)));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchIncludedIndexingTimeStamps(1);
 }
@@ -366,16 +389,16 @@ TEST_F(BuildDependenciesStorage, FetchDependentSourceIdsIsBusy)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchDependentSourceIdsStatement, valuesReturnFilePathIds(1024, TypedEq<int>(3)));
     EXPECT_CALL(fetchDependentSourceIdsStatement, valuesReturnFilePathIds(1024, TypedEq<int>(2)))
         .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
-    EXPECT_CALL(mockDatabase, rollback());
-    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(databaseMock, rollback());
+    EXPECT_CALL(databaseMock, deferredBegin());
     EXPECT_CALL(fetchDependentSourceIdsStatement, valuesReturnFilePathIds(1024, TypedEq<int>(3)));
     EXPECT_CALL(fetchDependentSourceIdsStatement, valuesReturnFilePathIds(1024, TypedEq<int>(2)));
     EXPECT_CALL(fetchDependentSourceIdsStatement, valuesReturnFilePathIds(1024, TypedEq<int>(7)));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, commit());
 
     storage.fetchDependentSourceIds({3, 2, 7});
 }

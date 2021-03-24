@@ -25,7 +25,7 @@
 
 #include "googletest.h"
 
-#include "mocksqlitedatabase.h"
+#include "sqlitedatabasemock.h"
 
 #include <lastchangedrowid.h>
 
@@ -34,7 +34,7 @@ namespace {
 class LastChangedRowId : public testing::Test
 {
 protected:
-    NiceMock<MockSqliteDatabase> mockSqliteDatabase;
+    NiceMock<SqliteDatabaseMock> mockSqliteDatabase;
     Sqlite::LastChangedRowId<1> lastRowId{mockSqliteDatabase, "main", "foo"};
 };
 
@@ -112,7 +112,7 @@ TEST_F(LastChangedRowId, TakeLastRowIdResetsRowIdToMinusOne)
 class LastChangedRowIdWithTwoTables : public testing::Test
 {
 protected:
-    NiceMock<MockSqliteDatabase> mockSqliteDatabase;
+    NiceMock<SqliteDatabaseMock> mockSqliteDatabase;
 
     Sqlite::LastChangedRowId<2> lastRowId{mockSqliteDatabase, "main", "foo", "bar"};
 };
@@ -197,7 +197,7 @@ TEST_F(LastChangedRowIdWithTwoTables, TakeLastRowIdResetsRowIdToMinusOne)
 class LastChangedRowIdWithThreeTables : public testing::Test
 {
 protected:
-    NiceMock<MockSqliteDatabase> mockSqliteDatabase;
+    NiceMock<SqliteDatabaseMock> mockSqliteDatabase;
 
     Sqlite::LastChangedRowId<3> lastRowId{mockSqliteDatabase, "main", "foo", "bar", "too"};
 };
@@ -290,7 +290,7 @@ TEST_F(LastChangedRowIdWithThreeTables, TakeLastRowIdResetsRowIdToMinusOne)
 class LastChangedRowIdWithNoDatabaseAndTable : public testing::Test
 {
 protected:
-    NiceMock<MockSqliteDatabase> mockSqliteDatabase;
+    NiceMock<SqliteDatabaseMock> mockSqliteDatabase;
     Sqlite::LastChangedRowId<> lastRowId{mockSqliteDatabase};
 };
 
@@ -350,7 +350,7 @@ TEST_F(LastChangedRowIdWithNoDatabaseAndTable, TakeLastRowIdResetsRowIdToMinusOn
 class LastChangedRowIdWithNoTable : public testing::Test
 {
 protected:
-    NiceMock<MockSqliteDatabase> mockSqliteDatabase;
+    NiceMock<SqliteDatabaseMock> mockSqliteDatabase;
     Sqlite::LastChangedRowId<> lastRowId{mockSqliteDatabase, "main"};
 };
 

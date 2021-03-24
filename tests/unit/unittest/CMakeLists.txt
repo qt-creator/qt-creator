@@ -110,12 +110,8 @@ add_qtc_test(unittest GTEST
     mocksearch.h
     mocksearchhandle.h
     mocksearchresult.h
-    mocksqlitedatabase.h
-    mocksqlitereadstatement.cpp
-    mocksqlitereadstatement.h
     mocksqlitestatement.h
     mocksqlitetransactionbackend.h
-    mocksqlitewritestatement.h
     mocksymbolindexertaskqueue.h
     mocksymbolindexing.h
     mocksymbolquery.h

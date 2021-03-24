@@ -54,7 +54,7 @@ using ClangRefactoring::QuerySqliteStatementFactory;
 using Utils::PathString;
 using SL = ClangRefactoring::SourceLocations;
 
-using StatementFactory = QuerySqliteStatementFactory<Database, ReadStatement>;
+using StatementFactory = QuerySqliteStatementFactory<Database>;
 using Query = SymbolQuery<StatementFactory>;
 
 MATCHER_P3(IsLocation, filePathId, line, column,
