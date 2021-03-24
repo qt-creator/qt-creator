@@ -182,7 +182,7 @@ void Rule::loadAdditionalWordDelimiters(QXmlStreamReader &reader)
     m_weakDeliminator = reader.attributes().value(QLatin1String("weakDeliminator")).toString();
 }
 
-Rule::Ptr Rule::create(const QStringView &name)
+Rule::Ptr Rule::create(QStringView name)
 {
     if (name == QLatin1String("AnyChar"))
         return std::make_shared<AnyChar>();

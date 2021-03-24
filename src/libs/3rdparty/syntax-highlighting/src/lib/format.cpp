@@ -19,7 +19,7 @@
 
 using namespace KSyntaxHighlighting;
 
-static Theme::TextStyle stringToDefaultFormat(const QStringView &str)
+static Theme::TextStyle stringToDefaultFormat(QStringView str)
 {
     if (!str.startsWith(QLatin1String("ds")))
         return Theme::Normal;
