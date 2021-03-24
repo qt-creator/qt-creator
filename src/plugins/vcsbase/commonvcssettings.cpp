@@ -166,6 +166,7 @@ void CommonSettingsWidget::apply()
     CommonVcsSettings &s = m_page->settings();
     if (s.isDirty()) {
         s.apply();
+        s.writeSettings(Core::ICore::settings());
         emit m_page->settingsChanged();
     }
 }
