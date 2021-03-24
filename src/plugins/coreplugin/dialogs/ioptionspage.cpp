@@ -28,6 +28,9 @@
 
 #include "ioptionspage.h"
 
+#include <coreplugin/icore.h>
+
+#include <utils/aspects.h>
 #include <utils/stringutils.h>
 #include <utils/qtcassert.h>
 
@@ -121,9 +124,16 @@ void Core::IOptionsPage::setWidgetCreator(const WidgetCreator &widgetCreator)
 
 QWidget *Core::IOptionsPage::widget()
 {
-    QTC_ASSERT(m_widgetCreator, return nullptr);
-    if (!m_widget)
-        m_widget = m_widgetCreator();
+    if (!m_widget) {
+        if (m_widgetCreator) {
+            m_widget = m_widgetCreator();
+        } else if (m_layouter) {
+            m_widget = new QWidget;
+            m_layouter(m_widget);
+        } else {
+            QTC_CHECK(false);
+        }
+    }
     return m_widget;
 }
 
@@ -138,9 +148,14 @@ QWidget *Core::IOptionsPage::widget()
 
 void Core::IOptionsPage::apply()
 {
-    QTC_ASSERT(m_widgetCreator, return);
-    if (m_widget)
-        m_widget->apply();
+    if (auto widget = qobject_cast<IOptionsPageWidget *>(m_widget)) {
+        widget->apply();
+    } else if (m_settings) {
+        if (m_settings->isDirty()) {
+            m_settings->apply();
+            m_settings->writeSettings(Core::ICore::settings());
+         }
+    }
 }
 
 /*!
@@ -154,11 +169,12 @@ void Core::IOptionsPage::apply()
 
 void Core::IOptionsPage::finish()
 {
-    QTC_ASSERT(m_widgetCreator, return);
-    if (m_widget) {
-        m_widget->finish();
-        delete m_widget;
-    }
+    if (auto widget = qobject_cast<IOptionsPageWidget *>(m_widget))
+        widget->finish();
+    else if (m_settings)
+        m_settings->finish();
+
+    delete m_widget;
 }
 
 /*!
@@ -168,6 +184,16 @@ void Core::IOptionsPage::finish()
 void Core::IOptionsPage::setCategoryIconPath(const QString &categoryIconPath)
 {
     m_categoryIcon = Icon({{categoryIconPath, Theme::PanelTextColorDark}}, Icon::Tint);
+}
+
+void Core::IOptionsPage::setSettings(AspectContainer *settings)
+{
+    m_settings = settings;
+}
+
+void Core::IOptionsPage::setLayouter(const std::function<void(QWidget *w)> &layouter)
+{
+    m_layouter = layouter;
 }
 
 /*!

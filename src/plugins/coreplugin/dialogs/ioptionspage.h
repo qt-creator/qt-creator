@@ -37,10 +37,13 @@
 
 #include <functional>
 
+namespace Utils { class AspectContainer; };
+
 namespace Core {
 
 class CORE_EXPORT IOptionsPageWidget : public QWidget
 {
+    Q_OBJECT
 public:
     virtual void apply() = 0;
     virtual void finish() {}
@@ -77,6 +80,8 @@ protected:
     void setDisplayCategory(const QString &displayCategory) { m_displayCategory = displayCategory; }
     void setCategoryIcon(const Utils::Icon &categoryIcon) { m_categoryIcon = categoryIcon; }
     void setCategoryIconPath(const QString &categoryIconPath);
+    void setSettings(Utils::AspectContainer *settings);
+    void setLayouter(const std::function<void(QWidget *w)> &layouter);
 
     Utils::Id m_id;
     Utils::Id m_category;
@@ -84,10 +89,13 @@ protected:
     QString m_displayCategory;
     Utils::Icon m_categoryIcon;
     WidgetCreator m_widgetCreator;
-    QPointer<IOptionsPageWidget> m_widget; // Used in conjunction with m_widgetCreator
+    QPointer<QWidget> m_widget; // Used in conjunction with m_widgetCreator
 
     mutable bool m_keywordsInitialized = false;
     mutable QStringList m_keywords;
+
+    Utils::AspectContainer *m_settings = nullptr;
+    std::function<void(QWidget *w)> m_layouter;
 };
 
 /*
