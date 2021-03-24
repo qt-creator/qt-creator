@@ -100,13 +100,13 @@ CommonVcsSettings::CommonVcsSettings()
 
     registerAspect(&lineWrap);
     lineWrap.setSettingsKey("LineWrap");
-    lineWrap.setDefaultValue(72);
+    lineWrap.setDefaultValue(true);
     lineWrap.setLabelText(tr("Wrap submit message at:"));
 
     registerAspect(&lineWrapWidth);
     lineWrapWidth.setSettingsKey("LineWrapWidth");
     lineWrapWidth.setSuffix(tr(" characters"));
-    lineWrapWidth.setDefaultValue(true);
+    lineWrapWidth.setDefaultValue(72);
 }
 
 // CommonSettingsWidget
