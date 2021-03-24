@@ -2060,35 +2060,24 @@ void AspectContainer::toMap(QVariantMap &map) const
         aspect->toMap(map);
 }
 
-void AspectContainer::readSettings(const QSettings *settings)
+void AspectContainer::readSettings(QSettings *settings)
 {
-    if (d->m_settingsGroup.isEmpty()) {
-        for (BaseAspect *aspect : qAsConst(d->m_items))
-            aspect->readSettings(settings);
-    } else {
-        const QString keyRoot = d->m_settingsGroup + '/';
-        forEachAspect([settings, keyRoot](BaseAspect *aspect) {
-            QString key = aspect->settingsKey();
-            const QVariant value = settings->value(keyRoot + key, aspect->defaultValue());
-            aspect->setValue(value);
-        });
-    }
+    if (!d->m_settingsGroup.isEmpty())
+        settings->beginGroup(d->m_settingsGroup);
+    for (BaseAspect *aspect : qAsConst(d->m_items))
+        aspect->readSettings(settings);
+    if (!d->m_settingsGroup.isEmpty())
+        settings->endGroup();
 }
 
 void AspectContainer::writeSettings(QSettings *settings) const
 {
-    if (d->m_settingsGroup.isEmpty()) {
-        for (BaseAspect *aspect : qAsConst(d->m_items))
-            aspect->writeSettings(settings);
-    } else {
-        settings->remove(d->m_settingsGroup);
+    if (!d->m_settingsGroup.isEmpty())
         settings->beginGroup(d->m_settingsGroup);
-        forEachAspect([settings](BaseAspect *aspect) {
-            QtcSettings::setValueWithDefault(settings, aspect->settingsKey(),
-                                             aspect->value(), aspect->defaultValue());
-        });
+    for (BaseAspect *aspect : qAsConst(d->m_items))
+        aspect->writeSettings(settings);
+    if (!d->m_settingsGroup.isEmpty())
         settings->endGroup();
-    }
 }
 
 void AspectContainer::setSettingsGroup(const QString &key)

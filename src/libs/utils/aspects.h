@@ -520,7 +520,7 @@ public:
     void fromMap(const QVariantMap &map);
     void toMap(QVariantMap &map) const;
 
-    void readSettings(const QSettings *settings);
+    void readSettings(QSettings *settings);
     void writeSettings(QSettings *settings) const;
 
     void setSettingsGroup(const QString &key);
