@@ -429,7 +429,8 @@ void BaseAspect::cancel()
 
 void BaseAspect::finish()
 {
-    // FIXME: Delete widgets?
+    qDeleteAll(d->m_subWidgets);
+    d->m_subWidgets.clear();
 }
 
 bool BaseAspect::hasAction() const
@@ -1446,6 +1447,12 @@ void SelectionAspect::setVolatileValue(const QVariant &val)
             d->m_comboBox->setCurrentIndex(val.toInt());
         break;
     }
+}
+
+void SelectionAspect::finish()
+{
+    BaseAspect::finish();
+    delete d->m_buttonGroup;
 }
 
 void SelectionAspect::setDisplayStyle(SelectionAspect::DisplayStyle style)

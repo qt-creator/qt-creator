@@ -245,6 +245,7 @@ public:
     void addToLayout(LayoutBuilder &builder) override;
     QVariant volatileValue() const override;
     void setVolatileValue(const QVariant &val) override;
+    void finish() override;
 
     int value() const;
     void setValue(int val);
