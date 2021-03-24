@@ -40,8 +40,8 @@ namespace Internal {
 TestOutputReader *QtTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
                                                     QProcess *app) const
 {
-    auto qtSettings = dynamic_cast<QtTestSettings *>(framework()->testSettings());
-    const QtTestOutputReader::OutputMode mode = qtSettings && qtSettings->useXMLOutput
+    auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());
+    const QtTestOutputReader::OutputMode mode = qtSettings && qtSettings->useXMLOutput.value()
             ? QtTestOutputReader::XML
             : QtTestOutputReader::PlainText;
     return new QtTestOutputReader(fi, app, buildDirectory(), projectFile(), mode, TestType::QtTest);
@@ -55,25 +55,25 @@ QStringList QtTestConfiguration::argumentsForTestRunner(QStringList *omitted) co
                              runnable().commandLineArguments.split(' ', Qt::SkipEmptyParts),
                              omitted, false));
     }
-    auto qtSettings = dynamic_cast<QtTestSettings *>(framework()->testSettings());
+    auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());
     if (!qtSettings)
         return arguments;
-    if (qtSettings->useXMLOutput)
+    if (qtSettings->useXMLOutput.value())
         arguments << "-xml";
     if (!testCases().isEmpty())
         arguments << testCases();
 
-    const QString &metricsOption = QtTestSettings::metricsTypeToOption(qtSettings->metrics);
+    const QString &metricsOption = QtTestSettings::metricsTypeToOption(MetricsType(qtSettings->metrics.value()));
     if (!metricsOption.isEmpty())
         arguments << metricsOption;
 
-    if (qtSettings->verboseBench)
+    if (qtSettings->verboseBench.value())
         arguments << "-vb";
 
-    if (qtSettings->logSignalsSlots)
+    if (qtSettings->logSignalsSlots.value())
         arguments << "-vs";
 
-    if (isDebugRunMode() && qtSettings->noCrashHandler)
+    if (isDebugRunMode() && qtSettings->noCrashHandler.value())
         arguments << "-nocrashhandler";
 
     return arguments;

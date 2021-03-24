@@ -57,11 +57,11 @@ QtTestSettingsWidget::QtTestSettingsWidget(QtTestSettings *settings)
     m_ui.callgrindRB->setEnabled(Utils::HostOsInfo::isAnyUnixHost()); // valgrind available on UNIX
     m_ui.perfRB->setEnabled(Utils::HostOsInfo::isLinuxHost()); // according to docs perf Linux only
 
-    m_ui.disableCrashhandlerCB->setChecked(m_settings->noCrashHandler);
-    m_ui.useXMLOutputCB->setChecked(m_settings->useXMLOutput);
-    m_ui.verboseBenchmarksCB->setChecked(m_settings->verboseBench);
-    m_ui.logSignalsAndSlotsCB->setChecked(m_settings->logSignalsSlots);
-    switch (m_settings->metrics) {
+    m_ui.disableCrashhandlerCB->setChecked(m_settings->noCrashHandler.value());
+    m_ui.useXMLOutputCB->setChecked(m_settings->useXMLOutput.value());
+    m_ui.verboseBenchmarksCB->setChecked(m_settings->verboseBench.value());
+    m_ui.logSignalsAndSlotsCB->setChecked(m_settings->logSignalsSlots.value());
+    switch (m_settings->metrics.value()) {
     case MetricsType::Walltime:
         m_ui.walltimeRB->setChecked(true);
         break;
@@ -82,22 +82,22 @@ QtTestSettingsWidget::QtTestSettingsWidget(QtTestSettings *settings)
 
 void QtTestSettingsWidget::apply()
 {
-    m_settings->noCrashHandler = m_ui.disableCrashhandlerCB->isChecked();
-    m_settings->useXMLOutput = m_ui.useXMLOutputCB->isChecked();
-    m_settings->verboseBench = m_ui.verboseBenchmarksCB->isChecked();
-    m_settings->logSignalsSlots = m_ui.logSignalsAndSlotsCB->isChecked();
+    m_settings->noCrashHandler.setValue(m_ui.disableCrashhandlerCB->isChecked());
+    m_settings->useXMLOutput.setValue(m_ui.useXMLOutputCB->isChecked());
+    m_settings->verboseBench.setValue(m_ui.verboseBenchmarksCB->isChecked());
+    m_settings->logSignalsSlots.setValue(m_ui.logSignalsAndSlotsCB->isChecked());
     if (m_ui.walltimeRB->isChecked())
-        m_settings->metrics = MetricsType::Walltime;
+        m_settings->metrics.setValue(MetricsType::Walltime);
     else if (m_ui.tickcounterRB->isChecked())
-        m_settings->metrics = MetricsType::TickCounter;
+        m_settings->metrics.setValue(MetricsType::TickCounter);
     else if (m_ui.eventCounterRB->isChecked())
-        m_settings->metrics = MetricsType::EventCounter;
+        m_settings->metrics.setValue(MetricsType::EventCounter);
     else if (m_ui.callgrindRB->isChecked())
-        m_settings->metrics = MetricsType::CallGrind;
+        m_settings->metrics.setValue(MetricsType::CallGrind);
     else if (m_ui.perfRB->isChecked())
-        m_settings->metrics = MetricsType::Perf;
+        m_settings->metrics.setValue(MetricsType::Perf);
 
-    m_settings->toSettings(Core::ICore::settings());
+    m_settings->writeSettings(Core::ICore::settings());
 }
 
 QtTestSettingsPage::QtTestSettingsPage(QtTestSettings *settings, Utils::Id settingsId)

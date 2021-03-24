@@ -71,39 +71,39 @@ GTestSettingsWidget::GTestSettingsWidget(GTestSettings *settings)
     connect(m_ui.repeatGTestsCB, &QCheckBox::toggled, m_ui.repetitionSpin, &QSpinBox::setEnabled);
     connect(m_ui.shuffleGTestsCB, &QCheckBox::toggled, m_ui.seedSpin, &QSpinBox::setEnabled);
 
-    m_ui.runDisabledGTestsCB->setChecked(m_settings->runDisabled);
-    m_ui.repeatGTestsCB->setChecked(m_settings->repeat);
-    m_ui.shuffleGTestsCB->setChecked(m_settings->shuffle);
-    m_ui.repetitionSpin->setValue(m_settings->iterations);
-    m_ui.seedSpin->setValue(m_settings->seed);
-    m_ui.breakOnFailureCB->setChecked(m_settings->breakOnFailure);
-    m_ui.throwOnFailureCB->setChecked(m_settings->throwOnFailure);
-    m_ui.groupModeCombo->setCurrentIndex(m_settings->groupMode - 1); // there's None for internal use
-    m_ui.filterLineEdit->setText(m_settings->gtestFilter);
-    m_currentGTestFilter = m_settings->gtestFilter; // store it temporarily (if edit is invalid)
+    m_ui.runDisabledGTestsCB->setChecked(m_settings->runDisabled.value());
+    m_ui.repeatGTestsCB->setChecked(m_settings->repeat.value());
+    m_ui.shuffleGTestsCB->setChecked(m_settings->shuffle.value());
+    m_ui.repetitionSpin->setValue(m_settings->iterations.value());
+    m_ui.seedSpin->setValue(m_settings->seed.value());
+    m_ui.breakOnFailureCB->setChecked(m_settings->breakOnFailure.value());
+    m_ui.throwOnFailureCB->setChecked(m_settings->throwOnFailure.value());
+    m_ui.groupModeCombo->setCurrentIndex(m_settings->groupMode.value() - 1); // there's None for internal use
+    m_ui.filterLineEdit->setText(m_settings->gtestFilter.value());
+    m_currentGTestFilter = m_settings->gtestFilter.value(); // store it temporarily (if edit is invalid)
 }
 
 void GTestSettingsWidget::apply()
 {
-    GTest::Constants::GroupMode oldGroupMode = m_settings->groupMode;
-    const QString oldFilter = m_settings->gtestFilter;
+    GTest::Constants::GroupMode oldGroupMode = GTest::Constants::GroupMode(m_settings->groupMode.value());
+    const QString oldFilter = m_settings->gtestFilter.value();
 
-    m_settings->runDisabled = m_ui.runDisabledGTestsCB->isChecked();
-    m_settings->repeat = m_ui.repeatGTestsCB->isChecked();
-    m_settings->shuffle = m_ui.shuffleGTestsCB->isChecked();
-    m_settings->iterations = m_ui.repetitionSpin->value();
-    m_settings->seed = m_ui.seedSpin->value();
-    m_settings->breakOnFailure = m_ui.breakOnFailureCB->isChecked();
-    m_settings->throwOnFailure = m_ui.throwOnFailureCB->isChecked();
-    m_settings->groupMode = static_cast<GTest::Constants::GroupMode>(
-                m_ui.groupModeCombo->currentIndex() + 1);
+    m_settings->runDisabled.setValue(m_ui.runDisabledGTestsCB->isChecked());
+    m_settings->repeat.setValue(m_ui.repeatGTestsCB->isChecked());
+    m_settings->shuffle.setValue(m_ui.shuffleGTestsCB->isChecked());
+    m_settings->iterations.setValue(m_ui.repetitionSpin->value());
+    m_settings->seed.setValue(m_ui.seedSpin->value());
+    m_settings->breakOnFailure.setValue(m_ui.breakOnFailureCB->isChecked());
+    m_settings->throwOnFailure.setValue(m_ui.throwOnFailureCB->isChecked());
+    m_settings->groupMode.setValue(static_cast<GTest::Constants::GroupMode>(
+                m_ui.groupModeCombo->currentIndex() + 1));
     if (m_ui.filterLineEdit->isValid())
-        m_settings->gtestFilter = m_ui.filterLineEdit->text();
+        m_settings->gtestFilter.setValue(m_ui.filterLineEdit->text());
     else
-        m_settings->gtestFilter = m_currentGTestFilter;
+        m_settings->gtestFilter.setValue(m_currentGTestFilter);
 
-    m_settings->toSettings(Core::ICore::settings());
-    if (m_settings->groupMode == oldGroupMode && oldFilter == m_settings->gtestFilter)
+    m_settings->writeSettings(Core::ICore::settings());
+    if (m_settings->groupMode.value() == oldGroupMode && oldFilter == m_settings->gtestFilter.value())
         return;
 
     auto id = Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);

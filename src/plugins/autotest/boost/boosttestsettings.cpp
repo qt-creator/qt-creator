@@ -28,40 +28,34 @@
 namespace Autotest {
 namespace Internal {
 
-static const char logLevelKey[]         = "LogLevel";
-static const char reportLevelKey[]      = "ReportLevel";
-static const char seedKey[]             = "Seed";
-static const char randomizeKey[]        = "Randomize";
-static const char systemErrorsKey[]     = "SystemErrors";
-static const char fpExceptionsKey[]     = "FPExceptions";
-static const char memLeaksKey[]         = "MemoryLeaks";
-
-QString BoostTestSettings::name() const
+BoostTestSettings::BoostTestSettings()
 {
-    return QString("BoostTest");
-}
+    setSettingsGroups("Autotest", "BoostTest");
+    setAutoApply(false);
 
-void BoostTestSettings::fromTestSettings(const QSettings *s)
+    registerAspect(&logLevel);
+    logLevel.setSettingsKey("LogLevel");
+    logLevel.setDefaultValue(int(LogLevel::Warning));
 
-{
-    logLevel = LogLevel((s->value(logLevelKey, int(LogLevel::All)).toInt()));
-    reportLevel = ReportLevel((s->value(reportLevelKey, int(ReportLevel::Confirm)).toInt()));
-    systemErrors = s->value(systemErrorsKey, false).toBool();
-    fpExceptions = s->value(fpExceptionsKey, false).toBool();
-    memLeaks = s->value(memLeaksKey, true).toBool();
-    randomize = s->value(randomizeKey, false).toBool();
-    seed = s->value(seedKey, 0).toInt();
-}
+    registerAspect(&reportLevel);
+    reportLevel.setSettingsKey("ReportLevel");
+    reportLevel.setDefaultValue(int(ReportLevel::Confirm));
 
-void BoostTestSettings::toTestSettings(QSettings *s) const
-{
-    s->setValue(logLevelKey, int(logLevel));
-    s->setValue(reportLevelKey, int(reportLevel));
-    s->setValue(systemErrorsKey, systemErrors);
-    s->setValue(fpExceptionsKey, fpExceptions);
-    s->setValue(memLeaksKey, memLeaks);
-    s->setValue(randomizeKey, randomize);
-    s->setValue(seedKey, seed);
+    registerAspect(&seed);
+    seed.setSettingsKey("Seed");
+
+    registerAspect(&randomize);
+    randomize.setSettingsKey("Randomize");
+
+    registerAspect(&systemErrors);
+    systemErrors.setSettingsKey("SystemErrors");
+
+    registerAspect(&fpExceptions);
+    fpExceptions.setSettingsKey("FPExceptions");
+
+    registerAspect(&memLeaks);
+    memLeaks.setSettingsKey("MemoryLeaks");
+    memLeaks.setDefaultValue(true);
 }
 
 QString BoostTestSettings::logLevelToOption(const LogLevel logLevel)

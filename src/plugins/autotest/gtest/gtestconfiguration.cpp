@@ -84,21 +84,21 @@ QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) con
     if (!testSets.isEmpty())
         arguments << "--gtest_filter=" + testSets.join(':');
 
-    auto gSettings = dynamic_cast<GTestSettings *>(framework()->testSettings());
+    auto gSettings = static_cast<GTestSettings *>(framework()->testSettings());
     if (!gSettings)
         return arguments;
 
-    if (gSettings->runDisabled)
+    if (gSettings->runDisabled.value())
         arguments << "--gtest_also_run_disabled_tests";
-    if (gSettings->repeat)
-        arguments << QString("--gtest_repeat=%1").arg(gSettings->iterations);
-    if (gSettings->shuffle)
-        arguments << "--gtest_shuffle" << QString("--gtest_random_seed=%1").arg(gSettings->seed);
-    if (gSettings->throwOnFailure)
+    if (gSettings->repeat.value())
+        arguments << QString("--gtest_repeat=%1").arg(gSettings->iterations.value());
+    if (gSettings->shuffle.value())
+        arguments << "--gtest_shuffle" << QString("--gtest_random_seed=%1").arg(gSettings->seed.value());
+    if (gSettings->throwOnFailure.value())
         arguments << "--gtest_throw_on_failure";
 
     if (isDebugRunMode()) {
-        if (gSettings->breakOnFailure)
+        if (gSettings->breakOnFailure.value())
             arguments << "--gtest_break_on_failure";
     }
     return arguments;

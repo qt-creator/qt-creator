@@ -25,31 +25,27 @@
 
 #pragma once
 
-#include "../itestsettings.h"
 #include "gtestconstants.h"
+
+#include <utils/aspects.h>
 
 namespace Autotest {
 namespace Internal {
 
-class GTestSettings : public ITestSettings
+class GTestSettings : public Utils::AspectContainer
 {
 public:
-    GTestSettings() {}
-    QString name() const override;
+    GTestSettings();
 
-    int iterations = 1;
-    int seed = 0;
-    bool runDisabled = false;
-    bool shuffle = false;
-    bool repeat = false;
-    bool throwOnFailure = false;
-    bool breakOnFailure = true;
-    GTest::Constants::GroupMode groupMode = GTest::Constants::Directory;
-    QString gtestFilter{GTest::Constants::DEFAULT_FILTER};
-
-protected:
-    void fromTestSettings(const QSettings *s) override;
-    void toTestSettings(QSettings *s) const override;
+    Utils::IntegerAspect iterations;
+    Utils::IntegerAspect seed;
+    Utils::BoolAspect runDisabled;
+    Utils::BoolAspect shuffle;
+    Utils::BoolAspect repeat;
+    Utils::BoolAspect throwOnFailure;
+    Utils::BoolAspect breakOnFailure;
+    Utils::SelectionAspect groupMode;
+    Utils::StringAspect gtestFilter;
 };
 
 } // namespace Internal

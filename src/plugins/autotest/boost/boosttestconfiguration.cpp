@@ -40,9 +40,10 @@ namespace Internal {
 TestOutputReader *BoostTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
                                                        QProcess *app) const
 {
-    auto settings = dynamic_cast<BoostTestSettings *>(framework()->testSettings());
+    auto settings = static_cast<BoostTestSettings *>(framework()->testSettings());
     return new BoostTestOutputReader(fi, app, buildDirectory(), projectFile(),
-                                     settings->logLevel, settings->reportLevel);
+                                     LogLevel(settings->logLevel.value()),
+                                     ReportLevel(settings->reportLevel.value()));
 }
 
 enum class InterferingType { Options, EnvironmentVariables };
@@ -107,19 +108,19 @@ static QStringList filterInterfering(const QStringList &provided, QStringList *o
 
 QStringList BoostTestConfiguration::argumentsForTestRunner(QStringList *omitted) const
 {
-    auto boostSettings = dynamic_cast<BoostTestSettings *>(framework()->testSettings());
+    auto boostSettings = static_cast<BoostTestSettings *>(framework()->testSettings());
     QStringList arguments;
-    arguments << "-l" << BoostTestSettings::logLevelToOption(boostSettings->logLevel);
-    arguments << "-r" << BoostTestSettings::reportLevelToOption(boostSettings->reportLevel);
+    arguments << "-l" << BoostTestSettings::logLevelToOption(LogLevel(boostSettings->logLevel.value()));
+    arguments << "-r" << BoostTestSettings::reportLevelToOption(ReportLevel(boostSettings->reportLevel.value()));
 
-    if (boostSettings->randomize)
-        arguments << QString("--random=").append(QString::number(boostSettings->seed));
+    if (boostSettings->randomize.value())
+        arguments << QString("--random=").append(QString::number(boostSettings->seed.value()));
 
-    if (boostSettings->systemErrors)
+    if (boostSettings->systemErrors.value())
         arguments << "-s";
-    if (boostSettings->fpExceptions)
+    if (boostSettings->fpExceptions.value())
         arguments << "--detect_fp_exceptions";
-    if (!boostSettings->memLeaks)
+    if (!boostSettings->memLeaks.value())
         arguments << "--detect_memory_leaks=0";
 
     // TODO improve the test case gathering and arguments building to avoid too long command lines

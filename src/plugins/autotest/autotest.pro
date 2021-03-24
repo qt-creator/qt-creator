@@ -89,7 +89,6 @@ HEADERS += \
     itemdatacache.h \
     itestframework.h \
     itestparser.h \
-    itestsettings.h \
     projectsettingswidget.h \
     testcodeparser.h \
     testconfiguration.h \

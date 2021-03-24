@@ -28,12 +28,13 @@
 #include <utils/id.h>
 
 namespace ProjectExplorer { struct TestCaseInfo; }
+namespace Utils { class AspectContainer; }
 
 namespace Autotest {
 
 class ITestFramework;
 class ITestParser;
-class ITestSettings;
+using ITestSettings = Utils::AspectContainer;
 class ITestTool;
 class ITestTreeItem;
 class TestTreeItem;

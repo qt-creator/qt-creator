@@ -25,37 +25,32 @@
 
 #pragma once
 
-#include "../itestsettings.h"
+#include <utils/aspects.h>
 
 namespace Autotest {
 namespace Internal {
 
-class CatchTestSettings : public ITestSettings
+class CatchTestSettings : public Utils::AspectContainer
 {
 public:
-    CatchTestSettings() = default;
-    QString name() const override;
+    CatchTestSettings();
 
-    int abortAfter = 0;
-    int benchmarkSamples = 0;
-    int benchmarkResamples = 0;
-    double confidenceInterval = 0;
-    int benchmarkWarmupTime = 0;
-    bool abortAfterChecked = false;
-    bool samplesChecked = false;
-    bool resamplesChecked = false;
-    bool confidenceIntervalChecked = false;
-    bool warmupChecked = false;
-    bool noAnalysis = false;
-    bool showSuccess = false;
-    bool breakOnFailure = true;
-    bool noThrow = false;
-    bool visibleWhitespace = false;
-    bool warnOnEmpty = false;
-
-protected:
-    void toTestSettings(QSettings *s) const override;
-    void fromTestSettings(const QSettings *s) override;
+    Utils::IntegerAspect abortAfter;
+    Utils::IntegerAspect benchmarkSamples;
+    Utils::IntegerAspect benchmarkResamples;
+    Utils::DoubleAspect confidenceInterval;
+    Utils::IntegerAspect benchmarkWarmupTime;
+    Utils::BoolAspect abortAfterChecked;
+    Utils::BoolAspect samplesChecked;
+    Utils::BoolAspect resamplesChecked;
+    Utils::BoolAspect confidenceIntervalChecked;
+    Utils::BoolAspect warmupChecked;
+    Utils::BoolAspect noAnalysis;
+    Utils::BoolAspect showSuccess;
+    Utils::BoolAspect breakOnFailure;
+    Utils::BoolAspect noThrow;
+    Utils::BoolAspect visibleWhitespace;
+    Utils::BoolAspect warnOnEmpty;
 };
 
 } // namespace Internal

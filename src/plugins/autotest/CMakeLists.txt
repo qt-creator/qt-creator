@@ -43,7 +43,6 @@ add_qtc_plugin(AutoTest
     itemdatacache.h
     itestframework.cpp itestframework.h
     itestparser.cpp itestparser.h
-    itestsettings.h
     projectsettingswidget.cpp projectsettingswidget.h
     qtest/qttest_utils.cpp qtest/qttest_utils.h
     qtest/qttestconfiguration.cpp qtest/qttestconfiguration.h

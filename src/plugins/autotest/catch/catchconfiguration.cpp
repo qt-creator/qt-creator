@@ -105,32 +105,32 @@ QStringList CatchConfiguration::argumentsForTestRunner(QStringList *omitted) con
                                            ' ', Qt::SkipEmptyParts), omitted);
     }
 
-    auto settings = dynamic_cast<CatchTestSettings *>(framework()->testSettings());
+    auto settings = static_cast<CatchTestSettings *>(framework()->testSettings());
     if (!settings)
         return arguments;
 
-    if (settings->abortAfterChecked)
-        arguments << "-x" << QString::number(settings->abortAfter);
-    if (settings->samplesChecked)
-        arguments << "--benchmark-samples" << QString::number(settings->benchmarkSamples);
-    if (settings->resamplesChecked)
-        arguments << "--benchmark-resamples" << QString::number(settings->benchmarkResamples);
-    if (settings->warmupChecked)
-        arguments << "--benchmark-warmup-time" << QString::number(settings->benchmarkWarmupTime);
-    if (settings->confidenceIntervalChecked)
-        arguments << "--benchmark-confidence-interval" << QString::number(settings->confidenceInterval);
-    if (settings->noAnalysis)
+    if (settings->abortAfterChecked.value())
+        arguments << "-x" << QString::number(settings->abortAfter.value());
+    if (settings->samplesChecked.value())
+        arguments << "--benchmark-samples" << QString::number(settings->benchmarkSamples.value());
+    if (settings->resamplesChecked.value())
+        arguments << "--benchmark-resamples" << QString::number(settings->benchmarkResamples.value());
+    if (settings->warmupChecked.value())
+        arguments << "--benchmark-warmup-time" << QString::number(settings->benchmarkWarmupTime.value());
+    if (settings->confidenceIntervalChecked.value())
+        arguments << "--benchmark-confidence-interval" << QString::number(settings->confidenceInterval.value());
+    if (settings->noAnalysis.value())
         arguments << "--benchmark-no-analysis";
-    if (settings->showSuccess)
+    if (settings->showSuccess.value())
         arguments << "-s";
-    if (settings->noThrow)
+    if (settings->noThrow.value())
         arguments << "-e";
-    if (settings->visibleWhitespace)
+    if (settings->visibleWhitespace.value())
         arguments << "-i";
-    if (settings->warnOnEmpty)
+    if (settings->warnOnEmpty.value())
         arguments << "-w" << "NoAssertions";
 
-    if (isDebugRunMode() && settings->breakOnFailure)
+    if (isDebugRunMode() && settings->breakOnFailure.value())
         arguments << "-b";
     return arguments;
 }

@@ -46,8 +46,8 @@ QuickTestConfiguration::QuickTestConfiguration(ITestFramework *framework)
 TestOutputReader *QuickTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
                                                        QProcess *app) const
 {
-    auto qtSettings = dynamic_cast<QtTestSettings *>(framework()->testSettings());
-    const QtTestOutputReader::OutputMode mode = qtSettings && qtSettings->useXMLOutput
+    auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());
+    const QtTestOutputReader::OutputMode mode = qtSettings && qtSettings->useXMLOutput.value()
             ? QtTestOutputReader::XML
             : QtTestOutputReader::PlainText;
     return new QtTestOutputReader(fi, app, buildDirectory(), projectFile(),
@@ -63,20 +63,20 @@ QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted)
                           omitted, true));
     }
 
-    auto qtSettings = dynamic_cast<QtTestSettings *>(framework()->testSettings());
+    auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());
     if (!qtSettings)
         return arguments;
-    if (qtSettings->useXMLOutput)
+    if (qtSettings->useXMLOutput.value())
         arguments << "-xml";
     if (!testCases().isEmpty())
         arguments << testCases();
 
-    const QString &metricsOption = QtTestSettings::metricsTypeToOption(qtSettings->metrics);
+    const QString &metricsOption = QtTestSettings::metricsTypeToOption(MetricsType(qtSettings->metrics.value()));
     if (!metricsOption.isEmpty())
         arguments << metricsOption;
 
     if (isDebugRunMode()) {
-        if (qtSettings->noCrashHandler)
+        if (qtSettings->noCrashHandler.value())
             arguments << "-nocrashhandler";
     }
     return arguments;

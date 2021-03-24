@@ -29,50 +29,54 @@
 namespace Autotest {
 namespace Internal {
 
-static const char breakOnFailureKey[]   = "BreakOnFailure";
-static const char iterationsKey[]       = "Iterations";
-static const char repeatKey[]           = "Repeat";
-static const char runDisabledKey[]      = "RunDisabled";
-static const char seedKey[]             = "Seed";
-static const char shuffleKey[]          = "Shuffle";
-static const char throwOnFailureKey[]   = "ThrowOnFailure";
-static const char groupModeKey[]        = "GroupMode";
-static const char gtestFilterKey[]      = "GTestFilter";
-
-QString GTestSettings::name() const
+GTestSettings::GTestSettings()
 {
-    return QString("GTest");
-}
+    setSettingsGroups("Autotest", "GTest");
+    setAutoApply(false);
 
-void GTestSettings::fromTestSettings(const QSettings *s)
-{
-    runDisabled = s->value(runDisabledKey, false).toBool();
-    repeat = s->value(repeatKey, false).toBool();
-    shuffle = s->value(shuffleKey, false).toBool();
-    iterations = s->value(iterationsKey, 1).toInt();
-    seed = s->value(seedKey, 0).toInt();
-    breakOnFailure = s->value(breakOnFailureKey, true).toBool();
-    throwOnFailure = s->value(throwOnFailureKey, false).toBool();
-    // avoid problems if user messes around with the settings file
-    bool ok = false;
-    const int tmp = s->value(groupModeKey, GTest::Constants::Directory).toInt(&ok);
-    groupMode = ok ? static_cast<GTest::Constants::GroupMode>(tmp) : GTest::Constants::Directory;
-    gtestFilter = s->value(gtestFilterKey, GTest::Constants::DEFAULT_FILTER).toString();
-    if (!GTestUtils::isValidGTestFilter(gtestFilter))
-        gtestFilter = GTest::Constants::DEFAULT_FILTER;
-}
+    registerAspect(&iterations);
+    iterations.setSettingsKey("Iterations");
+    iterations.setDefaultValue(1);
 
-void GTestSettings::toTestSettings(QSettings *s) const
-{
-    s->setValue(runDisabledKey, runDisabled);
-    s->setValue(repeatKey, repeat);
-    s->setValue(shuffleKey, shuffle);
-    s->setValue(iterationsKey, iterations);
-    s->setValue(seedKey, seed);
-    s->setValue(breakOnFailureKey, breakOnFailure);
-    s->setValue(throwOnFailureKey, throwOnFailure);
-    s->setValue(groupModeKey, groupMode);
-    s->setValue(gtestFilterKey, gtestFilter);
+    registerAspect(&seed);
+    seed.setSettingsKey("Seed");
+
+    registerAspect(&runDisabled);
+    runDisabled.setSettingsKey("RunDisabled");
+
+    registerAspect(&shuffle);
+    shuffle.setSettingsKey("Shuffle");
+
+    registerAspect(&repeat);
+    repeat.setSettingsKey("Repeat");
+
+    registerAspect(&throwOnFailure);
+    throwOnFailure.setSettingsKey("ThrowOnFailure");
+
+    registerAspect(&breakOnFailure);
+    breakOnFailure.setSettingsKey("BreakOnFailure");
+    breakOnFailure.setDefaultValue(true);
+
+    registerAspect(&groupMode);
+    groupMode.setDefaultValue(GTest::Constants::Directory);
+    groupMode.setSettingsKey("GroupMode");
+    groupMode.setFromSettingsTransformation([](const QVariant &savedValue) -> QVariant {
+        // avoid problems if user messes around with the settings file
+        bool ok = false;
+        const int tmp = savedValue.toInt(&ok);
+        return ok ? static_cast<GTest::Constants::GroupMode>(tmp) : GTest::Constants::Directory;
+    });
+
+    registerAspect(&gtestFilter);
+    gtestFilter.setSettingsKey("GTestFilter");
+    gtestFilter.setDefaultValue(GTest::Constants::DEFAULT_FILTER);
+    gtestFilter.setFromSettingsTransformation([](const QVariant &savedValue) -> QVariant {
+        // avoid problems if user messes around with the settings file
+        const QString tmp = savedValue.toString();
+        if (GTestUtils::isValidGTestFilter(tmp))
+            return tmp;
+        return GTest::Constants::DEFAULT_FILTER;
+    });
 }
 
 } // namespace Internal

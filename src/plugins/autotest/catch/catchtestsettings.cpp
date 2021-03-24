@@ -28,66 +28,62 @@
 namespace Autotest {
 namespace Internal {
 
-static const char abortAfterKey[]                 = "AbortAfter";
-static const char abortAfterCheckedKey[]          = "AbortChecked";
-static const char benchmarkSamplesKey[]           = "BenchSamples";
-static const char samplesCheckedKey[]             = "SamplesChecked";
-static const char benchmarkResamplesKey[]         = "BenchResamples";
-static const char resamplesCheckedKey[]           = "ResamplesChecked";
-static const char benchmarConfidenceIntervalKey[] = "BenchConfInt";
-static const char confIntCheckedKey[]             = "ConfIntChecked";
-static const char benchmarWarmupTimeKey[]         = "BenchWarmup";
-static const char warmupCheckedKey[]              = "WarmupChecked";
-static const char noAnalysisKey[]                 = "NoAnalysis";
-static const char showSuccessKey[]                = "ShowSuccess";
-static const char breakOnFailureKey[]             = "BreakOnFailure";
-static const char noThrowKey[]                    = "NoThrow";
-static const char visibleWhitespaceKey[]          = "VisibleWS";
-static const char warnOnEmptyKey[]                = "WarnEmpty";
-
-QString CatchTestSettings::name() const
+CatchTestSettings::CatchTestSettings()
 {
-    return QString("Catch2");
-}
+    setSettingsGroups("Autotest", "Catch2");
+    setAutoApply(false);
 
-void CatchTestSettings::toTestSettings(QSettings *s) const
-{
-    s->setValue(abortAfterCheckedKey, abortAfterChecked);
-    s->setValue(abortAfterKey, abortAfter);
-    s->setValue(samplesCheckedKey, samplesChecked);
-    s->setValue(benchmarkSamplesKey, benchmarkSamples);
-    s->setValue(resamplesCheckedKey, resamplesChecked);
-    s->setValue(benchmarkResamplesKey, benchmarkResamples);
-    s->setValue(confIntCheckedKey, confidenceIntervalChecked);
-    s->setValue(benchmarConfidenceIntervalKey, confidenceInterval);
-    s->setValue(warmupCheckedKey, warmupChecked);
-    s->setValue(benchmarWarmupTimeKey, benchmarkWarmupTime);
-    s->setValue(noAnalysisKey, noAnalysis);
-    s->setValue(showSuccessKey, showSuccess);
-    s->setValue(breakOnFailureKey, breakOnFailure);
-    s->setValue(noThrowKey, noThrow);
-    s->setValue(visibleWhitespaceKey, visibleWhitespace);
-    s->setValue(warnOnEmptyKey, warnOnEmpty);
-}
+    registerAspect(&abortAfter);
+    abortAfter.setSettingsKey("AbortAfter");
 
-void CatchTestSettings::fromTestSettings(const QSettings *s)
-{
-    abortAfterChecked = s->value(abortAfterCheckedKey, false).toBool();
-    abortAfter = s->value(abortAfterKey, 0).toInt();
-    samplesChecked = s->value(samplesCheckedKey, false).toBool();
-    benchmarkSamples = s->value(benchmarkSamplesKey, 100).toInt();
-    resamplesChecked = s->value(resamplesCheckedKey, false).toBool();
-    benchmarkResamples = s->value(benchmarkResamplesKey, 100000).toInt();
-    confidenceIntervalChecked = s->value(confIntCheckedKey, false).toBool();
-    confidenceInterval = s->value(benchmarConfidenceIntervalKey, 0.95).toDouble();
-    warmupChecked = s->value(warmupCheckedKey, false).toBool();
-    benchmarkWarmupTime = s->value(benchmarWarmupTimeKey, 0).toInt();
-    noAnalysis = s->value(noAnalysisKey, false).toBool();
-    showSuccess = s->value(showSuccessKey, false).toBool();
-    breakOnFailure = s->value(breakOnFailureKey, true).toBool();
-    noThrow = s->value(noThrowKey, false).toBool();
-    visibleWhitespace = s->value(visibleWhitespaceKey, false).toBool();
-    warnOnEmpty = s->value(warnOnEmptyKey, false).toBool();
+    registerAspect(&benchmarkSamples);
+    benchmarkSamples.setSettingsKey("BenchSamples");
+    benchmarkSamples.setDefaultValue(100);
+
+    registerAspect(&benchmarkResamples);
+    benchmarkResamples.setSettingsKey("BenchResamples");
+    benchmarkResamples.setDefaultValue(100000);
+
+    registerAspect(&confidenceInterval);
+    confidenceInterval.setSettingsKey("BenchConfInt");
+    confidenceInterval.setDefaultValue(0.95);
+
+    registerAspect(&benchmarkWarmupTime);
+    benchmarkWarmupTime.setSettingsKey("BenchWarmup");
+
+    registerAspect(&abortAfterChecked);
+    abortAfterChecked.setSettingsKey("AbortChecked");
+
+    registerAspect(&samplesChecked);
+    samplesChecked.setSettingsKey("SamplesChecked");
+
+    registerAspect(&resamplesChecked);
+    resamplesChecked.setSettingsKey("ResamplesChecked");
+
+    registerAspect(&confidenceIntervalChecked);
+    confidenceIntervalChecked.setSettingsKey("ConfIntChecked");
+
+    registerAspect(&warmupChecked);
+    warmupChecked.setSettingsKey("WarmupChecked");
+
+    registerAspect(&noAnalysis);
+    noAnalysis.setSettingsKey("NoAnalysis");
+
+    registerAspect(&showSuccess);
+    showSuccess.setSettingsKey("ShowSuccess");
+
+    registerAspect(&breakOnFailure);
+    breakOnFailure.setSettingsKey("BreakOnFailure");
+    breakOnFailure.setDefaultValue(true);
+
+    registerAspect(&noThrow);
+    noThrow.setSettingsKey("NoThrow");
+
+    registerAspect(&visibleWhitespace);
+    visibleWhitespace.setSettingsKey("VisibleWS");
+
+    registerAspect(&warnOnEmpty);
+    warnOnEmpty.setSettingsKey("WarnEmpty");
 }
 
 } // namespace Internal

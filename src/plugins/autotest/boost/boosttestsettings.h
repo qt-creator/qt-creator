@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "../itestsettings.h"
+#include <utils/aspects.h>
 
 namespace Autotest {
 namespace Internal {
@@ -53,25 +53,21 @@ enum class ReportLevel
     No
 };
 
-class BoostTestSettings : public ITestSettings
+class BoostTestSettings : public Utils::AspectContainer
 {
 public:
-    BoostTestSettings() = default;
-    QString name() const override;
+    BoostTestSettings();
+
     static QString logLevelToOption(const LogLevel logLevel);
     static QString reportLevelToOption(const ReportLevel reportLevel);
 
-    LogLevel logLevel = LogLevel::Warning;
-    ReportLevel reportLevel = ReportLevel::Confirm;
-    int seed = 0;
-    bool randomize = false;
-    bool systemErrors = false;
-    bool fpExceptions = false;
-    bool memLeaks = true;
-
-protected:
-    void fromTestSettings(const QSettings *s) override;
-    void toTestSettings(QSettings *s) const override;
+    Utils::SelectionAspect logLevel;
+    Utils::SelectionAspect reportLevel;
+    Utils::IntegerAspect seed;
+    Utils::BoolAspect randomize;
+    Utils::BoolAspect systemErrors;
+    Utils::BoolAspect fpExceptions;
+    Utils::BoolAspect memLeaks;
 };
 
 } // namespace Internal

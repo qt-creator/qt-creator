@@ -28,12 +28,6 @@
 namespace Autotest {
 namespace Internal {
 
-static const char metricsKey[]           = "Metrics";
-static const char noCrashhandlerKey[]    = "NoCrashhandlerOnDebug";
-static const char useXMLOutputKey[]      = "UseXMLOutput";
-static const char verboseBenchKey[]      = "VerboseBench";
-static const char logSignalsSlotsKey[]   = "LogSignalsSlots";
-
 static MetricsType intToMetrics(int value)
 {
     switch (value) {
@@ -52,27 +46,28 @@ static MetricsType intToMetrics(int value)
     }
 }
 
-QString QtTestSettings::name() const
+QtTestSettings::QtTestSettings()
 {
-    return QString("QtTest");
-}
+    setSettingsGroups("Autotest", "QtTest");
+    setAutoApply(false);
 
-void QtTestSettings::fromTestSettings(const QSettings *s)
-{
-    metrics = intToMetrics(s->value(metricsKey, Walltime).toInt());
-    noCrashHandler = s->value(noCrashhandlerKey, true).toBool();
-    useXMLOutput = s->value(useXMLOutputKey, true).toBool();
-    verboseBench = s->value(verboseBenchKey, false).toBool();
-    logSignalsSlots = s->value(logSignalsSlotsKey, false).toBool();
-}
+    registerAspect(&metrics);
+    metrics.setSettingsKey("Metrics");
+    metrics.setDefaultValue(Walltime);
 
-void QtTestSettings::toTestSettings(QSettings *s) const
-{
-    s->setValue(metricsKey, metrics);
-    s->setValue(noCrashhandlerKey, noCrashHandler);
-    s->setValue(useXMLOutputKey, useXMLOutput);
-    s->setValue(verboseBenchKey, verboseBench);
-    s->setValue(logSignalsSlotsKey, logSignalsSlots);
+    registerAspect(&noCrashHandler);
+    noCrashHandler.setSettingsKey("NoCrashhandlerOnDebug");
+    noCrashHandler.setDefaultValue(true);
+
+    registerAspect(&useXMLOutput);
+    useXMLOutput.setSettingsKey("UseXMLOutput");
+    useXMLOutput.setDefaultValue(true);
+
+    registerAspect(&verboseBench);
+    verboseBench.setSettingsKey("VerboseBench");
+
+    registerAspect(&logSignalsSlots);
+    logSignalsSlots.setSettingsKey("LogSignalsSlots");
 }
 
 QString QtTestSettings::metricsTypeToOption(const MetricsType type)

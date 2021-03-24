@@ -65,7 +65,7 @@ unsigned GTestFramework::priority() const
 
 QString GTestFramework::currentGTestFilter()
 {
-    return g_settings->gtestFilter;
+    return g_settings->gtestFilter.value();
 }
 
 QString GTestFramework::groupingToolTip() const
@@ -77,7 +77,7 @@ QString GTestFramework::groupingToolTip() const
 
 GTest::Constants::GroupMode GTestFramework::groupMode()
 {
-    return g_settings->groupMode;
+    return GTest::Constants::GroupMode(g_settings->groupMode.value());
 }
 
 } // namespace Internal

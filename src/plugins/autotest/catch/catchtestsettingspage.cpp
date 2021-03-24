@@ -49,11 +49,11 @@ CatchTestSettingsWidget::CatchTestSettingsWidget(CatchTestSettings *settings)
 {
     m_ui.setupUi(this);
 
-    m_ui.abortSB->setEnabled(m_settings->abortAfterChecked);
-    m_ui.samplesSB->setEnabled(m_settings->samplesChecked),
-    m_ui.resamplesSB->setEnabled(m_settings->resamplesChecked);
-    m_ui.confIntSB->setEnabled(m_settings->confidenceIntervalChecked);
-    m_ui.warmupSB->setEnabled(m_settings->warmupChecked);
+    m_ui.abortSB->setEnabled(m_settings->abortAfterChecked.value());
+    m_ui.samplesSB->setEnabled(m_settings->samplesChecked.value()),
+    m_ui.resamplesSB->setEnabled(m_settings->resamplesChecked.value());
+    m_ui.confIntSB->setEnabled(m_settings->confidenceIntervalChecked.value());
+    m_ui.warmupSB->setEnabled(m_settings->warmupChecked.value());
 
     connect(m_ui.abortCB, &QCheckBox::toggled, m_ui.abortSB, &QSpinBox::setEnabled);
     connect(m_ui.samplesCB, &QCheckBox::toggled, m_ui.samplesSB, &QSpinBox::setEnabled);
@@ -61,44 +61,44 @@ CatchTestSettingsWidget::CatchTestSettingsWidget(CatchTestSettings *settings)
     connect(m_ui.confIntCB, &QCheckBox::toggled, m_ui.confIntSB, &QDoubleSpinBox::setEnabled);
     connect(m_ui.warmupCB, &QCheckBox::toggled, m_ui.warmupSB, &QSpinBox::setEnabled);
 
-    m_ui.showSuccessCB->setChecked(m_settings->showSuccess);
-    m_ui.breakOnFailCB->setChecked(m_settings->breakOnFailure);
-    m_ui.noThrowCB->setChecked(m_settings->noThrow);
-    m_ui.visibleWhiteCB->setChecked(m_settings->visibleWhitespace);
-    m_ui.warnOnEmpty->setChecked(m_settings->warnOnEmpty);
-    m_ui.noAnalysisCB->setChecked(m_settings->noAnalysis);
-    m_ui.abortCB->setChecked(m_settings->abortAfterChecked);
-    m_ui.abortSB->setValue(m_settings->abortAfter);
-    m_ui.samplesCB->setChecked(m_settings->samplesChecked);
-    m_ui.samplesSB->setValue(m_settings->benchmarkSamples);
-    m_ui.resamplesCB->setChecked(m_settings->resamplesChecked);
-    m_ui.resamplesSB->setValue(m_settings->benchmarkResamples);
-    m_ui.confIntCB->setChecked(m_settings->confidenceIntervalChecked);
-    m_ui.confIntSB->setValue(m_settings->confidenceInterval);
-    m_ui.warmupCB->setChecked(m_settings->warmupChecked);
-    m_ui.warmupSB->setValue(m_settings->benchmarkWarmupTime);
+    m_ui.showSuccessCB->setChecked(m_settings->showSuccess.value());
+    m_ui.breakOnFailCB->setChecked(m_settings->breakOnFailure.value());
+    m_ui.noThrowCB->setChecked(m_settings->noThrow.value());
+    m_ui.visibleWhiteCB->setChecked(m_settings->visibleWhitespace.value());
+    m_ui.warnOnEmpty->setChecked(m_settings->warnOnEmpty.value());
+    m_ui.noAnalysisCB->setChecked(m_settings->noAnalysis.value());
+    m_ui.abortCB->setChecked(m_settings->abortAfterChecked.value());
+    m_ui.abortSB->setValue(m_settings->abortAfter.value());
+    m_ui.samplesCB->setChecked(m_settings->samplesChecked.value());
+    m_ui.samplesSB->setValue(m_settings->benchmarkSamples.value());
+    m_ui.resamplesCB->setChecked(m_settings->resamplesChecked.value());
+    m_ui.resamplesSB->setValue(m_settings->benchmarkResamples.value());
+    m_ui.confIntCB->setChecked(m_settings->confidenceIntervalChecked.value());
+    m_ui.confIntSB->setValue(m_settings->confidenceInterval.value());
+    m_ui.warmupCB->setChecked(m_settings->warmupChecked.value());
+    m_ui.warmupSB->setValue(m_settings->benchmarkWarmupTime.value());
 }
 
 void CatchTestSettingsWidget::apply()
 {
-    m_settings->showSuccess = m_ui.showSuccessCB->isChecked();
-    m_settings->breakOnFailure = m_ui.breakOnFailCB->isChecked();
-    m_settings->noThrow = m_ui.noThrowCB->isChecked();
-    m_settings->visibleWhitespace = m_ui.visibleWhiteCB->isChecked();
-    m_settings->warnOnEmpty = m_ui.warnOnEmpty->isChecked();
-    m_settings->noAnalysis = m_ui.noAnalysisCB->isChecked();
-    m_settings->abortAfterChecked = m_ui.abortCB->isChecked();
-    m_settings->abortAfter = m_ui.abortSB->value();
-    m_settings->samplesChecked = m_ui.samplesCB->isChecked();
-    m_settings->benchmarkSamples = m_ui.samplesSB->value();
-    m_settings->resamplesChecked = m_ui.resamplesCB->isChecked();
-    m_settings->benchmarkResamples = m_ui.resamplesSB->value();
-    m_settings->confidenceIntervalChecked = m_ui.confIntCB->isChecked();
-    m_settings->confidenceInterval = m_ui.confIntSB->value();
-    m_settings->warmupChecked = m_ui.warmupCB->isChecked();
-    m_settings->benchmarkWarmupTime = m_ui.warmupSB->value();
+    m_settings->showSuccess.setValue(m_ui.showSuccessCB->isChecked());
+    m_settings->breakOnFailure.setValue(m_ui.breakOnFailCB->isChecked());
+    m_settings->noThrow.setValue(m_ui.noThrowCB->isChecked());
+    m_settings->visibleWhitespace.setValue(m_ui.visibleWhiteCB->isChecked());
+    m_settings->warnOnEmpty.setValue(m_ui.warnOnEmpty->isChecked());
+    m_settings->noAnalysis.setValue(m_ui.noAnalysisCB->isChecked());
+    m_settings->abortAfterChecked.setValue(m_ui.abortCB->isChecked());
+    m_settings->abortAfter.setValue(m_ui.abortSB->value());
+    m_settings->samplesChecked.setValue(m_ui.samplesCB->isChecked());
+    m_settings->benchmarkSamples.setValue(m_ui.samplesSB->value());
+    m_settings->resamplesChecked.setValue(m_ui.resamplesCB->isChecked());
+    m_settings->benchmarkResamples.setValue(m_ui.resamplesSB->value());
+    m_settings->confidenceIntervalChecked.setValue(m_ui.confIntCB->isChecked());
+    m_settings->confidenceInterval.setValue(m_ui.confIntSB->value());
+    m_settings->warmupChecked.setValue(m_ui.warmupCB->isChecked());
+    m_settings->benchmarkWarmupTime.setValue(m_ui.warmupSB->value());
 
-    m_settings->toSettings(Core::ICore::settings());
+    m_settings->writeSettings(Core::ICore::settings());
 }
 
 CatchTestSettingsPage::CatchTestSettingsPage(CatchTestSettings *settings, Utils::Id settingsId)

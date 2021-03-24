@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "../itestsettings.h"
+#include <utils/aspects.h>
 
 namespace Autotest {
 namespace Internal {
@@ -39,22 +39,18 @@ enum MetricsType
     Perf
 };
 
-class QtTestSettings : public ITestSettings
+class QtTestSettings : public Utils::AspectContainer
 {
 public:
-    QtTestSettings() {}
-    QString name() const override;
+    QtTestSettings();
+
     static QString metricsTypeToOption(const MetricsType type);
 
-    MetricsType metrics = Walltime;
-    bool noCrashHandler = true;
-    bool useXMLOutput = true;
-    bool verboseBench = false;
-    bool logSignalsSlots = false;
-
-protected:
-    void fromTestSettings(const QSettings *s) override;
-    void toTestSettings(QSettings *s) const override;
+    Utils::SelectionAspect metrics;
+    Utils::BoolAspect noCrashHandler;
+    Utils::BoolAspect useXMLOutput;
+    Utils::BoolAspect verboseBench;
+    Utils::BoolAspect logSignalsSlots;
 };
 
 } // namespace Internal

@@ -27,6 +27,7 @@
 #include "boosttestconstants.h"
 #include "boosttestsettings.h"
 #include "../testframeworkmanager.h"
+#include "../autotestconstants.h"
 #include "ui_boosttestsettingspage.h"
 
 #include <coreplugin/icore.h>
@@ -59,26 +60,26 @@ BoostTestSettingsWidget::BoostTestSettingsWidget(BoostTestSettings *settings)
     fillComboBoxes();
     connect(m_ui.randomizeCB, &QCheckBox::toggled, m_ui.seedSB, &QSpinBox::setEnabled);
 
-    m_ui.logFormatCB->setCurrentIndex(int(m_settings->logLevel));
-    m_ui.reportLevelCB->setCurrentIndex(int(m_settings->reportLevel));
-    m_ui.randomizeCB->setChecked(m_settings->randomize);
-    m_ui.seedSB->setValue(m_settings->seed);
-    m_ui.systemErrorCB->setChecked(m_settings->systemErrors);
-    m_ui.fpExceptions->setChecked(m_settings->fpExceptions);
-    m_ui.memoryLeakCB->setChecked(m_settings->memLeaks);
+    m_ui.logFormatCB->setCurrentIndex(m_settings->logLevel.value());
+    m_ui.reportLevelCB->setCurrentIndex(m_settings->reportLevel.value());
+    m_ui.randomizeCB->setChecked(m_settings->randomize.value());
+    m_ui.seedSB->setValue(m_settings->seed.value());
+    m_ui.systemErrorCB->setChecked(m_settings->systemErrors.value());
+    m_ui.fpExceptions->setChecked(m_settings->fpExceptions.value());
+    m_ui.memoryLeakCB->setChecked(m_settings->memLeaks.value());
 }
 
 void BoostTestSettingsWidget::apply()
 {
-    m_settings->logLevel = LogLevel(m_ui.logFormatCB->currentData().toInt());
-    m_settings->reportLevel = ReportLevel(m_ui.reportLevelCB->currentData().toInt());
-    m_settings->randomize = m_ui.randomizeCB->isChecked();
-    m_settings->seed = m_ui.seedSB->value();
-    m_settings->systemErrors = m_ui.systemErrorCB->isChecked();
-    m_settings->fpExceptions = m_ui.fpExceptions->isChecked();
-    m_settings->memLeaks = m_ui.memoryLeakCB->isChecked();
+    m_settings->logLevel.setValue(m_ui.logFormatCB->currentData().toInt());
+    m_settings->reportLevel.setValue(m_ui.reportLevelCB->currentData().toInt());
+    m_settings->randomize.setValue(m_ui.randomizeCB->isChecked());
+    m_settings->seed.setValue(m_ui.seedSB->value());
+    m_settings->systemErrors.setValue(m_ui.systemErrorCB->isChecked());
+    m_settings->fpExceptions.setValue(m_ui.fpExceptions->isChecked());
+    m_settings->memLeaks.setValue(m_ui.memoryLeakCB->isChecked());
 
-    m_settings->toSettings(Core::ICore::settings());
+    m_settings->writeSettings(Core::ICore::settings());
 }
 
 void BoostTestSettingsWidget::fillComboBoxes()
