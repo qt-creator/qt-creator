@@ -506,8 +506,8 @@ void BaseAspect::readSettings(const QSettings *settings)
 {
     if (settingsKey().isEmpty())
         return;
-    const QVariant val = settings->value(settingsKey(), toSettingsValue(defaultValue()));
-    setValue(fromSettingsValue(val));
+    const QVariant &val = settings->value(settingsKey());
+    setValue(val.isValid() ? fromSettingsValue(val) : defaultValue());
 }
 
 void BaseAspect::writeSettings(QSettings *settings) const
