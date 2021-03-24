@@ -30,24 +30,25 @@
 
     \title Using 3D Components
 
-    To add 3D components to the scene, drag and drop a them from
-    \uicontrol Library > \uicontrol {QML Types} > \uicontrol {Qt Quick 3D} to
-    the scene or to a 3D view in \uicontrol Navigator.
+    To use 3D components, you need to first add the required modules to your
+    project in \l Library. For more information, see
+    \l{Adding and Removing Modules}. You can then add 3D components to your scene
+    by dragging-and-dropping them from \uicontrol Library > \uicontrol Components >
+    \uicontrol QtQuick3D group to \l {3D Editor} or to a 3D view in \l Navigator.
 
     \note Using 3D components will affect the performance of your UI. You should
     not use 3D components if the same results can be achieved using 2D
     components.
 
     To edit 3D components, select the component in \uicontrol {3D Editor} or in
-    \uicontrol Navigator and set its properties in the \uicontrol Properties
-    view.
+    \uicontrol Navigator and set its properties in the \l Properties view.
 
     \list
         \li \l {Setting Group Properties}
 
             You can set the opacity, visibility, and transform properties
             of all 3D components.
-        \li \l {Adding Models}
+        \li \l {Adding 3D Models}
 
             You can use the model component to load static mesh data from
             storage or one of the built-in primitive types: cube, cone,
@@ -55,7 +56,7 @@
             meshes and sub-meshes.
         \li \l {Using Materials and Shaders}
 
-            You can use materials and shaders to define how object surfaces
+            You can use materials and shaders to define how component surfaces
             are rendered in a scene and during live preview.
         \li \l {Attaching Textures to Materials}
 
@@ -65,7 +66,6 @@
         \li \l {Using 3D Materials}
 
             You can apply a set of predefined 3D materials on your models.
-
         \li \l {Applying 3D Effects}
 
             You can use 3D effect components to generate post-processing
@@ -85,12 +85,12 @@
             scene and set their properties.
         \li \l {Using Scene Camera}
 
-            To project a 3D scene to a 2D viewport, such as
-            \uicontrol {Form Editor}, it is necessary to view the scene from a
-            camera. You can select the camera type and set its properties.
+            To project a 3D scene to a 2D viewport, such as \l {Form Editor},
+            it is necessary to view the scene from a camera. You can select the
+            camera type and set its properties.
         \li \l {Setting Scene Environment}
 
-            You can use the SceneEnvironment type to specify how the scene is
-            rendered globally.
+            You can use the SceneEnvironment component to specify how the scene
+            is rendered globally.
      \endlist
 */

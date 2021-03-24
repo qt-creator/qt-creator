@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Design Studio.
@@ -32,8 +32,9 @@
 
     \title Attaching Textures to Materials
 
-    You can use the Texture 3D QML type to attach textures to materials.
-    You specify an image and how it is mapped to meshes in a 3D scene.
+    You can use the \uicontrol Texture component to attach textures to materials.
+    You specify an image to use as the source file for the \uicontrol Texture,
+    and also define how it is mapped to meshes in a 3D scene.
 
     \image studio-qtquick-3d-texture.png "Texture attached to a material in Design mode"
 
@@ -45,7 +46,7 @@
 
     UV mapping is the process of projecting 2D images to the surface of a
     3D model for texture mapping. The letters \e U and \e V denote the axes
-    of the 2D texture, because x, y, and z are already used to denote the
+    of the 2D texture because x, y, and z are already used to denote the
     axes of the 3D object in the model space. You can paint the polygons that
     make up a 3D object with color and other surface attributes from a UV
     texture map. Pixels in the image are assigned to surface mappings on the
@@ -112,24 +113,29 @@
 
     \section1 Applying Textures to Materials
 
-    Drag and drop an image from \uicontrol Library > \uicontrol Assets
-    on a material to create a texture component. Dragging an image
-    to a default or principled material opens a
-    \uicontrol {Select Texture Property} dialog. You can select the
-    property to attach the texture to in the \uicontrol {Set texture to property}
-    field. For a custom material, you must assign the texture to a map.
+    Drag-and-drop an image from \l Library > \uicontrol Assets on a material to
+    create a texture component. Dragging an image to a default or principled
+    material opens a \uicontrol {Select Texture Property} dialog. You can select
+    the  property to attach the texture to in the \uicontrol {Set texture to property}
+    field. For a custom material, you must assign the texture to a map. If the
+    \uicontrol Texture component is not displayed in \uicontrol Library, you
+    should add the \uicontrol QtQuick3D module to your project, as described in
+    \l {Adding and Removing Modules}.
 
-    To use Texture components to apply textures to materials:
+    To use Texture components to apply textures to materials, drag-and-drop a
+    Texture component from \l Library to a material component in \l Navigator.
+    The new texture should now be visible in \l {Form Editor} and \l {3D Editor}.
+    \note If the colors in your texture are not visualized correctly, you should
+    check the color in the \uicontrol Diffuse property of the material and try
+    changing it to white (#ffffff).
 
-    \list 1
-        \li Drag and drop a Texture component from the \uicontrol Library to a
-            material component in the \uicontrol Navigator.
-        \li In the \uicontrol Properties view, specify the image to use in the
-            \uicontrol Source field.
-            \image studio-qtquick-3d-texture-properties.png "Texture properties"
-        \li Select the material component and specify the id of the texture to
-            use in the \uicontrol Properties view, \uicontrol {Diffuse map}
-            field.
-            \image studio-qtquick-3d-material-texture.png "Material properties"
+    \image studio-qtquick-3d-material-texture.png "Material properties"
+
+    To change the source file for the texture, select the \uicontrol Texture
+    component in \uicontrol Navigator, go to the \uicontrol Properties view, and
+    specify a new image to use in the \uicontrol Source field.
+
+    \image studio-qtquick-3d-texture-properties.png "Texture properties"
+
     \endlist
 */

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Design Studio.
@@ -39,23 +39,20 @@
     materials. Each effect or material must have a fragment shader that
     implements all the functions needed to calculate the shaded color. The
     material system also offers ready-made functions to help you implement
-    the material.
+    the material. If the 3D effects and materials are not displayed in
+    \l Library, you should add the \uicontrol QtQuick3D.Effects and
+    \uicontrol QtQuick3D.Materials modules to your project, as described in
+    \l {Adding and Removing Modules}.
 
     The material system supports dielectric, metallic, and transparent
     materials, point lights, area lights, ambient occlusion, shadowing,
     two-sided polygons, index-of-refraction, and fragment cutoff (masking).
     For more information, see \l {Qt Quick 3D Custom Material Reference}.
 
-    You can use the QML types in the \uicontrol {Qt Quick 3D Custom Shader Utils}
-    tab of \uicontrol Library to create custom effects and materials. To make
-    the \uicontrol Effect and \uicontrol {Custom Material} types appear in the
-    tab, you must select \uicontrol {Add Import} in the \uicontrol {QML Imports}
-    tab, and then select \uicontrol QtQuick3D.Effects and
-    \uicontrol QtQuick3D.Materials to import the QML types in those modules to
-    your project.
-
-    For more information about the shader utilities and commands and their
-    properties, see \l {Using Custom Shaders}.
+    You can use the components in \uicontrol Library > \uicontrol Components >
+    \uicontrol QtQuick3D > \uicontrol {Qt Quick 3D Custom Shader Utils} to
+    create custom effects and materials. For more information about the shader
+    utilities and commands and their properties, see \l {Using Custom Shaders}.
 
     \image studio-qtquick-3d-shader-utilities.png "Qt Quick 3D Custom Shader Utils tab in Library"
 
