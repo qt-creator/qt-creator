@@ -27,19 +27,44 @@
 
 #include "projectexplorer_export.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <utils/aspects.h>
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT BuildPropertiesSettings
+class PROJECTEXPLORER_EXPORT BuildPropertiesSettings : public Utils::AspectContainer
 {
+    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::BuildPropertiesSettings)
+
 public:
-    QString buildDirectoryTemplate;
-    QString buildDirectoryTemplateOld; // TODO: Remove in ~4.16
-    Utils::TriState separateDebugInfo;
-    Utils::TriState qmlDebugging;
-    Utils::TriState qtQuickCompiler;
-    bool showQtSettings = false;
+    BuildPropertiesSettings();
+
+    class BuildTriStateAspect : public Utils::TriStateAspect
+    {
+    public:
+        BuildTriStateAspect();
+    };
+
+    Utils::StringAspect buildDirectoryTemplate;
+    Utils::StringAspect buildDirectoryTemplateOld; // TODO: Remove in ~4.16
+    BuildTriStateAspect separateDebugInfo;
+    BuildTriStateAspect qmlDebugging;
+    BuildTriStateAspect qtQuickCompiler;
+    Utils::BoolAspect showQtSettings;
+
+    void readSettings(QSettings *settings);
+
+    QString defaultBuildDirectoryTemplate();
 };
 
+namespace Internal {
+
+class BuildPropertiesSettingsPage final : public Core::IOptionsPage
+{
+public:
+    explicit BuildPropertiesSettingsPage(BuildPropertiesSettings *settings);
+};
+
+} // namespace Internal
 } // namespace ProjectExplorer

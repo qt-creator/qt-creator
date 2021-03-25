@@ -89,9 +89,9 @@ public:
 QmakeExtraBuildInfo::QmakeExtraBuildInfo()
 {
     const BuildPropertiesSettings &settings = ProjectExplorerPlugin::buildPropertiesSettings();
-    config.separateDebugInfo = settings.separateDebugInfo;
-    config.linkQmlDebuggingQQ2 = settings.qmlDebugging;
-    config.useQtQuickCompiler = settings.qtQuickCompiler;
+    config.separateDebugInfo = settings.separateDebugInfo.value();
+    config.linkQmlDebuggingQQ2 = settings.qmlDebugging.value();
+    config.useQtQuickCompiler = settings.qtQuickCompiler.value();
 }
 
 // --------------------------------------------------------------------
@@ -725,7 +725,7 @@ static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
         info.displayName = BuildConfiguration::tr("Release");
         //: Non-ASCII characters in directory suffix may cause build issues.
         suffix = QmakeBuildConfiguration::tr("Release", "Shadow build directory suffix");
-        if (settings.qtQuickCompiler == TriState::Default) {
+        if (settings.qtQuickCompiler.value() == TriState::Default) {
             if (version && version->isQtQuickCompilerSupported())
                 extraInfo.config.useQtQuickCompiler = TriState::Enabled;
         }
@@ -740,15 +740,15 @@ static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
             info.displayName = BuildConfiguration::tr("Profile");
             //: Non-ASCII characters in directory suffix may cause build issues.
             suffix = QmakeBuildConfiguration::tr("Profile", "Shadow build directory suffix");
-            if (settings.separateDebugInfo == TriState::Default)
+            if (settings.separateDebugInfo.value() == TriState::Default)
                 extraInfo.config.separateDebugInfo = TriState::Enabled;
 
-            if (settings.qtQuickCompiler == TriState::Default) {
+            if (settings.qtQuickCompiler.value() == TriState::Default) {
                 if (version && version->isQtQuickCompilerSupported())
                     extraInfo.config.useQtQuickCompiler = TriState::Enabled;
             }
         }
-        if (settings.qmlDebugging == TriState::Default) {
+        if (settings.qmlDebugging.value() == TriState::Default) {
             if (version && version->isQmlDebuggingSupported())
                 extraInfo.config.linkQmlDebuggingQQ2 = TriState::Enabled;
         }

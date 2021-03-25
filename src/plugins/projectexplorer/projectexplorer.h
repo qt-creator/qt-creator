@@ -137,8 +137,7 @@ public:
     static void setAppOutputSettings(const Internal::AppOutputSettings &settings);
     static const Internal::AppOutputSettings &appOutputSettings();
 
-    static void setBuildPropertiesSettings(const BuildPropertiesSettings &settings);
-    static const BuildPropertiesSettings &buildPropertiesSettings();
+    static BuildPropertiesSettings &buildPropertiesSettings();
     static void showQtSettings();
 
     static void setCustomParsers(const QList<CustomParserSettings> &settings);

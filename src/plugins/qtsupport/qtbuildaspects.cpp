@@ -46,7 +46,7 @@ QmlDebuggingAspect::QmlDebuggingAspect()
 {
     setSettingsKey("EnableQmlDebugging");
     setDisplayName(tr("QML debugging and profiling:"));
-    setValue(ProjectExplorerPlugin::buildPropertiesSettings().qmlDebugging);
+    setValue(ProjectExplorerPlugin::buildPropertiesSettings().qmlDebugging.value());
 }
 
 void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
@@ -79,7 +79,7 @@ QtQuickCompilerAspect::QtQuickCompilerAspect()
 {
     setSettingsKey("QtQuickCompiler");
     setDisplayName(tr("Qt Quick Compiler:"));
-    setValue(ProjectExplorerPlugin::buildPropertiesSettings().qtQuickCompiler);
+    setValue(ProjectExplorerPlugin::buildPropertiesSettings().qtQuickCompiler.value());
 }
 
 void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)

@@ -14,7 +14,6 @@ HEADERS += projectexplorer.h \
     buildaspects.h \
     buildinfo.h \
     buildpropertiessettings.h \
-    buildpropertiessettingspage.h \
     buildsystem.h \
     buildtargettype.h \
     clangparser.h \
@@ -173,7 +172,7 @@ SOURCES += projectexplorer.cpp \
     addrunconfigdialog.cpp \
     buildaspects.cpp \
     buildinfo.cpp \
-    buildpropertiessettingspage.cpp \
+    buildpropertiessettings.cpp \
     buildsystem.cpp \
     clangparser.cpp \
     customparserssettingspage.cpp \

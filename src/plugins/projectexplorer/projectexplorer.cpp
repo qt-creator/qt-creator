@@ -27,7 +27,6 @@
 
 #include "appoutputpane.h"
 #include "buildpropertiessettings.h"
-#include "buildpropertiessettingspage.h"
 #include "buildsteplist.h"
 #include "buildsystem.h"
 #include "compileoutputwindow.h"
@@ -256,10 +255,6 @@ const char RUNMENUCONTEXTMENU[]   = "Project.RunMenu";
 const char FOLDER_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.F.OpenLocation.CtxMenu";
 const char PROJECT_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.P.OpenLocation.CtxMenu";
 
-// Default directories:
-const char DEFAULT_BUILD_DIRECTORY_TEMPLATE[] = "../%{JS: Util.asciify(\"build-%{Project:Name}-%{Kit:FileSystemName}-%{BuildConfig:Name}\")}";
-const char DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY_OLD[] = "Directories/BuildDirectory.Template"; // TODO: Remove in ~4.16
-const char DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY[] = "Directories/BuildDirectory.TemplateV2";
 
 const char RECENTPROJECTS_FILE_NAMES_KEY[] = "ProjectExplorer/RecentProjects/FileNames";
 const char RECENTPROJECTS_DISPLAY_NAMES_KEY[] = "ProjectExplorer/RecentProjects/DisplayNames";
@@ -283,10 +278,6 @@ const char CLEAR_ISSUES_ON_REBUILD_SETTINGS_KEY[] = "ProjectExplorer/Settings/Cl
 const char ABORT_BUILD_ALL_ON_ERROR_SETTINGS_KEY[]
     = "ProjectExplorer/Settings/AbortBuildAllOnError";
 const char LOW_BUILD_PRIORITY_SETTINGS_KEY[] = "ProjectExplorer/Settings/LowBuildPriority";
-
-const char SEPARATE_DEBUG_INFO_SETTINGS_KEY[] = "ProjectExplorer/Settings/SeparateDebugInfo";
-const char QML_DEBUGGING_SETTINGS_KEY[] = "ProjectExplorer/Settings/QmlDebugging";
-const char QT_QUICK_COMPILER_SETTINGS_KEY[] = "ProjectExplorer/Settings/QtQuickCompiler";
 
 const char CUSTOM_PARSER_COUNT_KEY[] = "ProjectExplorer/Settings/CustomParserCount";
 const char CUSTOM_PARSER_PREFIX_KEY[] = "ProjectExplorer/Settings/CustomParser";
@@ -642,7 +633,7 @@ public:
 
     // Settings pages
     ProjectExplorerSettingsPage m_projectExplorerSettingsPage;
-    BuildPropertiesSettingsPage m_buildPropertiesSettingsPage;
+    BuildPropertiesSettingsPage m_buildPropertiesSettingsPage{&m_buildPropertiesSettings};
     AppOutputSettingsPage m_appOutputSettingsPage;
     CompileOutputSettingsPage m_compileOutputSettingsPage;
     DeviceSettingsPage m_deviceSettingsPage;
@@ -1583,33 +1574,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         = s->value(Constants::LOW_BUILD_PRIORITY_SETTINGS_KEY, defaultSettings.lowBuildPriority)
               .toBool();
 
-    dd->m_buildPropertiesSettings.buildDirectoryTemplateOld
-            = s->value(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY_OLD).toString();
-    dd->m_buildPropertiesSettings.buildDirectoryTemplate
-            = s->value(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY).toString();
-    if (dd->m_buildPropertiesSettings.buildDirectoryTemplate.isEmpty()) {
-        dd->m_buildPropertiesSettings.buildDirectoryTemplate
-                = dd->m_buildPropertiesSettings.buildDirectoryTemplateOld;
-    }
-    if (dd->m_buildPropertiesSettings.buildDirectoryTemplate.isEmpty())
-        dd->m_buildPropertiesSettings.buildDirectoryTemplate = Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE;
-    // TODO: Remove in ~4.16
-    dd->m_buildPropertiesSettings.buildDirectoryTemplate.replace("%{CurrentProject:Name}",
-                                                                 "%{Project:Name}");
-    dd->m_buildPropertiesSettings.buildDirectoryTemplate.replace("%{CurrentKit:FileSystemName}",
-                                                                 "%{Kit:FileSystemName}");
-    dd->m_buildPropertiesSettings.buildDirectoryTemplate.replace("%{CurrentBuild:Name}",
-                                                                 "%{BuildConfig:Name}");
-
-    const auto loadTriStateValue = [&s](const QString &key) {
-      return TriState::fromVariant(s->value(key, TriState::Default.toVariant()));
-    };
-    dd->m_buildPropertiesSettings.separateDebugInfo
-            = loadTriStateValue(Constants::SEPARATE_DEBUG_INFO_SETTINGS_KEY);
-    dd->m_buildPropertiesSettings.qmlDebugging
-            = loadTriStateValue(Constants::QML_DEBUGGING_SETTINGS_KEY);
-    dd->m_buildPropertiesSettings.qtQuickCompiler
-            = loadTriStateValue(Constants::QT_QUICK_COMPILER_SETTINGS_KEY);
+    dd->m_buildPropertiesSettings.readSettings(s);
 
     const int customParserCount = s->value(Constants::CUSTOM_PARSER_COUNT_KEY).toInt();
     for (int i = 0; i < customParserCount; ++i) {
@@ -2249,27 +2214,7 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
                            int(dd->m_projectExplorerSettings.stopBeforeBuild),
                            int(defaultSettings.stopBeforeBuild));
 
-    // Store this in the Core directory scope for backward compatibility!
-    if (dd->m_buildPropertiesSettings.buildDirectoryTemplate
-        == Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE) {
-        s->remove(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY_OLD);
-        s->remove(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY);
-    } else {
-        s->setValue(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY_OLD,
-                    dd->m_buildPropertiesSettings.buildDirectoryTemplateOld);
-        s->setValue(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY,
-                    dd->m_buildPropertiesSettings.buildDirectoryTemplate);
-    }
-
-    s->setValueWithDefault(Constants::SEPARATE_DEBUG_INFO_SETTINGS_KEY,
-                           dd->m_buildPropertiesSettings.separateDebugInfo.toVariant(),
-                           TriState::Default.toVariant());
-    s->setValueWithDefault(Constants::QML_DEBUGGING_SETTINGS_KEY,
-                           dd->m_buildPropertiesSettings.qmlDebugging.toVariant(),
-                           TriState::Default.toVariant());
-    s->setValueWithDefault(Constants::QT_QUICK_COMPILER_SETTINGS_KEY,
-                           dd->m_buildPropertiesSettings.qtQuickCompiler.toVariant(),
-                           TriState::Default.toVariant());
+    dd->m_buildPropertiesSettings.writeSettings(s);
 
     s->setValueWithDefault(Constants::CUSTOM_PARSER_COUNT_KEY, int(dd->m_customParsers.count()), 0);
     for (int i = 0; i < dd->m_customParsers.count(); ++i) {
@@ -3965,19 +3910,14 @@ const AppOutputSettings &ProjectExplorerPlugin::appOutputSettings()
     return dd->m_outputPane.settings();
 }
 
-void ProjectExplorerPlugin::setBuildPropertiesSettings(const BuildPropertiesSettings &settings)
-{
-    dd->m_buildPropertiesSettings = settings;
-}
-
-const BuildPropertiesSettings &ProjectExplorerPlugin::buildPropertiesSettings()
+BuildPropertiesSettings &ProjectExplorerPlugin::buildPropertiesSettings()
 {
     return dd->m_buildPropertiesSettings;
 }
 
 void ProjectExplorerPlugin::showQtSettings()
 {
-    dd->m_buildPropertiesSettings.showQtSettings = true;
+    dd->m_buildPropertiesSettings.showQtSettings.setValue(true);
 }
 
 void ProjectExplorerPlugin::setCustomParsers(const QList<CustomParserSettings> &settings)
@@ -4050,12 +3990,12 @@ void ProjectExplorerPlugin::openOpenProjectDialog()
 */
 QString ProjectExplorerPlugin::buildDirectoryTemplate()
 {
-    return dd->m_buildPropertiesSettings.buildDirectoryTemplate;
+    return dd->m_buildPropertiesSettings.buildDirectoryTemplate.value();
 }
 
 QString ProjectExplorerPlugin::defaultBuildDirectoryTemplate()
 {
-    return QString(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE);
+    return dd->m_buildPropertiesSettings.defaultBuildDirectoryTemplate();
 }
 
 void ProjectExplorerPlugin::updateActions()
