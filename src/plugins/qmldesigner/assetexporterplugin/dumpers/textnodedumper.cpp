@@ -34,6 +34,8 @@
 
 #include <private/qquicktext_p.h>
 
+#include <algorithm>
+
 namespace  {
 const QHash<QString, QString> AlignMapping{
     {"AlignRight", "RIGHT"},
@@ -63,7 +65,10 @@ TextNodeDumper::TextNodeDumper(const QByteArrayList &lineage, const ModelNode &n
 
 bool TextNodeDumper::isExportable() const
 {
-    return lineage().contains("QtQuick.Text");
+    const QByteArrayList &baseClasses = lineage();
+    return std::any_of(baseClasses.cbegin(), baseClasses.cend(), [](const QByteArray &type) {
+        return type == "QtQuick.Text" || type == "QtQuick.Controls.Label";
+    });
 }
 
 QJsonObject TextNodeDumper::json(Component &component) const
