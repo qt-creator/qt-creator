@@ -66,6 +66,7 @@ LiteHtmlHelpViewer::LiteHtmlHelpViewer(QWidget *parent)
     , m_viewer(new QLiteHtmlWidget)
 {
     m_viewer->setResourceHandler([](const QUrl &url) { return getData(url); });
+    m_viewer->setFrameStyle(QFrame::NoFrame);
     m_viewer->viewport()->installEventFilter(this);
     connect(m_viewer, &QLiteHtmlWidget::linkClicked, this, &LiteHtmlHelpViewer::setSource);
     connect(m_viewer,
