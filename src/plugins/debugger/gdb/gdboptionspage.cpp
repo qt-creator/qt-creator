@@ -29,7 +29,6 @@
 #include <debugger/debuggerconstants.h>
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/icore.h>
 
 #include <utils/layoutbuilder.h>
 
@@ -41,7 +40,7 @@ namespace Internal {
 
 /////////////////////////////////////////////////////////////////////////
 //
-// GdbOptionsPageWidget - harmless options
+// GdbOptionsPage - harmless options
 //
 /////////////////////////////////////////////////////////////////////////
 
@@ -50,99 +49,47 @@ class GdbOptionsPage : public Core::IOptionsPage
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::GdbOptionsPage)
 
 public:
-    GdbOptionsPage();
+    GdbOptionsPage()
+    {
+        setId("M.Gdb");
+        setDisplayName(tr("GDB"));
+        setCategory(Constants::DEBUGGER_SETTINGS_CATEGORY);
+        setSettings(&debuggerSettings()->page2);
+
+        setLayouter([](QWidget *w) {
+            using namespace Layouting;
+            DebuggerSettings &s = *debuggerSettings();
+
+            Group general {
+                Title { tr("General") },
+                Row { s.gdbWatchdogTimeout, Stretch() },
+                s.skipKnownFrames,
+                s.useMessageBoxForSignals,
+                s.adjustBreakpointLocations,
+                s.useDynamicType,
+                s.loadGdbInit,
+                s.loadGdbDumpers,
+                s.intelFlavor,
+                s.usePseudoTracepoints,
+                Stretch()
+            };
+
+            Column commands {
+                Group { Title { tr("Additional Startup Commands") }, s.gdbStartupCommands },
+                Group { Title { tr("Additional Attach Commands") }, s.gdbPostAttachCommands },
+                Stretch()
+            };
+
+            Row { general, commands }.attachTo(w);
+        });
+    }
 };
-
-class GdbOptionsPageWidget : public IOptionsPageWidget
-{
-    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::GdbOptionsPage)
-
-public:
-    GdbOptionsPageWidget();
-
-    void apply() final { group.apply(); group.writeSettings(ICore::settings()); }
-    void finish() final { group.finish(); }
-
-    AspectContainer &group = debuggerSettings()->page2;
-};
-
-GdbOptionsPageWidget::GdbOptionsPageWidget()
-{
-    using namespace Layouting;
-    DebuggerSettings &s = *debuggerSettings();
-
-    Group general {
-        Title { tr("General") },
-        Row { s.gdbWatchdogTimeout, Stretch() },
-        s.skipKnownFrames,
-        s.useMessageBoxForSignals,
-        s.adjustBreakpointLocations,
-        s.useDynamicType,
-        s.loadGdbInit,
-        s.loadGdbDumpers,
-        s.intelFlavor,
-        s.usePseudoTracepoints,
-        Stretch()
-    };
-
-    Column commands {
-        Group { Title { tr("Additional Startup Commands") }, s.gdbStartupCommands },
-        Group { Title { tr("Additional Attach Commands") }, s.gdbPostAttachCommands },
-        Stretch()
-    };
-
-    Row { general, commands }.attachTo(this);
-}
-
-GdbOptionsPage::GdbOptionsPage()
-{
-    setId("M.Gdb");
-    setDisplayName(tr("GDB"));
-    setCategory(Constants::DEBUGGER_SETTINGS_CATEGORY);
-    setWidgetCreator([] { return new GdbOptionsPageWidget; });
-}
 
 /////////////////////////////////////////////////////////////////////////
 //
-// GdbOptionsPageWidget2 - dangerous options
+// GdbOptionsPage2 - dangerous options
 //
 /////////////////////////////////////////////////////////////////////////
-
-class GdbOptionsPageWidget2 : public IOptionsPageWidget
-{
-public:
-    GdbOptionsPageWidget2();
-
-    void apply() final { group.apply(); group.writeSettings(ICore::settings()); }
-    void finish() final { group.finish(); }
-
-    AspectContainer &group = debuggerSettings()->page3;
-};
-
-GdbOptionsPageWidget2::GdbOptionsPageWidget2()
-{
-    auto labelDangerous = new QLabel("<html><head/><body><i>" +
-        GdbOptionsPage::tr("The options below give access to advanced "
-        "or experimental functions of GDB.<br>Enabling them may negatively "
-        "impact your debugging experience.") + "</i></body></html>");
-
-    using namespace Layouting;
-    DebuggerSettings &s = *debuggerSettings();
-
-    Group extended {
-        Title(GdbOptionsPage::tr("Extended")),
-        labelDangerous,
-        s.targetAsync,
-        s.autoEnrichParameters,
-        s.breakOnWarning,
-        s.breakOnFatal,
-        s.breakOnAbort,
-        s.enableReverseDebugging,
-        s.multiInferior,
-    };
-
-    Column { extended, Stretch() }.attachTo(this);
-}
 
 // The "Dangerous" options.
 class GdbOptionsPage2 : public Core::IOptionsPage
@@ -153,7 +100,31 @@ public:
         setId("M.Gdb2");
         setDisplayName(GdbOptionsPage::tr("GDB Extended"));
         setCategory(Constants::DEBUGGER_SETTINGS_CATEGORY);
-        setWidgetCreator([] { return new GdbOptionsPageWidget2; });
+        setSettings(&debuggerSettings()->page3);
+
+        setLayouter([](QWidget *w) {
+            auto labelDangerous = new QLabel("<html><head/><body><i>" +
+                GdbOptionsPage::tr("The options below give access to advanced "
+                "or experimental functions of GDB.<br>Enabling them may negatively "
+                "impact your debugging experience.") + "</i></body></html>");
+
+            using namespace Layouting;
+            DebuggerSettings &s = *debuggerSettings();
+
+            Group extended {
+                Title(GdbOptionsPage::tr("Extended")),
+                labelDangerous,
+                s.targetAsync,
+                s.autoEnrichParameters,
+                s.breakOnWarning,
+                s.breakOnFatal,
+                s.breakOnAbort,
+                s.enableReverseDebugging,
+                s.multiInferior,
+            };
+
+            Column { extended, Stretch() }.attachTo(w);
+        });
     }
 };
 
