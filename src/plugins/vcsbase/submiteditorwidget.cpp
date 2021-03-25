@@ -504,7 +504,7 @@ void SubmitEditorWidget::hideDescription()
     setDescriptionMandatory(false);
 }
 
-void VcsBase::SubmitEditorWidget::verifyDescription()
+void SubmitEditorWidget::verifyDescription()
 {
     auto fontColor = [](Utils::Theme::Color color) {
         return QString("<font color=\"%1\">")

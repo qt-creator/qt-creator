@@ -103,27 +103,27 @@
     \QDS creates the following files and folders:
 
     \list
-        \li .qmlproject project file defines that all QML, JavaScript, and image
-            files in the project folder belong to the project. Therefore, you do
-            not need to individually list all the files in the project.
-        \li .qml file defines a UI item, such as a component, screen, or the
-            whole UI.
-        \li ui.qml file defines a form for the UI.
+        \li .qmlproject project file defines that all component, JavaScript, and
+            image files in the project folder belong to the project. Therefore,
+            you do not need to individually list all the files in the project.
+        \li .qml file defines the functionality and appearance of a component.
+        \li ui.qml file defines a visual component that you can edit in
+            \l{Form Editor}.
         \li qtquickcontrols2.conf file specifies the preferred style and some
             style-specific arguments.
+        \li \e fonts folder contains font files that you have added in
+            \l Library > \uicontrol Assets.
         \li \e imports folder contains a \e {Constants.qml} file that specifies
-            a font loader for the Arial font and the screen resolution. The
-            size of the default Screen.ui.qml Rectangle should be set as
-            \c {width: Constants.width & height: Constants.height}, so it
-            inherits the global resolution saved here.
-        \li \e qmldir module definition file declares the Constant QML type.
+            a font loader for the Arial font and the screen resolution. The size
+            of the default Screen.ui.qml \l{basic-rectangle}{Rectangle} should
+            be set as \c {width: Constants.width & height: Constants.height} so
+            that it inherits the global resolution saved here.
+        \li \e qmldir module definition file declares the Constant component.
             For more information, see \l {Module Definition qmldir Files}.
-        \li In addition, the \e QtQuick subfolder contains the Studio components
-            and effects QML types.
     \endlist
 
     To use JavaScript and image files in the UI, select \uicontrol Library >
-    Assets > Add New Assets.
+    \uicontrol Assets > \inlineimage plus.png.
 
     \section1 Adding Files to Projects
 
@@ -133,15 +133,16 @@
     \list
         \li \uicontrol {Qt Quick Files}
             \list
-                \li \uicontrol {Flow Item} and \uicontrol {Flow View} generate
-                    types that you can use to design the application flow.
-                \li \uicontrol {Qt Quick File} generates a QML type with one
-                    of the following basic types or \l{Using Positioners}
-                    {positioners} as the root item: \l {basic-item}{Item},
+                \li \uicontrol {Flow Item} and \uicontrol {Flow View}
+                    generate components that you can use to design the
+                    \l{Designing Application Flows}{application flow}.
+                \li \uicontrol {Qt Quick File} generates a component with one
+                    of the following default components or \l{Using Positioners}
+                    {positioners} as the root component: \l {basic-item}{Item},
                     \l {basic-rectangle}{Rectangle}, \l {Images}{Image},
                     \l {Border Image}, \l Flickable, Row, Column, Flow, or Grid.
-                \li \uicontrol {Qt Quick UI File} generates a UI form with one
-                    of the above types as the root item.
+                \li \uicontrol {Qt Quick UI File} generates a component file
+                    with one of the above components as the root component.
                 \li \uicontrol {Qt Quick Views} generates a Grid View or a
                     List View. For more information, see \l{List and Grid Views}.
 

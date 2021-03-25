@@ -16,7 +16,7 @@
 
 using namespace KSyntaxHighlighting;
 
-bool KeywordList::contains(const QStringView &str, Qt::CaseSensitivity caseSensitive) const
+bool KeywordList::contains(QStringView str, Qt::CaseSensitivity caseSensitive) const
 {
     /**
      * get right vector to search in
@@ -26,7 +26,7 @@ bool KeywordList::contains(const QStringView &str, Qt::CaseSensitivity caseSensi
     /**
      * search with right predicate
      */
-    return std::binary_search(vectorToSearch.begin(), vectorToSearch.end(), QStringView(str), [caseSensitive](const QStringView &a, const QStringView &b) {
+    return std::binary_search(vectorToSearch.begin(), vectorToSearch.end(), QStringView(str), [caseSensitive](QStringView a, QStringView b) {
         return a.compare(b, caseSensitive) < 0;
     });
 }
@@ -92,7 +92,7 @@ void KeywordList::initLookupForCaseSensitivity(Qt::CaseSensitivity caseSensitive
     /**
      * sort with right predicate
      */
-    std::sort(vectorToSort.begin(), vectorToSort.end(), [caseSensitive](const QStringView &a, const QStringView &b) {
+    std::sort(vectorToSort.begin(), vectorToSort.end(), [caseSensitive](QStringView a, QStringView b) {
         return a.compare(b, caseSensitive) < 0;
     });
 }

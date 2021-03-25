@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Design Studio.
@@ -32,8 +32,15 @@
 
     \title Using Custom Shaders
 
-    You can use the Qt Quick 3D shader utilities and commands to create your own
-    effects and materials.
+    You can use the 3D shader utilities and commands available in \l Library
+    > \uicontrol Components > \uicontrol QtQuick3D > \uicontrol
+    {Custom Shader Utils} to create your own effects and materials.
+
+    \image studio-qtquick-3d-shader-utilities.png
+
+    If the custom shader utilities are not displayed in \uicontrol Library, you
+    should add the \uicontrol QtQuick3D module to your project, as described in
+    \l {Adding and Removing Modules}.
 
     For more information on using the shaders, see
     \l {Creating Custom Effects and Materials}.

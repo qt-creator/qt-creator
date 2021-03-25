@@ -119,7 +119,7 @@
     \image qmldesigner-form-editor-move-cursor.png "Move cursor in Form Editor view"
 
     For more information about alternative ways of positioning components in
-    UIs, see \l{Positioning Items}.
+    UIs, see \l{Positioning Components}.
 
     \section1 Resizing 2D Components
 
@@ -193,7 +193,7 @@
     \image qmldesigner-snap-margins.png "Snapping lines on canvas"
 
     For alternative ways of aligning and distributing components by using the
-    \l Properties view, see \l{Aligning and Distributing Items}.
+    \l Properties view, see \l{Aligning and Distributing Components}.
 
     \section1 Hiding Component Boundaries
 

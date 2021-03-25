@@ -110,14 +110,14 @@ void ItemLibraryImport::expandCategories(bool expand)
     m_categoryModel.expandCategories(expand);
 }
 
-bool ItemLibraryImport::updateCategoryVisibility(const QString &searchText, bool *changed, bool expand)
+bool ItemLibraryImport::updateCategoryVisibility(const QString &searchText, bool *changed)
 {
     bool hasVisibleCategories = false;
     *changed = false;
 
     for (const auto &category : m_categoryModel.categorySections()) {
         bool categoryChanged = false;
-        bool hasVisibleItems = category->updateItemVisibility(searchText, &categoryChanged, expand);
+        bool hasVisibleItems = category->updateItemVisibility(searchText, &categoryChanged);
         categoryChanged |= category->setVisible(hasVisibleItems);
 
         *changed |= categoryChanged;

@@ -90,7 +90,7 @@ public:
 
     Q_INVOKABLE void startDragAndDrop(const QVariant &itemLibEntry, const QPointF &mousePos);
     Q_INVOKABLE void removeImport(const QString &importUrl);
-    Q_INVOKABLE void addImportForItem(const QVariant &entry);
+    Q_INVOKABLE void addImportForItem(const QString &importUrl);
     Q_INVOKABLE void handleTabChanged(int index);
     Q_INVOKABLE void handleAddModule();
     Q_INVOKABLE void handleAddAsset();

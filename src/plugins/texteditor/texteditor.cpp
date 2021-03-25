@@ -7762,7 +7762,6 @@ void TextEditorWidget::insertFromMimeData(const QMimeData *source)
             const int anchor = cursor.position();
             cursor.insertText(text);
             const int pos = cursor.position();
-            cursor.endEditBlock();
             cursor.setPosition(anchor);
             cursor.setPosition(pos, QTextCursor::KeepAnchor);
         } else {

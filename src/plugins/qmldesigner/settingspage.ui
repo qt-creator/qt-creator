@@ -430,13 +430,6 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QCheckBox" name="openQmlprojectInQDSCheckBox">
-        <property name="text">
-         <string>Open &quot;Qt Quick Prototype&quot; projects (.qmlproject) in Qt Design Studio</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>

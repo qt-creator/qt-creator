@@ -245,6 +245,7 @@ public:
 
 class FileApiParser
 {
+    Q_DECLARE_TR_FUNCTIONS(FileApiParser)
 public:
     static FileApiData parseData(const QFileInfo &replyFileInfo, const QString& cmakeBuildType,
                                  QString &errorMessage);

@@ -49,7 +49,6 @@
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsfindexportedcpptypes.h>
 #include <qmljs/qmljsplugindumper.h>
-#include <qtsupport/qmldumptool.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <texteditor/textdocument.h>
@@ -128,14 +127,10 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
     Kit *activeKit = activeTarget ? activeTarget->kit() : KitManager::defaultKit();
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(activeKit);
 
-    bool preferDebugDump = false;
-    bool setPreferDump = false;
     projectInfo.tryQmlDump = false;
 
     if (activeTarget) {
         if (BuildConfiguration *bc = activeTarget->activeBuildConfiguration()) {
-            preferDebugDump = bc->buildType() == BuildConfiguration::Debug;
-            setPreferDump = true;
             // Append QML2_IMPORT_PATH if it is defined in build configuration.
             // It enables qmlplugindump to correctly dump custom plugins or other dependent
             // plugins that are not installed in default Qt qml installation directory.
@@ -149,8 +144,6 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
             projectInfo.applicationDirectories.append(target.targetFilePath.parentDir().toString());
         }
     }
-    if (!setPreferDump && qtVersion)
-        preferDebugDump = (qtVersion->defaultBuildConfig() & QtSupport::BaseQtVersion::DebugBuild);
     if (qtVersion && qtVersion->isValid()) {
         projectInfo.tryQmlDump = project && qtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT);
         projectInfo.qtQmlPath = qtVersion->qmlPath().toFileInfo().canonicalFilePath();
@@ -160,16 +153,13 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
         projectInfo.qtVersionString = QLatin1String(qVersion());
     }
 
-    if (projectInfo.tryQmlDump) {
-        QtSupport::QmlDumpTool::pathAndEnvironment(activeKit,
-                                                   preferDebugDump, &projectInfo.qmlDumpPath,
-                                                   &projectInfo.qmlDumpEnvironment);
-        projectInfo.qmlDumpHasRelocatableFlag = qtVersion->hasQmlDumpWithRelocatableFlag();
-    } else {
-        projectInfo.qmlDumpPath.clear();
-        projectInfo.qmlDumpEnvironment.clear();
-        projectInfo.qmlDumpHasRelocatableFlag = true;
+    projectInfo.qmlDumpPath.clear();
+    const QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(activeKit);
+    if (version && projectInfo.tryQmlDump) {
+        projectInfo.qmlDumpPath = version->qmlplugindumpCommand();
+        projectInfo.qmlDumpHasRelocatableFlag = version->hasQmlDumpWithRelocatableFlag();
     }
+
     setupProjectInfoQmlBundles(projectInfo);
     return projectInfo;
 }

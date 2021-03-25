@@ -76,6 +76,8 @@ public:
 
     Utils::FilePath canonicalProjectDir() const;
     QString mainFile() const;
+    Utils::FilePath mainFilePath() const;
+
     bool qtForMCUs() const;
     void setMainFile(const QString &mainFilePath);
     Utils::FilePath targetDirectory() const;
@@ -90,6 +92,7 @@ public:
 
     void refreshProjectFile();
 
+    static Utils::FilePath activeMainFilePath();
     static QStringList makeAbsolute(const Utils::FilePath &path, const QStringList &relativePaths);
 
     void generateProjectTree();

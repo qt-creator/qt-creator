@@ -477,46 +477,46 @@
     \row
         \li M220
         \li Error
-        \li This type (type name) is not supported as a root element of a Qt
-            Quick UI form.
+        \li This type (type name) is not supported as a root element of a
+            UI file (.ui.qml).
         \li
 
     \row
         \li M221
         \li Error
-        \li This type (type name) is not supported in a Qt Quick UI form.
+        \li This type (type name) is not supported in a UI file (.ui.qml).
         \li
 
     \row
         \li M222
         \li Error
-        \li Functions are not supported in a Qt Quick UI form.
+        \li Functions are not supported in a UI file (.ui.qml).
         \li For a list of supported JavaScript functions, see
             \l{Supported Methods}.
 
     \row
         \li M223
         \li Error
-        \li Java Script blocks are not supported in a Qt Quick UI form.
+        \li Java Script blocks are not supported in a UI file (.ui.qml).
         \li
 
     \row
         \li M224
         \li Error
-        \li Behavior type is not supported in a Qt Quick UI form.
+        \li Behavior type is not supported in a UI file (.ui.qml).
         \li
 
     \row
         \li M225
         \li Error
-        \li States are only supported in the root item in a Qt Quick UI form.
+        \li States are only supported in the root item in a UI file (.ui.qml).
         \li
 
     \row
         \li M226
         \li Error
-        \li Referencing the parent of the root item is not supported in a Qt
-            Quick UI form.
+        \li Referencing the parent of the root item is not supported in a
+            UI file (.ui.qml).
         \li
 
     \row

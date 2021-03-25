@@ -51,6 +51,7 @@ public:
     Import getImportAt(int index) const;
 
     void setPriorityImports(const QSet<QString> &priorityImports);
+    Import getImport(const QString &importUrl) const;
 
 private:
     QString m_searchText;

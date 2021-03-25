@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Design Studio.
@@ -30,16 +30,24 @@
     \previouspage studio-3d-node.html
     \nextpage studio-3d-materials.html
 
-    \title Adding Models
+    \title Adding 3D Models
+
+    \QDS \l Library features some built-in primitive 3D models. This allows you
+    to add cubes, cones, cylinders, and planes (rectangles) to your scene.
+
+    \image studio-3d-models.png
 
     A Model component loads mesh data from a file. You can modify how the
-    component is shaded by adding materials to the model.
+    component is shaded by adding \l{Using 3D Materials}{materials} to the model.
 
-    A model can load static meshes from storage or one of the built-in primitive
-    types: cube, cone, cylinder, plane (rectangle) or sphere. You can drag and
-    drop a model from the \uicontrol Library to a 3D scene.
+    You can drag-and-drop a model from \uicontrol Library > \uicontrol Components
+    > \uicontrol QtQuick3D > \uicontrol {Qt Quick 3D} to \l {3D Editor} or to
+    \l Navigator > \uicontrol {Scene Environment} > \uicontrol Scene. If the
+    models are not displayed in \uicontrol Library, you should add the
+    \uicontrol QtQuick3D module to your project, as described in
+    \l {Adding and Removing Modules}.
 
-    \image studio-qtquick-3d-components.png "Library view QML Types tab Qt Quick 3D section"
+    \image studio-qtquick-3d-components.png "The Qt Quick 3D section in Library"
 
     You can change the model type in the \uicontrol Source field in the
     \uicontrol Properties view. Select the \inlineimage plus.png

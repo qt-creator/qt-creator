@@ -53,10 +53,13 @@ public:
     void setPackageManagerAutoSetup(bool checked) { m_packageManagerAutoSetup = checked; }
     bool packageManagerAutoSetup() const { return m_packageManagerAutoSetup; }
 
+    bool askBeforeReConfigureInitialParams() const { return m_askBeforeReConfigureInitialParams; }
+    void setAskBeforeReConfigureInitialParams(bool doAsk) { m_askBeforeReConfigureInitialParams = doAsk; }
 private:
     AfterAddFileAction m_afterAddFileToProjectSetting;
     Utils::FilePath m_ninjaPath;
     bool m_packageManagerAutoSetup = true;
+    bool m_askBeforeReConfigureInitialParams = true;
 };
 
 }

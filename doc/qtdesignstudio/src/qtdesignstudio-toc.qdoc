@@ -88,7 +88,7 @@
                         \li \l{Importing 3D Assets}
                     \endlist
                 \li \l{Converting UI Projects to Applications}
-                \li \l{Exporting QML}
+                \li \l{Exporting Components}
             \endlist
         \li \l{Creating UIs}
             \list
@@ -107,10 +107,10 @@
                     \li \l{Creating Scalable Buttons and Borders}
                 \endlist
                 \li \l{Specifying Component Properties}
-                \li \l{Positioning Items}
+                \li \l{Positioning Components}
                 \li \l{Using Custom Fonts}
                 \li \l{Annotating Designs}
-                \li \l{Qt Quick UI Forms}
+                \li \l{UI Files}
            \endlist
        \li \l {Adding Dynamics}
             \list
@@ -128,12 +128,11 @@
             \endlist
         \li \l{Editing 3D Scenes}
                 \list
-                    \li \l{Editing 3D Assets in Design Mode}
                     \li \l{Adding 3D Views}
                     \li \l{Using 3D Components}
                     \list
                        \li \l{Setting Group Properties}
-                       \li \l{Adding Models}
+                       \li \l{Adding 3D Models}
                        \li \l{Using Materials and Shaders}
                        \li \l{Attaching Textures to Materials}
                        \li \l{Using 3D Materials}

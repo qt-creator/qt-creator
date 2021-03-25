@@ -27,7 +27,7 @@
     \page studio-3d.html
     \previouspage quick-states.html
     \if defined(qtdesignstudio)
-    \nextpage studio-3d-design-mode.html
+    \nextpage studio-3d-view.html
     \else
     \nextpage exporting-3d-assets.html
     \endif
@@ -44,9 +44,9 @@
     When you import 3D scenes from files that you exported from 3D graphics
     tools, you also import the camera, light, model, and materials as 3D
     components. If your scene did not contain them, you can add predefined
-    Qt Quick 3D components to it and edit their properties to fit your needs.
+    3D components to it and edit their properties to fit your needs.
 
-    The following topics contain information about working with Qt Quick 3D:
+    The following topics contain information about editing 3D scenes:
 
     \list
         \if defined (qtcreator)
@@ -62,12 +62,6 @@
             applications and stored in one of the supported file formats.
             You can then edit them in the Design mode.
         \endif
-
-        \li \l {Editing 3D Assets in Design Mode}
-
-            \QDS opens QML files that contain 3D scenes in the Design mode and
-            the scenes in \uicontrol {3D Editor}. You can add imported 3D assets
-            to projects as 3D components.
         \li \l{Adding 3D Views}
 
             You can drag and drop 3D components from \uicontrol Library
@@ -78,4 +72,9 @@
             You can speficy properties for 3D components, such as cameras,
             lights, materials, and shaders, in the \uicontrol Properties view.
      \endlist
+
+    For more information, watch the following video:
+
+    \youtube w1yhDl93YI0
+
 */

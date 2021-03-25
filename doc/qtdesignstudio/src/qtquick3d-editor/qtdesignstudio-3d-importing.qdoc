@@ -30,7 +30,7 @@
     \nextpage quick-converting-ui-projects.html
     \else
     \previouspage exporting-from-maya.html
-    \nextpage studio-3d-design-mode.html
+    \nextpage studio-3d-editor.html
     \endif
 
     \title Importing 3D Assets

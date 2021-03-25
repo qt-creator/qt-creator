@@ -53,10 +53,10 @@ public:
     }
 
     /** Checks if @p str is a keyword in this list. */
-    bool contains(const QStringView &str) const { return contains(str, m_caseSensitive); }
+    bool contains(QStringView str) const { return contains(str, m_caseSensitive); }
 
     /** Checks if @p str is a keyword in this list, overriding the global case-sensitivity setting. */
-    bool contains(const QStringView &str, Qt::CaseSensitivity caseSensitive) const;
+    bool contains(QStringView str, Qt::CaseSensitivity caseSensitive) const;
 
     void load(QXmlStreamReader &reader);
     void setCaseSensitivity(Qt::CaseSensitivity caseSensitive);

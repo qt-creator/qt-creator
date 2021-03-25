@@ -36,16 +36,16 @@
     You will need the following files:
 
     \list
-        \li Qt Quick file that will specify the API of the UI
+        \li Component file (.qml) that will specify the API of the UI
         \li JavaScript file that generates mock data for the UI.
             For more information about using JavaScript, see
             \l{Integrating QML and JavaScript}.
-        \li Module definition file (\e qmldir) that declares the QML type
-            you specify in the Qt Quick file. For more information, see
+        \li Module definition file (\e qmldir) that declares the component
+            (QML type) you specify in the UI file. For more information, see
             \l {Module Definition qmldir Files}.
     \endlist
 
-    Here, you will create a QML type based on the QObject class that will
+    Here, you will create a component based on the QObject class that will
     be registered as a singleton type. This enables the use of global
     property values in the UI.
 

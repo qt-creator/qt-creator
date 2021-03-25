@@ -765,7 +765,7 @@ void DefinitionData::loadSpellchecking(QXmlStreamReader &reader)
     }
 }
 
-bool DefinitionData::checkKateVersion(const QStringView &verStr)
+bool DefinitionData::checkKateVersion(QStringView verStr)
 {
     const auto idx = verStr.indexOf(QLatin1Char('.'));
     if (idx <= 0) {

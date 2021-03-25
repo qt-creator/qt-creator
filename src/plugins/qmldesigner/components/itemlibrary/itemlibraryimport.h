@@ -70,7 +70,7 @@ public:
 
     void addCategory(ItemLibraryCategory *category);
     QObject *categoryModel();
-    bool updateCategoryVisibility(const QString &searchText, bool *changed, bool expand = false);
+    bool updateCategoryVisibility(const QString &searchText, bool *changed);
     bool setVisible(bool isVisible);
     void setImportUsed(bool importUsed);
     void sortCategorySections();

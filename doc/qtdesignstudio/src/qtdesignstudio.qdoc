@@ -59,14 +59,14 @@
                     \li \l{Using Git}
                     \li \l{Importing Designs}
                     \li \l{Converting UI Projects to Applications}
-                    \li \l{Exporting QML}
+                    \li \l{Exporting Components}
                 \endlist
             \li \b {\l{Creating UIs}}
                 \list
                     \li \l{Designing Application Flows}
                     \li \l{Creating Components}
                     \li \l{Specifying Component Properties}
-                    \li \l{Positioning Items}
+                    \li \l{Positioning Components}
                     \li \l{Annotating Designs}
                 \endlist
         \li \b {\l{Adding Dynamics}}
@@ -83,7 +83,6 @@
         \row
             \li \b {\l{Editing 3D Scenes}}
                 \list
-                    \li \l{Editing 3D Assets in Design Mode}
                     \li \l{3D Editor}
                     \li \l{Adding 3D Views}
                     \li \l{Using 3D Components}

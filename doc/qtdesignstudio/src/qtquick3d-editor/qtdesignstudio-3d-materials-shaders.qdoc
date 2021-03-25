@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Design Studio.
@@ -220,11 +220,11 @@
 
     \section1 Applying Materials to Models
 
-    To apply materials to models:
+    To apply materials to \l {Adding 3D Models}{models}:
 
     \list 1
-        \li Drag and drop a material component from the \uicontrol Library to a
-            Model component in the \uicontrol Navigator.
+        \li Drag and drop a material component from \l Library to a model
+            component in \l Navigator.
         \li Select the Model component.
         \li In the \uicontrol Properties view, select the material for the model
             in the \uicontrol Materials list.

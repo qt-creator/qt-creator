@@ -1430,7 +1430,7 @@ class DumperBase():
             intSize = 4
             ptrSize = self.ptrSize()
             if self.qtVersion() >= 0x060000:
-                # Size of QObjectData: 7 pointer + 2 int
+                # Size of QObjectData: 9 pointer + 2 int
                 #   - vtable
                 #   - QObject *q_ptr;
                 #   - QObject *parent;
@@ -1438,7 +1438,8 @@ class DumperBase():
                 #   - uint isWidget : 1; etc...
                 #   - int postedEvents;
                 #   - QDynamicMetaObjectData *metaObject;
-                extra = self.extractPointer(dd + 7 * ptrSize + 2 * intSize)
+                #   - QBindingStorage bindingStorage;
+                extra = self.extractPointer(dd + 9 * ptrSize + 2 * intSize)
                 if extra == 0:
                     return False
 
@@ -1780,7 +1781,10 @@ class DumperBase():
 
     def metaString(self, metaObjectPtr, index, revision):
         ptrSize = self.ptrSize()
-        stringdata = self.extractPointer(toInteger(metaObjectPtr) + ptrSize)
+        stringdataOffset = ptrSize
+        if self.isWindowsTarget():
+            stringdataOffset += ptrSize # indirect super data member
+        stringdata = self.extractPointer(toInteger(metaObjectPtr) + stringdataOffset)
 
         def unpackString(base, size):
             try:
@@ -1891,7 +1895,13 @@ class DumperBase():
         extraData = 0
         if qobjectPtr:
             dd = self.extractPointer(qobjectPtr + ptrSize)
-            if self.qtVersion() >= 0x50000:
+            if self.qtVersion() >= 0x60000:
+                (dvtablePtr, qptr, parent, children, bindingStorageData, bindingStatus,
+                    flags, postedEvents, dynMetaObjectPtr, # Up to here QObjectData.
+                    extraData, threadDataPtr, connectionListsPtr,
+                    sendersPtr, currentSenderPtr) \
+                    = self.split('pp{@QObject*}{@QList<@QObject *>}ppIIp' + 'ppppp', dd)
+            elif self.qtVersion() >= 0x50000:
                 (dvtablePtr, qptr, parent, children, flags, postedEvents,
                     dynMetaObjectPtr,  # Up to here QObjectData.
                     extraData, threadDataPtr, connectionListsPtr,

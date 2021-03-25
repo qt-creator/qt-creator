@@ -252,7 +252,7 @@
     \section1 Importing Metadata & Assets
 
     \QBPS can import metadata generated from other tools and generate a Photoshop document. A
-    conventional workflow would be to generate metadata and assets by \l {Exporting QML} {exporting}
+    conventional workflow would be to generate metadata and assets by \l {Exporting Components} {exporting}
     a QML project from \QDS and use \QBPS to generate a Photoshop document.
 
     Imported text and the assets are organized into Artboards, layers, and groups.

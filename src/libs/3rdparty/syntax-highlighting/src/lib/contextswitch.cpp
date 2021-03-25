@@ -27,7 +27,7 @@ Context *ContextSwitch::context() const
     return m_context;
 }
 
-void ContextSwitch::parse(const QStringView &contextInstr)
+void ContextSwitch::parse(QStringView contextInstr)
 {
     if (contextInstr.isEmpty() || contextInstr == QLatin1String("#stay"))
         return;

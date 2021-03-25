@@ -141,6 +141,15 @@ void ItemLibraryAddImportModel::update(const QList<Import> &possibleImports)
     endResetModel();
 }
 
+Import ItemLibraryAddImportModel::getImport(const QString &importUrl) const
+{
+    for (const Import &import : std::as_const(m_importList))
+        if (import.url() == importUrl)
+            return import;
+
+    return {};
+}
+
 void ItemLibraryAddImportModel::setSearchText(const QString &searchText)
 {
     QString lowerSearchText = searchText.toLower();

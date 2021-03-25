@@ -972,7 +972,7 @@ private:
                 continue;
             }
 
-            auto pushGraphs = [&](int offset, const GraphLine *endline, const QStringView &style) {
+            auto pushGraphs = [&](int offset, const GraphLine *endline, QStringView style) {
                 for (GraphLine *pline = m_regionGraph.data(); pline <= endline; ++pline) {
                     // a label can hide a graph
                     if (pline->graphLineLength <= offset) {
@@ -1156,14 +1156,18 @@ void AnsiHighlighter::setOutputFile(const QString &fileName)
         return;
     }
     d->out.setDevice(&d->file);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     d->out.setCodec("UTF-8");
+#endif
 }
 
 void AnsiHighlighter::setOutputFile(FILE *fileHandle)
 {
     d->file.open(fileHandle, QIODevice::WriteOnly);
     d->out.setDevice(&d->file);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     d->out.setCodec("UTF-8");
+#endif
 }
 
 void AnsiHighlighter::highlightFile(const QString &fileName, AnsiFormat format, bool useEditorBackground, TraceOptions traceOptions)
@@ -1287,7 +1291,9 @@ void AnsiHighlighter::highlightData(QIODevice *dev, AnsiFormat format, bool useE
     }
 
     QTextStream in(dev);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     in.setCodec("UTF-8");
+#endif
 
     if (!traceOptions) {
         State state;
