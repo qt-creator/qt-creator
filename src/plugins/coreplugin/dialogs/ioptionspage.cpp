@@ -31,8 +31,8 @@
 #include <coreplugin/icore.h>
 
 #include <utils/aspects.h>
-#include <utils/stringutils.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QCheckBox>
 #include <QGroupBox>
@@ -42,6 +42,8 @@
 #include <QRegularExpression>
 
 using namespace Utils;
+
+namespace Core {
 
 /*!
     \class Core::IOptionsPageProvider
@@ -97,7 +99,7 @@ using namespace Utils;
     Returns the category icon of the options page. This icon is displayed in the list on the left
     side of the \uicontrol Options dialog.
 */
-QIcon Core::IOptionsPage::categoryIcon() const
+QIcon IOptionsPage::categoryIcon() const
 {
     return m_categoryIcon.icon();
 }
@@ -106,7 +108,7 @@ QIcon Core::IOptionsPage::categoryIcon() const
     Sets the \a widgetCreator callback to create page widgets on demand. The
     widget will be destroyed on finish().
  */
-void Core::IOptionsPage::setWidgetCreator(const WidgetCreator &widgetCreator)
+void IOptionsPage::setWidgetCreator(const WidgetCreator &widgetCreator)
 {
     m_widgetCreator = widgetCreator;
 }
@@ -122,7 +124,7 @@ void Core::IOptionsPage::setWidgetCreator(const WidgetCreator &widgetCreator)
     Either override this function in a derived class, or set a widget creator.
 */
 
-QWidget *Core::IOptionsPage::widget()
+QWidget *IOptionsPage::widget()
 {
     if (!m_widget) {
         if (m_widgetCreator) {
@@ -146,14 +148,14 @@ QWidget *Core::IOptionsPage::widget()
     \sa setWidgetCreator()
 */
 
-void Core::IOptionsPage::apply()
+void IOptionsPage::apply()
 {
     if (auto widget = qobject_cast<IOptionsPageWidget *>(m_widget)) {
         widget->apply();
     } else if (m_settings) {
         if (m_settings->isDirty()) {
             m_settings->apply();
-            m_settings->writeSettings(Core::ICore::settings());
+            m_settings->writeSettings(ICore::settings());
          }
     }
 }
@@ -167,7 +169,7 @@ void Core::IOptionsPage::apply()
     \sa setWidgetCreator()
 */
 
-void Core::IOptionsPage::finish()
+void IOptionsPage::finish()
 {
     if (auto widget = qobject_cast<IOptionsPageWidget *>(m_widget))
         widget->finish();
@@ -181,17 +183,17 @@ void Core::IOptionsPage::finish()
     Sets \a categoryIconPath as the path to the category icon of the options
     page.
 */
-void Core::IOptionsPage::setCategoryIconPath(const QString &categoryIconPath)
+void IOptionsPage::setCategoryIconPath(const QString &categoryIconPath)
 {
     m_categoryIcon = Icon({{categoryIconPath, Theme::PanelTextColorDark}}, Icon::Tint);
 }
 
-void Core::IOptionsPage::setSettings(AspectContainer *settings)
+void IOptionsPage::setSettings(AspectContainer *settings)
 {
     m_settings = settings;
 }
 
-void Core::IOptionsPage::setLayouter(const std::function<void(QWidget *w)> &layouter)
+void IOptionsPage::setLayouter(const std::function<void(QWidget *w)> &layouter)
 {
     m_layouter = layouter;
 }
@@ -226,13 +228,13 @@ void Core::IOptionsPage::setLayouter(const std::function<void(QWidget *w)> &layo
     Sets \a categoryIcon as the category icon of the options page.
 */
 
-static QList<Core::IOptionsPage *> g_optionsPages;
+static QList<IOptionsPage *> g_optionsPages;
 
 /*!
     Constructs an options page with the given \a parent and registers it
     at the global options page pool if \a registerGlobally is \c true.
 */
-Core::IOptionsPage::IOptionsPage(QObject *parent, bool registerGlobally)
+IOptionsPage::IOptionsPage(QObject *parent, bool registerGlobally)
     : QObject(parent)
 {
     if (registerGlobally)
@@ -242,7 +244,7 @@ Core::IOptionsPage::IOptionsPage(QObject *parent, bool registerGlobally)
 /*!
     \internal
  */
-Core::IOptionsPage::~IOptionsPage()
+IOptionsPage::~IOptionsPage()
 {
     g_optionsPages.removeOne(this);
 }
@@ -250,7 +252,7 @@ Core::IOptionsPage::~IOptionsPage()
 /*!
     Returns a list of all options pages.
  */
-const QList<Core::IOptionsPage *> Core::IOptionsPage::allOptionsPages()
+const QList<IOptionsPage *> IOptionsPage::allOptionsPages()
 {
     return g_optionsPages;
 }
@@ -260,7 +262,7 @@ const QList<Core::IOptionsPage *> Core::IOptionsPage::allOptionsPages()
     page. This defaults to take the widget and then looks for all child labels, check boxes, push
     buttons, and group boxes. Should return \c true when a match is found.
 */
-bool Core::IOptionsPage::matches(const QRegularExpression &regexp) const
+bool IOptionsPage::matches(const QRegularExpression &regexp) const
 {
     if (!m_keywordsInitialized) {
         auto that = const_cast<IOptionsPage *>(this);
@@ -285,25 +287,27 @@ bool Core::IOptionsPage::matches(const QRegularExpression &regexp) const
     return false;
 }
 
-static QList<Core::IOptionsPageProvider *> g_optionsPagesProviders;
+static QList<IOptionsPageProvider *> g_optionsPagesProviders;
 
-Core::IOptionsPageProvider::IOptionsPageProvider(QObject *parent)
+IOptionsPageProvider::IOptionsPageProvider(QObject *parent)
     : QObject(parent)
 {
     g_optionsPagesProviders.append(this);
 }
 
-Core::IOptionsPageProvider::~IOptionsPageProvider()
+IOptionsPageProvider::~IOptionsPageProvider()
 {
     g_optionsPagesProviders.removeOne(this);
 }
 
-const QList<Core::IOptionsPageProvider *> Core::IOptionsPageProvider::allOptionsPagesProviders()
+const QList<IOptionsPageProvider *> IOptionsPageProvider::allOptionsPagesProviders()
 {
     return g_optionsPagesProviders;
 }
 
-QIcon Core::IOptionsPageProvider::categoryIcon() const
+QIcon IOptionsPageProvider::categoryIcon() const
 {
     return m_categoryIcon.icon();
 }
+
+} // Core
