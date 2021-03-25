@@ -371,115 +371,93 @@ public:
         setCategory(SETTINGS_CATEGORY);
         setDisplayCategory(Tr::tr("FakeVim"));
         setCategoryIconPath(":/fakevim/images/settingscategory_fakevim.png");
+        setLayouter([this](QWidget *widget) { return layoutPage(widget); });
+        setSettings(fakeVimSettings());
     }
 
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
 private:
+    void layoutPage(QWidget *);
     void copyTextEditorSettings();
     void setQtStyle();
     void setPlainStyle();
     void updateVimRcWidgets();
-
-    QPointer<QWidget> m_widget;
 };
 
-QWidget *FakeVimOptionPage::widget()
+void FakeVimOptionPage::layoutPage(QWidget *widget)
 {
-    if (!m_widget) {
-        m_widget = new QWidget;
+    auto copyTextEditorSettings = new QPushButton(Tr::tr("Copy Text Editor Settings"));
+    auto setQtStyle = new QPushButton(Tr::tr("Set Qt Style"));
+    auto setPlainStyle = new QPushButton(Tr::tr("Set Plain Style"));
 
-        auto copyTextEditorSettings = new QPushButton(tr("Copy Text Editor Settings"));
-        auto setQtStyle = new QPushButton(tr("Set Qt Style"));
-        auto setPlainStyle = new QPushButton(tr("Set Plain Style"));
+    using namespace Layouting;
+    FakeVimSettings &s = *fakeVimSettings();
 
-        using namespace Layouting;
-        FakeVimSettings &s = *fakeVimSettings();
-
-        Row bools {
-            Column {
-                s.autoIndent,
-                s.smartIndent,
-                s.expandTab,
-                s.smartTab,
-                s.hlSearch,
-                s.showCmd,
-                s.startOfLine,
-                s.passKeys,
-                s.blinkingCursor
-            },
-            Column {
-                s.incSearch,
-                s.useCoreSearch,
-                s.ignoreCase,
-                s.smartCase,
-                s.wrapScan,
-                s.showMarks,
-                s.passControlKey,
-                s.relativeNumber,
-                s.tildeOp
-            }
-        };
-
-        Row ints { s.shiftWidth, s.tabStop, s.scrollOff, Stretch() };
-
-        Column strings {
-            s.backspace,
-            s.isKeyword,
-            Row {s.readVimRc, s.vimRcPath}
-        };
-
+    Row bools {
         Column {
-            s.useFakeVim,
+            s.autoIndent,
+            s.smartIndent,
+            s.expandTab,
+            s.smartTab,
+            s.hlSearch,
+            s.showCmd,
+            s.startOfLine,
+            s.passKeys,
+            s.blinkingCursor
+        },
+        Column {
+            s.incSearch,
+            s.useCoreSearch,
+            s.ignoreCase,
+            s.smartCase,
+            s.wrapScan,
+            s.showMarks,
+            s.passControlKey,
+            s.relativeNumber,
+            s.tildeOp
+        }
+    };
 
-            Group {
-                Title(tr("Vim Behavior")),
-                bools,
-                ints,
-                strings
-            },
+    Row ints { s.shiftWidth, s.tabStop, s.scrollOff, Stretch() };
 
-            Group {
-                Title(tr("Plugin Emulation")),
-                s.emulateVimCommentary,
-                s.emulateReplaceWithRegister,
-                s.emulateArgTextObj,
-                s.emulateExchange,
-                s.emulateSurround
-            },
+    Column strings {
+        s.backspace,
+        s.isKeyword,
+        Row {s.readVimRc, s.vimRcPath}
+    };
 
-            Row { copyTextEditorSettings, setQtStyle, setPlainStyle, Stretch() },
-            Stretch()
+    Column {
+        s.useFakeVim,
 
-        }.attachTo(m_widget, true);
+        Group {
+            Title(Tr::tr("Vim Behavior")),
+            bools,
+            ints,
+            strings
+        },
 
-        connect(copyTextEditorSettings, &QAbstractButton::clicked,
-                this, &FakeVimOptionPage::copyTextEditorSettings);
-        connect(setQtStyle, &QAbstractButton::clicked,
-                this, &FakeVimOptionPage::setQtStyle);
-        connect(setPlainStyle, &QAbstractButton::clicked,
-                this, &FakeVimOptionPage::setPlainStyle);
-        connect(&s.readVimRc, &FvBaseAspect::changed,
-                this, &FakeVimOptionPage::updateVimRcWidgets);
-        updateVimRcWidgets();
-    }
-    return m_widget;
-}
+        Group {
+            Title(Tr::tr("Plugin Emulation")),
+            s.emulateVimCommentary,
+            s.emulateReplaceWithRegister,
+            s.emulateArgTextObj,
+            s.emulateExchange,
+            s.emulateSurround
+        },
 
-void FakeVimOptionPage::apply()
-{
-    FakeVimSettings &s = *fakeVimSettings();
-    s.apply();
-    s.writeSettings(ICore::settings());
-}
+        Row { copyTextEditorSettings, setQtStyle, setPlainStyle, Stretch() },
+        Stretch()
 
-void FakeVimOptionPage::finish()
-{
-    FakeVimSettings &s = *fakeVimSettings();
-    s.cancel();
-    delete m_widget;
+    }.attachTo(widget, true);
+
+    connect(copyTextEditorSettings, &QAbstractButton::clicked,
+            this, &FakeVimOptionPage::copyTextEditorSettings);
+    connect(setQtStyle, &QAbstractButton::clicked,
+            this, &FakeVimOptionPage::setQtStyle);
+    connect(setPlainStyle, &QAbstractButton::clicked,
+            this, &FakeVimOptionPage::setPlainStyle);
+    connect(&s.readVimRc, &FvBaseAspect::changed,
+            this, &FakeVimOptionPage::updateVimRcWidgets);
+    updateVimRcWidgets();
 }
 
 void FakeVimOptionPage::copyTextEditorSettings()
