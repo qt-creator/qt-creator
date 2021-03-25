@@ -25,38 +25,34 @@
 
 #pragma once
 
-#include <QObject>
+#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/aspects.h>
 
 namespace TextEditor { class SimpleCodeStylePreferences; }
 
 namespace Nim {
 
-class NimSettings : public QObject
+class NimSettings : public QObject, public Utils::AspectContainer
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(Nim::NimSettings)
 
 public:
-    NimSettings(QObject *parent = nullptr);
-    ~NimSettings() override;
+    NimSettings();
+    ~NimSettings();
 
-    QString nimSuggestPath() const;
-    void setNimSuggestPath(const QString &path);
-
-    void save();
+    Utils::StringAspect nimSuggestPath;
 
     static TextEditor::SimpleCodeStylePreferences *globalCodeStyle();
-
-signals:
-    void nimSuggestPathChanged(QString path);
 
 private:
     void InitializeCodeStyleSettings();
     void TerminateCodeStyleSettings();
+};
 
-    void InitializeNimSuggestSettings();
-    void TerminateNimSuggestSettings();
-
-    QString m_nimSuggestPath;
+class NimToolsSettingsPage final : public Core::IOptionsPage
+{
+public:
+    explicit NimToolsSettingsPage(NimSettings *settings);
 };
 
 } // namespace Nim

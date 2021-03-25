@@ -28,8 +28,6 @@ add_qtc_plugin(Nim
     settings/nimcodestylepreferenceswidget.cpp settings/nimcodestylepreferenceswidget.h settings/nimcodestylepreferenceswidget.ui
     settings/nimcodestylesettingspage.cpp settings/nimcodestylesettingspage.h
     settings/nimsettings.cpp settings/nimsettings.h
-    settings/nimtoolssettingspage.cpp settings/nimtoolssettingspage.h
-    settings/nimtoolssettingswidget.ui
     suggest/client.cpp suggest/client.h
     suggest/clientrequests.cpp suggest/clientrequests.h
     suggest/nimsuggest.cpp suggest/nimsuggest.h

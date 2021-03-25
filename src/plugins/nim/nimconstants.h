@@ -106,9 +106,5 @@ const char C_NIM_SCRIPT_MIMETYPE[] = "text/x-nim-script";
 const char C_NIM_MIME_ICON[] = "text-x-nim";
 const char C_NIM_PROJECT_MIMETYPE[] = "text/x-nim-project";
 
-const char C_NIM_SETTINGS_GROUP[] = "Nim";
-const char C_NIM_SETTINGS_NIMSUGGEST_GROUP[] = "NimSuggest";
-const char C_NIM_SETTINGS_COMMAND[] = "Command";
-
 }
 }

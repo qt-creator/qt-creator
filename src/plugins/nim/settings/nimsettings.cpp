@@ -28,53 +28,42 @@
 
 #include "../nimconstants.h"
 
-#include <texteditor/icodestylepreferencesfactory.h>
-#include <texteditor/texteditorsettings.h>
-#include <texteditor/codestylepool.h>
-#include <texteditor/simplecodestylepreferences.h>
-#include <texteditor/tabsettings.h>
 #include <coreplugin/icore.h>
 
+#include <texteditor/codestylepool.h>
+#include <texteditor/icodestylepreferencesfactory.h>
+#include <texteditor/simplecodestylepreferences.h>
+#include <texteditor/tabsettings.h>
+#include <texteditor/texteditorsettings.h>
+
+#include <utils/layoutbuilder.h>
+
 using namespace TextEditor;
+using namespace Utils;
 
 namespace Nim {
 
 static SimpleCodeStylePreferences *m_globalCodeStyle = nullptr;
 
-NimSettings::NimSettings(QObject *parent)
-    : QObject(parent)
+NimSettings::NimSettings()
 {
+    setAutoApply(false);
+    setSettingsGroups("Nim", "NimSuggest");
+
     InitializeCodeStyleSettings();
-    InitializeNimSuggestSettings();
+
+    registerAspect(&nimSuggestPath);
+    nimSuggestPath.setSettingsKey("Command");
+    nimSuggestPath.setDisplayStyle(StringAspect::PathChooserDisplay);
+    nimSuggestPath.setExpectedKind(PathChooser::ExistingCommand);
+    nimSuggestPath.setLabelText(tr("Path:"));
+
+    readSettings(Core::ICore::settings());
 }
 
 NimSettings::~NimSettings()
 {
     TerminateCodeStyleSettings();
-}
-
-QString NimSettings::nimSuggestPath() const
-{
-    return m_nimSuggestPath;
-}
-
-void NimSettings::setNimSuggestPath(const QString &path)
-{
-    if (m_nimSuggestPath == path)
-        return;
-    m_nimSuggestPath = path;
-    emit nimSuggestPathChanged(path);
-}
-
-void NimSettings::save()
-{
-    QSettings *s = Core::ICore::settings();
-    s->beginGroup(Constants::C_NIM_SETTINGS_GROUP);
-    s->beginGroup(Constants::C_NIM_SETTINGS_NIMSUGGEST_GROUP);
-    s->setValue(QString::fromStdString(Constants::C_NIM_SETTINGS_COMMAND), nimSuggestPath());
-    s->endGroup();
-    s->endGroup();
-    s->sync();
 }
 
 SimpleCodeStylePreferences *NimSettings::globalCodeStyle()
@@ -127,17 +116,6 @@ void NimSettings::InitializeCodeStyleSettings()
                                                       Nim::Constants::C_NIMLANGUAGE_ID);
 }
 
-void NimSettings::InitializeNimSuggestSettings()
-{
-    QSettings *s = Core::ICore::settings();
-    s->beginGroup(Constants::C_NIM_SETTINGS_GROUP);
-    s->beginGroup(Constants::C_NIM_SETTINGS_NIMSUGGEST_GROUP);
-    setNimSuggestPath(s->value(QString::fromStdString(Constants::C_NIM_SETTINGS_COMMAND),
-                               QString()).toString());
-    s->endGroup();
-    s->endGroup();
-}
-
 void NimSettings::TerminateCodeStyleSettings()
 {
     TextEditorSettings::unregisterCodeStyle(Nim::Constants::C_NIMLANGUAGE_ID);
@@ -146,6 +124,30 @@ void NimSettings::TerminateCodeStyleSettings()
 
     delete m_globalCodeStyle;
     m_globalCodeStyle = nullptr;
+}
+
+
+// NimToolSettingsPage
+
+NimToolsSettingsPage::NimToolsSettingsPage(NimSettings *settings)
+{
+    setId(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_ID);
+    setDisplayName(NimSettings::tr(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_DISPLAY));
+    setCategory(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_CATEGORY);
+    setDisplayCategory(NimSettings::tr("Nim"));
+    setCategoryIconPath(":/nim/images/settingscategory_nim.png");
+    setSettings(settings);
+
+    setLayouter([settings](QWidget *widget) {
+        using namespace Layouting;
+        Column {
+            Group {
+                Title("Nimsuggest"),
+                settings->nimSuggestPath
+            },
+            Stretch()
+        }.attachTo(widget);
+     });
 }
 
 } // namespace Nim

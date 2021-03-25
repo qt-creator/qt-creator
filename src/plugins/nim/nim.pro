@@ -35,7 +35,6 @@ HEADERS += \
     settings/nimcodestylepreferencesfactory.h \
     settings/nimsettings.h \
     settings/nimcodestylepreferenceswidget.h \
-    settings/nimtoolssettingspage.h \
     project/nimtoolchain.h \
     project/nimtoolchainfactory.h \
     suggest/client.h \
@@ -71,7 +70,6 @@ SOURCES += \
     settings/nimcodestylepreferencesfactory.cpp \
     settings/nimsettings.cpp \
     settings/nimcodestylepreferenceswidget.cpp \
-    settings/nimtoolssettingspage.cpp \
     project/nimtoolchain.cpp \
     project/nimtoolchainfactory.cpp \
     suggest/client.cpp \
@@ -81,5 +79,4 @@ SOURCES += \
     suggest/server.cpp
 
 FORMS += \
-    settings/nimcodestylepreferenceswidget.ui \
-    settings/nimtoolssettingswidget.ui
+    settings/nimcodestylepreferenceswidget.ui

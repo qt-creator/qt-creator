@@ -41,7 +41,6 @@
 #include "project/nimbletaskstep.h"
 #include "settings/nimcodestylepreferencesfactory.h"
 #include "settings/nimcodestylesettingspage.h"
-#include "settings/nimtoolssettingspage.h"
 #include "settings/nimsettings.h"
 #include "suggest/nimsuggestcache.h"
 
@@ -61,10 +60,9 @@ class NimPluginPrivate
 {
 public:
     NimPluginPrivate()
-        : toolsSettingsPage(&settings)
     {
-        Suggest::NimSuggestCache::instance().setExecutablePath(settings.nimSuggestPath());
-        QObject::connect(&settings, &NimSettings::nimSuggestPathChanged,
+        Suggest::NimSuggestCache::instance().setExecutablePath(settings.nimSuggestPath.value());
+        QObject::connect(&settings.nimSuggestPath, &StringAspect::valueChanged,
                          &Suggest::NimSuggestCache::instance(),
                          &Suggest::NimSuggestCache::setExecutablePath);
     }
@@ -96,7 +94,7 @@ public:
     NimCompilerBuildStepFactory buildStepFactory;
     NimCompilerCleanStepFactory cleanStepFactory;
     NimCodeStyleSettingsPage codeStyleSettingsPage;
-    NimToolsSettingsPage toolsSettingsPage;
+    NimToolsSettingsPage toolsSettingsPage{&settings};
     NimCodeStylePreferencesFactory codeStylePreferencesPage;
     NimToolChainFactory toolChainFactory;
 };
