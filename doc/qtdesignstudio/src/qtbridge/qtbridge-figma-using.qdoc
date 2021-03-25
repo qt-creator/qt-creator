@@ -57,6 +57,11 @@
             as assets. If you use functional \QDS components in Figma, you will
             find it easier to merge new iterations of the design to \QDS and
             continue to build the screens there.
+        \li If your Figma components contain nested components, Figma allows
+            you to hot swap the nested instance inside the component instance.
+            However, \QBF doesn't support this so you get the original
+            component instead. If you want to make further changes to a
+            component, detach component instances from it before exporting it.
         \li Use descriptive and unique IDs to avoid duplicate IDs after
             exporting designs and importing them to \QDS.
     \endlist
