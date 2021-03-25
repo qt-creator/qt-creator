@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Design Studio.
@@ -33,12 +33,15 @@
     \title Using 3D Materials
 
     \QDS provides a set of pregenerated Qt Quick 3D materials that can be used
-    to create good-looking models quickly and easily.
+    to create good-looking \l {Adding 3D Models}{models} quickly and easily.
 
-    To apply a 3D material to a component, drag-and-drop a material from the
-    \uicontrol {Qt Quick 3D Materials} tab of \uicontrol Library to a model
-    component in \uicontrol Navigator. The materials you add to the model are
-    listed in the model component's \uicontrol Properties view.
+    To apply a 3D material to a component, drag-and-drop a material from
+    \l Library > \uicontrol Components > \uicontrol QtQuick3D >
+    \uicontrol {Qt Quick 3D Materials} to a model component in \l Navigator.
+    The materials you add to the model are listed in the model component's
+    \l Properties view. If the 3D materials are not displayed in \l Library,
+    you should add the \uicontrol QtQuick3D.Materials module to your project, as
+    described in \l {Adding and Removing Modules}.
 
     Each material has its own set of properties that can be used to further
     define the appearance of the material. For each material the \uicontrol

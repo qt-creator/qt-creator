@@ -80,7 +80,6 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::SIMPLE_COLOR_PALETTE_CONTENT, QStringList());
     restoreValue(settings, DesignerSettingsKey::ALWAYS_DESIGN_MODE, true);
     restoreValue(settings, DesignerSettingsKey::DISABLE_ITEM_LIBRARY_UPDATE_TIMER, true);
-    restoreValue(settings, DesignerSettingsKey::OPEN_QMLPROJECT_IN_QDS, false);
 
     settings->endGroup();
     settings->endGroup();

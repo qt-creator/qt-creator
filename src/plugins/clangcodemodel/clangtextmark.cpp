@@ -237,7 +237,7 @@ ClangTextMark::ClangTextMark(const FilePath &fileName,
     QVector<QAction *> actions;
     QAction *action = new QAction();
     action->setIcon(QIcon::fromTheme("edit-copy", Icons::COPY.icon()));
-    action->setToolTip(tr("Copy to Clipboard"));
+    action->setToolTip(QApplication::translate("Clang Code Model Marks", "Copy to Clipboard"));
     QObject::connect(action, &QAction::triggered, [diagnostic]() {
         const QString text = ClangDiagnosticWidget::createText({diagnostic},
                                                                ClangDiagnosticWidget::InfoBar);
@@ -250,7 +250,8 @@ ClangTextMark::ClangTextMark(const FilePath &fileName,
     if (project && isDiagnosticConfigChangable(project, diagnostic)) {
         action = new QAction();
         action->setIcon(Icons::BROKEN.icon());
-        action->setToolTip(tr("Disable Diagnostic in Current Project"));
+        action->setToolTip(QApplication::translate("Clang Code Model Marks",
+                                                   "Disable Diagnostic in Current Project"));
         QObject::connect(action, &QAction::triggered, [diagnostic]() {
             disableDiagnosticInCurrentProjectConfig(diagnostic);
         });

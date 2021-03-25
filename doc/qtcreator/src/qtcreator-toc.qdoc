@@ -117,11 +117,11 @@
                             \li \l{Creating Scalable Buttons and Borders}
                         \endlist
                         \li \l{Specifying Component Properties}
-                        \li \l{Positioning Items}
+                        \li \l{Positioning Components}
                         \li \l{Using Custom Fonts}
                         \li \l{Annotating Designs}
                         \li \l{Loading Placeholder Data}
-                        \li \l{Qt Quick UI Forms}
+                        \li \l{UI Files}
                    \endlist
                 \li \l {Adding Dynamics}
                     \list
@@ -146,12 +146,11 @@
                                     \li \l{Exporting from Maya}{Maya}
                                 \endlist
                             \li \l{Importing 3D Assets}
-                            \li \l{Editing 3D Assets in Design Mode}
                             \li \l{Adding 3D Views}
                             \li \l{Using 3D Components}
                             \list
                                 \li \l{Setting Group Properties}
-                                \li \l{Adding Models}
+                                \li \l{Adding 3D Models}
                                 \li \l{Using Materials and Shaders}
                                 \li \l{Attaching Textures to Materials}
                                 \li \l{Using 3D Materials}
@@ -166,7 +165,7 @@
                 \li \l {Browsing ISO 7000 Icons}
                 \li \l {Using QML Modules with Plugins}
                 \li \l {Converting UI Projects to Applications}
-                \li \l {Exporting QML}
+                \li \l {Exporting Components}
             \endlist
             \li \l{Developing Widget Based Applications}
             \list

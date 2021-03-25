@@ -1,7 +1,7 @@
 # This Python file uses the following encoding: utf-8
-import sys
 import os
-
+from pathlib import Path
+import sys
 
 @if '%{BaseCB}' === 'QWidget'
 from %{PySideVersion}.QtWidgets import QApplication, QWidget
@@ -27,11 +27,12 @@ class %{Class}:
 
     def load_ui(self):
         loader = QUiLoader()
-        path = os.path.join(os.path.dirname(__file__), "form.ui")
+        path = os.fspath(Path(__file__).resolve().parent / "form.ui")
         ui_file = QFile(path)
         ui_file.open(QFile.ReadOnly)
         loader.load(ui_file, self)
         ui_file.close()
+
 
 if __name__ == "__main__":
     app = QApplication([])

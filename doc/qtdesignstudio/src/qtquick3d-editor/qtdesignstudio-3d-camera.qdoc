@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Design Studio.
@@ -35,9 +35,20 @@
     A camera is always necessary to view the content of a 3D scene. A camera
     defines how to project the content of a 3D scene into a 2D coordinate space,
     which can then be used on a 2D surface. When a camera is present in the
-    scene, it can be used to direct what is displayed in a 3D view.
+    scene, it can be used to direct what is displayed in a \l {Adding 3D Views}
+    {3D view}.
 
-    You can use the following 3D QML types to determine camera projection:
+     \image studio-qtquick-3d-components.png "Qt Quick 3D components in Library"
+
+    You can add a camera to your scene by dragging-and-dropping one from
+    \l Library > \uicontrol Components > \uicontrol QtQuick3D > \uicontrol
+    {Qt Quick 3D} to \l {3D Editor} or to a 3D view in \l Navigator.
+    If the cameras are not displayed in \uicontrol Library, you should add the
+    \uicontrol QtQuick3D module to your project, as described in
+    \l {Adding and Removing Modules}.
+
+    You can use the following components in your scenes to determine camera
+    projection:
 
     \list
         \li \l{PerspectiveCamera}{Camera Perspective} - is the standard camera
@@ -60,7 +71,7 @@
     You can position the camera in the scene and set the direction it is facing.
     The default direction of the camera is such that the forward vector is
     looking up the +z axis, and the up direction vector is up the +y axis. You
-    can apply transforms to the camera and its parent types to define
+    can apply transforms to the camera and its parent components to define
     exactly where your camera is located and in which direction it is facing.
 
     The second part of determining the projection of the camera is defining the
@@ -68,6 +79,8 @@
     scene are visible, as well as how they are visible.
 
     You can edit the camera properties in the \uicontrol Properties view.
+
+   \image studio-qtquick-camera-properties "Properties view for Perspective Camera"
 
     \section1 Setting Camera Field of View
 

@@ -25,7 +25,6 @@
 
 #include "baseqtversion.h"
 #include "qtconfigwidget.h"
-#include "qmldumptool.h"
 #include "qtkitinformation.h"
 
 #include "qtversionfactory.h"
@@ -48,6 +47,7 @@
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/algorithm.h>
+#include <utils/buildablehelperlibrary.h>
 #include <utils/displayname.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/hostosinfo.h>
@@ -110,6 +110,7 @@ public:
     Utils::FilePath prefix;
 
     Utils::FilePath binPath;
+    Utils::FilePath libExecPath;
     Utils::FilePath configurationPath;
     Utils::FilePath dataPath;
     Utils::FilePath demosPath;
@@ -124,6 +125,7 @@ public:
     Utils::FilePath translationsPath;
 
     Utils::FilePath hostBinPath;
+    Utils::FilePath hostLibexecPath;
     Utils::FilePath hostDataPath;
     Utils::FilePath hostPrefixPath;
 
@@ -211,7 +213,6 @@ public:
     QtVersionData m_data;
 
     bool m_isUpdating = false;
-    bool m_hasQmlDump = false;         // controlled by m_versionInfoUpToDate
     bool m_mkspecUpToDate = false;
     bool m_mkspecReadUpToDate = false;
     bool m_defaultConfigIsDebug = true;
@@ -238,6 +239,7 @@ public:
     QString m_linguistCommand;
     QString m_qscxmlcCommand;
     QString m_qmlsceneCommand;
+    QString m_qmlplugindumpCommand;
 
     MacroExpanderWrapper m_expander;
 };
@@ -558,6 +560,11 @@ FilePath BaseQtVersion::binPath() const // QT_INSTALL_BINS
     return d->m_data.binPath;
 }
 
+FilePath BaseQtVersion::libExecPath() const // QT_INSTALL_LIBEXECS
+{
+    d->updateVersionInfo();
+    return d->m_data.libExecPath;
+}
 FilePath BaseQtVersion::configurationPath() const // QT_INSTALL_CONFIGURATION
 {
     d->updateVersionInfo();
@@ -618,6 +625,12 @@ FilePath BaseQtVersion::hostBinPath() const // QT_HOST_BINS
     return d->m_data.hostBinPath;
 }
 
+FilePath BaseQtVersion::hostLibexecPath() const // QT_HOST_LIBEXECS
+{
+    d->updateVersionInfo();
+    return d->m_data.hostLibexecPath;
+}
+
 FilePath BaseQtVersion::hostDataPath() const // QT_HOST_DATA
 {
     d->updateVersionInfo();
@@ -637,12 +650,6 @@ FilePath BaseQtVersion::mkspecsPath() const
         return FilePath::fromUserInput(BaseQtVersionPrivate::qmakeProperty(
                                            d->m_versionInfo, "QMAKE_MKSPECS"));
     return result.pathAppended("mkspecs");
-}
-
-FilePath BaseQtVersion::qmlBinPath() const
-{
-    d->updateVersionInfo();
-    return FilePath::fromUserInput(d->m_mkspecValues.value("QT.qml.bins"));
 }
 
 FilePath BaseQtVersion::librarySearchPath() const
@@ -1000,14 +1007,28 @@ QString BaseQtVersion::qmlsceneCommand() const
     if (!d->m_qmlsceneCommand.isNull())
         return d->m_qmlsceneCommand;
 
-    ensureMkSpecParsed();
-
-    const QString path =
-        qmlBinPath().pathAppended(HostOsInfo::withExecutableSuffix("qmlscene")).toString();
+    const QString path
+        = binPath().pathAppended(HostOsInfo::withExecutableSuffix("qmlscene")).toString();
 
     d->m_qmlsceneCommand = QFileInfo(path).isFile() ? path : QString();
 
     return d->m_qmlsceneCommand;
+}
+
+QString BaseQtVersion::qmlplugindumpCommand() const
+{
+    if (!isValid())
+        return QString();
+
+    if (!d->m_qmlplugindumpCommand.isNull())
+        return d->m_qmlplugindumpCommand;
+
+    const QString path
+        = binPath().pathAppended(HostOsInfo::withExecutableSuffix("qmlplugindump")).toString();
+
+    d->m_qmlplugindumpCommand = QFileInfo(path).isFile() ? path : QString();
+
+    return d->m_qmlplugindumpCommand;
 }
 
 QString BaseQtVersionPrivate::findHostBinary(HostBinaries binary) const
@@ -1165,12 +1186,8 @@ void BaseQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
         else if (value == "qt_framework")
             d->m_frameworkBuild = true;
     }
-    const QString qmlBins = "QT.qml.bins";
-    const QString declarativeBins = "QT.declarative.bins";
     const QString libinfix = MKSPEC_VALUE_LIBINFIX;
     const QString ns = MKSPEC_VALUE_NAMESPACE;
-    d->m_mkspecValues.insert(qmlBins, evaluator->value(qmlBins));
-    d->m_mkspecValues.insert(declarativeBins, evaluator->value(declarativeBins));
     d->m_mkspecValues.insert(libinfix, evaluator->value(libinfix));
     d->m_mkspecValues.insert(ns, evaluator->value(ns));
 }
@@ -1261,7 +1278,6 @@ void BaseQtVersionPrivate::updateVersionInfo()
     m_data.installed = true;
     m_data.hasExamples = false;
     m_data.hasDocumentation = false;
-    m_hasQmlDump = false;
 
     if (!queryQMakeVariables(m_qmakeCommand, q->qmakeRunEnvironment(), &m_versionInfo)) {
         m_qmakeIsExecutable = false;
@@ -1274,6 +1290,7 @@ void BaseQtVersionPrivate::updateVersionInfo()
     m_data.prefix = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_PREFIX"));
 
     m_data.binPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_BINS"));
+    m_data.libExecPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_LIBEXECS"));
     m_data.configurationPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_CONFIGURATION"));
     m_data.dataPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_DATA"));
     m_data.demosPath = FilePath::fromString(
@@ -1289,19 +1306,11 @@ void BaseQtVersionPrivate::updateVersionInfo()
     m_data.translationsPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_TRANSLATIONS"));
 
     m_data.hostBinPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_BINS"));
+    m_data.hostLibexecPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_LIBEXECS"));
     m_data.hostDataPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_DATA"));
     m_data.hostPrefixPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_PREFIX"));
 
-    const QString qtInstallBins = q->binPath().toString();
     const QString qtHeaderData = q->headerPath().toString();
-
-    if (!qtInstallBins.isNull()) {
-        if (!qtInstallBins.isEmpty()) {
-            m_hasQmlDump
-                    = !QmlDumpTool::toolForQtPaths(qtInstallBins, false).isEmpty()
-                    || !QmlDumpTool::toolForQtPaths(qtInstallBins, true).isEmpty();
-        }
-    }
 
     // Now check for a qt that is configured with a prefix but not installed
     QString installDir = q->hostBinPath().toString();
@@ -1476,6 +1485,13 @@ BaseQtVersion::createMacroExpander(const std::function<const BaseQtVersion *()> 
                                    return version->hostPrefixPath().toString();
                                }));
 
+    expander->registerVariable("Qt:QT_HOST_LIBEXECS",
+                               QtKitAspect::tr("The installation location of the current Qt "
+                                               "version's internal host executable files."),
+                               versionProperty([](const BaseQtVersion *version) {
+                                   return version->hostLibexecPath().toString();
+                               }));
+
     expander->registerVariable(
         "Qt:QT_INSTALL_HEADERS",
         QtKitAspect::tr("The installation location of the current Qt version's header files."),
@@ -1499,6 +1515,13 @@ BaseQtVersion::createMacroExpander(const std::function<const BaseQtVersion *()> 
         "Qt:QT_INSTALL_BINS",
         QtKitAspect::tr("The installation location of the current Qt version's executable files."),
         versionProperty([](const BaseQtVersion *version) { return version->binPath().toString(); }));
+
+    expander->registerVariable(
+        "Qt:QT_INSTALL_LIBEXECS",
+        QtKitAspect::tr(
+            "The installation location of the current Qt version's internal executable files."),
+        versionProperty(
+            [](const BaseQtVersion *version) { return version->libExecPath().toString(); }));
 
     expander
         ->registerVariable("Qt:QT_INSTALL_PLUGINS",
@@ -1676,27 +1699,10 @@ Environment BaseQtVersion::qmakeRunEnvironment() const
     return Environment::systemEnvironment();
 }
 
-bool BaseQtVersion::hasQmlDump() const
-{
-    d->updateVersionInfo();
-    return d->m_hasQmlDump;
-}
-
 bool BaseQtVersion::hasQmlDumpWithRelocatableFlag() const
 {
     return ((qtVersion() > QtVersionNumber(4, 8, 4) && qtVersion() < QtVersionNumber(5, 0, 0))
             || qtVersion() >= QtVersionNumber(5, 1, 0));
-}
-
-bool BaseQtVersion::needsQmlDump() const
-{
-    return qtVersion() < QtVersionNumber(4, 8, 0);
-}
-
-QString BaseQtVersion::qmlDumpTool(bool debugVersion) const
-{
-    const QString qtInstallBins = binPath().toString();
-    return QmlDumpTool::toolForQtPaths(qtInstallBins, debugVersion);
 }
 
 Tasks BaseQtVersion::reportIssuesImpl(const QString &proFile, const QString &buildDir) const

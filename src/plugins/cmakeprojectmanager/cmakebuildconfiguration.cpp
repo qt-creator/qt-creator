@@ -38,8 +38,10 @@
 
 #include <android/androidconstants.h>
 #include <ios/iosconstants.h>
+#include <webassembly/webassemblyconstants.h>
 
 #include <coreplugin/find/itemviewfind.h>
+#include <coreplugin/icore.h>
 
 #include <projectexplorer/buildaspects.h>
 #include <projectexplorer/buildinfo.h>
@@ -58,6 +60,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/categorysortfiltermodel.h>
+#include <utils/checkablemessagebox.h>
 #include <utils/detailswidget.h>
 #include <utils/headerviewstretcher.h>
 #include <utils/infolabel.h>
@@ -94,11 +97,15 @@ static Q_LOGGING_CATEGORY(cmakeBuildConfigurationLog, "qtc.cmake.bc", QtWarningM
 const char CONFIGURATION_KEY[] = "CMake.Configuration";
 const char DEVELOPMENT_TEAM_FLAG[] = "Ios:DevelopmentTeam:Flag";
 const char PROVISIONING_PROFILE_FLAG[] = "Ios:ProvisioningProfile:Flag";
+const char CMAKE_QT6_TOOLCHAIN_FILE_ARG[] =
+        "-DCMAKE_TOOLCHAIN_FILE:PATH=%{Qt:QT_INSTALL_PREFIX}/lib/cmake/Qt6/qt.toolchain.cmake";
 
 namespace Internal {
 
 class CMakeBuildSettingsWidget : public NamedWidget
 {
+    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeBuildSettingsWidget)
+
 public:
     CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc);
 
@@ -176,6 +183,34 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     auto buildDirAspect = bc->buildDirectoryAspect();
     connect(buildDirAspect, &BaseAspect::changed, this, [this]() {
         m_configModel->flush(); // clear out config cache...;
+    });
+
+    auto clearCMakeConfiguration = new QPushButton(tr("Re-configure with Initial Parameters"));
+    connect(clearCMakeConfiguration, &QPushButton::clicked, this, [bc]() {
+        auto *settings = CMakeProjectPlugin::projectTypeSpecificSettings();
+        bool doNotAsk{!settings->askBeforeReConfigureInitialParams()};
+        if (!doNotAsk) {
+            QDialogButtonBox::StandardButton reply = Utils::CheckableMessageBox::question(
+                nullptr,
+                tr("Re-configure with Initial Parameters"),
+                tr("Clear CMake configuration and configure with initial parameters?"),
+                tr("Do not ask again"),
+                &doNotAsk,
+                QDialogButtonBox::Yes | QDialogButtonBox::No,
+                QDialogButtonBox::Yes);
+
+            settings->setAskBeforeReConfigureInitialParams(!doNotAsk);
+            settings->toSettings(Core::ICore::settings());
+
+            if (reply != QDialogButtonBox::Yes) {
+                return;
+            }
+        }
+
+        auto cbc = static_cast<CMakeBuildSystem*>(bc->buildSystem());
+        cbc->clearCMakeCache();
+        if (ProjectExplorerPlugin::saveModifiedFiles())
+            cbc->runCMake();
     });
 
     auto buildTypeAspect = bc->aspect<BuildTypeAspect>();
@@ -309,6 +344,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             buildDirAspect,
             bc->aspect<InitialCMakeArgumentsAspect>(),
             bc->aspect<BuildTypeAspect>(),
+            QString(), clearCMakeConfiguration,
             qmlDebugAspect
         },
         Space(10),
@@ -427,7 +463,11 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             this, &CMakeBuildSettingsWidget::updateFromKit);
     connect(m_buildConfiguration, &CMakeBuildConfiguration::enabledChanged,
             this, [this]() {
-        setError(m_buildConfiguration->disabledReason());
+        if (m_buildConfiguration->isEnabled())
+            setError(QString());
+
+        m_batchEditButton->setEnabled(m_buildConfiguration->isEnabled());
+        m_addButton->setEnabled(m_buildConfiguration->isEnabled());
     });
 
     updateSelection();
@@ -744,6 +784,11 @@ static bool isIos(const Kit *k)
            || deviceType == Ios::Constants::IOS_SIMULATOR_TYPE;
 }
 
+static bool isWebAssembly(const Kit *k)
+{
+    return DeviceTypeKitAspect::deviceTypeId(k) == WebAssembly::Constants::WEBASSEMBLY_DEVICE_TYPE;
+}
+
 static QStringList defaultInitialCMakeArguments(const Kit *k, const QString buildType)
 {
     // Generator:
@@ -909,13 +954,18 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                 const QString sysroot = deviceType == Ios::Constants::IOS_DEVICE_TYPE
                                             ? QLatin1String("iphoneos")
                                             : QLatin1String("iphonesimulator");
-                initialArgs.append("-DCMAKE_TOOLCHAIN_FILE:PATH=%{Qt:QT_INSTALL_PREFIX}/lib/cmake/"
-                                   "Qt6/qt.toolchain.cmake");
+                initialArgs.append(CMAKE_QT6_TOOLCHAIN_FILE_ARG);
                 initialArgs.append("-DCMAKE_OSX_ARCHITECTURES:STRING=" + architecture);
                 initialArgs.append("-DCMAKE_OSX_SYSROOT:STRING=" + sysroot);
                 initialArgs.append("%{" + QLatin1String(DEVELOPMENT_TEAM_FLAG) + "}");
                 initialArgs.append("%{" + QLatin1String(PROVISIONING_PROFILE_FLAG) + "}");
             }
+        }
+
+        if (isWebAssembly(k)) {
+            const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
+            if (qt && qt->qtVersion().majorVersion >= 6)
+                initialArgs.append(CMAKE_QT6_TOOLCHAIN_FILE_ARG);
         }
 
         if (info.buildDirectory.isEmpty()) {

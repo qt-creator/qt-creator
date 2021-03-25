@@ -30,13 +30,19 @@
 
     \title Setting Group Properties
 
-    The \uicontrol Group component is a \uicontrol Node type that can be used to
-    wrap other objects for the purpose of grouping them. This allows you to
-    transform and set the opacity and visibility of multiple 3D components in
-    the \uicontrol Properties view simultaneously. To add a \uicontrol Group
-    component to your scene, drag-and-drop it from \uicontrol Library >
-    \uicontrol {QML Types} > \uicontrol {Qt Quick 3D} to the \uicontrol
-    {3D Editor} view or to a \uicontrol Scene component in \uicontrol Navigator.
+    The \uicontrol Group component is a \uicontrol Node component that can be
+    used to wrap other objects for the purpose of grouping them. This allows you
+    to transform and set the opacity and visibility of multiple 3D components in
+    the \l Properties view simultaneously. To add a \uicontrol Group component
+    to your scene, drag-and-drop it from \l Library > \uicontrol Components >
+    \uicontrol {QtQuick3D} > \uicontrol {Qt Quick 3D} to the \l {3D Editor} view
+    or to a \uicontrol Scene component in \l Navigator. If the \uicontrol Group
+    component is not displayed in\uicontrol Library, you should add the
+    \uicontrol QtQuick3D module to your project, as described in
+    \l {Adding and Removing Modules}.
+
+    Select the \uicontrol Group component in \uicontrol Navigator to modify its
+    properties in the \l Properties view.
 
     \section1 Setting Node Opacity and Visibility
 
@@ -84,6 +90,6 @@
     around a point other than its local origin. Pivot values are applied before
     scaling and rotation values.
 
-    A line is drawn in the 3D editor from the pivot point to the center of the
-    component to provide a visual connection between them.
+    A line is drawn in \uicontrol {3D Editor} from the pivot point to the center
+    of the component to provide a visual connection between them.
 */

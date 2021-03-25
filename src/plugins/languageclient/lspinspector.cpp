@@ -235,7 +235,7 @@ LspLogWidget::LspLogWidget()
 
     m_clientDetails = new MessageDetailWidget;
     m_clientDetails->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-    m_clientDetails->setTitle(tr("Client Message"));
+    m_clientDetails->setTitle(LspInspector::tr("Client Message"));
     addWidget(m_clientDetails);
     setStretchFactor(0, 1);
 
@@ -243,7 +243,7 @@ LspLogWidget::LspLogWidget()
     m_messages = new QListView;
     m_messages->setModel(&m_model);
     m_messages->setAlternatingRowColors(true);
-    m_model.setHeader({tr("Messages")});
+    m_model.setHeader({LspInspector::tr("Messages")});
     m_messages->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
     m_messages->setSelectionMode(QAbstractItemView::MultiSelection);
     addWidget(m_messages);
@@ -251,7 +251,7 @@ LspLogWidget::LspLogWidget()
 
     m_serverDetails = new MessageDetailWidget;
     m_serverDetails->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-    m_serverDetails->setTitle(tr("Server Message"));
+    m_serverDetails->setTitle(LspInspector::tr("Server Message"));
     addWidget(m_serverDetails);
     setStretchFactor(2, 1);
 
@@ -341,7 +341,7 @@ void LspLogWidget::saveLog()
         stream << "\n\n";
     });
 
-    const QString fileName = QFileDialog::getSaveFileName(this, tr("Log File"));
+    const QString fileName = QFileDialog::getSaveFileName(this, LspInspector::tr("Log File"));
     if (fileName.isEmpty())
         return;
     Utils::FileSaver saver(fileName, QIODevice::Text);

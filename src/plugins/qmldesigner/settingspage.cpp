@@ -178,8 +178,6 @@ DesignerSettings SettingsPageWidget::settings() const
                     m_ui.featureTimelineEditorCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::ALWAYS_DESIGN_MODE,
                     m_ui.designerAlwaysDesignModeCheckBox->isChecked());
-    settings.insert(DesignerSettingsKey::OPEN_QMLPROJECT_IN_QDS,
-                    m_ui.openQmlprojectInQDSCheckBox->isChecked());
 
     return settings;
 }
@@ -249,13 +247,10 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
         DesignerSettingsKey::ALWAYS_DESIGN_MODE).toBool());
     m_ui.featureTimelineEditorCheckBox->setChecked(settings.value(
         DesignerSettingsKey::ENABLE_TIMELINEVIEW).toBool());
-    m_ui.openQmlprojectInQDSCheckBox->setChecked(settings.value(
-        DesignerSettingsKey::OPEN_QMLPROJECT_IN_QDS).toBool());
 
     if (settings.value(DesignerSettingsKey::STANDALONE_MODE).toBool()) {
         m_ui.debugGroupBox->hide();
         m_ui.featureTimelineEditorCheckBox->hide();
-        m_ui.openQmlprojectInQDSCheckBox->hide();
     }
 }
 

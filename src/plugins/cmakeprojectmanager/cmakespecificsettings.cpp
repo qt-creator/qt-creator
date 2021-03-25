@@ -33,6 +33,7 @@ static const char SETTINGS_KEY[] = "CMakeSpecificSettings";
 static const char AFTER_ADD_FILE_ACTION_KEY[] = "ProjectPopupSetting";
 static const char NINJA_PATH[] = "NinjaPath";
 static const char PACKAGE_MANAGER_AUTO_SETUP[] = "PackageManagerAutoSetup";
+static const char ASK_RECONFIGURE_INITIAL_PARAMS[] = "AskReConfigureInitialParams";
 }
 
 void CMakeSpecificSettings::fromSettings(QSettings *settings)
@@ -53,6 +54,7 @@ void CMakeSpecificSettings::toSettings(QSettings *settings) const
     settings->beginGroup(QString(SETTINGS_KEY));
     settings->setValue(QString(AFTER_ADD_FILE_ACTION_KEY), static_cast<int>(m_afterAddFileToProjectSetting));
     settings->setValue(QString(PACKAGE_MANAGER_AUTO_SETUP), m_packageManagerAutoSetup);
+    settings->setValue(QString(ASK_RECONFIGURE_INITIAL_PARAMS), m_askBeforeReConfigureInitialParams);
     settings->endGroup();
 }
 }

@@ -94,6 +94,8 @@ Projects
 * Added `Open Terminal Here` for project nodes (QTCREATORBUG-25107)
 * Added option for running application as root user (QTCREATORBUG-2831,
   QTCREATORBUG-25330)
+* Fixed detection of Designer, Linguist, `qmlscene` and `qmlplugindump` for Qt 6
+  cross-builds
 
 ### qmake
 
@@ -109,6 +111,7 @@ Projects
 * Added automatic run of conan install on initial CMake call
   (QTCREATORBUG-25362)
 * Added batch editing for CMake configuration
+* Added `Re-configure with Initial Parameters` button
 * Made it possible to copy CMake variables from configuration
   (QTCREATORBUG-24781)
 * Removed utility targets from CMake target locator filters (QTCREATORBUG-24718)
@@ -192,6 +195,7 @@ Platforms
 ### iOS
 
 * Added support for CMake projects with Qt 6 (QTCREATORBUG-23574)
+* Fixed launch of applications on iOS 14 (QTCREATORBUG-24672)
 * Fixed `Attach to Running Application` for long executable paths
   (QTCREATORBUG-25286)
 
@@ -203,6 +207,7 @@ Platforms
 ### MCU
 
 * Added error reporting when creating MCU kits fails (QTCREATORBUG-25258)
+* Improved detection of Ultralight library (QTCREATORBUG-25469)
 * Fixed that examples were missing from `Welcome` screen (QTCREATORBUG-25320)
 
 ### WASM
@@ -210,7 +215,59 @@ Platforms
 * Improved handling of Emscripten detection and setup (QTCREATORBUG-23126,
   QTCREATORBUG-23160, QTCREATORBUG-23561, QTCREATORBUG-23741,
   QTCREATORBUG-24814, QTCREATORBUG-24822)
+* Added support for Qt 6 applications with CMake (QTCREATORBUG-25519)
 * Fixed ABI detection for Qt 5.15 (QTCREATORBUG-24891)
 
 Credits for these changes go to:
 --------------------------------
+Aleksei German  
+Alessandro Portale  
+Alexandru Croitor  
+Alexis Jeandet  
+Andre Hartmann  
+André Pönitz  
+Bernhard Beschow  
+Björn Schäpers  
+BogDan Vatra  
+Christiaan Janssen  
+Christian Kandeler  
+Christian Stenger  
+Cristian Adam  
+David Schulz  
+Dawid Śliwa  
+Denis Shienkov  
+Dmitriy Purgin  
+Eike Ziller  
+Erik Verbruggen  
+Fabio Falsini  
+Fawzi Mohamed  
+Friedemann Kleint  
+Henning Gruendl  
+Jacopo Martellini  
+Jaroslaw Kobus  
+Johanna Vanhatapio  
+Kai Köhne  
+Kevin Funk  
+Knud Dollereder  
+Leander Schulten  
+Leena Miettinen  
+Mahmoud Badri  
+Marco Bubke  
+Mattias Johansson  
+Maximilian Goldstein  
+Michael Weghorn  
+Michael Winkelmann  
+Miikka Heikkinen  
+Mitch Curtis  
+Nikolai Kosjar  
+Orgad Shaneh  
+Oswald Buddenhagen  
+Raphaël Cotty  
+Sergey Levin  
+Thomas Hartmann  
+Tim Jenssen  
+Timon Riedelbauch  
+Tom Praschan  
+Tuomo Pelkonen  
+Ulf Hermann  
+Vikas Pachdha  

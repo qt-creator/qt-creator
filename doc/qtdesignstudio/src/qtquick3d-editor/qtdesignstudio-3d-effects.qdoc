@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Design Studio.
@@ -32,16 +32,15 @@
 
     \title Applying 3D Effects
 
-    \QDS provides a set of Qt Quick 3D effects that inherit the types in the
-    \l {Qt Quick 3D Effects QML Types}{Qt Quick 3D Effects} module.
-
-    To apply a visual effect to a scene, drag-and-drop an effect from
-    the \uicontrol {Qt Quick 3D Effects} tab in \uicontrol Library to a
-    \uicontrol {View 3D} object in \uicontrol Navigator. You can apply multiple
+    \QDS provides a set of 3D effects, which are visible in \l {Form Editor}.
+    To apply a visual effect to a scene, drag-and-drop an effect from \l Library
+    > \uicontrol Components > \uicontrol QtQuick3D > \uicontrol {Qt Quick 3D Effects}
+    to a \uicontrol View3D component in \l Navigator. You can apply multiple
     effects to a scene. Select the \uicontrol {Scene Environment} component in
-    \uicontrol Navigator to view the applied effects in \uicontrol Properties >
-    \uicontrol {Scene Environment} > \uicontrol Effect. The effects are visible
-    in the \uicontrol {Form Editor} view.
+    \uicontrol Navigator to view the applied effects in \l Properties >
+    \uicontrol {Scene Environment} > \uicontrol Effect. If the effects are not
+    displayed in \l Library, you should add the \uicontrol QtQuick3D.Effects
+    module to your project, as described in \l {Adding and Removing Modules}.
 
     See the following table for available effects and example images.
 
@@ -136,9 +135,9 @@
         camera where the content is in perfect focus.
 
         The \uicontrol {Focus Range} property specifies the distance around the
-        \uicontrol {Focus Distance} where items are fully in focus. The focus
-        then fades away to fully blurred by the same distance on both the near
-        and far sides.
+        \uicontrol {Focus Distance} where components are fully in focus. The
+        focus then fades away to fully blurred by the same distance on both the
+        near and far sides.
 
     \row
         \li Desaturate
@@ -232,9 +231,9 @@
     \row
         \li Gaussian Blur
         \li \image effect-gaussian-blur.png "The Gaussian Blur effect"
-        \li A two-pass gaussian blur effect that blurs all objects in the scene
-        evenly. To keep the effect performant, large blur amount produces a
-        mosaic result instead of smooth blurriness.
+        \li A two-pass gaussian blur effect that blurs all components in the
+        scene evenly. To keep the effect performant, large blur amount produces
+        a mosaic result instead of smooth blurriness.
 
         The \uicontrol Amount property defines the strength of the blur.
 
@@ -272,7 +271,7 @@
         \li Motion Blur
         \li \image effect-motion-blur.png "The Motion Blur effect"
         \li A motion blur effect that creates an apparent streaking for rapidly
-        moving objects in the scene.
+        moving components in the scene.
 
         \note Only has a visible effect if the background of the scene is set to
         be transparent in the \uicontrol {Background Mode} field of the
@@ -351,21 +350,21 @@
         focus bar in normalized coordinates.
 
         The \uicontrol {Focus Width} property defines a normalized range for
-        Focus Position. Objects within this range will be in focus.
+        Focus Position. Components within this range will be in focus.
 
         The \uicontrol {Blur Amount} property defines the amount of blur.
         Amounts above 4 may cause artifacts.
 
         The \uicontrol Vertical property changes the direction of the effect
         from horizontal to vertical, while the \uicontrol Inverted property
-        inverts the blur area, causing the center of the object to become
+        inverts the blur area, causing the center of the component to become
         blurred.
 
     \row
         \li Vignette
         \li \image effect-vignette.png "The Vignette effect"
         \li A vignette effect that reduces brightness towards the periphery of
-        an object.
+        a component.
 
         The \uicontrol Strength property defines the strength of vignetting,
         while \uicontrol Radius specifies its size.

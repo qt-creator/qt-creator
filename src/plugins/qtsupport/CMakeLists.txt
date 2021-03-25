@@ -11,7 +11,6 @@ add_qtc_plugin(QtSupport
     exampleslistmodel.cpp exampleslistmodel.h
     gettingstartedwelcomepage.cpp gettingstartedwelcomepage.h
     profilereader.cpp profilereader.h
-    qmldumptool.cpp qmldumptool.h
     qscxmlcgenerator.cpp qscxmlcgenerator.h
     qtbuildaspects.cpp qtbuildaspects.h
     qtconfigwidget.cpp qtconfigwidget.h

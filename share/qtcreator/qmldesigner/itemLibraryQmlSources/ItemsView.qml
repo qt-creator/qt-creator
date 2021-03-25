@@ -78,7 +78,6 @@ ScrollView {
 
     property string importToRemove: ""
     property string importToAdd: ""
-    property var currentItem: null
 
     // called from C++ to close context menu on focus out
     function closeContextMenu()
@@ -136,9 +135,9 @@ ScrollView {
 
             StudioControls.MenuItem {
                 id: importMenuItem
-                text: qsTr("Import Module: ") + importToAdd
-                enabled: currentItem
-                onTriggered: rootView.addImportForItem(currentItem)
+                text: qsTr("Add Module: ") + importToAdd
+                enabled: importToAdd !== ""
+                onTriggered: rootView.addImportForItem(importToAdd)
             }
         }
     }
@@ -159,8 +158,6 @@ ScrollView {
                                              : StudioTheme.Values.themeTextColor
                 leftPadding: 0
                 rightPadding: 0
-                topPadding: 0
-                bottomPadding: 0
                 expanded: importExpanded
                 expandOnClick: false
                 onToggleExpand: {
@@ -184,8 +181,8 @@ ScrollView {
                             hideHeader: categoryModel.rowCount() <= 1
                             leftPadding: 0
                             rightPadding: 0
-                            topPadding: 0
-                            bottomPadding: 0
+                            addTopPadding: categoryModel.rowCount() > 1
+                            addBottomPadding: index != categoryModel.rowCount() - 1
                             caption: categoryName + " (" + itemModel.rowCount() + ")"
                             visible: categoryVisible
                             expanded: categoryExpanded
@@ -213,10 +210,7 @@ ScrollView {
                                         onShowContextMenu: {
                                             if (!itemUsable) {
                                                 importToAdd = itemRequiredImport
-                                                if (importToAdd !== "") {
-                                                    currentItem = itemLibraryEntry
-                                                    itemContextMenu.popup()
-                                                }
+                                                itemContextMenu.popup()
                                             }
                                         }
                                     }

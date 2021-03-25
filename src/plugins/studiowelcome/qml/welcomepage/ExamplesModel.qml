@@ -76,11 +76,27 @@ ListModel {
     }
 
     ListElement {
+        projectName: "SimpleKeyboard"
+        qmlFileName: "SimpleKeyboard.qml"
+        thumbnail: "images/virtualkeyboard_thumbnail.png"
+        displayName: "Virtual Keyboard"
+    }
+
+    ListElement {
         projectName: "highendivisystem"
         qmlFileName: "Screen01.ui.qml"
         thumbnail: "images/highendivi_thumbnail.png"
         displayName: "Highend IVI System"
         url: "https://download.qt.io/learning/examples/qtdesignstudio/highendivisystem.zip"
+        showDownload: true
+    }
+
+    ListElement {
+        projectName: "highendivisystem"
+        qmlFileName: "Screen01.ui.qml"
+        thumbnail: "images/digital_cluster_thumbnail.png"
+        displayName: "Digital Cluster"
+        url: "https://download.qt.io/learning/examples/qtdesignstudio/digitalcluster.zip"
         showDownload: true
     }
 }

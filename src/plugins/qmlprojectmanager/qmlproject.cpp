@@ -53,7 +53,7 @@
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
-#include <utils/checkablemessagebox.h>
+#include <utils/infobar.h>
 
 #include <QDebug>
 #include <QLoggingCategory>
@@ -72,6 +72,24 @@ Q_LOGGING_CATEGORY(infoLogger, "QmlProjectManager.QmlBuildSystem", QtInfoMsg)
 }
 
 namespace QmlProjectManager {
+
+const char openInQDSAppSetting[] = "OpenInQDSApp";
+
+static void openQDS(const QString &qdsPath, const Utils::FilePath &fileName)
+{
+    bool qdsStarted = false;
+    //-a and -client arguments help to append project to open design studio application
+    if (Utils::HostOsInfo::isMacHost())
+        qdsStarted = QProcess::startDetached("/usr/bin/open", {"-a", qdsPath, fileName.toString()});
+    else
+        qdsStarted = QProcess::startDetached(qdsPath, {"-client", fileName.toString()});
+
+    if (!qdsStarted) {
+        QMessageBox::warning(Core::ICore::dialogParent(),
+                             fileName.fileName(),
+                             QObject::tr("Failed to start Qt Design Studio."));
+    }
+}
 
 QmlProject::QmlProject(const Utils::FilePath &fileName)
     : Project(QString::fromLatin1(Constants::QMLPROJECT_MIMETYPE), fileName)
@@ -95,45 +113,16 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
 
         if (foundQDS) {
             auto lambda = [fileName, qdsPath]() {
-                const QString projectName = fileName.fileName();
-                const QString doNotShowAgainKey = "OpenInQDSApp"; //entry that is used only here
-                const QString openInQDSKey = "QML/Designer/OpenQmlprojectInQDS"; //entry from qml settings
-                QSettings *settings = Core::ICore::settings();
-                const bool shouldAskAgain = Utils::CheckableMessageBox::shouldAskAgain(settings,
-                                                                                       doNotShowAgainKey);
-                bool openInQDS = false;
-
-                if (shouldAskAgain) {
-                    bool dontShow = false;
-                    const auto dialogResult =
-                            Utils::CheckableMessageBox::question(Core::ICore::dialogParent(),
-                                                                 projectName,
-                                                                 tr("Would you like to open the project in Qt Design Studio?"),
-                                                                 tr("Do not show this dialog anymore."),
-                                                                 &dontShow);
-                    openInQDS = (dialogResult == QDialogButtonBox::Yes);
-
-                    if (dontShow) {
-                        Utils::CheckableMessageBox::doNotAskAgain(settings, doNotShowAgainKey);
-                        settings->setValue(openInQDSKey, openInQDS);
-                    }
-                } else {
-                    openInQDS = settings->value(openInQDSKey, false).toBool();
-                }
-
-                if (openInQDS) {
-                    bool qdsStarted = false;
-                    //-a and -client arguments help to append project to open design studio application
-                    if (Utils::HostOsInfo::isMacHost())
-                        qdsStarted = QProcess::startDetached("/usr/bin/open", {"-a", qdsPath, fileName.toString()});
-                    else
-                        qdsStarted = QProcess::startDetached(qdsPath, {"-client", fileName.toString()});
-
-                    if (!qdsStarted) {
-                        QMessageBox::warning(Core::ICore::dialogParent(),
-                                             projectName,
-                                             tr("Failed to start Qt Design Studio."));
-                    }
+                if (Core::ICore::infoBar()->canInfoBeAdded(openInQDSAppSetting)) {
+                    Utils::InfoBarEntry
+                        info(openInQDSAppSetting,
+                             tr("Would you like to open the project in Qt Design Studio?"),
+                             Utils::InfoBarEntry::GlobalSuppression::Enabled);
+                    info.setCustomButtonInfo(tr("Open in Qt Design Studio"), [&, qdsPath, fileName] {
+                        Core::ICore::infoBar()->removeInfo(openInQDSAppSetting);
+                        openQDS(qdsPath, fileName);
+                    });
+                    Core::ICore::infoBar()->addInfo(info);
                 }
             };
 
@@ -269,6 +258,11 @@ QString QmlBuildSystem::mainFile() const
     if (m_projectItem)
         return m_projectItem.data()->mainFile();
     return QString();
+}
+
+Utils::FilePath QmlBuildSystem::mainFilePath() const
+{
+    return projectDirectory().pathAppended(mainFile());
 }
 
 bool QmlBuildSystem::qtForMCUs() const

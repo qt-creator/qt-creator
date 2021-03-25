@@ -78,8 +78,6 @@ Project {
             "exampleslistmodel.h",
             "profilereader.cpp",
             "profilereader.h",
-            "qmldumptool.cpp",
-            "qmldumptool.h",
             "qscxmlcgenerator.cpp",
             "qscxmlcgenerator.h",
             "qtkitinformation.cpp",

@@ -35,6 +35,8 @@ namespace Internal {
 
 class CMakeProjectImporter : public QtSupport::QtProjectImporter
 {
+    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeProjectImporter)
+
 public:
     CMakeProjectImporter(const Utils::FilePath &path);
 

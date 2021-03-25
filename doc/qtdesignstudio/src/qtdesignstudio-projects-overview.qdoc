@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -67,9 +67,9 @@
             to Qt Quick Application projects that contain .pro, .cpp, and .qrc
             files.
 
-        \li \l {Exporting QML}
+        \li \l {Exporting Components}
 
-            You can export UI forms (ui.qml files) to JSON metadata format
+            You can export UI files (.ui.qml) to JSON metadata format
             and PNG assets to generate native file formats in content creation
             tools, such as Adobe Photoshop, using \QB.
 

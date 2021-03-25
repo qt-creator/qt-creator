@@ -302,8 +302,9 @@
 
         \li QML files, which specify items in Qt Quick projects.
             \uicontrol {QML File (Qt Quick 2)} creates a QML file that imports
-            Qt Quick 2.0 and \uicontrol {Qt Quick UI File} creates an UI form
-            (\e .ui.qml) and the corresponding QML file.
+            Qt Quick 2.0, and \uicontrol {Qt Quick UI File} creates a
+            \l{UI Files}{UI file} (\e .ui.qml) and the corresponding
+            implementation file (\e .qml).
 
         \li JavaScript files that you can use to write the application logic in
             Qt Quick projects

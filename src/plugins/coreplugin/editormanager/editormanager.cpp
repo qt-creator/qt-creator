@@ -125,10 +125,11 @@ static const char preferredEditorFactoriesKey[] = "EditorManager/PreferredEditor
 
 static const char scratchBufferKey[] = "_q_emScratchBuffer";
 
+// for lupdate
+using namespace Core;
+
 using namespace Core::Internal;
 using namespace Utils;
-
-namespace Core {
 
 //===================EditorManager=====================
 
@@ -3876,5 +3877,3 @@ void CorePlugin::testSplitLineAndColumnNumber_data()
 }
 
 #endif // WITH_TESTS
-
-} // namespace Core

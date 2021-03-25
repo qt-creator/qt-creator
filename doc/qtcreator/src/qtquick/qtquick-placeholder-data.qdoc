@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -35,20 +35,20 @@
 
     \title Loading Placeholder Data
 
-    The Design mode supports views, models, and delegates, so that when you add
-    a Grid View, List View, or Path View item, the ListModel and the delegate
-    item are added automatically.
+    \QC supports views, models, and delegates, so that when you add
+    a Grid View, List View, or Path View component, the ListModel and
+    the delegate component are added automatically.
 
     However, the missing context of the application presents a challenge.
     Specific models defined in C++ are the most obvious case. Often,
     the context is missing simple properties, which are either defined in C++,
-    or in other QML files. A typical example is an item that uses the
+    or in other component files. A typical example is a component that uses the
     properties of its parent, such as \c parent.width.
 
     \section1 Using Dummy Models
 
-    If you open a file in the Design mode that references a C++ model, you see
-    nothing on the canvas. If the data in the model is fetched from the
+    If you open a file in \l {Form Editor} that references a C++ model, you see
+    nothing in it. If the data in the model is fetched from the
     internet, you have no control over it. To get reliable data, \e {dummy data}
     was introduced.
 
@@ -66,7 +66,7 @@
 
     Create a directory named \e dummydata in the root directory of the project,
     so that it is not deployed to the device. In the \c dummydata directory,
-    create a QML file that has the same name as the value of \c model:
+    create a file (.qml) that has the same name as the value of \c model:
 
     \code
         qml/exampleapp/example.qml
@@ -93,7 +93,7 @@
 
     \section1 Creating Dummy Context
 
-    The following example presents a common pattern in QML:
+    The following example presents a common pattern:
 
     \qml
         Item {
@@ -102,11 +102,11 @@
         }
     \endqml
 
-    This works nicely for applications but the Design mode displays a zero-sized
-    item. A parent for the opened file does not exist, because the context is
-    missing. To get around the missing context, the idea of a \e {dummy
-    context} is introduced. If you place a file with the same name as the
-    application (here, example.qml) in the \c {dummydata/context} directory,
+    This works nicely for applications but \uicontrol {Form Editor} displays a
+    zero-sized component. A parent for the opened file does not exist, because
+    the context is missing. To get around the missing context, the idea of a
+    \e {dummy context} is introduced. If you place a file with the same name as
+    the application (here, example.qml) in the \c {dummydata/context} directory,
     you can fake a parent context:
 
     \qml

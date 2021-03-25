@@ -79,18 +79,18 @@ static int pathRankForModelNode(const ModelNode &modelNode) {
         if (modelNode.hasNodeProperty("path")) {
             ModelNode pathNode = modelNode.nodeProperty("path").modelNode();
             if (pathNode.metaInfo().isSubclassOf("QtQuick.Path") && pathNode.hasNodeListProperty("pathElements")) {
-                QList<ModelNode> pathElements = pathNode.nodeListProperty("pathElements").toModelNodeList();
+                const QList<ModelNode> pathElements = pathNode.nodeListProperty("pathElements")
+                                                          .toModelNodeList();
                 if (pathElements.isEmpty())
                     return 0;
 
-                foreach (const ModelNode &pathElement, pathElements) {
+                for (const ModelNode &pathElement : pathElements) {
                     if (isNonSupportedPathElement(pathElement))
                         return 0;
                 }
             }
+            return 20;
         }
-
-        return 20;
     }
 
     return 0;

@@ -896,7 +896,21 @@ FileApiData FileApiParser::parseData(const QFileInfo &replyFileInfo, const QStri
                                return QString::compare(cfg.name, cmakeBuildType, Qt::CaseInsensitive) == 0;
                            });
     if (it == codeModels.cend()) {
-        errorMessage = QString("No '%1' CMake configuration found!").arg(cmakeBuildType);
+        QStringList buildTypes;
+        for (const Configuration &cfg: codeModels)
+            buildTypes << cfg.name;
+
+        if (result.replyFile.isMultiConfig) {
+            errorMessage = tr("No \"%1\" CMake configuration found. Available configurations: \"%2\".\n"
+                              "Make sure that CMAKE_CONFIGURATION_TYPES variable contains the \"Build type\" field.")
+                           .arg(cmakeBuildType)
+                           .arg(buildTypes.join(", "));
+        } else {
+            errorMessage = tr("No \"%1\" CMake configuration found. Available configuration: \"%2\".\n"
+                              "Make sure that CMAKE_BUILD_TYPE variable matches the \"Build type\" field.")
+                           .arg(cmakeBuildType)
+                           .arg(buildTypes.join(", "));
+        }
         qWarning() << errorMessage;
         return result;
     }

@@ -177,13 +177,13 @@ class Filter : public Core::SearchResultFilter
         const auto widget = new QWidget;
         const auto layout = new QVBoxLayout(widget);
         layout->setContentsMargins(0, 0, 0, 0);
-        const auto readsCheckBox = new QCheckBox(tr("Reads"));
+        const auto readsCheckBox = new QCheckBox(CppFindReferences::tr("Reads"));
         readsCheckBox->setChecked(m_showReads);
-        const auto writesCheckBox = new QCheckBox(tr("Writes"));
+        const auto writesCheckBox = new QCheckBox(CppFindReferences::tr("Writes"));
         writesCheckBox->setChecked(m_showWrites);
-        const auto declsCheckBox = new QCheckBox(tr("Declarations"));
+        const auto declsCheckBox = new QCheckBox(CppFindReferences::tr("Declarations"));
         declsCheckBox->setChecked(m_showDecls);
-        const auto otherCheckBox = new QCheckBox(tr("Other"));
+        const auto otherCheckBox = new QCheckBox(CppFindReferences::tr("Other"));
         otherCheckBox->setChecked(m_showOther);
         layout->addWidget(readsCheckBox);
         layout->addWidget(writesCheckBox);
