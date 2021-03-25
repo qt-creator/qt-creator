@@ -52,6 +52,8 @@ QmlPreviewRunner::QmlPreviewRunner(const QmlPreviewRunnerSetting &settings)
     m_connectionManager.setFileLoader(settings.fileLoader);
     m_connectionManager.setFileClassifier(settings.fileClassifier);
     m_connectionManager.setFpsHandler(settings.fpsHandler);
+    m_connectionManager.setQmlDebugTranslationClientCreator(
+        settings.createDebugTranslationClientMethod);
 
     connect(this, &QmlPreviewRunner::loadFile,
             &m_connectionManager, &Internal::QmlPreviewConnectionManager::loadFile);
@@ -62,8 +64,6 @@ QmlPreviewRunner::QmlPreviewRunner(const QmlPreviewRunnerSetting &settings)
             &m_connectionManager, &Internal::QmlPreviewConnectionManager::zoom);
     connect(this, &QmlPreviewRunner::language,
             &m_connectionManager, &Internal::QmlPreviewConnectionManager::language);
-    connect(this, &QmlPreviewRunner::changeElideWarning,
-            &m_connectionManager, &Internal::QmlPreviewConnectionManager::changeElideWarning);
 
     connect(&m_connectionManager, &Internal::QmlPreviewConnectionManager::connectionOpened,
             this, [this, settings]() {
@@ -71,8 +71,6 @@ QmlPreviewRunner::QmlPreviewRunner(const QmlPreviewRunnerSetting &settings)
             emit zoom(settings.zoom);
         if (!settings.language.isEmpty())
             emit language(settings.language);
-        if (settings.translationElideWarning)
-            emit changeElideWarning(true);
 
         emit ready();
     });

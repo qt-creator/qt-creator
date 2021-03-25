@@ -1,3 +1,5 @@
+find_package(Qt5 COMPONENTS QmlDebug REQUIRED)
+
 add_qtc_plugin(QmlPreview
   DEPENDS QmlDebug QmlJS
   PLUGIN_DEPENDS Core ProjectExplorer QmlJSTools QtSupport ResourceEditor QmlProjectManager
@@ -9,8 +11,6 @@ add_qtc_plugin(QmlPreview
     qmlpreviewruncontrol.cpp qmlpreviewruncontrol.h
     qmldebugtranslationclient.cpp qmldebugtranslationclient.h
     qmlpreview_global.h
-    projectfileselectionswidget.cpp projectfileselectionswidget.h
-    qmldebugtranslationwidget.cpp qmldebugtranslationwidget.h
 )
 
 extend_qtc_plugin(QmlPreview
@@ -18,4 +18,22 @@ extend_qtc_plugin(QmlPreview
   SOURCES
     tests/qmlpreviewclient_test.cpp tests/qmlpreviewclient_test.h
     tests/qmlpreviewplugin_test.cpp tests/qmlpreviewplugin_test.h
+)
+
+# check if Qt version have_qml_debug_translation_protocol
+# will be introduced in Qt 6.2, but there are users
+# who needs it in older but special built Qt versions aswell
+string(REGEX MATCH "^[0-9]*" QT_VERSION_MAJOR ${Qt5_VERSION})
+get_target_property(qmldebugprivate_include_directories
+                    Qt${QT_VERSION_MAJOR}::QmlDebugPrivate
+                    INTERFACE_INCLUDE_DIRECTORIES
+)
+find_file(have_qml_debug_translation_protocol
+  NAMES private/qqmldebugtranslationprotocol_p.h
+  PATHS ${qmldebugprivate_include_directories}
+)
+extend_qtc_plugin(QmlPreview
+  CONDITION have_qml_debug_translation_protocol
+  PUBLIC_DEPENDS Qt5::QmlDebugPrivate
+  PUBLIC_DEFINES "FOUND_QML_DEBUG_TRANSLATION_PROTOCOL"
 )

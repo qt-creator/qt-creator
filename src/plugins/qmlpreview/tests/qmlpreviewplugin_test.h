@@ -28,7 +28,6 @@
 #include <QObject>
 
 namespace QmlPreview {
-namespace Internal {
 
 typedef QByteArray (*TestFileLoader)(const QString &, bool *);
 typedef void (*TestFpsHandler)(quint16[8]);
@@ -45,5 +44,4 @@ private slots:
     void testFpsHandlerProperty();
 };
 
-} // namespace Internal
 } // namespace QmlPreview

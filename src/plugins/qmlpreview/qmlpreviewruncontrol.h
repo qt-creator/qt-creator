@@ -39,7 +39,7 @@ struct QmlPreviewRunnerSetting {
     QmlPreviewFpsHandler fpsHandler;
     float zoom = 1.0;
     QString language;
-    bool translationElideWarning = false;
+    QmlDebugTranslationClientCreator createDebugTranslationClientMethod;
 };
 
 class QmlPreviewRunner : public ProjectExplorer::RunWorker
@@ -59,7 +59,6 @@ signals:
     void zoom(float zoomFactor);
     void rerun();
     void ready();
-    void changeElideWarning(bool elideWarning);
 private:
     void start() override;
     void stop() override;

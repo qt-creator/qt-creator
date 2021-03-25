@@ -26,8 +26,9 @@
 #include "qmldebugtranslationclient.h"
 #include <qmldebug/qpacketprotocol.h>
 
-#include <QUrl>
-#include <QColor>
+#ifdef FOUND_QML_DEBUG_TRANSLATION_PROTOCOL
+#include <private/qqmldebugtranslationprotocol_p.h>
+#endif
 
 namespace QmlPreview {
 
@@ -39,51 +40,14 @@ QmlDebugTranslationClient::QmlDebugTranslationClient(QmlDebug::QmlDebugConnectio
 void QmlDebugTranslationClient::changeLanguage(const QUrl &url, const QString &localeIsoCode)
 {
     QmlDebug::QPacket packet(dataStreamVersion());
-    packet << static_cast<qint8>(Command::ChangeLanguage) << url << localeIsoCode;
+#ifdef FOUND_QML_DEBUG_TRANSLATION_PROTOCOL
+    sendMessage(QQmlDebugTranslation::createChangeLanguageRequest(packet, url, localeIsoCode));
+#else
+    const int request_change_language = 1;
+    packet << request_change_language << url << localeIsoCode;
     sendMessage(packet.data());
-}
+#endif
 
-void QmlDebugTranslationClient::changeWarningColor(const QColor &warningColor)
-{
-    QmlDebug::QPacket packet(dataStreamVersion());
-    packet << static_cast<qint8>(Command::ChangeWarningColor) << warningColor;
-    sendMessage(packet.data());
-}
-
-void QmlDebugTranslationClient::changeElidedTextWarningString(const QString &warningString)
-{
-    QmlDebug::QPacket packet(dataStreamVersion());
-    packet << static_cast<qint8>(Command::ChangeElidedTextWarningString) << warningString;
-    sendMessage(packet.data());
-}
-
-void QmlDebugTranslationClient::changeElideWarning(bool elideWarning)
-{
-    if (elideWarning)
-        enableElidedTextWarning();
-    else
-        disableElidedTextWarning();
-}
-
-void QmlDebugTranslationClient::setDebugTranslationServiceLogFile(const QString &logFilePath)
-{
-    QmlDebug::QPacket packet(dataStreamVersion());
-    packet << static_cast<qint8>(Command::SetDebugTranslationServiceLogFile) << logFilePath;
-    sendMessage(packet.data());
-}
-
-void QmlDebugTranslationClient::enableElidedTextWarning()
-{
-    QmlDebug::QPacket packet(dataStreamVersion());
-    packet << static_cast<qint8>(Command::EnableElidedTextWarning);
-    sendMessage(packet.data());
-}
-
-void QmlDebugTranslationClient::disableElidedTextWarning()
-{
-    QmlDebug::QPacket packet(dataStreamVersion());
-    packet << static_cast<qint8>(Command::DisableElidedTextWarning);
-    sendMessage(packet.data());
 }
 
 void QmlDebugTranslationClient::messageReceived(const QByteArray &data)

@@ -34,34 +34,14 @@ class QMLPREVIEW_EXPORT QmlDebugTranslationClient : public QmlDebug::QmlDebugCli
 {
     Q_OBJECT
 public:
-    //needs to be in sync with QQmlDebugTranslationClient in qtdeclarative/src/plugins/qmltooling/qmldbg_preview/qqmldebugtranslationservice.h
-    enum class Command {
-        ChangeLanguage,
-        MissingTranslationsChecked,
-        EnableElidedTextWarning,
-        DisableElidedTextWarning,
-        ChangeWarningColor,
-        ChangeElidedTextWarningString,
-        SetDebugTranslationServiceLogFile,
-        TestAllLanguages
-    };
-
     explicit QmlDebugTranslationClient(QmlDebug::QmlDebugConnection *connection);
 
     void changeLanguage(const QUrl &url, const QString &localeIsoCode);
-    void changeWarningColor(const QColor &warningColor);
-    void changeElidedTextWarningString(const QString &warningString); //is QByteArray better here?
-    void changeElideWarning(bool elideWarning);
-    void setDebugTranslationServiceLogFile(const QString &logFilePath);
-    void enableElidedTextWarning();
-    void disableElidedTextWarning();
 
     void messageReceived(const QByteArray &message) override;
     void stateChanged(State state) override;
 
 signals:
-//    void pathRequested(const QString &path);
-//    void errorReported(const QString &error);
     void debugServiceUnavailable();
 };
 
