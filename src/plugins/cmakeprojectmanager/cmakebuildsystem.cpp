@@ -1218,7 +1218,6 @@ QList<ProjectExplorer::ExtraCompiler *> CMakeBuildSystem::findExtraCompilers()
 void CMakeBuildSystem::updateQmlJSCodeModel(const QStringList &extraHeaderPaths,
                                             const QList<QByteArray> &moduleMappings)
 {
-    qDebug()<<"cmake: module mappings:"<<moduleMappings;
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
 
     if (!modelManager)
