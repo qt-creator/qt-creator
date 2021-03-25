@@ -322,6 +322,7 @@ public:
     void setAcceptRichText(bool acceptRichText);
     void setMacroExpanderProvider(const Utils::MacroExpanderProvider &expanderProvider);
     void setUseGlobalMacroExpander();
+    void setUseResetButton();
     void setValidationFunction(const Utils::FancyLineEdit::ValidationFunction &validator);
     void setOpenTerminalHandler(const std::function<void()> &openTerminal);
 

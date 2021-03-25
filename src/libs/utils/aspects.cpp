@@ -45,6 +45,7 @@
 #include <QLineEdit>
 #include <QListWidget>
 #include <QPointer>
+#include <QPushButton>
 #include <QRadioButton>
 #include <QSettings>
 #include <QSpinBox>
@@ -669,6 +670,7 @@ public:
     bool m_acceptRichText = false;
     bool m_showToolTipOnLabel = false;
     bool m_fileDialogOnly = false;
+    bool m_useResetButton = false;
 
     template<class Widget> void updateWidgetFromCheckStatus(Widget *w)
     {
@@ -1012,6 +1014,11 @@ void StringAspect::setUseGlobalMacroExpander()
     d->m_expanderProvider = &globalMacroExpander;
 }
 
+void StringAspect::setUseResetButton()
+{
+    d->m_useResetButton = true;
+}
+
 void StringAspect::setValidationFunction(const FancyLineEdit::ValidationFunction &validator)
 {
     d->m_validator = validator;
@@ -1089,6 +1096,17 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         if (isAutoApply()) {
             connect(d->m_lineEditDisplay, &FancyLineEdit::textEdited,
                     this, &StringAspect::setValue);
+        }
+        if (d->m_useResetButton) {
+            auto resetButton = createSubWidget<QPushButton>(tr("Reset"));
+            resetButton->setEnabled(d->m_lineEditDisplay->text() != defaultValue());
+            connect(resetButton, &QPushButton::clicked, this, [this] {
+                d->m_lineEditDisplay->setText(defaultValue().toString());
+            });
+            connect(d->m_lineEditDisplay, &QLineEdit::textChanged, this, [this, resetButton] {
+                resetButton->setEnabled(d->m_lineEditDisplay->text() != defaultValue());
+            });
+            builder.addItem(resetButton);
         }
         break;
     case TextEditDisplay:
