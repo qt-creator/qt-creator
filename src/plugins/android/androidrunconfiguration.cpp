@@ -29,66 +29,45 @@
 #include "androidglobal.h"
 #include "androidtoolchain.h"
 #include "androidmanager.h"
-#include "adbcommandswidget.h"
 
 #include <app/app_version.h>
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/detailswidget.h>
-#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
-#include <QLabel>
-#include <QLineEdit>
-#include <QSpacerItem>
-#include <QWidget>
-
-using namespace Android::Internal;
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Android {
 
-BaseStringListAspect::BaseStringListAspect(const QString &settingsKey, Utils::Id id)
+class BaseStringListAspect final : public Utils::StringAspect
 {
-    setSettingsKey(settingsKey);
-    setId(id);
-}
+public:
+    explicit BaseStringListAspect() = default;
+    ~BaseStringListAspect() final = default;
 
-BaseStringListAspect::~BaseStringListAspect() = default;
+    void fromMap(const QVariantMap &map) final
+    {
+        // Pre Qt Creator 5.0 hack: Reads QStringList as QString
+        setValue(map.value(settingsKey()).toStringList().join('\n'));
+    }
 
-void BaseStringListAspect::addToLayout(LayoutBuilder &builder)
-{
-    QTC_CHECK(!m_widget);
-    m_widget = new AdbCommandsWidget;
-    m_widget->setCommandList(value());
-    m_widget->setTitleText(labelText());
-    builder.addItem(m_widget.data());
-    connect(m_widget.data(), &AdbCommandsWidget::commandsChanged, this, [this] {
-        BaseAspect::setValue(m_widget->commandsList());
-        emit changed();
-    });
-}
-
-QStringList BaseStringListAspect::value() const
-{
-    return BaseAspect::value().toStringList();
-}
-
-void BaseStringListAspect::setValue(const QStringList &value)
-{
-    BaseAspect::setValue(value);
-    if (m_widget)
-        m_widget->setCommandList(value);
-}
+    void toMap(QVariantMap &map) const final
+    {
+        // Pre Qt Creator 5.0 hack: Writes QString as QStringList
+        map.insert(settingsKey(), value().split('\n'));
+    }
+};
 
 AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Utils::Id id)
     : RunConfiguration(target, id)
@@ -123,16 +102,16 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Utils::Id id)
                           .arg(Core::Constants::IDE_DISPLAY_NAME));
 
     auto preStartShellCmdAspect = addAspect<BaseStringListAspect>();
+    preStartShellCmdAspect->setDisplayStyle(StringAspect::TextEditDisplay);
     preStartShellCmdAspect->setId(Constants::ANDROID_PRESTARTSHELLCMDLIST);
     preStartShellCmdAspect->setSettingsKey("Android.PreStartShellCmdListKey");
-    preStartShellCmdAspect->setLabelText(
-        tr("Shell commands to run on Android device before application launch."));
+    preStartShellCmdAspect->setLabelText(tr("Pre-launch on-device shell commands:"));
 
     auto postStartShellCmdAspect = addAspect<BaseStringListAspect>();
+    postStartShellCmdAspect->setDisplayStyle(StringAspect::TextEditDisplay);
     postStartShellCmdAspect->setId(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
     postStartShellCmdAspect->setSettingsKey("Android.PostStartShellCmdListKey");
-    postStartShellCmdAspect->setLabelText(
-        tr("Shell commands to run on Android device after application quits."));
+    postStartShellCmdAspect->setLabelText(tr("Post-quit on-device shell commands:"));
 
     setUpdater([this, target] {
         const BuildTargetInfo bti = buildTargetInfo();

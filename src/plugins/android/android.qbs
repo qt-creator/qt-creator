@@ -20,9 +20,6 @@ Project {
         files: [
             "android_global.h",
             "android.qrc",
-            "adbcommandswidget.cpp",
-            "adbcommandswidget.h",
-            "adbcommandswidget.ui",
             "addnewavddialog.ui",
             "androidavdmanager.cpp",
             "androidavdmanager.h",

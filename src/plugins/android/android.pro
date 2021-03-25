@@ -44,7 +44,6 @@ HEADERS += \
     androidbuildapkstep.h \
     androidsdkmanager.h \
     androidavdmanager.h \
-    adbcommandswidget.h \
     androidsdkpackage.h \
     androidsdkmodel.h \
     androidsdkmanagerwidget.h \
@@ -91,7 +90,6 @@ SOURCES += \
     androidbuildapkstep.cpp \
     androidsdkmanager.cpp \
     androidavdmanager.cpp \
-    adbcommandswidget.cpp \
     androidsdkpackage.cpp \
     androidsdkmodel.cpp \
     androidsdkmanagerwidget.cpp \
@@ -108,7 +106,6 @@ FORMS += \
     addnewavddialog.ui \
     androidcreatekeystorecertificate.ui \
     androiddevicedialog.ui \
-    adbcommandswidget.ui \
     androidsdkmanagerwidget.ui
 
 RESOURCES = android.qrc

@@ -297,14 +297,18 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     }
 
     if (auto aspect = runControl->aspect(Constants::ANDROID_PRESTARTSHELLCMDLIST)) {
-        for (const QString &shellCmd : static_cast<BaseStringListAspect *>(aspect)->value())
+        const QStringList commands =
+                static_cast<StringAspect *>(aspect)->value().split('\n', Qt::SkipEmptyParts);
+        for (const QString &shellCmd : commands)
             m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
     for (const QString &shellCmd : runner->recordedData(Constants::ANDROID_PRESTARTSHELLCMDLIST).toStringList())
         m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
 
     if (auto aspect = runControl->aspect(Constants::ANDROID_POSTFINISHSHELLCMDLIST)) {
-        for (const QString &shellCmd : static_cast<BaseStringListAspect *>(aspect)->value())
+        const QStringList commands =
+                static_cast<StringAspect *>(aspect)->value().split('\n', Qt::SkipEmptyParts);
+        for (const QString &shellCmd : commands)
             m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
     for (const QString &shellCmd : runner->recordedData(Constants::ANDROID_POSTFINISHSHELLCMDLIST).toStringList())

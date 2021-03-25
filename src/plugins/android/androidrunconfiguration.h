@@ -27,30 +27,9 @@
 
 #include "android_global.h"
 
-#include "adbcommandswidget.h"
-
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runconfigurationaspects.h>
 
 namespace Android {
-
-class BaseStringListAspect : public Utils::BaseAspect
-{
-    Q_OBJECT
-
-public:
-    explicit BaseStringListAspect(const QString &settingsKey = QString(),
-                                  Utils::Id id = Utils::Id());
-    ~BaseStringListAspect() override;
-
-    void addToLayout(Utils::LayoutBuilder &builder) override;
-
-    QStringList value() const;
-    void setValue(const QStringList &val);
-
-private:
-    QPointer<Android::Internal::AdbCommandsWidget> m_widget; // Owned by RunConfigWidget
-};
 
 class ANDROID_EXPORT AndroidRunConfiguration : public ProjectExplorer::RunConfiguration
 {
