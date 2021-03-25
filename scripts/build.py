@@ -170,9 +170,6 @@ def build_qtcreator(args, paths):
                        '-DBUILD_EXECUTABLE_WIN64INTERRUPT=OFF',
                        '-DBUILD_LIBRARY_QTCREATORCDBEXT=OFF']
 
-    # TODO this works around a CMake bug https://gitlab.kitware.com/cmake/cmake/issues/20119
-    cmake_args += ['-DBUILD_WITH_PCH=OFF']
-
     ide_revision = common.get_commit_SHA(paths.src)
     if ide_revision:
         cmake_args += ['-DIDE_REVISION=ON',
