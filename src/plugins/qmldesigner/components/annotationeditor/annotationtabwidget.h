@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include <QPointer>
 #include <QTabWidget>
 
 #include "annotation.h"
