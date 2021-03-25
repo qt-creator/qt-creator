@@ -820,6 +820,7 @@ void StringAspect::setValue(const QString &val)
     if (BaseAspect::setValueQuietly(QVariant(processedValue))) {
         update();
         emit changed();
+        emit valueChanged(processedValue);
     }
 }
 
@@ -1177,6 +1178,11 @@ void StringAspect::setVolatileValue(const QVariant &val)
     case LabelDisplay:
         break;
     }
+}
+
+void StringAspect::emitChangedValue()
+{
+    emit valueChanged(value());
 }
 
 void StringAspect::update()

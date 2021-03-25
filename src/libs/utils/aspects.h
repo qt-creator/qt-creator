@@ -301,6 +301,7 @@ public:
 
     QVariant volatileValue() const override;
     void setVolatileValue(const QVariant &val) override;
+    void emitChangedValue() override;
 
     // Hook between UI and StringAspect:
     using ValueAcceptor = std::function<Utils::optional<QString>(const QString &, const QString &)>;
@@ -354,6 +355,7 @@ public:
 
 signals:
     void checkedChanged();
+    void valueChanged(const QString &newValue);
 
 protected:
     void update();
