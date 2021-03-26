@@ -39,6 +39,9 @@ AnnotationTabWidget::AnnotationTabWidget(QWidget *parent)
 {
     auto *commentCornerWidget = new QToolBar;
 
+    //Making it look similar to timeline editor button:
+    commentCornerWidget->setStyleSheet("QToolBar { background-color: transparent; border-width: 1px; }");
+
     auto *commentAddAction = new QAction(TimelineIcons::ADD_TIMELINE.icon(),
                                          tr("Add Comment")); //timeline icons?
     auto *commentRemoveAction = new QAction(TimelineIcons::REMOVE_TIMELINE.icon(),

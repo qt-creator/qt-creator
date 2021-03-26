@@ -119,6 +119,14 @@ RichTextEditor::RichTextEditor(QWidget *parent)
     ui->textEdit->setTextInteractionFlags(Qt::TextEditorInteraction | Qt::LinksAccessibleByMouse);
     ui->tableBar->setVisible(false);
 
+    const QColor backColor = Theme::getColor(Theme::DSpanelBackground);
+
+    const QString toolBarStyleSheet =
+            QString("QToolBar { background-color: %1; border-width: 1px }").arg(backColor.name());
+
+    ui->toolBar->setStyleSheet(toolBarStyleSheet);
+    ui->tableBar->setStyleSheet(toolBarStyleSheet);
+
     setupEditActions();
     setupTextActions();
     setupImageActions();
@@ -201,7 +209,7 @@ void RichTextEditor::setDocumentBaseUrl(const QUrl& url)
 QIcon RichTextEditor::getIcon(Theme::Icon icon)
 {
     const QString fontName = "qtds_propertyIconFont.ttf";
-    const QColor iconColorNormal(Theme::getColor(Theme::IconsBaseColor));
+    const QColor iconColorNormal(Theme::getColor(Theme::DStextColor));
 
     return Utils::StyleHelper::getIconFromIconFont(
                 fontName, Theme::getIconUnicode(icon), 20, 20, iconColorNormal);
