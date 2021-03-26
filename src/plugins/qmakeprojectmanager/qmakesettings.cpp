@@ -42,6 +42,7 @@ QmakeSettings::QmakeSettings()
 
     registerAspect(&m_warnAgainstUnalignedBuildDir);
     m_warnAgainstUnalignedBuildDir.setSettingsKey("QmakeProjectManager/WarnAgainstUnalignedBuildDir");
+    m_warnAgainstUnalignedBuildDir.setDefaultValue(true);
     m_warnAgainstUnalignedBuildDir.setLabelText(tr("Warn if a project's source and "
             "build directories are not at the same level"));
     m_warnAgainstUnalignedBuildDir.setToolTip(tr("Qmake has subtle bugs that "
@@ -55,7 +56,6 @@ QmakeSettings::QmakeSettings()
 
     registerAspect(&m_ignoreSystemFunction);
     m_ignoreSystemFunction.setSettingsKey("QmakeProjectManager/RunSystemFunction");
-    m_ignoreSystemFunction.setDefaultValue(true);
     m_ignoreSystemFunction.setLabelText(tr("Ignore qmake's system() function when parsing a project"));
     m_ignoreSystemFunction.setToolTip(tr("Checking this option avoids unwanted side effects, "
              "but may result in inexact parsing results."));
