@@ -163,7 +163,8 @@ public:
     {
         const QString projectFile = data(index(row, 0),
                                          ProjectModel::FilePathRole).toString();
-        ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
+        if (QFileInfo::exists(projectFile))
+            ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
     }
 
     Q_INVOKABLE int get(int)
