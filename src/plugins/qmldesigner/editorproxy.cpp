@@ -27,6 +27,8 @@
 #include "editorproxy.h"
 #include "qmlmodelnodeproxy.h"
 
+#include <QWidget>
+
 namespace QmlDesigner {
 
 EditorProxy::EditorProxy(QObject *parent)
