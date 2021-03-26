@@ -65,7 +65,7 @@ bool ConanPlugin::initialize(const QStringList &arguments, QString *errorString)
     Q_UNUSED(errorString)
 
     m_runData = new ConanPluginRunData;
-    conanSettings()->fromSettings(ICore::settings());
+    conanSettings()->readSettings(ICore::settings());
 
     connect(SessionManager::instance(), &SessionManager::projectAdded,
             this, &ConanPlugin::projectAdded);

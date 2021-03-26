@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <utils/aspects.h>
 #include <utils/fileutils.h>
 
 #include <QSettings>
@@ -32,18 +33,13 @@
 namespace ConanPackageManager {
 namespace Internal {
 
-class ConanSettings
+class ConanSettings : public Utils::AspectContainer
 {
 public:
-    ConanSettings() = default;
-    void fromSettings(QSettings *settings);
-    void toSettings(QSettings *settings) const;
+    ConanSettings();
 
-    Utils::FilePath conanFilePath() const { return m_conanFilePath; }
-
-private:
-    Utils::FilePath m_conanFilePath;
+    Utils::StringAspect conanFilePath;
 };
 
-}
-}
+} // Internal
+} // ConanPackageManager
