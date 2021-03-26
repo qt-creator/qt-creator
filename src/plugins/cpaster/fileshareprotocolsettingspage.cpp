@@ -26,8 +26,6 @@
 #include "fileshareprotocolsettingspage.h"
 #include "cpasterconstants.h"
 
-#include <coreplugin/icore.h>
-
 #include <utils/layoutbuilder.h>
 #include <utils/temporarydirectory.h>
 
@@ -56,48 +54,30 @@ FileShareProtocolSettings::FileShareProtocolSettings()
 
 // Settings page
 
-class FileShareProtocolSettingsWidget final : public Core::IOptionsPageWidget
+FileShareProtocolSettingsPage::FileShareProtocolSettingsPage(FileShareProtocolSettings *settings)
 {
-public:
-    FileShareProtocolSettingsWidget(FileShareProtocolSettings *settings)
-        : m_settings(settings)
-    {
-        FileShareProtocolSettings &s = *settings;
+    setId("X.CodePaster.FileSharePaster");
+    setDisplayName(FileShareProtocolSettings::tr("Fileshare"));
+    setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
+    setSettings(settings);
+
+    setLayouter([&s = *settings](QWidget *widget) {
         using namespace Layouting;
 
-        auto label = new QLabel(tr("The fileshare-based paster protocol allows for sharing code"
-                                   "snippets using simple files on a shared network drive. "
-                                   "Files are never deleted."));
+        auto label = new QLabel(FileShareProtocolSettingsPage::tr(
+            "The fileshare-based paster protocol allows for sharing code snippets using "
+            "simple files on a shared network drive. Files are never deleted."));
         label->setWordWrap(true);
 
         Column {
             Form {
-            label, Break(),
+                label, Break(),
                 s.path,
                 s.displayCount
             },
             Stretch()
-        }.attachTo(this);
-    }
-
-    void apply() final
-    {
-        if (m_settings->isDirty()) {
-            m_settings->apply();
-            m_settings->writeSettings(Core::ICore::settings());
-        }
-    }
-
-private:
-    FileShareProtocolSettings *m_settings;
-};
-
-FileShareProtocolSettingsPage::FileShareProtocolSettingsPage(FileShareProtocolSettings *s)
-{
-    setId("X.CodePaster.FileSharePaster");
-    setDisplayName(FileShareProtocolSettingsWidget::tr("Fileshare"));
-    setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
-    setWidgetCreator([s] { return new FileShareProtocolSettingsWidget(s); });
+        }.attachTo(widget);
+    });
 }
 
 } // namespace CodePaster

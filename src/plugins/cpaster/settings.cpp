@@ -26,9 +26,6 @@
 #include "settings.h"
 
 #include "cpasterconstants.h"
-#include "pastebindotcomprotocol.h"
-
-#include <coreplugin/icore.h>
 
 #include <utils/layoutbuilder.h>
 
@@ -80,53 +77,31 @@ Settings::Settings()
 
 // SettingsPage
 
-class SettingsWidget final : public Core::IOptionsPageWidget
-{
-public:
-    SettingsWidget(Settings *settings);
-
-private:
-    void apply() final;
-
-    Settings *m_settings;
-};
-
-SettingsWidget::SettingsWidget(Settings *settings)
-    : m_settings(settings)
-{
-    Settings &s = *settings;
-    using namespace Layouting;
-    const Break nl;
-
-    Column {
-        Form {
-            s.protocols, nl,
-            s.username, nl,
-            s.expiryDays
-        },
-        s.copyToClipboard,
-        s.displayOutput,
-        s.publicPaste,
-        Stretch()
-    }.attachTo(this);
-}
-
-void SettingsWidget::apply()
-{
-    if (m_settings->isDirty()) {
-        m_settings->apply();
-        m_settings->writeSettings(Core::ICore::settings());
-    }
-}
-
 SettingsPage::SettingsPage(Settings *settings)
 {
     setId("A.CodePaster.General");
-    setDisplayName(tr("General"));
+    setDisplayName(Settings::tr("General"));
     setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("CodePaster", "Code Pasting"));
+    setDisplayCategory(Settings::tr("Code Pasting"));
     setCategoryIconPath(":/cpaster/images/settingscategory_cpaster.png");
-    setWidgetCreator([settings] { return new SettingsWidget(settings); });
+    setSettings(settings);
+
+    setLayouter([settings](QWidget *widget) {
+        Settings &s = *settings;
+        using namespace Layouting;
+
+        Column {
+            Form {
+                s.protocols,
+                s.username,
+                s.expiryDays
+            },
+            s.copyToClipboard,
+            s.displayOutput,
+            s.publicPaste,
+            Stretch()
+        }.attachTo(widget);
+    });
 }
 
 } // namespace CodePaster

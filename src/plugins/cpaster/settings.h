@@ -48,8 +48,6 @@ public:
 
 class SettingsPage final : public Core::IOptionsPage
 {
-    Q_DECLARE_TR_FUNCTIONS(CodePaster::SettingsPage)
-
 public:
     SettingsPage(Settings *settings);
 };

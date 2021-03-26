@@ -45,7 +45,7 @@ public:
 class FileShareProtocolSettingsPage final : public Core::IOptionsPage
 {
 public:
-    explicit FileShareProtocolSettingsPage(FileShareProtocolSettings *s);
+    explicit FileShareProtocolSettingsPage(FileShareProtocolSettings *settings);
 };
 
 } // namespace CodePaster
