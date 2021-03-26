@@ -78,6 +78,7 @@ public:
     void setCMakeBuildType(const QString &cmakeBuildType, bool quiet = false);
 
     bool isMultiConfig() const;
+    void setIsMultiConfig(bool isMultiConfig);
 
 signals:
     void errorOccurred(const QString &message);
@@ -115,6 +116,7 @@ private:
     Internal::CMakeBuildSystem *m_buildSystem = nullptr;
 
     QStringList m_extraCMakeArguments;
+    bool m_isMultiConfig = false;
 
     friend class Internal::CMakeBuildSettingsWidget;
     friend class Internal::CMakeBuildSystem;
