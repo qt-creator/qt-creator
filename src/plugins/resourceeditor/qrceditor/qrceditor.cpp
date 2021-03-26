@@ -391,6 +391,8 @@ void QrcEditor::onAddPrefix()
     QUndoCommand * const addEmptyPrefixCommand = new AddEmptyPrefixCommand(m_treeview);
     m_history.push(addEmptyPrefixCommand);
     updateHistoryControls();
+    m_ui.prefixText->selectAll();
+    m_ui.prefixText->setFocus();
 }
 
 // Slot for 'Undo' button
