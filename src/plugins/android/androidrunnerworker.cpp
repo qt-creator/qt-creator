@@ -292,13 +292,14 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     }
 
     if (auto aspect = runControl->aspect(Constants::ANDROID_AMSTARTARGS)) {
-        const QString startArgs = static_cast<StringAspect *>(aspect)->value();
+        QTC_CHECK(aspect->value().type() == QVariant::String);
+        const QString startArgs = aspect->value().toString();
         m_amStartExtraArgs = QtcProcess::splitArgs(startArgs, OsTypeOtherUnix);
     }
 
     if (auto aspect = runControl->aspect(Constants::ANDROID_PRESTARTSHELLCMDLIST)) {
-        const QStringList commands =
-                static_cast<StringAspect *>(aspect)->value().split('\n', Qt::SkipEmptyParts);
+        QTC_CHECK(aspect->value().type() == QVariant::String);
+        const QStringList commands = aspect->value().toString().split('\n', Qt::SkipEmptyParts);
         for (const QString &shellCmd : commands)
             m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
@@ -306,8 +307,8 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
         m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
 
     if (auto aspect = runControl->aspect(Constants::ANDROID_POSTFINISHSHELLCMDLIST)) {
-        const QStringList commands =
-                static_cast<StringAspect *>(aspect)->value().split('\n', Qt::SkipEmptyParts);
+        QTC_CHECK(aspect->value().type() == QVariant::String);
+        const QStringList commands = aspect->value().toString().split('\n', Qt::SkipEmptyParts);
         for (const QString &shellCmd : commands)
             m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
