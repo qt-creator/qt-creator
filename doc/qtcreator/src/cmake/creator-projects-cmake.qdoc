@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -56,6 +56,14 @@
     \QC automatically runs CMake to refresh project information when you edit
     a \c CMakeLists.txt configuration file in a project. Project information is
     also automatically refreshed when you build the project.
+
+    The \uicontrol {File System} section in the sidebar \uicontrol Projects view
+    displays information from the file system. \QC cannot determine whether the
+    files are part of the project. For example, header files that \QC finds in
+    the project directories but that are not mentioned in the CMakeLists.txt
+    files are listed here.
+
+    \image qtcreator-projects-view-cmake.png "File System section in Projects view"
 
     \section1 Adding CMake Tools
 
@@ -160,7 +168,7 @@
 
     \list
         \li \l {Opening Projects}
-        \li \l {Specifying Build Settings}
+        \li \l {CMake Build Configuration}
         \li \l {Specifying Run Settings}
         \li \l {Deploying CMake Projects to Generic Remote Linux Devices}
     \endlist

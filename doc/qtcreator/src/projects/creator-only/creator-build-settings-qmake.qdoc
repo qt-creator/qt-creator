@@ -1,0 +1,77 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \previouspage creator-build-settings-cmake.html
+    \page creator-build-settings-qmake.html
+    \nextpage creator-build-settings-qbs.html
+
+    \title qmake Build Configuration
+
+    \image qtcreator-projectpane.png "qmake general build settings pane"
+
+    By default, \QC builds qmake projects in a separate directory from the
+    source directory, as \l{glossary-shadow-build} {shadow builds}. This
+    keeps the files generated for each \l{glossary-buildandrun-kit}
+    {build and run kit} separate. If you only build and run with a single
+    \l{glossary-buildandrun-kit}{kit}, you can deselect the
+    \uicontrol {Shadow build} checkbox.
+
+    To make in-source builds the default option for all projects, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
+    \uicontrol {Default Build Properties}, and enter a period (.) in the
+    \uicontrol {Default build directory} field.
+
+    You can create separate versions of project files to keep platform-dependent
+    code separate. You can use qmake \l{Adding Platform Specific Source Files}
+    {scopes} to select the file to process depending on which platform qmake is
+    run on.
+
+    To generate debug symbols also for applications compiled in release mode,
+    select \uicontrol Enable in the \uicontrol {Separate debug info} field. For
+    more information, see \l{Using the Performance Analyzer}. To use default
+    settings, select \uicontrol {Leave at Default}.
+
+    To set the default build properties, select \uicontrol Tools
+    > \uicontrol Options > \uicontrol {Build & Run} >
+    \uicontrol {Default Build Properties}.
+
+    \section1 qmake Build Steps
+
+    \QC builds qmake projects by running the \c make or \c nmake command from
+    the Qt version defined for the current build configuration.
+
+    \image qtcreator-build-steps.png "Build steps"
+
+    To override the shell command that \QC constructs by default, disable or
+    remove the build step and add a custom build step that specifies another
+    shell command.
+
+    By default, \QC uses all the CPU cores available to achieve maximum build
+    parallelization. On Linux and \macos, you can specify the number of parallel
+    jobs to use for building in the \uicontrol {Parallel jobs} field. Select the
+    \uicontrol {Override MAKEFLAGS} check box to override existing MAKEFLAGS
+    variables.
+*/
