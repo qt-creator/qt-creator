@@ -143,7 +143,7 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     m_reparseQbsCtx = new QAction(tr("Reparse Qbs"), this);
     command = Core::ActionManager::registerAction(m_reparseQbsCtx, Constants::ACTION_REPARSE_QBS_CONTEXT, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
-    mproject->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
+    mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(m_reparseQbsCtx, &QAction::triggered,
             this, &QbsProjectManagerPlugin::reparseSelectedProject);
 
