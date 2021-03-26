@@ -92,7 +92,7 @@ ListModel {
     }
 
     ListElement {
-        projectName: "highendivisystem"
+        projectName: "digitalcluster"
         qmlFileName: "Screen01.ui.qml"
         thumbnail: "images/digital_cluster_thumbnail.png"
         displayName: "Digital Cluster"
