@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <utils/aspects.h>
 
 namespace Autotest {
@@ -41,6 +43,7 @@ enum MetricsType
 
 class QtTestSettings : public Utils::AspectContainer
 {
+    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::QtTestSettings)
 public:
     QtTestSettings();
 
@@ -51,6 +54,12 @@ public:
     Utils::BoolAspect useXMLOutput;
     Utils::BoolAspect verboseBench;
     Utils::BoolAspect logSignalsSlots;
+};
+
+class QtTestSettingsPage final : public Core::IOptionsPage
+{
+public:
+    QtTestSettingsPage(QtTestSettings *settings, Utils::Id settingsId);
 };
 
 } // namespace Internal

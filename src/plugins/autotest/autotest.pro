@@ -59,7 +59,6 @@ SOURCES += \
     qtest/qttestparser.cpp \
     qtest/qttestframework.cpp \
     qtest/qttestsettings.cpp \
-    qtest/qttestsettingspage.cpp \
     qtest/qttest_utils.cpp \
     quick/quicktestconfiguration.cpp \
     quick/quicktestparser.cpp \
@@ -138,7 +137,6 @@ HEADERS += \
     qtest/qttestparser.h \
     qtest/qttestframework.h \
     qtest/qttestsettings.h \
-    qtest/qttestsettingspage.h \
     qtest/qttestconstants.h \
     quick/quicktestconfiguration.h \
     quick/quicktestparser.h \
@@ -164,7 +162,6 @@ FORMS += \
     testsettingspage.ui \
     boost/boosttestsettingspage.ui \
     catch/catchtestsettingspage.ui \
-    qtest/qttestsettingspage.ui \
     gtest/gtestsettingspage.ui
 
 equals(TEST, 1) {

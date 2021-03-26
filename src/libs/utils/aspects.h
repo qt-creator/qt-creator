@@ -211,7 +211,16 @@ public:
     enum class DisplayStyle { RadioButtons, ComboBox };
     void setDisplayStyle(DisplayStyle style);
 
+    class Option
+    {
+    public:
+        QString displayName;
+        QString tooltip;
+        bool enabled = true;
+    };
+
     void addOption(const QString &displayName, const QString &toolTip = {});
+    void addOption(const Option &option);
     int indexForDisplay(const QString &displayName) const;
     QString displayForIndex(int index) const;
 

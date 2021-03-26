@@ -570,8 +570,7 @@ public:
 
     SelectionAspect::DisplayStyle m_displayStyle
             = SelectionAspect::DisplayStyle::RadioButtons;
-    struct Option { QString displayName; QString tooltip; };
-    QVector<Option> m_options;
+    QVector<SelectionAspect::Option> m_options;
 
     // These are all owned by the configuration widget.
     QList<QPointer<QRadioButton>> m_buttons;
@@ -1365,9 +1364,10 @@ void SelectionAspect::addToLayout(LayoutBuilder &builder)
         d->m_buttonGroup = new QButtonGroup();
         d->m_buttonGroup->setExclusive(true);
         for (int i = 0, n = d->m_options.size(); i < n; ++i) {
-            const Internal::SelectionAspectPrivate::Option &option = d->m_options.at(i);
+            const Option &option = d->m_options.at(i);
             auto button = createSubWidget<QRadioButton>(option.displayName);
             button->setChecked(i == value());
+            button->setEnabled(option.enabled);
             button->setToolTip(option.tooltip);
             builder.addItems({{}, button});
             d->m_buttons.append(button);
@@ -1481,6 +1481,11 @@ QString SelectionAspect::stringValue() const
 void SelectionAspect::addOption(const QString &displayName, const QString &toolTip)
 {
     d->m_options.append({displayName, toolTip});
+}
+
+void SelectionAspect::addOption(const Option &option)
+{
+    d->m_options.append(option);
 }
 
 int SelectionAspect::indexForDisplay(const QString &displayName) const

@@ -52,7 +52,6 @@ add_qtc_plugin(AutoTest
     qtest/qttestparser.cpp qtest/qttestparser.h
     qtest/qttestresult.cpp qtest/qttestresult.h
     qtest/qttestsettings.cpp qtest/qttestsettings.h
-    qtest/qttestsettingspage.cpp qtest/qttestsettingspage.h qtest/qttestsettingspage.ui
     qtest/qttesttreeitem.cpp qtest/qttesttreeitem.h
     qtest/qttestvisitors.cpp qtest/qttestvisitors.h
     quick/quicktest_utils.cpp quick/quicktest_utils.h

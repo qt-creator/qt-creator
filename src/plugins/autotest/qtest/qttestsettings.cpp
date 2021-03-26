@@ -25,26 +25,15 @@
 
 #include "qttestsettings.h"
 
+#include "../autotestconstants.h"
+#include "qttestconstants.h"
+
+#include <utils/layoutbuilder.h>
+
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
-
-static MetricsType intToMetrics(int value)
-{
-    switch (value) {
-    case Walltime:
-        return Walltime;
-    case TickCounter:
-        return TickCounter;
-    case EventCounter:
-        return EventCounter;
-    case CallGrind:
-        return CallGrind;
-    case Perf:
-        return Perf;
-    default:
-        return Walltime;
-    }
-}
 
 QtTestSettings::QtTestSettings()
 {
@@ -54,20 +43,42 @@ QtTestSettings::QtTestSettings()
     registerAspect(&metrics);
     metrics.setSettingsKey("Metrics");
     metrics.setDefaultValue(Walltime);
+    metrics.addOption(tr("Walltime"), tr("Uses walltime metrics for executing benchmarks (default)."));
+    metrics.addOption(tr("Tick counter"), tr("Uses tick counter when executing benchmarks."));
+    metrics.addOption(tr("Event counter"), tr("Uses event counter when executing benchmarks."));
+    metrics.addOption({
+        tr("Callgrind"),
+        tr("Uses Valgrind Callgrind when executing benchmarks (it must be installed)."),
+        HostOsInfo::isAnyUnixHost()  // valgrind available on UNIX
+    });
+    metrics.addOption({
+        tr("Perf"),
+        tr("Uses Perf when executing benchmarks (it must be installed)."),
+        HostOsInfo::isLinuxHost() // according to docs perf Linux only
+    });
 
     registerAspect(&noCrashHandler);
     noCrashHandler.setSettingsKey("NoCrashhandlerOnDebug");
     noCrashHandler.setDefaultValue(true);
+    noCrashHandler.setLabelText(tr("Disable crash handler while debugging"));
+    noCrashHandler.setToolTip(tr("Enables interrupting tests on assertions."));
 
     registerAspect(&useXMLOutput);
     useXMLOutput.setSettingsKey("UseXMLOutput");
     useXMLOutput.setDefaultValue(true);
+    useXMLOutput.setLabelText(tr("Use XML output"));
+    useXMLOutput.setToolTip(tr("XML output is recommended, because it avoids parsing issues, "
+        "while plain text is more human readable.\n\n"
+        "Warning: Plain text misses some information, such as duration."));
 
     registerAspect(&verboseBench);
     verboseBench.setSettingsKey("VerboseBench");
+    verboseBench.setLabelText(tr("Verbose benchmarks"));
 
     registerAspect(&logSignalsSlots);
     logSignalsSlots.setSettingsKey("LogSignalsSlots");
+    logSignalsSlots.setLabelText(tr("Log signals and slots"));
+    logSignalsSlots.setToolTip(tr("Log every signal emission and resulting slot invocations."));
 }
 
 QString QtTestSettings::metricsTypeToOption(const MetricsType type)
@@ -85,6 +96,33 @@ QString QtTestSettings::metricsTypeToOption(const MetricsType type)
         return QString("-perf");
     }
     return QString();
+}
+
+QtTestSettingsPage::QtTestSettingsPage(QtTestSettings *settings, Id settingsId)
+{
+    setId(settingsId);
+    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
+    setDisplayName(QCoreApplication::translate("QtTestFramework",
+                                               QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
+    setSettings(settings);
+
+    setLayouter([settings](QWidget *widget) {
+        QtTestSettings &s = *settings;
+        using namespace Layouting;
+
+        Column col {
+            s.noCrashHandler,
+            s.useXMLOutput,
+            s.verboseBench,
+            s.logSignalsSlots,
+            Group {
+                Title(QtTestSettings::tr("Benchmark Metrics")),
+                s.metrics
+            },
+        };
+
+        Column { Row { col, Stretch() }, Stretch() }.attachTo(widget);
+    });
 }
 
 } // namespace Internal

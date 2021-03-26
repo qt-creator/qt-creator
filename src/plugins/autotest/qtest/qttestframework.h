@@ -28,7 +28,6 @@
 #include "../itestframework.h"
 
 #include "qttestsettings.h"
-#include "qttestsettingspage.h"
 
 namespace Autotest {
 namespace Internal {
