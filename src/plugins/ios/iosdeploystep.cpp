@@ -235,8 +235,6 @@ QWidget *IosDeployStep::createConfigWidget()
     auto widget = new QWidget;
 
     widget->setObjectName("IosDeployStepWidget");
-    setDisplayName(QString("<b>%1</b>").arg(displayName()));
-    setSummaryText(displayName());
 
     connect(this, &ProjectConfiguration::displayNameChanged,
             this, &BuildStep::updateSummary);

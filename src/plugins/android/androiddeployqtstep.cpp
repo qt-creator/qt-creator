@@ -494,9 +494,6 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
 {
     auto widget = new QWidget;
 
-    setDisplayName(QString("<b>%1</b>").arg(displayName()));
-    setSummaryText(displayName());
-
     auto resetDefaultDevices = new QPushButton(widget);
     resetDefaultDevices->setText(tr("Reset Default Deployment Devices"));
 
