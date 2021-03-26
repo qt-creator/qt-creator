@@ -99,4 +99,13 @@ ListModel {
         url: "https://download.qt.io/learning/examples/qtdesignstudio/digitalcluster.zip"
         showDownload: true
     }
+
+    ListElement {
+        projectName: "effectdemo"
+        qmlFileName: "Screen01.ui.qml"
+        thumbnail: "images/effectdemo_thumbnail.png"
+        displayName: "Effect Demo"
+        url: "https://download.qt.io/learning/examples/qtdesignstudio/effectdemo.zip"
+        showDownload: true
+    }
 }
