@@ -77,7 +77,7 @@ QString GTestFramework::groupingToolTip() const
 
 GTest::Constants::GroupMode GTestFramework::groupMode()
 {
-    return GTest::Constants::GroupMode(g_settings->groupMode.value());
+    return GTest::Constants::GroupMode(g_settings->groupMode.itemValue().toInt());
 }
 
 } // namespace Internal

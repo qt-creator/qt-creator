@@ -48,7 +48,6 @@ SOURCES += \
     gtest/gtestvisitors.cpp \
     gtest/gtestframework.cpp \
     gtest/gtestsettings.cpp \
-    gtest/gtestsettingspage.cpp \
     gtest/gtest_utils.cpp \
     qtest/qttesttreeitem.cpp \
     qtest/qttestvisitors.cpp \
@@ -123,7 +122,6 @@ HEADERS += \
     gtest/gtestvisitors.h \
     gtest/gtestframework.h \
     gtest/gtestsettings.h \
-    gtest/gtestsettingspage.h \
     gtest/gtestconstants.h \
     qtest/qttesttreeitem.h \
     qtest/qttest_utils.h \
@@ -155,8 +153,7 @@ RESOURCES += \
     autotest.qrc
 
 FORMS += \
-    testsettingspage.ui \
-    gtest/gtestsettingspage.ui
+    testsettingspage.ui
 
 equals(TEST, 1) {
     HEADERS += autotestunittests.h

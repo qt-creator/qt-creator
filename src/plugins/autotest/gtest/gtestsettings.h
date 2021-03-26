@@ -27,6 +27,8 @@
 
 #include "gtestconstants.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <utils/aspects.h>
 
 namespace Autotest {
@@ -34,6 +36,8 @@ namespace Internal {
 
 class GTestSettings : public Utils::AspectContainer
 {
+    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::GTestSettings)
+
 public:
     GTestSettings();
 
@@ -46,6 +50,14 @@ public:
     Utils::BoolAspect breakOnFailure;
     Utils::SelectionAspect groupMode;
     Utils::StringAspect gtestFilter;
+};
+
+class GTestSettingsPage final : public Core::IOptionsPage
+{
+    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::GTestSettings)
+
+public:
+    GTestSettingsPage(GTestSettings *settings, Utils::Id settingsId);
 };
 
 } // namespace Internal

@@ -28,7 +28,6 @@
 #include "../itestframework.h"
 #include "gtestconstants.h"
 #include "gtestsettings.h"
-#include "gtestsettingspage.h"
 
 namespace Autotest {
 namespace Internal {

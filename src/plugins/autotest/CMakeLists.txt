@@ -35,7 +35,6 @@ add_qtc_plugin(AutoTest
     gtest/gtestparser.cpp gtest/gtestparser.h
     gtest/gtestresult.cpp gtest/gtestresult.h
     gtest/gtestsettings.cpp gtest/gtestsettings.h
-    gtest/gtestsettingspage.cpp gtest/gtestsettingspage.h gtest/gtestsettingspage.ui
     gtest/gtesttreeitem.cpp gtest/gtesttreeitem.h
     gtest/gtestvisitors.cpp gtest/gtestvisitors.h
     itemdatacache.h
