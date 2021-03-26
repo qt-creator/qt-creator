@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -23,9 +23,18 @@
 **
 ****************************************************************************/
 /*!
-//! [incredibuild build steps]
+    \previouspage creator-build-settings-meson.html
+    \page creator-build-settings-incredibuild.html
+    \nextpage creator-build-settings-conan.html
 
-    \section2 IncrediBuild Build Steps
+    \title IncrediBuild Build Configuration
+
+    You can specify build steps and clean steps for IncrediBuild.
+
+    For more information about configuring IncrediBuild, see
+    \l{Setting Up IncrediBuild}.
+
+    \section1 IncrediBuild Build Steps
 
     To use IncrediBuild, select \uicontrol {Add Build Step} >
     \uicontrol {IncrediBuild for Linux} or
@@ -53,7 +62,7 @@
     The distribution control settings to specify depend on whether you are using
     Linux or Windows.
 
-    \section3 Distribution Control Settings on Linux
+    \section2 Distribution Control Settings on Linux
 
     \image qtcreator-incredibuild-build-steps-linux.png
 
@@ -66,7 +75,7 @@
         \li \uicontrol {Alternate tasks preference}
     \endlist
 
-    \section3 Distribution Control Settings on Windows
+    \section2 Distribution Control Settings on Windows
 
     \image qtcreator-incredibuild-build-steps-windows.png
 
@@ -125,11 +134,7 @@
             starts.
     \endlist
 
-//! [incredibuild build steps]
-
-//! [incredibuild clean steps]
-
-    \section2 IncrediBuild Clean Steps
+    \section1 IncrediBuild Clean Steps
 
     When building with IncrediBuild, you can add arguments and targets for the
     clean command in \uicontrol {Clean Steps}.
@@ -138,6 +143,4 @@
 
     The build errors and warnings are parsed and displayed in the
     \uicontrol Issues output pane.
-
-//! [incredibuild clean steps]
 */

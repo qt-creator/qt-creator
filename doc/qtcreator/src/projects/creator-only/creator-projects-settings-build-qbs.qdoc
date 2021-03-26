@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -24,9 +24,17 @@
 ****************************************************************************/
 
 /*!
-//! [qbs build steps]
+    \previouspage creator-build-settings-qmake.html
+    \page creator-build-settings-qbs.html
+    \nextpage creator-build-settings-meson.html
 
-    \section2 Qbs Build Steps
+    \title Qbs Build Configuration
+
+    You can specify build steps and clean steps for Qbs.
+
+    For more information about configuring Qbs, see \l{Setting Up Qbs}.
+
+    \section1 Qbs Build Steps
 
     \image creator-qbs-build-app.png
 
@@ -95,12 +103,7 @@
     The \uicontrol {Equivalent command line} field displays the build command
     that is constructed based on the selected options.
 
-//! [qbs build steps]
-
-
-//! [qbs clean steps]
-
-    \section2 Qbs Clean Steps
+    \section1 Qbs Clean Steps
 
     When building with Qbs, you can specify flags in \uicontrol {Clean Steps}:
 
@@ -118,6 +121,4 @@
 
     The \uicontrol {Equivalent command line} field displays the clean command
     that is constructed based on the selected options.
-
-//! [qbs clean steps]
 */
