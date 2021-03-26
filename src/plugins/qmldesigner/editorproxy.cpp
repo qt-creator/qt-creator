@@ -22,7 +22,6 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-#pragma once
 
 #include "editorproxy.h"
 #include "qmlmodelnodeproxy.h"
@@ -42,7 +41,7 @@ EditorProxy::~EditorProxy()
 
 void EditorProxy::showWidget()
 {
-    if (m_widget = createWidget()) {
+    if ((m_widget = createWidget())) {
         m_widget->setAttribute(Qt::WA_DeleteOnClose);
         m_widget->show();
         m_widget->raise();
@@ -64,11 +63,14 @@ void EditorProxy::hideWidget()
     m_widget = nullptr;
 }
 
-QWidget* EditorProxy::widget() const {
+QWidget *EditorProxy::widget() const
+{
     return m_widget;
 }
 
-ModelNodeEditorProxy::ModelNodeEditorProxy(QObject *parent) : EditorProxy(parent) {}
+ModelNodeEditorProxy::ModelNodeEditorProxy(QObject *parent)
+    : EditorProxy(parent)
+{}
 
 ModelNodeEditorProxy::~ModelNodeEditorProxy() {}
 
