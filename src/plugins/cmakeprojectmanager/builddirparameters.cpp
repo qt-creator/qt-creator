@@ -85,8 +85,8 @@ BuildDirParameters::BuildDirParameters(CMakeBuildConfiguration *bc)
         environment.set("ICECC", "no");
 
     CMakeSpecificSettings *settings = CMakeProjectPlugin::projectTypeSpecificSettings();
-    if (!settings->ninjaPath().isEmpty()) {
-        const Utils::FilePath setting = settings->ninjaPath();
+    if (!settings->ninjaPath.filePath().isEmpty()) {
+        const Utils::FilePath setting = settings->ninjaPath.filePath();
         const Utils::FilePath path = setting.toFileInfo().isFile() ? setting.parentDir() : setting;
         environment.appendOrSetPath(path.toString());
     }

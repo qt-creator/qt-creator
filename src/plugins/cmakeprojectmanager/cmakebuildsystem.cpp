@@ -70,16 +70,15 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLoggingCategory>
-#include <QPushButton>
 #include <QRegularExpression>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace {
+namespace CMakeProjectManager {
+namespace Internal {
 
-void copySourcePathToClipboard(Utils::optional<QString> srcPath,
-                               const ProjectExplorer::ProjectNode *node)
+static void copySourcePathToClipboard(Utils::optional<QString> srcPath, const ProjectNode *node)
 {
     QClipboard *clip = QGuiApplication::clipboard();
 
@@ -87,7 +86,7 @@ void copySourcePathToClipboard(Utils::optional<QString> srcPath,
     clip->setText(QDir::cleanPath(projDir.relativeFilePath(srcPath.value())));
 }
 
-void noAutoAdditionNotify(const QStringList &filePaths, const ProjectExplorer::ProjectNode *node)
+static void noAutoAdditionNotify(const QStringList &filePaths, const ProjectNode *node)
 {
     Utils::optional<QString> srcPath{};
 
@@ -99,13 +98,12 @@ void noAutoAdditionNotify(const QStringList &filePaths, const ProjectExplorer::P
     }
 
     if (srcPath) {
-        CMakeProjectManager::Internal::CMakeSpecificSettings *settings
-            = CMakeProjectManager::Internal::CMakeProjectPlugin::projectTypeSpecificSettings();
-        switch (settings->afterAddFileSetting()) {
-        case CMakeProjectManager::Internal::ASK_USER: {
+        CMakeSpecificSettings *settings = CMakeProjectPlugin::projectTypeSpecificSettings();
+        switch (settings->afterAddFileSetting.value()) {
+        case AskUser: {
             bool checkValue{false};
-            QDialogButtonBox::StandardButton reply = Utils::CheckableMessageBox::question(
-                nullptr,
+            QDialogButtonBox::StandardButton reply = CheckableMessageBox::question(
+                Core::ICore::dialogParent(),
                 QMessageBox::tr("Copy to Clipboard?"),
                 QMessageBox::tr("Files are not automatically added to the "
                                 "CMakeLists.txt file of the CMake project."
@@ -116,36 +114,29 @@ void noAutoAdditionNotify(const QStringList &filePaths, const ProjectExplorer::P
                 QDialogButtonBox::Yes);
             if (checkValue) {
                 if (QDialogButtonBox::Yes == reply)
-                    settings->setAfterAddFileSetting(
-                        CMakeProjectManager::Internal::AfterAddFileAction::COPY_FILE_PATH);
+                    settings->afterAddFileSetting.setValue(CopyFilePath);
                 else if (QDialogButtonBox::No == reply)
-                    settings->setAfterAddFileSetting(
-                        CMakeProjectManager::Internal::AfterAddFileAction::NEVER_COPY_FILE_PATH);
+                    settings->afterAddFileSetting.setValue(NeverCopyFilePath);
 
                 settings->writeSettings(Core::ICore::settings());
             }
 
-            if (QDialogButtonBox::Yes == reply) {
+            if (QDialogButtonBox::Yes == reply)
                 copySourcePathToClipboard(srcPath, node);
-            }
+
             break;
         }
 
-        case CMakeProjectManager::Internal::COPY_FILE_PATH: {
+        case CopyFilePath: {
             copySourcePathToClipboard(srcPath, node);
             break;
         }
 
-        case CMakeProjectManager::Internal::NEVER_COPY_FILE_PATH:
+        case NeverCopyFilePath:
             break;
         }
     }
 }
-
-} // namespace
-
-namespace CMakeProjectManager {
-namespace Internal {
 
 static Q_LOGGING_CATEGORY(cmakeBuildSystemLog, "qtc.cmake.buildsystem", QtWarningMsg);
 
@@ -180,7 +171,7 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
         return isIgnored;
     });
 
-    m_treeScanner.setTypeFactory([](const Utils::MimeType &mimeType, const Utils::FilePath &fn) {
+    m_treeScanner.setTypeFactory([](const MimeType &mimeType, const FilePath &fn) {
         auto type = TreeScanner::genericFileType(mimeType, fn);
         if (type == FileType::Unknown) {
             if (mimeType.isValid()) {
@@ -377,7 +368,7 @@ QString CMakeBuildSystem::reparseParametersString(int reparseFlags)
 
 void CMakeBuildSystem::writeConfigurationIntoBuildDirectory()
 {
-    const Utils::MacroExpander *expander = cmakeBuildConfiguration()->macroExpander();
+    const MacroExpander *expander = cmakeBuildConfiguration()->macroExpander();
     const FilePath buildDir = workDirectory(m_parameters);
     QTC_ASSERT(buildDir.exists(), return );
 
@@ -551,7 +542,7 @@ void CMakeBuildSystem::clearCMakeCache()
 
     for (const FilePath &path : pathsToDelete) {
         if (path.exists())
-            Utils::FileUtils::removeRecursively(path);
+            FileUtils::removeRecursively(path);
     }
 }
 
@@ -609,7 +600,7 @@ void CMakeBuildSystem::updateProjectData()
         QSet<QString> res;
         QStringList apps;
         for (const auto &target : qAsConst(m_buildTargets)) {
-            if (target.targetType == CMakeProjectManager::DynamicLibraryType) {
+            if (target.targetType == DynamicLibraryType) {
                 res.insert(target.executable.parentDir().toString());
                 apps.push_back(target.executable.toUserOutput());
             }
@@ -889,7 +880,7 @@ void CMakeBuildSystem::wireUpConnections()
 
 FilePath CMakeBuildSystem::workDirectory(const BuildDirParameters &parameters)
 {
-    const Utils::FilePath bdir = parameters.buildDirectory;
+    const FilePath bdir = parameters.buildDirectory;
     const CMakeTool *cmake = parameters.cmakeTool();
 
     // use the build directory if it already exists anyhow
@@ -910,7 +901,7 @@ FilePath CMakeBuildSystem::workDirectory(const BuildDirParameters &parameters)
     auto tmpDirIt = m_buildDirToTempDir.find(bdir);
     if (tmpDirIt == m_buildDirToTempDir.end()) {
         auto ret = m_buildDirToTempDir.emplace(
-            std::make_pair(bdir, std::make_unique<Utils::TemporaryDirectory>("qtc-cmake-XXXXXXXX")));
+            std::make_pair(bdir, std::make_unique<TemporaryDirectory>("qtc-cmake-XXXXXXXX")));
         QTC_ASSERT(ret.second, return bdir);
         tmpDirIt = ret.first;
 
@@ -920,7 +911,7 @@ FilePath CMakeBuildSystem::workDirectory(const BuildDirParameters &parameters)
             return bdir;
         }
     }
-    return Utils::FilePath::fromString(tmpDirIt->second->path());
+    return FilePath::fromString(tmpDirIt->second->path());
 }
 
 void CMakeBuildSystem::stopParsingAndClearState()
@@ -1158,11 +1149,11 @@ DeploymentData CMakeBuildSystem::deploymentData() const
     return result;
 }
 
-QList<ProjectExplorer::ExtraCompiler *> CMakeBuildSystem::findExtraCompilers()
+QList<ExtraCompiler *> CMakeBuildSystem::findExtraCompilers()
 {
     qCDebug(cmakeBuildSystemLog) << "Finding Extra Compilers: start.";
 
-    QList<ProjectExplorer::ExtraCompiler *> extraCompilers;
+    QList<ExtraCompiler *> extraCompilers;
     const QList<ExtraCompilerFactory *> factories = ExtraCompilerFactory::extraCompilerFactories();
 
     qCDebug(cmakeBuildSystemLog) << "Finding Extra Compilers: Got factories.";

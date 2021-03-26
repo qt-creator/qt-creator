@@ -25,8 +25,6 @@
 
 #include "cmakespecificsettings.h"
 
-#include <coreplugin/icore.h>
-
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/layoutbuilder.h>
@@ -41,72 +39,32 @@ CMakeSpecificSettings::CMakeSpecificSettings()
     setSettingsGroup("CMakeSpecificSettings");
     setAutoApply(false);
 
-    registerAspect(&m_afterAddFileToProjectSetting);
-    m_afterAddFileToProjectSetting.setSettingsKey("ProjectPopupSetting");
-    m_afterAddFileToProjectSetting.setDefaultValue(AfterAddFileAction::ASK_USER);
-    m_afterAddFileToProjectSetting.addOption(tr("Ask about copying file paths"));
-    m_afterAddFileToProjectSetting.addOption(tr("Do not copy file paths"));
-    m_afterAddFileToProjectSetting.addOption(tr("Copy file paths"));
-    m_afterAddFileToProjectSetting.setToolTip(tr("Determines whether file paths are copied "
+    registerAspect(&afterAddFileSetting);
+    afterAddFileSetting.setSettingsKey("ProjectPopupSetting");
+    afterAddFileSetting.setDefaultValue(AfterAddFileAction::AskUser);
+    afterAddFileSetting.addOption(tr("Ask about copying file paths"));
+    afterAddFileSetting.addOption(tr("Do not copy file paths"));
+    afterAddFileSetting.addOption(tr("Copy file paths"));
+    afterAddFileSetting.setToolTip(tr("Determines whether file paths are copied "
         "to the clipboard for pasting to the CMakeLists.txt file when you "
         "add new files to CMake projects."));
 
-    registerAspect(&m_ninjaPath);
-    m_ninjaPath.setSettingsKey("NinjaPath");
+    registerAspect(&ninjaPath);
+    ninjaPath.setSettingsKey("NinjaPath");
 
-    registerAspect(&m_packageManagerAutoSetup);
-    m_packageManagerAutoSetup.setSettingsKey("PackageManagerAutoSetup");
-    m_packageManagerAutoSetup.setDefaultValue(true);
-    m_packageManagerAutoSetup.setLabelText(tr("Package manager auto setup"));
-    m_packageManagerAutoSetup.setToolTip(tr("Add the CMAKE_PROJECT_INCLUDE_BEFORE variable "
+    registerAspect(&packageManagerAutoSetup);
+    packageManagerAutoSetup.setSettingsKey("PackageManagerAutoSetup");
+    packageManagerAutoSetup.setDefaultValue(true);
+    packageManagerAutoSetup.setLabelText(tr("Package manager auto setup"));
+    packageManagerAutoSetup.setToolTip(tr("Add the CMAKE_PROJECT_INCLUDE_BEFORE variable "
         "pointing to a CMake script that will install dependencies from the conanfile.txt, "
         "conanfile.py, or vcpkg.json file from the project source directory."));
 
-    registerAspect(&m_askBeforeReConfigureInitialParams);
-    m_askBeforeReConfigureInitialParams.setSettingsKey("AskReConfigureInitialParams");
-    m_askBeforeReConfigureInitialParams.setDefaultValue(true);
-    m_askBeforeReConfigureInitialParams.setLabelText(tr("Ask before re-configuring with "
+    registerAspect(&askBeforeReConfigureInitialParams);
+    askBeforeReConfigureInitialParams.setSettingsKey("AskReConfigureInitialParams");
+    askBeforeReConfigureInitialParams.setDefaultValue(true);
+    askBeforeReConfigureInitialParams.setLabelText(tr("Ask before re-configuring with "
         "initial parameters"));
-}
-
-// CMakeSpecificSettingWidget
-
-class CMakeSpecificSettingWidget final : public Core::IOptionsPageWidget
-{
-    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeSpecificSettingWidget)
-
-public:
-    explicit CMakeSpecificSettingWidget(CMakeSpecificSettings *settings);
-
-    void apply() final;
-
-private:
-    CMakeSpecificSettings *m_settings;
-};
-
-CMakeSpecificSettingWidget::CMakeSpecificSettingWidget(CMakeSpecificSettings *settings)
-    : m_settings(settings)
-{
-    CMakeSpecificSettings &s = *m_settings;
-    using namespace Layouting;
-
-    Column {
-        Group {
-            Title(tr("Adding Files")),
-            s.m_afterAddFileToProjectSetting
-        },
-        s.m_packageManagerAutoSetup,
-        s.m_askBeforeReConfigureInitialParams,
-        Stretch(),
-    }.attachTo(this);
-}
-
-void CMakeSpecificSettingWidget::apply()
-{
-    if (m_settings->isDirty()) {
-        m_settings->apply();
-        m_settings->writeSettings(Core::ICore::settings());
-    }
 }
 
 // CMakeSpecificSettingsPage
@@ -114,9 +72,23 @@ void CMakeSpecificSettingWidget::apply()
 CMakeSpecificSettingsPage::CMakeSpecificSettingsPage(CMakeSpecificSettings *settings)
 {
     setId("CMakeSpecificSettings");
-    setDisplayName(CMakeSpecificSettingWidget::tr("CMake"));
+    setDisplayName(CMakeSpecificSettings::tr("CMake"));
     setCategory(ProjectExplorer::Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
-    setWidgetCreator([settings] { return new CMakeSpecificSettingWidget(settings); });
+    setSettings(settings);
+
+    setLayouter([settings](QWidget *widget) {
+        CMakeSpecificSettings &s = *settings;
+        using namespace Layouting;
+        Column {
+            Group {
+                Title(CMakeSpecificSettings::tr("Adding Files")),
+                s.afterAddFileSetting
+            },
+            s.packageManagerAutoSetup,
+            s.askBeforeReConfigureInitialParams,
+            Stretch(),
+        }.attachTo(widget);
+    });
 }
 
 } // Internal

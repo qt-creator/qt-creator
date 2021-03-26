@@ -655,7 +655,7 @@ QVariant CMakeGeneratorKitAspect::defaultValue(const Kit *k) const
             Internal::CMakeSpecificSettings *settings
                 = Internal::CMakeProjectPlugin::projectTypeSpecificSettings();
 
-            if (settings->ninjaPath().isEmpty()) {
+            if (settings->ninjaPath.filePath().isEmpty()) {
                 Utils::Environment env = Utils::Environment::systemEnvironment();
                 k->addToEnvironment(env);
                 return !env.searchInPath("ninja").isEmpty();

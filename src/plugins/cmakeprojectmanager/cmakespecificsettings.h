@@ -33,42 +33,23 @@ namespace CMakeProjectManager {
 namespace Internal {
 
 enum AfterAddFileAction : int {
-    ASK_USER,
-    COPY_FILE_PATH,
-    NEVER_COPY_FILE_PATH
+    AskUser,
+    CopyFilePath,
+    NeverCopyFilePath
 };
 
-class CMakeSpecificSettings : public Utils::AspectContainer
+class CMakeSpecificSettings final : public Utils::AspectContainer
 {
     Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeSpecificSettings)
 
 public:
     CMakeSpecificSettings();
 
-    void setAfterAddFileSetting(AfterAddFileAction settings) {
-        m_afterAddFileToProjectSetting.setValue(settings);
-    }
-    AfterAddFileAction afterAddFileSetting() const {
-        return static_cast<AfterAddFileAction>(m_afterAddFileToProjectSetting.value());
-    }
-
-    Utils::FilePath ninjaPath() const { return m_ninjaPath.filePath(); }
-
-    void setPackageManagerAutoSetup(bool checked) { m_packageManagerAutoSetup.setValue(checked); }
-    bool packageManagerAutoSetup() const { return m_packageManagerAutoSetup.value(); }
-
-    void setAskBeforeReConfigureInitialParams(bool doAsk) { m_askBeforeReConfigureInitialParams.setValue(doAsk); }
-    bool askBeforeReConfigureInitialParams() const { return m_askBeforeReConfigureInitialParams.value(); }
-
-private:
-    friend class CMakeSpecificSettingWidget;
-
-    Utils::SelectionAspect m_afterAddFileToProjectSetting;
-    Utils::StringAspect m_ninjaPath;
-    Utils::BoolAspect m_packageManagerAutoSetup;
-    Utils::BoolAspect m_askBeforeReConfigureInitialParams;
+    Utils::SelectionAspect afterAddFileSetting;
+    Utils::StringAspect ninjaPath;
+    Utils::BoolAspect packageManagerAutoSetup;
+    Utils::BoolAspect askBeforeReConfigureInitialParams;
 };
-
 
 class CMakeSpecificSettingsPage final : public Core::IOptionsPage
 {

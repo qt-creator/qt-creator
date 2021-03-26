@@ -188,10 +188,10 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     auto clearCMakeConfiguration = new QPushButton(tr("Re-configure with Initial Parameters"));
     connect(clearCMakeConfiguration, &QPushButton::clicked, this, [bc]() {
         auto *settings = CMakeProjectPlugin::projectTypeSpecificSettings();
-        bool doNotAsk{!settings->askBeforeReConfigureInitialParams()};
+        bool doNotAsk = !settings->askBeforeReConfigureInitialParams.value();
         if (!doNotAsk) {
             QDialogButtonBox::StandardButton reply = Utils::CheckableMessageBox::question(
-                nullptr,
+                Core::ICore::dialogParent(),
                 tr("Re-configure with Initial Parameters"),
                 tr("Clear CMake configuration and configure with initial parameters?"),
                 tr("Do not ask again"),
@@ -199,7 +199,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
                 QDialogButtonBox::Yes | QDialogButtonBox::No,
                 QDialogButtonBox::Yes);
 
-            settings->setAskBeforeReConfigureInitialParams(!doNotAsk);
+            settings->askBeforeReConfigureInitialParams.setValue(!doNotAsk);
             settings->writeSettings(Core::ICore::settings());
 
             if (reply != QDialogButtonBox::Yes) {
@@ -803,7 +803,7 @@ static QStringList defaultInitialCMakeArguments(const Kit *k, const QString buil
         = Internal::CMakeProjectPlugin::projectTypeSpecificSettings();
 
     // Package manager
-    if (settings->packageManagerAutoSetup())
+    if (settings->packageManagerAutoSetup.value())
         initialArgs.append(QString::fromLatin1("-DCMAKE_PROJECT_INCLUDE_BEFORE:PATH=%1")
                            .arg("%{IDE:ResourcePath}/package-manager/auto-setup.cmake"));
 
