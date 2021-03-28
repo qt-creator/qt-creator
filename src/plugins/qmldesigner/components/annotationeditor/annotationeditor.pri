@@ -20,4 +20,6 @@ FORMS += $$PWD/annotationcommenttab.ui
 FORMS += $$PWD/annotationeditordialog.ui
 FORMS += $$PWD/globalannotationeditordialog.ui
 
+INCLUDEPATH += $$PWD
+
 RESOURCES += $$PWD/annotationeditor.qrc
