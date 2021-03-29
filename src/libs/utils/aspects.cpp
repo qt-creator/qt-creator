@@ -430,8 +430,9 @@ void BaseAspect::cancel()
 
 void BaseAspect::finish()
 {
-    qDeleteAll(d->m_subWidgets);
-    d->m_subWidgets.clear();
+    // No qDeleteAll() possible as long as the connect in registerSubWidget() exist.
+    while (d->m_subWidgets.size())
+        delete d->m_subWidgets.takeLast();
 }
 
 bool BaseAspect::hasAction() const
@@ -463,6 +464,11 @@ void BaseAspect::registerSubWidget(QWidget *widget)
 {
     d->m_subWidgets.append(widget);
 
+    // FIXME: This interferes with qDeleteAll() in finish() and destructor,
+    // it would not be needed when all users actually deleted their subwidgets,
+    // e.g. the SettingsPage::finish() base implementation, but this still
+    // leaves the cases where no such base functionality is available, e.g.
+    // in the run/build config aspects.
     connect(widget, &QObject::destroyed, this, [this, widget] {
         d->m_subWidgets.removeAll(widget);
     });
@@ -1475,8 +1481,9 @@ void SelectionAspect::setVolatileValue(const QVariant &val)
 
 void SelectionAspect::finish()
 {
-    BaseAspect::finish();
     delete d->m_buttonGroup;
+    d->m_buttonGroup = nullptr;
+    BaseAspect::finish();
 }
 
 void SelectionAspect::setDisplayStyle(SelectionAspect::DisplayStyle style)
