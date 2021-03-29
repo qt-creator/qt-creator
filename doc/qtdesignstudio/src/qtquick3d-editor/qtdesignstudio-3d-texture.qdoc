@@ -136,6 +136,4 @@
     specify a new image to use in the \uicontrol Source field.
 
     \image studio-qtquick-3d-texture-properties.png "Texture properties"
-
-    \endlist
 */
