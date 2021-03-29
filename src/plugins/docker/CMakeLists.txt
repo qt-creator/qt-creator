@@ -1,10 +1,14 @@
 add_qtc_plugin(Docker
-  PLUGIN_DEPENDS Core
+  PLUGIN_DEPENDS Core ProjectExplorer
   SOURCES
-    dockerplugin.cpp
-    dockerplugin.h
-    dockersettings.cpp
-    dockersettings.h
     docker_global.h
     dockerconstants.h
+    dockerdevice.cpp
+    dockerdevice.h
+    dockerplugin.cpp
+    dockerplugin.h
+    dockerrunconfiguration.cpp
+    dockerrunconfiguration.h
+    dockersettings.cpp
+    dockersettings.h
 )

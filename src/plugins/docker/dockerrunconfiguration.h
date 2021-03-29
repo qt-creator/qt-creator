@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,20 +23,19 @@
 **
 ****************************************************************************/
 
-#ifndef DOCKERCONSTANTS_H
-#define DOCKERCONSTANTS_H
+#pragma once
+
+#include <projectexplorer/runconfiguration.h>
 
 namespace Docker {
-namespace Constants {
+namespace Internal {
 
-const char DOCKER_SETTINGS_ID[] = "Docker.Settings";
-const char ACTION_ID[] = "Docker.Action";
-const char MENU_ID[] = "Docker.Menu";
+class DockerContainerRunConfigurationFactory
+    : public ProjectExplorer::FixedRunConfigurationFactory
+{
+public:
+    DockerContainerRunConfigurationFactory();
+};
 
-const char DOCKER_DEVICE_TYPE[] = "DockerDeviceType";
-const char DOCKER_RUN_FLAGS[] = "DockerRunFlags";
-
-} // namespace Constants
-} // namespace Docker
-
-#endif // DOCKERCONSTANTS_H
+} // Internal
+} // Docker

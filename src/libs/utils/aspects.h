@@ -96,6 +96,7 @@ public:
     bool isEnabled() const;
     void setEnabled(bool enabled);
 
+    bool isReadOnly() const;
     void setReadOnly(bool enabled);
 
     void setSpan(int x, int y = 1);

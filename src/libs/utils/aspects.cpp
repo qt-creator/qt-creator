@@ -309,6 +309,11 @@ void BaseAspect::setEnabled(bool enabled)
     }
 }
 
+bool BaseAspect::isReadOnly() const
+{
+    return d->m_readOnly;
+}
+
 void BaseAspect::setReadOnly(bool readOnly)
 {
     d->m_readOnly = readOnly;
@@ -649,7 +654,7 @@ public:
         if (m_uncheckedSemantics == StringAspect::UncheckedSemantics::Disabled)
             w->setEnabled(enabled && aspect->isEnabled());
         else
-            w->setReadOnly(!enabled);
+            w->setReadOnly(!enabled || aspect->isReadOnly());
     }
 };
 

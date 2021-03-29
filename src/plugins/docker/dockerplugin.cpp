@@ -26,9 +26,16 @@
 #include "dockerplugin.h"
 
 #include "dockerconstants.h"
+
+#include "dockerdevice.h"
+#include "dockerrunconfiguration.h"
 #include "dockersettings.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runcontrol.h>
+
 using namespace Core;
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Docker {
@@ -39,6 +46,15 @@ class DockerPluginPrivate
 public:
     DockerSettings settings;
     DockerOptionsPage optionsPage{&settings};
+
+    DockerDeviceFactory deviceFactory;
+    DockerContainerRunConfigurationFactory containerRunConfigFactory;
+
+    RunWorkerFactory containerRunWorkerFactory{
+        RunWorkerFactory::make<SimpleTargetRunner>(),
+        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
+        {containerRunConfigFactory.runConfigurationId()}
+    };
 };
 
 DockerPlugin::~DockerPlugin()
