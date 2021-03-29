@@ -173,9 +173,7 @@ public:
         resetter.reset();
     }
 
-    void bindValues()
-    {
-    }
+    void bindValues() {}
 
     template<typename... ValueType>
     void bindValues(const ValueType&... values)
@@ -389,23 +387,10 @@ private:
     }
 
     template<typename ValueType, typename... ValueTypes>
-    void bindValuesByIndex(int index, const ValueType &value, const ValueTypes&... values)
+    void bindValuesByIndex(int index, const ValueType &value, const ValueTypes &...values)
     {
         BaseStatement::bind(index, value);
         bindValuesByIndex(index + 1, values...);
-    }
-
-    template <typename TupleType, std::size_t... ColumnIndices>
-    void bindTupleValuesElement(const TupleType &tuple, std::index_sequence<ColumnIndices...>)
-    {
-        bindValues(std::get<ColumnIndices>(tuple)...);
-    }
-
-    template <typename TupleType,
-              typename ColumnIndices = std::make_index_sequence<std::tuple_size<TupleType>::value>>
-    void bindTupleValues(const TupleType &element)
-    {
-        bindTupleValuesElement(element, ColumnIndices());
     }
 
     void setMaximumResultCount(std::size_t count)
