@@ -118,7 +118,7 @@ SessionChangeSet::~SessionChangeSet()
 
 BlobView SessionChangeSet::asBlobView() const
 {
-    return {static_cast<const byte *>(m_data), static_cast<std::size_t>(m_size)};
+    return {static_cast<const std::byte *>(m_data), static_cast<std::size_t>(m_size)};
 }
 
 SessionChangeSetInternal::ConstIterator SessionChangeSet::begin() const

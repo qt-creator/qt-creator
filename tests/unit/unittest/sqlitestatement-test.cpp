@@ -323,7 +323,7 @@ TEST_F(SqliteStatement, BindBlob)
 {
     SqliteTestStatement statement("WITH T(blob) AS (VALUES (?)) SELECT blob FROM T", database);
     const unsigned char chars[] = "aaafdfdlll";
-    auto bytePointer = reinterpret_cast<const Sqlite::byte *>(chars);
+    auto bytePointer = reinterpret_cast<const std::byte *>(chars);
     Sqlite::BlobView bytes{bytePointer, sizeof(chars) - 1};
 
     statement.bind(1, bytes);
@@ -527,7 +527,7 @@ TEST_F(SqliteStatement, WriteBlobs)
     SqliteTestStatement statement("INSERT INTO  test VALUES ('blob', 40, ?)", database);
     SqliteTestStatement readStatement("SELECT value FROM test WHERE name = 'blob'", database);
     const unsigned char chars[] = "aaafdfdlll";
-    auto bytePointer = reinterpret_cast<const Sqlite::byte *>(chars);
+    auto bytePointer = reinterpret_cast<const std::byte *>(chars);
     Sqlite::BlobView bytes{bytePointer, sizeof(chars) - 1};
 
     statement.write(bytes);
@@ -657,7 +657,7 @@ TEST_F(SqliteStatement, GetBlobValues)
     database.execute("INSERT INTO  test VALUES ('blob', 40, x'AABBCCDD')");
     ReadStatement<1> statement("SELECT value FROM test WHERE name='blob'", database);
     const int value = 0xDDCCBBAA;
-    auto bytePointer = reinterpret_cast<const Sqlite::byte *>(&value);
+    auto bytePointer = reinterpret_cast<const std::byte *>(&value);
     Sqlite::BlobView bytes{bytePointer, 4};
 
     auto values = statement.values<Sqlite::Blob>(1);
