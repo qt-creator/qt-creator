@@ -360,10 +360,11 @@
         \li Press \key Enter or select \uicontrol OK to save the new value.
         \li In the \uicontrol Radius field, enter 20 to give the button
             rounded corners.
-        \li In the \uicontrol States view, select the \e down state and modify
-            the background and border color as above.
-        \li Select the text component in \uicontrol Navigator to display its
-            properties in \uicontrol Properties.
+        \li In the \uicontrol States view, select the \e normal state and modify
+            the background color as above.
+        \li Select the \e base state, and then select the text component
+            in \uicontrol Navigator to display its properties in
+            \uicontrol Properties.
         \li In the \uicontrol {Text Color} field, select \uicontrol Actions >
             \uicontrol Reset to reset the text color to the default color,
             black.
