@@ -57,6 +57,11 @@ public:
         , m_size(static_cast<std::size_t>(bytes.size()))
     {}
 
+    BlobView(Utils::span<const std::byte> bytes)
+        : m_data(bytes.data())
+        , m_size(static_cast<std::size_t>(bytes.size()))
+    {}
+
     const std::byte *data() const { return m_data; }
     const char *cdata() const { return reinterpret_cast<const char *>(m_data); }
     std::size_t size() const { return m_size; }
@@ -85,6 +90,21 @@ public:
     }
 
     std::vector<std::byte> bytes;
+
+    friend bool operator==(const Sqlite::Blob &first, const Sqlite::Blob &second)
+    {
+        return BlobView{first.bytes} == BlobView{second.bytes};
+    }
+
+    friend bool operator==(const Sqlite::Blob &first, Sqlite::BlobView second)
+    {
+        return BlobView{first.bytes} == second;
+    }
+
+    friend bool operator==(Sqlite::BlobView first, const Sqlite::Blob &second)
+    {
+        return second == first;
+    }
 };
 
 class ByteArrayBlob
