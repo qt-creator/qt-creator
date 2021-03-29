@@ -400,7 +400,7 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const QString &workingDirect
 
     for (const QString &l : output.split('\n', Qt::SkipEmptyParts)) {
         if (l.startsWith("checkout: ", Qt::CaseInsensitive)
-            || l.startsWith("uuid: ", Qt::CaseInsensitive)) {
+            || l.startsWith(hashToken, Qt::CaseInsensitive)) {
             const QRegularExpressionMatch idMatch = idRx.match(l);
             QTC_ASSERT(idMatch.hasMatch(), return RevisionInfo());
             revisionId = idMatch.captured(1);
