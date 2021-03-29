@@ -49,6 +49,14 @@ find_path(CRASHPAD_LIB_DIR
     "${CMAKE_PREFIX_PATH}"
 )
 
+find_path(CRASHPAD_GEN_DIR
+    NAMES build/chromeos_buildflags.h
+    PATH_SUFFIXES gen
+    HINTS
+      "${CRASHPAD_BIN_DIR}"
+      "${CMAKE_PREFIX_PATH}"
+)
+
 if(APPLE)
   find_path(CRASHPAD_OBJ_DIR
     NAMES mig_output.child_portServer.o
@@ -56,13 +64,6 @@ if(APPLE)
     HINTS
       "${CRASHPAD_OBJECT_DIR}"
       "${CRASHPAD_LIB_DIR}/out/Default"
-      "${CMAKE_PREFIX_PATH}"
-    )
-  find_path(CRASHPAD_GEN_DIR
-    NAMES build/chromeos_buildflags.h
-    PATH_SUFFIXES gen
-    HINTS
-      "${CRASHPAD_BIN_DIR}"
       "${CMAKE_PREFIX_PATH}"
     )
   set(CRASHPAD_APPLE_VARS CRASHPAD_OBJ_DIR CRASHPAD_GEN_DIR)
@@ -81,7 +82,8 @@ if(Crashpad_FOUND)
   add_library(Crashpad::Crashpad UNKNOWN IMPORTED)
   target_include_directories(Crashpad::Crashpad INTERFACE
     "${CRASHPAD_INCLUDE_DIR}"
-    "${CRASHPAD_INCLUDE_DIR}/third_party/mini_chromium/mini_chromium")
+    "${CRASHPAD_INCLUDE_DIR}/third_party/mini_chromium/mini_chromium"
+    "${CRASHPAD_GEN_DIR}")
   if(WIN32)
     target_link_libraries(Crashpad::Crashpad INTERFACE
       "${CRASHPAD_LIB_DIR}/third_party/mini_chromium/mini_chromium/base/base.lib"
@@ -106,7 +108,6 @@ if(Crashpad_FOUND)
       ${FWbsm} ${FWAppKit} ${FWIOKit} ${FWSecurity})
     set_target_properties(Crashpad::Crashpad PROPERTIES
       IMPORTED_LOCATION "${CRASHPAD_LIB_DIR}/client/libclient.a")
-    target_include_directories(Crashpad::Crashpad INTERFACE "${CRASHPAD_GEN_DIR}")
   elseif(UNIX)
     # TODO: Crashpad is not well supported on linux currently
     target_link_libraries(Crashpad::Crashpad INTERFACE
