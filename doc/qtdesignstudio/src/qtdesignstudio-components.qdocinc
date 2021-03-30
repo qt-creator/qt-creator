@@ -27,27 +27,46 @@
 
     \section2 Creating Custom Controls
 
-    You can use project wizard templates to create a starting point for
-    a custom \l Button, \l [QtQuickControls2] {Pane}, \l {Stack Layout},
-    \l [QtQuickControls2] {SwipeView}{Swipe View}, or \l Switch.
+    You can use project wizard templates to create stylable UI controls based
+    on the components in the Qt Quick Controls module:
+
+    \list
+        \li \l Button
+        \li \l {Check Box}
+        \li \l {Slider and Dial}{Dial}
+        \li \l {Slider and Dial}{Slider}
+        \li \l {Spin Box}
+        \li \l Switch
+        \li \l [QtQuickControls2] {Pane}
+        \li \l {Stack Layout}
+        \li \l [QtQuickControls2] {SwipeView}{Swipe View}
+    \endlist
+
+    You can edit the properties of the controls in all the preset
+    \l{Adding States}{states} to apply your own style to them.
+
+    \image studio-dial.png "A stylable Dial component"
+
+    To create stylable UI controls:
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File or Project} >
             \uicontrol {Files and Classes} > \uicontrol {Qt Quick Controls}.
         \li Select the control to create, and then select \uicontrol Choose.
 
-            \note Components are listed in the \uicontrol {My Components}
-            tab of the \uicontrol Library only if the filename begins
-            with a capital letter.
-        \li Edit component properties in the \uicontrol Properties view.
+            \note Components are listed in \l Library > \uicontrol Components >
+            \uicontrol {My Components} only if the filename begins with a
+            capital letter.
+        \li Edit component properties in the \l Properties view.
 
             The available properties depend on the component type. You can
             \l{Specifying Dynamic Properties}{add properties for components} in
             the \uicontrol Properties tab of the \uicontrol {Connection View}.
     \endlist
 
-    For an example of using the \uicontrol Button template to create a button,
-    see \l{Creating a Push Button} in the \l{Log In UI - Part 1} tutorial.
+    For an example of using the \uicontrol Button template to create a button
+    and styling it, see \l{Creating a Push Button} in the \l{Log In UI - Part 1}
+    tutorial.
 
 //! [creating studio components]
 */

@@ -147,10 +147,15 @@
                     List View. For more information, see \l{List and Grid Views}.
 
             \endlist
-        \li \uicontrol {Qt Quick Controls}
+        \li \uicontrol {Qt Quick Controls} create stylable versions of the
+            components in the Qt Quick Controls module:
             \list
                 \li \l {Button}{Custom Button} creates a push button with a text
                     label.
+                \li \l {Check Box}{Custom CheckBox} creates a check box.
+                \li \l {Slider and Dial}{Custom Dial} creates a dial.
+                \li \l {Slider and Dial}{Custom Slider} creates a slider.
+                \li \l {Spin Box}{Custom SpinBox} creates a spin box.
                 \li \l {Switch}{Custom Switch} creates a switch with on and off
                     states.
                 \li \l [Qt Quick Controls 2] {Pane} provides a background that
@@ -160,6 +165,7 @@
                 \li \l [Qt Quick Controls 2] {SwipeView} enables users to
                     navigate pages by swiping sideways.
             \endlist
+            For more information, see \l{Creating Custom Controls}.
         \li \uicontrol ListModel adds a \l{Editing List Models}{list model} to
             the project.
         \li \uicontrol {JavaScript File} generates files that you can use to
