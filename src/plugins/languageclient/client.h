@@ -229,7 +229,7 @@ private:
 
     AssistProviders m_clientProviders;
     QMap<TextEditor::TextDocument *, AssistProviders> m_resetAssistProvider;
-    QHash<LanguageServerProtocol::DocumentUri, LanguageServerProtocol::MessageId> m_highlightRequests;
+    QHash<TextEditor::TextEditorWidget *, LanguageServerProtocol::MessageId> m_highlightRequests;
     int m_restartsLeft = 5;
     QScopedPointer<BaseClientInterface> m_clientInterface;
     DiagnosticManager m_diagnosticManager;

@@ -450,20 +450,23 @@ void Client::requestDocumentHighlights(TextEditor::TextEditorWidget *widget)
             return;
     }
 
-    auto runningRequest = m_highlightRequests.find(uri);
+    auto runningRequest = m_highlightRequests.find(widget);
     if (runningRequest != m_highlightRequests.end())
         cancelRequest(runningRequest.value());
 
     DocumentHighlightsRequest request(
         TextDocumentPositionParams(TextDocumentIdentifier(uri), Position(widget->textCursor())));
+    auto connection = connect(widget, &QObject::destroyed, this, [this, widget]() {
+        auto runningRequest = m_highlightRequests.find(widget);
+        if (runningRequest != m_highlightRequests.end())
+            cancelRequest(runningRequest.value());
+    });
     request.setResponseCallback(
-        [widget = QPointer<TextEditor::TextEditorWidget>(widget), this, uri]
+        [widget, this, uri, connection]
         (const DocumentHighlightsRequest::Response &response)
         {
-            m_highlightRequests.remove(uri);
-            if (!widget)
-                return;
-
+            m_highlightRequests.remove(widget);
+            disconnect(connection);
             const Id &id = TextEditor::TextEditorWidget::CodeSemanticsSelection;
             QList<QTextEdit::ExtraSelection> selections;
             const Utils::optional<DocumentHighlightsResult> &result = response.result();
@@ -487,7 +490,7 @@ void Client::requestDocumentHighlights(TextEditor::TextEditorWidget *widget)
             }
             widget->setExtraSelections(id, selections);
         });
-    m_highlightRequests[uri] = request.id();
+    m_highlightRequests[widget] = request.id();
     sendContent(request);
 }
 
@@ -698,7 +701,7 @@ void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
     QTimer *timer = m_documentHighlightsTimer[widget];
     if (!timer) {
         const auto uri = DocumentUri::fromFilePath(widget->textDocument()->filePath());
-        auto runningRequest = m_highlightRequests.find(uri);
+        auto runningRequest = m_highlightRequests.find(widget);
         if (runningRequest != m_highlightRequests.end())
             cancelRequest(runningRequest.value());
         timer = new QTimer;
