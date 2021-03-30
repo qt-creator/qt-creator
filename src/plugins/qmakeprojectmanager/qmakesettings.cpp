@@ -42,7 +42,7 @@ QmakeSettings::QmakeSettings()
 
     registerAspect(&m_warnAgainstUnalignedBuildDir);
     m_warnAgainstUnalignedBuildDir.setSettingsKey("QmakeProjectManager/WarnAgainstUnalignedBuildDir");
-    m_warnAgainstUnalignedBuildDir.setDefaultValue(true);
+    m_warnAgainstUnalignedBuildDir.setDefaultValue(HostOsInfo::isWindowsHost());
     m_warnAgainstUnalignedBuildDir.setLabelText(tr("Warn if a project's source and "
             "build directories are not at the same level"));
     m_warnAgainstUnalignedBuildDir.setToolTip(tr("Qmake has subtle bugs that "
@@ -59,6 +59,11 @@ QmakeSettings::QmakeSettings()
     m_ignoreSystemFunction.setLabelText(tr("Ignore qmake's system() function when parsing a project"));
     m_ignoreSystemFunction.setToolTip(tr("Checking this option avoids unwanted side effects, "
              "but may result in inexact parsing results."));
+    // The settings value has been stored with the opposite meaning for a while.
+    // Avoid changing the stored value, but flip it on read/write:
+    const auto invertBoolVariant = [](const QVariant &v) { return QVariant(!v.toBool()); };
+    m_ignoreSystemFunction.setFromSettingsTransformation(invertBoolVariant);
+    m_ignoreSystemFunction.setToSettingsTransformation(invertBoolVariant);
 
     readSettings(Core::ICore::settings());
 }
