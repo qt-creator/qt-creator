@@ -78,27 +78,32 @@ using namespace Utils;
 
 namespace {
 
-void copySourcePathToClipboard(Utils::optional<QString> srcPath,
-                               const ProjectExplorer::ProjectNode *node)
+void copySourcePathsToClipboard(const QStringList &srcPaths,
+                                const ProjectExplorer::ProjectNode *node)
 {
     QClipboard *clip = QGuiApplication::clipboard();
 
     QDir projDir{node->filePath().toFileInfo().absoluteFilePath()};
-    clip->setText(QDir::cleanPath(projDir.relativeFilePath(srcPath.value())));
+    QString data = Utils::transform(srcPaths, [projDir](const QString &path) {
+        return QDir::cleanPath(projDir.relativeFilePath(path));
+    }).join(" ");
+    clip->setText(data);
 }
 
 void noAutoAdditionNotify(const QStringList &filePaths, const ProjectExplorer::ProjectNode *node)
 {
-    Utils::optional<QString> srcPath{};
+    const QStringList srcPaths = Utils::filtered(filePaths, [](const QString& file) {
+        const auto mimeType = Utils::mimeTypeForFile(file).name();
+        return mimeType == CppTools::Constants::C_SOURCE_MIMETYPE ||
+               mimeType == CppTools::Constants::C_HEADER_MIMETYPE ||
+               mimeType == CppTools::Constants::CPP_SOURCE_MIMETYPE ||
+               mimeType == CppTools::Constants::CPP_HEADER_MIMETYPE ||
+               mimeType == ProjectExplorer::Constants::FORM_MIMETYPE ||
+               mimeType == ProjectExplorer::Constants::RESOURCE_MIMETYPE ||
+               mimeType == ProjectExplorer::Constants::SCXML_MIMETYPE;
+    });
 
-    for (const QString &file : filePaths) {
-        if (Utils::mimeTypeForFile(file).name() == CppTools::Constants::CPP_SOURCE_MIMETYPE) {
-            srcPath = file;
-            break;
-        }
-    }
-
-    if (srcPath) {
+    if (!srcPaths.empty()) {
         CMakeProjectManager::Internal::CMakeSpecificSettings *settings
             = CMakeProjectManager::Internal::CMakeProjectPlugin::projectTypeSpecificSettings();
         switch (settings->afterAddFileSetting()) {
@@ -126,13 +131,13 @@ void noAutoAdditionNotify(const QStringList &filePaths, const ProjectExplorer::P
             }
 
             if (QDialogButtonBox::Yes == reply) {
-                copySourcePathToClipboard(srcPath, node);
+                copySourcePathsToClipboard(srcPaths, node);
             }
             break;
         }
 
         case CMakeProjectManager::Internal::COPY_FILE_PATH: {
-            copySourcePathToClipboard(srcPath, node);
+            copySourcePathsToClipboard(srcPaths, node);
             break;
         }
 
