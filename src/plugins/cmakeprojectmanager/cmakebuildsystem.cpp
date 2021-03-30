@@ -1051,7 +1051,11 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
 
 QStringList CMakeBuildSystem::buildTargetTitles() const
 {
-    return transform(m_buildTargets, &CMakeBuildTarget::title);
+    auto nonUtilityTargets = filtered(m_buildTargets, [this](const CMakeBuildTarget &target){
+        return target.targetType != UtilityType ||
+               CMakeBuildStep::specialTargets(usesAllCapsTargets()).contains(target.title);
+    });
+    return transform(nonUtilityTargets, &CMakeBuildTarget::title);
 }
 
 const QList<CMakeBuildTarget> &CMakeBuildSystem::buildTargets() const
