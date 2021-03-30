@@ -104,10 +104,7 @@ QVersionNumber WebAssemblyEmSdk::version(const FilePath &sdkRoot)
         return {};
     const QString cacheKey = sdkRoot.toString();
     if (!emSdkVersionCache()->contains(cacheKey)) {
-        Environment env;
-        // Non-Windows: Need python in path (not provided by emsdk), thus use systemEnvironment
-        if (!HostOsInfo::isWindowsHost())
-            env = Environment::systemEnvironment();
+        Environment env = Environment::systemEnvironment();
         WebAssemblyEmSdk::addToEnvironment(sdkRoot, env);
         const QString scriptFile =
                 QLatin1String("emcc") + QLatin1String(HostOsInfo::isWindowsHost() ? ".bat" : "");
