@@ -707,12 +707,13 @@ void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
         timer = new QTimer;
         timer->setSingleShot(true);
         m_documentHighlightsTimer.insert(widget, timer);
-        connect(timer, &QTimer::timeout, this, [this, widget]() {
+        auto connection = connect(widget, &QWidget::destroyed, this, [widget, this]() {
+            delete m_documentHighlightsTimer.take(widget);
+        });
+        connect(timer, &QTimer::timeout, this, [this, widget, connection]() {
+            disconnect(connection);
             requestDocumentHighlights(widget);
             m_documentHighlightsTimer.take(widget)->deleteLater();
-        });
-        connect(widget, &QWidget::destroyed, this, [widget, this]() {
-            delete m_documentHighlightsTimer.take(widget);
         });
     }
     const Id selectionsId(TextEditor::TextEditorWidget::CodeSemanticsSelection);
