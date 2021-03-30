@@ -450,16 +450,14 @@ void Client::requestDocumentHighlights(TextEditor::TextEditorWidget *widget)
             return;
     }
 
-    auto runningRequest = m_highlightRequests.find(widget);
-    if (runningRequest != m_highlightRequests.end())
-        cancelRequest(runningRequest.value());
+    if (m_highlightRequests.contains(widget))
+        cancelRequest(m_highlightRequests.take(widget));
 
     DocumentHighlightsRequest request(
         TextDocumentPositionParams(TextDocumentIdentifier(uri), Position(widget->textCursor())));
     auto connection = connect(widget, &QObject::destroyed, this, [this, widget]() {
-        auto runningRequest = m_highlightRequests.find(widget);
-        if (runningRequest != m_highlightRequests.end())
-            cancelRequest(runningRequest.value());
+        if (m_highlightRequests.contains(widget))
+            cancelRequest(m_highlightRequests.take(widget));
     });
     request.setResponseCallback(
         [widget, this, uri, connection]
@@ -701,9 +699,8 @@ void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
     QTimer *timer = m_documentHighlightsTimer[widget];
     if (!timer) {
         const auto uri = DocumentUri::fromFilePath(widget->textDocument()->filePath());
-        auto runningRequest = m_highlightRequests.find(widget);
-        if (runningRequest != m_highlightRequests.end())
-            cancelRequest(runningRequest.value());
+        if (m_highlightRequests.contains(widget))
+            cancelRequest(m_highlightRequests.take(widget));
         timer = new QTimer;
         timer->setSingleShot(true);
         m_documentHighlightsTimer.insert(widget, timer);
