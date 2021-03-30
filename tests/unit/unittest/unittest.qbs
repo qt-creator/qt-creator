@@ -314,6 +314,8 @@ Project {
             "sqliteteststatement.h",
             "sqlitetransaction-test.cpp",
             "sqlitevalue-test.cpp",
+            "sqlitewritestatementmock.cpp"
+            "sqlitewritestatementmock.h"
             "sqlstatementbuilder-test.cpp",
             "stringcache-test.cpp",
             "symbolindexer-test.cpp",
