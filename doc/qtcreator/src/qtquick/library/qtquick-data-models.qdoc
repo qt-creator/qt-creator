@@ -236,7 +236,7 @@
     \if defined(qtdesignstudio)
     \row
         \li \inlineimage icons/item-svg-16px.png
-        \li SvgPath
+        \li \l{SVG Path Item}
         \li Studio Components
         \li
         \li An SVG path data string that is used to draw a path as a line.
