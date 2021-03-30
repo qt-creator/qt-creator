@@ -43,6 +43,7 @@ Project {
              "../../../share/qtcreator/qml/qmlpuppet/commands",
              "../../../share/qtcreator/qml/qmlpuppet/types",
              "components",
+             "components/annotationeditor",
              "components/componentcore",
              "components/curveeditor",
              "components/connectioneditor",
