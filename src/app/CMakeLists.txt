@@ -90,8 +90,7 @@ extend_qtc_executable(qtcreator
 )
 if(BUILD_WITH_CRASHPAD)
   install(
-    FILES ${CRASHPAD_BIN_DIR}/crashpad_handler${CMAKE_EXECUTABLE_SUFFIX}
+    PROGRAMS ${CRASHPAD_BIN_DIR}/crashpad_handler${CMAKE_EXECUTABLE_SUFFIX}
     DESTINATION "${IDE_LIBEXEC_PATH}"
-    USE_SOURCE_PERMISSIONS
   )
 endif()
