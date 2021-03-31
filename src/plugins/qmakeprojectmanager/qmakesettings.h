@@ -32,7 +32,7 @@
 namespace QmakeProjectManager {
 namespace Internal {
 
-class QmakeSettings : public QObject, public Utils::AspectContainer
+class QmakeSettings : public Utils::AspectContainer
 {
     Q_OBJECT
 

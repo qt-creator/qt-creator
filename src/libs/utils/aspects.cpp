@@ -2089,8 +2089,8 @@ public:
 
 } // Internal
 
-AspectContainer::AspectContainer()
-    : d(new Internal::AspectContainerPrivate)
+AspectContainer::AspectContainer(QObject *parent)
+    : QObject(parent), d(new Internal::AspectContainerPrivate)
 {}
 
 /*!
@@ -2192,6 +2192,8 @@ void AspectContainer::apply()
 {
     for (BaseAspect *aspect : qAsConst(d->m_items))
         aspect->apply();
+
+    emit applied();
 }
 
 void AspectContainer::cancel()

@@ -483,10 +483,12 @@ private:
     std::unique_ptr<Internal::TextDisplayPrivate> d;
 };
 
-class QTCREATOR_UTILS_EXPORT AspectContainer
+class QTCREATOR_UTILS_EXPORT AspectContainer : public QObject
 {
+    Q_OBJECT
+
 public:
-    AspectContainer();
+    AspectContainer(QObject *parent = nullptr);
     ~AspectContainer();
 
     AspectContainer(const AspectContainer &) = delete;
@@ -546,6 +548,9 @@ public:
 
     const_iterator begin() const;
     const_iterator end() const;
+
+signals:
+    void applied();
 
 private:
     std::unique_ptr<Internal::AspectContainerPrivate> d;

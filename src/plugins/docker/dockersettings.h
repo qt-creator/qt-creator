@@ -33,7 +33,7 @@
 namespace Docker {
 namespace Internal {
 
-class DockerSettings : public QObject, public Utils::AspectContainer
+class DockerSettings : public Utils::AspectContainer
 {
 public:
     DockerSettings();
