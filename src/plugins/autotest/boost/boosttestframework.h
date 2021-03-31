@@ -28,7 +28,6 @@
 #include "../itestframework.h"
 
 #include "boosttestsettings.h"
-#include "boosttestsettingspage.h"
 
 namespace Autotest {
 namespace Internal {

@@ -72,8 +72,7 @@ SOURCES += \
     boost/boosttestconfiguration.cpp \
     boost/boosttestoutputreader.cpp \
     boost/boosttestresult.cpp \
-    boost/boosttestsettings.cpp \
-    boost/boosttestsettingspage.cpp
+    boost/boosttestsettings.cpp
 
 HEADERS += \
     autotest_global.h \
@@ -150,7 +149,6 @@ HEADERS += \
     boost/boosttestconfiguration.h \
     boost/boosttestoutputreader.h \
     boost/boosttestresult.h \
-    boost/boosttestsettingspage.h \
     boost/boosttestsettings.h
 
 RESOURCES += \
@@ -158,7 +156,6 @@ RESOURCES += \
 
 FORMS += \
     testsettingspage.ui \
-    boost/boosttestsettingspage.ui \
     gtest/gtestsettingspage.ui
 
 equals(TEST, 1) {

@@ -16,7 +16,6 @@ add_qtc_plugin(AutoTest
     boost/boosttestparser.cpp boost/boosttestparser.h
     boost/boosttestresult.cpp boost/boosttestresult.h
     boost/boosttestsettings.cpp boost/boosttestsettings.h
-    boost/boosttestsettingspage.cpp boost/boosttestsettingspage.h boost/boosttestsettingspage.ui
     boost/boosttesttreeitem.cpp boost/boosttesttreeitem.h
     catch/catchcodeparser.cpp catch/catchcodeparser.h
     catch/catchconfiguration.cpp catch/catchconfiguration.h

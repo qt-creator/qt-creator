@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <utils/aspects.h>
 
 namespace Autotest {
@@ -55,6 +57,8 @@ enum class ReportLevel
 
 class BoostTestSettings : public Utils::AspectContainer
 {
+    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::BoostTestSettings)
+
 public:
     BoostTestSettings();
 
@@ -68,6 +72,13 @@ public:
     Utils::BoolAspect systemErrors;
     Utils::BoolAspect fpExceptions;
     Utils::BoolAspect memLeaks;
+};
+
+
+class BoostTestSettingsPage final : public Core::IOptionsPage
+{
+public:
+    BoostTestSettingsPage(BoostTestSettings *settings, Utils::Id settingsId);
 };
 
 } // namespace Internal
