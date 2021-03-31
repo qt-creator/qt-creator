@@ -95,8 +95,8 @@
         \li \uicontrol {Maximum CPUs to utilize in the build} specifies the
             maximum amount of remote cores to use in the build. Overrides the
             corresponding global setting.
-        \li \uicontrol {Newest allowed Helper machine OS} and
-            \uicontrol {Oldest allowed Helper machine OS} specify the newest and
+        \li \uicontrol {Newest allowed helper machine OS} and
+            \uicontrol {Oldest allowed helper machine OS} specify the newest and
             oldest operating system installed on a Helper machine to be allowed
             to participate as a Helper in the build.
         \li \uicontrol {Build title} specifies a custom header line which will
@@ -109,12 +109,12 @@
             \c{.ib_mon} file is added to the end of the build output.
         \li \uicontrol {Suppress STDOUT} does not write anything to the standard
              output.
-        \li \uicontrol {Output log file} writes build output to a file.
-        \li \uicontrol {Show commands in output} shows the command-line used by
+        \li \uicontrol {Output Log file} writes build output to a file.
+        \li \uicontrol {Show Commands in output} shows the command-line used by
             IncrediBuild to build the file.
-        \li \uicontrol {Show agents in output} shows the Agent used to build
+        \li \uicontrol {Show Agents in output} shows the Agent used to build
             each file.
-        \li \uicontrol {Show time in output} shows the start and finish time for
+        \li \uicontrol {Show Time in output} shows the start and finish time for
              each file built.
         \li \uicontrol {Hide IncrediBuild Header in output} suppresses the
             IncrediBuild header in the build output.
@@ -122,12 +122,12 @@
             internal Incredibuild logging level for this build. Does not affect
             output or any user accessible logging. Used mainly to troubleshoot
             issues with the help of IncrediBuild support.
-        \li \uicontrol {Set an environment variable} sets or overrides
+        \li \uicontrol {Set an Environment Variable} sets or overrides
             environment variables for the context of the build.
         \li \uicontrol {Stop on errors} stops the execution as soon as an error
             is encountered. This is the default behavior in Visual Studio
             builds, but not for Make and Build tools or Dev Tools builds.
-        \li \uicontrol {Additional arguments} are concatenated to the final
+        \li \uicontrol {Additional Arguments} are concatenated to the final
             buildconsole command line.
         \li \uicontrol {Open Build Monitor} opens an IncrediBuild Build Monitor
             that graphically displays the build's progress once the build
@@ -137,7 +137,8 @@
     \section1 IncrediBuild Clean Steps
 
     When building with IncrediBuild, you can add arguments and targets for the
-    clean command in \uicontrol {Clean Steps}.
+    clean command in \uicontrol {Clean Steps}. For more information, see
+    \l{Clean Steps}.
 
     For more information about the settings, see \l{IncrediBuild Build Steps}.
 
