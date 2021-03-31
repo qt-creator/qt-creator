@@ -222,7 +222,9 @@ public:
 
     static QString kitName(const McuTarget* mcuTarget);
 
-    static QList<ProjectExplorer::Kit *> existingKits(const McuTarget *mcuTarget, bool autoDetectedOnly = true);
+    static QList<ProjectExplorer::Kit *> existingKits(const McuTarget *mcuTarget);
+    static QList<ProjectExplorer::Kit *> matchingKits(const McuTarget *mcuTarget, const McuPackage *qtForMCUsSdkPackage);
+    static QList<ProjectExplorer::Kit *> upgradeableKits(const McuTarget *mcuTarget, const McuPackage *qtForMCUsSdkPackage);
     static QList<ProjectExplorer::Kit *> kitsWithMismatchedDependencies(const McuTarget *mcuTarget);
     static QList<ProjectExplorer::Kit *> outdatedKits();
     static void removeOutdatedKits();
@@ -230,6 +232,7 @@ public:
     static void createAutomaticKits();
     static UpgradeOption askForKitUpgrades();
     static void upgradeKits(UpgradeOption upgradeOption);
+    static void upgradeKitInPlace(ProjectExplorer::Kit *kit, const McuTarget *mcuTarget, const McuPackage *qtForMCUsSdk);
     static void fixKitsDependencies();
     void checkUpgradeableKits();
     static void fixExistingKits();
@@ -239,6 +242,8 @@ public:
 
     static const QVersionNumber &minimalQulVersion();
 
+    static QVersionNumber kitQulVersion(const ProjectExplorer::Kit *kit);
+    static bool kitUpToDate(const ProjectExplorer::Kit *kit, const McuTarget *mcuTarget, const McuPackage *qtForMCUsSdkPackage);
 private:
     void deletePackagesAndTargets();
 

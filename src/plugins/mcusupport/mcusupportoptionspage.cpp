@@ -83,7 +83,7 @@ private:
     Utils::InfoLabel *m_statusInfoLabel = nullptr;
     Utils::InfoLabel *m_mcuTargetsInfoLabel = nullptr;
     QPushButton *m_kitCreationPushButton = nullptr;
-    QPushButton *m_kitRemovalPushButton = nullptr;
+    QPushButton *m_kitUpdatePushButton = nullptr;
 };
 
 McuSupportOptionsWidget::McuSupportOptionsWidget()
@@ -157,15 +157,15 @@ McuSupportOptionsWidget::McuSupportOptionsWidget()
             McuSupportOptions::registerQchFiles();
             updateStatus();
         });
-        m_kitRemovalPushButton = new QPushButton(tr("Remove Kit"));
-        m_kitRemovalPushButton->setSizePolicy(m_kitCreationPushButton->sizePolicy());
-        connect(m_kitRemovalPushButton, &QPushButton::clicked, this, [this] {
-            for (auto existingKit : McuSupportOptions::existingKits(currentMcuTarget()))
-                ProjectExplorer::KitManager::deregisterKit(existingKit);
+        m_kitUpdatePushButton = new QPushButton(tr("Update Kit"));
+        m_kitUpdatePushButton->setSizePolicy(m_kitCreationPushButton->sizePolicy());
+        connect(m_kitUpdatePushButton, &QPushButton::clicked, this, [this] {
+            for (auto kit: McuSupportOptions::upgradeableKits(currentMcuTarget(), m_options.qtForMCUsSdkPackage))
+                m_options.upgradeKitInPlace(kit, currentMcuTarget(), m_options.qtForMCUsSdkPackage);
             updateStatus();
         });
         vLayout->addWidget(m_kitCreationPushButton);
-        vLayout->addWidget(m_kitRemovalPushButton);
+        vLayout->addWidget(m_kitUpdatePushButton);
     }
 
     mainLayout->addStretch();
@@ -207,17 +207,27 @@ void McuSupportOptionsWidget::updateStatus()
     if (mcuTarget) {
         const bool mcuTargetValid = mcuTarget->isValid();
         m_kitCreationPushButton->setVisible(mcuTargetValid);
-        m_kitRemovalPushButton->setVisible(mcuTargetValid);
+        m_kitUpdatePushButton->setVisible(mcuTargetValid);
         if (mcuTargetValid) {
-            const bool mcuTargetKitExists = !McuSupportOptions::existingKits(mcuTarget).isEmpty();
-            m_kitCreationInfoLabel->setType(mcuTargetKitExists
+            const bool hasMatchingKits = !McuSupportOptions::matchingKits(
+                        mcuTarget, m_options.qtForMCUsSdkPackage).isEmpty();
+            const bool hasUpgradeableKits = !hasMatchingKits &&
+                    !McuSupportOptions::upgradeableKits(
+                        mcuTarget, m_options.qtForMCUsSdkPackage).isEmpty();
+
+            m_kitCreationPushButton->setEnabled(!hasMatchingKits);
+            m_kitUpdatePushButton->setEnabled(hasUpgradeableKits);
+
+            m_kitCreationInfoLabel->setType(!hasMatchingKits
                                             ? Utils::InfoLabel::Information
                                             : Utils::InfoLabel::Ok);
-            m_kitCreationInfoLabel->setText(mcuTargetKitExists
-                                            ? tr("A kit for the selected target exists.")
-                                            : tr("A kit for the selected target can be created."));
-            m_kitCreationPushButton->setEnabled(!mcuTargetKitExists);
-            m_kitRemovalPushButton->setEnabled(mcuTargetKitExists);
+
+            m_kitCreationInfoLabel->setText(
+                        hasMatchingKits ?
+                            tr("A kit for the selected target and SDK version already exists.")
+                          : hasUpgradeableKits ?
+                                tr("Kits for a different SDK version exist.")
+                              : tr("A kit for the selected target can be created."));
         } else {
             m_kitCreationInfoLabel->setType(Utils::InfoLabel::NotOk);
             m_kitCreationInfoLabel->setText("Provide the package paths in order to create a kit "

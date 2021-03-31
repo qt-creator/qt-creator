@@ -680,7 +680,7 @@ static void setKitProperties(const QString &kitName, Kit *k, const McuTarget *mc
     k->setValue(KIT_MCUTARGET_KITVERSION_KEY, KIT_VERSION);
     k->setValue(KIT_MCUTARGET_OS_KEY, static_cast<int>(mcuTarget->os()));
     k->setValue(KIT_MCUTARGET_TOOCHAIN_KEY, mcuTarget->toolChainPackage()->toolChainName());
-    k->setAutoDetected(true);
+    k->setAutoDetected(false);
     k->makeSticky();
     if (mcuTarget->toolChainPackage()->isDesktopToolchain())
         k->setDeviceTypeForIcon(DEVICE_TYPE);
@@ -893,12 +893,11 @@ QString McuSupportOptions::kitName(const McuTarget *mcuTarget)
                  compilerName);
 }
 
-QList<Kit *> McuSupportOptions::existingKits(const McuTarget *mcuTarget, bool autoDetectedOnly)
+QList<Kit *> McuSupportOptions::existingKits(const McuTarget *mcuTarget)
 {
     using namespace Constants;
-    return Utils::filtered(KitManager::kits(), [mcuTarget, autoDetectedOnly](Kit *kit) {
-        return (!autoDetectedOnly || kit->isAutoDetected())
-                && kit->value(KIT_MCUTARGET_KITVERSION_KEY) == KIT_VERSION
+    return Utils::filtered(KitManager::kits(), [mcuTarget](Kit *kit) {
+        return kit->value(KIT_MCUTARGET_KITVERSION_KEY) == KIT_VERSION
                 && (!mcuTarget || (
                         kit->value(KIT_MCUTARGET_VENDOR_KEY) == mcuTarget->platform().vendor
                         && kit->value(KIT_MCUTARGET_MODEL_KEY) == mcuTarget->platform().name
@@ -911,9 +910,23 @@ QList<Kit *> McuSupportOptions::existingKits(const McuTarget *mcuTarget, bool au
     });
 }
 
+QList<Kit *> McuSupportOptions::matchingKits(const McuTarget *mcuTarget, const McuPackage *qtForMCUsSdkPackage)
+{
+    return Utils::filtered(existingKits(mcuTarget), [mcuTarget, qtForMCUsSdkPackage](Kit *kit) {
+        return kitUpToDate(kit, mcuTarget, qtForMCUsSdkPackage);
+    });
+}
+
+QList<Kit *> McuSupportOptions::upgradeableKits(const McuTarget *mcuTarget, const McuPackage *qtForMCUsSdkPackage)
+{
+    return Utils::filtered(existingKits(mcuTarget), [mcuTarget, qtForMCUsSdkPackage](Kit *kit) {
+        return !kitUpToDate(kit, mcuTarget, qtForMCUsSdkPackage);
+    });
+}
+
 QList<Kit *> McuSupportOptions::kitsWithMismatchedDependencies(const McuTarget *mcuTarget)
 {
-    return Utils::filtered(existingKits(mcuTarget, false), [mcuTarget](Kit *kit) {
+    return Utils::filtered(existingKits(mcuTarget), [mcuTarget](Kit *kit) {
         const auto environment = Utils::NameValueDictionary(
                     Utils::NameValueItem::toStringList(
                         EnvironmentKitAspect::environmentChanges(kit)));
@@ -927,8 +940,7 @@ QList<Kit *> McuSupportOptions::kitsWithMismatchedDependencies(const McuTarget *
 QList<Kit *> McuSupportOptions::outdatedKits()
 {
     return Utils::filtered(KitManager::kits(), [](Kit *kit) {
-        return kit->isAutoDetected()
-                && !kit->value(Constants::KIT_MCUTARGET_VENDOR_KEY).isNull()
+        return !kit->value(Constants::KIT_MCUTARGET_VENDOR_KEY).isNull()
                 && kit->value(Constants::KIT_MCUTARGET_KITVERSION_KEY) != KIT_VERSION;
     });
 }
@@ -969,7 +981,7 @@ void printMessage(const QString &message, bool important)
         Core::MessageManager::writeSilently(displayMessage);
 }
 
-QVersionNumber kitQulVersion(const Kit *kit)
+QVersionNumber McuSupportOptions::kitQulVersion(const Kit *kit)
 {
     return QVersionNumber::fromString(
                 kit->value(McuSupport::Constants::KIT_MCUTARGET_SDKVERSION_KEY)
@@ -983,6 +995,13 @@ QString kitDependencyPath(const Kit *kit, const QString &variableName)
             return nameValueItem.value;
     }
     return QString();
+}
+
+bool McuSupportOptions::kitUpToDate(const Kit *kit, const McuTarget *mcuTarget,
+                                    const McuPackage *qtForMCUsSdkPackage)
+{
+    return kitQulVersion(kit) == mcuTarget->qulVersion() &&
+            kitDependencyPath(kit, qtForMCUsSdkPackage->environmentVariableName()) == qtForMCUsSdkPackage->path();
 }
 
 McuSupportOptions::UpgradeOption McuSupportOptions::askForKitUpgrades()
@@ -1052,15 +1071,10 @@ void McuSupportOptions::createAutomaticKits()
 
         bool needsUpgrade = false;
         for (auto target: qAsConst(mcuTargets)) {
-            const auto kitsForTarget = existingKits(target, false);
-            if (Utils::anyOf(kitsForTarget, [&target, &qtForMCUsPackage](const Kit *kit) {
-                return kitQulVersion(kit) == target->qulVersion() &&
-                             kitDependencyPath(kit, qtForMCUsPackage->environmentVariableName()) == qtForMCUsPackage->path();
-                })) {
-                // if kit already exists, skip
+            // if kit already exists, skip
+            if (!matchingKits(target, qtForMCUsPackage).empty())
                 continue;
-            }
-            if (!kitsForTarget.empty()) {
+            if (!upgradeableKits(target, qtForMCUsPackage).empty()) {
                 // if kit exists but wrong version/path
                 needsUpgrade = true;
             } else {
@@ -1088,22 +1102,10 @@ void McuSupportOptions::checkUpgradeableKits()
     if (!qtForMCUsSdkPackage->validStatus() || mcuTargets.length() == 0)
         return;
 
-    const auto performCheck = [this]() {
-        const QString envVar = qtForMCUsSdkPackage->environmentVariableName();
-        const QString path = qtForMCUsSdkPackage->path();
-        for (auto target: qAsConst(this->mcuTargets)) {
-            const auto kitsForTarget = existingKits(target, false);
-            if (!kitsForTarget.empty() &&
-                    Utils::allOf(kitsForTarget, [&target, &envVar, &path](const Kit *kit) {
-                                 return kitQulVersion(kit) != target->qulVersion() ||
-                                 kitDependencyPath(kit,envVar) != path;
+    if (Utils::anyOf(mcuTargets, [this](const McuTarget *target) {
+                     return !upgradeableKits(target, this->qtForMCUsSdkPackage).empty() &&
+                     matchingKits(target, this->qtForMCUsSdkPackage).empty();
         }))
-                return true;
-        }
-        return false;
-    };
-
-    if (performCheck())
         upgradeKits(askForKitUpgrades());
 }
 
@@ -1119,29 +1121,16 @@ void McuSupportOptions::upgradeKits(UpgradeOption upgradeOption)
     QVector<McuTarget*> mcuTargets;
     Sdk::targetsAndPackages(dir, &packages, &mcuTargets);
 
-    const QString envVar = qtForMCUsPackage->environmentVariableName();
-    const QString path = qtForMCUsPackage->path();
-
     for (auto target: qAsConst(mcuTargets)) {
-        const auto kitsForTarget = existingKits(target, false);
-        if (Utils::anyOf(kitsForTarget, [&target, &envVar, &path](const Kit *kit) {
-            return kitQulVersion(kit) == target->qulVersion() && kitDependencyPath(kit, envVar) == path;
-            })) {
+        if (!matchingKits(target, qtForMCUsPackage).empty())
             // already up-to-date
             continue;
-        }
-        if (!kitsForTarget.empty()) {
-            for (auto existingKit : kitsForTarget) {
-                switch (upgradeOption) {
-                case Keep:
-                    existingKit->setAutoDetected(false);
-                    break;
-                case Replace:
+
+        const auto kits = upgradeableKits(target, qtForMCUsPackage);
+        if (!kits.empty()) {
+            if (upgradeOption == Replace)
+                for (auto existingKit : kits)
                     KitManager::deregisterKit(existingKit);
-                    break;
-                default: break;
-                }
-            }
 
             if (target->isValid())
                 newKit(target, qtForMCUsPackage);
@@ -1152,6 +1141,13 @@ void McuSupportOptions::upgradeKits(UpgradeOption upgradeOption)
     qDeleteAll(packages);
     qDeleteAll(mcuTargets);
     delete qtForMCUsPackage;
+}
+
+void McuSupportOptions::upgradeKitInPlace(ProjectExplorer::Kit *kit, const McuTarget *mcuTarget, const McuPackage *qtForMCUsSdk)
+{
+    setKitProperties(kitName(mcuTarget), kit, mcuTarget, qtForMCUsSdk->path());
+    setKitEnvironment(kit, mcuTarget, qtForMCUsSdk);
+    setKitDependencies(kit, mcuTarget, qtForMCUsSdk);
 }
 
 void McuSupportOptions::fixKitsDependencies()
@@ -1183,6 +1179,10 @@ void McuSupportOptions::fixExistingKits()
     for (Kit *kit : KitManager::kits()) {
         if (!kit->hasValue(Constants::KIT_MCUTARGET_KITVERSION_KEY) )
             continue;
+
+        if (kit->isAutoDetected()) {
+            kit->setAutoDetected(false);
+        }
 
         // Check if the MCU kits are flagged as supplying a QtQuick import path, in order
         // to tell the QMLJS code-model that it won't need to add a fall-back import
