@@ -915,10 +915,6 @@ void CMakeBuildSystem::becameDirty()
     if (isParsing())
         return;
 
-    const CMakeTool *tool = m_parameters.cmakeTool();
-    if (!tool->isAutoRun())
-        return;
-
     setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()), REPARSE_SCAN);
 }
 
