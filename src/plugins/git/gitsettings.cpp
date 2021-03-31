@@ -80,7 +80,7 @@ GitSettings::GitSettings()
     winSetHomeEnvironment.setSettingsKey("WinSetHomeEnvironment");
     winSetHomeEnvironment.setDefaultValue(true);
     winSetHomeEnvironment.setLabelText(tr("Set \"HOME\" environment variable"));
-    if (true || HostOsInfo::isWindowsHost()) {
+    if (HostOsInfo::isWindowsHost()) {
         const QByteArray currentHome = qgetenv("HOME");
         const QString toolTip
                 = tr("Set the environment variable HOME to \"%1\"\n(%2).\n"
