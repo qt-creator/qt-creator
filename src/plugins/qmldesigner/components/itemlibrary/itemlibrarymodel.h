@@ -41,6 +41,7 @@ class ItemLibraryImport;
 class ItemLibraryModel : public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(bool isAnyCategoryHidden READ isAnyCategoryHidden WRITE setIsAnyCategoryHidden NOTIFY isAnyCategoryHiddenChanged FINAL)
 
 public:
     explicit ItemLibraryModel(QObject *parent = nullptr);
@@ -62,14 +63,24 @@ public:
     void setSearchText(const QString &searchText);
     void setFlowMode(bool);
 
+    bool isAnyCategoryHidden() const;
+    void setIsAnyCategoryHidden(bool state);
+
     static void registerQmlTypes();
     static void saveExpandedState(bool expanded, const QString &sectionName);
     static bool loadExpandedState(const QString &sectionName);
+    static void saveCategoryVisibleState(bool isVisible, const QString &categoryName);
+    static bool loadCategoryVisibleState(const QString &categoryName);
 
     Q_INVOKABLE void expandAll();
     Q_INVOKABLE void collapseAll();
+    Q_INVOKABLE void showHiddenCategories();
+    Q_INVOKABLE bool getIsAnyCategoryHidden() const;
 
     Import entryToImport(const ItemLibraryEntry &entry);
+
+signals:
+    void isAnyCategoryHiddenChanged();
 
 private:
     void updateVisibility(bool *changed);
@@ -82,8 +93,10 @@ private:
 
     QString m_searchText;
     bool m_flowMode = false;
+    bool m_isAnyCategoryHidden = false;
 
     inline static QHash<QString, bool> expandedStateHash;
+    inline static QHash<QString, bool> categoryVisibleStateHash;
 };
 
 } // namespace QmlDesigner

@@ -75,13 +75,17 @@ QVariant ItemLibraryCategoriesModel::data(const QModelIndex &index, int role) co
 
 bool ItemLibraryCategoriesModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    // currently only categoryExpanded property is updatable
+    // currently only categoryExpanded and categoryVisible properties is updatable
     if (index.isValid() && m_roleNames.contains(role)) {
         QVariant currValue = m_categoryList.at(index.row())->property(m_roleNames.value(role));
+
         if (currValue != value) {
             m_categoryList[index.row()]->setProperty(m_roleNames.value(role), value);
             if (m_roleNames.value(role) == "categoryExpanded") {
                 ItemLibraryModel::saveExpandedState(value.toBool(),
+                                                    m_categoryList[index.row()]->categoryName());
+            } else if (m_roleNames.value(role) == "categoryVisible") {
+                ItemLibraryModel::saveCategoryVisibleState(value.toBool(),
                                                     m_categoryList[index.row()]->categoryName());
             }
             emit dataChanged(index, index, {role});
@@ -137,6 +141,17 @@ void ItemLibraryCategoriesModel::resetModel()
 {
     beginResetModel();
     endResetModel();
+}
+
+void ItemLibraryCategoriesModel::showAllCategories(bool show)
+{
+    for (const auto &category : std::as_const(m_categoryList)) {
+        if (category->isCategoryVisible() != show) {
+            category->setCategoryVisible(show);
+            ItemLibraryModel::saveCategoryVisibleState(show, category->categoryName());
+        }
+    }
+    emit dataChanged(index(0), index(m_categoryList.size() - 1), {m_roleNames.key("categoryVisible")});
 }
 
 void ItemLibraryCategoriesModel::addRoleNames()

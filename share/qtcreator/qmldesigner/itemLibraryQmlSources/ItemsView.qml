@@ -78,11 +78,14 @@ ScrollView {
 
     property string importToRemove: ""
     property string importToAdd: ""
+    property var currentItem: null
+    property var currentCategory: null
+    property var currentImport: null
 
     // called from C++ to close context menu on focus out
     function closeContextMenu()
     {
-        importContextMenu.close()
+        moduleContextMenu.close()
         itemContextMenu.close()
     }
 
@@ -107,24 +110,72 @@ ScrollView {
                                  2 * cellVerticalMargin + cellVerticalSpacing
 
         StudioControls.Menu {
-            id: importContextMenu
+            id: moduleContextMenu
 
             StudioControls.MenuItem {
                 text: qsTr("Remove Module")
+                visible: currentCategory === null
+                height: visible ? implicitHeight : 0
                 enabled: importToRemove !== ""
                 onTriggered: rootView.removeImport(importToRemove)
             }
 
-            StudioControls.MenuSeparator {}
+            StudioControls.MenuSeparator {
+                visible: currentCategory === null
+                height: StudioTheme.Values.border
+            }
 
             StudioControls.MenuItem {
                 text: qsTr("Expand All")
+                visible: currentCategory === null
+                height: visible ? implicitHeight : 0
                 onTriggered: itemLibraryModel.expandAll()
             }
 
             StudioControls.MenuItem {
                 text: qsTr("Collapse All")
+                visible: currentCategory === null
+                height: visible ? implicitHeight : 0
                 onTriggered: itemLibraryModel.collapseAll()
+            }
+
+            StudioControls.MenuSeparator {
+                visible: currentCategory === null
+                height: StudioTheme.Values.border
+            }
+
+            StudioControls.MenuItem {
+                text: qsTr("Hide Category")
+                visible: currentCategory
+                height: visible ? implicitHeight : 0
+                onTriggered: {
+                    itemLibraryModel.isAnyCategoryHidden = true
+                    currentCategory.categoryVisible = false
+                }
+            }
+
+            StudioControls.MenuSeparator {
+                visible: currentCategory
+                height: StudioTheme.Values.border
+            }
+
+            StudioControls.MenuItem {
+                text: qsTr("Show Module Hidden Categories")
+                enabled: currentImport && !currentImport.importCatVisibleState
+                onTriggered: {
+                    currentImport.importCatVisibleState = true
+                    if (!itemLibraryModel.getIsAnyCategoryHidden())
+                        itemLibraryModel.isAnyCategoryHidden = false
+                }
+            }
+
+            StudioControls.MenuItem {
+                text: qsTr("Show All Hidden Categories")
+                enabled: itemLibraryModel.isAnyCategoryHidden
+                onTriggered: {
+                    itemLibraryModel.isAnyCategoryHidden = false
+                    itemLibraryModel.showHiddenCategories()
+                }
             }
         }
 
@@ -166,11 +217,14 @@ ScrollView {
                 }
                 onShowContextMenu: {
                     importToRemove = importRemovable ? importUrl : ""
-                    importContextMenu.popup()
+                    currentImport = model
+                    currentCategory = null
+                    moduleContextMenu.popup()
                 }
 
                 Column {
                     spacing: 2
+                    property var currentImportModel: model // allows accessing the import model from inside the category section
                     Repeater {
                         model: categoryModel
                         delegate: Section {
@@ -188,6 +242,11 @@ ScrollView {
                             expanded: categoryExpanded
                             expandOnClick: false
                             onToggleExpand: categoryExpanded = !categoryExpanded
+                            onShowContextMenu: {
+                                currentCategory = model
+                                currentImport = parent.currentImportModel
+                                moduleContextMenu.popup()
+                            }
 
                             Grid {
                                 id: itemGrid

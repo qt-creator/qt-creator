@@ -59,6 +59,49 @@ bool ItemLibraryModel::loadExpandedState(const QString &sectionName)
     return expandedStateHash.value(sectionName, true);
 }
 
+void ItemLibraryModel::saveCategoryVisibleState(bool isVisible, const QString &categoryName)
+{
+    categoryVisibleStateHash.insert(categoryName, isVisible);
+}
+
+bool ItemLibraryModel::loadCategoryVisibleState(const QString &categoryName)
+{
+    return categoryVisibleStateHash.value(categoryName, true);
+}
+
+void ItemLibraryModel::showHiddenCategories()
+{
+    for (const QPointer<ItemLibraryImport> &import : std::as_const(m_importList)) {
+        if (import->hasCategories())
+            import->showAllCategories(true);
+    }
+
+    categoryVisibleStateHash.clear();
+}
+
+bool ItemLibraryModel::getIsAnyCategoryHidden() const
+{
+    for (const bool &catState : std::as_const(categoryVisibleStateHash)) {
+        if (!catState)
+            return true;
+    }
+
+    return false;
+}
+
+bool ItemLibraryModel::isAnyCategoryHidden() const
+{
+    return m_isAnyCategoryHidden;
+}
+
+void ItemLibraryModel::setIsAnyCategoryHidden(bool state)
+{
+    if (state != m_isAnyCategoryHidden) {
+        m_isAnyCategoryHidden = state;
+        emit isAnyCategoryHiddenChanged();
+    }
+}
+
 void ItemLibraryModel::expandAll()
 {
     int i = 0;
