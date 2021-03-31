@@ -364,7 +364,7 @@ private:
     QAction *m_menuAction = nullptr;
     bool m_submitActionTriggered = false;
 
-    CvsSettingsPage m_settingsPage{[this] { configurationChanged(); }, &m_settings};
+    CvsSettingsPage m_settingsPage{&m_settings};
 
 public:
     VcsSubmitEditorFactory submitEditorFactory {
@@ -736,6 +736,8 @@ CvsPluginPrivate::CvsPluginPrivate()
     connect(m_revertRepositoryAction, &QAction::triggered, this, &CvsPluginPrivate::revertAll);
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
+
+    connect(&m_settings, &AspectContainer::applied, this, &IVersionControl::configurationChanged);
 }
 
 void CvsPluginPrivate::vcsDescribe(const QString &source, const QString &changeNr)

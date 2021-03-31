@@ -51,7 +51,7 @@ public:
 class CvsSettingsPage final : public Core::IOptionsPage
 {
 public:
-    CvsSettingsPage(const std::function<void()> &onApply, CvsSettings *settings);
+    explicit CvsSettingsPage(CvsSettings *settings);
 };
 
 } // namespace Internal

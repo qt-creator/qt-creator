@@ -33,7 +33,6 @@
 #include <vcsbase/vcsbaseconstants.h>
 
 using namespace Utils;
-using namespace VcsBase;
 
 namespace Cvs {
 namespace Internal {
@@ -91,63 +90,37 @@ QStringList CvsSettings::addOptions(const QStringList &args) const
     return rc;
 }
 
-// CvsSettingsPage
-
-class CvsSettingsPageWidget final : public Core::IOptionsPageWidget
-{
-    Q_DECLARE_TR_FUNCTIONS(Cvs::Internal::SettingsPageWidget)
-
-public:
-    CvsSettingsPageWidget(const std::function<void()> & onApply, CvsSettings *settings);
-
-    void apply() final;
-
-private:
-    std::function<void()> m_onApply;
-    CvsSettings *m_settings;
-};
-
-CvsSettingsPageWidget::CvsSettingsPageWidget(const std::function<void()> &onApply, CvsSettings *settings)
-    : m_onApply(onApply), m_settings(settings)
-{
-    CvsSettings &s = *settings;
-    using namespace Layouting;
-
-    Column {
-        Group {
-            Title(tr("Configuration")),
-            Form {
-                s.binaryPath,
-                s.cvsRoot
-            }
-        },
-        Group {
-            Title(tr("Miscellaneous")),
-            Form {
-                s.timeout,
-                s.diffOptions,
-            },
-            s.promptOnSubmit,
-            s.describeByCommitId,
-        },
-        Stretch()
-    }.attachTo(this);
-}
-
-void CvsSettingsPageWidget::apply()
-{
-    if (m_settings->isDirty()) {
-        m_settings->apply();
-        m_onApply();
-    }
-}
-
-CvsSettingsPage::CvsSettingsPage(const std::function<void()> &onApply, CvsSettings *settings)
+CvsSettingsPage::CvsSettingsPage(CvsSettings *settings)
 {
     setId(VcsBase::Constants::VCS_ID_CVS);
-    setDisplayName(CvsSettingsPageWidget::tr("CVS"));
+    setDisplayName(CvsSettings::tr("CVS"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setWidgetCreator([onApply, settings] { return new CvsSettingsPageWidget(onApply, settings); });
+    setSettings(settings);
+
+    setLayouter([settings](QWidget *widget) {
+        CvsSettings &s = *settings;
+        using namespace Layouting;
+
+        Column {
+            Group {
+                Title(CvsSettings::tr("Configuration")),
+                Form {
+                    s.binaryPath,
+                    s.cvsRoot
+                }
+            },
+            Group {
+                Title(CvsSettings::tr("Miscellaneous")),
+                Form {
+                    s.timeout,
+                    s.diffOptions,
+                },
+                s.promptOnSubmit,
+                s.describeByCommitId,
+            },
+            Stretch()
+        }.attachTo(widget);
+    });
 }
 
 } // Internal
