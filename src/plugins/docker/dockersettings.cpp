@@ -105,56 +105,30 @@ void DockerSettings::readSettings(const QSettings *settings)
 
 // DockerOptionsPage
 
-class DockerConfigWidget : public Core::IOptionsPageWidget
-{
-    Q_DECLARE_TR_FUNCTIONS(Docker::Internal::DockerConfigWidget)
-
-public:
-    explicit DockerConfigWidget(DockerSettings *settings);
-
-    void apply() final
-    {
-        m_settings->apply();
-        m_settings->writeSettings(Core::ICore::settings());
-    }
-
-    void finish() final
-    {
-        m_settings->finish();
-    }
-
-private:
-    DockerSettings *m_settings;
-};
-
-DockerConfigWidget::DockerConfigWidget(DockerSettings *settings)
-    : m_settings(settings)
-{
-    using namespace Layouting;
-    DockerSettings &s = *settings;
-
-    Column {
-        Group {
-            Title(tr("Search images on Docker Hub")),
-            Form {
-                s.imageListFilter,
-                s.imageList
-            },
-        },
-        Stretch()
-    }.attachTo(this);
-}
-
-// DockerOptionsPage
-
 DockerOptionsPage::DockerOptionsPage(DockerSettings *settings)
 {
     setId(Constants::DOCKER_SETTINGS_ID);
-    setDisplayName(DockerConfigWidget::tr("Docker"));
+    setDisplayName(DockerSettings::tr("Docker"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer", "Devices"));
     setCategoryIconPath(":/projectexplorer/images/settingscategory_devices.png");
-    setWidgetCreator([settings] { return new DockerConfigWidget(settings); });
+    setSettings(settings);
+
+    setLayouter([settings](QWidget *widget) {
+        using namespace Layouting;
+        DockerSettings &s = *settings;
+
+        Column {
+            Group {
+                Title(DockerSettings::tr("Search images on Docker Hub")),
+                Form {
+                    s.imageListFilter,
+                    s.imageList
+                },
+            },
+            Stretch()
+        }.attachTo(widget);
+    });
 }
 
 } // Internal
