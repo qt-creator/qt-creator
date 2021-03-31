@@ -24,7 +24,6 @@ add_qtc_plugin(AutoTest
     catch/catchoutputreader.cpp catch/catchresult.h catch/catchresult.cpp catch/catchtestparser.h
     catch/catchtestparser.cpp catch/catchtreeitem.h catch/catchtreeitem.cpp
     catch/catchtestsettings.cpp catch/catchtestsettings.h
-    catch/catchtestsettingspage.cpp catch/catchtestsettingspage.h catch/catchtestsettingspage.ui
     ctest/ctestconfiguration.cpp ctest/ctestconfiguration.h
     ctest/ctestoutputreader.cpp ctest/ctestoutputreader.h
     ctest/ctesttool.cpp ctest/ctesttool.h

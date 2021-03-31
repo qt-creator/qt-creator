@@ -27,7 +27,6 @@
 #include "../itestframework.h"
 
 #include "catchtestsettings.h"
-#include "catchtestsettingspage.h"
 
 namespace Autotest {
 namespace Internal {

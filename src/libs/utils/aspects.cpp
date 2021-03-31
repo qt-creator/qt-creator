@@ -1248,6 +1248,8 @@ void BoolAspect::addToLayout(LayoutBuilder &builder)
         connect(d->m_checkBox.data(), &QAbstractButton::clicked,
                 this, [this](bool val) { setValue(val); });
     }
+    connect(d->m_checkBox.data(), &QAbstractButton::clicked,
+            this, &BoolAspect::volatileValueChanged);
 }
 
 QAction *BoolAspect::action()

@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <utils/aspects.h>
 
 namespace Autotest {
@@ -32,6 +34,8 @@ namespace Internal {
 
 class CatchTestSettings : public Utils::AspectContainer
 {
+    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::CatchTestSettings)
+
 public:
     CatchTestSettings();
 
@@ -51,6 +55,12 @@ public:
     Utils::BoolAspect noThrow;
     Utils::BoolAspect visibleWhitespace;
     Utils::BoolAspect warnOnEmpty;
+};
+
+class CatchTestSettingsPage : public Core::IOptionsPage
+{
+public:
+    CatchTestSettingsPage(CatchTestSettings *settings, Utils::Id settingsId);
 };
 
 } // namespace Internal

@@ -39,7 +39,6 @@ SOURCES += \
     catch/catchresult.cpp \
     catch/catchtestparser.cpp \
     catch/catchtestsettings.cpp \
-    catch/catchtestsettingspage.cpp \
     catch/catchtreeitem.cpp \
     gtest/gtestconfiguration.cpp \
     gtest/gtestparser.cpp \
@@ -115,7 +114,6 @@ HEADERS += \
     catch/catchresult.h \
     catch/catchtestparser.h \
     catch/catchtestsettings.h \
-    catch/catchtestsettingspage.h \
     catch/catchtreeitem.h \
     gtest/gtestconfiguration.h \
     gtest/gtestparser.h \
@@ -161,7 +159,6 @@ RESOURCES += \
 FORMS += \
     testsettingspage.ui \
     boost/boosttestsettingspage.ui \
-    catch/catchtestsettingspage.ui \
     gtest/gtestsettingspage.ui
 
 equals(TEST, 1) {

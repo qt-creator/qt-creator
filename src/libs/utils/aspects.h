@@ -182,6 +182,7 @@ public:
 
 signals:
     void valueChanged(bool newValue);
+    void volatileValueChanged(bool newValue);
 
 private:
     std::unique_ptr<Internal::BoolAspectPrivate> d;
