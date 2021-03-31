@@ -58,12 +58,6 @@ const char NAME_KEY[] = "name";
 const char ID_KEY[] = "uuid";
 } // namespace ToolsSettings
 
-namespace GeneralSettings {
-const char SECTION[] = "MesonProjectManager";
-const char AUTORUN_MESON_KEY[] = "meson.autorun";
-const char VERBOSE_NINJA_KEY[] = "ninja.verbose";
-} // namespace GeneralSettings
-
 namespace Icons {
 const char MESON[] = ":/mesonproject/icons/meson_logo.png";
 const char MESON_BW[] = ":/mesonproject/icons/meson_bw_logo.png";

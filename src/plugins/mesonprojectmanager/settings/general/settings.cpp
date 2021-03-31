@@ -25,14 +25,53 @@
 
 #include "settings.h"
 
+#include "mesonpluginconstants.h"
+
+#include <utils/layoutbuilder.h>
+
 namespace MesonProjectManager {
 namespace Internal {
 
-Settings::Settings(QObject *parent)
-    : QObject(parent)
-    , m_autorunMeson(true)
-    , m_verboseNinja(true)
-{}
+Settings::Settings()
+{
+    setSettingsGroup("MesonProjectManager");
+    setAutoApply(false);
+
+    autorunMeson.setSettingsKey("meson.autorun");
+    autorunMeson.setLabelText(tr("Autorun Meson"));
+    autorunMeson.setToolTip(tr("Automatically run Meson when needed."));
+
+    verboseNinja.setSettingsKey("meson.autorun");
+    verboseNinja.setLabelText(tr("Ninja verbose mode"));
+    verboseNinja.setToolTip(tr("Enables verbose mode by default when invoking Ninja."));
+}
+
+Settings *Settings::instance()
+{
+    static Settings m_settings;
+    return &m_settings;
+}
+
+GeneralSettingsPage::GeneralSettingsPage()
+{
+    setId(Constants::SettingsPage::GENERAL_ID);
+    setDisplayName(tr("General"));
+    setDisplayCategory("Meson");
+    setCategory(Constants::SettingsPage::CATEGORY);
+    setCategoryIconPath(Constants::Icons::MESON_BW);
+    setSettings(Settings::instance());
+
+    setLayouter([](QWidget *widget) {
+        Settings &s = *Settings::instance();
+        using namespace Utils::Layouting;
+
+        Column {
+            s.autorunMeson,
+            s.verboseNinja,
+            Stretch(),
+        }.attachTo(widget);
+    });
+}
 
 } // namespace Internal
 } // namespace MesonProjectManager

@@ -65,8 +65,8 @@ NinjaBuildStep::NinjaBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id
     setUseEnglishOutput();
 
     connect(target(), &ProjectExplorer::Target::parsingFinished, this, &NinjaBuildStep::update);
-    connect(Settings::instance(),
-            &Settings::verboseNinjaChanged,
+    connect(&Settings::instance()->verboseNinja,
+            &BaseAspect::changed,
             this,
             &NinjaBuildStep::commandChanged);
 }
@@ -152,7 +152,7 @@ Utils::CommandLine NinjaBuildStep::command()
     }();
     if (!m_commandArgs.isEmpty())
         cmd.addArgs(m_commandArgs, Utils::CommandLine::RawType::Raw);
-    if (Settings::verboseNinja())
+    if (Settings::instance()->verboseNinja.value())
         cmd.addArg("-v");
     cmd.addArg(m_targetName);
     return cmd;

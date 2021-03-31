@@ -28,11 +28,6 @@ add_qtc_plugin(MesonProjectManager
   settings/tools/kitaspect/mesontoolkitaspect.h
   settings/tools/toolssettingsaccessor.h
   settings/tools/toolssettingsaccessor.cpp
-  settings/general/generalsettingswidget.ui
-  settings/general/generalsettingswidget.cpp
-  settings/general/generalsettingswidget.h
-  settings/general/generalsettingspage.h
-  settings/general/generalsettingspage.cpp
   settings/general/settings.h
   settings/general/settings.cpp
   exewrappers/mesonwrapper.cpp

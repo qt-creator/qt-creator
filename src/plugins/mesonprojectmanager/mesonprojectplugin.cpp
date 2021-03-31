@@ -33,7 +33,7 @@
 #include "project/mesonproject.h"
 #include "project/mesonrunconfiguration.h"
 #include "project/ninjabuildstep.h"
-#include "settings/general/generalsettingspage.h"
+#include "settings/general/settings.h"
 #include "settings/tools/kitaspect/mesontoolkitaspect.h"
 #include "settings/tools/kitaspect/ninjatoolkitaspect.h"
 #include "settings/tools/toolssettingsaccessor.h"
@@ -84,7 +84,6 @@ private:
     void saveAll()
     {
         m_toolsSettings.saveMesonTools(MesonTools::tools(), ICore::dialogParent());
-        m_generalSettingsPage.saveAll();
     }
 };
 

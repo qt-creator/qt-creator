@@ -214,7 +214,7 @@ void MesonBuildSystem::init()
 bool MesonBuildSystem::parseProject()
 {
     QTC_ASSERT(buildConfiguration(), return false);
-    if (!isSetup(buildConfiguration()->buildDirectory()) && Settings::autorunMeson())
+    if (!isSetup(buildConfiguration()->buildDirectory()) && Settings::instance()->autorunMeson.value())
         return configure();
     LEAVE_IF_BUSY();
     LOCK();

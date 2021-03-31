@@ -25,69 +25,32 @@
 
 #pragma once
 
-#include "mesonpluginconstants.h"
+#include <coreplugin/dialogs/ioptionspage.h>
 
-#include <coreplugin/icore.h>
+#include <utils/aspects.h>
 
 namespace MesonProjectManager {
 namespace Internal {
 
-template<class F>
-void with_group(QSettings *settings, const QString &name, const F &f)
+class Settings : public Utils::AspectContainer
 {
-    settings->beginGroup(name);
-    f();
-    settings->endGroup();
-};
-
-#define ADD_PROPERTY(name, setter, type) \
-private: \
-    type m_##name; \
-\
-public: \
-    inline static type name() { return instance()->m_##name; } \
-    inline static void setter(type value) \
-    { \
-        instance()->m_##name = value; \
-        emit instance()->name##Changed(value); \
-    } \
-    Q_SIGNAL void name##Changed(type newValue);
-
-class Settings : public QObject
-{
-    Q_OBJECT
-    explicit Settings(QObject *parent = nullptr);
+    Q_DECLARE_TR_FUNCTIONS(MesonProjectManager::Internal::Settings)
 
 public:
-    inline static Settings *instance()
-    {
-        static Settings m_settings;
-        return &m_settings;
-    }
+    Settings();
 
-    ADD_PROPERTY(autorunMeson, setAutorunMeson, bool)
-    ADD_PROPERTY(verboseNinja, setVerboseNinja, bool)
+    static Settings *instance();
 
-    static inline void saveAll()
-    {
-        using namespace Constants;
-        auto settings = Core::ICore::settings(QSettings::Scope::UserScope);
-        with_group(settings, GeneralSettings::SECTION, [settings]() {
-            settings->setValue(GeneralSettings::AUTORUN_MESON_KEY, Settings::autorunMeson());
-            settings->setValue(GeneralSettings::VERBOSE_NINJA_KEY, Settings::verboseNinja());
-        });
-    }
-    static inline void loadAll()
-    {
-        using namespace Constants;
-        auto settings = Core::ICore::settings(QSettings::Scope::UserScope);
-        with_group(settings, GeneralSettings::SECTION, [settings]() {
-            Settings::setAutorunMeson(
-                settings->value(GeneralSettings::AUTORUN_MESON_KEY, true).toBool());
-            Settings::setVerboseNinja(
-                settings->value(GeneralSettings::VERBOSE_NINJA_KEY, true).toBool());
-        });
-    }
+    Utils::BoolAspect autorunMeson;
+    Utils::BoolAspect verboseNinja;
+};
+
+class GeneralSettingsPage final : public Core::IOptionsPage
+{
+    Q_DECLARE_TR_FUNCTIONS(MesonProjectManager::Internal::GeneralSettingsPage)
+
+public:
+    GeneralSettingsPage();
 };
 
 } // namespace Internal

@@ -36,8 +36,6 @@ HEADERS = \
       project/mesonprojectparser.h \
       project/mesonrunconfiguration.h \
       project/ninjabuildstep.h \
-      settings/general/generalsettingspage.h \
-      settings/general/generalsettingswidget.h \
       settings/general/settings.h \
       settings/tools/kitaspect/mesontoolkitaspect.h \
       settings/tools/kitaspect/ninjatoolkitaspect.h \
@@ -75,8 +73,6 @@ SOURCES = \
     project/mesonprojectparser.cpp  \
     project/mesonrunconfiguration.cpp  \
     project/ninjabuildstep.cpp  \
-    settings/general/generalsettingspage.cpp  \
-    settings/general/generalsettingswidget.cpp  \
     settings/general/settings.cpp  \
     settings/tools/kitaspect/mesontoolkitaspect.cpp  \
     settings/tools/kitaspect/ninjatoolkitaspect.cpp  \
@@ -93,7 +89,6 @@ RESOURCES += resources.qrc
 
 FORMS += \
    project/buildoptions/mesonbuildsettingswidget.ui \
-   settings/general/generalsettingswidget.ui \
    settings/tools/toolitemsettings.ui \
    settings/tools/toolssettingswidget.ui
 
