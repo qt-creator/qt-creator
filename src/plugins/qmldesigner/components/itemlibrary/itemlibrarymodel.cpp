@@ -212,6 +212,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
     QString projectName = project ? project->displayName() : "";
 
     // create import sections
+    const QList<Import> usedImports = model->usedImports();
     QHash<QString, ItemLibraryImport *> importHash;
     for (const Import &import : model->imports()) {
         if (import.url() != projectName) {
@@ -239,6 +240,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
                 auto sectionType = isQuick3DAsset ? ItemLibraryImport::SectionType::Quick3DAssets
                                                   : ItemLibraryImport::SectionType::Default;
                 ItemLibraryImport *itemLibImport = new ItemLibraryImport(import, this, sectionType);
+                itemLibImport->setImportUsed(usedImports.contains(import));
                 importHash.insert(importUrl, itemLibImport);
             }
         }
