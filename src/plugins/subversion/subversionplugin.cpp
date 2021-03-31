@@ -321,7 +321,7 @@ private:
     QAction *m_menuAction = nullptr;
     bool m_submitActionTriggered = false;
 
-    SubversionSettingsPage m_settingsPage{[this] { configurationChanged(); }, &m_settings};
+    SubversionSettingsPage m_settingsPage{&m_settings};
 
 public:
     VcsSubmitEditorFactory submitEditorFactory {
@@ -557,6 +557,8 @@ SubversionPluginPrivate::SubversionPluginPrivate()
     connect(m_revertRepositoryAction, &QAction::triggered, this, &SubversionPluginPrivate::revertAll);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
+
+    connect(&m_settings, &AspectContainer::applied, this, &IVersionControl::configurationChanged);
 }
 
 bool SubversionPluginPrivate::isVcsDirectory(const FilePath &fileName) const

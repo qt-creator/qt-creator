@@ -108,66 +108,41 @@ bool SubversionSettings::hasAuthentication() const
     return useAuthentication.value() && !userName.value().isEmpty();
 }
 
-// SubversionSettingsPage
-
-class SubversionSettingsPageWidget final : public Core::IOptionsPageWidget
-{
-    Q_DECLARE_TR_FUNCTIONS(Subversion::Internal::SettingsPageWidget)
-
-public:
-    SubversionSettingsPageWidget(const std::function<void()> &onApply, SubversionSettings *settings);
-
-    void apply() final;
-
-private:
-    std::function<void()> m_onApply;
-    SubversionSettings *m_settings;
-};
-
-SubversionSettingsPageWidget::SubversionSettingsPageWidget(const std::function<void()> &onApply,
-                                                           SubversionSettings *settings)
-    : m_onApply(onApply), m_settings(settings)
-{
-    SubversionSettings &s = *m_settings;
-    using namespace Layouting;
-
-    Column {
-        Group {
-            Title(tr("Configuration")),
-            s.binaryPath
-        },
-
-        Group {
-            Title(tr("Authentication"), &s.useAuthentication),
-            Form {
-                s.userName,
-                s.password,
-             }
-        },
-
-        Group {
-            Title(tr("Miscellaneous")),
-            Row { s.logCount, s.timeout, Stretch() },
-            s.promptOnSubmit,
-            s.spaceIgnorantAnnotation,
-        },
-
-        Stretch()
-    }.attachTo(this);
-}
-
-void SubversionSettingsPageWidget::apply()
-{
-    m_settings->apply();
-    m_onApply();
-}
-
-SubversionSettingsPage::SubversionSettingsPage(const std::function<void()> &onApply, SubversionSettings *settings)
+SubversionSettingsPage::SubversionSettingsPage(SubversionSettings *settings)
 {
     setId(VcsBase::Constants::VCS_ID_SUBVERSION);
-    setDisplayName(SubversionSettingsPageWidget::tr("Subversion"));
+    setDisplayName(SubversionSettings::tr("Subversion"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setWidgetCreator([onApply, settings] { return new SubversionSettingsPageWidget(onApply, settings); });
+    setSettings(settings);
+
+    setLayouter([settings](QWidget *widget) {
+        SubversionSettings &s = *settings;
+        using namespace Layouting;
+
+        Column {
+            Group {
+                Title(SubversionSettings::tr("Configuration")),
+                s.binaryPath
+            },
+
+            Group {
+                Title(SubversionSettings::tr("Authentication"), &s.useAuthentication),
+                Form {
+                    s.userName,
+                    s.password,
+                 }
+            },
+
+            Group {
+                Title(SubversionSettings::tr("Miscellaneous")),
+                Row { s.logCount, s.timeout, Stretch() },
+                s.promptOnSubmit,
+                s.spaceIgnorantAnnotation,
+            },
+
+            Stretch()
+        }.attachTo(widget);
+    });
 }
 
 } // Internal

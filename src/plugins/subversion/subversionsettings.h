@@ -50,7 +50,7 @@ public:
 class SubversionSettingsPage final : public Core::IOptionsPage
 {
 public:
-    SubversionSettingsPage(const std::function<void()> &onApply, SubversionSettings *settings);
+    explicit SubversionSettingsPage(SubversionSettings *settings);
 };
 
 } // namespace Internal
