@@ -113,7 +113,7 @@ void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
     changeHandler();
 }
 
-void QtQuickCompilerAspect::acquaintSiblings(const BaseAspects &siblings)
+void QtQuickCompilerAspect::acquaintSiblings(const AspectContainer &siblings)
 {
     m_qmlDebuggingAspect = siblings.aspect<QmlDebuggingAspect>();
 }

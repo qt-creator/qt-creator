@@ -82,7 +82,7 @@ public:
         return m_aspects.addAspect<Aspect>(std::forward<Args>(args)...);
     }
 
-    const Utils::BaseAspects &aspects() const { return m_aspects; }
+    const Utils::AspectContainer &aspects() const { return m_aspects; }
 
     Utils::BaseAspect *aspect(Utils::Id id) const;
     template <typename T> T *aspect() const { return m_aspects.aspect<T>(); }
@@ -94,7 +94,7 @@ signals:
     void toolTipChanged();
 
 protected:
-    Utils::BaseAspects m_aspects;
+    Utils::AspectContainer m_aspects;
 
 private:
     QPointer<Target> m_target;

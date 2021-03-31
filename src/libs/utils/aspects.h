@@ -42,7 +42,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
-class BaseAspects;
+class AspectContainer;
 class LayoutBuilder;
 
 namespace Internal {
@@ -109,7 +109,7 @@ public:
     virtual void fromMap(const QVariantMap &map);
     virtual void toMap(QVariantMap &map) const;
     virtual void toActiveMap(QVariantMap &map) const { toMap(map); }
-    virtual void acquaintSiblings(const BaseAspects &);
+    virtual void acquaintSiblings(const AspectContainer &);
 
     virtual void addToLayout(LayoutBuilder &builder);
 
@@ -153,53 +153,6 @@ protected:
 
 private:
     std::unique_ptr<Internal::BaseAspectPrivate> d;
-};
-
-class QTCREATOR_UTILS_EXPORT BaseAspects
-{
-    BaseAspects(const BaseAspects &) = delete;
-    BaseAspects &operator=(const BaseAspects &) = delete;
-
-public:
-    using const_iterator = QList<BaseAspect *>::const_iterator;
-    using value_type = QList<BaseAspect *>::value_type;
-
-    BaseAspects();
-    ~BaseAspects();
-
-    template <class Aspect, typename ...Args>
-    Aspect *addAspect(Args && ...args)
-    {
-        auto aspect = new Aspect(args...);
-        m_aspects.append(aspect);
-        return aspect;
-    }
-
-    BaseAspect *aspect(Utils::Id id) const;
-
-    template <typename T> T *aspect() const
-    {
-        for (BaseAspect *aspect : m_aspects)
-            if (T *result = qobject_cast<T *>(aspect))
-                return result;
-        return nullptr;
-    }
-
-    template <typename T> T *aspect(Utils::Id id) const
-    {
-        return qobject_cast<T*>(aspect(id));
-    }
-
-    void fromMap(const QVariantMap &map) const;
-    void toMap(QVariantMap &map) const;
-
-    const_iterator begin() const { return m_aspects.begin(); }
-    const_iterator end() const { return m_aspects.end(); }
-
-    void append(BaseAspect *const &aspect) { m_aspects.append(aspect); }
-
-private:
-    QList<BaseAspect *> m_aspects;
 };
 
 class QTCREATOR_UTILS_EXPORT BoolAspect : public BaseAspect
@@ -521,6 +474,12 @@ public:
     AspectContainer();
     ~AspectContainer();
 
+    AspectContainer(const AspectContainer &) = delete;
+    AspectContainer &operator=(const AspectContainer &) = delete;
+
+    void registerAspect(BaseAspect *aspect);
+    void registerAspects(const AspectContainer &aspects);
+
     template <class Aspect, typename ...Args>
     Aspect *addAspect(Args && ...args)
     {
@@ -528,9 +487,6 @@ public:
         registerAspect(aspect);
         return aspect;
     }
-    void registerAspect(BaseAspect *aspect);
-    void registerAspects(const AspectContainer &aspects);
-
     void fromMap(const QVariantMap &map);
     void toMap(QVariantMap &map) const;
 
@@ -548,9 +504,33 @@ public:
     bool equals(const AspectContainer &other) const;
     void copyFrom(const AspectContainer &other);
     void setAutoApply(bool on);
+    void setOwnsSubAspects(bool on);
     bool isDirty() const;
 
+    template <typename T> T *aspect() const
+    {
+        for (BaseAspect *aspect : aspects())
+            if (T *result = qobject_cast<T *>(aspect))
+                return result;
+        return nullptr;
+    }
+
+    BaseAspect *aspect(Utils::Id id) const;
+
+    template <typename T> T *aspect(Utils::Id id) const
+    {
+        return qobject_cast<T*>(aspect(id));
+    }
+
     void forEachAspect(const std::function<void(BaseAspect *)> &run) const;
+
+    const QList<BaseAspect *> &aspects() const;
+
+    using const_iterator = QList<BaseAspect *>::const_iterator;
+    using value_type = QList<BaseAspect *>::value_type;
+
+    const_iterator begin() const;
+    const_iterator end() const;
 
 private:
     std::unique_ptr<Internal::AspectContainerPrivate> d;

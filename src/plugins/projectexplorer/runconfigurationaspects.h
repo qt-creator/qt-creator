@@ -76,7 +76,7 @@ public:
     WorkingDirectoryAspect();
 
     void addToLayout(Utils::LayoutBuilder &builder) override;
-    void acquaintSiblings(const Utils::BaseAspects &) override;
+    void acquaintSiblings(const Utils::AspectContainer &) override;
 
     Utils::FilePath workingDirectory(const Utils::MacroExpander *expander) const;
     Utils::FilePath defaultWorkingDirectory() const;

@@ -43,6 +43,8 @@ ProjectConfiguration::ProjectConfiguration(QObject *parent, Utils::Id id)
     : QObject(parent)
     , m_id(id)
 {
+    m_aspects.setOwnsSubAspects(true);
+
     QTC_CHECK(parent);
     QTC_CHECK(id.isValid());
     setObjectName(id.toString());

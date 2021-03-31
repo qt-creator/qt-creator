@@ -203,7 +203,7 @@ void WorkingDirectoryAspect::addToLayout(LayoutBuilder &builder)
     builder.addItems({tr("Working directory:"), m_chooser.data(), m_resetButton.data()});
 }
 
-void WorkingDirectoryAspect::acquaintSiblings(const BaseAspects &siblings)
+void WorkingDirectoryAspect::acquaintSiblings(const AspectContainer &siblings)
 {
     m_envAspect = siblings.aspect<EnvironmentAspect>();
 }

@@ -56,7 +56,7 @@ public:
 
 private:
     void addToLayout(Utils::LayoutBuilder &builder) override;
-    void acquaintSiblings(const Utils::BaseAspects &siblings) override;
+    void acquaintSiblings(const Utils::AspectContainer &siblings) override;
 
     const ProjectExplorer::Kit *m_kit = nullptr;
     const QmlDebuggingAspect *m_qmlDebuggingAspect = nullptr;

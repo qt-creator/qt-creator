@@ -551,60 +551,8 @@ QVariant BaseAspect::fromSettingsValue(const QVariant &val) const
 /*!
     \internal
 */
-void BaseAspect::acquaintSiblings(const BaseAspects &)
+void BaseAspect::acquaintSiblings(const AspectContainer &)
 {}
-
-// BaseAspects
-
-/*!
-    \class BaseAspects
-    \inmodule QtCreator
-
-    \brief This class represent a collection of one or more aspects.
-
-    A BaseAspects object assumes ownership on its aspects.
-*/
-
-/*!
-    Constructs a BaseAspects object.
-*/
-BaseAspects::BaseAspects() = default;
-
-/*!
-    Destructs a BaseAspects object.
-*/
-BaseAspects::~BaseAspects()
-{
-    qDeleteAll(m_aspects);
-}
-
-/*!
-    Retrieves a BaseAspect with a given \a id, or nullptr if no such aspect is contained.
-
-    \sa BaseAspect.
-*/
-BaseAspect *BaseAspects::aspect(Utils::Id id) const
-{
-    return Utils::findOrDefault(m_aspects, Utils::equal(&BaseAspect::id, id));
-}
-
-/*!
-    \internal
-*/
-void BaseAspects::fromMap(const QVariantMap &map) const
-{
-    for (BaseAspect *aspect : m_aspects)
-        aspect->fromMap(map);
-}
-
-/*!
-    \internal
-*/
-void BaseAspects::toMap(QVariantMap &map) const
-{
-    for (BaseAspect *aspect : m_aspects)
-        aspect->toMap(map);
-}
 
 namespace Internal {
 
@@ -2109,6 +2057,8 @@ void TextDisplay::setText(const QString &message)
 
     \brief The AspectContainer class wraps one or more aspects while providing
     the interface of a single aspect.
+
+    Sub-aspects ownership can be declared using \a setOwnsSubAspects.
 */
 
 namespace Internal {
@@ -2118,6 +2068,7 @@ class AspectContainerPrivate
 public:
     QList<BaseAspect *> m_items; // Not owned
     bool m_autoApply = true;
+    bool m_ownsSubAspects = false;
     QStringList m_settingsGroup;
 };
 
@@ -2130,7 +2081,11 @@ AspectContainer::AspectContainer()
 /*!
     \reimp
 */
-AspectContainer::~AspectContainer() = default;
+AspectContainer::~AspectContainer()
+{
+    if (d->m_ownsSubAspects)
+        qDeleteAll(d->m_items);
+}
 
 /*!
     \internal
@@ -2145,6 +2100,31 @@ void AspectContainer::registerAspects(const AspectContainer &aspects)
 {
     for (BaseAspect *aspect : qAsConst(aspects.d->m_items))
         registerAspect(aspect);
+}
+
+/*!
+    Retrieves a BaseAspect with a given \a id, or nullptr if no such aspect is contained.
+
+    \sa BaseAspect.
+*/
+BaseAspect *AspectContainer::aspect(Id id) const
+{
+    return Utils::findOrDefault(d->m_items, Utils::equal(&BaseAspect::id, id));
+}
+
+AspectContainer::const_iterator AspectContainer::begin() const
+{
+    return d->m_items.begin();
+}
+
+AspectContainer::const_iterator AspectContainer::end() const
+{
+    return d->m_items.end();
+}
+
+const QList<BaseAspect *> &AspectContainer::aspects() const
+{
+    return d->m_items;
 }
 
 void AspectContainer::fromMap(const QVariantMap &map)
@@ -2222,6 +2202,11 @@ void AspectContainer::setAutoApply(bool on)
     d->m_autoApply = on;
     for (BaseAspect *aspect : qAsConst(d->m_items))
         aspect->setAutoApply(on);
+}
+
+void AspectContainer::setOwnsSubAspects(bool on)
+{
+    d->m_ownsSubAspects = on;
 }
 
 bool AspectContainer::isDirty() const
