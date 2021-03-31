@@ -30,6 +30,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QRegularExpression>
 
 namespace QmlDesigner {
 DefaultAnnotationsModel::DefaultAnnotationsModel(QObject *parent)
