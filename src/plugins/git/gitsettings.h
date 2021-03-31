@@ -70,7 +70,7 @@ public:
 class GitSettingsPage final : public Core::IOptionsPage
 {
 public:
-    GitSettingsPage(GitSettings *settings, const std::function<void()> &onChange);
+    explicit GitSettingsPage(GitSettings *settings);
 };
 
 } // namespace Internal

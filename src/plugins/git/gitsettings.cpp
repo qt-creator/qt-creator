@@ -25,9 +25,6 @@
 
 #include "gitsettings.h"
 
-#include <utils/environment.h>
-#include <utils/fileutils.h>
-#include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 
 #include <vcsbase/vcsbaseconstants.h>
@@ -153,73 +150,45 @@ FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
     return binPath;
 }
 
-
-// GitSettingsPageWidget
-
-class GitSettingsPageWidget final : public Core::IOptionsPageWidget
-{
-    Q_DECLARE_TR_FUNCTIONS(Git::Internal::SettingsPageWidget)
-
-public:
-    GitSettingsPageWidget(GitSettings *settings, const std::function<void()> &onChange);
-
-    void apply() final;
-
-private:
-    std::function<void()> m_onChange;
-    GitSettings *m_settings;
-};
-
-GitSettingsPageWidget::GitSettingsPageWidget(GitSettings *settings, const std::function<void()> &onChange)
-    : m_onChange(onChange), m_settings(settings)
-{
-    GitSettings &s = *m_settings;
-    using namespace Layouting;
-
-    Column {
-        Group {
-            Title(tr("Configuration")),
-            Row { s.path },
-            s.winSetHomeEnvironment,
-        },
-
-        Group {
-            Title(tr("Miscellaneous")),
-            Row { s.logCount, s.timeout, Stretch() },
-            s.pullRebase
-        },
-
-        Group {
-            Title(tr("Gitk")),
-            Row { s.gitkOptions }
-        },
-
-        Group {
-            Title(tr("Repository Browser")),
-            Row { s.repositoryBrowserCmd }
-        },
-
-        Stretch()
-    }.attachTo(this);
-}
-
-void GitSettingsPageWidget::apply()
-{
-    if (m_settings->isDirty()) {
-        m_settings->apply();
-        m_onChange();
-    }
-}
-
-
 // GitSettingsPage
 
-GitSettingsPage::GitSettingsPage(GitSettings *settings, const std::function<void()> &onChange)
+GitSettingsPage::GitSettingsPage(GitSettings *settings)
 {
     setId(VcsBase::Constants::VCS_ID_GIT);
-    setDisplayName(GitSettingsPageWidget::tr("Git"));
+    setDisplayName(GitSettings::tr("Git"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setWidgetCreator([settings, onChange] { return new GitSettingsPageWidget(settings, onChange); });
+    setSettings(settings);
+
+    setLayouter([settings](QWidget *widget) {
+        GitSettings &s = *settings;
+        using namespace Layouting;
+
+        Column {
+            Group {
+                Title(GitSettings::tr("Configuration")),
+                Row { s.path },
+                s.winSetHomeEnvironment,
+            },
+
+            Group {
+                Title(GitSettings::tr("Miscellaneous")),
+                Row { s.logCount, s.timeout, Stretch() },
+                s.pullRebase
+            },
+
+            Group {
+                Title(GitSettings::tr("Gitk")),
+                Row { s.gitkOptions }
+            },
+
+            Group {
+                Title(GitSettings::tr("Repository Browser")),
+                Row { s.repositoryBrowserCmd }
+            },
+
+            Stretch()
+        }.attachTo(widget);
+    });
 }
 
 } // namespace Internal

@@ -408,7 +408,7 @@ public:
     QString m_commitMessageFileName;
     bool m_submitActionTriggered = false;
 
-    GitSettingsPage settingPage{&m_settings, std::bind(&GitPluginPrivate::onApplySettings, this)};
+    GitSettingsPage settingPage{&m_settings};
 
     GitGrep gitGrep{&m_gitClient};
 
@@ -1022,6 +1022,7 @@ GitPluginPrivate::GitPluginPrivate()
     m_gerritPlugin->updateActions(currentState());
     m_gerritPlugin->addToLocator(m_commandLocator);
 
+    connect(&m_settings, &AspectContainer::applied, this, &GitPluginPrivate::onApplySettings);
 }
 
 void GitPluginPrivate::diffCurrentFile()
