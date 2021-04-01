@@ -144,13 +144,13 @@
 
     \section2 Importing the Simulink Connector
 
-    To integrate the Simulink model into \QDS, you first need to import the
-    Simulink connector in \uicontrol Library. Click the \uicontrol {QML Imports
-    Tab}, select the \uicontrol {<Add Import>} drop-down menu, and then select
-    \uicontrol SimulinkConnector. \QDS is now ready to communicate with the
+    To integrate the Simulink model into \QDS, you first need to add the
+    Simulink connector module to your project. In the \l Library view, select
+    \uicontrol Components > \inlineimage plus.png
+    > \uicontrol SimulinkConnector. \QDS is now ready to communicate with the
     Simulink model.
 
-    \image studio-qml-imports-slconnector.png "Simulink Connector in the QML Imports list"
+    \image studio-qml-imports-slconnector.png "Simulink Connector in the list of available modules."
 
     If you need to change the IP address and/or port, you need to select the
     \uicontrol SimulinkConnector item in \uicontrol Navigator and set the IP
@@ -162,8 +162,8 @@
     To communicate with a specific model in Simulink, you need to create
     properties matching the send and receive properties in the root of the
     application you are building. Select the root item in \uicontrol
-    Navigator to add the properties in the \uicontrol Properties tab in
-    \uicontrol {Connection View}.
+    Navigator to add the properties in \uicontrol {Connection View} >
+    \uicontrol Properties.
 
     See \l {Specifying Dynamic Properties} for a detailed description of how
     to add a custom property. The name of the property and the data type
