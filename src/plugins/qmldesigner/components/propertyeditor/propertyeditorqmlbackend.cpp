@@ -669,7 +669,6 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
     bool emptyTemplate = true;
 
     const QString anchorLeftRight = "anchors.left: parent.left\nanchors.right: parent.right\n";
-    const QString paddingLeftTopBottom = "leftPadding: 0\ntopPadding: 0\nbottomPadding: 0\n";
 
     qmlTemplate += "Column {\n";
     qmlTemplate += anchorLeftRight;
@@ -680,7 +679,6 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
     qmlTemplate += "Section {\n";
     qmlTemplate += "caption: \"User added properties\"\n";
     qmlTemplate += anchorLeftRight;
-    qmlTemplate += paddingLeftTopBottom;
     qmlTemplate += "Column {\n";
     qmlTemplate += "width: parent.width\n";
 
@@ -747,7 +745,6 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
             qmlTemplate += "Section {\n";
             qmlTemplate += QStringLiteral("caption: \"%1 - %2\"\n").arg(QString::fromUtf8(p)).arg(QString::fromUtf8(parentTypeName));
             qmlTemplate += anchorLeftRight;
-            qmlTemplate += paddingLeftTopBottom;
             qmlTemplate += "level: 1\n";
             qmlTemplate += "Column {\n";
             qmlTemplate += "width: parent.width\n";
