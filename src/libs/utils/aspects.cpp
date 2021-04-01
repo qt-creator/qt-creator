@@ -1441,6 +1441,7 @@ void SelectionAspect::finish()
     delete d->m_buttonGroup;
     d->m_buttonGroup = nullptr;
     BaseAspect::finish();
+    d->m_buttons.clear();
 }
 
 void SelectionAspect::setDisplayStyle(SelectionAspect::DisplayStyle style)
