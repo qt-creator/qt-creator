@@ -432,9 +432,7 @@ RunConfigurationFactory::~RunConfigurationFactory()
 
 QString RunConfigurationFactory::decoratedTargetName(const QString &targetName, Target *target)
 {
-    QString displayName;
-    if (!targetName.isEmpty())
-        displayName = QFileInfo(targetName).completeBaseName();
+    QString displayName = targetName;
     Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(target->kit());
     if (devType != Constants::DESKTOP_DEVICE_TYPE) {
         if (IDevice::ConstPtr dev = DeviceKitAspect::device(target->kit())) {
