@@ -1390,6 +1390,8 @@ void SelectionAspect::addToLayout(LayoutBuilder &builder)
             connect(d->m_comboBox.data(), QOverload<int>::of(&QComboBox::activated),
                     this, &SelectionAspect::setValue);
         }
+        connect(d->m_comboBox.data(), QOverload<int>::of(&QComboBox::currentIndexChanged),
+                this, &SelectionAspect::volatileValueChanged);
         d->m_comboBox->setCurrentIndex(value());
         addLabeledItem(builder, d->m_comboBox);
         break;

@@ -225,6 +225,9 @@ public:
     int indexForDisplay(const QString &displayName) const;
     QString displayForIndex(int index) const;
 
+signals:
+    void volatileValueChanged(int newValue);
+
 private:
     std::unique_ptr<Internal::SelectionAspectPrivate> d;
 };
