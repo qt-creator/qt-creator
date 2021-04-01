@@ -32,7 +32,7 @@ namespace TextEditor { class SimpleCodeStylePreferences; }
 
 namespace Nim {
 
-class NimSettings : public QObject, public Utils::AspectContainer
+class NimSettings : public Utils::AspectContainer
 {
     Q_DECLARE_TR_FUNCTIONS(Nim::NimSettings)
 
