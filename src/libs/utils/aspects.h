@@ -92,7 +92,9 @@ public:
     bool isAutoApply() const;
     void setAutoApply(bool on);
 
+    bool isEnabled() const;
     void setEnabled(bool enabled);
+
     void setReadOnly(bool enabled);
 
     QString labelText() const;

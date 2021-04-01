@@ -289,6 +289,11 @@ void BaseAspect::setToolTip(const QString &tooltip)
     }
 }
 
+bool BaseAspect::isEnabled() const
+{
+    return d->m_enabled;
+}
+
 void BaseAspect::setEnabled(bool enabled)
 {
     d->m_enabled = enabled;
@@ -625,11 +630,11 @@ public:
     bool m_fileDialogOnly = false;
     bool m_useResetButton = false;
 
-    template<class Widget> void updateWidgetFromCheckStatus(Widget *w)
+    template<class Widget> void updateWidgetFromCheckStatus(StringAspect *aspect, Widget *w)
     {
         const bool enabled = !m_checker || m_checker->value();
         if (m_uncheckedSemantics == StringAspect::UncheckedSemantics::Disabled)
-            w->setEnabled(enabled);
+            w->setEnabled(enabled && aspect->isEnabled());
         else
             w->setReadOnly(!enabled);
     }
@@ -1028,7 +1033,7 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         d->m_pathChooserDisplay->setFileDialogOnly(d->m_fileDialogOnly);
         d->m_pathChooserDisplay->setOpenTerminalHandler(d->m_openTerminal);
         d->m_pathChooserDisplay->setFilePath(FilePath::fromString(displayedString));
-        d->updateWidgetFromCheckStatus(d->m_pathChooserDisplay.data());
+        d->updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
         addLabeledItem(builder, d->m_pathChooserDisplay);
         useMacroExpander(d->m_pathChooserDisplay->lineEdit());
         if (isAutoApply()) {
@@ -1044,7 +1049,7 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         if (d->m_validator)
             d->m_lineEditDisplay->setValidationFunction(d->m_validator);
         d->m_lineEditDisplay->setTextKeepingActiveCursor(displayedString);
-        d->updateWidgetFromCheckStatus(d->m_lineEditDisplay.data());
+        d->updateWidgetFromCheckStatus(this, d->m_lineEditDisplay.data());
         addLabeledItem(builder, d->m_lineEditDisplay);
         useMacroExpander(d->m_lineEditDisplay);
         if (isAutoApply()) {
@@ -1070,7 +1075,7 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         d->m_textEditDisplay->setAcceptRichText(d->m_acceptRichText);
         d->m_textEditDisplay->setTextInteractionFlags(Qt::TextEditorInteraction);
         d->m_textEditDisplay->setText(displayedString);
-        d->updateWidgetFromCheckStatus(d->m_textEditDisplay.data());
+        d->updateWidgetFromCheckStatus(this, d->m_textEditDisplay.data());
         addLabeledItem(builder, d->m_textEditDisplay);
         useMacroExpander(d->m_textEditDisplay);
         if (isAutoApply()) {
@@ -1144,19 +1149,19 @@ void StringAspect::update()
 
     if (d->m_pathChooserDisplay) {
         d->m_pathChooserDisplay->setFilePath(FilePath::fromString(displayedString));
-        d->updateWidgetFromCheckStatus(d->m_pathChooserDisplay.data());
+        d->updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
     }
 
     if (d->m_lineEditDisplay) {
         d->m_lineEditDisplay->setTextKeepingActiveCursor(displayedString);
-        d->updateWidgetFromCheckStatus(d->m_lineEditDisplay.data());
+        d->updateWidgetFromCheckStatus(this, d->m_lineEditDisplay.data());
     }
 
     if (d->m_textEditDisplay) {
         const QString old = d->m_textEditDisplay->document()->toPlainText();
         if (displayedString != old)
             d->m_textEditDisplay->setText(displayedString);
-        d->updateWidgetFromCheckStatus(d->m_textEditDisplay.data());
+        d->updateWidgetFromCheckStatus(this, d->m_textEditDisplay.data());
     }
 
     if (d->m_labelDisplay) {
