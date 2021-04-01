@@ -55,9 +55,9 @@
 
     \note You can also select \uicontrol Edit > \uicontrol {Find/Replace} >
     \uicontrol {Advanced Find} > \uicontrol {C++ Symbols} to search for
-    classes, functions, enums, and declarations either from files listed as
-    part of the project or from all files that are used by the code, such as
-    include files.
+    classes, functions, enums, and declarations (including type aliases) either
+    from files listed as part of the project or from all files that are used by
+    the code, such as include files.
     \image qtcreator-search-cpp-symbols.png
     \endif
 
