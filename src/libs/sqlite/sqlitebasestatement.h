@@ -178,14 +178,15 @@ public:
     template<typename... ValueType>
     void bindValues(const ValueType&... values)
     {
-        bindValuesByIndex(1, values...);
+        int index = 0;
+        (BaseStatement::bind(++index, values), ...);
     }
 
     template<typename... ValueType>
     void write(const ValueType&... values)
     {
         Resetter resetter{*this};
-        bindValuesByIndex(1, values...);
+        bindValues(values...);
         BaseStatement::next();
         resetter.reset();
     }
@@ -378,19 +379,6 @@ private:
     CallbackControl callCallable(Callable &&callable)
     {
         return callCallable(callable, std::make_integer_sequence<int, ResultCount>{});
-    }
-
-    template<typename ValueType>
-    void bindValuesByIndex(int index, const ValueType &value)
-    {
-        BaseStatement::bind(index, value);
-    }
-
-    template<typename ValueType, typename... ValueTypes>
-    void bindValuesByIndex(int index, const ValueType &value, const ValueTypes &...values)
-    {
-        BaseStatement::bind(index, value);
-        bindValuesByIndex(index + 1, values...);
     }
 
     void setMaximumResultCount(std::size_t count)
