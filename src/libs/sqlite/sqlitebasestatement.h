@@ -339,11 +339,6 @@ private:
         int column;
     };
 
-    constexpr int resultCount(int localResultCount) const
-    {
-        return ResultCount < 0 ? localResultCount : ResultCount;
-    }
-
     template<typename ContainerType, int... ColumnIndices>
     void emplaceBackValues(ContainerType &container, std::integer_sequence<int, ColumnIndices...>)
     {
