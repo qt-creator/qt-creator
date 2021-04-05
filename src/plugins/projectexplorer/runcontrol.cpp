@@ -363,7 +363,7 @@ void RunControl::setRunConfiguration(RunConfiguration *runConfig)
     d->runConfiguration = runConfig;
     d->runConfigId = runConfig->id();
     d->runnable = runConfig->runnable();
-    d->displayName = runConfig->displayName();
+    d->displayName = runConfig->expandedDisplayName();
     d->macroExpander = runConfig->macroExpander();
     d->buildKey = runConfig->buildKey();
     d->settingsData = runConfig->aspectData();
