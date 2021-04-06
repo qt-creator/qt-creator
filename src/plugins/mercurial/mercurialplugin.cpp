@@ -196,8 +196,7 @@ private:
     // Variables
     MercurialSettings m_settings;
     MercurialClient m_client{&m_settings};
-
-    OptionsPage m_optionsPage{[this] { configurationChanged(); }, &m_settings};
+    MercurialSettingsPage m_settingsPage{&m_settings};
 
     Core::CommandLocator *m_commandLocator = nullptr;
     Core::ActionContainer *m_mercurialContainer = nullptr;
@@ -282,6 +281,8 @@ MercurialPluginPrivate::MercurialPluginPrivate()
     m_commandLocator->setDescription(tr("Triggers a Mercurial version control operation."));
 
     createMenu(context);
+
+    connect(&m_settings, &AspectContainer::applied, this, &IVersionControl::configurationChanged);
 }
 
 void MercurialPluginPrivate::createMenu(const Core::Context &context)

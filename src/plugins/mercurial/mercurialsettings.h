@@ -41,10 +41,10 @@ public:
     MercurialSettings();
 };
 
-class OptionsPage final : public Core::IOptionsPage
+class MercurialSettingsPage final : public Core::IOptionsPage
 {
 public:
-    OptionsPage(const std::function<void()> &onApply, MercurialSettings *settings);
+    explicit MercurialSettingsPage(MercurialSettings *settings);
 };
 
 } // namespace Internal

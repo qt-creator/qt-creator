@@ -66,68 +66,45 @@ MercurialSettings::MercurialSettings()
     diffIgnoreBlankLines.setSettingsKey("diffIgnoreBlankLines");
 }
 
-// Optionpage
+// MercurialSettingsPage
 
-class OptionsPageWidget final : public Core::IOptionsPageWidget
-{
-    Q_DECLARE_TR_FUNCTIONS(Mercurial::Internal::OptionsPageWidget)
-
-public:
-    OptionsPageWidget(const std::function<void()> &onApply, MercurialSettings *settings);
-    void apply() final;
-
-private:
-    std::function<void()> m_onApply;
-    MercurialSettings *m_settings;
-};
-
-OptionsPageWidget::OptionsPageWidget(const std::function<void()> &onApply, MercurialSettings *settings)
-    : m_onApply(onApply), m_settings(settings)
-{
-    MercurialSettings &s = *settings;
-    using namespace Layouting;
-
-    Column {
-        Group {
-            Title(tr("Configuration")),
-            Row { s.binaryPath }
-        },
-
-        Group {
-            Title(tr("User")),
-            Form {
-                s.userName,
-                s.userEmail
-            }
-        },
-
-        Group {
-            Title(tr("Miscellaneous")),
-            Row {
-                s.logCount,
-                s.timeout,
-                Stretch()
-            }
-        },
-        Stretch()
-
-    }.attachTo(this);
-}
-
-void OptionsPageWidget::apply()
-{
-    if (!m_settings->isDirty())
-        return;
-    m_settings->apply();
-    m_onApply();
-}
-
-OptionsPage::OptionsPage(const std::function<void()> &onApply, MercurialSettings *settings)
+MercurialSettingsPage::MercurialSettingsPage(MercurialSettings *settings)
 {
     setId(VcsBase::Constants::VCS_ID_MERCURIAL);
-    setDisplayName(OptionsPageWidget::tr("Mercurial"));
+    setDisplayName(MercurialSettings::tr("Mercurial"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setWidgetCreator([onApply, settings] { return new OptionsPageWidget(onApply, settings); });
+    setSettings(m_settings);
+
+    setLayouter([settings](QWidget *widget) {
+        MercurialSettings &s = *settings;
+        using namespace Layouting;
+
+        Column {
+            Group {
+                Title(MercurialSettings::tr("Configuration")),
+                Row { s.binaryPath }
+            },
+
+            Group {
+                Title(MercurialSettings::tr("User")),
+                Form {
+                    s.userName,
+                    s.userEmail
+                }
+            },
+
+            Group {
+                Title(MercurialSettings::tr("Miscellaneous")),
+                Row {
+                    s.logCount,
+                    s.timeout,
+                    Stretch()
+                }
+            },
+            Stretch()
+
+        }.attachTo(widget);
+    });
 }
 
 } // namespace Internal
