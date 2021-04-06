@@ -2183,6 +2183,9 @@ void AspectContainer::fromMap(const QVariantMap &map)
 {
     for (BaseAspect *aspect : qAsConst(d->m_items))
         aspect->fromMap(map);
+
+    emit fromMapFinished();
+
 }
 
 void AspectContainer::toMap(QVariantMap &map) const

@@ -46,12 +46,6 @@ public:
     Utils::IntegerAspect flushInterval;
     Utils::StringAspect lastTraceFile;
     Utils::BoolAspect aggregateTraces;
-
-    Utils::AspectContainer group;
-
-protected:
-    void toMap(QVariantMap &map) const override;
-    void fromMap(const QVariantMap &map) override;
 };
 
 class QmlProfilerOptionsPage final : public Core::IOptionsPage

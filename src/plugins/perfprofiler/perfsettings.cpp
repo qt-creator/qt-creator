@@ -46,19 +46,19 @@ PerfSettings::PerfSettings(ProjectExplorer::Target *target)
         return widget;
     });
 
-    group.registerAspect(&period);
+    registerAspect(&period);
     period.setSettingsKey("Analyzer.Perf.Frequency");
     period.setRange(250, 2147483647);
     period.setDefaultValue(250);
     period.setLabelText(tr("Sample period:"));
 
-    group.registerAspect(&stackSize);
+    registerAspect(&stackSize);
     stackSize.setSettingsKey("Analyzer.Perf.StackSize");
     stackSize.setRange(4096, 65536);
     stackSize.setDefaultValue(4096);
     stackSize.setLabelText(tr("Stack snapshot size (kB):"));
 
-    group.registerAspect(&sampleMode);
+    registerAspect(&sampleMode);
     sampleMode.setSettingsKey("Analyzer.Perf.SampleMode");
     sampleMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     sampleMode.setLabelText(tr("Sample mode:"));
@@ -66,7 +66,7 @@ PerfSettings::PerfSettings(ProjectExplorer::Target *target)
     sampleMode.addOption({tr("event count"), {}, QString("-c")});
     sampleMode.setDefaultValue(0);
 
-    group.registerAspect(&callgraphMode);
+    registerAspect(&callgraphMode);
     callgraphMode.setSettingsKey("Analyzer.Perf.CallgraphMode");
     callgraphMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     callgraphMode.setLabelText(tr("Call graph mode:"));
@@ -75,11 +75,11 @@ PerfSettings::PerfSettings(ProjectExplorer::Target *target)
     callgraphMode.addOption({tr("last branch record"), {}, QString("lbr")});
     callgraphMode.setDefaultValue(0);
 
-    group.registerAspect(&events);
+    registerAspect(&events);
     events.setSettingsKey("Analyzer.Perf.Events");
     events.setDefaultValue({"cpu-cycles"});
 
-    group.registerAspect(&extraArguments);
+    registerAspect(&extraArguments);
     extraArguments.setSettingsKey("Analyzer.Perf.ExtraArguments");
     extraArguments.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
     extraArguments.setLabelText(tr("Additional arguments:"));
@@ -88,6 +88,8 @@ PerfSettings::PerfSettings(ProjectExplorer::Target *target)
     connect(&callgraphMode, &SelectionAspect::volatileValueChanged, this, [this](int index) {
         stackSize.setEnabled(index == 0);
     });
+
+    connect(this, &AspectContainer::fromMapFinished, this, &PerfSettings::changed);
 
     readGlobalSettings();
 }
@@ -120,17 +122,6 @@ void PerfSettings::writeGlobalSettings() const
     for (QVariantMap::ConstIterator it = map.constBegin(); it != map.constEnd(); ++it)
         settings->setValue(it.key(), it.value());
     settings->endGroup();
-}
-
-void PerfSettings::toMap(QVariantMap &map) const
-{
-    group.toMap(map);
-}
-
-void PerfSettings::fromMap(const QVariantMap &map)
-{
-    group.fromMap(map);
-    emit changed();
 }
 
 QStringList PerfSettings::perfRecordArguments() const

@@ -513,6 +513,7 @@ public:
         registerAspect(aspect);
         return aspect;
     }
+
     void fromMap(const QVariantMap &map);
     void toMap(QVariantMap &map) const;
 
@@ -560,6 +561,7 @@ public:
 
 signals:
     void applied();
+    void fromMapFinished();
 
 private:
     std::unique_ptr<Internal::AspectContainerPrivate> d;

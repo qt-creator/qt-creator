@@ -50,13 +50,13 @@ public:
 
     void apply() final
     {
-        ValgrindGlobalSettings::instance()->group.apply();
+        ValgrindGlobalSettings::instance()->apply();
         ValgrindGlobalSettings::instance()->writeSettings();
     }
 
     void finish() final
     {
-        ValgrindGlobalSettings::instance()->group.finish();
+        ValgrindGlobalSettings::instance()->finish();
     }
 };
 

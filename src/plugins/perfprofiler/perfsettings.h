@@ -56,14 +56,8 @@ public:
     Utils::StringListAspect events;
     Utils::StringAspect extraArguments;
 
-    Utils::AspectContainer group;
-
 signals:
     void changed();
-
-protected:
-    void toMap(QVariantMap &map) const final;
-    void fromMap(const QVariantMap &map) final;
 };
 
 } // namespace PerfProfiler

@@ -89,9 +89,6 @@ public:
         LeakCheckOnFinishYes
     };
 
-    void toMap(QVariantMap &map) const override;
-    void fromMap(const QVariantMap &map) override;
-
 signals:
     void changed(); // sent when multiple values have changed simulatenously (e.g. fromMap)
 
@@ -134,7 +131,6 @@ public:
     Utils::DoubleAspect minimumInclusiveCostRatio;
     Utils::DoubleAspect visualizationMinimumInclusiveCostRatio;
 
-    Utils::AspectContainer group;
     QVariantMap defaultSettings() const;
 };
 

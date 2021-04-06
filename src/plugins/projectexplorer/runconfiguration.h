@@ -61,7 +61,7 @@ class Target;
  *
  */
 
-class PROJECTEXPLORER_EXPORT ISettingsAspect : public QObject
+class PROJECTEXPLORER_EXPORT ISettingsAspect : public Utils::AspectContainer
 {
     Q_OBJECT
 
@@ -76,10 +76,6 @@ protected:
     void setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator);
 
     friend class GlobalOrProjectAspect;
-    /// Converts current object into map for storage.
-    virtual void toMap(QVariantMap &map) const = 0;
-    /// Read object state from @p map.
-    virtual void fromMap(const QVariantMap &map) = 0;
 
     ConfigWidgetCreator m_configWidgetCreator;
 };

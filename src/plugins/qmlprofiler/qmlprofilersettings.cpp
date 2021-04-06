@@ -57,9 +57,9 @@ QmlProfilerSettings::QmlProfilerSettings()
 {
     setConfigWidgetCreator([this] { return createQmlConfigWidget(this); });
 
-    group.setSettingsGroup(Constants::ANALYZER);
+    setSettingsGroup(Constants::ANALYZER);
 
-    group.registerAspect(&flushEnabled);
+    registerAspect(&flushEnabled);
     flushEnabled.setSettingsKey("Analyzer.QmlProfiler.FlushEnabled");
     flushEnabled.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
     flushEnabled.setLabelText(tr("Flush data while profiling:"));
@@ -68,17 +68,17 @@ QmlProfilerSettings::QmlProfilerSettings()
         "data and the memory usage in the application. It distorts the profile as the flushing\n"
         "itself takes time."));
 
-    group.registerAspect(&flushInterval);
+    registerAspect(&flushInterval);
     flushInterval.setSettingsKey("Analyzer.QmlProfiler.FlushInterval");
     flushInterval.setRange(1, 10000000);
     flushInterval.setDefaultValue(1000);
     flushInterval.setLabelText(tr("Flush interval (ms):", nullptr));
     flushInterval.setEnabled(false); // Controled by flushEnabled.
 
-    group.registerAspect(&lastTraceFile);
+    registerAspect(&lastTraceFile);
     lastTraceFile.setSettingsKey("Analyzer.QmlProfiler.LastTraceFile");
 
-    group.registerAspect(&aggregateTraces);
+    registerAspect(&aggregateTraces);
     aggregateTraces.setSettingsKey("Analyzer.QmlProfiler.AggregateTraces");
     aggregateTraces.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
     aggregateTraces.setLabelText(tr("Process data only when process ends:"));
@@ -94,24 +94,13 @@ QmlProfilerSettings::QmlProfilerSettings()
             &flushInterval, &BaseAspect::setEnabled);
 
     // Read stored values
-    group.readSettings(Core::ICore::settings());
+    readSettings(Core::ICore::settings());
 }
 
 void QmlProfilerSettings::writeGlobalSettings() const
 {
-    group.writeSettings(Core::ICore::settings());
+    writeSettings(Core::ICore::settings());
 }
-
-void QmlProfilerSettings::toMap(QVariantMap &map) const
-{
-    group.toMap(map);
-}
-
-void QmlProfilerSettings::fromMap(const QVariantMap &map)
-{
-    group.fromMap(map);
-}
-
 
 // QmlProfilerOptionsPage
 
