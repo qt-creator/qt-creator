@@ -1502,9 +1502,14 @@ QString SelectionAspect::stringValue() const
     return d->m_options.at(value()).displayName;
 }
 
+QVariant SelectionAspect::itemValue() const
+{
+    return d->m_options.at(value()).itemData;
+}
+
 void SelectionAspect::addOption(const QString &displayName, const QString &toolTip)
 {
-    d->m_options.append({displayName, toolTip});
+    d->m_options.append(Option(displayName, toolTip, {}));
 }
 
 void SelectionAspect::addOption(const Option &option)

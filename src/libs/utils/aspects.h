@@ -212,6 +212,7 @@ public:
     void setDefaultValue(const QString &val);
 
     QString stringValue() const;
+    QVariant itemValue() const;
 
     enum class DisplayStyle { RadioButtons, ComboBox };
     void setDisplayStyle(DisplayStyle style);
@@ -219,8 +220,12 @@ public:
     class Option
     {
     public:
+        Option(const QString &displayName, const QString &toolTip, const QVariant &itemData)
+            : displayName(displayName), tooltip(toolTip), itemData(itemData)
+        {}
         QString displayName;
         QString tooltip;
+        QVariant itemData;
         bool enabled = true;
     };
 
