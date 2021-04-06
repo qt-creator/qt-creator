@@ -25,19 +25,23 @@
 
 #pragma once
 
-#include <QString>
+#include <coreplugin/dialogs/ioptionspage.h>
+
+#include <utils/aspects.h>
 
 QT_BEGIN_NAMESPACE
-class QSettings;
 class QDir;
 QT_END_NAMESPACE
 
 namespace Perforce {
 namespace Internal {
 
-struct Settings {
+class Settings : public Utils::AspectContainer
+{
+    Q_DECLARE_TR_FUNCTIONS(Perforce::Internal::SettingsPage)
+
+public:
     Settings();
-    bool equals(const Settings &s) const;
     QStringList commonP4Arguments() const;
 
     // Checks. On success, errorMessage will contains the client root.
@@ -46,21 +50,16 @@ struct Settings {
                         QString *repositoryRoot /* = 0 */,
                         QString *errorMessage);
 
-    QString p4Command;
-    QString p4BinaryPath;
-    QString p4Port;
-    QString p4Client;
-    QString p4User;
-    QString errorString;
-    int logCount;
-    bool defaultEnv = true;
-    int timeOutS;
-    bool promptToSubmit = true;
-    bool autoOpen = true;
+    Utils::StringAspect p4BinaryPath;
+    Utils::StringAspect p4Port;
+    Utils::StringAspect p4Client;
+    Utils::StringAspect p4User;
+    Utils::IntegerAspect logCount;
+    Utils::BoolAspect customEnv;
+    Utils::IntegerAspect timeOutS;
+    Utils::BoolAspect promptToSubmit;
+    Utils::BoolAspect autoOpen;
 };
-
-inline bool operator==(const Settings &s1, const Settings &s2) { return s1.equals(s2); }
-inline bool operator!=(const Settings &s1, const Settings &s2) { return !s1.equals(s2); }
 
 /* PerforceSettings: Aggregates settings struct and toplevel directory
  * which is determined externally by background checks and provides a convenience
@@ -83,22 +82,15 @@ public:
     ~PerforceSettings();
     PerforceSettings(const PerforceSettings &other) = delete;
 
-    inline bool isValid() const
-    {
-        return !m_topLevel.isEmpty() && !m_settings.p4BinaryPath.isEmpty();
-    }
+    bool isValid() const;
 
-    void fromSettings(QSettings *settings);
-    void toSettings(QSettings *) const;
+    const Settings &settings() const { return m_settings; }
+    Settings &settings() { return m_settings; }
 
-    void setSettings(const Settings &s);
-    Settings settings() const;
-
-    inline int timeOutS()      const { return m_settings.timeOutS;  }
-    inline int longTimeOutS() const { return m_settings.timeOutS * 10; }
-    inline int timeOutMS()     const { return m_settings.timeOutS * 1000;  }
-
-    inline int logCount() const { return m_settings.logCount; }
+    int timeOutS() const { return m_settings.timeOutS.value();  }
+    int longTimeOutS() const { return m_settings.timeOutS.value() * 10; }
+    int timeOutMS() const { return m_settings.timeOutS.value() * 1000;  }
+    int logCount() const { return m_settings.logCount.value(); }
 
     QString topLevel() const;
     QString topLevelSymLinkTarget() const;
@@ -115,7 +107,6 @@ public:
     // Map p4 path back to file system in case of a symlinked top-level
     QString mapToFileSystem(const QString &perforceFilePath) const;
 
-    QString p4Command() const;
     QString p4BinaryPath() const;
     QString p4Port() const;
     QString p4Client() const;
@@ -129,14 +120,21 @@ public:
     // Return basic arguments, including -d and server connection parameters.
     QStringList commonP4Arguments(const QString &workingDir) const;
 
-private:
-    inline QStringList workingDirectoryArguments(const QString &workingDir) const;
     void clearTopLevel();
+
+private:
+    QStringList workingDirectoryArguments(const QString &workingDir) const;
 
     Settings m_settings;
     QString m_topLevel;
     QString m_topLevelSymLinkTarget;
     QDir *m_topLevelDir = nullptr;
+};
+
+class PerforceSettingsPage final : public Core::IOptionsPage
+{
+public:
+    explicit PerforceSettingsPage(PerforceSettings *settings);
 };
 
 } // namespace Internal

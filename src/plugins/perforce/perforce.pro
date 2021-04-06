@@ -3,7 +3,6 @@ include(../../qtcreatorplugin.pri)
 HEADERS += \
     perforceplugin.h \
     perforcechecker.h \
-    settingspage.h \
     perforceeditor.h \
     changenumberdialog.h \
     perforcesubmiteditor.h \
@@ -14,7 +13,6 @@ HEADERS += \
 
 SOURCES += perforceplugin.cpp \
     perforcechecker.cpp \
-    settingspage.cpp \
     perforceeditor.cpp \
     changenumberdialog.cpp \
     perforcesubmiteditor.cpp \
@@ -23,7 +21,7 @@ SOURCES += perforceplugin.cpp \
     annotationhighlighter.cpp \
     perforcesubmiteditorwidget.cpp
 
-FORMS += settingspage.ui \
+FORMS += \
     changenumberdialog.ui \
     pendingchangesdialog.ui \
     submitpanel.ui

@@ -31,7 +31,6 @@
 #include "perforceeditor.h"
 #include "perforcesettings.h"
 #include "perforcesubmiteditor.h"
-#include "settingspage.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -358,7 +357,7 @@ public:
     QAction *m_menuAction = nullptr;
 
     PerforceSettings m_settings;
-    SettingsPage m_settingsPage{&m_settings, [this] { applySettings(); }};
+    PerforceSettingsPage m_settingsPage{&m_settings};
 
     ManagedDirectoryCache m_managedDirectoryCache;
 
@@ -396,7 +395,7 @@ PerforcePluginPrivate::PerforcePluginPrivate()
 
     dd = this;
 
-    m_settings.fromSettings(ICore::settings());
+    m_settings.settings().readSettings(ICore::settings());
 
     const QString prefix = QLatin1String("p4");
     m_commandLocator = new CommandLocator("Perforce", prefix, prefix, this);
@@ -572,6 +571,11 @@ PerforcePluginPrivate::PerforcePluginPrivate()
     command = ActionManager::registerAction(m_filelogAction, CMD_ID_FILELOG, context);
     connect(m_filelogAction, &QAction::triggered, this, &PerforcePluginPrivate::filelogFile);
     perforceContainer->addAction(command);
+
+    QObject::connect(&m_settings.settings(), &AspectContainer::applied, [this] {
+        m_settings.clearTopLevel();
+        applySettings();
+    });
 }
 
 void PerforcePlugin::extensionsInitialized()
@@ -1593,7 +1597,7 @@ bool PerforcePluginPrivate::submitEditorAboutToClose()
     // Set without triggering the checking mechanism
     if (wantsPrompt != m_settings.promptToSubmit()) {
         m_settings.setPromptToSubmit(wantsPrompt);
-        m_settings.toSettings(ICore::settings());
+        m_settings.settings().writeSettings(ICore::settings());
     }
     if (!DocumentManager::saveDocument(editorDocument))
         return false;
@@ -1720,7 +1724,7 @@ void PerforcePluginPrivate::setTopLevel(const QString &topLevel)
 
 void PerforcePluginPrivate::applySettings()
 {
-    m_settings.toSettings(ICore::settings());
+    m_settings.settings().writeSettings(ICore::settings());
     m_managedDirectoryCache.clear();
     getTopLevel();
     emit configurationChanged();
