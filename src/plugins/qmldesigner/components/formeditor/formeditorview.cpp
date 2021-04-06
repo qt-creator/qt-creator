@@ -129,19 +129,24 @@ void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
         m_scene->synchronizeTransformation(rootItem);
         formEditorWidget()->setRootItemRect(qmlItemNode.instanceBoundingRect());
 
-        for (const QmlObjectNode &nextNode : qmlItemNode.allDirectSubNodes()) {
-            if (QmlItemNode::isValidQmlItemNode(nextNode) && nextNode.toQmlItemNode().isFlowItem()) {
-                setupFormEditorItemTree(nextNode.toQmlItemNode());
+        const QList<QmlObjectNode> allDirectSubNodes = qmlItemNode.allDirectSubNodes();
+        for (const QmlObjectNode &childNode : allDirectSubNodes) {
+            if (QmlItemNode::isValidQmlItemNode(childNode)
+                && childNode.toQmlItemNode().isFlowItem()) {
+                setupFormEditorItemTree(childNode.toQmlItemNode());
             }
         }
 
-        for (const QmlObjectNode &nextNode : qmlItemNode.allDirectSubNodes()) {
-            if (QmlVisualNode::isValidQmlVisualNode(nextNode) && nextNode.toQmlVisualNode().isFlowTransition()) {
-                setupFormEditorItemTree(nextNode.toQmlItemNode());
-            } else if (QmlVisualNode::isValidQmlVisualNode(nextNode) && nextNode.toQmlVisualNode().isFlowDecision()) {
-                setupFormEditorItemTree(nextNode.toQmlItemNode());
-            } else if (QmlVisualNode::isValidQmlVisualNode(nextNode) && nextNode.toQmlVisualNode().isFlowWildcard()) {
-                setupFormEditorItemTree(nextNode.toQmlItemNode());
+        for (const QmlObjectNode &childNode : allDirectSubNodes) {
+            if (QmlVisualNode::isValidQmlVisualNode(childNode)
+                && childNode.toQmlVisualNode().isFlowTransition()) {
+                setupFormEditorItemTree(childNode.toQmlItemNode());
+            } else if (QmlVisualNode::isValidQmlVisualNode(childNode)
+                       && childNode.toQmlVisualNode().isFlowDecision()) {
+                setupFormEditorItemTree(childNode.toQmlItemNode());
+            } else if (QmlVisualNode::isValidQmlVisualNode(childNode)
+                       && childNode.toQmlVisualNode().isFlowWildcard()) {
+                setupFormEditorItemTree(childNode.toQmlItemNode());
             }
         }
     } else {
