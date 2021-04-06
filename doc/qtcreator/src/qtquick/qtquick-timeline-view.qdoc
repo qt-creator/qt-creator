@@ -38,9 +38,9 @@
     \image studio-timeline-empty.png "Empty Timeline view"
 
     Select the \inlineimage plus.png
-    (\uicontrol {Add Timeline (A)}) button, or press \key {A} to
-    \l{Creating Timelines}{create a timeline} and specify settings
-    for it in the \uicontrol {Timeline Settings} dialog.
+    (\uicontrol {Add Timeline}) button to \l{Creating Timelines}
+    {create a timeline} and specify settings for it in the
+    \uicontrol {Timeline Settings} dialog.
 
     \image studio-timeline-settings.png "Timeline Settings dialog"
 
