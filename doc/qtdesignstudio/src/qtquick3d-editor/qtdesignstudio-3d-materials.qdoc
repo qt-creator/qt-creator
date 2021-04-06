@@ -35,6 +35,16 @@
     \QDS provides a set of pregenerated Qt Quick 3D materials that can be used
     to create good-looking \l {Adding 3D Models}{models} quickly and easily.
 
+    To apply 3D materials to models, you should first delete the default material,
+    and then drag-and-drop a new material from \l Library to a model component
+    in \l Navigator.
+
+    You can apply the same material to another component as well. Again,
+    delete the default material first. You should then select the component and
+    go to the \uicontrol Properties view. Find the \uicontrol Materials property,
+    select the \inlineimage plus.png
+    icon, and choose the new material in the dropdown menu.
+
     To apply a 3D material to a component, drag-and-drop a material from
     \l Library > \uicontrol Components > \uicontrol QtQuick3D >
     \uicontrol {Qt Quick 3D Materials} to a model component in \l Navigator.

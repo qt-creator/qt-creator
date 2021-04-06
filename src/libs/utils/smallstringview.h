@@ -55,7 +55,7 @@ public:
         : std::string_view{std::addressof(*begin), static_cast<std::size_t>(std::distance(begin, end))}
     {}
 
-#ifdef Q_OS_WINDOWS
+#ifdef Q_CC_MSVC
     constexpr SmallStringView(const char *const begin, const char *const end) noexcept
         : std::string_view{begin, static_cast<std::size_t>(std::distance(begin, end))}
     {}

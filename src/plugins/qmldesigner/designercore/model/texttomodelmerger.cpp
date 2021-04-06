@@ -934,15 +934,23 @@ void TextToModelMerger::setupUsedImports()
 
      const QList<QmlJS::Import> allImports = imports->all();
 
+     QSet<QString> usedImportsSet;
      QList<Import> usedImports;
 
-     foreach (const QmlJS::Import &import, allImports) {
-         if (import.used && !import.info.name().isEmpty()) {
-            if (import.info.type() == ImportType::Library) {
+     // populate usedImportsSet from current model nodes
+     const QList<ModelNode> allModelNodes = m_rewriterView->allModelNodes();
+     for (const ModelNode &modelNode : allModelNodes) {
+         QString type = QString::fromUtf8(modelNode.type());
+         if (type.contains('.'))
+             usedImportsSet.insert(type.left(type.lastIndexOf('.')));
+     }
+
+     for (const QmlJS::Import &import : allImports) {
+         if (!import.info.name().isEmpty() && usedImportsSet.contains(import.info.name())) {
+            if (import.info.type() == ImportType::Library)
                 usedImports.append(Import::createLibraryImport(import.info.name(), import.info.version().toString(), import.info.as()));
-            } else if (import.info.type() == ImportType::Directory || import.info.type() == ImportType::File) {
+            else if (import.info.type() == ImportType::Directory || import.info.type() == ImportType::File)
                 usedImports.append(Import::createFileImport(import.info.name(), import.info.version().toString(), import.info.as()));
-            }
          }
      }
 

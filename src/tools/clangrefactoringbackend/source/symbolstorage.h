@@ -45,7 +45,8 @@ template<typename DatabaseType = Sqlite::Database>
 class SymbolStorage final : public SymbolStorageInterface
 {
     using Database = DatabaseType;
-    using ReadStatement = typename Database::ReadStatement;
+    template<int ResultCount>
+    using ReadStatement = typename Database::template ReadStatement<ResultCount>;
     using WriteStatement = typename Database::WriteStatement;
 
 public:
@@ -166,7 +167,7 @@ public:
         "INSERT OR IGNORE INTO newLocations(temporarySymbolId, line, column, sourceId, "
         "locationKind) VALUES(?,?,?,?,?)",
         database};
-    ReadStatement selectNewSourceIdsStatement{
+    ReadStatement<1> selectNewSourceIdsStatement{
         "SELECT DISTINCT sourceId FROM newLocations WHERE NOT EXISTS (SELECT sourceId FROM sources "
         "WHERE newLocations.sourceId == sources.sourceId)",
         database};

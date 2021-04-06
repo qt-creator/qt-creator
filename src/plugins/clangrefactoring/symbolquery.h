@@ -40,8 +40,6 @@ namespace ClangRefactoring {
 template <typename StatementFactory>
 class SymbolQuery final : public SymbolQueryInterface
 {
-    using ReadStatement = typename StatementFactory::ReadStatementType;
-
 public:
     SymbolQuery(StatementFactory &statementFactory)
         : m_statementFactory(statementFactory)
@@ -51,28 +49,28 @@ public:
                                 int line,
                                 int utf8Column) const override
     {
-        ReadStatement &locationsStatement = m_statementFactory.selectLocationsForSymbolLocation;
+        auto &locationsStatement = m_statementFactory.selectLocationsForSymbolLocation;
 
         const std::size_t reserveSize = 128;
 
-        return locationsStatement.template values<SourceLocation, 3>(reserveSize,
-                                                                     filePathId.filePathId,
-                                                                     line,
-                                                                     utf8Column);
+        return locationsStatement.template values<SourceLocation>(reserveSize,
+                                                                  filePathId.filePathId,
+                                                                  line,
+                                                                  utf8Column);
     }
 
     CppTools::Usages sourceUsagesAt(ClangBackEnd::FilePathId filePathId,
                                     int line,
                                     int utf8Column) const override
     {
-        ReadStatement &locationsStatement = m_statementFactory.selectSourceUsagesForSymbolLocation;
+        auto &locationsStatement = m_statementFactory.selectSourceUsagesForSymbolLocation;
 
         const std::size_t reserveSize = 128;
 
-        return locationsStatement.template values<CppTools::Usage, 3>(reserveSize,
-                                                                      filePathId.filePathId,
-                                                                      line,
-                                                                      utf8Column);
+        return locationsStatement.template values<CppTools::Usage>(reserveSize,
+                                                                   filePathId.filePathId,
+                                                                   line,
+                                                                   utf8Column);
     }
 
     CppTools::Usages sourceUsagesAtByLocationKind(ClangBackEnd::FilePathId filePathId,
@@ -80,46 +78,46 @@ public:
                                                   int utf8Column,
                                                   ClangBackEnd::SourceLocationKind kind) const override
     {
-        ReadStatement &locationsStatement = m_statementFactory.selectSourceUsagesByLocationKindForSymbolLocation;
+        auto &locationsStatement = m_statementFactory.selectSourceUsagesByLocationKindForSymbolLocation;
 
         const std::size_t reserveSize = 128;
 
-        return locationsStatement.template values<CppTools::Usage, 3>(reserveSize,
-                                                                      filePathId.filePathId,
-                                                                      line,
-                                                                      utf8Column,
-                                                                      int(kind));
+        return locationsStatement.template values<CppTools::Usage>(reserveSize,
+                                                                   filePathId.filePathId,
+                                                                   line,
+                                                                   utf8Column,
+                                                                   int(kind));
     }
 
     CppTools::Usages declarationsAt(ClangBackEnd::FilePathId filePathId,
                                     int line,
                                     int utf8Column) const override
     {
-        ReadStatement &locationsStatement = m_statementFactory.selectSourceUsagesOrderedForSymbolLocation;
+        auto &locationsStatement = m_statementFactory.selectSourceUsagesOrderedForSymbolLocation;
 
         const std::size_t reserveSize = 128;
 
-        return locationsStatement.template values<CppTools::Usage, 3>(reserveSize,
-                                                                      filePathId.filePathId,
-                                                                      line,
-                                                                      utf8Column);
+        return locationsStatement.template values<CppTools::Usage>(reserveSize,
+                                                                   filePathId.filePathId,
+                                                                   line,
+                                                                   utf8Column);
     }
 
     Symbols symbolsWithOneSymbolKinds(ClangBackEnd::SymbolKind symbolKind,
                                       Utils::SmallStringView searchTerm) const
     {
-        ReadStatement &statement = m_statementFactory.selectSymbolsForKindAndStartsWith;
+        auto &statement = m_statementFactory.selectSymbolsForKindAndStartsWith;
 
-        return statement.template values<Symbol, 3>(100, int(symbolKind), searchTerm);
+        return statement.template values<Symbol>(100, int(symbolKind), searchTerm);
     }
 
     Symbols symbolsWithTwoSymbolKinds(ClangBackEnd::SymbolKind symbolKind1,
                                       ClangBackEnd::SymbolKind symbolKind2,
                                       Utils::SmallStringView searchTerm) const
     {
-        ReadStatement &statement = m_statementFactory.selectSymbolsForKindAndStartsWith2;
+        auto &statement = m_statementFactory.selectSymbolsForKindAndStartsWith2;
 
-        return statement.template values<Symbol, 3>(100, int(symbolKind1), int(symbolKind2), searchTerm);
+        return statement.template values<Symbol>(100, int(symbolKind1), int(symbolKind2), searchTerm);
     }
 
     Symbols symbolsWithThreeSymbolKinds(ClangBackEnd::SymbolKind symbolKind1,
@@ -127,9 +125,13 @@ public:
                                         ClangBackEnd::SymbolKind symbolKind3,
                                         Utils::SmallStringView searchTerm) const
     {
-        ReadStatement &statement = m_statementFactory.selectSymbolsForKindAndStartsWith3;
+        auto &statement = m_statementFactory.selectSymbolsForKindAndStartsWith3;
 
-        return statement.template values<Symbol, 3>(100, int(symbolKind1), int(symbolKind2), int(symbolKind3), searchTerm);
+        return statement.template values<Symbol>(100,
+                                                 int(symbolKind1),
+                                                 int(symbolKind2),
+                                                 int(symbolKind3),
+                                                 searchTerm);
     }
 
     Symbols symbols(const ClangBackEnd::SymbolKinds &symbolKinds,
@@ -148,9 +150,9 @@ public:
     Utils::optional<SourceLocation> locationForSymbolId(SymbolId symbolId,
                                                         ClangBackEnd::SourceLocationKind kind) const override
     {
-        ReadStatement &statement = m_statementFactory.selectLocationOfSymbol;
+        auto &statement = m_statementFactory.selectLocationOfSymbol;
 
-        return statement.template value<SourceLocation, 3>(symbolId, int(kind));
+        return statement.template value<SourceLocation>(symbolId, int(kind));
     }
 private:
     StatementFactory &m_statementFactory;

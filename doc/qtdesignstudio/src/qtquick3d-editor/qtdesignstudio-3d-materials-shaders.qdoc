@@ -220,15 +220,13 @@
 
     \section1 Applying Materials to Models
 
-    To apply materials to \l {Adding 3D Models}{models}:
+    To apply materials to models, you should first delete the default material,
+    and then drag-and-drop a new material from \l Library to a model component
+    in \l Navigator.
 
-    \list 1
-        \li Drag and drop a material component from \l Library to a model
-            component in \l Navigator.
-        \li Select the Model component.
-        \li In the \uicontrol Properties view, select the material for the model
-            in the \uicontrol Materials list.
-        \li Select the material component to edit the properties of the material
-            in the \uicontrol Properties view.
-    \endlist
+    You can apply the same material to another component as well. Again,
+    delete the default material first. You should then select the component and
+    go to the \uicontrol Properties view. Find the \uicontrol Materials property,
+    select the \inlineimage plus.png
+    icon, and choose the new material in the dropdown menu.
 */

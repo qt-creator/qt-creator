@@ -111,7 +111,7 @@
 
     \list
         \li \l {Opening Projects}
-        \li \l {Specifying Build Settings}
+        \li \l {Meson Build Configuration}
         \li \l {Specifying Run Settings}
     \endlist
 */

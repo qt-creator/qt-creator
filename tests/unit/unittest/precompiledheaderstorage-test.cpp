@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
-#include "mocksqlitedatabase.h"
+#include "sqlitedatabasemock.h"
 
 #include <precompiledheaderstorage.h>
 #include <refactoringdatabaseinitializer.h>
@@ -35,25 +35,28 @@
 
 namespace  {
 
-using Storage = ClangBackEnd::PrecompiledHeaderStorage<NiceMock<MockSqliteDatabase>>;
+using Storage = ClangBackEnd::PrecompiledHeaderStorage<NiceMock<SqliteDatabaseMock>>;
+template<int ResultCount>
+using ReadStatement = NiceMock<SqliteDatabaseMock>::ReadStatement<ResultCount>;
+using WriteStatement = NiceMock<SqliteDatabaseMock>::WriteStatement;
 
 class PrecompiledHeaderStorage : public testing::Test
 {
 protected:
-    NiceMock<MockSqliteDatabase> database;
+    NiceMock<SqliteDatabaseMock> database;
     Storage storage{database};
-    MockSqliteWriteStatement &insertProjectPrecompiledHeaderStatement = storage.insertProjectPrecompiledHeaderStatement;
-    MockSqliteWriteStatement &deleteProjectPrecompiledHeaderStatement = storage.deleteProjectPrecompiledHeaderStatement;
-    MockSqliteWriteStatement &deleteProjectPrecompiledHeaderPathAndSetBuildTimeStatement
+    WriteStatement &insertProjectPrecompiledHeaderStatement = storage.insertProjectPrecompiledHeaderStatement;
+    WriteStatement &deleteProjectPrecompiledHeaderStatement = storage.deleteProjectPrecompiledHeaderStatement;
+    WriteStatement &deleteProjectPrecompiledHeaderPathAndSetBuildTimeStatement
         = storage.deleteProjectPrecompiledHeaderPathAndSetBuildTimeStatement;
-    MockSqliteWriteStatement &insertSystemPrecompiledHeaderStatement = storage.insertSystemPrecompiledHeaderStatement;
-    MockSqliteWriteStatement &deleteSystemPrecompiledHeaderStatement = storage.deleteSystemPrecompiledHeaderStatement;
-    MockSqliteWriteStatement &deleteSystemAndProjectPrecompiledHeaderStatement = storage.deleteSystemAndProjectPrecompiledHeaderStatement;
-    MockSqliteReadStatement &fetchSystemPrecompiledHeaderPathStatement = storage.fetchSystemPrecompiledHeaderPathStatement;
-    MockSqliteReadStatement &fetchPrecompiledHeaderStatement = storage.fetchPrecompiledHeaderStatement;
-    MockSqliteReadStatement &fetchPrecompiledHeadersStatement = storage.fetchPrecompiledHeadersStatement;
-    MockSqliteReadStatement &fetchTimeStampsStatement = storage.fetchTimeStampsStatement;
-    MockSqliteReadStatement &fetchAllPchPathsStatement = storage.fetchAllPchPathsStatement;
+    WriteStatement &insertSystemPrecompiledHeaderStatement = storage.insertSystemPrecompiledHeaderStatement;
+    WriteStatement &deleteSystemPrecompiledHeaderStatement = storage.deleteSystemPrecompiledHeaderStatement;
+    WriteStatement &deleteSystemAndProjectPrecompiledHeaderStatement = storage.deleteSystemAndProjectPrecompiledHeaderStatement;
+    ReadStatement<1> &fetchSystemPrecompiledHeaderPathStatement = storage.fetchSystemPrecompiledHeaderPathStatement;
+    ReadStatement<1> &fetchPrecompiledHeaderStatement = storage.fetchPrecompiledHeaderStatement;
+    ReadStatement<2> &fetchPrecompiledHeadersStatement = storage.fetchPrecompiledHeadersStatement;
+    ReadStatement<2> &fetchTimeStampsStatement = storage.fetchTimeStampsStatement;
+    ReadStatement<1> &fetchAllPchPathsStatement = storage.fetchAllPchPathsStatement;
 };
 
 TEST_F(PrecompiledHeaderStorage, UseTransaction)

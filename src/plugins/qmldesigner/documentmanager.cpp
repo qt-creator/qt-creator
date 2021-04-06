@@ -324,6 +324,9 @@ void DocumentManager::addFileToVersionControl(const QString &directoryPath, cons
 
 Utils::FilePath DocumentManager::currentFilePath()
 {
+    if (!QmlDesignerPlugin::instance()->currentDesignDocument())
+        return {};
+
     return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName();
 }
 

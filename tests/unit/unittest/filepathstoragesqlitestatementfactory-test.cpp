@@ -26,21 +26,19 @@
 #include "googletest.h"
 
 #include "mockmutex.h"
-#include "mocksqlitedatabase.h"
-#include "mocksqlitereadstatement.h"
-#include "mocksqlitewritestatement.h"
+#include "sqlitedatabasemock.h"
 
 #include <filepathstoragesqlitestatementfactory.h>
 
 namespace {
 
-using StatementFactory = ClangBackEnd::FilePathStorageSqliteStatementFactory<NiceMock<MockSqliteDatabase>>;
+using StatementFactory = ClangBackEnd::FilePathStorageSqliteStatementFactory<NiceMock<SqliteDatabaseMock>>;
 
 class FilePathStorageSqliteStatementFactory : public testing::Test
 {
 protected:
-    NiceMock<MockSqliteDatabase> mockDatabase;
-    StatementFactory factory{mockDatabase};
+    NiceMock<SqliteDatabaseMock> databaseMock;
+    StatementFactory factory{databaseMock};
 };
 
 TEST_F(FilePathStorageSqliteStatementFactory, SelectDirectoryIdFromDirectoriesByDirectoryPath)

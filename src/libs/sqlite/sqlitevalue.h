@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "sqliteblob.h"
 #include "sqliteexception.h"
 
 #include <utils/smallstring.h>
@@ -36,7 +37,7 @@
 
 namespace Sqlite {
 
-enum class ValueType : unsigned char { Null, Integer, Float, String };
+enum class ValueType : unsigned char { Null, Integer, Float, String, Blob };
 
 class NullValue
 {
@@ -47,7 +48,7 @@ template<typename StringType>
 class ValueBase
 {
 public:
-    using VariantType = Utils::variant<NullValue, long long, double, StringType>;
+    using VariantType = Utils::variant<NullValue, long long, double, StringType, Blob>;
 
     ValueBase() = default;
 
@@ -81,6 +82,26 @@ public:
 
     {}
 
+    explicit ValueBase(StringType &&value)
+        : value(std::move(value))
+
+    {}
+
+    explicit ValueBase(BlobView value)
+        : value(value)
+
+    {}
+
+    explicit ValueBase(Blob &&value)
+        : value(std::move(value))
+
+    {}
+
+    explicit ValueBase(const Blob &value)
+        : value(value)
+
+    {}
+
     bool isNull() const { return value.index() == 0; }
 
     long long toInteger() const { return Utils::get<int(ValueType::Integer)>(value); }
@@ -92,6 +113,12 @@ public:
         return Utils::get<int(ValueType::String)>(value);
     }
 
+    BlobView toBlobView() const
+    {
+        const Blob &blob = Utils::get<int(ValueType::Blob)>(value);
+
+        return {blob.bytes};
+    }
     explicit operator QVariant() const
     {
         switch (type()) {
@@ -101,6 +128,10 @@ public:
             return QVariant(toFloat());
         case ValueType::String:
             return QVariant(QString(toStringView()));
+        case ValueType::Blob: {
+            auto blobView = toBlobView();
+            return QVariant(QByteArray(blobView.cdata(), blobView.sisize()));
+        }
         case ValueType::Null:
             break;
         }
@@ -121,9 +152,9 @@ public:
 
     friend bool operator==(const ValueBase &first, double second)
     {
-        auto maybeInteger = Utils::get_if<int(ValueType::Float)>(&first.value);
+        auto maybeFloat = Utils::get_if<int(ValueType::Float)>(&first.value);
 
-        return maybeInteger && *maybeInteger == second;
+        return maybeFloat && *maybeFloat == second;
     }
 
     friend bool operator==(const ValueBase &first, int second)
@@ -144,9 +175,9 @@ public:
 
     friend bool operator==(const ValueBase &first, Utils::SmallStringView second)
     {
-        auto maybeInteger = Utils::get_if<int(ValueType::String)>(&first.value);
+        auto maybeString = Utils::get_if<int(ValueType::String)>(&first.value);
 
-        return maybeInteger && *maybeInteger == second;
+        return maybeString && *maybeString == second;
     }
 
     friend bool operator==(Utils::SmallStringView first, const ValueBase &second)
@@ -156,10 +187,9 @@ public:
 
     friend bool operator==(const ValueBase &first, const QString &second)
     {
-        auto maybeInteger = Utils::get_if<int(ValueType::String)>(&first.value);
+        auto maybeString = Utils::get_if<int(ValueType::String)>(&first.value);
 
-        return maybeInteger
-               && second == QLatin1String{maybeInteger->data(), int(maybeInteger->size())};
+        return maybeString && second == QLatin1String{maybeString->data(), int(maybeString->size())};
     }
 
     friend bool operator==(const QString &first, const ValueBase &second)
@@ -184,6 +214,15 @@ public:
         return !(first.value == second.value);
     }
 
+    friend bool operator==(const ValueBase &first, BlobView second)
+    {
+        auto maybeBlob = Utils::get_if<int(ValueType::Blob)>(&first.value);
+
+        return maybeBlob && *maybeBlob == second;
+    }
+
+    friend bool operator==(BlobView first, const ValueBase &second) { return second == first; }
+
     ValueType type() const
     {
         switch (value.index()) {
@@ -195,6 +234,8 @@ public:
             return ValueType::Float;
         case 3:
             return ValueType::String;
+        case 4:
+            return ValueType::Blob;
         }
 
         return {};
@@ -253,6 +294,18 @@ public:
         : ValueBase(VariantType{Utils::SmallString(value)})
     {}
 
+    explicit Value(const Blob &value)
+        : ValueBase(value)
+    {}
+
+    explicit Value(Blob &&value)
+        : ValueBase(std::move(value))
+    {}
+
+    explicit Value(BlobView value)
+        : ValueBase(value)
+    {}
+
     friend bool operator!=(const Value &first, const Value &second)
     {
         return !(first.value == second.value);
@@ -282,6 +335,8 @@ public:
             return first.toFloat() == second.toFloat();
         case ValueType::String:
             return first.toStringView() == second.toStringView();
+        case ValueType::Blob:
+            return first.toBlobView() == second.toBlobView();
         case ValueType::Null:
             return false;
         }
@@ -308,6 +363,8 @@ private:
             return VariantType{value.toFloat()};
         case QVariant::String:
             return VariantType{value.toString()};
+        case QVariant::ByteArray:
+            return VariantType{Blob{value.toByteArray()}};
         default:
             throw CannotConvert("Cannot convert this QVariant to a ValueBase");
         }
@@ -324,6 +381,8 @@ private:
             return VariantType{view.toFloat()};
         case ValueType::String:
             return VariantType{view.toStringView()};
+        case ValueType::Blob:
+            return VariantType{view.toBlobView()};
         default:
             throw CannotConvert("Cannot convert this QVariant to a ValueBase");
         }

@@ -26,7 +26,7 @@
 #include "googletest.h"
 
 #include "mockfilepathcaching.h"
-#include "mocksqlitedatabase.h"
+#include "sqlitedatabasemock.h"
 
 #include <builddependenciesstorage.h>
 #include <refactoringdatabaseinitializer.h>
@@ -52,23 +52,27 @@ using Sqlite::Database;
 using Sqlite::Table;
 using Utils::PathString;
 
-using Storage = ClangBackEnd::SymbolStorage<MockSqliteDatabase>;
+using Storage = ClangBackEnd::SymbolStorage<SqliteDatabaseMock>;
+using DatabaseType = Database;
+template<int ResultCount>
+using ReadStatement = typename SqliteDatabaseMock::template ReadStatement<ResultCount>;
+using WriteStatement = typename SqliteDatabaseMock::WriteStatement;
 
 class SymbolStorage : public testing::Test
 {
 protected:
-    NiceMock<MockSqliteDatabase> mockDatabase;
-    Storage storage{mockDatabase};
-    MockSqliteWriteStatement &insertSymbolsToNewSymbolsStatement = storage.insertSymbolsToNewSymbolsStatement;
-    MockSqliteWriteStatement &insertLocationsToNewLocationsStatement = storage.insertLocationsToNewLocationsStatement;
-    MockSqliteReadStatement &selectNewSourceIdsStatement = storage.selectNewSourceIdsStatement;
-    MockSqliteWriteStatement &addNewSymbolsToSymbolsStatement = storage.addNewSymbolsToSymbolsStatement;
-    MockSqliteWriteStatement &syncNewSymbolsFromSymbolsStatement = storage.syncNewSymbolsFromSymbolsStatement;
-    MockSqliteWriteStatement &syncSymbolsIntoNewLocationsStatement = storage.syncSymbolsIntoNewLocationsStatement;
-    MockSqliteWriteStatement &deleteAllLocationsFromUpdatedFilesStatement = storage.deleteAllLocationsFromUpdatedFilesStatement;
-    MockSqliteWriteStatement &insertNewLocationsInLocationsStatement = storage.insertNewLocationsInLocationsStatement;
-    MockSqliteWriteStatement &deleteNewSymbolsTableStatement = storage.deleteNewSymbolsTableStatement;
-    MockSqliteWriteStatement &deleteNewLocationsTableStatement = storage.deleteNewLocationsTableStatement;
+    NiceMock<SqliteDatabaseMock> databaseMock;
+    Storage storage{databaseMock};
+    WriteStatement &insertSymbolsToNewSymbolsStatement = storage.insertSymbolsToNewSymbolsStatement;
+    WriteStatement &insertLocationsToNewLocationsStatement = storage.insertLocationsToNewLocationsStatement;
+    ReadStatement<1> &selectNewSourceIdsStatement = storage.selectNewSourceIdsStatement;
+    WriteStatement &addNewSymbolsToSymbolsStatement = storage.addNewSymbolsToSymbolsStatement;
+    WriteStatement &syncNewSymbolsFromSymbolsStatement = storage.syncNewSymbolsFromSymbolsStatement;
+    WriteStatement &syncSymbolsIntoNewLocationsStatement = storage.syncSymbolsIntoNewLocationsStatement;
+    WriteStatement &deleteAllLocationsFromUpdatedFilesStatement = storage.deleteAllLocationsFromUpdatedFilesStatement;
+    WriteStatement &insertNewLocationsInLocationsStatement = storage.insertNewLocationsInLocationsStatement;
+    WriteStatement &deleteNewSymbolsTableStatement = storage.deleteNewSymbolsTableStatement;
+    WriteStatement &deleteNewLocationsTableStatement = storage.deleteNewLocationsTableStatement;
     SymbolEntries symbolEntries{{1, {"functionUSR", "function", SymbolKind::Function}},
                                 {2, {"function2USR", "function2", SymbolKind::Function}}};
     SourceLocationEntries sourceLocations{{1, 3, {42, 23}, SourceLocationKind::Declaration},
@@ -156,9 +160,9 @@ TEST_F(SymbolStorage, AddNewSymbolsTable)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newSymbols(temporarySymbolId INTEGER PRIMARY KEY, symbolId INTEGER, usr TEXT, symbolName TEXT, symbolKind INTEGER)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_usr_symbolName ON newSymbols(usr, symbolName)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_symbolId ON newSymbols(symbolId)")));
+    EXPECT_CALL(databaseMock, execute(Eq("CREATE TEMPORARY TABLE newSymbols(temporarySymbolId INTEGER PRIMARY KEY, symbolId INTEGER, usr TEXT, symbolName TEXT, symbolKind INTEGER)")));
+    EXPECT_CALL(databaseMock, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_usr_symbolName ON newSymbols(usr, symbolName)")));
+    EXPECT_CALL(databaseMock, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_symbolId ON newSymbols(symbolId)")));
 
     storage.createNewSymbolsTable();
 }
@@ -167,8 +171,8 @@ TEST_F(SymbolStorage, AddNewLocationsTable)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newLocations(temporarySymbolId INTEGER, symbolId INTEGER, sourceId INTEGER, line INTEGER, column INTEGER, locationKind INTEGER)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_newLocations_sourceId_line_column ON newLocations(sourceId, line, column)")));
+    EXPECT_CALL(databaseMock, execute(Eq("CREATE TEMPORARY TABLE newLocations(temporarySymbolId INTEGER, symbolId INTEGER, sourceId INTEGER, line INTEGER, column INTEGER, locationKind INTEGER)")));
+    EXPECT_CALL(databaseMock, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_newLocations_sourceId_line_column ON newLocations(sourceId, line, column)")));
 
     storage.createNewLocationsTable();
 }
@@ -177,15 +181,15 @@ TEST_F(SymbolStorage, AddTablesInConstructor)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, immediateBegin());
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newSymbols(temporarySymbolId INTEGER PRIMARY KEY, symbolId INTEGER, usr TEXT, symbolName TEXT, symbolKind INTEGER)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_usr_symbolName ON newSymbols(usr, symbolName)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_symbolId ON newSymbols(symbolId)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newLocations(temporarySymbolId INTEGER, symbolId INTEGER, sourceId INTEGER, line INTEGER, column INTEGER, locationKind INTEGER)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_newLocations_sourceId_line_column ON newLocations(sourceId, line, column)")));
-    EXPECT_CALL(mockDatabase, commit());
+    EXPECT_CALL(databaseMock, immediateBegin());
+    EXPECT_CALL(databaseMock, execute(Eq("CREATE TEMPORARY TABLE newSymbols(temporarySymbolId INTEGER PRIMARY KEY, symbolId INTEGER, usr TEXT, symbolName TEXT, symbolKind INTEGER)")));
+    EXPECT_CALL(databaseMock, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_usr_symbolName ON newSymbols(usr, symbolName)")));
+    EXPECT_CALL(databaseMock, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_symbolId ON newSymbols(symbolId)")));
+    EXPECT_CALL(databaseMock, execute(Eq("CREATE TEMPORARY TABLE newLocations(temporarySymbolId INTEGER, symbolId INTEGER, sourceId INTEGER, line INTEGER, column INTEGER, locationKind INTEGER)")));
+    EXPECT_CALL(databaseMock, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_newLocations_sourceId_line_column ON newLocations(sourceId, line, column)")));
+    EXPECT_CALL(databaseMock, commit());
 
-    Storage storage{mockDatabase};
+    Storage storage{databaseMock};
 }
 
 } // namespace

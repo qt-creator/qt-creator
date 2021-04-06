@@ -75,6 +75,14 @@
                 \li \l{Adding Compilers}
                 \li \l{Adding Debuggers}
                 \li \l{Specifying Build Settings}
+                    \list
+                        \li \l{Cmake Build Configuration}
+                        \li \l{qmake Build Configuration}
+                        \li \l{Qbs Build Configuration}
+                        \li \l{Meson Build Configuration}
+                        \li \l{IncrediBuild Build Configuration}
+                        \li \l{Conan Build Configuration}
+                    \endlist
                 \li \l{Specifying Run Settings}
                 \li \l{Specifying Editor Settings}
                 \li \l{Specifying Code Style Settings}

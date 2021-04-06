@@ -9,7 +9,7 @@ env:
   CMAKE_VERSION: 3.18.3
   NINJA_VERSION: 1.10.1
   BUILD_TYPE: Release
-  CCACHE_VERSION: 3.7.7
+  CCACHE_VERSION: 4.2.1
   QT_MIRRORS: download.qt.io;mirrors.ocf.berkeley.edu/qt;ftp.fau.de/qtproject;mirror.bit.edu.cn/qtproject
 
 jobs:
@@ -485,6 +485,19 @@ jobs:
           message(FATAL_ERROR "Build failed")
         endif()
 
+    - name: ccache statistics
+      shell: cmake -P {0}
+      run: |
+        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}" ccache_basedir)
+        set(ENV{CCACHE_BASEDIR} "${ccache_basedir}")
+        set(ENV{CCACHE_DIR} "${ccache_basedir}/.ccache")
+        set(ENV{CCACHE_SLOPPINESS} "pch_defines,time_macros")
+        set(ENV{CCACHE_COMPRESS} "true")
+        set(ENV{CCACHE_COMPRESSLEVEL} "6")
+        set(ENV{CCACHE_MAXSIZE} "800M")
+        if ("${{ matrix.config.cxx }}" STREQUAL "cl")
+          set(ENV{CCACHE_MAXSIZE} "1200M")
+        endif()
         execute_process(COMMAND ccache -s)
 
     - name: Run tests

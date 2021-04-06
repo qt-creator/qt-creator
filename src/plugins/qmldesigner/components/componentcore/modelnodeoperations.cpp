@@ -1556,7 +1556,7 @@ void editAnnotation(const SelectionContext &selectionContext)
 {
     ModelNode selectedNode = selectionContext.currentSingleSelectedNode();
 
-    AnnotationEditor::showWidget(selectedNode);
+    ModelNodeEditorProxy::fromModelNode<AnnotationEditor>(selectedNode);
 }
 
 QVariant previewImageDataForGenericNode(const ModelNode &modelNode)

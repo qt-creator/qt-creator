@@ -25,124 +25,74 @@
 
 #include "globalannotationeditor.h"
 
-#include "globalannotationeditordialog.h"
 #include "annotation.h"
+#include "globalannotationeditordialog.h"
 
-#include "qmlmodelnodeproxy.h"
 #include <coreplugin/icore.h>
-
-#include <QObject>
-#include <QToolBar>
-#include <QAction>
 #include <QMessageBox>
 
 namespace QmlDesigner {
 
-GlobalAnnotationEditor::GlobalAnnotationEditor(QObject *)
+GlobalAnnotationEditor::GlobalAnnotationEditor(QObject *parent)
+    : ModelNodeEditorProxy(parent)
+{}
+
+GlobalAnnotationEditor::~GlobalAnnotationEditor() {}
+
+QWidget *GlobalAnnotationEditor::createWidget()
 {
-}
-
-GlobalAnnotationEditor::~GlobalAnnotationEditor()
-{
-    hideWidget();
-}
-
-void GlobalAnnotationEditor::showWidget()
-{
-    m_dialog = new GlobalAnnotationEditorDialog(Core::ICore::dialogParent(),
-                                                modelNode().globalAnnotation(),
-                                                modelNode().globalStatus());
-
-    QObject::connect(m_dialog, &GlobalAnnotationEditorDialog::acceptedDialog,
-                     this, &GlobalAnnotationEditor::acceptedClicked);
-    QObject::connect(m_dialog, &GlobalAnnotationEditorDialog::rejected,
-                     this, &GlobalAnnotationEditor::cancelClicked);
-
-    m_dialog->setAttribute(Qt::WA_DeleteOnClose);
-
-    m_dialog->show();
-    m_dialog->raise();
-}
-
-void GlobalAnnotationEditor::showWidget(int x, int y)
-{
-    showWidget();
-    m_dialog->move(x, y);
-}
-
-void GlobalAnnotationEditor::hideWidget()
-{
-    if (m_dialog)
-        m_dialog->close();
-    m_dialog = nullptr;
-}
-
-void GlobalAnnotationEditor::setModelNode(const ModelNode &modelNode)
-{
-    m_modelNode = modelNode;
-}
-
-ModelNode GlobalAnnotationEditor::modelNode() const
-{
-    return m_modelNode;
-}
-
-bool GlobalAnnotationEditor::hasAnnotation() const
-{
-    if (m_modelNode.isValid())
-        return m_modelNode.hasGlobalAnnotation();
-    return false;
-}
+    auto* dialog = new GlobalAnnotationEditorDialog(Core::ICore::dialogParent(),
+                                                    this->m_modelNode.globalStatus());
+    dialog->setAnnotation(this->m_modelNode.globalAnnotation());
+    QObject::connect(dialog,
+                     &GlobalAnnotationEditorDialog::acceptedDialog,
+                     this,
+                     &GlobalAnnotationEditor::acceptedClicked);
+    QObject::connect(dialog,
+                     &GlobalAnnotationEditorDialog::rejected,
+                     this,
+                     &GlobalAnnotationEditor::cancelClicked);
+    return dialog;
+};
 
 void GlobalAnnotationEditor::removeFullAnnotation()
 {
-    if (!m_modelNode.isValid())
+    auto &node = this->m_modelNode;
+    if (!node.isValid())
         return;
 
     QString dialogTitle = tr("Global Annotation");
-    QMessageBox *deleteDialog = new QMessageBox(Core::ICore::dialogParent());
-    deleteDialog->setWindowTitle(dialogTitle);
-    deleteDialog->setText(tr("Delete this annotation?"));
-    deleteDialog->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    deleteDialog->setDefaultButton(QMessageBox::Yes);
-
-    int result = deleteDialog->exec();
-    if (deleteDialog) deleteDialog->deleteLater();
-
-    if (result == QMessageBox::Yes) {
-        m_modelNode.removeGlobalAnnotation();
+    if (QMessageBox::question(Core::ICore::dialogParent(),
+                              tr("Global Annotation"),
+                              tr("Delete this annotation?"))
+        == QMessageBox::Yes) {
+        node.removeGlobalAnnotation();
+        emit annotationChanged();
     }
-
-    emit annotationChanged();
 }
 
 void GlobalAnnotationEditor::acceptedClicked()
 {
-    if (m_dialog) {
-
-        Annotation annotation = m_dialog->annotation();
+    if (const auto *dialog = qobject_cast<GlobalAnnotationEditorDialog *>(widget())) {
+        auto &node = this->m_modelNode;
+        const Annotation annotation = dialog->annotation();
 
         if (annotation.comments().isEmpty())
-            m_modelNode.removeGlobalAnnotation();
+            node.removeGlobalAnnotation();
         else
-            m_modelNode.setGlobalAnnotation(annotation);
+            node.setGlobalAnnotation(annotation);
 
-        GlobalAnnotationStatus status = m_dialog->globalStatus();
+        const GlobalAnnotationStatus status = dialog->globalStatus();
 
-        if (status.status() == GlobalAnnotationStatus::NoStatus) {
-            if (m_modelNode.hasGlobalStatus()) {
-                m_modelNode.removeGlobalStatus();
-            }
-        }
-        else {
-            m_modelNode.setGlobalStatus(status);
-        }
+        if (status.status() == GlobalAnnotationStatus::NoStatus)
+            node.removeGlobalStatus();
+        else
+            node.setGlobalStatus(status);
     }
 
     hideWidget();
 
     emit accepted();
-
     emit annotationChanged();
 }
 
@@ -151,7 +101,6 @@ void GlobalAnnotationEditor::cancelClicked()
     hideWidget();
 
     emit canceled();
-
     emit annotationChanged();
 }
 

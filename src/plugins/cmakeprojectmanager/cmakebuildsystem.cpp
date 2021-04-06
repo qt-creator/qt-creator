@@ -78,26 +78,31 @@ using namespace Utils;
 namespace CMakeProjectManager {
 namespace Internal {
 
-static void copySourcePathToClipboard(Utils::optional<QString> srcPath, const ProjectNode *node)
+static void copySourcePathsToClipboard(QStringList srcPaths, const ProjectNode *node)
 {
     QClipboard *clip = QGuiApplication::clipboard();
 
     QDir projDir{node->filePath().toFileInfo().absoluteFilePath()};
-    clip->setText(QDir::cleanPath(projDir.relativeFilePath(srcPath.value())));
+    QString data = Utils::transform(srcPaths, [projDir](const QString &path) {
+        return QDir::cleanPath(projDir.relativeFilePath(path));
+    }).join(" ");
+    clip->setText(data);
 }
 
 static void noAutoAdditionNotify(const QStringList &filePaths, const ProjectNode *node)
 {
-    Utils::optional<QString> srcPath{};
+    const QStringList srcPaths = Utils::filtered(filePaths, [](const QString& file) {
+        const auto mimeType = Utils::mimeTypeForFile(file).name();
+        return mimeType == CppTools::Constants::C_SOURCE_MIMETYPE ||
+               mimeType == CppTools::Constants::C_HEADER_MIMETYPE ||
+               mimeType == CppTools::Constants::CPP_SOURCE_MIMETYPE ||
+               mimeType == CppTools::Constants::CPP_HEADER_MIMETYPE ||
+               mimeType == ProjectExplorer::Constants::FORM_MIMETYPE ||
+               mimeType == ProjectExplorer::Constants::RESOURCE_MIMETYPE ||
+               mimeType == ProjectExplorer::Constants::SCXML_MIMETYPE;
+    });
 
-    for (const QString &file : filePaths) {
-        if (Utils::mimeTypeForFile(file).name() == CppTools::Constants::CPP_SOURCE_MIMETYPE) {
-            srcPath = file;
-            break;
-        }
-    }
-
-    if (srcPath) {
+    if (!srcPaths.empty()) {
         CMakeSpecificSettings *settings = CMakeProjectPlugin::projectTypeSpecificSettings();
         switch (settings->afterAddFileSetting.value()) {
         case AskUser: {
@@ -122,13 +127,13 @@ static void noAutoAdditionNotify(const QStringList &filePaths, const ProjectNode
             }
 
             if (QDialogButtonBox::Yes == reply)
-                copySourcePathToClipboard(srcPath, node);
+                copySourcePathsToClipboard(srcPaths, node);
 
             break;
         }
 
         case CopyFilePath: {
-            copySourcePathToClipboard(srcPath, node);
+            copySourcePathsToClipboard(srcPaths, node);
             break;
         }
 
@@ -1063,7 +1068,11 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
 
 QStringList CMakeBuildSystem::buildTargetTitles() const
 {
-    return transform(m_buildTargets, &CMakeBuildTarget::title);
+    auto nonUtilityTargets = filtered(m_buildTargets, [this](const CMakeBuildTarget &target){
+        return target.targetType != UtilityType ||
+               CMakeBuildStep::specialTargets(usesAllCapsTargets()).contains(target.title);
+    });
+    return transform(nonUtilityTargets, &CMakeBuildTarget::title);
 }
 
 const QList<CMakeBuildTarget> &CMakeBuildSystem::buildTargets() const

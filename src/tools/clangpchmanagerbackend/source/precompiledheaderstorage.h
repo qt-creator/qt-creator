@@ -38,7 +38,8 @@ namespace ClangBackEnd {
 template<typename Database=Sqlite::Database>
 class PrecompiledHeaderStorage final : public PrecompiledHeaderStorageInterface
 {
-    using ReadStatement = typename Database::ReadStatement;
+    template<int ResultCount>
+    using ReadStatement = typename Database::template ReadStatement<ResultCount>;
     using WriteStatement = typename Database::WriteStatement;
 public:
     PrecompiledHeaderStorage(Database &database)
@@ -184,7 +185,7 @@ public:
         try {
             Sqlite::DeferredTransaction transaction{database};
 
-            auto value = fetchPrecompiledHeadersStatement.template value<PchPaths, 2>(
+            auto value = fetchPrecompiledHeadersStatement.template value<PchPaths>(
                 projectPartId.projectPathId);
 
             transaction.commit();
@@ -204,7 +205,7 @@ public:
         try {
             Sqlite::DeferredTransaction transaction{database};
 
-            auto value = fetchTimeStampsStatement.template value<PrecompiledHeaderTimeStamps, 2>(
+            auto value = fetchTimeStampsStatement.template value<PrecompiledHeaderTimeStamps>(
                 projectPartId.projectPathId);
 
             transaction.commit();
@@ -265,23 +266,22 @@ public:
         "systemPchPath=NULL,systemPchBuildTime=NULL,projectPchPath=NULL,projectPchBuildTime=NULL "
         "WHERE projectPartId = ?",
         database};
-    ReadStatement fetchSystemPrecompiledHeaderPathStatement{
+    ReadStatement<1> fetchSystemPrecompiledHeaderPathStatement{
         "SELECT systemPchPath FROM precompiledHeaders WHERE projectPartId = ?", database};
-    mutable ReadStatement fetchPrecompiledHeaderStatement{
+    mutable ReadStatement<1> fetchPrecompiledHeaderStatement{
         "SELECT ifnull(nullif(projectPchPath, ''), systemPchPath) "
         "FROM precompiledHeaders WHERE projectPartId = ?",
         database};
-    mutable ReadStatement fetchPrecompiledHeadersStatement{
+    mutable ReadStatement<2> fetchPrecompiledHeadersStatement{
         "SELECT projectPchPath, systemPchPath FROM precompiledHeaders WHERE projectPartId = ?",
         database};
-    mutable ReadStatement fetchTimeStampsStatement{
+    mutable ReadStatement<2> fetchTimeStampsStatement{
         "SELECT projectPchBuildTime, systemPchBuildTime FROM precompiledHeaders WHERE "
         "projectPartId = ?",
         database};
-    mutable ReadStatement fetchAllPchPathsStatement{
+    mutable ReadStatement<1> fetchAllPchPathsStatement{
         "SELECT DISTINCT systemPchPath FROM precompiledHeaders UNION ALL SELECT "
         "DISTINCT projectPchPath FROM precompiledHeaders",
         database};
 };
-
-}
+} // namespace ClangBackEnd

@@ -1,7 +1,15 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Remove when sharing with others.
+@if %{JS: Util.isDirectory('%{QtCreatorBuild}/Qt Creator.app/Contents/Resources')}
+list(APPEND CMAKE_PREFIX_PATH "%{QtCreatorBuild}/Qt Creator.app/Contents/Resources")
+@else
+  @if %{JS: Util.isDirectory('%{QtCreatorBuild}/Contents/Resources')}
+list(APPEND CMAKE_PREFIX_PATH "%{QtCreatorBuild}/Contents/Resources")
+  @else
 list(APPEND CMAKE_PREFIX_PATH "%{QtCreatorBuild}")
+  @endif
+@endif
 
 project(%{PluginName})
 

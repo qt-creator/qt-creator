@@ -127,10 +127,10 @@ void Internal::SessionsBase::createSessionTable(Database &database)
 
 void Sessions::revert()
 {
-    ReadStatement selectChangeSets{Utils::PathString{"SELECT changeset FROM ",
-                                                     sessionsTableName,
-                                                     " ORDER BY id DESC"},
-                                   database};
+    ReadStatement<1> selectChangeSets{Utils::PathString{"SELECT changeset FROM ",
+                                                        sessionsTableName,
+                                                        " ORDER BY id DESC"},
+                                      database};
 
     auto changeSets = selectChangeSets.values<SessionChangeSet>(1024);
 
@@ -151,10 +151,10 @@ void Sessions::revert()
 
 void Sessions::apply()
 {
-    ReadStatement selectChangeSets{Utils::PathString{"SELECT changeset FROM ",
-                                                     sessionsTableName,
-                                                     " ORDER BY id"},
-                                   database};
+    ReadStatement<1> selectChangeSets{Utils::PathString{"SELECT changeset FROM ",
+                                                        sessionsTableName,
+                                                        " ORDER BY id"},
+                                      database};
 
     auto changeSets = selectChangeSets.values<SessionChangeSet>(1024);
 
@@ -187,10 +187,10 @@ void Sessions::deleteAll()
 
 SessionChangeSets Sessions::changeSets() const
 {
-    ReadStatement selectChangeSets{Utils::PathString{"SELECT changeset FROM ",
-                                                     sessionsTableName,
-                                                     " ORDER BY id DESC"},
-                                   database};
+    ReadStatement<1> selectChangeSets{Utils::PathString{"SELECT changeset FROM ",
+                                                        sessionsTableName,
+                                                        " ORDER BY id DESC"},
+                                      database};
 
     return selectChangeSets.values<SessionChangeSet>(1024);
 }

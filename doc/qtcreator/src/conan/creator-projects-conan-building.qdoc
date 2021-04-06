@@ -24,8 +24,17 @@
 ****************************************************************************/
 
 /*!
-//! [conan build steps]
-    \section1 Specifying Build Settings for Conan
+    \previouspage creator-build-settings-incredibuild.html
+    \page creator-build-settings-conan.html
+    \nextpage creator-run-settings.html
+
+    \title Conan Build Configuration
+
+    You can specify build steps for Conan.
+
+    For more information about configuring Conan, see \l{Setting Up Conan}.
+
+    \section1 Conan Build Steps
 
     To configure a project to be built using the Conan package manager, select
     \uicontrol {Add Build Step} > \uicontrol {Run Conan Install}.
@@ -38,7 +47,4 @@
     The \uicontrol {Conan install} field displays the effective
     build command. You can add arguments for the command in the
     \uicontrol {Additional arguments} field.
-
-    For more information about configuring Conan, see \l{Setting Up Conan}.
-//! [conan build steps]
 */

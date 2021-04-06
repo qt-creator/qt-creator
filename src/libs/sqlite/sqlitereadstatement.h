@@ -29,19 +29,37 @@
 
 namespace Sqlite {
 
-class SQLITE_EXPORT ReadStatement final : protected StatementImplementation<BaseStatement>
+template<int ResultCount>
+class ReadStatement final : protected StatementImplementation<BaseStatement, ResultCount>
 {
-public:
-    explicit ReadStatement(Utils::SmallStringView sqlStatement, Database &database);
+    using Base = StatementImplementation<BaseStatement, ResultCount>;
 
-    using StatementImplementation::readCallback;
-    using StatementImplementation::readTo;
-    using StatementImplementation::toValue;
-    using StatementImplementation::value;
-    using StatementImplementation::values;
+public:
+    ReadStatement(Utils::SmallStringView sqlStatement, Database &database)
+        : Base{sqlStatement, database}
+    {
+        checkIsReadOnlyStatement();
+        Base::checkColumnCount(ResultCount);
+    }
+
+    using Base::readCallback;
+    using Base::readTo;
+    using Base::toValue;
+    using Base::value;
+    using Base::values;
 
 protected:
-    void checkIsReadOnlyStatement();
+    void checkIsReadOnlyStatement()
+    {
+        if (!Base::isReadOnlyStatement())
+            throw NotReadOnlySqlStatement(
+                "SqliteStatement::SqliteReadStatement: is not read only statement!");
+    }
 };
+
+template<int ResultCount>
+ReadStatement(ReadStatement<ResultCount> &) -> ReadStatement<ResultCount>;
+template<int ResultCount>
+ReadStatement(const ReadStatement<ResultCount> &) -> ReadStatement<ResultCount>;
 
 } // namespace Sqlite

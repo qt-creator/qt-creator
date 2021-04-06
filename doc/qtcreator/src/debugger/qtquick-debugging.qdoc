@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -64,7 +64,10 @@
 
         \list 1
 
-        \li Debugging is enabled by default for Qt 5.0, or later.
+        \li If you use qmake as the build system, make sure that
+            debugging is enabled in the \uicontrol {Build Settings},
+            \uicontrol {QML debugging and profiling} field, either
+            explicitly for the project or globally by default.
 
             \image qtcreator-projectpane.png "qmake general build settings pane"
 

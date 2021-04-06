@@ -10,12 +10,9 @@ SOURCES += \
     sqlitedatabaseconnectionproxy.cpp \
     sqliteexception.cpp \
     sqliteglobal.cpp \
-    sqlitereadstatement.cpp \
-    sqlitereadwritestatement.cpp \
     sqlitestatement.cpp \
     sqlitetransaction.cpp \
     sqliteworkerthread.cpp \
-    sqlitewritestatement.cpp \
     sqlstatementbuilder.cpp \
     utf8string.cpp \
     utf8stringvector.cpp \

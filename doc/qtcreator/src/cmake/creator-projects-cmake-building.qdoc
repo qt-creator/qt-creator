@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -23,30 +23,34 @@
 **
 ****************************************************************************/
 
-// **********************************************************************
-// NOTE: the sections are not ordered by their logical order to avoid
-// reshuffling the file each time the index order changes (i.e., often).
-// Run the fixnavi.pl script to adjust the links to the index order.
-// **********************************************************************
-
 /*!
-//! [cmake build configuration]
+    \previouspage creator-build-settings.html
+    \page creator-build-settings-cmake.html
+    \nextpage creator-build-settings-qmake.html
 
-    \section2 CMake Build Configuration
+    \title CMake Build Configuration
 
     Configuring medium-sized to large CMake projects in \QC can be a
     challenge due to the number of options that you need to pass to
-    CMake to configure the project correctly. \QC creates an initial
-    configuration for you based on the kit settings and displays it in
-    the \uicontrol {Initial CMake parameters} field.
+    CMake to configure the project correctly. To make this easier,
+    \QC creates an initial configuration for you based on the kit
+    settings and displays it in the \uicontrol {Initial CMake parameters}
+    field and in a table that lists the parameter names and values.
 
-    \image qtcreator-cmake-build-settings.png
+    \image qtcreator-cmake-build-settings-initial.png "CMake build settings"
+
+    Parameter names are listed in the \uicontrol Key column. Names with a
+    common prefix (up to the first underscore character) are grouped under
+    the prefix.
+
+    \section1 Modifying Initial Parameters
 
     In the \uicontrol Value column, you can view and edit the actual values
-    of the parameters that are passed to CMake. Parameter names are listed
-    in the \uicontrol Key column. Names with a common prefix (up to the first
-    underscore character) are grouped under the prefix. To view all parameters,
-    select the \uicontrol Advanced check box.
+    of the parameters that are passed to CMake.
+
+    \image qtcreator-cmake-build-settings.png "CMake parameters"
+
+    To view all parameters, select the \uicontrol Advanced check box.
 
     To add parameters, select \uicontrol Add, and then select the type of
     the parameter that you are adding: \uicontrol Boolean, \uicontrol String,
@@ -57,6 +61,9 @@
     \uicontrol {Force to bool}, \uicontrol {Force to file},
     \uicontrol {Force to directory}, or \uicontrol {Force to string}
     in the context menu.
+
+    To copy the name or value of the selected parameter to the clipboard,
+    select \uicontrol Copy in the context menu.
 
     To modify the value of a parameter, double-click it, or select it,
     and then select \uicontrol Edit.
@@ -69,6 +76,9 @@
 
     To reset all the changes that you made, select \uicontrol Reset.
 
+    To modify the environment variable values for the CMake build environment,
+    select \uicontrol {Batch Edit}. For more information, see \l{Batch Editing}.
+
     To save the changes, select \uicontrol {Apply Configuration Changes}.
     Keep in mind that a configuration change might trigger a follow-up
     configuration change.
@@ -78,37 +88,37 @@
     that if you remove the build directory, all the custom parameters that are
     not part of the initial CMake parameters are also removed.
 
-    To reconfigure a project after making changes to the initial parameters,
+    To reconfigure a project using the modified parameters,
     select \uicontrol Build > \uicontrol {Clear CMake Configuration}, which
     removes the CMakeCache.txt file. This enables you to do a full rebuild.
 
-//! [cmake build configuration]
+    \section1 Re-configuring with Initial Parameters
 
+    To reset CMake parameters to the initial ones, select
+    \uicontrol {Re-configure with Initial Parameters}.
 
-//! [cmake build steps]
+    To be asked before \QC resets the changes, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Build & Run} > \uicontrol CMake >
+    \uicontrol {Ask before re-configuring with initial parameters}.
 
-    \section2 CMake Build Steps
+    \image qtcreator-build-run-options-cmake.png "CMake Build & Run options"
+
+    \section1 CMake Build Steps
 
     \QC builds CMake projects by running \c {cmake . --build}, which then runs
     the CMake generator specified in the project configuration: \c make,
     \c mingw32-make, \c nmake, or \c ninja, for example. The CMake generator
-    produces project files for \QC.
+    produces project files for \QC. Multi-config generators are also supported.
 
     You can add arguments to pass to CMake and the generator and targets for
     the build command in \uicontrol {Build Steps}.
 
-    \image qtcreator-cmake-build-steps.png
+    \image qtcreator-cmake-build-steps.png "CMake build steps"
 
     \note While the other CMake generators are installed together with Qt,
-    you usually need to install Ninja yourself. For more information, see
-    \l {Using Ninja as a CMake Generator}.
+    you usually need to install Ninja yourself.
 
-//! [cmake build steps]
-
-
-//! [cmake ninja]
-
-    \section2 Using Ninja as a CMake Generator
+    \section1 Using Ninja as a CMake Generator
 
     To use \l {https://ninja-build.org/}{Ninja} with CMake, you must install it
     and select it as the CMake generator in the build and run kit:
@@ -132,12 +142,18 @@
     \uicontrol Build > \uicontrol {Rebuild Project}. This cleans up the
     build directory and performs a new build.
 
-//! [cmake ninja]
+    \section1 Using CMake with Conan
 
+    \QC can automatically set up the \l {Setting Up Conan}
+    {Conan package manager} for use with CMake.
 
-//! [cmake clean steps]
+    Select \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
+    \uicontrol CMake > \uicontrol {Package manager auto setup} to set the
+    value of the \c CMAKE_PROJECT_INCLUDE_BEFORE variable to the path to a
+    CMake script that installs dependencies from a \c conanfile.txt,
+    \c conanfile.py, or \c vcpkg.json file in the project source directory.
 
-    \section2 CMake Clean Steps
+    \section1 CMake Clean Steps
 
     When building with CMake, you can add arguments to pass to CMake and the
     generator and targets for the clean command in \uicontrol {Clean Steps}.
@@ -146,6 +162,4 @@
 
     The build errors and warnings are parsed and displayed in the
     \uicontrol Issues output pane.
-
-//! [cmake clean steps]
 */

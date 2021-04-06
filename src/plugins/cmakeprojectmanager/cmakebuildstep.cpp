@@ -530,8 +530,6 @@ void CMakeBuildStep::recreateBuildTargetsModel()
         if (idx != -1)
             m_buildTargets[idx] = QString("INSTALL");
     }
-
-    targetList.sort();
     targetList.removeDuplicates();
 
     addItem(QString(), true);

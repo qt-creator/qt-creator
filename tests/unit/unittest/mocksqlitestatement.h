@@ -58,6 +58,8 @@ public:
     MOCK_METHOD1(prepare, void(Utils::SmallStringView sqlStatement));
 
     MOCK_METHOD1(checkColumnCount, void(int));
+
+    MOCK_CONST_METHOD0(isReadOnlyStatement, bool());
 };
 
 template<>
@@ -96,13 +98,12 @@ Utils::PathString BaseMockSqliteStatement::fetchValue<Utils::PathString>(int col
     return fetchPathStringValue(column);
 }
 
-class MockSqliteStatement : public Sqlite::StatementImplementation<NiceMock<BaseMockSqliteStatement>>
+template<int ResultCount = 1>
+class MockSqliteStatement
+    : public Sqlite::StatementImplementation<NiceMock<BaseMockSqliteStatement>, ResultCount>
 {
 public:
-    explicit MockSqliteStatement()
-        : Sqlite::StatementImplementation<NiceMock<BaseMockSqliteStatement>>()
-    {}
-
+    explicit MockSqliteStatement() {}
 
 protected:
     void checkIsWritableStatement();

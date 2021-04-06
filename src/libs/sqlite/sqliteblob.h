@@ -42,22 +42,27 @@ class BlobView
 public:
     BlobView() = default;
 
-    BlobView(const byte *data, std::size_t size)
+    BlobView(const std::byte *data, std::size_t size)
         : m_data(data)
         , m_size(size)
     {}
 
     BlobView(const QByteArray &byteArray)
-        : m_data(reinterpret_cast<const byte *>(byteArray.constData()))
+        : m_data(reinterpret_cast<const std::byte *>(byteArray.constData()))
         , m_size(static_cast<std::size_t>(byteArray.size()))
     {}
 
-    BlobView(const std::vector<Sqlite::byte> &bytes)
+    BlobView(const std::vector<std::byte> &bytes)
         : m_data(bytes.data())
         , m_size(static_cast<std::size_t>(bytes.size()))
     {}
 
-    const byte *data() const { return m_data; }
+    BlobView(Utils::span<const std::byte> bytes)
+        : m_data(bytes.data())
+        , m_size(static_cast<std::size_t>(bytes.size()))
+    {}
+
+    const std::byte *data() const { return m_data; }
     const char *cdata() const { return reinterpret_cast<const char *>(m_data); }
     std::size_t size() const { return m_size; }
     int sisize() const { return static_cast<int>(m_size); }
@@ -71,7 +76,7 @@ public:
     }
 
 private:
-    const byte *m_data{};
+    const std::byte *m_data{};
     std::size_t m_size{};
 };
 
@@ -84,7 +89,22 @@ public:
         std::copy_n(blobView.data(), blobView.size(), std::back_inserter(bytes));
     }
 
-    std::vector<Sqlite::byte> bytes;
+    std::vector<std::byte> bytes;
+
+    friend bool operator==(const Sqlite::Blob &first, const Sqlite::Blob &second)
+    {
+        return BlobView{first.bytes} == BlobView{second.bytes};
+    }
+
+    friend bool operator==(const Sqlite::Blob &first, Sqlite::BlobView second)
+    {
+        return BlobView{first.bytes} == second;
+    }
+
+    friend bool operator==(Sqlite::BlobView first, const Sqlite::Blob &second)
+    {
+        return second == first;
+    }
 };
 
 class ByteArrayBlob

@@ -39,7 +39,8 @@ namespace ClangBackEnd {
 template <typename StatementFactory>
 class FilePathStorage
 {
-    using ReadStatement = typename StatementFactory::ReadStatement;
+    template<int ResultCount>
+    using ReadStatement = typename StatementFactory::template ReadStatement<ResultCount>;
     using WriteStatement = typename StatementFactory::WriteStatement;
     using Database = typename StatementFactory::Database;
 
@@ -84,7 +85,7 @@ public:
 
     Utils::optional<int> readDirectoryId(Utils::SmallStringView directoryPath)
     {
-        ReadStatement &statement = m_statementFactory.selectDirectoryIdFromDirectoriesByDirectoryPath;
+        auto &statement = m_statementFactory.selectDirectoryIdFromDirectoriesByDirectoryPath;
 
         return statement.template value<int>(directoryPath);
     }
@@ -103,7 +104,7 @@ public:
         try {
             Sqlite::DeferredTransaction transaction{m_statementFactory.database};
 
-            ReadStatement &statement = m_statementFactory.selectDirectoryPathFromDirectoriesByDirectoryId;
+            auto &statement = m_statementFactory.selectDirectoryPathFromDirectoriesByDirectoryId;
 
             auto optionalDirectoryPath = statement.template value<Utils::PathString>(directoryPathId);
 
@@ -123,9 +124,9 @@ public:
         try {
             Sqlite::DeferredTransaction transaction{m_statementFactory.database};
 
-            ReadStatement &statement = m_statementFactory.selectAllDirectories;
+            auto &statement = m_statementFactory.selectAllDirectories;
 
-            auto directories =  statement.template values<Sources::Directory, 2>(256);
+            auto directories = statement.template values<Sources::Directory>(256);
 
             transaction.commit();
 
@@ -164,7 +165,7 @@ public:
 
     int writeSourceId(int directoryId, Utils::SmallStringView sourceName)
     {
-        WriteStatement &statement = m_statementFactory.insertIntoSources;
+        auto &statement = m_statementFactory.insertIntoSources;
 
         statement.write(directoryId, sourceName);
 
@@ -173,7 +174,7 @@ public:
 
     Utils::optional<int> readSourceId(int directoryId, Utils::SmallStringView sourceName)
     {
-        ReadStatement &statement = m_statementFactory.selectSourceIdFromSourcesByDirectoryIdAndSourceName;
+        auto &statement = m_statementFactory.selectSourceIdFromSourcesByDirectoryIdAndSourceName;
 
         return statement.template value<int>(directoryId, sourceName);
     }
@@ -183,9 +184,10 @@ public:
         try {
             Sqlite::DeferredTransaction transaction{m_statementFactory.database};
 
-            ReadStatement &statement = m_statementFactory.selectSourceNameAndDirectoryIdFromSourcesBySourceId;
+            auto &statement = m_statementFactory.selectSourceNameAndDirectoryIdFromSourcesBySourceId;
 
-            auto optionalSourceName = statement.template value<Sources::SourceNameAndDirectoryId, 2>(sourceId);
+            auto optionalSourceName = statement.template value<Sources::SourceNameAndDirectoryId>(
+                sourceId);
 
             if (!optionalSourceName)
                 throw SourceNameIdDoesNotExists();
@@ -203,7 +205,7 @@ public:
         try {
             Sqlite::DeferredTransaction transaction{m_statementFactory.database};
 
-            ReadStatement &statement = m_statementFactory.selectDirectoryIdFromSourcesBySourceId;
+            auto &statement = m_statementFactory.selectDirectoryIdFromSourcesBySourceId;
 
             auto optionalDirectoryId = statement.template value<int>(sourceId);
 
@@ -223,9 +225,9 @@ public:
         try {
             Sqlite::DeferredTransaction transaction{m_statementFactory.database};
 
-            ReadStatement &statement = m_statementFactory.selectAllSources;
+            auto &statement = m_statementFactory.selectAllSources;
 
-            auto sources = statement.template values<Sources::Source, 3>(8192);
+            auto sources = statement.template values<Sources::Source>(8192);
 
             transaction.commit();
 

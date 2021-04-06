@@ -40,7 +40,8 @@
 class SqliteDatabaseMock : public SqliteTransactionBackendMock, public Sqlite::DatabaseInterface
 {
 public:
-    using ReadStatement = NiceMock<SqliteReadStatementMock>;
+    template<int ResultCount>
+    using ReadStatement = NiceMock<SqliteReadStatementMock<ResultCount>>;
     using WriteStatement = NiceMock<SqliteWriteStatementMock>;
 
     MOCK_METHOD(void, prepare, (Utils::SmallStringView sqlStatement), ());

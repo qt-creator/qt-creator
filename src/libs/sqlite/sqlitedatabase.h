@@ -42,8 +42,10 @@ namespace Sqlite {
 
 using namespace std::chrono_literals;
 
+template<int ResultCount>
 class ReadStatement;
 class WriteStatement;
+template<int ResultCount>
 class ReadWriteStatement;
 
 class SQLITE_EXPORT Database final : public TransactionInterface, public DatabaseInterface
@@ -54,9 +56,11 @@ class SQLITE_EXPORT Database final : public TransactionInterface, public Databas
 
 public:
     using MutexType = std::mutex;
-    using ReadStatement = Sqlite::ReadStatement;
+    template<int ResultCount>
+    using ReadStatement = Sqlite::ReadStatement<ResultCount>;
     using WriteStatement = Sqlite::WriteStatement;
-    using ReadWriteStatement = Sqlite::ReadWriteStatement;
+    template<int ResultCount = 0>
+    using ReadWriteStatement = Sqlite::ReadWriteStatement<ResultCount>;
     using BusyHandler = DatabaseBackend::BusyHandler;
 
     Database();

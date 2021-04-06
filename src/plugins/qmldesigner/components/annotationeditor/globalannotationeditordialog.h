@@ -25,9 +25,7 @@
 
 #pragma once
 
-#include <QDialog>
-
-#include "annotation.h"
+#include "annotationeditordialog.h"
 
 namespace QmlDesigner {
 
@@ -35,46 +33,46 @@ namespace Ui {
 class GlobalAnnotationEditorDialog;
 }
 
-class GlobalAnnotationEditorDialog : public QDialog
+class GlobalAnnotationEditorDialog : public BasicAnnotationEditorDialog
 {
     Q_OBJECT
-
 public:
-    explicit GlobalAnnotationEditorDialog(QWidget *parent, const Annotation &annotation, GlobalAnnotationStatus status);
+    enum ViewMode {
+        TableView,
+        TabsView
+    };
+
+    explicit GlobalAnnotationEditorDialog(
+        QWidget *parent = nullptr, GlobalAnnotationStatus status = GlobalAnnotationStatus::NoStatus);
     ~GlobalAnnotationEditorDialog();
 
-    void setAnnotation(const Annotation &annotation);
-    Annotation annotation() const;
+    ViewMode viewMode() const;
 
     void setStatus(GlobalAnnotationStatus status);
     GlobalAnnotationStatus globalStatus() const;
 
-signals:
-    void acceptedDialog(); //use instead of QDialog::accepted
+public slots:
+    void showStatusContainer(bool show);
+    void switchToTabView();
+    void switchToTableView();
 
 private slots:
-    void acceptedClicked();
-    void tabChanged(int index);
-    void commentTitleChanged(const QString &text, QWidget *tab);
+    void acceptedClicked() override;
 
 private:
-    void fillFields();
-    void setupComments();
+
+    void fillFields() override;
+    void updateAnnotation();
     void addComment(const Comment &comment);
     void removeComment(int index);
-
-    void addCommentTab(const Comment &comment);
-    void removeCommentTab(int index);
-    void deleteAllTabs();
 
     void setStatusVisibility(bool hasStatus);
 
 private:
     const QString globalEditorTitle = {tr("Global Annotation Editor")};
-    const QString defaultTabName = {tr("Annotation")};
+
     Ui::GlobalAnnotationEditorDialog *ui;
 
-    Annotation m_annotation;
     GlobalAnnotationStatus m_globalStatus;
     bool m_statusIsActive;
 };

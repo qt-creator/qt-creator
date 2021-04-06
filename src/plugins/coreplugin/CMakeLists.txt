@@ -186,16 +186,10 @@ extend_qtc_plugin(Core
   SOURCES progressmanager/progressmanager_x11.cpp
 )
 
-if (CRASHPAD_BACKEND_URL
-  AND CRASHPAD_SRC
-  AND EXISTS "${CRASHPAD_SRC}"
-  AND CRASHPAD_BUILD
-  AND EXISTS "${CRASHPAD_BUILD}"
-  AND (WIN32 OR APPLE)) # LINUX isn't supported for now
-    extend_qtc_plugin(Core
-      DEFINES ENABLE_CRASHPAD
-    )
-endif()
+extend_qtc_plugin(Core
+  CONDITION BUILD_WITH_CRASHPAD
+  DEFINES ENABLE_CRASHPAD
+)
 
 if ((NOT WIN32) AND (NOT APPLE))
   # install logo

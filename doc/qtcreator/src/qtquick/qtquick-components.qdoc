@@ -32,7 +32,7 @@
 /*!
     \page quick-components.html
     \if defined(qtdesignstudio)
-    \previouspage studio-app-flows.html
+    \previouspage studio-flow-external-events.html
     \else
     \previouspage creator-using-qt-quick-designer.html
     \endif

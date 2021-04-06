@@ -25,65 +25,31 @@
 
 #pragma once
 
-#include <QObject>
 #include <QtQml>
-#include <QPointer>
 
-#include "annotationeditordialog.h"
-#include "annotation.h"
-
-#include "modelnode.h"
+#include "editorproxy.h"
 
 namespace QmlDesigner {
 
-class AnnotationEditor : public QObject
+class AnnotationEditor : public ModelNodeEditorProxy
 {
     Q_OBJECT
-
-    Q_PROPERTY(QVariant modelNodeBackendProperty READ modelNodeBackend WRITE setModelNodeBackend NOTIFY modelNodeBackendChanged)
-    Q_PROPERTY(bool hasCustomId READ hasCustomId NOTIFY customIdChanged)
-    Q_PROPERTY(bool hasAnnotation READ hasAnnotation NOTIFY annotationChanged)
-
 public:
     explicit AnnotationEditor(QObject *parent = nullptr);
     ~AnnotationEditor();
 
-    static void registerDeclarativeType();
-
-    Q_INVOKABLE void showWidget();
-    Q_INVOKABLE void showWidget(int x, int y);
-    Q_INVOKABLE void hideWidget();
-
-    static AnnotationEditor* showWidget(const ModelNode &modelNode);
-
-    void setModelNode(const ModelNode &modelNode);
-    ModelNode modelNode() const;
-
-    void setModelNodeBackend(const QVariant &modelNodeBackend);
-    QVariant modelNodeBackend() const;
-
-    Q_INVOKABLE bool hasCustomId() const;
-    Q_INVOKABLE bool hasAnnotation() const;
-
+    QWidget *createWidget() override;
     Q_INVOKABLE void removeFullAnnotation();
+
+    static void registerDeclarativeType();
 
 signals:
     void accepted();
     void canceled();
-    void modelNodeBackendChanged();
-
-    void customIdChanged();
-    void annotationChanged();
 
 private slots:
     void acceptedClicked();
     void cancelClicked();
-
-private:
-    QPointer<AnnotationEditorDialog> m_dialog;
-
-    ModelNode m_modelNode;
-    QVariant m_modelNodeBackend;
 };
 
 } //namespace QmlDesigner

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -32,7 +32,7 @@
 /*!
     \previouspage creator-debuggers.html
     \page creator-build-settings.html
-    \nextpage creator-run-settings.html
+    \nextpage creator-build-settings-cmake.html
 
     \title Specifying Build Settings
 
@@ -57,6 +57,8 @@
 
     \section1 Managing Build Configurations
 
+    \image qtcreator-build-configurations.png "Build Settings"
+
     You specify build settings in the \uicontrol Projects mode.
     To add a new build configuration, click \uicontrol Add and select the type of
     configuration you would like to add. The options you have depend on the
@@ -75,55 +77,20 @@
     \uicontrol {Edit build configuration} field.
 
     The available build settings depend on the build system that you selected
-    for the project.
+    for the project:
 
-    \section2 Compiling QML
+    \list
+        \li \l{CMake Build Configuration}{CMake}
+        \li \l{qmake Build Configuration}{qmake}
+        \li \l{Qbs Build Configuration}{Qbs}
+        \li \l{Meson Build Configuration}{Meson}
+        \li \l{IncrediBuild Build Configuration}{IncrediBuild}
+    \endlist
 
-    Since Qt 5.11, you can compile QML source code into the final binary. This
-    improves the startup time of the application and eliminates the need to
-    deploy QML files together with the application. For more information, see
-    \l{Ahead-of-Time Compilation}.
+    This topic describes the build settings at a general level.
 
-    \QC project wizard templates create Qt Quick projects that can be compiled,
-    because they are set up to use the Qt Resource System. To compile Qt Quick
-    code, select \uicontrol Enable in the \uicontrol {Qt Quick Compiler}
-    field. To use default settings, select \uicontrol {Leave at Default}.
-
-    \note In earlier Qt versions, this was a commercial feature. For more
-    information, see \l{http://doc.qt.io/QtQuickCompiler/}{Qt Quick Compiler}.
-
-    \section2 qmake Build Configuration
-
-    \image qtcreator-projectpane.png "qmake general build settings pane"
-
-    By default, \QC builds projects in a separate directory from the source
-    directory, as \l{glossary-shadow-build} {shadow builds}. This keeps the
-    files generated for each \l{glossary-buildandrun-kit}{build and run kit} separate.
-    If you only build and run with a single \l{glossary-buildandrun-kit}{kit},
-    you can deselect the \uicontrol {Shadow build}
-    checkbox.
-
-    To make in-source builds the default option for all projects, select
-    \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
-    \uicontrol {Default Build Properties}, and enter a period (.) in the
-    \uicontrol {Default build directory} field.
-
-    You can create separate versions of project files to keep platform-dependent
-    code separate. You can use qmake \l{Adding Platform Specific Source Files}
-    {scopes} to select the file to process depending on which platform qmake is
-    run on.
-
-    To generate debug symbols also for applications compiled in release mode,
-    select \uicontrol Enable in the \uicontrol {Separate debug info} field. For
-    more information, see \l{Using the Performance Analyzer}. To use default
-    settings, select \uicontrol {Leave at Default}.
-
-    To set the default build properties, select \uicontrol Tools
-    > \uicontrol Options > \uicontrol {Build & Run} >
-    \uicontrol {Default Build Properties}.
-
-    \include creator-projects-cmake-building.qdocinc cmake build configuration
-    \include creator-projects-meson-building.qdocinc meson build configuration
+    For more information about debugging Qt Quick projects, see
+    \l{Setting Up QML Debugging}.
 
     \section1 Starting External Processes
 
@@ -133,11 +100,10 @@
     an executable name and optional command line arguments.
 
     The executable name is specified in the executable fields: \uicontrol qmake,
-    \uicontrol Make, \uicontrol Command, or \uicontrol Executable. It is either derived from the
-    project or specified manually. When you specify executables manually, you
-    can reference environment variables and \QC variables. However, no
-    quoting rules
-    apply.
+    \uicontrol Make, \uicontrol Command, or \uicontrol Executable. It is either
+    derived from the project or specified manually. When you specify executables
+    manually, you can reference environment variables and \QC variables.
+    However, no quoting rules apply.
 
     You can specify command-line arguments in the arguments fields:
     \uicontrol Arguments, \uicontrol {Additional arguments},
@@ -157,32 +123,21 @@
 
     \section1 Build Steps
 
-    In \uicontrol{Build Steps} you can change the settings for the build system
-    selected for building the project: qmake, CMake, Meson, or Qbs. You can use
-    Incredibuild to accelerate the build process when using qmake or CMake.
+    \image qtcreator-cmake-build-steps.png "CMake build steps"
 
-    \section2 qmake Build Steps
+    In \uicontrol{Build Steps}, you can change the settings for the build system
+    selected for building the project:
 
-    \QC builds qmake projects by running the \c make or \c nmake command from
-    the Qt version defined for the current build configuration.
+    \list
+        \li \l{CMake Build Steps}{CMake}
+        \li \l{qmake Build Steps}{qmake}
+        \li \l{Qbs Build Steps}{Qbs}
+        \li \l{Meson Build Steps}{Meson}
+        \li \l{Conan Build Steps}{Conan}
+    \endlist
 
-    \image qtcreator-build-steps.png "Build steps"
-
-    To override the shell command that \QC constructs by default, disable or remove
-    the build step and add a custom build step that specifies another shell
-    command.
-
-    By default, \QC uses all the CPU cores available to achieve maximum build
-    parallelization. On Linux and \macos, you can specify the number of parallel
-    jobs to use for building in the \uicontrol {Parallel jobs} field. Select the
-    \uicontrol {Override MAKEFLAGS} check box to override existing MAKEFLAGS
-    variables.
-
-    \include creator-projects-cmake-building.qdocinc cmake build steps
-    \include creator-projects-settings-build-qbs.qdocinc qbs build steps
-    \include creator-projects-meson-building.qdocinc meson build steps
-    \include creator-projects-incredibuild-building.qdocinc incredibuild build steps
-    \include creator-projects-conan-building.qdocinc conan build steps
+    You can use \l{IncrediBuild Build Steps}{IncrediBuild} to accelerate the
+    build process when using qmake or CMake.
 
     \section2 Adding Custom Build Steps
 
@@ -203,13 +158,21 @@
 
     \section1 Clean Steps
 
-    You can use the cleaning process to remove intermediate files. This process
-    might help you to fix obscure issues during the process of building a
-    project.
-
     \image qtcreator-clean-steps.png "Clean steps"
 
-    You can define the cleaning steps for your builds in the \uicontrol{Clean Steps}.
+    You can use the cleaning process to remove intermediate files. This process
+    might help you to fix obscure issues during the process of building a
+    project using:
+
+    \list
+        \li \l{CMake Clean Steps}{CMake}
+        \li qmake
+        \li \l{Qbs Clean Steps}{Qbs}
+        \li \l{Meson Clean Steps}{Meson}
+        \li \l{IncrediBuild Clean Steps}{IncrediBuild}
+    \endlist
+
+    You can define the clean steps for your builds in \uicontrol {Clean Steps}.
 
     \list
 
@@ -225,10 +188,4 @@
             (\uicontrol {Move Up}) and \inlineimage arrowdown.png
             (\uicontrol {Move Down}).
     \endlist
-
-    \include creator-projects-cmake-building.qdocinc cmake clean steps
-    \include creator-projects-settings-build-qbs.qdocinc qbs clean steps
-    \include creator-projects-meson-building.qdocinc meson clean steps
-    \include creator-projects-incredibuild-building.qdocinc incredibuild clean steps
-
 */

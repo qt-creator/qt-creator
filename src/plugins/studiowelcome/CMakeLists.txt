@@ -19,3 +19,8 @@ if (TARGET StudioWelcome)
   )
   qtc_add_resources(StudioWelcome StudioWelcome_qml FILES ${qmlfiles})
 endif()
+
+extend_qtc_plugin(StudioWelcome
+  CONDITION BUILD_WITH_CRASHPAD
+  DEFINES ENABLE_CRASHPAD
+)

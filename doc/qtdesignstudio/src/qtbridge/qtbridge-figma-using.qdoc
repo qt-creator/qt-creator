@@ -57,6 +57,14 @@
             as assets. If you use functional \QDS components in Figma, you will
             find it easier to merge new iterations of the design to \QDS and
             continue to build the screens there.
+        \li \QBF does not support exporting changes in component instances.
+            If you make changes to component instances in Figma, you must
+            detach the instances before exporting them. Similarly, if your
+            Figma components contain nested components, Figma allows you to
+            hot swap the nested instance inside the component instance.
+            However, \QBF doesn't support this so you get the original
+            component unless you detach the component instance before
+            exporting it.
         \li Use descriptive and unique IDs to avoid duplicate IDs after
             exporting designs and importing them to \QDS.
     \endlist
@@ -112,20 +120,28 @@
         \li Determines how to export the group or layer:
             \list
                \li \uicontrol Child exports each asset of the selected group
-                    or layer as a separate PNG file, with references
-                    to the images in the component file.
-                \li \uicontrol Merged merges the selected groups and layers into
-                    the parent frame or group as one component.
+                    or layer as a separate component file. Images are exported
+                    as separate files nested in \l{Images}{Image} components.
+                    You select the image file format in \uicontrol Settings >
+                    \uicontrol {Asset settings}.
+
+                    Figma rectangles are exported as \l{basic-rectangle}
+                    {Rectangle} components. Figma vectors are exported as
+                    \l{SVG Path Item} components from the \l{Shapes}
+                    {Studio Components} module.
+                \li \uicontrol Merged merges the selected groups and layers
+                    into one component.
                 \li \uicontrol Skipped completely skips the selected layer.
             \endlist
     \row
         \li \uicontrol {Custom Component Type}
         \li Determines the \l{Component Types}{component type} to morph this
             layer into. The component that is generated during import will be
-            of this type. For example, if you drew a rectangle, you can export
-            it as a \l Rectangle component. You can provide the
-            \l{Learn More - Components}{import statement} of the component
-            set where the component is defined in the \uicontrol {Imports} field.
+            of this type. For example, if you drew a button, you can export
+            it as a \l Button component from the Qt Quick Controls module.
+            You can provide the import statement of the
+            \l{Adding and Removing Modules}{module} where the component
+            is defined in the \uicontrol {Imports} field.
     \row
         \li \uicontrol Properties
         \li Sets values of properties for the component. You can add properties
@@ -133,13 +149,14 @@
     \row
         \li \uicontrol Imports
         \li If you want to make additional components available in the component
-            file, you can enter the import statements of the component sets in
-            this field. For example, to use components of the Controls type from
-            version 2.3, you need the import statement \c {QtQuick.Controls 2.3}
-            and to use Studio Components from version 1.0, you need the import
-            statement \c {QtQuick.Studio.Components 1.0}. You can add components
-            from all the available component sets in \QDS later. You can also
-            import a component set as an \e alias.
+            file, you can enter the import statements of the modules that
+            contain the components in this field. For example, to use components
+            from version 2.3 of the Qt Quick Controls module, you need the
+            import statement \c {QtQuick.Controls 2.3} and to use version 1.0
+            Studio Components, you need the import statement
+            \c {QtQuick.Studio.Components 1.0}. You can add components from all
+            the available modules in \QDS later. You can also import a module as
+            an \e alias.
     \row
         \li \uicontrol Alias
         \li Exports the component generated from this layer as an alias in the
@@ -160,9 +177,13 @@
 
     You can export assets in the selected format (JPG, PNG, or SVG).
 
-    In addition, you can export shapes as components of the type SvgPathItem.
-    This might not work for layers that have particular effects applied to them.
-    In that case, the layers are exported as images.
+    By default, vectors are exported as \l{SVG Path Item} components from the
+    Studio Components module. This might not work for layers that have
+    particular effects applied to them. In that case, the layers are exported
+    as images.
+
+    Because MCUs only support simple images, disable the
+    \uicontrol {Export as shapes} check box when designing for MCUs.
 
     \table
     \header
@@ -173,10 +194,8 @@
         \li Exports assets in the selected format (JPG, PNG, or SVG).
     \row
         \li \uicontrol {Export as shapes}
-        \li Exports shapes as components of the type SvgPathItem.
-
-            Because MCUs only support simple images, disable this
-            check box when designing for MCUs.
+        \li Exports vectors as components of the type \l{SVG Path Item} from the
+            Studio Components module.
     \row
         \li \uicontrol {Reset plugin data}
         \li Resets all settings for all layers and groups (also in the

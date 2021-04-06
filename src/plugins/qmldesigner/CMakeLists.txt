@@ -31,6 +31,7 @@ add_qtc_plugin(QmlDesigner
     shortcutmanager.cpp shortcutmanager.h
     designermcumanager.cpp designermcumanager.h
     richtexteditordialog.cpp richtexteditordialog.h
+    editorproxy.cpp editorproxy.h
   EXPLICIT_MOC
     components/propertyeditor/propertyeditorvalue.h
     components/connectioneditor/connectionviewwidget.h
@@ -637,6 +638,10 @@ extend_qtc_plugin(QmlDesigner
   globalannotationeditordialog.cpp globalannotationeditordialog.h globalannotationeditordialog.ui
   annotationeditor.cpp annotationeditor.h
   globalannotationeditor.cpp globalannotationeditor.h
+  defaultannotations.cpp defaultannotations.h
+  annotationtableview.cpp annotationtableview.h
+  annotationtabwidget.cpp annotationtabwidget.h
+  annotationeditor.qrc
 )
 
 extend_qtc_plugin(QmlDesigner

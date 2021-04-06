@@ -150,15 +150,20 @@ Utils::optional<LanguageClientValue<T>> JsonObject::optionalClientValue(const QS
 template<typename T>
 QList<T> JsonObject::array(const QString &key) const
 {
-    return LanguageClientArray<T>(value(key)).toList();
+    const Utils::optional<QList<T>> &array = optionalArray<T>(key);
+    if (array.has_value())
+        return array.value();
+    qCDebug(conversionLog) << QString("Expected array under %1 in:").arg(key) << *this;
+    return {};
 }
 
 template<typename T>
 Utils::optional<QList<T>> JsonObject::optionalArray(const QString &key) const
 {
-    using Result = Utils::optional<QList<T>>;
-    return contains(key) ? Result(LanguageClientArray<T>(value(key)).toList())
-                         : Result(Utils::nullopt);
+    const QJsonValue &jsonValue = value(key);
+    if (jsonValue.isUndefined())
+        return Utils::nullopt;
+    return Utils::transform<QList<T>>(jsonValue.toArray(), &fromJsonValue<T>);
 }
 
 template<typename T>

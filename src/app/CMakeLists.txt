@@ -2,7 +2,7 @@ configure_file(app_version.h.cmakein app_version.h ESCAPE_QUOTES)
 
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/app_version.h
-  DESTINATION include/src/app
+  DESTINATION ${IDE_HEADER_INSTALL_PATH}/src/app
   COMPONENT Devel EXCLUDE_FROM_ALL
 )
 
@@ -89,5 +89,8 @@ extend_qtc_executable(qtcreator
   DEPENDS Crashpad::Crashpad
 )
 if(BUILD_WITH_CRASHPAD)
-  install(FILES ${CRASHPAD_BIN_DIR}/crashpad_handler${CMAKE_EXECUTABLE_SUFFIX} DESTINATION "${IDE_LIBEXEC_PATH}")
+  install(
+    PROGRAMS ${CRASHPAD_BIN_DIR}/crashpad_handler${CMAKE_EXECUTABLE_SUFFIX}
+    DESTINATION "${IDE_LIBEXEC_PATH}"
+  )
 endif()

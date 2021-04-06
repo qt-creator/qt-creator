@@ -93,6 +93,16 @@
         \li \l{Creating UIs}
             \list
                 \li \l{Designing Application Flows}
+                    \list
+                        \li \l{Adding Flow Views}
+                        \li \l{Adding Flow Items}
+                        \li \l{Adding Action Areas and Transitions}
+                        \li \l{Applying Effects to Transitions}
+                        \li \l{Simulating Events}
+                        \li \l{Simulating Conditions}
+                        \li \l{Applying States in Flows}
+                        \li \l{Reacting to External Events}
+                    \endlist
                 \li \l{Creating Components}
                 \list
                     \li \l{Shapes}

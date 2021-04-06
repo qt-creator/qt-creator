@@ -316,7 +316,7 @@ QGraphicsItem *FormEditorAnnotationIcon::createCommentBubble(QRectF rect, const 
                                                              const QString &author, const QString &text,
                                                              const QString &date, QGraphicsItem *parent)
 {
-    static QColor textColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_FormEditorForegroundColor);
+    static QColor textColor = Utils::creatorTheme()->color(Utils::Theme::DStextColor);
     static QColor backgroundColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_BackgroundColorDarker);
     static QColor frameColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_BackgroundColor);
     QFont font;
@@ -384,7 +384,7 @@ QGraphicsItem *FormEditorAnnotationIcon::createCommentBubble(QRectF rect, const 
 
 QGraphicsItem *FormEditorAnnotationIcon::createTitleBubble(const QRectF &rect, const QString &text, QGraphicsItem *parent)
 {
-    static QColor textColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_FormEditorForegroundColor);
+    static QColor textColor = Utils::creatorTheme()->color(Utils::Theme::DStextColor);
     static QColor backgroundColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_BackgroundColorDarker);
     static QColor frameColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_BackgroundColor);
     QFont font;
@@ -426,8 +426,8 @@ void FormEditorAnnotationIcon::createAnnotationEditor()
 
     m_annotationEditor = new AnnotationEditorDialog(Core::ICore::dialogParent(),
                                                     m_modelNode.displayName(),
-                                                    m_modelNode.customId(),
-                                                    m_modelNode.annotation());
+                                                    m_modelNode.customId());
+    m_annotationEditor->setAnnotation(m_modelNode.annotation());
 
     connect(m_annotationEditor, &AnnotationEditorDialog::acceptedDialog,
             this, &FormEditorAnnotationIcon::annotationDialogAccepted);

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,14 +23,38 @@
 **
 ****************************************************************************/
 
-#include "sqlitereadwritestatement.h"
+#include <QPointer>
+#include <QTabWidget>
 
-namespace Sqlite {
+#include "annotation.h"
+#include "defaultannotations.h"
 
-ReadWriteStatement::ReadWriteStatement(Utils::SmallStringView sqlStatement,
-                                       Database &database)
-    : StatementImplementation(sqlStatement, database)
+namespace QmlDesigner {
+class AnnotationCommentTab;
+
+class AnnotationTabWidget : public QTabWidget
 {
-}
+    Q_OBJECT
+public:
+    AnnotationTabWidget(QWidget *parent = nullptr);
+    ~AnnotationTabWidget();
 
-} // namespace Sqlite
+    QVector<Comment> fetchComments() const;
+    void setupComments(QVector<Comment> const &comments);
+
+    DefaultAnnotationsModel *defaultAnnotations() const;
+    void setDefaultAnnotations(DefaultAnnotationsModel *);
+
+public slots:
+    void addCommentTab(const Comment &comment = {});
+    void deleteAllTabs();
+
+private slots:
+    void onCommentTitleChanged(const QString &text, QWidget *tab);
+
+private:
+    const QString defaultTabName = {tr("Annotation")};
+
+    QPointer<DefaultAnnotationsModel> m_defaults;
+};
+} // namespace QmlDesigner

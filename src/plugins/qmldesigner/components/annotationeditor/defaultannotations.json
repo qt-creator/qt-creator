@@ -1,0 +1,36 @@
+{
+    "description" : "",
+    "display condition" : "",
+    "helper lines" : true,
+    "position marker" : true,
+    "highlight" : true,
+    "project author" : "",
+    "project confirmed" : true,
+    "project developer" : "",
+    "project distributor" : "",
+    "project modified" : "",
+    "project type" : "",
+    "project version" : "",
+    "screen description" : "",
+    "section" : "",
+    "normalcolor" : {
+        "type": "color",
+        "value": "#000000"
+    },
+    "focuscolor" : {
+        "type": "color",
+        "value": "#000000"
+    },
+    "selectedcolor" : {
+        "type": "color",
+        "value": "#000000"
+    },
+    "pressedcolor" : {
+        "type": "color",
+        "value": "#000000"
+    },
+    "overview" : {
+        "type": "richtext",
+        "value": ""
+    }
+}

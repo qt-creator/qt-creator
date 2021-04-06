@@ -128,7 +128,9 @@ sqlite3 *DatabaseBackend::sqliteDatabaseHandle() const
 
 void DatabaseBackend::setPragmaValue(Utils::SmallStringView pragmaKey, Utils::SmallStringView newPragmaValue)
 {
-    execute(Utils::SmallString{"PRAGMA ", pragmaKey, "='", newPragmaValue, "'"});
+    ReadWriteStatement<1>{Utils::SmallString{"PRAGMA ", pragmaKey, "='", newPragmaValue, "'"},
+                          m_database}
+        .execute();
     Utils::SmallString pragmeValueInDatabase = toValue<Utils::SmallString>("PRAGMA " + pragmaKey);
 
     checkPragmaValue(pragmeValueInDatabase, newPragmaValue);
@@ -172,7 +174,7 @@ void DatabaseBackend::setLastInsertedRowId(int64_t rowId)
 void DatabaseBackend::execute(Utils::SmallStringView sqlStatement)
 {
     try {
-        ReadWriteStatement statement(sqlStatement, m_database);
+        ReadWriteStatement<0> statement(sqlStatement, m_database);
         statement.execute();
     } catch (StatementIsBusy &) {
         execute(sqlStatement);
@@ -454,7 +456,7 @@ template <typename Type>
 Type DatabaseBackend::toValue(Utils::SmallStringView sqlStatement)
 {
     try {
-        ReadWriteStatement statement(sqlStatement, m_database);
+        ReadWriteStatement<1> statement(sqlStatement, m_database);
 
         statement.next();
 

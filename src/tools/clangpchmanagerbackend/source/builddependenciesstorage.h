@@ -43,7 +43,8 @@ namespace ClangBackEnd {
 template<typename Database=Sqlite::Database>
 class BuildDependenciesStorage final : public BuildDependenciesStorageInterface
 {
-    using ReadStatement = typename Database::ReadStatement;
+    template<int ResultCount>
+    using ReadStatement = typename Database::template ReadStatement<ResultCount>;
     using WriteStatement = typename Database::WriteStatement;
 public:
     BuildDependenciesStorage(Database &database)
@@ -99,7 +100,7 @@ public:
 
     long long fetchLowestLastModifiedTime(FilePathId sourceId) const override
     {
-        ReadStatement &statement = getLowestLastModifiedTimeOfDependencies;
+        auto &statement = getLowestLastModifiedTimeOfDependencies;
 
         return statement.template value<long long>(sourceId.filePathId).value_or(0);
     }
@@ -143,12 +144,12 @@ public:
     SourceEntries fetchDependSources(FilePathId sourceId, ProjectPartId projectPartId) const override
     {
         return fetchSourceDependenciesStatement
-            .template values<SourceEntry, 4>(300, sourceId.filePathId, projectPartId.projectPathId);
+            .template values<SourceEntry>(300, sourceId.filePathId, projectPartId.projectPathId);
     }
 
     UsedMacros fetchUsedMacros(FilePathId sourceId) const override
     {
-        return fetchUsedMacrosStatement.template values<UsedMacro, 2>(128, sourceId.filePathId);
+        return fetchUsedMacrosStatement.template values<UsedMacro>(128, sourceId.filePathId);
     }
 
     void updatePchCreationTimeStamp(long long pchCreationTimeStamp, ProjectPartId projectPartId) override
@@ -191,8 +192,7 @@ public:
         try {
             Sqlite::DeferredTransaction transaction{database};
 
-            auto timeStamps = fetchIndexingTimeStampsStatement.template values<SourceTimeStamp, 2>(
-                1024);
+            auto timeStamps = fetchIndexingTimeStampsStatement.template values<SourceTimeStamp>(1024);
 
             transaction.commit();
 
@@ -208,7 +208,7 @@ public:
             Sqlite::DeferredTransaction transaction{database};
 
             auto timeStamps = fetchIncludedIndexingTimeStampsStatement
-                                  .template values<SourceTimeStamp, 2>(1024, sourcePathId.filePathId);
+                                  .template values<SourceTimeStamp>(1024, sourcePathId.filePathId);
 
             transaction.commit();
 
@@ -325,10 +325,12 @@ public:
         "DELETE FROM newUsedMacros",
         database
     };
-    mutable ReadStatement getLowestLastModifiedTimeOfDependencies{
-        "WITH RECURSIVE sourceIds(sourceId) AS (VALUES(?) UNION SELECT dependencySourceId FROM sourceDependencies, sourceIds WHERE sourceDependencies.sourceId = sourceIds.sourceId) SELECT min(lastModified) FROM fileStatuses, sourceIds WHERE fileStatuses.sourceId = sourceIds.sourceId",
-        database
-    };
+    mutable ReadStatement<1> getLowestLastModifiedTimeOfDependencies{
+        "WITH RECURSIVE sourceIds(sourceId) AS (VALUES(?) UNION SELECT dependencySourceId FROM "
+        "sourceDependencies, sourceIds WHERE sourceDependencies.sourceId = sourceIds.sourceId) "
+        "SELECT min(lastModified) FROM fileStatuses, sourceIds WHERE fileStatuses.sourceId = "
+        "sourceIds.sourceId",
+        database};
     WriteStatement insertIntoNewSourceDependenciesStatement{
         "INSERT INTO newSourceDependencies(sourceId, dependencySourceId) VALUES (?,?)",
         database
@@ -356,13 +358,13 @@ public:
         "CONFLICT(sourceId, projectPartId) DO UPDATE SET sourceType = ?003, "
         "hasMissingIncludes = ?004",
         database};
-    mutable ReadStatement fetchPchSourcesStatement{
+    mutable ReadStatement<1> fetchPchSourcesStatement{
         "SELECT sourceId FROM projectPartsFiles WHERE projectPartId = ? AND sourceType IN (0, 1, "
         "3, 4) ORDER BY sourceId",
         database};
-    mutable ReadStatement fetchSourcesStatement{
+    mutable ReadStatement<1> fetchSourcesStatement{
         "SELECT sourceId FROM projectPartsFiles WHERE projectPartId = ? ORDER BY sourceId", database};
-    mutable ReadStatement fetchSourceDependenciesStatement{
+    mutable ReadStatement<4> fetchSourceDependenciesStatement{
         "WITH RECURSIVE collectedDependencies(sourceId) AS (VALUES(?) UNION "
         "SELECT dependencySourceId FROM sourceDependencies, "
         "collectedDependencies WHERE sourceDependencies.sourceId == "
@@ -371,16 +373,14 @@ public:
         "collectedDependencies NATURAL JOIN projectPartsFiles WHERE "
         "projectPartId = ? ORDER BY sourceId",
         database};
-    mutable ReadStatement fetchProjectPartIdStatement{
-        "SELECT projectPartId FROM projectParts WHERE projectPartName = ?",
-        database
-    };
+    mutable ReadStatement<1> fetchProjectPartIdStatement{
+        "SELECT projectPartId FROM projectParts WHERE projectPartName = ?", database};
     WriteStatement insertProjectPartNameStatement{
         "INSERT INTO projectParts(projectPartName) VALUES (?)", database};
-    mutable ReadStatement fetchUsedMacrosStatement{
-        "SELECT macroName, sourceId FROM usedMacros WHERE sourceId = ? ORDER BY sourceId, macroName",
-        database
-    };
+    mutable ReadStatement<2> fetchUsedMacrosStatement{
+        "SELECT macroName, sourceId FROM usedMacros WHERE sourceId = ? ORDER BY sourceId, "
+        "macroName",
+        database};
     WriteStatement updatePchCreationTimeStampStatement{
         "UPDATE projectPartsFiles SET pchCreationTimeStamp = ?001 WHERE projectPartId = ?002",
         database};
@@ -390,16 +390,16 @@ public:
         "INSERT INTO fileStatuses(sourceId, indexingTimeStamp) VALUES (?001, ?002) ON "
         "CONFLICT(sourceId) DO UPDATE SET indexingTimeStamp = ?002",
         database};
-    mutable ReadStatement fetchIncludedIndexingTimeStampsStatement{
+    mutable ReadStatement<2> fetchIncludedIndexingTimeStampsStatement{
         "WITH RECURSIVE collectedDependencies(sourceId) AS (VALUES(?) UNION SELECT "
         "dependencySourceId FROM sourceDependencies, collectedDependencies WHERE "
         "sourceDependencies.sourceId == collectedDependencies.sourceId) SELECT DISTINCT sourceId, "
         "indexingTimeStamp FROM collectedDependencies NATURAL LEFT JOIN fileStatuses ORDER BY "
         "sourceId",
         database};
-    mutable ReadStatement fetchIndexingTimeStampsStatement{
+    mutable ReadStatement<2> fetchIndexingTimeStampsStatement{
         "SELECT sourceId, indexingTimeStamp FROM fileStatuses ORDER BY sourceId", database};
-    mutable ReadStatement fetchDependentSourceIdsStatement{
+    mutable ReadStatement<1> fetchDependentSourceIdsStatement{
         "WITH RECURSIVE collectedDependencies(sourceId) AS (VALUES(?) UNION SELECT "
         "sourceDependencies.sourceId FROM sourceDependencies, collectedDependencies WHERE "
         "sourceDependencies.dependencySourceId == collectedDependencies.sourceId) SELECT sourceId "

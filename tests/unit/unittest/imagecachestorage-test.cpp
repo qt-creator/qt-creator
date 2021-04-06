@@ -55,14 +55,15 @@ MATCHER_P2(IsIconEntry,
 class ImageCacheStorageTest : public testing::Test
 {
 protected:
-    using ReadStatement = QmlDesigner::ImageCacheStorage<SqliteDatabaseMock>::ReadStatement;
+    template<int ResultCount>
+    using ReadStatement = QmlDesigner::ImageCacheStorage<SqliteDatabaseMock>::ReadStatement<ResultCount>;
     using WriteStatement = QmlDesigner::ImageCacheStorage<SqliteDatabaseMock>::WriteStatement;
 
     NiceMock<SqliteDatabaseMock> databaseMock;
     QmlDesigner::ImageCacheStorage<SqliteDatabaseMock> storage{databaseMock};
-    ReadStatement &selectImageStatement = storage.selectImageStatement;
-    ReadStatement &selectSmallImageStatement = storage.selectSmallImageStatement;
-    ReadStatement &selectIconStatement = storage.selectIconStatement;
+    ReadStatement<1> &selectImageStatement = storage.selectImageStatement;
+    ReadStatement<1> &selectSmallImageStatement = storage.selectSmallImageStatement;
+    ReadStatement<1> &selectIconStatement = storage.selectIconStatement;
     WriteStatement &upsertImageStatement = storage.upsertImageStatement;
     WriteStatement &upsertIconStatement = storage.upsertIconStatement;
     QImage image1{10, 10, QImage::Format_ARGB32};

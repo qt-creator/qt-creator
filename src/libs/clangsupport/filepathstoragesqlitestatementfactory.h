@@ -35,8 +35,9 @@ class FilePathStorageSqliteStatementFactory
 {
 public:
     using Database = DatabaseType;
-    using ReadStatement = typename DatabaseType::ReadStatement;
-    using WriteStatement = typename DatabaseType::WriteStatement;
+    template<int ResultCount>
+    using ReadStatement = typename Database::template ReadStatement<ResultCount>;
+    using WriteStatement = typename Database::WriteStatement;
 
     FilePathStorageSqliteStatementFactory(Database &database)
         : database(database)
@@ -45,32 +46,28 @@ public:
 
 public:
     Database &database;
-    ReadStatement selectDirectoryIdFromDirectoriesByDirectoryPath{
-      "SELECT directoryId FROM directories WHERE directoryPath = ?",
-        database
-    };
-    ReadStatement selectDirectoryPathFromDirectoriesByDirectoryId{
+    ReadStatement<1> selectDirectoryIdFromDirectoriesByDirectoryPath{
+        "SELECT directoryId FROM directories WHERE directoryPath = ?", database};
+    ReadStatement<1> selectDirectoryPathFromDirectoriesByDirectoryId{
         "SELECT directoryPath FROM directories WHERE directoryId = ?", database};
-    ReadStatement selectAllDirectories{"SELECT directoryPath, directoryId FROM directories", database};
+    ReadStatement<2> selectAllDirectories{"SELECT directoryPath, directoryId FROM directories",
+                                          database};
     WriteStatement insertIntoDirectories{
       "INSERT INTO directories(directoryPath) VALUES (?)",
         database
     };
-    ReadStatement selectSourceIdFromSourcesByDirectoryIdAndSourceName{
-      "SELECT sourceId FROM sources WHERE directoryId = ? AND sourceName = ?",
-        database
-    };
-    ReadStatement selectSourceNameAndDirectoryIdFromSourcesBySourceId{
-      "SELECT sourceName, directoryId FROM sources WHERE sourceId = ?",
-        database
-    };
-    ReadStatement selectDirectoryIdFromSourcesBySourceId{
+    ReadStatement<1> selectSourceIdFromSourcesByDirectoryIdAndSourceName{
+        "SELECT sourceId FROM sources WHERE directoryId = ? AND sourceName = ?", database};
+    ReadStatement<2> selectSourceNameAndDirectoryIdFromSourcesBySourceId{
+        "SELECT sourceName, directoryId FROM sources WHERE sourceId = ?", database};
+    ReadStatement<1> selectDirectoryIdFromSourcesBySourceId{
         "SELECT directoryId FROM sources WHERE sourceId = ?", database};
     WriteStatement insertIntoSources{
       "INSERT INTO sources(directoryId, sourceName) VALUES (?,?)",
         database
     };
-    ReadStatement selectAllSources{"SELECT sourceName, directoryId, sourceId  FROM sources", database};
+    ReadStatement<3> selectAllSources{"SELECT sourceName, directoryId, sourceId  FROM sources",
+                                      database};
 };
 
 } // namespace ClangBackEnd

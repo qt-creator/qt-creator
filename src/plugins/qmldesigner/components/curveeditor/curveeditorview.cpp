@@ -118,6 +118,11 @@ void CurveEditorView::nodeReparented(const ModelNode &node,
         updateKeyframes();
     else if (QmlTimelineKeyframeGroup::checkKeyframesType(node))
         updateKeyframes();
+    else if (newPropertyParent.isValid() && !oldPropertyParent.isValid()) {
+        if (activeTimeline().hasKeyframeGroupForTarget(node)) {
+            updateKeyframes();
+        }
+    }
 }
 
 void CurveEditorView::auxiliaryDataChanged(const ModelNode &node,

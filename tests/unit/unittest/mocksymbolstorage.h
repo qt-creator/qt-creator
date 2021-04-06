@@ -27,7 +27,7 @@
 
 #include "googletest.h"
 
-#include "mocksqlitedatabase.h"
+#include "sqlitedatabasemock.h"
 
 #include <symbolstorageinterface.h>
 

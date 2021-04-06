@@ -68,17 +68,18 @@
     number of items in the model.
 
     \if defined(qtdesignstudio)
-    \note You can also use the \l SvgPath Studio Component to specify an SVG
-    path data string that draws a path.
+    \note You can also use the \l {SVG Path Item} Studio Component to specify an
+    SVG path data string that draws a path.
     \endif
 
 //! [pathview]
 
 //! [svgpath]
 
-    \section1 SvgPath
+    \section1 SVG Path Item
 
-    The Svg Path component uses an SVG path data string to draw a path as a line.
+    The \uicontrol {SVG Path Item} component uses an SVG path data string to
+    draw a path as a line.
 
     The stroke property values that specify the appearance of the path are
     described in \l{Strokes}.
@@ -88,11 +89,6 @@
     The \uicontrol {Path data} field contains the SVG path data
     string that  specifies the path. For more information, see
     \l{https://www.w3.org/TR/SVG/paths.html#PathData}{W3C SVG Path Data}.
-
-    \note Mixing SvgPath with other types of components is not always supported.
-    For example, when \l Shape is backed by \c GL_NV_path_rendering, a
-    \l ShapePath can contain one or more SvgPath elements, or one or more
-    components of other types, but not both.
 
 //! [svgpath]
 */

@@ -27,9 +27,9 @@
 
 #include "mocksqlitetransactionbackend.h"
 
-#include <sqlitetransaction.h>
+#include <sqlitedatabasemock.h>
 #include <sqliteexception.h>
-#include <mocksqlitedatabase.h>
+#include <sqlitetransaction.h>
 
 namespace {
 

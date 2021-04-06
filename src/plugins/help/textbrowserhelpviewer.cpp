@@ -267,6 +267,7 @@ TextBrowserHelpWidget::TextBrowserHelpWidget(TextBrowserHelpViewer *parent)
     : QTextBrowser(parent)
     , m_parent(parent)
 {
+    setFrameShape(QFrame::NoFrame);
     installEventFilter(this);
     document()->setDocumentMargin(8);
 }

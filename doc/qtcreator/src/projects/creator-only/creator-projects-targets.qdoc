@@ -175,6 +175,7 @@
             with names beginning with the string \uicontrol CodeBlocks produce
             all the necessary data for the \QC code model. \QC displays a
             warning if you select a generator that is not supported.
+            For more information, see \l{Using Ninja as a CMake Generator}.
 
         \li In the \uicontrol {CMake configuration} field, select
             \uicontrol Change to edit the parameters of the CMake configuration
@@ -194,8 +195,6 @@
     \QC uses the \e {default kit} if it does not have enough information to
     choose the kit to use. To set the selected kit as the default kit,
     select \uicontrol {Make Default}.
-
-    \include creator-projects-cmake-building.qdocinc cmake ninja
 
     \section1 Editing Qbs Profiles
 

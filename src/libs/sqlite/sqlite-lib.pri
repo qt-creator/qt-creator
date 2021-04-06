@@ -15,11 +15,8 @@ SOURCES += \
     $$PWD/sqlitedatabasebackend.cpp \
     $$PWD/sqliteexception.cpp \
     $$PWD/sqliteglobal.cpp \
-    $$PWD/sqlitereadstatement.cpp \
-    $$PWD/sqlitereadwritestatement.cpp \
     $$PWD/sqlitesessionchangeset.cpp \
     $$PWD/sqlitesessions.cpp \
-    $$PWD/sqlitewritestatement.cpp \
     $$PWD/sqlstatementbuilder.cpp \
     $$PWD/utf8string.cpp \
     $$PWD/utf8stringvector.cpp \

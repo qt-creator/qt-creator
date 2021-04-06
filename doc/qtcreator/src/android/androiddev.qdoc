@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -50,6 +50,10 @@
     \note You can build a 64-bit version of Qt for Android yourself. However,
     for such a Qt version, the minimum required Android version on devices
     is 5.0 (API level 21). For more information, see \l{Qt for Android}.
+
+    To enable helpful code editing features for Java, such as code completion,
+    highlighting, function tooltips, and navigating in code, specify settings
+    for a \l{Specifying Java Language Server Settings}{Java language server}.
 
     The Android Debug Bridge (adb) command line tool is integrated to \QC to
     enable you to deploy applications to connected Android devices, to run

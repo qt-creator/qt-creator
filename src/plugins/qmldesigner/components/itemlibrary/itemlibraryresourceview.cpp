@@ -75,7 +75,7 @@ ItemLibraryResourceView::ItemLibraryResourceView(AsynchronousImageCache &fontIma
     setSpacing(4);
 
     setViewMode(QListView::IconMode);
-    setMovement(QListView::Static);
+    setMovement(QListView::Snap);
     setResizeMode(QListView::Adjust);
     setSelectionRectVisible(false);
     setWrapping(true);

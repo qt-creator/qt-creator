@@ -113,8 +113,9 @@
         \li Locating bookmarks (\c {b}).
             For more information, see \l{Using Bookmarks}.
 
-        \li Locating class (\c {c}), enum, and function (\c {m}) definitions in
-            your project or anywhere referenced from your project (\c {:})
+        \li Locating class (\c {c}), enum, function (\c {m}), and type alias
+            definitions in your project or anywhere referenced from your
+            project (\c {:})
         \endif
 
         \li Locating QML methods (\c {m})

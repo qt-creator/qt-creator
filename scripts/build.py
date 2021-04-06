@@ -95,6 +95,8 @@ def get_arguments():
                         action='store_true', default=False)
     parser.add_argument('--with-tests', help='Enable building of tests',
                         action='store_true', default=False)
+    parser.add_argument('--with-pch', help='Enable building with PCH',
+                        action='store_true', default=False)
     parser.add_argument('--add-path', help='Prepends a CMAKE_PREFIX_PATH to the build',
                         action='append', dest='prefix_paths', default=[])
     parser.add_argument('--add-module-path', help='Prepends a CMAKE_MODULE_PATH to the build',
@@ -139,6 +141,10 @@ def common_cmake_arguments(args):
             if python_library:
                 cmake_args += ['-DPYTHON_LIBRARY=' + python_library[0],
                                '-DPYTHON_INCLUDE_DIR=' + os.path.join(args.python_path, 'include')]
+
+    pch_option = 'ON' if args.with_pch else 'OFF'
+    cmake_args += ['-DBUILD_WITH_PCH=' + pch_option]
+
     return cmake_args
 
 def build_qtcreator(args, paths):
@@ -169,9 +175,6 @@ def build_qtcreator(args, paths):
         cmake_args += ['-DBUILD_EXECUTABLE_WIN32INTERRUPT=OFF',
                        '-DBUILD_EXECUTABLE_WIN64INTERRUPT=OFF',
                        '-DBUILD_LIBRARY_QTCREATORCDBEXT=OFF']
-
-    # TODO this works around a CMake bug https://gitlab.kitware.com/cmake/cmake/issues/20119
-    cmake_args += ['-DBUILD_WITH_PCH=OFF']
 
     ide_revision = common.get_commit_SHA(paths.src)
     if ide_revision:

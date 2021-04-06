@@ -163,8 +163,21 @@ void DebugView::nodeIdChanged(const ModelNode &node, const QString &newId, const
     }
 }
 
-void DebugView::propertiesAboutToBeRemoved(const QList<AbstractProperty> & /*propertyList*/)
+void DebugView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList)
 {
+    if (isDebugViewEnabled()) {
+        QTextStream message;
+        QString string;
+        message.setString(&string);
+        for (const AbstractProperty &property : propertyList) {
+            message << property;
+            if (property.isNodeAbstractProperty())
+                message << " is NodeAbstractProperty";
+            if (property.isDefaultProperty())
+                message << " is DefaultProperty";
+        }
+        log("::propertiesAboutToBeRemoved:", string);
+    }
 }
 
 void DebugView::variantPropertiesChanged(const QList<VariantProperty> &propertyList,

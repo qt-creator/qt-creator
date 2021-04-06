@@ -30,15 +30,15 @@ add_qtc_library(Sqlite
     sqliteexception.cpp sqliteexception.h
     sqliteglobal.cpp sqliteglobal.h
     sqliteindex.h
-    sqlitereadstatement.cpp sqlitereadstatement.h
-    sqlitereadwritestatement.cpp sqlitereadwritestatement.h
+    sqlitereadstatement.h
+    sqlitereadwritestatement.h
     sqlitesessionchangeset.cpp sqlitesessionchangeset.h
     sqlitesessions.cpp sqlitesessions.h
     sqlitetable.h
     sqlitetransaction.h
     sqlitetransaction.h
     sqlitevalue.h
-    sqlitewritestatement.cpp sqlitewritestatement.h
+    sqlitewritestatement.h
     sqlstatementbuilder.cpp sqlstatementbuilder.h
     sqlstatementbuilderexception.h
     tableconstraints.h

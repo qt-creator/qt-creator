@@ -62,5 +62,5 @@
     {conanfile.txt} file that specifies the needed libraries and packages.
     Then, you must edit the build settings of the project to specify the
     location of the file and the contents of the Conan install command.
-    For more information, see \l {Specifying Build Settings for Conan}.
+    For more information, see \l {Conan Build Steps}.
 */

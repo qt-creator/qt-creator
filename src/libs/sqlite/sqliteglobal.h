@@ -66,8 +66,6 @@ enum class OpenMode : char
 
 enum class ChangeType : int { Delete = 9, Insert = 18, Update = 23 };
 
-enum class byte : unsigned char {};
-
 enum class CallbackControl : unsigned char { Continue, Abort };
 
 } // namespace Sqlite

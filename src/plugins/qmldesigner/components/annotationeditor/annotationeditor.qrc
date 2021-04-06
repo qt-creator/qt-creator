@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/annotationeditor">
+        <file>defaultannotations.json</file>
+    </qresource>
+</RCC>

@@ -421,17 +421,17 @@ void BoostTestOutputReader::onFinished(int exitCode, QProcess::ExitStatus /*exit
     if (m_logLevel == LogLevel::Nothing && m_reportLevel == ReportLevel::No) {
         switch (exitCode) {
         case 0:
-            reportNoOutputFinish(tr("Running tests exited with ") + "boost::exit_success.",
+            reportNoOutputFinish(tr("Running tests exited with %1").arg("boost::exit_success."),
                                  ResultType::Pass);
             break;
         case 200:
             reportNoOutputFinish(
-                        tr("Running tests exited with ") + "boost::exit_test_exception.",
+                        tr("Running tests exited with %1").arg("boost::exit_test_exception."),
                         ResultType::MessageFatal);
             break;
         case 201:
-            reportNoOutputFinish(tr("Running tests exited with ")
-                                 + "boost::exit_test_failure.", ResultType::Fail);
+            reportNoOutputFinish(tr("Running tests exited with %1")
+                                 .arg("boost::exit_test_failure."), ResultType::Fail);
             break;
         }
     } else if (exitCode != 0 && exitCode != 201 && !m_description.isEmpty()) {

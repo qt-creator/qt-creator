@@ -43,7 +43,8 @@ template<typename DatabaseType>
 class ImageCacheStorage : public ImageCacheStorageInterface
 {
 public:
-    using ReadStatement = typename DatabaseType::ReadStatement;
+    template<int ResultCount>
+    using ReadStatement = typename DatabaseType::template ReadStatement<ResultCount>;
     using WriteStatement = typename DatabaseType::WriteStatement;
 
     ImageCacheStorage(DatabaseType &database)
@@ -272,11 +273,11 @@ public:
     DatabaseType &database;
     Initializer initializer{database};
     Sqlite::ImmediateNonThrowingDestructorTransaction transaction{database};
-    mutable ReadStatement selectImageStatement{
+    mutable ReadStatement<1> selectImageStatement{
         "SELECT image FROM images WHERE name=?1 AND mtime >= ?2", database};
-    mutable ReadStatement selectSmallImageStatement{
+    mutable ReadStatement<1> selectSmallImageStatement{
         "SELECT smallImage FROM images WHERE name=?1 AND mtime >= ?2", database};
-    mutable ReadStatement selectIconStatement{
+    mutable ReadStatement<1> selectIconStatement{
         "SELECT icon FROM icons WHERE name=?1 AND mtime >= ?2", database};
     WriteStatement upsertImageStatement{
         "INSERT INTO images(name, mtime, image, smallImage) VALUES (?1, ?2, ?3, ?4) ON "

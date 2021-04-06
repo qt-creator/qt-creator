@@ -891,6 +891,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         const Kit *k = target->kit();
 
         QStringList initialArgs = defaultInitialCMakeArguments(k, info.typeName);
+        setIsMultiConfig(CMakeGeneratorKitAspect::isMultiConfigGenerator(k));
 
         // Android magic:
         if (DeviceTypeKitAspect::deviceTypeId(k) == Android::Constants::ANDROID_DEVICE_TYPE) {
@@ -1335,7 +1336,7 @@ QString CMakeBuildConfiguration::cmakeBuildType() const
         config = CMakeConfigItem::itemsFromArguments(initialCMakeArguments());
     }
 
-    if (!config.isEmpty()) {
+    if (!config.isEmpty() && !isMultiConfig()) {
         cmakeBuildType = QString::fromUtf8(CMakeConfigItem::valueOf("CMAKE_BUILD_TYPE", config));
         const_cast<CMakeBuildConfiguration*>(this)
             ->setCMakeBuildType(cmakeBuildType);
@@ -1356,7 +1357,12 @@ void CMakeBuildConfiguration::setCMakeBuildType(const QString &cmakeBuildType, b
 
 bool CMakeBuildConfiguration::isMultiConfig() const
 {
-    return m_buildSystem->isMultiConfig();
+    return m_isMultiConfig;
+}
+
+void CMakeBuildConfiguration::setIsMultiConfig(bool isMultiConfig)
+{
+    m_isMultiConfig = isMultiConfig;
 }
 
 namespace Internal {
