@@ -62,6 +62,7 @@ public:
     void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent,
                         const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange) override;
     void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId) override;
+    void propertiesRemoved(const QList<AbstractProperty> &propertyList) override;
     void propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList) override;
     void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange) override;
     void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange) override;
