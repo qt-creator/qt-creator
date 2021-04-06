@@ -69,7 +69,6 @@ OTHER_FILES += \
     PerfProfiler.json.in
 
 FORMS += \
-    perfconfigwidget.ui \
     perfloaddialog.ui \
     perftracepointdialog.ui
 

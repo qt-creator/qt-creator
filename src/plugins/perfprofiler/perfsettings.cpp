@@ -31,6 +31,10 @@
 
 #include <QSettings>
 
+#include <utils/qtcprocess.h>
+
+using namespace Utils;
+
 namespace PerfProfiler {
 
 PerfSettings::PerfSettings(ProjectExplorer::Target *target)
@@ -40,6 +44,48 @@ PerfSettings::PerfSettings(ProjectExplorer::Target *target)
         widget->setTracePointsButtonVisible(target != nullptr);
         widget->setTarget(target);
         return widget;
+    });
+
+    group.registerAspect(&period);
+    period.setSettingsKey("Analyzer.Perf.Frequency");
+    period.setRange(250, 2147483647);
+    period.setDefaultValue(250);
+    period.setLabelText(tr("Sample period:"));
+
+    group.registerAspect(&stackSize);
+    stackSize.setSettingsKey("Analyzer.Perf.StackSize");
+    stackSize.setRange(4096, 65536);
+    stackSize.setDefaultValue(4096);
+    stackSize.setLabelText(tr("Stack snapshot size (kB):"));
+
+    group.registerAspect(&sampleMode);
+    sampleMode.setSettingsKey("Analyzer.Perf.SampleMode");
+    sampleMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    sampleMode.setLabelText(tr("Sample mode:"));
+    sampleMode.addOption({tr("frequency (Hz)"), {}, QString("-F")});
+    sampleMode.addOption({tr("event count"), {}, QString("-c")});
+    sampleMode.setDefaultValue(0);
+
+    group.registerAspect(&callgraphMode);
+    callgraphMode.setSettingsKey("Analyzer.Perf.CallgraphMode");
+    callgraphMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    callgraphMode.setLabelText(tr("Call graph mode:"));
+    callgraphMode.addOption({tr("dwarf"), {}, QString(Constants::PerfCallgraphDwarf)});
+    callgraphMode.addOption({tr("frame pointer"), {}, QString("fp")});
+    callgraphMode.addOption({tr("last branch record"), {}, QString("lbr")});
+    callgraphMode.setDefaultValue(0);
+
+    group.registerAspect(&events);
+    events.setSettingsKey("Analyzer.Perf.Events");
+    events.setDefaultValue({"cpu-cycles"});
+
+    group.registerAspect(&extraArguments);
+    extraArguments.setSettingsKey("Analyzer.Perf.ExtraArguments");
+    extraArguments.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
+    extraArguments.setLabelText(tr("Additional arguments:"));
+
+    connect(&callgraphMode, &SelectionAspect::volatileValueChanged, this, [this](int index) {
+        stackSize.setEnabled(index == 0);
     });
 
     readGlobalSettings();
@@ -52,13 +98,6 @@ PerfSettings::~PerfSettings()
 void PerfSettings::readGlobalSettings()
 {
     QVariantMap defaults;
-    defaults.insert(QLatin1String(Constants::PerfEventsId), QStringList({"cpu-cycles"}));
-    defaults.insert(QLatin1String(Constants::PerfSampleModeId), Constants::PerfSampleFrequency);
-    defaults.insert(QLatin1String(Constants::PerfFrequencyId), Constants::PerfDefaultPeriod);
-    defaults.insert(QLatin1String(Constants::PerfStackSizeId), Constants::PerfDefaultStackSize);
-    defaults.insert(QLatin1String(Constants::PerfCallgraphModeId),
-                    QLatin1String(Constants::PerfCallgraphDwarf));
-    defaults.insert(QLatin1String(Constants::PerfExtraArgumentsId), QStringList());
 
     // Read stored values
     QSettings *settings = Core::ICore::settings();
@@ -84,51 +123,23 @@ void PerfSettings::writeGlobalSettings() const
 
 void PerfSettings::toMap(QVariantMap &map) const
 {
-    map[QLatin1String(Constants::PerfSampleModeId)] = m_sampleMode;
-    map[QLatin1String(Constants::PerfFrequencyId)] = m_period;
-    map[QLatin1String(Constants::PerfStackSizeId)] = m_stackSize;
-    map[QLatin1String(Constants::PerfCallgraphModeId)] = m_callgraphMode;
-    map[QLatin1String(Constants::PerfEventsId)] = m_events;
-    map[QLatin1String(Constants::PerfExtraArgumentsId)] = m_extraArguments;
-    map[QLatin1String(Constants::PerfRecordArgumentsId)] = perfRecordArguments();
+    group.toMap(map);
 }
 
 void PerfSettings::fromMap(const QVariantMap &map)
 {
-    m_sampleMode = map.value(QLatin1String(Constants::PerfSampleModeId), m_sampleMode).toString();
-    m_period = map.value(QLatin1String(Constants::PerfFrequencyId), m_period).toInt();
-    m_stackSize = map.value(QLatin1String(Constants::PerfStackSizeId), m_stackSize).toInt();
-    m_callgraphMode = map.value(QLatin1String(Constants::PerfCallgraphModeId),
-                                m_callgraphMode).toString();
-    m_events = map.value(QLatin1String(Constants::PerfEventsId), m_events).toStringList();
-    m_extraArguments = map.value(QLatin1String(Constants::PerfExtraArgumentsId),
-                                 m_extraArguments).toStringList();
+    group.fromMap(map);
     emit changed();
-}
-
-QString PerfSettings::callgraphMode() const
-{
-    return m_callgraphMode;
-}
-
-QStringList PerfSettings::events() const
-{
-    return m_events;
-}
-
-QStringList PerfSettings::extraArguments() const
-{
-    return m_extraArguments;
 }
 
 QStringList PerfSettings::perfRecordArguments() const
 {
-    QString callgraphArg = m_callgraphMode;
-    if (m_callgraphMode == QLatin1String(Constants::PerfCallgraphDwarf))
-        callgraphArg += "," + QString::number(m_stackSize);
+    QString callgraphArg = callgraphMode.itemValue().toString();
+    if (callgraphArg == Constants::PerfCallgraphDwarf)
+        callgraphArg += "," + QString::number(stackSize.value());
 
     QString events;
-    for (const QString &event : m_events) {
+    for (const QString &event : this->events.value()) {
         if (!event.isEmpty()) {
             if (!events.isEmpty())
                 events.append(',');
@@ -136,23 +147,11 @@ QStringList PerfSettings::perfRecordArguments() const
         }
     }
 
-    return QStringList({"-e", events, "--call-graph", callgraphArg, m_sampleMode,
-                        QString::number(m_period)}) + m_extraArguments;
-}
-
-void PerfSettings::setCallgraphMode(const QString &callgraphMode)
-{
-    m_callgraphMode = callgraphMode;
-}
-
-void PerfSettings::setEvents(const QStringList &events)
-{
-    m_events = events;
-}
-
-void PerfSettings::setExtraArguments(const QStringList &args)
-{
-    m_extraArguments = args;
+    return QStringList({"-e", events,
+                        "--call-graph", callgraphArg,
+                        sampleMode.itemValue().toString(),
+                        QString::number(period.value())})
+         + QtcProcess::splitArgs(extraArguments.value());
 }
 
 void PerfSettings::resetToDefault()
@@ -161,36 +160,6 @@ void PerfSettings::resetToDefault()
     QVariantMap map;
     defaults.toMap(map);
     fromMap(map);
-}
-
-int PerfSettings::stackSize() const
-{
-    return m_stackSize;
-}
-
-QString PerfSettings::sampleMode() const
-{
-    return m_sampleMode;
-}
-
-void PerfSettings::setStackSize(int stackSize)
-{
-    m_stackSize = stackSize;
-}
-
-void PerfSettings::setSampleMode(const QString &sampleMode)
-{
-    m_sampleMode = sampleMode;
-}
-
-int PerfSettings::period() const
-{
-    return m_period;
-}
-
-void PerfSettings::setPeriod(int period)
-{
-    m_period = period;
 }
 
 } // namespace PerfProfiler

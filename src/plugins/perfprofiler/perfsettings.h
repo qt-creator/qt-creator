@@ -45,22 +45,18 @@ public:
     void readGlobalSettings();
     void writeGlobalSettings() const;
 
-    int period() const;
-    int stackSize() const;
-    QString sampleMode() const;
-    QString callgraphMode() const;
-    QStringList events() const;
-    QStringList extraArguments() const;
-
     QStringList perfRecordArguments() const;
 
-    void setPeriod(int period);
-    void setStackSize(int stackSize);
-    void setSampleMode(const QString &sampleMode);
-    void setCallgraphMode(const QString &callgraphMode);
-    void setEvents(const QStringList &events);
-    void setExtraArguments(const QStringList &args);
     void resetToDefault();
+
+    Utils::IntegerAspect period;
+    Utils::IntegerAspect stackSize;
+    Utils::SelectionAspect sampleMode;
+    Utils::SelectionAspect callgraphMode;
+    Utils::StringListAspect events;
+    Utils::StringAspect extraArguments;
+
+    Utils::AspectContainer group;
 
 signals:
     void changed();
@@ -68,13 +64,6 @@ signals:
 protected:
     void toMap(QVariantMap &map) const final;
     void fromMap(const QVariantMap &map) final;
-
-    int m_period;
-    int m_stackSize;
-    QString m_sampleMode;
-    QString m_callgraphMode;
-    QStringList m_events;
-    QStringList m_extraArguments;
 };
 
 } // namespace PerfProfiler

@@ -5,7 +5,6 @@ add_qtc_plugin(PerfProfiler
   SOURCES
     perfconfigeventsmodel.cpp perfconfigeventsmodel.h
     perfconfigwidget.cpp perfconfigwidget.h
-    perfconfigwidget.ui
     perfdatareader.cpp perfdatareader.h
     perfevent.h
     perfeventtype.h

@@ -36,11 +36,17 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
+#include <utils/aspects.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcprocess.h>
 
+#include <QComboBox>
+#include <QHeaderView>
+#include <QMessageBox>
 #include <QMetaEnum>
 #include <QStyledItemDelegate>
-#include <QMessageBox>
+
+using namespace Utils;
 
 namespace PerfProfiler {
 namespace Internal {
@@ -63,85 +69,61 @@ public:
 };
 
 PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, QWidget *parent)
-    : m_settings(settings), m_ui(new Ui::PerfConfigWidget)
+    : m_settings(settings)
 {
     setParent(parent);
 
-    m_ui->setupUi(this);
-    m_ui->useTracePointsButton->setVisible(false);
+    eventsView = new QTableView(this);
+    eventsView->setMinimumSize(QSize(0, 300));
+    eventsView->setEditTriggers(QAbstractItemView::AllEditTriggers);
+    eventsView->setSelectionMode(QAbstractItemView::SingleSelection);
+    eventsView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    eventsView->setModel(new PerfConfigEventsModel(m_settings, this));
+    eventsView->setItemDelegate(new SettingsDelegate(this));
+    eventsView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
-    m_ui->callgraphMode->addItem(tr("dwarf"), QLatin1String(Constants::PerfCallgraphDwarf));
-    m_ui->callgraphMode->addItem(tr("frame pointer"), QLatin1String(Constants::PerfCallgraphFP));
-    m_ui->callgraphMode->addItem(tr("last branch record"),
-                                 QLatin1String(Constants::PerfCallgraphLBR));
+    useTracePointsButton = new QPushButton(this);
+    useTracePointsButton->setText(tr("Use Trace Points"));
+    useTracePointsButton->setVisible(false);
+    connect(useTracePointsButton, &QPushButton::pressed,
+            this, &PerfConfigWidget::readTracePoints);
 
-    m_ui->sampleMode->addItem(tr("frequency (Hz)"), QLatin1String(Constants::PerfSampleFrequency));
-    m_ui->sampleMode->addItem(tr("event count"), QLatin1String(Constants::PerfSampleCount));
-
-    auto comboboxChangedSignal = QOverload<int>::of(&QComboBox::currentIndexChanged);
-    connect(m_ui->callgraphMode, comboboxChangedSignal, this, [this](int index) {
-        QString mode = m_ui->callgraphMode->itemData(index).toString();
-        m_settings->setCallgraphMode(mode);
-        m_ui->stackSize->setEnabled(mode == QLatin1String(Constants::PerfCallgraphDwarf));
-    });
-
-    auto spinBoxChangedSignal = QOverload<int>::of(&QSpinBox::valueChanged);
-    connect(m_ui->stackSize, spinBoxChangedSignal, m_settings, &PerfSettings::setStackSize);
-    connect(m_ui->period, spinBoxChangedSignal, m_settings, &PerfSettings::setPeriod);
-    connect(m_ui->sampleMode, comboboxChangedSignal, this, [this](int index) {
-        QString sampleMode = m_ui->sampleMode->itemData(index).toString();
-        m_settings->setSampleMode(sampleMode);
-    });
-    connect(m_ui->extraArguments, &QLineEdit::textEdited, this, [this](const QString &text) {
-        m_settings->setExtraArguments(Utils::QtcProcess::splitArgs(text));
-    });
-
-    m_ui->eventsView->setModel(new PerfConfigEventsModel(m_settings, this));
-    m_ui->eventsView->setItemDelegate(new SettingsDelegate(this));
-    m_ui->eventsView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    connect(m_ui->addEventButton, &QPushButton::pressed, this, [this]() {
-        auto model = m_ui->eventsView->model();
+    addEventButton = new QPushButton(this);
+    addEventButton->setText(tr("Add Event"));
+    connect(addEventButton, &QPushButton::pressed, this, [this]() {
+        auto model = eventsView->model();
         model->insertRow(model->rowCount());
     });
-    connect(m_ui->removeEventButton, &QPushButton::pressed, this, [this]() {
-        QModelIndex index = m_ui->eventsView->currentIndex();
+
+    removeEventButton = new QPushButton(this);
+    removeEventButton->setText(tr("Remove Event"));
+    connect(removeEventButton, &QPushButton::pressed, this, [this]() {
+        QModelIndex index = eventsView->currentIndex();
         if (index.isValid())
-            m_ui->eventsView->model()->removeRow(index.row());
+            eventsView->model()->removeRow(index.row());
     });
 
-    connect(m_settings, &PerfSettings::changed, this, &PerfConfigWidget::updateUi);
-    connect(m_ui->useTracePointsButton, &QPushButton::pressed,
-            this, &PerfConfigWidget::readTracePoints);
-    connect(m_ui->resetButton, &QPushButton::pressed, m_settings, &PerfSettings::resetToDefault);
-    updateUi();
-}
+    resetButton = new QPushButton(this);
+    resetButton->setText(tr("Reset"));
+    connect(resetButton, &QPushButton::pressed, m_settings, &PerfSettings::resetToDefault);
 
-PerfConfigWidget::~PerfConfigWidget()
-{
-    delete m_ui;
-}
+    using namespace Layouting;
+    const Break nl;
 
-void PerfConfigWidget::updateUi()
-{
-    for (int index = 0, end = m_ui->callgraphMode->count(); index != end; ++index) {
-        if (m_ui->callgraphMode->itemData(index) == m_settings->callgraphMode()) {
-            m_ui->callgraphMode->setCurrentIndex(index);
-            break;
-        }
-    }
+    Column {
+        Row { Stretch(), useTracePointsButton, addEventButton, removeEventButton, resetButton },
 
-    for (int index = 0, end = m_ui->sampleMode->count(); index != end; ++index) {
-        if (m_ui->sampleMode->itemData(index) == m_settings->sampleMode()) {
-            m_ui->sampleMode->setCurrentIndex(index);
-            break;
-        }
-    }
+        eventsView,
 
-    m_ui->stackSize->setEnabled(m_settings->callgraphMode()
-                                == QLatin1String(Constants::PerfCallgraphDwarf));
-    m_ui->stackSize->setValue(m_settings->stackSize());
-    m_ui->period->setValue(m_settings->period());
-    m_ui->extraArguments->setText(m_settings->extraArguments().join(QLatin1Char(' ')));
+        Grid {
+            m_settings->callgraphMode, m_settings->stackSize, nl,
+            m_settings->sampleMode, m_settings->period, nl,
+        },
+
+        Row { m_settings->extraArguments }, // FIXME: Align with above.
+
+        Stretch()
+    }.attachTo(this);
 }
 
 void PerfConfigWidget::setTarget(ProjectExplorer::Target *target)
@@ -153,7 +135,7 @@ void PerfConfigWidget::setTarget(ProjectExplorer::Target *target)
     }
 
     if (device.isNull()) {
-        m_ui->useTracePointsButton->setEnabled(false);
+        useTracePointsButton->setEnabled(false);
         return;
     }
 
@@ -162,7 +144,7 @@ void PerfConfigWidget::setTarget(ProjectExplorer::Target *target)
 
     m_process.reset(device->createProcess(nullptr));
     if (!m_process) {
-        m_ui->useTracePointsButton->setEnabled(false);
+        useTracePointsButton->setEnabled(false);
         return;
     }
 
@@ -172,12 +154,12 @@ void PerfConfigWidget::setTarget(ProjectExplorer::Target *target)
     connect(m_process.get(), &ProjectExplorer::DeviceProcess::error,
             this, &PerfConfigWidget::handleProcessError);
 
-    m_ui->useTracePointsButton->setEnabled(true);
+    useTracePointsButton->setEnabled(true);
 }
 
 void PerfConfigWidget::setTracePointsButtonVisible(bool visible)
 {
-    m_ui->useTracePointsButton->setVisible(visible);
+    useTracePointsButton->setVisible(visible);
 }
 
 void PerfConfigWidget::apply()
@@ -198,7 +180,7 @@ void PerfConfigWidget::readTracePoints()
         runnable.commandLineArguments = QLatin1String("probe -l");
 
         m_process->start(runnable);
-        m_ui->useTracePointsButton->setEnabled(false);
+        useTracePointsButton->setEnabled(false);
     }
 }
 
@@ -207,7 +189,7 @@ void PerfConfigWidget::handleProcessFinished()
     const QList<QByteArray> lines =
             m_process->readAllStandardOutput().append(m_process->readAllStandardError())
             .split('\n');
-    auto model = m_ui->eventsView->model();
+    auto model = eventsView->model();
     const int previousRows = model->rowCount();
     QHash<QByteArray, QByteArray> tracePoints;
     for (const QByteArray &line : lines) {
@@ -234,10 +216,10 @@ void PerfConfigWidget::handleProcessFinished()
                            QString::fromUtf8(event));
         }
         model->removeRows(0, previousRows);
-        m_ui->sampleMode->setCurrentText(tr("event count"));
-        m_ui->period->setValue(1);
+        m_settings->sampleMode.setVolatileValue(1);
+        m_settings->period.setVolatileValue(1);
     }
-    m_ui->useTracePointsButton->setEnabled(true);
+    useTracePointsButton->setEnabled(true);
 }
 
 void PerfConfigWidget::handleProcessError(QProcess::ProcessError error)
@@ -246,7 +228,7 @@ void PerfConfigWidget::handleProcessError(QProcess::ProcessError error)
         Core::AsynchronousMessageBox::warning(
                     tr("Cannot List Trace Points"),
                     tr("\"perf probe -l\" failed to start. Is perf installed?"));
-        m_ui->useTracePointsButton->setEnabled(true);
+        useTracePointsButton->setEnabled(true);
     }
 }
 
