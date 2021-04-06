@@ -37,6 +37,7 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
+class QGroupBox;
 class QSettings;
 QT_END_NAMESPACE
 
@@ -181,6 +182,7 @@ public:
     void setLabel(const QString &labelText,
                   LabelPlacement labelPlacement = LabelPlacement::InExtraLabel);
     void setLabelPlacement(LabelPlacement labelPlacement);
+    void setHandlesGroup(QGroupBox *box);
 
 signals:
     void valueChanged(bool newValue);

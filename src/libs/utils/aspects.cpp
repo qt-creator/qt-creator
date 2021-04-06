@@ -41,6 +41,7 @@
 #include <QComboBox>
 #include <QDebug>
 #include <QFormLayout>
+#include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
@@ -566,6 +567,7 @@ class BoolAspectPrivate
 public:
     BoolAspect::LabelPlacement m_labelPlacement = BoolAspect::LabelPlacement::AtCheckBox;
     QPointer<QCheckBox> m_checkBox; // Owned by configuration widget
+    QPointer<QGroupBox> m_groupBox; // For BoolAspects handling GroupBox check boxes
 };
 
 class SelectionAspectPrivate
@@ -1278,8 +1280,12 @@ QAction *BoolAspect::action()
 QVariant BoolAspect::volatileValue() const
 {
     QTC_CHECK(!isAutoApply());
-    QTC_ASSERT(d->m_checkBox, return {});
-    return d->m_checkBox->isChecked();
+    if (d->m_checkBox)
+        return d->m_checkBox->isChecked();
+    if (d->m_groupBox)
+        return d->m_groupBox->isChecked();
+    QTC_CHECK(false);
+    return {};
 }
 
 void BoolAspect::setVolatileValue(const QVariant &val)
@@ -1287,6 +1293,8 @@ void BoolAspect::setVolatileValue(const QVariant &val)
     QTC_CHECK(!isAutoApply());
     if (d->m_checkBox)
         d->m_checkBox->setChecked(val.toBool());
+    else if (d->m_groupBox)
+        d->m_groupBox->setChecked(val.toBool());
 }
 
 void BoolAspect::emitChangedValue()
@@ -1335,6 +1343,12 @@ void BoolAspect::setLabel(const QString &labelText, LabelPlacement labelPlacemen
 void BoolAspect::setLabelPlacement(BoolAspect::LabelPlacement labelPlacement)
 {
     d->m_labelPlacement = labelPlacement;
+}
+
+void BoolAspect::setHandlesGroup(QGroupBox *box)
+{
+    registerSubWidget(box);
+    d->m_groupBox = box;
 }
 
 /*!

@@ -451,9 +451,8 @@ Group::Group(std::initializer_list<LayoutItem> items)
             box->setObjectName(item.specialValue.toString());
             if (auto check = qobject_cast<BoolAspect *>(item.aspect)) {
                 box->setCheckable(true);
-                QObject::connect(box, &QGroupBox::clicked, box, [check](bool on) {
-                    check->setValue(on);
-                });
+                box->setChecked(check->value());
+                check->setHandlesGroup(box);
             }
         } else {
             builder.addItem(item);
