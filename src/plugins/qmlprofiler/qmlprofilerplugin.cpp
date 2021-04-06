@@ -25,7 +25,6 @@
 
 #include "qmlprofilerplugin.h"
 #include "qmlprofilerrunconfigurationaspect.h"
-#include "qmlprofileroptionspage.h"
 #include "qmlprofilerruncontrol.h"
 #include "qmlprofilersettings.h"
 #include "qmlprofilertool.h"
@@ -49,7 +48,6 @@
 #include "tests/qmlprofilerattachdialog_test.h"
 #include "tests/qmlprofilerbindingloopsrenderpass_test.h"
 #include "tests/qmlprofilerclientmanager_test.h"
-#include "tests/qmlprofilerconfigwidget_test.h"
 #include "tests/qmlprofilerdetailsrewriter_test.h"
 #include "tests/qmlprofilertool_test.h"
 #include "tests/qmlprofilertraceclient_test.h"
@@ -154,7 +152,6 @@ QVector<QObject *> QmlProfiler::Internal::QmlProfilerPlugin::createTestObjects()
     tests << new QmlProfilerAttachDialogTest;
     tests << new QmlProfilerBindingLoopsRenderPassTest;
     tests << new QmlProfilerClientManagerTest;
-    tests << new QmlProfilerConfigWidgetTest;
     tests << new QmlProfilerDetailsRewriterTest;
     tests << new QmlProfilerToolTest;
     tests << new QmlProfilerTraceClientTest;

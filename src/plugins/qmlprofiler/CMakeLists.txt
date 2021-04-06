@@ -17,17 +17,15 @@ add_qtc_plugin(QmlProfiler
     qmlprofiler_global.h
     qmlprofileractions.cpp qmlprofileractions.h
     qmlprofileranimationsmodel.cpp qmlprofileranimationsmodel.h
-    qmlprofilerattachdialog.cpp qmlprofilerattachdialog.h qmlprofilerattachdialog.ui
+    qmlprofilerattachdialog.cpp qmlprofilerattachdialog.h
     qmlprofilerbindingloopsrenderpass.cpp qmlprofilerbindingloopsrenderpass.h
     qmlprofilerclientmanager.cpp qmlprofilerclientmanager.h
-    qmlprofilerconfigwidget.cpp qmlprofilerconfigwidget.h qmlprofilerconfigwidget.ui
     qmlprofilerconstants.h
     qmlprofilerdetailsrewriter.cpp qmlprofilerdetailsrewriter.h
     qmlprofilereventsview.h
     qmlprofilereventtypes.h
     qmlprofilermodelmanager.cpp qmlprofilermodelmanager.h
     qmlprofilernotesmodel.cpp qmlprofilernotesmodel.h
-    qmlprofileroptionspage.cpp qmlprofileroptionspage.h
     qmlprofilerplugin.cpp qmlprofilerplugin.h
     qmlprofilerrangemodel.cpp qmlprofilerrangemodel.h
     qmlprofilerrunconfigurationaspect.cpp qmlprofilerrunconfigurationaspect.h
@@ -67,7 +65,6 @@ extend_qtc_plugin(QmlProfiler
     tests/qmlprofilerattachdialog_test.cpp tests/qmlprofilerattachdialog_test.h
     tests/qmlprofilerbindingloopsrenderpass_test.cpp tests/qmlprofilerbindingloopsrenderpass_test.h
     tests/qmlprofilerclientmanager_test.cpp tests/qmlprofilerclientmanager_test.h
-    tests/qmlprofilerconfigwidget_test.cpp tests/qmlprofilerconfigwidget_test.h
     tests/qmlprofilerdetailsrewriter_test.cpp tests/qmlprofilerdetailsrewriter_test.h
     tests/qmlprofilertool_test.cpp tests/qmlprofilertool_test.h
     tests/qmlprofilertraceclient_test.cpp tests/qmlprofilertraceclient_test.h

@@ -20,11 +20,9 @@ SOURCES += \
     qmlprofilerattachdialog.cpp \
     qmlprofilerbindingloopsrenderpass.cpp \
     qmlprofilerclientmanager.cpp \
-    qmlprofilerconfigwidget.cpp \
     qmlprofilerdetailsrewriter.cpp \
     qmlprofilermodelmanager.cpp \
     qmlprofilernotesmodel.cpp \
-    qmlprofileroptionspage.cpp \
     qmlprofilerplugin.cpp \
     qmlprofilerrangemodel.cpp \
     qmlprofilerrunconfigurationaspect.cpp \
@@ -61,14 +59,12 @@ HEADERS += \
     qmlprofilerattachdialog.h \
     qmlprofilerbindingloopsrenderpass.h \
     qmlprofilerclientmanager.h \
-    qmlprofilerconfigwidget.h \
     qmlprofilerconstants.h \
     qmlprofilerdetailsrewriter.h \
     qmlprofilereventsview.h \
     qmlprofilereventtypes.h \
     qmlprofilermodelmanager.h \
     qmlprofilernotesmodel.h \
-    qmlprofileroptionspage.h \
     qmlprofilerplugin.h \
     qmlprofilerrangemodel.h \
     qmlprofilerrunconfigurationaspect.h \
@@ -90,9 +86,6 @@ HEADERS += \
 
 RESOURCES += \
     qml/qmlprofiler.qrc
-
-FORMS += \
-    qmlprofilerconfigwidget.ui
 
 equals(TEST, 1) {
 include(tests/tests.pri)

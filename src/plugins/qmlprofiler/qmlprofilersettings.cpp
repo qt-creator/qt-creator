@@ -24,115 +24,122 @@
 ****************************************************************************/
 
 #include "qmlprofilersettings.h"
+
 #include "qmlprofilerconstants.h"
-#include "qmlprofilerconfigwidget.h"
+#include "qmlprofilerplugin.h"
 
 #include <coreplugin/icore.h>
 
+#include <debugger/analyzer/analyzericons.h>
+
+#include <utils/layoutbuilder.h>
+
 #include <QSettings>
+
+using namespace Utils;
 
 namespace QmlProfiler {
 namespace Internal {
 
+static QWidget *createQmlConfigWidget(QmlProfilerSettings *settings)
+{
+    QmlProfilerSettings &s = *settings;
+    using namespace Layouting;
+
+    return Form {
+        s.flushEnabled,
+        s.flushInterval,
+        s.aggregateTraces
+    }.emerge();
+}
+
 QmlProfilerSettings::QmlProfilerSettings()
 {
-    setConfigWidgetCreator([this] { return new QmlProfilerConfigWidget(this); });
+    setConfigWidgetCreator([this] { return createQmlConfigWidget(this); });
 
-    QVariantMap defaults;
-    defaults.insert(QLatin1String(Constants::FLUSH_INTERVAL), 1000);
-    defaults.insert(QLatin1String(Constants::FLUSH_ENABLED), false);
-    defaults.insert(QLatin1String(Constants::LAST_TRACE_FILE), QString());
-    defaults.insert(QLatin1String(Constants::AGGREGATE_TRACES), false);
+    group.setSettingsGroup(Constants::ANALYZER);
+
+    group.registerAspect(&flushEnabled);
+    flushEnabled.setSettingsKey("Analyzer.QmlProfiler.FlushEnabled");
+    flushEnabled.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
+    flushEnabled.setLabelText(tr("Flush data while profiling:"));
+    flushEnabled.setToolTip(tr(
+        "Periodically flush pending data to the profiler. This reduces the delay when loading the\n"
+        "data and the memory usage in the application. It distorts the profile as the flushing\n"
+        "itself takes time."));
+
+    group.registerAspect(&flushInterval);
+    flushInterval.setSettingsKey("Analyzer.QmlProfiler.FlushInterval");
+    flushInterval.setRange(1, 10000000);
+    flushInterval.setDefaultValue(1000);
+    flushInterval.setLabelText(tr("Flush interval (ms):", nullptr));
+    flushInterval.setEnabled(false); // Controled by flushEnabled.
+
+    group.registerAspect(&lastTraceFile);
+    lastTraceFile.setSettingsKey("Analyzer.QmlProfiler.LastTraceFile");
+
+    group.registerAspect(&aggregateTraces);
+    aggregateTraces.setSettingsKey("Analyzer.QmlProfiler.AggregateTraces");
+    aggregateTraces.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
+    aggregateTraces.setLabelText(tr("Process data only when process ends:"));
+    aggregateTraces.setToolTip(tr(
+        "Only process data when the process being profiled ends, not when the current recording\n"
+        "session ends. This way multiple recording sessions can be aggregated in a single trace,\n"
+        "for example if multiple QML engines start and stop sequentially during a single run of\n"
+        "the program."));
+
+    connect(&flushEnabled, &BoolAspect::volatileValueChanged,
+            &flushInterval, &BaseAspect::setEnabled);
+    connect(&flushEnabled, &BoolAspect::valueChanged,
+            &flushInterval, &BaseAspect::setEnabled);
 
     // Read stored values
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(QLatin1String(Constants::ANALYZER));
-    QVariantMap map = defaults;
-    for (QVariantMap::ConstIterator it = defaults.constBegin(); it != defaults.constEnd(); ++it)
-        map.insert(it.key(), settings->value(it.key(), it.value()));
-    settings->endGroup();
-
-    fromMap(map);
-}
-
-bool QmlProfilerSettings::flushEnabled() const
-{
-    return m_flushEnabled;
-}
-
-void QmlProfilerSettings::setFlushEnabled(bool flushEnabled)
-{
-    if (m_flushEnabled != flushEnabled) {
-        m_flushEnabled = flushEnabled;
-        emit changed();
-    }
-}
-
-quint32 QmlProfilerSettings::flushInterval() const
-{
-    return m_flushInterval;
-}
-
-void QmlProfilerSettings::setFlushInterval(quint32 flushInterval)
-{
-    if (m_flushInterval != flushInterval) {
-        m_flushInterval = flushInterval;
-        emit changed();
-    }
-}
-
-QString QmlProfilerSettings::lastTraceFile() const
-{
-    return m_lastTraceFile;
-}
-
-void QmlProfilerSettings::setLastTraceFile(const QString &lastTracePath)
-{
-    if (m_lastTraceFile != lastTracePath) {
-        m_lastTraceFile = lastTracePath;
-        emit changed();
-    }
-}
-
-bool QmlProfilerSettings::aggregateTraces() const
-{
-    return m_aggregateTraces;
-}
-
-void QmlProfilerSettings::setAggregateTraces(bool aggregateTraces)
-{
-    if (m_aggregateTraces != aggregateTraces) {
-        m_aggregateTraces = aggregateTraces;
-        emit changed();
-    }
+    group.readSettings(Core::ICore::settings());
 }
 
 void QmlProfilerSettings::writeGlobalSettings() const
 {
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(QLatin1String(Constants::ANALYZER));
-    QVariantMap map;
-    toMap(map);
-    for (QVariantMap::ConstIterator it = map.constBegin(); it != map.constEnd(); ++it)
-        settings->setValue(it.key(), it.value());
-    settings->endGroup();
+    group.writeSettings(Core::ICore::settings());
 }
 
 void QmlProfilerSettings::toMap(QVariantMap &map) const
 {
-    map[QLatin1String(Constants::FLUSH_INTERVAL)] = m_flushInterval;
-    map[QLatin1String(Constants::FLUSH_ENABLED)] = m_flushEnabled;
-    map[QLatin1String(Constants::LAST_TRACE_FILE)] = m_lastTraceFile;
-    map[QLatin1String(Constants::AGGREGATE_TRACES)] = m_aggregateTraces;
+    group.toMap(map);
 }
 
 void QmlProfilerSettings::fromMap(const QVariantMap &map)
 {
-    m_flushEnabled = map.value(QLatin1String(Constants::FLUSH_ENABLED)).toBool();
-    m_flushInterval = map.value(QLatin1String(Constants::FLUSH_INTERVAL)).toUInt();
-    m_lastTraceFile = map.value(QLatin1String(Constants::LAST_TRACE_FILE)).toString();
-    m_aggregateTraces = map.value(QLatin1String(Constants::AGGREGATE_TRACES)).toBool();
-    emit changed();
+    group.fromMap(map);
+}
+
+
+// QmlProfilerOptionsPage
+
+QmlProfilerOptionsPage::QmlProfilerOptionsPage()
+{
+    setId(Constants::SETTINGS);
+    setDisplayName(QmlProfilerSettings::tr("QML Profiler"));
+    setCategory("T.Analyzer");
+    setDisplayCategory(QmlProfilerSettings::tr("Analyzer"));
+    setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
+}
+
+QWidget *QmlProfilerOptionsPage::widget()
+{
+    // We cannot parent the widget to the options page as it expects a QWidget as parent
+    if (!m_widget)
+        m_widget = createQmlConfigWidget(QmlProfilerPlugin::globalSettings());
+    return m_widget;
+}
+
+void QmlProfilerOptionsPage::apply()
+{
+    QmlProfilerPlugin::globalSettings()->writeGlobalSettings();
+}
+
+void QmlProfilerOptionsPage::finish()
+{
+    delete m_widget;
 }
 
 } // Internal

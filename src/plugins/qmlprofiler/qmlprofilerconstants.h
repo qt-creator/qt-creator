@@ -30,10 +30,6 @@ namespace Constants {
 
 const char TASK_LOAD[] = "QmlProfiler.TaskLoad";
 const char TASK_SAVE[] = "QmlProfiler.TaskSave";
-const char FLUSH_ENABLED[] = "Analyzer.QmlProfiler.FlushEnabled";
-const char FLUSH_INTERVAL[] = "Analyzer.QmlProfiler.FlushInterval";
-const char LAST_TRACE_FILE[] = "Analyzer.QmlProfiler.LastTraceFile";
-const char AGGREGATE_TRACES[] = "Analyzer.QmlProfiler.AggregateTraces";
 const char SETTINGS[] = "Analyzer.QmlProfiler.Settings";
 const char ANALYZER[] = "Analyzer";
 const char TEXT_MARK_CATEGORY[] = "Analyzer.QmlProfiler.TextMark";

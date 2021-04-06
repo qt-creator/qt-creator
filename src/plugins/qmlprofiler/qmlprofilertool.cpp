@@ -314,9 +314,9 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
     if (auto aspect = static_cast<QmlProfilerRunConfigurationAspect *>(
                 runControl->aspect(Constants::SETTINGS))) {
         if (auto settings = static_cast<const QmlProfilerSettings *>(aspect->currentSettings())) {
-            d->m_profilerConnections->setFlushInterval(settings->flushEnabled() ?
-                                                           settings->flushInterval() : 0);
-            d->m_profilerModelManager->setAggregateTraces(settings->aggregateTraces());
+            d->m_profilerConnections->setFlushInterval(settings->flushEnabled.value() ?
+                                                           settings->flushInterval.value() : 0);
+            d->m_profilerModelManager->setAggregateTraces(settings->aggregateTraces.value());
         }
     }
 
@@ -589,8 +589,8 @@ void QmlProfilerTool::showErrorDialog(const QString &error)
 void saveLastTraceFile(const QString &filename)
 {
     QmlProfilerSettings *settings = QmlProfilerPlugin::globalSettings();
-    if (filename != settings->lastTraceFile()) {
-        settings->setLastTraceFile(filename);
+    if (filename != settings->lastTraceFile.value()) {
+        settings->lastTraceFile.setValue(filename);
         settings->writeGlobalSettings();
     }
 }
@@ -601,7 +601,7 @@ void QmlProfilerTool::showSaveDialog()
     QLatin1String zFile(QztFileExtension);
     QString filename = QFileDialog::getSaveFileName(
                 ICore::dialogParent(), tr("Save QML Trace"),
-                QmlProfilerPlugin::globalSettings()->lastTraceFile(),
+                QmlProfilerPlugin::globalSettings()->lastTraceFile.value(),
                 tr("QML traces (*%1 *%2)").arg(zFile).arg(tFile));
     if (!filename.isEmpty()) {
         if (!filename.endsWith(zFile) && !filename.endsWith(tFile))
@@ -625,7 +625,7 @@ void QmlProfilerTool::showLoadDialog()
     QLatin1String zFile(QztFileExtension);
     QString filename = QFileDialog::getOpenFileName(
                 ICore::dialogParent(), tr("Load QML Trace"),
-                QmlProfilerPlugin::globalSettings()->lastTraceFile(),
+                QmlProfilerPlugin::globalSettings()->lastTraceFile.value(),
                 tr("QML traces (*%1 *%2)").arg(zFile).arg(tFile));
 
     if (!filename.isEmpty()) {

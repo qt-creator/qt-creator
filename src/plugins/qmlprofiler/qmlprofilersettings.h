@@ -25,7 +25,11 @@
 
 #pragma once
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <projectexplorer/runconfiguration.h>
+
+#include <QPointer>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -36,32 +40,31 @@ class QmlProfilerSettings : public ProjectExplorer::ISettingsAspect
 public:
     QmlProfilerSettings();
 
-    bool flushEnabled() const;
-    void setFlushEnabled(bool flushEnabled);
-
-    quint32 flushInterval() const;
-    void setFlushInterval(quint32 flushInterval);
-
-    QString lastTraceFile() const;
-    void setLastTraceFile(const QString &lastTraceFile);
-
-    bool aggregateTraces() const;
-    void setAggregateTraces(bool aggregateTraces);
-
     void writeGlobalSettings() const;
 
-signals:
-    void changed();
+    Utils::BoolAspect flushEnabled;
+    Utils::IntegerAspect flushInterval;
+    Utils::StringAspect lastTraceFile;
+    Utils::BoolAspect aggregateTraces;
+
+    Utils::AspectContainer group;
 
 protected:
     void toMap(QVariantMap &map) const override;
     void fromMap(const QVariantMap &map) override;
+};
+
+class QmlProfilerOptionsPage final : public Core::IOptionsPage
+{
+public:
+    QmlProfilerOptionsPage();
+
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
-    bool m_flushEnabled;
-    quint32 m_flushInterval;
-    QString m_lastTraceFile;
-    bool m_aggregateTraces;
+    QPointer<QWidget> m_widget;
 };
 
 } // Internal
