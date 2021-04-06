@@ -91,75 +91,45 @@ BazaarSettings::BazaarSettings()
     timeout.setSuffix(tr("s"));
 }
 
-bool BazaarSettings::sameUserId(const BazaarSettings &other) const
-{
-    return userName.value() == other.userName.value()
-        && userEmail.value() == other.userEmail.value();
-}
+// BazaarSettingsPage
 
-// OptionsPage
-
-class OptionsPageWidget final : public Core::IOptionsPageWidget
-{
-    Q_DECLARE_TR_FUNCTIONS(Bazaar::Internal::OptionsPageWidget)
-
-public:
-    OptionsPageWidget(const std::function<void()> &onApply, BazaarSettings *settings);
-
-    void apply() final;
-
-private:
-    const std::function<void()> m_onApply;
-    BazaarSettings *m_settings;
-};
-
-void OptionsPageWidget::apply()
-{
-    if (!m_settings->isDirty())
-        return;
-    m_settings->apply();
-    m_onApply();
-}
-
-OptionsPageWidget::OptionsPageWidget(const std::function<void(void)> &onApply, BazaarSettings *settings)
-    : m_onApply(onApply), m_settings(settings)
-{
-    BazaarSettings &s = *m_settings;
-    using namespace Layouting;
-
-    Column {
-        Group {
-            Title(tr("Configuration")),
-            Row { s.binaryPath }
-        },
-
-        Group {
-            Title(tr("User")),
-            Form {
-                s.userName,
-                s.userEmail
-            }
-        },
-
-        Group {
-            Title(tr("Miscellaneous")),
-            Row {
-                s.logCount,
-                s.timeout,
-                Stretch()
-            }
-        },
-        Stretch()
-
-    }.attachTo(this);
-}
-
-OptionsPage::OptionsPage(const std::function<void(void)> &onApply, BazaarSettings *settings)
+BazaarSettingsPage::BazaarSettingsPage(BazaarSettings *settings)
 {
     setId(VcsBase::Constants::VCS_ID_BAZAAR);
-    setDisplayName(OptionsPageWidget::tr("Bazaar"));
-    setWidgetCreator([onApply, settings] { return new OptionsPageWidget(onApply, settings); });
+    setDisplayName(BazaarSettings::tr("Bazaar"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+    setSettings(settings);
+
+    setLayouter([settings](QWidget *widget) {
+        BazaarSettings &s = *settings;
+        using namespace Layouting;
+
+        Column {
+            Group {
+                Title(BazaarSettings::tr("Configuration")),
+                Row { s.binaryPath }
+            },
+
+            Group {
+                Title(BazaarSettings::tr("User")),
+                Form {
+                    s.userName,
+                    s.userEmail
+                }
+            },
+
+            Group {
+                Title(BazaarSettings::tr("Miscellaneous")),
+                Row {
+                    s.logCount,
+                    s.timeout,
+                    Stretch()
+                }
+            },
+            Stretch()
+
+        }.attachTo(widget);
+    });
 }
 
 } // Internal

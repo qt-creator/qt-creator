@@ -27,31 +27,28 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <utils/aspects.h>
-
 #include <vcsbase/vcsbaseclientsettings.h>
 
 namespace Bazaar {
 namespace Internal {
 
-class BazaarSettings : public VcsBase::VcsBaseSettings
+class BazaarSettings final : public VcsBase::VcsBaseSettings
 {
 public:
+    BazaarSettings();
+
     Utils::BoolAspect diffIgnoreWhiteSpace;
     Utils::BoolAspect diffIgnoreBlankLines;
     Utils::BoolAspect logVerbose;
     Utils::BoolAspect logForward;
     Utils::BoolAspect logIncludeMerges;
     Utils::StringAspect logFormat;
-
-    BazaarSettings();
-    bool sameUserId(const BazaarSettings &other) const;
 };
 
-class OptionsPage final : public Core::IOptionsPage
+class BazaarSettingsPage final : public Core::IOptionsPage
 {
 public:
-    OptionsPage(const std::function<void()> &onApply, BazaarSettings *settings);
+    explicit BazaarSettingsPage(BazaarSettings *settings);
 };
 
 } // namespace Internal

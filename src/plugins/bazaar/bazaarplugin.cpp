@@ -205,8 +205,7 @@ public:
     // Variables
     BazaarSettings m_settings;
     BazaarClient m_client{&m_settings};
-
-    OptionsPage m_optionsPage{[this] { configurationChanged(); }, &m_settings};
+    BazaarSettingsPage m_settingPage{&m_settings};
 
     VcsSubmitEditorFactory m_submitEditorFactory {
         submitEditorParameters,
@@ -337,6 +336,8 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     ActionContainer *toolsMenu = ActionManager::actionContainer(Core::Constants::M_TOOLS);
     toolsMenu->addMenu(m_bazaarContainer);
     m_menuAction = m_bazaarContainer->menu()->menuAction();
+
+    connect(&m_settings, &AspectContainer::applied, this, &IVersionControl::configurationChanged);
 }
 
 void BazaarPluginPrivate::createFileActions(const Context &context)
