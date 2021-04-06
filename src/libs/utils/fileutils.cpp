@@ -821,6 +821,15 @@ FilePath FilePath::absolutePath() const
     return result;
 }
 
+/// Constructs an absolute FilePath from this path which
+/// is interpreted as being relative to \a anchor.
+FilePath FilePath::absoluteFromRelativePath(const FilePath &anchor) const
+{
+    QDir anchorDir = QFileInfo(anchor.m_data).absoluteDir();
+    QString absoluteFilePath = QFileInfo(anchorDir, m_data).canonicalFilePath();
+    return FilePath::fromString(absoluteFilePath);
+}
+
 /// Constructs a FilePath from \a filename
 /// \a filename is not checked for validity.
 FilePath FilePath::fromString(const QString &filename)
@@ -968,6 +977,94 @@ FilePath FilePath::relativeChildPath(const FilePath &parent) const
     if (!isChildOf(parent))
         return FilePath();
     return FilePath::fromString(m_data.mid(parent.m_data.size() + 1, -1));
+}
+
+/// \returns the relativePath of FilePath to given \a anchor.
+/// Both, FilePath and anchor may be files or directories.
+/// Example usage:
+///
+/// \code
+///     FilePath filePath("/foo/b/ar/file.txt");
+///     FilePath relativePath = filePath.relativePath("/foo/c");
+///     qDebug() << relativePath
+/// \endcode
+///
+/// The debug output will be "../b/ar/file.txt".
+///
+FilePath FilePath::relativePath(const FilePath &anchor) const
+{
+    const QFileInfo fileInfo(m_data);
+    QString absolutePath;
+    QString filename;
+    if (fileInfo.isFile()) {
+        absolutePath = fileInfo.absolutePath();
+        filename = fileInfo.fileName();
+    } else if (fileInfo.isDir()) {
+        absolutePath = fileInfo.absoluteFilePath();
+    } else {
+        return {};
+    }
+    const QFileInfo anchorInfo(anchor.m_data);
+    QString absoluteAnchorPath;
+    if (anchorInfo.isFile())
+        absoluteAnchorPath = anchorInfo.absolutePath();
+    else if (anchorInfo.isDir())
+        absoluteAnchorPath = anchorInfo.absoluteFilePath();
+    else
+        return {};
+    QString relativeFilePath = calcRelativePath(absolutePath, absoluteAnchorPath);
+    if (!filename.isEmpty()) {
+        if (!relativeFilePath.isEmpty())
+            relativeFilePath += '/';
+        relativeFilePath += filename;
+    }
+    return FilePath::fromString(relativeFilePath);
+}
+
+/// \returns the relativePath of \a absolutePath to given \a absoluteAnchorPath.
+/// Both paths must be an absolute path to a directory. Example usage:
+///
+/// \code
+///     qDebug() << FilePath::calcRelativePath("/foo/b/ar", "/foo/c");
+/// \endcode
+///
+/// The debug output will be "../b/ar".
+///
+/// \see FilePath::relativePath
+///
+QString FilePath::calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath)
+{
+    if (absolutePath.isEmpty() || absoluteAnchorPath.isEmpty())
+        return QString();
+    // TODO using split() instead of parsing the strings by char index is slow
+    // and needs more memory (but the easiest implementation for now)
+    const QStringList splits1 = absolutePath.split('/');
+    const QStringList splits2 = absoluteAnchorPath.split('/');
+    int i = 0;
+    while (i < splits1.count() && i < splits2.count() && splits1.at(i) == splits2.at(i))
+        ++i;
+    QString relativePath;
+    int j = i;
+    bool addslash = false;
+    while (j < splits2.count()) {
+        if (!splits2.at(j).isEmpty()) {
+            if (addslash)
+                relativePath += '/';
+            relativePath += "..";
+            addslash = true;
+        }
+        ++j;
+    }
+    while (i < splits1.count()) {
+        if (!splits1.at(i).isEmpty()) {
+            if (addslash)
+                relativePath += '/';
+            relativePath += splits1.at(i);
+            addslash = true;
+        }
+        ++i;
+    }
+    return relativePath;
 }
 
 FilePath FilePath::pathAppended(const QString &str) const

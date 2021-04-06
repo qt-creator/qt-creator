@@ -61,6 +61,9 @@ extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
 
 QT_END_NAMESPACE
 
+// tst_fileutils becomes a friend of Utils::FilePath for testing private method
+class tst_fileutils;
+
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT FilePath
@@ -89,6 +92,7 @@ public:
 
     FilePath parentDir() const;
     FilePath absolutePath() const;
+    FilePath absoluteFromRelativePath(const FilePath &anchor) const;
 
     bool operator==(const FilePath &other) const;
     bool operator!=(const FilePath &other) const;
@@ -107,6 +111,7 @@ public:
     bool isNewerThan(const QDateTime &timeStamp) const;
 
     FilePath relativeChildPath(const FilePath &parent) const;
+    FilePath relativePath(const FilePath &anchor) const;
     FilePath pathAppended(const QString &str) const;
     FilePath stringAppended(const QString &str) const;
     FilePath resolvePath(const QString &fileName) const;
@@ -126,6 +131,9 @@ public:
     QUrl toUrl() const;
 
 private:
+    friend class ::tst_fileutils;
+    static QString calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath);
+
     QString m_data;
     QUrl m_url;
 };

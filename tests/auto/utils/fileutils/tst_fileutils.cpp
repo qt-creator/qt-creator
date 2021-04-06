@@ -38,13 +38,46 @@ class tst_fileutils : public QObject
 public:
 
 private slots:
+    void initTestCase();
     void parentDir_data();
     void parentDir();
     void isChildOf_data();
     void isChildOf();
     void fileName_data();
     void fileName();
+    void calcRelativePath_data();
+    void calcRelativePath();
+    void relativePath_specials();
+    void relativePath_data();
+    void relativePath();
+
+private:
+    QTemporaryDir tempDir;
+    QString rootPath;
 };
+
+static void touch(const QDir &dir, const QString &filename)
+{
+    QFile file(dir.absoluteFilePath(filename));
+    file.open(QIODevice::WriteOnly);
+    file.close();
+}
+
+void tst_fileutils::initTestCase()
+{
+    // initialize test for tst_fileutiles::relativePath*()
+    QVERIFY(tempDir.isValid());
+    rootPath = tempDir.path();
+    QDir dir(rootPath);
+    dir.mkpath("a/b/c/d");
+    dir.mkpath("a/x/y/z");
+    dir.mkpath("a/b/x/y/z");
+    dir.mkpath("x/y/z");
+    touch(dir, "a/b/c/d/file1.txt");
+    touch(dir, "a/x/y/z/file2.txt");
+    touch(dir, "a/file3.txt");
+    touch(dir, "x/y/file4.txt");
+}
 
 void tst_fileutils::parentDir_data()
 {
@@ -162,6 +195,66 @@ void tst_fileutils::fileName()
     QFETCH(int, components);
     QFETCH(QString, result);
     QCOMPARE(FilePath::fromString(path).fileNameWithPathComponents(components), result);
+}
+
+void tst_fileutils::calcRelativePath_data()
+{
+    QTest::addColumn<QString>("absolutePath");
+    QTest::addColumn<QString>("anchorPath");
+    QTest::addColumn<QString>("result");
+
+    QTest::newRow("empty") << "" << "" << "";
+    QTest::newRow("leftempty") << "" << "/" << "";
+    QTest::newRow("rightempty") << "/" << "" << "";
+    QTest::newRow("root") << "/" << "/" << "";
+    QTest::newRow("simple1") << "/a" << "/" << "a";
+    QTest::newRow("simple2") << "/" << "/a" << "..";
+    QTest::newRow("simple3") << "/a" << "/a" << "";
+    QTest::newRow("extraslash1") << "/a/b/c" << "/a/b/c" << "";
+    QTest::newRow("extraslash2") << "/a/b/c" << "/a/b/c/" << "";
+    QTest::newRow("extraslash3") << "/a/b/c/" << "/a/b/c" << "";
+    QTest::newRow("normal1") << "/a/b/c" << "/a/x" << "../b/c";
+    QTest::newRow("normal2") << "/a/b/c" << "/a/x/y" << "../../b/c";
+    QTest::newRow("normal3") << "/a/b/c" << "/x/y" << "../../a/b/c";
+}
+
+void tst_fileutils::calcRelativePath()
+{
+    QFETCH(QString, absolutePath);
+    QFETCH(QString, anchorPath);
+    QFETCH(QString, result);
+    QString relativePath = Utils::FilePath::calcRelativePath(absolutePath, anchorPath);
+    QCOMPARE(relativePath, result);
+}
+
+void tst_fileutils::relativePath_specials()
+{
+    QString path = FilePath::fromString("").relativePath(FilePath::fromString("")).toString();
+    QCOMPARE(path, "");
+}
+
+void tst_fileutils::relativePath_data()
+{
+    QTest::addColumn<QString>("relative");
+    QTest::addColumn<QString>("anchor");
+    QTest::addColumn<QString>("result");
+
+    QTest::newRow("samedir") << "/" << "/" << "";
+    QTest::newRow("dir2dir_1") << "a/b/c/d" << "a/x/y/z" << "../../../b/c/d";
+    QTest::newRow("dir2dir_2") << "a/b" <<"a/b/c" << "..";
+    QTest::newRow("file2file_1") << "a/b/c/d/file1.txt" << "a/file3.txt" << "b/c/d/file1.txt";
+    QTest::newRow("dir2file_1") << "a/b/c" << "a/x/y/z/file2.txt" << "../../../b/c";
+    QTest::newRow("file2dir_1") << "a/b/c/d/file1.txt" << "x/y" << "../../a/b/c/d/file1.txt";
+}
+
+void tst_fileutils::relativePath()
+{
+    QFETCH(QString, relative);
+    QFETCH(QString, anchor);
+    QFETCH(QString, result);
+    FilePath actualPath = FilePath::fromString(rootPath + "/" + relative)
+                              .relativePath(FilePath::fromString(rootPath + "/" + anchor));
+    QCOMPARE(actualPath.toString(), result);
 }
 
 QTEST_APPLESS_MAIN(tst_fileutils)
