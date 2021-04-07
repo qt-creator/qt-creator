@@ -305,6 +305,6 @@ Image {
         scale: 0.5
         checked: usageStatisticModel.usageStatisticEnabled
 
-        onCheckedChanged: usageStatisticModel.setPluginEnabled(usageStatisticCheckBox.checked)
+        onCheckedChanged: usageStatisticModel.setTelemetryEnabled(usageStatisticCheckBox.checked)
     }
 }

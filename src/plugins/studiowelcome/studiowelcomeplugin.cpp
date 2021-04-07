@@ -49,36 +49,55 @@
 #include <QAbstractListModel>
 #include <QApplication>
 #include <QDesktopServices>
-#include <QFontDatabase>
 #include <QFileInfo>
+#include <QFontDatabase>
 #include <QPointer>
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickItem>
 #include <QQuickView>
 #include <QQuickWidget>
+#include <QSettings>
 #include <QTimer>
+
+#include <algorithm>
+#include <memory>
 
 namespace StudioWelcome {
 namespace Internal {
 
 const char DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY[] = "StudioSplashScreen";
 
+const char DETAILED_USAGE_STATISTICS[] = "DetailedUsageStatistics";
+const char STATISTICS_COLLECTION_MODE[] = "StatisticsCollectionMode";
+const char NO_TELEMETRY[] = "NoTelemetry";
+
 QPointer<QQuickWidget> s_view = nullptr;
 static StudioWelcomePlugin *s_pluginInstance = nullptr;
 
-static bool isUsageStatistic(const ExtensionSystem::PluginSpec *spec)
+std::unique_ptr<QSettings> makeUserFeedbackSettings()
 {
-    if (!spec)
-        return false;
+    QStringList domain = QCoreApplication::organizationDomain().split(QLatin1Char('.'));
+    std::reverse(domain.begin(), domain.end());
+    QString productId = domain.join(QLatin1String("."));
+    if (!productId.isEmpty())
+        productId += ".";
+    productId += QCoreApplication::applicationName();
 
-    return spec->name().contains("UsageStatistic");
-}
+    QString organization;
+    if (Utils::HostOsInfo::isMacHost()) {
+        organization = QCoreApplication::organizationDomain().isEmpty()
+                           ? QCoreApplication::organizationName()
+                           : QCoreApplication::organizationDomain();
+    } else {
+        organization = QCoreApplication::organizationName().isEmpty()
+                           ? QCoreApplication::organizationDomain()
+                           : QCoreApplication::organizationName();
+    }
 
-ExtensionSystem::PluginSpec *getUsageStatisticPlugin()
-{
-    const auto plugins = ExtensionSystem::PluginManager::plugins();
-    return Utils::findOrDefault(plugins, &isUsageStatistic);
+    std::unique_ptr<QSettings> settings(new QSettings(organization, "UserFeedback." + productId));
+    settings->beginGroup("UserFeedback");
+    return settings;
 }
 
 class UsageStatisticPluginModel : public QObject
@@ -95,27 +114,21 @@ public:
 
     void setupModel()
     {
-        auto plugin = getUsageStatisticPlugin();
-        if (plugin)
-            m_usageStatisticEnabled = plugin->isEnabledBySettings();
-        else
-            m_usageStatisticEnabled = false;
+        auto settings = makeUserFeedbackSettings();
+        QVariant value = settings->value(STATISTICS_COLLECTION_MODE);
+        m_usageStatisticEnabled = value.isValid() && value.toString() == DETAILED_USAGE_STATISTICS;
 
         emit usageStatisticChanged();
     }
 
-    Q_INVOKABLE void setPluginEnabled(bool b)
+    Q_INVOKABLE void setTelemetryEnabled(bool b)
     {
-        auto plugin = getUsageStatisticPlugin();
-
-        if (!plugin)
+        if (m_usageStatisticEnabled == b)
             return;
 
-        if (plugin->isEnabledBySettings() == b)
-            return;
+        auto settings = makeUserFeedbackSettings();
 
-        plugin->setEnabledBySettings(b);
-        ExtensionSystem::PluginManager::writeSettings();
+        settings->setValue(STATISTICS_COLLECTION_MODE, b ? DETAILED_USAGE_STATISTICS : NO_TELEMETRY);
 
         // pause remove splash timer while dialog is open otherwise splash crashes upon removal
         s_pluginInstance->pauseRemoveSplashTimer();
@@ -139,9 +152,9 @@ class ProjectModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    enum { FilePathRole = Qt::UserRole+1, PrettyFilePathRole };
+    enum { FilePathRole = Qt::UserRole + 1, PrettyFilePathRole };
 
-     Q_PROPERTY(bool communityVersion MEMBER m_communityVersion NOTIFY communityVersionChanged)
+    Q_PROPERTY(bool communityVersion MEMBER m_communityVersion NOTIFY communityVersionChanged)
 
     explicit ProjectModel(QObject *parent = nullptr);
 
@@ -161,16 +174,12 @@ public:
 
     Q_INVOKABLE void openProjectAt(int row)
     {
-        const QString projectFile = data(index(row, 0),
-                                         ProjectModel::FilePathRole).toString();
+        const QString projectFile = data(index(row, 0), ProjectModel::FilePathRole).toString();
         if (QFileInfo::exists(projectFile))
             ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
     }
 
-    Q_INVOKABLE int get(int)
-    {
-        return -1;
-    }
+    Q_INVOKABLE int get(int) { return -1; }
 
     Q_INVOKABLE void showHelp()
     {
@@ -200,8 +209,11 @@ public:
 
         const QString projectFile = Core::ICore::resourcePath() + "/examples/" + example + "/"
                                     + example + ".qmlproject";
+
         ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
-        const QString qmlFile = Core::ICore::resourcePath() + "/examples/" + example + "/" + formFile;
+        const QString qmlFile = Core::ICore::resourcePath() + "/examples/" + example + "/"
+                                + formFile;
+
         Core::EditorManager::openEditor(qmlFile);
     }
 public slots:
@@ -222,9 +234,9 @@ ProjectModel::ProjectModel(QObject *parent)
             this,
             &ProjectModel::resetProjects);
 
-
     if (!Utils::findOrDefault(ExtensionSystem::PluginManager::plugins(),
-                              Utils::equal(&ExtensionSystem::PluginSpec::name, QString("LicenseChecker"))))
+                              Utils::equal(&ExtensionSystem::PluginSpec::name,
+                                           QString("LicenseChecker"))))
         m_communityVersion = true;
 }
 
@@ -235,8 +247,8 @@ int ProjectModel::rowCount(const QModelIndex &) const
 
 QVariant ProjectModel::data(const QModelIndex &index, int role) const
 {
-    QPair<QString,QString> data =
-            ProjectExplorer::ProjectExplorerPlugin::recentProjects().at(index.row());
+    QPair<QString, QString> data = ProjectExplorer::ProjectExplorerPlugin::recentProjects().at(
+        index.row());
     switch (role) {
     case Qt::DisplayRole:
         return data.second;
@@ -275,7 +287,6 @@ public:
     ~WelcomeMode() override;
 
 private:
-
     QQuickWidget *m_modeWidget = nullptr;
 };
 
@@ -344,22 +355,25 @@ void StudioWelcomePlugin::extensionsInitialized()
             s_view->setWindowFlag(Qt::SplashScreen, true);
             s_view->setWindowModality(Qt::ApplicationModal);
             s_view->engine()->addImportPath("qrc:/studiofonts");
-        #ifdef QT_DEBUG
-            s_view->engine()->addImportPath(QLatin1String(STUDIO_QML_PATH)
-                                            + "splashscreen/imports");
-            s_view->setSource(QUrl::fromLocalFile(QLatin1String(STUDIO_QML_PATH)
-                                          + "splashscreen/main.qml"));
-        #else
+#ifdef QT_DEBUG
+            s_view->engine()->addImportPath(QLatin1String(STUDIO_QML_PATH) + "splashscreen/imports");
+            s_view->setSource(
+                QUrl::fromLocalFile(QLatin1String(STUDIO_QML_PATH) + "splashscreen/main.qml"));
+#else
             s_view->engine()->addImportPath("qrc:/qml/splashscreen/imports");
             s_view->setSource(QUrl("qrc:/qml/splashscreen/main.qml"));
-        #endif
+#endif
 
             QTC_ASSERT(s_view->rootObject(),
-                       qWarning() << "The StudioWelcomePlugin has a runtime depdendency on qt/qtquicktimeline.";
-                       return);
+                       qWarning() << "The StudioWelcomePlugin has a runtime depdendency on "
+                                     "qt/qtquicktimeline.";
+                       return );
 
             connect(s_view->rootObject(), SIGNAL(closeClicked()), this, SLOT(closeSplashScreen()));
-            connect(s_view->rootObject(), SIGNAL(configureClicked()), this, SLOT(showSystemSettings()));
+            connect(s_view->rootObject(),
+                    SIGNAL(configureClicked()),
+                    this,
+                    SLOT(showSystemSettings()));
 
             s_view->show();
             s_view->raise();
@@ -374,7 +388,7 @@ bool StudioWelcomePlugin::delayedInitialize()
     if (s_view.isNull())
         return false;
 
-    QTC_ASSERT(s_view->rootObject() , return true);
+    QTC_ASSERT(s_view->rootObject(), return true);
 
 #ifdef ENABLE_CRASHPAD
     const bool crashReportingEnabled = true;
