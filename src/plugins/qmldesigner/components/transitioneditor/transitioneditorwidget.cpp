@@ -328,8 +328,11 @@ void TransitionEditorWidget::init()
 
     if (root.isValid() && root.hasProperty("transitions")) {
         NodeAbstractProperty transitions = root.nodeAbstractProperty("transitions");
-        if (transitions.isValid())
-            transition = transitions.directSubNodes().constFirst();
+        if (transitions.isValid()) {
+            const QList<ModelNode> directSubNodes = transitions.directSubNodes();
+            if (!directSubNodes.isEmpty())
+                transition = directSubNodes.constFirst();
+        }
     }
 
     m_graphicsScene->setTransition(transition);
