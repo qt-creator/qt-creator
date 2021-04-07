@@ -46,6 +46,7 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
@@ -1219,15 +1220,19 @@ void GitClient::archive(const QString &workingDirectory, QString commit)
         repoDirectory = workingDirectory;
     QString repoName = QFileInfo(repoDirectory).fileName();
 
-    QHash<QString, QString> filters {
-        { tr("Tarball (*.tar.gz)"), ".tar.gz" },
-        { tr("Zip archive (*.zip)"), ".zip" }
-    };
+    QHash<QString, QString> filters;
     QString selectedFilter;
-    if (HostOsInfo::isWindowsHost())
-        selectedFilter = filters.key(".zip");
-    else
-        selectedFilter = filters.key(".tar.gz");
+    auto appendFilter = [&filters, &selectedFilter](const QString &name, bool isSelected){
+        const auto mimeType = Utils::mimeTypeForName(name);
+        const auto filterString = mimeType.filterString();
+        filters.insert(filterString, "." + mimeType.preferredSuffix());
+        if (isSelected)
+            selectedFilter = filterString;
+    };
+
+    bool windows = HostOsInfo::isWindowsHost();
+    appendFilter("application/zip", windows);
+    appendFilter("application/x-compressed-tar", !windows);
 
     QString output;
     if (synchronousRevParseCmd(repoDirectory, commit, &output))
