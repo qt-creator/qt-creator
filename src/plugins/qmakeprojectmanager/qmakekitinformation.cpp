@@ -34,6 +34,7 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/algorithm.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -51,7 +52,7 @@ class QmakeKitAspectWidget final : public KitAspectWidget
 
 public:
     QmakeKitAspectWidget(Kit *k, const KitAspect *ki)
-        : KitAspectWidget(k, ki), m_lineEdit(new QLineEdit)
+        : KitAspectWidget(k, ki), m_lineEdit(createSubWidget<QLineEdit>())
     {
         refresh(); // set up everything according to kit
         m_lineEdit->setToolTip(ki->description());
@@ -61,7 +62,12 @@ public:
     ~QmakeKitAspectWidget() override { delete m_lineEdit; }
 
 private:
-    QWidget *mainWidget() const override { return m_lineEdit; }
+    void addToLayout(LayoutBuilder &builder) override
+    {
+        addMutableAction(m_lineEdit);
+        builder.addItem(m_lineEdit);
+    }
+
     void makeReadOnly() override { m_lineEdit->setEnabled(false); }
 
     void refresh() override

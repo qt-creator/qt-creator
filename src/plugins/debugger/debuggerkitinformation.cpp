@@ -36,6 +36,7 @@
 
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
@@ -63,7 +64,7 @@ public:
     DebuggerKitAspectWidget(Kit *workingCopy, const KitAspect *ki)
         : KitAspectWidget(workingCopy, ki)
     {
-        m_comboBox = new QComboBox;
+        m_comboBox = createSubWidget<QComboBox>();
         m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
         m_comboBox->setEnabled(true);
 
@@ -72,7 +73,7 @@ public:
         connect(m_comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, &DebuggerKitAspectWidget::currentDebuggerChanged);
 
-        m_manageButton = new QPushButton(KitAspectWidget::msgManage());
+        m_manageButton = createSubWidget<QPushButton>(KitAspectWidget::msgManage());
         m_manageButton->setContentsMargins(0, 0, 0, 0);
         connect(m_manageButton, &QAbstractButton::clicked,
                 this, &DebuggerKitAspectWidget::manageDebuggers);
@@ -85,8 +86,12 @@ public:
     }
 
 private:
-    QWidget *buttonWidget() const override { return m_manageButton; }
-    QWidget *mainWidget() const override { return m_comboBox; }
+    void addToLayout(Utils::LayoutBuilder &builder) override
+    {
+        addMutableAction(m_comboBox);
+        builder.addItem(m_comboBox);
+        builder.addItem(m_manageButton);
+    }
 
     void makeReadOnly() override
     {
@@ -110,7 +115,7 @@ private:
     void manageDebuggers()
     {
         Core::ICore::showOptionsDialog(ProjectExplorer::Constants::DEBUGGER_SETTINGS_PAGE_ID,
-                                       buttonWidget());
+                                       m_manageButton);
     }
 
     void currentDebuggerChanged(int idx)

@@ -31,6 +31,8 @@
 
 #include <coreplugin/featureprovider.h>
 
+#include <utils/aspects.h>
+
 #include <QObject>
 #include <QPair>
 #include <QSet>
@@ -125,31 +127,30 @@ private:
     bool m_essential = false;
 };
 
-class PROJECTEXPLORER_EXPORT KitAspectWidget : public QObject
+class PROJECTEXPLORER_EXPORT KitAspectWidget : public Utils::BaseAspect
 {
     Q_OBJECT
 
 public:
     KitAspectWidget(Kit *kit, const KitAspect *ki);
+    ~KitAspectWidget();
 
     virtual void makeReadOnly() = 0;
     virtual void refresh() = 0;
 
-    virtual QWidget *mainWidget() const = 0;
-    virtual QWidget *buttonWidget() const { return nullptr; }
-
-    void addToLayout(Utils::LayoutBuilder &builder);
-    void setVisible(bool visible);
+    void addToLayoutWithLabel(QWidget *parent);
 
     static QString msgManage();
 
     Kit *kit() const { return m_kit; }
     const KitAspect *kitInformation() const { return m_kitInformation; }
+    QAction *mutableAction() const { return m_mutableAction; }
+    void addMutableAction(QWidget *child);
 
 protected:
     Kit *m_kit;
     const KitAspect *m_kitInformation;
-    QLabel *m_label = nullptr;
+    QAction *m_mutableAction = nullptr;
 };
 
 class PROJECTEXPLORER_EXPORT KitManager : public QObject

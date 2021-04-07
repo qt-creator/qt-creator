@@ -30,6 +30,8 @@
 
 #include <projectexplorer/kitmanager.h>
 
+#include <utils/layoutbuilder.h>
+
 #include <QComboBox>
 #include <QCoreApplication>
 #include <QPushButton>
@@ -58,8 +60,14 @@ private:
     void setToDefault();
 
     void makeReadOnly() override { m_toolsComboBox->setEnabled(false); }
-    QWidget *mainWidget() const override { return m_toolsComboBox; }
-    QWidget *buttonWidget() const override { return m_manageButton; }
+
+    void addToLayout(Utils::LayoutBuilder &builder) override
+    {
+        addMutableAction(m_toolsComboBox);
+        builder.addItem(m_toolsComboBox);
+        builder.addItem(m_manageButton);
+    }
+
     void refresh() override
     {
         const auto id = [this]() {

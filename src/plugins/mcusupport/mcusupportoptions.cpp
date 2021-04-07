@@ -1254,20 +1254,11 @@ class McuDependenciesKitAspectWidget final : public KitAspectWidget
 public:
     McuDependenciesKitAspectWidget(Kit *workingCopy, const KitAspect *ki)
         : KitAspectWidget(workingCopy, ki)
-    {
-        m_emptyWidget = new QWidget();
-    }
+    {}
 
-    ~McuDependenciesKitAspectWidget() override {
-        delete m_emptyWidget;
-    }
     void makeReadOnly() override {}
     void refresh() override {}
-    QWidget *mainWidget() const override {
-        return m_emptyWidget;
-    }
-private:
-    QWidget *m_emptyWidget;
+    void addToLayout(Utils::LayoutBuilder &) override {}
 };
 
 } // Internal

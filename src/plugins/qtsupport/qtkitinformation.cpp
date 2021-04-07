@@ -37,6 +37,7 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <utils/algorithm.h>
 #include <utils/buildablehelperlibrary.h>
+#include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
@@ -55,14 +56,14 @@ class QtKitAspectWidget final : public KitAspectWidget
 public:
     QtKitAspectWidget(Kit *k, const KitAspect *ki) : KitAspectWidget(k, ki)
     {
-        m_combo = new QComboBox;
+        m_combo = createSubWidget<QComboBox>();
         m_combo->setSizePolicy(QSizePolicy::Ignored, m_combo->sizePolicy().verticalPolicy());
         m_combo->addItem(tr("None"), -1);
 
         QList<int> versionIds = Utils::transform(QtVersionManager::versions(), &BaseQtVersion::uniqueId);
         versionsChanged(versionIds, QList<int>(), QList<int>());
 
-        m_manageButton = new QPushButton(KitAspectWidget::msgManage());
+        m_manageButton = createSubWidget<QPushButton>(KitAspectWidget::msgManage());
 
         refresh();
         m_combo->setToolTip(ki->description());
@@ -84,8 +85,13 @@ public:
 
 private:
     void makeReadOnly() final { m_combo->setEnabled(false); }
-    QWidget *mainWidget() const final { return m_combo; }
-    QWidget *buttonWidget() const final { return m_manageButton; }
+
+    void addToLayout(LayoutBuilder &builder)
+    {
+        addMutableAction(m_combo);
+        builder.addItem(m_combo);
+        builder.addItem(m_manageButton);
+    }
 
     void refresh() final
     {
@@ -125,7 +131,7 @@ private:
 
     void manageQtVersions()
     {
-        Core::ICore::showOptionsDialog(Constants::QTVERSION_SETTINGS_PAGE_ID, buttonWidget());
+        Core::ICore::showOptionsDialog(Constants::QTVERSION_SETTINGS_PAGE_ID, m_manageButton);
     }
 
     void currentWasChanged(int idx)

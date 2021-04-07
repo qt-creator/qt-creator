@@ -31,6 +31,7 @@
 #include <projectexplorer/kitmanager.h>
 
 #include <utils/elidinglabel.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
 #include <QPushButton>
@@ -46,8 +47,8 @@ class AspectWidget final : public KitAspectWidget
 public:
     AspectWidget(Kit *kit, const KitAspect *kitInfo)
         : KitAspectWidget(kit, kitInfo),
-          m_contentLabel(new Utils::ElidingLabel),
-          m_changeButton(new QPushButton(tr("Change...")))
+          m_contentLabel(createSubWidget<Utils::ElidingLabel>()),
+          m_changeButton(createSubWidget<QPushButton>(tr("Change...")))
     {
         connect(m_changeButton, &QPushButton::clicked, this, &AspectWidget::changeProperties);
     }
@@ -55,8 +56,13 @@ public:
 private:
     void makeReadOnly() override { m_changeButton->setEnabled(false); }
     void refresh() override { m_contentLabel->setText(QbsKitAspect::representation(kit())); }
-    QWidget *mainWidget() const override { return m_contentLabel; }
-    QWidget *buttonWidget() const override { return m_changeButton; }
+
+    void addToLayout(Utils::LayoutBuilder &builder) override
+    {
+        addMutableAction(m_contentLabel);
+        builder.addItem(m_contentLabel);
+        builder.addItem(m_changeButton);
+    }
 
     void changeProperties()
     {

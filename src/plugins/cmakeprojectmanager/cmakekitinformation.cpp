@@ -47,6 +47,7 @@
 #include <utils/algorithm.h>
 #include <utils/elidinglabel.h>
 #include <utils/environment.h>
+#include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 #include <utils/variablechooser.h>
@@ -87,8 +88,8 @@ class CMakeKitAspectWidget final : public KitAspectWidget
     Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeKitAspect)
 public:
     CMakeKitAspectWidget(Kit *kit, const KitAspect *ki) : KitAspectWidget(kit, ki),
-        m_comboBox(new QComboBox),
-        m_manageButton(new QPushButton(KitAspectWidget::msgManage()))
+        m_comboBox(createSubWidget<QComboBox>()),
+        m_manageButton(createSubWidget<QPushButton>(KitAspectWidget::msgManage()))
     {
         m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
         m_comboBox->setEnabled(false);
@@ -124,8 +125,13 @@ public:
 private:
     // KitAspectWidget interface
     void makeReadOnly() override { m_comboBox->setEnabled(false); }
-    QWidget *mainWidget() const override { return m_comboBox; }
-    QWidget *buttonWidget() const override { return m_manageButton; }
+
+    void addToLayout(Utils::LayoutBuilder &builder) override
+    {
+        addMutableAction(m_comboBox);
+        builder.addItem(m_comboBox);
+        builder.addItem(m_manageButton);
+    }
 
     void refresh() override
     {
@@ -205,7 +211,7 @@ private:
 
     void manageCMakeTools()
     {
-        Core::ICore::showOptionsDialog(Constants::CMAKE_SETTINGS_PAGE_ID, buttonWidget());
+        Core::ICore::showOptionsDialog(Constants::CMAKE_SETTINGS_PAGE_ID, m_manageButton);
     }
 
     bool m_removingItem = false;
@@ -334,8 +340,8 @@ class CMakeGeneratorKitAspectWidget final : public KitAspectWidget
 public:
     CMakeGeneratorKitAspectWidget(Kit *kit, const ::KitAspect *ki)
         : KitAspectWidget(kit, ki),
-          m_label(new Utils::ElidingLabel),
-          m_changeButton(new QPushButton)
+          m_label(createSubWidget<Utils::ElidingLabel>()),
+          m_changeButton(createSubWidget<QPushButton>())
     {
         m_label->setToolTip(ki->description());
         m_changeButton->setText(tr("Change..."));
@@ -353,8 +359,13 @@ public:
 private:
     // KitAspectWidget interface
     void makeReadOnly() override { m_changeButton->setEnabled(false); }
-    QWidget *mainWidget() const override { return m_label; }
-    QWidget *buttonWidget() const override { return m_changeButton; }
+
+    void addToLayout(Utils::LayoutBuilder &builder) override
+    {
+        addMutableAction(m_label);
+        builder.addItem(m_label);
+        builder.addItem(m_changeButton);
+    }
 
     void refresh() override
     {
@@ -851,8 +862,8 @@ class CMakeConfigurationKitAspectWidget final : public KitAspectWidget
 public:
     CMakeConfigurationKitAspectWidget(Kit *kit, const KitAspect *ki)
         : KitAspectWidget(kit, ki),
-          m_summaryLabel(new Utils::ElidingLabel),
-          m_manageButton(new QPushButton)
+          m_summaryLabel(createSubWidget<Utils::ElidingLabel>()),
+          m_manageButton(createSubWidget<QPushButton>())
     {
         refresh();
         m_manageButton->setText(tr("Change..."));
@@ -862,8 +873,12 @@ public:
 
 private:
     // KitAspectWidget interface
-    QWidget *mainWidget() const override { return m_summaryLabel; }
-    QWidget *buttonWidget() const override { return m_manageButton; }
+    void addToLayout(Utils::LayoutBuilder &builder) override
+    {
+        addMutableAction(m_summaryLabel);
+        builder.addItem(m_summaryLabel);
+        builder.addItem(m_manageButton);
+    }
 
     void makeReadOnly() override
     {

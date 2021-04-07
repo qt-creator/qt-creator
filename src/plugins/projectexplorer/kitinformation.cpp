@@ -41,6 +41,7 @@
 #include <utils/elidinglabel.h>
 #include <utils/environment.h>
 #include <utils/environmentdialog.h>
+#include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -55,6 +56,8 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
+
+using namespace Utils;
 
 namespace ProjectExplorer {
 
@@ -72,7 +75,7 @@ class SysRootKitAspectWidget : public KitAspectWidget
 public:
     SysRootKitAspectWidget(Kit *k, const KitAspect *ki) : KitAspectWidget(k, ki)
     {
-        m_chooser = new Utils::PathChooser;
+        m_chooser = createSubWidget<PathChooser>();
         m_chooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
         m_chooser->setHistoryCompleter(QLatin1String("PE.SysRoot.History"));
         m_chooser->setFilePath(SysRootKitAspect::sysRoot(k));
@@ -84,8 +87,12 @@ public:
 
 private:
     void makeReadOnly() override { m_chooser->setReadOnly(true); }
-    QWidget *buttonWidget() const override { return m_chooser->buttonAtIndex(0); }
-    QWidget *mainWidget() const override { return m_chooser->lineEdit(); }
+
+    void addToLayout(LayoutBuilder &builder) override
+    {
+        addMutableAction(m_chooser);
+        builder.addItem(Layouting::Span(2, m_chooser));
+    }
 
     void refresh() override
     {
@@ -212,7 +219,7 @@ class ToolChainKitAspectWidget final : public KitAspectWidget
 public:
     ToolChainKitAspectWidget(Kit *k, const KitAspect *ki) : KitAspectWidget(k, ki)
     {
-        m_mainWidget = new QWidget;
+        m_mainWidget = createSubWidget<QWidget>();
         m_mainWidget->setContentsMargins(0, 0, 0, 0);
 
         auto layout = new QGridLayout(m_mainWidget);
@@ -242,7 +249,7 @@ public:
 
         refresh();
 
-        m_manageButton = new QPushButton(KitAspectWidget::msgManage());
+        m_manageButton = createSubWidget<QPushButton>(KitAspectWidget::msgManage());
         m_manageButton->setContentsMargins(0, 0, 0, 0);
         connect(m_manageButton, &QAbstractButton::clicked,
                 this, &ToolChainKitAspectWidget::manageToolChains);
@@ -255,8 +262,12 @@ public:
     }
 
 private:
-    QWidget *mainWidget() const override { return m_mainWidget; }
-    QWidget *buttonWidget() const override { return m_manageButton; }
+    void addToLayout(LayoutBuilder &builder) override
+    {
+        addMutableAction(m_mainWidget);
+        builder.addItem(m_mainWidget);
+        builder.addItem(m_manageButton);
+    }
 
     void refresh() override
     {
@@ -289,7 +300,7 @@ private:
 
     void manageToolChains()
     {
-        Core::ICore::showOptionsDialog(Constants::TOOLCHAIN_SETTINGS_PAGE_ID, buttonWidget());
+        Core::ICore::showOptionsDialog(Constants::TOOLCHAIN_SETTINGS_PAGE_ID, m_manageButton);
     }
 
     void currentToolChainChanged(Utils::Id language, int idx)
@@ -699,7 +710,7 @@ class DeviceTypeKitAspectWidget final : public KitAspectWidget
 
 public:
     DeviceTypeKitAspectWidget(Kit *workingCopy, const KitAspect *ki)
-        : KitAspectWidget(workingCopy, ki), m_comboBox(new QComboBox)
+        : KitAspectWidget(workingCopy, ki), m_comboBox(createSubWidget<QComboBox>())
     {
         for (IDeviceFactory *factory : IDeviceFactory::allDeviceFactories())
             m_comboBox->addItem(factory->displayName(), factory->deviceType().toSetting());
@@ -712,7 +723,12 @@ public:
     ~DeviceTypeKitAspectWidget() override { delete m_comboBox; }
 
 private:
-    QWidget *mainWidget() const override { return m_comboBox; }
+    void addToLayout(LayoutBuilder &builder) override
+    {
+        addMutableAction(m_comboBox);
+        builder.addItem(m_comboBox);
+    }
+
     void makeReadOnly() override { m_comboBox->setEnabled(false); }
 
     void refresh() override
@@ -817,12 +833,13 @@ class DeviceKitAspectWidget final : public KitAspectWidget
 
 public:
     DeviceKitAspectWidget(Kit *workingCopy, const KitAspect *ki)
-        : KitAspectWidget(workingCopy, ki), m_comboBox(new QComboBox),
+        : KitAspectWidget(workingCopy, ki),
+        m_comboBox(createSubWidget<QComboBox>()),
         m_model(new DeviceManagerModel(DeviceManager::instance()))
     {
         m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
         m_comboBox->setModel(m_model);
-        m_manageButton = new QPushButton(KitAspectWidget::msgManage());
+        m_manageButton = createSubWidget<QPushButton>(KitAspectWidget::msgManage());
         refresh();
         m_comboBox->setToolTip(ki->description());
 
@@ -844,8 +861,13 @@ public:
     }
 
 private:
-    QWidget *mainWidget() const override { return m_comboBox; }
-    QWidget *buttonWidget() const override { return m_manageButton; }
+    void addToLayout(LayoutBuilder &builder) override
+    {
+        addMutableAction(m_comboBox);
+        builder.addItem(m_comboBox);
+        builder.addItem(m_manageButton);
+    }
+
     void makeReadOnly() override { m_comboBox->setEnabled(false); }
 
     void refresh() override
@@ -856,7 +878,7 @@ private:
 
     void manageDevices()
     {
-        Core::ICore::showOptionsDialog(Constants::DEVICE_SETTINGS_PAGE_ID, buttonWidget());
+        Core::ICore::showOptionsDialog(Constants::DEVICE_SETTINGS_PAGE_ID, m_manageButton);
     }
 
     void modelAboutToReset()
@@ -1069,9 +1091,9 @@ class EnvironmentKitAspectWidget final : public KitAspectWidget
 public:
     EnvironmentKitAspectWidget(Kit *workingCopy, const KitAspect *ki)
         : KitAspectWidget(workingCopy, ki),
-          m_summaryLabel(new Utils::ElidingLabel),
-          m_manageButton(new QPushButton),
-          m_mainWidget(new QWidget)
+          m_summaryLabel(createSubWidget<Utils::ElidingLabel>()),
+          m_manageButton(createSubWidget<QPushButton>()),
+          m_mainWidget(createSubWidget<QWidget>())
     {
         auto *layout = new QVBoxLayout;
         layout->setContentsMargins(0, 0, 0, 0);
@@ -1086,8 +1108,13 @@ public:
     }
 
 private:
-    QWidget *mainWidget() const override { return m_mainWidget; }
-    QWidget *buttonWidget() const override { return m_manageButton; }
+    void addToLayout(LayoutBuilder &builder) override
+    {
+        addMutableAction(m_mainWidget);
+        builder.addItem(m_mainWidget);
+        builder.addItem(m_manageButton);
+    }
+
     void makeReadOnly() override { m_manageButton->setEnabled(false); }
 
     void refresh() override

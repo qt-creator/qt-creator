@@ -39,8 +39,8 @@ ToolKitAspectWidget::ToolKitAspectWidget(ProjectExplorer::Kit *kit,
                                          const ProjectExplorer::KitAspect *ki,
                                          ToolType type)
     : ProjectExplorer::KitAspectWidget(kit, ki)
-    , m_toolsComboBox{new QComboBox}
-    , m_manageButton(new QPushButton(KitAspectWidget::msgManage()))
+    , m_toolsComboBox(createSubWidget<QComboBox>())
+    , m_manageButton(createSubWidget<QPushButton>(KitAspectWidget::msgManage()))
     , m_type{type}
 {
     m_toolsComboBox->setSizePolicy(QSizePolicy::Ignored,
@@ -51,7 +51,7 @@ ToolKitAspectWidget::ToolKitAspectWidget(ProjectExplorer::Kit *kit,
 
     m_manageButton->setContentsMargins(0, 0, 0, 0);
     connect(m_manageButton, &QPushButton::clicked, this, [this]() {
-        Core::ICore::showOptionsDialog(Constants::SettingsPage::TOOLS_ID, buttonWidget());
+        Core::ICore::showOptionsDialog(Constants::SettingsPage::TOOLS_ID, m_manageButton);
     });
 
     connect(MesonTools::instance(),

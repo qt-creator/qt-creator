@@ -133,8 +133,6 @@ KitManagerConfigWidget::~KitManagerConfigWidget()
 {
     qDeleteAll(m_widgets);
     m_widgets.clear();
-    qDeleteAll(m_actions);
-    m_actions.clear();
 
     // Make sure our workingCopy did not get registered somehow:
     QTC_CHECK(!Utils::contains(KitManager::kits(),
@@ -219,23 +217,11 @@ void KitManagerConfigWidget::addAspectToWorkingCopy(KitAspect *aspect)
     QTC_ASSERT(widget, return);
     QTC_ASSERT(!m_widgets.contains(widget), return);
 
-    auto action = new QAction(tr("Mark as Mutable"), nullptr);
-    action->setCheckable(true);
-    action->setChecked(workingCopy()->isMutable(aspect->id()));
-
-    action->setEnabled(!workingCopy()->isSticky(aspect->id()));
-    widget->mainWidget()->addAction(action);
-    widget->mainWidget()->setContextMenuPolicy(Qt::ActionsContextMenu);
-    connect(action, &QAction::toggled, this, [this, aspect, action] {
-        workingCopy()->setMutable(aspect->id(), action->isChecked());
-        emit dirty();
-    });
-
-    m_actions << action;
-
-    LayoutExtender builder(layout());
-    widget->addToLayout(builder);
+    widget->addToLayoutWithLabel(this);
     m_widgets.append(widget);
+
+    connect(widget->mutableAction(), &QAction::toggled,
+            this, &KitManagerConfigWidget::dirty);
 }
 
 void KitManagerConfigWidget::updateVisibility()

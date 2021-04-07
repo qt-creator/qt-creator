@@ -50,6 +50,7 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
+#include <QAction>
 #include <QHash>
 #include <QLabel>
 #include <QSettings>
@@ -724,24 +725,39 @@ void KitAspect::notifyAboutUpdate(Kit *k)
 
 KitAspectWidget::KitAspectWidget(Kit *kit, const KitAspect *ki)
     : m_kit(kit), m_kitInformation(ki)
-{ }
-
-void KitAspectWidget::addToLayout(LayoutBuilder &builder)
 {
-    QTC_ASSERT(!m_label, delete m_label);
-    m_label = new QLabel(m_kitInformation->displayName() + ':');
-    m_label->setToolTip(m_kitInformation->description());
-
-    builder.addRow({LayoutBuilder::AlignAsFormLabel(m_label), mainWidget(), buttonWidget()});
+    const Id id = ki->id();
+    m_mutableAction = new QAction(tr("Mark as Mutable"));
+    m_mutableAction->setCheckable(true);
+    m_mutableAction->setChecked(m_kit->isMutable(id));
+    m_mutableAction->setEnabled(!m_kit->isSticky(id));
+    connect(m_mutableAction, &QAction::toggled, this, [this, id] {
+        m_kit->setMutable(id, m_mutableAction->isChecked());
+    });
 }
 
-void KitAspectWidget::setVisible(bool visible)
+KitAspectWidget::~KitAspectWidget()
 {
-    mainWidget()->setVisible(visible);
-    if (buttonWidget())
-        buttonWidget()->setVisible(visible);
-    QTC_ASSERT(m_label, return);
-    m_label->setVisible(visible);
+    delete m_mutableAction;
+}
+
+void KitAspectWidget::addToLayoutWithLabel(QWidget *parent)
+{
+    QTC_ASSERT(parent, return);
+    auto label = createSubWidget<QLabel>(m_kitInformation->displayName() + ':');
+    label->setToolTip(m_kitInformation->description());
+
+    LayoutExtender builder(parent->layout());
+    builder.finishRow();
+    builder.addItem(label);
+    addToLayout(builder);
+}
+
+void KitAspectWidget::addMutableAction(QWidget *child)
+{
+    QTC_ASSERT(child, return);
+    child->addAction(m_mutableAction);
+    child->setContextMenuPolicy(Qt::ActionsContextMenu);
 }
 
 QString KitAspectWidget::msgManage()

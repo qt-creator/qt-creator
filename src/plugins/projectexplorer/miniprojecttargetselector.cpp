@@ -39,6 +39,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/itemviews.h>
+#include <utils/layoutbuilder.h>
 #include <utils/stringutils.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
@@ -564,15 +565,14 @@ class KitAreaWidget : public QWidget
     Q_OBJECT
 public:
     explicit KitAreaWidget(QWidget *parent = nullptr)
-        : QWidget(parent), m_layout(new QGridLayout(this))
+        : QWidget(parent)
     {
-        m_layout->setContentsMargins(3, 3, 3, 3);
         connect(KitManager::instance(), &KitManager::kitUpdated, this, &KitAreaWidget::updateKit);
     }
 
     ~KitAreaWidget() override { setKit(nullptr); }
 
-    void setKit(ProjectExplorer::Kit *k)
+    void setKit(Kit *k)
     {
         qDeleteAll(m_widgets);
         m_widgets.clear();
@@ -580,25 +580,22 @@ public:
         if (!k)
             return;
 
-        foreach (QLabel *l, m_labels)
-            l->deleteLater();
-        m_labels.clear();
+        delete layout();
 
-        int row = 0;
+        LayoutBuilder builder(LayoutBuilder::GridLayout);
         for (KitAspect *aspect : KitManager::kitAspects()) {
             if (k && k->isMutable(aspect->id())) {
                 KitAspectWidget *widget = aspect->createConfigWidget(k);
                 m_widgets << widget;
                 QLabel *label = new QLabel(aspect->displayName());
-                m_labels << label;
-
-                m_layout->addWidget(label, row, 0);
-                m_layout->addWidget(widget->mainWidget(), row, 1);
-                m_layout->addWidget(widget->buttonWidget(), row, 2);
-
-                ++row;
+                builder.addItem(label);
+                widget->addToLayout(builder);
+                builder.finishRow();
             }
         }
+        builder.attachTo(this);
+        layout()->setContentsMargins(3, 3, 3, 3);
+
         m_kit = k;
 
         setHidden(m_widgets.isEmpty());
@@ -633,10 +630,8 @@ private:
         }
     }
 
-    QGridLayout *m_layout;
     Kit *m_kit = nullptr;
     QList<KitAspectWidget *> m_widgets;
-    QList<QLabel *> m_labels;
 };
 
 /////////
