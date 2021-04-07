@@ -237,7 +237,7 @@ public:
 
 CMakeToolItemModel::CMakeToolItemModel()
 {
-    setHeader({tr("Name"), tr("Location")});
+    setHeader({tr("Name"), tr("Path")});
     rootItem()->appendChild(
         new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
                            {ProjectExplorer::Constants::msgAutoDetectedToolTip()}));

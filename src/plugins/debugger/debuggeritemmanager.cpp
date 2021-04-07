@@ -222,7 +222,7 @@ const DebuggerItem *findDebugger(const Predicate &pred)
 
 DebuggerItemModel::DebuggerItemModel()
 {
-    setHeader({tr("Name"), tr("Location"), tr("Type")});
+    setHeader({tr("Name"), tr("Path"), tr("Type")});
     rootItem()->appendChild(
         new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
                            {ProjectExplorer::Constants::msgAutoDetectedToolTip()}));

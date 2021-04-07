@@ -266,7 +266,7 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     m_manualItem = new StaticTreeItem(ProjectExplorer::Constants::msgManual());
 
     m_model = new TreeModel<TreeItem, TreeItem, QtVersionItem>();
-    m_model->setHeader({tr("Name"), tr("qmake Location")});
+    m_model->setHeader({tr("Name"), tr("qmake Path")});
     m_model->rootItem()->appendChild(m_autoItem);
     m_model->rootItem()->appendChild(m_manualItem);
 

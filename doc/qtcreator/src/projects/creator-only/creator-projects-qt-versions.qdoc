@@ -101,10 +101,10 @@
 
             \li Select the Qt version to view and edit it.
 
-            \li In the \uicontrol{Version name} field, edit the name that \QC
+            \li In the \uicontrol{Name} field, edit the name that \QC
                 suggests for the Qt version.
 
-            \li In the \uicontrol{qmake location} field, you can change the qmake
+            \li In the \uicontrol{qmake path} field, you can change the qmake
                 location.
 
             \li If the Qt version is for QNX, enter the path to your installed QNX SDK in the
