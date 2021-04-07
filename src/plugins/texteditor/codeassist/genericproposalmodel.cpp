@@ -30,6 +30,7 @@
 #include <texteditor/completionsettings.h>
 
 #include <QDebug>
+#include <QElapsedTimer>
 #include <QRegularExpression>
 #include <QtAlgorithms>
 #include <QHash>
@@ -297,28 +298,46 @@ void GenericProposalModel::filter(const QString &prefix)
         convertCaseSensitivity(TextEditorSettings::completionSettings().m_caseSensitivity);
     const QRegularExpression regExp = FuzzyMatcher::createRegExp(prefix, caseSensitivity);
 
+    QElapsedTimer timer;
+    timer.start();
+
     m_currentItems.clear();
     const QString lowerPrefix = prefix.toLower();
+    const bool checkInfix = prefix.size() >= 3;
     for (const auto &item : qAsConst(m_originalItems)) {
         const QString &text = item->text();
+
+        // Direct match?
+        if (text.startsWith(prefix)) {
+            m_currentItems.append(item);
+            item->setProposalMatch(text.length() == prefix.length()
+                                   ? AssistProposalItemInterface::ProposalMatch::Full
+                                   : AssistProposalItemInterface::ProposalMatch::Exact);
+            continue;
+        }
+
+        if (text.startsWith(lowerPrefix, Qt::CaseInsensitive)) {
+            m_currentItems.append(item);
+            item->setProposalMatch(AssistProposalItemInterface::ProposalMatch::Prefix);
+            continue;
+        }
+
+        if (checkInfix && text.contains(lowerPrefix, Qt::CaseInsensitive)) {
+            m_currentItems.append(item);
+            item->setProposalMatch(AssistProposalItemInterface::ProposalMatch::Infix);
+            continue;
+        }
+
+        // Our fuzzy matcher can become unusably slow with certain inputs, so skip it
+        // if we'd become unresponsive. See QTCREATORBUG-25419.
+        if (timer.elapsed() > 100)
+            continue;
+
         const QRegularExpressionMatch match = regExp.match(text);
         const bool hasPrefixMatch = match.capturedStart() == 0;
-        const bool hasInfixMatch = prefix.size() >= 3 && match.hasMatch();
-        if (hasPrefixMatch || hasInfixMatch) {
+        const bool hasInfixMatch = checkInfix && match.hasMatch();
+        if (hasPrefixMatch || hasInfixMatch)
             m_currentItems.append(item);
-            if (text.startsWith(prefix)) {
-                // Direct match
-                item->setProposalMatch(text.length() == prefix.length()
-                                       ? AssistProposalItemInterface::ProposalMatch::Full
-                                       : AssistProposalItemInterface::ProposalMatch::Exact);
-                continue;
-            }
-
-            if (text.startsWith(lowerPrefix, Qt::CaseInsensitive))
-                item->setProposalMatch(AssistProposalItemInterface::ProposalMatch::Prefix);
-            else if (text.contains(lowerPrefix, Qt::CaseInsensitive))
-                item->setProposalMatch(AssistProposalItemInterface::ProposalMatch::Infix);
-        }
     }
 }
 
