@@ -63,5 +63,16 @@ void ProgressParams::setValue(const ProgressParams::ProgressType &value)
     insertVariant<WorkDoneProgressBegin, WorkDoneProgressReport, WorkDoneProgressEnd>(valueKey, value);
 }
 
-} // namespace LanguageServerProtocol
+ProgressNotification::ProgressNotification(const ProgressParams &params)
+    : Notification(methodName, params)
+{
 
+}
+
+WorkDoneProgressCreateRequest::WorkDoneProgressCreateRequest(const WorkDoneProgressCreateParams &params)
+    : Request(methodName, params)
+{
+
+}
+
+} // namespace LanguageServerProtocol

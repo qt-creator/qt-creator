@@ -79,11 +79,6 @@ public:
     Utils::optional<int> percentage() const { return optionalValue<int>(percentageKey); }
     void setPercentage(int percentage) { insert(percentageKey, percentage); }
     void clearPercentage() { remove(percentageKey); }
-
-private:
-    constexpr static const char cancellableKey[] = "cancellable";
-    constexpr static const char messageKey[] = "message";
-    constexpr static const char percentageKey[] = "percentage";
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT WorkDoneProgressBegin : public WorkDoneProgressReport
@@ -100,9 +95,6 @@ public:
 
     QString title() const { return typedValue<QString>(titleKey); }
     void setTitle(const QString &title) { insert(titleKey, title); }
-
-private:
-    constexpr static const char titleKey[] = "title";
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT WorkDoneProgressEnd : public JsonObject
@@ -117,11 +109,6 @@ public:
     Utils::optional<QString> message() const { return optionalValue<QString>(messageKey); }
     void setMessage(const QString &message) { insert(messageKey, message); }
     void clearMessage() { remove(messageKey); }
-
-private:
-    constexpr static const char cancellableKey[] = "cancellable";
-    constexpr static const char messageKey[] = "message";
-    constexpr static const char percentageKey[] = "percentage";
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ProgressParams : public JsonObject
@@ -138,15 +125,12 @@ public:
     void setValue(const ProgressType &value);
 
     bool isValid() const override { return contains(tokenKey) && contains(valueKey); }
-
-private:
-    static constexpr char tokenKey[] = "token";
-    static constexpr char valueKey[] = "value";
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ProgressNotification : public Notification<ProgressParams>
 {
 public:
+    ProgressNotification(const ProgressParams &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "$/progress";
 };
@@ -159,9 +143,6 @@ public:
     // The token to be used to report progress.
     ProgressToken token() const { return typedValue<ProgressToken>(tokenKey); }
     void setToken(const ProgressToken &token) { insert(tokenKey, token); }
-
-private:
-    constexpr static const char tokenKey[] = "token";
 };
 
 using WorkDoneProgressCreateParams = ProgressTokenParams;
@@ -170,6 +151,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT WorkDoneProgressCreateRequest
     : public Request<std::nullptr_t, std::nullptr_t, WorkDoneProgressCreateParams>
 {
 public:
+    WorkDoneProgressCreateRequest(const WorkDoneProgressCreateParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "window/workDoneProgress/create";
 };
