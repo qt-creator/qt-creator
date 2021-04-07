@@ -132,11 +132,8 @@ class PROJECTEXPLORER_EXPORT KitAspectWidget : public QObject
 public:
     KitAspectWidget(Kit *kit, const KitAspect *ki);
 
-    Utils::Id kitInformationId() const;
-
     virtual void makeReadOnly() = 0;
     virtual void refresh() = 0;
-    bool visibleInKit() { return m_kitInformation->isApplicableToKit(m_kit); }
 
     virtual QWidget *mainWidget() const = 0;
     virtual QWidget *buttonWidget() const { return nullptr; }
@@ -144,16 +141,14 @@ public:
     void addToLayout(Utils::LayoutBuilder &builder);
     void setVisible(bool visible);
 
-    bool isSticky() const { return m_isSticky; }
-
     static QString msgManage();
 
     Kit *kit() const { return m_kit; }
+    const KitAspect *kitInformation() const { return m_kitInformation; }
 
 protected:
     Kit *m_kit;
     const KitAspect *m_kitInformation;
-    bool m_isSticky;
     QLabel *m_label = nullptr;
 };
 

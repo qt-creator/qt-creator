@@ -722,14 +722,9 @@ void KitAspect::notifyAboutUpdate(Kit *k)
         k->kitUpdated();
 }
 
-KitAspectWidget::KitAspectWidget(Kit *kit, const KitAspect *ki) : m_kit(kit),
-    m_kitInformation(ki), m_isSticky(kit->isSticky(ki->id()))
+KitAspectWidget::KitAspectWidget(Kit *kit, const KitAspect *ki)
+    : m_kit(kit), m_kitInformation(ki)
 { }
-
-Utils::Id KitAspectWidget::kitInformationId() const
-{
-    return m_kitInformation->id();
-}
 
 void KitAspectWidget::addToLayout(LayoutBuilder &builder)
 {

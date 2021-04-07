@@ -611,16 +611,17 @@ private:
             return;
 
         bool addedMutables = false;
-        QList<Utils::Id> knownIdList = Utils::transform(m_widgets, &KitAspectWidget::kitInformationId);
+        QList<const KitAspect *> knownList
+            = Utils::transform(m_widgets, &KitAspectWidget::kitInformation);
 
         for (KitAspect *aspect : KitManager::kitAspects()) {
             const Utils::Id currentId = aspect->id();
-            if (m_kit->isMutable(currentId) && !knownIdList.removeOne(currentId)) {
+            if (m_kit->isMutable(currentId) && !knownList.removeOne(aspect)) {
                 addedMutables = true;
                 break;
             }
         }
-        const bool removedMutables = !knownIdList.isEmpty();
+        const bool removedMutables = !knownList.isEmpty();
 
         if (addedMutables || removedMutables) {
             // Redo whole setup if the number of mutable settings did change

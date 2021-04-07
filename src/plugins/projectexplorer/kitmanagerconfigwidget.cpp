@@ -223,7 +223,7 @@ void KitManagerConfigWidget::addAspectToWorkingCopy(KitAspect *aspect)
     action->setCheckable(true);
     action->setChecked(workingCopy()->isMutable(aspect->id()));
 
-    action->setEnabled(!widget->isSticky());
+    action->setEnabled(!workingCopy()->isSticky(aspect->id()));
     widget->mainWidget()->addAction(action);
     widget->mainWidget()->setContextMenuPolicy(Qt::ActionsContextMenu);
     connect(action, &QAction::toggled, this, [this, aspect, action] {
@@ -243,9 +243,10 @@ void KitManagerConfigWidget::updateVisibility()
     int count = m_widgets.count();
     for (int i = 0; i < count; ++i) {
         KitAspectWidget *widget = m_widgets.at(i);
-        const bool visible = widget->visibleInKit()
-                && !m_modifiedKit->irrelevantAspects().contains(widget->kitInformationId());
-        widget->setVisible(visible);
+        const KitAspect *ki = widget->kitInformation();
+        const bool visibleInKit = ki->isApplicableToKit(m_modifiedKit.get());
+        const bool irrelevant = m_modifiedKit->irrelevantAspects().contains(ki->id());
+        widget->setVisible(visibleInKit && !irrelevant);
     }
 }
 
@@ -257,7 +258,7 @@ void KitManagerConfigWidget::setHasUniqueName(bool unique)
 void KitManagerConfigWidget::makeStickySubWidgetsReadOnly()
 {
     foreach (KitAspectWidget *w, m_widgets) {
-        if (w->isSticky())
+        if (w->kit()->isSticky(w->kitInformation()->id()))
             w->makeReadOnly();
     }
 }
