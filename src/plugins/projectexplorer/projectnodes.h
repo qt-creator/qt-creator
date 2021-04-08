@@ -34,6 +34,7 @@
 #include <utils/fileutils.h>
 #include <utils/id.h>
 #include <utils/optional.h>
+#include <utils/variant.h>
 
 #include <functional>
 
@@ -92,6 +93,20 @@ class FileNode;
 class FolderNode;
 class ProjectNode;
 class ContainerNode;
+
+class PROJECTEXPLORER_EXPORT DirectoryIcon
+{
+public:
+    explicit DirectoryIcon(const QString &overlay);
+
+    QIcon icon() const; // only safe in UI thread
+
+private:
+    QString m_overlay;
+    static QHash<QString, QIcon> m_cache;
+};
+
+using IconCreator = std::function<QIcon()>;
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT Node
@@ -218,6 +233,7 @@ public:
     explicit FolderNode(const Utils::FilePath &folderPath);
 
     QString displayName() const override;
+    // only safe from UI thread
     QIcon icon() const;
 
     bool isFolderNodeType() const override { return true; }
@@ -253,7 +269,11 @@ public:
     bool replaceSubtree(Node *oldNode, std::unique_ptr<Node> &&newNode);
 
     void setDisplayName(const QString &name);
+    // you have to make sure the QIcon is created in the UI thread if you are calling setIcon(QIcon)
     void setIcon(const QIcon &icon);
+    void setIcon(const DirectoryIcon &directoryIcon);
+    void setIcon(const QString &path);
+    void setIcon(const IconCreator &iconCreator);
 
     class LocationInfo
     {
@@ -328,7 +348,7 @@ private:
 
     QString m_displayName;
     QString m_addFileFilter;
-    mutable QIcon m_icon;
+    mutable Utils::variant<QIcon, DirectoryIcon, QString, IconCreator> m_icon;
     bool m_showWhenEmpty = false;
 };
 

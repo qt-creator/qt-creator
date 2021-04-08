@@ -182,14 +182,12 @@ void addHeaderNodes(ProjectNode *root,
     if (root->isEmpty())
         return;
 
-    static QIcon headerNodeIcon = Core::FileIconProvider::directoryIcon(
-        ProjectExplorer::Constants::FILEOVERLAY_H);
     auto headerNode = std::make_unique<VirtualFolderNode>(root->filePath());
     headerNode->setPriority(Node::DefaultPriority - 5);
     headerNode->setDisplayName(
         QCoreApplication::translate("CMakeProjectManager::Internal::ProjectTreeHelper",
                                     "<Headers>"));
-    headerNode->setIcon(headerNodeIcon);
+    headerNode->setIcon(DirectoryIcon(ProjectExplorer::Constants::FILEOVERLAY_H));
 
     // Add scanned headers:
     for (const FileNode *fn : allFiles) {
@@ -212,15 +210,13 @@ void addFileSystemNodes(ProjectNode *root, const QList<const FileNode *> &allFil
 {
     QTC_ASSERT(root, return );
 
-    static QIcon fileSystemNodeIcon = Core::FileIconProvider::directoryIcon(
-        ProjectExplorer::Constants::FILEOVERLAY_UNKNOWN);
     auto fileSystemNode = std::make_unique<VirtualFolderNode>(root->filePath());
     // just before special nodes like "CMake Modules"
     fileSystemNode->setPriority(Node::DefaultPriority - 6);
     fileSystemNode->setDisplayName(
         QCoreApplication::translate("CMakeProjectManager::Internal::ProjectTreeHelper",
                                     "<File System>"));
-    fileSystemNode->setIcon(fileSystemNodeIcon);
+    fileSystemNode->setIcon(DirectoryIcon(ProjectExplorer::Constants::FILEOVERLAY_UNKNOWN));
 
     for (const FileNode *fn : allFiles) {
         if (!fn->filePath().isChildOf(root->filePath()))

@@ -38,18 +38,15 @@ namespace Internal {
 MesonProjectNode::MesonProjectNode(const Utils::FilePath &directory)
     : ProjectExplorer::ProjectNode{directory}
 {
-    static const auto MesonIcon = QIcon(Constants::Icons::MESON);
     setPriority(Node::DefaultProjectPriority + 1000);
-    setIcon(MesonIcon);
+    setIcon(Constants::Icons::MESON);
     setListInProject(false);
 }
 
 MesonFileNode::MesonFileNode(const Utils::FilePath &file)
     : ProjectExplorer::ProjectNode{file}
 {
-    static const auto MesonFolderIcon = Core::FileIconProvider::directoryIcon(
-        Constants::Icons::MESON);
-    setIcon(MesonFolderIcon);
+    setIcon(ProjectExplorer::DirectoryIcon(Constants::Icons::MESON));
     setListInProject(true);
 }
 
@@ -58,7 +55,7 @@ MesonTargetNode::MesonTargetNode(const Utils::FilePath &directory, const QString
     , m_name{name}
 {
     setPriority(Node::DefaultProjectPriority + 900);
-    setIcon(QIcon(":/projectexplorer/images/build.png"));
+    setIcon(":/projectexplorer/images/build.png");
     setListInProject(false);
     setShowWhenEmpty(true);
     setProductType(ProjectExplorer::ProductType::Other);

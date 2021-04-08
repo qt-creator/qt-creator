@@ -40,8 +40,7 @@ QmlProjectNode::QmlProjectNode(Project *project)
 {
     setDisplayName(project->projectFilePath().toFileInfo().completeBaseName());
 
-    static QIcon qmlProjectIcon = Core::FileIconProvider::directoryIcon(":/projectexplorer/images/fileoverlay_qml.png");
-    setIcon(qmlProjectIcon);
+    setIcon(DirectoryIcon(":/projectexplorer/images/fileoverlay_qml.png"));
 }
 
 } // namespace Internal

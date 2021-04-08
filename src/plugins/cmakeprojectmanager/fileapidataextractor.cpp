@@ -474,7 +474,8 @@ FolderNode *createSourceGroupNode(const QString &sourceGroupName,
             if (!existingNode) {
                 auto node = createCMakeVFolder(sourceDirectory, Node::DefaultFolderPriority + 5, p);
                 node->setListInProject(false);
-                node->setIcon(QIcon::fromTheme("edit-copy", ::Utils::Icons::COPY.icon()));
+                node->setIcon(
+                    [] { return QIcon::fromTheme("edit-copy", ::Utils::Icons::COPY.icon()); });
 
                 existingNode = node.get();
 

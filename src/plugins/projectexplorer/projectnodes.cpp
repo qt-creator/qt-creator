@@ -46,15 +46,18 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
-#include <QFileInfo>
 #include <QDir>
+#include <QFileInfo>
 #include <QIcon>
 #include <QStyle>
+#include <QThread>
 #include <QTimer>
 
 #include <memory>
 
 namespace ProjectExplorer {
+
+QHash<QString, QIcon> DirectoryIcon::m_cache;
 
 static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
                                                    const Utils::FilePath &directory,
@@ -481,16 +484,28 @@ QString FolderNode::displayName() const
 }
 
 /*!
-  Contains the icon that should be used in a view. Default is the directory icon
- (QStyle::S_PDirIcon).
-  s\a setIcon()
+    Contains the icon that should be used in a view. Default is the directory icon
+    (QStyle::S_PDirIcon). Calling this method is only safe in the UI thread.
+
+    \sa setIcon()
  */
 QIcon FolderNode::icon() const
 {
+    QTC_CHECK(QThread::currentThread() == QCoreApplication::instance()->thread());
+
     // Instantiating the Icon provider is expensive.
-    if (m_icon.isNull())
-        m_icon = Core::FileIconProvider::icon(QFileIconProvider::Folder);
-    return m_icon;
+    if (auto strPtr = Utils::get_if<QString>(&m_icon)) {
+        m_icon = QIcon(*strPtr);
+    } else if (auto directoryIconPtr = Utils::get_if<DirectoryIcon>(&m_icon)) {
+        m_icon = directoryIconPtr->icon();
+    } else if (auto creatorPtr = Utils::get_if<IconCreator>(&m_icon)) {
+        m_icon = (*creatorPtr)();
+    } else {
+        auto iconPtr = Utils::get_if<QIcon>(&m_icon);
+        if (!iconPtr || iconPtr->isNull())
+            m_icon = Core::FileIconProvider::icon(QFileIconProvider::Folder);
+    }
+    return Utils::get<QIcon>(m_icon);
 }
 
 Node *FolderNode::findNode(const std::function<bool(Node *)> &filter)
@@ -724,9 +739,36 @@ void FolderNode::setDisplayName(const QString &name)
     m_displayName = name;
 }
 
+/*!
+    Sets the \a icon for this node. Note that creating QIcon instances is only safe in the UI thread.
+*/
 void FolderNode::setIcon(const QIcon &icon)
 {
     m_icon = icon;
+}
+
+/*!
+    Sets the \a directoryIcon that is used to create the icon for this node on demand.
+*/
+void FolderNode::setIcon(const DirectoryIcon &directoryIcon)
+{
+    m_icon = directoryIcon;
+}
+
+/*!
+    Sets the \a path that is used to create the icon for this node on demand.
+*/
+void FolderNode::setIcon(const QString &path)
+{
+    m_icon = path;
+}
+
+/*!
+    Sets the \a iconCreator function that is used to create the icon for this node on demand.
+*/
+void FolderNode::setIcon(const IconCreator &iconCreator)
+{
+    m_icon = iconCreator;
 }
 
 void FolderNode::setLocationInfo(const QVector<FolderNode::LocationInfo> &info)
@@ -1046,6 +1088,36 @@ void ContainerNode::removeAllChildren()
 void ContainerNode::handleSubTreeChanged(FolderNode *node)
 {
     m_project->handleSubTreeChanged(node);
+}
+
+/*!
+    \class ProjectExplorer::DirectoryIcon
+
+    The DirectoryIcon class represents a directory icon with an overlay.
+
+    The QIcon is created on demand and globally cached, so other DirectoryIcon
+    instances with the same overlay share the same QIcon instance.
+*/
+
+/*!
+    Creates a DirectoryIcon for the specified \a overlay.
+*/
+DirectoryIcon::DirectoryIcon(const QString &overlay)
+    : m_overlay(overlay)
+{}
+
+/*!
+    Returns the icon for this DirectoryIcon. Calling this method is only safe in the UI thread.
+*/
+QIcon DirectoryIcon::icon() const
+{
+    QTC_CHECK(QThread::currentThread() == QCoreApplication::instance()->thread());
+    const auto it = m_cache.find(m_overlay);
+    if (it != m_cache.end())
+        return it.value();
+    const QIcon icon = Core::FileIconProvider::directoryIcon(m_overlay);
+    m_cache.insert(m_overlay, icon);
+    return icon;
 }
 
 } // namespace ProjectExplorer
