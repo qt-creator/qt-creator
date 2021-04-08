@@ -68,7 +68,10 @@
                                 \li \l{Transition Editor}
                                 \li \l{Timeline}
                                 \li \l{Curve Editor}
-                            \endlist
+                                \li \l{Projects}
+                                \li \l{File System}
+                                \li \l{Open Documents}
+                           \endlist
                         \li \l{Managing Workspaces}
                         \li \l{Managing Sessions}
                     \endlist

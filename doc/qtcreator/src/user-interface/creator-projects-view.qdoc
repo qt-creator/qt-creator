@@ -1,0 +1,161 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page creator-projects-view.html
+    \if defined(qtdesignstudio)
+    \previouspage qtquick-curve-editor.html
+    \else
+    \previouspage creator-views.html
+    \endif
+    \nextpage creator-file-system-view.html
+
+    \title Projects
+
+    The \uicontrol Projects view displays projects in a project tree.
+    The project tree contains a list of all projects open in the current
+    \l{Managing Sessions}{session}. For each project, the tree visualizes
+    the build system structure of the project and lists all files that
+    are part of the project.
+
+    The following image displays the \uicontrol Projects view in the
+    \uicontrol Design mode:
+
+    \image qtcreator-projects-view-design.png "Projects view in the Design mode"
+
+    You can use the project tree in the following ways:
+
+    \list
+        \li To open files that belong to a \l{Creating Projects}{project},
+            double-click them in the project tree. Files open in the
+            appropriate editor, according to the file type. For example, code
+            source files open in the code editor. Use the \l{Selecting Modes}
+            {mode selector} to open the current file in another editor.
+        \li To bring up a \l{Projects View Context Menu}{context menu}
+            containing the actions most commonly needed, right-click an
+            item in the project tree. For example, through the menu of
+            the project root directory you can, among other actions, run
+            and close the project.
+        \li To see the absolute path of a file, move the mouse pointer over the
+            file name.
+        \li To move files from one project to another, drag-and-drop them
+            in the project tree. \QC makes the necessary changes to project
+            configuration files.
+    \endlist
+
+    \if defined(qtcreator)
+    Files that are not sources or data can be still included into a project's
+    distribution tarball by adding their paths to the \c DISTFILES variable in
+    the .pro file. This way they also become known to \QC, so that they are
+    visible in the \uicontrol Projects view and are known to the locator and
+    search.
+    \endif
+
+    \section1 Projects View Context Menu
+
+    The \uicontrol Projects view contains context menus for managing projects,
+    subprojects, folders, and files. The following functions are available for
+    managing projects and subprojects:
+
+    \list
+        \li Set a project as the active project.
+        \li Execute the \uicontrol Build menu commands.
+        \li Create new files. For more information, see
+            \l{Adding Files to Projects}.
+        \li Rename or remove existing files. If you change the base name of a
+            file, \QC displays a list of other files with the same base name
+            and offers to rename them as well.
+        \if defined(qtcreator)
+        \li Remove existing directories from \l{Setting Up a Generic Project}
+            {generic projects}.
+        \li Add existing files and directories.
+        \li Add libraries. For more information, see
+            \l{Adding Libraries to Projects}.
+        \li Add and remove subprojects.
+        \endif
+        \li Search from the selected directory.
+        \li Open a terminal window in the project directory. To specify the
+            terminal to use on Linux and \macos, select \uicontrol Tools >
+            \uicontrol Options > \uicontrol Environment > \uicontrol System.
+        \li Open a terminal window in the project directory that is configured
+            for building or running the project.
+        \li Expand or collapse the tree view to show or hide all files and
+            folders.
+        \li Close all files in a project.
+        \li Close projects. By default, all files in the project are also
+            closed. To keep them open, deselect the \uicontrol Tools >
+            \uicontrol Options > \uicontrol {Build & Run} > \uicontrol General
+            > \uicontrol {Close source files along with project} check box.
+    \endlist
+
+    For managing files and directories, the same functions are available as in
+    the \l {File System} view.
+
+    \section1 Projects View in Sidebar
+
+    In the \uicontrol Edit and \uicontrol Debug mode, the \uicontrol Projects
+    view is displayed in the \l{Working with Sidebars}{sidebar}. It has a
+    toolbar with additional options:
+
+    \image qtcreator-projects-view-edit.png "Projects view in the sidebar"
+
+    To filter view contents, select \inlineimage filtericon.png
+    (\uicontrol {Filter Tree}):
+
+    \list
+        \li \uicontrol {Simplify Tree} hides the categories and sorts project
+            files alphabetically.
+        \li \uicontrol {Hide Generated Files} hides the source files that are
+            automatically generated by the build system.
+        \li \uicontrol {Hide Disabled Files} hides the source files that are
+            not enabled for the current target,
+        \li \uicontrol {Hide Empty Directories} hides directories that do not
+            contain any files.
+    \endlist
+
+    To stop synchronizing the position in the project tree with the file
+    currently opened in the editor, deselect \inlineimage linkicon.png
+    (\uicontrol {Synchronize with Editor}). You can specify a keyboard
+    shortcut to use when synchronization is needed. Select \uicontrol Tools
+    > \uicontrol Options > \uicontrol Environment > \uicontrol Keyboard,
+    and then search for \uicontrol {Show in Explorer}.
+
+    \if defined(qtcreator)
+    Some build systems support adding and removing files to a project in \QC
+    (currently qmake and Qbs). The faithful display of the project structure
+    allows to specify exactly where a new file should be placed in the build
+    system.
+    \endif
+
+    \if defined(qtcreator)
+    If the project is under version control, information from the version
+    control system might be displayed in brackets after the project name.
+    This is currently implemented for Git (the branch name or a tag is
+    displayed) and ClearCase (the view name is displayed).
+    \else
+    If the project is under Git version control, the currently checked out
+    branch or tag is displayed in brackets after the project name.
+    \endif
+*/

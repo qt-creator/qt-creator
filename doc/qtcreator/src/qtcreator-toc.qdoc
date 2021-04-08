@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -38,6 +38,11 @@
                     \li \l{Selecting Modes}
                     \li \l{Working with Sidebars}
                     \li \l{Browsing Project Contents}
+                        \list
+                            \li \l{Projects}
+                            \li \l{File System}
+                            \li \l{Open Documents}
+                        \endlist
                     \li \l{Managing Workspaces}
                     \li \l{Viewing Output}
                  \endlist

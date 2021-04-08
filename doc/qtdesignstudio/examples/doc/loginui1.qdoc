@@ -90,8 +90,7 @@
     \section2 Learn More - Projects and Files
 
     \QDS creates a set of boilerplate files and folders that you need to create
-    a UI. The files are listed in the \uicontrol Projects view. For more
-    information, see \l {Viewing Project Files}.
+    a UI. The files are listed in the \l Projects view.
 
     \image loginui1-project-files.png
 

@@ -1,0 +1,129 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page creator-views.html
+    \previouspage creator-sidebars.html
+    \if defined(qtdesignstudio)
+    \nextpage creator-output-panes.html
+    \else
+    \nextpage creator-projects-view.html
+    \endif
+
+    \title Browsing Project Contents
+
+    You can organize \QC views in \l {Working with Sidebars}{sidebars} or as
+    \l {Managing Workspaces}{workspaces}, depending on the \l{Selecting Modes}
+    {mode} you are working in. Only views that are relevant to a mode are
+    available in it.
+
+    The following views are related to managing projects and files:
+
+    \list
+        \li \l Projects shows a list of projects open in the current
+            session and the project files needed by the build system.
+        \li \l{File System} shows all files in the currently selected
+             directory.
+        \li \l{Open Documents} shows currently open files.
+        \li \uicontrol Bookmarks shows all bookmarks for the current session.
+        \li \uicontrol {Git Branches} shows the local and remote brances for the
+            project in the Git version control system. For more information, see
+            \l{Working with Branches}.
+        \li \uicontrol Outline shows an overview of defined types and other
+            symbols, as well as their properties and hierarchy in a source file.
+          \endlist
+
+    \if defined(qtcreator)
+    The following views display additional information about C++ code:
+
+    \list
+        \li \uicontrol {Class View} shows the class hierarchy of the currently
+            open projects.
+        \li \uicontrol Tests lists autotests and Qt Quick tests in the project.
+            For more information, see \l {Running Autotests}.
+        \li \uicontrol {Type Hierarchy} shows the base classes of a class.
+        \li \uicontrol {Include Hierarchy} shows which files are included in
+            the current file and which files include the current file.
+    \endlist
+    \endif
+
+    For more information about views that are only available when editing QML
+    files in the Design mode, see \l{Design Views}.
+
+    The additional options in a particular view are described in the following
+    sections.
+
+    In some views, right-clicking opens a context menu that contains functions
+    for managing the objects listed in the view.
+
+    \section1 Viewing Defined Types and Symbols
+
+    The \uicontrol Outline view shows an overview of defined types and other
+    symbols, as well as their properties and hierarchy in a source file.
+    You can move the code for types and symbols around in the source file
+    by dragging and dropping them in the outline.
+
+    \list
+        \li To see a complete list of all bindings, select
+            \uicontrol {Filter Tree} > \uicontrol {Show All Bindings}.
+        \li To stop the synchronization with the type or symbol selected in the
+            editor, deselect \uicontrol {Synchronize with Editor}.
+    \endlist
+
+    \section1 Viewing the Class Hierarchy
+
+    The \uicontrol {Class View} shows the class hierarchy of the currently
+    open projects. To organize the view by subprojects, click
+    \inlineimage qtcreator-show-subprojects.png
+    (\uicontrol {Show Subprojects}).
+
+    To visit all parts of a namespace, double-click on the namespace item
+    multiple times.
+
+    \section1 Viewing Type Hierarchy
+
+    To view the base classes and derived classes of a class, right-click the
+    class in the code editor and select \uicontrol {Open Type Hierarchy} or
+    press \key {Ctrl+Shift+T}.
+
+    \image qtcreator-type-hierarchy-view.png "Type Hierarchy view"
+
+    To navigate in the type hierarchy, double-click a class or select it,
+    and then select \uicontrol {Open Type Hierarchy} in the context menu.
+    The previous class is highlighted in the view.
+
+    The definition of the selected class is opened in the code editor. You
+    can also select \uicontrol {Open in Editor} in the context menu to open
+    it.
+
+    \section1 Viewing Include Hierarchy
+
+    To view which files are included in the current file and which files include
+    the current file, right-click in the editor and select
+    \uicontrol {Open Include Hierarchy} or press \key {Ctrl+Shift+I}.
+
+    To keep the view synchronized with the file currently opened in the editor,
+    select \uicontrol {Synchronize with Editor}.
+*/
