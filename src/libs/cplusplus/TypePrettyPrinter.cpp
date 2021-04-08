@@ -462,6 +462,7 @@ void TypePrettyPrinter::visit(Function *type)
         argumentText.showReturnTypes = true;
         argumentText.showArgumentNames = false;
         argumentText.showFunctionSignatures = true;
+        argumentText.showTemplateParameters = _overview->showTemplateParameters;
 
         _text += QLatin1Char('(');
 

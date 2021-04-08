@@ -3839,7 +3839,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic2()
     QByteArray expected;
 
     // Header File
-    original = "void f()@;\n";
+    original = "void f(const std::vector<int> &v)@;\n";
     expected = original;
     testDocuments << QuickFixTestDocument::create("file.h", original, expected);
 
@@ -3854,7 +3854,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic2()
             "\n"
             "int x;\n"
             "\n"
-            "void f()\n"
+            "void f(const std::vector<int> &v)\n"
             "{\n"
             "\n"
             "}\n"
