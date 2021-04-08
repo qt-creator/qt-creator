@@ -78,6 +78,8 @@ public:
     bool m_enabled = true;
     bool m_readOnly = true;
     bool m_autoApply = true;
+    int m_spanX = 1;
+    int m_spanY = 1;
     BaseAspect::ConfigWidgetCreator m_configWidgetCreator;
     QList<QPointer<QWidget>> m_subWidgets;
 };
@@ -224,9 +226,12 @@ void BaseAspect::addLabeledItem(LayoutBuilder &builder, QWidget *widget)
     setupLabel();
     if (QLabel *l = label()) {
         l->setBuddy(widget);
-        builder.addItems({l, widget});
+        builder.addItem(l);
+        LayoutBuilder::LayoutItem item(widget);
+        item.span = std::max(d->m_spanX - 1, 1);
+        builder.addItem(item);
     } else {
-        builder.addItems({LayoutBuilder::LayoutItem(widget)});
+        builder.addItem(LayoutBuilder::LayoutItem(widget));
     }
 }
 
@@ -314,6 +319,12 @@ void BaseAspect::setReadOnly(bool readOnly)
         else if (auto textEdit = qobject_cast<QTextEdit *>(w))
             textEdit->setReadOnly(readOnly);
     }
+}
+
+void BaseAspect::setSpan(int x, int y)
+{
+    d->m_spanX = x;
+    d->m_spanY = y;
 }
 
 bool BaseAspect::isAutoApply() const
@@ -735,6 +746,7 @@ StringAspect::StringAspect()
     : d(new Internal::StringAspectPrivate)
 {
     setDefaultValue(QString());
+    setSpan(2, 1); // Default: Label + something
 }
 
 /*!
@@ -1219,6 +1231,7 @@ BoolAspect::BoolAspect(const QString &settingsKey)
 {
     setDefaultValue(false);
     setSettingsKey(settingsKey);
+    setSpan(2, 1);
 }
 
 /*!
@@ -1364,7 +1377,9 @@ void BoolAspect::setHandlesGroup(QGroupBox *box)
 
 SelectionAspect::SelectionAspect()
     : d(new Internal::SelectionAspectPrivate)
-{}
+{
+    setSpan(2, 1);
+}
 
 /*!
     \reimp
@@ -1547,6 +1562,7 @@ MultiSelectionAspect::MultiSelectionAspect()
     : d(new Internal::MultiSelectionAspectPrivate(this))
 {
     setDefaultValue(QStringList());
+    setSpan(2, 1);
 }
 
 /*!
@@ -1653,6 +1669,7 @@ IntegerAspect::IntegerAspect()
     : d(new Internal::IntegerAspectPrivate)
 {
     setDefaultValue(qint64(0));
+    setSpan(2, 1);
 }
 
 /*!
@@ -1773,6 +1790,7 @@ DoubleAspect::DoubleAspect()
     : d(new Internal::DoubleAspectPrivate)
 {
     setDefaultValue(double(0));
+    setSpan(2, 1);
 }
 
 /*!

@@ -98,6 +98,8 @@ public:
 
     void setReadOnly(bool enabled);
 
+    void setSpan(int x, int y = 1);
+
     QString labelText() const;
     void setLabelText(const QString &labelText);
     void setLabelPixmap(const QPixmap &labelPixmap);

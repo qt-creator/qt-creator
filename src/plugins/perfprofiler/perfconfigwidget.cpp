@@ -117,9 +117,8 @@ PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, QWidget *parent)
         Grid {
             m_settings->callgraphMode, m_settings->stackSize, nl,
             m_settings->sampleMode, m_settings->period, nl,
+            m_settings->extraArguments,
         },
-
-        Row { m_settings->extraArguments }, // FIXME: Align with above.
 
         Stretch()
     }.attachTo(this);

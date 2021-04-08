@@ -83,6 +83,7 @@ PerfSettings::PerfSettings(ProjectExplorer::Target *target)
     extraArguments.setSettingsKey("Analyzer.Perf.ExtraArguments");
     extraArguments.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
     extraArguments.setLabelText(tr("Additional arguments:"));
+    extraArguments.setSpan(4);
 
     connect(&callgraphMode, &SelectionAspect::volatileValueChanged, this, [this](int index) {
         stackSize.setEnabled(index == 0);
