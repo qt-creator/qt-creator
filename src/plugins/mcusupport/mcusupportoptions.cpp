@@ -226,11 +226,14 @@ void McuPackage::writeGeneralSettings() const
     settings->setValue(key, m_automaticKitCreation);
 }
 
-void McuPackage::writeToSettings() const
+bool McuPackage::writeToSettings() const
 {
+    const QString savedPath = packagePathFromSettings(m_settingsKey, QSettings::UserScope, m_defaultPath);
     const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/' +
             QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX) + m_settingsKey;
     Core::ICore::settings()->setValueWithDefault(key, m_path, m_defaultPath);
+
+    return savedPath != m_path;
 }
 
 void McuPackage::setRelativePathModifier(const QString &path)
@@ -790,6 +793,27 @@ static void setKitDependencies(Kit *k, const McuTarget *mcuTarget,
     k->setIrrelevantAspects(irrelevant);
 }
 
+static void updateKitEnvironment(Kit *k, const McuTarget *mcuTarget)
+{
+    EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(k);
+    for (auto package : mcuTarget->packages()) {
+        const QString varName = package->environmentVariableName();
+        if (!varName.isEmpty() && package->validStatus()) {
+            const int index = Utils::indexOf(changes, [varName](const EnvironmentItem &item) {
+                return item.name == varName;
+            });
+            const EnvironmentItem item = {package->environmentVariableName(),
+                                     QDir::toNativeSeparators(package->path())};
+            if (index != -1)
+                changes.replace(index, item);
+            else
+                changes.append(item);
+        }
+    }
+
+    EnvironmentKitAspect::setEnvironmentChanges(k, changes);
+}
+
 static void setKitCMakeOptions(Kit *k, const McuTarget* mcuTarget, const QString &qulDir)
 {
     using namespace CMakeProjectManager;
@@ -884,6 +908,19 @@ QList<Kit *> McuSupportOptions::existingKits(const McuTarget *mcuTarget, bool au
                         && kit->value(KIT_MCUTARGET_TOOCHAIN_KEY)
                            == mcuTarget->toolChainPackage()->toolChainName()
                         ));
+    });
+}
+
+QList<Kit *> McuSupportOptions::kitsWithMismatchedDependencies(const McuTarget *mcuTarget)
+{
+    return Utils::filtered(existingKits(mcuTarget, false), [mcuTarget](Kit *kit) {
+        const auto environment = Utils::NameValueDictionary(
+                    Utils::NameValueItem::toStringList(
+                        EnvironmentKitAspect::environmentChanges(kit)));
+        return Utils::anyOf(mcuTarget->packages(), [&environment](const McuPackage *package) {
+            return !package->environmentVariableName().isEmpty() &&
+                    environment.value(package->environmentVariableName()) != QDir::toNativeSeparators(package->path());
+        });
     });
 }
 
@@ -1109,6 +1146,27 @@ void McuSupportOptions::upgradeKits(UpgradeOption upgradeOption)
             if (target->isValid())
                 newKit(target, qtForMCUsPackage);
             target->printPackageProblems();
+        }
+    }
+
+    qDeleteAll(packages);
+    qDeleteAll(mcuTargets);
+    delete qtForMCUsPackage;
+}
+
+void McuSupportOptions::fixKitsDependencies()
+{
+    auto qtForMCUsPackage = Sdk::createQtForMCUsPackage();
+
+    auto dir = FilePath::fromUserInput(qtForMCUsPackage->path());
+    QVector<McuPackage*> packages;
+    QVector<McuTarget*> mcuTargets;
+    Sdk::targetsAndPackages(dir, &packages, &mcuTargets);
+    for (auto target: qAsConst(mcuTargets)) {
+        if (target->isValid()) {
+            for (auto kit : kitsWithMismatchedDependencies(target)) {
+                updateKitEnvironment(kit, target);
+            }
         }
     }
 

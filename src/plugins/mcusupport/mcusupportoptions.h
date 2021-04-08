@@ -86,7 +86,7 @@ public:
     void setAddToPath(bool addToPath);
     bool addToPath() const;
     void writeGeneralSettings() const;
-    void writeToSettings() const;
+    bool writeToSettings() const;
     void setRelativePathModifier(const QString &path);
     void setVersions(const QVector<QString> &versions);
 
@@ -223,12 +223,14 @@ public:
     static QString kitName(const McuTarget* mcuTarget);
 
     static QList<ProjectExplorer::Kit *> existingKits(const McuTarget *mcuTarget, bool autoDetectedOnly = true);
+    static QList<ProjectExplorer::Kit *> kitsWithMismatchedDependencies(const McuTarget *mcuTarget);
     static QList<ProjectExplorer::Kit *> outdatedKits();
     static void removeOutdatedKits();
     static ProjectExplorer::Kit *newKit(const McuTarget *mcuTarget, const McuPackage *qtForMCUsSdk);
     static void createAutomaticKits();
     static UpgradeOption askForKitUpgrades();
     static void upgradeKits(UpgradeOption upgradeOption);
+    static void fixKitsDependencies();
     void checkUpgradeableKits();
     static void fixExistingKits();
     void populatePackagesAndTargets();

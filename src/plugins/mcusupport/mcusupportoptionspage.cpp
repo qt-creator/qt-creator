@@ -278,12 +278,17 @@ void McuSupportOptionsWidget::showEvent(QShowEvent *event)
 
 void McuSupportOptionsWidget::apply()
 {
-    m_options.qtForMCUsSdkPackage->writeGeneralSettings();
-    m_options.qtForMCUsSdkPackage->writeToSettings();
-    for (auto package : qAsConst(m_options.packages))
-        package->writeToSettings();
+    bool pathsChanged = false;
 
-    m_options.checkUpgradeableKits();
+    m_options.qtForMCUsSdkPackage->writeGeneralSettings();
+    pathsChanged |= m_options.qtForMCUsSdkPackage->writeToSettings();
+    for (auto package : qAsConst(m_options.packages))
+        pathsChanged |= package->writeToSettings();
+
+    if (pathsChanged) {
+        m_options.checkUpgradeableKits();
+        m_options.fixKitsDependencies();
+    }
 }
 
 void McuSupportOptionsWidget::populateMcuTargetsComboBox()
