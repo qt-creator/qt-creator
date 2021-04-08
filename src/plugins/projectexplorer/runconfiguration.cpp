@@ -188,6 +188,24 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
         BuildConfiguration *bc = target->activeBuildConfiguration();
         return bc ? bc->macroExpander() : target->macroExpander();
     });
+    m_expander.registerPrefix("RunConfig:Env", tr("Variables in the run environment"),
+                             [this](const QString &var) {
+        const auto envAspect = aspect<EnvironmentAspect>();
+        return envAspect ? envAspect->environment().expandedValueForKey(var) : QString();
+    });
+    m_expander.registerVariable("RunConfig:WorkingDir",
+                               tr("The run configuration's working directory"),
+                               [this] {
+        const auto wdAspect = aspect<WorkingDirectoryAspect>();
+        return wdAspect ? wdAspect->workingDirectory(&m_expander).toString() : QString();
+    });
+    m_expander.registerVariable("RunConfig:Name", tr("The run configuration's name."),
+            [this] { return displayName(); });
+    m_expander.registerFileVariables("RunConfig:Executable",
+                                     tr("The run configuration's executable."),
+                                     [this] { return commandLine().executable().toString(); });
+
+
     m_commandLineGetter = [this] {
         FilePath executable;
         if (const auto executableAspect = aspect<ExecutableAspect>())
