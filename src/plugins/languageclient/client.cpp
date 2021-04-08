@@ -665,16 +665,15 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
 void Client::registerCapabilities(const QList<Registration> &registrations)
 {
     m_dynamicCapabilities.registerCapability(registrations);
-    auto methodRegistered = [&](const QString &method) {
-        return Utils::anyOf(registrations, Utils::equal(&Registration::method, method));
-    };
-    if (methodRegistered(CompletionRequest::methodName)) {
-        for (auto document : m_openedDocument.keys())
-            updateCompletionProvider(document);
-    }
-    if (methodRegistered(SignatureHelpRequest::methodName)) {
-        for (auto document : m_openedDocument.keys())
-            updateFunctionHintProvider(document);
+    for (const Registration &registration : registrations) {
+        if (registration.method() == CompletionRequest::methodName) {
+            for (auto document : m_openedDocument.keys())
+                updateCompletionProvider(document);
+        }
+        if (registration.method() == SignatureHelpRequest::methodName) {
+            for (auto document : m_openedDocument.keys())
+                updateFunctionHintProvider(document);
+        }
     }
     emit capabilitiesChanged(m_dynamicCapabilities);
 }
@@ -682,6 +681,16 @@ void Client::registerCapabilities(const QList<Registration> &registrations)
 void Client::unregisterCapabilities(const QList<Unregistration> &unregistrations)
 {
     m_dynamicCapabilities.unregisterCapability(unregistrations);
+    for (const Unregistration &unregistration : unregistrations) {
+        if (unregistration.method() == CompletionRequest::methodName) {
+            for (auto document : m_openedDocument.keys())
+                updateCompletionProvider(document);
+        }
+        if (unregistration.method() == SignatureHelpRequest::methodName) {
+            for (auto document : m_openedDocument.keys())
+                updateFunctionHintProvider(document);
+        }
+    }
     emit capabilitiesChanged(m_dynamicCapabilities);
 }
 
