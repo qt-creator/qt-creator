@@ -153,9 +153,7 @@ OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget 
         EditorManager::openEditorAt(fp.toString(), line, column);
     });
 
-    connect(verticalScrollBar(), &QAbstractSlider::sliderMoved,
-            this, &OutputWindow::updateAutoScroll);
-    connect(verticalScrollBar(), &QAbstractSlider::sliderReleased,
+    connect(verticalScrollBar(), &QAbstractSlider::actionTriggered,
             this, &OutputWindow::updateAutoScroll);
 
     undoAction->setEnabled(false);
@@ -451,7 +449,7 @@ void OutputWindow::handleOutputChunk(const QString &output, OutputFormat format)
 
 void OutputWindow::updateAutoScroll()
 {
-    d->scrollToBottom = verticalScrollBar()->value() >= verticalScrollBar()->maximum() - 1;
+    d->scrollToBottom = verticalScrollBar()->sliderPosition() >= verticalScrollBar()->maximum() - 1;
 }
 
 void OutputWindow::setMaxCharCount(int count)
