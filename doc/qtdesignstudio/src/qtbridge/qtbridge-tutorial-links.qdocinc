@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Bridge documentation.
@@ -25,7 +25,7 @@
 
 //! [qtpsbridge videos]
 
-    \section1 \QBPS Videos
+    \section2 \QBPS Videos
 
     For more information, watch a video tutorial and webinar about using \QBPS
     that are also accessible from the \uicontrol Tutorials tab of the Welcome
@@ -49,7 +49,7 @@
 
 //! [qtsketchbridge tutorials]
 
-    \section1 \QBSK Tutorials
+    \section2 \QBSK Tutorials
 
     For more information, read the tutorials about using \QBSK that are also
     accessible from the \uicontrol Tutorials tab of the Welcome mode:
