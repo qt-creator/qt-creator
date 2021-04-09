@@ -172,7 +172,7 @@
     \endlist
 
     You can replace the default model and delegate with other,
-    more complex models and delegates in \uicontrol {Text Editor}.
+    more complex models and delegates in \l {Text Editor}.
     \l{ItemDelegate}{Item Delegate} and \l{SwipeDelegate}{Swipe Delegate}
     components are also available in \uicontrol Library.
 

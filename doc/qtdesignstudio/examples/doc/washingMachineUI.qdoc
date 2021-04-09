@@ -204,7 +204,7 @@
 
     Some signals are predefined for the \l {Mouse Area} component, some we have to
     add ourselves. For example, let's look at the start button that we use
-    in \e StartScreen.ui.qml. First, we use the \uicontrol {Text Editor} view
+    in \e StartScreen.ui.qml. First, we use the \l{Text Editor} view
     to create the \c startClicked signal:
 
     \quotefromfile washingMachineUI/StartScreen.ui.qml

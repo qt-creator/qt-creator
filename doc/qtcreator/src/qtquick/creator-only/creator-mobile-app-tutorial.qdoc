@@ -190,8 +190,8 @@
     \endlist
 
     We now want to add code to move the bubble based on Accelerometer sensor
-    values. This is not supported by \uicontrol {Form Editor}, so we will do
-    it in \uicontrol {Text Editor}:
+    values. This is not supported by \l {Form Editor}, so we will do
+    it in \l {Text Editor}:
 
     \list 1
         \li Add the following import statement to \e main.qml:

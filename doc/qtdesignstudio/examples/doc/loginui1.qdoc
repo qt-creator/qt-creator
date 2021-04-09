@@ -119,7 +119,7 @@
     layout. Every UI file consists of two parts: an imports section and an
     component declaration section. The components and functionality most common to
     UIs are provided in the QtQuick import. You can view the code of an
-    .ui.qml file in the \uicontrol {Text Editor} view.
+    .ui.qml file in the \l{Text Editor} view.
 
     For more information about creating a component file from scratch, see
     \l{First Steps with QML}.

@@ -115,6 +115,7 @@
                         \li \l{Transition Editor}
                         \li \l{Timeline}
                         \li \l{Curve Editor}
+                        \li \l{Text Editor}
                     \endlist
                 \li \l {Creating UIs}
                     \list

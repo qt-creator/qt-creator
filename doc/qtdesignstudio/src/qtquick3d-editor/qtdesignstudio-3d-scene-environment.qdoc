@@ -83,7 +83,7 @@
     To render a Skybox or Skydome instead of clearing the scene,
     select \uicontrol SkyBox. You can specify the image to use as
     a value of the \l{SceneEnvironment::lightProbe}{lightProbe}
-    property in \uicontrol {Text Editor}.
+    property in \l{Text Editor}.
 
     To leave the scene uncleared, select \uicontrol {Unspecified}.
 

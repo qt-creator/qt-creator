@@ -42,7 +42,7 @@
 
     You can use \QC wizards to create UI files that have the filename
     extension \e .ui.qml. The UI files can be edited in \l {Form Editor}.
-    If you use \uicontrol {Text Editor} to add code that is not supported
+    If you use \l {Text Editor} to add code that is not supported
     by \uicontrol {Form Editor}, \QC displays error messages.
 
     The following features are not supported:

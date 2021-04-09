@@ -1,0 +1,56 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page qtquick-text-editor.html
+    \previouspage qtquick-curve-editor.html
+    \if defined(qtdesignstudio)
+    \nextpage creator-projects-view.html
+    \else
+    \nextpage quick-uis.html
+    \endif
+
+    \title Text Editor
+
+    In the \uicontrol {Text Editor} view, you can view and modify the code in a
+    \l{UI Files}{UI file} (.ui.qml) or component file (.qml) that is generated
+    when you create components in \l{Form Editor} or \l{3D Editor} and specify
+    their properties in \l Properties.
+
+    \image qtquick-text-editor.png "Text Editor"
+
+    You can also view and modify other types of text files.
+
+    You can use a subset of the functions available in the
+    \l{Writing Code}{Edit mode}:
+
+    \list
+        \li \l{Semantic Highlighting}
+        \li \l{Checking Code Syntax}
+        \li \l{Completing Code}
+        \li \l{Indenting Text or Code}
+        \li \l{Using Qt Quick Toolbars}
+    \endlist
+*/

@@ -158,7 +158,7 @@
     \section1 Arranging Components
 
     You can view the order of components in a component file in \uicontrol Navigator
-    and \uicontrol {Text Editor}. The order of components in the file also
+    and \l {Text Editor}. The order of components in the file also
     determines the order in which they are drawn in \uicontrol {Form Editor}.
     By default, components that are located at the top of the file are listed at
     the bottom of the \uicontrol Navigator tree and behind overlapping

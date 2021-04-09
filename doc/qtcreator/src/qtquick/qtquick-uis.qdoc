@@ -29,7 +29,7 @@
     \previouspage creator-exporting-qml.html
     \nextpage studio-app-flows.html
     \else
-    \previouspage creator-using-qt-quick-designer.html
+    \previouspage qtquick-text-editor.html
     \nextpage quick-components.html
     \endif
 
