@@ -30,6 +30,7 @@ Editing
 -------
 
 * Added action for pasting without auto-formatting (QTCREATORBUG-20887)
+* Fixed that completion could block Qt Creator (QTCREATORBUG-25419)
 
 ### C++
 
@@ -64,7 +65,7 @@ Editing
   (QTCREATORBUG-25154)
 * Fixed highlighting of comments with continuation lines (QTCREATORBUG-23297)
 * Fixed issues with `Add definition` (QTCREATORBUG-14661, QTCREATORBUG-14524,
-  QTCREATORBUG-14524)
+  QTCREATORBUG-14524, QTCREATORBUG-25560)
 * Fixed real-time updating of `Class View`
 * Fixed that function parameter hint showed inapplicable overloads
   (QTCREATORBUG-650)
@@ -94,6 +95,7 @@ Projects
 * Added `Open Terminal Here` for project nodes (QTCREATORBUG-25107)
 * Added option for running application as root user (QTCREATORBUG-2831,
   QTCREATORBUG-25330)
+* Fixed detection of `rcc` and `uic` for Qt 6 (QTBUG-88791)
 * Fixed detection of Designer, Linguist, `qmlscene` and `qmlplugindump` for Qt 6
   cross-builds
 
@@ -124,6 +126,10 @@ Projects
   (QTCREATORBUG-25166)
 * Fixed `Save all files before build` for `Build for Run Configuration`
   (QTCREATORBUG-25276)
+* Fixed that only source file name was copied to clipboard when adding class
+  (QTCREATORBUG-24301, QTCREATORBUG-25212)
+* Fixed reparsing of project with `Auto-run CMake`
+* Fixed that removed targets stayed selected for building (QTCREATORBUG-25477)
 
 ### Qbs
 
@@ -178,6 +184,10 @@ Test Integration
 
 * Added basic support for `ctest` (QTCREATORBUG-23332)
 
+### Google Test
+
+* Fixed detection of tests that start with a number (QTCREATORBUG-25498)
+
 FakeVim
 -------
 
@@ -217,6 +227,7 @@ Platforms
   QTCREATORBUG-24814, QTCREATORBUG-24822)
 * Added support for Qt 6 applications with CMake (QTCREATORBUG-25519)
 * Fixed ABI detection for Qt 5.15 (QTCREATORBUG-24891)
+* Fixed running of `em++.bat` in some environments on Windows
 
 Credits for these changes go to:
 --------------------------------
@@ -224,6 +235,7 @@ Aleksei German
 Alessandro Portale  
 Alexandru Croitor  
 Alexis Jeandet  
+Allan Sandfeld Jensen  
 Andre Hartmann  
 André Pönitz  
 Bernhard Beschow  
@@ -253,16 +265,19 @@ Leander Schulten
 Leena Miettinen  
 Mahmoud Badri  
 Marco Bubke  
+Matti Paaso  
 Mattias Johansson  
 Maximilian Goldstein  
 Michael Weghorn  
 Michael Winkelmann  
 Miikka Heikkinen  
+Miina Puuronen  
 Mitch Curtis  
 Nikolai Kosjar  
 Orgad Shaneh  
 Oswald Buddenhagen  
 Raphaël Cotty  
+Robert Löhning  
 Sergey Levin  
 Thomas Hartmann  
 Tim Jenssen  
