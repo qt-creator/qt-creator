@@ -38,7 +38,7 @@ class GradientModel : public QAbstractListModel
     Q_PROPERTY(QVariant anchorBackendProperty READ anchorBackend WRITE setAnchorBackend NOTIFY anchorBackendChanged)
     Q_PROPERTY(QString gradientPropertyName READ gradientPropertyName WRITE setGradientPropertyName)
     Q_PROPERTY(QString gradientTypeName READ gradientTypeName WRITE setGradientTypeName NOTIFY gradientTypeChanged)
-    Q_PROPERTY(int count READ rowCount)
+    Q_PROPERTY(int count READ rowCount NOTIFY gradientCountChanged)
     Q_PROPERTY(bool hasGradient READ hasGradient NOTIFY hasGradientChanged)
 
 public:
@@ -73,7 +73,8 @@ public:
     Q_INVOKABLE void setPresetByID(int presetID);
     Q_INVOKABLE void setPresetByStops(const QList<qreal> &stopsPositions,
                                       const QList<QString> &stopsColors,
-                                      int stopsCount);
+                                      int stopsCount,
+                                      bool saveTransaction = true);
 
     Q_INVOKABLE void savePreset();
 
@@ -83,6 +84,7 @@ signals:
     void anchorBackendChanged();
     void hasGradientChanged();
     void gradientTypeChanged();
+    void gradientCountChanged();
 
 private:
     void setupModel();

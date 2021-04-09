@@ -37,10 +37,12 @@
 #include <abstractview.h>
 #include <nodemetainfo.h>
 #include <exception.h>
+#include <rewritertransaction.h>
 
 #include <utils/qtcassert.h>
 
 #include <QTimer>
+#include <QScopeGuard>
 
 GradientModel::GradientModel(QObject *parent) :
     QAbstractListModel(parent)
@@ -109,9 +111,9 @@ int GradientModel::addStop(qreal position, const QColor &color)
 
     if (m_itemNode.modelNode().hasNodeProperty(gradientPropertyName().toUtf8())) {
         int properPos = 0;
-        try {
 
-            QmlDesigner::ModelNode gradientNode =  m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
+        try {
+            QmlDesigner::ModelNode gradientNode = m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
 
             QmlDesigner::ModelNode gradientStopNode = createGradientStopNode();
 
@@ -128,6 +130,9 @@ int GradientModel::addStop(qreal position, const QColor &color)
             gradientNode.nodeListProperty("stops").slide(stopNodes.count() - 1, properPos);
 
             setupModel();
+            resetPuppet();
+
+            emit gradientCountChanged();
         } catch (const QmlDesigner::Exception &e) {
             e.showException();
         }
@@ -176,6 +181,7 @@ void GradientModel::addGradient()
 
     if (m_gradientTypeName != "Gradient")
         resetPuppet(); /*Unfortunately required */
+
     emit hasGradientChanged();
     emit gradientTypeChanged();
 }
@@ -247,9 +253,15 @@ void GradientModel::removeStop(int index)
             if (stop.isValid()) {
                 stop.destroy();
                 setupModel();
+                resetPuppet();
+
+                emit gradientCountChanged();
             }
         });
+
+        return;
     }
+
     qWarning() << Q_FUNC_INFO << "invalid index";
 }
 
@@ -301,10 +313,10 @@ qreal GradientModel::readGradientProperty(const QString &propertyName) const
 void GradientModel::setupModel()
 {
     m_locked = true;
-    beginResetModel();
+    auto guard = qScopeGuard([&] { m_locked = false; });
 
+    beginResetModel();
     endResetModel();
-    m_locked = false;
 }
 
 void GradientModel::setAnchorBackend(const QVariant &anchorBackend)
@@ -324,12 +336,11 @@ void GradientModel::setAnchorBackend(const QVariant &anchorBackend)
     setupModel();
 
     m_locked = true;
+    auto guard = qScopeGuard([&] { m_locked = false; });
 
     emit anchorBackendChanged();
     emit hasGradientChanged();
     emit gradientTypeChanged();
-
-    m_locked = false;
 }
 
 QString GradientModel::gradientPropertyName() const
@@ -482,9 +493,10 @@ void GradientModel::deleteGradientNode(bool saveTransaction)
 
     if (m_itemNode.isInBaseState()) {
         if (modelNode.hasProperty(gradientPropertyName().toUtf8())) {
+            QmlDesigner::RewriterTransaction transaction;
             if (saveTransaction)
-                QmlDesigner::RewriterTransaction transaction = view()->beginRewriterTransaction(
-                    QByteArrayLiteral("GradientModel::deleteGradient"));
+                transaction = view()->beginRewriterTransaction(QByteArrayLiteral("GradientModel::deleteGradient"));
+
             QmlDesigner::ModelNode gradientNode
                 = modelNode.nodeProperty(gradientPropertyName().toUtf8()).modelNode();
             if (QmlDesigner::QmlObjectNode(gradientNode).isValid())
@@ -529,7 +541,8 @@ void GradientModel::setPresetByID(int presetID)
 
 void GradientModel::setPresetByStops(const QList<qreal> &stopsPositions,
                                      const QList<QString> &stopsColors,
-                                     int stopsCount)
+                                     int stopsCount,
+                                     bool saveTransaction)
 {
     if (m_locked)
         return;
@@ -537,8 +550,9 @@ void GradientModel::setPresetByStops(const QList<qreal> &stopsPositions,
     if (!m_itemNode.isValid() || gradientPropertyName().isEmpty())
         return;
 
-    QmlDesigner::RewriterTransaction transaction = view()->beginRewriterTransaction(
-        QByteArrayLiteral("GradientModel::setCustomPreset"));
+    QmlDesigner::RewriterTransaction transaction;
+    if (saveTransaction)
+        transaction = view()->beginRewriterTransaction(QByteArrayLiteral("GradientModel::setCustomPreset"));
 
     deleteGradientNode(false);
 
@@ -599,6 +613,8 @@ void GradientModel::savePreset()
 
 void GradientModel::updateGradient()
 {
+    beginResetModel();
+
     QList<qreal> stops;
     QList<QString> colors;
     int stopsCount = rowCount();
@@ -607,5 +623,7 @@ void GradientModel::updateGradient()
         colors.append(getColor(i).name(QColor::HexArgb));
     }
 
-    setPresetByStops(stops, colors, stopsCount);
+    setPresetByStops(stops, colors, stopsCount, false);
+
+    endResetModel();
 }
