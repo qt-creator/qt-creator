@@ -55,18 +55,19 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/messagebox.h>
 #include <coreplugin/modemanager.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
-#include <qmljs/qmljsmodelmanagerinterface.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/target.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
+#include <sqlitelibraryinitializer.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -211,6 +212,8 @@ QmlDesignerPlugin::~QmlDesignerPlugin()
 ////////////////////////////////////////////////////
 bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage/* = 0*/)
 {
+    Sqlite::LibraryInitializer::initialize();
+
     QDir{}.mkpath(Core::ICore::cacheResourcePath());
 
     if (!Utils::HostOsInfo::canCreateOpenGLContext(errorMessage))

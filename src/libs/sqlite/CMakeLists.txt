@@ -10,7 +10,7 @@ add_qtc_library(Sqlite
       SQLITE_OMIT_LOAD_EXTENSION SQLITE_OMIT_UTF16 SQLITE_DQS=0
       SQLITE_ENABLE_STAT4 HAVE_ISNAN HAVE_FDATASYNC HAVE_MALLOC_USABLE_SIZE
       SQLITE_DEFAULT_MMAP_SIZE=268435456 SQLITE_CORE SQLITE_ENABLE_SESSION SQLITE_ENABLE_PREUPDATE_HOOK
-      SQLITE_LIKE_DOESNT_MATCH_BLOBS
+      SQLITE_LIKE_DOESNT_MATCH_BLOBS SQLITE_OMIT_AUTOINIT
   DEPENDS Qt5::Core Threads::Threads ${CMAKE_DL_LIBS}
   PUBLIC_INCLUDES
     "${CMAKE_CURRENT_LIST_DIR}"
@@ -46,4 +46,5 @@ add_qtc_library(Sqlite
     utf8stringvector.cpp utf8stringvector.h
     sqliteblob.h
     sqlitetimestamp.h
+    sqlitelibraryinitializer.cpp sqlitelibraryinitializer.h
 )

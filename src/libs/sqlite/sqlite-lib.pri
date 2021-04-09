@@ -15,6 +15,7 @@ SOURCES += \
     $$PWD/sqlitedatabasebackend.cpp \
     $$PWD/sqliteexception.cpp \
     $$PWD/sqliteglobal.cpp \
+    $$PWD/sqlitelibraryinitializer.cpp \
     $$PWD/sqlitesessionchangeset.cpp \
     $$PWD/sqlitesessions.cpp \
     $$PWD/sqlstatementbuilder.cpp \
@@ -25,6 +26,7 @@ SOURCES += \
 HEADERS += \
     $$PWD/constraints.h \
     $$PWD/sqliteblob.h \
+    $$PWD/sqlitelibraryinitializer.h \
     $$PWD/sqlitetimestamp.h \
     $$PWD/tableconstraints.h \
     $$PWD/createtablesqlstatementbuilder.h \
@@ -59,7 +61,7 @@ DEFINES += SQLITE_THREADSAFE=2 SQLITE_ENABLE_FTS5 SQLITE_ENABLE_UNLOCK_NOTIFY \
     SQLITE_OMIT_LOAD_EXTENSION SQLITE_OMIT_UTF16 SQLITE_DQS=0 \
     SQLITE_ENABLE_STAT4 HAVE_ISNAN HAVE_FDATASYNC HAVE_MALLOC_USABLE_SIZE \
     SQLITE_DEFAULT_MMAP_SIZE=268435456 SQLITE_CORE SQLITE_ENABLE_SESSION SQLITE_ENABLE_PREUPDATE_HOOK \
-    SQLITE_LIKE_DOESNT_MATCH_BLOBS
+    SQLITE_LIKE_DOESNT_MATCH_BLOBS SQLITE_OMIT_AUTOINIT
 
 CONFIG(debug, debug|release): DEFINES += SQLITE_ENABLE_API_ARMOR
 
