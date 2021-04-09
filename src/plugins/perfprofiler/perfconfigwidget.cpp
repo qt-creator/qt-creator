@@ -26,7 +26,6 @@
 #include "perfconfigeventsmodel.h"
 #include "perfconfigwidget.h"
 #include "perfprofilerconstants.h"
-#include "ui_perfconfigwidget.h"
 
 #include <coreplugin/messagebox.h>
 
