@@ -87,6 +87,14 @@ bool ItemLibraryCategory::updateItemVisibility(const QString &searchText, bool *
     return hasVisibleItems;
 }
 
+void ItemLibraryCategory::setCategoryVisible(bool isVisible)
+{
+    if (isVisible != m_isVisible) {
+        m_isVisible = isVisible;
+        emit categoryVisibilityChanged();
+    }
+}
+
 bool ItemLibraryCategory::setVisible(bool isVisible)
 {
     if (isVisible != m_isVisible) {
@@ -97,7 +105,7 @@ bool ItemLibraryCategory::setVisible(bool isVisible)
     return false;
 }
 
-bool ItemLibraryCategory::isVisible() const
+bool ItemLibraryCategory::isCategoryVisible() const
 {
     return m_isVisible;
 }

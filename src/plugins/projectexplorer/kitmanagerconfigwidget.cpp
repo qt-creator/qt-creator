@@ -311,12 +311,15 @@ void KitManagerConfigWidget::setIcon()
     for (const IDeviceFactory * const factory : qAsConst(allDeviceFactories)) {
         if (factory->icon().isNull())
             continue;
-        iconMenu.addAction(factory->icon(), tr("Default for %1").arg(factory->displayName()),
-                           [this, factory] {
-            m_iconButton->setIcon(factory->icon());
-            m_modifiedKit->setDeviceTypeForIcon(factory->deviceType());
-            emit dirty();
-        });
+        QAction *action = iconMenu.addAction(factory->icon(),
+                                             tr("Default for %1").arg(factory->displayName()),
+                                             [this, factory] {
+                                                 m_iconButton->setIcon(factory->icon());
+                                                 m_modifiedKit->setDeviceTypeForIcon(
+                                                     factory->deviceType());
+                                                 emit dirty();
+                                             });
+        action->setIconVisibleInMenu(true);
     }
     iconMenu.addSeparator();
     iconMenu.addAction(Utils::PathChooser::browseButtonLabel(), [this] {

@@ -126,8 +126,6 @@ QIcon paintPreview(const QColor& background)
 
 QIcon paintPreview(const EasingCurve &curve, const QColor& background, const QColor& curveColor)
 {
-    const QColor curveLine = Theme::getColor(Theme::DStextColor);
-
     QPixmap pm(iconWidth, iconHeight);
     pm.fill(background);
 

@@ -39,6 +39,8 @@
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 
+#include <utils/qtcassert.h>
+
 #include <QStandardItemModel>
 #include <QMessageBox>
 #include <QTableView>
@@ -370,7 +372,10 @@ void ConnectionModel::abstractPropertyChanged(const AbstractProperty &abstractPr
 void ConnectionModel::deleteConnectionByRow(int currentRow)
 {
     SignalHandlerProperty targetSignal = signalHandlerPropertyForRow(currentRow);
+    QTC_ASSERT(targetSignal.isValid(), return );
     QmlDesigner::ModelNode node = targetSignal.parentModelNode();
+    QTC_ASSERT(node.isValid(), return );
+
     QList<SignalHandlerProperty> allSignals = node.signalProperties();
     if (allSignals.size() > 1) {
         if (allSignals.contains(targetSignal))

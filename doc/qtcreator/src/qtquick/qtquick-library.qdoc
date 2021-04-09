@@ -67,6 +67,7 @@
         \li \l {Logic Helpers}
         \endif
         \li \l Animations
+        \li \l{Using 3D Components}{3D Components}
     \endlist
 
     For more information about creating your own components, see
@@ -74,14 +75,17 @@
 
     \section2 Adding and Removing Modules
 
-    When you create projects, modules typically needed in them are added by
-    default. For example, an empty application project contains only basic
-    components, while a 3D application project contains additional 3D
-    components.
+    When you \l{Creating Projects}{create projects}, modules typically needed in
+    them are added by default. For example, an empty application project
+    contains only basic components, while a 3D application project contains
+    additional 3D components.
 
-    To add modules to the project, select \inlineimage plus.png
-    , and then select the module to add from the list of available
-    modules.
+    To view the list of available modules, select \inlineimage plus.png
+    . Most commonly used modules are placed at the top of the list in
+    alphabetical order. You can search for components and modules by entering
+    search criteria in the \uicontrol Search field.
+
+    Select the module to add it to \uicontrol Library > \uicontrol Components.
 
     \image qtquick-components-tab-add.png "Select Modules to Add"
 
@@ -90,11 +94,8 @@
     \uicontrol QtQuick.Controls module, the following import statement
     is added to the code: \c {import QtQuick.Controls}.
 
-    You can search for components and modules by entering search criteria
-    in the \uicontrol Search field.
-
-    The added components and modules are packaged with your UI into the final
-    application package, so it is recommended that you select
+    Since the added components and modules are packaged with your UI into the
+    final application package, it is recommended that you select
     \uicontrol {Remove Module} to remove the ones you don't use in the project.
 
     \section1 Assets

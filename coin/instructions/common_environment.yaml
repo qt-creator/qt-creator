@@ -1,0 +1,77 @@
+type: Group
+instructions:
+  - type: Group
+    enable_if:
+      condition: property
+      property: target.compiler
+      in_values: [MSVC2019]
+    instructions:
+      - type: EnvironmentVariable
+        variableName: MAKEFLAGS
+        variableValue: ""
+      - type: EnvironmentVariable
+        variableName: LLVM_INSTALL_DIR
+        variableValue: "{{.Env.LLVM_DYNAMIC_LIBS_100}}"
+        enable_if:
+          condition: property
+          property: target.arch
+          equals_value: X86_64
+      - type: EnvironmentVariable
+        variableName: LLVM_INSTALL_DIR
+        variableValue: "{{.Env.LLVM_DYNAMIC_LIBS_100}}"
+        enable_if:
+          condition: property
+          property: target.arch
+          equals_value: X86
+
+  - type: PrependToEnvironmentVariable
+    variableName: PATH
+    variableValue: "{{.InstallDir}}\\bin;"
+    enable_if:
+      condition: property
+      property: target.os
+      equals_value: Windows
+
+  - type: PrependToEnvironmentVariable
+    variableName: PATH
+    variableValue: "C:\\Utils\\gnuwin32\\bin;"
+    enable_if:
+      condition: property
+      property: target.os
+      equals_value: Windows
+
+  - type: EnvironmentVariable
+    variableName: LANG
+    variableValue: en_US.UTF-8
+    enable_if:
+      condition: property
+      property: host.os
+      in_values: [MacOS, Linux]
+
+  - type: Group
+    instructions:
+      - type: PrependToEnvironmentVariable
+        variableName: PATH
+        variableValue: "{{.InstallDir}}/bin:"
+      - type: EnvironmentVariable
+        variableName: DISPLAY
+        variableValue: ":0"
+      - type: PrependToEnvironmentVariable
+        variableName: PATH
+        variableValue: "/opt/rh/devtoolset-7/root/usr/bin:"
+    enable_if:
+      condition: property
+      property: host.os
+      equals_value: Linux
+
+  - type: Group
+    instructions:
+      - type: EnvironmentVariable
+        variableName: LLVM_INSTALL_DIR
+        variableValue: "{{.Env.LLVM_DYNAMIC_LIBS_100}}"
+        enable_if:
+          condition: property
+          property: host.os
+          in_values: [Linux, MacOS]
+
+

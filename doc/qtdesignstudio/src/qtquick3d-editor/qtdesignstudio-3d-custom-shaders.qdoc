@@ -38,8 +38,17 @@
 
     \image studio-qtquick-3d-shader-utilities.png
 
-    If the custom shader utilities are not displayed in \uicontrol Library, you
-    should add the \uicontrol QtQuick3D module to your project, as described in
+    Additional 3D shader utilities include the \uicontrol Effect, which you can
+    find in  \uicontrol Library > \uicontrol {QtQuick3D Effects} > \uicontrol
+    {Qt Quick 3D Custom Shader Utils}, and \uicontrol {Custom Material},
+    available in \uicontrol Library > \uicontrol {QtQuick3D Materials} >
+    \uicontrol {Qt Quick 3D Custom Shader Utils}.
+
+    \image studio-qtquick-3d-shader-effect.png
+    \image studio-qtquick-3d-shader-custom-material.png
+
+    If the custom shader utilities are not displayed in \uicontrol Library, add
+    the \uicontrol QtQuick3D module to your project, as described in
     \l {Adding and Removing Modules}.
 
     For more information on using the shaders, see
@@ -192,6 +201,5 @@
             \uicontrol Value specifies the value that will be set on the target
             uniform.
     \endtable
-
 
 */

@@ -102,7 +102,15 @@ void ConnectionView::nodeIdChanged(const ModelNode & /*node*/, const QString & /
     dynamicPropertiesModel()->resetModel();
 }
 
-void ConnectionView::propertiesAboutToBeRemoved(const QList<AbstractProperty> & propertyList)
+void ConnectionView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
+{
+    for (const AbstractProperty &property : propertyList) {
+        if (property.isDefaultProperty())
+            connectionModel()->resetModel();
+    }
+}
+
+void ConnectionView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList)
 {
     foreach (const AbstractProperty &property, propertyList) {
         if (property.isBindingProperty()) {

@@ -54,6 +54,7 @@ public:
 
     void sortCategorySections();
     void resetModel();
+    void showAllCategories(bool show = true);
 
 private:
     void addRoleNames();

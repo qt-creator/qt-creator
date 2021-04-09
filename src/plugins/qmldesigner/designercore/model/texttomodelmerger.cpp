@@ -104,16 +104,26 @@ QStringList globalQtEnums()
 
 QStringList knownEnumScopes()
 {
-    static const QStringList list = {
-        "TextInput", "TextEdit", "Material", "Universal", "Font", "Shape", "ShapePath",
-        "AbstractButton", "Text", "ShaderEffectSource", "Grid"
-    };
+    static const QStringList list = {"TextInput",
+                                     "TextEdit",
+                                     "Material",
+                                     "Universal",
+                                     "Font",
+                                     "Shape",
+                                     "ShapePath",
+                                     "AbstractButton",
+                                     "Text",
+                                     "ShaderEffectSource",
+                                     "Grid",
+                                     "ItemLayer",
+                                     "ImageLayer",
+                                     "SpriteLayer"};
     return list;
 }
 
 bool supportedQtQuickVersion(const QString &version)
 {
-    return supportedVersionsList().contains(version);
+    return version.isEmpty() || supportedVersionsList().contains(version);
 }
 
 QString stripQuotes(const QString &str)
@@ -787,11 +797,8 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
                 differenceHandler.modelMissesImport(newImport);
         } else {
             QString importUri = toString(import->importUri);
-            if (importUri == QStringLiteral("Qt") && version == QStringLiteral("4.7")) {
-                importUri = QStringLiteral("QtQuick");
-                version = QStringLiteral("1.0");
-            }
-
+            if (version.isEmpty())
+                version = "2.15";
             const Import newImport =
                     Import::createLibraryImport(importUri, version, as, m_rewriterView->importDirectories());
 
@@ -946,9 +953,13 @@ void TextToModelMerger::setupUsedImports()
      }
 
      for (const QmlJS::Import &import : allImports) {
+         QString version = import.info.version().toString();
+         if (version.isEmpty())
+             version = "2.15";
          if (!import.info.name().isEmpty() && usedImportsSet.contains(import.info.name())) {
             if (import.info.type() == ImportType::Library)
-                usedImports.append(Import::createLibraryImport(import.info.name(), import.info.version().toString(), import.info.as()));
+                usedImports.append(
+                    Import::createLibraryImport(import.info.name(), version, import.info.as()));
             else if (import.info.type() == ImportType::Directory || import.info.type() == ImportType::File)
                 usedImports.append(Import::createFileImport(import.info.name(), import.info.version().toString(), import.info.as()));
          }

@@ -129,19 +129,24 @@ void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
         m_scene->synchronizeTransformation(rootItem);
         formEditorWidget()->setRootItemRect(qmlItemNode.instanceBoundingRect());
 
-        for (const QmlObjectNode &nextNode : qmlItemNode.allDirectSubNodes()) {
-            if (QmlItemNode::isValidQmlItemNode(nextNode) && nextNode.toQmlItemNode().isFlowItem()) {
-                setupFormEditorItemTree(nextNode.toQmlItemNode());
+        const QList<QmlObjectNode> allDirectSubNodes = qmlItemNode.allDirectSubNodes();
+        for (const QmlObjectNode &childNode : allDirectSubNodes) {
+            if (QmlItemNode::isValidQmlItemNode(childNode)
+                && childNode.toQmlItemNode().isFlowItem()) {
+                setupFormEditorItemTree(childNode.toQmlItemNode());
             }
         }
 
-        for (const QmlObjectNode &nextNode : qmlItemNode.allDirectSubNodes()) {
-            if (QmlVisualNode::isValidQmlVisualNode(nextNode) && nextNode.toQmlVisualNode().isFlowTransition()) {
-                setupFormEditorItemTree(nextNode.toQmlItemNode());
-            } else if (QmlVisualNode::isValidQmlVisualNode(nextNode) && nextNode.toQmlVisualNode().isFlowDecision()) {
-                setupFormEditorItemTree(nextNode.toQmlItemNode());
-            } else if (QmlVisualNode::isValidQmlVisualNode(nextNode) && nextNode.toQmlVisualNode().isFlowWildcard()) {
-                setupFormEditorItemTree(nextNode.toQmlItemNode());
+        for (const QmlObjectNode &childNode : allDirectSubNodes) {
+            if (QmlVisualNode::isValidQmlVisualNode(childNode)
+                && childNode.toQmlVisualNode().isFlowTransition()) {
+                setupFormEditorItemTree(childNode.toQmlItemNode());
+            } else if (QmlVisualNode::isValidQmlVisualNode(childNode)
+                       && childNode.toQmlVisualNode().isFlowDecision()) {
+                setupFormEditorItemTree(childNode.toQmlItemNode());
+            } else if (QmlVisualNode::isValidQmlVisualNode(childNode)
+                       && childNode.toQmlVisualNode().isFlowWildcard()) {
+                setupFormEditorItemTree(childNode.toQmlItemNode());
             }
         }
     } else {
@@ -632,8 +637,21 @@ void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyN
     }
 }
 
+static void updateTransitions(FormEditorScene *scene, const QmlItemNode &qmlItemNode)
+{
+    QmlFlowTargetNode flowItem(qmlItemNode);
+    if (flowItem.isValid() && flowItem.flowView().isValid()) {
+        const auto nodes = flowItem.flowView().transitions();
+        for (const ModelNode &node : nodes) {
+            if (FormEditorItem *item = scene->itemForQmlItemNode(node))
+                item->updateGeometry();
+        }
+    };
+}
+
 void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeList)
 {
+    const bool isFlow = rootModelNode().isValid() && QmlItemNode(rootModelNode()).isFlowView();
     QList<FormEditorItem*> itemNodeList;
     for (const ModelNode &node : completedNodeList) {
         const QmlItemNode qmlItemNode(node);
@@ -641,6 +659,8 @@ void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeL
             if (FormEditorItem *item = scene()->itemForQmlItemNode(qmlItemNode)) {
                 scene()->synchronizeParent(qmlItemNode);
                 itemNodeList.append(item);
+                if (isFlow && qmlItemNode.isFlowItem())
+                    updateTransitions(scene(), qmlItemNode);
             }
         }
     }

@@ -689,6 +689,12 @@ QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorN
      * QML type. This is the case for example if a C++ type is mocked up with a QML file.
      */
 
+    if (!object && majorNumber == 6 && minorNumber == 0) {
+        object = QmlPrivateGate::createPrimitive(polishTypeName, 2, 15, context);
+        if (!object)
+            object = QmlPrivateGate::createPrimitive(polishTypeName, 1, 0, context);
+    }
+
     if (!object)
         object = createPrimitiveFromSource(polishTypeName, majorNumber, minorNumber, context);
 

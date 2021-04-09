@@ -344,6 +344,12 @@ static BuildConfiguration *activeBuildConfiguration()
     return target ? target->activeBuildConfiguration() : nullptr;
 }
 
+static RunConfiguration *activeRunConfiguration()
+{
+    const Target * const target = activeTarget();
+    return target ? target->activeRunConfiguration() : nullptr;
+}
+
 static bool isTextFile(const QString &fileName)
 {
     return Utils::mimeTypeForFile(fileName).inherits(
@@ -1880,6 +1886,39 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                                      return bc->environment().expandedValueForKey(var);
                                  return QString();
                              });
+
+    expander->registerVariable("ActiveProject:RunConfig:Name",
+        tr("Name of the active project's active run configuration."),
+        []() -> QString {
+            if (const RunConfiguration * const rc = activeRunConfiguration())
+                return rc->displayName();
+            return QString();
+        });
+    expander->registerFileVariables("ActiveProject:RunConfig:Executable",
+        tr("The executable of the active project's active run configuration."),
+        []() -> QString {
+            if (const RunConfiguration * const rc = activeRunConfiguration())
+                return rc->commandLine().executable().toString();
+            return QString();
+        });
+    expander->registerPrefix("ActiveProject:RunConfig:Env",
+        tr("Variables in the environment of the active project's active run configuration."),
+        [](const QString &var) {
+            if (const RunConfiguration * const rc = activeRunConfiguration()) {
+                if (const auto envAspect = rc->aspect<EnvironmentAspect>())
+                    return envAspect->environment().expandedValueForKey(var);
+            }
+            return QString();
+    });
+    expander->registerVariable("ActiveProject:RunConfig:WorkingDir",
+        tr("The working directory of the active project's active run configuration."),
+        [] {
+            if (const RunConfiguration * const rc = activeRunConfiguration()) {
+                if (const auto wdAspect = rc->aspect<WorkingDirectoryAspect>())
+                    return wdAspect->workingDirectory(rc->macroExpander()).toString();
+            }
+            return QString();
+    });
 
     const auto fileHandler = [] {
         return SessionManager::sessionNameToFileName(SessionManager::activeSession()).toString();

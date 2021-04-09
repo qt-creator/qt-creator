@@ -534,6 +534,14 @@ void CMakeBuildStep::recreateBuildTargetsModel()
 
     addItem(QString(), true);
 
+    // Remove the targets that do not exist in the build system
+    // This can result when selected targets get renamed
+    if (!targetList.empty()) {
+        Utils::erase(m_buildTargets, [targetList](const QString &bt) { return !targetList.contains(bt); });
+        if (m_buildTargets.empty())
+            m_buildTargets.push_back(m_allTarget);
+    }
+
     for (const QString &buildTarget : qAsConst(targetList))
         addItem(buildTarget, specialTargets(usesAllCapsTargets).contains(buildTarget));
 

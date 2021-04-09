@@ -36,7 +36,7 @@ class ItemLibraryCategory : public QObject
     Q_OBJECT
 
     Q_PROPERTY(QString categoryName READ categoryName FINAL)
-    Q_PROPERTY(bool categoryVisible READ isVisible NOTIFY visibilityChanged FINAL)
+    Q_PROPERTY(bool categoryVisible READ isCategoryVisible WRITE setCategoryVisible NOTIFY categoryVisibilityChanged FINAL)
     Q_PROPERTY(bool categoryExpanded READ categoryExpanded WRITE setExpanded NOTIFY expandedChanged FINAL)
     Q_PROPERTY(QObject *itemModel READ itemModel NOTIFY itemModelChanged FINAL)
 
@@ -52,8 +52,9 @@ public:
 
     bool updateItemVisibility(const QString &searchText, bool *changed);
 
+    void setCategoryVisible(bool isVisible);
     bool setVisible(bool isVisible);
-    bool isVisible() const;
+    bool isCategoryVisible() const;
 
     void sortItems();
 
@@ -63,6 +64,7 @@ signals:
     void itemModelChanged();
     void visibilityChanged();
     void expandedChanged();
+    void categoryVisibilityChanged();
 
 private:
     ItemLibraryItemsModel m_itemModel;

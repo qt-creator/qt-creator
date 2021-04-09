@@ -116,17 +116,26 @@ bool ItemLibraryImport::updateCategoryVisibility(const QString &searchText, bool
     *changed = false;
 
     for (const auto &category : m_categoryModel.categorySections()) {
-        bool categoryChanged = false;
-        bool hasVisibleItems = category->updateItemVisibility(searchText, &categoryChanged);
-        categoryChanged |= category->setVisible(hasVisibleItems);
+        category->setCategoryVisible(ItemLibraryModel::loadCategoryVisibleState(category->categoryName()));
 
-        *changed |= categoryChanged;
+        if (!searchText.isEmpty() || category->isCategoryVisible()) {
+            bool categoryChanged = false;
+            bool hasVisibleItems = category->updateItemVisibility(searchText, &categoryChanged);
+            categoryChanged |= category->setVisible(hasVisibleItems);
 
-        if (hasVisibleItems)
-            hasVisibleCategories = true;
+            *changed |= categoryChanged;
+
+            if (hasVisibleItems)
+                hasVisibleCategories = true;
+        }
     }
 
     return hasVisibleCategories;
+}
+
+void ItemLibraryImport::showAllCategories(bool show)
+{
+    m_categoryModel.showAllCategories(show);
 }
 
 Import ItemLibraryImport::importEntry() const
@@ -233,6 +242,24 @@ void ItemLibraryImport::updateRemovable()
         m_importRemovable = importRemovable;
         emit importRemovableChanged();
     }
+}
+
+// returns true if all categories are visible, otherwise false
+bool ItemLibraryImport::importCatVisibleState() const
+{
+    if (m_categoryModel.rowCount() > 0) {
+        for (ItemLibraryCategory *cat : m_categoryModel.categorySections()) {
+            if (!cat->isCategoryVisible())
+                return false;
+        }
+    }
+
+    return true;
+}
+
+void ItemLibraryImport::setImportCatVisibleState(bool show)
+{
+    m_categoryModel.showAllCategories(show);
 }
 
 } // namespace QmlDesigner

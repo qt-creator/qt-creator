@@ -29,6 +29,8 @@
 #include <cplusplus/LookupContext.h>
 #include <utils/qtcassert.h>
 
+#include <QRegularExpression>
+
 namespace Autotest {
 namespace Internal {
 
@@ -45,7 +47,7 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
         return false;
 
     CPlusPlus::DeclaratorIdAST *id = ast->declarator->core_declarator->asDeclaratorId();
-    if (!id || !ast->symbol || ast->symbol->argumentCount() != 2)
+    if (!id || !ast->symbol)
         return false;
 
     QString prettyName =
@@ -61,33 +63,68 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
     if (!GTestUtils::isGTestMacro(prettyName))
         return false;
 
-    CPlusPlus::Argument *testCaseNameArg = ast->symbol->argumentAt(0)->asArgument();
-    CPlusPlus::Argument *testNameArg = ast->symbol->argumentAt(1)->asArgument();
-    if (testCaseNameArg && testNameArg) {
-        const QString &testCaseName = m_overview.prettyType(testCaseNameArg->type());
-        const QString &testName = m_overview.prettyType(testNameArg->type());
+    QString testSuiteName;
+    QString testCaseName;
+    if (ast->symbol->argumentCount() != 2 && ast->declarator->initializer) {
+        // we might have a special case when second parameter is a literal starting with a number
+        if (auto expressionListParenAST = ast->declarator->initializer->asExpressionListParen()) {
+            // only try if we have 3 tokens between left and right paren (2 parameters and a comma)
+            if (expressionListParenAST->rparen_token - expressionListParenAST->lparen_token != 4)
+                return false;
 
-        const bool disabled = testName.startsWith(disabledPrefix);
-        const bool disabledCase = testCaseName.startsWith(disabledPrefix);
-        int line = 0;
-        int column = 0;
-        unsigned token = id->firstToken();
-        m_document->translationUnit()->getTokenStartPosition(token, &line, &column);
+            const CPlusPlus::Token parameter1
+                    = translationUnit()->tokenAt(expressionListParenAST->lparen_token + 1);
+            const CPlusPlus::Token parameter2
+                    = translationUnit()->tokenAt(expressionListParenAST->rparen_token - 1);
+            const CPlusPlus::Token comma
+                    = translationUnit()->tokenAt(expressionListParenAST->lparen_token + 2);
+            if (!comma.is(CPlusPlus::T_COMMA))
+                return false;
 
-        GTestCodeLocationAndType locationAndType;
-        locationAndType.m_name = testName;
-        locationAndType.m_line = line;
-        locationAndType.m_column = column - 1;
-        locationAndType.m_type = TestTreeItem::TestCase;
-        locationAndType.m_state = disabled ? GTestTreeItem::Disabled
-                                           : GTestTreeItem::Enabled;
-        GTestCaseSpec spec;
-        spec.testCaseName = testCaseName;
-        spec.parameterized = GTestUtils::isGTestParameterized(prettyName);
-        spec.typed = GTestUtils::isGTestTyped(prettyName);
-        spec.disabled = disabledCase;
-        m_gtestFunctions[spec].append(locationAndType);
+            testSuiteName = QString::fromUtf8(parameter1.spell());
+            testCaseName = QString::fromUtf8(parameter2.spell());
+            // test (suite) name needs to be a alpha numerical literal ( _ and $ allowed)
+            const QRegularExpression alnum("^[[:alnum:]_$]+$");
+            // test suite must not start with a number, test case may
+            if (!alnum.match(testSuiteName).hasMatch()
+                    || (!testSuiteName.isEmpty() && testSuiteName.at(0).isNumber())) {
+                testSuiteName.clear();
+            }
+            if (!alnum.match(testCaseName).hasMatch())
+                testCaseName.clear();
+        }
+    } else {
+        const CPlusPlus::Argument *testSuiteNameArg = ast->symbol->argumentAt(0)->asArgument();
+        const CPlusPlus::Argument *testCaseNameArg = ast->symbol->argumentAt(1)->asArgument();
+        if (testSuiteNameArg && testCaseNameArg) {
+            testSuiteName = m_overview.prettyType(testSuiteNameArg->type());
+            testCaseName = m_overview.prettyType(testCaseNameArg->type());
+        }
     }
+    if (testSuiteName.isEmpty() || testCaseName.isEmpty())
+        return false;
+
+    const bool disabled = testCaseName.startsWith(disabledPrefix);
+    const bool disabledCase = testSuiteName.startsWith(disabledPrefix);
+    int line = 0;
+    int column = 0;
+    unsigned token = id->firstToken();
+    m_document->translationUnit()->getTokenStartPosition(token, &line, &column);
+
+    GTestCodeLocationAndType locationAndType;
+    locationAndType.m_name = testCaseName;
+    locationAndType.m_line = line;
+    locationAndType.m_column = column - 1;
+    locationAndType.m_type = TestTreeItem::TestCase;
+    locationAndType.m_state = disabled ? GTestTreeItem::Disabled
+                                       : GTestTreeItem::Enabled;
+    GTestCaseSpec spec;
+    // FIXME GTestCaseSpec structure wrong nowadays (suite vs case / case vs function)
+    spec.testCaseName = testSuiteName;
+    spec.parameterized = GTestUtils::isGTestParameterized(prettyName);
+    spec.typed = GTestUtils::isGTestTyped(prettyName);
+    spec.disabled = disabledCase;
+    m_gtestFunctions[spec].append(locationAndType);
 
     return false;
 }

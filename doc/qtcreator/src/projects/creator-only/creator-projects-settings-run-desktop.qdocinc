@@ -61,6 +61,9 @@
     linked frameworks, such as the Qt framework itself. You do not need this
     option for debugging your application code.
 
+    On Linux, select the \uicontrol {Run as root user} check box to run the
+    application with root user permissions.
+
     You can also create custom executable run configurations where you
     can set the executable to be run. For more information, see
     \l{Specifying a Custom Executable to Run}.

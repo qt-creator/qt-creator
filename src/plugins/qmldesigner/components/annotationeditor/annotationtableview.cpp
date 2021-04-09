@@ -85,6 +85,7 @@ void CommentDelegate::updateEditorGeometry(QWidget *editor,
                                            const QStyleOptionViewItem &option,
                                            const QModelIndex &index) const
 {
+    Q_UNUSED(index)
     editor->setGeometry(option.rect);
 }
 
@@ -104,6 +105,9 @@ QWidget *CommentTitleDelegate::createEditor(QWidget *parent,
                                             const QStyleOptionViewItem &option,
                                             const QModelIndex &index) const
 {
+    Q_UNUSED(option)
+    Q_UNUSED(index)
+
     auto *editor = new QComboBox(parent);
     editor->setEditable(true);
     editor->setCompleter(completer());

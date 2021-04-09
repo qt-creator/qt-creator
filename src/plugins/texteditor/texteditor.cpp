@@ -1999,7 +1999,7 @@ void TextEditorWidgetPrivate::moveLineUpDown(bool up)
         move.setPosition(cursor.selectionStart());
         move.movePosition(QTextCursor::StartOfBlock);
         move.setPosition(cursor.selectionEnd(), QTextCursor::KeepAnchor);
-        move.movePosition(move.atBlockStart() ? QTextCursor::Left: QTextCursor::EndOfBlock,
+        move.movePosition(move.atBlockStart() ? QTextCursor::PreviousCharacter: QTextCursor::EndOfBlock,
                           QTextCursor::KeepAnchor);
     } else {
         move.movePosition(QTextCursor::StartOfBlock);
@@ -2024,19 +2024,19 @@ void TextEditorWidgetPrivate::moveLineUpDown(bool up)
         }
     }
 
-    move.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+    move.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
     move.removeSelectedText();
 
     if (up) {
         move.movePosition(QTextCursor::PreviousBlock);
         move.insertBlock();
-        move.movePosition(QTextCursor::Left);
+        move.movePosition(QTextCursor::PreviousCharacter);
     } else {
         move.movePosition(QTextCursor::EndOfBlock);
         if (move.atBlockStart()) { // empty block
             move.movePosition(QTextCursor::NextBlock);
             move.insertBlock();
-            move.movePosition(QTextCursor::Left);
+            move.movePosition(QTextCursor::PreviousCharacter);
         } else {
             move.insertBlock();
         }

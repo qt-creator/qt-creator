@@ -174,14 +174,14 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
             if (RunConfiguration * const rc = activeRunConfiguration())
                 return rc->displayName();
             return QString();
-        });
+        }, false);
     d->m_macroExpander.registerFileVariables("CurrentRun:Executable",
         tr("The currently active run configuration's executable (if applicable)."),
         [this]() -> QString {
             if (RunConfiguration * const rc = activeRunConfiguration())
                 return rc->commandLine().executable().toString();
             return QString();
-        });
+        }, false);
     d->m_macroExpander.registerPrefix("CurrentRun:Env", tr("Variables in the current run environment."),
                              [this](const QString &var) {
         if (RunConfiguration * const rc = activeRunConfiguration()) {
@@ -189,7 +189,7 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
                 return envAspect->environment().expandedValueForKey(var);
         }
         return QString();
-    });
+    }, false);
     d->m_macroExpander.registerVariable("CurrentRun:WorkingDir",
                                tr("The currently active run configuration's working directory."),
                                [this] {
@@ -198,7 +198,7 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
                 return wdAspect->workingDirectory(&d->m_macroExpander).toString();
         }
         return QString();
-    });
+    }, false);
 }
 
 Target::~Target()

@@ -43,6 +43,19 @@
     To edit 3D components, select the component in \uicontrol {3D Editor} or in
     \uicontrol Navigator and set its properties in the \l Properties view.
 
+    \section1 Getting Started Videos
+
+    The following video shows you how to add the components included in the
+    \uicontrol QtQuick3D module, such as 3D models, cameras, and lights, to your
+    scene:
+    \youtube u3kZJjlk3CY
+
+    See the next video to learn more about the custom shader utilities, 3D
+    effects, and materials:
+    \youtube bMXeeQw6BYs
+
+    \section1 More Information about 3D Components
+
     \list
         \li \l {Setting Group Properties}
 

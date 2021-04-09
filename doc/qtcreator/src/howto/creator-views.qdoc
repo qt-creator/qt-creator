@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -178,6 +178,11 @@
         \li Add and remove subprojects.
         \endif
         \li Search from the selected directory.
+        \li Open a terminal window in the project directory. To specify the
+            terminal to use on Linux and \macos, select \uicontrol Tools >
+            \uicontrol Options > \uicontrol Environment > \uicontrol System.
+        \li Open a terminal window in the project directory that is configured
+            for building or running the project.
         \li Expand or collapse the tree view to show or hide all files and
             folders.
         \li Close all files in a project.

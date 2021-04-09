@@ -139,9 +139,6 @@ QVariantMap DefaultAnnotationsModel::asVariantMapFromJson(const QJsonDocument &d
         case QJsonValue::Double:
             map[key] = double{0.0};
             break;
-        case QJsonValue::String:
-            map[key] = QString{};
-            break;
         case QJsonValue::Bool:
             map[key] = false;
             break;
@@ -160,7 +157,13 @@ QVariantMap DefaultAnnotationsModel::asVariantMapFromJson(const QJsonDocument &d
                 map[key] = QVariant::fromValue(val.toDouble());
             else if (type == QStringLiteral("color"))
                 map[key] = QVariant::fromValue(QColor(val.toString()));
+            break;
         }
+        case QJsonValue::String:
+            map[key] = QString{};
+            break;
+        default:
+            break;
         }
     }
 
