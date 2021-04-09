@@ -32,6 +32,7 @@ from __future__ import print_function
 
 import argparse
 import collections
+import glob
 import os
 
 import common
@@ -63,20 +64,24 @@ def get_arguments():
     args.with_debug_info = args.build_type == 'RelWithDebInfo'
     return args
 
+def qtcreator_prefix_path(qt_creator_path):
+    # on macOS the prefix path must be inside the app bundle, but we want to allow
+    # simpler values for --qtc-path, so search in some variants of that
+    candidates = [qt_creator_path, os.path.join(qt_creator_path, 'Contents', 'Resources')]
+    candidates += [os.path.join(path, 'Contents', 'Resources')
+                   for path in glob.glob(os.path.join(qt_creator_path, '*.app'))]
+    for path in candidates:
+        if os.path.exists(os.path.join(path, 'lib', 'cmake')):
+            return [path]
+    return [qt_creator_path]
+
 def build(args, paths):
     if not os.path.exists(paths.build):
         os.makedirs(paths.build)
     if not os.path.exists(paths.result):
         os.makedirs(paths.result)
-    prefix_paths = [os.path.abspath(fp) for fp in args.prefix_paths] + [paths.qt_creator, paths.qt]
-    if common.is_mac_platform():
-        # --qtc-path may be
-        # "/path/Qt Creator.app/Contents/Resources",
-        # "/path/Qt Creator.app", or
-        # "/path",
-        # so add some variants to the prefix path
-        prefix_paths += [os.path.join(paths.qt_creator, 'Contents', 'Resources'),
-                         os.path.join(paths.qt_creator, 'Qt Creator.app', 'Contents', 'Resources')]
+    prefix_paths = [os.path.abspath(fp) for fp in args.prefix_paths] + [paths.qt]
+    prefix_paths += qtcreator_prefix_path(paths.qt_creator)
     prefix_paths = [common.to_posix_path(fp) for fp in prefix_paths]
     separate_debug_info_option = 'ON' if args.with_debug_info else 'OFF'
     cmake_args = ['cmake',
