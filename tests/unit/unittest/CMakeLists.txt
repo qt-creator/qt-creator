@@ -223,6 +223,14 @@ endforeach()
 
 extend_qtc_test_with_target_sources(Sqlite)
 
+extend_qtc_test(unittest DEFINES _HAVE_SQLITE_CONFIG_H)
+
+if (APPLE)
+extend_qtc_test(unittest DEFINES _BSD_SOURCE)
+elseif (UNIX)
+extend_qtc_test(unittest DEFINES _POSIX_C_SOURCE=200809L _GNU_SOURCE _DEFAULT_SOURCE)
+endif()
+
 # Do not work on the source directory data
 add_custom_command(TARGET unittest POST_BUILD
   COMMAND "${CMAKE_COMMAND}" -E copy_directory
