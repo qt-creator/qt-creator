@@ -419,7 +419,7 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
             return;
         }
 
-        if (runnable.executable.isEmpty()) {
+        if (!device->isEmptyCommandAllowed() && runnable.executable.isEmpty()) {
             doReportError(ApplicationLauncher::tr("Cannot run: No command given."));
             setFinished();
             return;

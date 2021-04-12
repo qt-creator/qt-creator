@@ -152,6 +152,7 @@ public:
     Utils::PortList freePorts;
     QString debugServerPath;
     QString qmlsceneCommand;
+    bool emptyCommandAllowed = false;
 
     QList<Utils::Icon> deviceIcons;
     QList<IDevice::DeviceAction> deviceActions;
@@ -187,6 +188,16 @@ void IDevice::openTerminal(const Utils::Environment &env, const QString &working
 {
     QTC_ASSERT(canOpenTerminal(), return);
     d->openTerminal(env, workingDir);
+}
+
+bool IDevice::isEmptyCommandAllowed() const
+{
+    return d->emptyCommandAllowed;
+}
+
+void IDevice::setAllowEmptyCommand(bool allow)
+{
+    d->emptyCommandAllowed = allow;
 }
 
 IDevice::~IDevice() = default;

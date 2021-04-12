@@ -221,6 +221,9 @@ public:
     bool canOpenTerminal() const;
     void openTerminal(const Utils::Environment &env, const QString &workingDir) const;
 
+    bool isEmptyCommandAllowed() const;
+    void setAllowEmptyCommand(bool allow);
+
 protected:
     IDevice();
 
