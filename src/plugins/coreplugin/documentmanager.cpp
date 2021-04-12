@@ -1375,7 +1375,9 @@ void DocumentManager::saveSettings()
     s->setValueWithDefault(editorsKeyC, recentEditorIds);
     s->endGroup();
     s->beginGroup(directoryGroupC);
-    s->setValueWithDefault(projectDirectoryKeyC, d->m_projectsDirectory.toString());
+    s->setValueWithDefault(projectDirectoryKeyC,
+                           d->m_projectsDirectory.toString(),
+                           PathChooser::homePath());
     s->setValueWithDefault(useProjectDirectoryKeyC,
                            d->m_useProjectsDirectory,
                            kUseProjectsDirectoryDefault);

@@ -742,7 +742,7 @@ EditorArea *EditorManagerPrivate::mainEditorArea()
 
 bool EditorManagerPrivate::skipOpeningBigTextFile(const QString &filePath)
 {
-    if (!d->m_warnBeforeOpeningBigFilesEnabled)
+    if (!d->m_settings.warnBeforeOpeningBigFilesEnabled)
         return false;
 
     if (!QFileInfo::exists(filePath))
@@ -755,7 +755,8 @@ bool EditorManagerPrivate::skipOpeningBigTextFile(const QString &filePath)
     const QFileInfo fileInfo(filePath);
     const qint64 fileSize = fileInfo.size();
     const double fileSizeInMB = fileSize / 1000.0 / 1000.0;
-    if (fileSizeInMB > d->m_bigFileSizeLimitInMB && fileSize < EditorManager::maxTextFileSize()) {
+    if (fileSizeInMB > d->m_settings.bigFileSizeLimitInMB
+        && fileSize < EditorManager::maxTextFileSize()) {
         const QString title = EditorManager::tr("Continue Opening Huge Text File?");
         const QString text = EditorManager::tr(
             "The text file \"%1\" has the size %2MB and might take more memory to open"
@@ -1246,39 +1247,52 @@ void EditorManagerPrivate::saveSettings()
 {
     ICore::settingsDatabase()->setValue(documentStatesKey, d->m_editorStates);
 
-    QSettings *qsettings = ICore::settings();
-    qsettings->setValue(reloadBehaviorKey, d->m_reloadSetting);
-    qsettings->setValue(autoSaveEnabledKey, d->m_autoSaveEnabled);
-    qsettings->setValue(autoSaveIntervalKey, d->m_autoSaveInterval);
-    qsettings->setValue(autoSuspendEnabledKey, d->m_autoSuspendEnabled);
-    qsettings->setValue(autoSuspendMinDocumentCountKey, d->m_autoSuspendMinDocumentCount);
-    qsettings->setValue(warnBeforeOpeningBigTextFilesKey,
-                        d->m_warnBeforeOpeningBigFilesEnabled);
-    qsettings->setValue(bigTextFileSizeLimitKey, d->m_bigFileSizeLimitInMB);
-    qsettings->setValue(maxRecentFilesKey, d->m_maxRecentFiles);
+    const Settings def;
+    QtcSettings *qsettings = ICore::settings();
+    qsettings->setValueWithDefault(reloadBehaviorKey,
+                                   int(d->m_settings.reloadSetting),
+                                   int(def.reloadSetting));
+    qsettings->setValueWithDefault(autoSaveEnabledKey,
+                                   d->m_settings.autoSaveEnabled,
+                                   def.autoSaveEnabled);
+    qsettings->setValueWithDefault(autoSaveIntervalKey,
+                                   d->m_settings.autoSaveInterval,
+                                   def.autoSaveInterval);
+    qsettings->setValueWithDefault(autoSuspendEnabledKey,
+                                   d->m_settings.autoSuspendEnabled,
+                                   def.autoSuspendEnabled);
+    qsettings->setValueWithDefault(autoSuspendMinDocumentCountKey,
+                                   d->m_settings.autoSuspendMinDocumentCount,
+                                   def.autoSuspendMinDocumentCount);
+    qsettings->setValueWithDefault(warnBeforeOpeningBigTextFilesKey,
+                                   d->m_settings.warnBeforeOpeningBigFilesEnabled,
+                                   def.warnBeforeOpeningBigFilesEnabled);
+    qsettings->setValueWithDefault(bigTextFileSizeLimitKey,
+                                   d->m_settings.bigFileSizeLimitInMB,
+                                   def.bigFileSizeLimitInMB);
+    qsettings->setValueWithDefault(maxRecentFilesKey,
+                                   d->m_settings.maxRecentFiles,
+                                   def.maxRecentFiles);
 
-    Qt::CaseSensitivity defaultSensitivity
-            = OsSpecificAspects::fileNameCaseSensitivity(HostOsInfo::hostOs());
-    Qt::CaseSensitivity sensitivity = HostOsInfo::fileNameCaseSensitivity();
-    if (defaultSensitivity == sensitivity)
-        qsettings->remove(fileSystemCaseSensitivityKey);
-    else
-        qsettings->setValue(fileSystemCaseSensitivityKey, sensitivity);
-    qsettings->setValue(preferredEditorFactoriesKey, toMap(userPreferredEditorFactories()));
+    qsettings->setValueWithDefault(fileSystemCaseSensitivityKey,
+                                   HostOsInfo::fileNameCaseSensitivity(),
+                                   OsSpecificAspects::fileNameCaseSensitivity(HostOsInfo::hostOs()));
+    qsettings->setValueWithDefault(preferredEditorFactoriesKey,
+                                   toMap(userPreferredEditorFactories()));
 }
 
 void EditorManagerPrivate::readSettings()
 {
+    Settings def;
     QSettings *qs = ICore::settings();
-    if (qs->contains(warnBeforeOpeningBigTextFilesKey)) {
-        d->m_warnBeforeOpeningBigFilesEnabled
-                = qs->value(warnBeforeOpeningBigTextFilesKey).toBool();
-        d->m_bigFileSizeLimitInMB = qs->value(bigTextFileSizeLimitKey).toInt();
-    }
+    d->m_settings.warnBeforeOpeningBigFilesEnabled
+        = qs->value(warnBeforeOpeningBigTextFilesKey, def.warnBeforeOpeningBigFilesEnabled).toBool();
+    d->m_settings.bigFileSizeLimitInMB
+        = qs->value(bigTextFileSizeLimitKey, def.bigFileSizeLimitInMB).toInt();
 
-    const int maxRecentFiles = qs->value(maxRecentFilesKey).toInt();
+    const int maxRecentFiles = qs->value(maxRecentFilesKey, def.maxRecentFiles).toInt();
     if (maxRecentFiles > 0)
-        d->m_maxRecentFiles = maxRecentFiles;
+        d->m_settings.maxRecentFiles = maxRecentFiles;
 
     if (qs->contains(fileSystemCaseSensitivityKey)) {
         Qt::CaseSensitivity defaultSensitivity
@@ -1310,104 +1324,90 @@ void EditorManagerPrivate::readSettings()
             .value<QMap<QString, QVariant> >();
     }
 
-    if (settings->contains(reloadBehaviorKey)) {
-        d->m_reloadSetting = IDocument::ReloadSetting(settings->value(reloadBehaviorKey).toInt());
-        settings->remove(reloadBehaviorKey);
-    }
+    d->m_settings.reloadSetting = IDocument::ReloadSetting(
+        qs->value(reloadBehaviorKey, def.reloadSetting).toInt());
 
-    if (settings->contains(autoSaveEnabledKey)) {
-        d->m_autoSaveEnabled = settings->value(autoSaveEnabledKey).toBool();
-        d->m_autoSaveInterval = settings->value(autoSaveIntervalKey).toInt();
-        settings->remove(autoSaveEnabledKey);
-        settings->remove(autoSaveIntervalKey);
-    }
+    d->m_settings.autoSaveEnabled = qs->value(autoSaveEnabledKey, def.autoSaveEnabled).toBool();
+    d->m_settings.autoSaveInterval = qs->value(autoSaveIntervalKey, def.autoSaveInterval).toInt();
 
-    if (qs->contains(reloadBehaviorKey))
-        d->m_reloadSetting = IDocument::ReloadSetting(qs->value(reloadBehaviorKey).toInt());
-
-    if (qs->contains(autoSaveEnabledKey)) {
-        d->m_autoSaveEnabled = qs->value(autoSaveEnabledKey).toBool();
-        d->m_autoSaveInterval = qs->value(autoSaveIntervalKey).toInt();
-    }
-
-    if (qs->contains(autoSuspendEnabledKey)) {
-        d->m_autoSuspendEnabled = qs->value(autoSuspendEnabledKey).toBool();
-        d->m_autoSuspendMinDocumentCount = qs->value(autoSuspendMinDocumentCountKey).toInt();
-    }
+    d->m_settings.autoSuspendEnabled = qs->value(autoSuspendEnabledKey, def.autoSuspendEnabled)
+                                           .toBool();
+    d->m_settings.autoSuspendMinDocumentCount
+        = qs->value(autoSuspendMinDocumentCountKey, def.autoSuspendMinDocumentCount).toInt();
 
     updateAutoSave();
 }
 
 void EditorManagerPrivate::setAutoSaveEnabled(bool enabled)
 {
-    d->m_autoSaveEnabled = enabled;
+    d->m_settings.autoSaveEnabled = enabled;
     updateAutoSave();
 }
 
 bool EditorManagerPrivate::autoSaveEnabled()
 {
-    return d->m_autoSaveEnabled;
+    return d->m_settings.autoSaveEnabled;
 }
 
 void EditorManagerPrivate::setAutoSaveInterval(int interval)
 {
-    d->m_autoSaveInterval = interval;
+    d->m_settings.autoSaveInterval = interval;
     updateAutoSave();
 }
 
 int EditorManagerPrivate::autoSaveInterval()
 {
-    return d->m_autoSaveInterval;
+    return d->m_settings.autoSaveInterval;
 }
 
 void EditorManagerPrivate::setAutoSuspendEnabled(bool enabled)
 {
-    d->m_autoSuspendEnabled = enabled;
+    d->m_settings.autoSuspendEnabled = enabled;
 }
 
 bool EditorManagerPrivate::autoSuspendEnabled()
 {
-    return d->m_autoSuspendEnabled;
+    return d->m_settings.autoSuspendEnabled;
 }
 
 void EditorManagerPrivate::setAutoSuspendMinDocumentCount(int count)
 {
-    d->m_autoSuspendMinDocumentCount = count;
+    d->m_settings.autoSuspendMinDocumentCount = count;
 }
 
 int EditorManagerPrivate::autoSuspendMinDocumentCount()
 {
-    return d->m_autoSuspendMinDocumentCount;
+    return d->m_settings.autoSuspendMinDocumentCount;
 }
 
 bool EditorManagerPrivate::warnBeforeOpeningBigFilesEnabled()
 {
-    return d->m_warnBeforeOpeningBigFilesEnabled;
+    return d->m_settings.warnBeforeOpeningBigFilesEnabled;
 }
 
 void EditorManagerPrivate::setWarnBeforeOpeningBigFilesEnabled(bool enabled)
 {
-    d->m_warnBeforeOpeningBigFilesEnabled = enabled;
+    d->m_settings.warnBeforeOpeningBigFilesEnabled = enabled;
 }
 
 int EditorManagerPrivate::bigFileSizeLimit()
 {
-    return d->m_bigFileSizeLimitInMB;
+    return d->m_settings.bigFileSizeLimitInMB;
 }
 
 void EditorManagerPrivate::setMaxRecentFiles(int count)
 {
-    d->m_maxRecentFiles = count;
+    d->m_settings.maxRecentFiles = count;
 }
 
 int EditorManagerPrivate::maxRecentFiles()
 {
-    return d->m_maxRecentFiles;
+    return d->m_settings.maxRecentFiles;
 }
 
 void EditorManagerPrivate::setBigFileSizeLimit(int limitInMB)
 {
-    d->m_bigFileSizeLimitInMB = limitInMB;
+    d->m_settings.bigFileSizeLimitInMB = limitInMB;
 }
 
 EditorFactoryList EditorManagerPrivate::findFactories(Id editorId, const QString &fileName)
@@ -2005,8 +2005,8 @@ void EditorManagerPrivate::addDocumentToRecentFiles(IDocument *document)
 
 void EditorManagerPrivate::updateAutoSave()
 {
-    if (d->m_autoSaveEnabled)
-        d->m_autoSaveTimer->start(d->m_autoSaveInterval * (60 * 1000));
+    if (d->m_settings.autoSaveEnabled)
+        d->m_autoSaveTimer->start(d->m_settings.autoSaveInterval * (60 * 1000));
     else
         d->m_autoSaveTimer->stop();
 }
@@ -2574,7 +2574,7 @@ void EditorManagerPrivate::revertToSaved(IDocument *document)
 
 void EditorManagerPrivate::autoSuspendDocuments()
 {
-    if (!d->m_autoSuspendEnabled)
+    if (!d->m_settings.autoSuspendEnabled)
         return;
 
     auto visibleDocuments = Utils::transform<QSet>(EditorManager::visibleEditors(),
@@ -2587,7 +2587,7 @@ void EditorManagerPrivate::autoSuspendDocuments()
                 || document->isTemporary() || document->filePath().isEmpty()
                 || visibleDocuments.contains(document))
             continue;
-        if (keptEditorCount >= d->m_autoSuspendMinDocumentCount)
+        if (keptEditorCount >= d->m_settings.autoSuspendMinDocumentCount)
             documentsToSuspend.append(document);
         else
             ++keptEditorCount;
@@ -2949,7 +2949,7 @@ void EditorManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
 */
 IDocument::ReloadSetting EditorManager::reloadSetting()
 {
-    return d->m_reloadSetting;
+    return d->m_settings.reloadSetting;
 }
 
 /*!
@@ -2959,7 +2959,7 @@ IDocument::ReloadSetting EditorManager::reloadSetting()
 */
 void EditorManager::setReloadSetting(IDocument::ReloadSetting behavior)
 {
-     d->m_reloadSetting = behavior;
+    d->m_settings.reloadSetting = behavior;
 }
 
 /*!

@@ -270,22 +270,26 @@ private:
     QMap<QString, QVariant> m_editorStates;
     OpenEditorsViewFactory *m_openEditorsFactory = nullptr;
 
-    IDocument::ReloadSetting m_reloadSetting = IDocument::AlwaysAsk;
-
     EditorManager::WindowTitleHandler m_titleAdditionHandler;
     EditorManager::WindowTitleHandler m_sessionTitleHandler;
     EditorManager::WindowTitleHandler m_titleVcsTopicHandler;
 
-    bool m_autoSaveEnabled = true;
-    int m_autoSaveInterval = 5;
+    struct Settings
+    {
+        IDocument::ReloadSetting reloadSetting = IDocument::AlwaysAsk;
 
-    bool m_autoSuspendEnabled = true;
-    int m_autoSuspendMinDocumentCount = 30;
+        bool autoSaveEnabled = true;
+        int autoSaveInterval = 5;
 
-    bool m_warnBeforeOpeningBigFilesEnabled = true;
-    int m_bigFileSizeLimitInMB = 5;
-    int m_maxRecentFiles = 8;
+        bool autoSuspendEnabled = true;
+        int autoSuspendMinDocumentCount = 30;
 
+        bool warnBeforeOpeningBigFilesEnabled = true;
+        int bigFileSizeLimitInMB = 5;
+        int maxRecentFiles = 8;
+    };
+
+    Settings m_settings;
     QString m_placeholderText;
     QList<std::function<bool(IEditor *)>> m_closeEditorListeners;
 };
