@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -40,7 +40,8 @@
 
     The experimental WebAssembly plugin enables you to build your applications
     in WebAssembly format and deploy and run them in the local web browser.
-    You can change the web browser in the project run settings.
+    You can change the web browser in the project's \l{Specifying Run Settings}
+    {run settings}.
 
     To build applications for the web and run them in a web browser, you need to
     install Qt for WebAssembly and the tool chain for compiling to WebAssembly.
@@ -51,16 +52,11 @@
     them in a browser:
 
     \list
-        \li Qt for WebAssembly 5.13.1, or later
+        \li Qt for WebAssembly 5.15, or later
         \li On Windows: \l{http://wiki.qt.io/MinGW}{\MinGW} 7.3.0, or later
         \li \l{https://emscripten.org/docs/introducing_emscripten/index.html}
             {emscripten} tool chain for compiling to WebAssembly
-        \li \c sed stream editor
     \endlist
-
-    \note You need to add the location of the \MinGW and \c sed installation
-    folders to the system path, either globally or for the Qt for WebAssembly
-    kit.
 
     \section1 Setting Up the Development Environment
 
@@ -75,15 +71,11 @@
         \list 1
         \li Use the Qt maintenance tool to install Qt for WebAssembly and, on
             Windows, \MinGW (found in \uicontrol {Developer and Designer Tools}).
-        \li Check out \c emsdk and install and activate \c emscripten, as
-            instructed in \l {Qt for WebAssembly}.
-            \note Do not use the \c{--embedded} option for activating the
-            \c emscripten version in the \c emsdk, because \QC
-            expects to find the \c{.emscripten} file describing the toolchain in
-            your home directory.
-        \li On Windows, you have to download and install \c sed, as instructed
-            in \l{http://gnuwin32.sourceforge.net/packages/sed.htm}
-            {sed for Windows}.
+        \li Check out a known-good Emscripten version supported by the Qt for
+            WebAssembly version that you installed, and install and activate
+            \c emscripten, as instructed in
+            \l {https://doc.qt.io/qt-5/wasm.html#install-emscripten}
+            {Install Emscripten}.
         \endlist
 
     \section2 Enabling the WebAssembly Plugin
@@ -101,17 +93,19 @@
     To configure \QC for building Qt apps for the web:
 
     \list 1
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Devices >
+            \uicontrol WebAssembly.
+        \li In the \uicontrol {Emscripten SDK path} field, enter the root
+            directory where \c emsdk is installed.
+        \li \QC configures the \uicontrol {Emscripten SDK environment} for you
+            if the \c emsdk is supported by the Qt for WebAssembly version that
+            you will use for developing the application.
+            \image qtcreator-webassembly-options.png "Qt for WebAssembly device options"
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits.
             \image qtcreator-kit-webassembly.png "Qt for WebAssembly kit"
         \li In the \uicontrol Compiler group, \uicontrol {Emscripten Compiler}
             should have been automatically detected for both C++ and C. If not,
-            check that emscripten is set up correctly and your home directory
-            contains an \c{.emscripten} file.
-        \li Select \uicontrol Change next to the \uicontrol Environment
-            field to append the locations where you installed \MinGW and
-            \c sed to the PATH variable. For example, on Windows:
-            \c {PATH=C:\Qt\Tools\mingw730_64\bin;C:\Program Files (x86)\GnuWin32\bin;${PATH}}
-            \li Select \uicontrol Apply to save the changes to the kit.
+            check that emscripten is set up correctly.
     \endlist
 
     \section2 Adding WebAssembly Kits
@@ -129,9 +123,6 @@
             set to \uicontrol {Web Browser}.
         \li In the \uicontrol Compiler field, select
             \uicontrol {Emscripten Compiler} for both C and C++.
-        \li Select \uicontrol Change next to the \uicontrol Environment
-            field to append the locations where you installed \MinGW and
-            \c sed to the PATH variable.
         \li Select \uicontrol Apply to add the kit.
     \endlist
 
@@ -144,8 +135,8 @@
         \li Select \uicontrol Projects > \uicontrol {Build & Run}, and then
             select the WebAssembly kit as the build and run kit for the project.
         \li Select \uicontrol Run to specify run settings.
-        \li In the \uicontrol Browser field, select the browser to run the
-            application in.
+        \li In the \uicontrol {Web browser} field, select the browser to run
+            the application in.
             \image qtcreator-settings-run-webassembly.png "Selecting the browser to run in"
     \endlist
 
