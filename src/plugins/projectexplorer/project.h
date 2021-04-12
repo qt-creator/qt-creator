@@ -169,6 +169,9 @@ public:
     void setExtraProjectFiles(const QSet<Utils::FilePath> &projectDocumentPaths,
                               const DocGenerator &docGenerator = {},
                               const DocUpdater &docUpdater = {});
+    void updateExtraProjectFiles(const QSet<Utils::FilePath> &projectDocumentPaths,
+                                 const DocUpdater &docUpdater);
+    void updateExtraProjectFiles(const DocUpdater &docUpdater);
 
     void setDisplayName(const QString &name);
     void setProjectLanguage(Utils::Id id, bool enabled);
