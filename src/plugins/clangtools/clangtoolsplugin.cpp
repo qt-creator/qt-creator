@@ -60,6 +60,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
 
 #include <QAction>
 #include <QDebug>
@@ -113,6 +114,8 @@ bool ClangToolsPlugin::initialize(const QStringList &arguments, QString *errorSt
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
+
+    TaskHub::addCategory(taskCategory(), tr("Clang Tools"));
 
     // Import tidy/clazy diagnostic configs from CppTools now
     // instead of at opening time of the settings page

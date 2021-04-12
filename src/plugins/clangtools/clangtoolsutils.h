@@ -27,6 +27,7 @@
 
 #include <cpptools/clangdiagnosticconfig.h>
 
+#include <utils/id.h>
 #include <utils/optional.h>
 
 #include <QtGlobal>
@@ -86,6 +87,8 @@ CppTools::ClangDiagnosticConfig diagnosticConfig(const Utils::Id &diagConfigId);
 
 QStringList extraClangToolsPrependOptions();
 QStringList extraClangToolsAppendOptions();
+
+inline Utils::Id taskCategory() { return "ClangTools"; }
 
 } // namespace Internal
 } // namespace ClangTools

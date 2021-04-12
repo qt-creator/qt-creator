@@ -56,6 +56,7 @@
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
 
 #include <texteditor/textdocument.h>
 
@@ -650,6 +651,8 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
                 return;
     }
 
+    TaskHub::clearTasks(taskCategory());
+
     // Collect files to analyze
     const FileInfos fileInfos = collectFileInfos(project, fileSelection);
     if (fileInfos.empty())
@@ -726,8 +729,12 @@ FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelect
     FileSelectionType *selectionType = get_if<FileSelectionType>(&fileSelection);
     // early bailout
     if (selectionType && *selectionType == FileSelectionType::CurrentFile
-        && !EditorManager::currentDocument())
+        && !EditorManager::currentDocument()) {
+        TaskHub::addTask(Task::Error, tr("Cannot analyze current file: No files open."),
+                                         taskCategory());
+        TaskHub::requestPopup();
         return {};
+    }
 
     auto projectInfo = CppTools::CppModelManager::instance()->projectInfo(project);
     QTC_ASSERT(projectInfo.isValid(), return FileInfos());
@@ -757,6 +764,11 @@ FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelect
         });
         if (!fileInfo.file.isEmpty())
             return {fileInfo};
+        TaskHub::addTask(Task::Error,
+                         tr("Cannot analyze current file: \"%1\" is not a known source file.")
+                         .arg(filePath.toUserOutput()),
+                         taskCategory());
+        TaskHub::requestPopup();
     }
 
     return {};
