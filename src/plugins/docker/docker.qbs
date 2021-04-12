@@ -11,6 +11,8 @@ QtcPlugin {
 
     files: [
         "docker_global.h",
+        "dockerbuildstep.h",
+        "dockerbuildstep.cpp",
         "dockerconstants.h",
         "dockerdevice.h",
         "dockerdevice.cpp",

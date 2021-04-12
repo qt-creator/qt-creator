@@ -23,22 +23,18 @@
 **
 ****************************************************************************/
 
-#ifndef DOCKERCONSTANTS_H
-#define DOCKERCONSTANTS_H
+#pragma once
+
+#include <projectexplorer/buildstep.h>
 
 namespace Docker {
-namespace Constants {
+namespace Internal {
 
-const char DOCKER_SETTINGS_ID[] = "Docker.Settings";
-const char ACTION_ID[] = "Docker.Action";
-const char MENU_ID[] = "Docker.Menu";
+class DockerBuildStepFactory final : public ProjectExplorer::BuildStepFactory
+{
+public:
+    DockerBuildStepFactory();
+};
 
-const char DOCKER_DEVICE_TYPE[] = "DockerDeviceType";
-const char DOCKER_RUN_FLAGS[] = "DockerRunFlags";
-
-const char DOCKER_BUILDHOST_BUILDSTEP_ID[] = "Docker.BuildStep.BuildHost";
-
-} // namespace Constants
-} // namespace Docker
-
-#endif // DOCKERCONSTANTS_H
+} // Internal
+} // Docker

@@ -27,6 +27,7 @@
 
 #include "dockerconstants.h"
 
+#include "dockerbuildstep.h"
 #include "dockerdevice.h"
 #include "dockerrunconfiguration.h"
 #include "dockersettings.h"
@@ -55,6 +56,8 @@ public:
         {ProjectExplorer::Constants::NORMAL_RUN_MODE},
         {containerRunConfigFactory.runConfigurationId()}
     };
+
+    DockerBuildStepFactory buildStepFactory;
 };
 
 DockerPlugin::~DockerPlugin()
