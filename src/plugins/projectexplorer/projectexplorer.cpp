@@ -653,7 +653,8 @@ public:
     IDocumentFactory m_documentFactory;
 
     DeviceTypeKitAspect deviceTypeKitAspect;
-    DeviceKitAspect deviceeKitAspect;
+    DeviceKitAspect deviceKitAspect;
+    BuildDeviceKitAspect buildDeviceKitAspect;
     ToolChainKitAspect toolChainKitAspect;
     SysRootKitAspect sysRootKitAspect;
     EnvironmentKitAspect environmentKitAspect;

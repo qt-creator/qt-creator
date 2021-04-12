@@ -35,6 +35,8 @@
 #include "toolchain.h"
 #include "toolchainmanager.h"
 
+#include <docker/dockerconstants.h>
+
 #include <ssh/sshconnection.h>
 
 #include <utils/algorithm.h>
@@ -1060,6 +1062,234 @@ void DeviceKitAspect::kitUpdated(Kit *k)
 }
 
 void DeviceKitAspect::devicesChanged()
+{
+    foreach (Kit *k, KitManager::kits())
+        setup(k); // Set default device if necessary
+}
+
+// --------------------------------------------------------------------------
+// BuildDeviceKitAspect:
+// --------------------------------------------------------------------------
+namespace Internal {
+class BuildDeviceKitAspectWidget final : public KitAspectWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::BuildDeviceKitAspect)
+
+public:
+    BuildDeviceKitAspectWidget(Kit *workingCopy, const KitAspect *ki)
+        : KitAspectWidget(workingCopy, ki),
+        m_comboBox(createSubWidget<QComboBox>()),
+        m_model(new DeviceManagerModel(DeviceManager::instance()))
+    {
+        m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
+        m_comboBox->setModel(m_model);
+        m_manageButton = createManageButton(Constants::DEVICE_SETTINGS_PAGE_ID);
+        refresh();
+        m_comboBox->setToolTip(ki->description());
+
+        connect(m_model, &QAbstractItemModel::modelAboutToBeReset,
+                this, &BuildDeviceKitAspectWidget::modelAboutToReset);
+        connect(m_model, &QAbstractItemModel::modelReset,
+                this, &BuildDeviceKitAspectWidget::modelReset);
+        connect(m_comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+                this, &BuildDeviceKitAspectWidget::currentDeviceChanged);
+    }
+
+    ~BuildDeviceKitAspectWidget() override
+    {
+        delete m_comboBox;
+        delete m_model;
+        delete m_manageButton;
+    }
+
+private:
+    void addToLayout(LayoutBuilder &builder) override
+    {
+        addMutableAction(m_comboBox);
+        builder.addItem(m_comboBox);
+        builder.addItem(m_manageButton);
+    }
+
+    void makeReadOnly() override { m_comboBox->setEnabled(false); }
+
+    void refresh() override
+    {
+        QList<Utils::Id> blackList;
+        const DeviceManager *dm = DeviceManager::instance();
+        for (int i = 0; i < dm->deviceCount(); ++i) {
+            IDevice::ConstPtr device = dm->deviceAt(i);
+            if (!(device->type() == Constants::DESKTOP_DEVICE_TYPE
+                    || device->type() == Docker::Constants::DOCKER_DEVICE_TYPE))
+                blackList.append(device->id());
+        }
+
+        m_model->setFilter(blackList);
+        m_comboBox->setCurrentIndex(m_model->indexOf(BuildDeviceKitAspect::device(m_kit)));
+    }
+
+    void modelAboutToReset()
+    {
+        m_selectedId = m_model->deviceId(m_comboBox->currentIndex());
+        m_ignoreChange = true;
+    }
+
+    void modelReset()
+    {
+        m_comboBox->setCurrentIndex(m_model->indexForId(m_selectedId));
+        m_ignoreChange = false;
+    }
+
+    void currentDeviceChanged()
+    {
+        if (m_ignoreChange)
+            return;
+        BuildDeviceKitAspect::setDeviceId(m_kit, m_model->deviceId(m_comboBox->currentIndex()));
+    }
+
+    bool m_ignoreChange = false;
+    QComboBox *m_comboBox;
+    QWidget *m_manageButton;
+    DeviceManagerModel *m_model;
+    Utils::Id m_selectedId;
+};
+} // namespace Internal
+
+BuildDeviceKitAspect::BuildDeviceKitAspect()
+{
+    setObjectName("BuildDeviceInformation");
+    setId(BuildDeviceKitAspect::id());
+    setDisplayName(tr("Build device"));
+    setDescription(tr("The device used to build applications on."));
+    setPriority(31900);
+
+    connect(KitManager::instance(), &KitManager::kitsLoaded,
+            this, &BuildDeviceKitAspect::kitsWereLoaded);
+}
+
+QVariant BuildDeviceKitAspect::defaultValue(const Kit *k) const
+{
+    Q_UNUSED(k);
+    IDevice::ConstPtr defaultDevice =
+            DeviceManager::instance()->defaultDevice(Constants::DESKTOP_DEVICE_TYPE);
+    return defaultDevice->id().toString();
+}
+
+Tasks BuildDeviceKitAspect::validate(const Kit *k) const
+{
+    IDevice::ConstPtr dev = BuildDeviceKitAspect::device(k);
+    Tasks result;
+    if (dev.isNull())
+        result.append(BuildSystemTask(Task::Warning, tr("No device set.")));
+
+    return result;
+}
+
+KitAspectWidget *BuildDeviceKitAspect::createConfigWidget(Kit *k) const
+{
+    QTC_ASSERT(k, return nullptr);
+    return new Internal::BuildDeviceKitAspectWidget(k, this);
+}
+
+QString BuildDeviceKitAspect::displayNamePostfix(const Kit *k) const
+{
+    IDevice::ConstPtr dev = device(k);
+    return dev.isNull() ? QString() : dev->displayName();
+}
+
+KitAspect::ItemList BuildDeviceKitAspect::toUserOutput(const Kit *k) const
+{
+    IDevice::ConstPtr dev = device(k);
+    return {{tr("Build device"), dev.isNull() ? tr("Unconfigured") : dev->displayName()}};
+}
+
+void BuildDeviceKitAspect::addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const
+{
+    QTC_ASSERT(kit, return);
+    expander->registerVariable("BuildDevice:HostAddress", tr("Build host address"),
+        [kit]() -> QString {
+            const IDevice::ConstPtr device = BuildDeviceKitAspect::device(kit);
+            return device ? device->sshParameters().host() : QString();
+    });
+    expander->registerVariable("BuildDevice:SshPort", tr("Build SSH port"),
+        [kit]() -> QString {
+            const IDevice::ConstPtr device = BuildDeviceKitAspect::device(kit);
+            return device ? QString::number(device->sshParameters().port()) : QString();
+    });
+    expander->registerVariable("BuildDevice:UserName", tr("Build user name"),
+        [kit]() -> QString {
+            const IDevice::ConstPtr device = BuildDeviceKitAspect::device(kit);
+            return device ? device->sshParameters().userName() : QString();
+    });
+    expander->registerVariable("BuildDevice:KeyFile", tr("Build private key file"),
+        [kit]() -> QString {
+            const IDevice::ConstPtr device = BuildDeviceKitAspect::device(kit);
+            return device ? device->sshParameters().privateKeyFile : QString();
+    });
+    expander->registerVariable("BuildDevice:Name", tr("Build device name"),
+        [kit]() -> QString {
+            const IDevice::ConstPtr device = BuildDeviceKitAspect::device(kit);
+            return device ? device->displayName() : QString();
+    });
+}
+
+Utils::Id BuildDeviceKitAspect::id()
+{
+    return "PE.Profile.BuildDevice";
+}
+
+IDevice::ConstPtr BuildDeviceKitAspect::device(const Kit *k)
+{
+    QTC_ASSERT(DeviceManager::instance()->isLoaded(), return IDevice::ConstPtr());
+    return DeviceManager::instance()->find(deviceId(k));
+}
+
+Utils::Id BuildDeviceKitAspect::deviceId(const Kit *k)
+{
+    return k ? Utils::Id::fromSetting(k->value(BuildDeviceKitAspect::id())) : Utils::Id();
+}
+
+void BuildDeviceKitAspect::setDevice(Kit *k, IDevice::ConstPtr dev)
+{
+    setDeviceId(k, dev ? dev->id() : Utils::Id());
+}
+
+void BuildDeviceKitAspect::setDeviceId(Kit *k, Utils::Id id)
+{
+    QTC_ASSERT(k, return);
+    k->setValue(BuildDeviceKitAspect::id(), id.toSetting());
+}
+
+void BuildDeviceKitAspect::kitsWereLoaded()
+{
+    foreach (Kit *k, KitManager::kits())
+        fix(k);
+
+    DeviceManager *dm = DeviceManager::instance();
+    connect(dm, &DeviceManager::deviceListReplaced, this, &BuildDeviceKitAspect::devicesChanged);
+    connect(dm, &DeviceManager::deviceAdded, this, &BuildDeviceKitAspect::devicesChanged);
+    connect(dm, &DeviceManager::deviceRemoved, this, &BuildDeviceKitAspect::devicesChanged);
+    connect(dm, &DeviceManager::deviceUpdated, this, &BuildDeviceKitAspect::deviceUpdated);
+
+    connect(KitManager::instance(), &KitManager::kitUpdated,
+            this, &BuildDeviceKitAspect::kitUpdated);
+    connect(KitManager::instance(), &KitManager::unmanagedKitUpdated,
+            this, &BuildDeviceKitAspect::kitUpdated);
+}
+
+void BuildDeviceKitAspect::deviceUpdated(Utils::Id id)
+{
+    foreach (Kit *k, KitManager::kits()) {
+        if (deviceId(k) == id)
+            notifyAboutUpdate(k);
+    }
+}
+
+void BuildDeviceKitAspect::kitUpdated(Kit *k)
+{
+    setup(k); // Set default device if necessary
+}
+
+void BuildDeviceKitAspect::devicesChanged()
 {
     foreach (Kit *k, KitManager::kits())
         setup(k); // Set default device if necessary

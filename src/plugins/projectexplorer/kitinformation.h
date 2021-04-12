@@ -170,6 +170,42 @@ private:
 };
 
 // --------------------------------------------------------------------------
+// BuildDeviceInformation:
+// --------------------------------------------------------------------------
+
+class PROJECTEXPLORER_EXPORT BuildDeviceKitAspect : public KitAspect
+{
+    Q_OBJECT
+
+public:
+    BuildDeviceKitAspect();
+
+    Tasks validate(const Kit *k) const override;
+
+    KitAspectWidget *createConfigWidget(Kit *k) const override;
+
+    QString displayNamePostfix(const Kit *k) const override;
+
+    ItemList toUserOutput(const Kit *k) const override;
+
+    void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const override;
+
+    static Utils::Id id();
+    static IDevice::ConstPtr device(const Kit *k);
+    static Utils::Id deviceId(const Kit *k);
+    static void setDevice(Kit *k, IDevice::ConstPtr dev);
+    static void setDeviceId(Kit *k, Utils::Id dataId);
+
+private:
+    QVariant defaultValue(const Kit *k) const;
+
+    void kitsWereLoaded();
+    void deviceUpdated(Utils::Id dataId);
+    void devicesChanged();
+    void kitUpdated(ProjectExplorer::Kit *k);
+};
+
+// --------------------------------------------------------------------------
 // EnvironmentKitAspect:
 // --------------------------------------------------------------------------
 
