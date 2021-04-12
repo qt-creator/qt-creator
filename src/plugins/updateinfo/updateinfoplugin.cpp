@@ -35,6 +35,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/infobar.h>
+#include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDate>
@@ -73,8 +74,12 @@ public:
     QString m_collectedOutput;
     QTimer *m_checkUpdatesTimer = nullptr;
 
-    bool m_automaticCheck = true;
-    UpdateInfoPlugin::CheckUpdateInterval m_checkInterval = UpdateInfoPlugin::WeeklyCheck;
+    struct Settings
+    {
+        bool automaticCheck = true;
+        UpdateInfoPlugin::CheckUpdateInterval checkInterval = UpdateInfoPlugin::WeeklyCheck;
+    };
+    Settings m_settings;
     QDate m_lastCheckDate;
 };
 
@@ -273,49 +278,59 @@ bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *
 
 void UpdateInfoPlugin::loadSettings() const
 {
+    UpdateInfoPluginPrivate::Settings def;
     QSettings *settings = ICore::settings();
-    const QString updaterKey = QLatin1String(UpdaterGroup) + QLatin1Char('/');
-    d->m_maintenanceTool = settings->value(updaterKey + QLatin1String(MaintenanceToolKey)).toString();
-    d->m_lastCheckDate = settings->value(updaterKey + QLatin1String(LastCheckDateKey), QDate()).toDate();
-    d->m_automaticCheck = settings->value(updaterKey + QLatin1String(AutomaticCheckKey), true).toBool();
-    const QString checkInterval = settings->value(updaterKey + QLatin1String(CheckIntervalKey)).toString();
+    const QString updaterKey = QLatin1String(UpdaterGroup) + '/';
+    d->m_maintenanceTool = settings->value(updaterKey + MaintenanceToolKey).toString();
+    d->m_lastCheckDate = settings->value(updaterKey + LastCheckDateKey, QDate()).toDate();
+    d->m_settings.automaticCheck
+        = settings->value(updaterKey + AutomaticCheckKey, def.automaticCheck).toBool();
     const QMetaObject *mo = metaObject();
     const QMetaEnum me = mo->enumerator(mo->indexOfEnumerator(CheckIntervalKey));
-    if (me.isValid()) {
+    if (QTC_GUARD(me.isValid())) {
+        const QString checkInterval = settings
+                                          ->value(updaterKey + CheckIntervalKey,
+                                                  me.valueToKey(def.checkInterval))
+                                          .toString();
         bool ok = false;
         const int newValue = me.keyToValue(checkInterval.toUtf8(), &ok);
         if (ok)
-            d->m_checkInterval = static_cast<CheckUpdateInterval>(newValue);
+            d->m_settings.checkInterval = static_cast<CheckUpdateInterval>(newValue);
     }
 }
 
 void UpdateInfoPlugin::saveSettings()
 {
-    QSettings *settings = ICore::settings();
-    settings->beginGroup(QLatin1String(UpdaterGroup));
-    settings->setValue(QLatin1String(LastCheckDateKey), d->m_lastCheckDate);
-    settings->setValue(QLatin1String(AutomaticCheckKey), d->m_automaticCheck);
+    UpdateInfoPluginPrivate::Settings def;
+    Utils::QtcSettings *settings = ICore::settings();
+    settings->beginGroup(UpdaterGroup);
+    settings->setValueWithDefault(LastCheckDateKey, d->m_lastCheckDate, QDate());
+    settings->setValueWithDefault(AutomaticCheckKey,
+                                  d->m_settings.automaticCheck,
+                                  def.automaticCheck);
     // Note: don't save MaintenanceToolKey on purpose! This setting may be set only by installer.
     // If creator is run not from installed SDK, the setting can be manually created here:
     // [CREATOR_INSTALLATION_LOCATION]/share/qtcreator/QtProject/QtCreator.ini or
     // [CREATOR_INSTALLATION_LOCATION]/Qt Creator.app/Contents/Resources/QtProject/QtCreator.ini on OS X
     const QMetaObject *mo = metaObject();
     const QMetaEnum me = mo->enumerator(mo->indexOfEnumerator(CheckIntervalKey));
-    settings->setValue(QLatin1String(CheckIntervalKey), QLatin1String(me.valueToKey(d->m_checkInterval)));
+    settings->setValueWithDefault(CheckIntervalKey,
+                                  QString::fromUtf8(me.valueToKey(d->m_settings.checkInterval)),
+                                  QString::fromUtf8(me.valueToKey(def.checkInterval)));
     settings->endGroup();
 }
 
 bool UpdateInfoPlugin::isAutomaticCheck() const
 {
-    return d->m_automaticCheck;
+    return d->m_settings.automaticCheck;
 }
 
 void UpdateInfoPlugin::setAutomaticCheck(bool on)
 {
-    if (d->m_automaticCheck == on)
+    if (d->m_settings.automaticCheck == on)
         return;
 
-    d->m_automaticCheck = on;
+    d->m_settings.automaticCheck = on;
     if (on)
         startAutoCheckForUpdates();
     else
@@ -324,15 +339,15 @@ void UpdateInfoPlugin::setAutomaticCheck(bool on)
 
 UpdateInfoPlugin::CheckUpdateInterval UpdateInfoPlugin::checkUpdateInterval() const
 {
-    return d->m_checkInterval;
+    return d->m_settings.checkInterval;
 }
 
 void UpdateInfoPlugin::setCheckUpdateInterval(UpdateInfoPlugin::CheckUpdateInterval interval)
 {
-    if (d->m_checkInterval == interval)
+    if (d->m_settings.checkInterval == interval)
         return;
 
-    d->m_checkInterval = interval;
+    d->m_settings.checkInterval = interval;
 }
 
 QDate UpdateInfoPlugin::lastCheckDate() const
@@ -351,7 +366,7 @@ void UpdateInfoPlugin::setLastCheckDate(const QDate &date)
 
 QDate UpdateInfoPlugin::nextCheckDate() const
 {
-    return nextCheckDate(d->m_checkInterval);
+    return nextCheckDate(d->m_settings.checkInterval);
 }
 
 QDate UpdateInfoPlugin::nextCheckDate(CheckUpdateInterval interval) const
