@@ -44,33 +44,33 @@ CatchTestSettings::CatchTestSettings()
     registerAspect(&abortAfter);
     abortAfter.setSettingsKey("AbortAfter");
     abortAfter.setRange(1, 9999);
-    abortAfter.setEnabled(false);
+    abortAfter.setEnabler(&abortAfterChecked);
 
     registerAspect(&benchmarkSamples);
     benchmarkSamples.setSettingsKey("BenchSamples");
     benchmarkSamples.setRange(1, 999999);
     benchmarkSamples.setDefaultValue(100);
-    benchmarkSamples.setEnabled(false);
+    benchmarkSamples.setEnabler(&samplesChecked);
 
     registerAspect(&benchmarkResamples);
     benchmarkResamples.setSettingsKey("BenchResamples");
     benchmarkResamples.setRange(1, 9999999);
     benchmarkResamples.setDefaultValue(100000);
     benchmarkResamples.setToolTip(tr("Number of resamples for bootstrapping."));
-    benchmarkResamples.setEnabled(false);
+    benchmarkResamples.setEnabler(&resamplesChecked);
 
     registerAspect(&confidenceInterval);
     confidenceInterval.setSettingsKey("BenchConfInt");
     confidenceInterval.setRange(0., 1.);
     confidenceInterval.setSingleStep(0.05);
     confidenceInterval.setDefaultValue(0.95);
-    confidenceInterval.setEnabled(false);
+    confidenceInterval.setEnabler(&confidenceIntervalChecked);
 
     registerAspect(&benchmarkWarmupTime);
     benchmarkWarmupTime.setSettingsKey("BenchWarmup");
     benchmarkWarmupTime.setSuffix(tr(" ms"));
     benchmarkWarmupTime.setRange(0, 10000);
-    benchmarkWarmupTime.setEnabled(false);
+    benchmarkWarmupTime.setEnabler(&warmupChecked);
 
     registerAspect(&abortAfterChecked);
     abortAfterChecked.setSettingsKey("AbortChecked");
@@ -133,17 +133,6 @@ CatchTestSettings::CatchTestSettings()
         if (auto boolAspect = dynamic_cast<BoolAspect *>(aspect))
             boolAspect->setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
     });
-
-    QObject::connect(&abortAfterChecked, &BoolAspect::volatileValueChanged,
-                     &abortAfter, &BaseAspect::setEnabled);
-    QObject::connect(&samplesChecked, &BoolAspect::volatileValueChanged,
-                     &benchmarkSamples, &BaseAspect::setEnabled);
-    QObject::connect(&resamplesChecked, &BoolAspect::volatileValueChanged,
-                     &benchmarkResamples, &BaseAspect::setEnabled);
-    QObject::connect(&confidenceIntervalChecked, &BoolAspect::volatileValueChanged,
-                     &confidenceInterval, &BaseAspect::setEnabled);
-    QObject::connect(&warmupChecked, &BoolAspect::volatileValueChanged,
-                     &benchmarkWarmupTime, &BaseAspect::setEnabled);
 }
 
 CatchTestSettingsPage::CatchTestSettingsPage(CatchTestSettings *settings, Utils::Id settingsId)

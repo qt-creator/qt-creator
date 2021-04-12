@@ -44,6 +44,7 @@ QT_END_NAMESPACE
 namespace Utils {
 
 class AspectContainer;
+class BoolAspect;
 class LayoutBuilder;
 
 namespace Internal {
@@ -95,6 +96,7 @@ public:
 
     bool isEnabled() const;
     void setEnabled(bool enabled);
+    void setEnabler(BoolAspect *checker);
 
     bool isReadOnly() const;
     void setReadOnly(bool enabled);

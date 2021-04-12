@@ -72,8 +72,8 @@ QmlProfilerSettings::QmlProfilerSettings()
     flushInterval.setSettingsKey("Analyzer.QmlProfiler.FlushInterval");
     flushInterval.setRange(1, 10000000);
     flushInterval.setDefaultValue(1000);
-    flushInterval.setLabelText(tr("Flush interval (ms):", nullptr));
-    flushInterval.setEnabled(false); // Controled by flushEnabled.
+    flushInterval.setLabelText(tr("Flush interval (ms):"));
+    flushInterval.setEnabler(&flushEnabled);
 
     registerAspect(&lastTraceFile);
     lastTraceFile.setSettingsKey("Analyzer.QmlProfiler.LastTraceFile");
@@ -87,11 +87,6 @@ QmlProfilerSettings::QmlProfilerSettings()
         "session ends. This way multiple recording sessions can be aggregated in a single trace,\n"
         "for example if multiple QML engines start and stop sequentially during a single run of\n"
         "the program."));
-
-    connect(&flushEnabled, &BoolAspect::volatileValueChanged,
-            &flushInterval, &BaseAspect::setEnabled);
-    connect(&flushEnabled, &BoolAspect::valueChanged,
-            &flushInterval, &BaseAspect::setEnabled);
 
     // Read stored values
     readSettings(Core::ICore::settings());

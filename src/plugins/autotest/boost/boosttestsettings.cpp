@@ -74,6 +74,7 @@ BoostTestSettings::BoostTestSettings()
     seed.setLabelText(tr("Seed:"));
     seed.setToolTip(tr("A seed of 0 means no randomization. A value of 1 uses the current "
         "time, any other value is used as random seed generator."));
+    seed.setEnabler(&randomize);
 
     registerAspect(&randomize);
     randomize.setSettingsKey("Randomize");
@@ -99,8 +100,6 @@ BoostTestSettings::BoostTestSettings()
     memLeaks.setDefaultValue(true);
     memLeaks.setLabelText(tr("Detect memory leaks"));
     memLeaks.setToolTip(tr("Enable memory leak detection."));
-
-    QObject::connect(&randomize, &BoolAspect::volatileValueChanged, &seed, &BaseAspect::setEnabled);
 }
 
 BoostTestSettingsPage::BoostTestSettingsPage(BoostTestSettings *settings, Utils::Id settingsId)

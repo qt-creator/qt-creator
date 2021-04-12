@@ -309,6 +309,17 @@ void BaseAspect::setEnabled(bool enabled)
     }
 }
 
+/*!
+    Makes the enabled state of this aspect depend on the checked state of \a checker.
+*/
+void BaseAspect::setEnabler(BoolAspect *checker)
+{
+    QTC_ASSERT(checker, return);
+    setEnabled(checker->value());
+    connect(checker, &BoolAspect::volatileValueChanged, this, &BaseAspect::setEnabled);
+    connect(checker, &BoolAspect::valueChanged, this, &BaseAspect::setEnabled);
+}
+
 bool BaseAspect::isReadOnly() const
 {
     return d->m_readOnly;

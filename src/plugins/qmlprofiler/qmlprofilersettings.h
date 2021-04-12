@@ -37,6 +37,7 @@ namespace Internal {
 class QmlProfilerSettings : public ProjectExplorer::ISettingsAspect
 {
     Q_OBJECT
+
 public:
     QmlProfilerSettings();
 
