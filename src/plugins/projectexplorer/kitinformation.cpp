@@ -35,8 +35,8 @@
 #include "toolchain.h"
 #include "toolchainmanager.h"
 
-#include <coreplugin/icore.h>
 #include <ssh/sshconnection.h>
+
 #include <utils/algorithm.h>
 #include <utils/elidinglabel.h>
 #include <utils/environment.h>
@@ -249,10 +249,7 @@ public:
 
         refresh();
 
-        m_manageButton = createSubWidget<QPushButton>(KitAspectWidget::msgManage());
-        m_manageButton->setContentsMargins(0, 0, 0, 0);
-        connect(m_manageButton, &QAbstractButton::clicked,
-                this, &ToolChainKitAspectWidget::manageToolChains);
+        m_manageButton = createManageButton(Constants::TOOLCHAIN_SETTINGS_PAGE_ID);
     }
 
     ~ToolChainKitAspectWidget() override
@@ -298,11 +295,6 @@ private:
         }
     }
 
-    void manageToolChains()
-    {
-        Core::ICore::showOptionsDialog(Constants::TOOLCHAIN_SETTINGS_PAGE_ID, m_manageButton);
-    }
-
     void currentToolChainChanged(Utils::Id language, int idx)
     {
         if (m_ignoreChanges || idx < 0)
@@ -328,7 +320,7 @@ private:
     }
 
     QWidget *m_mainWidget = nullptr;
-    QPushButton *m_manageButton = nullptr;
+    QWidget *m_manageButton = nullptr;
     QHash<Utils::Id, QComboBox *> m_languageComboboxMap;
     bool m_ignoreChanges = false;
     bool m_isReadOnly = false;
@@ -839,7 +831,7 @@ public:
     {
         m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
         m_comboBox->setModel(m_model);
-        m_manageButton = createSubWidget<QPushButton>(KitAspectWidget::msgManage());
+        m_manageButton = createManageButton(Constants::DEVICE_SETTINGS_PAGE_ID);
         refresh();
         m_comboBox->setToolTip(ki->description());
 
@@ -849,8 +841,6 @@ public:
                 this, &DeviceKitAspectWidget::modelReset);
         connect(m_comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, &DeviceKitAspectWidget::currentDeviceChanged);
-        connect(m_manageButton, &QAbstractButton::clicked,
-                this, &DeviceKitAspectWidget::manageDevices);
     }
 
     ~DeviceKitAspectWidget() override
@@ -876,11 +866,6 @@ private:
         m_comboBox->setCurrentIndex(m_model->indexOf(DeviceKitAspect::device(m_kit)));
     }
 
-    void manageDevices()
-    {
-        Core::ICore::showOptionsDialog(Constants::DEVICE_SETTINGS_PAGE_ID, m_manageButton);
-    }
-
     void modelAboutToReset()
     {
         m_selectedId = m_model->deviceId(m_comboBox->currentIndex());
@@ -902,7 +887,7 @@ private:
 
     bool m_ignoreChange = false;
     QComboBox *m_comboBox;
-    QPushButton *m_manageButton;
+    QWidget *m_manageButton;
     DeviceManagerModel *m_model;
     Utils::Id m_selectedId;
 };

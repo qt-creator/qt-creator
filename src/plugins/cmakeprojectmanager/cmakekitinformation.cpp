@@ -31,18 +31,19 @@
 #include "cmaketool.h"
 #include "cmaketoolmanager.h"
 
-#include <coreplugin/icore.h>
+#include <app/app_version.h>
+
 #include <ios/iosconstants.h>
+
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/toolchain.h>
+
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
-
-#include <app/app_version.h>
 
 #include <utils/algorithm.h>
 #include <utils/elidinglabel.h>
@@ -89,7 +90,7 @@ class CMakeKitAspectWidget final : public KitAspectWidget
 public:
     CMakeKitAspectWidget(Kit *kit, const KitAspect *ki) : KitAspectWidget(kit, ki),
         m_comboBox(createSubWidget<QComboBox>()),
-        m_manageButton(createSubWidget<QPushButton>(KitAspectWidget::msgManage()))
+        m_manageButton(createManageButton(Constants::CMAKE_SETTINGS_PAGE_ID))
     {
         m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
         m_comboBox->setEnabled(false);
@@ -102,10 +103,6 @@ public:
         refresh();
         connect(m_comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, &CMakeKitAspectWidget::currentCMakeToolChanged);
-
-        m_manageButton->setContentsMargins(0, 0, 0, 0);
-        connect(m_manageButton, &QPushButton::clicked,
-                this, &CMakeKitAspectWidget::manageCMakeTools);
 
         CMakeToolManager *cmakeMgr = CMakeToolManager::instance();
         connect(cmakeMgr, &CMakeToolManager::cmakeAdded,
@@ -209,14 +206,9 @@ private:
         CMakeKitAspect::setCMakeTool(m_kit, id);
     }
 
-    void manageCMakeTools()
-    {
-        Core::ICore::showOptionsDialog(Constants::CMAKE_SETTINGS_PAGE_ID, m_manageButton);
-    }
-
     bool m_removingItem = false;
     QComboBox *m_comboBox;
-    QPushButton *m_manageButton;
+    QWidget *m_manageButton;
 };
 
 CMakeKitAspect::CMakeKitAspect()

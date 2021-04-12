@@ -30,11 +30,11 @@
 #include "qtparser.h"
 #include "qttestparser.h"
 
-#include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/buildablehelperlibrary.h>
 #include <utils/layoutbuilder.h>
@@ -42,7 +42,6 @@
 #include <utils/qtcassert.h>
 
 #include <QComboBox>
-#include <QPushButton>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -63,7 +62,7 @@ public:
         QList<int> versionIds = Utils::transform(QtVersionManager::versions(), &BaseQtVersion::uniqueId);
         versionsChanged(versionIds, QList<int>(), QList<int>());
 
-        m_manageButton = createSubWidget<QPushButton>(KitAspectWidget::msgManage());
+        m_manageButton = createManageButton(Constants::QTVERSION_SETTINGS_PAGE_ID);
 
         refresh();
         m_combo->setToolTip(ki->description());
@@ -73,8 +72,6 @@ public:
 
         connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
                 this, &QtKitAspectWidget::versionsChanged);
-
-        connect(m_manageButton, &QAbstractButton::clicked, this, &QtKitAspectWidget::manageQtVersions);
     }
 
     ~QtKitAspectWidget() final
@@ -129,11 +126,6 @@ private:
         }
     }
 
-    void manageQtVersions()
-    {
-        Core::ICore::showOptionsDialog(Constants::QTVERSION_SETTINGS_PAGE_ID, m_manageButton);
-    }
-
     void currentWasChanged(int idx)
     {
         QtKitAspect::setQtVersionId(m_kit, m_combo->itemData(idx).toInt());
@@ -149,7 +141,7 @@ private:
     }
 
     QComboBox *m_combo;
-    QPushButton *m_manageButton;
+    QWidget *m_manageButton;
 };
 } // namespace Internal
 

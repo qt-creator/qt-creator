@@ -34,7 +34,6 @@
 
 #include <QComboBox>
 #include <QCoreApplication>
-#include <QPushButton>
 
 namespace MesonProjectManager {
 namespace Internal {
@@ -83,7 +82,7 @@ private:
     }
 
     QComboBox *m_toolsComboBox;
-    QPushButton *m_manageButton;
+    QWidget *m_manageButton;
     ToolType m_type;
 };
 

@@ -28,8 +28,6 @@
 #include "debuggeritemmanager.h"
 #include "debuggeritem.h"
 
-#include <coreplugin/icore.h>
-
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
@@ -42,7 +40,7 @@
 
 #include <QComboBox>
 #include <QFileInfo>
-#include <QPushButton>
+
 #include <utility>
 
 using namespace ProjectExplorer;
@@ -73,10 +71,7 @@ public:
         connect(m_comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, &DebuggerKitAspectWidget::currentDebuggerChanged);
 
-        m_manageButton = createSubWidget<QPushButton>(KitAspectWidget::msgManage());
-        m_manageButton->setContentsMargins(0, 0, 0, 0);
-        connect(m_manageButton, &QAbstractButton::clicked,
-                this, &DebuggerKitAspectWidget::manageDebuggers);
+        m_manageButton = createManageButton(ProjectExplorer::Constants::DEBUGGER_SETTINGS_PAGE_ID);
     }
 
     ~DebuggerKitAspectWidget() override
@@ -112,12 +107,6 @@ private:
         m_ignoreChanges = false;
     }
 
-    void manageDebuggers()
-    {
-        Core::ICore::showOptionsDialog(ProjectExplorer::Constants::DEBUGGER_SETTINGS_PAGE_ID,
-                                       m_manageButton);
-    }
-
     void currentDebuggerChanged(int idx)
     {
         Q_UNUSED(idx)
@@ -144,7 +133,7 @@ private:
 
     bool m_ignoreChanges = false;
     QComboBox *m_comboBox;
-    QPushButton *m_manageButton;
+    QWidget *m_manageButton;
 };
 } // namespace Internal
 

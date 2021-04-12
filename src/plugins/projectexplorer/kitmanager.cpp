@@ -53,6 +53,7 @@
 #include <QAction>
 #include <QHash>
 #include <QLabel>
+#include <QPushButton>
 #include <QSettings>
 #include <QStyle>
 
@@ -758,6 +759,15 @@ void KitAspectWidget::addMutableAction(QWidget *child)
     QTC_ASSERT(child, return);
     child->addAction(m_mutableAction);
     child->setContextMenuPolicy(Qt::ActionsContextMenu);
+}
+
+QWidget *KitAspectWidget::createManageButton(Id pageId)
+{
+    auto button = createSubWidget<QPushButton>(msgManage());
+    connect(button, &QPushButton::clicked, this, [pageId] {
+        Core::ICore::showOptionsDialog(pageId);
+    });
+    return button;
 }
 
 QString KitAspectWidget::msgManage()

@@ -29,7 +29,6 @@
 #include "mesontoolkitaspect.h"
 #include "ninjatoolkitaspect.h"
 
-#include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
 namespace MesonProjectManager {
@@ -40,7 +39,7 @@ ToolKitAspectWidget::ToolKitAspectWidget(ProjectExplorer::Kit *kit,
                                          ToolType type)
     : ProjectExplorer::KitAspectWidget(kit, ki)
     , m_toolsComboBox(createSubWidget<QComboBox>())
-    , m_manageButton(createSubWidget<QPushButton>(KitAspectWidget::msgManage()))
+    , m_manageButton(createManageButton(Constants::SettingsPage::TOOLS_ID))
     , m_type{type}
 {
     m_toolsComboBox->setSizePolicy(QSizePolicy::Ignored,
@@ -48,11 +47,6 @@ ToolKitAspectWidget::ToolKitAspectWidget(ProjectExplorer::Kit *kit,
     m_toolsComboBox->setEnabled(false);
     m_toolsComboBox->setToolTip(ki->description());
     loadTools();
-
-    m_manageButton->setContentsMargins(0, 0, 0, 0);
-    connect(m_manageButton, &QPushButton::clicked, this, [this]() {
-        Core::ICore::showOptionsDialog(Constants::SettingsPage::TOOLS_ID, m_manageButton);
-    });
 
     connect(MesonTools::instance(),
             &MesonTools::toolAdded,

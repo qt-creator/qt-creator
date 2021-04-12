@@ -146,6 +146,7 @@ public:
     const KitAspect *kitInformation() const { return m_kitInformation; }
     QAction *mutableAction() const { return m_mutableAction; }
     void addMutableAction(QWidget *child);
+    QWidget *createManageButton(Utils::Id pageId);
 
 protected:
     Kit *m_kit;
