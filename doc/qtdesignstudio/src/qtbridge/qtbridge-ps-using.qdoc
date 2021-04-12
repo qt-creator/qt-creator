@@ -204,6 +204,27 @@
     You can now create a project in \QDS and import the assets to it, as
     described in \l {Creating Projects} and \l{Importing Designs}.
 
+    \section1 Cloning Documents
+
+    \QBPS enables creating a clone of the current document. The clone workflow
+    allows the user to filter out certain kind of layers and groups. In the \QBPS
+    \uicontrol Settings dialog, select \uicontrol {Clone} to start cloning the document.
+
+    \image qt-bridge-clone.png
+
+    \section2 Clone Options
+    The following exclusion options can be selected to exclude certain kind of layers and
+    groups in the cloned document:
+    \list
+        \li \uicontrol Invisible: Select this option to exclude the invisible layers
+            and groups.
+        \li \uicontrol Skipped: Select this option to exclude the layers where the
+            \uicontrol {Export As} field value is set to \uicontrol Skipped.
+        \li \uicontrol {Empty Groups}: Select this option to exclude any empty groups.
+            This also applies to groups which will eventually become empty because of
+            the other selected exclusion options.
+    \endlist
+
     \section1 Sanitizing Documents
 
     \QBPS enables removing all \QBPS related metadata from the active
