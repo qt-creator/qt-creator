@@ -187,10 +187,44 @@ void CommentValueDelegate::setEditorData(QWidget *editor, const QModelIndex &ind
         auto *e = qobject_cast<QLineEdit *>(editor);
         e->setText(data.toString());
     } else if (data.userType() == QMetaType::QColor) {
-        auto *e = qobject_cast<Utils::QtColorButton *>(editor);
+        auto *e = qobject_cast<AnnotationTableColorButton *>(editor);
         e->setColor(data.value<QColor>());
+        e->installEventFilter(e);
+        connect(e,
+                &AnnotationTableColorButton::editorFinished,
+                this,
+                &CommentValueDelegate::slotEditorFinished,
+                Qt::UniqueConnection);
+        connect(e,
+                &AnnotationTableColorButton::editorCanceled,
+                this,
+                &CommentValueDelegate::slotEditorCanceled,
+                Qt::UniqueConnection);
     } else
         QItemDelegate::setEditorData(editor, index);
+}
+
+bool AnnotationTableColorButton::eventFilter(QObject *object, QEvent *event)
+{
+    AnnotationTableColorButton *editor = qobject_cast<AnnotationTableColorButton*>(object);
+    if (editor && event->type() == QEvent::FocusOut && editor->isDialogOpen())
+        return true;
+
+    return QObject::eventFilter(object, event);
+}
+
+void CommentValueDelegate::slotEditorCanceled(QWidget *editor)
+{
+    emit closeEditor(editor);
+}
+
+void CommentValueDelegate::slotEditorFinished(QWidget *editor)
+{
+    AnnotationTableColorButton* e = qobject_cast<AnnotationTableColorButton *>(editor);
+    if (e) {
+        emit commitData(editor);
+        emit closeEditor(editor, QAbstractItemDelegate::SubmitModelCache);
+    }
 }
 
 void CommentValueDelegate::setModelData(QWidget *editor,
@@ -201,9 +235,11 @@ void CommentValueDelegate::setModelData(QWidget *editor,
     if (data.userType() == qMetaTypeId<RichTextProxy>())
         return;
     else if (data.userType() == QMetaType::QColor)
+    {
         model->setData(index,
-                       qobject_cast<Utils::QtColorButton *>(editor)->color(),
+                       qobject_cast<AnnotationTableColorButton *>(editor)->color(),
                        Qt::DisplayRole);
+    }
     else if (data.userType() == QMetaType::QString)
         model->setData(index, qobject_cast<QLineEdit *>(editor)->text(), Qt::DisplayRole);
     else
@@ -247,6 +283,16 @@ void RichTextCellEditor::mouseReleaseEvent(QMouseEvent *)
     emit clicked();
 }
 
+AnnotationTableColorButton::AnnotationTableColorButton(QWidget *parent)
+    : Utils::QtColorButton(parent)
+{
+    connect(this, &Utils::QtColorButton::colorChangeStarted, this, [this](){emit editorStarted(this);});
+    connect(this, &Utils::QtColorButton::colorChanged, this, [this](QColor){emit editorFinished(this);});
+    connect(this, &Utils::QtColorButton::colorUnchanged, this, [this](){emit editorCanceled(this);});
+}
+
+AnnotationTableColorButton::~AnnotationTableColorButton() {}
+
 AnnotationTableView::AnnotationTableView(QWidget *parent)
     : QTableView(parent)
     , m_model(std::make_unique<QStandardItemModel>())
@@ -283,7 +329,7 @@ AnnotationTableView::AnnotationTableView(QWidget *parent)
     m_editorFactory->registerEditor(qMetaTypeId<RichTextProxy>(),
                                     new QItemEditorCreator<RichTextCellEditor>("richText"));
     m_editorFactory->registerEditor(QMetaType::QColor,
-                                    new QItemEditorCreator<Utils::QtColorButton>("color"));
+                                    new QItemEditorCreator<AnnotationTableColorButton>("color"));
 
     m_valueDelegate.setItemEditorFactory(m_editorFactory.get());
     connect(&m_valueDelegate,

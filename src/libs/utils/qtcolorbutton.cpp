@@ -54,6 +54,7 @@ public:
 #endif
     bool m_backgroundCheckered;
     bool m_alphaAllowed;
+    bool m_dialogOpen;
 };
 
 void QtColorButtonPrivate::slotEditColor()
@@ -61,9 +62,14 @@ void QtColorButtonPrivate::slotEditColor()
     QColorDialog::ColorDialogOptions options;
     if (m_alphaAllowed)
         options |= QColorDialog::ShowAlphaChannel;
+    emit q_ptr->colorChangeStarted();
+    m_dialogOpen = true;
     const QColor newColor = QColorDialog::getColor(m_color, q_ptr, QString(), options);
-    if (!newColor.isValid() || newColor == q_ptr->color())
+    m_dialogOpen = false;
+    if (!newColor.isValid() || newColor == q_ptr->color()) {
+        emit q_ptr->colorUnchanged();
         return;
+    }
     q_ptr->setColor(newColor);
     emit q_ptr->colorChanged(m_color);
 }
@@ -117,6 +123,7 @@ QtColorButton::QtColorButton(QWidget *parent)
     d_ptr->m_dragging = false;
     d_ptr->m_backgroundCheckered = true;
     d_ptr->m_alphaAllowed = true;
+    d_ptr->m_dialogOpen = false;
 
     setAcceptDrops(true);
 
@@ -163,6 +170,11 @@ void QtColorButton::setAlphaAllowed(bool allowed)
 bool QtColorButton::isAlphaAllowed() const
 {
     return d_ptr->m_alphaAllowed;
+}
+
+bool QtColorButton::isDialogOpen() const
+{
+    return d_ptr->m_dialogOpen;
 }
 
 void QtColorButton::paintEvent(QPaintEvent *event)
