@@ -494,12 +494,11 @@ bool RunControl::createMainWorker()
 
 bool RunControl::canRun(Utils::Id runMode, Utils::Id deviceType, Utils::Id runConfigId)
 {
-    const auto check = std::bind(&RunWorkerFactory::canRun,
-                                 std::placeholders::_1,
-                                 runMode,
-                                 deviceType,
-                                 runConfigId.toString());
-    return Utils::contains(g_runWorkerFactories, check);
+    for (const RunWorkerFactory *factory : qAsConst(g_runWorkerFactories)) {
+        if (factory->canRun(runMode, deviceType, runConfigId.toString()))
+            return true;
+    }
+    return false;
 }
 
 void RunControlPrivate::initiateStart()
