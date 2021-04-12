@@ -94,7 +94,7 @@
 
     \note The layer that was the bottom layer in the design tool becames the top
     layer in \uicontrol Navigator to reflect the QML code model. You
-    can view the QML code in \uicontrol {Text Editor}.
+    can view the QML code in \l{Text Editor}.
 
     After importing the metadata files, wait a few moments to allow all
     imported assets to appear in your project files before selecting your

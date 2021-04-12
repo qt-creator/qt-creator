@@ -50,8 +50,8 @@
     objects compared to the other versions of the scene. The Low, Combined and
     Vertex scenes include less objects since they have been optimized by, for
     example, combining geometry and baking materials into textures. The
-    following image displays the components in each scene in \uicontrol
-    Navigator to illustrate the structural differences between the scenes.
+    following image displays the components in each scene in \l Navigator to
+    illustrate the structural differences between the scenes.
 
     \image studio-kitchen-navigators.png "Navigators for the four scenes in the Optimal 3D Scene."
 
@@ -107,7 +107,7 @@
 
     In \QC, the scene graph is represented by the tree-like view in
     \uicontrol Navigator. You can also view the hierarchy of nodes in the
-    \uicontrol {Text Editor} view. By minimizing the size of the scene graph,
+    \l {Text Editor} view. By minimizing the size of the scene graph,
     you can minimize the effort needed when running the scene. In terms of
     optimization, you should avoid unnecessary groups and complex hierarchy when
     possible. Deep hierarchies with complex parenting increase the performance

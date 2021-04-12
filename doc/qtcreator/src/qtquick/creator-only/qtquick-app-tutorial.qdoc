@@ -48,7 +48,7 @@
     \include qtquick-tutorial-create-empty-project.qdocinc qtquick empty application
 
     \QC generates a component file, \e main.qml, and opens it in
-    \uicontrol {Text Editor}. The wizard template uses the \l Window component,
+    \l {Text Editor}. The wizard template uses the \l Window component,
     which does not support adding states. Because we want to use states in
     this example, we first replace the Window component with a \l {basic-rectangle}
     {Rectangle} component. We must also remove the line that sets the \c title

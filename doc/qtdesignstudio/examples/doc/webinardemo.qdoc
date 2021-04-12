@@ -173,7 +173,7 @@
     context menu. Any changes we make to a component are immediately visible in
     all the other components where it appears.
 
-    We can view the QML code for each component in the \uicontrol {Text Editor}.
+    We can view the QML code for each component in \l{Text Editor}.
 
     We can now use states and the timeline to animate the components in the UI.
 

@@ -79,7 +79,7 @@
     and then add animation to the change between the states.
 
     The properties that you change in a state are highlighted with blue color.
-    In \uicontrol {Text Editor}, you can see the changes recorded as changes
+    In \l{Text Editor}, you can see the changes recorded as changes
     to the base state.
 
     \image qmldesigner-states.png "States and Properties views"

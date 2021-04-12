@@ -116,7 +116,7 @@
     (\uicontrol {Reset Anchors}) button to reset the anchors to their saved
     state.
 
-    You can specify the baseline anchor in \uicontrol {Text Editor}.
+    You can specify the baseline anchor in \l{Text Editor}.
 
     For performance reasons, you can only anchor a component to its siblings
     and direct parent. By default, a component is anchored to its parent when

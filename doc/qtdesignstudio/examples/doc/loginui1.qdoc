@@ -90,8 +90,7 @@
     \section2 Learn More - Projects and Files
 
     \QDS creates a set of boilerplate files and folders that you need to create
-    a UI. The files are listed in the \uicontrol Projects view. For more
-    information, see \l {Viewing Project Files}.
+    a UI. The files are listed in the \l Projects view.
 
     \image loginui1-project-files.png
 
@@ -120,7 +119,7 @@
     layout. Every UI file consists of two parts: an imports section and an
     component declaration section. The components and functionality most common to
     UIs are provided in the QtQuick import. You can view the code of an
-    .ui.qml file in the \uicontrol {Text Editor} view.
+    .ui.qml file in the \l{Text Editor} view.
 
     For more information about creating a component file from scratch, see
     \l{First Steps with QML}.

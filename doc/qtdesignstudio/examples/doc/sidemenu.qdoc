@@ -73,7 +73,7 @@
     for the states to bind the properties to the states using \c when
     conditions. First, we specify that a button instance enters the \e checked
     state when the \l {AbstractButton::}{checked} property is set to \c true.
-    This is how the code will look in the \uicontrol {Text Editor}:
+    This is how the code will look in \l{Text Editor}:
 
     \quotefromfile SideMenu/CustomButton.qml
     \skipto states: [

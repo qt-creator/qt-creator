@@ -3,7 +3,7 @@
 ** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the Qt Bridge documentation.
+** This file is part of the Qt Creator documentation.
 **
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
@@ -23,42 +23,34 @@
 **
 ****************************************************************************/
 
-//! [qtpsbridge videos]
+/*!
+    \page qtquick-text-editor.html
+    \previouspage qtquick-curve-editor.html
+    \if defined(qtdesignstudio)
+    \nextpage creator-projects-view.html
+    \else
+    \nextpage quick-uis.html
+    \endif
 
-    \section2 \QBPS Videos
+    \title Text Editor
 
-    For more information, watch a video tutorial and webinar about using \QBPS
-    that are also accessible from the \uicontrol Tutorials tab of the Welcome
-    mode:
+    In the \uicontrol {Text Editor} view, you can view and modify the code in a
+    \l{UI Files}{UI file} (.ui.qml) or component file (.qml) that is generated
+    when you create components in \l{Form Editor} or \l{3D Editor} and specify
+    their properties in \l Properties.
 
-    \list
-        \li Building an Instrument Cluster for Your Car HMI, Part 1
+    \image qtquick-text-editor.png "Text Editor"
 
-            \youtube aV6kFxH3Xws
+    You can also view and modify other types of text files.
 
-            You can access the Cluster tutorial source files in the
-            \uicontrol Examples tab.
-
-        \li From Photoshop to Prototype with Qt Design Studio
-
-            \youtube ZzbucmQPU44
-    \endlist
-
-//! [qtpsbridge videos]
-
-
-//! [qtsketchbridge tutorials]
-
-    \section2 \QBSK Tutorials
-
-    For more information, read the tutorials about using \QBSK that are also
-    accessible from the \uicontrol Tutorials tab of the Welcome mode:
+    You can use a subset of the functions available in the
+    \l{Writing Code}{Edit mode}:
 
     \list
-        \li \l{https://www.qt.io/blog/qt-design-studio-sketch-bridge-tutorial-part-1}
-            {Sketch Bridge Tutorial Part 1}
-        \li \l{https://www.qt.io/blog/qt-design-studio-sketch-bridge-tutorial-part-2}
-            {Sketch Bridge Tutorial Part 2}
+        \li \l{Semantic Highlighting}
+        \li \l{Checking Code Syntax}
+        \li \l{Completing Code}
+        \li \l{Indenting Text or Code}
+        \li \l{Using Qt Quick Toolbars}
     \endlist
-
-//! [qtsketchbridge tutorials]
+*/

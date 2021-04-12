@@ -1,0 +1,78 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page creator-open-documents-view.html
+    \previouspage creator-file-system-view.html
+    \nextpage creator-project-managing-workspaces.html
+
+    \title Open Documents
+
+    The \uicontrol {Open Documents} view displays a list of open documents.
+
+    \image qtcreator-open-documents-view.png "Open Documents view"
+
+    You can use the context menu to apply some of the functions also available
+    in the \uicontrol File menu and in the \l {File System Context Menu}
+    {File System} view to the file that is selected in the view.
+
+    In addition, you can:
+
+    \list
+        \li Copy the full path of the file or just the filename to the
+            clipboard.
+        \li Pin files to ensure they stay at the top of the list and are not
+            closed when \uicontrol {Close All} is used.
+    \endlist
+
+    \section1 Specifying Settings for Opening Files
+
+    To specify settings for opening files and handling open files, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol Environment >
+    \uicontrol System:
+
+    \image qtcreator-options-environment-system.png "Environment options System tab"
+
+    \list
+        \li In the \uicontrol {When files are externally modified} field,
+            select whether you want to be prompted to reload open files
+            that were modified externally. For example, when you pull
+            changes from a version control system.
+        \li Select the \uicontrol {Auto-save modified files} check box to
+            automatically save changed files at the intervals specified in
+            the \uicontrol Interval field.
+        \li Select the \uicontrol {Auto-suspend unmodified files} check
+            box to automatically free the resources of open files after
+            prolonged inactivity. The files are still listed in the
+            \uicontrol {Open Documents} view. Set the minimum number of files
+            that should be kept in memory in the \uicontrol {Files to keep open}
+            field.
+        \li Select the \uicontrol {Warn before opening text files greater than}
+            check box to receive warnings about opening big text files.
+        \li In the \uicontrol {Maximum number of entries in "Recent Files"}
+            field, set the number of recently opened files listed in
+            \uicontrol File > \uicontrol {Recent Files}.
+    \endlist
+*/
