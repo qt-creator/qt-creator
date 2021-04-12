@@ -119,11 +119,36 @@ void CMakeEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     showDefaultContextMenu(e, Constants::M_CONTEXT);
 }
 
-static bool isValidFileNameChar(const QChar &c)
+static bool mustBeQuotedInFileName(const QChar &c)
 {
-    return c.isLetterOrNumber() || c == QLatin1Char('.') || c == QLatin1Char('_')
-           || c == QLatin1Char('-') || c == QLatin1Char('/') || c == QLatin1Char('\\') || c == '{'
-           || c == '}' || c == '$';
+    return c.isSpace() || c == '"' || c == '(' || c == ')';
+}
+
+static bool isValidFileNameChar(const QString &block, int pos)
+{
+    const QChar c = block.at(pos);
+    return !mustBeQuotedInFileName(c) || (pos > 0 && block.at(pos - 1) == '\\');
+}
+
+static QString unescape(const QString &s)
+{
+    QString result;
+    int i = 0;
+    const int size = s.size();
+    while (i < size) {
+        const QChar c = s.at(i);
+        if (c == '\\' && i < size - 1) {
+            const QChar nc = s.at(i + 1);
+            if (mustBeQuotedInFileName(nc)) {
+                result += nc;
+                i += 2;
+                continue;
+            }
+        }
+        result += c;
+        ++i;
+    }
+    return result;
 }
 
 void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
@@ -149,9 +174,8 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     QString buffer;
     int beginPos = positionInBlock - 1;
     while (beginPos >= 0) {
-        QChar c = block.at(beginPos);
-        if (isValidFileNameChar(c)) {
-            buffer.prepend(c);
+        if (isValidFileNameChar(block, beginPos)) {
+            buffer.prepend(block.at(beginPos));
             beginPos--;
         } else {
             break;
@@ -161,9 +185,8 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     // find the end of a filename
     int endPos = positionInBlock;
     while (endPos < block.count()) {
-        QChar c = block.at(endPos);
-        if (isValidFileNameChar(c)) {
-            buffer.append(c);
+        if (isValidFileNameChar(block, endPos)) {
+            buffer.append(block.at(endPos));
             endPos++;
         } else {
             break;
@@ -176,10 +199,9 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     QDir dir(textDocument()->filePath().toFileInfo().absolutePath());
     buffer.replace("${CMAKE_CURRENT_SOURCE_DIR}", dir.path());
     buffer.replace("${CMAKE_CURRENT_LIST_DIR}", dir.path());
-
     // TODO: Resolve more variables
 
-    QString fileName = dir.filePath(buffer);
+    QString fileName = dir.filePath(unescape(buffer));
     QFileInfo fi(fileName);
     if (fi.exists()) {
         if (fi.isDir()) {
