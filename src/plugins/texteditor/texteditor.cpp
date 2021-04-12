@@ -3673,7 +3673,7 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, co
     QString text = block.text();
     text.replace(QChar::Nbsp, QLatin1Char(' '));
     int idx = -1;
-    int l = 1;
+    int l = 0;
 
     const int left = data.viewportRect.left() - int(data.offset.x());
     const int right = data.viewportRect.right() - int(data.offset.x());
