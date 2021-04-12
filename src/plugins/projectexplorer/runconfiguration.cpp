@@ -307,6 +307,11 @@ CommandLine RunConfiguration::commandLine() const
     return m_commandLineGetter();
 }
 
+void RunConfiguration::setRunnableModifier(const RunnableModifier &runnableModifier)
+{
+    m_runnableModifier = runnableModifier;
+}
+
 void RunConfiguration::update()
 {
     if (m_updater)
@@ -398,6 +403,8 @@ Runnable RunConfiguration::runnable() const
         r.workingDirectory = workingDirectoryAspect->workingDirectory(macroExpander()).toString();
     if (auto environmentAspect = aspect<EnvironmentAspect>())
         r.environment = environmentAspect->environment();
+    if (m_runnableModifier)
+        m_runnableModifier(r);
     return r;
 }
 

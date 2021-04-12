@@ -138,6 +138,9 @@ public:
     void setCommandLineGetter(const CommandLineGetter &cmdGetter);
     Utils::CommandLine commandLine() const;
 
+    using RunnableModifier = std::function<void(Runnable &)>;
+    void setRunnableModifier(const RunnableModifier &extraModifier);
+
     virtual Runnable runnable() const;
 
     // Return a handle to the build system target that created this run configuration.
@@ -194,6 +197,7 @@ private:
 
     QString m_buildKey;
     CommandLineGetter m_commandLineGetter;
+    RunnableModifier m_runnableModifier;
     Updater m_updater;
     Utils::MacroExpander m_expander;
 };
