@@ -317,7 +317,7 @@ void CodePasterPluginPrivate::fetch()
     const QString pasteID = dialog.pasteId();
     if (pasteID.isEmpty())
         return;
-    Protocol *protocol = m_protocols[dialog.protocolIndex()];
+    Protocol *protocol = m_protocols[dialog.protocol()];
     if (Protocol::ensureConfiguration(protocol))
         protocol->fetch(pasteID);
 }

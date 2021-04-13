@@ -47,9 +47,8 @@ public:
     int protocol() const;
     void setProtocol(const QString &);
 
-    int protocolIndex() const;
-
 private:
+    QString protocolName() const;
     void protocolChanged(int);
     void list();
     void listDone(const QString &name, const QStringList &items);

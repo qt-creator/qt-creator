@@ -89,15 +89,15 @@ int PasteSelectDialog::protocol() const
     return m_ui.protocolBox->currentIndex();
 }
 
-int PasteSelectDialog::protocolIndex() const
+QString PasteSelectDialog::protocolName() const
 {
-    return m_ui.protocolBox->currentIndex();
+    return m_ui.protocolBox->currentText();
 }
 
 void PasteSelectDialog::listDone(const QString &name, const QStringList &items)
 {
     // Set if the protocol is still current
-    if (name == protocol()) {
+    if (name == protocolName()) {
         m_ui.listWidget->clear();
         m_ui.listWidget->addItems(items);
     }
@@ -105,7 +105,7 @@ void PasteSelectDialog::listDone(const QString &name, const QStringList &items)
 
 void PasteSelectDialog::list()
 {
-    const int index = protocolIndex();
+    const int index = protocol();
 
     Protocol *protocol = m_protocols[index];
     QTC_ASSERT((protocol->capabilities() & Protocol::ListCapability), return);
