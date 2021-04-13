@@ -32,17 +32,6 @@
 namespace RemoteLinux {
 namespace Internal {
 
-class RemoteLinuxRunConfiguration final : public ProjectExplorer::RunConfiguration
-{
-    Q_OBJECT
-
-public:
-    RemoteLinuxRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
-
-private:
-    ProjectExplorer::Runnable runnable() const override;
-};
-
 class RemoteLinuxRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
 {
 public:

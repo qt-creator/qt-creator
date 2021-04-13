@@ -30,20 +30,6 @@
 namespace RemoteLinux {
 namespace Internal {
 
-class RemoteLinuxCustomRunConfiguration : public ProjectExplorer::RunConfiguration
-{
-    Q_OBJECT
-
-public:
-    RemoteLinuxCustomRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
-
-    QString runConfigDefaultDisplayName();
-
-private:
-    ProjectExplorer::Runnable runnable() const override;
-    ProjectExplorer::Tasks checkForIssues() const override;
-};
-
 class RemoteLinuxCustomRunConfigurationFactory
         : public ProjectExplorer::FixedRunConfigurationFactory
 {

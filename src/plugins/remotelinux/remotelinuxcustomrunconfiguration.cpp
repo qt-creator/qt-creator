@@ -41,7 +41,20 @@ using namespace Utils;
 namespace RemoteLinux {
 namespace Internal {
 
-RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *target, Utils::Id id)
+class RemoteLinuxCustomRunConfiguration : public RunConfiguration
+{
+    Q_DECLARE_TR_FUNCTIONS(RemoteLinux::Internal::RemoteLinuxCustomRunConfiguration)
+
+public:
+    RemoteLinuxCustomRunConfiguration(Target *target, Id id);
+
+    QString runConfigDefaultDisplayName();
+
+private:
+    Tasks checkForIssues() const override;
+};
+
+RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
     auto exeAspect = addAspect<ExecutableAspect>();
@@ -62,8 +75,13 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
     if (HostOsInfo::isAnyUnixHost())
         addAspect<TerminalAspect>();
     addAspect<RemoteLinuxEnvironmentAspect>(target);
-    if (Utils::HostOsInfo::isAnyUnixHost())
+    if (HostOsInfo::isAnyUnixHost())
         addAspect<X11ForwardingAspect>();
+
+    setRunnableModifier([this](Runnable &r) {
+        if (const auto * const forwardingAspect = aspect<X11ForwardingAspect>())
+            r.extraData.insert("Ssh.X11ForwardToDisplay", forwardingAspect->display(macroExpander()));
+    });
 
     setDefaultDisplayName(runConfigDefaultDisplayName());
 }
@@ -74,14 +92,6 @@ QString RemoteLinuxCustomRunConfiguration::runConfigDefaultDisplayName()
     QString display = remoteExecutable.isEmpty()
             ? tr("Custom Executable") : tr("Run \"%1\"").arg(remoteExecutable);
     return  RunConfigurationFactory::decoratedTargetName(display, target());
-}
-
-Runnable RemoteLinuxCustomRunConfiguration::runnable() const
-{
-    ProjectExplorer::Runnable r = RunConfiguration::runnable();
-    if (const auto * const forwardingAspect = aspect<X11ForwardingAspect>())
-        r.extraData.insert("Ssh.X11ForwardToDisplay", forwardingAspect->display(macroExpander()));
-    return r;
 }
 
 Tasks RemoteLinuxCustomRunConfiguration::checkForIssues() const

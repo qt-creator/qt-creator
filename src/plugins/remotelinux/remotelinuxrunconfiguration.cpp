@@ -46,7 +46,15 @@ using namespace Utils;
 namespace RemoteLinux {
 namespace Internal {
 
-RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Utils::Id id)
+class RemoteLinuxRunConfiguration final : public RunConfiguration
+{
+    Q_DECLARE_TR_FUNCTIONS(RemoteLinux::Internal::RemoteLinuxRunConfiguration)
+
+public:
+    RemoteLinuxRunConfiguration(Target *target, Id id);
+};
+
+RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
     auto exeAspect = addAspect<ExecutableAspect>();
@@ -78,18 +86,14 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Utils::
         symbolsAspect->setFilePath(localExecutable);
     });
 
+    setRunnableModifier([this](Runnable &r) {
+        if (const auto * const forwardingAspect = aspect<X11ForwardingAspect>())
+            r.extraData.insert("Ssh.X11ForwardToDisplay", forwardingAspect->display(macroExpander()));
+    });
+
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
     connect(target, &Target::deploymentDataChanged, this, &RunConfiguration::update);
     connect(target, &Target::kitChanged, this, &RunConfiguration::update);
-}
-
-Runnable RemoteLinuxRunConfiguration::runnable() const
-{
-    Runnable r = RunConfiguration::runnable();
-    const auto * const forwardingAspect = aspect<X11ForwardingAspect>();
-    if (forwardingAspect)
-        r.extraData.insert("Ssh.X11ForwardToDisplay", forwardingAspect->display(macroExpander()));
-    return r;
 }
 
 // RemoteLinuxRunConfigurationFactory
