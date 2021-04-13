@@ -69,15 +69,14 @@ class QmlProjectRunConfiguration final : public RunConfiguration
     Q_DECLARE_TR_FUNCTIONS(QmlProjectManager::QmlProjectRunConfiguration)
 
 public:
-    QmlProjectRunConfiguration(Target *target, Utils::Id id);
+    QmlProjectRunConfiguration(Target *target, Id id);
 
 private:
-    Runnable runnable() const final;
     QString disabledReason() const final;
     bool isEnabled() const final;
 
     QString mainScript() const;
-    Utils::FilePath qmlScenePath() const;
+    FilePath qmlScenePath() const;
     QString commandLineArguments() const;
 
     StringAspect *m_qmlViewerAspect = nullptr;
@@ -137,18 +136,13 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
         return envModifier(environment);
     });
 
+    setRunnableModifier([this](Runnable &r) {
+        const QmlBuildSystem *bs = static_cast<QmlBuildSystem *>(activeBuildSystem());
+        r.workingDirectory = bs->targetDirectory().toString();
+    });
+
     setDisplayName(tr("QML Scene", "QMLRunConfiguration display name."));
     update();
-}
-
-Runnable QmlProjectRunConfiguration::runnable() const
-{
-    Runnable r;
-    r.setCommandLine(commandLine());
-    r.environment = aspect<EnvironmentAspect>()->environment();
-    const QmlBuildSystem *bs = static_cast<QmlBuildSystem *>(activeBuildSystem());
-    r.workingDirectory = bs->targetDirectory().toString();
-    return r;
 }
 
 QString QmlProjectRunConfiguration::disabledReason() const
