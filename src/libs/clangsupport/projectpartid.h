@@ -27,6 +27,8 @@
 
 #include <QDataStream>
 
+#include <vector>
+
 namespace ClangBackEnd {
 
 class ProjectPartId
