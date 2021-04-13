@@ -36,32 +36,7 @@ QT_END_NAMESPACE
 namespace Perforce {
 namespace Internal {
 
-class Settings : public Utils::AspectContainer
-{
-    Q_DECLARE_TR_FUNCTIONS(Perforce::Internal::SettingsPage)
-
-public:
-    Settings();
-    QStringList commonP4Arguments() const;
-
-    // Checks. On success, errorMessage will contains the client root.
-    bool check(QString *repositoryRoot /* = 0*/, QString *errorMessage) const;
-    static bool doCheck(const QString &binary, const QStringList &basicArgs,
-                        QString *repositoryRoot /* = 0 */,
-                        QString *errorMessage);
-
-    Utils::StringAspect p4BinaryPath;
-    Utils::StringAspect p4Port;
-    Utils::StringAspect p4Client;
-    Utils::StringAspect p4User;
-    Utils::IntegerAspect logCount;
-    Utils::BoolAspect customEnv;
-    Utils::IntegerAspect timeOutS;
-    Utils::BoolAspect promptToSubmit;
-    Utils::BoolAspect autoOpen;
-};
-
-/* PerforceSettings: Aggregates settings struct and toplevel directory
+/* PerforceSettings: Aggregates settings items and toplevel directory
  * which is determined externally by background checks and provides a convenience
  * for determining the common arguments.
  * Those must contain (apart from server connection settings) the working directory
@@ -75,22 +50,24 @@ public:
  * p4. This is why the client root portion of working directory must be mapped for the
  * "-d" option, so that running p4 in "/depot/dev/foo" results in "-d $HOME/dev/foo". */
 
-class PerforceSettings
+class PerforceSettings : public Utils::AspectContainer
 {
+    Q_DECLARE_TR_FUNCTIONS(Perforce::Internal::SettingsPage)
+
 public:
-    PerforceSettings() = default;
+    PerforceSettings();
     ~PerforceSettings();
-    PerforceSettings(const PerforceSettings &other) = delete;
 
     bool isValid() const;
 
-    const Settings &settings() const { return m_settings; }
-    Settings &settings() { return m_settings; }
+    // Checks. On success, errorMessage will contains the client root.
+    bool check(QString *repositoryRoot /* = 0*/, QString *errorMessage) const;
+    static bool doCheck(const QString &binary, const QStringList &basicArgs,
+                        QString *repositoryRoot /* = 0 */,
+                        QString *errorMessage);
 
-    int timeOutS() const { return m_settings.timeOutS.value();  }
-    int longTimeOutS() const { return m_settings.timeOutS.value() * 10; }
-    int timeOutMS() const { return m_settings.timeOutS.value() * 1000;  }
-    int logCount() const { return m_settings.logCount.value(); }
+    int longTimeOutS() const { return timeOutS.value() * 10; }
+    int timeOutMS() const { return timeOutS.value() * 1000;  }
 
     QString topLevel() const;
     QString topLevelSymLinkTarget() const;
@@ -107,25 +84,26 @@ public:
     // Map p4 path back to file system in case of a symlinked top-level
     QString mapToFileSystem(const QString &perforceFilePath) const;
 
-    QString p4BinaryPath() const;
-    QString p4Port() const;
-    QString p4Client() const;
-    QString p4User() const;
     bool defaultEnv() const;
-    bool promptToSubmit() const;
-    void setPromptToSubmit(bool p);
-    bool autoOpen() const;
-    void setAutoOpen(bool p);
 
     // Return basic arguments, including -d and server connection parameters.
+    QStringList commonP4Arguments() const;
     QStringList commonP4Arguments(const QString &workingDir) const;
 
     void clearTopLevel();
 
+    Utils::StringAspect p4BinaryPath;
+    Utils::StringAspect p4Port;
+    Utils::StringAspect p4Client;
+    Utils::StringAspect p4User;
+    Utils::IntegerAspect logCount;
+    Utils::BoolAspect customEnv;
+    Utils::IntegerAspect timeOutS;
+    Utils::BoolAspect promptToSubmit;
+    Utils::BoolAspect autoOpen;
+
 private:
     QStringList workingDirectoryArguments(const QString &workingDir) const;
-
-    Settings m_settings;
     QString m_topLevel;
     QString m_topLevelSymLinkTarget;
     QDir *m_topLevelDir = nullptr;

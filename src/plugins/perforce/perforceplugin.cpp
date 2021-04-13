@@ -395,7 +395,7 @@ PerforcePluginPrivate::PerforcePluginPrivate()
 
     dd = this;
 
-    m_settings.settings().readSettings(ICore::settings());
+    m_settings.readSettings(ICore::settings());
 
     const QString prefix = QLatin1String("p4");
     m_commandLocator = new CommandLocator("Perforce", prefix, prefix, this);
@@ -572,7 +572,7 @@ PerforcePluginPrivate::PerforcePluginPrivate()
     connect(m_filelogAction, &QAction::triggered, this, &PerforcePluginPrivate::filelogFile);
     perforceContainer->addAction(command);
 
-    QObject::connect(&m_settings.settings(), &AspectContainer::applied, [this] {
+    QObject::connect(&m_settings, &AspectContainer::applied, [this] {
         m_settings.clearTopLevel();
         applySettings();
     });
@@ -913,8 +913,8 @@ void PerforcePluginPrivate::filelog(const QString &workingDir, const QString &fi
     QTextCodec *codec = VcsBaseEditor::getCodec(workingDir, QStringList(fileName));
     QStringList args;
     args << QLatin1String("filelog") << QLatin1String("-li");
-    if (m_settings.logCount() > 0)
-        args << QLatin1String("-m") << QString::number(m_settings.logCount());
+    if (m_settings.logCount.value() > 0)
+        args << "-m" << QString::number(m_settings.logCount.value());
     if (!fileName.isEmpty())
         args.append(fileName);
     const PerforceResponse result = runP4Cmd(workingDir, args,
@@ -935,8 +935,8 @@ void PerforcePluginPrivate::changelists(const QString &workingDir, const QString
     QTextCodec *codec = VcsBaseEditor::getCodec(workingDir, QStringList(fileName));
     QStringList args;
     args << QLatin1String("changelists") << QLatin1String("-lit");
-    if (m_settings.logCount() > 0)
-        args << QLatin1String("-m") << QString::number(m_settings.logCount());
+    if (m_settings.logCount.value() > 0)
+        args << "-m" << QString::number(m_settings.logCount.value());
     if (!fileName.isEmpty())
         args.append(fileName);
     const PerforceResponse result = runP4Cmd(workingDir, args,
@@ -1132,7 +1132,7 @@ bool PerforcePluginPrivate::isVcsFileOrDirectory(const FilePath &fileName) const
 
 bool PerforcePluginPrivate::isConfigured() const
 {
-    const QString binary = m_settings.p4BinaryPath();
+    const QString binary = m_settings.p4BinaryPath.value();
     if (binary.isEmpty())
         return false;
     QFileInfo fi(binary);
@@ -1171,8 +1171,8 @@ bool PerforcePluginPrivate::vcsOpen(const QString &fileName)
 IVersionControl::SettingsFlags PerforcePluginPrivate::settingsFlags() const
 {
     SettingsFlags rc;
-    if (m_settings.autoOpen())
-        rc|= AutoOpen;
+    if (m_settings.autoOpen.value())
+        rc |= AutoOpen;
     return rc;
 }
 
@@ -1250,7 +1250,7 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const QString &workin
     VcsOutputWindow *outputWindow = VcsOutputWindow::instance();
     // Run, connect stderr to the output window
     SynchronousProcess process;
-    const int timeOutS = (flags & LongTimeOut) ? m_settings.longTimeOutS() : m_settings.timeOutS();
+    const int timeOutS = (flags & LongTimeOut) ? m_settings.longTimeOutS() : m_settings.timeOutS.value();
     process.setTimeoutS(timeOutS);
     if (outputCodec)
         process.setCodec(outputCodec);
@@ -1282,7 +1282,7 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const QString &workin
         }
     }
     process.setTimeOutMessageBoxEnabled(true);
-    const SynchronousProcessResponse sp_resp = process.run({m_settings.p4BinaryPath(), args});
+    const SynchronousProcessResponse sp_resp = process.run({m_settings.p4BinaryPath.value(), args});
 
     PerforceResponse response;
     response.error = true;
@@ -1301,7 +1301,7 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const QString &workin
         response.message = msgCrash();
         break;
     case SynchronousProcessResponse::StartFailed:
-        response.message = msgNotStarted(m_settings.p4BinaryPath());
+        response.message = msgNotStarted(m_settings.p4BinaryPath.value());
         break;
     case SynchronousProcessResponse::Hang:
         response.message = msgCrash();
@@ -1325,13 +1325,13 @@ PerforceResponse PerforcePluginPrivate::fullySynchronousProcess(const QString &w
         process.setWorkingDirectory(workingDir);
 
     PerforceResponse response;
-    process.start(m_settings.p4BinaryPath(), args);
+    process.start(m_settings.p4BinaryPath.value(), args);
     if (stdInput.isEmpty())
         process.closeWriteChannel();
 
     if (!process.waitForStarted(3000)) {
         response.error = true;
-        response.message = msgNotStarted(m_settings.p4BinaryPath());
+        response.message = msgNotStarted(m_settings.p4BinaryPath.value());
         return response;
     }
     if (!stdInput.isEmpty()) {
@@ -1339,7 +1339,7 @@ PerforceResponse PerforcePluginPrivate::fullySynchronousProcess(const QString &w
             SynchronousProcess::stopProcess(process);
             response.error = true;
             response.message = tr("Unable to write input data to process %1: %2").
-                               arg(QDir::toNativeSeparators(m_settings.p4BinaryPath()),
+                               arg(QDir::toNativeSeparators(m_settings.p4BinaryPath.value()),
                                    process.errorString());
             return response;
         }
@@ -1348,7 +1348,7 @@ PerforceResponse PerforcePluginPrivate::fullySynchronousProcess(const QString &w
 
     QByteArray stdOut;
     QByteArray stdErr;
-    const int timeOutS = (flags & LongTimeOut) ? m_settings.longTimeOutS() : m_settings.timeOutS();
+    const int timeOutS = (flags & LongTimeOut) ? m_settings.longTimeOutS() : m_settings.timeOutS.value();
     if (!SynchronousProcess::readDataFromProcess(process, timeOutS, &stdOut, &stdErr, true)) {
         SynchronousProcess::stopProcess(process);
         response.error = true;
@@ -1404,7 +1404,7 @@ PerforceResponse PerforcePluginPrivate::runP4Cmd(const QString &workingDir,
     actualArgs.append(args);
 
     if (flags & CommandToWindow)
-        VcsOutputWindow::appendCommand(workingDir, {m_settings.p4BinaryPath(), actualArgs});
+        VcsOutputWindow::appendCommand(workingDir, {m_settings.p4BinaryPath.value(), actualArgs});
 
     if (flags & ShowBusyCursor)
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -1586,7 +1586,7 @@ bool PerforcePluginPrivate::submitEditorAboutToClose()
     QTC_ASSERT(editorDocument, return true);
     // Prompt the user. Force a prompt unless submit was actually invoked (that
     // is, the editor was closed or shutdown).
-    bool wantsPrompt = m_settings.promptToSubmit();
+    bool wantsPrompt = m_settings.promptToSubmit.value();
     const VcsBaseSubmitEditor::PromptSubmitResult answer =
             perforceEditor->promptSubmit(this, &wantsPrompt, !m_submitActionTriggered);
     m_submitActionTriggered = false;
@@ -1595,9 +1595,9 @@ bool PerforcePluginPrivate::submitEditorAboutToClose()
         return false;
 
     // Set without triggering the checking mechanism
-    if (wantsPrompt != m_settings.promptToSubmit()) {
-        m_settings.setPromptToSubmit(wantsPrompt);
-        m_settings.settings().writeSettings(ICore::settings());
+    if (wantsPrompt != m_settings.promptToSubmit.value()) {
+        m_settings.promptToSubmit.setValue(wantsPrompt);
+        m_settings.writeSettings(ICore::settings());
     }
     if (!DocumentManager::saveDocument(editorDocument))
         return false;
@@ -1724,7 +1724,7 @@ void PerforcePluginPrivate::setTopLevel(const QString &topLevel)
 
 void PerforcePluginPrivate::applySettings()
 {
-    m_settings.settings().writeSettings(ICore::settings());
+    m_settings.writeSettings(ICore::settings());
     m_managedDirectoryCache.clear();
     getTopLevel();
     emit configurationChanged();
@@ -1738,7 +1738,7 @@ void PerforcePluginPrivate::slotTopLevelFailed(const QString &errorMessage)
 void PerforcePluginPrivate::getTopLevel(const QString &workingDirectory, bool isSync)
 {
     // Run a new checker
-    if (m_settings.p4BinaryPath().isEmpty())
+    if (m_settings.p4BinaryPath.value().isEmpty())
         return;
     auto checker = new PerforceChecker(dd);
     connect(checker, &PerforceChecker::failed, dd, &PerforcePluginPrivate::slotTopLevelFailed);
@@ -1746,7 +1746,7 @@ void PerforcePluginPrivate::getTopLevel(const QString &workingDirectory, bool is
     connect(checker, &PerforceChecker::succeeded, dd, &PerforcePluginPrivate::setTopLevel);
     connect(checker, &PerforceChecker::succeeded,checker, &QObject::deleteLater);
 
-    checker->start(m_settings.p4BinaryPath(), workingDirectory,
+    checker->start(m_settings.p4BinaryPath.value(), workingDirectory,
                    m_settings.commonP4Arguments(QString()), 30000);
 
     if (isSync)

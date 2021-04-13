@@ -52,7 +52,7 @@ static QString defaultCommand()
     return QLatin1String("p4" QTC_HOST_EXE_SUFFIX);
 }
 
-Settings::Settings()
+PerforceSettings::PerforceSettings()
 {
     setSettingsGroup("Perforce");
     setAutoApply(false);
@@ -114,7 +114,13 @@ Settings::Settings()
     autoOpen.setLabelText(tr("Automatically open files when editing"));
 }
 
-QStringList Settings::commonP4Arguments() const
+// --------------------PerforceSettings
+PerforceSettings::~PerforceSettings()
+{
+    delete m_topLevelDir;
+}
+
+QStringList PerforceSettings::commonP4Arguments() const
 {
     QStringList lst;
     if (customEnv.value()) {
@@ -128,60 +134,14 @@ QStringList Settings::commonP4Arguments() const
     return lst;
 }
 
-// --------------------PerforceSettings
-PerforceSettings::~PerforceSettings()
-{
-    delete m_topLevelDir;
-}
-
 bool PerforceSettings::isValid() const
 {
-    return !m_topLevel.isEmpty() && !m_settings.p4BinaryPath.value().isEmpty();
-}
-
-QString PerforceSettings::p4BinaryPath() const
-{
-    return m_settings.p4BinaryPath.value();
-}
-
-QString PerforceSettings::p4Port() const
-{
-    return m_settings.p4Port.value();
-}
-
-QString PerforceSettings::p4Client() const
-{
-    return m_settings.p4Client.value();
-}
-
-QString PerforceSettings::p4User() const
-{
-    return m_settings.p4User.value();
+    return !m_topLevel.isEmpty() && !p4BinaryPath.value().isEmpty();
 }
 
 bool PerforceSettings::defaultEnv() const
 {
-    return !m_settings.customEnv.value(); // Note: negated
-}
-
-bool PerforceSettings::promptToSubmit() const
-{
-    return m_settings.promptToSubmit.value();
-}
-
-void PerforceSettings::setPromptToSubmit(bool p)
-{
-    m_settings.promptToSubmit.setValue(p);
-}
-
-bool PerforceSettings::autoOpen() const
-{
-    return m_settings.autoOpen.value();
-}
-
-void PerforceSettings::setAutoOpen(bool b)
-{
-    m_settings.autoOpen.setValue(b);
+    return !customEnv.value(); // Note: negated
 }
 
 QString PerforceSettings::topLevel() const
@@ -256,7 +216,7 @@ QStringList PerforceSettings::commonP4Arguments(const QString &workingDir) const
         rc << QLatin1String("-d")
            << QDir::toNativeSeparators(mapPathRoot(workingDir, m_topLevelSymLinkTarget, m_topLevel));
     }
-    rc.append(m_settings.commonP4Arguments());
+    rc.append(commonP4Arguments());
     return rc;
 }
 
@@ -270,16 +230,16 @@ QString PerforceSettings::mapToFileSystem(const QString &perforceFilePath) const
 PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
 {
     setId(VcsBase::Constants::VCS_ID_PERFORCE);
-    setDisplayName(Settings::tr("Perforce"));
+    setDisplayName(PerforceSettings::tr("Perforce"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setSettings(&settings->settings());
+    setSettings(settings);
 
     setLayouter([settings, this](QWidget *widget) {
-        Settings &s = settings->settings();
+        PerforceSettings &s = *settings;
         using namespace Layouting;
 
         auto errorLabel = new QLabel;
-        auto testButton = new QPushButton(Settings::tr("Test"));
+        auto testButton = new QPushButton(PerforceSettings::tr("Test"));
         connect(testButton, &QPushButton::clicked, this, [this, settings, errorLabel, testButton] {
             testButton->setEnabled(false);
             auto checker = new PerforceChecker(errorLabel);
@@ -300,23 +260,22 @@ PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
             });
 
             errorLabel->setStyleSheet(QString());
-            errorLabel->setText(Settings::tr("Testing..."));
-            const Settings &s = settings->settings();
-            checker->start(s.p4BinaryPath.value(), QString(), s.commonP4Arguments(), 10000);
+            errorLabel->setText(PerforceSettings::tr("Testing..."));
+            checker->start(settings->p4BinaryPath.value(), QString(), settings->commonP4Arguments(), 10000);
         });
 
         Group config {
-            Title(Settings::tr("Configuration")),
+            Title(PerforceSettings::tr("Configuration")),
             Row { s.p4BinaryPath }
         };
 
         Group environment {
-            Title(Settings::tr("Environment Variables"), &s.customEnv),
+            Title(PerforceSettings::tr("Environment Variables"), &s.customEnv),
             Row { s.p4Port, s.p4Client, s.p4User }
         };
 
         Group misc {
-            Title(Settings::tr("Miscellaneous")),
+            Title(PerforceSettings::tr("Miscellaneous")),
             Row { s.logCount, s.timeOutS, Stretch() },
             s.promptToSubmit,
             s.autoOpen
