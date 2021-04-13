@@ -31,23 +31,12 @@
 namespace Qnx {
 namespace Internal {
 
-class QtLibPathAspect : public Utils::StringAspect
-{
-    Q_OBJECT
-
-public:
-    QtLibPathAspect() = default;
-};
-
 class QnxRunConfiguration final : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
 
 public:
     QnxRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
-
-private:
-    ProjectExplorer::Runnable runnable() const override;
 };
 
 class QnxRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory

@@ -64,7 +64,7 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Utils::Id id)
     addAspect<TerminalAspect>();
     addAspect<RemoteLinuxEnvironmentAspect>(target);
 
-    auto libAspect = addAspect<QtLibPathAspect>();
+    auto libAspect = addAspect<StringAspect>();
     libAspect->setSettingsKey("Qt4ProjectManager.QnxRunConfiguration.QtLibPath");
     libAspect->setLabelText(tr("Path to Qt libraries on device"));
     libAspect->setDisplayStyle(StringAspect::LineEditDisplay);
@@ -78,21 +78,18 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Utils::Id id)
         symbolsAspect->setFilePath(localExecutable);
     });
 
-    connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
-}
+    setRunnableModifier([libAspect](Runnable &r) {
+        QString libPath = libAspect->value();
+        if (!libPath.isEmpty()) {
+            r.environment.appendOrSet("LD_LIBRARY_PATH", libPath + "/lib:$LD_LIBRARY_PATH");
+            r.environment.appendOrSet("QML_IMPORT_PATH", libPath + "/imports:$QML_IMPORT_PATH");
+            r.environment.appendOrSet("QML2_IMPORT_PATH", libPath + "/qml:$QML2_IMPORT_PATH");
+            r.environment.appendOrSet("QT_PLUGIN_PATH", libPath + "/plugins:$QT_PLUGIN_PATH");
+            r.environment.set("QT_QPA_FONTDIR", libPath + "/lib/fonts");
+        }
+    });
 
-Runnable QnxRunConfiguration::runnable() const
-{
-    Runnable r = RunConfiguration::runnable();
-    QString libPath = aspect<QtLibPathAspect>()->value();
-    if (!libPath.isEmpty()) {
-        r.environment.appendOrSet("LD_LIBRARY_PATH", libPath + "/lib:$LD_LIBRARY_PATH");
-        r.environment.appendOrSet("QML_IMPORT_PATH", libPath + "/imports:$QML_IMPORT_PATH");
-        r.environment.appendOrSet("QML2_IMPORT_PATH", libPath + "/qml:$QML2_IMPORT_PATH");
-        r.environment.appendOrSet("QT_PLUGIN_PATH", libPath + "/plugins:$QT_PLUGIN_PATH");
-        r.environment.set("QT_QPA_FONTDIR", libPath + "/lib/fonts");
-    }
-    return r;
+    connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
 }
 
 // QnxRunConfigurationFactory
