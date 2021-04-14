@@ -218,6 +218,8 @@
             to its bounding rectangle.
         \li Select the \uicontrol Visible check box to determine the visibility
             of the layer.
+        \li In the \uicontrol Annotations field, specify annotation for the QML
+            item. See \l {Annotating Designs}.
         \li Select the \uicontrol Settings tab to specify the export path and
             asset format.
         \li Select \uicontrol Export to copy your assets to the export path you
