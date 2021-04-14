@@ -36,7 +36,7 @@
     according to your needs. The values of some properties of the controls are
     specified by using styling, and therefore you cannot change them.
 
-    However, you can use some of the components in \uicontrol Library to draw
+    However, you can use some of the components in \l Library to draw
     basic shapes, such as rectangles. In addition, \QDS comes with a set of
     more powerful and flexible graphical primitives, that allow creating more
     complex shapes, such as borders, triangles, arcs, and pies in
@@ -192,6 +192,8 @@
 
     The area between the arc's start and end points or the area inside the
     outline are painted using either a solid fill color or a gradient.
+
+    \image studio-shapes-arc-outline-properties.png "Arc Outline Properties"
 
     To create an arc with an outline, select the \uicontrol {Full outline}
     check box. The \uicontrol {Arc outline width} field sets the width of
