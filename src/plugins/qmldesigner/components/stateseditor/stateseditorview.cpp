@@ -526,7 +526,7 @@ void StatesEditorView::nodeReparented(const ModelNode &node, const NodeAbstractP
     }
 }
 
-void StatesEditorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode & /*movedNode*/, int /*oldIndex*/)
+void StatesEditorView::nodeOrderChanged(const NodeListProperty &listProperty)
 {
     if (listProperty.isValid() && listProperty.parentModelNode().isRootNode() && listProperty.name() == "states")
         resetModel();

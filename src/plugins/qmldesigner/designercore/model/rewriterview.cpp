@@ -310,7 +310,9 @@ void RewriterView::nodeIdChanged(const ModelNode& node, const QString& newId, co
         applyChanges();
 }
 
-void RewriterView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int /*oldIndex*/)
+void RewriterView::nodeOrderChanged(const NodeListProperty &listProperty,
+                                    const ModelNode &movedNode,
+                                    int /*oldIndex*/)
 {
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
@@ -321,6 +323,21 @@ void RewriterView::nodeOrderChanged(const NodeListProperty &listProperty, const 
     if (newIndex + 1 < listProperty.count())
         trailingNode = listProperty.at(newIndex + 1);
     modelToTextMerger()->nodeSlidAround(movedNode, trailingNode);
+
+    if (!isModificationGroupActive())
+        applyChanges();
+}
+
+void RewriterView::nodeOrderChanged(const NodeListProperty &listProperty)
+{
+    Q_ASSERT(textModifier());
+    if (textToModelMerger()->isActive())
+        return;
+
+    auto modelNodes = listProperty.directSubNodes();
+
+    for (const ModelNode &movedNode : modelNodes)
+        modelToTextMerger()->nodeSlidAround(movedNode, ModelNode{});
 
     if (!isModificationGroupActive())
         applyChanges();

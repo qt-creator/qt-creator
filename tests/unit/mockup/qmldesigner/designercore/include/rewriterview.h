@@ -87,7 +87,7 @@ public:
                         AbstractView::PropertyChangeFlags) override
     {}
     void nodeIdChanged(const ModelNode &, const QString &, const QString &) override {}
-    void nodeOrderChanged(const NodeListProperty &, const ModelNode &, int) override {}
+    void nodeOrderChanged(const NodeListProperty &) override {}
     void rootNodeTypeChanged(const QString &, int, int) override {}
     void nodeTypeChanged(const ModelNode &, const TypeName &, int, int) override {}
     void customNotification(const AbstractView *,

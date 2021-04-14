@@ -112,7 +112,7 @@ void DesignerActionManagerView::selectedNodesChanged(const QList<ModelNode> &sel
     emit selectionChanged(!selectedNodes.isEmpty(), singleSelectedModelNode().isRootNode());
 }
 
-void DesignerActionManagerView::nodeOrderChanged(const NodeListProperty &, const ModelNode &, int)
+void DesignerActionManagerView::nodeOrderChanged(const NodeListProperty &)
 {
     setupContext(SelectionContext::UpdateMode::NodeHierachy);
 }

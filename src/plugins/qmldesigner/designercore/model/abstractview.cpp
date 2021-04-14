@@ -270,8 +270,11 @@ void AbstractView::fileUrlChanged(const QUrl &/*oldUrl*/, const QUrl &/*newUrl*/
 {
 }
 
-void AbstractView::nodeOrderChanged(const NodeListProperty &/*listProperty*/, const ModelNode &/*movedNode*/, int /*oldIndex*/)
+void AbstractView::nodeOrderChanged(const NodeListProperty & /*listProperty*/) {}
+
+void AbstractView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &, int)
 {
+    nodeOrderChanged(listProperty);
 }
 
 /*!

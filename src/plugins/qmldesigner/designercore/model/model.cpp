@@ -880,12 +880,12 @@ void ModelPrivate::notifyNodeReparent(const InternalNodePointer &node,
 }
 
 void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListPropertyPointer &internalListProperty,
-                                          const InternalNodePointer &node, int oldIndex)
+                                          const InternalNodePointer &node,
+                                          int oldIndex)
 {
     notifyNodeInstanceViewLast([&](AbstractView *view) {
-        view->nodeOrderChanged(NodeListProperty(internalListProperty, m_model, view),
-                               ModelNode(node, m_model, view),
-                               oldIndex);
+        NodeListProperty nodeListProperty(internalListProperty, m_model, view);
+        view->nodeOrderChanged(nodeListProperty, ModelNode(node, m_model, view), oldIndex);
     });
 }
 

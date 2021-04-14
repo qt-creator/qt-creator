@@ -232,7 +232,10 @@ public:
 
     virtual void fileUrlChanged(const QUrl &oldUrl, const QUrl &newUrl);
 
-    virtual void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
+    virtual void nodeOrderChanged(const NodeListProperty &listProperty);
+    virtual void nodeOrderChanged(const NodeListProperty &listProperty,
+                                  const ModelNode &movedNode,
+                                  int oldIndex);
 
     virtual void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports);
     virtual void possibleImportsChanged(const QList<Import> &possibleImports);

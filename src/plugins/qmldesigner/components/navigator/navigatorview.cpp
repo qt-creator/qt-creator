@@ -346,9 +346,7 @@ void NavigatorView::instanceErrorChanged(const QVector<ModelNode> &errorNodeList
         m_currentModelInterface->notifyDataChanged(modelNode);
 }
 
-void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty,
-                                     const ModelNode &/*node*/,
-                                     int /*oldIndex*/)
+void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty)
 {
     m_currentModelInterface->notifyModelNodesMoved(listProperty.directSubNodes());
 

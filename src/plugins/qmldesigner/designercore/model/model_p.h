@@ -156,7 +156,9 @@ public:
     void notifyVariantPropertiesChanged(const InternalNodePointer &node, const PropertyNameList &propertyNameList, AbstractView::PropertyChangeFlags propertyChange);
     void notifyScriptFunctionsChanged(const InternalNodePointer &node, const QStringList &scriptFunctionList);
 
-    void notifyNodeOrderChanged(const InternalNodeListPropertyPointer &internalListProperty, const InternalNodePointer &node, int oldIndex);
+    void notifyNodeOrderChanged(const InternalNodeListPropertyPointer &internalListProperty,
+                                const InternalNodePointer &node,
+                                int oldIndex);
     void notifyAuxiliaryDataChanged(const InternalNodePointer &node, const PropertyName &name, const QVariant &data);
     void notifyNodeSourceChanged(const InternalNodePointer &node, const QString &newNodeSource);
 

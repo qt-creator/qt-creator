@@ -562,8 +562,7 @@ void NodeInstanceView::nodeIdChanged(const ModelNode& node, const QString& /*new
     }
 }
 
-void NodeInstanceView::nodeOrderChanged(const NodeListProperty & listProperty,
-                                        const ModelNode & /*movedNode*/, int /*oldIndex*/)
+void NodeInstanceView::nodeOrderChanged(const NodeListProperty &listProperty)
 {
     QTC_ASSERT(m_nodeInstanceServer, return);
     QVector<ReparentContainer> containerList;

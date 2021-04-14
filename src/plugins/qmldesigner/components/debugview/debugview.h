@@ -88,7 +88,7 @@ public:
     void nodeAboutToBeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, PropertyChangeFlags propertyChange) override;
     void instancesToken(const QString &tokenName, int tokenNumber, const QVector<ModelNode> &nodeVector) override;
     void currentStateChanged(const ModelNode &node) override;
-    void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex) override;
+    void nodeOrderChanged(const NodeListProperty &listProperty) override;
 
 protected:
     void log(const QString &title, const QString &message, bool highlight = false);

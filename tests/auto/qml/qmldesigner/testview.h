@@ -73,8 +73,7 @@ public:
     void selectedNodesChanged(const QList<QmlDesigner::ModelNode> &selectedNodeList,
                               const QList<QmlDesigner::ModelNode> &lastSelectedNodeList);
 
-    void nodeOrderChanged(const QmlDesigner::NodeListProperty &listProperty, const QmlDesigner::ModelNode &movedNode, int oldIndex);
-
+    void nodeOrderChanged(const QmlDesigner::NodeListProperty &listProperty);
 
     virtual void instancePropertyChanged(const QList<QPair<QmlDesigner::ModelNode, QmlDesigner::PropertyName> > &propertyList);
     virtual void instancesCompleted(const QVector<QmlDesigner::ModelNode> &completedNodeList);

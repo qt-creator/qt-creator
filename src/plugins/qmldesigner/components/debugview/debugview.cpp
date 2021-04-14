@@ -513,15 +513,12 @@ void DebugView::currentStateChanged(const ModelNode &/*node*/)
 
 }
 
-void DebugView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex)
+void DebugView::nodeOrderChanged(const NodeListProperty &listProperty)
 {
     if (isDebugViewEnabled()) {
         QTextStream message;
         QString string;
         message.setString(&string);
-
-        message << movedNode << listProperty;
-        message << oldIndex << "to" << listProperty.indexOf(movedNode);
 
         log("::nodeSlide:", string);
     }
