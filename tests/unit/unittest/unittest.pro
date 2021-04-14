@@ -67,6 +67,7 @@ SOURCES += \
     gtest-creator-printing.cpp \
     gtest-qt-printing.cpp \
     asynchronousimagecache-test.cpp \
+    nodelistproperty-test.cpp \
     synchronousimagecache-test.cpp \
     imagecachegenerator-test.cpp \
     imagecachestorage-test.cpp \
@@ -233,6 +234,7 @@ SOURCES += \
 }
 
 HEADERS += \
+    abstractviewmock.h \
     compare-operators.h \
     conditionally-disabled-tests.h \
     dummyclangipcclient.h \

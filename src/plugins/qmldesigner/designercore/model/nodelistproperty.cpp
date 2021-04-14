@@ -36,6 +36,11 @@
 
 namespace QmlDesigner {
 
+Internal::NodeListPropertyIterator::value_type Internal::NodeListPropertyIterator::operator*() const
+{
+    return {m_nodeListProperty->at(m_currentIndex), m_model, m_view};
+}
+
 NodeListProperty::NodeListProperty() = default;
 
 NodeListProperty::NodeListProperty(const NodeListProperty &property, AbstractView *view)
@@ -155,6 +160,29 @@ void NodeListProperty::reverseModelNodes(const QList<ModelNode> &nodes)
 
     for (int i = 0; i != mid; ++i)
         parentProperty.swap(selectedNodeIndices[i], selectedNodeIndices[selectedNodeIndices.size() - 1 - i]);
+}
+
+Internal::NodeListPropertyIterator NodeListProperty::begin()
+{
+    return const_cast<const NodeListProperty *>(this)->begin();
+}
+
+Internal::NodeListPropertyIterator NodeListProperty::end()
+{
+    return const_cast<const NodeListProperty *>(this)->end();
+}
+
+Internal::NodeListPropertyIterator NodeListProperty::begin() const
+{
+    return {0, internalNode()->nodeListProperty(name()).data(), model(), view()};
+}
+
+Internal::NodeListPropertyIterator NodeListProperty::end() const
+{
+    auto nodeListProperty = internalNode()->nodeListProperty(name());
+    auto size = nodeListProperty ? nodeListProperty->size() : 0;
+
+    return {size, nodeListProperty.data(), model(), view()};
 }
 
 } // namespace QmlDesigner

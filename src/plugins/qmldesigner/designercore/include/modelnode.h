@@ -236,7 +236,7 @@ public:
     bool isSubclassOf(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
     QIcon typeIcon() const;
 
-    friend void swap(ModelNode &first, ModelNode &second)
+    friend void swap(ModelNode &first, ModelNode &second) noexcept
     {
         using std::swap;
 

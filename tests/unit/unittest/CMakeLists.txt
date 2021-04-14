@@ -36,6 +36,7 @@ add_qtc_test(unittest GTEST
     ECHOSERVER="$<TARGET_FILE_DIR:echo>/echo"
     CPPTOOLS_JSON="${CMAKE_CURRENT_BINARY_DIR}/CppTools.json"
   SOURCES
+    abstractviewmock.h
     builddependenciesprovider-test.cpp
     builddependenciesstorage-test.cpp
     clangindexingsettingsmanager-test.cpp
@@ -123,6 +124,7 @@ add_qtc_test(unittest GTEST
     modifiedtimechecker-test.cpp
     nativefilepath-test.cpp
     nativefilepathview-test.cpp
+    nodelistproperty-test.cpp
     pchmanagerclientserverinprocess-test.cpp
     pchmanagerclient-test.cpp
     pchmanagerserver-test.cpp

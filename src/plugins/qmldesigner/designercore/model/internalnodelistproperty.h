@@ -33,7 +33,7 @@ namespace QmlDesigner {
 
 namespace Internal {
 
-class InternalNodeListProperty : public InternalNodeAbstractProperty
+class InternalNodeListProperty final : public InternalNodeAbstractProperty
 {
 public:
     using Pointer = QSharedPointer<InternalNodeListProperty>;
@@ -43,9 +43,27 @@ public:
     bool isValid() const override;
 
     bool isEmpty() const override;
+    int size() const { return m_nodeList.size(); }
     int count() const override;
     int indexOf(const InternalNodePointer &node) const override;
-    InternalNodePointer at(int index) const;
+    const InternalNodePointer &at(int index) const
+    {
+        Q_ASSERT(index >= 0 && index < m_nodeList.count());
+        return m_nodeList[index];
+    }
+
+    InternalNodePointer &at(int index)
+    {
+        Q_ASSERT(index >= 0 && index < m_nodeList.count());
+        return m_nodeList[index];
+    }
+
+    InternalNodePointer &find(InternalNodePointer node)
+    {
+        auto found = std::find(m_nodeList.begin(), m_nodeList.end(), node);
+
+        return *found;
+    }
 
     bool isNodeListProperty() const override;
 
