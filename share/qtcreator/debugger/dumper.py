@@ -1782,7 +1782,7 @@ class DumperBase():
     def metaString(self, metaObjectPtr, index, revision):
         ptrSize = self.ptrSize()
         stringdataOffset = ptrSize
-        if self.isWindowsTarget():
+        if self.isWindowsTarget() and self.qtVersion() >= 0x060000:
             stringdataOffset += ptrSize # indirect super data member
         stringdata = self.extractPointer(toInteger(metaObjectPtr) + stringdataOffset)
 
