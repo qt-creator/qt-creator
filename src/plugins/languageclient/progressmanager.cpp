@@ -38,7 +38,8 @@ ProgressManager::ProgressManager()
 
 ProgressManager::~ProgressManager()
 {
-    for (const ProgressToken &token : m_progress.keys())
+    const QList<ProgressToken> &tokens = m_progress.keys();
+    for (const ProgressToken &token : tokens)
         endProgress(token);
 }
 
