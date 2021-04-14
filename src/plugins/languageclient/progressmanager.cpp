@@ -100,11 +100,13 @@ void ProgressManager::endProgress(const ProgressToken &token, const WorkDoneProg
 {
     const LanguageClientProgress &progress = m_progress.value(token);
     const QString &message = end.message().value_or(QString());
-    if (!message.isEmpty() && progress.progressInterface) {
-        progress.progressInterface->setKeepOnFinish(
-            Core::FutureProgress::KeepOnFinishTillUserInteraction);
+    if (progress.progressInterface) {
+        if (!message.isEmpty()) {
+            progress.progressInterface->setKeepOnFinish(
+                Core::FutureProgress::KeepOnFinishTillUserInteraction);
+        }
         progress.progressInterface->setSubtitle(message);
-        progress.progressInterface->setSubtitleVisibleInStatusBar(true);
+        progress.progressInterface->setSubtitleVisibleInStatusBar(!message.isEmpty());
     }
     endProgress(token);
 }
