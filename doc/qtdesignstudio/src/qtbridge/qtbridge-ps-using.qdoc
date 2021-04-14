@@ -143,7 +143,7 @@
 
     \list 1
         \li \QBPS automatically proposes identifiers for all groups and layers
-            that you can change in the \uicontrol {QML ID} field. The ids must
+            that you can change in the \uicontrol {ID} field. The ids must
             be unique, they must begin with a lower-case letter or an
             underscore, and they can only contain letters, numbers, and
             underscore characters. For more information, see
@@ -193,6 +193,8 @@
             generated from this layer as an alias in the parent component.
         \li Select \uicontrol {Cascade properties} to apply the current set of
             properties to all the children of the selected layer.
+        \li In the \uicontrol Annotations field, specify annotation for the QML
+            item. See \l {Annotating Designs}.
         \li Select \uicontrol Export to copy your assets to the export path you
             specified.
         \li When the exporting is done, select \uicontrol OK.
@@ -203,6 +205,16 @@
 
     You can now create a project in \QDS and import the assets to it, as
     described in \l {Creating Projects} and \l{Importing Designs}.
+
+
+    \section1 Customizing IDs
+
+    \QBPS enables customizing auto generated IDs. In the \uicontrol {ID Prefix}
+    field, specify an ID prefix that will be prepended to all auto generated IDs.
+    In the \uicontrol {ID Suffix} field, specify an ID suffix that will be
+    appended to all auto generated IDs.
+
+    \image qt-bridge-qml-id-settings.png
 
     \section1 Cloning Documents
 
