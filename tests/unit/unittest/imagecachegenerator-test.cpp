@@ -277,21 +277,21 @@ TEST_F(ImageCacheGenerator, CallWalCheckpointFullIfQueueIsEmpty)
 
 TEST_F(ImageCacheGenerator, CleanIsCallingAbortCallback)
 {
-    ON_CALL(collectorMock, start(_, _, _, _, _))
-        .WillByDefault([&](auto, auto, auto, auto captureCallback, auto) {
-            captureCallback({}, {});
-            waitInThread.wait();
-        });
+    ON_CALL(collectorMock, start(_, _, _, _, _)).WillByDefault([&](auto, auto, auto, auto, auto) {
+        notification.wait();
+    });
     generator.generateImage(
         "name", {}, {11}, imageCallbackMock.AsStdFunction(), abortCallbackMock.AsStdFunction(), {});
     generator.generateImage(
         "name2", {}, {11}, imageCallbackMock.AsStdFunction(), abortCallbackMock.AsStdFunction(), {});
 
     EXPECT_CALL(abortCallbackMock, Call(Eq(QmlDesigner::ImageCache::AbortReason::Abort)))
-        .Times(AtLeast(1));
+        .Times(AtLeast(1))
+        .WillRepeatedly([&](auto) { waitInThread.notify(); });
 
     generator.clean();
-    waitInThread.notify();
+    notification.notify();
+    waitInThread.wait();
 }
 
 TEST_F(ImageCacheGenerator, WaitForFinished)
