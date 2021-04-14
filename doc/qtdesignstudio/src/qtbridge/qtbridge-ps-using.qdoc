@@ -172,6 +172,11 @@
             drew a rectangle, you can export it as a Rectangle Studio component.
             You can provide the import statement of the module where the QML
             type is defined in the \uicontrol {Add Imports} field.
+            \note The implicit properties except position and size are not
+            applied when the \uicontrol {QML Type} is defined. For example, all text
+            properties will be ignored if \uicontrol {QML Type} is defined
+            for a text layer, but explicit properties defined in the \uicontrol
+            {Properties} field will be applied.
         \li Select the \uicontrol {Render Text} check box to render the text
             layer as an asset. The layer will be exported as an asset and the
             text data will not be exported. This allows the text layer to be
