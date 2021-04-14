@@ -388,6 +388,25 @@ void Project::setExtraProjectFiles(const QSet<Utils::FilePath> &projectDocumentP
     }
 }
 
+void Project::updateExtraProjectFiles(const QSet<Utils::FilePath> &projectDocumentPaths,
+                                      const DocUpdater &docUpdater)
+{
+    for (const Utils::FilePath &fp : projectDocumentPaths) {
+        for (const auto &doc : d->m_extraProjectDocuments) {
+            if (doc->filePath() == fp) {
+                docUpdater(doc.get());
+                break;
+            }
+        }
+    }
+}
+
+void Project::updateExtraProjectFiles(const DocUpdater &docUpdater)
+{
+    for (const auto &doc : qAsConst(d->m_extraProjectDocuments))
+        docUpdater(doc.get());
+}
+
 Target *Project::target(Utils::Id id) const
 {
     return Utils::findOrDefault(d->m_targets, Utils::equal(&Target::id, id));

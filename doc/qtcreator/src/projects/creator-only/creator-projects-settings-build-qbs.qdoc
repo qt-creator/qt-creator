@@ -116,6 +116,10 @@
 
     \endlist
 
+    If the \l{glossary-buildandrun-kit}{kit} specifies Qt for Android
+    version 5.14.0 or later, you can select the ABIs for the Android device
+    architectures to build the project for in the \uicontrol ABIs field.
+
     The \uicontrol {Equivalent command line} field displays the build command
     that is constructed based on the selected options.
 

@@ -49,11 +49,16 @@ public:
 
     QColor color() const;
 
+    bool isDialogOpen() const;
+
 public slots:
     void setColor(const QColor &color);
 
 signals:
+    void colorChangeStarted();
     void colorChanged(const QColor &color);
+    void colorUnchanged();
+
 protected:
     void paintEvent(QPaintEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
@@ -63,7 +68,7 @@ protected:
     void dragLeaveEvent(QDragLeaveEvent *event) override;
     void dropEvent(QDropEvent *event) override;
 #endif
-private:
+
     class QtColorButtonPrivate *d_ptr;
     friend class QtColorButtonPrivate;
 };

@@ -33,12 +33,15 @@
 #include "annotation.h"
 #include "defaultannotations.h"
 
+#include <utils/qtcolorbutton.h>
+
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;
 class QCompleter;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
+
 class CommentDelegate : public QItemDelegate
 {
     Q_OBJECT
@@ -98,6 +101,11 @@ public:
     void setModelData(QWidget *editor,
                       QAbstractItemModel *model,
                       const QModelIndex &index) const override;
+
+public slots:
+    void slotEditorFinished(QWidget* editor);
+    void slotEditorCanceled(QWidget* editor);
+
 signals:
     void richTextEditorRequested(int index, QString const &richText);
 };
@@ -127,6 +135,21 @@ protected:
 private:
     RichTextProxy m_richText;
     QMetaObject::Connection m_connection;
+};
+
+class AnnotationTableColorButton : public Utils::QtColorButton
+{
+    Q_OBJECT
+public:
+    AnnotationTableColorButton(QWidget* parent);
+    ~AnnotationTableColorButton();
+
+    bool eventFilter(QObject *object, QEvent *event) override;
+
+signals:
+    void editorStarted(QWidget* editor);
+    void editorFinished(QWidget* editor);
+    void editorCanceled(QWidget* editor);
 };
 
 class AnnotationTableView : public QTableView

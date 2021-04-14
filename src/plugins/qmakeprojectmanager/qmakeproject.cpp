@@ -122,7 +122,8 @@ public:
         Q_UNUSED(errorString)
         Q_UNUSED(flag)
         Q_UNUSED(type)
-        m_priFile->scheduleUpdate();
+        if (m_priFile)
+            m_priFile->scheduleUpdate();
         return true;
     }
 
@@ -692,7 +693,26 @@ void QmakeBuildSystem::asyncUpdate()
         return;
     }
 
+    // Make sure we ignore requests for re-evaluation for files whose QmakePriFile objects
+    // will get deleted during the parse.
+    const auto docUpdater = [](Core::IDocument *doc) {
+        static_cast<QmakePriFileDocument *>(doc)->setPriFile(nullptr);
+    };
+    if (m_asyncUpdateState != AsyncFullUpdatePending) {
+        QSet<FilePath> projectFilePaths;
+        for (QmakeProFile * const file : qAsConst(m_partialEvaluate)) {
+            QVector<QmakePriFile *> priFiles = file->children();
+            for (int i = 0; i < priFiles.count(); ++i) {
+                const QmakePriFile * const priFile = priFiles.at(i);
+                projectFilePaths << priFile->filePath();
+                priFiles << priFile->children();
+            }
+        }
+        project()->updateExtraProjectFiles(projectFilePaths, docUpdater);
+    }
+
     if (m_asyncUpdateState == AsyncFullUpdatePending) {
+        project()->updateExtraProjectFiles(docUpdater);
         rootProFile()->asyncUpdate();
     } else {
         foreach (QmakeProFile *file, m_partialEvaluate)
