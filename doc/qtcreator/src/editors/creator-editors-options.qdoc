@@ -32,7 +32,7 @@
 /*!
     \page creator-editor-options.html
     \if defined(qtdesignstudio)
-    \previouspage creator-editor-refactoring.html
+    \previouspage creator-editor-quick-fixes.html
     \else
     \previouspage creator-beautifier.html
     \endif
