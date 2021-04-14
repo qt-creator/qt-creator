@@ -19,6 +19,30 @@ endforeach()
 
 if (conanfile_txt AND NOT QT_CREATOR_SKIP_CONAN_SETUP)
 
+  # Get conan from Qt SDK
+  set(qt_creator_ini "${CMAKE_CURRENT_LIST_DIR}/../QtProject/QtCreator.ini")
+  file(STRINGS ${qt_creator_ini} install_settings REGEX "^InstallSettings=.*$")
+  if (install_settings)
+    string(REPLACE "InstallSettings=" "" install_settings "${install_settings}")
+    set(qt_creator_ini "${install_settings}/QtProject/QtCreator.ini")
+    file(TO_CMAKE_PATH "${qt_creator_ini}" qt_creator_ini)
+  endif()
+
+  file(STRINGS ${qt_creator_ini} conan_executable REGEX "^ConanFilePath=.*$")
+  if (conan_executable)
+    string(REPLACE "ConanFilePath=" "" conan_executable "${conan_executable}")
+    file(TO_CMAKE_PATH "${conan_executable}" conan_executable)
+    get_filename_component(conan_path "${conan_executable}" DIRECTORY)
+  endif()
+
+  set(path_sepparator ":")
+  if (WIN32)
+    set(path_sepparator ";")
+  endif()
+  if (conan_path)
+    set(ENV{PATH} "${conan_path}${path_sepparator}$ENV{PATH}")
+  endif()
+
   set(conanfile_timestamp_file "${CMAKE_BINARY_DIR}/conan-dependencies/conanfile.timestamp")
   file(TIMESTAMP "${conanfile_txt}" conanfile_timestamp)
 
