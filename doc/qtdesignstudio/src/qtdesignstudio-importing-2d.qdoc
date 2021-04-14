@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Bridge documentation.
@@ -33,10 +33,11 @@
     \image studio-imported-assets.png "UI imported into Qt Design Studio"
 
     \QB enables you to export assets and then import them to a \QDS project
-    as image and QML files for editing in the \uicontrol {Form Editor}. If you
-    make changes to your design in the design tool, you can merge the changes
-    into existing QML files without overwriting the changes you have made in
-    \QDS. For more information, see \l {Exporting from Design Tools}.
+    as image and QML files for editing in \l {Form Editor}. If you make changes
+    to your design in the design tool that you originally used to create it,
+    you can merge the changes into existing QML files without overwriting the
+    changes you have made in \QDS. For more information, see
+    \l {Exporting from Design Tools}.
 
     \note Attempting to import assets exported on another system might fail.
 
@@ -53,8 +54,8 @@
             create an empty project.
         \li In \uicontrol Projects, double-click \e Screen01.ui.qml to move to
             the Design mode.
-        \li Select \uicontrol Library > \uicontrol Assets >
-            \uicontrol {Add New Assets}.
+        \li Select \l Library > \uicontrol Assets > \inlineimage plus.png
+            .
         \li Select the folder where you exported the assets.
         \li Select \uicontrol {Exported Assets (*.metadata)} in the dropdown
             menu to filter \e .metadata files.
@@ -85,12 +86,12 @@
             might take a little while for complex projects.
     \endlist
 
-    The imported assets are displayed in the \uicontrol Assets tab in the
-    \uicontrol Library as PNG images. The components that you specified in
-    the design tool are displayed in the \uicontrol {My QML Components} tab,
-    as well as in the \uicontrol Projects view as separate QML files. To
-    start using them, drag and drop them from \uicontrol Library to
-    \uicontrol {Form Editor} or \uicontrol Navigator.
+    The imported assets are displayed in \uicontrol Library > \uicontrol Assets
+    as PNG images. The components that you specified in the design tool are
+    displayed in \uicontrol Library > \uicontrol Components >
+    \uicontrol {My Components} as well as in the \uicontrol Projects view as
+    separate QML files. To start using them, drag-and-drop them from
+    \uicontrol Library to \uicontrol {Form Editor} or \uicontrol Navigator.
 
     \note The layer that was the bottom layer in the design tool becames the top
     layer in \uicontrol Navigator to reflect the QML code model. You
@@ -98,7 +99,8 @@
 
     After importing the metadata files, wait a few moments to allow all
     imported assets to appear in your project files before selecting your
-    metadata filename from \uicontrol {QML Imports} > \uicontrol {Add Imports}.
+    metadata filename from \uicontrol Assets > \inlineimage plus.png
+    .
 
     If asset importer conflicts, warnings, and errors are displayed in the
     \uicontrol {Asset Import} dialog while importing, fix the issues in

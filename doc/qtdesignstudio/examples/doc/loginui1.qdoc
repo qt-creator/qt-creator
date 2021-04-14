@@ -69,12 +69,13 @@
         \li In the \uicontrol {Screen resolution} field, select the initial
             size of the UI. In this tutorial, we use the smallest predefined
             size, \e {640 x 480}. You can easily change the screen size later
-            in \uicontrol Properties.
+            in \l Properties.
         \li Select \uicontrol Finish (or \uicontrol Done on \macos) to create
             the project.
     \endlist
 
-    Your project should now look something like this in the Design mode:
+    Your project should now look something like this in the \uicontrol Design
+    mode:
 
     \image loginui1-project.png "Log In UI project in the Design mode"
 
@@ -134,12 +135,19 @@
     the \l Text component to set the title text in a larger strong font. In
     addition, you will import an image as an asset and add it to the page.
 
-    To be able to use an image in the UI, you must add it to your project
-    in the \uicontrol Assets tab of \uicontrol Library. Click
+    To add an image to your UI, you should first click
     \l {https://doc.qt.io/qtdesignstudio/images/used-in-examples/loginui1/qt_logo_green_64x64px.png}
     {here} to open the Qt logo in a browser and save it as a file on your
-    computer. The image is only used for decoration, so you can also use
-    any other image or just leave it out.
+    computer.  Next, you need to add the image to \l Library:
+    \list 1
+        \li Select \uicontrol Library > \uicontrol Assets
+            > \inlineimage plus.png
+            .
+        \li Select the image file, and then select \uicontrol Open.
+        \li Select the location where the image will be saved in the
+            \uicontrol {Add Resources} dialog.
+        \li Select \uicontrol OK.
+    \endlist
 
     To preview the changes that you make to the UI while you make
     them, select the \inlineimage live_preview.png
@@ -159,7 +167,7 @@
             \inlineimage icon_color_gradient.png
             (\uicontrol {Linear Gradient}) button to add a linear gradient to
             the screen background. Click the start point (1) and end point (2)
-            to specify the gradient colors. Drag and drop the points along the
+            to specify the gradient colors. Drag-and-drop the points along the
             gradient bar to specify where the gradient starts and ends. In this
             tutorial, the color changes from white to green (#41cd52), starting
             mid-screen, at position 0.5. You can use your favorite colors or
@@ -180,11 +188,11 @@
                 \li In the \uicontrol {Font style} field, select the
                     \uicontrol B button to use a strong font.
             \endlist
-        \li Drag and drop the Qt logo from the \uicontrol Assets tab of
-            \uicontrol Library to the top-left corner of the rectangle.
+        \li Drag-and-drop the Qt logo from \uicontrol Library > \uicontrol Assets
+            to the top-left corner of the rectangle.
             \image loginui1-library-assets.png "Library view Assets tab"
-            \QDS automatically creates a component of the \l{Images}{Image} component
-            for you with the path to the image file set as the value of
+            \QDS automatically creates an instance of the \l{Images}{Image}
+            component for you with the path to the image file set as the value of
             the \uicontrol Source field in \uicontrol Properties.
             \image loginui1-image-properties.png "Image properties"
         \li In the \uicontrol id field, change the id of the image to \e logo.
@@ -215,8 +223,9 @@
 
     The \l Library view lists the components in each module that are
     supported by \QDS. You can use the basic components to create your own
-    components, and they will be listed under \uicontrol {My Components}.
-    This section is only visible if you have created custom components.
+    components, and they will be listed in \uicontrol Components >
+    \uicontrol {My Components}. This section is only visible if you have created
+    custom components.
 
     The \l {basic-rectangle}{Rectangle}, \l Text, and \l {Images}{Image}
     components used in this tutorial are based on the \l Item component.
@@ -237,9 +246,10 @@
     rounded corners.
 
     If you want to specify the radius of each corner separately, you can use the
-    \l{studio-rectangle}{Rectangle} component from the Studio Components
-    module instead of the basic rectangle component. It is available in the
-    \uicontrol {Studio Components} tab of \l Library > \uicontrol Components.
+    \l{studio-rectangle}{Rectangle} component from the
+    \uicontrol {Qt Quick Studio Components} module instead of the basic rectangle
+    component. It is available in \uicontrol Library > \uicontrol Components
+    > \uicontrol {Qt Quick Studio Components}.
 
     \section3 Text Properties
 
@@ -248,19 +258,30 @@
     properties for each text component, such as size in points or pixels,
     weight, style, and spacing.
 
-    To display custom fonts in the list of available fonts in \l Properties,
-    add them in the \uicontrol Assets tab of \uicontrol Library.
+    To add custom fonts in the list of available fonts in \l Properties:
+
+    \list 1
+        \li Select \uicontrol Library > \l Assets
+         > \inlineimage plus.png
+         .
+        \li Browse to the folder that contains the font files and select them,
+            and then select \uicontrol Open.
+        \li Select the location where the file will be saved in the
+            \uicontrol {Add Resources} dialog.
+        \li Select \uicontrol OK to save the fonts.
+    \endlist
 
     If you want to create a label with a background, use the \l Label component
-    from the Qt Quick Controls module instead of the Text component.
+    from the \uicontrol {Qt Quick Controls} module instead of the Text component.
 
     \section3 Image Properties
 
     The \l {Images}{Image} component is used for adding images to the UI in several
     supported formats, including bitmap formats such as PNG and JPEG and vector
-    graphics formats such as SVG. You must add the images to your project in the
-    \uicontrol Assets tab of \uicontrol Library to be able to use them in
-    designs.
+    graphics formats such as SVG. To add an image you wish to use in your
+    designs to \uicontrol Library, select \uicontrol Library > \uicontrol Assets
+    > \inlineimage plus.png
+    , and then select the image file.
 
     If you need to display animated images, use the \l {Animated Image}
     component, also available in \uicontrol Library > \uicontrol Components >
@@ -270,15 +291,16 @@
 
     You can use another wizard template to create a push button and to add it to
     the project. The wizard template creates a reusable button component that
-    appears under \uicontrol {My Components} in \uicontrol Library > Components.
-    You can drag and drop it to \l {Form Editor} and modify its properties
-    in \l Properties to change its appearance and functionality.
+    appears in \uicontrol Library > \uicontrol Components >
+    \uicontrol {My Components}. You can drag-and-drop it to \l {Form Editor} and
+    modify its properties in the \uicontrol Properties view to change its
+    appearance and functionality.
 
     If you find that you cannot use the wizard template nor the ready-made
-    button controls available in the \uicontrol {Qt Quick Controls} tab
-    in \uicontrol Library > \uicontrol Components to create the kind of push
-    button that you want, you can create your button from scratch using default
-    components. For more information, see \l {Creating Buttons} and
+    button controls available in \uicontrol Library > \uicontrol Components >
+    \uicontrol {Qt Quick Controls} to create the kind of push button that you
+    want, you can create your button from scratch using default components. For
+    more information, see \l {Creating Buttons} and
     \l {Creating Scalable Buttons and Borders}.
 
     To create a push button by using the wizard template:
@@ -316,8 +338,8 @@
     The \l {Qt Quick Templates 2} module provides the functionality of the
     Button component. The module is imported as \e T, and the alias is added to
     the Button component definition to indicate that the Button component from the
-    Qt Quick Controls module is used, instead of some other component with the
-    same name.
+    \uicontrol {Qt Quick Controls} module is used, instead of some other
+    component with the same name.
 
     \printuntil text
     \dots
@@ -408,11 +430,12 @@
     \list 1
         \li Double-click \e Screen01.ui.qml in \uicontrol Projects
             to open it in \uicontrol {Form Editor}.
-        \li Drag and drop two instances of the PushButton component from
-            \uicontrol Library to \uicontrol {Form Editor}.
+        \li Drag-and-drop two instances of the PushButton component from
+            \uicontrol Library > \uicontrol Components > \uicontrol {My Components}
+            to \uicontrol {Form Editor}.
             \image loginui1-library.png "My Components tab of Library view"
         \li Select one of the buttons in \uicontrol Navigator to modify
-            its id and text label in \uicontrol Properties.
+            its ID and text label in \uicontrol Properties.
         \li In the \uicontrol Id field, enter \e loginButton.
         \li In the \uicontrol Text field, enter \e {Log In} and select
             \uicontrol tr to mark the text

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Bridge documentation.
@@ -56,8 +56,9 @@
     To import 3D assets to \QDS projects:
 
     \list 1
-        \li In the Design mode, select \uicontrol Library > \uicontrol Assets
-            > \uicontrol {Add New Assets}.
+        \li In the \l{Design Views}{Design mode}, select \l Library >
+            \uicontrol Assets > \inlineimage plus.png
+            .
         \li Select \uicontrol {3D Assets} in the dropdown menu to filter 3D
             graphics files.
         \li Select a file to import, and then select \uicontrol Open.
@@ -67,6 +68,7 @@
         \li When the import is done, select \uicontrol Close.
     \endlist
 
-    You can open the imported files in the Design mode for editing in the
-    \l{Editing 3D Scenes}{3D Editor}.
+    The 3D asset you added to the project now appears in \uicontrol Library >
+    \uicontrol Components > \uicontrol {My 3D Components}. You can add it to
+    your UI by dragging-and-dropping it to \l {3D Editor}.
 */

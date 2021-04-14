@@ -175,7 +175,7 @@
 
     In our UI, we use connections and states to move between screens. First,
     we specify the application workflow in \e ApplicationFlow.qml. When the
-    file is open in \uicontrol {Form Editor}, we drag and drop the components
+    file is open in \uicontrol {Form Editor}, we drag-and-drop the components
     that define the screens in the application from \uicontrol Library to
     \uicontrol Navigator or \uicontrol {Form Editor}: \e StartScreen,
     \e SettingsScreen, \e PresetsScreen, and \e RunningScreen.

@@ -158,9 +158,10 @@
     To edit list models:
 
     \list 1
-        \li Drag and drop a \uicontrol {Grid View} or \uicontrol {List View}
-            from \uicontrol Library to \uicontrol Navigator or
-            \uicontrol {Form Editor}.
+        \li Drag-and-drop a \uicontrol {Grid View} or \uicontrol {List View}
+            from \uicontrol Library > \uicontrol Components >
+            \uicontrol {Default Components} > \uicontrol Views to
+            \uicontrol Navigator or \uicontrol {Form Editor}.
         \li Right-click the view in \uicontrol Navigator, and select
             \uicontrol {Edit List Model} in the context-menu to open
             the list model editor:
@@ -174,7 +175,8 @@
     You can replace the default model and delegate with other,
     more complex models and delegates in \l {Text Editor}.
     \l{ItemDelegate}{Item Delegate} and \l{SwipeDelegate}{Swipe Delegate}
-    components are also available in \uicontrol Library.
+    components are also available in \uicontrol Library > \uicontrol Components
+    > \uicontrol {Qt Quick Controls}.
 
     \include qtquick-pathview-editor.qdocinc pathview
     \if defined(qtdesignstudio)

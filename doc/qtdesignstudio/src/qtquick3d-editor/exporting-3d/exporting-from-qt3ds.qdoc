@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt 3D Studio.
@@ -161,7 +161,8 @@
 
     \section2 Importing Assets
     \list 1
-    \li In the \uicontrol Library view, select \uicontrol {Add New Assets}.
+    \li Select \uicontrol Library > \uicontrol Assets > \inlineimage plus.png
+        .
         \image exporting-from-qt3ds/09-add-new-assets.png
 
     \li Select the \c .uia file for the \Q3DS project you wish to import, and
@@ -173,7 +174,7 @@
         \image exporting-from-qt3ds/11-import.png "Import the file"
 
     \li The 2D assets imported from \Q3DS now appear in \uicontrol Library
-        under \uicontrol Assets tab.
+        > \uicontrol Assets.
         \image exporting-from-qt3ds/12-imported-image-assets.png "Imported assets in Library"
 
     \li The QML components generated from the imported \Q3DS project now appear
@@ -216,8 +217,8 @@
     \section2 Converting 3D Elements
 
     \list 1
-    \li Drag subpresentation_ADAS from \uicontrol {My QML Components} in \uicontrol
-        Library into layer folder in \uicontrol Navigator.
+    \li Drag subpresentation_ADAS from \uicontrol Library > \uicontrol Components
+        > {My 3D Components} into layer folder in \uicontrol Navigator.
         \image exporting-from-qt3ds/20-drag-subpresentation-adas-into-layer.png "Drag into layer"
 
     \li To delete the old subpresentation rectangle, right-click on the file
@@ -289,10 +290,10 @@
         \image exporting-from-qt3ds/32-rename-the-qml-stream-file.png "The QML stream file names should start with a capital letter"
 
     \li Return to \QDS and enter the MyOwnCluster component. The QML stream
-        component now appears in \uicontrol {My QML Components}.
+        component now appears in \uicontrol {My 3D Components}.
         \image exporting-from-qt3ds/33-see-qml-stream-component-in-myqmlcomponents.png "QML stream in My QML Components"
 
-    \li Drag and drop the QML stream component to MyOwnCluster in \uicontrol
+    \li Drag-and-drop the QML stream component to MyOwnCluster in \uicontrol
         Navigator.
         \image exporting-from-qt3ds/34-drag-to-myowncluster-in-navigator.png "Drag the QML stream component to MyOwnCluster"
 

@@ -34,9 +34,15 @@
 
     Light components are the primary source of lighting in a \QDS scene.
     As a secondary light source, you can use \l{Using Image-based Lighting}
-    {image-based lighting}. If the light components are not displayed in
-    \l Library, you should add the \uicontrol QtQuick3D module to your project,
-    as described in \l {Adding and Removing Modules}.
+    {image-based lighting}.
+
+    To add light components to your UI, drag-and-drop them from \l Library
+    > \uicontrol Components > \uicontrol {Qt Quick 3D} to \l {3D Editor} or to
+    \l Navigator > \uicontrol Scene Environment > \uicontrol Scene.
+
+    If you cannot find the light components in \uicontrol Library, add the
+    \uicontrol {Qt Quick 3D} module to your project as instructed in
+    \l {Adding and Removing Modules}.
 
     By default, all imported scenes are created with one directional light.
     You can use the following components to add lights:

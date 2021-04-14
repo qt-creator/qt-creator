@@ -72,7 +72,7 @@
 
     \list 1
         \li Open \e {Screen01.ui.qml} in \l {Form Editor} for editing.
-        \li Drag and drop a \uicontrol {Text Field} from \l Library
+        \li Drag-and-drop a \uicontrol {Text Field} from \l Library
             > \uicontrol Components > \uicontrol {Qt Quick Controls} to
             \e fieldColumn in \l Navigator.
         \li In \l Properties, change the ID of the text field to
@@ -82,9 +82,9 @@
             existing fields.
         \li In the \uicontrol Placeholder field, set the placeholder text to
             \e {Verify password} and mark the text translatable.
-        \li Drag and drop a PushButton component from \uicontrol Library >
-            \uicontrol {My QML Components} to their parent rectangle in
-            \uicontrol Navigator.
+        \li Drag-and-drop a PushButton component from \uicontrol Library >
+            \uicontrol Components > \uicontrol {My Components} to its parent
+            rectangle in \uicontrol Navigator.
         \li Select the button in \uicontrol Navigator and change its id to
             \e backButton in \uicontrol Properties.
         \li In the \uicontrol Geometry group, \uicontrol Size field, set the

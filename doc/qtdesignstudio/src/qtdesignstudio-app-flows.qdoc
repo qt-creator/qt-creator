@@ -75,15 +75,16 @@
             to replace transition lines with connections to real signals
             from UI controls, as described in \l{Simulating Events}.
         \li To set up alternative pathways between flow items, use
-            \uicontrol {Flow Decision} components from \l Library, as
-            described in \l{Simulating Conditions}.
+            \uicontrol {Flow Decision} components from \l Library >
+            \uicontrol Components > \uicontrol {Flow View}, as described in
+            \l{Simulating Conditions}.
         \li Use \l{Adding States}{states} in flows to modify the appearance
             of components on screens in response to user interaction, as
             described in \l{Applying States in Flows}.
-        \li Use \uicontrol {Flow Wildcard} components from \uicontrol Library
-            to prioritize events from other applications and to stop some
-            screens from appearing on others, as described in
-            \l{Reacting to External Events}.
+        \li Use \uicontrol {Flow Wildcard} components from \uicontrol Library >
+            \uicontrol Components > \uicontrol {Flow View} to prioritize events
+            from other applications and to stop some screens from appearing on
+            others, as described in \l{Reacting to External Events}.
     \endlist
 */
 
@@ -188,10 +189,10 @@
     \image studio-flow-item.png "Custom Flow Item in Library"
 
     \note You must use the wizard to create the flow items. After you create
-    a flow view, the \uicontrol {Flow View} section becomes visible in
-    \uicontrol Library. It contains a \uicontrol {Flow Item} component that
-    you can use to \l{Applying States in Flows}{apply states to flow items},
-    and that you should use solely for that purpose.
+    a flow view, the \uicontrol {Flow View} module is added to \uicontrol Library
+    > \uicontrol Components. It contains a \uicontrol {Flow Item} component that
+    you can use to \l{Applying States in Flows}{apply states to flow items}, and
+    that you should use solely for that purpose.
 
     To add flow items:
 
@@ -202,16 +203,16 @@
             to create flow items for each screen in the UI.
         \li Add content to the flow item in one of the following ways:
             \list
-                \li Drag and drop components from \l Library to a flow
+                \li Drag-and-drop components from \uicontrol Library to a flow
                     item in \l {Form Editor} or \l Navigator.
-                \li Drag a screen from \uicontrol Library >
+                \li Drag a screen from \uicontrol Library > \uicontrol Components
                     \uicontrol {My Components} to a flow item in
                     \uicontrol {Form Editor} or \uicontrol Navigator.
             \endlist
         \li In \l Properties, edit the properties of each flow item.
     \endlist
 
-    You can now drag the flow items from \uicontrol Library >
+    You can now drag the flow items from \uicontrol Library > \uicontrol Components
     \uicontrol {My Components} to the flow view in \uicontrol {Form Editor}
     or \uicontrol Navigator. When you have all the flow items in place, you can
     \l{Adding Action Areas and Transitions}{add action areas} to them to create
@@ -354,7 +355,7 @@
     \endlist
 
     You can specify the following properties to change the appearance of
-    transition lines in \l{Form Editor}:
+    transition lines in \uicontrol {Form Editor}:
 
     \image studio-flow-transition-line-properties.png "Flow Transition Line properties"
 
@@ -543,9 +544,9 @@
     To simulate conditions:
 
     \list 1
-        \li Drag a \uicontrol {Flow Decision} component from \l Library
-            to a \l{Adding Flow Views}{flow view} in \l Navigator or
-            \l {Form Editor}.
+        \li Drag a \uicontrol {Flow Decision} component from \l Library >
+            \uicontrol Components \uicontrol {Flow View} to a
+            \l{Adding Flow Views}{flow view} in \l Navigator or \l {Form Editor}.
         \li Select the flow item where you want the application to start in
             \uicontrol Navigator or \uicontrol {Form Editor}, and then select
             \uicontrol {Flow} > \uicontrol {Set Flow Start} in the context menu.
@@ -612,7 +613,8 @@
     You can use \l{Adding States}{states} in flows to modify the appearance
     of \l{glossary-component}{components} in flow items in response to user
     interaction, for example. For this purpose, you use the
-    \uicontrol {Flow Item} components available in \l Library.
+    \uicontrol {Flow Item} components available in \l Library >
+    \uicontrol Components > \uicontrol {Flow View}.
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File or Project} >
@@ -660,9 +662,10 @@
     To use wildcards:
 
     \list 1
-        \li Drag a \uicontrol {Flow Wildcard} component from \l Library
-            to an \l{Adding Action Areas and Transitions}{action area} in
-            \l Navigator or \l {Form Editor}.
+        \li Drag a \uicontrol {Flow Wildcard} component from \l Library >
+            \uicontrol Components > \uicontrol {Flow View} to an
+            \l{Adding Action Areas and Transitions}{action area} in \l Navigator
+            or \l {Form Editor}.
         \li In \l Properties, select flow items to add them to the
             positive and negative list of the action area.
     \endlist
