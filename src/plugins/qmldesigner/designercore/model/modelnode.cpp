@@ -151,36 +151,14 @@ QString ModelNode::validId()
 
 static bool idIsQmlKeyWord(const QString& id)
 {
-    static const QSet<QString> keywords = {
-        "as",
-        "break",
-        "case",
-        "catch",
-        "continue",
-        "debugger",
-        "default",
-        "delete",
-        "do",
-        "else",
-        "finally",
-        "for",
-        "function",
-        "if",
-        "import",
-        "in",
-        "instanceof",
-        "new",
-        "return",
-        "switch",
-        "this",
-        "throw",
-        "try",
-        "typeof",
-        "var",
-        "void",
-        "while",
-        "with"
-    };
+    static const QSet<QString> keywords = {"as",         "break",    "case",    "catch",
+                                           "continue",   "debugger", "default", "delete",
+                                           "do",         "else",     "finally", "for",
+                                           "function",   "if",       "import",  "in",
+                                           "instanceof", "new",      "print",   "return",
+                                           "switch",     "this",     "throw",   "try",
+                                           "typeof",     "var",      "void",    "while",
+                                           "with"};
 
     return keywords.contains(id);
 }
