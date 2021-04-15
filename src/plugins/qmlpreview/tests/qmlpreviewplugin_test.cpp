@@ -31,11 +31,10 @@
 #include <QtTest>
 #include <QVariant>
 
-Q_DECLARE_METATYPE(QmlPreview::Internal::TestFileLoader)
-Q_DECLARE_METATYPE(QmlPreview::Internal::TestFpsHandler)
+Q_DECLARE_METATYPE(QmlPreview::TestFileLoader)
+Q_DECLARE_METATYPE(QmlPreview::TestFpsHandler)
 
 namespace QmlPreview {
-namespace Internal {
 
 QmlPreviewPluginTest::QmlPreviewPluginTest(QObject *parent) : QObject(parent)
 {
@@ -90,5 +89,4 @@ void QmlPreviewPluginTest::testFpsHandlerProperty()
     handler(stats);
 }
 
-} // namespace Internal
 } // namespace QmlPreview

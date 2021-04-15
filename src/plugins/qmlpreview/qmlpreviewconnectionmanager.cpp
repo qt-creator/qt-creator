@@ -40,6 +40,9 @@ QmlPreviewConnectionManager::QmlPreviewConnectionManager(QObject *parent) :
     QmlDebug::QmlDebugConnectionManager(parent)
 {
     setTarget(nullptr);
+    m_createDebugTranslationClientMethod = [](QmlDebug::QmlDebugConnection *connection) {
+        return std::make_unique<QmlPreview::QmlDebugTranslationClient>(connection);
+    };
 }
 
 QmlPreviewConnectionManager::~QmlPreviewConnectionManager() = default;
@@ -64,6 +67,11 @@ void QmlPreviewConnectionManager::setFileClassifier(QmlPreviewFileClassifier fil
 void QmlPreviewConnectionManager::setFpsHandler(QmlPreviewFpsHandler fpsHandler)
 {
     m_fpsHandler = fpsHandler;
+}
+
+void QmlPreviewConnectionManager::setQmlDebugTranslationClientCreator(QmlDebugTranslationClientCreator creator)
+{
+    m_createDebugTranslationClientMethod = creator;
 }
 
 void QmlPreviewConnectionManager::createClients()
@@ -113,9 +121,9 @@ QUrl QmlPreviewConnectionManager::findValidI18nDirectoryAsUrl(const QString &loc
 
 void QmlPreviewConnectionManager::createDebugTranslationClient()
 {
-    m_qmlDebugTranslationClient = new QmlDebugTranslationClient(connection());
+    m_qmlDebugTranslationClient = m_createDebugTranslationClientMethod(connection());
     connect(this, &QmlPreviewConnectionManager::language,
-                     m_qmlDebugTranslationClient, [this](const QString &locale) {
+                     m_qmlDebugTranslationClient.get(), [this](const QString &locale) {
         m_lastUsedLanguage = locale;
         // findValidI18nDirectoryAsUrl does not work if we didn't load any file
         // service expects a context URL.
@@ -124,10 +132,7 @@ void QmlPreviewConnectionManager::createDebugTranslationClient()
             m_qmlDebugTranslationClient->changeLanguage(findValidI18nDirectoryAsUrl(locale), locale);
         }
     });
-    connect(this, &QmlPreviewConnectionManager::changeElideWarning,
-            m_qmlDebugTranslationClient, &QmlDebugTranslationClient::changeElideWarning);
-
-    connect(m_qmlDebugTranslationClient.data(), &QmlDebugTranslationClient::debugServiceUnavailable,
+    connect(m_qmlDebugTranslationClient.get(), &QmlDebugTranslationClient::debugServiceUnavailable,
                      this, []() {
         QMessageBox::warning(Core::ICore::dialogParent(), "Error connect to QML DebugTranslation service",
                              "QML DebugTranslation feature is not available for this version of Qt.");
@@ -260,7 +265,7 @@ void QmlPreviewConnectionManager::clearClient(QObject *client)
 void QmlPreviewConnectionManager::destroyClients()
 {
     clearClient(m_qmlPreviewClient);
-    clearClient(m_qmlDebugTranslationClient);
+    clearClient(m_qmlDebugTranslationClient.release());
     m_fileSystemWatcher.removeFiles(m_fileSystemWatcher.files());
     QTC_ASSERT(m_fileSystemWatcher.directories().isEmpty(),
                m_fileSystemWatcher.removeDirectories(m_fileSystemWatcher.directories()));

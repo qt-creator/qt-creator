@@ -26,7 +26,6 @@
 #include <QObject>
 
 namespace QmlPreview {
-namespace Internal {
 
 class QmlPreviewClientTest : public QObject
 {
@@ -39,5 +38,4 @@ private slots:
     void testMessageReceived();
 };
 
-} // namespace Internal
 } // namespace QmlPreview

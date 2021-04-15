@@ -96,8 +96,8 @@
 
     \list 1
         \li In the \l Timeline view, select the \inlineimage plus.png
-            (\uicontrol {Add Timeline (A)}) button, or press \key {A} to
-            specify settings for the timeline and running the animation
+            (\uicontrol {Add Timeline}) button to specify settings
+            for the timeline and running the animation
             in the \uicontrol {Timeline Settings} dialog.
         \li In the \uicontrol {Timeline ID} field, enter an ID that describes
             the animated component.

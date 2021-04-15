@@ -27,7 +27,7 @@
 Metadata {
     id: metadataFile
 
-    defaultVersion: v17
+    defaultVersion: v18
 
     VersionData {
         id: v14
@@ -39,5 +39,11 @@ Metadata {
         id: v17
         name: "QUL 1.7"
         path: "qul-17.qml"
+    }
+
+    VersionData {
+        id: v18
+        name: "QUL 1.8"
+        path: "qul-18.qml"
     }
 }

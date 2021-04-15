@@ -29,7 +29,6 @@
 #include <QtTest>
 
 namespace QmlPreview {
-namespace Internal {
 
 class TestableQmlPreviewClient : public QmlPreviewClient
 {
@@ -139,7 +138,6 @@ void QmlPreviewClientTest::testMessageReceived()
     }
 }
 
-} // namespace Internal
 } // namespace QmlPreview
 
 #include "qmlpreviewclient_test.moc"

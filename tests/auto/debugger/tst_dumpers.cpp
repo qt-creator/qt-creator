@@ -1628,6 +1628,7 @@ void tst_Dumpers::dumper()
             "."
         };
         //qDebug() << "Starting cmake: " << m_cmakeBinary << ' ' << qPrintable(options.join(' '));
+        cmake.setProcessEnvironment(m_env);
         cmake.start(m_cmakeBinary, options);
         QVERIFY(cmake.waitForFinished());
         output = cmake.readAllStandardOutput();
@@ -1648,6 +1649,7 @@ void tst_Dumpers::dumper()
         if (m_qtVersion && m_qtVersion < 0x050000)
             options << "-spec" << "unsupported/macx-clang";
     #endif
+        qmake.setProcessEnvironment(m_env);
         qmake.start(m_qmakeBinary, options);
         QVERIFY(qmake.waitForFinished());
         output = qmake.readAllStandardOutput();

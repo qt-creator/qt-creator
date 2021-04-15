@@ -52,12 +52,12 @@ public:
     void setFileLoader(QmlPreviewFileLoader fileLoader);
     void setFileClassifier(QmlPreviewFileClassifier fileClassifier);
     void setFpsHandler(QmlPreviewFpsHandler fpsHandler);
+    void setQmlDebugTranslationClientCreator(QmlDebugTranslationClientCreator creator);
 
 signals:
     void loadFile(const QString &filename, const QString &changedFile, const QByteArray &contents);
     void zoom(float zoomFactor);
     void language(const QString &locale);
-    void changeElideWarning(bool elideWarning);
     void rerun();
     void restart();
 
@@ -68,18 +68,19 @@ protected:
 private:
     void createPreviewClient();
     void createDebugTranslationClient();
-    QUrl findValidI18nDirectoryAsUrl(const QString &locale);
     void clearClient(QObject *client);
+    QUrl findValidI18nDirectoryAsUrl(const QString &locale);
     Utils::FileInProjectFinder m_projectFileFinder;
     QmlPreviewFileOnTargetFinder m_targetFileFinder;
     QPointer<QmlPreviewClient> m_qmlPreviewClient;
-    QPointer<QmlDebugTranslationClient> m_qmlDebugTranslationClient;
+    std::unique_ptr<QmlDebugTranslationClient> m_qmlDebugTranslationClient;
     Utils::FileSystemWatcher m_fileSystemWatcher;
     QUrl m_lastLoadedUrl;
     QString m_lastUsedLanguage;
     QmlPreviewFileLoader m_fileLoader = nullptr;
     QmlPreviewFileClassifier m_fileClassifier = nullptr;
     QmlPreviewFpsHandler m_fpsHandler = nullptr;
+    QmlDebugTranslationClientCreator m_createDebugTranslationClientMethod;
 };
 
 } // namespace Internal

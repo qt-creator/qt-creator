@@ -25,6 +25,9 @@
 
 #pragma once
 
+#include "qmlpreview_global.h"
+#include "qmldebugtranslationclient.h"
+
 #include <projectexplorer/runcontrol.h>
 #include <extensionsystem/iplugin.h>
 #include <qmljs/qmljsdialect.h>
@@ -34,16 +37,17 @@
 
 namespace Core { class IEditor; }
 
+namespace QmlDebug { class QmlDebugConnection; }
+
 namespace QmlPreview {
 
 typedef bool (*QmlPreviewFileClassifier) (const QString &);
 typedef QByteArray (*QmlPreviewFileLoader)(const QString &, bool *);
 typedef void (*QmlPreviewFpsHandler)(quint16[8]);
 typedef QList<ProjectExplorer::RunControl *> QmlPreviewRunControlList;
+typedef std::function<std::unique_ptr<QmlDebugTranslationClient>(QmlDebug::QmlDebugConnection *)> QmlDebugTranslationClientCreator;
 
-namespace Internal {
-
-class QmlPreviewPlugin : public ExtensionSystem::IPlugin
+class QMLPREVIEW_EXPORT QmlPreviewPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlPreview.json")
@@ -59,7 +63,6 @@ class QmlPreviewPlugin : public ExtensionSystem::IPlugin
                WRITE setFpsHandler NOTIFY fpsHandlerChanged)
     Q_PROPERTY(float zoomFactor READ zoomFactor WRITE setZoomFactor NOTIFY zoomFactorChanged)
     Q_PROPERTY(QString localeIsoCode READ localeIsoCode WRITE setLocaleIsoCode NOTIFY localeIsoCodeChanged)
-    Q_PROPERTY(bool elideWarning READ elideWarning WRITE changeElideWarning NOTIFY elideWarningChanged)
 
 public:
     ~QmlPreviewPlugin() override;
@@ -87,8 +90,7 @@ public:
     QString localeIsoCode() const;
     void setLocaleIsoCode(const QString &localeIsoCode);
 
-    bool elideWarning() const;
-    void changeElideWarning(bool elideWarning);
+    void setQmlDebugTranslationClientCreator(QmlDebugTranslationClientCreator creator);
 
 signals:
     void checkDocument(const QString &name, const QByteArray &contents,
@@ -104,13 +106,11 @@ signals:
 
     void zoomFactorChanged(float zoomFactor);
     void localeIsoCodeChanged(const QString &localeIsoCode);
-    void elideWarningChanged(bool elideWarning);
 
 private:
     class QmlPreviewPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
 } // namespace QmlPreview
 
 Q_DECLARE_METATYPE(QmlPreview::QmlPreviewFileLoader)
