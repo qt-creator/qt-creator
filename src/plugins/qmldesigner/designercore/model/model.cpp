@@ -889,6 +889,14 @@ void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListPropertyPointer 
     });
 }
 
+void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListPropertyPointer &internalListProperty)
+{
+    notifyNodeInstanceViewLast([&](AbstractView *view) {
+        NodeListProperty nodeListProperty(internalListProperty, m_model, view);
+        view->nodeOrderChanged(nodeListProperty);
+    });
+}
+
 void ModelPrivate::setSelectedNodes(const QList<InternalNodePointer> &selectedNodeList)
 {
     QList<InternalNodePointer> sortedSelectedList = Utils::filtered(selectedNodeList,

@@ -72,6 +72,9 @@ public:
     const QList<InternalNodePointer> &nodeList() const;
     void slide(int from, int to);
 
+    QList<InternalNodePointer>::iterator begin() { return m_nodeList.begin(); }
+    QList<InternalNodePointer>::iterator end() { return m_nodeList.end(); }
+
 protected:
     InternalNodeListProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
     void add(const InternalNodePointer &node) override;

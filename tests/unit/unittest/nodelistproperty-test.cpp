@@ -70,7 +70,7 @@ protected:
 
 protected:
     std::unique_ptr<QmlDesigner::Model> model{QmlDesigner::Model::create("QtQuick.Item")};
-    AbstractViewMock abstractViewMock;
+    NiceMock<AbstractViewMock> abstractViewMock;
     QmlDesigner::NodeListProperty nodeListProperty;
     ModelNode node1;
     ModelNode node2;
@@ -434,6 +434,87 @@ TEST_F(NodeListProperty, DereferenceIterator)
     auto node = *iterator;
 
     ASSERT_THAT(node, Eq(node2));
+}
+
+TEST_F(NodeListProperty, IterSwap)
+{
+    auto first = std::next(nodeListProperty.begin(), 2);
+    auto second = nodeListProperty.begin();
+
+    nodeListProperty.iterSwap(first, second);
+
+    ASSERT_THAT(nodes(), ElementsAre(node3, node2, node1, node4, node5));
+}
+
+TEST_F(NodeListProperty, Rotate)
+{
+    auto first = std::next(nodeListProperty.begin());
+    auto newFirst = std::next(nodeListProperty.begin(), 2);
+    auto last = std::prev(nodeListProperty.end());
+
+    nodeListProperty.rotate(first, newFirst, last);
+
+    ASSERT_THAT(nodes(), ElementsAre(node1, node3, node4, node2, node5));
+}
+
+TEST_F(NodeListProperty, RotateCallsNodeOrderedChanged)
+{
+    auto first = std::next(nodeListProperty.begin());
+    auto newFirst = std::next(nodeListProperty.begin(), 2);
+    auto last = std::prev(nodeListProperty.end());
+
+    EXPECT_CALL(abstractViewMock, nodeOrderChanged(ElementsAre(node1, node3, node4, node2, node5)));
+
+    nodeListProperty.rotate(first, newFirst, last);
+}
+
+TEST_F(NodeListProperty, RotateRange)
+{
+    auto newFirst = std::prev(nodeListProperty.end(), 2);
+
+    nodeListProperty.rotate(nodeListProperty, newFirst);
+
+    ASSERT_THAT(nodes(), ElementsAre(node4, node5, node1, node2, node3));
+}
+
+TEST_F(NodeListProperty, RotateReturnsIterator)
+{
+    auto first = std::next(nodeListProperty.begin());
+    auto newFirst = std::next(nodeListProperty.begin(), 2);
+    auto last = std::prev(nodeListProperty.end());
+
+    auto iterator = nodeListProperty.rotate(first, newFirst, last);
+
+    ASSERT_THAT(iterator, Eq(first + (last - newFirst)));
+}
+
+TEST_F(NodeListProperty, RotateRangeReturnsIterator)
+{
+    auto newFirst = std::prev(nodeListProperty.end(), 2);
+
+    auto iterator = nodeListProperty.rotate(nodeListProperty, newFirst);
+
+    ASSERT_THAT(iterator, Eq(nodeListProperty.begin() + (nodeListProperty.end() - newFirst)));
+}
+
+TEST_F(NodeListProperty, Reverse)
+{
+    auto first = std::next(nodeListProperty.begin());
+    auto last = std::prev(nodeListProperty.end());
+
+    nodeListProperty.reverse(first, last);
+
+    ASSERT_THAT(nodes(), ElementsAre(node1, node4, node3, node2, node5));
+}
+
+TEST_F(NodeListProperty, ReverseCallsNodeOrderedChanged)
+{
+    auto first = std::next(nodeListProperty.begin());
+    auto last = std::prev(nodeListProperty.end());
+
+    EXPECT_CALL(abstractViewMock, nodeOrderChanged(ElementsAre(node1, node4, node3, node2, node5)));
+
+    nodeListProperty.reverse(first, last);
 }
 
 } // namespace

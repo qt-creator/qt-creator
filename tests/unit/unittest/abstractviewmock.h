@@ -32,4 +32,5 @@
 class AbstractViewMock : public QmlDesigner::AbstractView
 {
 public:
+    MOCK_METHOD(void, nodeOrderChanged, (const QmlDesigner::NodeListProperty &listProperty), (override));
 };

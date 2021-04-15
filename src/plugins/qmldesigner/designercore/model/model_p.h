@@ -159,6 +159,7 @@ public:
     void notifyNodeOrderChanged(const InternalNodeListPropertyPointer &internalListProperty,
                                 const InternalNodePointer &node,
                                 int oldIndex);
+    void notifyNodeOrderChanged(const InternalNodeListPropertyPointer &internalListProperty);
     void notifyAuxiliaryDataChanged(const InternalNodePointer &node, const PropertyName &name, const QVariant &data);
     void notifyNodeSourceChanged(const InternalNodePointer &node, const QString &newNodeSource);
 

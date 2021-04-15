@@ -42,6 +42,8 @@ using InternalNodeListPropertyPointer = QSharedPointer<InternalNodeListProperty>
 
 class NodeListPropertyIterator
 {
+    friend class QMLDESIGNERCORE_EXPORT NodeListProperty;
+
 public:
     using iterator_category = std::random_access_iterator_tag;
     using difference_type = int;
@@ -49,6 +51,7 @@ public:
     using pointer = InternalNodeListPropertyPointer;
     using reference = ModelNode;
 
+    NodeListPropertyIterator() = default;
     NodeListPropertyIterator(int currentIndex,
                              class InternalNodeListProperty *nodeListProperty,
                              Model *model,
@@ -191,6 +194,19 @@ public:
     void swap(int, int) const;
     void reparentHere(const ModelNode &modelNode);
     ModelNode at(int index) const;
+    void iterSwap(iterator &first, iterator &second);
+    iterator rotate(iterator first, iterator newFirst, iterator last);
+    template<typename Range>
+    iterator rotate(Range &range, iterator newFirst)
+    {
+        return rotate(range.begin(), newFirst, range.end());
+    }
+    void reverse(iterator first, iterator last);
+    template<typename Range>
+    void reverse(Range &range)
+    {
+        reverse(range.begin(), range.end());
+    }
 
     static void reverseModelNodes(const QList<ModelNode> &nodes);
 
@@ -202,6 +218,13 @@ public:
 
 protected:
     NodeListProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
-    NodeListProperty(const Internal::InternalNodeListPropertyPointer &internalNodeListProperty, Model* model, AbstractView *view);
+    NodeListProperty(const Internal::InternalNodeListPropertyPointer &internalNodeListProperty,
+                     Model *model,
+                     AbstractView *view);
+
+    Internal::InternalNodeListPropertyPointer &internalNodeListProperty() const;
+
+private:
+    mutable Internal::InternalNodeListPropertyPointer m_internalNodeListProperty{};
 };
 }

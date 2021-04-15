@@ -59,6 +59,20 @@ NodeListProperty::NodeListProperty(const Internal::InternalNodeListProperty::Poi
 {
 }
 
+Internal::InternalNodeListPropertyPointer &NodeListProperty::internalNodeListProperty() const
+{
+    if (m_internalNodeListProperty)
+        return m_internalNodeListProperty;
+
+    if (internalNode()->hasProperty(name())) {
+        Internal::InternalProperty::Pointer internalProperty = internalNode()->property(name());
+        if (internalProperty->isNodeListProperty())
+            m_internalNodeListProperty = internalProperty->toNodeListProperty();
+    }
+
+    return m_internalNodeListProperty;
+}
+
 static QList<ModelNode> internalNodesToModelNodes(const QList<Internal::InternalNode::Pointer> &inputList, Model* model, AbstractView *view)
 {
     QList<ModelNode> modelNodeList;
@@ -73,11 +87,10 @@ QList<ModelNode> NodeListProperty::toModelNodeList() const
     if (!isValid())
         throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, "<invalid node list property>");
 
-    if (internalNode()->hasProperty(name())) {
-        Internal::InternalProperty::Pointer internalProperty = internalNode()->property(name());
-        if (internalProperty->isNodeListProperty())
-            return internalNodesToModelNodes(internalProperty->toNodeListProperty()->nodeList(), model(), view());
-    }
+    if (internalNodeListProperty())
+        return internalNodesToModelNodes(m_internalNodeListProperty->toNodeListProperty()->nodeList(),
+                                         model(),
+                                         view());
 
     return QList<ModelNode>();
 }
@@ -134,12 +147,49 @@ ModelNode NodeListProperty::at(int index) const
     if (!isValid())
         throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, "<invalid node list property>");
 
-    Internal::InternalNodeListProperty::Pointer internalProperty = internalNode()->nodeListProperty(name());
-    if (internalProperty)
-        return ModelNode(internalProperty->at(index), model(), view());
-
+    if (internalNodeListProperty())
+        return ModelNode(m_internalNodeListProperty->at(index), model(), view());
 
     return ModelNode();
+}
+
+void NodeListProperty::iterSwap(NodeListProperty::iterator &first, NodeListProperty::iterator &second)
+{
+    if (!internalNodeListProperty())
+        return;
+
+    std::swap(m_internalNodeListProperty->at(first.m_currentIndex),
+              m_internalNodeListProperty->at(second.m_currentIndex));
+}
+
+NodeListProperty::iterator NodeListProperty::rotate(NodeListProperty::iterator first,
+                                                    NodeListProperty::iterator newFirst,
+                                                    NodeListProperty::iterator last)
+{
+    if (!internalNodeListProperty())
+        return {};
+
+    auto begin = m_internalNodeListProperty->begin();
+
+    auto iter = std::rotate(std::next(begin, first.m_currentIndex),
+                            std::next(begin, newFirst.m_currentIndex),
+                            std::next(begin, last.m_currentIndex));
+
+    privateModel()->notifyNodeOrderChanged(m_internalNodeListProperty);
+
+    return {iter - begin, internalNodeListProperty().data(), model(), view()};
+}
+
+void NodeListProperty::reverse(NodeListProperty::iterator first, NodeListProperty::iterator last)
+{
+    if (!internalNodeListProperty())
+        return;
+
+    auto begin = m_internalNodeListProperty->begin();
+
+    std::reverse(std::next(begin, first.m_currentIndex), std::next(begin, last.m_currentIndex));
+
+    privateModel()->notifyNodeOrderChanged(m_internalNodeListProperty);
 }
 
 void NodeListProperty::reverseModelNodes(const QList<ModelNode> &nodes)
@@ -174,12 +224,12 @@ Internal::NodeListPropertyIterator NodeListProperty::end()
 
 Internal::NodeListPropertyIterator NodeListProperty::begin() const
 {
-    return {0, internalNode()->nodeListProperty(name()).data(), model(), view()};
+    return {0, internalNodeListProperty().data(), model(), view()};
 }
 
 Internal::NodeListPropertyIterator NodeListProperty::end() const
 {
-    auto nodeListProperty = internalNode()->nodeListProperty(name());
+    auto nodeListProperty = internalNodeListProperty();
     auto size = nodeListProperty ? nodeListProperty->size() : 0;
 
     return {size, nodeListProperty.data(), model(), view()};
