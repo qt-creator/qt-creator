@@ -57,8 +57,9 @@
 
     When you use \QBPS to export your designs, you will determine how you want
     each group or layer exported: as a \e component or \e child. A component
-    will be imported as a single QML file that can contain other assets. A child
-    will be imported as a single image file that you can use within QML files.
+    will be imported as a single \l {UI Files}{UI file} that can contain other
+    assets. A child will be imported as a single image file that you can use
+    within UI files.
 
     If you plan to use pieces of your design as separate images in the UI,
     group them on an artboard as separate layers. You can then export the group
@@ -75,28 +76,27 @@
 
     Place different parts of the UI, such as menus and pop-ups, on separate
     artboards to be able to export them as components or children and to
-    import them as QML and PNG files that you can drag and drop to
-    \uicontrol {Form Editor} in \QDS Design mode while creating a UI.
+    import them as code and PNG files that you can drag and drop to
+    \l {Form Editor} in \QDS Design mode while creating a UI.
 
     \QDS offers predefined sets of UI controls that you can modify according
-    to your needs. You can export your own controls as QML types, Qt Quick
+    to your needs. You can export your own controls as components, Qt Quick
     Controls, or Studio Components. The position and dimensions of your control
     are preserved.
 
     However, if you want your UI controls, such as check boxes, to look exactly
     like they do in Photoshop, you have to create the control in an Artboard and
     use the artboard in the layers where the control instance is to be created.
-    \QB imports the control as a custom QML component that you can program in
+    \QB imports the control as a custom component that you can program in
     \QDS.
 
     \section1 Exporting Assets
 
     Each artboard is exported automatically as a component, which means that it
-    will be imported as a separate
-    QML file that contains all the artwork on the artboard, except layers that
-    are set to be skipped or exported as child items. You determine how
-    each group or layer in an artboard is exported: as a component or a child
-    item. In addition, you can merge the groups and layers of an artboard
+    will be imported as a separate file that contains all the artwork on the
+    artboard, except layers that are set to be skipped or exported as child items.
+    You determine how each group or layer in an artboard is exported: as a component
+    or a child item. In addition, you can merge the groups and layers of an artboard
     into the parent as one item or skip layers completely.
 
     By default, layers are exported as follows:
@@ -111,27 +111,28 @@
             selection.
     \endlist
 
-    \QBPS automatically proposes identifiers (QML ids) for all groups and layers.
-    The ids will be used as filenames in \QDS. You can change the ids, so that
-    you can easily find them in \QDS. Just keep in mind that the ids must be
+    \QBPS automatically proposes identifiers (IDs) for all groups and layers.
+    The IDs will be used as filenames in \QDS. You can change the IDs, so that
+    you can easily find them in \QDS. Just keep in mind that the IDs must be
     unique and that they must follow some naming conventions.
 
     You can export assets using the default settings and make all the changes
     later in \QDS. If you are familiar with the \l{QML Syntax Basics}
-    {QML syntax}, you can modify the settings to tailor the generated QML to
-    a certain degree. For example, you can specify the QML type or Studio
-    component to use for a component or layer. If you have drawn an arc that
-    you mean to animate, you can export it as an Arc Studio component to avoid
-    having to replace the arc image with an Arc component in \QDS. Or you could
-    export a button as a Qt Quick Controls 2 Button type.
+    {QML syntax}, you can modify the settings to tailor the generated code to
+    a certain degree. For example, you can specify the component or
+    \l {Shapes}{Qt Quick Studio Component} to use for a artboard or layer.
+    If you have drawn an arc that you mean to animate, you can export it as
+    an \l Arc Studio component to avoid having to replace the arc image with
+    an Arc component in \QDS. Or you could export a button as a
+    Qt Quick Controls \l Button type.
 
     You can specify effects, such as a blur effect, to use for a group or layer.
 
-    The QML types supported by \QDS are listed in the \uicontrol {QML Types}
-    tab in the \uicontrol Library in the Design mode of \QDS. For more
+    The QML types supported by \QDS are listed in the \uicontrol {Components}
+    tab in the \l {Library} in the Design mode of \QDS. For more
     information, see \l{Creating Components}.
 
-    You can also specify values for the properties of the QML type or create
+    You can also specify values for the properties of the component or create
     \l{Property Aliases}{property aliases} to fetch the values from other
     properties.
 
@@ -143,7 +144,7 @@
 
     \list 1
         \li \QBPS automatically proposes identifiers for all groups and layers
-            that you can change in the \uicontrol {ID} field. The ids must
+            that you can change in the \uicontrol {ID} field. The IDs must
             be unique, they must begin with a lower-case letter or an
             underscore, and they can only contain letters, numbers, and
             underscore characters. For more information, see
@@ -153,7 +154,7 @@
             \list
                 \li \uicontrol Component exports the selected artboard, group,
                     or layer with metadata. The exported data can be used later
-                    to import the component as a separate QML file that contains
+                    to import the component as a separate UI file that contains
                     all the artwork in it, except layers that are set to be
                     skipped or exported as child items.
                 \li \uicontrol Child exports each asset of the selected group
@@ -166,15 +167,16 @@
         \li In the \uicontrol {As Artboard} field, select an artboard
             to reuse. For example, you can use an artboard to define a
             component, such as a button, and reuse it in other artboards.
-        \li In the \uicontrol {QML Type} field, specify the QML type
+        \li In the \uicontrol {Component} field, specify the component
             or Studio component to morph this layer into. The component that is
             generated during import will be of this type. For example, if you
-            drew a rectangle, you can export it as a Rectangle Studio component.
-            You can provide the import statement of the module where the QML
-            type is defined in the \uicontrol {Add Imports} field.
+            drew a rectangle, you can export it as a \l {Studio Rectangle}{Rectangle}
+            Studio component.
+            You can provide the import statement of the module where the
+            component type is defined in the \uicontrol {Imports} field.
             \note The implicit properties except position and size are not
-            applied when the \uicontrol {QML Type} is defined. For example, all text
-            properties will be ignored if \uicontrol {QML Type} is defined
+            applied when the \uicontrol {Component} is defined. For example, all text
+            properties will be ignored if \uicontrol {Component} is defined
             for a text layer, but explicit properties defined in the \uicontrol
             {Properties} field will be applied.
         \li Select the \uicontrol {Render Text} check box to render the text
@@ -182,14 +184,14 @@
             text data will not be exported. This allows the text layer to be
             merged to parent artboard or group as well.
         \li In the \uicontrol {Add Imports} field, enter additional
-            import statements to have them added to the generated QML file.
+            import statements to have them added to the generated UI file.
             For example, to use Qt Quick Controls 2.3, you need the import
             statement \c {QtQuick.Controls 2.3} and to use Qt Studio
             Components 1.0, you need the import statement
             \c {QtQuick.Studio.Components 1.0}. You can also import a module
             as an alias.
-        \li In the \uicontrol {QML Properties} field, specify properties for
-            the QML type. You can add and modify properties in \QDS.
+        \li In the \uicontrol {Properties} field, specify properties for
+            the component. You can add and modify properties in \QDS.
         \li Select the \uicontrol {Clip Contents} check box to enable clipping
             in the type generated from the layer. The generated type will clip
             its own painting, as well as the painting of its children, to its
@@ -198,8 +200,8 @@
             generated from this layer as an alias in the parent component.
         \li Select \uicontrol {Cascade properties} to apply the current set of
             properties to all the children of the selected layer.
-        \li In the \uicontrol Annotations field, specify annotation for the QML
-            item. See \l {Annotating Designs}.
+        \li In the \uicontrol Annotations field, specify annotation for the
+            component. See \l {Annotating Designs}.
         \li Select \uicontrol Export to copy your assets to the export path you
             specified.
         \li When the exporting is done, select \uicontrol OK.
@@ -272,9 +274,9 @@
             PSD Document instance. You can undo the temporary changes done in the function
             \e preExport(...).
         \li customDefaultQmlId(name, instance)
-            The function is called for setting the default QML id of the layer. The returned value
-            is used for the QML id. Return \c false to use the auto generated QML id instead.
-            The parameter \a name is the auto generated QML id by the plugin and \a instance is the
+            The function is called for setting the default ID of the layer. The returned value
+            is used for the ID. Return \c false to use the auto generated ID instead.
+            The parameter \a name is the auto generated ID by the plugin and \a instance is the
             PSD layer instance.
     \endlist
 
@@ -309,13 +311,13 @@
 
     The following guidelines are followed to generate the Photoshop document:
     \list
-        \li An Artboard is created for each QML component exported and defined in the metadata file.
+        \li An Artboard is created for each component exported and defined in the metadata file.
         \li An image layer is created for an item with an asset.
         \li A solid fill layer is created for an item without an asset.
         \li A paragraph text layer is created for Text items.
     \endlist
 
-    All QML metadata specified in the metadata file is assigned to the generated layers.
+    All metadata specified in the metadata file is assigned to the generated layers.
 
     An important concept of \e {Virtual parent} is applied to translate the QML DOM to Photoshop
     DOM. A QML \l Item can have children but a layer in a Photoshop document cannot have child
