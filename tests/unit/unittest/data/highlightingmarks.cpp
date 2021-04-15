@@ -769,3 +769,5 @@ template<typename T>
 void func(T v) {
     GlobalVar = 5;
 }
+
+static std::vector<std::pair<int, int>> pv;
