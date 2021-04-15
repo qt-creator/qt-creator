@@ -210,7 +210,12 @@
                     \li \l{Profiling QML Applications}
                 \endlist
             \li \l{Using External Tools}
-            \li \l{Managing Data Collection Settings}
+            \li \l{Managing Data Collection}
+                \list
+                    \li \l {Collecting Usage Statistics}
+                    \li \l {Collecting User Feedback}
+                    \li \l {Reporting Crashes}
+                \endlist
         \endlist
         \li \l{Help}
         \list

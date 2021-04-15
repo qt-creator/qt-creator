@@ -308,7 +308,10 @@
             \li \l{Keyboard Shortcuts}
             \li \l{Using External Tools}
             \li \l{Showing Task List Files in Issues Pane}
-            \li \l{Managing Data Collection Settings}
+            \li \l{Managing Data Collection}
+                \list
+                    \li \l {Collecting Usage Statistics}
+                \endlist
         \endlist
         \li  \l{Getting Help}
         \list

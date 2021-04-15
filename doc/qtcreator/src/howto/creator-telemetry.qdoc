@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -27,13 +27,13 @@
     \page creator-telemetry.html
     \if defined(qtdesignstudio)
     \previouspage creator-editor-external.html
-    \nextpage studio-help.html
     \else
     \previouspage creator-task-lists.html
-    \nextpage creator-help-overview.html
     \endif
+    \nextpage collecting-usage-statistics.html
 
-    \title Managing Data Collection Settings
+    \title Managing Data Collection
+
     \if defined (qtcreator)
     When you install \QC as a part of Qt installation, you are asked whether
     you allow it to collect pseudonymous information about your system and \QC
@@ -44,6 +44,11 @@
     you. You can change the settings for collecting and transmitting data any
     time. By default, no data is collected and you have to select a telemetry
     mode for data collection to begin.
+
+
+    See \l {Collecting Usage Statistics} for more information about the data
+    transmitted by the telemetry plugin and \l {Specifying Telemetry Settings}
+    {specifying telemetry settings}.
     \else
     To enable the use of the telemetry plugin, you need to select \uicontrol
     {Enable Usage Statistics} in the splash screen that appears when you first
@@ -51,6 +56,16 @@
     telemetry plugin by selecting \uicontrol Help > \uicontrol {About Plugins} >
     \uicontrol Utilities > \uicontrol UsageStatistic.
     \image studio-usage-statistics.png "Enabling Usage Statistics"
+    \endif
+
+    \if defined(qtdesignstudio)
+    See below for more information about the collected data:
+
+    \list
+        \li \l {Collecting Usage Statistics}
+        \li \l {Collecting User Feedback}
+        \li \l {Reporting Crashes}
+    \endlist
     \endif
 
     \section1 Principles of Data Collection
@@ -63,8 +78,18 @@
     For more information about Qt privacy policy, select
     \l{https://www.qt.io/terms-conditions/#privacy}
     {Legal Notice and Privacy Policy}.
+*/
 
-    \section1 Collecting Usage Statistics
+/*!
+    \page collecting-usage-statistics.html
+    \previouspage creator-telemetry.html
+    \if defined(qtdesignstudio)
+    \nextpage collecting-user-feedback.html
+    \else
+    \nextpage creator-help-overview.html
+    \endif
+
+    \title Collecting Usage Statistics
 
     The telemetry plugin uses the
     \l{https://api.kde.org/frameworks/kuserfeedback/html/index.html}
@@ -76,7 +101,7 @@
     connection. The storage is located in the same Heroku backend as the
     Qt installer backend. Physically, data is stored in the Amazon cloud.
 
-    \section2 Specifying Telemetry Settings
+    \section1 Specifying Telemetry Settings
 
     To determine what data is transmitted to the backend storage:
 
@@ -90,9 +115,42 @@
             exactly what data is collected. Deselect check boxes for data
             that you do not want to transmit to the backend storage.
     \endlist
+*/
 
-    \if defined(qtdesignstudio)
-    \section1 Reporting Crashes
+/*!
+    \page collecting-user-feedback.html
+    \previouspage collecting-usage-statistics.html
+    \nextpage creator-crashpad.html
+
+    \title Collecting User Feedback
+
+    A pop-up survey asking for your feedback will appear for some of the features
+    after you have been using them for some time. You will be asked to to rate
+    the usefulness of the feature on a scale of one to five stars. You must rate
+    the feature with at least one star if you wish to submit your rating. You
+    are also encouraged to give additional written feedback. After you select
+    \uicontrol Skip or \uicontrol Submit, the pop-up survey will not appear for
+    the same feature again.
+
+    \image studio-feedback-popup.png "User feedback pop-up survey for Flow Editor"
+
+    For the pop-up survey to appear, you must enable collecting statistics, and
+    also allow collecting \uicontrol {4 - Detailed usage statistics} in
+    \uicontrol Tools > \uicontrol Options >  \uicontrol Telemetry >
+    \uicontrol {Usage Statistics} > \uicontrol {Telemetry mode}.
+    You can review the submitted user feedback in
+    \uicontrol Tools > \uicontrol Options > \uicontrol Telemetry >
+    \uicontrol {Usage Statistics} > \uicontrol {Collected Data} by selecting
+    \uicontrol {Qt Quick Designer Usage of views and actions} in
+    \uicontrol {Data sources}.
+*/
+
+/*!
+    \page creator-crashpad.html
+    \previouspage collecting-user-feedback.html
+    \nextpage studio-help.html
+
+    \title Reporting Crashes
 
     You can enable \QDS to report crashes automatically. \QDS uses Google
     Crashpad to collect crashes and report them to the Sentry backend storage
@@ -118,6 +176,4 @@
     remove the crash report data.
 
     \image studio-crashpad-checkbox.png "Checkbox for enabling crash reporting"
-
-    \endif
 */
