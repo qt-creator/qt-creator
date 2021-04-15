@@ -292,6 +292,7 @@ void ItemLibraryWidget::handleAddImport(int index)
     }
 
     m_model->changeImports({import}, {});
+    QmlDesignerPlugin::instance()->currentDesignDocument()->updateSubcomponentManagerImport(import);
 
     m_stackedWidget->setCurrentIndex(0); // switch to the Components view after import is added
     updateSearch();

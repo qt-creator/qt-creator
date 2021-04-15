@@ -374,6 +374,11 @@ void DesignDocument::updateSubcomponentManager()
                                   currentModel()->imports() + currentModel()->possibleImports());
 }
 
+void DesignDocument::updateSubcomponentManagerImport(const Import &import)
+{
+    m_subComponentManager->updateImport(import);
+}
+
 void DesignDocument::deleteSelected()
 {
     if (!currentModel())

@@ -69,10 +69,10 @@ SubComponentManager::SubComponentManager(Model *model, QObject *parent)
             this, [this](const QString &path) { parseDirectory(path); });
 }
 
-void SubComponentManager::addImport(int pos, const Import &import)
+void SubComponentManager::addImport(const Import &import, int index)
 {
     if (debug)
-        qDebug() << Q_FUNC_INFO << pos << import.file().toUtf8();
+        qDebug() << Q_FUNC_INFO << index << import.file().toUtf8();
 
     if (import.isFileImport()) {
         QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.file()).toLocalFile());
@@ -97,12 +97,15 @@ void SubComponentManager::addImport(int pos, const Import &import)
         // TODO: QDeclarativeDomImport::Library
     }
 
-    m_imports.insert(pos, import);
+    if (index == -1)
+        m_imports.append(import);
+    else
+        m_imports.insert(index, import);
 }
 
-void SubComponentManager::removeImport(int pos)
+void SubComponentManager::removeImport(int index)
 {
-    const Import import = m_imports.takeAt(pos);
+    const Import import = m_imports.takeAt(index);
 
     if (import.isFileImport()) {
         const QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.file()).toLocalFile());
@@ -499,7 +502,7 @@ void SubComponentManager::update(const QUrl &filePath, const QList<Import> &impo
         removeImport(ii);
 
     for (int ii = i; ii < imports.size(); ++ii) {
-        addImport(ii, imports.at(ii));
+        addImport(imports.at(ii), ii);
     }
 
     const QString newPath = newDir.absoluteFilePath();
@@ -511,6 +514,43 @@ void SubComponentManager::update(const QUrl &filePath, const QList<Import> &impo
         m_watcher.addPath(assetPath);
 
     parseDirectories();
+}
+
+void SubComponentManager::updateImport(const Import &import)
+{
+    addImport(import);
+
+    if (import.isFileImport()) {
+        QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.file()).toLocalFile());
+        if (dirInfo.exists() && dirInfo.isDir())
+            parseDirectory(dirInfo.canonicalFilePath(), true, dirInfo.baseName().toUtf8());
+    } else {
+        QString url = import.url();
+        url.replace('.', '/');
+        QFileInfo dirInfo = QFileInfo(url);
+        const QStringList importPathList = importPaths();
+        bool parsed = false;
+        for (const QString &path : importPathList) {
+            QString fullUrl  = path + '/' + url;
+            dirInfo = QFileInfo(fullUrl);
+
+            if (dirInfo.exists() && dirInfo.isDir()) {
+                parseDirectory(dirInfo.canonicalFilePath(), false);
+                parsed = true;
+            }
+
+            QString fullUrlVersion = path + '/' + url + '.' + import.version().split('.').constFirst();
+            dirInfo = QFileInfo(fullUrlVersion);
+
+            if (dirInfo.exists() && dirInfo.isDir()) {
+                parseDirectory(dirInfo.canonicalFilePath(), false);
+                parsed = true;
+            }
+
+            if (parsed)
+                break;
+        }
+    }
 }
 
 } // namespace QmlDesigner

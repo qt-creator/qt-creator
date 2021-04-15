@@ -48,6 +48,7 @@ public:
     explicit SubComponentManager(Model *model, QObject *parent = nullptr);
 
     void update(const QUrl &fileUrl, const QList<Import> &imports);
+    void updateImport(const Import &import);
 
     QStringList qmlFiles() const;
     QStringList directories() const;
@@ -57,8 +58,8 @@ private: // functions
     void parseFile(const QString &canonicalFilePath,  bool addToLibrary, const QString&);
     void parseFile(const QString &canonicalFilePath);
 
-    void addImport(int pos, const Import &import);
-    void removeImport(int pos);
+    void addImport(const Import &import, int index = -1);
+    void removeImport(int index);
     void parseDirectories();
     QFileInfoList watchedFiles(const QString &canonicalDirPath);
     void unregisterQmlFile(const QFileInfo &fileInfo, const QString &qualifier);
