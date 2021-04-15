@@ -68,7 +68,7 @@ protected:
     void dragLeaveEvent(QDragLeaveEvent *event) override;
     void dropEvent(QDropEvent *event) override;
 #endif
-
+private:
     class QtColorButtonPrivate *d_ptr;
     friend class QtColorButtonPrivate;
 };
