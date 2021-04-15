@@ -459,6 +459,9 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     connect(bc, &CMakeBuildConfiguration::errorOccurred, this, &CMakeBuildSettingsWidget::setError);
     connect(bc, &CMakeBuildConfiguration::warningOccurred, this, &CMakeBuildSettingsWidget::setWarning);
+    connect(bc, &CMakeBuildConfiguration::configurationChanged, this, [this](const CMakeConfig &config) {
+       m_configModel->setBatchEditConfiguration(config);
+    });
 
     updateFromKit();
     connect(m_buildConfiguration->target(), &Target::kitChanged,

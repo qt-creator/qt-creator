@@ -691,6 +691,8 @@ void CMakeBuildSystem::updateProjectData()
         }
         updateQmlJSCodeModel(extraHeaderPaths, moduleMappings);
     }
+    updateInitialCMakeExpandableVars();
+
     emit cmakeBuildConfiguration()->buildTypeChanged();
 
     qCDebug(cmakeBuildSystemLog) << "All CMake project data up to date.";
@@ -1241,6 +1243,68 @@ void CMakeBuildSystem::updateQmlJSCodeModel(const QStringList &extraHeaderPaths,
     project()->setProjectLanguage(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID,
                                   !projectInfo.sourceFiles.isEmpty());
     modelManager->updateProjectInfo(projectInfo, p);
+}
+
+void CMakeBuildSystem::updateInitialCMakeExpandableVars()
+{
+    const CMakeConfig &cm = cmakeBuildConfiguration()->configurationFromCMake();
+    const CMakeConfig &initialConfig =
+            CMakeConfigItem::itemsFromArguments(cmakeBuildConfiguration()->initialCMakeArguments());
+
+    CMakeConfig config;
+
+    // Replace path values that do not  exist on file system
+    const QByteArrayList singlePathList = {
+        "CMAKE_C_COMPILER",
+        "CMAKE_CXX_COMPILER",
+        "QT_QMAKE_EXECUTABLE",
+        "QT_HOST_PATH",
+        "CMAKE_PROJECT_INCLUDE_BEFORE",
+        "CMAKE_TOOLCHAIN_FILE"
+    };
+    for (const auto &var : singlePathList) {
+        auto it = std::find_if(cm.cbegin(), cm.cend(), [var](const CMakeConfigItem &item) {
+            return item.key == var;
+        });
+
+        if (it != cm.cend()) {
+            const QByteArray initialValue = CMakeConfigItem::expandedValueOf(kit(), var, initialConfig).toUtf8();
+            if (!initialValue.isEmpty()
+                && it->value != initialValue
+                && !FilePath::fromString(QString::fromUtf8(it->value)).exists()) {
+                CMakeConfigItem item(*it);
+                item.value = initialValue;
+
+                config << item;
+            }
+        }
+    }
+
+    // Prepend new values to existing path lists
+    const QByteArrayList multiplePathList = {
+        "CMAKE_PREFIX_PATH",
+        "CMAKE_FIND_ROOT_PATH"
+    };
+    for (const auto &var : multiplePathList) {
+        auto it = std::find_if(cm.cbegin(), cm.cend(), [var](const CMakeConfigItem &item) {
+            return item.key == var;
+        });
+
+        if (it != cm.cend()) {
+            const QByteArray initialValue = CMakeConfigItem::expandedValueOf(kit(), var, initialConfig).toUtf8();
+            if (!initialValue.isEmpty() && !it->value.contains(initialValue)) {
+                CMakeConfigItem item(*it);
+                item.value = initialValue;
+                item.value.append(";");
+                item.value.append(it->value);
+
+                config << item;
+            }
+        }
+    }
+
+    if (!config.isEmpty())
+        emit cmakeBuildConfiguration()->configurationChanged(config);
 }
 
 } // namespace Internal
