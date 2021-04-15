@@ -3,32 +3,17 @@ instructions:
   - type: Group
     instructions:
       - type: ExecuteCommand
-        command: "mkdir {{.AgentWorkingDir}}/qt_temp"
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to create folder qt_temp, check logs."
-      - type: ExecuteCommand
-        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}/qt_temp/icu-linux-g++-Rhel7.2-x64.7z http://master.qt.io/development_releases/prebuilt/icu/prebuilt/56.1/icu-linux-g++-Rhel7.2-x64.7z"
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to download icu package, check logs."
-      - type: ExecuteCommand
-        command: "/usr/bin/7z x -y {{.AgentWorkingDir}}/qt_temp/icu-linux-g++-Rhel7.2-x64.7z -o{{.InstallDir}}/lib"
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to extract icu package, check logs."
-      - type: ExecuteCommand
-        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}/qt_temp/elfutils-release_0.175qt-linux-x86_64.7z http://master.qt.io/development_releases/prebuilt/elfutils/elfutils-release_0.175qt-linux-x86_64.7z"
+        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}/build/qt_temp/elfutils-release_0.175qt-linux-x86_64.7z http://master.qt.io/development_releases/prebuilt/elfutils/elfutils-release_0.175qt-linux-x86_64.7z"
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to download elfutils package, check logs."
       - type: ExecuteCommand
-        command: "/usr/bin/7z x -y {{.AgentWorkingDir}}/qt_temp/elfutils-release_0.175qt-linux-x86_64.7z -o{{.AgentWorkingDir}}/qt_temp/elfutils"
+        command: "/usr/bin/7z x -y {{.AgentWorkingDir}}/build/qt_temp/elfutils-release_0.175qt-linux-x86_64.7z -o{{.AgentWorkingDir}}/build/qt_temp/elfutils"
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract elfutils package, check logs."
       - type: ExecuteCommand
-        command: "python {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py --build-type {{.Env.QTC_BUILD_TYPE}} --src {{.AgentWorkingDir}}/qt-creator/qt-creator --build {{.AgentWorkingDir}}/qt-creator/qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt5_install_dir --elfutils-path {{.AgentWorkingDir}}/qt_temp/elfutils --add-config=-DCMAKE_C_COMPILER_LAUNCHER=sccache --add-config=-DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
+        command: "python {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py --build-type {{.Env.QTC_BUILD_TYPE}} --src {{.AgentWorkingDir}}/qt-creator/qt-creator --build {{.AgentWorkingDir}}/qt-creator/qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt5_install_dir --elfutils-path {{.AgentWorkingDir}}/build/qt_temp/elfutils --add-config=-DCMAKE_C_COMPILER_LAUNCHER=sccache --add-config=-DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to run build.py, check logs."
