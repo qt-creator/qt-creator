@@ -277,6 +277,30 @@ void BaseStatement::bind(int index, const Value &value)
     case ValueType::String:
         bind(index, value.toStringView());
         break;
+    case ValueType::Blob:
+        bind(index, value.toBlobView());
+        break;
+    case ValueType::Null:
+        bind(index, NullValue{});
+        break;
+    }
+}
+
+void BaseStatement::bind(int index, ValueView value)
+{
+    switch (value.type()) {
+    case ValueType::Integer:
+        bind(index, value.toInteger());
+        break;
+    case ValueType::Float:
+        bind(index, value.toFloat());
+        break;
+    case ValueType::String:
+        bind(index, value.toStringView());
+        break;
+    case ValueType::Blob:
+        bind(index, value.toBlobView());
+        break;
     case ValueType::Null:
         bind(index, NullValue{});
         break;

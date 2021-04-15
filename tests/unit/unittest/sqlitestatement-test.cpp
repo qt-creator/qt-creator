@@ -38,6 +38,7 @@
 #include <QDir>
 
 #include <deque>
+#include <type_traits>
 #include <vector>
 
 namespace {
@@ -49,6 +50,21 @@ using Sqlite::ReadStatement;
 using Sqlite::ReadWriteStatement;
 using Sqlite::Value;
 using Sqlite::WriteStatement;
+
+template<typename Type>
+bool compareValue(SqliteTestStatement &statement, Type value, int column)
+{
+    if constexpr (std::is_convertible_v<Type, long long> && !std::is_same_v<Type, double>)
+        return statement.fetchLongLongValue(column) == value;
+    else if constexpr (std::is_convertible_v<Type, double>)
+        return statement.fetchDoubleValue(column) == value;
+    else if constexpr (std::is_convertible_v<Type, Utils::SmallStringView>)
+        return statement.fetchSmallStringViewValue(column) == value;
+    else if constexpr (std::is_convertible_v<Type, Sqlite::BlobView>)
+        return statement.fetchBlobValue(column) == value;
+
+    return false;
+}
 
 MATCHER_P3(HasValues, value1, value2, rowid,
            std::string(negation ? "isn't" : "is")
@@ -64,8 +80,7 @@ MATCHER_P3(HasValues, value1, value2, rowid,
 
     statement.next();
 
-    return statement.fetchSmallStringViewValue(0) == value1
-        && statement.fetchSmallStringViewValue(1) == value2;
+    return compareValue(statement, value1, 0) && compareValue(statement, value2, 1);
 }
 
 MATCHER_P(HasNullValues, rowid, std::string(negation ? "isn't null" : "is null"))
@@ -490,13 +505,98 @@ TEST_F(SqliteStatement, WriteNullValues)
     ASSERT_THAT(statement, HasNullValues(1));
 }
 
-TEST_F(SqliteStatement, WriteSqliteValues)
+TEST_F(SqliteStatement, WriteSqliteIntegerValue)
+{
+    WriteStatement statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
+    statement.write(1, 1, 1);
+
+    statement.write("see", Sqlite::Value{33}, 1);
+
+    ASSERT_THAT(statement, HasValues("see", 33, 1));
+}
+
+TEST_F(SqliteStatement, WriteSqliteDoubeValue)
 {
     WriteStatement statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
 
-    statement.write(Value{"see"}, Value{7.23}, Value{1});
+    statement.write("see", Value{7.23}, Value{1});
 
-    ASSERT_THAT(statement, HasValues("see", "7.23", 1));
+    ASSERT_THAT(statement, HasValues("see", 7.23, 1));
+}
+
+TEST_F(SqliteStatement, WriteSqliteStringValue)
+{
+    WriteStatement statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
+
+    statement.write("see", Value{"foo"}, Value{1});
+
+    ASSERT_THAT(statement, HasValues("see", "foo", 1));
+}
+
+TEST_F(SqliteStatement, WriteSqliteBlobValue)
+{
+    SqliteTestStatement statement("INSERT INTO  test VALUES ('blob', 40, ?)", database);
+    SqliteTestStatement readStatement("SELECT value FROM test WHERE name = 'blob'", database);
+    const unsigned char chars[] = "aaafdfdlll";
+    auto bytePointer = reinterpret_cast<const std::byte *>(chars);
+    Sqlite::BlobView bytes{bytePointer, sizeof(chars) - 1};
+
+    statement.write(Sqlite::Value{bytes});
+
+    ASSERT_THAT(readStatement.template value<Sqlite::Blob>(),
+                Optional(Field(&Sqlite::Blob::bytes, Eq(bytes))));
+}
+
+TEST_F(SqliteStatement, WriteNullValueView)
+{
+    WriteStatement statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
+    statement.write(1, 1, 1);
+
+    statement.write(Sqlite::NullValue{}, Sqlite::ValueView::create(Sqlite::NullValue{}), 1);
+
+    ASSERT_THAT(statement, HasNullValues(1));
+}
+
+TEST_F(SqliteStatement, WriteSqliteIntegerValueView)
+{
+    WriteStatement statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
+    statement.write(1, 1, 1);
+
+    statement.write("see", Sqlite::ValueView::create(33), 1);
+
+    ASSERT_THAT(statement, HasValues("see", 33, 1));
+}
+
+TEST_F(SqliteStatement, WriteSqliteDoubeValueView)
+{
+    WriteStatement statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
+
+    statement.write("see", Sqlite::ValueView::create(7.23), 1);
+
+    ASSERT_THAT(statement, HasValues("see", 7.23, 1));
+}
+
+TEST_F(SqliteStatement, WriteSqliteStringValueView)
+{
+    WriteStatement statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
+
+    statement.write("see", Sqlite::ValueView::create("foo"), 1);
+
+    ASSERT_THAT(statement, HasValues("see", "foo", 1));
+}
+
+TEST_F(SqliteStatement, WriteSqliteBlobValueView)
+{
+    SqliteTestStatement statement("INSERT INTO  test VALUES ('blob', 40, ?)", database);
+    SqliteTestStatement readStatement("SELECT value FROM test WHERE name = 'blob'", database);
+    const unsigned char chars[] = "aaafdfdlll";
+    auto bytePointer = reinterpret_cast<const std::byte *>(chars);
+    Sqlite::BlobView bytes{bytePointer, sizeof(chars) - 1};
+
+    statement.write(Sqlite::ValueView::create(bytes));
+
+    ASSERT_THAT(readStatement.template value<Sqlite::Blob>(),
+                Optional(Field(&Sqlite::Blob::bytes, Eq(bytes))));
 }
 
 TEST_F(SqliteStatement, WriteEmptyBlobs)

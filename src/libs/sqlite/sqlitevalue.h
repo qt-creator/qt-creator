@@ -44,11 +44,11 @@ class NullValue
     friend bool operator==(NullValue, NullValue) { return false; }
 };
 
-template<typename StringType>
+template<typename StringType, typename BlobType>
 class ValueBase
 {
 public:
-    using VariantType = Utils::variant<NullValue, long long, double, StringType, Blob>;
+    using VariantType = Utils::variant<NullValue, long long, double, StringType, BlobType>;
 
     ValueBase() = default;
 
@@ -115,9 +115,12 @@ public:
 
     BlobView toBlobView() const
     {
-        const Blob &blob = Utils::get<int(ValueType::Blob)>(value);
-
-        return {blob.bytes};
+        const BlobType &blob = Utils::get<int(ValueType::Blob)>(value);
+        if constexpr (std::is_same_v<BlobType, Blob>) {
+            return {blob.bytes};
+        } else {
+            return blob;
+        }
     }
     explicit operator QVariant() const
     {
@@ -245,7 +248,7 @@ public:
     VariantType value;
 };
 
-class ValueView : public ValueBase<Utils::SmallStringView>
+class ValueView : public ValueBase<Utils::SmallStringView, BlobView>
 {
 public:
     explicit ValueView(ValueBase &&base)
@@ -259,9 +262,9 @@ public:
     }
 };
 
-class Value : public ValueBase<Utils::SmallString>
+class Value : public ValueBase<Utils::SmallString, Blob>
 {
-    using Base = ValueBase<Utils::SmallString>;
+    using Base = ValueBase<Utils::SmallString, Blob>;
 
 public:
     using Base::Base;

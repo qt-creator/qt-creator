@@ -91,6 +91,7 @@ public:
     void bind(int index, Utils::span<const char *> values);
     void bind(int index, Utils::SmallStringView value);
     void bind(int index, const Value &value);
+    void bind(int index, ValueView value);
     void bind(int index, BlobView blobView);
 
     void bind(int index, uint value) { bind(index, static_cast<long long>(value)); }

@@ -445,7 +445,7 @@ TEST(SqliteValue, BlobValueAndValueViewEquals)
 {
     Utils::span<const std::byte> bytes{reinterpret_cast<const std::byte *>("abcd"), 4};
 
-    bool isEqual = Sqlite::ValueView::create(bytes) == Sqlite::Value{bytes};
+    bool isEqual = Sqlite::ValueView::create(Sqlite::BlobView{bytes}) == Sqlite::Value{bytes};
 
     ASSERT_TRUE(isEqual);
 }
@@ -489,7 +489,7 @@ TEST(SqliteValue, ConvertFloatValueViewIntoValue)
 TEST(SqliteValue, ConvertBlobValueViewIntoValue)
 {
     Utils::span<const std::byte> bytes{reinterpret_cast<const std::byte *>("abcd"), 4};
-    auto view = Sqlite::ValueView::create(bytes);
+    auto view = Sqlite::ValueView::create(Sqlite::BlobView{bytes});
 
     Sqlite::Value value{view};
 
