@@ -28,7 +28,7 @@ instructions:
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract elfutils package, check logs."
       - type: ExecuteCommand
-        command: "python {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py --src {{.AgentWorkingDir}}/qt-creator/qt-creator --build {{.AgentWorkingDir}}/qt-creator/qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt5_install_dir --elfutils-path {{.AgentWorkingDir}}/qt_temp/elfutils"
+        command: "python {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py --build-type {{.Env.QTC_BUILD_TYPE}} --src {{.AgentWorkingDir}}/qt-creator/qt-creator --build {{.AgentWorkingDir}}/qt-creator/qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt5_install_dir --elfutils-path {{.AgentWorkingDir}}/qt_temp/elfutils --add-config=-DCMAKE_C_COMPILER_LAUNCHER=sccache --add-config=-DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to run build.py, check logs."
@@ -45,7 +45,7 @@ instructions:
   - type: Group
     instructions:
       - type: ExecuteCommand
-        command: "python {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py --src {{.AgentWorkingDir}}/qt-creator/qt-creator --build {{.AgentWorkingDir}}/qt-creator/qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt5_install_dir --keychain-unlock-script /Users/qt/unlock-keychain.sh"
+        command: "python {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py --build-type {{.Env.QTC_BUILD_TYPE}} --src {{.AgentWorkingDir}}/qt-creator/qt-creator --build {{.AgentWorkingDir}}/qt-creator/qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt5_install_dir --keychain-unlock-script /Users/qt/unlock-keychain.sh --add-config=-DCMAKE_C_COMPILER_LAUNCHER=sccache --add-config=-DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to run build.py, check logs."
@@ -122,7 +122,7 @@ instructions:
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract d3dcompiler package, check logs."
       - type: ExecuteCommand
-        command: "python -u {{.AgentWorkingDir}}\\qt-creator\\qt-creator\\scripts\\build.py --src {{.AgentWorkingDir}}\\qt-creator\\qt-creator --build {{.AgentWorkingDir}}\\qt-creator\\qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt5_install_dir --python-path {{.AgentWorkingDir}}\\qt_temp\\python --elfutils-path {{.AgentWorkingDir}}\\qt_temp\\elfutils"
+        command: "python -u {{.AgentWorkingDir}}\\qt-creator\\qt-creator\\scripts\\build.py --build-type {{.Env.QTC_BUILD_TYPE}} --src {{.AgentWorkingDir}}\\qt-creator\\qt-creator --build {{.AgentWorkingDir}}\\qt-creator\\qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt5_install_dir --python-path {{.AgentWorkingDir}}\\qt_temp\\python --elfutils-path {{.AgentWorkingDir}}\\qt_temp\\elfutils --add-config=-DCMAKE_C_COMPILER_LAUNCHER=sccache --add-config=-DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to run build.py, check logs."
@@ -154,7 +154,7 @@ instructions:
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract python package, check logs."
       - type: ExecuteCommand
-        command: "python -u {{.AgentWorkingDir}}\\qt-creator\\qt-creator\\scripts\\build.py --src {{.AgentWorkingDir}}\\qt-creator\\qt-creator --build {{.AgentWorkingDir}}\\qt-creator\\qt-creator_build --python-path {{.AgentWorkingDir}}\\qt_temp\\python --no-qtcreator"
+        command: "python -u {{.AgentWorkingDir}}\\qt-creator\\qt-creator\\scripts\\build.py --build-type {{.Env.QTC_BUILD_TYPE}} --src {{.AgentWorkingDir}}\\qt-creator\\qt-creator --build {{.AgentWorkingDir}}\\qt-creator\\qt-creator_build --python-path {{.AgentWorkingDir}}\\qt_temp\\python --no-qtcreator"
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to run build.py, check logs."
