@@ -1,8 +1,7 @@
-project     = "$IDE_DISPLAY_NAME"
+project     = qtdesignstudio
 description = "$IDE_DISPLAY_NAME Manual"
 url         = https://doc.qt.io/qtdesignstudio
-
-moduleheader =
+version     = $QTC_VERSION
 
 #Words to ignore for auto-linking
 ignorewords += \
