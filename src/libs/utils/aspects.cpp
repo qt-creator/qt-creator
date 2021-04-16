@@ -1563,6 +1563,21 @@ QString SelectionAspect::displayForIndex(int index) const
     return d->m_options.at(index).displayName;
 }
 
+int SelectionAspect::indexForItemValue(const QVariant &value) const
+{
+    for (int i = 0, n = d->m_options.size(); i < n; ++i) {
+        if (d->m_options.at(i).itemData == value)
+            return i;
+    }
+    return -1;
+}
+
+QVariant SelectionAspect::itemValueForIndex(int index) const
+{
+    QTC_ASSERT(index >= 0 && index < d->m_options.size(), return {});
+    return d->m_options.at(index).itemData;
+}
+
 /*!
     \class Utils::MultiSelectionAspect
     \inmodule QtCreator

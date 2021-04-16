@@ -238,6 +238,8 @@ public:
     void addOption(const Option &option);
     int indexForDisplay(const QString &displayName) const;
     QString displayForIndex(int index) const;
+    int indexForItemValue(const QVariant &value) const;
+    QVariant itemValueForIndex(int index) const;
 
 signals:
     void volatileValueChanged(int newValue);
