@@ -25,87 +25,139 @@
 
 #include "snippetoverlay.h"
 
-#include "snippet.h"
+#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 namespace TextEditor {
 namespace Internal {
 
-
 void SnippetOverlay::clear()
 {
     TextEditorOverlay::clear();
-    m_equivalentSelections.clear();
-    m_manglers.clear();
+    m_selections.clear();
+    m_variables.clear();
 }
 
-void SnippetOverlay::mapEquivalentSelections()
+void SnippetOverlay::addSnippetSelection(const QTextCursor &cursor,
+                                         const QColor &color,
+                                         NameMangler *mangler,
+                                         int variableIndex)
 {
-    m_equivalentSelections.clear();
-    m_equivalentSelections.resize(selections().size());
-
-    QMultiMap<QString, int> all;
-    for (int i = 0; i < selections().size(); ++i)
-        all.insert(selectionText(i).toLower(), i);
-
-    const QList<QString> &uniqueKeys = all.uniqueKeys();
-    foreach (const QString &key, uniqueKeys) {
-        QList<int> indexes;
-        const auto cAll = all;
-        QMultiMap<QString, int>::const_iterator lbit = cAll.lowerBound(key);
-        QMultiMap<QString, int>::const_iterator ubit = cAll.upperBound(key);
-        while (lbit != ubit) {
-            indexes.append(lbit.value());
-            ++lbit;
-        }
-
-        foreach (int index, indexes)
-            m_equivalentSelections[index] = indexes;
-    }
+    m_variables[variableIndex] << selections().size();
+    SnippetSelection selection;
+    selection.variableIndex = variableIndex;
+    selection.mangler = mangler;
+    m_selections << selection;
+    addOverlaySelection(cursor, color, color, TextEditorOverlay::ExpandBegin);
 }
 
 void SnippetOverlay::updateEquivalentSelections(const QTextCursor &cursor)
 {
-    int selectionIndex = selectionIndexForCursor(cursor);
-    if (selectionIndex == -1)
+    const int &currentIndex = indexForCursor(cursor);
+    if (currentIndex < 0)
         return;
-
-    const QString &currentText = selectionText(selectionIndex);
-    const QList<int> &equivalents = m_equivalentSelections.at(selectionIndex);
-    foreach (int i, equivalents) {
-        if (i == selectionIndex)
+    const QString &currentText = cursorForIndex(currentIndex).selectedText();
+    const QList<int> &equivalents = m_variables.value(m_selections[currentIndex].variableIndex);
+    for (int i : equivalents) {
+        if (i == currentIndex)
             continue;
-        const QString &equivalentText = selectionText(i);
+        QTextCursor cursor = cursorForIndex(i);
+        const QString &equivalentText = cursor.selectedText();
         if (currentText != equivalentText) {
-            QTextCursor selectionCursor = assembleCursorForSelection(i);
-            selectionCursor.joinPreviousEditBlock();
-            selectionCursor.removeSelectedText();
-            selectionCursor.insertText(currentText);
-            selectionCursor.endEditBlock();
+            cursor.joinPreviousEditBlock();
+            cursor.insertText(currentText);
+            cursor.endEditBlock();
         }
     }
-}
-
-void SnippetOverlay::setNameMangler(const QList<NameMangler *> &manglers)
-{
-    m_manglers = manglers;
 }
 
 void SnippetOverlay::mangle()
 {
-    for (int i = 0; i < m_manglers.count(); ++i) {
-        if (!m_manglers.at(i))
-            continue;
-
-        const QString current = selectionText(i);
-        const QString result = m_manglers.at(i)->mangle(current);
-        if (result != current) {
-            QTextCursor selectionCursor = assembleCursorForSelection(i);
-            selectionCursor.joinPreviousEditBlock();
-            selectionCursor.removeSelectedText();
-            selectionCursor.insertText(result);
-            selectionCursor.endEditBlock();
+    for (int i = 0; i < m_selections.size(); ++i) {
+        if (NameMangler *mangler = m_selections[i].mangler) {
+            QTextCursor cursor = cursorForIndex(i);
+            const QString current = cursor.selectedText();
+            const QString result = mangler->mangle(current);
+            if (result != current) {
+                cursor.joinPreviousEditBlock();
+                cursor.insertText(result);
+                cursor.endEditBlock();
+            }
         }
     }
+}
+
+bool SnippetOverlay::hasCursorInSelection(const QTextCursor &cursor) const
+{
+    return indexForCursor(cursor) >= 0;
+}
+
+QTextCursor SnippetOverlay::nextSelectionCursor(const QTextCursor &cursor) const
+{
+    const QList<OverlaySelection> selections = TextEditorOverlay::selections();
+    if (selections.isEmpty())
+        return {};
+    const SnippetSelection &currentSelection = selectionForCursor(cursor);
+    if (currentSelection.variableIndex >= 0) {
+        int nextVariableIndex = currentSelection.variableIndex + 1;
+        if (nextVariableIndex >= m_variables.size())
+            nextVariableIndex = 0;
+
+        for (int selectionIndex : m_variables[nextVariableIndex]) {
+            if (selections[selectionIndex].m_cursor_begin.position() > cursor.position())
+                return cursorForIndex(selectionIndex);
+        }
+        return cursorForIndex(m_variables[nextVariableIndex].first());
+    }
+    // currently not over a variable simply select the next available one
+    for (const OverlaySelection &candidate : selections) {
+        if (candidate.m_cursor_begin.position() > cursor.position())
+            return cursorForSelection(candidate);
+    }
+    return cursorForSelection(selections.first());
+}
+
+QTextCursor SnippetOverlay::previousSelectionCursor(const QTextCursor &cursor) const
+{
+    const QList<OverlaySelection> selections = TextEditorOverlay::selections();
+    if (selections.isEmpty())
+        return {};
+    const SnippetSelection &currentSelection = selectionForCursor(cursor);
+    if (currentSelection.variableIndex >= 0) {
+        int previousVariableIndex = currentSelection.variableIndex - 1;
+        if (previousVariableIndex < 0)
+            previousVariableIndex = m_variables.size();
+
+        auto equivalents = m_variables[previousVariableIndex].toStdList();
+        equivalents.reverse();
+        for (int selectionIndex : equivalents) {
+            if (selections[selectionIndex].m_cursor_end.position() < cursor.position())
+                return cursorForIndex(selectionIndex);
+        }
+        return cursorForIndex(m_variables[previousVariableIndex].last());
+    }
+    // currently not over a variable simply select the previous available one
+    auto reverse = selections.toStdList();
+    reverse.reverse();
+    for (const OverlaySelection &candidate : reverse) {
+        if (candidate.m_cursor_end.position() < cursor.position())
+            return cursorForSelection(candidate);
+    }
+    return cursorForSelection(selections.last());
+}
+
+int SnippetOverlay::indexForCursor(const QTextCursor &cursor) const
+{
+    return Utils::indexOf(selections(),
+                          [pos = cursor.position()](const OverlaySelection &selection) {
+                              return selection.m_cursor_begin.position() <= pos
+                                     && selection.m_cursor_end.position() >= pos;
+                          });
+}
+
+SnippetOverlay::SnippetSelection SnippetOverlay::selectionForCursor(const QTextCursor &cursor) const
+{
+    return m_selections.value(indexForCursor(cursor));
 }
 
 } // namespace Internal

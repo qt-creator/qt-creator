@@ -25,7 +25,10 @@
 
 #pragma once
 
+#include "snippet.h"
 #include "texteditor/texteditoroverlay.h"
+
+#include <QTextEdit>
 
 namespace TextEditor {
 class NameMangler;
@@ -39,14 +42,30 @@ public:
 
     void clear() override;
 
-    void mapEquivalentSelections();
+    void addSnippetSelection(const QTextCursor &cursor,
+                             const QColor &color,
+                             NameMangler *mangler,
+                             int variableGoup);
     void updateEquivalentSelections(const QTextCursor &cursor);
-    void setNameMangler(const QList<NameMangler *> &manglers);
     void mangle();
 
+    bool hasCursorInSelection(const QTextCursor &cursor) const;
+
+    QTextCursor nextSelectionCursor(const QTextCursor &cursor) const;
+    QTextCursor previousSelectionCursor(const QTextCursor &cursor) const;
+
 private:
-    QVector<QList<int> > m_equivalentSelections;
-    QList<NameMangler *> m_manglers;
+    struct SnippetSelection
+    {
+        int variableIndex = -1;
+        NameMangler *mangler;
+    };
+
+    int indexForCursor(const QTextCursor &cursor) const;
+    SnippetSelection selectionForCursor(const QTextCursor &cursor) const;
+
+    QList<SnippetSelection> m_selections;
+    QMap<int, QList<int>> m_variables;
 };
 
 } // namespace Internal

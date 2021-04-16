@@ -2699,12 +2699,33 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         d->m_codeAssistant.process();
 }
 
+class PositionedPart : public ParsedSnippet::Part
+{
+public:
+    explicit PositionedPart(const ParsedSnippet::Part &part) : ParsedSnippet::Part(part) {}
+    int start;
+    int end;
+};
+
+class CursorPart : public ParsedSnippet::Part
+{
+public:
+    CursorPart(const PositionedPart &part, QTextDocument *doc)
+        : ParsedSnippet::Part(part)
+        , cursor(doc)
+    {
+        cursor.setPosition(part.start);
+        cursor.setPosition(part.end, QTextCursor::KeepAnchor);
+    }
+    QTextCursor cursor;
+};
+
 void TextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg, const QString &snippet)
 {
     SnippetParseResult result = Snippet::parse(snippet);
     if (Utils::holds_alternative<SnippetParseError>(result)) {
         const auto &error = Utils::get<SnippetParseError>(result);
-        QMessageBox::warning(this, QLatin1String("Snippet Parse Error"), error.htmlMessage());
+        QMessageBox::warning(this, tr("Snippet Parse Error"), error.htmlMessage());
         return;
     }
     QTC_ASSERT(Utils::holds_alternative<ParsedSnippet>(result), return);
@@ -2715,44 +2736,47 @@ void TextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg, const QS
     cursor.removeSelectedText();
     const int startCursorPosition = cursor.position();
 
-    cursor.insertText(data.text);
-    QList<QTextEdit::ExtraSelection> selections;
+    d->m_snippetOverlay->mangle();
+    d->m_snippetOverlay->clear();
 
-    QList<NameMangler *> manglers;
-    for (int i = 0; i < data.ranges.count(); ++i) {
-        int position = data.ranges.at(i).start + startCursorPosition;
-        int length = data.ranges.at(i).length;
-
-        QTextCursor tc(document());
-        tc.setPosition(position);
-        tc.setPosition(position + length, QTextCursor::KeepAnchor);
-        QTextEdit::ExtraSelection selection;
-        selection.cursor = tc;
-        selection.format = (length
-                            ? textDocument()->fontSettings().toTextCharFormat(C_OCCURRENCES)
-                            : textDocument()->fontSettings().toTextCharFormat(C_OCCURRENCES_RENAME));
-        selections.append(selection);
-        manglers << data.ranges.at(i).mangler;
+    QList<PositionedPart> positionedParts;
+    for (const ParsedSnippet::Part &part : qAsConst(data.parts)) {
+        if (part.variableIndex >= 0) {
+            PositionedPart posPart(part);
+            posPart.start = cursor.position();
+            cursor.insertText(part.text);
+            posPart.end = cursor.position();
+            positionedParts << posPart;
+        } else {
+            cursor.insertText(part.text);
+        }
     }
+
+    QList<CursorPart> cursorParts = Utils::transform(positionedParts,
+                                                     [doc = document()](const PositionedPart &part) {
+                                                         return CursorPart(part, doc);
+                                                     });
 
     cursor.setPosition(startCursorPosition, QTextCursor::KeepAnchor);
     d->m_document->autoIndent(cursor);
     cursor.endEditBlock();
 
-    setExtraSelections(TextEditorWidget::SnippetPlaceholderSelection, selections);
-    d->m_snippetOverlay->setNameMangler(manglers);
+    const QColor &occurrencesColor
+        = textDocument()->fontSettings().toTextCharFormat(C_OCCURRENCES).background().color();
+    const QColor &renameColor
+        = textDocument()->fontSettings().toTextCharFormat(C_OCCURRENCES_RENAME).background().color();
 
-    if (!selections.isEmpty()) {
-        const QTextEdit::ExtraSelection &selection = selections.first();
+    for (const CursorPart &part : cursorParts) {
+        const QColor &color = part.cursor.hasSelection() ? occurrencesColor : renameColor;
+        d->m_snippetOverlay->addSnippetSelection(part.cursor,
+                                                 color,
+                                                 part.mangler,
+                                                 part.variableIndex);
+    }
 
-        cursor = textCursor();
-        if (selection.cursor.hasSelection()) {
-            cursor.setPosition(selection.cursor.selectionStart());
-            cursor.setPosition(selection.cursor.selectionEnd(), QTextCursor::KeepAnchor);
-        } else {
-            cursor.setPosition(selection.cursor.position());
-        }
-        setTextCursor(cursor);
+    if (!cursorParts.isEmpty()) {
+        setTextCursor(cursorParts.first().cursor);
+        d->m_snippetOverlay->setVisible(true);
     }
 }
 
@@ -3461,36 +3485,8 @@ void TextEditorWidgetPrivate::snippetTabOrBacktab(bool forward)
     if (!m_snippetOverlay->isVisible() || m_snippetOverlay->isEmpty())
         return;
     QTextCursor cursor = q->textCursor();
-    OverlaySelection final;
-    if (forward) {
-        for (int i = 0; i < m_snippetOverlay->selections().count(); ++i){
-            const OverlaySelection &selection = m_snippetOverlay->selections().at(i);
-            if (selection.m_cursor_begin.position() >= cursor.position()
-                && selection.m_cursor_end.position() > cursor.position()) {
-                final = selection;
-                break;
-            }
-        }
-    } else {
-        for (int i = m_snippetOverlay->selections().count()-1; i >= 0; --i){
-            const OverlaySelection &selection = m_snippetOverlay->selections().at(i);
-            if (selection.m_cursor_end.position() < cursor.position()) {
-                final = selection;
-                break;
-            }
-        }
-
-    }
-    if (final.m_cursor_begin.isNull())
-        final = forward ? m_snippetOverlay->selections().first() : m_snippetOverlay->selections().last();
-
-    if (final.m_cursor_begin.position() == final.m_cursor_end.position()) { // empty tab stop
-        cursor.setPosition(final.m_cursor_end.position());
-    } else {
-        cursor.setPosition(final.m_cursor_begin.position());
-        cursor.setPosition(final.m_cursor_end.position(), QTextCursor::KeepAnchor);
-    }
-    q->setTextCursor(cursor);
+    q->setTextCursor(forward ? m_snippetOverlay->nextSelectionCursor(cursor)
+                             : m_snippetOverlay->previousSelectionCursor(cursor));
 }
 
 // Calculate global position for a tooltip considering the left extra area.
@@ -7082,17 +7078,6 @@ void TextEditorWidgetPrivate::setExtraSelections(Id kind, const QList<QTextEdit:
                                               TextEditorOverlay::LockSize);
         }
         m_overlay->setVisible(!m_overlay->isEmpty());
-    } else if (kind == TextEditorWidget::SnippetPlaceholderSelection) {
-        m_snippetOverlay->mangle();
-        m_snippetOverlay->clear();
-        foreach (const QTextEdit::ExtraSelection &selection, m_extraSelections[kind]) {
-            m_snippetOverlay->addOverlaySelection(selection.cursor,
-                                              selection.format.background().color(),
-                                              selection.format.background().color(),
-                                              TextEditorOverlay::ExpandBegin);
-        }
-        m_snippetOverlay->mapEquivalentSelections();
-        m_snippetOverlay->setVisible(!m_snippetOverlay->isEmpty());
     } else {
         QList<QTextEdit::ExtraSelection> all;
         for (auto i = m_extraSelections.constBegin(); i != m_extraSelections.constEnd(); ++i) {

@@ -170,34 +170,10 @@ bool Snippet::isModified() const
     return m_isModified;
 }
 
-struct SnippetReplacement
-{
-    QString text;
-    int posDelta = 0;
-};
-
-static SnippetReplacement replacementAt(int pos, ParsedSnippet &parsedSnippet)
+static QString tipPart(const ParsedSnippet::Part &part)
 {
     static const char kOpenBold[] = "<b>";
     static const char kCloseBold[] = "</b>";
-
-    auto mangledText = [](const QString &text, const ParsedSnippet::Range &range) {
-        if (range.length == 0)
-            return QString("...");
-        if (NameMangler *mangler = range.mangler)
-            return mangler->mangle(text.mid(range.start, range.length));
-        return text.mid(range.start, range.length);
-    };
-
-    if (!parsedSnippet.ranges.isEmpty() && parsedSnippet.ranges.first().start == pos) {
-        ParsedSnippet::Range range = parsedSnippet.ranges.takeFirst();
-        return {kOpenBold + mangledText(parsedSnippet.text, range) + kCloseBold, range.length};
-    }
-    return {};
-}
-
-QString Snippet::generateTip() const
-{
     static const QHash<QChar, QString> replacements = {{'\n', "<br>"},
                                                        {' ', "&nbsp;"},
                                                        {'"', "&quot;"},
@@ -205,34 +181,30 @@ QString Snippet::generateTip() const
                                                        {'<', "&lt;"},
                                                        {'>', "&gt;"}};
 
+    QString text;
+    text.reserve(part.text.size());
+
+    for (const QChar &c : part.text)
+        text.append(replacements.value(c, c));
+
+    if (part.variableIndex >= 0)
+        text = kOpenBold + (text.isEmpty() ? QString("...") : part.text) + kCloseBold;
+
+    return text;
+}
+
+QString Snippet::generateTip() const
+{
     SnippetParseResult result = Snippet::parse(m_content);
 
     if (Utils::holds_alternative<SnippetParseError>(result))
         return Utils::get<SnippetParseError>(result).htmlMessage();
     QTC_ASSERT(Utils::holds_alternative<ParsedSnippet>(result), return {});
-    auto parsedSnippet = Utils::get<ParsedSnippet>(result);
+    const ParsedSnippet parsedSnippet = Utils::get<ParsedSnippet>(result);
 
     QString tip("<nobr>");
-    int pos = 0;
-    for (int end = parsedSnippet.text.count(); pos < end;) {
-        const SnippetReplacement &replacement = replacementAt(pos, parsedSnippet);
-        if (!replacement.text.isEmpty()) {
-            tip += replacement.text;
-            pos += replacement.posDelta;
-        } else {
-            const QChar &currentChar = parsedSnippet.text.at(pos);
-            tip += replacements.value(currentChar, currentChar);
-            ++pos;
-        }
-    }
-    SnippetReplacement replacement = replacementAt(pos, parsedSnippet);
-    while (!replacement.text.isEmpty()) {
-        tip += replacement.text;
-        pos += replacement.posDelta;
-        replacement = replacementAt(pos, parsedSnippet);
-    }
-
-    QTC_CHECK(parsedSnippet.ranges.isEmpty());
+    for (const ParsedSnippet::Part &part : parsedSnippet.parts)
+        tip.append(tipPart(part));
     return tip;
 }
 
@@ -253,25 +225,35 @@ SnippetParseResult Snippet::parse(const QString &snippet)
         return {SnippetParseError{errorMessage, {}, -1}};
 
     const int count = preprocessedSnippet.count();
-    int start = -1;
     NameMangler *mangler = nullptr;
 
-    result.text.reserve(count);
+    QMap<QString, int> variableIndexes;
+    bool inVar = false;
+
+    ParsedSnippet::Part currentPart;
 
     for (int i = 0; i < count; ++i) {
         QChar current = preprocessedSnippet.at(i);
-        QChar next = (i + 1) < count ? preprocessedSnippet.at(i + 1) : QChar();
 
         if (current == Snippet::kVariableDelimiter) {
-            if (start < 0) {
-                // start delimiter:
-                start = result.text.count();
-            } else {
-                int length = result.text.count() - start;
-                result.ranges << ParsedSnippet::Range(start, length, mangler);
+            if (inVar) {
+                const QString variable = currentPart.text;
+                const int index = variableIndexes.value(currentPart.text, result.variables.size());
+                if (index == result.variables.size()) {
+                    variableIndexes[variable] = index;
+                    result.variables.append(QList<int>());
+                }
+                currentPart.variableIndex = index;
+                currentPart.mangler = mangler;
                 mangler = nullptr;
-                start = -1;
+                result.variables[index] << result.parts.size() - 1;
+            } else if (currentPart.text.isEmpty()) {
+                inVar = !inVar;
+                continue;
             }
+            result.parts << currentPart;
+            currentPart = ParsedSnippet::Part();
+            inVar = !inVar;
             continue;
         }
 
@@ -281,12 +263,13 @@ SnippetParseResult Snippet::parse(const QString &snippet)
                                                         i}};
         }
 
-        if (current == QLatin1Char(':') && start >= 0) {
-            if (next == QLatin1Char('l')) {
+        if (current == ':' && inVar) {
+            QChar next = (i + 1) < count ? preprocessedSnippet.at(i + 1) : QChar();
+            if (next == 'l') {
                 mangler = &lcMangler;
-            } else if (next == QLatin1Char('u')) {
+            } else if (next == 'u') {
                 mangler = &ucMangler;
-            } else if (next == QLatin1Char('c')) {
+            } else if (next == 'c') {
                 mangler = &tcMangler;
             } else {
                 return SnippetParseResult{
@@ -299,19 +282,25 @@ SnippetParseResult Snippet::parse(const QString &snippet)
             continue;
         }
 
-        if (current == kEscapeChar && (next == kEscapeChar || next == kVariableDelimiter)) {
-            result.text.append(next);
-            ++i;
-            continue;
+        if (current == kEscapeChar){
+            QChar next = (i + 1) < count ? preprocessedSnippet.at(i + 1) : QChar();
+            if (next == kEscapeChar || next == kVariableDelimiter) {
+                currentPart.text.append(next);
+                ++i;
+                continue;
+            }
         }
 
-        result.text.append(current);
+        currentPart.text.append(current);
     }
 
-    if (start >= 0) {
+    if (inVar) {
         return SnippetParseResult{
-            SnippetParseError{tr("Missing closing variable delimiter"), result.text, start}};
+            SnippetParseError{tr("Missing closing variable delimiter for:"), currentPart.text, 0}};
     }
+
+    if (!currentPart.text.isEmpty())
+        result.parts << currentPart;
 
     return SnippetParseResult(result);
 }
@@ -323,131 +312,130 @@ SnippetParseResult Snippet::parse(const QString &snippet)
 
 const char NOMANGLER_ID[] = "TextEditor::NoMangler";
 
+struct SnippetPart
+{
+    SnippetPart() = default;
+    explicit SnippetPart(const QString &text,
+                         int index = -1,
+                         const Utils::Id &manglerId = NOMANGLER_ID)
+        : text(text)
+        , variableIndex(index)
+        , manglerId(manglerId)
+    {}
+    QString text;
+    int variableIndex = -1; // if variable index is >= 0 the text is interpreted as a variable
+    Utils::Id manglerId;
+};
+Q_DECLARE_METATYPE(SnippetPart);
+
+using Parts = QList<SnippetPart>;
+
 void Internal::TextEditorPlugin::testSnippetParsing_data()
 {
     QTest::addColumn<QString>("input");
-    QTest::addColumn<QString>("text");
     QTest::addColumn<bool>("success");
-    QTest::addColumn<QList<int> >("ranges_start");
-    QTest::addColumn<QList<int> >("ranges_length");
-    QTest::addColumn<QList<Utils::Id> >("ranges_mangler");
+    QTest::addColumn<Parts>("parts");
 
-    QTest::newRow("no input")
-            << QString() << QString() << true
-            << (QList<int>()) << (QList<int>()) << (QList<Utils::Id>());
-    QTest::newRow("empty input")
-            << QString::fromLatin1("") << QString::fromLatin1("") << true
-            << (QList<int>()) << (QList<int>()) << (QList<Utils::Id>());
-    QTest::newRow("newline only")
-            << QString::fromLatin1("\n") << QString::fromLatin1("\n") << true
-            << (QList<int>()) << (QList<int>()) << (QList<Utils::Id>());
+    QTest::newRow("no input") << QString() << true << Parts();
+    QTest::newRow("empty input") << QString("") << true << Parts();
+    QTest::newRow("newline only") << QString("\n") << true << Parts{SnippetPart("\n")};
 
     QTest::newRow("simple identifier")
-            << QString::fromLatin1("$tESt$") << QString::fromLatin1("tESt") << true
-            << (QList<int>() << 0) << (QList<int>() << 4)
-            << (QList<Utils::Id>() << NOMANGLER_ID);
+        << QString("$tESt$") << true << Parts{SnippetPart("tESt", 0)};
     QTest::newRow("simple identifier with lc")
-            << QString::fromLatin1("$tESt:l$") << QString::fromLatin1("tESt") << true
-            << (QList<int>() << 0) << (QList<int>() << 4)
-            << (QList<Utils::Id>() << LCMANGLER_ID);
+        << QString("$tESt:l$") << true << Parts{SnippetPart("tESt", 0, LCMANGLER_ID)};
     QTest::newRow("simple identifier with uc")
-            << QString::fromLatin1("$tESt:u$") << QString::fromLatin1("tESt") << true
-            << (QList<int>() << 0) << (QList<int>() << 4)
-            << (QList<Utils::Id>() << UCMANGLER_ID);
+        << QString("$tESt:u$") << true << Parts{SnippetPart("tESt", 0, UCMANGLER_ID)};
     QTest::newRow("simple identifier with tc")
-            << QString::fromLatin1("$tESt:c$") << QString::fromLatin1("tESt") << true
-            << (QList<int>() << 0) << (QList<int>() << 4)
-            << (QList<Utils::Id>() << TCMANGLER_ID);
+        << QString("$tESt:c$") << true << Parts{SnippetPart("tESt", 0, TCMANGLER_ID)};
 
     QTest::newRow("escaped string")
-            << QString::fromLatin1("\\\\$test\\\\$") << QString::fromLatin1("$test$") << true
-            << (QList<int>()) << (QList<int>())
-            << (QList<Utils::Id>());
-    QTest::newRow("escaped escape")
-            << QString::fromLatin1("\\\\\\\\$test$\\\\\\\\") << QString::fromLatin1("\\test\\") << true
-            << (QList<int>() << 1) << (QList<int>() << 4)
-            << (QList<Utils::Id>() << NOMANGLER_ID);
+        << QString("\\\\$test\\\\$") << true << Parts{SnippetPart("$test$")};
+    QTest::newRow("escaped escape") << QString("\\\\\\\\$test$\\\\\\\\") << true
+                                    << Parts{
+                                           SnippetPart("\\"),
+                                           SnippetPart("test", 0),
+                                           SnippetPart("\\"),
+                                       };
     QTest::newRow("broken escape")
-            << QString::fromLatin1("\\\\$test\\\\\\\\$\\\\") << QString::fromLatin1("\\$test\\\\$\\") << false
-            << (QList<int>()) << (QList<int>())
-            << (QList<Utils::Id>());
+        << QString::fromLatin1("\\\\$test\\\\\\\\$\\\\") << false << Parts();
 
-    QTest::newRow("Q_PROPERTY")
-            << QString::fromLatin1("Q_PROPERTY($type$ $name$ READ $name$ WRITE set$name:c$ NOTIFY $name$Changed)")
-            << QString::fromLatin1("Q_PROPERTY(type name READ name WRITE setname NOTIFY nameChanged)") << true
-            << (QList<int>() << 11 << 16 << 26 << 40 << 52)
-            << (QList<int>() << 4 << 4 << 4 << 4 << 4)
-            << (QList<Utils::Id>() << NOMANGLER_ID << NOMANGLER_ID << NOMANGLER_ID << TCMANGLER_ID << NOMANGLER_ID);
+    QTest::newRow("Q_PROPERTY") << QString(
+        "Q_PROPERTY($type$ $name$ READ $name$ WRITE set$name:c$ NOTIFY $name$Changed)")
+                                << true
+                                << Parts{SnippetPart("Q_PROPERTY("),
+                                         SnippetPart("type", 0),
+                                         SnippetPart(" "),
+                                         SnippetPart("name", 1),
+                                         SnippetPart(" READ "),
+                                         SnippetPart("name", 1),
+                                         SnippetPart(" WRITE set"),
+                                         SnippetPart("name", 1, TCMANGLER_ID),
+                                         SnippetPart(" NOTIFY "),
+                                         SnippetPart("name", 1),
+                                         SnippetPart("Changed)")};
 
-    QTest::newRow("open identifier")
-            << QString::fromLatin1("$test") << QString::fromLatin1("$test") << false
-            << (QList<int>()) << (QList<int>())
-            << (QList<Utils::Id>());
-    QTest::newRow("wrong mangler")
-            << QString::fromLatin1("$test:X$") << QString::fromLatin1("$test:X$") << false
-            << (QList<int>()) << (QList<int>())
-            << (QList<Utils::Id>());
+    QTest::newRow("open identifier") << QString("$test") << false << Parts();
+    QTest::newRow("wrong mangler") << QString("$test:X$") << false << Parts();
 
-    QTest::newRow("multiline with :")
-            << QString::fromLatin1("class $name$\n"
-                                   "{\n"
-                                   "public:\n"
-                                   "    $name$() {}\n"
-                                   "};")
-            << QString::fromLatin1("class name\n"
-                                   "{\n"
-                                   "public:\n"
-                                   "    name() {}\n"
-                                   "};")
-            << true
-            << (QList<int>() << 6 << 25)
-            << (QList<int>() << 4 << 4)
-            << (QList<Utils::Id>() << NOMANGLER_ID << NOMANGLER_ID);
+    QTest::newRow("multiline with :") << QString("class $name$\n"
+                                                 "{\n"
+                                                 "public:\n"
+                                                 "    $name$() {}\n"
+                                                 "};")
+                                      << true
+                                      << Parts{
+                                             SnippetPart("class "),
+                                             SnippetPart("name", 0),
+                                             SnippetPart("\n"
+                                                         "{\n"
+                                                         "public:\n"
+                                                         "    "),
+                                             SnippetPart("name", 0),
+                                             SnippetPart("() {}\n"
+                                                         "};"),
+                                         };
 
-    QTest::newRow("escape sequences")
-            << QString::fromLatin1("class $name$\\n"
-                                   "{\\n"
-                                   "public\\\\:\\n"
-                                   "\\t$name$() {}\\n"
-                                   "};")
-            << QString::fromLatin1("class name\n"
-                                   "{\n"
-                                   "public\\:\n"
-                                   "\tname() {}\n"
-                                   "};")
-            << true
-            << (QList<int>() << 6 << 23)
-            << (QList<int>() << 4 << 4)
-            << (QList<Utils::Id>() << NOMANGLER_ID << NOMANGLER_ID);
-
+    QTest::newRow("escape sequences") << QString("class $name$\\n"
+                                                 "{\\n"
+                                                 "public\\\\:\\n"
+                                                 "\\t$name$() {}\\n"
+                                                 "};")
+                                      << true
+                                      << Parts{
+                                             SnippetPart("class "),
+                                             SnippetPart("name", 0),
+                                             SnippetPart("\n"
+                                                         "{\n"
+                                                         "public\\:\n"
+                                                         "\t"),
+                                             SnippetPart("name", 0),
+                                             SnippetPart("() {}\n"
+                                                         "};"),
+                                         };
 }
 
 void Internal::TextEditorPlugin::testSnippetParsing()
 {
     QFETCH(QString, input);
-    QFETCH(QString, text);
     QFETCH(bool, success);
-    QFETCH(QList<int>, ranges_start);
-    QFETCH(QList<int>, ranges_length);
-    QFETCH(QList<Utils::Id>, ranges_mangler);
-    Q_ASSERT(ranges_start.count() == ranges_length.count()); // sanity check for the test data
-    Q_ASSERT(ranges_start.count() == ranges_mangler.count()); // sanity check for the test data
+    QFETCH(Parts, parts);
 
     SnippetParseResult result = Snippet::parse(input);
     QCOMPARE(Utils::holds_alternative<ParsedSnippet>(result), success);
+    if (!success)
+        return;
 
     ParsedSnippet snippet = Utils::get<ParsedSnippet>(result);
 
-    QCOMPARE(snippet.text, text);
-    QCOMPARE(snippet.ranges.count(), ranges_start.count());
-    for (int i = 0; i < ranges_start.count(); ++i) {
-        QCOMPARE(snippet.ranges.at(i).start, ranges_start.at(i));
-        QCOMPARE(snippet.ranges.at(i).length, ranges_length.at(i));
-        Utils::Id id = NOMANGLER_ID;
-        if (snippet.ranges.at(i).mangler)
-            id = snippet.ranges.at(i).mangler->id();
-        QCOMPARE(id, ranges_mangler.at(i));
-    }
+    auto rangesCompare = [&](const ParsedSnippet::Part &actual, const SnippetPart &expected) {
+        QCOMPARE(actual.text, expected.text);
+        QCOMPARE(actual.variableIndex, expected.variableIndex);
+        auto manglerId = actual.mangler ? actual.mangler->id() : NOMANGLER_ID;
+        QCOMPARE(manglerId, expected.manglerId);
+    };
+
+    for (int i = 0; i < parts.count(); ++i)
+        rangesCompare(snippet.parts.at(i), parts.at(i));
 }
 #endif
-

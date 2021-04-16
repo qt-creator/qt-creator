@@ -33,6 +33,7 @@
 #include <QTextBlock>
 
 #include <algorithm>
+#include <utils/qtcassert.h>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;
@@ -416,6 +417,21 @@ void TextEditorOverlay::paint(QPainter *painter, const QRect &clip)
     }
 }
 
+QTextCursor TextEditorOverlay::cursorForSelection(const OverlaySelection &selection) const
+{
+    QTextCursor cursor = selection.m_cursor_begin;
+    cursor.setPosition(selection.m_cursor_begin.position());
+    cursor.setKeepPositionOnInsert(false);
+    if (!cursor.isNull())
+        cursor.setPosition(selection.m_cursor_end.position(), QTextCursor::KeepAnchor);
+    return cursor;
+}
+
+QTextCursor TextEditorOverlay::cursorForIndex(int selectionIndex) const
+{
+    return cursorForSelection(m_selections.value(selectionIndex));
+}
+
 void TextEditorOverlay::fill(QPainter *painter, const QColor &color, const QRect &clip)
 {
     Q_UNUSED(clip)
@@ -441,41 +457,6 @@ void TextEditorOverlay::fill(QPainter *painter, const QColor &color, const QRect
 
         fillSelection(painter, selection, color);
     }
-}
-
-/*! \returns true if any selection contains \a cursor, where a cursor on the
-             start or end of a selection is counted as contained.
-*/
-bool TextEditorOverlay::hasCursorInSelection(const QTextCursor &cursor) const
-{
-    if (selectionIndexForCursor(cursor) != -1)
-        return true;
-    return false;
-}
-
-int TextEditorOverlay::selectionIndexForCursor(const QTextCursor &cursor) const
-{
-    for (int i = 0; i < m_selections.size(); ++i) {
-        const OverlaySelection &selection = m_selections.at(i);
-        if (cursor.position() >= selection.m_cursor_begin.position()
-            && cursor.position() <= selection.m_cursor_end.position())
-            return i;
-    }
-    return -1;
-}
-
-QString TextEditorOverlay::selectionText(int selectionIndex) const
-{
-    return assembleCursorForSelection(selectionIndex).selectedText();
-}
-
-QTextCursor TextEditorOverlay::assembleCursorForSelection(int selectionIndex) const
-{
-    const OverlaySelection &selection = m_selections.at(selectionIndex);
-    QTextCursor cursor(m_editor->document());
-    cursor.setPosition(selection.m_cursor_begin.position());
-    cursor.setPosition(selection.m_cursor_end.position(), QTextCursor::KeepAnchor);
-    return cursor;
 }
 
 bool TextEditorOverlay::hasFirstSelectionBeginMoved() const

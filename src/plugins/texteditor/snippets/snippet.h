@@ -49,14 +49,16 @@ public:
 class TEXTEDITOR_EXPORT ParsedSnippet
 {
 public:
-    QString text;
-    struct Range {
-        Range(int s, int l, NameMangler *m) : start(s), length(l), mangler(m) { }
-        int start;
-        int length;
-        NameMangler *mangler;
+    class Part {
+    public:
+        Part() = default;
+        explicit Part(const QString &text) : text(text) {}
+        QString text;
+        int variableIndex = -1; // if variable index is >= 0 the text is interpreted as a variable
+        NameMangler *mangler = nullptr;
     };
-    QList<Range> ranges;
+    QList<Part> parts;
+    QList<QList<int>> variables;
 };
 
 class TEXTEDITOR_EXPORT SnippetParseError

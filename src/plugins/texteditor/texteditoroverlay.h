@@ -92,14 +92,11 @@ public:
 
     inline int dropShadowWidth() const { return m_dropShadowWidth; }
 
-    bool hasCursorInSelection(const QTextCursor &cursor) const;
-
     bool hasFirstSelectionBeginMoved() const;
 
 protected:
-    int selectionIndexForCursor(const QTextCursor &cursor) const;
-    QString selectionText(int selectionIndex) const;
-    QTextCursor assembleCursorForSelection(int selectionIndex) const;
+    QTextCursor cursorForSelection(const OverlaySelection &selection) const;
+    QTextCursor cursorForIndex(int selectionIndex) const;
 
 private:
     QPainterPath createSelectionPath(const QTextCursor &begin, const QTextCursor &end, const QRect& clip);
