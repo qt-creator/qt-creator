@@ -665,7 +665,7 @@ public:
     int extraAreaPreviousMarkTooltipRequestedLine = -1;
 
     TextEditorOverlay *m_overlay = nullptr;
-    TextEditorOverlay *m_snippetOverlay = nullptr;
+    SnippetOverlay *m_snippetOverlay = nullptr;
     TextEditorOverlay *m_searchResultOverlay = nullptr;
     bool snippetCheckCursor(const QTextCursor &cursor);
     void snippetTabOrBacktab(bool forward);
@@ -1004,7 +1004,7 @@ void TextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
     q->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
     m_overlay = new TextEditorOverlay(q);
-    m_snippetOverlay = new TextEditorOverlay(q);
+    m_snippetOverlay = new SnippetOverlay(q);
     m_searchResultOverlay = new TextEditorOverlay(q);
     m_refactorOverlay = new RefactorOverlay(q);
 

@@ -74,7 +74,7 @@ public:
 
     void setAlpha(bool enabled) { m_alpha = enabled; }
 
-    void clear();
+    virtual void clear();
 
     enum OverlaySelectionFlags {
         LockSize = 1,
@@ -95,20 +95,17 @@ public:
 
     bool hasCursorInSelection(const QTextCursor &cursor) const;
 
-    void mapEquivalentSelections();
-    void updateEquivalentSelections(const QTextCursor &cursor);
-    void setNameMangler(const QList<NameMangler *> &manglers);
-    void mangle();
-
     bool hasFirstSelectionBeginMoved() const;
+
+protected:
+    int selectionIndexForCursor(const QTextCursor &cursor) const;
+    QString selectionText(int selectionIndex) const;
+    QTextCursor assembleCursorForSelection(int selectionIndex) const;
 
 private:
     QPainterPath createSelectionPath(const QTextCursor &begin, const QTextCursor &end, const QRect& clip);
     void paintSelection(QPainter *painter, const OverlaySelection &selection);
     void fillSelection(QPainter *painter, const OverlaySelection &selection, const QColor &color);
-    int selectionIndexForCursor(const QTextCursor &cursor) const;
-    QString selectionText(int selectionIndex) const;
-    QTextCursor assembleCursorForSelection(int selectionIndex) const;
 
     bool m_visible;
     bool m_alpha;
@@ -118,6 +115,21 @@ private:
     TextEditorWidget *m_editor;
     QWidget *m_viewport;
     QList<OverlaySelection> m_selections;
+};
+
+class SnippetOverlay : public TextEditorOverlay
+{
+public:
+    using TextEditorOverlay::TextEditorOverlay;
+
+    void clear() override;
+
+    void mapEquivalentSelections();
+    void updateEquivalentSelections(const QTextCursor &cursor);
+    void setNameMangler(const QList<NameMangler *> &manglers);
+    void mangle();
+
+private:
     QVector<QList<int> > m_equivalentSelections;
     QList<NameMangler *> m_manglers;
 };

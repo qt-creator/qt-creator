@@ -72,8 +72,6 @@ void TextEditorOverlay::clear()
         return;
     m_selections.clear();
     m_firstSelectionOriginalBegin = -1;
-    m_equivalentSelections.clear();
-    m_manglers.clear();
     update();
 }
 
@@ -481,13 +479,27 @@ QTextCursor TextEditorOverlay::assembleCursorForSelection(int selectionIndex) co
     return cursor;
 }
 
-void TextEditorOverlay::mapEquivalentSelections()
+bool TextEditorOverlay::hasFirstSelectionBeginMoved() const
+{
+    if (m_firstSelectionOriginalBegin == -1 || m_selections.isEmpty())
+        return false;
+    return m_selections.at(0).m_cursor_begin.position() != m_firstSelectionOriginalBegin;
+}
+
+void SnippetOverlay::clear()
+{
+    TextEditorOverlay::clear();
+    m_equivalentSelections.clear();
+    m_manglers.clear();
+}
+
+void SnippetOverlay::mapEquivalentSelections()
 {
     m_equivalentSelections.clear();
-    m_equivalentSelections.resize(m_selections.size());
+    m_equivalentSelections.resize(selections().size());
 
     QMultiMap<QString, int> all;
-    for (int i = 0; i < m_selections.size(); ++i)
+    for (int i = 0; i < selections().size(); ++i)
         all.insert(selectionText(i).toLower(), i);
 
     const QList<QString> &uniqueKeys = all.uniqueKeys();
@@ -506,7 +518,7 @@ void TextEditorOverlay::mapEquivalentSelections()
     }
 }
 
-void TextEditorOverlay::updateEquivalentSelections(const QTextCursor &cursor)
+void SnippetOverlay::updateEquivalentSelections(const QTextCursor &cursor)
 {
     int selectionIndex = selectionIndexForCursor(cursor);
     if (selectionIndex == -1)
@@ -528,12 +540,12 @@ void TextEditorOverlay::updateEquivalentSelections(const QTextCursor &cursor)
     }
 }
 
-void TextEditorOverlay::setNameMangler(const QList<NameMangler *> &manglers)
+void SnippetOverlay::setNameMangler(const QList<NameMangler *> &manglers)
 {
     m_manglers = manglers;
 }
 
-void TextEditorOverlay::mangle()
+void SnippetOverlay::mangle()
 {
     for (int i = 0; i < m_manglers.count(); ++i) {
         if (!m_manglers.at(i))
@@ -549,11 +561,4 @@ void TextEditorOverlay::mangle()
             selectionCursor.endEditBlock();
         }
     }
-}
-
-bool TextEditorOverlay::hasFirstSelectionBeginMoved() const
-{
-    if (m_firstSelectionOriginalBegin == -1 || m_selections.isEmpty())
-        return false;
-    return m_selections.at(0).m_cursor_begin.position() != m_firstSelectionOriginalBegin;
 }
