@@ -40,9 +40,6 @@ QmlPreviewConnectionManager::QmlPreviewConnectionManager(QObject *parent) :
     QmlDebug::QmlDebugConnectionManager(parent)
 {
     setTarget(nullptr);
-    m_createDebugTranslationClientMethod = [](QmlDebug::QmlDebugConnection *connection) {
-        return std::make_unique<QmlPreview::QmlDebugTranslationClient>(connection);
-    };
 }
 
 QmlPreviewConnectionManager::~QmlPreviewConnectionManager() = default;
