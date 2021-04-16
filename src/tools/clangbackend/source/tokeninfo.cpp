@@ -599,6 +599,7 @@ void TokenInfo::punctuationOrOperatorKind()
 
     if (m_types.mainHighlightingType == HighlightingType::Punctuation
             && m_types.mixinHighlightingTypes.empty()
+            && kind != CXCursor_OverloadedDeclRef
             && kind != CXCursor_InclusionDirective
             && kind != CXCursor_PreprocessingDirective) {
         const ClangString spelling = m_token->spelling();

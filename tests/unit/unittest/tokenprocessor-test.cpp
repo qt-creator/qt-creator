@@ -1801,6 +1801,12 @@ TEST_F(TokenProcessor, NestedTemplate)
                                        HighlightingType::DoubleAngleBracketClose));
 }
 
+TEST_F(TokenProcessor, OperatorInTemplate)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(787, 28));
+    ASSERT_THAT(infos[9], HasOnlyType(HighlightingType::Punctuation));
+}
+
 Data *TokenProcessor::d;
 
 void TokenProcessor::SetUpTestCase()
