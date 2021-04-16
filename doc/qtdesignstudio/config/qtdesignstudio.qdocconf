@@ -1,4 +1,4 @@
-project     = qtdesignstudio
+project     = $IDE_ID
 description = "$IDE_DISPLAY_NAME Manual"
 url         = https://doc.qt.io/qtdesignstudio
 version     = $QTC_VERSION
