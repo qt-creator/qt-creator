@@ -1,8 +1,11 @@
 find_package(Qt5 COMPONENTS QmlDebug REQUIRED)
 
 add_qtc_plugin(QmlPreview
-  DEPENDS QmlDebug QmlJS
-  PLUGIN_DEPENDS Core ProjectExplorer QmlJSTools QtSupport ResourceEditor QmlProjectManager
+  PUBLIC_DEPENDS QmlDebug
+  DEPENDS QmlJS
+  PLUGIN_DEPENDS
+    Core ProjectExplorer QmlJSTools QtSupport
+    ResourceEditor QmlProjectManager
   SOURCES
     qmlpreviewclient.cpp qmlpreviewclient.h
     qmlpreviewconnectionmanager.cpp qmlpreviewconnectionmanager.h
