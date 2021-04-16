@@ -29,6 +29,7 @@
 #include "componentexporter.h"
 
 #include "qmlitemnode.h"
+#include "annotation.h"
 
 namespace  {
 static QString capitalize(const QString &str)
@@ -84,6 +85,9 @@ QJsonObject QmlDesigner::ItemNodeDumper::json(QmlDesigner::Component &component)
     metadata.insert(UuidTag, uuid());
     metadata.insert(ExportTypeTag, ExportTypeChild);
     metadata.insert(TypeNameTag, QString::fromLatin1(m_node.type()));
+
+    if (m_node.hasCustomId())
+        metadata.insert(CustomIdTag, m_node.customId());
 
     QString typeId = component.exporter().componentUuid(m_node);
     if (!typeId.isEmpty())
