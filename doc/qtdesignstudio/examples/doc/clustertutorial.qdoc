@@ -30,6 +30,8 @@
 
     \title Cluster Tutorial
 
+    \image clustertutorial.png "Cluster Tutorial example"
+
     \e {Cluster Tutorial} example contains the source files for a set of
     video tutorials that explain how to export designs from Adobe
     Photoshop to \QDS and to edit them to create Qt Quick UIs.
