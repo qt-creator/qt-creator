@@ -110,12 +110,14 @@ def is_debug(fpath):
     # bootstrap exception
     if coredebug.search(fpath):
         return True
-    try:
+    # try to use dumpbin (MSVC) or objdump (MinGW), otherwise ship all .dlls
+    if which('dumpbin'):
         output = subprocess.check_output(['dumpbin', '/imports', fpath])
-        return coredebug.search(output.decode(encoding)) != None
-    except OSError:
-        # dumpbin is not there, maybe MinGW ? Just ship all .dlls.
+    elif which('objdump'):
+        output = subprocess.check_output(['objdump', '-p', fpath])
+    else:
         return debug_build
+    return coredebug.search(output.decode(encoding)) != None
 
 def is_ignored_windows_file(use_debug, basepath, filename):
     ignore_patterns = ['.lib', '.pdb', '.exp', '.ilk']
