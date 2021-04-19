@@ -199,7 +199,9 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
         } else if (result.kind == AngleBracketClose) {
             paren = {Parenthesis::Closed, '>', result.column - 1};
         } else if (result.kind == DoubleAngleBracketClose) {
-            parentheses.second.append({Parenthesis::Closed, '>', result.column - 1});
+            Parenthesis extraParen = {Parenthesis::Closed, '>', result.column - 1};
+            extraParen.source = parenSource();
+            parentheses.second.append(extraParen);
             paren = {Parenthesis::Closed, '>', result.column};
         } else if (result.kind == TernaryIf) {
             paren = {Parenthesis::Opened, '?', result.column - 1};
