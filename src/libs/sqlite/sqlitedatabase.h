@@ -28,9 +28,12 @@
 #include "sqlitedatabasebackend.h"
 #include "sqlitedatabaseinterface.h"
 #include "sqliteglobal.h"
+#include "sqlitereadstatement.h"
+#include "sqlitereadwritestatement.h"
 #include "sqlitesessionchangeset.h"
 #include "sqlitetable.h"
 #include "sqlitetransaction.h"
+#include "sqlitewritestatement.h"
 
 #include <utils/smallstring.h>
 
