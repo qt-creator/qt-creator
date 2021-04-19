@@ -71,33 +71,31 @@
     We use \e {Bluebubble.svg} in this tutorial, but you can use any other
     image or component, instead.
 
-    To create the UI in the Design mode:
+    To create the UI in \l{Form Editor}:
 
     \list 1
 
-        \li Open the \e main.qml in the Design mode.
+        \li Open the \e main.qml in \uicontrol {Form Editor}.
 
-        \li In the \uicontrol Navigator, select \uicontrol Label and press
-            \key Delete to delete it.
-
-        \li In \uicontrol Library > \uicontrol Components >
+        \li In \l Library > \uicontrol Components >
             \uicontrol {Default Components} > \uicontrol Basic, select
             \uicontrol Rectangle and drag-and-drop it to \e Window
-            in \uicontrol Navigator.
+            in \l Navigator.
 
-        \li Select the rectangle in \uicontrol Navigator to edit its properties:
+        \li Select the rectangle instance in \uicontrol Navigator to edit its
+            properties in \l Properties:
 
             \image qtquick-mobile-app-tutorial-main-view.png "Rectangle in different views"
 
             \list a
 
-                \li In the \uicontrol Id field enter \e mainWindow, to be able
+                \li In the \uicontrol ID field enter \e mainWindow, to be able
                     to reference the rectangle from other places.
 
                 \li Select the \uicontrol Layout tab, and then click
                     the \inlineimage icons/anchor-fill.png
                     (\uicontrol {Fill to Parent}) button to anchor the rectangle
-                    to the item.
+                    to the window.
 
             \endlist
 
@@ -106,9 +104,12 @@
                     to locate Bluebubble.svg (or your own image) and add it to
                     the project folder.
                 \li Drag and drop the image from \uicontrol Assets to
-                    \e mainWindow in \uicontrol Navigator.
+                    \e mainWindow in \uicontrol Navigator. \QC creates an
+                    instance of an \l{Images}{Image} component for you
+                    with the path to the image file set as the value of
+                    the \uicontrol Source field in \uicontrol Properties.
 
-        \li In the \uicontrol Properties view, \uicontrol Id field, enter
+        \li In the \uicontrol Properties view, \uicontrol ID field, enter
             \e bubble to be able to reference the image from other places.
 
             \image qtquick-mobile-app-tutorial-image.png "Image file in different views"
@@ -120,15 +121,15 @@
     \endlist
 
     We want to modify the properties of the bubble in ways that are not
-    supported in the Design mode, and therefore we create a custom QML
-    type for it:
+    supported in \uicontrol {Form Editor}, and therefore we turn it into
+    a custom component:
 
     \list 1
 
         \li Right-click the image and select
             \uicontrol {Move Component into Separate File}.
 
-            \image qtcreator-move-component-into-separate-file.png
+            \image qtquick-mobile-app-tutorial-bubble-component.png
 
         \li In the \uicontrol {Component name} field, enter \e Bubble.
 
@@ -140,7 +141,7 @@
 
     \endlist
 
-    \QC creates a reference to the Bubble type in \e main.qml.
+    \QC creates an instance of the Bubble component in \e main.qml.
 
     To check your code, you can compare your \e main.qml and
     \e {Bubble.qml} with the corresponding example files.
@@ -154,19 +155,19 @@
     and height of the main window.
 
     \list 1
-        \li Open \e Bubble.qml in Design mode.
-        \li In \uicontrol {Connections View}, \uicontrol Properties tab,
-            select click the \inlineimage plus.png
-            button to add a custom property for the Bubble type.
+        \li Open \e Bubble.qml in \uicontrol {Form Editor}.
+        \li In \uicontrol {Connection View} > \uicontrol Properties,
+            select the \inlineimage plus.png
+            button to add a custom property for the Bubble component.
             \image qtquick-mobile-app-tutorial-custom-properties.png "Connection View Properties tab"
         \li Double-click the value in the \uicontrol Property column, and enter
             \e centerY as the name of the property.
         \li Double-click the value in the \uicontrol {Property Type} column,
-            and select \e real as the type of the property. You will specify
+            and select \e real as the component of the property. You will specify
             the property value later in \uicontrol Properties.
         \li Add two more properties of the same type with the names \e centerY
             and \e bubbleCenter.
-        \li Open \e main.qml in Design mode.
+        \li Open \e main.qml in \uicontrol {Form Editor}.
         \li Select \e bubble in \uicontrol Navigator to specify values for the
             custom properties in \uicontrol Properties.
         \li In the \uicontrol X field, select \inlineimage icons/action-icon.png
@@ -202,7 +203,7 @@
             \skipto QtSensors
             \printline QtSensors
 
-        \li Add the \l{Accelerometer} type with the necessary properties:
+        \li Add the \l{Accelerometer} component with the necessary properties:
 
             \skipto Accelerometer
             \printuntil radians_to_degrees
@@ -219,7 +220,7 @@
             \printuntil }
 
         \li Add the following JavaScript code for \c onReadingChanged signal of
-            Accelerometer type to make the bubble move when the Accelerometer
+            Accelerometer component to make the bubble move when the Accelerometer
             values change:
 
             \quotefromfile accelbubble/main.qml
@@ -250,7 +251,7 @@
     an AndroidManifest.xml that you can generate in \QC. For more information,
     see \l{Editing Manifest Files}.
 
-    On iOS, you can lock the device orientation in a Info.plist file that you
+    On iOS, you can lock the device orientation in an Info.plist file that you
     specify in the .pro file as the value of the QMAKE_INFO_PLIST variable.
 
     \section1 Adding Dependencies
