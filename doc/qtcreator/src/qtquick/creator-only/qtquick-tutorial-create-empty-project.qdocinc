@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -38,9 +38,11 @@
             \uicontrol {Project Location} dialog.
 
         \li In the \uicontrol Name field, enter a name for the application.
+            When naming your own projects, keep in mind that they cannot be
+            easily renamed later.
 
         \li In the \uicontrol {Create in} field, enter the path for the project
-            files.
+            files. You can move project folders later without problems.
 
         \li Select \uicontrol Next (or \uicontrol Continue on \macos) to open
             the \uicontrol {Define Build System} dialog.
@@ -52,8 +54,12 @@
         \li Select \uicontrol Next to open the
             \uicontrol {Define Project Details} dialog.
 
-        \li Select \uicontrol Next to use the default settings and to open
-            the \uicontrol {Translation File} dialog.
+        \li In the \uicontrol {Screen resolution} field, select the initial
+            size of the UI. You can easily change the screen size later
+            in \l Properties.
+
+        \li Select \uicontrol Next to open the \uicontrol {Translation File}
+            dialog.
 
         \li Select \uicontrol Next to use the default settings and to open
             the \uicontrol {Kit Selection} dialog.
