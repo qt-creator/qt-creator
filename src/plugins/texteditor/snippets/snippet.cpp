@@ -160,12 +160,12 @@ struct SnippetReplacement
     int posDelta = 0;
 };
 
-static SnippetReplacement replacementAt(int pos, Snippet::ParsedSnippet &parsedSnippet)
+static SnippetReplacement replacementAt(int pos, ParsedSnippet &parsedSnippet)
 {
     static const char kOpenBold[] = "<b>";
     static const char kCloseBold[] = "</b>";
 
-    auto mangledText = [](const QString &text, const Snippet::ParsedSnippet::Range &range) {
+    auto mangledText = [](const QString &text, const ParsedSnippet::Range &range) {
         if (range.length == 0)
             return QString("...");
         if (NameMangler *mangler = range.mangler)
@@ -174,7 +174,7 @@ static SnippetReplacement replacementAt(int pos, Snippet::ParsedSnippet &parsedS
     };
 
     if (!parsedSnippet.ranges.isEmpty() && parsedSnippet.ranges.first().start == pos) {
-        Snippet::ParsedSnippet::Range range = parsedSnippet.ranges.takeFirst();
+        ParsedSnippet::Range range = parsedSnippet.ranges.takeFirst();
         return {kOpenBold + mangledText(parsedSnippet.text, range) + kCloseBold, range.length};
     }
     return {};
@@ -215,13 +215,13 @@ QString Snippet::generateTip() const
     return tip;
 }
 
-Snippet::ParsedSnippet Snippet::parse(const QString &snippet)
+ParsedSnippet Snippet::parse(const QString &snippet)
 {
     static UppercaseMangler ucMangler;
     static LowercaseMangler lcMangler;
     static TitlecaseMangler tcMangler;
 
-    Snippet::ParsedSnippet result;
+    ParsedSnippet result;
 
     QString errorMessage;
     QString preprocessedSnippet
@@ -418,7 +418,7 @@ void Internal::TextEditorPlugin::testSnippetParsing()
     Q_ASSERT(ranges_start.count() == ranges_length.count()); // sanity check for the test data
     Q_ASSERT(ranges_start.count() == ranges_mangler.count()); // sanity check for the test data
 
-    Snippet::ParsedSnippet result = Snippet::parse(input);
+    ParsedSnippet result = Snippet::parse(input);
 
     QCOMPARE(result.text, text);
     QCOMPARE(result.success, success);

@@ -44,6 +44,21 @@ public:
     virtual QString mangle(const QString &unmangled) const = 0;
 };
 
+class TEXTEDITOR_EXPORT ParsedSnippet
+{
+public:
+    QString text;
+    QString errorMessage;
+    bool success;
+    struct Range {
+        Range(int s, int l, NameMangler *m) : start(s), length(l), mangler(m) { }
+        int start;
+        int length;
+        NameMangler *mangler;
+    };
+    QList<Range> ranges;
+};
+
 class TEXTEDITOR_EXPORT Snippet
 {
 public:
@@ -75,20 +90,6 @@ public:
 
     static const QChar kVariableDelimiter;
     static const QChar kEscapeChar;
-
-    class ParsedSnippet {
-    public:
-        QString text;
-        QString errorMessage;
-        bool success;
-        struct Range {
-            Range(int s, int l, NameMangler *m) : start(s), length(l), mangler(m) { }
-            int start;
-            int length;
-            NameMangler *mangler;
-        };
-        QList<Range> ranges;
-    };
 
     static ParsedSnippet parse(const QString &snippet);
 
