@@ -85,9 +85,14 @@
     You can move the code for types and symbols around in the source file
     by dragging and dropping them in the outline.
 
+    \image qtcreator-outline-view.png "Outline view"
+
     \list
         \li To see a complete list of all bindings, select
             \uicontrol {Filter Tree} > \uicontrol {Show All Bindings}.
+        \li To sort types or symbols alphabetically, select
+            \inlineimage sort_alphabetically.png
+            (\uicontrol {Sort Alphabetically}).
         \li To stop the synchronization with the type or symbol selected in the
             editor, deselect \uicontrol {Synchronize with Editor}.
     \endlist
@@ -95,7 +100,11 @@
     \section1 Viewing the Class Hierarchy
 
     The \uicontrol {Class View} shows the class hierarchy of the currently
-    open projects. To organize the view by subprojects, click
+    open projects.
+
+    \image qtcreator-class-view.png "Class View"
+
+    To organize the view by subprojects, click
     \inlineimage qtcreator-show-subprojects.png
     (\uicontrol {Show Subprojects}).
 
@@ -123,6 +132,8 @@
     To view which files are included in the current file and which files include
     the current file, right-click in the editor and select
     \uicontrol {Open Include Hierarchy} or press \key {Ctrl+Shift+I}.
+
+    \image qtcreator-include-hierarchy-view.png "Include Hierarchy view"
 
     To keep the view synchronized with the file currently opened in the editor,
     select \uicontrol {Synchronize with Editor}.
