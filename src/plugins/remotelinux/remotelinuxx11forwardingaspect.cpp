@@ -36,7 +36,7 @@ static QString defaultDisplay() { return QLatin1String(qgetenv("DISPLAY")); }
 
 X11ForwardingAspect::X11ForwardingAspect()
 {
-    setDisplayName(tr("X11 Forwarding"));
+    setLabelText(tr("X11 Forwarding:"));
     setDisplayStyle(LineEditDisplay);
     setId("X11ForwardingAspect");
     setSettingsKey("RunConfiguration.X11Forwarding");
