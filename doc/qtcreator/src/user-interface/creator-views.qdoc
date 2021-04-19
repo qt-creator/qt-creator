@@ -47,25 +47,28 @@
         \li \l{File System} shows all files in the currently selected
              directory.
         \li \l{Open Documents} shows currently open files.
-        \li \uicontrol Bookmarks shows all bookmarks for the current session.
-        \li \uicontrol {Git Branches} shows the local and remote brances for the
-            project in the Git version control system. For more information, see
-            \l{Working with Branches}.
-        \li \uicontrol Outline shows an overview of defined types and other
-            symbols, as well as their properties and hierarchy in a source file.
+        \li \l{Using Bookmarks}{Bookmarks} shows all bookmarks for the current
+            session.
+        \li \l{Working with Branches}{Git Branches} shows the local and remote
+            brances for the project in the Git version control system.
+        \li \l{Viewing Defined Types and Symbols}{Outline} shows an overview of
+            defined types and other symbols, as well as their properties and
+            hierarchy in a source file.
           \endlist
 
     \if defined(qtcreator)
     The following views display additional information about C++ code:
 
     \list
-        \li \uicontrol {Class View} shows the class hierarchy of the currently
-            open projects.
-        \li \uicontrol Tests lists autotests and Qt Quick tests in the project.
-            For more information, see \l {Running Autotests}.
-        \li \uicontrol {Type Hierarchy} shows the base classes of a class.
-        \li \uicontrol {Include Hierarchy} shows which files are included in
-            the current file and which files include the current file.
+        \li \l{Viewing the Class Hierarchy}{Class View} shows the class
+            hierarchy of the currently open projects.
+        \li \l{Running Autotests}{Tests} lists autotests and Qt Quick
+            tests in the project.
+        \li \l{Viewing Type Hierarchy}{Type Hierarchy} shows the base
+            classes of a class.
+        \li \l{Viewing Include Hierarchy}{Include Hierarchy} shows which
+            files are included in the current file and which files include
+            the current file.
     \endlist
     \endif
 
