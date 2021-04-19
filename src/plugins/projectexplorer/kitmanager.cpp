@@ -238,10 +238,11 @@ void KitManager::restoreKits()
     kitsToCheck.clear();
 
     // Remove replacement kits for which the original kit has turned up again.
-    erase(resultList, [&resultList](const std::unique_ptr<Kit> &k) {
-        return k->isReplacementKit() && contains(resultList, [&k](const std::unique_ptr<Kit> &other) {
-            return other->id() == k->id() && other != k;
-        });
+    Utils::erase(resultList, [&resultList](const std::unique_ptr<Kit> &k) {
+        return k->isReplacementKit()
+               && contains(resultList, [&k](const std::unique_ptr<Kit> &other) {
+                      return other->id() == k->id() && other != k;
+                  });
     });
 
     static const auto kitMatchesAbiList = [](const Kit *kit, const Abis &abis) {

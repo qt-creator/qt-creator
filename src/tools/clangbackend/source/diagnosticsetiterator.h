@@ -71,12 +71,12 @@ public:
         return DiagnosticSetIterator(cxTranslationUnit, cxDiagnosticSet, oldIndex);
     }
 
-    bool operator==(const DiagnosticSetIterator &other)
+    bool operator==(const DiagnosticSetIterator &other) const
     {
         return index == other.index && cxDiagnosticSet == other.cxDiagnosticSet;
     }
 
-    bool operator!=(const DiagnosticSetIterator &other)
+    bool operator!=(const DiagnosticSetIterator &other) const
     {
         return index != other.index || cxDiagnosticSet != other.cxDiagnosticSet;
     }

@@ -1630,7 +1630,7 @@ bool JsonArray::operator==(const JsonArray &other) const
         return !other.a->length;
     if (!other.a)
         return !a->length;
-    if (a->length != other.a->length)
+    if (a->length.val != other.a->length.val)
         return false;
 
     for (int i = 0; i < (int)a->length; ++i) {
@@ -2594,7 +2594,7 @@ bool JsonObject::operator==(const JsonObject &other) const
         return !other.o->length;
     if (!other.o)
         return !o->length;
-    if (o->length != other.o->length)
+    if (o->length.val != other.o->length.val)
         return false;
 
     for (uint32_t i = 0; i < o->length; ++i) {
