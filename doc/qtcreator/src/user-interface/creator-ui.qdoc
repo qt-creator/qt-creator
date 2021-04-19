@@ -107,7 +107,26 @@
     Below the mode selector, you can find shortcuts to some more advanced
     functions, such as running the application or finding problems in the
     QML code by debugging or profiling it.
+
+    \section1 Switching UI Themes
+
+    Themes enable you to change the appearance of the UI from dark to light,
+    for example. To switch themes, select \uicontrol Tools > \uicontrol Options
+    > \uicontrol Environment (or \uicontrol {Qt Creator} >
+    \uicontrol Preferences > \uicontrol Environment on \macos), and then select
+    a theme in the \uicontrol Theme field.
+
+    \image qtcreator-options-environment-interface.png "Interface settings"
     \endif
+
+    \section1 Changing Languages
+
+    \QC has been localized into several languages. If the system language
+    is one of the supported languages, it is automatically selected. To
+    change the language, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol Environment and select a language in the \uicontrol Language
+    field. Select \uicontrol {Restart Now} to restart \QC and have the change
+    take effect.
 
     \section1 Navigating with Keyboard
 
@@ -122,15 +141,6 @@
     For a list of useful \QC features described in other parts of the
     documentation, see \l{How-tos}.
     \endif
-
-    \section1 Changing Languages
-
-    \QC has been localized into several languages. If the system language
-    is one of the supported languages, it is automatically selected. To
-    change the language, select \uicontrol Tools > \uicontrol Options >
-    \uicontrol Environment and select a language in the \uicontrol Language
-    field. Select \uicontrol {Restart Now} to restart \QC and have the change
-    take effect.
 
     \section1 Viewing Images
 
