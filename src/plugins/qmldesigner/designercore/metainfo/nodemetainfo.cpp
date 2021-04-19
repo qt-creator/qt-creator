@@ -603,7 +603,6 @@ public:
     bool isPropertyPointer(const PropertyName &propertyName) const;
     bool isPropertyList(const PropertyName &propertyName) const;
     bool isPropertyEnum(const PropertyName &propertyName) const;
-    QString propertyEnumScope(const PropertyName &propertyName) const;
     QStringList keysForEnum(const QString &enumName) const;
     bool cleverCheckType(const TypeName &otherType) const;
     QVariant::Type variantTypeId(const PropertyName &properyName) const;
@@ -615,7 +614,6 @@ public:
 
     QByteArray cppPackageName() const;
 
-    QString componentSource() const;
     QString componentFileName() const;
     QString importDirectoryPath() const;
 
@@ -998,55 +996,6 @@ bool NodeMetaInfoPrivate::isPropertyEnum(const PropertyName &propertyName) const
     return qmlObjectValue->getEnum(QString::fromUtf8(propertyType(propertyName))).isValid();
 }
 
-QString NodeMetaInfoPrivate::propertyEnumScope(const PropertyName &propertyName) const
-{
-    if (!isValid())
-        return QString();
-
-    ensureProperties();
-
-    if (propertyType(propertyName).contains("Qt::"))
-        return QStringLiteral("Qt");
-
-    if (propertyName.contains('.')) {
-        const PropertyNameList parts = propertyName.split('.');
-        const PropertyName &objectName = parts.constFirst();
-        const PropertyName &rawPropertyName = parts.constLast();
-        const TypeName objectType = propertyType(objectName);
-
-        if (isValueType(objectType))
-            return QString();
-
-        QSharedPointer<NodeMetaInfoPrivate> objectInfo(create(m_model, objectType));
-        if (objectInfo->isValid())
-            return objectInfo->propertyEnumScope(rawPropertyName);
-        else
-            return QString();
-    }
-
-    const CppComponentValue *qmlObjectValue = getNearestCppComponentValue();
-    if (!qmlObjectValue)
-        return QString();
-    const CppComponentValue *definedIn = nullptr;
-    qmlObjectValue->getEnum(QString::fromUtf8(propertyType(propertyName)), &definedIn);
-    if (definedIn) {
-        QString nonCppPackage;
-        foreach (const LanguageUtils::FakeMetaObject::Export &qmlExport, definedIn->metaObject()->exports()) {
-            if (qmlExport.package != QStringLiteral("<cpp>"))
-                nonCppPackage = qmlExport.package;
-        }
-
-        const LanguageUtils::FakeMetaObject::Export qmlExport =
-                definedIn->metaObject()->exportInPackage(nonCppPackage);
-        if (qmlExport.isValid())
-            return qmlExport.type;
-
-        return definedIn->className();
-    }
-
-    return QString();
-}
-
 static QByteArray getUnqualifiedName(const QByteArray &name)
 {
     const QList<QByteArray> nameComponents = name.split('.');
@@ -1184,17 +1133,6 @@ QByteArray NodeMetaInfoPrivate::cppPackageName() const
             return qmlObject->moduleName().toUtf8();
     }
     return QByteArray();
-}
-
-QString NodeMetaInfoPrivate::componentSource() const
-{
-    if (isFileComponent()) {
-        const ASTObjectValue * astObjectValue = value_cast<ASTObjectValue>(getObjectValue());
-        if (astObjectValue)
-            return astObjectValue->document()->source().mid(astObjectValue->typeName()->identifierToken.begin(),
-                                                            astObjectValue->initializer()->rbraceToken.end());
-    }
-    return QString();
 }
 
 QString NodeMetaInfoPrivate::componentFileName() const
@@ -1505,11 +1443,6 @@ bool NodeMetaInfo::propertyIsPointer(const PropertyName &propertyName) const
     return m_privateData->isPropertyPointer(propertyName);
 }
 
-QString NodeMetaInfo::propertyEnumScope(const PropertyName &propertyName) const
-{
-    return m_privateData->propertyEnumScope(propertyName);
-}
-
 QStringList NodeMetaInfo::propertyKeysForEnum(const PropertyName &propertyName) const
 {
     return m_privateData->keysForEnum(QString::fromUtf8(propertyTypeName(propertyName)));
@@ -1598,11 +1531,6 @@ int NodeMetaInfo::minorVersion() const
     return m_privateData->minorVersion();
 }
 
-QString NodeMetaInfo::componentSource() const
-{
-    return m_privateData->componentSource();
-}
-
 QString NodeMetaInfo::componentFileName() const
 {
     return m_privateData->componentFileName();
@@ -1611,11 +1539,6 @@ QString NodeMetaInfo::componentFileName() const
 QString NodeMetaInfo::importDirectoryPath() const
 {
     return m_privateData->importDirectoryPath();
-}
-
-bool NodeMetaInfo::hasCustomParser() const
-{
-    return false;
 }
 
 bool NodeMetaInfo::availableInVersion(int majorVersion, int minorVersion) const

@@ -76,7 +76,6 @@ public:
     bool propertyIsEnumType(const PropertyName &propertyName) const;
     bool propertyIsPrivate(const PropertyName &propertyName) const;
     bool propertyIsPointer(const PropertyName &propertyName) const;
-    QString propertyEnumScope(const PropertyName &propertyName) const;
     QStringList propertyKeysForEnum(const PropertyName &propertyName) const;
     QVariant propertyCastedValue(const PropertyName &propertyName, const QVariant &value) const;
 
@@ -91,10 +90,7 @@ public:
     int majorVersion() const;
     int minorVersion() const;
 
-    QString componentSource() const;
     QString componentFileName() const;
-
-    bool hasCustomParser() const;
 
     bool availableInVersion(int majorVersion, int minorVersion) const;
     bool isSubclassOf(const TypeName &type, int majorVersion = -1, int minorVersion = -1) const;
