@@ -107,17 +107,40 @@
     Below the mode selector, you can find shortcuts to some more advanced
     functions, such as running the application or finding problems in the
     QML code by debugging or profiling it.
+    \endif
+
+    \section1 For \macos Users
+
+    \QC uses standard names and locations for standard features, such as
+    \e options or \e preferences. In this manual, the names and locations on
+    Windows and Linux are usually used to keep the instructions short. Here are
+    some places to check if you cannot find a function, dialog, or keyboard
+    shortcut on \macos when following the instructions:
+
+    \table
+        \header
+            \li For
+            \li Look In
+        \row
+            \li \uicontrol Tools > \uicontrol Options
+            \li \uicontrol {\QC} > \uicontrol Preferences
+        \row
+            \li \uicontrol Help > \uicontrol {About Plugins}
+            \li \uicontrol {\QC} > \uicontrol {About Plugins}
+        \row
+            \li Keyboard shortcuts
+            \li \uicontrol {\QC} > \uicontrol Preferences > \uicontrol Environment >
+                \uicontrol Keyboard
+    \endtable
 
     \section1 Switching UI Themes
 
     Themes enable you to change the appearance of the UI from dark to light,
     for example. To switch themes, select \uicontrol Tools > \uicontrol Options
-    > \uicontrol Environment (or \uicontrol {Qt Creator} >
-    \uicontrol Preferences > \uicontrol Environment on \macos), and then select
-    a theme in the \uicontrol Theme field.
+    > \uicontrol Environment, and then select a theme in the \uicontrol Theme
+    field.
 
     \image qtcreator-options-environment-interface.png "Interface settings"
-    \endif
 
     \section1 Changing Languages
 
@@ -127,6 +150,28 @@
     \uicontrol Environment and select a language in the \uicontrol Language
     field. Select \uicontrol {Restart Now} to restart \QC and have the change
     take effect.
+
+    \section1 High DPI Scaling
+
+    The operating systems supported by \QC implement high dots-per-inch (DPI)
+    scaling at varying levels. Therefore, \QC handles high DPI scaling
+    differently on different operating system:
+
+    \list
+        \li On \macos, high DPI scaling is forced, which means that \QC allows
+            Qt to use the system scaling factor as the \QC scaling factor.
+        \li On Windows, if no \l{High DPI Support in Qt}
+            {scaling environment variables} are set, \QC instructs Qt to detect
+            the scaling factor and use it for \QC.
+        \li On Linux, \QC leaves it to the user to enable high DPI scaling,
+            because the process varies so much on different distributions
+            and windowing systems that it cannot be reliably done automatically.
+    \endlist
+
+    To override the default approach and always enable high-DPI scaling, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol Environment >
+    \uicontrol {Enable high DPI scaling}. The changes will take effect after you
+    restart \QC.
 
     \section1 Navigating with Keyboard
 
@@ -177,37 +222,8 @@
     different modes and states.
     \endif
 
-    \section1 Platform Notes
-
-    This section describes the cases where the behavior of \QC depends on the
-    operating system it runs on.
-
-    \section2 Location of Functions
-
-    \QC uses standard names and locations for standard features, such as
-    \e options or \e preferences. In this manual, the names and locations on
-    Windows and Linux are usually used to keep the instructions short. Here are
-    some places to check if you cannot find a function, dialog, or keyboard
-    shortcut on \macos when following the instructions:
-
-    \table
-        \header
-            \li For
-            \li Look In
-        \row
-            \li \uicontrol Tools > \uicontrol Options
-            \li \uicontrol {\QC} > \uicontrol Preferences
-        \row
-            \li \uicontrol Help > \uicontrol {About Plugins}
-            \li \uicontrol {\QC} > \uicontrol {About Plugins}
-        \row
-            \li Keyboard shortcuts
-            \li \uicontrol {\QC} > \uicontrol Preferences > \uicontrol Environment >
-                \uicontrol Keyboard
-    \endtable
-
     \if defined(qtcreator)
-    \section2 Location of Settings Files
+    \section1 Location of Settings Files
 
     \QC creates the following files and directories:
 
@@ -249,31 +265,7 @@
     \endlist
     \endif
 
-    \section2 High DPI Scaling
 
-    The operating systems supported by \QC implement high dots-per-inch (DPI)
-    scaling at varying levels. Therefore, \QC handles high DPI scaling
-    differently on different operating system:
-
-    \list
-
-        \li On \macos, high DPI scaling is forced, which means that \QC allows
-            Qt to use the system scaling factor as the \QC scaling factor.
-
-        \li On Windows, if no \l{High DPI Support in Qt}
-            {scaling environment variables} are set, \QC instructs Qt to detect
-            the scaling factor and use it for \QC.
-
-        \li On Linux, \QC leaves it to the user to enable high DPI scaling,
-            because the process varies so much on different distributions
-            and windowing systems that it cannot be reliably done automatically.
-
-    \endlist
-
-    To override the default approach and always enable high-DPI scaling, select
-    \uicontrol Tools > \uicontrol Options > \uicontrol Environment >
-    \uicontrol {Enable high DPI scaling}. The changes will take effect after you
-    restart \QC.
 */
 
 /*!
