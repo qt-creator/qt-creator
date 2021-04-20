@@ -37,6 +37,6 @@ find_file(have_qml_debug_translation_protocol
 )
 extend_qtc_plugin(QmlPreview
   CONDITION have_qml_debug_translation_protocol
-  PUBLIC_DEPENDS Qt5::QmlDebugPrivate
+  DEPENDS Qt5::QmlDebugPrivate
   PUBLIC_DEFINES "FOUND_QML_DEBUG_TRANSLATION_PROTOCOL"
 )
