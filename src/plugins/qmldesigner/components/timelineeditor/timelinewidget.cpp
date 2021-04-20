@@ -446,7 +446,7 @@ TimelineToolBar *TimelineWidget::toolBar() const
 void TimelineWidget::invalidateTimelineDuration(const QmlTimeline &timeline)
 {
     if (timelineView() && timelineView()->model()) {
-        QmlTimeline currentTimeline = graphicsScene()->currentTimeline();
+        QmlTimeline currentTimeline = timelineView()->currentTimeline();
         if (currentTimeline.isValid() && currentTimeline == timeline) {
             m_toolbar->setStartFrame(timeline.startKeyframe());
             m_toolbar->setEndFrame(timeline.endKeyframe());
@@ -470,7 +470,7 @@ void TimelineWidget::invalidateTimelineDuration(const QmlTimeline &timeline)
 void TimelineWidget::invalidateTimelinePosition(const QmlTimeline &timeline)
 {
     if (timelineView() && timelineView()->model()) {
-        QmlTimeline currentTimeline = graphicsScene()->currentTimeline();
+        QmlTimeline currentTimeline = timelineView()->currentTimeline();
         if (currentTimeline.isValid() && currentTimeline == timeline) {
             qreal frame = getcurrentFrame(timeline);
             m_toolbar->setCurrentFrame(frame);
