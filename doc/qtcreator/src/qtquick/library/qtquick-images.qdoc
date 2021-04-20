@@ -33,17 +33,27 @@
 
     The Image component is used for adding images to the UI in several supported
     formats, including bitmap formats, such as PNG and JPEG, and vector graphics
-    formats, such as SVG. You must add the images to your project in the
-    \uicontrol Assets tab of \uicontrol Library to be able to use them in
-    designs.
+    formats, such as SVG. To use any image files in your designs, you need to
+    first add them to \l Library:
+    \list 1
+        \li Select \uicontrol Library > \uicontrol Assets
+            > \inlineimage plus.png
+            .
+        \li Select the image file, and then select \uicontrol Open.
+        \li Select the location where the image will be saved in the
+            \uicontrol {Add Resources} dialog.
+        \li Select \uicontrol OK.
+    \endlist
+
+    Your image is now available in \uicontrol Library > \uicontrol Assets.
 
     \image qtquick-designer-image-type.png "Image component in different views"
 
-    When you drag and drop an image file from the \uicontrol Assets tab of
-    \uicontrol Library to \uicontrol Navigator or \uicontrol {Form Editor},
-    \QC automatically creates a component of the Image component for you with
-    the path to the image file set as the value of the \uicontrol Source
-    field in \uicontrol Properties.
+    When you drag-and-drop an image file from \uicontrol Library >
+    \uicontrol Assets to \l Navigator or \l {Form Editor}, \QC automatically
+    creates an instance of the Image component for you with the path to the
+    image file set as the value of the \uicontrol Source field in
+    \uicontrol Properties.
 
     To load images from a URL using a supported URL scheme, specify the URL
     in the \uicontrol Source field.

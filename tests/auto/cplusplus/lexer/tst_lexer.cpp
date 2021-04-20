@@ -364,6 +364,50 @@ void tst_SimpleLexer::literals_data()
     QTest::newRow("microsoft-suffix") << source << expectedTokenKindList;
 
     source =
+            "42u\n"
+            "43U\n"
+            "44ul\n"
+            "45UL\n"
+            "46uL\n"
+            "47Ul\n"
+            "48ull\n"
+            "49ULL\n"
+            "50uLL\n"
+            "51Ull\n"
+            "52l\n"
+            "53L\n"
+            "54ll\n"
+            "55LL\n"
+            "56lu\n"
+            "57LU\n"
+            "58lU\n"
+            "59Lu\n"
+            "60llu\n"
+            "61llU\n"
+            "62LLU\n"
+            "63LLu\n"
+            "64lL\n"  // wrong
+            "65Ll\n"  // wrong
+            "66luu\n" // wrong
+            "67LUU\n" // wrong
+            "68lul\n" // wrong
+            "69LUL\n" // wrong
+            ;
+    expectedTokenKindList =
+            TokenKindList() << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL
+                            << T_ERROR << T_ERROR << T_ERROR
+                            << T_ERROR << T_ERROR << T_ERROR
+                               ;
+    QTest::newRow("integer-suffix") << source << expectedTokenKindList;
+
+    source =
             "R\"(raw text)\"\n"
             "R\"delimiter(raw text)delimiter\"\n"
             "R\"delimiter(\nraw text line1\nraw text line2\n)delimiter\"\n"

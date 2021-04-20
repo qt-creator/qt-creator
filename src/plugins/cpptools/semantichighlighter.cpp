@@ -178,6 +178,7 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
     for (int i = from; i < to; ++i) {
         const HighlightingResult &result = m_watcher->future().resultAt(i);
         if (result.kind != AngleBracketOpen && result.kind != AngleBracketClose
+                && result.kind != DoubleAngleBracketClose
                 && result.kind != TernaryIf && result.kind != TernaryElse) {
             const QTextBlock block =
                     m_baseTextDocument->document()->findBlockByNumber(result.line - 1);
@@ -193,14 +194,20 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
             parentheses.second = getClearedParentheses(parentheses.first);
         }
         Parenthesis paren;
-        if (result.kind == AngleBracketOpen)
+        if (result.kind == AngleBracketOpen) {
             paren = {Parenthesis::Opened, '<', result.column - 1};
-        else if (result.kind == AngleBracketClose)
+        } else if (result.kind == AngleBracketClose) {
             paren = {Parenthesis::Closed, '>', result.column - 1};
-        else if (result.kind == TernaryIf)
+        } else if (result.kind == DoubleAngleBracketClose) {
+            Parenthesis extraParen = {Parenthesis::Closed, '>', result.column - 1};
+            extraParen.source = parenSource();
+            parentheses.second.append(extraParen);
+            paren = {Parenthesis::Closed, '>', result.column};
+        } else if (result.kind == TernaryIf) {
             paren = {Parenthesis::Opened, '?', result.column - 1};
-        else if (result.kind == TernaryElse)
+        } else if (result.kind == TernaryElse) {
             paren = {Parenthesis::Closed, ':', result.column - 1};
+        }
         QTC_ASSERT(paren.pos != -1, continue);
         paren.source = parenSource();
         parentheses.second << paren;

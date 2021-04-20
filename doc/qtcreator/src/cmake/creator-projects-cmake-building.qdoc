@@ -43,6 +43,22 @@
     common prefix (up to the first underscore character) are grouped under
     the prefix.
 
+    \section1 Multi-Config Support
+
+    \QC supports
+    \l{https://cmake.org/cmake/help/latest/prop_gbl/GENERATOR_IS_MULTI_CONFIG.html}
+    {Multi-config generators}, such as Xcode, Visual Studio, and Ninja
+    Multi-Config. This means that you need to configure CMake only once, have
+    only one build directory, and can switch between build types faster.
+
+    However, this means that \QC can no longer simply parse the first CMake
+    file-api JSON export. Therefore, the value of the \uicontrol {Build type}
+    field must match that of the \c CMAKE_BUILD_TYPE variable for the single
+    configuration generators (Ninja, Makefile) to determine, which generator
+    to use.
+
+    When developing with Qt 6 for iOS, only the Xcode generator is supported.
+
     \section1 Modifying Initial Parameters
 
     In the \uicontrol Value column, you can view and edit the actual values

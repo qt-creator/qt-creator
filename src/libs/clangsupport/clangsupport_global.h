@@ -111,6 +111,7 @@ enum class HighlightingType : quint8
     TemplateTemplateParameter,
     AngleBracketOpen,
     AngleBracketClose,
+    DoubleAngleBracketClose, // clang parses ">>" as one token, even if it's closing a nested template
     TernaryIf,
     TernaryElse,
 };

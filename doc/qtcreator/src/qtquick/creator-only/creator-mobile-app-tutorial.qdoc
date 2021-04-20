@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -68,8 +68,8 @@
     The main view of the application displays an SVG bubble image that moves
     around the screen when you tilt the device.
 
-    We use \e {Bluebubble.svg} in this tutorial, but you can  use any other
-    image or a QML type, instead.
+    We use \e {Bluebubble.svg} in this tutorial, but you can use any other
+    image or component, instead.
 
     To create the UI in the Design mode:
 
@@ -80,8 +80,9 @@
         \li In the \uicontrol Navigator, select \uicontrol Label and press
             \key Delete to delete it.
 
-        \li In \uicontrol Library > \uicontrol {QML Types}, select
-            \uicontrol Rectangle and drag and drop it to  \e Window
+        \li In \uicontrol Library > \uicontrol Components >
+            \uicontrol {Default Components} > \uicontrol Basic, select
+            \uicontrol Rectangle and drag-and-drop it to \e Window
             in \uicontrol Navigator.
 
         \li Select the rectangle in \uicontrol Navigator to edit its properties:
@@ -101,8 +102,9 @@
             \endlist
 
                 \li Select \uicontrol Library > \uicontrol Assets >
-                    \uicontrol {Add New Assets} to locate Bluebubble.svg
-                    (or your own image) and add it to the project folder.
+                    \inlineimage plus.png
+                    to locate Bluebubble.svg (or your own image) and add it to
+                    the project folder.
                 \li Drag and drop the image from \uicontrol Assets to
                     \e mainWindow in \uicontrol Navigator.
 

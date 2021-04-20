@@ -61,6 +61,7 @@ public:
         VirtualFunctionDeclarationUse,
         AngleBracketOpen,
         AngleBracketClose,
+        DoubleAngleBracketClose,
         TernaryIf,
         TernaryElse,
     };

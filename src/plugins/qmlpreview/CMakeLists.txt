@@ -1,8 +1,11 @@
 find_package(Qt5 COMPONENTS QmlDebug REQUIRED)
 
 add_qtc_plugin(QmlPreview
-  DEPENDS QmlDebug QmlJS
-  PLUGIN_DEPENDS Core ProjectExplorer QmlJSTools QtSupport ResourceEditor QmlProjectManager
+  PUBLIC_DEPENDS QmlDebug
+  DEPENDS QmlJS
+  PLUGIN_DEPENDS
+    Core ProjectExplorer QmlJSTools QtSupport
+    ResourceEditor QmlProjectManager
   SOURCES
     qmlpreviewclient.cpp qmlpreviewclient.h
     qmlpreviewconnectionmanager.cpp qmlpreviewconnectionmanager.h
@@ -34,6 +37,6 @@ find_file(have_qml_debug_translation_protocol
 )
 extend_qtc_plugin(QmlPreview
   CONDITION have_qml_debug_translation_protocol
-  PUBLIC_DEPENDS Qt5::QmlDebugPrivate
+  DEPENDS Qt5::QmlDebugPrivate
   PUBLIC_DEFINES "FOUND_QML_DEBUG_TRANSLATION_PROTOCOL"
 )

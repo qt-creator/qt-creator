@@ -45,7 +45,7 @@
     \l {Using Materials and Shaders}{materials}. If your scene did not contain
     them, you can add the corresponding \l {Using 3D Components}{Qt Quick 3D}
     components from \l Library > \uicontrol Components > \inlineimage plus.png
-    > \uicontrol QtQuick3D > \uicontrol {Qt Quick 3D}.
+    > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D}.
 
     You can use the \l{Summary of the 3D Editor Toolbar Buttons}{toolbar buttons}
     to \e transform 3D components and manipulate the 3D scene. Transformation
@@ -116,11 +116,11 @@
     \image studio-3d-editor-axis-helper.png "Axis helper in 3D Editor"
 
     You can use scene cameras (2) to view the \uicontrol View3D component from a
-    specific angle in \l {Form Editor} while editing scenes. Different
-    types of cameras are available in \uicontrol Library > \uicontrol Components
-    > \uicontrol QtQuick3D > \uicontrol {Qt Quick 3D}. For more information about
-    using cameras in the scene, the available camera types, and their properties,
-    see \l{Using Scene Camera}.
+    specific angle in \l {Form Editor} while editing scenes. Different types of
+    cameras are available in \uicontrol Library > \uicontrol Components
+    > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D}. For more information
+    about using cameras in the scene, the available camera types, and their
+    properties, see \l{Using Scene Camera}.
 
     \section1 Using Global and Local Orientation
 

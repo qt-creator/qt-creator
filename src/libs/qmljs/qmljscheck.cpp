@@ -565,34 +565,12 @@ private:
 class IdsThatShouldNotBeUsedInDesigner  : public QStringList
 {
 public:
-    IdsThatShouldNotBeUsedInDesigner() : QStringList({"top",
-                                                      "bottom",
-                                                      "left",
-                                                      "right",
-                                                      "width",
-                                                      "height",
-                                                      "x",
-                                                      "y",
-                                                      "opacity",
-                                                      "parent",
-                                                      "item",
-                                                      "flow",
-                                                      "color",
-                                                      "margin",
-                                                      "padding",
-                                                      "border",
-                                                      "font",
-                                                      "text",
-                                                      "source",
-                                                      "state",
-                                                      "visible",
-                                                      "focus",
-                                                      "data",
-                                                      "clip",
-                                                      "layer",
-                                                      "scale",
-                                                      "enabled",
-                                                      "anchors"})
+    IdsThatShouldNotBeUsedInDesigner()
+        : QStringList({"top",   "bottom", "left",    "right",   "width",  "height",
+                       "x",     "y",      "opacity", "parent",  "item",   "flow",
+                       "color", "margin", "padding", "print",   "border", "font",
+                       "text",  "source", "state",   "visible", "focus",  "data",
+                       "clip",  "layer",  "scale",   "enabled", "anchors"})
     {}
 };
 

@@ -431,8 +431,10 @@ void ItemLibraryWidget::removeImport(const QString &importUrl)
     QTC_ASSERT(m_model, return);
 
     ItemLibraryImport *importSection = m_itemLibraryModel->importByUrl(importUrl);
-    if (importSection)
+    if (importSection) {
+        importSection->showAllCategories();
         m_model->changeImports({}, {importSection->importEntry()});
+    }
 }
 
 void ItemLibraryWidget::addImportForItem(const QString &importUrl)

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -40,13 +40,16 @@
     To add fonts:
 
     \list 1
-        \li Select \uicontrol Library > \uicontrol Assets >
-            \uicontrol {Add New Assets}.
-        \li Browse to the folder that contains the font files and select them.
-        \li Enter the name of the directory to save the fonts.
+        \li Select \uicontrol Library > \l Assets
+         > \inlineimage plus.png
+         .
+        \li Browse to the folder that contains the font files and select them,
+            and then select \uicontrol Open.
+        \li Select the location where the file will be saved in the
+            \uicontrol {Add Resources} dialog.
         \li Select \uicontrol OK to save the fonts.
     \endlist
 
     The fonts are added to the list of fonts for the \uicontrol Font property
-    in \uicontrol Properties.
+    in \l Properties.
 */

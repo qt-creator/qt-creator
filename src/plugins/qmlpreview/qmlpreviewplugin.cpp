@@ -105,6 +105,13 @@ static void defaultFpsHandler(quint16 frames[8])
     Core::MessageManager::writeSilently(QString::fromLatin1("QML preview: %1 fps").arg(frames[0]));
 }
 
+static std::unique_ptr<QmlDebugTranslationClient> defaultCreateDebugTranslationClientMethod(QmlDebug::QmlDebugConnection *connection)
+{
+    auto client = std::make_unique<QmlPreview::QmlDebugTranslationClient>(connection);
+    return client;
+};
+
+
 class QmlPreviewPluginPrivate : public QObject
 {
 public:
@@ -198,6 +205,7 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
     m_fileLoader = &defaultFileLoader;
     m_fileClassifer = &defaultFileClassifier;
     m_fpsHandler = &defaultFpsHandler;
+    m_createDebugTranslationClientMethod = &defaultCreateDebugTranslationClientMethod;
 
     Core::ActionContainer *menu = Core::ActionManager::actionContainer(
                 Constants::M_BUILDPROJECT);

@@ -35,8 +35,8 @@
     the time of writing.
 
     To develop for MCUs, \l{Using Project Wizards}{create an MCU project}. Only
-    the components available on MCUs are displayed in the \uicontrol Components
-    tab in \l Library. Only a subset of properties is supported for the
+    the components available on MCUs are displayed in \l Library >
+    \uicontrol Components. Only a subset of properties is supported for the
     supported components. The properties that are not available on MCUs are
     marked in the \l Properties view by enclosing them in square brackets.
 

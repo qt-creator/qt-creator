@@ -29,6 +29,7 @@ import welcome 1.0
 import StudioFonts 1.0
 
 Item {
+    id: root
     visible: true
     width: 270
     height: 175
@@ -36,6 +37,8 @@ Item {
     property alias labelText: label.text
 
     property alias downloadIcon: downloadCloud.visible
+
+    signal clicked()
 
     onVisibleChanged: {
         animateOpacity.start()
@@ -91,6 +94,8 @@ Item {
                 rectangle.color = "#262728"
                 label.color = "#686868"
             }
+
+            onClicked: root.clicked()
 
             Image {
                 id: downloadCloud

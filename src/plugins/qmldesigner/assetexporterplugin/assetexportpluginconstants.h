@@ -54,6 +54,7 @@ const char HeightTag[] = "height";
 
 const char MetadataTag[] = "metadata";
 const char ChildrenTag[] = "children";
+const char CustomIdTag[] = "customId";
 const char QmlIdTag[] = "qmlId";
 const char ExportTypeTag[] = "exportType";
 const char ExportTypeComponent[] = "component";

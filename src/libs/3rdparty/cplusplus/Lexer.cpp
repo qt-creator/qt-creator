@@ -926,10 +926,14 @@ bool Lexer::scanOptionalIntegerSuffix(bool allowU)
         yyinp();
         if (_yychar == 'l')
             yyinp();
+        if (_yychar == 'u' || _yychar == 'U')
+            yyinp();
         return true;
     case 'L':
         yyinp();
         if (_yychar == 'L')
+            yyinp();
+        if (_yychar == 'u' || _yychar == 'U')
             yyinp();
         return true;
     default:

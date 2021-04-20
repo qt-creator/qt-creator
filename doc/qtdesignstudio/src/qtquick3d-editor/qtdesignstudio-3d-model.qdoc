@@ -41,8 +41,8 @@
     component is shaded by adding \l{Using 3D Materials}{materials} to the model.
 
     You can drag-and-drop a model from \uicontrol Library > \uicontrol Components
-    > \uicontrol QtQuick3D > \uicontrol {Qt Quick 3D} to \l {3D Editor} or to
-    \l Navigator > \uicontrol {Scene Environment} > \uicontrol Scene. If the
+    > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D} to \l {3D Editor} or
+    to \l Navigator > \uicontrol {Scene Environment} > \uicontrol Scene. If the
     models are not displayed in \uicontrol Library, you should add the
     \uicontrol QtQuick3D module to your project, as described in
     \l {Adding and Removing Modules}.

@@ -85,7 +85,7 @@
             editor for your system, and the \c sort tool are preconfigured for
             use. You can change their default configurations and configure new
             tools.
-        \li \l{Managing Data Collection Settings}
+        \li \l{Managing Data Collection}
 
             \if defined (qtcreator)
             You can enable \QC to report crashes automatically. If you agreed to
@@ -96,7 +96,8 @@
             You can enable \QDS to report crashes automatically. If you enable
             the telemetry plugin, you can turn on the pseudonymous user
             statistics collection and determine what type of data is collected
-            and transmitted to the backend storage.
+            and transmitted to the backend storage. You can also modify
+            settings for collecting user feedback.
             \endif
     \endlist
 */

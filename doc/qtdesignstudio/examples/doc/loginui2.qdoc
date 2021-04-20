@@ -119,7 +119,7 @@
             \inlineimage plus.png
             button to add the \l {Qt Quick Controls} module to the project:
             \image loginui2-imports.png
-        \li Drag and drop two instances of the \uicontrol {Text Field}
+        \li Drag-and-drop two instances of the \uicontrol {Text Field}
             component from the \uicontrol {Qt Quick Controls} tab to
             \l {Form Editor}.
         \li Select one of the text fields in \l Navigator, and

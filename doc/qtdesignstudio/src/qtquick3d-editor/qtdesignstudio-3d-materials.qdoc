@@ -37,7 +37,7 @@
 
     To apply a 3D material to a component, you should first delete the default
     material and then drag-and-drop a new material from \l Library >
-    \uicontrol Components > \uicontrol QtQuick3D >
+    \uicontrol Components > \uicontrol {Qt Quick 3D Materials} >
     \uicontrol {Qt Quick 3D Materials} to a model component in \l Navigator.
     The materials you add to the model are listed in the model component's
     \l Properties view. You can apply the same material to another component as

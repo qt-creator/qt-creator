@@ -81,8 +81,17 @@
     \image qtquick-designer-text-properties.png "Text component properties"
 
     To display custom fonts in the list of available fonts in the
-    \uicontrol Font field, add them in the \uicontrol Assets tab
-    of \uicontrol Library. For more information, see \l {Assets}.
+    \uicontrol Font field, you need to first add them to \l Library:
+
+    \list 1
+        \li Select \uicontrol Library > \l Assets
+            > \inlineimage plus.png
+            .
+        \li Select the font file, and then select \uicontrol Open.
+        \li Select the location where the file will be saved in the
+            \uicontrol {Add Resources} dialog.
+        \li Select \uicontrol OK.
+    \endlist
 
     You can use the buttons in the \uicontrol {Font style} group to emphasize
     text by making it bold, italic, underlined, or strikethrough.

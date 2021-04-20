@@ -869,6 +869,7 @@ static const char *highlightingTypeToCStringLiteral(HighlightingType type)
         RETURN_TEXT_FOR_CASE(TemplateTemplateParameter);
         RETURN_TEXT_FOR_CASE(AngleBracketOpen);
         RETURN_TEXT_FOR_CASE(AngleBracketClose);
+        RETURN_TEXT_FOR_CASE(DoubleAngleBracketClose);
         RETURN_TEXT_FOR_CASE(TernaryIf);
         RETURN_TEXT_FOR_CASE(TernaryElse);
     }

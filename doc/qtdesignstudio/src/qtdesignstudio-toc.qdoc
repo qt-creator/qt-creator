@@ -191,6 +191,7 @@
                         \li \l{Searching with the Locator}
                     \endlist
                 \li \l{Refactoring}
+                \li \l{Applying Refactoring Actions}
                 \li \l{Configuring the Editor}
                     \list
                         \li \l{Specifying Text Editor Settings}
@@ -210,7 +211,12 @@
                     \li \l{Profiling QML Applications}
                 \endlist
             \li \l{Using External Tools}
-            \li \l{Managing Data Collection Settings}
+            \li \l{Managing Data Collection}
+                \list
+                    \li \l {Collecting Usage Statistics}
+                    \li \l {Collecting User Feedback}
+                    \li \l {Reporting Crashes}
+                \endlist
         \endlist
         \li \l{Help}
         \list

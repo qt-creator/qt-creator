@@ -40,6 +40,7 @@ GridView {
         imageSource: typeof(thumbnail) === "undefined" ? "images/thumbnail_test.png" : thumbnail;
         labelText: displayName
         downloadIcon: typeof(showDownload) === "undefined" ? false : showDownload;
+        onClicked: root.itemSelected(index, root.model.get(index))
 
         SequentialAnimation {
             id: animation
@@ -61,11 +62,6 @@ GridView {
                 duration: 200
                 easing.type: Easing.InOutExpo
             }
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: root.itemSelected(index, root.model.get(index))
         }
     }
 }

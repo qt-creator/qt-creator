@@ -116,18 +116,17 @@ bool ItemLibraryImport::updateCategoryVisibility(const QString &searchText, bool
     *changed = false;
 
     for (const auto &category : m_categoryModel.categorySections()) {
-        category->setCategoryVisible(ItemLibraryModel::loadCategoryVisibleState(category->categoryName()));
+        bool categoryChanged = false;
+        bool hasVisibleItems = category->updateItemVisibility(searchText, &categoryChanged);
+        categoryChanged |= category->setVisible(hasVisibleItems);
 
-        if (!searchText.isEmpty() || category->isCategoryVisible()) {
-            bool categoryChanged = false;
-            bool hasVisibleItems = category->updateItemVisibility(searchText, &categoryChanged);
-            categoryChanged |= category->setVisible(hasVisibleItems);
+        *changed |= categoryChanged;
 
-            *changed |= categoryChanged;
+        if (hasVisibleItems)
+            hasVisibleCategories = true;
 
-            if (hasVisibleItems)
-                hasVisibleCategories = true;
-        }
+        if (searchText.isEmpty())
+            category->setCategoryVisible(ItemLibraryModel::loadCategoryVisibleState(category->categoryName()));
     }
 
     return hasVisibleCategories;

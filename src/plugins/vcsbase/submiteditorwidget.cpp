@@ -519,8 +519,10 @@ void SubmitEditorWidget::verifyDescription()
     int secondLineLength = 0;
     if (subjectLength >= 0) {
         const int secondLineStart = subjectLength + 1;
-        secondLineLength = d->m_description.indexOf(newLine, secondLineStart)
-                - secondLineStart;
+        int secondLineEnd = d->m_description.indexOf(newLine, secondLineStart);
+        if (secondLineEnd == -1)
+            secondLineEnd = descriptionLength;
+        secondLineLength = secondLineEnd - secondLineStart;
     } else {
         subjectLength = descriptionLength;
     }

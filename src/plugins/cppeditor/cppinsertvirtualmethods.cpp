@@ -783,6 +783,7 @@ public:
         printer.showFunctionSignatures = true;
         printer.showReturnTypes = true;
         printer.showArgumentNames = true;
+        printer.showTemplateParameters = true;
         Utils::ChangeSet headerChangeSet;
         const CppRefactoringChanges refactoring(snapshot());
         const QString filename = currentFile()->fileName();
@@ -1906,7 +1907,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_implementationFile()
     original =
         "class BaseA {\n"
         "public:\n"
-        "    virtual int a() = 0;\n"
+        "    virtual int a(const std::vector<int> &v) = 0;\n"
         "};\n\n"
         "class Derived : public Bas@eA {\n"
         "public:\n"
@@ -1915,7 +1916,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_implementationFile()
     expected =
         "class BaseA {\n"
         "public:\n"
-        "    virtual int a() = 0;\n"
+        "    virtual int a(const std::vector<int> &v) = 0;\n"
         "};\n\n"
         "class Derived : public BaseA {\n"
         "public:\n"
@@ -1923,7 +1924,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_implementationFile()
         "\n"
         "    // BaseA interface\n"
         "public:\n"
-        "    virtual int a();\n"
+        "    virtual int a(const std::vector<int> &v);\n"
         "};\n";
     testFiles << Tests::QuickFixTestDocument::create("file.h", original, expected);
 
@@ -1932,7 +1933,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_implementationFile()
     expected =
         "#include \"file.h\"\n"
         "\n\n"
-        "int Derived::a()\n"
+        "int Derived::a(const std::vector<int> &v)\n"
         "{\n}";
     testFiles << Tests::QuickFixTestDocument::create("file.cpp", original, expected);
 

@@ -31,10 +31,11 @@
     \title Using 3D Components
 
     To use 3D components, you need to first add the required modules to your
-    project in \l Library. For more information, see
-    \l{Adding and Removing Modules}. You can then add 3D components to your scene
-    by dragging-and-dropping them from \uicontrol Library > \uicontrol Components >
-    \uicontrol QtQuick3D group to \l {3D Editor} or to a 3D view in \l Navigator.
+    project in \l Library > \uicontrol Components > \inlineimage plus.png
+    . For more information, see \l{Adding and Removing Modules}. You can then
+    add 3D components to your scene by dragging-and-dropping them from
+    \uicontrol Library > \uicontrol Components > \uicontrol {Qt Quick 3D} to
+    \l {3D Editor} or to a 3D view in \l Navigator.
 
     \note Using 3D components will affect the performance of your UI. You should
     not use 3D components if the same results can be achieved using 2D
@@ -46,8 +47,8 @@
     \section1 Getting Started Videos
 
     The following video shows you how to add the components included in the
-    \uicontrol QtQuick3D module, such as 3D models, cameras, and lights, to your
-    scene:
+    \uicontrol {Qt Quick 3D} module, such as 3D models, cameras, and lights,
+    to your scene:
     \youtube u3kZJjlk3CY
 
     See the next video to learn more about the custom shader utilities, 3D
