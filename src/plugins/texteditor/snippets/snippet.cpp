@@ -70,6 +70,22 @@ public:
     }
 };
 
+QString SnippetParseError::htmlMessage() const
+{
+    QString message = errorMessage;
+    if (pos < 0 || pos > 50)
+        return message;
+    QString detail = text.left(50);
+    if (detail != text)
+        detail.append("...");
+    detail.replace(QChar::Space, "&nbsp;");
+    message.append("<br><code>" + detail + "<br>");
+    for (int i = 0; i < pos; ++i)
+        message.append("&nbsp;");
+    message.append("^</code>");
+    return message;
+}
+
 // --------------------------------------------------------------------
 // Snippet:
 // --------------------------------------------------------------------
@@ -189,7 +205,12 @@ QString Snippet::generateTip() const
                                                        {'<', "&lt;"},
                                                        {'>', "&gt;"}};
 
-    ParsedSnippet parsedSnippet = Snippet::parse(m_content);
+    SnippetParseResult result = Snippet::parse(m_content);
+
+    if (Utils::holds_alternative<SnippetParseError>(result))
+        return Utils::get<SnippetParseError>(result).htmlMessage();
+    QTC_ASSERT(Utils::holds_alternative<ParsedSnippet>(result), return {});
+    auto parsedSnippet = Utils::get<ParsedSnippet>(result);
 
     QString tip("<nobr>");
     int pos = 0;
@@ -215,7 +236,7 @@ QString Snippet::generateTip() const
     return tip;
 }
 
-ParsedSnippet Snippet::parse(const QString &snippet)
+SnippetParseResult Snippet::parse(const QString &snippet)
 {
     static UppercaseMangler ucMangler;
     static LowercaseMangler lcMangler;
@@ -228,15 +249,10 @@ ParsedSnippet Snippet::parse(const QString &snippet)
             = Utils::TemplateEngine::processText(Utils::globalMacroExpander(), snippet,
                                                  &errorMessage);
 
-    result.success = errorMessage.isEmpty();
-    if (!result.success) {
-        result.text = snippet;
-        result.errorMessage = errorMessage;
-        return result;
-    }
+    if (!errorMessage.isEmpty())
+        return {SnippetParseError{errorMessage, {}, -1}};
 
     const int count = preprocessedSnippet.count();
-    bool success = true;
     int start = -1;
     NameMangler *mangler = nullptr;
 
@@ -260,8 +276,9 @@ ParsedSnippet Snippet::parse(const QString &snippet)
         }
 
         if (mangler) {
-            success = false;
-            break;
+            return SnippetParseResult{SnippetParseError{tr("Expected delimiter after mangler id"),
+                                                        preprocessedSnippet,
+                                                        i}};
         }
 
         if (current == QLatin1Char(':') && start >= 0) {
@@ -272,8 +289,11 @@ ParsedSnippet Snippet::parse(const QString &snippet)
             } else if (next == QLatin1Char('c')) {
                 mangler = &tcMangler;
             } else {
-                success = false;
-                break;
+                return SnippetParseResult{
+                    SnippetParseError{tr("Expected mangler id 'l'(lowercase), 'u'(uppercase), "
+                                         "or 'c'(titlecase) after colon"),
+                                      preprocessedSnippet,
+                                      i}};
             }
             ++i;
             continue;
@@ -288,17 +308,12 @@ ParsedSnippet Snippet::parse(const QString &snippet)
         result.text.append(current);
     }
 
-    if (start >= 0)
-        success = false;
-
-    result.success = success;
-
-    if (!success) {
-        result.ranges.clear();
-        result.text = preprocessedSnippet;
+    if (start >= 0) {
+        return SnippetParseResult{
+            SnippetParseError{tr("Missing closing variable delimiter"), result.text, start}};
     }
 
-    return result;
+    return SnippetParseResult(result);
 }
 
 #ifdef WITH_TESTS
@@ -418,17 +433,19 @@ void Internal::TextEditorPlugin::testSnippetParsing()
     Q_ASSERT(ranges_start.count() == ranges_length.count()); // sanity check for the test data
     Q_ASSERT(ranges_start.count() == ranges_mangler.count()); // sanity check for the test data
 
-    ParsedSnippet result = Snippet::parse(input);
+    SnippetParseResult result = Snippet::parse(input);
+    QCOMPARE(Utils::holds_alternative<ParsedSnippet>(result), success);
 
-    QCOMPARE(result.text, text);
-    QCOMPARE(result.success, success);
-    QCOMPARE(result.ranges.count(), ranges_start.count());
+    ParsedSnippet snippet = Utils::get<ParsedSnippet>(result);
+
+    QCOMPARE(snippet.text, text);
+    QCOMPARE(snippet.ranges.count(), ranges_start.count());
     for (int i = 0; i < ranges_start.count(); ++i) {
-        QCOMPARE(result.ranges.at(i).start, ranges_start.at(i));
-        QCOMPARE(result.ranges.at(i).length, ranges_length.at(i));
+        QCOMPARE(snippet.ranges.at(i).start, ranges_start.at(i));
+        QCOMPARE(snippet.ranges.at(i).length, ranges_length.at(i));
         Utils::Id id = NOMANGLER_ID;
-        if (result.ranges.at(i).mangler)
-            id = result.ranges.at(i).mangler->id();
+        if (snippet.ranges.at(i).mangler)
+            id = snippet.ranges.at(i).mangler->id();
         QCOMPARE(id, ranges_mangler.at(i));
     }
 }

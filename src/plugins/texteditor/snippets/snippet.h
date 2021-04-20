@@ -28,6 +28,7 @@
 #include <texteditor/texteditor_global.h>
 
 #include <utils/id.h>
+#include <utils/variant.h>
 
 #include <QChar>
 #include <QList>
@@ -48,8 +49,6 @@ class TEXTEDITOR_EXPORT ParsedSnippet
 {
 public:
     QString text;
-    QString errorMessage;
-    bool success;
     struct Range {
         Range(int s, int l, NameMangler *m) : start(s), length(l), mangler(m) { }
         int start;
@@ -59,8 +58,21 @@ public:
     QList<Range> ranges;
 };
 
+class TEXTEDITOR_EXPORT SnippetParseError
+{
+public:
+    QString errorMessage;
+    QString text;
+    int pos;
+
+    QString htmlMessage() const;
+};
+
+using SnippetParseResult = Utils::variant<ParsedSnippet, SnippetParseError>;
+
 class TEXTEDITOR_EXPORT Snippet
 {
+    Q_DECLARE_TR_FUNCTIONS(Snippet)
 public:
     explicit Snippet(const QString &groupId = QString(), const QString &id = QString());
     ~Snippet();
@@ -91,7 +103,7 @@ public:
     static const QChar kVariableDelimiter;
     static const QChar kEscapeChar;
 
-    static ParsedSnippet parse(const QString &snippet);
+    static SnippetParseResult parse(const QString &snippet);
 
 private:
     bool m_isRemoved = false;

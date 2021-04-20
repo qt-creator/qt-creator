@@ -2700,15 +2700,14 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
 
 void TextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg, const QString &snippet)
 {
-    ParsedSnippet data = Snippet::parse(snippet);
-
-    if (!data.success) {
-        QString message = QString::fromLatin1("Cannot parse snippet \"%1\".").arg(snippet);
-        if (!data.errorMessage.isEmpty())
-            message += QLatin1String("\nParse error: ") + data.errorMessage;
-        QMessageBox::warning(this, QLatin1String("Snippet Parse Error"), message);
+    SnippetParseResult result = Snippet::parse(snippet);
+    if (Utils::holds_alternative<SnippetParseError>(result)) {
+        const auto &error = Utils::get<SnippetParseError>(result);
+        QMessageBox::warning(this, QLatin1String("Snippet Parse Error"), error.htmlMessage());
         return;
     }
+    QTC_ASSERT(Utils::holds_alternative<ParsedSnippet>(result), return);
+    ParsedSnippet data = Utils::get<ParsedSnippet>(result);
 
     QTextCursor cursor = cursor_arg;
     cursor.beginEditBlock();
