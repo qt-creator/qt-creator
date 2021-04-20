@@ -26,10 +26,10 @@
 #include "clangrefactoringengine.h"
 #include "clangeditordocumentprocessor.h"
 
+#include "clangdclient.h"
 #include "clangmodelmanagersupport.h"
 
 #include <cpptools/cppmodelmanager.h>
-#include <languageclient/client.h>
 #include <languageclient/languageclientsymbolsupport.h>
 #include <projectexplorer/session.h>
 #include <utils/textutils.h>
@@ -91,12 +91,8 @@ void RefactoringEngine::findUsages(const CppTools::CursorInEditor &cursor,
 {
     ProjectExplorer::Project * const project
             = ProjectExplorer::SessionManager::projectForFile(cursor.filePath());
-    LanguageClient::Client * const client
-            = ClangModelManagerSupport::instance()->clientForProject(project);
-    if (!client || client->state() != LanguageClient::Client::Initialized) {
-        // TODO: Also forward to built-in if index is not ready.
-        //       This requires us to keep track of workDone status in the client.
-        //       Related: Also allow to override the server string for progress info
+    ClangdClient * const client = ClangModelManagerSupport::instance()->clientForProject(project);
+    if (!client || !client->isFullyIndexed()) {
         CppTools::CppModelManager::builtinRefactoringEngine()
                 ->findUsages(cursor, std::move(callback));
         return;

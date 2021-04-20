@@ -47,11 +47,10 @@ class FollowSymbolInterface;
 class RefactoringEngineInterface;
 } // namespace CppTools
 
-namespace LanguageClient { class Client; }
-
 namespace ClangCodeModel {
 namespace Internal {
 
+class ClangdClient;
 class ClangProjectSettings;
 
 class ClangModelManagerSupport:
@@ -79,7 +78,7 @@ public:
 
     ClangProjectSettings &projectSettings(ProjectExplorer::Project *project) const;
 
-    LanguageClient::Client *clientForProject(const ProjectExplorer::Project *project);
+    ClangdClient *clientForProject(const ProjectExplorer::Project *project);
 
     static ClangModelManagerSupport *instance();
 
@@ -124,8 +123,7 @@ private:
 
     void updateLanguageClient(ProjectExplorer::Project *project,
                               const CppTools::ProjectInfo &projectInfo);
-    LanguageClient::Client *createClient(ProjectExplorer::Project *project,
-                                         const Utils::FilePath &jsonDbDir);
+    ClangdClient *createClient(ProjectExplorer::Project *project, const Utils::FilePath &jsonDbDir);
 
 private:
     UiHeaderOnDiskManager m_uiHeaderOnDiskManager;

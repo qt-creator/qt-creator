@@ -1250,6 +1250,8 @@ void Client::handleMethod(const QString &method, const MessageId &id, const ICon
             if (!params->isValid())
                 logError(*params);
             m_progressManager.handleProgress(*params);
+            if (ProgressManager::isProgressEndMessage(*params))
+                emit workDone(params->token());
         }
     } else if (id.isValid()) {
         Response<JsonObject, JsonObject> response(id);

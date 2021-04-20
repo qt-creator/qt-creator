@@ -30,11 +30,14 @@
 #include <languageclient/languageclientinterface.h>
 
 using namespace LanguageClient;
+using namespace LanguageServerProtocol;
 
 namespace ClangCodeModel {
 namespace Internal {
 
 static Q_LOGGING_CATEGORY(clangdLog, "qtc.clangcodemodel.clangd", QtWarningMsg);
+
+static QString indexingToken() { return "backgroundIndexProgress"; }
 
 static BaseClientInterface *clientInterface(const Utils::FilePath &jsonDbDir)
 {
@@ -63,8 +66,13 @@ ClangdClient::ClangdClient(ProjectExplorer::Project *project, const Utils::FileP
     setClientCapabilities(caps);
     setLocatorsEnabled(false);
     setDocumentActionsEnabled(false);
-    setProgressTitleForToken("backgroundIndexProgress", tr("Parsing C/C++ Files (clangd)"));
+    setProgressTitleForToken(indexingToken(), tr("Parsing C/C++ Files (clangd)"));
     setCurrentProject(project);
+    connect(this, &Client::workDone, this, [this](const ProgressToken &token) {
+        const QString * const val = Utils::get_if<QString>(&token);
+        if (val && *val == indexingToken())
+            m_isFullyIndexed = true;
+    });
     start();
 }
 

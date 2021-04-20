@@ -25,6 +25,7 @@
 
 #include "clanggloballocatorfilters.h"
 
+#include "clangdclient.h"
 #include "clangmodelmanagersupport.h"
 
 #include <cpptools/cppclassesfilter.h>

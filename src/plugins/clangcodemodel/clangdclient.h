@@ -37,6 +37,11 @@ class ClangdClient : public LanguageClient::Client
     Q_OBJECT
 public:
     ClangdClient(ProjectExplorer::Project *project, const Utils::FilePath &jsonDbDir);
+
+    bool isFullyIndexed() const { return m_isFullyIndexed; }
+
+private:
+    bool m_isFullyIndexed = false;
 };
 
 } // namespace Internal

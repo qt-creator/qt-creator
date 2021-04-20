@@ -326,7 +326,7 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
                                                 CompilationDbPurpose::CodeModel));
 }
 
-LanguageClient::Client *ClangModelManagerSupport::clientForProject(
+ClangdClient *ClangModelManagerSupport::clientForProject(
         const ProjectExplorer::Project *project)
 {
     const QList<Client *> clients = Utils::filtered(
@@ -337,11 +337,11 @@ LanguageClient::Client *ClangModelManagerSupport::clientForProject(
                 && c->state() != Client::Shutdown;
     });
     QTC_CHECK(clients.size() <= 1);
-    return clients.empty() ? nullptr : clients.first();
+    return clients.empty() ? nullptr : qobject_cast<ClangdClient *>(clients.first());
 }
 
-Client *ClangModelManagerSupport::createClient(ProjectExplorer::Project *project,
-                                               const Utils::FilePath &jsonDbDir)
+ClangdClient *ClangModelManagerSupport::createClient(ProjectExplorer::Project *project,
+                                                     const Utils::FilePath &jsonDbDir)
 {
     return new ClangdClient(project, jsonDbDir);
 }

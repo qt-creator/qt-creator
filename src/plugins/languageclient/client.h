@@ -178,6 +178,7 @@ signals:
     void initialized(const LanguageServerProtocol::ServerCapabilities &capabilities);
     void capabilitiesChanged(const DynamicCapabilities &capabilities);
     void documentUpdated(TextEditor::TextDocument *document);
+    void workDone(const LanguageServerProtocol::ProgressToken &token);
     void finished();
 
 protected:

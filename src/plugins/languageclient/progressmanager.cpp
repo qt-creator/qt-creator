@@ -61,6 +61,11 @@ void ProgressManager::setTitleForToken(const LanguageServerProtocol::ProgressTok
     m_titles.insert(token, message);
 }
 
+bool ProgressManager::isProgressEndMessage(const LanguageServerProtocol::ProgressParams &params)
+{
+    return Utils::holds_alternative<WorkDoneProgressEnd>(params.value());
+}
+
 Utils::Id languageClientProgressId(const ProgressToken &token)
 {
     constexpr char k_LanguageClientProgressId[] = "LanguageClient.ProgressId.";

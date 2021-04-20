@@ -49,6 +49,8 @@ public:
     void setTitleForToken(const LanguageServerProtocol::ProgressToken &token,
                           const QString &message);
 
+    static bool isProgressEndMessage(const LanguageServerProtocol::ProgressParams &params);
+
 private:
     void beginProgress(const LanguageServerProtocol::ProgressToken &token,
                        const LanguageServerProtocol::WorkDoneProgressBegin &begin);
