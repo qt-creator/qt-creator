@@ -404,12 +404,6 @@ QGroupBox *Android::Internal::AndroidManifestEditorWidget::createApplicationGrou
     m_activityNameLineEdit = new QLineEdit(applicationGroupBox);
     formLayout->addRow(tr("Activity name:"), m_activityNameLineEdit);
 
-    m_targetLineEdit = new QComboBox(applicationGroupBox);
-    m_targetLineEdit->setEditable(true);
-    m_targetLineEdit->setDuplicatesEnabled(true);
-    m_targetLineEdit->installEventFilter(this);
-    formLayout->addRow(tr("Run:"), m_targetLineEdit);
-
     m_styleExtractMethod = new QComboBox(applicationGroupBox);
     formLayout->addRow(tr("Style extraction:"), m_styleExtractMethod);
     const QList<QStringList> styleMethodsMap = {
@@ -466,8 +460,6 @@ QGroupBox *Android::Internal::AndroidManifestEditorWidget::createApplicationGrou
     connect(m_appNameLineEdit, &QLineEdit::textEdited,
             this, [this]() { setDirty(); });
     connect(m_activityNameLineEdit, &QLineEdit::textEdited,
-            this, [this]() { setDirty(); });
-    connect(m_targetLineEdit, &QComboBox::currentTextChanged,
             this, [this]() { setDirty(); });
     connect(m_styleExtractMethod,
             QOverload<int>::of(&QComboBox::currentIndexChanged),
@@ -532,16 +524,6 @@ void AndroidManifestEditorWidget::initializePage()
     insertWidget(Source, m_textEditorWidget);
 }
 
-bool AndroidManifestEditorWidget::eventFilter(QObject *obj, QEvent *event)
-{
-    if (obj == m_targetLineEdit) {
-        if (event->type() == QEvent::FocusIn)
-            QTimer::singleShot(0, this, &AndroidManifestEditorWidget::updateTargetComboBox);
-    }
-
-    return QWidget::eventFilter(obj, event);
-}
-
 void AndroidManifestEditorWidget::focusInEvent(QFocusEvent *event)
 {
     if (currentWidget()) {
@@ -550,30 +532,6 @@ void AndroidManifestEditorWidget::focusInEvent(QFocusEvent *event)
         else
             currentWidget()->setFocus(event->reason());
     }
-}
-
-void AndroidManifestEditorWidget::updateTargetComboBox()
-{
-    QStringList items;
-    if (Target *target = androidTarget(m_textEditorWidget->textDocument()->filePath())) {
-        ProjectNode *root = target->project()->rootProjectNode();
-        root->forEachProjectNode([&items](const ProjectNode *projectNode) {
-            items << projectNode->targetApplications();
-        });
-        items.sort();
-    }
-
-    // QComboBox randomly resets what the user has entered
-    // if all rows are removed, thus we ensure that the current text
-    // is not removed by first adding it and then removing all old rows
-    // and then adding the new rows
-    QString text = m_targetLineEdit->currentText();
-    m_targetLineEdit->addItem(text);
-    while (m_targetLineEdit->count() > 1)
-        m_targetLineEdit->removeItem(0);
-    items.removeDuplicates();
-    items.removeAll(text);
-    m_targetLineEdit->addItems(items);
 }
 
 void AndroidManifestEditorWidget::updateAfterFileLoad()
@@ -877,11 +835,7 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
     enum SplashImageParseGuard {splashNone = 0, splash = 1, portraitSplash = 2, landscapeSplash = 4, splashDone = 8};
     int splashParseGuard = SplashImageParseGuard::splashNone;
     while (!metadataElem.isNull()) {
-        if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.lib_name")
-                && !(activityParseGuard & ActivityParseGuard::libName)) {
-            m_targetLineEdit->setEditText(metadataElem.attribute(QLatin1String("android:value")));
-            activityParseGuard |= ActivityParseGuard::libName;
-        } else if (metadataElem.attribute(QLatin1String("android:name"))
+        if (metadataElem.attribute(QLatin1String("android:name"))
                    == QLatin1String("android.app.extract_android_style")
                    && !(activityParseGuard & ActivityParseGuard::styleExtract)) {
             m_styleExtractMethod->setCurrentText(
@@ -1392,13 +1346,6 @@ void AndroidManifestEditorWidget::parseActivity(QXmlStreamReader &reader, QXmlSt
     while (!reader.atEnd()) {
         if (reader.isEndElement()) {
             parseSplashScreen(writer);
-            if (!found) {
-                writer.writeEmptyElement(QLatin1String("meta-data"));
-                writer.writeAttribute(QLatin1String("android:name"),
-                                      QLatin1String("android.app.lib_name"));
-                writer.writeAttribute(QLatin1String("android:value"),
-                                      m_targetLineEdit->currentText());
-            }
             writer.writeCurrentToken(reader);
             return;
         } else if (reader.isStartElement()) {
@@ -1429,12 +1376,7 @@ bool AndroidManifestEditorWidget::parseMetaData(QXmlStreamReader &reader, QXmlSt
     QStringList keys;
     QStringList values;
 
-    if (attributes.value(QLatin1String("android:name")) == QLatin1String("android.app.lib_name")) {
-        keys = QStringList("android:value");
-        values = QStringList(m_targetLineEdit->currentText());
-        result = modifyXmlStreamAttributes(attributes, keys, values);
-        found = true;
-    } else if (attributes.value(QLatin1String("android:name"))
+    if (attributes.value(QLatin1String("android:name"))
                == QLatin1String("android.app.extract_android_style")) {
         keys = QStringList("android:value");
         values = QStringList(m_styleExtractMethod->currentText());
