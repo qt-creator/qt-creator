@@ -26,6 +26,7 @@
 #include "clangmodelmanagersupport.h"
 
 #include "clangconstants.h"
+#include "clangdclient.h"
 #include "clangeditordocumentprocessor.h"
 #include "clangutils.h"
 #include "clangfollowsymbol.h"
@@ -47,8 +48,6 @@
 #include <cpptools/editordocumenthandle.h>
 #include <cpptools/projectinfo.h>
 
-#include <languageclient/client.h>
-#include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
 
 #include <texteditor/quickfix.h>
@@ -74,7 +73,6 @@ using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
 using namespace LanguageClient;
 
-static Q_LOGGING_CATEGORY(clangdLog, "qtc.clangcodemodel.clangd", QtWarningMsg);
 static ClangModelManagerSupport *m_instance = nullptr;
 
 static CppTools::CppModelManager *cppModelManager()
@@ -242,8 +240,6 @@ void ClangModelManagerSupport::connectToWidgetsMarkContextMenuRequested(QWidget 
     }
 }
 
-static QString clientName() { return "ccm-clangd"; }
-
 void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *project,
                                                     const CppTools::ProjectInfo &projectInfo)
 {
@@ -336,7 +332,7 @@ LanguageClient::Client *ClangModelManagerSupport::clientForProject(
     const QList<Client *> clients = Utils::filtered(
                 LanguageClientManager::clientsForProject(project),
                     [](const LanguageClient::Client *c) {
-        return c->name().startsWith(clientName())
+        return qobject_cast<const ClangdClient *>(c)
                 && c->state() != Client::ShutdownRequested
                 && c->state() != Client::Shutdown;
     });
@@ -347,29 +343,7 @@ LanguageClient::Client *ClangModelManagerSupport::clientForProject(
 Client *ClangModelManagerSupport::createClient(ProjectExplorer::Project *project,
                                                const Utils::FilePath &jsonDbDir)
 {
-    QString clangdArgs = "--index --background-index --limit-results=0";
-    if (!jsonDbDir.isEmpty())
-        clangdArgs += " --compile-commands-dir=" + jsonDbDir.toString();
-    if (clangdLog().isDebugEnabled())
-        clangdArgs += " --log=verbose --pretty";
-    const auto clientInterface = new StdIOClientInterface;
-    clientInterface->setExecutable(CppTools::codeModelSettings()->clangdFilePath().toString());
-    clientInterface->setArguments(clangdArgs);
-    const auto client = new Client(clientInterface);
-    client->setName(clientName());
-    LanguageFilter langFilter;
-    langFilter.mimeTypes = QStringList{"text/x-chdr", "text/x-c++hdr", "text/x-c++src",
-            "text/x-objc++src", "text/x-objcsrc"};
-    client->setSupportedLanguage(langFilter);
-    LanguageServerProtocol::ClientCapabilities caps = Client::defaultClientCapabilities();
-    caps.clearExperimental();
-    caps.clearTextDocument();
-    client->setClientCapabilities(caps);
-    client->setLocatorsEnabled(false);
-    client->setDocumentActionsEnabled(false);
-    client->setCurrentProject(project);
-    client->start();
-    return client;
+    return new ClangdClient(project, jsonDbDir);
 }
 
 void ClangModelManagerSupport::onEditorOpened(Core::IEditor *editor)

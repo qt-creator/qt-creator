@@ -55,6 +55,8 @@ QtcPlugin {
         "clangconstants.h",
         "clangcurrentdocumentfilter.cpp",
         "clangcurrentdocumentfilter.h",
+        "clangdclient.cpp",
+        "clangdclient.h",
         "clangdiagnosticfilter.cpp",
         "clangdiagnosticfilter.h",
         "clangdiagnosticmanager.cpp",
