@@ -55,6 +55,12 @@ void ProgressManager::handleProgress(const LanguageServerProtocol::ProgressParam
         endProgress(token, *end);
 }
 
+void ProgressManager::setTitleForToken(const LanguageServerProtocol::ProgressToken &token,
+                                         const QString &message)
+{
+    m_titles.insert(token, message);
+}
+
 Utils::Id languageClientProgressId(const ProgressToken &token)
 {
     constexpr char k_LanguageClientProgressId[] = "LanguageClient.ProgressId.";
@@ -71,8 +77,9 @@ void ProgressManager::beginProgress(const ProgressToken &token, const WorkDonePr
     auto interface = new QFutureInterface<void>();
     interface->reportStarted();
     interface->setProgressRange(0, 100); // LSP always reports percentage of the task
+    const QString title = m_titles.value(token, begin.title());
     Core::FutureProgress *progress = Core::ProgressManager::addTask(
-            interface->future(), begin.title(), languageClientProgressId(token));
+            interface->future(), title, languageClientProgressId(token));
     m_progress[token] = {progress, interface};
     reportProgress(token, begin);
 }

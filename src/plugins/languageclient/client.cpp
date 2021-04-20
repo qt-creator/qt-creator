@@ -1019,6 +1019,12 @@ void Client::setError(const QString &message)
     m_state = Error;
 }
 
+void Client::setProgressTitleForToken(const LanguageServerProtocol::ProgressToken &token,
+                                      const QString &message)
+{
+    m_progressManager.setTitleForToken(token, message);
+}
+
 void Client::handleMessage(const BaseMessage &message)
 {
     LanguageClientManager::logBaseMessage(LspLogMessage::ServerMessage, name(), message);

@@ -63,6 +63,7 @@ ClangdClient::ClangdClient(ProjectExplorer::Project *project, const Utils::FileP
     setClientCapabilities(caps);
     setLocatorsEnabled(false);
     setDocumentActionsEnabled(false);
+    setProgressTitleForToken("backgroundIndexProgress", tr("Parsing C/C++ Files (clangd)"));
     setCurrentProject(project);
     start();
 }

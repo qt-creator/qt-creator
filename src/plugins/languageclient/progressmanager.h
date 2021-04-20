@@ -46,6 +46,8 @@ public:
     ProgressManager();
     ~ProgressManager();
     void handleProgress(const LanguageServerProtocol::ProgressParams &params);
+    void setTitleForToken(const LanguageServerProtocol::ProgressToken &token,
+                          const QString &message);
 
 private:
     void beginProgress(const LanguageServerProtocol::ProgressToken &token,
@@ -62,6 +64,7 @@ private:
     };
 
     QMap<LanguageServerProtocol::ProgressToken, LanguageClientProgress> m_progress;
+    QMap<LanguageServerProtocol::ProgressToken, QString> m_titles;
 };
 
 } // namespace LanguageClient

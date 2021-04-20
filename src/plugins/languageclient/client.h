@@ -182,6 +182,8 @@ signals:
 
 protected:
     void setError(const QString &message);
+    void setProgressTitleForToken(const LanguageServerProtocol::ProgressToken &token,
+                                  const QString &message);
     void handleMessage(const LanguageServerProtocol::BaseMessage &message);
 
 private:
