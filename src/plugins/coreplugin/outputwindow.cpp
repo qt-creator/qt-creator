@@ -526,6 +526,7 @@ void OutputWindow::reset()
     flush();
     d->queueTimer.stop();
     d->formatter.reset();
+    d->scrollToBottom = true;
     if (!d->queuedOutput.isEmpty()) {
         d->queuedOutput.clear();
         d->formatter.appendMessage(tr("[Discarding excessive amount of pending output.]\n"),
