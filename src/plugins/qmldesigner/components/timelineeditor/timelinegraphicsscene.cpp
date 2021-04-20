@@ -511,7 +511,11 @@ QGraphicsView *AbstractScrollGraphicsScene::rulerView() const
 
 QmlTimeline TimelineGraphicsScene::currentTimeline() const
 {
-    return QmlTimeline(timelineModelNode());
+    QmlTimeline timeline(timelineModelNode());
+    if (timeline.isValid()) {
+        QTC_ASSERT(timeline == timelineView()->currentTimeline(), ;);
+    }
+    return timelineView()->currentTimeline();
 }
 
 QRectF AbstractScrollGraphicsScene::selectionBounds() const
