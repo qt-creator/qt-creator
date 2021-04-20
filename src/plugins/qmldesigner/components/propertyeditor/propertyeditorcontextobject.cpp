@@ -28,10 +28,11 @@
 
 #include <abstractview.h>
 #include <nodemetainfo.h>
-#include <qmldesignerplugin.h>
-#include <qmlobjectnode.h>
-#include <qmlmodelnodeproxy.h>
 #include <rewritingexception.h>
+#include <qmldesignerplugin.h>
+#include <qmlmodelnodeproxy.h>
+#include <qmlobjectnode.h>
+#include <qmltimeline.h>
 
 #include <coreplugin/messagebox.h>
 #include <utils/algorithm.h>
@@ -310,9 +311,12 @@ void PropertyEditorContextObject::insertKeyframe(const QString &propertyName)
 
     ModelNode selectedNode = rewriterView->selectedModelNodes().constFirst();
 
-    rewriterView->emitCustomNotification("INSERT_KEYFRAME",
-                                         { selectedNode },
-                                         { propertyName });
+    QmlTimeline timeline = rewriterView->currentTimeline();
+
+    QTC_ASSERT(timeline.isValid(), return );
+    QTC_ASSERT(selectedNode.isValid(), return );
+
+    timeline.insertKeyframe(selectedNode, propertyName.toUtf8());
 }
 
 int PropertyEditorContextObject::majorVersion() const

@@ -423,8 +423,6 @@ void TimelineView::customNotification(const AbstractView * /*view*/,
         QmlTimeline timeline = widget()->graphicsScene()->currentTimeline();
         if (timeline.isValid())
             timeline.modelNode().removeAuxiliaryData("currentFrame@NodeInstance");
-    } else if (identifier == "INSERT_KEYFRAME" && !nodeList.isEmpty() && !data.isEmpty()) {
-        insertKeyframe(nodeList.constFirst(), data.constFirst().toString().toUtf8());
     }
 }
 
