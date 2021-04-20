@@ -85,8 +85,9 @@ bool ItemLibraryCategoriesModel::setData(const QModelIndex &index, const QVarian
                 ItemLibraryModel::saveExpandedState(value.toBool(),
                                                     m_categoryList[index.row()]->categoryName());
             } else if (m_roleNames.value(role) == "categoryVisible") {
-                ItemLibraryModel::saveCategoryVisibleState(value.toBool(),
-                                                    m_categoryList[index.row()]->categoryName());
+                const ItemLibraryCategory *category = m_categoryList[index.row()];
+                ItemLibraryModel::saveCategoryVisibleState(value.toBool(), category->categoryName(),
+                                                           category->ownerImport()->importName());
             }
             emit dataChanged(index, index, {role});
             return true;
@@ -148,7 +149,8 @@ void ItemLibraryCategoriesModel::showAllCategories(bool show)
     for (const auto &category : std::as_const(m_categoryList)) {
         if (category->isCategoryVisible() != show) {
             category->setCategoryVisible(show);
-            ItemLibraryModel::saveCategoryVisibleState(show, category->categoryName());
+            ItemLibraryModel::saveCategoryVisibleState(show, category->categoryName(),
+                                                       category->ownerImport()->importName());
         }
     }
     emit dataChanged(index(0), index(m_categoryList.size() - 1), {m_roleNames.key("categoryVisible")});

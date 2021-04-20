@@ -69,8 +69,9 @@ public:
     static void registerQmlTypes();
     static void saveExpandedState(bool expanded, const QString &sectionName);
     static bool loadExpandedState(const QString &sectionName);
-    static void saveCategoryVisibleState(bool isVisible, const QString &categoryName);
-    static bool loadCategoryVisibleState(const QString &categoryName);
+    static void saveCategoryVisibleState(bool isVisible, const QString &categoryName, const QString
+                                         &importName);
+    static bool loadCategoryVisibleState(const QString &categoryName, const QString &importName);
 
     Q_INVOKABLE void expandAll();
     Q_INVOKABLE void collapseAll();

@@ -126,7 +126,8 @@ bool ItemLibraryImport::updateCategoryVisibility(const QString &searchText, bool
             hasVisibleCategories = true;
 
         if (searchText.isEmpty())
-            category->setCategoryVisible(ItemLibraryModel::loadCategoryVisibleState(category->categoryName()));
+            category->setCategoryVisible(ItemLibraryModel::loadCategoryVisibleState(category->categoryName(),
+                                                                                    importName()));
     }
 
     return hasVisibleCategories;

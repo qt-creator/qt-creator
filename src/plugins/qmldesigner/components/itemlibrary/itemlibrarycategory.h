@@ -26,6 +26,7 @@
 #pragma once
 
 #include "itemlibraryitemsmodel.h"
+#include "itemlibraryimport.h"
 
 namespace QmlDesigner {
 
@@ -60,6 +61,8 @@ public:
 
     void setExpanded(bool expanded);
 
+    ItemLibraryImport *ownerImport() const { return m_ownerImport; }
+
 signals:
     void itemModelChanged();
     void visibilityChanged();
@@ -68,6 +71,7 @@ signals:
 
 private:
     ItemLibraryItemsModel m_itemModel;
+    QPointer<ItemLibraryImport> m_ownerImport = nullptr;
     QString m_name;
     bool m_categoryExpanded = true;
     bool m_isVisible = true;

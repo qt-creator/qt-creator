@@ -59,14 +59,15 @@ bool ItemLibraryModel::loadExpandedState(const QString &sectionName)
     return expandedStateHash.value(sectionName, true);
 }
 
-void ItemLibraryModel::saveCategoryVisibleState(bool isVisible, const QString &categoryName)
+void ItemLibraryModel::saveCategoryVisibleState(bool isVisible, const QString &categoryName, const
+                                                QString &importName)
 {
-    categoryVisibleStateHash.insert(categoryName, isVisible);
+    categoryVisibleStateHash.insert(categoryName + '_' + importName, isVisible);
 }
 
-bool ItemLibraryModel::loadCategoryVisibleState(const QString &categoryName)
+bool ItemLibraryModel::loadCategoryVisibleState(const QString &categoryName, const QString &importName)
 {
-    return categoryVisibleStateHash.value(categoryName, true);
+    return categoryVisibleStateHash.value(categoryName + '_' + importName, true);
 }
 
 void ItemLibraryModel::showHiddenCategories()
