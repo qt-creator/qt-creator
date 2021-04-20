@@ -74,6 +74,8 @@ public:
     bool hasKeyframeGroup(const ModelNode &node, const PropertyName &propertyName) const;
     bool hasKeyframeGroupForTarget(const ModelNode &node) const;
 
+    void insertKeyframe(const ModelNode &target, const PropertyName &propertyName);
+
 private:
     void addKeyframeGroupIfNotExists(const ModelNode &node, const PropertyName &propertyName);
     QList<QmlTimelineKeyframeGroup> allKeyframeGroups() const;

@@ -294,6 +294,19 @@ bool QmlTimeline::hasKeyframeGroupForTarget(const ModelNode &node) const
     return false;
 }
 
+void QmlTimeline::insertKeyframe(const ModelNode &target, const PropertyName &propertyName)
+{
+    ModelNode targetNode = target;
+    QmlTimelineKeyframeGroup timelineFrames(keyframeGroup(targetNode, propertyName));
+
+    QTC_ASSERT(timelineFrames.isValid(), return );
+
+    const qreal frame = modelNode().auxiliaryData("currentFrame@NodeInstance").toReal();
+    const QVariant value = QmlObjectNode(targetNode).instanceValue(propertyName);
+
+    timelineFrames.setValue(value, frame);
+}
+
 QList<QmlTimelineKeyframeGroup> QmlTimeline::allKeyframeGroups() const
 {
     QList<QmlTimelineKeyframeGroup> returnList;
