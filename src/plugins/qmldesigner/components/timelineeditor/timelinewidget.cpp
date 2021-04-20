@@ -417,7 +417,7 @@ void TimelineWidget::init()
         m_statusBar->clear();
     }
 
-    invalidateTimelineDuration(m_graphicsScene->currentTimeline());
+    invalidateTimelineDuration(currentTimeline);
 
     m_graphicsScene->setWidth(m_graphicsView->viewport()->width());
 
