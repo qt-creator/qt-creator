@@ -78,7 +78,8 @@
     size, emphasis, aligment, and spacing of the text. Specify the font
     size in either points or pixels in the \uicontrol Size field.
 
-    \image qtquick-designer-text-properties.png "Text component properties"
+    \image qtquick-designer-text-properties.png "Text component general properties"
+    \image qtquick-designer-properties-font.png "Text component font properties"
 
     To display custom fonts in the list of available fonts in the
     \uicontrol Font field, you need to first add them to \l Library:
