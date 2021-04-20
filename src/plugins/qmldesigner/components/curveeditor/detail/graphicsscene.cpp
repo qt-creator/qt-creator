@@ -216,6 +216,7 @@ void GraphicsScene::reset()
 
 void GraphicsScene::deleteSelectedKeyframes()
 {
+    m_dirty = true;
     for (auto *curve : qAsConst(m_curves))
         curve->deleteSelectedKeyframes();
 }

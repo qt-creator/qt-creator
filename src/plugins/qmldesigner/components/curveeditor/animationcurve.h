@@ -46,6 +46,8 @@ public:
 
     AnimationCurve(const QEasingCurve &easing, const QPointF &start, const QPointF &end);
 
+    bool isEmpty() const;
+
     bool isValid() const;
 
     bool isFromData() const;

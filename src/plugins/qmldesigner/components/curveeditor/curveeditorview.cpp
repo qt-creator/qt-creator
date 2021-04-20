@@ -101,6 +101,9 @@ void CurveEditorView::nodeRemoved(const ModelNode &removedNode,
     ModelNode parent = parentProperty.parentModelNode();
     if (dirtyfiesView(parent))
         updateKeyframes();
+
+    if (!activeTimeline().isValid())
+        m_model->reset({});
 }
 
 void CurveEditorView::nodeReparented(const ModelNode &node,

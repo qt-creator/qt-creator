@@ -93,6 +93,11 @@ AnimationCurve::AnimationCurve(const QEasingCurve &easing, const QPointF &start,
     analyze();
 }
 
+bool AnimationCurve::isEmpty() const
+{
+    return m_frames.empty();
+}
+
 bool AnimationCurve::isValid() const
 {
     return m_frames.size() >= 2;
@@ -352,45 +357,43 @@ void AnimationCurve::insert(double time)
 
 void AnimationCurve::analyze()
 {
-    if (isValid()) {
-        m_minY = std::numeric_limits<double>::max();
-        m_maxY = std::numeric_limits<double>::lowest();
+    m_minY = std::numeric_limits<double>::max();
+    m_maxY = std::numeric_limits<double>::lowest();
 
-        auto byTime = [](const auto &a, const auto &b) {
-            return a.position().x() < b.position().x();
-        };
-        std::sort(m_frames.begin(), m_frames.end(), byTime);
+    auto byTime = [](const auto &a, const auto &b) {
+        return a.position().x() < b.position().x();
+    };
+    std::sort(m_frames.begin(), m_frames.end(), byTime);
 
-        for (auto e : extrema()) {
-            if (m_minY > e.y())
-                m_minY = e.y();
+    for (auto e : extrema()) {
+        if (m_minY > e.y())
+            m_minY = e.y();
 
-            if (m_maxY < e.y())
-                m_maxY = e.y();
+        if (m_maxY < e.y())
+            m_maxY = e.y();
+    }
+
+    for (auto &frame : qAsConst(m_frames)) {
+        if (frame.position().y() < m_minY)
+            m_minY = frame.position().y();
+
+        if (frame.position().y() > m_maxY)
+            m_maxY = frame.position().y();
+
+        if (frame.hasLeftHandle()) {
+            if (frame.leftHandle().y() < m_minY)
+                m_minY = frame.leftHandle().y();
+
+            if (frame.leftHandle().y() > m_maxY)
+                m_maxY = frame.leftHandle().y();
         }
 
-        for (auto &frame : qAsConst(m_frames)) {
-            if (frame.position().y() < m_minY)
-                m_minY = frame.position().y();
+        if (frame.hasRightHandle()) {
+            if (frame.rightHandle().y() < m_minY)
+                m_minY = frame.rightHandle().y();
 
-            if (frame.position().y() > m_maxY)
-                m_maxY = frame.position().y();
-
-            if (frame.hasLeftHandle()) {
-                if (frame.leftHandle().y() < m_minY)
-                    m_minY = frame.leftHandle().y();
-
-                if (frame.leftHandle().y() > m_maxY)
-                    m_maxY = frame.leftHandle().y();
-            }
-
-            if (frame.hasRightHandle()) {
-                if (frame.rightHandle().y() < m_minY)
-                    m_minY = frame.rightHandle().y();
-
-                if (frame.rightHandle().y() > m_maxY)
-                    m_maxY = frame.rightHandle().y();
-            }
+            if (frame.rightHandle().y() > m_maxY)
+                m_maxY = frame.rightHandle().y();
         }
     }
 }

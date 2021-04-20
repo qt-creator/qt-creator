@@ -292,7 +292,7 @@ std::vector<AnimationCurve> CurveItem::curves() const
         }
     }
 
-    if (tmp.size() >= 2)
+    if (!tmp.empty())
         out.push_back(AnimationCurve(tmp));
 
     return out;
@@ -372,6 +372,9 @@ void CurveItem::restore()
         currItem->setInterpolation(segment.interpolation());
         prevItem = currItem;
     }
+
+    // It is now the last item.
+    prevItem->setRightHandle(QPointF());
 }
 
 void CurveItem::setDirty(bool dirty)
@@ -404,12 +407,12 @@ void CurveItem::setCurve(const AnimationCurve &curve)
         item->setLocked(locked());
         item->setComponentTransform(m_transform);
         m_keyframes.push_back(item);
-        QObject::connect(item, &KeyframeItem::redrawCurve, this, &CurveItem::emitCurveChanged);
+        QObject::connect(item, &KeyframeItem::redrawCurve, this, &CurveItem::markDirty);
         QObject::connect(item, &KeyframeItem::keyframeMoved, this, &CurveItem::keyframeMoved);
         QObject::connect(item, &KeyframeItem::handleMoved, this, &CurveItem::handleMoved);
     }
 
-    emitCurveChanged();
+    markDirty();
 }
 
 QRectF CurveItem::setComponentTransform(const QTransform &transform)
@@ -499,10 +502,12 @@ void CurveItem::deleteSelectedKeyframes()
     m_keyframes.erase(iter, m_keyframes.end());
     restore();
 
-    emitCurveChanged();
+    markDirty();
+
+    emit curveChanged(id(), curve());
 }
 
-void CurveItem::emitCurveChanged()
+void CurveItem::markDirty()
 {
     setDirty(true);
     update();

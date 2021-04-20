@@ -242,13 +242,8 @@ void TimelineFrameHandle::scrollOutOfBoundsMax()
 {
     const double width = abstractScrollGraphicsScene()->width();
     if (QApplication::mouseButtons() == Qt::LeftButton) {
-        const double frameWidth = abstractScrollGraphicsScene()->rulerScaling();
-        const double upperThreshold = width - frameWidth;
-
-        if (rect().center().x() > upperThreshold) {
-            abstractScrollGraphicsScene()->setScrollOffset(computeScrollSpeed());
-            abstractScrollGraphicsScene()->invalidateScrollbar();
-        }
+        abstractScrollGraphicsScene()->setScrollOffset(computeScrollSpeed());
+        abstractScrollGraphicsScene()->invalidateScrollbar();
 
         callSetClampedXPosition(width - (rect().width() / 2) - 1);
         m_timer.start();
