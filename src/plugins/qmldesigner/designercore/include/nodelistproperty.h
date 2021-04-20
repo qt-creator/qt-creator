@@ -35,8 +35,6 @@
 
 namespace QmlDesigner {
 
-class NodeListProperty;
-
 namespace Internal {
 class ModelPrivate;
 class InternalNodeListProperty;
@@ -44,7 +42,7 @@ using InternalNodeListPropertyPointer = QSharedPointer<InternalNodeListProperty>
 
 class NodeListPropertyIterator
 {
-    friend class QmlDesigner::NodeListProperty;
+    friend NodeListProperty;
 
 public:
     using iterator_category = std::random_access_iterator_tag;
@@ -177,9 +175,10 @@ private:
 
 class QMLDESIGNERCORE_EXPORT NodeListProperty : public NodeAbstractProperty
 {
-    friend class QmlDesigner::ModelNode;
-    friend class QmlDesigner::AbstractProperty;
-    friend class QmlDesigner::Internal::ModelPrivate;
+    friend ModelNode;
+    friend AbstractProperty;
+    friend Internal::ModelPrivate;
+
 public:
     using value_type = ModelNode;
     using iterator = Internal::NodeListPropertyIterator;

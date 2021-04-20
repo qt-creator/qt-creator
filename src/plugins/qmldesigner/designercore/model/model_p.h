@@ -83,9 +83,9 @@ class ModelPrivate : public QObject {
     Q_OBJECT
     Q_DISABLE_COPY(ModelPrivate)
 
-    friend class QmlDesigner::Model;
-    friend class QmlDesigner::Internal::WriteLocker;
-    friend class QmlDesigner::Internal::NodeMetaInfoPrivate;
+    friend Model;
+    friend Internal::WriteLocker;
+    friend Internal::NodeMetaInfoPrivate;
 
 public:
      ModelPrivate(Model *model);

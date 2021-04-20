@@ -49,7 +49,8 @@ namespace Internal {
 
 class QMLDESIGNERCORE_EXPORT FormEditorItem : public QGraphicsItem
 {
-    friend class QmlDesigner::FormEditorScene;
+    friend FormEditorScene;
+
 public:
     ~FormEditorItem() override;
 
@@ -156,7 +157,8 @@ private: // variables
 
 class FormEditorFlowItem : public FormEditorItem
 {
-    friend class QmlDesigner::FormEditorScene;
+    friend FormEditorScene;
+
 public:
     void synchronizeOtherProperty(const QByteArray &propertyName) override;
     void setDataModelPosition(const QPointF &position) override;
@@ -175,7 +177,8 @@ private:
 
 class FormEditorFlowActionItem : public FormEditorItem
 {
-    friend class QmlDesigner::FormEditorScene;
+    friend FormEditorScene;
+
 public:
     void setDataModelPosition(const QPointF &position) override;
     void setDataModelPositionInBaseState(const QPointF &position) override;
@@ -194,7 +197,8 @@ private:
 
 class FormEditorTransitionItem : public FormEditorItem
 {
-    friend class QmlDesigner::FormEditorScene;
+    friend FormEditorScene;
+
 public:
     void synchronizeOtherProperty(const QByteArray &propertyName) override;
     void setDataModelPosition(const QPointF &position) override;
@@ -220,7 +224,7 @@ private:
 
 class FormEditorFlowDecisionItem : FormEditorFlowItem
 {
-    friend class QmlDesigner::FormEditorScene;
+    friend FormEditorScene;
 
 public:
     void updateGeometry() override;
@@ -243,7 +247,7 @@ protected:
 
 class FormEditorFlowWildcardItem : FormEditorFlowDecisionItem
 {
-    friend class QmlDesigner::FormEditorScene;
+    friend FormEditorScene;
 
 public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;

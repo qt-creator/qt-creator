@@ -37,7 +37,8 @@ class WeakRotationController;
 
 class RotationController
 {
-    friend class WeakRotationController;
+    friend WeakRotationController;
+
 public:
     RotationController();
     RotationController(LayerItem *layerItem, FormEditorItem *formEditorItem);
@@ -74,7 +75,8 @@ private:
 
 class WeakRotationController
 {
-    friend class RotationController;
+    friend RotationController;
+
 public:
     WeakRotationController();
     WeakRotationController(const WeakRotationController &rotationController);

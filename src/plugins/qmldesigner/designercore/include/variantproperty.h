@@ -42,9 +42,9 @@ namespace Internal { class ModelPrivate; }
 
 class QMLDESIGNERCORE_EXPORT VariantProperty : public AbstractProperty
 {
-    friend class QmlDesigner::ModelNode;
-    friend class QmlDesigner::Internal::ModelPrivate;
-    friend class QmlDesigner::AbstractProperty;
+    friend ModelNode;
+    friend Internal::ModelPrivate;
+    friend AbstractProperty;
 
 public:
     void setValue(const QVariant &value);

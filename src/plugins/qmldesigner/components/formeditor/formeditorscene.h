@@ -47,8 +47,8 @@ class QMLDESIGNERCORE_EXPORT FormEditorScene : public QGraphicsScene
 {
     Q_OBJECT
 
-    friend class QmlDesigner::FormEditorItem;
-    friend class QmlDesigner::FormEditorView;
+    friend FormEditorItem;
+    friend FormEditorView;
 
 public:
 

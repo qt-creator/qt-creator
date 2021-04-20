@@ -73,7 +73,7 @@ class QMLDESIGNERCORE_EXPORT NodeInstanceView : public AbstractView, public Node
 {
     Q_OBJECT
 
-    friend class NodeInstance;
+    friend NodeInstance;
 
 public:
     using Pointer = QWeakPointer<NodeInstanceView>;

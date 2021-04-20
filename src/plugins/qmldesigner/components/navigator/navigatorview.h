@@ -133,8 +133,6 @@ private:
     QHash<QUrl, QHash<QString, bool>> m_expandMap;
 
     NavigatorModelInterface *m_currentModelInterface = nullptr;
-
-    friend class TestNavigator;
 };
 
 }

@@ -40,7 +40,8 @@ class FormEditorView;
 
 class QMLDESIGNERCORE_EXPORT AbstractFormEditorTool
 {
-    friend class FormEditorView;
+    friend FormEditorView;
+
 public:
     AbstractFormEditorTool(FormEditorView* view);
 

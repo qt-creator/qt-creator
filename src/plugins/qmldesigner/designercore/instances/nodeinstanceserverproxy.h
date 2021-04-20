@@ -48,12 +48,14 @@ namespace QmlDesigner {
 class NodeInstanceClientInterface;
 class NodeInstanceView;
 class NodeInstanceClientProxy;
+class BaseConnectionManager;
 class ConnectionManagerInterface;
 
 class NodeInstanceServerProxy : public NodeInstanceServerInterface
 {
-    friend class BaseConnectionManager;
     Q_OBJECT
+
+    friend BaseConnectionManager;
 
 public:
     explicit NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView,

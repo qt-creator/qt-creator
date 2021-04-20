@@ -48,8 +48,6 @@ QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const ItemLibraryEntry &i
 
 class QMLDESIGNERCORE_EXPORT ItemLibraryEntry
 {
-    //friend class QmlDesigner::MetaInfo;
-    //friend class QmlDesigner::Internal::MetaInfoParser;
     friend QMLDESIGNERCORE_EXPORT QDataStream& operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibraryEntry);
     friend QMLDESIGNERCORE_EXPORT QDataStream& operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry);
     friend QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const ItemLibraryEntry &itemLibraryEntry);

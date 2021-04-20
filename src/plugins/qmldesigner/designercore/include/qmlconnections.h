@@ -32,9 +32,11 @@
 
 namespace QmlDesigner {
 
+class StatesEditorView;
+
 class QMLDESIGNERCORE_EXPORT QmlConnections : public QmlModelNodeFacade
 {
-    friend class StatesEditorView;
+    friend StatesEditorView;
 
 public:
     QmlConnections();

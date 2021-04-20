@@ -64,12 +64,12 @@ using PropertyListType = QList<QPair<PropertyName, QVariant> >;
 
 class QMLDESIGNERCORE_EXPORT Model : public QObject
 {
-    friend class QmlDesigner::ModelNode;
-    friend class QmlDesigner::AbstractProperty;
-    friend class QmlDesigner::AbstractView;
-    friend class Internal::ModelPrivate;
-    friend class Internal::WriteLocker;
-    friend class QmlDesigner::Internal::NodeMetaInfoPrivate;
+    friend ModelNode;
+    friend AbstractProperty;
+    friend AbstractView;
+    friend Internal::ModelPrivate;
+    friend Internal::WriteLocker;
+    friend Internal::NodeMetaInfoPrivate;
 
     Q_OBJECT
 

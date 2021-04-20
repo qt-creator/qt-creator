@@ -42,8 +42,9 @@ class QmlVisualNode;
 
 class QMLDESIGNERCORE_EXPORT QmlObjectNode : public QmlModelNodeFacade
 {
-    friend class QmlItemNode;
-    friend class MoveManipulator;
+    friend QmlItemNode;
+    friend MoveManipulator;
+
 public:
     QmlObjectNode();
     QmlObjectNode(const ModelNode &modelNode);

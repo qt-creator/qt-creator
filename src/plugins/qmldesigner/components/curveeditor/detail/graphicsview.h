@@ -44,7 +44,7 @@ class GraphicsView : public QGraphicsView
 {
     Q_OBJECT
 
-    friend class Playhead;
+    friend Playhead;
 
 signals:
     void currentFrameChanged(int frame, bool notify);

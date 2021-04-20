@@ -52,7 +52,8 @@ using InternalPropertyPointer = QSharedPointer<InternalProperty>;
 
 class InternalNode
 {
-    friend class InternalProperty;
+    friend InternalProperty;
+
 public:
     using Pointer = QSharedPointer<InternalNode>;
     using WeakPointer = QWeakPointer<InternalNode>;

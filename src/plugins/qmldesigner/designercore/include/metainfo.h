@@ -52,10 +52,10 @@ QMLDESIGNERCORE_EXPORT bool operator!=(const MetaInfo &first, const MetaInfo &se
 
 class QMLDESIGNERCORE_EXPORT MetaInfo
 {
-    friend class QmlDesigner::Internal::MetaInfoPrivate;
-    friend class QmlDesigner::Internal::ModelPrivate;
-    friend class QmlDesigner::Internal::MetaInfoReader;
-    friend class QmlDesigner::Internal::SubComponentManagerPrivate;
+    friend Internal::MetaInfoPrivate;
+    friend Internal::ModelPrivate;
+    friend Internal::MetaInfoReader;
+    friend Internal::SubComponentManagerPrivate;
     friend QMLDESIGNERCORE_EXPORT bool operator==(const MetaInfo &, const MetaInfo &);
 
 public:

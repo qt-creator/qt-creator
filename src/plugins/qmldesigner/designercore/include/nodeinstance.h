@@ -42,7 +42,8 @@ class ProxyNodeInstanceData;
 
 class NodeInstance
 {
-    friend class NodeInstanceView;
+    friend NodeInstanceView;
+
 public:
     static NodeInstance create(const ModelNode &node);
     NodeInstance();

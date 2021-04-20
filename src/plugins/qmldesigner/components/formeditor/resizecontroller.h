@@ -37,7 +37,8 @@ class WeakResizeController;
 
 class ResizeController
 {
-    friend class WeakResizeController;
+    friend WeakResizeController;
+
 public:
     ResizeController();
     ResizeController(LayerItem *layerItem, FormEditorItem *formEditorItem);
@@ -76,7 +77,8 @@ private: // variables
 
 class WeakResizeController
 {
-    friend class ResizeController;
+    friend ResizeController;
+
 public:
     WeakResizeController();
     WeakResizeController(const WeakResizeController &resizeController);

@@ -33,7 +33,7 @@ namespace Internal {
 
 class InternalNodeAbstractProperty : public InternalProperty
 {
-    friend class InternalNode;
+    friend InternalNode;
 
 public:
     using Pointer = QSharedPointer<InternalNodeAbstractProperty>;

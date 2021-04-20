@@ -36,9 +36,9 @@ namespace Internal {
 
 class QMLDESIGNERCORE_EXPORT NodeAbstractProperty : public AbstractProperty
 {
-    friend class QmlDesigner::ModelNode;
-    friend class QmlDesigner::Internal::ModelPrivate;
-    friend class QmlDesigner::AbstractProperty;
+    friend ModelNode;
+    friend Internal::ModelPrivate;
+    friend AbstractProperty;
 
     friend QMLDESIGNERCORE_EXPORT bool operator ==(const NodeAbstractProperty &property1, const NodeAbstractProperty &property2);
     friend QMLDESIGNERCORE_EXPORT bool operator !=(const NodeAbstractProperty &property1, const NodeAbstractProperty &property2);

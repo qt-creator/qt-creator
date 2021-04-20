@@ -75,12 +75,12 @@ class QMLDESIGNERCORE_EXPORT ModelNode
     friend QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const ModelNode &modelNode);
     friend QMLDESIGNERCORE_EXPORT bool operator <(const ModelNode &firstNode, const ModelNode &secondNode);
     friend QMLDESIGNERCORE_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);
-    friend class QmlDesigner::Model;
-    friend class QmlDesigner::AbstractView;
-    friend class QmlDesigner::NodeListProperty;
-    friend class QmlDesigner::Internal::ModelPrivate;
-    friend class QmlDesigner::NodeAbstractProperty;
-    friend class QmlDesigner::NodeProperty;
+    friend Model;
+    friend AbstractView;
+    friend NodeListProperty;
+    friend Internal::ModelPrivate;
+    friend NodeAbstractProperty;
+    friend NodeProperty;
 
 public:
     enum NodeSourceType {

@@ -65,7 +65,8 @@ private:
 class PathItem : public QGraphicsObject
 {
     Q_OBJECT
-    friend class PathUpdateDisabler;
+    friend PathUpdateDisabler;
+
 public:
     enum
     {

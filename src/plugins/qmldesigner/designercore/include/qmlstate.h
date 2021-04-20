@@ -36,10 +36,11 @@ class QmlObjectNode;
 class QmlModelStateGroup;
 class Annotation;
 class AnnotationEditor;
+class StatesEditorView;
 
 class QMLDESIGNERCORE_EXPORT QmlModelState : public QmlModelNodeFacade
 {
-    friend class StatesEditorView;
+    friend StatesEditorView;
 
 public:
     QmlModelState();

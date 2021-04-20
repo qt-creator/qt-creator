@@ -50,7 +50,7 @@ public:
     virtual ~NodeDumperCreatorBase() {}
 protected:
     virtual NodeDumper *instance(const QByteArrayList &, const ModelNode &) const = 0;
-    friend class QmlDesigner::Component;
+    friend Component;
 };
 
 template<class T>

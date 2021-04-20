@@ -44,7 +44,8 @@ class ItemLibraryEntry;
 
 class QMLDESIGNERCORE_EXPORT QmlItemNode : public QmlVisualNode
 {
-    friend class QmlAnchors;
+    friend QmlAnchors;
+
 public:
     QmlItemNode() : QmlVisualNode() {}
     QmlItemNode(const ModelNode &modelNode)  : QmlVisualNode(modelNode) {}
