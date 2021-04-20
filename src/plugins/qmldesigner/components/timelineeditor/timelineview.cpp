@@ -378,6 +378,7 @@ void TimelineView::addNewTimelineDialog()
 {
     auto timeline = addNewTimeline();
     addAnimation(timeline);
+    activateTimeline(timeline);
     openSettingsDialog();
 }
 
