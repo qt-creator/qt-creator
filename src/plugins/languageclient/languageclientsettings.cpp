@@ -566,6 +566,7 @@ Client *BaseSettings::createClient()
     client->setName(Utils::globalMacroExpander()->expand(m_name));
     client->setSupportedLanguage(m_languageFilter);
     client->setInitializationOptions(initializationOptions());
+    client->setActivateDocumentAutomatically(true);
     return client;
 }
 

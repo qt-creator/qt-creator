@@ -118,6 +118,7 @@ public:
 
     // document synchronization
     void setSupportedLanguage(const LanguageFilter &filter);
+    void setActivateDocumentAutomatically(bool enabled);
     bool isSupportedDocument(const TextEditor::TextDocument *document) const;
     bool isSupportedFile(const Utils::FilePath &filePath, const QString &mimeType) const;
     bool isSupportedUri(const LanguageServerProtocol::DocumentUri &uri) const;
@@ -242,6 +243,7 @@ private:
     QSet<TextEditor::IAssistProcessor *> m_runningAssistProcessors;
     SymbolSupport m_symbolSupport;
     ProgressManager m_progressManager;
+    bool m_activateDocAutomatically = false;
 };
 
 } // namespace LanguageClient

@@ -345,10 +345,13 @@ void Client::openDocument(TextEditor::TextDocument *document)
     sendContent(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)));
 
     const Client *currentClient = LanguageClientManager::clientForDocument(document);
-    if (currentClient == this) // this is the active client for the document so directly activate it
+    if (currentClient == this) {
+        // this is the active client for the document so directly activate it
         activateDocument(document);
-    else if (currentClient == nullptr) // there is no client for this document so assign it to this server
+    } else if (m_activateDocAutomatically && currentClient == nullptr) {
+        // there is no client for this document so assign it to this server
         LanguageClientManager::openDocumentWithClient(document, this);
+    }
 }
 
 void Client::sendContent(const IContent &content)
@@ -876,6 +879,11 @@ void Client::projectClosed(ProjectExplorer::Project *project)
 void Client::setSupportedLanguage(const LanguageFilter &filter)
 {
     m_languagFilter = filter;
+}
+
+void Client::setActivateDocumentAutomatically(bool enabled)
+{
+    m_activateDocAutomatically = enabled;
 }
 
 void Client::setInitializationOptions(const QJsonObject &initializationOptions)
