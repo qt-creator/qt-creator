@@ -66,7 +66,8 @@ private: // functions
     void registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier, bool addToLibrary);
     Model *model() const;
     QStringList importPaths() const;
-    void parseQuick3DAssetDir(const QString &assetPath);
+    void parseQuick3DAssetsDir(const QString &quick3DAssetsPath);
+    void parseQuick3DAssetsItem(const QString &importUrl, const QString &quick3DAssetsPath = {});
     QStringList quick3DAssetPaths() const;
 
 private: // variables

@@ -686,11 +686,12 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
 
                                 model->changeImports(newImportsToAdd, {});
                                 transaction.commit();
+                                for (const Import &import : qAsConst(newImportsToAdd))
+                                    doc->updateSubcomponentManagerImport(import);
                             }
                         } catch (const RewritingException &e) {
                             addError(tr("Failed to update imports: %1").arg(e.description()));
                         }
-                        doc->updateSubcomponentManager();
                     } else if (counter >= 20) {
                         if (!m_overwrittenImports.isEmpty())
                             model->rewriterView()->emitCustomNotification("asset_import_update");

@@ -319,7 +319,8 @@ void Edit3DView::addQuick3DImport()
                 model()->changeImports({import}, {});
 
                 // Subcomponent manager update needed to make item library entries appear
-                QmlDesignerPlugin::instance()->currentDesignDocument()->updateSubcomponentManager();
+                QmlDesignerPlugin::instance()->currentDesignDocument()
+                                             ->updateSubcomponentManagerImport(import);
                 return;
             }
         }
