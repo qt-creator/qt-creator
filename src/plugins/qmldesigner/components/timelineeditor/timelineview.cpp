@@ -430,23 +430,11 @@ void TimelineView::customNotification(const AbstractView * /*view*/,
 
 void TimelineView::insertKeyframe(const ModelNode &target, const PropertyName &propertyName)
 {
-    QmlTimeline timeline = widget()->graphicsScene()->currentTimeline();
-    ModelNode targetNode = target;
-    if (timeline.isValid() && targetNode.isValid()
-        && QmlObjectNode::isValidQmlObjectNode(targetNode)) {
-        executeInTransaction("TimelineView::insertKeyframe", [=, &timeline, &targetNode]() {
-            targetNode.validId();
+    QmlTimeline timeline = currentTimeline();
 
-            QmlTimelineKeyframeGroup timelineFrames(
-                timeline.keyframeGroup(targetNode, propertyName));
-
-            QTC_ASSERT(timelineFrames.isValid(), return );
-
-            const qreal frame
-                = timeline.modelNode().auxiliaryData("currentFrame@NodeInstance").toReal();
-            const QVariant value = QmlObjectNode(targetNode).instanceValue(propertyName);
-
-            timelineFrames.setValue(value, frame);
+    if (timeline.isValid() && target.isValid() && QmlObjectNode::isValidQmlObjectNode(target)) {
+        executeInTransaction("TimelineView::insertKeyframe", [=, &timeline, &target]() {
+            timeline.insertKeyframe(target, propertyName);
         });
     }
 }
