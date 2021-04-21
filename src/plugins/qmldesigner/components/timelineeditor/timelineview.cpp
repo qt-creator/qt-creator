@@ -404,7 +404,7 @@ void TimelineView::openSettingsDialog()
 
 void TimelineView::setTimelineRecording(bool value)
 {
-    ModelNode node = widget()->graphicsScene()->currentTimeline();
+    const ModelNode node = timelineForState(currentState()).modelNode();
 
     if (value && node.isValid()) {
         activateTimelineRecording(node);
