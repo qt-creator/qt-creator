@@ -378,7 +378,7 @@ void TimelineView::addNewTimelineDialog()
 {
     auto timeline = addNewTimeline();
     addAnimation(timeline);
-    activateTimeline(timeline);
+    setCurrentTimeline(timeline);
     openSettingsDialog();
 }
 
@@ -411,7 +411,7 @@ void TimelineView::setTimelineRecording(bool value)
         activateTimelineRecording(node);
     } else {
         deactivateTimelineRecording();
-        activateTimeline(node);
+        setCurrentTimeline(node);
     }
 }
 

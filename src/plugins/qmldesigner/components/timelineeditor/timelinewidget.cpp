@@ -391,7 +391,7 @@ void TimelineWidget::setTimelineRecording(bool value)
         timelineView()->activateTimelineRecording(node);
     } else {
         timelineView()->deactivateTimelineRecording();
-        timelineView()->activateTimeline(node);
+        timelineView()->setCurrentTimeline(node);
     }
 
     graphicsScene()->invalidateRecordButtonsStatus();

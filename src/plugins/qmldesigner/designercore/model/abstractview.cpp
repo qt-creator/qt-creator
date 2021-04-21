@@ -639,7 +639,7 @@ void AbstractView::contextHelp(const Core::IContext::HelpCallback &callback) con
 #endif
 }
 
-void AbstractView::activateTimeline(const ModelNode &timeline)
+void AbstractView::setCurrentTimeline(const ModelNode &timeline)
 {
     if (currentTimeline().isValid())
         currentTimeline().toogleRecording(false);

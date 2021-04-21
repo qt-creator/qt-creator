@@ -280,7 +280,7 @@ public:
 
     virtual void contextHelp(const Core::IContext::HelpCallback &callback) const;
 
-    void activateTimeline(const ModelNode &timeline);
+    void setCurrentTimeline(const ModelNode &timeline);
     void activateTimelineRecording(const ModelNode &timeline);
     void deactivateTimelineRecording();
 
