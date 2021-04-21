@@ -64,33 +64,40 @@ def takeDebuggerLog():
 # function to set breakpoints for the current project
 # on the given file,line pairs inside the given list of dicts
 # the lines are treated as regular expression
+# returns None on error or a list of dictionaries each containing full path and line number of a
+# single breakpoint
+# If you passed in the breakpoints in the right order, you can use the return value as input to
+# doSimpleDebugging()
 def setBreakpointsForCurrentProject(filesAndLines):
     switchViewTo(ViewConstants.DEBUG)
     removeOldBreakpoints()
     if not filesAndLines or not isinstance(filesAndLines, (list,tuple)):
         test.fatal("This function only takes a non-empty list/tuple holding dicts.")
-        return False
+        return None
     waitForObject("{type='Utils::NavigationTreeView' unnamed='1' visible='1' "
                   "window=':Qt Creator_Core::Internal::MainWindow'}")
+    breakPointList = []
     for current in filesAndLines:
         for curFile,curLine in current.iteritems():
             if not openDocument(curFile):
-                return False
+                return None
             editor = getEditorForFileSuffix(curFile, True)
             if not placeCursorToLine(editor, curLine, True):
-                return False
+                return None
             invokeMenuItem("Debug", "Toggle Breakpoint")
+            filePath = str(waitForObjectExists(":Qt Creator_FilenameQComboBox").toolTip)
+            breakPointList.append({os.path.normcase(filePath):lineNumberWithCursor(editor)})
             test.log('Set breakpoint in %s' % curFile, curLine)
     try:
         breakPointTreeView = waitForObject(":Breakpoints_Debugger::Internal::BreakTreeView")
         waitFor("breakPointTreeView.model().rowCount() == len(filesAndLines)", 2000)
     except:
         test.fatal("UI seems to have changed - check manually and fix this script.")
-        return False
+        return None
     test.compare(breakPointTreeView.model().rowCount(), len(filesAndLines),
                  'Expected %d set break points, found %d listed' %
                  (len(filesAndLines), breakPointTreeView.model().rowCount()))
-    return True
+    return breakPointList
 
 # helper that removes all breakpoints - assumes that it's getting called
 # being already on Debug view and Breakpoints widget is not disabled
@@ -119,6 +126,8 @@ def removeOldBreakpoints():
 # param expectedBPOrder holds a list of dicts where the dicts contain always
 #       only 1 key:value pair - the key is the name of the file, the value is
 #       line number where the debugger should stop
+#       This can be the return value of setBreakpointsForCurrentProject() if you
+#       passed the breakpoints into that function in the right order
 def doSimpleDebugging(currentKit, currentConfigName, expectedBPOrder=[], enableQml=True):
     expectedLabelTexts = ['Stopped\.', 'Stopped at breakpoint \d+ in thread \d+\.']
     if len(expectedBPOrder) == 0:
@@ -236,8 +245,7 @@ def verifyBreakPoint(bpToVerify):
         if editor:
             test.compare(waitForObject(":DebugModeWidget_QComboBox").toolTip, fileName,
                          "Verify that the right file is opened")
-            textPos = editor.textCursor().position()
-            line = str(editor.plainText)[:textPos].count("\n") + 1
+            line = lineNumberWithCursor(editor)
             windowTitle = str(waitForObject(":Qt Creator_Core::Internal::MainWindow").windowTitle)
             test.verify(windowTitle.startswith(os.path.basename(fileName) + " "),
                         "Verify that Creator's window title changed according to current file")
