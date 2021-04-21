@@ -32,6 +32,7 @@
 #ifdef WITH_TESTS
 #  include "test/clangbatchfileprocessor.h"
 #  include "test/clangcodecompletion_test.h"
+#  include "test/clangdtests.h"
 #endif
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -204,6 +205,7 @@ QVector<QObject *> ClangCodeModelPlugin::createTestObjects() const
 {
     return {
         new Tests::ClangCodeCompletionTest,
+        new Tests::ClangdTests,
     };
 }
 #endif

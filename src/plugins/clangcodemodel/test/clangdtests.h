@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,21 +25,23 @@
 
 #pragma once
 
-#include <texteditor/codeassist/iassistproposalmodel.h>
-
-#include <QString>
-#include <QSharedPointer>
-
-namespace TextEditor { class BaseTextEditor; }
+#include <QObject>
 
 namespace ClangCodeModel {
 namespace Internal {
+namespace Tests {
 
-TextEditor::ProposalModelPtr completionResults(TextEditor::BaseTextEditor *textEditor,
-                                               const QStringList &includePaths = QStringList(),
-                                               int timeOutInMs = 10000);
+class ClangdTests : public QObject
+{
+    Q_OBJECT
 
-QString qrcPath(const QByteArray &relativeFilePath);
+private slots:
+    void initTestCase();
 
+    void testFindReferences();
+};
+
+} // namespace Tests
 } // namespace Internal
 } // namespace ClangCodeModel
+

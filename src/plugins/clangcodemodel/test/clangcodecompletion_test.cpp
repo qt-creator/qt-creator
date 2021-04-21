@@ -58,9 +58,6 @@ using namespace ClangCodeModel::Internal;
 
 namespace {
 
-QString qrcPath(const QByteArray relativeFilePath)
-{ return QLatin1String(":/unittests/ClangCodeModel/") + QString::fromUtf8(relativeFilePath); }
-
 CppTools::Tests::TemporaryDir *globalTemporaryDir()
 {
     static CppTools::Tests::TemporaryDir dir;

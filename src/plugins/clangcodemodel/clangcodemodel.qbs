@@ -8,6 +8,7 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "CppTools" }
     Depends { name: "ProjectExplorer" }
+    Depends { name: "QtSupport"; condition: qtc.testsEnabled }
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
     Depends { name: "ClangSupport" }
@@ -114,6 +115,8 @@ QtcPlugin {
             "clangbatchfileprocessor.h",
             "clangcodecompletion_test.cpp",
             "clangcodecompletion_test.h",
+            "clangdtests.cpp",
+            "clangdtests.h",
             "data/clangtestdata.qrc",
         ]
     }

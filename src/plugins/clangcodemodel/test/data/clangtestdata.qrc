@@ -29,5 +29,8 @@
         <file>membercompletion-friend.cpp</file>
         <file>functionCompletionFiltered.cpp</file>
         <file>functionCompletionFiltered2.cpp</file>
+        <file>find-usages/defs.h</file>
+        <file>find-usages/main.cpp</file>
+        <file>find-usages/find-usages.pro</file>
     </qresource>
 </RCC>

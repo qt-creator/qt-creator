@@ -97,11 +97,9 @@ void RefactoringEngine::findUsages(const CppTools::CursorInEditor &cursor,
                 ->findUsages(cursor, std::move(callback));
         return;
     }
-    // TODO: We want to keep our "access type info" feature.
-    //       Check whether we can support it using clang 12's textDocument/ast request
     if (!client->documentOpen(cursor.textDocument()))
         client->openDocument(cursor.textDocument()); // TODO: Just a workaround
-    client->symbolSupport().findUsages(cursor.textDocument(), cursor.cursor());
+    client->findUsages(cursor.textDocument(), cursor.cursor());
 }
 
 } // namespace Internal

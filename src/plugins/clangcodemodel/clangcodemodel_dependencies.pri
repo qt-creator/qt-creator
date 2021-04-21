@@ -10,3 +10,5 @@ QTC_PLUGIN_DEPENDS += \
 QTC_TEST_DEPENDS += \
     cppeditor \
     qmakeprojectmanager
+
+equals(TEST, 1): QTC_PLUGIN_DEPENDS += qtsupport

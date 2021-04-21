@@ -83,6 +83,9 @@ public:
 
     static ClangModelManagerSupport *instance();
 
+signals:
+    void createdClient(ClangdClient *client);
+
 private:
     void onEditorOpened(Core::IEditor *editor);
     void onEditorClosed(const QList<Core::IEditor *> &editors);

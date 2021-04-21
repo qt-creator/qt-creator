@@ -138,5 +138,10 @@ TextEditor::ProposalModelPtr completionResults(TextEditor::BaseTextEditor *textE
     return waitForCompletions.proposalModel;
 }
 
+QString qrcPath(const QByteArray &relativeFilePath)
+{
+    return QLatin1String(":/unittests/ClangCodeModel/") + QString::fromUtf8(relativeFilePath);
+}
+
 } // namespace Internal
 } // namespace ClangCodeModel

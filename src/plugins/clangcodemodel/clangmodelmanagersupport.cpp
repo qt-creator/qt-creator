@@ -64,7 +64,6 @@
 #include <utils/runextensions.h>
 
 #include <QApplication>
-#include <QFile>
 #include <QMenu>
 #include <QTextBlock>
 #include <QTimer>
@@ -281,7 +280,7 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
         }
         if (Client * const oldClient = clientForProject(project))
             LanguageClientManager::shutdownClient(oldClient);
-        Client * const client = createClient(project, jsonDbDir);
+        ClangdClient * const client = createClient(project, jsonDbDir);
         connect(client, &Client::initialized, this, [client, project, projectInfo, jsonDbDir] {
             using namespace ProjectExplorer;
             if (!CppTools::codeModelSettings()->useClangd())
@@ -309,18 +308,8 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
             if (!cxxNode)
                 return;
 
-            QFile cxxFile(cxxNode->filePath().toString());
-            if (!cxxFile.open(QIODevice::ReadOnly))
-                return;
-            using namespace LanguageServerProtocol;
-            TextDocumentItem item;
-            item.setLanguageId("text/x-c++src");
-            item.setUri(DocumentUri::fromFilePath(cxxNode->filePath()));
-            item.setText(QString::fromUtf8(cxxFile.readAll()));
-            item.setVersion(0);
-            client->sendContent(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)));
-            client->sendContent(DidCloseTextDocumentNotification(DidCloseTextDocumentParams(
-                    TextDocumentIdentifier{item.uri()})));
+            client->openExtraFile(cxxNode->filePath());
+            client->closeExtraFile(cxxNode->filePath());
         });
 
     });
@@ -347,7 +336,9 @@ ClangdClient *ClangModelManagerSupport::clientForProject(
 ClangdClient *ClangModelManagerSupport::createClient(ProjectExplorer::Project *project,
                                                      const Utils::FilePath &jsonDbDir)
 {
-    return new ClangdClient(project, jsonDbDir);
+    const auto client = new ClangdClient(project, jsonDbDir);
+    emit createdClient(client);
+    return client;
 }
 
 void ClangModelManagerSupport::onEditorOpened(Core::IEditor *editor)

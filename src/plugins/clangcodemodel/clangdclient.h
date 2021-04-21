@@ -27,7 +27,11 @@
 
 #include <languageclient/client.h>
 
+#include <QVersionNumber>
+
+namespace Core { class SearchResultItem; }
 namespace ProjectExplorer { class Project; }
+namespace TextEditor { class TextDocument; }
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -37,11 +41,26 @@ class ClangdClient : public LanguageClient::Client
     Q_OBJECT
 public:
     ClangdClient(ProjectExplorer::Project *project, const Utils::FilePath &jsonDbDir);
+    ~ClangdClient() override;
 
-    bool isFullyIndexed() const { return m_isFullyIndexed; }
+    bool isFullyIndexed() const;
+    QVersionNumber versionNumber() const;
+
+    void openExtraFile(const Utils::FilePath &filePath, const QString &content = {});
+    void closeExtraFile(const Utils::FilePath &filePath);
+
+    void findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor);
+
+    void enableTesting();
+
+signals:
+    void indexingFinished();
+    void foundReferences(const QList<Core::SearchResultItem> &items);
+    void findUsagesDone();
 
 private:
-    bool m_isFullyIndexed = false;
+    class Private;
+    Private * const d;
 };
 
 } // namespace Internal

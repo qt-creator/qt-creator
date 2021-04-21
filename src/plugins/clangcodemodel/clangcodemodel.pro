@@ -96,11 +96,13 @@ equals(TEST, 1) {
         test/clangautomationutils.h \
         test/clangbatchfileprocessor.h \
         test/clangcodecompletion_test.h \
+        test/clangdtests.h
 
     SOURCES += \
         test/clangautomationutils.cpp \
         test/clangbatchfileprocessor.cpp \
         test/clangcodecompletion_test.cpp \
+        test/clangdtests.cpp
 
     RESOURCES += test/data/clangtestdata.qrc
     OTHER_FILES += $$files(test/data/*)
