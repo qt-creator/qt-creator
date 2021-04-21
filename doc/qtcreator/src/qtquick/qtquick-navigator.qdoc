@@ -222,8 +222,6 @@
         \li In \uicontrol Properties, select \uicontrol {Edit Base Component}.
     \endlist
 
-    \image qmldesigner-navigator-go-into-component.png "Go into Component context menu command in Navigator"
-
     The component hierarchy is displayed as a bread crumb path, where you can
     click the component names to open the respective files. This enables you
     to easily navigate back to the top level when you are done editing the
