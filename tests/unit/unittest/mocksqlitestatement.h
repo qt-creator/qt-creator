@@ -25,7 +25,8 @@
 
 #pragma once
 
-#include <googletest.h>
+#include "googletest.h"
+#include "sqlitedatabasemock.h"
 
 #include <sqlitebasestatement.h>
 
@@ -33,7 +34,12 @@
 class BaseMockSqliteStatement
 {
 public:
-    MOCK_METHOD0(next, bool ());
+    BaseMockSqliteStatement() = default;
+    BaseMockSqliteStatement(SqliteDatabaseMock &databaseMock)
+        : m_databaseMock{&databaseMock}
+    {}
+
+    MOCK_METHOD0(next, bool());
     MOCK_METHOD0(step, void ());
     MOCK_METHOD0(reset, void ());
 
@@ -60,6 +66,11 @@ public:
     MOCK_METHOD1(checkColumnCount, void(int));
 
     MOCK_CONST_METHOD0(isReadOnlyStatement, bool());
+
+    SqliteDatabaseMock &database() { return *m_databaseMock; }
+
+private:
+    SqliteDatabaseMock *m_databaseMock = nullptr;
 };
 
 template<>
@@ -102,8 +113,13 @@ template<int ResultCount = 1>
 class MockSqliteStatement
     : public Sqlite::StatementImplementation<NiceMock<BaseMockSqliteStatement>, ResultCount>
 {
+    using Base = Sqlite::StatementImplementation<NiceMock<BaseMockSqliteStatement>, ResultCount>;
+
 public:
     explicit MockSqliteStatement() {}
+    explicit MockSqliteStatement(SqliteDatabaseMock &databaseMock)
+        : Base{databaseMock}
+    {}
 
 protected:
     void checkIsWritableStatement();

@@ -42,6 +42,8 @@ public:
         Base::checkColumnCount(ResultCount);
     }
 
+    using Base::range;
+    using Base::rangeWithTransaction;
     using Base::readCallback;
     using Base::readTo;
     using Base::toValue;

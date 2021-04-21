@@ -70,4 +70,3 @@ public:
 
     MOCK_METHOD(void, setAttachedTables, (const Utils::SmallStringVector &tables), (override));
 };
-
