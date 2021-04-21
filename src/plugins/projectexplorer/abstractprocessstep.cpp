@@ -268,7 +268,7 @@ ProcessParameters *AbstractProcessStep::processParameters()
     return &d->m_param;
 }
 
-void AbstractProcessStep::setupProcessParameters(ProcessParameters *params)
+void AbstractProcessStep::setupProcessParameters(ProcessParameters *params) const
 {
     params->setMacroExpander(macroExpander());
 

@@ -39,7 +39,7 @@ class PROJECTEXPLORER_EXPORT AbstractProcessStep : public BuildStep
 
 public:
     ProcessParameters *processParameters();
-    void setupProcessParameters(ProcessParameters *params);
+    void setupProcessParameters(ProcessParameters *params) const;
 
     bool ignoreReturnValue() const;
     void setIgnoreReturnValue(bool b);
