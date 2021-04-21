@@ -272,7 +272,7 @@ public:
         resetter.reset();
     }
 
-    template<int ResultTypeCount = 1, typename Container, typename... QueryTypes>
+    template<typename Container, typename... QueryTypes>
     void readTo(Container &container, const QueryTypes &...queryValues)
     {
         Resetter resetter{*this};

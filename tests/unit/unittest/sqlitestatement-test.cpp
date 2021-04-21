@@ -997,7 +997,7 @@ TEST_F(SqliteStatement, ReadToContainer)
     std::deque<FooValue> values;
     ReadStatement<1> statement("SELECT number FROM test", database);
 
-    statement.readTo<1>(values);
+    statement.readTo(values);
 
     ASSERT_THAT(values, UnorderedElementsAre(Eq("blah"), Eq(23.3), Eq(40)));
 }
