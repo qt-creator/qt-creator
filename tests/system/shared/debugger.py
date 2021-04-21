@@ -116,13 +116,10 @@ def removeOldBreakpoints():
 # function to do simple debugging of the current (configured) project
 # param currentKit specifies the ID of the kit to use (see class Targets)
 # param currentConfigName is the name of the configuration that should be used
-# param pressContinueCount defines how often it is expected to press
-#       the 'Continue' button while debugging
 # param expectedBPOrder holds a list of dicts where the dicts contain always
 #       only 1 key:value pair - the key is the name of the file, the value is
 #       line number where the debugger should stop
-def doSimpleDebugging(currentKit, currentConfigName, pressContinueCount=1,
-                      expectedBPOrder=[], enableQml=True):
+def doSimpleDebugging(currentKit, currentConfigName, expectedBPOrder=[], enableQml=True):
     expectedLabelTexts = ['Stopped\.', 'Stopped at breakpoint \d+ in thread \d+\.']
     if len(expectedBPOrder) == 0:
         expectedLabelTexts.append("Running\.")
@@ -134,10 +131,10 @@ def doSimpleDebugging(currentKit, currentConfigName, pressContinueCount=1,
     if not __startDebugger__(currentKit, currentConfigName):
         return False
     statusLabel = findObject(":Debugger Toolbar.StatusText_Utils::StatusLabel")
-    test.log("Continuing debugging %d times..." % pressContinueCount)
-    for i in range(pressContinueCount):
+    test.log("Continuing debugging %d times..." % len(expectedBPOrder))
+    for expectedBP in expectedBPOrder:
         if waitFor("regexVerify(str(statusLabel.text), expectedLabelTexts)", 20000):
-            verifyBreakPoint(expectedBPOrder[i])
+            verifyBreakPoint(expectedBP)
         else:
             test.fail('%s' % str(statusLabel.text))
         try:

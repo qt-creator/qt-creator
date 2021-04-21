@@ -72,8 +72,7 @@ def main():
                                             "debug")
                     switchViewTo(ViewConstants.EDIT)
                     allowAppThroughWinFW(buildDir, projectName, None)
-                if not doSimpleDebugging(kit, config,
-                                         len(expectedBreakpointsOrder), expectedBreakpointsOrder):
+                if not doSimpleDebugging(kit, config, expectedBreakpointsOrder):
                     try:
                         stopB = findObject(':Qt Creator.Stop_QToolButton')
                         if stopB.enabled:
