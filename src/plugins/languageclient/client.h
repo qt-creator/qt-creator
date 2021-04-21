@@ -122,7 +122,6 @@ public:
 
     void setLocatorsEnabled(bool enabled) { m_locatorsEnabled = enabled; }
     bool locatorsEnabled() const { return m_locatorsEnabled; }
-    void setDocumentActionsEnabled(bool enabled) { m_documentActionsEnabled = enabled; }
 
     // document synchronization
     void setSupportedLanguage(const LanguageFilter &filter);
@@ -261,7 +260,6 @@ private:
     bool m_activateDocAutomatically = false;
     SemanticTokenSupport m_tokentSupport;
     bool m_locatorsEnabled = true;
-    bool m_documentActionsEnabled = true;
 };
 
 } // namespace LanguageClient

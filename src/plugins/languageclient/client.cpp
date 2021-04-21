@@ -542,9 +542,6 @@ void Client::requestDocumentHighlights(TextEditor::TextEditorWidget *widget)
 
 void Client::activateDocument(TextEditor::TextDocument *document)
 {
-    if (!m_documentActionsEnabled)
-        return;
-
     auto uri = DocumentUri::fromFilePath(document->filePath());
     m_diagnosticManager.showDiagnostics(uri);
     SemanticHighligtingSupport::applyHighlight(document, m_highlights.value(uri), capabilities());
@@ -571,9 +568,6 @@ void Client::activateDocument(TextEditor::TextDocument *document)
 
 void Client::deactivateDocument(TextEditor::TextDocument *document)
 {
-    if (!m_documentActionsEnabled)
-        return;
-
     m_diagnosticManager.hideDiagnostics(document);
     resetAssistProviders(document);
     document->setFormatter(nullptr);
@@ -1265,9 +1259,6 @@ void Client::handleMethod(const QString &method, const MessageId &id, const ICon
 
 void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
 {
-    if (!m_documentActionsEnabled)
-        return;
-
     const DocumentUri &uri = params.uri();
 
     const QList<Diagnostic> &diagnostics = params.diagnostics();
@@ -1280,9 +1271,6 @@ void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
 
 void Client::handleSemanticHighlight(const SemanticHighlightingParams &params)
 {
-    if (!m_documentActionsEnabled)
-        return;
-
     DocumentUri uri;
     LanguageClientValue<int> version;
     auto textDocument = params.textDocument();
@@ -1313,9 +1301,6 @@ void Client::handleSemanticHighlight(const SemanticHighlightingParams &params)
 
 void Client::rehighlight()
 {
-    if (!m_documentActionsEnabled)
-        return;
-
     using namespace TextEditor;
     for (auto it = m_highlights.begin(), end = m_highlights.end(); it != end; ++it) {
         if (TextDocument *doc = TextDocument::textDocumentForFilePath(it.key().toFilePath())) {

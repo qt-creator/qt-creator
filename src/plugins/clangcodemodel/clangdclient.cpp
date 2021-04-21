@@ -65,7 +65,6 @@ ClangdClient::ClangdClient(ProjectExplorer::Project *project, const Utils::FileP
     caps.clearTextDocument();
     setClientCapabilities(caps);
     setLocatorsEnabled(false);
-    setDocumentActionsEnabled(false);
     setProgressTitleForToken(indexingToken(), tr("Parsing C/C++ Files (clangd)"));
     setCurrentProject(project);
     connect(this, &Client::workDone, this, [this](const ProgressToken &token) {
