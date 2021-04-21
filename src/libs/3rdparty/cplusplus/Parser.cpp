@@ -39,7 +39,7 @@
 
 #define CPLUSPLUS_NO_DEBUG_RULE
 #define MAX_EXPRESSION_DEPTH 1000
-#define MAX_STATEMENT_DEPTH 100
+#define MAX_STATEMENT_DEPTH 300
 
 using namespace CPlusPlus;
 

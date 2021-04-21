@@ -82,8 +82,8 @@ class PeripheralRegisterValue final
 {
 public:
     PeripheralRegisterValue(quint64 v = 0) : v(v) {}
-    bool operator==(const PeripheralRegisterValue &other) { return v == other.v; }
-    bool operator!=(const PeripheralRegisterValue &other) { return !operator==(other); }
+    bool operator==(const PeripheralRegisterValue &other) const { return v == other.v; }
+    bool operator!=(const PeripheralRegisterValue &other) const { return !operator==(other); }
 
     bool fromString(const QString &string, PeripheralRegisterFormat fmt);
     QString toString(int size, PeripheralRegisterFormat fmt) const;

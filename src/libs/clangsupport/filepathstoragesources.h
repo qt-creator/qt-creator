@@ -82,6 +82,16 @@ public:
         return !(first == second);
     }
 
+    friend bool operator==(const FileNameEntry &first, const FileNameView &second)
+    {
+        return first.directoryId == second.directoryId && first.fileName == second.fileName;
+    }
+
+    friend bool operator!=(const FileNameEntry &first, const FileNameView &second)
+    {
+        return !(first == second);
+    }
+
     operator FileNameView() const { return {fileName, directoryId}; }
 
     operator Utils::SmallString() && { return std::move(fileName); }

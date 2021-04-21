@@ -251,7 +251,14 @@ GenericBuildSystem::GenericBuildSystem(Target *target)
     connect(&m_deployFileWatcher, &FileSystemWatcher::fileChanged,
             this, &GenericBuildSystem::updateDeploymentData);
 
-    connect(target, &Target::activeBuildConfigurationChanged, this, [this] { refresh(Everything); });
+    connect(target, &Target::activeBuildConfigurationChanged, this, [this, target] {
+        if (target == project()->activeTarget())
+            refresh(Everything);
+    });
+    connect(project(), &Project::activeTargetChanged, this, [this, target] {
+        if (target == project()->activeTarget())
+            refresh(Everything);
+    });
 }
 
 GenericBuildSystem::~GenericBuildSystem()
@@ -552,6 +559,8 @@ QStringList GenericBuildSystem::processEntries(const QStringList &paths,
 void GenericBuildSystem::refreshCppCodeModel()
 {
     if (!m_cppCodeModelUpdater)
+        return;
+    if (target() != project()->activeTarget())
         return;
     QtSupport::CppKitInfo kitInfo(kit());
     QTC_ASSERT(kitInfo.isValid(), return);

@@ -98,12 +98,14 @@
     When editing states, you can easily see which values are explicitly set in
     the current state and which values are derived from the base state.
 
-    The following images illustrate this. In the base state, the \uicontrol Size
-    (1) and \uicontrol Colors (2) values are explicitly set and highlighted.
+    The following images illustrate this. In the base state, the
+    \uicontrol Position (1) and \uicontrol Size (2) values are explicitly set
+    and highlighted.
 
     \image qmldesigner-properties-explicit-base.png "Explicitly set properties"
 
-    In \uicontrol State1, only the color (1) is explicitly set and highlighted.
+    In \uicontrol State1, only \uicontrol Position is explicitly set and
+    highlighted.
 
     \image qmldesigner-properties-explicit-state1.png "Explicitly set properties"
 

@@ -556,11 +556,14 @@
     default, they do not snap to step size, but you can set them to snap to it
     either while being dragged or after being released.
 
+    You can set slider orientation to horizontal or vertical in the
+    \uicontrol Orientation field.
+
     Select the \uicontrol Live check box to provide live updates of the value
     properties.
 
-    You can set slider orientation to horizontal or vertical in the
-    \uicontrol Orientation field.
+    Modify the \uicontrol {Touch drag threshold} to determine the threshold at
+    which a touch drag event will be initiated.
 
     For more information, watch the following video:
 
