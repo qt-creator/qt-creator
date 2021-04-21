@@ -65,13 +65,14 @@
 
     To preview the changes that you make to the UI while you make
     them, select the \inlineimage live_preview.png
-    (\uicontrol {Show Live Preview}) button on the \uicontrol {Form Editor}
+    (\uicontrol {Show Live Preview}) button on the \l {Form Editor}
     toolbar or press \key {Alt+P}.
 
-    To add the text field and a back button needed on the registration page:
+    To add the text field and a back button needed on the registration page
+    to the \e Screen01 component:
 
     \list 1
-        \li Open \e {Screen01.ui.qml} in \l {Form Editor} for editing.
+        \li Open \e {Screen01.ui.qml} in \uicontrol {Form Editor} for editing.
         \li Drag-and-drop a \uicontrol {Text Field} from \l Library
             > \uicontrol Components > \uicontrol {Qt Quick Controls} to
             \e fieldColumn in \l Navigator.
@@ -83,12 +84,12 @@
         \li In the \uicontrol Placeholder field, set the placeholder text to
             \e {Verify password} and mark the text translatable.
         \li Drag-and-drop a PushButton component from \uicontrol Library >
-            \uicontrol Components > \uicontrol {My Components} to its parent
+            \uicontrol Components > \uicontrol {My Components} to the root
             rectangle in \uicontrol Navigator.
-        \li Select the button in \uicontrol Navigator and change its id to
+        \li Select the button in \uicontrol Navigator and change its ID to
             \e backButton in \uicontrol Properties.
         \li In the \uicontrol Geometry group, \uicontrol Size field, set the
-            button width to \e 40 pixels.
+            button width to \e 40 pixels to create a small round button.
         \li In the \uicontrol Text field, enter \e <.
         \li In the \uicontrol Font group, \uicontrol Size field, set the font
             size to \e 24 pixels.
@@ -101,8 +102,8 @@
             to save your changes.
     \endlist
 
-    Your page now should look something like this in the Design mode and live
-    preview:
+    \e Screen01 should now look something like this in the \uicontrol Design
+    mode and live preview:
 
     \image loginui3-base-state.png "Login page with new UI components"
 
@@ -117,7 +118,7 @@
     components in the \uicontrol {Form Editor}, depending on the current page:
 
     \list 1
-        \li In the \uicontrol States view, select \uicontrol {Create New State}.
+        \li In the \l States view, select \uicontrol {Create New State}.
             \image loginui3-login-state.png "States view"
         \li Enter \e loginState as the state name.
         \li Select \e verifyPasswordField in the \uicontrol Navigator,
@@ -134,8 +135,8 @@
             \e registerState. This state should now look identical to the base
             state.
         \li Select \e loginButton in the \uicontrol Navigator, and deselect
-            the \uicontrol Visibility check box to hide the login button in
-            the registration state.
+            the \uicontrol Visibility check box in \uicontrol Properties to
+            hide the login button in the registration state.
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
             to save your changes.
     \endlist
@@ -181,16 +182,16 @@
     that has a \e clicked signal. The signal is emitted whenever the mouse
     is clicked within the area.
 
-    You will now use the \l Connections view to
+    You will now use the \uicontrol {Connection View} to
     \l{Connecting Components to Signals}{connect} the clicked signal of
     \e registerButton to \e registerState and that of \e backButton
     to \e loginState:
 
     \list 1
         \li Select \uicontrol View > \uicontrol Views >
-            \uicontrol {Connection View} to open the \uicontrol Connection view.
+            \uicontrol {Connection View} to open the \uicontrol Connections tab.
         \li Select \e registerButton in the \uicontrol Navigator.
-        \li In the \uicontrol Connection view, select the \inlineimage plus.png
+        \li In the \uicontrol Connections tab, select the \inlineimage plus.png
             button to add the action that the \c onClicked signal handler of
             \e registerButton should apply.
         \li Double-click the value \uicontrol Action column and select
@@ -202,9 +203,9 @@
             to save your changes.
     \endlist
 
-    You can now see the following connections in the Design mode:
+    You can now see the following connections in the \uicontrol Design mode:
 
-    \image loginui3-connections.png "Connections view"
+    \image loginui3-connections.png "Connections tab"
 
     In the live preview, you can now click the \uicontrol {Create Account}
     button to go to the registration page and the back button to return to
@@ -219,19 +220,20 @@
     needs to know that the user has clicked on it. In response, the button may
     change color to indicate its state and perform an action.
 
-    QML has a signal and handler mechanism, where the signal is the event that
-    is responded to through a signal handler. When a signal is emitted, the
-    corresponding signal handler is invoked. Placing logic such as a script or
-    other operations in the handler allows the component to respond to the
-    event.
+    A \e {signal-and-handler} mechanism is used, where the \e signal is the
+    event that is responded to through a \e {signal handler}. When a signal is
+    emitted, the corresponding signal handler is invoked. Placing logic, such
+    as a script or other operations, in the handler allows the component to
+    respond to the event.
 
     For more information, see \l{Signal and Handler Event System}.
 
     \section1 Next Steps
 
     For a more complicated UI, you would typically use components that specify
-    a view of components provided by a model, such as a \l ListView or \l StackView.
-    For more information, see \l{Using Data Models}.
+    a view of items provided by a model, such as a \l{List and Grid Views}
+    {List View} or \l StackView. For more information, see
+    \l{Lists and Other Data Models}.
 
     To learn how to use a timeline to animate the transition between the login
     and registration pages, see the next tutorial in the series,
