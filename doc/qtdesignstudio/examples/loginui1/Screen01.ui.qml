@@ -49,9 +49,9 @@
 **
 ****************************************************************************/
 import QtQuick 2.15
-import loginui1 1.0
 import QtQuick.Studio.Components 1.0
 import QtQuick.Controls 2.15
+import loginui1 1.0
 
 Rectangle {
     color: "#ffffff"
@@ -104,6 +104,13 @@ Rectangle {
         y: 398
         width: 120
         height: 40
-        text: "Create Account"
+        text: qsTr("Create Account")
     }
 }
+
+/*##^##
+Designer {
+    D{i:0;autoSize:true;formeditorZoom:0.5;height:480;width:640}
+}
+##^##*/
+

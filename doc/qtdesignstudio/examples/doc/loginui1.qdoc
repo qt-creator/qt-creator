@@ -79,7 +79,8 @@
 
     \image loginui1-project.png "Log In UI project in the Design mode"
 
-    The UI is built using a \l{basic-rectangle}{Rectangle} component that forms
+    The wizard constructs the \e Screen01 \l{glossary-component}{component}
+    using instances of a \l{basic-rectangle}{Rectangle} component that forms
     the background and a \l Text component that displays some text.
 
     \note The visibility of views depends on the selected workspace,
@@ -102,18 +103,17 @@
             files when you add them to the project.
         \li The \e {loginui1.qml} file defines the functionality of
             the UI. For the time being, it does not do anything.
-        \li The \e {Screen01.ui.qml} file defines the appearance of the
-            UI. For more information, see \l {UI Files}.
+        \li The \e {Screen01.ui.qml} file is a custom component created by
+            the wizard template. For more information, see \l {UI Files}.
         \li The \e {qtquickcontrols2.conf} file specifies the selected
             \l {Styling Qt Quick Controls}{UI style} and some style-specific
             arguments.
         \li The \e imports folder contains a \e {Constants.qml} file that
             specifies a font loader for the Arial font and a \e qmldir module
             definition file that declares the Constant component. For more
-            information, see \l {Module Definition qmldir Files}. In addition,
-            the \e QtQuick subfolder contains the Studio components and effects
-            components. You can ignore the subfolder for now, because it is not
-            used in this tutorial.
+            information, see \l {Module Definition qmldir Files}. The
+            \e EventListModel.qml and \e EventListSimulator.qml files are
+            not used in this example, so you can ignore them for now.
     \endlist
 
     UI files define a hierarchy of components with a highly-readable, structured
@@ -122,23 +122,21 @@
     UIs are provided in the QtQuick import. You can view the code of an
     .ui.qml file in the \l{Text Editor} view.
 
-    For more information about creating a component file from scratch, see
-    \l{First Steps with QML}.
-
-    Next, you will edit the values of the properties of the UI components to
-    create the main page of the UI.
+    Next, you will edit the values of the properties of the component instances
+    to create the main page of the UI.
 
     \section1 Creating the Main Page
 
     You will now change the values of the properties of the \l{basic-rectangle}
-    {Rectangle} component to add a gradient to the UI background and those of
-    the \l Text component to set the title text in a larger strong font. In
-    addition, you will import an image as an asset and add it to the page.
+    {Rectangle} component instance to add a gradient to the UI background and
+    those of the \l Text component instance to set the title text in a larger
+    strong font. In addition, you will import an image as an asset and add it
+    to the page.
 
     To add an image to your UI, you should first click
     \l {https://doc.qt.io/qtdesignstudio/images/used-in-examples/loginui1/qt_logo_green_64x64px.png}
     {here} to open the Qt logo in a browser and save it as a file on your
-    computer.  Next, you need to add the image to \l Library:
+    computer. Next, you need to add the image to \l Library:
     \list 1
         \li Select \uicontrol Library > \uicontrol Assets
             > \inlineimage plus.png
@@ -155,14 +153,14 @@
     view toolbar or press \key {Alt+P}.
 
     The \e Screen01.ui.qml file that the wizard template created for you should
-    be open in the Design mode. If it is not, you can double-click it in the
-    \uicontrol Projects view to open it.
+    be open in the \uicontrol Design mode. If it is not, you can double-click it
+    in the \uicontrol Projects view to open it.
 
-    To modify \e Screen01.ui.qml in \uicontrol {Form Editor}:
+    To modify the \e Screen01 component in \uicontrol {Form Editor}:
 
     \list 1
-       \li Select \e Rectangle in the \uicontrol Navigator view to display its
-            properties in the \uicontrol Properties view.
+        \li Select the \e Rectangle instance in the \l Navigator view to display
+            its properties in the \l Properties view.
         \li In the \uicontrol Color field, select the
             \inlineimage icon_color_gradient.png
             (\uicontrol {Linear Gradient}) button to add a linear gradient to
@@ -176,15 +174,16 @@
             \image loginui1-background-gradient.png "Rectangle color properties"
         \li Select \e Text in \uicontrol Navigator to display its properties in
             \uicontrol Properties.
-            \image loginui1-text-properties.png "Text properties"
             \list a
-                \li In the \uicontrol id field, enter the id \e pageTitle,
+                \li In the \uicontrol ID field, enter the ID \e pageTitle,
                     so that you can easily find the title component in
                     \uicontrol Navigator and other \QDS views.
+                    \image loginui1-text-properties.png "Text properties"
                 \li In the \uicontrol Text field, enter the page title:
                     \e {Qt Account}.
                 \li In the \uicontrol Font group, \uicontrol Size field,
                     set the font size of the title: \e 24 pixels.
+                    \image loginui1-text-font-properties.png "Font properties"
                 \li In the \uicontrol {Font style} field, select the
                     \uicontrol B button to use a strong font.
             \endlist
@@ -195,13 +194,13 @@
             component for you with the path to the image file set as the value of
             the \uicontrol Source field in \uicontrol Properties.
             \image loginui1-image-properties.png "Image properties"
-        \li In the \uicontrol id field, change the id of the image to \e logo.
+        \li In the \uicontrol ID field, change the ID of the image to \e logo.
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
             to save your changes.
     \endlist
 
-    Your UI should now look something like this in the Design mode and live
-    preview:
+    Your UI should now look something like this in \uicontrol {Form Editor}
+    and live preview:
 
     \image loginui1-main-page.png "Modified UI in the Design mode"
 
@@ -217,7 +216,7 @@
 
     \quotefromfile loginui1/Screen01.ui.qml
     \skipto import
-    \printuntil loginui1 1.0
+    \printuntil Controls
 
     You can view the import statements in the \uicontrol {Text Editor} view.
 
@@ -292,11 +291,11 @@
     You can use another wizard template to create a push button and to add it to
     the project. The wizard template creates a reusable button component that
     appears in \uicontrol Library > \uicontrol Components >
-    \uicontrol {My Components}. You can drag-and-drop it to \l {Form Editor} and
-    modify its properties in the \uicontrol Properties view to change its
-    appearance and functionality.
+    \uicontrol {My Components}. You can drag-and-drop it to \l {Form Editor}
+    to create button instances and modify their properties in the
+    \uicontrol Properties view to change their appearance and functionality.
 
-    If you find that you cannot use the wizard template nor the ready-made
+    If you find that you cannot use the wizard template nor the preset
     button controls available in \uicontrol Library > \uicontrol Components >
     \uicontrol {Qt Quick Controls} to create the kind of push button that you
     want, you can create your button from scratch using default components. For
@@ -321,48 +320,36 @@
 
     \section2 Learn More - UI Controls
 
-    The \e {Custom Button} wizard template creates a \l {Button}
-    component that belongs to the \l {Qt Quick Controls} module. It is a
-    push-button control that can be pushed or clicked by the user. Buttons
-    are normally used to perform an action or to answer a question. The Button
-    component inherits properties and functionality from another component. These
-    enable you to set text, display an icon, react to mouse clicks, and so on.
+    The \e {Custom Button} wizard template creates a button component
+    based on the \l {Button} control in the \l {Qt Quick Controls} module. It
+    is a push-button control that can be pushed or clicked by the user. Buttons
+    are normally used to perform an action or to answer a question. The
+    properties and functionality inherited from the Button component enable
+    you to set text, display an icon, react to mouse clicks, and so on.
 
-    To be able to use the functionality of the Button component, the wizard template
+    To be able to use the functionality of the Button control, the wizard template
     adds the following \e import statements to the \e PushButton.ui.qml file:
 
     \quotefromfile loginui1/PushButton.ui.qml
     \skipto import
-    \printuntil loginui1
+    \printuntil Controls
 
-    The \l {Qt Quick Templates 2} module provides the functionality of the
-    Button component. The module is imported as \e T, and the alias is added to
-    the Button component definition to indicate that the Button component from the
-    \uicontrol {Qt Quick Controls} module is used, instead of some other
-    component with the same name.
-
-    \printuntil text
-    \dots
-    \skipto Rectangle {
-    \printuntil }
-    \dots
-
-    Next, you will change the appearance of the button by modifying its
-    properties.
+    Next, you will change the appearance of the PushButton component by
+    modifying its properties.
 
     \section1 Styling the Button
 
-    You can now modify the properties of the PushButton component to your liking. To
-    make the changes apply to all the button instances, you must make them in
-    the \e PushButton.ui.qml file.
+    You can now modify the properties of the PushButton component to your
+    liking. To make the changes apply to all the PushButton instances, you
+    must make them in the \e PushButton.ui.qml file.
 
     The Custom Button wizard template adds a \e normal state and a \e down state
     to change the button background and text color when the button is clicked.
     You will now change the colors in all states. When you make changes to the
     button in the \e base state, they are automatically applied to the other
     states. However, the property values that have been explicitly changed in
-    the \e down state are not changed automatically and you have to change them
-    separately in that state.
+    the \e normal or \e down state are not changed automatically and you have
+    to change them separately in that state.
 
     To change the button property values:
 
@@ -381,8 +368,10 @@
         \li Press \key Enter or select \uicontrol OK to save the new value.
         \li In the \uicontrol Radius field, enter 20 to give the button
             rounded corners.
-        \li In the \uicontrol States view, select the \e normal state and modify
-            the background color as above.
+        \li In the \uicontrol States view, select the \e normal state and select
+            \inlineimage icon_color_none.png
+            to use a solid background color (white) instead of transparent.
+            Repeat for the \e down state.
         \li Select the \e base state, and then select the text component
             in \uicontrol Navigator to display its properties in
             \uicontrol Properties.
@@ -419,13 +408,12 @@
 
     For more information, see \l {Property Binding}.
 
-    Next, you will use the \e PushButton component in the main UI file,
-    \e Screen01.ui.qml to add two instances of the button to the UI
-    and to modify their text labels.
+    Next, you will add two instances of the \e PushButton component to the
+    \e Screen01 component and modify their text labels.
 
     \section1 Adding Buttons to the UI
 
-    You will now add two button instances to the UI and modify their labels.
+    You will now add two PushButton instances to the UI and modify their labels.
 
     \list 1
         \li Double-click \e Screen01.ui.qml in \uicontrol Projects
@@ -434,41 +422,42 @@
             \uicontrol Library > \uicontrol Components > \uicontrol {My Components}
             to \uicontrol {Form Editor}.
             \image loginui1-library.png "My Components tab of Library view"
-        \li Select one of the buttons in \uicontrol Navigator to modify
-            its ID and text label in \uicontrol Properties.
-        \li In the \uicontrol Id field, enter \e loginButton.
+        \li Select one of the PushButton instances in \uicontrol Navigator
+            to modify its ID and text label in \uicontrol Properties.
+        \li In the \uicontrol ID field, enter \e loginButton.
         \li In the \uicontrol Text field, enter \e {Log In} and select
             \uicontrol tr to mark the text
             \l {Internationalization and Localization with Qt Quick}
             {translatable}.
-        \li Select the other button, and change its id to \e registerButton
-            and text label to \e {Create Account}. Again, mark the text
-            translatable.
-        \li When a component is selected, selection handles are displayed in its
-            corners and on its sides. Use the selection handles to resize the
-            buttons so that the text fits comfortably on the button background.
+        \li Select the other PushButton instance, and change its ID to
+            \e registerButton and text label to \e {Create Account}.
+            Again, mark the text translatable.
+        \li When a component instance is selected, selection handles are
+            displayed in its corners and on its sides. Use the selection
+            handles to resize the button instances so that the text fits
+            comfortably on the button background.
             In this tutorial, the button width is set to 120 pixels.
-        \li Move the cursor on the selected button to make the selection icon
-            appear. You can now drag the button to another position in
-            \uicontrol {Form Editor}. Use the guidelines to align the buttons
-            below the page title:
+        \li Move the cursor on the selected button instance to make the
+            selection icon appear. You can now drag the button instance
+            to another position in \uicontrol {Form Editor}. Use the
+            guidelines to align the button instances below the page title:
             \image loginui1-align-buttons.png
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
             to save your changes.
     \endlist
 
     The first iteration of your UI is now ready and should now look something
-    like this in the Design mode and live preview:
+    like this in \uicontrol {Form Editor} and live preview:
 
-    \image loginui1-ready.png "The finished UI in the Design mode"
+    \image loginui1-ready.png "The finished UI in Form Editor"
 
     \section2 Learn More - Component IDs
 
-    Each component and each instance of a component has an \e id that uniquely
-    identifies it and enables other components' properties to be bound to it. An
-    id must be unique, it must begin with a lower-case letter or an underscore
-    character, and it can contain only letters, numbers, and underscore
-    characters.
+    Each component and each instance of a component has an \e ID that uniquely
+    identifies it and enables other components' properties to be bound to it.
+    An ID must be unique, it must begin with a lower-case letter or an
+    underscore character, and it can contain only letters, numbers, and
+    underscore characters.
 
     For more information, see \l{The id Attribute}.
 

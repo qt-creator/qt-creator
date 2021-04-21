@@ -1,7 +1,7 @@
 
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the examples of the Qt Design Studio.
@@ -49,15 +49,11 @@
 **
 ****************************************************************************/
 import QtQuick 2.15
-import QtQuick.Templates 2.1 as T
-import loginui2 1.0
+import QtQuick.Controls 2.12
 
-T.Button {
+Button {
     id: control
-    width: 100
-    height: 40
 
-    font: Constants.font
     implicitWidth: Math.max(
                        buttonBackground ? buttonBackground.implicitWidth : 0,
                        textItem.implicitWidth + leftPadding + rightPadding)
@@ -70,6 +66,14 @@ T.Button {
     text: "My Button"
 
     background: buttonBackground
+    Rectangle {
+        id: buttonBackground
+        implicitWidth: 100
+        implicitHeight: 40
+        opacity: enabled ? 1 : 0.3
+        radius: 20
+        border.color: "#41cd52"
+    }
 
     contentItem: textItem
     Text {
@@ -77,30 +81,19 @@ T.Button {
         text: control.text
 
         opacity: enabled ? 1.0 : 0.3
-        color: "#020202"
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         font.bold: true
-        elide: Text.ElideRight
-    }
-
-    Rectangle {
-        id: buttonBackground
-        implicitWidth: 100
-        implicitHeight: 40
-        opacity: enabled ? 1 : 0.3
-        border.color: "#41cd52"
-        border.width: 1
-        anchors.fill: parent
-        radius: 20
     }
 
     states: [
         State {
             name: "normal"
             when: !control.down
+
             PropertyChanges {
                 target: buttonBackground
+                border.color: "#41cd52"
             }
         },
         State {
@@ -110,9 +103,9 @@ T.Button {
                 target: textItem
                 color: "#41cd52"
             }
+
             PropertyChanges {
                 target: buttonBackground
-                color: "#ffffff"
                 border.color: "#41cd52"
             }
         }
