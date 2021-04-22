@@ -205,8 +205,6 @@ Project {
             name: "Snippets"
             prefix: "snippets/"
             files: [
-                "snippetprovider.cpp",
-                "snippetprovider.h",
                 "reuse.h",
                 "snippet.cpp",
                 "snippet.h",
@@ -214,6 +212,10 @@ Project {
                 "snippetassistcollector.h",
                 "snippeteditor.cpp",
                 "snippeteditor.h",
+                "snippetoverlay.cpp",
+                "snippetoverlay.h",
+                "snippetprovider.cpp",
+                "snippetprovider.h",
                 "snippetscollection.cpp",
                 "snippetscollection.h",
                 "snippetssettings.cpp",

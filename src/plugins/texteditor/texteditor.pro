@@ -97,7 +97,8 @@ SOURCES += texteditorplugin.cpp \
     commentssettings.cpp \
     marginsettings.cpp \
     formattexteditor.cpp \
-    command.cpp
+    command.cpp \
+    snippets/snippetoverlay.cpp
 
 HEADERS += texteditorplugin.h \
     plaintexteditorfactory.h \
@@ -192,7 +193,8 @@ HEADERS += texteditorplugin.h \
     formattexteditor.h \
     command.h \
     indenter.h \
-    formatter.h
+    formatter.h \
+    snippets/snippetoverlay.h
 
 FORMS += \
     displaysettingspage.ui \

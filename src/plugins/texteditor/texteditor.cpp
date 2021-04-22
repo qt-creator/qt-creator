@@ -42,6 +42,7 @@
 #include "icodestylepreferences.h"
 #include "refactoroverlay.h"
 #include "snippets/snippet.h"
+#include "snippets/snippetoverlay.h"
 #include "storagesettings.h"
 #include "syntaxhighlighter.h"
 #include "tabsettings.h"

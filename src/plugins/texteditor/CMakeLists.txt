@@ -81,6 +81,7 @@ add_qtc_plugin(TextEditor
     snippets/snippet.cpp snippets/snippet.h
     snippets/snippetassistcollector.cpp snippets/snippetassistcollector.h
     snippets/snippeteditor.cpp snippets/snippeteditor.h
+    snippets/snippetoverlay.cpp snippets/snippetoverlay.h
     snippets/snippetprovider.cpp snippets/snippetprovider.h
     snippets/snippetscollection.cpp snippets/snippetscollection.h
     snippets/snippetssettings.cpp snippets/snippetssettings.h

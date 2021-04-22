@@ -35,7 +35,6 @@ QT_FORWARD_DECLARE_CLASS(QWidget)
 QT_FORWARD_DECLARE_CLASS(QPainterPath)
 
 namespace TextEditor {
-class NameMangler;
 class TextEditorWidget;
 
 namespace Internal {
@@ -115,23 +114,6 @@ private:
     TextEditorWidget *m_editor;
     QWidget *m_viewport;
     QList<OverlaySelection> m_selections;
-};
-
-class SnippetOverlay : public TextEditorOverlay
-{
-public:
-    using TextEditorOverlay::TextEditorOverlay;
-
-    void clear() override;
-
-    void mapEquivalentSelections();
-    void updateEquivalentSelections(const QTextCursor &cursor);
-    void setNameMangler(const QList<NameMangler *> &manglers);
-    void mangle();
-
-private:
-    QVector<QList<int> > m_equivalentSelections;
-    QList<NameMangler *> m_manglers;
 };
 
 } // namespace Internal
