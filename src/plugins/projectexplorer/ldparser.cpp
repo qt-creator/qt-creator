@@ -116,7 +116,7 @@ Utils::OutputLineParser::Result LdParser::handleLine(const QString &line, Utils:
     }
 
     match = m_regExpLinker.match(lne);
-    if (match.hasMatch()) {
+    if (match.hasMatch() && lne.count(':') >= 2) {
         bool ok;
         int lineno = match.captured(7).toInt(&ok);
         if (!ok)
