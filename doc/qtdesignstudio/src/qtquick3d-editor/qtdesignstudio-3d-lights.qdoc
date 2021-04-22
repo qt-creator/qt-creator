@@ -38,7 +38,7 @@
 
     To add light components to your UI, drag-and-drop them from \l Library
     > \uicontrol Components > \uicontrol {Qt Quick 3D} to \l {3D Editor} or to
-    \l Navigator > \uicontrol Scene Environment > \uicontrol Scene.
+    \l Navigator > \uicontrol {Scene Environment} > \uicontrol Scene.
 
     If you cannot find the light components in \uicontrol Library, add the
     \uicontrol {Qt Quick 3D} module to your project as instructed in
