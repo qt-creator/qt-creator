@@ -86,8 +86,8 @@
     \note The visibility of views depends on the selected workspace,
     so your \QDS might look somewhat different from the above image.
     To open hidden views, select \uicontrol View > \uicontrol Views
-    in the Design mode. For more information about moving views around,
-    see \l {Managing Workspaces}.
+    in the \uicontrol Design mode. For more information about moving
+    views around, see \l {Managing Workspaces}.
 
     \section2 Learn More - Projects and Files
 
@@ -314,7 +314,8 @@
             the button.
     \endlist
 
-    Your button should now look something like this in the Design mode:
+    Your button should now look something like this in the \uicontrol Design
+    mode:
 
     \image loginui1-button.png "Button in the Design mode."
 
@@ -357,21 +358,20 @@
         \li Select the button background in \uicontrol Navigator to display its
             properties in \uicontrol Properties.
         \li In the \uicontrol Color field, select
+            \inlineimage icon_color_none.png
+            to use a solid background color (white) instead of transparent.
+        \li In the \uicontrol {Border Color} field, select
             \inlineimage icons/action-icon.png
-            (\uicontrol Actions) > \uicontrol Reset to reset the button
-            background color to the default color, white.
-        \li In the \uicontrol {Border Color} field, select \uicontrol Actions >
-            \uicontrol {Set Binding} to use the gradient color (\e #41cd52) as
-            the border color. You can also use the color picker to change the
-            color.
+            (\uicontrol Actions) > \uicontrol {Set Binding} to use the
+            gradient color (\e #41cd52) as the border color. You can also
+            use the color picker to change the color.
             \image loginui1-binding-editor.png "Binding Editor"
         \li Press \key Enter or select \uicontrol OK to save the new value.
         \li In the \uicontrol Radius field, enter 20 to give the button
             rounded corners.
-        \li In the \uicontrol States view, select the \e normal state and select
-            \inlineimage icon_color_none.png
-            to use a solid background color (white) instead of transparent.
-            Repeat for the \e down state.
+        \li In the \uicontrol States view, select the \e normal state and set
+            the background color to white and the border color to green, as
+            instructed above. Repeat for the \e down state.
         \li Select the \e base state, and then select the text component
             in \uicontrol Navigator to display its properties in
             \uicontrol Properties.
