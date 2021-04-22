@@ -502,8 +502,8 @@ void MimeTypeSettingsPrivate::ensurePendingMimeType(const Utils::MimeType &mimeT
 
 void MimeTypeSettingsPrivate::writeUserModifiedMimeTypes()
 {
-    static Utils::FilePath modifiedMimeTypesFile = Utils::FilePath::fromString(
-                ICore::userResourcePath() + QLatin1String(kModifiedMimeTypesFile));
+    static Utils::FilePath modifiedMimeTypesFile = ICore::userResourcePath()
+                                                   + kModifiedMimeTypesFile;
 
     if (QFile::exists(modifiedMimeTypesFile.toString())
             || QDir().mkpath(modifiedMimeTypesFile.parentDir().toString())) {
@@ -564,10 +564,10 @@ static QPair<int, int> rangeFromString(const QString &offset)
 
 MimeTypeSettingsPrivate::UserMimeTypeHash MimeTypeSettingsPrivate::readUserModifiedMimeTypes()
 {
-    static QString modifiedMimeTypesPath = ICore::userResourcePath()
-            + QLatin1String(kModifiedMimeTypesFile);
+    static Utils::FilePath modifiedMimeTypesPath = ICore::userResourcePath()
+                                                   + kModifiedMimeTypesFile;
     UserMimeTypeHash userMimeTypes;
-    QFile file(modifiedMimeTypesPath);
+    QFile file(modifiedMimeTypesPath.toString());
     if (file.open(QFile::ReadOnly)) {
         UserMimeType mt;
         QXmlStreamReader reader(&file);

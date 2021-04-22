@@ -43,7 +43,10 @@ void QmlJSToolsPlugin::test_basic()
 {
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
-    const QString qmlFilePath = Core::ICore::resourcePath() + QLatin1String("/qmldesigner/itemLibraryQmlSources/ItemDelegate.qml");
+    const QString qmlFilePath = Core::ICore::resourcePath()
+                                    .pathAppended(
+                                        "qmldesigner/itemLibraryQmlSources/ItemDelegate.qml")
+                                    .toString();
     modelManager->updateSourceFiles(QStringList(qmlFilePath), false);
     modelManager->test_joinAllThreads();
 

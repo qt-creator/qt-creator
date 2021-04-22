@@ -211,19 +211,19 @@ QList<ThemeEntry> ThemeEntry::availableThemes()
 {
     QList<ThemeEntry> themes;
 
-    static const QString installThemeDir = ICore::resourcePath() + QLatin1String("/themes");
-    static const QString userThemeDir = ICore::userResourcePath() + QLatin1String("/themes");
-    addThemesFromPath(installThemeDir, &themes);
+    static const FilePath installThemeDir = ICore::resourcePath() + QLatin1String("/themes");
+    static const FilePath userThemeDir = ICore::userResourcePath() + QLatin1String("/themes");
+    addThemesFromPath(installThemeDir.toString(), &themes);
     if (themes.isEmpty())
         qWarning() << "Warning: No themes found in installation: "
-                   << QDir::toNativeSeparators(installThemeDir);
+                   << installThemeDir.toUserOutput();
     // move default theme to front
     int defaultIndex = Utils::indexOf(themes, Utils::equal(&ThemeEntry::id, Id(Constants::DEFAULT_THEME)));
     if (defaultIndex > 0) { // == exists and not at front
         ThemeEntry defaultEntry = themes.takeAt(defaultIndex);
         themes.prepend(defaultEntry);
     }
-    addThemesFromPath(userThemeDir, &themes);
+    addThemesFromPath(userThemeDir.toString(), &themes);
     return themes;
 }
 

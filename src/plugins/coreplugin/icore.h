@@ -28,6 +28,7 @@
 #include "core_global.h"
 #include "icontext.h"
 
+#include <utils/fileutils.h>
 #include <utils/qtcsettings.h>
 
 #include <QList>
@@ -94,12 +95,12 @@ public:
     static QPrinter *printer();
     static QString userInterfaceLanguage();
 
-    static QString resourcePath();
-    static QString userResourcePath();
-    static QString cacheResourcePath();
-    static QString installerResourcePath();
-    static QString libexecPath();
-    static QString crashReportsPath();
+    static Utils::FilePath resourcePath();
+    static Utils::FilePath userResourcePath();
+    static Utils::FilePath cacheResourcePath();
+    static Utils::FilePath installerResourcePath();
+    static Utils::FilePath libexecPath();
+    static Utils::FilePath crashReportsPath();
 
     static QString ideDisplayName();
 

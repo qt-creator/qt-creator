@@ -234,7 +234,8 @@ void DesignModeWidget::setup()
     ADS::DockManager::setConfigFlag(ADS::DockManager::AllTabsHaveCloseButton, true);
     m_dockManager = new ADS::DockManager(this);
     m_dockManager->setSettings(settings);
-    m_dockManager->setWorkspacePresetsPath(Core::ICore::resourcePath() + QLatin1String("/qmldesigner/workspacePresets/"));
+    m_dockManager->setWorkspacePresetsPath(
+        Core::ICore::resourcePath().pathAppended("qmldesigner/workspacePresets/").toString());
 
     QString sheet = QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/dockwidgets.css"));
     m_dockManager->setStyleSheet(Theme::replaceCssColors(sheet));

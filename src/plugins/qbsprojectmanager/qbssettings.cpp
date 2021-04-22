@@ -85,7 +85,7 @@ bool QbsSettings::useCreatorSettingsDirForQbs()
 
 QString QbsSettings::qbsSettingsBaseDir()
 {
-    return useCreatorSettingsDirForQbs() ? Core::ICore::userResourcePath() : QString();
+    return useCreatorSettingsDirForQbs() ? Core::ICore::userResourcePath().toString() : QString();
 }
 
 QbsSettings &QbsSettings::instance()

@@ -145,6 +145,11 @@ static bool isTextKeySequence(const QKeySequence &sequence)
     return false;
 }
 
+static FilePath schemesPath()
+{
+    return Core::ICore::resourcePath() / "schemes";
+}
+
 namespace Core {
 namespace Internal {
 
@@ -485,9 +490,10 @@ void ShortcutSettingsWidget::resetToDefault()
 
 void ShortcutSettingsWidget::importAction()
 {
-    QString fileName = QFileDialog::getOpenFileName(ICore::dialogParent(), tr("Import Keyboard Mapping Scheme"),
-        ICore::resourcePath() + QLatin1String("/schemes/"),
-        tr("Keyboard Mapping Scheme (*.kms)"));
+    QString fileName = QFileDialog::getOpenFileName(ICore::dialogParent(),
+                                                    tr("Import Keyboard Mapping Scheme"),
+                                                    schemesPath().toString(),
+                                                    tr("Keyboard Mapping Scheme (*.kms)"));
     if (!fileName.isEmpty()) {
 
         CommandsFile cf(fileName);
@@ -524,10 +530,10 @@ void ShortcutSettingsWidget::defaultAction()
 
 void ShortcutSettingsWidget::exportAction()
 {
-    QString fileName = DocumentManager::getSaveFileNameWithExtension(
-        tr("Export Keyboard Mapping Scheme"),
-        ICore::resourcePath() + QLatin1String("/schemes/"),
-        tr("Keyboard Mapping Scheme (*.kms)"));
+    QString fileName
+        = DocumentManager::getSaveFileNameWithExtension(tr("Export Keyboard Mapping Scheme"),
+                                                        schemesPath().toString(),
+                                                        tr("Keyboard Mapping Scheme (*.kms)"));
     if (!fileName.isEmpty()) {
         CommandsFile cf(fileName);
         cf.exportCommands(m_scitems);

@@ -504,20 +504,19 @@ int FontSettings::defaultFontSize()
  */
 QString FontSettings::defaultSchemeFileName(const QString &fileName)
 {
-    QString defaultScheme = Core::ICore::resourcePath();
-    defaultScheme += QLatin1String("/styles/");
+    Utils::FilePath defaultScheme = Core::ICore::resourcePath() / "styles";
 
-    if (!fileName.isEmpty() && QFile::exists(defaultScheme + fileName)) {
-        defaultScheme += fileName;
+    if (!fileName.isEmpty() && (defaultScheme / fileName).exists()) {
+        defaultScheme = defaultScheme / fileName;
     } else {
         const QString themeScheme = Utils::creatorTheme()->defaultTextEditorColorScheme();
-        if (!themeScheme.isEmpty() && QFile::exists(defaultScheme + themeScheme))
-            defaultScheme += themeScheme;
+        if (!themeScheme.isEmpty() && (defaultScheme / themeScheme).exists())
+            defaultScheme = defaultScheme / themeScheme;
         else
-            defaultScheme += QLatin1String("default.xml");
+            defaultScheme = defaultScheme / "default.xml";
     }
 
-    return defaultScheme;
+    return defaultScheme.toString();
 }
 
 } // namespace TextEditor

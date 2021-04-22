@@ -65,7 +65,7 @@ using namespace Internal;
 const char QTVERSION_DATA_KEY[] = "QtVersion.";
 const char QTVERSION_TYPE_KEY[] = "QtVersion.Type";
 const char QTVERSION_FILE_VERSION_KEY[] = "Version";
-const char QTVERSION_FILENAME[] = "/qtversion.xml";
+const char QTVERSION_FILENAME[] = "qtversion.xml";
 
 using VersionMap = QMap<int, BaseQtVersion *>;
 static VersionMap m_versions;
@@ -84,12 +84,12 @@ static Q_LOGGING_CATEGORY(log, "qtc.qt.versions", QtWarningMsg);
 
 static FilePath globalSettingsFileName()
 {
-    return FilePath::fromString(Core::ICore::installerResourcePath() + QTVERSION_FILENAME);
+    return Core::ICore::installerResourcePath() / QTVERSION_FILENAME;
 }
 
 static FilePath settingsFileName(const QString &path)
 {
-    return FilePath::fromString(Core::ICore::userResourcePath() + path);
+    return Core::ICore::userResourcePath() / path;
 }
 
 

@@ -91,7 +91,7 @@ static Q_LOGGING_CATEGORY(avdConfigLog, "qtc.android.androidconfig", QtWarningMs
 namespace Android {
 using namespace Internal;
 
-const char JsonFilePath[] = "/android/sdk_definitions.json";
+const char JsonFilePath[] = "android/sdk_definitions.json";
 const char SdkToolsUrlKey[] = "sdk_tools_url";
 const char CommonKey[] = "common";
 const char SdkEssentialPkgsKey[] = "sdk_essential_packages";
@@ -142,7 +142,7 @@ namespace {
 
     static QString sdkSettingsFileName()
     {
-        return Core::ICore::installerResourcePath() + "/android.xml";
+        return Core::ICore::installerResourcePath().pathAppended("android.xml").toString();
     }
 
     static bool is32BitUserSpace()
@@ -270,21 +270,22 @@ void AndroidConfig::save(QSettings &settings) const
 
 void AndroidConfig::parseDependenciesJson()
 {
-    QString sdkConfigUserFile(Core::ICore::userResourcePath() + JsonFilePath);
-    QString sdkConfigFile(Core::ICore::resourcePath() + JsonFilePath);
+    FilePath sdkConfigUserFile(Core::ICore::userResourcePath() / JsonFilePath);
+    FilePath sdkConfigFile(Core::ICore::resourcePath() / JsonFilePath);
 
-    if (!QFile::exists(sdkConfigUserFile)) {
-        QDir(QFileInfo(sdkConfigUserFile).absolutePath()).mkpath(".");
-        QFile::copy(sdkConfigFile, sdkConfigUserFile);
+    if (!sdkConfigUserFile.exists()) {
+        QDir(sdkConfigUserFile.toFileInfo().absolutePath()).mkpath(".");
+        QFile::copy(sdkConfigFile.toString(), sdkConfigUserFile.toString());
     }
 
-    if (QFileInfo(sdkConfigFile).lastModified() > QFileInfo(sdkConfigUserFile).lastModified()) {
-        QFile::remove(sdkConfigUserFile + ".old");
-        QFile::rename(sdkConfigUserFile, sdkConfigUserFile + ".old");
-        QFile::copy(sdkConfigFile, sdkConfigUserFile);
+    if (sdkConfigFile.toFileInfo().lastModified() > sdkConfigUserFile.toFileInfo().lastModified()) {
+        const QString oldUserFile = (sdkConfigUserFile + ".old").toString();
+        QFile::remove(oldUserFile);
+        QFile::rename(sdkConfigUserFile.toString(), oldUserFile);
+        QFile::copy(sdkConfigFile.toString(), sdkConfigUserFile.toString());
     }
 
-    QFile jsonFile(sdkConfigUserFile);
+    QFile jsonFile(sdkConfigUserFile.toString());
     if (!jsonFile.open(QIODevice::ReadOnly)) {
         qCDebug(avdConfigLog, "Couldn't open JSON config file %s.", qPrintable(jsonFile.fileName()));
         return;

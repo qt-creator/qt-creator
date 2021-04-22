@@ -72,7 +72,7 @@ namespace Internal {
 const char DEBUGGER_COUNT_KEY[] = "DebuggerItem.Count";
 const char DEBUGGER_DATA_KEY[] = "DebuggerItem.";
 const char DEBUGGER_FILE_VERSION_KEY[] = "Version";
-const char DEBUGGER_FILENAME[] = "/debuggers.xml";
+const char DEBUGGER_FILENAME[] = "debuggers.xml";
 const char debuggingToolsWikiLinkC[] = "http://wiki.qt.io/Qt_Creator_Windows_Debugging";
 
 class DebuggerItemModel;
@@ -835,7 +835,7 @@ void DebuggerItemManagerPrivate::autoDetectUvscDebuggers()
 
 static FilePath userSettingsFileName()
 {
-    return FilePath::fromString(ICore::userResourcePath() + DEBUGGER_FILENAME);
+    return ICore::userResourcePath() / DEBUGGER_FILENAME;
 }
 
 DebuggerItemManagerPrivate::DebuggerItemManagerPrivate()
@@ -931,7 +931,7 @@ void DebuggerItemManagerPrivate::readDebuggers(const FilePath &fileName, bool is
 void DebuggerItemManagerPrivate::restoreDebuggers()
 {
     // Read debuggers from SDK
-    readDebuggers(FilePath::fromString(ICore::installerResourcePath() + DEBUGGER_FILENAME), true);
+    readDebuggers(ICore::installerResourcePath() / DEBUGGER_FILENAME, true);
 
     // Read all debuggers from user file.
     readDebuggers(userSettingsFileName(), false);

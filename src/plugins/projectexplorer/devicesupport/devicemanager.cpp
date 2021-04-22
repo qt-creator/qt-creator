@@ -225,13 +225,12 @@ QVariantMap DeviceManager::toMap() const
 
 Utils::FilePath DeviceManager::settingsFilePath(const QString &extension)
 {
-    return Utils::FilePath::fromString(Core::ICore::userResourcePath() + extension);
+    return Core::ICore::userResourcePath() + extension;
 }
 
 Utils::FilePath DeviceManager::systemSettingsFilePath(const QString &deviceFileRelativePath)
 {
-    return Utils::FilePath::fromString(Core::ICore::installerResourcePath()
-                                       + deviceFileRelativePath);
+    return Core::ICore::installerResourcePath() + deviceFileRelativePath;
 }
 
 void DeviceManager::addDevice(const IDevice::ConstPtr &_device)

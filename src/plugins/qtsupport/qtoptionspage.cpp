@@ -805,7 +805,7 @@ static QString qtVersionsFile(const QString &baseDir)
 
 static Utils::optional<QString> currentlyLinkedQtDir(bool *hasInstallSettings)
 {
-    const QString installSettingsFilePath = settingsFile(Core::ICore::resourcePath());
+    const QString installSettingsFilePath = settingsFile(Core::ICore::resourcePath().toString());
     const bool installSettingsExist = QFile::exists(installSettingsFilePath);
     if (hasInstallSettings)
         *hasInstallSettings = installSettingsExist;
@@ -834,7 +834,7 @@ static bool canLinkWithQt(QString *toolTip)
         &installSettingsExist);
     QStringList tip;
     tip << linkingPurposeText();
-    if (!FilePath::fromString(Core::ICore::resourcePath()).isWritablePath()) {
+    if (!Core::ICore::resourcePath().isWritablePath()) {
         canLink = false;
         tip << QtOptionsPageWidget::tr("%1's resource directory is not writable.")
                    .arg(Core::Constants::IDE_DISPLAY_NAME);
@@ -997,7 +997,7 @@ void QtOptionsPageWidget::linkWithQt()
     unlinkButton->setEnabled(currentLink.has_value());
     connect(unlinkButton, &QPushButton::clicked, &dialog, [&dialog, &askForRestart] {
         bool removeSettingsFile = false;
-        const QString filePath = settingsFile(Core::ICore::resourcePath());
+        const QString filePath = settingsFile(Core::ICore::resourcePath().toString());
         {
             QSettings installSettings(filePath, QSettings::IniFormat);
             installSettings.remove(kInstallSettingsKey);
@@ -1016,7 +1016,7 @@ void QtOptionsPageWidget::linkWithQt()
     if (dialog.result() == QDialog::Accepted) {
         const Utils::optional<QString> settingsDir = settingsDirForQtDir(pathInput->rawPath());
         if (QTC_GUARD(settingsDir)) {
-            QSettings(settingsFile(Core::ICore::resourcePath()), QSettings::IniFormat)
+            QSettings(settingsFile(Core::ICore::resourcePath().toString()), QSettings::IniFormat)
                 .setValue(kInstallSettingsKey, *settingsDir);
             askForRestart = true;
         }

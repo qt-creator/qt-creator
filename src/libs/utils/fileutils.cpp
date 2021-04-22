@@ -890,6 +890,11 @@ QVariant FilePath::toVariant() const
     return m_data;
 }
 
+QDir FilePath::toDir() const
+{
+    return QDir(m_data);
+}
+
 bool FilePath::operator==(const FilePath &other) const
 {
     if (!m_url.isEmpty())

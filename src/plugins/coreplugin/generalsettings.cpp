@@ -132,15 +132,16 @@ void GeneralSettingsWidget::fillLanguageBox() const
     if (currentLocale == QLatin1String("C"))
         m_ui.languageBox->setCurrentIndex(m_ui.languageBox->count() - 1);
 
-    const QString creatorTrPath = ICore::resourcePath() + QLatin1String("/translations");
-    const QStringList languageFiles = QDir(creatorTrPath).entryList(QStringList(QLatin1String("qtcreator*.qm")));
+    const FilePath creatorTrPath = ICore::resourcePath() / "translations";
+    const QStringList languageFiles = creatorTrPath.toDir().entryList(
+        QStringList(QLatin1String("qtcreator*.qm")));
 
     for (const QString &languageFile : languageFiles) {
         int start = languageFile.indexOf('_') + 1;
         int end = languageFile.lastIndexOf('.');
         const QString locale = languageFile.mid(start, end-start);
         // no need to show a language that creator will not load anyway
-        if (hasQmFilesForLocale(locale, creatorTrPath)) {
+        if (hasQmFilesForLocale(locale, creatorTrPath.toString())) {
             QLocale tmpLocale(locale);
             QString languageItem = QLocale::languageToString(tmpLocale.language()) + QLatin1String(" (")
                                    + QLocale::countryToString(tmpLocale.country()) + QLatin1Char(')');

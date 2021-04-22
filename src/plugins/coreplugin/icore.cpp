@@ -396,9 +396,10 @@ QString ICore::userInterfaceLanguage()
 
     \sa userResourcePath()
 */
-QString ICore::resourcePath()
+FilePath ICore::resourcePath()
 {
-    return QDir::cleanPath(QCoreApplication::applicationDirPath() + '/' + RELATIVE_DATA_PATH);
+    return FilePath::fromString(
+        QDir::cleanPath(QCoreApplication::applicationDirPath() + '/' + RELATIVE_DATA_PATH));
 }
 
 /*!
@@ -411,7 +412,7 @@ QString ICore::resourcePath()
     \sa resourcePath()
 */
 
-QString ICore::userResourcePath()
+FilePath ICore::userResourcePath()
 {
     // Create qtcreator dir if it doesn't yet exist
     const QString configDir = QFileInfo(settings(QSettings::UserScope)->fileName()).path();
@@ -423,24 +424,25 @@ QString ICore::userResourcePath()
             qWarning() << "could not create" << urp;
     }
 
-    return urp;
+    return FilePath::fromString(urp);
 }
 
 /*!
     Returns a writable path that can be used for persistent cache files.
 */
-QString ICore::cacheResourcePath()
+FilePath ICore::cacheResourcePath()
 {
-    return QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+    return FilePath::fromString(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
 }
 
 /*!
     Returns the path to resources written by the installer, for example
     pre-defined kits and toolchains.
 */
-QString ICore::installerResourcePath()
+FilePath ICore::installerResourcePath()
 {
-    return QFileInfo(settings(QSettings::SystemScope)->fileName()).path() + '/' + Constants::IDE_ID;
+    return FilePath::fromString(settings(QSettings::SystemScope)->fileName()).parentDir()
+           / Constants::IDE_ID;
 }
 
 /*!
@@ -476,17 +478,18 @@ QString ICore::userPluginPath()
     Returns the path to the command line tools that are included in the \QC
     installation.
  */
-QString ICore::libexecPath()
+FilePath ICore::libexecPath()
 {
-    return QDir::cleanPath(QApplication::applicationDirPath() + '/' + RELATIVE_LIBEXEC_PATH);
+    return FilePath::fromString(
+        QDir::cleanPath(QApplication::applicationDirPath() + RELATIVE_LIBEXEC_PATH));
 }
 
-QString ICore::crashReportsPath()
+FilePath ICore::crashReportsPath()
 {
     if (Utils::HostOsInfo::isMacHost())
-        return libexecPath() + "/crashpad_reports/completed";
+        return libexecPath() / "crashpad_reports/completed";
     else
-        return libexecPath() + "/crashpad_reports/reports";
+        return libexecPath() / "crashpad_reports/reports";
 }
 
 QString ICore::ideDisplayName()
@@ -505,10 +508,10 @@ static QString clangIncludePath(const QString &clangVersion)
 QString ICore::clangIncludeDirectory(const QString &clangVersion,
                                      const QString &clangFallbackIncludeDir)
 {
-    QDir dir(libexecPath() + "/clang" + clangIncludePath(clangVersion));
-    if (!dir.exists() || !QFileInfo(dir, "stdint.h").exists())
-        dir = QDir(clangFallbackIncludeDir);
-    return QDir::toNativeSeparators(dir.canonicalPath());
+    FilePath dir = libexecPath() / "clang" + clangIncludePath(clangVersion);
+    if (!dir.exists() || !dir.pathAppended("stdint.h").exists())
+        dir = FilePath::fromString(clangFallbackIncludeDir);
+    return dir.canonicalPath().toUserOutput();
 }
 
 /*!
@@ -517,10 +520,10 @@ QString ICore::clangIncludeDirectory(const QString &clangVersion,
 static QString clangBinary(const QString &binaryBaseName, const QString &clangBinDirectory)
 {
     const QString hostExeSuffix(QTC_HOST_EXE_SUFFIX);
-    QFileInfo executable(ICore::libexecPath() + "/clang/bin/" + binaryBaseName + hostExeSuffix);
+    FilePath executable = ICore::libexecPath() / "clang/bin" / binaryBaseName + hostExeSuffix;
     if (!executable.exists())
-        executable = QFileInfo(clangBinDirectory + "/" + binaryBaseName + hostExeSuffix);
-    return QDir::toNativeSeparators(executable.canonicalFilePath());
+        executable = FilePath::fromString(clangBinDirectory) / binaryBaseName + hostExeSuffix;
+    return executable.canonicalPath().toUserOutput();
 }
 
 /*!

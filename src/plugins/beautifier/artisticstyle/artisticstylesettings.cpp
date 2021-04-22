@@ -171,9 +171,10 @@ void ArtisticStyleSettings::setCustomStyle(const QString &customStyle)
 
 QString ArtisticStyleSettings::documentationFilePath() const
 {
-    return Core::ICore::userResourcePath() + '/' + Beautifier::Constants::SETTINGS_DIRNAME + '/'
-            + Beautifier::Constants::DOCUMENTATION_DIRNAME + '/'
-            + SETTINGS_NAME + ".xml";
+    return (Core::ICore::userResourcePath() / Beautifier::Constants::SETTINGS_DIRNAME
+                / Beautifier::Constants::DOCUMENTATION_DIRNAME / SETTINGS_NAME
+            + ".xml")
+        .toString();
 }
 
 void ArtisticStyleSettings::createDocumentationFile() const

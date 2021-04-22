@@ -56,9 +56,10 @@ ClangFormatSettings::ClangFormatSettings() :
 
 QString ClangFormatSettings::documentationFilePath() const
 {
-    return Core::ICore::userResourcePath() + '/' + Beautifier::Constants::SETTINGS_DIRNAME + '/'
-            + Beautifier::Constants::DOCUMENTATION_DIRNAME + '/'
-            + SETTINGS_NAME + ".xml";
+    return (Core::ICore::userResourcePath() / Beautifier::Constants::SETTINGS_DIRNAME
+                / Beautifier::Constants::DOCUMENTATION_DIRNAME / SETTINGS_NAME
+            + ".xml")
+        .toString();
 }
 
 void ClangFormatSettings::createDocumentationFile() const

@@ -140,10 +140,9 @@ ModelsManager::~ModelsManager()
 ExtDocumentController *ModelsManager::createModel(ModelDocument *modelDocument)
 {
     auto documentController = new ExtDocumentController(this);
-    QDir dir;
-    dir.setPath(Core::ICore::resourcePath() + QLatin1String("/modeleditor"));
     // TODO error output on reading definition files
-    documentController->configController()->readStereotypeDefinitions(dir.path());
+    documentController->configController()->readStereotypeDefinitions(
+        Core::ICore::resourcePath().pathAppended("modeleditor").toString());
 
     d->managedModels.append(ManagedModel(documentController, modelDocument));
     return documentController;

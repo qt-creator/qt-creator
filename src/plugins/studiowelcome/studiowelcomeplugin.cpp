@@ -207,14 +207,14 @@ public:
             return;
         }
 
-        const QString projectFile = Core::ICore::resourcePath() + "/examples/" + example + "/"
-                                    + example + ".qmlproject";
+        const Utils::FilePath projectFile = Core::ICore::resourcePath() / "examples" / example
+                                                / example
+                                            + ".qmlproject";
+        ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile.toString());
+        const Utils::FilePath qmlFile = Core::ICore::resourcePath() / "examples" / example
+                                        / formFile;
 
-        ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
-        const QString qmlFile = Core::ICore::resourcePath() + "/examples/" + example + "/"
-                                + formFile;
-
-        Core::EditorManager::openEditor(qmlFile);
+        Core::EditorManager::openEditor(qmlFile.toString());
     }
 public slots:
     void resetProjects();

@@ -81,6 +81,7 @@ public:
     QString toString() const;
     QFileInfo toFileInfo() const;
     QVariant toVariant() const;
+    QDir toDir() const;
 
     QString toUserOutput() const;
     QString shortNativePath() const;

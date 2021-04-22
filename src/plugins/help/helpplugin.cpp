@@ -189,14 +189,14 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
 HelpPluginPrivate::HelpPluginPrivate()
 {
-    const QString &locale = ICore::userInterfaceLanguage();
+    const QString locale = ICore::userInterfaceLanguage();
     if (!locale.isEmpty()) {
         auto qtr = new QTranslator(this);
         auto qhelptr = new QTranslator(this);
-        const QString &creatorTrPath = ICore::resourcePath() + "/translations";
-        const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
-        const QString &trFile = QLatin1String("assistant_") + locale;
-        const QString &helpTrFile = QLatin1String("qt_help_") + locale;
+        const QString creatorTrPath = ICore::resourcePath().pathAppended("translations").toString();
+        const QString qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+        const QString trFile = QLatin1String("assistant_") + locale;
+        const QString helpTrFile = QLatin1String("qt_help_") + locale;
         if (qtr->load(trFile, qtTrPath) || qtr->load(trFile, creatorTrPath))
             QCoreApplication::installTranslator(qtr);
         if (qhelptr->load(helpTrFile, qtTrPath) || qhelptr->load(helpTrFile, creatorTrPath))

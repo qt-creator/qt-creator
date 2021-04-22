@@ -768,7 +768,7 @@ QStringList SessionManager::sessions()
 {
     if (d->m_sessions.isEmpty()) {
         // We are not initialized yet, so do that now
-        QDir sessionDir(ICore::userResourcePath());
+        QDir sessionDir(ICore::userResourcePath().toDir());
         QFileInfoList sessionFiles = sessionDir.entryInfoList(QStringList() << QLatin1String("*.qws"), QDir::NoFilter, QDir::Time);
         foreach (const QFileInfo &fileInfo, sessionFiles) {
             const QString &name = fileInfo.completeBaseName();
@@ -788,7 +788,7 @@ QDateTime SessionManager::sessionDateTime(const QString &session)
 
 FilePath SessionManager::sessionNameToFileName(const QString &session)
 {
-    return FilePath::fromString(ICore::userResourcePath() + QLatin1Char('/') + session + QLatin1String(".qws"));
+    return ICore::userResourcePath() / session + ".qws";
 }
 
 /*!

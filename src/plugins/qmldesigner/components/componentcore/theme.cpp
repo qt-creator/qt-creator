@@ -49,8 +49,11 @@ Theme::Theme(Utils::Theme *originTheme, QObject *parent)
     : Utils::Theme(originTheme, parent)
     , m_constants(nullptr)
 {
-    QString constantsPath = Core::ICore::resourcePath() +
-            QStringLiteral("/qmldesigner/propertyEditorQmlSources/imports/StudioTheme/InternalConstants.qml");
+    QString constantsPath
+        = Core::ICore::resourcePath()
+              .pathAppended(
+                  "qmldesigner/propertyEditorQmlSources/imports/StudioTheme/InternalConstants.qml")
+              .toString();
 
     QQmlEngine* engine = new QQmlEngine(this);
     QQmlComponent component(engine, QUrl::fromLocalFile(constantsPath));

@@ -54,14 +54,14 @@ namespace Internal {
 const char dataKeyC[] = "DebugServerProvider.";
 const char countKeyC[] = "DebugServerProvider.Count";
 const char fileVersionKeyC[] = "Version";
-const char fileNameKeyC[] = "/debugserverproviders.xml";
+const char fileNameKeyC[] = "debugserverproviders.xml";
 
 static DebugServerProviderManager *m_instance = nullptr;
 
 // DebugServerProviderManager
 
 DebugServerProviderManager::DebugServerProviderManager()
-    : m_configFile(Utils::FilePath::fromString(Core::ICore::userResourcePath() + fileNameKeyC))
+    : m_configFile(Core::ICore::userResourcePath() / fileNameKeyC)
     , m_factories({new GenericGdbServerProviderFactory,
                    new JLinkGdbServerProviderFactory,
                    new OpenOcdGdbServerProviderFactory,

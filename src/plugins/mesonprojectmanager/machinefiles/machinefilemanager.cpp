@@ -57,8 +57,7 @@ bool withFile(const Utils::FilePath &path, const F &f)
 
 Utils::FilePath MachineFilesDir()
 {
-    return Utils::FilePath::fromString(Core::ICore::userResourcePath())
-        .pathAppended("Meson-machine-files");
+    return Core::ICore::userResourcePath() / "Meson-machine-files";
 }
 
 MachineFileManager::MachineFileManager()

@@ -79,11 +79,11 @@ const char KIT_COUNT_KEY[] = "Profile.Count";
 const char KIT_FILE_VERSION_KEY[] = "Version";
 const char KIT_DEFAULT_KEY[] = "Profile.Default";
 const char KIT_IRRELEVANT_ASPECTS_KEY[] = "Kit.IrrelevantAspects";
-const char KIT_FILENAME[] = "/profiles.xml";
+const char KIT_FILENAME[] = "profiles.xml";
 
 static FilePath settingsFileName()
 {
-    return FilePath::fromString(ICore::userResourcePath() + KIT_FILENAME);
+    return ICore::userResourcePath() / KIT_FILENAME;
 }
 
 // --------------------------------------------------------------------------
@@ -197,8 +197,7 @@ void KitManager::restoreKits()
 
     // read all kits from SDK
     {
-        KitList system = restoreKitsHelper
-                (FilePath::fromString(ICore::installerResourcePath() + KIT_FILENAME));
+        KitList system = restoreKitsHelper(ICore::installerResourcePath() / KIT_FILENAME);
 
         // SDK kits need to get updated with the user-provided extra settings:
         for (auto &current : system.kits) {

@@ -192,7 +192,7 @@ static bool useProjectOverriddenSettings()
 
 static Utils::FilePath globalPath()
 {
-    return Utils::FilePath::fromString(Core::ICore::userResourcePath());
+    return Core::ICore::userResourcePath();
 }
 
 static Utils::FilePath projectPath()

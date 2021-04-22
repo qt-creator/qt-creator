@@ -392,7 +392,7 @@ void PuppetCreator::createQml2PuppetExecutableIfMissing()
 
 QString PuppetCreator::defaultPuppetToplevelBuildDirectory()
 {
-    return Core::ICore::userResourcePath() + "/qmlpuppet/";
+    return Core::ICore::userResourcePath().pathAppended("qmlpuppet/").toString();
 }
 
 QString PuppetCreator::qmlPuppetToplevelBuildDirectory() const
@@ -424,9 +424,9 @@ QString PuppetCreator::qmlPuppetDirectory(PuppetType puppetType) const
 QString PuppetCreator::defaultPuppetFallbackDirectory()
 {
     if (Utils::HostOsInfo::isMacHost())
-        return Core::ICore::libexecPath() + "/qmldesigner";
+        return Core::ICore::libexecPath().pathAppended("qmldesigner").toString();
     else
-        return Core::ICore::libexecPath();
+        return Core::ICore::libexecPath().toString();
 }
 
 QString PuppetCreator::qmlPuppetFallbackDirectory(const DesignerSettings &settings)
@@ -639,7 +639,7 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
 
 QString PuppetCreator::puppetSourceDirectoryPath()
 {
-    return Core::ICore::resourcePath() + "/qml/qmlpuppet";
+    return Core::ICore::resourcePath().pathAppended("qml/qmlpuppet").toString();
 }
 
 QString PuppetCreator::qml2PuppetProjectFile()

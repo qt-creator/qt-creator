@@ -220,15 +220,15 @@ void ModelManager::delayedInitialization()
 
     ViewerContext qbsVContext;
     qbsVContext.language = Dialect::QmlQbs;
-    qbsVContext.paths.append(ICore::resourcePath() + QLatin1String("/qbs"));
+    qbsVContext.paths.append(ICore::resourcePath().pathAppended("qbs").toString());
     setDefaultVContext(qbsVContext);
 }
 
 void ModelManager::loadDefaultQmlTypeDescriptions()
 {
     if (ICore::instance()) {
-        loadQmlTypeDescriptionsInternal(ICore::resourcePath());
-        loadQmlTypeDescriptionsInternal(ICore::userResourcePath());
+        loadQmlTypeDescriptionsInternal(ICore::resourcePath().toString());
+        loadQmlTypeDescriptionsInternal(ICore::userResourcePath().toString());
     }
 }
 

@@ -58,7 +58,7 @@ public:
 
 static const char TOOLCHAIN_DATA_KEY[] = "ToolChain.";
 static const char TOOLCHAIN_COUNT_KEY[] = "ToolChain.Count";
-static const char TOOLCHAIN_FILENAME[] = "/toolchains.xml";
+static const char TOOLCHAIN_FILENAME[] = "toolchains.xml";
 
 struct ToolChainOperations
 {
@@ -184,7 +184,7 @@ ToolChainSettingsAccessor::ToolChainSettingsAccessor() :
                               QCoreApplication::translate("ProjectExplorer::ToolChainManager", "Tool Chains"),
                               Core::Constants::IDE_DISPLAY_NAME)
 {
-    setBaseFilePath(FilePath::fromString(Core::ICore::userResourcePath() + TOOLCHAIN_FILENAME));
+    setBaseFilePath(Core::ICore::userResourcePath() / TOOLCHAIN_FILENAME);
 
     addVersionUpgrader(std::make_unique<ToolChainSettingsUpgraderV0>());
 }
@@ -192,9 +192,8 @@ ToolChainSettingsAccessor::ToolChainSettingsAccessor() :
 QList<ToolChain *> ToolChainSettingsAccessor::restoreToolChains(QWidget *parent) const
 {
     // read all tool chains from SDK
-    const QList<ToolChain *> systemFileTcs
-            = toolChains(restoreSettings(FilePath::fromString(Core::ICore::installerResourcePath() + TOOLCHAIN_FILENAME),
-                                         parent));
+    const QList<ToolChain *> systemFileTcs = toolChains(
+        restoreSettings(Core::ICore::installerResourcePath() / TOOLCHAIN_FILENAME, parent));
     for (ToolChain * const systemTc : systemFileTcs)
         systemTc->setDetection(ToolChain::AutoDetectionFromSdk);
 

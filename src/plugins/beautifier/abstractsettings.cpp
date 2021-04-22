@@ -47,11 +47,13 @@ const char COMMAND[]        = "command";
 const char SUPPORTED_MIME[] = "supportedMime";
 }
 
-AbstractSettings::AbstractSettings(const QString &name, const QString &ending) :
-    m_ending(ending),
-    m_styleDir(Core::ICore::userResourcePath() + '/' + Beautifier::Constants::SETTINGS_DIRNAME
-               + '/' + name),
-    m_name(name)
+AbstractSettings::AbstractSettings(const QString &name, const QString &ending)
+    : m_ending(ending)
+    , m_styleDir(Core::ICore::userResourcePath()
+                     .pathAppended(Beautifier::Constants::SETTINGS_DIRNAME)
+                     .pathAppended(name)
+                     .toString())
+    , m_name(name)
 {
 }
 

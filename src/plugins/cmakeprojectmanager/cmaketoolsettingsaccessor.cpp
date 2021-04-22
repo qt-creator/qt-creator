@@ -65,8 +65,7 @@ public:
 static const char CMAKE_TOOL_COUNT_KEY[] = "CMakeTools.Count";
 static const char CMAKE_TOOL_DATA_KEY[] = "CMakeTools.";
 static const char CMAKE_TOOL_DEFAULT_KEY[] = "CMakeTools.Default";
-static const char CMAKE_TOOL_FILENAME[] = "/cmaketools.xml";
-
+static const char CMAKE_TOOL_FILENAME[] = "cmaketools.xml";
 
 static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools()
 {
@@ -165,7 +164,7 @@ CMakeToolSettingsAccessor::CMakeToolSettingsAccessor() :
                               QCoreApplication::translate("CMakeProjectManager::CMakeToolManager", "CMake"),
                               Core::Constants::IDE_DISPLAY_NAME)
 {
-    setBaseFilePath(FilePath::fromString(Core::ICore::userResourcePath() + CMAKE_TOOL_FILENAME));
+    setBaseFilePath(Core::ICore::userResourcePath() / CMAKE_TOOL_FILENAME);
 
     addVersionUpgrader(std::make_unique<CMakeToolSettingsUpgraderV0>());
 }
@@ -174,8 +173,7 @@ CMakeToolSettingsAccessor::CMakeTools CMakeToolSettingsAccessor::restoreCMakeToo
 {
     CMakeTools result;
 
-    const FilePath sdkSettingsFile = FilePath::fromString(Core::ICore::installerResourcePath()
-                                                          + CMAKE_TOOL_FILENAME);
+    const FilePath sdkSettingsFile = Core::ICore::installerResourcePath() / CMAKE_TOOL_FILENAME;
 
     CMakeTools sdkTools = cmakeTools(restoreSettings(sdkSettingsFile, parent), true);
 

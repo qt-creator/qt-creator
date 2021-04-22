@@ -584,8 +584,9 @@ void MacWebKitHelpViewer::setHtml(const QString &html)
 {
     @autoreleasepool {
         [m_widget->webView().mainFrame
-                loadHTMLString:html.toNSString()
-                       baseURL:[NSURL fileURLWithPath:Core::ICore::resourcePath().toNSString()]];
+            loadHTMLString:html.toNSString()
+                   baseURL:[NSURL
+                               fileURLWithPath:Core::ICore::resourcePath().toString().toNSString()]];
     }
 }
 

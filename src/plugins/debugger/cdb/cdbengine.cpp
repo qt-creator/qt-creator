@@ -2755,7 +2755,7 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
         return;
     }
 
-    QString dumperPath = QDir::toNativeSeparators(Core::ICore::resourcePath() + "/debugger");
+    QString dumperPath = Core::ICore::resourcePath().pathAppended("debugger").toUserOutput();
     dumperPath.replace('\\', "\\\\");
     runCommand({"sys.path.insert(1, '" + dumperPath + "')", ScriptCommand});
     runCommand({"from cdbbridge import Dumper", ScriptCommand});

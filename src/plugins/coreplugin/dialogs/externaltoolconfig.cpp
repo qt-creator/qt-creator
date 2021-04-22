@@ -632,23 +632,22 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
 
 static QString getUserFilePath(const QString &proposalFileName)
 {
-    const QDir resourceDir(ICore::userResourcePath());
+    const QDir resourceDir(ICore::userResourcePath().toDir());
     if (!resourceDir.exists(QLatin1String("externaltools")))
         resourceDir.mkpath(QLatin1String("externaltools"));
     const QFileInfo fi(proposalFileName);
     const QString &suffix = QLatin1Char('.') + fi.completeSuffix();
-    const QString &newFilePath = ICore::userResourcePath()
-            + QLatin1String("/externaltools/") + fi.baseName();
+    const FilePath newFilePath = ICore::userResourcePath() / "externaltools" / fi.baseName();
     int count = 0;
-    QString tryPath = newFilePath + suffix;
-    while (QFile::exists(tryPath)) {
+    FilePath tryPath = newFilePath + suffix;
+    while (tryPath.exists()) {
         if (++count > 15)
             return QString();
         // add random number
         const int number = QRandomGenerator::global()->generate() % 1000;
         tryPath = newFilePath + QString::number(number) + suffix;
     }
-    return tryPath;
+    return tryPath.toString();
 }
 
 static QString idFromDisplayName(const QString &displayName)

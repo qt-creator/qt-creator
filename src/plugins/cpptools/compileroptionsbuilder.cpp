@@ -303,7 +303,7 @@ void CompilerOptionsBuilder::insertWrappedMingwHeaders()
 static QString creatorResourcePath()
 {
 #ifndef UNIT_TESTS
-    return Core::ICore::resourcePath();
+    return Core::ICore::resourcePath().toString();
 #else
     return QDir::toNativeSeparators(QString::fromUtf8(QTC_RESOURCE_DIR ""));
 #endif

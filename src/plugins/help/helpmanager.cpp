@@ -125,8 +125,7 @@ HelpManager *HelpManager::instance()
 
 QString HelpManager::collectionFilePath()
 {
-    return QDir::cleanPath(ICore::userResourcePath()
-        + QLatin1String("/helpcollection.qhc"));
+    return ICore::userResourcePath().pathAppended("helpcollection.qhc").toString();
 }
 
 void HelpManager::registerDocumentation(const QStringList &files)

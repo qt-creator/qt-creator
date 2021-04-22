@@ -51,16 +51,15 @@ QmlBundle BasicBundleProvider::defaultBundle(const QString &bundleInfoName)
 {
     static bool wroteErrors = false;
     QmlBundle res;
-    QString defaultBundlePath = Core::ICore::resourcePath()
-            + QLatin1String("/qml-type-descriptions/")
-            + bundleInfoName;
-    if (!QFileInfo::exists(defaultBundlePath)) {
+    const Utils::FilePath defaultBundlePath = Core::ICore::resourcePath() / "qml-type-descriptions"
+                                              / bundleInfoName;
+    if (!defaultBundlePath.exists()) {
         qWarning() << "BasicBundleProvider: ERROR " << defaultBundlePath
                    << " not found";
         return res;
     }
     QStringList errors;
-    if (!res.readFrom(defaultBundlePath, &errors) && ! wroteErrors) {
+    if (!res.readFrom(defaultBundlePath.toString(), &errors) && !wroteErrors) {
         qWarning() << "BasicBundleProvider: ERROR reading " << defaultBundlePath
                    << " : " << errors;
         wroteErrors = true;

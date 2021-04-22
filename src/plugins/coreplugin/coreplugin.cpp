@@ -225,7 +225,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     expander->registerVariable("IDE:ResourcePath",
                                tr("The directory where %1 finds its pre-installed resources.")
                                    .arg(Constants::IDE_DISPLAY_NAME),
-                               []() { return ICore::resourcePath(); });
+                               []() { return ICore::resourcePath().toString(); });
     expander->registerPrefix("CurrentDate:", tr("The current date (QDate formatstring)."),
                              [](const QString &fmt) { return QDate::currentDate().toString(fmt); });
     expander->registerPrefix("CurrentTime:", tr("The current time (QTime formatstring)."),

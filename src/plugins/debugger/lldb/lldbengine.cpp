@@ -232,8 +232,8 @@ void LldbEngine::setupEngine()
 
     showStatusMessage(tr("Setting up inferior..."));
 
-    const QByteArray dumperSourcePath =
-        ICore::resourcePath().toLocal8Bit() + "/debugger/";
+    const QByteArray dumperSourcePath = ICore::resourcePath().toString().toLocal8Bit()
+                                        + "/debugger/";
 
     executeCommand("script sys.path.insert(1, '" + dumperSourcePath + "')");
     // This triggers reportState("enginesetupok") or "enginesetupfailed":

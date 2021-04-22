@@ -1015,8 +1015,7 @@ bool IosSimulatorToolHandlerPrivate::isResponseValid(const SimulatorControl::Res
 
 QString IosToolHandler::iosDeviceToolPath()
 {
-    QString res = Core::ICore::libexecPath() + QLatin1String("/ios/iostool");
-    return res;
+    return Core::ICore::libexecPath().pathAppended("ios/iostool").toString();
 }
 
 IosToolHandler::IosToolHandler(const Internal::IosDeviceType &devType, QObject *parent) :

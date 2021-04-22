@@ -2049,8 +2049,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
 
     QSsh::SshSettings::loadSettings(Core::ICore::settings());
     const auto searchPathRetriever = [] {
-        Utils::FilePaths searchPaths;
-        searchPaths << Utils::FilePath::fromString(Core::ICore::libexecPath());
+        Utils::FilePaths searchPaths = {Core::ICore::libexecPath()};
         if (Utils::HostOsInfo::isWindowsHost()) {
             const QString gitBinary = Core::ICore::settings()->value("Git/BinaryPath", "git")
                     .toString();

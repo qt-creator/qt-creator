@@ -76,7 +76,9 @@
 namespace QmlDesigner {
 
 static QString propertyEditorResourcesPath() {
-    return Core::ICore::resourcePath() + QStringLiteral("/qmldesigner/propertyEditorQmlSources");
+    return Core::ICore::resourcePath()
+        .pathAppended("qmldesigner/propertyEditorQmlSources")
+        .toString();
 }
 
 bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
@@ -324,7 +326,7 @@ void ItemLibraryWidget::handleTabChanged(int index)
 
 QString ItemLibraryWidget::qmlSourcesPath()
 {
-    return Core::ICore::resourcePath() + QStringLiteral("/qmldesigner/itemLibraryQmlSources");
+    return Core::ICore::resourcePath().pathAppended("qmldesigner/itemLibraryQmlSources").toString();
 }
 
 void ItemLibraryWidget::clearSearchFilter()

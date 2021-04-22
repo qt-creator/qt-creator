@@ -141,14 +141,14 @@ QIcon paintPreview(const EasingCurve &curve, const QColor& background, const QCo
 namespace Internal {
 
 static const char settingsKey[] = "EasingCurveList";
-static const char settingsFileName[] = "/EasingCurves.ini";
+static const char settingsFileName[] = "EasingCurves.ini";
 
 QString settingsFullFilePath(const QSettings::Scope &scope)
 {
     if (scope == QSettings::SystemScope)
-        return Core::ICore::installerResourcePath() + settingsFileName;
+        return Core::ICore::installerResourcePath().pathAppended(settingsFileName).toString();
 
-    return Core::ICore::userResourcePath() + settingsFileName;
+    return Core::ICore::userResourcePath().pathAppended(settingsFileName).toString();
 }
 
 } // namespace Internal

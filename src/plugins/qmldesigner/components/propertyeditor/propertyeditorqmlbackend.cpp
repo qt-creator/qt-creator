@@ -531,7 +531,9 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
 }
 
 QString PropertyEditorQmlBackend::propertyEditorResourcesPath() {
-    return Core::ICore::resourcePath() + QStringLiteral("/qmldesigner/propertyEditorQmlSources");
+    return Core::ICore::resourcePath()
+        .pathAppended("qmldesigner/propertyEditorQmlSources")
+        .toString();
 }
 
 inline bool dotPropertyHeuristic(const QmlObjectNode &node, const NodeMetaInfo &type, const PropertyName &name)
