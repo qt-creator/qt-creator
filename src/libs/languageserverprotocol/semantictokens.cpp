@@ -126,7 +126,7 @@ SemanticTokensResult::SemanticTokensResult(const QJsonValue &value)
     if (value.isObject())
         emplace<SemanticTokens>(SemanticTokens(value.toObject()));
     else
-        emplace<nullptr_t>(nullptr);
+        emplace<std::nullptr_t>(nullptr);
 }
 
 SemanticTokensFullDeltaRequest::SemanticTokensFullDeltaRequest(const SemanticTokensDeltaParams &params)
@@ -147,7 +147,7 @@ SemanticTokensDeltaResult::SemanticTokensDeltaResult(const QJsonValue &value)
         else
             emplace<SemanticTokens>(object);
     } else {
-        emplace<nullptr_t>(nullptr);
+        emplace<std::nullptr_t>(nullptr);
     }
 }
 

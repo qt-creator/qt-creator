@@ -162,7 +162,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT SemanticTokensResult
-    : public Utils::variant<SemanticTokens, nullptr_t>
+    : public Utils::variant<SemanticTokens, std::nullptr_t>
 {
 public:
     using variant::variant;
@@ -170,7 +170,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT SemanticTokensFullRequest
-    : public Request<SemanticTokensResult, nullptr_t, SemanticTokensParams>
+    : public Request<SemanticTokensResult, std::nullptr_t, SemanticTokensParams>
 {
 public:
     explicit SemanticTokensFullRequest(const SemanticTokensParams &params);
@@ -213,7 +213,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT SemanticTokensDeltaResult
-    : public Utils::variant<SemanticTokens, SemanticTokensDelta, nullptr_t>
+    : public Utils::variant<SemanticTokens, SemanticTokensDelta, std::nullptr_t>
 {
 public:
     using variant::variant;
@@ -221,7 +221,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT SemanticTokensFullDeltaRequest
-    : public Request<SemanticTokensDeltaResult, nullptr_t, SemanticTokensDeltaParams>
+    : public Request<SemanticTokensDeltaResult, std::nullptr_t, SemanticTokensDeltaParams>
 {
 public:
     explicit SemanticTokensFullDeltaRequest(const SemanticTokensDeltaParams &params);
@@ -230,7 +230,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT SemanticTokensRangeRequest
-    : public Request<SemanticTokensResult, nullptr_t, SemanticTokensRangeParams>
+    : public Request<SemanticTokensResult, std::nullptr_t, SemanticTokensRangeParams>
 {
 public:
     explicit SemanticTokensRangeRequest(const SemanticTokensRangeParams &params);
