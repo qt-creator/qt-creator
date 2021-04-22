@@ -44,7 +44,11 @@ public:
 
     bool BeginInvocation(clang::CompilerInstance &compilerInstance) override
     {
+#if LLVM_VERSION_MAJOR >= 12
+        compilerInstance.getPreprocessorOpts().DisablePCHOrModuleValidation = clang::DisableValidationForModuleKind::PCH;
+#else
         compilerInstance.getPreprocessorOpts().DisablePCHValidation = true;
+#endif
         compilerInstance.getPreprocessorOpts().AllowPCHWithCompilerErrors = true;
         compilerInstance.getDiagnosticOpts().ErrorLimit = 0;
         compilerInstance.getFrontendOpts().SkipFunctionBodies = true;
