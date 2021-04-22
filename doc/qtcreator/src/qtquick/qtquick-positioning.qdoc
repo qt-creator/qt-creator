@@ -83,8 +83,8 @@
     \inlineimage icons/action-icon-binding
     . To remove bindings, select \uicontrol Actions > \uicontrol Reset.
 
-    You can set bindings also in the \l Connections view. For more
-    information, see \l {Adding Bindings Between Properties}.
+    You can set bindings also in \l {Connection View} > \uicontrol Bindings.
+    For more information, see \l {Adding Bindings Between Properties}.
 
     For more information on the JavaScript environment provided, see
     \l{Integrating QML and JavaScript}.

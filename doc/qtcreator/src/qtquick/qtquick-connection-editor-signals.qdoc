@@ -69,7 +69,7 @@
 
     \list 1
         \li Select \uicontrol View > \uicontrol Views >
-            \uicontrol {Connection View} > \uicontrol {Connections}.
+            \l {Connection View} > \uicontrol {Connections}.
         \li Select the \inlineimage plus.png
             (\uicontrol Add) button to add a connection.
         \li Double-click the value in the \uicontrol Target column to add the

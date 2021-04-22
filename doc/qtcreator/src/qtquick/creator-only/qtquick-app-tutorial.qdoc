@@ -234,7 +234,8 @@
             \image qmldesigner-tutorial-states.png "States view"
         \li Select \e State3 in \uicontrol States, and drag \e icon on top of
             the bottom left rectangle in \uicontrol {Form Editor}.
-        \li In the \uicontrol Connections view, click the \inlineimage plus.png
+        \li In \l {Connection View} > \uicontrol Connections, click the
+            \inlineimage plus.png
             button to create a new connection.
             \image qmldesigner-tutorial-connections.png "Connections tab"
         \li Double-click the value in the \uicontrol Target column, and select

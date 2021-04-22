@@ -212,12 +212,12 @@
     \printuntil startClicked
 
     Then, we select the mouse area for the start button, \e startMA,
-    in \uicontrol Navigator. In the \uicontrol {Connection View} >
+    in \uicontrol Navigator. In the \l {Connection View} >
     \uicontrol Connections tab, we select the \inlineimage plus.png
     (\uicontrol Add) button to connect the \c onClicked() signal handler
     of the button to the \c startClicked() signal.
 
-    \image washingmachineui-connections.png "Connections view"
+    \image washingmachineui-connections.png "Connection View"
 
     Then, in \e ApplicationView.qml, we specify that the \c startClicked()
     signal changes the application state to \e presets:

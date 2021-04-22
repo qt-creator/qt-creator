@@ -156,7 +156,7 @@
 
     \list 1
         \li Open \e Bubble.qml in \uicontrol {Form Editor}.
-        \li In \uicontrol {Connection View} > \uicontrol Properties,
+        \li In \l {Connection View} > \uicontrol Properties,
             select the \inlineimage plus.png
             button to add a custom property for the Bubble component.
             \image qtquick-mobile-app-tutorial-custom-properties.png "Connection View Properties tab"

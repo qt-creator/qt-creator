@@ -182,7 +182,7 @@
     that has a \e clicked signal. The signal is emitted whenever the mouse
     is clicked within the area.
 
-    You will now use the \uicontrol {Connection View} to
+    You will now use \l {Connection View} to
     \l{Connecting Components to Signals}{connect} the clicked signal of
     \e registerButton to \e registerState and that of \e backButton
     to \e loginState:

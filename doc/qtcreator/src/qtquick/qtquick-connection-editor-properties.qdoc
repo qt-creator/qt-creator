@@ -50,7 +50,7 @@
     Similarly, you can add custom properties for your own components that are
     based on preset components.
 
-    You can add properties for components in \uicontrol {Connections View} >
+    You can add properties for components in \l {Connection View} >
     \uicontrol Properties.
 
     \image qmldesigner-dynamicprops.png "Custom properties in Connection View Custom Properties tab"
@@ -59,7 +59,7 @@
 
     \list 1
         \li Select \uicontrol View > \uicontrol Views >
-            \uicontrol {Connections View} > \uicontrol {Properties}.
+            \uicontrol {Connection View} > \uicontrol {Properties}.
         \li Select the \inlineimage plus.png
             (\uicontrol Add) button to add a dynamic property for the currently
             selected component. The component ID is displayed in the \uicontrol Item

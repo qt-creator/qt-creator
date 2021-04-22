@@ -191,7 +191,7 @@
     In \e {SideMenu.qml}, we use connections to bind the action of clicking
     the burger menu to the signal handler for triggering the opening or
     closing animation, depending on the current state. We create the connections
-    in the \l Connections view.
+    in \l{Connection View}.
 
     \image sidemenu-connections.png
 
