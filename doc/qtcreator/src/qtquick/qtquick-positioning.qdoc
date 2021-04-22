@@ -142,9 +142,9 @@
     Rectangle {
         id: rectangle2
         anchors.left: rectangle1.right
-        anchors.leftMargin: 10
+        anchors.leftMargin: 78
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 10
+        anchors.bottomMargin: 200
         //
     }
     \endqml
@@ -391,8 +391,9 @@
     (\uicontrol Previous) and \inlineimage next.png
     (\uicontrol Next) buttons.
 
-    To add a tab bar to a stack layout, select \uicontrol {Stacked Container} >
-    \uicontrol {Add Tab Bar}.
+    To add a tab bar to a stack layout, right-click on the
+    \uicontrol {Stack Layout} in \uicontrol Navigator to access the context menu,
+    and select \uicontrol {Stacked Container} > \uicontrol {Add Tab Bar}.
 
     To raise or lower the stacking order of a component, select
     \uicontrol {Stacked Container} > \uicontrol {Increase Index} or
