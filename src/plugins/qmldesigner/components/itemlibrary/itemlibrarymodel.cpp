@@ -375,10 +375,10 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
             if (!categorySection) {
                 categorySection = new ItemLibraryCategory(catName, importSection);
                 importSection->addCategory(categorySection);
-                if (importSection->sectionType() == ItemLibraryImport::SectionType::Default
-                    && !importSection->hasSingleCategory()) {
-                    categorySection->setExpanded(loadExpandedState(categorySection->categoryName()));
-                }
+            }
+            if (importSection->sectionType() == ItemLibraryImport::SectionType::Default
+                && !importSection->hasSingleCategory()) {
+                categorySection->setExpanded(loadExpandedState(categorySection->categoryName()));
             }
 
             // create item
