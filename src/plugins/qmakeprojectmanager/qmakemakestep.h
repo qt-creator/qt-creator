@@ -30,27 +30,6 @@
 #include <projectexplorer/makestep.h>
 
 namespace QmakeProjectManager {
-
-class QMAKEPROJECTMANAGER_EXPORT QmakeMakeStep : public ProjectExplorer::MakeStep
-{
-    Q_OBJECT
-
-public:
-    QmakeMakeStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
-
-private:
-    void finish(bool success) override;
-    bool init() override;
-    void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
-    void doRun() override;
-    QStringList displayArguments() const override;
-
-    bool m_scriptTarget = false;
-    QString m_makeFileToCheck;
-    bool m_unalignedBuildDir;
-    bool m_ignoredNonTopLevelBuild = false;
-};
-
 namespace Internal {
 
 class QmakeMakeStepFactory : public ProjectExplorer::BuildStepFactory

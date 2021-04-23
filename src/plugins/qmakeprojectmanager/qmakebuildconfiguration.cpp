@@ -32,7 +32,6 @@
 #include "qmakenodes.h"
 #include "qmakesettings.h"
 #include "qmakestep.h"
-#include "qmakemakestep.h"
 #include "makefileparse.h"
 #include "qmakebuildconfiguration.h"
 
@@ -47,6 +46,7 @@
 #include <projectexplorer/buildpropertiessettings.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/makestep.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacroexpander.h>
@@ -491,12 +491,12 @@ QMakeStep *QmakeBuildConfiguration::qmakeStep() const
     return nullptr;
 }
 
-QmakeMakeStep *QmakeBuildConfiguration::makeStep() const
+MakeStep *QmakeBuildConfiguration::makeStep() const
 {
-    QmakeMakeStep *ms = nullptr;
+    MakeStep *ms = nullptr;
     BuildStepList *bsl = buildSteps();
     for (int i = 0; i < bsl->count(); ++i)
-        if ((ms = qobject_cast<QmakeMakeStep *>(bsl->at(i))) != nullptr)
+        if ((ms = qobject_cast<MakeStep *>(bsl->at(i))) != nullptr)
             return ms;
     return nullptr;
 }

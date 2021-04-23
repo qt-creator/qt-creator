@@ -53,6 +53,27 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace QmakeProjectManager {
+namespace Internal {
+
+class QmakeMakeStep : public MakeStep
+{
+    Q_DECLARE_TR_FUNCTIONS(QmakeProjectManager::QmakeMakeStep)
+
+public:
+    QmakeMakeStep(BuildStepList *bsl, Id id);
+
+private:
+    void finish(bool success) override;
+    bool init() override;
+    void setupOutputFormatter(OutputFormatter *formatter) override;
+    void doRun() override;
+    QStringList displayArguments() const override;
+
+    bool m_scriptTarget = false;
+    QString m_makeFileToCheck;
+    bool m_unalignedBuildDir;
+    bool m_ignoredNonTopLevelBuild = false;
+};
 
 QmakeMakeStep::QmakeMakeStep(BuildStepList *bsl, Id id)
     : MakeStep(bsl, id)
@@ -225,7 +246,7 @@ void QmakeMakeStep::doRun()
 void QmakeMakeStep::finish(bool success)
 {
     if (!success && !isCanceled() && m_unalignedBuildDir
-            && Internal::QmakeSettings::warnAgainstUnalignedBuildDir()) {
+            && QmakeSettings::warnAgainstUnalignedBuildDir()) {
         const QString msg = tr("The build directory is not at the same level as the source "
                                "directory, which could be the reason for the build failure.");
         emit addTask(BuildSystemTask(Task::Warning, msg));
@@ -240,8 +261,6 @@ QStringList QmakeMakeStep::displayArguments() const
         return {"-f", bc->makefile()};
     return {};
 }
-
-namespace Internal {
 
 ///
 // QmakeMakeStepFactory

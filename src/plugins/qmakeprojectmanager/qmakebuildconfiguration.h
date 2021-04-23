@@ -32,13 +32,15 @@
 
 #include <utils/aspects.h>
 
-namespace ProjectExplorer { class FileNode; }
+namespace ProjectExplorer {
+class FileNode;
+class MakeStep;
+} // ProjectExplorer
 
 namespace QmakeProjectManager {
 
 class QMakeStep;
 class QmakeBuildSystem;
-class QmakeMakeStep;
 class QmakeProFileNode;
 
 class QMAKEPROJECTMANAGER_EXPORT QmakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
@@ -68,13 +70,12 @@ public:
 
     QStringList configCommandLineArguments() const;
 
-    // Those functions are used in a few places.
+    // This function is used in a few places.
     // The drawback is that we shouldn't actually depend on them being always there
     // That is generally the stuff that is asked should normally be transferred to
     // QmakeProject *
     // So that we can later enable people to build qmake the way they would like
     QMakeStep *qmakeStep() const;
-    QmakeMakeStep *makeStep() const;
 
     QmakeBuildSystem *qmakeBuildSystem() const;
 
@@ -127,6 +128,8 @@ private:
     void toolChainUpdated(ProjectExplorer::ToolChain *tc);
     void qtVersionsChanged(const QList<int> &, const QList<int> &, const QList<int> &changed);
     void updateProblemLabel();
+
+    ProjectExplorer::MakeStep *makeStep() const;
 
     class LastKitState
     {
