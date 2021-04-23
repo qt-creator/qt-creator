@@ -76,7 +76,7 @@ const char QMAKE_ARGUMENTS_KEY[] = "QtProjectManager.QMakeBuildStep.QMakeArgumen
 const char QMAKE_FORCED_KEY[] = "QtProjectManager.QMakeBuildStep.QMakeForced";
 const char QMAKE_SELECTED_ABIS_KEY[] = "QtProjectManager.QMakeBuildStep.SelectedAbis";
 
-QMakeStep::QMakeStep(BuildStepList *bsl, Utils::Id id)
+QMakeStep::QMakeStep(BuildStepList *bsl, Id id)
     : AbstractProcessStep(bsl, id)
 {
     setLowPriority();
@@ -162,7 +162,7 @@ QString QMakeStep::allArguments(const BaseQtVersion *v, ArgumentFlags flags) con
     QString args = QtcProcess::joinArgs(arguments);
     // User arguments
     QtcProcess::addArgs(&args, userArguments());
-    foreach (QString arg, m_extraArgs)
+    for (QString arg : qAsConst(m_extraArgs))
         QtcProcess::addArgs(&args, arg);
     return (flags & ArgumentFlag::Expand) ? bc->macroExpander()->expand(args) : args;
 }
@@ -263,7 +263,7 @@ bool QMakeStep::init()
 
     if (!tasks.isEmpty()) {
         bool canContinue = true;
-        foreach (const ProjectExplorer::Task &t, tasks) {
+        for (const Task &t : qAsConst(tasks)) {
             emit addTask(t);
             if (t.type == Task::Error)
                 canContinue = false;
@@ -419,10 +419,10 @@ QString QMakeStep::makeArguments(const QString &makefile) const
 {
     QString args;
     if (!makefile.isEmpty()) {
-        Utils::QtcProcess::addArg(&args, "-f");
-        Utils::QtcProcess::addArg(&args, makefile);
+        QtcProcess::addArg(&args, "-f");
+        QtcProcess::addArg(&args, makefile);
     }
-    Utils::QtcProcess::addArg(&args, "qmake_all");
+    QtcProcess::addArg(&args, "qmake_all");
     return args;
 }
 
@@ -749,39 +749,36 @@ QMakeStepFactory::QMakeStepFactory()
 
 QMakeStepConfig::TargetArchConfig QMakeStepConfig::targetArchFor(const Abi &targetAbi, const BaseQtVersion *version)
 {
-    QMakeStepConfig::TargetArchConfig arch = QMakeStepConfig::NoArch;
+    TargetArchConfig arch = NoArch;
     if (!version || version->type() != QtSupport::Constants::DESKTOPQT)
         return arch;
-    if ((targetAbi.os() == ProjectExplorer::Abi::DarwinOS)
-            && (targetAbi.binaryFormat() == ProjectExplorer::Abi::MachOFormat)) {
-        if (targetAbi.architecture() == ProjectExplorer::Abi::X86Architecture) {
+    if (targetAbi.os() == Abi::DarwinOS && targetAbi.binaryFormat() == Abi::MachOFormat) {
+        if (targetAbi.architecture() == Abi::X86Architecture) {
             if (targetAbi.wordWidth() == 32)
-                arch = QMakeStepConfig::X86;
+                arch = X86;
             else if (targetAbi.wordWidth() == 64)
-                arch = QMakeStepConfig::X86_64;
-        } else if (targetAbi.architecture() == ProjectExplorer::Abi::PowerPCArchitecture) {
+                arch = X86_64;
+        } else if (targetAbi.architecture() == Abi::PowerPCArchitecture) {
             if (targetAbi.wordWidth() == 32)
-                arch = QMakeStepConfig::PowerPC;
+                arch = PowerPC;
             else if (targetAbi.wordWidth() == 64)
-                arch = QMakeStepConfig::PowerPC64;
+                arch = PowerPC64;
         }
     }
     return arch;
 }
 
-QMakeStepConfig::OsType QMakeStepConfig::osTypeFor(const ProjectExplorer::Abi &targetAbi, const BaseQtVersion *version)
+QMakeStepConfig::OsType QMakeStepConfig::osTypeFor(const Abi &targetAbi, const BaseQtVersion *version)
 {
-    QMakeStepConfig::OsType os = QMakeStepConfig::NoOsType;
+    OsType os = NoOsType;
     const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios";
     if (!version || version->type() != IOSQT)
         return os;
-    if ((targetAbi.os() == ProjectExplorer::Abi::DarwinOS)
-            && (targetAbi.binaryFormat() == ProjectExplorer::Abi::MachOFormat)) {
-        if (targetAbi.architecture() == ProjectExplorer::Abi::X86Architecture) {
-            os = QMakeStepConfig::IphoneSimulator;
-        } else if (targetAbi.architecture() == ProjectExplorer::Abi::ArmArchitecture) {
-            os = QMakeStepConfig::IphoneOS;
-        }
+    if (targetAbi.os() == Abi::DarwinOS && targetAbi.binaryFormat() == Abi::MachOFormat) {
+        if (targetAbi.architecture() == Abi::X86Architecture)
+            os = IphoneSimulator;
+        else if (targetAbi.architecture() == Abi::ArmArchitecture)
+            os = IphoneOS;
     }
     return os;
 }
