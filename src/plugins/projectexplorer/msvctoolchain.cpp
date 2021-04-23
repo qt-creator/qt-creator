@@ -1111,8 +1111,8 @@ FilePath MsvcToolChain::makeCommand(const Environment &environment) const
     FilePath command;
     if (useJom) {
         tmp = environment.searchInPath(jom,
-                                       {Utils::FilePath::fromString(
-                                           QCoreApplication::applicationDirPath())});
+                                       {Core::ICore::libexecPath(),
+                                        Core::ICore::libexecPath().pathAppended("jom")});
         if (!tmp.isEmpty())
             command = tmp;
     }

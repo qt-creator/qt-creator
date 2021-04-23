@@ -33,6 +33,8 @@
 
 #include <app/app_version.h>
 
+#include <coreplugin/icore.h>
+
 #include <ios/iosconstants.h>
 
 #include <projectexplorer/kitinformation.h>
@@ -833,7 +835,8 @@ void CMakeGeneratorKitAspect::addToEnvironment(const Kit *k, Utils::Environment 
     if (info.generator == "NMake Makefiles JOM") {
         if (env.searchInPath("jom.exe").exists())
             return;
-        env.appendOrSetPath(QCoreApplication::applicationDirPath());
+        env.appendOrSetPath(Core::ICore::libexecPath().toUserOutput());
+        env.appendOrSetPath(Core::ICore::libexecPath().pathAppended("jom").toUserOutput());
     }
 }
 
