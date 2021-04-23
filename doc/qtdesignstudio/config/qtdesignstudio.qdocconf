@@ -90,6 +90,7 @@ depends +=    qtwidgets \
               qtsensors \
               qttestlib \
               qtuitools \
+              qtvirtualkeyboard \
               qtxml
 
 include(../../config/macros.qdocconf)
