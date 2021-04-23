@@ -154,7 +154,7 @@
 
     If you need to change the IP address and/or port, you need to select the
     \uicontrol SimulinkConnector item in \l Navigator and set the IP address
-    and/or port in the \uicontrol Properties view. If you cannot see
+    and/or port in the \l Properties view. If you cannot see
     \uicontrol SimulinkConnector in \uicontrol Navigator, you need to click
     \inlineimage filtericon.png
     (\uicontrol {Filter Tree}) and unselect \uicontrol {Show only visible items}.

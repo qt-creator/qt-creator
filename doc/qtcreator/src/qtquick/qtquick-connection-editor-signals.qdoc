@@ -104,9 +104,8 @@
     \uicontrol {Signal Handler} column, you can add it:
 
     \list 1
-        \li Right-click a component in the \uicontrol Navigator or
-            \uicontrol {Form Editor} view and select
-            \uicontrol {Add New Signal Handler} in the context menu.
+        \li Right-click a component in the \l Navigator or \l {Form Editor} view
+            and select \uicontrol {Add New Signal Handler} in the context menu.
         \li In the \uicontrol Signal field, select the signal to handle.
             \image qmldesigner-implement-signal-handler.png "Implement Signal Handler dialog"
         \li Select the radio buttons to filter the list to only display

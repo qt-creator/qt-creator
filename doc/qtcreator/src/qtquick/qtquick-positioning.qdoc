@@ -392,8 +392,8 @@
     (\uicontrol Next) buttons.
 
     To add a tab bar to a stack layout, right-click on the
-    \uicontrol {Stack Layout} in \uicontrol Navigator to access the context menu,
-    and select \uicontrol {Stacked Container} > \uicontrol {Add Tab Bar}.
+    \uicontrol {Stack Layout} in \l Navigator to access the context menu, and
+    select \uicontrol {Stacked Container} > \uicontrol {Add Tab Bar}.
 
     To raise or lower the stacking order of a component, select
     \uicontrol {Stacked Container} > \uicontrol {Increase Index} or
