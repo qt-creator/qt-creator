@@ -177,7 +177,7 @@ NodeListProperty::iterator NodeListProperty::rotate(NodeListProperty::iterator f
 
     privateModel()->notifyNodeOrderChanged(m_internalNodeListProperty);
 
-    return {iter - begin, internalNodeListProperty().data(), model(), view()};
+    return {int(iter - begin), internalNodeListProperty().data(), model(), view()};
 }
 
 void NodeListProperty::reverse(NodeListProperty::iterator first, NodeListProperty::iterator last)
