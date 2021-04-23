@@ -106,7 +106,7 @@ public:
     void cleanUp(QProcess *process);
 
     AbstractProcessStep *q;
-    std::unique_ptr<Utils::QtcProcess> m_process;
+    std::unique_ptr<QtcProcess> m_process;
     ProcessParameters m_param;
     std::function<CommandLine()> m_commandLineProvider;
     std::function<FilePath()> m_workingDirectoryProvider;
@@ -118,7 +118,7 @@ public:
     OutputFormatter *outputFormatter = nullptr;
 };
 
-AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, Utils::Id id) :
+AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, Id id) :
     BuildStep(bsl, id),
     d(new Private(this))
 {
@@ -223,8 +223,8 @@ void AbstractProcessStep::doRun()
             ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForLocale());
     d->stderrStream = std::make_unique<QTextDecoder>(QTextCodec::codecForLocale());
 
-    d->m_process.reset(new Utils::QtcProcess());
-    d->m_process->setUseCtrlCStub(Utils::HostOsInfo::isWindowsHost());
+    d->m_process.reset(new QtcProcess());
+    d->m_process->setUseCtrlCStub(HostOsInfo::isWindowsHost());
     d->m_process->setWorkingDirectory(wd.absolutePath());
     // Enforce PWD in the environment because some build tools use that.
     // PWD can be different from getcwd in case of symbolic links (getcwd resolves symlinks).
@@ -272,7 +272,7 @@ void AbstractProcessStep::setupProcessParameters(ProcessParameters *params) cons
 {
     params->setMacroExpander(macroExpander());
 
-    Utils::Environment env = buildEnvironment();
+    Environment env = buildEnvironment();
     if (d->m_environmentModifier)
         d->m_environmentModifier(env);
     params->setEnvironment(env);
