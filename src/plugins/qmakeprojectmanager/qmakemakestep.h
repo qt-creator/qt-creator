@@ -30,17 +30,6 @@
 #include <projectexplorer/makestep.h>
 
 namespace QmakeProjectManager {
-namespace Internal {
-
-class QmakeMakeStepFactory : public ProjectExplorer::BuildStepFactory
-{
-public:
-    QmakeMakeStepFactory();
-};
-
-} //namespace Internal
-
-class QmakeProject;
 
 class QMAKEPROJECTMANAGER_EXPORT QmakeMakeStep : public ProjectExplorer::MakeStep
 {
@@ -62,4 +51,13 @@ private:
     bool m_ignoredNonTopLevelBuild = false;
 };
 
+namespace Internal {
+
+class QmakeMakeStepFactory : public ProjectExplorer::BuildStepFactory
+{
+public:
+    QmakeMakeStepFactory();
+};
+
+} // Internal
 } // QmakeProjectManager

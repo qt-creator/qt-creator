@@ -50,10 +50,11 @@
 #include <QFileInfo>
 
 using namespace ProjectExplorer;
-using namespace QmakeProjectManager;
-using namespace QmakeProjectManager::Internal;
+using namespace Utils;
 
-QmakeMakeStep::QmakeMakeStep(BuildStepList *bsl, Utils::Id id)
+namespace QmakeProjectManager {
+
+QmakeMakeStep::QmakeMakeStep(BuildStepList *bsl, Id id)
     : MakeStep(bsl, id)
 {
     if (bsl->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
@@ -71,8 +72,8 @@ bool QmakeMakeStep::init()
 
     const auto bc = static_cast<QmakeBuildConfiguration *>(buildConfiguration());
 
-    const Utils::CommandLine unmodifiedMake = effectiveMakeCommand(Execution);
-    const Utils::FilePath makeExecutable = unmodifiedMake.executable();
+    const CommandLine unmodifiedMake = effectiveMakeCommand(Execution);
+    const FilePath makeExecutable = unmodifiedMake.executable();
     if (makeExecutable.isEmpty())
         emit addTask(makeCommandMissingTask());
 
@@ -87,14 +88,14 @@ bool QmakeMakeStep::init()
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
 
-    Utils::FilePath workingDirectory;
+    FilePath workingDirectory;
     if (bc->subNodeBuild())
         workingDirectory = bc->qmakeBuildSystem()->buildDir(bc->subNodeBuild()->filePath());
     else
         workingDirectory = bc->buildDirectory();
     pp->setWorkingDirectory(workingDirectory);
 
-    Utils::CommandLine makeCmd(makeExecutable);
+    CommandLine makeCmd(makeExecutable);
 
     QmakeProjectManager::QmakeProFileNode *subProFile = bc->subNodeBuild();
     if (subProFile) {
@@ -125,7 +126,7 @@ bool QmakeMakeStep::init()
         }
     }
 
-    makeCmd.addArgs(unmodifiedMake.arguments(), Utils::CommandLine::Raw);
+    makeCmd.addArgs(unmodifiedMake.arguments(), CommandLine::Raw);
 
     if (bc->fileNodeBuild() && subProFile) {
         QString objectsDir = subProFile->objectsDirectory();
@@ -140,8 +141,8 @@ bool QmakeMakeStep::init()
         }
 
         if (subProFile->isObjectParallelToSource()) {
-            const Utils::FilePath sourceFileDir = bc->fileNodeBuild()->filePath().parentDir();
-            const Utils::FilePath proFileDir = subProFile->proFile()->sourceDir().canonicalPath();
+            const FilePath sourceFileDir = bc->fileNodeBuild()->filePath().parentDir();
+            const FilePath proFileDir = subProFile->proFile()->sourceDir().canonicalPath();
             if (!objectsDir.endsWith('/'))
                 objectsDir += QLatin1Char('/');
             objectsDir += sourceFileDir.relativeChildPath(proFileDir).toString();
@@ -179,22 +180,22 @@ bool QmakeMakeStep::init()
     return true;
 }
 
-void QmakeMakeStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
+void QmakeMakeStep::setupOutputFormatter(OutputFormatter *formatter)
 {
-    formatter->addLineParser(new ProjectExplorer::GnuMakeParser());
+    formatter->addLineParser(new GnuMakeParser());
     ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit());
     OutputTaskParser *xcodeBuildParser = nullptr;
     if (tc && tc->targetAbi().os() == Abi::DarwinOS) {
         xcodeBuildParser = new XcodebuildParser;
         formatter->addLineParser(xcodeBuildParser);
     }
-    QList<Utils::OutputLineParser *> additionalParsers = kit()->createOutputParsers();
+    QList<OutputLineParser *> additionalParsers = kit()->createOutputParsers();
 
     // make may cause qmake to be run, add last to make sure it has a low priority.
     additionalParsers << new QMakeParser;
 
     if (xcodeBuildParser) {
-        for (Utils::OutputLineParser * const p : qAsConst(additionalParsers))
+        for (OutputLineParser * const p : qAsConst(additionalParsers))
             p->setRedirectionDetector(xcodeBuildParser);
     }
     formatter->addLineParsers(additionalParsers);
@@ -224,7 +225,7 @@ void QmakeMakeStep::doRun()
 void QmakeMakeStep::finish(bool success)
 {
     if (!success && !isCanceled() && m_unalignedBuildDir
-            && QmakeSettings::warnAgainstUnalignedBuildDir()) {
+            && Internal::QmakeSettings::warnAgainstUnalignedBuildDir()) {
         const QString msg = tr("The build directory is not at the same level as the source "
                                "directory, which could be the reason for the build failure.");
         emit addTask(BuildSystemTask(Task::Warning, msg));
@@ -240,6 +241,8 @@ QStringList QmakeMakeStep::displayArguments() const
     return {};
 }
 
+namespace Internal {
+
 ///
 // QmakeMakeStepFactory
 ///
@@ -250,3 +253,6 @@ QmakeMakeStepFactory::QmakeMakeStepFactory()
     setSupportedProjectType(Constants::QMAKEPROJECT_ID);
     setDisplayName(MakeStep::defaultDisplayName());
 }
+
+} // Internal
+} // QmakeProjectManager
