@@ -685,6 +685,8 @@ void Autotest::TestTreeModel::onDataChanged(const QModelIndex &topLeft,
     if (!roles.isEmpty() && !roles.contains(Qt::CheckStateRole))
         return;
 
+    if (!m_checkStateCache) // dataChanged() may be triggered by closing a project
+        return;
     for (int row = topLeft.row(), endRow = bottomRight.row(); row <= endRow; ++row) {
         if (auto item = static_cast<ITestTreeItem *>(itemForIndex(index(row, 0, parent))))
             m_checkStateCache->insert(item, item->checked());
