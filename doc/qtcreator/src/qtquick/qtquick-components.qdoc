@@ -83,9 +83,9 @@
 
     \list 1
         \li Drag-and-drop components from \uicontrol Library (1) to
-            \uicontrol Navigator (2), \uicontrol {Form Editor} (3), or
-            \l {3D Editor} (4). This creates instances of the components in the
-            current component file.
+            \l Navigator (2), \l {Form Editor} (3), or \l {3D Editor} (4).
+            This creates instances of the components in the current
+            component file.
         \li Select component instances in \uicontrol Navigator to edit the
             values of their properties in \uicontrol Properties.
             \image qmldesigner-properties-view.png "Properties view"
