@@ -29,6 +29,8 @@
 
 #include "qttesttreeitem.h"
 
+#include <utils/optional.h>
+
 namespace CppTools { class CppModelManager; }
 
 namespace Autotest {
@@ -58,6 +60,20 @@ public:
 private:
     QString testClass(const CppTools::CppModelManager *modelManager, const QString &fileName) const;
     QHash<QString, QtTestCodeLocationList> checkForDataTags(const QString &fileName) const;
+    struct TestCaseData {
+        QString fileName;
+        int line = 0;
+        int column = 0;
+        QMap<QString, QtTestCodeLocationAndType> testFunctions;
+        QHash<QString, QtTestCodeLocationList> dataTags;
+        bool valid = false;
+    };
+
+    Utils::optional<bool> fillTestCaseData(const QString &testCaseName,
+                                           const CPlusPlus::Document::Ptr &doc,
+                                           TestCaseData &data) const;
+    QtTestParseResult *createParseResult(const QString &testCaseName, const TestCaseData &data,
+                                         const QString &projectFile) const;
     QHash<QString, QString> m_testCaseNames;
     QMultiHash<QString, QString> m_alternativeFiles;
 };

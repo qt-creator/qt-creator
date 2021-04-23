@@ -293,81 +293,101 @@ bool QtTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureIn
     if (testCaseName.isEmpty())
         testCaseName = oldTestCaseName;
     if (!testCaseName.isEmpty()) {
-        int line = 0;
-        int column = 0;
-        const QStringList &alternativeFiles = m_alternativeFiles.values(fileName);
-        CPlusPlus::Document::Ptr declaringDoc = declaringDocument(doc, m_cppSnapshot, testCaseName,
-                                                                  alternativeFiles, &line, &column);
-        if (declaringDoc.isNull())
-            return false;
+        TestCaseData data;
+        Utils::optional<bool> earlyReturn = fillTestCaseData(testCaseName, doc, data);
+        if (earlyReturn.has_value())
+            return earlyReturn.value();
 
-        TestVisitor visitor(testCaseName, m_cppSnapshot);
-        visitor.accept(declaringDoc->globalNamespace());
-        if (!visitor.resultValid())
-            return false;
-
-        QMap<QString, QtTestCodeLocationAndType> testFunctions = visitor.privateSlots();
-        // gather appropriate information of base classes as well and merge into already found
-        // functions - but only as far as QtTest can handle this appropriate
-        fetchAndMergeBaseTestFunctions(
-                    visitor.baseClasses(), testFunctions, declaringDoc, m_cppSnapshot);
-
-        // handle tests that are not runnable without more information (plugin unit test of QC)
-        if (testFunctions.isEmpty() && testCaseName == "QObject" && isQObject(declaringDoc))
-            return true; // we did not handle it, but we do not expect any test defined there either
-
-        const QSet<QString> &files = filesWithDataFunctionDefinitions(testFunctions);
-
-        QHash<QString, QtTestCodeLocationList> dataTags;
-        for (const QString &file : files)
-            Utils::addToHash(&dataTags, checkForDataTags(file));
-
-        QtTestParseResult *parseResult = new QtTestParseResult(framework());
-        parseResult->itemType = TestTreeItem::TestCase;
-        parseResult->fileName = declaringDoc->fileName();
-        parseResult->name = testCaseName;
-        parseResult->displayName = testCaseName;
-        parseResult->line = line;
-        parseResult->column = column;
         QList<CppTools::ProjectPart::Ptr> projectParts = modelManager->projectPart(fileName);
         if (projectParts.isEmpty()) // happens if shutting down while parsing
             return false;
-        parseResult->proFile = projectParts.first()->projectFile;
-        QMap<QString, QtTestCodeLocationAndType>::ConstIterator it = testFunctions.begin();
-        const QMap<QString, QtTestCodeLocationAndType>::ConstIterator end = testFunctions.end();
-        for ( ; it != end; ++it) {
-            const QtTestCodeLocationAndType &location = it.value();
-            QString functionName = it.key();
-            functionName = functionName.mid(functionName.lastIndexOf(':') + 1);
-            QtTestParseResult *func = new QtTestParseResult(framework());
-            func->itemType = location.m_type;
-            func->name = testCaseName + "::" + functionName;
-            func->displayName = functionName;
-            func->fileName = location.m_name;
-            func->line = location.m_line;
-            func->column = location.m_column;
-            func->setInherited(location.m_inherited);
 
-            const QtTestCodeLocationList &tagLocations = tagLocationsFor(func, dataTags);
-            for (const QtTestCodeLocationAndType &tag : tagLocations) {
-                QtTestParseResult *dataTag = new QtTestParseResult(framework());
-                dataTag->itemType = tag.m_type;
-                dataTag->name = tag.m_name;
-                dataTag->displayName = tag.m_name;
-                dataTag->fileName = testFunctions.value(it.key() + "_data").m_name;
-                dataTag->line = tag.m_line;
-                dataTag->column = tag.m_column;
-                dataTag->setInherited(tag.m_inherited);
-
-                func->children.append(dataTag);
-            }
-            parseResult->children.append(func);
-        }
-
+        QtTestParseResult *parseResult
+                = createParseResult(testCaseName, data, projectParts.first()->projectFile);
         futureInterface.reportResult(TestParseResultPtr(parseResult));
         return true;
     }
     return false;
+}
+
+Utils::optional<bool> QtTestParser::fillTestCaseData(
+        const QString &testCaseName, const CPlusPlus::Document::Ptr &doc,
+        TestCaseData &data) const
+{
+    const QStringList &alternativeFiles = m_alternativeFiles.values(doc->fileName());
+    CPlusPlus::Document::Ptr declaringDoc = declaringDocument(doc, m_cppSnapshot, testCaseName,
+                                                              alternativeFiles,
+                                                              &(data.line), &(data.column));
+    if (declaringDoc.isNull())
+        return false;
+
+    TestVisitor visitor(testCaseName, m_cppSnapshot);
+    visitor.accept(declaringDoc->globalNamespace());
+    if (!visitor.resultValid())
+        return false;
+
+    data.testFunctions = visitor.privateSlots();
+    // gather appropriate information of base classes as well and merge into already found
+    // functions - but only as far as QtTest can handle this appropriate
+    fetchAndMergeBaseTestFunctions(
+                visitor.baseClasses(), data.testFunctions, declaringDoc, m_cppSnapshot);
+
+    // handle tests that are not runnable without more information (plugin unit test of QC)
+    if (data.testFunctions.isEmpty() && testCaseName == "QObject" && isQObject(declaringDoc))
+        return true; // we did not handle it, but we do not expect any test defined there either
+
+    const QSet<QString> &files = filesWithDataFunctionDefinitions(data.testFunctions);
+
+    for (const QString &file : files)
+        Utils::addToHash(&(data.dataTags), checkForDataTags(file));
+
+    data.fileName = declaringDoc->fileName();
+    data.valid = true;
+    return Utils::optional<bool>();
+}
+
+QtTestParseResult *QtTestParser::createParseResult(
+        const QString &testCaseName, const TestCaseData &data, const QString &projectFile) const
+{
+    QtTestParseResult *parseResult = new QtTestParseResult(framework());
+    parseResult->itemType = TestTreeItem::TestCase;
+    parseResult->fileName = data.fileName;
+    parseResult->name = testCaseName;
+    parseResult->displayName = testCaseName;
+    parseResult->line = data.line;
+    parseResult->column = data.column;
+    parseResult->proFile = projectFile;
+    QMap<QString, QtTestCodeLocationAndType>::ConstIterator it = data.testFunctions.begin();
+    const QMap<QString, QtTestCodeLocationAndType>::ConstIterator end = data.testFunctions.end();
+    for ( ; it != end; ++it) {
+        const QtTestCodeLocationAndType &location = it.value();
+        QString functionName = it.key();
+        functionName = functionName.mid(functionName.lastIndexOf(':') + 1);
+        QtTestParseResult *func = new QtTestParseResult(framework());
+        func->itemType = location.m_type;
+        func->name = testCaseName + "::" + functionName;
+        func->displayName = functionName;
+        func->fileName = location.m_name;
+        func->line = location.m_line;
+        func->column = location.m_column;
+        func->setInherited(location.m_inherited);
+
+        const QtTestCodeLocationList &tagLocations = tagLocationsFor(func, data.dataTags);
+        for (const QtTestCodeLocationAndType &tag : tagLocations) {
+            QtTestParseResult *dataTag = new QtTestParseResult(framework());
+            dataTag->itemType = tag.m_type;
+            dataTag->name = tag.m_name;
+            dataTag->displayName = tag.m_name;
+            dataTag->fileName = data.testFunctions.value(it.key() + "_data").m_name;
+            dataTag->line = tag.m_line;
+            dataTag->column = tag.m_column;
+            dataTag->setInherited(tag.m_inherited);
+
+            func->children.append(dataTag);
+        }
+        parseResult->children.append(func);
+    }
+    return parseResult;
 }
 
 void QtTestParser::init(const QStringList &filesToParse, bool fullParse)
