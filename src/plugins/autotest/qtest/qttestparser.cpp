@@ -26,7 +26,6 @@
 #include "qttestparser.h"
 #include "qttestframework.h"
 #include "qttestvisitors.h"
-#include "qttest_utils.h"
 
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/projectpart.h>
@@ -46,6 +45,7 @@ TestTreeItem *QtTestParseResult::createTestTreeItem() const
     item->setLine(line);
     item->setColumn(column);
     item->setInherited(m_inherited);
+    item->setRunsMultipleTestcases(m_multiTest);
 
     for (const TestParseResult *funcParseResult : children)
         item->appendChild(funcParseResult->createTestTreeItem());
@@ -93,13 +93,13 @@ static bool qtTestLibDefined(const Utils::FilePath &fileName)
     return false;
 }
 
-QString QtTestParser::testClass(const CppTools::CppModelManager *modelManager,
-                                const Utils::FilePath &fileName) const
+TestCases QtTestParser::testCases(const CppTools::CppModelManager *modelManager,
+                                  const Utils::FilePath &fileName) const
 {
     const QByteArray &fileContent = getFileContent(fileName);
     CPlusPlus::Document::Ptr document = modelManager->document(fileName.toString());
     if (document.isNull())
-        return QString();
+        return {};
 
     const QList<CPlusPlus::Document::MacroUse> macros = document->macroUses();
 
@@ -109,8 +109,9 @@ QString QtTestParser::testClass(const CppTools::CppModelManager *modelManager,
         const QByteArray name = macro.macro().name();
         if (QTestUtils::isQTestMacro(name) && !macro.arguments().isEmpty()) {
             const CPlusPlus::Document::Block arg = macro.arguments().at(0);
-            return QLatin1String(fileContent.mid(int(arg.bytesBegin()),
-                                                 int(arg.bytesEnd() - arg.bytesBegin())));
+            const QString name = QLatin1String(fileContent.mid(int(arg.bytesBegin()),
+                                                               int(arg.bytesEnd() - arg.bytesBegin())));
+            return { {name, false} };
         }
     }
     // check if one has used a self-defined macro or QTest::qExec() directly
@@ -119,7 +120,7 @@ QString QtTestParser::testClass(const CppTools::CppModelManager *modelManager,
     CPlusPlus::AST *ast = document->translationUnit()->ast();
     TestAstVisitor astVisitor(document, m_cppSnapshot);
     astVisitor.accept(ast);
-    return astVisitor.className();
+    return astVisitor.testCases();
 }
 
 static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
@@ -284,31 +285,37 @@ bool QtTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureIn
     CPlusPlus::Document::Ptr doc = document(fileName);
     if (doc.isNull())
         return false;
-    const QString &oldTestCaseName = m_testCaseNames.value(fileName);
-    if ((!includesQtTest(doc, m_cppSnapshot) || !qtTestLibDefined(fileName)) && oldTestCaseName.isEmpty())
+    const TestCases &oldTestCases = m_testCases.value(fileName);
+    if ((!includesQtTest(doc, m_cppSnapshot) || !qtTestLibDefined(fileName))
+        && oldTestCases.isEmpty()) {
         return false;
+    }
 
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
-    QString testCaseName(testClass(modelManager, fileName));
+    TestCases testCases(testCases(modelManager, fileName));
+    bool reported = false;
     // we might be in a reparse without the original entry point with the QTest::qExec()
-    if (testCaseName.isEmpty())
-        testCaseName = oldTestCaseName;
-    if (!testCaseName.isEmpty()) {
-        TestCaseData data;
-        Utils::optional<bool> earlyReturn = fillTestCaseData(testCaseName, doc, data);
-        if (earlyReturn.has_value())
-            return earlyReturn.value();
+    if (testCases.isEmpty() && !oldTestCases.empty())
+        testCases.append(oldTestCases);
+    for (const TestCase &testCase : testCases) {
+        if (!testCase.name.isEmpty()) {
+            TestCaseData data;
+            Utils::optional<bool> earlyReturn = fillTestCaseData(testCase.name, doc, data);
+            if (earlyReturn.has_value() || !data.valid)
+                continue;
 
-        QList<CppTools::ProjectPart::Ptr> projectParts = modelManager->projectPart(fileName);
-        if (projectParts.isEmpty()) // happens if shutting down while parsing
-            return false;
+            QList<CppTools::ProjectPart::Ptr> projectParts = modelManager->projectPart(fileName);
+            if (projectParts.isEmpty()) // happens if shutting down while parsing
+                return false;
 
-        QtTestParseResult *parseResult
-                = createParseResult(testCaseName, data, projectParts.first()->projectFile);
-        futureInterface.reportResult(TestParseResultPtr(parseResult));
-        return true;
+            data.multipleTestCases = testCase.multipleTestCases;
+            QtTestParseResult *parseResult
+                    = createParseResult(testCase.name, data, projectParts.first()->projectFile);
+            futureInterface.reportResult(TestParseResultPtr(parseResult));
+            reported = true;
+        }
     }
-    return false;
+    return reported;
 }
 
 Utils::optional<bool> QtTestParser::fillTestCaseData(
@@ -359,8 +366,10 @@ QtTestParseResult *QtTestParser::createParseResult(
     parseResult->line = data.line;
     parseResult->column = data.column;
     parseResult->proFile = Utils::FilePath::fromString(projectFile);
+    parseResult->setRunsMultipleTestcases(data.multipleTestCases);
     QMap<QString, QtTestCodeLocationAndType>::ConstIterator it = data.testFunctions.begin();
     const QMap<QString, QtTestCodeLocationAndType>::ConstIterator end = data.testFunctions.end();
+
     for ( ; it != end; ++it) {
         const QtTestCodeLocationAndType &location = it.value();
         QString functionName = it.key();
@@ -373,6 +382,7 @@ QtTestParseResult *QtTestParser::createParseResult(
         func->line = location.m_line;
         func->column = location.m_column;
         func->setInherited(location.m_inherited);
+        func->setRunsMultipleTestcases(data.multipleTestCases);
 
         const QtTestCodeLocationList &tagLocations = tagLocationsFor(func, data.dataTags);
         for (const QtTestCodeLocationAndType &tag : tagLocations) {
@@ -385,6 +395,7 @@ QtTestParseResult *QtTestParser::createParseResult(
             dataTag->line = tag.m_line;
             dataTag->column = tag.m_column;
             dataTag->setInherited(tag.m_inherited);
+            dataTag->setRunsMultipleTestcases(data.multipleTestCases);
 
             func->children.append(dataTag);
         }
@@ -396,7 +407,7 @@ QtTestParseResult *QtTestParser::createParseResult(
 void QtTestParser::init(const Utils::FilePaths &filesToParse, bool fullParse)
 {
     if (!fullParse) { // in a full parse cached information might lead to wrong results
-        m_testCaseNames = QTestUtils::testCaseNamesForFiles(framework(), filesToParse);
+        m_testCases = QTestUtils::testCaseNamesForFiles(framework(), filesToParse);
         m_alternativeFiles = QTestUtils::alternativeFiles(framework(), filesToParse);
     }
     CppParser::init(filesToParse, fullParse);
@@ -404,7 +415,7 @@ void QtTestParser::init(const Utils::FilePaths &filesToParse, bool fullParse)
 
 void QtTestParser::release()
 {
-    m_testCaseNames.clear();
+    m_testCases.clear();
     m_alternativeFiles.clear();
     CppParser::release();
 }

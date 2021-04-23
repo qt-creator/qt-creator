@@ -30,6 +30,7 @@
 #include <cplusplus/Symbols.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <cpptools/cppmodelmanager.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 using namespace CPlusPlus;
@@ -131,7 +132,7 @@ bool TestAstVisitor::visit(CallAST *ast)
 
                             if (!toeItems.isEmpty()) {
                                 if (const auto pointerType = toeItems.first().type()->asPointerType())
-                                    m_className = o.prettyType(pointerType->elementType());
+                                    m_classNames.append(o.prettyType(pointerType->elementType()));
                             }
                         }
                     }
@@ -139,7 +140,7 @@ bool TestAstVisitor::visit(CallAST *ast)
             }
         }
     }
-    return false;
+    return true;
 }
 
 bool TestAstVisitor::visit(CompoundStatementAST *ast)
@@ -150,6 +151,14 @@ bool TestAstVisitor::visit(CompoundStatementAST *ast)
     }
     m_currentScope = ast->symbol->asScope();
     return true;
+}
+
+TestCases TestAstVisitor::testCases() const
+{
+    const bool multi = m_classNames.size() > 1;
+    return Utils::transform(m_classNames, [multi](const QString &className) {
+        return TestCase{className, multi};
+    });
 }
 
 /********************** Test Data Function AST Visitor ************************/

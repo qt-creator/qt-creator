@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "qttest_utils.h"
 #include "qttesttreeitem.h"
 
 #include <cplusplus/ASTVisitor.h>
@@ -70,10 +71,10 @@ public:
     bool visit(CPlusPlus::CallAST *ast) override;
     bool visit(CPlusPlus::CompoundStatementAST *ast) override;
 
-    QString className() const { return m_className; }
+    TestCases testCases() const;
 
 private:
-    QString m_className;
+    QStringList m_classNames;
     CPlusPlus::Scope *m_currentScope = nullptr;
     CPlusPlus::Document::Ptr m_currentDoc;
     CPlusPlus::Snapshot m_snapshot;

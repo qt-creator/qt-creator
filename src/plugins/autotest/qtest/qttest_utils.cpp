@@ -47,19 +47,24 @@ bool isQTestMacro(const QByteArray &macro)
     return valid.contains(macro);
 }
 
-QHash<Utils::FilePath, QString> testCaseNamesForFiles(ITestFramework *framework,
-                                                      const Utils::FilePaths &files)
+QHash<Utils::FilePath, TestCases> testCaseNamesForFiles(ITestFramework *framework,
+                                                        const Utils::FilePaths &files)
 {
-    QHash<Utils::FilePath, QString> result;
+    QHash<Utils::FilePath, TestCases> result;
     TestTreeItem *rootNode = framework->rootNode();
     QTC_ASSERT(rootNode, return result);
 
-    rootNode->forFirstLevelChildren([&result, &files](ITestTreeItem *child) {
+    auto toTestCase = [](QtTestTreeItem *item){
+        return TestCase{item->name(), item->runsMultipleTestcases()};
+    };
+
+    rootNode->forFirstLevelChildren([&](ITestTreeItem *child) {
+        QtTestTreeItem *qtItem = static_cast<QtTestTreeItem *>(child);
         if (files.contains(child->filePath()))
-            result.insert(child->filePath(), child->name());
-        child->forFirstLevelChildren([&result, &files, child](ITestTreeItem *grandChild) {
+            result[child->filePath()].append(toTestCase(qtItem));
+        child->forFirstLevelChildren([&](ITestTreeItem *grandChild) {
             if (files.contains(grandChild->filePath()))
-                result.insert(grandChild->filePath(), child->name());
+                result[grandChild->filePath()].append(toTestCase(qtItem));
         });
     });
     return result;

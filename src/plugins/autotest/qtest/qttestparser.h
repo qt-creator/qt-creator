@@ -27,6 +27,7 @@
 
 #include "../itestparser.h"
 
+#include "qttest_utils.h"
 #include "qttesttreeitem.h"
 
 #include <utils/optional.h>
@@ -42,9 +43,12 @@ public:
     explicit QtTestParseResult(ITestFramework *framework) : TestParseResult(framework) {}
     void setInherited(bool inherited) { m_inherited = inherited; }
     bool inherited() const { return m_inherited; }
+    void setRunsMultipleTestcases(bool multi) { m_multiTest = multi; }
+    bool runsMultipleTestcases() const { return m_multiTest; }
     TestTreeItem *createTestTreeItem() const override;
 private:
     bool m_inherited = false;
+    bool m_multiTest = false;
 };
 
 class QtTestParser : public CppParser
@@ -58,8 +62,8 @@ public:
                          const Utils::FilePath &fileName) override;
 
 private:
-    QString testClass(const CppTools::CppModelManager *modelManager,
-                      const Utils::FilePath &fileName) const;
+    TestCases testCases(const CppTools::CppModelManager *modelManager,
+                        const Utils::FilePath &fileName) const;
     QHash<QString, QtTestCodeLocationList> checkForDataTags(const QString &fileName) const;
     struct TestCaseData {
         Utils::FilePath fileName;
@@ -67,6 +71,7 @@ private:
         int column = 0;
         QMap<QString, QtTestCodeLocationAndType> testFunctions;
         QHash<QString, QtTestCodeLocationList> dataTags;
+        bool multipleTestCases = false;
         bool valid = false;
     };
 
@@ -75,7 +80,7 @@ private:
                                            TestCaseData &data) const;
     QtTestParseResult *createParseResult(const QString &testCaseName, const TestCaseData &data,
                                          const QString &projectFile) const;
-    QHash<Utils::FilePath, QString> m_testCaseNames;
+    QHash<Utils::FilePath, TestCases> m_testCases;
     QMultiHash<Utils::FilePath, Utils::FilePath> m_alternativeFiles;
 };
 

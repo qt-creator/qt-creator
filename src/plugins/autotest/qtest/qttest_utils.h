@@ -36,11 +36,19 @@ namespace Autotest {
 class ITestFramework;
 
 namespace Internal {
+
+struct TestCase
+{
+    QString name;
+    bool multipleTestCases;
+};
+using TestCases = QList<TestCase>;
+
 namespace QTestUtils {
 
 bool isQTestMacro(const QByteArray &macro);
-QHash<Utils::FilePath, QString> testCaseNamesForFiles(ITestFramework *framework,
-                                                      const Utils::FilePaths &files);
+QHash<Utils::FilePath, TestCases> testCaseNamesForFiles(ITestFramework *framework,
+                                                        const Utils::FilePaths &files);
 QMultiHash<Utils::FilePath, Utils::FilePath> alternativeFiles(ITestFramework *framework,
                                                               const Utils::FilePaths &files);
 QStringList filterInterfering(const QStringList &provided, QStringList *omitted, bool isQuickTest);

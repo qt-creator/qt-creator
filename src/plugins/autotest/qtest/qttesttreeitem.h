@@ -39,6 +39,7 @@ public:
     TestTreeItem *copyWithoutChildren() override;
     QVariant data(int column, int role) const override;
     Qt::ItemFlags flags(int column) const override;
+    Qt::CheckState checked() const override;
     bool canProvideTestConfiguration() const override;
     bool canProvideDebugConfiguration() const override;
     ITestConfiguration *testConfiguration() const override;
@@ -52,12 +53,18 @@ public:
     bool modify(const TestParseResult *result) override;
     void setInherited(bool inherited) { m_inherited = inherited; }
     bool inherited() const { return m_inherited; }
+    void setRunsMultipleTestcases(bool multiTest) { m_multiTest = multiTest; }
+    bool runsMultipleTestcases() const { return m_multiTest; }
     TestTreeItem *createParentGroupNode() const override;
     bool isGroupable() const override;
 private:
-    TestTreeItem *findChildByNameAndInheritance(const QString &name, bool inherited) const;
+    TestTreeItem *findChildByFileNameAndType(const Utils::FilePath &file, const QString &name,
+                                             Type type) const;
+    TestTreeItem *findChildByNameAndInheritanceAndMultiTest(const QString &name, bool inherited,
+                                                            bool multiTest) const;
     QString nameSuffix() const;
     bool m_inherited = false;
+    bool m_multiTest = false;
 };
 
 class QtTestCodeLocationAndType : public TestCodeLocationAndType

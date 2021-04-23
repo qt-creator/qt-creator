@@ -48,6 +48,7 @@ TestTreeItem *QtTestTreeItem::copyWithoutChildren()
     QtTestTreeItem *copied = new QtTestTreeItem(framework());
     copied->copyBasicDataFrom(this);
     copied->m_inherited = m_inherited;
+    copied->m_multiTest = m_multiTest;
     return copied;
 }
 
@@ -58,13 +59,24 @@ QVariant QtTestTreeItem::data(int column, int role) const
         if (type() == Root)
             break;
         return QVariant(name() + nameSuffix());
+    case Qt::ToolTipRole: {
+        QString toolTip = TestTreeItem::data(column, role).toString();
+        if (m_multiTest && type() == TestCase) {
+            toolTip.append(QCoreApplication::translate("QtTestTreeItem",
+                            "<p>Multiple testcases inside a single executable are not officially "
+                            "supported. Depending on the implementation they might get executed "
+                            "or not, but never will be explicitly selectable.</p>"));
+        }
+        return toolTip;
+        break;
+    }
     case Qt::CheckStateRole:
         switch (type()) {
         case TestDataFunction:
         case TestSpecialFunction:
             return QVariant();
         default:
-            return checked();
+            return m_multiTest ? QVariant() : checked();
         }
     case ItalicRole:
         switch (type()) {
@@ -72,7 +84,7 @@ QVariant QtTestTreeItem::data(int column, int role) const
         case TestSpecialFunction:
             return true;
         default:
-            return false;
+            return m_multiTest;
         }
     }
     return TestTreeItem::data(column, role);
@@ -87,8 +99,14 @@ Qt::ItemFlags QtTestTreeItem::flags(int column) const
     case TestFunction:
         return defaultFlags | Qt::ItemIsAutoTristate | Qt::ItemIsUserCheckable;
     default:
-        return TestTreeItem::flags(column);
+        return m_multiTest ? Qt::ItemIsEnabled | Qt::ItemIsSelectable
+                           : TestTreeItem::flags(column);
     }
+}
+
+Qt::CheckState QtTestTreeItem::checked() const
+{
+    return m_multiTest ? Qt::Unchecked : TestTreeItem::checked();
 }
 
 bool QtTestTreeItem::canProvideTestConfiguration() const
@@ -97,7 +115,7 @@ bool QtTestTreeItem::canProvideTestConfiguration() const
     case TestCase:
     case TestFunction:
     case TestDataTag:
-        return true;
+        return !m_multiTest;
     default:
         return false;
     }
@@ -327,12 +345,14 @@ TestTreeItem *QtTestTreeItem::find(const TestParseResult *result)
             }
             return nullptr;
         }
-        return findChildByFile(result->fileName);
+        return findChildByNameAndFile(result->name, result->fileName);
     case GroupNode:
-        return findChildByFile(result->fileName);
+        return findChildByNameAndFile(result->name, result->fileName);
     case TestCase: {
         const QtTestParseResult *qtResult = static_cast<const QtTestParseResult *>(result);
-        return findChildByNameAndInheritance(qtResult->displayName, qtResult->inherited());
+        return findChildByNameAndInheritanceAndMultiTest(qtResult->displayName,
+                                                         qtResult->inherited(),
+                                                         qtResult->runsMultipleTestcases());
     }
     case TestFunction:
     case TestDataFunction:
@@ -349,14 +369,15 @@ TestTreeItem *QtTestTreeItem::findChild(const TestTreeItem *other)
     const Type otherType = other->type();
     switch (type()) {
     case Root:
-        return findChildByFileAndType(other->filePath(), otherType);
+        return findChildByFileNameAndType(other->filePath(), other->name(), otherType);
     case GroupNode:
-        return otherType == TestCase ? findChildByFile(other->filePath()) : nullptr;
+        return otherType == TestCase ? findChildByNameAndFile(other->name(), other->filePath()) : nullptr;
     case TestCase: {
         if (otherType != TestFunction && otherType != TestDataFunction && otherType != TestSpecialFunction)
             return nullptr;
         auto qtOther = static_cast<const QtTestTreeItem *>(other);
-        return findChildByNameAndInheritance(other->name(), qtOther->inherited());
+        return findChildByNameAndInheritanceAndMultiTest(other->name(), qtOther->inherited(),
+                                                         qtOther->runsMultipleTestcases());
     }
     case TestFunction:
     case TestDataFunction:
@@ -396,20 +417,38 @@ bool QtTestTreeItem::isGroupable() const
     return type() == TestCase;
 }
 
-TestTreeItem *QtTestTreeItem::findChildByNameAndInheritance(const QString &name, bool inherited) const
+TestTreeItem *QtTestTreeItem::findChildByFileNameAndType(const Utils::FilePath &file,
+                                                         const QString &name, Type type) const
 {
-    return findFirstLevelChildItem([name, inherited](const TestTreeItem *other) {
+    return findFirstLevelChildItem([file, name, type](const TestTreeItem *other) {
+        return other->type() == type && other->filePath() == file && other->name() == name;
+    });
+}
+
+TestTreeItem *QtTestTreeItem::findChildByNameAndInheritanceAndMultiTest(const QString &name,
+                                                                        bool inherited,
+                                                                        bool multiTest) const
+{
+    return findFirstLevelChildItem([name, inherited, multiTest](const TestTreeItem *other) {
         const QtTestTreeItem *qtOther = static_cast<const QtTestTreeItem *>(other);
-        return qtOther->inherited() == inherited && qtOther->name() == name;
+        return qtOther->inherited() == inherited && qtOther->runsMultipleTestcases() == multiTest
+                && qtOther->name() == name;
     });
 }
 
 QString QtTestTreeItem::nameSuffix() const
 {
-    static QString inheritedSuffix = QString(" [")
-                + QCoreApplication::translate("QtTestTreeItem", "inherited")
-                + QString("]");
-    return m_inherited ? inheritedSuffix : QString();
+    static const QString inherited{QCoreApplication::translate("QtTestTreeItem", "inherited")};
+    static const QString multi{QCoreApplication::translate("QtTestTreeItem", "multiple testcases")};
+    QString suffix;
+    if (m_inherited)
+        suffix.append(inherited);
+    if (m_multiTest && type() == TestCase) {
+        if (m_inherited)
+            suffix.append(", ");
+        suffix.append(multi);
+    }
+    return suffix.isEmpty() ? suffix : QString{" [" + suffix + "]"};
 }
 
 } // namespace Internal
