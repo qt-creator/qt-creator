@@ -41,7 +41,7 @@ SOURCES += \
     clanguiheaderondiskmanager.cpp \
     clangutils.cpp \
     clangoverviewmodel.cpp \
-    clangdclient.cpp
+    clangdclient.cpp \
     clanggloballocatorfilters.cpp
 
 HEADERS += \
@@ -82,7 +82,7 @@ HEADERS += \
     clanguiheaderondiskmanager.h \
     clangutils.h \
     clangoverviewmodel.h \
-    clangdclient.h
+    clangdclient.h \
     clanggloballocatorfilters.h
 
 FORMS += clangprojectsettingswidget.ui
