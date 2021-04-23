@@ -727,7 +727,7 @@ FilePath FilePath::fromUrl(const QUrl &url)
 }
 
 /// \returns a QString for passing on to QString based APIs
-const QString &FilePath::toString() const
+QString FilePath::toString() const
 {
     return m_data;
 }

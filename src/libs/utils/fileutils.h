@@ -78,7 +78,7 @@ public:
     static FilePath fromUtf8(const char *filepath, int filepathSize = -1);
     static FilePath fromVariant(const QVariant &variant);
 
-    const QString &toString() const;
+    QString toString() const;
     QFileInfo toFileInfo() const;
     QVariant toVariant() const;
 
