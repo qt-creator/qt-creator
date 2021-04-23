@@ -908,6 +908,33 @@ QStringList MsvcToolChain::suggestedMkspecList() const
     return {};
 }
 
+Abis MsvcToolChain::supportedAbis() const
+{
+    Abi abi = targetAbi();
+    Abis abis = {abi};
+    switch (abi.osFlavor()) {
+    case Abi::WindowsMsvc2019Flavor:
+        abis << Abi(abi.architecture(),
+                    abi.os(),
+                    Abi::WindowsMsvc2017Flavor,
+                    abi.binaryFormat(),
+                    abi.wordWidth(),
+                    abi.param());
+        Q_FALLTHROUGH();
+    case Abi::WindowsMsvc2017Flavor:
+        abis << Abi(abi.architecture(),
+                    abi.os(),
+                    Abi::WindowsMsvc2015Flavor,
+                    abi.binaryFormat(),
+                    abi.wordWidth(),
+                    abi.param());
+        break;
+    default:
+        break;
+    }
+    return abis;
+}
+
 QVariantMap MsvcToolChain::toMap() const
 {
     QVariantMap data = ToolChain::toMap();

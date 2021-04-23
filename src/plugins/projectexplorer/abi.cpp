@@ -726,14 +726,6 @@ bool Abi::isCompatibleWith(const Abi &other) const
     return isCompat;
 }
 
-bool Abi::isFullyCompatibleWith(const Abi &other) const
-{
-    return *this == other
-            || (wordWidth() == other.wordWidth()
-                && architecture() == other.architecture()
-                && compatibleMSVCFlavors(osFlavor(), other.osFlavor()));
-}
-
 bool Abi::isValid() const
 {
     return m_architecture != UnknownArchitecture

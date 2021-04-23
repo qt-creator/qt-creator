@@ -516,6 +516,7 @@ Tasks BaseQtVersion::validateKit(const Kit *k)
 
     if (ToolChain *tc = ToolChainKitAspect::cxxToolChain(k)) {
         Abi targetAbi = tc->targetAbi();
+        Abis supportedAbis = tc->supportedAbis();
         bool fuzzyMatch = false;
         bool fullMatch = false;
 
@@ -526,9 +527,12 @@ Tasks BaseQtVersion::validateKit(const Kit *k)
             qtAbiString.append(qtAbi.toString());
 
             if (!fullMatch)
-                fullMatch = targetAbi.isFullyCompatibleWith(qtAbi);
-            if (!fuzzyMatch)
-                fuzzyMatch = targetAbi.isCompatibleWith(qtAbi);
+                fullMatch = supportedAbis.contains(qtAbi);
+            if (!fuzzyMatch && !fullMatch) {
+                fuzzyMatch = Utils::anyOf(supportedAbis, [&](const Abi &abi) {
+                    return qtAbi.isCompatibleWith(abi);
+                });
+            }
         }
 
         QString message;
