@@ -4,7 +4,7 @@ instructions:
     instructions:
       - type: EnvironmentVariable
         variableName: QTC_BUILD_TYPE
-        variableValue: "Release"
+        variableValue: "RelWithDebInfo"
       - type: EnvironmentVariable
         variableName: QTC_QT_BASE_URL
         variableValue: "http://ci-files02-hki-infra.intra.qt.io/packages/jenkins/archive/qt/6.1/6.1.0-beta3-released"
