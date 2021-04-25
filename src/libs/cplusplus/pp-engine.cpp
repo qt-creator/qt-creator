@@ -1219,12 +1219,12 @@ bool Preprocessor::handleFunctionLikeMacro(const Macro *macro,
                 // No formal macro parameter for this identifier in the body.
                 bodyTk.f.generated = true;
                 bodyTk.lineno = baseLine;
-                expanded.push_back(bodyTk);
+                expanded.push_back(std::move(bodyTk));
             }
         } else if (bodyTk.isNot(T_POUND) && bodyTk.isNot(T_POUND_POUND)) {
             bodyTk.f.generated = true;
             bodyTk.lineno = baseLine;
-            expanded.push_back(bodyTk);
+            expanded.push_back(std::move(bodyTk));
         }
 
         if (i > 1 && body[int(i) - 1].is(T_POUND_POUND)) {

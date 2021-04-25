@@ -109,6 +109,10 @@ public:
         : m_src(src)
     {}
 
+    PPToken(QByteArray &&src)
+        : m_src(std::move(src))
+    {}
+
     void setSource(const QByteArray &src)
     { m_src = src; }
 
