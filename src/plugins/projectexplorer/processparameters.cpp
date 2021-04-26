@@ -119,9 +119,13 @@ FilePath ProcessParameters::effectiveCommand() const
         FilePath cmd = m_command.executable();
         if (m_macroExpander)
             cmd = m_macroExpander->expand(cmd);
-        m_effectiveCommand =
-                m_environment.searchInPath(cmd.toString(),
-                    {effectiveWorkingDirectory()});
+        if (cmd.needsDevice()) {
+            // Assume this is already good. FIXME: It is possibly not, so better fix  searchInPath.
+            m_effectiveCommand = cmd;
+        } else {
+            m_effectiveCommand = m_environment.searchInPath(cmd.toString(),
+                                                            {effectiveWorkingDirectory()});
+        }
         m_commandMissing = m_effectiveCommand.isEmpty();
         if (m_commandMissing)
             m_effectiveCommand = cmd;
