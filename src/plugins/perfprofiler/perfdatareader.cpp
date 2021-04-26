@@ -405,10 +405,8 @@ QStringList PerfDataReader::findTargetArguments(const ProjectExplorer::RunContro
 QString PerfDataReader::findPerfParser()
 {
     QString filePath = QString::fromLocal8Bit(qgetenv("PERFPROFILER_PARSER_FILEPATH"));
-    if (filePath.isEmpty()) {
-        filePath = QString::fromLatin1("%1/perfparser%2")
-                       .arg(Core::ICore::libexecPath().toString(), QString(QTC_HOST_EXE_SUFFIX));
-    }
+    if (filePath.isEmpty())
+        filePath = Core::ICore::libexecPath("perfparser" QTC_HOST_EXE_SUFFIX).toString();
     return QDir::toNativeSeparators(QDir::cleanPath(filePath));
 }
 

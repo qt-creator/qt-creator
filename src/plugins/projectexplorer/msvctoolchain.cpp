@@ -1139,7 +1139,7 @@ FilePath MsvcToolChain::makeCommand(const Environment &environment) const
     if (useJom) {
         tmp = environment.searchInPath(jom,
                                        {Core::ICore::libexecPath(),
-                                        Core::ICore::libexecPath().pathAppended("jom")});
+                                        Core::ICore::libexecPath("jom")});
         if (!tmp.isEmpty())
             command = tmp;
     }

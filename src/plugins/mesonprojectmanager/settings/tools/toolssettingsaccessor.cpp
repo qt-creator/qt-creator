@@ -54,7 +54,7 @@ ToolsSettingsAccessor::ToolsSettingsAccessor()
                                                             "Meson"),
                                 Core::Constants::IDE_DISPLAY_NAME)
 {
-    setBaseFilePath(Core::ICore::userResourcePath() / Constants::ToolsSettings::FILENAME);
+    setBaseFilePath(Core::ICore::userResourcePath(Constants::ToolsSettings::FILENAME));
 }
 
 void ToolsSettingsAccessor::saveMesonTools(const std::vector<MesonTools::Tool_t> &tools,

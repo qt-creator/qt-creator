@@ -52,6 +52,9 @@ using namespace Utils;
 
 Q_DECLARE_METATYPE(Core::Internal::ShortcutItem*)
 
+namespace Core {
+namespace Internal {
+
 const char kSeparator[] = " | ";
 
 static int translateModifiers(Qt::KeyboardModifiers state,
@@ -147,11 +150,8 @@ static bool isTextKeySequence(const QKeySequence &sequence)
 
 static FilePath schemesPath()
 {
-    return Core::ICore::resourcePath() / "schemes";
+    return Core::ICore::resourcePath("schemes");
 }
-
-namespace Core {
-namespace Internal {
 
 ShortcutButton::ShortcutButton(QWidget *parent)
     : QPushButton(parent)

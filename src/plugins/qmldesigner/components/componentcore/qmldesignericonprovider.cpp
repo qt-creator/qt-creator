@@ -44,8 +44,8 @@ QmlDesignerIconProvider::QmlDesignerIconProvider()
 
 static QString iconPath()
 {
-    return Core::ICore::resourcePath()
-        .pathAppended("qmldesigner/propertyEditorQmlSources/imports/HelperWidgets/images/")
+    return Core::ICore::resourcePath(
+            "qmldesigner/propertyEditorQmlSources/imports/HelperWidgets/images/")
         .toString();
 }
 

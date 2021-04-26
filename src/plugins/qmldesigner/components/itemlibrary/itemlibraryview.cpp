@@ -66,7 +66,7 @@ class ImageCacheData
 {
 public:
     Sqlite::Database database{Utils::PathString{
-        Core::ICore::cacheResourcePath().pathAppended("imagecache-v2.db").toString()}};
+        Core::ICore::cacheResourcePath("imagecache-v2.db").toString()}};
     ImageCacheStorage<Sqlite::Database> storage{database};
     ImageCacheConnectionManager connectionManager;
     ImageCacheCollector collector{connectionManager};

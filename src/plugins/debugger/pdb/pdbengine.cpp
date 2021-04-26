@@ -115,7 +115,7 @@ void PdbEngine::setupEngine()
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
     m_interpreter = runParameters().interpreter;
-    QString bridge = ICore::resourcePath().pathAppended("debugger/pdbbridge.py").toString();
+    QString bridge = ICore::resourcePath("debugger/pdbbridge.py").toString();
 
     connect(&m_proc, &QProcess::errorOccurred, this, &PdbEngine::handlePdbError);
     connect(&m_proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),

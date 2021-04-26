@@ -66,9 +66,7 @@ void ExampleCheckout::checkoutExample(const QUrl &url)
     widget->engine()->addImportPath("qrc:/studiofonts");
 
     widget->engine()->addImportPath(
-        Core::ICore::resourcePath()
-            .pathAppended("/qmldesigner/propertyEditorQmlSources/imports")
-            .toString());
+        Core::ICore::resourcePath("/qmldesigner/propertyEditorQmlSources/imports").toString());
 
     widget->setSource(QUrl("qrc:/qml/downloaddialog/main.qml"));
 

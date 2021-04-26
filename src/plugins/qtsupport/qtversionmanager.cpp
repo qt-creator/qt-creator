@@ -84,12 +84,12 @@ static Q_LOGGING_CATEGORY(log, "qtc.qt.versions", QtWarningMsg);
 
 static FilePath globalSettingsFileName()
 {
-    return Core::ICore::installerResourcePath() / QTVERSION_FILENAME;
+    return Core::ICore::installerResourcePath(QTVERSION_FILENAME);
 }
 
 static FilePath settingsFileName(const QString &path)
 {
-    return Core::ICore::userResourcePath() / path;
+    return Core::ICore::userResourcePath(path);
 }
 
 

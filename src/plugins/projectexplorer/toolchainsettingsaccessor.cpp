@@ -184,7 +184,7 @@ ToolChainSettingsAccessor::ToolChainSettingsAccessor() :
                               QCoreApplication::translate("ProjectExplorer::ToolChainManager", "Tool Chains"),
                               Core::Constants::IDE_DISPLAY_NAME)
 {
-    setBaseFilePath(Core::ICore::userResourcePath() / TOOLCHAIN_FILENAME);
+    setBaseFilePath(Core::ICore::userResourcePath(TOOLCHAIN_FILENAME));
 
     addVersionUpgrader(std::make_unique<ToolChainSettingsUpgraderV0>());
 }
@@ -193,7 +193,7 @@ QList<ToolChain *> ToolChainSettingsAccessor::restoreToolChains(QWidget *parent)
 {
     // read all tool chains from SDK
     const QList<ToolChain *> systemFileTcs = toolChains(
-        restoreSettings(Core::ICore::installerResourcePath() / TOOLCHAIN_FILENAME, parent));
+        restoreSettings(Core::ICore::installerResourcePath(TOOLCHAIN_FILENAME), parent));
     for (ToolChain * const systemTc : systemFileTcs)
         systemTc->setDetection(ToolChain::AutoDetectionFromSdk);
 

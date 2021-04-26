@@ -40,7 +40,7 @@ const QLatin1String QNXConfigsFileVersionKey("Version");
 
 static FilePath qnxConfigSettingsFileName()
 {
-    return Core::ICore::userResourcePath() / "qnx/qnxconfigurations.xml";
+    return Core::ICore::userResourcePath("qnx/qnxconfigurations.xml");
 }
 
 static QnxConfigurationManager *m_instance = nullptr;

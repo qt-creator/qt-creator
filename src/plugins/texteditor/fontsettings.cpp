@@ -504,7 +504,7 @@ int FontSettings::defaultFontSize()
  */
 QString FontSettings::defaultSchemeFileName(const QString &fileName)
 {
-    Utils::FilePath defaultScheme = Core::ICore::resourcePath() / "styles";
+    Utils::FilePath defaultScheme = Core::ICore::resourcePath("styles");
 
     if (!fileName.isEmpty() && (defaultScheme / fileName).exists()) {
         defaultScheme = defaultScheme / fileName;

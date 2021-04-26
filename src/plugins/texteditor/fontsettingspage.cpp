@@ -191,7 +191,7 @@ public:
 
 static QString customStylesPath()
 {
-    return Core::ICore::userResourcePath().pathAppended("styles").toString();
+    return Core::ICore::userResourcePath("styles").toString();
 }
 
 static QString createColorSchemeFileName(const QString &pattern)
@@ -556,7 +556,7 @@ void FontSettingsPageWidget::refreshColorSchemeList()
 {
     QList<ColorSchemeEntry> colorSchemes;
 
-    QDir styleDir(Core::ICore::resourcePath().pathAppended("styles").toDir());
+    QDir styleDir(Core::ICore::resourcePath("styles").toDir());
     styleDir.setNameFilters(QStringList() << QLatin1String("*.xml"));
     styleDir.setFilter(QDir::Files);
 

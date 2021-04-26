@@ -88,7 +88,7 @@ QString findFallbackDefinitionsLocation()
         }
     }
 
-    dir.setPath(Core::ICore::resourcePath().pathAppended("generic-highlighter").toString());
+    dir.setPath(Core::ICore::resourcePath("generic-highlighter").toString());
     if (dir.exists() && !dir.entryInfoList().isEmpty())
         return dir.path();
 
@@ -165,8 +165,7 @@ void HighlighterSettings::assignDefaultIgnoredPatterns()
 
 void HighlighterSettings::assignDefaultDefinitionsPath()
 {
-    const QString path
-        = Core::ICore::userResourcePath().pathAppended("generic-highlighter").toString();
+    const QString path = Core::ICore::userResourcePath("generic-highlighter").toString();
     if (QFile::exists(path) || QDir().mkpath(path))
         m_definitionFilesPath = path;
 }

@@ -55,7 +55,7 @@ ClangPchManager::PchManagerConnectionClient::PchManagerConnectionClient(
     pchsDirectory.mkdir("pchs");
     pchsDirectory.cd("pchs");
     m_processCreator.setArguments({connectionName(),
-                                   Core::ICore::cacheResourcePath() + "/symbol-experimental-v1.db",
+                                   Core::ICore::cacheResourcePath("symbol-experimental-v1.db"),
                                    pchsDirectory.absolutePath(),
                                    Core::ICore::resourcePath()});
 

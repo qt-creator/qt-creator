@@ -94,7 +94,7 @@ QByteArray CodeStylePoolPrivate::generateUniqueId(const QByteArray &id) const
 
 static QString customCodeStylesPath()
 {
-    return Core::ICore::userResourcePath().pathAppended("codestyles").toString();
+    return Core::ICore::userResourcePath("codestyles").toString();
 }
 
 CodeStylePool::CodeStylePool(ICodeStylePreferencesFactory *factory, QObject *parent)

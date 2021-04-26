@@ -64,7 +64,7 @@ DesignerMcuManager &DesignerMcuManager::instance()
 
 QString DesignerMcuManager::mcuResourcesPath()
 {
-    return Core::ICore::resourcePath().pathAppended("qmldesigner/qt4mcu").toString();
+    return Core::ICore::resourcePath("qmldesigner/qt4mcu").toString();
 }
 
 bool DesignerMcuManager::isMCUProject() const

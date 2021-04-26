@@ -836,7 +836,7 @@ void CMakeGeneratorKitAspect::addToEnvironment(const Kit *k, Utils::Environment 
         if (env.searchInPath("jom.exe").exists())
             return;
         env.appendOrSetPath(Core::ICore::libexecPath().toUserOutput());
-        env.appendOrSetPath(Core::ICore::libexecPath().pathAppended("jom").toUserOutput());
+        env.appendOrSetPath(Core::ICore::libexecPath("jom").toUserOutput());
     }
 }
 

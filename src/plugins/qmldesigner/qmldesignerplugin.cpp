@@ -220,8 +220,8 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
         GenerateResource::generateMenuEntry();
 
     const QString fontPath
-        = Core::ICore::resourcePath()
-              .pathAppended("qmldesigner/propertyEditorQmlSources/imports/StudioTheme/icons.ttf")
+        = Core::ICore::resourcePath(
+                "qmldesigner/propertyEditorQmlSources/imports/StudioTheme/icons.ttf")
               .toString();
     if (QFontDatabase::addApplicationFont(fontPath) < 0)
         qCWarning(qmldesignerLog) << "Could not add font " << fontPath << "to font database";

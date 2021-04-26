@@ -56,10 +56,9 @@ enum {
 
 namespace QmlDesigner {
 
-static QString propertyEditorResourcesPath() {
-    return Core::ICore::resourcePath()
-        .pathAppended("qmldesigner/propertyEditorQmlSources")
-        .toString();
+static QString propertyEditorResourcesPath()
+{
+    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
 }
 
 int StatesEditorWidget::currentStateInternalId() const
@@ -121,8 +120,9 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
 
 StatesEditorWidget::~StatesEditorWidget() = default;
 
-QString StatesEditorWidget::qmlSourcesPath() {
-    return Core::ICore::resourcePath().pathAppended("qmldesigner/statesEditorQmlSources").toString();
+QString StatesEditorWidget::qmlSourcesPath()
+{
+    return Core::ICore::resourcePath("qmldesigner/statesEditorQmlSources").toString();
 }
 
 void StatesEditorWidget::toggleStatesViewExpanded()

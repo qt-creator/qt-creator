@@ -93,8 +93,8 @@ public:
     QPointer<QmlJSEditorDocument> m_currentDocument;
 
     Utils::JsonSchemaManager m_jsonManager{
-        {ICore::userResourcePath().pathAppended("json/").toString(),
-         ICore::resourcePath().pathAppended("json/").toString()}};
+        {ICore::userResourcePath("json/").toString(),
+         ICore::resourcePath("json/").toString()}};
     QmlJSEditorFactory m_qmlJSEditorFactory;
     QmlJSOutlineWidgetFactory m_qmlJSOutlineWidgetFactory;
     QuickToolBar m_quickToolBar;

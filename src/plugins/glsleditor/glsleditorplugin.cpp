@@ -84,7 +84,7 @@ void GlslEditorPlugin::InitFile::initialize() const
     const int variant = GLSL::Lexer::Variant_All;
 
     QByteArray code;
-    QFile file(ICore::resourcePath().pathAppended("glsl").pathAppended(m_fileName).toString());
+    QFile file(ICore::resourcePath("glsl").pathAppended(m_fileName).toString());
     if (file.open(QFile::ReadOnly))
         code = file.readAll();
 

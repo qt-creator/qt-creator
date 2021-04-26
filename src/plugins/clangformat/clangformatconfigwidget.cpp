@@ -173,7 +173,7 @@ void ClangFormatConfigWidget::initChecksAndPreview()
         connect(m_ui->applyButton, &QPushButton::clicked, this, &ClangFormatConfigWidget::apply);
         fileName = m_project->projectFilePath().pathAppended("snippet.cpp");
     } else {
-        fileName = Core::ICore::userResourcePath() / "snippet.cpp";
+        fileName = Core::ICore::userResourcePath("snippet.cpp");
     }
     m_preview->textDocument()->indenter()->setFileName(fileName);
 }

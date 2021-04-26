@@ -98,7 +98,7 @@ SnippetsCollection::SnippetsCollection()
     : m_userSnippetsPath(Core::ICore::userResourcePath().pathAppended("snippets/").toString())
     , m_userSnippetsFile(QLatin1String("snippets.xml"))
 {
-    QDir dir = Core::ICore::resourcePath().pathAppended("snippets").toDir();
+    QDir dir = Core::ICore::resourcePath("snippets").toDir();
     dir.setNameFilters(QStringList(QLatin1String("*.xml")));
     foreach (const QFileInfo &fi, dir.entryInfoList())
         m_builtInSnippetsFiles.append(fi.absoluteFilePath());

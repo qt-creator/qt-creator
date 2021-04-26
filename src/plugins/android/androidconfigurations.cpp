@@ -142,7 +142,7 @@ namespace {
 
     static QString sdkSettingsFileName()
     {
-        return Core::ICore::installerResourcePath().pathAppended("android.xml").toString();
+        return Core::ICore::installerResourcePath("android.xml").toString();
     }
 
     static bool is32BitUserSpace()
@@ -270,8 +270,8 @@ void AndroidConfig::save(QSettings &settings) const
 
 void AndroidConfig::parseDependenciesJson()
 {
-    FilePath sdkConfigUserFile(Core::ICore::userResourcePath() / JsonFilePath);
-    FilePath sdkConfigFile(Core::ICore::resourcePath() / JsonFilePath);
+    const FilePath sdkConfigUserFile = Core::ICore::userResourcePath(JsonFilePath);
+    const FilePath sdkConfigFile = Core::ICore::resourcePath(JsonFilePath);
 
     if (!sdkConfigUserFile.exists()) {
         QDir(sdkConfigUserFile.toFileInfo().absolutePath()).mkpath(".");

@@ -51,7 +51,7 @@ QmlBundle BasicBundleProvider::defaultBundle(const QString &bundleInfoName)
 {
     static bool wroteErrors = false;
     QmlBundle res;
-    const Utils::FilePath defaultBundlePath = Core::ICore::resourcePath() / "qml-type-descriptions"
+    const Utils::FilePath defaultBundlePath = Core::ICore::resourcePath("qml-type-descriptions")
                                               / bundleInfoName;
     if (!defaultBundlePath.exists()) {
         qWarning() << "BasicBundleProvider: ERROR " << defaultBundlePath

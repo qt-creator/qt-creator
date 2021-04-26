@@ -762,7 +762,7 @@ static void setKitEnvironment(Kit *k, const McuTarget *mcuTarget,
     if (mcuTarget->qulVersion() < QVersionNumber{1,7}) {
         const QString path = QLatin1String(HostOsInfo::isWindowsHost() ? "Path" : "PATH");
         pathAdditions.append("${" + path + "}");
-        pathAdditions.append(Core::ICore::libexecPath().pathAppended("clang/bin").toUserOutput());
+        pathAdditions.append(Core::ICore::libexecPath("clang/bin").toUserOutput());
         changes.append({path, pathAdditions.join(HostOsInfo::pathListSeparator())});
     }
 

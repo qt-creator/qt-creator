@@ -530,10 +530,9 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
     contextObject()->setGlobalBaseUrl(QUrl());
 }
 
-QString PropertyEditorQmlBackend::propertyEditorResourcesPath() {
-    return Core::ICore::resourcePath()
-        .pathAppended("qmldesigner/propertyEditorQmlSources")
-        .toString();
+QString PropertyEditorQmlBackend::propertyEditorResourcesPath()
+{
+    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
 }
 
 inline bool dotPropertyHeuristic(const QmlObjectNode &node, const NodeMetaInfo &type, const PropertyName &name)

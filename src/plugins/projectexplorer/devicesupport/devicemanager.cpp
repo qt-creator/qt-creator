@@ -141,19 +141,17 @@ void DeviceManager::load()
     QTC_ASSERT(!d->writer, return);
 
     // Only create writer now: We do not want to save before the settings were read!
-    d->writer = new Utils::PersistentSettingsWriter(
-                settingsFilePath(QLatin1String("/devices.xml")),
-                QLatin1String("QtCreatorDevices"));
+    d->writer = new PersistentSettingsWriter(settingsFilePath("devices.xml"), "QtCreatorDevices");
 
     Utils::PersistentSettingsReader reader;
     // read devices file from global settings path
     QHash<Utils::Id, Utils::Id> defaultDevices;
     QList<IDevice::Ptr> sdkDevices;
-    if (reader.load(systemSettingsFilePath(QLatin1String("/devices.xml"))))
+    if (reader.load(systemSettingsFilePath("devices.xml")))
         sdkDevices = fromMap(reader.restoreValues().value(DeviceManagerKey).toMap(), &defaultDevices);
     // read devices file from user settings path
     QList<IDevice::Ptr> userDevices;
-    if (reader.load(settingsFilePath(QLatin1String("/devices.xml"))))
+    if (reader.load(settingsFilePath("devices.xml")))
         userDevices = fromMap(reader.restoreValues().value(DeviceManagerKey).toMap(), &defaultDevices);
     // Insert devices into the model. Prefer the higher device version when there are multiple
     // devices with the same id.
@@ -223,14 +221,14 @@ QVariantMap DeviceManager::toMap() const
     return map;
 }
 
-Utils::FilePath DeviceManager::settingsFilePath(const QString &extension)
+FilePath DeviceManager::settingsFilePath(const QString &extension)
 {
-    return Core::ICore::userResourcePath() + extension;
+    return Core::ICore::userResourcePath(extension);
 }
 
-Utils::FilePath DeviceManager::systemSettingsFilePath(const QString &deviceFileRelativePath)
+FilePath DeviceManager::systemSettingsFilePath(const QString &deviceFileRelativePath)
 {
-    return Core::ICore::installerResourcePath() + deviceFileRelativePath;
+    return Core::ICore::installerResourcePath(deviceFileRelativePath);
 }
 
 void DeviceManager::addDevice(const IDevice::ConstPtr &_device)

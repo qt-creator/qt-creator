@@ -788,7 +788,7 @@ QDateTime SessionManager::sessionDateTime(const QString &session)
 
 FilePath SessionManager::sessionNameToFileName(const QString &session)
 {
-    return ICore::userResourcePath() / session + ".qws";
+    return ICore::userResourcePath(session + ".qws");
 }
 
 /*!

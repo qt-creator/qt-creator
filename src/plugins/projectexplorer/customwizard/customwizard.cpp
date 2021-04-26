@@ -383,11 +383,9 @@ QList<Core::IWizardFactory *> CustomWizard::createWizards()
 {
     QString errorMessage;
     QString verboseLog;
-    const QString templateDirName
-        = Core::ICore::resourcePath().pathAppended(templatePathC).toString();
 
-    const QString userTemplateDirName
-        = Core::ICore::userResourcePath().pathAppended(templatePathC).toString();
+    const QString templateDirName = Core::ICore::resourcePath(templatePathC).toString();
+    const QString userTemplateDirName = Core::ICore::userResourcePath(templatePathC).toString();
 
     const QDir templateDir(templateDirName);
     if (CustomWizardPrivate::verbose)

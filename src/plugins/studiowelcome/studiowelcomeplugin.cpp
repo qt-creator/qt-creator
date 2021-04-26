@@ -207,12 +207,11 @@ public:
             return;
         }
 
-        const Utils::FilePath projectFile = Core::ICore::resourcePath() / "examples" / example
-                                                / example
-                                            + ".qmlproject";
+        const Utils::FilePath projectFile = Core::ICore::resourcePath("examples")
+                                            / example / example + ".qmlproject";
         ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile.toString());
-        const Utils::FilePath qmlFile = Core::ICore::resourcePath() / "examples" / example
-                                        / formFile;
+        const Utils::FilePath qmlFile = Core::ICore::resourcePath("examples")
+                                            / example / formFile;
 
         Core::EditorManager::openEditor(qmlFile.toString());
     }

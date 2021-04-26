@@ -43,8 +43,7 @@ void QmlJSToolsPlugin::test_basic()
 {
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
-    const QString qmlFilePath = Core::ICore::resourcePath()
-                                    .pathAppended(
+    const QString qmlFilePath = Core::ICore::resourcePath(
                                         "qmldesigner/itemLibraryQmlSources/ItemDelegate.qml")
                                     .toString();
     modelManager->updateSourceFiles(QStringList(qmlFilePath), false);

@@ -53,7 +53,7 @@
 #include <QStyledItemDelegate>
 #include <QSortFilterProxyModel>
 
-static const char kModifiedMimeTypesFile[] = "/mimetypes/modifiedmimetypes.xml";
+static const char kModifiedMimeTypesFile[] = "mimetypes/modifiedmimetypes.xml";
 
 static const char mimeInfoTagC[] = "mime-info";
 static const char mimeTypeTagC[] = "mime-type";
@@ -564,8 +564,7 @@ static QPair<int, int> rangeFromString(const QString &offset)
 
 MimeTypeSettingsPrivate::UserMimeTypeHash MimeTypeSettingsPrivate::readUserModifiedMimeTypes()
 {
-    static Utils::FilePath modifiedMimeTypesPath = ICore::userResourcePath()
-                                                   + kModifiedMimeTypesFile;
+    static Utils::FilePath modifiedMimeTypesPath = ICore::userResourcePath(kModifiedMimeTypesFile);
     UserMimeTypeHash userMimeTypes;
     QFile file(modifiedMimeTypesPath.toString());
     if (file.open(QFile::ReadOnly)) {

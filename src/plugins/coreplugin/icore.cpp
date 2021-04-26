@@ -386,6 +386,14 @@ QString ICore::userInterfaceLanguage()
     return qApp->property("qtc_locale").toString();
 }
 
+static QString pathHelper(const QString &rel)
+{
+    if (rel.isEmpty())
+        return rel;
+    if (rel.startsWith('/'))
+        return rel;
+    return '/' + rel;
+}
 /*!
     Returns the absolute path that is used for resources like
     project templates and the debugger macros.
@@ -396,10 +404,11 @@ QString ICore::userInterfaceLanguage()
 
     \sa userResourcePath()
 */
-FilePath ICore::resourcePath()
+FilePath ICore::resourcePath(const QString &rel)
 {
     return FilePath::fromString(
-        QDir::cleanPath(QCoreApplication::applicationDirPath() + '/' + RELATIVE_DATA_PATH));
+        QDir::cleanPath(QCoreApplication::applicationDirPath() + '/' + RELATIVE_DATA_PATH +
+                        pathHelper(rel)));
 }
 
 /*!
@@ -412,7 +421,7 @@ FilePath ICore::resourcePath()
     \sa resourcePath()
 */
 
-FilePath ICore::userResourcePath()
+FilePath ICore::userResourcePath(const QString &rel)
 {
     // Create qtcreator dir if it doesn't yet exist
     const QString configDir = QFileInfo(settings(QSettings::UserScope)->fileName()).path();
@@ -424,25 +433,26 @@ FilePath ICore::userResourcePath()
             qWarning() << "could not create" << urp;
     }
 
-    return FilePath::fromString(urp);
+    return FilePath::fromString(urp + pathHelper(rel));
 }
 
 /*!
     Returns a writable path that can be used for persistent cache files.
 */
-FilePath ICore::cacheResourcePath()
+FilePath ICore::cacheResourcePath(const QString &rel)
 {
-    return FilePath::fromString(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+    return FilePath::fromString(QStandardPaths::writableLocation(QStandardPaths::CacheLocation)
+                                + pathHelper(rel));
 }
 
 /*!
     Returns the path to resources written by the installer, for example
     pre-defined kits and toolchains.
 */
-FilePath ICore::installerResourcePath()
+FilePath ICore::installerResourcePath(const QString &rel)
 {
     return FilePath::fromString(settings(QSettings::SystemScope)->fileName()).parentDir()
-           / Constants::IDE_ID;
+                                / Constants::IDE_ID / rel;
 }
 
 /*!
@@ -478,18 +488,18 @@ QString ICore::userPluginPath()
     Returns the path to the command line tools that are included in the \QC
     installation.
  */
-FilePath ICore::libexecPath()
+FilePath ICore::libexecPath(const QString &rel)
 {
     return FilePath::fromString(
-        QDir::cleanPath(QApplication::applicationDirPath() + RELATIVE_LIBEXEC_PATH));
+        QDir::cleanPath(QApplication::applicationDirPath() + RELATIVE_LIBEXEC_PATH + pathHelper(rel)));
 }
 
 FilePath ICore::crashReportsPath()
 {
     if (Utils::HostOsInfo::isMacHost())
-        return libexecPath() / "crashpad_reports/completed";
+        return libexecPath("crashpad_reports/completed");
     else
-        return libexecPath() / "crashpad_reports/reports";
+        return libexecPath("crashpad_reports/reports");
 }
 
 QString ICore::ideDisplayName()
@@ -508,7 +518,7 @@ static QString clangIncludePath(const QString &clangVersion)
 QString ICore::clangIncludeDirectory(const QString &clangVersion,
                                      const QString &clangFallbackIncludeDir)
 {
-    FilePath dir = libexecPath() / "clang" + clangIncludePath(clangVersion);
+    FilePath dir = libexecPath("clang" + clangIncludePath(clangVersion));
     if (!dir.exists() || !dir.pathAppended("stdint.h").exists())
         dir = FilePath::fromString(clangFallbackIncludeDir);
     return dir.canonicalPath().toUserOutput();
@@ -520,7 +530,7 @@ QString ICore::clangIncludeDirectory(const QString &clangVersion,
 static QString clangBinary(const QString &binaryBaseName, const QString &clangBinDirectory)
 {
     const QString hostExeSuffix(QTC_HOST_EXE_SUFFIX);
-    FilePath executable = ICore::libexecPath() / "clang/bin" / binaryBaseName + hostExeSuffix;
+    FilePath executable = ICore::libexecPath("clang/bin") / binaryBaseName + hostExeSuffix;
     if (!executable.exists())
         executable = FilePath::fromString(clangBinDirectory) / binaryBaseName + hostExeSuffix;
     return executable.canonicalPath().toUserOutput();

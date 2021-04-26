@@ -50,8 +50,7 @@ Theme::Theme(Utils::Theme *originTheme, QObject *parent)
     , m_constants(nullptr)
 {
     QString constantsPath
-        = Core::ICore::resourcePath()
-              .pathAppended(
+        = Core::ICore::resourcePath(
                   "qmldesigner/propertyEditorQmlSources/imports/StudioTheme/InternalConstants.qml")
               .toString();
 

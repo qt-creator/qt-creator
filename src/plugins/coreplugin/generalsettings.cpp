@@ -132,7 +132,7 @@ void GeneralSettingsWidget::fillLanguageBox() const
     if (currentLocale == QLatin1String("C"))
         m_ui.languageBox->setCurrentIndex(m_ui.languageBox->count() - 1);
 
-    const FilePath creatorTrPath = ICore::resourcePath() / "translations";
+    const FilePath creatorTrPath = ICore::resourcePath("translations");
     const QStringList languageFiles = creatorTrPath.toDir().entryList(
         QStringList(QLatin1String("qtcreator*.qm")));
 

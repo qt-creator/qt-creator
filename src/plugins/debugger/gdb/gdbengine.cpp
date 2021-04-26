@@ -3970,7 +3970,7 @@ void GdbEngine::setupEngine()
     // We need to guarantee a roundtrip before the adapter proceeds.
     // Make sure this stays the last command in startGdb().
     // Don't use ConsoleCommand, otherwise Mac won't markup the output.
-    const QString dumperSourcePath = ICore::resourcePath().pathAppended("debugger/").toString();
+    const QString dumperSourcePath = ICore::resourcePath("debugger/").toString();
 
     //if (terminal()->isUsable())
     //    runCommand({"set inferior-tty " + QString::fromUtf8(terminal()->slaveDevice())});

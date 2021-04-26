@@ -106,7 +106,7 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
     const QString locale = ICore::userInterfaceLanguage();
     if (!locale.isEmpty()) {
         auto qtr = new QTranslator(this);
-        const QString creatorTrPath = ICore::resourcePath().pathAppended("translations").toString();
+        const QString creatorTrPath = ICore::resourcePath("translations").toString();
         const QString qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
         const QString trFile = "designer_" + locale;
         if (qtr->load(trFile, qtTrPath) || qtr->load(trFile, creatorTrPath))

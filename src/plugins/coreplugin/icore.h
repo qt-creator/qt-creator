@@ -95,11 +95,11 @@ public:
     static QPrinter *printer();
     static QString userInterfaceLanguage();
 
-    static Utils::FilePath resourcePath();
-    static Utils::FilePath userResourcePath();
-    static Utils::FilePath cacheResourcePath();
-    static Utils::FilePath installerResourcePath();
-    static Utils::FilePath libexecPath();
+    static Utils::FilePath resourcePath(const QString &rel = {});
+    static Utils::FilePath userResourcePath(const QString &rel = {});
+    static Utils::FilePath cacheResourcePath(const QString &rel = {});
+    static Utils::FilePath installerResourcePath(const QString &rel = {});
+    static Utils::FilePath libexecPath(const QString &rel = {});
     static Utils::FilePath crashReportsPath();
 
     static QString ideDisplayName();

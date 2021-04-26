@@ -142,7 +142,7 @@ ExtDocumentController *ModelsManager::createModel(ModelDocument *modelDocument)
     auto documentController = new ExtDocumentController(this);
     // TODO error output on reading definition files
     documentController->configController()->readStereotypeDefinitions(
-        Core::ICore::resourcePath().pathAppended("modeleditor").toString());
+        Core::ICore::resourcePath("modeleditor").toString());
 
     d->managedModels.append(ManagedModel(documentController, modelDocument));
     return documentController;

@@ -164,7 +164,7 @@ CMakeToolSettingsAccessor::CMakeToolSettingsAccessor() :
                               QCoreApplication::translate("CMakeProjectManager::CMakeToolManager", "CMake"),
                               Core::Constants::IDE_DISPLAY_NAME)
 {
-    setBaseFilePath(Core::ICore::userResourcePath() / CMAKE_TOOL_FILENAME);
+    setBaseFilePath(Core::ICore::userResourcePath(CMAKE_TOOL_FILENAME));
 
     addVersionUpgrader(std::make_unique<CMakeToolSettingsUpgraderV0>());
 }
@@ -173,7 +173,7 @@ CMakeToolSettingsAccessor::CMakeTools CMakeToolSettingsAccessor::restoreCMakeToo
 {
     CMakeTools result;
 
-    const FilePath sdkSettingsFile = Core::ICore::installerResourcePath() / CMAKE_TOOL_FILENAME;
+    const FilePath sdkSettingsFile = Core::ICore::installerResourcePath(CMAKE_TOOL_FILENAME);
 
     CMakeTools sdkTools = cmakeTools(restoreSettings(sdkSettingsFile, parent), true);
 

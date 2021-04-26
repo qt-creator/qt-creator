@@ -146,9 +146,9 @@ static const char settingsFileName[] = "EasingCurves.ini";
 QString settingsFullFilePath(const QSettings::Scope &scope)
 {
     if (scope == QSettings::SystemScope)
-        return Core::ICore::installerResourcePath().pathAppended(settingsFileName).toString();
+        return Core::ICore::installerResourcePath(settingsFileName).toString();
 
-    return Core::ICore::userResourcePath().pathAppended(settingsFileName).toString();
+    return Core::ICore::userResourcePath(settingsFileName).toString();
 }
 
 } // namespace Internal

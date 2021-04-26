@@ -61,7 +61,7 @@ static DebugServerProviderManager *m_instance = nullptr;
 // DebugServerProviderManager
 
 DebugServerProviderManager::DebugServerProviderManager()
-    : m_configFile(Core::ICore::userResourcePath() / fileNameKeyC)
+    : m_configFile(Core::ICore::userResourcePath(fileNameKeyC))
     , m_factories({new GenericGdbServerProviderFactory,
                    new JLinkGdbServerProviderFactory,
                    new OpenOcdGdbServerProviderFactory,

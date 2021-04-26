@@ -83,7 +83,7 @@ const char KIT_FILENAME[] = "profiles.xml";
 
 static FilePath settingsFileName()
 {
-    return ICore::userResourcePath() / KIT_FILENAME;
+    return ICore::userResourcePath(KIT_FILENAME);
 }
 
 // --------------------------------------------------------------------------
@@ -197,7 +197,7 @@ void KitManager::restoreKits()
 
     // read all kits from SDK
     {
-        KitList system = restoreKitsHelper(ICore::installerResourcePath() / KIT_FILENAME);
+        KitList system = restoreKitsHelper(ICore::installerResourcePath(KIT_FILENAME));
 
         // SDK kits need to get updated with the user-provided extra settings:
         for (auto &current : system.kits) {

@@ -835,7 +835,7 @@ void DebuggerItemManagerPrivate::autoDetectUvscDebuggers()
 
 static FilePath userSettingsFileName()
 {
-    return ICore::userResourcePath() / DEBUGGER_FILENAME;
+    return ICore::userResourcePath(DEBUGGER_FILENAME);
 }
 
 DebuggerItemManagerPrivate::DebuggerItemManagerPrivate()
@@ -931,7 +931,7 @@ void DebuggerItemManagerPrivate::readDebuggers(const FilePath &fileName, bool is
 void DebuggerItemManagerPrivate::restoreDebuggers()
 {
     // Read debuggers from SDK
-    readDebuggers(ICore::installerResourcePath() / DEBUGGER_FILENAME, true);
+    readDebuggers(ICore::installerResourcePath(DEBUGGER_FILENAME), true);
 
     // Read all debuggers from user file.
     readDebuggers(userSettingsFileName(), false);
