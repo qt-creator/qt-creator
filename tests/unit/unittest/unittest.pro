@@ -68,6 +68,7 @@ SOURCES += \
     gtest-qt-printing.cpp \
     asynchronousimagecache-test.cpp \
     nodelistproperty-test.cpp \
+    storagecache-test.cpp \
     synchronousimagecache-test.cpp \
     imagecachegenerator-test.cpp \
     imagecachestorage-test.cpp \

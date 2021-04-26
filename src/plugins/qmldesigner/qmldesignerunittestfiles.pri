@@ -53,6 +53,10 @@ HEADERS += \
     $$PWD/designercore/include/import.h \
     $$PWD/designercore/include/abstractproperty.h \
     $$PWD/designercore/include/abstractview.h \
+    $$PWD/designercore/metainfo/storagecache.h \
+    $$PWD/designercore/metainfo/storagecachealgorithms.h \
+    $$PWD/designercore/metainfo/storagecacheentry.h \
+    $$PWD/designercore/metainfo/storagecachefwd.h \
     $$PWD/designercore/model/model_p.h \
     $$PWD/designercore/include/qmldesignercorelib_global.h \
     $$PWD/designercore/model/internalbindingproperty.h \
