@@ -46,13 +46,13 @@ class NodeListPropertyIterator
 
 public:
     using iterator_category = std::random_access_iterator_tag;
-    using difference_type = int;
+    using difference_type = qsizetype;
     using value_type = ModelNode;
     using pointer = InternalNodeListPropertyPointer;
     using reference = ModelNode;
 
     NodeListPropertyIterator() = default;
-    NodeListPropertyIterator(int currentIndex,
+    NodeListPropertyIterator(difference_type currentIndex,
                              class InternalNodeListProperty *nodeListProperty,
                              Model *model,
                              AbstractView *view)
@@ -68,7 +68,7 @@ public:
         return *this;
     }
 
-    NodeListPropertyIterator operator++(difference_type)
+    NodeListPropertyIterator operator++(int)
     {
         auto tmp = *this;
         ++m_currentIndex;
@@ -81,7 +81,7 @@ public:
         return *this;
     }
 
-    NodeListPropertyIterator operator--(difference_type)
+    NodeListPropertyIterator operator--(int)
     {
         auto tmp = *this;
         --m_currentIndex;
@@ -168,7 +168,7 @@ private:
     InternalNodeListProperty *m_nodeListProperty{};
     Model *m_model{};
     AbstractView *m_view{};
-    int m_currentIndex = -1;
+    difference_type m_currentIndex = -1;
 };
 
 } // namespace Internal
