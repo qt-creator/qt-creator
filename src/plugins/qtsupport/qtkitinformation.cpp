@@ -224,8 +224,11 @@ void QtKitAspect::fix(Kit *k)
     QList<ToolChain *> possibleTcs = ToolChainManager::toolChains([version](const ToolChain *t) {
         if (!t->isValid() || t->language() != ProjectExplorer::Constants::CXX_LANGUAGE_ID)
             return false;
-        return Utils::anyOf(version->qtAbis(),
-                            [t](const Abi &qtAbi) { return t->supportedAbis().contains(qtAbi); });
+        return Utils::anyOf(version->qtAbis(), [t](const Abi &qtAbi) {
+            return t->supportedAbis().contains(qtAbi)
+                   && t->targetAbi().wordWidth() == qtAbi.wordWidth()
+                   && t->targetAbi().architecture() == qtAbi.architecture();
+        });
     });
     if (!possibleTcs.isEmpty()) {
         // Prefer exact matches.
