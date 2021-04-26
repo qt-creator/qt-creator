@@ -27,6 +27,7 @@ qtc_handle_sccache_support()
 option(WITH_TESTS "Build Tests" OFF)
 add_feature_info("Build tests" ${WITH_TESTS} "")
 option(WITH_DEBUG_CMAKE "Enabled CMake project debugging functionality (e.g. source file disk checking)" OFF)
+option(SHOW_BUILD_DATE "Show build date in about dialog" OFF)
 
 # merge binary directories of sub projects into top level
 set(QTC_MERGE_BINARY_DIR ON)

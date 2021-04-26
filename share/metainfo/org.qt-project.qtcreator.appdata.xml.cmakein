@@ -26,4 +26,20 @@
 
  <url type="homepage">https://www.qt.io/ide/</url>
  <project_group>Qt</project_group>
+ <content_rating type="oars-1.1" />
+ <screenshots>
+  <screenshot>
+   <image>https://doc.qt.io/qtcreator/images/qtcreator-breakdown.png</image>
+  </screenshot>
+  <screenshot>
+   <image>https://doc.qt.io/qtcreator/images/qtcreator-qt-quick-editors.png</image>
+  </screenshot>
+ </screenshots>
+ <releases>
+  <release version="${IDE_VERSION_DISPLAY}"${DATE_ATTRIBUTE}>
+   <description>
+    <p>Qt Creator v${IDE_VERSION_DISPLAY}</p>
+   </description>
+  </release>
+ </releases>
 </component>

@@ -1,5 +1,3 @@
-option(SHOW_BUILD_DATE "Show build date in about dialog" OFF)
-
 add_qtc_plugin(Core
   DEPENDS Qt5::PrintSupport Qt5::Qml Qt5::Sql Qt5::Gui Qt5::GuiPrivate
   PUBLIC_DEPENDS Aggregation ExtensionSystem Utils app_version
