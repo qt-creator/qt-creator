@@ -31,6 +31,7 @@ namespace QmlDesigner {
 
 ItemLibraryCategory::ItemLibraryCategory(const QString &groupName, QObject *parent)
     : QObject(parent),
+      m_ownerImport(qobject_cast<ItemLibraryImport *>(parent)),
       m_name(groupName)
 {
 }

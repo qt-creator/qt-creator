@@ -133,8 +133,8 @@
     \image studio-qtquick-3d-material-texture.png "Material properties"
 
     To change the source file for the texture, select the \uicontrol Texture
-    component in \uicontrol Navigator, go to the \uicontrol Properties view, and
-    specify a new image to use in the \uicontrol Source field.
+    component in \uicontrol Navigator, go to the \l Properties view, and specify
+    a new image to use in the \uicontrol Source field.
 
     \image studio-qtquick-3d-texture-properties.png "Texture properties"
 */

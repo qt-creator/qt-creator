@@ -34,7 +34,8 @@
 
     \list
         \li Group files together
-        \li Include forms and assets files
+        \li Include \l{UI Files}{UI files} (.ui.qml), component files (.qml),
+            and assets files
         \li Specify settings for previewing UIs
     \endlist
 
@@ -67,16 +68,17 @@
             uses a subset of preset components (as supported by Qt for MCUs)
             that you can deploy, run, and debug on MCU boards.
         \li \uicontrol {Qt Quick Application - Empty} creates a project that
-            uses default components and can be run on all target platforms.
+            uses default components and preset UI controls and can be run on
+            all target platforms.
         \li \uicontrol {Qt Quick 3D Application} creates a project that uses
-            default and 3D components.
+            default components, UI controls, and 3D components.
         \li \uicontrol {Qt Quick Application - Scroll} and
             \uicontrol {Qt Quick Application - Stack} create an application
-            that uses preset UI controls to implement a scrollable
-            list or a set of pages with a stack-based navigation model.
+            that uses UI controls to implement a scrollable list or a set of
+            pages with a stack-based navigation model.
         \li \uicontrol {Qt Quick Application - Launcher} creates a
-            project that uses default components and defines a launcher
-            application.
+            project that uses default components and UI controls and
+            defines a launcher application.
     \endlist
 
     For an example of creating a \uicontrol {Qt Quick 3D Application} project,
@@ -90,11 +92,14 @@
         \li Select \uicontrol File > \uicontrol {New File or Project}.
         \li Select the type of your project, and then select \uicontrol Choose.
         \li In the \uicontrol Name field, enter a name for the project.
+            When naming your own projects, keep in mind that they cannot be
+            easily renamed later.
         \li In the \uicontrol {Create in} field, enter the path for the project
             files, and then select \uicontrol Next (or \uicontrol Continue on
-            \macos).
+            \macos). You can move project folders later without problems.
         \li In the \uicontrol {Screen resolution} field, select the screen
             resolution for previewing the UI on the desktop or on a device.
+            You can easily change the screen size later in \l Properties.
         \li In the \uicontrol {Qt Quick Controls Style} field, select one of
             the predefined \l{Styling Qt Quick Controls}{UI styles} to use,
             and then select \uicontrol Finish (or \uicontrol Done on \macos).
@@ -107,7 +112,7 @@
             image files in the project folder belong to the project. Therefore,
             you do not need to individually list all the files in the project.
         \li .qml file defines the functionality and appearance of a component.
-        \li ui.qml file defines a visual component that you can edit in
+        \li .ui.qml file defines a visual component that you can edit in
             \l{Form Editor}.
         \li qtquickcontrols2.conf file specifies the preferred style and some
             style-specific arguments.
@@ -123,7 +128,8 @@
     \endlist
 
     To use JavaScript and image files in the UI, select \uicontrol Library >
-    \uicontrol Assets > \inlineimage plus.png.
+    \uicontrol Assets > \inlineimage plus.png
+    .
 
     \section1 Adding Files to Projects
 

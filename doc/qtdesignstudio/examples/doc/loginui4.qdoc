@@ -42,8 +42,8 @@
 
     In Part 3, you learned how to use states to simulate page changes in a UI
     and connections to provide user interaction with it. In Part 4, you will now
-    learn another way of animating the UI by using timeline animations that you
-    bind to states.
+    learn another way of animating the UI by creating \l{Creating Animations}
+    {timeline animations} that you bind to states.
 
     These instructions build on:
 
@@ -73,25 +73,25 @@
 
     To preview the changes that you make to the UI while you make
     them, select the \inlineimage live_preview.png
-    (\uicontrol {Show Live Preview}) button on the \uicontrol {Form Editor}
-    toolbar or press \key {Alt+P}.
+    (\uicontrol {Show Live Preview}) button on the \uicontrol Design
+    mode \l {Summary of Main Toolbar Actions}{toolbar} or press \key {Alt+P}.
 
     \section2 Replacing Columns with Anchors
 
-    First, you will prepare the page for adding animation:
+    First, you will prepare the \e Screen01 component for adding animation:
 
     \list 1
-        \li Open \e {Screen01.ui.qml} in \uicontrol {Form Editor} for editing.
-        \li In the \uicontrol States view, select the \inlineimage close.png
+        \li Open \e {Screen01.ui.qml} in \l {Form Editor} for editing.
+        \li In the \l States view, select the \inlineimage close.png
             (\uicontrol Close) button in \e loginState and \e registerState
             to remove the states.
-        \li Select the fields in \e fieldColumn in \uicontrol Navigator
+        \li Select the fields in \e fieldColumn in \l Navigator
             and drag and drop them to their parent rectangle to prepare for
             deleting the column component.
         \li Select \e fieldColumn in \uicontrol Navigator and press
             \key Delete to delete it.
         \li Select \e usernameField in \uicontrol Navigator.
-        \li In \uicontrol Properties > \uicontrol Layout, select the
+        \li In \l Properties > \uicontrol Layout, select the
             \inlineimage icons/anchor-top.png
             (\uicontrol Top) button to anchor the top of the field to the top
             of its parent. \QDS will suggest an appropriate margin based on
@@ -121,7 +121,8 @@
     would probably stay the same, even if the positions of the fields on the
     page would change.
 
-    Your page now should look something like this in the Design mode and live preview:
+    \e Screen01 should now look something like this in the \uicontrol Design
+    mode and live preview:
 
     \image loginui4-page.png "UI with all the buttons and fields in the Design mode"
 
@@ -137,7 +138,7 @@
 
     \list 1
             \li Select \uicontrol View > \uicontrol Views >
-            \uicontrol Timeline to open the \uicontrol Timeline view.
+            \uicontrol Timeline to open the \l Timeline view.
         \li In \uicontrol Timeline, select \inlineimage plus.png
             to add a 1000-frame timeline and settings for running the animation.
             \image loginui4-timeline-settings.png
@@ -311,14 +312,15 @@
     \printuntil 1.0
 
     All the properties and functions of the components from this module are
-    available in the Design mode, and therefore it is enough to learn how to
-    use \uicontrol Timeline, as described in \l {Creating Animations}.
+    available in the \uicontrol Design mode, and therefore it is enough to
+    learn how to use \uicontrol Timeline, as described in
+    \l {Creating Animations}.
 
     \section1 Next Steps
 
     For more examples about using timelines, see \l{Examples and Tutorials}.
 
-    To watch a video tutorial about creating timelines and adding keyframes,
-    select \e {Learn to use Qt Design Studio Part 2} in the \uicontrol Tutorials
-    tab in the \uicontrol Welcome mode.
+    Watch a video tutorial about creating timelines and adding keyframes:
+
+    \youtube Z3uPoe-4UAw
 */

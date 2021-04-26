@@ -258,7 +258,24 @@ QVariantMap AddToolChainOperation::addToolChain(const QVariantMap &map, const QS
 
     KeyValuePairList data;
     data << KeyValuePair({tc, ID}, QVariant(id));
-    data << KeyValuePair({tc, LANGUAGE_KEY_V2}, QVariant(lang));
+
+    // Language compatibility hack for old Qt components that use the language spec from 4.2.
+    // Some Qt 5.15 components were actually still using this.
+    QString newLang; // QtC 4.3 and later
+    lang.toInt(&ok);
+    if (lang == "2" || lang == "Cxx") {
+        newLang = "Cxx";
+    } else if (lang == "1" || lang == "C") {
+        newLang = "C";
+    } else if (ok) {
+        std::cerr << "Error: Language ID must be 1 for C, 2 for Cxx "
+                  << "or a string like \"C\", \"Cxx\", \"Nim\" (was \""
+                  << qPrintable(lang) << "\")" << std::endl;
+        return {};
+    } else if (!ok) {
+        newLang = lang;
+    }
+    data << KeyValuePair({tc, LANGUAGE_KEY_V2}, QVariant(newLang));
     data << KeyValuePair({tc, DISPLAYNAME}, QVariant(displayName));
     data << KeyValuePair({tc, AUTODETECTED}, QVariant(true));
     data << KeyValuePair({tc, PATH}, QVariant(path));

@@ -40,6 +40,7 @@ option(BUILD_PLUGINS_BY_DEFAULT "Build plugins by default. This can be used to b
 option(BUILD_EXECUTABLES_BY_DEFAULT "Build executables by default. This can be used to build all executables by default, or none." ON)
 option(BUILD_LIBRARIES_BY_DEFAULT "Build libraries by default. This can be used to build all libraries by default, or none." ON)
 option(QTC_SEPARATE_DEBUG_INFO "Extract debug information from binary files." OFF)
+option(WITH_SCCACHE_SUPPORT "Enables support for building with SCCACHE and separate debug info with MSVC, which SCCACHE normally doesn't support." OFF)
 
 # If we provide a list of plugins, executables, libraries, then the BUILD_<type>_BY_DEFAULT will be set to OFF
 # and for every element we set BUILD_<type>_<elment> to ON

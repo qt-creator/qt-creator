@@ -58,10 +58,7 @@ def main():
     compareProjectTree(naviTreeView % "speedcrunch( \[\S+\])?", "projecttree_speedcrunch.tsv")
     compareProjectTree(naviTreeView % "qtcreator( \[\S+\])?", "projecttree_creator.tsv")
 
-    # Verify warnings about old Qt version
-    if not test.verify(object.exists(":Qt Creator_Core::OutputWindow"),
-                       "Did the General Messages view show up?"):
-        openGeneralMessages()
+    openGeneralMessages()
     # Verify that qmljs.g is in the project even when we don't know where (QTCREATORBUG-17609)
     selectFromLocator("p qmljs.g", "qmljs.g")
     # Now check some basic lookups in the search box

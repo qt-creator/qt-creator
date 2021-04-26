@@ -67,7 +67,7 @@
     the checked state of a third one. First we drag-and-drop three
     \uicontrol {Check Box} component and an \uicontrol {And Operator} to
     \uicontrol Navigator (1). Then we select the \uicontrol {And Operator}
-    component (2) and set its properties in \uicontrol Properties (3).
+    component (2) and set its properties in \l Properties (3).
 
     We select \inlineimage icons/action-icon.png
     next to the \uicontrol {Input 01} field to display the \uicontrol Actions

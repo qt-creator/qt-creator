@@ -252,13 +252,19 @@
     \title Adding Action Areas and Transitions
 
     \e {Action areas} can act as clickable areas that initiate transitions
-    between flow items or they can \l{Connecting Components to Signals}
+    between flow items or they can \l{Connecting and Releasing Signals}
     {create connections} to any signal from any component in a
     \l{Adding Flow Items}{flow item}. For example, you could connect an
     action to the \c onPressed signal of a button in your flow item to
     determine what should happen when users press the button.
 
     \image studio-flow-action-area.png "Flow Action Area in Form Editor"
+
+    \note To connect components to \l{Connecting and Releasing Signals}
+    {signals}, you must first export the components as
+    \l{Adding Property Aliases}{aliases} in \l Navigator.
+    To create and release connections, select
+    \uicontrol {Open Signal Dialog} in the context menu.
 
     You can select the type of the mouse or touch input to use for triggering
     events, such as click, double-click, flick, pinch, or press.
@@ -381,6 +387,18 @@
             \uicontrol Question value to the opposite side of the transition
             line.
     \endlist
+
+    \section1 Connecting and Releasing Signals
+
+    To connect a component to a \l{Connecting Components to Signals}{signal},
+    select \uicontrol {Open Signal Dialog} in the context menu. The
+    \uicontrol {Signal List} dialog displays the signals for all components
+    that you export as \l{Adding Property Aliases}{aliases} in \l Navigator.
+
+    \image studio-flow-signal-list.png "Signal List dialog"
+
+    To connect a component to a signal, select \uicontrol Connect next to one
+    in the list. To release a connected signal, select \uicontrol Release.
 */
 
 /*!
@@ -458,7 +476,7 @@
 
     While \l{Adding Action Areas and Transitions}{transition lines}
     are useful for prototyping, in production you need to use the real
-    \l{Connecting Components to Signals}{signals} from UI
+    \l{Connecting and Releasing Signals}{signals} from UI
     \l{glossary-component}{components} to control the flow of the application.
     For this purpose, you can use action areas in a more advanced way, by
     having them listen to signals from flow items or the controls in them and
@@ -652,7 +670,7 @@
 
     You can use the \uicontrol {Flow Wildcard} component to model this type of
     screens in your \l{Adding Flow Views}{flow view} using real or simulated
-    \l{Connecting Components to Signals}{signals} and \l{Simulating Conditions}
+    \l{Connecting and Releasing Signals}{signals} and \l{Simulating Conditions}
     {conditions}. You can add \l{Adding Flow Items}{flow items} to a positive
     list to prioritize them or to a negative list to stop some screens from
     appearing on others. For example, you could block the incoming call screen

@@ -44,14 +44,12 @@ def main():
                            'onTriggered: console.log("Break here")'])
         invokeMenuItem("File", "Save All")
         filesAndLines = [
-                        { "%s.Resources.qml\.qrc./.main\\.qml" % projectName : 'onTriggered.*' },
-                        { "%s.Sources.main\\.cpp" % projectName : "QQmlApplicationEngine engine;" }
+                        { "%s.Sources.main\\.cpp" % projectName : "QQmlApplicationEngine engine;" },
+                        { "%s.Resources.qml\.qrc./.main\\.qml" % projectName : 'onTriggered.*' }
                         ]
         test.log("Setting breakpoints")
-        result = setBreakpointsForCurrentProject(filesAndLines)
-        if result:
-            expectedBreakpointsOrder = [{os.path.join(workingDir, projectName, "main.cpp"):10},
-                                        {os.path.join(workingDir, projectName, "main.qml"):13}]
+        expectedBreakpointsOrder = setBreakpointsForCurrentProject(filesAndLines)
+        if expectedBreakpointsOrder:
             availableConfigs = iterateBuildConfigs("Debug")
             progressBarWait()
             if not availableConfigs:
@@ -72,8 +70,7 @@ def main():
                                             "debug")
                     switchViewTo(ViewConstants.EDIT)
                     allowAppThroughWinFW(buildDir, projectName, None)
-                if not doSimpleDebugging(kit, config,
-                                         len(expectedBreakpointsOrder), expectedBreakpointsOrder):
+                if not doSimpleDebugging(kit, config, expectedBreakpointsOrder):
                     try:
                         stopB = findObject(':Qt Creator.Stop_QToolButton')
                         if stopB.enabled:

@@ -108,6 +108,9 @@ def get_arguments():
                         action='append', dest='config_args', default=[])
     parser.add_argument('--zip-infix', help='Adds an infix to generated zip files, use e.g. for a build number.',
                         default='')
+    parser.add_argument('--zip-threads', help='Sets number of threads to use for 7z. Use "+" for turning threads on '
+                        'without a specific number of threads. This is directly passed to the "-mmt" option of 7z.',
+                        default='2')
     args = parser.parse_args()
     args.with_debug_info = args.build_type == 'RelWithDebInfo'
 
@@ -247,26 +250,26 @@ def build_qtcreatorcdbext(args, paths):
 def package_qtcreator(args, paths):
     if not args.no_zip:
         if not args.no_qtcreator:
-            common.check_print_call(['7z', 'a', '-mmt2',
+            common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
                                      os.path.join(paths.result, 'qtcreator' + args.zip_infix + '.7z'),
                                      '*'],
                                     paths.install)
-            common.check_print_call(['7z', 'a', '-mmt2',
+            common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
                                      os.path.join(paths.result, 'qtcreator' + args.zip_infix + '_dev.7z'),
                                      '*'],
                                     paths.dev_install)
             if args.with_debug_info:
-                common.check_print_call(['7z', 'a', '-mmt2',
+                common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
                                          os.path.join(paths.result, 'qtcreator' + args.zip_infix + '-debug.7z'),
                                          '*'],
                                         paths.debug_install)
         if common.is_windows_platform():
-            common.check_print_call(['7z', 'a', '-mmt2',
+            common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
                                      os.path.join(paths.result, 'wininterrupt' + args.zip_infix + '.7z'),
                                      '*'],
                                     paths.wininterrupt_install)
             if not args.no_cdb:
-                common.check_print_call(['7z', 'a', '-mmt2',
+                common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
                                          os.path.join(paths.result, 'qtcreatorcdbext' + args.zip_infix + '.7z'),
                                          '*'],
                                         paths.qtcreatorcdbext_install)

@@ -213,6 +213,12 @@
     You can now create a project in \QDS and import the assets to it, as
     described in \l {Creating Projects} and \l{Importing Designs}.
 
+    \note
+    Exporting your design using \QBPS can be slow for documents with large number
+    of layers. Closing Photoshop's Info, Layers, and Properties windows can improve
+    the time it takes to export.
+
+
 
     \section1 Customizing IDs
 
