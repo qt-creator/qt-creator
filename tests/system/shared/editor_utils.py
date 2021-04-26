@@ -62,6 +62,13 @@ def placeCursorToLine(editor, line, isRegex=False):
         type(getEditor(), "<End>")
     return True
 
+# returns the number of the text line where the cursor is, starting at line 1
+# param editor is the editor the cursor is in
+def lineNumberWithCursor(editor):
+    textPos = editor.textCursor().position()
+    line = str(editor.plainText)[:textPos].count("\n") + 1
+    return line
+
 # this function returns True if a QMenu is
 # popped up above the given editor
 # param editor is the editor where the menu should appear

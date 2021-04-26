@@ -55,8 +55,8 @@
     scene created by using the wizard template mentioned above. To use other
     light and camera types, select the component in \uicontrol {3D Editor} or
     \uicontrol Navigator and change the type of the component in the \uicontrol
-    Type field in \uicontrol Properties. For example, to use a point light,
-    enter \e {PointLight}.
+    Type field in \l Properties. For example, to use a point light, enter
+    \e {PointLight}.
 
     \image studio-3d-properties-type.png "Type field in Properties view"
 

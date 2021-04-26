@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -57,14 +57,14 @@
 
     \list 1
 
-        \li In the \uicontrol {Connections} view, select the
-            \uicontrol Backends tab to view accessible backend objects.
-            \image qmldesigner-backends.png
+        \li Select \uicontrol {Connection View} > \uicontrol Backends to view
+            accessible backend objects.
+            \image qmldesigner-backends.png "Connection View, Backends tab"
         \li Select the \inlineimage plus.png
             (\uicontrol Add) button to add a backend object in the
             \uicontrol {Add New C++ Backend} dialog.
-        \li In the \uicontrol Type field, select the type of the backend QObject
-            to add.
+            \image qmldesigner-backends-add.png "Add New C++ Backend dialog"
+        \li In the \uicontrol Type field, select the backend QObject to add.
         \li Select the \uicontrol {Define object locally} check box if the
             QObject is not registered as a singleton.
         \li Select \uicontrol OK to add the required import and to create the

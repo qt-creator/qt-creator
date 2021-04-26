@@ -220,11 +220,10 @@ void QtKitAspect::fix(Kit *k)
 
     const QString spec = version->mkspec();
     QList<ToolChain *> possibleTcs = ToolChainManager::toolChains([version](const ToolChain *t) {
-        return t->isValid()
-                && t->language() == ProjectExplorer::Constants::CXX_LANGUAGE_ID
-                && contains(version->qtAbis(), [t](const Abi &qtAbi) {
-                       return qtAbi.isFullyCompatibleWith(t->targetAbi());
-                   });
+        if (!t->isValid() || t->language() != ProjectExplorer::Constants::CXX_LANGUAGE_ID)
+            return false;
+        return Utils::anyOf(version->qtAbis(),
+                            [t](const Abi &qtAbi) { return t->supportedAbis().contains(qtAbi); });
     });
     if (!possibleTcs.isEmpty()) {
         // Prefer exact matches.

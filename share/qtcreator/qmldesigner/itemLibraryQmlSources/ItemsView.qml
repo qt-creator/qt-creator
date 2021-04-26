@@ -89,6 +89,13 @@ ScrollView {
         itemContextMenu.close()
     }
 
+    function showImportCategories()
+    {
+        currentImport.importCatVisibleState = true
+        if (!itemLibraryModel.getIsAnyCategoryHidden())
+            itemLibraryModel.isAnyCategoryHidden = false
+    }
+
     onContentHeightChanged: {
         var maxPosition = Math.max(contentHeight - height, 0)
         if (contentY > maxPosition)
@@ -117,7 +124,10 @@ ScrollView {
                 visible: currentCategory === null
                 height: visible ? implicitHeight : 0
                 enabled: importToRemove !== ""
-                onTriggered: rootView.removeImport(importToRemove)
+                onTriggered: {
+                    showImportCategories()
+                    rootView.removeImport(importToRemove)
+                }
             }
 
             StudioControls.MenuSeparator {
@@ -162,11 +172,7 @@ ScrollView {
             StudioControls.MenuItem {
                 text: qsTr("Show Module Hidden Categories")
                 enabled: currentImport && !currentImport.importCatVisibleState
-                onTriggered: {
-                    currentImport.importCatVisibleState = true
-                    if (!itemLibraryModel.getIsAnyCategoryHidden())
-                        itemLibraryModel.isAnyCategoryHidden = false
-                }
+                onTriggered: showImportCategories()
             }
 
             StudioControls.MenuItem {

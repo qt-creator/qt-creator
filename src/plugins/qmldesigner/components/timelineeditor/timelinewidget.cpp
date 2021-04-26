@@ -533,7 +533,10 @@ void TimelineWidget::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event)
 
+    /*
     m_timelineView->setEnabled(true);
+     TODO See QDS-4191
+    */
 
     if (m_timelineView->model())
         init();
@@ -554,7 +557,7 @@ void TimelineWidget::resizeEvent(QResizeEvent *event)
 
 void TimelineWidget::hideEvent(QHideEvent *event)
 {
-    m_timelineView->setEnabled(false);
+    /* m_timelineView->setEnabled(false); TODO See QDS-4191 */
     QWidget::hideEvent(event);
 }
 

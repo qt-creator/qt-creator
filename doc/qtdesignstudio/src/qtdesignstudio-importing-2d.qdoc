@@ -91,7 +91,7 @@
     displayed in \uicontrol Library > \uicontrol Components >
     \uicontrol {My Components} as well as in the \uicontrol Projects view as
     separate QML files. To start using them, drag-and-drop them from
-    \uicontrol Library to \uicontrol {Form Editor} or \uicontrol Navigator.
+    \uicontrol Library to \uicontrol {Form Editor} or \l Navigator.
 
     \note The layer that was the bottom layer in the design tool becames the top
     layer in \uicontrol Navigator to reflect the QML code model. You

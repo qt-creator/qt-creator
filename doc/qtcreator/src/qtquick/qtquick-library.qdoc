@@ -78,8 +78,8 @@
 
     When you \l{Creating Projects}{create projects}, modules typically needed in
     them are added by default. For example, an empty application project
-    contains only basic components, while a 3D application project contains
-    additional 3D components.
+    contains basic components and UI controls, while a 3D application project
+    contains additional 3D components.
 
     To view the list of available modules, select \inlineimage plus.png
     . Most commonly used modules are placed at the top of the list in
@@ -101,16 +101,16 @@
 
     \section1 Assets
 
-    \uicontrol {Assets} displays the images and other files that you add to
-    the project folder by selecting \inlineimage plus.png
+    \uicontrol Library > \uicontrol {Assets} displays the images and other files
+    that you add to the project folder by selecting \inlineimage plus.png
     .
 
     \image qtquick-assets-tab.png "Library view Assets tab"
 
-    When you drag and drop assets from the tab to \uicontrol Navigator
-    or \uicontrol {Form Editor}, components with a suitable type are
-    automatically created for you. For example, components of the
-    \l{Images}{Image} type will be created for graphics files.
+    When you drag-and-drop assets from \uicontrol Assets to \l Navigator
+    or \l {Form Editor}, component instances with a suitable type are
+    automatically created for you. For example, instances of the
+    \l{Images}{Image} component will be created for graphics files.
 
     \section1 Context Menu Commands
 

@@ -167,11 +167,10 @@
     \image progressbar-root-export-property.png "Export keyframe group as a property"
 
     When we select \e root in \uicontrol Navigator, we can see the
-    \e timelineCurrentFrame property in \uicontrol {Connections View}
-    > \uicontrol Bindings. We double-click it to change its name
-    to \e progress.
+    \e timelineCurrentFrame property in \l {Connection View} >
+    \uicontrol Bindings. We double-click it to change its name to \e progress.
 
-    \image progressbar-bindings-progress.png "Connections View Bindings tab"
+    \image progressbar-bindings-progress.png "Connection View Bindings tab"
 
     We will bind some JavaScript to the value of the text label to turn
     it into a running number that reflects the number of the keyframe on the

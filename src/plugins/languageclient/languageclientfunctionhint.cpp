@@ -108,7 +108,12 @@ void FunctionHintProcessor::handleSignatureResponse(const SignatureHelpRequest::
     if (auto error = response.error())
         m_client->log(error.value());
     m_client->removeAssistProcessor(this);
-    const SignatureHelp &signatureHelp = response.result().value().value();
+    auto result = response.result().value_or(LanguageClientValue<SignatureHelp>());
+    if (result.isNull()) {
+        setAsyncProposalAvailable(nullptr);
+        return;
+    }
+    const SignatureHelp &signatureHelp = result.value();
     if (signatureHelp.signatures().isEmpty()) {
         setAsyncProposalAvailable(nullptr);
     } else {

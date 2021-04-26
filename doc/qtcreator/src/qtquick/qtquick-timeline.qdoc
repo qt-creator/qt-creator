@@ -43,8 +43,8 @@
 
     Sometimes you don't want linear movement but would rather like the rectangle
     to move faster at the beginning and slower at the end of the animation.
-    To achieve this effect, you could insert a lot keyframes between the start
-    frame and the end frame. To avoid this effort, you can use the
+    To achieve this effect, you could insert a lot of keyframes between the
+    start frame and the end frame. To avoid this effort, you can use the
     \l{Editing Easing Curves}{Easing Curve Editor} to specify \e {easing curves}
     for nonlinear interpolation between keyframes. The easing curves can make
     components appear to pick up speed, slow down, or bounce back at the end of
@@ -88,7 +88,9 @@
     \section1 Creating Timelines
 
     You specify settings for the timeline and for running the animation in the
-    \uicontrol {Timeline Settings} dialog.
+    \uicontrol {Timeline Settings} dialog. The \uicontrol Animation radio button
+    is selected for a timeline animation and the \uicontrol {Expression binding}
+    radio button for a \l{Setting Bindings}{property animation}.
 
     \image studio-timeline-settings.png "Timeline Settings dialog"
 
@@ -105,12 +107,6 @@
             timeline. Negative values are allowed.
         \li In the \uicontrol {End frame} field, set the last frame of the
             timeline.
-        \li To use bindings to specify the properties, select the
-            \uicontrol {Expression binding} radio button and enter the binding
-            in the \uicontrol {Expression binding} field. For more information
-            about property binding, see \l{Setting Bindings}.
-        \li To create a timeline animation, select the \uicontrol Animation
-            radio button.
         \li In the \uicontrol {Animation ID} field, enter an ID for the
             animation.
         \li Select the \uicontrol {Running in Base State} check box to run the

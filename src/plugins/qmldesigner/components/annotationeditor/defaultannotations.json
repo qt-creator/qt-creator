@@ -1,35 +1,36 @@
 {
-    "description" : "",
-    "display condition" : "",
-    "helper lines" : true,
-    "position marker" : true,
-    "highlight" : true,
-    "project author" : "",
-    "project confirmed" : true,
-    "project developer" : "",
-    "project distributor" : "",
-    "project modified" : "",
-    "project type" : "",
-    "project version" : "",
-    "screen description" : "",
-    "section" : "",
-    "normalcolor" : {
+    "description": "",
+    "display condition": "",
+    "helper lines": true,
+    "position marker": true,
+    "highlight": true,
+    "project author": "",
+    "project confirmed": true,
+    "project developer": "",
+    "project distributor": "",
+    "project modified": "",
+    "project type": "",
+    "project version": "",
+    "screen description": "",
+    "section": "",
+    "rowid": 0,
+    "normalcolor": {
         "type": "color",
         "value": "#000000"
     },
-    "focuscolor" : {
+    "focuscolor": {
         "type": "color",
         "value": "#000000"
     },
-    "selectedcolor" : {
+    "selectedcolor": {
         "type": "color",
         "value": "#000000"
     },
-    "pressedcolor" : {
+    "pressedcolor": {
         "type": "color",
         "value": "#000000"
     },
-    "overview" : {
+    "overview": {
         "type": "richtext",
         "value": ""
     }

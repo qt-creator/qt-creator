@@ -42,7 +42,7 @@
     describes how to position the UI components on pages to create a scalable
     UI.
 
-    To ensure that the layout is responsive and all the UI elements stay in
+    To ensure that the layout is responsive and all the UI components stay in
     their proper places when you resize the UI on the desktop or on devices
     with different screen sizes, you will use anchors and positioners.
 
@@ -63,16 +63,16 @@
 
     To preview the changes that you make to the UI while you make
     them, select the \inlineimage live_preview.png
-    (\uicontrol {Show Live Preview}) button on the \uicontrol {Form Editor}
+    (\uicontrol {Show Live Preview}) button on the \l {Form Editor}
     toolbar or press \key {Alt+P}.
 
-    To anchor components on a page:
+    To anchor component instances on a page:
 
     \list 1
         \li Open \e {Screen01.ui.qml} for editing in the
             \uicontrol {Form Editor} view.
-        \li Select \e logo in the \uicontrol Navigator view.
-        \li In the \uicontrol Properties view, \uicontrol Layout tab,
+        \li Select \e logo in the \l Navigator view.
+        \li In the \l Properties view, \uicontrol Layout tab,
             select the \inlineimage icons/anchor-top.png
             (\uicontrol Top) and \inlineimage icons/anchor-left.png
             (\uicontrol Left) anchor buttons to anchor \e logo to the top left
@@ -86,21 +86,22 @@
             to save your changes.
     \endlist
 
-    Your page now should look something like this in the Design mode and live
-    preview:
+    Your page now should look something like this in the \uicontrol Design mode
+    and live preview:
 
     \image loginui2-loginpage.png "Login page in the Design mode"
 
     \section2 Learn More - Anchors
 
-    In an anchor-based layout, each component can be thought of as having a set
-    of invisible \e anchor lines: top, bottom, left, right, fill, horizontal
-    center, vertical center, and baseline.
+    In an anchor-based layout, each component instance can be thought of as
+    having a set of invisible \e anchor lines: top, bottom, left, right, fill,
+    horizontal center, vertical center, and baseline.
 
-    Anchors enable placing a component either adjacent to or inside of another
-    component, by attaching one or more of the component's anchor lines to the
-    anchor lines of the other component. If a component changes, the components
-    that are anchored to it will adjust automatically to maintain the anchoring.
+    Anchors enable placing a component instance either adjacent to or inside of
+    another component instance, by attaching one or more of the instance's
+    anchor lines to the anchor lines of the other component instance. If a
+    component instance changes, the instances that are anchored to it will
+    adjust automatically to maintain the anchoring.
 
     For more information, see \l{Positioning with Anchors}.
 
@@ -115,15 +116,11 @@
     To add entry fields to the page:
 
     \list 1
-        \li In \l Library > \uicontrol Components, select the
-            \inlineimage plus.png
-            button to add the \l {Qt Quick Controls} module to the project:
-            \image loginui2-imports.png
         \li Drag-and-drop two instances of the \uicontrol {Text Field}
-            component from the \uicontrol {Qt Quick Controls} tab to
-            \l {Form Editor}.
+            component from \l Library > \uicontrol Components >
+            \uicontrol {Qt Quick Controls} to \l {Form Editor}.
         \li Select one of the text fields in \l Navigator, and
-            change its id to \e usernameField in \l Properties.
+            change its ID to \e usernameField in \l Properties.
         \li In the \uicontrol Geometry group, \uicontrol Size field,
             make the field wide enough to accommodate long user names
             by setting its width to \e 300 pixels.
@@ -131,7 +128,7 @@
             inside the field before users type in it to \e Username
         \li Select \uicontrol tr to mark the text translatable.
             \image loginui2-field-properties.png "Text field properties"
-        \li Select the other text field, and change its id to
+        \li Select the other text field, and change its ID to
             \e passwordField, placeholder text to \e Password,
             and width to \e 300 pixels.
     \endlist
@@ -149,7 +146,7 @@
         \li Select \uicontrol Position > \uicontrol {Position in Column}
             to position the fields on top of each other in
             \uicontrol {Form Editor}.
-        \li Select the column in \uicontrol Navigator and change its id
+        \li Select the column in \uicontrol Navigator and change its ID
             to \e fieldColumn in \uicontrol Properties.
         \li In the \uicontrol Spacing field, set the spacing between the
             fields to 5 pixels.
@@ -157,7 +154,7 @@
         \li Select \e loginButton and \e registerButton, and then select
             \uicontrol Position > \uicontrol {Position in Column} to position
             them in a column.
-        \li Select the button column, change its id to \e buttonColumn, and
+        \li Select the button column, change its ID to \e buttonColumn, and
             set the spacing between the buttons to 5 pixels, as above.
     \endlist
 
@@ -183,7 +180,7 @@
     \endlist
 
     The second iteration of your UI is now ready and should look something like
-    this in the Design mode and live preview:
+    this in the \uicontrol Design mode and live preview:
 
     \image loginui2-loginpage-ready.png "Login page in the Design mode"
 

@@ -103,6 +103,25 @@ set(__QTC_LIBRARIES "" CACHE INTERNAL "*** Internal ***")
 set(__QTC_EXECUTABLES "" CACHE INTERNAL "*** Internal ***")
 set(__QTC_TESTS "" CACHE INTERNAL "*** Internal ***")
 
+# handle SCCACHE hack
+# SCCACHE does not work with the /Zi option, which makes each compilation write debug info
+# into the same .pdb file - even with /FS, which usually makes this work in the first place.
+# Replace /Zi with /Z7, which leaves the debug info in the object files until link time.
+# This increases memory usage, disk space usage and linking time, so should only be
+# enabled if necessary.
+# Must be called after project(...).
+function(qtc_handle_sccache_support)
+  if (MSVC AND WITH_SCCACHE_SUPPORT)
+    foreach(config DEBUG RELWITHDEBINFO)
+      foreach(lang C CXX)
+        set(flags_var "CMAKE_${lang}_FLAGS_${config}")
+        string(REPLACE "/Zi" "/Z7" ${flags_var} "${${flags_var}}")
+        set(${flags_var} "${${flags_var}}" PARENT_SCOPE)
+      endforeach()
+    endforeach()
+  endif()
+endfunction()
+
 function(append_extra_translations target_name)
   if(NOT ARGN)
     return()

@@ -61,7 +61,7 @@
 
             The available properties depend on the component type. You can
             \l{Specifying Dynamic Properties}{add properties for components} in
-            the \uicontrol Properties tab of the \uicontrol {Connection View}.
+            \l {Connection View} > \uicontrol Properties.
     \endlist
 
     For an example of using the \uicontrol Button template to create a button

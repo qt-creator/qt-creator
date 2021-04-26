@@ -140,7 +140,7 @@
     \image washingmachineui-timeline-settings.png "Timeline settings"
 
     First, we select the initial arc segment, \e arcSegment1, in
-    \uicontrol Navigator to display its properties in \uicontrol Properties.
+    \l Navigator to display its properties in \uicontrol Properties.
     In the \uicontrol Layout tab, \uicontrol Rotation field, we select
     \inlineimage icons/action-icon.png
     , and then select \uicontrol {Insert Keyframe} to insert a keyframe
@@ -167,7 +167,7 @@
     and 1000 (\e arcSegment4).
 
     When we move the playhead in \uicontrol Timeline, we can see the rotation
-    animation in \uicontrol {Form Editor}.
+    animation in \l {Form Editor}.
 
     \image washingmachineui-multsegmentarc.gif "Rotation animation in Form Editor"
 
@@ -212,12 +212,12 @@
     \printuntil startClicked
 
     Then, we select the mouse area for the start button, \e startMA,
-    in \uicontrol Navigator. In the \uicontrol {Connection View} >
-    \uicontrol Connections tab, we select the \inlineimage plus.png
+    in \uicontrol Navigator. In \l {Connection View} > \uicontrol Connections,
+    we select the \inlineimage plus.png
     (\uicontrol Add) button to connect the \c onClicked() signal handler
     of the button to the \c startClicked() signal.
 
-    \image washingmachineui-connections.png "Connections view"
+    \image washingmachineui-connections.png "Connection View"
 
     Then, in \e ApplicationView.qml, we specify that the \c startClicked()
     signal changes the application state to \e presets:

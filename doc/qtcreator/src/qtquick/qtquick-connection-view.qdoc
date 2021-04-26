@@ -30,11 +30,11 @@
 
     \title Connection View
 
-    The \uicontrol {Connection View} is a collection of views that enable you
+    \uicontrol {Connection View} is a collection of views that enable you
     to create connections between components and the application, to bind
     component properties together, and to add custom properties for components.
 
-    \image qmldesigner-connections.png "Connections View"
+    \image qmldesigner-connections.png "Connection View"
 
     The \l{glossary-component}{components} of the application UI and the
     application logic need to communicate with each other. For example, a

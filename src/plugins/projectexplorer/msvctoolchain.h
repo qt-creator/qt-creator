@@ -67,6 +67,7 @@ public:
     QString originalTargetTriple() const override;
 
     QStringList suggestedMkspecList() const override;
+    Abis supportedAbis() const override;
 
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &data) override;

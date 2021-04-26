@@ -205,7 +205,11 @@ void ToolChainManager::notifyAboutUpdate(ToolChain *tc)
 bool ToolChainManager::registerToolChain(ToolChain *tc)
 {
     QTC_ASSERT(tc, return false);
-    QTC_ASSERT(isLanguageSupported(tc->language()), return false);
+    QTC_ASSERT(isLanguageSupported(tc->language()),
+               qDebug() << qPrintable("language \"" + tc->language().toString()
+                                      + "\" unknown while registering \""
+                                      + tc->compilerCommand().toString() + "\"");
+               return false);
     QTC_ASSERT(d->m_accessor, return false);
 
     if (d->m_toolChains.contains(tc))

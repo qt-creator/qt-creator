@@ -35,7 +35,7 @@
 
     \title Editing 3D Scenes
 
-    You can use \l{3D Editor} in the Design mode to edit files you
+    You can use \l{3D Editor} in the \uicontrol Design mode to edit files you
     created using 3D graphics applications and stored in one of the supported
     formats. You cannot create 3D models or other assets in the editor, but you
     can \l{Importing 3D Assets}{import} the assets you need and work with them
@@ -64,9 +64,9 @@
         \endif
         \li \l{Adding 3D Views}
 
-            You can drag and drop 3D components from \uicontrol Library
-            to the scene or to \uicontrol Navigator. You must add all 3D
-            components into a 3D view.
+            You can drag-and-drop 3D components from \l Library >
+            \uicontrol Components to \uicontrol {3D Editor} or to \l Navigator.
+            You must add all 3D components into a 3D view.
         \li \l {Using 3D Components}
 
             You can speficy properties for 3D components, such as cameras,

@@ -59,14 +59,15 @@ bool ItemLibraryModel::loadExpandedState(const QString &sectionName)
     return expandedStateHash.value(sectionName, true);
 }
 
-void ItemLibraryModel::saveCategoryVisibleState(bool isVisible, const QString &categoryName)
+void ItemLibraryModel::saveCategoryVisibleState(bool isVisible, const QString &categoryName, const
+                                                QString &importName)
 {
-    categoryVisibleStateHash.insert(categoryName, isVisible);
+    categoryVisibleStateHash.insert(categoryName + '_' + importName, isVisible);
 }
 
-bool ItemLibraryModel::loadCategoryVisibleState(const QString &categoryName)
+bool ItemLibraryModel::loadCategoryVisibleState(const QString &categoryName, const QString &importName)
 {
-    return categoryVisibleStateHash.value(categoryName, true);
+    return categoryVisibleStateHash.value(categoryName + '_' + importName, true);
 }
 
 void ItemLibraryModel::showHiddenCategories()
@@ -374,10 +375,10 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
             if (!categorySection) {
                 categorySection = new ItemLibraryCategory(catName, importSection);
                 importSection->addCategory(categorySection);
-                if (importSection->sectionType() == ItemLibraryImport::SectionType::Default
-                    && !importSection->hasSingleCategory()) {
-                    categorySection->setExpanded(loadExpandedState(categorySection->categoryName()));
-                }
+            }
+            if (importSection->sectionType() == ItemLibraryImport::SectionType::Default
+                && !importSection->hasSingleCategory()) {
+                categorySection->setExpanded(loadExpandedState(categorySection->categoryName()));
             }
 
             // create item

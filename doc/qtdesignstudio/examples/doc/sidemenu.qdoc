@@ -101,8 +101,9 @@
     We construct the menu bar in the \e {MainFile.ui.qml} file using the
     \l {Form Editor}. The CustomButton component is listed in
     \l Library > \uicontrol Components > \uicontrol {My Components}.
-    We drag and drop several instances of the component to the \l {Form Editor}
-    and enclose them in a RowLayout component to lay them out as a menu bar.
+    We drag-and-drop several instances of the component to the
+    \uicontrol {Form Editor} and enclose them in a RowLayout component instance
+    to lay them out as a menu bar.
 
     \image sidemenu-menubar.png
 
@@ -191,7 +192,7 @@
     In \e {SideMenu.qml}, we use connections to bind the action of clicking
     the burger menu to the signal handler for triggering the opening or
     closing animation, depending on the current state. We create the connections
-    in the \l Connections view.
+    in \l{Connection View}.
 
     \image sidemenu-connections.png
 

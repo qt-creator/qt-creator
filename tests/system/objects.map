@@ -122,6 +122,7 @@
 :Qt Creator.Compile Output_Core::OutputWindow	{type='Core::OutputWindow' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Compile Output'}
 :Qt Creator.Configure Project_QPushButton	{text='Configure Project' type='QPushButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.DebugModeWidget_QSplitter	{name='DebugModeWidget' type='QSplitter' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.DragDoc_QToolButton	{toolTip='Drag to drag documents between splits' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Events_QDockWidget	{name='QmlProfiler.Statistics.DockDockWidget' type='QDockWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Events_QTabBar	{aboveWidget=':Qt Creator.Events_QDockWidget' type='QTabBar' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Issues_QListView	{type='QListView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Issues'}
@@ -154,7 +155,7 @@
 :Qt Creator_DiffEditor::Internal::DescriptionEditorWidget	{type='DiffEditor::Internal::DescriptionEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_DiffEditor::SideDiffEditorWidget	{type='DiffEditor::Internal::SideDiffEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_DiffEditor::SideDiffEditorWidget2	{occurrence='2' type='DiffEditor::Internal::SideDiffEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Qt Creator_FilenameQComboBox	{type='QComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_FilenameQComboBox	{leftWidget=':Qt Creator.DragDoc_QToolButton' type='QComboBox' unnamed='1' visible='1'}
 :Qt Creator_Find::Internal::SearchResultTreeView	{type='Core::Internal::SearchResultTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Git::Internal::GitEditor	{type='Git::Internal::GitEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_HelpSelector_QComboBox	{occurrence='3' type='QComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}

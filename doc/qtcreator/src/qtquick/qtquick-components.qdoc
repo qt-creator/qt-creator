@@ -83,17 +83,16 @@
 
     \list 1
         \li Drag-and-drop components from \uicontrol Library (1) to
-            \uicontrol Navigator (2), \uicontrol {Form Editor} (3), or
-            \l {3D Editor} (4). This creates instances of the components in the
-            current component file.
+            \l Navigator (2), \l {Form Editor} (3), or \l {3D Editor} (4).
+            This creates instances of the components in the current
+            component file.
         \li Select component instances in \uicontrol Navigator to edit the
             values of their properties in \uicontrol Properties.
             \image qmldesigner-properties-view.png "Properties view"
             For more information, see \l {Specifying Component Properties}.
         \li To change the appearance and behavior of the component instances
             in ways that are not supported in \QDS by default, you can define
-            custom properties in \uicontrol {Connection View} >
-            \uicontrol {Properties}.
+            custom properties in \l {Connection View} > \uicontrol {Properties}.
             \image qmldesigner-dynamicprops.png "Connection View Properties tab"
             For more information, see \l{Specifying Dynamic Properties}.
         \li To enable users to interact with the component instances, connect
