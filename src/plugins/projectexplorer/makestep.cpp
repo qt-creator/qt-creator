@@ -111,10 +111,10 @@ MakeStep::MakeStep(BuildStepList *parent, Id id)
     m_buildTargetsAspect->setLabelText(tr("Targets:"));
 
     const auto updateMakeLabel = [this] {
-        const QString defaultMake = defaultMakeCommand().toString();
+        const FilePath defaultMake = defaultMakeCommand();
         const QString labelText = defaultMake.isEmpty()
                 ? tr("Make:")
-                : tr("Override %1:").arg(QDir::toNativeSeparators(defaultMake));
+                : tr("Override %1:").arg(defaultMake.toUserOutput());
         m_makeCommandAspect->setLabelText(labelText);
     };
 
