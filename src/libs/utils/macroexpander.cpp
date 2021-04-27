@@ -292,6 +292,11 @@ QString MacroExpander::expand(const QString &stringWithVariables) const
 
 FilePath MacroExpander::expand(const FilePath &fileNameWithVariables) const
 {
+    if (fileNameWithVariables.needsDevice()) {
+        QUrl url = fileNameWithVariables.toUrl();
+        url.setPath(expand(url.path()));
+        return FilePath::fromUrl(url);
+    }
     return FilePath::fromString(expand(fileNameWithVariables.toString()));
 }
 
