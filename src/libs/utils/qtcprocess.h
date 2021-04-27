@@ -141,6 +141,11 @@ public:
         ArgIterator m_ait;
     };
 
+    const CommandLine &commandLine() const { return m_commandLine; }
+    const Environment &environment() const { return m_environment; }
+
+    static void setRemoteStartProcessHook(const std::function<void (QtcProcess &)> &hook);
+
 private:
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     void setupChildProcess() override;

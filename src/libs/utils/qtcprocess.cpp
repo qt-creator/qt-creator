@@ -70,6 +70,8 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
+static std::function<void(QtcProcess &)> s_remoteRunProcessHook;
+
 /*!
     \class Utils::QtcProcess
 
@@ -704,6 +706,12 @@ void QtcProcess::setUseCtrlCStub(bool enabled)
 
 void QtcProcess::start()
 {
+    if (m_commandLine.executable().needsDevice()) {
+        QTC_ASSERT(s_remoteRunProcessHook, return);
+        s_remoteRunProcessHook(*this);
+        return;
+    }
+
     Environment env;
     const OsType osType = HostOsInfo::hostOs();
     if (m_haveEnv) {
@@ -1228,6 +1236,11 @@ QString QtcProcess::expandMacros(const QString &str, AbstractMacroExpander *mx, 
     QString ret = str;
     expandMacros(&ret, mx, osType);
     return ret;
+}
+
+void QtcProcess::setRemoteStartProcessHook(const std::function<void(QtcProcess &)> &hook)
+{
+    s_remoteRunProcessHook = hook;
 }
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
