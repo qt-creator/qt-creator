@@ -432,7 +432,7 @@ QString QMakeStep::effectiveQMakeCall() const
     QString qmake = qtVersion ? qtVersion->qmakeCommand().toUserOutput() : QString();
     if (qmake.isEmpty())
         qmake = tr("<no Qt version>");
-    QString make = makeCommand().toString();
+    QString make = makeCommand().toUserOutput();
     if (make.isEmpty())
         make = tr("<no Make step found>");
 
