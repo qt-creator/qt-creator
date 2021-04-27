@@ -1195,6 +1195,18 @@ QString FilePath::calcRelativePath(const QString &absolutePath, const QString &a
     return relativePath;
 }
 
+/*!
+    Returns a path corresponding to the current object on the
+    same device as \a deviceTemplate.
+
+    Example usage:
+    \code
+        localDir = FilePath::fromString("/tmp/workingdir");
+        executable = FilePath::fromUrl("docker://123/bin/ls")
+        realDir = localDir.onDevice(executable)
+        assert(realDir == FilePath::fromUrl("docker://123/tmp/workingdir"))
+    \endcode
+*/
 FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
 {
     FilePath res = *this;
