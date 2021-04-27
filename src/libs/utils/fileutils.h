@@ -66,6 +66,18 @@ class tst_fileutils;
 
 namespace Utils {
 
+class DeviceFileHooks
+{
+public:
+    std::function<bool(const FilePath &)> isExecutableFile;
+    std::function<bool(const FilePath &)> isReadableFile;
+    std::function<bool(const FilePath &)> isReadableDir;
+    std::function<bool(const FilePath &)> isWritableDir;
+    std::function<bool(const FilePath &)> createDir;
+    std::function<QList<FilePath>(const FilePath &, const QStringList &, QDir::Filters)> dirEntries;
+    std::function<QByteArray(const FilePath &, int)> fileContents;
+};
+
 class QTCREATOR_UTILS_EXPORT FilePath
 {
 public:
@@ -79,6 +91,8 @@ public:
     static FilePath fromVariant(const QVariant &variant);
 
     QString toString() const;
+    FilePath onDevice(const FilePath &deviceTemplate) const;
+
     QFileInfo toFileInfo() const;
     QVariant toVariant() const;
     QDir toDir() const;
@@ -88,8 +102,20 @@ public:
 
     QString fileName() const;
     QString fileNameWithPathComponents(int pathComponents) const;
+    QString path() const;
+
+    bool needsDevice() const;
     bool exists() const;
-    bool isWritablePath() const;
+
+    bool isWritablePath() const { return isWritableDir(); } // Remove.
+    bool isWritableDir() const;
+    bool isExecutableFile() const;
+    bool isReadableFile() const;
+    bool isReadableDir() const;
+    bool createDir() const;
+    QList<FilePath> dirEntries(const QStringList &nameFilters, QDir::Filters filters) const;
+    QList<FilePath> dirEntries(QDir::Filters filters) const;
+    QByteArray fileContents(int maxSize = -1) const;
 
     FilePath parentDir() const;
     FilePath absolutePath() const;
@@ -116,20 +142,23 @@ public:
     FilePath pathAppended(const QString &str) const;
     FilePath stringAppended(const QString &str) const;
     FilePath resolvePath(const QString &fileName) const;
+    FilePath resolveSymlinkTarget() const;
 
     FilePath canonicalPath() const;
 
     FilePath operator/(const QString &str) const;
 
-    void clear() { m_data.clear(); }
-    bool isEmpty() const { return m_data.isEmpty(); }
+    void clear();
+    bool isEmpty() const;
 
     uint hash(uint seed) const;
 
-    // NOTE: FilePath operations on FilePath created from URL currenly
-    // do not work except for .toVariant() and .toUrl().
+    // NOTE: Most FilePath operations on FilePath created from URL currently
+    // do not work. Among the working are .toVariant() and .toUrl().
     static FilePath fromUrl(const QUrl &url);
     QUrl toUrl() const;
+
+    static void setDeviceFileHooks(const DeviceFileHooks &hooks);
 
 private:
     friend class ::tst_fileutils;

@@ -62,6 +62,8 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
+static DeviceFileHooks s_deviceHooks;
+
 /*! \class Utils::CommandLine
 
  \brief The CommandLine class represents a command line of a QProcess
@@ -318,6 +320,17 @@ FilePath FilePath::operator/(const QString &str) const
     return pathAppended(str);
 }
 
+void FilePath::clear()
+{
+    m_data.clear();
+    m_url.clear();
+}
+
+bool FilePath::isEmpty() const
+{
+    return m_data.isEmpty() && !m_url.isValid();
+}
+
 /*!
   Like QDir::toNativeSeparators(), but use prefix '~' instead of $HOME on unix systems when an
   absolute path is given.
@@ -419,6 +432,13 @@ FilePath FilePath::resolvePath(const QString &fileName) const
     if (FileUtils::isAbsolutePath(fileName))
         return FilePath::fromString(QDir::cleanPath(fileName));
     return FilePath::fromString(QDir::cleanPath(toString() + QLatin1Char('/') + fileName));
+}
+
+FilePath FilePath::resolveSymlinkTarget() const
+{
+    // FIXME: implement
+    QTC_CHECK(false);
+    return *this;
 }
 
 FilePath FileUtils::commonPath(const FilePath &oldCommonPath, const FilePath &filePath)
@@ -737,6 +757,11 @@ QUrl FilePath::toUrl() const
     return m_url;
 }
 
+void FilePath::setDeviceFileHooks(const DeviceFileHooks &hooks)
+{
+    s_deviceHooks = hooks;
+}
+
 /// \returns a QString to display to the user
 /// Converts the separators to the native format
 QString FilePath::toUserOutput() const
@@ -777,19 +802,116 @@ QString FilePath::fileNameWithPathComponents(int pathComponents) const
     return m_data;
 }
 
+QString FilePath::path() const
+{
+    if (!m_data.isEmpty())
+        return m_data;
+    return m_url.path();
+}
+
 /// \returns a bool indicating whether a file with this
 /// FilePath exists.
 bool FilePath::exists() const
 {
+    QTC_ASSERT(!needsDevice(), return false);
     return !isEmpty() && QFileInfo::exists(m_data);
 }
 
+
+
 /// \returns a bool indicating whether a path is writable.
-bool FilePath::isWritablePath() const
+bool FilePath::isWritableDir() const
 {
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.isWritableDir, return false);
+        return s_deviceHooks.isReadableFile(*this);
+    }
     const QFileInfo fi{m_data};
     return exists() && fi.isDir() && fi.isWritable();
 }
+
+bool FilePath::isExecutableFile() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.isExecutableFile, return false);
+        return s_deviceHooks.isExecutableFile(*this);
+    }
+    const QFileInfo fi{m_data};
+    return fi.exists() && fi.isExecutable() && !fi.isDir();
+}
+
+bool FilePath::isReadableFile() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.isReadableFile, return false);
+        return s_deviceHooks.isReadableFile(*this);
+    }
+    const QFileInfo fi{m_data};
+    return fi.exists() && fi.isReadable() && !fi.isDir();
+}
+
+bool FilePath::isReadableDir() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.isReadableDir, return false);
+        return s_deviceHooks.isReadableDir(*this);
+    }
+    const QFileInfo fi{m_data};
+    return fi.exists() && fi.isReadable() && fi.isDir();
+}
+
+bool FilePath::createDir() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.createDir, return false);
+        return s_deviceHooks.createDir(*this);
+    }
+    QDir dir(m_data);
+    return dir.mkpath(dir.absolutePath());
+}
+
+QList<FilePath> FilePath::dirEntries(const QStringList &nameFilters, QDir::Filters filters) const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.dirEntries, return {});
+        return s_deviceHooks.dirEntries(*this, nameFilters, filters);
+    }
+
+    const QFileInfoList entryInfoList = QDir(toString()).entryInfoList(nameFilters, filters);
+    return Utils::transform(entryInfoList, &FilePath::fromFileInfo);
+}
+
+QList<FilePath> FilePath::dirEntries(QDir::Filters filters) const
+{
+    return dirEntries({}, filters);
+}
+
+QByteArray FilePath::fileContents(int maxSize) const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.fileContents, return {});
+        return s_deviceHooks.fileContents(*this, maxSize);
+    }
+
+    const QString path = toString();
+    QFile f(path);
+    if (!f.exists())
+        return {};
+
+    if (!f.open(QFile::ReadOnly))
+        return {};
+
+    if (maxSize != -1)
+        return f.read(maxSize);
+
+    return f.readAll();
+}
+
+bool FilePath::needsDevice() const
+{
+    return m_url.isValid();
+}
+
 
 /// Find the parent directory of a given directory.
 
@@ -1072,14 +1194,46 @@ QString FilePath::calcRelativePath(const QString &absolutePath, const QString &a
     return relativePath;
 }
 
+FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
+{
+    FilePath res = *this;
+
+    if (res.m_url.isValid()) {
+        if (deviceTemplate.m_url.isValid()) {
+            const QString path = m_url.path();
+            res.m_url = deviceTemplate.toUrl();
+            res.m_url.setPath(path);
+        } else {
+            res.m_data = deviceTemplate.m_data;
+            res.m_url.clear();
+        }
+    } else {
+        if (deviceTemplate.m_url.isValid()) {
+            res.m_url = deviceTemplate.m_url;
+            res.m_url.setPath(m_data);
+            res.m_data.clear();
+        } else {
+            // Nothing to do.
+        }
+    }
+    return res;
+}
+
 FilePath FilePath::pathAppended(const QString &str) const
 {
     FilePath fn = *this;
     if (str.isEmpty())
         return fn;
-    if (!isEmpty() && !m_data.endsWith(QLatin1Char('/')))
-        fn.m_data.append('/');
-    fn.m_data.append(str);
+    if (fn.m_url.isValid()) {
+        QString path = fn.m_url.path();
+        if (!path.isEmpty() && !path.endsWith(QLatin1Char('/')))
+            path.append('/');
+        fn.m_url.setPath(path);
+    } else {
+        if (!fn.m_data.isEmpty() && !fn.m_data.endsWith(QLatin1Char('/')))
+            fn.m_data.append('/');
+        fn.m_data.append(str);
+    }
     return fn;
 }
 
@@ -1173,6 +1327,7 @@ void withNtfsPermissions(const std::function<void()> &task)
     qt_ntfs_permission_lookup--;
 }
 #endif
+
 } // namespace Utils
 
 std::hash<Utils::FilePath>::result_type
