@@ -39,7 +39,6 @@ using QmlDesigner::StorageCacheException;
 
 using uint64 = unsigned long long;
 
-using QmlDesigner::findInSorted;
 using Utils::compare;
 using Utils::reverseCompare;
 
@@ -53,21 +52,16 @@ public:
     MockFilePathStorage &storage;
 };
 
-using CacheWithMockLocking = QmlDesigner::StorageCache<Utils::PathString,
-                                                       Utils::SmallStringView,
-                                                       int,
-                                                       StorageAdapter,
-                                                       NiceMock<MockMutex>,
-                                                       decltype(&Utils::reverseCompare),
-                                                       Utils::reverseCompare>;
+auto less(Utils::SmallStringView first, Utils::SmallStringView second) -> bool
+{
+    return Utils::reverseCompare(first, second) < 0;
+};
 
-using CacheWithoutLocking = QmlDesigner::StorageCache<Utils::PathString,
-                                                      Utils::SmallStringView,
-                                                      int,
-                                                      StorageAdapter,
-                                                      NiceMock<MockMutexNonLocking>,
-                                                      decltype(&Utils::reverseCompare),
-                                                      Utils::reverseCompare>;
+using CacheWithMockLocking = QmlDesigner::
+    StorageCache<Utils::PathString, Utils::SmallStringView, int, StorageAdapter, NiceMock<MockMutex>, less>;
+
+using CacheWithoutLocking = QmlDesigner::
+    StorageCache<Utils::PathString, Utils::SmallStringView, int, StorageAdapter, NiceMock<MockMutexNonLocking>, less>;
 
 template<typename Cache>
 class StorageCache : public testing::Test
@@ -273,111 +267,6 @@ TYPED_TEST(StorageCache, MultipleEntries)
                                              {this->filePath4.clone(), 3}};
 
     ASSERT_THROW(this->cache.populate(std::move(entries)), StorageCacheException);
-}
-
-TYPED_TEST(StorageCache, DontFindInSorted)
-{
-    auto found = findInSorted(this->filePaths.cbegin(), this->filePaths.cend(), "/file/pathFoo", compare);
-
-    ASSERT_FALSE(found.wasFound);
-}
-
-TYPED_TEST(StorageCache, FindInSortedOne)
-{
-    auto found = findInSorted(this->filePaths.cbegin(), this->filePaths.cend(), "/file/pathOne", compare);
-
-    ASSERT_TRUE(found.wasFound);
-}
-
-TYPED_TEST(StorageCache, FindInSortedTwo)
-{
-    auto found = findInSorted(this->filePaths.cbegin(), this->filePaths.cend(), "/file/pathTwo", compare);
-
-    ASSERT_TRUE(found.wasFound);
-}
-
-TYPED_TEST(StorageCache, FindInSortedTree)
-{
-    auto found = findInSorted(this->filePaths.cbegin(),
-                              this->filePaths.cend(),
-                              "/file/pathThree",
-                              compare);
-
-    ASSERT_TRUE(found.wasFound);
-}
-
-TYPED_TEST(StorageCache, FindInSortedFour)
-{
-    auto found = findInSorted(this->filePaths.cbegin(), this->filePaths.cend(), "/file/pathFour", compare);
-
-    ASSERT_TRUE(found.wasFound);
-}
-
-TYPED_TEST(StorageCache, FindInSortedFife)
-{
-    auto found = findInSorted(this->filePaths.cbegin(), this->filePaths.cend(), "/file/pathFife", compare);
-
-    ASSERT_TRUE(found.wasFound);
-}
-
-TYPED_TEST(StorageCache, DontFindInSortedReverse)
-{
-    auto found = findInSorted(this->reverseFilePaths.cbegin(),
-                              this->reverseFilePaths.cend(),
-                              "/file/pathFoo",
-                              reverseCompare);
-
-    ASSERT_FALSE(found.wasFound);
-}
-
-TYPED_TEST(StorageCache, FindInSortedOneReverse)
-{
-    auto found = findInSorted(this->reverseFilePaths.cbegin(),
-                              this->reverseFilePaths.cend(),
-                              "/file/pathOne",
-                              reverseCompare);
-
-    ASSERT_TRUE(found.wasFound);
-}
-
-TYPED_TEST(StorageCache, FindInSortedTwoReverse)
-{
-    auto found = findInSorted(this->reverseFilePaths.cbegin(),
-                              this->reverseFilePaths.cend(),
-                              "/file/pathTwo",
-                              reverseCompare);
-
-    ASSERT_TRUE(found.wasFound);
-}
-
-TYPED_TEST(StorageCache, FindInSortedTreeReverse)
-{
-    auto found = findInSorted(this->reverseFilePaths.cbegin(),
-                              this->reverseFilePaths.cend(),
-                              "/file/pathThree",
-                              reverseCompare);
-
-    ASSERT_TRUE(found.wasFound);
-}
-
-TYPED_TEST(StorageCache, FindInSortedFourReverse)
-{
-    auto found = findInSorted(this->reverseFilePaths.cbegin(),
-                              this->reverseFilePaths.cend(),
-                              "/file/pathFour",
-                              reverseCompare);
-
-    ASSERT_TRUE(found.wasFound);
-}
-
-TYPED_TEST(StorageCache, FindInSortedFifeReverse)
-{
-    auto found = findInSorted(this->reverseFilePaths.cbegin(),
-                              this->reverseFilePaths.cend(),
-                              "/file/pathFife",
-                              reverseCompare);
-
-    ASSERT_TRUE(found.wasFound);
 }
 
 TYPED_TEST(StorageCache, IdIsReadAndWriteLockedForUnknownEntry)

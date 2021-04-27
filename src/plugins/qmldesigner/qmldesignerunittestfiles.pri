@@ -54,7 +54,6 @@ HEADERS += \
     $$PWD/designercore/include/abstractproperty.h \
     $$PWD/designercore/include/abstractview.h \
     $$PWD/designercore/metainfo/storagecache.h \
-    $$PWD/designercore/metainfo/storagecachealgorithms.h \
     $$PWD/designercore/metainfo/storagecacheentry.h \
     $$PWD/designercore/metainfo/storagecachefwd.h \
     $$PWD/designercore/model/model_p.h \

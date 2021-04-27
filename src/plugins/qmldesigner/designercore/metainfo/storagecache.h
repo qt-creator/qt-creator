@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "storagecachealgorithms.h"
 #include "storagecacheentry.h"
 #include "storagecachefwd.h"
 
@@ -65,9 +64,8 @@ template<typename Type,
          typename IndexType,
          typename Storage,
          typename Mutex,
-         typename Compare,
-         Compare compare = Utils::compare,
-         typename CacheEntry = StorageCacheEntry<Type, ViewType, IndexType>>
+         bool (*compare)(Utils::SmallStringView, Utils::SmallStringView),
+         class CacheEntry = StorageCacheEntry<Type, ViewType, IndexType>>
 class StorageCache
 {
     friend StorageCache;
@@ -78,7 +76,6 @@ public:
     using MutexType = Mutex;
     using CacheEntries = std::vector<CacheEntry>;
     using const_iterator = typename CacheEntries::const_iterator;
-    using Found = QmlDesigner::Found<const_iterator>;
 
     StorageCache(Storage storage, std::size_t reserveSize = 1024)
         : m_storage{std::move(storage)}
@@ -125,7 +122,7 @@ public:
     void uncheckedPopulate(CacheEntries &&entries)
     {
         std::sort(entries.begin(), entries.end(), [](ViewType first, ViewType second) {
-            return compare(first, second) < 0;
+            return compare(first, second);
         });
 
         m_entries = std::move(entries);
@@ -148,7 +145,7 @@ public:
 
     void add(std::vector<ViewType> &&views)
     {
-        auto less = [](ViewType first, ViewType second) { return compare(first, second) < 0; };
+        auto less = [](ViewType first, ViewType second) { return compare(first, second); };
 
         std::sort(views.begin(), views.end(), less);
 
@@ -199,22 +196,20 @@ public:
     {
         std::shared_lock<Mutex> sharedLock(m_mutex);
 
-        Found found = find(view);
+        auto found = find(view);
 
-        if (found.wasFound)
-            return found.iterator->id;
+        if (found != m_entries.end())
+            return found->id;
 
         sharedLock.unlock();
         std::lock_guard<Mutex> exclusiveLock(m_mutex);
 
         if (!std::is_base_of<NonLockingMutex, Mutex>::value)
             found = find(view);
-        if (!found.wasFound) {
-            IndexType index = insertEntry(found.iterator, view, m_storage.fetchId(view));
-            found.iterator = m_entries.begin() + index;
-        }
+        if (found == m_entries.end())
+            found = insertEntry(found, view, m_storage.fetchId(view));
 
-        return found.iterator->id;
+        return found->id;
     }
 
     template<typename Container>
@@ -244,12 +239,11 @@ public:
 
         sharedLock.unlock();
         std::lock_guard<Mutex> exclusiveLock(m_mutex);
-        IndexType index;
 
         Type value{m_storage.fetchValue(id)};
-        index = insertEntry(find(value).iterator, value, id);
+        auto interator = insertEntry(find(value), value, id);
 
-        return std::move(m_entries[index].value);
+        return interator->value;
     }
 
     std::vector<ResultType> values(const std::vector<IndexType> &ids) const
@@ -280,9 +274,17 @@ private:
             m_indices[current->id] = std::distance(begin, current);
     }
 
-    Found find(ViewType view)
+    auto find(ViewType view)
     {
-        return findInSorted(m_entries.cbegin(), m_entries.cend(), view, compare);
+        auto found = std::lower_bound(m_entries.begin(), m_entries.end(), view, compare);
+
+        if (found == m_entries.end())
+            return m_entries.end();
+
+        if (*found == view)
+            return found;
+
+        return m_entries.end();
     }
 
     void incrementLargerOrEqualIndicesByOne(IndexType newIndex)
@@ -301,7 +303,7 @@ private:
             m_indices.resize(id + 1, -1);
     }
 
-    IndexType insertEntry(const_iterator beforeIterator, ViewType view, IndexType id)
+    auto insertEntry(const_iterator beforeIterator, ViewType view, IndexType id)
     {
         auto inserted = m_entries.emplace(beforeIterator, view, id);
 
@@ -312,7 +314,7 @@ private:
         ensureSize(id);
         m_indices.at(id) = newIndex;
 
-        return newIndex;
+        return inserted;
     }
 
     void checkEntries()
