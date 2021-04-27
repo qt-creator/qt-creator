@@ -123,7 +123,9 @@
 #include <coreplugin/imode.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/locator/directoryfilter.h>
+#include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/outputpane.h>
 #include <coreplugin/vcsmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
@@ -796,7 +798,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     Context projectTreeContext(Constants::C_PROJECT_TREE);
 
-    dd->m_projectsMode.setWidget(dd->m_proWindow);
+    auto splitter = new MiniSplitter(Qt::Vertical);
+    splitter->addWidget(dd->m_proWindow);
+    splitter->addWidget(new OutputPanePlaceHolder(Constants::MODE_SESSION, splitter));
+    dd->m_projectsMode.setWidget(splitter);
     dd->m_projectsMode.setEnabled(false);
 
     ICore::addPreCloseListener([]() -> bool { return coreAboutToClose(); });
