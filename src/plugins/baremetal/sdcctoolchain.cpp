@@ -313,8 +313,10 @@ SdccToolChainFactory::SdccToolChainFactory()
     setUserCreatable(true);
 }
 
-QList<ToolChain *> SdccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
+QList<ToolChain *> SdccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown,
+                                                    const IDevice::Ptr &device)
 {
+    Q_UNUSED(device)
     Candidates candidates;
 
     if (Utils::HostOsInfo::isWindowsHost()) {

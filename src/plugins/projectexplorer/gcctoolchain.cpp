@@ -998,7 +998,8 @@ GccToolChainFactory::GccToolChainFactory()
     setUserCreatable(true);
 }
 
-QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
+QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown,
+                                                   const IDevice::Ptr &device)
 {
     // GCC is almost never what you want on macOS, but it is by default found in /usr/bin
     if (HostOsInfo::isMacHost())
@@ -1010,9 +1011,11 @@ QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alr
                 && tc->compilerCommand().fileName() != "c99-gcc";
     };
     tcs.append(autoDetectToolchains("g++", DetectVariants::Yes, Constants::CXX_LANGUAGE_ID,
-                                    Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown, tcChecker));
+                                    Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown,
+                                    device, tcChecker));
     tcs.append(autoDetectToolchains("gcc", DetectVariants::Yes, Constants::C_LANGUAGE_ID,
-                                    Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown, tcChecker));
+                                    Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown,
+                                    device, tcChecker));
     return tcs;
 }
 
@@ -1032,10 +1035,16 @@ QList<ToolChain *> GccToolChainFactory::detectForImport(const ToolChainDescripti
 }
 
 QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(
-        const QString &compilerName, DetectVariants detectVariants, Utils::Id language,
-        const Utils::Id requiredTypeId, const QList<ToolChain *> &alreadyKnown,
+        const QString &compilerName,
+        DetectVariants detectVariants,
+        const Id language,
+        const Id requiredTypeId,
+        const QList<ToolChain *> &alreadyKnown,
+        const IDevice::Ptr &device,
         const ToolchainChecker &checker)
 {
+    Q_UNUSED(device)
+
     FilePaths compilerPaths;
     QFileInfo fi(compilerName);
     if (fi.isAbsolute()) {
@@ -1123,8 +1132,8 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(
             }
         }
         if (!alreadyExists) {
-            const QList<ToolChain *> newToolchains = autoDetectToolChain({compilerPath, language},
-                                                                         checker);
+            const QList<ToolChain *> newToolchains
+                    = autoDetectToolChain({compilerPath, language}, checker);
             result << newToolchains;
             existingCandidates << newToolchains;
         }
@@ -1591,15 +1600,16 @@ ClangToolChainFactory::ClangToolChainFactory()
     setToolchainConstructor([] { return new ClangToolChain; });
 }
 
-QList<ToolChain *> ClangToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
+QList<ToolChain *> ClangToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown,
+                                                     const IDevice::Ptr &device)
 {
     QList<ToolChain *> tcs;
     QList<ToolChain *> known = alreadyKnown;
 
     tcs.append(autoDetectToolchains("clang++", DetectVariants::Yes, Constants::CXX_LANGUAGE_ID,
-                                    Constants::CLANG_TOOLCHAIN_TYPEID, alreadyKnown));
+                                    Constants::CLANG_TOOLCHAIN_TYPEID, alreadyKnown, device));
     tcs.append(autoDetectToolchains("clang", DetectVariants::Yes, Constants::C_LANGUAGE_ID,
-                                    Constants::CLANG_TOOLCHAIN_TYPEID, alreadyKnown));
+                                    Constants::CLANG_TOOLCHAIN_TYPEID, alreadyKnown, device));
     known.append(tcs);
 
     const FilePath compilerPath = FilePath::fromString(Core::ICore::clangExecutable(CLANG_BINDIR));
@@ -1608,7 +1618,7 @@ QList<ToolChain *> ClangToolChainFactory::autoDetect(const QList<ToolChain *> &a
                     HostOsInfo::withExecutableSuffix("clang"));
         tcs.append(autoDetectToolchains(clang.toString(), DetectVariants::No,
                                         Constants::C_LANGUAGE_ID, Constants::CLANG_TOOLCHAIN_TYPEID,
-                                        tcs));
+                                        tcs, device));
     }
 
     return tcs;
@@ -1779,16 +1789,17 @@ MingwToolChainFactory::MingwToolChainFactory()
     setToolchainConstructor([] { return new MingwToolChain; });
 }
 
-QList<ToolChain *> MingwToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
+QList<ToolChain *> MingwToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown,
+                                                     const IDevice::Ptr &device)
 {
     static const auto tcChecker = [](const ToolChain *tc) {
         return tc->targetAbi().osFlavor() == Abi::WindowsMSysFlavor;
     };
     QList<ToolChain *> result = autoDetectToolchains(
                 "g++", DetectVariants::Yes, Constants::CXX_LANGUAGE_ID,
-                Constants::MINGW_TOOLCHAIN_TYPEID, alreadyKnown, tcChecker);
+                Constants::MINGW_TOOLCHAIN_TYPEID, alreadyKnown, device, tcChecker);
     result += autoDetectToolchains("gcc", DetectVariants::Yes, Constants::C_LANGUAGE_ID,
-                                   Constants::MINGW_TOOLCHAIN_TYPEID, alreadyKnown, tcChecker);
+                                   Constants::MINGW_TOOLCHAIN_TYPEID, alreadyKnown, device, tcChecker);
     return result;
 }
 
@@ -1860,13 +1871,14 @@ LinuxIccToolChainFactory::LinuxIccToolChainFactory()
     setToolchainConstructor([] { return new LinuxIccToolChain; });
 }
 
-QList<ToolChain *> LinuxIccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
+QList<ToolChain *> LinuxIccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown,
+                                                        const IDevice::Ptr &device)
 {
     QList<ToolChain *> result
             = autoDetectToolchains("icpc", DetectVariants::No, Constants::CXX_LANGUAGE_ID,
-                                   Constants::LINUXICC_TOOLCHAIN_TYPEID, alreadyKnown);
+                                   Constants::LINUXICC_TOOLCHAIN_TYPEID, alreadyKnown, device);
     result += autoDetectToolchains("icc", DetectVariants::Yes, Constants::C_LANGUAGE_ID,
-                                   Constants::LINUXICC_TOOLCHAIN_TYPEID, alreadyKnown);
+                                   Constants::LINUXICC_TOOLCHAIN_TYPEID, alreadyKnown, device);
     return result;
 }
 

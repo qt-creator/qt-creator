@@ -488,9 +488,11 @@ const QList<ToolChainFactory *> ToolChainFactory::allToolChainFactories()
     return Internal::g_toolChainFactories;
 }
 
-QList<ToolChain *> ToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
+QList<ToolChain *> ToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown,
+                                                const IDevice::Ptr &device)
 {
     Q_UNUSED(alreadyKnown)
+    Q_UNUSED(device)
     return {};
 }
 

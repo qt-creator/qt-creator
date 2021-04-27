@@ -213,8 +213,11 @@ QnxToolChainFactory::QnxToolChainFactory()
 }
 
 QList<ProjectExplorer::ToolChain *> QnxToolChainFactory::autoDetect(
-       const QList<ProjectExplorer::ToolChain *> &alreadyKnown)
+        const QList<ProjectExplorer::ToolChain *> &alreadyKnown,
+        const IDevice::Ptr &device)
 {
+    Q_UNUSED(device);
+
     QList<ToolChain *> tcs;
     QList<QnxConfiguration *> configurations =
             QnxConfigurationManager::instance()->configurations();

@@ -39,7 +39,8 @@ class NimToolChainFactory : public ProjectExplorer::ToolChainFactory
 public:
     NimToolChainFactory();
 
-    QList<ProjectExplorer::ToolChain *> autoDetect(const QList<ProjectExplorer::ToolChain *> &alreadyKnown) final;
+    QList<ProjectExplorer::ToolChain *> autoDetect(const QList<ProjectExplorer::ToolChain *> &alreadyKnown,
+                                                   const ProjectExplorer::IDevice::Ptr &device) final;
     QList<ProjectExplorer::ToolChain *> detectForImport(const ProjectExplorer::ToolChainDescription &tcd) final;
 };
 

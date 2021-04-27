@@ -413,7 +413,7 @@ void ToolChainOptionsWidget::redetectToolchains()
     QList<ToolChain *> toAdd;
     QSet<ToolChain *> toDelete;
     for (ToolChainFactory *f : ToolChainFactory::allToolChainFactories()) {
-        for (ToolChain * const tc : f->autoDetect(knownTcs)) {
+        for (ToolChain * const tc : f->autoDetect(knownTcs, {})) {  // FIXME: Pass device.
             if (knownTcs.contains(tc) || toDelete.contains(tc))
                 continue;
             const auto matchItem = [tc](const ToolChainTreeItem *item) {

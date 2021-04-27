@@ -435,8 +435,10 @@ IarToolChainFactory::IarToolChainFactory()
     setUserCreatable(true);
 }
 
-QList<ToolChain *> IarToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
+QList<ToolChain *> IarToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown,
+                                                   const IDevice::Ptr &device)
 {
+    Q_UNUSED(device);
     Candidates candidates;
 
 #ifdef Q_OS_WIN

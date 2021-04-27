@@ -52,15 +52,17 @@ class GccToolChainFactory : public ToolChainFactory
 public:
     GccToolChainFactory();
 
-    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
-    QList<ToolChain *> detectForImport(const ProjectExplorer::ToolChainDescription &tcd) override;
+    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown,
+                                  const IDevice::Ptr &device) override;
+    QList<ToolChain *> detectForImport(const ToolChainDescription &tcd) override;
 
 protected:
     enum class DetectVariants { Yes, No };
     using ToolchainChecker = std::function<bool(const ToolChain *)>;
     QList<ToolChain *> autoDetectToolchains(
-            const QString &compilerName, DetectVariants detectVariants, Utils::Id language,
+            const QString &compilerName, DetectVariants detectVariants, const Utils::Id language,
             const Utils::Id requiredTypeId, const QList<ToolChain *> &alreadyKnown,
+            const ProjectExplorer::IDevice::Ptr &device,
             const ToolchainChecker &checker = {});
     QList<ToolChain *> autoDetectToolChain(
             const ToolChainDescription &tcd,
@@ -132,7 +134,8 @@ class ClangToolChainFactory : public GccToolChainFactory
 public:
     ClangToolChainFactory();
 
-    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
+    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown,
+                                  const IDevice::Ptr &device) override;
     QList<ToolChain *> detectForImport(const ToolChainDescription &tcd) final;
 };
 
@@ -145,7 +148,8 @@ class MingwToolChainFactory : public GccToolChainFactory
 public:
     MingwToolChainFactory();
 
-    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
+    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown,
+                                  const IDevice::Ptr &device) override;
     QList<ToolChain *> detectForImport(const ToolChainDescription &tcd) final;
 };
 
@@ -158,7 +162,7 @@ class LinuxIccToolChainFactory : public GccToolChainFactory
 public:
     LinuxIccToolChainFactory();
 
-    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
+    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown, const IDevice::Ptr &) override;
     QList<ToolChain *> detectForImport(const ToolChainDescription &tcd) final;
 };
 

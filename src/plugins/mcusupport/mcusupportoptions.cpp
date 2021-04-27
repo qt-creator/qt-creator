@@ -419,7 +419,7 @@ static ToolChain *iarToolChain(Id language)
             return f->supportedToolChainType() == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID;
         });
         if (iarFactory) {
-            const QList<ToolChain*> detected = iarFactory->autoDetect(QList<ToolChain*>());
+            const QList<ToolChain*> detected = iarFactory->autoDetect({}, {});
             for (auto tc: detected) {
                 if (tc->language() == language) {
                     toolChain = tc;

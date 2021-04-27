@@ -49,8 +49,10 @@ NimToolChainFactory::NimToolChainFactory()
     setUserCreatable(true);
 }
 
-QList<ToolChain *> NimToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
+QList<ToolChain *> NimToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown,
+                                                   const IDevice::Ptr &device)
 {
+    Q_UNUSED(device);
     QList<ToolChain *> result;
 
     Environment systemEnvironment = Environment::systemEnvironment();

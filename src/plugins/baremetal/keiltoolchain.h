@@ -92,7 +92,8 @@ public:
     KeilToolChainFactory();
 
     QList<ProjectExplorer::ToolChain *> autoDetect(
-            const QList<ProjectExplorer::ToolChain *> &alreadyKnown) final;
+            const QList<ProjectExplorer::ToolChain *> &alreadyKnown,
+            const ProjectExplorer::IDevice::Ptr &device) final;
 
 private:
     QList<ProjectExplorer::ToolChain *> autoDetectToolchains(const Candidates &candidates,

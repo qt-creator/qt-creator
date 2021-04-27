@@ -67,11 +67,12 @@ struct ToolChainOperations
     QList<ToolChain *> toDelete;
 };
 
-static QList<ToolChain *> autoDetectToolChains(const QList<ToolChain *> alreadyKnownTcs)
+static QList<ToolChain *> autoDetectToolChains(const QList<ToolChain *> alreadyKnownTcs,
+                                               const IDevice::Ptr &device)
 {
     QList<ToolChain *> result;
     for (ToolChainFactory *f : ToolChainFactory::allToolChainFactories())
-        result.append(f->autoDetect(alreadyKnownTcs));
+        result.append(f->autoDetect(alreadyKnownTcs, device));
 
     // Remove invalid toolchains that might have sneaked in.
     return Utils::filtered(result, [](const ToolChain *tc) { return tc->isValid(); });
@@ -203,7 +204,8 @@ QList<ToolChain *> ToolChainSettingsAccessor::restoreToolChains(QWidget *parent)
     // Autodetect: Pass autodetected toolchains from user file so the information can be reused:
     const QList<ToolChain *> autodetectedUserFileTcs
             = Utils::filtered(userFileTcs, &ToolChain::isAutoDetected);
-    const QList<ToolChain *> autodetectedTcs = autoDetectToolChains(autodetectedUserFileTcs);
+    // FIXME: Use real device?
+    const QList<ToolChain *> autodetectedTcs = autoDetectToolChains(autodetectedUserFileTcs, {});
 
     // merge tool chains and register those that we need to keep:
     const ToolChainOperations ops = mergeToolChainLists(systemFileTcs, userFileTcs, autodetectedTcs);

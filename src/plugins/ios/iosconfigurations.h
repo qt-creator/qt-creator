@@ -98,7 +98,9 @@ class IosToolChainFactory : public ProjectExplorer::ToolChainFactory
 public:
     IosToolChainFactory();
 
-    QList<ProjectExplorer::ToolChain *> autoDetect(const QList<ProjectExplorer::ToolChain *> &existingToolChains) override;
+    QList<ProjectExplorer::ToolChain *> autoDetect(
+            const QList<ProjectExplorer::ToolChain *> &existingToolChains,
+            const ProjectExplorer::IDevice::Ptr &device) override;
 };
 
 class IosConfigurations : public QObject

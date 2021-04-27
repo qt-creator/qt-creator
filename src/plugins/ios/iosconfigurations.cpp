@@ -580,8 +580,10 @@ IosToolChainFactory::IosToolChainFactory()
                            ProjectExplorer::Constants::CXX_LANGUAGE_ID});
 }
 
-QList<ToolChain *> IosToolChainFactory::autoDetect(const QList<ToolChain *> &existingToolChains)
+QList<ToolChain *> IosToolChainFactory::autoDetect(const QList<ToolChain *> &existingToolChains,
+                                                  const IDevice::Ptr &device)
 {
+    Q_UNUSED(device);
     QList<ClangToolChain *> existingClangToolChains = clangToolChains(existingToolChains);
     const QList<XcodePlatform> platforms = XcodeProbe::detectPlatforms().values();
     QList<ToolChain *> toolChains;

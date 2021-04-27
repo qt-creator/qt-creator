@@ -605,8 +605,10 @@ static QString extractVersion(const QString &toolsFile, const QString &section)
     return {};
 }
 
-QList<ToolChain *> KeilToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
+QList<ToolChain *> KeilToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown,
+                                                    const IDevice::Ptr &device)
 {
+    Q_UNUSED(device)
 #ifdef Q_OS_WIN64
     static const char kRegistryNode[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\" \
                                         "Windows\\CurrentVersion\\Uninstall\\Keil µVision4";

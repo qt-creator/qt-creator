@@ -28,6 +28,7 @@
 #include "projectexplorer_export.h"
 
 #include "abi.h"
+#include "devicesupport/idevice.h"
 #include "headerpath.h"
 #include "projectmacro.h"
 #include "task.h"
@@ -202,7 +203,8 @@ public:
     QString displayName() const { return m_displayName; }
     Utils::Id supportedToolChainType() const;
 
-    virtual QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown);
+    virtual QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown,
+                                          const IDevice::Ptr &device);
     virtual QList<ToolChain *> detectForImport(const ToolChainDescription &tcd);
 
     virtual bool canCreate() const;

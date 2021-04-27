@@ -71,7 +71,8 @@ public:
     QnxToolChainFactory();
 
     QList<ProjectExplorer::ToolChain *> autoDetect(
-            const QList<ProjectExplorer::ToolChain *> &alreadyKnown) override;
+            const QList<ProjectExplorer::ToolChain *> &alreadyKnown,
+            const ProjectExplorer::IDevice::Ptr &device) final;
 };
 
 //----------------------------------------------------------------------------

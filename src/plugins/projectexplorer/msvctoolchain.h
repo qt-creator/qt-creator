@@ -187,7 +187,8 @@ class MsvcToolChainFactory : public ToolChainFactory
 public:
     MsvcToolChainFactory();
 
-    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
+    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown,
+                                  const IDevice::Ptr &device) override;
 
     bool canCreate() const override;
 
@@ -201,7 +202,8 @@ class ClangClToolChainFactory : public ToolChainFactory
 public:
     ClangClToolChainFactory();
 
-    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
+    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown,
+                                  const IDevice::Ptr &device) override;
 
     bool canCreate() const override;
 };

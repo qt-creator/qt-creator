@@ -128,7 +128,7 @@ void WebAssemblyToolChain::registerToolChains()
             return f->supportedToolChainType() == Constants::WEBASSEMBLY_TOOLCHAIN_TYPEID;
     });
     QTC_ASSERT(factory, return);
-    for (auto toolChain : factory->autoDetect({}))
+    for (auto toolChain : factory->autoDetect({}, {}))
         ToolChainManager::registerToolChain(toolChain);
 
     // Let kits pick up the new toolchains
@@ -158,9 +158,11 @@ WebAssemblyToolChainFactory::WebAssemblyToolChainFactory()
 }
 
 QList<ToolChain *> WebAssemblyToolChainFactory::autoDetect(
-        const QList<ToolChain *> &alreadyKnown)
+        const QList<ToolChain *> &alreadyKnown,
+        const IDevice::Ptr &device)
 {
     Q_UNUSED(alreadyKnown)
+    Q_UNUSED(device)
 
     const FilePath sdk = WebAssemblyEmSdk::registeredEmSdk();
     if (!WebAssemblyEmSdk::isValid(sdk))
