@@ -1,20 +1,23 @@
+#include "utils/fileutils.h"
+
 #include <QDir>
+
 
 namespace Core {
 namespace ICore {
-inline static QString userResourcePath()
+inline static Utils::FilePath userResourcePath()
 {
-     return QDir::tempPath();
+     return Utils::FilePath::fromString(QDir::tempPath());
 }
 
-inline static QString cacheResourcePath()
+inline static Utils::FilePath cacheResourcePath(const QString & /*rel*/ = {})
 {
-    return QDir::tempPath();
+    return Utils::FilePath::fromString(QDir::tempPath());
 }
 
-inline static QString resourcePath()
+inline static Utils::FilePath resourcePath()
 {
-    return QDir::tempPath();
+    return Utils::FilePath::fromString(QDir::tempPath());
 }
 
 } // namespace ICore
