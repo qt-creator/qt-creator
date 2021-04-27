@@ -63,16 +63,14 @@ public:
 template<typename Type,
          typename ViewType,
          typename IndexType,
+         typename Storage,
          typename Mutex,
          typename Compare,
          Compare compare = Utils::compare,
-         typename CacheEntry = StorageCacheEntry<Type, ViewType, IndexType>,
-         typename FetchValue = std::function<Type(IndexType)>,
-         typename FetchId = std::function<IndexType(ViewType)>>
+         typename CacheEntry = StorageCacheEntry<Type, ViewType, IndexType>>
 class StorageCache
 {
-    template<typename T, typename V, typename I, typename M, typename C, C c, typename CE, typename, typename>
-    friend class StorageCache;
+    friend StorageCache;
 
     using ResultType = std::conditional_t<std::is_base_of<NonLockingMutex, Mutex>::value, ViewType, Type>;
 
@@ -82,9 +80,8 @@ public:
     using const_iterator = typename CacheEntries::const_iterator;
     using Found = QmlDesigner::Found<const_iterator>;
 
-    StorageCache(FetchValue fetchValue, FetchId fetchId, std::size_t reserveSize = 1024)
-        : m_fetchValue{std::move(fetchValue)}
-        , m_fetchId{std::move(fetchId)}
+    StorageCache(Storage storage, std::size_t reserveSize = 1024)
+        : m_storage{std::move(storage)}
     {
         m_entries.reserve(reserveSize);
         m_indices.reserve(reserveSize);
@@ -165,7 +162,7 @@ public:
                             m_entries.begin(),
                             m_entries.end(),
                             Utils::make_iterator([&](ViewType newView) {
-                                IndexType index = m_fetchId(newView);
+                                IndexType index = m_storage.fetchId(newView);
                                 newCacheEntries.emplace_back(newView, index);
                             }),
                             less);
@@ -213,7 +210,7 @@ public:
         if (!std::is_base_of<NonLockingMutex, Mutex>::value)
             found = find(view);
         if (!found.wasFound) {
-            IndexType index = insertEntry(found.iterator, view, m_fetchId(view));
+            IndexType index = insertEntry(found.iterator, view, m_storage.fetchId(view));
             found.iterator = m_entries.begin() + index;
         }
 
@@ -249,7 +246,7 @@ public:
         std::lock_guard<Mutex> exclusiveLock(m_mutex);
         IndexType index;
 
-        Type value{m_fetchValue(id)};
+        Type value{m_storage.fetchValue(id)};
         index = insertEntry(find(value).iterator, value, id);
 
         return std::move(m_entries[index].value);
@@ -330,8 +327,7 @@ private:
     CacheEntries m_entries;
     std::vector<IndexType> m_indices;
     mutable Mutex m_mutex;
-    FetchValue m_fetchValue;
-    FetchId m_fetchId;
+    Storage m_storage;
 };
 
 } // namespace QmlDesigner

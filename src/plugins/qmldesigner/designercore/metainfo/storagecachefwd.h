@@ -31,14 +31,6 @@ namespace QmlDesigner {
 
 class NonLockingMutex;
 
-template<typename Type,
-         typename ViewType,
-         typename IndexType,
-         typename Mutex,
-         typename Compare,
-         Compare compare,
-         typename CacheEntry,
-         typename FetchValue,
-         typename FetchId>
+template<typename Type, typename ViewType, typename IndexType, typename Storage, typename Mutex, typename Compare, Compare compare, typename CacheEntry>
 class StorageCache;
 } // namespace QmlDesigner

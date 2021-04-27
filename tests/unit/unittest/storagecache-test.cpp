@@ -42,12 +42,21 @@ using uint64 = unsigned long long;
 using QmlDesigner::findInSorted;
 using Utils::compare;
 using Utils::reverseCompare;
-using StorageIdFunction = std::function<int(Utils::SmallStringView)>;
-using StorageStringFunction = std::function<Utils::PathString(int)>;
+
+class StorageAdapter
+{
+public:
+    auto fetchId(Utils::SmallStringView view) { return storage.fetchDirectoryId(view); }
+
+    auto fetchValue(int id) { return storage.fetchDirectoryPath(id); }
+
+    MockFilePathStorage &storage;
+};
 
 using CacheWithMockLocking = QmlDesigner::StorageCache<Utils::PathString,
                                                        Utils::SmallStringView,
                                                        int,
+                                                       StorageAdapter,
                                                        NiceMock<MockMutex>,
                                                        decltype(&Utils::reverseCompare),
                                                        Utils::reverseCompare>;
@@ -55,6 +64,7 @@ using CacheWithMockLocking = QmlDesigner::StorageCache<Utils::PathString,
 using CacheWithoutLocking = QmlDesigner::StorageCache<Utils::PathString,
                                                       Utils::SmallStringView,
                                                       int,
+                                                      StorageAdapter,
                                                       NiceMock<MockMutexNonLocking>,
                                                       decltype(&Utils::reverseCompare),
                                                       Utils::reverseCompare>;
@@ -87,11 +97,8 @@ protected:
 protected:
     NiceMock<SqliteDatabaseMock> databaseMock;
     NiceMock<MockFilePathStorage> mockStorage{databaseMock};
-    StorageIdFunction mockStorageFetchDirectyId{
-        [&](Utils::SmallStringView string) { return mockStorage.fetchDirectoryId(string); }};
-    StorageStringFunction mockStorageFetchDirectyPath{
-        [&](int id) { return mockStorage.fetchDirectoryPath(id); }};
-    Cache cache{mockStorageFetchDirectyPath, mockStorageFetchDirectyId};
+    StorageAdapter storageAdapter{mockStorage};
+    Cache cache{storageAdapter};
     typename Cache::MutexType &mockMutex = cache.mutex();
     Utils::PathString filePath1{"/file/pathOne"};
     Utils::PathString filePath2{"/file/pathTwo"};
