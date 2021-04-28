@@ -307,7 +307,7 @@ ScrollView {
 
             Connections {
                 target: root.model
-                onModelReset: {
+                function onModelReset() {
                     tooltip.hoveredNode = null;
                     tooltip.selectedNode = null;
                 }

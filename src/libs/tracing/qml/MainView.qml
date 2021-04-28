@@ -51,12 +51,12 @@ Rectangle {
     // ***** connections with external objects
     Connections {
         target: zoomControl
-        onRangeChanged: {
+        function onRangeChanged() {
             zoomSliderToolBar.updateZoomLevel();
             content.scroll();
             selectionRange.update();
         }
-        onWindowChanged: {
+        function onWindowChanged() {
             content.scroll();
         }
     }

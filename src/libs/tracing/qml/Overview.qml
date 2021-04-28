@@ -70,7 +70,7 @@ Rectangle {
 
     Connections {
         target: zoomer
-        onRangeChanged: updateRangeMover()
+        function onRangeChanged() { updateRangeMover(); }
     }
 
     TimeDisplay {

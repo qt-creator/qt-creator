@@ -148,7 +148,7 @@ Item {
         property int currentNote: -1
         Connections {
             target: notesModel
-            onChanged: {
+            function onChanged(typeId, modelId, timelineIndex) {
                 // This will only be called if notesModel != null.
                 if (modelId === -1 || modelId === model.modelId) {
                     var notes = notesModel.byTimelineModel(model.modelId);

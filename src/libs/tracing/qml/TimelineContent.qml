@@ -135,8 +135,8 @@ Flickable {
 
                 Connections {
                     target: timelineView
-                    onClearChildren: renderer.clearData()
-                    onSelect: {
+                    function onClearChildren() { renderer.clearData(); }
+                    function onSelect(modelIndex, eventIndex) {
                         if (modelIndex === index || modelIndex === -1) {
                             renderer.selectedItem = eventIndex;
                             if (eventIndex !== -1)
@@ -167,7 +167,7 @@ Flickable {
 
                 Connections {
                     target: model
-                    onDetailsChanged: {
+                    function onDetailsChanged() {
                         if (selectedItem != -1) {
                             flick.propagateSelection(-1, -1);
                             flick.propagateSelection(index, selectedItem);

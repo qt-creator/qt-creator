@@ -48,8 +48,8 @@ Item {
     // keep inside view
     Connections {
         target: selectionRangeDetails.parent
-        onWidthChanged: fitInView();
-        onHeightChanged: fitInView();
+        function onWidthChanged() { fitInView(); }
+        function onHeightChanged() { fitInView(); }
     }
 
     function fitInView() {

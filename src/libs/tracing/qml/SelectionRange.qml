@@ -68,7 +68,7 @@ RangeMover {
 
     Connections {
         target: zoomer
-        onWindowChanged: updateRange()
+        function onWindowChanged() { updateRange(); }
     }
 
     function setPos(pos) {
