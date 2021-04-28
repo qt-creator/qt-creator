@@ -318,7 +318,8 @@ IEditor *GitGrep::openEditor(const SearchResultItem &item,
     const QString topLevel = parameters.additionalParameters.toString();
     IEditor *editor = m_client->openShowEditor(
                 topLevel, params.ref, path, GitClient::ShowEditor::OnlyIfDifferent);
-    editor->gotoLine(item.mainRange().begin.line, item.mainRange().begin.column);
+    if (editor)
+        editor->gotoLine(item.mainRange().begin.line, item.mainRange().begin.column);
     return editor;
 }
 
