@@ -31,6 +31,7 @@
 #include <utils/variant.h>
 
 #include <QChar>
+#include <QCoreApplication>
 #include <QList>
 #include <QString>
 
