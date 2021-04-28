@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,31 +25,49 @@
 
 #pragma once
 
+#include <cstdint>
+#include <tuple>
+#include <vector>
+
 namespace QmlDesigner {
 
-template<typename Type, typename ViewType, typename IndexType>
-class StorageCacheEntry
+class SourceId
 {
 public:
-    StorageCacheEntry(ViewType value, IndexType id)
-        : value(value)
-        , id(id)
+    constexpr SourceId() = default;
+
+    SourceId(const char *) = delete;
+
+    explicit SourceId(int id)
+        : id(id)
     {}
 
-    StorageCacheEntry(ViewType value, typename IndexType::DatabaseType id)
-        : value(value)
-        , id{id}
-    {}
+    bool isValid() const { return id >= 0; }
 
-    operator ViewType() const { return value; }
-    friend bool operator==(const StorageCacheEntry &first, const StorageCacheEntry &second)
+    friend bool operator==(SourceId first, SourceId second)
     {
-        return first.id == second.id && first.value == second.value;
+        return first.isValid() && first.id == second.id;
     }
 
+    friend bool operator!=(SourceId first, SourceId second) { return !(first == second); }
+
+    friend bool operator<(SourceId first, SourceId second) { return first.id < second.id; }
+
 public:
-    Type value;
-    IndexType id;
+    int id = -1;
 };
 
+using SourceIds = std::vector<SourceId>;
+
 } // namespace QmlDesigner
+
+namespace std {
+template<>
+struct hash<QmlDesigner::SourceId>
+{
+    using argument_type = QmlDesigner::SourceId;
+    using result_type = std::size_t;
+    result_type operator()(const argument_type &id) const { return std::hash<int>{}(id.id); }
+};
+
+} // namespace std

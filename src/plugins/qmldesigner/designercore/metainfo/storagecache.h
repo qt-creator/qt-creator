@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "projectstorageids.h"
 #include "storagecacheentry.h"
 #include "storagecachefwd.h"
 
@@ -51,8 +52,8 @@ class NonLockingMutex
 {
 public:
     constexpr NonLockingMutex() noexcept {}
-    NonLockingMutex(const NonLockingMutex&) = delete;
-    NonLockingMutex& operator=(const NonLockingMutex&) = delete;
+    NonLockingMutex(const NonLockingMutex &) = delete;
+    NonLockingMutex &operator=(const NonLockingMutex &) = delete;
     void lock() {}
     void unlock() {}
     void lock_shared() {}
@@ -71,6 +72,57 @@ class StorageCache
     friend StorageCache;
 
     using ResultType = std::conditional_t<std::is_base_of<NonLockingMutex, Mutex>::value, ViewType, Type>;
+    using IndexDatabaseType = typename IndexType::DatabaseType;
+    class StorageCacheIndex
+    {
+    public:
+        constexpr explicit StorageCacheIndex() = default;
+
+        StorageCacheIndex(const char *) = delete;
+
+        constexpr explicit StorageCacheIndex(int id)
+            : id{id}
+        {}
+
+        constexpr explicit StorageCacheIndex(std::size_t id)
+            : id{static_cast<int>(id)}
+        {}
+
+        constexpr explicit StorageCacheIndex(std::ptrdiff_t id)
+            : id{static_cast<int>(id)}
+        {}
+
+        constexpr StorageCacheIndex operator=(std::ptrdiff_t newId)
+        {
+            id = static_cast<int>(newId);
+
+            return *this;
+        }
+
+        constexpr StorageCacheIndex operator+(int amount) { return StorageCacheIndex{id + amount}; }
+
+        constexpr friend bool operator==(StorageCacheIndex first, StorageCacheIndex second)
+        {
+            return first.id == second.id && first.isValid() && second.isValid();
+        }
+
+        constexpr friend bool operator<(StorageCacheIndex first, StorageCacheIndex second)
+        {
+            return first.id < second.id;
+        }
+
+        constexpr friend bool operator>=(StorageCacheIndex first, StorageCacheIndex second)
+        {
+            return first.id >= second.id;
+        }
+
+        constexpr bool isValid() const { return id >= 0; }
+
+        explicit operator std::size_t() const { return static_cast<std::size_t>(id); }
+
+    public:
+        int id = -1;
+    };
 
 public:
     using MutexType = Mutex;
@@ -127,7 +179,7 @@ public:
 
         m_entries = std::move(entries);
 
-        int max_id = 0;
+        std::size_t max_id = 0;
 
         auto found = std::max_element(m_entries.begin(),
                                       m_entries.end(),
@@ -136,9 +188,9 @@ public:
                                       });
 
         if (found != m_entries.end())
-            max_id = found->id + 1;
+            max_id = static_cast<std::size_t>(found->id) + 1;
 
-        m_indices.resize(max_id, -1);
+        m_indices.resize(max_id);
 
         updateIndices();
     }
@@ -171,10 +223,10 @@ public:
                                               return first.id < second.id;
                                           });
 
-            int max_id = found->id + 1;
+            auto max_id = static_cast<std::size_t>(found->id) + 1;
 
-            if (max_id > int(m_indices.size()))
-                m_indices.resize(max_id, -1);
+            if (max_id > m_indices.size())
+                m_indices.resize(max_id);
 
             CacheEntries mergedCacheEntries;
             mergedCacheEntries.reserve(newCacheEntries.size() + m_entries.size());
@@ -234,8 +286,11 @@ public:
     {
         std::shared_lock<Mutex> sharedLock(m_mutex);
 
-        if (IndexType(m_indices.size()) > id && m_indices.at(id) >= 0)
-            return m_entries.at(m_indices.at(id)).value;
+        if (IndexType{static_cast<IndexDatabaseType>(m_indices.size())} > id) {
+            if (auto indirectionIndex = m_indices.at(static_cast<std::size_t>(id));
+                indirectionIndex.isValid())
+                return m_entries.at(static_cast<std::size_t>(indirectionIndex)).value;
+        }
 
         sharedLock.unlock();
         std::lock_guard<Mutex> exclusiveLock(m_mutex);
@@ -253,25 +308,23 @@ public:
         std::vector<ResultType> values;
         values.reserve(ids.size());
 
-        for (IndexType id : ids)
-            values.emplace_back(m_entries.at(m_indices.at(id)).value);
-
+        for (IndexType id : ids) {
+            values.emplace_back(
+                m_entries.at(static_cast<std::size_t>(m_indices.at(static_cast<std::size_t>(id)))).value);
+        }
         return values;
     }
 
     bool isEmpty() const { return m_entries.empty() && m_indices.empty(); }
 
-    Mutex &mutex() const
-    {
-        return m_mutex;
-    }
+    Mutex &mutex() const { return m_mutex; }
 
 private:
     void updateIndices()
     {
         auto begin = m_entries.cbegin();
         for (auto current = begin; current != m_entries.cend(); ++current)
-            m_indices[current->id] = std::distance(begin, current);
+            m_indices[static_cast<std::size_t>(current->id)] = std::distance(begin, current);
     }
 
     auto find(ViewType view)
@@ -287,32 +340,30 @@ private:
         return m_entries.end();
     }
 
-    void incrementLargerOrEqualIndicesByOne(IndexType newIndex)
+    void incrementLargerOrEqualIndicesByOne(StorageCacheIndex newIndirectionIndex)
     {
-        std::transform(m_indices.begin(),
-                       m_indices.end(),
-                       m_indices.begin(),
-                       [&] (IndexType index) {
-            return index >= newIndex ? ++index : index;
+        std::transform(m_indices.begin(), m_indices.end(), m_indices.begin(), [&](StorageCacheIndex index) {
+            return index >= newIndirectionIndex ? index + 1 : index;
         });
     }
 
-    void ensureSize(IndexType id)
+    void ensureSize(std::size_t size)
     {
-        if (m_indices.size() <= std::size_t(id))
-            m_indices.resize(id + 1, -1);
+        if (m_indices.size() <= size)
+            m_indices.resize(size + 1);
     }
 
     auto insertEntry(const_iterator beforeIterator, ViewType view, IndexType id)
     {
         auto inserted = m_entries.emplace(beforeIterator, view, id);
 
-        auto newIndex = IndexType(std::distance(m_entries.begin(), inserted));
+        StorageCacheIndex newIndirectionIndex{std::distance(m_entries.begin(), inserted)};
 
-        incrementLargerOrEqualIndicesByOne(newIndex);
+        incrementLargerOrEqualIndicesByOne(newIndirectionIndex);
 
-        ensureSize(id);
-        m_indices.at(id) = newIndex;
+        auto indirectionIndex = static_cast<std::size_t>(id);
+        ensureSize(indirectionIndex);
+        m_indices.at(indirectionIndex) = newIndirectionIndex;
 
         return inserted;
     }
@@ -327,7 +378,7 @@ private:
 
 private:
     CacheEntries m_entries;
-    std::vector<IndexType> m_indices;
+    std::vector<StorageCacheIndex> m_indices;
     mutable Mutex m_mutex;
     Storage m_storage;
 };

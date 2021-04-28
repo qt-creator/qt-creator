@@ -23,33 +23,13 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "sqlitereadwritestatementmock.h"
 
-namespace QmlDesigner {
+#include "sqlitedatabasemock.h"
 
-template<typename Type, typename ViewType, typename IndexType>
-class StorageCacheEntry
+SqliteReadWriteStatementMockBase::SqliteReadWriteStatementMockBase(Utils::SmallStringView sqlStatement,
+                                                                   SqliteDatabaseMock &databaseMock)
+    : sqlStatement{sqlStatement}
 {
-public:
-    StorageCacheEntry(ViewType value, IndexType id)
-        : value(value)
-        , id(id)
-    {}
-
-    StorageCacheEntry(ViewType value, typename IndexType::DatabaseType id)
-        : value(value)
-        , id{id}
-    {}
-
-    operator ViewType() const { return value; }
-    friend bool operator==(const StorageCacheEntry &first, const StorageCacheEntry &second)
-    {
-        return first.id == second.id && first.value == second.value;
-    }
-
-public:
-    Type value;
-    IndexType id;
-};
-
-} // namespace QmlDesigner
+    databaseMock.prepare(sqlStatement);
+}

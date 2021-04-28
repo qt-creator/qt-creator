@@ -374,9 +374,23 @@ std::ostream &operator<<(std::ostream &out, const Diagnostic &diag);
 namespace QmlDesigner {
 class ModelNode;
 class VariantProperty;
+template<auto Type, typename InternalIntergerType>
+class BasicId;
 
 std::ostream &operator<<(std::ostream &out, const ModelNode &node);
 std::ostream &operator<<(std::ostream &out, const VariantProperty &property);
+
+template<auto Type, typename InternalIntergerType>
+std::ostream &operator<<(std::ostream &out, const BasicId<Type, InternalIntergerType> &id)
+{
+    return out << "(" << &id << ")";
+}
+
+namespace Sources {
+class SourceContext;
+
+std::ostream &operator<<(std::ostream &out, const SourceContext &sourceContext);
+} // namespace Sources
 
 namespace Internal {
 class ImageCacheStorageImageEntry;

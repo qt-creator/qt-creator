@@ -144,7 +144,11 @@ SOURCES += \
     sqlstatementbuilder-test.cpp \
     createtablesqlstatementbuilder-test.cpp \
     sqlitereadstatementmock.cpp \
-    sqlitewritestatementmock.cpp
+    sqlitewritestatementmock.cpp \
+    sqlitereadwritestatementmock.cpp \
+    sourcepath-test.cpp \
+    sourcepathview-test.cpp \
+    projectstorage-test.cpp
 
 !isEmpty(QTC_UNITTEST_BUILD_CPP_PARSER):SOURCES += matchingtext-test.cpp
 
@@ -319,7 +323,9 @@ HEADERS += \
     sqlitereadstatementmock.h \
     sqlitestatementmock.h \
     sqlitetransactionbackendmock.h \
-    sqlitewritestatementmock.h
+    sqlitewritestatementmock.h \
+    sqlitereadwritestatementmock.h \
+    projectstoragemock.h
 
 
 !isEmpty(LIBCLANG_LIBS) {

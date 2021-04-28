@@ -47,6 +47,7 @@
 #include <filepathview.h>
 #include <filestatus.h>
 #include <includesearchpath.h>
+#include <metainfo/projectstoragetypes.h>
 #include <modelnode.h>
 #include <nativefilepath.h>
 #include <pchpaths.h>
@@ -1570,6 +1571,13 @@ std::ostream &operator<<(std::ostream &out, const VariantProperty &property)
     return out << "(" << property.parentModelNode() << ", " << property.name() << ", "
                << property.value() << ")";
 }
+namespace Sources {
+
+std::ostream &operator<<(std::ostream &out, const SourceContext &sourceContext)
+{
+    return out << "(" << sourceContext.id << ", " << sourceContext.value << ")";
+}
+} // namespace Sources
 
 namespace Internal {
 std::ostream &operator<<(std::ostream &out, const ImageCacheStorageImageEntry &entry)

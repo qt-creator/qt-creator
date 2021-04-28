@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,31 +25,44 @@
 
 #pragma once
 
+#include <exception>
+
 namespace QmlDesigner {
 
-template<typename Type, typename ViewType, typename IndexType>
-class StorageCacheEntry
+class NoFilePathForInvalidFilePathId : std::exception
 {
 public:
-    StorageCacheEntry(ViewType value, IndexType id)
-        : value(value)
-        , id(id)
-    {}
-
-    StorageCacheEntry(ViewType value, typename IndexType::DatabaseType id)
-        : value(value)
-        , id{id}
-    {}
-
-    operator ViewType() const { return value; }
-    friend bool operator==(const StorageCacheEntry &first, const StorageCacheEntry &second)
+    const char *what() const noexcept override
     {
-        return first.id == second.id && first.value == second.value;
+        return "You cannot get a file path for an invalid file path id!";
     }
+};
 
+class NoSourceContextPathForInvalidSourceContextId : std::exception
+{
 public:
-    Type value;
-    IndexType id;
+    const char *what() const noexcept override
+    {
+        return "You cannot get a directory path for an invalid directory path id!";
+    }
+};
+
+class SourceContextIdDoesNotExists : std::exception
+{
+public:
+    const char *what() const noexcept override
+    {
+        return "The source context id does not exist in the database!";
+    }
+};
+
+class SourceIdDoesNotExists : std::exception
+{
+public:
+    const char *what() const noexcept override
+    {
+        return "The source id does not exist in the database!";
+    }
 };
 
 } // namespace QmlDesigner

@@ -28,6 +28,7 @@
 #include "googletest.h"
 
 #include "sqlitereadstatementmock.h"
+#include "sqlitereadwritestatementmock.h"
 #include "sqlitetransactionbackendmock.h"
 #include "sqlitewritestatementmock.h"
 
@@ -43,6 +44,8 @@ public:
     template<int ResultCount>
     using ReadStatement = NiceMock<SqliteReadStatementMock<ResultCount>>;
     using WriteStatement = NiceMock<SqliteWriteStatementMock>;
+    template<int ResultCount>
+    using ReadWriteStatement = NiceMock<SqliteReadWriteStatementMock<ResultCount>>;
 
     MOCK_METHOD(void, prepare, (Utils::SmallStringView sqlStatement), ());
 

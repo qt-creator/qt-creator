@@ -42,6 +42,8 @@ public:
 
     MOCK_METHOD(void, write, (Utils::SmallStringView), ());
     MOCK_METHOD(void, write, (long long), ());
+    MOCK_METHOD(void, write, (long long, long long), ());
+    MOCK_METHOD(void, write, (Utils::SmallStringView, long long), ());
     MOCK_METHOD(void, write, (Utils::SmallStringView, Utils::SmallStringView), ());
     MOCK_METHOD(void, write, (long long, Utils::SmallStringView), ());
     MOCK_METHOD(void,

@@ -29,11 +29,13 @@
 
 #include <cpptools/usages.h>
 #include <filepathstoragesources.h>
+#include <metainfo/projectstoragetypes.h>
 #include <pchpaths.h>
 #include <projectpartartefact.h>
 #include <projectpartcontainer.h>
 #include <projectpartpch.h>
 #include <projectpartstoragestructs.h>
+#include <projectstorageids.h>
 #include <sourceentry.h>
 #include <sourcelocations.h>
 #include <sqliteblob.h>
@@ -160,6 +162,33 @@ public:
                 valuesReturnPrecompiledHeaderTimeStamps,
                 (int projectPartId));
 
+    MOCK_METHOD(QmlDesigner::TypeId, valueReturnsTypeId, (Utils::SmallStringView name), ());
+    MOCK_METHOD(QmlDesigner::TypeId, valueWithTransactionReturnsTypeId, (long long, long long), ());
+    MOCK_METHOD(QmlDesigner::PropertyDeclarationId,
+                valueWithTransactionReturnsPropertyDeclarationId,
+                (long long, Utils::SmallStringView),
+                ());
+    MOCK_METHOD((std::tuple<QmlDesigner::PropertyDeclarationId, QmlDesigner::TypeId>),
+                valueReturnsPropertyDeclaration,
+                (long long, Utils::SmallStringView),
+                ());
+
+    MOCK_METHOD(std::vector<QmlDesigner::Sources::SourceContext>,
+                valuesReturnSourcesSourceContexts,
+                (std::size_t),
+                ());
+
+    MOCK_METHOD(std::vector<QmlDesigner::Sources::Source>, valuesReturnSourcesSources, (std::size_t), ());
+
+    MOCK_METHOD(QmlDesigner::Sources::SourceNameAndSourceContextId,
+                valueReturnSourcesSourceNameAndSourceContextId,
+                (int) );
+
+    MOCK_METHOD(QmlDesigner::SourceContextId, valueReturnsSourceContextId, (Utils::SmallStringView), ());
+    MOCK_METHOD(QmlDesigner::SourceContextId, valueWithTransactionReturnsSourceContextId, (int), ());
+
+    MOCK_METHOD(QmlDesigner::SourceId, valueReturnsSourceId, (int, Utils::SmallStringView), ());
+
     template<typename ResultType, typename... QueryTypes>
     auto optionalValue(const QueryTypes &...queryValues)
     {
@@ -199,8 +228,38 @@ public:
     template<typename ResultType, typename... QueryTypes>
     auto value(const QueryTypes &...queryValues)
     {
-        static_assert(!std::is_same_v<ResultType, ResultType>,
-                      "SqliteReadStatementMock::value does not handle result type!");
+        if constexpr (std::is_same_v<ResultType, QmlDesigner::TypeId>)
+            return valueReturnsTypeId(queryValues...);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::PropertyDeclarationId>)
+            return valueReturnsPropertyDeclarationId(queryValues...);
+        else if constexpr (std::is_same_v<ResultType,
+                                          std::tuple<QmlDesigner::PropertyDeclarationId, QmlDesigner::TypeId>>)
+            return valueReturnsPropertyDeclaration(queryValues...);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Sources::SourceNameAndSourceContextId>)
+            return valueReturnSourcesSourceNameAndSourceContextId(queryValues...);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::SourceContextId>)
+            return valueReturnsSourceContextId(queryValues...);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::SourceId>)
+            return valueReturnsSourceId(queryValues...);
+        else
+            static_assert(!std::is_same_v<ResultType, ResultType>,
+                          "SqliteReadStatementMock::value does not handle result type!");
+    }
+    template<typename ResultType, typename... QueryTypes>
+    auto valueWithTransaction(const QueryTypes &...queryValues)
+    {
+        if constexpr (std::is_same_v<ResultType, QmlDesigner::TypeId>)
+            return valueWithTransactionReturnsTypeId(queryValues...);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::PropertyDeclarationId>)
+            return valueWithTransactionReturnsPropertyDeclarationId(queryValues...);
+        else if constexpr (std::is_same_v<ResultType,
+                                          std::tuple<QmlDesigner::PropertyDeclarationId, QmlDesigner::TypeId>>)
+            return valueReturnsPropertyDeclaration(queryValues...);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::SourceContextId>)
+            return valueWithTransactionReturnsSourceContextId(queryValues...);
+        else
+            static_assert(!std::is_same_v<ResultType, ResultType>,
+                          "SqliteReadStatementMock::value does not handle result type!");
     }
 
     template<typename ResultType, typename... QueryTypes>
@@ -240,9 +299,27 @@ public:
             return valuesReturnSourceEntries(reserveSize, queryValues...);
         else if constexpr (std::is_same_v<ResultType, SourceTimeStamp>)
             return valuesReturnSourceTimeStamps(reserveSize, queryValues...);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Sources::SourceContext>)
+            return valuesReturnSourcesSourceContexts(reserveSize);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Sources::Source>)
+            return valuesReturnSourcesSources(reserveSize);
         else
             static_assert(!std::is_same_v<ResultType, ResultType>,
                           "SqliteReadStatementMock::values does not handle result type!");
+    }
+
+    template<typename ResultType, typename... QueryTypes>
+    auto range(const QueryTypes &...queryValues)
+    {
+        static_assert(!std::is_same_v<ResultType, ResultType>,
+                      "SqliteReadStatementMock::values does not handle result type!");
+    }
+
+    template<typename ResultType, typename... QueryTypes>
+    auto rangeWithTransaction(const QueryTypes &...queryValues)
+    {
+        static_assert(!std::is_same_v<ResultType, ResultType>,
+                      "SqliteReadStatementMock::values does not handle result type!");
     }
 
 public:
