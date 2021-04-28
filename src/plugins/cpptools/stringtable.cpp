@@ -35,6 +35,10 @@
 #include <QThreadPool>
 #include <QTimer>
 
+#ifdef WITH_TESTS
+#include <extensionsystem/pluginmanager.h>
+#endif
+
 using namespace CppTools::Internal;
 
 enum {
@@ -145,6 +149,13 @@ static inline bool isQStringInUse(const QString &string)
 
 void StringTablePrivate::GC(QFutureInterface<void> &futureInterface)
 {
+#ifdef WITH_TESTS
+    if (ExtensionSystem::PluginManager::isScenarioRunning("TestStringTable")) {
+        if (ExtensionSystem::PluginManager::finishScenario())
+            QThread::currentThread()->sleep(5);
+    }
+#endif
+
     int initialSize = 0;
     QElapsedTimer timer;
     if (DebugStringTable) {

@@ -156,7 +156,7 @@ FORMS += \
     testsettingspage.ui
 
 equals(TEST, 1) {
-    HEADERS += autotestunittests.h
-    SOURCES += autotestunittests.cpp
+    HEADERS += autotestunittests.h loadprojectscenario.h
+    SOURCES += autotestunittests.cpp loadprojectscenario.cpp
     RESOURCES += autotestunittests.qrc
 }

@@ -80,5 +80,7 @@ add_qtc_plugin(AutoTest
 
 extend_qtc_plugin(AutoTest
   CONDITION WITH_TESTS
-  SOURCES autotestunittests.cpp autotestunittests.h
+  SOURCES
+    autotestunittests.cpp autotestunittests.h
+    loadprojectscenario.cpp loadprojectscenario.h
 )

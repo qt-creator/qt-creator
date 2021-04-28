@@ -79,6 +79,7 @@
 
 #ifdef WITH_TESTS
 #include "autotestunittests.h"
+#include "loadprojectscenario.h"
 #endif
 
 using namespace Core;
@@ -111,6 +112,9 @@ public:
     TestTreeModel m_testTreeModel{&m_testCodeParser};
     TestRunner m_testRunner;
     TestFrameworkManager m_frameworkManager;
+#ifdef WITH_TESTS
+    LoadProjectScenario m_loadProjectScenario{&m_testTreeModel};
+#endif
 };
 
 static AutotestPluginPrivate *dd = nullptr;
@@ -273,6 +277,10 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
     Q_UNUSED(errorString)
 
     dd = new AutotestPluginPrivate;
+#ifdef WITH_TESTS
+    ExtensionSystem::PluginManager::registerScenario("TestStringTable",
+                   [this]() { return dd->m_loadProjectScenario(); });
+#endif
     return true;
 }
 

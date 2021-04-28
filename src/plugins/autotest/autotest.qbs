@@ -133,6 +133,8 @@ QtcPlugin {
             "autotestunittests.cpp",
             "autotestunittests.h",
             "autotestunittests.qrc",
+            "loadprojectscenario.cpp",
+            "loadprojectscenario.h",
         ]
     }
 
