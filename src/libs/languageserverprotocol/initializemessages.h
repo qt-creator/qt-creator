@@ -136,6 +136,17 @@ public:
     bool parametersAreValid(QString * /*errorMessage*/) const final { return true; }
 };
 
+class LANGUAGESERVERPROTOCOL_EXPORT ServerInfo : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+
+    QString name() const { return typedValue<QString>(nameKey); }
+    Utils::optional<QString> version() const { return optionalValue<QString>(versionKey); }
+
+    bool isValid() const override { return contains(nameKey); }
+};
+
 class LANGUAGESERVERPROTOCOL_EXPORT InitializeResult : public JsonObject
 {
 public:
@@ -145,6 +156,9 @@ public:
     { return typedValue<ServerCapabilities>(capabilitiesKey); }
     void setCapabilities(const ServerCapabilities &capabilities)
     { insert(capabilitiesKey, capabilities); }
+
+    Utils::optional<ServerInfo> serverInfo() const
+    { return optionalValue<ServerInfo>(serverInfoKey); }
 
     bool isValid() const override { return contains(capabilitiesKey); }
 };

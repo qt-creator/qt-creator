@@ -1347,6 +1347,17 @@ void Client::initializeCallback(const InitializeRequest::Response &initResponse)
             log(QJsonDocument(result).toJson(QJsonDocument::Indented) + '\n'
                 + tr("Initialize result is not valid"));
         }
+        const Utils::optional<ServerInfo> serverInfo = result.serverInfo();
+        if (serverInfo) {
+            if (!serverInfo->isValid()) {
+                log(QJsonDocument(result).toJson(QJsonDocument::Indented) + '\n'
+                    + tr("Server Info is not valid"));
+            } else {
+                m_serverName = serverInfo->name();
+                if (const Utils::optional<QString> version = serverInfo->version())
+                    m_serverVersion = version.value();
+            }
+        }
 
         m_serverCapabilities = result.capabilities();
     }

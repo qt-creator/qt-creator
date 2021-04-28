@@ -190,6 +190,7 @@ constexpr char semanticHighlightingCapabilitiesKey[] = "semanticHighlightingCapa
 constexpr char semanticHighlightingKey[] = "semanticHighlighting";
 constexpr char semanticTokensKey[] = "semanticTokens";
 constexpr char semanticTokensProviderKey[] = "semanticTokensProvider";
+constexpr char serverInfoKey[] = "serverInfo";
 constexpr char settingsKey[] = "settings";
 constexpr char severityKey[] = "severity";
 constexpr char signatureHelpKey[] = "signatureHelp";

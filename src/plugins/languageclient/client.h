@@ -116,6 +116,8 @@ public:
     static LanguageServerProtocol::ClientCapabilities defaultClientCapabilities();
     void setClientCapabilities(const LanguageServerProtocol::ClientCapabilities &caps);
     const LanguageServerProtocol::ServerCapabilities &capabilities() const;
+    QString serverName() const { return m_serverName; }
+    QString serverVersion() const { return m_serverVersion; }
     const DynamicCapabilities &dynamicCapabilities() const;
     void registerCapabilities(const QList<LanguageServerProtocol::Registration> &registrations);
     void unregisterCapabilities(const QList<LanguageServerProtocol::Unregistration> &unregistrations);
@@ -259,6 +261,8 @@ private:
     ProgressManager m_progressManager;
     bool m_activateDocAutomatically = false;
     SemanticTokenSupport m_tokentSupport;
+    QString m_serverName;
+    QString m_serverVersion;
     bool m_locatorsEnabled = true;
 };
 
