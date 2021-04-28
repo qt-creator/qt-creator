@@ -32,6 +32,7 @@
 
 #include <QAbstractSocket>
 #include <QCoreApplication>
+#include <QDir>
 #include <QList>
 #include <QObject>
 #include <QSharedPointer>
@@ -48,10 +49,13 @@ QT_END_NAMESPACE
 namespace QSsh { class SshConnectionParameters; }
 
 namespace Utils {
+class CommandLine;
 class Environment;
+class FilePath;
 class Icon;
 class PortList;
 class Port;
+class QtcProcess;
 } // Utils
 
 namespace ProjectExplorer {
@@ -223,6 +227,29 @@ public:
 
     bool isEmptyCommandAllowed() const;
     void setAllowEmptyCommand(bool allow);
+
+    bool isWindowsDevice() const { return osType() == Utils::OsTypeWindows; }
+    bool isLinuxDevice() const { return osType() == Utils::OsTypeLinux; }
+    bool isMacDevice() const { return osType() == Utils::OsTypeMac; }
+    bool isAnyUnixDevice() const;
+
+    virtual Utils::FilePath mapToGlobalPath(const Utils::FilePath &pathOnDevice) const;
+
+    virtual bool handlesFile(const Utils::FilePath &filePath) const;
+    virtual bool isExecutableFile(const Utils::FilePath &filePath) const;
+    virtual bool isReadableFile(const Utils::FilePath &filePath) const;
+    virtual bool isReadableDirectory(const Utils::FilePath &filePath) const;
+    virtual bool isWritableDirectory(const Utils::FilePath &filePath) const;
+    virtual bool createDirectory(const Utils::FilePath &filePath) const;
+    virtual QList<Utils::FilePath> directoryEntries(const Utils::FilePath &filePath,
+                                                    const QStringList &nameFilters,
+                                                    QDir::Filters filters) const;
+    virtual QByteArray fileContents(const Utils::FilePath &filePath, int limit) const;
+    virtual void runProcess(Utils::QtcProcess &process) const;
+    virtual int runSynchronously(const Utils::CommandLine &cmd,
+                                 QByteArray *out = nullptr,
+                                 QByteArray *err = nullptr) const;
+    virtual Utils::Environment systemEnvironment() const;
 
 protected:
     IDevice();

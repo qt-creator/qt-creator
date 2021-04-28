@@ -97,6 +97,7 @@
  * Creates an identical copy of a device object.
  */
 
+using namespace Utils;
 
 static Utils::Id newId()
 {
@@ -198,6 +199,97 @@ bool IDevice::isEmptyCommandAllowed() const
 void IDevice::setAllowEmptyCommand(bool allow)
 {
     d->emptyCommandAllowed = allow;
+}
+
+bool IDevice::isAnyUnixDevice() const
+{
+    return d->osType == OsTypeLinux || d->osType == OsTypeMac || d->osType == OsTypeOtherUnix;
+}
+
+FilePath IDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
+{
+    return pathOnDevice;
+}
+
+bool IDevice::handlesFile(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath);
+    return false;
+}
+
+bool IDevice::isExecutableFile(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath);
+    QTC_CHECK(false);
+    return false;
+}
+
+bool IDevice::isReadableFile(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath);
+    QTC_CHECK(false);
+    return false;
+}
+
+bool IDevice::isReadableDirectory(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath);
+    QTC_CHECK(false);
+    return false;
+}
+
+bool IDevice::isWritableDirectory(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath);
+    QTC_CHECK(false);
+    return false;
+}
+
+bool IDevice::createDirectory(const Utils::FilePath &filePath) const
+{
+    Q_UNUSED(filePath);
+    QTC_CHECK(false);
+    return false;
+}
+
+QList<FilePath> IDevice::directoryEntries(const FilePath &filePath,
+                                          const QStringList &nameFilters,
+                                          QDir::Filters filters) const
+{
+    Q_UNUSED(filePath);
+    Q_UNUSED(nameFilters);
+    Q_UNUSED(filters);
+    QTC_CHECK(false);
+    return {};
+}
+
+QByteArray IDevice::fileContents(const FilePath &filePath, int limit) const
+{
+    Q_UNUSED(filePath);
+    Q_UNUSED(limit);
+    QTC_CHECK(false);
+    return {};
+}
+
+void IDevice::runProcess(QtcProcess &process) const
+{
+    Q_UNUSED(process);
+    QTC_CHECK(false);
+}
+
+int IDevice::runSynchronously(const CommandLine &cmd, QByteArray *out, QByteArray *err) const
+{
+    Q_UNUSED(cmd);
+    Q_UNUSED(out);
+    Q_UNUSED(err);
+    QTC_CHECK(false);
+    return 0;
+}
+
+Environment IDevice::systemEnvironment() const
+{
+    QTC_CHECK(false);
+    return Environment::systemEnvironment();
 }
 
 IDevice::~IDevice() = default;
