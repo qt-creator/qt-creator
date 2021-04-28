@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 env:
   QT_VERSION: 5.15.2
-  CLANG_VERSION: 110
+  CLANG_VERSION: 120
   ELFUTILS_VERSION: 0.175
   CMAKE_VERSION: 3.18.3
   NINJA_VERSION: 1.10.1
@@ -35,7 +35,7 @@ jobs:
           }
         - {
             name: "Ubuntu Latest GCC", artifact: "Linux",
-            os: ubuntu-20.04,
+            os: ubuntu-latest,
             cc: "gcc", cxx: "g++"
           }
         - {
@@ -286,7 +286,7 @@ jobs:
             set(libclang "libclang-release_${clang_version}-based-windows-vs2019_32.7z")
           endif()
         elseif ("${{ runner.os }}" STREQUAL "Linux")
-          set(libclang "libclang-release_${clang_version}-based-linux-Ubuntu20.04-gcc9.3-x86_64.7z")
+          set(libclang "libclang-release_${clang_version}-based-linux-Ubuntu18.04-gcc9.3-x86_64.7z")
         elseif ("${{ runner.os }}" STREQUAL "macOS")
           set(libclang "libclang-release_${clang_version}-based-mac.7z")
         endif()
