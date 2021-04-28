@@ -41,6 +41,7 @@ const char *OptionsParser::NO_LOAD_OPTION = "-noload";
 const char *OptionsParser::LOAD_OPTION = "-load";
 const char *OptionsParser::TEST_OPTION = "-test";
 const char *OptionsParser::NOTEST_OPTION = "-notest";
+const char *OptionsParser::SCENARIO_OPTION = "-scenario";
 const char *OptionsParser::PROFILE_OPTION = "-profile";
 const char *OptionsParser::NO_CRASHCHECK_OPTION = "-no-crashcheck";
 
@@ -84,6 +85,8 @@ bool OptionsParser::parse()
             continue;
 #ifdef WITH_TESTS
         if (checkForTestOptions())
+            continue;
+        if (checkForScenarioOption())
             continue;
 #endif
         if (checkForAppOption())
@@ -160,6 +163,28 @@ bool OptionsParser::checkForTestOptions()
                     *m_errorString = QCoreApplication::translate("PluginManager",
                                                                  "The plugin \"%1\" does not exist.").arg(m_currentArg);
                 m_hasError = true;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
+bool OptionsParser::checkForScenarioOption()
+{
+    if (m_currentArg == QLatin1String(SCENARIO_OPTION)) {
+        if (nextToken(RequiredToken)) {
+            if (!m_pmPrivate->m_requestedScenario.isEmpty()) {
+                if (m_errorString) {
+                    *m_errorString = QCoreApplication::translate("PluginManager",
+                        "Can't request scenario \"%1\" as the scenario \"%1\" was already requested.")
+                        .arg(m_currentArg, m_pmPrivate->m_requestedScenario);
+                }
+                m_hasError = true;
+            } else {
+                // It's called before we register scenarios, so we don't check if the requested
+                // scenario was already registered yet.
+                m_pmPrivate->m_requestedScenario = m_currentArg;
             }
         }
         return true;

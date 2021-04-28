@@ -121,6 +121,18 @@ public:
 
     static bool testRunRequested();
 
+#ifdef WITH_TESTS
+    static bool registerScenario(const QString &scenarioId, std::function<bool()> scenarioStarter);
+    static bool isScenarioRequested();
+    static bool runScenario();
+    static bool isScenarioRunning(const QString &scenarioId);
+    // static void triggerScenarioPoint(const QVariant pointData); // ?? called from scenario point
+    static bool finishScenario();
+    static void waitForScenarioFullyInitialized();
+    // signals:
+    // void scenarioPointTriggered(const QVariant pointData); // ?? e.g. in StringTable::GC() -> post a call to quit into main thread and sleep for 5 seconds in the GC thread
+#endif
+
     static void profilingReport(const char *what, const PluginSpec *spec = nullptr);
 
     static QString platformName();
@@ -139,6 +151,7 @@ signals:
     void pluginsChanged();
     void initializationDone();
     void testsFinished(int failedTests);
+    void scenarioFinished(int exitCode);
 
     friend class Internal::PluginManagerPrivate;
 };

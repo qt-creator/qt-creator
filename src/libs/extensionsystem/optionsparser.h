@@ -48,6 +48,7 @@ public:
     static const char *LOAD_OPTION;
     static const char *TEST_OPTION;
     static const char *NOTEST_OPTION;
+    static const char *SCENARIO_OPTION;
     static const char *PROFILE_OPTION;
     static const char *NO_CRASHCHECK_OPTION;
 
@@ -58,6 +59,7 @@ private:
     bool checkForLoadOption();
     bool checkForNoLoadOption();
     bool checkForTestOptions();
+    bool checkForScenarioOption();
     bool checkForAppOption();
     bool checkForPluginOption();
     bool checkForProfilingOption();

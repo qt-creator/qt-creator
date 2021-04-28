@@ -30,11 +30,13 @@
 #include <utils/algorithm.h>
 
 #include <QElapsedTimer>
+#include <QMutex>
 #include <QObject>
 #include <QReadWriteLock>
 #include <QScopedPointer>
 #include <QSet>
 #include <QStringList>
+#include <QWaitCondition>
 
 #include <queue>
 
@@ -142,6 +144,14 @@ public:
 
     bool m_isInitializationDone = false;
     bool enableCrashCheck = true;
+
+    QHash<QString, std::function<bool()>> m_scenarios;
+    QString m_requestedScenario;
+    std::atomic_bool m_isScenarioRunning = false; // if it's running, the running one is m_requestedScenario
+    std::atomic_bool m_isScenarioFinished = false; // if it's running, the running one is m_requestedScenario
+    bool m_scenarioFullyInitialized = false;
+    QMutex m_scenarioMutex;
+    QWaitCondition m_scenarioWaitCondition;
 
 private:
     PluginManager *q;

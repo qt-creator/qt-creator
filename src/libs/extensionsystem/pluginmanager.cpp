@@ -61,6 +61,7 @@
 #ifdef WITH_TESTS
 #include <utils/hostosinfo.h>
 #include <QTest>
+#include <QThread>
 #endif
 
 #include <functional>
@@ -748,6 +749,9 @@ void PluginManager::formatOptions(QTextStream &str, int optionIndentation, int d
     formatOption(str, QString::fromLatin1(OptionsParser::NOTEST_OPTION),
                  QLatin1String("plugin"), QLatin1String("Exclude all of the plugin's tests from the test run"),
                  optionIndentation, descriptionIndentation);
+    formatOption(str, QString::fromLatin1(OptionsParser::SCENARIO_OPTION),
+                 QString("scenarioname"), QLatin1String("Run given scenario"),
+                 optionIndentation, descriptionIndentation);
 #endif
 }
 
@@ -786,6 +790,96 @@ bool PluginManager::testRunRequested()
 {
     return !d->testSpecs.empty();
 }
+
+#ifdef WITH_TESTS
+// Called in plugin initialization, the scenario function will be called later, from main
+bool PluginManager::registerScenario(const QString &scenarioId, std::function<bool()> scenarioStarter)
+{
+    if (d->m_scenarios.contains(scenarioId)) {
+        const QString warning = QString("Can't register scenario \"%1\" as the other scenario was "
+                    "already registered with this name.").arg(scenarioId);
+        qWarning("%s", qPrintable(warning));
+        return false;
+    }
+
+    d->m_scenarios.insert(scenarioId, scenarioStarter);
+    return true;
+}
+
+// Called from main
+bool PluginManager::isScenarioRequested()
+{
+    return !d->m_requestedScenario.isEmpty();
+}
+
+// Called from main (may be squashed with the isScenarioRequested: runScenarioIfRequested).
+// Returns false if scenario couldn't run (e.g. no Qt version set)
+bool PluginManager::runScenario()
+{
+    if (d->m_isScenarioRunning) {
+        qWarning("Scenario is already running. Can't run scenario recursively.");
+        return false;
+    }
+
+    if (d->m_requestedScenario.isEmpty()) {
+        qWarning("Can't run any scenario since no scenario was requested.");
+        return false;
+    }
+
+    if (!d->m_scenarios.contains(d->m_requestedScenario)) {
+        const QString warning = QString("Requested scenario \"%1\" was not registered.").arg(d->m_requestedScenario);
+        qWarning("%s", qPrintable(warning));
+        return false;
+    }
+
+    d->m_isScenarioRunning = true;
+    // The return value comes now from scenarioStarted() function. It may fail e.g. when
+    // no Qt version is set. Initializing the scenario may take some time, that's why
+    // waitForScenarioFullyInitialized() was added.
+    bool ret = d->m_scenarios[d->m_requestedScenario]();
+
+    QMutexLocker locker(&d->m_scenarioMutex);
+    d->m_scenarioFullyInitialized = true;
+    d->m_scenarioWaitCondition.wakeAll();
+
+    return ret;
+}
+
+// Called from scenario point (and also from runScenario - don't run scenarios recursively).
+// This may be called from non-main thread. We assume that m_requestedScenario
+// may only be changed from the main thread.
+bool PluginManager::isScenarioRunning(const QString &scenarioId)
+{
+    return d->m_isScenarioRunning && d->m_requestedScenario == scenarioId;
+}
+
+// This may be called from non-main thread.
+bool PluginManager::finishScenario()
+{
+    if (!d->m_isScenarioRunning)
+        return false; // Can't finish not running scenario
+
+    if (d->m_isScenarioFinished.exchange(true))
+        return false; // Finish was already called before. We return false, as we didn't finish it right now.
+
+    QMetaObject::invokeMethod(d, []() { emit m_instance->scenarioFinished(0); });
+    return true; // Finished successfully.
+}
+
+// Waits until the running scenario is fully initialized
+void PluginManager::waitForScenarioFullyInitialized()
+{
+    if (QThread::currentThread() == qApp->thread()) {
+        qWarning("The waitForScenarioFullyInitialized() function can't be called from main thread.");
+        return;
+    }
+    QMutexLocker locker(&d->m_scenarioMutex);
+    if (d->m_scenarioFullyInitialized)
+        return;
+
+    d->m_scenarioWaitCondition.wait(&d->m_scenarioMutex);
+}
+#endif
 
 /*!
     \internal
@@ -867,6 +961,14 @@ void PluginManagerPrivate::nextDelayedInitialize()
 #ifdef WITH_TESTS
         if (PluginManager::testRunRequested())
             startTests();
+        else if (PluginManager::isScenarioRequested()) {
+            if (PluginManager::runScenario()) {
+                const QString info = QString("Successfully started scenario \"%1\"...").arg(d->m_requestedScenario);
+                qInfo("%s", qPrintable(info));
+            } else {
+                QMetaObject::invokeMethod(this, []() { emit m_instance->scenarioFinished(1); });
+            }
+        }
 #endif
     } else {
         delayedInitializeTimer->start();

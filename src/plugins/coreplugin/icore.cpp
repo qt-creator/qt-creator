@@ -210,6 +210,10 @@ ICore::ICore(MainWindow *mainwindow)
             qWarning("Test run was not successful: %d test(s) failed.", failedTests);
         QCoreApplication::exit(failedTests);
     });
+    connect(PluginManager::instance(), &PluginManager::scenarioFinished, [this] (int exitCode) {
+        emit coreAboutToClose();
+        QCoreApplication::exit(exitCode);
+    });
 }
 
 /*!
