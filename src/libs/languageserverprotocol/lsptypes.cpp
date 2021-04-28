@@ -312,6 +312,15 @@ Range::Range(const QTextCursor &cursor)
     setEnd(Position(line - 1, character - 1));
 }
 
+bool Range::contains(const Range &other) const
+{
+    if (start() > other.start())
+        return false;
+    if (end() < other.end())
+        return false;
+    return true;
+}
+
 bool Range::overlaps(const Range &range) const
 {
     return contains(range.start()) || contains(range.end());

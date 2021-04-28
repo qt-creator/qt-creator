@@ -90,10 +90,20 @@ public:
     QTextCursor toTextCursor(QTextDocument *doc) const;
 };
 
-static bool operator<=(const Position &first, const Position &second)
+inline bool operator<(const Position &first, const Position &second)
 {
     return first.line() < second.line()
-            || (first.line() == second.line() && first.character() <= second.character());
+            || (first.line() == second.line() && first.character() < second.character());
+}
+
+inline bool operator>(const Position &first, const Position &second)
+{
+    return second < first;
+}
+
+inline bool operator<=(const Position &first, const Position &second)
+{
+    return !(first > second);
 }
 
 class LANGUAGESERVERPROTOCOL_EXPORT Range : public JsonObject
@@ -113,6 +123,7 @@ public:
     void setEnd(const Position &end) { insert(endKey, end); }
 
     bool contains(const Position &pos) const { return start() <= pos && pos <= end(); }
+    bool contains(const Range &other) const;
     bool overlaps(const Range &range) const;
 
     bool isValid() const override
