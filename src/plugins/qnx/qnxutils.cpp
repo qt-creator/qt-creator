@@ -41,15 +41,15 @@
 #include <QApplication>
 
 using namespace ProjectExplorer;
-using namespace Qnx;
-using namespace Qnx::Internal;
+using namespace Utils;
 
-namespace {
+namespace Qnx {
+namespace Internal {
+
 const char *EVAL_ENV_VARS[] = {
     "QNX_TARGET", "QNX_HOST", "QNX_CONFIGURATION", "QNX_CONFIGURATION_EXCLUSIVE",
     "MAKEFLAGS", "LD_LIBRARY_PATH", "PATH", "QDE", "CPUVARDIR", "PYTHONPATH"
 };
-}
 
 QString QnxUtils::cpuDirFromAbi(const Abi &abi)
 {
@@ -79,18 +79,17 @@ QString QnxUtils::cpuDirShortDescription(const QString &cpuDir)
     return cpuDir;
 }
 
-Utils::EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const QString &fileName)
+EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const QString &fileName)
 {
-    Utils::EnvironmentItems items;
+    EnvironmentItems items;
 
     if (!QFileInfo::exists(fileName))
         return items;
 
-    const bool isWindows = Utils::HostOsInfo::isWindowsHost();
+    const bool isWindows = HostOsInfo::isWindowsHost();
 
     // locking creating sdp-env file wrapper script
-    Utils::TemporaryFile tmpFile(QString::fromLatin1("sdp-env-eval-XXXXXX")
-                                 + QString::fromLatin1(isWindows ? ".bat" : ".sh"));
+    TemporaryFile tmpFile("sdp-env-eval-XXXXXX" + QString::fromLatin1(isWindows ? ".bat" : ".sh"));
     if (!tmpFile.open())
         return items;
     tmpFile.setTextModeEnabled(true);
@@ -98,11 +97,11 @@ Utils::EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const QString &fileN
     // writing content to wrapper script
     QTextStream fileContent(&tmpFile);
     if (isWindows)
-        fileContent << QLatin1String("@echo off\n")
-                    << QLatin1String("call ") << fileName << QLatin1Char('\n');
+        fileContent << "@echo off\n"
+                    << "call " << fileName << '\n';
     else
-        fileContent << QLatin1String("#!/bin/bash\n")
-                    << QLatin1String(". ") << fileName << QLatin1Char('\n');
+        fileContent << "#!/bin/bash\n"
+                    << ". " << fileName << '\n';
     QString linePattern = QString::fromLatin1(isWindows ? "echo %1=%%1%" : "echo %1=$%1");
     for (int i = 0, len = sizeof(EVAL_ENV_VARS) / sizeof(const char *); i < len; ++i)
         fileContent << linePattern.arg(QLatin1String(EVAL_ENV_VARS[i])) << QLatin1Char('\n');
@@ -138,7 +137,7 @@ Utils::EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const QString &fileN
             continue;
         QString var = line.left(equalIndex);
         QString value = line.mid(equalIndex + 1);
-        items.append(Utils::EnvironmentItem(var, value));
+        items.append(EnvironmentItem(var, value));
     }
 
     return items;
@@ -148,7 +147,7 @@ QString QnxUtils::envFilePath(const QString &sdpPath)
 {
     QDir sdp(sdpPath);
     QStringList entries;
-    if (Utils::HostOsInfo::isWindowsHost())
+    if (HostOsInfo::isWindowsHost())
         entries = sdp.entryList(QStringList(QLatin1String("*-env.bat")));
     else
         entries = sdp.entryList(QStringList(QLatin1String("*-env.sh")));
@@ -162,7 +161,7 @@ QString QnxUtils::envFilePath(const QString &sdpPath)
 QString QnxUtils::defaultTargetVersion(const QString &sdpPath)
 {
     foreach (const ConfigInstallInformation &sdpInfo, installedConfigs()) {
-        if (!sdpInfo.path.compare(sdpPath, Utils::HostOsInfo::fileNameCaseSensitivity()))
+        if (!sdpInfo.path.compare(sdpPath, HostOsInfo::fileNameCaseSensitivity()))
             return sdpInfo.version;
     }
 
@@ -212,14 +211,13 @@ QList<ConfigInstallInformation> QnxUtils::installedConfigs(const QString &config
     return sdpList;
 }
 
-Utils::EnvironmentItems QnxUtils::qnxEnvironment(const QString &sdpPath)
+EnvironmentItems QnxUtils::qnxEnvironment(const QString &sdpPath)
 {
     return qnxEnvironmentFromEnvFile(envFilePath(sdpPath));
 }
 
-QList<QnxTarget> QnxUtils::findTargets(const Utils::FilePath &basePath)
+QList<QnxTarget> QnxUtils::findTargets(const FilePath &basePath)
 {
-    using namespace Utils;
     QList<QnxTarget> result;
 
     QDirIterator iterator(basePath.toString());
@@ -261,3 +259,6 @@ Abis QnxUtils::convertAbis(const Abis &abis)
 {
     return Utils::transform(abis, &QnxUtils::convertAbi);
 }
+
+} // Internal
+} // Qnx
