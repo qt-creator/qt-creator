@@ -183,11 +183,11 @@ static const QList<ToolChain *> preferredToolChains(const Kit *kit)
 
 FilePath MakeStep::defaultMakeCommand() const
 {
-    const Utils::Environment env = makeEnvironment();
+    const Environment env = makeEnvironment();
     for (const ToolChain *tc : preferredToolChains(kit())) {
         FilePath make = tc->makeCommand(env);
         if (!make.isEmpty())
-            return make;
+            return mapFromBuildDeviceToGlobalPath(make);
     }
     return {};
 }
