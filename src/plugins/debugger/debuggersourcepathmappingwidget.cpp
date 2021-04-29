@@ -34,7 +34,6 @@
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
-#include <utils/synchronousprocess.h>
 #include <utils/variablechooser.h>
 
 #include <QFileDialog>
@@ -444,11 +443,9 @@ static QString findQtInstallPath(const FilePath &qmakePath)
 {
     if (qmakePath.isEmpty())
         return QString();
-    QProcess proc;
-    QStringList args;
-    args.append("-query");
-    args.append("QT_INSTALL_HEADERS");
-    proc.start(qmakePath.toString(), args);
+    QtcProcess proc;
+    proc.setCommand({qmakePath, {"-query", "QT_INSTALL_HEADERS"}});
+    proc.start();
     if (!proc.waitForStarted()) {
         qWarning("%s: Cannot start '%s': %s", Q_FUNC_INFO, qPrintable(qmakePath.toString()),
            qPrintable(proc.errorString()));
@@ -456,7 +453,7 @@ static QString findQtInstallPath(const FilePath &qmakePath)
     }
     proc.closeWriteChannel();
     if (!proc.waitForFinished()) {
-        SynchronousProcess::stopProcess(proc);
+        proc.stopProcess();
         qWarning("%s: Timeout running '%s'.", Q_FUNC_INFO, qPrintable(qmakePath.toString()));
         return QString();
     }
