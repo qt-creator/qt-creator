@@ -32,10 +32,15 @@
 
 #include <projectexplorer/devicesupport/idevicewidget.h>
 #include <projectexplorer/runcontrol.h>
+#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainmanager.h>
+
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtversionfactory.h>
+#include <qtsupport/qtversionmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
-#include <utils/consoleprocess.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
@@ -43,17 +48,24 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
+#include <utils/temporaryfile.h>
 #include <utils/treemodel.h>
 
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QFileSystemWatcher>
 #include <QHeaderView>
 #include <QPushButton>
 #include <QTextBrowser>
+#include <QThread>
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace QtSupport;
 using namespace Utils;
+
+#define LOG(x)
+//#define LOG(x) qDebug() << x
 
 namespace Docker {
 namespace Internal {
@@ -83,8 +95,7 @@ public:
     qint64 write(const QByteArray &data) override { return m_process.write(data); }
 
 private:
-    QProcess m_process;
-    ConsoleProcess m_consoleProcess;
+    QtcProcess m_process;
 };
 
 DockerDeviceProcess::DockerDeviceProcess(const QSharedPointer<const IDevice> &device,
@@ -101,50 +112,27 @@ void DockerDeviceProcess::start(const Runnable &runnable)
 
     const QStringList dockerRunFlags = runnable.extraData[Constants::DOCKER_RUN_FLAGS].toStringList();
 
-    const DockerDeviceData &data = dockerDevice->data();
-    CommandLine cmd("docker");
-    cmd.addArg("run");
-    cmd.addArgs(dockerRunFlags);
-    cmd.addArg(data.imageId);
-    if (!runnable.executable.isEmpty())
-        cmd.addArgs(runnable.commandLine());
-
-    disconnect(&m_consoleProcess);
-    disconnect(&m_process);
-
-    if (runInTerminal()) {
-        connect(&m_consoleProcess, &ConsoleProcess::errorOccurred,
-                this, &DeviceProcess::error);
-        connect(&m_consoleProcess, &ConsoleProcess::processStarted,
-                this, &DeviceProcess::started);
-        connect(&m_consoleProcess, &ConsoleProcess::stubStopped,
-                this, &DeviceProcess::finished);
-
-        m_consoleProcess.setAbortOnMetaChars(false);
-        m_consoleProcess.setSettings(Core::ICore::settings());
-        m_consoleProcess.setEnvironment(runnable.environment);
-        m_consoleProcess.setCommand(cmd);
-        m_consoleProcess.start();
-    } else {
-        m_process.setProcessEnvironment(runnable.environment.toProcessEnvironment());
-        connect(&m_process, &QProcess::errorOccurred, this, &DeviceProcess::error);
-        connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                this, &DeviceProcess::finished);
-        connect(&m_process, &QProcess::readyReadStandardOutput,
-                this, &DeviceProcess::readyReadStandardOutput);
-        connect(&m_process, &QProcess::readyReadStandardError,
-                this, &DeviceProcess::readyReadStandardError);
-        connect(&m_process, &QProcess::started, this, &DeviceProcess::started);
-        m_process.setWorkingDirectory(runnable.workingDirectory);
-        m_process.start(cmd.executable().toString(), cmd.splitArguments());
-    }
-
     connect(this, &DeviceProcess::readyReadStandardOutput, this, [this] {
         MessageManager::writeSilently(QString::fromLocal8Bit(readAllStandardError()));
     });
     connect(this, &DeviceProcess::readyReadStandardError, this, [this] {
         MessageManager::writeDisrupting(QString::fromLocal8Bit(readAllStandardError()));
     });
+
+    disconnect(&m_process);
+
+    m_process.setCommand(runnable.commandLine());
+    m_process.setProcessEnvironment(runnable.environment.toProcessEnvironment());
+    m_process.setWorkingDirectory(runnable.workingDirectory);
+    connect(&m_process, &QProcess::errorOccurred, this, &DeviceProcess::error);
+    connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            this, &DeviceProcess::finished);
+    connect(&m_process, &QProcess::readyReadStandardOutput,
+            this, &DeviceProcess::readyReadStandardOutput);
+    connect(&m_process, &QProcess::readyReadStandardError,
+            this, &DeviceProcess::readyReadStandardError);
+    connect(&m_process, &QProcess::started, this, &DeviceProcess::started);
+    dockerDevice->runProcess(m_process);
 }
 
 void DockerDeviceProcess::interrupt()
@@ -272,9 +260,38 @@ IDeviceWidget *DockerDevice::createWidget()
     return new DockerDeviceWidget(sharedFromThis());
 }
 
-DockerDevice::DockerDevice(const DockerDeviceData &data)
-    : m_data(data)
+
+// DockerDevice
+
+class DockerDevicePrivate : public QObject
 {
+public:
+    DockerDevicePrivate()
+    {
+        connect(&m_mergedDirWatcher, &QFileSystemWatcher::fileChanged, this, [](const QString &path) {
+            LOG("Container watcher change, file: " << path);
+        });
+        connect(&m_mergedDirWatcher, &QFileSystemWatcher::directoryChanged, this, [](const QString &path) {
+            LOG("Container watcher change, directory: " << path);
+        });
+    }
+
+    ~DockerDevicePrivate() { delete m_shell; }
+
+    DockerDeviceData m_data;
+
+    // For local file access
+    QPointer<QtcProcess> m_shell;
+    QString m_container;
+    QString m_mergedDir;
+    QFileSystemWatcher m_mergedDirWatcher;
+};
+
+DockerDevice::DockerDevice(const DockerDeviceData &data)
+    : d(new DockerDevicePrivate)
+{
+    d->m_data = data;
+
     setDisplayType(tr("Docker"));
     setOsType(OsTypeOtherUnix);
     setDefaultDisplayName(tr("Docker Image"));;
@@ -313,9 +330,125 @@ DockerDevice::DockerDevice(const DockerDeviceData &data)
     }
 }
 
+DockerDevice::~DockerDevice()
+{
+    delete d;
+}
+
 const DockerDeviceData &DockerDevice::data() const
 {
-    return m_data;
+    return d->m_data;
+}
+
+void DockerDevice::autoDetectQtVersion() const
+{
+   QString error;
+   QString source = "docker:" + d->m_data.imageId;
+   const QStringList candidates = {"/usr/local/bin/qmake", "/usr/bin/qmake"};
+   for (const QString &candidate : candidates) {
+       const FilePath qmake = mapToGlobalPath(FilePath::fromString(candidate));
+       if (auto qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake, false, source, &error)) {
+            QtVersionManager::addVersion(qtVersion);
+            return;
+       }
+   }
+}
+
+void DockerDevice::autoDetectToolChains()
+{
+   const QList<ToolChainFactory *> factories = ToolChainFactory::allToolChainFactories();
+
+   QList<ToolChain *> toolChains;
+   for (ToolChainFactory *factory : factories) {
+        const QList<ToolChain *> newToolChains = factory->autoDetect(toolChains, sharedFromThis());
+        for (ToolChain *toolChain : newToolChains) {
+            LOG("Found ToolChain: " << toolChain->compilerCommand().toUserOutput());
+            ToolChainManager::registerToolChain(toolChain);
+            toolChains.append(toolChain);
+        }
+   }
+}
+
+void DockerDevice::tryCreateLocalFileAccess() const
+{
+    if (!d->m_container.isEmpty())
+        return;
+
+    QString tempFileName;
+
+    {
+        TemporaryFile temp("qtc-docker-XXXXXX");
+        temp.open();
+        tempFileName = temp.fileName();
+    }
+
+    d->m_shell = new QtcProcess;
+    // FIXME: Make mounts flexible
+    d->m_shell->setCommand({"docker", {"run", "-i", "--cidfile=" + tempFileName,
+                                       "-v", "/opt:/opt",
+                                       "-v", "/data:/data",
+                                       "-e", "DISPLAY=:0",
+                                       "-e", "XAUTHORITY=/.Xauthority",
+                                       "--net", "host",
+                                       d->m_data.imageId, "/bin/sh"}});
+    LOG("RUNNING: " << d->m_shell->commandLine().toUserOutput());
+    d->m_shell->start();
+    d->m_shell->waitForStarted();
+
+    LOG("CHECKING: " << tempFileName);
+    for (int i = 0; i <= 10; ++i) {
+        QFile file(tempFileName);
+        file.open(QIODevice::ReadOnly);
+        d->m_container = QString::fromUtf8(file.readAll()).trimmed();
+        if (!d->m_container.isEmpty()) {
+            LOG("Container: " << d->m_container);
+            break;
+        }
+        if (i == 10) {
+            qWarning("Docker cid file empty.");
+            return; // No
+        }
+        QThread::msleep(100);
+    }
+
+    QtcProcess proc;
+    proc.setCommand({"docker", {"inspect", "--format={{.GraphDriver.Data.MergedDir}}", d->m_container}});
+    //LOG(proc2.commandLine().toUserOutput());
+    proc.start();
+    proc.waitForFinished();
+    const QByteArray out = proc.readAllStandardOutput();
+    d->m_mergedDir = QString::fromUtf8(out).trimmed();
+    if (d->m_mergedDir.endsWith('/'))
+        d->m_mergedDir.chop(1);
+
+    d->m_mergedDirWatcher.addPath(d->m_mergedDir);
+}
+
+bool DockerDevice::hasLocalFileAccess() const
+{
+    return !d->m_mergedDir.isEmpty();
+}
+
+FilePath DockerDevice::mapToLocalAccess(const FilePath &filePath) const
+{
+    QTC_ASSERT(!d->m_mergedDir.isEmpty(), return {});
+    QString path = filePath.path();
+    if (path.startsWith('/'))
+        return FilePath::fromString(d->m_mergedDir + path);
+     return FilePath::fromString(d->m_mergedDir + '/' + path);
+}
+
+FilePath DockerDevice::mapFromLocalAccess(const FilePath &filePath) const
+{
+    QTC_ASSERT(!filePath.needsDevice(), return {});
+    return mapFromLocalAccess(filePath.toString());
+}
+
+FilePath DockerDevice::mapFromLocalAccess(const QString &filePath) const
+{
+    QTC_ASSERT(!d->m_mergedDir.isEmpty(), return {});
+    QTC_ASSERT(filePath.startsWith(d->m_mergedDir), return FilePath::fromString(filePath));
+    return mapToGlobalPath(FilePath::fromString(filePath.mid(d->m_mergedDir.size())));
 }
 
 const char DockerDeviceDataImageIdKey[] = "DockerDeviceDataImageId";
@@ -326,23 +459,21 @@ const char DockerDeviceDataSizeKey[] = "DockerDeviceDataSize";
 void DockerDevice::fromMap(const QVariantMap &map)
 {
     ProjectExplorer::IDevice::fromMap(map);
-    m_data.imageId = map.value(DockerDeviceDataImageIdKey).toString();
-    m_data.repo = map.value(DockerDeviceDataRepoKey).toString();
-    m_data.tag = map.value(DockerDeviceDataTagKey).toString();
-    m_data.size = map.value(DockerDeviceDataSizeKey).toString();
+    d->m_data.imageId = map.value(DockerDeviceDataImageIdKey).toString();
+    d->m_data.repo = map.value(DockerDeviceDataRepoKey).toString();
+    d->m_data.tag = map.value(DockerDeviceDataTagKey).toString();
+    d->m_data.size = map.value(DockerDeviceDataSizeKey).toString();
 }
 
 QVariantMap DockerDevice::toMap() const
 {
     QVariantMap map = ProjectExplorer::IDevice::toMap();
-    map.insert(DockerDeviceDataImageIdKey, m_data.imageId);
-    map.insert(DockerDeviceDataRepoKey, m_data.repo);
-    map.insert(DockerDeviceDataTagKey, m_data.tag);
-    map.insert(DockerDeviceDataSizeKey, m_data.size);
+    map.insert(DockerDeviceDataImageIdKey, d->m_data.imageId);
+    map.insert(DockerDeviceDataRepoKey, d->m_data.repo);
+    map.insert(DockerDeviceDataTagKey, d->m_data.tag);
+    map.insert(DockerDeviceDataSizeKey, d->m_data.size);
     return map;
 }
-
-DockerDevice::~DockerDevice() = default;
 
 DeviceProcess *DockerDevice::createProcess(QObject *parent) const
 {
@@ -377,6 +508,167 @@ DeviceProcessSignalOperation::Ptr DockerDevice::signalOperation() const
 DeviceEnvironmentFetcher::Ptr DockerDevice::environmentFetcher() const
 {
     return DeviceEnvironmentFetcher::Ptr();
+}
+
+FilePath DockerDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
+{
+    QUrl url = pathOnDevice.toUrl();
+    if (url.isValid()) {
+        QTC_CHECK(url.host() == d->m_data.imageId);
+        QTC_CHECK(url.scheme() == "docker");
+        return pathOnDevice;
+    }
+    url.setScheme("docker");
+    url.setHost(d->m_data.imageId);
+    url.setPath(pathOnDevice.toString());
+    return FilePath::fromUrl(url);
+}
+
+bool DockerDevice::handlesFile(const FilePath &filePath) const
+{
+    const QUrl &url = filePath.toUrl();
+    return url.scheme() == "docker" && url.host() == d->m_data.imageId;
+}
+
+bool DockerDevice::isExecutableFile(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        const bool res = localAccess.isExecutableFile();
+        LOG("Executable? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
+        return res;
+    }
+    const QString path = filePath.toUrl().path();
+    const CommandLine cmd("test", {"-x", path});
+    const int exitCode = runSynchronously(cmd);
+    return exitCode == 0;
+}
+
+bool DockerDevice::isReadableFile(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        const bool res = localAccess.isReadableFile();
+        LOG("ReadableFile? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
+        return res;
+    }
+    const QString path = filePath.toUrl().path();
+    const CommandLine cmd("test", {"-r", path, "-a", "-f", path});
+    const int exitCode = runSynchronously(cmd);
+    return exitCode == 0;
+}
+
+bool DockerDevice::isReadableDirectory(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        const bool res = localAccess.isReadableDir();
+        LOG("ReadableDirectory? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
+        return res;
+    }
+    const QString path = filePath.toUrl().path();
+    const CommandLine cmd("test", {"-x", path, "-a", "-d", path});
+    const int exitCode = runSynchronously(cmd);
+    return exitCode == 0;
+}
+
+bool DockerDevice::isWritableDirectory(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        const bool res = localAccess.isReadableDir();
+        LOG("WritableDirectory? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
+        return res;
+    }
+    const QString path = filePath.toUrl().path();
+    const CommandLine cmd("test", {"-x", path, "-a", "-d", path});
+    const int exitCode = runSynchronously(cmd);
+    return exitCode == 0;
+}
+
+bool DockerDevice::createDirectory(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return false);
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        const bool res = localAccess.createDir();
+        LOG("CreateDirectory? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
+        return res;
+    }
+    const QString path = filePath.toUrl().path();
+    const CommandLine cmd("mkdir", {"-p", path});
+    const int exitCode = runSynchronously(cmd);
+    return exitCode == 0;
+}
+
+QList<FilePath> DockerDevice::directoryEntries(const FilePath &filePath,
+                                               const QStringList &nameFilters,
+                                               QDir::Filters filters) const
+{
+    QTC_ASSERT(handlesFile(filePath), return {});
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess()) {
+        const FilePath localAccess = mapToLocalAccess(filePath);
+        const QFileInfoList entryInfoList = QDir(localAccess.toString()).entryInfoList(nameFilters, filters);
+        return Utils::transform(entryInfoList, [this](const QFileInfo &fi) {
+            return mapFromLocalAccess(fi.absoluteFilePath());
+        });
+    }
+    QTC_CHECK(false); // FIXME: Implement
+    return {};
+}
+
+QByteArray DockerDevice::fileContents(const FilePath &filePath, int limit) const
+{
+    QTC_ASSERT(handlesFile(filePath), return {});
+    tryCreateLocalFileAccess();
+    if (hasLocalFileAccess())
+        return mapToLocalAccess(filePath).fileContents(limit);
+
+    QTC_CHECK(false); // FIXME: Implement
+    return {};
+}
+
+void DockerDevice::runProcess(QtcProcess &process) const
+{
+    CommandLine dcmd{"docker", {"exec"}};
+    dcmd.addArgs({"-w", process.workingDirectory()});
+    dcmd.addArg(d->m_container);
+    dcmd.addArgs(process.commandLine());
+
+    LOG("Run" << dcmd.toUserOutput());
+
+    process.setCommand(dcmd);
+    process.start();
+}
+
+int DockerDevice::runSynchronously(const CommandLine &cmd, QByteArray *out, QByteArray *err) const
+{
+    CommandLine dcmd{"docker", {"exec", d->m_container}};
+    dcmd.addArgs(cmd);
+
+    QtcProcess proc;
+    proc.setCommand(dcmd);
+    proc.setWorkingDirectory("/tmp");
+    proc.start();
+    proc.waitForFinished();
+
+    if (out)
+        *out = proc.readAllStandardOutput();
+    if (err)
+        *err = proc.readAllStandardError();
+
+    LOG("Run sync:" << dcmd.toUserOutput() << " result: " << proc.exitCode());
+    return proc.exitCode();
 }
 
 // Factory
@@ -427,13 +719,16 @@ public:
         : QDialog(ICore::dialogParent())
     {
         setWindowTitle(tr("Docker Image Selection"));
+        resize(800, 600);
 
         m_model.setHeader({"Image", "Repository", "Tag", "Size"});
 
         m_view = new TreeView;
+        m_view->setModel(&m_model);
+        m_view->header()->setStretchLastSection(true);
+        m_view->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
         m_view->setSelectionBehavior(QAbstractItemView::SelectRows);
         m_view->setSelectionMode(QAbstractItemView::SingleSelection);
-        m_view->setModel(&m_model);
 
         auto output = new QTextBrowser;
         output->setEnabled(false);
@@ -504,6 +799,8 @@ public:
         device->setupId(IDevice::ManuallyAdded, Utils::Id());
         device->setType(Constants::DOCKER_DEVICE_TYPE);
         device->setMachineType(IDevice::Hardware);
+        device->autoDetectToolChains();
+        device->autoDetectQtVersion();
         return device;
     }
 

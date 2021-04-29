@@ -52,7 +52,9 @@ public:
     using Ptr = QSharedPointer<DockerDevice>;
     using ConstPtr = QSharedPointer<const DockerDevice>;
 
+    explicit DockerDevice(const DockerDeviceData &data);
     ~DockerDevice();
+
     static Ptr create(const DockerDeviceData &data) { return Ptr(new DockerDevice(data)); }
 
     ProjectExplorer::IDeviceWidget *createWidget() override;
@@ -68,15 +70,40 @@ public:
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     ProjectExplorer::DeviceEnvironmentFetcher::Ptr environmentFetcher() const override;
 
+    Utils::FilePath mapToGlobalPath(const Utils::FilePath &pathOnDevice) const override;
+
+    bool handlesFile(const Utils::FilePath &filePath) const override;
+    bool isExecutableFile(const Utils::FilePath &filePath) const override;
+    bool isReadableFile(const Utils::FilePath &filePath) const override;
+    bool isReadableDirectory(const Utils::FilePath &filePath) const override;
+    bool isWritableDirectory(const Utils::FilePath &filePath) const override;
+    bool createDirectory(const Utils::FilePath &filePath) const override;
+    QList<Utils::FilePath> directoryEntries(const Utils::FilePath &filePath,
+                                            const QStringList &nameFilters,
+                                            QDir::Filters filters) const override;
+    QByteArray fileContents(const Utils::FilePath &filePath, int limit) const override;
+    void runProcess(Utils::QtcProcess &process) const override;
+
+    int runSynchronously(const Utils::CommandLine &cmd,
+                         QByteArray *out = nullptr,
+                         QByteArray *err = nullptr) const override;
+
     const DockerDeviceData &data() const;
+    void autoDetectQtVersion() const;
+    void autoDetectToolChains();
+
+    void tryCreateLocalFileAccess() const;
+    bool hasLocalFileAccess() const;
+
+    Utils::FilePath mapToLocalAccess(const Utils::FilePath &filePath) const;
+    Utils::FilePath mapFromLocalAccess(const Utils::FilePath &filePath) const;
+    Utils::FilePath mapFromLocalAccess(const QString &filePath) const;
 
 private:
-    explicit DockerDevice(const DockerDeviceData &data);
-
     void fromMap(const QVariantMap &map) final;
     QVariantMap toMap() const final;
 
-    DockerDeviceData m_data;
+    class DockerDevicePrivate *d = nullptr;
 };
 
 class DockerDeviceFactory final : public ProjectExplorer::IDeviceFactory
