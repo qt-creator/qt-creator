@@ -149,6 +149,10 @@ public:
     bool isSynchronous() const;
     void setSynchronous(bool on);
 
+    void setOpenMode(OpenMode mode);
+
+    bool stopProcess();
+
 private:
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     void setupChildProcess() override;
@@ -163,6 +167,7 @@ private:
     bool m_lowPriority = false;
 
     bool m_synchronous = false;
+    OpenMode m_openMode = ReadWrite;
 };
 
 } // namespace Utils

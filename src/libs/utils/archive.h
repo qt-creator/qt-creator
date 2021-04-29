@@ -30,9 +30,10 @@
 #include "fileutils.h"
 
 #include <QObject>
-#include <QProcess>
 
 namespace Utils {
+
+class QtcProcess;
 
 class QTCREATOR_UTILS_EXPORT Archive : public QObject
 {
@@ -51,7 +52,7 @@ signals:
 private:
     Archive() = default;
 
-    QProcess *m_process = nullptr;
+    QtcProcess *m_process = nullptr;
 };
 
 } // namespace Utils

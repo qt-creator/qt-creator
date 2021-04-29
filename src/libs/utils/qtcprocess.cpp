@@ -752,7 +752,7 @@ void QtcProcess::start()
 #endif
         // Note: Arguments set with setNativeArgs will be appended to the ones
         // passed with start() below.
-        QProcess::start(command, QStringList());
+        QProcess::start(command, QStringList(), m_openMode);
     } else {
         if (!success) {
             setErrorString(tr("Error in command line."));
@@ -761,7 +761,7 @@ void QtcProcess::start()
             emit errorOccurred(QProcess::UnknownError);
             return;
         }
-        QProcess::start(command, arguments.toUnixArgs());
+        QProcess::start(command, arguments.toUnixArgs(), m_openMode);
     }
 
     if (m_synchronous)
@@ -1273,6 +1273,22 @@ bool QtcProcess::isSynchronous() const
 void QtcProcess::setSynchronous(bool on)
 {
     m_synchronous = on;
+}
+
+void QtcProcess::setOpenMode(OpenMode mode)
+{
+    m_openMode = mode;
+}
+
+bool QtcProcess::stopProcess()
+{
+    if (state() == QProcess::NotRunning)
+        return true;
+    terminate();
+    if (waitForFinished(300))
+        return true;
+    kill();
+    return waitForFinished(300);
 }
 
 bool QtcProcess::ArgIterator::next()

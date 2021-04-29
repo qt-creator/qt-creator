@@ -30,7 +30,7 @@
 #include "environment.h"
 #include "mimetypes/mimedatabase.h"
 #include "qtcassert.h"
-#include "synchronousprocess.h"
+#include "qtcprocess.h"
 
 #include <QDir>
 #include <QPushButton>
@@ -208,7 +208,7 @@ Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
     const QString workingDirectory = dest.toFileInfo().absoluteFilePath();
     QDir(workingDirectory).mkpath(".");
 
-    archive->m_process = new QProcess;
+    archive->m_process = new QtcProcess;
     archive->m_process->setProcessChannelMode(QProcess::MergedChannels);
     QObject::connect(
         archive->m_process,
@@ -265,15 +265,15 @@ Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
     archive->m_process->setArguments(tool->arguments);
 #endif
     archive->m_process->setWorkingDirectory(workingDirectory);
-    archive->m_process->start(QProcess::ReadOnly);
+    archive->m_process->setOpenMode(QProcess::ReadOnly);
+    archive->m_process->start();
     return archive;
 }
 
 void Archive::cancel()
 {
-    if (!m_process)
-        return;
-    SynchronousProcess::stopProcess(*m_process);
+    if (m_process)
+        m_process->stopProcess();
 }
 
 } // namespace Utils
