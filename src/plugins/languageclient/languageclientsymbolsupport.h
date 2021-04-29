@@ -27,6 +27,7 @@
 
 #include "languageclient_global.h"
 
+#include <coreplugin/find/searchresultitem.h>
 #include <texteditor/textdocument.h>
 
 #include <languageserverprotocol/languagefeatures.h>
@@ -35,6 +36,8 @@ namespace Core {
 class SearchResult;
 class SearchResultItem;
 }
+
+namespace LanguageServerProtocol { class MessageId; }
 
 namespace LanguageClient {
 
@@ -50,15 +53,24 @@ public:
                     const QTextCursor &cursor,
                     Utils::ProcessLinkCallback callback,
                     const bool resolveTarget);
-    void findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor);
+
+    using ResultHandler = std::function<void(const QList<LanguageServerProtocol::Location> &)>;
+    Utils::optional<LanguageServerProtocol::MessageId> findUsages(
+            TextEditor::TextDocument *document,
+            const QTextCursor &cursor,
+            const ResultHandler &handler = {});
 
     bool supportsRename(TextEditor::TextDocument *document);
     void renameSymbol(TextEditor::TextDocument *document, const QTextCursor &cursor);
 
+    static Core::Search::TextRange convertRange(const LanguageServerProtocol::Range &range);
+    static QStringList getFileContents(const QString &filePath);
+
 private:
     void handleFindReferencesResponse(
         const LanguageServerProtocol::FindReferencesRequest::Response &response,
-        const QString &wordUnderCursor);
+        const QString &wordUnderCursor,
+        const ResultHandler &handler);
 
     void requestPrepareRename(const LanguageServerProtocol::TextDocumentPositionParams &params,
                               const QString &placeholder);

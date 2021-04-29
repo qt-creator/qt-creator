@@ -129,21 +129,13 @@ void SymbolSupport::findLinkAt(TextEditor::TextDocument *document,
 
 }
 
-Core::Search::TextRange convertRange(const Range &range)
-{
-    auto convertPosition = [](const Position &pos) {
-        return Core::Search::TextPosition(pos.line() + 1, pos.character());
-    };
-    return Core::Search::TextRange(convertPosition(range.start()), convertPosition(range.end()));
-}
-
 struct ItemData
 {
     Core::Search::TextRange range;
     QVariant userData;
 };
 
-static QStringList getFileContents(const QString &filePath)
+QStringList SymbolSupport::getFileContents(const QString &filePath)
 {
     QString fileContent;
     if (TextEditor::TextDocument *document = TextEditor::TextDocument::textDocumentForFilePath(
@@ -173,7 +165,7 @@ QList<Core::SearchResultItem> generateSearchResultItems(
         item.setFilePath(Utils::FilePath::fromString(fileName));
         item.setUseTextEditorFont(true);
 
-        QStringList lines = getFileContents(fileName);
+        QStringList lines = SymbolSupport::getFileContents(fileName);
         for (const ItemData &data : it.value()) {
             item.setMainRange(data.range);
             if (data.range.begin.line > 0 && data.range.begin.line <= lines.size())
@@ -193,14 +185,21 @@ QList<Core::SearchResultItem> generateSearchResultItems(
     QMap<QString, QList<ItemData>> rangesInDocument;
     for (const Location &location : locations.toList())
         rangesInDocument[location.uri().toFilePath().toString()]
-            << ItemData{convertRange(location.range()), {}};
+            << ItemData{SymbolSupport::convertRange(location.range()), {}};
     return generateSearchResultItems(rangesInDocument);
 }
 
 void SymbolSupport::handleFindReferencesResponse(const FindReferencesRequest::Response &response,
-                                                 const QString &wordUnderCursor)
+                                                 const QString &wordUnderCursor,
+                                                 const ResultHandler &handler)
 {
-    if (auto result = response.result()) {
+    const auto result = response.result();
+    if (handler) {
+        const LanguageClientArray<Location> locations = result.value_or(nullptr);
+        handler(locations.isNull() ? QList<Location>() : locations.toList());
+        return;
+    }
+    if (result) {
         Core::SearchResult *search = Core::SearchResultWindow::instance()->startNewSearch(
             tr("Find References with %1 for:").arg(m_client->name()), "", wordUnderCursor);
         search->addResults(generateSearchResultItems(result.value()),
@@ -215,24 +214,26 @@ void SymbolSupport::handleFindReferencesResponse(const FindReferencesRequest::Re
     }
 }
 
-void SymbolSupport::findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor)
+Utils::optional<MessageId> SymbolSupport::findUsages(
+        TextEditor::TextDocument *document, const QTextCursor &cursor, const ResultHandler &handler)
 {
     if (!m_client->reachable())
-        return;
+        return {};
     ReferenceParams params(generateDocPosParams(document, cursor));
     params.setContext(ReferenceParams::ReferenceContext(true));
     FindReferencesRequest request(params);
     QTextCursor termCursor(cursor);
     termCursor.select(QTextCursor::WordUnderCursor);
-    request.setResponseCallback([this, wordUnderCursor = termCursor.selectedText()](
-                                    const FindReferencesRequest::Response &response) {
-        handleFindReferencesResponse(response, wordUnderCursor);
+    request.setResponseCallback([this, wordUnderCursor = termCursor.selectedText(), handler](
+                                const FindReferencesRequest::Response &response) {
+        handleFindReferencesResponse(response, wordUnderCursor, handler);
     });
 
     sendTextDocumentPositionParamsRequest(m_client,
                                           request,
                                           m_client->dynamicCapabilities(),
                                           m_client->capabilities());
+    return request.id();
 }
 
 static bool supportsRename(Client *client,
@@ -332,7 +333,7 @@ QList<Core::SearchResultItem> generateReplaceItems(const WorkspaceEdit &edits)
 {
     auto convertEdits = [](const QList<TextEdit> &edits) {
         return Utils::transform(edits, [](const TextEdit &edit) {
-            return ItemData{convertRange(edit.range()), QVariant(edit)};
+            return ItemData{SymbolSupport::convertRange(edit.range()), QVariant(edit)};
         });
     };
     QMap<QString, QList<ItemData>> rangesInDocument;
@@ -417,6 +418,14 @@ void SymbolSupport::applyRename(const QList<Core::SearchResultItem> &checkedItem
 
     for (auto it = editsForDocuments.begin(), end = editsForDocuments.end(); it != end; ++it)
         applyTextEdits(it.key(), it.value());
+}
+
+Core::Search::TextRange SymbolSupport::convertRange(const Range &range)
+{
+    auto convertPosition = [](const Position &pos) {
+        return Core::Search::TextPosition(pos.line() + 1, pos.character());
+    };
+    return Core::Search::TextRange(convertPosition(range.start()), convertPosition(range.end()));
 }
 
 } // namespace LanguageClient
