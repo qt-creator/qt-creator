@@ -34,6 +34,7 @@
 #include <QMetaType>
 
 #include <initializer_list>
+#include <limits>
 #include <type_traits>
 
 namespace QmlProfiler {
