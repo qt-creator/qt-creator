@@ -223,7 +223,7 @@ QVariantMap ToolChain::toMap() const
     if (!d->m_targetAbiKey.isEmpty())
         result.insert(d->m_targetAbiKey, d->m_targetAbi.toString());
     if (!d->m_compilerCommandKey.isEmpty())
-        result.insert(d->m_compilerCommandKey, d->m_compilerCommand.toString());
+        result.insert(d->m_compilerCommandKey, d->m_compilerCommand.toVariant());
     return result;
 }
 
@@ -336,7 +336,7 @@ bool ToolChain::fromMap(const QVariantMap &data)
     if (!d->m_targetAbiKey.isEmpty())
         d->m_targetAbi = Abi::fromString(data.value(d->m_targetAbiKey).toString());
 
-    d->m_compilerCommand = FilePath::fromString(data.value(d->m_compilerCommandKey).toString());
+    d->m_compilerCommand = FilePath::fromVariant(data.value(d->m_compilerCommandKey));
 
     return true;
 }
