@@ -173,4 +173,9 @@ QUrl DesktopDevice::toolControlChannel(const ControlChannelHint &) const
     return url;
 }
 
+bool DesktopDevice::handlesFile(const FilePath &filePath) const
+{
+    return !filePath.needsDevice();
+}
+
 } // namespace ProjectExplorer

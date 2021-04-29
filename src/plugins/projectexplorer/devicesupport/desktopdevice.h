@@ -54,6 +54,7 @@ public:
     DeviceProcessSignalOperation::Ptr signalOperation() const override;
     DeviceEnvironmentFetcher::Ptr environmentFetcher() const override;
     QUrl toolControlChannel(const ControlChannelHint &) const override;
+    bool handlesFile(const Utils::FilePath &filePath) const override;
 
 protected:
     DesktopDevice();
