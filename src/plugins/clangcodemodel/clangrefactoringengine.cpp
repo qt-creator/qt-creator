@@ -97,8 +97,8 @@ void RefactoringEngine::findUsages(const CppTools::CursorInEditor &cursor,
                 ->findUsages(cursor, std::move(callback));
         return;
     }
-    if (!client->documentOpen(cursor.textDocument()))
-        client->openDocument(cursor.textDocument()); // TODO: Just a workaround
+    QTC_ASSERT(client->documentOpen(cursor.textDocument()),
+               client->openDocument(cursor.textDocument()));
     client->findUsages(cursor.textDocument(), cursor.cursor());
 }
 

@@ -37,6 +37,7 @@
 #include "clanggloballocatorfilters.h"
 #include "clangoverviewmodel.h"
 
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -290,8 +291,27 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
             if (cppModelManager()->projectInfo(project) != projectInfo)
                 return;
 
-            // TODO: We'd like to add all open editor documents for the project to the client here,
-            //       but there doesn't seem to be such an interface.
+            // Acquaint the client with all open C++ documents for this project.
+            bool hasDocuments = false;
+            for (const Core::DocumentModel::Entry * const entry : Core::DocumentModel::entries()) {
+                const auto textDocument = qobject_cast<TextEditor::TextDocument *>(entry->document);
+                if (!textDocument)
+                    continue;
+                const bool isCppDocument = Utils::contains(
+                            Core::DocumentModel::editorsForDocument(textDocument),
+                            [](Core::IEditor *editor) {
+                                return CppTools::CppModelManager::isCppEditor(editor);
+                            });
+                if (!isCppDocument)
+                    continue;
+                if (!project->isKnownFile(entry->fileName()))
+                    continue;
+                client->openDocument(textDocument);
+                hasDocuments = true;
+            }
+
+            if (hasDocuments)
+                return;
 
             // clangd oddity: Background indexing only starts after opening a random file.
             // TODO: changes to the compilation db do not seem to trigger re-indexing.
