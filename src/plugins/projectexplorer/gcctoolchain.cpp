@@ -306,11 +306,11 @@ QString GccToolChain::defaultDisplayName() const
     const Abi abi = targetAbi();
     if (abi.architecture() == Abi::UnknownArchitecture || abi.wordWidth() == 0)
         return type;
-    return tr("%1 (%2, %3 %4 in %5)").arg(type,
+    return tr("%1 (%2, %3 %4 at %5)").arg(type,
                                           ToolChainManager::displayNameOfLanguageId(language()),
                                           Abi::toString(abi.architecture()),
                                           Abi::toString(abi.wordWidth()),
-                                          compilerCommand().parentDir().toUserOutput());
+                                          compilerCommand().toUserOutput());
 }
 
 LanguageExtensions GccToolChain::defaultLanguageExtensions() const
