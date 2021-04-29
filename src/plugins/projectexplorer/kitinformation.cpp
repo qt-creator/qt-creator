@@ -1179,7 +1179,7 @@ Tasks BuildDeviceKitAspect::validate(const Kit *k) const
     IDevice::ConstPtr dev = BuildDeviceKitAspect::device(k);
     Tasks result;
     if (dev.isNull())
-        result.append(BuildSystemTask(Task::Warning, tr("No device set.")));
+        result.append(BuildSystemTask(Task::Warning, tr("No build device set.")));
 
     return result;
 }
