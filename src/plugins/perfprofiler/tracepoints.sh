@@ -49,8 +49,20 @@ match_tracepoints() {
 
     BASE="perfprofiler_${MACHINE}_${NAME}"
     RETURN=`perf probe -l "${BASE}_ret" | awk '{print $3}'`
+    if [ -z "$RETURN" ]; then
+        RETURN=`perf probe -l "${BASE}_ret__return" | awk '{print $3}'`
+    fi
+
+    CHECK=
+    for RET in $RETURN; do
+        if [ -n "$CHECK" ]; then
+            CHECK="$CHECK && "
+        fi
+        CHECK="$CHECK\$3 != \"$RET\""
+    done
+
     ENTRY=`echo ${RETURN} | awk '{sub(/%return/, ""); print $1}'`
-    BAD=`perf probe -l "${BASE}*" | awk '{ if ($3 != "'$RETURN'" && $3 != "'$ENTRY'") { print $1 } }'`
+    BAD=`perf probe -l "${BASE}*" | awk '{ if ('"$CHECK"' && $3 != "'$ENTRY'") { print $1 } }'`
     for PROBE in $BAD; do
         perf probe -d $PROBE
     done
@@ -121,7 +133,7 @@ set_tracepoint() {
 }
 
 HOST_MACHINE=`uname -m`
-find /lib -name libc.so.6 | while read LIBC; do
+find /lib/ -name libc.so.6 | while read LIBC; do
     echo $LIBC | awk -F '/' '{print $(NF-1)}' | while IFS='-' read MACHINE KERNEL SYSTEM; do
         if [ "$MACHINE" = "lib" ]; then MACHINE=$HOST_MACHINE; fi
         >&2 echo "</pre><h3>Removing old trace points for $MACHINE</h3><pre>"
