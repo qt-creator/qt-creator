@@ -65,7 +65,6 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
-#include <utils/synchronousprocess.h>
 #include <utils/winutils.h>
 
 #include <cplusplus/findcdbbreakpoint.h>
@@ -263,7 +262,7 @@ void CdbEngine::init()
     }
     // update source path maps from debugger start params
     mergeStartParametersSourcePathMap();
-    QTC_ASSERT(m_process.state() != QProcess::Running, SynchronousProcess::stopProcess(m_process));
+    QTC_ASSERT(m_process.state() != QProcess::Running, m_process.stopProcess());
 }
 
 CdbEngine::~CdbEngine() = default;
@@ -690,7 +689,7 @@ void CdbEngine::shutdownEngine()
         }
     } else {
         // Remote process. No can do, currently
-        SynchronousProcess::stopProcess(m_process);
+        m_process.stopProcess();
     }
 }
 
