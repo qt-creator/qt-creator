@@ -309,7 +309,7 @@ void AbstractProcessStep::Private::cleanUp(QProcess *process)
 void AbstractProcessStep::processStarted()
 {
     emit addOutput(tr("Starting: \"%1\" %2")
-                   .arg(QDir::toNativeSeparators(d->m_param.effectiveCommand().toString()),
+                   .arg(d->m_param.effectiveCommand().toUserOutput(),
                         d->m_param.prettyArguments()),
                    BuildStep::OutputFormat::NormalMessage);
 }
@@ -322,7 +322,7 @@ void AbstractProcessStep::processStarted()
 
 void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus status)
 {
-    QString command = QDir::toNativeSeparators(d->m_param.effectiveCommand().toString());
+    QString command = d->m_param.effectiveCommand().toUserOutput();
     if (status == QProcess::NormalExit && exitCode == 0) {
         emit addOutput(tr("The process \"%1\" exited normally.").arg(command),
                        BuildStep::OutputFormat::NormalMessage);
@@ -344,7 +344,7 @@ void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus sta
 void AbstractProcessStep::processStartupFailed()
 {
     emit addOutput(tr("Could not start process \"%1\" %2")
-                   .arg(QDir::toNativeSeparators(d->m_param.effectiveCommand().toString()),
+                   .arg(d->m_param.effectiveCommand().toUserOutput(),
                         d->m_param.prettyArguments()),
                    BuildStep::OutputFormat::ErrorMessage);
 }
