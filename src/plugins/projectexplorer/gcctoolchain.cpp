@@ -253,7 +253,7 @@ static Utils::FilePath gccInstallDir(const FilePath &path, const QStringList &en
     const QString line = QTextStream(&output).readLine();
     if (!line.startsWith(prefix))
         return {};
-    return Utils::FilePath::fromString(QDir::cleanPath(line.mid(prefix.size())));
+    return FilePath::fromString(QDir::cleanPath(line.mid(prefix.size()))).onDevice(path);
 }
 
 // --------------------------------------------------------------------------
