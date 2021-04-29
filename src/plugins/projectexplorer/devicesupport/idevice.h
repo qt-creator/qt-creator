@@ -246,9 +246,6 @@ public:
                                                     QDir::Filters filters) const;
     virtual QByteArray fileContents(const Utils::FilePath &filePath, int limit) const;
     virtual void runProcess(Utils::QtcProcess &process) const;
-    virtual int runSynchronously(const Utils::CommandLine &cmd,
-                                 QByteArray *out = nullptr,
-                                 QByteArray *err = nullptr) const;
     virtual Utils::Environment systemEnvironment() const;
 
 protected:

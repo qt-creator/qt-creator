@@ -84,10 +84,6 @@ public:
     QByteArray fileContents(const Utils::FilePath &filePath, int limit) const override;
     void runProcess(Utils::QtcProcess &process) const override;
 
-    int runSynchronously(const Utils::CommandLine &cmd,
-                         QByteArray *out = nullptr,
-                         QByteArray *err = nullptr) const override;
-
     const DockerDeviceData &data() const;
     void autoDetectQtVersion() const;
     void autoDetectToolChains();

@@ -278,6 +278,8 @@ public:
 
     ~DockerDevicePrivate() { delete m_shell; }
 
+    int runSynchronously(const CommandLine &cmd) const;
+
     DockerDeviceData m_data;
 
     // For local file access
@@ -542,7 +544,7 @@ bool DockerDevice::isExecutableFile(const FilePath &filePath) const
     }
     const QString path = filePath.toUrl().path();
     const CommandLine cmd("test", {"-x", path});
-    const int exitCode = runSynchronously(cmd);
+    const int exitCode = d->runSynchronously(cmd);
     return exitCode == 0;
 }
 
@@ -558,7 +560,7 @@ bool DockerDevice::isReadableFile(const FilePath &filePath) const
     }
     const QString path = filePath.toUrl().path();
     const CommandLine cmd("test", {"-r", path, "-a", "-f", path});
-    const int exitCode = runSynchronously(cmd);
+    const int exitCode = d->runSynchronously(cmd);
     return exitCode == 0;
 }
 
@@ -574,7 +576,7 @@ bool DockerDevice::isReadableDirectory(const FilePath &filePath) const
     }
     const QString path = filePath.toUrl().path();
     const CommandLine cmd("test", {"-x", path, "-a", "-d", path});
-    const int exitCode = runSynchronously(cmd);
+    const int exitCode = d->runSynchronously(cmd);
     return exitCode == 0;
 }
 
@@ -590,7 +592,7 @@ bool DockerDevice::isWritableDirectory(const FilePath &filePath) const
     }
     const QString path = filePath.toUrl().path();
     const CommandLine cmd("test", {"-x", path, "-a", "-d", path});
-    const int exitCode = runSynchronously(cmd);
+    const int exitCode = d->runSynchronously(cmd);
     return exitCode == 0;
 }
 
@@ -606,7 +608,7 @@ bool DockerDevice::createDirectory(const FilePath &filePath) const
     }
     const QString path = filePath.toUrl().path();
     const CommandLine cmd("mkdir", {"-p", path});
-    const int exitCode = runSynchronously(cmd);
+    const int exitCode = d->runSynchronously(cmd);
     return exitCode == 0;
 }
 
@@ -651,21 +653,16 @@ void DockerDevice::runProcess(QtcProcess &process) const
     process.start();
 }
 
-int DockerDevice::runSynchronously(const CommandLine &cmd, QByteArray *out, QByteArray *err) const
+int DockerDevicePrivate::runSynchronously(const CommandLine &cmd) const
 {
-    CommandLine dcmd{"docker", {"exec", d->m_container}};
+    CommandLine dcmd{"docker", {"exec", m_container}};
     dcmd.addArgs(cmd);
 
     QtcProcess proc;
     proc.setCommand(dcmd);
     proc.setWorkingDirectory("/tmp");
+    proc.setSynchronous(true);
     proc.start();
-    proc.waitForFinished();
-
-    if (out)
-        *out = proc.readAllStandardOutput();
-    if (err)
-        *err = proc.readAllStandardError();
 
     LOG("Run sync:" << dcmd.toUserOutput() << " result: " << proc.exitCode());
     return proc.exitCode();

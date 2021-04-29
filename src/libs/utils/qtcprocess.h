@@ -146,6 +146,9 @@ public:
 
     static void setRemoteStartProcessHook(const std::function<void (QtcProcess &)> &hook);
 
+    bool isSynchronous() const;
+    void setSynchronous(bool on);
+
 private:
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     void setupChildProcess() override;
@@ -158,6 +161,8 @@ private:
     bool m_haveEnv = false;
     bool m_useCtrlCStub = false;
     bool m_lowPriority = false;
+
+    bool m_synchronous = false;
 };
 
 } // namespace Utils

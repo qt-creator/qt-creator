@@ -763,6 +763,9 @@ void QtcProcess::start()
         }
         QProcess::start(command, arguments.toUnixArgs());
     }
+
+    if (m_synchronous)
+        QProcess::waitForFinished();
 }
 
 #ifdef Q_OS_WIN
@@ -1260,6 +1263,16 @@ void QtcProcess::setupChildProcess_impl()
             perror("Failed to set nice value");
     }
 #endif
+}
+
+bool QtcProcess::isSynchronous() const
+{
+    return m_synchronous;
+}
+
+void QtcProcess::setSynchronous(bool on)
+{
+    m_synchronous = on;
 }
 
 bool QtcProcess::ArgIterator::next()

@@ -277,15 +277,6 @@ void IDevice::runProcess(QtcProcess &process) const
     QTC_CHECK(false);
 }
 
-int IDevice::runSynchronously(const CommandLine &cmd, QByteArray *out, QByteArray *err) const
-{
-    Q_UNUSED(cmd);
-    Q_UNUSED(out);
-    Q_UNUSED(err);
-    QTC_CHECK(false);
-    return 0;
-}
-
 Environment IDevice::systemEnvironment() const
 {
     QTC_CHECK(false);
