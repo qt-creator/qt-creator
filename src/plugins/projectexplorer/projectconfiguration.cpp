@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "projectconfiguration.h"
+
+#include "kitinformation.h"
 #include "target.h"
 
 #include <utils/algorithm.h>
@@ -33,6 +35,7 @@
 #include <QWidget>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 const char CONFIGURATION_ID_KEY[] = "ProjectExplorer.ProjectConfiguration.Id";
 const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayName";
@@ -140,6 +143,13 @@ void ProjectConfiguration::acquaintAspects()
 {
     for (Utils::BaseAspect *aspect : m_aspects)
         aspect->acquaintSiblings(m_aspects);
+}
+
+FilePath ProjectConfiguration::mapFromBuildDeviceToGlobalPath(const FilePath &path) const
+{
+    IDevice::ConstPtr dev = BuildDeviceKitAspect::device(kit());
+    QTC_ASSERT(dev, return path);
+    return dev->mapToGlobalPath(path);
 }
 
 Utils::Id ProjectExplorer::idFromMap(const QVariantMap &map)
