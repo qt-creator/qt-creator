@@ -25,6 +25,9 @@
 
 #pragma once
 
+#include "cpptools_global.h"
+
+#include <coreplugin/find/searchresultwindow.h>
 #include <cplusplus/FindUsages.h>
 
 #include <QObject>
@@ -44,6 +47,21 @@ class Node;
 
 namespace CppTools {
 class CppModelManager;
+
+Core::SearchResultColor::Style CPPTOOLS_EXPORT colorStyleForUsageType(CPlusPlus::Usage::Type type);
+
+class CPPTOOLS_EXPORT CppSearchResultFilter : public Core::SearchResultFilter
+{
+    QWidget *createWidget() override;
+    bool matches(const Core::SearchResultItem &item) const override;
+
+    void setValue(bool &member, bool value);
+
+    bool m_showReads = true;
+    bool m_showWrites = true;
+    bool m_showDecls = true;
+    bool m_showOther = true;
+};
 
 namespace Internal {
 
