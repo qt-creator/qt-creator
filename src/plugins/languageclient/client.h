@@ -136,6 +136,7 @@ public:
     void activateDocument(TextEditor::TextDocument *document);
     void deactivateDocument(TextEditor::TextDocument *document);
     bool documentOpen(const TextEditor::TextDocument *document) const;
+    TextEditor::TextDocument *documentForFilePath(const Utils::FilePath &file) const;
     void documentContentsSaved(TextEditor::TextDocument *document);
     void documentWillSave(Core::IDocument *document);
     void documentContentsChanged(TextEditor::TextDocument *document,

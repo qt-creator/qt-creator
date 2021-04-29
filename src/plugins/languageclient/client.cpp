@@ -589,6 +589,15 @@ bool Client::documentOpen(const TextEditor::TextDocument *document) const
     return m_openedDocument.contains(const_cast<TextEditor::TextDocument *>(document));
 }
 
+TextEditor::TextDocument *Client::documentForFilePath(const Utils::FilePath &file) const
+{
+    for (auto it = m_openedDocument.cbegin(); it != m_openedDocument.cend(); ++it) {
+        if (it.key()->filePath() == file)
+            return it.key();
+    }
+    return nullptr;
+}
+
 void Client::documentContentsSaved(TextEditor::TextDocument *document)
 {
     if (!m_openedDocument.contains(document))
