@@ -491,7 +491,8 @@ QString ICore::userPluginPath()
 FilePath ICore::libexecPath(const QString &rel)
 {
     return FilePath::fromString(
-        QDir::cleanPath(QApplication::applicationDirPath() + RELATIVE_LIBEXEC_PATH + pathHelper(rel)));
+        QDir::cleanPath(QApplication::applicationDirPath()
+                        + pathHelper(RELATIVE_LIBEXEC_PATH) + pathHelper(rel)));
 }
 
 FilePath ICore::crashReportsPath()
