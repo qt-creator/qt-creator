@@ -299,7 +299,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
     for (const ItemLibraryEntry &entry : itemLibEntries) {
         NodeMetaInfo metaInfo = model->metaInfo(entry.typeName());
 
-        bool valid = metaInfo.isValid() && metaInfo.majorVersion() == entry.majorVersion();
+        bool valid = metaInfo.isValid() && metaInfo.majorVersion() >= entry.majorVersion();
         bool isItem = valid && metaInfo.isSubclassOf("QtQuick.Item");
         bool forceVisibility = valid && NodeHints::fromItemLibraryEntry(entry).visibleInLibrary();
 
