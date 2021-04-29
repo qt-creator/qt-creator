@@ -199,11 +199,10 @@ void AbstractProcessStep::setupOutputFormatter(OutputFormatter *formatter)
 
 void AbstractProcessStep::doRun()
 {
-    QDir wd(d->m_param.effectiveWorkingDirectory().toString());
+    const FilePath wd = d->m_param.effectiveWorkingDirectory();
     if (!wd.exists()) {
-        if (!wd.mkpath(wd.absolutePath())) {
-            emit addOutput(tr("Could not create directory \"%1\"")
-                           .arg(QDir::toNativeSeparators(wd.absolutePath())),
+        if (!wd.createDir()) {
+            emit addOutput(tr("Could not create directory \"%1\"").arg(wd.toUserOutput()),
                            BuildStep::OutputFormat::ErrorMessage);
             finish(false);
             return;
@@ -213,7 +212,7 @@ void AbstractProcessStep::doRun()
     const CommandLine effectiveCommand(d->m_param.effectiveCommand(),
                                        d->m_param.effectiveArguments(),
                                        CommandLine::Raw);
-    if (!effectiveCommand.executable().exists()) {
+    if (!effectiveCommand.executable().isExecutableFile()) {
         processStartupFailed();
         finish(false);
         return;
@@ -225,7 +224,8 @@ void AbstractProcessStep::doRun()
 
     d->m_process.reset(new QtcProcess());
     d->m_process->setUseCtrlCStub(HostOsInfo::isWindowsHost());
-    d->m_process->setWorkingDirectory(wd.absolutePath());
+    if (!wd.needsDevice()) // FIXME: Make QtcProcess take FilePath as working directory.
+        d->m_process->setWorkingDirectory(wd.toString());
     // Enforce PWD in the environment because some build tools use that.
     // PWD can be different from getcwd in case of symbolic links (getcwd resolves symlinks).
     // For example Clang uses PWD for paths in debug info, see QTCREATORBUG-23788
