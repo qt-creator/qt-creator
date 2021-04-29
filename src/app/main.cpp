@@ -435,7 +435,9 @@ public:
 
     void setArguments(const QStringList &args) { m_args = args; }
 
+    QString executable() const { return m_executable; }
     QStringList arguments() const { return m_args; }
+    QString workingPath() const { return m_workingPath; }
 
     int restartOrExit(int exitCode)
     {
@@ -696,6 +698,9 @@ int main(int argc, char **argv)
     }
     restarter.setArguments(options.preAppArguments + PluginManager::argumentsForRestart()
                            + lastSessionArgument());
+    const PluginManager::ProcessData processData = { restarter.executable(),
+            options.preAppArguments + PluginManager::argumentsForRestart(), restarter.workingPath() };
+    PluginManager::setCreatorProcessData(processData);
 
     const PluginSpecSet plugins = PluginManager::plugins();
     PluginSpec *coreplugin = nullptr;

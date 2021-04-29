@@ -26,6 +26,7 @@
 #pragma once
 
 #include "pluginspec.h"
+#include "pluginmanager.h"
 
 #include <utils/algorithm.h>
 
@@ -152,6 +153,8 @@ public:
     bool m_scenarioFullyInitialized = false;
     QMutex m_scenarioMutex;
     QWaitCondition m_scenarioWaitCondition;
+
+    PluginManager::ProcessData m_creatorProcessData;
 
 private:
     PluginManager *q;

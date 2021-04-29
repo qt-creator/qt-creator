@@ -34,6 +34,8 @@
 #include <cpptools/cpptoolstestcase.h>
 #include <cpptools/projectinfo.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
@@ -46,6 +48,7 @@
 #include <qtsupport/qtkitinformation.h>
 
 using namespace Core;
+using namespace ExtensionSystem;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -302,6 +305,12 @@ void AutoTestUnitTests::testCodeParserBoostTest_data()
         << QString(m_tmpDir->path() + "/simple_boost/simple_boost.pro") << QString(".pro");
     QTest::newRow("simpleBoostTestQbs")
         << QString(m_tmpDir->path() + "/simple_boost/simple_boost.qbs") << QString(".qbs");
+}
+
+void AutoTestUnitTests::testStringTable()
+{
+    const PluginManager::ProcessData data = PluginManager::creatorProcessData();
+    QCOMPARE(QProcess::execute(data.m_executable, data.m_args + QStringList({ "-scenario", "TestStringTable" })), 0);
 }
 
 } // namespace Internal

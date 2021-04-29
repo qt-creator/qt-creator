@@ -55,6 +55,7 @@ private slots:
     void testCodeParserGTest_data();
     void testCodeParserBoostTest();
     void testCodeParserBoostTest_data();
+    void testStringTable();
 
 private:
     TestTreeModel *m_model = nullptr;

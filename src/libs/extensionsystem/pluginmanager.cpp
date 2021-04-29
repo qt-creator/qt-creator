@@ -881,6 +881,16 @@ void PluginManager::waitForScenarioFullyInitialized()
 }
 #endif
 
+void PluginManager::setCreatorProcessData(const PluginManager::ProcessData &data)
+{
+    d->m_creatorProcessData = data;
+}
+
+PluginManager::ProcessData PluginManager::creatorProcessData()
+{
+    return d->m_creatorProcessData;
+}
+
 /*!
     \internal
 */

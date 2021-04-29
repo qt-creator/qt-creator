@@ -133,6 +133,15 @@ public:
     // void scenarioPointTriggered(const QVariant pointData); // ?? e.g. in StringTable::GC() -> post a call to quit into main thread and sleep for 5 seconds in the GC thread
 #endif
 
+    struct ProcessData {
+        QString m_executable;
+        QStringList m_args;
+        QString m_workingPath;
+    };
+
+    static void setCreatorProcessData(const ProcessData &data);
+    static ProcessData creatorProcessData();
+
     static void profilingReport(const char *what, const PluginSpec *spec = nullptr);
 
     static QString platformName();
