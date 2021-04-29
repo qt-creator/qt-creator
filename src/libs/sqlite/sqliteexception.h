@@ -410,4 +410,12 @@ public:
     {}
 };
 
+class DatabaseIsNotLocked : public Exception
+{
+public:
+    DatabaseIsNotLocked(const char *whatErrorHasHappen)
+        : Exception(whatErrorHasHappen)
+    {}
+};
+
 } // namespace Sqlite

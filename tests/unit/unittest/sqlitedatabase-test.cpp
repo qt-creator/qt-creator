@@ -55,20 +55,24 @@ class SqliteDatabase : public ::testing::Test
 protected:
     SqliteDatabase()
     {
+        database.lock();
         database.setJournalMode(JournalMode::Memory);
         database.setDatabaseFilePath(databaseFilePath);
-        auto &table = database.addTable();
+        Table table;
         table.setName("test");
         table.addColumn("id", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
         table.addColumn("name");
 
         database.open();
+
+        table.initialize(database);
     }
 
     ~SqliteDatabase()
     {
         if (database.isOpen())
             database.close();
+        database.unlock();
     }
 
     std::vector<Utils::SmallString> names() const
@@ -157,13 +161,6 @@ TEST_F(SqliteDatabase, DatabaseIsNotInitializedIfDatabasePathDoesNotExistAtOpeni
     ASSERT_FALSE(database.isInitialized());
 }
 
-TEST_F(SqliteDatabase, AddTable)
-{
-    auto sqliteTable = database.addTable();
-
-    ASSERT_THAT(database.tables(), Contains(sqliteTable));
-}
-
 TEST_F(SqliteDatabase, GetChangesCount)
 {
     Sqlite::WriteStatement statement("INSERT INTO test(name) VALUES (?)", database);
@@ -186,18 +183,6 @@ TEST_F(SqliteDatabase, GetLastInsertedRowId)
     statement.write(42);
 
     ASSERT_THAT(database.lastInsertedRowId(), 1);
-}
-
-TEST_F(SqliteDatabase, TableIsReadyAfterOpenDatabase)
-{
-    database.close();
-    auto &table = database.addTable();
-    table.setName("foo");
-    table.addColumn("name");
-
-    database.open();
-
-    ASSERT_TRUE(table.isReady());
 }
 
 TEST_F(SqliteDatabase, LastRowId)
@@ -329,10 +314,12 @@ TEST_F(SqliteDatabase, SessionsCommit)
 {
     database.setAttachedTables({"test"});
     Sqlite::WriteStatement("INSERT INTO test(id, name) VALUES (?,?)", database).write(1, "foo");
+    database.unlock();
 
     Sqlite::ImmediateSessionTransaction transaction{database};
     Sqlite::WriteStatement("INSERT INTO test(id, name) VALUES (?,?)", database).write(2, "bar");
     transaction.commit();
+    database.lock();
     Sqlite::WriteStatement("INSERT OR REPLACE INTO test(id, name) VALUES (?,?)", database).write(2, "hoo");
     database.applyAndUpdateSessions();
 
@@ -343,11 +330,13 @@ TEST_F(SqliteDatabase, SessionsRollback)
 {
     database.setAttachedTables({"test"});
     Sqlite::WriteStatement("INSERT INTO test(id, name) VALUES (?,?)", database).write(1, "foo");
+    database.unlock();
 
     {
         Sqlite::ImmediateSessionTransaction transaction{database};
         Sqlite::WriteStatement("INSERT INTO test(id, name) VALUES (?,?)", database).write(2, "bar");
     }
+    database.lock();
     Sqlite::WriteStatement("INSERT OR REPLACE INTO test(id, name) VALUES (?,?)", database).write(2, "hoo");
     database.applyAndUpdateSessions();
 

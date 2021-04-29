@@ -87,9 +87,6 @@ public:
 
     bool isOpen() const;
 
-    Table &addTable();
-    const std::vector<Table> &tables() const;
-
     void setDatabaseFilePath(Utils::PathString &&databaseFilePath);
     const Utils::PathString &databaseFilePath() const;
 
@@ -148,14 +145,23 @@ public:
 
     SessionChangeSets changeSets() const;
 
+    bool isLocked() const
+    {
+#ifdef UNIT_TESTS
+        return m_isLocked;
+#else
+        return true;
+#endif
+    }
+    void lock() override;
+    void unlock() override;
+
 private:
     void deferredBegin() override;
     void immediateBegin() override;
     void exclusiveBegin() override;
     void commit() override;
     void rollback() override;
-    void lock() override;
-    void unlock() override;
     void immediateSessionBegin() override;
     void sessionCommit() override;
     void sessionRollback() override;
@@ -170,7 +176,6 @@ private:
 private:
     Utils::PathString m_databaseFilePath;
     DatabaseBackend m_databaseBackend;
-    std::vector<Table> m_sqliteTables;
     std::mutex m_databaseMutex;
     std::unique_ptr<Statements> m_statements;
     std::chrono::milliseconds m_busyTimeout;
@@ -178,6 +183,7 @@ private:
     OpenMode m_openMode = OpenMode::ReadWrite;
     bool m_isOpen = false;
     bool m_isInitialized = false;
+    bool m_isLocked = false;
 };
 
 } // namespace Sqlite

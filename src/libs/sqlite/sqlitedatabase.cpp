@@ -70,6 +70,8 @@ Database::Database(Utils::PathString &&databaseFilePath,
     : m_databaseBackend(*this)
     , m_busyTimeout(busyTimeout)
 {
+    std::lock_guard lock{*this};
+
     setJournalMode(journalMode);
     open(std::move(databaseFilePath));
 
@@ -94,7 +96,6 @@ void Database::open()
     else
         m_databaseBackend.registerBusyHandler();
     registerTransactionStatements();
-    initializeTables();
     m_isOpen = true;
 }
 
@@ -125,18 +126,6 @@ void Database::setIsInitialized(bool isInitialized)
 bool Database::isOpen() const
 {
     return m_isOpen;
-}
-
-Table &Database::addTable()
-{
-    m_sqliteTables.emplace_back();
-
-    return m_sqliteTables.back();
-}
-
-const std::vector<Table> &Database::tables() const
-{
-    return m_sqliteTables;
 }
 
 void Database::setDatabaseFilePath(Utils::PathString &&databaseFilePath)
@@ -187,20 +176,6 @@ OpenMode Database::openMode() const
 void Database::execute(Utils::SmallStringView sqlStatement)
 {
     m_databaseBackend.execute(sqlStatement);
-}
-
-void Database::initializeTables()
-{
-    try {
-        ExclusiveTransaction transaction(*this);
-
-        for (Table &table : m_sqliteTables)
-            table.initialize(*this);
-
-        transaction.commit();
-    } catch (const StatementIsBusy &) {
-        initializeTables();
-    }
 }
 
 void Database::registerTransactionStatements()
@@ -257,9 +232,16 @@ void Database::sessionRollback()
 void Database::lock()
 {
     m_databaseMutex.lock();
+#ifdef UNIT_TESTS
+    m_isLocked = true;
+#endif
 }
+
 void Database::unlock()
 {
+#ifdef UNIT_TESTS
+    m_isLocked = false;
+#endif
     m_databaseMutex.unlock();
 }
 

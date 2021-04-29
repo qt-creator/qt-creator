@@ -442,7 +442,9 @@ TEST_F(BuildDependenciesStorageSlow, UpdateIndexingTimeStamp)
 TEST_F(BuildDependenciesStorageSlow, FetchIncludedIndexingTimeStamps)
 {
     storage.insertOrUpdateIndexingTimeStamps({1, 2, 3, 4, 5}, 34);
+    database.lock();
     storage.insertOrUpdateSourceDependencies({{1, 2}, {1, 3}, {2, 3}, {3, 4}, {5, 3}});
+    database.unlock();
 
     auto timeStamps = storage.fetchIncludedIndexingTimeStamps(1);
 
@@ -455,7 +457,9 @@ TEST_F(BuildDependenciesStorageSlow, FetchIncludedIndexingTimeStamps)
 
 TEST_F(BuildDependenciesStorageSlow, FetchDependentSourceIds)
 {
+    database.lock();
     storage.insertOrUpdateSourceDependencies({{1, 2}, {1, 3}, {2, 3}, {4, 2}, {5, 6}, {7, 6}});
+    database.unlock();
 
     auto sourceIds = storage.fetchDependentSourceIds({3, 2, 7});
 

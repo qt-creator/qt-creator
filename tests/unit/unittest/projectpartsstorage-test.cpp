@@ -614,6 +614,7 @@ TEST_F(ProjectPartsStorageSlow, FetchProjectPartId)
 TEST_F(ProjectPartsStorageSlow, FetchProjectPartIdUnguarded)
 {
     auto first = storage.fetchProjectPartId("test");
+    std::lock_guard lock{database};
 
     auto second = storage.fetchProjectPartIdUnguarded("test");
 
@@ -635,8 +636,10 @@ TEST_F(ProjectPartsStorageSlow, FetchProjectParts)
 TEST_F(ProjectPartsStorageSlow, ResetDependentIndexingTimeStamps)
 {
     buildDependenciesStorage.insertOrUpdateIndexingTimeStamps({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 34);
+    database.lock();
     buildDependenciesStorage.insertOrUpdateSourceDependencies(
         {{3, 1}, {4, 1}, {1, 2}, {7, 5}, {8, 6}, {6, 5}, {9, 10}});
+    database.unlock();
 
     storage.resetIndexingTimeStamps({projectPart1, projectPart2});
 

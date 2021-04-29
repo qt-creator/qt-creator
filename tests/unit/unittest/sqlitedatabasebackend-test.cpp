@@ -28,6 +28,7 @@
 #include <sqlitedatabase.h>
 #include <sqlitedatabasebackend.h>
 #include <sqliteexception.h>
+#include <sqlitetransaction.h>
 #include <sqlitewritestatement.h>
 
 #include <sqlite.h>
@@ -48,8 +49,18 @@ using Sqlite::WriteStatement;
 class SqliteDatabaseBackend : public ::testing::Test
 {
 protected:
-    void SetUp() override;
-    void TearDown() override;
+    SqliteDatabaseBackend()
+    {
+        database.lock();
+        QDir::temp().remove(QStringLiteral("SqliteDatabaseBackendTest.db"));
+        databaseBackend.open(databaseFilePath, OpenMode::ReadWrite);
+    }
+
+    ~SqliteDatabaseBackend() noexcept(true)
+    {
+        databaseBackend.closeWithoutException();
+        database.unlock();
+    }
 
     Utils::PathString databaseFilePath = UnitTest::temporaryDirPath() + "/SqliteDatabaseBackendTest.db";
     Sqlite::Database database;
@@ -123,15 +134,4 @@ TEST_F(SqliteDatabaseBackend, OpenModeReadWrite)
 
     ASSERT_THAT(mode, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE);
 }
-
-void SqliteDatabaseBackend::SetUp()
-{
-    QDir::temp().remove(QStringLiteral("SqliteDatabaseBackendTest.db"));
-    databaseBackend.open(databaseFilePath, OpenMode::ReadWrite);
-}
-
-void SqliteDatabaseBackend::TearDown()
-{
-    databaseBackend.closeWithoutException();
-}
-}
+} // namespace

@@ -195,23 +195,6 @@ public:
         resetter.reset();
     }
 
-    template<typename ResultType>
-    std::vector<ResultType> values(std::size_t reserveSize)
-    {
-        Resetter resetter{this};
-        std::vector<ResultType> resultValues;
-        resultValues.reserve(std::max(reserveSize, m_maximumResultCount));
-
-        while (BaseStatement::next())
-            emplaceBackValues(resultValues);
-
-        setMaximumResultCount(resultValues.size());
-
-        resetter.reset();
-
-        return resultValues;
-    }
-
     template<typename ResultType, typename... QueryTypes>
     auto values(std::size_t reserveSize, const QueryTypes &...queryValues)
     {
@@ -438,7 +421,10 @@ private:
     {
         Resetter(StatementImplementation *statement)
             : statement(statement)
-        {}
+        {
+            if (statement && !statement->database().isLocked())
+                throw DatabaseIsNotLocked{"Database connection is not locked!"};
+        }
 
         Resetter(Resetter &) = delete;
         Resetter &operator=(Resetter &) = delete;

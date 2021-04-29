@@ -69,4 +69,5 @@ public:
     MOCK_METHOD(void, applyAndUpdateSessions, (), (override));
 
     MOCK_METHOD(void, setAttachedTables, (const Utils::SmallStringVector &tables), (override));
+    MOCK_METHOD(bool, isLocked, (), (const));
 };

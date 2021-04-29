@@ -75,7 +75,7 @@ protected:
 class SymbolQuerySlowTest : public testing::Test
 {
 protected:
-    void SetUp() override
+    SymbolQuerySlowTest()
     {
         database.execute("INSERT INTO sources VALUES (1, 1, 'filename.h')");
         database.execute("INSERT INTO sources VALUES (2, 1, 'filename.cpp')");
@@ -94,6 +94,7 @@ protected:
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
+    std::lock_guard<Sqlite::Database> lock{database};
     RealStatementFactory realStatementFactory{database};
     RealQuery query{realStatementFactory};
 };

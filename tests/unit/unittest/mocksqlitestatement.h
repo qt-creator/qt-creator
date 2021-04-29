@@ -116,7 +116,6 @@ class MockSqliteStatement
     using Base = Sqlite::StatementImplementation<NiceMock<BaseMockSqliteStatement>, ResultCount>;
 
 public:
-    explicit MockSqliteStatement() {}
     explicit MockSqliteStatement(SqliteDatabaseMock &databaseMock)
         : Base{databaseMock}
     {}

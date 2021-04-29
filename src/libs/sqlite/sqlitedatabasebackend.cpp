@@ -26,6 +26,7 @@
 #include "sqlitedatabasebackend.h"
 
 #include "sqlitebasestatement.h"
+#include "sqlitedatabase.h"
 #include "sqliteexception.h"
 #include "sqlitereadstatement.h"
 #include "sqlitereadwritestatement.h"

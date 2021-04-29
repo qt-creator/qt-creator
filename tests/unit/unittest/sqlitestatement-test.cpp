@@ -32,6 +32,7 @@
 #include <sqlitedatabase.h>
 #include <sqlitereadstatement.h>
 #include <sqlitereadwritestatement.h>
+#include <sqlitetransaction.h>
 #include <sqlitewritestatement.h>
 
 #include <utils/smallstringio.h>
@@ -99,21 +100,35 @@ MATCHER_P(HasNullValues, rowid, std::string(negation ? "isn't null" : "is null")
 class SqliteStatement : public ::testing::Test
 {
 protected:
-    void SetUp() override
+    SqliteStatement()
     {
+        database.lock();
+
         database.execute("CREATE TABLE test(name TEXT UNIQUE, number NUMERIC, value NUMERIC)");
         database.execute("INSERT INTO  test VALUES ('bar', 'blah', 1)");
         database.execute("INSERT INTO  test VALUES ('foo', 23.3, 2)");
         database.execute("INSERT INTO  test VALUES ('poo', 40, 3)");
+
+        ON_CALL(databaseMock, isLocked()).WillByDefault(Return(true));
     }
-    void TearDown() override
+
+    ~SqliteStatement()
     {
         if (database.isOpen())
             database.close();
+
+        database.unlock();
+    }
+
+    template<typename Range>
+    static auto toValues(Range &&range)
+    {
+        return std::vector<typename Range::value_type>{range.begin(), range.end()};
     }
 
 protected:
-     Database database{":memory:", Sqlite::JournalMode::Memory};
+    Database database{":memory:", Sqlite::JournalMode::Memory};
+    NiceMock<SqliteDatabaseMock> databaseMock;
 };
 
 struct Output
@@ -668,8 +683,7 @@ TEST_F(SqliteStatement, GetTupleRangeWithoutArguments)
     using Tuple = std::tuple<Utils::SmallString, double, int>;
     ReadStatement<3> statement("SELECT name, number, value FROM test", database);
 
-    auto range = statement.range<Tuple>();
-    std::vector<Tuple> values{range.begin(), range.end()};
+    std::vector<Tuple> values = toValues(statement.range<Tuple>());
 
     ASSERT_THAT(values,
                 UnorderedElementsAre(Tuple{"bar", 0, 1}, Tuple{"foo", 23.3, 2}, Tuple{"poo", 40.0, 3}));
@@ -679,12 +693,13 @@ TEST_F(SqliteStatement, GetTupleRangeWithTransactionWithoutArguments)
 {
     using Tuple = std::tuple<Utils::SmallString, double, int>;
     ReadStatement<3> statement("SELECT name, number, value FROM test", database);
+    database.unlock();
 
-    auto range = statement.rangeWithTransaction<Tuple>();
-    std::vector<Tuple> values{range.begin(), range.end()};
+    std::vector<Tuple> values = toValues(statement.rangeWithTransaction<Tuple>());
 
     ASSERT_THAT(values,
                 UnorderedElementsAre(Tuple{"bar", 0, 1}, Tuple{"foo", 23.3, 2}, Tuple{"poo", 40.0, 3}));
+    database.lock();
 }
 
 TEST_F(SqliteStatement, GetTupleRangeInForRangeLoop)
@@ -705,12 +720,14 @@ TEST_F(SqliteStatement, GetTupleRangeWithTransactionInForRangeLoop)
     using Tuple = std::tuple<Utils::SmallString, double, int>;
     ReadStatement<3> statement("SELECT name, number, value FROM test", database);
     std::vector<Tuple> values;
+    database.unlock();
 
     for (auto value : statement.rangeWithTransaction<Tuple>())
         values.push_back(value);
 
     ASSERT_THAT(values,
                 UnorderedElementsAre(Tuple{"bar", 0, 1}, Tuple{"foo", 23.3, 2}, Tuple{"poo", 40.0, 3}));
+    database.lock();
 }
 
 TEST_F(SqliteStatement, GetTupleRangeInForRangeLoopWithBreak)
@@ -733,6 +750,7 @@ TEST_F(SqliteStatement, GetTupleRangeWithTransactionInForRangeLoopWithBreak)
     using Tuple = std::tuple<Utils::SmallString, double, int>;
     ReadStatement<3> statement("SELECT name, number, value FROM test ORDER BY name", database);
     std::vector<Tuple> values;
+    database.unlock();
 
     for (auto value : statement.rangeWithTransaction<Tuple>()) {
         values.push_back(value);
@@ -741,6 +759,7 @@ TEST_F(SqliteStatement, GetTupleRangeWithTransactionInForRangeLoopWithBreak)
     }
 
     ASSERT_THAT(values, UnorderedElementsAre(Tuple{"bar", 0, 1}, Tuple{"foo", 23.3, 2}));
+    database.lock();
 }
 
 TEST_F(SqliteStatement, GetTupleRangeInForRangeLoopWithContinue)
@@ -763,6 +782,7 @@ TEST_F(SqliteStatement, GetTupleRangeWithTransactionInForRangeLoopWithContinue)
     using Tuple = std::tuple<Utils::SmallString, double, int>;
     ReadStatement<3> statement("SELECT name, number, value FROM test ORDER BY name", database);
     std::vector<Tuple> values;
+    database.unlock();
 
     for (auto value : statement.rangeWithTransaction<Tuple>()) {
         if (value == Tuple{"foo", 23.3, 2})
@@ -771,6 +791,7 @@ TEST_F(SqliteStatement, GetTupleRangeWithTransactionInForRangeLoopWithContinue)
     }
 
     ASSERT_THAT(values, UnorderedElementsAre(Tuple{"bar", 0, 1}, Tuple{"poo", 40.0, 3}));
+    database.lock();
 }
 
 TEST_F(SqliteStatement, GetSingleValuesWithoutArguments)
@@ -795,11 +816,13 @@ TEST_F(SqliteStatement, GetSingleRangeWithoutArguments)
 TEST_F(SqliteStatement, GetSingleRangeWithTransactionWithoutArguments)
 {
     ReadStatement<1> statement("SELECT name FROM test", database);
+    database.unlock();
 
-    auto range = statement.rangeWithTransaction<Utils::SmallStringView>();
-    std::vector<Utils::SmallString> values{range.begin(), range.end()};
+    std::vector<Utils::SmallString> values = toValues(
+        statement.rangeWithTransaction<Utils::SmallString>());
 
     ASSERT_THAT(values, UnorderedElementsAre("bar", "foo", "poo"));
+    database.lock();
 }
 
 class FooValue
@@ -843,11 +866,12 @@ TEST_F(SqliteStatement, GetSingleSqliteRangeWithTransactionWithoutArguments)
 {
     ReadStatement<1> statement("SELECT number FROM test", database);
     database.execute("INSERT INTO  test VALUES (NULL, NULL, NULL)");
+    database.unlock();
 
-    auto range = statement.rangeWithTransaction<FooValue>();
-    std::vector<FooValue> values{range.begin(), range.end()};
+    std::vector<FooValue> values = toValues(statement.rangeWithTransaction<FooValue>());
 
     ASSERT_THAT(values, UnorderedElementsAre(Eq("blah"), Eq(23.3), Eq(40), IsNull()));
+    database.lock();
 }
 
 TEST_F(SqliteStatement, GetStructValuesWithoutArguments)
@@ -878,14 +902,15 @@ TEST_F(SqliteStatement, GetStructRangeWithoutArguments)
 TEST_F(SqliteStatement, GetStructRangeWithTransactionWithoutArguments)
 {
     ReadStatement<3> statement("SELECT name, number, value FROM test", database);
+    database.unlock();
 
-    auto range = statement.rangeWithTransaction<Output>();
-    std::vector<Output> values{range.begin(), range.end()};
+    std::vector<Output> values = toValues(statement.rangeWithTransaction<Output>());
 
     ASSERT_THAT(values,
                 UnorderedElementsAre(Output{"bar", "blah", 1},
                                      Output{"foo", "23.3", 2},
                                      Output{"poo", "40", 3}));
+    database.lock();
 }
 
 TEST_F(SqliteStatement, GetValuesForSingleOutputWithBindingMultipleTimes)
@@ -913,11 +938,13 @@ TEST_F(SqliteStatement, GetRangeWithTransactionForSingleOutputWithBindingMultipl
 {
     ReadStatement<1> statement("SELECT name FROM test WHERE number=?", database);
     statement.values<Utils::SmallString>(3, 40);
+    database.unlock();
 
-    auto range = statement.rangeWithTransaction<Utils::SmallStringView>(40);
-    std::vector<Utils::SmallString> values{range.begin(), range.end()};
+    std::vector<Utils::SmallString> values = toValues(
+        statement.rangeWithTransaction<Utils::SmallString>(40));
 
     ASSERT_THAT(values, ElementsAre("poo"));
+    database.lock();
 }
 
 TEST_F(SqliteStatement, GetValuesForMultipleOutputValuesAndMultipleQueryValue)
@@ -948,11 +975,12 @@ TEST_F(SqliteStatement, GetRangeWithTransactionForMultipleOutputValuesAndMultipl
     using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
     ReadStatement<3> statement(
         "SELECT name, number, value FROM test WHERE name=? AND number=? AND value=?", database);
+    database.unlock();
 
-    auto range = statement.rangeWithTransaction<Tuple>("bar", "blah", 1);
-    std::vector<Tuple> values{range.begin(), range.end()};
+    std::vector<Tuple> values = toValues(statement.rangeWithTransaction<Tuple>("bar", "blah", 1));
 
     ASSERT_THAT(values, ElementsAre(Tuple{"bar", "blah", 1}));
+    database.lock();
 }
 
 TEST_F(SqliteStatement, CallGetValuesForMultipleOutputValuesAndMultipleQueryValueMultipleTimes)
@@ -989,15 +1017,13 @@ TEST_F(SqliteStatement,
     using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
     ReadStatement<3> statement("SELECT name, number, value FROM test WHERE name=? AND number=?",
                                database);
-    {
-        auto range = statement.rangeWithTransaction<Tuple>("bar", "blah");
-        std::vector<Tuple> values1{range.begin(), range.end()};
-    }
+    database.unlock();
+    std::vector<Tuple> values1 = toValues(statement.rangeWithTransaction<Tuple>("bar", "blah"));
 
-    auto range2 = statement.rangeWithTransaction<Tuple>("bar", "blah");
-    std::vector<Tuple> values{range2.begin(), range2.end()};
+    std::vector<Tuple> values = toValues(statement.rangeWithTransaction<Tuple>("bar", "blah"));
 
     ASSERT_THAT(values, ElementsAre(Tuple{"bar", "blah", 1}));
+    database.lock();
 }
 
 TEST_F(SqliteStatement, GetStructOutputValuesAndMultipleQueryValue)
@@ -1083,7 +1109,7 @@ TEST_F(SqliteStatement, GetOptionalTupleValueAndMultipleQueryValue)
 
 TEST_F(SqliteStatement, GetOptionalValueCallsReset)
 {
-    MockSqliteStatement mockStatement;
+    MockSqliteStatement mockStatement{databaseMock};
 
     EXPECT_CALL(mockStatement, reset());
 
@@ -1092,7 +1118,7 @@ TEST_F(SqliteStatement, GetOptionalValueCallsReset)
 
 TEST_F(SqliteStatement, GetOptionalValueCallsResetIfExceptionIsThrown)
 {
-    MockSqliteStatement mockStatement;
+    MockSqliteStatement mockStatement{databaseMock};
     ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
 
     EXPECT_CALL(mockStatement, reset());
@@ -1102,7 +1128,7 @@ TEST_F(SqliteStatement, GetOptionalValueCallsResetIfExceptionIsThrown)
 
 TEST_F(SqliteStatement, GetValuesWithoutArgumentsCallsReset)
 {
-    MockSqliteStatement mockStatement;
+    MockSqliteStatement mockStatement{databaseMock};
 
     EXPECT_CALL(mockStatement, reset());
 
@@ -1111,7 +1137,7 @@ TEST_F(SqliteStatement, GetValuesWithoutArgumentsCallsReset)
 
 TEST_F(SqliteStatement, GetRangeWithoutArgumentsCallsReset)
 {
-    MockSqliteStatement mockStatement;
+    MockSqliteStatement mockStatement{databaseMock};
 
     EXPECT_CALL(mockStatement, reset());
 
@@ -1121,7 +1147,6 @@ TEST_F(SqliteStatement, GetRangeWithoutArgumentsCallsReset)
 TEST_F(SqliteStatement, GetRangeWithTransactionWithoutArgumentsCalls)
 {
     InSequence s;
-    SqliteDatabaseMock databaseMock;
     MockSqliteStatement mockStatement{databaseMock};
 
     EXPECT_CALL(databaseMock, lock());
@@ -1135,7 +1160,7 @@ TEST_F(SqliteStatement, GetRangeWithTransactionWithoutArgumentsCalls)
 
 TEST_F(SqliteStatement, GetValuesWithoutArgumentsCallsResetIfExceptionIsThrown)
 {
-    MockSqliteStatement mockStatement;
+    MockSqliteStatement mockStatement{databaseMock};
     ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
 
     EXPECT_CALL(mockStatement, reset());
@@ -1145,7 +1170,7 @@ TEST_F(SqliteStatement, GetValuesWithoutArgumentsCallsResetIfExceptionIsThrown)
 
 TEST_F(SqliteStatement, GetRangeWithoutArgumentsCallsResetIfExceptionIsThrown)
 {
-    MockSqliteStatement mockStatement;
+    MockSqliteStatement mockStatement{databaseMock};
     ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
     auto range = mockStatement.range<int>();
 
@@ -1157,7 +1182,6 @@ TEST_F(SqliteStatement, GetRangeWithoutArgumentsCallsResetIfExceptionIsThrown)
 TEST_F(SqliteStatement, GetRangeWithTransactionWithoutArgumentsCallsResetIfExceptionIsThrown)
 {
     InSequence s;
-    SqliteDatabaseMock databaseMock;
     MockSqliteStatement mockStatement{databaseMock};
     ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
 
@@ -1177,7 +1201,7 @@ TEST_F(SqliteStatement, GetRangeWithTransactionWithoutArgumentsCallsResetIfExcep
 
 TEST_F(SqliteStatement, GetValuesWithSimpleArgumentsCallsReset)
 {
-    MockSqliteStatement mockStatement;
+    MockSqliteStatement mockStatement{databaseMock};
 
     EXPECT_CALL(mockStatement, reset());
 
@@ -1186,7 +1210,7 @@ TEST_F(SqliteStatement, GetValuesWithSimpleArgumentsCallsReset)
 
 TEST_F(SqliteStatement, GetValuesWithSimpleArgumentsCallsResetIfExceptionIsThrown)
 {
-    MockSqliteStatement mockStatement;
+    MockSqliteStatement mockStatement{databaseMock};
     ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
 
     EXPECT_CALL(mockStatement, reset());
@@ -1196,7 +1220,7 @@ TEST_F(SqliteStatement, GetValuesWithSimpleArgumentsCallsResetIfExceptionIsThrow
 
 TEST_F(SqliteStatement, ResetIfWriteIsThrowingException)
 {
-    MockSqliteStatement mockStatement;
+    MockSqliteStatement mockStatement{databaseMock};
 
     EXPECT_CALL(mockStatement, bind(1, TypedEq<Utils::SmallStringView>("bar")))
             .WillOnce(Throw(Sqlite::StatementIsBusy("")));
@@ -1207,7 +1231,7 @@ TEST_F(SqliteStatement, ResetIfWriteIsThrowingException)
 
 TEST_F(SqliteStatement, ResetIfExecuteThrowsException)
 {
-    MockSqliteStatement mockStatement;
+    MockSqliteStatement mockStatement{databaseMock};
 
     EXPECT_CALL(mockStatement, next()).WillOnce(Throw(Sqlite::StatementIsBusy("")));
     EXPECT_CALL(mockStatement, reset());
@@ -1268,7 +1292,7 @@ TEST_F(SqliteStatement, ReadCallbackAborts)
 TEST_F(SqliteStatement, ReadCallbackCallsResetAfterCallbacks)
 {
     MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, long long)> callbackMock;
-    MockSqliteStatement<2> mockStatement;
+    MockSqliteStatement<2> mockStatement{databaseMock};
 
     EXPECT_CALL(mockStatement, reset());
 
@@ -1278,7 +1302,7 @@ TEST_F(SqliteStatement, ReadCallbackCallsResetAfterCallbacks)
 TEST_F(SqliteStatement, ReadCallbackCallsResetAfterCallbacksAborts)
 {
     MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, long long)> callbackMock;
-    MockSqliteStatement<2> mockStatement;
+    MockSqliteStatement<2> mockStatement{databaseMock};
     ON_CALL(callbackMock, Call(_, _)).WillByDefault(Return(Sqlite::CallbackControl::Abort));
 
     EXPECT_CALL(mockStatement, reset());
@@ -1289,7 +1313,7 @@ TEST_F(SqliteStatement, ReadCallbackCallsResetAfterCallbacksAborts)
 TEST_F(SqliteStatement, ReadCallbackThrowsForError)
 {
     MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, long long)> callbackMock;
-    MockSqliteStatement<2> mockStatement;
+    MockSqliteStatement<2> mockStatement{databaseMock};
     ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
 
     ASSERT_THROW(mockStatement.readCallback(callbackMock.AsStdFunction()), Sqlite::StatementHasError);
@@ -1298,7 +1322,7 @@ TEST_F(SqliteStatement, ReadCallbackThrowsForError)
 TEST_F(SqliteStatement, ReadCallbackCallsResetIfExceptionIsThrown)
 {
     MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, long long)> callbackMock;
-    MockSqliteStatement<2> mockStatement;
+    MockSqliteStatement<2> mockStatement{databaseMock};
     ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
 
     EXPECT_CALL(mockStatement, reset());
@@ -1329,7 +1353,7 @@ TEST_F(SqliteStatement, ReadToContainerCallCallbackWithArguments)
 TEST_F(SqliteStatement, ReadToCallsResetAfterPushingAllValuesBack)
 {
     std::deque<FooValue> values;
-    MockSqliteStatement mockStatement;
+    MockSqliteStatement mockStatement{databaseMock};
 
     EXPECT_CALL(mockStatement, reset());
 
@@ -1339,7 +1363,7 @@ TEST_F(SqliteStatement, ReadToCallsResetAfterPushingAllValuesBack)
 TEST_F(SqliteStatement, ReadToThrowsForError)
 {
     std::deque<FooValue> values;
-    MockSqliteStatement mockStatement;
+    MockSqliteStatement mockStatement{databaseMock};
     ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
 
     ASSERT_THROW(mockStatement.readTo(values), Sqlite::StatementHasError);
@@ -1348,7 +1372,7 @@ TEST_F(SqliteStatement, ReadToThrowsForError)
 TEST_F(SqliteStatement, ReadToCallsResetIfExceptionIsThrown)
 {
     std::deque<FooValue> values;
-    MockSqliteStatement mockStatement;
+    MockSqliteStatement mockStatement{databaseMock};
     ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
 
     EXPECT_CALL(mockStatement, reset());
