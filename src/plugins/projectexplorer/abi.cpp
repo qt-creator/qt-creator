@@ -1157,19 +1157,18 @@ Abis Abi::abisOfBinary(const Utils::FilePath &path)
     if (path.isEmpty())
         return tmp;
 
-    QFile f(path.toString());
-    if (!f.exists())
-        return tmp;
-
-    if (!f.open(QFile::ReadOnly))
-        return tmp;
-
-    QByteArray data = f.read(1024);
+    QByteArray data = path.fileContents(1024);
     if (data.size() >= 67
             && getUint8(data, 0) == '!' && getUint8(data, 1) == '<' && getUint8(data, 2) == 'a'
             && getUint8(data, 3) == 'r' && getUint8(data, 4) == 'c' && getUint8(data, 5) == 'h'
             && getUint8(data, 6) == '>' && getUint8(data, 7) == 0x0a) {
         // We got an ar file: possibly a static lib for ELF, PE or Mach-O
+
+        // FIXME: Implement remote
+        QTC_ASSERT(!path.needsDevice(), return tmp);
+        QFile f(path.toString());
+        if (!f.open(QFile::ReadOnly))
+            return tmp;
 
         data = data.mid(8); // Cut of ar file magic
         quint64 offset = 8;
@@ -1203,7 +1202,6 @@ Abis Abi::abisOfBinary(const Utils::FilePath &path)
     } else {
         tmp = abiOf(data);
     }
-    f.close();
 
     // Remove duplicates:
     Abis result;
