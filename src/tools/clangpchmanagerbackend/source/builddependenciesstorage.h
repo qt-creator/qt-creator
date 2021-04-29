@@ -102,7 +102,7 @@ public:
     {
         auto &statement = getLowestLastModifiedTimeOfDependencies;
 
-        return statement.template value<long long>(sourceId.filePathId).value_or(0);
+        return statement.template optionalValue<long long>(sourceId.filePathId).value_or(0);
     }
 
     void insertOrUpdateUsedMacros(const UsedMacros &usedMacros) override
@@ -131,7 +131,8 @@ public:
 
     ProjectPartId fetchProjectPartId(Utils::SmallStringView projectPartName) override
     {
-        auto projectPartId = fetchProjectPartIdStatement.template value<ProjectPartId>(projectPartName);
+        auto projectPartId = fetchProjectPartIdStatement.template optionalValue<ProjectPartId>(
+            projectPartName);
 
         if (projectPartId)
             return *projectPartId;

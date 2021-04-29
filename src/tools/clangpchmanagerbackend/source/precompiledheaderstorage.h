@@ -145,7 +145,7 @@ public:
         try {
             Sqlite::DeferredTransaction transaction{database};
 
-            auto value = fetchSystemPrecompiledHeaderPathStatement.template value<FilePath>(
+            auto value = fetchSystemPrecompiledHeaderPathStatement.template optionalValue<FilePath>(
                 projectPartId.projectPathId);
 
             transaction.commit();
@@ -165,7 +165,7 @@ public:
         try {
             Sqlite::DeferredTransaction transaction{database};
 
-            auto value = fetchPrecompiledHeaderStatement.template value<FilePath>(
+            auto value = fetchPrecompiledHeaderStatement.template optionalValue<FilePath>(
                 projectPartId.projectPathId);
 
             transaction.commit();
@@ -185,7 +185,7 @@ public:
         try {
             Sqlite::DeferredTransaction transaction{database};
 
-            auto value = fetchPrecompiledHeadersStatement.template value<PchPaths>(
+            auto value = fetchPrecompiledHeadersStatement.template optionalValue<PchPaths>(
                 projectPartId.projectPathId);
 
             transaction.commit();
@@ -205,7 +205,7 @@ public:
         try {
             Sqlite::DeferredTransaction transaction{database};
 
-            auto value = fetchTimeStampsStatement.template value<PrecompiledHeaderTimeStamps>(
+            auto value = fetchTimeStampsStatement.template optionalValue<PrecompiledHeaderTimeStamps>(
                 projectPartId.projectPathId);
 
             transaction.commit();

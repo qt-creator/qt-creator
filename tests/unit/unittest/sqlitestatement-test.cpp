@@ -133,8 +133,11 @@ protected:
 
 struct Output
 {
-    Output(Utils::SmallStringView name, Utils::SmallStringView number, long long value)
-        : name(name), number(number), value(value)
+    explicit Output() = default;
+    explicit Output(Utils::SmallStringView name, Utils::SmallStringView number, long long value)
+        : name(name)
+        , number(number)
+        , value(value)
     {}
 
     Utils::SmallString name;
@@ -559,7 +562,7 @@ TEST_F(SqliteStatement, WriteSqliteBlobValue)
 
     statement.write(Sqlite::Value{bytes});
 
-    ASSERT_THAT(readStatement.template value<Sqlite::Blob>(),
+    ASSERT_THAT(readStatement.template optionalValue<Sqlite::Blob>(),
                 Optional(Field(&Sqlite::Blob::bytes, Eq(bytes))));
 }
 
@@ -611,7 +614,7 @@ TEST_F(SqliteStatement, WriteSqliteBlobValueView)
 
     statement.write(Sqlite::ValueView::create(bytes));
 
-    ASSERT_THAT(readStatement.template value<Sqlite::Blob>(),
+    ASSERT_THAT(readStatement.template optionalValue<Sqlite::Blob>(),
                 Optional(Field(&Sqlite::Blob::bytes, Eq(bytes))));
 }
 
@@ -648,7 +651,7 @@ TEST_F(SqliteStatement, WriteBlobs)
 
     statement.write(bytes);
 
-    ASSERT_THAT(readStatement.template value<Sqlite::Blob>(),
+    ASSERT_THAT(readStatement.template optionalValue<Sqlite::Blob>(),
                 Optional(Field(&Sqlite::Blob::bytes, Eq(bytes))));
 }
 
@@ -1049,29 +1052,29 @@ TEST_F(SqliteStatement, GetBlobValues)
     ASSERT_THAT(values, ElementsAre(Field(&Sqlite::Blob::bytes, Eq(bytes))));
 }
 
-TEST_F(SqliteStatement, GetEmptyBlobValueForInteger)
+TEST_F(SqliteStatement, GetEmptyOptionalBlobValueForInteger)
 {
     ReadStatement<1> statement("SELECT value FROM test WHERE name='poo'", database);
 
-    auto value = statement.value<Sqlite::Blob>();
+    auto value = statement.optionalValue<Sqlite::Blob>();
 
     ASSERT_THAT(value, Optional(Field(&Sqlite::Blob::bytes, IsEmpty())));
 }
 
-TEST_F(SqliteStatement, GetEmptyBlobValueForFloat)
+TEST_F(SqliteStatement, GetEmptyOptionalBlobValueForFloat)
 {
     ReadStatement<1> statement("SELECT number FROM test WHERE name='foo'", database);
 
-    auto value = statement.value<Sqlite::Blob>();
+    auto value = statement.optionalValue<Sqlite::Blob>();
 
     ASSERT_THAT(value, Optional(Field(&Sqlite::Blob::bytes, IsEmpty())));
 }
 
-TEST_F(SqliteStatement, GetEmptyBlobValueForText)
+TEST_F(SqliteStatement, GetEmptyOptionalBlobValueForText)
 {
     ReadStatement<1> statement("SELECT number FROM test WHERE name='bar'", database);
 
-    auto value = statement.value<Sqlite::Blob>();
+    auto value = statement.optionalValue<Sqlite::Blob>();
 
     ASSERT_THAT(value, Optional(Field(&Sqlite::Blob::bytes, IsEmpty())));
 }
@@ -1081,7 +1084,7 @@ TEST_F(SqliteStatement, GetOptionalSingleValueAndMultipleQueryValue)
     ReadStatement<1> statement("SELECT name FROM test WHERE name=? AND number=? AND value=?",
                                database);
 
-    auto value = statement.value<Utils::SmallString>("bar", "blah", 1);
+    auto value = statement.optionalValue<Utils::SmallString>("bar", "blah", 1);
 
     ASSERT_THAT(value.value(), Eq("bar"));
 }
@@ -1091,7 +1094,7 @@ TEST_F(SqliteStatement, GetOptionalOutputValueAndMultipleQueryValue)
     ReadStatement<3> statement(
         "SELECT name, number, value FROM test WHERE name=? AND number=? AND value=?", database);
 
-    auto value = statement.value<Output>("bar", "blah", 1);
+    auto value = statement.optionalValue<Output>("bar", "blah", 1);
 
     ASSERT_THAT(value.value(), Eq(Output{"bar", "blah", 1}));
 }
@@ -1102,7 +1105,7 @@ TEST_F(SqliteStatement, GetOptionalTupleValueAndMultipleQueryValue)
     ReadStatement<3> statement(
         "SELECT name, number, value FROM test WHERE name=? AND number=? AND value=?", database);
 
-    auto value = statement.value<Tuple>("bar", "blah", 1);
+    auto value = statement.optionalValue<Tuple>("bar", "blah", 1);
 
     ASSERT_THAT(value.value(), Eq(Tuple{"bar", "blah", 1}));
 }
@@ -1113,10 +1116,60 @@ TEST_F(SqliteStatement, GetOptionalValueCallsReset)
 
     EXPECT_CALL(mockStatement, reset());
 
-    mockStatement.value<int>("bar");
+    mockStatement.optionalValue<int>("bar");
 }
 
 TEST_F(SqliteStatement, GetOptionalValueCallsResetIfExceptionIsThrown)
+{
+    MockSqliteStatement mockStatement{databaseMock};
+    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+
+    EXPECT_CALL(mockStatement, reset());
+
+    EXPECT_THROW(mockStatement.optionalValue<int>("bar"), Sqlite::StatementHasError);
+}
+
+TEST_F(SqliteStatement, GetSingleValueAndMultipleQueryValue)
+{
+    ReadStatement<1> statement("SELECT name FROM test WHERE name=? AND number=? AND value=?",
+                               database);
+
+    auto value = statement.value<Utils::SmallString>("bar", "blah", 1);
+
+    ASSERT_THAT(value, Eq("bar"));
+}
+
+TEST_F(SqliteStatement, GetOutputValueAndMultipleQueryValue)
+{
+    ReadStatement<3> statement(
+        "SELECT name, number, value FROM test WHERE name=? AND number=? AND value=?", database);
+
+    auto value = statement.value<Output>("bar", "blah", 1);
+
+    ASSERT_THAT(value, Eq(Output{"bar", "blah", 1}));
+}
+
+TEST_F(SqliteStatement, GetTupleValueAndMultipleQueryValue)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
+    ReadStatement<3> statement(
+        "SELECT name, number, value FROM test WHERE name=? AND number=? AND value=?", database);
+
+    auto value = statement.value<Tuple>("bar", "blah", 1);
+
+    ASSERT_THAT(value, Eq(Tuple{"bar", "blah", 1}));
+}
+
+TEST_F(SqliteStatement, GetValueCallsReset)
+{
+    MockSqliteStatement mockStatement{databaseMock};
+
+    EXPECT_CALL(mockStatement, reset());
+
+    mockStatement.value<int>("bar");
+}
+
+TEST_F(SqliteStatement, GetValueCallsResetIfExceptionIsThrown)
 {
     MockSqliteStatement mockStatement{databaseMock};
     ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
@@ -1402,6 +1455,19 @@ TEST_F(SqliteStatement, ReadStatementValueWithTransactions)
 
     auto value = statement.valueWithTransaction<Tuple>("bar", "blah");
 
+    ASSERT_THAT(value, Eq(Tuple{"bar", "blah", 1}));
+    database.lock();
+}
+
+TEST_F(SqliteStatement, ReadStatementOptionalValueWithTransactions)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
+    ReadStatement<3> statement("SELECT name, number, value FROM test WHERE name=? AND number=?",
+                               database);
+    database.unlock();
+
+    auto value = statement.optionalValueWithTransaction<Tuple>("bar", "blah");
+
     ASSERT_THAT(*value, Eq(Tuple{"bar", "blah", 1}));
     database.lock();
 }
@@ -1455,6 +1521,19 @@ TEST_F(SqliteStatement, ReadWriteStatementValueWithTransactions)
     database.unlock();
 
     auto value = statement.valueWithTransaction<Tuple>("bar", "blah");
+
+    ASSERT_THAT(value, Eq(Tuple{"bar", "blah", 1}));
+    database.lock();
+}
+
+TEST_F(SqliteStatement, ReadWriteStatementOptionalValueWithTransactions)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
+    ReadWriteStatement<3> statement(
+        "SELECT name, number, value FROM test WHERE name=? AND number=?", database);
+    database.unlock();
+
+    auto value = statement.optionalValueWithTransaction<Tuple>("bar", "blah");
 
     ASSERT_THAT(*value, Eq(Tuple{"bar", "blah", 1}));
     database.lock();

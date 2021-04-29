@@ -87,7 +87,7 @@ public:
     {
         auto &statement = m_statementFactory.selectDirectoryIdFromDirectoriesByDirectoryPath;
 
-        return statement.template value<int>(directoryPath);
+        return statement.template optionalValue<int>(directoryPath);
     }
 
     int writeDirectoryId(Utils::SmallStringView directoryPath)
@@ -106,7 +106,7 @@ public:
 
             auto &statement = m_statementFactory.selectDirectoryPathFromDirectoriesByDirectoryId;
 
-            auto optionalDirectoryPath = statement.template value<Utils::PathString>(directoryPathId);
+            auto optionalDirectoryPath = statement.template optionalValue<Utils::PathString>(directoryPathId);
 
             if (!optionalDirectoryPath)
                 throw DirectoryPathIdDoesNotExists();
@@ -176,7 +176,7 @@ public:
     {
         auto &statement = m_statementFactory.selectSourceIdFromSourcesByDirectoryIdAndSourceName;
 
-        return statement.template value<int>(directoryId, sourceName);
+        return statement.template optionalValue<int>(directoryId, sourceName);
     }
 
     Sources::SourceNameAndDirectoryId fetchSourceNameAndDirectoryId(int sourceId)
@@ -186,7 +186,7 @@ public:
 
             auto &statement = m_statementFactory.selectSourceNameAndDirectoryIdFromSourcesBySourceId;
 
-            auto optionalSourceName = statement.template value<Sources::SourceNameAndDirectoryId>(
+            auto optionalSourceName = statement.template optionalValue<Sources::SourceNameAndDirectoryId>(
                 sourceId);
 
             if (!optionalSourceName)
@@ -207,7 +207,7 @@ public:
 
             auto &statement = m_statementFactory.selectDirectoryIdFromSourcesBySourceId;
 
-            auto optionalDirectoryId = statement.template value<int>(sourceId);
+            auto optionalDirectoryId = statement.template optionalValue<int>(sourceId);
 
             if (!optionalDirectoryId)
                 throw SourceNameIdDoesNotExists();

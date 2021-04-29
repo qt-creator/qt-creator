@@ -58,7 +58,7 @@ public:
         try {
             Sqlite::DeferredTransaction transaction{database};
 
-            auto optionalBlob = selectImageStatement.template value<Sqlite::ByteArrayBlob>(
+            auto optionalBlob = selectImageStatement.template optionalValue<Sqlite::ByteArrayBlob>(
                 name, minimumTimeStamp.value);
 
             transaction.commit();
@@ -78,7 +78,7 @@ public:
         try {
             Sqlite::DeferredTransaction transaction{database};
 
-            auto optionalBlob = selectSmallImageStatement.template value<Sqlite::ByteArrayBlob>(
+            auto optionalBlob = selectSmallImageStatement.template optionalValue<Sqlite::ByteArrayBlob>(
                 name, minimumTimeStamp.value);
 
             transaction.commit();
@@ -98,7 +98,7 @@ public:
         try {
             Sqlite::DeferredTransaction transaction{database};
 
-            auto optionalBlob = selectIconStatement.template value<Sqlite::ByteArrayBlob>(
+            auto optionalBlob = selectIconStatement.template optionalValue<Sqlite::ByteArrayBlob>(
                 name, minimumTimeStamp.value);
 
             transaction.commit();

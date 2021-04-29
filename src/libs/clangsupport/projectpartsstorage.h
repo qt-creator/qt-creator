@@ -77,7 +77,7 @@ public:
 
     bool preCompiledHeaderWasGenerated(ProjectPartId projectPartId) const
     {
-        auto value = fetchProjectPrecompiledHeaderBuildTimeStatement.template value<long long>(
+        auto value = fetchProjectPrecompiledHeaderBuildTimeStatement.template optionalValue<long long>(
             projectPartId.projectPathId);
 
         return value && *value > 0;
@@ -92,7 +92,7 @@ public:
             Sqlite::DeferredTransaction transaction{database};
 
             for (ProjectPartId projectPartId : projectPartIds) {
-                auto value = fetchProjectPartByIdStatement.template value<ProjectPartContainer>(
+                auto value = fetchProjectPartByIdStatement.template optionalValue<ProjectPartContainer>(
                     projectPartId.projectPathId);
                 if (value) {
                     value->headerPathIds = fetchHeaders(projectPartId);
@@ -112,7 +112,7 @@ public:
 
     ProjectPartId fetchProjectPartIdUnguarded(Utils::SmallStringView projectPartName) const override
     {
-        auto optionalProjectPartId = fetchProjectPartIdStatement.template value<ProjectPartId>(
+        auto optionalProjectPartId = fetchProjectPartIdStatement.template optionalValue<ProjectPartId>(
             projectPartName);
 
         if (optionalProjectPartId) {
@@ -147,8 +147,9 @@ public:
         try {
             Sqlite::DeferredTransaction transaction{database};
 
-            auto optionalProjectPartName = fetchProjectPartNameStatement.template value<Utils::PathString>(
-                projectPartId.projectPathId);
+            auto optionalProjectPartName = fetchProjectPartNameStatement
+                                               .template optionalValue<Utils::PathString>(
+                                                   projectPartId.projectPathId);
 
             transaction.commit();
 
@@ -246,7 +247,7 @@ public:
 
             auto &statement = getProjectPartArtefactsBySourceId;
 
-            auto value = statement.template value<ProjectPartArtefact>(sourceId.filePathId);
+            auto value = statement.template optionalValue<ProjectPartArtefact>(sourceId.filePathId);
 
             transaction.commit();
 
@@ -263,7 +264,8 @@ public:
 
             auto &statement = getProjectPartArtefactsByProjectPartId;
 
-            auto value = statement.template value<ProjectPartArtefact>(projectPartId.projectPathId);
+            auto value = statement.template optionalValue<ProjectPartArtefact>(
+                projectPartId.projectPathId);
 
             transaction.commit();
 

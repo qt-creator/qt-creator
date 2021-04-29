@@ -152,7 +152,7 @@ public:
     {
         auto &statement = m_statementFactory.selectLocationOfSymbol;
 
-        return statement.template value<SourceLocation>(symbolId, int(kind));
+        return statement.template optionalValue<SourceLocation>(symbolId, int(kind));
     }
 private:
     StatementFactory &m_statementFactory;

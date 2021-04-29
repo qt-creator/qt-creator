@@ -42,6 +42,7 @@ public:
         Base::checkColumnCount(ResultCount);
     }
 
+    using Base::optionalValue;
     using Base::range;
     using Base::rangeWithTransaction;
     using Base::readCallback;
@@ -56,6 +57,18 @@ public:
         DeferredTransaction transaction{Base::database()};
 
         auto resultValue = Base::template value<ResultType>(queryValues...);
+
+        transaction.commit();
+
+        return resultValue;
+    }
+
+    template<typename ResultType, typename... QueryTypes>
+    auto optionalValueWithTransaction(const QueryTypes &...queryValues)
+    {
+        DeferredTransaction transaction{Base::database()};
+
+        auto resultValue = Base::template optionalValue<ResultType>(queryValues...);
 
         transaction.commit();
 

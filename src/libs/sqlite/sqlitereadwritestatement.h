@@ -43,6 +43,7 @@ public:
     }
 
     using Base::execute;
+    using Base::optionalValue;
     using Base::readCallback;
     using Base::readTo;
     using Base::toValue;
@@ -56,6 +57,18 @@ public:
         ImmediateTransaction transaction{Base::database()};
 
         auto resultValue = Base::template value<ResultType>(queryValues...);
+
+        transaction.commit();
+
+        return resultValue;
+    }
+
+    template<typename ResultType, typename... QueryTypes>
+    auto optionalValueWithTransaction(const QueryTypes &...queryValues)
+    {
+        ImmediateTransaction transaction{Base::database()};
+
+        auto resultValue = Base::template optionalValue<ResultType>(queryValues...);
 
         transaction.commit();
 

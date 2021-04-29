@@ -218,6 +218,22 @@ public:
     auto value(const QueryTypes &...queryValues)
     {
         Resetter resetter{this};
+        ResultType resultValue;
+
+        bindValues(queryValues...);
+
+        if (BaseStatement::next())
+            resultValue = createValue<ResultType>();
+
+        resetter.reset();
+
+        return resultValue;
+    }
+
+    template<typename ResultType, typename... QueryTypes>
+    auto optionalValue(const QueryTypes &...queryValues)
+    {
+        Resetter resetter{this};
         Utils::optional<ResultType> resultValue;
 
         bindValues(queryValues...);

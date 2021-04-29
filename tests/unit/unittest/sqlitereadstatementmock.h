@@ -161,7 +161,7 @@ public:
                 (int projectPartId));
 
     template<typename ResultType, typename... QueryTypes>
-    auto value(const QueryTypes &...queryValues)
+    auto optionalValue(const QueryTypes &...queryValues)
     {
         if constexpr (std::is_same_v<ResultType, Sqlite::ByteArrayBlob>)
             return valueReturnBlob(queryValues...);
@@ -194,6 +194,19 @@ public:
         else
             static_assert(!std::is_same_v<ResultType, ResultType>,
                           "SqliteReadStatementMock::value does not handle result type!");
+    }
+
+    template<typename ResultType, typename... QueryTypes>
+    auto value(const QueryTypes &...queryValues)
+    {
+        static_assert(!std::is_same_v<ResultType, ResultType>,
+                      "SqliteReadStatementMock::value does not handle result type!");
+    }
+
+    template<typename ResultType, typename... QueryTypes>
+    auto optionalValueWithTransaction(const QueryTypes &...queryValues)
+    {
+        return optionalValue<ResultType>(queryValues...);
     }
 
     template<typename ResultType, typename... QueryType>
