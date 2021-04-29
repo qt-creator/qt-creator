@@ -163,8 +163,7 @@ bool ToolChain::isValid() const
 {
     if (compilerCommand().isEmpty())
         return false;
-    QFileInfo fi = compilerCommand().toFileInfo();
-    return fi.isExecutable();
+    return compilerCommand().isExecutableFile();
 }
 
 QStringList ToolChain::includedFiles(const QStringList &flags, const QString &directory) const
