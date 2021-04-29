@@ -80,7 +80,7 @@ static const char binaryRegexp[] = "(?:^|-|\\b)(?:gcc|g\\+\\+|clang(?:\\+\\+)?)(
 
 static QByteArray runGcc(const FilePath &gcc, const QStringList &arguments, const QStringList &env)
 {
-    if (gcc.isEmpty() || !gcc.toFileInfo().isExecutable())
+    if (!gcc.isExecutableFile())
         return QByteArray();
 
     SynchronousProcess cpp;
@@ -91,8 +91,7 @@ static QByteArray runGcc(const FilePath &gcc, const QStringList &arguments, cons
     cpp.setTimeoutS(10);
     CommandLine cmdLine(gcc, arguments);
     SynchronousProcessResponse response =  cpp.runBlocking(cmdLine);
-    if (response.result != SynchronousProcessResponse::Finished ||
-            response.exitCode != 0) {
+    if (response.result != SynchronousProcessResponse::Finished || response.exitCode != 0) {
         Core::MessageManager::writeFlashing({"Compiler feature detection failure!",
                                              response.exitMessage(cmdLine.toUserOutput(), 10),
                                              QString::fromUtf8(response.allRawOutput())});
