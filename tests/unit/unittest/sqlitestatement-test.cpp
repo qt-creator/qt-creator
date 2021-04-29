@@ -1380,4 +1380,112 @@ TEST_F(SqliteStatement, ReadToCallsResetIfExceptionIsThrown)
     EXPECT_THROW(mockStatement.readTo(values), Sqlite::StatementHasError);
 }
 
+TEST_F(SqliteStatement, ReadStatementValuesWithTransactions)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
+    ReadStatement<3> statement("SELECT name, number, value FROM test WHERE name=? AND number=?",
+                               database);
+    database.unlock();
+
+    std::vector<Tuple> values = statement.valuesWithTransaction<Tuple>(1024, "bar", "blah");
+
+    ASSERT_THAT(values, ElementsAre(Tuple{"bar", "blah", 1}));
+    database.lock();
+}
+
+TEST_F(SqliteStatement, ReadStatementValueWithTransactions)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
+    ReadStatement<3> statement("SELECT name, number, value FROM test WHERE name=? AND number=?",
+                               database);
+    database.unlock();
+
+    auto value = statement.valueWithTransaction<Tuple>("bar", "blah");
+
+    ASSERT_THAT(*value, Eq(Tuple{"bar", "blah", 1}));
+    database.lock();
+}
+
+TEST_F(SqliteStatement, ReadStatementReadCallbackWithTransactions)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
+    MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, Utils::SmallStringView, long long)> callbackMock;
+    ReadStatement<3> statement("SELECT name, number, value FROM test WHERE name=? AND number=?",
+                               database);
+    database.unlock();
+
+    EXPECT_CALL(callbackMock, Call(Eq("bar"), Eq("blah"), Eq(1)));
+
+    statement.readCallbackWithTransaction(callbackMock.AsStdFunction(), "bar", "blah");
+    database.lock();
+}
+
+TEST_F(SqliteStatement, ReadStatementReadToWithTransactions)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
+    ReadStatement<3> statement("SELECT name, number, value FROM test WHERE name=? AND number=?",
+                               database);
+    std::vector<Tuple> values;
+    database.unlock();
+
+    statement.readToWithTransaction(values, "bar", "blah");
+
+    ASSERT_THAT(values, ElementsAre(Tuple{"bar", "blah", 1}));
+    database.lock();
+}
+
+TEST_F(SqliteStatement, ReadWriteStatementValuesWithTransactions)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
+    ReadWriteStatement<3> statement(
+        "SELECT name, number, value FROM test WHERE name=? AND number=?", database);
+    database.unlock();
+
+    std::vector<Tuple> values = statement.valuesWithTransaction<Tuple>(1024, "bar", "blah");
+
+    ASSERT_THAT(values, ElementsAre(Tuple{"bar", "blah", 1}));
+    database.lock();
+}
+
+TEST_F(SqliteStatement, ReadWriteStatementValueWithTransactions)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
+    ReadWriteStatement<3> statement(
+        "SELECT name, number, value FROM test WHERE name=? AND number=?", database);
+    database.unlock();
+
+    auto value = statement.valueWithTransaction<Tuple>("bar", "blah");
+
+    ASSERT_THAT(*value, Eq(Tuple{"bar", "blah", 1}));
+    database.lock();
+}
+
+TEST_F(SqliteStatement, ReadWriteStatementReadCallbackWithTransactions)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
+    MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, Utils::SmallStringView, long long)> callbackMock;
+    ReadWriteStatement<3> statement(
+        "SELECT name, number, value FROM test WHERE name=? AND number=?", database);
+    database.unlock();
+
+    EXPECT_CALL(callbackMock, Call(Eq("bar"), Eq("blah"), Eq(1)));
+
+    statement.readCallbackWithTransaction(callbackMock.AsStdFunction(), "bar", "blah");
+    database.lock();
+}
+
+TEST_F(SqliteStatement, ReadWriteStatementReadToWithTransactions)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
+    ReadWriteStatement<3> statement(
+        "SELECT name, number, value FROM test WHERE name=? AND number=?", database);
+    std::vector<Tuple> values;
+    database.unlock();
+
+    statement.readToWithTransaction(values, "bar", "blah");
+
+    ASSERT_THAT(values, ElementsAre(Tuple{"bar", "blah", 1}));
+    database.lock();
+}
+
 } // namespace

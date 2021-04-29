@@ -49,6 +49,59 @@ public:
     using Base::value;
     using Base::values;
     using Base::write;
+
+    template<typename ResultType, typename... QueryTypes>
+    auto valueWithTransaction(const QueryTypes &...queryValues)
+    {
+        ImmediateTransaction transaction{Base::database()};
+
+        auto resultValue = Base::template value<ResultType>(queryValues...);
+
+        transaction.commit();
+
+        return resultValue;
+    }
+
+    template<typename ResultType, typename... QueryTypes>
+    auto valuesWithTransaction(std::size_t reserveSize, const QueryTypes &...queryValues)
+    {
+        ImmediateTransaction transaction{Base::database()};
+
+        auto resultValues = Base::template values<ResultType>(reserveSize, queryValues...);
+
+        transaction.commit();
+
+        return resultValues;
+    }
+
+    template<typename Callable, typename... QueryTypes>
+    void readCallbackWithTransaction(Callable &&callable, const QueryTypes &...queryValues)
+    {
+        ImmediateTransaction transaction{Base::database()};
+
+        Base::readCallback(std::forward<Callable>(callable), queryValues...);
+
+        transaction.commit();
+    }
+
+    template<typename Container, typename... QueryTypes>
+    void readToWithTransaction(Container &container, const QueryTypes &...queryValues)
+    {
+        ImmediateTransaction transaction{Base::database()};
+
+        Base::readTo(container, queryValues...);
+
+        transaction.commit();
+    }
+
+    void executeWithTransaction()
+    {
+        ImmediateTransaction transaction{Base::database()};
+
+        Base::execute();
+
+        transaction.commit();
+    }
 };
 
 } // namespace Sqlite
