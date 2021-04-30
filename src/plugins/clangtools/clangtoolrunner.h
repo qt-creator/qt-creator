@@ -27,12 +27,9 @@
 
 #include "clangtoolslogfilereader.h"
 
-#include <QString>
-#include <QProcess>
+#include <utils/qtcprocess.h>
 
 #include <memory>
-
-namespace Utils { class Environment; }
 
 namespace ClangTools {
 namespace Internal {
@@ -83,7 +80,7 @@ private:
 
 private:
     QString m_outputDirPath;
-    QProcess *m_process = nullptr;
+    Utils::QtcProcess *m_process = nullptr;
     QByteArray m_processOutput;
 
     QString m_name;

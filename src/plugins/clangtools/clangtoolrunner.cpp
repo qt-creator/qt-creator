@@ -29,7 +29,6 @@
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
 #include <utils/temporaryfile.h>
 
@@ -59,7 +58,7 @@ static QString finishedWithBadExitCode(const QString &name, int exitCode)
 }
 
 ClangToolRunner::ClangToolRunner(QObject *parent)
-    : QObject(parent), m_process(new QProcess)
+    : QObject(parent), m_process(new Utils::QtcProcess)
 {}
 
 ClangToolRunner::~ClangToolRunner()
@@ -70,7 +69,7 @@ ClangToolRunner::~ClangToolRunner()
             m_process->kill();
             m_process->waitForFinished(100);
         } else {
-            Utils::SynchronousProcess::stopProcess(*m_process);
+            m_process->stopProcess();
         }
     }
 
@@ -146,7 +145,8 @@ bool ClangToolRunner::run(const QString &fileToAnalyze, const QStringList &compi
     m_commandLine = Utils::QtcProcess::joinArgs(QStringList(m_executable) + arguments);
 
     qCDebug(LOG).noquote() << "Starting" << m_commandLine;
-    m_process->start(m_executable, arguments);
+    m_process->setCommand({m_executable, arguments});
+    m_process->start();
     return true;
 }
 
