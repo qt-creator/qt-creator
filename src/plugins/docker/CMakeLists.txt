@@ -1,5 +1,5 @@
 add_qtc_plugin(Docker
-  PLUGIN_DEPENDS Core ProjectExplorer
+  PLUGIN_DEPENDS Core ProjectExplorer QtSupport
   SOURCES
     docker_global.h
     dockerbuildstep.cpp dockerbuildstep.h

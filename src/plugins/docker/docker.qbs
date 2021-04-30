@@ -8,6 +8,7 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
+    Depends { name: "QtSupport" }
 
     files: [
         "docker_global.h",
