@@ -29,14 +29,13 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
 
 #include <QDebug>
 #include <QDir>
 #include <QDirIterator>
 #include <QDomDocument>
-#include <QProcess>
 #include <QStandardPaths>
 #include <QApplication>
 
@@ -108,20 +107,19 @@ EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const QString &fileName)
     tmpFile.close();
 
     // running wrapper script
-    QProcess process;
+    QtcProcess process;
     if (isWindows)
-        process.start(QLatin1String("cmd.exe"),
-                QStringList() << QLatin1String("/C") << tmpFile.fileName());
+        process.setCommand({"cmd.exe", {"/C", tmpFile.fileName()}});
     else
-        process.start(QLatin1String("/bin/bash"),
-                QStringList() << tmpFile.fileName());
+        process.setCommand({"/bin/bash", {tmpFile.fileName()}});
+    process.start();
 
     // waiting for finish
     QApplication::setOverrideCursor(Qt::BusyCursor);
     bool waitResult = process.waitForFinished(10000);
     QApplication::restoreOverrideCursor();
     if (!waitResult) {
-        Utils::SynchronousProcess::stopProcess(process);
+        process.stopProcess();
         return items;
     }
 
