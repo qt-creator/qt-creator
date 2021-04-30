@@ -39,6 +39,8 @@
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runner", QtWarningMsg)
 
+using namespace Utils;
+
 namespace ClangTools {
 namespace Internal {
 
@@ -141,11 +143,10 @@ bool ClangToolRunner::run(const QString &fileToAnalyze, const QStringList &compi
 
     m_outputFilePath = createOutputFilePath(m_outputDirPath, fileToAnalyze);
     QTC_ASSERT(!m_outputFilePath.isEmpty(), return false);
-    const QStringList arguments = m_argsCreator(compilerOptions);
-    m_commandLine = Utils::QtcProcess::joinArgs(QStringList(m_executable) + arguments);
+    m_commandLine = {m_executable, m_argsCreator(compilerOptions)};
 
-    qCDebug(LOG).noquote() << "Starting" << m_commandLine;
-    m_process->setCommand({m_executable, arguments});
+    qCDebug(LOG).noquote() << "Starting" << m_commandLine.toUserOutput();
+    m_process->setCommand(m_commandLine);
     m_process->start();
     return true;
 }
@@ -184,7 +185,7 @@ QString ClangToolRunner::commandlineAndOutput() const
     return tr("Command line: %1\n"
               "Process Error: %2\n"
               "Output:\n%3")
-        .arg(m_commandLine,
+        .arg(m_commandLine.toUserOutput(),
              QString::number(m_process->error()),
              Utils::SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(m_processOutput)));
 }

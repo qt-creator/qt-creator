@@ -90,7 +90,7 @@ private:
 
     QString m_fileToAnalyze;
     QString m_outputFilePath;
-    QString m_commandLine;
+    Utils::CommandLine m_commandLine;
 };
 
 } // namespace Internal
