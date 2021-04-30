@@ -610,7 +610,7 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
         return predefinedMacros;
     }
     Utils::SynchronousProcess cpp;
-    cpp.setEnvironment(env.toStringList());
+    cpp.setEnvironment(env);
     cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryPath());
     QStringList arguments;
     const Utils::FilePath binary = env.searchInPath(QLatin1String("cl.exe"));
@@ -1679,7 +1679,7 @@ Macros ClangClToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
         return MsvcToolChain::msvcPredefinedMacros(cxxflags, env);
 
     Utils::SynchronousProcess cpp;
-    cpp.setEnvironment(env.toStringList());
+    cpp.setEnvironment(env);
     cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryPath());
 
     QStringList arguments = cxxflags;
@@ -2011,7 +2011,7 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
     // if Creator is launched within a session set up by setenv.cmd.
     Utils::Environment runEnv = env;
     runEnv.unset(QLatin1String("ORIGINALPATH"));
-    run.setEnvironment(runEnv.toStringList());
+    run.setEnvironment(runEnv);
     run.setTimeoutS(30);
     Utils::FilePath cmdPath = Utils::FilePath::fromUserInput(
         QString::fromLocal8Bit(qgetenv("COMSPEC")));

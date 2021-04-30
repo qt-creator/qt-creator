@@ -4976,8 +4976,8 @@ CoreInfo CoreInfo::readExecutableNameFromCore(const Runnable &debugger, const QS
     args += {"-ex", "core " + coreFile};
 
     SynchronousProcess proc;
-    QStringList envLang = QProcess::systemEnvironment();
-    Utils::Environment::setupEnglishOutput(&envLang);
+    Environment envLang(QProcess::systemEnvironment());
+    Environment::setupEnglishOutput(&envLang);
     proc.setEnvironment(envLang);
     SynchronousProcessResponse response = proc.runBlocking({debugger.executable, args});
 

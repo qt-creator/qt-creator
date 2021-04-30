@@ -105,8 +105,11 @@ FilePath getPylsModulePath(CommandLine pylsCommand)
         return modulePath;
 
     pylsCommand.addArg("-h");
+
     SynchronousProcess pythonProcess;
-    pythonProcess.setEnvironment(pythonProcess.environment() + QStringList("PYTHONVERBOSE=x"));
+    Environment env = pythonProcess.environment();
+    env.set("PYTHONVERBOSE", "x");
+    pythonProcess.setEnvironment(env);
     SynchronousProcessResponse response = pythonProcess.runBlocking(pylsCommand);
 
     static const QString pylsInitPattern = "(.*)"

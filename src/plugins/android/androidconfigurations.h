@@ -33,7 +33,6 @@
 #include <qtsupport/qtversionmanager.h>
 
 #include <QObject>
-#include <QProcessEnvironment>
 #include <QString>
 #include <QStringList>
 #include <QVector>
@@ -248,7 +247,7 @@ public:
     static void removeOldToolChains();
     static void updateAutomaticKitList();
     static bool force32bitEmulator();
-    static QProcessEnvironment toolsEnvironment(const AndroidConfig &config);
+    static Utils::Environment toolsEnvironment(const AndroidConfig &config);
 
 signals:
     void aboutToUpdate();

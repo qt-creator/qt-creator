@@ -84,8 +84,8 @@ static QByteArray runGcc(const FilePath &gcc, const QStringList &arguments, cons
         return QByteArray();
 
     SynchronousProcess cpp;
-    QStringList environment(env);
-    Utils::Environment::setupEnglishOutput(&environment);
+    Environment environment(env);
+    Environment::setupEnglishOutput(&environment);
 
     cpp.setEnvironment(environment);
     cpp.setTimeoutS(10);

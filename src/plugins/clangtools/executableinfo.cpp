@@ -51,9 +51,9 @@ static QString runExecutable(const Utils::CommandLine &commandLine,
         return {};
 
     SynchronousProcess cpp;
-    Utils::Environment env = Environment::systemEnvironment();
+    Environment env = Environment::systemEnvironment();
     Environment::setupEnglishOutput(&env);
-    cpp.setEnvironment(env.toStringList());
+    cpp.setEnvironment(env);
 
     const SynchronousProcessResponse response = cpp.runBlocking(commandLine);
     if (response.result != SynchronousProcessResponse::Finished

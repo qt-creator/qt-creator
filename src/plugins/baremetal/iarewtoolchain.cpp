@@ -87,7 +87,7 @@ static QString cppLanguageOption(const FilePath &compiler)
 }
 
 static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &extraArgs,
-                                   const Utils::Id languageId, const QStringList &env)
+                                   const Id languageId, const Environment &env)
 {
     if (compiler.isEmpty() || !compiler.toFileInfo().isExecutable())
         return {};
@@ -128,8 +128,8 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &
     return Macro::toMacros(output);
 }
 
-static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Utils::Id languageId,
-                                   const QStringList &env)
+static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Id languageId,
+                                   const Environment &env)
 {
     if (!compiler.exists())
         return {};
@@ -310,7 +310,7 @@ ToolChain::MacroInspectionRunner IarToolChain::createMacroInspectionRunner() con
             (const QStringList &flags) {
         Q_UNUSED(flags)
 
-        Macros macros = dumpPredefinedMacros(compiler, extraArgs, languageId, env.toStringList());
+        Macros macros = dumpPredefinedMacros(compiler, extraArgs, languageId, env);
         macros.append({"__intrinsic", "", MacroType::Define});
         macros.append({"__nounwind", "", MacroType::Define});
         macros.append({"__noreturn", "", MacroType::Define});
@@ -354,7 +354,7 @@ ToolChain::BuiltInHeaderPathsRunner IarToolChain::createBuiltInHeaderPathsRunner
         Q_UNUSED(flags)
         Q_UNUSED(fileName)
 
-        const HeaderPaths paths = dumpHeaderPaths(compiler, languageId, env.toStringList());
+        const HeaderPaths paths = dumpHeaderPaths(compiler, languageId, env);
         headerPaths->insert({}, paths);
 
         return paths;
@@ -539,8 +539,7 @@ QList<ToolChain *> IarToolChainFactory::autoDetectToolchain(
         const Candidate &candidate, Utils::Id languageId) const
 {
     const auto env = Environment::systemEnvironment();
-    const Macros macros = dumpPredefinedMacros(candidate.compilerPath, {}, languageId,
-                                               env.toStringList());
+    const Macros macros = dumpPredefinedMacros(candidate.compilerPath, {}, languageId, env);
     if (macros.isEmpty())
         return {};
     const Abi abi = guessAbi(macros);
@@ -641,9 +640,8 @@ void IarToolChainConfigWidget::handleCompilerCommandChange()
     if (haveCompiler) {
         const auto env = Environment::systemEnvironment();
         const QStringList extraArgs = splitString(m_platformCodeGenFlagsLineEdit->text());
-        const auto languageId = toolChain()->language();
-        m_macros = dumpPredefinedMacros(compilerPath, extraArgs, languageId,
-                                        env.toStringList());
+        const Id languageId = toolChain()->language();
+        m_macros = dumpPredefinedMacros(compilerPath, extraArgs, languageId, env);
         const Abi guessed = guessAbi(m_macros);
         m_abiWidget->setAbis({}, guessed);
     }

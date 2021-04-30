@@ -76,7 +76,7 @@ static QString compilerTargetFlag(const Abi &abi)
     }
 }
 
-static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &env,
+static Macros dumpPredefinedMacros(const FilePath &compiler, const Environment &env,
                                    const Abi &abi)
 {
     if (compiler.isEmpty() || !compiler.toFileInfo().isExecutable())
@@ -104,7 +104,7 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &
     return Macro::toMacros(output);
 }
 
-static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const QStringList &env,
+static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Environment &env,
                                    const Abi &abi)
 {
     if (!compiler.exists())
@@ -234,8 +234,7 @@ ToolChain::MacroInspectionRunner SdccToolChain::createMacroInspectionRunner() co
             (const QStringList &flags) {
         Q_UNUSED(flags)
 
-        const Macros macros = dumpPredefinedMacros(compiler, env.toStringList(),
-                                                   abi);
+        const Macros macros = dumpPredefinedMacros(compiler, env, abi);
         const auto report = MacroInspectionReport{macros, languageVersion(lang, macros)};
         macrosCache->insert({}, report);
 
@@ -264,7 +263,7 @@ ToolChain::BuiltInHeaderPathsRunner SdccToolChain::createBuiltInHeaderPathsRunne
     const Abi abi = targetAbi();
 
     return [env, compiler, abi](const QStringList &, const QString &, const QString &) {
-        return dumpHeaderPaths(compiler, env.toStringList(), abi);
+        return dumpHeaderPaths(compiler, env, abi);
     };
 }
 
@@ -361,8 +360,8 @@ QList<ToolChain *> SdccToolChainFactory::autoDetect(const QList<ToolChain *> &al
 
     const FilePath fn = compilerPathFromEnvironment("sdcc");
     if (fn.exists()) {
-        const auto env = Environment::systemEnvironment();
-        const auto macros = dumpPredefinedMacros(fn, env.toStringList(), {});
+        const Environment env = Environment::systemEnvironment();
+        const Macros macros = dumpPredefinedMacros(fn, env, {});
         const QString version = guessVersion(macros);
         const Candidate candidate = {fn, version};
         if (!candidates.contains(candidate))
@@ -413,8 +412,7 @@ QList<ToolChain *> SdccToolChainFactory::autoDetectToolchain(
     // Probe each ABI from the table, because the SDCC compiler
     // can be compiled with or without the specified architecture.
     for (const auto &knownAbi : knownAbis) {
-        const Macros macros = dumpPredefinedMacros(candidate.compilerPath,
-                                                   env.toStringList(), knownAbi);
+        const Macros macros = dumpPredefinedMacros(candidate.compilerPath, env, knownAbi);
         if (macros.isEmpty())
             continue;
         const Abi abi = guessAbi(macros);
@@ -511,7 +509,7 @@ void SdccToolChainConfigWidget::handleCompilerCommandChange()
     const bool haveCompiler = compilerExists(compilerPath);
     if (haveCompiler) {
         const auto env = Environment::systemEnvironment();
-        m_macros = dumpPredefinedMacros(compilerPath, env.toStringList(), {});
+        m_macros = dumpPredefinedMacros(compilerPath, env, {});
         const Abi guessed = guessAbi(m_macros);
         m_abiWidget->setAbis({}, guessed);
     }

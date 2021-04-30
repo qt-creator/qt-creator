@@ -83,7 +83,7 @@ static Abi::Architecture guessArchitecture(const FilePath &compilerPath)
     return Abi::Architecture::UnknownArchitecture;
 }
 
-static Macros dumpMcsPredefinedMacros(const FilePath &compiler, const QStringList &env)
+static Macros dumpMcsPredefinedMacros(const FilePath &compiler, const Environment &env)
 {
     // Note: The KEIL C51 or C251 compiler does not support the predefined
     // macros dumping. So, we do it with the following trick, where we try
@@ -156,7 +156,7 @@ static Macros dumpMcsPredefinedMacros(const FilePath &compiler, const QStringLis
     return macros;
 }
 
-static Macros dumpC166PredefinedMacros(const FilePath &compiler, const QStringList &env)
+static Macros dumpC166PredefinedMacros(const FilePath &compiler, const Environment &env)
 {
     // Note: The KEIL C166 compiler does not support the predefined
     // macros dumping. Also, it does not support the '#pragma' and
@@ -276,7 +276,7 @@ static Macros dumpC166PredefinedMacros(const FilePath &compiler, const QStringLi
     return macros;
 }
 
-static Macros dumpArmPredefinedMacros(const FilePath &compiler, const QStringList &extraArgs, const QStringList &env)
+static Macros dumpArmPredefinedMacros(const FilePath &compiler, const QStringList &extraArgs, const Environment &env)
 {
     SynchronousProcess cpp;
     cpp.setEnvironment(env);
@@ -314,7 +314,7 @@ static bool isArmArchitecture(Abi::Architecture arch)
     return arch == Abi::Architecture::ArmArchitecture;
 }
 
-static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &args, const QStringList &env)
+static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &args, const Environment &env)
 {
     if (compiler.isEmpty() || !compiler.toFileInfo().isExecutable())
         return {};
@@ -449,7 +449,7 @@ ToolChain::MacroInspectionRunner KeilToolChain::createMacroInspectionRunner() co
     return [env, compiler, extraArgs, macroCache, lang](const QStringList &flags) {
         Q_UNUSED(flags)
 
-        const Macros macros = dumpPredefinedMacros(compiler, extraArgs, env.toStringList());
+        const Macros macros = dumpPredefinedMacros(compiler, extraArgs, env);
         const auto report = MacroInspectionReport{macros, languageVersion(lang, macros)};
         macroCache->insert({}, report);
 
@@ -692,7 +692,7 @@ QList<ToolChain *> KeilToolChainFactory::autoDetectToolchain(
 
     QStringList extraArgs;
     addDefaultCpuArgs(candidate.compilerPath, extraArgs);
-    const Macros macros = dumpPredefinedMacros(candidate.compilerPath, extraArgs, env.toStringList());
+    const Macros macros = dumpPredefinedMacros(candidate.compilerPath, extraArgs, env);
     if (macros.isEmpty())
         return {};
 
@@ -804,7 +804,7 @@ void KeilToolChainConfigWidget::handleCompilerCommandChange()
         addDefaultCpuArgs(compilerPath, newExtraArgs);
         if (prevExtraArgs != newExtraArgs)
             m_platformCodeGenFlagsLineEdit->setText(QtcProcess::joinArgs(newExtraArgs));
-        m_macros = dumpPredefinedMacros(compilerPath, newExtraArgs, env.toStringList());
+        m_macros = dumpPredefinedMacros(compilerPath, newExtraArgs, env);
         const Abi guessed = guessAbi(m_macros);
         m_abiWidget->setAbis({}, guessed);
     }

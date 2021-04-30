@@ -39,6 +39,7 @@ namespace Utils {
 
 class SynchronousProcessPrivate;
 class CommandLine;
+class Environment;
 
 /* Result of SynchronousProcess execution */
 class QTCREATOR_UTILS_EXPORT SynchronousProcessResponse
@@ -112,8 +113,8 @@ public:
     bool timeOutMessageBoxEnabled() const;
     void setTimeOutMessageBoxEnabled(bool);
 
-    QStringList environment() const;
-    void setEnvironment(const QStringList &);
+    Environment environment() const;
+    void setEnvironment(const Environment &);
 
     void setProcessEnvironment(const QProcessEnvironment &environment);
     QProcessEnvironment processEnvironment() const;

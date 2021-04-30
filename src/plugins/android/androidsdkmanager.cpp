@@ -147,7 +147,7 @@ static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
                            << CommandLine(config.sdkManagerToolPath(), newArgs)
                                   .toUserOutput();
     SynchronousProcess proc;
-    proc.setProcessEnvironment(AndroidConfigurations::toolsEnvironment(config));
+    proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));
     proc.setTimeoutS(timeout);
     proc.setTimeOutMessageBoxEnabled(true);
     SynchronousProcessResponse response = proc.run({config.sdkManagerToolPath(), newArgs});
@@ -173,7 +173,7 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
                            << CommandLine(config.sdkManagerToolPath(), newArgs).toUserOutput();
     int offset = fi.progressValue();
     SynchronousProcess proc;
-    proc.setProcessEnvironment(AndroidConfigurations::toolsEnvironment(config));
+    proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));
     bool assertionFound = false;
     proc.setStdErrBufferedSignalsEnabled(true);
     proc.setStdOutBufferedSignalsEnabled(true);
@@ -1030,7 +1030,7 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdFutureInterface &fi)
     AndroidSdkManager::OperationOutput result;
     result.type = AndroidSdkManager::LicenseWorkflow;
     QtcProcess licenseCommand;
-    licenseCommand.setProcessEnvironment(AndroidConfigurations::toolsEnvironment(m_config));
+    licenseCommand.setEnvironment(AndroidConfigurations::toolsEnvironment(m_config));
     bool reviewingLicenses = false;
     licenseCommand.setCommand(CommandLine(m_config.sdkManagerToolPath(), {"--licenses", sdkRootArg(m_config)}));
     if (Utils::HostOsInfo::isWindowsHost())

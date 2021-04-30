@@ -390,9 +390,9 @@ void SynchronousProcess::setStdErrBufferedSignalsEnabled(bool v)
     d->m_stdErr.bufferedSignalsEnabled = v;
 }
 
-QStringList SynchronousProcess::environment() const
+Environment SynchronousProcess::environment() const
 {
-    return d->m_process.environment().toStringList();
+    return d->m_process.environment();
 }
 
 bool SynchronousProcess::timeOutMessageBoxEnabled() const
@@ -405,7 +405,7 @@ void SynchronousProcess::setTimeOutMessageBoxEnabled(bool v)
     d->m_timeOutMessageBoxEnabled = v;
 }
 
-void SynchronousProcess::setEnvironment(const QStringList &e)
+void SynchronousProcess::setEnvironment(const Environment &e)
 {
     d->m_process.setEnvironment(Environment(e));
 }

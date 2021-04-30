@@ -1377,15 +1377,15 @@ bool AndroidConfigurations::force32bitEmulator()
     return m_instance->m_force32bit;
 }
 
-QProcessEnvironment AndroidConfigurations::toolsEnvironment(const AndroidConfig &config)
+Environment AndroidConfigurations::toolsEnvironment(const AndroidConfig &config)
 {
     Environment env = Environment::systemEnvironment();
-    Utils::FilePath jdkLocation = config.openJDKLocation();
+    FilePath jdkLocation = config.openJDKLocation();
     if (!jdkLocation.isEmpty()) {
         env.set("JAVA_HOME", jdkLocation.toUserOutput());
         env.prependOrSetPath(jdkLocation.pathAppended("bin").toUserOutput());
     }
-    return env.toProcessEnvironment();
+    return env;
 }
 
 /**
