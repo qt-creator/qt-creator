@@ -26,6 +26,7 @@
 #include "buildablehelperlibrary.h"
 #include "hostosinfo.h"
 #include "synchronousprocess.h"
+#include "qtcprocess.h"
 
 #include <QDateTime>
 #include <QDebug>
@@ -225,14 +226,12 @@ bool BuildableHelperLibrary::copyFiles(const QString &sourcePath,
 }
 
 // Helper: Run a build process with merged stdout/stderr
-static inline bool runBuildProcessI(QProcess &proc,
-                                    const FilePath &binary,
-                                    const QStringList &args,
+static inline bool runBuildProcessI(QtcProcess &proc,
                                     int timeoutS,
                                     bool ignoreNonNullExitCode,
                                     QString *output, QString *errorMessage)
 {
-    proc.start(binary.toString(), args);
+    proc.start();
     if (!proc.waitForStarted()) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
                                                     "Cannot start process: %1").
@@ -242,11 +241,11 @@ static inline bool runBuildProcessI(QProcess &proc,
     // Read stdout/err and check for timeouts
     QByteArray stdOut;
     QByteArray stdErr;
-    if (!SynchronousProcess::readDataFromProcess(proc, timeoutS, &stdOut, &stdErr, false)) {
+    if (!proc.readDataFromProcess(timeoutS, &stdOut, &stdErr, false)) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
                                                     "Timeout after %1 s.").
                                                     arg(timeoutS);
-        SynchronousProcess::stopProcess(proc);
+        proc.stopProcess();
         return false;
     }
     if (proc.exitStatus() != QProcess::NormalExit) {
@@ -266,14 +265,15 @@ static inline bool runBuildProcessI(QProcess &proc,
 }
 
 // Run a build process with merged stdout/stderr and qWarn about errors.
-static bool runBuildProcess(QProcess &proc,
+static bool runBuildProcess(QtcProcess &proc,
                             const FilePath &binary,
                             const QStringList &args,
                             int timeoutS,
                             bool ignoreNonNullExitCode,
                             QString *output, QString *errorMessage)
 {
-    const bool rc = runBuildProcessI(proc, binary, args, timeoutS, ignoreNonNullExitCode, output, errorMessage);
+    proc.setCommand({binary, args});
+    const bool rc = runBuildProcessI(proc, timeoutS, ignoreNonNullExitCode, output, errorMessage);
     if (!rc) {
         // Fail - reformat error.
         QString cmd = binary.toString();
@@ -296,8 +296,8 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
 {
     const QChar newline = QLatin1Char('\n');
     // Setup process
-    QProcess proc;
-    proc.setEnvironment(arguments.environment.toStringList());
+    QtcProcess proc;
+    proc.setEnvironment(arguments.environment);
     proc.setWorkingDirectory(arguments.directory);
     proc.setProcessChannelMode(QProcess::MergedChannels);
 
