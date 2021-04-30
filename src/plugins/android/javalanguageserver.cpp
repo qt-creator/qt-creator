@@ -192,10 +192,10 @@ private:
 LanguageClient::BaseClientInterface *JLSSettings::createInterface() const
 {
     auto interface = new JLSInterface();
-    interface->setExecutable(m_executable);
-    QString arguments = this->arguments();
-    arguments += QString(" -data \"%1\"").arg(interface->workspaceDir());
-    interface->setArguments(arguments);
+    CommandLine cmd{m_executable};
+    cmd.addArgs(arguments(), CommandLine::Raw);
+    cmd.addArgs({"-data", interface->workspaceDir()});
+    interface->setCommandLine(cmd);
     return interface;
 }
 

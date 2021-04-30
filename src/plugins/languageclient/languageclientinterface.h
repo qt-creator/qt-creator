@@ -79,8 +79,7 @@ public:
     bool start() override;
 
     // These functions only have an effect if they are called before start
-    void setExecutable(const QString &executable);
-    void setArguments(const QString &arguments);
+    void setCommandLine(const Utils::CommandLine &cmd);
     void setWorkingDirectory(const QString &workingDirectory);
 
 protected:

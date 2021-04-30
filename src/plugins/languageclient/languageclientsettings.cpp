@@ -736,8 +736,7 @@ Utils::CommandLine StdIOSettings::command() const
 BaseClientInterface *StdIOSettings::createInterface() const
 {
     auto interface = new StdIOClientInterface;
-    interface->setExecutable(m_executable);
-    interface->setArguments(arguments());
+    interface->setCommandLine(command());
     return interface;
 }
 

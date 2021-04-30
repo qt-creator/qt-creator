@@ -41,14 +41,14 @@ static QString indexingToken() { return "backgroundIndexProgress"; }
 
 static BaseClientInterface *clientInterface(const Utils::FilePath &jsonDbDir)
 {
-    QString clangdArgs = "--index --background-index --limit-results=0";
+    Utils::CommandLine cmd{CppTools::codeModelSettings()->clangdFilePath(),
+                           {"--index", "--background-index", "--limit-results=0"}};
     if (!jsonDbDir.isEmpty())
-        clangdArgs += " --compile-commands-dir=" + jsonDbDir.toString();
+        cmd.addArg("--compile-commands-dir=" + jsonDbDir.toString());
     if (clangdLog().isDebugEnabled())
-        clangdArgs += " --log=verbose --pretty";
+        cmd.addArgs({"--log=verbose", "--pretty"});
     const auto interface = new StdIOClientInterface;
-    interface->setExecutable(CppTools::codeModelSettings()->clangdFilePath().toString());
-    interface->setArguments(clangdArgs);
+    interface->setCommandLine(cmd);
     return interface;
 }
 

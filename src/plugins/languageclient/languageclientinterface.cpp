@@ -111,14 +111,9 @@ bool StdIOClientInterface::start()
     return true;
 }
 
-void StdIOClientInterface::setExecutable(const QString &executable)
+void StdIOClientInterface::setCommandLine(const Utils::CommandLine &cmd)
 {
-    m_process.setProgram(executable);
-}
-
-void StdIOClientInterface::setArguments(const QString &arguments)
-{
-    m_process.setArguments(Utils::QtcProcess::splitArgs(arguments));
+    m_process.setCommand(cmd);
 }
 
 void StdIOClientInterface::setWorkingDirectory(const QString &workingDirectory)
