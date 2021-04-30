@@ -29,8 +29,9 @@
 
 #include <languageserverprotocol/basemessage.h>
 
+#include <utils/qtcprocess.h>
+
 #include <QBuffer>
-#include <QProcess>
 
 namespace LanguageClient {
 
@@ -84,7 +85,7 @@ public:
 
 protected:
     void sendData(const QByteArray &data) final;
-    QProcess m_process;
+    Utils::QtcProcess m_process;
 
 private:
     void readError();

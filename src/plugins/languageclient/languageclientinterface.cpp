@@ -27,9 +27,6 @@
 
 #include "languageclientsettings.h"
 
-#include <utils/qtcprocess.h>
-#include <utils/synchronousprocess.h>
-
 #include <QLoggingCategory>
 
 using namespace LanguageServerProtocol;
@@ -101,7 +98,7 @@ StdIOClientInterface::StdIOClientInterface()
 
 StdIOClientInterface::~StdIOClientInterface()
 {
-    Utils::SynchronousProcess::stopProcess(m_process);
+    m_process.stopProcess();
 }
 
 bool StdIOClientInterface::start()
