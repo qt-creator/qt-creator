@@ -31,7 +31,7 @@
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <utils/algorithm.h>
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -225,7 +225,8 @@ QString GerritChange::fullTitle() const
 // In theory, querying uses a continuation/limit protocol, but we assume
 // we will never reach a limit with those queries.
 
-class QueryContext : public QObject {
+class QueryContext : public QObject
+{
     Q_OBJECT
 public:
     QueryContext(const QString &query,
@@ -249,7 +250,7 @@ private:
 
     void errorTermination(const QString &msg);
 
-    QProcess m_process;
+    Utils::QtcProcess m_process;
     QTimer m_timer;
     QString m_binary;
     QByteArray m_output;
@@ -322,7 +323,8 @@ void QueryContext::start()
     // Order: synchronous call to error handling if something goes wrong.
     VcsOutputWindow::appendCommand(m_process.workingDirectory(), {m_binary, m_arguments});
     m_timer.start();
-    m_process.start(m_binary, m_arguments);
+    m_process.setCommand({m_binary, m_arguments});
+    m_process.start();
     m_process.closeWriteChannel();
 }
 
@@ -337,7 +339,7 @@ void QueryContext::errorTermination(const QString &msg)
 
 void QueryContext::terminate()
 {
-    Utils::SynchronousProcess::stopProcess(m_process);
+    m_process.stopProcess();
 }
 
 void QueryContext::processError(QProcess::ProcessError e)
