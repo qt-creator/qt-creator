@@ -29,11 +29,18 @@
 #include <utils/qtcassert.h>
 #include <utils/hostosinfo.h>
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QDebug>
-#include <QCoreApplication>
 #include <QRegularExpression>
 #include <QStack>
+#include <QThread>
+
+#ifdef QT_GUI_LIB
+// qmlpuppet does not use that.
+#include <QApplication>
+#include <QMessageBox>
+#endif
 
 #ifdef Q_OS_WIN
 #define CALLBACK WINAPI
@@ -1290,6 +1297,76 @@ bool QtcProcess::stopProcess()
         return true;
     kill();
     return waitForFinished(300);
+}
+
+static bool askToKill(const QString &command)
+{
+#ifdef QT_GUI_LIB
+    if (QThread::currentThread() != QCoreApplication::instance()->thread())
+        return true;
+    const QString title = QtcProcess::tr("Process not Responding");
+    QString msg = command.isEmpty() ?
+                QtcProcess::tr("The process is not responding.") :
+                QtcProcess::tr("The process \"%1\" is not responding.").arg(command);
+    msg += ' ';
+    msg += QtcProcess::tr("Would you like to terminate it?");
+    // Restore the cursor that is set to wait while running.
+    const bool hasOverrideCursor = QApplication::overrideCursor() != nullptr;
+    if (hasOverrideCursor)
+        QApplication::restoreOverrideCursor();
+    QMessageBox::StandardButton answer = QMessageBox::question(nullptr, title, msg, QMessageBox::Yes|QMessageBox::No);
+    if (hasOverrideCursor)
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+    return answer == QMessageBox::Yes;
+#else
+    Q_UNUSED(command)
+    return true;
+#endif
+}
+
+bool QtcProcess::readDataFromProcess(int timeoutS,
+                                     QByteArray *stdOut,
+                                     QByteArray *stdErr,
+                                     bool showTimeOutMessageBox)
+{
+    enum { syncDebug = 0 };
+    if (syncDebug)
+        qDebug() << ">readDataFromProcess" << timeoutS;
+    if (state() != QProcess::Running) {
+        qWarning("readDataFromProcess: Process in non-running state passed in.");
+        return false;
+    }
+
+    QTC_ASSERT(readChannel() == QProcess::StandardOutput, return false);
+
+    // Keep the process running until it has no longer has data
+    bool finished = false;
+    bool hasData = false;
+    do {
+        finished = waitForFinished(timeoutS > 0 ? timeoutS * 1000 : -1)
+                || state() == QProcess::NotRunning;
+        // First check 'stdout'
+        if (bytesAvailable()) { // applies to readChannel() only
+            hasData = true;
+            const QByteArray newStdOut = readAllStandardOutput();
+            if (stdOut)
+                stdOut->append(newStdOut);
+        }
+        // Check 'stderr' separately. This is a special handling
+        // for 'git pull' and the like which prints its progress on stderr.
+        const QByteArray newStdErr = readAllStandardError();
+        if (!newStdErr.isEmpty()) {
+            hasData = true;
+            if (stdErr)
+                stdErr->append(newStdErr);
+        }
+        // Prompt user, pretend we have data if says 'No'.
+        const bool hang = !hasData && !finished;
+        hasData = hang && showTimeOutMessageBox && !askToKill(program());
+    } while (hasData && !finished);
+    if (syncDebug)
+        qDebug() << "<readDataFromProcess" << finished;
+    return finished;
 }
 
 bool QtcProcess::ArgIterator::next()

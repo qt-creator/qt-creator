@@ -152,6 +152,8 @@ public:
     void setOpenMode(OpenMode mode);
 
     bool stopProcess();
+    bool readDataFromProcess(int timeoutS, QByteArray *stdOut, QByteArray *stdErr,
+                             bool showTimeOutMessageBox);
 
 private:
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
