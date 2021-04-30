@@ -25,7 +25,7 @@
 
 #include "localprocesslist.h"
 
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 
 #include <QLibrary>
 #include <QTimer>
@@ -156,12 +156,12 @@ static QList<DeviceProcessItem> getLocalProcessesUsingProc(const QDir &procDir)
 static QMap<qint64, QString> getLocalProcessDataUsingPs(const QString &column)
 {
     QMap<qint64, QString> result;
-    QProcess psProcess;
-    const QStringList args{"-e", "-o", "pid," + column};
-    psProcess.start("ps", args);
+    Utils::QtcProcess psProcess;
+    psProcess.setCommand({"ps", {"-e", "-o", "pid," + column}});
+    psProcess.start();
     if (psProcess.waitForStarted()) {
         QByteArray output;
-        if (Utils::SynchronousProcess::readDataFromProcess(psProcess, 30000, &output, nullptr, false)) {
+        if (psProcess.readDataFromProcess(30000, &output, nullptr, false)) {
             // Split "457 /Users/foo.app arg1 arg2"
             const QStringList lines = QString::fromLocal8Bit(output).split(QLatin1Char('\n'));
             const int lineCount = lines.size();
