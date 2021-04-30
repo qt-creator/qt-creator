@@ -410,16 +410,6 @@ void SynchronousProcess::setEnvironment(const Environment &e)
     d->m_process.setEnvironment(Environment(e));
 }
 
-void SynchronousProcess::setProcessEnvironment(const QProcessEnvironment &environment)
-{
-    d->m_process.setProcessEnvironment(environment);
-}
-
-QProcessEnvironment SynchronousProcess::processEnvironment() const
-{
-    return d->m_process.processEnvironment();
-}
-
 unsigned SynchronousProcess::flags() const
 {
     return d->m_process.flags();

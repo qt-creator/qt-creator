@@ -106,10 +106,10 @@ static inline QStringList perforceRelativeProjectDirectory(const VcsBasePluginSt
 }
 
 // Clean user setting off diff-binary for 'p4 resolve' and 'p4 diff'.
-static inline QProcessEnvironment overrideDiffEnvironmentVariable()
+static Environment overrideDiffEnvironmentVariable()
 {
-    QProcessEnvironment rc = QProcessEnvironment::systemEnvironment();
-    rc.remove(QLatin1String("P4DIFF"));
+    Environment rc = Environment::systemEnvironment();
+    rc.unset("P4DIFF");
     return rc;
 }
 
@@ -1255,7 +1255,7 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const QString &workin
     if (outputCodec)
         process.setCodec(outputCodec);
     if (flags & OverrideDiffEnvironment)
-        process.setProcessEnvironment(overrideDiffEnvironmentVariable());
+        process.setEnvironment(overrideDiffEnvironmentVariable());
     if (!workingDir.isEmpty())
         process.setWorkingDirectory(workingDir);
 
@@ -1317,15 +1317,16 @@ PerforceResponse PerforcePluginPrivate::fullySynchronousProcess(const QString &w
                                                                 const QByteArray &stdInput,
                                                                 QTextCodec *outputCodec) const
 {
-    QProcess process;
+    QtcProcess process;
 
     if (flags & OverrideDiffEnvironment)
-        process.setProcessEnvironment(overrideDiffEnvironmentVariable());
+        process.setEnvironment(overrideDiffEnvironmentVariable());
     if (!workingDir.isEmpty())
         process.setWorkingDirectory(workingDir);
 
     PerforceResponse response;
-    process.start(m_settings.p4BinaryPath.value(), args);
+    process.setCommand({m_settings.p4BinaryPath.value(), args});
+    process.start();
     if (stdInput.isEmpty())
         process.closeWriteChannel();
 
@@ -1336,7 +1337,7 @@ PerforceResponse PerforcePluginPrivate::fullySynchronousProcess(const QString &w
     }
     if (!stdInput.isEmpty()) {
         if (process.write(stdInput) == -1) {
-            SynchronousProcess::stopProcess(process);
+            process.stopProcess();
             response.error = true;
             response.message = tr("Unable to write input data to process %1: %2").
                                arg(QDir::toNativeSeparators(m_settings.p4BinaryPath.value()),

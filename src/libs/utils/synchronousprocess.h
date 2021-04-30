@@ -116,9 +116,6 @@ public:
     Environment environment() const;
     void setEnvironment(const Environment &);
 
-    void setProcessEnvironment(const QProcessEnvironment &environment);
-    QProcessEnvironment processEnvironment() const;
-
     void setWorkingDirectory(const QString &workingDirectory);
     QString workingDirectory() const;
 

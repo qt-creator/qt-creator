@@ -203,7 +203,7 @@ static FilePath qmakeFromCMakeCache(const CMakeConfig &config)
     cmake.setFlags(SynchronousProcess::UnixTerminalDisabled);
     Environment env = Environment::systemEnvironment();
     Environment::setupEnglishOutput(&env);
-    cmake.setProcessEnvironment(env.toProcessEnvironment());
+    cmake.setEnvironment(env);
     cmake.setTimeOutMessageBoxEnabled(false);
 
     QString cmakeGenerator
