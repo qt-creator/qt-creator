@@ -17,6 +17,7 @@ Product {
             FileInfo.relativePath(FileInfo.joinPaths('/', qtc.ide_qbs_imports_path),
                                   FileInfo.joinPaths('/', qtc.ide_shared_sources_path)))
     property bool sanitizable: true
+    property bool usesQt6: Utilities.versionCompare(Qt.core.version, "6") >= 0
 
     Depends { name: "cpp" }
     Depends { name: "qtc" }
@@ -31,7 +32,7 @@ Product {
     Depends { name: "Qt.core"; versionAtLeast: "5.14.0" }
     Depends {
         name: "Qt.core5compat"
-        condition: Utilities.versionCompare(Qt.core.version, "6") >= 0
+        condition: usesQt6
     }
 
     // TODO: Should fall back to what came from Qt.core for Qt < 5.7, but we cannot express that
