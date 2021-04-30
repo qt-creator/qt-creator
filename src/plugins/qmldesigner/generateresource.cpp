@@ -44,7 +44,7 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 
 #include <QAction>
 #include <QTemporaryFile>
@@ -103,14 +103,15 @@ void GenerateResource::generateMenuEntry()
             currentProject->activeTarget()->kit());
         QString rccBinary = qtVersion->rccCommand();
 
-        QProcess rccProcess;
+        Utils::QtcProcess rccProcess;
         rccProcess.setWorkingDirectory(projectPath);
 
         const QStringList arguments1 = {"--project", "--output", temp.fileName()};
         const QStringList arguments2 = {"--binary", "--output", resourceFileName, temp.fileName()};
 
         for (const auto &arguments : {arguments1, arguments2}) {
-            rccProcess.start(rccBinary, arguments);
+            rccProcess.setCommand({rccBinary, arguments});
+            rccProcess.start();
             if (!rccProcess.waitForStarted()) {
                 Core::MessageManager::writeDisrupting(
                     QCoreApplication::translate("QmlDesigner::GenerateResource",
@@ -120,8 +121,8 @@ void GenerateResource::generateMenuEntry()
             }
             QByteArray stdOut;
             QByteArray stdErr;
-            if (!Utils::SynchronousProcess::readDataFromProcess(rccProcess, 30, &stdOut, &stdErr, true)) {
-                Utils::SynchronousProcess::stopProcess(rccProcess);
+            if (!rccProcess.readDataFromProcess(30, &stdOut, &stdErr, true)) {
+                rccProcess.stopProcess();
                 Core::MessageManager::writeDisrupting(
                     QCoreApplication::translate("QmlDesigner::GenerateResource",
                                                 "A timeout occurred running \"%1\"")
