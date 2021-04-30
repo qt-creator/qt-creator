@@ -88,7 +88,8 @@ namespace Utils {
 static Q_LOGGING_CATEGORY(processLog, "qtc.utils.synchronousprocess", QtWarningMsg);
 
 // A special QProcess derivative allowing for terminal control.
-class TerminalControllingProcess : public QProcess {
+class TerminalControllingProcess : public QtcProcess
+{
 public:
     TerminalControllingProcess();
 
@@ -391,7 +392,7 @@ void SynchronousProcess::setStdErrBufferedSignalsEnabled(bool v)
 
 QStringList SynchronousProcess::environment() const
 {
-    return d->m_process.environment();
+    return d->m_process.environment().toStringList();
 }
 
 bool SynchronousProcess::timeOutMessageBoxEnabled() const
@@ -406,7 +407,7 @@ void SynchronousProcess::setTimeOutMessageBoxEnabled(bool v)
 
 void SynchronousProcess::setEnvironment(const QStringList &e)
 {
-    d->m_process.setEnvironment(e);
+    d->m_process.setEnvironment(Environment(e));
 }
 
 void SynchronousProcess::setProcessEnvironment(const QProcessEnvironment &environment)
@@ -479,15 +480,15 @@ SynchronousProcessResponse SynchronousProcess::run(const CommandLine &cmd,
     // using QProcess::start() and passing program, args and OpenMode results in a different
     // quoting of arguments than using QProcess::setArguments() beforehand and calling start()
     // only with the OpenMode
-    d->m_process.setProgram(cmd.executable().toString());
-    d->m_process.setArguments(cmd.splitArguments());
+    d->m_process.setCommand(cmd);
     if (!writeData.isEmpty()) {
         connect(&d->m_process, &QProcess::started, this, [this, writeData] {
             d->m_process.write(writeData);
             d->m_process.closeWriteChannel();
         });
     }
-    d->m_process.start(writeData.isEmpty() ? QIODevice::ReadOnly : QIODevice::ReadWrite);
+    d->m_process.setOpenMode(writeData.isEmpty() ? QIODevice::ReadOnly : QIODevice::ReadWrite);
+    d->m_process.start();
 
     // On Windows, start failure is triggered immediately if the
     // executable cannot be found in the path. Do not start the
@@ -521,7 +522,9 @@ SynchronousProcessResponse SynchronousProcess::runBlocking(const CommandLine &cm
     d->clearForRun();
 
     d->m_binary = cmd.executable();
-    d->m_process.start(cmd.executable().toString(), cmd.splitArguments(), QIODevice::ReadOnly);
+    d->m_process.setOpenMode(QIODevice::ReadOnly);
+    d->m_process.setCommand(cmd);
+    d->m_process.start();
     if (!d->m_process.waitForStarted(d->m_maxHangTimerCount * 1000)) {
         d->m_result.result = SynchronousProcessResponse::StartFailed;
         return d->m_result;
