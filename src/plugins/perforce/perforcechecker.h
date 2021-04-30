@@ -25,8 +25,7 @@
 
 #pragma once
 
-#include <QObject>
-#include <QProcess>
+#include <utils/qtcprocess.h>
 
 namespace Perforce {
 namespace Internal {
@@ -68,7 +67,7 @@ private:
     void parseOutput(const QString &);
     inline void resetOverrideCursor();
 
-    QProcess m_process;
+    Utils::QtcProcess m_process;
     QString m_binary;
     int m_timeOutMS = -1;
     bool m_timedOut = false;

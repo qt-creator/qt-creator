@@ -26,15 +26,13 @@
 #include "perforcechecker.h"
 
 #include <utils/qtcassert.h>
-#include <utils/synchronousprocess.h>
-
-#include <QRegularExpression>
-#include <QTimer>
-#include <QFileInfo>
-#include <QDir>
 
 #include <QApplication>
 #include <QCursor>
+#include <QDir>
+#include <QFileInfo>
+#include <QRegularExpression>
+#include <QTimer>
 
 namespace Perforce {
 namespace Internal {
@@ -90,7 +88,8 @@ void PerforceChecker::start(const QString &binary, const QString &workingDirecto
     if (!workingDirectory.isEmpty())
         m_process.setWorkingDirectory(workingDirectory);
 
-    m_process.start(m_binary, args);
+    m_process.setCommand({m_binary, args});
+    m_process.start();
     m_process.closeWriteChannel();
     // Timeout handling
     m_timeOutMS = timeoutMS;
@@ -109,9 +108,8 @@ void PerforceChecker::slotTimeOut()
     if (!isRunning())
         return;
     m_timedOut = true;
-    Utils::SynchronousProcess::stopProcess(m_process);
-    emitFailed(tr("\"%1\" timed out after %2 ms.").
-               arg(m_binary).arg(m_timeOutMS));
+    m_process.stopProcess();
+    emitFailed(tr("\"%1\" timed out after %2 ms.").arg(m_binary).arg(m_timeOutMS));
 }
 
 void PerforceChecker::slotError(QProcess::ProcessError error)
@@ -129,7 +127,7 @@ void PerforceChecker::slotError(QProcess::ProcessError error)
     case QProcess::ReadError:
     case QProcess::WriteError:
     case QProcess::UnknownError:
-        Utils::SynchronousProcess::stopProcess(m_process);
+        m_process.stopProcess();
         break;
     }
 }
