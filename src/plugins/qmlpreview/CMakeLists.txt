@@ -1,5 +1,3 @@
-find_package(Qt5 COMPONENTS QmlDebug REQUIRED)
-
 add_qtc_plugin(QmlPreview
   PUBLIC_DEPENDS QmlDebug
   DEPENDS QmlJS
@@ -28,7 +26,7 @@ extend_qtc_plugin(QmlPreview
 # who needs it in older but special built Qt versions aswell
 string(REGEX MATCH "^[0-9]*" QT_VERSION_MAJOR ${Qt5_VERSION})
 get_target_property(qmldebugprivate_include_directories
-                    Qt${QT_VERSION_MAJOR}::QmlDebugPrivate
+                    Qt${QT_VERSION_MAJOR}::QmlPrivate
                     INTERFACE_INCLUDE_DIRECTORIES
 )
 find_file(have_qml_debug_translation_protocol
@@ -37,6 +35,6 @@ find_file(have_qml_debug_translation_protocol
 )
 extend_qtc_plugin(QmlPreview
   CONDITION have_qml_debug_translation_protocol
-  DEPENDS Qt5::QmlDebugPrivate
+  PUBLIC_DEPENDS Qt5::QmlPrivate
   PUBLIC_DEFINES "FOUND_QML_DEBUG_TRANSLATION_PROTOCOL"
 )
