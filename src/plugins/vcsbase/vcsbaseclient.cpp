@@ -35,6 +35,7 @@
 #include <coreplugin/idocument.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsoutputwindow.h>
@@ -127,7 +128,7 @@ QProcessEnvironment VcsBaseClientImpl::processEnvironment() const
 
 QString VcsBaseClientImpl::commandOutputFromLocal8Bit(const QByteArray &a)
 {
-    return SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(a));
+    return QtcProcess::normalizeNewlines(QString::fromLocal8Bit(a));
 }
 
 QStringList VcsBaseClientImpl::commandOutputLinesFromLocal8Bit(const QByteArray &a)

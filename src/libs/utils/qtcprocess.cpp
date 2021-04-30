@@ -1627,6 +1627,17 @@ bool QtcProcess::ArgIterator::next()
     }
 }
 
+QString QtcProcess::normalizeNewlines(const QString &text)
+{
+    QString res = text;
+    const auto newEnd = std::unique(res.begin(), res.end(), [](const QChar &c1, const QChar &c2) {
+        return c1 == '\r' && c2 == '\r'; // QTCREATORBUG-24556
+    });
+    res.chop(std::distance(newEnd, res.end()));
+    res.replace("\r\n", "\n");
+    return res;
+}
+
 void QtcProcess::ArgIterator::deleteArg()
 {
     if (!m_prev)

@@ -35,8 +35,6 @@
 
 #include <utils/stringutils.h>
 
-#include <QDir>
-
 namespace CMakeProjectManager {
 namespace Internal {
 
@@ -44,7 +42,7 @@ using namespace ProjectExplorer;
 
 static QString lineSplit(const QString &rest, const QByteArray &array, std::function<void(const QString &)> f)
 {
-    QString tmp = rest + Utils::SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(array));
+    QString tmp = rest + Utils::QtcProcess::normalizeNewlines(QString::fromLocal8Bit(array));
     int start = 0;
     int end = tmp.indexOf(QLatin1Char('\n'), start);
     while (end >= 0) {

@@ -186,12 +186,12 @@ QString SynchronousProcessResponse::allOutput() const
 
 QString SynchronousProcessResponse::stdOut() const
 {
-    return SynchronousProcess::normalizeNewlines(codec->toUnicode(rawStdOut));
+    return QtcProcess::normalizeNewlines(codec->toUnicode(rawStdOut));
 }
 
 QString SynchronousProcessResponse::stdErr() const
 {
-    return SynchronousProcess::normalizeNewlines(codec->toUnicode(rawStdErr));
+    return QtcProcess::normalizeNewlines(codec->toUnicode(rawStdErr));
 }
 
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessResponse& r)
@@ -257,7 +257,7 @@ QString ChannelBuffer::linesRead()
         return QString();
 
     // Get completed lines and remove them from the incompleteLinesBuffer:
-    const QString lines = SynchronousProcess::normalizeNewlines(incompleteLineBuffer.left(lastLineIndex + 1));
+    const QString lines = QtcProcess::normalizeNewlines(incompleteLineBuffer.left(lastLineIndex + 1));
     incompleteLineBuffer = incompleteLineBuffer.mid(lastLineIndex + 1);
 
     return lines;
@@ -787,17 +787,6 @@ QString SynchronousProcess::locateBinary(const QString &path, const QString &bin
             return rc;
     }
     return QString();
-}
-
-QString SynchronousProcess::normalizeNewlines(const QString &text)
-{
-    QString res = text;
-    const auto newEnd = std::unique(res.begin(), res.end(), [](const QChar &c1, const QChar &c2) {
-        return c1 == '\r' && c2 == '\r'; // QTCREATORBUG-24556
-    });
-    res.chop(std::distance(newEnd, res.end()));
-    res.replace("\r\n", "\n");
-    return res;
 }
 
 QString SynchronousProcess::locateBinary(const QString &binary)

@@ -29,7 +29,7 @@
 #include "ansiescapecodehandler.h"
 #include "fileinprojectfinder.h"
 #include "qtcassert.h"
-#include "synchronousprocess.h"
+#include "qtcprocess.h"
 #include "theme/theme.h"
 
 #include <QDir>
@@ -631,7 +631,7 @@ void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
         d->prependCarriageReturn = false;
         out.prepend('\r');
     }
-    out = SynchronousProcess::normalizeNewlines(out);
+    out = QtcProcess::normalizeNewlines(out);
     if (out.endsWith('\r')) {
         d->prependCarriageReturn = true;
         out.chop(1);

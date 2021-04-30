@@ -155,7 +155,7 @@ void ClangToolRunner::onProcessFinished(int exitCode, QProcess::ExitStatus exitS
 {
     if (exitStatus == QProcess::NormalExit) {
         if (exitCode == 0) {
-            qCDebug(LOG).noquote() << "Output:\n" << Utils::SynchronousProcess::normalizeNewlines(
+            qCDebug(LOG).noquote() << "Output:\n" << QtcProcess::normalizeNewlines(
                                                         QString::fromLocal8Bit(m_processOutput));
             emit finishedWithSuccess(m_fileToAnalyze);
         } else {
@@ -187,7 +187,7 @@ QString ClangToolRunner::commandlineAndOutput() const
               "Output:\n%3")
         .arg(m_commandLine.toUserOutput(),
              QString::number(m_process->error()),
-             Utils::SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(m_processOutput)));
+             QtcProcess::normalizeNewlines(QString::fromLocal8Bit(m_processOutput)));
 }
 
 } // namespace Internal
