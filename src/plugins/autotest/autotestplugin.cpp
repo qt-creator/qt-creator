@@ -280,6 +280,8 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
 #ifdef WITH_TESTS
     ExtensionSystem::PluginManager::registerScenario("TestStringTable",
                    [this]() { return dd->m_loadProjectScenario(); });
+    ExtensionSystem::PluginManager::registerScenario("TestModelManagerInterface",
+                   [this]() { return dd->m_loadProjectScenario(); });
 #endif
     return true;
 }

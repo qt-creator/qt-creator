@@ -40,6 +40,10 @@
 #include <utils/runextensions.h>
 #include <utils/stringutils.h>
 
+#ifdef WITH_TESTS
+#include <extensionsystem/pluginmanager.h>
+#endif
+
 #include <QDir>
 #include <QDirIterator>
 #include <QFile>
@@ -969,6 +973,16 @@ void ModelManagerInterface::parseLoop(QSet<QString> &scannedPaths,
         doc->setSource(contents);
         doc->parse();
 
+#ifdef WITH_TESTS
+        if (ExtensionSystem::PluginManager::isScenarioRunning("TestModelManagerInterface")) {
+            ExtensionSystem::PluginManager::waitForScenarioFullyInitialized();
+            if (ExtensionSystem::PluginManager::finishScenario()) {
+                qDebug() << "Point 1: Shutdown triggered";
+                QThread::currentThread()->sleep(2);
+                qDebug() << "Point 3: If Point 2 was already reached, expect a crash now";
+            }
+        }
+#endif
         // update snapshot. requires synchronization, but significantly reduces amount of file
         // system queries for library imports because queries are cached in libraryInfo
         const Snapshot snapshot = modelManager->snapshot();

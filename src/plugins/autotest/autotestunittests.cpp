@@ -308,13 +308,23 @@ void AutoTestUnitTests::testCodeParserBoostTest_data()
         << QString(m_tmpDir->path() + "/simple_boost/simple_boost.qbs") << QString(".qbs");
 }
 
-void AutoTestUnitTests::testStringTable()
+static int executeScenario(const QString &scenario)
 {
     const PluginManager::ProcessData data = PluginManager::creatorProcessData();
-    QStringList additionalArgs{ "-scenario", "TestStringTable" };
+    QStringList additionalArgs{ "-scenario", scenario };
     if (!data.m_args.contains("-settingspath") && !data.m_settingsPath.isEmpty())
         additionalArgs << "-settingspath" << data.m_settingsPath;
-    QCOMPARE(QProcess::execute(data.m_executable, data.m_args + additionalArgs), 0);
+    return QProcess::execute(data.m_executable, data.m_args + additionalArgs);
+}
+
+void AutoTestUnitTests::testStringTable()
+{
+    QCOMPARE(executeScenario("TestStringTable"), 0);
+}
+
+void AutoTestUnitTests::testModelManagerInterface()
+{
+    QCOMPARE(executeScenario("TestModelManagerInterface"), 0);
 }
 
 } // namespace Internal
