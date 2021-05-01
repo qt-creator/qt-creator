@@ -31,6 +31,7 @@
 #include <QDir>
 #include <QString>
 
+#define CALLBACK WINAPI
 #include <windows.h>
 #include <objbase.h>
 #include <shellapi.h>

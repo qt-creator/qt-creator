@@ -44,6 +44,7 @@
 #endif
 
 #ifdef Q_OS_WIN
+#define CALLBACK WINAPI
 #include <qt_windows.h>
 #include <shlobj.h>
 #endif

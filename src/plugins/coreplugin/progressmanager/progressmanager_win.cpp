@@ -41,6 +41,7 @@
 
 // for windows progress bar
 #ifndef __GNUC__
+#    define CALLBACK WINAPI
 #    include <shobjidl.h>
 #endif
 

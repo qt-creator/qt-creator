@@ -50,6 +50,9 @@
 #undef ERROR
 #undef ABSOLUTE
 
+// LLVM 12 comes with CALLBACK as a template argument
+#undef CALLBACK
+
 #define _POSIX_
 #include <limits.h>
 #undef _POSIX_
