@@ -67,6 +67,7 @@ ImageView::ImageView(ImageViewerFile *file)
     setScene(new QGraphicsScene(this));
     setTransformationAnchor(AnchorUnderMouse);
     setDragMode(ScrollHandDrag);
+    setInteractive(false);
     setViewportUpdateMode(FullViewportUpdate);
     setFrameShape(QFrame::NoFrame);
     setRenderHint(QPainter::SmoothPixmapTransform);
