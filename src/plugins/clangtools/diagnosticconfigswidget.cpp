@@ -25,6 +25,9 @@
 
 #include "diagnosticconfigswidget.h"
 
+#include "clangtoolsdiagnostic.h"
+#include "clangtoolsprojectsettings.h"
+#include "clangtoolssettings.h"
 #include "clangtoolsutils.h"
 #include "executableinfo.h"
 
@@ -35,8 +38,10 @@
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <projectexplorer/selectablefilesmodel.h>
+#include <projectexplorer/session.h>
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
@@ -49,6 +54,7 @@
 #include <QStringListModel>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
+#include <QUuid>
 #include <QVBoxLayout>
 
 using namespace CppTools;
@@ -1144,6 +1150,72 @@ QString removeClazyCheck(const QString &checks, const QString &check)
         return checks;
     model.setData(index, false, Qt::CheckStateRole);
     return model.enabledChecks().join(',');
+}
+
+void disableChecks(const QList<Diagnostic> &diagnostics)
+{
+    if (diagnostics.isEmpty())
+        return;
+
+    ClangToolsSettings * const settings = ClangToolsSettings::instance();
+    ClangDiagnosticConfigs configs = settings->diagnosticConfigs();
+    Utils::Id activeConfigId = settings->runSettings().diagnosticConfigId();
+    ClangToolsProjectSettings::ClangToolsProjectSettingsPtr projectSettings;
+
+    if (ProjectExplorer::Project *project = ProjectExplorer::SessionManager
+            ::projectForFile(Utils::FilePath::fromString(diagnostics.first().location.filePath))) {
+        projectSettings = ClangToolsProjectSettings::getSettings(project);
+        if (!projectSettings->useGlobalSettings())
+            activeConfigId = projectSettings->runSettings().diagnosticConfigId();
+    }
+    ClangDiagnosticConfig config = Utils::findOrDefault(configs,
+        [activeConfigId](const ClangDiagnosticConfig &c) { return c.id() == activeConfigId; });
+    const bool defaultWasActive = !config.id().isValid();
+    if (defaultWasActive) {
+        QTC_ASSERT(configs.isEmpty(), return);
+        config = builtinConfig();
+        config.setIsReadOnly(false);
+        config.setId(Utils::Id::fromString(QUuid::createUuid().toString()));
+        config.setDisplayName(QCoreApplication::translate("Clang Tools", "Custom Configuration"));
+        configs << config;
+        RunSettings runSettings = settings->runSettings();
+        runSettings.setDiagnosticConfigId(config.id());
+        settings->setRunSettings(runSettings);
+        if (projectSettings && !projectSettings->useGlobalSettings()) {
+            runSettings = projectSettings->runSettings();
+            runSettings.setDiagnosticConfigId(config.id());
+            projectSettings->setRunSettings(runSettings);
+        }
+    }
+
+    for (const Diagnostic &diag : diagnostics) {
+        if (diag.name.startsWith("clazy-")) {
+            if (config.clazyMode() == ClangDiagnosticConfig::ClazyMode::UseDefaultChecks) {
+                config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseCustomChecks);
+                const ClazyStandaloneInfo clazyInfo(clazyStandaloneExecutable());
+                config.setClazyChecks(clazyInfo.defaultChecks.join(','));
+            }
+            config.setClazyChecks(removeClazyCheck(config.clazyChecks(), diag.name));
+        } else if (config.clangTidyMode() != ClangDiagnosticConfig::TidyMode::UseConfigFile) {
+            if (config.clangTidyMode() == ClangDiagnosticConfig::TidyMode::UseDefaultChecks) {
+                config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
+                const ClangTidyInfo tidyInfo(clangTidyExecutable());
+                config.setClangTidyChecks(tidyInfo.defaultChecks.join(','));
+            }
+            config.setClangTidyChecks(removeClangTidyCheck(config.clangTidyChecks(), diag.name));
+        }
+    }
+
+    if (!defaultWasActive) {
+        for (ClangDiagnosticConfig &c : configs) {
+            if (c.id() == config.id()) {
+                c = config;
+                break;
+            }
+        }
+    }
+    settings->setDiagnosticConfigs(configs);
+    settings->writeSettings();
 }
 
 } // namespace Internal

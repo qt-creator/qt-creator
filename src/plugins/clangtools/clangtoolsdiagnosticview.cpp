@@ -48,7 +48,6 @@
 #include <QHeaderView>
 #include <QPainter>
 #include <QSet>
-#include <QUuid>
 
 #include <set>
 
@@ -241,37 +240,8 @@ void DiagnosticView::suppressCurrentDiagnostic()
 
 void DiagnosticView::disableCheckForCurrentDiagnostic()
 {
-    ClangToolsSettings * const settings = ClangToolsSettings::instance();
-    ClangDiagnosticConfigs configs = settings->diagnosticConfigs();
-    Utils::Id activeConfigId = settings->runSettings().diagnosticConfigId();
-    ClangToolsProjectSettings::ClangToolsProjectSettingsPtr projectSettings;
-    if (ProjectExplorer::Project * const project
-            = static_cast<DiagnosticFilterModel *>(model())->project()) {
-        projectSettings = ClangToolsProjectSettings::getSettings(project);
-        if (!projectSettings->useGlobalSettings())
-            activeConfigId = projectSettings->runSettings().diagnosticConfigId();
-    }
-    ClangDiagnosticConfig config = Utils::findOrDefault(configs,
-        [activeConfigId](const ClangDiagnosticConfig &c) { return c.id() == activeConfigId; });
-    const bool defaultWasActive = !config.id().isValid();
-    if (defaultWasActive) {
-        QTC_ASSERT(configs.isEmpty(), return);
-        config = builtinConfig();
-        config.setIsReadOnly(false);
-        config.setId(Utils::Id::fromString(QUuid::createUuid().toString()));
-        config.setDisplayName(tr("Custom Configuration"));
-        configs << config;
-        RunSettings runSettings = settings->runSettings();
-        runSettings.setDiagnosticConfigId(config.id());
-        settings->setRunSettings(runSettings);
-        if (projectSettings && !projectSettings->useGlobalSettings()) {
-            runSettings = projectSettings->runSettings();
-            runSettings.setDiagnosticConfigId(config.id());
-            projectSettings->setRunSettings(runSettings);
-        }
-    }
-
     std::set<QString> handledNames;
+    QList<Diagnostic> diagnostics;
     const QModelIndexList indexes = selectionModel()->selectedRows();
     for (const QModelIndex &index : indexes) {
         const Diagnostic diag = model()->data(index, ClangToolsDiagnosticModel::DiagnosticRole)
@@ -280,34 +250,9 @@ void DiagnosticView::disableCheckForCurrentDiagnostic()
             continue;
         if (!handledNames.insert(diag.name).second)
             continue;
-
-        if (diag.name.startsWith("clazy-")) {
-            if (config.clazyMode() == ClangDiagnosticConfig::ClazyMode::UseDefaultChecks) {
-                config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseCustomChecks);
-                const ClazyStandaloneInfo clazyInfo(clazyStandaloneExecutable());
-                config.setClazyChecks(clazyInfo.defaultChecks.join(','));
-            }
-            config.setClazyChecks(removeClazyCheck(config.clazyChecks(), diag.name));
-        } else if (config.clangTidyMode() != ClangDiagnosticConfig::TidyMode::UseConfigFile) {
-            if (config.clangTidyMode() == ClangDiagnosticConfig::TidyMode::UseDefaultChecks) {
-                config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
-                const ClangTidyInfo tidyInfo(clangTidyExecutable());
-                config.setClangTidyChecks(tidyInfo.defaultChecks.join(','));
-            }
-            config.setClangTidyChecks(removeClangTidyCheck(config.clangTidyChecks(), diag.name));
-        }
+        diagnostics << diag;
     }
-
-    if (!defaultWasActive) {
-        for (ClangDiagnosticConfig &c : configs) {
-            if (c.id() == config.id()) {
-                c = config;
-                break;
-            }
-        }
-    }
-    settings->setDiagnosticConfigs(configs);
-    settings->writeSettings();
+    disableChecks(diagnostics);
 }
 
 void DiagnosticView::goNext()

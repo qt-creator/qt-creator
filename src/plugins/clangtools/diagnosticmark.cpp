@@ -27,6 +27,7 @@
 
 #include "clangtoolsconstants.h"
 #include "clangtoolsutils.h"
+#include "diagnosticconfigswidget.h"
 
 #include <utils/utilsicons.h>
 
@@ -66,6 +67,13 @@ DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic)
                              + diagnostic.description;
         QApplication::clipboard()->setText(text);
     });
+    actions << action;
+
+    // Disable diagnostic action
+    action = new QAction();
+    action->setIcon(Utils::Icons::BROKEN.icon());
+    action->setToolTip(tr("Disable Diagnostic"));
+    QObject::connect(action, &QAction::triggered, [diagnostic] { disableChecks({diagnostic}); });
     actions << action;
 
     setActions(actions);

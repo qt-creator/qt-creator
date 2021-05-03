@@ -33,10 +33,12 @@
 
 namespace ClangTools {
 namespace Internal {
+class Diagnostic;
 
 // Not UI-related, but requires the tree model (or else a huge refactoring or code duplication).
 QString removeClangTidyCheck(const QString &checks, const QString &check);
 QString removeClazyCheck(const QString &checks, const QString &check);
+void disableChecks(const QList<Diagnostic> &diagnostics);
 
 namespace Ui {
 class ClazyChecks;
