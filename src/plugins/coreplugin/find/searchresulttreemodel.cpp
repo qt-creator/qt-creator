@@ -262,7 +262,7 @@ bool SearchResultTreeModel::setCheckState(const QModelIndex &idx, Qt::CheckState
 void SearchResultTreeModel::updateCheckStateFromChildren(const QModelIndex &idx,
                                                          SearchResultTreeItem *item)
 {
-    if (!item)
+    if (!item || item == m_rootItem)
         return;
 
     bool hasChecked = false;
