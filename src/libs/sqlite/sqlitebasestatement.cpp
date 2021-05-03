@@ -110,12 +110,9 @@ void BaseStatement::waitForUnlockNotify() const
     unlockNotification.wait();
 }
 
-void BaseStatement::reset() const
+void BaseStatement::reset() const noexcept
 {
-    int resultCode = sqlite3_reset(m_compiledStatement.get());
-
-    if (resultCode != SQLITE_OK)
-        checkForResetError(resultCode);
+    sqlite3_reset(m_compiledStatement.get());
 }
 
 bool BaseStatement::next() const
@@ -446,42 +443,6 @@ void BaseStatement::checkForStepError(int resultCode) const
     }
 
     throwUnknowError("SqliteStatement::stepStatement: unknown error has happened");
-}
-
-void BaseStatement::checkForResetError(int resultCode) const
-{
-    switch (resultCode) {
-    case SQLITE_BUSY_RECOVERY:
-    case SQLITE_BUSY_SNAPSHOT:
-    case SQLITE_BUSY_TIMEOUT:
-    case SQLITE_BUSY:
-        throwStatementIsBusy("SqliteStatement::stepStatement: database engine was unable to "
-                             "acquire the database locks!");
-    case SQLITE_ERROR_MISSING_COLLSEQ:
-    case SQLITE_ERROR_RETRY:
-    case SQLITE_ERROR_SNAPSHOT:
-    case SQLITE_ERROR:
-        throwStatementHasError("SqliteStatement::stepStatement: run-time error (such as a "
-                               "constraint violation) has occurred!");
-    case SQLITE_MISUSE:
-        throwStatementIsMisused("SqliteStatement::stepStatement: was called inappropriately!");
-    case SQLITE_CONSTRAINT_CHECK:
-    case SQLITE_CONSTRAINT_COMMITHOOK:
-    case SQLITE_CONSTRAINT_FOREIGNKEY:
-    case SQLITE_CONSTRAINT_FUNCTION:
-    case SQLITE_CONSTRAINT_NOTNULL:
-    case SQLITE_CONSTRAINT_PINNED:
-    case SQLITE_CONSTRAINT_PRIMARYKEY:
-    case SQLITE_CONSTRAINT_ROWID:
-    case SQLITE_CONSTRAINT_TRIGGER:
-    case SQLITE_CONSTRAINT_UNIQUE:
-    case SQLITE_CONSTRAINT_VTAB:
-    case SQLITE_CONSTRAINT:
-        throwConstraintPreventsModification(
-            "SqliteStatement::stepStatement: contraint prevent insert or update!");
-    }
-
-    throwUnknowError("SqliteStatement::reset: unknown error has happened");
 }
 
 void BaseStatement::checkForPrepareError(int resultCode) const

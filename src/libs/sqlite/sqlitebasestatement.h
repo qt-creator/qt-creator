@@ -68,7 +68,7 @@ public:
 
     bool next() const;
     void step() const;
-    void reset() const;
+    void reset() const noexcept;
 
     Type fetchType(int column) const;
     int fetchIntValue(int column) const;
@@ -109,7 +109,6 @@ public:
     sqlite3 *sqliteDatabaseHandle() const;
 
     [[noreturn]] void checkForStepError(int resultCode) const;
-    [[noreturn]] void checkForResetError(int resultCode) const;
     [[noreturn]] void checkForPrepareError(int resultCode) const;
     [[noreturn]] void checkForBindingError(int resultCode) const;
     void setIfIsReadyToFetchValues(int resultCode) const;
@@ -174,7 +173,6 @@ public:
     {
         Resetter resetter{this};
         BaseStatement::next();
-        resetter.reset();
     }
 
     void bindValues() {}
@@ -192,7 +190,6 @@ public:
         Resetter resetter{this};
         bindValues(values...);
         BaseStatement::next();
-        resetter.reset();
     }
 
     template<typename ResultType, typename... QueryTypes>
@@ -209,8 +206,6 @@ public:
 
         setMaximumResultCount(resultValues.size());
 
-        resetter.reset();
-
         return resultValues;
     }
 
@@ -225,8 +220,6 @@ public:
         if (BaseStatement::next())
             resultValue = createValue<ResultType>();
 
-        resetter.reset();
-
         return resultValue;
     }
 
@@ -240,8 +233,6 @@ public:
 
         if (BaseStatement::next())
             resultValue = createOptionalValue<Utils::optional<ResultType>>();
-
-        resetter.reset();
 
         return resultValue;
     }
@@ -271,8 +262,6 @@ public:
             if (control == CallbackControl::Abort)
                 break;
         }
-
-        resetter.reset();
     }
 
     template<typename Container, typename... QueryTypes>
@@ -284,8 +273,6 @@ public:
 
         while (BaseStatement::next())
             emplaceBackValues(container);
-
-        resetter.reset();
     }
 
     template<typename ResultType, typename... QueryTypes>
@@ -392,12 +379,6 @@ public:
             statement.bindValues(queryValues...);
         }
 
-        ~SqliteResultRange()
-        {
-            if (!std::uncaught_exceptions())
-                resetter.reset();
-        }
-
     private:
         Resetter resetter;
     };
@@ -418,8 +399,9 @@ public:
 
         ~SqliteResultRangeWithTransaction()
         {
+            resetter.reset();
+
             if (!std::uncaught_exceptions()) {
-                resetter.reset();
                 m_transaction.commit();
             }
         }
@@ -451,25 +433,13 @@ private:
 
         void reset()
         {
-            try {
-                if (statement)
-                    statement->reset();
-            } catch (...) {
-                statement = nullptr;
-                throw;
-            }
+            if (statement)
+                statement->reset();
 
             statement = nullptr;
         }
 
-        ~Resetter() noexcept
-        {
-            try {
-                if (statement)
-                    statement->reset();
-            } catch (...) {
-            }
-        }
+        ~Resetter() noexcept { reset(); }
 
         StatementImplementation *statement;
     };
