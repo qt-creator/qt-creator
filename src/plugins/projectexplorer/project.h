@@ -182,6 +182,9 @@ public:
 
     QStringList availableQmlPreviewTranslations(QString *errorMessage);
 
+    QList<Core::IDocument *> modifiedDocuments() const;
+    bool isModified() const;
+
 signals:
     void projectFileIsDirty(const Utils::FilePath &path);
 

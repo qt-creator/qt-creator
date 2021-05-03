@@ -49,6 +49,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
+#include <coreplugin/editormanager/documentmodel.h>
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -1059,6 +1060,23 @@ QStringList Project::availableQmlPreviewTranslations(QString *errorMessage)
         const QString locale = qmFile.left(localeEndPosition).mid(localeStartPosition);
         return locale;
     });
+}
+
+QList<Core::IDocument *> Project::modifiedDocuments() const
+{
+    QList<Core::IDocument *> modifiedProjectDocuments;
+
+    for (Core::IDocument *doc : Core::DocumentModel::openedDocuments()) {
+        if (doc->isModified() && isKnownFile(doc->filePath()))
+            modifiedProjectDocuments.append(doc);
+    }
+
+    return modifiedProjectDocuments;
+}
+
+bool Project::isModified() const
+{
+    return !modifiedDocuments().isEmpty();
 }
 
 #if defined(WITH_TESTS)
