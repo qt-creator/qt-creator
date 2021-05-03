@@ -107,7 +107,7 @@ void WatchTreeView::updateTimeColumn()
 {
     if (header())
         header()->setSectionHidden(WatchModelBase::TimeColumn,
-                                   debuggerSettings()->logTimeStamps.value());
+                                   !debuggerSettings()->logTimeStamps.value());
 }
 
 void WatchTreeView::handleItemIsExpanded(const QModelIndex &idx)
