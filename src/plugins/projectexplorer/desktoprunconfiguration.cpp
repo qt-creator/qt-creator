@@ -40,8 +40,6 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
-#include <QFileInfo>
-
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -54,17 +52,17 @@ class DesktopRunConfiguration : public RunConfiguration
 protected:
     enum Kind { Qmake, Qbs, CMake }; // FIXME: Remove
 
-    DesktopRunConfiguration(Target *target, Utils::Id id, Kind kind);
+    DesktopRunConfiguration(Target *target, Id id, Kind kind);
 
 private:
     void updateTargetInformation();
 
-    Utils::FilePath executableToRun(const BuildTargetInfo &targetInfo) const;
+    FilePath executableToRun(const BuildTargetInfo &targetInfo) const;
 
     const Kind m_kind;
 };
 
-DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Utils::Id id, Kind kind)
+DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Id id, Kind kind)
     : RunConfiguration(target, id), m_kind(kind)
 {
     auto envAspect = addAspect<LocalEnvironmentAspect>(target);
@@ -150,7 +148,7 @@ void DesktopRunConfiguration::updateTargetInformation()
     }
 }
 
-Utils::FilePath DesktopRunConfiguration::executableToRun(const BuildTargetInfo &targetInfo) const
+FilePath DesktopRunConfiguration::executableToRun(const BuildTargetInfo &targetInfo) const
 {
     const FilePath appInBuildDir = targetInfo.targetFilePath;
     const DeploymentData deploymentData = target()->deploymentData();
@@ -171,7 +169,7 @@ Utils::FilePath DesktopRunConfiguration::executableToRun(const BuildTargetInfo &
 class DesktopQmakeRunConfiguration final : public DesktopRunConfiguration
 {
 public:
-    DesktopQmakeRunConfiguration(Target *target, Utils::Id id)
+    DesktopQmakeRunConfiguration(Target *target, Id id)
         : DesktopRunConfiguration(target, id, Qmake)
     {}
 };
@@ -179,7 +177,7 @@ public:
 class QbsRunConfiguration final : public DesktopRunConfiguration
 {
 public:
-    QbsRunConfiguration(Target *target, Utils::Id id)
+    QbsRunConfiguration(Target *target, Id id)
         : DesktopRunConfiguration(target, id, Qbs)
     {}
 };
@@ -187,7 +185,7 @@ public:
 class CMakeRunConfiguration final : public DesktopRunConfiguration
 {
 public:
-    CMakeRunConfiguration(Target *target, Utils::Id id)
+    CMakeRunConfiguration(Target *target, Id id)
         : DesktopRunConfiguration(target, id, CMake)
     {}
 };
