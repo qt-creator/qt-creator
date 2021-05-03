@@ -41,11 +41,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <QDir>
-#include <QHash>
-#include <QPair>
 #include <QTextDecoder>
-#include <QUrl>
 
 #include <algorithm>
 #include <memory>
