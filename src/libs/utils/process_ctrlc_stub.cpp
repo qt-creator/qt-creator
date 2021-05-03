@@ -46,6 +46,10 @@
 #include <cstdlib>
 #include <cstdio>
 
+#ifndef CALLBACK
+#define CALLBACK WINAPI
+#endif
+
 const wchar_t szTitle[] = L"qtcctrlcstub";
 const wchar_t szWindowClass[] = L"wcqtcctrlcstub";
 const wchar_t szNice[] = L"-nice ";
