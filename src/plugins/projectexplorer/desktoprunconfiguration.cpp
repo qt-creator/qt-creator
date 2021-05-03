@@ -32,6 +32,7 @@
 #include "target.h"
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
+#include <docker/dockerconstants.h>
 #include <qbsprojectmanager/qbsprojectmanagerconstants.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
@@ -199,6 +200,7 @@ CMakeRunConfigurationFactory::CMakeRunConfigurationFactory()
     registerRunConfiguration<CMakeRunConfiguration>(CMAKE_RUNCONFIG_ID);
     addSupportedProjectType(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+    addSupportedTargetDeviceType(Docker::Constants::DOCKER_DEVICE_TYPE);
 }
 
 QbsRunConfigurationFactory::QbsRunConfigurationFactory()
@@ -206,6 +208,7 @@ QbsRunConfigurationFactory::QbsRunConfigurationFactory()
     registerRunConfiguration<QbsRunConfiguration>(QBS_RUNCONFIG_ID);
     addSupportedProjectType(QbsProjectManager::Constants::PROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+    addSupportedTargetDeviceType(Docker::Constants::DOCKER_DEVICE_TYPE);
 }
 
 DesktopQmakeRunConfigurationFactory::DesktopQmakeRunConfigurationFactory()
@@ -213,6 +216,7 @@ DesktopQmakeRunConfigurationFactory::DesktopQmakeRunConfigurationFactory()
     registerRunConfiguration<DesktopQmakeRunConfiguration>(QMAKE_RUNCONFIG_ID);
     addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+    addSupportedTargetDeviceType(Docker::Constants::DOCKER_DEVICE_TYPE);
 }
 
 } // namespace Internal
