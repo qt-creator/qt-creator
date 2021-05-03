@@ -154,7 +154,7 @@ public:
 
     ~ConstIterator();
 
-    friend void swap(ConstIterator &first, ConstIterator &second)
+    friend void swap(ConstIterator &first, ConstIterator &second) noexcept
     {
         std::swap(first.m_sessionIterator, second.m_sessionIterator);
         std::swap(first.m_state, second.m_state);
