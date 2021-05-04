@@ -142,9 +142,6 @@ public:
                                     QByteArray *rawStdOut = nullptr,
                                     QByteArray *rawStdErr = nullptr,
                                     bool timeOutMessageBox = false);
-    // Stop a process by first calling terminate() (allowing for signal handling) and
-    // then kill().
-    static bool stopProcess(QProcess &p);
 
     // Helpers to find binaries. Do not use it for other path variables
     // and file types.

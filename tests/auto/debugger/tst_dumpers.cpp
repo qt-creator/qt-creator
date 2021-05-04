@@ -29,16 +29,21 @@
 #include "watchutils.h"
 
 #include <utils/fileutils.h>
-#ifdef Q_OS_WIN
 #include <utils/environment.h>
-#ifdef Q_CC_MSVC
 #include <utils/qtcprocess.h>
+
+#ifdef Q_OS_WIN
+#ifdef Q_CC_MSVC
 #include <utils/synchronousprocess.h>
 #endif // Q_CC_MSVC
 #endif // Q_OS_WIN
 
 #include <QtTest>
 #include <math.h>
+
+#ifndef CDBEXT_PATH
+#define CDBEXT_PATH ""
+#endif
 
 #define MSKIP_SINGLE(x) do { disarm(); QSKIP(x); } while (0)
 
@@ -60,8 +65,6 @@ enum class Language
     Nim,
     Fortran90
 };
-
-#ifdef Q_CC_MSVC
 
 // Copied from msvctoolchain.cpp to avoid plugin dependency.
 static bool generateEnvironmentSettings(Utils::Environment &env,
@@ -120,7 +123,7 @@ static bool generateEnvironmentSettings(Utils::Environment &env,
     }
     if (!run.waitForFinished()) {
         qWarning("%s: Timeout running '%s'", Q_FUNC_INFO, qPrintable(batchFile));
-        Utils::SynchronousProcess::stopProcess(run);
+        run.stopProcess();
         return false;
     }
     // The SDK/MSVC scripts do not return exit codes != 0. Check on stdout.
@@ -154,12 +157,6 @@ static bool generateEnvironmentSettings(Utils::Environment &env,
     return true;
 }
 
-
-#ifndef CDBEXT_PATH
-#define CDBEXT_PATH ""
-#endif
-
-#endif // Q_CC_MSVC
 
 struct VersionBase
 {
@@ -1245,7 +1242,6 @@ void tst_Dumpers::initTestCase()
         qDebug() << "Make path          : " << m_makeBinary;
         qDebug() << "Gdb version        : " << m_debuggerVersion;
     } else if (m_debuggerEngine == CdbEngine) {
-#ifdef Q_CC_MSVC
         QByteArray envBat = qgetenv("QTC_MSVC_ENV_BAT");
         QMap <QString, QString> envPairs;
         Utils::Environment env = Utils::Environment::systemEnvironment();
@@ -1273,7 +1269,6 @@ void tst_Dumpers::initTestCase()
         QRegularExpressionMatch match = reg.match(output);
         if (match.matchType() != QRegularExpression::NoMatch)
             m_msvcVersion = QString(match.captured(1) + match.captured(2)).toInt();
-#endif //Q_CC_MSVC
     } else if (m_debuggerEngine == LldbEngine) {
         qDebug() << "Dumper dir         : " << DUMPERDIR;
         QProcess debugger;

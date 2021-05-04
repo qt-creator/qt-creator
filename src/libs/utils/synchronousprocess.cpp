@@ -550,7 +550,7 @@ SynchronousProcessResponse SynchronousProcess::runBlocking(const CommandLine &cm
 
 bool SynchronousProcess::terminate()
 {
-    return stopProcess(d->m_process);
+    return d->m_process.stopProcess();
 }
 
 static inline bool askToKill(const QString &binary = QString())
@@ -582,7 +582,7 @@ void SynchronousProcess::slotTimeout()
         const bool terminate = !d->m_timeOutMessageBoxEnabled || askToKill(d->m_binary.toString());
         d->m_waitingForUser = false;
         if (terminate) {
-            SynchronousProcess::stopProcess(d->m_process);
+            d->m_process.stopProcess();
             d->m_result.result = SynchronousProcessResponse::Hang;
         } else {
             d->m_hangTimerCount = 0;
@@ -687,17 +687,6 @@ bool SynchronousProcess::readDataFromProcess(QProcess &p, int timeoutS,
     if (syncDebug)
         qDebug() << "<readDataFromProcess" << finished;
     return finished;
-}
-
-bool SynchronousProcess::stopProcess(QProcess &p)
-{
-    if (p.state() == QProcess::NotRunning)
-        return true;
-    p.terminate();
-    if (p.waitForFinished(300))
-        return true;
-    p.kill();
-    return p.waitForFinished(300);
 }
 
 // Path utilities
