@@ -41,7 +41,7 @@ public:
         , id{id}
     {}
 
-    operator ViewType() const { return value; }
+    operator ViewType() const noexcept { return value; }
     friend bool operator==(const StorageCacheEntry &first, const StorageCacheEntry &second)
     {
         return first.id == second.id && first.value == second.value;

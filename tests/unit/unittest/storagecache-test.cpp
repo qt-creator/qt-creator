@@ -44,9 +44,11 @@ using Utils::reverseCompare;
 class StorageAdapter
 {
 public:
-    auto fetchId(Utils::SmallStringView view) { return storage.fetchSourceContextId(view); }
+    auto fetchId(Utils::SmallStringView view) const { return storage.fetchSourceContextId(view); }
 
-    auto fetchValue(SourceContextId id) { return storage.fetchSourceContextPath(id); }
+    auto fetchValue(SourceContextId id) const { return storage.fetchSourceContextPath(id); }
+
+    auto fetchAll() const { return storage.fetchAllSourceContexts(); }
 
     ProjectStorageMock &storage;
 };
@@ -56,15 +58,21 @@ auto less(Utils::SmallStringView first, Utils::SmallStringView second) -> bool
     return Utils::reverseCompare(first, second) < 0;
 };
 
-using CacheWithMockLocking = QmlDesigner::
-    StorageCache<Utils::PathString, Utils::SmallStringView, SourceContextId, StorageAdapter, NiceMock<MockMutex>, less>;
+using CacheWithMockLocking = QmlDesigner::StorageCache<Utils::PathString,
+                                                       Utils::SmallStringView,
+                                                       SourceContextId,
+                                                       StorageAdapter,
+                                                       NiceMock<MockMutex>,
+                                                       less,
+                                                       QmlDesigner::Sources::SourceContext>;
 
 using CacheWithoutLocking = QmlDesigner::StorageCache<Utils::PathString,
                                                       Utils::SmallStringView,
                                                       SourceContextId,
                                                       StorageAdapter,
                                                       NiceMock<MockMutexNonLocking>,
-                                                      less>;
+                                                      less,
+                                                      QmlDesigner::Sources::SourceContext>;
 
 template<typename Cache>
 class StorageCache : public testing::Test
@@ -223,9 +231,7 @@ TYPED_TEST(StorageCache, IsNotEmpty)
 
 TYPED_TEST(StorageCache, PopulateWithEmptyVector)
 {
-    typename TypeParam::CacheEntries entries;
-
-    this->cache.uncheckedPopulate(std::move(entries));
+    this->cache.uncheckedPopulate();
 
     ASSERT_TRUE(this->cache.isEmpty());
 }
@@ -236,8 +242,9 @@ TYPED_TEST(StorageCache, IsNotEmptyAfterPopulateWithSomeEntries)
                                              {this->filePath2.clone(), this->id4},
                                              {this->filePath3.clone(), this->id3},
                                              {this->filePath4.clone(), SourceContextId{5}}};
+    ON_CALL(this->mockStorage, fetchAllSourceContexts()).WillByDefault(Return(entries));
 
-    this->cache.uncheckedPopulate(std::move(entries));
+    this->cache.uncheckedPopulate();
 
     ASSERT_TRUE(!this->cache.isEmpty());
 }
@@ -248,7 +255,8 @@ TYPED_TEST(StorageCache, GetEntryAfterPopulateWithSomeEntries)
                                              {this->filePath2.clone(), this->id2},
                                              {this->filePath3.clone(), SourceContextId{7}},
                                              {this->filePath4.clone(), this->id4}};
-    this->cache.uncheckedPopulate(std::move(entries));
+    ON_CALL(this->mockStorage, fetchAllSourceContexts()).WillByDefault(Return(entries));
+    this->cache.uncheckedPopulate();
 
     auto value = this->cache.value(SourceContextId{7});
 
@@ -261,8 +269,9 @@ TYPED_TEST(StorageCache, EntriesHaveUniqueIds)
                                              {this->filePath2.clone(), this->id2},
                                              {this->filePath3.clone(), this->id3},
                                              {this->filePath4.clone(), this->id3}};
+    ON_CALL(this->mockStorage, fetchAllSourceContexts()).WillByDefault(Return(entries));
 
-    ASSERT_THROW(this->cache.populate(std::move(entries)), StorageCacheException);
+    ASSERT_THROW(this->cache.populate(), StorageCacheException);
 }
 
 TYPED_TEST(StorageCache, MultipleEntries)
@@ -271,8 +280,9 @@ TYPED_TEST(StorageCache, MultipleEntries)
                                              {this->filePath1.clone(), this->id2},
                                              {this->filePath3.clone(), this->id3},
                                              {this->filePath4.clone(), this->id4}};
+    ON_CALL(this->mockStorage, fetchAllSourceContexts()).WillByDefault(Return(entries));
 
-    ASSERT_THROW(this->cache.populate(std::move(entries)), StorageCacheException);
+    ASSERT_THROW(this->cache.populate(), StorageCacheException);
 }
 
 TYPED_TEST(StorageCache, IdIsReadAndWriteLockedForUnknownEntry)

@@ -29,7 +29,7 @@
 
 namespace QmlDesigner {
 
-class NoFilePathForInvalidFilePathId : std::exception
+class NoSourcePathForInvalidSourceId : std::exception
 {
 public:
     const char *what() const noexcept override

@@ -36,7 +36,7 @@ template<typename Type,
          typename IndexType,
          typename Storage,
          typename Mutex,
-         bool (*compare)(Utils::SmallStringView, Utils::SmallStringView),
+         bool (*compare)(ViewType, ViewType),
          typename CacheEntry>
 class StorageCache;
 } // namespace QmlDesigner

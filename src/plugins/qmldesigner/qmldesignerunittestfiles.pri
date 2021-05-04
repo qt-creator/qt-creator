@@ -81,4 +81,5 @@ HEADERS += \
     $$PWD/designercore/projectstorage/projectstorage.h \
     $$PWD/designercore/include/projectstorageids.h \
     $$PWD/designercore/projectstorage/projectstoragetypes.h \
-    $$PWD/designercore/projectstorage/projectstoragesqlitefunctionregistry.h
+    $$PWD/designercore/projectstorage/projectstoragesqlitefunctionregistry.h \
+    $$PWD/designercore/projectstorage/sourcepathcache.h

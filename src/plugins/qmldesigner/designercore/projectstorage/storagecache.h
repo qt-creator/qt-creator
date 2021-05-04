@@ -65,7 +65,7 @@ template<typename Type,
          typename IndexType,
          typename Storage,
          typename Mutex,
-         bool (*compare)(Utils::SmallStringView, Utils::SmallStringView),
+         bool (*compare)(ViewType, ViewType),
          class CacheEntry = StorageCacheEntry<Type, ViewType, IndexType>>
 class StorageCache
 {
@@ -80,45 +80,48 @@ class StorageCache
 
         StorageCacheIndex(const char *) = delete;
 
-        constexpr explicit StorageCacheIndex(int id)
+        constexpr explicit StorageCacheIndex(int id) noexcept
             : id{id}
         {}
 
-        constexpr explicit StorageCacheIndex(std::size_t id)
+        constexpr explicit StorageCacheIndex(std::size_t id) noexcept
             : id{static_cast<int>(id)}
         {}
 
-        constexpr explicit StorageCacheIndex(std::ptrdiff_t id)
+        constexpr explicit StorageCacheIndex(std::ptrdiff_t id) noexcept
             : id{static_cast<int>(id)}
         {}
 
-        constexpr StorageCacheIndex operator=(std::ptrdiff_t newId)
+        constexpr StorageCacheIndex operator=(std::ptrdiff_t newId) noexcept
         {
             id = static_cast<int>(newId);
 
             return *this;
         }
 
-        constexpr StorageCacheIndex operator+(int amount) { return StorageCacheIndex{id + amount}; }
+        constexpr StorageCacheIndex operator+(int amount) const noexcept
+        {
+            return StorageCacheIndex{id + amount};
+        }
 
-        constexpr friend bool operator==(StorageCacheIndex first, StorageCacheIndex second)
+        constexpr friend bool operator==(StorageCacheIndex first, StorageCacheIndex second) noexcept
         {
             return first.id == second.id && first.isValid() && second.isValid();
         }
 
-        constexpr friend bool operator<(StorageCacheIndex first, StorageCacheIndex second)
+        constexpr friend bool operator<(StorageCacheIndex first, StorageCacheIndex second) noexcept
         {
             return first.id < second.id;
         }
 
-        constexpr friend bool operator>=(StorageCacheIndex first, StorageCacheIndex second)
+        constexpr friend bool operator>=(StorageCacheIndex first, StorageCacheIndex second) noexcept
         {
             return first.id >= second.id;
         }
 
-        constexpr bool isValid() const { return id >= 0; }
+        constexpr bool isValid() const noexcept { return id >= 0; }
 
-        explicit operator std::size_t() const { return static_cast<std::size_t>(id); }
+        explicit operator std::size_t() const noexcept { return static_cast<std::size_t>(id); }
 
     public:
         int id = -1;
@@ -151,12 +154,12 @@ public:
         return cache;
     }
 
-    StorageCache(StorageCache &&other)
+    StorageCache(StorageCache &&other) noexcept
         : m_entries(std::move(other.m_entries))
         , m_indices(std::move(other.m_indices))
     {}
 
-    StorageCache &operator=(StorageCache &&other)
+    StorageCache &operator=(StorageCache &&other) noexcept
     {
         m_entries = std::move(other.m_entries);
         m_indices = std::move(other.m_indices);
@@ -164,20 +167,20 @@ public:
         return *this;
     }
 
-    void populate(CacheEntries &&entries)
+    void populate()
     {
-        uncheckedPopulate(std::move(entries));
+        uncheckedPopulate();
 
         checkEntries();
     }
 
-    void uncheckedPopulate(CacheEntries &&entries)
+    void uncheckedPopulate()
     {
-        std::sort(entries.begin(), entries.end(), [](ViewType first, ViewType second) {
+        m_entries = m_storage.fetchAll();
+
+        std::sort(m_entries.begin(), m_entries.end(), [](ViewType first, ViewType second) {
             return compare(first, second);
         });
-
-        m_entries = std::move(entries);
 
         std::size_t max_id = 0;
 

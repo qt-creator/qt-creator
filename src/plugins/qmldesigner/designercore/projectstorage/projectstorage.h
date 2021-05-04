@@ -152,7 +152,8 @@ public:
 
     auto fetchAllSourceContexts() const
     {
-        return selectAllSourceContextsStatement.template rangeWithTransaction<Sources::SourceContext>();
+        return selectAllSourceContextsStatement.template valuesWithTransaction<Sources::SourceContext>(
+            128);
     }
 
     SourceId fetchSourceId(SourceContextId sourceContextId, Utils::SmallStringView sourceName)
@@ -191,7 +192,7 @@ public:
 
     auto fetchAllSources() const
     {
-        return selectAllSourcesStatement.template rangeWithTransaction<Sources::Source>();
+        return selectAllSourcesStatement.template valuesWithTransaction<Sources::Source>(1024);
     }
 
     SourceId fetchSourceIdUnguarded(SourceContextId sourceContextId, Utils::SmallStringView sourceName)

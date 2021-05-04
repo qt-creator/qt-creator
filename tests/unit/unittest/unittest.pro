@@ -149,7 +149,8 @@ SOURCES += \
     sqlitereadwritestatementmock.cpp \
     sourcepath-test.cpp \
     sourcepathview-test.cpp \
-    projectstorage-test.cpp
+    projectstorage-test.cpp \
+    sourcepathcache-test.cpp
 
 !isEmpty(QTC_UNITTEST_BUILD_CPP_PARSER):SOURCES += matchingtext-test.cpp
 

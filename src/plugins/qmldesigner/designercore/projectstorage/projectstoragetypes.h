@@ -37,73 +37,72 @@
 
 namespace QmlDesigner {
 
-class FileNameView
+class SourceNameView
 {
 public:
-    friend bool operator==(const FileNameView &first, const FileNameView &second)
+    friend bool operator==(const SourceNameView &first, const SourceNameView &second) noexcept
     {
-        return first.sourceContextId == second.sourceContextId && first.fileName == second.fileName;
+        return first.sourceContextId == second.sourceContextId
+               && first.sourceName == second.sourceName;
     }
 
-    static int compare(FileNameView first, FileNameView second) noexcept
+    friend bool operator<(SourceNameView first, SourceNameView second) noexcept
     {
-        int directoryDifference = first.sourceContextId.id - second.sourceContextId.id;
-
-        if (directoryDifference)
-            return directoryDifference;
-
-        return Utils::compare(first.fileName, second.fileName);
+        return std::tie(first.sourceContextId, first.sourceName)
+               < std::tie(second.sourceContextId, second.sourceName);
     }
 
 public:
-    Utils::SmallStringView fileName;
+    Utils::SmallStringView sourceName;
     SourceContextId sourceContextId;
 };
 
-class FileNameEntry
+class SourceNameEntry
 {
 public:
-    FileNameEntry(Utils::SmallStringView fileName, int sourceContextId)
-        : fileName(fileName)
+    SourceNameEntry(Utils::SmallStringView sourceName, int sourceContextId)
+        : sourceName(sourceName)
         , sourceContextId(sourceContextId)
     {}
 
-    FileNameEntry(Utils::SmallStringView fileName, SourceContextId sourceContextId)
-        : fileName(fileName)
+    SourceNameEntry(Utils::SmallStringView sourceName, SourceContextId sourceContextId)
+        : sourceName(sourceName)
         , sourceContextId(sourceContextId)
     {}
 
-    FileNameEntry(FileNameView view)
-        : fileName(view.fileName)
+    SourceNameEntry(SourceNameView view)
+        : sourceName(view.sourceName)
         , sourceContextId(view.sourceContextId)
     {}
 
-    friend bool operator==(const FileNameEntry &first, const FileNameEntry &second)
+    friend bool operator==(const SourceNameEntry &first, const SourceNameEntry &second) noexcept
     {
-        return first.sourceContextId == second.sourceContextId && first.fileName == second.fileName;
+        return first.sourceContextId == second.sourceContextId
+               && first.sourceName == second.sourceName;
     }
 
-    friend bool operator!=(const FileNameEntry &first, const FileNameEntry &second)
-    {
-        return !(first == second);
-    }
-
-    friend bool operator==(const FileNameEntry &first, const FileNameView &second)
-    {
-        return first.sourceContextId == second.sourceContextId && first.fileName == second.fileName;
-    }
-
-    friend bool operator!=(const FileNameEntry &first, const FileNameView &second)
+    friend bool operator!=(const SourceNameEntry &first, const SourceNameEntry &second) noexcept
     {
         return !(first == second);
     }
 
-    operator FileNameView() const { return {fileName, sourceContextId}; }
+    friend bool operator==(const SourceNameEntry &first, const SourceNameView &second) noexcept
+    {
+        return first.sourceContextId == second.sourceContextId
+               && first.sourceName == second.sourceName;
+    }
 
-    operator Utils::SmallString() && { return std::move(fileName); }
+    friend bool operator!=(const SourceNameEntry &first, const SourceNameView &second) noexcept
+    {
+        return !(first == second);
+    }
+
+    operator SourceNameView() const noexcept { return {sourceName, sourceContextId}; }
+
+    operator Utils::SmallString() &&noexcept { return std::move(sourceName); }
 
 public:
-    Utils::SmallString fileName;
+    Utils::SmallString sourceName;
     SourceContextId sourceContextId;
 };
 
@@ -124,9 +123,9 @@ public:
 
 using SourceContexts = std::vector<SourceContext>;
 
-class Source : public StorageCacheEntry<FileNameEntry, FileNameView, SourceId>
+class Source : public StorageCacheEntry<SourceNameEntry, SourceNameView, SourceId>
 {
-    using Base = StorageCacheEntry<FileNameEntry, FileNameView, SourceId>;
+    using Base = StorageCacheEntry<SourceNameEntry, SourceNameView, SourceId>;
 
 public:
     using Base::Base;
