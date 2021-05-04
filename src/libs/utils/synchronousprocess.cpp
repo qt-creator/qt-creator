@@ -638,13 +638,6 @@ void SynchronousProcess::processStdErr(bool emitSignals)
     d->m_stdErr.append(d->m_process.readAllStandardError(), emitSignals);
 }
 
-QSharedPointer<QProcess> SynchronousProcess::createProcess(unsigned flags)
-{
-    auto process = new TerminalControllingProcess;
-    process->setFlags(flags);
-    return QSharedPointer<QProcess>(process);
-}
-
 // Path utilities
 
 // Locate a binary in a directory, applying all kinds of

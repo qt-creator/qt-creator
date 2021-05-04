@@ -28,7 +28,6 @@
 #include "utils_global.h"
 
 #include <QProcess>
-#include <QSharedPointer>
 #include <QTextCodec>
 
 #include <functional>
@@ -129,9 +128,6 @@ public:
     SynchronousProcessResponse run(const CommandLine &cmd, const QByteArray &writeData = {});
     // Starts the command blocking the UI fully
     SynchronousProcessResponse runBlocking(const CommandLine &cmd);
-
-    // Create a (derived) processes with flags applied.
-    static QSharedPointer<QProcess> createProcess(unsigned flags);
 
     // Helpers to find binaries. Do not use it for other path variables
     // and file types.
