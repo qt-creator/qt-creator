@@ -1884,8 +1884,15 @@ QString DebuggerEngine::expand(const QString &string) const
 
 QString DebuggerEngine::nativeStartupCommands() const
 {
-    return expand(QStringList({debuggerSettings()->gdbStartupCommands.value(),
-                               runParameters().additionalStartupCommands}).join('\n'));
+    QStringList lines = debuggerSettings()->gdbStartupCommands.value().split('\n');
+    lines += runParameters().additionalStartupCommands.split('\n');
+
+    lines = Utils::filtered(lines, [](const QString line) {
+        const QString trimmed = line.trimmed();
+        return !trimmed.isEmpty() && !trimmed.startsWith('#');
+    });
+
+    return lines.join('\n');
 }
 
 Perspective *DebuggerEngine::perspective() const
