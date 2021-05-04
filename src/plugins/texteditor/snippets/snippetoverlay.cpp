@@ -128,20 +128,17 @@ QTextCursor SnippetOverlay::previousSelectionCursor(const QTextCursor &cursor) c
         if (previousVariableIndex < 0)
             previousVariableIndex = m_variables.size();
 
-        auto equivalents = m_variables[previousVariableIndex].toStdList();
-        equivalents.reverse();
-        for (int selectionIndex : equivalents) {
-            if (selections[selectionIndex].m_cursor_end.position() < cursor.position())
-                return cursorForIndex(selectionIndex);
+        const QList<int> &equivalents = m_variables[previousVariableIndex];
+        for (int i = equivalents.size() - 1; i >= 0; --i) {
+            if (selections.at(equivalents.at(i)).m_cursor_end.position() < cursor.position())
+                return cursorForIndex(equivalents.at(i));
         }
         return cursorForIndex(m_variables[previousVariableIndex].last());
     }
     // currently not over a variable simply select the previous available one
-    auto reverse = selections.toStdList();
-    reverse.reverse();
-    for (const OverlaySelection &candidate : reverse) {
-        if (candidate.m_cursor_end.position() < cursor.position())
-            return cursorForSelection(candidate);
+    for (int i = selections.size() - 1; i >= 0; --i) {
+        if (selections.at(i).m_cursor_end.position() < cursor.position())
+            return cursorForIndex(i);
     }
     return cursorForSelection(selections.last());
 }
