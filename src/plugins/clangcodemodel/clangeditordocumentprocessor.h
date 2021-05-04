@@ -33,6 +33,7 @@
 
 #include <utils/id.h>
 
+#include <QFutureSynchronizer>
 #include <QFutureWatcher>
 #include <QTimer>
 
@@ -145,6 +146,7 @@ private:
     QVector<ClangBackEnd::TokenInfoContainer> m_tokenInfos;
     CppTools::SemanticHighlighter m_semanticHighlighter;
     CppTools::BuiltinEditorDocumentProcessor m_builtinProcessor;
+    QFutureSynchronizer<void> m_parserSynchronizer;
 };
 
 } // namespace Internal

@@ -91,14 +91,13 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
             this, &ClangEditorDocumentProcessor::cppDocumentUpdated);
     connect(&m_builtinProcessor, &CppTools::BuiltinEditorDocumentProcessor::semanticInfoUpdated,
             this, &ClangEditorDocumentProcessor::semanticInfoUpdated);
+
+    m_parserSynchronizer.setCancelOnWait(true);
 }
 
 ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
 {
     m_updateBackendDocumentTimer.stop();
-
-    m_parserWatcher.cancel();
-    m_parserWatcher.waitForFinished();
 
     if (m_projectPart)
         closeBackendDocument();
@@ -120,6 +119,7 @@ void ClangEditorDocumentProcessor::runImpl(
             this, &ClangEditorDocumentProcessor::onParserFinished);
     const QFuture<void> future = ::Utils::runAsync(&runParser, parser(), updateParams);
     m_parserWatcher.setFuture(future);
+    m_parserSynchronizer.addFuture(future);
 
     // Run builtin processor
     m_builtinProcessor.runImpl(updateParams);
