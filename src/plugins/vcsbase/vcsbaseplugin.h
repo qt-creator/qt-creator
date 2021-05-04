@@ -30,10 +30,11 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
+
 #include <extensionsystem/iplugin.h>
 
-#include <QList>
-#include <QProcessEnvironment>
+#include <utils/environment.h>
+
 #include <QSharedDataPointer>
 
 QT_BEGIN_NAMESPACE
@@ -138,7 +139,7 @@ VCSBASE_EXPORT bool isSshPromptConfigured();
 // Sets up SSH graphical password prompting (note that the latter
 // requires a terminal-less process) and sets LANG to 'C' to force English
 // (suppress LOCALE warnings/parse commands output) if desired.
-VCSBASE_EXPORT void setProcessEnvironment(QProcessEnvironment *e,
+VCSBASE_EXPORT void setProcessEnvironment(Utils::Environment *e,
                                           bool forceCLocale,
                                           const QString &sshPasswordPrompt = sshPrompt());
 // Sets the source of editor contents, can be directory or file.
@@ -151,7 +152,7 @@ VCSBASE_EXPORT Utils::SynchronousProcessResponse runVcs(const QString &workingDi
                                                         int timeOutS,
                                                         unsigned flags = 0,
                                                         QTextCodec *outputCodec = nullptr,
-                                                        const QProcessEnvironment &env = {});
+                                                        const Utils::Environment &env = {});
 
 class VCSBASE_EXPORT VcsBasePluginPrivate : public Core::IVersionControl
 {

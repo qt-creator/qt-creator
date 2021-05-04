@@ -487,7 +487,7 @@ Core::ShellCommand *CvsPluginPrivate::createInitialCheckoutCommand(const QString
     args << QLatin1String("checkout") << url << extraArgs;
 
     auto command = new VcsBase::VcsCommand(baseDirectory.toString(),
-                                           QProcessEnvironment::systemEnvironment());
+                                           Environment::systemEnvironment());
     command->setDisplayName(tr("CVS Checkout"));
     command->addJob({m_settings.binaryPath.filePath(), m_settings.addOptions(args)}, -1);
     return command;

@@ -25,6 +25,7 @@
 
 #include "shellcommand.h"
 
+#include "environment.h"
 #include "fileutils.h"
 #include "qtcassert.h"
 #include "runextensions.h"
@@ -77,14 +78,17 @@ public:
         int timeoutS;
     };
 
-    ShellCommandPrivate(const QString &defaultWorkingDirectory,
-                        const QProcessEnvironment &environment);
-    ~ShellCommandPrivate();
+    ShellCommandPrivate(const QString &defaultWorkingDirectory, const Environment &environment)
+        : m_defaultWorkingDirectory(defaultWorkingDirectory),
+          m_environment(environment)
+    {}
+
+    ~ShellCommandPrivate() { delete m_progressParser; }
 
     std::function<OutputProxy *()> m_proxyFactory = []() { return new OutputProxy; };
     QString m_displayName;
     const QString m_defaultWorkingDirectory;
-    const QProcessEnvironment m_environment;
+    const Environment m_environment;
     QVariant m_cookie;
     QTextCodec *m_codec = nullptr;
     ProgressParser *m_progressParser = nullptr;
@@ -101,17 +105,6 @@ public:
     bool m_aborted = false;
 };
 
-ShellCommandPrivate::ShellCommandPrivate(const QString &defaultWorkingDirectory,
-                                         const QProcessEnvironment &environment) :
-    m_defaultWorkingDirectory(defaultWorkingDirectory),
-    m_environment(environment)
-{ }
-
-ShellCommandPrivate::~ShellCommandPrivate()
-{
-    delete m_progressParser;
-}
-
 ShellCommandPrivate::Job::Job(const QString &wd, const CommandLine &command,
                               int t, const ExitCodeInterpreter &interpreter) :
     workingDirectory(wd),
@@ -127,7 +120,7 @@ ShellCommandPrivate::Job::Job(const QString &wd, const CommandLine &command,
 } // namespace Internal
 
 ShellCommand::ShellCommand(const QString &workingDirectory,
-                           const QProcessEnvironment &environment) :
+                           const Environment &environment) :
     d(new Internal::ShellCommandPrivate(workingDirectory, environment))
 {
     connect(&d->m_watcher, &QFutureWatcher<void>::canceled, this, &ShellCommand::cancel);
@@ -168,7 +161,7 @@ const QString &ShellCommand::defaultWorkingDirectory() const
     return d->m_defaultWorkingDirectory;
 }
 
-const QProcessEnvironment ShellCommand::processEnvironment() const
+const Environment ShellCommand::processEnvironment() const
 {
     return d->m_environment;
 }
@@ -368,7 +361,7 @@ SynchronousProcessResponse ShellCommand::runFullySynchronous(const CommandLine &
     const QString dir = workDirectory(workingDirectory);
     if (!dir.isEmpty())
         process.setWorkingDirectory(dir);
-    process.setProcessEnvironment(processEnvironment());
+    process.setEnvironment(processEnvironment());
     if (d->m_flags & MergeOutputChannels)
         process.setProcessChannelMode(QProcess::MergedChannels);
     if (d->m_codec)
@@ -404,7 +397,7 @@ SynchronousProcessResponse ShellCommand::runSynchronous(const CommandLine &cmd,
     SynchronousProcess process;
     process.setExitCodeInterpreter(interpreter);
     connect(this, &ShellCommand::terminate, &process, &SynchronousProcess::terminate);
-    process.setProcessEnvironment(processEnvironment());
+    process.setEnvironment(processEnvironment());
     process.setTimeoutS(timeoutS);
     if (d->m_codec)
         process.setCodec(d->m_codec);
@@ -412,7 +405,6 @@ SynchronousProcessResponse ShellCommand::runSynchronous(const CommandLine &cmd,
     const QString dir = workDirectory(workingDirectory);
     if (!dir.isEmpty())
         process.setWorkingDirectory(dir);
-    process.setProcessEnvironment(processEnvironment());
     // connect stderr to the output window if desired
     if (d->m_flags & MergeOutputChannels) {
         process.setProcessChannelMode(QProcess::MergedChannels);

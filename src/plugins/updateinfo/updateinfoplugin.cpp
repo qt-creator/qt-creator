@@ -36,7 +36,7 @@
 #include <utils/fileutils.h>
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 
 #include <QDate>
 #include <QDomDocument>
@@ -129,8 +129,8 @@ void UpdateInfoPlugin::startCheckForUpdates()
 {
     stopCheckForUpdates();
 
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    env.insert(QLatin1String("QT_LOGGING_RULES"), QLatin1String("*=false"));
+    Utils::Environment env = Utils::Environment::systemEnvironment();
+    env.set("QT_LOGGING_RULES", "*=false");
     d->m_checkUpdatesCommand = new ShellCommand(QString(), env);
     d->m_checkUpdatesCommand->setDisplayName(tr("Checking for Updates"));
     connect(d->m_checkUpdatesCommand, &ShellCommand::stdOutText, this, &UpdateInfoPlugin::collectCheckForUpdatesOutput);

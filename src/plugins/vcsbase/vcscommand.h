@@ -41,9 +41,9 @@ public:
         ExpectRepoChanges = 0x2000, // Expect changes in repository by the command
     };
 
-    VcsCommand(const QString &defaultWorkingDirectory, const QProcessEnvironment &environment);
+    VcsCommand(const QString &defaultWorkingDirectory, const Utils::Environment &environment);
 
-    const QProcessEnvironment processEnvironment() const override;
+    const Utils::Environment processEnvironment() const override;
 
     Utils::SynchronousProcessResponse runCommand(const Utils::CommandLine &command,
                                                  int timeoutS,

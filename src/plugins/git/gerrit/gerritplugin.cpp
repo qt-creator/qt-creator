@@ -148,7 +148,8 @@ FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
     connect(&m_watcher, &QFutureWatcher<void>::canceled, this, &FetchContext::terminate);
     m_watcher.setFuture(m_progress.future());
     m_process.setWorkingDirectory(repository);
-    m_process.setProcessEnvironment(GitClient::instance()->processEnvironment());
+    m_process.setProcessEnvironment(
+        GitClient::instance()->processEnvironment().toProcessEnvironment());
     m_process.closeWriteChannel();
 }
 

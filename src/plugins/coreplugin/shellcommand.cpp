@@ -33,7 +33,7 @@
 
 namespace Core {
 
-ShellCommand::ShellCommand(const QString &workingDirectory, const QProcessEnvironment &environment) :
+ShellCommand::ShellCommand(const QString &workingDirectory, const Utils::Environment &environment) :
     Utils::ShellCommand(workingDirectory, environment)
 {
     connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose,

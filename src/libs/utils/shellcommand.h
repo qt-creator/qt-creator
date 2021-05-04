@@ -104,7 +104,7 @@ public:
     };
 
 
-    ShellCommand(const QString &workingDirectory, const QProcessEnvironment &environment);
+    ShellCommand(const QString &workingDirectory, const Environment &environment);
     ~ShellCommand() override;
 
     QString displayName() const;
@@ -122,7 +122,7 @@ public:
     int lastExecutionExitCode() const;
 
     const QString &defaultWorkingDirectory() const;
-    virtual const QProcessEnvironment processEnvironment() const;
+    virtual const Environment processEnvironment() const;
 
     int defaultTimeoutS() const;
     void setDefaultTimeoutS(int timeout);

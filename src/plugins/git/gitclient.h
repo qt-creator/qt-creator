@@ -345,7 +345,7 @@ public:
     QStringList synchronousRepositoryBranches(const QString &repositoryURL,
                                               const QString &workingDirectory = QString()) const;
 
-    QProcessEnvironment processEnvironment() const override;
+    Utils::Environment processEnvironment() const override;
 
     bool beginStashScope(const QString &workingDirectory, const QString &command,
                          StashFlag flag = Default, PushAction pushAction = NoPush);
@@ -400,7 +400,7 @@ private:
     void connectRepositoryChanged(const QString & repository, VcsBase::VcsCommand *cmd);
     bool executeAndHandleConflicts(const QString &workingDirectory, const QStringList &arguments,
                                    const QString &abortCommand = QString()) const;
-    bool tryLauchingGitK(const QProcessEnvironment &env,
+    bool tryLauchingGitK(const Utils::Environment &env,
                          const QString &workingDirectory,
                          const QString &fileName,
                          const QString &gitBinDirectory) const;

@@ -119,9 +119,9 @@ void VcsBaseClientImpl::enqueueJob(VcsCommand *cmd, const QStringList &args,
     cmd->execute();
 }
 
-QProcessEnvironment VcsBaseClientImpl::processEnvironment() const
+Environment VcsBaseClientImpl::processEnvironment() const
 {
-    QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+    Environment environment = Environment::systemEnvironment();
     VcsBase::setProcessEnvironment(&environment, false);
     return environment;
 }

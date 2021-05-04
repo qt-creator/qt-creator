@@ -84,7 +84,7 @@ public:
                     const QString &workingDirectory = QString(),
                     const Utils::ExitCodeInterpreter &interpreter = Utils::defaultExitCodeInterpreter) const;
 
-    virtual QProcessEnvironment processEnvironment() const;
+    virtual Utils::Environment processEnvironment() const;
 
     // VCS functionality:
     virtual VcsBaseEditorWidget *annotate(

@@ -2199,18 +2199,14 @@ bool GitClient::synchronousApplyPatch(const QString &workingDirectory,
     }
 }
 
-QProcessEnvironment GitClient::processEnvironment() const
+Environment GitClient::processEnvironment() const
 {
-    QProcessEnvironment environment = VcsBaseClientImpl::processEnvironment();
+    Environment environment = VcsBaseClientImpl::processEnvironment();
     QString gitPath = settings().path.value();
-    if (!gitPath.isEmpty()) {
-        gitPath += HostOsInfo::pathListSeparator();
-        gitPath += environment.value("PATH");
-        environment.insert("PATH", gitPath);
-    }
+    environment.prependOrSetPath(gitPath);
     if (HostOsInfo::isWindowsHost() && settings().winSetHomeEnvironment.value())
-        environment.insert("HOME", QDir::toNativeSeparators(QDir::homePath()));
-    environment.insert("GIT_EDITOR", m_disableEditor ? "true" : m_gitQtcEditor);
+        environment.set("HOME", QDir::toNativeSeparators(QDir::homePath()));
+    environment.set("GIT_EDITOR", m_disableEditor ? "true" : m_gitQtcEditor);
     return environment;
 }
 
@@ -2524,7 +2520,7 @@ void GitClient::launchGitK(const QString &workingDirectory, const QString &fileN
     const QFileInfo binaryInfo = vcsBinary().toFileInfo();
     QDir foundBinDir(binaryInfo.dir());
     const bool foundBinDirIsBinDir = foundBinDir.dirName() == "bin";
-    QProcessEnvironment env = processEnvironment();
+    Environment env = processEnvironment();
     if (tryLauchingGitK(env, workingDirectory, fileName, foundBinDir.path()))
         return;
 
@@ -2562,7 +2558,7 @@ void GitClient::launchRepositoryBrowser(const QString &workingDirectory) const
         QProcess::startDetached(repBrowserBinary, {workingDirectory}, workingDirectory);
 }
 
-bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
+bool GitClient::tryLauchingGitK(const Environment &env,
                                 const QString &workingDirectory,
                                 const QString &fileName,
                                 const QString &gitBinDirectory) const
@@ -2589,7 +2585,7 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
     if (!settings().path.value().isEmpty()) {
         auto process = new QProcess;
         process->setWorkingDirectory(workingDirectory);
-        process->setProcessEnvironment(env);
+        process->setProcessEnvironment(env.toProcessEnvironment());
         process->start(binary, arguments);
         success = process->waitForStarted();
         if (success)

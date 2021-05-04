@@ -25,11 +25,11 @@
 
 #pragma once
 
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/id.h>
 
 #include <QDialog>
-#include <QProcessEnvironment>
 
 QT_BEGIN_NAMESPACE
 class QProcess;
@@ -77,7 +77,7 @@ private:
 
     QProcess *m_process = nullptr;
     Utils::FilePath m_gitExecutable;
-    QProcessEnvironment m_gitEnvironment;
+    Utils::Environment m_gitEnvironment;
     ChangeCommand m_command = NoCommand;
     QStringListModel *m_changeModel = nullptr;
     QString m_oldWorkingDir;

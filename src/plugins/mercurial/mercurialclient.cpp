@@ -174,8 +174,8 @@ bool MercurialClient::synchronousPull(const QString &workingDir, const QString &
             | VcsCommand::ShowSuccessMessage;
 
     // cause mercurial doesn`t understand LANG
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    env.insert(QLatin1String("LANGUAGE"), QLatin1String("C"));
+    Environment env = Environment::systemEnvironment();
+    env.set("LANGUAGE", "C");
     const SynchronousProcessResponse resp = VcsBase::runVcs(
                 workingDir, {vcsBinary(), args}, vcsTimeoutS(), flags, nullptr, env);
     const bool ok = resp.result == SynchronousProcessResponse::Finished;

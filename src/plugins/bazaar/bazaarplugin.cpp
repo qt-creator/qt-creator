@@ -939,8 +939,8 @@ Core::ShellCommand *BazaarPluginPrivate::createInitialCheckoutCommand(const QStr
     args << m_client.vcsCommandString(BazaarClient::CloneCommand)
          << extraArgs << url << localName;
 
-    QProcessEnvironment env = m_client.processEnvironment();
-    env.insert(QLatin1String("BZR_PROGRESS_BAR"), QLatin1String("text"));
+    Environment env = m_client.processEnvironment();
+    env.set("BZR_PROGRESS_BAR", "text");
     auto command = new VcsBase::VcsCommand(baseDirectory.toString(), env);
     command->addJob({m_client.vcsBinary(), args}, -1);
     return command;

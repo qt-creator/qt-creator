@@ -742,16 +742,14 @@ QString source(IDocument *document)
     return document->property(SOURCE_PROPERTY).toString();
 }
 
-void setProcessEnvironment(QProcessEnvironment *e,
-                           bool forceCLocale,
-                           const QString &sshPromptBinary)
+void setProcessEnvironment(Environment *e, bool forceCLocale, const QString &sshPromptBinary)
 {
     if (forceCLocale) {
-        e->insert("LANG", "C");
-        e->insert("LANGUAGE", "C");
+        e->set("LANG", "C");
+        e->set("LANGUAGE", "C");
     }
     if (!sshPromptBinary.isEmpty())
-        e->insert("SSH_ASKPASS", sshPromptBinary);
+        e->set("SSH_ASKPASS", sshPromptBinary);
 }
 
 // Run a process synchronously, returning Utils::SynchronousProcessResponse
@@ -761,9 +759,9 @@ SynchronousProcessResponse runVcs(const QString &workingDir,
                                   int timeOutS,
                                   unsigned flags,
                                   QTextCodec *outputCodec,
-                                  const QProcessEnvironment &env)
+                                  const Environment &env)
 {
-    VcsCommand command(workingDir, env.isEmpty() ? QProcessEnvironment::systemEnvironment() : env);
+    VcsCommand command(workingDir, env.size() == 0 ? Environment::systemEnvironment() : env);
     command.addFlags(flags);
     command.setCodec(outputCodec);
     return command.runCommand(cmd, timeOutS);

@@ -32,9 +32,9 @@
 
 #include <utils/pathchooser.h>
 #include <utils/theme/theme.h>
+
 #include <vcsbase/vcscommand.h>
 
-#include <QProcess>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -230,7 +230,7 @@ void ChangeSelectionDialog::recalculateDetails()
 
     m_process = new QProcess(this);
     m_process->setWorkingDirectory(workingDir);
-    m_process->setProcessEnvironment(m_gitEnvironment);
+    m_process->setProcessEnvironment(m_gitEnvironment.toProcessEnvironment());
 
     connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &ChangeSelectionDialog::setDetails);

@@ -29,14 +29,16 @@
 
 #include <diffeditor/diffeditorcontroller.h>
 
-#include <QProcessEnvironment>
-
 QT_BEGIN_NAMESPACE
 class QTextCodec;
 QT_END_NAMESPACE
 
 namespace Core { class IDocument; }
-namespace Utils { class FilePath; }
+
+namespace Utils {
+class Environment;
+class FilePath;
+} // Utils
 
 namespace VcsBase {
 
@@ -50,7 +52,7 @@ public:
     explicit VcsBaseDiffEditorController(Core::IDocument *document);
     ~VcsBaseDiffEditorController() override;
 
-    void setProcessEnvironment(const QProcessEnvironment &value);
+    void setProcessEnvironment(const Utils::Environment &value);
     void setVcsBinary(const Utils::FilePath &path);
     void setVcsTimeoutS(int value);
     void setWorkingDirectory(const QString &workingDir);

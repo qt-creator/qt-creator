@@ -30,6 +30,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <diffeditor/diffutils.h>
+
+#include <utils/environment.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 
@@ -37,6 +39,7 @@
 
 using namespace DiffEditor;
 using namespace Core;
+using namespace Utils;
 
 namespace VcsBase {
 
@@ -93,7 +96,7 @@ public:
 
     VcsBaseDiffEditorController *q;
     QString m_directory;
-    QProcessEnvironment m_processEnvironment;
+    Environment m_processEnvironment;
     Utils::FilePath m_vcsBinary;
     int m_vscTimeoutS;
     QString m_startupFile;
@@ -294,7 +297,7 @@ void VcsBaseDiffEditorController::setVcsBinary(const Utils::FilePath &path)
     d->m_vcsBinary = path;
 }
 
-void VcsBaseDiffEditorController::setProcessEnvironment(const QProcessEnvironment &value)
+void VcsBaseDiffEditorController::setProcessEnvironment(const Environment &value)
 {
     d->m_processEnvironment = value;
 }

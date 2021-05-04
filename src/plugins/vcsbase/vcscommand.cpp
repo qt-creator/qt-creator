@@ -30,16 +30,13 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <utils/globalfilechangeblocker.h>
-#include <utils/synchronousprocess.h>
-
-#include <QProcessEnvironment>
+#include <utils/qtcprocess.h>
 
 using namespace Utils;
 
 namespace VcsBase {
 
-VcsCommand::VcsCommand(const QString &workingDirectory,
-                       const QProcessEnvironment &environment) :
+VcsCommand::VcsCommand(const QString &workingDirectory, const Environment &environment) :
     Core::ShellCommand(workingDirectory, environment),
     m_preventRepositoryChanged(false)
 {
@@ -71,9 +68,9 @@ VcsCommand::VcsCommand(const QString &workingDirectory,
     });
 }
 
-const QProcessEnvironment VcsCommand::processEnvironment() const
+const Environment VcsCommand::processEnvironment() const
 {
-    QProcessEnvironment env = Core::ShellCommand::processEnvironment();
+    Environment env = Core::ShellCommand::processEnvironment();
     VcsBase::setProcessEnvironment(&env, flags() & ForceCLocale, VcsBase::sshPrompt());
     return env;
 }
