@@ -50,7 +50,7 @@
 #include <utils/fileutils.h>
 #include <utils/icon.h>
 #include <utils/qtcassert.h>
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 #include <utils/theme/theme.h>
 
@@ -654,10 +654,11 @@ bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
     // Run check process
     VcsOutputWindow::appendShellCommandLine(msgCheckScript(d->m_checkScriptWorkingDirectory,
                                                            checkScript));
-    QProcess checkProcess;
+    QtcProcess checkProcess;
     if (!d->m_checkScriptWorkingDirectory.isEmpty())
         checkProcess.setWorkingDirectory(d->m_checkScriptWorkingDirectory);
-    checkProcess.start(checkScript, QStringList(saver.fileName()));
+    checkProcess.setCommand({checkScript, {saver.fileName()}});
+    checkProcess.start();
     checkProcess.closeWriteChannel();
     if (!checkProcess.waitForStarted()) {
         *errorMessage = tr("The check script \"%1\" could not be started: %2").arg(checkScript, checkProcess.errorString());
@@ -665,8 +666,8 @@ bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
     }
     QByteArray stdOutData;
     QByteArray stdErrData;
-    if (!SynchronousProcess::readDataFromProcess(checkProcess, 30, &stdOutData, &stdErrData, false)) {
-        SynchronousProcess::stopProcess(checkProcess);
+    if (!checkProcess.readDataFromProcess(30, &stdOutData, &stdErrData, false)) {
+        checkProcess.stopProcess();
         *errorMessage = tr("The check script \"%1\" timed out.").
                         arg(QDir::toNativeSeparators(checkScript));
         return false;
