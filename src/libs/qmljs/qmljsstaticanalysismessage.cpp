@@ -239,6 +239,8 @@ StaticAnalysisMessages::StaticAnalysisMessages()
             tr("States are only supported in the root item in a Qt Quick UI form."));
     newMsg(ErrReferenceToParentItemNotSupportedInQmlUi, Error,
             tr("Referencing the parent of the root item is not supported in a Qt Quick UI form."));
+    newMsg(ErrDoNotMixTranslationFunctionsInQmlUi, Error,
+           tr("Do not mix translation functions in a Qt Quick UI form."));
     newMsg(StateCannotHaveChildItem, Error,
             tr("A State cannot have a child item (%1)."), 1);
     newMsg(WarnDuplicateImport, Warning,

@@ -39,8 +39,7 @@ class DiagnosticMessage;
 
 namespace StaticAnalysis {
 
-enum Type
-{
+enum Type {
     // Changing the numbers can break user code.
     // When adding a new check, also add it to the documentation, currently
     // in creator-code-syntax.qdoc.
@@ -106,6 +105,7 @@ enum Type
     ErrBehavioursNotSupportedInQmlUi = 224,
     ErrStatesOnlyInRootItemInQmlUi = 225,
     ErrReferenceToParentItemNotSupportedInQmlUi = 226,
+    ErrDoNotMixTranslationFunctionsInQmlUi = 227,
     ErrUnknownComponent = 300,
     ErrCouldNotResolvePrototypeOf = 301,
     ErrCouldNotResolvePrototype = 302,

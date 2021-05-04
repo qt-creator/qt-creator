@@ -152,11 +152,14 @@ private:
         bool wasSuppressed;
     };
 
+    enum TranslationFunction { qsTr, qsTrId, qsTranslate, noTranslationfunction };
+
     QHash< int, QList<MessageTypeAndSuppression> > m_disabledMessageTypesByLine;
 
     bool _importsOk;
     bool _inStatementBinding;
     const Imports *_imports;
+    TranslationFunction lastTransLationfunction = noTranslationfunction;
 };
 
 } // namespace QmlJS

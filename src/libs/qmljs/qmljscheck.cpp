@@ -736,6 +736,7 @@ void Check::enableQmlDesignerUiFileChecks()
     enableMessage(ErrBehavioursNotSupportedInQmlUi);
     enableMessage(ErrStatesOnlyInRootItemInQmlUi);
     enableMessage(ErrReferenceToParentItemNotSupportedInQmlUi);
+    enableMessage(ErrDoNotMixTranslationFunctionsInQmlUi);
 }
 
 void Check::disableQmlDesignerUiFileChecks()
@@ -747,6 +748,7 @@ void Check::disableQmlDesignerUiFileChecks()
     disableMessage(ErrBehavioursNotSupportedInQmlUi);
     disableMessage(ErrStatesOnlyInRootItemInQmlUi);
     disableMessage(ErrReferenceToParentItemNotSupportedInQmlUi);
+    disableMessage(ErrDoNotMixTranslationFunctionsInQmlUi);
 }
 
 bool Check::preVisit(Node *ast)
@@ -1756,6 +1758,22 @@ bool Check::visit(CallExpression *ast)
             (!m_typeStack.isEmpty() && m_typeStack.last() == QLatin1String("Connections"));
     if (!whiteListedFunction && !isMathFunction && !isDateFunction && !isDirectInConnectionsScope)
         addMessage(ErrFunctionsNotSupportedInQmlUi, location);
+
+    if (translationFunctions.contains(name)) {
+        TranslationFunction translationFunction = noTranslationfunction;
+        if (name == "qsTr" || name == "qsTrNoOp")
+            translationFunction = qsTr;
+        else if (name == "qsTrId" || name == "qsTrIdNoOp")
+            translationFunction = qsTrId;
+        else if (name == "qsTranslate" || name == "qsTranslateNoOp")
+            translationFunction = qsTranslate;
+
+        if (lastTransLationfunction != noTranslationfunction
+            && lastTransLationfunction != translationFunction)
+            addMessage(ErrDoNotMixTranslationFunctionsInQmlUi, location);
+
+        lastTransLationfunction = translationFunction;
+    }
 
     static const QStringList globalFunctions = {"String", "Boolean", "Date", "Number", "Object", "Array", "Symbol", "Object", "Function", "RegExp",
                                                 "QT_TR_NOOP", "QT_TRANSLATE_NOOP", "QT_TRID_NOOP"};
