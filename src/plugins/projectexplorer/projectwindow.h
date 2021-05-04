@@ -55,6 +55,7 @@ class ProjectWindowPrivate;
 
 class ProjectWindow : public Utils::FancyMainWindow
 {
+    friend class ProjectWindowPrivate;
     Q_OBJECT
 
 public:

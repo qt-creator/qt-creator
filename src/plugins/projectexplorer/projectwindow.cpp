@@ -620,6 +620,7 @@ public:
 
     void setPanel(QWidget *panel)
     {
+        q->savePersistentSettings();
         if (QWidget *widget = q->centralWidget()) {
             q->takeCentralWidget();
             widget->hide(); // Don't delete.
@@ -630,6 +631,7 @@ public:
             if (q->hasFocus()) // we get assigned focus from setFocusToCurrentMode, pass that on
                 panel->setFocus();
         }
+        q->loadPersistentSettings();
     }
 
     ProjectWindow *q;
@@ -670,9 +672,7 @@ void ProjectWindow::hideEvent(QHideEvent *event)
 void ProjectWindow::showEvent(QShowEvent *event)
 {
     FancyMainWindow::showEvent(event);
-
-    // Delay appears to be necessary for the target setup page to have the correct layout.
-    QTimer::singleShot(0, this, &ProjectWindow::loadPersistentSettings);
+    loadPersistentSettings();
 }
 
 ProjectWindow::~ProjectWindow() = default;
@@ -681,6 +681,8 @@ const char PROJECT_WINDOW_KEY[] = "ProjectExplorer.ProjectWindow";
 
 void ProjectWindow::savePersistentSettings() const
 {
+    if (!centralWidget())
+        return;
     QSettings * const settings = ICore::settings();
     settings->beginGroup(PROJECT_WINDOW_KEY);
     saveSettings(settings);
@@ -689,6 +691,8 @@ void ProjectWindow::savePersistentSettings() const
 
 void ProjectWindow::loadPersistentSettings()
 {
+    if (!centralWidget())
+        return;
     QSettings * const settings = ICore::settings();
     settings->beginGroup(PROJECT_WINDOW_KEY);
     restoreSettings(settings);
