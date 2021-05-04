@@ -78,14 +78,13 @@ ClangToolRunner::~ClangToolRunner()
     m_process->deleteLater();
 }
 
-void ClangToolRunner::init(const QString &outputDirPath,
-                           const Utils::Environment &environment)
+void ClangToolRunner::init(const QString &outputDirPath, const Environment &environment)
 {
     m_outputDirPath = outputDirPath;
     QTC_CHECK(!m_outputDirPath.isEmpty());
 
     m_process->setProcessChannelMode(QProcess::MergedChannels);
-    m_process->setProcessEnvironment(environment.toProcessEnvironment());
+    m_process->setEnvironment(environment);
     m_process->setWorkingDirectory(m_outputDirPath); // Current clang-cl puts log file into working dir.
     connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &ClangToolRunner::onProcessFinished);

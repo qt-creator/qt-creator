@@ -164,6 +164,9 @@ private:
 
     void setupChildProcess_impl();
 
+    void setProcessEnvironment(const QProcessEnvironment &environment) = delete;
+    QProcessEnvironment processEnvironment() const = delete;
+
     CommandLine m_commandLine;
     Environment m_environment;
     bool m_haveEnv = false;

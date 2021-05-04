@@ -122,7 +122,7 @@ void DockerDeviceProcess::start(const Runnable &runnable)
     disconnect(&m_process);
 
     m_process.setCommand(runnable.commandLine());
-    m_process.setProcessEnvironment(runnable.environment.toProcessEnvironment());
+    m_process.setEnvironment(runnable.environment);
     m_process.setWorkingDirectory(runnable.workingDirectory);
     connect(&m_process, &QProcess::errorOccurred, this, &DeviceProcess::error);
     connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
