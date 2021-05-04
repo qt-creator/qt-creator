@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,32 +25,28 @@
 
 #pragma once
 
-#include <previewtooltip/previewtooltipbackend.h>
-
-#include <QListView>
-
-QT_BEGIN_NAMESPACE
-class QActionGroup;
-QT_END_NAMESPACE
+#include <QAbstractListModel>
+#include "itemlibraryassetsdir.h"
 
 namespace QmlDesigner {
 
-class AsynchronousImageCache;
-
-class ItemLibraryResourceView : public QListView {
-
+class ItemLibraryAssetsDirsModel : public QAbstractListModel
+{
     Q_OBJECT
-public:
-    explicit ItemLibraryResourceView(AsynchronousImageCache &fontImageCache,
-                                     QWidget *parent = nullptr);
 
-    void startDrag(Qt::DropActions supportedActions) override;
-    bool viewportEvent(QEvent *event) override;
+public:
+    ItemLibraryAssetsDirsModel(QObject *parent = nullptr);
+
+    QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+    int rowCount(const QModelIndex & parent = QModelIndex()) const override;
+    QHash<int, QByteArray> roleNames() const override;
+
+    void addDir(ItemLibraryAssetsDir *assetsDir);
 
 private:
-    void addSizeAction(QActionGroup *group, const QString &text, int size, int iconSize);
-
-    std::unique_ptr<PreviewTooltipBackend> m_fontPreviewTooltipBackend;
+    QList<ItemLibraryAssetsDir *> m_dirs;
+    QHash<int, QByteArray> m_roleNames;
 };
 
 } // namespace QmlDesigner

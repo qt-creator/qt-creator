@@ -310,12 +310,10 @@ extend_qtc_plugin(QmlDesigner
     assetimportupdatetreeitemdelegate.cpp assetimportupdatetreeitemdelegate.h
     assetimportupdatetreemodel.cpp assetimportupdatetreemodel.h
     assetimportupdatetreeview.cpp assetimportupdatetreeview.h
-    customfilesystemmodel.cpp customfilesystemmodel.h
     itemlibrary.qrc
     itemlibraryimageprovider.cpp itemlibraryimageprovider.h
     itemlibraryitem.cpp itemlibraryitem.h
     itemlibrarymodel.cpp itemlibrarymodel.h
-    itemlibraryresourceview.cpp itemlibraryresourceview.h
     itemlibrarycategory.cpp itemlibrarycategory.h
     itemlibraryitemsmodel.cpp itemlibraryitemsmodel.h
     itemlibraryview.cpp itemlibraryview.h
@@ -327,6 +325,11 @@ extend_qtc_plugin(QmlDesigner
     itemlibraryimport.cpp itemlibraryimport.h
     itemlibrarycategoriesmodel.cpp itemlibrarycategoriesmodel.h
     itemlibraryaddimportmodel.cpp itemlibraryaddimportmodel.h
+    itemlibraryassetsmodel.cpp itemlibraryassetsmodel.h
+    itemlibraryassetsiconprovider.cpp itemlibraryassetsiconprovider.h
+    itemlibraryassetsdir.cpp itemlibraryassetsdir.h
+    itemlibraryassetsdirsmodel.cpp itemlibraryassetsdirsmodel.h
+    itemlibraryassetsfilesmodel.cpp itemlibraryassetsfilesmodel.h
 )
 
 extend_qtc_plugin(QmlDesigner

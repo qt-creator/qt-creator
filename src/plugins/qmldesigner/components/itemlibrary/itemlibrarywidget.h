@@ -26,12 +26,12 @@
 #pragma once
 
 #include "itemlibraryinfo.h"
-#include "itemlibraryresourceview.h"
 #include "import.h"
 
 #include <utils/fancylineedit.h>
 #include <utils/dropsupport.h>
 #include <previewtooltip/previewtooltipbackend.h>
+#include "itemlibraryassetsmodel.h"
 
 #include <QFrame>
 #include <QToolButton>
@@ -48,6 +48,8 @@ class QStackedWidget;
 class QShortcut;
 QT_END_NAMESPACE
 
+namespace Utils { class FileSystemWatcher; }
+
 namespace QmlDesigner {
 
 class MetaInfo;
@@ -55,8 +57,9 @@ class ItemLibraryEntry;
 class Model;
 class CustomFileSystemModel;
 
-
 class ItemLibraryModel;
+class ItemLibraryAssetsIconProvider;
+class ItemLibraryAssetsModel;
 class ItemLibraryAddImportModel;
 class ItemLibraryResourceView;
 class SynchronousImageCache;
@@ -87,8 +90,10 @@ public:
     void setResourcePath(const QString &resourcePath);
     void setModel(Model *model);
     void setFlowMode(bool b);
+    QPair<QString, QByteArray> getAssetTypeAndData(const QFileInfo &fi) const;
 
     Q_INVOKABLE void startDragAndDrop(const QVariant &itemLibEntry, const QPointF &mousePos);
+    Q_INVOKABLE void startDragAsset(const QString &assetPath);
     Q_INVOKABLE void removeImport(const QString &importUrl);
     Q_INVOKABLE void addImportForItem(const QString &importUrl);
     Q_INVOKABLE void handleTabChanged(int index);
@@ -97,6 +102,8 @@ public:
     Q_INVOKABLE void handleSearchfilterChanged(const QString &filterText);
     Q_INVOKABLE void handleAddImport(int index);
     Q_INVOKABLE bool isSearchActive() const;
+    Q_INVOKABLE void handleFilesDrop(const QStringList &filesPaths);
+    Q_INVOKABLE QSet<QString> supportedSuffixes() const { return m_assetsModel->supportedSuffixes(); };
 
 signals:
     void itemActivated(const QString& itemName);
@@ -108,26 +115,29 @@ private:
     void reloadQmlSource();
 
     void addResources(const QStringList &files);
-    void importDroppedFiles(const QList<Utils::DropSupport::FileSpec> &files);
     void updateSearch();
     void handlePriorityImportsChanged();
 
     QTimer m_compressionTimer;
     QSize m_itemIconSize;
 
+    SynchronousImageCache &m_fontImageCache;
     QPointer<ItemLibraryInfo> m_itemLibraryInfo;
 
     QPointer<ItemLibraryModel> m_itemLibraryModel;
     QPointer<ItemLibraryAddImportModel> m_itemLibraryAddImportModel;
-    QPointer<CustomFileSystemModel> m_resourcesFileSystemModel;
+    ItemLibraryAssetsIconProvider *m_assetsIconProvider = nullptr;
+    Utils::FileSystemWatcher *m_fileSystemWatcher = nullptr;
+    QPointer<ItemLibraryAssetsModel> m_assetsModel;
 
     QPointer<QStackedWidget> m_stackedWidget;
 
     QScopedPointer<QQuickWidget> m_headerWidget;
     QScopedPointer<QQuickWidget> m_addImportWidget;
     QScopedPointer<QQuickWidget> m_itemViewQuickWidget;
-    QScopedPointer<ItemLibraryResourceView> m_resourcesView;
+    QScopedPointer<QQuickWidget> m_assetsWidget;
     std::unique_ptr<PreviewTooltipBackend> m_previewTooltipBackend;
+    std::unique_ptr<PreviewTooltipBackend> m_fontPreviewTooltipBackend;
 
     QShortcut *m_qmlSourceUpdateShortcut;
     AsynchronousImageCache &m_imageCache;

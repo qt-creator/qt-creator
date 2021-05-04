@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <QAbstractTableModel>
+#include <QAbstractListModel>
 #include <QDateTime>
 #include <QDir>
 #include <QHash>
@@ -34,59 +34,54 @@
 #include <QSet>
 #include <QTimer>
 
-QT_BEGIN_NAMESPACE
-class QFileIconProvider;
-class QFileSystemModel;
-QT_END_NAMESPACE
+#include "itemlibraryassetsdir.h"
 
 namespace Utils { class FileSystemWatcher; }
 
 namespace QmlDesigner {
 
 class SynchronousImageCache;
-class ItemLibraryFileIconProvider;
 
-class CustomFileSystemModel : public QAbstractListModel
+class ItemLibraryAssetsModel : public QAbstractListModel
 {
     Q_OBJECT
-public:
-    CustomFileSystemModel(QmlDesigner::SynchronousImageCache &fontImageCache,
-                          QObject *parent = nullptr);
 
-    void setFilter(QDir::Filters filters);
-    QString rootPath() const;
-    QModelIndex setRootPath(const QString &newPath);
+public:
+    ItemLibraryAssetsModel(QmlDesigner::SynchronousImageCache &fontImageCache,
+                           Utils::FileSystemWatcher *fileSystemWatcher,
+                           QObject *parent = nullptr);
 
     QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
     int rowCount(const QModelIndex & parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex & parent = QModelIndex()) const override;
+    QHash<int, QByteArray> roleNames() const override;
 
-    QModelIndex indexForPath(const QString & path, int column = 0) const;
+    void refresh();
+    void setRootPath(const QString &path);
+    void setSearchText(const QString &searchText);
 
-    QIcon fileIcon(const QModelIndex & index) const;
-    QString fileName(const QModelIndex & index) const;
-    QFileInfo fileInfo(const QModelIndex & index) const;
+    static const QStringList &supportedImageSuffixes();
+    static const QStringList &supportedFragmentShaderSuffixes();
+    static const QStringList &supportedShaderSuffixes();
+    static const QStringList &supportedFontSuffixes();
+    static const QStringList &supportedAudioSuffixes();
+    static const QStringList &supportedTexture3DSuffixes();
 
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
-    void setSearchFilter(const QString &nameFilterList);
-
-    QPair<QString, QByteArray> resourceTypeAndData(const QModelIndex &index) const;
     const QSet<QString> &supportedSuffixes() const;
     const QSet<QString> &previewableSuffixes() const;
 
-private:
-    QModelIndex updatePath(const QString &newPath);
-    QModelIndex fileSystemModelIndex(const QModelIndex &index) const;
-    void appendIfNotFiltered(const QString &file);
+    static void saveExpandedState(bool expanded, const QString &sectionName);
+    static bool loadExpandedState(const QString &sectionName);
 
-    QFileSystemModel *m_fileSystemModel;
-    QStringList m_files;
-    QString m_searchFilter;
-    Utils::FileSystemWatcher *m_fileSystemWatcher;
+private:
     SynchronousImageCache &m_fontImageCache;
-    ItemLibraryFileIconProvider *m_fileIconProvider = nullptr;
     QHash<QString, QPair<QDateTime, QIcon>> m_iconCache;
-    QTimer m_updatePathTimer;
+
+    QString m_searchText;
+    Utils::FileSystemWatcher *m_fileSystemWatcher = nullptr;
+    ItemLibraryAssetsDir *m_assetsDir = nullptr;
+
+    QHash<int, QByteArray> m_roleNames;
+    inline static QHash<QString, bool> m_expandedStateHash;
 };
 
-} //QmlDesigner
+} // namespace QmlDesigner

@@ -25,7 +25,7 @@
 
 #include "itemlibrarywidget.h"
 
-#include "customfilesystemmodel.h"
+#include "itemlibraryassetsmodel.h"
 #include "itemlibraryiconimageprovider.h"
 #include "itemlibraryimport.h"
 
@@ -37,6 +37,7 @@
 #include <itemlibraryinfo.h>
 #include <itemlibrarymodel.h>
 #include <itemlibraryaddimportmodel.h>
+#include "itemlibraryassetsiconprovider.h"
 #include <metainfo.h>
 #include <model.h>
 #include <rewritingexception.h>
@@ -46,6 +47,7 @@
 #include <utils/algorithm.h>
 #include <utils/flowlayout.h>
 #include <utils/fileutils.h>
+#include <utils/filesystemwatcher.h>
 #include <utils/stylehelper.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -125,13 +127,16 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
                                      AsynchronousImageCache &asynchronousFontImageCache,
                                      SynchronousImageCache &synchronousFontImageCache)
     : m_itemIconSize(24, 24)
+    , m_fontImageCache(synchronousFontImageCache)
     , m_itemLibraryModel(new ItemLibraryModel(this))
     , m_itemLibraryAddImportModel(new ItemLibraryAddImportModel(this))
-    , m_resourcesFileSystemModel{new CustomFileSystemModel(synchronousFontImageCache, this)}
+    , m_assetsIconProvider(new ItemLibraryAssetsIconProvider(synchronousFontImageCache))
+    , m_fileSystemWatcher(new Utils::FileSystemWatcher(this))
+    , m_assetsModel(new ItemLibraryAssetsModel(synchronousFontImageCache, m_fileSystemWatcher, this))
     , m_headerWidget(new QQuickWidget(this))
     , m_addImportWidget(new QQuickWidget(this))
     , m_itemViewQuickWidget(new QQuickWidget(this))
-    , m_resourcesView(new ItemLibraryResourceView(asynchronousFontImageCache, this))
+    , m_assetsWidget(new QQuickWidget(this))
     , m_imageCache{imageCache}
 {
     m_compressionTimer.setInterval(200);
@@ -180,12 +185,47 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
     Theme::setupTheme(m_itemViewQuickWidget->engine());
     m_itemViewQuickWidget->installEventFilter(this);
 
-    // connect Resources view and its model
-    m_resourcesView->setModel(m_resourcesFileSystemModel.data());
+    m_fontPreviewTooltipBackend = std::make_unique<PreviewTooltipBackend>(asynchronousFontImageCache);
+    // Note: Though the text specified here appears in UI, it shouldn't be translated, as it's
+    // a commonly used sentence to preview the font glyphs in latin fonts.
+    // For fonts that do not have latin glyphs, the font family name will have to suffice for preview.
+    m_fontPreviewTooltipBackend->setAuxiliaryData(
+        ImageCache::FontCollectorSizeAuxiliaryData{QSize{300, 300},
+                                                   Theme::getColor(Theme::DStextColor).name(),
+                                                   QStringLiteral("The quick brown fox jumps\n"
+                                                                  "over the lazy dog\n"
+                                                                  "1234567890")});
+    // create assets widget
+    m_assetsWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    Theme::setupTheme(m_assetsWidget->engine());
+    m_assetsWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
+    m_assetsWidget->setClearColor(Theme::getColor(Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
+    m_assetsWidget->engine()->addImageProvider("qmldesigner_assets", m_assetsIconProvider);
+    m_assetsWidget->rootContext()->setContextProperties(QVector<QQmlContext::PropertyPair>{
+        {{"assetsModel"}, QVariant::fromValue(m_assetsModel.data())},
+        {{"rootView"}, QVariant::fromValue(this)},
+        {{"tooltipBackend"}, QVariant::fromValue(m_fontPreviewTooltipBackend.get())}
+    });
+
+    // If project directory contents change, or one of the asset files is modified, we must
+    // reconstruct the model to update the icons
+    connect(m_fileSystemWatcher, &Utils::FileSystemWatcher::directoryChanged, [this](const QString & changedDirPath) {
+        Q_UNUSED(changedDirPath)
+        // TODO: find a clever way to only refresh the changed directory part of the model
+
+        m_assetsModel->refresh();
+
+        // reload assets qml so that an overridden file's image shows the new image
+        QTimer::singleShot(100, [this] {
+            const QString assetsQmlPath = qmlSourcesPath() + "/Assets.qml";
+            m_assetsWidget->engine()->clearComponentCache();
+            m_assetsWidget->setSource(QUrl::fromLocalFile(assetsQmlPath));
+        });
+    });
 
     m_stackedWidget = new QStackedWidget(this);
     m_stackedWidget->addWidget(m_itemViewQuickWidget.data());
-    m_stackedWidget->addWidget(m_resourcesView.data());
+    m_stackedWidget->addWidget(m_assetsWidget.data());
     m_stackedWidget->addWidget(m_addImportWidget.data());
     m_stackedWidget->setMinimumHeight(30);
     m_stackedWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
@@ -201,33 +241,11 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
     /* style sheets */
     setStyleSheet(Theme::replaceCssColors(
         QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
-    m_resourcesView->setStyleSheet(Theme::replaceCssColors(
-        QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css"))));
 
     m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F5), this);
     connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &ItemLibraryWidget::reloadQmlSource);
 
     connect(&m_compressionTimer, &QTimer::timeout, this, &ItemLibraryWidget::updateModel);
-
-    const auto dropSupport = new Utils::DropSupport(
-                m_resourcesView.data(), [this](QDropEvent *event, Utils::DropSupport *) {
-        // Accept supported file types
-        if (event->type() == QDropEvent::DragEnter && !Utils::DropSupport::isFileDrop(event))
-            return false; // do not accept drops without files
-        bool accept = false;
-        const QSet<QString> &suffixes = m_resourcesFileSystemModel->supportedSuffixes();
-        const QList<QUrl> urls = event->mimeData()->urls();
-        for (const QUrl &url : urls) {
-            QFileInfo fi(url.toLocalFile());
-            if (suffixes.contains(fi.suffix().toLower())) {
-                accept = true;
-                break;
-            }
-        }
-        return accept;
-    });
-    connect(dropSupport, &Utils::DropSupport::filesDropped,
-            this, &ItemLibraryWidget::importDroppedFiles);
 
     m_itemViewQuickWidget->engine()->addImageProvider("itemlibrary_preview",
                                                       new ItemLibraryIconImageProvider{m_imageCache});
@@ -306,6 +324,11 @@ bool ItemLibraryWidget::isSearchActive() const
     return !m_filterText.isEmpty();
 }
 
+void ItemLibraryWidget::handleFilesDrop(const QStringList &filesPaths)
+{
+    addResources(filesPaths);
+}
+
 void ItemLibraryWidget::delayedUpdateModel()
 {
     static bool disableTimer = DesignerSettings::getValue(DesignerSettingsKey::DISABLE_ITEM_LIBRARY_UPDATE_TIMER).toBool();
@@ -356,6 +379,11 @@ void ItemLibraryWidget::reloadQmlSource()
     QTC_ASSERT(QFileInfo::exists(itemLibraryQmlPath), return);
     m_itemViewQuickWidget->engine()->clearComponentCache();
     m_itemViewQuickWidget->setSource(QUrl::fromLocalFile(itemLibraryQmlPath));
+
+    const QString assetsQmlPath = qmlSourcesPath() + "/Assets.qml";
+    QTC_ASSERT(QFileInfo::exists(assetsQmlPath), return);
+    m_assetsWidget->engine()->clearComponentCache();
+    m_assetsWidget->setSource(QUrl::fromLocalFile(assetsQmlPath));
 }
 
 void ItemLibraryWidget::updateModel()
@@ -395,9 +423,7 @@ void ItemLibraryWidget::updateSearch()
         m_itemLibraryModel->setSearchText(m_filterText);
         m_itemViewQuickWidget->update();
     } else if (m_stackedWidget->currentIndex() == 1) { // Assets tab selected
-        m_resourcesFileSystemModel->setSearchFilter(m_filterText);
-        m_resourcesFileSystemModel->setFilter(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
-        m_resourcesView->scrollToTop();
+        m_assetsModel->setSearchText(m_filterText);
     } else if (m_stackedWidget->currentIndex() == 2) {  // QML imports tab selected
         m_itemLibraryAddImportModel->setSearchText(m_filterText);
     }
@@ -413,10 +439,7 @@ void ItemLibraryWidget::handlePriorityImportsChanged()
 
 void ItemLibraryWidget::setResourcePath(const QString &resourcePath)
 {
-    if (m_resourcesView->model() == m_resourcesFileSystemModel.data()) {
-        m_resourcesFileSystemModel->setRootPath(resourcePath);
-        m_resourcesView->setRootIndex(m_resourcesFileSystemModel->indexForPath(resourcePath));
-    }
+    m_assetsModel->setRootPath(resourcePath);
     updateSearch();
 }
 
@@ -427,6 +450,51 @@ void ItemLibraryWidget::startDragAndDrop(const QVariant &itemLibEntry, const QPo
     // This doesn't completely eliminate the bug but makes it significantly harder to produce.
     m_itemToDrag = itemLibEntry;
     m_dragStartPoint = mousePos.toPoint();
+}
+
+void ItemLibraryWidget::startDragAsset(const QString &assetPath)
+{
+    QFileInfo fileInfo(assetPath);
+    QPair<QString, QByteArray> typeAndData = getAssetTypeAndData(fileInfo);
+
+    if (typeAndData.first.isEmpty())
+        return;
+
+    auto drag = new QDrag(this);
+    drag->setPixmap(m_assetsIconProvider->requestPixmap(assetPath, nullptr, {128, 128}));
+    QMimeData *mimeData = new QMimeData;
+    mimeData->setData(QLatin1String("application/vnd.bauhaus.libraryresource"),
+                      fileInfo.absoluteFilePath().toUtf8());
+    mimeData->setData(typeAndData.first, typeAndData.second);
+    drag->setMimeData(mimeData);
+    drag->exec();
+}
+
+QPair<QString, QByteArray> ItemLibraryWidget::getAssetTypeAndData(const QFileInfo &fi) const
+{
+    QString suffix = "*." + fi.suffix().toLower();
+    if (!suffix.isEmpty()) {
+        if (ItemLibraryAssetsModel::supportedImageSuffixes().contains(suffix)) {
+            // Data: Image format (suffix)
+            return {"application/vnd.bauhaus.libraryresource.image", suffix.toUtf8()};
+        } else if (ItemLibraryAssetsModel::supportedFontSuffixes().contains(suffix)) {
+            // Data: Font family name
+            QRawFont font(fi.absoluteFilePath(), 10);
+            QString fontFamily = font.isValid() ? font.familyName() : "";
+            return {"application/vnd.bauhaus.libraryresource.font", fontFamily.toUtf8()};
+        } else if (ItemLibraryAssetsModel::supportedShaderSuffixes().contains(suffix)) {
+            // Data: shader type, frament (f) or vertex (v)
+            return {"application/vnd.bauhaus.libraryresource.shader",
+                ItemLibraryAssetsModel::supportedFragmentShaderSuffixes().contains(suffix) ? "f" : "v"};
+        } else if (ItemLibraryAssetsModel::supportedAudioSuffixes().contains(suffix)) {
+            // No extra data for sounds
+            return {"application/vnd.bauhaus.libraryresource.sound", {}};
+        } else if (ItemLibraryAssetsModel::supportedTexture3DSuffixes().contains(suffix)) {
+            // Data: Image format (suffix)
+            return {"application/vnd.bauhaus.libraryresource.texture3d", suffix.toUtf8()};
+        }
+    }
+    return {};
 }
 
 void ItemLibraryWidget::setFlowMode(bool b)
@@ -533,15 +601,4 @@ void ItemLibraryWidget::addResources(const QStringList &files)
     }
 }
 
-void ItemLibraryWidget::importDroppedFiles(const QList<Utils::DropSupport::FileSpec> &files)
-{
-    QStringList fileNames;
-    for (const auto &file : files) {
-        QFileInfo fi(file.filePath);
-        if (m_resourcesFileSystemModel->supportedSuffixes().contains(fi.suffix().toLower()))
-            fileNames.append(fi.absoluteFilePath());
-    }
-    if (!fileNames.isEmpty())
-        addResources(fileNames);
-}
 } // namespace QmlDesigner

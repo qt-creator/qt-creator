@@ -38,12 +38,14 @@ Item {
     property alias sectionFontSize: label.font.pixelSize
     property alias showTopSeparator: topSeparator.visible
     property alias showArrow: arrow.visible
+    property alias showLeftBorder: leftBorder.visible
 
     property int leftPadding: 8
     property int rightPadding: 0
 
     property bool expanded: true
-    property int level: 0
+    property int level: 0 // affects arrow and title
+    property int contentLevel: 0 // affects whole section
     property int levelShift: 10
     property bool hideHeader: false
     property bool expandOnClick: true // if false, toggleExpand signal will be emitted instead
@@ -138,6 +140,14 @@ Item {
         anchors.top: topSpacer.bottom
     }
 
+    Rectangle {
+        id: leftBorder
+        visible: false
+        width: 1
+        height: parent.height - 15
+        color: header.color
+    }
+
     Item {
         id: bottomSpacer
         height: addBottomPadding && row.height > 0 ? StudioTheme.Values.sectionHeadSpacerHeight : 0
@@ -160,12 +170,12 @@ Item {
     ]
 
     transitions: Transition {
-            id: trans
-            enabled: false
-            NumberAnimation {
-                properties: "implicitHeight,rotation";
-                duration: 120;
-                easing.type: Easing.OutCubic
-            }
+        id: trans
+        enabled: false
+        NumberAnimation {
+            properties: "implicitHeight,rotation";
+            duration: 120;
+            easing.type: Easing.OutCubic
         }
+    }
 }
