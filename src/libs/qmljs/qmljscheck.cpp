@@ -1366,6 +1366,7 @@ bool Check::visit(Block *ast)
                 && !cast<WhileStatement *>(p)
                 && !cast<IfStatement *>(p)
                 && !cast<SwitchStatement *>(p)
+                && !isCaseOrDefault(p)
                 && !cast<WithStatement *>(p)) {
             addMessage(WarnBlock, ast->lbraceToken);
         }
@@ -1654,6 +1655,15 @@ bool Check::isQtQuick2() const
 bool Check::isQtQuick2Ui() const
 {
     return _doc->language() == Dialect::QmlQtQuick2Ui;
+}
+
+bool Check::isCaseOrDefault(Node *n)
+{
+    if (!cast<StatementList *>(n))
+        return false;
+    if (Node *p = parent(1))
+        return p->kind == Node::Kind_CaseClause || p->kind == Node::Kind_DefaultClause;
+    return false;
 }
 
 bool Check::visit(NewExpression *ast)
