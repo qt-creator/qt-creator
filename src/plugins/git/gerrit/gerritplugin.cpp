@@ -47,11 +47,11 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/locator/commandlocator.h>
+#include <coreplugin/messagebox.h>
 
 #include <vcsbase/vcsoutputwindow.h>
 
-#include <utils/synchronousprocess.h>
-#include <coreplugin/messagebox.h>
+#include <utils/qtcprocess.h>
 
 #include <QDebug>
 #include <QProcess>
@@ -64,6 +64,8 @@
 #include <QFutureWatcher>
 
 using namespace Core;
+using namespace Utils;
+
 using namespace Git::Internal;
 
 enum { debug = 0 };
@@ -121,7 +123,7 @@ private:
     const Utils::FilePath m_git;
     const GerritServer m_server;
     State m_state;
-    QProcess m_process;
+    QtcProcess m_process;
     QFutureInterface<void> m_progress;
     QFutureWatcher<void> m_watcher;
 };
@@ -148,8 +150,7 @@ FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
     connect(&m_watcher, &QFutureWatcher<void>::canceled, this, &FetchContext::terminate);
     m_watcher.setFuture(m_progress.future());
     m_process.setWorkingDirectory(repository);
-    m_process.setProcessEnvironment(
-        GitClient::instance()->processEnvironment().toProcessEnvironment());
+    m_process.setEnvironment(GitClient::instance()->processEnvironment());
     m_process.closeWriteChannel();
 }
 
@@ -171,7 +172,8 @@ void FetchContext::start()
     // Order: initialize future before starting the process in case error handling is invoked.
     const QStringList args = m_change->gitFetchArguments(m_server);
     VcsBase::VcsOutputWindow::appendCommand(m_repository, {m_git, args});
-    m_process.start(m_git.toString(), args);
+    m_process.setCommand({m_git, args});
+    m_process.start();
     m_process.closeWriteChannel();
 }
 
@@ -259,7 +261,7 @@ void FetchContext::checkout()
 
 void FetchContext::terminate()
 {
-    Utils::SynchronousProcess::stopProcess(m_process);
+    m_process.stopProcess();
 }
 
 
