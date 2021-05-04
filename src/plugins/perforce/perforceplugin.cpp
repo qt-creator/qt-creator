@@ -1350,8 +1350,8 @@ PerforceResponse PerforcePluginPrivate::fullySynchronousProcess(const QString &w
     QByteArray stdOut;
     QByteArray stdErr;
     const int timeOutS = (flags & LongTimeOut) ? m_settings.longTimeOutS() : m_settings.timeOutS.value();
-    if (!SynchronousProcess::readDataFromProcess(process, timeOutS, &stdOut, &stdErr, true)) {
-        SynchronousProcess::stopProcess(process);
+    if (!process.readDataFromProcess(timeOutS, &stdOut, &stdErr, true)) {
+        process.stopProcess();
         response.error = true;
         response.message = msgTimeout(timeOutS);
         return response;
