@@ -1367,7 +1367,8 @@ bool Check::visit(Block *ast)
                 && !cast<IfStatement *>(p)
                 && !cast<SwitchStatement *>(p)
                 && !isCaseOrDefault(p)
-                && !cast<WithStatement *>(p)) {
+                && !cast<WithStatement *>(p)
+                && hasVarStatement(ast)) {
             addMessage(WarnBlock, ast->lbraceToken);
         }
         if (!ast->statements
@@ -1663,6 +1664,24 @@ bool Check::isCaseOrDefault(Node *n)
         return false;
     if (Node *p = parent(1))
         return p->kind == Node::Kind_CaseClause || p->kind == Node::Kind_DefaultClause;
+    return false;
+}
+
+bool Check::hasVarStatement(AST::Block *b) const
+{
+    QTC_ASSERT(b, return false);
+    StatementList *s = b->statements;
+    while (s) {
+        if (auto var = cast<VariableStatement *>(s->statement)) {
+            VariableDeclarationList *declList = var->declarations;
+            while (declList) {
+                if (declList->declaration && declList->declaration->scope == VariableScope::Var)
+                    return true;
+                declList = declList->next;
+            }
+        }
+        s = s->next;
+    }
     return false;
 }
 
