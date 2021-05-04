@@ -266,11 +266,16 @@ HelpPluginPrivate::HelpPluginPrivate()
                     Core::HelpManager::HelpModeAlways);
     });
 
+    const QString qdsStandaloneEntry = "QML/Designer/StandAloneMode"; //entry from designer settings
+    const bool isDesigner = Core::ICore::settings()->value(qdsStandaloneEntry, false).toBool();
+
     action = new QAction(HelpPlugin::tr("Report Bug..."), this);
     cmd = ActionManager::registerAction(action, "Help.ReportBug");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
-    connect(action, &QAction::triggered, this, [] {
-        QDesktopServices::openUrl(QUrl("https://bugreports.qt.io/secure/CreateIssue.jspa?pid=10512"));
+    connect(action, &QAction::triggered, this, [isDesigner] {
+        const QUrl bugreportUrl = isDesigner ? QString("https://bugreports.qt.io/secure/CreateIssue.jspa?pid=11740") //QDS
+                                             : QString("https://bugreports.qt.io/secure/CreateIssue.jspa?pid=10512"); //QtC
+        QDesktopServices::openUrl(bugreportUrl);
     });
 
     action = new QAction(HelpPlugin::tr("System Information..."), this);
