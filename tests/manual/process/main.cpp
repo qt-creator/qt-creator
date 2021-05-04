@@ -25,7 +25,8 @@
 
 #include "mainwindow.h"
 
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
+
 #include <QApplication>
 #include <QDebug>
 #include <QTimer>
@@ -47,15 +48,16 @@ static int testSynchronous(const QString &cmd, const QStringList &args)
 {
     std::fprintf(stdout, "testSynchronous %s %s\n", qPrintable(cmd),
                  qPrintable(args.join(QLatin1Char(' '))));
-    QProcess p;
-    p.start(cmd, args);
+    Utils::QtcProcess p;
+    p.setCommand({cmd, args});
+    p.start();
     if (!p.waitForStarted())
         return -2;
     p.closeWriteChannel();
 
     QByteArray stdOut;
     QByteArray stdErr;
-    if (!Utils::SynchronousProcess::readDataFromProcess(p, 2, &stdOut, &stdErr)) {
+    if (!p.readDataFromProcess(2, &stdOut, &stdErr, false)) {
         std::fputs("Timeout", stderr);
         return -3;
     }
