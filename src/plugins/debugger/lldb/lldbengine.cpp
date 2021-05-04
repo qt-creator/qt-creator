@@ -715,27 +715,6 @@ void LldbEngine::updateAll()
     runCommand(cmd);
 }
 
-void LldbEngine::reloadFullStack()
-{
-    fetchStack(-1);
-}
-
-void LldbEngine::fetchStack(int limit)
-{
-    DebuggerCommand cmd("fetchStack");
-    cmd.arg("nativemixed", isNativeMixedActive());
-    cmd.arg("stacklimit", limit);
-    cmd.arg("context", stackHandler()->currentFrame().context);
-    cmd.callback = [this](const DebuggerResponse &response) {
-        const GdbMi &stack = response.data["stack"];
-        const bool isFull = !stack["hasmore"].toInt();
-        stackHandler()->setFramesAndCurrentIndex(stack["frames"], isFull);
-        activateFrame(stackHandler()->currentIndex());
-    };
-    runCommand(cmd);
-}
-
-
 //////////////////////////////////////////////////////////////////////
 //
 // Watch specific stuff
@@ -980,6 +959,33 @@ void LldbEngine::reloadDebuggingHelpers()
     updateAll();
 }
 
+void LldbEngine::loadAdditionalQmlStack()
+{
+    fetchStack(-1, true);
+}
+
+void LldbEngine::reloadFullStack()
+{
+    fetchStack(-1, false);
+}
+
+void LldbEngine::fetchStack(int limit, bool extraQml)
+{
+    DebuggerCommand cmd("fetchStack");
+    cmd.arg("nativemixed", isNativeMixedActive());
+    cmd.arg("stacklimit", limit);
+    cmd.arg("context", stackHandler()->currentFrame().context);
+    cmd.arg("extraqml", int(extraQml));
+    cmd.callback = [this](const DebuggerResponse &response) {
+        const GdbMi &stack = response.data["stack"];
+        const bool isFull = !stack["hasmore"].toInt();
+        stackHandler()->setFramesAndCurrentIndex(stack["frames"], isFull);
+        activateFrame(stackHandler()->currentIndex());
+    };
+    runCommand(cmd);
+}
+
+
 void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)
 {
     QPointer<DisassemblerAgent> p(agent);
@@ -1090,7 +1096,8 @@ bool LldbEngine::hasCapability(unsigned cap) const
         | OperateByInstructionCapability
         | RunToLineCapability
         | WatchComplexExpressionsCapability
-        | MemoryAddressCapability))
+        | MemoryAddressCapability
+        | AdditionalQmlStackCapability))
         return true;
 
     if (runParameters().startMode == AttachToCore)

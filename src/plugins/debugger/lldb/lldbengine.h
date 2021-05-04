@@ -101,6 +101,7 @@ private:
     void reloadSourceFiles() override {}
     void reloadFullStack() override;
     void reloadDebuggingHelpers() override;
+    void loadAdditionalQmlStack() override;
     void fetchDisassembler(Internal::DisassemblerAgent *) override;
 
     void setRegisterValue(const QString &name, const QString &value) override;
@@ -125,7 +126,7 @@ private:
     void updateAll() override;
     void doUpdateLocals(const UpdateParameters &params) override;
     void updateBreakpointData(const Breakpoint &bp, const GdbMi &bkpt, bool added);
-    void fetchStack(int limit);
+    void fetchStack(int limit, bool alsoQml = false);
 
     void runCommand(const DebuggerCommand &cmd) override;
     void debugLastCommand() override;

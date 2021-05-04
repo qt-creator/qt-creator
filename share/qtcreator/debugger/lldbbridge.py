@@ -1107,13 +1107,53 @@ class Dumper(DumperBase):
             return
 
         isNativeMixed = int(args.get('nativemixed', 0))
+        extraQml = int(args.get('extraqml', '0'))
 
         limit = args.get('stacklimit', -1)
         (n, isLimited) = (limit, True) if limit > 0 else (thread.GetNumFrames(), False)
         self.currentCallContext = None
         result = 'stack={current-thread="%d"' % thread.GetThreadID()
         result += ',frames=['
-        for i in range(n):
+
+        ii = 0
+        if extraQml:
+            ns = self.qtNamespace()
+            needle = self.qtNamespace() + 'QV4::ExecutionEngine'
+            pats = [
+                    '{0}qt_v4StackTraceForEngine((void*)0x{1:x})',
+                    '{0}qt_v4StackTrace((({0}QV4::ExecutionEngine *)0x{1:x})->currentContext())',
+                    '{0}qt_v4StackTrace((({0}QV4::ExecutionEngine *)0x{1:x})->currentContext)',
+                   ]
+            done = False
+            while ii < n and not done:
+                res = None
+                frame = thread.GetFrameAtIndex(ii)
+                for variable in frame.GetVariables(True, True, False, True):
+                    if not variable.GetType().IsPointerType():
+                        continue
+                    derefvar = variable.Dereference()
+                    if derefvar.GetType().GetName() != needle:
+                        continue
+                    addr = derefvar.GetLoadAddress()
+                    for pat in pats:
+                        exp = pat.format(ns, addr)
+                        val = frame.EvaluateExpression(exp)
+                        err = val.GetError()
+                        res = str(val)
+                        if err.Fail():
+                            continue
+                        pos = res.find('"stack=[')
+                        if pos == -1:
+                            continue
+                        res = res[pos + 8:-2]
+                        res = res.replace('\\\"', '\"')
+                        res = res.replace('func=', 'function=')
+                        result += res
+                        done = True
+                        break
+                ii += 1
+
+        for i in range(n - ii):
             frame = thread.GetFrameAtIndex(i)
             if not frame.IsValid():
                 isLimited = False
