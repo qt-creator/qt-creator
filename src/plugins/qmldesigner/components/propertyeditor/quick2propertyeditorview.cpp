@@ -25,22 +25,23 @@
 
 #include "quick2propertyeditorview.h"
 
-#include "propertyeditorvalue.h"
+#include "aligndistribute.h"
+#include "annotationeditor/annotationeditor.h"
+#include "bindingeditor/actioneditor.h"
+#include "bindingeditor/bindingeditor.h"
 #include "fileresourcesmodel.h"
 #include "gradientmodel.h"
-#include "gradientpresetdefaultlistmodel.h"
 #include "gradientpresetcustomlistmodel.h"
+#include "gradientpresetdefaultlistmodel.h"
 #include "itemfiltermodel.h"
-#include "simplecolorpalettemodel.h"
-#include "bindingeditor/bindingeditor.h"
-#include "bindingeditor/actioneditor.h"
-#include "annotationeditor/annotationeditor.h"
-#include "qmlanchorbindingproxy.h"
-#include "theme.h"
-#include "aligndistribute.h"
 #include "propertyeditorcontextobject.h"
-#include "tooltip.h"
+#include "propertyeditorqmlbackend.h"
+#include "propertyeditorvalue.h"
+#include "qmlanchorbindingproxy.h"
 #include "richtexteditor/richtexteditorproxy.h"
+#include "simplecolorpalettemodel.h"
+#include "theme.h"
+#include "tooltip.h"
 
 namespace QmlDesigner {
 
@@ -71,6 +72,11 @@ void Quick2PropertyEditorView::registerQmlTypes()
         Tooltip::registerDeclarativeType();
         EasingCurveEditor::registerDeclarativeType();
         RichTextEditorProxy::registerDeclarativeType();
+        QUrl regExpUrl = QUrl::fromLocalFile(PropertyEditorQmlBackend::propertyEditorResourcesPath()
+                                             + "/RegExpValidator.qml");
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        qmlRegisterType(regExpUrl, "HelperWidgets", 2, 0, "RegExpValidator");
+#endif
     }
 }
 
