@@ -53,9 +53,9 @@
 #include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 #include <utils/stringutils.h>
-#include <utils/synchronousprocess.h>
 #include <utils/winutils.h>
 
 #include <resourceeditor/resourcenode.h>
@@ -1768,16 +1768,18 @@ static QByteArray runQmakeQuery(const FilePath &binary, const Environment &env,
     // Prevent e.g. qmake 4.x on MinGW to show annoying errors about missing dll's.
     WindowsCrashDialogBlocker crashDialogBlocker;
 
-    QProcess process;
-    process.setEnvironment(env.toStringList());
-    process.start(binary.toString(), QStringList("-query"), QIODevice::ReadOnly);
+    QtcProcess process;
+    process.setEnvironment(env);
+    process.setOpenMode(QIODevice::ReadOnly);
+    process.setCommand({binary, {"-query"}});
+    process.start();
 
     if (!process.waitForStarted()) {
         *error = QCoreApplication::translate("QtVersion", "Cannot start \"%1\": %2").arg(binary.toUserOutput()).arg(process.errorString());
         return QByteArray();
     }
     if (!process.waitForFinished(timeOutMS)) {
-        SynchronousProcess::stopProcess(process);
+        process.stopProcess();
         *error = QCoreApplication::translate("QtVersion", "Timeout running \"%1\" (%2 ms).").arg(binary.toUserOutput()).arg(timeOutMS);
         return QByteArray();
     }
