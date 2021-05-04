@@ -27,8 +27,8 @@
 
 #include "sqlitedatabasemock.h"
 
-#include <metainfo/projectstorage.h>
 #include <modelnode.h>
+#include <projectstorage/projectstorage.h>
 #include <sqlitedatabase.h>
 #include <sqlitereadstatement.h>
 #include <sqlitewritestatement.h>

@@ -29,7 +29,7 @@
 
 #include "sqlitedatabasemock.h"
 
-#include <metainfo/projectstoragetypes.h>
+#include <projectstorage/projectstoragetypes.h>
 #include <projectstorageids.h>
 
 class ProjectStorageMock

@@ -29,12 +29,12 @@
 
 #include <cpptools/usages.h>
 #include <filepathstoragesources.h>
-#include <metainfo/projectstoragetypes.h>
 #include <pchpaths.h>
 #include <projectpartartefact.h>
 #include <projectpartcontainer.h>
 #include <projectpartpch.h>
 #include <projectpartstoragestructs.h>
+#include <projectstorage/projectstoragetypes.h>
 #include <projectstorageids.h>
 #include <sourceentry.h>
 #include <sourcelocations.h>

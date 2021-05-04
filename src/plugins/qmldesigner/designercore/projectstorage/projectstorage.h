@@ -239,19 +239,52 @@ private:
             if (!isInitialized) {
                 Sqlite::ExclusiveTransaction transaction{database};
 
+                createSourceContextsTable(database);
+                createSourcesTable(database);
                 createTypesTable(database);
                 createQualifiedTypeNamesTable(database);
                 createPropertyDeclarationsTable(database);
                 createEnumValuesTable(database);
                 createMethodsTable(database);
                 createSignalsTable(database);
-                createSourceContextsTable(database);
-                createSourcesTable(database);
 
                 transaction.commit();
 
                 database.walCheckpointFull();
             }
+        }
+
+        void createSourceContextsTable(Database &database)
+        {
+            Sqlite::Table table;
+            table.setUseIfNotExists(true);
+            table.setName("sourceContexts");
+            table.addColumn("sourceContextId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
+            const Sqlite::Column &sourceContextPathColumn = table.addColumn("sourceContextPath");
+
+            table.addUniqueIndex({sourceContextPathColumn});
+
+            table.initialize(database);
+        }
+
+        void createSourcesTable(Database &database)
+        {
+            Sqlite::Table table;
+            table.setUseIfNotExists(true);
+            table.setName("sources");
+            table.addColumn("sourceId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
+            const Sqlite::Column &sourceContextIdColumn = table.addColumn(
+                "sourceContextId",
+                Sqlite::ColumnType::Integer,
+                {Sqlite::NotNull{},
+                 Sqlite::ForeignKey{"sourceContexts",
+                                    "sourceContextId",
+                                    Sqlite::ForeignKeyAction::NoAction,
+                                    Sqlite::ForeignKeyAction::Cascade}});
+            const Sqlite::Column &sourceNameColumn = table.addColumn("sourceName");
+            table.addUniqueIndex({sourceContextIdColumn, sourceNameColumn});
+
+            table.initialize(database);
         }
 
         void createPropertyDeclarationsTable(Database &database)
@@ -337,40 +370,6 @@ private:
             auto &nameColumn = table.addColumn("name");
 
             table.addUniqueIndex({nameColumn});
-
-            table.initialize(database);
-        }
-
-        void createSourceContextsTable(Database &database)
-        {
-            Sqlite::Table table;
-            table.setUseIfNotExists(true);
-            table.setName("sourceContexts");
-            table.addColumn("sourceContextId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
-            const Sqlite::Column &sourceContextPathColumn = table.addColumn("sourceContextPath");
-
-            table.addUniqueIndex({sourceContextPathColumn});
-
-            table.initialize(database);
-        }
-
-        void createSourcesTable(Database &database)
-        {
-            Sqlite::Table table;
-            table.setUseIfNotExists(true);
-            table.setName("sources");
-            table.addColumn("sourceId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
-            const Sqlite::Column &sourceContextIdColumn = table.addColumn(
-                "sourceContextId",
-                Sqlite::ColumnType::Integer,
-                {Sqlite::NotNull{},
-                 Sqlite::ForeignKey{"sourceContexts",
-                                    "sourceContextId",
-                                    Sqlite::ForeignKeyAction::NoAction,
-                                    Sqlite::ForeignKeyAction::Cascade}});
-            const Sqlite::Column &sourceNameColumn = table.addColumn("sourceName",
-                                                                     Sqlite::ColumnType::Text);
-            table.addUniqueIndex({sourceContextIdColumn, sourceNameColumn});
 
             table.initialize(database);
         }

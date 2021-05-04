@@ -29,7 +29,7 @@
 #include "projectstoragemock.h"
 #include "sqlitedatabasemock.h"
 
-#include <metainfo/storagecache.h>
+#include <projectstorage/storagecache.h>
 #include <projectstorageids.h>
 
 #include <utils/smallstringio.h>

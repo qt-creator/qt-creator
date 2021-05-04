@@ -53,14 +53,12 @@ HEADERS += \
     $$PWD/designercore/include/import.h \
     $$PWD/designercore/include/abstractproperty.h \
     $$PWD/designercore/include/abstractview.h \
-    $$PWD/designercore/metainfo/storagecache.h \
-    $$PWD/designercore/metainfo/storagecacheentry.h \
-    $$PWD/designercore/metainfo/storagecachefwd.h \
-    $$PWD/designercore/metainfo/sourceid.h \
-    $$PWD/designercore/metainfo/sourcepathcontextid.h \
-    $$PWD/designercore/metainfo/sourcepath.h \
-    $$PWD/designercore/metainfo/sourcepathview.h \
-    $$PWD/designercore/metainfo/sourcepathcache.h \
+    $$PWD/designercore/projectstorage/storagecache.h \
+    $$PWD/designercore/projectstorage/storagecacheentry.h \
+    $$PWD/designercore/projectstorage/storagecachefwd.h \
+    $$PWD/designercore/projectstorage/sourcepath.h \
+    $$PWD/designercore/projectstorage/sourcepathview.h \
+    $$PWD/designercore/projectstorage/sourcepathcache.h \
     $$PWD/designercore/model/model_p.h \
     $$PWD/designercore/include/qmldesignercorelib_global.h \
     $$PWD/designercore/model/internalbindingproperty.h \
@@ -79,6 +77,6 @@ HEADERS += \
     $$PWD/designercore/include/variantproperty.h \
     $$PWD/designercore/rewritertransaction.h \
     $$PWD/components/listmodeleditor/listmodeleditormodel.h \
-    $$PWD/designercore/metainfo/projectstorage.h \
+    $$PWD/designercore/projectstorage/projectstorage.h \
     $$PWD/designercore/include/projectstorageids.h \
-    $$PWD/designercore/metainfo/projectstoragetypes.h
+    $$PWD/designercore/projectstorage/projectstoragetypes.h

@@ -47,7 +47,6 @@
 #include <filepathview.h>
 #include <filestatus.h>
 #include <includesearchpath.h>
-#include <metainfo/projectstoragetypes.h>
 #include <modelnode.h>
 #include <nativefilepath.h>
 #include <pchpaths.h>
@@ -58,6 +57,7 @@
 #include <projectpartartefact.h>
 #include <projectpartentry.h>
 #include <projectpartpch.h>
+#include <projectstorage/projectstoragetypes.h>
 #include <sourcedependency.h>
 #include <sourcelocationentry.h>
 #include <sourcelocationscontainer.h>

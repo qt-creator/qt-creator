@@ -25,7 +25,7 @@
 
 #include "googletest.h"
 
-#include <metainfo/sourcepathview.h>
+#include <projectstorage/sourcepathview.h>
 
 namespace {
 
