@@ -645,50 +645,6 @@ QSharedPointer<QProcess> SynchronousProcess::createProcess(unsigned flags)
     return QSharedPointer<QProcess>(process);
 }
 
-// Static utilities: Keep running as long as it gets data.
-bool SynchronousProcess::readDataFromProcess(QProcess &p, int timeoutS,
-                                             QByteArray *stdOut, QByteArray *stdErr,
-                                             bool showTimeOutMessageBox)
-{
-    if (syncDebug)
-        qDebug() << ">readDataFromProcess" << timeoutS;
-    if (p.state() != QProcess::Running) {
-        qWarning("readDataFromProcess: Process in non-running state passed in.");
-        return false;
-    }
-
-    QTC_ASSERT(p.readChannel() == QProcess::StandardOutput, return false);
-
-    // Keep the process running until it has no longer has data
-    bool finished = false;
-    bool hasData = false;
-    do {
-        finished = p.waitForFinished(timeoutS > 0 ? timeoutS * 1000 : -1)
-                || p.state() == QProcess::NotRunning;
-        // First check 'stdout'
-        if (p.bytesAvailable()) { // applies to readChannel() only
-            hasData = true;
-            const QByteArray newStdOut = p.readAllStandardOutput();
-            if (stdOut)
-                stdOut->append(newStdOut);
-        }
-        // Check 'stderr' separately. This is a special handling
-        // for 'git pull' and the like which prints its progress on stderr.
-        const QByteArray newStdErr = p.readAllStandardError();
-        if (!newStdErr.isEmpty()) {
-            hasData = true;
-            if (stdErr)
-                stdErr->append(newStdErr);
-        }
-        // Prompt user, pretend we have data if says 'No'.
-        const bool hang = !hasData && !finished;
-        hasData = hang && showTimeOutMessageBox && !askToKill(p.program());
-    } while (hasData && !finished);
-    if (syncDebug)
-        qDebug() << "<readDataFromProcess" << finished;
-    return finished;
-}
-
 // Path utilities
 
 // Locate a binary in a directory, applying all kinds of

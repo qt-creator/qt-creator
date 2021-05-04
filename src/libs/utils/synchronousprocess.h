@@ -133,16 +133,6 @@ public:
     // Create a (derived) processes with flags applied.
     static QSharedPointer<QProcess> createProcess(unsigned flags);
 
-    // Static helper for running a process synchronously in the foreground with timeout
-    // detection similar SynchronousProcess' handling (taking effect after no more output
-    // occurs on stderr/stdout as opposed to waitForFinished()). Returns false if a timeout
-    // occurs. Checking of the process' exit state/code still has to be done.
-    static bool readDataFromProcess(QProcess &p,
-                                    int timeoutS,
-                                    QByteArray *rawStdOut = nullptr,
-                                    QByteArray *rawStdErr = nullptr,
-                                    bool timeOutMessageBox = false);
-
     // Helpers to find binaries. Do not use it for other path variables
     // and file types.
     static QString locateBinary(const QString &binary);

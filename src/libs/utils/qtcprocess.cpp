@@ -1324,6 +1324,11 @@ static bool askToKill(const QString &command)
 #endif
 }
 
+// Helper for running a process synchronously in the foreground with timeout
+// detection similar SynchronousProcess' handling (taking effect after no more output
+// occurs on stderr/stdout as opposed to waitForFinished()). Returns false if a timeout
+// occurs. Checking of the process' exit state/code still has to be done.
+
 bool QtcProcess::readDataFromProcess(int timeoutS,
                                      QByteArray *stdOut,
                                      QByteArray *stdErr,
