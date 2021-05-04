@@ -46,6 +46,7 @@
 #include <utils/infobar.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 #include <utils/synchronousprocess.h>
 
@@ -267,7 +268,8 @@ public:
         if (!QDir(m_python.parentDir().toString()).exists("activate"))
             arguments << "--user";
 
-        m_process.start(m_python.toString(), arguments);
+        m_process.setCommand({m_python, arguments});
+        m_process.start();
 
         Core::MessageManager::writeDisrupting(
             tr("Running \"%1 %2\" to install Python language server")
@@ -280,7 +282,7 @@ public:
 private:
     void cancel()
     {
-        SynchronousProcess::stopProcess(m_process);
+        m_process.stopProcess();
         Core::MessageManager::writeFlashing(
             tr("The Python language server installation was canceled by %1.")
                 .arg(m_killTimer.isActive() ? tr("user") : tr("time out")));
@@ -315,7 +317,7 @@ private:
 
     QFutureInterface<void> m_future;
     QFutureWatcher<void> m_watcher;
-    QProcess m_process;
+    QtcProcess m_process;
     QTimer m_killTimer;
     const FilePath m_python;
     QPointer<TextEditor::TextDocument> m_document;
