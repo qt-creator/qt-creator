@@ -177,12 +177,14 @@ class PlainDumper():
 
 def importPlainDumpers(args):
     if args == 'off':
+        theDumper.usePlainDumpers = False
         try:
             gdb.execute('disable pretty-printer .* .*')
         except:
             # Might occur in non-ASCII directories
             DumperBase.warn('COULD NOT DISABLE PRETTY PRINTERS')
     else:
+        theDumper.usePlainDumpers = True
         theDumper.importPlainDumpers()
 
 
@@ -218,6 +220,9 @@ class Dumper(DumperBase):
 
     def __init__(self):
         DumperBase.__init__(self)
+
+        # whether to load plain dumpers for objfiles
+        self.usePlainDumpers = False
 
         # These values will be kept between calls to 'fetchVariables'.
         self.isGdb = True
@@ -1033,11 +1038,14 @@ class Dumper(DumperBase):
         self.qqDumpers[name] = PlainDumper(printer)
         self.qqFormats[name] = ''
 
+    def importPlainDumpersForObj(self, obj):
+        for printers in obj.pretty_printers + gdb.pretty_printers:
+            for printer in printers.subprinters:
+                self.importPlainDumper(printer)
+
     def importPlainDumpers(self):
         for obj in gdb.objfiles():
-            for printers in obj.pretty_printers + gdb.pretty_printers:
-                for printer in printers.subprinters:
-                    self.importPlainDumper(printer)
+            self.importPlainDumpersForObj(obj)
 
     def qtNamespace(self):
         # This function is replaced by handleQtCoreLoaded()
@@ -1059,6 +1067,9 @@ class Dumper(DumperBase):
         if qtCoreMatch is not None:
             self.addDebugLibs(objfile)
             self.handleQtCoreLoaded(objfile)
+
+        if self.usePlainDumpers:
+            self.importPlainDumpersForObj(objfile)
 
     def addDebugLibs(self, objfile):
         # The directory where separate debug symbols are searched for
