@@ -126,7 +126,7 @@ QTextCursor SnippetOverlay::previousSelectionCursor(const QTextCursor &cursor) c
     if (currentSelection.variableIndex >= 0) {
         int previousVariableIndex = currentSelection.variableIndex - 1;
         if (previousVariableIndex < 0)
-            previousVariableIndex = m_variables.size();
+            previousVariableIndex = m_variables.size() - 1;
 
         const QList<int> &equivalents = m_variables[previousVariableIndex];
         for (int i = equivalents.size() - 1; i >= 0; --i) {
