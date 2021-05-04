@@ -26,17 +26,18 @@
 #include "patchtool.h"
 #include "messagemanager.h"
 #include "icore.h"
-#include <utils/synchronousprocess.h>
-#include <utils/environment.h>
 
-#include <QProcess>
-#include <QProcessEnvironment>
+#include <utils/environment.h>
+#include <utils/qtcprocess.h>
+
 #include <QDir>
 #include <QApplication>
 
 static const char settingsGroupC[] = "General";
 static const char patchCommandKeyC[] = "PatchCommand";
 static const char patchCommandDefaultC[] = "patch";
+
+using namespace Utils;
 
 namespace Core {
 
@@ -79,12 +80,12 @@ static bool runPatchHelper(const QByteArray &input, const QString &workingDirect
         return false;
     }
 
-    QProcess patchProcess;
+    QtcProcess patchProcess;
     if (!workingDirectory.isEmpty())
         patchProcess.setWorkingDirectory(workingDirectory);
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    Utils::Environment::setupEnglishOutput(&env);
-    patchProcess.setProcessEnvironment(env);
+    Environment env = Environment::systemEnvironment();
+    Environment::setupEnglishOutput(&env);
+    patchProcess.setEnvironment(env);
     QStringList args;
     // Add argument 'apply' when git is used as patch command since git 2.5/Windows
     // no longer ships patch.exe.
@@ -103,7 +104,8 @@ static bool runPatchHelper(const QByteArray &input, const QString &workingDirect
             .arg(QDir::toNativeSeparators(workingDirectory),
                  QDir::toNativeSeparators(patch),
                  args.join(QLatin1Char(' '))));
-    patchProcess.start(patch, args);
+    patchProcess.setCommand({patch, args});
+    patchProcess.start();
     if (!patchProcess.waitForStarted()) {
         MessageManager::writeFlashing(
             QApplication::translate("Core::PatchTool", "Unable to launch \"%1\": %2")
@@ -114,8 +116,8 @@ static bool runPatchHelper(const QByteArray &input, const QString &workingDirect
     patchProcess.closeWriteChannel();
     QByteArray stdOut;
     QByteArray stdErr;
-    if (!Utils::SynchronousProcess::readDataFromProcess(patchProcess, 30, &stdOut, &stdErr, true)) {
-        Utils::SynchronousProcess::stopProcess(patchProcess);
+    if (!patchProcess.readDataFromProcess(30, &stdOut, &stdErr, true)) {
+        patchProcess.stopProcess();
         MessageManager::writeFlashing(
             QApplication::translate("Core::PatchTool", "A timeout occurred running \"%1\"")
                 .arg(patch));
