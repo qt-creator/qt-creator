@@ -34,7 +34,8 @@ SOURCES += \
     $$PWD/components/listmodeleditor/listmodeleditormodel.cpp \
     $$PWD/designercore/imagecache/asynchronousimagecache.cpp \
     $$PWD/designercore/imagecache/synchronousimagecache.cpp \
-    $$PWD/designercore/imagecache/imagecachegenerator.cpp
+    $$PWD/designercore/imagecache/imagecachegenerator.cpp \
+    $$PWD/designercore/projectstorage/projectstoragesqlitefunctionregistry.cpp
 
 HEADERS += \
     $$PWD/designercore/imagecache/imagecachecollectorinterface.h \
@@ -79,4 +80,5 @@ HEADERS += \
     $$PWD/components/listmodeleditor/listmodeleditormodel.h \
     $$PWD/designercore/projectstorage/projectstorage.h \
     $$PWD/designercore/include/projectstorageids.h \
-    $$PWD/designercore/projectstorage/projectstoragetypes.h
+    $$PWD/designercore/projectstorage/projectstoragetypes.h \
+    $$PWD/designercore/projectstorage/projectstoragesqlitefunctionregistry.h
