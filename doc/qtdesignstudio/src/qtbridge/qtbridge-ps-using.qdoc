@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Bridge documentation.
@@ -37,7 +37,7 @@
     with Photoshop:
 
     \list
-        \li Arrange your art into artboards and organize it into groups and
+        \li Arrange your art into \e artboards and organize it into groups and
             layers that are imported into \QDS as separate files, depending
             on the choices you make when exporting designs.
         \li Use the Type tool to make sure that all of your text labels
@@ -49,6 +49,10 @@
     To use the fonts that you use in Photoshop also in \QDS, you need to load
     them to \QDS. \QDS deploys them to devices when you preview the UI. For more
     information, see \l{Using Custom Fonts}.
+
+    \note You can export only files that are saved in the Photoshop file format,
+    such as \e {.psd} and \e {.psb}. For all other document formats, \QDS
+    displays the following error message: \e {Document is not supported.}
 
     \section2 Using Artboards
 

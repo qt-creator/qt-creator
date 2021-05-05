@@ -526,8 +526,11 @@ Tasks BaseQtVersion::validateKit(const Kit *k)
                 qtAbiString.append(' ');
             qtAbiString.append(qtAbi.toString());
 
-            if (!fullMatch)
-                fullMatch = supportedAbis.contains(qtAbi);
+            if (!fullMatch) {
+                fullMatch = supportedAbis.contains(qtAbi)
+                            && qtAbi.wordWidth() == targetAbi.wordWidth()
+                            && qtAbi.architecture() == targetAbi.architecture();
+            }
             if (!fuzzyMatch && !fullMatch) {
                 fuzzyMatch = Utils::anyOf(supportedAbis, [&](const Abi &abi) {
                     return qtAbi.isCompatibleWith(abi);

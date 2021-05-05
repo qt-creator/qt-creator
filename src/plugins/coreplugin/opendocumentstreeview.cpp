@@ -102,7 +102,7 @@ OpenDocumentsTreeView::OpenDocumentsTreeView(QWidget *parent) :
 {
     m_delegate = new Internal::OpenDocumentsDelegate(this);
     setItemDelegate(m_delegate);
-    setIndentation(0);
+    setRootIsDecorated(false);
     setUniformRowHeights(true);
     setTextElideMode(Qt::ElideMiddle);
     setFrameStyle(QFrame::NoFrame);

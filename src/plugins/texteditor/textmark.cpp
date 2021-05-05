@@ -400,9 +400,9 @@ void TextMark::setSettingsPage(Id settingsPage)
     m_settingsAction = new QAction;
     m_settingsAction->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
     m_settingsAction->setToolTip(tr("Show Diagnostic Settings"));
-    QObject::connect(m_settingsAction, &QAction::triggered, [this, settingsPage] {
-        Core::ICore::showOptionsDialog(settingsPage);
-    });
+    QObject::connect(m_settingsAction, &QAction::triggered, Core::ICore::instance(),
+        [settingsPage] { Core::ICore::showOptionsDialog(settingsPage); },
+        Qt::QueuedConnection);
 }
 
 TextMarkRegistry::TextMarkRegistry(QObject *parent)

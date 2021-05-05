@@ -166,35 +166,36 @@ static FilePath qmakeFromCMakeCache(const CMakeConfig &config)
     if (!cmakeListTxt.open(QIODevice::WriteOnly)) {
         return FilePath();
     }
-    cmakeListTxt.write(QByteArray(R"(
-        cmake_minimum_required(VERSION 3.15)
-
-        project(qmake-probe LANGUAGES NONE)
-
-        # Bypass Qt6's usage of find_dependency, which would require compiler
-        # and source code probing, which slows things unnecessarily
-        file(WRITE "${CMAKE_SOURCE_DIR}/CMakeFindDependencyMacro.cmake"
-        [=[
-            macro(find_dependency dep)
-            endmacro()
-        ]=])
-        set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}")
-
-        find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
-        find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
-
-        if (CMAKE_CROSSCOMPILING)
-            find_program(qmake_binary
-                NAMES qmake qmake.bat
-                PATHS "${Qt${QT_VERSION_MAJOR}_DIR}/../../../bin"
-                NO_DEFAULT_PATH)
-            file(WRITE "${CMAKE_SOURCE_DIR}/qmake-location.txt" "${qmake_binary}")
-        else()
-            file(GENERATE
-                OUTPUT "${CMAKE_SOURCE_DIR}/qmake-location.txt"
-                CONTENT "$<TARGET_PROPERTY:Qt${QT_VERSION_MAJOR}::qmake,IMPORTED_LOCATION>")
-        endif()
-    )"));
+    // FIXME replace by raw string when gcc 8+ is minimum
+    cmakeListTxt.write(QByteArray(
+"cmake_minimum_required(VERSION 3.15)\n"
+"\n"
+"project(qmake-probe LANGUAGES NONE)\n"
+"\n"
+"# Bypass Qt6's usage of find_dependency, which would require compiler\n"
+"# and source code probing, which slows things unnecessarily"
+"file(WRITE \"${CMAKE_SOURCE_DIR}/CMakeFindDependencyMacro.cmake\"\n"
+"[=["
+"    macro(find_dependency dep)\n"
+"    endmacro()\n"
+"]=])\n"
+"set(CMAKE_MODULE_PATH \"${CMAKE_SOURCE_DIR}\")\n"
+"\n"
+"find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)\n"
+"find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)\n"
+"\n"
+"if (CMAKE_CROSSCOMPILING)\n"
+"    find_program(qmake_binary\n"
+"        NAMES qmake qmake.bat\n"
+"        PATHS \"${Qt${QT_VERSION_MAJOR}_DIR}/../../../bin\"\n"
+"        NO_DEFAULT_PATH)\n"
+"    file(WRITE \"${CMAKE_SOURCE_DIR}/qmake-location.txt\" \"${qmake_binary}\")\n"
+"else()\n"
+"    file(GENERATE\n"
+"         OUTPUT \"${CMAKE_SOURCE_DIR}/qmake-location.txt\"\n"
+"         CONTENT \"$<TARGET_PROPERTY:Qt${QT_VERSION_MAJOR}::qmake,IMPORTED_LOCATION>\")\n"
+"endif()\n"
+));
     cmakeListTxt.close();
 
     SynchronousProcess cmake;

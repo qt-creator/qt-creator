@@ -63,6 +63,8 @@ using namespace Utils;
 
 namespace ProjectExplorer {
 
+const char KITINFORMATION_ID_V1[] = "PE.Profile.ToolChain";
+const char KITINFORMATION_ID_V2[] = "PE.Profile.ToolChains";
 const char KITINFORMATION_ID_V3[] = "PE.Profile.ToolChainsV3";
 
 // --------------------------------------------------------------------------
@@ -392,6 +394,65 @@ Tasks ToolChainKitAspect::validate(const Kit *k) const
 void ToolChainKitAspect::upgrade(Kit *k)
 {
     QTC_ASSERT(k, return);
+
+    const Utils::Id oldIdV1 = KITINFORMATION_ID_V1;
+    const Utils::Id oldIdV2 = KITINFORMATION_ID_V2;
+
+    // upgrade <=4.1 to 4.2 (keep old settings around for now)
+    {
+        const QVariant oldValue = k->value(oldIdV1);
+        const QVariant value = k->value(oldIdV2);
+        if (value.isNull() && !oldValue.isNull()) {
+            QVariantMap newValue;
+            if (oldValue.type() == QVariant::Map) {
+                // Used between 4.1 and 4.2:
+                newValue = oldValue.toMap();
+            } else {
+                // Used up to 4.1:
+                newValue.insert(Deprecated::Toolchain::languageId(Deprecated::Toolchain::Cxx), oldValue.toString());
+
+                const Utils::Id typeId = DeviceTypeKitAspect::deviceTypeId(k);
+                if (typeId == Constants::DESKTOP_DEVICE_TYPE) {
+                    // insert default C compiler which did not exist before
+                    newValue.insert(Deprecated::Toolchain::languageId(Deprecated::Toolchain::C),
+                                    defaultToolChainIds().value(Utils::Id(Constants::C_LANGUAGE_ID)));
+                }
+            }
+            k->setValue(oldIdV2, newValue);
+            k->setSticky(oldIdV2, k->isSticky(oldIdV1));
+        }
+    }
+
+    // upgrade 4.2 to 4.3 (keep old settings around for now)
+    {
+        const QVariant oldValue = k->value(oldIdV2);
+        const QVariant value = k->value(ToolChainKitAspect::id());
+        if (value.isNull() && !oldValue.isNull()) {
+            QVariantMap newValue = oldValue.toMap();
+            QVariantMap::iterator it = newValue.find(Deprecated::Toolchain::languageId(Deprecated::Toolchain::C));
+            if (it != newValue.end())
+                newValue.insert(Utils::Id(Constants::C_LANGUAGE_ID).toString(), it.value());
+            it = newValue.find(Deprecated::Toolchain::languageId(Deprecated::Toolchain::Cxx));
+            if (it != newValue.end())
+                newValue.insert(Utils::Id(Constants::CXX_LANGUAGE_ID).toString(), it.value());
+            k->setValue(ToolChainKitAspect::id(), newValue);
+            k->setSticky(ToolChainKitAspect::id(), k->isSticky(oldIdV2));
+        }
+    }
+
+    // upgrade 4.3-temporary-master-state to 4.3:
+    {
+        const QVariantMap valueMap = k->value(ToolChainKitAspect::id()).toMap();
+        QVariantMap result;
+        for (const QString &key : valueMap.keys()) {
+            const int pos = key.lastIndexOf('.');
+            if (pos >= 0)
+                result.insert(key.mid(pos + 1), valueMap.value(key));
+            else
+                result.insert(key, valueMap.value(key));
+        }
+        k->setValue(ToolChainKitAspect::id(), result);
+    }
 }
 
 void ToolChainKitAspect::fix(Kit *k)

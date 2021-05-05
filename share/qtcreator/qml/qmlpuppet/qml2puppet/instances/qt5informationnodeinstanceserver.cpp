@@ -706,8 +706,8 @@ void Qt5InformationNodeInstanceServer::renderModelNodeImageView()
 
 void Qt5InformationNodeInstanceServer::doRenderModelNodeImageView()
 {
-    // Disable preview in Qt6 until QTBUG-QTBUG-88320 is fixed
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    // This crashes on Qt 6.0.x due to QtQuick3D issue, so the preview generation is disabled
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0) || QT_VERSION >= QT_VERSION_CHECK(6, 1, 0)
     ServerNodeInstance instance;
     if (m_modelNodePreviewImageCommand.renderItemId() >= 0)
         instance = instanceForId(m_modelNodePreviewImageCommand.renderItemId());

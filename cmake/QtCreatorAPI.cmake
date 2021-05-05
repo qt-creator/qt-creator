@@ -651,6 +651,10 @@ function(add_qtc_executable name)
     endif()
   endif()
 
+  if (WITH_TESTS)
+    set(TEST_DEFINES WITH_TESTS SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
+  endif()
+
   add_executable("${name}" ${_arg_SOURCES})
 
   extend_qtc_target("${name}"

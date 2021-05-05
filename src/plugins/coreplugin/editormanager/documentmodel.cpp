@@ -336,7 +336,7 @@ QVariant DocumentModelPrivate::data(const QModelIndex &index, int role) const
             return lockedIcon();
         if (entry->pinned)
             return pinnedIcon();
-        return QIcon();
+        return QVariant();
     case Qt::ToolTipRole:
         return entry->fileName().isEmpty() ? entry->displayName() : entry->fileName().toUserOutput();
     default:
