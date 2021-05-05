@@ -53,7 +53,7 @@ CppProjectUpdater::~CppProjectUpdater()
 void CppProjectUpdater::update(const ProjectExplorer::ProjectUpdateInfo &projectUpdateInfo)
 {
     // Stop previous update.
-    cancelAndWaitForFinished();
+    cancel();
 
     m_projectUpdateInfo = projectUpdateInfo;
 
@@ -93,7 +93,7 @@ void CppProjectUpdater::onToolChainRemoved(ProjectExplorer::ToolChain *t)
 {
     QTC_ASSERT(t, return);
     if (t == m_projectUpdateInfo.cToolChain || t == m_projectUpdateInfo.cxxToolChain)
-        cancelAndWaitForFinished();
+        cancel();
 }
 
 void CppProjectUpdater::onProjectInfoGenerated()
