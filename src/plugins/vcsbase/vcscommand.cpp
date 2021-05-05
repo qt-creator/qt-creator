@@ -41,6 +41,7 @@ VcsCommand::VcsCommand(const QString &workingDirectory, const Environment &envir
     m_preventRepositoryChanged(false)
 {
     VcsOutputWindow::setRepository(workingDirectory);
+    setDisableUnixTerminal();
     setOutputProxyFactory([this] {
         auto proxy = new OutputProxy;
         VcsOutputWindow *outputWindow = VcsOutputWindow::instance();
@@ -92,14 +93,6 @@ void VcsCommand::emitRepositoryChanged(const QString &workingDirectory)
     // TODO tell the document manager that the directory now received all expected changes
     // Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
     Core::VcsManager::emitRepositoryChanged(workDirectory(workingDirectory));
-}
-
-unsigned VcsCommand::processFlags() const
-{
-    unsigned processFlags = 0;
-    if (!VcsBase::sshPrompt().isEmpty() && (flags() & SshPasswordPrompt))
-        processFlags |= SynchronousProcess::UnixTerminalDisabled;
-    return processFlags;
 }
 
 void VcsCommand::coreAboutToClose()

@@ -51,7 +51,6 @@ public:
                                                  const Utils::ExitCodeInterpreter &interpreter = Utils::defaultExitCodeInterpreter) override;
 
 private:
-    unsigned processFlags() const override;
     void emitRepositoryChanged(const QString &workingDirectory);
 
     void coreAboutToClose() override;
