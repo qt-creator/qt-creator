@@ -50,7 +50,9 @@
 #include <memory>
 
 #ifdef Q_OS_WIN
+#ifdef QTCREATOR_PCH_H
 #define CALLBACK WINAPI
+#endif
 #include <qt_windows.h>
 #else
 #include <errno.h>

@@ -46,7 +46,7 @@
 #include <cstdlib>
 #include <cstdio>
 
-#ifndef CALLBACK
+#ifdef QTCREATOR_PCH_H
 #define CALLBACK WINAPI
 #endif
 

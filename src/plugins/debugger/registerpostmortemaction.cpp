@@ -31,7 +31,9 @@
 #include <QDir>
 #include <QString>
 
+#ifdef QTCREATOR_PCH_H
 #define CALLBACK WINAPI
+#endif
 #include <windows.h>
 #include <objbase.h>
 #include <shellapi.h>

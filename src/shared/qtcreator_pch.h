@@ -26,7 +26,12 @@
 /*
  * This is a precompiled header file for use in Xcode / Mac GCC /
  * GCC >= 3.4 / VC to greatly speed the building of Qt Creator.
+ *
+ * The define below is checked in source code. Do not replace with #pragma once!
  */
+
+#ifndef QTCREATOR_PCH_H
+#define QTCREATOR_PCH_H
 
 #if defined __cplusplus
 #include <QtGlobal>
@@ -85,3 +90,5 @@ using Qt::noforcesign;
 
 #include <stdlib.h>
 #endif
+
+#endif // QTCREATOR_PCH_H
