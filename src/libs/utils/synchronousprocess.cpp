@@ -43,10 +43,6 @@
 #include <limits.h>
 #include <memory>
 
-#ifdef Q_OS_UNIX
-#    include <unistd.h>
-#endif
-
 /*!
     \class Utils::SynchronousProcess
 
@@ -86,48 +82,6 @@ enum { defaultMaxHangTimerCount = 10 };
 namespace Utils {
 
 static Q_LOGGING_CATEGORY(processLog, "qtc.utils.synchronousprocess", QtWarningMsg);
-
-// A special QProcess derivative allowing for terminal control.
-class TerminalControllingProcess : public QtcProcess
-{
-public:
-    TerminalControllingProcess();
-
-    void setDisableUnixTerminal() { m_disableUnixTerminal = true; }
-
-protected:
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    void setupChildProcess() override;
-#endif
-
-private:
-    void setupChildProcess_impl();
-
-    bool m_disableUnixTerminal = false;
-};
-
-TerminalControllingProcess::TerminalControllingProcess()
-{
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0) && defined(Q_OS_UNIX)
-    setChildProcessModifier([this] { setupChildProcess_impl(); });
-#endif
-}
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-void TerminalControllingProcess::setupChildProcess()
-{
-    setupChildProcess_impl();
-}
-#endif
-
-void TerminalControllingProcess::setupChildProcess_impl()
-{
-#ifdef Q_OS_UNIX
-    // Disable terminal by becoming a session leader.
-    if (m_disableUnixTerminal)
-        setsid();
-#endif
-}
 
 // ----------- SynchronousProcessResponse
 void SynchronousProcessResponse::clear()
@@ -286,7 +240,7 @@ public:
     void clearForRun();
 
     QTextCodec *m_codec = QTextCodec::codecForLocale();
-    TerminalControllingProcess m_process;
+    QtcProcess m_process;
     QTimer m_timer;
     QEventLoop m_eventLoop;
     SynchronousProcessResponse m_result;

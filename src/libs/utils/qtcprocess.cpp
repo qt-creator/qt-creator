@@ -1270,6 +1270,10 @@ void QtcProcess::setupChildProcess_impl()
         if (::nice(5) == -1 && errno != 0)
             perror("Failed to set nice value");
     }
+
+    // Disable terminal by becoming a session leader.
+    if (m_disableUnixTerminal)
+        setsid();
 #endif
 }
 

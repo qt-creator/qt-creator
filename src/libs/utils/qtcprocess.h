@@ -46,6 +46,7 @@ public:
     void terminate();
     void interrupt();
     void setLowPriority() { m_lowPriority = true; }
+    void setDisableUnixTerminal() { m_disableUnixTerminal = true; }
 
     class QTCREATOR_UTILS_EXPORT Arguments
     {
@@ -177,6 +178,7 @@ private:
     bool m_haveEnv = false;
     bool m_useCtrlCStub = false;
     bool m_lowPriority = false;
+    bool m_disableUnixTerminal = false;
 
     bool m_synchronous = false;
     OpenMode m_openMode = ReadWrite;
