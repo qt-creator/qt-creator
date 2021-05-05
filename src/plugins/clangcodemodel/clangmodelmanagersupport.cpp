@@ -127,11 +127,13 @@ ClangModelManagerSupport::ClangModelManagerSupport()
 
     // TODO: Enable this once we do document-level stuff with clangd (highlighting etc)
     // createClient(nullptr, {});
+    m_generatorSynchronizer.setCancelOnWait(true);
 }
 
 ClangModelManagerSupport::~ClangModelManagerSupport()
 {
     QTC_CHECK(m_projectSettings.isEmpty());
+    m_generatorSynchronizer.waitForFinished();
     m_instance = nullptr;
 }
 
@@ -322,8 +324,10 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
         });
 
     });
-    generatorWatcher->setFuture(Utils::runAsync(&Internal::generateCompilationDB, projectInfo,
-                                                CompilationDbPurpose::CodeModel));
+    auto future = Utils::runAsync(&Internal::generateCompilationDB, projectInfo,
+                                  CompilationDbPurpose::CodeModel);
+    generatorWatcher->setFuture(future);
+    m_generatorSynchronizer.addFuture(future);
 }
 
 ClangdClient *ClangModelManagerSupport::clientForProject(
