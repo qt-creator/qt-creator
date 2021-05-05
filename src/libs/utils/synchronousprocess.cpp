@@ -93,8 +93,7 @@ class TerminalControllingProcess : public QtcProcess
 public:
     TerminalControllingProcess();
 
-    unsigned flags() const { return m_flags; }
-    void setFlags(unsigned tc) { m_flags = tc; }
+    void setDisableUnixTerminal() { m_disableUnixTerminal = true; }
 
 protected:
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
@@ -104,7 +103,7 @@ protected:
 private:
     void setupChildProcess_impl();
 
-    unsigned m_flags = 0;
+    bool m_disableUnixTerminal = false;
 };
 
 TerminalControllingProcess::TerminalControllingProcess()
@@ -125,7 +124,7 @@ void TerminalControllingProcess::setupChildProcess_impl()
 {
 #ifdef Q_OS_UNIX
     // Disable terminal by becoming a session leader.
-    if (m_flags & SynchronousProcess::UnixTerminalDisabled)
+    if (m_disableUnixTerminal)
         setsid();
 #endif
 }
@@ -410,14 +409,9 @@ void SynchronousProcess::setEnvironment(const Environment &e)
     d->m_process.setEnvironment(Environment(e));
 }
 
-unsigned SynchronousProcess::flags() const
+void SynchronousProcess::setDisableUnixTerminal()
 {
-    return d->m_process.flags();
-}
-
-void SynchronousProcess::setFlags(unsigned tc)
-{
-    d->m_process.setFlags(tc);
+    d->m_process.setDisableUnixTerminal();
 }
 
 void SynchronousProcess::setExitCodeInterpreter(const ExitCodeInterpreter &interpreter)
