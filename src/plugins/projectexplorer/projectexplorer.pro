@@ -342,6 +342,10 @@ equals(TEST, 1) {
         outputparser_test.cpp
     HEADERS += \
         outputparser_test.h
+    test_files.files = $$files(testdata/*, true)
+    test_files.base = $$PWD
+    test_files.prefix = /projectexplorer
+    RESOURCES += test_files
 }
 
 journald {

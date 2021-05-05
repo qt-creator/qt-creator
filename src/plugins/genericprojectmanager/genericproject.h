@@ -43,6 +43,7 @@ public:
 private:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) final;
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const final;
+    void configureAsExampleProject(ProjectExplorer::Kit *kit) override;
 };
 
 } // namespace Internal

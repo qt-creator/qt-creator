@@ -187,6 +187,7 @@ public:
     bool m_hasMakeInstallEquivalent = false;
     bool m_needsBuildConfigurations = true;
     bool m_needsDeployConfigurations = true;
+    bool m_shuttingDown = false;
 
     std::function<BuildSystem *(Target *)> m_buildSystemCreator;
 
@@ -244,6 +245,16 @@ Utils::Id Project::id() const
 {
     QTC_CHECK(d->m_id.isValid());
     return d->m_id;
+}
+
+void Project::markAsShuttingDown()
+{
+    d->m_shuttingDown = true;
+}
+
+bool Project::isShuttingDown() const
+{
+    return d->m_shuttingDown;
 }
 
 QString Project::mimeType() const
@@ -311,6 +322,7 @@ bool Project::removeTarget(Target *target)
     if (BuildManager::isBuilding(target))
         return false;
 
+    target->markAsShuttingDown();
     emit aboutToRemoveTarget(target);
     auto keep = Utils::take(d->m_targets, target);
     if (target == d->m_activeTarget) {
@@ -1065,10 +1077,14 @@ QStringList Project::availableQmlPreviewTranslations(QString *errorMessage)
 
 } // namespace ProjectExplorer
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <utils/hostosinfo.h>
+#include <utils/temporarydirectory.h>
 
-#include <QTest>
+#include <QEventLoop>
 #include <QSignalSpy>
+#include <QTest>
+#include <QTimer>
 
 namespace ProjectExplorer {
 
@@ -1263,6 +1279,60 @@ void ProjectExplorerPlugin::testProject_projectTree()
     project.setRootProjectNode(nullptr);
     QCOMPARE(fileSpy.count(), 2);
     QVERIFY(!project.rootProjectNode());
+}
+
+void ProjectExplorerPlugin::testProject_multipleBuildConfigs()
+{
+    // Find suitable kit.
+    Kit * const kit = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
+        return k->isValid();
+    });
+    if (!kit)
+        QSKIP("The test requires at least one valid kit.");
+
+    // Copy project from qrc file and set it up.
+    using namespace Utils;
+    QTemporaryDir * const tempDir = TemporaryDirectory::masterTemporaryDirectory();
+    QVERIFY(tempDir->isValid());
+    QString error;
+    const FilePath projectDir = FilePath::fromString(tempDir->path() + "/generic-project");
+    FileUtils::copyRecursively(FilePath::fromString(":/projectexplorer/testdata/generic-project"),
+                               projectDir, &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    const QFileInfoList files = QDir(projectDir.toString()).entryInfoList(QDir::Files | QDir::Dirs);
+    for (const QFileInfo &f : files)
+        QFile(f.absoluteFilePath()).setPermissions(f.permissions() | QFile::WriteUser);
+    const auto theProject = openProject(projectDir.pathAppended("generic-project.creator")
+                                        .toString());
+    QVERIFY2(theProject, qPrintable(theProject.errorMessage()));
+    theProject.project()->configureAsExampleProject(kit);
+    QCOMPARE(theProject.project()->targets().size(), 1);
+    Target * const target = theProject.project()->activeTarget();
+    QVERIFY(target);
+    QCOMPARE(target->buildConfigurations().size(), 6);
+    SessionManager::setActiveBuildConfiguration(target, target->buildConfigurations().at(1),
+                                                SetActive::Cascade);
+    BuildSystem * const bs = theProject.project()->activeTarget()->buildSystem();
+    QVERIFY(bs);
+    QCOMPARE(bs, target->activeBuildConfiguration()->buildSystem());
+    if (bs->isWaitingForParse() || bs->isParsing()) {
+        QEventLoop loop;
+        QTimer t;
+        t.setSingleShot(true);
+        connect(&t, &QTimer::timeout, &loop, &QEventLoop::quit);
+        connect(bs, &BuildSystem::parsingFinished, &loop, &QEventLoop::quit);
+        t.start(10000);
+        QVERIFY(loop.exec());
+        QVERIFY(t.isActive());
+    }
+    QVERIFY(!bs->isWaitingForParse() && !bs->isParsing());
+
+    QCOMPARE(SessionManager::startupProject(), theProject.project());
+    QCOMPARE(ProjectTree::currentProject(), theProject.project());
+    QVERIFY(Core::EditorManager::openEditor(projectDir.pathAppended("main.cpp").toString()));
+    QVERIFY(ProjectTree::currentNode());
+    ProjectTree::instance()->expandAll();
+    SessionManager::closeAllProjects(); // QTCREATORBUG-25655
 }
 
 #endif // WITH_TESTS

@@ -122,6 +122,8 @@ public:
     ProjectConfigurationModel m_buildConfigurationModel;
     ProjectConfigurationModel m_deployConfigurationModel;
     ProjectConfigurationModel m_runConfigurationModel;
+
+    bool m_shuttingDown = false;
 };
 
 
@@ -230,6 +232,16 @@ void Target::handleKitRemoval(Kit *k)
 bool Target::isActive() const
 {
     return project()->activeTarget() == this;
+}
+
+void Target::markAsShuttingDown()
+{
+    d->m_shuttingDown = true;
+}
+
+bool Target::isShuttingDown() const
+{
+    return d->m_shuttingDown;
 }
 
 Project *Target::project() const
@@ -511,6 +523,9 @@ RunConfiguration *Target::activeRunConfiguration() const
 
 void Target::setActiveRunConfiguration(RunConfiguration *rc)
 {
+    if (isShuttingDown())
+        return;
+
     if ((!rc && d->m_runConfigurations.isEmpty()) ||
         (rc && d->m_runConfigurations.contains(rc) &&
          rc != d->m_activeRunConfiguration)) {

@@ -8,3 +8,5 @@ QTC_PLUGIN_DEPENDS += \
     coreplugin \
     texteditor
 QT *= network
+QTC_TEST_DEPENDS += \
+    genericprojectmanager

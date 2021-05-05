@@ -16,6 +16,8 @@ Project {
         Depends { name: "libclang"; required: false }
         Depends { name: "clang_defines" }
 
+        pluginTestDepends: ["GenericProjectManager"]
+
         Group {
             name: "General"
             files: [
@@ -250,6 +252,15 @@ Project {
             name: "Tests"
             condition: qtc.testsEnabled
             files: ["outputparser_test.h", "outputparser_test.cpp"]
+        }
+
+        Group {
+            name: "Test resources"
+            condition: qtc.testsEnabled
+            files: ["testdata/**"]
+            fileTags: ["qt.core.resource_data"]
+            Qt.core.resourcePrefix: "/projectexplorer"
+            Qt.core.resourceSourceBase: path
         }
 
         Export {

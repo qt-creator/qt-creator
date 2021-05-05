@@ -1,6 +1,7 @@
 add_qtc_plugin(ProjectExplorer
   DEPENDS QtcSsh Qt5::Qml
   PLUGIN_DEPENDS Core TextEditor
+  PLUGIN_TEST_DEPENDS GenericProjectManager
   SOURCES
     abi.cpp abi.h
     abiwidget.cpp abiwidget.h
@@ -214,6 +215,15 @@ extend_qtc_plugin(ProjectExplorer
     jsonwizard/jsonwizard_test.cpp
     outputparser_test.cpp outputparser_test.h
 )
+
+file(GLOB_RECURSE test_resources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} testdata/*)
+qt_add_resources(ProjectExplorer "testdata"
+    CONDITION WITH_TESTS
+    PREFIX "/projectexplorer"
+    BASE "."
+    FILES ${test_resources}
+)
+
 qtc_plugin_enabled(_projectexplorer_enabled ProjectExplorer)
 if (WITH_TESTS AND _projectexplorer_enabled)
   set_source_files_properties(jsonwizard/jsonwizard_test.cpp

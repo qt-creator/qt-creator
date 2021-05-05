@@ -286,6 +286,9 @@ void SessionManager::setActiveTarget(Project *project, Target *target, SetActive
 {
     QTC_ASSERT(project, return);
 
+    if (project->isShuttingDown())
+        return;
+
     project->setActiveTarget(target);
 
     if (!target) // never cascade setting no target
@@ -307,6 +310,11 @@ void SessionManager::setActiveTarget(Project *project, Target *target, SetActive
 void SessionManager::setActiveBuildConfiguration(Target *target, BuildConfiguration *bc, SetActive cascade)
 {
     QTC_ASSERT(target, return);
+    QTC_ASSERT(target->project(), return);
+
+    if (target->project()->isShuttingDown() || target->isShuttingDown())
+        return;
+
     target->setActiveBuildConfiguration(bc);
 
     if (!bc)
@@ -335,6 +343,11 @@ void SessionManager::setActiveBuildConfiguration(Target *target, BuildConfigurat
 void SessionManager::setActiveDeployConfiguration(Target *target, DeployConfiguration *dc, SetActive cascade)
 {
     QTC_ASSERT(target, return);
+    QTC_ASSERT(target->project(), return);
+
+    if (target->project()->isShuttingDown() || target->isShuttingDown())
+        return;
+
     target->setActiveDeployConfiguration(dc);
 
     if (!dc)
@@ -724,6 +737,7 @@ void SessionManager::removeProjects(const QList<Project *> &remove)
     // Delete projects
     for (Project *pro : remove) {
         pro->saveSettings();
+        pro->markAsShuttingDown();
 
         // Remove the project node:
         d->m_projects.removeOne(pro);

@@ -39,6 +39,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/abi.h>
+#include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
@@ -645,6 +646,25 @@ Project::RestoreResult GenericProject::fromMap(const QVariantMap &map, QString *
 ProjectExplorer::DeploymentKnowledge GenericProject::deploymentKnowledge() const
 {
     return DeploymentKnowledge::Approximative;
+}
+
+void GenericProject::configureAsExampleProject(ProjectExplorer::Kit *kit)
+{
+    QList<BuildInfo> infoList;
+    const QList<Kit *> kits(kit != nullptr ? QList<Kit *>({kit}) : KitManager::kits());
+    for (Kit *k : kits) {
+        if (auto factory = BuildConfigurationFactory::find(k, projectFilePath())) {
+            for (int i = 0; i < 5; ++i) {
+                BuildInfo buildInfo;
+                buildInfo.displayName = tr("Build %1").arg(i + 1);
+                buildInfo.factory = factory;
+                buildInfo.kitId = kit->id();
+                buildInfo.buildDirectory = projectFilePath();
+                infoList << buildInfo;
+            }
+        }
+    }
+    setup(infoList);
 }
 
 bool GenericProjectFile::reload(QString *errorString, IDocument::ReloadFlag flag, IDocument::ChangeType type)

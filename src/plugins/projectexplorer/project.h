@@ -80,6 +80,9 @@ public:
     QString displayName() const;
     Utils::Id id() const;
 
+    void markAsShuttingDown();
+    bool isShuttingDown() const;
+
     QString mimeType() const;
     bool canBuildProducts() const;
 

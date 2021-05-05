@@ -63,6 +63,9 @@ public:
 
     bool isActive() const;
 
+    void markAsShuttingDown();
+    bool isShuttingDown() const;
+
     Project *project() const;
     Kit *kit() const;
     BuildSystem *buildSystem() const;
