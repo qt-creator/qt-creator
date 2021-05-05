@@ -36,7 +36,7 @@ JavaParser::JavaParser() :
   m_javaRegExp(QLatin1String("^(.*\\[javac\\]\\s)(.*\\.java):(\\d+):(.*)$"))
 { }
 
-void JavaParser::setProjectFileList(const QStringList &fileList)
+void JavaParser::setProjectFileList(const Utils::FilePaths &fileList)
 {
     m_fileList = fileList;
 }
@@ -71,7 +71,7 @@ Utils::OutputLineParser::Result JavaParser::handleLine(const QString &line,
     if (file.toFileInfo().isRelative()) {
         for (int i = 0; i < m_fileList.size(); i++)
             if (m_fileList[i].endsWith(file.toString())) {
-                file = Utils::FilePath::fromString(m_fileList[i]);
+                file = m_fileList[i];
                 break;
             }
     }

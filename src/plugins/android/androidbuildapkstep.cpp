@@ -639,8 +639,8 @@ bool AndroidBuildApkStep::init()
 void AndroidBuildApkStep::setupOutputFormatter(OutputFormatter *formatter)
 {
     const auto parser = new JavaParser;
-    parser->setProjectFileList(Utils::transform(project()->files(ProjectExplorer::Project::AllFiles),
-                                                &Utils::FilePath::toString));
+    parser->setProjectFileList(project()->files(Project::AllFiles));
+
     const QString buildKey = target()->activeBuildKey();
     const ProjectNode *node = project()->findNodeForBuildKey(buildKey);
     QString sourceDirName;

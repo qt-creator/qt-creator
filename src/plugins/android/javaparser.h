@@ -39,16 +39,16 @@ class JavaParser : public ProjectExplorer::OutputTaskParser
 
 public:
     JavaParser();
-    void setProjectFileList(const QStringList &fileList);
 
+    void setProjectFileList(const Utils::FilePaths &fileList);
     void setBuildDirectory(const Utils::FilePath &buildDirectory);
     void setSourceDirectory(const Utils::FilePath &sourceDirectory);
 
 private:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;
 
-    QRegularExpression m_javaRegExp;
-    QStringList m_fileList;
+    const QRegularExpression m_javaRegExp;
+    Utils::FilePaths m_fileList;
     Utils::FilePath m_sourceDirectory;
     Utils::FilePath m_buildDirectory;
 };
