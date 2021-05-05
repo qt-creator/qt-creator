@@ -47,6 +47,7 @@ public:
 private:
     void refresh();
     void setPermission(QFile::Permissions newPermissions, bool set);
+    void detectTextFileSettings();
 
 private:
     Ui::FilePropertiesDialog *m_ui = nullptr;

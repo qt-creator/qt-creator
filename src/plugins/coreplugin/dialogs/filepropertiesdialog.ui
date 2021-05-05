@@ -16,14 +16,14 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QFormLayout" name="formLayout">
-     <item row="4" column="0">
+     <item row="6" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
         <string>Owner:</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
+     <item row="6" column="1">
       <widget class="QLabel" name="owner">
        <property name="text">
         <string/>
@@ -33,14 +33,14 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="0">
+     <item row="7" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
         <string>Group:</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
+     <item row="7" column="1">
       <widget class="QLabel" name="group">
        <property name="text">
         <string/>
@@ -50,14 +50,14 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="0">
+     <item row="8" column="0">
       <widget class="QLabel" name="label_3">
        <property name="text">
         <string>Size:</string>
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="8" column="1">
       <widget class="QLabel" name="size">
        <property name="text">
         <string/>
@@ -67,7 +67,7 @@
        </property>
       </widget>
      </item>
-     <item row="9" column="1">
+     <item row="11" column="1">
       <widget class="QCheckBox" name="readable">
        <property name="enabled">
         <bool>true</bool>
@@ -80,7 +80,7 @@
        </property>
       </widget>
      </item>
-     <item row="10" column="1">
+     <item row="12" column="1">
       <widget class="QCheckBox" name="writable">
        <property name="enabled">
         <bool>true</bool>
@@ -93,7 +93,7 @@
        </property>
       </widget>
      </item>
-     <item row="11" column="1">
+     <item row="13" column="1">
       <widget class="QCheckBox" name="executable">
        <property name="enabled">
         <bool>true</bool>
@@ -106,7 +106,7 @@
        </property>
       </widget>
      </item>
-     <item row="12" column="1">
+     <item row="14" column="1">
       <widget class="QCheckBox" name="symLink">
        <property name="enabled">
         <bool>false</bool>
@@ -119,7 +119,7 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="1">
+     <item row="9" column="1">
       <widget class="QLabel" name="lastRead">
        <property name="text">
         <string/>
@@ -129,7 +129,7 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="1">
+     <item row="10" column="1">
       <widget class="QLabel" name="lastModified">
        <property name="text">
         <string/>
@@ -173,42 +173,42 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="0">
+     <item row="9" column="0">
       <widget class="QLabel" name="label_6">
        <property name="text">
         <string>Last read:</string>
        </property>
       </widget>
      </item>
-     <item row="8" column="0">
+     <item row="10" column="0">
       <widget class="QLabel" name="label_7">
        <property name="text">
         <string>Last modified:</string>
        </property>
       </widget>
      </item>
-     <item row="9" column="0">
+     <item row="11" column="0">
       <widget class="QLabel" name="label_8">
        <property name="text">
         <string>Readable:</string>
        </property>
       </widget>
      </item>
-     <item row="10" column="0">
+     <item row="12" column="0">
       <widget class="QLabel" name="label_9">
        <property name="text">
         <string>Writable:</string>
        </property>
       </widget>
      </item>
-     <item row="11" column="0">
+     <item row="13" column="0">
       <widget class="QLabel" name="label_10">
        <property name="text">
         <string>Executable:</string>
        </property>
       </widget>
      </item>
-     <item row="12" column="0">
+     <item row="14" column="0">
       <widget class="QLabel" name="label_11">
        <property name="text">
         <string>Symbolic link:</string>
@@ -238,6 +238,34 @@
      </item>
      <item row="3" column="1">
       <widget class="QLabel" name="defaultEditor">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_14">
+       <property name="text">
+        <string>Line endings:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="label_15">
+       <property name="text">
+        <string>Indentation:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QLabel" name="indentation">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLabel" name="lineEndings">
        <property name="text">
         <string/>
        </property>
