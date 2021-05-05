@@ -27,7 +27,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -187,7 +187,7 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
     data->binary = findFirstCommand(qtVersionsToCheck, m_commandForQtVersion);
     // fallback
     if (data->binary.isEmpty())
-        data->binary = Utils::SynchronousProcess::locateBinary(m_commandForQtVersion(nullptr));
+        data->binary = Utils::QtcProcess::locateBinary(m_commandForQtVersion(nullptr));
     if (data->binary.isEmpty()) {
         *errorMessage = msgAppNotFound(id().toString());
         return false;

@@ -157,6 +157,11 @@ public:
 
     static QString normalizeNewlines(const QString &text);
 
+    // Helpers to find binaries. Do not use it for other path variables
+    // and file types.
+    static QString locateBinary(const QString &binary);
+    static QString locateBinary(const QString &path, const QString &binary);
+
 private:
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     void setupChildProcess() override;

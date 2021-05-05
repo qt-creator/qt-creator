@@ -129,11 +129,6 @@ public:
     // Starts the command blocking the UI fully
     SynchronousProcessResponse runBlocking(const CommandLine &cmd);
 
-    // Helpers to find binaries. Do not use it for other path variables
-    // and file types.
-    static QString locateBinary(const QString &binary);
-    static QString locateBinary(const QString &path, const QString &binary);
-
 signals:
     void stdOutBuffered(const QString &lines, bool firstTime);
     void stdErrBuffered(const QString &lines, bool firstTime);
