@@ -32,21 +32,29 @@
 namespace Utils {
 class AbstractMacroExpander;
 
+namespace Internal { class QtcProcessPrivate; }
+
 class QTCREATOR_UTILS_EXPORT QtcProcess : public QProcess
 {
     Q_OBJECT
 
 public:
     QtcProcess(QObject *parent = nullptr);
+    ~QtcProcess();
 
-    void setEnvironment(const Environment &env) { m_environment = env; m_haveEnv = true; }
-    void setCommand(const CommandLine &cmdLine) { m_commandLine  = cmdLine; }
+    void setEnvironment(const Environment &env);
+    const Environment &environment() const;
+
+    void setCommand(const CommandLine &cmdLine);
+    const CommandLine &commandLine() const;
+
     void setUseCtrlCStub(bool enabled);
+    void setLowPriority();
+    void setDisableUnixTerminal();
+
     void start();
     void terminate();
     void interrupt();
-    void setLowPriority() { m_lowPriority = true; }
-    void setDisableUnixTerminal() { m_disableUnixTerminal = true; }
 
     class QTCREATOR_UTILS_EXPORT Arguments
     {
@@ -142,9 +150,6 @@ public:
         ArgIterator m_ait;
     };
 
-    const CommandLine &commandLine() const { return m_commandLine; }
-    const Environment &environment() const { return m_environment; }
-
     static void setRemoteStartProcessHook(const std::function<void (QtcProcess &)> &hook);
 
     bool isSynchronous() const;
@@ -167,21 +172,10 @@ private:
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     void setupChildProcess() override;
 #endif
-
-    void setupChildProcess_impl();
+    Internal::QtcProcessPrivate *d = nullptr;
 
     void setProcessEnvironment(const QProcessEnvironment &environment) = delete;
     QProcessEnvironment processEnvironment() const = delete;
-
-    CommandLine m_commandLine;
-    Environment m_environment;
-    bool m_haveEnv = false;
-    bool m_useCtrlCStub = false;
-    bool m_lowPriority = false;
-    bool m_disableUnixTerminal = false;
-
-    bool m_synchronous = false;
-    OpenMode m_openMode = ReadWrite;
 };
 
 } // namespace Utils

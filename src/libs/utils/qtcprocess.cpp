@@ -76,6 +76,8 @@ QT_BEGIN_NAMESPACE
 Q_DECLARE_TYPEINFO(MxSave, Q_MOVABLE_TYPE);
 QT_END_NAMESPACE
 
+using namespace Utils::Internal;
+
 namespace Utils {
 
 static std::function<void(QtcProcess &)> s_remoteRunProcessHook;
@@ -687,8 +689,28 @@ bool QtcProcess::prepareCommand(const QString &command, const QString &arguments
     return true;
 }
 
+namespace Internal {
+
+class QtcProcessPrivate
+{
+public:
+    void setupChildProcess_impl();
+
+    CommandLine m_commandLine;
+    Environment m_environment;
+    bool m_haveEnv = false;
+    bool m_useCtrlCStub = false;
+    bool m_lowPriority = false;
+    bool m_disableUnixTerminal = false;
+
+    bool m_synchronous = false;
+    QProcess::OpenMode m_openMode = QProcess::ReadWrite;
+};
+
+} // Internal
+
 QtcProcess::QtcProcess(QObject *parent)
-    : QProcess(parent)
+    : QProcess(parent), d(new QtcProcessPrivate)
 {
     static int qProcessExitStatusMeta = qRegisterMetaType<QProcess::ExitStatus>();
     static int qProcessProcessErrorMeta = qRegisterMetaType<QProcess::ProcessError>();
@@ -700,13 +722,39 @@ QtcProcess::QtcProcess(QObject *parent)
 #endif
 }
 
+QtcProcess::~QtcProcess()
+{
+    delete d;
+}
+
+void QtcProcess::setEnvironment(const Environment &env)
+{
+    d->m_environment = env;
+    d->m_haveEnv = true;
+}
+
+const Environment &QtcProcess::environment() const
+{
+    return d->m_environment;
+}
+
+void QtcProcess::setCommand(const CommandLine &cmdLine)
+{
+    d->m_commandLine  = cmdLine;
+}
+
+const CommandLine &QtcProcess::commandLine() const
+{
+    return d->m_commandLine;
+}
+
 void QtcProcess::setUseCtrlCStub(bool enabled)
 {
     // Do not use the stub in debug mode. Activating the stub will shut down
     // Qt Creator otherwise, because they share the same Windows console.
     // See QTCREATORBUG-11995 for details.
 #ifndef QT_DEBUG
-    m_useCtrlCStub = enabled;
+    d->m_useCtrlCStub = enabled;
 #else
     Q_UNUSED(enabled)
 #endif
@@ -714,7 +762,7 @@ void QtcProcess::setUseCtrlCStub(bool enabled)
 
 void QtcProcess::start()
 {
-    if (m_commandLine.executable().needsDevice()) {
+    if (d->m_commandLine.executable().needsDevice()) {
         QTC_ASSERT(s_remoteRunProcessHook, return);
         s_remoteRunProcessHook(*this);
         return;
@@ -722,11 +770,11 @@ void QtcProcess::start()
 
     Environment env;
     const OsType osType = HostOsInfo::hostOs();
-    if (m_haveEnv) {
-        if (m_environment.size() == 0)
+    if (d->m_haveEnv) {
+        if (d->m_environment.size() == 0)
             qWarning("QtcProcess::start: Empty environment set when running '%s'.",
-                     qPrintable(m_commandLine.executable().toString()));
-        env = m_environment;
+                     qPrintable(d->m_commandLine.executable().toString()));
+        env = d->m_environment;
 
         QProcess::setProcessEnvironment(env.toProcessEnvironment());
     } else {
@@ -736,18 +784,18 @@ void QtcProcess::start()
     const QString &workDir = workingDirectory();
     QString command;
     QtcProcess::Arguments arguments;
-    bool success = prepareCommand(m_commandLine.executable().toString(),
-                                  m_commandLine.arguments(),
+    bool success = prepareCommand(d->m_commandLine.executable().toString(),
+                                  d->m_commandLine.arguments(),
                                   &command, &arguments, osType, &env, &workDir);
     if (osType == OsTypeWindows) {
         QString args;
-        if (m_useCtrlCStub) {
-            if (m_lowPriority)
+        if (d->m_useCtrlCStub) {
+            if (d->m_lowPriority)
                 addArg(&args, "-nice");
             addArg(&args, QDir::toNativeSeparators(command));
             command = QCoreApplication::applicationDirPath()
                     + QLatin1String("/qtcreator_ctrlc_stub.exe");
-        } else if (m_lowPriority) {
+        } else if (d->m_lowPriority) {
 #ifdef Q_OS_WIN
             setCreateProcessArgumentsModifier([](CreateProcessArguments *args) {
                 args->flags |= BELOW_NORMAL_PRIORITY_CLASS;
@@ -760,7 +808,7 @@ void QtcProcess::start()
 #endif
         // Note: Arguments set with setNativeArgs will be appended to the ones
         // passed with start() below.
-        QProcess::start(command, QStringList(), m_openMode);
+        QProcess::start(command, QStringList(), d->m_openMode);
     } else {
         if (!success) {
             setErrorString(tr("Error in command line."));
@@ -769,10 +817,10 @@ void QtcProcess::start()
             emit errorOccurred(QProcess::UnknownError);
             return;
         }
-        QProcess::start(command, arguments.toUnixArgs(), m_openMode);
+        QProcess::start(command, arguments.toUnixArgs(), d->m_openMode);
     }
 
-    if (m_synchronous)
+    if (d->m_synchronous)
         QProcess::waitForFinished();
 }
 
@@ -804,7 +852,7 @@ BOOL CALLBACK sendInterruptMessageToAllWindowsOfProcess_enumWnd(HWND hwnd, LPARA
 void QtcProcess::terminate()
 {
 #ifdef Q_OS_WIN
-    if (m_useCtrlCStub)
+    if (d->m_useCtrlCStub)
         EnumWindows(sendShutDownMessageToAllWindowsOfProcess_enumWnd, processId());
     else
 #endif
@@ -814,9 +862,19 @@ void QtcProcess::terminate()
 void QtcProcess::interrupt()
 {
 #ifdef Q_OS_WIN
-    QTC_ASSERT(m_useCtrlCStub, return);
+    QTC_ASSERT(d->m_useCtrlCStub, return);
     EnumWindows(sendInterruptMessageToAllWindowsOfProcess_enumWnd, processId());
 #endif
+}
+
+void QtcProcess::setLowPriority()
+{
+    d->m_lowPriority = true;
+}
+
+void QtcProcess::setDisableUnixTerminal()
+{
+    d->m_disableUnixTerminal = true;
 }
 
 // This function assumes that the resulting string will be quoted.
@@ -1257,11 +1315,11 @@ void QtcProcess::setRemoteStartProcessHook(const std::function<void(QtcProcess &
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void QtcProcess::setupChildProcess()
 {
-    setupChildProcess_impl();
+    d->setupChildProcess_impl();
 }
 #endif
 
-void QtcProcess::setupChildProcess_impl()
+void QtcProcessPrivate::setupChildProcess_impl()
 {
 #if defined Q_OS_UNIX
     // nice value range is -20 to +19 where -20 is highest, 0 default and +19 is lowest
@@ -1279,17 +1337,17 @@ void QtcProcess::setupChildProcess_impl()
 
 bool QtcProcess::isSynchronous() const
 {
-    return m_synchronous;
+    return d->m_synchronous;
 }
 
 void QtcProcess::setSynchronous(bool on)
 {
-    m_synchronous = on;
+    d->m_synchronous = on;
 }
 
 void QtcProcess::setOpenMode(OpenMode mode)
 {
-    m_openMode = mode;
+    d->m_openMode = mode;
 }
 
 bool QtcProcess::stopProcess()
