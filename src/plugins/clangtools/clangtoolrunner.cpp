@@ -29,7 +29,7 @@
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
 
 #include <QDebug>

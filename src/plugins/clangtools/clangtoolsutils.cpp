@@ -35,11 +35,10 @@
 #include <cpptools/cpptoolsreuse.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <utils/qtcprocess.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 
 #include <QFileInfo>
 

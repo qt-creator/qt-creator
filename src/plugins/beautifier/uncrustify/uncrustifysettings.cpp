@@ -31,7 +31,7 @@
 
 #include <coreplugin/icore.h>
 
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 
 #include <QDateTime>
 #include <QFile>

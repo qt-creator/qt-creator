@@ -26,7 +26,7 @@
 #include "mainwindow.h"
 
 #include <utils/fileutils.h>
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 
 #include <QPlainTextEdit>
 #include <QApplication>

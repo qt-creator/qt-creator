@@ -32,11 +32,11 @@
 #include <coreplugin/messagemanager.h>
 
 #include <utils/differ.h>
+#include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
-#include <utils/synchronousprocess.h>
 #include <utils/temporarydirectory.h>
 #include <utils/textutils.h>
-#include <utils/qtcassert.h>
 
 #include <QFileInfo>
 #include <QFutureWatcher>

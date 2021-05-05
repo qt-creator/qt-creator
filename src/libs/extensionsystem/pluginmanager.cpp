@@ -55,8 +55,8 @@
 #include <utils/hostosinfo.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcsettings.h>
-#include <utils/synchronousprocess.h>
 
 #ifdef WITH_TESTS
 #include <utils/hostosinfo.h>

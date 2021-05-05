@@ -57,8 +57,8 @@
 #include <utils/hostosinfo.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
-#include <utils/synchronousprocess.h>
 
 #include <QDebug>
 #include <QDir>

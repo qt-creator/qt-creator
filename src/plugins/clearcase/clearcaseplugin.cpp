@@ -60,9 +60,9 @@
 #include <utils/infobar.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 #include <utils/stringutils.h>
-#include <utils/synchronousprocess.h>
 #include <utils/temporarydirectory.h>
 
 #include <vcsbase/basevcseditorfactory.h>

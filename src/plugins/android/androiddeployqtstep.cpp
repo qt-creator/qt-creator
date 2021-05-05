@@ -55,7 +55,6 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/synchronousprocess.h>
 
 #include <QCheckBox>
 #include <QFileDialog>

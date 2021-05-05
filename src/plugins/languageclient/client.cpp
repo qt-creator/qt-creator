@@ -34,6 +34,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/progressmanager/progressmanager.h>
+
 #include <languageserverprotocol/completion.h>
 #include <languageserverprotocol/diagnostics.h>
 #include <languageserverprotocol/languagefeatures.h>
@@ -41,8 +43,10 @@
 #include <languageserverprotocol/servercapabilities.h>
 #include <languageserverprotocol/workspace.h>
 #include <languageserverprotocol/progresssupport.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
+
 #include <texteditor/codeassist/documentcontentcompletion.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/ioutlinewidget.h>
@@ -52,10 +56,10 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
+
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcprocess.h>
-#include <utils/synchronousprocess.h>
-#include <coreplugin/progressmanager/progressmanager.h>
+
 
 #include <QDebug>
 #include <QLoggingCategory>

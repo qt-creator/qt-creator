@@ -34,7 +34,6 @@
 #include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 #include <utils/stringutils.h>
-#include <utils/synchronousprocess.h>
 
 #include <QFutureWatcher>
 #include <QLoggingCategory>

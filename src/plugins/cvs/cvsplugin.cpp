@@ -42,9 +42,9 @@
 
 #include <texteditor/textdocument.h>
 
-#include <utils/synchronousprocess.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
 #include <coreplugin/icore.h>

@@ -48,7 +48,6 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
-#include <utils/synchronousprocess.h>
 
 #include <QDir>
 #include <QFutureWatcher>

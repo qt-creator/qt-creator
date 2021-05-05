@@ -26,7 +26,7 @@
 #include "iosprobe.h"
 
 #include <utils/algorithm.h>
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 
 #include <QDir>
 #include <QFileInfo>

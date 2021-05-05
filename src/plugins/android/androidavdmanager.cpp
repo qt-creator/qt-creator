@@ -22,16 +22,19 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #include "androidavdmanager.h"
 
 #include "avdmanageroutputparser.h"
 
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
-#include <utils/synchronousprocess.h>
 
 #include <QApplication>
 #include <QFileInfo>

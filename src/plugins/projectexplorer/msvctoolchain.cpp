@@ -40,7 +40,6 @@
 #include <utils/optional.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/synchronousprocess.h>
 #include <utils/runextensions.h>
 #include <utils/temporarydirectory.h>
 #include <utils/pathchooser.h>

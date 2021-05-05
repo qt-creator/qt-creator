@@ -57,9 +57,9 @@
 #include <utils/hostosinfo.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 #include <utils/stringutils.h>
-#include <utils/synchronousprocess.h>
 
 #include <QApplication>
 #include <QDirIterator>

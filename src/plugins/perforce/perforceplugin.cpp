@@ -41,11 +41,13 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/locator/commandlocator.h>
+
 #include <texteditor/textdocument.h>
+
 #include <utils/fileutils.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 
 #include <vcsbase/basevcseditorfactory.h>

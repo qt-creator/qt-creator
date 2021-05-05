@@ -32,12 +32,6 @@
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
 
-#ifdef Q_OS_WIN
-#ifdef Q_CC_MSVC
-#include <utils/synchronousprocess.h>
-#endif // Q_CC_MSVC
-#endif // Q_OS_WIN
-
 #include <QtTest>
 #include <math.h>
 

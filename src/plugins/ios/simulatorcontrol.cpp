@@ -29,7 +29,7 @@
 #include <utils/algorithm.h>
 #include <utils/runextensions.h>
 #include <utils/qtcassert.h>
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 
 #ifdef Q_OS_MAC
 #include <CoreFoundation/CoreFoundation.h>

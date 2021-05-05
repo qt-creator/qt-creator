@@ -263,8 +263,6 @@ Project {
             "styledbar.h",
             "stylehelper.cpp",
             "stylehelper.h",
-            "synchronousprocess.cpp",
-            "synchronousprocess.h",
             "templateengine.cpp",
             "templateengine.h",
             "temporarydirectory.cpp",

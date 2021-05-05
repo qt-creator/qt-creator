@@ -26,11 +26,10 @@
 #include "pathchooser.h"
 
 #include "environment.h"
-#include "qtcassert.h"
-#include "macroexpander.h"
-
-#include "synchronousprocess.h"
 #include "hostosinfo.h"
+#include "macroexpander.h"
+#include "qtcassert.h"
+#include "qtcprocess.h"
 #include "theme/theme.h"
 
 #include <QDebug>

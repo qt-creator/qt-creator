@@ -31,10 +31,7 @@
 #include "iosprobe.h"
 
 #include <coreplugin/icore.h>
-#include <utils/algorithm.h>
-#include <utils/synchronousprocess.h>
-#include <utils/qtcassert.h>
-#include <utils/synchronousprocess.h>
+
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
@@ -42,13 +39,19 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
+
 #include <debugger/debuggeritemmanager.h>
 #include <debugger/debuggeritem.h>
 #include <debugger/debuggerkitinformation.h>
+
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/qtversionfactory.h>
+
+#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QDir>
 #include <QDomDocument>

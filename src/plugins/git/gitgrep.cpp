@@ -39,8 +39,8 @@
 #include <utils/filesearch.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
-#include <utils/synchronousprocess.h>
 #include <utils/textfileformat.h>
 
 #include <QCheckBox>

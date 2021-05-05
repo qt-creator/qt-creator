@@ -31,8 +31,8 @@
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
-#include <utils/synchronousprocess.h>
 
 #include <QSettings>
 #include <QLatin1String>

@@ -31,7 +31,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/id.h>
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 
 #include <QObject>
 #include <QStringList>

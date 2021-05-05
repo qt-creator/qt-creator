@@ -29,12 +29,14 @@
 #include "iossimulator.h"
 #include "simulatorcontrol.h"
 
-#include "debugger/debuggerconstants.h"
 #include <coreplugin/icore.h>
-#include <utils/qtcassert.h>
+
+#include <debugger/debuggerconstants.h>
+
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
-#include <utils/synchronousprocess.h>
 
 #include <QCoreApplication>
 #include <QDir>

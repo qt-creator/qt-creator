@@ -59,7 +59,6 @@
 #include <utils/infolabel.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
-#include <utils/synchronousprocess.h>
 
 #include <QCheckBox>
 #include <QComboBox>

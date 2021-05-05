@@ -38,7 +38,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 
 #include <QDebug>
 #include <QDir>

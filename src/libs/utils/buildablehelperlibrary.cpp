@@ -25,7 +25,6 @@
 
 #include "buildablehelperlibrary.h"
 #include "hostosinfo.h"
-#include "synchronousprocess.h"
 #include "qtcprocess.h"
 
 #include <QDateTime>

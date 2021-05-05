@@ -32,7 +32,7 @@
 #include <utils/fileutils.h>
 #include <utils/id.h>
 #include <utils/optional.h>
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 
 QT_FORWARD_DECLARE_CLASS(QProcess)
 

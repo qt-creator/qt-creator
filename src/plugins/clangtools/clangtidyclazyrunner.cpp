@@ -34,8 +34,8 @@
 #include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/cpptoolsreuse.h>
 
-#include <utils/synchronousprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QDebug>
 #include <QDir>

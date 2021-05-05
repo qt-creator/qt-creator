@@ -36,7 +36,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/synchronousprocess.h>
+
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseplugin.h>

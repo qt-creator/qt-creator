@@ -45,7 +45,6 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/synchronousprocess.h>
 #include <utils/utilsicons.h>
 
 #include <QDesktopServices>

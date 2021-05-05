@@ -35,10 +35,11 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcsbasediffeditorcontroller.h>
-#include <utils/synchronousprocess.h>
+
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QDateTime>
 #include <QDir>

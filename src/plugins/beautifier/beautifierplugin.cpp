@@ -53,8 +53,8 @@
 #include <utils/fileutils.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
-#include <utils/synchronousprocess.h>
 #include <utils/temporarydirectory.h>
 #include <utils/textutils.h>
 

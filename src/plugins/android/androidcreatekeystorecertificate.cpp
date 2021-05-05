@@ -27,7 +27,7 @@
 #include "androidconfigurations.h"
 #include "ui_androidcreatekeystorecertificate.h"
 
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 
 #include <QFileDialog>
 #include <QRegularExpression>

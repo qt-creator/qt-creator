@@ -27,16 +27,13 @@
 
 #include "utils_global.h"
 
-#include "synchronousprocess.h"
-
-#include <QObject>
+#include "qtcprocess.h"
 
 #include <functional>
 
 QT_BEGIN_NAMESPACE
 class QMutex;
 class QVariant;
-class QProcessEnvironment;
 template <typename T>
 class QFutureInterface;
 template <typename T>
@@ -45,7 +42,6 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
-class CommandLine;
 namespace Internal { class ShellCommandPrivate; }
 
 class QTCREATOR_UTILS_EXPORT ProgressParser

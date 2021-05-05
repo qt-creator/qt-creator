@@ -31,8 +31,9 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/shellcommand.h>
+
 #include <utils/hostosinfo.h>
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 
 #include <QFile>
 #include <QJsonDocument>

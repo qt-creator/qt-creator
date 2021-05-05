@@ -33,7 +33,7 @@
 
 #include <utils/runextensions.h>
 #include <utils/stringutils.h>
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 
 #include <QDateTime>
 #include <QFile>

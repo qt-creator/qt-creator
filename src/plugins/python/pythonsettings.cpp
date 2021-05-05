@@ -28,7 +28,7 @@
 #include "pythonconstants.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include "coreplugin/icore.h"
+#include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -37,7 +37,7 @@
 #include <utils/listmodel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 #include <utils/treemodel.h>
 
 #include <QDir>
