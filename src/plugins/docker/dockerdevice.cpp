@@ -269,9 +269,11 @@ public:
     DockerDevicePrivate()
     {
         connect(&m_mergedDirWatcher, &QFileSystemWatcher::fileChanged, this, [](const QString &path) {
+            Q_UNUSED(path)
             LOG("Container watcher change, file: " << path);
         });
         connect(&m_mergedDirWatcher, &QFileSystemWatcher::directoryChanged, this, [](const QString &path) {
+            Q_UNUSED(path)
             LOG("Container watcher change, directory: " << path);
         });
     }
