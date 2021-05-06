@@ -130,55 +130,55 @@ void tst_QtcProcess::initTestCase()
 }
 
 
-Q_DECLARE_METATYPE(QtcProcess::SplitError)
+Q_DECLARE_METATYPE(ProcessArgs::SplitError)
 Q_DECLARE_METATYPE(Utils::OsType)
 
 void tst_QtcProcess::splitArgs_data()
 {
     QTest::addColumn<QString>("in");
     QTest::addColumn<QString>("out");
-    QTest::addColumn<QtcProcess::SplitError>("err");
+    QTest::addColumn<ProcessArgs::SplitError>("err");
     QTest::addColumn<Utils::OsType>("os");
 
     static const struct {
         const char * const in;
         const char * const out;
-        const QtcProcess::SplitError err;
+        const ProcessArgs::SplitError err;
         const OsType os;
     } vals[] = {
-        {"", "", QtcProcess::SplitOk, OsTypeWindows},
-        {" ", "", QtcProcess::SplitOk, OsTypeWindows},
-        {"hi", "hi", QtcProcess::SplitOk, OsTypeWindows},
-        {"hi ho", "hi ho", QtcProcess::SplitOk, OsTypeWindows},
-        {" hi ho ", "hi ho", QtcProcess::SplitOk, OsTypeWindows},
-        {"\"hi ho\" \"hi\" ho  ", "\"hi ho\" hi ho", QtcProcess::SplitOk, OsTypeWindows},
-        {"\\", "\\", QtcProcess::SplitOk, OsTypeWindows},
-        {"\\\"", "\"\"\\^\"\"\"", QtcProcess::SplitOk, OsTypeWindows},
-        {"\"hi\"\"\"ho\"", "\"hi\"\\^\"\"ho\"", QtcProcess::SplitOk, OsTypeWindows},
-        {"\\\\\\\"", "\"\"\\\\\\^\"\"\"", QtcProcess::SplitOk, OsTypeWindows},
-        {" ^^ ", "\"^^\"", QtcProcess::SplitOk, OsTypeWindows},
-        {"hi\"", "", QtcProcess::BadQuoting, OsTypeWindows},
-        {"hi\"dood", "", QtcProcess::BadQuoting, OsTypeWindows},
-        {"%var%", "%var%", QtcProcess::SplitOk, OsTypeWindows},
+        {"", "", ProcessArgs::SplitOk, OsTypeWindows},
+        {" ", "", ProcessArgs::SplitOk, OsTypeWindows},
+        {"hi", "hi", ProcessArgs::SplitOk, OsTypeWindows},
+        {"hi ho", "hi ho", ProcessArgs::SplitOk, OsTypeWindows},
+        {" hi ho ", "hi ho", ProcessArgs::SplitOk, OsTypeWindows},
+        {"\"hi ho\" \"hi\" ho  ", "\"hi ho\" hi ho", ProcessArgs::SplitOk, OsTypeWindows},
+        {"\\", "\\", ProcessArgs::SplitOk, OsTypeWindows},
+        {"\\\"", "\"\"\\^\"\"\"", ProcessArgs::SplitOk, OsTypeWindows},
+        {"\"hi\"\"\"ho\"", "\"hi\"\\^\"\"ho\"", ProcessArgs::SplitOk, OsTypeWindows},
+        {"\\\\\\\"", "\"\"\\\\\\^\"\"\"", ProcessArgs::SplitOk, OsTypeWindows},
+        {" ^^ ", "\"^^\"", ProcessArgs::SplitOk, OsTypeWindows},
+        {"hi\"", "", ProcessArgs::BadQuoting, OsTypeWindows},
+        {"hi\"dood", "", ProcessArgs::BadQuoting, OsTypeWindows},
+        {"%var%", "%var%", ProcessArgs::SplitOk, OsTypeWindows},
 
-        {"", "", QtcProcess::SplitOk, OsTypeLinux},
-        {" ", "", QtcProcess::SplitOk, OsTypeLinux},
-        {"hi", "hi", QtcProcess::SplitOk, OsTypeLinux},
-        {"hi ho", "hi ho", QtcProcess::SplitOk, OsTypeLinux},
-        {" hi ho ", "hi ho", QtcProcess::SplitOk, OsTypeLinux},
-        {"'hi ho' \"hi\" ho  ", "'hi ho' hi ho", QtcProcess::SplitOk, OsTypeLinux},
-        {" \\ ", "' '", QtcProcess::SplitOk, OsTypeLinux},
-        {" \\\" ", "'\"'", QtcProcess::SplitOk, OsTypeLinux},
-        {" '\"' ", "'\"'", QtcProcess::SplitOk, OsTypeLinux},
-        {" \"\\\"\" ", "'\"'", QtcProcess::SplitOk, OsTypeLinux},
-        {"hi'", "", QtcProcess::BadQuoting, OsTypeLinux},
-        {"hi\"dood", "", QtcProcess::BadQuoting, OsTypeLinux},
-        {"$var", "'$var'", QtcProcess::SplitOk, OsTypeLinux},
-        {"~", "@HOME@", QtcProcess::SplitOk, OsTypeLinux},
-        {"~ foo", "@HOME@ foo", QtcProcess::SplitOk, OsTypeLinux},
-        {"foo ~", "foo @HOME@", QtcProcess::SplitOk, OsTypeLinux},
-        {"~/foo", "@HOME@/foo", QtcProcess::SplitOk, OsTypeLinux},
-        {"~foo", "'~foo'", QtcProcess::SplitOk, OsTypeLinux}
+        {"", "", ProcessArgs::SplitOk, OsTypeLinux},
+        {" ", "", ProcessArgs::SplitOk, OsTypeLinux},
+        {"hi", "hi", ProcessArgs::SplitOk, OsTypeLinux},
+        {"hi ho", "hi ho", ProcessArgs::SplitOk, OsTypeLinux},
+        {" hi ho ", "hi ho", ProcessArgs::SplitOk, OsTypeLinux},
+        {"'hi ho' \"hi\" ho  ", "'hi ho' hi ho", ProcessArgs::SplitOk, OsTypeLinux},
+        {" \\ ", "' '", ProcessArgs::SplitOk, OsTypeLinux},
+        {" \\\" ", "'\"'", ProcessArgs::SplitOk, OsTypeLinux},
+        {" '\"' ", "'\"'", ProcessArgs::SplitOk, OsTypeLinux},
+        {" \"\\\"\" ", "'\"'", ProcessArgs::SplitOk, OsTypeLinux},
+        {"hi'", "", ProcessArgs::BadQuoting, OsTypeLinux},
+        {"hi\"dood", "", ProcessArgs::BadQuoting, OsTypeLinux},
+        {"$var", "'$var'", ProcessArgs::SplitOk, OsTypeLinux},
+        {"~", "@HOME@", ProcessArgs::SplitOk, OsTypeLinux},
+        {"~ foo", "@HOME@ foo", ProcessArgs::SplitOk, OsTypeLinux},
+        {"foo ~", "foo @HOME@", ProcessArgs::SplitOk, OsTypeLinux},
+        {"~/foo", "@HOME@/foo", ProcessArgs::SplitOk, OsTypeLinux},
+        {"~foo", "'~foo'", ProcessArgs::SplitOk, OsTypeLinux}
     };
 
     for (unsigned i = 0; i < sizeof(vals)/sizeof(vals[0]); i++) {
@@ -194,13 +194,13 @@ void tst_QtcProcess::splitArgs()
 {
     QFETCH(QString, in);
     QFETCH(QString, out);
-    QFETCH(QtcProcess::SplitError, err);
+    QFETCH(ProcessArgs::SplitError, err);
     QFETCH(Utils::OsType, os);
 
-    QtcProcess::SplitError outerr;
-    QString outstr = QtcProcess::joinArgs(QtcProcess::splitArgs(in, os, false, &outerr), os);
+    ProcessArgs::SplitError outerr;
+    QString outstr = ProcessArgs::joinArgs(ProcessArgs::splitArgs(in, os, false, &outerr), os);
     QCOMPARE(outerr, err);
-    if (err == QtcProcess::SplitOk)
+    if (err == ProcessArgs::SplitOk)
         QCOMPARE(outstr, out);
 }
 
@@ -208,45 +208,45 @@ void tst_QtcProcess::prepareArgs_data()
 {
     QTest::addColumn<QString>("in");
     QTest::addColumn<QString>("out");
-    QTest::addColumn<QtcProcess::SplitError>("err");
+    QTest::addColumn<ProcessArgs::SplitError>("err");
     QTest::addColumn<OsType>("os");
 
     static const struct {
         const char * const in;
         const char * const out;
-        const QtcProcess::SplitError err;
+        const ProcessArgs::SplitError err;
         const OsType os;
     } vals[] = {
-        {" ", " ", QtcProcess::SplitOk, OsTypeWindows},
-        {"", "", QtcProcess::SplitOk, OsTypeWindows},
-        {"hi", "hi", QtcProcess::SplitOk, OsTypeWindows},
-        {"hi ho", "hi ho", QtcProcess::SplitOk, OsTypeWindows},
-        {" hi ho ", " hi ho ", QtcProcess::SplitOk, OsTypeWindows},
-        {"\"hi ho\" \"hi\" ho  ", "\"hi ho\" \"hi\" ho  ", QtcProcess::SplitOk, OsTypeWindows},
-        {"\\", "\\", QtcProcess::SplitOk, OsTypeWindows},
-        {"\\\"", "\\\"", QtcProcess::SplitOk, OsTypeWindows},
-        {"\"hi\"\"ho\"", "\"hi\"\"ho\"", QtcProcess::SplitOk, OsTypeWindows},
-        {"\\\\\\\"", "\\\\\\\"", QtcProcess::SplitOk, OsTypeWindows},
-        {"^^", "^", QtcProcess::SplitOk, OsTypeWindows},
-        {"hi\"", "hi\"", QtcProcess::SplitOk, OsTypeWindows},
-        {"hi\"dood", "hi\"dood", QtcProcess::SplitOk, OsTypeWindows},
-        {"%var%", "", QtcProcess::FoundMeta, OsTypeWindows},
-        {"echo hi > file", "", QtcProcess::FoundMeta, OsTypeWindows},
+        {" ", " ", ProcessArgs::SplitOk, OsTypeWindows},
+        {"", "", ProcessArgs::SplitOk, OsTypeWindows},
+        {"hi", "hi", ProcessArgs::SplitOk, OsTypeWindows},
+        {"hi ho", "hi ho", ProcessArgs::SplitOk, OsTypeWindows},
+        {" hi ho ", " hi ho ", ProcessArgs::SplitOk, OsTypeWindows},
+        {"\"hi ho\" \"hi\" ho  ", "\"hi ho\" \"hi\" ho  ", ProcessArgs::SplitOk, OsTypeWindows},
+        {"\\", "\\", ProcessArgs::SplitOk, OsTypeWindows},
+        {"\\\"", "\\\"", ProcessArgs::SplitOk, OsTypeWindows},
+        {"\"hi\"\"ho\"", "\"hi\"\"ho\"", ProcessArgs::SplitOk, OsTypeWindows},
+        {"\\\\\\\"", "\\\\\\\"", ProcessArgs::SplitOk, OsTypeWindows},
+        {"^^", "^", ProcessArgs::SplitOk, OsTypeWindows},
+        {"hi\"", "hi\"", ProcessArgs::SplitOk, OsTypeWindows},
+        {"hi\"dood", "hi\"dood", ProcessArgs::SplitOk, OsTypeWindows},
+        {"%var%", "", ProcessArgs::FoundMeta, OsTypeWindows},
+        {"echo hi > file", "", ProcessArgs::FoundMeta, OsTypeWindows},
 
-        {"", "", QtcProcess::SplitOk, OsTypeLinux},
-        {" ", "", QtcProcess::SplitOk, OsTypeLinux},
-        {"hi", "hi", QtcProcess::SplitOk, OsTypeLinux},
-        {"hi ho", "hi ho", QtcProcess::SplitOk, OsTypeLinux},
-        {" hi ho ", "hi ho", QtcProcess::SplitOk, OsTypeLinux},
-        {"'hi ho' \"hi\" ho  ", "'hi ho' hi ho", QtcProcess::SplitOk, OsTypeLinux},
-        {" \\ ", "' '", QtcProcess::SplitOk, OsTypeLinux},
-        {"hi'", "", QtcProcess::BadQuoting, OsTypeLinux},
-        {"hi\"dood", "", QtcProcess::BadQuoting, OsTypeLinux},
-        {"$var", "", QtcProcess::FoundMeta, OsTypeLinux},
-        {"~", "@HOME@", QtcProcess::SplitOk, OsTypeLinux},
-        {"~ foo", "@HOME@ foo", QtcProcess::SplitOk, OsTypeLinux},
-        {"~/foo", "@HOME@/foo", QtcProcess::SplitOk, OsTypeLinux},
-        {"~foo", "", QtcProcess::FoundMeta, OsTypeLinux}
+        {"", "", ProcessArgs::SplitOk, OsTypeLinux},
+        {" ", "", ProcessArgs::SplitOk, OsTypeLinux},
+        {"hi", "hi", ProcessArgs::SplitOk, OsTypeLinux},
+        {"hi ho", "hi ho", ProcessArgs::SplitOk, OsTypeLinux},
+        {" hi ho ", "hi ho", ProcessArgs::SplitOk, OsTypeLinux},
+        {"'hi ho' \"hi\" ho  ", "'hi ho' hi ho", ProcessArgs::SplitOk, OsTypeLinux},
+        {" \\ ", "' '", ProcessArgs::SplitOk, OsTypeLinux},
+        {"hi'", "", ProcessArgs::BadQuoting, OsTypeLinux},
+        {"hi\"dood", "", ProcessArgs::BadQuoting, OsTypeLinux},
+        {"$var", "", ProcessArgs::FoundMeta, OsTypeLinux},
+        {"~", "@HOME@", ProcessArgs::SplitOk, OsTypeLinux},
+        {"~ foo", "@HOME@ foo", ProcessArgs::SplitOk, OsTypeLinux},
+        {"~/foo", "@HOME@/foo", ProcessArgs::SplitOk, OsTypeLinux},
+        {"~foo", "", ProcessArgs::FoundMeta, OsTypeLinux}
     };
 
     for (unsigned i = 0; i < sizeof(vals)/sizeof(vals[0]); i++) {
@@ -262,15 +262,15 @@ void tst_QtcProcess::prepareArgs()
 {
     QFETCH(QString, in);
     QFETCH(QString, out);
-    QFETCH(QtcProcess::SplitError, err);
+    QFETCH(ProcessArgs::SplitError, err);
     QFETCH(OsType, os);
 
-    QtcProcess::SplitError outerr;
-    QtcProcess::Arguments args = QtcProcess::prepareArgs(in, &outerr, os);
+    ProcessArgs::SplitError outerr;
+    ProcessArgs args = ProcessArgs::prepareArgs(in, &outerr, os);
     QString outstr = args.toString();
 
     QCOMPARE(outerr, err);
-    if (err == QtcProcess::SplitOk)
+    if (err == ProcessArgs::SplitOk)
         QCOMPARE(outstr, out);
 }
 
@@ -278,65 +278,65 @@ void tst_QtcProcess::prepareArgsEnv_data()
 {
     QTest::addColumn<QString>("in");
     QTest::addColumn<QString>("out");
-    QTest::addColumn<QtcProcess::SplitError>("err");
+    QTest::addColumn<ProcessArgs::SplitError>("err");
     QTest::addColumn<OsType>("os");
 
     static const struct {
         const char * const in;
         const char * const out;
-        const QtcProcess::SplitError err;
+        const ProcessArgs::SplitError err;
         const OsType os;
     } vals[] = {
-        {" ", " ", QtcProcess::SplitOk, OsTypeWindows},
-        {"", "", QtcProcess::SplitOk, OsTypeWindows},
-        {"hi", "hi", QtcProcess::SplitOk, OsTypeWindows},
-        {"hi ho", "hi ho", QtcProcess::SplitOk, OsTypeWindows},
-        {" hi ho ", " hi ho ", QtcProcess::SplitOk, OsTypeWindows},
-        {"\"hi ho\" \"hi\" ho  ", "\"hi ho\" \"hi\" ho  ", QtcProcess::SplitOk, OsTypeWindows},
-        {"\\", "\\", QtcProcess::SplitOk, OsTypeWindows},
-        {"\\\"", "\\\"", QtcProcess::SplitOk, OsTypeWindows},
-        {"\"hi\"\"ho\"", "\"hi\"\"ho\"", QtcProcess::SplitOk, OsTypeWindows},
-        {"\\\\\\\"", "\\\\\\\"", QtcProcess::SplitOk, OsTypeWindows},
-        {"^^", "^", QtcProcess::SplitOk, OsTypeWindows},
-        {"hi\"", "hi\"", QtcProcess::SplitOk, OsTypeWindows},
-        {"hi\"dood", "hi\"dood", QtcProcess::SplitOk, OsTypeWindows},
-        {"%empty%", "%empty%", QtcProcess::SplitOk, OsTypeWindows}, // Yep, no empty variables on Windows.
-        {"%word%", "hi", QtcProcess::SplitOk, OsTypeWindows},
-        {" %word% ", " hi ", QtcProcess::SplitOk, OsTypeWindows},
-        {"%words%", "hi ho", QtcProcess::SplitOk, OsTypeWindows},
-        {"%nonsense%words%", "%nonsensehi ho", QtcProcess::SplitOk, OsTypeWindows},
-        {"fail%nonsense%words%", "fail%nonsensehi ho", QtcProcess::SplitOk, OsTypeWindows},
-        {"%words%words%", "hi howords%", QtcProcess::SplitOk, OsTypeWindows},
-        {"%words%%words%", "hi hohi ho", QtcProcess::SplitOk, OsTypeWindows},
-        {"echo hi > file", "", QtcProcess::FoundMeta, OsTypeWindows},
+        {" ", " ", ProcessArgs::SplitOk, OsTypeWindows},
+        {"", "", ProcessArgs::SplitOk, OsTypeWindows},
+        {"hi", "hi", ProcessArgs::SplitOk, OsTypeWindows},
+        {"hi ho", "hi ho", ProcessArgs::SplitOk, OsTypeWindows},
+        {" hi ho ", " hi ho ", ProcessArgs::SplitOk, OsTypeWindows},
+        {"\"hi ho\" \"hi\" ho  ", "\"hi ho\" \"hi\" ho  ", ProcessArgs::SplitOk, OsTypeWindows},
+        {"\\", "\\", ProcessArgs::SplitOk, OsTypeWindows},
+        {"\\\"", "\\\"", ProcessArgs::SplitOk, OsTypeWindows},
+        {"\"hi\"\"ho\"", "\"hi\"\"ho\"", ProcessArgs::SplitOk, OsTypeWindows},
+        {"\\\\\\\"", "\\\\\\\"", ProcessArgs::SplitOk, OsTypeWindows},
+        {"^^", "^", ProcessArgs::SplitOk, OsTypeWindows},
+        {"hi\"", "hi\"", ProcessArgs::SplitOk, OsTypeWindows},
+        {"hi\"dood", "hi\"dood", ProcessArgs::SplitOk, OsTypeWindows},
+        {"%empty%", "%empty%", ProcessArgs::SplitOk, OsTypeWindows}, // Yep, no empty variables on Windows.
+        {"%word%", "hi", ProcessArgs::SplitOk, OsTypeWindows},
+        {" %word% ", " hi ", ProcessArgs::SplitOk, OsTypeWindows},
+        {"%words%", "hi ho", ProcessArgs::SplitOk, OsTypeWindows},
+        {"%nonsense%words%", "%nonsensehi ho", ProcessArgs::SplitOk, OsTypeWindows},
+        {"fail%nonsense%words%", "fail%nonsensehi ho", ProcessArgs::SplitOk, OsTypeWindows},
+        {"%words%words%", "hi howords%", ProcessArgs::SplitOk, OsTypeWindows},
+        {"%words%%words%", "hi hohi ho", ProcessArgs::SplitOk, OsTypeWindows},
+        {"echo hi > file", "", ProcessArgs::FoundMeta, OsTypeWindows},
 
-        {"", "", QtcProcess::SplitOk, OsTypeLinux},
-        {" ", "", QtcProcess::SplitOk, OsTypeLinux},
-        {"hi", "hi", QtcProcess::SplitOk, OsTypeLinux},
-        {"hi ho", "hi ho", QtcProcess::SplitOk, OsTypeLinux},
-        {" hi ho ", "hi ho", QtcProcess::SplitOk, OsTypeLinux},
-        {"'hi ho' \"hi\" ho  ", "'hi ho' hi ho", QtcProcess::SplitOk, OsTypeLinux},
-        {" \\ ", "' '", QtcProcess::SplitOk, OsTypeLinux},
-        {"hi'", "", QtcProcess::BadQuoting, OsTypeLinux},
-        {"hi\"dood", "", QtcProcess::BadQuoting, OsTypeLinux},
-        {"$empty", "", QtcProcess::SplitOk, OsTypeLinux},
-        {"$word", "hi", QtcProcess::SplitOk, OsTypeLinux},
-        {" $word ", "hi", QtcProcess::SplitOk, OsTypeLinux},
-        {"${word}", "hi", QtcProcess::SplitOk, OsTypeLinux},
-        {" ${word} ", "hi", QtcProcess::SplitOk, OsTypeLinux},
-        {"$words", "hi ho", QtcProcess::SplitOk, OsTypeLinux},
-        {"$spacedwords", "hi ho sucker", QtcProcess::SplitOk, OsTypeLinux},
-        {"hi${empty}ho", "hiho", QtcProcess::SplitOk, OsTypeLinux},
-        {"hi${words}ho", "hihi hoho", QtcProcess::SplitOk, OsTypeLinux},
-        {"hi${spacedwords}ho", "hi hi ho sucker ho", QtcProcess::SplitOk, OsTypeLinux},
-        {"${", "", QtcProcess::BadQuoting, OsTypeLinux},
-        {"${var", "", QtcProcess::BadQuoting, OsTypeLinux},
-        {"${var ", "", QtcProcess::FoundMeta, OsTypeLinux},
-        {"\"hi${words}ho\"", "'hihi hoho'", QtcProcess::SplitOk, OsTypeLinux},
-        {"\"hi${spacedwords}ho\"", "'hi hi   ho sucker ho'", QtcProcess::SplitOk, OsTypeLinux},
-        {"\"${", "", QtcProcess::BadQuoting, OsTypeLinux},
-        {"\"${var", "", QtcProcess::BadQuoting, OsTypeLinux},
-        {"\"${var ", "", QtcProcess::FoundMeta, OsTypeLinux},
+        {"", "", ProcessArgs::SplitOk, OsTypeLinux},
+        {" ", "", ProcessArgs::SplitOk, OsTypeLinux},
+        {"hi", "hi", ProcessArgs::SplitOk, OsTypeLinux},
+        {"hi ho", "hi ho", ProcessArgs::SplitOk, OsTypeLinux},
+        {" hi ho ", "hi ho", ProcessArgs::SplitOk, OsTypeLinux},
+        {"'hi ho' \"hi\" ho  ", "'hi ho' hi ho", ProcessArgs::SplitOk, OsTypeLinux},
+        {" \\ ", "' '", ProcessArgs::SplitOk, OsTypeLinux},
+        {"hi'", "", ProcessArgs::BadQuoting, OsTypeLinux},
+        {"hi\"dood", "", ProcessArgs::BadQuoting, OsTypeLinux},
+        {"$empty", "", ProcessArgs::SplitOk, OsTypeLinux},
+        {"$word", "hi", ProcessArgs::SplitOk, OsTypeLinux},
+        {" $word ", "hi", ProcessArgs::SplitOk, OsTypeLinux},
+        {"${word}", "hi", ProcessArgs::SplitOk, OsTypeLinux},
+        {" ${word} ", "hi", ProcessArgs::SplitOk, OsTypeLinux},
+        {"$words", "hi ho", ProcessArgs::SplitOk, OsTypeLinux},
+        {"$spacedwords", "hi ho sucker", ProcessArgs::SplitOk, OsTypeLinux},
+        {"hi${empty}ho", "hiho", ProcessArgs::SplitOk, OsTypeLinux},
+        {"hi${words}ho", "hihi hoho", ProcessArgs::SplitOk, OsTypeLinux},
+        {"hi${spacedwords}ho", "hi hi ho sucker ho", ProcessArgs::SplitOk, OsTypeLinux},
+        {"${", "", ProcessArgs::BadQuoting, OsTypeLinux},
+        {"${var", "", ProcessArgs::BadQuoting, OsTypeLinux},
+        {"${var ", "", ProcessArgs::FoundMeta, OsTypeLinux},
+        {"\"hi${words}ho\"", "'hihi hoho'", ProcessArgs::SplitOk, OsTypeLinux},
+        {"\"hi${spacedwords}ho\"", "'hi hi   ho sucker ho'", ProcessArgs::SplitOk, OsTypeLinux},
+        {"\"${", "", ProcessArgs::BadQuoting, OsTypeLinux},
+        {"\"${var", "", ProcessArgs::BadQuoting, OsTypeLinux},
+        {"\"${var ", "", ProcessArgs::FoundMeta, OsTypeLinux},
     };
 
     for (unsigned i = 0; i < sizeof(vals)/sizeof(vals[0]); i++) {
@@ -352,15 +352,15 @@ void tst_QtcProcess::prepareArgsEnv()
 {
     QFETCH(QString, in);
     QFETCH(QString, out);
-    QFETCH(QtcProcess::SplitError, err);
+    QFETCH(ProcessArgs::SplitError, err);
     QFETCH(OsType, os);
 
-    QtcProcess::SplitError outerr;
-    QtcProcess::Arguments args = QtcProcess::prepareArgs(in, &outerr, os, os == OsTypeLinux ? &envLinux : &envWindows);
+    ProcessArgs::SplitError outerr;
+    ProcessArgs args = ProcessArgs::prepareArgs(in, &outerr, os, os == OsTypeLinux ? &envLinux : &envWindows);
     QString outstr = args.toString();
 
     QCOMPARE(outerr, err);
-    if (err == QtcProcess::SplitOk)
+    if (err == ProcessArgs::SplitOk)
         QCOMPARE(outstr, out);
 }
 
@@ -605,9 +605,9 @@ void tst_QtcProcess::expandMacros()
     QFETCH(OsType, os);
 
     if (os == OsTypeWindows)
-        QtcProcess::expandMacros(&in, &mxWin, os);
+        ProcessArgs::expandMacros(&in, &mxWin, os);
     else
-        QtcProcess::expandMacros(&in, &mxUnix, os);
+        ProcessArgs::expandMacros(&in, &mxUnix, os);
     QCOMPARE(in, out);
 }
 
@@ -673,11 +673,11 @@ void tst_QtcProcess::iterations()
     QFETCH(OsType, os);
 
     QString outstr;
-    for (QtcProcess::ArgIterator ait(&in, os); ait.next(); ) {
+    for (ProcessArgs::ArgIterator ait(&in, os); ait.next(); ) {
         if (ait.isSimple())
-            QtcProcess::addArg(&outstr, ait.value(), os);
+            ProcessArgs::addArg(&outstr, ait.value(), os);
         else
-            QtcProcess::addArgs(&outstr, "{}");
+            ProcessArgs::addArgs(&outstr, "{}");
     }
     QCOMPARE(outstr, out);
 }
@@ -686,7 +686,7 @@ void tst_QtcProcess::iteratorEditsHelper(OsType osType)
 {
     QString in1 = "one two three", in2 = in1, in3 = in1, in4 = in1, in5 = in1;
 
-    QtcProcess::ArgIterator ait1(&in1, osType);
+    ProcessArgs::ArgIterator ait1(&in1, osType);
     QVERIFY(ait1.next());
     ait1.deleteArg();
     QVERIFY(ait1.next());
@@ -696,7 +696,7 @@ void tst_QtcProcess::iteratorEditsHelper(OsType osType)
     ait1.appendArg("four");
     QCOMPARE(in1, QString::fromLatin1("two three four"));
 
-    QtcProcess::ArgIterator ait2(&in2, osType);
+    ProcessArgs::ArgIterator ait2(&in2, osType);
     QVERIFY(ait2.next());
     QVERIFY(ait2.next());
     ait2.deleteArg();
@@ -705,7 +705,7 @@ void tst_QtcProcess::iteratorEditsHelper(OsType osType)
     QVERIFY(!ait2.next());
     QCOMPARE(in2, QString::fromLatin1("one three four"));
 
-    QtcProcess::ArgIterator ait3(&in3, osType);
+    ProcessArgs::ArgIterator ait3(&in3, osType);
     QVERIFY(ait3.next());
     ait3.appendArg("one-b");
     QVERIFY(ait3.next());
@@ -714,7 +714,7 @@ void tst_QtcProcess::iteratorEditsHelper(OsType osType)
     QVERIFY(!ait3.next());
     QCOMPARE(in3, QString::fromLatin1("one one-b two"));
 
-    QtcProcess::ArgIterator ait4(&in4, osType);
+    ProcessArgs::ArgIterator ait4(&in4, osType);
     ait4.appendArg("pre-one");
     QVERIFY(ait4.next());
     QVERIFY(ait4.next());
@@ -723,7 +723,7 @@ void tst_QtcProcess::iteratorEditsHelper(OsType osType)
     QVERIFY(!ait4.next());
     QCOMPARE(in4, QString::fromLatin1("pre-one one two"));
 
-    QtcProcess::ArgIterator ait5(&in5, osType);
+    ProcessArgs::ArgIterator ait5(&in5, osType);
     QVERIFY(ait5.next());
     QVERIFY(ait5.next());
     QVERIFY(ait5.next());

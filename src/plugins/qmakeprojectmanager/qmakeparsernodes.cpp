@@ -1140,9 +1140,9 @@ QByteArray QmakeProFile::cxxDefines() const
     QByteArray result;
     foreach (const QString &def, variableValue(Variable::Defines)) {
         // 'def' is shell input, so interpret it.
-        QtcProcess::SplitError error = QtcProcess::SplitOk;
-        const QStringList args = QtcProcess::splitArgs(def, HostOsInfo::hostOs(), false, &error);
-        if (error != QtcProcess::SplitOk || args.size() == 0)
+        ProcessArgs::SplitError error = ProcessArgs::SplitOk;
+        const QStringList args = ProcessArgs::splitArgs(def, HostOsInfo::hostOs(), false, &error);
+        if (error != ProcessArgs::SplitOk || args.size() == 0)
             continue;
 
         result += "#define ";

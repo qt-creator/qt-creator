@@ -213,7 +213,7 @@ QWidget *IosDsymBuildStep::createConfigWidget()
     commandLineEdit->setText(command().toString());
 
     auto argumentsTextEdit = new QPlainTextEdit(widget);
-    argumentsTextEdit->setPlainText(Utils::QtcProcess::joinArgs(arguments()));
+    argumentsTextEdit->setPlainText(Utils::ProcessArgs::joinArgs(arguments()));
 
     auto argumentsLabel = new QLabel(tr("Arguments:"), widget);
 
@@ -238,7 +238,7 @@ QWidget *IosDsymBuildStep::createConfigWidget()
 
     connect(argumentsTextEdit, &QPlainTextEdit::textChanged, this,
             [this, argumentsTextEdit, resetDefaultsButton, updateDetails] {
-        setArguments(Utils::QtcProcess::splitArgs(argumentsTextEdit->toPlainText()));
+        setArguments(Utils::ProcessArgs::splitArgs(argumentsTextEdit->toPlainText()));
         resetDefaultsButton->setEnabled(!isDefault());
         updateDetails();
     });
@@ -255,7 +255,7 @@ QWidget *IosDsymBuildStep::createConfigWidget()
         setCommand(defaultCommand());
         setArguments(defaultArguments());
         commandLineEdit->setText(command().toString());
-        argumentsTextEdit->setPlainText(Utils::QtcProcess::joinArgs(arguments()));
+        argumentsTextEdit->setPlainText(Utils::ProcessArgs::joinArgs(arguments()));
         resetDefaultsButton->setEnabled(!isDefault());
         updateDetails();
     });

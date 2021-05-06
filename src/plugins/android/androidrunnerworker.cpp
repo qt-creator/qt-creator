@@ -293,7 +293,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     if (auto aspect = runControl->aspect(Constants::ANDROID_AMSTARTARGS)) {
         QTC_CHECK(aspect->value().type() == QVariant::String);
         const QString startArgs = aspect->value().toString();
-        m_amStartExtraArgs = QtcProcess::splitArgs(startArgs, OsTypeOtherUnix);
+        m_amStartExtraArgs = ProcessArgs::splitArgs(startArgs, OsTypeOtherUnix);
     }
 
     if (auto aspect = runControl->aspect(Constants::ANDROID_PRESTARTSHELLCMDLIST)) {
@@ -633,7 +633,7 @@ void AndroidRunnerWorker::asyncStartHelper()
 
     if (!m_extraAppParams.isEmpty()) {
         QStringList appArgs =
-                Utils::QtcProcess::splitArgs(m_extraAppParams, Utils::OsType::OsTypeLinux);
+                Utils::ProcessArgs::splitArgs(m_extraAppParams, Utils::OsType::OsTypeLinux);
         qCDebug(androidRunWorkerLog) << "Using application arguments: " << appArgs;
         args << "-e" << "extraappparams"
              << QString::fromLatin1(appArgs.join(' ').toUtf8().toBase64());

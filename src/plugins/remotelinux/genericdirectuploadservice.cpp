@@ -198,7 +198,7 @@ void GenericDirectUploadService::stopDeployment()
 void GenericDirectUploadService::runStat(const DeployableFile &file)
 {
     // We'd like to use --format=%Y, but it's not supported by busybox.
-    const QString statCmd = "stat -t " + Utils::QtcProcess::quoteArgUnix(file.remoteFilePath());
+    const QString statCmd = "stat -t " + Utils::ProcessArgs::quoteArgUnix(file.remoteFilePath());
     SshRemoteProcess * const statProc = connection()->createRemoteProcess(statCmd).release();
     statProc->setParent(this);
     connect(statProc, &SshRemoteProcess::done, this,
@@ -344,7 +344,7 @@ void GenericDirectUploadService::chmod()
         if (!f.isExecutable())
             continue;
         const QString command = QLatin1String("chmod a+x ")
-                + Utils::QtcProcess::quoteArgUnix(f.remoteFilePath());
+                + Utils::ProcessArgs::quoteArgUnix(f.remoteFilePath());
         SshRemoteProcess * const chmodProc
                 = connection()->createRemoteProcess(command).release();
         chmodProc->setParent(this);

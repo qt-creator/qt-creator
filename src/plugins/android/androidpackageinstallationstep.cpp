@@ -96,8 +96,8 @@ bool AndroidPackageInstallationStep::init()
     QTC_ASSERT(tc, return false);
 
     QString dirPath = nativeAndroidBuildPath();
-    const QString innerQuoted = QtcProcess::quoteArg(dirPath);
-    const QString outerQuoted = QtcProcess::quoteArg("INSTALL_ROOT=" + innerQuoted);
+    const QString innerQuoted = ProcessArgs::quoteArg(dirPath);
+    const QString outerQuoted = ProcessArgs::quoteArg("INSTALL_ROOT=" + innerQuoted);
 
     CommandLine cmd{tc->makeCommand(buildEnvironment())};
     cmd.addArgs(outerQuoted + " install", CommandLine::Raw);

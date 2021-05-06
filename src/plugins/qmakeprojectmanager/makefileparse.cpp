@@ -76,7 +76,7 @@ void MakeFileParse::parseArgs(const QString &args, const QString &project,
     bool after = false;
     bool ignoreNext = false;
     m_unparsedArguments = args;
-    QtcProcess::ArgIterator ait(&m_unparsedArguments);
+    ProcessArgs::ArgIterator ait(&m_unparsedArguments);
     while (ait.next()) {
         if (ignoreNext) {
             // Ignoring
@@ -391,11 +391,11 @@ void MakeFileParse::parseCommandLine(const QString &command, const QString &proj
     const QList<QMakeAssignment> &assignmentsToUse = m_mode == Mode::FilterKnownConfigValues
             ? filteredAssignments : assignments;
     foreach (const QMakeAssignment &qa, assignmentsToUse)
-        QtcProcess::addArg(&m_unparsedArguments, qa.variable + qa.op + qa.value);
+        ProcessArgs::addArg(&m_unparsedArguments, qa.variable + qa.op + qa.value);
     if (!afterAssignments.isEmpty()) {
-        QtcProcess::addArg(&m_unparsedArguments, QLatin1String("-after"));
+        ProcessArgs::addArg(&m_unparsedArguments, QLatin1String("-after"));
         foreach (const QMakeAssignment &qa, afterAssignments)
-            QtcProcess::addArg(&m_unparsedArguments, qa.variable + qa.op + qa.value);
+            ProcessArgs::addArg(&m_unparsedArguments, qa.variable + qa.op + qa.value);
     }
 }
 
@@ -527,8 +527,8 @@ void QmakeProjectManagerPlugin::testMakefileParser()
     MakeFileParse parser("/tmp/something", MakeFileParse::Mode::FilterKnownConfigValues);
     parser.parseCommandLine(command, project);
 
-    QCOMPARE(Utils::QtcProcess::splitArgs(parser.unparsedArguments()),
-             Utils::QtcProcess::splitArgs(unparsedArguments));
+    QCOMPARE(Utils::ProcessArgs::splitArgs(parser.unparsedArguments()),
+             Utils::ProcessArgs::splitArgs(unparsedArguments));
     QCOMPARE(parser.effectiveBuildConfig({}), effectiveBuildConfig);
 
     const QMakeStepConfig qmsc = parser.config();

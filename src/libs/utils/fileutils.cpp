@@ -100,7 +100,7 @@ CommandLine::CommandLine(const FilePath &exe, const QString &args, RawType)
 
 void CommandLine::addArg(const QString &arg, OsType osType)
 {
-    QtcProcess::addArg(&m_arguments, arg, osType);
+    ProcessArgs::addArg(&m_arguments, arg, osType);
 }
 
 void CommandLine::addArgs(const QStringList &inArgs, OsType osType)
@@ -119,7 +119,7 @@ void CommandLine::addArgs(const CommandLine &cmd, OsType osType)
 
 void CommandLine::addArgs(const QString &inArgs, RawType)
 {
-    QtcProcess::addArgs(&m_arguments, inArgs);
+    ProcessArgs::addArgs(&m_arguments, inArgs);
 }
 
 QString CommandLine::toUserOutput() const
@@ -132,7 +132,7 @@ QString CommandLine::toUserOutput() const
 
 QStringList CommandLine::splitArguments(OsType osType) const
 {
-    return QtcProcess::splitArgs(m_arguments, osType);
+    return ProcessArgs::splitArgs(m_arguments, osType);
 }
 
 /*! \class Utils::FileUtils

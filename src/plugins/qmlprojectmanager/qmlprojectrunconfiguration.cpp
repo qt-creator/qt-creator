@@ -199,26 +199,26 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
     const QmlBuildSystem *bs = qobject_cast<QmlBuildSystem *>(target()->buildSystem());
     foreach (const QString &importPath,
              QmlBuildSystem::makeAbsolute(bs->targetDirectory(), bs->customImportPaths())) {
-        QtcProcess::addArg(&args, "-I", osType);
-        QtcProcess::addArg(&args, importPath, osType);
+        ProcessArgs::addArg(&args, "-I", osType);
+        ProcessArgs::addArg(&args, importPath, osType);
     }
 
     for (const QString &fileSelector : bs->customFileSelectors()) {
-        QtcProcess::addArg(&args, "-S", osType);
-        QtcProcess::addArg(&args, fileSelector, osType);
+        ProcessArgs::addArg(&args, "-S", osType);
+        ProcessArgs::addArg(&args, fileSelector, osType);
     }
 
-    if (Utils::HostOsInfo::isWindowsHost() && bs->forceFreeType()) {
-        Utils::QtcProcess::addArg(&args, "-platform", osType);
-        Utils::QtcProcess::addArg(&args, "windows:fontengine=freetype", osType);
+    if (HostOsInfo::isWindowsHost() && bs->forceFreeType()) {
+        ProcessArgs::addArg(&args, "-platform", osType);
+        ProcessArgs::addArg(&args, "windows:fontengine=freetype", osType);
     }
 
     const QString main = bs->targetFile(FilePath::fromString(mainScript())).toString();
     if (!main.isEmpty())
-        QtcProcess::addArg(&args, main, osType);
+        ProcessArgs::addArg(&args, main, osType);
 
     if (m_multiLanguageAspect && m_multiLanguageAspect->value())
-        QtcProcess::addArg(&args, "-qmljsdebugger=file:unused_if_debugger_arguments_added,services:DebugTranslation", osType);
+        ProcessArgs::addArg(&args, "-qmljsdebugger=file:unused_if_debugger_arguments_added,services:DebugTranslation", osType);
 
     return args;
 }

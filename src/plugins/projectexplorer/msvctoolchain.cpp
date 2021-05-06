@@ -1986,7 +1986,7 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
     Utils::TempFileSaver saver(Utils::TemporaryDirectory::masterDirectoryPath() + "/XXXXXX.bat");
 
     QByteArray call = "call ";
-    call += Utils::QtcProcess::quoteArg(batchFile).toLocal8Bit();
+    call += ProcessArgs::quoteArg(batchFile).toLocal8Bit();
     if (!batchArgs.isEmpty()) {
         call += ' ';
         call += batchArgs.toLocal8Bit();

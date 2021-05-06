@@ -119,21 +119,56 @@ public:
     void setStdOutCallback(const std::function<void(const QString &)> &callback);
     void setStdErrCallback(const std::function<void(const QString &)> &callback);
 
-    class QTCREATOR_UTILS_EXPORT Arguments
-    {
-    public:
-        static Arguments createWindowsArgs(const QString &args);
-        static Arguments createUnixArgs(const QStringList &args);
+    static void setRemoteStartProcessHook(const std::function<void (QtcProcess &)> &hook);
 
-        QString toWindowsArgs() const;
-        QStringList toUnixArgs() const;
-        QString toString() const;
+    bool isSynchronous() const;
+    void setSynchronous(bool on);
 
-    private:
-        QString m_windowsArgs;
-        QStringList m_unixArgs;
-        bool m_isWindows;
-    };
+    void setOpenMode(OpenMode mode);
+
+    bool stopProcess();
+    bool readDataFromProcess(int timeoutS, QByteArray *stdOut, QByteArray *stdErr,
+                             bool showTimeOutMessageBox);
+
+    static QString normalizeNewlines(const QString &text);
+
+    // Helpers to find binaries. Do not use it for other path variables
+    // and file types.
+    static QString locateBinary(const QString &binary);
+    static QString locateBinary(const QString &path, const QString &binary);
+
+private:
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    void setupChildProcess() override;
+#endif
+    friend class SynchronousProcess;
+    Internal::QtcProcessPrivate *d = nullptr;
+
+    void setProcessEnvironment(const QProcessEnvironment &environment) = delete;
+    QProcessEnvironment processEnvironment() const = delete;
+};
+
+QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessResponse &);
+
+QTCREATOR_UTILS_EXPORT SynchronousProcessResponse::Result defaultExitCodeInterpreter(int code);
+
+class QTCREATOR_UTILS_EXPORT SynchronousProcess : public QtcProcess
+{
+    Q_OBJECT
+public:
+    SynchronousProcess();
+    ~SynchronousProcess() override;
+};
+
+class QTCREATOR_UTILS_EXPORT ProcessArgs
+{
+public:
+    static ProcessArgs createWindowsArgs(const QString &args);
+    static ProcessArgs createUnixArgs(const QStringList &args);
+
+    QString toWindowsArgs() const;
+    QStringList toUnixArgs() const;
+    QString toString() const;
 
     enum SplitError {
         SplitOk = 0, //! All went just fine
@@ -150,13 +185,13 @@ public:
     //! Join an argument list into a shell command
     static QString joinArgs(const QStringList &args, OsType osType = HostOsInfo::hostOs());
     //! Prepare argument of a shell command for feeding into QProcess
-    static Arguments prepareArgs(const QString &cmd, SplitError *err,
-                                 OsType osType = HostOsInfo::hostOs(),
-                                 const Environment *env = nullptr, const QString *pwd = nullptr,
-                                 bool abortOnMeta = true);
+    static ProcessArgs prepareArgs(const QString &cmd, SplitError *err,
+                                   OsType osType = HostOsInfo::hostOs(),
+                                   const Environment *env = nullptr, const QString *pwd = nullptr,
+                                   bool abortOnMeta = true);
     //! Prepare a shell command for feeding into QProcess
     static bool prepareCommand(const QString &command, const QString &arguments,
-                               QString *outCmd, Arguments *outArgs, OsType osType = HostOsInfo::hostOs(),
+                               QString *outCmd, ProcessArgs *outArgs, OsType osType = HostOsInfo::hostOs(),
                                const Environment *env = nullptr, const QString *pwd = nullptr);
     //! Quote and append each argument to a shell command
     static void addArgs(QString *args, const QStringList &inArgs);
@@ -213,45 +248,10 @@ public:
         ArgIterator m_ait;
     };
 
-    static void setRemoteStartProcessHook(const std::function<void (QtcProcess &)> &hook);
-
-    bool isSynchronous() const;
-    void setSynchronous(bool on);
-
-    void setOpenMode(OpenMode mode);
-
-    bool stopProcess();
-    bool readDataFromProcess(int timeoutS, QByteArray *stdOut, QByteArray *stdErr,
-                             bool showTimeOutMessageBox);
-
-    static QString normalizeNewlines(const QString &text);
-
-    // Helpers to find binaries. Do not use it for other path variables
-    // and file types.
-    static QString locateBinary(const QString &binary);
-    static QString locateBinary(const QString &path, const QString &binary);
-
 private:
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    void setupChildProcess() override;
-#endif
-    friend class SynchronousProcess;
-    Internal::QtcProcessPrivate *d = nullptr;
-
-    void setProcessEnvironment(const QProcessEnvironment &environment) = delete;
-    QProcessEnvironment processEnvironment() const = delete;
-};
-
-QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessResponse &);
-
-QTCREATOR_UTILS_EXPORT SynchronousProcessResponse::Result defaultExitCodeInterpreter(int code);
-
-class QTCREATOR_UTILS_EXPORT SynchronousProcess : public QtcProcess
-{
-    Q_OBJECT
-public:
-    SynchronousProcess();
-    ~SynchronousProcess() override;
+    QString m_windowsArgs;
+    QStringList m_unixArgs;
+    bool m_isWindows;
 };
 
 } // namespace Utils

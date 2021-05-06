@@ -143,7 +143,7 @@ QStringList PerfSettings::perfRecordArguments() const
                         "--call-graph", callgraphArg,
                         sampleMode.itemValue().toString(),
                         QString::number(period.value())})
-         + QtcProcess::splitArgs(extraArguments.value());
+         + ProcessArgs::splitArgs(extraArguments.value());
 }
 
 void PerfSettings::resetToDefault()

@@ -413,7 +413,7 @@ static QStringList readFlags(const QString &filePath)
         return QStringList();
     QStringList flags;
     for (const auto &line : lines)
-        flags.append(QtcProcess::splitArgs(line));
+        flags.append(ProcessArgs::splitArgs(line));
     return flags;
 }
 

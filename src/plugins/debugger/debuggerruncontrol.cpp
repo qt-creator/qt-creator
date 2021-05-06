@@ -890,7 +890,7 @@ bool DebuggerRunTool::fixupParameters()
             QString qmlarg = rp.isCppDebugging() && rp.nativeMixedEnabled
                     ? QmlDebug::qmlDebugNativeArguments(service, false)
                     : QmlDebug::qmlDebugTcpArguments(service, rp.qmlServer);
-            QtcProcess::addArg(&rp.inferior.commandLineArguments, qmlarg);
+            ProcessArgs::addArg(&rp.inferior.commandLineArguments, qmlarg);
         }
     }
 
@@ -903,12 +903,12 @@ bool DebuggerRunTool::fixupParameters()
     }
 
     if (HostOsInfo::isWindowsHost()) {
-        QtcProcess::SplitError perr;
+        ProcessArgs::SplitError perr;
         rp.inferior.commandLineArguments =
-                QtcProcess::prepareArgs(rp.inferior.commandLineArguments, &perr,
-                                        HostOsInfo::hostOs(), nullptr,
-                                        &rp.inferior.workingDirectory).toWindowsArgs();
-        if (perr != QtcProcess::SplitOk) {
+                ProcessArgs::prepareArgs(rp.inferior.commandLineArguments, &perr,
+                                         HostOsInfo::hostOs(), nullptr,
+                                         &rp.inferior.workingDirectory).toWindowsArgs();
+        if (perr != ProcessArgs::SplitOk) {
             // perr == BadQuoting is never returned on Windows
             // FIXME? QTCREATORBUG-2809
             reportFailure(DebuggerPlugin::tr("Debugging complex command lines "
@@ -1130,7 +1130,7 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
         debugServer.environment = mainRunnable.environment;
         debugServer.workingDirectory = mainRunnable.workingDirectory;
 
-        QStringList args = QtcProcess::splitArgs(mainRunnable.commandLineArguments, OsTypeLinux);
+        QStringList args = ProcessArgs::splitArgs(mainRunnable.commandLineArguments, OsTypeLinux);
 
         const bool isQmlDebugging = portsGatherer->useQmlServer();
         const bool isCppDebugging = portsGatherer->useGdbServer();
@@ -1162,7 +1162,7 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
                     args.append(QString::number(m_pid.pid()));
             }
         }
-        debugServer.commandLineArguments = QtcProcess::joinArgs(args, OsTypeLinux);
+        debugServer.commandLineArguments = ProcessArgs::joinArgs(args, OsTypeLinux);
 
         doStart(debugServer, runControl->device());
     });

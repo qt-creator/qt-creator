@@ -641,7 +641,7 @@ void TestRunner::debugTests()
     inferior.executable = FilePath::fromString(commandFilePath);
 
     const QStringList args = config->argumentsForTestRunner(&omitted);
-    inferior.commandLineArguments = Utils::QtcProcess::joinArgs(args);
+    inferior.commandLineArguments = Utils::ProcessArgs::joinArgs(args);
     if (!omitted.isEmpty()) {
         const QString &details = constructOmittedDetailsString(omitted);
         reportResult(ResultType::MessageWarn, details.arg(config->displayName()));

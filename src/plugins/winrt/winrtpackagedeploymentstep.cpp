@@ -346,8 +346,8 @@ void WinRtPackageDeploymentStep::stdOutput(const QString &line)
 QString WinRtPackageDeploymentStep::defaultWinDeployQtArguments() const
 {
     QString args;
-    QtcProcess::addArg(&args, QStringLiteral("--qmldir"));
-    QtcProcess::addArg(&args, project()->projectDirectory().toUserOutput());
+    ProcessArgs::addArg(&args, QStringLiteral("--qmldir"));
+    ProcessArgs::addArg(&args, project()->projectDirectory().toUserOutput());
     return args;
 }
 

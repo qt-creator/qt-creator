@@ -441,7 +441,7 @@ QStringList MakefileParser::parseTermsAfterAssign(const QString &line)
     if (assignPos <= 0 || assignPos >= line.size())
         return QStringList();
 
-    const QStringList parts = Utils::QtcProcess::splitArgs(line.mid(assignPos));
+    const QStringList parts = Utils::ProcessArgs::splitArgs(line.mid(assignPos));
     QStringList result;
     for (int i = 0; i < parts.count(); ++i) {
         const QString cur = parts.at(i);

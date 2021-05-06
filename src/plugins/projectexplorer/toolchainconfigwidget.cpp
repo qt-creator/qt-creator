@@ -38,6 +38,8 @@
 #include <QScrollArea>
 #include <QPainter>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
 ToolChainConfigWidget::ToolChainConfigWidget(ToolChain *tc) :
@@ -128,15 +130,15 @@ void ToolChainConfigWidget::clearErrorMessage()
 
 QStringList ToolChainConfigWidget::splitString(const QString &s)
 {
-    Utils::QtcProcess::SplitError splitError;
-    const Utils::OsType osType = Utils::HostOsInfo::hostOs();
-    QStringList res = Utils::QtcProcess::splitArgs(s, osType, false, &splitError);
-    if (splitError != Utils::QtcProcess::SplitOk){
-        res = Utils::QtcProcess::splitArgs(s + '\\', osType, false, &splitError);
-        if (splitError != Utils::QtcProcess::SplitOk){
-            res = Utils::QtcProcess::splitArgs(s + '"', osType, false, &splitError);
-            if (splitError != Utils::QtcProcess::SplitOk)
-                res = Utils::QtcProcess::splitArgs(s + '\'', osType, false, &splitError);
+    ProcessArgs::SplitError splitError;
+    const OsType osType = HostOsInfo::hostOs();
+    QStringList res = ProcessArgs::splitArgs(s, osType, false, &splitError);
+    if (splitError != ProcessArgs::SplitOk) {
+        res = ProcessArgs::splitArgs(s + '\\', osType, false, &splitError);
+        if (splitError != ProcessArgs::SplitOk) {
+            res = ProcessArgs::splitArgs(s + '"', osType, false, &splitError);
+            if (splitError != ProcessArgs::SplitOk)
+                res = ProcessArgs::splitArgs(s + '\'', osType, false, &splitError);
         }
     }
     return res;

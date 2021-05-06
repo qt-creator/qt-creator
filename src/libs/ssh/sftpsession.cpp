@@ -102,7 +102,7 @@ struct SftpSession::SftpSessionPrivate
 
         // The second newline forces the prompt to appear after the command has finished.
         sftpProc.write(commandString(activeCommand.type) + ' '
-                       + QtcProcess::Arguments::createUnixArgs(activeCommand.paths)
+                       + ProcessArgs::createUnixArgs(activeCommand.paths)
                        .toString().toLocal8Bit() + "\n\n");
     }
 };

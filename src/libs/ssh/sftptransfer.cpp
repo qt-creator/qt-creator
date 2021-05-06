@@ -151,7 +151,7 @@ void SftpTransfer::doStart()
     for (const QString &dir : d->dirsToCreate()) {
         switch (d->transferType) {
         case Internal::FileTransferType::Upload:
-            batchFile.write("-mkdir " + QtcProcess::quoteArgUnix(dir).toLocal8Bit() + '\n');
+            batchFile.write("-mkdir " + ProcessArgs::quoteArgUnix(dir).toLocal8Bit() + '\n');
             break;
         case Internal::FileTransferType::Download:
             if (!QDir::root().mkpath(dir)) {
@@ -169,14 +169,14 @@ void SftpTransfer::doStart()
             QFileInfo fi(f.sourceFile);
             if (fi.isSymLink()) {
                 link = true;
-                batchFile.write("-rm " + QtcProcess::quoteArgUnix(f.targetFile).toLocal8Bit()
+                batchFile.write("-rm " + ProcessArgs::quoteArgUnix(f.targetFile).toLocal8Bit()
                                 + '\n');
                 sourceFileOrLinkTarget = fi.dir().relativeFilePath(fi.symLinkTarget()); // see QTBUG-5817.
             }
          }
          batchFile.write(d->transferCommand(link) + ' '
-                         + QtcProcess::quoteArgUnix(sourceFileOrLinkTarget).toLocal8Bit() + ' '
-                         + QtcProcess::quoteArgUnix(f.targetFile).toLocal8Bit() + '\n');
+                         + ProcessArgs::quoteArgUnix(sourceFileOrLinkTarget).toLocal8Bit() + ' '
+                         + ProcessArgs::quoteArgUnix(f.targetFile).toLocal8Bit() + '\n');
     }
     d->sftpProc.setStandardInputFile(batchFile.fileName());
     d->sftpProc.start(sftpBinary.toString(), d->connectionArgs);

@@ -1198,10 +1198,10 @@ GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     m_compilerCommand->setHistoryCompleter("PE.Gcc.Command.History");
     m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
     m_platformCodeGenFlagsLineEdit = new QLineEdit(this);
-    m_platformCodeGenFlagsLineEdit->setText(QtcProcess::joinArgs(tc->platformCodeGenFlags()));
+    m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->platformCodeGenFlags()));
     m_mainLayout->addRow(tr("Platform codegen flags:"), m_platformCodeGenFlagsLineEdit);
     m_platformLinkerFlagsLineEdit = new QLineEdit(this);
-    m_platformLinkerFlagsLineEdit->setText(QtcProcess::joinArgs(tc->platformLinkerFlags()));
+    m_platformLinkerFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->platformLinkerFlags()));
     m_mainLayout->addRow(tr("Platform linker flags:"), m_platformLinkerFlagsLineEdit);
     m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
 
@@ -1254,8 +1254,8 @@ void GccToolChainConfigWidget::setFromToolchain()
     QSignalBlocker blocker(this);
     auto tc = static_cast<GccToolChain *>(toolChain());
     m_compilerCommand->setFilePath(tc->compilerCommand());
-    m_platformCodeGenFlagsLineEdit->setText(QtcProcess::joinArgs(tc->platformCodeGenFlags()));
-    m_platformLinkerFlagsLineEdit->setText(QtcProcess::joinArgs(tc->platformLinkerFlags()));
+    m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->platformCodeGenFlags()));
+    m_platformLinkerFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->platformLinkerFlags()));
     if (m_abiWidget) {
         m_abiWidget->setAbis(tc->supportedAbis(), tc->targetAbi());
         if (!m_isReadOnly && !m_compilerCommand->filePath().toString().isEmpty())
@@ -1269,9 +1269,9 @@ bool GccToolChainConfigWidget::isDirtyImpl() const
     Q_ASSERT(tc);
     return m_compilerCommand->filePath() != tc->compilerCommand()
            || m_platformCodeGenFlagsLineEdit->text()
-                  != QtcProcess::joinArgs(tc->platformCodeGenFlags())
+                  != ProcessArgs::joinArgs(tc->platformCodeGenFlags())
            || m_platformLinkerFlagsLineEdit->text()
-                  != QtcProcess::joinArgs(tc->platformLinkerFlags())
+                  != ProcessArgs::joinArgs(tc->platformLinkerFlags())
            || (m_abiWidget && m_abiWidget->currentAbi() != tc->targetAbi());
 }
 
@@ -1324,7 +1324,7 @@ void GccToolChainConfigWidget::handleCompilerCommandChange()
 void GccToolChainConfigWidget::handlePlatformCodeGenFlagsChange()
 {
     QString str1 = m_platformCodeGenFlagsLineEdit->text();
-    QString str2 = QtcProcess::joinArgs(splitString(str1));
+    QString str2 = ProcessArgs::joinArgs(splitString(str1));
     if (str1 != str2)
         m_platformCodeGenFlagsLineEdit->setText(str2);
     else
@@ -1334,7 +1334,7 @@ void GccToolChainConfigWidget::handlePlatformCodeGenFlagsChange()
 void GccToolChainConfigWidget::handlePlatformLinkerFlagsChange()
 {
     QString str1 = m_platformLinkerFlagsLineEdit->text();
-    QString str2 = QtcProcess::joinArgs(splitString(str1));
+    QString str2 = ProcessArgs::joinArgs(splitString(str1));
     if (str1 != str2)
         m_platformLinkerFlagsLineEdit->setText(str2);
     else

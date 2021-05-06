@@ -63,7 +63,7 @@ QString CMakeCommandBuilder::defaultArguments() const
     if (buildDir.isEmpty())
         buildDir = ".";
 
-    return Utils::QtcProcess::joinArgs({"--build", buildDir, "--target", "all"});
+    return Utils::ProcessArgs::joinArgs({"--build", buildDir, "--target", "all"});
 }
 
 QString CMakeCommandBuilder::setMultiProcessArg(QString args)

@@ -263,7 +263,7 @@ void SpotlightLocatorFilter::prepareSearch(const QString &entry)
             caseSensitivity(fp.filePath) == Qt::CaseInsensitive ? m_arguments
                                                                 : m_caseSensitiveArguments);
         setFileIterator(
-            new SpotlightIterator(QStringList(m_command) + QtcProcess::splitArgs(argumentString)));
+            new SpotlightIterator(QStringList(m_command) + ProcessArgs::splitArgs(argumentString)));
     }
     BaseFileFilter::prepareSearch(entry);
 }

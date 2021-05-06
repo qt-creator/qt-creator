@@ -264,7 +264,7 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
                         continue;
 
                     // CMake sometimes mixes several shell-escaped pieces into one fragment. Disentangle that again:
-                    const QStringList parts = QtcProcess::splitArgs(f.fragment);
+                    const QStringList parts = ProcessArgs::splitArgs(f.fragment);
                     for (const QString &part : parts) {
                         // Some projects abuse linking to libraries to pass random flags to the linker, so ignore
                         // flags mixed into a fragment
@@ -315,7 +315,7 @@ static QStringList splitFragments(const QStringList &fragments)
 {
     QStringList result;
     for (const QString &f : fragments) {
-        result += QtcProcess::splitArgs(f);
+        result += ProcessArgs::splitArgs(f);
     }
     return result;
 }

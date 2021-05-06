@@ -646,7 +646,7 @@ QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
 
     bool ignoreNext = false;
     bool nextIsSpec = false;
-    for (QtcProcess::ArgIterator ait(args); ait.next(); ) {
+    for (ProcessArgs::ArgIterator ait(args); ait.next(); ) {
         if (ignoreNext) {
             ignoreNext = false;
             ait.deleteArg();

@@ -58,7 +58,7 @@ RemoteLinuxQmlToolingSupport::RemoteLinuxQmlToolingSupport(RunControl *runContro
         QmlDebug::QmlDebugServicesPreset services = QmlDebug::servicesForRunMode(runControl->runMode());
 
         Runnable r = runControl->runnable();
-        QtcProcess::addArg(&r.commandLineArguments,
+        ProcessArgs::addArg(&r.commandLineArguments,
                            QmlDebug::qmlDebugTcpArguments(services, serverUrl),
                            OsTypeLinux);
 

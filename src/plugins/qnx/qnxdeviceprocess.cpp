@@ -46,17 +46,16 @@ QnxDeviceProcess::QnxDeviceProcess(const QSharedPointer<const IDevice> &device, 
 
 QString QnxDeviceProcess::fullCommandLine(const Runnable &runnable) const
 {
-    QStringList args = QtcProcess::splitArgs(runnable.commandLineArguments);
+    QStringList args = ProcessArgs::splitArgs(runnable.commandLineArguments);
     args.prepend(runnable.executable.toString());
-    QString cmd = QtcProcess::Arguments::createUnixArgs(args).toString();
+    QString cmd = ProcessArgs::createUnixArgs(args).toString();
 
-    QString fullCommandLine = QLatin1String(
+    QString fullCommandLine =
         "test -f /etc/profile && . /etc/profile ; "
-        "test -f $HOME/profile && . $HOME/profile ; "
-    );
+        "test -f $HOME/profile && . $HOME/profile ; ";
 
     if (!runnable.workingDirectory.isEmpty())
-        fullCommandLine += QString::fromLatin1("cd %1 ; ").arg(QtcProcess::quoteArg(runnable.workingDirectory));
+        fullCommandLine += QString::fromLatin1("cd %1 ; ").arg(ProcessArgs::quoteArg(runnable.workingDirectory));
 
     const Environment env = runnable.environment;
     for (auto it = env.constBegin(); it != env.constEnd(); ++it) {

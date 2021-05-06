@@ -103,7 +103,7 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const QString &pathIn)
         // we cannot select a file here, because no file browser really supports it...
         const QString folder = fileInfo.isDir() ? fileInfo.absoluteFilePath() : fileInfo.filePath();
         const QString app = UnixUtils::fileBrowser(ICore::settings());
-        QStringList browserArgs = Utils::QtcProcess::splitArgs(
+        QStringList browserArgs = ProcessArgs::splitArgs(
                     UnixUtils::substituteFileBrowserParameters(app, folder));
         QString error;
         if (browserArgs.isEmpty()) {

@@ -221,7 +221,7 @@ bool MakeStep::jobCountOverridesMakeflags() const
 
 static Utils::optional<int> argsJobCount(const QString &str)
 {
-    const QStringList args = Utils::QtcProcess::splitArgs(str, Utils::HostOsInfo::hostOs());
+    const QStringList args = ProcessArgs::splitArgs(str, HostOsInfo::hostOs());
     const int argIndex = Utils::indexOf(args, [](const QString &arg) { return arg.startsWith("-j"); });
     if (argIndex == -1)
         return Utils::nullopt;

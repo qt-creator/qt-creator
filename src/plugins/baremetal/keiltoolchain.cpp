@@ -727,7 +727,7 @@ KeilToolChainConfigWidget::KeilToolChainConfigWidget(KeilToolChain *tc) :
     m_compilerCommand->setHistoryCompleter("PE.KEIL.Command.History");
     m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
     m_platformCodeGenFlagsLineEdit = new QLineEdit(this);
-    m_platformCodeGenFlagsLineEdit->setText(QtcProcess::joinArgs(tc->extraCodeModelFlags()));
+    m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->extraCodeModelFlags()));
     m_mainLayout->addRow(tr("Platform codegen flags:"), m_platformCodeGenFlagsLineEdit);
     m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
 
@@ -769,7 +769,7 @@ bool KeilToolChainConfigWidget::isDirtyImpl() const
 {
     const auto tc = static_cast<KeilToolChain *>(toolChain());
     return m_compilerCommand->filePath() != tc->compilerCommand()
-            || m_platformCodeGenFlagsLineEdit->text() != QtcProcess::joinArgs(tc->extraCodeModelFlags())
+            || m_platformCodeGenFlagsLineEdit->text() != ProcessArgs::joinArgs(tc->extraCodeModelFlags())
             || m_abiWidget->currentAbi() != tc->targetAbi()
             ;
 }
@@ -786,7 +786,7 @@ void KeilToolChainConfigWidget::setFromToolChain()
     const QSignalBlocker blocker(this);
     const auto tc = static_cast<KeilToolChain *>(toolChain());
     m_compilerCommand->setFilePath(tc->compilerCommand());
-    m_platformCodeGenFlagsLineEdit->setText(QtcProcess::joinArgs(tc->extraCodeModelFlags()));
+    m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->extraCodeModelFlags()));
     m_abiWidget->setAbis({}, tc->targetAbi());
     const bool haveCompiler = compilerExists(m_compilerCommand->filePath());
     m_abiWidget->setEnabled(haveCompiler && !tc->isAutoDetected());
@@ -802,7 +802,7 @@ void KeilToolChainConfigWidget::handleCompilerCommandChange()
         QStringList newExtraArgs = prevExtraArgs;
         addDefaultCpuArgs(compilerPath, newExtraArgs);
         if (prevExtraArgs != newExtraArgs)
-            m_platformCodeGenFlagsLineEdit->setText(QtcProcess::joinArgs(newExtraArgs));
+            m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(newExtraArgs));
         m_macros = dumpPredefinedMacros(compilerPath, newExtraArgs, env);
         const Abi guessed = guessAbi(m_macros);
         m_abiWidget->setAbis({}, guessed);
@@ -815,7 +815,7 @@ void KeilToolChainConfigWidget::handleCompilerCommandChange()
 void KeilToolChainConfigWidget::handlePlatformCodeGenFlagsChange()
 {
     const QString str1 = m_platformCodeGenFlagsLineEdit->text();
-    const QString str2 = QtcProcess::joinArgs(splitString(str1));
+    const QString str2 = ProcessArgs::joinArgs(splitString(str1));
     if (str1 != str2)
         m_platformCodeGenFlagsLineEdit->setText(str2);
     else

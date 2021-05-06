@@ -567,7 +567,7 @@ IarToolChainConfigWidget::IarToolChainConfigWidget(IarToolChain *tc) :
     m_compilerCommand->setHistoryCompleter("PE.IAREW.Command.History");
     m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
     m_platformCodeGenFlagsLineEdit = new QLineEdit(this);
-    m_platformCodeGenFlagsLineEdit->setText(QtcProcess::joinArgs(tc->extraCodeModelFlags()));
+    m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->extraCodeModelFlags()));
     m_mainLayout->addRow(tr("Platform codegen flags:"), m_platformCodeGenFlagsLineEdit);
     m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
 
@@ -609,7 +609,7 @@ bool IarToolChainConfigWidget::isDirtyImpl() const
 {
     const auto tc = static_cast<IarToolChain *>(toolChain());
     return m_compilerCommand->filePath() != tc->compilerCommand()
-            || m_platformCodeGenFlagsLineEdit->text() != QtcProcess::joinArgs(tc->extraCodeModelFlags())
+            || m_platformCodeGenFlagsLineEdit->text() != ProcessArgs::joinArgs(tc->extraCodeModelFlags())
             || m_abiWidget->currentAbi() != tc->targetAbi()
             ;
 }
@@ -626,7 +626,7 @@ void IarToolChainConfigWidget::setFromToolchain()
     const QSignalBlocker blocker(this);
     const auto tc = static_cast<IarToolChain *>(toolChain());
     m_compilerCommand->setFilePath(tc->compilerCommand());
-    m_platformCodeGenFlagsLineEdit->setText(QtcProcess::joinArgs(tc->extraCodeModelFlags()));
+    m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->extraCodeModelFlags()));
     m_abiWidget->setAbis({}, tc->targetAbi());
     const bool haveCompiler = compilerExists(m_compilerCommand->filePath());
     m_abiWidget->setEnabled(haveCompiler && !tc->isAutoDetected());
@@ -652,7 +652,7 @@ void IarToolChainConfigWidget::handleCompilerCommandChange()
 void IarToolChainConfigWidget::handlePlatformCodeGenFlagsChange()
 {
     const QString str1 = m_platformCodeGenFlagsLineEdit->text();
-    const QString str2 = QtcProcess::joinArgs(splitString(str1));
+    const QString str2 = ProcessArgs::joinArgs(splitString(str1));
     if (str1 != str2)
         m_platformCodeGenFlagsLineEdit->setText(str2);
     else

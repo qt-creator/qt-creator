@@ -142,7 +142,7 @@ QString QMakeStep::allArguments(const BaseQtVersion *v, ArgumentFlags flags) con
     if (v->qtVersion() < QtVersionNumber(5, 0, 0))
         arguments << "-r";
     bool userProvidedMkspec = false;
-    for (QtcProcess::ConstArgIterator ait(userArguments()); ait.next(); ) {
+    for (ProcessArgs::ConstArgIterator ait(userArguments()); ait.next(); ) {
         if (ait.value() == "-spec") {
             if (ait.next()) {
                 userProvidedMkspec = true;
@@ -159,11 +159,11 @@ QString QMakeStep::allArguments(const BaseQtVersion *v, ArgumentFlags flags) con
 
     arguments << deducedArguments().toArguments();
 
-    QString args = QtcProcess::joinArgs(arguments);
+    QString args = ProcessArgs::joinArgs(arguments);
     // User arguments
-    QtcProcess::addArgs(&args, userArguments());
+    ProcessArgs::addArgs(&args, userArguments());
     for (QString arg : qAsConst(m_extraArgs))
-        QtcProcess::addArgs(&args, arg);
+        ProcessArgs::addArgs(&args, arg);
     return (flags & ArgumentFlag::Expand) ? bc->macroExpander()->expand(args) : args;
 }
 
@@ -419,10 +419,10 @@ QString QMakeStep::makeArguments(const QString &makefile) const
 {
     QString args;
     if (!makefile.isEmpty()) {
-        QtcProcess::addArg(&args, "-f");
-        QtcProcess::addArg(&args, makefile);
+        ProcessArgs::addArg(&args, "-f");
+        ProcessArgs::addArg(&args, makefile);
     }
-    QtcProcess::addArg(&args, "qmake_all");
+    ProcessArgs::addArg(&args, "qmake_all");
     return args;
 }
 
@@ -453,7 +453,7 @@ QStringList QMakeStep::parserArguments()
     QStringList result = m_extraParserArgs;
     BaseQtVersion *qt = QtKitAspect::qtVersion(kit());
     QTC_ASSERT(qt, return QStringList());
-    for (QtcProcess::ConstArgIterator ait(allArguments(qt, ArgumentFlag::Expand)); ait.next(); ) {
+    for (ProcessArgs::ConstArgIterator ait(allArguments(qt, ArgumentFlag::Expand)); ait.next(); ) {
         if (ait.isSimple())
             result << ait.value();
     }
@@ -468,8 +468,8 @@ QString QMakeStep::userArguments() const
 QString QMakeStep::mkspec() const
 {
     QString additionalArguments = userArguments();
-    QtcProcess::addArgs(&additionalArguments, m_extraArgs);
-    for (QtcProcess::ArgIterator ait(&additionalArguments); ait.next(); ) {
+    ProcessArgs::addArgs(&additionalArguments, m_extraArgs);
+    for (ProcessArgs::ArgIterator ait(&additionalArguments); ait.next(); ) {
         if (ait.value() == "-spec") {
             if (ait.next())
                 return FilePath::fromUserInput(ait.value()).toString();

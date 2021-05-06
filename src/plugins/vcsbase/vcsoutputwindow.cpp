@@ -448,12 +448,12 @@ static inline QString formatArguments(const QStringList &args)
         if (i)
             str << ' ';
         if (arg.startsWith(QString::fromLatin1(passwordOptionC) + '=')) {
-            str << QtcProcess::quoteArg("--password=********");
+            str << ProcessArgs::quoteArg("--password=********");
             continue;
         }
-        str << QtcProcess::quoteArg(arg);
+        str << ProcessArgs::quoteArg(arg);
         if (arg == passwordOptionC) {
-            str << ' ' << QtcProcess::quoteArg("********");
+            str << ' ' << ProcessArgs::quoteArg("********");
             i++;
         }
     }
@@ -463,7 +463,7 @@ static inline QString formatArguments(const QStringList &args)
 QString VcsOutputWindow::msgExecutionLogEntry(const QString &workingDir, const CommandLine &command)
 {
     const QString args = formatArguments(command.splitArguments());
-    const QString nativeExecutable = QtcProcess::quoteArg(command.executable().toUserOutput());
+    const QString nativeExecutable = ProcessArgs::quoteArg(command.executable().toUserOutput());
     if (workingDir.isEmpty())
         return tr("Running: %1 %2").arg(nativeExecutable, args) + '\n';
     return tr("Running in %1: %2 %3").

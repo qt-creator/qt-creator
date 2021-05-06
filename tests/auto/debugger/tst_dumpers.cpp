@@ -82,14 +82,14 @@ static bool generateEnvironmentSettings(Utils::Environment &env,
     Utils::TempFileSaver saver(QDir::tempPath() + "/XXXXXX.bat");
 
     QByteArray call = "call ";
-    call += Utils::QtcProcess::quoteArg(batchFile).toLocal8Bit();
+    call += Utils::ProcessArgs::quoteArg(batchFile).toLocal8Bit();
     if (!batchArgs.isEmpty()) {
         call += ' ';
         call += batchArgs.toLocal8Bit();
     }
     saver.write(call + "\r\n");
 
-    const QByteArray redirect = "set > " + Utils::QtcProcess::quoteArg(
+    const QByteArray redirect = "set > " + Utils::ProcessArgs::quoteArg(
                                     QDir::toNativeSeparators(tempOutFile)).toLocal8Bit() + "\r\n";
     saver.write(redirect);
     if (!saver.finalize()) {

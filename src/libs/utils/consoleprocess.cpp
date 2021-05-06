@@ -232,11 +232,11 @@ TerminalCommand ConsoleProcess::terminalEmulator(const QSettings *settings)
             const QString value = settings->value("General/TerminalEmulator").toString().trimmed();
             if (!value.isEmpty()) {
                 // split off command and options
-                const QStringList splitCommand = QtcProcess::splitArgs(value);
+                const QStringList splitCommand = ProcessArgs::splitArgs(value);
                 if (QTC_GUARD(!splitCommand.isEmpty())) {
                     const QString command = splitCommand.first();
                     const QStringList quotedArgs = Utils::transform(splitCommand.mid(1),
-                                                                    &QtcProcess::quoteArgUnix);
+                                                                    &ProcessArgs::quoteArgUnix);
                     const QString options = quotedArgs.join(' ');
                     return {command, "", options};
                 }
@@ -358,7 +358,7 @@ bool ConsoleProcess::startTerminalEmulator(QSettings *settings, const QString &w
     const TerminalCommand term = terminalEmulator(settings);
     QProcess process;
     process.setProgram(term.command);
-    process.setArguments(QtcProcess::splitArgs(term.openArgs));
+    process.setArguments(ProcessArgs::splitArgs(term.openArgs));
     process.setProcessEnvironment(env.toProcessEnvironment());
     process.setWorkingDirectory(workingDir);
 
@@ -394,11 +394,11 @@ bool ConsoleProcess::start()
         pcmd = d->m_commandLine.executable().toString();
         pargs = d->m_commandLine.arguments();
     } else {
-        QtcProcess::Arguments outArgs;
-        QtcProcess::prepareCommand(d->m_commandLine.executable().toString(),
-                                   d->m_commandLine.arguments(),
-                                   &pcmd, &outArgs, OsTypeWindows,
-                                   &d->m_environment, &d->m_workingDir);
+        ProcessArgs outArgs;
+        ProcessArgs::prepareCommand(d->m_commandLine.executable().toString(),
+                                    d->m_commandLine.arguments(),
+                                    &pcmd, &outArgs, OsTypeWindows,
+                                    &d->m_environment, &d->m_workingDir);
         pargs = outArgs.toWindowsArgs();
     }
 
@@ -452,7 +452,7 @@ bool ConsoleProcess::start()
             return false;
         }
         d->m_tempFile->flush();
-}
+    }
 
     STARTUPINFO si;
     ZeroMemory(&si, sizeof(si));
@@ -497,19 +497,19 @@ bool ConsoleProcess::start()
 
 #else
 
-    QtcProcess::SplitError perr;
-    QtcProcess::Arguments pargs = QtcProcess::prepareArgs(d->m_commandLine.arguments(),
-                                                          &perr,
-                                                          HostOsInfo::hostOs(),
-                                                          &d->m_environment,
-                                                          &d->m_workingDir,
-                                                          d->m_abortOnMetaChars);
+    ProcessArgs::SplitError perr;
+    ProcessArgs pargs = ProcessArgs::prepareArgs(d->m_commandLine.arguments(),
+                                                 &perr,
+                                                 HostOsInfo::hostOs(),
+                                                 &d->m_environment,
+                                                 &d->m_workingDir,
+                                                 d->m_abortOnMetaChars);
 
     QString pcmd;
-    if (perr == QtcProcess::SplitOk) {
+    if (perr == ProcessArgs::SplitOk) {
         pcmd = d->m_commandLine.executable().toString();
     } else {
-        if (perr != QtcProcess::FoundMeta) {
+        if (perr != ProcessArgs::FoundMeta) {
             emitError(QProcess::FailedToStart, tr("Quoting error in command."));
             return false;
         }
@@ -520,20 +520,20 @@ bool ConsoleProcess::start()
             return false;
         }
         pcmd = qEnvironmentVariable("SHELL", "/bin/sh");
-        pargs = QtcProcess::Arguments::createUnixArgs(
-                        {"-c", (QtcProcess::quoteArg(d->m_commandLine.executable().toString())
+        pargs = ProcessArgs::createUnixArgs(
+                        {"-c", (ProcessArgs::quoteArg(d->m_commandLine.executable().toString())
                          + ' ' + d->m_commandLine.arguments())});
     }
 
-    QtcProcess::SplitError qerr;
+    ProcessArgs::SplitError qerr;
     const TerminalCommand terminal = terminalEmulator(d->m_settings);
-    const QtcProcess::Arguments terminalArgs = QtcProcess::prepareArgs(terminal.executeArgs,
-                                                                       &qerr,
-                                                                       HostOsInfo::hostOs(),
-                                                                       &d->m_environment,
-                                                                       &d->m_workingDir);
-    if (qerr != QtcProcess::SplitOk) {
-        emitError(QProcess::FailedToStart, qerr == QtcProcess::BadQuoting
+    const ProcessArgs terminalArgs = ProcessArgs::prepareArgs(terminal.executeArgs,
+                                                              &qerr,
+                                                              HostOsInfo::hostOs(),
+                                                              &d->m_environment,
+                                                              &d->m_workingDir);
+    if (qerr != ProcessArgs::SplitOk) {
+        emitError(QProcess::FailedToStart, qerr == ProcessArgs::BadQuoting
                           ? tr("Quoting error in terminal command.")
                           : tr("Terminal command may not be a shell command."));
         return false;
@@ -589,7 +589,7 @@ bool ConsoleProcess::start()
             << pargs.toUnixArgs();
 
     if (terminal.needsQuotes)
-        allArgs = QStringList { QtcProcess::joinArgs(allArgs) };
+        allArgs = QStringList { ProcessArgs::joinArgs(allArgs) };
 
     d->m_process.setEnvironment(env);
     d->m_process.start(terminal.command, allArgs);

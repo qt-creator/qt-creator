@@ -324,7 +324,7 @@ ClangDiagnosticConfig diagnosticConfig(const Utils::Id &diagConfigId)
 QStringList splitArgs(QString &argsString)
 {
     QStringList result;
-    Utils::QtcProcess::ArgIterator it(&argsString);
+    Utils::ProcessArgs::ArgIterator it(&argsString);
     while (it.next())
         result.append(it.value());
     return result;

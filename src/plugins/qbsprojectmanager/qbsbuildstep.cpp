@@ -497,7 +497,7 @@ void QbsBuildStep::handleProcessResult(
     if (success && !hasOutput)
         return;
 
-    emit addOutput(executable.toUserOutput() + ' '  + QtcProcess::joinArgs(arguments),
+    emit addOutput(executable.toUserOutput() + ' '  + ProcessArgs::joinArgs(arguments),
                    OutputFormat::Stdout);
     for (const QString &line : stdErr)
         emit addOutput(line, OutputFormat::Stderr);
@@ -774,7 +774,7 @@ void QbsBuildStepConfigWidget::updatePropertyEdit(const QVariantMap &data)
     for (QVariantMap::const_iterator i = editable.constBegin(); i != editable.constEnd(); ++i)
         propertyList.append(i.key() + ':' + i.value().toString());
 
-    propertyEdit->setText(QtcProcess::joinArgs(propertyList));
+    propertyEdit->setText(ProcessArgs::joinArgs(propertyList));
 }
 
 void QbsBuildStep::changeBuildVariant()
@@ -851,10 +851,9 @@ QbsBuildStep *QbsBuildStepConfigWidget::qbsStep() const
 
 bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QString *errorMessage)
 {
-    Utils::QtcProcess::SplitError err;
-    QStringList argList = Utils::QtcProcess::splitArgs(edit->text(), Utils::HostOsInfo::hostOs(),
-                                                       false, &err);
-    if (err != Utils::QtcProcess::SplitOk) {
+    ProcessArgs::SplitError err;
+    QStringList argList = ProcessArgs::splitArgs(edit->text(), HostOsInfo::hostOs(), false, &err);
+    if (err != ProcessArgs::SplitOk) {
         if (errorMessage)
             *errorMessage = tr("Could not split properties.");
         return false;

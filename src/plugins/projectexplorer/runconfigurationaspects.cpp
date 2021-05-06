@@ -392,7 +392,7 @@ void ArgumentsAspect::fromMap(const QVariantMap &map)
     QVariant args = map.value(settingsKey());
     // Until 3.7 a QStringList was stored for Remote Linux
     if (args.type() == QVariant::StringList)
-        m_arguments = QtcProcess::joinArgs(args.toStringList(), OsTypeLinux);
+        m_arguments = ProcessArgs::joinArgs(args.toStringList(), OsTypeLinux);
     else
         m_arguments = args.toString();
 

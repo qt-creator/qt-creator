@@ -241,7 +241,7 @@ void MakeInstallStep::updateArgsFromAspect()
 {
     if (customCommandLineAspect()->isChecked())
         return;
-    setUserArguments(QtcProcess::joinArgs(target()->makeInstallCommand(
+    setUserArguments(ProcessArgs::joinArgs(target()->makeInstallCommand(
         static_cast<StringAspect *>(aspect(InstallRootAspectId))->filePath().toString())
                                           .arguments));
     updateFullCommandLine();
@@ -252,7 +252,7 @@ void MakeInstallStep::updateFullCommandLine()
     // FIXME: Only executable?
     static_cast<StringAspect *>(aspect(FullCommandLineAspectId))->setValue(
                 QDir::toNativeSeparators(
-                    QtcProcess::quoteArg(makeExecutable().toString()))
+                    ProcessArgs::quoteArg(makeExecutable().toString()))
                 + ' '  + userArguments());
 }
 
@@ -261,9 +261,9 @@ void MakeInstallStep::updateFromCustomCommandLineAspect()
     const StringAspect * const aspect = customCommandLineAspect();
     if (!aspect->isChecked())
         return;
-    const QStringList tokens = QtcProcess::splitArgs(aspect->value());
+    const QStringList tokens = ProcessArgs::splitArgs(aspect->value());
     setMakeCommand(tokens.isEmpty() ? FilePath() : FilePath::fromString(tokens.first()));
-    setUserArguments(QtcProcess::joinArgs(tokens.mid(1)));
+    setUserArguments(ProcessArgs::joinArgs(tokens.mid(1)));
 }
 
 StringAspect *MakeInstallStep::customCommandLineAspect() const

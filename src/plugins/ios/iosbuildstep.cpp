@@ -95,7 +95,7 @@ QWidget *IosBuildStep::createConfigWidget()
     auto buildArgumentsLabel = new QLabel(tr("Base arguments:"), widget);
 
     auto buildArgumentsTextEdit = new QPlainTextEdit(widget);
-    buildArgumentsTextEdit->setPlainText(QtcProcess::joinArgs(baseArguments()));
+    buildArgumentsTextEdit->setPlainText(ProcessArgs::joinArgs(baseArguments()));
 
     auto resetDefaultsButton = new QPushButton(widget);
     resetDefaultsButton->setLayoutDirection(Qt::RightToLeft);
@@ -105,7 +105,7 @@ QWidget *IosBuildStep::createConfigWidget()
     auto extraArgumentsLabel = new QLabel(tr("Extra arguments:"), widget);
 
     auto extraArgumentsLineEdit = new QLineEdit(widget);
-    extraArgumentsLineEdit->setText(QtcProcess::joinArgs(m_extraArguments));
+    extraArgumentsLineEdit->setText(ProcessArgs::joinArgs(m_extraArguments));
 
     auto gridLayout = new QGridLayout(widget);
     gridLayout->addWidget(buildArgumentsLabel, 0, 0, 1, 1);
@@ -125,19 +125,19 @@ QWidget *IosBuildStep::createConfigWidget()
     updateDetails();
 
     connect(buildArgumentsTextEdit, &QPlainTextEdit::textChanged, this, [=] {
-        setBaseArguments(QtcProcess::splitArgs(buildArgumentsTextEdit->toPlainText()));
+        setBaseArguments(ProcessArgs::splitArgs(buildArgumentsTextEdit->toPlainText()));
         resetDefaultsButton->setEnabled(!m_useDefaultArguments);
         updateDetails();
     });
 
     connect(resetDefaultsButton, &QAbstractButton::clicked, this, [=] {
         setBaseArguments(defaultArguments());
-        buildArgumentsTextEdit->setPlainText(QtcProcess::joinArgs(baseArguments()));
+        buildArgumentsTextEdit->setPlainText(ProcessArgs::joinArgs(baseArguments()));
         resetDefaultsButton->setEnabled(!m_useDefaultArguments);
     });
 
     connect(extraArgumentsLineEdit, &QLineEdit::editingFinished, [=] {
-        setExtraArguments(QtcProcess::splitArgs(extraArgumentsLineEdit->text()));
+        setExtraArguments(ProcessArgs::splitArgs(extraArgumentsLineEdit->text()));
     });
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,

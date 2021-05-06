@@ -61,7 +61,7 @@ QnxQmlProfilerSupport::QnxQmlProfilerSupport(RunControl *runControl)
         profiler->recordData("QmlServerUrl", serverUrl);
 
         Runnable r = runControl->runnable();
-        QtcProcess::addArg(&r.commandLineArguments,
+        ProcessArgs::addArg(&r.commandLineArguments,
                            QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, serverUrl),
                            Utils::OsTypeOtherUnix);
 

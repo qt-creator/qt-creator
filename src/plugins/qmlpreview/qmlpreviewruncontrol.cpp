@@ -148,7 +148,7 @@ LocalQmlPreviewSupport::LocalQmlPreviewSupport(ProjectExplorer::RunControl *runC
             }
         }
 
-        Utils::QtcProcess::addArg(&runnable.commandLineArguments,
+        Utils::ProcessArgs::addArg(&runnable.commandLineArguments,
                                   QmlDebug::qmlDebugLocalArguments(QmlDebug::QmlPreviewServices,
                                                                    serverUrl.path()));
         doStart(runnable, {});

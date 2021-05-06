@@ -51,7 +51,6 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
-using namespace QmlProfiler::Internal;
 
 namespace QmlProfiler {
 namespace Internal {
@@ -249,7 +248,7 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
         else
             QTC_CHECK(false);
 
-        QString arguments = Utils::QtcProcess::quoteArg(
+        QString arguments = Utils::ProcessArgs::quoteArg(
                                 QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlProfilerServices, code, true));
 
         if (!debuggee.commandLineArguments.isEmpty())

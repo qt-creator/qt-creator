@@ -86,7 +86,7 @@ QString OpenOcdGdbServerProvider::channelString() const
         // otherwise running will be stuck.
         CommandLine cmd = command();
         QStringList args = {"|", cmd.executable().toString()};
-        for (const QString &a : QtcProcess::splitArgs(cmd.arguments())) {
+        for (const QString &a : ProcessArgs::splitArgs(cmd.arguments())) {
             if (a.startsWith('\"') && a.endsWith('\"'))
                 args << a;
             else

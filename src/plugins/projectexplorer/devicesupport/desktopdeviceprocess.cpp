@@ -55,7 +55,7 @@ void DesktopDeviceProcess::start(const Runnable &runnable)
     m_process.setProcessEnvironment(runnable.environment.toProcessEnvironment());
     m_process.setWorkingDirectory(runnable.workingDirectory);
     m_process.start(runnable.executable.toString(),
-                    Utils::QtcProcess::splitArgs(runnable.commandLineArguments));
+                    Utils::ProcessArgs::splitArgs(runnable.commandLineArguments));
 }
 
 void DesktopDeviceProcess::interrupt()

@@ -37,7 +37,7 @@
 static QList<QByteArray> splitArgs(QString &argsString)
 {
     QList<QByteArray> result;
-    Utils::QtcProcess::ArgIterator it(&argsString);
+    Utils::ProcessArgs::ArgIterator it(&argsString);
     while (it.next())
         result.append(it.value().toUtf8());
     return result;
@@ -112,7 +112,7 @@ const char *CommandLineArguments::at(int position) const
 static Utf8String maybeQuoted(const char *argumentAsCString)
 {
     const QString argumentAsQString = QString::fromUtf8(argumentAsCString);
-    const QString quotedArgument = Utils::QtcProcess::quoteArg(argumentAsQString);
+    const QString quotedArgument = Utils::ProcessArgs::quoteArg(argumentAsQString);
 
     return Utf8String::fromString(quotedArgument);
 }

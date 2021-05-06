@@ -103,8 +103,8 @@ void RsyncDeployService::createRemoteDirectories()
         remoteDirs << f.remoteDirectory();
     remoteDirs.sort();
     remoteDirs.removeDuplicates();
-    m_mkdir = connection()->createRemoteProcess("mkdir -p " + QtcProcess::Arguments
-                                                ::createUnixArgs(remoteDirs).toString());
+    m_mkdir = connection()->createRemoteProcess("mkdir -p " +
+                                                ProcessArgs::createUnixArgs(remoteDirs).toString());
     connect(m_mkdir.get(), &SshRemoteProcess::done, this, [this](const QString &error) {
         QString userError;
         if (!error.isEmpty())
@@ -237,7 +237,7 @@ QString RsyncDeployStep::defaultFlags()
 RsyncCommandLine RsyncDeployStep::rsyncCommand(const SshConnection &sshConnection,
                                                const QString &flags)
 {
-    const QString sshCmdLine = QtcProcess::joinArgs(
+    const QString sshCmdLine = ProcessArgs::joinArgs(
                 QStringList{SshSettings::sshFilePath().toUserOutput()}
                 << sshConnection.connectionOptions(SshSettings::sshFilePath()), OsTypeLinux);
     const SshConnectionParameters sshParams = sshConnection.connectionParameters();

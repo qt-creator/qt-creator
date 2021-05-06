@@ -825,7 +825,7 @@ void AndroidSettingsWidget::editEmulatorArgsAVD()
     if (dialog.exec() != QDialog::Accepted)
         return;
 
-    m_androidConfig.setEmulatorArgs(QtcProcess::splitArgs(dialog.textValue()));
+    m_androidConfig.setEmulatorArgs(ProcessArgs::splitArgs(dialog.textValue()));
 }
 
 void AndroidSettingsWidget::createKitToggled()

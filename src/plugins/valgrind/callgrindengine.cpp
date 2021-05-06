@@ -97,7 +97,7 @@ QStringList CallgrindToolRunner::toolArguments() const
     if (!m_argumentForToggleCollect.isEmpty())
         arguments << m_argumentForToggleCollect;
 
-    arguments << Utils::QtcProcess::splitArgs(m_settings.callgrindArguments.value());
+    arguments << Utils::ProcessArgs::splitArgs(m_settings.callgrindArguments.value());
 
     return arguments;
 }

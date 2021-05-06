@@ -116,8 +116,8 @@ public:
                 arguments.append(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
                                                                 portsGatherer->qmlServer()));
             }
-            arguments.append(QtcProcess::splitArgs(r.commandLineArguments));
-            r.commandLineArguments = QtcProcess::joinArgs(arguments);
+            arguments.append(ProcessArgs::splitArgs(r.commandLineArguments));
+            r.commandLineArguments = ProcessArgs::joinArgs(arguments);
 
             doStart(r, runControl->device());
         });

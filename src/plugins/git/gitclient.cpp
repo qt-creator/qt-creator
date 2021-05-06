@@ -2574,7 +2574,7 @@ bool GitClient::tryLauchingGitK(const Environment &env,
     }
     const QString gitkOpts = settings().gitkOptions.value();
     if (!gitkOpts.isEmpty())
-        arguments.append(QtcProcess::splitArgs(gitkOpts, HostOsInfo::hostOs()));
+        arguments.append(ProcessArgs::splitArgs(gitkOpts, HostOsInfo::hostOs()));
     if (!fileName.isEmpty())
         arguments << "--" << fileName;
     VcsOutputWindow::appendCommand(workingDirectory, {binary, arguments});

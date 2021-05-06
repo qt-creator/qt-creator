@@ -120,7 +120,7 @@ void MesonBuildConfiguration::build(const QString &target)
 
 QStringList MesonBuildConfiguration::mesonConfigArgs()
 {
-    return Utils::QtcProcess::splitArgs(m_parameters) + QStringList{QString("-Dbuildtype=%1").arg(mesonBuildTypeName(m_buildType))};
+    return Utils::ProcessArgs::splitArgs(m_parameters) + QStringList{QString("-Dbuildtype=%1").arg(mesonBuildTypeName(m_buildType))};
 }
 
 const QString &MesonBuildConfiguration::parameters() const

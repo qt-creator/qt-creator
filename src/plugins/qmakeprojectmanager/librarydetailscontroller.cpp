@@ -397,7 +397,7 @@ static QString smartQuote(const QString &aString)
 {
     // The OS type is not important in that case, but use always the same
     // in order not to generate different quoting depending on host platform
-    return Utils::QtcProcess::quoteArg(aString, Utils::OsTypeLinux);
+    return Utils::ProcessArgs::quoteArg(aString, Utils::OsTypeLinux);
 }
 
 static QString appendSeparator(const QString &aString)
