@@ -153,30 +153,40 @@ void tst_Check::test()
     QList<Message> messages = checker();
     std::sort(messages.begin(), messages.end(), &offsetComparator);
 
+    /*
+     * expected message are marked inside the respective qml file on the line of their occurrence
+     * with a comment stating error number, start column, and end column with optional state to mark
+     * e.g. false positives
+     * if more than 1 message at a line is expected these can be specified by adding further
+     * line comments in the same line
+     */
     const QRegularExpression messagePattern(" (-?\\d+) (\\d+) (\\d+)\\s*(# false positive|# wrong warning.*)?");
 
     QList<Message> expectedMessages;
     QHash<int, QString> xfails;
     for (const SourceLocation &comment : doc->engine()->comments()) {
-        const QString text = doc->source().mid(comment.begin(), comment.end() - comment.begin());
-        const QRegularExpressionMatch match = messagePattern.match(text);
-        if (!match.hasMatch())
-            continue;
-        const int type = match.captured(1).toInt();
-        const int columnStart = match.captured(2).toInt();
-        const int columnEnd = match.captured(3).toInt() + 1;
+        const QString fullComment = doc->source().mid(comment.begin(), comment.end() - comment.begin());
+        const QStringList splittedComment = fullComment.split("//");
+        for (const QString &text : splittedComment) {
+            const QRegularExpressionMatch match = messagePattern.match(text);
+            if (!match.hasMatch())
+                continue;
+            const int type = match.captured(1).toInt();
+            const int columnStart = match.captured(2).toInt();
+            const int columnEnd = match.captured(3).toInt() + 1;
 
-        Message message;
-        message.location = SourceLocation(
-                    comment.offset - comment.startColumn + columnStart,
-                    columnEnd - columnStart,
-                    comment.startLine,
-                    columnStart),
-        message.type = static_cast<QmlJS::StaticAnalysis::Type>(type);
-        expectedMessages += message;
+            Message message;
+            message.location = SourceLocation(
+                        comment.offset - comment.startColumn + columnStart,
+                        columnEnd - columnStart,
+                        comment.startLine,
+                        columnStart),
+            message.type = static_cast<QmlJS::StaticAnalysis::Type>(type);
+            expectedMessages += message;
 
-        if (messagePattern.captureCount() == 4 && !match.captured(4).isEmpty())
-            xfails.insert(expectedMessages.size() - 1, match.captured(4));
+            if (messagePattern.captureCount() == 4 && !match.captured(4).isEmpty())
+                xfails.insert(expectedMessages.size() - 1, match.captured(4));
+        }
     }
 
     for (int i = 0; i < messages.size(); ++i) {
