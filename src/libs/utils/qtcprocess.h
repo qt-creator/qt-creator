@@ -121,9 +121,6 @@ public:
 
     static void setRemoteStartProcessHook(const std::function<void (QtcProcess &)> &hook);
 
-    bool isSynchronous() const;
-    void setSynchronous(bool on);
-
     void setOpenMode(OpenMode mode);
 
     bool stopProcess();

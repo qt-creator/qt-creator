@@ -104,7 +104,6 @@ public:
     bool m_lowPriority = false;
     bool m_disableUnixTerminal = false;
 
-    bool m_synchronous = false;
     QProcess::OpenMode m_openMode = QProcess::ReadWrite;
 
     // SynchronousProcess left overs:
@@ -263,9 +262,6 @@ void QtcProcess::start()
         }
         QProcess::start(command, arguments.toUnixArgs(), d->m_openMode);
     }
-
-    if (d->m_synchronous)
-        QProcess::waitForFinished();
 }
 
 #ifdef Q_OS_WIN
@@ -347,16 +343,6 @@ void QtcProcessPrivate::setupChildProcess_impl()
     if (m_disableUnixTerminal)
         setsid();
 #endif
-}
-
-bool QtcProcess::isSynchronous() const
-{
-    return d->m_synchronous;
-}
-
-void QtcProcess::setSynchronous(bool on)
-{
-    d->m_synchronous = on;
 }
 
 void QtcProcess::setOpenMode(OpenMode mode)

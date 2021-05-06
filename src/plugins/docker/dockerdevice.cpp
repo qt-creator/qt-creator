@@ -663,8 +663,8 @@ int DockerDevicePrivate::runSynchronously(const CommandLine &cmd) const
     QtcProcess proc;
     proc.setCommand(dcmd);
     proc.setWorkingDirectory("/tmp");
-    proc.setSynchronous(true);
     proc.start();
+    proc.waitForFinished();
 
     LOG("Run sync:" << dcmd.toUserOutput() << " result: " << proc.exitCode());
     return proc.exitCode();
