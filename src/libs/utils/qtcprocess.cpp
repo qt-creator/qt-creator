@@ -2037,7 +2037,6 @@ public:
     void clearForRun();
 
     QTextCodec *m_codec = QTextCodec::codecForLocale();
-    QtcProcess m_process;
     QTimer m_timer;
     QEventLoop m_eventLoop;
     SynchronousProcessResponse m_result;
@@ -2072,25 +2071,23 @@ SynchronousProcess::SynchronousProcess() :
 {
     d->m_timer.setInterval(1000);
     connect(&d->m_timer, &QTimer::timeout, this, &SynchronousProcess::slotTimeout);
-    connect(&d->m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, &SynchronousProcess::finished);
-    connect(&d->m_process, &QProcess::errorOccurred, this, &SynchronousProcess::error);
-    connect(&d->m_process, &QProcess::readyReadStandardOutput,
-            this, [this]() {
-                d->m_hangTimerCount = 0;
-                processStdOut(true);
-            });
-    connect(&d->m_process, &QProcess::readyReadStandardError,
-            this, [this]() {
-                d->m_hangTimerCount = 0;
-                processStdErr(true);
-            });
+    connect(this, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            this, &SynchronousProcess::slotFinished);
+    connect(this, &QProcess::errorOccurred, this, &SynchronousProcess::error);
+    connect(this, &QProcess::readyReadStandardOutput, this, [this] {
+        d->m_hangTimerCount = 0;
+        processStdOut(true);
+    });
+    connect(this, &QProcess::readyReadStandardError, this, [this] {
+        d->m_hangTimerCount = 0;
+        processStdErr(true);
+    });
 }
 
 SynchronousProcess::~SynchronousProcess()
 {
     disconnect(&d->m_timer, nullptr, this, nullptr);
-    disconnect(&d->m_process, nullptr, this, nullptr);
+    disconnect(this, nullptr, this, nullptr);
     delete d;
 }
 
@@ -2102,30 +2099,10 @@ void SynchronousProcess::setTimeoutS(int timeoutS)
         d->m_maxHangTimerCount = INT_MAX / 1000;
 }
 
-int SynchronousProcess::timeoutS() const
-{
-    return d->m_maxHangTimerCount == (INT_MAX / 1000) ? -1 : d->m_maxHangTimerCount;
-}
-
 void SynchronousProcess::setCodec(QTextCodec *c)
 {
     QTC_ASSERT(c, return);
     d->m_codec = c;
-}
-
-QTextCodec *SynchronousProcess::codec() const
-{
-    return d->m_codec;
-}
-
-Environment SynchronousProcess::environment() const
-{
-    return d->m_process.environment();
-}
-
-bool SynchronousProcess::timeOutMessageBoxEnabled() const
-{
-    return d->m_timeOutMessageBoxEnabled;
 }
 
 void SynchronousProcess::setTimeOutMessageBoxEnabled(bool v)
@@ -2133,45 +2110,10 @@ void SynchronousProcess::setTimeOutMessageBoxEnabled(bool v)
     d->m_timeOutMessageBoxEnabled = v;
 }
 
-void SynchronousProcess::setEnvironment(const Environment &e)
-{
-    d->m_process.setEnvironment(Environment(e));
-}
-
-void SynchronousProcess::setDisableUnixTerminal()
-{
-    d->m_process.setDisableUnixTerminal();
-}
-
 void SynchronousProcess::setExitCodeInterpreter(const ExitCodeInterpreter &interpreter)
 {
     QTC_ASSERT(interpreter, return);
     d->m_exitCodeInterpreter = interpreter;
-}
-
-ExitCodeInterpreter SynchronousProcess::exitCodeInterpreter() const
-{
-    return d->m_exitCodeInterpreter;
-}
-
-void SynchronousProcess::setWorkingDirectory(const QString &workingDirectory)
-{
-    d->m_process.setWorkingDirectory(workingDirectory);
-}
-
-QString SynchronousProcess::workingDirectory() const
-{
-    return d->m_process.workingDirectory();
-}
-
-QProcess::ProcessChannelMode SynchronousProcess::processChannelMode () const
-{
-    return d->m_process.processChannelMode();
-}
-
-void SynchronousProcess::setProcessChannelMode(QProcess::ProcessChannelMode m)
-{
-    d->m_process.setProcessChannelMode(m);
 }
 
 #ifdef QT_GUI_LIB
@@ -2187,8 +2129,8 @@ SynchronousProcessResponse SynchronousProcess::run(const CommandLine &cmd,
     // FIXME: Implement properly
     if (cmd.executable().needsDevice()) {
         QtcProcess proc;
-        proc.setEnvironment(Environment(d->m_process.environment()));
-        proc.setWorkingDirectory(d->m_process.workingDirectory());
+        proc.setEnvironment(Environment(environment()));
+        proc.setWorkingDirectory(workingDirectory());
         proc.setCommand(cmd);
 
         // writeData ?
@@ -2215,15 +2157,15 @@ SynchronousProcessResponse SynchronousProcess::run(const CommandLine &cmd,
     // using QProcess::start() and passing program, args and OpenMode results in a different
     // quoting of arguments than using QProcess::setArguments() beforehand and calling start()
     // only with the OpenMode
-    d->m_process.setCommand(cmd);
+    setCommand(cmd);
     if (!writeData.isEmpty()) {
-        connect(&d->m_process, &QProcess::started, this, [this, writeData] {
-            d->m_process.write(writeData);
-            d->m_process.closeWriteChannel();
+        connect(this, &QProcess::started, this, [this, writeData] {
+            write(writeData);
+            closeWriteChannel();
         });
     }
-    d->m_process.setOpenMode(writeData.isEmpty() ? QIODevice::ReadOnly : QIODevice::ReadWrite);
-    d->m_process.start();
+    setOpenMode(writeData.isEmpty() ? QIODevice::ReadOnly : QIODevice::ReadWrite);
+    start();
 
     // On Windows, start failure is triggered immediately if the
     // executable cannot be found in the path. Do not start the
@@ -2256,8 +2198,8 @@ SynchronousProcessResponse SynchronousProcess::runBlocking(const CommandLine &cm
     // FIXME: Implement properly
     if (cmd.executable().needsDevice()) {
         QtcProcess proc;
-        proc.setEnvironment(Environment(d->m_process.environment()));
-        proc.setWorkingDirectory(d->m_process.workingDirectory());
+        proc.setEnvironment(Environment(environment()));
+        proc.setWorkingDirectory(workingDirectory());
         proc.setCommand(cmd);
 
         // writeData ?
@@ -2281,32 +2223,32 @@ SynchronousProcessResponse SynchronousProcess::runBlocking(const CommandLine &cm
     d->clearForRun();
 
     d->m_binary = cmd.executable();
-    d->m_process.setOpenMode(QIODevice::ReadOnly);
-    d->m_process.setCommand(cmd);
-    d->m_process.start();
-    if (!d->m_process.waitForStarted(d->m_maxHangTimerCount * 1000)) {
+    setOpenMode(QIODevice::ReadOnly);
+    setCommand(cmd);
+    start();
+    if (!waitForStarted(d->m_maxHangTimerCount * 1000)) {
         d->m_result.result = SynchronousProcessResponse::StartFailed;
         return d->m_result;
     }
-    d->m_process.closeWriteChannel();
-    if (!d->m_process.waitForFinished(d->m_maxHangTimerCount * 1000)) {
+    closeWriteChannel();
+    if (!waitForFinished(d->m_maxHangTimerCount * 1000)) {
         d->m_result.result = SynchronousProcessResponse::Hang;
-        d->m_process.terminate();
-        if (!d->m_process.waitForFinished(1000)) {
-            d->m_process.kill();
-            d->m_process.waitForFinished(1000);
+        terminate();
+        if (!waitForFinished(1000)) {
+            kill();
+            waitForFinished(1000);
         }
     }
 
-    if (d->m_process.state() != QProcess::NotRunning)
+    if (state() != QProcess::NotRunning)
         return d->m_result;
 
-    d->m_result.exitCode = d->m_process.exitCode();
+    d->m_result.exitCode = exitCode();
     if (d->m_result.result == SynchronousProcessResponse::StartFailed) {
-        if (d->m_process.exitStatus() != QProcess::NormalExit)
+        if (exitStatus() != QProcess::NormalExit)
             d->m_result.result = SynchronousProcessResponse::TerminatedAbnormally;
         else
-            d->m_result.result = (exitCodeInterpreter())(d->m_result.exitCode);
+            d->m_result.result = d->m_exitCodeInterpreter(d->m_result.exitCode);
     }
     processStdOut(false);
     processStdErr(false);
@@ -2327,11 +2269,6 @@ void SynchronousProcess::setStdErrCallback(const std::function<void (const QStri
     d->m_stdErr.outputCallback = callback;
 }
 
-bool SynchronousProcess::stopProcess()
-{
-    return d->m_process.stopProcess();
-}
-
 void SynchronousProcess::slotTimeout()
 {
     if (!d->m_waitingForUser && (++d->m_hangTimerCount > d->m_maxHangTimerCount)) {
@@ -2341,7 +2278,7 @@ void SynchronousProcess::slotTimeout()
         const bool terminate = !d->m_timeOutMessageBoxEnabled || askToKill(d->m_binary.toString());
         d->m_waitingForUser = false;
         if (terminate) {
-            d->m_process.stopProcess();
+            stopProcess();
             d->m_result.result = SynchronousProcessResponse::Hang;
         } else {
             d->m_hangTimerCount = 0;
@@ -2352,7 +2289,7 @@ void SynchronousProcess::slotTimeout()
     }
 }
 
-void SynchronousProcess::finished(int exitCode, QProcess::ExitStatus e)
+void SynchronousProcess::slotFinished(int exitCode, QProcess::ExitStatus e)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << exitCode << e;
@@ -2388,13 +2325,13 @@ void SynchronousProcess::error(QProcess::ProcessError e)
 void SynchronousProcess::processStdOut(bool emitSignals)
 {
     // Handle binary data
-    d->m_stdOut.append(d->m_process.readAllStandardOutput(), emitSignals);
+    d->m_stdOut.append(readAllStandardOutput(), emitSignals);
 }
 
 void SynchronousProcess::processStdErr(bool emitSignals)
 {
     // Handle binary data
-    d->m_stdErr.append(d->m_process.readAllStandardError(), emitSignals);
+    d->m_stdErr.append(readAllStandardError(), emitSignals);
 }
 
 } // namespace Utils

@@ -230,7 +230,7 @@ QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessRes
 using ExitCodeInterpreter = std::function<SynchronousProcessResponse::Result(int /*exitCode*/)>;
 QTCREATOR_UTILS_EXPORT SynchronousProcessResponse::Result defaultExitCodeInterpreter(int code);
 
-class QTCREATOR_UTILS_EXPORT SynchronousProcess : public QObject
+class QTCREATOR_UTILS_EXPORT SynchronousProcess : public QtcProcess
 {
     Q_OBJECT
 public:
@@ -240,28 +240,10 @@ public:
     /* Timeout for hanging processes (triggers after no more output
      * occurs on stderr/stdout). */
     void setTimeoutS(int timeoutS);
-    int timeoutS() const;
 
     void setCodec(QTextCodec *c);
-    QTextCodec *codec() const;
-
-    QProcess::ProcessChannelMode processChannelMode () const;
-    void setProcessChannelMode(QProcess::ProcessChannelMode m);
-
-    bool timeOutMessageBoxEnabled() const;
     void setTimeOutMessageBoxEnabled(bool);
-
-    Environment environment() const;
-    void setEnvironment(const Environment &);
-
-    void setWorkingDirectory(const QString &workingDirectory);
-    QString workingDirectory() const;
-
-    // Unix: Do not give the child process a terminal for input prompting.
-    void setDisableUnixTerminal();
-
     void setExitCodeInterpreter(const ExitCodeInterpreter &interpreter);
-    ExitCodeInterpreter exitCodeInterpreter() const;
 
     // Starts a nested event loop and runs the command
     SynchronousProcessResponse run(const CommandLine &cmd, const QByteArray &writeData = {});
@@ -271,11 +253,9 @@ public:
     void setStdOutCallback(const std::function<void(const QString &)> &callback);
     void setStdErrCallback(const std::function<void(const QString &)> &callback);
 
-    bool stopProcess();
-
 private:
     void slotTimeout();
-    void finished(int exitCode, QProcess::ExitStatus e);
+    void slotFinished(int exitCode, QProcess::ExitStatus e);
     void error(QProcess::ProcessError);
     void processStdOut(bool emitSignals);
     void processStdErr(bool emitSignals);
