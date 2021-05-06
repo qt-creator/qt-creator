@@ -112,6 +112,7 @@ public:
 
     CommandLine m_commandLine;
     Environment m_environment;
+    QByteArray m_writeData;
     bool m_haveEnv = false;
     bool m_useCtrlCStub = false;
     bool m_lowPriority = false;
@@ -228,6 +229,8 @@ void QtcProcess::setUseCtrlCStub(bool enabled)
 
 void QtcProcess::start()
 {
+    QTC_CHECK(d->m_writeData.isEmpty()); // FIXME: Use it.
+
     if (d->m_commandLine.executable().needsDevice()) {
         QTC_ASSERT(s_remoteRunProcessHook, return);
         s_remoteRunProcessHook(*this);
@@ -780,6 +783,11 @@ void QtcProcess::setExitCodeInterpreter(const ExitCodeInterpreter &interpreter)
     d->m_exitCodeInterpreter = interpreter;
 }
 
+void QtcProcess::setWriteData(const QByteArray &writeData)
+{
+    d->m_writeData = writeData;
+}
+
 #ifdef QT_GUI_LIB
 static bool isGuiThread()
 {
@@ -787,7 +795,7 @@ static bool isGuiThread()
 }
 #endif
 
-void QtcProcess::run(const CommandLine &cmd, const QByteArray &writeData)
+void QtcProcess::run(const CommandLine &cmd)
 {
     // FIXME: Implement properly
     if (cmd.executable().needsDevice()) {
@@ -815,13 +823,13 @@ void QtcProcess::run(const CommandLine &cmd, const QByteArray &writeData)
     // quoting of arguments than using QProcess::setArguments() beforehand and calling start()
     // only with the OpenMode
     setCommand(cmd);
-    if (!writeData.isEmpty()) {
-        connect(this, &QProcess::started, this, [this, writeData] {
-            write(writeData);
+    if (!d->m_writeData.isEmpty()) {
+        connect(this, &QProcess::started, this, [this] {
+            write(d->m_writeData);
             closeWriteChannel();
         });
     }
-    setOpenMode(writeData.isEmpty() ? QIODevice::ReadOnly : QIODevice::ReadWrite);
+    setOpenMode(d->m_writeData.isEmpty() ? QIODevice::ReadOnly : QIODevice::ReadWrite);
     start();
 
     // On Windows, start failure is triggered immediately if the

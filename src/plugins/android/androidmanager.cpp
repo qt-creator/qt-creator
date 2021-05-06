@@ -721,8 +721,9 @@ SdkToolResult AndroidManager::runCommand(const CommandLine &command,
     Android::SdkToolResult cmdResult;
     SynchronousProcess cmdProc;
     cmdProc.setTimeoutS(timeoutS);
+    cmdProc.setWriteData(writeData);
     qCDebug(androidManagerLog) << "Running command (sync):" << command.toUserOutput();
-    cmdProc.run(command, writeData);
+    cmdProc.run(command);
     cmdResult.m_stdOut = cmdProc.stdOut().trimmed();
     cmdResult.m_stdErr = cmdProc.stdErr().trimmed();
     cmdResult.m_success = cmdProc.result() == QtcProcess::Finished;

@@ -86,8 +86,11 @@ public:
     void setTimeOutMessageBoxEnabled(bool);
     void setExitCodeInterpreter(const std::function<QtcProcess::Result(int)> &interpreter);
 
+    // FIXME: This is currently only used in run(), not in start()
+    void setWriteData(const QByteArray &writeData);
+
     // Starts a nested event loop and runs the command
-    void run(const CommandLine &cmd, const QByteArray &writeData = {});
+    void run(const CommandLine &cmd);
     // Starts the command blocking the UI fully
     void runBlocking(const CommandLine &cmd);
 
