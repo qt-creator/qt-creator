@@ -752,21 +752,18 @@ SynchronousProcessResponse QtcProcess::run(const CommandLine &cmd, const QByteAr
 {
     // FIXME: Implement properly
     if (cmd.executable().needsDevice()) {
-        QtcProcess proc;
-        proc.setEnvironment(Environment(environment()));
-        proc.setWorkingDirectory(workingDirectory());
-        proc.setCommand(cmd);
+        setCommand(cmd);
 
         // writeData ?
-        proc.start();
+        start();
 
-        proc.waitForFinished();
+        waitForFinished();
 
         SynchronousProcessResponse res;
         res.result = SynchronousProcessResponse::Finished;
-        res.exitCode = proc.exitCode();
-        res.rawStdOut = proc.readAllStandardOutput();
-        res.rawStdErr = proc.readAllStandardError();
+        res.exitCode = exitCode();
+        res.rawStdOut = readAllStandardOutput();
+        res.rawStdErr = readAllStandardError();
         return res;
     };
 
@@ -821,21 +818,18 @@ SynchronousProcessResponse QtcProcess::runBlocking(const CommandLine &cmd)
 {
     // FIXME: Implement properly
     if (cmd.executable().needsDevice()) {
-        QtcProcess proc;
-        proc.setEnvironment(Environment(environment()));
-        proc.setWorkingDirectory(workingDirectory());
-        proc.setCommand(cmd);
+        setCommand(cmd);
 
         // writeData ?
-        proc.start();
+        start();
 
-        proc.waitForFinished();
+        waitForFinished();
 
         SynchronousProcessResponse res;
         res.result = SynchronousProcessResponse::Finished;
-        res.exitCode = proc.exitCode();
-        res.rawStdOut = proc.readAllStandardOutput();
-        res.rawStdErr = proc.readAllStandardError();
+        res.exitCode = exitCode();
+        res.rawStdOut = readAllStandardOutput();
+        res.rawStdErr = readAllStandardError();
         return res;
     };
 
