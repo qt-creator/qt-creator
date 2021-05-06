@@ -393,7 +393,7 @@ SynchronousProcessResponse ShellCommand::runSynchronous(const CommandLine &cmd,
 {
     SynchronousProcess process;
     process.setExitCodeInterpreter(interpreter);
-    connect(this, &ShellCommand::terminate, &process, &SynchronousProcess::terminate);
+    connect(this, &ShellCommand::terminate, &process, &SynchronousProcess::stopProcess);
     process.setEnvironment(processEnvironment());
     process.setTimeoutS(timeoutS);
     if (d->m_codec)

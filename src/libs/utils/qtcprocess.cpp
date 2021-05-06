@@ -2327,7 +2327,7 @@ void SynchronousProcess::setStdErrCallback(const std::function<void (const QStri
     d->m_stdErr.outputCallback = callback;
 }
 
-bool SynchronousProcess::terminate()
+bool SynchronousProcess::stopProcess()
 {
     return d->m_process.stopProcess();
 }

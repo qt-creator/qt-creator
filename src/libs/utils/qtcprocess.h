@@ -271,8 +271,7 @@ public:
     void setStdOutCallback(const std::function<void(const QString &)> &callback);
     void setStdErrCallback(const std::function<void(const QString &)> &callback);
 
-public slots:
-    bool terminate();
+    bool stopProcess();
 
 private:
     void slotTimeout();
