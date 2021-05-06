@@ -1009,6 +1009,7 @@ bool Client::reset()
     m_diagnosticManager.clearDiagnostics();
     for (auto it = m_openedDocument.cbegin(); it != m_openedDocument.cend(); ++it)
         it.key()->disconnect(this);
+    m_openedDocument.clear();
     // temporary container needed since m_resetAssistProvider is changed in resetAssistProviders
     for (TextEditor::TextDocument *document : m_resetAssistProvider.keys())
         resetAssistProviders(document);
