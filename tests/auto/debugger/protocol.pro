@@ -22,6 +22,7 @@ HEADERS += \
         $$UTILSDIR/hostosinfo.cpp \
         $$UTILSDIR/namevaluedictionary.cpp \
         $$UTILSDIR/namevalueitem.cpp \
+        $$UTILSDIR/processargs.cpp \
         $$UTILSDIR/qtcassert.cpp \
         $$UTILSDIR/qtcprocess.cpp \
         $$UTILSDIR/processhandle.cpp \
@@ -33,6 +34,7 @@ HEADERS += \
         $$UTILSDIR/hostosinfo.h \
         $$UTILSDIR/namevaluedictionary.h \
         $$UTILSDIR/namevalueitem.h \
+        $$UTILSDIR/processargs.h \
         $$UTILSDIR/qtcassert.h \
         $$UTILSDIR/qtcprocess.h \
         $$UTILSDIR/processhandle.h \

@@ -22,6 +22,7 @@ msvc {
         $$IDE_SOURCE_TREE/src/libs/utils/namevaluedictionary.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/namevalueitem.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/treemodel.cpp \
+        $$IDE_SOURCE_TREE/src/libs/utils/processargs.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/qtcassert.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/qtcprocess.cpp \
         $$IDE_SOURCE_TREE/src/libs/utils/processhandle.cpp \
@@ -34,6 +35,7 @@ msvc {
         $$IDE_SOURCE_TREE/src/libs/utils/namevaluedictionary.h \
         $$IDE_SOURCE_TREE/src/libs/utils/namevalueitem.h \
         $$IDE_SOURCE_TREE/src/libs/utils/treemodel.h \
+        $$IDE_SOURCE_TREE/src/libs/utils/processargs.h \
         $$IDE_SOURCE_TREE/src/libs/utils/qtcassert.h \
         $$IDE_SOURCE_TREE/src/libs/utils/qtcprocess.h \
         $$IDE_SOURCE_TREE/src/libs/utils/processhandle.h \
