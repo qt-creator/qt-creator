@@ -745,8 +745,6 @@ public:
     void slotTimeout();
     void slotFinished(int exitCode, QProcess::ExitStatus e);
     void slotError(QProcess::ProcessError);
-    void processStdOut(bool emitSignals);
-    void processStdErr(bool emitSignals);
     void clearForRun();
 
     QtcProcess *q;
@@ -2081,11 +2079,11 @@ SynchronousProcess::SynchronousProcess()
     connect(this, &QProcess::errorOccurred, d, &QtcProcessPrivate::slotError);
     connect(this, &QProcess::readyReadStandardOutput, d, [this] {
         d->m_hangTimerCount = 0;
-        d->processStdOut(true);
+        d->m_stdOut.append(readAllStandardOutput(), true);
     });
     connect(this, &QProcess::readyReadStandardError, d, [this] {
         d->m_hangTimerCount = 0;
-        d->processStdErr(true);
+        d->m_stdErr.append(readAllStandardError(), true);
     });
 }
 
@@ -2180,8 +2178,8 @@ SynchronousProcessResponse QtcProcess::run(const CommandLine &cmd, const QByteAr
             QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
         d->m_eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
-        d->processStdOut(false);
-        d->processStdErr(false);
+        d->m_stdOut.append(readAllStandardOutput(), false);
+        d->m_stdErr.append(readAllStandardError(), false);
 
         d->m_result.rawStdOut = d->m_stdOut.rawData;
         d->m_result.rawStdErr = d->m_stdErr.rawData;
@@ -2253,8 +2251,8 @@ SynchronousProcessResponse QtcProcess::runBlocking(const CommandLine &cmd)
         else
             d->m_result.result = d->m_exitCodeInterpreter(d->m_result.exitCode);
     }
-    d->processStdOut(false);
-    d->processStdErr(false);
+    d->m_stdOut.append(readAllStandardOutput(), false);
+    d->m_stdErr.append(readAllStandardError(), false);
 
     d->m_result.rawStdOut = d->m_stdOut.rawData;
     d->m_result.rawStdErr = d->m_stdErr.rawData;
@@ -2323,18 +2321,6 @@ void QtcProcessPrivate::slotError(QProcess::ProcessError e)
         m_result.result = SynchronousProcessResponse::StartFailed;
     m_startFailure = true;
     m_eventLoop.quit();
-}
-
-void QtcProcessPrivate::processStdOut(bool emitSignals)
-{
-    // Handle binary data
-    m_stdOut.append(q->readAllStandardOutput(), emitSignals);
-}
-
-void QtcProcessPrivate::processStdErr(bool emitSignals)
-{
-    // Handle binary data
-    m_stdErr.append(q->readAllStandardError(), emitSignals);
 }
 
 } // namespace Utils
