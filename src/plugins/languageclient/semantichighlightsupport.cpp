@@ -397,10 +397,10 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
             for (const auto start = it + edit.start() + currentDelta; it != start; ++it)
                 newData.append(*it);
             const QList<int> insertData = edit.data().value_or(QList<int>());
-            newData.append(edit.data().value_or(QList<int>()));
+            newData.append(insertData);
             const int deleteCount = edit.deleteCount();
             currentDelta += insertData.size() - deleteCount;
-            it += edit.deleteCount();
+            it += deleteCount;
         }
         for (const auto end = data.end(); it != end; ++it)
             newData.append(*it);
