@@ -26,8 +26,9 @@
 #pragma once
 
 #include "android_global.h"
-#include "androidsdkpackage.h"
+#include "androiddeviceinfo.h"
 #include "androidsdkmanager.h"
+#include "androidsdkpackage.h"
 
 #include <projectexplorer/toolchain.h>
 #include <qtsupport/qtversionmanager.h>
@@ -57,31 +58,6 @@ namespace Internal {
 class AndroidSdkManager;
 class AndroidPluginPrivate;
 }
-
-class AndroidDeviceInfo
-{
-public:
-    QString serialNumber;
-    QString avdname;
-    QStringList cpuAbi;
-    QString avdTarget;
-    QString avdDevice;
-    QString avdSkin;
-    QString avdSdcardSize;
-
-    int sdk = -1;
-    enum State { OkState, UnAuthorizedState, OfflineState };
-    State state = OfflineState;
-    bool unauthorized = false;
-    enum AndroidDeviceType { Hardware, Emulator };
-    AndroidDeviceType type = Emulator;
-
-    static QStringList adbSelector(const QString &serialNumber);
-
-    bool isValid() const { return !serialNumber.isEmpty() || !avdname.isEmpty(); }
-    bool operator<(const AndroidDeviceInfo &other) const;
-};
-using AndroidDeviceInfoList = QList<AndroidDeviceInfo>;
 
 class CreateAvdInfo
 {
@@ -269,8 +245,4 @@ private:
     bool m_force32bit;
 };
 
-QDebug &operator<<(QDebug &stream, const AndroidDeviceInfo &device);
-
 } // namespace Android
-
-Q_DECLARE_METATYPE(Android::AndroidDeviceInfo)

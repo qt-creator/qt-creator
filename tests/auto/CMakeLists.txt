@@ -1,5 +1,6 @@
 add_subdirectory(aggregation)
 add_subdirectory(algorithm)
+add_subdirectory(android)
 add_subdirectory(changeset)
 add_subdirectory(cplusplus)
 add_subdirectory(debugger)

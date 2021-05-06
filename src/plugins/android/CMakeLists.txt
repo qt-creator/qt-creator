@@ -14,6 +14,7 @@ add_qtc_plugin(Android
     androiddeployqtstep.cpp androiddeployqtstep.h
     androiddevice.cpp androiddevice.h
     androiddevicedialog.cpp androiddevicedialog.h androiddevicedialog.ui
+    androiddeviceinfo.cpp androiddeviceinfo.h
     androiderrormessage.cpp androiderrormessage.h
     androidextralibrarylistmodel.cpp androidextralibrarylistmodel.h
     androidglobal.h
@@ -43,6 +44,7 @@ add_qtc_plugin(Android
     androidsignaloperation.cpp androidsignaloperation.h
     androidtoolchain.cpp androidtoolchain.h
     avddialog.cpp avddialog.h
+    avdmanageroutputparser.cpp avdmanageroutputparser.h
     certificatesmodel.cpp certificatesmodel.h
     createandroidmanifestwizard.cpp createandroidmanifestwizard.h
     javaeditor.cpp javaeditor.h

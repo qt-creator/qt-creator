@@ -27,6 +27,7 @@ HEADERS += \
     javaparser.h \
     androidplugin.h \
     androiddevice.h \
+    androiddeviceinfo.h \
     androidqmltoolingsupport.h \
     androidmanifesteditorfactory.h \
     androidmanifesteditor.h \
@@ -40,6 +41,7 @@ HEADERS += \
     javaeditor.h \
     javaindenter.h \
     avddialog.h \
+    avdmanageroutputparser.h \
     android_global.h \
     androidbuildapkstep.h \
     androidsdkmanager.h \
@@ -74,6 +76,7 @@ SOURCES += \
     javaparser.cpp \
     androidplugin.cpp \
     androiddevice.cpp \
+    androiddeviceinfo.cpp \
     androidqmltoolingsupport.cpp \
     androidmanifesteditorfactory.cpp \
     androidmanifesteditor.cpp \
@@ -87,6 +90,7 @@ SOURCES += \
     javaeditor.cpp \
     javaindenter.cpp \
     avddialog.cpp \
+    avdmanageroutputparser.cpp \
     androidbuildapkstep.cpp \
     androidsdkmanager.cpp \
     androidavdmanager.cpp \

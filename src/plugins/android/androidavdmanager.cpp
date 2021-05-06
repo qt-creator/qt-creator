@@ -24,6 +24,8 @@
 ****************************************************************************/
 #include "androidavdmanager.h"
 
+#include "avdmanageroutputparser.h"
+
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/algorithm.h>
@@ -51,17 +53,6 @@ namespace Internal {
 
 using namespace std;
 
-// Avd list keys to parse avd
-const char avdInfoNameKey[] = "Name:";
-const char avdInfoPathKey[] = "Path:";
-const char avdInfoAbiKey[] = "abi.type";
-const char avdInfoTargetKey[] = "target";
-const char avdInfoErrorKey[] = "Error:";
-const char avdInfoSdcardKey[] = "Sdcard";
-const char avdInfoTargetTypeKey[] = "Target";
-const char avdInfoDeviceKey[] = "Device";
-const char avdInfoSkinKey[] = "Skin";
-
 const int avdCreateTimeoutMs = 30000;
 
 /*!
@@ -80,21 +71,6 @@ bool AndroidAvdManager::avdManagerCommand(const AndroidConfig &config, const QSt
     if (response.result == Utils::SynchronousProcessResponse::Finished) {
         if (output)
             *output = response.allOutput();
-        return true;
-    }
-    return false;
-}
-
-/*!
-    Parses the \a line for a [spaces]key[spaces]value[spaces] pattern and returns
-    \c true if the key is found, \c false otherwise. The value is copied into \a value.
- */
-static bool valueForKey(QString key, const QString &line, QString *value = nullptr)
-{
-    auto trimmedInput = line.trimmed();
-    if (trimmedInput.startsWith(key)) {
-        if (value)
-            *value = trimmedInput.section(key, 1, 1).trimmed();
         return true;
     }
     return false;
@@ -203,25 +179,8 @@ static void avdProcessFinished(int exitCode, QProcess *p)
     p->deleteLater();
 }
 
-/*!
-    \class AvdManagerOutputParser
-    \brief The AvdManagerOutputParser class is a helper class to parse the output of the avdmanager
-    commands.
- */
-class AvdManagerOutputParser
-{
-public:
-    AndroidDeviceInfoList listVirtualDevices(const AndroidConfig &config);
-    AndroidDeviceInfoList parseAvdList(const QString &output);
-
-private:
-    bool parseAvd(const QStringList &deviceInfo, AndroidDeviceInfo *avd);
-};
-
-
-AndroidAvdManager::AndroidAvdManager(const AndroidConfig &config):
-    m_config(config),
-    m_parser(new AvdManagerOutputParser)
+AndroidAvdManager::AndroidAvdManager(const AndroidConfig &config)
+    : m_config(config)
 {
 
 }
@@ -243,9 +202,69 @@ bool AndroidAvdManager::removeAvd(const QString &name) const
     return response.result == Utils::SynchronousProcessResponse::Finished && response.exitCode == 0;
 }
 
+static void avdConfigEditManufacturerTag(const QString &avdPathStr, bool recoverMode = false)
+{
+    const Utils::FilePath avdPath = Utils::FilePath::fromString(avdPathStr);
+    if (avdPath.exists()) {
+        const QString configFilePath = avdPath.pathAppended("config.ini").toString();
+        QFile configFile(configFilePath);
+        if (configFile.open(QIODevice::ReadWrite | QIODevice::Text)) {
+            QString newContent;
+            QTextStream textStream(&configFile);
+            while (!textStream.atEnd()) {
+                QString line = textStream.readLine();
+                if (!line.contains("hw.device.manufacturer"))
+                    newContent.append(line + "\n");
+                else if (recoverMode)
+                    newContent.append(line.replace("#", "") + "\n");
+                else
+                    newContent.append("#" + line + "\n");
+            }
+            configFile.resize(0);
+            textStream << newContent;
+            configFile.close();
+        }
+    }
+}
+
+static AndroidDeviceInfoList listVirtualDevices(const AndroidConfig &config)
+{
+    QString output;
+    AndroidDeviceInfoList avdList;
+    /*
+        Currenly avdmanager tool fails to parse some AVDs because the correct
+        device definitions at devices.xml does not have some of the newest devices.
+        Particularly, failing because of tag "hw.device.manufacturer", thus removing
+        it would make paring successful. However, it has to be returned afterwards,
+        otherwise, Android Studio would give an error during parsing also. So this fix
+        aim to keep support for Qt Creator and Android Studio.
+    */
+    QStringList allAvdErrorPaths;
+    QStringList avdErrorPaths;
+
+    do {
+        if (!AndroidAvdManager::avdManagerCommand(config, {"list", "avd"}, &output)) {
+            qCDebug(avdManagerLog)
+                << "Avd list command failed" << output << config.sdkToolsVersion();
+            return {};
+        }
+
+        avdErrorPaths.clear();
+        avdList = parseAvdList(output, &avdErrorPaths);
+        allAvdErrorPaths << avdErrorPaths;
+        for (const QString &avdPathStr : qAsConst(avdErrorPaths))
+            avdConfigEditManufacturerTag(avdPathStr); // comment out manufacturer tag
+    } while (!avdErrorPaths.isEmpty());               // try again
+
+    for (const QString &avdPathStr : qAsConst(allAvdErrorPaths))
+        avdConfigEditManufacturerTag(avdPathStr, true); // re-add manufacturer tag
+
+    return avdList;
+}
+
 QFuture<AndroidDeviceInfoList> AndroidAvdManager::avdList() const
 {
-    return Utils::runAsync(&AvdManagerOutputParser::listVirtualDevices, m_parser.get(), m_config);
+    return Utils::runAsync(listVirtualDevices, m_config);
 }
 
 QString AndroidAvdManager::startAvd(const QString &name) const
@@ -353,147 +372,7 @@ bool AndroidAvdManager::waitForBooted(const QString &serialNumber,
     return false;
 }
 
-/* Currenly avdmanager tool fails to parse some AVDs because the correct
- * device definitions at devices.xml does not have some of the newest devices.
- * Particularly, failing because of tag "hw.device.manufacturer", thus removing
- * it would make paring successful. However, it has to be returned afterwards,
- * otherwise, Android Studio would give an error during parsing also. So this fix
- * aim to keep support for Qt Creator and Android Studio.
- */
-static const QString avdManufacturerError = "no longer exists as a device";
 static QStringList avdErrorPaths;
-
-static void AvdConfigEditManufacturerTag(const QString &avdPathStr, bool recoverMode = false)
-{
-    const Utils::FilePath avdPath = Utils::FilePath::fromString(avdPathStr);
-    if (avdPath.exists()) {
-        const QString configFilePath = avdPath.pathAppended("config.ini").toString();
-        QFile configFile(configFilePath);
-        if (configFile.open(QIODevice::ReadWrite | QIODevice::Text)) {
-            QString newContent;
-            QTextStream textStream(&configFile);
-            while (!textStream.atEnd()) {
-                QString line = textStream.readLine();
-                if (!line.contains("hw.device.manufacturer"))
-                    newContent.append(line + "\n");
-                else if (recoverMode)
-                    newContent.append(line.replace("#", "") + "\n");
-                else
-                    newContent.append("#" + line + "\n");
-            }
-            configFile.resize(0);
-            textStream << newContent;
-            configFile.close();
-        }
-    }
-}
-
-AndroidDeviceInfoList AvdManagerOutputParser::listVirtualDevices(const AndroidConfig &config)
-{
-    QString output;
-    AndroidDeviceInfoList avdList;
-
-    do {
-        if (!AndroidAvdManager::avdManagerCommand(config, {"list", "avd"}, &output)) {
-            qCDebug(avdManagerLog)
-                << "Avd list command failed" << output << config.sdkToolsVersion();
-            return {};
-        }
-
-        avdList = parseAvdList(output);
-    } while (output.contains(avdManufacturerError));
-
-    for (const QString &avdPathStr : qAsConst(avdErrorPaths))
-        AvdConfigEditManufacturerTag(avdPathStr, true);
-
-    return avdList;
-}
-
-AndroidDeviceInfoList AvdManagerOutputParser::parseAvdList(const QString &output)
-{
-    AndroidDeviceInfoList avdList;
-    QStringList avdInfo;
-    auto parseAvdInfo = [&avdInfo, &avdList, this] () {
-        AndroidDeviceInfo avd;
-        if (!avdInfo.filter(avdManufacturerError).isEmpty()) {
-            for (const QString &line : avdInfo) {
-                QString value;
-                if (valueForKey(avdInfoPathKey, line, &value)) {
-                    avdErrorPaths.append(value);
-                    AvdConfigEditManufacturerTag(value);
-                }
-            }
-        } else if (parseAvd(avdInfo, &avd)) {
-            // armeabi-v7a devices can also run armeabi code
-            if (avd.cpuAbi.contains(ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A))
-                avd.cpuAbi << ProjectExplorer::Constants::ANDROID_ABI_ARMEABI;
-            avd.state = AndroidDeviceInfo::OkState;
-            avd.type = AndroidDeviceInfo::Emulator;
-            avdList << avd;
-        } else {
-            qCDebug(avdManagerLog) << "Avd Parsing: Parsing failed: " << avdInfo;
-        }
-        avdInfo.clear();
-    };
-
-    for (const QString &line : output.split('\n')) {
-        if (line.startsWith("---------") || line.isEmpty())
-            parseAvdInfo();
-        else
-            avdInfo << line;
-    }
-
-    Utils::sort(avdList);
-
-    return avdList;
-}
-
-bool AvdManagerOutputParser::parseAvd(const QStringList &deviceInfo, AndroidDeviceInfo *avd)
-{
-    QTC_ASSERT(avd, return false);
-    for (const QString &line : deviceInfo) {
-        QString value;
-        if (valueForKey(avdInfoErrorKey, line)) {
-            qCDebug(avdManagerLog) << "Avd Parsing: Skip avd device. Error key found:" << line;
-            return false;
-        } else if (valueForKey(avdInfoNameKey, line, &value)) {
-            avd->avdname = value;
-        } else if (valueForKey(avdInfoPathKey, line, &value)) {
-            const Utils::FilePath avdPath = Utils::FilePath::fromString(value);
-            if (avdPath.exists())
-            {
-                // Get ABI.
-                const Utils::FilePath configFile = avdPath.pathAppended("config.ini");
-                QSettings config(configFile.toString(), QSettings::IniFormat);
-                value = config.value(avdInfoAbiKey).toString();
-                if (!value.isEmpty())
-                    avd->cpuAbi << value;
-                else
-                   qCDebug(avdManagerLog) << "Avd Parsing: Cannot find ABI:" << configFile;
-
-                // Get Target
-                const QString avdInfoFileName = avd->avdname + ".ini";
-                const Utils::FilePath
-                        avdInfoFile = avdPath.parentDir().pathAppended(avdInfoFileName);
-                QSettings avdInfo(avdInfoFile.toString(), QSettings::IniFormat);
-                value = avdInfo.value(avdInfoTargetKey).toString();
-                if (!value.isEmpty())
-                    avd->sdk = value.section('-', -1).toInt();
-                else
-                   qCDebug(avdManagerLog) << "Avd Parsing: Cannot find sdk API:" << avdInfoFile.toString();
-            }
-        } else if (valueForKey(avdInfoDeviceKey, line, &value)) {
-            avd->avdDevice = value.remove(0, 2);
-        } else if (valueForKey(avdInfoTargetTypeKey, line, &value)) {
-            avd->avdTarget = value.remove(0, 2);
-        } else if (valueForKey(avdInfoSkinKey, line, &value)) {
-            avd->avdSkin = value.remove(0, 2);
-        } else if (valueForKey(avdInfoSdcardKey, line, &value)) {
-            avd->avdSdcardSize = value.remove(0, 2);
-        }
-    }
-    return true;
-}
 
 } // namespace Internal
 } // namespace Android

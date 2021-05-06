@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -22,45 +22,15 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-#pragma once
 
-#include "androidconfigurations.h"
-
-#include <functional>
-#include <memory>
+#include "androiddeviceinfo.h"
 
 namespace Android {
 namespace Internal {
 
-class AndroidAvdManager
-{
-    Q_DECLARE_TR_FUNCTIONS(Android::Internal::AndroidAvdManager)
+const char avdManufacturerError[] = "no longer exists as a device";
 
-public:
-    AndroidAvdManager(const AndroidConfig& config = AndroidConfigurations::currentConfig());
-    ~AndroidAvdManager();
-
-    QFuture<CreateAvdInfo> createAvd(CreateAvdInfo info) const;
-    bool removeAvd(const QString &name) const;
-    QFuture<AndroidDeviceInfoList> avdList() const;
-
-    QString startAvd(const QString &name) const;
-    bool startAvdAsync(const QString &avdName) const;
-    QString findAvd(const QString &avdName) const;
-    QString waitForAvd(const QString &avdName,
-                       const std::function<bool()> &cancelChecker = {}) const;
-    bool isAvdBooted(const QString &device) const;
-    static bool avdManagerCommand(const AndroidConfig &config,
-                                  const QStringList &args,
-                                  QString *output);
-
-private:
-    bool waitForBooted(const QString &serialNumber,
-                       const std::function<bool()> &cancelChecker) const;
-
-private:
-    const AndroidConfig &m_config;
-};
+AndroidDeviceInfoList parseAvdList(const QString &output, QStringList *avdErrorPaths);
 
 } // namespace Internal
 } // namespace Android
