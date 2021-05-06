@@ -174,18 +174,15 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
     SynchronousProcess proc;
     proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));
     bool assertionFound = false;
-    proc.setStdErrBufferedSignalsEnabled(true);
-    proc.setStdOutBufferedSignalsEnabled(true);
     proc.setTimeoutS(timeout);
-    QObject::connect(&proc, &SynchronousProcess::stdOutBuffered,
-                     [offset, progressQuota, &proc, &assertionFound, &fi](const QString &out) {
+    proc.setStdOutCallback([offset, progressQuota, &proc, &assertionFound, &fi](const QString &out) {
         int progressPercent = parseProgress(out, assertionFound);
         if (assertionFound)
             proc.terminate();
         if (progressPercent != -1)
             fi.setProgressValue(offset + qRound((progressPercent / 100.0) * progressQuota));
     });
-    QObject::connect(&proc, &SynchronousProcess::stdErrBuffered, [&output](const QString &err) {
+    proc.setStdErrCallback([&output](const QString &err) {
         output.stdError = err;
     });
     if (interruptible) {

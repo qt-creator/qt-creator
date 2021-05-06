@@ -1249,7 +1249,6 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const QString &workin
 {
     QTC_ASSERT(stdInput.isEmpty(), return PerforceResponse()); // Not supported here
 
-    VcsOutputWindow *outputWindow = VcsOutputWindow::instance();
     // Run, connect stderr to the output window
     SynchronousProcess process;
     const int timeOutS = (flags & LongTimeOut) ? m_settings.longTimeOutS() : m_settings.timeOutS.value();
@@ -1262,26 +1261,15 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const QString &workin
         process.setWorkingDirectory(workingDir);
 
     // connect stderr to the output window if desired
-    if (flags & StdErrToWindow) {
-        process.setStdErrBufferedSignalsEnabled(true);
-        connect(&process, &SynchronousProcess::stdErrBuffered,
-                outputWindow, [](const QString &lines) {
-            VcsOutputWindow::append(lines);
-        });
-    }
+    if (flags & StdErrToWindow)
+        process.setStdErrCallback([](const QString &lines) { VcsOutputWindow::append(lines); });
 
     // connect stdout to the output window if desired
     if (flags & StdOutToWindow) {
-        process.setStdOutBufferedSignalsEnabled(true);
-        if (flags & SilentStdOut) {
-            connect(&process, &SynchronousProcess::stdOutBuffered,
-                    outputWindow, &VcsOutputWindow::appendSilently);
-        } else {
-            connect(&process, &SynchronousProcess::stdOutBuffered,
-                    outputWindow, [](const QString &lines) {
-                VcsOutputWindow::append(lines);
-            });
-        }
+        if (flags & SilentStdOut)
+            process.setStdOutCallback(&VcsOutputWindow::appendSilently);
+        else
+            process.setStdOutCallback([](const QString &lines) { VcsOutputWindow::append(lines); });
     }
     process.setTimeOutMessageBoxEnabled(true);
     const SynchronousProcessResponse sp_resp = process.run({m_settings.p4BinaryPath.value(), args});

@@ -248,12 +248,6 @@ public:
     QProcess::ProcessChannelMode processChannelMode () const;
     void setProcessChannelMode(QProcess::ProcessChannelMode m);
 
-    bool stdOutBufferedSignalsEnabled() const;
-    void setStdOutBufferedSignalsEnabled(bool);
-
-    bool stdErrBufferedSignalsEnabled() const;
-    void setStdErrBufferedSignalsEnabled(bool);
-
     bool timeOutMessageBoxEnabled() const;
     void setTimeOutMessageBoxEnabled(bool);
 
@@ -274,9 +268,8 @@ public:
     // Starts the command blocking the UI fully
     SynchronousProcessResponse runBlocking(const CommandLine &cmd);
 
-signals:
-    void stdOutBuffered(const QString &lines, bool firstTime);
-    void stdErrBuffered(const QString &lines, bool firstTime);
+    void setStdOutCallback(const std::function<void(const QString &)> &callback);
+    void setStdErrCallback(const std::function<void(const QString &)> &callback);
 
 public slots:
     bool terminate();

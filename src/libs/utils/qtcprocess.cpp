@@ -1862,12 +1862,8 @@ QString QtcProcess::locateBinary(const QString &binary)
     event loop that blocks only user input events. Thus, it allows for the GUI to
     repaint and append output to log windows.
 
-    The stdOut(), stdErr() signals are emitted unbuffered as the process
-    writes them.
-
-    The stdOutBuffered(), stdErrBuffered() signals are emitted with complete
-    lines based on the '\\n' marker if they are enabled using
-    stdOutBufferedSignalsEnabled()/setStdErrBufferedSignalsEnabled().
+    The callbacks set with setStdOutCallBack(), setStdErrCallback() are called
+    with complete lines based on the '\\n' marker.
     They would typically be used for log windows.
 
     There is a timeout handling that takes effect after the last data have been
@@ -1974,8 +1970,6 @@ SynchronousProcessResponse::Result defaultExitCodeInterpreter(int code)
 // Data for one channel buffer (stderr/stdout)
 class ChannelBuffer : public QObject
 {
-    Q_OBJECT
-
 public:
     void clearForRun();
 
@@ -1987,16 +1981,11 @@ public:
     QTextCodec *codec = nullptr; // Not owner
     std::unique_ptr<QTextCodec::ConverterState> codecState;
     int rawDataPos = 0;
-    bool bufferedSignalsEnabled = false;
-    bool firstBuffer = true;
-
-signals:
-    void outputBuffered(const QString &text, bool firstTime);
+    std::function<void(const QString &lines)> outputCallback;
 };
 
 void ChannelBuffer::clearForRun()
 {
-    firstBuffer = true;
     rawDataPos = 0;
     rawData.clear();
     codecState.reset(new QTextCodec::ConverterState);
@@ -2035,12 +2024,10 @@ void ChannelBuffer::append(const QByteArray &text, bool emitSignals)
         return;
 
     // Buffered. Emit complete lines?
-    if (bufferedSignalsEnabled) {
+    if (outputCallback) {
         const QString lines = linesRead();
-        if (!lines.isEmpty()) {
-            emit outputBuffered(lines, firstBuffer);
-            firstBuffer = false;
-        }
+        if (!lines.isEmpty())
+            outputCallback(lines);
     }
 }
 
@@ -2098,8 +2085,6 @@ SynchronousProcess::SynchronousProcess() :
                 d->m_hangTimerCount = 0;
                 processStdErr(true);
             });
-    connect(&d->m_stdOut, &ChannelBuffer::outputBuffered, this, &SynchronousProcess::stdOutBuffered);
-    connect(&d->m_stdErr, &ChannelBuffer::outputBuffered, this, &SynchronousProcess::stdErrBuffered);
 }
 
 SynchronousProcess::~SynchronousProcess()
@@ -2131,26 +2116,6 @@ void SynchronousProcess::setCodec(QTextCodec *c)
 QTextCodec *SynchronousProcess::codec() const
 {
     return d->m_codec;
-}
-
-bool SynchronousProcess::stdOutBufferedSignalsEnabled() const
-{
-    return d->m_stdOut.bufferedSignalsEnabled;
-}
-
-void SynchronousProcess::setStdOutBufferedSignalsEnabled(bool v)
-{
-    d->m_stdOut.bufferedSignalsEnabled = v;
-}
-
-bool SynchronousProcess::stdErrBufferedSignalsEnabled() const
-{
-    return d->m_stdErr.bufferedSignalsEnabled;
-}
-
-void SynchronousProcess::setStdErrBufferedSignalsEnabled(bool v)
-{
-    d->m_stdErr.bufferedSignalsEnabled = v;
 }
 
 Environment SynchronousProcess::environment() const
@@ -2352,6 +2317,16 @@ SynchronousProcessResponse SynchronousProcess::runBlocking(const CommandLine &cm
     return d->m_result;
 }
 
+void SynchronousProcess::setStdOutCallback(const std::function<void (const QString &)> &callback)
+{
+    d->m_stdOut.outputCallback = callback;
+}
+
+void SynchronousProcess::setStdErrCallback(const std::function<void (const QString &)> &callback)
+{
+    d->m_stdErr.outputCallback = callback;
+}
+
 bool SynchronousProcess::terminate()
 {
     return d->m_process.stopProcess();
@@ -2423,6 +2398,3 @@ void SynchronousProcess::processStdErr(bool emitSignals)
 }
 
 } // namespace Utils
-
-#include "qtcprocess.moc"
-
