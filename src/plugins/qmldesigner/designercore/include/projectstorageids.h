@@ -79,7 +79,10 @@ enum class BasicIdType {
     PropertyDeclaration,
     SourceId,
     SourceContextId,
-    StorageCacheIndex
+    StorageCacheIndex,
+    FunctionDeclaration,
+    SignalDeclaration,
+    EnumerationDeclaration
 };
 
 using TypeId = BasicId<BasicIdType::Type>;
@@ -88,12 +91,19 @@ using TypeIds = std::vector<TypeId>;
 using PropertyDeclarationId = BasicId<BasicIdType::PropertyDeclaration>;
 using PropertyDeclarationIds = std::vector<PropertyDeclarationId>;
 
+using FunctionDeclarationId = BasicId<BasicIdType::FunctionDeclaration>;
+using FunctionDeclarationIds = std::vector<FunctionDeclarationId>;
+
+using SignalDeclarationId = BasicId<BasicIdType::SignalDeclaration>;
+using SignalDeclarationIds = std::vector<SignalDeclarationId>;
+
+using EnumerationDeclarationId = BasicId<BasicIdType::EnumerationDeclaration>;
+using EnumerationDeclarationIds = std::vector<EnumerationDeclarationId>;
+
 using SourceContextId = BasicId<BasicIdType::SourceContextId, int>;
 using SourceContextIds = std::vector<SourceContextId>;
 
 using SourceId = BasicId<BasicIdType::SourceId, int>;
 using SourceIds = std::vector<SourceId>;
-
-enum class TypeAccessSemantics { Reference, Value, Sequence, IsEnum = 0xF };
 
 } // namespace QmlDesigner

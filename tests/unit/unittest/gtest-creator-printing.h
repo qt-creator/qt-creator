@@ -394,6 +394,35 @@ class SourceContext;
 std::ostream &operator<<(std::ostream &out, const SourceContext &sourceContext);
 } // namespace Cache
 
+namespace Storage {
+class Type;
+class ExportedType;
+class Version;
+class VersionNumber;
+enum class TypeAccessSemantics : int;
+enum class DeclarationTraits : unsigned int;
+class PropertyDeclaration;
+class FunctionDeclaration;
+class ParameterDeclaration;
+class SignalDeclaration;
+class EnumerationDeclaration;
+class EnumeratorDeclaration;
+
+std::ostream &operator<<(std::ostream &out, TypeAccessSemantics accessSemantics);
+std::ostream &operator<<(std::ostream &out, VersionNumber versionNumber);
+std::ostream &operator<<(std::ostream &out, Version version);
+std::ostream &operator<<(std::ostream &out, const Type &type);
+std::ostream &operator<<(std::ostream &out, const ExportedType &exportedType);
+std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyDeclaration);
+std::ostream &operator<<(std::ostream &out, DeclarationTraits traits);
+std::ostream &operator<<(std::ostream &out, const FunctionDeclaration &functionDeclaration);
+std::ostream &operator<<(std::ostream &out, const ParameterDeclaration &parameter);
+std::ostream &operator<<(std::ostream &out, const SignalDeclaration &signalDeclaration);
+std::ostream &operator<<(std::ostream &out, const EnumerationDeclaration &enumerationDeclaration);
+std::ostream &operator<<(std::ostream &out, const EnumeratorDeclaration &enumeratorDeclaration);
+
+} // namespace Storage
+
 namespace Internal {
 class ImageCacheStorageImageEntry;
 class ImageCacheStorageIconEntry;

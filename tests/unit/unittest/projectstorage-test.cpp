@@ -29,6 +29,7 @@
 
 #include <modelnode.h>
 #include <projectstorage/projectstorage.h>
+#include <projectstorage/sourcepathcache.h>
 #include <sqlitedatabase.h>
 #include <sqlitereadstatement.h>
 #include <sqlitewritestatement.h>
@@ -38,10 +39,12 @@ namespace {
 using QmlDesigner::PropertyDeclarationId;
 using QmlDesigner::SourceContextId;
 using QmlDesigner::SourceId;
-using QmlDesigner::TypeAccessSemantics;
 using QmlDesigner::TypeId;
 using QmlDesigner::Cache::Source;
 using QmlDesigner::Cache::SourceContext;
+using QmlDesigner::Storage::TypeAccessSemantics;
+
+namespace Storage = QmlDesigner::Storage;
 
 MATCHER_P2(IsSourceContext,
            id,
@@ -63,6 +66,44 @@ MATCHER_P2(IsSourceNameAndSourceContextId,
 
     return sourceNameAndSourceContextId.sourceName == name
            && sourceNameAndSourceContextId.sourceContextId == id;
+}
+
+MATCHER_P4(IsStorageType,
+           typeName,
+           prototype,
+           accessSemantics,
+           sourceId,
+           std::string(negation ? "isn't " : "is ")
+               + PrintToString(Storage::Type{typeName, prototype, accessSemantics, sourceId}))
+{
+    const Storage::Type &type = arg;
+
+    return type.typeName == typeName && type.prototype == prototype
+           && type.accessSemantics == accessSemantics && type.sourceId == sourceId;
+}
+
+MATCHER_P2(IsExportedType,
+           qualifiedTypeName,
+           version,
+           std::string(negation ? "isn't " : "is ")
+               + PrintToString(Storage::ExportedType{qualifiedTypeName, version}))
+{
+    const Storage::ExportedType &type = arg;
+
+    return type.qualifiedTypeName == qualifiedTypeName && type.version == version;
+}
+
+MATCHER_P3(IsPropertyDeclaration,
+           name,
+           typeName,
+           traits,
+           std::string(negation ? "isn't " : "is ")
+               + PrintToString(Storage::PropertyDeclaration{name, typeName, traits}))
+{
+    const Storage::PropertyDeclaration &propertyDeclaration = arg;
+
+    return propertyDeclaration.name == name && propertyDeclaration.typeName == typeName
+           && propertyDeclaration.traits == traits;
 }
 
 class ProjectStorage : public testing::Test
@@ -104,20 +145,20 @@ public:
     }
 
 protected:
-    using Storage = QmlDesigner::ProjectStorage<SqliteDatabaseMock>;
+    using ProjectStorageMock = QmlDesigner::ProjectStorage<SqliteDatabaseMock>;
     template<int ResultCount>
-    using ReadStatement = Storage::ReadStatement<ResultCount>;
-    using WriteStatement = Storage::WriteStatement;
+    using ReadStatement = ProjectStorageMock::ReadStatement<ResultCount>;
+    using WriteStatement = ProjectStorageMock::WriteStatement;
     template<int ResultCount>
-    using ReadWriteStatement = SqliteDatabaseMock::ReadWriteStatement<ResultCount>;
+    using ReadWriteStatement = ProjectStorageMock::ReadWriteStatement<ResultCount>;
 
     NiceMock<SqliteDatabaseMock> databaseMock;
-    Storage storage{databaseMock, true};
+    ProjectStorageMock storage{databaseMock, true};
     ReadWriteStatement<1> &upsertTypeStatement = storage.upsertTypeStatement;
     ReadStatement<1> &selectTypeIdByQualifiedNameStatement = storage.selectTypeIdByQualifiedNameStatement;
     ReadWriteStatement<1> &upsertPropertyDeclarationStatement = storage.upsertPropertyDeclarationStatement;
     ReadStatement<1> &selectPropertyDeclarationByTypeIdAndNameStatement = storage.selectPropertyDeclarationByTypeIdAndNameStatement;
-    WriteStatement &upsertQualifiedTypeNameStatement = storage.upsertQualifiedTypeNameStatement;
+    WriteStatement &upsertExportedTypesStatement = storage.upsertExportedTypesStatement;
     ReadStatement<1> &selectSourceContextIdFromSourceContextsBySourceContextPathStatement
         = storage.selectSourceContextIdFromSourceContextsBySourceContextPathStatement;
     ReadStatement<1> &selectSourceIdFromSourcesBySourceContextIdAndSourceNameStatment
@@ -131,6 +172,11 @@ protected:
     WriteStatement &insertIntoSourcesStatement = storage.insertIntoSourcesStatement;
     ReadStatement<3> &selectAllSourcesStatement = storage.selectAllSourcesStatement;
     ReadStatement<1> &selectSourceContextIdFromSourcesBySourceIdStatement = storage.selectSourceContextIdFromSourcesBySourceIdStatement;
+    ReadWriteStatement<1> &insertTypeStatement = storage.insertTypeStatement;
+    ReadStatement<1> &selectTypeIdByNameStatement = storage.selectTypeIdByNameStatement;
+    ReadStatement<4> &selectTypeByTypeIdStatement = storage.selectTypeByTypeIdStatement;
+    ReadStatement<3> &selectExportedTypesByTypeIdStatement = storage.selectExportedTypesByTypeIdStatement;
+    ReadStatement<5> &selectTypesStatement = storage.selectTypesStatement;
 };
 
 TEST_F(ProjectStorage, InsertTypeCalls)
@@ -146,17 +192,23 @@ TEST_F(ProjectStorage, InsertTypeCalls)
                                        static_cast<long long>(TypeAccessSemantics::Reference)),
                                    Eq(prototypeId.id)))
         .WillOnce(Return(newTypeId));
-    EXPECT_CALL(upsertQualifiedTypeNameStatement,
-                write(TypedEq<Utils::SmallStringView>("Qml.Object"), TypedEq<long long>(newTypeId.id)));
-    EXPECT_CALL(upsertQualifiedTypeNameStatement,
-                write(TypedEq<Utils::SmallStringView>("Quick.Object"),
+    EXPECT_CALL(upsertExportedTypesStatement,
+                write(TypedEq<Utils::SmallStringView>("QML.Object"),
+                      TypedEq<int>(5),
+                      TypedEq<int>(15),
+                      TypedEq<long long>(newTypeId.id)));
+    EXPECT_CALL(upsertExportedTypesStatement,
+                write(TypedEq<Utils::SmallStringView>("QML.Object"),
+                      TypedEq<int>(5),
+                      TypedEq<int>(12),
                       TypedEq<long long>(newTypeId.id)));
     EXPECT_CALL(databaseMock, commit);
 
     storage.upsertType("QObject",
                        prototypeId,
                        TypeAccessSemantics::Reference,
-                       std::vector<Utils::SmallString>{"Qml.Object", "Quick.Object"});
+                       {Storage::ExportedType{"QML.Object", Storage::Version{5, 15}},
+                        Storage::ExportedType{"QML.Object", Storage::Version{5, 12}}});
 }
 
 TEST_F(ProjectStorage, InsertTypeReturnsInternalPropertyId)
@@ -166,144 +218,10 @@ TEST_F(ProjectStorage, InsertTypeReturnsInternalPropertyId)
     ON_CALL(upsertTypeStatement, valueReturnsTypeId(Eq("QObject"), _, Eq(prototypeId.id)))
         .WillByDefault(Return(newTypeId));
 
-    auto internalId = storage.upsertType("QObject",
-                                         prototypeId,
-                                         TypeAccessSemantics::Reference,
-                                         std::vector<Utils::SmallString>{});
+    auto internalId = storage.upsertType("QObject", prototypeId, TypeAccessSemantics::Reference, {});
 
     ASSERT_THAT(internalId, Eq(newTypeId));
 }
-
-TEST_F(ProjectStorage, UpsertPropertyDeclaration)
-{
-    InSequence s;
-
-    EXPECT_CALL(databaseMock, immediateBegin());
-    EXPECT_CALL(upsertPropertyDeclarationStatement,
-                valueReturnsPropertyDeclarationId(TypedEq<long long>(11),
-                                                  TypedEq<Utils::SmallStringView>("boo"),
-                                                  TypedEq<long long>(33)))
-        .WillOnce(Return(PropertyDeclarationId{3}));
-    EXPECT_CALL(databaseMock, commit);
-
-    storage.upsertPropertyDeclaration(TypeId{11}, "boo", TypeId{33});
-}
-
-/*
-TEST_F(ProjectStorage, ReadSourceContextIdForNotContainedPath)
-{
-    auto sourceContextId = storage.readSourceContextId("/some/not/known/path");
-
-    ASSERT_FALSE(sourceContextId);
-}
-
-TEST_F(ProjectStorage, ReadSourceIdForNotContainedPathAndSourceContextId)
-{
-    auto sourceId = storage.readSourceId(23, "/some/not/known/path");
-
-    ASSERT_FALSE(sourceId);
-}
-
-TEST_F(ProjectStorage, ReadSourceContextIdForEmptyPath)
-{
-    auto sourceContextId = storage.readSourceContextId("");
-
-    ASSERT_THAT(sourceContextId.value(), 0);
-}
-
-TEST_F(ProjectStorage, ReadSourceIdForEmptyNameAndZeroSourceContextId)
-{
-    auto sourceId = storage.readSourceId(0, "");
-
-    ASSERT_THAT(sourceId.value(), 0);
-}
-
-TEST_F(ProjectStorage, ReadSourceContextIdForPath)
-{
-    auto sourceContextId = storage.readSourceContextId("/path/to");
-
-    ASSERT_THAT(sourceContextId.value(), 5);
-}
-
-TEST_F(ProjectStorage, ReadSourceIdForPathAndSourceContextId)
-{
-    auto sourceId = storage.readSourceId(5, "file.h");
-
-    ASSERT_THAT(sourceId.value(), 42);
-}
-
-TEST_F(ProjectStorage, FetchSourceContextIdForEmptyPath)
-{
-    auto sourceContextId = storage.fetchSourceContextId("");
-
-    ASSERT_THAT(sourceContextId, 0);
-}
-
-TEST_F(ProjectStorage, FetchSourceIdForEmptyNameAndZeroSourceContextId)
-{
-    auto sourceId = storage.fetchSourceId(0, "");
-
-    ASSERT_THAT(sourceId, 0);
-}
-
-TEST_F(ProjectStorage, FetchSourceContextIdForPath)
-{
-    auto sourceContextId = storage.fetchSourceContextId("/path/to");
-
-    ASSERT_THAT(sourceContextId, 5);
-}
-
-TEST_F(ProjectStorage, FetchSourceIdForPathAndSourceContextId)
-{
-    auto sourceId = storage.fetchSourceId(5, "file.h");
-
-    ASSERT_THAT(sourceId, 42);
-}
-
-TEST_F(ProjectStorage, CallWriteForWriteDirectory)
-{
-    EXPECT_CALL(insertIntoSourceContexts, write(TypedEq<Utils::SmallStringView>("/some/not/known/path")));
-
-    storage.writeSourceContextId("/some/not/known/path");
-}
-
-TEST_F(ProjectStorage, CallWriteForWriteSource)
-{
-    EXPECT_CALL(insertIntoSources,
-                write(TypedEq<int>(5), TypedEq<Utils::SmallStringView>("unknownfile.h")));
-
-    storage.writeSourceId(5, "unknownfile.h");
-}
-
-TEST_F(ProjectStorage, GetTheSourceContextIdBackAfterWritingANewEntryInSourceContexts)
-{
-    auto sourceContextId = storage.writeSourceContextId("/some/not/known/path");
-
-    ASSERT_THAT(sourceContextId, 12);
-}
-
-TEST_F(ProjectStorage, GetTheSourceIdBackAfterWritingANewEntryInSources)
-{
-    auto sourceId = storage.writeSourceId(5, "unknownfile.h");
-
-    ASSERT_THAT(sourceId, 12);
-}
-
-TEST_F(ProjectStorage, GetTheSourceContextIdBackAfterFetchingANewEntryFromSourceContexts)
-{
-    auto sourceContextId = storage.fetchSourceContextId("/some/not/known/path");
-
-    ASSERT_THAT(sourceContextId, 12);
-}
-
-TEST_F(ProjectStorage, GetTheSourceIdBackAfterFetchingANewEntryFromSources)
-{
-    auto sourceId = storage.fetchSourceId(5, "unknownfile.h");
-
-    ASSERT_THAT(sourceId, 12);
-}
-
-*/
 
 TEST_F(ProjectStorage, SelectForFetchingSourceContextIdForKnownPathCalls)
 {
@@ -497,6 +415,42 @@ TEST_F(ProjectStorage,
     storage.fetchSourceContextId("/other/unknow/path");
 }
 
+TEST_F(ProjectStorage, SynchronizeTypesCalls)
+{
+    InSequence s;
+
+    EXPECT_CALL(databaseMock, immediateBegin());
+    EXPECT_CALL(databaseMock, commit());
+
+    storage.synchronizeTypes({}, {});
+}
+
+TEST_F(ProjectStorage, FetchTypeByTypeIdCalls)
+{
+    InSequence s;
+
+    EXPECT_CALL(databaseMock, deferredBegin());
+    EXPECT_CALL(selectTypeByTypeIdStatement, valueReturnsStorageType(Eq(21)));
+    EXPECT_CALL(selectExportedTypesByTypeIdStatement, valuesReturnsStorageExportedTypes(_, Eq(21)));
+    EXPECT_CALL(databaseMock, commit());
+
+    storage.fetchTypeByTypeId(TypeId{21});
+}
+
+TEST_F(ProjectStorage, FetchTypesCalls)
+{
+    InSequence s;
+    Storage::Type type{{}, {}, {}, SourceId{}, {}, {}, {}, {}, {}, TypeId{55}};
+    Storage::Types types{type};
+
+    EXPECT_CALL(databaseMock, deferredBegin());
+    EXPECT_CALL(selectTypesStatement, valuesReturnsStorageTypes(_)).WillOnce(Return(types));
+    EXPECT_CALL(selectExportedTypesByTypeIdStatement, valuesReturnsStorageExportedTypes(_, Eq(55)));
+    EXPECT_CALL(databaseMock, commit());
+
+    storage.fetchTypes();
+}
+
 class ProjectStorageSlowTest : public testing::Test
 {
 protected:
@@ -524,9 +478,66 @@ protected:
         storage.fetchSourceId(sourceContextId3, "bar");
     }
 
+    auto createTypes()
+    {
+        sourceId1 = sourcePathCache.sourceId(path1);
+        sourceId2 = sourcePathCache.sourceId(path2);
+        sourceId3 = sourcePathCache.sourceId(path3);
+        sourceId4 = sourcePathCache.sourceId(path4);
+
+        return Storage::Types{
+            Storage::Type{
+                "QQuickItem",
+                "QObject",
+                TypeAccessSemantics::Reference,
+                sourceId1,
+                {Storage::ExportedType{"QtQuick.Item", Storage::Version{5, 15}},
+                 Storage::ExportedType{"QtQuick.Item", Storage::Version{5, 1}}},
+                {Storage::PropertyDeclaration{"data", "QObject", Storage::DeclarationTraits::IsList},
+                 Storage::PropertyDeclaration{"children",
+                                              "QQuickItem",
+                                              Storage::DeclarationTraits::IsList
+                                                  | Storage::DeclarationTraits::IsReadOnly}},
+                {Storage::FunctionDeclaration{"execute", "", {Storage::ParameterDeclaration{"arg", ""}}},
+                 Storage::FunctionDeclaration{
+                     "values",
+                     "Vector3D",
+                     {Storage::ParameterDeclaration{"arg1", "int"},
+                      Storage::ParameterDeclaration{"arg2", "QObject", Storage::DeclarationTraits::IsPointer},
+                      Storage::ParameterDeclaration{"arg3", "string"}}}},
+                {Storage::SignalDeclaration{"execute", {Storage::ParameterDeclaration{"arg", ""}}},
+                 Storage::SignalDeclaration{"values",
+                                            {Storage::ParameterDeclaration{"arg1", "int"},
+                                             Storage::ParameterDeclaration{
+                                                 "arg2", "QObject", Storage::DeclarationTraits::IsPointer},
+                                             Storage::ParameterDeclaration{"arg3", "string"}}}},
+                {Storage::EnumerationDeclaration{"Enum",
+                                                 {Storage::EnumeratorDeclaration{"Foo"},
+                                                  Storage::EnumeratorDeclaration{"Bar", 32}}},
+                 Storage::EnumerationDeclaration{"Type",
+                                                 {Storage::EnumeratorDeclaration{"Foo"},
+                                                  Storage::EnumeratorDeclaration{"Poo", 12}}}}},
+            Storage::Type{"QObject",
+                          {},
+                          TypeAccessSemantics::Reference,
+                          sourceId2,
+                          {Storage::ExportedType{"QML.Object", Storage::Version{5, 14}},
+                           Storage::ExportedType{"Qml.Object", Storage::Version{5, 1}}}}};
+    }
+
 protected:
+    using ProjectStorage = QmlDesigner::ProjectStorage<Sqlite::Database>;
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
-    QmlDesigner::ProjectStorage<Sqlite::Database> storage{database, database.isInitialized()};
+    ProjectStorage storage{database, database.isInitialized()};
+    QmlDesigner::SourcePathCache<ProjectStorage> sourcePathCache{storage};
+    QmlDesigner::SourcePathView path1{"/path1/to"};
+    QmlDesigner::SourcePathView path2{"/path2/to"};
+    QmlDesigner::SourcePathView path3{"/path3/to"};
+    QmlDesigner::SourcePathView path4{"/path4/to"};
+    SourceId sourceId1;
+    SourceId sourceId2;
+    SourceId sourceId3;
+    SourceId sourceId4;
 };
 
 TEST_F(ProjectStorageSlowTest, FetchTypeIdByName)
@@ -534,17 +545,108 @@ TEST_F(ProjectStorageSlowTest, FetchTypeIdByName)
     storage.upsertType("Yi",
                        TypeId{},
                        TypeAccessSemantics::Reference,
-                       std::vector<Utils::SmallString>{"Qml.Yi"});
+                       {Storage::ExportedType{"Qml.Yi"}});
     auto internalTypeId = storage.upsertType("Er",
                                              TypeId{},
                                              TypeAccessSemantics::Reference,
-                                             std::vector<Utils::SmallString>{"Qml.Er"});
+                                             {Storage::ExportedType{"Qml.Er"}});
     storage.upsertType("San",
                        TypeId{},
                        TypeAccessSemantics::Reference,
-                       std::vector<Utils::SmallString>{"Qml.San"});
+                       {Storage::ExportedType{"Qml.San"}});
 
-    auto id = storage.fetchTypeIdByQualifiedName("Qml.Er");
+    auto id = storage.fetchTypeIdByQualifiedNameAndVersion("Qml.Er");
+
+    ASSERT_THAT(id, internalTypeId);
+}
+
+TEST_F(ProjectStorageSlowTest, FetchTypeIdByNameAndVersion)
+{
+    auto internalTypeId = storage.upsertType("Yi",
+                                             TypeId{},
+                                             TypeAccessSemantics::Reference,
+                                             {Storage::ExportedType{"Qml.Yi", Storage::Version{5, 15}},
+                                              Storage::ExportedType{"Qml.Yi", Storage::Version{5, 1}}});
+
+    auto id = storage.fetchTypeIdByQualifiedNameAndVersion("Qml.Yi", Storage::Version{5, 1});
+
+    ASSERT_THAT(id, internalTypeId);
+}
+
+TEST_F(ProjectStorageSlowTest, DontFetchTypeIdByWrongName)
+{
+    storage.upsertType("Yi",
+                       TypeId{},
+                       TypeAccessSemantics::Reference,
+                       {Storage::ExportedType{"Qml.Yi", Storage::Version{5, 15}},
+                        Storage::ExportedType{"Qml.Yi", Storage::Version{5, 1}}});
+
+    auto id = storage.fetchTypeIdByQualifiedNameAndVersion("Qml.Er", Storage::Version{5, 1});
+
+    ASSERT_FALSE(id.isValid());
+}
+
+TEST_F(ProjectStorageSlowTest, DontFetchTypeIdByWrongMajorVersion)
+{
+    storage.upsertType("Yi",
+                       TypeId{},
+                       TypeAccessSemantics::Reference,
+                       {Storage::ExportedType{"Qml.Yi", Storage::Version{3, 15}},
+                        Storage::ExportedType{"Qml.Yi", Storage::Version{5, 7}},
+                        Storage::ExportedType{"Qml.Yi", Storage::Version{8, 1}}});
+
+    auto id = storage.fetchTypeIdByQualifiedNameAndVersion("Qml.Yi", Storage::Version{6, 1});
+
+    ASSERT_FALSE(id.isValid());
+}
+
+TEST_F(ProjectStorageSlowTest, DontFetchTypeIdByLowerMinorVersion)
+{
+    storage.upsertType("Yi",
+                       TypeId{},
+                       TypeAccessSemantics::Reference,
+                       {Storage::ExportedType{"Qml.Yi", Storage::Version{5, 15}},
+                        Storage::ExportedType{"Qml.Yi", Storage::Version{5, 7}},
+                        Storage::ExportedType{"Qml.Yi", Storage::Version{5, 1}}});
+
+    auto id = storage.fetchTypeIdByQualifiedNameAndVersion("Qml.Yi", Storage::Version{5, 0});
+
+    ASSERT_FALSE(id.isValid());
+}
+
+TEST_F(ProjectStorageSlowTest, FetchTypeIdByHigherMinorVersion)
+{
+    storage.upsertType("Yi",
+                       TypeId{},
+                       TypeAccessSemantics::Reference,
+                       {Storage::ExportedType{"Qml.Yi", Storage::Version{5, 7}},
+                        Storage::ExportedType{"Qml.Yi", Storage::Version{5, 1}}});
+    auto internalTypeId = storage.upsertType("Yi2",
+                                             TypeId{},
+                                             TypeAccessSemantics::Reference,
+                                             {Storage::ExportedType{"Qml.Yi", Storage::Version{5, 15}},
+                                              Storage::ExportedType{"Qml.Yi",
+                                                                    Storage::Version{5, 12}}});
+
+    auto id = storage.fetchTypeIdByQualifiedNameAndVersion("Qml.Yi", Storage::Version{5, 13});
+
+    ASSERT_THAT(id, internalTypeId);
+}
+
+TEST_F(ProjectStorageSlowTest, FetchTypeIdByHigherMiddleVersion)
+{
+    auto internalTypeId = storage.upsertType("Yi",
+                                             TypeId{},
+                                             TypeAccessSemantics::Reference,
+                                             {Storage::ExportedType{"Qml.Yi", Storage::Version{5, 7}},
+                                              Storage::ExportedType{"Qml.Yi", Storage::Version{5, 1}}});
+    storage.upsertType("Yi2",
+                       TypeId{},
+                       TypeAccessSemantics::Reference,
+                       {Storage::ExportedType{"Qml.Yi", Storage::Version{5, 15}},
+                        Storage::ExportedType{"Qml.Yi", Storage::Version{5, 12}}});
+
+    auto id = storage.fetchTypeIdByQualifiedNameAndVersion("Qml.Yi", Storage::Version{5, 11});
 
     ASSERT_THAT(id, internalTypeId);
 }
@@ -554,9 +656,9 @@ TEST_F(ProjectStorageSlowTest, InsertType)
     auto internalTypeId = storage.upsertType("Yi",
                                              TypeId{},
                                              TypeAccessSemantics::Reference,
-                                             std::vector<Utils::SmallString>{"Qml.Yi"});
+                                             {Storage::ExportedType{"Qml.Yi"}});
 
-    ASSERT_THAT(storage.fetchTypeIdByQualifiedName("Qml.Yi"), internalTypeId);
+    ASSERT_THAT(storage.fetchTypeIdByQualifiedNameAndVersion("Qml.Yi"), internalTypeId);
 }
 
 TEST_F(ProjectStorageSlowTest, UpsertType)
@@ -564,12 +666,12 @@ TEST_F(ProjectStorageSlowTest, UpsertType)
     auto internalTypeId = storage.upsertType("Yi",
                                              TypeId{},
                                              TypeAccessSemantics::Reference,
-                                             std::vector<Utils::SmallString>{"Qml.Yi"});
+                                             {Storage::ExportedType{"Qml.Yi"}});
 
     auto internalTypeId2 = storage.upsertType("Yi",
                                               TypeId{},
                                               TypeAccessSemantics::Reference,
-                                              std::vector<Utils::SmallString>{"Qml.Yi"});
+                                              {Storage::ExportedType{"Qml.Yi"}});
 
     ASSERT_THAT(internalTypeId2, internalTypeId);
 }
@@ -579,11 +681,11 @@ TEST_F(ProjectStorageSlowTest, InsertTypeIdAreUnique)
     auto internalTypeId = storage.upsertType("Yi",
                                              TypeId{},
                                              TypeAccessSemantics::Reference,
-                                             std::vector<Utils::SmallString>{"Qml.Yi"});
+                                             {Storage::ExportedType{"Qml.Yi"}});
     auto internalTypeId2 = storage.upsertType("Er",
                                               TypeId{},
                                               TypeAccessSemantics::Reference,
-                                              std::vector<Utils::SmallString>{"Qml.Er"});
+                                              {Storage::ExportedType{"Qml.Er"}});
 
     ASSERT_TRUE(internalTypeId != internalTypeId2);
 }
@@ -593,15 +695,15 @@ TEST_F(ProjectStorageSlowTest, IsConvertibleTypeToBase)
     auto baseId = storage.upsertType("Base",
                                      TypeId{},
                                      TypeAccessSemantics::Reference,
-                                     std::vector<Utils::SmallString>{"Qml.Base"});
+                                     {Storage::ExportedType{"Qml.Base"}});
     auto objectId = storage.upsertType("QObject",
                                        baseId,
                                        TypeAccessSemantics::Reference,
-                                       std::vector<Utils::SmallString>{"Qml.Object"});
+                                       {Storage::ExportedType{"Qml.Object"}});
     auto itemId = storage.upsertType("QQuickItem",
                                      objectId,
                                      TypeAccessSemantics::Reference,
-                                     std::vector<Utils::SmallString>{"Quick.Item"});
+                                     {Storage::ExportedType{"Quick.Item"}});
 
     auto isConvertible = storage.fetchIsProtype(itemId, baseId);
 
@@ -613,15 +715,15 @@ TEST_F(ProjectStorageSlowTest, IsConvertibleTypeToSameType)
     auto baseId = storage.upsertType("Base",
                                      TypeId{},
                                      TypeAccessSemantics::Reference,
-                                     std::vector<Utils::SmallString>{"Qml.Base"});
+                                     {Storage::ExportedType{"Qml.Base"}});
     auto objectId = storage.upsertType("QObject",
                                        baseId,
                                        TypeAccessSemantics::Reference,
-                                       std::vector<Utils::SmallString>{"Qml.Object"});
+                                       {Storage::ExportedType{"Qml.Object"}});
     auto itemId = storage.upsertType("QQuickItem",
                                      objectId,
                                      TypeAccessSemantics::Reference,
-                                     std::vector<Utils::SmallString>{"Quick.Item"});
+                                     {Storage::ExportedType{"Quick.Item"}});
 
     auto isConvertible = storage.fetchIsProtype(itemId, itemId);
 
@@ -633,15 +735,15 @@ TEST_F(ProjectStorageSlowTest, IsConvertibleTypeToSomeTypeInTheMiddle)
     auto baseId = storage.upsertType("Base",
                                      TypeId{},
                                      TypeAccessSemantics::Reference,
-                                     std::vector<Utils::SmallString>{"Qml.Base"});
+                                     {Storage::ExportedType{"Qml.Base"}});
     auto objectId = storage.upsertType("QObject",
                                        baseId,
                                        TypeAccessSemantics::Reference,
-                                       std::vector<Utils::SmallString>{"Qml.Object"});
+                                       {Storage::ExportedType{"Qml.Object"}});
     auto itemId = storage.upsertType("QQuickItem",
                                      objectId,
                                      TypeAccessSemantics::Reference,
-                                     std::vector<Utils::SmallString>{"Quick.Item"});
+                                     {Storage::ExportedType{"Quick.Item"}});
 
     auto isConvertible = storage.fetchIsProtype(itemId, objectId);
 
@@ -653,15 +755,15 @@ TEST_F(ProjectStorageSlowTest, IsNotConvertibleToUnrelatedType)
     auto unrelatedId = storage.upsertType("Base",
                                           TypeId{},
                                           TypeAccessSemantics::Reference,
-                                          std::vector<Utils::SmallString>{"Qml.Base"});
+                                          {Storage::ExportedType{"Qml.Base"}});
     auto objectId = storage.upsertType("QObject",
                                        TypeId{},
                                        TypeAccessSemantics::Reference,
-                                       std::vector<Utils::SmallString>{"Qml.Object"});
+                                       {Storage::ExportedType{"Qml.Object"}});
     auto itemId = storage.upsertType("QQuickItem",
                                      objectId,
                                      TypeAccessSemantics::Reference,
-                                     std::vector<Utils::SmallString>{"Quick.Item"});
+                                     {Storage::ExportedType{"Quick.Item"}});
 
     auto isConvertible = storage.fetchIsProtype(itemId, unrelatedId);
 
@@ -673,15 +775,15 @@ TEST_F(ProjectStorageSlowTest, IsNotPrototypeOrSameType)
     auto baseId = storage.upsertType("Base",
                                      TypeId{},
                                      TypeAccessSemantics::Reference,
-                                     std::vector<Utils::SmallString>{"Qml.Base"});
+                                     {Storage::ExportedType{"Qml.Base"}});
     auto objectId = storage.upsertType("QObject",
                                        baseId,
                                        TypeAccessSemantics::Reference,
-                                       std::vector<Utils::SmallString>{"Qml.Object"});
+                                       {Storage::ExportedType{"Qml.Object"}});
     auto itemId = storage.upsertType("QQuickItem",
                                      baseId,
                                      TypeAccessSemantics::Reference,
-                                     std::vector<Utils::SmallString>{"Quick.Item"});
+                                     {Storage::ExportedType{"Quick.Item"}});
 
     auto isPrototype = storage.fetchIsProtype(itemId, objectId);
 
@@ -693,11 +795,11 @@ TEST_F(ProjectStorageSlowTest, IsNotConvertibleToDerivedType)
     auto baseId = storage.upsertType("Base",
                                      TypeId{},
                                      TypeAccessSemantics::Reference,
-                                     std::vector<Utils::SmallString>{"Qml.Base"});
+                                     {Storage::ExportedType{"Qml.Base"}});
     auto objectId = storage.upsertType("QObject",
                                        baseId,
                                        TypeAccessSemantics::Reference,
-                                       std::vector<Utils::SmallString>{"Qml.Object"});
+                                       {Storage::ExportedType{"Qml.Object"}});
 
     auto isConvertible = storage.fetchIsProtype(baseId, objectId);
 
@@ -709,11 +811,11 @@ TEST_F(ProjectStorageSlowTest, InsertPropertyDeclaration)
     auto typeId = storage.upsertType("QObject",
                                      TypeId{},
                                      TypeAccessSemantics::Reference,
-                                     std::vector<Utils::SmallString>{"Qml.Object"});
+                                     {Storage::ExportedType{"Qml.Object"}});
     auto propertyTypeId = storage.upsertType("double",
                                              TypeId{},
                                              TypeAccessSemantics::Value,
-                                             std::vector<Utils::SmallString>{"Qml.doube"});
+                                             {Storage::ExportedType{"Qml.doube"}});
 
     auto propertyDeclarationId = storage.upsertPropertyDeclaration(typeId, "foo", propertyTypeId);
 
@@ -725,11 +827,11 @@ TEST_F(ProjectStorageSlowTest, UpsertPropertyDeclaration)
     auto typeId = storage.upsertType("QObject",
                                      TypeId{},
                                      TypeAccessSemantics::Reference,
-                                     std::vector<Utils::SmallString>{"Qml.Object"});
+                                     {Storage::ExportedType{"Qml.Object"}});
     auto propertyTypeId = storage.upsertType("double",
                                              TypeId{},
                                              TypeAccessSemantics::Value,
-                                             std::vector<Utils::SmallString>{"Qml.doube"});
+                                             {Storage::ExportedType{"Qml.doube"}});
     auto propertyDeclarationId = storage.upsertPropertyDeclaration(typeId, "foo", propertyTypeId);
 
     auto propertyDeclarationId2 = storage.upsertPropertyDeclaration(typeId, "foo", propertyTypeId);
@@ -742,11 +844,11 @@ TEST_F(ProjectStorageSlowTest, FetchPropertyDeclarationByTypeIdAndNameFromSameTy
     auto typeId = storage.upsertType("QObject",
                                      TypeId{},
                                      TypeAccessSemantics::Reference,
-                                     std::vector<Utils::SmallString>{"Qml.Object"});
+                                     {Storage::ExportedType{"Qml.Object"}});
     auto propertyTypeId = storage.upsertType("double",
                                              TypeId{},
                                              TypeAccessSemantics::Value,
-                                             std::vector<Utils::SmallString>{"Qml.doube"});
+                                             {Storage::ExportedType{"Qml.doube"}});
     auto propertyDeclarationId = storage.upsertPropertyDeclaration(typeId, "foo", propertyTypeId);
 
     auto id = storage.fetchPropertyDeclarationByTypeIdAndName(typeId, "foo");
@@ -759,11 +861,11 @@ TEST_F(ProjectStorageSlowTest, CannotFetchPropertyDeclarationByTypeIdAndNameForN
     auto typeId = storage.upsertType("QObject",
                                      TypeId{},
                                      TypeAccessSemantics::Reference,
-                                     std::vector<Utils::SmallString>{"Qml.Object"});
+                                     {Storage::ExportedType{"Qml.Object"}});
     auto propertyTypeId = storage.upsertType("double",
                                              TypeId{},
                                              TypeAccessSemantics::Value,
-                                             std::vector<Utils::SmallString>{"Qml.doube"});
+                                             {Storage::ExportedType{"Qml.doube"}});
     storage.upsertPropertyDeclaration(typeId, "foo", propertyTypeId);
 
     auto id = storage.fetchPropertyDeclarationByTypeIdAndName(typeId, "bar");
@@ -776,15 +878,15 @@ TEST_F(ProjectStorageSlowTest, FetchPropertyDeclarationByTypeIdAndNameFromDerive
     auto baseTypeId = storage.upsertType("QObject",
                                          TypeId{},
                                          TypeAccessSemantics::Reference,
-                                         std::vector<Utils::SmallString>{"Qml.Object"});
+                                         {Storage::ExportedType{"Qml.Object"}});
     auto propertyTypeId = storage.upsertType("double",
                                              TypeId{},
                                              TypeAccessSemantics::Value,
-                                             std::vector<Utils::SmallString>{"Qml.doube"});
+                                             {Storage::ExportedType{"Qml.doube"}});
     auto derivedTypeId = storage.upsertType("Derived",
                                             baseTypeId,
                                             TypeAccessSemantics::Reference,
-                                            std::vector<Utils::SmallString>{"Qml.Derived"});
+                                            {Storage::ExportedType{"Qml.Derived"}});
     auto propertyDeclarationId = storage.upsertPropertyDeclaration(baseTypeId, "foo", propertyTypeId);
 
     auto id = storage.fetchPropertyDeclarationByTypeIdAndName(derivedTypeId, "foo");
@@ -797,15 +899,15 @@ TEST_F(ProjectStorageSlowTest, FetchPropertyDeclarationByTypeIdAndNameFromBaseTy
     auto baseTypeId = storage.upsertType("QObject",
                                          TypeId{},
                                          TypeAccessSemantics::Reference,
-                                         std::vector<Utils::SmallString>{"Qml.Object"});
+                                         {Storage::ExportedType{"Qml.Object"}});
     auto propertyTypeId = storage.upsertType("double",
                                              TypeId{},
                                              TypeAccessSemantics::Value,
-                                             std::vector<Utils::SmallString>{"Qml.doube"});
+                                             {Storage::ExportedType{"Qml.doube"}});
     auto derivedTypeId = storage.upsertType("Derived",
                                             baseTypeId,
                                             TypeAccessSemantics::Reference,
-                                            std::vector<Utils::SmallString>{"Qml.Derived"});
+                                            {Storage::ExportedType{"Qml.Derived"}});
     storage.upsertPropertyDeclaration(derivedTypeId, "foo", propertyTypeId);
 
     auto id = storage.fetchPropertyDeclarationByTypeIdAndName(baseTypeId, "foo");
@@ -818,15 +920,15 @@ TEST_F(ProjectStorageSlowTest, DISABLED_FetchPrototypes)
     auto baseId = storage.upsertType("Base",
                                      TypeId{},
                                      TypeAccessSemantics::Reference,
-                                     std::vector<Utils::SmallString>{"Qml.Base"});
+                                     {Storage::ExportedType{"Qml.Base"}});
     auto objectId = storage.upsertType("QObject",
                                        baseId,
                                        TypeAccessSemantics::Reference,
-                                       std::vector<Utils::SmallString>{"Qml.Object"});
+                                       {Storage::ExportedType{"Qml.Object"}});
     auto itemId = storage.upsertType("QQuickItem",
                                      objectId,
                                      TypeAccessSemantics::Reference,
-                                     std::vector<Utils::SmallString>{"Quick.Item"});
+                                     {Storage::ExportedType{"Quick.Item"}});
 
     auto prototypeIds = storage.fetchPrototypes(itemId);
 
@@ -1029,6 +1131,789 @@ TEST_F(ProjectStorageSlowTest, FetchSourceIdUnguardedWithNonExistingSourceContex
 
     ASSERT_THROW(storage.fetchSourceIdUnguarded(SourceContextId{42}, "foo"),
                  Sqlite::ConstraintPreventsModification);
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddsNewTypes)
+{
+    Storage::Types types{createTypes()};
+
+    storage.synchronizeTypes(types, {sourceId1, sourceId2});
+
+    ASSERT_THAT(
+        storage.fetchTypes(),
+        UnorderedElementsAre(
+            AllOf(IsStorageType("QObject", "", TypeAccessSemantics::Reference, sourceId2),
+                  Field(&Storage::Type::exportedTypes,
+                        UnorderedElementsAre(IsExportedType("Qml.Object", Storage::Version{5, 1}),
+                                             IsExportedType("QML.Object", Storage::Version{5, 14})))),
+            AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                  Field(&Storage::Type::exportedTypes,
+                        UnorderedElementsAre(IsExportedType("QtQuick.Item", Storage::Version{5, 1}),
+                                             IsExportedType("QtQuick.Item", Storage::Version{5, 15}))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddsNewTypesReverseOrder)
+{
+    Storage::Types types{createTypes()};
+    std::reverse(types.begin(), types.end());
+
+    storage.synchronizeTypes(types, {sourceId1, sourceId2});
+
+    ASSERT_THAT(
+        storage.fetchTypes(),
+        UnorderedElementsAre(
+            AllOf(IsStorageType("QObject", "", TypeAccessSemantics::Reference, sourceId2),
+                  Field(&Storage::Type::exportedTypes,
+                        UnorderedElementsAre(IsExportedType("Qml.Object", Storage::Version{5, 1}),
+                                             IsExportedType("QML.Object", Storage::Version{5, 14})))),
+            AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                  Field(&Storage::Type::exportedTypes,
+                        UnorderedElementsAre(IsExportedType("QtQuick.Item", Storage::Version{5, 1}),
+                                             IsExportedType("QtQuick.Item", Storage::Version{5, 15}))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesOverwritesTypeAccessSemantics)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {sourceId1, sourceId2});
+    types[0].accessSemantics = TypeAccessSemantics::Value;
+    types[1].accessSemantics = TypeAccessSemantics::Value;
+
+    storage.synchronizeTypes(types, {sourceId1, sourceId2});
+
+    ASSERT_THAT(
+        storage.fetchTypes(),
+        UnorderedElementsAre(
+            AllOf(IsStorageType("QObject", "", TypeAccessSemantics::Value, sourceId2),
+                  Field(&Storage::Type::exportedTypes,
+                        UnorderedElementsAre(IsExportedType("Qml.Object", Storage::Version{5, 1}),
+                                             IsExportedType("QML.Object", Storage::Version{5, 14})))),
+            AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Value, sourceId1),
+                  Field(&Storage::Type::exportedTypes,
+                        UnorderedElementsAre(IsExportedType("QtQuick.Item", Storage::Version{5, 1}),
+                                             IsExportedType("QtQuick.Item", Storage::Version{5, 15}))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesOverwritesSources)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {sourceId1, sourceId2});
+    types[0].sourceId = sourceId3;
+    types[1].sourceId = sourceId4;
+
+    storage.synchronizeTypes(types, {sourceId1, sourceId2});
+
+    ASSERT_THAT(
+        storage.fetchTypes(),
+        UnorderedElementsAre(
+            AllOf(IsStorageType("QObject", "", TypeAccessSemantics::Reference, sourceId4),
+                  Field(&Storage::Type::exportedTypes,
+                        UnorderedElementsAre(IsExportedType("Qml.Object", Storage::Version{5, 1}),
+                                             IsExportedType("QML.Object", Storage::Version{5, 14})))),
+            AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId3),
+                  Field(&Storage::Type::exportedTypes,
+                        UnorderedElementsAre(IsExportedType("QtQuick.Item", Storage::Version{5, 1}),
+                                             IsExportedType("QtQuick.Item", Storage::Version{5, 15}))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesOverwritesTypes)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {sourceId1, sourceId2});
+    types[0].exportedTypes.push_back(Storage::ExportedType{"QtQuick.Item", Storage::Version{5, 19}});
+    types[0].exportedTypes.push_back(Storage::ExportedType{"QtQuick.Item", Storage::Version{6, 1}});
+    types[1].exportedTypes.push_back(Storage::ExportedType{"Qml.Object", Storage::Version{6, 1}});
+
+    storage.synchronizeTypes(types, {sourceId3, sourceId4});
+
+    ASSERT_THAT(
+        storage.fetchTypes(),
+        UnorderedElementsAre(
+            AllOf(IsStorageType("QObject", "", TypeAccessSemantics::Reference, sourceId2),
+                  Field(&Storage::Type::exportedTypes,
+                        UnorderedElementsAre(IsExportedType("Qml.Object", Storage::Version{5, 1}),
+                                             IsExportedType("QML.Object", Storage::Version{5, 14}),
+                                             IsExportedType("Qml.Object", Storage::Version{6, 1})))),
+            AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                  Field(&Storage::Type::exportedTypes,
+                        UnorderedElementsAre(IsExportedType("QtQuick.Item", Storage::Version{5, 1}),
+                                             IsExportedType("QtQuick.Item", Storage::Version{5, 15}),
+                                             IsExportedType("QtQuick.Item", Storage::Version{5, 19}),
+                                             IsExportedType("QtQuick.Item", Storage::Version{6, 1}))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesInsertTypeIntoPrototypeChain)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {sourceId1, sourceId2});
+    types[0].prototype = "QQuickObject";
+    types.push_back(Storage::Type{"QQuickObject",
+                                  "QObject",
+                                  TypeAccessSemantics::Reference,
+                                  sourceId1,
+                                  {Storage::ExportedType{"QtQuick.Object", Storage::Version{5, 15}}}});
+
+    storage.synchronizeTypes(types, {sourceId1, sourceId2});
+
+    ASSERT_THAT(
+        storage.fetchTypes(),
+        UnorderedElementsAre(
+            AllOf(IsStorageType("QObject", "", TypeAccessSemantics::Reference, sourceId2),
+                  Field(&Storage::Type::exportedTypes,
+                        UnorderedElementsAre(IsExportedType("Qml.Object", Storage::Version{5, 1}),
+                                             IsExportedType("QML.Object", Storage::Version{5, 14})))),
+            AllOf(IsStorageType("QQuickObject", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                  Field(&Storage::Type::exportedTypes,
+                        UnorderedElementsAre(IsExportedType("QtQuick.Object", Storage::Version{5, 15})))),
+            AllOf(IsStorageType("QQuickItem", "QQuickObject", TypeAccessSemantics::Reference, sourceId1),
+                  Field(&Storage::Type::exportedTypes,
+                        UnorderedElementsAre(IsExportedType("QtQuick.Item", Storage::Version{5, 1}),
+                                             IsExportedType("QtQuick.Item", Storage::Version{5, 15}))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesThrowsForMissingPrototype)
+{
+    Storage::Types types{
+        Storage::Type{"QQuickItem",
+                      "QObject",
+                      TypeAccessSemantics::Reference,
+                      sourceId1,
+                      {Storage::ExportedType{"QtQuick.Item", Storage::Version{5, 15}}}}};
+
+    ASSERT_THROW(storage.synchronizeTypes(types, {sourceId1}), Sqlite::ConstraintPreventsModification);
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesThrowsForWrongPrototypeChange)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {sourceId1, sourceId2});
+    types[0].prototype = "QQuickObject";
+
+    ASSERT_THROW(storage.synchronizeTypes(types, {sourceId1}), Sqlite::ConstraintPreventsModification);
+}
+
+TEST_F(ProjectStorageSlowTest, DontAddTypeWithInvalidSourceId)
+{
+    Storage::Types types{
+        Storage::Type{"QQuickItem",
+                      "",
+                      TypeAccessSemantics::Reference,
+                      SourceId{},
+                      {Storage::ExportedType{"QtQuick.Item", Storage::Version{5, 15}}}}};
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(), IsEmpty());
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddPropertyDeclarations)
+{
+    Storage::Types types{createTypes()};
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(
+        storage.fetchTypes(),
+        Contains(
+            AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                  Field(&Storage::Type::propertyDeclarations,
+                        UnorderedElementsAre(
+                            IsPropertyDeclaration("data", "QObject", Storage::DeclarationTraits::IsList),
+                            IsPropertyDeclaration("children",
+                                                  "QQuickItem",
+                                                  Storage::DeclarationTraits::IsList
+                                                      | Storage::DeclarationTraits::IsReadOnly))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesPropertyDeclarationType)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].propertyDeclarations[0].typeName = "QQuickItem";
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(
+        storage.fetchTypes(),
+        Contains(
+            AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                  Field(&Storage::Type::propertyDeclarations,
+                        UnorderedElementsAre(
+                            IsPropertyDeclaration("data", "QQuickItem", Storage::DeclarationTraits::IsList),
+                            IsPropertyDeclaration("children",
+                                                  "QQuickItem",
+                                                  Storage::DeclarationTraits::IsList
+                                                      | Storage::DeclarationTraits::IsReadOnly))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesDeclarationTraits)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].propertyDeclarations[0].traits = Storage::DeclarationTraits::IsPointer;
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(
+        storage.fetchTypes(),
+        Contains(
+            AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                  Field(&Storage::Type::propertyDeclarations,
+                        UnorderedElementsAre(
+                            IsPropertyDeclaration("data", "QObject", Storage::DeclarationTraits::IsPointer),
+                            IsPropertyDeclaration("children",
+                                                  "QQuickItem",
+                                                  Storage::DeclarationTraits::IsList
+                                                      | Storage::DeclarationTraits::IsReadOnly))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesDeclarationTraitsAndType)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].propertyDeclarations[0].traits = Storage::DeclarationTraits::IsPointer;
+    types[0].propertyDeclarations[0].typeName = "QQuickItem";
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(
+        storage.fetchTypes(),
+        Contains(
+            AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                  Field(&Storage::Type::propertyDeclarations,
+                        UnorderedElementsAre(
+                            IsPropertyDeclaration("data", "QQuickItem", Storage::DeclarationTraits::IsPointer),
+                            IsPropertyDeclaration("children",
+                                                  "QQuickItem",
+                                                  Storage::DeclarationTraits::IsList
+                                                      | Storage::DeclarationTraits::IsReadOnly))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemovesAPropertyDeclaration)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].propertyDeclarations.pop_back();
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::propertyDeclarations,
+                                UnorderedElementsAre(IsPropertyDeclaration(
+                                    "data", "QObject", Storage::DeclarationTraits::IsList))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddsAPropertyDeclaration)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].propertyDeclarations.push_back(
+        Storage::PropertyDeclaration{"object", "QObject", Storage::DeclarationTraits::IsPointer});
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(
+        storage.fetchTypes(),
+        Contains(AllOf(
+            IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+            Field(&Storage::Type::propertyDeclarations,
+                  UnorderedElementsAre(
+                      IsPropertyDeclaration("object", "QObject", Storage::DeclarationTraits::IsPointer),
+                      IsPropertyDeclaration("data", "QObject", Storage::DeclarationTraits::IsList),
+                      IsPropertyDeclaration("children",
+                                            "QQuickItem",
+                                            Storage::DeclarationTraits::IsList
+                                                | Storage::DeclarationTraits::IsReadOnly))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesRenameAPropertyDeclaration)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].propertyDeclarations[1].name = "objects";
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(
+        storage.fetchTypes(),
+        Contains(
+            AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                  Field(&Storage::Type::propertyDeclarations,
+                        UnorderedElementsAre(
+                            IsPropertyDeclaration("data", "QObject", Storage::DeclarationTraits::IsList),
+                            IsPropertyDeclaration("objects",
+                                                  "QQuickItem",
+                                                  Storage::DeclarationTraits::IsList
+                                                      | Storage::DeclarationTraits::IsReadOnly))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddFunctionDeclarations)
+{
+    Storage::Types types{createTypes()};
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::functionDeclarations,
+                                UnorderedElementsAre(Eq(types[0].functionDeclarations[0]),
+                                                     Eq(types[0].functionDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationReturnType)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].functionDeclarations[1].returnTypeName = "item";
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::functionDeclarations,
+                                UnorderedElementsAre(Eq(types[0].functionDeclarations[0]),
+                                                     Eq(types[0].functionDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationName)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].functionDeclarations[1].name = "name";
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::functionDeclarations,
+                                UnorderedElementsAre(Eq(types[0].functionDeclarations[0]),
+                                                     Eq(types[0].functionDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationPopParameters)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].functionDeclarations[1].parameters.pop_back();
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::functionDeclarations,
+                                UnorderedElementsAre(Eq(types[0].functionDeclarations[0]),
+                                                     Eq(types[0].functionDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationAppendParameters)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].functionDeclarations[1].parameters.push_back(Storage::ParameterDeclaration{"arg4", "int"});
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::functionDeclarations,
+                                UnorderedElementsAre(Eq(types[0].functionDeclarations[0]),
+                                                     Eq(types[0].functionDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationChangeParameterName)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].functionDeclarations[1].parameters[0].name = "other";
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::functionDeclarations,
+                                UnorderedElementsAre(Eq(types[0].functionDeclarations[0]),
+                                                     Eq(types[0].functionDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationChangeParameterTypeName)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].functionDeclarations[1].parameters[0].name = "long long";
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::functionDeclarations,
+                                UnorderedElementsAre(Eq(types[0].functionDeclarations[0]),
+                                                     Eq(types[0].functionDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesFunctionDeclarationChangeParameterTraits)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].functionDeclarations[1].parameters[0].traits = QmlDesigner::Storage::DeclarationTraits::IsList;
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::functionDeclarations,
+                                UnorderedElementsAre(Eq(types[0].functionDeclarations[0]),
+                                                     Eq(types[0].functionDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemovesFunctionDeclaration)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].functionDeclarations.pop_back();
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::functionDeclarations,
+                                UnorderedElementsAre(Eq(types[0].functionDeclarations[0]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddFunctionDeclaration)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].functionDeclarations.push_back(
+        Storage::FunctionDeclaration{"name", "string", {Storage::ParameterDeclaration{"arg", "int"}}});
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::functionDeclarations,
+                                UnorderedElementsAre(Eq(types[0].functionDeclarations[0]),
+                                                     Eq(types[0].functionDeclarations[1]),
+                                                     Eq(types[0].functionDeclarations[2]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddSignalDeclarations)
+{
+    Storage::Types types{createTypes()};
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::signalDeclarations,
+                                UnorderedElementsAre(Eq(types[0].signalDeclarations[0]),
+                                                     Eq(types[0].signalDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesSignalDeclarationName)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].signalDeclarations[1].name = "name";
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::signalDeclarations,
+                                UnorderedElementsAre(Eq(types[0].signalDeclarations[0]),
+                                                     Eq(types[0].signalDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesSignalDeclarationPopParameters)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].signalDeclarations[1].parameters.pop_back();
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::signalDeclarations,
+                                UnorderedElementsAre(Eq(types[0].signalDeclarations[0]),
+                                                     Eq(types[0].signalDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesSignalDeclarationAppendParameters)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].signalDeclarations[1].parameters.push_back(Storage::ParameterDeclaration{"arg4", "int"});
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::signalDeclarations,
+                                UnorderedElementsAre(Eq(types[0].signalDeclarations[0]),
+                                                     Eq(types[0].signalDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesSignalDeclarationChangeParameterName)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].signalDeclarations[1].parameters[0].name = "other";
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::signalDeclarations,
+                                UnorderedElementsAre(Eq(types[0].signalDeclarations[0]),
+                                                     Eq(types[0].signalDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesSignalDeclarationChangeParameterTypeName)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].signalDeclarations[1].parameters[0].typeName = "long long";
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::signalDeclarations,
+                                UnorderedElementsAre(Eq(types[0].signalDeclarations[0]),
+                                                     Eq(types[0].signalDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesSignalDeclarationChangeParameterTraits)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].signalDeclarations[1].parameters[0].traits = QmlDesigner::Storage::DeclarationTraits::IsList;
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::signalDeclarations,
+                                UnorderedElementsAre(Eq(types[0].signalDeclarations[0]),
+                                                     Eq(types[0].signalDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemovesSignalDeclaration)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].signalDeclarations.pop_back();
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::signalDeclarations,
+                                UnorderedElementsAre(Eq(types[0].signalDeclarations[0]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddSignalDeclaration)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].signalDeclarations.push_back(
+        Storage::SignalDeclaration{"name", {Storage::ParameterDeclaration{"arg", "int"}}});
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::signalDeclarations,
+                                UnorderedElementsAre(Eq(types[0].signalDeclarations[0]),
+                                                     Eq(types[0].signalDeclarations[1]),
+                                                     Eq(types[0].signalDeclarations[2]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddEnumerationDeclarations)
+{
+    Storage::Types types{createTypes()};
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::enumerationDeclarations,
+                                UnorderedElementsAre(Eq(types[0].enumerationDeclarations[0]),
+                                                     Eq(types[0].enumerationDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesEnumerationDeclarationName)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].enumerationDeclarations[1].name = "Name";
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::enumerationDeclarations,
+                                UnorderedElementsAre(Eq(types[0].enumerationDeclarations[0]),
+                                                     Eq(types[0].enumerationDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesEnumerationDeclarationPopEnumeratorDeclaration)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].enumerationDeclarations[1].enumeratorDeclarations.pop_back();
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::enumerationDeclarations,
+                                UnorderedElementsAre(Eq(types[0].enumerationDeclarations[0]),
+                                                     Eq(types[0].enumerationDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesChangesEnumerationDeclarationAppendEnumeratorDeclaration)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].enumerationDeclarations[1].enumeratorDeclarations.push_back(
+        Storage::EnumeratorDeclaration{"Haa", 54});
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::enumerationDeclarations,
+                                UnorderedElementsAre(Eq(types[0].enumerationDeclarations[0]),
+                                                     Eq(types[0].enumerationDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest,
+       SynchronizeTypesChangesEnumerationDeclarationChangeEnumeratorDeclarationName)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].enumerationDeclarations[1].enumeratorDeclarations[0].name = "Hoo";
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::enumerationDeclarations,
+                                UnorderedElementsAre(Eq(types[0].enumerationDeclarations[0]),
+                                                     Eq(types[0].enumerationDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest,
+       SynchronizeTypesChangesEnumerationDeclarationChangeEnumeratorDeclarationValue)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].enumerationDeclarations[1].enumeratorDeclarations[1].value = 11;
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::enumerationDeclarations,
+                                UnorderedElementsAre(Eq(types[0].enumerationDeclarations[0]),
+                                                     Eq(types[0].enumerationDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest,
+       SynchronizeTypesChangesEnumerationDeclarationAddThatEnumeratorDeclarationHasValue)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].enumerationDeclarations[1].enumeratorDeclarations[0].value = 11;
+    types[0].enumerationDeclarations[1].enumeratorDeclarations[0].hasValue = true;
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::enumerationDeclarations,
+                                UnorderedElementsAre(Eq(types[0].enumerationDeclarations[0]),
+                                                     Eq(types[0].enumerationDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest,
+       SynchronizeTypesChangesEnumerationDeclarationRemoveThatEnumeratorDeclarationHasValue)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].enumerationDeclarations[1].enumeratorDeclarations[0].hasValue = false;
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::enumerationDeclarations,
+                                UnorderedElementsAre(Eq(types[0].enumerationDeclarations[0]),
+                                                     Eq(types[0].enumerationDeclarations[1]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesRemovesEnumerationDeclaration)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].enumerationDeclarations.pop_back();
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::enumerationDeclarations,
+                                UnorderedElementsAre(Eq(types[0].enumerationDeclarations[0]))))));
+}
+
+TEST_F(ProjectStorageSlowTest, SynchronizeTypesAddEnumerationDeclaration)
+{
+    Storage::Types types{createTypes()};
+    storage.synchronizeTypes(types, {});
+    types[0].enumerationDeclarations.push_back(
+        Storage::EnumerationDeclaration{"name", {Storage::EnumeratorDeclaration{"Foo", 98, true}}});
+
+    storage.synchronizeTypes(types, {});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType("QQuickItem", "QObject", TypeAccessSemantics::Reference, sourceId1),
+                          Field(&Storage::Type::enumerationDeclarations,
+                                UnorderedElementsAre(Eq(types[0].enumerationDeclarations[0]),
+                                                     Eq(types[0].enumerationDeclarations[1]),
+                                                     Eq(types[0].enumerationDeclarations[2]))))));
 }
 
 } // namespace

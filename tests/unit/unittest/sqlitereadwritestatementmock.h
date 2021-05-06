@@ -50,9 +50,18 @@ public:
                 valueReturnsTypeId,
                 (Utils::SmallStringView name, long long id, long long),
                 ());
+    MOCK_METHOD(QmlDesigner::TypeId,
+                valueReturnsTypeId,
+                (Utils::SmallStringView name, long long id, long long, long long),
+                ());
+    MOCK_METHOD(QmlDesigner::TypeId, valueReturnsTypeId, (Utils::SmallStringView name), ());
     MOCK_METHOD(QmlDesigner::PropertyDeclarationId,
                 valueReturnsPropertyDeclarationId,
                 (long long, Utils::SmallStringView, long long),
+                ());
+    MOCK_METHOD(QmlDesigner::PropertyDeclarationId,
+                valueReturnsPropertyDeclarationId,
+                (long long, Utils::SmallStringView, long long, int),
                 ());
 
     template<typename ResultType, typename... QueryTypes>

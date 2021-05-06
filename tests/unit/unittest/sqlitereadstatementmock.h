@@ -190,6 +190,52 @@ public:
 
     MOCK_METHOD(QmlDesigner::SourceId, valueReturnsSourceId, (int, Utils::SmallStringView), ());
 
+    MOCK_METHOD(QmlDesigner::Storage::Type, valueReturnsStorageType, (int typeId), ());
+    MOCK_METHOD(QmlDesigner::Storage::Types, valuesReturnsStorageTypes, (std::size_t), ());
+    MOCK_METHOD(QmlDesigner::Storage::ExportedTypes,
+                valuesReturnsStorageExportedTypes,
+                (std::size_t, int typeId),
+                ());
+    MOCK_METHOD(QmlDesigner::Storage::PropertyDeclarations,
+                valuesReturnsStoragePropertyDeclarations,
+                (std::size_t, int typeId),
+                ());
+
+    MOCK_METHOD(QmlDesigner::Storage::EnumerationDeclarations,
+                valuesReturnsStorageEnumerationDeclarations,
+                (std::size_t, int typeId),
+                ());
+
+    MOCK_METHOD(std::vector<QmlDesigner::Storage::PropertyDeclarationView>,
+                rangeReturnStoragePropertyDeclarationViews,
+                (int typeId),
+                ());
+
+    MOCK_METHOD(std::vector<QmlDesigner::Storage::FunctionDeclarationView>,
+                rangeReturnStorageFunctionDeclarationViews,
+                (int typeId),
+                ());
+
+    MOCK_METHOD(std::vector<QmlDesigner::Storage::SignalDeclarationView>,
+                rangeReturnStorageSignalDeclarationViews,
+                (int typeId),
+                ());
+
+    MOCK_METHOD(std::vector<QmlDesigner::Storage::EnumerationDeclarationView>,
+                rangeReturnStorageEnumerationDeclarationViews,
+                (int typeId),
+                ());
+
+    MOCK_METHOD(QmlDesigner::Storage::ParameterDeclarations,
+                valuesReturnsStorageParameterDeclarations,
+                (std::size_t, long long),
+                ());
+
+    MOCK_METHOD(QmlDesigner::Storage::EnumeratorDeclarations,
+                valuesReturnsStorageEnumeratorDeclarations,
+                (std::size_t, long long),
+                ());
+
     template<typename ResultType, typename... QueryTypes>
     auto optionalValue(const QueryTypes &...queryValues)
     {
@@ -242,6 +288,8 @@ public:
             return valueReturnsSourceContextId(queryValues...);
         else if constexpr (std::is_same_v<ResultType, QmlDesigner::SourceId>)
             return valueReturnsSourceId(queryValues...);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::Type>)
+            return valueReturnsStorageType(queryValues...);
         else
             static_assert(!std::is_same_v<ResultType, ResultType>,
                           "SqliteReadStatementMock::value does not handle result type!");
@@ -304,6 +352,18 @@ public:
             return valuesReturnCacheSourceContexts(reserveSize);
         else if constexpr (std::is_same_v<ResultType, QmlDesigner::Cache::Source>)
             return valuesReturnCacheSources(reserveSize);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::Type>)
+            return valuesReturnsStorageTypes(reserveSize, queryValues...);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::ExportedType>)
+            return valuesReturnsStorageExportedTypes(reserveSize, queryValues...);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::PropertyDeclaration>)
+            return valuesReturnsStoragePropertyDeclarations(reserveSize, queryValues...);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::ParameterDeclaration>)
+            return valuesReturnsStorageParameterDeclarations(reserveSize, queryValues...);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::EnumerationDeclaration>)
+            return valuesReturnsStorageEnumerationDeclarations(reserveSize, queryValues...);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::EnumeratorDeclaration>)
+            return valuesReturnsStorageEnumeratorDeclarations(reserveSize, queryValues...);
         else
             static_assert(!std::is_same_v<ResultType, ResultType>,
                           "SqliteReadStatementMock::values does not handle result type!");
@@ -312,8 +372,17 @@ public:
     template<typename ResultType, typename... QueryTypes>
     auto range(const QueryTypes &...queryValues)
     {
-        static_assert(!std::is_same_v<ResultType, ResultType>,
-                      "SqliteReadStatementMock::values does not handle result type!");
+        if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::PropertyDeclarationView>)
+            return rangeReturnStoragePropertyDeclarationViews(queryValues...);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::FunctionDeclarationView>)
+            return rangeReturnStorageFunctionDeclarationViews(queryValues...);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::SignalDeclarationView>)
+            return rangeReturnStorageSignalDeclarationViews(queryValues...);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::EnumerationDeclarationView>)
+            return rangeReturnStorageEnumerationDeclarationViews(queryValues...);
+        else
+            static_assert(!std::is_same_v<ResultType, ResultType>,
+                          "SqliteReadStatementMock::values does not handle result type!");
     }
 
     template<typename ResultType, typename... QueryTypes>
@@ -322,6 +391,10 @@ public:
         static_assert(!std::is_same_v<ResultType, ResultType>,
                       "SqliteReadStatementMock::values does not handle result type!");
     }
+
+    template<typename Callable, typename... QueryTypes>
+    void readCallback(Callable &&callable, const QueryTypes &...queryValues)
+    {}
 
 public:
     Utils::SmallString sqlStatement;

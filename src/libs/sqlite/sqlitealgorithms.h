@@ -63,8 +63,8 @@ void insertUpdateDelete(SqliteRange &&sqliteRange,
         bool hasMoreValues = currentValueIterator != endValueIterator;
         bool hasMoreSqliteValues = currentSqliteIterator != endSqliteIterator;
         if (hasMoreValues && hasMoreSqliteValues) {
-            const auto &sqliteValue = *currentSqliteIterator;
-            const auto &value = *currentValueIterator;
+            auto &&sqliteValue = *currentSqliteIterator;
+            auto &&value = *currentValueIterator;
             auto compare = compareKey(sqliteValue, value);
             if (compare == 0) {
                 updateCallback(sqliteValue, value);

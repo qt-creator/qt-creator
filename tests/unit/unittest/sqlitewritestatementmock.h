@@ -43,9 +43,12 @@ public:
     MOCK_METHOD(void, write, (Utils::SmallStringView), ());
     MOCK_METHOD(void, write, (long long), ());
     MOCK_METHOD(void, write, (long long, long long), ());
+    MOCK_METHOD(void, write, (long long, long long, int), ());
+    MOCK_METHOD(void, write, (long long, unsigned int), ());
     MOCK_METHOD(void, write, (Utils::SmallStringView, long long), ());
     MOCK_METHOD(void, write, (Utils::SmallStringView, Utils::SmallStringView), ());
     MOCK_METHOD(void, write, (long long, Utils::SmallStringView), ());
+    MOCK_METHOD(void, write, (Utils::SmallStringView, int, int, long long), ());
     MOCK_METHOD(void,
                 write,
                 (Utils::SmallStringView, Utils::SmallStringView, Utils::SmallStringView),
@@ -63,6 +66,7 @@ public:
                  Utils::SmallStringView,
                  Utils::SmallStringView),
                 ());
+    MOCK_METHOD(void, write, (long long, Utils::SmallStringView, long long, int), ());
     MOCK_METHOD(void,
                 write,
                 (long long, Utils::SmallStringView, Utils::SmallStringView, Utils::SmallStringView),
@@ -105,6 +109,10 @@ public:
     MOCK_METHOD(void, write, (uint, Utils::SmallStringView), ());
     MOCK_METHOD(void, write, (int, Utils::SmallStringView), ());
     MOCK_METHOD(void, write, (int, Utils::SmallStringView, long long), ());
+
+    MOCK_METHOD(void, write, (Utils::span<int>, Utils::span<long long>), ());
+    MOCK_METHOD(void, write, (Utils::span<long long>), ());
+    MOCK_METHOD(void, write, (Utils::span<int>), ());
 
     Utils::SmallString sqlStatement;
 };

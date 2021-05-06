@@ -1599,6 +1599,141 @@ std::ostream &operator<<(std::ostream &out, const SourceContext &sourceContext)
 }
 } // namespace Cache
 
+namespace Storage {
+
+namespace {
+
+TypeAccessSemantics cleanFlags(TypeAccessSemantics accessSemantics)
+{
+    auto data = static_cast<int>(accessSemantics);
+    data &= ~static_cast<int>(TypeAccessSemantics::IsEnum);
+    return static_cast<TypeAccessSemantics>(data);
+}
+
+const char *typeAccessSemanticsToString(TypeAccessSemantics accessSemantics)
+{
+    switch (cleanFlags(accessSemantics)) {
+    case TypeAccessSemantics::Invalid:
+        return "Invalid";
+    case TypeAccessSemantics::Reference:
+        return "Reference";
+    case TypeAccessSemantics::Sequence:
+        return "Sequence";
+    case TypeAccessSemantics::Value:
+        return "Value";
+    default:
+        break;
+    }
+
+    return "";
+}
+
+bool operator&(TypeAccessSemantics first, TypeAccessSemantics second)
+{
+    return static_cast<int>(first) & static_cast<int>(second);
+}
+
+} // namespace
+
+static const char *typeAccessSemanticsFlagsToString(TypeAccessSemantics accessSemantics)
+{
+    if (accessSemantics & TypeAccessSemantics::IsEnum)
+        return "(IsEnum)";
+
+    return "";
+}
+
+std::ostream &operator<<(std::ostream &out, TypeAccessSemantics accessSemantics)
+{
+    return out << typeAccessSemanticsToString(accessSemantics)
+               << typeAccessSemanticsFlagsToString(accessSemantics);
+}
+
+std::ostream &operator<<(std::ostream &out, VersionNumber versionNumber)
+{
+    return out << versionNumber.version;
+}
+
+std::ostream &operator<<(std::ostream &out, Version version)
+{
+    return out << "(" << version.major << ", " << version.minor << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const ExportedType &exportedType)
+{
+    return out << "(\"" << exportedType.qualifiedTypeName << "\", " << exportedType.version << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const Type &type)
+{
+    return out << "(\"" << type.typeName << "\", \"" << type.prototype << "\", "
+               << type.accessSemantics << ", source: " << type.sourceId << ", "
+               << type.exportedTypes << ", " << type.propertyDeclarations << ", "
+               << type.functionDeclarations << ", " << type.signalDeclarations << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyDeclaration)
+{
+    return out << "(\"" << propertyDeclaration.name << "\", \"" << propertyDeclaration.typeName
+               << "\", " << propertyDeclaration.traits << ", " << propertyDeclaration.typeId << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, DeclarationTraits traits)
+{
+    const char *padding = "";
+
+    out << "(";
+    if (traits & DeclarationTraits::IsReadOnly) {
+        out << "readonly";
+        padding = ", ";
+    }
+
+    if (traits & DeclarationTraits::IsPointer) {
+        out << padding << "pointer";
+        padding = ", ";
+    }
+
+    if (traits & DeclarationTraits::IsList)
+        out << padding << "list";
+
+    return out << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const FunctionDeclaration &functionDeclaration)
+{
+    return out << "(\"" << functionDeclaration.name << "\", \"" << functionDeclaration.returnTypeName
+               << "\", " << functionDeclaration.parameters << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const ParameterDeclaration &parameter)
+{
+    return out << "(\"" << parameter.name << "\", \"" << parameter.typeName << "\", "
+               << parameter.traits << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const SignalDeclaration &signalDeclaration)
+{
+    return out << "(\"" << signalDeclaration.name << "\", " << signalDeclaration.parameters << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const EnumeratorDeclaration &enumeratorDeclaration)
+{
+    if (enumeratorDeclaration.hasValue) {
+        return out << "(\"" << enumeratorDeclaration.name << "\", " << enumeratorDeclaration.value
+                   << ")";
+    } else {
+        return out << "(\"" << enumeratorDeclaration.name << ")";
+    }
+}
+
+std::ostream &operator<<(std::ostream &out, const EnumerationDeclaration &enumerationDeclaration)
+{
+    return out << "(\"" << enumerationDeclaration.name << "\", "
+               << enumerationDeclaration.enumeratorDeclarations << ")";
+}
+
+} // namespace Storage
+
 namespace Internal {
 std::ostream &operator<<(std::ostream &out, const ImageCacheStorageImageEntry &entry)
 {
