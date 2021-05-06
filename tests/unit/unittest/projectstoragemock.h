@@ -30,6 +30,7 @@
 #include "sqlitedatabasemock.h"
 
 #include <projectstorage/projectstoragetypes.h>
+#include <projectstorage/sourcepathcache.h>
 #include <projectstorageids.h>
 
 class ProjectStorageMock
@@ -52,9 +53,9 @@ public:
     MOCK_METHOD1(fetchSourceContextPath,
                  Utils::PathString(QmlDesigner::SourceContextId sourceContextId));
     MOCK_METHOD1(fetchSourceNameAndSourceContextId,
-                 QmlDesigner::Sources::SourceNameAndSourceContextId(QmlDesigner::SourceId sourceId));
-    MOCK_METHOD0(fetchAllSourceContexts, std::vector<QmlDesigner::Sources::SourceContext>());
-    MOCK_METHOD0(fetchAllSources, std::vector<QmlDesigner::Sources::Source>());
+                 QmlDesigner::Cache::SourceNameAndSourceContextId(QmlDesigner::SourceId sourceId));
+    MOCK_METHOD0(fetchAllSourceContexts, std::vector<QmlDesigner::Cache::SourceContext>());
+    MOCK_METHOD0(fetchAllSources, std::vector<QmlDesigner::Cache::Source>());
 
     SqliteDatabaseMock &database() { return databaseMock; }
 

@@ -39,7 +39,7 @@ using Cache = QmlDesigner::SourcePathCache<NiceMock<ProjectStorageMock>>;
 using NFP = QmlDesigner::SourcePath;
 using QmlDesigner::SourcePathView;
 using QmlDesigner::SourcePathViews;
-using QmlDesigner::Sources::SourceNameAndSourceContextId;
+using QmlDesigner::Cache::SourceNameAndSourceContextId;
 
 class SourcePathCache : public testing::Test
 {
@@ -61,13 +61,13 @@ protected:
         ON_CALL(storageMock, fetchSourceNameAndSourceContextId(SourceId{42}))
             .WillByDefault(Return(SourceNameAndSourceContextId("file.cpp", SourceContextId{5})));
         ON_CALL(storageMockFilled, fetchAllSources())
-            .WillByDefault(Return(std::vector<QmlDesigner::Sources::Source>({
+            .WillByDefault(Return(std::vector<QmlDesigner::Cache::Source>({
                 {"file.cpp", SourceContextId{6}, SourceId{72}},
                 {"file2.cpp", SourceContextId{5}, SourceId{63}},
                 {"file.cpp", SourceContextId{5}, SourceId{42}},
             })));
         ON_CALL(storageMockFilled, fetchAllSourceContexts())
-            .WillByDefault(Return(std::vector<QmlDesigner::Sources::SourceContext>(
+            .WillByDefault(Return(std::vector<QmlDesigner::Cache::SourceContext>(
                 {{"/path2/to", SourceContextId{6}}, {"/path/to", SourceContextId{5}}})));
         ON_CALL(storageMockFilled, fetchSourceContextId(Eq("/path/to")))
             .WillByDefault(Return(SourceContextId{5}));

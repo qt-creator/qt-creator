@@ -28,6 +28,7 @@
 #include "projectstorageexceptions.h"
 #include "projectstorageids.h"
 #include "projectstoragetypes.h"
+#include "sourcepathcachetypes.h"
 
 #include <sqlitetable.h>
 #include <sqlitetransaction.h>
@@ -152,7 +153,7 @@ public:
 
     auto fetchAllSourceContexts() const
     {
-        return selectAllSourceContextsStatement.template valuesWithTransaction<Sources::SourceContext>(
+        return selectAllSourceContextsStatement.template valuesWithTransaction<Cache::SourceContext>(
             128);
     }
 
@@ -167,11 +168,10 @@ public:
         return sourceId;
     }
 
-    Sources::SourceNameAndSourceContextId fetchSourceNameAndSourceContextId(SourceId sourceId) const
+    auto fetchSourceNameAndSourceContextId(SourceId sourceId) const
     {
         auto value = selectSourceNameAndSourceContextIdFromSourcesBySourceIdStatement
-                         .template valueWithTransaction<Sources::SourceNameAndSourceContextId>(
-                             &sourceId);
+                         .template valueWithTransaction<Cache::SourceNameAndSourceContextId>(&sourceId);
 
         if (!value.sourceContextId)
             throw SourceIdDoesNotExists();
@@ -192,7 +192,7 @@ public:
 
     auto fetchAllSources() const
     {
-        return selectAllSourcesStatement.template valuesWithTransaction<Sources::Source>(1024);
+        return selectAllSourcesStatement.template valuesWithTransaction<Cache::Source>(1024);
     }
 
     SourceId fetchSourceIdUnguarded(SourceContextId sourceContextId, Utils::SmallStringView sourceName)

@@ -40,8 +40,8 @@ using QmlDesigner::SourceContextId;
 using QmlDesigner::SourceId;
 using QmlDesigner::TypeAccessSemantics;
 using QmlDesigner::TypeId;
-using QmlDesigner::Sources::Source;
-using QmlDesigner::Sources::SourceContext;
+using QmlDesigner::Cache::Source;
+using QmlDesigner::Cache::SourceContext;
 
 MATCHER_P2(IsSourceContext,
            id,
@@ -57,9 +57,9 @@ MATCHER_P2(IsSourceNameAndSourceContextId,
            name,
            id,
            std::string(negation ? "isn't " : "is ")
-               + PrintToString(QmlDesigner::Sources::SourceNameAndSourceContextId{name, id}))
+               + PrintToString(QmlDesigner::Cache::SourceNameAndSourceContextId{name, id}))
 {
-    const QmlDesigner::Sources::SourceNameAndSourceContextId &sourceNameAndSourceContextId = arg;
+    const QmlDesigner::Cache::SourceNameAndSourceContextId &sourceNameAndSourceContextId = arg;
 
     return sourceNameAndSourceContextId.sourceName == name
            && sourceNameAndSourceContextId.sourceContextId == id;
@@ -89,15 +89,15 @@ public:
         ON_CALL(selectSourceIdFromSourcesBySourceContextIdAndSourceNameStatment,
                 valueReturnInt32(5, Utils::SmallStringView("file.h")))
             .WillByDefault(Return(Utils::optional<int>(42)));
-        ON_CALL(selectAllSourcesStatement, valuesReturnSourcesSources(_))
+        ON_CALL(selectAllSourcesStatement, valuesReturnCacheSources(_))
             .WillByDefault(Return(std::vector<Source>{{"file.h", SourceContextId{1}, SourceId{1}},
                                                       {"file.cpp", SourceContextId{2}, SourceId{4}}}));
         ON_CALL(selectSourceContextPathFromSourceContextsBySourceContextIdStatement,
                 valueReturnPathString(5))
             .WillByDefault(Return(Utils::optional<Utils::PathString>("/path/to")));
         ON_CALL(selectSourceNameAndSourceContextIdFromSourcesBySourceIdStatement,
-                valueReturnSourcesSourceNameAndSourceContextId(42))
-            .WillByDefault(Return(QmlDesigner::Sources::SourceNameAndSourceContextId{"file.cpp", 5}));
+                valueReturnCacheSourceNameAndSourceContextId(42))
+            .WillByDefault(Return(QmlDesigner::Cache::SourceNameAndSourceContextId{"file.cpp", 5}));
         ON_CALL(selectSourceContextIdFromSourcesBySourceIdStatement,
                 valueReturnInt32(TypedEq<int>(42)))
             .WillByDefault(Return(Utils::optional<int>(5)));

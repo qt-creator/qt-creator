@@ -58,6 +58,7 @@
 #include <projectpartentry.h>
 #include <projectpartpch.h>
 #include <projectstorage/projectstoragetypes.h>
+#include <projectstorage/sourcepathcachetypes.h>
 #include <sourcedependency.h>
 #include <sourcelocationentry.h>
 #include <sourcelocationscontainer.h>
@@ -1571,13 +1572,13 @@ std::ostream &operator<<(std::ostream &out, const VariantProperty &property)
     return out << "(" << property.parentModelNode() << ", " << property.name() << ", "
                << property.value() << ")";
 }
-namespace Sources {
+namespace Cache {
 
 std::ostream &operator<<(std::ostream &out, const SourceContext &sourceContext)
 {
     return out << "(" << sourceContext.id << ", " << sourceContext.value << ")";
 }
-} // namespace Sources
+} // namespace Cache
 
 namespace Internal {
 std::ostream &operator<<(std::ostream &out, const ImageCacheStorageImageEntry &entry)

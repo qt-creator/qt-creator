@@ -386,11 +386,11 @@ std::ostream &operator<<(std::ostream &out, const BasicId<Type, InternalInterger
     return out << "(" << &id << ")";
 }
 
-namespace Sources {
+namespace Cache {
 class SourceContext;
 
 std::ostream &operator<<(std::ostream &out, const SourceContext &sourceContext);
-} // namespace Sources
+} // namespace Cache
 
 namespace Internal {
 class ImageCacheStorageImageEntry;

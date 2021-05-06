@@ -35,6 +35,7 @@
 #include <projectpartpch.h>
 #include <projectpartstoragestructs.h>
 #include <projectstorage/projectstoragetypes.h>
+#include <projectstorage/sourcepathcachetypes.h>
 #include <projectstorageids.h>
 #include <sourceentry.h>
 #include <sourcelocations.h>
@@ -173,15 +174,15 @@ public:
                 (long long, Utils::SmallStringView),
                 ());
 
-    MOCK_METHOD(std::vector<QmlDesigner::Sources::SourceContext>,
-                valuesReturnSourcesSourceContexts,
+    MOCK_METHOD(std::vector<QmlDesigner::Cache::SourceContext>,
+                valuesReturnCacheSourceContexts,
                 (std::size_t),
                 ());
 
-    MOCK_METHOD(std::vector<QmlDesigner::Sources::Source>, valuesReturnSourcesSources, (std::size_t), ());
+    MOCK_METHOD(std::vector<QmlDesigner::Cache::Source>, valuesReturnCacheSources, (std::size_t), ());
 
-    MOCK_METHOD(QmlDesigner::Sources::SourceNameAndSourceContextId,
-                valueReturnSourcesSourceNameAndSourceContextId,
+    MOCK_METHOD(QmlDesigner::Cache::SourceNameAndSourceContextId,
+                valueReturnCacheSourceNameAndSourceContextId,
                 (int) );
 
     MOCK_METHOD(QmlDesigner::SourceContextId, valueReturnsSourceContextId, (Utils::SmallStringView), ());
@@ -235,8 +236,8 @@ public:
         else if constexpr (std::is_same_v<ResultType,
                                           std::tuple<QmlDesigner::PropertyDeclarationId, QmlDesigner::TypeId>>)
             return valueReturnsPropertyDeclaration(queryValues...);
-        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Sources::SourceNameAndSourceContextId>)
-            return valueReturnSourcesSourceNameAndSourceContextId(queryValues...);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Cache::SourceNameAndSourceContextId>)
+            return valueReturnCacheSourceNameAndSourceContextId(queryValues...);
         else if constexpr (std::is_same_v<ResultType, QmlDesigner::SourceContextId>)
             return valueReturnsSourceContextId(queryValues...);
         else if constexpr (std::is_same_v<ResultType, QmlDesigner::SourceId>)
@@ -299,10 +300,10 @@ public:
             return valuesReturnSourceEntries(reserveSize, queryValues...);
         else if constexpr (std::is_same_v<ResultType, SourceTimeStamp>)
             return valuesReturnSourceTimeStamps(reserveSize, queryValues...);
-        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Sources::SourceContext>)
-            return valuesReturnSourcesSourceContexts(reserveSize);
-        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Sources::Source>)
-            return valuesReturnSourcesSources(reserveSize);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Cache::SourceContext>)
+            return valuesReturnCacheSourceContexts(reserveSize);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Cache::Source>)
+            return valuesReturnCacheSources(reserveSize);
         else
             static_assert(!std::is_same_v<ResultType, ResultType>,
                           "SqliteReadStatementMock::values does not handle result type!");

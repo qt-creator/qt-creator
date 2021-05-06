@@ -27,8 +27,8 @@
 
 #include "projectstorageexceptions.h"
 #include "projectstorageids.h"
-#include "projectstoragetypes.h"
 #include "sourcepath.h"
+#include "sourcepathcachetypes.h"
 #include "sourcepathview.h"
 #include "storagecache.h"
 
@@ -134,7 +134,7 @@ private:
     class SourceStorageAdapter
     {
     public:
-        auto fetchId(SourceNameView sourceNameView)
+        auto fetchId(Cache::SourceNameView sourceNameView)
         {
             return storage.fetchSourceId(sourceNameView.sourceContextId, sourceNameView.sourceName);
         }
@@ -143,7 +143,7 @@ private:
         {
             auto entry = storage.fetchSourceNameAndSourceContextId(id);
 
-            return SourceNameEntry{std::move(entry.sourceName), entry.sourceContextId};
+            return Cache::SourceNameEntry{std::move(entry.sourceName), entry.sourceContextId};
         }
 
         auto fetchAll() { return storage.fetchAllSources(); }
@@ -156,7 +156,7 @@ private:
         return Utils::reverseCompare(first, second) < 0;
     }
 
-    static bool sourceLess(SourceNameView first, SourceNameView second) noexcept
+    static bool sourceLess(Cache::SourceNameView first, Cache::SourceNameView second) noexcept
     {
         return first < second;
     }
@@ -167,9 +167,14 @@ private:
                                                 SourceContextStorageAdapter,
                                                 Mutex,
                                                 sourceContextLess,
-                                                Sources::SourceContext>;
-    using SourceNameCache
-        = StorageCache<SourceNameEntry, SourceNameView, SourceId, SourceStorageAdapter, Mutex, sourceLess, Sources::Source>;
+                                                Cache::SourceContext>;
+    using SourceNameCache = StorageCache<Cache::SourceNameEntry,
+                                         Cache::SourceNameView,
+                                         SourceId,
+                                         SourceStorageAdapter,
+                                         Mutex,
+                                         sourceLess,
+                                         Cache::Source>;
 
 private:
     SourceContextStorageAdapter m_sourceContextStorageAdapter;

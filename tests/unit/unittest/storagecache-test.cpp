@@ -64,7 +64,7 @@ using CacheWithMockLocking = QmlDesigner::StorageCache<Utils::PathString,
                                                        StorageAdapter,
                                                        NiceMock<MockMutex>,
                                                        less,
-                                                       QmlDesigner::Sources::SourceContext>;
+                                                       QmlDesigner::Cache::SourceContext>;
 
 using CacheWithoutLocking = QmlDesigner::StorageCache<Utils::PathString,
                                                       Utils::SmallStringView,
@@ -72,7 +72,7 @@ using CacheWithoutLocking = QmlDesigner::StorageCache<Utils::PathString,
                                                       StorageAdapter,
                                                       NiceMock<MockMutexNonLocking>,
                                                       less,
-                                                      QmlDesigner::Sources::SourceContext>;
+                                                      QmlDesigner::Cache::SourceContext>;
 
 template<typename Cache>
 class StorageCache : public testing::Test
