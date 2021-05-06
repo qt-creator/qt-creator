@@ -321,21 +321,12 @@ ClangDiagnosticConfig diagnosticConfig(const Utils::Id &diagConfigId)
     return configs.configWithId(diagConfigId);
 }
 
-QStringList splitArgs(QString &argsString)
-{
-    QStringList result;
-    Utils::ProcessArgs::ArgIterator it(&argsString);
-    while (it.next())
-        result.append(it.value());
-    return result;
-}
-
-QStringList extraOptions(const char *envVar)
+static QStringList extraOptions(const char *envVar)
 {
     if (!qEnvironmentVariableIsSet(envVar))
         return QStringList();
-    QString arguments = QString::fromLocal8Bit(qgetenv(envVar));
-    return splitArgs(arguments);
+    QString arguments = qEnvironmentVariable(envVar);
+    return Utils::ProcessArgs::splitArgs(arguments);
 }
 
 QStringList extraClangToolsPrependOptions()
