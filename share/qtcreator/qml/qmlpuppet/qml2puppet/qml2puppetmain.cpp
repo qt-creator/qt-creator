@@ -23,23 +23,21 @@
 **
 ****************************************************************************/
 
-#include <QDebug>
+#include "iconrenderer/iconrenderer.h"
+#include "import3d/import3d.h"
 
+#include <qt5nodeinstanceclientproxy.h>
+
+#include <QQmlComponent>
+#include <QQmlEngine>
+#include <QDebug>
 #include <QApplication>
 #include <QStringList>
 #include <QFileInfo>
 
 #include <iostream>
-
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "iconrenderer/iconrenderer.h"
-#include "import3d/import3d.h"
-#include <qt5nodeinstanceclientproxy.h>
-
-#include <QQmlComponent>
-#include <QQmlEngine>
 
 #ifdef ENABLE_QT_BREAKPAD
 #include <qtsystemexceptionhandler.h>
