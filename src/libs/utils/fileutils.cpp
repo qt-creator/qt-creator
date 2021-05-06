@@ -654,12 +654,10 @@ FileSaver::FileSaver(const QString &filename, QIODevice::OpenMode mode)
                    "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
                    "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"};
         const QString fn = QFileInfo(filename).baseName().toUpper();
-        for (const QString &rn : reservedNames) {
-            if (fn == rn) {
-                m_errorString = tr("%1: Is a reserved filename on Windows. Cannot save.").arg(filename);
-                m_hasError = true;
-                return;
-            }
+        if (reservedNames.contains(fn)) {
+            m_errorString = tr("%1: Is a reserved filename on Windows. Cannot save.").arg(filename);
+            m_hasError = true;
+            return;
         }
     }
     if (mode & (QIODevice::ReadOnly | QIODevice::Append)) {
