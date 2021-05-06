@@ -495,6 +495,10 @@ QSet<Id> BaseQtVersion::availableFeatures() const
     if (qtVersion().matches(5, 15))
         return features;
 
+    // Qt 6 uses versionless imports
+    features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 6, -1));
+    features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_2_PREFIX, 6, -1));
+
     return features;
 }
 

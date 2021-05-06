@@ -20,7 +20,7 @@
         { "key": "QtQuickVersion", "value": "%{JS: value('QtVersion').QtQuickVersion}" },
         { "key": "QtQuickWindowVersion", "value": "%{JS: value('QtVersion').QtQuickWindowVersion}" },
         { "key": "QtQuickVirtualKeyboardImport", "value": "%{JS: value('QtVersion').QtQuickVirtualKeyboardImport}" },
-        { "key": "QtQuickFeature", "value": "QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}" },
+        { "key": "QtQuickFeature", "value": "%{JS: (value('QtQuickVersion')=='') ? 'QtSupport.Wizards.FeatureQtQuick.6' : 'QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}'}" },
         { "key": "UseVirtualKeyboardByDefault", "value": "%{JS: value('Plugins').indexOf('Boot2Qt') >= 0 || value('Plugins').indexOf('Boot2QtQdb') >= 0}" },
         { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" },
         { "key": "SetQPAPhysicalSize", "value": "%{UseVirtualKeyboardByDefault}" }
@@ -83,9 +83,18 @@
                     "persistenceKey": "QtQuick.minimumQtVersion",
                     "data":
                     {
-                        "index": 3,
+                        "index": 1,
                         "items":
                         [
+                            {
+                                "trKey": "Qt 6",
+                                "value":
+                                {
+                                    "QtQuickVersion": "",
+                                    "QtQuickWindowVersion": "",
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard"
+                                }
+                            },
                             {
                                 "trKey": "Qt 5.15",
                                 "value":
