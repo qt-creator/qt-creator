@@ -39,11 +39,10 @@ QT_FORWARD_DECLARE_CLASS(QDebug)
 namespace Utils {
 
 class AbstractMacroExpander;
-
-namespace Internal { class QtcProcessPrivate; }
-class SynchronousProcessPrivate;
 class CommandLine;
 class Environment;
+
+namespace Internal { class QtcProcessPrivate; }
 
 /* Result of SynchronousProcess execution */
 class QTCREATOR_UTILS_EXPORT SynchronousProcessResponse
@@ -80,6 +79,7 @@ public:
     QTextCodec *codec = QTextCodec::codecForLocale();
 };
 
+using ExitCodeInterpreter = std::function<SynchronousProcessResponse::Result(int /*exitCode*/)>;
 
 class QTCREATOR_UTILS_EXPORT QtcProcess : public QProcess
 {
@@ -102,6 +102,22 @@ public:
     void start();
     void terminate();
     void interrupt();
+
+    /* Timeout for hanging processes (triggers after no more output
+     * occurs on stderr/stdout). */
+    void setTimeoutS(int timeoutS);
+
+    void setCodec(QTextCodec *c);
+    void setTimeOutMessageBoxEnabled(bool);
+    void setExitCodeInterpreter(const ExitCodeInterpreter &interpreter);
+
+    // Starts a nested event loop and runs the command
+    SynchronousProcessResponse run(const CommandLine &cmd, const QByteArray &writeData = {});
+    // Starts the command blocking the UI fully
+    SynchronousProcessResponse runBlocking(const CommandLine &cmd);
+
+    void setStdOutCallback(const std::function<void(const QString &)> &callback);
+    void setStdErrCallback(const std::function<void(const QString &)> &callback);
 
     class QTCREATOR_UTILS_EXPORT Arguments
     {
@@ -219,6 +235,7 @@ private:
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     void setupChildProcess() override;
 #endif
+    friend class SynchronousProcess;
     Internal::QtcProcessPrivate *d = nullptr;
 
     void setProcessEnvironment(const QProcessEnvironment &environment) = delete;
@@ -227,7 +244,6 @@ private:
 
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessResponse &);
 
-using ExitCodeInterpreter = std::function<SynchronousProcessResponse::Result(int /*exitCode*/)>;
 QTCREATOR_UTILS_EXPORT SynchronousProcessResponse::Result defaultExitCodeInterpreter(int code);
 
 class QTCREATOR_UTILS_EXPORT SynchronousProcess : public QtcProcess
@@ -236,31 +252,6 @@ class QTCREATOR_UTILS_EXPORT SynchronousProcess : public QtcProcess
 public:
     SynchronousProcess();
     ~SynchronousProcess() override;
-
-    /* Timeout for hanging processes (triggers after no more output
-     * occurs on stderr/stdout). */
-    void setTimeoutS(int timeoutS);
-
-    void setCodec(QTextCodec *c);
-    void setTimeOutMessageBoxEnabled(bool);
-    void setExitCodeInterpreter(const ExitCodeInterpreter &interpreter);
-
-    // Starts a nested event loop and runs the command
-    SynchronousProcessResponse run(const CommandLine &cmd, const QByteArray &writeData = {});
-    // Starts the command blocking the UI fully
-    SynchronousProcessResponse runBlocking(const CommandLine &cmd);
-
-    void setStdOutCallback(const std::function<void(const QString &)> &callback);
-    void setStdErrCallback(const std::function<void(const QString &)> &callback);
-
-private:
-    void slotTimeout();
-    void slotFinished(int exitCode, QProcess::ExitStatus e);
-    void error(QProcess::ProcessError);
-    void processStdOut(bool emitSignals);
-    void processStdErr(bool emitSignals);
-
-    SynchronousProcessPrivate *d;
 };
 
 } // namespace Utils
