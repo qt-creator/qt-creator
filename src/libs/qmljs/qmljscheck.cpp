@@ -939,13 +939,13 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
     if (checkTypeForDesignerSupport(typeId))
         addMessage(WarnUnsupportedTypeInVisualDesigner, typeErrorLocation, typeName);
 
-    if (QFileInfo(_doc->fileName()).baseName() == getRightMostIdentifier(typeId)->name.toString())
+    if (typeId->next == nullptr && QFileInfo(_doc->fileName()).baseName() == typeName)
         addMessage(ErrTypeIsInstantiatedRecursively, typeErrorLocation, typeName);
 
     if (checkTypeForQmlUiSupport(typeId))
         addMessage(ErrUnsupportedTypeInQmlUi, typeErrorLocation, typeName);
 
-    if (m_typeStack.count() > 1 && getRightMostIdentifier(typeId)->name.toString() == "State") {
+    if (m_typeStack.count() > 1 && typeName == "State") {
         addMessage(WarnStatesOnlyInRootItemForVisualDesigner, typeErrorLocation);
         addMessage(ErrStatesOnlyInRootItemInQmlUi, typeErrorLocation);
     }
