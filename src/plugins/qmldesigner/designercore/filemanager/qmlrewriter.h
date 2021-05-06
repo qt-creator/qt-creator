@@ -59,12 +59,9 @@ protected:
     QString textBetween(int startPosition, int endPosition) const;
     QString textAt(const QmlJS::SourceLocation &location) const;
 
-    int indentDepth() const
-    { return textModifier()->indentDepth(); }
+    int indentDepth() const;
     unsigned calculateIndentDepth(const QmlJS::SourceLocation &position) const;
-    static QString addIndentation(const QString &text, unsigned depth);
-    static QString removeIndentation(const QString &text, unsigned depth);
-    static QString removeIndentationFromLine(const QString &text, int depth);
+    QString addIndentation(const QString &text, unsigned depth);
 
     static QmlJS::SourceLocation calculateLocation(QmlJS::AST::UiQualifiedId *id);
     static bool isMissingSemicolon(QmlJS::AST::UiObjectMember *member);

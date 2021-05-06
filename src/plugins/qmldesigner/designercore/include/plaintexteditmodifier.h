@@ -59,8 +59,6 @@ public:
     void indent(int offset, int length) override = 0;
     void indentLines(int startLine, int endLine) override = 0;
 
-    int indentDepth() const override = 0;
-
     void startGroup() override;
     void flushGroup() override;
     void commitGroup() override;
@@ -95,19 +93,28 @@ class QMLDESIGNERCORE_EXPORT NotIndentingTextEditModifier: public PlainTextEditM
 public:
     NotIndentingTextEditModifier(QPlainTextEdit *textEdit)
         : PlainTextEditModifier(textEdit)
-    {}
+    {
+        m_tabSettings.m_tabSize = 0;
+        m_tabSettings.m_indentSize = 0;
+    }
 
     NotIndentingTextEditModifier(QTextDocument *document, const QTextCursor &textCursor)
         : PlainTextEditModifier{document, textCursor}
-    {}
+    {
+        m_tabSettings.m_tabSize = 0;
+        m_tabSettings.m_indentSize = 0;
+    }
 
     void indent(int /*offset*/, int /*length*/) override
     {}
     void indentLines(int /*offset*/, int /*length*/) override
     {}
 
-    int indentDepth() const override
-    { return 0; }
+    TextEditor::TabSettings tabSettings() const override
+    { return m_tabSettings; }
+
+private:
+    TextEditor::TabSettings m_tabSettings;
 };
 
 }

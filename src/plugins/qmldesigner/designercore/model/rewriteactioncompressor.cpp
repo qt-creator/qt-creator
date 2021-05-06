@@ -50,14 +50,15 @@ static bool nodeOrParentInSet(const ModelNode &modelNode, const QSet<ModelNode> 
     return false;
 }
 
-void RewriteActionCompressor::operator()(QList<RewriteAction *> &actions) const
+void RewriteActionCompressor::operator()(QList<RewriteAction *> &actions,
+                                         const TextEditor::TabSettings &tabSettings) const
 {
     compressImports(actions);
     compressRereparentActions(actions);
     compressReparentIntoSamePropertyActions(actions);
     compressPropertyActions(actions);
     compressAddEditRemoveNodeActions(actions);
-    compressAddEditActions(actions);
+    compressAddEditActions(actions, tabSettings);
     compressAddReparentActions(actions);
 }
 
@@ -256,7 +257,8 @@ void RewriteActionCompressor::compressPropertyActions(QList<RewriteAction *> &ac
     }
 }
 
-void RewriteActionCompressor::compressAddEditActions(QList<RewriteAction *> &actions) const
+void RewriteActionCompressor::compressAddEditActions(
+    QList<RewriteAction *> &actions, const TextEditor::TabSettings &tabSettings) const
 {
     QList<RewriteAction *> actionsToRemove;
     QSet<ModelNode> addedNodes;
@@ -303,7 +305,7 @@ void RewriteActionCompressor::compressAddEditActions(QList<RewriteAction *> &act
         delete action;
     }
 
-    QmlTextGenerator gen(m_propertyOrder);
+    QmlTextGenerator gen(m_propertyOrder, tabSettings);
     foreach (RewriteAction *action, dirtyActions) {
         RewriteAction *newAction = nullptr;
         if (AddPropertyRewriteAction *addAction = action->asAddPropertyRewriteAction()) {

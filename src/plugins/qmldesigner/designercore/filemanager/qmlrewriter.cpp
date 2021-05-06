@@ -33,7 +33,6 @@
 
 #include <typeinfo>
 
-
 static Q_LOGGING_CATEGORY(qmlRewriter, "qtc.rewriter.qmlrewriter", QtWarningMsg)
 
 using namespace QmlDesigner::Internal;
@@ -73,24 +72,18 @@ QString QMLRewriter::textAt(const QmlJS::SourceLocation &location) const
     return m_textModifier->text().mid(location.offset, location.length);
 }
 
+int QMLRewriter::indentDepth() const
+{
+    return textModifier()->tabSettings().m_indentSize;
+}
+
 unsigned QMLRewriter::calculateIndentDepth(const QmlJS::SourceLocation &position) const
 {
     QTextDocument *doc = m_textModifier->textDocument();
     QTextCursor tc(doc);
     tc.setPosition(position.offset);
-    const int lineOffset = tc.block().position();
-    unsigned indentDepth = 0;
 
-    forever {
-        const QChar ch = doc->characterAt(lineOffset + indentDepth);
-
-        if (ch.isNull() || !ch.isSpace())
-            break;
-        else
-            ++indentDepth;
-    }
-
-    return indentDepth;
+    return textModifier()->tabSettings().indentationColumn(tc.block().text());
 }
 
 QString QMLRewriter::addIndentation(const QString &text, unsigned depth)
@@ -98,56 +91,20 @@ QString QMLRewriter::addIndentation(const QString &text, unsigned depth)
     if (depth == 0)
         return text;
 
-    const QString indentation(depth, QLatin1Char(' '));
-
-    if (text.isEmpty())
-        return indentation;
-
-    const QLatin1Char lineSep('\n');
-    const QStringList lines = text.split(lineSep);
+    TextEditor::TabSettings tabSettings = textModifier()->tabSettings();
     QString result;
-
-    for (int i = 0; i < lines.size(); ++i) {
-        if (i > 0)
-            result += lineSep;
-        const QString &line = lines.at(i);
-        if (!line.isEmpty()) {
-            result += indentation;
-            result += line;
-        }
-    }
-
-    return result;
-}
-
-QString QMLRewriter::removeIndentationFromLine(const QString &text, int depth)
-{
-    int charsToRemove = 0;
-    for (int i = 0; i < depth && i < text.length(); ++i) {
-        if (text.at(i).isSpace())
-            charsToRemove++;
-        else
-            break;
-    }
-
-    if (charsToRemove == 0)
-        return text;
-    else
-        return text.mid(charsToRemove);
-}
-
-QString QMLRewriter::removeIndentation(const QString &text, unsigned depth)
-{
-    const QLatin1Char lineSep('\n');
+    constexpr char lineSep('\n');
     const QStringList lines = text.split(lineSep);
-    QString result;
-
-    for (int i = 0; i < lines.size(); ++i) {
-        if (i > 0)
+    for (const QString &line : lines) {
+        if (!result.isEmpty())
             result += lineSep;
-        result += removeIndentationFromLine(lines.at(i), depth);
+        if (line.isEmpty())
+            continue;
+        const int firstNoneSpace = TextEditor::TabSettings::firstNonSpace(line);
+        const int lineIndentColumn = tabSettings.indentationColumn(line) + int(depth);
+        result.append(tabSettings.indentationString(0, lineIndentColumn, 0));
+        result.append(line.midRef(firstNoneSpace));
     }
-
     return result;
 }
 

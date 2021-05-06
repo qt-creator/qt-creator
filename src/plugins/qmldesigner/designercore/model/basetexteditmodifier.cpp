@@ -31,7 +31,9 @@
 #include <qmljseditor/qmljseditordocument.h>
 #include <qmljseditor/qmljscomponentfromobjectdef.h>
 #include <qmljseditor/qmljscompletionassist.h>
+#include <qmljstools/qmljstoolssettings.h>
 #include <texteditor/tabsettings.h>
+#include <texteditor/simplecodestylepreferences.h>
 #include <utils/changeset.h>
 
 #include <typeinfo>
@@ -80,12 +82,11 @@ void BaseTextEditModifier::indent(int offset, int length)
         indentLines(startLine, endLine);
 }
 
-int BaseTextEditModifier::indentDepth() const
+TextEditor::TabSettings BaseTextEditModifier::tabSettings() const
 {
     if (m_textEdit)
-        return m_textEdit->textDocument()->tabSettings().m_indentSize;
-    else
-        return 0;
+        return m_textEdit->textDocument()->tabSettings();
+    return QmlJSTools::QmlJSToolsSettings::globalCodeStyle()->tabSettings();
 }
 
 bool BaseTextEditModifier::renameId(const QString &oldId, const QString &newId)

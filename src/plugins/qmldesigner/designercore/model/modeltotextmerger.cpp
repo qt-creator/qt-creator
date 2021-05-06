@@ -81,12 +81,13 @@ void ModelToTextMerger::propertiesRemoved(const QList<AbstractProperty>& propert
 
 void ModelToTextMerger::propertiesChanged(const QList<AbstractProperty>& propertyList, PropertyChangeFlags propertyChange)
 {
+    const TextEditor::TabSettings tabSettings = m_rewriterView->textModifier()->tabSettings();
     foreach (const AbstractProperty &property, propertyList) {
 
         ModelNode containedModelNode;
-        const int indentDepth = m_rewriterView->textModifier()->indentDepth();
         const QString propertyTextValue = QmlTextGenerator(propertyOrder(),
-                                                           indentDepth)(property);
+                                                           tabSettings,
+                                                           tabSettings.m_indentSize)(property);
 
         switch (propertyChange) {
         case AbstractView::PropertiesAdded:
@@ -162,14 +163,18 @@ void ModelToTextMerger::nodeReparented(const ModelNode &node, const NodeAbstract
         switch (propertyChange) {
         case AbstractView::PropertiesAdded:
             schedule(new AddPropertyRewriteAction(newPropertyParent,
-                                                  QmlTextGenerator(propertyOrder())(node),
+                                                  QmlTextGenerator(propertyOrder(),
+                                                                   m_rewriterView->textModifier()
+                                                                       ->tabSettings())(node),
                                                   propertyType(newPropertyParent),
                                                   node));
             break;
 
         case AbstractView::NoAdditionalChanges:
             schedule(new ChangePropertyRewriteAction(newPropertyParent,
-                                                     QmlTextGenerator(propertyOrder())(node),
+                                                     QmlTextGenerator(propertyOrder(),
+                                                                      m_rewriterView->textModifier()
+                                                                          ->tabSettings())(node),
                                                      propertyType(newPropertyParent),
                                                      node));
             break;
@@ -213,7 +218,7 @@ void ModelToTextMerger::applyChanges()
 
     dumpRewriteActions(QStringLiteral("Before compression"));
     RewriteActionCompressor compress(propertyOrder());
-    compress(m_rewriteActions);
+    compress(m_rewriteActions, m_rewriterView->textModifier()->tabSettings());
     dumpRewriteActions(QStringLiteral("After compression"));
 
     if (m_rewriteActions.isEmpty())

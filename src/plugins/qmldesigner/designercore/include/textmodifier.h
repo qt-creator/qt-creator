@@ -28,10 +28,14 @@
 #include "qmldesignercorelib_global.h"
 
 #include <qmljs/qmljsdocument.h>
+#include <texteditor/tabsettings.h>
+#include <utils/optional.h>
 
 #include <QObject>
 #include <QTextCursor>
 #include <QTextDocument>
+
+namespace TextEditor { class TabSettings; }
 
 namespace QmlDesigner {
 
@@ -66,7 +70,7 @@ public:
     virtual void indent(int offset, int length) = 0;
     virtual void indentLines(int startLine, int endLine) = 0;
 
-    virtual int indentDepth() const = 0;
+    virtual TextEditor::TabSettings tabSettings() const = 0;
 
     virtual void startGroup() = 0;
     virtual void flushGroup() = 0;

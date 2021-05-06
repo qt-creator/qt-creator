@@ -41,7 +41,7 @@ public:
     void indent(int offset, int length) override;
     void indentLines(int startLine, int endLine) override;
 
-    int indentDepth() const override;
+    TextEditor::TabSettings tabSettings() const override;
 
     void startGroup() override;
     void flushGroup() override;

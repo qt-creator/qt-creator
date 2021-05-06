@@ -85,9 +85,12 @@ static QString unicodeEscape(const QString &stringValue)
     return stringValue;
 }
 
-QmlTextGenerator::QmlTextGenerator(const PropertyNameList &propertyOrder, int indentDepth):
-        m_propertyOrder(propertyOrder),
-        m_indentDepth(indentDepth)
+QmlTextGenerator::QmlTextGenerator(const PropertyNameList &propertyOrder,
+                                   const TextEditor::TabSettings &tabSettings,
+                                   const int startIndentDepth)
+    : m_propertyOrder(propertyOrder)
+    , m_tabSettings(tabSettings)
+    , m_startIndentDepth(startIndentDepth)
 {
 }
 
@@ -106,13 +109,13 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
             for (int i = 0; i < nodes.length(); ++i) {
                 if (i > 0)
                     result += QStringLiteral("\n\n");
-                result += QString(indentDepth, QLatin1Char(' '));
+                result += m_tabSettings.indentationString(0, indentDepth, 0);
                 result += toQml(nodes.at(i), indentDepth);
             }
             return result;
         } else {
             QString result = QStringLiteral("[");
-            const int arrayContentDepth = indentDepth + 4;
+            const int arrayContentDepth = indentDepth + m_tabSettings.m_indentSize;
             const QString arrayContentIndentation(arrayContentDepth, QLatin1Char(' '));
             for (int i = 0; i < nodes.length(); ++i) {
                 if (i > 0)
@@ -208,11 +211,12 @@ QString QmlTextGenerator::toQml(const ModelNode &node, int indentDepth) const
     result += type;
     result += QStringLiteral(" {\n");
 
-    const int propertyIndentDepth = indentDepth + 4;
+    const int propertyIndentDepth = indentDepth + m_tabSettings.m_indentSize;
 
     const QString properties = propertiesToQml(node, propertyIndentDepth);
 
-    return result + properties + QString(indentDepth, QLatin1Char(' ')) + QLatin1Char('}');
+    return result + properties + m_tabSettings.indentationString(0, indentDepth, 0)
+           + QLatin1Char('}');
 }
 
 QString QmlTextGenerator::propertiesToQml(const ModelNode &node, int indentDepth) const
@@ -227,7 +231,7 @@ QString QmlTextGenerator::propertiesToQml(const ModelNode &node, int indentDepth
         if (propertyName == "id") {
             // the model handles the id property special, so:
             if (!node.id().isEmpty()) {
-                QString idLine(indentDepth, QLatin1Char(' '));
+                QString idLine = m_tabSettings.indentationString(0, indentDepth, 0);
                 idLine += QStringLiteral("id: ");
                 idLine += node.id();
                 idLine += QLatin1Char('\n');
@@ -264,7 +268,7 @@ QString QmlTextGenerator::propertyToQml(const AbstractProperty &property, int in
         result = toQml(property, indentDepth);
     } else {
         if (property.isDynamic()) {
-            result = QString(indentDepth, QLatin1Char(' '))
+            result = m_tabSettings.indentationString(0, indentDepth, 0)
                     + QStringLiteral("property ")
                     + QString::fromUtf8(property.dynamicTypeName())
                     + QStringLiteral(" ")
@@ -272,7 +276,7 @@ QString QmlTextGenerator::propertyToQml(const AbstractProperty &property, int in
                     + QStringLiteral(": ")
                     + toQml(property, indentDepth);
         } else {
-            result = QString(indentDepth, QLatin1Char(' '))
+            result = m_tabSettings.indentationString(0, indentDepth, 0)
                     + QString::fromUtf8(property.name())
                     + QStringLiteral(": ")
                     + toQml(property, indentDepth);
