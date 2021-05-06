@@ -179,12 +179,18 @@ bool SqlStatementBuilder::isBuild() const
 Utils::SmallString SqlStatementBuilder::columnTypeToString(ColumnType columnType)
 {
     switch (columnType) {
-        case ColumnType::Numeric: return "NUMERIC";
-        case ColumnType::Integer: return "INTEGER";
-        case ColumnType::Real: return "REAL";
-        case ColumnType::Text: return "TEXT";
-        case ColumnType::Blob: return "BLOB";
-        case ColumnType::None: return {};
+    case ColumnType::Numeric:
+        return " NUMERIC";
+    case ColumnType::Integer:
+        return " INTEGER";
+    case ColumnType::Real:
+        return " REAL";
+    case ColumnType::Text:
+        return " TEXT";
+    case ColumnType::Blob:
+        return " BLOB";
+    case ColumnType::None:
+        return {};
     }
 
     Q_UNREACHABLE();

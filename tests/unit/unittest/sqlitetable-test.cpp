@@ -93,7 +93,9 @@ TEST_F(SqliteTable, InitializeTable)
     table.addColumn("name");
     table.addColumn("value");
 
-    EXPECT_CALL(databaseMock, execute(Eq("CREATE TEMPORARY TABLE IF NOT EXISTS testTable(name NUMERIC, value NUMERIC) WITHOUT ROWID")));
+    EXPECT_CALL(databaseMock,
+                execute(Eq(
+                    "CREATE TEMPORARY TABLE IF NOT EXISTS testTable(name, value) WITHOUT ROWID")));
 
     table.initialize(databaseMock);
 }
@@ -107,7 +109,7 @@ TEST_F(SqliteTable, InitializeTableWithIndex)
     table.addIndex({column});
     table.addIndex({column2});
 
-    EXPECT_CALL(databaseMock, execute(Eq("CREATE TABLE testTable(name NUMERIC, value NUMERIC)")));
+    EXPECT_CALL(databaseMock, execute(Eq("CREATE TABLE testTable(name, value)")));
     EXPECT_CALL(databaseMock, execute(Eq("CREATE INDEX IF NOT EXISTS index_testTable_name ON testTable(name)")));
     EXPECT_CALL(databaseMock, execute(Eq("CREATE INDEX IF NOT EXISTS index_testTable_value ON testTable(value)")));
 
@@ -299,9 +301,7 @@ TEST_F(SqliteTable, AddPrimaryTableContraint)
     const auto &nameColumn = table.addColumn("name");
     table.addPrimaryKeyContraint({idColumn, nameColumn});
 
-    EXPECT_CALL(databaseMock,
-                execute(
-                    Eq("CREATE TABLE testTable(id NUMERIC, name NUMERIC, PRIMARY KEY(id, name))")));
+    EXPECT_CALL(databaseMock, execute(Eq("CREATE TABLE testTable(id, name, PRIMARY KEY(id, name))")));
 
     table.initialize(databaseMock);
 }

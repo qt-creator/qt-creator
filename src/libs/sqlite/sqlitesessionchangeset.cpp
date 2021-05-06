@@ -29,7 +29,7 @@
 
 #include <utils/smallstringio.h>
 
-#include <sqlite3ext.h>
+#include <sqlite.h>
 
 namespace Sqlite {
 

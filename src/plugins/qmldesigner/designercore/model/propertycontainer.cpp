@@ -113,37 +113,5 @@ QDebug operator<<(QDebug debug, const PropertyContainer &propertyContainer)
     return debug.space();
 }
 
-QDataStream &operator<<(QDataStream &stream, const QList<PropertyContainer> &propertyContainerList)
-{
-    stream << propertyContainerList.count();
-    foreach (const PropertyContainer &propertyContainer, propertyContainerList)
-        stream << propertyContainer;
-
-    return stream;
-}
-
-QDataStream &operator>>(QDataStream &stream, QList<PropertyContainer> &propertyContainerList)
-{
-    int count;
-    stream >> count;
-    Q_ASSERT(count >= 0);
-    for ( int i = 0; i < count; i++) {
-        PropertyContainer propertyContainer;
-        stream >> propertyContainer;
-        propertyContainerList.append(propertyContainer);
-    }
-
-    return stream;
-}
-
-QDebug operator<<(QDebug debug, QList<PropertyContainer> &propertyContainerList)
-{
-    foreach (const PropertyContainer &propertyContainer, propertyContainerList)
-        debug << propertyContainer;
-
-    return debug.space();
-}
-
-
 } //namespace QmlDesigner
 

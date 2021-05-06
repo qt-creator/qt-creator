@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,49 +23,25 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "sqlitelibraryinitializer.h"
 
-#include <utils/smallstringfwd.h>
-
-#include <QtGlobal>
-
-#if defined(BUILD_SQLITE_LIBRARY)
-#  define SQLITE_EXPORT Q_DECL_EXPORT
-#elif defined(BUILD_SQLITE_STATIC_LIBRARY)
-#  define SQLITE_EXPORT
-#else
-#  define SQLITE_EXPORT Q_DECL_IMPORT
-#endif
+#include "sqlitedatabasebackend.h"
 
 namespace Sqlite {
 
-enum class ColumnType : char { None, Numeric, Integer, Real, Text, Blob };
-
-enum class ConstraintType : char { NoConstraint, PrimaryKey, Unique, ForeignKey };
-
-enum class ForeignKeyAction : char { NoAction, Restrict, SetNull, SetDefault, Cascade };
-
-enum class Enforment : char { Immediate, Deferred };
-
-enum class ColumnConstraint : char { PrimaryKey };
-
-enum class JournalMode : char
+void LibraryInitializer::initialize()
 {
-    Delete,
-    Truncate,
-    Persist,
-    Memory,
-    Wal
-};
+    static LibraryInitializer initializer;
+}
 
-enum class OpenMode : char
+LibraryInitializer::LibraryInitializer()
 {
-    ReadOnly,
-    ReadWrite
-};
+    DatabaseBackend::initializeSqliteLibrary();
+}
 
-enum class ChangeType : int { Delete = 9, Insert = 18, Update = 23 };
-
-enum class CallbackControl : unsigned char { Continue, Abort };
+LibraryInitializer::~LibraryInitializer()
+{
+    DatabaseBackend::shutdownSqliteLibrary();
+}
 
 } // namespace Sqlite
