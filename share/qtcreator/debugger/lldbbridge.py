@@ -1128,6 +1128,8 @@ class Dumper(DumperBase):
             while ii < n and not done:
                 res = None
                 frame = thread.GetFrameAtIndex(ii)
+                if not frame.IsValid():
+                    break
                 for variable in frame.GetVariables(True, True, False, True):
                     if not variable.GetType().IsPointerType():
                         continue
@@ -1152,6 +1154,10 @@ class Dumper(DumperBase):
                         done = True
                         break
                 ii += 1
+            # if we have not found a qml stack do not omit original stack
+            if not done:
+                DumperBase.warn("Failed to fetch qml stack - you need Qt debug information")
+                ii = 0
 
         for i in range(n - ii):
             frame = thread.GetFrameAtIndex(i)
