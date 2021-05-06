@@ -883,16 +883,6 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                FilePath::fromUserInput("cns5k_ins_parser_tests.cpp")))
             << QString();
 
-    QTest::newRow("uic warning")
-            << QString::fromLatin1("mainwindow.ui: Warning: The name 'pushButton' (QPushButton) is already in use, defaulting to 'pushButton1'.")
-            << OutputParserTester::STDERR
-            << QString() << QString()
-            << (Tasks()
-                 << CompileTask(Task::Warning,
-                                "The name 'pushButton' (QPushButton) is already in use, defaulting to 'pushButton1'.",
-                                FilePath::fromUserInput("mainwindow.ui")))
-            << QString();
-
     QTest::newRow("libimf warning")
             << QString::fromLatin1("libimf.so: warning: warning: feupdateenv is not implemented and will always fail")
             << OutputParserTester::STDERR
@@ -1167,16 +1157,6 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
             << (Tasks()
                 << CompileTask(Task::Warning,
                                "file: lib/libtest.a(Test0.cpp.o) has no symbols"))
-            << QString();
-
-    QTest::newRow("moc note")
-            << QString::fromLatin1("/home/qtwebkithelpviewer.h:0: Note: No relevant classes found. No output generated.")
-            << OutputParserTester::STDERR
-            << QString() << QString()
-            << (Tasks()
-                << CompileTask(Task::Unknown,
-                               "Note: No relevant classes found. No output generated.",
-                               FilePath::fromUserInput("/home/qtwebkithelpviewer.h")))
             << QString();
 
     QTest::newRow("GCC 9 output")

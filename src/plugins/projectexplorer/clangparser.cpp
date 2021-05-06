@@ -281,16 +281,6 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                     << CompileTask(Task::Error,
                                    "code signing is required for product type 'Application' in SDK 'iOS 7.0'"))
                 << QString();
-
-        QTest::newRow("moc note")
-                << QString::fromLatin1("/home/qtwebkithelpviewer.h:0: Note: No relevant classes found. No output generated.")
-                << OutputParserTester::STDERR
-                << QString() << QString()
-                << (Tasks()
-                    << CompileTask(Task::Unknown,
-                                   "Note: No relevant classes found. No output generated.",
-                                   FilePath::fromUserInput("/home/qtwebkithelpviewer.h")))
-                << QString();
 }
 
 void ProjectExplorerPlugin::testClangOutputParser()

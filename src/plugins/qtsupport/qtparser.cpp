@@ -45,6 +45,7 @@ namespace QtSupport {
 
 QtParser::QtParser() :
     m_mocRegExp(QLatin1String(FILE_PATTERN"[:\\(](\\d+?)\\)?:\\s([Ww]arning|[Ee]rror|[Nn]ote):\\s(.+?)$")),
+    m_uicRegExp(QLatin1String(FILE_PATTERN": Warning:\\s(?<msg>.+?)$")),
     m_translationRegExp(QLatin1String("^([Ww]arning|[Ee]rror):\\s+(.*?) in '(.*?)'$"))
 {
     setObjectName(QLatin1String("QtParser"));
@@ -75,6 +76,26 @@ Utils::OutputLineParser::Result QtParser::handleLine(const QString &line, Utils:
         CompileTask task(type, match.captured(5).trimmed() /* description */, file, lineno);
         scheduleTask(task, 1);
         return {Status::Done, linkSpecs};
+    }
+    match = m_uicRegExp.match(lne);
+    if (match.hasMatch()) {
+        const QString fileName = match.captured(1);
+        QString message = match.captured("msg").trimmed();
+        Utils::FilePath filePath;
+        LinkSpecs linkSpecs;
+        bool isUicMessage = true;
+        if (fileName == "uic" || fileName == "stdin") {
+            message.prepend(": ").prepend(fileName);
+        } else if (fileName.endsWith(".ui")) {
+            filePath = absoluteFilePath(Utils::FilePath::fromUserInput(fileName));
+            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, -1, match, 1);
+        } else {
+            isUicMessage = false;
+        }
+        if (isUicMessage) {
+            scheduleTask(CompileTask(Task::Warning, message, filePath), 1);
+            return {Status::Done, linkSpecs};
+        }
     }
     match = m_translationRegExp.match(line);
     if (match.hasMatch()) {
@@ -171,6 +192,15 @@ void QtSupportPlugin::testQtOutputParser_data()
             << (Tasks() << CompileTask(Task::Error,
                                                        QLatin1String("Undefined interface"),
                                                        Utils::FilePath::fromUserInput(QLatin1String("E:/sandbox/creator/loaden/src/libs/utils/iwelcomepage.h")), 54))
+            << QString();
+    QTest::newRow("uic warning")
+            << QString::fromLatin1("mainwindow.ui: Warning: The name 'pushButton' (QPushButton) is already in use, defaulting to 'pushButton1'.")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (Tasks()
+                 << CompileTask(Task::Warning,
+                                "The name 'pushButton' (QPushButton) is already in use, defaulting to 'pushButton1'.",
+                                Utils::FilePath::fromUserInput("mainwindow.ui")))
             << QString();
     QTest::newRow("translation")
             << QString::fromLatin1("Warning: dropping duplicate messages in '/some/place/qtcreator_fr.qm'")

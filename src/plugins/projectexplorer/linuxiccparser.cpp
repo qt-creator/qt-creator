@@ -217,16 +217,6 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
                                "use of \"=\" where \"==\" may have been intended\nwhile (a = true)",
                                FilePath::fromUserInput("main.cpp"), 41))
             << QString();
-
-    QTest::newRow("moc note")
-            << QString::fromLatin1("/home/qtwebkithelpviewer.h:0: Note: No relevant classes found. No output generated.")
-            << OutputParserTester::STDERR
-            << QString() << QString()
-            << (Tasks()
-                << CompileTask(Task::Unknown,
-                               "Note: No relevant classes found. No output generated.",
-                               FilePath::fromUserInput("/home/qtwebkithelpviewer.h"), -1))
-            << QString();
 }
 
 void ProjectExplorerPlugin::testLinuxIccOutputParsers()

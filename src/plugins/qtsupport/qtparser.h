@@ -45,6 +45,7 @@ private:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;
 
     QRegularExpression m_mocRegExp;
+    QRegularExpression m_uicRegExp;
     QRegularExpression m_translationRegExp;
 };
 
