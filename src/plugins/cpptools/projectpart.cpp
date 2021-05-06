@@ -31,6 +31,8 @@
 #include <QDir>
 #include <QTextStream>
 
+using namespace ProjectExplorer;
+
 namespace CppTools {
 
 void ProjectPart::updateLanguageFeatures()
@@ -50,6 +52,41 @@ void ProjectPart::updateLanguageFeatures()
         languageFeatures.qtKeywordsEnabled = !Utils::contains(
                     projectMacros,
                     [] (const ProjectExplorer::Macro &macro) { return macro.key == "QT_NO_KEYWORDS"; });
+    }
+}
+
+void ProjectPart::setupToolchainProperties(const ToolChainInfo &tcInfo, const QStringList &flags)
+{
+    toolchainType = tcInfo.type;
+    isMsvc2015Toolchain = tcInfo.isMsvc2015ToolChain;
+    toolChainWordWidth = tcInfo.wordWidth == 64 ? ProjectPart::WordWidth64Bit
+                                                : ProjectPart::WordWidth32Bit;
+    toolChainInstallDir = tcInfo.installDir;
+    toolChainTargetTriple = tcInfo.targetTriple;
+    extraCodeModelFlags = tcInfo.extraCodeModelFlags;
+    compilerFlags = flags;
+
+    // Toolchain macros and language version
+    if (tcInfo.macroInspectionRunner) {
+        const auto macroInspectionReport = tcInfo.macroInspectionRunner(compilerFlags);
+        toolChainMacros = macroInspectionReport.macros;
+        languageVersion = macroInspectionReport.languageVersion;
+    // No compiler set in kit.
+    } else if (language == Utils::Language::C) {
+        languageVersion = Utils::LanguageVersion::LatestC;
+    } else {
+        languageVersion = Utils::LanguageVersion::LatestCxx;
+    }
+
+    // Header paths
+    if (tcInfo.headerPathsRunner) {
+        const HeaderPaths builtInHeaderPaths
+                = tcInfo.headerPathsRunner(compilerFlags, tcInfo.sysRootPath, tcInfo.targetTriple);
+        for (const HeaderPath &header : builtInHeaderPaths) {
+            const HeaderPath headerPath{header.path, header.type};
+            if (!headerPaths.contains(headerPath))
+                headerPaths.push_back(headerPath);
+        }
     }
 }
 

@@ -196,51 +196,10 @@ ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(
     ProjectPart::Ptr part(templateProjectPart->copy());
     part->displayName = partName;
     part->files = projectFiles;
-    part->toolchainType = tcInfo.type;
-    part->isMsvc2015Toolchain = tcInfo.isMsvc2015ToolChain;
-    part->toolChainWordWidth = tcInfo.wordWidth == 64 ? ProjectPart::WordWidth64Bit
-                                                      : ProjectPart::WordWidth32Bit;
-    part->toolChainInstallDir = tcInfo.installDir;
-    part->toolChainTargetTriple = tcInfo.targetTriple;
-    part->extraCodeModelFlags = tcInfo.extraCodeModelFlags;
-    part->compilerFlags = flags.commandLineFlags;
     part->warningFlags = flags.warningFlags;
-    if (part->includedFiles.isEmpty()) {
-        // The project manager did not provide the included files, so take
-        // the ones we were able to detect from the toolchain's command line.
-        part->includedFiles = flags.includedFiles;
-    }
     part->language = language;
-    part->languageExtensions = flags.languageExtensions;
-
-    // Toolchain macros and language version
-    if (tcInfo.macroInspectionRunner) {
-        auto macroInspectionReport = tcInfo.macroInspectionRunner(flags.commandLineFlags);
-        part->toolChainMacros = macroInspectionReport.macros;
-        part->languageVersion = macroInspectionReport.languageVersion;
-    // No compiler set in kit.
-    } else if (language == Language::C) {
-        part->languageVersion = Utils::LanguageVersion::LatestC;
-    } else {
-        part->languageVersion = Utils::LanguageVersion::LatestCxx;
-    }
-
-    // Header paths
-    if (tcInfo.headerPathsRunner) {
-        const HeaderPaths builtInHeaderPaths
-            = tcInfo.headerPathsRunner(flags.commandLineFlags,
-                                       tcInfo.sysRootPath,
-                                       tcInfo.targetTriple);
-
-        HeaderPaths &headerPaths = part->headerPaths;
-        for (const HeaderPath &header : builtInHeaderPaths) {
-            const HeaderPath headerPath{header.path, header.type};
-            if (!headerPaths.contains(headerPath))
-                headerPaths.push_back(headerPath);
-        }
-    }
-
-    part->languageExtensions |= languageExtensions;
+    part->languageExtensions = flags.languageExtensions | languageExtensions;
+    part->setupToolchainProperties(tcInfo, flags.commandLineFlags);
     part->updateLanguageFeatures();
 
     return part;

@@ -61,6 +61,8 @@
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmacro.h>
@@ -90,6 +92,7 @@ static const bool DumpProjectInfo = qgetenv("QTC_DUMP_PROJECT_INFO") == "1";
 using namespace CppTools;
 using namespace CppTools::Internal;
 using namespace CPlusPlus;
+using namespace ProjectExplorer;
 
 #ifdef QTCREATOR_WITH_DUMP_AST
 
@@ -1276,6 +1279,19 @@ ProjectPart::Ptr CppModelManager::fallbackProjectPart()
         Utils::LanguageExtension::ObjectiveC);
 
     part->qtVersion = Utils::QtVersion::Qt5;
+
+    // TODO: Use different fallback toolchain for different kinds of files
+    const auto * const defaultKit = KitManager::defaultKit();
+    const ToolChain * const defaultTc = ToolChainKitAspect::cxxToolChain(defaultKit);
+    if (defaultKit && defaultTc) {
+        Utils::FilePath sysroot = SysRootKitAspect::sysRoot(defaultKit);
+        if (sysroot.isEmpty())
+            sysroot = Utils::FilePath::fromString(defaultTc->sysRoot());
+        Utils::Environment env = Utils::Environment::systemEnvironment();
+        defaultKit->addToEnvironment(env);
+        ToolChainInfo tcInfo(defaultTc, sysroot.toString(), env);
+        part->setupToolchainProperties(tcInfo, {});
+    }
     part->updateLanguageFeatures();
 
     return part;

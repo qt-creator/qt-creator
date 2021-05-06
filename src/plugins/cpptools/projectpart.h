@@ -65,6 +65,8 @@ public:
 
     Ptr copy() const;
     void updateLanguageFeatures();
+    void setupToolchainProperties(const ProjectExplorer::ToolChainInfo &tcInfo,
+                                  const QStringList &flags);
 
     static QByteArray readProjectConfigFile(const Ptr &projectPart);
 
