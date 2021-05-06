@@ -378,29 +378,29 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
     if (auto tokens = Utils::get_if<SemanticTokens>(&result)) {
         m_tokens[filePath] = *tokens;
     } else if (auto tokensDelta = Utils::get_if<SemanticTokensDelta>(&result)) {
-        const QList<SemanticTokensEdit> &edits = tokensDelta->edits();
+        QList<SemanticTokensEdit> edits = tokensDelta->edits();
         if (edits.isEmpty())
             return;
 
+        Utils::sort(edits, &SemanticTokensEdit::start);
+
         SemanticTokens &tokens = m_tokens[filePath];
-        QList<int> data = tokens.data();
+        const QList<int> &data = tokens.data();
 
         int newDataSize = data.size();
-        for (const SemanticTokensEdit &edit : edits)
+        for (const SemanticTokensEdit &edit : qAsConst(edits))
             newDataSize += edit.dataSize() - edit.deleteCount();
         QList<int> newData;
         newData.reserve(newDataSize);
 
         auto it = data.begin();
-        int currentDelta = 0;
-        for (const SemanticTokensEdit &edit : edits) {
-            for (const auto start = it + edit.start() + currentDelta; it != start; ++it)
+        for (const SemanticTokensEdit &edit : qAsConst(edits)) {
+            if (edit.start() > data.size()) // prevent edits after the previously reported data
+                return;
+            for (const auto start = data.begin() + edit.start(); it < start; ++it)
                 newData.append(*it);
-            const QList<int> insertData = edit.data().value_or(QList<int>());
-            newData.append(insertData);
-            const int deleteCount = edit.deleteCount();
-            currentDelta += insertData.size() - deleteCount;
-            it += deleteCount;
+            newData.append(edit.data().value_or(QList<int>()));
+            it += edit.deleteCount();
         }
         for (const auto end = data.end(); it != end; ++it)
             newData.append(*it);
