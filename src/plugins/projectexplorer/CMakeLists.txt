@@ -215,9 +215,10 @@ extend_qtc_plugin(ProjectExplorer
     jsonwizard/jsonwizard_test.cpp
     outputparser_test.cpp outputparser_test.h
 )
-if (WITH_TESTS)
-  file(GLOB_RECURSE test_resources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} testdata/*)
-  qtc_add_resources(ProjectExplorer "testdata"
+
+file(GLOB_RECURSE test_resources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} testdata/*)
+qtc_add_resources(ProjectExplorer "testdata"
+    CONDITION WITH_TESTS
     PREFIX "/projectexplorer"
     BASE "."
     FILES ${test_resources}

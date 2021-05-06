@@ -902,7 +902,14 @@ function(qtc_copy_to_builddir custom_target_name)
 endfunction()
 
 function(qtc_add_resources target resourceName)
-  cmake_parse_arguments(rcc "" "PREFIX;LANG;BASE" "FILES;OPTIONS" ${ARGN})
+  cmake_parse_arguments(rcc "" "PREFIX;LANG;BASE" "FILES;OPTIONS;CONDITION" ${ARGN})
+  if (${_arg_UNPARSED_ARGUMENTS})
+    message(FATAL_ERROR "qtc_add_resources had unparsed arguments!")
+  endif()
+
+  if (DEFINED _arg_CONDITION AND NOT _arg_CONDITION)
+    return()
+  endif()
 
   string(REPLACE "/" "_" resourceName ${resourceName})
   string(REPLACE "." "_" resourceName ${resourceName})
