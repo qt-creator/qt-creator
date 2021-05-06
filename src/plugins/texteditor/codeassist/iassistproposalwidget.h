@@ -57,6 +57,8 @@ public:
     virtual void updateProposal(const QString &prefix) = 0;
     virtual void closeProposal() = 0;
 
+    virtual bool proposalIsVisible() const { return isVisible(); }
+
     int basePosition() const;
     void setBasePosition(int basePosition);
 

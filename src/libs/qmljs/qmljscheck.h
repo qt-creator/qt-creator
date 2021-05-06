@@ -122,6 +122,9 @@ private:
     bool isQtQuick2() const;
     bool isQtQuick2Ui() const;
 
+    bool isCaseOrDefault(AST::Node *n);
+    bool hasVarStatement(AST::Block *b) const;
+
     AST::Node *parent(int distance = 0);
 
     Document::Ptr _doc;

@@ -29,7 +29,6 @@
 
 #include "sqliteblob.h"
 #include "sqliteexception.h"
-#include "sqlitetransaction.h"
 #include "sqlitevalue.h"
 
 #include <utils/smallstringvector.h>
@@ -38,7 +37,6 @@
 #include <utils/span.h>
 
 #include <cstdint>
-#include <exception>
 #include <functional>
 #include <memory>
 #include <tuple>
@@ -93,7 +91,6 @@ public:
     void bind(int index, Utils::span<const char *> values);
     void bind(int index, Utils::SmallStringView value);
     void bind(int index, const Value &value);
-    void bind(int index, ValueView value);
     void bind(int index, BlobView blobView);
 
     void bind(int index, uint value) { bind(index, static_cast<long long>(value)); }
@@ -165,14 +162,13 @@ extern template SQLITE_EXPORT Utils::PathString BaseStatement::fetchValue<Utils:
 template<typename BaseStatement, int ResultCount>
 class StatementImplementation : public BaseStatement
 {
-    struct Resetter;
 
 public:
     using BaseStatement::BaseStatement;
 
     void execute()
     {
-        Resetter resetter{this};
+        Resetter resetter{*this};
         BaseStatement::next();
         resetter.reset();
     }
@@ -182,14 +178,15 @@ public:
     template<typename... ValueType>
     void bindValues(const ValueType&... values)
     {
-        bindValuesByIndex(1, values...);
+        int index = 0;
+        (BaseStatement::bind(++index, values), ...);
     }
 
     template<typename... ValueType>
     void write(const ValueType&... values)
     {
-        Resetter resetter{this};
-        bindValuesByIndex(1, values...);
+        Resetter resetter{*this};
+        bindValues(values...);
         BaseStatement::next();
         resetter.reset();
     }
@@ -197,7 +194,7 @@ public:
     template<typename ResultType>
     std::vector<ResultType> values(std::size_t reserveSize)
     {
-        Resetter resetter{this};
+        Resetter resetter{*this};
         std::vector<ResultType> resultValues;
         resultValues.reserve(std::max(reserveSize, m_maximumResultCount));
 
@@ -214,7 +211,7 @@ public:
     template<typename ResultType, typename... QueryTypes>
     auto values(std::size_t reserveSize, const QueryTypes &...queryValues)
     {
-        Resetter resetter{this};
+        Resetter resetter{*this};
         std::vector<ResultType> resultValues;
         resultValues.reserve(std::max(reserveSize, m_maximumResultCount));
 
@@ -233,13 +230,13 @@ public:
     template<typename ResultType, typename... QueryTypes>
     auto value(const QueryTypes &...queryValues)
     {
-        Resetter resetter{this};
+        Resetter resetter{*this};
         Utils::optional<ResultType> resultValue;
 
         bindValues(queryValues...);
 
         if (BaseStatement::next())
-            resultValue = createOptionalValue<Utils::optional<ResultType>>();
+            resultValue = assignValue<Utils::optional<ResultType>>();
 
         resetter.reset();
 
@@ -261,7 +258,7 @@ public:
     template<typename Callable, typename... QueryTypes>
     void readCallback(Callable &&callable, const QueryTypes &...queryValues)
     {
-        Resetter resetter{this};
+        Resetter resetter{*this};
 
         bindValues(queryValues...);
 
@@ -275,10 +272,10 @@ public:
         resetter.reset();
     }
 
-    template<typename Container, typename... QueryTypes>
+    template<int ResultTypeCount = 1, typename Container, typename... QueryTypes>
     void readTo(Container &container, const QueryTypes &...queryValues)
     {
-        Resetter resetter{this};
+        Resetter resetter{*this};
 
         bindValues(queryValues...);
 
@@ -288,187 +285,39 @@ public:
         resetter.reset();
     }
 
-    template<typename ResultType, typename... QueryTypes>
-    auto range(const QueryTypes &...queryValues)
-    {
-        return SqliteResultRange<ResultType>{*this, queryValues...};
-    }
-
-    template<typename ResultType, typename... QueryTypes>
-    auto rangeWithTransaction(const QueryTypes &...queryValues)
-    {
-        return SqliteResultRangeWithTransaction<ResultType>{*this, queryValues...};
-    }
-
-    template<typename ResultType>
-    class BaseSqliteResultRange
-    {
-    public:
-        class SqliteResultIteratator
-        {
-        public:
-            using iterator_category = std::input_iterator_tag;
-            using difference_type = int;
-            using value_type = ResultType;
-            using pointer = ResultType *;
-            using reference = ResultType &;
-
-            SqliteResultIteratator(StatementImplementation &statement)
-                : m_statement{statement}
-                , m_hasNext{m_statement.next()}
-            {}
-
-            SqliteResultIteratator(StatementImplementation &statement, bool hasNext)
-                : m_statement{statement}
-                , m_hasNext{hasNext}
-            {}
-
-            SqliteResultIteratator &operator++()
-            {
-                m_hasNext = m_statement.next();
-                return *this;
-            }
-
-            void operator++(int) { m_hasNext = m_statement.next(); }
-
-            friend bool operator==(const SqliteResultIteratator &first,
-                                   const SqliteResultIteratator &second)
-            {
-                return first.m_hasNext == second.m_hasNext;
-            }
-
-            friend bool operator!=(const SqliteResultIteratator &first,
-                                   const SqliteResultIteratator &second)
-            {
-                return !(first == second);
-            }
-
-            value_type operator*() const { return m_statement.createValue<ResultType>(); }
-
-        private:
-            StatementImplementation &m_statement;
-            bool m_hasNext = false;
-        };
-
-        using value_type = ResultType;
-        using iterator = SqliteResultIteratator;
-        using const_iterator = iterator;
-
-        template<typename... QueryTypes>
-        BaseSqliteResultRange(StatementImplementation &statement, const QueryTypes &...queryValues)
-            : m_statement{statement}
-        {
-            statement.bindValues(queryValues...);
-        }
-
-        BaseSqliteResultRange(BaseSqliteResultRange &) = delete;
-        BaseSqliteResultRange &operator=(BaseSqliteResultRange &) = delete;
-
-        BaseSqliteResultRange(BaseSqliteResultRange &&other)
-            : m_statement{std::move(other.resetter)}
-        {}
-        BaseSqliteResultRange &operator=(BaseSqliteResultRange &&) = delete;
-
-        iterator begin() & { return iterator{m_statement}; }
-        iterator end() & { return iterator{m_statement, false}; }
-
-        const_iterator begin() const & { return iterator{m_statement}; }
-        const_iterator end() const & { return iterator{m_statement, false}; }
-
-    private:
-        StatementImplementation &m_statement;
-    };
-
-    template<typename ResultType>
-    class SqliteResultRange : public BaseSqliteResultRange<ResultType>
-    {
-    public:
-        template<typename... QueryTypes>
-        SqliteResultRange(StatementImplementation &statement, const QueryTypes &...queryValues)
-            : BaseSqliteResultRange<ResultType>{statement}
-            , resetter{&statement}
-
-        {
-            statement.bindValues(queryValues...);
-        }
-
-        ~SqliteResultRange()
-        {
-            if (!std::uncaught_exceptions())
-                resetter.reset();
-        }
-
-    private:
-        Resetter resetter;
-    };
-
-    template<typename ResultType>
-    class SqliteResultRangeWithTransaction : public BaseSqliteResultRange<ResultType>
-    {
-    public:
-        template<typename... QueryTypes>
-        SqliteResultRangeWithTransaction(StatementImplementation &statement,
-                                         const QueryTypes &...queryValues)
-            : BaseSqliteResultRange<ResultType>{statement}
-            , m_transaction{statement.database()}
-            , resetter{&statement}
-        {
-            statement.bindValues(queryValues...);
-        }
-
-        ~SqliteResultRangeWithTransaction()
-        {
-            if (!std::uncaught_exceptions()) {
-                resetter.reset();
-                m_transaction.commit();
-            }
-        }
-
-    private:
-        DeferredTransaction m_transaction;
-        Resetter resetter;
-    };
-
 protected:
     ~StatementImplementation() = default;
 
 private:
     struct Resetter
     {
-        Resetter(StatementImplementation *statement)
+        Resetter(StatementImplementation &statement)
             : statement(statement)
-        {}
-
-        Resetter(Resetter &) = delete;
-        Resetter &operator=(Resetter &) = delete;
-
-        Resetter(Resetter &&other)
-            : statement{std::exchange(other.statement, nullptr)}
         {}
 
         void reset()
         {
             try {
-                if (statement)
-                    statement->reset();
+                statement.reset();
             } catch (...) {
-                statement = nullptr;
+                shouldReset = false;
                 throw;
             }
 
-            statement = nullptr;
+            shouldReset = false;
         }
 
         ~Resetter() noexcept
         {
             try {
-                if (statement)
-                    statement->reset();
+                if (shouldReset)
+                    statement.reset();
             } catch (...) {
             }
         }
 
-        StatementImplementation *statement;
+        StatementImplementation &statement;
+        bool shouldReset = true;
     };
 
     struct ValueGetter
@@ -490,11 +339,6 @@ private:
         int column;
     };
 
-    constexpr int resultCount(int localResultCount) const
-    {
-        return ResultCount < 0 ? localResultCount : ResultCount;
-    }
-
     template<typename ContainerType, int... ColumnIndices>
     void emplaceBackValues(ContainerType &container, std::integer_sequence<int, ColumnIndices...>)
     {
@@ -507,28 +351,17 @@ private:
         emplaceBackValues(container, std::make_integer_sequence<int, ResultCount>{});
     }
 
-    template<typename ResultOptionalType, int... ColumnIndices>
-    ResultOptionalType createOptionalValue(std::integer_sequence<int, ColumnIndices...>)
+    template <typename ResultOptionalType,
+              int... ColumnIndices>
+    ResultOptionalType assignValue(std::integer_sequence<int, ColumnIndices...>)
     {
         return ResultOptionalType(Utils::in_place, ValueGetter(*this, ColumnIndices)...);
     }
 
     template<typename ResultOptionalType>
-    ResultOptionalType createOptionalValue()
+    ResultOptionalType assignValue()
     {
-        return createOptionalValue<ResultOptionalType>(std::make_integer_sequence<int, ResultCount>{});
-    }
-
-    template<typename ResultType, int... ColumnIndices>
-    ResultType createValue(std::integer_sequence<int, ColumnIndices...>)
-    {
-        return ResultType{ValueGetter(*this, ColumnIndices)...};
-    }
-
-    template<typename ResultType>
-    ResultType createValue()
-    {
-        return createValue<ResultType>(std::make_integer_sequence<int, ResultCount>{});
+        return assignValue<ResultOptionalType>(std::make_integer_sequence<int, ResultCount>{});
     }
 
     template<typename Callable, int... ColumnIndices>
@@ -541,19 +374,6 @@ private:
     CallbackControl callCallable(Callable &&callable)
     {
         return callCallable(callable, std::make_integer_sequence<int, ResultCount>{});
-    }
-
-    template<typename ValueType>
-    void bindValuesByIndex(int index, const ValueType &value)
-    {
-        BaseStatement::bind(index, value);
-    }
-
-    template<typename ValueType, typename... ValueTypes>
-    void bindValuesByIndex(int index, const ValueType &value, const ValueTypes &...values)
-    {
-        BaseStatement::bind(index, value);
-        bindValuesByIndex(index + 1, values...);
     }
 
     void setMaximumResultCount(std::size_t count)
