@@ -85,6 +85,7 @@ public:
     Utils::FilePaths fileCandidates;
     int line = -1;
     int movedLine = -1; // contains a line number if the line was moved in the editor
+    int column = 0;
     Utils::Id category;
 
     // Having a container of QTextLayout::FormatRange in Task isn't that great
@@ -113,7 +114,8 @@ public:
     CompileTask(TaskType type,
                  const QString &description,
                  const Utils::FilePath &file = {},
-                 int line = -1);
+                 int line = -1,
+                 int column = 0);
 };
 
 class PROJECTEXPLORER_EXPORT BuildSystemTask : public Task

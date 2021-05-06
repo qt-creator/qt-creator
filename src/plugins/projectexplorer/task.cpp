@@ -206,9 +206,12 @@ bool containsType(const Tasks &issues, Task::TaskType type)
 
 // CompilerTask
 
-CompileTask::CompileTask(TaskType type, const QString &desc, const FilePath &file, int line)
+CompileTask::CompileTask(TaskType type, const QString &desc,
+                         const FilePath &file, int line, int column_)
     : Task(type, desc, file, line, ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)
-{}
+{
+    column = column_;
+}
 
 // BuildSystemTask
 

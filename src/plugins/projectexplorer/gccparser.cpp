@@ -45,7 +45,7 @@ GccParser::GccParser()
 {
     setObjectName(QLatin1String("GCCParser"));
     m_regExp.setPattern(QLatin1Char('^') + QLatin1String(FILE_PATTERN)
-                        + QLatin1String("(?:(?:(\\d+):(\\d+:)?)|\\(.*\\):)\\s+((fatal |#)?(warning|error|note):?\\s)?([^\\s].+)$"));
+                        + QLatin1String("(?:(?:(\\d+):(?:(\\d+):)?)|\\(.*\\):)\\s+((fatal |#)?(warning|error|note):?\\s)?([^\\s].+)$"));
     QTC_CHECK(m_regExp.isValid());
 
     m_regExpScope.setPattern(QLatin1Char('^') + FILE_PATTERN
@@ -90,13 +90,14 @@ void GccParser::createOrAmendTask(
         bool forceAmend,
         const FilePath &file,
         int line,
+        int column,
         const LinkSpecs &linkSpecs
         )
 {
     const bool amend = !m_currentTask.isNull() && (forceAmend || isContinuation(originalLine));
     if (!amend) {
         flush();
-        m_currentTask = CompileTask(type, description, file, line);
+        m_currentTask = CompileTask(type, description, file, line, column);
         m_currentTask.details.append(originalLine);
         m_linkSpecs = linkSpecs;
         m_lines = 1;
@@ -119,6 +120,7 @@ void GccParser::createOrAmendTask(
         if (!file.isEmpty()) {
             m_currentTask.setFile(file);
             m_currentTask.line = line;
+            m_currentTask.column = column;
         }
     }
     ++m_lines;
@@ -183,9 +185,10 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
     if (match.hasMatch()) {
         const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
         const int lineNo = match.captured(3).toInt();
+        const int column = match.captured(4).toInt();
         LinkSpecs linkSpecs;
         addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, match, 1);
-        createOrAmendTask(Task::Unknown, lne.trimmed(), lne, false, filePath, lineNo, linkSpecs);
+        createOrAmendTask(Task::Unknown, lne.trimmed(), lne, false, filePath, lineNo, column, linkSpecs);
         return {Status::InProgress, linkSpecs};
     }
 
@@ -196,7 +199,7 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
         LinkSpecs linkSpecs;
         if (!filePath.isEmpty())
             addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, -1, match, 3);
-        createOrAmendTask(type, match.captured(2), lne, false, filePath, -1, linkSpecs);
+        createOrAmendTask(type, match.captured(2), lne, false, filePath, -1, 0, linkSpecs);
         flush();
         return {Status::Done, linkSpecs};
     }
@@ -204,6 +207,7 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
     match = m_regExp.match(lne);
     if (match.hasMatch()) {
         int lineno = match.captured(3).toInt();
+        int column = match.captured(4).toInt();
         Task::TaskType type = Task::Unknown;
         QString description = match.captured(8);
         if (match.captured(7) == QLatin1String("warning"))
@@ -220,18 +224,19 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
         const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
         LinkSpecs linkSpecs;
         addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineno, match, 1);
-        createOrAmendTask(type, description, lne, false, filePath, lineno, linkSpecs);
+        createOrAmendTask(type, description, lne, false, filePath, lineno, column, linkSpecs);
         return {Status::InProgress, linkSpecs};
     }
 
     match = m_regExpScope.match(lne);
     if (match.hasMatch()) {
         const int lineno = match.captured(3).toInt();
+        const int column = match.captured(4).toInt();
         const QString description = match.captured(5);
         const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
         LinkSpecs linkSpecs;
         addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineno, match, 1);
-        createOrAmendTask(Task::Unknown, description, lne, false, filePath, lineno, linkSpecs);
+        createOrAmendTask(Task::Unknown, description, lne, false, filePath, lineno, column, linkSpecs);
         return {Status::InProgress, linkSpecs};
     }
 
@@ -275,9 +280,10 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                           const QString &description,
                           const Utils::FilePath &file,
                           int line,
+                          int column,
                           const QVector<QTextLayout::FormatRange> formats)
     {
-        CompileTask task(type, description, file, line);
+        CompileTask task(type, description, file, line, column);
         task.formats = formats;
         return task;
     };
@@ -320,7 +326,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                "/temp/test/untitled8/main.cpp: In function `int main(int, char**)':\n"
                                "/temp/test/untitled8/main.cpp:9: error: `sfasdf' undeclared (first use this function)",
                                FilePath::fromUserInput("/temp/test/untitled8/main.cpp"),
-                               9,
+                               9, 0,
                                QVector<QTextLayout::FormatRange>()
                                    << formatRange(46, 0)
                                    << formatRange(46, 29, "olpfile:///temp/test/untitled8/main.cpp::0::-1")
@@ -330,7 +336,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                 << CompileTask(Task::Error,
                                "(Each undeclared identifier is reported only once for each function it appears in.)",
                                FilePath::fromUserInput("/temp/test/untitled8/main.cpp"),
-                               9))
+                               9, 0))
             << QString();
 
     QTest::newRow("GCCE warning")
@@ -341,7 +347,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                 << CompileTask(Task::Warning,
                                "inline function `QDebug qDebug()' used but never defined",
                                FilePath::fromUserInput("/src/corelib/global/qglobal.h"),
-                               1635))
+                               1635, 0))
             << QString();
 
     QTest::newRow("warning")
@@ -352,7 +358,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                 << CompileTask(Task::Warning,
                                "Some warning",
                                FilePath::fromUserInput("main.cpp"),
-                               7))
+                               7, 2))
             << QString();
 
     QTest::newRow("GCCE #error")
@@ -363,7 +369,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                 << CompileTask(Task::Error,
                                "#error Symbian error",
                                FilePath::fromUserInput("C:\\temp\\test\\untitled8\\main.cpp"),
-                               7))
+                               7, 0))
             << QString();
 
     // Symbian reports #warning(s) twice (using different syntax).
@@ -375,7 +381,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                 << CompileTask(Task::Warning,
                                "#warning Symbian warning",
                                FilePath::fromUserInput("C:\\temp\\test\\untitled8\\main.cpp"),
-                               8))
+                               8, 0))
             << QString();
 
     QTest::newRow("GCCE #warning2")
@@ -386,7 +392,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                 << CompileTask(Task::Warning,
                                "#warning Symbian warning",
                                FilePath::fromUserInput("/temp/test/untitled8/main.cpp"),
-                               8))
+                               8, 2))
             << QString();
 
     QVector<QTextLayout::FormatRange> formatRanges;
@@ -409,7 +415,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                "main.o: In function `main':\n"
                                "C:\\temp\\test\\untitled8/main.cpp:8: undefined reference to `MainWindow::doSomething()'",
                                FilePath::fromUserInput("C:\\temp\\test\\untitled8/main.cpp"),
-                               8,
+                               8, 0,
                                formatRanges)
                 << CompileTask(Task::Error,
                                "collect2: ld returned 1 exit status"))
@@ -435,7 +441,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                "main.o: In function `main':\n"
                                "C:\\temp\\test\\untitled8/main.cpp:(.text+0x40): undefined reference to `MainWindow::doSomething()'",
                                FilePath::fromUserInput("C:\\temp\\test\\untitled8/main.cpp"),
-                               -1,
+                               -1, 0,
                                formatRanges)
                 << CompileTask(Task::Error,
                                "collect2: ld returned 1 exit status"))
@@ -472,13 +478,13 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                "../../../../master/src/plugins/debugger/gdb/gdbengine.cpp: In member function 'void Debugger::Internal::GdbEngine::handleBreakInsert2(const Debugger::Internal::GdbResponse&)':\n"
                                "../../../../master/src/plugins/debugger/gdb/gdbengine.cpp:2114: warning: unused variable 'index'",
                                FilePath::fromUserInput("../../../../master/src/plugins/debugger/gdb/gdbengine.cpp"),
-                               2114,
+                               2114, 0,
                                QVector<QTextLayout::FormatRange>()
                                    << formatRange(24, 272))
                 << CompileTask(Task::Warning,
                                "unused variable 'handler'",
                                FilePath::fromUserInput("../../../../master/src/plugins/debugger/gdb/gdbengine.cpp"),
-                               2115))
+                               2115, 0))
             << QString();
 
     QTest::newRow("gnumakeparser.cpp errors")
@@ -493,7 +499,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                "/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp: In member function 'void ProjectExplorer::ProjectExplorerPlugin::testGnuMakeParserTaskMangling_data()':\n"
                                "/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp:264: error: expected primary-expression before ':' token",
                                FilePath::fromUserInput("/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp"),
-                               264,
+                               264, 0,
                                QVector<QTextLayout::FormatRange>()
                                    << formatRange(45, 0)
                                    << formatRange(45, 68, "olpfile:///home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp::0::-1")
@@ -503,7 +509,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                 << CompileTask(Task::Error,
                                "expected ';' before ':' token",
                                FilePath::fromUserInput("/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp"),
-                               264))
+                               264, 0))
             << QString();
 
     QTest::newRow("distcc error(QTCREATORBUG-904)")
@@ -562,7 +568,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                 "/Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c: In static member function 'static std::_Rb_tree_node_base* std::_Rb_global<_Dummy>::_Rebalance_for_erase(std::_Rb_tree_node_base*, std::_Rb_tree_node_base*&, std::_Rb_tree_node_base*&, std::_Rb_tree_node_base*&)':\n"
                                 "/Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c:194: warning: suggest explicit braces to avoid ambiguous 'else'",
                                 FilePath::fromUserInput("/Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c"),
-                                194,
+                                194, 0,
                                 QVector<QTextLayout::FormatRange>()
                                     << formatRange(50, 0)
                                     << formatRange(50, 67, "olpfile:///Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c::0::-1")
@@ -599,7 +605,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                 "../../scriptbug/main.cpp: In function void foo(i) [with i = double]:\n"
                                 "../../scriptbug/main.cpp:22: instantiated from here",
                                 FilePath::fromUserInput("../../scriptbug/main.cpp"),
-                                -1,
+                                -1, 0,
                                 QVector<QTextLayout::FormatRange>()
                                     << formatRange(43, 120))
                  << CompileTask(Task::Warning,
@@ -644,7 +650,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                 "../../scriptbug/main.cpp: In instantiation of void bar(i) [with i = double]:\n"
                                 "../../scriptbug/main.cpp:8: instantiated from void foo(i) [with i = double]",
                                 FilePath::fromUserInput("../../scriptbug/main.cpp"),
-                                -1,
+                                -1, 0,
                                 QVector<QTextLayout::FormatRange>()
                                     << formatRange(17, 195))
                 << CompileTask(Task::Unknown,
@@ -665,7 +671,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                  << CompileTask(Task::Error,
                                 "test.moc: No such file or directory",
                                 FilePath::fromUserInput("/home/code/test.cpp"),
-                                54))
+                                54, 38))
             << QString();
 
     formatRanges.clear();
@@ -689,7 +695,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                "debug/qplotaxis.o: In function `QPlotAxis':\n"
                                "M:\\Development\\x64\\QtPlot/qplotaxis.cpp:26: undefined reference to `vtable for QPlotAxis'",
                                FilePath::fromUserInput("M:\\Development\\x64\\QtPlot/qplotaxis.cpp"),
-                               26,
+                               26, 0,
                                formatRanges)
                 << CompileTask(Task::Error,
                                "undefined reference to `vtable for QPlotAxis'",
@@ -713,7 +719,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                "../stl/main.cpp: In member function typename _Vector_base<_Tp, _Alloc>::_Tp_alloc_type::const_reference Vector<_Tp, _Alloc>::at(int) [with _Tp = Point, _Alloc = Allocator<Point>]:\n"
                                "../stl/main.cpp:38:   instantiated from here",
                                FilePath::fromUserInput("../stl/main.cpp"),
-                               -1,
+                               -1, 0,
                                QVector<QTextLayout::FormatRange>()
                                    << formatRange(163, 224))
                 << CompileTask(Task::Warning,
@@ -724,7 +730,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                "../stl/main.cpp: At global scope:\n"
                                "../stl/main.cpp:31: warning: unused parameter index",
                                FilePath::fromUserInput("../stl/main.cpp"),
-                               31,
+                               31, 0,
                                QVector<QTextLayout::FormatRange>()
                                    << formatRange(23, 85)))
             << QString();
@@ -757,7 +763,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                  "C:/Symbian_SDK/epoc32/include/e32cmn.inl: In member function 'SSecureId::operator const TSecureId&() const':\n"
                                  "C:/Symbian_SDK/epoc32/include/e32cmn.inl:7094: warning: returning reference to temporary",
                                  FilePath::fromUserInput("C:/Symbian_SDK/epoc32/include/e32cmn.inl"),
-                                 7094,
+                                 7094, 0,
                                  formatRanges)}
             << QString();
     QTest::newRow("In constructor 2")
@@ -774,7 +780,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                  "   28 |     memset(this, 0, sizeof(PerfEventAttributes));\n"
                                  "      |                                                ^",
                                  FilePath::fromUserInput("perfattributes.cpp"),
-                                 28,
+                                 28, 48,
                                  QVector<QTextLayout::FormatRange>()
                                      << formatRange(170, 400))}
             << QString();
@@ -801,7 +807,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                       "                 from <command line>:26:\n"
                       "/Symbian/SDK/epoc32/include/variant/Symbian_OS.hrh:1134:26: warning: no newline at end of file",
                       FilePath::fromUserInput("/Symbian/SDK/epoc32/include/variant/Symbian_OS.hrh"),
-                      1134,
+                      1134, 26,
                       QVector<QTextLayout::FormatRange>()
                           << formatRange(26, 22)
                           << formatRange(48, 39, "olpfile:///Symbian/SDK/EPOC32/INCLUDE/GCCE/GCCE.h::15::-1")
@@ -831,7 +837,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                 "../../../src/shared/proparser/profileevaluator.cpp: In member function 'ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateConditionalFunction(const ProString&, const ProStringList&)':\n"
                                 "../../../src/shared/proparser/profileevaluator.cpp:2817:9: warning: case value '0' not in enumerated type 'ProFileEvaluator::Private::TestFunc'",
                                 FilePath::fromUserInput("../../../src/shared/proparser/profileevaluator.cpp"),
-                                2817,
+                                2817, 9,
                                 QVector<QTextLayout::FormatRange>()
                                     << formatRange(76, 351)))
             << QString();
@@ -847,7 +853,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                    "In file included from <command-line>:0:0:\n"
                    "./mw.h:4:0: warning: \"STUPID_DEFINE\" redefined",
                    FilePath::fromUserInput("./mw.h"),
-                   4,
+                   4, 0,
                    QVector<QTextLayout::FormatRange>()
                        << formatRange(26, 88))}
             << QString();
@@ -864,13 +870,13 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                 "file.h: In function 'void UnitTest::CheckEqual(UnitTest::TestResults&, const Expected&, const Actual&, const UnitTest::TestDetails&) [with Expected = unsigned int, Actual = int]':\n"
                                 "file.cpp:87:10: instantiated from here",
                                 FilePath::fromUserInput("file.h"),
-                                -1,
+                                -1, 0,
                                 QVector<QTextLayout::FormatRange>()
                                     << formatRange(172, 218))
                  << CompileTask(Task::Warning,
                                 "comparison between signed and unsigned integer expressions [-Wsign-compare]",
                                 FilePath::fromUserInput("file.h"),
-                                21))
+                                21, 5))
             << QString();
 
     QTest::newRow("linker error") // QTCREATORBUG-3107
@@ -908,7 +914,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                    " #include <QtGui/QAction>\n"
                    "                         ^",
                    FilePath::fromUserInput(".uic/ui_pluginerrorview.h"),
-                   14,
+                   14, 25,
                    QVector<QTextLayout::FormatRange>()
                        << formatRange(41, 22)
                        << formatRange(63, 67, "olpfile:///home/code/src/creator/src/libs/extensionsystem/pluginerrorview.cpp::31::-1")
@@ -932,7 +938,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                    "/usr/include/qt4/QtCore/qstring.h:597:5: error: 'QString::QString(const char*)' is private\n"
                    "main.cpp:7:22: error: within this context",
                    FilePath::fromUserInput("/usr/include/qt4/QtCore/qstring.h"),
-                   597,
+                   597, 5,
                    QVector<QTextLayout::FormatRange>()
                        << formatRange(43, 22)
                        << formatRange(65, 31, "olpfile:///usr/include/qt4/QtCore/QString::1::-1")
@@ -956,7 +962,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                "foo.o: In function `foo()':\n"
                                "/home/user/test/foo.cpp:2: multiple definition of `foo()'",
                                FilePath::fromUserInput("/home/user/test/foo.cpp"),
-                               2,
+                               2, 0,
                                QVector<QTextLayout::FormatRange>()
                                    << formatRange(31, 28)
                                    << formatRange(59, 23, "olpfile:///home/user/test/foo.cpp::2::-1")
@@ -1211,7 +1217,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                  "  399 |         inline Private(const Private &other) Q_DECL_NOTHROW\n"
                                  "      |                      ^~~~~~~)",
                                  FilePath::fromUserInput("/usr/include/qt/QtCore/qvariant.h"),
-                                 273,
+                                 273, 25,
                                  QVector<QTextLayout::FormatRange>()
                                      << formatRange(140, 22)
                                      << formatRange(162, 32, "olpfile:///usr/include/qt/QtCore/qlocale.h::43::-1")
@@ -1239,7 +1245,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                  "     |                |\n"
                                  "     |                boxed_value<[...]>",
                                  FilePath::fromUserInput("t.cc"),
-                                 15,
+                                 15, 4,
                                  QVector<QTextLayout::FormatRange>()
                                      << formatRange(93, 460)),
                       compileTask(Task::Error,
@@ -1251,7 +1257,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                   " +++ |+#include <string>\n"
                                   "  1 | std::string test(void)",
                                   FilePath::fromUserInput("incomplete.c"),
-                                  1,
+                                  1, 6,
                                   QVector<QTextLayout::FormatRange>()
                                       << formatRange(49, 284)),
                       compileTask(Task::Warning,
@@ -1266,7 +1272,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                   "  1 | extern int callee(int one, const char *two, float three);\n"
                                   "    |                            ~~~~~~~~~~~~^~~",
                                   FilePath::fromUserInput("param-type-mismatch.c"),
-                                  5,
+                                  5, 24,
                                   QVector<QTextLayout::FormatRange>()
                                       << formatRange(92, 519))}
             << QString();
@@ -1299,7 +1305,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                                         "  465 |         at(newSize) = 0;\n"
                                                         "      |         ~~~~~~~~~~~~^~~",
                                  FilePath::fromUserInput("smallstring.h"),
-                                 465,
+                                 465, 21,
                                  QVector<QTextLayout::FormatRange>()
                                      << formatRange(62, 805))}
             << QString();
@@ -1341,7 +1347,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                  "  110 |     T value;\n"
                                  "      |       ^~~~~",
                                  FilePath::fromUserInput("qmap.h"),
-                                 110,
+                                 110, 7,
                                  QVector<QTextLayout::FormatRange>()
                                      << formatRange(46, 1458))}
             << QString();

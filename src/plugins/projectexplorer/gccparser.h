@@ -52,6 +52,7 @@ protected:
             bool forceAmend = false,
             const Utils::FilePath &file = {},
             int line = -1,
+            int column = 0,
             const LinkSpecs &linkSpecs = {}
             );
     void flush() override;

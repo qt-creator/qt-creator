@@ -46,7 +46,8 @@ bool ShowInEditorTaskHandler::canHandle(const Task &task) const
 void ShowInEditorTaskHandler::handle(const Task &task)
 {
     QFileInfo fi(task.file.toFileInfo());
-    Core::EditorManager::openEditorAt(fi.filePath(), task.movedLine, {}, {},
+    const int column = task.column ? task.column - 1 : 0;
+    Core::EditorManager::openEditorAt(fi.filePath(), task.movedLine, column, {},
                                       Core::EditorManager::SwitchSplitIfAlreadyVisible);
 }
 

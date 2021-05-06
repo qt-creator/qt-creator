@@ -47,7 +47,7 @@ static const char *const FILE_PATTERN = "(<command line>|([A-Za-z]:)?[^:]+\\.[^:
 ClangParser::ClangParser() :
     m_commandRegExp(QLatin1String("^clang(\\+\\+)?: +(fatal +)?(warning|error|note): (.*)$")),
     m_inLineRegExp(QLatin1String("^In (.*?) included from (.*?):(\\d+):$")),
-    m_messageRegExp(QLatin1Char('^') + QLatin1String(FILE_PATTERN) + QLatin1String("(:(\\d+):\\d+|\\((\\d+)\\) *): +(fatal +)?(error|warning|note): (.*)$")),
+    m_messageRegExp(QLatin1Char('^') + QLatin1String(FILE_PATTERN) + QLatin1String("(:(\\d+):(\\d+)|\\((\\d+)\\) *): +(fatal +)?(error|warning|note): (.*)$")),
     m_summaryRegExp(QLatin1String("^\\d+ (warnings?|errors?)( and \\d (warnings?|errors?))? generated.$")),
     m_codesignRegExp(QLatin1String("^Code ?Sign error: (.*)$")),
     m_expectSnippet(false)
@@ -84,9 +84,11 @@ OutputLineParser::Result ClangParser::handleLine(const QString &line, OutputForm
         m_expectSnippet = true;
         const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(2)));
         const int lineNo = match.captured(3).toInt();
+        const int column = 0;
         LinkSpecs linkSpecs;
         addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, match, 2);
-        createOrAmendTask(Task::Unknown, lne.trimmed(), lne, false, filePath, lineNo, linkSpecs);
+        createOrAmendTask(Task::Unknown, lne.trimmed(), lne, false,
+                          filePath, lineNo, column, linkSpecs);
         return {Status::InProgress, linkSpecs};
     }
 
@@ -95,13 +97,17 @@ OutputLineParser::Result ClangParser::handleLine(const QString &line, OutputForm
         m_expectSnippet = true;
         bool ok = false;
         int lineNo = match.captured(4).toInt(&ok);
-        if (!ok)
-            lineNo = match.captured(5).toInt(&ok);
+        int column = match.captured(5).toInt();
+        if (!ok) {
+            lineNo = match.captured(6).toInt(&ok);
+            column = 0;
+        }
+
         const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
         LinkSpecs linkSpecs;
         addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, match, 1);
-        createOrAmendTask(taskType(match.captured(7)), match.captured(8), lne, false,
-                          filePath, lineNo, linkSpecs);
+        createOrAmendTask(taskType(match.captured(8)), match.captured(9), lne, false,
+                          filePath, lineNo, column, linkSpecs);
         return {Status::InProgress, linkSpecs};
     }
 
@@ -146,9 +152,10 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                           const QString &description,
                           const Utils::FilePath &file,
                           int line,
+                          int column,
                           const QVector<QTextLayout::FormatRange> formats)
     {
-        CompileTask task(type, description, file, line);
+        CompileTask task(type, description, file, line, column);
         task.formats = formats;
         return task;
     };
@@ -206,7 +213,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                    "class Q_CORE_EXPORT QSysInfo {\n"
                    "      ^",
                    FilePath::fromUserInput("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h"),
-                   1425,
+                   1425, 0,
                    QVector<QTextLayout::FormatRange>()
                        << formatRange(61, 278))}
             << QString();
@@ -224,7 +231,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                                    "#    define Q_CORE_EXPORT Q_DECL_IMPORT\n"
                                    "                          ^",
                                    FilePath::fromUserInput("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h"),
-                                   1289,
+                                   1289, 27,
                                    QVector<QTextLayout::FormatRange>()
                                        << formatRange(19, 167)))
                 << QString();
@@ -242,7 +249,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                                    "#include <bits/c++config.h>\n"
                                    "         ^",
                                    FilePath::fromUserInput("/usr/include/c++/4.6/utility"),
-                                   68,
+                                   68, 10,
                                    QVector<QTextLayout::FormatRange>()
                                        << formatRange(34, 0)
                                        << formatRange(34, 28, "olpfile:///usr/include/c++/4.6/utility::68::-1")
@@ -262,7 +269,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                                    "            int x = option->rect.x() + horizontal ? 2 : 6;\n"
                                    "                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^",
                                    FilePath::fromUserInput("/home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp"),
-                                   567,
+                                   567, 51,
                                    QVector<QTextLayout::FormatRange>()
                                        << formatRange(74, 0)
                                        << formatRange(74, 64, "olpfile:///home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp::567::-1")
