@@ -28,8 +28,10 @@ import QtQuick 2.10
 QtObject {
     readonly property int width: 1920
     readonly property int height: 1080
-
-    property FontLoader controlIcons: FontLoader {
+    readonly property FontLoader mySystemFont: FontLoader {
+        name: "Arial"
+    }
+    readonly property FontLoader controlIcons: FontLoader {
         source: "icons.ttf"
     }
 
@@ -148,12 +150,12 @@ QtObject {
                                              })
 
     readonly property font font: Qt.font({
-                                             "family": "Arial",
+                                             "family": mySystemFont.name,
                                              "pointSize": Qt.application.font.pixelSize
                                          })
 
     readonly property font largeFont: Qt.font({
-                                                  "family": "Arial",
+                                                  "family": mySystemFont.name,
                                                   "pointSize": Qt.application.font.pixelSize * 1.6
                                               })
 }

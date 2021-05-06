@@ -52,8 +52,6 @@ public:
     void updateProposal(const QString &prefix) override;
     void closeProposal() override;
 
-    bool proposalIsVisible() const override;
-
 protected:
     bool eventFilter(QObject *o, QEvent *e) override;
 

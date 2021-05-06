@@ -72,7 +72,7 @@
 #include <variantproperty.h>
 #include <qmldesigner/designercore/imagecache/imagecachestorageinterface.h>
 
-#include <sqlite.h>
+#include <sqlite3ext.h>
 
 namespace {
 ClangBackEnd::FilePathCaching *filePathCache = nullptr;

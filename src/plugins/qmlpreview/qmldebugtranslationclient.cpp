@@ -26,8 +26,6 @@
 #include "qmldebugtranslationclient.h"
 #include <qmldebug/qpacketprotocol.h>
 
-#include <QUrl>
-
 #ifdef FOUND_QML_DEBUG_TRANSLATION_PROTOCOL
 #include <private/qqmldebugtranslationprotocol_p.h>
 #endif

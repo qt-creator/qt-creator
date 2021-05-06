@@ -29,7 +29,7 @@
 #include "sqlitedatabasebackend.h"
 #include "sqliteexception.h"
 
-#include "sqlite.h"
+#include "sqlite3.h"
 
 #include <condition_variable>
 #include <mutex>

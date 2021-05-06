@@ -219,15 +219,10 @@ void FunctionHintProposalWidget::closeProposal()
     abort();
 }
 
-bool FunctionHintProposalWidget::proposalIsVisible() const
-{
-    return d->m_popupFrame->isVisible();
-}
-
 void FunctionHintProposalWidget::abort()
 {
     qApp->removeEventFilter(this);
-    if (proposalIsVisible())
+    if (d->m_popupFrame->isVisible())
         d->m_popupFrame->close();
     deleteLater();
 }

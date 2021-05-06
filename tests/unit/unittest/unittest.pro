@@ -37,9 +37,6 @@ QMAKE_LFLAGS += -fno-merge-debug-strings -fuse-ld=gold
 CONFIG(release, debug|release):QMAKE_LFLAGS += -Wl,--strip-debug
 }
 
-CONFIG(debug, debug|release): DEFINES += SQLITE_DEBUG
-
-
 gcc:!clang: QMAKE_CXXFLAGS += -Wno-noexcept-type
 msvc{
 QMAKE_CXXFLAGS += /bigobj /wd4267 /wd4141 /wd4146 /wd4624

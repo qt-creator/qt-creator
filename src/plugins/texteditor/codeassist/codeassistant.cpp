@@ -407,7 +407,7 @@ void CodeAssistantPrivate::finalizeProposal()
 
 bool CodeAssistantPrivate::isDisplayingProposal() const
 {
-    return m_proposalWidget != nullptr && m_proposalWidget->proposalIsVisible();
+    return m_proposalWidget != nullptr && m_proposalWidget->isVisible();
 }
 
 bool CodeAssistantPrivate::isWaitingForProposal() const

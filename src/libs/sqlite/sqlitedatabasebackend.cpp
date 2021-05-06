@@ -35,7 +35,7 @@
 #include <QThread>
 #include <QDebug>
 
-#include "sqlite.h"
+#include "sqlite3.h"
 
 #include <chrono>
 #include <thread>

@@ -39,7 +39,7 @@ public:
 
     Column(Utils::SmallStringView tableName,
            Utils::SmallStringView name,
-           ColumnType type = ColumnType::None,
+           ColumnType type,
            Constraints &&constraints = {})
         : constraints(std::move(constraints))
         , name(name)

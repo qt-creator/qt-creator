@@ -55,19 +55,18 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/messagebox.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/session.h>
-#include <projectexplorer/target.h>
-#include <sqlitelibraryinitializer.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/session.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -212,9 +211,7 @@ QmlDesignerPlugin::~QmlDesignerPlugin()
 ////////////////////////////////////////////////////
 bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage/* = 0*/)
 {
-    Sqlite::LibraryInitializer::initialize();
-
-    QDir{}.mkpath(Core::ICore::cacheResourcePath());
+    QDir{}.mkpath(Core::ICore::cacheResourcePath().toString());
 
     if (!Utils::HostOsInfo::canCreateOpenGLContext(errorMessage))
         return false;
@@ -222,8 +219,10 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     if (DesignerSettings::getValue(DesignerSettingsKey::STANDALONE_MODE).toBool())
         GenerateResource::generateMenuEntry();
 
-    QString fontPath = Core::ICore::resourcePath() +
-            QStringLiteral("/qmldesigner/propertyEditorQmlSources/imports/StudioTheme/icons.ttf");
+    const QString fontPath
+        = Core::ICore::resourcePath(
+                "qmldesigner/propertyEditorQmlSources/imports/StudioTheme/icons.ttf")
+              .toString();
     if (QFontDatabase::addApplicationFont(fontPath) < 0)
         qCWarning(qmldesignerLog) << "Could not add font " << fontPath << "to font database";
 

@@ -66,4 +66,8 @@ private:
     mutable QVariant m_value;
 };
 
+QMLDESIGNERCORE_EXPORT QDataStream &operator<<(QDataStream &stream, const QList<PropertyContainer> &propertyContainerList);
+QMLDESIGNERCORE_EXPORT QDataStream &operator>>(QDataStream &stream, QList<PropertyContainer> &propertyContainerList);
+QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, QList<PropertyContainer> &propertyContainerList);
+
 } //namespace QmlDesigner

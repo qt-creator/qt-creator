@@ -72,7 +72,7 @@ public:
     }
 
     Column &addColumn(Utils::SmallStringView name,
-                      ColumnType type = ColumnType::None,
+                      ColumnType type = ColumnType::Numeric,
                       Constraints &&constraints = {})
     {
         m_sqliteColumns.emplace_back(m_tableName, name, type, std::move(constraints));
