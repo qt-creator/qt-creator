@@ -108,10 +108,10 @@ public:
 
     void addJob(const CommandLine &command,
                 const QString &workingDirectory = QString(),
-                const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
+                const ExitCodeInterpreter &interpreter = {});
     void addJob(const CommandLine &command, int timeoutS,
                 const QString &workingDirectory = QString(),
-                const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
+                const ExitCodeInterpreter &interpreter = {});
     void execute(); // Execute tasks asynchronously!
     void abort();
     bool lastExecutionSuccess() const;
@@ -145,7 +145,7 @@ public:
     virtual SynchronousProcessResponse runCommand(const CommandLine &command,
                                                   int timeoutS,
                                                   const QString &workingDirectory = QString(),
-                                                  const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
+                                                  const ExitCodeInterpreter &interpreter = {});
 
     void cancel();
 
@@ -170,12 +170,12 @@ private:
     SynchronousProcessResponse runFullySynchronous(const CommandLine &cmd,
                                                    QSharedPointer<OutputProxy> proxy,
                                                    int timeoutS, const QString &workingDirectory,
-                                                   const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
+                                                   const ExitCodeInterpreter &interpreter = {});
     // Run with an event loop. Signals will be delivered.
     SynchronousProcessResponse runSynchronous(const CommandLine &cmd,
                                               QSharedPointer<OutputProxy> proxy,
                                               int timeoutS, const QString &workingDirectory,
-                                              const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
+                                              const ExitCodeInterpreter &interpreter = {});
 
     class Internal::ShellCommandPrivate *const d;
 };

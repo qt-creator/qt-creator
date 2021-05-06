@@ -518,7 +518,7 @@ QString VcsBaseClient::vcsCommandString(VcsCommandTag cmd) const
 ExitCodeInterpreter VcsBaseClient::exitCodeInterpreter(VcsCommandTag cmd) const
 {
     Q_UNUSED(cmd)
-    return Utils::defaultExitCodeInterpreter;
+    return {};
 }
 
 void VcsBaseClient::setDiffConfigCreator(ConfigCreator creator)

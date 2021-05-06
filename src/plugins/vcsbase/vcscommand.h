@@ -48,7 +48,7 @@ public:
     Utils::SynchronousProcessResponse runCommand(const Utils::CommandLine &command,
                                                  int timeoutS,
                                                  const QString &workDirectory = QString(),
-                                                 const Utils::ExitCodeInterpreter &interpreter = Utils::defaultExitCodeInterpreter) override;
+                                                 const Utils::ExitCodeInterpreter &interpreter = {}) override;
 
 private:
     void emitRepositoryChanged(const QString &workingDirectory);

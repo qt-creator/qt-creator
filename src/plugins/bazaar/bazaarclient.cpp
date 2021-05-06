@@ -235,7 +235,7 @@ ExitCodeInterpreter BazaarClient::exitCodeInterpreter(VcsCommandTag cmd) const
                                           : SynchronousProcessResponse::Finished;
         };
     }
-    return Utils::defaultExitCodeInterpreter;
+    return {};
 }
 
 QStringList BazaarClient::revisionSpec(const QString &revision) const

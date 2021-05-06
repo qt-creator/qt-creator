@@ -41,7 +41,6 @@
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
-class QProcessEnvironment;
 class QToolBar;
 QT_END_NAMESPACE
 
@@ -82,7 +81,7 @@ public:
 
     void enqueueJob(VcsCommand *cmd, const QStringList &args,
                     const QString &workingDirectory = QString(),
-                    const Utils::ExitCodeInterpreter &interpreter = Utils::defaultExitCodeInterpreter) const;
+                    const Utils::ExitCodeInterpreter &interpreter = {}) const;
 
     virtual Utils::Environment processEnvironment() const;
 

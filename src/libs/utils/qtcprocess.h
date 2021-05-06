@@ -147,8 +147,6 @@ private:
 
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessResponse &);
 
-QTCREATOR_UTILS_EXPORT SynchronousProcessResponse::Result defaultExitCodeInterpreter(int code);
-
 class QTCREATOR_UTILS_EXPORT SynchronousProcess : public QtcProcess
 {
     Q_OBJECT

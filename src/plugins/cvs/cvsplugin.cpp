@@ -208,7 +208,7 @@ public:
                                               : SynchronousProcessResponse::Finished;
             };
         }
-        return Utils::defaultExitCodeInterpreter;
+        return {};
     }
 
     Utils::Id vcsEditorKind(VcsCommandTag cmd) const override

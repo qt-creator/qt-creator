@@ -112,6 +112,8 @@ public:
     void slotError(QProcess::ProcessError);
     void clearForRun();
 
+    SynchronousProcessResponse::Result interpretExitCode(int exitCode);
+
     QtcProcess *q;
     QTextCodec *m_codec = QTextCodec::codecForLocale();
     QTimer m_timer;
@@ -120,7 +122,7 @@ public:
     FilePath m_binary;
     ChannelBuffer m_stdOut;
     ChannelBuffer m_stdErr;
-    ExitCodeInterpreter m_exitCodeInterpreter = defaultExitCodeInterpreter;
+    ExitCodeInterpreter m_exitCodeInterpreter;
 
     int m_hangTimerCount = 0;
     int m_maxHangTimerCount = defaultMaxHangTimerCount;
@@ -140,6 +142,16 @@ void QtcProcessPrivate::clearForRun()
     m_result.codec = m_codec;
     m_startFailure = false;
     m_binary = {};
+}
+
+SynchronousProcessResponse::Result QtcProcessPrivate::interpretExitCode(int exitCode)
+{
+    if (m_exitCodeInterpreter)
+        return m_exitCodeInterpreter(exitCode);
+
+    // default:
+    return exitCode ? SynchronousProcessResponse::FinishedError
+                    : SynchronousProcessResponse::Finished;
 }
 
 } // Internal
@@ -633,12 +645,6 @@ QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessRes
     return str;
 }
 
-SynchronousProcessResponse::Result defaultExitCodeInterpreter(int code)
-{
-    return code ? SynchronousProcessResponse::FinishedError
-                : SynchronousProcessResponse::Finished;
-}
-
 void ChannelBuffer::clearForRun()
 {
     rawDataPos = 0;
@@ -732,7 +738,6 @@ void QtcProcess::setTimeOutMessageBoxEnabled(bool v)
 
 void QtcProcess::setExitCodeInterpreter(const ExitCodeInterpreter &interpreter)
 {
-    QTC_ASSERT(interpreter, return);
     d->m_exitCodeInterpreter = interpreter;
 }
 
@@ -867,7 +872,7 @@ SynchronousProcessResponse QtcProcess::runBlocking(const CommandLine &cmd)
         if (exitStatus() != QProcess::NormalExit)
             d->m_result.result = SynchronousProcessResponse::TerminatedAbnormally;
         else
-            d->m_result.result = d->m_exitCodeInterpreter(d->m_result.exitCode);
+            d->m_result.result = d->interpretExitCode(d->m_result.exitCode);
     }
     d->m_stdOut.append(readAllStandardOutput(), false);
     d->m_stdErr.append(readAllStandardError(), false);
@@ -916,7 +921,7 @@ void QtcProcessPrivate::slotFinished(int exitCode, QProcess::ExitStatus e)
 
     switch (e) {
     case QProcess::NormalExit:
-        m_result.result = m_exitCodeInterpreter(exitCode);
+        m_result.result = interpretExitCode(exitCode);
         m_result.exitCode = exitCode;
         break;
     case QProcess::CrashExit:
