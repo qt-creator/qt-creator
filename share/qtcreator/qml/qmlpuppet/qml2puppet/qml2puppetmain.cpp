@@ -27,6 +27,9 @@
 #include "import3d/import3d.h"
 
 #include <qt5nodeinstanceclientproxy.h>
+#ifdef MULTILANGUAGE_TRANSLATIONPROVIDER
+#include <sqlitelibraryinitializer.h>
+#endif
 
 #include <QQmlComponent>
 #include <QQmlEngine>
@@ -271,6 +274,10 @@ int main(int argc, char *argv[])
                               || qgetenv("QMLDESIGNER_FORCE_QAPPLICATION") != "true")
             && qEnvironmentVariableIsSet("QT_QUICK_CONTROLS_STYLE")
             && qgetenv("QT_QUICK_CONTROLS_STYLE") != "Desktop";
+
+#ifdef MULTILANGUAGE_TRANSLATIONPROVIDER
+    Sqlite::LibraryInitializer::initialize();
+#endif
 
     if (useGuiApplication) {
         QGuiApplication application(argc, argv);
