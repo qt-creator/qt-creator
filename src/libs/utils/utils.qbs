@@ -203,6 +203,8 @@ Project {
             "porting.h",
             "portlist.cpp",
             "portlist.h",
+            "processargs.cpp",
+            "processargs.h",
             "processhandle.cpp",
             "processhandle.h",
             "progressindicator.cpp",

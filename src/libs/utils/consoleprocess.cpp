@@ -28,6 +28,7 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/processargs.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/winutils.h>

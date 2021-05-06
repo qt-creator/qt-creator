@@ -27,8 +27,8 @@
 #include "savefile.h"
 
 #include "algorithm.h"
+#include "processargs.h"
 #include "qtcassert.h"
-#include "qtcprocess.h"
 
 #include <QDataStream>
 #include <QDateTime>

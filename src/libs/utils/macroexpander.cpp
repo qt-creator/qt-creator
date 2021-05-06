@@ -26,8 +26,9 @@
 #include "macroexpander.h"
 
 #include "algorithm.h"
+#include "fileutils.h"
+#include "processargs.h"
 #include "qtcassert.h"
-#include "qtcprocess.h"
 #include "stringutils.h"
 
 #include <QCoreApplication>

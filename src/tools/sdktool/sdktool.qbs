@@ -75,8 +75,8 @@ QtcTool {
             "namevalueitem.cpp", "namevalueitem.h",
             "persistentsettings.cpp", "persistentsettings.h",
             "porting.h",
+            "processargs.cpp", "processargs.h",
             "qtcassert.cpp", "qtcassert.h",
-            "qtcprocess.cpp", "qtcprocess.h",
             "savefile.cpp", "savefile.h",
             "stringutils.cpp"
         ]

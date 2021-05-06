@@ -34,8 +34,8 @@
 #include <utils/fancylineedit.h>
 #include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
+#include <utils/processargs.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/variablechooser.h>
 

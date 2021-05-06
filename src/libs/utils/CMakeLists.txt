@@ -115,6 +115,7 @@ add_qtc_library(Utils
     porting.h
     portlist.cpp portlist.h
     predicates.h
+    processargs.cpp processargs.h
     processhandle.cpp processhandle.h
     progressindicator.cpp progressindicator.h
     projectintropage.cpp projectintropage.h projectintropage.ui

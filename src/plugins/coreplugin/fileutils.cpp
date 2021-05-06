@@ -34,7 +34,7 @@
 #include <utils/consoleprocess.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
-#include <utils/qtcprocess.h>
+#include <utils/processargs.h>
 #include <utils/textfileformat.h>
 #include <utils/unixutils.h>
 

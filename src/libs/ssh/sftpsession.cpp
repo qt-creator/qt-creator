@@ -30,8 +30,8 @@
 #include "sshsettings.h"
 
 #include <utils/fileutils.h>
+#include <utils/processargs.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QByteArrayList>
 #include <QFileInfo>

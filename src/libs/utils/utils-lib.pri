@@ -34,6 +34,7 @@ SOURCES += \
     $$PWD/namevalueitem.cpp \
     $$PWD/namevaluemodel.cpp \
     $$PWD/namevaluesdialog.cpp \
+    $$PWD/processargs.cpp \
     $$PWD/qrcparser.cpp \
     $$PWD/qtcprocess.cpp \
     $$PWD/reloadpromptutils.cpp \
@@ -155,7 +156,7 @@ HEADERS += \
     $$PWD/namevalueitem.h \
     $$PWD/namevaluemodel.h \
     $$PWD/namevaluesdialog.h \
-    $$PWD/pointeralgorithm.h \
+    $$PWD/processargs.h \
     $$PWD/qrcparser.h \
     $$PWD/qtcprocess.h \
     $$PWD/span.h \
