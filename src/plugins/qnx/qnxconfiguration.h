@@ -90,6 +90,8 @@ private:
 
     void setDefaultConfiguration(const Utils::FilePath &envScript);
 
+    void setQnxValuesToEnvironment(Utils::Environment &env);
+
     QString m_configName;
 
     Utils::FilePath m_envFile;

@@ -66,10 +66,11 @@ const char DEBUGGER_INFORMATION_WORKINGDIRECTORY[] = "WorkingDirectory";
 
 //! Return the configuration of gdb as a list of --key=value
 //! \note That the list will also contain some output not in this format.
-static QString getConfigurationOfGdbCommand(const FilePath &command)
+static QString getConfigurationOfGdbCommand(const FilePath &command, const Utils::Environment &sysEnv)
 {
     // run gdb with the --configuration opion
     Utils::SynchronousProcess gdbConfigurationCall;
+    gdbConfigurationCall.setEnvironment(sysEnv);
     Utils::SynchronousProcessResponse output =
             gdbConfigurationCall.runBlocking({command, {"--configuration"}});
     return output.allOutput();
@@ -148,7 +149,7 @@ static bool isUVisionExecutable(const QFileInfo &fileInfo)
     return baseName == "UV4";
 }
 
-void DebuggerItem::reinitializeFromFile()
+void DebuggerItem::reinitializeFromFile(const Utils::Environment &sysEnv)
 {
     // CDB only understands the single-dash -version, whereas GDB and LLDB are
     // happy with both -version and --version. So use the "working" -version
@@ -184,6 +185,7 @@ void DebuggerItem::reinitializeFromFile()
     }
 
     SynchronousProcess proc;
+    proc.setEnvironment(sysEnv);
     SynchronousProcessResponse response = proc.runBlocking({m_command, {version}});
     if (response.result != SynchronousProcessResponse::Finished) {
         m_engineType = NoEngineType;
@@ -207,7 +209,7 @@ void DebuggerItem::reinitializeFromFile()
         const bool unableToFindAVersion = (0 == version);
         const bool gdbSupportsConfigurationFlag = (version >= 70700);
         if (gdbSupportsConfigurationFlag || unableToFindAVersion) {
-            const auto gdbConfiguration = getConfigurationOfGdbCommand(m_command);
+            const auto gdbConfiguration = getConfigurationOfGdbCommand(m_command, sysEnv);
             const auto gdbTargetAbiString =
                     extractGdbTargetAbiStringFromGdbOutput(gdbConfiguration);
             if (!gdbTargetAbiString.isEmpty()) {

@@ -67,6 +67,10 @@ const QLatin1String QNXVersionKey("QNXVersion");
 // For backward compatibility
 const QLatin1String SdpEnvFileKey("NDKEnvFile");
 
+const QLatin1String QNXConfiguration("QNX_CONFIGURATION");
+const QLatin1String QNXTarget("QNX_TARGET");
+const QLatin1String QNXHost("QNX_HOST");
+
 QnxConfiguration::QnxConfiguration() = default;
 
 QnxConfiguration::QnxConfiguration(const FilePath &sdpEnvFile)
@@ -251,9 +255,11 @@ void QnxConfiguration::createTools(const Target &target)
 
 QVariant QnxConfiguration::createDebugger(const Target &target)
 {
+    Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
+    setQnxValuesToEnvironment(sysEnv);
     Debugger::DebuggerItem debugger;
     debugger.setCommand(target.m_debuggerPath);
-    debugger.reinitializeFromFile();
+    debugger.reinitializeFromFile(sysEnv);
     debugger.setAutoDetected(true);
     debugger.setUnexpandedDisplayName(
                 QCoreApplication::translate(
@@ -376,11 +382,11 @@ void QnxConfiguration::setDefaultConfiguration(const Utils::FilePath &envScript)
     m_envFile = envScript;
     m_qnxEnv = QnxUtils::qnxEnvironmentFromEnvFile(m_envFile.toString());
     foreach (const EnvironmentItem &item, m_qnxEnv) {
-        if (item.name == QLatin1String("QNX_CONFIGURATION"))
+        if (item.name == QNXConfiguration)
             m_qnxConfiguration = FilePath::fromString(item.value);
-        else if (item.name == QLatin1String("QNX_TARGET"))
+        else if (item.name == QNXTarget)
             m_qnxTarget = FilePath::fromString(item.value);
-        else if (item.name == QLatin1String("QNX_HOST"))
+        else if (item.name == QNXHost)
             m_qnxHost = FilePath::fromString(item.value);
     }
 
@@ -399,6 +405,13 @@ void QnxConfiguration::setDefaultConfiguration(const Utils::FilePath &envScript)
             qWarning() << "No debugger found for" << target.m_path << "... discarded";
         return target.m_debuggerPath.isEmpty();
     });
+}
+
+void QnxConfiguration::setQnxValuesToEnvironment(Utils::Environment &env)
+{
+    env.set(QNXConfiguration, m_qnxConfiguration.toString());
+    env.set(QNXTarget, m_qnxTarget.toString());
+    env.set(QNXHost, m_qnxHost.toString());
 }
 
 const QnxConfiguration::Target *QnxConfiguration::findTargetByDebuggerPath(
@@ -423,12 +436,14 @@ void QnxConfiguration::assignDebuggersToTargets()
     QStringList debuggerNames = hostUsrBinDir.entryList(
                 QStringList(HostOsInfo::withExecutableSuffix(QLatin1String("nto*-gdb"))),
                 QDir::Files);
+    Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
+    setQnxValuesToEnvironment(sysEnv);
     foreach (const QString &debuggerName, debuggerNames) {
         const FilePath debuggerPath = FilePath::fromString(hostUsrBinDir.path())
                 .pathAppended(debuggerName);
         DebuggerItem item;
         item.setCommand(debuggerPath);
-        item.reinitializeFromFile();
+        item.reinitializeFromFile(sysEnv);
         bool found = false;
         foreach (const Abi &abi, item.abis()) {
             for (Target &target : m_targets) {

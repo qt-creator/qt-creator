@@ -31,6 +31,7 @@
 #include <projectexplorer/abi.h>
 
 #include <utils/fileutils.h>
+#include <utils/environment.h>
 
 #include <QDateTime>
 #include <QList>
@@ -97,7 +98,7 @@ public:
     bool operator==(const DebuggerItem &other) const;
     bool operator!=(const DebuggerItem &other) const { return !operator==(other); }
 
-    void reinitializeFromFile();
+    void reinitializeFromFile(const Utils::Environment &sysEnv = Utils::Environment::systemEnvironment());
 
     Utils::FilePath workingDirectory() const { return m_workingDirectory; }
     void setWorkingDirectory(const Utils::FilePath &workingPath) { m_workingDirectory = workingPath; }
