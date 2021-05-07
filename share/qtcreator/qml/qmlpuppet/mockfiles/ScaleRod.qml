@@ -50,18 +50,24 @@ DirectionalDraggable {
     }
 
     onPressed: {
+        if (targetNode == multiSelectionNode)
+            _generalHelper.restartMultiSelection();
         _startScale = targetNode.scale;
     }
 
     onDragged: {
         targetNode.scale = mouseArea.getNewScale(_startScale, Qt.vector2d(relativeDistance, 0),
                                                  axis, Qt.vector3d(0, 0, 0));
+        if (targetNode == multiSelectionNode)
+            _generalHelper.scaleMultiSelection(false);
         scaleChange();
     }
 
     onReleased: {
         targetNode.scale = mouseArea.getNewScale(_startScale, Qt.vector2d(relativeDistance, 0),
                                                  axis, Qt.vector3d(0, 0, 0));
+        if (targetNode == multiSelectionNode)
+            _generalHelper.scaleMultiSelection(true);
         scaleCommit();
     }
 }

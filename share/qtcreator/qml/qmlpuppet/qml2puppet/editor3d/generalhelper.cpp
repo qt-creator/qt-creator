@@ -347,6 +347,171 @@ double GeneralHelper::brightnessScaler() const
 #endif
 }
 
+void GeneralHelper::setMultiSelectionTargets(QQuick3DNode *multiSelectRootNode,
+                                             const QVariantList &selectedList)
+{
+    // Filter selection to contain only topmost parent nodes in the selection
+    m_multiSelDataMap.clear();
+    m_multiSelNodes.clear();
+    for (auto &connection : qAsConst(m_multiSelectConnections))
+        disconnect(connection);
+    m_multiSelectConnections.clear();
+    m_multiSelectRootNode = multiSelectRootNode;
+    QSet<QQuick3DNode *> selNodes;
+
+    for (const auto &var : selectedList) {
+        QQuick3DNode *node = nullptr;
+        node = var.value<QQuick3DNode *>();
+        if (node)
+            selNodes.insert(node);
+    }
+    for (const auto selNode : qAsConst(selNodes)) {
+        bool found = false;
+        QQuick3DNode *parent = selNode->parentNode();
+        while (parent) {
+            if (selNodes.contains(parent)) {
+                found = true;
+                break;
+            }
+            parent = parent->parentNode();
+        }
+        if (!found) {
+            m_multiSelDataMap.insert(selNode, {});
+            m_multiSelNodes.append(QVariant::fromValue(selNode));
+            m_multiSelectConnections.append(connect(selNode, &QObject::destroyed, [this]() {
+                // If any multiselected node is destroyed, assume the entire selection is invalid.
+                // The new selection should be notified by creator immediately after anyway.
+                m_multiSelDataMap.clear();
+                m_multiSelNodes.clear();
+                for (auto &connection : qAsConst(m_multiSelectConnections))
+                    disconnect(connection);
+                m_multiSelectConnections.clear();
+            }));
+            m_multiSelectConnections.append(connect(selNode, &QQuick3DNode::sceneTransformChanged,
+                                                    [this]() {
+                // Reposition the multiselection root node if scene transform of any multiselected
+                // node changes outside of drag (i.e. changes originating from creator side)
+                if (!m_blockMultiSelectionNodePositioning) {
+                    QVector3D newPos;
+                    for (auto it = m_multiSelDataMap.begin(); it != m_multiSelDataMap.end(); ++it)
+                        newPos += it.key()->scenePosition();
+                    newPos /= m_multiSelDataMap.size();
+                    m_multiSelectRootNode->setPosition(newPos);
+                }
+            }));
+        }
+    }
+
+    restartMultiSelection();
+    m_blockMultiSelectionNodePositioning = false;
+}
+
+void GeneralHelper::restartMultiSelection()
+{
+    for (auto it = m_multiSelDataMap.begin(); it != m_multiSelDataMap.end(); ++it) {
+        it.value() = {it.key()->scenePosition(),
+                      it.key()->scale(),
+                      it.key()->rotation()};
+    }
+
+    m_multiSelNodeData = {};
+    if (!m_multiSelDataMap.isEmpty()) {
+        for (const auto &data : qAsConst(m_multiSelDataMap))
+            m_multiSelNodeData.startScenePos += data.startScenePos;
+        m_multiSelNodeData.startScenePos /= m_multiSelDataMap.size();
+    }
+    m_multiSelectRootNode->setPosition(m_multiSelNodeData.startScenePos);
+    m_multiSelectRootNode->setRotation({});
+    m_multiSelectRootNode->setScale({1.f, 1.f, 1.f});
+    m_blockMultiSelectionNodePositioning = true;
+}
+
+QVariantList GeneralHelper::multiSelectionTargets() const
+{
+    return m_multiSelNodes;
+}
+
+void GeneralHelper::moveMultiSelection(bool commit)
+{
+    // Move the multiselected nodes in global space by offset from multiselection start to scenePos
+    QVector3D globalOffset = m_multiSelectRootNode->scenePosition() - m_multiSelNodeData.startScenePos;
+    for (auto it = m_multiSelDataMap.constBegin(); it != m_multiSelDataMap.constEnd(); ++it) {
+        QVector3D newGlobalPos = it.value().startScenePos + globalOffset;
+        QMatrix4x4 m;
+        if (it.key()->parentNode())
+            m = it.key()->parentNode()->sceneTransform();
+        it.key()->setPosition(m.inverted() * newGlobalPos);
+    }
+    m_blockMultiSelectionNodePositioning = !commit;
+}
+
+void GeneralHelper::scaleMultiSelection(bool commit)
+{
+    // Offset the multiselected nodes in global space according to scale factor and scale them by
+    // the same factor.
+
+    // TODO: The math below breaks down with negative scaling, so don't allow it for now
+    const QVector3D sceneScale = m_multiSelectRootNode->sceneScale();
+    QVector3D fixedSceneScale = sceneScale;
+    for (int i = 0; i < 3; ++i) {
+        if (sceneScale[i] < 0.f)
+            fixedSceneScale[i] = -sceneScale[i];
+    }
+
+    const QVector3D unitVector {1.f, 1.f, 1.f};
+    const QVector3D diffScale = (fixedSceneScale - unitVector);
+
+    for (auto it = m_multiSelDataMap.constBegin(); it != m_multiSelDataMap.constEnd(); ++it) {
+        const QVector3D newGlobalPos = m_multiSelNodeData.startScenePos
+                + (it.value().startScenePos - m_multiSelNodeData.startScenePos) * sceneScale;
+        QMatrix4x4 parentMat;
+        if (it.key()->parentNode())
+            parentMat = it.key()->parentNode()->sceneTransform().inverted();
+        it.key()->setPosition(parentMat * newGlobalPos);
+
+        QMatrix4x4 mat;
+        mat.rotate(it.key()->sceneRotation());
+
+        auto scaleDim = [&](int dim) -> QVector3D {
+            QVector3D dimScale;
+            float diffScaleDim = diffScale[dim];
+            dimScale[dim] = diffScaleDim;
+            dimScale = (mat.inverted() * dimScale).normalized() * diffScaleDim;
+            for (int i = 0; i < 3; ++i)
+                dimScale[i] = qAbs(dimScale[i]);
+            if (fixedSceneScale[dim] < 1.0f)
+                dimScale = -dimScale;
+            return dimScale;
+        };
+
+        QVector3D finalScale = scaleDim(0) + scaleDim(1) + scaleDim(2) + unitVector;
+
+        it.key()->setScale(finalScale * it.value().startScale);
+    }
+    m_blockMultiSelectionNodePositioning = !commit;
+}
+
+void GeneralHelper::rotateMultiSelection(bool commit)
+{
+    // Rotate entire selection around the multiselection node
+    const QQuaternion sceneRotation = m_multiSelectRootNode->sceneRotation();
+    QVector3D rotAxis;
+    float rotAngle = 0;
+    sceneRotation.getAxisAndAngle(&rotAxis, &rotAngle);
+
+    for (auto it = m_multiSelDataMap.constBegin(); it != m_multiSelDataMap.constEnd(); ++it) {
+        QVector3D globalOffset = it.value().startScenePos - m_multiSelNodeData.startScenePos;
+        QVector3D newGlobalPos = m_multiSelNodeData.startScenePos + sceneRotation * globalOffset;
+        QMatrix4x4 parentMat;
+        if (it.key()->parentNode())
+            parentMat = it.key()->parentNode()->sceneTransform().inverted();
+        it.key()->setPosition(parentMat * newGlobalPos);
+        it.key()->setRotation(it.value().startRot);
+        it.key()->rotate(rotAngle, rotAxis, QQuick3DNode::SceneSpace);
+    }
+    m_blockMultiSelectionNodePositioning = !commit;
+}
+
 bool GeneralHelper::isMacOS() const
 {
 #ifdef Q_OS_MACOS

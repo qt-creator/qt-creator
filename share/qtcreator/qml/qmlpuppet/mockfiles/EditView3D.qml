@@ -49,7 +49,7 @@ Item {
     property int selectionMode: EditView3D.SelectionMode.Item
     property int transformMode: EditView3D.TransformMode.Move
 
-    property Node selectedNode: null // This is non-null only in single selection case
+    property Node selectedNode: null // This is multiSelectionNode in multi-selection case
     property var selectedNodes: [] // All selected nodes
 
     property var lightIconGizmos: []
@@ -62,8 +62,8 @@ Item {
     property real fps: 0
 
     signal selectionChanged(var selectedNodes)
-    signal commitObjectProperty(var object, var propName)
-    signal changeObjectProperty(var object, var propName)
+    signal commitObjectProperty(var objects, var propNames)
+    signal changeObjectProperty(var objects, var propNames)
     signal notifyActiveSceneChange()
 
     onUsePerspectiveChanged:    _generalHelper.storeToolState(sceneId, "usePerspective", usePerspective)
@@ -268,10 +268,14 @@ Item {
             selectionBoxes[i].targetNode = null;
 
         selectedNodes = objects;
-        if (objects.length === 0 || objects.length > 1)
+        if (objects.length === 0) {
             selectedNode = null;
-        else
+        } else if (objects.length > 1) {
+            selectedNode = multiSelectionNode;
+            _generalHelper.setMultiSelectionTargets(multiSelectionNode, objects);
+        } else {
             selectedNode = objects[0];
+        }
     }
 
     function handleObjectClicked(object, multi)
@@ -513,6 +517,11 @@ Item {
             view3D: overlayView
         }
 
+        Node {
+            id: multiSelectionNode
+            objectName: "multiSelectionNode"
+        }
+
         MoveGizmo {
             id: moveGizmo
             scale: autoScale.getScale(Qt.vector3d(5, 5, 5))
@@ -522,9 +531,20 @@ Item {
             visible: viewRoot.selectedNode && transformMode === EditView3D.TransformMode.Move
             view3D: overlayView
             dragHelper: gizmoDragHelper
+            property var propertyNames: ["position"]
 
-            onPositionCommit: viewRoot.commitObjectProperty(viewRoot.selectedNode, "position")
-            onPositionMove: viewRoot.changeObjectProperty(viewRoot.selectedNode, "position")
+            onPositionCommit: {
+                if (targetNode == multiSelectionNode)
+                    viewRoot.commitObjectProperty(_generalHelper.multiSelectionTargets(), propertyNames);
+                else
+                    viewRoot.commitObjectProperty([viewRoot.selectedNode], propertyNames);
+            }
+            onPositionMove: {
+                if (targetNode == multiSelectionNode)
+                    viewRoot.changeObjectProperty(_generalHelper.multiSelectionTargets(), propertyNames);
+                else
+                    viewRoot.changeObjectProperty([viewRoot.selectedNode], propertyNames);
+            }
         }
 
         ScaleGizmo {
@@ -535,9 +555,21 @@ Item {
             visible: viewRoot.selectedNode && transformMode === EditView3D.TransformMode.Scale
             view3D: overlayView
             dragHelper: gizmoDragHelper
+            property var propertyNames: ["scale"]
+            property var propertyNamesMulti: ["position", "scale"]
 
-            onScaleCommit: viewRoot.commitObjectProperty(viewRoot.selectedNode, "scale")
-            onScaleChange: viewRoot.changeObjectProperty(viewRoot.selectedNode, "scale")
+            onScaleCommit: {
+                if (targetNode == multiSelectionNode)
+                    viewRoot.commitObjectProperty(_generalHelper.multiSelectionTargets(), propertyNamesMulti);
+                else
+                    viewRoot.commitObjectProperty([viewRoot.selectedNode], propertyNames);
+            }
+            onScaleChange: {
+                if (targetNode == multiSelectionNode)
+                    viewRoot.changeObjectProperty(_generalHelper.multiSelectionTargets(), propertyNamesMulti);
+                else
+                    viewRoot.changeObjectProperty([viewRoot.selectedNode], propertyNames);
+            }
         }
 
         RotateGizmo {
@@ -549,19 +581,31 @@ Item {
             visible: viewRoot.selectedNode && transformMode === EditView3D.TransformMode.Rotate
             view3D: overlayView
             dragHelper: gizmoDragHelper
+            property var propertyNames: ["eulerRotation"]
+            property var propertyNamesMulti: ["position", "eulerRotation"]
 
-            onRotateCommit: viewRoot.commitObjectProperty(viewRoot.selectedNode, "eulerRotation")
-            onRotateChange: viewRoot.changeObjectProperty(viewRoot.selectedNode, "eulerRotation")
+            onRotateCommit: {
+                if (targetNode == multiSelectionNode)
+                    viewRoot.commitObjectProperty(_generalHelper.multiSelectionTargets(), propertyNamesMulti);
+                else
+                    viewRoot.commitObjectProperty([viewRoot.selectedNode], propertyNames);
+            }
+            onRotateChange:  {
+                if (targetNode == multiSelectionNode)
+                    viewRoot.changeObjectProperty(_generalHelper.multiSelectionTargets(), propertyNamesMulti);
+                else
+                    viewRoot.changeObjectProperty([viewRoot.selectedNode], propertyNames);
+            }
         }
 
         LightGizmo {
             id: lightGizmo
-            targetNode: viewRoot.selectedNode
+            targetNode: viewRoot.selectedNode != multiSelectionNode ? viewRoot.selectedNode : null
             view3D: overlayView
             dragHelper: gizmoDragHelper
 
-            onPropertyValueCommit: viewRoot.commitObjectProperty(targetNode, propName)
-            onPropertyValueChange: viewRoot.changeObjectProperty(targetNode, propName)
+            onPropertyValueCommit: viewRoot.commitObjectProperty([targetNode], [propName])
+            onPropertyValueChange: viewRoot.changeObjectProperty([targetNode], [propName])
         }
 
         AutoScaleHelper {
@@ -578,7 +622,7 @@ Item {
 
         Line3D {
             id: pivotLine
-            visible: viewRoot.selectedNode
+            visible: viewRoot.selectedNode && viewRoot.selectedNode != multiSelectionNode
             name: "3D Edit View Pivot Line"
             color: "#ddd600"
 

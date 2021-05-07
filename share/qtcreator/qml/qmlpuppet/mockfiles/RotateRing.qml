@@ -77,6 +77,9 @@ Model {
         if (!targetNode)
             return;
 
+        if (targetNode == multiSelectionNode)
+            _generalHelper.restartMultiSelection();
+
         // Need to recreate vector as we need to adjust it and we can't do that on reference of
         // scenePosition, which is read-only property
         var scenePos = mouseAreaMain.pivotScenePosition(targetNode);
@@ -107,6 +110,10 @@ Model {
             return;
 
         applyLocalRotation(screenPos);
+
+        if (targetNode == multiSelectionNode)
+            _generalHelper.rotateMultiSelection(false);
+
         currentMousePos = screenPos;
         rotateChange();
     }
@@ -117,6 +124,10 @@ Model {
             return;
 
         applyLocalRotation(screenPos);
+
+        if (targetNode == multiSelectionNode)
+            _generalHelper.rotateMultiSelection(true);
+
         rotateCommit();
         currentAngle = 0;
         currentMousePos = screenPos;

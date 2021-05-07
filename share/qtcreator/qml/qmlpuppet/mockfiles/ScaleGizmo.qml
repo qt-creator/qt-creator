@@ -212,6 +212,9 @@ Node {
                 if (!scaleGizmo.targetNode)
                     return;
 
+                if (targetNode == multiSelectionNode)
+                    _generalHelper.restartMultiSelection();
+
                 // Recreate vector so we don't follow the changes in targetNode.scale
                 _startScale = Qt.vector3d(scaleGizmo.targetNode.scale.x,
                                           scaleGizmo.targetNode.scale.y,
@@ -222,6 +225,8 @@ Node {
                 if (!scaleGizmo.targetNode)
                     return;
                 scaleGizmo.targetNode.scale = localScale(screenPos);
+                if (targetNode == multiSelectionNode)
+                    _generalHelper.scaleMultiSelection(false);
                 scaleGizmo.scaleChange();
             }
             onReleased: {
@@ -229,6 +234,8 @@ Node {
                     return;
 
                 scaleGizmo.targetNode.scale = localScale(screenPos);
+                if (targetNode == multiSelectionNode)
+                    _generalHelper.scaleMultiSelection(true);
                 scaleGizmo.scaleCommit();
             }
         }

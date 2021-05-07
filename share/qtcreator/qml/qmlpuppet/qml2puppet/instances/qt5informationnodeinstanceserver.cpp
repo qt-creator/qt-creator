@@ -152,6 +152,34 @@ static bool isQuick3DMode()
     return mode3D;
 }
 
+static QObjectList toObjectList(const QVariant &variantList)
+{
+    QObjectList objList;
+    if (!variantList.isNull()) {
+        const auto varList = variantList.value<QVariantList>();
+        for (const auto &var : varList) {
+            QObject *obj = var.value<QObject *>();
+            if (obj)
+                objList.append(obj);
+        }
+    }
+    return objList;
+}
+
+static QList<PropertyName> toPropertyNameList(const QVariant &variantList)
+{
+    QList<PropertyName> propList;
+    if (!variantList.isNull()) {
+        const auto varList = variantList.value<QVariantList>();
+        for (const auto &var : varList) {
+            PropertyName prop = var.toByteArray();
+            if (!prop.isEmpty())
+                propList.append(prop);
+        }
+    }
+    return propList;
+}
+
 void Qt5InformationNodeInstanceServer::createAuxiliaryQuickView(const QUrl &url,
                                                                 RenderViewData &viewData)
 {
@@ -422,64 +450,108 @@ Qt5InformationNodeInstanceServer::propertyToPropertyValueTriples(
     return result;
 }
 
-void Qt5InformationNodeInstanceServer::modifyVariantValue(
-    const QVariant &node,
-    const PropertyName &propertyName,
-    ValuesModifiedCommand::TransactionOption option)
+void Qt5InformationNodeInstanceServer::modifyVariantValue(const QObjectList &objects,
+    const QList<PropertyName> &propNames, ValuesModifiedCommand::TransactionOption option)
 {
-    PropertyName targetPropertyName;
+    struct PropNamePair {
+        PropertyName origPropName;
+        PropertyName targetPropName;
+    };
+
+    QList<PropNamePair> propNamePairs;
 
     // Position is a special case, because the position can be 'position.x 'or simply 'x'.
     // We prefer 'x'.
-    if (propertyName != "position")
-        targetPropertyName = propertyName;
+    for (const auto &propName : propNames) {
+        if (propName != "position")
+            propNamePairs.append({propName, propName});
+        else
+            propNamePairs.append({propName, PropertyName{}});
+    }
 
-    auto *obj = node.value<QObject *>();
+    if (!objects.isEmpty()) {
+        QVector<PropertyValueContainer> valueVector;
+        for (const auto listObj : objects) {
+            ServerNodeInstance instance = instanceForObject(listObj);
+            if (instance.isValid()) {
+                const qint32 instId = instance.instanceId();
+                if (option == ValuesModifiedCommand::TransactionOption::Start)
+                    instance.setModifiedFlag(true);
+                else if (option == ValuesModifiedCommand::TransactionOption::End)
+                    instance.setModifiedFlag(false);
+                for (const auto &propNamePair : propNamePairs) {
+                    // We do have to split vector3d props into foobar.x, foobar.y, foobar.z
+                    const QVector<InstancePropertyValueTriple> triple
+                            = propertyToPropertyValueTriples(instance, propNamePair.targetPropName,
+                                                             listObj->property(propNamePair.origPropName));
+                    for (const auto &property : triple) {
+                        const PropertyName propName = property.propertyName;
+                        const QVariant propValue = property.propertyValue;
+                        valueVector.append(PropertyValueContainer(instId, propName,
+                                                                  propValue, PropertyName()));
+                    }
+                }
+            }
+        }
 
-    if (obj) {
-        ServerNodeInstance instance = instanceForObject(obj);
-
-        if (option == ValuesModifiedCommand::TransactionOption::Start)
-            instance.setModifiedFlag(true);
-        else if (option == ValuesModifiedCommand::TransactionOption::End)
-            instance.setModifiedFlag(false);
-
-        // We do have to split position into position.x, position.y, position.z
-        ValuesModifiedCommand command = createValuesModifiedCommand(propertyToPropertyValueTriples(
-            instance,
-            targetPropertyName,
-            obj->property(propertyName)));
-
-        command.transactionOption = option;
-
-        nodeInstanceClient()->valuesModified(command);
+        if (!valueVector.isEmpty()) {
+            ValuesModifiedCommand command(valueVector);
+            command.transactionOption = option;
+            nodeInstanceClient()->valuesModified(command);
+        }
     }
 }
 
-void Qt5InformationNodeInstanceServer::handleObjectPropertyCommit(const QVariant &object,
-                                                                  const QVariant &propName)
+void Qt5InformationNodeInstanceServer::handleObjectPropertyCommit(const QVariant &objects,
+                                                                  const QVariant &propNames)
 {
-    modifyVariantValue(object, propName.toByteArray(),
+    modifyVariantValue(toObjectList(objects), toPropertyNameList(propNames),
                        ValuesModifiedCommand::TransactionOption::End);
-    m_changedNode = {};
-    m_changedProperty = {};
+    m_changedNodes.clear();
+    m_changedProperties.clear();
     m_propertyChangeTimer.stop();
 }
 
-void Qt5InformationNodeInstanceServer::handleObjectPropertyChange(const QVariant &object,
-                                                                  const QVariant &propName)
+void Qt5InformationNodeInstanceServer::handleObjectPropertyChange(const QVariant &objects,
+                                                                  const QVariant &propNames)
 {
-    PropertyName propertyName(propName.toByteArray());
-    if (m_changedProperty != propertyName || m_changedNode != object) {
-        if (!m_changedNode.isNull())
-            handleObjectPropertyCommit(m_changedNode, m_changedProperty);
-        modifyVariantValue(object, propertyName,
-                           ValuesModifiedCommand::TransactionOption::Start);
+    QObjectList objList = toObjectList(objects);
+    QList<PropertyName> propList = toPropertyNameList(propNames);
+
+    bool nodeChanged = true;
+    if (objList.size() == m_changedNodes.size()) {
+        nodeChanged = false;
+        for (int i = 0; i < objList.size(); ++i) {
+            if (objList[i] != m_changedNodes[i]) {
+                nodeChanged = true;
+                break;
+            }
+        }
+    }
+    if (!nodeChanged && propList.size() == m_changedProperties.size()) {
+        for (int i = 0; i < propList.size(); ++i) {
+            if (propList[i] != m_changedProperties[i]) {
+                nodeChanged = true;
+                break;
+            }
+        }
+    }
+
+    if (nodeChanged) {
+        if (!m_changedNodes.isEmpty()) {
+            // Nodes/properties changed, commit currently pending changes
+            modifyVariantValue(m_changedNodes, m_changedProperties,
+                               ValuesModifiedCommand::TransactionOption::End);
+            m_changedNodes.clear();
+            m_changedProperties.clear();
+            m_propertyChangeTimer.stop();
+        }
+        modifyVariantValue(objList, propList, ValuesModifiedCommand::TransactionOption::Start);
     } else if (!m_propertyChangeTimer.isActive()) {
         m_propertyChangeTimer.start();
     }
-    m_changedNode = object;
-    m_changedProperty = propertyName;
+    m_changedNodes = objList;
+    m_changedProperties = propList;
 }
 
 void Qt5InformationNodeInstanceServer::handleActiveSceneChange()
@@ -1125,7 +1197,7 @@ void Qt5InformationNodeInstanceServer::initializeAuxiliaryViews()
 
 void Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout()
 {
-    modifyVariantValue(m_changedNode, m_changedProperty,
+    modifyVariantValue(m_changedNodes, m_changedProperties,
                        ValuesModifiedCommand::TransactionOption::None);
 }
 

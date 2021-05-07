@@ -77,8 +77,8 @@ public:
 
 private slots:
     void handleSelectionChanged(const QVariant &objs);
-    void handleObjectPropertyCommit(const QVariant &object, const QVariant &propName);
-    void handleObjectPropertyChange(const QVariant &object, const QVariant &propName);
+    void handleObjectPropertyCommit(const QVariant &objects, const QVariant &propNames);
+    void handleObjectPropertyChange(const QVariant &objects, const QVariant &propNames);
     void handleActiveSceneChange();
     void handleToolStateChanged(const QString &sceneId, const QString &tool,
                                 const QVariant &toolState);
@@ -115,8 +115,8 @@ private:
             const ServerNodeInstance &instance,
             const PropertyName &propertyName,
             const QVariant &variant);
-    void modifyVariantValue(const QVariant &node,
-                            const PropertyName &propertyName,
+    void modifyVariantValue(const QObjectList &objects,
+                            const QList<PropertyName> &propNames,
                             ValuesModifiedCommand::TransactionOption option);
     void updateView3DRect(QObject *view3D);
     void updateActiveSceneToEditView3D();
@@ -159,8 +159,8 @@ private:
     QTimer m_render3DEditViewTimer;
     QTimer m_renderModelNodeImageViewTimer;
     QTimer m_inputEventTimer;
-    QVariant m_changedNode;
-    PropertyName m_changedProperty;
+    QObjectList m_changedNodes;
+    QList<PropertyName> m_changedProperties;
     ChangeSelectionCommand m_lastSelectionChangeCommand;
     QList<InputEventCommand> m_pendingInputEventCommands;
     QObject *m_3dHelper = nullptr;

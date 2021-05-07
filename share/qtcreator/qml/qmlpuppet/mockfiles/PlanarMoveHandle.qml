@@ -43,13 +43,22 @@ PlanarDraggable {
         return targetNode.parent ? targetNode.parent.mapPositionFromScene(newScenePos) : newScenePos;
     }
 
+    onPressed: {
+        if (targetNode == multiSelectionNode)
+            _generalHelper.restartMultiSelection();
+    }
+
     onDragged: {
         targetNode.position = localPos(sceneRelativeDistance);
+        if (targetNode == multiSelectionNode)
+            _generalHelper.moveMultiSelection(false);
         positionMove();
     }
 
     onReleased: {
         targetNode.position = localPos(sceneRelativeDistance);
+        if (targetNode == multiSelectionNode)
+            _generalHelper.moveMultiSelection(true);
         positionCommit();
     }
 }

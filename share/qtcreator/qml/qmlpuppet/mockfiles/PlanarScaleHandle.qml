@@ -41,18 +41,24 @@ PlanarDraggable {
     property vector3d _startScale
 
     onPressed: {
+        if (targetNode == multiSelectionNode)
+            _generalHelper.restartMultiSelection();
         _startScale = targetNode.scale;
     }
 
     onDragged: {
         targetNode.scale = mouseArea.getNewScale(_startScale, relativeDistance.times(scale.x),
                                                  axisX, axisY);
+        if (targetNode == multiSelectionNode)
+            _generalHelper.scaleMultiSelection(false);
         scaleChange();
     }
 
     onReleased: {
         targetNode.scale = mouseArea.getNewScale(_startScale, relativeDistance.times(scale.x),
                                                  axisX, axisY);
+        if (targetNode == multiSelectionNode)
+            _generalHelper.scaleMultiSelection(true);
         scaleCommit();
     }
 }

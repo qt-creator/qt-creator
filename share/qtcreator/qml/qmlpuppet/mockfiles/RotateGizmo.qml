@@ -208,6 +208,9 @@ Node {
             if (!rotateGizmo.targetNode)
                 return;
 
+            if (targetNode == multiSelectionNode)
+                _generalHelper.restartMultiSelection();
+
             // Need to recreate vector as we need to adjust it and we can't do that on reference of
             // scenePosition, which is read-only property
             var scenePos = rotateGizmo.dragHelper.pivotScenePosition(rotateGizmo.targetNode);
@@ -237,6 +240,9 @@ Node {
                         rotateGizmo.targetNode, _startRotation, _pointerPosPressed,
                         Qt.vector3d(screenPos.x, screenPos.y, 0));
 
+            if (targetNode == multiSelectionNode)
+                _generalHelper.rotateMultiSelection(false);
+
             rotateGizmo.rotateChange();
         }
 
@@ -248,6 +254,9 @@ Node {
             mouseAreaFree.applyFreeRotation(
                         rotateGizmo.targetNode, _startRotation, _pointerPosPressed,
                         Qt.vector3d(screenPos.x, screenPos.y, 0));
+
+            if (targetNode == multiSelectionNode)
+                _generalHelper.rotateMultiSelection(true);
 
             rotateGizmo.rotateCommit();
             dragging = false;

@@ -27,13 +27,14 @@
 
 #ifdef QUICK3D_MODULE
 
-#include <QtCore/qobject.h>
-#include <QtCore/qtimer.h>
-#include <QtCore/qhash.h>
-#include <QtCore/qpointer.h>
-#include <QtCore/qvariant.h>
-#include <QtGui/qvector3d.h>
-#include <QtGui/qmatrix4x4.h>
+#include <QHash>
+#include <QMatrix4x4>
+#include <QObject>
+#include <QPointer>
+#include <QQuaternion>
+#include <QTimer>
+#include <QVariant>
+#include <QVector3D>
 
 QT_BEGIN_NAMESPACE
 class QQuick3DCamera;
@@ -91,6 +92,14 @@ public:
 
     Q_INVOKABLE double brightnessScaler() const;
 
+    Q_INVOKABLE void setMultiSelectionTargets(QQuick3DNode *multiSelectRootNode,
+                                              const QVariantList &selectedList);
+    Q_INVOKABLE void restartMultiSelection();
+    Q_INVOKABLE QVariantList multiSelectionTargets() const;
+    Q_INVOKABLE void moveMultiSelection(bool commit);
+    Q_INVOKABLE void scaleMultiSelection(bool commit);
+    Q_INVOKABLE void rotateMultiSelection(bool commit);
+
     bool isMacOS() const;
 
     void addRotationBlocks(const QSet<QQuick3DNode *> &nodes);
@@ -116,6 +125,19 @@ private:
     QHash<QString, QVariantMap> m_toolStatesPending;
     QSet<QQuick3DNode *> m_gizmoTargets;
     QSet<QQuick3DNode *> m_rotationBlockedNodes;
+
+    struct MultiSelData {
+        QVector3D startScenePos;
+        QVector3D startScale;
+        QQuaternion startRot;
+    };
+
+    QHash<QQuick3DNode *, MultiSelData> m_multiSelDataMap;
+    QVariantList m_multiSelNodes;
+    MultiSelData m_multiSelNodeData;
+    QQuick3DNode *m_multiSelectRootNode = nullptr;
+    QList<QMetaObject::Connection> m_multiSelectConnections;
+    bool m_blockMultiSelectionNodePositioning = false;
 };
 
 }
