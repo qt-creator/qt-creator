@@ -41,6 +41,11 @@
 #include <QRegularExpression>
 #include <QSettings>
 
+#ifdef WITH_TESTS
+#   include <QTest>
+#   include "androidplugin.h"
+#endif // WITH_TESTS
+
 namespace {
 static Q_LOGGING_CATEGORY(sdkManagerLog, "qtc.android.sdkManager", QtWarningMsg)
 }
@@ -1151,6 +1156,55 @@ void AndroidSdkManagerPrivate::clearPackages()
         delete p;
     m_allPackages.clear();
 }
+
+#ifdef WITH_TESTS
+void AndroidPlugin::testAndroidSdkManagerProgressParser_data()
+{
+    QTest::addColumn<QString>("output");
+    QTest::addColumn<int>("progress");
+    QTest::addColumn<bool>("foundAssertion");
+
+    // Output of "sdkmanager --licenses", Android SDK Tools version 4.0
+    QTest::newRow("Loading local repository")
+            << "Loading local repository...                                                     \r"
+            << -1
+            << false;
+
+    QTest::newRow("Fetch progress (single line)")
+            << "[=============                          ] 34% Fetch remote repository...        \r"
+            << 34
+            << false;
+
+    QTest::newRow("Fetch progress (multi line)")
+            << "[=============================          ] 73% Fetch remote repository...        \r"
+               "[=============================          ] 75% Fetch remote repository...        \r"
+            << 75
+            << false;
+
+    QTest::newRow("Some SDK package licenses not accepted")
+            << "7 of 7 SDK package licenses not accepted.\n"
+            << -1
+            << false;
+
+    QTest::newRow("Unaccepted licenses assertion")
+            << "\nReview licenses that have not been accepted (y/N)? "
+            << -1
+            << true;
+}
+
+void AndroidPlugin::testAndroidSdkManagerProgressParser()
+{
+    QFETCH(QString, output);
+    QFETCH(int, progress);
+    QFETCH(bool, foundAssertion);
+
+    bool actualFoundAssertion = false;
+    const int actualProgress = parseProgress(output, actualFoundAssertion);
+
+    QCOMPARE(progress, actualProgress);
+    QCOMPARE(foundAssertion, actualFoundAssertion);
+}
+#endif // WITH_TESTS
 
 } // namespace Internal
 } // namespace Android

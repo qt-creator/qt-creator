@@ -43,6 +43,12 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
     void askUserAboutAndroidSetup();
 
     class AndroidPluginPrivate *d = nullptr;
+
+#ifdef WITH_TESTS
+private slots:
+   void testAndroidSdkManagerProgressParser_data();
+   void testAndroidSdkManagerProgressParser();
+#endif // WITH_TESTS
 };
 
 } // namespace Internal
