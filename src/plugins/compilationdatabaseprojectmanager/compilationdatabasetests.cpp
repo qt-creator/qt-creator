@@ -77,11 +77,10 @@ void CompilationDatabaseTests::testProject()
     QFETCH(QString, projectFilePath);
 
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
-    const CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
-    QVERIFY(projectInfo.isValid());
+    const CppTools::ProjectInfo::Ptr projectInfo = projectManager.open(projectFilePath, true);
+    QVERIFY(projectInfo);
 
-    projectInfo.projectParts();
-    QVector<CppTools::ProjectPart::Ptr> projectParts = projectInfo.projectParts();
+    QVector<CppTools::ProjectPart::Ptr> projectParts = projectInfo->projectParts();
     QVERIFY(!projectParts.isEmpty());
 
     CppTools::ProjectPart &projectPart = *projectParts.first();

@@ -296,30 +296,10 @@ QString diagnosticCategoryPrefixRemoved(const QString &text)
     return text;
 }
 
-static FilePath compilerPath(const CppTools::ProjectPart &projectPart)
-{
-    Target *target = projectPart.project->activeTarget();
-    if (!target)
-        return FilePath();
-
-    ToolChain *toolchain = ToolChainKitAspect::cxxToolChain(target->kit());
-
-    return toolchain->compilerCommand();
-}
-
-static FilePath buildDirectory(const ProjectExplorer::Project &project)
-{
-    if (auto *target = project.activeTarget()) {
-        if (auto *bc = target->activeBuildConfiguration())
-            return bc->buildDirectory();
-    }
-    return {};
-}
-
 static QStringList projectPartArguments(const ProjectPart &projectPart)
 {
     QStringList args;
-    args << compilerPath(projectPart).toString();
+    args << projectPart.compilerFilePath.toString();
     args << "-c";
     if (projectPart.toolchainType != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
         args << "--target=" + projectPart.toolChainTargetTriple;
@@ -350,7 +330,9 @@ static QJsonObject createFileObject(const FilePath &buildDir,
                                     const QStringList &arguments,
                                     const ProjectPart &projectPart,
                                     const ProjectFile &projFile,
-                                    CompilationDbPurpose purpose)
+                                    CompilationDbPurpose purpose,
+                                    const ClangDiagnosticConfig &warningsConfig,
+                                    const QStringList &projectOptions)
 {
     QJsonObject fileObject;
     fileObject["file"] = projFile.path;
@@ -376,7 +358,8 @@ static QJsonObject createFileObject(const FilePath &buildDir,
         }
     } else {
         // TODO: Do we really need to re-calculate the project part options per source file?
-        args = QJsonArray::fromStringList(createClangOptions(projectPart, projFile.path).second);
+        args = QJsonArray::fromStringList(createClangOptions(projectPart, projFile.path,
+                                                             warningsConfig, projectOptions));
         args.prepend("clang"); // TODO: clang-cl for MSVC targets? Does it matter at all what we put here?
     }
 
@@ -386,10 +369,12 @@ static QJsonObject createFileObject(const FilePath &buildDir,
     return fileObject;
 }
 
-GenerateCompilationDbResult generateCompilationDB(CppTools::ProjectInfo projectInfo,
-                                                  CompilationDbPurpose purpose)
+GenerateCompilationDbResult generateCompilationDB(const CppTools::ProjectInfo::Ptr projectInfo,
+                                                  CompilationDbPurpose purpose,
+                                                  const ClangDiagnosticConfig &warningsConfig,
+                                                  const QStringList &projectOptions)
 {
-    const FilePath buildDir = buildDirectory(*projectInfo.project());
+    const FilePath buildDir = projectInfo->buildRoot();
     QTC_ASSERT(!buildDir.isEmpty(), return GenerateCompilationDbResult(QString(),
         QCoreApplication::translate("ClangUtils", "Could not retrieve build directory.")));
 
@@ -405,13 +390,13 @@ GenerateCompilationDbResult generateCompilationDB(CppTools::ProjectInfo projectI
     }
     compileCommandsFile.write("[");
 
-    for (ProjectPart::Ptr projectPart : projectInfo.projectParts()) {
+    for (ProjectPart::Ptr projectPart : projectInfo->projectParts()) {
         QStringList args;
         if (purpose == CompilationDbPurpose::Project)
             args = projectPartArguments(*projectPart);
         for (const ProjectFile &projFile : projectPart->files) {
             const QJsonObject json = createFileObject(buildDir, args, *projectPart, projFile,
-                                                      purpose);
+                                                      purpose, warningsConfig, projectOptions);
             if (compileCommandsFile.size() > 1)
                 compileCommandsFile.write(",");
             compileCommandsFile.write('\n' + QJsonDocument(json).toJson().trimmed());
@@ -495,9 +480,12 @@ static ClangProjectSettings &getProjectSettings(ProjectExplorer::Project *projec
 class FileOptionsBuilder
 {
 public:
-    FileOptionsBuilder(const QString &filePath, const CppTools::ProjectPart &projectPart)
+    FileOptionsBuilder(const QString &filePath, const CppTools::ProjectPart &projectPart,
+                       const ClangDiagnosticConfig &warningsConfig,
+                       const QStringList &projectOptions)
         : m_filePath(filePath)
         , m_projectPart(projectPart)
+        , m_warningsConfig(warningsConfig)
         , m_builder(projectPart)
     {
         // Determine the driver mode from toolchain and flags.
@@ -507,12 +495,11 @@ public:
         addLanguageOptions();
         addGlobalDiagnosticOptions(); // Before addDiagnosticOptions() so users still can overwrite.
         addDiagnosticOptions();
-        addGlobalOptions();
+        m_options.append(projectOptions);
         addPrecompiledHeaderOptions();
     }
 
     const QStringList &options() const { return m_options; }
-    const ::Utils::Id &diagnosticConfigId() const { return m_diagnosticConfigId; }
     CppTools::UseBuildSystemWarnings useBuildSystemWarnings() const
     {
         return m_useBuildSystemWarnings;
@@ -539,25 +526,11 @@ private:
 
     void addDiagnosticOptions()
     {
-        if (m_projectPart.project) {
-            ClangProjectSettings &projectSettings = getProjectSettings(m_projectPart.project);
-            if (!projectSettings.useGlobalConfig()) {
-                const ::Utils::Id warningConfigId = projectSettings.warningConfigId();
-                const CppTools::ClangDiagnosticConfigsModel configsModel
-                    = CppTools::diagnosticConfigsModel();
-                if (configsModel.hasConfigWithId(warningConfigId)) {
-                    addDiagnosticOptionsForConfig(configsModel.configWithId(warningConfigId));
-                    return;
-                }
-            }
-        }
-
-        addDiagnosticOptionsForConfig(CppTools::codeModelSettings()->clangDiagnosticConfig());
+        addDiagnosticOptionsForConfig(m_warningsConfig);
     }
 
     void addDiagnosticOptionsForConfig(const CppTools::ClangDiagnosticConfig &diagnosticConfig)
     {
-        m_diagnosticConfigId = diagnosticConfig.id();
         m_useBuildSystemWarnings = diagnosticConfig.useBuildSystemWarnings()
                                        ? CppTools::UseBuildSystemWarnings::Yes
                                        : CppTools::UseBuildSystemWarnings::No;
@@ -571,14 +544,6 @@ private:
     void addGlobalDiagnosticOptions()
     {
         m_options += CppTools::ClangDiagnosticConfigsModel::globalDiagnosticOptions();
-    }
-
-    void addGlobalOptions()
-    {
-        if (!m_projectPart.project)
-            m_options.append(ClangProjectSettings::globalCommandLineOptions());
-        else
-            m_options.append(getProjectSettings(m_projectPart.project).commandLineOptions());
     }
 
     void addPrecompiledHeaderOptions()
@@ -600,8 +565,8 @@ private:
 private:
     const QString &m_filePath;
     const CppTools::ProjectPart &m_projectPart;
+    const ClangDiagnosticConfig &m_warningsConfig;
 
-    ::Utils::Id m_diagnosticConfigId;
     CppTools::UseBuildSystemWarnings m_useBuildSystemWarnings = CppTools::UseBuildSystemWarnings::No;
     CppTools::CompilerOptionsBuilder m_builder;
     bool m_isClMode = false;
@@ -609,17 +574,38 @@ private:
 };
 } // namespace
 
-QPair<Utils::Id, QStringList> createClangOptions(const CppTools::ProjectPart &projectPart,
-                                                 const QString &filePath)
+QStringList createClangOptions(const ProjectPart &projectPart, const QString &filePath,
+                               const ClangDiagnosticConfig &warningsConfig,
+                               const QStringList &projectOptions)
 {
-    QPair<Utils::Id, QStringList> value;
-    const FileOptionsBuilder fileOptions(filePath, projectPart);
-    value.first = fileOptions.diagnosticConfigId();
+    const FileOptionsBuilder fileOptions(filePath, projectPart, warningsConfig, projectOptions);
     LibClangOptionsBuilder optionsBuilder(projectPart, fileOptions.useBuildSystemWarnings());
     const QStringList projectPartOptions = optionsBuilder.build(CppTools::ProjectFile::Unsupported,
                                                                 UsePrecompiledHeaders::No);
-    value.second = projectPartOptions + fileOptions.options();
-    return value;
+    return projectPartOptions + fileOptions.options();
+}
+
+ClangDiagnosticConfig warningsConfigForProject(Project *project)
+{
+    if (project) {
+        ClangProjectSettings &projectSettings = ClangModelManagerSupport::instance()
+                ->projectSettings(project);
+        if (!projectSettings.useGlobalConfig()) {
+            const Utils::Id warningConfigId = projectSettings.warningConfigId();
+            const CppTools::ClangDiagnosticConfigsModel configsModel
+                    = CppTools::diagnosticConfigsModel();
+            if (configsModel.hasConfigWithId(warningConfigId))
+                return configsModel.configWithId(warningConfigId);
+        }
+    }
+    return CppTools::codeModelSettings()->clangDiagnosticConfig();
+}
+
+const QStringList optionsForProject(ProjectExplorer::Project *project)
+{
+    if (project)
+        return getProjectSettings(project).commandLineOptions();
+    return ClangProjectSettings::globalCommandLineOptions();
 }
 
 } // namespace Internal

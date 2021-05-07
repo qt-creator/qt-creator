@@ -610,7 +610,7 @@ ProjectPart *findProjectPartForCurrentProject(const QList<ProjectPart::Ptr> &pro
     const auto found = std::find_if(projectParts.cbegin(),
                               projectParts.cend(),
                               [&](const CppTools::ProjectPart::Ptr &projectPart) {
-                                  return projectPart->project == currentProject;
+                                  return projectPart->belongsToProject(currentProject);
                               });
 
     if (found != projectParts.cend())

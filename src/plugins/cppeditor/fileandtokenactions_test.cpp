@@ -152,15 +152,12 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
     // Collect files to process
     QStringList filesToOpen;
     QList<QPointer<ProjectExplorer::Project> > projects;
-    const QList<ProjectInfo> projectInfos = m_modelManager->projectInfos();
+    const QList<ProjectInfo::Ptr> projectInfos = m_modelManager->projectInfos();
 
-    foreach (const ProjectInfo &info, projectInfos) {
-        QPointer<ProjectExplorer::Project> project = info.project();
-        if (!projects.contains(project))
-            projects << project;
-        qDebug() << "Project" << info.project()->displayName() << "- files to process:"
-                 << info.sourceFiles().size();
-        foreach (const QString &sourceFile, info.sourceFiles())
+    foreach (const ProjectInfo::Ptr &info, projectInfos) {
+        qDebug() << "Project" << info->projectFilePath().toUserOutput() << "- files to process:"
+                 << info->sourceFiles().size();
+        foreach (const QString &sourceFile, info->sourceFiles())
             filesToOpen << sourceFile;
     }
 

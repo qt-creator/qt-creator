@@ -203,8 +203,11 @@ void CppcheckTool::check(const Utils::FilePaths &files)
     if (filtered.isEmpty())
         return;
 
-    const CppTools::ProjectInfo info = CppTools::CppModelManager::instance()->projectInfo(m_project);
-    const QVector<CppTools::ProjectPart::Ptr> parts = info.projectParts();
+    const CppTools::ProjectInfo::Ptr info
+            = CppTools::CppModelManager::instance()->projectInfo(m_project);
+    if (!info)
+        return;
+    const QVector<CppTools::ProjectPart::Ptr> parts = info->projectParts();
     if (parts.size() == 1) {
         QTC_ASSERT(parts.first(), return);
         addToQueue(filtered, *parts.first());

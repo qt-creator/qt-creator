@@ -48,7 +48,6 @@
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/editordocumenthandle.h>
-#include <cpptools/projectinfo.h>
 
 #include <languageclient/languageclientmanager.h>
 
@@ -275,7 +274,7 @@ void ClangModelManagerSupport::connectToWidgetsMarkContextMenuRequested(QWidget 
 }
 
 void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *project,
-                                                    const CppTools::ProjectInfo &projectInfo)
+                                                    const CppTools::ProjectInfo::Ptr &projectInfo)
 {
     if (!CppTools::ClangdProjectSettings(project).settings().useClangd)
         return;
@@ -300,7 +299,8 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
             return;
         if (!CppTools::ClangdProjectSettings(project).settings().useClangd)
             return;
-        if (cppModelManager()->projectInfo(project) != projectInfo)
+        const CppTools::ProjectInfo::Ptr newProjectInfo = cppModelManager()->projectInfo(project);
+        if (!newProjectInfo || *newProjectInfo != *projectInfo)
             return;
         if (getJsonDbDir() != jsonDbDir)
             return;
@@ -320,7 +320,9 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
                 return;
             if (!CppTools::ClangdProjectSettings(project).settings().useClangd)
                 return;
-            if (cppModelManager()->projectInfo(project) != projectInfo)
+            const CppTools::ProjectInfo::Ptr newProjectInfo
+                = cppModelManager()->projectInfo(project);
+            if (!newProjectInfo || *newProjectInfo != *projectInfo)
                 return;
 
             // Acquaint the client with all open C++ documents for this project.
@@ -361,7 +363,9 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
 
     });
     auto future = Utils::runAsync(&Internal::generateCompilationDB, projectInfo,
-                                  CompilationDbPurpose::CodeModel);
+                                  CompilationDbPurpose::CodeModel,
+                                  warningsConfigForProject(project),
+                                  optionsForProject(project));
     generatorWatcher->setFuture(future);
     m_generatorSynchronizer.addFuture(future);
 }
@@ -576,7 +580,7 @@ static ClangEditorDocumentProcessors
 clangProcessorsWithProject(const ProjectExplorer::Project *project)
 {
     return ::Utils::filtered(clangProcessors(), [project](ClangEditorDocumentProcessor *p) {
-        return p->hasProjectPart() && p->projectPart()->project == project;
+        return p->hasProjectPart() && p->projectPart()->belongsToProject(project);
     });
 }
 
@@ -611,13 +615,13 @@ void ClangModelManagerSupport::onAboutToRemoveProject(ProjectExplorer::Project *
 void ClangModelManagerSupport::onProjectPartsUpdated(ProjectExplorer::Project *project)
 {
     QTC_ASSERT(project, return);
-    const CppTools::ProjectInfo projectInfo = cppModelManager()->projectInfo(project);
-    QTC_ASSERT(projectInfo.isValid(), return);
+    const CppTools::ProjectInfo::Ptr projectInfo = cppModelManager()->projectInfo(project);
+    QTC_ASSERT(projectInfo, return);
 
     updateLanguageClient(project, projectInfo);
 
     QStringList projectPartIds;
-    for (const CppTools::ProjectPart::Ptr &projectPart : projectInfo.projectParts())
+    for (const CppTools::ProjectPart::Ptr &projectPart : projectInfo->projectParts())
         projectPartIds.append(projectPart->id());
     onProjectPartsRemoved(projectPartIds);
 }

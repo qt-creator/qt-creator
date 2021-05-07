@@ -42,24 +42,23 @@ using namespace ProjectExplorer;
 namespace CppTools {
 namespace Internal {
 
-ProjectInfoGenerator::ProjectInfoGenerator(const QFutureInterface<ProjectInfo> &futureInterface,
+ProjectInfoGenerator::ProjectInfoGenerator(const QFutureInterface<ProjectInfo::Ptr> &futureInterface,
                                            const ProjectUpdateInfo &projectUpdateInfo)
     : m_futureInterface(futureInterface)
     , m_projectUpdateInfo(projectUpdateInfo)
 {
 }
 
-ProjectInfo ProjectInfoGenerator::generate()
+ProjectInfo::Ptr ProjectInfoGenerator::generate()
 {
-    ProjectInfo projectInfo(m_projectUpdateInfo.project);
-
+    QVector<ProjectPart::Ptr> projectParts;
     for (const RawProjectPart &rpp : m_projectUpdateInfo.rawProjectParts) {
         if (m_futureInterface.isCanceled())
-            return ProjectInfo();
-
-        for (const ProjectPart::Ptr &part : createProjectParts(rpp))
-            projectInfo.appendProjectPart(part);
+            return {};
+        for (const ProjectPart::Ptr &part : createProjectParts(rpp, m_projectUpdateInfo.projectFilePath))
+            projectParts << part;
     }
+    const auto projectInfo = ProjectInfo::create(m_projectUpdateInfo, projectParts);
 
     static const auto showWarning = [](const QString &message) {
         QTimer::singleShot(0, TaskHub::instance(), [message] {
@@ -79,40 +78,8 @@ ProjectInfo ProjectInfoGenerator::generate()
     return projectInfo;
 }
 
-static ProjectPart::Ptr projectPartFromRawProjectPart(
-    const RawProjectPart &rawProjectPart, Project *project)
-{
-    ProjectPart::Ptr part(new ProjectPart);
-    part->project = project;
-    part->projectFile = rawProjectPart.projectFile;
-    part->projectConfigFile = rawProjectPart.projectConfigFile;
-    part->projectFileLine = rawProjectPart.projectFileLine;
-    part->projectFileColumn = rawProjectPart.projectFileColumn;
-    part->callGroupId = rawProjectPart.callGroupId;
-    part->buildSystemTarget = rawProjectPart.buildSystemTarget;
-    part->buildTargetType = rawProjectPart.buildTargetType;
-    part->qtVersion = rawProjectPart.qtVersion;
-    part->projectMacros = rawProjectPart.projectMacros;
-    if (!part->projectConfigFile.isEmpty())
-        part->projectMacros += Macro::toMacros(ProjectPart::readProjectConfigFile(part));
-
-    // Prevent duplicate include paths.
-    std::set<QString> seenPaths;
-    for (const HeaderPath &p : qAsConst(rawProjectPart.headerPaths)) {
-        const QString cleanPath = QDir::cleanPath(p.path);
-        if (seenPaths.insert(cleanPath).second)
-            part->headerPaths << HeaderPath(cleanPath, p.type);
-    }
-
-    part->precompiledHeaders = rawProjectPart.precompiledHeaders;
-    part->includedFiles = rawProjectPart.includedFiles;
-    part->selectedForBuilding = rawProjectPart.selectedForBuilding;
-
-    return part;
-}
-
 const QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(
-    const RawProjectPart &rawProjectPart)
+    const RawProjectPart &rawProjectPart, const Utils::FilePath &projectFilePath)
 {
     using Utils::LanguageExtension;
 
@@ -124,21 +91,18 @@ const QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(
     if (!cat.hasParts())
         return result;
 
-    const ProjectPart::Ptr part = projectPartFromRawProjectPart(rawProjectPart,
-                                                                m_projectUpdateInfo.project);
-
-    if (m_projectUpdateInfo.cxxToolChain) {
+    if (m_projectUpdateInfo.cxxToolChainInfo.isValid()) {
         if (cat.hasCxxSources()) {
-            result << createProjectPart(rawProjectPart,
-                                        part,
+            result << createProjectPart(projectFilePath,
+                                        rawProjectPart,
                                         cat.cxxSources(),
                                         cat.partName("C++"),
                                         Language::Cxx,
                                         LanguageExtension::None);
         }
         if (cat.hasObjcxxSources()) {
-            result << createProjectPart(rawProjectPart,
-                                        part,
+            result << createProjectPart(projectFilePath,
+                                        rawProjectPart,
                                         cat.objcxxSources(),
                                         cat.partName("Obj-C++"),
                                         Language::Cxx,
@@ -148,10 +112,10 @@ const QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(
         m_cxxToolchainMissing = true;
     }
 
-    if (m_projectUpdateInfo.cToolChain) {
+    if (m_projectUpdateInfo.cToolChainInfo.isValid()) {
         if (cat.hasCSources()) {
-            result << createProjectPart(rawProjectPart,
-                                        part,
+            result << createProjectPart(projectFilePath,
+                                        rawProjectPart,
                                         cat.cSources(),
                                         cat.partName("C"),
                                         Language::C,
@@ -159,8 +123,8 @@ const QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(
         }
 
         if (cat.hasObjcSources()) {
-            result << createProjectPart(rawProjectPart,
-                                        part,
+            result << createProjectPart(projectFilePath,
+                                        rawProjectPart,
                                         cat.objcSources(),
                                         cat.partName("Obj-C"),
                                         Language::C,
@@ -174,12 +138,12 @@ const QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(
 }
 
 ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(
-    const RawProjectPart &rawProjectPart,
-    const ProjectPart::Ptr &templateProjectPart,
-    const ProjectFiles &projectFiles,
-    const QString &partName,
-    Language language,
-    Utils::LanguageExtensions languageExtensions)
+        const Utils::FilePath &projectFilePath,
+        const RawProjectPart &rawProjectPart,
+        const ProjectFiles &projectFiles,
+        const QString &partName,
+        Language language,
+        Utils::LanguageExtensions languageExtensions)
 {
     RawProjectPartFlags flags;
     ToolChainInfo tcInfo;
@@ -193,16 +157,8 @@ ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(
         tcInfo = m_projectUpdateInfo.cxxToolChainInfo;
     }
 
-    ProjectPart::Ptr part(templateProjectPart->copy());
-    part->displayName = partName;
-    part->files = projectFiles;
-    part->warningFlags = flags.warningFlags;
-    part->language = language;
-    part->languageExtensions = flags.languageExtensions | languageExtensions;
-    part->setupToolchainProperties(tcInfo, flags.commandLineFlags);
-    part->updateLanguageFeatures();
-
-    return part;
+    return ProjectPart::create(projectFilePath, rawProjectPart, partName, projectFiles,
+                               language, languageExtensions, flags, tcInfo);
 }
 
 } // namespace Internal

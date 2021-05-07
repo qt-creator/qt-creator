@@ -524,9 +524,11 @@ QSet<QString> internalTargets(const TestTreeItem &item)
     QSet<QString> result;
     const auto cppMM = CppTools::CppModelManager::instance();
     const auto projectInfo = cppMM->projectInfo(ProjectExplorer::SessionManager::startupProject());
+    if (!projectInfo)
+        return {};
     const Utils::FilePath filePath = item.filePath();
     const QString file = filePath.toString();
-    const QVector<CppTools::ProjectPart::Ptr> projectParts = projectInfo.projectParts();
+    const QVector<CppTools::ProjectPart::Ptr> projectParts = projectInfo->projectParts();
     if (projectParts.isEmpty())
         return cppMM->dependingInternalTargets(item.filePath());
     for (const CppTools::ProjectPart::Ptr &projectPart : projectParts) {

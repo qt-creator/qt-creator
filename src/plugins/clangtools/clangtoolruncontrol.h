@@ -114,8 +114,8 @@ private:
     Utils::Environment m_environment;
     Utils::TemporaryDirectory m_temporaryDir;
 
-    CppTools::ProjectInfo m_projectInfoBeforeBuild;
-    CppTools::ProjectInfo m_projectInfo;
+    CppTools::ProjectInfo::Ptr m_projectInfoBeforeBuild;
+    CppTools::ProjectInfo::Ptr m_projectInfo;
     QString m_targetTriple;
     Utils::Id m_toolChainType;
 

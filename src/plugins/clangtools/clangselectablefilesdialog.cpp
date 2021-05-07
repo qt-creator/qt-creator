@@ -264,14 +264,14 @@ private:
     }
 };
 
-SelectableFilesDialog::SelectableFilesDialog(const ProjectInfo &projectInfo,
+SelectableFilesDialog::SelectableFilesDialog(Project *project,
                                              const FileInfoProviders &fileInfoProviders,
                                              int initialProviderIndex)
     : QDialog(nullptr)
     , m_ui(new Ui::SelectableFilesDialog)
     , m_filesModel(new SelectableFilesModel)
     , m_fileInfoProviders(fileInfoProviders)
-    , m_project(projectInfo.project())
+    , m_project(project)
     , m_analyzeButton(new QPushButton(tr("Analyze"), this))
 {
     m_ui->setupUi(this);

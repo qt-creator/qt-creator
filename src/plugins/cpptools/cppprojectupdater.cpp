@@ -74,13 +74,10 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
     });
     m_projectUpdateInfo = projectUpdateInfo;
 
-    // Ensure that we do not operate on a deleted toolchain.
     using namespace ProjectExplorer;
-    connect(ToolChainManager::instance(), &ToolChainManager::toolChainRemoved,
-            this, &CppProjectUpdater::onToolChainRemoved);
 
     // Run the project info generator in a worker thread and continue if that one is finished.
-    auto generateFuture = Utils::runAsync([=](QFutureInterface<ProjectInfo> &futureInterface) {
+    auto generateFuture = Utils::runAsync([=](QFutureInterface<ProjectInfo::Ptr> &futureInterface) {
         ProjectUpdateInfo fullProjectUpdateInfo = projectUpdateInfo;
         if (fullProjectUpdateInfo.rppGenerator)
             fullProjectUpdateInfo.rawProjectParts = fullProjectUpdateInfo.rppGenerator();
@@ -134,20 +131,8 @@ void CppProjectUpdater::cancel()
     m_futureSynchronizer.cancelAllFutures();
 }
 
-void CppProjectUpdater::onToolChainRemoved(ToolChain *t)
-{
-    QTC_ASSERT(t, return);
-    if (t == m_projectUpdateInfo.cToolChain || t == m_projectUpdateInfo.cxxToolChain)
-        cancel();
-}
-
 void CppProjectUpdater::onProjectInfoGenerated()
 {
-    // From now on we do not access the toolchain anymore, so disconnect.
-    using namespace ProjectExplorer;
-    disconnect(ToolChainManager::instance(), &ToolChainManager::toolChainRemoved,
-               this, &CppProjectUpdater::onToolChainRemoved);
-
     if (m_generateFutureWatcher.isCanceled() || m_generateFutureWatcher.future().resultCount() < 1)
         return;
 

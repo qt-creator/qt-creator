@@ -76,8 +76,9 @@ void CppcheckTrigger::checkEditors(const QList<Core::IEditor *> &editors)
         return;
 
     using CppModelManager = CppTools::CppModelManager;
-    const CppTools::ProjectInfo info = CppModelManager::instance()->projectInfo(m_currentProject);
-    if (!info.isValid())
+    const CppTools::ProjectInfo::Ptr info
+            = CppModelManager::instance()->projectInfo(m_currentProject);
+    if (!info)
         return;
 
     const QList<Core::IEditor *> editorList = !editors.isEmpty()
@@ -99,7 +100,7 @@ void CppcheckTrigger::checkEditors(const QList<Core::IEditor *> &editors)
             continue;
 
         const QString &pathString = path.toString();
-        if (!info.sourceFiles().contains(pathString))
+        if (!info->sourceFiles().contains(pathString))
             continue;
 
         connect(document, &Core::IDocument::aboutToReload,

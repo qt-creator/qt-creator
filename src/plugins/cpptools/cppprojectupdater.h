@@ -63,7 +63,6 @@ public:
     void cancel() override;
 
 private:
-    void onToolChainRemoved(ProjectExplorer::ToolChain *);
     void onProjectInfoGenerated();
     void checkForExtraCompilersFinished();
 
@@ -71,7 +70,7 @@ private:
     ProjectExplorer::ProjectUpdateInfo m_projectUpdateInfo;
     QList<QPointer<ProjectExplorer::ExtraCompiler>> m_extraCompilers;
 
-    QFutureWatcher<ProjectInfo> m_generateFutureWatcher;
+    QFutureWatcher<ProjectInfo::Ptr> m_generateFutureWatcher;
     bool m_isProjectInfoGenerated = false;
     QSet<QFutureWatcher<void> *> m_extraCompilersFutureWatchers;
     std::unique_ptr<QFutureInterface<void>> m_projectUpdateFutureInterface;

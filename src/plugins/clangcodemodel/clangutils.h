@@ -27,7 +27,7 @@
 
 #include <cplusplus/Icons.h>
 
-#include <cpptools/projectpart.h>
+#include <cpptools/projectinfo.h>
 #include <cpptools/compileroptionsbuilder.h>
 
 #include <QPair>
@@ -38,11 +38,13 @@ class QTextBlock;
 QT_END_NAMESPACE
 
 namespace CppTools {
+class ClangDiagnosticConfig;
 class CppEditorDocumentHandle;
-class ProjectInfo;
 }
 
 namespace ClangBackEnd { class TokenInfoContainer; }
+
+namespace ProjectExplorer { class Project; }
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -50,8 +52,12 @@ namespace Internal {
 CppTools::CppEditorDocumentHandle *cppDocument(const QString &filePath);
 void setLastSentDocumentRevision(const QString &filePath, uint revision);
 
-QPair<Utils::Id, QStringList> createClangOptions(const CppTools::ProjectPart &projectPart,
-                                                 const QString &filePath);
+CppTools::ClangDiagnosticConfig warningsConfigForProject(ProjectExplorer::Project *project);
+const QStringList optionsForProject(ProjectExplorer::Project *project);
+
+QStringList createClangOptions(const CppTools::ProjectPart &projectPart, const QString &filePath,
+                               const CppTools::ClangDiagnosticConfig &warningsConfig,
+                               const QStringList &projectOptions);
 
 CppTools::ProjectPart::Ptr projectPartForFile(const QString &filePath);
 CppTools::ProjectPart::Ptr projectPartForFileBasedOnProcessor(const QString &filePath);
@@ -79,8 +85,9 @@ public:
 };
 
 enum class CompilationDbPurpose { Project, CodeModel };
-GenerateCompilationDbResult generateCompilationDB(CppTools::ProjectInfo projectInfo,
-                                                  CompilationDbPurpose purpose);
+GenerateCompilationDbResult generateCompilationDB(const CppTools::ProjectInfo::Ptr projectInfo,
+            CompilationDbPurpose purpose, const CppTools::ClangDiagnosticConfig &warningsConfig,
+            const QStringList &projectOptions);
 
 class DiagnosticTextInfo
 {

@@ -33,19 +33,10 @@
 
 namespace CppTools {
 
-ProjectInfo::ProjectInfo(QPointer<ProjectExplorer::Project> project)
-    : m_project(project)
+ProjectInfo::Ptr ProjectInfo::create(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
+                                     const QVector<ProjectPart::Ptr> &projectParts)
 {
-}
-
-bool ProjectInfo::isValid() const
-{
-    return !m_project.isNull();
-}
-
-QPointer<ProjectExplorer::Project> ProjectInfo::project() const
-{
-    return m_project;
+    return Ptr(new ProjectInfo(updateInfo, projectParts));
 }
 
 const QVector<ProjectPart::Ptr> ProjectInfo::projectParts() const
@@ -60,7 +51,9 @@ const QSet<QString> ProjectInfo::sourceFiles() const
 
 bool ProjectInfo::operator ==(const ProjectInfo &other) const
 {
-    return m_project == other.m_project
+    return m_projectName == other.m_projectName
+        && m_projectFilePath == other.m_projectFilePath
+        && m_buildRoot == other.m_buildRoot
         && m_projectParts == other.m_projectParts
         && m_headerPaths == other.m_headerPaths
         && m_sourceFiles == other.m_sourceFiles
@@ -87,35 +80,46 @@ bool ProjectInfo::configurationOrFilesChanged(const ProjectInfo &other) const
     return configurationChanged(other) || m_sourceFiles != other.m_sourceFiles;
 }
 
-void ProjectInfo::appendProjectPart(const ProjectPart::Ptr &projectPart)
+static QSet<QString> getSourceFiles(const QVector<ProjectPart::Ptr> &projectParts)
 {
-    if (projectPart)
-        m_projectParts.append(projectPart);
+    QSet<QString> sourceFiles;
+    for (const ProjectPart::Ptr &part : projectParts) {
+        for (const ProjectFile &file : qAsConst(part->files))
+            sourceFiles.insert(file.path);
+    }
+    return sourceFiles;
 }
 
-void ProjectInfo::finish()
+static ProjectExplorer::Macros getDefines(const QVector<ProjectPart::Ptr> &projectParts)
+{
+    ProjectExplorer::Macros defines;
+    for (const ProjectPart::Ptr &part : projectParts) {
+        defines.append(part->toolChainMacros);
+        defines.append(part->projectMacros);
+    }
+    return defines;
+}
+
+static ProjectExplorer::HeaderPaths getHeaderPaths(const QVector<ProjectPart::Ptr> &projectParts)
 {
     QSet<ProjectExplorer::HeaderPath> uniqueHeaderPaths;
-
-    foreach (const ProjectPart::Ptr &part, m_projectParts) {
-        // Update header paths
-        foreach (const ProjectExplorer::HeaderPath &headerPath, part->headerPaths) {
-            const int count = uniqueHeaderPaths.count();
+    for (const ProjectPart::Ptr &part : projectParts) {
+        for (const ProjectExplorer::HeaderPath &headerPath : qAsConst(part->headerPaths))
             uniqueHeaderPaths.insert(headerPath);
-            if (count < uniqueHeaderPaths.count())
-                m_headerPaths += headerPath;
-        }
-
-        // Update source files
-        foreach (const ProjectFile &file, part->files)
-            m_sourceFiles.insert(file.path);
-
-        // Update defines
-        m_defines.append(part->toolChainMacros);
-        m_defines.append(part->projectMacros);
-        if (!part->projectConfigFile.isEmpty())
-            m_defines += ProjectExplorer::Macro::toMacros(ProjectPart::readProjectConfigFile(part));
     }
+    return ProjectExplorer::HeaderPaths(uniqueHeaderPaths.cbegin(), uniqueHeaderPaths.cend());
+}
+
+ProjectInfo::ProjectInfo(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
+                         const QVector<ProjectPart::Ptr> &projectParts)
+    : m_projectParts(projectParts),
+      m_projectName(updateInfo.projectName),
+      m_projectFilePath(updateInfo.projectFilePath),
+      m_buildRoot(updateInfo.buildRoot),
+      m_headerPaths(getHeaderPaths(projectParts)),
+      m_sourceFiles(getSourceFiles(projectParts)),
+      m_defines(getDefines(projectParts))
+{
 }
 
 } // namespace CppTools

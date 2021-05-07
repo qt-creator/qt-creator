@@ -27,6 +27,8 @@
 
 #include "cpptools_global.h"
 
+#include "projectinfo.h"
+
 #include <cplusplus/CppDocument.h>
 #include <utils/temporarydirectory.h>
 
@@ -52,7 +54,6 @@ class IAssistProposal;
 
 namespace CppTools {
 class CppModelManager;
-class ProjectInfo;
 
 namespace Tests {
 
@@ -140,7 +141,7 @@ public:
     ProjectOpenerAndCloser();
     ~ProjectOpenerAndCloser(); // Closes opened projects
 
-    ProjectInfo open(const QString &projectFile, bool configureAsExampleProject = false,
+    CppTools::ProjectInfo::Ptr open(const QString &projectFile, bool configureAsExampleProject = false,
                      ProjectExplorer::Kit *kit = nullptr);
 
 private:

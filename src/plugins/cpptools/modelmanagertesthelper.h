@@ -40,7 +40,7 @@ class CPPTOOLS_EXPORT TestProject: public ProjectExplorer::Project
     Q_OBJECT
 
 public:
-    TestProject(const QString &name, QObject *parent);
+    TestProject(const QString &name, QObject *parent, const Utils::FilePath &filePath = {});
 
     bool needsConfiguration() const final { return false; }
 
@@ -61,9 +61,9 @@ public:
 
     void cleanup();
 
-    Project *createProject(const QString &name);
+    Project *createProject(const QString &name, const Utils::FilePath &filePath = {});
 
-    QSet<QString> updateProjectInfo(const ProjectInfo &projectInfo);
+    QSet<QString> updateProjectInfo(const ProjectInfo::Ptr &projectInfo);
 
     void resetRefreshedSourceFiles();
     QSet<QString> waitForRefreshedSourceFiles();
@@ -82,6 +82,7 @@ private:
     bool m_refreshHappened;
     bool m_testOnlyForCleanedProjects;
     QSet<QString> m_lastRefreshedSourceFiles;
+    QList<Project *> m_projects;
 };
 
 } // namespace Tests

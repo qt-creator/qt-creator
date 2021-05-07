@@ -469,9 +469,9 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader, Ca
     // Find files in other projects
     } else {
         CppModelManager *modelManager = CppModelManager::instance();
-        QList<ProjectInfo> projectInfos = modelManager->projectInfos();
-        foreach (const ProjectInfo &projectInfo, projectInfos) {
-            const ProjectExplorer::Project *project = projectInfo.project().data();
+        QList<ProjectInfo::Ptr> projectInfos = modelManager->projectInfos();
+        foreach (const ProjectInfo::Ptr &projectInfo, projectInfos) {
+            const ProjectExplorer::Project *project = projectForProjectInfo(*projectInfo);
             if (project == currentProject)
                 continue; // We have already checked the current project.
 

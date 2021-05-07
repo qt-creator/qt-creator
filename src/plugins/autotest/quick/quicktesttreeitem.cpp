@@ -389,7 +389,9 @@ QSet<QString> internalTargets(const Utils::FilePath &proFile)
     QSet<QString> result;
     const auto cppMM = CppTools::CppModelManager::instance();
     const auto projectInfo = cppMM->projectInfo(ProjectExplorer::SessionManager::startupProject());
-    for (const CppTools::ProjectPart::Ptr &projectPart : projectInfo.projectParts()) {
+    if (!projectInfo)
+        return {};
+    for (const CppTools::ProjectPart::Ptr &projectPart : projectInfo->projectParts()) {
         if (projectPart->buildTargetType != ProjectExplorer::BuildTargetType::Executable)
             continue;
         if (projectPart->projectFile == proFile.toString())

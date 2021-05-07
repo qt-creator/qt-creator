@@ -26,6 +26,7 @@
 #include "clangeditordocumentprocessor.h"
 
 #include "clangbackendcommunicator.h"
+#include "clangprojectsettings.h"
 #include "clangdiagnostictooltipwidget.h"
 #include "clangfixitoperation.h"
 #include "clangfixitoperationsextractor.h"
@@ -463,11 +464,14 @@ void ClangEditorDocumentProcessor::updateBackendDocument(CppTools::ProjectPart &
             return;
     }
 
-    const auto clangOptions = createClangOptions(projectPart, filePath());
-    m_diagnosticConfigId = clangOptions.first;
+    ProjectExplorer::Project * const project = CppTools::projectForProjectPart(projectPart);
+    const CppTools::ClangDiagnosticConfig config = warningsConfigForProject(project);
+    const QStringList clangOptions = createClangOptions(projectPart, filePath(), config,
+                                                        optionsForProject(project));
+    m_diagnosticConfigId = config.id();
 
     m_communicator.documentsOpened(
-        {fileContainerWithOptionsAndDocumentContent(clangOptions.second, projectPart.headerPaths)});
+        {fileContainerWithOptionsAndDocumentContent(clangOptions, projectPart.headerPaths)});
     setLastSentDocumentRevision(filePath(), revision());
 }
 

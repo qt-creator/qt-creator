@@ -237,7 +237,7 @@ bool TestCase::waitUntilProjectIsFullyOpened(Project *project, int timeOutInMs)
         [project]() {
             return SessionManager::startupBuildSystem()
                     && !SessionManager::startupBuildSystem()->isParsing()
-                    && CppModelManager::instance()->projectInfo(project).isValid();
+                    && CppModelManager::instance()->projectInfo(project);
         },
         timeOutInMs);
 }
@@ -278,14 +278,14 @@ ProjectOpenerAndCloser::~ProjectOpenerAndCloser()
         QCoreApplication::processEvents();
 }
 
-ProjectInfo ProjectOpenerAndCloser::open(const QString &projectFile, bool configureAsExampleProject,
-                                         Kit *kit)
+ProjectInfo::Ptr ProjectOpenerAndCloser::open(const QString &projectFile,
+        bool configureAsExampleProject, Kit *kit)
 {
     ProjectExplorerPlugin::OpenProjectResult result =
             ProjectExplorerPlugin::openProject(FilePath::fromString(projectFile));
     if (!result) {
         qWarning() << result.errorMessage() << result.alreadyOpen();
-        return ProjectInfo();
+        return {};
     }
 
     Project *project = result.project();
@@ -297,7 +297,7 @@ ProjectInfo ProjectOpenerAndCloser::open(const QString &projectFile, bool config
         return CppModelManager::instance()->projectInfo(project);
     }
 
-    return ProjectInfo();
+    return {};
 }
 
 TemporaryDir::TemporaryDir()

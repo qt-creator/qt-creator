@@ -104,20 +104,20 @@ public:
         foreach (const QString &file, files)
             projectFiles << projectDir.file(file);
 
-        Project *project = modelManagerTestHelper->createProject(name);
-        projectInfo = ProjectInfo(project);
+        RawProjectPart rpp;
+        rpp.setQtVersion(Utils::QtVersion::Qt5);
+        const ProjectFiles rppFiles = Utils::transform<ProjectFiles>(projectFiles,
+                [](const QString &file) { return ProjectFile(file, ProjectFile::classify(file)); });
+        const auto project = modelManagerTestHelper->createProject(
+                    name, Utils::FilePath::fromString(dir).pathAppended(name + ".pro"));
 
-        ProjectPart::Ptr part(new ProjectPart);
-        part->qtVersion = Utils::QtVersion::Qt5;
-        foreach (const QString &file, projectFiles) {
-            ProjectFile projectFile(file, ProjectFile::classify(file));
-            part->files.append(projectFile);
-        }
-        projectInfo.appendProjectPart(part);
+        const auto part = ProjectPart::create(project->projectFilePath(), rpp, {}, rppFiles);
+        projectInfo = ProjectInfo::create(ProjectUpdateInfo(project, KitInfo(nullptr), {}, {}),
+                                          {part});
     }
 
     ModelManagerTestHelper *modelManagerTestHelper;
-    ProjectInfo projectInfo;
+    ProjectInfo::Ptr projectInfo;
     QStringList projectFiles;
 };
 
@@ -180,15 +180,16 @@ void CppToolsPlugin::test_modelmanager_paths_are_clean()
 
     const MyTestDataDir testDataDir(_("testdata"));
 
-    Project *project = helper.createProject(_("test_modelmanager_paths_are_clean"));
-    ProjectInfo pi = ProjectInfo(project);
-
-    ProjectPart::Ptr part(new ProjectPart);
-    part->qtVersion = Utils::QtVersion::Qt5;
-    part->projectMacros = {ProjectExplorer::Macro("OH_BEHAVE", "-1")};
-    part->headerPaths = {{testDataDir.includeDir(false), HeaderPathType::User},
-                         {testDataDir.frameworksDir(false), HeaderPathType::Framework}};
-    pi.appendProjectPart(part);
+    const auto project = helper.createProject(_("test_modelmanager_paths_are_clean"),
+                                              Utils::FilePath::fromString("blubb.pro"));
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtVersion::Qt5);
+    rpp.setMacros({ProjectExplorer::Macro("OH_BEHAVE", "-1")});
+    rpp.setHeaderPaths({{testDataDir.includeDir(false), HeaderPathType::User},
+                        {testDataDir.frameworksDir(false), HeaderPathType::Framework}});
+    const auto part = ProjectPart::create(project->projectFilePath(), rpp);
+    const auto pi = ProjectInfo::create(ProjectUpdateInfo(project, KitInfo(nullptr), {}, {}),
+                                        {part});
 
     mm->updateProjectInfo(pi);
 
@@ -209,18 +210,19 @@ void CppToolsPlugin::test_modelmanager_framework_headers()
 
     const MyTestDataDir testDataDir(_("testdata"));
 
-    Project *project = helper.createProject(_("test_modelmanager_framework_headers"));
-    ProjectInfo pi = ProjectInfo(project);
-
-    ProjectPart::Ptr part(new ProjectPart);
-    part->qtVersion = Utils::QtVersion::Qt5;
-    part->projectMacros = {{"OH_BEHAVE", "-1"}};
-    part->headerPaths = {{testDataDir.includeDir(false), HeaderPathType::User},
-                         {testDataDir.frameworksDir(false), HeaderPathType::Framework}};
+    const auto project = helper.createProject(_("test_modelmanager_framework_headers"),
+                                              Utils::FilePath::fromString("blubb.pro"));
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtVersion::Qt5);
+    rpp.setMacros({{"OH_BEHAVE", "-1"}});
+    rpp.setHeaderPaths({{testDataDir.includeDir(false), HeaderPathType::User},
+                        {testDataDir.frameworksDir(false), HeaderPathType::Framework}});
     const QString &source = testDataDir.fileFromSourcesDir(
         _("test_modelmanager_framework_headers.cpp"));
-    part->files << ProjectFile(source, ProjectFile::CXXSource);
-    pi.appendProjectPart(part);
+    const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
+                                          {ProjectFile(source, ProjectFile::CXXSource)});
+    const auto pi = ProjectInfo::create(ProjectUpdateInfo(project, KitInfo(nullptr), {}, {}),
+                                        {part});
 
     mm->updateProjectInfo(pi).waitForFinished();
     QCoreApplication::processEvents();
@@ -255,16 +257,16 @@ void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
     const QString testCpp(testDataDir.fileFromSourcesDir(_("test_modelmanager_refresh.cpp")));
     const QString testHeader(testDataDir.fileFromSourcesDir( _("test_modelmanager_refresh.h")));
 
-    Project *project = helper.createProject(
-                _("test_modelmanager_refresh_also_includes_of_project_files"));
-    ProjectInfo pi = ProjectInfo(project);
-
-    ProjectPart::Ptr part(new ProjectPart);
-    part->qtVersion = Utils::QtVersion::Qt5;
-    part->projectMacros = {{"OH_BEHAVE", "-1"}};
-    part->headerPaths = {{testDataDir.includeDir(false), HeaderPathType::User}};
-    part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
-    pi.appendProjectPart(part);
+    const auto project
+            = helper.createProject(_("test_modelmanager_refresh_also_includes_of_project_files"),
+                                   Utils::FilePath::fromString("blubb.pro"));
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtVersion::Qt5);
+    rpp.setMacros({{"OH_BEHAVE", "-1"}});
+    rpp.setHeaderPaths({{testDataDir.includeDir(false), HeaderPathType::User}});
+    auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
+                                    {ProjectFile(testCpp, ProjectFile::CXXSource)});
+    auto pi = ProjectInfo::create(ProjectUpdateInfo(project, KitInfo(nullptr), {}, {}), {part});
 
     QSet<QString> refreshedFiles = helper.updateProjectInfo(pi);
     QCOMPARE(refreshedFiles.size(), 1);
@@ -279,9 +281,10 @@ void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
     QVERIFY(macrosInHeaderBefore.first().name() == "test_modelmanager_refresh_h");
 
     // Introduce a define that will enable another define once the document is reparsed.
-    part->projectMacros = {{"TEST_DEFINE", "1"}};
-    pi = ProjectInfo(project);
-    pi.appendProjectPart(part);
+    rpp.setMacros({{"TEST_DEFINE", "1"}});
+    part = ProjectPart::create(project->projectFilePath(), rpp, {},
+                                        {ProjectFile(testCpp, ProjectFile::CXXSource)});
+    pi = ProjectInfo::create(ProjectUpdateInfo(project, KitInfo(nullptr), {}, {}), {part});
 
     refreshedFiles = helper.updateProjectInfo(pi);
 
@@ -312,15 +315,17 @@ void CppToolsPlugin::test_modelmanager_refresh_several_times()
     const QString testHeader2(testDataDir.file(_("header.h")));
     const QString testCpp(testDataDir.file(_("source.cpp")));
 
-    Project *project = helper.createProject(_("test_modelmanager_refresh_several_times"));
-    ProjectInfo pi = ProjectInfo(project);
-
-    ProjectPart::Ptr part(new ProjectPart);
-    part->qtVersion = Utils::QtVersion::Qt5;
-    part->files.append(ProjectFile(testHeader1, ProjectFile::CXXHeader));
-    part->files.append(ProjectFile(testHeader2, ProjectFile::CXXHeader));
-    part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
-    pi.appendProjectPart(part);
+    const auto project = helper.createProject(_("test_modelmanager_refresh_several_times"),
+                                              Utils::FilePath::fromString("blubb.pro"));
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtVersion::Qt5);
+    const ProjectFiles files = {
+        ProjectFile(testHeader1, ProjectFile::CXXHeader),
+        ProjectFile(testHeader2, ProjectFile::CXXHeader),
+        ProjectFile(testCpp, ProjectFile::CXXSource)
+    };
+    const auto part = ProjectPart::create(project->projectFilePath(), rpp, {}, files);
+    auto pi = ProjectInfo::create(ProjectUpdateInfo(project, KitInfo(nullptr), {}, {}), {part});
     mm->updateProjectInfo(pi);
 
     CPlusPlus::Snapshot snapshot;
@@ -329,16 +334,11 @@ void CppToolsPlugin::test_modelmanager_refresh_several_times()
 
     ProjectExplorer::Macros macros = {{"FIRST_DEFINE"}};
     for (int i = 0; i < 2; ++i) {
-        pi = ProjectInfo(project);
-        ProjectPart::Ptr part(new ProjectPart);
         // Simulate project configuration change by having different defines each time.
         macros += {"ANOTHER_DEFINE"};
-        part->projectMacros = macros;
-        part->qtVersion = Utils::QtVersion::Qt5;
-        part->files.append(ProjectFile(testHeader1, ProjectFile::CXXHeader));
-        part->files.append(ProjectFile(testHeader2, ProjectFile::CXXHeader));
-        part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
-        pi.appendProjectPart(part);
+        rpp.setMacros(macros);
+        const auto part = ProjectPart::create(project->projectFilePath(), rpp, {}, files);
+        pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part});
 
         refreshedFiles = helper.updateProjectInfo(pi);
         QCOMPARE(refreshedFiles.size(), 3);
@@ -374,13 +374,13 @@ void CppToolsPlugin::test_modelmanager_refresh_test_for_changes()
     const MyTestDataDir testDataDir(_("testdata_refresh"));
     const QString testCpp(testDataDir.file(_("source.cpp")));
 
-    Project *project = helper.createProject(_("test_modelmanager_refresh_2"));
-    ProjectInfo pi = ProjectInfo(project);
-
-    ProjectPart::Ptr part(new ProjectPart);
-    part->qtVersion = Utils::QtVersion::Qt5;
-    part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
-    pi.appendProjectPart(part);
+    const auto project = helper.createProject(_("test_modelmanager_refresh_2"),
+                                              Utils::FilePath::fromString("blubb.pro"));
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtVersion::Qt5);
+    const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
+                                          {ProjectFile(testCpp, ProjectFile::CXXSource)});
+    const auto pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part});
 
     // Reindexing triggers a reparsing thread
     helper.resetRefreshedSourceFiles();
@@ -409,14 +409,13 @@ void CppToolsPlugin::test_modelmanager_refresh_added_and_purge_removed()
     const QString testHeader2(testDataDir.file(_("defines.h")));
     const QString testCpp(testDataDir.file(_("source.cpp")));
 
-    Project *project = helper.createProject(_("test_modelmanager_refresh_3"));
-    ProjectInfo pi = ProjectInfo(project);
-
-    ProjectPart::Ptr part(new ProjectPart);
-    part->qtVersion = Utils::QtVersion::Qt5;
-    part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
-    part->files.append(ProjectFile(testHeader1, ProjectFile::CXXHeader));
-    pi.appendProjectPart(part);
+    const auto project = helper.createProject(_("test_modelmanager_refresh_3"),
+                                              Utils::FilePath::fromString("blubb.pro"));
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtVersion::Qt5);
+    const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
+            {{testCpp, ProjectFile::CXXSource}, {testHeader1, ProjectFile::CXXHeader}});
+    auto pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part});
 
     CPlusPlus::Snapshot snapshot;
     QSet<QString> refreshedFiles;
@@ -432,12 +431,9 @@ void CppToolsPlugin::test_modelmanager_refresh_added_and_purge_removed()
     QVERIFY(snapshot.contains(testCpp));
 
     // Now add testHeader2 and remove testHeader1
-    pi = ProjectInfo(project);
-    ProjectPart::Ptr newPart(new ProjectPart);
-    newPart->qtVersion = Utils::QtVersion::Qt5;
-    newPart->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
-    newPart->files.append(ProjectFile(testHeader2, ProjectFile::CXXHeader));
-    pi.appendProjectPart(newPart);
+    const auto newPart = ProjectPart::create(project->projectFilePath(), rpp, {},
+            {{testCpp, ProjectFile::CXXSource}, {testHeader2, ProjectFile::CXXHeader}});
+    pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {newPart});
 
     refreshedFiles = helper.updateProjectInfo(pi);
 
@@ -469,15 +465,15 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
     ModelManagerTestHelper helper;
     CppModelManager *mm = CppModelManager::instance();
 
-    Project *project = helper.createProject(_("test_modelmanager_refresh_timeStampModified"));
-    ProjectInfo pi = ProjectInfo(project);
-
-    ProjectPart::Ptr part(new ProjectPart);
-    part->qtVersion = Utils::QtVersion::Qt5;
-    foreach (const QString &file, initialProjectFiles)
-        part->files.append(ProjectFile(file, ProjectFile::CXXSource));
-    pi = ProjectInfo(project);
-    pi.appendProjectPart(part);
+    const auto project = helper.createProject(_("test_modelmanager_refresh_timeStampModified"),
+                                              Utils::FilePath::fromString("blubb.pro"));
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtVersion::Qt5);
+    auto files = Utils::transform<ProjectFiles>(initialProjectFiles, [](const QString &f) {
+        return ProjectFile(f, ProjectFile::CXXSource);
+    });
+    auto part = ProjectPart::create(project->projectFilePath(), rpp, {}, files);
+    auto pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part});
 
     Document::Ptr document;
     CPlusPlus::Snapshot snapshot;
@@ -506,11 +502,11 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
     QVERIFY(fileChangerAndRestorer.writeContents(newFileContentes));
 
     // Add or remove source file. The configuration stays the same.
-    part->files.clear();
-    foreach (const QString &file, finalProjectFiles)
-        part->files.append(ProjectFile(file, ProjectFile::CXXSource));
-    pi = ProjectInfo(project);
-    pi.appendProjectPart(part);
+    files = Utils::transform<ProjectFiles>(finalProjectFiles, [](const QString &f) {
+        return ProjectFile(f, ProjectFile::CXXSource);
+    });
+    part = ProjectPart::create(project->projectFilePath(), rpp, {}, files);
+    pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part});
 
     refreshedFiles = helper.updateProjectInfo(pi);
 
@@ -603,8 +599,7 @@ void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
     const QString projectFile = temporaryDir.absolutePath("testdata_guiproject1.pro");
 
     ProjectOpenerAndCloser projects;
-    ProjectInfo projectInfo = projects.open(projectFile, /*configureAsExampleProject=*/ true);
-    QVERIFY(projectInfo.isValid());
+    QVERIFY(projects.open(projectFile, /*configureAsExampleProject=*/ true));
 
     // Check working copy.
     // An AbstractEditorSupport object should have been added for the ui_* file.
@@ -745,28 +740,26 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
 
     CppModelManager *mm = CppModelManager::instance();
 
-    Project *project = helper.createProject(_("test_modelmanager_defines_per_project"));
+    const auto project = helper.createProject(_("test_modelmanager_defines_per_project"),
+                                              Utils::FilePath::fromString("blubb.pro"));
 
-    ProjectPart::Ptr part1(new ProjectPart);
-    part1->projectFile = QLatin1String("project1.projectfile");
-    part1->files.append(ProjectFile(main1File, ProjectFile::CXXSource));
-    part1->files.append(ProjectFile(header, ProjectFile::CXXHeader));
-    part1->qtVersion = Utils::QtVersion::None;
-    part1->projectMacros = {{"SUB1"}};
-    part1->headerPaths = {{testDataDirectory.includeDir(false), HeaderPathType::User}};
+    RawProjectPart rpp1;
+    rpp1.setProjectFileLocation("project1.projectfile");
+    rpp1.setQtVersion(Utils::QtVersion::None);
+    rpp1.setMacros({{"SUB1"}});
+    rpp1.setHeaderPaths({{testDataDirectory.includeDir(false), HeaderPathType::User}});
+    const auto part1 = ProjectPart::create(project->projectFilePath(), rpp1, {},
+            {{main1File, ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});
 
-    ProjectPart::Ptr part2(new ProjectPart);
-    part2->projectFile = QLatin1String("project1.projectfile");
-    part2->files.append(ProjectFile(main2File, ProjectFile::CXXSource));
-    part2->files.append(ProjectFile(header, ProjectFile::CXXHeader));
-    part2->qtVersion = Utils::QtVersion::None;
-    part2->projectMacros = {{"SUB2"}};
-    part2->headerPaths = {{testDataDirectory.includeDir(false), HeaderPathType::User}};
+    RawProjectPart rpp2;
+    rpp2.setProjectFileLocation("project1.projectfile");
+    rpp2.setQtVersion(Utils::QtVersion::None);
+    rpp2.setMacros({{"SUB2"}});
+    rpp2.setHeaderPaths({{testDataDirectory.includeDir(false), HeaderPathType::User}});
+    const auto part2 = ProjectPart::create(project->projectFilePath(), rpp2, {},
+            {{main2File, ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});
 
-    ProjectInfo pi = ProjectInfo(project);
-    pi.appendProjectPart(part1);
-    pi.appendProjectPart(part2);
-
+    const auto pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part1, part2});
     helper.updateProjectInfo(pi);
     QCOMPARE(mm->snapshot().size(), 4);
 
@@ -809,29 +802,26 @@ void CppToolsPlugin::test_modelmanager_precompiled_headers()
 
     CppModelManager *mm = CppModelManager::instance();
 
-    Project *project = helper.createProject(_("test_modelmanager_defines_per_project_pch"));
+    const auto project = helper.createProject(_("test_modelmanager_defines_per_project_pch"),
+                                              Utils::FilePath::fromString("blubb.pro"));
 
-    ProjectPart::Ptr part1(new ProjectPart);
-    part1->projectFile = QLatin1String("project1.projectfile");
-    part1->files.append(ProjectFile(main1File, ProjectFile::CXXSource));
-    part1->files.append(ProjectFile(header, ProjectFile::CXXHeader));
-    part1->qtVersion = Utils::QtVersion::None;
-    part1->precompiledHeaders.append(pch1File);
-    part1->headerPaths = {{testDataDirectory.includeDir(false), HeaderPathType::User}};
-    part1->updateLanguageFeatures();
+    RawProjectPart rpp1;
+    rpp1.setProjectFileLocation("project1.projectfile");
+    rpp1.setQtVersion(Utils::QtVersion::None);
+    rpp1.setPreCompiledHeaders({pch1File});
+    rpp1.setHeaderPaths({{testDataDirectory.includeDir(false), HeaderPathType::User}});
+    const auto part1 = ProjectPart::create(project->projectFilePath(), rpp1, {},
+            {{main1File, ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});
 
-    ProjectPart::Ptr part2(new ProjectPart);
-    part2->projectFile = QLatin1String("project2.projectfile");
-    part2->files.append(ProjectFile(main2File, ProjectFile::CXXSource));
-    part2->files.append(ProjectFile(header, ProjectFile::CXXHeader));
-    part2->qtVersion = Utils::QtVersion::None;
-    part2->precompiledHeaders.append(pch2File);
-    part2->headerPaths = {{testDataDirectory.includeDir(false), HeaderPathType::User}};
-    part2->updateLanguageFeatures();
+    RawProjectPart rpp2;
+    rpp2.setProjectFileLocation("project2.projectfile");
+    rpp2.setQtVersion(Utils::QtVersion::None);
+    rpp2.setPreCompiledHeaders({pch2File});
+    rpp2.setHeaderPaths({{testDataDirectory.includeDir(false), HeaderPathType::User}});
+    const auto part2 = ProjectPart::create(project->projectFilePath(), rpp2, {},
+            {{main2File, ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});
 
-    ProjectInfo pi = ProjectInfo(project);
-    pi.appendProjectPart(part1);
-    pi.appendProjectPart(part2);
+    const auto pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part1, part2});
 
     helper.updateProjectInfo(pi);
     QCOMPARE(mm->snapshot().size(), 4);
@@ -891,24 +881,22 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
 
     CppModelManager *mm = CppModelManager::instance();
 
-    Project *project = helper.createProject(_("test_modelmanager_defines_per_editor"));
+    const auto project = helper.createProject(_("test_modelmanager_defines_per_editor"),
+                                              Utils::FilePath::fromString("blubb.pro"));
 
-    ProjectPart::Ptr part1(new ProjectPart);
-    part1->files.append(ProjectFile(main1File, ProjectFile::CXXSource));
-    part1->files.append(ProjectFile(header, ProjectFile::CXXHeader));
-    part1->qtVersion = Utils::QtVersion::None;
-    part1->headerPaths = {{testDataDirectory.includeDir(false), HeaderPathType::User}};
+    RawProjectPart rpp1;
+    rpp1.setQtVersion(Utils::QtVersion::None);
+    rpp1.setHeaderPaths({{testDataDirectory.includeDir(false), HeaderPathType::User}});
+    const auto part1 = ProjectPart::create(project->projectFilePath(), rpp1, {},
+            {{main1File, ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});
 
-    ProjectPart::Ptr part2(new ProjectPart);
-    part2->files.append(ProjectFile(main2File, ProjectFile::CXXSource));
-    part2->files.append(ProjectFile(header, ProjectFile::CXXHeader));
-    part2->qtVersion = Utils::QtVersion::None;
-    part2->headerPaths = {{testDataDirectory.includeDir(false), HeaderPathType::User}};
+    RawProjectPart rpp2;
+    rpp2.setQtVersion(Utils::QtVersion::None);
+    rpp2.setHeaderPaths({{testDataDirectory.includeDir(false), HeaderPathType::User}});
+    const auto part2 = ProjectPart::create(project->projectFilePath(), rpp2, {},
+            {{main2File, ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});
 
-    ProjectInfo pi = ProjectInfo(project);
-    pi.appendProjectPart(part1);
-    pi.appendProjectPart(part2);
-
+    const auto pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part1, part2});
     helper.updateProjectInfo(pi);
 
     QCOMPARE(mm->snapshot().size(), 4);
@@ -960,7 +948,7 @@ void CppToolsPlugin::test_modelmanager_updateEditorsAfterProjectUpdate()
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
     QVERIFY(TestCase::waitForProcessedEditorDocument(fileA));
     ProjectPart::Ptr documentAProjectPart = projectPartOfEditorDocument(fileA);
-    QVERIFY(!documentAProjectPart->project);
+    QVERIFY(!documentAProjectPart->hasProject());
 
     // Open file B in editor
     Core::IEditor *editorB = Core::EditorManager::openEditor(fileB);
@@ -969,34 +957,32 @@ void CppToolsPlugin::test_modelmanager_updateEditorsAfterProjectUpdate()
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 2);
     QVERIFY(TestCase::waitForProcessedEditorDocument(fileB));
     ProjectPart::Ptr documentBProjectPart = projectPartOfEditorDocument(fileB);
-    QVERIFY(!documentBProjectPart->project);
+    QVERIFY(!documentBProjectPart->hasProject());
 
     // Switch back to document A
     Core::EditorManager::activateEditor(editorA);
 
     // Open/update related project
-    Project *project = helper.createProject(_("test_modelmanager_updateEditorsAfterProjectUpdate"));
-
-    ProjectPart::Ptr part(new ProjectPart);
-    part->project = project;
-    part->files.append(ProjectFile(fileA, ProjectFile::CXXSource));
-    part->files.append(ProjectFile(fileB, ProjectFile::CXXSource));
-    part->qtVersion = Utils::QtVersion::None;
-
-    ProjectInfo pi = ProjectInfo(project);
-    pi.appendProjectPart(part);
+    const auto project
+            = helper.createProject(_("test_modelmanager_updateEditorsAfterProjectUpdate"),
+                                   Utils::FilePath::fromString("blubb.pro"));
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtVersion::None);
+    const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
+            {{fileA, ProjectFile::CXXSource}, {fileB, ProjectFile::CXXSource}});
+    const auto pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part});
     helper.updateProjectInfo(pi);
 
     // ... and check for updated editor document A
     QVERIFY(TestCase::waitForProcessedEditorDocument(fileA));
     documentAProjectPart = projectPartOfEditorDocument(fileA);
-    QCOMPARE(documentAProjectPart->project, project);
+    QCOMPARE(documentAProjectPart->topLevelProject, pi->projectFilePath());
 
     // Switch back to document B and check if that's updated, too
     Core::EditorManager::activateEditor(editorB);
     QVERIFY(TestCase::waitForProcessedEditorDocument(fileB));
     documentBProjectPart = projectPartOfEditorDocument(fileB);
-    QCOMPARE(documentBProjectPart->project, project);
+    QCOMPARE(documentBProjectPart->topLevelProject, pi->projectFilePath());
 }
 
 void CppToolsPlugin::test_modelmanager_renameIncludes()

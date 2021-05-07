@@ -32,25 +32,29 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/rawprojectpart.h>
 #include <projectexplorer/toolchain.h>
+#include <utils/fileutils.h>
 
 #include <QHash>
-#include <QPointer>
 #include <QSet>
 #include <QVector>
+
+#include <memory>
 
 namespace CppTools {
 
 class CPPTOOLS_EXPORT ProjectInfo
 {
 public:
-    ProjectInfo() = default;
-    explicit ProjectInfo(QPointer<ProjectExplorer::Project> project);
+    using Ptr = std::shared_ptr<ProjectInfo>;
+    static Ptr create(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
+                      const QVector<ProjectPart::Ptr> &projectParts);
 
-    bool isValid() const;
-
-    QPointer<ProjectExplorer::Project> project() const;
     const QVector<ProjectPart::Ptr> projectParts() const;
     const QSet<QString> sourceFiles() const;
+    QString projectName() const { return m_projectName; }
+    Utils::FilePath projectFilePath() const { return m_projectFilePath; }
+    Utils::FilePath projectRoot() const { return m_projectFilePath.parentDir(); }
+    Utils::FilePath buildRoot() const { return m_buildRoot; }
 
     // Comparisons
     bool operator ==(const ProjectInfo &other) const;
@@ -59,18 +63,17 @@ public:
     bool configurationChanged(const ProjectInfo &other) const;
     bool configurationOrFilesChanged(const ProjectInfo &other) const;
 
-    // Construction
-    void appendProjectPart(const ProjectPart::Ptr &projectPart);
-    void finish();
-
 private:
-    QPointer<ProjectExplorer::Project> m_project;
-    QVector<ProjectPart::Ptr> m_projectParts;
+    ProjectInfo(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
+                const QVector<ProjectPart::Ptr> &projectParts);
 
-    // The members below are (re)calculated from the project parts with finish()
-    ProjectExplorer::HeaderPaths m_headerPaths;
-    QSet<QString> m_sourceFiles;
-    ProjectExplorer::Macros m_defines;
+    const QVector<ProjectPart::Ptr> m_projectParts;
+    const QString m_projectName;
+    const Utils::FilePath m_projectFilePath;
+    const Utils::FilePath m_buildRoot;
+    const ProjectExplorer::HeaderPaths m_headerPaths;
+    const QSet<QString> m_sourceFiles;
+    const ProjectExplorer::Macros m_defines;
 };
 
 } // namespace CppTools

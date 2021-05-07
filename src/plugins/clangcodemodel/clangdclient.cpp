@@ -735,9 +735,10 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     setActivateDocumentAutomatically(true);
     if (!project) {
         QJsonObject initOptions;
-        const auto clangOptions = createClangOptions(
-                    *CppTools::CppModelManager::instance()->fallbackProjectPart(), {});
-        initOptions.insert("fallbackFlags", QJsonArray::fromStringList(clangOptions.second));
+        const QStringList clangOptions = createClangOptions(
+                    *CppTools::CppModelManager::instance()->fallbackProjectPart(), {},
+                    warningsConfigForProject(nullptr), optionsForProject(nullptr));
+        initOptions.insert("fallbackFlags", QJsonArray::fromStringList(clangOptions));
         setInitializationOptions(initOptions);
     }
     ClientCapabilities caps = Client::defaultClientCapabilities();

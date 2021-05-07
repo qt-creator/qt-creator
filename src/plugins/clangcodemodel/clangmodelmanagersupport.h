@@ -29,6 +29,7 @@
 #include "clanguiheaderondiskmanager.h"
 
 #include <cpptools/cppmodelmanagersupport.h>
+#include <cpptools/projectinfo.h>
 
 #include <utils/futuresynchronizer.h>
 #include <utils/id.h>
@@ -129,7 +130,7 @@ private:
     void connectToWidgetsMarkContextMenuRequested(QWidget *editorWidget);
 
     void updateLanguageClient(ProjectExplorer::Project *project,
-                              const CppTools::ProjectInfo &projectInfo);
+                              const CppTools::ProjectInfo::Ptr &projectInfo);
     ClangdClient *createClient(ProjectExplorer::Project *project, const Utils::FilePath &jsonDbDir);
     void claimNonProjectSources(ClangdClient *fallbackClient);
 

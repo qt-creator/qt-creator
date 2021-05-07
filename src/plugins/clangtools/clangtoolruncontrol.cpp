@@ -135,7 +135,7 @@ AnalyzeUnit::AnalyzeUnit(const FileInfo &fileInfo,
 AnalyzeUnits ClangToolRunWorker::unitsToAnalyze(const FilePath &clangIncludeDir,
                                                 const QString &clangVersion)
 {
-    QTC_ASSERT(m_projectInfo.isValid(), return AnalyzeUnits());
+    QTC_ASSERT(m_projectInfo, return AnalyzeUnits());
 
     AnalyzeUnits units;
     for (const FileInfo &fileInfo : m_fileInfos)
@@ -217,10 +217,14 @@ void ClangToolRunWorker::start()
     const QString &toolName = tool()->name();
     Project *project = runControl()->project();
     m_projectInfo = CppTools::CppModelManager::instance()->projectInfo(project);
+    if (!m_projectInfo) {
+        reportFailure(tr("No code model data available for project."));
+        return;
+    }
     m_projectFiles = Utils::toSet(project->files(Project::AllFiles));
 
     // Project changed in the mean time?
-    if (m_projectInfo.configurationOrFilesChanged(m_projectInfoBeforeBuild)) {
+    if (m_projectInfo->configurationOrFilesChanged(*m_projectInfoBeforeBuild)) {
         // If it's more than a release/debug build configuration change, e.g.
         // a version control checkout, files might be not valid C++ anymore
         // or even gone, so better stop here.
@@ -239,7 +243,7 @@ void ClangToolRunWorker::start()
         return;
     }
 
-    const Utils::FilePath projectFile = m_projectInfo.project()->projectFilePath();
+    const Utils::FilePath projectFile = m_projectInfo->projectFilePath();
     appendMessage(tr("Running %1 on %2 with configuration \"%3\".")
                       .arg(toolName)
                       .arg(projectFile.toUserOutput())

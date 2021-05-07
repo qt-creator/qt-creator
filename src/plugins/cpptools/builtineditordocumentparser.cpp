@@ -100,7 +100,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
         configFile += overwrittenToolchainDefines(*part.data());
         configFile += ProjectExplorer::Macro::toByteArray(part->projectMacros);
         if (!part->projectConfigFile.isEmpty())
-            configFile += ProjectPart::readProjectConfigFile(part);
+            configFile += ProjectPart::readProjectConfigFile(part->projectConfigFile);
         headerPaths = part->headerPaths;
         projectConfigFile = part->projectConfigFile;
         includedFiles = part->includedFiles;

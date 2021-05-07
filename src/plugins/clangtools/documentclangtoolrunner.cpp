@@ -137,12 +137,13 @@ static VirtualFileSystemOverlay &vfso()
 
 static FileInfo getFileInfo(const Utils::FilePath &file, ProjectExplorer::Project *project)
 {
-    CppTools::ProjectInfo projectInfo = CppTools::CppModelManager::instance()->projectInfo(project);
-    if (!projectInfo.isValid())
+    const CppTools::ProjectInfo::Ptr projectInfo
+            = CppTools::CppModelManager::instance()->projectInfo(project);
+    if (!projectInfo)
         return {};
 
     FileInfo candidate;
-    for (const CppTools::ProjectPart::Ptr &projectPart : projectInfo.projectParts()) {
+    for (const CppTools::ProjectPart::Ptr &projectPart : projectInfo->projectParts()) {
         QTC_ASSERT(projectPart, continue);
 
         for (const CppTools::ProjectFile &projectFile : qAsConst(projectPart->files)) {

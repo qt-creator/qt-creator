@@ -153,7 +153,7 @@ public:
 
     // Project integration
     mutable QMutex m_projectMutex;
-    QMap<ProjectExplorer::Project *, ProjectInfo> m_projectToProjectsInfo;
+    QMap<ProjectExplorer::Project *, ProjectInfo::Ptr> m_projectToProjectsInfo;
     QHash<ProjectExplorer::Project *, bool> m_projectToIndexerCanceled;
     QMap<Utils::FilePath, QList<ProjectPart::Ptr> > m_fileToProjectParts;
     QMap<QString, ProjectPart::Ptr> m_projectPartIdToProjectProjectPart;
@@ -748,8 +748,8 @@ void CppModelManager::ensureUpdated()
 QStringList CppModelManager::internalProjectFiles() const
 {
     QStringList files;
-    for (const ProjectInfo &pinfo : qAsConst(d->m_projectToProjectsInfo)) {
-        foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
+    for (const ProjectInfo::Ptr &pinfo : qAsConst(d->m_projectToProjectsInfo)) {
+        foreach (const ProjectPart::Ptr &part, pinfo->projectParts()) {
             foreach (const ProjectFile &file, part->files)
                 files += file.path;
         }
@@ -761,8 +761,8 @@ QStringList CppModelManager::internalProjectFiles() const
 ProjectExplorer::HeaderPaths CppModelManager::internalHeaderPaths() const
 {
     ProjectExplorer::HeaderPaths headerPaths;
-    for (const ProjectInfo &pinfo : qAsConst(d->m_projectToProjectsInfo)) {
-        foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
+    for (const ProjectInfo::Ptr &pinfo : qAsConst(d->m_projectToProjectsInfo)) {
+        foreach (const ProjectPart::Ptr &part, pinfo->projectParts()) {
             foreach (const ProjectExplorer::HeaderPath &path, part->headerPaths) {
                 ProjectExplorer::HeaderPath hp(QDir::cleanPath(path.path), path.type);
                 if (!headerPaths.contains(hp))
@@ -789,8 +789,8 @@ ProjectExplorer::Macros CppModelManager::internalDefinedMacros() const
 {
     ProjectExplorer::Macros macros;
     QSet<ProjectExplorer::Macro> alreadyIn;
-    for (const ProjectInfo &pinfo : qAsConst(d->m_projectToProjectsInfo)) {
-        for (const ProjectPart::Ptr &part : pinfo.projectParts()) {
+    for (const ProjectInfo::Ptr &pinfo : qAsConst(d->m_projectToProjectsInfo)) {
+        for (const ProjectPart::Ptr &part : pinfo->projectParts()) {
             addUnique(part->toolChainMacros, macros, alreadyIn);
             addUnique(part->projectMacros, macros, alreadyIn);
         }
@@ -972,24 +972,21 @@ QFuture<void> CppModelManager::updateSourceFiles(const QSet<QString> &sourceFile
     return d->m_internalIndexingSupport->refreshSourceFiles(filteredFiles, mode);
 }
 
-QList<ProjectInfo> CppModelManager::projectInfos() const
+QList<ProjectInfo::Ptr> CppModelManager::projectInfos() const
 {
     QMutexLocker locker(&d->m_projectMutex);
     return d->m_projectToProjectsInfo.values();
 }
 
-ProjectInfo CppModelManager::projectInfo(ProjectExplorer::Project *project) const
+ProjectInfo::Ptr CppModelManager::projectInfo(ProjectExplorer::Project *project) const
 {
     QMutexLocker locker(&d->m_projectMutex);
-    return d->m_projectToProjectsInfo.value(project, ProjectInfo());
+    return d->m_projectToProjectsInfo.value(project);
 }
 
 /// \brief Remove all files and their includes (recursively) of given ProjectInfo from the snapshot.
 void CppModelManager::removeProjectInfoFilesAndIncludesFromSnapshot(const ProjectInfo &projectInfo)
 {
-    if (!projectInfo.isValid())
-        return;
-
     QMutexLocker snapshotLocker(&d->m_snapshotMutex);
     foreach (const ProjectPart::Ptr &projectPart, projectInfo.projectParts()) {
         foreach (const ProjectFile &cxxFile, projectPart->files) {
@@ -1089,8 +1086,8 @@ void CppModelManager::recalculateProjectPartMappings()
 {
     d->m_projectPartIdToProjectProjectPart.clear();
     d->m_fileToProjectParts.clear();
-    foreach (const ProjectInfo &projectInfo, d->m_projectToProjectsInfo) {
-        foreach (const ProjectPart::Ptr &projectPart, projectInfo.projectParts()) {
+    foreach (const ProjectInfo::Ptr &projectInfo, d->m_projectToProjectsInfo) {
+        foreach (const ProjectPart::Ptr &projectPart, projectInfo->projectParts()) {
             d->m_projectPartIdToProjectProjectPart[projectPart->id()] = projectPart;
             foreach (const ProjectFile &cxxFile, projectPart->files)
                 d->m_fileToProjectParts[Utils::FilePath::fromString(cxxFile.path)].append(
@@ -1152,37 +1149,37 @@ void CppModelManager::updateCppEditorDocuments(bool projectsUpdated) const
     }
 }
 
-QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectInfo,
+QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::Ptr &newProjectInfo,
                                                  const QSet<QString> &additionalFiles)
 {
-    if (!newProjectInfo.isValid())
-        return QFuture<void>();
-
-    ProjectInfo theNewProjectInfo = newProjectInfo;
-    theNewProjectInfo.finish();
+    if (!newProjectInfo)
+        return {};
 
     QSet<QString> filesToReindex;
     QStringList removedProjectParts;
     bool filesRemoved = false;
-    ProjectExplorer::Project *project = theNewProjectInfo.project().data();
+
+    ProjectExplorer::Project * const project = projectForProjectInfo(*newProjectInfo);
+    if (!project)
+        return {};
 
     { // Only hold the mutex for a limited scope, so the dumping afterwards does not deadlock.
         QMutexLocker projectLocker(&d->m_projectMutex);
 
-        const QSet<QString> newSourceFiles = theNewProjectInfo.sourceFiles();
+        const QSet<QString> newSourceFiles = newProjectInfo->sourceFiles();
 
         // Check if we can avoid a full reindexing
-        ProjectInfo oldProjectInfo = d->m_projectToProjectsInfo.value(project);
+        const ProjectInfo::Ptr oldProjectInfo = d->m_projectToProjectsInfo.value(project);
         const bool previousIndexerCanceled = d->m_projectToIndexerCanceled.value(project, false);
-        if (!previousIndexerCanceled && oldProjectInfo.isValid()) {
-            ProjectInfoComparer comparer(oldProjectInfo, theNewProjectInfo);
+        if (!previousIndexerCanceled && oldProjectInfo) {
+            ProjectInfoComparer comparer(*oldProjectInfo, *newProjectInfo);
 
             if (comparer.configurationOrFilesChanged()) {
                 d->m_dirty = true;
 
                 // If the project configuration changed, do a full reindexing
                 if (comparer.configurationChanged()) {
-                    removeProjectInfoFilesAndIncludesFromSnapshot(oldProjectInfo);
+                    removeProjectInfoFilesAndIncludesFromSnapshot(*oldProjectInfo);
                     filesToReindex.unite(newSourceFiles);
 
                     // The "configuration file" includes all defines and therefore should be updated
@@ -1218,7 +1215,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
         }
 
         // Update Project/ProjectInfo and File/ProjectPart table
-        d->m_projectToProjectsInfo.insert(project, theNewProjectInfo);
+        d->m_projectToProjectsInfo.insert(project, newProjectInfo);
         recalculateProjectPartMappings();
 
     } // Mutex scope
@@ -1236,7 +1233,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
         emit projectPartsRemoved(removedProjectParts);
 
     // Announce added project parts
-    emit projectPartsUpdated(theNewProjectInfo.project().data());
+    emit projectPartsUpdated(project);
 
     // Ideally, we would update all the editor documents that depend on the 'filesToReindex'.
     // However, on e.g. a session restore first the editor documents are created and then the
@@ -1531,18 +1528,16 @@ void CppModelManager::onCoreAboutToClose()
 
 void CppModelManager::setupFallbackProjectPart()
 {
-    ProjectPart::Ptr part(new ProjectPart);
-
-    part->projectMacros = definedMacros();
-    part->headerPaths = headerPaths();
+    ToolChainInfo tcInfo;
+    RawProjectPart rpp;
+    rpp.setMacros(definedMacros());
+    rpp.setHeaderPaths(headerPaths());
+    rpp.setQtVersion(Utils::QtVersion::Qt5);
 
     // Do not activate ObjectiveCExtensions since this will lead to the
     // "objective-c++" language option for a project-less *.cpp file.
-    part->languageExtensions = Utils::LanguageExtension::All;
-    part->languageExtensions &= ~Utils::LanguageExtensions(
-        Utils::LanguageExtension::ObjectiveC);
-
-    part->qtVersion = Utils::QtVersion::Qt5;
+    Utils::LanguageExtensions langExtensions = Utils::LanguageExtension::All;
+    langExtensions &= ~Utils::LanguageExtensions(Utils::LanguageExtension::ObjectiveC);
 
     // TODO: Use different fallback toolchain for different kinds of files?
     const Kit * const defaultKit = KitManager::isLoaded() ? KitManager::defaultKit() : nullptr;
@@ -1553,15 +1548,17 @@ void CppModelManager::setupFallbackProjectPart()
         if (sysroot.isEmpty())
             sysroot = Utils::FilePath::fromString(defaultTc->sysRoot());
         Utils::Environment env = defaultKit->buildEnvironment();
-        ToolChainInfo tcInfo(defaultTc, sysroot.toString(), env);
-        part->setupToolchainProperties(tcInfo, {});
-        if (part->language == Language::C)
-            part->languageVersion = Utils::LanguageVersion::LatestC;
-        else
-            part->languageVersion = Utils::LanguageVersion::LatestCxx;
+        tcInfo = ToolChainInfo(defaultTc, sysroot.toString(), env);
+        const auto macroInspectionWrapper = [runner = tcInfo.macroInspectionRunner](
+                const QStringList &flags) {
+            ToolChain::MacroInspectionReport report = runner(flags);
+            report.languageVersion = Utils::LanguageVersion::LatestCxx;
+            return report;
+        };
+        tcInfo.macroInspectionRunner = macroInspectionWrapper;
     }
-    part->updateLanguageFeatures();
 
+    const auto part = ProjectPart::create({}, rpp, {}, {}, {}, langExtensions, {}, tcInfo);
     QMutexLocker locker(&d->m_fallbackProjectPartMutex);
     d->m_fallbackProjectPart = part;
 }

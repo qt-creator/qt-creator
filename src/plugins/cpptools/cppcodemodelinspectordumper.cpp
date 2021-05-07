@@ -26,6 +26,7 @@
 #include "cppcodemodelinspectordumper.h"
 #include "cppmodelmanager.h"
 
+#include "cpptoolsreuse.h"
 #include "cppworkingcopy.h"
 
 #include <app/app_version.h>
@@ -501,7 +502,7 @@ static void printIncludeType(QTextStream &out, ProjectExplorer::HeaderPathType t
     }
 }
 
-void Dumper::dumpProjectInfos( const QList<ProjectInfo> &projectInfos)
+void Dumper::dumpProjectInfos(const QList<ProjectInfo::Ptr> &projectInfos)
 {
     const QByteArray i1 = indent(1);
     const QByteArray i2 = indent(2);
@@ -509,18 +510,18 @@ void Dumper::dumpProjectInfos( const QList<ProjectInfo> &projectInfos)
     const QByteArray i4 = indent(4);
 
     m_out << "Projects loaded: " << projectInfos.size() << "{{{1\n";
-    foreach (const ProjectInfo &info, projectInfos) {
-        const QPointer<ProjectExplorer::Project> project = info.project();
-        m_out << i1 << "Project " << project->displayName()
-              << " (" << project->projectFilePath().toUserOutput() << "){{{2\n";
+    foreach (const ProjectInfo::Ptr &info, projectInfos) {
+        m_out << i1 << "Project " << info->projectName()
+              << " (" << info->projectFilePath().toUserOutput() << "){{{2\n";
 
-        const QVector<ProjectPart::Ptr> projectParts = info.projectParts();
+        const QVector<ProjectPart::Ptr> projectParts = info->projectParts();
         foreach (const ProjectPart::Ptr &part, projectParts) {
             QString projectName = QLatin1String("<None>");
-            QString projectFilePath = QLatin1String("<None>");
-            if (ProjectExplorer::Project *project = part->project) {
-                projectName = project->displayName();
-                projectFilePath = project->projectFilePath().toUserOutput();
+            QString projectFilePath = "<None>";
+            if (part->hasProject()) {
+                projectFilePath = part->topLevelProject.toUserOutput();
+                if (const ProjectExplorer::Project * const project = projectForProjectPart(*part))
+                    projectName = project->displayName();
             }
             if (!part->projectConfigFile.isEmpty())
                 m_out << i3 << "Project Config File: " << part->projectConfigFile << "\n";

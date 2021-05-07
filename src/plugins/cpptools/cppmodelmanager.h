@@ -114,9 +114,9 @@ public:
     QByteArray codeModelConfiguration() const;
     CppLocatorData *locatorData() const;
 
-    QList<ProjectInfo> projectInfos() const;
-    ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
-    QFuture<void> updateProjectInfo(const ProjectInfo &newProjectInfo,
+    QList<ProjectInfo::Ptr> projectInfos() const;
+    ProjectInfo::Ptr projectInfo(ProjectExplorer::Project *project) const;
+    QFuture<void> updateProjectInfo(const ProjectInfo::Ptr &newProjectInfo,
                                     const QSet<QString> &additionalFiles = {});
 
     /// \return The project part with the given project file

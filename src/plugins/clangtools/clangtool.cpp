@@ -736,17 +736,17 @@ FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelect
         return {};
     }
 
-    auto projectInfo = CppTools::CppModelManager::instance()->projectInfo(project);
-    QTC_ASSERT(projectInfo.isValid(), return FileInfos());
+    const auto projectInfo = CppTools::CppModelManager::instance()->projectInfo(project);
+    QTC_ASSERT(projectInfo, return FileInfos());
 
-    const FileInfos allFileInfos = sortedFileInfos(projectInfo.projectParts());
+    const FileInfos allFileInfos = sortedFileInfos(projectInfo->projectParts());
 
     if (selectionType && *selectionType == FileSelectionType::AllFiles)
         return allFileInfos;
 
     if (selectionType && *selectionType == FileSelectionType::AskUser) {
         static int initialProviderIndex = 0;
-        SelectableFilesDialog dialog(projectInfo,
+        SelectableFilesDialog dialog(project,
                                      fileInfoProviders(project, allFileInfos),
                                      initialProviderIndex);
         if (dialog.exec() == QDialog::Rejected)
@@ -875,7 +875,7 @@ static bool canAnalyzeProject(Project *project)
         const bool projectSupportsLanguage = project->projectLanguages().contains(c)
                                              || project->projectLanguages().contains(cxx);
         return projectSupportsLanguage
-               && CppModelManager::instance()->projectInfo(project).isValid()
+               && CppModelManager::instance()->projectInfo(project)
                && ToolChainKitAspect::cxxToolChain(target->kit());
     }
     return false;

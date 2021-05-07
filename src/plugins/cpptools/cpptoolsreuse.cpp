@@ -29,11 +29,13 @@
 #include "cpprefactoringchanges.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolsplugin.h"
+#include "projectinfo.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/messagemanager.h>
+#include <projectexplorer/session.h>
 
 #include <cplusplus/Overview.h>
 #include <cplusplus/LookupContext.h>
@@ -570,6 +572,16 @@ QString NSCheckerVisitor::getName(NamespaceAST *ns)
 NamespaceAST *NSCheckerVisitor::currentNamespace()
 {
     return m_enteredNamespaces.empty() ? nullptr : m_enteredNamespaces.back();
+}
+
+ProjectExplorer::Project *projectForProjectPart(const ProjectPart &part)
+{
+    return ProjectExplorer::SessionManager::projectWithProjectFilePath(part.topLevelProject);
+}
+
+ProjectExplorer::Project *projectForProjectInfo(const ProjectInfo &info)
+{
+    return ProjectExplorer::SessionManager::projectWithProjectFilePath(info.projectFilePath());
 }
 
 } // CppTools

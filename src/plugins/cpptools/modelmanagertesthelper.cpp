@@ -29,6 +29,8 @@
 #include "cppworkingcopy.h"
 #include "projectinfo.h"
 
+#include <projectexplorer/session.h>
+
 #include <QtTest>
 
 #include <cassert>
@@ -36,8 +38,8 @@
 using namespace CppTools::Internal;
 using namespace CppTools::Tests;
 
-TestProject::TestProject(const QString &name, QObject *parent) :
-    ProjectExplorer::Project("x-binary/foo", Utils::FilePath()),
+TestProject::TestProject(const QString &name, QObject *parent, const Utils::FilePath &filePath) :
+    ProjectExplorer::Project("x-binary/foo", filePath),
     m_name(name)
 {
     setParent(parent);
@@ -75,22 +77,28 @@ ModelManagerTestHelper::~ModelManagerTestHelper()
 void ModelManagerTestHelper::cleanup()
 {
     CppModelManager *mm = CppModelManager::instance();
-    QList<ProjectInfo> pies = mm->projectInfos();
-    foreach (const ProjectInfo &pie, pies)
-        emit aboutToRemoveProject(pie.project().data());
+    QList<ProjectInfo::Ptr> pies = mm->projectInfos();
+    for (Project * const p : qAsConst(m_projects)) {
+        ProjectExplorer::SessionManager::removeProject(p);
+        emit aboutToRemoveProject(p);
+    }
 
     if (!pies.isEmpty())
         waitForFinishedGc();
 }
 
-ModelManagerTestHelper::Project *ModelManagerTestHelper::createProject(const QString &name)
+ModelManagerTestHelper::Project *ModelManagerTestHelper::createProject(
+        const QString &name, const Utils::FilePath &filePath)
 {
-    auto tp = new TestProject(name, this);
+    auto tp = new TestProject(name, this, filePath);
+    m_projects.push_back(tp);
+    ProjectExplorer::SessionManager::addProject(tp);
     emit projectAdded(tp);
     return tp;
 }
 
-QSet<QString> ModelManagerTestHelper::updateProjectInfo(const CppTools::ProjectInfo &projectInfo)
+QSet<QString> ModelManagerTestHelper::updateProjectInfo(
+        const CppTools::ProjectInfo::Ptr &projectInfo)
 {
     resetRefreshedSourceFiles();
     CppModelManager::instance()->updateProjectInfo(projectInfo).waitForFinished();

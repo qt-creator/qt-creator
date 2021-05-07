@@ -34,6 +34,7 @@
 #include <cpptools/cppcodemodelinspectordumper.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsbridge.h>
+#include <cpptools/cpptoolsreuse.h>
 #include <cpptools/cppworkingcopy.h>
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/project.h>
@@ -1111,7 +1112,7 @@ class ProjectPartsModel : public QAbstractListModel
 public:
     ProjectPartsModel(QObject *parent);
 
-    void configure(const QList<ProjectInfo> &projectInfos,
+    void configure(const QList<ProjectInfo::Ptr> &projectInfos,
                    const ProjectPart::Ptr &currentEditorsProjectPart);
 
     QModelIndex indexForCurrentEditorsProjectPart() const;
@@ -1134,13 +1135,13 @@ ProjectPartsModel::ProjectPartsModel(QObject *parent)
 {
 }
 
-void ProjectPartsModel::configure(const QList<ProjectInfo> &projectInfos,
+void ProjectPartsModel::configure(const QList<ProjectInfo::Ptr> &projectInfos,
                                   const ProjectPart::Ptr &currentEditorsProjectPart)
 {
     emit layoutAboutToBeChanged();
     m_projectPartsList.clear();
-    foreach (const ProjectInfo &info, projectInfos) {
-        foreach (const ProjectPart::Ptr &projectPart, info.projectParts()) {
+    foreach (const ProjectInfo::Ptr &info, projectInfos) {
+        foreach (const ProjectPart::Ptr &projectPart, info->projectParts()) {
             if (!m_projectPartsList.contains(projectPart)) {
                 m_projectPartsList << projectPart;
                 if (projectPart == currentEditorsProjectPart)
@@ -1592,7 +1593,7 @@ void CppCodeModelInspectorDialog::refresh()
         ? cppEditorDocument->processor()->parser()->projectPartInfo().projectPart
         : ProjectPart::Ptr();
 
-    const QList<ProjectInfo> projectInfos = cmmi->projectInfos();
+    const QList<ProjectInfo::Ptr> projectInfos = cmmi->projectInfos();
     dumper.dumpProjectInfos(projectInfos);
     m_projectPartsModel->configure(projectInfos, editorsProjectPart);
     m_projectPartsView->resizeColumns(ProjectPartsModel::ColumnCount);
@@ -1784,9 +1785,10 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Ptr &
     // General
     QString projectName = QLatin1String("<None>");
     QString projectFilePath = QLatin1String("<None>");
-    if (ProjectExplorer::Project *project = part->project) {
-        projectName = project->displayName();
-        projectFilePath = project->projectFilePath().toUserOutput();
+    if (part->hasProject()) {
+        projectFilePath = part->topLevelProject.toUserOutput();
+        if (const ProjectExplorer::Project * const project = projectForProjectPart(*part))
+            projectName = project->displayName();
     }
     const QString callGroupId = part->callGroupId.isEmpty() ? QString::fromLatin1("<None>")
                                                             : part->callGroupId;

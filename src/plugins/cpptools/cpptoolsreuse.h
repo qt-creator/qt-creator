@@ -49,6 +49,7 @@ class LookupContext;
 
 namespace CppTools {
 class CppRefactoringFile;
+class ProjectInfo;
 
 void CPPTOOLS_EXPORT moveCursorToEndOfIdentifier(QTextCursor *tc);
 void CPPTOOLS_EXPORT moveCursorToStartOfIdentifier(QTextCursor *tc);
@@ -82,6 +83,9 @@ UsePrecompiledHeaders CPPTOOLS_EXPORT getPchUsage();
 
 int indexerFileSizeLimitInMb();
 bool fileSizeExceedsLimit(const QFileInfo &fileInfo, int sizeLimitInMb);
+
+ProjectExplorer::Project CPPTOOLS_EXPORT *projectForProjectInfo(const CppTools::ProjectInfo &info);
+ProjectExplorer::Project CPPTOOLS_EXPORT *projectForProjectPart(const CppTools::ProjectPart &part);
 
 class ClangDiagnosticConfigsModel;
 ClangDiagnosticConfigsModel CPPTOOLS_EXPORT diagnosticConfigsModel();

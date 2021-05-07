@@ -26,6 +26,7 @@
 #include "rawprojectpart.h"
 
 #include "abi.h"
+#include "buildconfiguration.h"
 #include "kitinformation.h"
 #include "project.h"
 #include "projectexplorerconstants.h"
@@ -187,6 +188,7 @@ ToolChainInfo::ToolChainInfo(const ToolChain *toolChain,
         targetTriple = toolChain->originalTargetTriple();
         extraCodeModelFlags = toolChain->extraCodeModelFlags();
         installDir = toolChain->installDir();
+        compilerFilePath = toolChain->compilerCommand();
 
         // ...and save the potentially expensive operations for later so that
         // they can be run from a worker thread.
@@ -201,18 +203,17 @@ ProjectUpdateInfo::ProjectUpdateInfo(Project *project,
                                      const Utils::Environment &env,
                                      const RawProjectParts &rawProjectParts,
                                      const RppGenerator &rppGenerator)
-    : project(project)
-    , rawProjectParts(rawProjectParts)
+    : rawProjectParts(rawProjectParts)
     , rppGenerator(rppGenerator)
-    , cToolChain(kitInfo.cToolChain)
-    , cxxToolChain(kitInfo.cxxToolChain)
-    , cToolChainInfo(ToolChainInfo(cToolChain, kitInfo.sysRootPath, env))
-    , cxxToolChainInfo(ToolChainInfo(cxxToolChain, kitInfo.sysRootPath, env))
-{}
-
-bool ProjectUpdateInfo::isValid() const
+    , cToolChainInfo(ToolChainInfo(kitInfo.cToolChain, kitInfo.sysRootPath, env))
+    , cxxToolChainInfo(ToolChainInfo(kitInfo.cxxToolChain, kitInfo.sysRootPath, env))
 {
-    return project && !rawProjectParts.isEmpty();
+    if (project) {
+        projectName = project->displayName();
+        projectFilePath = project->projectFilePath();
+        if (project->activeTarget() && project->activeTarget()->activeBuildConfiguration())
+            buildRoot = project->activeTarget()->activeBuildConfiguration()->buildDirectory();
+    }
 }
 
 } // namespace ProjectExplorer

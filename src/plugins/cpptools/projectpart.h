@@ -43,9 +43,7 @@
 #include <QString>
 #include <QSharedPointer>
 
-namespace ProjectExplorer {
-class Project;
-}
+namespace ProjectExplorer { class Project; }
 
 namespace CppTools {
 
@@ -60,60 +58,88 @@ public:
     using Ptr = QSharedPointer<ProjectPart>;
 
 public:
+    static Ptr create(const Utils::FilePath &topLevelProject,
+                      const ProjectExplorer::RawProjectPart &rpp = {},
+                      const QString &displayName = {},
+                      const ProjectFiles &files = {},
+                      Utils::Language language = Utils::Language::Cxx,
+                      Utils::LanguageExtensions languageExtensions = {},
+                      const ProjectExplorer::RawProjectPartFlags &flags = {},
+                      const ProjectExplorer::ToolChainInfo &tcInfo = {})
+    {
+        return Ptr(new ProjectPart(topLevelProject, rpp, displayName, files, language,
+                                   languageExtensions, flags, tcInfo));
+    }
+
     QString id() const;
     QString projectFileLocation() const;
+    bool hasProject() const { return !topLevelProject.isEmpty(); }
+    bool belongsToProject(const ProjectExplorer::Project *project) const;
 
-    Ptr copy() const;
-    void updateLanguageFeatures();
-    void setupToolchainProperties(const ProjectExplorer::ToolChainInfo &tcInfo,
-                                  const QStringList &flags);
-
-    static QByteArray readProjectConfigFile(const Ptr &projectPart);
+    static QByteArray readProjectConfigFile(const QString &projectConfigFile);
 
 public:
-    ProjectExplorer::Project *project = nullptr;
+    const Utils::FilePath topLevelProject;
+    const QString displayName;
+    const QString projectFile;
+    const QString projectConfigFile; // Generic Project Manager only
 
-    QString displayName;
-
-    QString projectFile;
-    int projectFileLine = -1;
-    int projectFileColumn = -1;
-    QString callGroupId;
+    const int projectFileLine = -1;
+    const int projectFileColumn = -1;
+    const QString callGroupId;
 
     // Versions, features and extensions
-    ::Utils::Language language = ::Utils::Language::Cxx;
-    ::Utils::LanguageVersion languageVersion = ::Utils::LanguageVersion::LatestCxx;
-    ::Utils::LanguageExtensions languageExtensions = ::Utils::LanguageExtension::None;
-    CPlusPlus::LanguageFeatures languageFeatures;
-    ::Utils::QtVersion qtVersion = ::Utils::QtVersion::Unknown;
+    const Utils::Language language = Utils::Language::Cxx;
+    const Utils::LanguageVersion &languageVersion = m_macroReport.languageVersion;
+    const Utils::LanguageExtensions languageExtensions = Utils::LanguageExtension::None;
+    const Utils::QtVersion qtVersion = Utils::QtVersion::Unknown;
 
     // Files
-    ProjectFiles files;
-    QStringList includedFiles;
-    QStringList precompiledHeaders;
-    ProjectExplorer::HeaderPaths headerPaths;
-    QString projectConfigFile; // Generic Project Manager only
+    const ProjectFiles files;
+    const QStringList includedFiles;
+    const QStringList precompiledHeaders;
+    const ProjectExplorer::HeaderPaths headerPaths;
 
     // Macros
-    ProjectExplorer::Macros projectMacros;
-    ProjectExplorer::Macros toolChainMacros;
+    const ProjectExplorer::Macros projectMacros;
+    const ProjectExplorer::Macros &toolChainMacros = m_macroReport.macros;
 
     // Build system
-    QString buildSystemTarget;
-    ProjectExplorer::BuildTargetType buildTargetType = ProjectExplorer::BuildTargetType::Unknown;
-    bool selectedForBuilding = true;
+    const QString buildSystemTarget;
+    const ProjectExplorer::BuildTargetType buildTargetType
+        = ProjectExplorer::BuildTargetType::Unknown;
+    const bool selectedForBuilding = true;
 
     // ToolChain
-    Utils::Id toolchainType;
-    bool isMsvc2015Toolchain = false;
-    QString toolChainTargetTriple;
-    ToolChainWordWidth toolChainWordWidth = WordWidth32Bit;
-    ::Utils::FilePath toolChainInstallDir;
-    ::Utils::WarningFlags warningFlags = ::Utils::WarningFlags::Default;
+    const Utils::Id toolchainType;
+    const bool isMsvc2015Toolchain = false;
+    const QString toolChainTargetTriple;
+    const ToolChainWordWidth toolChainWordWidth = WordWidth32Bit;
+    const Utils::FilePath toolChainInstallDir;
+    const Utils::FilePath compilerFilePath;
+    const Utils::WarningFlags warningFlags = Utils::WarningFlags::Default;
 
     // Misc
-    QStringList extraCodeModelFlags;
-    QStringList compilerFlags;
+    const QStringList extraCodeModelFlags;
+    const QStringList compilerFlags;
+
+private:
+    ProjectPart(const Utils::FilePath &topLevelProject,
+                const ProjectExplorer::RawProjectPart &rpp,
+                const QString &displayName,
+                const ProjectFiles &files,
+                Utils::Language language,
+                Utils::LanguageExtensions languageExtensions,
+                const ProjectExplorer::RawProjectPartFlags &flags,
+                const ProjectExplorer::ToolChainInfo &tcInfo);
+
+    CPlusPlus::LanguageFeatures deriveLanguageFeatures() const;
+
+    const ProjectExplorer::ToolChain::MacroInspectionReport m_macroReport;
+
+public:
+    // Must come last due to initialization order.
+    const CPlusPlus::LanguageFeatures languageFeatures;
 };
 
 } // namespace CppTools

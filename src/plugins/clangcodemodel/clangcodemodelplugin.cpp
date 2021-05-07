@@ -76,10 +76,15 @@ void ClangCodeModelPlugin::generateCompilationDB()
     if (!target)
         return;
 
+    const auto projectInfo = CppModelManager::instance()->projectInfo(target->project());
+    if (!projectInfo)
+        return;
+
     QFuture<GenerateCompilationDbResult> task
-            = QtConcurrent::run(&Internal::generateCompilationDB,
-                                CppModelManager::instance()->projectInfo(target->project()),
-                                CompilationDbPurpose::Project);
+            = QtConcurrent::run(&Internal::generateCompilationDB, projectInfo,
+                                CompilationDbPurpose::Project,
+                                warningsConfigForProject(target->project()),
+                                optionsForProject(target->project()));
     Core::ProgressManager::addTask(task, tr("Generating Compilation DB"), "generate compilation db");
     m_generatorWatcher.setFuture(task);
 }
@@ -89,8 +94,8 @@ static bool isDBGenerationEnabled(ProjectExplorer::Project *project)
     using namespace CppTools;
     if (!project)
         return false;
-    ProjectInfo projectInfo = CppModelManager::instance()->projectInfo(project);
-    return projectInfo.isValid() && !projectInfo.projectParts().isEmpty();
+    const ProjectInfo::Ptr projectInfo = CppModelManager::instance()->projectInfo(project);
+    return projectInfo && !projectInfo->projectParts().isEmpty();
 }
 
 ClangCodeModelPlugin::~ClangCodeModelPlugin()

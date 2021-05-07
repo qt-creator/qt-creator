@@ -115,9 +115,7 @@ void ClangToolsUnitTests::testProject()
 
     // Open project
     Tests::ProjectOpenerAndCloser projectManager;
-    const ProjectInfo projectInfo = projectManager.open(projectFilePath, true, m_kit);
-    const bool isProjectOpen = projectInfo.isValid();
-    QVERIFY(isProjectOpen);
+    QVERIFY(projectManager.open(projectFilePath, true, m_kit));
 
     // Run tool
     ClangTool *tool = ClangTool::instance();

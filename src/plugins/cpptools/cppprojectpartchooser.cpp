@@ -102,7 +102,7 @@ private:
         if (!m_preferredProjectPartId.isEmpty() && projectPart.id() == m_preferredProjectPartId)
             thePriority += 1000;
 
-        if (projectPart.project == m_activeProject)
+        if (projectPart.belongsToProject(m_activeProject))
             thePriority += 100;
 
         if (projectPart.selectedForBuilding)

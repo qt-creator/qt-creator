@@ -47,7 +47,7 @@ class SelectableFilesDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SelectableFilesDialog(const CppTools::ProjectInfo &projectInfo,
+    explicit SelectableFilesDialog(ProjectExplorer::Project *project,
                                    const FileInfoProviders &fileInfoProviders,
                                    int initialProviderIndex);
     ~SelectableFilesDialog() override;

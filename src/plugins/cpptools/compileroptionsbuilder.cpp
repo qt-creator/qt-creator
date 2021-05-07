@@ -666,8 +666,8 @@ void CompilerOptionsBuilder::addIncludeDirOptionForPath(const ProjectExplorer::H
             systemPath = true;
     } else {
         // ProjectExplorer::HeaderPathType::User
-        if (m_useSystemHeader == UseSystemHeader::Yes
-            && !path.path.startsWith(m_projectPart.project->rootProjectDirectory().toString())) {
+        if (m_useSystemHeader == UseSystemHeader::Yes && m_projectPart.hasProject()
+            && !Utils::FilePath::fromString(path.path).isChildOf(m_projectPart.topLevelProject)) {
             systemPath = true;
         }
     }

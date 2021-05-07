@@ -703,6 +703,12 @@ Project *SessionManager::projectForFile(const Utils::FilePath &fileName)
                                 [&fileName](const Project *p) { return p->isKnownFile(fileName); });
 }
 
+Project *SessionManager::projectWithProjectFilePath(const Utils::FilePath &filePath)
+{
+    return Utils::findOrDefault(SessionManager::projects(),
+            [&filePath](const Project *p) { return p->projectFilePath() == filePath; });
+}
+
 void SessionManager::configureEditor(IEditor *editor, const QString &fileName)
 {
     if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor)) {

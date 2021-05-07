@@ -92,8 +92,8 @@ bool LoadProjectScenario::loadProject()
 
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
     // This code must trigger a call to PluginManager::finishScenario() at some later point.
-    const CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true, m_kit);
-    return projectInfo.isValid();
+    const CppTools::ProjectInfo::Ptr projectInfo = projectManager.open(projectFilePath, true, m_kit);
+    return projectInfo.get();
 }
 
 } // namespace Internal

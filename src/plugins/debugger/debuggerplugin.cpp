@@ -2333,8 +2333,7 @@ void DebuggerUnitTests::testStateMachine()
     QString proFile = m_tmpDir->absolutePath("simple/simple.pro");
 
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
-    const CppTools::ProjectInfo projectInfo = projectManager.open(proFile, true);
-    QVERIFY(projectInfo.isValid());
+    QVERIFY(projectManager.open(proFile, true));
 
     QEventLoop loop;
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,

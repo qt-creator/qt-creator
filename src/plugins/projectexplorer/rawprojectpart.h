@@ -156,6 +156,7 @@ public:
     bool isMsvc2015ToolChain = false;
     unsigned wordWidth = 0;
     QString targetTriple;
+    Utils::FilePath compilerFilePath;
     Utils::FilePath installDir;
     QStringList extraCodeModelFlags;
 
@@ -175,15 +176,13 @@ public:
                       const Utils::Environment &env,
                       const RawProjectParts &rawProjectParts,
                       const RppGenerator &rppGenerator = {});
-    bool isValid() const;
 
 public:
-    QPointer<Project> project;
+    QString projectName;
+    Utils::FilePath projectFilePath;
+    Utils::FilePath buildRoot;
     RawProjectParts rawProjectParts;
     RppGenerator rppGenerator;
-
-    const ToolChain *cToolChain = nullptr;
-    const ToolChain *cxxToolChain = nullptr;
 
     ToolChainInfo cToolChainInfo;
     ToolChainInfo cxxToolChainInfo;
