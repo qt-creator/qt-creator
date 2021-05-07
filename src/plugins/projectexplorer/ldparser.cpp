@@ -133,11 +133,7 @@ Utils::OutputLineParser::Result LdParser::handleLine(const QString &line, Utils:
         }
         QString description = match.captured(8).trimmed();
         Task::TaskType type = Task::Error;
-        if (description.startsWith(QLatin1String("At global scope")) ||
-            description.startsWith(QLatin1String("At top level")) ||
-            description.startsWith(QLatin1String("instantiated from ")) ||
-            description.startsWith(QLatin1String("In ")) ||
-            description.startsWith(QLatin1String("first defined here")) ||
+        if (description.startsWith(QLatin1String("first defined here")) ||
             description.startsWith(QLatin1String("note:"), Qt::CaseInsensitive)) {
             type = Task::Unknown;
         } else if (description.startsWith(QLatin1String("warning: "), Qt::CaseInsensitive)) {

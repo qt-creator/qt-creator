@@ -49,7 +49,7 @@ GccParser::GccParser()
     QTC_CHECK(m_regExp.isValid());
 
     m_regExpScope.setPattern(QLatin1Char('^') + FILE_PATTERN
-                                    + "(?:(\\d+):)?(\\d+:)?\\s+((?:In .*(?:function|constructor) .*|At global scope):)$");
+                                    + "(?:(\\d+):)?(\\d+:)?\\s+((?:In .*(?:function|constructor) .*|At global scope|At top level):)$");
     QTC_CHECK(m_regExpScope.isValid());
 
     m_regExpIncluded.setPattern(QString::fromLatin1("\\bfrom\\s") + QLatin1String(FILE_PATTERN)
