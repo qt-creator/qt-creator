@@ -8,9 +8,18 @@ Module {
 
     Depends { name: "cpp" }
 
-    cpp.defines: [
-        "_HAVE_SQLITE_CONFIG_H", "SQLITE_CORE"
-    ].concat(buildSharedLib ? "BUILD_SQLITE_LIBRARY" : "BUILD_SQLITE_STATIC_LIBRARY")
+    cpp.defines: {
+        var defines = ["_HAVE_SQLITE_CONFIG_H", "SQLITE_CORE"];
+        if (buildSharedLib)
+            defines.push("BUILD_SQLITE_LIBRARY");
+        else
+            defines.push("BUILD_SQLITE_STATIC_LIBRARY");
+        if (qbs.targetOS.contains("linux"))
+            defines.push("_POSIX_C_SOURCE=200809L", "_GNU_SOURCE");
+        else if (qbs.targetOS.contains("macos"))
+            defines.push("_BSD_SOURCE");
+        return defines;
+    }
 
     cpp.dynamicLibraries: base.concat((qbs.targetOS.contains("unix") && !qbs.targetOS.contains("bsd"))
                                       ? ["dl", "pthread"] : [])
@@ -31,10 +40,12 @@ Module {
         prefix: sqlite_sources.sqliteDir3rdParty + '/'
         cpp.warningLevel: "none"
         files: [
+            "carray.c",
+            "config.h",
             "sqlite3.c",
             "sqlite3.h",
+            "sqlite.h",
             "sqlite3ext.h",
-            "carray.c"
         ]
     }
 }
