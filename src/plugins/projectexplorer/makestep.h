@@ -87,6 +87,13 @@ protected:
     void supportDisablingForSubdirs() { m_disablingForSubDirsSupported = true; }
     virtual QStringList displayArguments() const;
 
+    Utils::StringAspect *makeCommandAspect() const { return m_makeCommandAspect; }
+    Utils::MultiSelectionAspect *buildTargetsAspect() const { return m_buildTargetsAspect; }
+    Utils::StringAspect *userArgumentsAspect() const { return m_userArgumentsAspect; }
+    Utils::AspectContainer *jobCountContainer() const { return m_jobCountContainer; }
+    Utils::BoolAspect *disabledForSubdirsAspect() const { return m_disabledForSubdirsAspect; }
+
+
 private:
     static int defaultJobCount();
     QStringList jobArguments() const;
