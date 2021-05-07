@@ -26,6 +26,7 @@
 #include "ldparser.h"
 #include "projectexplorerconstants.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
@@ -140,10 +141,21 @@ Utils::OutputLineParser::Result LdParser::handleLine(const QString &line, Utils:
             type = Task::Warning;
             description = description.mid(9);
         }
-        LinkSpecs linkSpecs;
-        addLinkSpecForAbsoluteFilePath(linkSpecs, filename, lineno, match, capIndex);
-        scheduleTask(CompileTask(type, description, filename, lineno), 1);
-        return {Status::Done, linkSpecs};
+        static const QStringList keywords{
+            "File format not recognized",
+            "undefined reference",
+            "first defined here",
+            "feupdateenv is not implemented and will always fail", // yes, this is quite special ...
+        };
+        const auto descriptionContainsKeyword = [&description](const QString &keyword) {
+            return description.contains(keyword);
+        };
+        if (Utils::anyOf(keywords, descriptionContainsKeyword)) {
+            LinkSpecs linkSpecs;
+            addLinkSpecForAbsoluteFilePath(linkSpecs, filename, lineno, match, capIndex);
+            scheduleTask(CompileTask(type, description, filename, lineno), 1);
+            return {Status::Done, linkSpecs};
+        }
     }
 
     return Status::NotHandled;
