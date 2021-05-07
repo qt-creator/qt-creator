@@ -213,8 +213,7 @@ QmlDesignerPlugin::~QmlDesignerPlugin()
 bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage/* = 0*/)
 {
     Sqlite::LibraryInitializer::initialize();
-
-    QDir{}.mkpath(Core::ICore::cacheResourcePath());
+    QDir{}.mkpath(Core::ICore::cacheResourcePath().toString());
 
     if (!Utils::HostOsInfo::canCreateOpenGLContext(errorMessage))
         return false;
@@ -222,8 +221,10 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     if (DesignerSettings::getValue(DesignerSettingsKey::STANDALONE_MODE).toBool())
         GenerateResource::generateMenuEntry();
 
-    QString fontPath = Core::ICore::resourcePath() +
-            QStringLiteral("/qmldesigner/propertyEditorQmlSources/imports/StudioTheme/icons.ttf");
+    const QString fontPath
+        = Core::ICore::resourcePath(
+                "qmldesigner/propertyEditorQmlSources/imports/StudioTheme/icons.ttf")
+              .toString();
     if (QFontDatabase::addApplicationFont(fontPath) < 0)
         qCWarning(qmldesignerLog) << "Could not add font " << fontPath << "to font database";
 
