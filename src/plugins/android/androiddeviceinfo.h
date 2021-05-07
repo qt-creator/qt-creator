@@ -55,6 +55,7 @@ public:
     bool isValid() const { return !serialNumber.isEmpty() || !avdname.isEmpty(); }
     bool operator<(const AndroidDeviceInfo &other) const;
     bool operator==(const AndroidDeviceInfo &other) const; // should be = default with C++20
+    bool operator!=(const AndroidDeviceInfo &other) const { return !(*this == other); }
 };
 using AndroidDeviceInfoList = QList<AndroidDeviceInfo>;
 

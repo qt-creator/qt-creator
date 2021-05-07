@@ -45,6 +45,9 @@ void tst_AvdManagerOutputParser::parse_data()
     QTest::addColumn<AndroidDeviceInfoList>("output");
     QTest::addColumn<QStringList>("errorPaths");
 
+    QTest::newRow("none") << "Available Android Virtual Devices:\n"
+                          << AndroidDeviceInfoList() << QStringList();
+
     QTest::newRow("one") << "Available Android Virtual Devices:\n"
                             "    Name: Test\n"
                             "  Device: Galaxy Nexus (Google)\n"

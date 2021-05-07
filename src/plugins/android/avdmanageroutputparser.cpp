@@ -28,6 +28,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/optional.h>
 #include <utils/qtcassert.h>
 #include <utils/variant.h>
 
@@ -67,16 +68,16 @@ static bool valueForKey(QString key, const QString &line, QString *value = nullp
     return false;
 }
 
-static bool parseAvd(const QStringList &deviceInfo, AndroidDeviceInfo *avd)
+static Utils::optional<AndroidDeviceInfo> parseAvd(const QStringList &deviceInfo)
 {
-    QTC_ASSERT(avd, return false);
+    AndroidDeviceInfo avd;
     for (const QString &line : deviceInfo) {
         QString value;
         if (valueForKey(avdInfoErrorKey, line)) {
             qCDebug(avdOutputParserLog) << "Avd Parsing: Skip avd device. Error key found:" << line;
-            return false;
+            return {};
         } else if (valueForKey(avdInfoNameKey, line, &value)) {
-            avd->avdname = value;
+            avd.avdname = value;
         } else if (valueForKey(avdInfoPathKey, line, &value)) {
             const Utils::FilePath avdPath = Utils::FilePath::fromString(value);
             if (avdPath.exists()) {
@@ -85,33 +86,35 @@ static bool parseAvd(const QStringList &deviceInfo, AndroidDeviceInfo *avd)
                 QSettings config(configFile.toString(), QSettings::IniFormat);
                 value = config.value(avdInfoAbiKey).toString();
                 if (!value.isEmpty())
-                    avd->cpuAbi << value;
+                    avd.cpuAbi << value;
                 else
                     qCDebug(avdOutputParserLog) << "Avd Parsing: Cannot find ABI:" << configFile;
 
                 // Get Target
-                const QString avdInfoFileName = avd->avdname + ".ini";
+                const QString avdInfoFileName = avd.avdname + ".ini";
                 const Utils::FilePath avdInfoFile = avdPath.parentDir().pathAppended(
                     avdInfoFileName);
                 QSettings avdInfo(avdInfoFile.toString(), QSettings::IniFormat);
                 value = avdInfo.value(avdInfoTargetKey).toString();
                 if (!value.isEmpty())
-                    avd->sdk = value.section('-', -1).toInt();
+                    avd.sdk = value.section('-', -1).toInt();
                 else
                     qCDebug(avdOutputParserLog)
                         << "Avd Parsing: Cannot find sdk API:" << avdInfoFile.toString();
             }
         } else if (valueForKey(avdInfoDeviceKey, line, &value)) {
-            avd->avdDevice = value.remove(0, 2);
+            avd.avdDevice = value.remove(0, 2);
         } else if (valueForKey(avdInfoTargetTypeKey, line, &value)) {
-            avd->avdTarget = value.remove(0, 2);
+            avd.avdTarget = value.remove(0, 2);
         } else if (valueForKey(avdInfoSkinKey, line, &value)) {
-            avd->avdSkin = value.remove(0, 2);
+            avd.avdSkin = value.remove(0, 2);
         } else if (valueForKey(avdInfoSdcardKey, line, &value)) {
-            avd->avdSdcardSize = value.remove(0, 2);
+            avd.avdSdcardSize = value.remove(0, 2);
         }
     }
-    return true;
+    if (avd != AndroidDeviceInfo())
+        return avd;
+    return {};
 }
 
 AndroidDeviceInfoList parseAvdList(const QString &output, QStringList *avdErrorPaths)
@@ -122,20 +125,19 @@ AndroidDeviceInfoList parseAvdList(const QString &output, QStringList *avdErrorP
     using ErrorPath = QString;
     using AvdResult = Utils::variant<std::monostate, AndroidDeviceInfo, ErrorPath>;
     const auto parseAvdInfo = [](const QStringList &avdInfo) {
-        AndroidDeviceInfo avd;
         if (!avdInfo.filter(avdManufacturerError).isEmpty()) {
             for (const QString &line : avdInfo) {
                 QString value;
                 if (valueForKey(avdInfoPathKey, line, &value))
                     return AvdResult(value); // error path
             }
-        } else if (parseAvd(avdInfo, &avd)) {
+        } else if (Utils::optional<AndroidDeviceInfo> avd = parseAvd(avdInfo)) {
             // armeabi-v7a devices can also run armeabi code
-            if (avd.cpuAbi.contains(ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A))
-                avd.cpuAbi << ProjectExplorer::Constants::ANDROID_ABI_ARMEABI;
-            avd.state = AndroidDeviceInfo::OkState;
-            avd.type = AndroidDeviceInfo::Emulator;
-            return AvdResult(avd);
+            if (avd->cpuAbi.contains(ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A))
+                avd->cpuAbi << ProjectExplorer::Constants::ANDROID_ABI_ARMEABI;
+            avd->state = AndroidDeviceInfo::OkState;
+            avd->type = AndroidDeviceInfo::Emulator;
+            return AvdResult(*avd);
         } else {
             qCDebug(avdOutputParserLog) << "Avd Parsing: Parsing failed: " << avdInfo;
         }
