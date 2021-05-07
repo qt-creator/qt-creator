@@ -41,7 +41,7 @@ QnxDeviceProcessList::QnxDeviceProcessList(
 
 QString QnxDeviceProcessList::listProcessesCommandLine() const
 {
-    return QLatin1String("pidin -F \"%a %A '/%n'\"");
+    return QLatin1String("pidin -F '%a %A {/%n}'");
 }
 
 QList<ProjectExplorer::DeviceProcessItem> QnxDeviceProcessList::buildProcessList(
@@ -53,7 +53,7 @@ QList<ProjectExplorer::DeviceProcessItem> QnxDeviceProcessList::buildProcessList
         return processes;
 
     lines.pop_front(); // drop headers
-    const QRegularExpression re("\\s*(\\d+)\\s+(.*)'(.*)'");
+    const QRegularExpression re("\\s*(\\d+)\\s+(.*){(.*)}");
 
     for (const QString &line : qAsConst(lines)) {
         const QRegularExpressionMatch match = re.match(line);
