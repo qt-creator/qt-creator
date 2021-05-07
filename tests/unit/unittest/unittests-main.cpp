@@ -26,6 +26,8 @@
 #include "googletest.h"
 
 #include <sqlitedatabase.h>
+#include <sqlitelibraryinitializer.h>
+
 #include <sqliteglobal.h>
 #include <utils/temporarydirectory.h>
 
@@ -52,6 +54,7 @@ public:
 
 int main(int argc, char *argv[])
 {
+    Sqlite::LibraryInitializer::initialize();
     Sqlite::Database::activateLogging();
 
     QGuiApplication application(argc, argv);

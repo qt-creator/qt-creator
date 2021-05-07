@@ -248,7 +248,9 @@ void CreateTableSqlStatementBuilder::bindColumnDefinitionsAndTableConstraints() 
     columnDefinitionStrings.reserve(m_columns.size());
 
     for (const Column &column : m_columns) {
-        Utils::SmallString columnDefinitionString = {column.name, " ", column.typeString()};
+        Utils::SmallString columnDefinitionString = {column.name,
+                                                     SqlStatementBuilder::columnTypeToString(
+                                                         column.type)};
 
         ContraintsVisiter visiter{columnDefinitionString};
 

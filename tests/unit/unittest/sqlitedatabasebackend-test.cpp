@@ -30,7 +30,7 @@
 #include <sqliteexception.h>
 #include <sqlitewritestatement.h>
 
-#include <sqlite3.h>
+#include <sqlite.h>
 
 #include <QDir>
 

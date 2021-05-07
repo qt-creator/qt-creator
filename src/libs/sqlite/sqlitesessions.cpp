@@ -28,7 +28,7 @@
 #include "sqlitesessionchangeset.h"
 #include "sqlitetable.h"
 
-#include <sqlite3ext.h>
+#include <sqlite.h>
 
 #include <memory>
 
