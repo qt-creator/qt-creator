@@ -85,6 +85,11 @@ class QTCREATOR_UTILS_EXPORT SynchronousProcess : public QObject
 {
     Q_OBJECT
 public:
+    enum Flags {
+        // Unix: Do not give the child process a terminal for input prompting.
+        UnixTerminalDisabled = 0x1
+    };
+
     SynchronousProcess();
     ~SynchronousProcess() override;
 
@@ -114,8 +119,8 @@ public:
     void setWorkingDirectory(const QString &workingDirectory);
     QString workingDirectory() const;
 
-    // Unix: Do not give the child process a terminal for input prompting.
-    void setDisableUnixTerminal();
+    unsigned flags() const;
+    void setFlags(unsigned);
 
     void setExitCodeInterpreter(const ExitCodeInterpreter &interpreter);
     ExitCodeInterpreter exitCodeInterpreter() const;

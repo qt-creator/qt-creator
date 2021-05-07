@@ -103,7 +103,6 @@ public:
     bool m_progressiveOutput = false;
     bool m_hadOutput = false;
     bool m_aborted = false;
-    bool m_disableUnixTerminal = false;
 };
 
 ShellCommandPrivate::Job::Job(const QString &wd, const CommandLine &command,
@@ -223,6 +222,11 @@ void ShellCommand::abort()
 void ShellCommand::cancel()
 {
     emit terminate();
+}
+
+unsigned ShellCommand::processFlags() const
+{
+    return 0;
 }
 
 void ShellCommand::addTask(QFuture<void> &future)
@@ -353,8 +357,7 @@ SynchronousProcessResponse ShellCommand::runFullySynchronous(const CommandLine &
 {
     // Set up process
     SynchronousProcess process;
-    if (d->m_disableUnixTerminal)
-        process.setDisableUnixTerminal();
+    process.setFlags(processFlags());
     const QString dir = workDirectory(workingDirectory);
     if (!dir.isEmpty())
         process.setWorkingDirectory(dir);
@@ -398,8 +401,7 @@ SynchronousProcessResponse ShellCommand::runSynchronous(const CommandLine &cmd,
     process.setTimeoutS(timeoutS);
     if (d->m_codec)
         process.setCodec(d->m_codec);
-    if (d->m_disableUnixTerminal)
-        process.setDisableUnixTerminal();
+    process.setFlags(processFlags());
     const QString dir = workDirectory(workingDirectory);
     if (!dir.isEmpty())
         process.setWorkingDirectory(dir);
@@ -485,11 +487,6 @@ void ShellCommand::setProgressiveOutput(bool progressive)
 void ShellCommand::setOutputProxyFactory(const std::function<OutputProxy *()> &factory)
 {
     d->m_proxyFactory = factory;
-}
-
-void ShellCommand::setDisableUnixTerminal()
-{
-    d->m_disableUnixTerminal = true;
 }
 
 ProgressParser::ProgressParser() :

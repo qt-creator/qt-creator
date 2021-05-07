@@ -141,7 +141,6 @@ public:
     void setProgressiveOutput(bool progressive);
 
     void setOutputProxyFactory(const std::function<OutputProxy *()> &factory);
-    void setDisableUnixTerminal();
 
     // This is called once per job in a thread.
     // When called from the UI thread it will execute fully synchronously, so no signals will
@@ -163,6 +162,7 @@ signals:
     void terminate(); // Internal
 
 protected:
+    virtual unsigned processFlags() const;
     virtual void addTask(QFuture<void> &future);
     int timeoutS() const;
     QString workDirectory(const QString &wd) const;
