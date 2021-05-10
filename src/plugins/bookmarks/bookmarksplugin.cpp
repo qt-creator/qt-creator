@@ -72,6 +72,7 @@ public:
     BookmarkViewFactory m_bookmarkViewFactory;
 
     QAction m_toggleAction{BookmarksPlugin::tr("Toggle Bookmark"), nullptr};
+    QAction m_editAction{BookmarksPlugin::tr("Edit Bookmark"), nullptr};
     QAction m_prevAction{BookmarksPlugin::tr("Previous Bookmark"), nullptr};
     QAction m_nextAction{BookmarksPlugin::tr("Next Bookmark"), nullptr};
     QAction m_docPrevAction{BookmarksPlugin::tr("Previous Bookmark in Document"), nullptr};
@@ -113,6 +114,14 @@ BookmarksPluginPrivate::BookmarksPluginPrivate()
                                                             : BookmarksPlugin::tr("Ctrl+M")));
     cmd->setTouchBarIcon(Utils::Icons::MACOS_TOUCHBAR_BOOKMARK.icon());
     mbm->addAction(cmd);
+
+    cmd = ActionManager::registerAction(&m_editAction,
+                                        BOOKMARKS_EDIT_ACTION,
+                                        editorManagerContext);
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? BookmarksPlugin::tr("Meta+Shift+M")
+                                                            : BookmarksPlugin::tr("Ctrl+Shift+M")));
+    mbm->addAction(cmd);
+
     touchBar->addAction(cmd, Core::Constants::G_TOUCHBAR_EDITOR);
 
     mbm->addSeparator();
@@ -151,6 +160,17 @@ BookmarksPluginPrivate::BookmarksPluginPrivate()
             m_bookmarkManager.toggleBookmark(editor->document()->filePath(), editor->currentLine());
     });
 
+    connect(&m_editAction, &QAction::triggered, this, [this] {
+        BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
+        if (editor && !editor->document()->isTemporary()) {
+            const FilePath filePath = editor->document()->filePath();
+            const int line = editor->currentLine();
+            if (!m_bookmarkManager.hasBookmarkInPosition(filePath, line))
+                m_bookmarkManager.toggleBookmark(filePath, line);
+            m_bookmarkManager.editByFileAndLine(filePath, line);
+        }
+    });
+
     connect(&m_prevAction, &QAction::triggered, &m_bookmarkManager, &BookmarkManager::prev);
     connect(&m_nextAction, &QAction::triggered, &m_bookmarkManager, &BookmarkManager::next);
     connect(&m_docPrevAction, &QAction::triggered,
@@ -183,6 +203,7 @@ void BookmarksPluginPrivate::updateActions(bool enableToggle, int state)
     const bool hasdocbm = state == BookmarkManager::HasBookmarksInDocument;
 
     m_toggleAction.setEnabled(enableToggle);
+    m_editAction.setEnabled(enableToggle);
     m_prevAction.setEnabled(hasbm);
     m_nextAction.setEnabled(hasbm);
     m_docPrevAction.setEnabled(hasdocbm);
