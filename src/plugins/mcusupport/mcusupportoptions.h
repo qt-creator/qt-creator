@@ -137,6 +137,7 @@ public:
         TypeGHS,
         TypeMSVC,
         TypeGCC,
+        TypeGHSArm,
         TypeUnsupported
     };
 
