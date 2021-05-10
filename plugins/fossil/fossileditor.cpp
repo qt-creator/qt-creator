@@ -31,7 +31,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
-#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 #include <vcsbase/diffandloghighlighter.h>
 
 #include <QRegularExpression>
