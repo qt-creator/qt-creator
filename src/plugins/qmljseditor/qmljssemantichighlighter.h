@@ -27,6 +27,7 @@
 
 #include <qmljseditor/qmljseditor_global.h>
 #include <texteditor/semantichighlighter.h>
+#include <QFutureSynchronizer>
 #include <QFutureWatcher>
 #include <QTextLayout>
 #include <QVector>
@@ -89,6 +90,7 @@ private:
     QHash<int, QTextCharFormat> m_formats;
     QHash<int, QTextCharFormat> m_extraFormats;
     QVector<QTextLayout::FormatRange> m_diagnosticRanges;
+    QFutureSynchronizer<void> m_futureSynchronizer;
 };
 
 } // namespace QmlJSEditor

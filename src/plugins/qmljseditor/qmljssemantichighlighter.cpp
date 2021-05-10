@@ -560,8 +560,10 @@ void SemanticHighlighter::rerun(const QmlJSTools::SemanticInfo &semanticInfo)
     m_watcher.cancel();
 
     m_startRevision = m_document->document()->revision();
-    m_watcher.setFuture(Utils::runAsync(QThread::LowestPriority,
-                                        &SemanticHighlighter::run, this, semanticInfo));
+    auto future = Utils::runAsync(QThread::LowestPriority, &SemanticHighlighter::run,
+                                  this, semanticInfo);
+    m_watcher.setFuture(future);
+    m_futureSynchronizer.addFuture(future);
 }
 
 void SemanticHighlighter::cancel()
