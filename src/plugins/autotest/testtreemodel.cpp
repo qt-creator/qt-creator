@@ -623,10 +623,6 @@ static Qt::CheckState computeCheckStateByChildren(ITestTreeItem *item)
     bool foundPartiallyChecked = false;
 
     item->forFirstLevelChildren([&](ITestTreeItem *child) {
-        if (foundPartiallyChecked || (foundChecked && foundUnchecked)) {
-            newState = Qt::PartiallyChecked;
-            return;
-        }
         switch (child->type()) {
         case TestTreeItem::TestDataFunction:
         case TestTreeItem::TestSpecialFunction:
@@ -638,6 +634,11 @@ static Qt::CheckState computeCheckStateByChildren(ITestTreeItem *item)
         foundChecked |= (child->checked() == Qt::Checked);
         foundUnchecked |= (child->checked() == Qt::Unchecked);
         foundPartiallyChecked |= (child->checked() == Qt::PartiallyChecked);
+
+        if (foundPartiallyChecked || (foundChecked && foundUnchecked)) {
+            newState = Qt::PartiallyChecked;
+            return;
+        }
     });
 
     if (newState != Qt::PartiallyChecked)
