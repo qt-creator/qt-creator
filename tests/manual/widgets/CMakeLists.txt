@@ -1,3 +1,4 @@
 add_subdirectory(crumblepath)
 add_subdirectory(infolabel)
 add_subdirectory(manhattanstyle)
+add_subdirectory(tracing)
