@@ -110,27 +110,17 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     updateCurrentEditor();
 }
 
+QList<QToolButton *> OutlineWidgetStack::toolButtons()
+{
+    return {m_filterButton, m_toggleSort, m_toggleSync};
+}
+
 OutlineWidgetStack::~OutlineWidgetStack() = default;
-
-QToolButton *OutlineWidgetStack::toggleSyncButton()
-{
-    return m_toggleSync;
-}
-
-QToolButton *OutlineWidgetStack::filterButton()
-{
-    return m_filterButton;
-}
-
-QToolButton *OutlineWidgetStack::sortButton()
-{
-    return m_toggleSort;
-}
 
 void OutlineWidgetStack::saveSettings(QSettings *settings, int position)
 {
     const QString baseKey = QStringLiteral("Outline.%1.").arg(position);
-    settings->setValue(baseKey + QLatin1String("SyncWithEditor"), toggleSyncButton()->isChecked());
+    settings->setValue(baseKey + QLatin1String("SyncWithEditor"), m_toggleSync->isChecked());
     for (auto iter = m_widgetSettings.constBegin(); iter != m_widgetSettings.constEnd(); ++iter)
         settings->setValue(baseKey + iter.key(), iter.value());
 }
@@ -154,7 +144,7 @@ void OutlineWidgetStack::restoreSettings(QSettings *settings, int position)
         m_widgetSettings.insert(key, settings->value(longKey));
     }
 
-    toggleSyncButton()->setChecked(syncWithEditor);
+    m_toggleSync->setChecked(syncWithEditor);
     if (auto outlineWidget = qobject_cast<IOutlineWidget*>(currentWidget()))
         outlineWidget->restoreSettings(m_widgetSettings);
 }
@@ -241,13 +231,8 @@ OutlineFactory::OutlineFactory()
 
 Core::NavigationView OutlineFactory::createWidget()
 {
-    Core::NavigationView n;
     auto placeHolder = new OutlineWidgetStack(this);
-    n.widget = placeHolder;
-    n.dockToolBarWidgets.append(placeHolder->filterButton());
-    n.dockToolBarWidgets.append(placeHolder->sortButton());
-    n.dockToolBarWidgets.append(placeHolder->toggleSyncButton());
-    return n;
+    return {placeHolder, placeHolder->toolButtons()};
 }
 
 void OutlineFactory::saveSettings(Utils::QtcSettings *settings, int position, QWidget *widget)

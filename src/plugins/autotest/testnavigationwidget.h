@@ -38,10 +38,6 @@ class QTimer;
 class QToolButton;
 QT_END_NAMESPACE
 
-namespace Core {
-class IContext;
-}
-
 namespace Utils {
 class ProgressIndicator;
 }

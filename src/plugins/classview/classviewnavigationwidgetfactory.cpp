@@ -57,11 +57,8 @@ NavigationWidgetFactory::NavigationWidgetFactory()
 
 Core::NavigationView NavigationWidgetFactory::createWidget()
 {
-    Core::NavigationView navigationView;
     auto widget = new NavigationWidget();
-    navigationView.widget = widget;
-    navigationView.dockToolBarWidgets = widget->createToolButtons();
-    return navigationView;
+    return {widget, widget->createToolButtons()};
 }
 
 

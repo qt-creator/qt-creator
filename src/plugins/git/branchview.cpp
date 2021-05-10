@@ -75,24 +75,22 @@ protected:
     }
 };
 
-BranchView::BranchView() :
-    m_includeOldEntriesAction(new QAction(tr("Include Old Entries"), this)),
-    m_includeTagsAction(new QAction(tr("Include Tags"), this)),
-    m_addButton(new QToolButton(this)),
-    m_refreshButton(new QToolButton(this)),
-    m_repositoryLabel(new Utils::ElidingLabel(this)),
-    m_branchView(new Utils::NavigationTreeView(this)),
-    m_model(new BranchModel(GitClient::instance(), this)),
-    m_filterModel(new BranchFilterModel(this))
+BranchView::BranchView()
+    : m_includeOldEntriesAction(new QAction(tr("Include Old Entries"), this))
+    , m_includeTagsAction(new QAction(tr("Include Tags"), this))
+    , m_addAction(new QAction(this))
+    , m_refreshAction(new QAction(this))
+    , m_repositoryLabel(new Utils::ElidingLabel(this))
+    , m_branchView(new Utils::NavigationTreeView(this))
+    , m_model(new BranchModel(GitClient::instance(), this))
+    , m_filterModel(new BranchFilterModel(this))
 {
-    m_addButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
-    m_addButton->setProperty("noArrow", true);
-    connect(m_addButton, &QToolButton::clicked, this, &BranchView::add);
+    m_addAction->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
+    connect(m_addAction, &QAction::triggered, this, &BranchView::add);
 
-    m_refreshButton->setIcon(Utils::Icons::RELOAD_TOOLBAR.icon());
-    m_refreshButton->setToolTip(tr("Refresh"));
-    m_refreshButton->setProperty("noArrow", true);
-    connect(m_refreshButton, &QToolButton::clicked, this, &BranchView::refreshCurrentRepository);
+    m_refreshAction->setIcon(Utils::Icons::RELOAD_TOOLBAR.icon());
+    m_refreshAction->setToolTip(tr("Refresh"));
+    connect(m_refreshAction, &QAction::triggered, this, &BranchView::refreshCurrentRepository);
 
     m_branchView->setHeaderHidden(true);
     setFocus();
@@ -155,12 +153,12 @@ void BranchView::refresh(const QString &repository, bool force)
     m_repository = repository;
     if (m_repository.isEmpty()) {
         m_repositoryLabel->setText(tr("<No repository>"));
-        m_addButton->setToolTip(tr("Create Git Repository..."));
+        m_addAction->setToolTip(tr("Create Git Repository..."));
         m_branchView->setEnabled(false);
     } else {
         m_repositoryLabel->setText(QDir::toNativeSeparators(m_repository));
         m_repositoryLabel->setToolTip(GitPlugin::msgRepositoryLabel(m_repository));
-        m_addButton->setToolTip(tr("Add Branch..."));
+        m_addAction->setToolTip(tr("Add Branch..."));
         m_branchView->setEnabled(true);
     }
 
@@ -183,14 +181,28 @@ void BranchView::showEvent(QShowEvent *)
     refreshCurrentRepository();
 }
 
-QToolButton *BranchView::addButton() const
+QList<QToolButton *> BranchView::createToolButtons()
 {
-    return m_addButton;
-}
+    auto filter = new QToolButton;
+    filter->setIcon(Utils::Icons::FILTER.icon());
+    filter->setToolTip(tr("Filter"));
+    filter->setPopupMode(QToolButton::InstantPopup);
+    filter->setProperty("noArrow", true);
 
-QToolButton *BranchView::refreshButton() const
-{
-    return m_refreshButton;
+    auto filterMenu = new QMenu(filter);
+    filterMenu->addAction(m_includeOldEntriesAction);
+    filterMenu->addAction(m_includeTagsAction);
+    filter->setMenu(filterMenu);
+
+    auto addButton = new QToolButton;
+    addButton->setDefaultAction(m_addAction);
+    addButton->setProperty("noArrow", true);
+
+    auto refreshButton = new QToolButton;
+    refreshButton->setDefaultAction(m_refreshAction);
+    refreshButton->setProperty("noArrow", true);
+
+    return {filter, addButton, refreshButton};
 }
 
 void BranchView::refreshCurrentRepository()
@@ -606,20 +618,7 @@ BranchViewFactory::BranchViewFactory()
 NavigationView BranchViewFactory::createWidget()
 {
     m_view = new BranchView;
-    Core::NavigationView navigationView(m_view);
-
-    auto filter = new QToolButton;
-    filter->setIcon(Utils::Icons::FILTER.icon());
-    filter->setToolTip(tr("Filter"));
-    filter->setPopupMode(QToolButton::InstantPopup);
-    filter->setProperty("noArrow", true);
-    auto filterMenu = new QMenu(filter);
-    filterMenu->addAction(m_view->m_includeOldEntriesAction);
-    filterMenu->addAction(m_view->m_includeTagsAction);
-    filter->setMenu(filterMenu);
-
-    navigationView.dockToolBarWidgets << filter << m_view->addButton() << m_view->refreshButton();
-    return navigationView;
+    return {m_view, m_view->createToolButtons()};
 }
 
 BranchView *BranchViewFactory::view() const

@@ -289,13 +289,12 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent) : QWidget(parent)
     connect(m_view, &QTreeView::collapsed,
             m_model, &FlatModel::onCollapsed);
 
-    m_toggleSync = new QToolButton(this);
+    m_toggleSync = new QAction(this);
     m_toggleSync->setIcon(Icons::LINK_TOOLBAR.icon());
     m_toggleSync->setCheckable(true);
     m_toggleSync->setChecked(autoSynchronization());
     m_toggleSync->setToolTip(tr("Synchronize with Editor"));
-    connect(m_toggleSync, &QAbstractButton::clicked,
-            this, &ProjectTreeWidget::toggleAutoSynchronization);
+    connect(m_toggleSync, &QAction::triggered, this, &ProjectTreeWidget::toggleAutoSynchronization);
 
     setCurrentItem(ProjectTree::currentNode());
     setAutoSynchronization(true);
@@ -381,11 +380,6 @@ Node *ProjectTreeWidget::nodeForFile(const FilePath &fileName)
     return bestNode;
 }
 
-QToolButton *ProjectTreeWidget::toggleSync()
-{
-    return m_toggleSync;
-}
-
 void ProjectTreeWidget::toggleAutoSynchronization()
 {
     setAutoSynchronization(!m_autoSync);
@@ -433,6 +427,27 @@ void ProjectTreeWidget::collapseAll()
 void ProjectTreeWidget::expandAll()
 {
     m_view->expandAll();
+}
+
+QList<QToolButton *> ProjectTreeWidget::createToolButtons()
+{
+    auto filter = new QToolButton(this);
+    filter->setIcon(Icons::FILTER.icon());
+    filter->setToolTip(tr("Filter Tree"));
+    filter->setPopupMode(QToolButton::InstantPopup);
+    filter->setProperty("noArrow", true);
+
+    auto filterMenu = new QMenu(filter);
+    filterMenu->addAction(m_filterProjectsAction);
+    filterMenu->addAction(m_filterGeneratedFilesAction);
+    filterMenu->addAction(m_filterDisabledFilesAction);
+    filterMenu->addAction(m_trimEmptyDirectoriesAction);
+    filter->setMenu(filterMenu);
+
+    auto toggleSync = new QToolButton;
+    toggleSync->setDefaultAction(m_toggleSync);
+
+    return {filter, toggleSync};
 }
 
 void ProjectTreeWidget::editCurrentItem()
@@ -602,24 +617,8 @@ ProjectTreeWidgetFactory::ProjectTreeWidgetFactory()
 
 NavigationView ProjectTreeWidgetFactory::createWidget()
 {
-    NavigationView n;
     auto ptw = new ProjectTreeWidget;
-    n.widget = ptw;
-
-    auto filter = new QToolButton(ptw);
-    filter->setIcon(Icons::FILTER.icon());
-    filter->setToolTip(tr("Filter Tree"));
-    filter->setPopupMode(QToolButton::InstantPopup);
-    filter->setProperty("noArrow", true);
-    auto filterMenu = new QMenu(filter);
-    filterMenu->addAction(ptw->m_filterProjectsAction);
-    filterMenu->addAction(ptw->m_filterGeneratedFilesAction);
-    filterMenu->addAction(ptw->m_filterDisabledFilesAction);
-    filterMenu->addAction(ptw->m_trimEmptyDirectoriesAction);
-    filter->setMenu(filterMenu);
-
-    n.dockToolBarWidgets << filter << ptw->toggleSync();
-    return n;
+    return {ptw, ptw->createToolButtons()};
 }
 
 const bool kProjectFilterDefault = false;

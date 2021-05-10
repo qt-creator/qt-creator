@@ -812,9 +812,7 @@ BookmarkViewFactory::BookmarkViewFactory(BookmarkManager *bm)
 NavigationView BookmarkViewFactory::createWidget()
 {
     auto view = new BookmarkView(m_manager);
-    auto navview = NavigationView(view);
-    navview.dockToolBarWidgets = view->createToolBarWidgets();
-    return navview;
+    return {view, view->createToolBarWidgets()};
 }
 
 } // namespace Internal

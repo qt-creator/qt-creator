@@ -59,11 +59,7 @@ public:
     void refresh(const QString &repository, bool force);
     void refreshCurrentBranch();
 
-    QToolButton *addButton() const;
-    QToolButton *refreshButton() const;
-
-    QAction *m_includeOldEntriesAction = nullptr;
-    QAction *m_includeTagsAction = nullptr;
+    QList<QToolButton *> createToolButtons();
 
 protected:
     void showEvent(QShowEvent *) override;
@@ -89,8 +85,11 @@ private:
     void reflog(const QModelIndex &idx);
     void push();
 
-    QToolButton *m_addButton = nullptr;
-    QToolButton *m_refreshButton = nullptr;
+    QAction *m_includeOldEntriesAction = nullptr;
+    QAction *m_includeTagsAction = nullptr;
+    QAction *m_addAction = nullptr;
+    QAction *m_refreshAction = nullptr;
+
     Utils::ElidingLabel *m_repositoryLabel = nullptr;
     Utils::NavigationTreeView *m_branchView = nullptr;
     BranchModel *m_model = nullptr;

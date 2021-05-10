@@ -58,7 +58,6 @@ public:
     bool generatedFilesFilter();
     bool disabledFilesFilter();
     bool trimEmptyDirectoriesFilter();
-    QToolButton *toggleSync();
     Node *currentNode();
     void sync(ProjectExplorer::Node *node);
     void showMessage(ProjectExplorer::Node *node, const QString &message);
@@ -70,6 +69,8 @@ public:
     void expandCurrentNodeRecursively();
     void collapseAll();
     void expandAll();
+
+    QList<QToolButton *> createToolButtons();
 
 private:
     void setProjectFilter(bool filter);
@@ -96,7 +97,7 @@ private:
     QAction *m_filterGeneratedFilesAction = nullptr;
     QAction *m_filterDisabledFilesAction = nullptr;
     QAction *m_trimEmptyDirectoriesAction = nullptr;
-    QToolButton *m_toggleSync = nullptr;
+    QAction *m_toggleSync = nullptr;
 
     QString m_modelId;
     bool m_autoSync = true;

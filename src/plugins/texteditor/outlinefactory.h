@@ -44,9 +44,7 @@ public:
     OutlineWidgetStack(OutlineFactory *factory);
     ~OutlineWidgetStack() override;
 
-    QToolButton *toggleSyncButton();
-    QToolButton *filterButton();
-    QToolButton *sortButton();
+    QList<QToolButton *> toolButtons();
 
     void saveSettings(QSettings *settings, int position);
     void restoreSettings(QSettings *settings, int position);

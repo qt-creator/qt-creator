@@ -140,7 +140,7 @@ OpenEditorsViewFactory::OpenEditorsViewFactory()
 
 NavigationView OpenEditorsViewFactory::createWidget()
 {
-    return NavigationView(new OpenEditorsWidget());
+    return {new OpenEditorsWidget, {}};
 }
 
 ProxyModel::ProxyModel(QObject *parent) : QAbstractProxyModel(parent)

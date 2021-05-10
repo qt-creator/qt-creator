@@ -361,7 +361,7 @@ Core::NavigationView CppTypeHierarchyFactory::createWidget()
 {
     auto w = new CppTypeHierarchyWidget;
     w->perform();
-    return Core::NavigationView(w);
+    return {w, {}};
 }
 
 CppTypeHierarchyModel::CppTypeHierarchyModel(QObject *parent)

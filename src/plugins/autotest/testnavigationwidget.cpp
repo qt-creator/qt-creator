@@ -357,10 +357,7 @@ TestNavigationWidgetFactory::TestNavigationWidgetFactory()
 Core::NavigationView TestNavigationWidgetFactory::createWidget()
 {
     TestNavigationWidget *treeViewWidget = new TestNavigationWidget;
-    Core::NavigationView view;
-    view.widget = treeViewWidget;
-    view.dockToolBarWidgets = treeViewWidget->createToolButtons();
-    return view;
+    return {treeViewWidget, treeViewWidget->createToolButtons()};
 }
 
 } // namespace Internal
