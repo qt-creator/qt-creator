@@ -3891,6 +3891,9 @@ void GdbEngine::setupEngine()
     runCommand({"set breakpoint pending on"});
     runCommand({"set print elements 10000"});
 
+    if (debuggerSettings()->useIndexCache.value())
+        runCommand({"set index-cache on"});
+
     // Produces a few messages during symtab loading
     //runCommand("set verbose on");
 

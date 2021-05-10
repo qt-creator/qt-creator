@@ -71,6 +71,7 @@ public:
                 s.loadGdbDumpers,
                 s.intelFlavor,
                 s.usePseudoTracepoints,
+                s.useIndexCache,
                 Stretch()
             };
 

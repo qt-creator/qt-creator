@@ -431,6 +431,13 @@ DebuggerSettings::DebuggerSettings()
         /*GdbOptionsPage::*/ tr("Uses Python to extend the ordinary GDB breakpoint class."));
     usePseudoTracepoints.setDefaultValue(true);
 
+    useIndexCache.setSettingsKey(debugModeGroup, "UseIndexCache");
+    useIndexCache.setLabelText(tr("Use automatic symbol cache"));
+    useIndexCache.setToolTip(tr("It is possible for GDB to automatically save a copy of "
+        "its symbol index in a cache on disk and retrieve it from there when loading the same "
+        "binary in the future."));
+    useIndexCache.setDefaultValue(true);
+
     useToolTipsInMainEditor.setSettingsKey(debugModeGroup, "UseToolTips");
     useToolTipsInMainEditor.setLabelText(tr("Use tooltips in main editor when debugging"));
     useToolTipsInMainEditor.setToolTip(tr("<p>Checking this will enable tooltips for variable "
@@ -584,6 +591,7 @@ DebuggerSettings::DebuggerSettings()
     page2.registerAspect(&intelFlavor);
     page2.registerAspect(&skipKnownFrames);
     page2.registerAspect(&usePseudoTracepoints);
+    page2.registerAspect(&useIndexCache);
     page2.registerAspect(&gdbStartupCommands);
     page2.registerAspect(&gdbPostAttachCommands);
 

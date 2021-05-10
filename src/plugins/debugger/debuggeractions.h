@@ -112,6 +112,7 @@ public:
     Utils::BoolAspect loadGdbDumpers;
     Utils::BoolAspect intelFlavor;
     Utils::BoolAspect usePseudoTracepoints;
+    Utils::BoolAspect useIndexCache;
     Utils::StringAspect gdbStartupCommands;
     Utils::StringAspect gdbPostAttachCommands;
 
