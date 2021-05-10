@@ -145,7 +145,8 @@ void Qt5NodeInstanceServer::resizeCanvasToRootItem()
 {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     m_viewData.bufferDirty = true;
-    m_viewData.contentItem->setPosition(-m_viewData.rootItem->position());
+    if (m_viewData.contentItem)
+        m_viewData.contentItem->setPosition(-m_viewData.rootItem->position());
 #endif
     quickWindow()->resize(rootNodeInstance().boundingRect().size().toSize());
 }
