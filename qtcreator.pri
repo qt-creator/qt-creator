@@ -193,6 +193,8 @@ CONFIG += \
 
 LIBS *= -L$$LINK_LIBRARY_PATH  # Qt Creator libraries
 exists($$IDE_LIBRARY_PATH): LIBS *= -L$$IDE_LIBRARY_PATH  # library path from output path
+# linking against Qt Creator built with CMake
+win32: LIBS *= -L$$IDE_BUILD_TREE/bin
 
 !isEmpty(vcproj) {
     DEFINES += IDE_LIBRARY_BASENAME=\"$$IDE_LIBRARY_BASENAME\"

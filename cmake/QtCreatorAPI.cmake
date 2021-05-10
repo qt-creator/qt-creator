@@ -13,6 +13,7 @@ set(IDE_APP_TARGET "${_IDE_APP_TARGET}")                # The IDE application na
 set(IDE_PLUGIN_PATH "${_IDE_PLUGIN_PATH}")              # The IDE plugin path (relative to CMAKE_INSTALL_PREFIX).
 set(IDE_LIBRARY_BASE_PATH "${_IDE_LIBRARY_BASE_PATH}")  # The IDE library base path (relative to CMAKE_INSTALL_PREFIX).
 set(IDE_LIBRARY_PATH "${_IDE_LIBRARY_PATH}")            # The IDE library path (relative to CMAKE_INSTALL_PREFIX).
+set(IDE_LIBRARY_ARCHIVE_PATH "${_IDE_LIBRARY_ARCHIVE_PATH}") # The IDE library archive path (relative to CMAKE_INSTALL_PREFIX).
 set(IDE_LIBEXEC_PATH "${_IDE_LIBEXEC_PATH}")            # The IDE libexec path (relative to CMAKE_INSTALL_PREFIX).
 set(IDE_DATA_PATH "${_IDE_DATA_PATH}")                  # The IDE data path (relative to CMAKE_INSTALL_PREFIX).
 set(IDE_DOC_PATH "${_IDE_DOC_PATH}")                    # The IDE documentation path (relative to CMAKE_INSTALL_PREFIX).
@@ -249,7 +250,7 @@ function(add_qtc_library name)
     INSTALL_RPATH "${_LIB_RPATH}"
     RUNTIME_OUTPUT_DIRECTORY "${_output_binary_dir}/${_DESTINATION}"
     LIBRARY_OUTPUT_DIRECTORY "${_output_binary_dir}/${IDE_LIBRARY_PATH}"
-    ARCHIVE_OUTPUT_DIRECTORY "${_output_binary_dir}/${IDE_LIBRARY_PATH}"
+    ARCHIVE_OUTPUT_DIRECTORY "${_output_binary_dir}/${IDE_LIBRARY_ARCHIVE_PATH}"
     ${_arg_PROPERTIES}
   )
   enable_pch(${name})
@@ -289,7 +290,7 @@ function(add_qtc_library name)
       DESTINATION "${IDE_LIBRARY_PATH}"
       COMPONENT Devel EXCLUDE_FROM_ALL
     ARCHIVE
-      DESTINATION "${IDE_LIBRARY_PATH}"
+      DESTINATION "${IDE_LIBRARY_ARCHIVE_PATH}"
       COMPONENT Devel EXCLUDE_FROM_ALL
       OPTIONAL
   )
