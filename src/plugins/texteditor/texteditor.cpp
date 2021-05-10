@@ -5135,11 +5135,11 @@ void TextEditorWidgetPrivate::paintTextMarks(QPainter &painter, const ExtraAreaP
     TextMarks marks = userData->marks();
     TextMarks::const_iterator it = marks.constBegin();
     if (marks.size() > 3) {
-        // We want the 3 with the highest priority so iterate from the back
+        // We want the 3 with the highest priority that have an icon so iterate from the back
         int count = 0;
         it = marks.constEnd() - 1;
         while (it != marks.constBegin()) {
-            if ((*it)->isVisible())
+            if ((*it)->isVisible() && !(*it)->icon().isNull())
                 ++count;
             if (count == 3)
                 break;
@@ -5149,7 +5149,7 @@ void TextEditorWidgetPrivate::paintTextMarks(QPainter &painter, const ExtraAreaP
     TextMarks::const_iterator end = marks.constEnd();
     for ( ; it != end; ++it) {
         TextMark *mark = *it;
-        if (!mark->isVisible())
+        if (!mark->isVisible() && !mark->icon().isNull())
             continue;
         const int height = data.lineSpacing - 1;
         const int width = int(.5 + height * mark->widthFactor());

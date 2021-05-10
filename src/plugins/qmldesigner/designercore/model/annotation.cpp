@@ -26,6 +26,7 @@
 #include "annotation.h"
 
 #include <QDateTime>
+#include <QJsonArray>
 #include <QString>
 
 namespace QmlDesigner {
@@ -148,6 +149,27 @@ QString Comment::toQString() const
     result.push_back(QString::number(m_timestamp));
 
     return result.join(s_sep);
+}
+
+QJsonValue Comment::toJsonValue() const
+{
+    return QJsonObject{
+        {{"title", m_title}, {"author", m_author}, {"text", m_text}, {"timestamp", m_timestamp}}};
+};
+
+bool Comment::fromJsonValue(QJsonValue const &v)
+{
+    if (!v.isObject())
+        return false;
+
+    auto obj = v.toObject();
+    Comment comment;
+    comment.m_title = obj["title"].toString();
+    comment.m_author = obj["author"].toString();
+    comment.m_text = obj["text"].toString();
+    comment.m_timestamp = obj["timestamp"].toInt();
+    *this = comment;
+    return true;
 }
 
 QDebug &operator<<(QDebug &stream, const Comment &comment)
@@ -297,6 +319,33 @@ void Annotation::fromQString(const QString &str)
             }
         }
     }
+}
+
+QJsonValue Annotation::toJsonValue() const
+{
+    QJsonObject obj;
+    QJsonArray comments;
+    for (auto &comment : m_comments)
+        comments.push_back(comment.toJsonValue());
+
+    obj["comments"] = comments;
+    return obj;
+}
+
+bool Annotation::fromJsonValue(const QJsonValue &v)
+{
+    if (!v.isObject())
+        return false;
+
+    auto obj = v.toObject();
+    auto jsonComments = obj["comments"].toArray();
+    m_comments.clear();
+    for (auto json : jsonComments) {
+        Comment comment;
+        if (comment.fromJsonValue(json))
+            m_comments.push_back(comment);
+    }
+    return true;
 }
 
 QDebug &operator<<(QDebug &stream, const Annotation &annotation)

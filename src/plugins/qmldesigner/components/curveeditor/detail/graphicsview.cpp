@@ -72,8 +72,8 @@ GraphicsView::GraphicsView(CurveEditorModel *model, QWidget *parent)
     connect(&m_dialog, &CurveEditorStyleDialog::styleChanged, this, &GraphicsView::setStyle);
 
     auto itemSlot = [this](unsigned int id, const AnimationCurve &curve) {
-        applyZoom(m_zoomX, m_zoomY);
         m_model->setCurve(id, curve);
+        applyZoom(m_zoomX, m_zoomY);
     };
 
     connect(m_scene, &GraphicsScene::curveChanged, itemSlot);
@@ -671,11 +671,15 @@ void GraphicsView::drawValueScale(QPainter *painter, const QRectF &rect)
         painter->drawText(textRect, Qt::AlignCenter, valueText);
     };
 
-    double density = 1. / (static_cast<double>(fm.height()) * m_style.labelDensityY);
-    Axis axis = Axis::compute(minimumValue(), maximumValue(), rect.height(), density);
-    const double eps = 1.0e-10;
-    for (double i = axis.lmin; i <= axis.lmax + eps; i += axis.lstep)
-        paintLabeledTick(i);
+    double min = minimumValue();
+    double max = maximumValue();
+    if (std::isfinite(min) && std::isfinite(max) && rect.isValid()) {
+        double density = 1. / (static_cast<double>(fm.height()) * m_style.labelDensityY);
+        Axis axis = Axis::compute(min, max, rect.height(), density);
+        const double eps = 1.0e-10;
+        for (double i = axis.lmin; i <= axis.lmax + eps; i += axis.lstep)
+            paintLabeledTick(i);
+    }
 
     painter->restore();
 }

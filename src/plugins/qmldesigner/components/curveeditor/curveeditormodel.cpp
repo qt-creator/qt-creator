@@ -255,7 +255,7 @@ TreeItem *CurveEditorModel::createTopLevelItem(const QmlDesigner::QmlTimeline &t
     for (auto &&grp : timeline.keyframeGroupsForTarget(node)) {
         if (grp.isValid()) {
             AnimationCurve curve = createAnimationCurve(grp);
-            if (curve.isValid()) {
+            if (!curve.isEmpty()) {
                 QString name = QString::fromUtf8(grp.propertyName());
                 auto propertyItem = new PropertyTreeItem(name, curve, typeFrom(grp));
 

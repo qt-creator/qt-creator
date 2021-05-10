@@ -1102,10 +1102,12 @@ void CppModelManager::watchForCanceledProjectIndexer(const QFuture<void> &future
     connect(watcher, &QFutureWatcher<void>::canceled, this, [this, project, watcher]() {
         if (d->m_projectToIndexerCanceled.contains(project)) // Project not yet removed
             d->m_projectToIndexerCanceled.insert(project, true);
+        watcher->disconnect(this);
         watcher->deleteLater();
     });
     connect(watcher, &QFutureWatcher<void>::finished, this, [this, project, watcher]() {
         d->m_projectToIndexerCanceled.remove(project);
+        watcher->disconnect(this);
         watcher->deleteLater();
     });
     watcher->setFuture(future);

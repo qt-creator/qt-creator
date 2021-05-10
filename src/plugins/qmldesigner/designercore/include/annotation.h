@@ -25,12 +25,13 @@
 
 #pragma once
 
-#include <QObject>
-#include <QDebug>
 #include <QDataStream>
+#include <QDebug>
+#include <QJsonObject>
+#include <QObject>
 
-#include "qmldesignercorelib_global.h"
 #include "nodeinstanceglobal.h"
+#include "qmldesignercorelib_global.h"
 
 namespace QmlDesigner {
 
@@ -97,6 +98,8 @@ public:
     bool isEmpty() const;
 
     QString toQString() const;
+    QJsonValue toJsonValue() const;
+    bool fromJsonValue(QJsonValue const &);
 
     friend QDebug &operator<<(QDebug &stream, const Comment &comment);
 
@@ -130,6 +133,8 @@ public:
 
     QString toQString() const;
     void fromQString(const QString &str);
+    QJsonValue toJsonValue() const;
+    bool fromJsonValue(QJsonValue const &);
 
     friend QDebug &operator<<(QDebug &stream, const Annotation &annotation);
 

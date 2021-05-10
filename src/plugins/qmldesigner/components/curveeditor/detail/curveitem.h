@@ -134,7 +134,7 @@ public:
     void deleteSelectedKeyframes();
 
 private:
-    void emitCurveChanged();
+    void markDirty();
 
     unsigned int m_id;
 

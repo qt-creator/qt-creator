@@ -66,15 +66,24 @@ static bool isCatchMacro(const QString &macroName)
 static bool includesCatchHeader(const CPlusPlus::Document::Ptr &doc,
                                 const CPlusPlus::Snapshot &snapshot)
 {
-    static const QString catchHeader("catch.hpp");
+    static const QStringList catchHeaders{"catch.hpp", // v2
+                                          "catch_all.hpp", // v3 - new approach
+                                          "catch_amalgamated.hpp",
+                                          "catch_test_macros.hpp",
+                                          "catch_template_test_macros.hpp"
+                                         };
     for (const CPlusPlus::Document::Include &inc : doc->resolvedIncludes()) {
-        if (inc.resolvedFileName().endsWith(catchHeader))
-            return true;
+        for (const QString &catchHeader : catchHeaders) {
+            if (inc.resolvedFileName().endsWith(catchHeader))
+                return true;
+        }
     }
 
     for (const QString &include : snapshot.allIncludesForDocument(doc->fileName())) {
-        if (include.endsWith(catchHeader))
-            return true;
+        for (const QString &catchHeader : catchHeaders) {
+            if (include.endsWith(catchHeader))
+                return true;
+        }
     }
 
     return false;

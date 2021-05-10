@@ -58,6 +58,12 @@ const char CustomCommandLineAspectId[] = "RemoteLinux.MakeInstall.CustomCommandL
 
 MakeInstallStep::MakeInstallStep(BuildStepList *parent, Utils::Id id) : MakeStep(parent, id)
 {
+    makeCommandAspect()->setVisible(false);
+    buildTargetsAspect()->setVisible(false);
+    userArgumentsAspect()->setVisible(false);
+    jobCountContainer()->setVisible(false);
+    disabledForSubdirsAspect()->setVisible(false);
+
     const auto makeAspect = addAspect<ExecutableAspect>();
     makeAspect->setId(MakeAspectId);
     makeAspect->setSettingsKey(MakeAspectId);
