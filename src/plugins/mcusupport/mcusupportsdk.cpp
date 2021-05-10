@@ -134,6 +134,23 @@ static McuToolChainPackage *createGhsToolchainPackage()
     return result;
 }
 
+static McuToolChainPackage *createGhsArmToolchainPackage()
+{
+    const char envVar[] = "GHS_ARM_COMPILER_DIR";
+
+    const QString defaultPath =
+            qEnvironmentVariableIsSet(envVar) ? qEnvironmentVariable(envVar) : QDir::homePath();
+
+    auto result = new McuToolChainPackage(
+                "Green Hills Compiler for ARM",
+                defaultPath,
+                Utils::HostOsInfo::withExecutableSuffix("cxarm"),
+                "GHSArmToolchain",
+                McuToolChainPackage::TypeGHSArm);
+    result->setEnvironmentVariableName(envVar);
+    return result;
+}
+
 static McuToolChainPackage *createIarToolChainPackage()
 {
     const char envVar[] = "IAR_ARM_COMPILER_DIR";
@@ -248,6 +265,35 @@ static McuPackage *createMcuXpressoIdePackage()
     return result;
 }
 
+static McuPackage *createCypressProgrammerPackage()
+{
+    const char envVar[] = "CYPRESS_AUTO_FLASH_UTILITY_DIR";
+
+    QString defaultPath;
+    if (qEnvironmentVariableIsSet(envVar)) {
+        defaultPath = qEnvironmentVariable(envVar);
+    } else if (Utils::HostOsInfo::isWindowsHost()) {
+        auto candidate = findInProgramFiles(QLatin1String("/Cypress/Cypress Auto Flash Utility 1.0/"));
+        if (QFileInfo::exists(candidate)) {
+            defaultPath = candidate;
+        }
+    } else {
+        defaultPath = QLatin1String("/usr");
+    }
+
+    if (defaultPath.isEmpty()) {
+        defaultPath = QDir::homePath();
+    }
+
+    auto result = new McuPackage(
+                "Cypress Auto Flash Utility",
+                defaultPath,
+                Utils::HostOsInfo::withExecutableSuffix("/bin/openocd"),
+                "CypressAutoFlashUtil");
+    result->setEnvironmentVariableName(envVar);
+    return result;
+}
+
 struct McuTargetDescription
 {
     enum class TargetType {
@@ -269,6 +315,9 @@ struct McuTargetDescription
     TargetType type;
 };
 
+/// Create the McuPackage by checking the "boardSdk" property in the JSON file for the board.
+/// The name of the environment variable pointing to the the SDK for the board will be defined in the "envVar" property
+/// inside the "boardSdk".
 static McuPackage *createBoardSdkPackage(const McuTargetDescription& desc)
 {
     const auto generateSdkName = [](const QString& envVar) {
@@ -495,11 +544,15 @@ static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescrip
         {{"iar"}, createIarToolChainPackage()},
         {{"msvc"}, createMsvcToolChainPackage()},
         {{"gcc"}, createGccToolChainPackage()},
+        {{"arm-greenhills"}, createGhsArmToolchainPackage()},
     };
 
+    // Note: the vendor name (the key of the hash) is case-sensitive. It has to match the "platformVendor" key in the
+    // json file.
     const QHash<QString, McuPackage *> vendorPkgs = {
         {{"ST"}, createStm32CubeProgrammerPackage()},
         {{"NXP"}, createMcuXpressoIdePackage()},
+        {{"CYPRESS"}, createCypressProgrammerPackage()},
     };
 
     McuTargetFactory targetFactory(tcPkgs, vendorPkgs);

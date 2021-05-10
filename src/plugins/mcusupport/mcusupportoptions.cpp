@@ -412,11 +412,14 @@ ToolChain *McuToolChainPackage::toolChain(Id language) const
 
 QString McuToolChainPackage::toolChainName() const
 {
-    return QLatin1String(m_type == TypeArmGcc
-                         ? "armgcc" : m_type == McuToolChainPackage::TypeIAR
-                           ? "iar" : m_type == McuToolChainPackage::TypeKEIL
-                             ? "keil" : m_type == McuToolChainPackage::TypeGHS
-                               ? "ghs" : "unsupported");
+    switch (m_type) {
+    case TypeArmGcc: return QLatin1String("armgcc");
+    case TypeIAR: return QLatin1String("iar");
+    case TypeKEIL: return QLatin1String("keil");
+    case TypeGHS: return QLatin1String("ghs");
+    case TypeGHSArm: return QLatin1String("ghs-arm");
+    default: return QLatin1String("unsupported");
+    }
 }
 
 QString McuToolChainPackage::cmakeToolChainFileName() const
