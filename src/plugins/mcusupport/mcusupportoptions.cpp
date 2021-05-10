@@ -757,6 +757,15 @@ static void setKitCMakeOptions(Kit *k, const McuTarget* mcuTarget, const QString
     if (kitNeedsQtVersion())
         config.append(CMakeConfigItem("CMAKE_PREFIX_PATH", "%{Qt:QT_INSTALL_PREFIX}"));
     CMakeConfigurationKitAspect::setConfiguration(k, config);
+
+    if (HostOsInfo::isWindowsHost()) {
+        auto type = mcuTarget->toolChainPackage()->type();
+        if (type == McuToolChainPackage::TypeGHS || type == McuToolChainPackage::TypeGHSArm) {
+            // See https://bugreports.qt.io/browse/UL-4247?focusedCommentId=565802&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-565802
+            // and https://bugreports.qt.io/browse/UL-4247?focusedCommentId=565803&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-565803
+            CMakeGeneratorKitAspect::setGenerator(k, "NMake Makefiles JOM");
+        }
+    }
 }
 
 static void setKitQtVersionOptions(Kit *k)
