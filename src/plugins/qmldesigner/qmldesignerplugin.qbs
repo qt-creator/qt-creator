@@ -458,6 +458,8 @@ Project {
                 "componentcore/designeractionmanagerview.h",
                 "componentcore/findimplementation.cpp",
                 "componentcore/findimplementation.h",
+                "componentcore/formatoperation.cpp",
+                "componentcore/formatoperation.h",
                 "componentcore/gestures.cpp",
                 "componentcore/gestures.h",
                 "componentcore/layoutingridlayout.cpp",

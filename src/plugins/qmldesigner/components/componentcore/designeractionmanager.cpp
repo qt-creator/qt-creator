@@ -28,6 +28,7 @@
 #include "changestyleaction.h"
 #include "designeractionmanagerview.h"
 #include "modelnodecontextmenu_helper.h"
+#include "formatoperation.h"
 #include "qmldesignerconstants.h"
 #include "rewritingexception.h"
 #include <bindingproperty.h>
@@ -909,11 +910,13 @@ bool anchorsMenuEnabled(const SelectionContext &context)
            || singleSelectionItemIsAnchored(context);
 }
 
+
 void DesignerActionManager::createDefaultDesignerActions()
 {
     using namespace SelectionContextFunctors;
     using namespace ComponentCoreConstants;
     using namespace ModelNodeOperations;
+    using namespace FormatOperation;
 
     const Utils::Icon prevIcon({
         {QLatin1String(":/utils/images/prev.png"), Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
@@ -1000,6 +1003,29 @@ void DesignerActionManager::createDefaultDesignerActions()
                           200,
                           &resetPosition,
                           &selectionNotEmptyAndHasXorYProperty));
+
+    addDesignerAction(new ModelNodeAction(
+                          copyFormatCommandId,
+                          copyFormatDisplayName,
+                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/raise.png", Utils::Theme::IconsBaseColor}}).icon(),
+                          copyFormatTooltip,
+                          editCategory,
+                          QKeySequence(),
+                          120,
+                          &copyFormat,
+                          &propertiesCopyable));
+
+    addDesignerAction(new ModelNodeAction(
+                          applyFormatCommandId,
+                          applyFormatDisplayName,
+                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/lower.png", Utils::Theme::IconsBaseColor}}).icon(),
+                          applyFormatTooltip,
+                          editCategory,
+                          QKeySequence(),
+                          120,
+                          &applyFormat,
+                          &propertiesApplyable));
+
 
     addDesignerAction(new ModelNodeAction(
                           resetSizeCommandId,

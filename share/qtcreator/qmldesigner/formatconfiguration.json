@@ -1,0 +1,24 @@
+{
+    "propertylist" : [
+        {
+            "id": "textItem",
+            "subclasses": ["QtQuick.Text","QtQuick.TextInput","QtQuick.TextEdit"],
+            "properties": ["font.bold","font.italic","font.underline","color","font.capitalization","font.family","font.hintingPreference",
+                        "font.kerning","font.letterSpacing","font.pixelSize","font.pointSize","font.preferShaping","font.strikeout",
+                        "font.styleName","font.weight","font.wordSpacing","fontInfo.bold","fontInfo.family","fontInfo.italic","fontInfo.pixelSize",
+                        "fontInfo.pointSize","fontInfo.styleName","fontInfo.weight","lineHeight","lineHeightMode","linkColor",
+                        "maximumLineCount","minimumPixelSize","minimumPointSize","renderType","style","styleColor","padding","topPadding",
+                        "bottomPadding","leftPadding","rightPadding"]
+        },
+        {
+            "id": "rectangleItem",
+            "subclasses": ["QtQuick.Rectangle"],
+            "properties": ["color","border.color","border.width","radius"]
+        },
+        {
+            "id":"positionerItem",
+            "subclasses": ["QtQuick.Row","QtQuick.Column","QtQuick.Grid"],
+            "properties": ["padding", "spacing", "topPadding", "bottomPadding", "leftPadding", "rightPadding"]
+        }
+    ]
+}

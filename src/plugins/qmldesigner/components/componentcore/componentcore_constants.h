@@ -55,6 +55,8 @@ const char resetZCommandId[] = "ResetZ";
 const char reverseCommandId[] = "Reverse";
 const char resetSizeCommandId[] = "ResetSize";
 const char resetPositionCommandId[] = "ResetPosition";
+const char copyFormatCommandId[] = "CopyFormat";
+const char applyFormatCommandId[] = "ApplyFormat";
 const char visiblityCommandId[] = "ToggleVisiblity";
 const char anchorsFillCommandId[] = "AnchorsFill";
 const char anchorsResetCommandId[] = "AnchorsReset";
@@ -123,6 +125,8 @@ const char visibilityDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
 
 const char resetSizeDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Reset Size");
 const char resetPositionDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Reset Position");
+const char copyFormatDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Copy Formatting");
+const char applyFormatDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Apply Formatting");
 
 const char goIntoComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Go into Component");
 const char mergeTemplateDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Merge File With Template");
@@ -176,6 +180,8 @@ const char lowerToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Lower s
 
 const char resetSizeToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Reset size and use implicit size.");
 const char resetPositionTooltip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Reset position and use implicit position.");
+const char copyFormatTooltip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Copy formatting.");
+const char applyFormatTooltip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Apply formatting.");
 
 const char anchorsFillToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Fill selected component to parent.");
 const char anchorsResetToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Reset anchors for selected component.");
