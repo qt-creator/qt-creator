@@ -61,7 +61,7 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Utils::Id id) : MakeStep
     makeCommandAspect()->setVisible(false);
     buildTargetsAspect()->setVisible(false);
     userArgumentsAspect()->setVisible(false);
-    jobCountContainer()->setVisible(false);
+    jobCountAspect()->setVisible(false);
     disabledForSubdirsAspect()->setVisible(false);
 
     const auto makeAspect = addAspect<ExecutableAspect>();

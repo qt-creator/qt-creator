@@ -90,7 +90,7 @@ protected:
     Utils::StringAspect *makeCommandAspect() const { return m_makeCommandAspect; }
     Utils::MultiSelectionAspect *buildTargetsAspect() const { return m_buildTargetsAspect; }
     Utils::StringAspect *userArgumentsAspect() const { return m_userArgumentsAspect; }
-    Utils::AspectContainer *jobCountContainer() const { return m_jobCountContainer; }
+    Utils::IntegerAspect *jobCountAspect() const { return m_userJobCountAspect; }
     Utils::BoolAspect *disabledForSubdirsAspect() const { return m_disabledForSubdirsAspect; }
 
 
