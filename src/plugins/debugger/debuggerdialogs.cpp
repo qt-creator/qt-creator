@@ -83,6 +83,7 @@ public:
     PathChooser *workingDirectory;
     QCheckBox *breakAtMainCheckBox;
     QCheckBox *runInTerminalCheckBox;
+    QCheckBox *useTargetExtendedCheckBox;
     PathChooser *debuginfoPathChooser;
     QLabel *serverStartScriptLabel;
     PathChooser *serverStartScriptPathChooser;
@@ -127,6 +128,7 @@ public:
     Runnable runnable;
     bool breakAtMain = false;
     bool runInTerminal = false;
+    bool useTargetExtended = false;
     FilePath serverStartScript;
     FilePath sysRoot;
     QString serverInitCommands;
@@ -181,6 +183,7 @@ void StartApplicationParameters::toSettings(QSettings *settings) const
     settings->setValue("LastExternalWorkingDirectory", runnable.workingDirectory);
     settings->setValue("LastExternalBreakAtMain", breakAtMain);
     settings->setValue("LastExternalRunInTerminal", runInTerminal);
+    settings->setValue("LastExternalUseTargetExtended", useTargetExtended);
     settings->setValue("LastServerStartScript", serverStartScript.toVariant());
     settings->setValue("LastServerInitCommands", serverInitCommands);
     settings->setValue("LastServerResetCommands", serverResetCommands);
@@ -198,6 +201,7 @@ void StartApplicationParameters::fromSettings(const QSettings *settings)
     runnable.workingDirectory = settings->value("LastExternalWorkingDirectory").toString();
     breakAtMain = settings->value("LastExternalBreakAtMain").toBool();
     runInTerminal = settings->value("LastExternalRunInTerminal").toBool();
+    useTargetExtended = settings->value("LastExternalUseTargetExtended").toBool();
     serverStartScript = FilePath::fromVariant(settings->value("LastServerStartScript"));
     serverInitCommands = settings->value("LastServerInitCommands").toString();
     serverResetCommands = settings->value("LastServerResetCommands").toString();
@@ -253,6 +257,8 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
 
     d->breakAtMainCheckBox = new QCheckBox(this);
     d->breakAtMainCheckBox->setText(QString());
+
+    d->useTargetExtendedCheckBox = new QCheckBox(this);
 
     d->serverStartScriptPathChooser = new PathChooser(this);
     d->serverStartScriptPathChooser->setExpectedKind(PathChooser::File);
@@ -321,6 +327,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     formLayout->addRow(tr("&Working directory:"), d->workingDirectory);
     formLayout->addRow(tr("Run in &terminal:"), d->runInTerminalCheckBox);
     formLayout->addRow(tr("Break at \"&main\":"), d->breakAtMainCheckBox);
+    formLayout->addRow(tr("Use target-extended to connect:"), d->useTargetExtendedCheckBox);
     formLayout->addRow(d->serverStartScriptLabel, d->serverStartScriptPathChooser);
     formLayout->addRow(d->sysRootLabel, d->sysRootPathChooser);
     formLayout->addRow(d->serverInitCommandsLabel, d->serverInitCommandsTextEdit);
@@ -462,6 +469,7 @@ void StartApplicationDialog::run(bool attachRemote)
     debugger->setCommandsAfterConnect(newParameters.serverInitCommands);
     debugger->setCommandsForReset(newParameters.serverResetCommands);
     debugger->setUseTerminal(newParameters.runInTerminal);
+    debugger->setUseExtendedRemote(newParameters.useTargetExtended);
     if (!newParameters.sysRoot.isEmpty())
         debugger->setSysRoot(newParameters.sysRoot);
 
@@ -509,6 +517,7 @@ StartApplicationParameters StartApplicationDialog::parameters() const
     result.runnable.workingDirectory = d->workingDirectory->filePath().toString();
     result.breakAtMain = d->breakAtMainCheckBox->isChecked();
     result.runInTerminal = d->runInTerminalCheckBox->isChecked();
+    result.useTargetExtended = d->useTargetExtendedCheckBox->isChecked();
     return result;
 }
 
@@ -525,8 +534,9 @@ void StartApplicationDialog::setParameters(const StartApplicationParameters &p)
     d->debuginfoPathChooser->setPath(p.debugInfoLocation);
     d->arguments->setText(p.runnable.commandLineArguments);
     d->workingDirectory->setPath(p.runnable.workingDirectory);
-    d->runInTerminalCheckBox->setChecked(p.runInTerminal);
     d->breakAtMainCheckBox->setChecked(p.breakAtMain);
+    d->runInTerminalCheckBox->setChecked(p.runInTerminal);
+    d->useTargetExtendedCheckBox->setChecked(p.useTargetExtended);
     updateState();
 }
 
