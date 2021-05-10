@@ -90,6 +90,8 @@ protected:
     Utils::StringAspect *makeCommandAspect() const { return m_makeCommandAspect; }
     Utils::MultiSelectionAspect *buildTargetsAspect() const { return m_buildTargetsAspect; }
     Utils::StringAspect *userArgumentsAspect() const { return m_userArgumentsAspect; }
+    Utils::BoolAspect *overrideMakeflagsAspect() const { return m_overrideMakeflagsAspect; }
+    Utils::TextDisplay *nonOverrideWarning() const { return m_nonOverrideWarning; }
     Utils::IntegerAspect *jobCountAspect() const { return m_userJobCountAspect; }
     Utils::BoolAspect *disabledForSubdirsAspect() const { return m_disabledForSubdirsAspect; }
 
