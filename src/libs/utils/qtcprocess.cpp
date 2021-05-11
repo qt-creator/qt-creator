@@ -173,7 +173,7 @@ QtcProcess::QtcProcess(QObject *parent)
     Q_UNUSED(qProcessProcessErrorMeta)
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0) && defined(Q_OS_UNIX)
-    setChildProcessModifier([this] { setupChildProcess_impl(); });
+    setChildProcessModifier([this] { d->setupChildProcess_impl(); });
 #endif
 }
 
