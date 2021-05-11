@@ -218,12 +218,11 @@ extend_qtc_plugin(ProjectExplorer
 
 file(GLOB_RECURSE test_resources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} testdata/*)
 qtc_add_resources(ProjectExplorer "testdata"
-    CONDITION WITH_TESTS
-    PREFIX "/projectexplorer"
-    BASE "."
-    FILES ${test_resources}
-  )
-endif()
+  CONDITION WITH_TESTS
+  PREFIX "/projectexplorer"
+  BASE "."
+  FILES ${test_resources}
+)
 
 qtc_plugin_enabled(_projectexplorer_enabled ProjectExplorer)
 if (WITH_TESTS AND _projectexplorer_enabled)
