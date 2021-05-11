@@ -5,6 +5,10 @@ QtcPlugin {
     name: "LanguageClient"
 
     Depends { name: "Qt.core" }
+    Depends {
+        name: "Qt.testlib"
+        condition: qtc.testsEnabled
+    }
 
     Depends { name: "Utils" }
     Depends { name: "ProjectExplorer" }
@@ -56,6 +60,8 @@ QtcPlugin {
         "progressmanager.h",
         "semantichighlightsupport.cpp",
         "semantichighlightsupport.h",
+        "snippet.cpp",
+        "snippet.h",
     ]
 
     Export { Depends { name: "LanguageServerProtocol" } }

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,38 +25,12 @@
 
 #pragma once
 
-#include "languageclientmanager.h"
-#include "languageclientoutline.h"
-#include "languageclientsettings.h"
+#include "languageclient_global.h"
 
-#include <extensionsystem/iplugin.h>
+#include <texteditor/snippets/snippetparser.h>
 
 namespace LanguageClient {
 
-class LanguageClientPlugin : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "LanguageClient.json")
-public:
-    LanguageClientPlugin();
-    ~LanguageClientPlugin() override;
-
-    static LanguageClientPlugin *instance();
-
-    // IPlugin interface
-private:
-    bool initialize(const QStringList &arguments, QString *errorString) override;
-    void extensionsInitialized() override;
-    ShutdownFlag aboutToShutdown() override;
-
-private:
-    LanguageClientOutlineWidgetFactory m_outlineFactory;
-
-#ifdef WITH_TESTS
-private slots:
-    void testSnippetParsing_data();
-    void testSnippetParsing();
-#endif
-};
+LANGUAGECLIENT_EXPORT TextEditor::SnippetParseResult parseSnippet(const QString &snippet);
 
 } // namespace LanguageClient

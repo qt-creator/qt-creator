@@ -27,6 +27,7 @@
 
 #include "client.h"
 #include "languageclientutils.h"
+#include "snippet.h"
 
 #include <languageserverprotocol/completion.h>
 #include <texteditor/codeassist/assistinterface.h>
@@ -108,7 +109,7 @@ void LanguageClientCompletionItem::apply(TextDocumentManipulatorInterface &manip
 {
     const int pos = manipulator.currentPosition();
     if (auto edit = m_item.textEdit()) {
-        applyTextEdit(manipulator, *edit);
+        applyTextEdit(manipulator, *edit, isSnippet());
     } else {
         const QString textToInsert(m_item.insertText().value_or(text()));
         int length = 0;
@@ -126,7 +127,12 @@ void LanguageClientCompletionItem::apply(TextDocumentManipulatorInterface &manip
         QRegularExpressionMatch match = identifier.match(blockTextUntilPosition);
         int matchLength = match.hasMatch() ? match.capturedLength(0) : 0;
         length = qMax(length, matchLength);
-        manipulator.replace(pos - length, length, textToInsert);
+        if (isSnippet()) {
+            manipulator.replace(pos - length, length, {});
+            manipulator.insertCodeSnippet(pos - length, textToInsert, &parseSnippet);
+        } else {
+            manipulator.replace(pos - length, length, textToInsert);
+        }
     }
 
     if (auto additionalEdits = m_item.additionalTextEdits()) {
@@ -182,9 +188,7 @@ QString LanguageClientCompletionItem::detail() const
 
 bool LanguageClientCompletionItem::isSnippet() const
 {
-    // FIXME add lsp > creator snippet converter
-    // return m_item.insertTextFormat().value_or(CompletionItem::PlainText);
-    return false;
+    return m_item.insertTextFormat().value_or(CompletionItem::PlainText);
 }
 
 bool LanguageClientCompletionItem::isValid() const
@@ -226,6 +230,8 @@ bool LanguageClientCompletionItem::isPerfectMatch(int pos, QTextDocument *doc) c
         if (!additionalEdits.value().isEmpty())
             return false;
     }
+    if (isSnippet())
+        return false;
     if (auto edit = m_item.textEdit()) {
         auto range = edit->range();
         const int start = positionInText(doc, range.start().line() + 1, range.start().character() + 1);

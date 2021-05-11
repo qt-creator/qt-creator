@@ -52,7 +52,8 @@ applyTextDocumentEdit(const LanguageServerProtocol::TextDocumentEdit &edit);
 bool LANGUAGECLIENT_EXPORT applyTextEdits(const LanguageServerProtocol::DocumentUri &uri,
                                           const QList<LanguageServerProtocol::TextEdit> &edits);
 void LANGUAGECLIENT_EXPORT applyTextEdit(TextEditor::TextDocumentManipulatorInterface &manipulator,
-                                         const LanguageServerProtocol::TextEdit &edit);
+                                         const LanguageServerProtocol::TextEdit &edit,
+                                         bool newTextIsSnippet = false);
 void LANGUAGECLIENT_EXPORT
 updateCodeActionRefactoringMarker(Client *client,
                                   const LanguageServerProtocol::CodeAction &action,

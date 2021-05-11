@@ -24,4 +24,5 @@ add_qtc_plugin(LanguageClient
     lspinspector.cpp lspinspector.h
     progressmanager.cpp progressmanager.h
     semantichighlightsupport.cpp semantichighlightsupport.h
+    snippet.cpp snippet.h
 )

@@ -24,7 +24,7 @@ HEADERS += \
     lspinspector.h \
     progressmanager.h \
     semantichighlightsupport.h \
-
+    snippet.h \
 
 SOURCES += \
     client.cpp \
@@ -47,6 +47,7 @@ SOURCES += \
     lspinspector.cpp \
     progressmanager.cpp \
     semantichighlightsupport.cpp \
+    snippet.cpp \
 
 RESOURCES += \
     languageclient.qrc

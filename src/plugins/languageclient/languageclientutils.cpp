@@ -29,6 +29,7 @@
 #include "languageclient_global.h"
 #include "languageclientmanager.h"
 #include "languageclientoutline.h"
+#include "snippet.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icore.h>
@@ -102,14 +103,21 @@ bool applyTextEdits(const DocumentUri &uri, const QList<TextEdit> &edits)
     return file->apply();
 }
 
-void applyTextEdit(TextDocumentManipulatorInterface &manipulator, const TextEdit &edit)
+void applyTextEdit(TextDocumentManipulatorInterface &manipulator,
+                   const TextEdit &edit,
+                   bool newTextIsSnippet)
 {
     using namespace Utils::Text;
     const Range range = edit.range();
     const QTextDocument *doc = manipulator.textCursorAt(manipulator.currentPosition()).document();
     const int start = positionInText(doc, range.start().line() + 1, range.start().character() + 1);
     const int end = positionInText(doc, range.end().line() + 1, range.end().character() + 1);
-    manipulator.replace(start, end - start, edit.newText());
+    if (newTextIsSnippet) {
+        manipulator.replace(start, end - start, {});
+        manipulator.insertCodeSnippet(start, edit.newText(), &parseSnippet);
+    } else {
+        manipulator.replace(start, end - start, edit.newText());
+    }
 }
 
 bool applyWorkspaceEdit(const WorkspaceEdit &edit)

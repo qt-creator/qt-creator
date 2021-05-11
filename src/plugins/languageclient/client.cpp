@@ -220,7 +220,7 @@ static ClientCapabilities generateClientCapabilities()
     completionCapabilities.setCompletionItemKind(completionItemKindCapabilities);
     TextDocumentClientCapabilities::CompletionCapabilities::CompletionItemCapbilities
         completionItemCapbilities;
-    completionItemCapbilities.setSnippetSupport(false);
+    completionItemCapbilities.setSnippetSupport(true);
     completionItemCapbilities.setCommitCharacterSupport(true);
     completionCapabilities.setCompletionItem(completionItemCapbilities);
     documentCapabilities.setCompletion(completionCapabilities);
