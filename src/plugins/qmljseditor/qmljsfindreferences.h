@@ -27,6 +27,8 @@
 
 #include "qmljseditor_global.h"
 
+#include <utils/futuresynchronizer.h>
+
 #include <QObject>
 #include <QFutureWatcher>
 #include <QPointer>
@@ -81,6 +83,7 @@ private:
 
     QPointer<Core::SearchResult> m_currentSearch;
     QFutureWatcher<Usage> m_watcher;
+    Utils::FutureSynchronizer m_synchronizer;
 };
 
 } // namespace QmlJSEditor

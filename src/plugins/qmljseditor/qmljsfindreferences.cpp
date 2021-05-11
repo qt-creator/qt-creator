@@ -815,6 +815,7 @@ FindReferences::FindReferences(QObject *parent)
     m_watcher.setPendingResultsLimit(1);
     connect(&m_watcher, &QFutureWatcherBase::resultsReadyAt, this, &FindReferences::displayResults);
     connect(&m_watcher, &QFutureWatcherBase::finished, this, &FindReferences::searchFinished);
+    m_synchronizer.setCancelOnWait(true);
 }
 
 FindReferences::~FindReferences() = default;
@@ -922,6 +923,7 @@ void FindReferences::findUsages(const QString &fileName, quint32 offset)
     QFuture<Usage> result = Utils::runAsync(&find_helper, ModelManagerInterface::workingCopy(),
                                             modelManager->snapshot(), fileName, offset, QString());
     m_watcher.setFuture(result);
+    m_synchronizer.addFuture(result);
 }
 
 void FindReferences::renameUsages(const QString &fileName, quint32 offset,
@@ -937,6 +939,7 @@ void FindReferences::renameUsages(const QString &fileName, quint32 offset,
     QFuture<Usage> result = Utils::runAsync(&find_helper, ModelManagerInterface::workingCopy(),
                                             modelManager->snapshot(), fileName, offset, newName);
     m_watcher.setFuture(result);
+    m_synchronizer.addFuture(result);
 }
 
 QList<FindReferences::Usage> FindReferences::findUsageOfType(const QString &fileName, const QString &typeName)
