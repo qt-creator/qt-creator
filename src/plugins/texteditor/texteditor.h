@@ -26,10 +26,12 @@
 #pragma once
 
 #include "texteditor_global.h"
+
 #include "blockrange.h"
 #include "codeassist/assistenums.h"
 #include "indenter.h"
 #include "refactoroverlay.h"
+#include "snippets/snippetparser.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -265,7 +267,9 @@ public:
 
     void setReadOnly(bool b);
 
-    void insertCodeSnippet(const QTextCursor &cursor, const QString &snippet);
+    void insertCodeSnippet(const QTextCursor &cursor,
+                           const QString &snippet,
+                           const SnippetParser &parse);
 
     void setBlockSelection(bool on);
     void setBlockSelection(int positionBlock, int positionColumn, int anchhorBlock,

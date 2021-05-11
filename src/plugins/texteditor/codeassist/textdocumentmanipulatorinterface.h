@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <texteditor/snippets/snippetparser.h>
 #include <texteditor/texteditor_global.h>
 
 QT_BEGIN_NAMESPACE
@@ -49,7 +50,9 @@ public:
     virtual void setCursorPosition(int position) = 0;
     virtual void setAutoCompleteSkipPosition(int position) = 0;
     virtual bool replace(int position, int length, const QString &text) = 0;
-    virtual void insertCodeSnippet(int position, const QString &text) = 0;
+    virtual void insertCodeSnippet(int position,
+                                   const QString &text,
+                                   const SnippetParser &parse) = 0;
     virtual void paste() = 0;
     virtual void encourageApply() = 0;
     virtual void autoIndent(int position, int length) = 0;

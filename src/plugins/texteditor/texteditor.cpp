@@ -2720,9 +2720,11 @@ public:
     QTextCursor cursor;
 };
 
-void TextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg, const QString &snippet)
+void TextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg,
+                                         const QString &snippet,
+                                         const SnippetParser &parse)
 {
-    SnippetParseResult result = Snippet::parse(snippet);
+    SnippetParseResult result = parse(snippet);
     if (Utils::holds_alternative<SnippetParseError>(result)) {
         const auto &error = Utils::get<SnippetParseError>(result);
         QMessageBox::warning(this, tr("Snippet Parse Error"), error.htmlMessage());

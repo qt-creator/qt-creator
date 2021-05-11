@@ -31,9 +31,10 @@
 #include <languageserverprotocol/completion.h>
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/assistproposalitem.h>
-#include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
+#include <texteditor/codeassist/iassistprocessor.h>
+#include <texteditor/snippets/snippet.h>
 #include <texteditor/texteditorsettings.h>
 #include <utils/algorithm.h>
 #include <utils/textutils.h>
@@ -131,7 +132,9 @@ void LanguageClientCompletionItem::apply(TextDocumentManipulatorInterface &manip
             applyTextEdit(manipulator, edit);
     }
     if (!m_triggeredCommitCharacter.isNull())
-        manipulator.insertCodeSnippet(manipulator.currentPosition(), m_triggeredCommitCharacter);
+        manipulator.insertCodeSnippet(manipulator.currentPosition(),
+                                      m_triggeredCommitCharacter,
+                                      &Snippet::parse);
 }
 
 QIcon LanguageClientCompletionItem::icon() const

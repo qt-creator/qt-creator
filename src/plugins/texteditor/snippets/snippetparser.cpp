@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,39 +23,24 @@
 **
 ****************************************************************************/
 
-#pragma once
-
-#include "textdocumentmanipulatorinterface.h"
+#include "snippetparser.h"
 
 namespace TextEditor {
 
-class TextEditorWidget;
-
-class TextDocumentManipulator final : public TextDocumentManipulatorInterface
+QString SnippetParseError::htmlMessage() const
 {
-public:
-    TextDocumentManipulator(TextEditorWidget *textEditorWidget);
-
-    int currentPosition() const final;
-    int positionAt(TextPositionOperation textPositionOperation) const final;
-    QChar characterAt(int position) const final;
-    QString textAt(int position, int length) const final;
-    QTextCursor textCursorAt(int position) const final;
-
-    void setCursorPosition(int position) final;
-    void setAutoCompleteSkipPosition(int position) final;
-    bool replace(int position, int length, const QString &text) final;
-    void insertCodeSnippet(int position, const QString &text, const SnippetParser &parse) final;
-    void paste() final;
-    void encourageApply() final;
-    void autoIndent(int position, int length) override;
-
-private:
-    bool textIsDifferentAt(int position, int length, const QString &text) const;
-    void replaceWithoutCheck(int position, int length, const QString &text);
-
-private:
-    TextEditorWidget *m_textEditorWidget;
-};
+    QString message = errorMessage;
+    if (pos < 0 || pos > 50)
+        return message;
+    QString detail = text.left(50);
+    if (detail != text)
+        detail.append("...");
+    detail.replace(QChar::Space, "&nbsp;");
+    message.append("<br><code>" + detail + "<br>");
+    for (int i = 0; i < pos; ++i)
+        message.append("&nbsp;");
+    message.append("^</code>");
+    return message;
+}
 
 } // namespace TextEditor

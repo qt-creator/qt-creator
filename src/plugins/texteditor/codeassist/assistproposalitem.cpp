@@ -25,8 +25,9 @@
 
 #include "assistproposalitem.h"
 
-#include <texteditor/texteditor.h>
 #include <texteditor/quickfix.h>
+#include <texteditor/snippets/snippet.h>
+#include <texteditor/texteditor.h>
 
 #include <QTextCursor>
 
@@ -147,7 +148,7 @@ void AssistProposalItem::applyContextualContent(TextDocumentManipulatorInterface
 
 void AssistProposalItem::applySnippet(TextDocumentManipulatorInterface &manipulator, int basePosition) const
 {
-    manipulator.insertCodeSnippet(basePosition, data().toString());
+    manipulator.insertCodeSnippet(basePosition, data().toString(), &Snippet::parse);
 }
 
 void AssistProposalItem::applyQuickFix(TextDocumentManipulatorInterface &manipulator, int basePosition) const

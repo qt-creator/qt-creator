@@ -27,8 +27,7 @@
 
 #include <texteditor/texteditor_global.h>
 
-#include <utils/id.h>
-#include <utils/variant.h>
+#include "snippetparser.h"
 
 #include <QChar>
 #include <QCoreApplication>
@@ -36,42 +35,6 @@
 #include <QString>
 
 namespace TextEditor {
-
-class TEXTEDITOR_EXPORT NameMangler
-{
-public:
-    virtual ~NameMangler();
-
-    virtual Utils::Id id() const = 0;
-    virtual QString mangle(const QString &unmangled) const = 0;
-};
-
-class TEXTEDITOR_EXPORT ParsedSnippet
-{
-public:
-    class Part {
-    public:
-        Part() = default;
-        explicit Part(const QString &text) : text(text) {}
-        QString text;
-        int variableIndex = -1; // if variable index is >= 0 the text is interpreted as a variable
-        NameMangler *mangler = nullptr;
-    };
-    QList<Part> parts;
-    QList<QList<int>> variables;
-};
-
-class TEXTEDITOR_EXPORT SnippetParseError
-{
-public:
-    QString errorMessage;
-    QString text;
-    int pos;
-
-    QString htmlMessage() const;
-};
-
-using SnippetParseResult = Utils::variant<ParsedSnippet, SnippetParseError>;
 
 class TEXTEDITOR_EXPORT Snippet
 {

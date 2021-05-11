@@ -85,11 +85,13 @@ bool TextDocumentManipulator::replace(int position, int length, const QString &t
     return textWillBeReplaced;
 }
 
-void TextDocumentManipulator::insertCodeSnippet(int position, const QString &text)
+void TextDocumentManipulator::insertCodeSnippet(int position,
+                                                const QString &text,
+                                                const SnippetParser &parse)
 {
     auto cursor = m_textEditorWidget->textCursor();
     cursor.setPosition(position, QTextCursor::KeepAnchor);
-    m_textEditorWidget->insertCodeSnippet(cursor, text);
+    m_textEditorWidget->insertCodeSnippet(cursor, text, parse);
 }
 
 void TextDocumentManipulator::paste()

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,37 +25,48 @@
 
 #pragma once
 
-#include "textdocumentmanipulatorinterface.h"
+#include <texteditor/texteditor_global.h>
+
+#include <utils/id.h>
+#include <utils/variant.h>
 
 namespace TextEditor {
 
-class TextEditorWidget;
-
-class TextDocumentManipulator final : public TextDocumentManipulatorInterface
+class TEXTEDITOR_EXPORT NameMangler
 {
 public:
-    TextDocumentManipulator(TextEditorWidget *textEditorWidget);
+    virtual ~NameMangler();
 
-    int currentPosition() const final;
-    int positionAt(TextPositionOperation textPositionOperation) const final;
-    QChar characterAt(int position) const final;
-    QString textAt(int position, int length) const final;
-    QTextCursor textCursorAt(int position) const final;
-
-    void setCursorPosition(int position) final;
-    void setAutoCompleteSkipPosition(int position) final;
-    bool replace(int position, int length, const QString &text) final;
-    void insertCodeSnippet(int position, const QString &text, const SnippetParser &parse) final;
-    void paste() final;
-    void encourageApply() final;
-    void autoIndent(int position, int length) override;
-
-private:
-    bool textIsDifferentAt(int position, int length, const QString &text) const;
-    void replaceWithoutCheck(int position, int length, const QString &text);
-
-private:
-    TextEditorWidget *m_textEditorWidget;
+    virtual Utils::Id id() const = 0;
+    virtual QString mangle(const QString &unmangled) const = 0;
 };
+
+class TEXTEDITOR_EXPORT ParsedSnippet
+{
+public:
+    class Part {
+    public:
+        Part() = default;
+        explicit Part(const QString &text) : text(text) {}
+        QString text;
+        int variableIndex = -1; // if variable index is >= 0 the text is interpreted as a variable
+        NameMangler *mangler = nullptr;
+    };
+    QList<Part> parts;
+    QList<QList<int>> variables;
+};
+
+class TEXTEDITOR_EXPORT SnippetParseError
+{
+public:
+    QString errorMessage;
+    QString text;
+    int pos;
+
+    QString htmlMessage() const;
+};
+
+using SnippetParseResult = Utils::variant<ParsedSnippet, SnippetParseError>;
+using SnippetParser = std::function<SnippetParseResult (const QString &)>;
 
 } // namespace TextEditor

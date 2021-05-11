@@ -214,6 +214,8 @@ Project {
                 "snippeteditor.h",
                 "snippetoverlay.cpp",
                 "snippetoverlay.h",
+                "snippetparser.cpp",
+                "snippetparser.h",
                 "snippetprovider.cpp",
                 "snippetprovider.h",
                 "snippetscollection.cpp",

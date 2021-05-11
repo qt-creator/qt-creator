@@ -70,22 +70,6 @@ public:
     }
 };
 
-QString SnippetParseError::htmlMessage() const
-{
-    QString message = errorMessage;
-    if (pos < 0 || pos > 50)
-        return message;
-    QString detail = text.left(50);
-    if (detail != text)
-        detail.append("...");
-    detail.replace(QChar::Space, "&nbsp;");
-    message.append("<br><code>" + detail + "<br>");
-    for (int i = 0; i < pos; ++i)
-        message.append("&nbsp;");
-    message.append("^</code>");
-    return message;
-}
-
 // --------------------------------------------------------------------
 // Snippet:
 // --------------------------------------------------------------------
