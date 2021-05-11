@@ -4,8 +4,26 @@ import qbs.FileInfo
 import qbs.Environment
 
 Project {
-    QtcLibrary {
+    Product {
         name: "KSyntaxHighlighting"
+
+        Export {
+            Depends { name: "qtc" }
+            Depends {
+                name: "Qt.KSyntaxHighlighting"
+                condition: qtc.preferSystemSyntaxHighlighting
+                required: false
+            }
+            Depends {
+                name: "KSyntaxHighlighting_bundled"
+                required: !qtc.preferSystemSyntaxHighlighting
+            }
+        }
+    }
+
+    QtcLibrary {
+        name: "KSyntaxHighlighting_bundled"
+        condition: !qtc.preferSystemSyntaxHighlighting || !Qt.KSyntaxHighlighting.present
 
         cpp.defines: base.concat("KSYNTAXHIGHLIGHTING_LIBRARY")
         cpp.includePaths: [
@@ -16,6 +34,11 @@ Project {
 
         Depends { name: "Qt.gui" }
         Depends { name: "Qt.network" }
+        Depends {
+            name: "Qt.KSyntaxHighlighting"
+            condition: qtc.preferSystemSyntaxHighlighting
+            required: false
+        }
 
         Group {
             name: "lib"

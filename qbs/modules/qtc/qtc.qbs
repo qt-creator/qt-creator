@@ -68,6 +68,8 @@ Module {
     property bool enableUbSanitizer: false
     property bool enableThreadSanitizer: false
 
+    property bool preferSystemSyntaxHighlighting: true
+
     property bool make_dev_package: false
 
     // Will be replaced when creating modules from products
