@@ -59,6 +59,7 @@ add_qtc_library(Utils
     fixedsizeclicklabel.cpp fixedsizeclicklabel.h
     flowlayout.cpp flowlayout.h
     functiontraits.h
+    futuresynchronizer.cpp futuresynchronizer.h
     fuzzymatcher.cpp fuzzymatcher.h
     genericconstants.h
     globalfilechangeblocker.cpp globalfilechangeblocker.h

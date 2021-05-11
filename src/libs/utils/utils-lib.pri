@@ -141,6 +141,7 @@ SOURCES += \
     $$PWD/aspects.cpp \
     $$PWD/layoutbuilder.cpp \
     $$PWD/variablechooser.cpp \
+    $$PWD/futuresynchronizer.cpp \
     $$PWD/qtcsettings.cpp
 
 HEADERS += \
@@ -298,6 +299,7 @@ HEADERS += \
     $$PWD/layoutbuilder.h \
     $$PWD/variablechooser.h \
     $$PWD/set_algorithm.h \
+    $$PWD/futuresynchronizer.h \
     $$PWD/qtcsettings.h
 
 FORMS += $$PWD/filewizardpage.ui \

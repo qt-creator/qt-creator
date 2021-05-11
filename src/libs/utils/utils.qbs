@@ -129,6 +129,8 @@ Project {
             "flowlayout.cpp",
             "flowlayout.h",
             "functiontraits.h",
+            "futuresynchronizer.cpp",
+            "futuresynchronizer.h",
             "fuzzymatcher.cpp",
             "fuzzymatcher.h",
             "globalfilechangeblocker.cpp",
