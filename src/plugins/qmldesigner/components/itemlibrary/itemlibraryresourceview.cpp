@@ -38,9 +38,9 @@
 #include <QMimeData>
 #include <QPainter>
 #include <QPixmap>
-#include <QtGui/qevent.h>
-
 #include <QProxyStyle>
+#include <QScrollBar>
+#include <QtGui/qevent.h>
 
 #include <functional>
 
@@ -57,6 +57,8 @@ void ItemLibraryResourceView::addSizeAction(QActionGroup *group, const QString &
         setViewMode(QListView::IconMode);
         setGridSize(QSize(gridSize, gridSize));
         setIconSize(QSize(iconSize, iconSize));
+        verticalScrollBar()->setSingleStep(-1); //step auto-adjustment
+
         setDragEnabled(true);
         setWrapping(true);
     });
