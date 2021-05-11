@@ -8,6 +8,6 @@ QtcLibrary {
 
     Export {
         Depends { name: "cpp" }
-        cpp.includePaths: product.exportedIncludeDir
+        cpp.includePaths: exportingProduct.exportedIncludeDir
     }
 }

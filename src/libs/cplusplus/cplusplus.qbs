@@ -126,7 +126,7 @@ Project {
 
         Export {
             cpp.includePaths: [
-                product.sourceDirectory + "/../3rdparty"
+                exportingProduct.sourceDirectory + "/../3rdparty"
             ]
         }
     }

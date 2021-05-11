@@ -68,6 +68,6 @@ Product {
 
     Export {
         Depends { name: "cpp" }
-        cpp.includePaths: product.buildDirectory
+        cpp.includePaths: exportingProduct.buildDirectory
     }
 }

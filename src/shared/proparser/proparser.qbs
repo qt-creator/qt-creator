@@ -13,6 +13,6 @@ Product {
             "PROEVALUATOR_CUMULATIVE",
             "PROEVALUATOR_SETENV",
         ])
-        cpp.includePaths: base.concat([product.sourceDirectory + "/.."])
+        cpp.includePaths: base.concat([exportingProduct.sourceDirectory + "/.."])
     }
 }

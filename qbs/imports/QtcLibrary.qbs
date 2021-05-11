@@ -34,6 +34,6 @@ QtcProduct {
 
     Export {
         Depends { name: "cpp" }
-        cpp.includePaths: [product.libIncludeBase]
+        cpp.includePaths: [exportingProduct.libIncludeBase]
     }
 }

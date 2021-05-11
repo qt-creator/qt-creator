@@ -69,13 +69,13 @@ Project {
         Export {
             Depends { name: "QmlJS" }
             cpp.includePaths: base.concat([
-                product.sourceDirectory,
-                product.sourceDirectory + "/components/componentcore",
-                product.sourceDirectory + "/components/edit3d",
-                product.sourceDirectory + "/components/formeditor",
-                product.sourceDirectory + "/components/integration",
-                product.sourceDirectory + "/designercore",
-                product.sourceDirectory + "/designercore/include",
+                exportingProduct.sourceDirectory,
+                exportingProduct.sourceDirectory + "/components/componentcore",
+                exportingProduct.sourceDirectory + "/components/edit3d",
+                exportingProduct.sourceDirectory + "/components/formeditor",
+                exportingProduct.sourceDirectory + "/components/integration",
+                exportingProduct.sourceDirectory + "/designercore",
+                exportingProduct.sourceDirectory + "/designercore/include",
                 qtc.export_data_base + "/qml/qmlpuppet/interfaces",
             ])
         }
