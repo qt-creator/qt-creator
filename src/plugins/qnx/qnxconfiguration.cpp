@@ -367,8 +367,8 @@ void QnxConfiguration::readInformation()
         return;
 
     foreach (const ConfigInstallInformation &info, installInfoList) {
-        if (m_qnxHost == FilePath::fromString(info.host)
-                && m_qnxTarget == FilePath::fromString(info.target)) {
+        if (m_qnxHost == FilePath::fromString(info.host).canonicalPath()
+                && m_qnxTarget == FilePath::fromString(info.target).canonicalPath()) {
             m_configName = info.name;
             setVersion(QnxVersionNumber(info.version));
             break;
@@ -383,11 +383,11 @@ void QnxConfiguration::setDefaultConfiguration(const Utils::FilePath &envScript)
     m_qnxEnv = QnxUtils::qnxEnvironmentFromEnvFile(m_envFile.toString());
     foreach (const EnvironmentItem &item, m_qnxEnv) {
         if (item.name == QNXConfiguration)
-            m_qnxConfiguration = FilePath::fromString(item.value);
+            m_qnxConfiguration = FilePath::fromString(item.value).canonicalPath();
         else if (item.name == QNXTarget)
-            m_qnxTarget = FilePath::fromString(item.value);
+            m_qnxTarget = FilePath::fromString(item.value).canonicalPath();
         else if (item.name == QNXHost)
-            m_qnxHost = FilePath::fromString(item.value);
+            m_qnxHost = FilePath::fromString(item.value).canonicalPath();
     }
 
     FilePath qccPath = FilePath::fromString(HostOsInfo::withExecutableSuffix(
