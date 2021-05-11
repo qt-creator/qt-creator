@@ -499,15 +499,15 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
                                                  const QString &cfgGroup)
 {
     if (d->m_searchResults.size() >= MAX_SEARCH_HISTORY) {
+        if (d->m_currentIndex >= d->m_recentSearchesBox->count() - 1) {
+            // temporarily set the index to the last but one existing
+            d->m_currentIndex = d->m_recentSearchesBox->count() - 2;
+        }
         d->m_searchResultWidgets.last()->notifyVisibilityChanged(false);
         // widget first, because that might send interesting signals to SearchResult
         delete d->m_searchResultWidgets.takeLast();
         delete d->m_searchResults.takeLast();
         d->m_recentSearchesBox->removeItem(d->m_recentSearchesBox->count()-1);
-        if (d->m_currentIndex >= d->m_recentSearchesBox->count()) {
-            // temporarily set the index to the last existing
-            d->m_currentIndex = d->m_recentSearchesBox->count() - 1;
-        }
     }
     auto widget = new SearchResultWidget;
     connect(widget, &SearchResultWidget::filterInvalidated, this, [this, widget] {
