@@ -28,7 +28,7 @@
 #include "stringutils.h"
 #include "executeondestruction.h"
 #include "hostosinfo.h"
-#include "processargs.h"
+#include "commandline.h"
 #include "qtcassert.h"
 
 #include <QCoreApplication>

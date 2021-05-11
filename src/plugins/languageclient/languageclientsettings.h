@@ -29,9 +29,8 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <utils/fileutils.h>
-
 #include <QAbstractItemModel>
+#include <QCoreApplication>
 #include <QJsonObject>
 #include <QLabel>
 #include <QPointer>
@@ -44,6 +43,7 @@ class QLineEdit;
 QT_END_NAMESPACE
 
 namespace Utils {
+class CommandLine;
 class FilePath;
 class PathChooser;
 class FancyLineEdit;

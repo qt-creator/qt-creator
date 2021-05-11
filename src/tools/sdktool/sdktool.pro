@@ -38,7 +38,7 @@ SOURCES += \
     $$UTILS/namevalueitem.cpp \
     $$UTILS/persistentsettings.cpp \
     $$UTILS/qtcassert.cpp \
-    $$UTILS/processargs.cpp \
+    $$UTILS/commandline.cpp \
     $$UTILS/savefile.cpp \
     $$UTILS/stringutils.cpp
 
@@ -71,7 +71,7 @@ HEADERS += \
     $$UTILS/namevalueitem.h \
     $$UTILS/persistentsettings.h \
     $$UTILS/qtcassert.h \
-    $$UTILS/processargs.h \
+    $$UTILS/commandline.h \
     $$UTILS/savefile.h \
     $$UTILS/porting.h
 

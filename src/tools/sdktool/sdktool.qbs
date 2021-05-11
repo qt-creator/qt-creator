@@ -68,6 +68,7 @@ QtcTool {
         name: "Utils"
         prefix: libsDir + "/utils/"
         files: [
+            "commandline.cpp", "commandline.h",
             "environment.cpp", "environment.h",
             "fileutils.cpp", "fileutils.h",
             "hostosinfo.cpp", "hostosinfo.h",
@@ -75,7 +76,6 @@ QtcTool {
             "namevalueitem.cpp", "namevalueitem.h",
             "persistentsettings.cpp", "persistentsettings.h",
             "porting.h",
-            "processargs.cpp", "processargs.h",
             "qtcassert.cpp", "qtcassert.h",
             "savefile.cpp", "savefile.h",
             "stringutils.cpp"

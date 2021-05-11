@@ -86,7 +86,6 @@ extend_qtc_executable(sdktool
     persistentsettings.cpp persistentsettings.h
     porting.h
     qtcassert.cpp qtcassert.h
-    processargs.cpp processargs.h
     savefile.cpp savefile.h
     stringutils.cpp stringutils.h
 )

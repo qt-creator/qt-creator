@@ -27,7 +27,7 @@
 
 #include "algorithm.h"
 #include "fileutils.h"
-#include "processargs.h"
+#include "commandline.h"
 #include "qtcassert.h"
 #include "stringutils.h"
 

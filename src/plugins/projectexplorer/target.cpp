@@ -50,6 +50,7 @@
 #include <coreplugin/coreconstants.h>
 
 #include <utils/algorithm.h>
+#include <utils/commandline.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>

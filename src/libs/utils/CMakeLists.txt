@@ -24,6 +24,7 @@ add_qtc_library(Utils
     checkablemessagebox.cpp checkablemessagebox.h
     classnamevalidatinglineedit.cpp classnamevalidatinglineedit.h
     codegeneration.cpp codegeneration.h
+    commandline.cpp commandline.h
     completinglineedit.cpp completinglineedit.h
     completingtextedit.cpp completingtextedit.h
     consoleprocess.cpp consoleprocess.h
@@ -115,7 +116,6 @@ add_qtc_library(Utils
     porting.h
     portlist.cpp portlist.h
     predicates.h
-    processargs.cpp processargs.h
     processhandle.cpp processhandle.h
     progressindicator.cpp progressindicator.h
     projectintropage.cpp projectintropage.h projectintropage.ui

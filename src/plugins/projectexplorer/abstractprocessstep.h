@@ -29,6 +29,10 @@
 
 #include <QProcess>
 
+namespace Utils {
+class CommandLine;
+}
+
 namespace ProjectExplorer {
 class ProcessParameters;
 

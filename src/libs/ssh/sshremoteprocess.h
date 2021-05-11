@@ -28,7 +28,9 @@
 #include "ssh_global.h"
 #include "sshprocess.h"
 
-#include <utils/fileutils.h>
+namespace Utils {
+class CommandLine;
+}
 
 namespace QSsh {
 class SshConnection;

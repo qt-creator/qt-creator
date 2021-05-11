@@ -27,6 +27,7 @@
 
 #include "utils_global.h"
 
+#include "fileutils.h"
 #include "hostosinfo.h"
 
 #include <QStringList>
@@ -130,4 +131,35 @@ private:
     bool m_isWindows;
 };
 
+class QTCREATOR_UTILS_EXPORT CommandLine
+{
+public:
+    enum RawType { Raw };
+
+    CommandLine();
+    explicit CommandLine(const QString &executable);
+    explicit CommandLine(const FilePath &executable);
+    CommandLine(const QString &exe, const QStringList &args);
+    CommandLine(const FilePath &exe, const QStringList &args);
+    CommandLine(const FilePath &exe, const QString &unparsedArgs, RawType);
+
+    void addArg(const QString &arg, OsType osType = HostOsInfo::hostOs());
+    void addArgs(const QStringList &inArgs, OsType osType = HostOsInfo::hostOs());
+    void addArgs(const CommandLine &cmd, OsType osType = HostOsInfo::hostOs());
+
+    void addArgs(const QString &inArgs, RawType);
+
+    QString toUserOutput() const;
+
+    FilePath executable() const { return m_executable; }
+    QString arguments() const { return m_arguments; }
+    QStringList splitArguments(OsType osType = HostOsInfo::hostOs()) const;
+
+private:
+    FilePath m_executable;
+    QString m_arguments;
+};
+
 } // namespace Utils
+
+Q_DECLARE_METATYPE(Utils::CommandLine)

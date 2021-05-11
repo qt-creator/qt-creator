@@ -30,7 +30,7 @@
 #include <projectexplorer/abstractprocessstep.h>
 
 #include <utils/aspects.h>
-#include <utils/fileutils.h>
+#include <utils/commandline.h>
 
 #include <memory>
 

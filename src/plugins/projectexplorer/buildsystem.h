@@ -33,6 +33,10 @@
 
 #include <QObject>
 
+namespace Utils {
+class CommandLine;
+}
+
 namespace ProjectExplorer {
 
 class BuildConfiguration;

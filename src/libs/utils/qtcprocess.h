@@ -28,7 +28,7 @@
 #include "utils_global.h"
 
 #include "environment.h"
-#include "processargs.h"
+#include "commandline.h"
 
 #include <QProcess>
 #include <QTextCodec>

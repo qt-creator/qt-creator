@@ -36,7 +36,7 @@
 #include <QTimer>
 
 #include <utils/algorithm.h>
-#include <utils/processargs.h>
+#include <utils/commandline.h>
 
 using namespace Utils;
 

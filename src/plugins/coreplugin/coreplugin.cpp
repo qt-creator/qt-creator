@@ -50,6 +50,7 @@
 #include <extensionsystem/pluginspec.h>
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/commandline.h>
 #include <utils/infobar.h>
 #include <utils/macroexpander.h>
 #include <utils/mimetypes/mimedatabase.h>

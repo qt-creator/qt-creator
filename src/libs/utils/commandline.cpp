@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "processargs.h"
+#include "commandline.h"
 
 #include "environment.h"
 #include "qtcassert.h"
@@ -1407,6 +1407,76 @@ QString ProcessArgs::toString() const
         return m_windowsArgs;
     else
         return ProcessArgs::joinArgs(m_unixArgs, OsTypeLinux);
+}
+
+/*!
+    \class Utils::CommandLine
+
+    \brief The CommandLine class represents a command line of a QProcess or
+    similar utility.
+ */
+
+CommandLine::CommandLine() = default;
+
+CommandLine::CommandLine(const QString &executable)
+    : m_executable(FilePath::fromString(executable))
+{}
+
+CommandLine::CommandLine(const FilePath &executable)
+    : m_executable(executable)
+{}
+
+CommandLine::CommandLine(const QString &exe, const QStringList &args)
+    : CommandLine(FilePath::fromString(exe), args)
+{}
+
+CommandLine::CommandLine(const FilePath &exe, const QStringList &args)
+    : m_executable(exe)
+{
+    addArgs(args);
+}
+
+CommandLine::CommandLine(const FilePath &exe, const QString &args, RawType)
+    : m_executable(exe)
+{
+    addArgs(args, Raw);
+}
+
+void CommandLine::addArg(const QString &arg, OsType osType)
+{
+    ProcessArgs::addArg(&m_arguments, arg, osType);
+}
+
+void CommandLine::addArgs(const QStringList &inArgs, OsType osType)
+{
+    for (const QString &arg : inArgs)
+        addArg(arg, osType);
+}
+
+// Adds cmd's executable and arguments one by one to this commandline.
+// Useful for 'sudo', 'nice', etc
+void CommandLine::addArgs(const CommandLine &cmd, OsType osType)
+{
+    addArg(cmd.executable().toString());
+    addArgs(cmd.splitArguments(osType));
+}
+
+void CommandLine::addArgs(const QString &inArgs, RawType)
+{
+    ProcessArgs::addArgs(&m_arguments, inArgs);
+}
+
+QString CommandLine::toUserOutput() const
+{
+    QString res = m_executable.toUserOutput();
+    if (!m_arguments.isEmpty())
+        res += ' ' + m_arguments;
+    return res;
+}
+
+QStringList CommandLine::splitArguments(OsType osType) const
+{
+    return ProcessArgs::splitArgs(m_arguments, osType);
 }
 
 } // namespace Utils
