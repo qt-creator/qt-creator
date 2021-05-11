@@ -35,7 +35,6 @@
 #include <vcsbase/diffandloghighlighter.h>
 
 #include <QRegularExpression>
-#include <QRegExp>
 #include <QString>
 #include <QTextCursor>
 #include <QTextBlock>
