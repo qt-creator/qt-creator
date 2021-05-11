@@ -211,9 +211,9 @@ void StatesEditorView::resetModel()
 
     if (m_statesEditorWidget) {
         if (currentState().isBaseState())
-            m_statesEditorWidget->setCurrentStateInternalId(currentState().modelNode().internalId());
-        else
             m_statesEditorWidget->setCurrentStateInternalId(0);
+        else
+            m_statesEditorWidget->setCurrentStateInternalId(currentState().modelNode().internalId());
     }
 }
 
