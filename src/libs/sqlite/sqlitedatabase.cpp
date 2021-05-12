@@ -77,7 +77,9 @@ Database::Database(Utils::PathString databaseFilePath,
     open(std::move(databaseFilePath), lockingMode);
 
 #ifndef QT_NO_DEBUG
-    execute("PRAGMA reverse_unordered_selects=1");
+    if (std::rand() % 2)
+        execute("PRAGMA reverse_unordered_selects=1");
+
 #endif
 }
 
