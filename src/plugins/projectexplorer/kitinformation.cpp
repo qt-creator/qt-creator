@@ -1301,7 +1301,12 @@ Utils::Id BuildDeviceKitAspect::id()
 IDevice::ConstPtr BuildDeviceKitAspect::device(const Kit *k)
 {
     QTC_ASSERT(DeviceManager::instance()->isLoaded(), return IDevice::ConstPtr());
-    return DeviceManager::instance()->find(deviceId(k));
+    IDevice::ConstPtr dev = DeviceManager::instance()->find(deviceId(k));
+    // Use the "run" device as fallback if no build device is present.
+    // FIXME: Think about whether this shouldn't be the other way round.
+    if (!dev)
+        dev = DeviceKitAspect::device(k);
+    return dev;
 }
 
 Utils::Id BuildDeviceKitAspect::deviceId(const Kit *k)
