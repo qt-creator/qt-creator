@@ -94,8 +94,12 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
                 testCaseName.clear();
         }
     } else {
-        const CPlusPlus::Argument *testSuiteNameArg = ast->symbol->argumentAt(0)->asArgument();
-        const CPlusPlus::Argument *testCaseNameArg = ast->symbol->argumentAt(1)->asArgument();
+        const CPlusPlus::Symbol *firstArg = ast->symbol->argumentAt(0);
+        const CPlusPlus::Symbol *secondArg = ast->symbol->argumentAt(1);
+        if (!firstArg || !secondArg)
+            return false;
+        const CPlusPlus::Argument *testSuiteNameArg = firstArg->asArgument();
+        const CPlusPlus::Argument *testCaseNameArg = secondArg->asArgument();
         if (testSuiteNameArg && testCaseNameArg) {
             testSuiteName = m_overview.prettyType(testSuiteNameArg->type());
             testCaseName = m_overview.prettyType(testCaseNameArg->type());
