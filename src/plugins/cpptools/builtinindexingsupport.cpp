@@ -356,18 +356,6 @@ QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(
     params.sourceFiles = sourceFiles;
 
     QFuture<void> result = Utils::runAsync(mgr->sharedThreadPool(), parse, params);
-
-    if (m_synchronizer.futures().size() > 10) {
-        QList<QFuture<void> > futures = m_synchronizer.futures();
-
-        m_synchronizer.clearFutures();
-
-        foreach (const QFuture<void> &future, futures) {
-            if (!(future.isFinished() || future.isCanceled()))
-                m_synchronizer.addFuture(future);
-        }
-    }
-
     m_synchronizer.addFuture(result);
 
     if (mode == CppModelManager::ForcedProgressNotification || sourceFiles.count() > 1) {

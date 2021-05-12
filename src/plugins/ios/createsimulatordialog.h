@@ -26,7 +26,8 @@
 #pragma once
 
 #include <QDialog>
-#include <QFutureSynchronizer>
+
+#include <utils/futuresynchronizer.h>
 
 namespace Ios {
 namespace Internal {
@@ -57,7 +58,7 @@ private:
     void populateRuntimes(const DeviceTypeInfo &deviceType);
 
 private:
-    QFutureSynchronizer<void> m_futureSync;
+    Utils::FutureSynchronizer m_futureSync;
     Ui::CreateSimulatorDialog *m_ui = nullptr;
     SimulatorControl *m_simControl = nullptr;
     QList<RuntimeInfo> m_runtimes;

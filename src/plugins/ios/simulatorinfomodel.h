@@ -27,8 +27,10 @@
 
 #include "simulatorcontrol.h"
 
+#include <utils/futuresynchronizer.h>
+
 #include <QAbstractListModel>
-#include <QFutureSynchronizer>
+
 
 namespace Ios {
 namespace Internal {
@@ -55,7 +57,7 @@ private:
     void populateSimulators(const SimulatorInfoList &simulatorList);
 
 private:
-    QFutureSynchronizer<void> m_fetchFuture;
+    Utils::FutureSynchronizer m_fetchFuture;
     SimulatorInfoList m_simList;
 };
 

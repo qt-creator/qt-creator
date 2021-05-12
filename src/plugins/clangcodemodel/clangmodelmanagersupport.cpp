@@ -327,7 +327,7 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
     auto future = Utils::runAsync(&Internal::generateCompilationDB, projectInfo,
                                   CompilationDbPurpose::CodeModel);
     generatorWatcher->setFuture(future);
-    m_generatorSynchronizer.addFuture(QFuture<void>(future));
+    m_generatorSynchronizer.addFuture(future);
 }
 
 ClangdClient *ClangModelManagerSupport::clientForProject(

@@ -33,8 +33,8 @@
 #include <vcsbase/vcsbaseclient.h>
 
 #include <utils/fileutils.h>
+#include <utils/futuresynchronizer.h>
 
-#include <QFutureSynchronizer>
 #include <QObject>
 #include <QString>
 #include <QStringList>
@@ -425,7 +425,7 @@ private:
     QString m_diffCommit;
     QStringList m_updatedSubmodules;
     bool m_disableEditor = false;
-    QFutureSynchronizer<void> m_synchronizer; // for commit updates
+    Utils::FutureSynchronizer m_synchronizer; // for commit updates
 };
 
 class GitRemote : public Core::IVersionControl::RepoUrl

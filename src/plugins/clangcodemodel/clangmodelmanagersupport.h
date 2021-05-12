@@ -30,9 +30,9 @@
 
 #include <cpptools/cppmodelmanagersupport.h>
 
+#include <utils/futuresynchronizer.h>
 #include <utils/id.h>
 
-#include <QFutureSynchronizer>
 #include <QObject>
 
 #include <memory>
@@ -135,7 +135,7 @@ private:
     std::unique_ptr<CppTools::RefactoringEngineInterface> m_refactoringEngine;
 
     QHash<ProjectExplorer::Project *, ClangProjectSettings *> m_projectSettings;
-    QFutureSynchronizer<void> m_generatorSynchronizer;
+    Utils::FutureSynchronizer m_generatorSynchronizer;
 };
 
 class ClangModelManagerSupportProvider : public CppTools::ModelManagerSupportProvider

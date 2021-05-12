@@ -29,10 +29,10 @@
 #include "clangiasyncjob.h"
 
 #include <QDebug>
-#include <QFutureSynchronizer>
 #include <QLoggingCategory>
 
 #include <utils/algorithm.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>
 
 namespace ClangBackEnd {
@@ -63,7 +63,7 @@ Jobs::~Jobs()
     foreach (IAsyncJob *asyncJob, m_running.keys())
         asyncJob->preventFinalization();
 
-    QFutureSynchronizer<void> waitForFinishedJobs;
+    Utils::FutureSynchronizer waitForFinishedJobs;
     foreach (const RunningJob &runningJob, m_running.values())
         waitForFinishedJobs.addFuture(runningJob.future);
 
@@ -114,7 +114,7 @@ JobRequests Jobs::stop()
     queue().clear();
 
     // Wait until currently running jobs finish.
-    QFutureSynchronizer<void> waitForFinishedJobs;
+    Utils::FutureSynchronizer waitForFinishedJobs;
     foreach (const RunningJob &runningJob, m_running.values())
         waitForFinishedJobs.addFuture(runningJob.future);
 

@@ -26,10 +26,10 @@
 #pragma once
 
 #include <coreplugin/inavigationwidgetfactory.h>
+#include <utils/futuresynchronizer.h>
 
 #include <QFuture>
 #include <QFutureWatcher>
-#include <QFutureSynchronizer>
 #include <QList>
 #include <QSharedPointer>
 #include <QStackedWidget>
@@ -94,7 +94,6 @@ private:
     void clearTypeHierarchy();
     void onItemActivated(const QModelIndex &index);
     void onItemDoubleClicked(const QModelIndex &index);
-    void updateSynchronizer();
 
     CppEditorWidget *m_cppEditor = nullptr;
     Utils::NavigationTreeView *m_treeView = nullptr;
@@ -106,7 +105,7 @@ private:
     QLabel *m_infoLabel = nullptr;
     QFuture<QSharedPointer<CppTools::CppElement>> m_future;
     QFutureWatcher<void> m_futureWatcher;
-    QFutureSynchronizer<void> m_synchronizer;
+    Utils::FutureSynchronizer m_synchronizer;
     Utils::ProgressIndicator *m_progressIndicator = nullptr;
     QString m_oldClass;
     bool m_showOldClass = false;

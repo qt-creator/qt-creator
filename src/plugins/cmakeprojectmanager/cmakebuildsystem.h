@@ -33,9 +33,8 @@
 #include <projectexplorer/buildsystem.h>
 
 #include <utils/fileutils.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/temporarydirectory.h>
-
-#include <QFutureSynchronizer>
 
 namespace ProjectExplorer { class ExtraCompiler; }
 
@@ -184,7 +183,7 @@ private:
     // CTest integration
     QString m_ctestPath;
     QList<ProjectExplorer::TestCaseInfo> m_testNames;
-    QFutureSynchronizer<QByteArray> m_futureSynchronizer;
+    Utils::FutureSynchronizer m_futureSynchronizer;
 };
 
 } // namespace Internal

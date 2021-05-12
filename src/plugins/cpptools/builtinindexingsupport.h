@@ -28,7 +28,7 @@
 #include "cppindexingsupport.h"
 #include "cppmodelmanager.h"
 
-#include <QFutureSynchronizer>
+#include <utils/futuresynchronizer.h>
 
 namespace CppTools {
 namespace Internal {
@@ -47,7 +47,7 @@ public:
     static bool isFindErrorsIndexingActive();
 
 private:
-    QFutureSynchronizer<void> m_synchronizer;
+    Utils::FutureSynchronizer m_synchronizer;
 };
 
 } // namespace Internal
