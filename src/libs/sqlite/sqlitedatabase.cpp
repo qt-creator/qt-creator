@@ -60,20 +60,21 @@ Database::Database()
 {
 }
 
-Database::Database(Utils::PathString &&databaseFilePath, JournalMode journalMode)
-    : Database{std::move(databaseFilePath), 0ms, journalMode}
+Database::Database(Utils::PathString databaseFilePath, JournalMode journalMode, LockingMode lockingMode)
+    : Database{std::move(databaseFilePath), 0ms, journalMode, lockingMode}
 {}
 
-Database::Database(Utils::PathString &&databaseFilePath,
+Database::Database(Utils::PathString databaseFilePath,
                    std::chrono::milliseconds busyTimeout,
-                   JournalMode journalMode)
+                   JournalMode journalMode,
+                   LockingMode lockingMode)
     : m_databaseBackend(*this)
     , m_busyTimeout(busyTimeout)
 {
     std::lock_guard lock{*this};
 
     setJournalMode(journalMode);
-    open(std::move(databaseFilePath));
+    open(std::move(databaseFilePath), lockingMode);
 
 #ifndef QT_NO_DEBUG
     execute("PRAGMA reverse_unordered_selects=1");
@@ -87,9 +88,10 @@ void Database::activateLogging()
     DatabaseBackend::activateLogging();
 }
 
-void Database::open()
+void Database::open(LockingMode lockingMode)
 {
     m_databaseBackend.open(m_databaseFilePath, m_openMode);
+    m_databaseBackend.setLockingMode(lockingMode);
     m_databaseBackend.setJournalMode(m_journalMode);
     if (m_busyTimeout > 0ms)
         m_databaseBackend.setBusyTimeout(m_busyTimeout);
@@ -99,11 +101,11 @@ void Database::open()
     m_isOpen = true;
 }
 
-void Database::open(Utils::PathString &&databaseFilePath)
+void Database::open(Utils::PathString &&databaseFilePath, LockingMode lockingMode)
 {
     m_isInitialized = QFileInfo::exists(QString(databaseFilePath));
     setDatabaseFilePath(std::move(databaseFilePath));
-    open();
+    open(lockingMode);
 }
 
 void Database::close()
@@ -128,7 +130,7 @@ bool Database::isOpen() const
     return m_isOpen;
 }
 
-void Database::setDatabaseFilePath(Utils::PathString &&databaseFilePath)
+void Database::setDatabaseFilePath(Utils::PathString databaseFilePath)
 {
     m_databaseFilePath = std::move(databaseFilePath);
 }
@@ -161,6 +163,11 @@ void Database::setJournalMode(JournalMode journalMode)
 JournalMode Database::journalMode() const
 {
     return m_journalMode;
+}
+
+LockingMode Database::lockingMode() const
+{
+    return m_databaseBackend.lockingMode();
 }
 
 void Database::setOpenMode(OpenMode openMode)

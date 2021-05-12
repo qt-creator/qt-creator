@@ -67,10 +67,13 @@ public:
     using BusyHandler = DatabaseBackend::BusyHandler;
 
     Database();
-    Database(Utils::PathString &&databaseFilePath, JournalMode journalMode = JournalMode::Wal);
-    Database(Utils::PathString &&databaseFilePath,
+    Database(Utils::PathString databaseFilePath,
+             JournalMode journalMode = JournalMode::Wal,
+             LockingMode lockingMode = LockingMode::Default);
+    Database(Utils::PathString databaseFilePath,
              std::chrono::milliseconds busyTimeout,
-             JournalMode journalMode = JournalMode::Wal);
+             JournalMode journalMode = JournalMode::Wal,
+             LockingMode lockingMode = LockingMode::Default);
     ~Database();
 
     Database(const Database &) = delete;
@@ -78,8 +81,8 @@ public:
 
     static void activateLogging();
 
-    void open();
-    void open(Utils::PathString &&databaseFilePath);
+    void open(LockingMode lockingMode = LockingMode::Default);
+    void open(Utils::PathString &&databaseFilePath, LockingMode lockingMode = LockingMode::Default);
     void close();
 
     bool isInitialized() const;
@@ -87,11 +90,13 @@ public:
 
     bool isOpen() const;
 
-    void setDatabaseFilePath(Utils::PathString &&databaseFilePath);
+    void setDatabaseFilePath(Utils::PathString databaseFilePath);
     const Utils::PathString &databaseFilePath() const;
 
     void setJournalMode(JournalMode journalMode);
     JournalMode journalMode() const;
+
+    LockingMode lockingMode() const;
 
     void setOpenMode(OpenMode openMode);
     OpenMode openMode() const;

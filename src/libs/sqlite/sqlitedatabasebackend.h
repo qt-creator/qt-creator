@@ -68,6 +68,9 @@ public:
     void setJournalMode(JournalMode journalMode);
     JournalMode journalMode();
 
+    void setLockingMode(LockingMode lockingMode);
+    LockingMode lockingMode() const;
+
     Utils::SmallStringVector columnNames(Utils::SmallStringView tableName);
 
     int changesCount() const;
@@ -78,8 +81,8 @@ public:
 
     void execute(Utils::SmallStringView sqlStatement);
 
-    template <typename Type>
-    Type toValue(Utils::SmallStringView sqlStatement);
+    template<typename Type>
+    Type toValue(Utils::SmallStringView sqlStatement) const;
 
     static int openMode(OpenMode);
 
@@ -100,8 +103,7 @@ protected:
     bool databaseIsOpen() const;
 
     void setPragmaValue(Utils::SmallStringView pragma, Utils::SmallStringView value);
-    Utils::SmallString pragmaValue(Utils::SmallStringView pragma);
-
+    Utils::SmallString pragmaValue(Utils::SmallStringView pragma) const;
 
     void checkForOpenDatabaseWhichCanBeClosed();
     void checkDatabaseClosing(int resultCode);

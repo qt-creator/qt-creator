@@ -58,6 +58,8 @@ enum class JournalMode : char
     Wal
 };
 
+enum class LockingMode : char { Default, Normal, Exclusive };
+
 enum class OpenMode : char
 {
     ReadOnly,

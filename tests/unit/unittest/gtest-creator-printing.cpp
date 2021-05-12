@@ -433,6 +433,20 @@ const char *toText(Operation operation)
 
     return "";
 }
+
+const char *toText(LockingMode lockingMode)
+{
+    switch (lockingMode) {
+    case LockingMode::Default:
+        return "Default";
+    case LockingMode::Normal:
+        return "Normal";
+    case LockingMode::Exclusive:
+        return "Exclusive";
+    }
+
+    return "";
+}
 } // namespace
 
 std::ostream &operator<<(std::ostream &out, const SessionChangeSet &changeset)
@@ -453,6 +467,11 @@ std::ostream &operator<<(std::ostream &out, const SessionChangeSet &changeset)
     out << "])";
 
     return out;
+}
+
+std::ostream &operator<<(std::ostream &out, LockingMode lockingMode)
+{
+    return out << toText(lockingMode);
 }
 
 std::ostream &operator<<(std::ostream &out, Operation operation)

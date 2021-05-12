@@ -111,6 +111,39 @@ TEST_F(SqliteDatabase, SetJournalMode)
     ASSERT_THAT(database.journalMode(), JournalMode::Memory);
 }
 
+TEST_F(SqliteDatabase, LockingModeIsByDefaultExlusive)
+{
+    ASSERT_THAT(database.lockingMode(), Sqlite::LockingMode::Exclusive);
+}
+
+TEST_F(SqliteDatabase, CreateDatabaseWithLockingModeNormal)
+{
+    Utils::PathString path{Utils::TemporaryDirectory::masterDirectoryPath()
+                           + "/database_exclusive_locked.db"};
+
+    Sqlite::Database database{path, JournalMode::Wal, Sqlite::LockingMode::Normal};
+
+    ASSERT_THAT(database.lockingMode(), Sqlite::LockingMode::Normal);
+}
+
+TEST_F(SqliteDatabase, ExclusivelyLockedDatabaseIsLockedForSecondConnection)
+{
+    Utils::PathString path{Utils::TemporaryDirectory::masterDirectoryPath()
+                           + "/database_exclusive_locked.db"};
+    Sqlite::Database database{path};
+
+    ASSERT_THROW(Sqlite::Database database2{path}, Sqlite::StatementIsBusy);
+}
+
+TEST_F(SqliteDatabase, NormalLockedDatabaseCanBeReopened)
+{
+    Utils::PathString path{Utils::TemporaryDirectory::masterDirectoryPath()
+                           + "/database_exclusive_locked.db"};
+    Sqlite::Database database{path, JournalMode::Wal, Sqlite::LockingMode::Normal};
+
+    ASSERT_NO_THROW((Sqlite::Database{path, JournalMode::Wal, Sqlite::LockingMode::Normal}));
+}
+
 TEST_F(SqliteDatabase, SetOpenlMode)
 {
     database.setOpenMode(OpenMode::ReadOnly);

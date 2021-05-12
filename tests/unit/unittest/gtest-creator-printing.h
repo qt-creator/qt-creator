@@ -69,11 +69,13 @@ class Value;
 class ValueView;
 class SessionChangeSet;
 enum class Operation : char;
+enum class LockingMode : char;
 
 std::ostream &operator<<(std::ostream &out, const Value &value);
 std::ostream &operator<<(std::ostream &out, const ValueView &value);
 std::ostream &operator<<(std::ostream &out, Operation operation);
 std::ostream &operator<<(std::ostream &out, const SessionChangeSet &changeset);
+std::ostream &operator<<(std::ostream &out, LockingMode lockingMode);
 
 namespace SessionChangeSetInternal {
 class ConstIterator;

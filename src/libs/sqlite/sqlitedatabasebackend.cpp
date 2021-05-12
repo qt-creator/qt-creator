@@ -137,7 +137,7 @@ void DatabaseBackend::setPragmaValue(Utils::SmallStringView pragmaKey, Utils::Sm
     checkPragmaValue(pragmeValueInDatabase, newPragmaValue);
 }
 
-Utils::SmallString DatabaseBackend::pragmaValue(Utils::SmallStringView pragma)
+Utils::SmallString DatabaseBackend::pragmaValue(Utils::SmallStringView pragma) const
 {
     return toValue<Utils::SmallString>("PRAGMA " + pragma);
 }
@@ -150,6 +150,42 @@ void DatabaseBackend::setJournalMode(JournalMode journalMode)
 JournalMode DatabaseBackend::journalMode()
 {
     return pragmaToJournalMode(pragmaValue("journal_mode"));
+}
+
+namespace {
+Utils::SmallStringView lockingModeToPragma(LockingMode lockingMode)
+{
+    switch (lockingMode) {
+    case LockingMode::Default:
+        return "";
+    case LockingMode::Normal:
+        return "normal";
+    case LockingMode::Exclusive:
+        return "exclusive";
+    }
+
+    return "";
+}
+LockingMode pragmaToLockingMode(Utils::SmallStringView pragma)
+{
+    if (pragma == "normal")
+        return LockingMode::Normal;
+    else if (pragma == "exclusive")
+        return LockingMode::Exclusive;
+
+    return LockingMode::Default;
+}
+} // namespace
+
+void DatabaseBackend::setLockingMode(LockingMode lockingMode)
+{
+    if (lockingMode != LockingMode::Default)
+        setPragmaValue("main.locking_mode", lockingModeToPragma(lockingMode));
+}
+
+LockingMode DatabaseBackend::lockingMode() const
+{
+    return pragmaToLockingMode(pragmaValue("main.locking_mode"));
 }
 
 int DatabaseBackend::changesCount() const
@@ -453,8 +489,8 @@ void DatabaseBackend::throwDatabaseIsNotOpen(const char *whatHasHappens) const
     throw DatabaseIsNotOpen(whatHasHappens);
 }
 
-template <typename Type>
-Type DatabaseBackend::toValue(Utils::SmallStringView sqlStatement)
+template<typename Type>
+Type DatabaseBackend::toValue(Utils::SmallStringView sqlStatement) const
 {
     try {
         ReadWriteStatement<1> statement(sqlStatement, m_database);
