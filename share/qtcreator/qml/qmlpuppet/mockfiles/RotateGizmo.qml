@@ -184,7 +184,6 @@ Node {
 
         property bool dragging: false
         property vector3d _pointerPosPressed
-        property vector3d _targetPosOnScreen
         property vector3d _startRotation
 
         function handlePressed(screenPos)
@@ -195,8 +194,6 @@ Node {
             // Need to recreate vector as we need to adjust it and we can't do that on reference of
             // scenePosition, which is read-only property
             var scenePos = rotateGizmo.dragHelper.pivotScenePosition(rotateGizmo.targetNode);
-            _targetPosOnScreen = view3D.mapFrom3DScene(scenePos);
-            _targetPosOnScreen.z = 0;
             _pointerPosPressed = Qt.vector3d(screenPos.x, screenPos.y, 0);
 
             // Recreate vector so we don't follow the changes in targetNode.rotation
@@ -213,7 +210,7 @@ Node {
 
             mouseAreaFree.applyFreeRotation(
                         rotateGizmo.targetNode, _startRotation, _pointerPosPressed,
-                        Qt.vector3d(screenPos.x, screenPos.y, 0), _targetPosOnScreen);
+                        Qt.vector3d(screenPos.x, screenPos.y, 0));
 
             rotateGizmo.rotateChange();
         }
@@ -225,7 +222,7 @@ Node {
 
             mouseAreaFree.applyFreeRotation(
                         rotateGizmo.targetNode, _startRotation, _pointerPosPressed,
-                        Qt.vector3d(screenPos.x, screenPos.y, 0), _targetPosOnScreen);
+                        Qt.vector3d(screenPos.x, screenPos.y, 0));
 
             rotateGizmo.rotateCommit();
             dragging = false;
