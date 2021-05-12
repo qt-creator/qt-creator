@@ -164,18 +164,28 @@ public:
     bool isValid() const override;
     QStringList suggestedMkspecList() const override;
     void addToEnvironment(Utils::Environment &env) const override;
+    Utils::FilePath compilerCommand() const override; // FIXME: Remove
     QList<Utils::OutputLineParser *> createOutputParsers() const override;
+    QVariantMap toMap() const override;
+    bool fromMap(const QVariantMap &data) override;
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(
             const Utils::Environment &env) const override;
 
     const QList<MsvcToolChain *> &msvcToolchains() const;
+    QString clangPath() const { return m_clangPath; }
+    void setClangPath(const QString &path) { m_clangPath = path; }
 
     Macros msvcPredefinedMacros(const QStringList &cxxflags,
                                 const Utils::Environment &env) const override;
     Utils::LanguageVersion msvcLanguageVersion(const QStringList &cxxflags,
                                                const Utils::Id &language,
                                                const Macros &macros) const override;
+
+    bool operator==(const ToolChain &) const override;
+
+private:
+    QString m_clangPath;
 };
 
 // --------------------------------------------------------------------------
