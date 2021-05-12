@@ -162,11 +162,11 @@ QList<Core::LocatorFilterEntry> DocumentLocatorFilter::matchesFor(
         QEventLoop loop;
         connect(this, &DocumentLocatorFilter::symbolsUpToDate, &loop, [&]() { loop.exit(1); });
         QFutureWatcher<Core::LocatorFilterEntry> watcher;
-        watcher.setFuture(future.future());
         connect(&watcher,
                 &QFutureWatcher<Core::LocatorFilterEntry>::canceled,
                 &loop,
                 &QEventLoop::quit);
+        watcher.setFuture(future.future());
         locker.unlock();
         if (!loop.exec())
             return {};
@@ -263,11 +263,11 @@ QList<Core::LocatorFilterEntry> WorkspaceLocatorFilter::matchesFor(
         QEventLoop loop;
         connect(this, &WorkspaceLocatorFilter::allRequestsFinished, &loop, [&]() { loop.exit(1); });
         QFutureWatcher<Core::LocatorFilterEntry> watcher;
-        watcher.setFuture(future.future());
         connect(&watcher,
                 &QFutureWatcher<Core::LocatorFilterEntry>::canceled,
                 &loop,
                 &QEventLoop::quit);
+        watcher.setFuture(future.future());
         locker.unlock();
         if (!loop.exec())
             return {};

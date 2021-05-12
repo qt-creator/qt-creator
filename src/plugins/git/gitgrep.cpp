@@ -190,9 +190,9 @@ public:
         command->addFlags(VcsCommand::SilentOutput | VcsCommand::SuppressFailMessage);
         command->setProgressiveOutput(true);
         QFutureWatcher<FileSearchResultList> watcher;
-        watcher.setFuture(m_fi.future());
         connect(&watcher, &QFutureWatcher<FileSearchResultList>::canceled,
                 command.data(), &VcsCommand::cancel);
+        watcher.setFuture(m_fi.future());
         connect(command.data(), &VcsCommand::stdOutText, this, &GitGrepRunner::read);
         SynchronousProcessResponse resp = command->runCommand({GitClient::instance()->vcsBinary(), arguments}, 0);
         switch (resp.result) {

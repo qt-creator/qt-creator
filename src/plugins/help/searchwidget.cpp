@@ -185,9 +185,9 @@ void SearchWidget::indexingStarted()
     m_progress->setProgressValueAndText(1, tr("Indexing Documentation"));
     m_progress->reportStarted();
 
-    m_watcher.setFuture(m_progress->future());
     connect(&m_watcher, &QFutureWatcherBase::canceled,
             searchEngine, &QHelpSearchEngine::cancelIndexing);
+    m_watcher.setFuture(m_progress->future());
 
     m_queryWidget->hide();
     m_indexingDocumentationLabel->show();

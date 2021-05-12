@@ -377,7 +377,6 @@ FutureProgress *ProgressManagerPrivate::doAddTask(const QFuture<void> &future, c
     connect(watcher, &QFutureWatcherBase::progressValueChanged,
             this, &ProgressManagerPrivate::updateSummaryProgressBar);
     connect(watcher, &QFutureWatcherBase::finished, this, &ProgressManagerPrivate::taskFinished);
-    watcher->setFuture(future);
 
     // handle application task
     if (flags & ShowInApplicationIcon) {
@@ -392,6 +391,8 @@ FutureProgress *ProgressManagerPrivate::doAddTask(const QFuture<void> &future, c
                 this, &ProgressManagerPrivate::setApplicationProgressValue);
         setApplicationProgressVisible(true);
     }
+
+    watcher->setFuture(future);
 
     // create FutureProgress and manage task list
     removeOldTasks(type);

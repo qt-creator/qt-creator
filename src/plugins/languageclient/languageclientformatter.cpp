@@ -113,10 +113,10 @@ QFutureWatcher<ChangeSet> *LanguageClientFormatter::format(
     m_ignoreCancel = true;
     m_progress.reportStarted();
     auto watcher = new QFutureWatcher<ChangeSet>();
-    watcher->setFuture(m_progress.future());
     QObject::connect(watcher, &QFutureWatcher<Text::Replacements>::canceled, [this]() {
         cancelCurrentRequest();
     });
+    watcher->setFuture(m_progress.future());
     return watcher;
 }
 

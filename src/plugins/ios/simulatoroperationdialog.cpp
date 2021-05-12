@@ -75,9 +75,9 @@ void SimulatorOperationDialog::addFutures(const QList<QFuture<void> > &futureLis
     foreach (auto future, futureList) {
         if (!future.isFinished() || !future.isCanceled()) {
             auto watcher = new QFutureWatcher<void>;
-            watcher->setFuture(future);
             connect(watcher, &QFutureWatcher<void>::finished,
                     this, &SimulatorOperationDialog::futureFinished);
+            watcher->setFuture(future);
             m_futureWatchList << watcher;
         }
     }
