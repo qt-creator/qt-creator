@@ -30,6 +30,8 @@
 #include "valueschangedcommand.h"
 #include "changeselectioncommand.h"
 #include "requestmodelnodepreviewimagecommand.h"
+#include "propertybindingcontainer.h"
+#include "propertyabstractcontainer.h"
 
 #include <QTimer>
 #include <QVariant>
@@ -132,6 +134,8 @@ private:
     void updateLockedAndHiddenStates(const QSet<ServerNodeInstance> &instances);
     void handleInputEvents();
     void resolveImportSupport();
+    void updateRotationBlocks(const QVector<PropertyValueContainer> &valueChanges);
+    void removeRotationBlocks(const QVector<qint32> &instanceIds);
 
     void createAuxiliaryQuickView(const QUrl &url, RenderViewData &viewData);
 

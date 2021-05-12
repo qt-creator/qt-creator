@@ -40,16 +40,28 @@ Node {
     property real currentAngle
     property point currentMousePos
     property alias freeDraggerArea: mouseAreaFree
+    property bool blocked: false
 
     position: dragHelper.pivotScenePosition(targetNode)
 
-    onTargetNodeChanged: position = dragHelper.pivotScenePosition(targetNode)
+    onTargetNodeChanged: {
+        position = dragHelper.pivotScenePosition(targetNode);
+        blocked = _generalHelper.isRotationBlocked(targetNode);
+    }
 
     Connections {
         target: rotateGizmo.targetNode
         function onSceneTransformChanged()
         {
-            rotateGizmo.position = rotateGizmo.dragHelper.pivotScenePosition(rotateGizmo.targetNode);
+            rotateGizmo.position = dragHelper.pivotScenePosition(targetNode);
+        }
+    }
+
+    Connections {
+        target: _generalHelper
+        function onRotationBlocksChanged()
+        {
+            blocked = _generalHelper.isRotationBlocked(targetNode);
         }
     }
 
@@ -82,11 +94,12 @@ Node {
             objectName: "Rotate Ring X"
             eulerRotation: Qt.vector3d(0, 90, 0)
             targetNode: rotateGizmo.targetNode
-            color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(1, 0, 0, 1))
-                                                              : Qt.rgba(1, 0, 0, 1)
+            color: rotateGizmo.blocked ? Qt.rgba(0.5, 0.5, 0.5, 1)
+                                       : highlightOnHover && (hovering || dragging)
+                                         ? Qt.lighter(Qt.rgba(1, 0, 0, 1)) : Qt.rgba(1, 0, 0, 1)
             priority: 40
             view3D: rotateGizmo.view3D
-            active: rotateGizmo.visible
+            active: rotateGizmo.visible && !rotateGizmo.blocked
             dragHelper: rotateGizmo.dragHelper
 
             onRotateCommit: rotateGizmo.rotateCommit()
@@ -100,13 +113,14 @@ Node {
             objectName: "Rotate Ring Y"
             eulerRotation: Qt.vector3d(90, 0, 0)
             targetNode: rotateGizmo.targetNode
-            color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(0, 0.6, 0, 1))
-                                                              : Qt.rgba(0, 0.6, 0, 1)
+            color: rotateGizmo.blocked ? Qt.rgba(0.5, 0.5, 0.5, 1)
+                                       : highlightOnHover && (hovering || dragging)
+                                         ? Qt.lighter(Qt.rgba(0, 0.6, 0, 1)) : Qt.rgba(0, 0.6, 0, 1)
             // Just a smidge smaller than higher priority rings so that it doesn't obscure them
             scale: Qt.vector3d(0.998, 0.998, 0.998)
             priority: 30
             view3D: rotateGizmo.view3D
-            active: rotateGizmo.visible
+            active: rotateGizmo.visible && !rotateGizmo.blocked
             dragHelper: rotateGizmo.dragHelper
 
             onRotateCommit: rotateGizmo.rotateCommit()
@@ -120,13 +134,14 @@ Node {
             objectName: "Rotate Ring Z"
             eulerRotation: Qt.vector3d(0, 0, 0)
             targetNode: rotateGizmo.targetNode
-            color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(0, 0, 1, 1))
-                                                              : Qt.rgba(0, 0, 1, 1)
+            color: rotateGizmo.blocked ? Qt.rgba(0.5, 0.5, 0.5, 1)
+                                       : highlightOnHover && (hovering || dragging)
+                                         ? Qt.lighter(Qt.rgba(0, 0, 1, 1)) : Qt.rgba(0, 0, 1, 1)
             // Just a smidge smaller than higher priority rings so that it doesn't obscure them
             scale: Qt.vector3d(0.996, 0.996, 0.996)
             priority: 20
             view3D: rotateGizmo.view3D
-            active: rotateGizmo.visible
+            active: rotateGizmo.visible && !rotateGizmo.blocked
             dragHelper: rotateGizmo.dragHelper
 
             onRotateCommit: rotateGizmo.rotateCommit()
@@ -154,12 +169,14 @@ Node {
         objectName: "cameraRing"
         rotation: rotateGizmo.view3D.camera.rotation
         targetNode: rotateGizmo.targetNode
-        color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(0.5, 0.5, 0.5, 1))
-                                                          : Qt.rgba(0.5, 0.5, 0.5, 1)
+        color: rotateGizmo.blocked ? Qt.rgba(0.5, 0.5, 0.5, 1)
+                                   : highlightOnHover && (hovering || dragging)
+                                     ? Qt.lighter(Qt.rgba(0.5, 0.5, 0.5, 1))
+                                     : Qt.rgba(0.5, 0.5, 0.5, 1)
         scale: Qt.vector3d(1.1, 1.1, 1.1)
         priority: 10
         view3D: rotateGizmo.view3D
-        active: rotateGizmo.visible
+        active: rotateGizmo.visible && !rotateGizmo.blocked
         dragHelper: rotateGizmo.dragHelper
         visible: !rotRingX.dragging && !rotRingY.dragging && !rotRingZ.dragging && !freeRotator.dragging
 
@@ -176,7 +193,7 @@ Node {
         materials: DefaultMaterial {
             id: material
             diffuseColor: "black"
-            opacity: mouseAreaFree.hovering ? 0.15 : 0
+            opacity: mouseAreaFree.hovering && !rotateGizmo.blocked ? 0.15 : 0
             lighting: DefaultMaterial.NoLighting
         }
         scale: Qt.vector3d(0.15, 0.15, 0.15)
@@ -200,6 +217,14 @@ Node {
             _startRotation = Qt.vector3d(rotateGizmo.targetNode.eulerRotation.x,
                                          rotateGizmo.targetNode.eulerRotation.y,
                                          rotateGizmo.targetNode.eulerRotation.z);
+            // Ensure we never set NaN values for rotation, even if target node originally has them
+            if (isNaN(_startRotation.x))
+                _startRotation.x = 0;
+            if (isNaN(_startRotation.y))
+                _startRotation.y = 0;
+            if (isNaN(_startRotation.z))
+                _startRotation.z = 0;
+
             dragging = true;
         }
 
@@ -239,7 +264,7 @@ Node {
             height: 100
             circlePickArea: Qt.point(25, 50)
             grabsMouse: rotateGizmo.targetNode
-            active: rotateGizmo.visible
+            active: rotateGizmo.visible && !rotateGizmo.blocked
             dragHelper: rotateGizmo.dragHelper
 
             onPressed: freeRotator.handlePressed(screenPos)

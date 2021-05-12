@@ -56,6 +56,7 @@
 #include <QLineEdit>
 #include <QMenu>
 #include <QPainter>
+#include <QScopedPointer>
 
 #include <algorithm>
 
@@ -354,8 +355,9 @@ void TimelinePropertyItem::changePropertyValue(const QVariant &value)
         QTimer::singleShot(0, deferredFunc);
 
     } else {
-        QmlObjectNode objectNode(m_frames.target());
-        objectNode.setVariantProperty(m_frames.propertyName(), value);
+        QScopedPointer<QmlObjectNode> objectNode {
+            QmlObjectNode::getQmlObjectNodeOfCorrectType(m_frames.target())};
+        objectNode->setVariantProperty(m_frames.propertyName(), value);
     }
 }
 

@@ -99,6 +99,8 @@ public:
 
     Q_INVOKABLE QStringList allStatesForId(const QString &id);
 
+    Q_INVOKABLE bool isBlocked(const QString &propName) const;
+
     int majorVersion() const;
     int majorQtQuickVersion() const;
     int minorQtQuickVersion() const;

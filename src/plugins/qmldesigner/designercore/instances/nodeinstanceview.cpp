@@ -54,6 +54,7 @@
 #include "nodeproperty.h"
 #include "pixmapchangedcommand.h"
 #include "puppettocreatorcommand.h"
+#include "qml3dnode.h"
 #include "qmlchangeset.h"
 #include "qmldesignerconstants.h"
 #include "qmlstate.h"
@@ -103,6 +104,7 @@
 #include <QPainter>
 #include <QDirIterator>
 #include <QFileSystemWatcher>
+#include <QScopedPointer>
 
 enum {
     debug = false
@@ -176,6 +178,10 @@ NodeInstanceView::NodeInstanceView(ConnectionManagerInterface &connectionManager
     connect(m_fileSystemWatcher, &QFileSystemWatcher::fileChanged, [this] {
         m_resetTimer.start();
     });
+
+    m_rotBlockTimer.setSingleShot(true);
+    m_rotBlockTimer.setInterval(0);
+    QObject::connect(&m_rotBlockTimer, &QTimer::timeout, this, &NodeInstanceView::updateRotationBlocks);
 }
 
 
@@ -594,11 +600,12 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
                                             const QVariant &value)
 {
     QTC_ASSERT(m_nodeInstanceServer, return);
-    if (((node.isRootNode() && (name == "width" || name == "height")) || name == "invisible" || name == "locked")
+    const bool forceAuxChange = name == "invisible" || name == "locked" || name == "rotBlocked@internal";
+    if (((node.isRootNode() && (name == "width" || name == "height")) || forceAuxChange)
             || name.endsWith(PropertyName("@NodeInstance"))) {
         if (hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
-            if (value.isValid() || name == "invisible" || name == "locked") {
+            if (value.isValid() || forceAuxChange) {
                 PropertyValueContainer container{instance.instanceId(), name, value, TypeName()};
                 m_nodeInstanceServer->changeAuxiliaryValues({{container}});
             } else {
@@ -1341,10 +1348,10 @@ void NodeInstanceView::valuesModified(const ValuesModifiedCommand &command)
         if (hasInstanceForId(container.instanceId())) {
             NodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
-                // QmlVisualNode is needed so timeline and state are updated
-                QmlVisualNode node = instance.modelNode();
-                if (node.modelValue(container.name()) != container.value())
-                    node.setVariantProperty(container.name(), container.value());
+                QScopedPointer<QmlObjectNode> node {
+                    QmlObjectNode::getQmlObjectNodeOfCorrectType(instance.modelNode())};
+                if (node->modelValue(container.name()) != container.value())
+                    node->setVariantProperty(container.name(), container.value());
             }
         }
     }
@@ -1593,6 +1600,7 @@ void NodeInstanceView::selectedNodesChanged(const QList<ModelNode> &selectedNode
                                             const QList<ModelNode> & /*lastSelectedNodeList*/)
 {
     m_nodeInstanceServer->changeSelection(createChangeSelectionCommand(selectedNodeList));
+    m_rotBlockTimer.start();
 }
 
 void NodeInstanceView::sendInputEvent(QInputEvent *e) const
@@ -1847,6 +1855,48 @@ void NodeInstanceView::updateWatcher(const QString &path)
             m_fileSystemWatcher->removePaths(oldFiles);
         if (!newFiles.isEmpty())
             m_fileSystemWatcher->addPaths(newFiles);
+    }
+}
+
+void NodeInstanceView::updateRotationBlocks()
+{
+    QList<ModelNode> qml3DNodes;
+    QSet<ModelNode> rotationKeyframeTargets;
+    bool groupsResolved = false;
+    const PropertyName targetPropName {"target"};
+    const PropertyName propertyPropName {"property"};
+    const PropertyName rotationPropName {"rotation"};
+    const QList<ModelNode> selectedNodes = selectedModelNodes();
+    for (const auto &node : selectedNodes) {
+        if (Qml3DNode::isValidQml3DNode(node)) {
+            if (!groupsResolved) {
+                const QList<ModelNode> keyframeGroups = allModelNodesOfType("KeyframeGroup");
+                for (const auto &kfgNode : keyframeGroups) {
+                    if (kfgNode.isValid()) {
+                        VariantProperty varProp = kfgNode.variantProperty(propertyPropName);
+                        if (varProp.isValid() && varProp.value().value<PropertyName>() == rotationPropName) {
+                            BindingProperty bindProp = kfgNode.bindingProperty(targetPropName);
+                            if (bindProp.isValid()) {
+                                ModelNode targetNode = bindProp.resolveToModelNode();
+                                if (Qml3DNode::isValidQml3DNode(targetNode))
+                                    rotationKeyframeTargets.insert(targetNode);
+                            }
+                        }
+                    }
+                }
+                groupsResolved = true;
+            }
+            qml3DNodes.append(node);
+        }
+    }
+    if (!qml3DNodes.isEmpty()) {
+        const PropertyName auxDataProp {"rotBlocked@internal"};
+        for (const auto &node : qAsConst(qml3DNodes)) {
+            if (rotationKeyframeTargets.contains(node))
+                node.setAuxiliaryData(auxDataProp, true);
+            else
+                node.setAuxiliaryData(auxDataProp, false);
+        }
     }
 }
 

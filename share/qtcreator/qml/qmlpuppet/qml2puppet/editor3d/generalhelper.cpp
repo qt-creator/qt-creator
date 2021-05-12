@@ -356,6 +356,24 @@ bool GeneralHelper::isMacOS() const
 #endif
 }
 
+void GeneralHelper::addRotationBlocks(const QSet<QQuick3DNode *> &nodes)
+{
+    m_rotationBlockedNodes.unite(nodes);
+    emit rotationBlocksChanged();
+}
+
+void GeneralHelper::removeRotationBlocks(const QSet<QQuick3DNode *> &nodes)
+{
+    for (auto node : nodes)
+        m_rotationBlockedNodes.remove(node);
+    emit rotationBlocksChanged();
+}
+
+bool GeneralHelper::isRotationBlocked(QQuick3DNode *node) const
+{
+    return m_rotationBlockedNodes.contains(node);
+}
+
 bool GeneralHelper::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::DynamicPropertyChange) {

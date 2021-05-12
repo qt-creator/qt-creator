@@ -50,6 +50,17 @@ Item {
         transaction.end();
     }
 
+    Component.onCompleted: {
+        spinBox.enabled = !isBlocked(backendValue.name);
+    }
+
+    Connections {
+        target: modelNodeBackend
+        function onSelectionChanged() {
+            spinBox.enabled = !isBlocked(backendValue.name);
+        }
+    }
+
     StudioControls.RealSpinBox {
         id: spinBox
 

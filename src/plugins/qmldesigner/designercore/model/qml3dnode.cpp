@@ -58,6 +58,68 @@ bool Qml3DNode::isValidQml3DNode(const ModelNode &modelNode)
             && (modelNode.metaInfo().isSubclassOf("QtQuick3D.Node"));
 }
 
+void Qml3DNode::setVariantProperty(const PropertyName &name, const QVariant &value)
+{
+    if (isBlocked(name))
+        return;
+
+    if (name.startsWith("eulerRotation"))
+        handleEulerRotationSet();
+
+    QmlObjectNode::setVariantProperty(name, value);
+}
+
+void Qml3DNode::setBindingProperty(const PropertyName &name, const QString &expression)
+{
+    if (isBlocked(name))
+        return;
+
+    if (name.startsWith("eulerRotation"))
+        handleEulerRotationSet();
+
+    QmlObjectNode::setBindingProperty(name, expression);
+}
+
+bool Qml3DNode::isBlocked(const PropertyName &propName) const
+{
+    if (modelNode().isValid() && propName.startsWith("eulerRotation"))
+        return modelNode().auxiliaryData("rotBlocked@internal").toBool();
+
+    return false;
+}
+
+void Qml3DNode::handleEulerRotationSet()
+{
+    ModelNode node = modelNode();
+    // The rotation property is quaternion, which is difficult to deal with for users, so QDS
+    // only supports eulerRotation. Since having both on the same object isn't supported,
+    // remove the rotation property if eulerRotation is set.
+    if (node.isValid() && node.isSubclassOf("QtQuick3D.Node")) {
+        if (!isInBaseState()) {
+            QmlPropertyChanges changeSet(currentState().propertyChanges(node));
+            Q_ASSERT(changeSet.isValid());
+            node = changeSet.modelNode();
+        }
+
+        if (node.hasProperty("rotation")) {
+            // We need to reset the eulerRotation values as removing rotation will zero them,
+            // which is not desirable if the change only targets one of the xyz subproperties.
+            // Get the eulerRotation value from instance, as they are not available in model.
+            QVector3D eulerVec = instanceValue("eulerRotation").value<QVector3D>();
+            node.removeProperty("rotation");
+            if (qIsNaN(eulerVec.x()))
+                eulerVec.setX(0.);
+            if (qIsNaN(eulerVec.y()))
+                eulerVec.setY(0.);
+            if (qIsNaN(eulerVec.z()))
+                eulerVec.setZ(0.);
+            node.variantProperty("eulerRotation.x").setValue(eulerVec.x());
+            node.variantProperty("eulerRotation.y").setValue(eulerVec.y());
+            node.variantProperty("eulerRotation.z").setValue(eulerVec.z());
+        }
+    }
+}
+
 QList<ModelNode> toModelNodeList(const QList<Qml3DNode> &qmlVisualNodeList)
 {
     QList<ModelNode> modelNodeList;

@@ -224,6 +224,8 @@ private: // functions
 
     void updateWatcher(const QString &path);
 
+    void updateRotationBlocks();
+
 private:
     QHash<QString, ModelNodePreviewImageData> m_imageDataMap;
 
@@ -251,6 +253,7 @@ private:
     QTimer m_resetTimer;
     QTimer m_updateWatcherTimer;
     QSet<QString> m_pendingUpdateDirs;
+    QTimer m_rotBlockTimer;
 };
 
 } // namespace ProxyNodeInstanceView

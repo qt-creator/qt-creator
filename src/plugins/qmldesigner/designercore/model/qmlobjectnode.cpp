@@ -28,6 +28,7 @@
 #include "qmlstate.h"
 #include "qmltimelinekeyframegroup.h"
 #include "qmlvisualnode.h"
+#include "qml3dnode.h"
 #include "variantproperty.h"
 #include "nodeproperty.h"
 #include <invalidmodelnodeexception.h>
@@ -736,6 +737,21 @@ QString QmlObjectNode::simplifiedTypeName() const
 QStringList QmlObjectNode::allStateNames() const
 {
     return nodeInstance().allStateNames();
+}
+
+QmlObjectNode *QmlObjectNode::getQmlObjectNodeOfCorrectType(const ModelNode &modelNode)
+{
+    // Create QmlObjectNode of correct type for the modelNode
+    // Note: Currently we are only interested in differentiating 3D nodes, so no check for
+    // visual nodes is done for efficiency reasons
+    if (modelNode.isValid() && modelNode.isSubclassOf("QtQuick3D.Node"))
+        return new Qml3DNode(modelNode);
+    return new QmlObjectNode(modelNode);
+}
+
+bool QmlObjectNode::isBlocked(const PropertyName &propName) const
+{
+    return false;
 }
 
 } //QmlDesigner

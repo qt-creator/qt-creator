@@ -69,8 +69,8 @@ public:
 
     QmlModelState currentState() const;
     QmlTimeline currentTimeline() const;
-    void setVariantProperty(const PropertyName &name, const QVariant &value);
-    void setBindingProperty(const PropertyName &name, const QString &expression);
+    virtual void setVariantProperty(const PropertyName &name, const QVariant &value);
+    virtual void setBindingProperty(const PropertyName &name, const QString &expression);
     NodeAbstractProperty nodeAbstractProperty(const PropertyName &name) const;
     NodeAbstractProperty defaultNodeAbstractProperty() const;
     NodeProperty nodeProperty(const PropertyName &name) const;
@@ -122,6 +122,10 @@ public:
     QString simplifiedTypeName() const;
 
     QStringList allStateNames() const;
+
+    static QmlObjectNode *getQmlObjectNodeOfCorrectType(const ModelNode &modelNode);
+
+    virtual bool isBlocked(const PropertyName &propName) const;
 
 protected:
     NodeInstance nodeInstance() const;

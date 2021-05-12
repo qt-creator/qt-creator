@@ -93,11 +93,16 @@ public:
 
     bool isMacOS() const;
 
+    void addRotationBlocks(const QSet<QQuick3DNode *> &nodes);
+    void removeRotationBlocks(const QSet<QQuick3DNode *> &nodes);
+    Q_INVOKABLE bool isRotationBlocked(QQuick3DNode *node) const;
+
 signals:
     void overlayUpdateNeeded();
     void toolStateChanged(const QString &sceneId, const QString &tool, const QVariant &toolState);
     void hiddenStateChanged(QQuick3DNode *node);
     void lockedStateChanged(QQuick3DNode *node);
+    void rotationBlocksChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) final;
@@ -110,6 +115,7 @@ private:
     QHash<QString, QVariantMap> m_toolStates;
     QHash<QString, QVariantMap> m_toolStatesPending;
     QSet<QQuick3DNode *> m_gizmoTargets;
+    QSet<QQuick3DNode *> m_rotationBlockedNodes;
 };
 
 }

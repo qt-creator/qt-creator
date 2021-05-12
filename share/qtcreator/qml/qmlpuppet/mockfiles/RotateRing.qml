@@ -90,6 +90,13 @@ Model {
         _startRotation = Qt.vector3d(targetNode.eulerRotation.x,
                                      targetNode.eulerRotation.y,
                                      targetNode.eulerRotation.z);
+        // Ensure we never set NaN values for rotation, even if target node originally has them
+        if (isNaN(_startRotation.x))
+            _startRotation.x = 0;
+        if (isNaN(_startRotation.y))
+            _startRotation.y = 0;
+        if (isNaN(_startRotation.z))
+            _startRotation.z = 0;
         currentAngle = 0;
         currentMousePos = screenPos;
     }

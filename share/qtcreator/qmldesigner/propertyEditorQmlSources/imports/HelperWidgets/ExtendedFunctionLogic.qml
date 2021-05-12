@@ -105,6 +105,13 @@ Item {
                     extendedFunctionButton.menuVisible = false
                 }
 
+                Connections {
+                    target: modelNodeBackend
+                    onSelectionChanged: {
+                        menu.close()
+                    }
+                }
+
                 StudioControls.MenuItem {
                     text: qsTr("Reset")
                     onTriggered: {

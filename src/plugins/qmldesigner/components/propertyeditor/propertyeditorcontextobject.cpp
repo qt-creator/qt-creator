@@ -303,6 +303,9 @@ void PropertyEditorContextObject::insertKeyframe(const QString &propertyName)
 {
     QTC_ASSERT(m_model && m_model->rewriterView(), return);
 
+    if (isBlocked(propertyName))
+        return;
+
     /* Ideally we should not missuse the rewriterView
      * If we add more code here we have to forward the property editor view */
     RewriterView *rewriterView = m_model->rewriterView();
@@ -555,6 +558,20 @@ QStringList PropertyEditorContextObject::allStatesForId(const QString &id)
       }
 
       return {};
+}
+
+bool PropertyEditorContextObject::isBlocked(const QString &propName) const
+{
+    if (m_model && m_model->rewriterView()) {
+        const QList<ModelNode> nodes = m_model->rewriterView()->selectedModelNodes();
+        QScopedPointer<QmlObjectNode> objNode;
+        for (const auto &node : nodes) {
+            objNode.reset(QmlObjectNode::getQmlObjectNodeOfCorrectType(node));
+            if (objNode->isBlocked(propName.toUtf8()))
+                return true;
+        }
+    }
+    return false;
 }
 
 void EasingCurveEditor::registerDeclarativeType()

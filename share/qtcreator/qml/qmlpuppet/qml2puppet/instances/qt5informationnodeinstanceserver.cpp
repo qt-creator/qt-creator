@@ -63,6 +63,7 @@
 #include "inputeventcommand.h"
 #include "view3dactioncommand.h"
 #include "requestmodelnodepreviewimagecommand.h"
+#include "changeauxiliarycommand.h"
 
 #include "dummycontextobject.h"
 #include "../editor3d/generalhelper.h"
@@ -285,6 +286,57 @@ void Qt5InformationNodeInstanceServer::resolveImportSupport()
     nodeInstanceClient()->handlePuppetToCreatorCommand(
                 {PuppetToCreatorCommand::Import3DSupport, QVariant(supportMap)});
 
+#endif
+}
+
+void Qt5InformationNodeInstanceServer::updateRotationBlocks(const QVector<PropertyValueContainer> &valueChanges)
+{
+#ifdef QUICK3D_MODULE
+    auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
+    if (helper) {
+        QSet<QQuick3DNode *> blockedNodes;
+        QSet<QQuick3DNode *> unblockedNodes;
+        const PropertyName propName = "rotBlocked@internal";
+        for (const auto &container : valueChanges) {
+            if (container.name() == propName) {
+                ServerNodeInstance instance = instanceForId(container.instanceId());
+                if (instance.isValid()) {
+                    auto node = qobject_cast<QQuick3DNode *>(instance.internalObject());
+                    if (node) {
+                        if (container.value().toBool())
+                            blockedNodes.insert(node);
+                        else
+                            unblockedNodes.insert(node);
+                    }
+                }
+            }
+        }
+        helper->addRotationBlocks(blockedNodes);
+        helper->removeRotationBlocks(unblockedNodes);
+    }
+#else
+    Q_UNUSED(valueChanges)
+#endif
+}
+
+void Qt5InformationNodeInstanceServer::removeRotationBlocks(const QVector<qint32> &instanceIds)
+{
+#ifdef QUICK3D_MODULE
+    auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
+    if (helper) {
+        QSet<QQuick3DNode *> unblockedNodes;
+        for (const auto &id : instanceIds) {
+            ServerNodeInstance instance = instanceForId(id);
+            if (instance.isValid()) {
+                auto node = qobject_cast<QQuick3DNode *>(instance.internalObject());
+                if (node)
+                    unblockedNodes.insert(node);
+            }
+        }
+        helper->removeRotationBlocks(unblockedNodes);
+    }
+#else
+    Q_UNUSED(instanceIds)
 #endif
 }
 
@@ -1492,8 +1544,10 @@ void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
     sendChildrenChangedCommand(instanceList);
     nodeInstanceClient()->componentCompleted(createComponentCompletedCommand(instanceList));
 
-    if (isQuick3DMode())
+    if (isQuick3DMode()) {
         setup3DEditView(instanceList, command.edit3dToolStates);
+        updateRotationBlocks(command.auxiliaryChanges);
+    }
 
     QObject::connect(&m_renderModelNodeImageViewTimer, &QTimer::timeout,
                      this, &Qt5InformationNodeInstanceServer::doRenderModelNodeImageView);
@@ -1656,6 +1710,8 @@ void Qt5InformationNodeInstanceServer::removeInstances(const RemoveInstancesComm
 {
     int nodeCount = m_3DSceneMap.size();
 
+    removeRotationBlocks(command.instanceIds());
+
     Qt5NodeInstanceServer::removeInstances(command);
 
     if (nodeCount != m_3DSceneMap.size()) {
@@ -1741,6 +1797,7 @@ void Qt5InformationNodeInstanceServer::requestModelNodePreviewImage(const Reques
 
 void Qt5InformationNodeInstanceServer::changeAuxiliaryValues(const ChangeAuxiliaryCommand &command)
 {
+    updateRotationBlocks(command.auxiliaryChanges);
     Qt5NodeInstanceServer::changeAuxiliaryValues(command);
     render3DEditView();
 }
