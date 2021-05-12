@@ -162,6 +162,9 @@ static clang::format::FormatStyle qtcStyle()
     style.SpacesInCStyleCastParentheses = false;
     style.SpacesInParentheses = false;
     style.SpacesInSquareBrackets = false;
+    style.StatementMacros.emplace_back("Q_OBJECT");
+    style.StatementMacros.emplace_back("QT_BEGIN_NAMESPACE");
+    style.StatementMacros.emplace_back("QT_END_NAMESPACE");
     style.Standard = FormatStyle::LS_Cpp11;
     style.TabWidth = 4;
     style.UseTab = FormatStyle::UT_Never;
