@@ -568,7 +568,7 @@ void SemanticHighlighter::rerun(const QmlJSTools::SemanticInfo &semanticInfo)
     auto future = Utils::runAsync(QThread::LowestPriority, &SemanticHighlighter::run,
                                   this, semanticInfo);
     m_watcher.setFuture(future);
-    m_futureSynchronizer.addFuture(future);
+    m_futureSynchronizer.addFuture(QFuture<void>(future));
 }
 
 void SemanticHighlighter::cancel()
