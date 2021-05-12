@@ -44,13 +44,17 @@ bool FutureSynchronizer::isEmpty() const
 
 void FutureSynchronizer::waitForFinished()
 {
-    if (m_cancelOnWait) {
-        for (QFuture<void> &future : m_futures)
-            future.cancel();
-    }
+    if (m_cancelOnWait)
+        cancelAllFutures();
     for (QFuture<void> &future : m_futures)
         future.waitForFinished();
     clearFutures();
+}
+
+void FutureSynchronizer::cancelAllFutures()
+{
+    for (QFuture<void> &future : m_futures)
+        future.cancel();
 }
 
 void FutureSynchronizer::clearFutures()

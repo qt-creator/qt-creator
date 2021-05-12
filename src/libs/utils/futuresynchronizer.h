@@ -49,6 +49,7 @@ public:
     bool isEmpty() const;
 
     void waitForFinished();
+    void cancelAllFutures();
     void clearFutures();
 
     void setCancelOnWait(bool enabled);
