@@ -49,6 +49,7 @@ SearchSymbols::SymbolTypes SearchSymbols::AllTypes =
 SearchSymbols::SearchSymbols()
     : symbolsToSearchFor(SymbolSearcher::Classes | SymbolSearcher::Functions | SymbolSearcher::Enums)
 {
+    overview.showTemplateParameters = true;
 }
 
 void SearchSymbols::setSymbolsToSearchFor(const SymbolTypes &types)
