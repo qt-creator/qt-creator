@@ -1807,6 +1807,12 @@ TEST_F(TokenProcessor, OperatorInTemplate)
     ASSERT_THAT(infos[9], HasOnlyType(HighlightingType::Punctuation));
 }
 
+TEST_F(TokenProcessor, CyrillicString)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(792, 28));
+    ASSERT_THAT(infos[5], IsHighlightingMark(792u, 24u, 3u, HighlightingType::StringLiteral));
+}
+
 Data *TokenProcessor::d;
 
 void TokenProcessor::SetUpTestCase()

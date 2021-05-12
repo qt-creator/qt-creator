@@ -49,7 +49,9 @@ TokenInfo::TokenInfo(const Cursor &cursor,
     m_line = start.line();
     m_column = start.column();
     m_offset = start.offset();
-    m_length = end.offset() - start.offset();
+    m_length = token->spelling().operator Utf8String().toString().size();
+    if (m_length == 0)
+        m_length = end.offset() - start.offset(); // Just for safety.
 }
 
 bool TokenInfo::hasInvalidMainType() const
